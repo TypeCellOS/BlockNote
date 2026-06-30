@@ -33,75 +33,109 @@
             <style:paragraph-properties fo:text-align="end"></style:paragraph-properties>
         </style:style>
         <style:style style:family="paragraph" style:name="BN_S6" style:parent-style-name="Standard">
+            <style:paragraph-properties fo:text-align="center"></style:paragraph-properties>
+        </style:style>
+        <style:style style:family="paragraph" style:name="BN_S7" style:parent-style-name="Standard">
             <style:paragraph-properties fo:text-align="justify"></style:paragraph-properties>
         </style:style>
-        <style:style style:family="paragraph" style:name="BN_S7" style:parent-style-name="Standard" style:list-style-name="WWNum1"></style:style>
-        <style:style style:family="paragraph" style:name="BN_S8" style:parent-style-name="Standard" style:list-style-name="WWNum1">
+        <style:style style:family="paragraph" style:name="BN_S8" style:parent-style-name="Standard" style:list-style-name="WWNum1"></style:style>
+        <style:style style:family="paragraph" style:name="BN_S9" style:parent-style-name="Standard" style:list-style-name="WWNum1">
             <style:paragraph-properties fo:text-align="end"></style:paragraph-properties>
         </style:style>
-        <style:style style:family="paragraph" style:name="BN_S9" style:parent-style-name="Standard">
+        <style:style style:family="paragraph" style:name="BN_S10" style:parent-style-name="Standard">
             <loext:graphic-properties draw:fill="solid" draw:fill-color="#fbe4e4"></loext:graphic-properties>
             <style:paragraph-properties fo:text-align="end" fo:background-color="#fbe4e4"></style:paragraph-properties>
             <style:text-properties fo:color="#0b6e99"></style:text-properties>
         </style:style>
-        <style:style style:family="paragraph" style:name="BN_S10" style:parent-style-name="Standard">
+        <style:style style:family="paragraph" style:name="BN_S11" style:parent-style-name="Standard">
             <loext:graphic-properties draw:fill="solid" draw:fill-color="#fbe4e4"></loext:graphic-properties>
             <style:paragraph-properties fo:text-align="center" fo:background-color="#fbe4e4"></style:paragraph-properties>
             <style:text-properties fo:color="#0b6e99"></style:text-properties>
         </style:style>
-        <style:style style:family="paragraph" style:name="BN_S11" style:parent-style-name="Standard" style:list-style-name="WWNum1"></style:style>
-        <style:style style:family="table" style:name="BN_S12">
+        <style:style style:family="paragraph" style:name="BN_S12" style:parent-style-name="Standard" style:list-style-name="WWNum1"></style:style>
+        <style:style style:family="paragraph" style:name="BN_S13" style:parent-style-name="Standard" style:list-style-name="WWNum1"></style:style>
+        <style:style style:family="table" style:name="BN_S14">
             <style:table-properties table:align="left" style:writing-mode="lr-tb" style:width="330pt"></style:table-properties>
         </style:style>
-        <style:style style:name="BN_S13" style:family="table-column">
+        <style:style style:name="BN_S15" style:family="table-column">
             <style:table-column-properties style:column-width="150pt"></style:table-column-properties>
         </style:style>
-        <style:style style:name="BN_S14" style:family="table-column">
+        <style:style style:name="BN_S16" style:family="table-column">
             <style:table-column-properties style:column-width="90pt"></style:table-column-properties>
         </style:style>
-        <style:style style:name="BN_S15" style:family="table-column">
+        <style:style style:name="BN_S17" style:family="table-column">
             <style:table-column-properties style:column-width="90pt"></style:table-column-properties>
         </style:style>
-        <style:style style:family="table-cell" style:name="BN_S16">
+        <style:style style:family="table-cell" style:name="BN_S18">
             <style:table-cell-properties fo:border="0.5pt solid #000000" style:writing-mode="lr-tb" fo:padding-top="0in" fo:padding-left="0.075in" fo:padding-bottom="0in" fo:padding-right="0.075in"></style:table-cell-properties>
         </style:style>
-        <style:style style:family="paragraph" style:name="BN_S17" style:parent-style-name="Standard">
+        <style:style style:family="paragraph" style:name="BN_S19" style:parent-style-name="Standard">
             <style:paragraph-properties fo:text-align="end"></style:paragraph-properties>
         </style:style>
-        <style:style style:name="BN_T18" style:family="text">
+        <style:style style:name="BN_T20" style:family="text">
             <style:text-properties fo:font-weight="bold"></style:text-properties>
         </style:style>
-        <style:style style:name="BN_T19" style:family="text">
+        <style:style style:name="BN_T21" style:family="text">
             <style:text-properties fo:font-weight="bold" fo:font-style="italic" fo:color="#e03e3e" fo:background-color="#ddebf1"></style:text-properties>
         </style:style>
-        <style:style style:family="table" style:name="BN_S20">
+        <style:style style:name="BN_T22" style:family="text">
+            <style:text-properties style:text-underline-style="solid"></style:text-properties>
+        </style:style>
+        <style:style style:name="BN_T23" style:family="text">
+            <style:text-properties style:text-line-through-style="solid"></style:text-properties>
+        </style:style>
+        <style:style style:family="table" style:name="BN_S24">
             <style:table-properties table:align="left" style:writing-mode="lr-tb" style:width="270pt"></style:table-properties>
         </style:style>
-        <style:style style:name="BN_S21" style:family="table-column">
+        <style:style style:name="BN_S25" style:family="table-column">
             <style:table-column-properties style:column-width="90pt"></style:table-column-properties>
         </style:style>
-        <style:style style:name="BN_S22" style:family="table-column">
+        <style:style style:name="BN_S26" style:family="table-column">
             <style:table-column-properties style:column-width="90pt"></style:table-column-properties>
         </style:style>
-        <style:style style:name="BN_S23" style:family="table-column">
+        <style:style style:name="BN_S27" style:family="table-column">
             <style:table-column-properties style:column-width="90pt"></style:table-column-properties>
         </style:style>
-        <style:style style:family="table-cell" style:name="BN_S24">
+        <style:style style:family="table-cell" style:name="BN_S28">
             <style:table-cell-properties fo:border="0.5pt solid #000000" style:writing-mode="lr-tb" fo:padding-top="0in" fo:padding-left="0.075in" fo:padding-bottom="0in" fo:padding-right="0.075in"></style:table-cell-properties>
         </style:style>
-        <style:style style:name="BN_T25" style:family="text">
+        <style:style style:name="BN_T29" style:family="text">
+            <style:text-properties fo:font-weight="bold" fo:color="#e03e3e" fo:background-color="#ddebf1"></style:text-properties>
+        </style:style>
+        <style:style style:name="BN_T30" style:family="text">
             <style:text-properties fo:font-weight="bold"></style:text-properties>
         </style:style>
-        <style:style style:name="BN_T26" style:family="text">
-            <style:text-properties fo:font-weight="bold"></style:text-properties>
-        </style:style>
-        <style:style style:name="BN_T27" style:family="text">
+        <style:style style:name="BN_T31" style:family="text">
             <style:text-properties style:font-name="Courier New"></style:text-properties>
         </style:style>
-        <style:style style:family="paragraph" style:name="BN_S28" style:parent-style-name="Standard">
+        <style:style style:name="BN_S32" style:family="table-cell">
+            <style:table-cell-properties style:writing-mode="lr-tb" fo:border="none" fo:padding-top="0in" fo:padding-left="0.075in" fo:padding-bottom="0in" fo:padding-right="0.075in"></style:table-cell-properties>
+        </style:style>
+        <style:style style:name="BN_S33" style:family="table-cell">
+            <style:table-cell-properties style:writing-mode="lr-tb" fo:border="none" fo:padding-top="0in" fo:padding-left="0.075in" fo:padding-bottom="0in" fo:padding-right="0.075in"></style:table-cell-properties>
+        </style:style>
+        <style:style style:family="paragraph" style:name="BN_S34" style:parent-style-name="Standard" style:list-style-name="WWNum1"></style:style>
+        <style:style style:family="paragraph" style:name="BN_S35" style:parent-style-name="Standard" style:list-style-name="WWNum1"></style:style>
+        <style:style style:family="paragraph" style:name="BN_S36" style:parent-style-name="Standard" style:list-style-name="WWNum1"></style:style>
+        <style:style style:name="BN_S37" style:family="table-cell">
+            <style:table-cell-properties style:writing-mode="lr-tb" fo:border="none" fo:padding-top="0in" fo:padding-left="0.075in" fo:padding-bottom="0in" fo:padding-right="0.075in"></style:table-cell-properties>
+        </style:style>
+        <style:style style:name="BN_S38" style:family="table">
+            <style:table-properties table:align="margins" style:writing-mode="lr-tb"></style:table-properties>
+        </style:style>
+        <style:style style:name="BN_S39" style:family="table-column">
+            <style:table-column-properties style:rel-column-width="80*"></style:table-column-properties>
+        </style:style>
+        <style:style style:name="BN_S40" style:family="table-column">
+            <style:table-column-properties style:rel-column-width="140*"></style:table-column-properties>
+        </style:style>
+        <style:style style:name="BN_S41" style:family="table-column">
+            <style:table-column-properties style:rel-column-width="80*"></style:table-column-properties>
+        </style:style>
+        <style:style style:family="paragraph" style:name="BN_S42" style:parent-style-name="Standard">
             <style:paragraph-properties fo:border-top="1pt solid #cccccc" fo:margin-top="11pt" fo:margin-bottom="12pt" fo:padding-top="0pt" fo:padding-bottom="0pt"></style:paragraph-properties>
         </style:style>
-        <style:style style:family="paragraph" style:name="BN_S29" style:parent-style-name="Standard">
+        <style:style style:family="paragraph" style:name="BN_S43" style:parent-style-name="Standard">
             <style:paragraph-properties fo:border-left="2pt solid #7D797A" fo:padding-left="0.25in"></style:paragraph-properties>
             <style:text-properties fo:color="#7D797A"></style:text-properties>
         </style:style>
@@ -139,13 +173,34 @@
             <text:h text:outline-level="1" text:style-name="BN_S5">
                 Heading right
             </text:h>
+            <text:h text:outline-level="2" text:style-name="Heading_20_2">
+                Heading 2
+            </text:h>
+            <text:h text:outline-level="3" text:style-name="Heading_20_3">
+                Heading 3
+            </text:h>
+            <text:h text:outline-level="4" text:style-name="Heading_20_4">
+                Heading 4
+            </text:h>
+            <text:h text:outline-level="5" text:style-name="Heading_20_5">
+                Heading 5
+            </text:h>
+            <text:h text:outline-level="6" text:style-name="Heading_20_6">
+                Heading 6
+            </text:h>
+            <text:p text:style-name="Standard">
+                Emojis: 😀 🎉 🚀 👍 👍🏽 🌍 🚶‍♀️
+            </text:p>
             <text:p text:style-name="BN_S6">
+                Centered paragraph
+            </text:p>
+            <text:p text:style-name="BN_S7">
                 justified paragraph. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
             </text:p>
             <text:p text:style-name="PageBreak"></text:p>
             <text:list text:style-name="WWNum1">
                 <text:list-item>
-                    <text:p text:style-name="BN_S11">
+                    <text:p text:style-name="BN_S12">
                         Bullet List Item. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
                     </text:p>
                 </text:list-item>
@@ -154,7 +209,7 @@
                 <text:list-item>
                     <text:list>
                         <text:list-item>
-                            <text:p text:style-name="BN_S7">
+                            <text:p text:style-name="BN_S8">
                                 Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
                             </text:p>
                         </text:list-item>
@@ -165,7 +220,7 @@
                 <text:list-item>
                     <text:list>
                         <text:list-item>
-                            <text:p text:style-name="BN_S8">
+                            <text:p text:style-name="BN_S9">
                                 Bullet List Item right. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
                             </text:p>
                         </text:list-item>
@@ -230,7 +285,7 @@
                         <text:list-item>
                             <text:list>
                                 <text:list-item>
-                                    <text:p text:style-name="BN_S9">
+                                    <text:p text:style-name="BN_S10">
                                         Numbered List Item Nested funky right
                                     </text:p>
                                 </text:list-item>
@@ -245,7 +300,7 @@
                         <text:list-item>
                             <text:list>
                                 <text:list-item>
-                                    <text:p text:style-name="BN_S10">
+                                    <text:p text:style-name="BN_S11">
                                         Numbered List Item Nested funky center
                                     </text:p>
                                 </text:list-item>
@@ -266,56 +321,102 @@
                 <!-- -->
                 Check List Item
             </text:p>
-            <table:table table:name="" table:style-name="BN_S12">
-                <table:table-column table:style-name="BN_S13"></table:table-column>
-                <table:table-column table:style-name="BN_S14"></table:table-column>
+            <text:p text:style-name="Standard">
+                ☒
+                <!-- -->
+                Checked List Item
+            </text:p>
+            <text:list text:style-name="No_20_List" text:continue-numbering="false">
+                <text:list-item text:start-value="5">
+                    <text:p text:style-name="Standard">
+                        Numbered List Item starting at 5
+                    </text:p>
+                </text:list-item>
+            </text:list>
+            <text:list text:style-name="No_20_List" text:continue-numbering="true">
+                <text:list-item>
+                    <text:p text:style-name="Standard">
+                        Numbered List Item 6
+                    </text:p>
+                </text:list-item>
+            </text:list>
+            <text:p text:style-name="Standard">
+                &gt;
+                <!-- -->
+                Toggle List Item
+            </text:p>
+            <text:p text:style-name="Standard">
+                <text:tab></text:tab>
+                Content nested inside the toggle list item.
+            </text:p>
+            <text:list text:style-name="WWNum1">
+                <text:list-item>
+                    <text:list>
+                        <text:list-item>
+                            <text:p text:style-name="BN_S13">
+                                A nested bullet inside the toggle
+                            </text:p>
+                        </text:list-item>
+                    </text:list>
+                </text:list-item>
+            </text:list>
+            <text:h text:outline-level="2" text:style-name="Heading_20_2">
+                Toggle Heading
+            </text:h>
+            <text:p text:style-name="Standard">
+                <text:tab></text:tab>
+                Content nested inside the toggle heading.
+            </text:p>
+            <table:table table:name="" table:style-name="BN_S14">
                 <table:table-column table:style-name="BN_S15"></table:table-column>
+                <table:table-column table:style-name="BN_S16"></table:table-column>
+                <table:table-column table:style-name="BN_S17"></table:table-column>
                 <table:table-row>
-                    <table:table-cell table:style-name="BN_S16" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S18" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
                             Wide Cell
                         </text:p>
                     </table:table-cell>
-                    <table:table-cell table:style-name="BN_S16" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S18" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
                             Table Cell
                         </text:p>
                     </table:table-cell>
-                    <table:table-cell table:style-name="BN_S16" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S18" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
                             Table Cell
                         </text:p>
                     </table:table-cell>
                 </table:table-row>
                 <table:table-row>
-                    <table:table-cell table:style-name="BN_S16" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S18" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
                             Wide Cell
                         </text:p>
                     </table:table-cell>
-                    <table:table-cell table:style-name="BN_S16" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S18" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
                             Table Cell
                         </text:p>
                     </table:table-cell>
-                    <table:table-cell table:style-name="BN_S16" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S18" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
                             Table Cell
                         </text:p>
                     </table:table-cell>
                 </table:table-row>
                 <table:table-row>
-                    <table:table-cell table:style-name="BN_S16" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S18" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
                             Wide Cell
                         </text:p>
                     </table:table-cell>
-                    <table:table-cell table:style-name="BN_S16" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S18" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
                             Table Cell
                         </text:p>
                     </table:table-cell>
-                    <table:table-cell table:style-name="BN_S16" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S18" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
                             Table Cell
                         </text:p>
@@ -340,7 +441,7 @@
                     </draw:text-box>
                 </draw:frame>
             </text:p>
-            <text:p text:style-name="BN_S17">
+            <text:p text:style-name="BN_S19">
                 <draw:frame draw:style-name="Frame" style:rel-height="scale" svg:width="200px" svg:height="193.97590361445782px" style:rel-width="200px" text:anchor-type="as-char">
                     <draw:image xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad" xlink:href="Pictures/picture-0.jpg" draw:mime-type="image/jpeg"></draw:image>
                 </draw:frame>
@@ -379,70 +480,76 @@
                 Audio file caption
             </text:p>
             <text:p text:style-name="Standard">
-                <text:span text:style-name="BN_T18">
+                <text:span text:style-name="BN_T20">
                     Inline Content:
                 </text:span>
             </text:p>
             <text:p text:style-name="Standard">
-                <text:span text:style-name="BN_T19">
+                <text:span text:style-name="BN_T21">
                     Styled Text
+                </text:span>
+                <text:span text:style-name="BN_T22">
+                    underlined
+                </text:span>
+                <text:span text:style-name="BN_T23">
+                    strikethrough
                 </text:span>
                 <text:a xlink:type="simple" text:style-name="Internet_20_link" office:target-frame-name="_top" xlink:show="replace" xlink:href="https://www.blocknotejs.org">
                     Link
                 </text:a>
             </text:p>
-            <table:table table:name="" table:style-name="BN_S20">
-                <table:table-column table:style-name="BN_S21"></table:table-column>
-                <table:table-column table:style-name="BN_S22"></table:table-column>
-                <table:table-column table:style-name="BN_S23"></table:table-column>
+            <table:table table:name="" table:style-name="BN_S24">
+                <table:table-column table:style-name="BN_S25"></table:table-column>
+                <table:table-column table:style-name="BN_S26"></table:table-column>
+                <table:table-column table:style-name="BN_S27"></table:table-column>
                 <table:table-row>
-                    <table:table-cell table:style-name="BN_S24" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S28" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
-                            Table Cell 1
+                            Table Header 1
                         </text:p>
                     </table:table-cell>
-                    <table:table-cell table:style-name="BN_S24" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S28" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
-                            Table Cell 2
+                            Table Header 2
                         </text:p>
                     </table:table-cell>
-                    <table:table-cell table:style-name="BN_S24" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S28" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
-                            Table Cell 3
+                            Table Header 3
                         </text:p>
                     </table:table-cell>
                 </table:table-row>
                 <table:table-row>
-                    <table:table-cell table:style-name="BN_S24" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S28" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
                             Table Cell 4
                         </text:p>
                     </table:table-cell>
-                    <table:table-cell table:style-name="BN_S24" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S28" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
-                            <text:span text:style-name="BN_T25">
-                                Table Cell Bold 5
+                            <text:span text:style-name="BN_T29">
+                                Table Cell Bold Colored 5
                             </text:span>
                         </text:p>
                     </table:table-cell>
-                    <table:table-cell table:style-name="BN_S24" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S28" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
                             Table Cell 6
                         </text:p>
                     </table:table-cell>
                 </table:table-row>
                 <table:table-row>
-                    <table:table-cell table:style-name="BN_S24" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S28" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
                             Table Cell 7
                         </text:p>
                     </table:table-cell>
-                    <table:table-cell table:style-name="BN_S24" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S28" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
                             Table Cell 8
                         </text:p>
                     </table:table-cell>
-                    <table:table-cell table:style-name="BN_S24" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                    <table:table-cell table:style-name="BN_S28" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
                         <text:p text:style-name="Standard">
                             Table Cell 9
                         </text:p>
@@ -457,15 +564,58 @@
                 };
             </text:p>
             <text:p text:style-name="Standard">
-                <text:span text:style-name="BN_T26">
+                <text:span text:style-name="BN_T30">
                     Some inline code:
                 </text:span>
-                <text:span text:style-name="BN_T27">
+                <text:span text:style-name="BN_T31">
                     var foo = &#x27;bar&#x27;;
                 </text:span>
             </text:p>
-            <text:p text:style-name="BN_S28"></text:p>
-            <text:p text:style-name="BN_S29">
+            <table:table table:name="" table:style-name="BN_S38">
+                <table:table-column table:style-name="BN_S39"></table:table-column>
+                <table:table-column table:style-name="BN_S40"></table:table-column>
+                <table:table-column table:style-name="BN_S41"></table:table-column>
+                <table:table-row>
+                    <table:table-cell table:style-name="BN_S32">
+                        <text:p text:style-name="Standard">
+                            This paragraph is in a column!
+                        </text:p>
+                    </table:table-cell>
+                    <table:table-cell table:style-name="BN_S33">
+                        <text:h text:outline-level="1" text:style-name="Heading_20_1">
+                            So is this heading!
+                        </text:h>
+                    </table:table-cell>
+                    <table:table-cell table:style-name="BN_S37">
+                        <text:p text:style-name="Standard">
+                            You can have multiple blocks in a column too
+                        </text:p>
+                        <text:list text:style-name="WWNum1">
+                            <text:list-item>
+                                <text:p text:style-name="BN_S34">
+                                    Block 1
+                                </text:p>
+                            </text:list-item>
+                        </text:list>
+                        <text:list text:style-name="WWNum1">
+                            <text:list-item>
+                                <text:p text:style-name="BN_S35">
+                                    Block 2
+                                </text:p>
+                            </text:list-item>
+                        </text:list>
+                        <text:list text:style-name="WWNum1">
+                            <text:list-item>
+                                <text:p text:style-name="BN_S36">
+                                    Block 3
+                                </text:p>
+                            </text:list-item>
+                        </text:list>
+                    </table:table-cell>
+                </table:table-row>
+            </table:table>
+            <text:p text:style-name="BN_S42"></text:p>
+            <text:p text:style-name="BN_S43">
                 All those moments will be lost in time, like tears in rain.
             </text:p>
         </office:text>

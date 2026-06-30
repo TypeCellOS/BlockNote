@@ -56,13 +56,29 @@ export abstract class Exporter<
 
   public async resolveFile(url: string) {
     if (!this.options?.resolveFileUrl) {
-      return (await fetch(url)).blob();
+      return this.fetchBlob(url);
     }
     const ret = await this.options.resolveFileUrl(url);
     if (ret instanceof Blob) {
       return ret;
     }
-    return (await fetch(ret)).blob();
+    return this.fetchBlob(ret);
+  }
+
+  /**
+   * Fetch a URL as a Blob, throwing a clear error on a non-OK response. Without
+   * this an error page (404 / rate-limit / proxy failure) would be returned as
+   * the file's bytes and silently embedded as a corrupt image; callers can catch
+   * this to fall back (e.g. to a placeholder).
+   */
+  private async fetchBlob(url: string): Promise<Blob> {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(
+        `Failed to fetch file "${url}": ${res.status} ${res.statusText}`,
+      );
+    }
+    return res.blob();
   }
 
   public mapStyles(styles: Styles<S>) {

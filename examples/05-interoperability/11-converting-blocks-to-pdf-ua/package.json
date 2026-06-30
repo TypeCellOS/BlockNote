@@ -21,8 +21,9 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "@blocknote/xl-pdf-renderer-2": "latest",
-    "@myriaddreamin/typst.ts": "^0.7.0",
-    "@myriaddreamin/typst-ts-web-compiler": "^0.7.0"
+    "@blocknote/xl-multi-column": "latest",
+    "@myriaddreamin/typst.ts": "^0.8.0-rc3",
+    "@myriaddreamin/typst-ts-web-compiler": "^0.8.0-rc3"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",

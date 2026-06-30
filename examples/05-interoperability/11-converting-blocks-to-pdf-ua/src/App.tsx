@@ -1,3 +1,4 @@
+import { testDocumentBlocks } from "../testDocumentBlocks";
 import {
   BlockNoteSchema,
   combineByGroup,
@@ -19,39 +20,50 @@ import {
   blocksToPdfUA,
   typstDefaultSchemaMappings,
 } from "@blocknote/xl-pdf-renderer-2";
+import {
+  getMultiColumnSlashMenuItems,
+  locales as multiColumnLocales,
+  multiColumnDropCursor,
+  withMultiColumn,
+} from "@blocknote/xl-multi-column";
 // Bundle the Typst compiler wasm so it resolves locally (no CDN / importer).
 import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
-// Bundle BlockNote's fonts (Inter + Geist Mono) + an emoji font so the export
-// matches the editor and works fully offline.
+// Bundle BlockNote's fonts (Inter + Geist Mono) + a color emoji font so the
+// export matches the editor and works fully offline. Noto Color Emoji is the
+// pure-COLRv1 build (~5MB), which Typst renders in color.
 import interRegular from "./fonts/Inter_18pt-Regular.ttf?url";
 import interItalic from "./fonts/Inter_18pt-Italic.ttf?url";
 import interBold from "./fonts/Inter_18pt-Bold.ttf?url";
 import interBoldItalic from "./fonts/Inter_18pt-BoldItalic.ttf?url";
 import geistMono from "./fonts/GeistMono-Regular.ttf?url";
-import notoEmoji from "./fonts/NotoEmoji-Regular.ttf?url";
+import notoColorEmoji from "./fonts/Noto-COLRv1.ttf?url";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "./styles.css";
 
-// Fetch the bundled fonts once and reuse them across exports.
-const FONT_URLS = [
+// Fetch the bundled fonts once and reuse them across exports. The emoji font is
+// kept separate so it can be passed via the dedicated `emojiFont` option.
+const BODY_FONT_URLS = [
   interRegular,
   interItalic,
   interBold,
   interBoldItalic,
   geistMono,
-  notoEmoji,
 ];
-let fontsPromise: Promise<Uint8Array[]> | undefined;
+const fetchFont = (url: string) =>
+  fetch(url)
+    .then((r) => r.arrayBuffer())
+    .then((b) => new Uint8Array(b));
+
+let fontsPromise:
+  | Promise<{ fonts: Uint8Array[]; emojiFont: Uint8Array }>
+  | undefined;
 function loadFonts() {
   if (!fontsPromise) {
-    fontsPromise = Promise.all(
-      FONT_URLS.map((url) =>
-        fetch(url)
-          .then((r) => r.arrayBuffer())
-          .then((b) => new Uint8Array(b)),
-      ),
-    );
+    fontsPromise = Promise.all([
+      Promise.all(BODY_FONT_URLS.map(fetchFont)),
+      fetchFont(notoColorEmoji),
+    ]).then(([fonts, emojiFont]) => ({ fonts, emojiFont }));
   }
   return fontsPromise;
 }
@@ -66,91 +78,19 @@ export default function App() {
 
   // Creates a new editor instance with support for page breaks.
   const editor = useCreateBlockNote({
-    schema: withPageBreak(BlockNoteSchema.create()),
-    dictionary: locales.en,
+    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
+    dropCursor: multiColumnDropCursor,
+    dictionary: {
+      ...locales.en,
+      multi_column: multiColumnLocales.en,
+    },
     tables: {
       splitCells: true,
       cellBackgroundColor: true,
       cellTextColor: true,
       headers: true,
     },
-    initialContent: [
-      {
-        type: "heading",
-        props: { level: 1 },
-        content: "Accessible PDF export",
-      },
-      {
-        type: "paragraph",
-        content: [
-          { type: "text", text: "This document exports to a ", styles: {} },
-          { type: "text", text: "tagged PDF/UA-1", styles: { bold: true } },
-          {
-            type: "text",
-            text: " file that screen readers can navigate. ",
-            styles: {},
-          },
-          {
-            type: "link",
-            content: "Learn more",
-            href: "https://www.blocknotejs.org",
-          },
-        ],
-      },
-      { type: "heading", props: { level: 2 }, content: "Highlights" },
-      {
-        type: "bulletListItem",
-        content: "Headings, paragraphs and lists are exposed semantically",
-        children: [
-          {
-            type: "bulletListItem",
-            content: "Nested lists become real L › LI structures",
-          },
-          { type: "numberedListItem", content: "So do numbered lists" },
-        ],
-      },
-      { type: "checkListItem", props: { checked: true }, content: "Links" },
-      { type: "checkListItem", content: "Tables with header rows" },
-      {
-        type: "paragraph",
-        props: { backgroundColor: "blue", textAlignment: "center" },
-        content: [
-          {
-            type: "text",
-            text: "Colors and alignment are preserved too",
-            styles: { italic: true },
-          },
-        ],
-      },
-      {
-        type: "table",
-        content: {
-          type: "tableContent",
-          rows: [
-            { cells: ["Quarter", "Revenue"] },
-            { cells: ["Q1", "$1.2M"] },
-            { cells: ["Q2", "$1.4M"] },
-          ],
-        },
-      },
-      {
-        type: "codeBlock",
-        props: { language: "typescript" },
-        content: `const pdf = await blocksToPdfUA(exporter, editor.document, {});`,
-      },
-      {
-        type: "quote",
-        content: "Accessibility is a baseline, not a feature.",
-      },
-      { type: "pageBreak" },
-      {
-        type: "image",
-        props: {
-          url: "https://placehold.co/600x300.png",
-          caption: "Images export as tagged figures with alt text",
-        },
-      },
-    ],
+    initialContent: testDocumentBlocks,
   });
 
   // Additional Slash Menu items for page breaks.
@@ -160,6 +100,7 @@ export default function App() {
         combineByGroup(
           getDefaultReactSlashMenuItems(editor),
           getPageBreakReactSlashMenuItems(editor),
+          getMultiColumnSlashMenuItems(editor),
         ),
         query,
       ),
@@ -173,13 +114,22 @@ export default function App() {
       const exporter = new TypstExporter(
         editor.schema,
         typstDefaultSchemaMappings,
+        // Noto Color Emoji is the internal family name of the bundled emoji
+        // font; listing it lets ZWJ emoji (e.g. 🚶‍♀️) shape correctly.
+        { emojiFontFamily: "Noto Color Emoji" },
+      );
+      const { fonts, emojiFont } = await loadFonts();
+      const bytes = await blocksToPdfUA(
+        exporter,
+        editor.document,
+        {
+          getModule: () => compilerWasmUrl,
+          fonts,
+          emojiFont,
+          preloadDefaultFonts: false,
+        },
         { title: "BlockNote document", lang: "en" },
       );
-      const bytes = await blocksToPdfUA(exporter, editor.document, {
-        getModule: () => compilerWasmUrl,
-        fonts: await loadFonts(),
-        preloadDefaultFonts: false,
-      });
       const url = URL.createObjectURL(
         new Blob([bytes], { type: "application/pdf" }),
       );

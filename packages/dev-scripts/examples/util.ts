@@ -94,6 +94,13 @@ export type Project = {
     pro?: boolean;
     tailwind?: boolean;
     stackBlitz?: boolean;
+    /**
+     * When true, the example generator emits the shared `testDocumentBlocks.ts`
+     * into the example (copied verbatim from `shared/testDocumentBlocks.ts`) so
+     * the example can use it as editor `initialContent` while staying
+     * self-contained.
+     */
+    sharedTestDocument?: boolean;
   };
   readme: string;
 };

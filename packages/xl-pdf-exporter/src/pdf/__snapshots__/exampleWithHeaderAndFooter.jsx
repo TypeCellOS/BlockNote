@@ -185,6 +185,155 @@
           backgroundColor: undefined,
           color: undefined,
           paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <TEXT
+          style={{
+            fontSize: 18,
+            fontWeight: 700,
+            lineHeight: 1.25
+          }}
+        >
+          <TEXT style={{}}>
+            Heading 2
+          </TEXT>
+        </TEXT>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <TEXT
+          style={{
+            fontSize: 14.04,
+            fontWeight: 700,
+            lineHeight: 1.25
+          }}
+        >
+          <TEXT style={{}}>
+            Heading 3
+          </TEXT>
+        </TEXT>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <TEXT
+          style={{
+            fontSize: 12,
+            fontWeight: 700,
+            lineHeight: 1.25
+          }}
+        >
+          <TEXT style={{}}>
+            Heading 4
+          </TEXT>
+        </TEXT>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <TEXT
+          style={{
+            fontSize: 9.959999999999999,
+            fontWeight: 700,
+            lineHeight: 1.25
+          }}
+        >
+          <TEXT style={{}}>
+            Heading 5
+          </TEXT>
+        </TEXT>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <TEXT
+          style={{
+            fontSize: 8.040000000000001,
+            fontWeight: 700,
+            lineHeight: 1.25
+          }}
+        >
+          <TEXT style={{}}>
+            Heading 6
+          </TEXT>
+        </TEXT>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <TEXT>
+          <TEXT style={{}}>
+            Emojis: 😀 🎉 🚀 👍 👍🏽 🌍 🚶‍♀️
+          </TEXT>
+        </TEXT>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: 'center',
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'center'
+        }}
+      >
+        <TEXT>
+          <TEXT style={{}}>
+            Centered paragraph
+          </TEXT>
+        </TEXT>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
           textAlign: 'justify'
         }}
       >
@@ -415,6 +564,170 @@
             </TEXT>
           </TEXT>
         </ListItem>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <ListItem listMarker={<SVG fill="undefined" height="12" style={{marginTop: 2}} viewBox="0 -960 960 960" width="12"><PATH d="m424-312 282-282-56-56-226 226-114-114-56 56 170 170ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z" /></SVG>}>
+          <TEXT>
+            <TEXT style={{}}>
+              Checked List Item
+            </TEXT>
+          </TEXT>
+        </ListItem>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <ListItem listMarker="1.">
+          <TEXT>
+            <TEXT style={{}}>
+              Numbered List Item starting at 5
+            </TEXT>
+          </TEXT>
+        </ListItem>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <ListItem listMarker="2.">
+          <TEXT>
+            <TEXT style={{}}>
+              Numbered List Item 6
+            </TEXT>
+          </TEXT>
+        </ListItem>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <ListItem listMarker={<SVG fill="undefined" height="12" style={{marginTop: 2}} viewBox="0 -960 960 960" width="12"><PATH d="M472-480 332-620q-18-18-18-44t18-44q18-18 44-18t44 18l183 183q9 9 14 21t5 24q0 12-5 24t-14 21L420-252q-18 18-44 18t-44-18q-18-18-18-44t18-44l140-140Z" /></SVG>}>
+          <TEXT>
+            <TEXT style={{}}>
+              Toggle List Item
+            </TEXT>
+          </TEXT>
+        </ListItem>
+      </VIEW>
+      <VIEW
+        style={{
+          marginLeft: 18
+        }}
+      >
+        <React.Fragment key=".$">
+          <VIEW
+            style={{
+              alignItems: undefined,
+              backgroundColor: undefined,
+              color: undefined,
+              paddingVertical: 2.25,
+              textAlign: 'left'
+            }}
+          >
+            <TEXT>
+              <TEXT style={{}}>
+                Content nested inside the toggle list item.
+              </TEXT>
+            </TEXT>
+          </VIEW>
+        </React.Fragment>
+        <React.Fragment key=".$">
+          <VIEW
+            style={{
+              alignItems: undefined,
+              backgroundColor: undefined,
+              color: undefined,
+              paddingVertical: 2.25,
+              textAlign: 'left'
+            }}
+          >
+            <ListItem listMarker="•">
+              <TEXT>
+                <TEXT style={{}}>
+                  A nested bullet inside the toggle
+                </TEXT>
+              </TEXT>
+            </ListItem>
+          </VIEW>
+        </React.Fragment>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <TEXT
+          style={{
+            fontSize: 18,
+            fontWeight: 700,
+            lineHeight: 1.25
+          }}
+        >
+          <TEXT style={{}}>
+            Toggle Heading
+          </TEXT>
+        </TEXT>
+      </VIEW>
+      <VIEW
+        style={{
+          marginLeft: 18
+        }}
+      >
+        <React.Fragment key=".$">
+          <VIEW
+            style={{
+              alignItems: undefined,
+              backgroundColor: undefined,
+              color: undefined,
+              paddingVertical: 2.25,
+              textAlign: 'left'
+            }}
+          >
+            <TEXT>
+              <TEXT style={{}}>
+                Content nested inside the toggle heading.
+              </TEXT>
+            </TEXT>
+          </VIEW>
+        </React.Fragment>
       </VIEW>
     </React.Fragment>
     <React.Fragment key=".1:$">
@@ -879,6 +1192,26 @@
           <TEXT style={{}}>
             {' '}
           </TEXT>
+          <TEXT
+            style={{
+              textDecoration: 'underline'
+            }}
+          >
+            underlined
+          </TEXT>
+          <TEXT style={{}}>
+            {' '}
+          </TEXT>
+          <TEXT
+            style={{
+              textDecoration: 'line-through'
+            }}
+          >
+            strikethrough
+          </TEXT>
+          <TEXT style={{}}>
+            {' '}
+          </TEXT>
           <LINK href="https://www.blocknotejs.org">
             <TEXT style={{}}>
               Link
@@ -905,7 +1238,7 @@
               undefined
             ],
             headerCols: undefined,
-            headerRows: undefined,
+            headerRows: 1,
             rows: [
               {
                 cells: [
@@ -913,7 +1246,7 @@
                     content: [
                       {
                         styles: {},
-                        text: 'Table Cell 1',
+                        text: 'Table Header 1',
                         type: 'text'
                       }
                     ],
@@ -930,7 +1263,7 @@
                     content: [
                       {
                         styles: {},
-                        text: 'Table Cell 2',
+                        text: 'Table Header 2',
                         type: 'text'
                       }
                     ],
@@ -947,7 +1280,7 @@
                     content: [
                       {
                         styles: {},
-                        text: 'Table Cell 3',
+                        text: 'Table Header 3',
                         type: 'text'
                       }
                     ],
@@ -985,9 +1318,11 @@
                     content: [
                       {
                         styles: {
-                          bold: true
+                          backgroundColor: 'blue',
+                          bold: true,
+                          textColor: 'red'
                         },
-                        text: 'Table Cell Bold 5',
+                        text: 'Table Cell Bold Colored 5',
                         type: 'text'
                       }
                     ],
@@ -1152,6 +1487,146 @@
         </TEXT>
       </VIEW>
     </React.Fragment>
+    <VIEW
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 6
+      }}
+    >
+      <VIEW
+        style={{
+          flex: 0.8
+        }}
+      >
+        <React.Fragment key=".$">
+          <VIEW
+            style={{
+              alignItems: undefined,
+              backgroundColor: undefined,
+              color: undefined,
+              paddingVertical: 2.25,
+              textAlign: 'left'
+            }}
+          >
+            <TEXT>
+              <TEXT style={{}}>
+                This paragraph is in a column!
+              </TEXT>
+            </TEXT>
+          </VIEW>
+        </React.Fragment>
+      </VIEW>
+      <VIEW
+        style={{
+          flex: 1.4
+        }}
+      >
+        <React.Fragment key=".$">
+          <VIEW
+            style={{
+              alignItems: undefined,
+              backgroundColor: undefined,
+              color: undefined,
+              paddingVertical: 2.25,
+              textAlign: 'left'
+            }}
+          >
+            <TEXT
+              style={{
+                fontSize: 24,
+                fontWeight: 700,
+                lineHeight: 1.25
+              }}
+            >
+              <TEXT style={{}}>
+                So is this heading!
+              </TEXT>
+            </TEXT>
+          </VIEW>
+        </React.Fragment>
+      </VIEW>
+      <VIEW
+        style={{
+          flex: 0.8
+        }}
+      >
+        <React.Fragment key=".$">
+          <VIEW
+            style={{
+              alignItems: undefined,
+              backgroundColor: undefined,
+              color: undefined,
+              paddingVertical: 2.25,
+              textAlign: 'left'
+            }}
+          >
+            <TEXT>
+              <TEXT style={{}}>
+                You can have multiple blocks in a column too
+              </TEXT>
+            </TEXT>
+          </VIEW>
+        </React.Fragment>
+        <React.Fragment key=".$">
+          <VIEW
+            style={{
+              alignItems: undefined,
+              backgroundColor: undefined,
+              color: undefined,
+              paddingVertical: 2.25,
+              textAlign: 'left'
+            }}
+          >
+            <ListItem listMarker="•">
+              <TEXT>
+                <TEXT style={{}}>
+                  Block 1
+                </TEXT>
+              </TEXT>
+            </ListItem>
+          </VIEW>
+        </React.Fragment>
+        <React.Fragment key=".$">
+          <VIEW
+            style={{
+              alignItems: undefined,
+              backgroundColor: undefined,
+              color: undefined,
+              paddingVertical: 2.25,
+              textAlign: 'left'
+            }}
+          >
+            <ListItem listMarker="•">
+              <TEXT>
+                <TEXT style={{}}>
+                  Block 2
+                </TEXT>
+              </TEXT>
+            </ListItem>
+          </VIEW>
+        </React.Fragment>
+        <React.Fragment key=".$">
+          <VIEW
+            style={{
+              alignItems: undefined,
+              backgroundColor: undefined,
+              color: undefined,
+              paddingVertical: 2.25,
+              textAlign: 'left'
+            }}
+          >
+            <ListItem listMarker="•">
+              <TEXT>
+                <TEXT style={{}}>
+                  Block 3
+                </TEXT>
+              </TEXT>
+            </ListItem>
+          </VIEW>
+        </React.Fragment>
+      </VIEW>
+    </VIEW>
     <React.Fragment key=".1:$">
       <VIEW
         style={{

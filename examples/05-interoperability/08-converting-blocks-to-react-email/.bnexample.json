@@ -3,8 +3,10 @@
   "docs": true,
   "author": "jmarbutt",
   "tags": [""],
+  "sharedTestDocument": true,
   "dependencies": {
     "@blocknote/xl-email-exporter": "latest",
+    "@blocknote/xl-multi-column": "latest",
     "@react-email/render": "^2.0.4"
   },
   "pro": true

@@ -17,7 +17,6 @@ import xmlFormat from "xml-formatter";
 import { docxDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { DOCXExporter } from "./docxExporter.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
-import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 
 const getZIPEntryContent = (entries: Entry[], fileName: string) => {
   const entry = entries.find((entry) => {
@@ -37,6 +36,8 @@ describe("exporter", () => {
         blockSpecs: {
           ...defaultBlockSpecs,
           pageBreak: createPageBreakBlockSpec(),
+          column: ColumnBlock,
+          columnList: ColumnListBlock,
         },
       }),
       docxDefaultSchemaMappings,
@@ -70,6 +71,8 @@ describe("exporter", () => {
           blockSpecs: {
             ...defaultBlockSpecs,
             pageBreak: createPageBreakBlockSpec(),
+            column: ColumnBlock,
+            columnList: ColumnListBlock,
           },
         }),
         docxDefaultSchemaMappings,
@@ -133,97 +136,14 @@ describe("exporter", () => {
     },
   );
 
-  it(
-    "should export a document with a multi-column block",
-    { timeout: 10000 },
-    async () => {
-      const schema = BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
-          column: ColumnBlock,
-          columnList: ColumnListBlock,
-        },
-      });
-      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
-      const doc = await exporter.toDocxJsDocument(
-        partialBlocksToBlocksForTesting(schema, [
-          {
-            type: "columnList",
-            children: [
-              {
-                type: "column",
-                props: {
-                  width: 0.8,
-                },
-                children: [
-                  {
-                    type: "paragraph",
-                    content: "This paragraph is in a column!",
-                  },
-                ],
-              },
-              {
-                type: "column",
-                props: {
-                  width: 1.4,
-                },
-                children: [
-                  {
-                    type: "heading",
-                    content: "So is this heading!",
-                  },
-                ],
-              },
-              {
-                type: "column",
-                props: {
-                  width: 0.8,
-                },
-                children: [
-                  {
-                    type: "paragraph",
-                    content: "You can have multiple blocks in a column too",
-                  },
-                  {
-                    type: "bulletListItem",
-                    content: "Block 1",
-                  },
-                  {
-                    type: "bulletListItem",
-                    content: "Block 2",
-                  },
-                  {
-                    type: "bulletListItem",
-                    content: "Block 3",
-                  },
-                ],
-              },
-            ],
-          },
-        ]),
-        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
-      );
-
-      const blob = await Packer.toBlob(doc);
-      const zip = new ZipReader(new BlobReader(blob));
-      const entries = await zip.getEntries();
-
-      await expect(
-        prettify(await getZIPEntryContent(entries, "word/document.xml")),
-      ).toMatchFileSnapshot("__snapshots__/withMultiColumn/document.xml");
-      await expect(
-        prettify(await getZIPEntryContent(entries, "word/styles.xml")),
-      ).toMatchFileSnapshot("__snapshots__/withMultiColumn/styles.xml");
-    },
-  );
-
   async function exportAndGetStylesEntries(locale?: string) {
     const exporter = new DOCXExporter(
       BlockNoteSchema.create({
         blockSpecs: {
           ...defaultBlockSpecs,
           pageBreak: createPageBreakBlockSpec(),
+          column: ColumnBlock,
+          columnList: ColumnListBlock,
         },
       }),
       docxDefaultSchemaMappings,

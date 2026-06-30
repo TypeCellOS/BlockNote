@@ -1126,6 +1126,7 @@ export const examples = {
           docs: true,
           author: "yousefed",
           tags: ["Interoperability"],
+          sharedTestDocument: true,
           dependencies: {
             "@blocknote/xl-pdf-exporter": "latest",
             "@blocknote/xl-multi-column": "latest",
@@ -1151,6 +1152,7 @@ export const examples = {
           docs: true,
           author: "yousefed",
           tags: [""],
+          sharedTestDocument: true,
           dependencies: {
             "@blocknote/xl-docx-exporter": "latest",
             "@blocknote/xl-multi-column": "latest",
@@ -1175,6 +1177,7 @@ export const examples = {
           docs: true,
           author: "areknawo",
           tags: [""],
+          sharedTestDocument: true,
           dependencies: {
             "@blocknote/xl-odt-exporter": "latest",
             "@blocknote/xl-multi-column": "latest",
@@ -1199,8 +1202,10 @@ export const examples = {
           docs: true,
           author: "jmarbutt",
           tags: [""],
+          sharedTestDocument: true,
           dependencies: {
             "@blocknote/xl-email-exporter": "latest",
+            "@blocknote/xl-multi-column": "latest",
             "@react-email/render": "^2.0.4",
           } as any,
           pro: true,
@@ -1260,8 +1265,10 @@ export const examples = {
           docs: true,
           author: "yousefed",
           tags: ["Interoperability", "Accessibility"],
+          sharedTestDocument: true,
           dependencies: {
             "@blocknote/xl-pdf-renderer-2": "latest",
+            "@blocknote/xl-multi-column": "latest",
             "@myriaddreamin/typst.ts": "^0.7.0",
             "@myriaddreamin/typst-ts-web-compiler": "^0.7.0",
           } as any,

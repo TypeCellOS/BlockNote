@@ -12,7 +12,8 @@
     "clean": "tsgo --build --clean"
   },
   "dependencies": {
-    "@blocknote/core": "workspace:^"
+    "@blocknote/core": "workspace:^",
+    "@blocknote/xl-multi-column": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "22.13.13",

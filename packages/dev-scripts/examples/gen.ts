@@ -38,6 +38,12 @@ async function writeTemplate(
   ) {
     return;
   }
+  if (
+    project.config.sharedTestDocument !== true &&
+    templateFile.endsWith("testDocumentBlocks.ts.template.tsx")
+  ) {
+    return;
+  }
   const ret = await template.default(project);
 
   const targetFilePath = path.join(

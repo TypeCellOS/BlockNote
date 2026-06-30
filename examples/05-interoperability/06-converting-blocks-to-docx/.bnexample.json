@@ -3,6 +3,7 @@
   "docs": true,
   "author": "yousefed",
   "tags": [""],
+  "sharedTestDocument": true,
   "dependencies": {
     "@blocknote/xl-docx-exporter": "latest",
     "@blocknote/xl-multi-column": "latest"

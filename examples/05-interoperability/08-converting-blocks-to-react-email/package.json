@@ -21,6 +21,7 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "@blocknote/xl-email-exporter": "latest",
+    "@blocknote/xl-multi-column": "latest",
     "@react-email/render": "^2.0.4"
   },
   "devDependencies": {

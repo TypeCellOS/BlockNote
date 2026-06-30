@@ -74,6 +74,59 @@
         </w:p>
         <w:p>
             <w:pPr>
+                <w:pStyle w:val="Heading2"/>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">Heading 2</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:pPr>
+                <w:pStyle w:val="Heading3"/>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">Heading 3</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:pPr>
+                <w:pStyle w:val="Heading4"/>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">Heading 4</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:pPr>
+                <w:pStyle w:val="Heading5"/>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">Heading 5</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:pPr>
+                <w:pStyle w:val="Heading6"/>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">Heading 6</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:r>
+                <w:t xml:space="preserve">Emojis: 😀 🎉 🚀 👍 👍🏽 🌍 🚶‍♀️</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:pPr>
+                <w:jc w:val="center"/>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">Centered paragraph</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:pPr>
                 <w:jc w:val="distribute"/>
             </w:pPr>
             <w:r>
@@ -236,6 +289,96 @@
             </w:r>
             <w:r>
                 <w:t xml:space="preserve">Check List Item</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:sdt>
+                <w:sdtPr>
+                    <w14:checkbox>
+                        <w14:checked w14:val="1"/>
+                        <w14:checkedState w14:val="2612" w14:font="MS Gothic"/>
+                        <w14:uncheckedState w14:val="2610" w14:font="MS Gothic"/>
+                    </w14:checkbox>
+                </w:sdtPr>
+                <w:sdtContent>
+                    <w:r>
+                        <w:sym w:char="2612" w:font="MS Gothic"/>
+                    </w:r>
+                </w:sdtContent>
+            </w:sdt>
+            <w:r>
+                <w:t xml:space="preserve"> </w:t>
+            </w:r>
+            <w:r>
+                <w:t xml:space="preserve">Checked List Item</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:pPr>
+                <w:pStyle w:val="ListParagraph"/>
+                <w:numPr>
+                    <w:ilvl w:val="0"/>
+                    <w:numId w:val="3"/>
+                </w:numPr>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">Numbered List Item starting at 5</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:pPr>
+                <w:pStyle w:val="ListParagraph"/>
+                <w:numPr>
+                    <w:ilvl w:val="0"/>
+                    <w:numId w:val="3"/>
+                </w:numPr>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">Numbered List Item 6</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:r>
+                <w:t xml:space="preserve">&gt; </w:t>
+            </w:r>
+            <w:r>
+                <w:t xml:space="preserve">Toggle List Item</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:r>
+                <w:tab/>
+            </w:r>
+            <w:r>
+                <w:t xml:space="preserve">Content nested inside the toggle list item.</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:pPr>
+                <w:pStyle w:val="ListParagraph"/>
+                <w:numPr>
+                    <w:ilvl w:val="1"/>
+                    <w:numId w:val="2"/>
+                </w:numPr>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">A nested bullet inside the toggle</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:pPr>
+                <w:pStyle w:val="Heading2"/>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">Toggle Heading</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:r>
+                <w:tab/>
+            </w:r>
+            <w:r>
+                <w:t xml:space="preserve">Content nested inside the toggle heading.</w:t>
             </w:r>
         </w:p>
         <w:tbl>
@@ -540,6 +683,24 @@
             <w:r>
                 <w:t xml:space="preserve"> </w:t>
             </w:r>
+            <w:r>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t xml:space="preserve">underlined</w:t>
+            </w:r>
+            <w:r>
+                <w:t xml:space="preserve"> </w:t>
+            </w:r>
+            <w:r>
+                <w:rPr>
+                    <w:strike/>
+                </w:rPr>
+                <w:t xml:space="preserve">strikethrough</w:t>
+            </w:r>
+            <w:r>
+                <w:t xml:space="preserve"> </w:t>
+            </w:r>
             <w:hyperlink w:history="1" r:id="FAKE-ID">
                 <w:r>
                     <w:rPr>
@@ -568,13 +729,22 @@
                 <w:gridCol w:w="1800"/>
             </w:tblGrid>
             <w:tr>
+                <w:trPr>
+                    <w:tblHeader/>
+                </w:trPr>
                 <w:tc>
                     <w:tcPr>
                         <w:gridSpan w:val="1"/>
                     </w:tcPr>
                     <w:p>
+                        <w:pPr>
+                            <w:rPr>
+                                <w:b/>
+                                <w:bCs/>
+                            </w:rPr>
+                        </w:pPr>
                         <w:r>
-                            <w:t xml:space="preserve">Table Cell 1</w:t>
+                            <w:t xml:space="preserve">Table Header 1</w:t>
                         </w:r>
                     </w:p>
                 </w:tc>
@@ -583,8 +753,14 @@
                         <w:gridSpan w:val="1"/>
                     </w:tcPr>
                     <w:p>
+                        <w:pPr>
+                            <w:rPr>
+                                <w:b/>
+                                <w:bCs/>
+                            </w:rPr>
+                        </w:pPr>
                         <w:r>
-                            <w:t xml:space="preserve">Table Cell 2</w:t>
+                            <w:t xml:space="preserve">Table Header 2</w:t>
                         </w:r>
                     </w:p>
                 </w:tc>
@@ -593,8 +769,14 @@
                         <w:gridSpan w:val="1"/>
                     </w:tcPr>
                     <w:p>
+                        <w:pPr>
+                            <w:rPr>
+                                <w:b/>
+                                <w:bCs/>
+                            </w:rPr>
+                        </w:pPr>
                         <w:r>
-                            <w:t xml:space="preserve">Table Cell 3</w:t>
+                            <w:t xml:space="preserve">Table Header 3</w:t>
                         </w:r>
                     </w:p>
                 </w:tc>
@@ -619,8 +801,10 @@
                             <w:rPr>
                                 <w:b/>
                                 <w:bCs/>
+                                <w:color w:val="e03e3e"/>
+                                <w:shd w:fill="ddebf1" w:val="clear"/>
                             </w:rPr>
-                            <w:t xml:space="preserve">Table Cell Bold 5</w:t>
+                            <w:t xml:space="preserve">Table Cell Bold Colored 5</w:t>
                         </w:r>
                     </w:p>
                 </w:tc>
@@ -699,6 +883,96 @@
                 <w:t xml:space="preserve">var foo = &apos;bar&apos;;</w:t>
             </w:r>
         </w:p>
+        <w:tbl>
+            <w:tblPr>
+                <w:tblW w:type="auto" w:w="100"/>
+                <w:tblBorders>
+                    <w:top w:val="nil"/>
+                    <w:left w:val="nil"/>
+                    <w:bottom w:val="nil"/>
+                    <w:right w:val="nil"/>
+                    <w:insideH w:val="nil"/>
+                    <w:insideV w:val="nil"/>
+                </w:tblBorders>
+                <w:tblLayout w:type="autofit"/>
+            </w:tblPr>
+            <w:tblGrid>
+                <w:gridCol w:w="100"/>
+                <w:gridCol w:w="100"/>
+                <w:gridCol w:w="100"/>
+            </w:tblGrid>
+            <w:tr>
+                <w:tc>
+                    <w:tcPr>
+                        <w:tcW w:type="pct" w:w="26.666666666666668%"/>
+                    </w:tcPr>
+                    <w:p>
+                        <w:r>
+                            <w:t xml:space="preserve">This paragraph is in a column!</w:t>
+                        </w:r>
+                    </w:p>
+                </w:tc>
+                <w:tc>
+                    <w:tcPr>
+                        <w:tcW w:type="pct" w:w="46.666666666666664%"/>
+                    </w:tcPr>
+                    <w:p>
+                        <w:pPr>
+                            <w:pStyle w:val="Heading1"/>
+                        </w:pPr>
+                        <w:r>
+                            <w:t xml:space="preserve">So is this heading!</w:t>
+                        </w:r>
+                    </w:p>
+                </w:tc>
+                <w:tc>
+                    <w:tcPr>
+                        <w:tcW w:type="pct" w:w="26.666666666666668%"/>
+                    </w:tcPr>
+                    <w:p>
+                        <w:r>
+                            <w:t xml:space="preserve">You can have multiple blocks in a column too</w:t>
+                        </w:r>
+                    </w:p>
+                    <w:p>
+                        <w:pPr>
+                            <w:pStyle w:val="ListParagraph"/>
+                            <w:numPr>
+                                <w:ilvl w:val="2"/>
+                                <w:numId w:val="2"/>
+                            </w:numPr>
+                        </w:pPr>
+                        <w:r>
+                            <w:t xml:space="preserve">Block 1</w:t>
+                        </w:r>
+                    </w:p>
+                    <w:p>
+                        <w:pPr>
+                            <w:pStyle w:val="ListParagraph"/>
+                            <w:numPr>
+                                <w:ilvl w:val="2"/>
+                                <w:numId w:val="2"/>
+                            </w:numPr>
+                        </w:pPr>
+                        <w:r>
+                            <w:t xml:space="preserve">Block 2</w:t>
+                        </w:r>
+                    </w:p>
+                    <w:p>
+                        <w:pPr>
+                            <w:pStyle w:val="ListParagraph"/>
+                            <w:numPr>
+                                <w:ilvl w:val="2"/>
+                                <w:numId w:val="2"/>
+                            </w:numPr>
+                        </w:pPr>
+                        <w:r>
+                            <w:t xml:space="preserve">Block 3</w:t>
+                        </w:r>
+                    </w:p>
+                </w:tc>
+            </w:tr>
+        </w:tbl>
         <w:p>
             <w:pPr>
                 <w:pBdr>

@@ -39,3 +39,4 @@ minimumReleaseAgeExclude:
   - "@oxlint-tsgolint/*"
   - oxfmt
   - "@oxfmt/*"
+  - "@myriaddreamin/*"

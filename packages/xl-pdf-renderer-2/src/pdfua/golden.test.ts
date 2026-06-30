@@ -3,6 +3,7 @@ import {
   createPageBreakBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
+import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { testDocument } from "@shared/testDocument.js";
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
@@ -15,7 +16,8 @@ import { TypstExporter } from "../typst/typstExporter.js";
 import { declarePdfUA } from "./postProcess.js";
 
 // The fonts the exporter references (Inter 18pt + Geist Mono), from the shared
-// assets, plus an emoji font so emoji don't render as `.notdef`.
+// assets, plus a color emoji font (Noto Color Emoji, pure-COLRv1) so emoji
+// render in color rather than as `.notdef` — matching the example.
 function fontBlobs(): Buffer[] {
   const shared = "../../shared/assets/fonts";
   const paths = [
@@ -24,7 +26,7 @@ function fontBlobs(): Buffer[] {
     `${shared}/inter/Inter_18pt-Bold.ttf`,
     `${shared}/inter/Inter_18pt-BoldItalic.ttf`,
     `${shared}/GeistMono-Regular.ttf`,
-    "src/pdfua/__fixtures__/NotoEmoji-Regular.ttf",
+    "src/pdfua/__fixtures__/Noto-COLRv1.ttf",
   ];
   return paths.map((p) => Buffer.from(readFileSync(resolve(process.cwd(), p))));
 }
@@ -56,12 +58,20 @@ describe("golden: BlockNote -> Typst -> tagged PDF -> PDF/UA-1", () => {
         blockSpecs: {
           ...defaultBlockSpecs,
           pageBreak: createPageBreakBlockSpec(),
+          column: ColumnBlock,
+          columnList: ColumnListBlock,
         },
       }),
       typstDefaultSchemaMappings,
-      { title: "BlockNote Export", lang: "en", author: "BlockNote" },
+      // Matches the example: list the color emoji font explicitly so ZWJ emoji
+      // shape correctly (the font bytes are loaded via fontBlobs()).
+      { emojiFontFamily: "Noto Color Emoji" },
     );
-    const typ = await exporter.toTypst(testDocument);
+    const typ = await exporter.toTypst(testDocument, {
+      title: "BlockNote Export",
+      lang: "en",
+      author: "BlockNote",
+    });
 
     // 2) compile to a *tagged* PDF (no UA flag), mirroring the browser path.
     //    An emoji font is supplied so emoji don't render as `.notdef`.
@@ -70,6 +80,16 @@ describe("golden: BlockNote -> Typst -> tagged PDF -> PDF/UA-1", () => {
     const compiler = NodeCompiler.create({
       fontArgs: [{ fontBlobs: fontBlobs() }],
     });
+    // Map the embedded images into the compiler's virtual filesystem. The node
+    // compiler resolves a project-absolute Typst path (`/assets/..`) against the
+    // cwd, so key the shadow by that resolved absolute path. (The browser path
+    // in `compileBrowser.ts` uses the `/assets/..` virtual path directly.)
+    for (const [path, bytes] of exporter.assetFiles) {
+      compiler.mapShadow(
+        resolve(process.cwd(), path.replace(/^\/+/, "")),
+        Buffer.from(bytes),
+      );
+    }
     const tagged = compiler.pdf(
       { mainFileContent: typ },
       { creationTimestamp: 1_700_000_000 },

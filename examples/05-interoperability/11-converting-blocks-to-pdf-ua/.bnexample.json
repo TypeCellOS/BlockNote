@@ -3,10 +3,12 @@
   "docs": true,
   "author": "yousefed",
   "tags": ["Interoperability", "Accessibility"],
+  "sharedTestDocument": true,
   "dependencies": {
     "@blocknote/xl-pdf-renderer-2": "latest",
-    "@myriaddreamin/typst.ts": "^0.7.0",
-    "@myriaddreamin/typst-ts-web-compiler": "^0.7.0"
+    "@blocknote/xl-multi-column": "latest",
+    "@myriaddreamin/typst.ts": "^0.8.0-rc3",
+    "@myriaddreamin/typst-ts-web-compiler": "^0.8.0-rc3"
   },
   "pro": true
 }

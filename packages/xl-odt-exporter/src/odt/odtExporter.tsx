@@ -9,6 +9,7 @@ import {
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
+import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
 import { loadFileBuffer } from "@shared/util/fileUtil.js";
 import { getImageDimensions } from "@shared/util/imageUtil.js";
 import { BlobReader, BlobWriter, TextReader, ZipWriter } from "@zip.js/zip.js";
@@ -63,6 +64,9 @@ export class ODTExporter<
   ) {
     const defaults = {
       colors: COLORS_DEFAULT,
+      // Proxy cross-origin image fetches so any host works in the browser, not
+      // only CORS-enabled ones (mirrors the pdf/docx exporters).
+      resolveFileUrl: corsProxyResolveFileUrl,
     } satisfies Partial<ExporterOptions>;
 
     super(schema, mappings, { ...defaults, ...options });

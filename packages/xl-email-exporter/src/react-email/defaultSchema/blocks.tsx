@@ -5,6 +5,7 @@ import {
   mapTableCell,
   StyledText,
 } from "@blocknote/core";
+import { multiColumnSchema } from "@blocknote/xl-multi-column";
 import {
   CodeBlock,
   dracula,
@@ -120,7 +121,7 @@ export const createReactEmailBlockMappingForDefaultSchema = (
 ): BlockMapping<
   DefaultBlockSchema & {
     pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  },
+  } & typeof multiColumnSchema.blockSchema,
   any,
   any,
   React.ReactElement<any>,
@@ -502,6 +503,11 @@ export const createReactEmailBlockMappingForDefaultSchema = (
       />
     );
   },
+  // Email clients handle side-by-side layout poorly, so columns are stacked:
+  // these wrappers render nothing themselves and the exporter's generic child
+  // rendering stacks the column contents vertically.
+  column: () => <></>,
+  columnList: () => <></>,
 });
 
 // Export the original mapping for backward compatibility

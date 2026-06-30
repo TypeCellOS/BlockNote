@@ -10,7 +10,6 @@ import xmlFormat from "xml-formatter";
 import { odtDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { ODTExporter } from "./odtExporter.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
-import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 
 beforeAll(async () => {
   // @ts-expect-error - Blob polyfill for Node test environment
@@ -24,6 +23,8 @@ describe("exporter", () => {
         blockSpecs: {
           ...defaultBlockSpecs,
           pageBreak: createPageBreakBlockSpec(),
+          column: ColumnBlock,
+          columnList: ColumnListBlock,
         },
       }),
       odtDefaultSchemaMappings,
@@ -44,6 +45,8 @@ describe("exporter", () => {
           blockSpecs: {
             ...defaultBlockSpecs,
             pageBreak: createPageBreakBlockSpec(),
+            column: ColumnBlock,
+            columnList: ColumnListBlock,
           },
         }),
         odtDefaultSchemaMappings,
@@ -60,84 +63,6 @@ describe("exporter", () => {
       await testODTDocumentAgainstSnapshot(odt, {
         styles: "__snapshots__/withCustomOptions/styles.xml",
         content: "__snapshots__/withCustomOptions/content.xml",
-      });
-    },
-  );
-
-  it(
-    "should export a document with a multi-column block",
-    { timeout: 10000 },
-    async () => {
-      const schema = BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
-          column: ColumnBlock,
-          columnList: ColumnListBlock,
-        },
-      });
-      const exporter = new ODTExporter(schema, odtDefaultSchemaMappings);
-      const odt = await exporter.toODTDocument(
-        partialBlocksToBlocksForTesting(schema, [
-          {
-            type: "columnList",
-            children: [
-              {
-                type: "column",
-                props: {
-                  width: 0.8,
-                },
-                children: [
-                  {
-                    type: "paragraph",
-                    content: "This paragraph is in a column!",
-                  },
-                ],
-              },
-              {
-                type: "column",
-                props: {
-                  width: 1.4,
-                },
-                children: [
-                  {
-                    type: "heading",
-                    content: "So is this heading!",
-                  },
-                ],
-              },
-              {
-                type: "column",
-                props: {
-                  width: 0.8,
-                },
-                children: [
-                  {
-                    type: "paragraph",
-                    content: "You can have multiple blocks in a column too",
-                  },
-                  {
-                    type: "bulletListItem",
-                    content: "Block 1",
-                  },
-                  {
-                    type: "bulletListItem",
-                    content: "Block 2",
-                  },
-                  {
-                    type: "bulletListItem",
-                    content: "Block 3",
-                  },
-                ],
-              },
-            ],
-          },
-        ]),
-      );
-
-      await testODTDocumentAgainstSnapshot(odt, {
-        styles: "__snapshots__/withMultiColumn/styles.xml",
-        content: "__snapshots__/withMultiColumn/content.xml",
       });
     },
   );

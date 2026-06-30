@@ -3,6 +3,7 @@
   "docs": true,
   "author": "areknawo",
   "tags": [""],
+  "sharedTestDocument": true,
   "dependencies": {
     "@blocknote/xl-odt-exporter": "latest",
     "@blocknote/xl-multi-column": "latest"
