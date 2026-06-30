@@ -54,6 +54,7 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
+    "@handlewithcare/prosemirror-inputrules": "^0.1.4",
     "katex": "^0.16.11",
     "mathml-to-latex": "^1.8.0",
     "prosemirror-model": "^1.25.4",

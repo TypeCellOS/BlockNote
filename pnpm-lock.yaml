@@ -4619,13 +4619,7 @@ importers:
       '@shikijs/themes':
         specifier: ^4
         version: 4.0.2
-      katex:
-        specifier: ^0.16.11
-        version: 0.16.47
     devDependencies:
-      '@types/katex':
-        specifier: ^0.16.7
-        version: 0.16.8
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
@@ -4824,6 +4818,9 @@ importers:
       '@blocknote/core':
         specifier: workspace:^
         version: link:../core
+      '@handlewithcare/prosemirror-inputrules':
+        specifier: ^0.1.4
+        version: 0.1.4(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
       katex:
         specifier: ^0.16.11
         version: 0.16.47

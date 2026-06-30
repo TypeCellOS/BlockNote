@@ -2,6 +2,7 @@ import { SourceBlockWithPreviewExtension } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 
 import { createMathBlockConfig } from "../createMathBlockConfig.js";
+import { MathBlockInputRulesExtension } from "../MathBlockInputRulesExtension.js";
 import {
   parseBlockMathMLElement,
   parseBlockMathMLContent,
@@ -31,5 +32,6 @@ export const createReactMathBlockSpec = createReactBlockSpec(
       blockType: "math",
       hasPreview: () => true,
     }),
+    MathBlockInputRulesExtension,
   ],
 );

@@ -1,4 +1,5 @@
 export * from "./block/createMathBlockConfig.js";
+export * from "./block/MathBlockInputRulesExtension.js";
 export * from "./block/react/createReactMathBlockSpec.js";
 export * from "./block/react/render/MathBlockPreviewWithPopup.js";
 export * from "./block/react/toExternalHTML/BlockMathMLElement.js";

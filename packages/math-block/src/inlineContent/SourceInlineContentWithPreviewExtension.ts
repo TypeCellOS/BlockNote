@@ -1,4 +1,8 @@
 import { BlockNoteEditor, createExtension, createStore } from "@blocknote/core";
+import {
+  InputRule,
+  inputRules as inputRulesPlugin,
+} from "@handlewithcare/prosemirror-inputrules";
 import { Selection } from "prosemirror-state";
 
 /**
@@ -63,6 +67,27 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
         Enter: moveSelectionOut,
         Escape: moveSelectionOut,
       },
+      // Cannot use `inputRules` field as it only allows for converting matched content to blocks.
+      prosemirrorPlugins: [
+        inputRulesPlugin({
+          rules: [/\$([^$]+)\$$/, /\\\((.+?)\\\)$/].map(
+            (find) =>
+              new InputRule(find, (state, match, start, end) => {
+                const source = match[1]?.trim();
+                const nodeType = state.schema.nodes[inlineContentType];
+                if (!source || !nodeType) {
+                  return null;
+                }
+
+                return state.tr.replaceRangeWith(
+                  start,
+                  end,
+                  nodeType.create(null, state.schema.text(source)),
+                );
+              }),
+          ),
+        }),
+      ],
       mount: ({ signal }) => {
         // The popup is open exactly when the selection is inside the inline
         // content, so we just track which inline content (if any) holds it.

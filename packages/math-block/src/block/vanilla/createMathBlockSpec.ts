@@ -4,6 +4,7 @@ import {
 } from "@blocknote/core";
 
 import { createMathBlockConfig } from "../createMathBlockConfig.js";
+import { MathBlockInputRulesExtension } from "../MathBlockInputRulesExtension.js";
 import {
   parseBlockMathMLElement,
   parseBlockMathMLContent,
@@ -33,5 +34,6 @@ export const createMathBlockSpec = createBlockSpec(
       blockType: "math",
       hasPreview: () => true,
     }),
+    MathBlockInputRulesExtension,
   ],
 );
