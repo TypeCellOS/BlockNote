@@ -1205,3 +1205,345 @@ test("suggestion mode: delete image block", async () => {
     </doc>"
   `);
 });
+
+// A deleted parent paragraph whose children are a nested paragraph AND a nested
+// image. Validates the *per-block* delete decision (the whole point of the
+// inline-vs-block logic): the parent + nested paragraph (inline content) strike
+// through, while the nested image (no inline content) gets the "DELETED" badge —
+// all within the same deletion.
+test("suggestion mode: delete parent with nested paragraph and image", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "delete mixed block" });
+
+  editor.replaceBlocks(editor.document, [
+    {
+      id: "parent",
+      type: "paragraph",
+      content: "Parent",
+      children: [
+        { id: "p1", type: "paragraph", content: "Nested paragraph" },
+        {
+          id: "img",
+          type: "image",
+          props: { url: IMG_SRC, previewWidth: 150 },
+        },
+      ],
+    },
+  ]);
+  await sync();
+  await expectVisible(screen.getByTestId("editor-A").getByText("Parent"));
+
+  const baseDocXml = ydocXml(baseDoc);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  editor.removeBlocks(["parent"]);
+
+  await waitForSuggestion(editor);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "add-remove-delete-mixed-parent",
+  );
+
+  expect(baseDocXml).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="parent">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
+        <blockGroup>
+          <blockContainer id="p1">
+            <paragraph backgroundColor="default" textAlignment="left" textColor="default">Nested paragraph</paragraph>
+          </blockContainer>
+          <blockContainer id="img">
+            <image
+              backgroundColor="default"
+              caption=""
+              name=""
+              previewWidth="150"
+              showPreview="true"
+              textAlignment="left"
+              url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+            ></image>
+          </blockContainer>
+        </blockGroup>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <blockContainer id="1">
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
+            <y-attributed-delete
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >Parent</y-attributed-delete>
+          </paragraph>
+          <y-attributed-delete
+            userIds=""
+            user-color-light="#fff0c2"
+            user-color-dark="#8a6d1a"
+          >
+            <blockGroup>
+              <blockContainer id="p1">
+                <paragraph backgroundColor="default" textColor="default" textAlignment="left">Nested paragraph</paragraph>
+              </blockContainer>
+              <blockContainer id="img">
+                <image
+                  textAlignment="left"
+                  backgroundColor="default"
+                  name=""
+                  url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+                  caption=""
+                  showPreview="true"
+                  previewWidth="150"
+                ></image>
+              </blockContainer>
+            </blockGroup>
+          </y-attributed-delete>
+        </blockContainer>
+      </blockGroup>
+    </doc>"
+  `);
+});
+
+// A deleted code block. Its inline content lives in `<pre><code class=
+// "bn-inline-content">`, nested below `.bn-block-content` — so the descendant
+// `:has(.bn-inline-content)` must still classify it as an inline-content block
+// and strike it through, rather than show the block "DELETED" badge.
+test("suggestion mode: delete code block", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "delete code block" });
+
+  editor.replaceBlocks(editor.document, [
+    { id: "code", type: "codeBlock", content: "const x = 1;" },
+  ]);
+  await sync();
+  await expect.poll(() => editor.document[0]?.type).toBe("codeBlock");
+
+  const baseDocXml = ydocXml(baseDoc);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  editor.removeBlocks(["code"]);
+
+  await waitForSuggestion(editor);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "add-remove-delete-code-block",
+  );
+
+  expect(baseDocXml).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="code">
+        <codeBlock language="text">const x = 1;</codeBlock>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <y-attributed-delete
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="code">
+            <codeBlock language="text">const x = 1;</codeBlock>
+          </blockContainer>
+        </y-attributed-delete>
+        <y-attributed-insert
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="1">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
+      </blockGroup>
+    </doc>"
+  `);
+});
+
+// A deleted divider (`<hr>`, content: "none") takes the block "DELETED" card.
+// Edge case for the card's `width: fit-content`: an <hr> has no intrinsic width,
+// so the card could collapse to just the label — this baseline captures the
+// actual rendering so any regression there is visible.
+test("suggestion mode: delete divider", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "delete divider" });
+
+  editor.replaceBlocks(editor.document, [{ id: "hr", type: "divider" }]);
+  await sync();
+  await expect.poll(() => editor.document[0]?.type).toBe("divider");
+
+  const baseDocXml = ydocXml(baseDoc);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  editor.removeBlocks(["hr"]);
+
+  await waitForSuggestion(editor);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "add-remove-delete-divider",
+  );
+
+  expect(baseDocXml).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="hr">
+        <divider></divider>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <y-attributed-delete
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="hr">
+            <divider></divider>
+          </blockContainer>
+        </y-attributed-delete>
+        <y-attributed-insert
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="1">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
+      </blockGroup>
+    </doc>"
+  `);
+});
+
+// An inserted image (no inline content) takes the same per-block card as a deleted
+// one — author-colored, rounded, hugging the image — but with no "Deleted" label.
+// Confirms the card background is shared between insertions and deletions for
+// non-inline blocks, while inserted inline content (covered by the other insert
+// tests) keeps only its inline highlight and gets no block background.
+test("suggestion mode: insert image block", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "insert image" });
+
+  editor.replaceBlocks(editor.document, []);
+  await sync();
+
+  const baseDocXml = ydocXml(baseDoc);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  editor.replaceBlocks(editor.document, [
+    { id: "img", type: "image", props: { url: IMG_SRC, previewWidth: 150 } },
+  ]);
+
+  await waitForSuggestion(editor);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "add-remove-insert-image",
+  );
+
+  expect(baseDocXml).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="img">
+        <image
+          backgroundColor="default"
+          caption=""
+          name=""
+          previewWidth="150"
+          showPreview="true"
+          textAlignment="left"
+          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+        ></image>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <y-attributed-delete
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="1">
+            <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
+          </blockContainer>
+        </y-attributed-delete>
+        <y-attributed-insert
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="img">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <image
+                textAlignment="left"
+                backgroundColor="default"
+                name=""
+                url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+                caption=""
+                showPreview="true"
+                previewWidth="150"
+              ></image>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
+      </blockGroup>
+    </doc>"
+  `);
+});
