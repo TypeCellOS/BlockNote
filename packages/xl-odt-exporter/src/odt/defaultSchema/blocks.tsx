@@ -5,7 +5,6 @@ import {
   DefaultBlockSchema,
   DefaultProps,
   mapTableCell,
-  StyledText,
   TableCell,
 } from "@blocknote/core";
 import { ODTExporter } from "../odtExporter.js";
@@ -501,7 +500,8 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   },
 
   codeBlock: (block) => {
-    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
+    // Code blocks hold plain (string) content.
+    const textContent = typeof block.content === "string" ? block.content : "";
 
     return (
       <text:p text:style-name="Codeblock">

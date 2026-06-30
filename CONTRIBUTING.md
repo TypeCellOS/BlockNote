@@ -28,8 +28,28 @@ To run the project, open the command line in the project's root directory and en
 pnpm install
 
 # Start the example project
-pnpm start
+pnpm dev
 ```
+
+## Commands
+
+All commands are run from the project root with [`pnpm`](https://pnpm.io), which
+wraps the `vp` ([vite-plus](https://vite-plus.dev)) task runner. The ones you'll
+use day to day:
+
+| Command          | Description                                                |
+| ---------------- | ---------------------------------------------------------- |
+| `pnpm install`   | Install all dependencies.                                  |
+| `pnpm dev`       | Start the example editor with live reload.                 |
+| `pnpm start`     | Build the packages, then preview the example editor.       |
+| `pnpm test`      | Run the unit tests across all packages.                    |
+| `pnpm lint`      | Lint and type-check the codebase. Run this before pushing. |
+| `pnpm run check` | Auto-fix lint and formatting issues across the project.    |
+| `pnpm build`     | Build all packages.                                        |
+| `pnpm e2e`       | Run the Playwright end-to-end tests.                       |
+
+To run the unit tests for a single package, run `pnpm test` from inside that
+package's directory; append `-u` to update snapshots.
 
 ## Adding packages
 

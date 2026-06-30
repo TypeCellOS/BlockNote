@@ -107,14 +107,8 @@
   },
   {
     "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "const x = `template ${literal}`;
+    "content": "const x = `template ${literal}`;
 const y = '```triple backticks```';",
-        "type": "text",
-      },
-    ],
     "id": "5",
     "props": {
       "language": "text",

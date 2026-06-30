@@ -1,13 +1,7 @@
 [
   {
     "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "console.log('Hello');",
-        "type": "text",
-      },
-    ],
+    "content": "console.log('Hello');",
     "id": "1",
     "props": {
       "language": "text",

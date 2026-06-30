@@ -177,13 +177,7 @@
   },
   {
     "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "console.log('Hello, world!');",
-        "type": "text",
-      },
-    ],
+    "content": "console.log('Hello, world!');",
     "id": "11",
     "props": {
       "language": "javascript",

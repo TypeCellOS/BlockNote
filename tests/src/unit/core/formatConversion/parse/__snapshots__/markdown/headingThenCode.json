@@ -20,13 +20,7 @@
   },
   {
     "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "x = 42",
-        "type": "text",
-      },
-    ],
+    "content": "x = 42",
     "id": "2",
     "props": {
       "language": "python",

@@ -1,14 +1,8 @@
 [
   {
     "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "const x = 42;
+    "content": "const x = 42;
 console.log(x);",
-        "type": "text",
-      },
-    ],
     "id": "1",
     "props": {
       "language": "javascript",

@@ -37,8 +37,8 @@ export type MouseAction =
  * `vite.config.browser.ts` as that's the only way to have access to the internal Playwright
  * context.
  */
-// eslint-disable-next-line @typescript-eslint/unbound-method -- destructuring page/frame from parameter object, not a class
 export const positionalMouse: BrowserCommand<MouseAction[]> = async (
+  // eslint-disable-next-line typescript/unbound-method -- destructuring page/frame from parameter object, not a class
   { page, frame },
   ...actions
 ) => {

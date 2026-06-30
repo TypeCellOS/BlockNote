@@ -1,13 +1,7 @@
 [
   {
     "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "console.log("Should default to JS")",
-        "type": "text",
-      },
-    ],
+    "content": "console.log("Should default to JS")",
     "id": "1",
     "props": {
       "language": "text",
@@ -16,13 +10,7 @@
   },
   {
     "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "console.log("Should parse TS from data-language")",
-        "type": "text",
-      },
-    ],
+    "content": "console.log("Should parse TS from data-language")",
     "id": "2",
     "props": {
       "language": "typescript",
@@ -31,13 +19,7 @@
   },
   {
     "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "print("Should parse Python from language- class")",
-        "type": "text",
-      },
-    ],
+    "content": "print("Should parse Python from language- class")",
     "id": "3",
     "props": {
       "language": "python",
@@ -46,13 +28,7 @@
   },
   {
     "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "console.log("Should prioritize TS from data-language over language- class")",
-        "type": "text",
-      },
-    ],
+    "content": "console.log("Should prioritize TS from data-language over language- class")",
     "id": "4",
     "props": {
       "language": "typescript",

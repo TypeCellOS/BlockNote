@@ -1,13 +1,7 @@
 [
   {
     "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "code with tildes",
-        "type": "text",
-      },
-    ],
+    "content": "code with tildes",
     "id": "1",
     "props": {
       "language": "text",

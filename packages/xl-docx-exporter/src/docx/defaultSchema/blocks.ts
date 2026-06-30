@@ -4,7 +4,6 @@ import {
   createPageBreakBlockConfig,
   DefaultBlockSchema,
   DefaultProps,
-  StyledText,
   UnreachableCaseError,
 } from "@blocknote/core";
 import { getImageDimensions } from "@shared/util/imageUtil.js";
@@ -163,7 +162,8 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     ];
   },
   codeBlock: (block) => {
-    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
+    // Code blocks hold plain (string) content.
+    const textContent = typeof block.content === "string" ? block.content : "";
 
     return new Paragraph({
       style: "SourceCode",

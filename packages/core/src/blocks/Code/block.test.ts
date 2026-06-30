@@ -125,7 +125,7 @@ describe("Code block input rule", () => {
 
     const block = editor.document[0];
     expect(block.type).toBe("codeBlock");
-    expect(block.content).toEqual([]);
+    expect(block.content).toBe("");
   });
 
   it("converts ```ts + Enter into a codeBlock", () => {
@@ -135,7 +135,7 @@ describe("Code block input rule", () => {
     const block = editor.document[0];
     expect(block.type).toBe("codeBlock");
     expect((block.props as any).language).toBe("ts");
-    expect(block.content).toEqual([]);
+    expect(block.content).toBe("");
   });
 
   it("converts ``` + Enter into a codeBlock with empty language", () => {
@@ -186,9 +186,8 @@ describe("Code block input rule", () => {
     const after = editor.document[0];
     expect(after.type).toBe("codeBlock");
     expect(after.id).toBe(block.id);
-    expect(
-      (after.content as Array<{ type: string; text: string }>)[0].text,
-    ).toBe("hello");
+    // The code block holds plain (string) content.
+    expect(after.content).toBe("hello");
   });
 
   it("places cursor inside the new code block after Enter conversion", () => {
@@ -205,9 +204,8 @@ describe("Code block input rule", () => {
     const after = editor.document[0];
     expect(after.type).toBe("codeBlock");
     expect(after.id).toBe(block.id);
-    expect(
-      (after.content as Array<{ type: string; text: string }>)[0].text,
-    ).toBe("world");
+    // The code block holds plain (string) content.
+    expect(after.content).toBe("world");
   });
 
   it("Enter inside an existing code block does not retrigger conversion", () => {
