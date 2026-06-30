@@ -15,7 +15,7 @@ const PDFUA_NS = "http://www.aiim.org/pdfua/ns/id/";
  *
  * We add both here in pure JS (pdf-lib runs in the browser), so the whole
  * pipeline stays client-side. The output should always be independently
- * verified with veraPDF — see the golden gate in the spike / CI.
+ * verified with veraPDF — see the conformance gate in `pdfua.test.ts`.
  *
  * NOTE: this declares conformance; it does not *create* it. Garbage in (an
  * untagged PDF, missing alt text, ...) stays non-conformant — which is why

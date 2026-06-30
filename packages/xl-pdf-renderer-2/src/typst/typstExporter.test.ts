@@ -31,7 +31,7 @@ describe("TypstExporter", () => {
   it("exports a real BlockNote document to Typst", async () => {
     // fullSchema (incl. multi-column) matches the shared testDocument. Resolves
     // the document's images over the network, like the other exporters.
-    // emojiFontFamily matches the example + golden test, so the snapshot
+    // emojiFontFamily matches the example + pdfua.test, so the snapshot
     // exercises the explicit emoji-font fallback (needed for ZWJ emoji).
     const exporter = new TypstExporter(fullSchema, typstDefaultSchemaMappings, {
       emojiFontFamily: "Noto Color Emoji",
@@ -59,7 +59,8 @@ describe("TypstExporter", () => {
     expect(typ).toContain("#raw(");
     expect(typ).toContain("link(");
 
-    // The snapshot file IS the golden `.typ` the veraPDF gate compiles.
+    // This `.typ` snapshot is the markup that pdfua.test.ts compiles and checks
+    // for PDF/UA-1 conformance.
     await expect(typ).toMatchFileSnapshot("__snapshots__/testDocument.typ");
   });
 
