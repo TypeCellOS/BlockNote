@@ -130,25 +130,25 @@ test("concurrent: A indents N1, B indents N2 below N1", async () => {
         <blockContainer id="n0">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
           <y-attributed-insert
-            userIds=""
+            userIds="A"
             user-color-light="#fff0c2"
             user-color-dark="#8a6d1a"
           >
             <blockGroup>
               <y-attributed-insert
-                userIds=""
+                userIds="A"
                 user-color-light="#fff0c2"
                 user-color-dark="#8a6d1a"
               >
                 <blockContainer id="n1">
                   <y-attributed-insert
-                    userIds=""
+                    userIds="A"
                     user-color-light="#fff0c2"
                     user-color-dark="#8a6d1a"
                   >
                     <paragraph backgroundColor="default" textColor="default" textAlignment="left">
                       <y-attributed-insert
-                        userIds=""
+                        userIds="A"
                         user-color-light="#fff0c2"
                         user-color-dark="#8a6d1a"
                       >N1</y-attributed-insert>
@@ -160,7 +160,7 @@ test("concurrent: A indents N1, B indents N2 below N1", async () => {
           </y-attributed-insert>
         </blockContainer>
         <y-attributed-delete
-          userIds=""
+          userIds="A"
           user-color-light="#fff0c2"
           user-color-dark="#8a6d1a"
         >
@@ -169,21 +169,21 @@ test("concurrent: A indents N1, B indents N2 below N1", async () => {
           </blockContainer>
         </y-attributed-delete>
         <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
+          userIds="B"
+          user-color-light="#fcc9c3"
+          user-color-dark="#8a2e24"
         >
           <blockContainer id="n2">
             <y-attributed-delete
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
+              userIds="B"
+              user-color-light="#fcc9c3"
+              user-color-dark="#8a2e24"
             >
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
                 <y-attributed-delete
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
+                  userIds="B"
+                  user-color-light="#fcc9c3"
+                  user-color-dark="#8a2e24"
                 >N2</y-attributed-delete>
               </paragraph>
             </y-attributed-delete>

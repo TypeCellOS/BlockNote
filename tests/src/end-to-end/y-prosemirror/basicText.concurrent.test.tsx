@@ -133,20 +133,30 @@ test("concurrent: A fixes typo, B deletes the word", async () => {
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
             <y-attributed-delete
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
+              userIds="B"
+              user-color-light="#fcc9c3"
+              user-color-dark="#8a2e24"
             >w</y-attributed-delete>
             <y-attributed-insert
-              userIds=""
+              userIds="A"
               user-color-light="#fff0c2"
               user-color-dark="#8a6d1a"
             >o</y-attributed-insert>
             <y-attributed-delete
-              userIds=""
+              userIds="B"
+              user-color-light="#fcc9c3"
+              user-color-dark="#8a2e24"
+            >r</y-attributed-delete>
+            <y-attributed-delete
+              userIds="A"
               user-color-light="#fff0c2"
               user-color-dark="#8a6d1a"
-            >rold</y-attributed-delete>
+            >o</y-attributed-delete>
+            <y-attributed-delete
+              userIds="B"
+              user-color-light="#fcc9c3"
+              user-color-dark="#8a2e24"
+            >ld</y-attributed-delete>
           </paragraph>
         </blockContainer>
       </blockGroup>
@@ -264,7 +274,7 @@ test("concurrent: A bolds the word, B italicises the word", async () => {
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
             <y-attributed-format
-              userIds=""
+              userIds="A,B"
               format="[object Object]"
               user-color-light="#fff0c2"
               user-color-dark="#8a6d1a"

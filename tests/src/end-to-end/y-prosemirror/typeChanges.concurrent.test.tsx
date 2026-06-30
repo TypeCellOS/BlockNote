@@ -116,7 +116,7 @@ test("concurrent: A → heading, B → list item", async () => {
     "<doc>
       <blockGroup>
         <y-attributed-delete
-          userIds=""
+          userIds="A"
           user-color-light="#fff0c2"
           user-color-dark="#8a6d1a"
         >
@@ -125,13 +125,13 @@ test("concurrent: A → heading, B → list item", async () => {
           </blockContainer>
         </y-attributed-delete>
         <y-attributed-insert
-          userIds=""
+          userIds="A"
           user-color-light="#fff0c2"
           user-color-dark="#8a6d1a"
         >
           <blockContainer id="block-hello">
             <y-attributed-insert
-              userIds=""
+              userIds="A"
               user-color-light="#fff0c2"
               user-color-dark="#8a6d1a"
             >
@@ -143,7 +143,7 @@ test("concurrent: A → heading, B → list item", async () => {
                 isToggleable="false"
               >
                 <y-attributed-insert
-                  userIds=""
+                  userIds="A"
                   user-color-light="#fff0c2"
                   user-color-dark="#8a6d1a"
                 >hello world</y-attributed-insert>
@@ -152,15 +152,15 @@ test("concurrent: A → heading, B → list item", async () => {
           </blockContainer>
         </y-attributed-insert>
         <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
+          userIds="B"
+          user-color-light="#fcc9c3"
+          user-color-dark="#8a2e24"
         >
           <blockContainer id="block-hello">
             <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
+              userIds="B"
+              user-color-light="#fcc9c3"
+              user-color-dark="#8a2e24"
             >
               <bulletListItem
                 backgroundColor="default"
@@ -168,9 +168,9 @@ test("concurrent: A → heading, B → list item", async () => {
                 textAlignment="left"
               >
                 <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
+                  userIds="B"
+                  user-color-light="#fcc9c3"
+                  user-color-dark="#8a2e24"
                 >hello world</y-attributed-insert>
               </bulletListItem>
             </y-attributed-insert>
@@ -283,36 +283,51 @@ test("concurrent: A edits text, B → heading", async () => {
     "<doc>
       <blockGroup>
         <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
+          userIds="B"
+          user-color-light="#fcc9c3"
+          user-color-dark="#8a2e24"
         >
           <blockContainer id="block-hello">
             <y-attributed-delete
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
+              userIds="B"
+              user-color-light="#fcc9c3"
+              user-color-dark="#8a2e24"
             >
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
                 <y-attributed-delete
-                  userIds=""
+                  userIds="B"
+                  user-color-light="#fcc9c3"
+                  user-color-dark="#8a2e24"
+                >hello</y-attributed-delete>
+                <y-attributed-delete
+                  userIds="A"
                   user-color-light="#fff0c2"
                   user-color-dark="#8a6d1a"
-                >hello world</y-attributed-delete>
+                >wo</y-attributed-delete>
+                <y-attributed-delete
+                  userIds="B"
+                  user-color-light="#fcc9c3"
+                  user-color-dark="#8a2e24"
+                >r</y-attributed-delete>
+                <y-attributed-delete
+                  userIds="A"
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >ld</y-attributed-delete>
               </paragraph>
             </y-attributed-delete>
           </blockContainer>
         </y-attributed-delete>
         <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
+          userIds="B"
+          user-color-light="#fcc9c3"
+          user-color-dark="#8a2e24"
         >
           <blockContainer id="block-hello">
             <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
+              userIds="B"
+              user-color-light="#fcc9c3"
+              user-color-dark="#8a2e24"
             >
               <heading
                 backgroundColor="default"
@@ -322,9 +337,9 @@ test("concurrent: A edits text, B → heading", async () => {
                 isToggleable="false"
               >
                 <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
+                  userIds="B"
+                  user-color-light="#fcc9c3"
+                  user-color-dark="#8a2e24"
                 >hello world</y-attributed-insert>
               </heading>
             </y-attributed-insert>
