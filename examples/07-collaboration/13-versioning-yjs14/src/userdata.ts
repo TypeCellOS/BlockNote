@@ -5,11 +5,11 @@ import type { User } from "@blocknote/core/extensions";
 // of a name. The seed (`sampleDocument.ts`) attributes each contribution to one
 // of these ids via `attribution.by`.
 export const USERS: User[] = [
-  { id: "1", username: "Alice", avatarUrl: "", color: "#30bced" },
-  { id: "2", username: "Bob", avatarUrl: "", color: "#6eeb83" },
-  { id: "3", username: "Carol", avatarUrl: "", color: "#ffbc42" },
-  { id: "4", username: "Dave", avatarUrl: "", color: "#ee6352" },
-  { id: "5", username: "Erin", avatarUrl: "", color: "#9b5de5" },
+  { id: "1", username: "Alice", avatarUrl: "", color: "#e6194b" },
+  { id: "2", username: "Bob", avatarUrl: "", color: "#3cb44b" },
+  { id: "3", username: "Carol", avatarUrl: "", color: "#f58231" },
+  { id: "4", username: "Dave", avatarUrl: "", color: "#4363d8" },
+  { id: "5", username: "Erin", avatarUrl: "", color: "#911eb4" },
 ];
 
 /**
