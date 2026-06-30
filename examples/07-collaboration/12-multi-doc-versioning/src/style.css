@@ -504,6 +504,34 @@ button {
   overflow: hidden;
 }
 
+/* When the history sidebar is closed, the editor takes the full width. */
+.doc-workspace-no-sidebar {
+  grid-template-columns: 1fr;
+}
+
+/* "History" button in the document header, shown only while the sidebar is
+   closed so the user can reopen it. */
+.show-history-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+.show-history-button:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+
 .doc-main {
   display: flex;
   flex-direction: column;
@@ -569,7 +597,6 @@ button {
 }
 
 .doc-status {
-  align-self: flex-start;
   font-size: 10.5px;
   padding: 1px 7px;
   border-radius: 999px;

@@ -233,6 +233,8 @@ export function DocumentEditor({
     [],
   );
 
+  const [showSidebar, setShowSidebar] = useState(true);
+
   const changeMode = (next: typeof editingMode) => {
     if (next === editingMode) {
       return;
@@ -253,7 +255,11 @@ export function DocumentEditor({
       editable={previewedSnapshotId === undefined}
       renderEditor={false}
     >
-      <div className="doc-workspace">
+      <div
+        className={
+          "doc-workspace" + (showSidebar ? "" : " doc-workspace-no-sidebar")
+        }
+      >
         <section className="doc-main">
           <header className="doc-main-header">
             <div className="doc-main-title-row">
@@ -278,6 +284,16 @@ export function DocumentEditor({
                 <span className={"doc-status doc-status-" + connStatus}>
                   {connStatus}
                 </span>
+                {!showSidebar && (
+                  <button
+                    className="show-history-button"
+                    onClick={() => setShowSidebar(true)}
+                    title="Show version history"
+                    aria-label="Show version history"
+                  >
+                    History
+                  </button>
+                )}
               </div>
             </div>
           </header>
@@ -285,9 +301,9 @@ export function DocumentEditor({
             <BlockNoteViewEditor />
           </div>
         </section>
-        {/* The sidebar stays open; its close (X) button exits version-preview
-            mode (back to the live, editable document) rather than hiding it. */}
-        <HistorySidebar onClose={() => undefined} />
+        {showSidebar && (
+          <HistorySidebar onClose={() => setShowSidebar(false)} />
+        )}
       </div>
     </BlockNoteView>
   );

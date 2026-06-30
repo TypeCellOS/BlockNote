@@ -932,6 +932,10 @@ we just don't display it in CSS instead. */
   color: #fff;
 }
 
+.bn-versioning-sidebar .bn-snapshot.selected .bn-snapshot-name {
+  color: #fff;
+}
+
 .bn-versioning-sidebar .bn-snapshot.selected .bn-snapshot-date,
 .bn-versioning-sidebar .bn-snapshot.selected .bn-snapshot-original-date,
 .bn-versioning-sidebar .bn-snapshot.selected .bn-snapshot-secondary-label {

@@ -155,9 +155,6 @@ function VersionedEditor() {
             )}
           </div>
           {showSidebar && (
-            // YHub's activity timeline is the source of truth for versions, and
-            // YHub has no concept of a custom/pinned name, so every version is
-            // shown ("all").
             <div className={"sidebar-section"}>
               <VersioningSidebar
                 filter={"all"}
