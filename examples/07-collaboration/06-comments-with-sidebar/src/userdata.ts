@@ -1,4 +1,4 @@
-import type { User } from "@blocknote/core/comments";
+import type { User } from "@blocknote/core/extensions";
 
 const colors = [
   "#958DF1",

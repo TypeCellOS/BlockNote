@@ -11,7 +11,7 @@ import {
 } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { VersioningExtension } from "./Versioning.js";
+import { CURRENT_VERSION_ID, VersioningExtension } from "./Versioning.js";
 import {
   createInMemoryPreviewController,
   createInMemoryVersioningAdapter,
@@ -276,8 +276,11 @@ describe("VersioningExtension + in-memory adapter", () => {
     // 3. Create another snapshot
     await ext.createSnapshot!({ name: "v2" });
 
-    // 4. List — both present
-    const list = await ext.listSnapshots();
+    // 4. List — both present (the adapter also surfaces a "current version"
+    // entry, which isn't a stored snapshot).
+    const list = (await ext.listSnapshots()).filter(
+      (s) => s.id !== CURRENT_VERSION_ID,
+    );
     expect(list).toHaveLength(2);
     expect(list.map((s) => s.name)).toContain("v1");
     expect(list.map((s) => s.name)).toContain("v2");
@@ -297,8 +300,11 @@ describe("VersioningExtension + in-memory adapter", () => {
     expect(restored).toBeDefined();
     expect(getEditorText(editor)).toBe("initial doc");
 
-    // 8. A backup snapshot was created by the endpoints
-    const afterRestore = await ext.listSnapshots();
+    // 8. A backup snapshot was created by the endpoints (plus the adapter's
+    // "current version" entry, which isn't a stored snapshot).
+    const afterRestore = (await ext.listSnapshots()).filter(
+      (s) => s.id !== CURRENT_VERSION_ID,
+    );
     expect(afterRestore.length).toBe(3);
     const backup = afterRestore.find(
       (s) => s.restoredFromSnapshotId === snap1.id,

@@ -1,0 +1,22 @@
+import type { User } from "@blocknote/core/extensions";
+
+// Integer-like ids make it obvious if username resolution ever breaks: the
+// version sidebar / diff tooltips would show a bare number (e.g. "1") instead
+// of a name. The seed (`sampleDocument.ts`) attributes each contribution to one
+// of these ids via `attribution.by`.
+export const USERS: User[] = [
+  { id: "1", username: "Alice", avatarUrl: "", color: "#30bced" },
+  { id: "2", username: "Bob", avatarUrl: "", color: "#6eeb83" },
+  { id: "3", username: "Carol", avatarUrl: "", color: "#ffbc42" },
+  { id: "4", username: "Dave", avatarUrl: "", color: "#ee6352" },
+  { id: "5", username: "Erin", avatarUrl: "", color: "#9b5de5" },
+];
+
+/**
+ * Resolves user ids to user info for the `UserExtension`, which the versioning
+ * UI uses to display version authors (and diff tooltips) by name instead of id.
+ * Mirrors the `resolveUsers` you'd normally back with your own user database.
+ */
+export async function resolveUsers(userIds: string[]): Promise<User[]> {
+  return USERS.filter((u) => userIds.includes(u.id));
+}

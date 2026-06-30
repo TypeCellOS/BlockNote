@@ -13,6 +13,7 @@ import { createYjsVersioningAdapter } from "./Versioning.js";
 import {
   VersioningExtension,
   VersioningEndpoints,
+  VersioningEndpointsFactory,
 } from "../../extensions/Versioning/index.js";
 
 export type CollaborationOptions = {
@@ -23,10 +24,7 @@ export type CollaborationOptions = {
   /**
    * The user info for the current user that's shown to other collaborators.
    */
-  user: {
-    name: string;
-    color: string;
-  };
+  user: CollaborationUser;
   /**
    * A Yjs provider (used for awareness / cursor information)
    */
@@ -54,7 +52,9 @@ export type CollaborationOptions = {
   /**
    * The endpoints for the versioning functionality.
    */
-  versioningEndpoints?: VersioningEndpoints<Y.Type, Uint8Array>;
+  versioningEndpoints?:
+    | VersioningEndpoints<Y.Type, Uint8Array>
+    | VersioningEndpointsFactory<Y.Type, Uint8Array>;
 };
 
 export const CollaborationExtension = createExtension(

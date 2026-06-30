@@ -3,12 +3,13 @@ import {
   createYHubVersioningEndpoints,
   withCollaboration,
 } from "@blocknote/core/y";
-import { VersioningExtension } from "@blocknote/core/extensions";
+import { UserExtension, VersioningExtension } from "@blocknote/core/extensions";
 import {
   BlockNoteViewEditor,
   useCreateBlockNote,
   useExtension,
   useExtensionState,
+  VersioningSidebar,
 } from "@blocknote/react";
 import { useEffect, useState } from "react";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -17,15 +18,15 @@ import "@blocknote/mantine/style.css";
 import * as Y from "@y/y";
 import { WebsocketProvider } from "@y/websocket";
 
-import { VersionHistorySidebar } from "./VersionHistorySidebar";
 import { seedSampleVersions } from "./sampleDocument";
+import { resolveUsers } from "./userdata";
 import "./style.css";
 
 // YHub serves both real-time sync (over WebSocket) and version history (over
 // HTTP) for the same document, so the backend URL, org, and docId are shared.
-const yhubHost = "yhub-standalone-x9kss.ondigitalocean.app";
-const org = "blocknote-versioning-yjs14";
-const docId = `blocknote-versioning-yjs14-${Math.floor(Date.now())}`;
+const yhubHost = "yhub.teleportal.tools";
+const org = "blocknote";
+const docId = `blocknote-version-yjs14-${Math.floor(Date.now())}`;
 
 // YHub-backed versioning endpoints. YHub stores continuous edit history and
 // exposes its activity timeline as versions through BlockNote's versioning UI.
@@ -41,6 +42,11 @@ const provider = new WebsocketProvider(
   `wss://${yhubHost}/ws`,
   `${org}/${docId}`,
   doc,
+  {
+    params: {
+      userid: "test",
+    },
+  },
 );
 
 const preparePromise: Promise<void> = (async () => {
@@ -106,12 +112,17 @@ function VersionedEditor() {
         // automatically wires up the VersioningExtension with the Yjs adapter.
         versioningEndpoints,
       },
+      // Resolves version-author ids (the seed's `attribution.by`) to usernames
+      // in the history sidebar and diff tooltips.
+      extensions: [UserExtension({ resolveUsers })],
     }),
   );
 
   const { previewedSnapshotId } = useExtensionState(VersioningExtension, {
     editor,
   });
+
+  const [showSidebar, setShowSidebar] = useState(true);
 
   const versioning = useExtension(VersioningExtension, { editor });
   useEffect(() => {
@@ -134,8 +145,26 @@ function VersionedEditor() {
         <div className="layout">
           <div className="editor-panel">
             <BlockNoteViewEditor />
+            {!showSidebar && (
+              <button
+                className="show-history-button"
+                onClick={() => setShowSidebar(true)}
+              >
+                History
+              </button>
+            )}
           </div>
-          <VersionHistorySidebar />
+          {showSidebar && (
+            // YHub's activity timeline is the source of truth for versions, and
+            // YHub has no concept of a custom/pinned name, so every version is
+            // shown ("all").
+            <div className={"sidebar-section"}>
+              <VersioningSidebar
+                filter={"all"}
+                onClose={() => setShowSidebar(false)}
+              />
+            </div>
+          )}
         </div>
       </BlockNoteView>
     </div>

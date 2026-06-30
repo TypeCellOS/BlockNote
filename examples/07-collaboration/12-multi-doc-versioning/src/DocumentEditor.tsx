@@ -5,8 +5,9 @@ import {
   createYHubVersioningEndpoints,
 } from "@blocknote/core/y";
 import {
+  UserExtension,
   VersioningExtension,
-  type VersioningEndpoints,
+  type User,
 } from "@blocknote/core/extensions";
 import {
   BlockNoteViewEditor,
@@ -21,7 +22,7 @@ import * as Y from "@y/y";
 import { fromBase64 } from "lib0/buffer";
 import { WebsocketProvider } from "@y/websocket";
 
-import type { DemoUser } from "./userdata.js";
+import { resolveUsers } from "./userdata.js";
 
 import { HistorySidebar } from "./HistorySidebar.js";
 
@@ -38,7 +39,7 @@ export function DocumentEditor({
 }: {
   workspaceId: string;
   docId: string;
-  user: DemoUser;
+  user: User;
   docTitle: string;
   onTouch: () => void;
 }) {
@@ -51,7 +52,7 @@ export function DocumentEditor({
     provider: WebsocketProvider;
     suggestionProvider: WebsocketProvider;
     attributionManager: ReturnType<typeof Y.createAttributionManagerFromDiff>;
-    versioningEndpoints: VersioningEndpoints;
+    versioningEndpoints: ReturnType<typeof createYHubVersioningEndpoints>;
   } | null>(null);
 
   if (!resourcesRef.current) {
@@ -66,17 +67,27 @@ export function DocumentEditor({
     }
 
     const suggestionDoc = new Y.Doc({ isSuggestionDoc: true });
-    const yhubHost = "yhub-standalone-x9kss.ondigitalocean.app";
+    const yhubHost = "yhub.teleportal.tools";
 
     const provider = new WebsocketProvider(
       `wss://${yhubHost}/ws`,
       roomName,
       doc,
+      {
+        params: {
+          userid: user.id,
+        },
+      },
     );
     const suggestionProvider = new WebsocketProvider(
       `wss://${yhubHost}/ws`,
       roomName + "-suggestions",
       suggestionDoc,
+      {
+        params: {
+          userid: user.id,
+        },
+      },
     );
     const attributionManager = Y.createAttributionManagerFromDiff(
       doc,
@@ -167,9 +178,16 @@ export function DocumentEditor({
         suggestionDoc,
         attributionManager,
         fragment: doc.get(),
-        user: { color: user.color, name: user.name },
+        user: {
+          color: user.color ?? "#000000",
+          name: user.username,
+          id: user.id,
+        },
         versioningEndpoints,
       },
+      // Resolves version-author ids (YHub's `by`) to usernames in the history
+      // sidebar and diff tooltips.
+      extensions: [UserExtension({ resolveUsers })],
     }),
   );
 
@@ -267,7 +285,9 @@ export function DocumentEditor({
             <BlockNoteViewEditor />
           </div>
         </section>
-        <HistorySidebar />
+        {/* The sidebar stays open; its close (X) button exits version-preview
+            mode (back to the live, editable document) rather than hiding it. */}
+        <HistorySidebar onClose={() => undefined} />
       </div>
     </BlockNoteView>
   );

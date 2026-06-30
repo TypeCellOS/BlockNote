@@ -6,9 +6,10 @@ import {
 import { CollaborationOptions } from "./index.js";
 
 export type CollaborationUser = {
+  id?: string;
   name: string;
   color: string;
-  [key: string]: string;
+  [key: string]: unknown;
 };
 
 /**
@@ -175,6 +176,13 @@ export const YCursorExtension = createExtension(
       dependsOn: ["ySync"],
       updateUser(user: CollaborationUser) {
         awareness?.setLocalStateField("user", user);
+      },
+      getUser(): CollaborationUser | undefined {
+        const state = awareness?.getLocalState();
+        if (!state) {
+          return undefined;
+        }
+        return state["user"];
       },
     } as const;
   },

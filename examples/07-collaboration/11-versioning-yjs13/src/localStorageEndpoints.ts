@@ -2,6 +2,7 @@ import * as Y from "yjs";
 import { toBase64, fromBase64 } from "lib0/buffer";
 
 import {
+  CURRENT_VERSION_ID,
   sortSnapshotsNewestFirst,
   type VersioningEndpoints,
   type VersionSnapshot,
@@ -49,7 +50,18 @@ export function createLocalStorageVersioningEndpoints(
   const listSnapshots: VersioningEndpoints<
     Y.XmlFragment,
     Uint8Array
-  >["list"] = async () => readSnapshots(storageKey);
+  >["list"] = async () => {
+    // Surface the live document as a "current version" entry at the top — it's
+    // how the user returns to live editing and compares against saved
+    // snapshots. It isn't a stored snapshot, so it's never passed to
+    // `getContent` (the sidebar previews it live via `previewCurrentVersion`).
+    const current: VersionSnapshot = {
+      id: CURRENT_VERSION_ID,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    return [current, ...readSnapshots(storageKey)];
+  };
 
   const createSnapshot: VersioningEndpoints<
     Y.XmlFragment,

@@ -1,8 +1,18 @@
-import { deltaToPNode, docDiffToDelta, docToDelta } from "@y/prosemirror";
+import { deltaToPNode, docToDelta, nodeToDelta } from "@y/prosemirror";
 import * as Y from "@y/y";
 
 import { type Block, BlockNoteEditor, docToBlocks } from "../../index.js";
+import { diff } from "lib0/delta";
+import { blockMatchNodes } from "./blockMatchNodes.js";
+import { Node } from "prosemirror-model";
 
+function docDiffToDelta(previousDoc: Node, newDoc: Node) {
+  const initialDelta = nodeToDelta(previousDoc);
+  const finalDelta = nodeToDelta(newDoc);
+  return diff(initialDelta.done(), finalDelta.done(), {
+    compare: blockMatchNodes,
+  });
+}
 /**
  * Build up Yjs snapshots of a document at named points in time.
  *
@@ -24,17 +34,24 @@ import { type Block, BlockNoteEditor, docToBlocks } from "../../index.js";
  *
  * Because we want snapshots to stay valid, the backing Y.Doc has gc disabled.
  *
- * @example Pre-populate a doc with attributed history, then ship it
+ * @example Pre-populate a doc with multi-author history, then ship it
  * ```ts
  * const editor = createSnapshotEditor();
  * const result = await buildSnapshots(editor, [
- *   { name: "Intro", attribution: { by: "alice" }, changes: (e) => {  } },
- *   { name: "Edits", attribution: { by: "bob" },   changes: (e) => {  } },
+ *   {
+ *     name: "Intro",
+ *     contributions: [
+ *       { attribution: { by: "alice" }, changes: (e) => {  } },
+ *       { attribution: { by: "bob" },   changes: (e) => {  } },
+ *     ],
+ *   },
  * ], {
- *   onSnapshot: async ({ name, attribution, diff }) => {
- *     // e.g. PATCH each step to YHub with attributions (see yhub.ts), or just
- *     // collect the updates to apply server-side.
- *     await storeToServer(diff.update, { name, ...attribution });
+ *   onSnapshot: async ({ name, contributions }) => {
+ *     // e.g. PATCH each contribution to YHub attributed to its author (see
+ *     // yhub.ts), then commit a single version marker named `name`.
+ *     for (const { attribution, update } of contributions) {
+ *       await storeToServer(update, { ...attribution });
+ *     }
  *   },
  * });
  *
@@ -44,50 +61,63 @@ import { type Block, BlockNoteEditor, docToBlocks } from "../../index.js";
  * ```
  */
 
-/** Arbitrary attribution attached to a step (e.g. `{ by: "alice" }`). */
+/** Arbitrary attribution attached to a contribution (e.g. `{ by: "alice" }`). */
 export type SnapshotAttribution = Record<string, unknown>;
 
-/** A single named step in the document's history. */
-export type SnapshotStep = {
-  name: string;
+/**
+ * A single attributed contribution to a version. Each contribution is applied
+ * in its own Yjs transaction (origin = its `attribution`), so a single version
+ * can carry content authored by several different users.
+ */
+export type SnapshotContribution = {
   /**
-   * Optional attribution for this step's changes. Passed through to
-   * `onSnapshot` and set as the Yjs transaction origin, so callers can map it
-   * to e.g. YHub `customAttributions` to differentiate who changed what.
+   * Attribution for this contribution's changes (e.g. `{ by: "alice" }`). Set
+   * as the Yjs transaction origin, so callers can map it to e.g. YHub
+   * `customAttributions` / `?userid=` to differentiate who changed what.
    */
   attribution?: SnapshotAttribution;
   /**
-   * Mutate the editor. Receives the same editor instance the previous step
-   * left off with, so changes accumulate.
+   * Mutate the editor. Receives the same editor instance the previous
+   * contribution (or step) left off with, so changes accumulate.
    */
   changes: (editor: BlockNoteEditor<any, any, any>) => void;
 };
 
-/** The change a step introduced, as both a Yjs update and a ProseMirror delta. */
-export type SnapshotDiff = {
+/** A single named version in the document's history, built from one or more attributed contributions. */
+export type SnapshotStep = {
+  name: string;
+  /** The attributed contributions that together produce this version. */
+  contributions: SnapshotContribution[];
+};
+
+/** One attributed contribution's change, as both a Yjs update and a ProseMirror delta. */
+export type SnapshotContributionDiff = {
+  /** Attribution for this contribution, if any. */
+  attribution?: SnapshotAttribution;
   /**
-   * V2 Yjs update containing only this step's transaction. Apply sequentially
-   * (`Y.applyUpdateV2`) / PATCH to a server to rebuild the history.
+   * V2 Yjs update containing only this contribution's transaction. Apply
+   * sequentially (`Y.applyUpdateV2`) / PATCH to a server to rebuild the history.
    */
   update: Uint8Array;
   /** The ProseMirror delta transforming the previous doc into the new one. */
   delta: ReturnType<typeof docDiffToDelta>;
 };
 
-/** Emitted once per step, after its changes have been applied to the Y.Doc. */
+/** Emitted once per step, after all of its contributions have been applied to the Y.Doc. */
 export type SnapshotEvent = {
   /** Zero-based index of the step. */
   index: number;
   /** The step's name. */
   name: string;
-  /** The step's attribution, if any. */
-  attribution?: SnapshotAttribution;
+  /**
+   * The attributed contributions that produced this version, in order. Always
+   * at least one; no-op contributions (that changed nothing) are omitted.
+   */
+  contributions: SnapshotContributionDiff[];
   /** The document (block JSON) before this step's changes. */
   before: Block<any, any, any>[];
   /** The document (block JSON) after this step's changes. */
   after: Block<any, any, any>[];
-  /** The change this step introduced. */
-  diff: SnapshotDiff;
   /** A Yjs snapshot of the doc at this point in time. */
   snapshot: Y.Snapshot;
 };
@@ -151,34 +181,51 @@ export async function buildSnapshots(
 
   for (let index = 0; index < steps.length; index++) {
     const step = steps[index];
+    const beforeDoc = previousDoc;
 
-    // Let the step mutate the editor it inherited from the previous step.
-    step.changes(editor);
-    const newDoc = editor.prosemirrorState.doc;
+    // Each contribution mutates the editor in its own transaction (origin = its
+    // attribution), so we capture one update per author. Together they produce
+    // this version — but the version marker is committed separately by the
+    // consumer (see seed.ts), letting multiple users be attributed within it.
+    const contributions: SnapshotContributionDiff[] = [];
+    for (const contribution of step.contributions) {
+      const docBefore = previousDoc;
+      editor.transact(() => {
+        contribution.changes(editor);
+      });
+      const newDoc = editor.prosemirrorState.doc;
+      previousDoc = newDoc;
 
-    // Diff previous -> new, and apply just that delta to the Y.Type. Each step
-    // is its own transaction (origin = its attribution), so the update we
-    // capture below contains exactly this step's change.
-    const delta = docDiffToDelta(previousDoc, newDoc);
-    const beforeStateVector = Y.encodeStateVector(ydoc);
-    ydoc.transact(() => {
-      yType.applyDelta(delta as any);
-    }, step.attribution);
-    const update = Y.encodeStateAsUpdateV2(ydoc, beforeStateVector);
+      // Skip no-op contributions: the author changed nothing, so there is no
+      // update to attribute or PATCH.
+      if (newDoc.eq(docBefore)) {
+        continue;
+      }
+
+      const delta = docDiffToDelta(docBefore, newDoc);
+      const beforeStateVector = Y.encodeStateVector(ydoc);
+      ydoc.transact(() => {
+        yType.applyDelta(delta as any);
+      }, contribution.attribution);
+      const update = Y.encodeStateAsUpdateV2(ydoc, beforeStateVector);
+
+      contributions.push({
+        attribution: contribution.attribution,
+        update,
+        delta,
+      });
+    }
 
     const event: SnapshotEvent = {
       index,
       name: step.name,
-      attribution: step.attribution,
-      before: docToBlocks(previousDoc),
-      after: docToBlocks(newDoc),
-      diff: { update, delta },
+      contributions,
+      before: docToBlocks(beforeDoc),
+      after: docToBlocks(previousDoc),
       snapshot: Y.snapshot(ydoc),
     };
     snapshots.push(event);
     await options.onSnapshot?.(event);
-
-    previousDoc = newDoc;
   }
 
   return { editor, ydoc, yType, fragment, baseUpdate, snapshots };

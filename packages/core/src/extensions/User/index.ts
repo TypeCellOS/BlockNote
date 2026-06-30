@@ -45,7 +45,7 @@ export type UserExtensionOptions<U extends User> = {
    *
    * See [Comments](https://www.blocknotejs.org/docs/features/collaboration/comments) for more info.
    */
-  resolveUsers: (userIds: string[]) => Promise<U[]>;
+  resolveUsers: (userIds: User["id"][]) => Promise<U[]>;
 };
 
 /**
@@ -57,25 +57,25 @@ export type UserExtensionInstance<U extends User = User> = {
   /**
    * A store mapping user ids to the resolved {@link User} information.
    */
-  store: Store<Map<string, U>>;
+  store: Store<Map<User["id"], U>>;
   /**
    * Load information about users based on an array of user ids.
    *
    * Users that are already cached or currently being loaded are skipped, so
    * it is safe to call this often (e.g. on every render).
    */
-  loadUsers: (userIds: string[]) => Promise<void>;
+  loadUsers: (userIds: User["id"][]) => Promise<void>;
   /**
    * Re-fetch information about users, ignoring the cache. Users that are
    * currently being loaded are still skipped to avoid duplicate requests.
    */
-  refetchUsers: (userIds: string[]) => Promise<void>;
+  refetchUsers: (userIds: User["id"][]) => Promise<void>;
   /**
    * Retrieve information about a user based on their id, if cached.
    *
    * The user has to be loaded via `loadUsers` first.
    */
-  getUser: (userId: string) => U | undefined;
+  getUser: (userId: User["id"]) => U | undefined;
 };
 
 /**
@@ -94,14 +94,14 @@ export const UserExtension = createExtension(
     }
     const { resolveUsers } = options;
 
-    const store = createStore(new Map<string, User>());
+    const store = createStore(new Map<User["id"], User>());
 
     // Tracks users that are currently being fetched, to avoid duplicate
     // in-flight requests. This is intentionally kept out of the store as it is
     // not state that consumers need to subscribe to.
-    const loadingUsers = new Set<string>();
+    const loadingUsers = new Set<User["id"]>();
 
-    async function fetchUsers(userIds: string[]) {
+    async function fetchUsers(userIds: User["id"][]) {
       if (userIds.length === 0) {
         return;
       }
@@ -145,7 +145,7 @@ export const UserExtension = createExtension(
        * Users that are already cached or currently being loaded are skipped, so
        * it is safe to call this often (e.g. on every render).
        */
-      async loadUsers(userIds: string[]) {
+      async loadUsers(userIds: User["id"][]) {
         const missingUsers = userIds.filter(
           (id) => !store.state.has(id) && !loadingUsers.has(id),
         );
@@ -155,7 +155,7 @@ export const UserExtension = createExtension(
        * Re-fetch information about users, ignoring the cache. Users that are
        * currently being loaded are still skipped to avoid duplicate requests.
        */
-      async refetchUsers(userIds: string[]) {
+      async refetchUsers(userIds: User["id"][]) {
         const usersToFetch = userIds.filter((id) => !loadingUsers.has(id));
         await fetchUsers(usersToFetch);
       },
@@ -164,7 +164,7 @@ export const UserExtension = createExtension(
        *
        * The user has to be loaded via `loadUsers` first.
        */
-      getUser(userId: string): User | undefined {
+      getUser(userId: User["id"]): User | undefined {
         return store.state.get(userId);
       },
     } satisfies UserExtensionInstance<User>;

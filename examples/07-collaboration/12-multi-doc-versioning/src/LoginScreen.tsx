@@ -27,9 +27,9 @@ export function LoginScreen({ redirectTo }: { redirectTo: string }) {
                 className="login-avatar"
                 style={{ backgroundColor: u.color }}
               >
-                {u.name[0]}
+                {u.username[0]}
               </span>
-              <span className="login-user-name">{u.name}</span>
+              <span className="login-user-name">{u.username}</span>
             </button>
           ))}
         </div>

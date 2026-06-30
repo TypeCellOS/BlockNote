@@ -9,8 +9,12 @@ import {
 import { encodeAny } from "lib0/buffer";
 import * as Y from "@y/y";
 
-import type { VersionSnapshot } from "../../../extensions/Versioning/index.js";
+import {
+  CURRENT_VERSION_ID,
+  type VersionSnapshot,
+} from "../../../extensions/Versioning/index.js";
 import { createYHubVersioningEndpoints } from "../yhub.js";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 
 // ---------------------------------------------------------------------------
 // Fixture data — version entries now carry an `id` custom attribution (UUID).
@@ -81,13 +85,17 @@ const BASE_URL = "https://yhub.test";
 const ORG = "test-org";
 const DOC_ID = "test-doc";
 
+// The factory now returns a callback that receives the editor instance (used to
+// resolve author ids to usernames via the UserExtension). These tests create a
+// bare editor with no UserExtension, so author labels stay as the raw `by` ids.
 function makeEndpoints() {
+  const editor = BlockNoteEditor.create();
   return createYHubVersioningEndpoints({
     baseUrl: BASE_URL,
     org: ORG,
     docId: DOC_ID,
     activityLimit: 50,
-  });
+  })(editor);
 }
 
 function mockFetchResponse(body: unknown, status = 200) {
@@ -128,6 +136,8 @@ describe("createYHubVersioningEndpoints", () => {
       fetchSpy.mockResolvedValueOnce(
         mockFetchResponse([VERSION_ENTRY_2, VERSION_ENTRY_1]),
       );
+      // Latest edit == latest version → no "current version" entry.
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_2]));
 
       const endpoints = makeEndpoints();
       const snapshots = await endpoints.list();
@@ -141,21 +151,30 @@ describe("createYHubVersioningEndpoints", () => {
     });
 
     it("passes withCustomAttributions=type:version to the API", async () => {
+      // First call: version markers. Second call: latest edit of any kind.
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
       fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
 
       const endpoints = makeEndpoints();
       await endpoints.list();
 
-      expect(fetchSpy).toHaveBeenCalledOnce();
-      const url = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(url.pathname).toBe(`/activity/${ORG}/${DOC_ID}`);
-      expect(url.searchParams.get("withCustomAttributions")).toBe(
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
+      const versionUrl = new URL(fetchSpy.mock.calls[0][0] as string);
+      expect(versionUrl.pathname).toBe(`/activity/${ORG}/${DOC_ID}`);
+      expect(versionUrl.searchParams.get("withCustomAttributions")).toBe(
         "type:version",
       );
-      expect(url.searchParams.get("customAttributions")).toBe("true");
+      expect(versionUrl.searchParams.get("customAttributions")).toBe("true");
+
+      // The current-version probe fetches the latest entry of *any* type.
+      const currentUrl = new URL(fetchSpy.mock.calls[1][0] as string);
+      expect(currentUrl.pathname).toBe(`/activity/${ORG}/${DOC_ID}`);
+      expect(currentUrl.searchParams.get("limit")).toBe("1");
+      expect(currentUrl.searchParams.has("withCustomAttributions")).toBe(false);
     });
 
     it("returns empty array when no versions exist", async () => {
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
       fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
 
       const endpoints = makeEndpoints();
@@ -168,6 +187,7 @@ describe("createYHubVersioningEndpoints", () => {
       fetchSpy.mockResolvedValueOnce(
         mockFetchResponse([VERSION_ENTRY_1, VERSION_ENTRY_2]),
       );
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_2]));
 
       const endpoints = makeEndpoints();
       const snapshots = await endpoints.list();
@@ -185,12 +205,37 @@ describe("createYHubVersioningEndpoints", () => {
       fetchSpy.mockResolvedValueOnce(
         mockFetchResponse([VERSION_ENTRY_1, noIdEntry]),
       );
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_1]));
 
       const endpoints = makeEndpoints();
       const snapshots = await endpoints.list();
 
       expect(snapshots).toHaveLength(1);
       expect(snapshots[0].id).toBe("uuid-version-1");
+    });
+
+    it("prepends a 'current version' entry when there are edits beyond the latest version", async () => {
+      // A more recent edit than VERSION_ENTRY_2, by a different author.
+      const latestEdit = {
+        from: 1782218300000,
+        to: 1782218300000,
+        by: "Eve Online",
+      };
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse([VERSION_ENTRY_2, VERSION_ENTRY_1]),
+      );
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([latestEdit]));
+
+      const endpoints = makeEndpoints();
+      const snapshots = await endpoints.list();
+
+      expect(snapshots).toHaveLength(3);
+      expect(snapshots[0].id).toBe(CURRENT_VERSION_ID);
+      expect(snapshots[0].createdAt).toBe(latestEdit.to);
+      expect(snapshots[0].secondaryLabel).toBe("Eve Online");
+      // The real version markers follow, newest-first.
+      expect(snapshots[1].id).toBe("uuid-version-2");
+      expect(snapshots[2].id).toBe("uuid-version-1");
     });
   });
 

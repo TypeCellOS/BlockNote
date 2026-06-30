@@ -20,9 +20,15 @@ export function createYjsVersioningAdapter(
 ): {
   preview: PreviewController<Uint8Array, Y.ContentMap>;
   getCurrentState: () => Y.Type;
+  getCurrentContent: () => Uint8Array;
 } {
   return {
     getCurrentState: () => fragment,
+    // Serialise the live document as a V2 update — the same format that
+    // `getContent` returns (via `convertUpdateFormatV1ToV2`) and that
+    // `enterPreview` consumes (`applyUpdateV2`). Used to render a read-only
+    // diff of the live document against a snapshot.
+    getCurrentContent: () => Y.encodeStateAsUpdateV2(fragment.doc!),
     preview: {
       enterPreview: (
         snapshotContent: Uint8Array,
