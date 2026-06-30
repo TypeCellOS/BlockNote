@@ -325,15 +325,19 @@ export const nl: Dictionary = {
     },
     align_left: {
       tooltip: "Tekst links uitlijnen",
+      label: "Links",
     },
     align_center: {
       tooltip: "Tekst centreren",
+      label: "Midden",
     },
     align_right: {
       tooltip: "Tekst rechts uitlijnen",
+      label: "Rechts",
     },
     align_justify: {
       tooltip: "Tekst uitvullen",
+      label: "Uitvullen",
     },
     table_cell_merge: {
       tooltip: "Voeg cellen samen",

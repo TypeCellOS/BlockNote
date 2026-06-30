@@ -342,15 +342,19 @@ export const no: Dictionary = {
     },
     align_left: {
       tooltip: "Venstrejuster tekst",
+      label: "Venstre",
     },
     align_center: {
       tooltip: "Midtstill tekst",
+      label: "Midtstilt",
     },
     align_right: {
       tooltip: "Høyrejuster tekst",
+      label: "Høyre",
     },
     align_justify: {
       tooltip: "Juster tekst",
+      label: "Justert",
     },
     comment: {
       tooltip: "Legg til kommentar",
