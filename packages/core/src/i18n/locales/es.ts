@@ -383,6 +383,7 @@ export const es: Dictionary = {
     save_button_text: "Guardar",
     cancel_button_text: "Cancelar",
     deleted_reference_text: "Contenido original eliminado",
+    discard_pending_comment: "¿Seguro que quieres descartar este comentario?",
     actions: {
       add_reaction: "Agregar reacción",
       resolve: "Resolver",
