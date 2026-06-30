@@ -5,7 +5,10 @@ import {
   insertOrUpdateBlockForSlashMenu,
 } from "@blocknote/core/extensions";
 import { createHighlighter } from "@blocknote/code-block";
-import { createReactMathBlockSpec } from "@blocknote/math-block";
+import {
+  createReactInlineMathSpec,
+  createReactMathBlockSpec,
+} from "@blocknote/math-block";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
@@ -22,6 +25,10 @@ const schema = BlockNoteSchema.create().extend({
     // Creates an instance of the Math block and adds it to the schema.
     math: createReactMathBlockSpec(),
   },
+  inlineContentSpecs: {
+    // Creates an instance of the inline Math content and adds it to the schema.
+    inlineMath: createReactInlineMathSpec(),
+  },
 });
 
 // Slash menu item to insert a Math block.
@@ -34,6 +41,23 @@ const insertMath = (editor: typeof schema.BlockNoteEditor) => ({
     }),
   aliases: ["math", "latex", "formula", "equation"],
   group: "Basic blocks",
+  icon: <TbMathFunction />,
+});
+
+// Slash menu item to insert an inline Math equation.
+const insertInlineMath = (editor: typeof schema.BlockNoteEditor) => ({
+  title: "Inline Math",
+  subtext: "Insert an inline LaTeX math formula",
+  onItemClick: () => {
+    editor.insertInlineContent([
+      // Inserts an empty inline equation, ready to be edited.
+      { type: "inlineMath", content: "" },
+      // Adds a trailing space so the cursor can leave the equation.
+      " ",
+    ]);
+  },
+  aliases: ["inline math", "inline latex", "inline formula", "inline equation"],
+  group: "Inline",
   icon: <TbMathFunction />,
 });
 
@@ -62,6 +86,14 @@ export default function App() {
       },
       {
         type: "paragraph",
+        content: [
+          "Equations can also be inline, like ",
+          { type: "inlineMath", content: "e^{i\\pi} + 1 = 0" },
+          ". Click one to edit its LaTeX source.",
+        ],
+      },
+      {
+        type: "paragraph",
         content: "Press the '/' key to open the Slash Menu and add another",
       },
     ],
@@ -80,8 +112,14 @@ export default function App() {
           const lastBasicBlockIndex = defaultItems.findLastIndex(
             (item) => item.group === "Basic blocks",
           );
-          // Inserts the Math item as the last item in the "Basic blocks" group.
-          defaultItems.splice(lastBasicBlockIndex + 1, 0, insertMath(editor));
+          // Inserts the Math item as the last item in the "Basic blocks" group,
+          // followed by the inline Math item.
+          defaultItems.splice(
+            lastBasicBlockIndex + 1,
+            0,
+            insertMath(editor),
+            insertInlineMath(editor),
+          );
 
           // Returns filtered items based on the query.
           return filterSuggestionItems(defaultItems, query);

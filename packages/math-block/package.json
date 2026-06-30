@@ -57,7 +57,8 @@
     "katex": "^0.16.11",
     "mathml-to-latex": "^1.8.0",
     "prosemirror-model": "^1.25.4",
-    "prosemirror-state": "^1.4.4"
+    "prosemirror-state": "^1.4.4",
+    "prosemirror-view": "^1.41.4"
   },
   "devDependencies": {
     "@blocknote/react": "workspace:^",
