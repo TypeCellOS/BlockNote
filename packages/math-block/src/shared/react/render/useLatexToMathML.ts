@@ -1,11 +1,11 @@
 import { useRef } from "react";
 
-import { latexToMathMLString } from "../vanilla/latexToMathML.js";
+import { latexToHTMLString } from "../../latexToHTMLString.js";
 
 export const useLatexToMathMLString = (latex: string, inline = false) => {
   const lastValidMathMLStringRef = useRef("");
 
-  const { mathMLString, error } = latexToMathMLString(latex, inline);
+  const { htmlString: mathMLString, error } = latexToHTMLString(latex, inline);
   if (!error || lastValidMathMLStringRef.current === "") {
     lastValidMathMLStringRef.current = mathMLString;
   }

@@ -3,7 +3,7 @@ import type { ComponentType } from "react";
 
 import { MathBlockConfig } from "../../createMathBlockConfig.js";
 import { getMathPlainTextContent } from "../../../shared/getMathPlainTextContent.js";
-import { latexToMathMLElement } from "../../../shared/vanilla/latexToMathML.js";
+import { latexToMathMLElement } from "../../../shared/vanilla/toExternalHTML/latexToMathMLElement.js";
 
 export const BlockMathMLElement = ({
   block,

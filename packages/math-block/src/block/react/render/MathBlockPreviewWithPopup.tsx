@@ -8,8 +8,8 @@ import { MouseEvent, useEffect, useRef } from "react";
 
 import { MathBlockConfig } from "../../createMathBlockConfig.js";
 import { getMathPlainTextContent } from "../../../shared/getMathPlainTextContent.js";
-import { AddSourceButton } from "../../../shared/react/AddSourceButton.js";
-import { useLatexToMathMLString } from "../../../shared/react/useLatexToMathML.js";
+import { AddSourceButton } from "../../../shared/react/render/AddSourceButton.js";
+import { useLatexToMathMLString } from "../../../shared/react/render/useLatexToMathML.js";
 
 export const MathBlockPreviewWithPopup = (
   props: ReactCustomBlockRenderProps<MathBlockConfig>,
