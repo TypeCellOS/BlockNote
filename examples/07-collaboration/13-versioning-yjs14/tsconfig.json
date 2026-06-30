@@ -17,7 +17,7 @@
     "jsx": "react-jsx",
     "composite": true
   },
-  "include": ["."],
+  "include": [".", "src/test.ts"],
   "__ADD_FOR_LOCAL_DEV_references": [
     {
       "path": "../../../packages/core/"

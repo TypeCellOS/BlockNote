@@ -111,7 +111,6 @@ export { default as FloatingThreadController } from "./components/Comments/Float
 export * from "./components/Comments/Thread.js";
 export * from "./components/Comments/ThreadsSidebar.js";
 export * from "./components/Comments/useThreads.js";
-export * from "./components/Comments/useUsers.js";
 
 export * from "./components/Versioning/VersioningSidebar.js";
 
@@ -130,6 +129,7 @@ export * from "./hooks/useSelectedBlocks.js";
 export * from "./hooks/useUploadLoading.js";
 export * from "./hooks/useExtension.js";
 export * from "./hooks/useEditorState.js";
+export * from "./hooks/useUsers.js";
 
 export * from "./schema/ReactBlockSpec.js";
 export * from "./schema/ReactInlineContentSpec.js";

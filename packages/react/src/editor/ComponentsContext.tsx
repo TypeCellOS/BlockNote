@@ -11,8 +11,7 @@ import {
   useContext,
 } from "react";
 
-import { BlockNoteEditor } from "@blocknote/core";
-import { User } from "@blocknote/core/comments";
+import { BlockNoteEditor, User } from "@blocknote/core";
 import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types.js";
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types.js";
 
@@ -235,6 +234,31 @@ export type ComponentProps = {
       actions?: ReactNode;
       showActions?: boolean | "hover";
       emojiPickerOpen?: boolean;
+    };
+  };
+  Versioning: {
+    /**
+     * The scrollable container for the version-history sidebar (header +
+     * snapshot rows).
+     */
+    Sidebar: {
+      className?: string;
+      children?: ReactNode;
+    };
+    /**
+     * A single row in the version-history sidebar — the live "current version"
+     * entry or a stored snapshot.
+     */
+    Snapshot: {
+      className?: string;
+      /** Whether this row is the version currently shown in the editor. */
+      selected?: boolean;
+      /** Whether this row is the baseline the current diff is compared against. */
+      comparing?: boolean;
+      onClick?: () => void;
+      /** Row actions (e.g. the "..." menu), revealed on hover. */
+      actions?: ReactNode;
+      children?: ReactNode;
     };
   };
   // TODO: We should try to make everything as generic as we can

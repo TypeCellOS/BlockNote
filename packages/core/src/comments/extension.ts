@@ -7,12 +7,11 @@ import {
   ExtensionOptions,
 } from "../editor/BlockNoteExtension.js";
 import { ShowSelectionExtension } from "../extensions/ShowSelection/ShowSelection.js";
+import { User, UserExtension } from "../extensions/User/index.js";
 import { CustomBlockNoteSchema } from "../schema/schema.js";
 import { CommentMark } from "./mark.js";
 import type { ThreadStore } from "./threadstore/ThreadStore.js";
 import type { CommentBody, ThreadData } from "./types.js";
-import { User } from "./types.js";
-import { UserStore } from "./userstore/UserStore.js";
 
 const PLUGIN_KEY = new PluginKey("blocknote-comments");
 
@@ -89,7 +88,6 @@ export const CommentsExtension = createExtension(
     }
     const markType = CommentMark.name;
 
-    const userStore = new UserStore<User>(resolveUsers);
     const store = createStore(
       {
         pendingComment: false,
@@ -158,6 +156,10 @@ export const CommentsExtension = createExtension(
       key: "comments",
       store,
       runsBefore: ["link"],
+      // Users are managed by the standalone UserExtension. Registering it here
+      // declares the dependency so consumers of comments don't have to register
+      // it themselves
+      blockNoteExtensions: [UserExtension({ resolveUsers })],
       tiptapExtensions: [CommentMark],
       prosemirrorPlugins: [
         new Plugin<CommentsPluginState>({
@@ -362,7 +364,6 @@ export const CommentsExtension = createExtension(
           });
         }
       },
-      userStore,
       commentEditorSchema,
     } as const;
   },

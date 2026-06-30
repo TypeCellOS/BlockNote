@@ -34,7 +34,7 @@ export default function App() {
       collaboration: {
         provider,
         fragment,
-        user: { color: "#ff0000", name: "User" },
+        user: { color: "#ff0000", name: "User", id: "user" },
       },
       extensions: [
         // The v13 CollaborationExtension does not wire up versioning

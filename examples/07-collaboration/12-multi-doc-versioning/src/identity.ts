@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { type DemoUser, USERS } from "./userdata.js";
+import type { User } from "@blocknote/core/extensions";
+
+import { USERS } from "./userdata.js";
 
 const STORAGE_KEY = "bn-multi-doc-user";
 
@@ -9,7 +11,7 @@ const STORAGE_KEY = "bn-multi-doc-user";
  * users simultaneously. The `?as=<id>` URL param takes precedence and is
  * persisted into sessionStorage.
  */
-export const getCurrentUser = (): DemoUser | null => {
+export const getCurrentUser = (): User | null => {
   try {
     const fromUrl = new URLSearchParams(window.location.search).get("as");
     if (fromUrl && USERS.some((u) => u.id === fromUrl)) {
@@ -50,7 +52,7 @@ export const setCurrentUser = (id: string | null): void => {
   window.dispatchEvent(new Event("bn-identity-change"));
 };
 
-export const useCurrentUser = (): DemoUser | null => {
+export const useCurrentUser = (): User | null => {
   const [user, setUser] = useState(getCurrentUser);
   useEffect(() => {
     const handler = () => setUser(getCurrentUser());

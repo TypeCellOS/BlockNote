@@ -1,4 +1,4 @@
-import type * as Y from "yjs";
+import * as Y from "yjs";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { PreviewController } from "../../extensions/Versioning/index.js";
@@ -27,6 +27,7 @@ export function createYjsVersioningAdapter(
 ): {
   preview: PreviewController<Uint8Array>;
   getCurrentState: () => Y.XmlFragment;
+  getCurrentContent: () => Uint8Array;
 } {
   const { fragment } = options;
 
@@ -43,6 +44,7 @@ export function createYjsVersioningAdapter(
 
   return {
     getCurrentState: () => fragment,
+    getCurrentContent: () => Y.encodeStateAsUpdateV2(fragment.doc!),
     preview: {
       enterPreview(
         snapshotContent: Uint8Array,

@@ -1,5 +1,6 @@
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 import type { Dictionary } from "../../i18n/dictionary.js";
+import { UserExtension } from "../User/index.js";
 
 /**
  * Selector for the wrapper element of an attribution mark (insert / delete /
@@ -10,17 +11,22 @@ import type { Dictionary } from "../../i18n/dictionary.js";
  */
 const ATTRIBUTION_MARK_SELECTOR = "[data-user-ids]";
 
-const formatAttributionTitle = (userIdsJSON: string | undefined): string => {
+/**
+ * Parse the JSON-encoded `data-user-ids` attribute into an array of user-id
+ * strings. Returns an empty array when the attribute is missing, malformed, or
+ * carries no ids.
+ */
+const parseUserIds = (userIdsJSON: string | undefined): string[] => {
   if (!userIdsJSON) {
-    return "";
+    return [];
   }
   let userIds: unknown;
   try {
     userIds = JSON.parse(userIdsJSON);
   } catch {
-    return "";
+    return [];
   }
-  return Array.isArray(userIds) && userIds.length > 0 ? userIds.join(", ") : "";
+  return Array.isArray(userIds) ? userIds.map(String) : [];
 };
 
 /**
@@ -112,6 +118,20 @@ export const SuggestionMarksExtension = createExtension(({ editor }) => ({
     let activeWrapper: Element | undefined;
     let tooltipEl: HTMLElement | undefined;
 
+    // Used to turn the raw user-ids carried by attribution marks into
+    // human-readable usernames. May be undefined when no UserExtension is
+    // registered, in which case we fall back to displaying the raw ids.
+    const userExt = editor.getExtension(UserExtension);
+
+    // Resolve the JSON-encoded `data-user-ids` of a mark into a display string,
+    // mapping each id to its username when the user is cached, otherwise leaving
+    // the raw id (so a failed lookup is visible). `getUser` is cache-only; ids
+    // are loaded asynchronously on hover (see `onPointerOver`).
+    const usersLabel = (userIdsJSON: string | undefined): string =>
+      parseUserIds(userIdsJSON)
+        .map((id) => userExt?.getUser(id)?.username ?? id)
+        .join(", ");
+
     // Places the tooltip above the active mark (`top-start`) with a 4px gap,
     // flipping below when there's no room above and clamping horizontally to keep
     // it on screen. The tooltip is `position: fixed` and portaled to `<body>`, so
@@ -184,7 +204,7 @@ export const SuggestionMarksExtension = createExtension(({ editor }) => ({
     // author(s) are prefixed with a localized label of the change, e.g.
     // `"Bold: Alice"` or `"Formatting Change: Alice"`.
     const attributionText = (wrapper: HTMLElement) => {
-      const users = formatAttributionTitle(wrapper.dataset["userIds"]);
+      const users = usersLabel(wrapper.dataset["userIds"]);
       if (!users) {
         return "";
       }
@@ -251,6 +271,23 @@ export const SuggestionMarksExtension = createExtension(({ editor }) => ({
       }
 
       showTooltip(anchor, text);
+
+      // `getUser` only reads the cache, so the first hover for a given author
+      // renders the raw id. Load the users behind this mark and, once resolved,
+      // refresh the tooltip text in place if it's still the active one.
+      const ids = parseUserIds((anchor as HTMLElement).dataset["userIds"]);
+      if (userExt && ids.length > 0) {
+        void userExt.loadUsers(ids).then(() => {
+          if (activeWrapper !== anchor || !tooltipEl) {
+            return;
+          }
+          const refreshed = attributionText(anchor);
+          if (refreshed && refreshed !== tooltipEl.textContent) {
+            tooltipEl.textContent = refreshed;
+            positionTooltip();
+          }
+        });
+      }
     };
 
     root.addEventListener("mouseover", onPointerOver, { signal });

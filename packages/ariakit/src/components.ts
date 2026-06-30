@@ -37,6 +37,10 @@ import { Card, CardSection, ExpandSectionsPrompt } from "./comments/Card.js";
 import { Comment } from "./comments/Comment.js";
 import { Editor } from "./comments/Editor.js";
 import { Badge, BadgeGroup } from "./badge/Badge.js";
+import {
+  Sidebar as VersioningSidebar,
+  Snapshot as VersioningSnapshot,
+} from "./versioning/Versioning.js";
 
 export const components: Components = {
   FormattingToolbar: {
@@ -83,6 +87,10 @@ export const components: Components = {
     Card: Card,
     CardSection: CardSection,
     ExpandSectionsPrompt: ExpandSectionsPrompt,
+  },
+  Versioning: {
+    Sidebar: VersioningSidebar,
+    Snapshot: VersioningSnapshot,
   },
   Generic: {
     Badge: {

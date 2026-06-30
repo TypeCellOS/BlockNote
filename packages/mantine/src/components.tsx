@@ -35,6 +35,10 @@ import { TableHandle } from "./tableHandle/TableHandle.js";
 import { Toolbar } from "./toolbar/Toolbar.js";
 import { ToolbarButton } from "./toolbar/ToolbarButton.js";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect.js";
+import {
+  Sidebar as VersioningSidebar,
+  Snapshot as VersioningSnapshot,
+} from "./versioning/Versioning.js";
 
 export const components: Components = {
   FormattingToolbar: {
@@ -110,5 +114,9 @@ export const components: Components = {
     Card,
     CardSection,
     ExpandSectionsPrompt,
+  },
+  Versioning: {
+    Sidebar: VersioningSidebar,
+    Snapshot: VersioningSnapshot,
   },
 };

@@ -6,7 +6,7 @@ import type {
   VersioningExtensionOptions,
   VersionSnapshot,
 } from "./Versioning.js";
-import { sortSnapshotsNewestFirst } from "./Versioning.js";
+import { CURRENT_VERSION_ID, sortSnapshotsNewestFirst } from "./Versioning.js";
 
 // ---------------------------------------------------------------------------
 // Preview Controller
@@ -159,9 +159,31 @@ export function createInMemoryVersioningEndpoints(): VersioningEndpoints<
 export function createInMemoryVersioningAdapter(
   editor: BlockNoteEditor<any, any, any>,
 ): VersioningExtensionOptions<Block<any, any, any>[], Block<any, any, any>[]> {
+  const endpoints = createInMemoryVersioningEndpoints();
+
   return {
-    endpoints: createInMemoryVersioningEndpoints(),
+    // The raw endpoints are pure snapshot storage. The "current version" is a
+    // view concern owned by the adapter (it's the layer that knows about the
+    // live editor), so we wrap `list()` to always surface a current entry: the
+    // live document is the editable working copy, and the entry is how the user
+    // returns to live editing and compares against saved snapshots. No
+    // timestamp/author is tracked, so the row just reads "Current version"
+    // (see CurrentSnapshot in @blocknote/react).
+    endpoints: {
+      ...endpoints,
+      list: async () => {
+        const current: VersionSnapshot = {
+          id: CURRENT_VERSION_ID,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+        return [current, ...(await endpoints.list())];
+      },
+    },
     preview: createInMemoryPreviewController(editor),
     getCurrentState: () => editor.document,
+    // The live document is already in the snapshot content format (`Block[]`),
+    // so previewing "current" as a diff just reuses the live blocks.
+    getCurrentContent: () => editor.document,
   };
 }

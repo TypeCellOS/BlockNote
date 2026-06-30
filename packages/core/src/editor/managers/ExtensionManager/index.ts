@@ -52,6 +52,12 @@ export class ExtensionManager {
    * We need to keep track of all the plugins for each extension, so that we can remove them when the extension is unregistered
    */
   private extensionPlugins: Map<Extension, Plugin[]> = new Map();
+  /**
+   * Maps an extension key to the set of extension keys that declared it as a
+   * dependency via `blockNoteExtensions`. A sub-extension is a dependency of
+   * the extension that declares it, so it must run *before* its parent(s).
+   */
+  private blockNoteExtensionDependents: Map<string, Set<string>> = new Map();
 
   constructor(
     private editor: BlockNoteEditor<any, any, any>,
@@ -137,6 +143,12 @@ export class ExtensionManager {
    */
   private addExtension(
     extension: Extension | ExtensionFactoryInstance,
+    /**
+     * When this extension is being added as a dependency declared in another
+     * extension's `blockNoteExtensions`, this is the key of that declaring
+     * (parent) extension.
+     */
+    parentKey?: string,
   ): Extension | undefined {
     let instance: Extension;
     if (typeof extension === "function") {
@@ -146,6 +158,29 @@ export class ExtensionManager {
     }
 
     if (!instance || this.disabledExtensions.has(instance.key)) {
+      return undefined as any;
+    }
+
+    // A sub-extension declared via `blockNoteExtensions` must run before the
+    // extension that declares it. We record this dependency before the
+    // de-duplication check below, so that it applies even when multiple
+    // extensions declare the same sub-extension (and all but the first are
+    // de-duplicated).
+    if (parentKey) {
+      let dependents = this.blockNoteExtensionDependents.get(instance.key);
+      if (!dependents) {
+        dependents = new Set();
+        this.blockNoteExtensionDependents.set(instance.key, dependents);
+      }
+      dependents.add(parentKey);
+    }
+
+    // De-duplicate by key: if an extension with the same key is already
+    // registered, don't register it again. This allows an extension to declare
+    // a dependency on another extension via `blockNoteExtensions` without
+    // conflicting when the user (or another extension) registers that same
+    // extension directly. The first registration wins.
+    if (this.extensions.some((e) => e.key === instance.key)) {
       return undefined as any;
     }
 
@@ -163,8 +198,8 @@ export class ExtensionManager {
     this.extensions.push(instance);
 
     if (instance.blockNoteExtensions) {
-      for (const extension of instance.blockNoteExtensions) {
-        this.addExtension(extension);
+      for (const subExtension of instance.blockNoteExtensions) {
+        this.addExtension(subExtension, instance.key);
       }
     }
 
@@ -376,7 +411,21 @@ export class ExtensionManager {
       this.options,
     ).filter((extension) => !this.disabledExtensions.has(extension.name));
 
-    const getPriority = sortByDependencies(this.extensions);
+    const getPriority = sortByDependencies(
+      this.extensions.map((extension) => {
+        // A sub-extension declared via `blockNoteExtensions` must run before the
+        // extension(s) that declared it, so we merge those parents into its
+        // `runsBefore`.
+        const dependents = this.blockNoteExtensionDependents.get(extension.key);
+        if (!dependents?.size) {
+          return extension;
+        }
+        return {
+          key: extension.key,
+          runsBefore: [...(extension.runsBefore ?? []), ...dependents],
+        };
+      }),
+    );
 
     const inputRulesByPriority = new Map<number, InputRule[]>();
     for (const extension of this.extensions) {

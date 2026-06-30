@@ -1,65 +1,121 @@
-import { VersioningExtension } from "@blocknote/core/extensions";
-import { useState } from "react";
+import {
+  CURRENT_VERSION_ID,
+  VersioningExtension,
+  VersionSnapshot,
+} from "@blocknote/core/extensions";
+import { RiArrowLeftRightLine, RiMoreFill } from "react-icons/ri";
 
+import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { dateToString } from "./dateToString.js";
+import { useVersioningSidebar } from "./VersioningSidebarContext.js";
 
-export const CurrentSnapshot = () => {
-  const { createSnapshot, canCreateSnapshot, exitPreview } =
+/**
+ * The "current version" list row. Unlike {@link Snapshot}, it isn't backed by a
+ * stored snapshot: clicking it previews the live document (read-only, diffed
+ * against the most recent snapshot) or returns to live editing. It is rendered
+ * only when the backend's `list()` emits an entry with {@link CURRENT_VERSION_ID}
+ * (e.g. YHub when the live doc has edits beyond the latest saved version).
+ *
+ * The `snapshot` prop carries display metadata (last-edit timestamp + author)
+ * but is never sent to `getContent`/`getAttributions` — those go through
+ * `previewCurrentVersion`, which serialises the live document directly.
+ */
+export const CurrentSnapshot = ({
+  snapshot,
+  previousSnapshot,
+}: {
+  snapshot: VersionSnapshot;
+  previousSnapshot?: VersionSnapshot;
+}) => {
+  const Components = useComponentsContext()!;
+  const { canPreviewCurrentVersion, previewCurrentVersion, exitPreview } =
     useExtension(VersioningExtension);
   const selected = useExtensionState(VersioningExtension, {
-    selector: (state) => state.previewedSnapshotId === undefined,
+    selector: (state) => state.previewedSnapshotId === CURRENT_VERSION_ID,
+  });
+  // Exclude the current-version entry itself — it lives in the list too, but
+  // it's not something to diff against.
+  const snapshots = useExtensionState(VersioningExtension, {
+    selector: (state) =>
+      state.snapshots.filter((s) => s.id !== CURRENT_VERSION_ID),
   });
 
-  const [snapshotName, setSnapshotName] = useState("Current Version");
+  const { comparisonMode, setComparisonMode } = useVersioningSidebar();
 
-  // When the backend doesn't support creating snapshots (e.g. YHub, which
-  // records a continuous activity timeline rather than discrete user-saved
-  // snapshots), render a plain, non-editable row that simply selects the live
-  // document. There's no name input or "Save" button to imply otherwise.
-  if (!canCreateSnapshot) {
-    return (
-      <div
-        className={`bn-snapshot ${selected ? "selected" : ""}`}
-        onClick={() => exitPreview()}
+  // Clicking the current version shows a read-only diff of the live document
+  // against the most recent snapshot. When comparison mode is off, or there's
+  // nothing to diff against, return to the live editing view instead.
+  const handleSelect = () => {
+    if (comparisonMode && previewCurrentVersion && previousSnapshot) {
+      void previewCurrentVersion({ compareTo: previousSnapshot.id });
+    } else {
+      exitPreview();
+    }
+  };
+
+  // "Compare since beginning" diffs the live document against the oldest
+  // snapshot. Shown only when current-version diffing is supported and there's
+  // at least one snapshot to compare against.
+  const oldestSnapshot = snapshots[snapshots.length - 1];
+  const actions =
+    canPreviewCurrentVersion && previewCurrentVersion && oldestSnapshot ? (
+      <Components.Generic.Toolbar.Root
+        variant="action-toolbar"
+        className="bn-action-toolbar"
       >
-        <div className="bn-snapshot-body">
-          <div className="bn-snapshot-name">Current Version</div>
-        </div>
-      </div>
-    );
-  }
+        <Components.Generic.Menu.Root position="bottom-start">
+          <Components.Generic.Menu.Trigger>
+            <Components.Generic.Toolbar.Button
+              className="bn-snapshot-menu-trigger"
+              mainTooltip="More"
+              variant="compact"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+              }}
+            >
+              <RiMoreFill size={16} />
+            </Components.Generic.Toolbar.Button>
+          </Components.Generic.Menu.Trigger>
+          <Components.Generic.Menu.Dropdown className="bn-menu-dropdown">
+            <Components.Generic.Menu.Item
+              icon={<RiArrowLeftRightLine />}
+              onClick={() => {
+                setComparisonMode(true);
+                void previewCurrentVersion({ compareTo: oldestSnapshot.id });
+              }}
+            >
+              Compare since beginning
+            </Components.Generic.Menu.Item>
+          </Components.Generic.Menu.Dropdown>
+        </Components.Generic.Menu.Root>
+      </Components.Generic.Toolbar.Root>
+    ) : undefined;
 
   return (
-    <div
-      className={`bn-snapshot ${selected ? "selected" : ""}`}
-      onClick={() => exitPreview()}
+    <Components.Versioning.Snapshot
+      className="bn-snapshot"
+      selected={selected}
+      onClick={handleSelect}
+      actions={actions}
     >
       <div className="bn-snapshot-body">
-        <input
-          className="bn-snapshot-name"
-          type="text"
-          value={snapshotName}
-          onChange={(event) => setSnapshotName(event.target.value)}
-        />
-        {snapshotName !== "Current Version" && (
-          <div className="bn-snapshot-date">Current Version</div>
+        <div className="bn-snapshot-name">Current version</div>
+        {/* The timestamp + author of the last edit are only shown when the
+            backend stamps them (e.g. YHub). Backends that don't track them
+            (e.g. in-memory) just get the "Current version" label. */}
+        {snapshot.secondaryLabel !== undefined && (
+          <div className="bn-snapshot-date">
+            {dateToString(new Date(snapshot.createdAt))}
+          </div>
+        )}
+        {snapshot.secondaryLabel !== undefined && (
+          <div className="bn-snapshot-secondary-label">
+            {snapshot.secondaryLabel}
+          </div>
         )}
       </div>
-      <button
-        className="bn-snapshot-button"
-        onClick={(event) => {
-          // Prevent event bubbling to avoid calling `exitPreview`.
-          event.preventDefault();
-          event.stopPropagation();
-
-          void createSnapshot?.({
-            name: snapshotName !== "Current Version" ? snapshotName : undefined,
-          });
-          setSnapshotName("Current Version");
-        }}
-      >
-        Save
-      </button>
-    </div>
+    </Components.Versioning.Snapshot>
   );
 };

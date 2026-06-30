@@ -107,7 +107,7 @@ function Workspace({
         />
         {activeDoc ? (
           <DocumentEditor
-            key={activeDoc.id}
+            key={activeDoc.id + user.id}
             workspaceId={workspaceId}
             docId={activeDoc.id}
             user={user}
@@ -179,9 +179,9 @@ function UserMenu({
         title="Switch user"
       >
         <span className="user-avatar" style={{ backgroundColor: user.color }}>
-          {user.name[0]}
+          {user.username[0]}
         </span>
-        <span className="user-name">{user.name}</span>
+        <span className="user-name">{user.username}</span>
         <span className="user-caret" aria-hidden="true">
           &#x25BE;
         </span>
@@ -203,9 +203,9 @@ function UserMenu({
                   className="user-avatar"
                   style={{ backgroundColor: u.color }}
                 >
-                  {u.name[0]}
+                  {u.username[0]}
                 </span>
-                <span className="user-menu-item-name">{u.name}</span>
+                <span className="user-menu-item-name">{u.username}</span>
                 {isCurrent && (
                   <span className="user-menu-check" aria-hidden="true">
                     &#x2713;
