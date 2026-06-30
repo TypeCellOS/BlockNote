@@ -385,6 +385,13 @@ export class ExtensionManager {
                 if (event.key !== "Enter") {
                   return false;
                 }
+                // The Enter that confirms an IME composition also fires a
+                // keydown here, so skip it to avoid running input rules in
+                // the middle of a composition. Mirrors the isComposing guard
+                // used by the editor's other Enter handlers.
+                if (event.isComposing) {
+                  return false;
+                }
                 // Only trigger on plain Enter — modifier combos like
                 // Shift/Cmd/Ctrl/Alt+Enter are reserved for other handlers
                 // (e.g. soft-break, submit) and should fall through.
