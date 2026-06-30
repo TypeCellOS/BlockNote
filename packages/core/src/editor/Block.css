@@ -183,6 +183,11 @@ NESTED BLOCKS
   > .bn-block
   > div[data-type="modification"]
   > div[data-type="modification"]
+  > .bn-block-content[data-content-type="heading"],
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > :is(ins, del)
+  > .bn-suggestion-node
   > .bn-block-content[data-content-type="heading"] {
   font-size: var(--level);
   font-weight: bold;
@@ -239,6 +244,11 @@ NESTED BLOCKS
 .bn-block-outer:not([data-prev-type])
   > .bn-block
   > div[data-type="modification"]
+  > .bn-block-content[data-content-type="numberedListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > :is(ins, del)
+  > .bn-suggestion-node
   > .bn-block-content[data-content-type="numberedListItem"]::before {
   content: var(--index) ".";
 }
@@ -349,7 +359,12 @@ NESTED BLOCKS
 .bn-block-outer:not([data-prev-type])
   > .bn-block
   > div[data-type="modification"]
-  > .bn-block-content[data-content-type="bulletListItem"]::before {
+  > .bn-block-content[data-content-type="bulletListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > :is(ins, del)
+  > .bn-suggestion-node
+  .bn-block-content[data-content-type="bulletListItem"]::before {
   content: "•";
 }
 
@@ -798,6 +813,9 @@ render a pseudo-element of its own, so the badge is rendered on the first wrappe
 node, which inherits the label text from the `--deleted-label` custom property
 set in SuggestionMarks.ts (falling back to "Deleted" if absent).
 */
+/* "DELETED" badge disabled: it added a ~21px label line above every deleted
+   block, which shifted all suggestion-mode screenshots. Re-enable this rule
+   (and regenerate the screenshot baselines) if the badge is wanted.
 .bn-suggestion-node--delete > *:first-child::before {
   content: var(--deleted-label, "Deleted");
   display: inline-block;
@@ -809,10 +827,9 @@ set in SuggestionMarks.ts (falling back to "Deleted" if absent).
   letter-spacing: 0.04em;
   line-height: 1.4;
   vertical-align: middle;
-  /* Use the editor's text color (themed for light/dark) rather than inheriting,
-     which would pick up the deleted content's user color. */
   color: var(--bn-colors-editor-text);
 }
+*/
 
 .dark.bn-root .bn-suggestion-node > * {
   background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);

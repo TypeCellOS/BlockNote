@@ -108,6 +108,604 @@ test("suggestion mode: add heading to empty doc", async () => {
   `);
 });
 
+// Empty doc gets a bullet list item inserted at the top. Exercises the
+// bullet marker (`•`) on suggestion-wrapped block content – the inserted
+// item's `.bn-block-content` is wrapped in `<ins>`, which breaks the
+// `.bn-block > .bn-block-content` chain the marker rule relies on.
+test("suggestion mode: add bullet list item to empty doc", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "add bullet at top" });
+
+  editor.replaceBlocks(editor.document, []);
+  await sync();
+
+  const baseDocXml = ydocXml(baseDoc);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  editor.replaceBlocks(editor.document, [
+    { id: "b0", type: "bulletListItem", content: "New bullet" },
+  ]);
+
+  await waitForSuggestion(editor);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "add-remove-add-bullet-to-empty",
+  );
+
+  expect(baseDocXml).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="b0">
+        <bulletListItem
+          backgroundColor="default"
+          textAlignment="left"
+          textColor="default"
+        >New bullet</bulletListItem>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <y-attributed-delete
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="1">
+            <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
+          </blockContainer>
+        </y-attributed-delete>
+        <y-attributed-insert
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="b0">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <bulletListItem
+                backgroundColor="default"
+                textColor="default"
+                textAlignment="left"
+              >
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >New bullet</y-attributed-insert>
+              </bulletListItem>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
+      </blockGroup>
+    </doc>"
+  `);
+});
+
+// Empty doc gets a numbered list item inserted at the top. Exercises the
+// numbered marker (`1.`) on suggestion-wrapped block content (same chain
+// break as the bullet case above).
+test("suggestion mode: add numbered list item to empty doc", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "add numbered at top" });
+
+  editor.replaceBlocks(editor.document, []);
+  await sync();
+
+  const baseDocXml = ydocXml(baseDoc);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  editor.replaceBlocks(editor.document, [
+    { id: "n0", type: "numberedListItem", content: "New numbered" },
+  ]);
+
+  await waitForSuggestion(editor);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "add-remove-add-numbered-to-empty",
+  );
+
+  expect(baseDocXml).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+                          "<blockGroup>
+                            <blockContainer id="n0">
+                              <numberedListItem
+                                backgroundColor="default"
+                                start="undefined"
+                                textAlignment="left"
+                                textColor="default"
+                              >New numbered</numberedListItem>
+                            </blockContainer>
+                          </blockGroup>"
+                        `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <y-attributed-delete
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="1">
+            <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
+          </blockContainer>
+        </y-attributed-delete>
+        <y-attributed-insert
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="n0">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <numberedListItem
+                backgroundColor="default"
+                textColor="default"
+                textAlignment="left"
+              >
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >New numbered</y-attributed-insert>
+              </numberedListItem>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
+      </blockGroup>
+    </doc>"
+  `);
+});
+
+// Empty doc gets a 3-level nested bullet list inserted as a suggestion.
+//
+// TODO / KNOWN LIMITATION: nested bullets in suggestion mode render the
+// top-level `•` at every depth instead of `•` / `◦` / `▪`. The glyph is chosen
+// in CSS by depth-detecting chains (`[bulletListItem] ~ .bn-block-group >
+// .bn-block-outer > .bn-block > .bn-block-content`), but every level of an
+// inserted subtree is wrapped in the suggestion mark elements (`<ins>`/`<del>` +
+// `.bn-suggestion-node`, all `display: contents`) — on the blockContainer,
+// blockContent AND the children blockGroup — which breaks those chains at every
+// joint (both the `~` sibling and the `>` child links). Skipping the wrappers in
+// CSS at all of them is combinatorial and impractical.
+// Fix: compute each bullet's nesting level in JS (e.g. a decoration plugin like
+// `PreviousBlockType`, which already sets `data-*` attrs) and expose it as
+// `data-bullet-level` on the content, then pick the glyph with a plain,
+// wrapper-independent attribute selector:
+//   [data-content-type="bulletListItem"][data-bullet-level="1"]::before { content: "◦"; }
+// (This is why numbered lists, which use `--index: attr(data-index)`, are fine.)
+// Until then this baseline intentionally captures all three rows as `•`.
+test("suggestion mode: add nested bullet list to empty doc", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "add nested bullets" });
+
+  editor.replaceBlocks(editor.document, []);
+  await sync();
+
+  const baseDocXml = ydocXml(baseDoc);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  editor.replaceBlocks(editor.document, [
+    {
+      id: "l0",
+      type: "bulletListItem",
+      content: "Level 0",
+      children: [
+        {
+          id: "l1",
+          type: "bulletListItem",
+          content: "Level 1",
+          children: [{ id: "l2", type: "bulletListItem", content: "Level 2" }],
+        },
+      ],
+    },
+  ]);
+
+  await waitForSuggestion(editor);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "add-remove-add-nested-bullets-to-empty",
+  );
+
+  expect(baseDocXml).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="l0">
+        <bulletListItem
+          backgroundColor="default"
+          textAlignment="left"
+          textColor="default"
+        >Level 0</bulletListItem>
+        <blockGroup>
+          <blockContainer id="l1">
+            <bulletListItem
+              backgroundColor="default"
+              textAlignment="left"
+              textColor="default"
+            >Level 1</bulletListItem>
+            <blockGroup>
+              <blockContainer id="l2">
+                <bulletListItem
+                  backgroundColor="default"
+                  textAlignment="left"
+                  textColor="default"
+                >Level 2</bulletListItem>
+              </blockContainer>
+            </blockGroup>
+          </blockContainer>
+        </blockGroup>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <y-attributed-delete
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="1">
+            <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
+          </blockContainer>
+        </y-attributed-delete>
+        <y-attributed-insert
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="l0">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <bulletListItem
+                backgroundColor="default"
+                textColor="default"
+                textAlignment="left"
+              >
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >Level 0</y-attributed-insert>
+              </bulletListItem>
+            </y-attributed-insert>
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <blockGroup>
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
+                  <blockContainer id="l1">
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
+                      <bulletListItem
+                        backgroundColor="default"
+                        textColor="default"
+                        textAlignment="left"
+                      >
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >Level 1</y-attributed-insert>
+                      </bulletListItem>
+                    </y-attributed-insert>
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
+                      <blockGroup>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >
+                          <blockContainer id="l2">
+                            <y-attributed-insert
+                              userIds=""
+                              user-color-light="#fff0c2"
+                              user-color-dark="#8a6d1a"
+                            >
+                              <bulletListItem
+                                backgroundColor="default"
+                                textColor="default"
+                                textAlignment="left"
+                              >
+                                <y-attributed-insert
+                                  userIds=""
+                                  user-color-light="#fff0c2"
+                                  user-color-dark="#8a6d1a"
+                                >Level 2</y-attributed-insert>
+                              </bulletListItem>
+                            </y-attributed-insert>
+                          </blockContainer>
+                        </y-attributed-insert>
+                      </blockGroup>
+                    </y-attributed-insert>
+                  </blockContainer>
+                </y-attributed-insert>
+              </blockGroup>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
+      </blockGroup>
+    </doc>"
+  `);
+});
+
+// Empty doc gets a background-colored block (with a nested child) inserted as a
+// suggestion. The colored `.bn-block-content` is wrapped in `<ins>`, which
+// breaks `.bn-block:has(> .bn-block-content[data-background-color="…"])` – the
+// block-level fill that tints the nested child's area is lost (the content's
+// own fill still applies via the bare `[data-background-color]` selector).
+// Validate: the parent row is tinted but the child's row is not.
+test("suggestion mode: add colored block with child to empty doc", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "add colored block" });
+
+  editor.replaceBlocks(editor.document, []);
+  await sync();
+
+  const baseDocXml = ydocXml(baseDoc);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  editor.replaceBlocks(editor.document, [
+    {
+      id: "c0",
+      type: "paragraph",
+      props: { backgroundColor: "blue" },
+      content: "Colored parent",
+      children: [{ id: "c1", type: "paragraph", content: "Child block" }],
+    },
+  ]);
+
+  await waitForSuggestion(editor);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "add-remove-add-colored-block-to-empty",
+  );
+
+  expect(baseDocXml).toMatchInlineSnapshot(`
+          "<blockGroup>
+            <blockContainer id="1">
+              <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+            </blockContainer>
+          </blockGroup>"
+        `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="c0">
+        <paragraph backgroundColor="blue" textAlignment="left" textColor="default">Colored parent</paragraph>
+        <blockGroup>
+          <blockContainer id="c1">
+            <paragraph backgroundColor="default" textAlignment="left" textColor="default">Child block</paragraph>
+          </blockContainer>
+        </blockGroup>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <blockContainer id="c0">
+          <paragraph backgroundColor="blue" textColor="default" textAlignment="left">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >Colored parent</y-attributed-insert>
+          </paragraph>
+          <y-attributed-insert
+            userIds=""
+            user-color-light="#fff0c2"
+            user-color-dark="#8a6d1a"
+          >
+            <blockGroup>
+              <y-attributed-insert
+                userIds=""
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
+                <blockContainer id="c1">
+                  <y-attributed-insert
+                    userIds=""
+                    user-color-light="#fff0c2"
+                    user-color-dark="#8a6d1a"
+                  >
+                    <paragraph backgroundColor="default" textColor="default" textAlignment="left">
+                      <y-attributed-insert
+                        userIds=""
+                        user-color-light="#fff0c2"
+                        user-color-dark="#8a6d1a"
+                      >Child block</y-attributed-insert>
+                    </paragraph>
+                  </y-attributed-insert>
+                </blockContainer>
+              </y-attributed-insert>
+            </blockGroup>
+          </y-attributed-insert>
+        </blockContainer>
+      </blockGroup>
+    </doc>"
+  `);
+});
+
+// Two sibling bullets exist in the base; in suggestion mode the second is
+// nested under the first (`nestBlock`). Unlike the all-new subtree above, the
+// parent bullet already exists – only the newly-nested child is the suggestion.
+//
+// TODO / KNOWN LIMITATION: like "add nested bullet list to empty doc" above, the
+// nested child shows `•` instead of `◦` — `nestBlock` also wraps the new
+// blockGroup, breaking the CSS depth-detection chains. See that test for the
+// full explanation and the `data-bullet-level` fix. Baseline captures `•`.
+test("suggestion mode: nest a bullet under an existing bullet", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "nest bullet under existing" });
+
+  editor.replaceBlocks(editor.document, [
+    { id: "p", type: "bulletListItem", content: "Parent" },
+    { id: "c", type: "bulletListItem", content: "Child" },
+  ]);
+  await sync();
+
+  const baseDocXml = ydocXml(baseDoc);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  editor.setTextCursorPosition("c", "start");
+  editor.nestBlock();
+
+  await expect.poll(() => editor.document[0]?.children?.length).toBe(1);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "add-remove-nest-bullet-under-existing",
+  );
+
+  expect(baseDocXml).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="p">
+        <bulletListItem
+          backgroundColor="default"
+          textAlignment="left"
+          textColor="default"
+        >Parent</bulletListItem>
+      </blockContainer>
+      <blockContainer id="c">
+        <bulletListItem
+          backgroundColor="default"
+          textAlignment="left"
+          textColor="default"
+        >Child</bulletListItem>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="p">
+        <bulletListItem
+          backgroundColor="default"
+          textAlignment="left"
+          textColor="default"
+        >Parent</bulletListItem>
+        <blockGroup>
+          <blockContainer id="c">
+            <bulletListItem
+              backgroundColor="default"
+              textAlignment="left"
+              textColor="default"
+            >Child</bulletListItem>
+          </blockContainer>
+        </blockGroup>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <blockContainer id="p">
+          <bulletListItem
+            backgroundColor="default"
+            textColor="default"
+            textAlignment="left"
+          >Parent</bulletListItem>
+          <y-attributed-insert
+            userIds=""
+            user-color-light="#fff0c2"
+            user-color-dark="#8a6d1a"
+          >
+            <blockGroup>
+              <y-attributed-insert
+                userIds=""
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
+                <blockContainer id="c">
+                  <y-attributed-insert
+                    userIds=""
+                    user-color-light="#fff0c2"
+                    user-color-dark="#8a6d1a"
+                  >
+                    <bulletListItem
+                      backgroundColor="default"
+                      textColor="default"
+                      textAlignment="left"
+                    >
+                      <y-attributed-insert
+                        userIds=""
+                        user-color-light="#fff0c2"
+                        user-color-dark="#8a6d1a"
+                      >Child</y-attributed-insert>
+                    </bulletListItem>
+                  </y-attributed-insert>
+                </blockContainer>
+              </y-attributed-insert>
+            </blockGroup>
+          </y-attributed-insert>
+        </blockContainer>
+        <y-attributed-delete
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="c">
+            <bulletListItem
+              backgroundColor="default"
+              textColor="default"
+              textAlignment="left"
+            >Child</bulletListItem>
+          </blockContainer>
+        </y-attributed-delete>
+      </blockGroup>
+    </doc>"
+  `);
+});
+
 // Add a paragraph after an existing heading.
 test("suggestion mode: add paragraph after existing block", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
