@@ -236,6 +236,31 @@ export type ComponentProps = {
       emojiPickerOpen?: boolean;
     };
   };
+  Versioning: {
+    /**
+     * The scrollable container for the version-history sidebar (header +
+     * snapshot rows).
+     */
+    Sidebar: {
+      className?: string;
+      children?: ReactNode;
+    };
+    /**
+     * A single row in the version-history sidebar — the live "current version"
+     * entry or a stored snapshot.
+     */
+    Snapshot: {
+      className?: string;
+      /** Whether this row is the version currently shown in the editor. */
+      selected?: boolean;
+      /** Whether this row is the baseline the current diff is compared against. */
+      comparing?: boolean;
+      onClick?: () => void;
+      /** Row actions (e.g. the "..." menu), revealed on hover. */
+      actions?: ReactNode;
+      children?: ReactNode;
+    };
+  };
   // TODO: We should try to make everything as generic as we can
   Generic: {
     Badge: {
