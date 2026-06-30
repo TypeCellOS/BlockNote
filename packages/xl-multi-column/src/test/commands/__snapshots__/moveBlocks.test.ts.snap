@@ -1,5 +1,183 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Move past empty sibling within a column > Move down below empty sibling 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Text 0",
+                "type": "text",
+              },
+            ],
+            "id": "text-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [],
+            "id": "empty-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-empty-0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [],
+            "id": "empty-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Text 1",
+                "type": "text",
+              },
+            ],
+            "id": "text-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-empty-1",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+    ],
+    "content": undefined,
+    "id": "column-list-empty",
+    "props": {},
+    "type": "columnList",
+  },
+]
+`;
+
+exports[`Move past empty sibling within a column > Move up above empty sibling 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Text 0",
+                "type": "text",
+              },
+            ],
+            "id": "text-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [],
+            "id": "empty-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-empty-0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [],
+            "id": "empty-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Text 1",
+                "type": "text",
+              },
+            ],
+            "id": "text-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-empty-1",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+    ],
+    "content": undefined,
+    "id": "column-list-empty",
+    "props": {},
+    "type": "columnList",
+  },
+]
+`;
+
 exports[`Test moveBlocksDown > Move into column list 1`] = `
 [
   {

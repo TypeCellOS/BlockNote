@@ -20,9 +20,13 @@ export function removeAndInsertBlocks<
   tr: Transaction,
   blocksToRemove: BlockIdentifier[],
   blocksToInsert: PartialBlock<BSchema, I, S>[],
+  options: {
+    fixColumns?: boolean;
+  } = {},
 ): {
   insertedBlocks: Block<BSchema, I, S>[];
   removedBlocks: Block<BSchema, I, S>[];
+  affectedColumnLists: string[];
 } {
   const pmSchema = getPmSchema(tr);
   // Converts the `PartialBlock`s to ProseMirror nodes to insert them into the
@@ -112,12 +116,25 @@ export function removeAndInsertBlocks<
     );
   }
 
-  columnListPositions.forEach((pos) => fixColumnList(tr, pos));
+  // Saves IDs of columnLists containing removed blocks. If `fixColumns` is
+  // explicitly false, these are needed to run `fixColumnList` manually later.
+  const affectedColumnLists: string[] = [];
+  columnListPositions.forEach((pos) => {
+    const columnList = tr.doc.resolve(pos).nodeAfter;
+    if (columnList?.type.name === "columnList") {
+      affectedColumnLists.push(columnList.attrs.id);
+    }
+  });
+
+  // Collapses empty columns/columnLists
+  if (options.fixColumns !== false) {
+    columnListPositions.forEach((pos) => fixColumnList(tr, pos));
+  }
 
   // Converts the nodes created from `blocksToInsert` into full `Block`s.
   const insertedBlocks = nodesToInsert.map((node) =>
     nodeToBlock(node, pmSchema),
   ) as Block<BSchema, I, S>[];
 
-  return { insertedBlocks, removedBlocks };
+  return { insertedBlocks, removedBlocks, affectedColumnLists };
 }

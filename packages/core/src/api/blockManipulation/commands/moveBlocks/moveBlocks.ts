@@ -11,6 +11,9 @@ import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
 import { getNearestBlockPos } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
+import { insertBlocks } from "../insertBlocks/insertBlocks.js";
+import { removeAndInsertBlocks } from "../replaceBlocks/replaceBlocks.js";
+import { fixColumnList } from "../replaceBlocks/util/fixColumnList.js";
 
 type BlockSelectionData = (
   | {
@@ -148,7 +151,7 @@ export function moveBlocks(
   referenceBlock: BlockIdentifier,
   placement: "before" | "after",
 ) {
-  editor.transact(() => {
+  editor.transact((tr) => {
     // A `columnList` reference can be dissolved by `fixColumnList` when its
     // `column`s are removed, leaving its ID invalid for re-insertion. Anchor
     // to an adjacent block instead, which is unaffected by the removal.
@@ -164,8 +167,25 @@ export function moveBlocks(
       }
     }
 
-    editor.removeBlocks(blocks);
-    editor.insertBlocks(flattenColumns(blocks), referenceBlock, placement);
+    // Don't fix columns/columnLists in the removal step. Otherwise, the
+    // following case breaks:
+    // <column>
+    //  <paragraph></paragraph>
+    //  <paragraph>Paragraph</paragraph>
+    // </column>
+    // When the non-empty block is moved up, the column is now seen as empty
+    // and collapsed in the removal step, so the following insertion fails.
+    const { affectedColumnLists } = removeAndInsertBlocks(tr, blocks, [], {
+      fixColumns: false,
+    });
+    insertBlocks(tr, flattenColumns(blocks), referenceBlock, placement);
+
+    affectedColumnLists.forEach((id) => {
+      const posInfo = getNodeById(id, tr.doc);
+      if (posInfo) {
+        fixColumnList(tr, posInfo.posBeforeNode);
+      }
+    });
   });
 }
 
