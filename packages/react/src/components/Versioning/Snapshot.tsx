@@ -161,8 +161,28 @@ export const Snapshot = ({
             className="bn-snapshot-name"
             type="text"
             value={snapshotName}
+            // Editing the title is only allowed once this version is the one
+            // being viewed. Otherwise the first click just selects the version.
+            readOnly={!selected}
+            // Signal the interaction: a pointer (button-like) when the click
+            // will only select this version, a text caret once it's editable.
+            style={{ cursor: selected ? "text" : "pointer" }}
             onChange={(e) => setSnapshotName(e.target.value)}
-            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => {
+              // When this version isn't selected, keep the input from grabbing
+              // focus so the click falls through to the row and only selects
+              // the version — a second click (now selected) starts editing.
+              if (!selected) {
+                e.preventDefault();
+              }
+            }}
+            onClick={(e) => {
+              // Only swallow the click once editable; otherwise let it bubble
+              // to the row's handler so this version gets selected.
+              if (selected) {
+                e.stopPropagation();
+              }
+            }}
             onBlur={() =>
               updateSnapshotName?.(
                 snapshot.id,
