@@ -1,4 +1,6 @@
 import {
+  BlockConfig,
+  BlockFromConfigNoChildren,
   BlockMapping,
   COLORS_DEFAULT,
   createPageBreakBlockConfig,
@@ -24,6 +26,11 @@ import {
 } from "docx";
 import { Table } from "../util/Table.js";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
+
+type BSchema = DefaultBlockSchema & {
+  pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  math: BlockConfig<"math", {}, "inline">;
+} & typeof multiColumnSchema.blockSchema;
 
 function blockPropsToStyles(
   props: Partial<DefaultProps>,
@@ -69,10 +76,27 @@ function blockPropsToStyles(
                 })(),
   };
 }
+
+const codeMapping = (
+  block: BlockFromConfigNoChildren<BSchema[keyof BSchema], any, any>,
+) => {
+  const textContent = (block.content as StyledText<any>[])[0]?.text || "";
+
+  return new Paragraph({
+    style: "SourceCode",
+    children: [
+      ...textContent.split("\n").map((line, index) => {
+        return new TextRun({
+          text: line,
+          break: index > 0 ? 1 : 0,
+        });
+      }),
+    ],
+  });
+};
+
 export const docxBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema & {
-    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  } & typeof multiColumnSchema.blockSchema,
+  BSchema,
   any,
   any,
   | Promise<Paragraph[] | Paragraph | DocxTable>
@@ -162,21 +186,8 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       ...caption(block.props, exporter),
     ];
   },
-  codeBlock: (block) => {
-    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
-
-    return new Paragraph({
-      style: "SourceCode",
-      children: [
-        ...textContent.split("\n").map((line, index) => {
-          return new TextRun({
-            text: line,
-            break: index > 0 ? 1 : 0,
-          });
-        }),
-      ],
-    });
-  },
+  codeBlock: codeMapping,
+  math: codeMapping,
   pageBreak: () => {
     return new Paragraph({
       children: [new PageBreak()],

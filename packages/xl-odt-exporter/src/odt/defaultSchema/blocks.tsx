@@ -1,5 +1,7 @@
 import {
+  BlockConfig,
   BlockFromConfig,
+  BlockFromConfigNoChildren,
   BlockMapping,
   createPageBreakBlockConfig,
   DefaultBlockSchema,
@@ -10,6 +12,32 @@ import {
 } from "@blocknote/core";
 import { ODTExporter } from "../odtExporter.js";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
+
+type BSchema = DefaultBlockSchema & {
+  pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  math: BlockConfig<"math", {}, "inline">;
+} & typeof multiColumnSchema.blockSchema;
+
+// Renders a block's inline content as a code paragraph. Used for both code
+// blocks and math blocks (which store their LaTeX source as content).
+const codeMapping = (
+  block: BlockFromConfigNoChildren<BSchema[keyof BSchema], any, any>,
+) => {
+  const textContent = (block.content as StyledText<any>[])[0]?.text || "";
+
+  return (
+    <text:p text:style-name="Codeblock">
+      {...textContent.split("\n").map((line, index) => {
+        return (
+          <>
+            {index !== 0 && <text:line-break />}
+            {line}
+          </>
+        );
+      })}
+    </text:p>
+  );
+};
 
 export const getTabs = (nestingLevel: number) => {
   return Array.from({ length: nestingLevel }, (_, i) => <text:tab key={i} />);
@@ -164,9 +192,7 @@ const wrapWithLists = (
 };
 
 export const odtBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema & {
-    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  } & typeof multiColumnSchema.blockSchema,
+  BSchema,
   any,
   any,
   React.ReactNode,
@@ -500,22 +526,8 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     );
   },
 
-  codeBlock: (block) => {
-    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
-
-    return (
-      <text:p text:style-name="Codeblock">
-        {...textContent.split("\n").map((line, index) => {
-          return (
-            <>
-              {index !== 0 && <text:line-break />}
-              {line}
-            </>
-          );
-        })}
-      </text:p>
-    );
-  },
+  codeBlock: codeMapping,
+  math: codeMapping,
 
   file: async (block) => {
     return (
