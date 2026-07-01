@@ -5,6 +5,8 @@ import {
 } from "../../editor/BlockNoteExtension.js";
 import { blockMatchNodes } from "./blockMatchNodes.js";
 import { CollaborationOptions } from "./index.js";
+import { SuggestionMarksExtension } from "./SuggestionMarksExtension.js";
+import { YSuggestionMarksExtension } from "./YSuggestionMarks.js";
 
 /**
  * Deterministic hash of a string to an unsigned 32-bit integer.
@@ -158,6 +160,14 @@ export const YSyncExtension = createExtension(
         }),
       ],
       runsBefore: ["default"],
+      // The `y-attributed-*` suggestion marks aren't part of the default schema
+      // — they're only needed with collaboration. Register them here (so the
+      // block node specs can allow them), along with the attribution tooltip
+      // shown when hovering a suggestion mark.
+      blockNoteExtensions: [
+        YSuggestionMarksExtension(),
+        SuggestionMarksExtension(),
+      ],
     } as const;
   },
 );

@@ -22,7 +22,6 @@ import {
   PreviousBlockTypeExtension,
   ShowSelectionExtension,
   SideMenuExtension,
-  SuggestionMarksExtension,
   SuggestionMenu,
   TableHandlesExtension,
   TrailingNodeExtension,
@@ -32,9 +31,6 @@ import {
   HardBreak,
   KeyboardShortcutsExtension,
   LinkExtension,
-  SuggestionAddMark,
-  SuggestionDeleteMark,
-  SuggestionModificationMark,
   TextAlignmentExtension,
   TextColorExtension,
   UniqueID,
@@ -71,9 +67,6 @@ export function getDefaultTiptapExtensions(
     Text,
 
     // marks:
-    SuggestionAddMark,
-    SuggestionDeleteMark.configure({ editor }),
-    SuggestionModificationMark,
     ...(Object.values(editor.schema.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark.configure({
         editor: editor,
@@ -174,7 +167,6 @@ export function getDefaultExtensions(
     PlaceholderExtension(options),
     ShowSelectionExtension(options),
     SideMenuExtension(options),
-    SuggestionMarksExtension(),
     SuggestionMenu(options),
     HistoryExtension(),
     PositionMappingExtension(),

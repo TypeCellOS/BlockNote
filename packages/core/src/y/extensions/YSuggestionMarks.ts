@@ -1,12 +1,8 @@
 import { Mark } from "@tiptap/core";
 import { Mark as PMMark, MarkSpec } from "prosemirror-model";
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-
-// This copies the marks from @handlewithcare/prosemirror-suggest-changes,
-// but uses the Tiptap Mark API instead so we can use them in BlockNote
-
-// The ideal solution would be to not depend on tiptap nodes / marks, but be able to use prosemirror nodes / marks directly
-// this way we could directly use the exported marks from @handlewithcare/prosemirror-suggest-changes
+import { createExtension } from "../../editor/BlockNoteExtension.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BLOCK_LEVEL_SUGGESTION_GROUP } from "../../pm-nodes/suggestionMarks.js";
 
 /**
  * Shared mark view for the attribution marks (insert / delete / modification).
@@ -98,10 +94,13 @@ const createAttributionMarkView =
     };
   };
 
-export const SuggestionAddMark = Mark.create({
+export const YAttributedInsertion = Mark.create({
   name: "y-attributed-insert",
   inclusive: false,
-  // excludes: "", TODO: what's desired?
+  excludes: "",
+  // Allow this mark on block nodes (see `suggestionMarks`), so a whole block can
+  // be marked as inserted in suggestion mode.
+  group: BLOCK_LEVEL_SUGGESTION_GROUP,
   addAttributes() {
     return {
       userIds: { default: null },
@@ -118,37 +117,17 @@ export const SuggestionAddMark = Mark.create({
     }
     return {
       blocknoteIgnore: true,
-      inclusive: false,
-      parseDOM: [
-        {
-          tag: "ins",
-          getAttrs(node) {
-            if (!node.dataset["userIds"]) {
-              return false;
-            }
-            return {
-              userIds: JSON.parse(node.dataset["userIds"]),
-              "user-color-light": node.dataset["userColorLight"],
-              "user-color-dark": node.dataset["userColorDark"],
-            };
-          },
-        },
-      ],
     } satisfies MarkSpec;
   },
 });
 
-export const SuggestionDeleteMark = Mark.create<{
+export const YAttributedDeletion = Mark.create<{
   editor?: BlockNoteEditor<any, any, any>;
 }>({
   name: "y-attributed-delete",
   inclusive: false,
-  // excludes: "", TODO: what's desired?
-  addOptions() {
-    return {
-      editor: undefined,
-    };
-  },
+  excludes: "",
+  group: BLOCK_LEVEL_SUGGESTION_GROUP,
   addAttributes() {
     return {
       userIds: { default: null },
@@ -157,7 +136,7 @@ export const SuggestionDeleteMark = Mark.create<{
     };
   },
   addMarkView() {
-    return createAttributionMarkView("delete", this.options.editor);
+    return createAttributionMarkView("delete");
   },
   extendMarkSchema(extension) {
     if (extension.name !== "y-attributed-delete") {
@@ -165,30 +144,15 @@ export const SuggestionDeleteMark = Mark.create<{
     }
     return {
       blocknoteIgnore: true,
-      inclusive: false,
-      parseDOM: [
-        {
-          tag: "del",
-          getAttrs(node) {
-            if (!node.dataset["userIds"]) {
-              return false;
-            }
-            return {
-              userIds: JSON.parse(node.dataset["userIds"]),
-              "user-color-light": node.dataset["userColorLight"],
-              "user-color-dark": node.dataset["userColorDark"],
-            };
-          },
-        },
-      ],
     } satisfies MarkSpec;
   },
 });
 
-export const SuggestionModificationMark = Mark.create({
+export const YAttributedFormat = Mark.create({
   name: "y-attributed-format",
   inclusive: false,
-  // excludes: "", TODO: what's desired?
+  excludes: "",
+  group: BLOCK_LEVEL_SUGGESTION_GROUP,
   addAttributes() {
     return {
       userIds: { default: null },
@@ -206,41 +170,22 @@ export const SuggestionModificationMark = Mark.create({
     }
     return {
       blocknoteIgnore: true,
-      inclusive: false,
-      parseDOM: [
-        {
-          tag: "span[data-type='modification']",
-          getAttrs(node) {
-            if (!node.dataset["userIds"]) {
-              return false;
-            }
-            return {
-              userIds: JSON.parse(node.dataset["userIds"]),
-              format: node.dataset["format"]
-                ? JSON.parse(node.dataset["format"])
-                : null,
-              "user-color-light": node.dataset["userColorLight"],
-              "user-color-dark": node.dataset["userColorDark"],
-            };
-          },
-        },
-        {
-          tag: "div[data-type='modification']",
-          getAttrs(node) {
-            if (!node.dataset["userIds"]) {
-              return false;
-            }
-            return {
-              userIds: JSON.parse(node.dataset["userIds"]),
-              format: node.dataset["format"]
-                ? JSON.parse(node.dataset["format"])
-                : null,
-              "user-color-light": node.dataset["userColorLight"],
-              "user-color-dark": node.dataset["userColorDark"],
-            };
-          },
-        },
-      ],
     } satisfies MarkSpec;
   },
 });
+
+/**
+ * Bundles the three `y-attributed-*` suggestion marks into a single BlockNote
+ * extension, so they can be registered wherever they're actually needed (the
+ * Yjs collaboration extension, or a test that exercises suggestions) instead of
+ * living in the default schema. The marks opt into being allowed on block nodes
+ * via their `blockLevelSuggestion` option — see `suggestionMarks`.
+ */
+export const YSuggestionMarksExtension = createExtension(() => ({
+  key: "ySuggestionMarks",
+  tiptapExtensions: [
+    YAttributedInsertion,
+    YAttributedDeletion,
+    YAttributedFormat,
+  ],
+}));

@@ -11,6 +11,7 @@ import {
 } from "../../schema/index.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
+import { suggestionMarks } from "../../pm-nodes/suggestionMarks.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
@@ -39,7 +40,9 @@ const TiptapTableHeader = Node.create<{
    */
   content: "tableContent+",
 
-  marks: "y-attributed-delete y-attributed-insert y-attributed-format",
+  marks() {
+    return suggestionMarks(this.editor);
+  },
 
   addAttributes() {
     return {
@@ -101,7 +104,9 @@ const TiptapTableCell = Node.create<{
 
   content: "tableContent+",
 
-  marks: "y-attributed-delete y-attributed-insert y-attributed-format",
+  marks() {
+    return suggestionMarks(this.editor);
+  },
 
   addAttributes() {
     return {
@@ -156,7 +161,9 @@ const TiptapTableNode = Node.create({
   group: "blockContent",
   tableRole: "table",
 
-  marks: "y-attributed-delete y-attributed-insert y-attributed-format",
+  marks() {
+    return suggestionMarks(this.editor);
+  },
   isolating: true,
 
   parseHTML() {
@@ -351,7 +358,9 @@ const TiptapTableRow = Node.create<{
   content: "(tableCell | tableHeader)+",
 
   tableRole: "row",
-  marks: "y-attributed-delete y-attributed-insert y-attributed-format",
+  marks() {
+    return suggestionMarks(this.editor);
+  },
   parseHTML() {
     return [{ tag: "tr" }];
   },
