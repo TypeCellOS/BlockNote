@@ -47,14 +47,12 @@ export function fragmentToBlocks<
     if (node.type.name === "columnList" && node.childCount === 1) {
       // column lists with a single column should be flattened (not the entire column list has been selected)
       node.firstChild?.forEach((child) => {
-        // TODO node is technically not correct here, we just need a doc to pass in
         blocks.push(nodeToBlock(child, node));
       });
       return false;
     }
 
     if (node.type.isInGroup("bnBlock")) {
-      // TODO node is technically not correct here, we just need a doc to pass in
       blocks.push(nodeToBlock(node, node));
       // don't descend into children, as they're already included in the block returned by nodeToBlock
       return false;
