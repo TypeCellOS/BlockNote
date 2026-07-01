@@ -5,7 +5,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { getBlockInfoAt, getNodeId } from "../../getBlockInfoFromPos.js";
+import { getBlockInfoAtNearest, getNodeId } from "../../getBlockInfoFromPos.js";
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 
 function checkFileExtensionsMatch(
@@ -159,7 +159,7 @@ export async function handleFileInsertion<
         }
 
         insertedBlockId = editor.transact((tr) => {
-          const blockInfo = getBlockInfoAt(tr, pos.pos);
+          const blockInfo = getBlockInfoAtNearest(tr, pos.pos);
           const id = getNodeId(blockInfo.bnBlock.node, tr.doc);
           // TODO are these safe?
           const blockElement = editor.domElement?.querySelector(

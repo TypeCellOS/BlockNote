@@ -9,7 +9,10 @@ import { CellSelection } from "prosemirror-tables";
 import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
-import { getBlockInfoAt, getNodeId } from "../../../getBlockInfoFromPos.js";
+import {
+  getBlockInfoAtNearest,
+  getNodeId,
+} from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
 
 type BlockSelectionData = (
@@ -44,7 +47,7 @@ function getBlockSelectionData(
   editor: BlockNoteEditor<any, any, any>,
 ): BlockSelectionData {
   return editor.transact((tr) => {
-    const anchorBlockPosInfo = getBlockInfoAt(tr, tr.selection.anchor);
+    const anchorBlockPosInfo = getBlockInfoAtNearest(tr, tr.selection.anchor);
 
     const anchorBlockId = getNodeId(anchorBlockPosInfo.bnBlock.node, tr.doc);
 
@@ -63,7 +66,7 @@ function getBlockSelectionData(
         anchorBlockId,
       };
     } else {
-      const headBlockPosInfo = getBlockInfoAt(tr, tr.selection.head);
+      const headBlockPosInfo = getBlockInfoAtNearest(tr, tr.selection.head);
 
       return {
         type: "text" as const,

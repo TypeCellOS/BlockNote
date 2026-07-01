@@ -3,7 +3,7 @@ import { CellSelection } from "prosemirror-tables";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
-  getBlockInfoAt,
+  getBlockInfoAtNearest,
   getBlockInfoFromSelection,
   getNodeId,
 } from "../../../getBlockInfoFromPos.js";
@@ -223,11 +223,11 @@ describe("Test moveBlocksUp", () => {
 
     const { anchorBlockId, headBlockId } = getEditor().transact((tr) => ({
       anchorBlockId: getNodeId(
-        getBlockInfoAt(tr, tr.selection.anchor).bnBlock.node,
+        getBlockInfoAtNearest(tr, tr.selection.anchor).bnBlock.node,
         tr.doc,
       ),
       headBlockId: getNodeId(
-        getBlockInfoAt(tr, tr.selection.head).bnBlock.node,
+        getBlockInfoAtNearest(tr, tr.selection.head).bnBlock.node,
         tr.doc,
       ),
     }));
@@ -347,11 +347,11 @@ describe("Test moveBlocksDown", () => {
 
     const { anchorBlockId, headBlockId } = getEditor().transact((tr) => ({
       anchorBlockId: getNodeId(
-        getBlockInfoAt(tr, tr.selection.anchor).bnBlock.node,
+        getBlockInfoAtNearest(tr, tr.selection.anchor).bnBlock.node,
         tr.doc,
       ),
       headBlockId: getNodeId(
-        getBlockInfoAt(tr, tr.selection.head).bnBlock.node,
+        getBlockInfoAtNearest(tr, tr.selection.head).bnBlock.node,
         tr.doc,
       ),
     }));

@@ -280,9 +280,12 @@ export function getBlockInfoFromResolvedPos(resolvedPos: ResolvedPos) {
  * @param source The ProseMirror editor state.
  */
 export function getBlockInfoFromSelection(source: EditorState | Transaction) {
-  return getBlockInfoAt(source, source.selection.anchor);
+  return getBlockInfoAtNearest(source, source.selection.anchor);
 }
 
-export function getBlockInfoAt(source: EditorState | Transaction, pos: number) {
+export function getBlockInfoAtNearest(
+  source: EditorState | Transaction,
+  pos: number,
+) {
   return getBlockInfo(getNearestBlockPos(source.doc, pos));
 }
