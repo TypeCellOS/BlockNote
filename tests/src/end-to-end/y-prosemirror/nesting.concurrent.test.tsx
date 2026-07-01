@@ -141,66 +141,30 @@ test("concurrent: A indents N1, B indents N2 below N1", async () => {
   expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds="A"
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="A">
           <blockContainer id="n0">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-delete
-          userIds="A"
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="A">
           <blockContainer id="n1">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds="A"
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="A">
           <blockContainer id="n0">
-            <y-attributed-insert
-              userIds="A"
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="A">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert
-                  userIds="A"
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >N0</y-attributed-insert>
+                <y-attributed-insert userIds="A">N0</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
-            <y-attributed-insert
-              userIds="A"
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="A">
               <blockGroup>
-                <y-attributed-insert
-                  userIds="A"
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >
+                <y-attributed-insert userIds="A">
                   <blockContainer id="n1">
-                    <y-attributed-insert
-                      userIds="A"
-                      user-color-light="#fff0c2"
-                      user-color-dark="#8a6d1a"
-                    >
+                    <y-attributed-insert userIds="A">
                       <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                        <y-attributed-insert
-                          userIds="A"
-                          user-color-light="#fff0c2"
-                          user-color-dark="#8a6d1a"
-                        >N1</y-attributed-insert>
+                        <y-attributed-insert userIds="A">N1</y-attributed-insert>
                       </paragraph>
                     </y-attributed-insert>
                   </blockContainer>
@@ -209,69 +173,29 @@ test("concurrent: A indents N1, B indents N2 below N1", async () => {
             </y-attributed-insert>
           </blockContainer>
         </y-attributed-insert>
-        <y-attributed-delete
-          userIds="B"
-          user-color-light="#fcc9c3"
-          user-color-dark="#8a2e24"
-        >
+        <y-attributed-delete userIds="B">
           <blockContainer id="n2">
-            <y-attributed-delete
-              userIds="B"
-              user-color-light="#fcc9c3"
-              user-color-dark="#8a2e24"
-            >
+            <y-attributed-delete userIds="B">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-delete
-                  userIds="B"
-                  user-color-light="#fcc9c3"
-                  user-color-dark="#8a2e24"
-                >N2</y-attributed-delete>
+                <y-attributed-delete userIds="B">N2</y-attributed-delete>
               </paragraph>
             </y-attributed-delete>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds="B"
-          user-color-light="#fcc9c3"
-          user-color-dark="#8a2e24"
-        >
+        <y-attributed-insert userIds="B">
           <blockContainer id="n1">
-            <y-attributed-insert
-              userIds="B"
-              user-color-light="#fcc9c3"
-              user-color-dark="#8a2e24"
-            >
+            <y-attributed-insert userIds="B">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert
-                  userIds="B"
-                  user-color-light="#fcc9c3"
-                  user-color-dark="#8a2e24"
-                >N1</y-attributed-insert>
+                <y-attributed-insert userIds="B">N1</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
-            <y-attributed-insert
-              userIds="B"
-              user-color-light="#fcc9c3"
-              user-color-dark="#8a2e24"
-            >
+            <y-attributed-insert userIds="B">
               <blockGroup>
-                <y-attributed-insert
-                  userIds="B"
-                  user-color-light="#fcc9c3"
-                  user-color-dark="#8a2e24"
-                >
+                <y-attributed-insert userIds="B">
                   <blockContainer id="n2">
-                    <y-attributed-insert
-                      userIds="B"
-                      user-color-light="#fcc9c3"
-                      user-color-dark="#8a2e24"
-                    >
+                    <y-attributed-insert userIds="B">
                       <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                        <y-attributed-insert
-                          userIds="B"
-                          user-color-light="#fcc9c3"
-                          user-color-dark="#8a2e24"
-                        >N2</y-attributed-insert>
+                        <y-attributed-insert userIds="B">N2</y-attributed-insert>
                       </paragraph>
                     </y-attributed-insert>
                   </blockContainer>
@@ -399,57 +323,25 @@ test("concurrent: A nests N1 under N0, B nests N2 under N0", async () => {
   expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds="A"
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="A">
           <blockContainer id="n0">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds="A"
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="A">
           <blockContainer id="n0">
-            <y-attributed-insert
-              userIds="A"
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="A">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert
-                  userIds="A"
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >N0</y-attributed-insert>
+                <y-attributed-insert userIds="A">N0</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
-            <y-attributed-insert
-              userIds="A"
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="A">
               <blockGroup>
-                <y-attributed-insert
-                  userIds="A"
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >
+                <y-attributed-insert userIds="A">
                   <blockContainer id="n1">
-                    <y-attributed-insert
-                      userIds="A"
-                      user-color-light="#fff0c2"
-                      user-color-dark="#8a6d1a"
-                    >
+                    <y-attributed-insert userIds="A">
                       <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                        <y-attributed-insert
-                          userIds="A"
-                          user-color-light="#fff0c2"
-                          user-color-dark="#8a6d1a"
-                        >N1</y-attributed-insert>
+                        <y-attributed-insert userIds="A">N1</y-attributed-insert>
                       </paragraph>
                     </y-attributed-insert>
                   </blockContainer>
@@ -458,48 +350,20 @@ test("concurrent: A nests N1 under N0, B nests N2 under N0", async () => {
             </y-attributed-insert>
           </blockContainer>
         </y-attributed-insert>
-        <y-attributed-insert
-          userIds="B"
-          user-color-light="#fcc9c3"
-          user-color-dark="#8a2e24"
-        >
+        <y-attributed-insert userIds="B">
           <blockContainer id="n0">
-            <y-attributed-insert
-              userIds="B"
-              user-color-light="#fcc9c3"
-              user-color-dark="#8a2e24"
-            >
+            <y-attributed-insert userIds="B">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert
-                  userIds="B"
-                  user-color-light="#fcc9c3"
-                  user-color-dark="#8a2e24"
-                >N0</y-attributed-insert>
+                <y-attributed-insert userIds="B">N0</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
-            <y-attributed-insert
-              userIds="B"
-              user-color-light="#fcc9c3"
-              user-color-dark="#8a2e24"
-            >
+            <y-attributed-insert userIds="B">
               <blockGroup>
-                <y-attributed-insert
-                  userIds="B"
-                  user-color-light="#fcc9c3"
-                  user-color-dark="#8a2e24"
-                >
+                <y-attributed-insert userIds="B">
                   <blockContainer id="n2">
-                    <y-attributed-insert
-                      userIds="B"
-                      user-color-light="#fcc9c3"
-                      user-color-dark="#8a2e24"
-                    >
+                    <y-attributed-insert userIds="B">
                       <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                        <y-attributed-insert
-                          userIds="B"
-                          user-color-light="#fcc9c3"
-                          user-color-dark="#8a2e24"
-                        >N2</y-attributed-insert>
+                        <y-attributed-insert userIds="B">N2</y-attributed-insert>
                       </paragraph>
                     </y-attributed-insert>
                   </blockContainer>

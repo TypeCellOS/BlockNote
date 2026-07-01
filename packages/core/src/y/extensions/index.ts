@@ -101,7 +101,7 @@ export const CollaborationExtension = createExtension(
         YCursorExtension(options),
         options.versioningEndpoints
           ? VersioningExtension({
-              ...createYjsVersioningAdapter(editor, options.fragment, userStore),
+              ...createYjsVersioningAdapter(editor, options.fragment),
               endpoints: options.versioningEndpoints,
             })
           : null,

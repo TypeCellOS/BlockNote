@@ -69,11 +69,7 @@ test("suggestion mode: change list item to paragraph", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="block-hello">
             <bulletListItem
               backgroundColor="default"
@@ -82,23 +78,11 @@ test("suggestion mode: change list item to paragraph", async () => {
             >hello world</bulletListItem>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="block-hello">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >hello world</y-attributed-insert>
+                <y-attributed-insert userIds="">hello world</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
           </blockContainer>
@@ -152,26 +136,14 @@ test("suggestion mode: change paragraph to heading", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="block-hello">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">hello world</paragraph>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="block-hello">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <heading
                 backgroundColor="default"
                 textColor="default"
@@ -179,11 +151,7 @@ test("suggestion mode: change paragraph to heading", async () => {
                 level="1"
                 isToggleable="false"
               >
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >hello world</y-attributed-insert>
+                <y-attributed-insert userIds="">hello world</y-attributed-insert>
               </heading>
             </y-attributed-insert>
           </blockContainer>

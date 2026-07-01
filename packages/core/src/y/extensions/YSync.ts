@@ -7,116 +7,52 @@ import { blockMatchNodes } from "./blockMatchNodes.js";
 import { CollaborationOptions } from "./index.js";
 import { SuggestionMarksExtension } from "./SuggestionMarksExtension.js";
 import { YSuggestionMarksExtension } from "./YSuggestionMarks.js";
-import { normalizeToUserStore, type UserStore } from "../../user/index.js";
+import { normalizeToUserStore } from "../../user/index.js";
 
 /**
- * Deterministic hash of a string to an unsigned 32-bit integer.
+ * Maps a Y attribution to BlockNote's `y-attributed-*` mark attrs.
+ *
+ * The mapper must be deterministic in `(format, attribution)` and emit attrs
+ * that exactly match the declared mark schema in YSuggestionMarks.ts. Any
+ * mismatch causes the sync plugin to fire phantom reconcile dispatches in a
+ * loop. See ATTRIBUTION.md in @y/prosemirror.
+ *
+ * Crucially the marks carry only stable identity (`userIds`, plus `format` for
+ * the modification mark) — *not* user colors. Colors resolve asynchronously
+ * from the {@link UserStore}, so baking them in here would make the mapper's
+ * output change under a fixed `(format, attribution)` once a user loads, which
+ * is exactly the non-determinism that triggers the reconcile loop. Instead the
+ * `SuggestionMarksExtension` applies colors as a decoration layer that can
+ * update independently of the mark representation.
  */
-const hashStr = (s: string): number => {
-  let hash = 0;
-  for (let i = 0; i < s.length; i++) {
-    hash = Math.imul(31, hash) + s.charCodeAt(i);
+export const mapAttributionToMark = (
+  format: Record<string, unknown> | null,
+  attribution: {
+    insert?: readonly string[];
+    delete?: readonly string[];
+    format?: Record<string, readonly string[]>;
+    insertAt?: number;
+    deleteAt?: number;
+    formatAt?: number;
+  },
+): Record<string, unknown> => {
+  const out: Record<string, unknown> = { ...format };
+
+  if (attribution.insert) {
+    out["y-attributed-insert"] = { userIds: attribution.insert };
   }
-  return Math.abs(hash);
+
+  if (attribution.delete) {
+    out["y-attributed-delete"] = { userIds: attribution.delete };
+  }
+
+  if (attribution.format) {
+    const userIds = [...new Set(Object.values(attribution.format).flat())];
+    out["y-attributed-format"] = { userIds, format: attribution.format };
+  }
+
+  return out;
 };
-
-/**
- * Fallback palette used when a user isn't resolved in the {@link UserStore} (or
- * has no color of their own). Must be deterministic so the sync plugin's readback
- * matches the mapper output.
- */
-const userColorPalette: Array<{ light: string; dark: string }> = [
-  { light: "#fff0c2", dark: "#8a6d1a" },
-  { light: "#fcc9c3", dark: "#8a2e24" },
-  { light: "#d4e8eb", dark: "#4a7178" },
-  { light: "#c2eeff", dark: "#1a6e8a" },
-  { light: "#bef3ff", dark: "#0a7a8a" },
-];
-
-/**
- * Pick a user-color from the {@link UserStore} based on user ids, falling back to
- * a deterministic palette entry when the (first) user isn't resolved yet or
- * carries no color of their own.
- *
- * The lookup is synchronous and deterministic given the store's current state,
- * which is what the sync plugin's readback requires. When a user later resolves
- * with their own color, the next reconcile picks it up.
- */
-const colorsForUserIds = (
-  userStore: UserStore,
-  userIds: readonly string[] | undefined | null,
-): { light: string; dark: string } => {
-  if (!userIds || userIds.length === 0) {
-    return userColorPalette[0];
-  }
-  const firstId = userIds[0];
-  const user = userStore.getUser(firstId);
-  if (user?.color && user.colorLight) {
-    return { light: user.colorLight, dark: user.color };
-  }
-  return userColorPalette[hashStr(firstId) % userColorPalette.length];
-};
-
-/**
- * Build the mapper from a Y attribution to BlockNote's `y-attributed-*` mark
- * attrs, resolving user colors through the given {@link UserStore}.
- *
- * The mapper must be deterministic in `(format, attribution)` (for a fixed store
- * state) and emit attrs that exactly match the declared mark schema in
- * SuggestionMarks.ts. Any mismatch causes the sync plugin to fire phantom
- * reconcile dispatches in a loop. See ATTRIBUTION.md in @y/prosemirror.
- *
- * Declared attrs per mark (all three are the same shape):
- * - y-attributed-insert: { id, "user-color-light", "user-color-dark" }
- * - y-attributed-delete: { id, "user-color-light", "user-color-dark" }
- * - y-attributed-format: { id, "user-color-light", "user-color-dark" }
- */
-export const createMapAttributionToMark =
-  (userStore: UserStore) =>
-  (
-    format: Record<string, unknown> | null,
-    attribution: {
-      insert?: readonly string[];
-      delete?: readonly string[];
-      format?: Record<string, readonly string[]>;
-      insertAt?: number;
-      deleteAt?: number;
-      formatAt?: number;
-    },
-  ): Record<string, unknown> => {
-    const out: Record<string, unknown> = { ...format };
-
-    if (attribution.insert) {
-      const colors = colorsForUserIds(userStore, attribution.insert);
-      out["y-attributed-insert"] = {
-        userIds: attribution.insert,
-        "user-color-light": colors.light,
-        "user-color-dark": colors.dark,
-      };
-    }
-
-    if (attribution.delete) {
-      const colors = colorsForUserIds(userStore, attribution.delete);
-      out["y-attributed-delete"] = {
-        userIds: attribution.delete,
-        "user-color-light": colors.light,
-        "user-color-dark": colors.dark,
-      };
-    }
-
-    if (attribution.format) {
-      const userIds = [...new Set(Object.values(attribution.format).flat())];
-      const colors = colorsForUserIds(userStore, userIds);
-      out["y-attributed-format"] = {
-        userIds,
-        format: attribution.format,
-        "user-color-light": colors.light,
-        "user-color-dark": colors.dark,
-      };
-    }
-
-    return out;
-  };
 
 export const YSyncExtension = createExtension(
   ({
@@ -179,7 +115,7 @@ export const YSyncExtension = createExtension(
       prosemirrorPlugins: [
         syncPlugin({
           suggestionDoc: options.suggestionDoc,
-          mapAttributionToMark: createMapAttributionToMark(userStore),
+          mapAttributionToMark,
           // Node-pairing policy for the PM->Y diff: a `blockContainer` whose
           // block-content type changes is treated as a *different* node, so the
           // diff replaces the whole container (deleted + inserted siblings in

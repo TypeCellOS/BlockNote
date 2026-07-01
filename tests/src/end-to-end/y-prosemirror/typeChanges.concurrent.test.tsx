@@ -120,26 +120,14 @@ test("concurrent: A → heading, B → list item", async () => {
   expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds="A"
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="A">
           <blockContainer id="block-hello">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">hello world</paragraph>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds="A"
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="A">
           <blockContainer id="block-hello">
-            <y-attributed-insert
-              userIds="A"
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="A">
               <heading
                 backgroundColor="default"
                 textColor="default"
@@ -147,36 +135,20 @@ test("concurrent: A → heading, B → list item", async () => {
                 level="1"
                 isToggleable="false"
               >
-                <y-attributed-insert
-                  userIds="A"
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >hello world</y-attributed-insert>
+                <y-attributed-insert userIds="A">hello world</y-attributed-insert>
               </heading>
             </y-attributed-insert>
           </blockContainer>
         </y-attributed-insert>
-        <y-attributed-insert
-          userIds="B"
-          user-color-light="#fcc9c3"
-          user-color-dark="#8a2e24"
-        >
+        <y-attributed-insert userIds="B">
           <blockContainer id="block-hello">
-            <y-attributed-insert
-              userIds="B"
-              user-color-light="#fcc9c3"
-              user-color-dark="#8a2e24"
-            >
+            <y-attributed-insert userIds="B">
               <bulletListItem
                 backgroundColor="default"
                 textColor="default"
                 textAlignment="left"
               >
-                <y-attributed-insert
-                  userIds="B"
-                  user-color-light="#fcc9c3"
-                  user-color-dark="#8a2e24"
-                >hello world</y-attributed-insert>
+                <y-attributed-insert userIds="B">hello world</y-attributed-insert>
               </bulletListItem>
             </y-attributed-insert>
           </blockContainer>
@@ -277,53 +249,21 @@ test("concurrent: A edits text, B → heading", async () => {
   expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds="B"
-          user-color-light="#fcc9c3"
-          user-color-dark="#8a2e24"
-        >
+        <y-attributed-delete userIds="B">
           <blockContainer id="block-hello">
-            <y-attributed-delete
-              userIds="B"
-              user-color-light="#fcc9c3"
-              user-color-dark="#8a2e24"
-            >
+            <y-attributed-delete userIds="B">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-delete
-                  userIds="B"
-                  user-color-light="#fcc9c3"
-                  user-color-dark="#8a2e24"
-                >hello</y-attributed-delete>
-                <y-attributed-delete
-                  userIds="A"
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >wo</y-attributed-delete>
-                <y-attributed-delete
-                  userIds="B"
-                  user-color-light="#fcc9c3"
-                  user-color-dark="#8a2e24"
-                >r</y-attributed-delete>
-                <y-attributed-delete
-                  userIds="A"
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >ld</y-attributed-delete>
+                <y-attributed-delete userIds="B">hello</y-attributed-delete>
+                <y-attributed-delete userIds="A">wo</y-attributed-delete>
+                <y-attributed-delete userIds="B">r</y-attributed-delete>
+                <y-attributed-delete userIds="A">ld</y-attributed-delete>
               </paragraph>
             </y-attributed-delete>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds="B"
-          user-color-light="#fcc9c3"
-          user-color-dark="#8a2e24"
-        >
+        <y-attributed-insert userIds="B">
           <blockContainer id="block-hello">
-            <y-attributed-insert
-              userIds="B"
-              user-color-light="#fcc9c3"
-              user-color-dark="#8a2e24"
-            >
+            <y-attributed-insert userIds="B">
               <heading
                 backgroundColor="default"
                 textColor="default"
@@ -331,11 +271,7 @@ test("concurrent: A edits text, B → heading", async () => {
                 level="1"
                 isToggleable="false"
               >
-                <y-attributed-insert
-                  userIds="B"
-                  user-color-light="#fcc9c3"
-                  user-color-dark="#8a2e24"
-                >hello world</y-attributed-insert>
+                <y-attributed-insert userIds="B">hello world</y-attributed-insert>
               </heading>
             </y-attributed-insert>
           </blockContainer>

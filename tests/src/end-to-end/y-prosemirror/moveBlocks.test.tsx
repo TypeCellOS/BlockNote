@@ -77,23 +77,11 @@ test("suggestion mode: move paragraph up", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="middle">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >Middle</y-attributed-insert>
+                <y-attributed-insert userIds="">Middle</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
           </blockContainer>
@@ -101,11 +89,7 @@ test("suggestion mode: move paragraph up", async () => {
         <blockContainer id="first">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">First</paragraph>
         </blockContainer>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="middle">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">Middle</paragraph>
           </blockContainer>
@@ -172,48 +156,20 @@ test("suggestion mode: move paragraph with children", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="parent">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >Parent</y-attributed-insert>
+                <y-attributed-insert userIds="">Parent</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <blockGroup>
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >
+                <y-attributed-insert userIds="">
                   <blockContainer id="child">
-                    <y-attributed-insert
-                      userIds=""
-                      user-color-light="#fff0c2"
-                      user-color-dark="#8a6d1a"
-                    >
+                    <y-attributed-insert userIds="">
                       <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                        <y-attributed-insert
-                          userIds=""
-                          user-color-light="#fff0c2"
-                          user-color-dark="#8a6d1a"
-                        >Child</y-attributed-insert>
+                        <y-attributed-insert userIds="">Child</y-attributed-insert>
                       </paragraph>
                     </y-attributed-insert>
                   </blockContainer>
@@ -225,11 +181,7 @@ test("suggestion mode: move paragraph with children", async () => {
         <blockContainer id="first">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">First</paragraph>
         </blockContainer>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="parent">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">Parent</paragraph>
             <blockGroup>

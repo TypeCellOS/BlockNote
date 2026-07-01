@@ -1,3 +1,6 @@
+import { Node } from "prosemirror-model";
+import { Plugin, PluginKey } from "prosemirror-state";
+import { Decoration, DecorationSet } from "prosemirror-view";
 import {
   createExtension,
   createStore,
@@ -5,17 +8,31 @@ import {
 } from "../../editor/BlockNoteExtension.js";
 import type { Dictionary } from "../../i18n/dictionary.js";
 import { normalizeToUserStore, type UserStore } from "../../user/index.js";
+import { colorsForUserIds } from "./userColors.js";
 import {
   resolveSuggestionMarkClassName,
   type GetSuggestionMarkClassName,
 } from "./YSuggestionMarks.js";
 
 /**
+ * The three attribution marks, mapped to the `modificationType` reported to
+ * {@link GetSuggestionMarkClassName} (`y-attributed-format` → `"format"`).
+ */
+const ATTRIBUTION_MARK_TYPES = {
+  "y-attributed-insert": "insert",
+  "y-attributed-delete": "delete",
+  "y-attributed-format": "format",
+} as const;
+
+const COLOR_PLUGIN_KEY = new PluginKey("suggestionMarkColors");
+
+/**
  * Selector for the wrapper element of an attribution mark (insert / delete /
- * modification). Every such wrapper carries the author(s) and color in its
- * `data-*` attributes (see `YSuggestionMarks.ts`), which is all we need to
- * resolve the tooltip — so this extension reads attribution straight from the
- * DOM rather than keeping a separate registry of marks.
+ * modification). Every such wrapper carries the author(s) in its `data-user-ids`
+ * attribute (see `YSuggestionMarks.ts`), which is all we need to resolve the
+ * tooltip — so this extension reads attribution straight from the DOM rather
+ * than keeping a separate registry of marks. Colors are resolved separately from
+ * the user store (they're intentionally not on the mark, see `userColors.ts`).
  */
 const ATTRIBUTION_MARK_SELECTOR = "[data-user-ids]";
 
@@ -111,7 +128,7 @@ export type SuggestionMarkTooltipState = {
   anchor: HTMLElement;
   /** Resolved display text (localized format label + usernames). */
   text: string;
-  /** Per-user background color from `data-user-color-dark` (default path). */
+  /** Per-user background color, resolved from the user store (default path). */
   color: string;
   /** The kind of change — `format` is the modification mark. */
   modificationType: "insert" | "delete" | "format";
@@ -168,10 +185,115 @@ export const SuggestionMarksExtension = createExtension(
       undefined,
     );
 
+    // Authors we've already asked the store to resolve. We fetch each id at most
+    // once so a resolver that returns nothing for an id can't loop (a store
+    // update re-runs the decoration build, which would otherwise re-request it).
+    const requestedUserIds = new Set<string>();
+
+    // Build the mark-color decorations for a document. Suggestion marks carry
+    // only `userIds` (kept deterministic for the Yjs sync reconcile); the author
+    // color is resolved here from the user store and applied as the
+    // `--user-color-*` custom properties the Block.css rules read. Inline marks
+    // get an inline decoration around their text; block-level marks get a node
+    // decoration on the wrapped block. When an app supplies a
+    // `getSuggestionMarkClassName` class for a mark, that class owns styling, so
+    // no per-user color decoration is emitted for it.
+    const buildColorDecorations = (doc: Node): DecorationSet => {
+      const decorations: Decoration[] = [];
+      const idsToLoad: string[] = [];
+
+      doc.descendants((node, pos) => {
+        for (const mark of node.marks) {
+          const modificationType =
+            ATTRIBUTION_MARK_TYPES[
+              mark.type.name as keyof typeof ATTRIBUTION_MARK_TYPES
+            ];
+          if (!modificationType) {
+            continue;
+          }
+
+          const userIds = mark.attrs["userIds"] as string[] | null;
+          if (userIds) {
+            for (const id of userIds) {
+              if (!requestedUserIds.has(id)) {
+                requestedUserIds.add(id);
+                idsToLoad.push(id);
+              }
+            }
+          }
+
+          const contentType = node.isInline ? "inline-content" : "block";
+          const overrideClass = resolveSuggestionMarkClassName(
+            getSuggestionMarkClassName?.({ contentType, modificationType }),
+            "content",
+          );
+          if (overrideClass) {
+            continue;
+          }
+
+          const colors = colorsForUserIds(userStore, userIds);
+          const style = `--user-color-light: ${colors.light}; --user-color-dark: ${colors.dark};`;
+          if (node.isInline) {
+            // An inline decoration wraps the marked text in a span *inside* the
+            // mark view's content span, so the `--user-color-*` here would land
+            // below the paint element and never reach it. Instead this span
+            // *becomes* the painted element: it carries the same
+            // `.bn-suggestion-mark(--delete)` class the mark view used to paint
+            // with (the mark view now keeps its own span structural), so the
+            // existing Block.css rules resolve the colors on the element that
+            // actually has them. The `data-type="modification"` marker still
+            // lives on the (ancestor) mark wrapper, so those rules keep working.
+            const markClass =
+              modificationType === "delete"
+                ? "bn-suggestion-mark bn-suggestion-mark--delete"
+                : "bn-suggestion-mark";
+            decorations.push(
+              Decoration.inline(pos, pos + node.nodeSize, {
+                class: markClass,
+                style,
+              }),
+            );
+          } else {
+            // A node decoration applies its style to the block node's own DOM —
+            // which is exactly the `.bn-suggestion-node > *` element Block.css
+            // paints — so the colors land where they're read with no extra span.
+            decorations.push(
+              Decoration.node(pos, pos + node.nodeSize, { style }),
+            );
+          }
+        }
+      });
+
+      // Kick off resolution for any authors we haven't seen; when they land the
+      // store subscription below rebuilds the decorations with the real colors.
+      if (idsToLoad.length > 0) {
+        void userStore.loadUsers(idsToLoad);
+      }
+
+      return DecorationSet.create(doc, decorations);
+    };
+
+    const colorPlugin = new Plugin<DecorationSet>({
+      key: COLOR_PLUGIN_KEY,
+      state: {
+        init: (_config, state) => buildColorDecorations(state.doc),
+        apply: (tr, value) =>
+          tr.docChanged || tr.getMeta(COLOR_PLUGIN_KEY)
+            ? buildColorDecorations(tr.doc)
+            : value,
+      },
+      props: {
+        decorations(state) {
+          return COLOR_PLUGIN_KEY.getState(state) ?? DecorationSet.empty;
+        },
+      },
+    });
+
     return {
       key: "suggestionMarks",
       userStore,
       store,
+      prosemirrorPlugins: [colorPlugin],
       mount({ root, signal }) {
         // The wrapper currently showing a tooltip, tracked so we don't re-emit
         // state on every `mouseover` while the pointer stays on the same mark.
@@ -227,7 +349,13 @@ export const SuggestionMarksExtension = createExtension(
           return {
             anchor,
             text,
-            color: String(anchor.dataset["userColorDark"]),
+            // Colors are no longer stored on the mark/DOM — resolve the author
+            // color from the user store the same way the mark-color decoration
+            // does, so the tooltip and the highlight always agree.
+            color: colorsForUserIds(
+              userStore,
+              parseUserIds(anchor.dataset["userIds"]),
+            ).dark,
             modificationType,
             contentType,
             users: usersLabelArray(anchor.dataset["userIds"]),
@@ -329,6 +457,16 @@ export const SuggestionMarksExtension = createExtension(
 
         root.addEventListener("mouseover", onPointerOver, { signal });
         signal.addEventListener("abort", hideTooltip);
+
+        // When users resolve (their real colors land in the store — whether
+        // fetched here, on hover, or by comments/versioning sharing this cache),
+        // rebuild the mark-color decorations so the highlights recolor from the
+        // fallback palette to the author's own color. `docChanged` alone can't
+        // catch this since the colors live outside the doc.
+        const unsubscribe = userStore.store.subscribe(() => {
+          editor.transact((tr) => tr.setMeta(COLOR_PLUGIN_KEY, true));
+        });
+        signal.addEventListener("abort", unsubscribe);
       },
     };
   },

@@ -120,26 +120,14 @@ test("suggestion mode: add heading to empty doc", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="1">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="h0">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <heading
                 backgroundColor="default"
                 textColor="default"
@@ -147,11 +135,7 @@ test("suggestion mode: add heading to empty doc", async () => {
                 level="1"
                 isToggleable="false"
               >
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >New heading</y-attributed-insert>
+                <y-attributed-insert userIds="">New heading</y-attributed-insert>
               </heading>
             </y-attributed-insert>
           </blockContainer>
@@ -206,36 +190,20 @@ test("suggestion mode: add bullet list item to empty doc", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="1">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="b0">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <bulletListItem
                 backgroundColor="default"
                 textColor="default"
                 textAlignment="left"
               >
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >New bullet</y-attributed-insert>
+                <y-attributed-insert userIds="">New bullet</y-attributed-insert>
               </bulletListItem>
             </y-attributed-insert>
           </blockContainer>
@@ -290,36 +258,20 @@ test("suggestion mode: add numbered list item to empty doc", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="1">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="n0">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <numberedListItem
                 backgroundColor="default"
                 textColor="default"
                 textAlignment="left"
               >
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >New numbered</y-attributed-insert>
+                <y-attributed-insert userIds="">New numbered</y-attributed-insert>
               </numberedListItem>
             </y-attributed-insert>
           </blockContainer>
@@ -392,94 +344,46 @@ test("suggestion mode: add nested bullet list to empty doc", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="1">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="l0">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <bulletListItem
                 backgroundColor="default"
                 textColor="default"
                 textAlignment="left"
               >
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >Level 0</y-attributed-insert>
+                <y-attributed-insert userIds="">Level 0</y-attributed-insert>
               </bulletListItem>
             </y-attributed-insert>
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <blockGroup>
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >
+                <y-attributed-insert userIds="">
                   <blockContainer id="l1">
-                    <y-attributed-insert
-                      userIds=""
-                      user-color-light="#fff0c2"
-                      user-color-dark="#8a6d1a"
-                    >
+                    <y-attributed-insert userIds="">
                       <bulletListItem
                         backgroundColor="default"
                         textColor="default"
                         textAlignment="left"
                       >
-                        <y-attributed-insert
-                          userIds=""
-                          user-color-light="#fff0c2"
-                          user-color-dark="#8a6d1a"
-                        >Level 1</y-attributed-insert>
+                        <y-attributed-insert userIds="">Level 1</y-attributed-insert>
                       </bulletListItem>
                     </y-attributed-insert>
-                    <y-attributed-insert
-                      userIds=""
-                      user-color-light="#fff0c2"
-                      user-color-dark="#8a6d1a"
-                    >
+                    <y-attributed-insert userIds="">
                       <blockGroup>
-                        <y-attributed-insert
-                          userIds=""
-                          user-color-light="#fff0c2"
-                          user-color-dark="#8a6d1a"
-                        >
+                        <y-attributed-insert userIds="">
                           <blockContainer id="l2">
-                            <y-attributed-insert
-                              userIds=""
-                              user-color-light="#fff0c2"
-                              user-color-dark="#8a6d1a"
-                            >
+                            <y-attributed-insert userIds="">
                               <bulletListItem
                                 backgroundColor="default"
                                 textColor="default"
                                 textAlignment="left"
                               >
-                                <y-attributed-insert
-                                  userIds=""
-                                  user-color-light="#fff0c2"
-                                  user-color-dark="#8a6d1a"
-                                >Level 2</y-attributed-insert>
+                                <y-attributed-insert userIds="">Level 2</y-attributed-insert>
                               </bulletListItem>
                             </y-attributed-insert>
                           </blockContainer>
@@ -543,57 +447,25 @@ test("suggestion mode: add colored block with child to empty doc", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="1">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="c0">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <paragraph backgroundColor="blue" textColor="default" textAlignment="left">
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >Colored parent</y-attributed-insert>
+                <y-attributed-insert userIds="">Colored parent</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <blockGroup>
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >
+                <y-attributed-insert userIds="">
                   <blockContainer id="c1">
-                    <y-attributed-insert
-                      userIds=""
-                      user-color-light="#fff0c2"
-                      user-color-dark="#8a6d1a"
-                    >
+                    <y-attributed-insert userIds="">
                       <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                        <y-attributed-insert
-                          userIds=""
-                          user-color-light="#fff0c2"
-                          user-color-dark="#8a6d1a"
-                        >Child block</y-attributed-insert>
+                        <y-attributed-insert userIds="">Child block</y-attributed-insert>
                       </paragraph>
                     </y-attributed-insert>
                   </blockContainer>
@@ -674,11 +546,7 @@ test("suggestion mode: nest a bullet under an existing bullet", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="p">
             <bulletListItem
               backgroundColor="default"
@@ -687,11 +555,7 @@ test("suggestion mode: nest a bullet under an existing bullet", async () => {
             >Parent</bulletListItem>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="c">
             <bulletListItem
               backgroundColor="default"
@@ -700,56 +564,28 @@ test("suggestion mode: nest a bullet under an existing bullet", async () => {
             >Child</bulletListItem>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="p">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <bulletListItem
                 backgroundColor="default"
                 textColor="default"
                 textAlignment="left"
               >
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >Parent</y-attributed-insert>
+                <y-attributed-insert userIds="">Parent</y-attributed-insert>
               </bulletListItem>
             </y-attributed-insert>
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <blockGroup>
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >
+                <y-attributed-insert userIds="">
                   <blockContainer id="c">
-                    <y-attributed-insert
-                      userIds=""
-                      user-color-light="#fff0c2"
-                      user-color-dark="#8a6d1a"
-                    >
+                    <y-attributed-insert userIds="">
                       <bulletListItem
                         backgroundColor="default"
                         textColor="default"
                         textAlignment="left"
                       >
-                        <y-attributed-insert
-                          userIds=""
-                          user-color-light="#fff0c2"
-                          user-color-dark="#8a6d1a"
-                        >Child</y-attributed-insert>
+                        <y-attributed-insert userIds="">Child</y-attributed-insert>
                       </bulletListItem>
                     </y-attributed-insert>
                   </blockContainer>
@@ -830,23 +666,11 @@ test("suggestion mode: add paragraph after existing block", async () => {
             isToggleable="false"
           >Title</heading>
         </blockContainer>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="p0">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >Body text</y-attributed-insert>
+                <y-attributed-insert userIds="">Body text</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
           </blockContainer>
@@ -928,11 +752,7 @@ test("suggestion mode: remove paragraph from heading+paragraph", async () => {
             isToggleable="false"
           >Title</heading>
         </blockContainer>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="p0">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">Body text</paragraph>
           </blockContainer>
@@ -985,11 +805,7 @@ test("suggestion mode: remove all blocks", async () => {
       <blockGroup>
         <blockContainer id="1">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            <y-attributed-delete
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >Only block</y-attributed-delete>
+            <y-attributed-delete userIds="">Only block</y-attributed-delete>
           </paragraph>
         </blockContainer>
       </blockGroup>
@@ -1043,11 +859,7 @@ test("suggestion mode: delete nested block", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="parent">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">Parent</paragraph>
             <blockGroup>
@@ -1057,23 +869,11 @@ test("suggestion mode: delete nested block", async () => {
             </blockGroup>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="parent">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >Parent</y-attributed-insert>
+                <y-attributed-insert userIds="">Parent</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
           </blockContainer>
@@ -1131,11 +931,7 @@ test("suggestion mode: delete parent block (with children)", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="parent">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">Parent</paragraph>
             <blockGroup>
@@ -1145,17 +941,9 @@ test("suggestion mode: delete parent block (with children)", async () => {
             </blockGroup>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="1">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
             </y-attributed-insert>
           </blockContainer>
@@ -1222,11 +1010,7 @@ test("suggestion mode: delete image block", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="img">
             <image
               textAlignment="left"
@@ -1239,17 +1023,9 @@ test("suggestion mode: delete image block", async () => {
             ></image>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="1">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
             </y-attributed-insert>
           </blockContainer>
@@ -1318,11 +1094,7 @@ test("suggestion mode: delete parent with nested paragraph and image", async () 
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="parent">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">Parent</paragraph>
             <blockGroup>
@@ -1343,17 +1115,9 @@ test("suggestion mode: delete parent with nested paragraph and image", async () 
             </blockGroup>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="1">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
             </y-attributed-insert>
           </blockContainer>
@@ -1405,26 +1169,14 @@ test("suggestion mode: delete code block", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="code">
             <codeBlock language="text">const x = 1;</codeBlock>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="1">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
             </y-attributed-insert>
           </blockContainer>
@@ -1476,26 +1228,14 @@ test("suggestion mode: delete divider", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="hr">
             <divider></divider>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="1">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
             </y-attributed-insert>
           </blockContainer>
@@ -1555,26 +1295,14 @@ test("suggestion mode: insert image block", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-delete userIds="">
           <blockContainer id="1">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert
-          userIds=""
-          user-color-light="#fff0c2"
-          user-color-dark="#8a6d1a"
-        >
+        <y-attributed-insert userIds="">
           <blockContainer id="img">
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-insert userIds="">
               <image
                 textAlignment="left"
                 backgroundColor="default"

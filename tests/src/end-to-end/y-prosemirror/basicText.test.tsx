@@ -96,27 +96,11 @@ test("suggestion mode: 'hello world' -> 'hello universe'", async () => {
         <blockContainer id="block-hello">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
-            <y-attributed-delete
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >wo</y-attributed-delete>
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >unive</y-attributed-insert>
+            <y-attributed-delete userIds="">wo</y-attributed-delete>
+            <y-attributed-insert userIds="">unive</y-attributed-insert>
             r
-            <y-attributed-delete
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >ld</y-attributed-delete>
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >se</y-attributed-insert>
+            <y-attributed-delete userIds="">ld</y-attributed-delete>
+            <y-attributed-insert userIds="">se</y-attributed-insert>
           </paragraph>
         </blockContainer>
       </blockGroup>
@@ -180,12 +164,7 @@ test("suggestion mode: add bold to 'world'", async () => {
         <blockContainer id="block-hello">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
-            <y-attributed-format
-              userIds=""
-              format="[object Object]"
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-format userIds="" format="[object Object]">
               <bold>world</bold>
             </y-attributed-format>
           </paragraph>
@@ -244,12 +223,7 @@ test("suggestion mode: remove bold from 'world'", async () => {
         <blockContainer id="block-hello">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
-            <y-attributed-format
-              userIds=""
-              format="[object Object]"
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >world</y-attributed-format>
+            <y-attributed-format userIds="" format="[object Object]">world</y-attributed-format>
           </paragraph>
         </blockContainer>
       </blockGroup>
@@ -296,29 +270,22 @@ test("suggestion mode: add italic to already-bold 'world'", async () => {
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-          hello
-          <italic>
-            <bold>world</bold>
-          </italic>
-        </paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
+            "<blockGroup>
+              <blockContainer id="block-hello">
+                <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                  hello
+                  <bold>world</bold>
+                </paragraph>
+              </blockContainer>
+            </blockGroup>"
+          `);
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
         <blockContainer id="block-hello">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
-            <y-attributed-format
-              userIds=""
-              format="[object Object]"
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
+            <y-attributed-format userIds="" format="[object Object]">
               <italic>
                 <bold>world</bold>
               </italic>

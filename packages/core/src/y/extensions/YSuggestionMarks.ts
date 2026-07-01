@@ -59,11 +59,13 @@ export const resolveSuggestionMarkClassName = (
 
 /**
  * Shared mark view for the attribution marks (insert / delete / modification).
- * It renders the marked content and tags the wrapper with the author(s) and
- * color via `data-*` attributes. The attribution tooltip shown on hover is
- * handled separately by the `SuggestionMarksExtension`, which reads those
- * attributes straight from the DOM — keeping this mark view purely
- * presentational and the tooltip state off of module scope.
+ * It renders the marked content and tags the wrapper with the author(s) via
+ * `data-*` attributes. The attribution tooltip shown on hover is handled
+ * separately by the `SuggestionMarksExtension`, which reads those attributes
+ * straight from the DOM — keeping this mark view purely presentational and the
+ * tooltip state off of module scope. Author colors are applied separately as a
+ * decoration layer (also in `SuggestionMarksExtension`), so they can resolve
+ * asynchronously without being baked into the deterministic mark attrs.
  */
 const createAttributionMarkView =
   (
@@ -90,8 +92,6 @@ const createAttributionMarkView =
 
     Object.assign(dom.dataset, {
       userIds: JSON.stringify(mark.attrs["userIds"]),
-      userColorLight: String(mark.attrs["user-color-light"]),
-      userColorDark: String(mark.attrs["user-color-dark"]),
       inline: String(inline),
     });
     if (type === "modification") {
@@ -117,25 +117,29 @@ const createAttributionMarkView =
     // its own — an inline `<ins>`/`<del>` around block/table content (e.g. a
     // suggestion spanning table cells) would otherwise break the normal layout.
     // Because a `display: contents` element paints nothing, the highlight is
-    // applied to the inner content span (see `.bn-suggestion-mark` in Block.css);
-    // the `--user-color-*` custom properties set here cascade down to it. They're
-    // dropped when an override class owns the styling.
-    if (contentClassName) {
-      dom.style.cssText = "display: contents";
-    } else {
-      dom.style.cssText =
-        "display: contents" +
-        `; --user-color-light: ${mark.attrs["user-color-light"]}; --user-color-dark: ${mark.attrs["user-color-dark"]}`;
-    }
+    // applied to the inner content span (see `.bn-suggestion-mark` in Block.css)
+    // using the `--user-color-*` custom properties. Those properties are *not*
+    // set here — they're supplied by the decoration layer in
+    // `SuggestionMarksExtension`, which resolves colors from the user store
+    // independently of the (deterministic, color-free) mark attrs. When an
+    // override class owns the styling, no per-user color is applied at all.
+    dom.style.cssText = "display: contents";
 
     const contentDOM = document.createElement("span");
     if (inline) {
-      // Inline content: the span is a real inline box that carries the highlight.
-      contentDOM.className =
-        contentClassName ??
-        (type === "delete"
-          ? "bn-suggestion-mark bn-suggestion-mark--delete"
-          : "bn-suggestion-mark");
+      if (contentClassName) {
+        // Override path: the app-provided class fully owns styling (and no color
+        // decoration is emitted for it), so this span is the painted box.
+        contentDOM.className = contentClassName;
+      } else {
+        // Default path: the per-user highlight is painted by the color
+        // decoration (see `SuggestionMarksExtension`), which wraps the text in a
+        // span carrying the `.bn-suggestion-mark(--delete)` class *and* the
+        // `--user-color-*` properties. Keep this content span structural
+        // (`display: contents`) so it doesn't also match the highlight rules and
+        // double-paint (e.g. a doubled strike-through / dotted underline).
+        contentDOM.style.display = "contents";
+      }
     } else {
       // Block-level marks wrap block/table structure (e.g. <tr>/<td>/<p>). The
       // span must be `display: contents` so it doesn't inject an inline box into
@@ -186,8 +190,6 @@ export const YAttributedInsertion = Mark.create<{
   addAttributes() {
     return {
       userIds: { default: null },
-      "user-color-light": { default: null, validate: "string" },
-      "user-color-dark": { default: null, validate: "string" },
     };
   },
   addMarkView() {
@@ -216,8 +218,6 @@ export const YAttributedDeletion = Mark.create<{
   addAttributes() {
     return {
       userIds: { default: null },
-      "user-color-light": { default: null, validate: "string" },
-      "user-color-dark": { default: null, validate: "string" },
     };
   },
   addMarkView() {
@@ -247,8 +247,6 @@ export const YAttributedFormat = Mark.create<{
     return {
       userIds: { default: null },
       format: { default: null },
-      "user-color-light": { default: null, validate: "string" },
-      "user-color-dark": { default: null, validate: "string" },
     };
   },
   addMarkView() {
