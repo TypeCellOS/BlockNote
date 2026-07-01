@@ -141,6 +141,14 @@ export interface VersioningEndpoints<I = any, O = any, A = any> {
     snapshot: VersionSnapshot,
     name?: string,
   ) => Promise<void>;
+  /**
+   * Permanently delete a snapshot.
+   *
+   * @note if not provided, the UI will not offer a way to delete a snapshot.
+   * This is appropriate for backends with immutable history (e.g. YHub's
+   * activity timeline), where individual versions cannot be removed.
+   */
+  deleteSnapshot?: (snapshot: VersionSnapshot) => Promise<void>;
 }
 
 /**
@@ -504,6 +512,33 @@ export const VersioningExtension = createExtension(
                 s.id === id ? { ...s, name, updatedAt: Date.now() } : s,
               ),
             }));
+          }
+        : undefined,
+      canDeleteSnapshot: endpoints.deleteSnapshot !== undefined,
+      deleteSnapshot: endpoints.deleteSnapshot
+        ? async (id: VersionSnapshotIdentifier): Promise<void> => {
+            const snapshot = getSnapshot(id);
+            if (!snapshot) {
+              snapshotNotFoundError(id);
+            }
+            // If the snapshot being deleted is the one currently previewed, or
+            // the baseline it's being diffed against, exit preview first so the
+            // editor returns to the live document instead of showing (or
+            // comparing against) a version that no longer exists.
+            if (
+              store.state.previewedSnapshotId === snapshot.id ||
+              store.state.compareToSnapshotId === snapshot.id
+            ) {
+              exitPreview();
+            }
+            await endpoints.deleteSnapshot!(snapshot);
+            // Remove it optimistically so the row disappears immediately, then
+            // reconcile with the backend's authoritative list.
+            store.setState((state) => ({
+              ...state,
+              snapshots: state.snapshots.filter((s) => s.id !== snapshot.id),
+            }));
+            await updateSnapshots();
           }
         : undefined,
       previewSnapshot,

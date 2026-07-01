@@ -7,6 +7,7 @@ import { useState } from "react";
 import {
   RiArrowGoBackFill,
   RiArrowLeftRightLine,
+  RiDeleteBinLine,
   RiMoreFill,
 } from "react-icons/ri";
 
@@ -28,6 +29,8 @@ export const Snapshot = ({
     restoreSnapshot,
     canUpdateSnapshotName,
     updateSnapshotName,
+    canDeleteSnapshot,
+    deleteSnapshot,
     previewSnapshot,
     previewCurrentVersion,
   } = useExtension(VersioningExtension);
@@ -95,10 +98,11 @@ export const Snapshot = ({
     }
   };
 
-  // With comparison disabled the only remaining menu item is "Restore"; when
-  // that's unavailable too, there's nothing to show, so drop the menu entirely.
+  // The menu only appears when at least one of its items is available:
+  // "Compare with this version" (comparison), "Restore", or "Delete". When none
+  // apply, there's nothing to show, so drop the menu entirely.
   const actions =
-    comparisonEnabled || canRestoreSnapshot ? (
+    comparisonEnabled || canRestoreSnapshot || canDeleteSnapshot ? (
       <Components.Generic.Toolbar.Root
         variant="action-toolbar"
         className="bn-action-toolbar"
@@ -134,6 +138,16 @@ export const Snapshot = ({
                 }}
               >
                 Restore
+              </Components.Generic.Menu.Item>
+            )}
+            {canDeleteSnapshot && (
+              <Components.Generic.Menu.Item
+                icon={<RiDeleteBinLine />}
+                onClick={() => {
+                  void deleteSnapshot?.(snapshot.id);
+                }}
+              >
+                Delete
               </Components.Generic.Menu.Item>
             )}
           </Components.Generic.Menu.Dropdown>

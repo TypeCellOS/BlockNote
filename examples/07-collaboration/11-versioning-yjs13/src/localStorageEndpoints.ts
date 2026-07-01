@@ -128,12 +128,33 @@ export function createLocalStorageVersioningEndpoints(
     writeSnapshots(storageKey, snapshots);
   };
 
+  const deleteSnapshot: VersioningEndpoints<
+    Y.XmlFragment,
+    Uint8Array
+  >["deleteSnapshot"] = async (snapshot) => {
+    const snapshots = readSnapshots(storageKey);
+    if (!snapshots.some((s) => s.id === snapshot.id)) {
+      throw new Error(`Document snapshot ${snapshot.id} could not be found.`);
+    }
+
+    // Drop the snapshot metadata and its stored content.
+    writeSnapshots(
+      storageKey,
+      snapshots.filter((s) => s.id !== snapshot.id),
+    );
+
+    const contents = readContents(storageKey);
+    delete contents[snapshot.id];
+    writeContents(storageKey, contents);
+  };
+
   return {
     list: listSnapshots,
     create: createSnapshot,
     getContent: fetchSnapshotContent,
     restore: restoreSnapshot,
     updateSnapshotName,
+    deleteSnapshot,
   };
 }
 

@@ -156,12 +156,35 @@ describe("createInMemoryVersioningEndpoints", () => {
     expect(list.find((s) => s.id === snap.id)!.name).toBe("new");
   });
 
+  it("deletes a snapshot and its content", async () => {
+    const endpoints = createInMemoryVersioningEndpoints();
+    const snap = await endpoints.create!([
+      {
+        id: "1",
+        type: "paragraph" as const,
+        content: "v1" as any,
+        props: {} as any,
+        children: [],
+      },
+    ]);
+
+    await endpoints.deleteSnapshot!(snap);
+
+    // No longer listed
+    expect(await endpoints.list()).toHaveLength(0);
+    // Its content is gone too
+    await expect(endpoints.getContent(snap)).rejects.toThrow(/not found/i);
+  });
+
   it("throws for unknown snapshot ID", async () => {
     const endpoints = createInMemoryVersioningEndpoints();
     const missing = { id: "nope", createdAt: 0, updatedAt: 0 };
     await expect(endpoints.getContent(missing)).rejects.toThrow(/not found/i);
     await expect(endpoints.restore!([], missing)).rejects.toThrow(/not found/i);
     await expect(endpoints.updateSnapshotName!(missing, "x")).rejects.toThrow(
+      /not found/i,
+    );
+    await expect(endpoints.deleteSnapshot!(missing)).rejects.toThrow(
       /not found/i,
     );
   });
@@ -328,6 +351,47 @@ describe("VersioningExtension + in-memory adapter", () => {
 
     ext.exitPreview();
     expect(getEditorText(editor)).toBe("changed doc");
+  });
+
+  it("delete removes the snapshot from the store and backend", async () => {
+    const adapter = createInMemoryVersioningAdapter(editor);
+    const ext = VersioningExtension(adapter)({ editor });
+
+    const snap1 = await ext.createSnapshot!({ name: "keep" });
+    setEditorText(editor, "changed doc");
+    const snap2 = await ext.createSnapshot!({ name: "remove" });
+    await ext.listSnapshots();
+
+    expect(ext.canDeleteSnapshot).toBe(true);
+    await ext.deleteSnapshot!(snap2.id);
+
+    // Gone from the optimistic store...
+    expect(
+      ext.store.state.snapshots.find((s) => s.id === snap2.id),
+    ).toBeUndefined();
+    // ...and gone from the backend's authoritative list.
+    const list = (await ext.listSnapshots()).filter(
+      (s) => s.id !== CURRENT_VERSION_ID,
+    );
+    expect(list.map((s) => s.id)).toEqual([snap1.id]);
+  });
+
+  it("deleting the previewed snapshot exits preview", async () => {
+    const adapter = createInMemoryVersioningAdapter(editor);
+    const ext = VersioningExtension(adapter)({ editor });
+
+    const snap = await ext.createSnapshot!({ name: "v1" });
+    setEditorText(editor, "modified doc");
+
+    // Preview the snapshot, then delete the version being previewed.
+    await ext.previewSnapshot(snap.id);
+    expect(ext.store.state.previewedSnapshotId).toBe(snap.id);
+
+    await ext.deleteSnapshot!(snap.id);
+
+    // Preview was exited and the live document restored.
+    expect(ext.store.state.previewedSnapshotId).toBeUndefined();
+    expect(getEditorText(editor)).toBe("modified doc");
   });
 
   it("rename persists through list refresh", async () => {
