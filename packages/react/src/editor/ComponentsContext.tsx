@@ -261,6 +261,27 @@ export type ComponentProps = {
       children?: ReactNode;
     };
   };
+  SuggestionMarksTooltip: {
+    /**
+     * The attribution tooltip shown when hovering a suggestion mark. Positioned
+     * by floating-ui and portaled by the controller — this only styles the box.
+     */
+    Root: {
+      className?: string;
+      /**
+       * App-supplied class from `getSuggestionMarkClassName` (override path).
+       * When set, `Root` applies it and ignores `backgroundColor`.
+       */
+      markClassName?: string;
+      /**
+       * Per-user author color (default path). Applied inline when there's no
+       * `markClassName`, since the tooltip is portaled away from the mark and
+       * can't inherit the mark's color.
+       */
+      backgroundColor?: string;
+      children?: ReactNode;
+    };
+  };
   // TODO: We should try to make everything as generic as we can
   Generic: {
     Badge: {

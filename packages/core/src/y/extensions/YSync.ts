@@ -130,6 +130,7 @@ export const YSyncExtension = createExtension(
       | "suggestionDoc"
       | "provider"
       | "resolveUsers"
+      | "getSuggestionMarkClassName"
     >
   >) => {
     // Resolve suggestion authors (usernames and colors) through this store. The
@@ -195,8 +196,13 @@ export const YSyncExtension = createExtension(
       // block node specs can allow them), along with the attribution tooltip
       // shown when hovering a suggestion mark.
       blockNoteExtensions: [
-        YSuggestionMarksExtension(),
-        SuggestionMarksExtension({ userStore }),
+        YSuggestionMarksExtension({
+          getSuggestionMarkClassName: options.getSuggestionMarkClassName,
+        }),
+        SuggestionMarksExtension({
+          userStore,
+          getSuggestionMarkClassName: options.getSuggestionMarkClassName,
+        }),
       ],
     } as const;
   },

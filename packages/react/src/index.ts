@@ -58,6 +58,10 @@ export * from "./components/SideMenu/SideMenu.js";
 export * from "./components/SideMenu/SideMenuController.js";
 export * from "./components/SideMenu/SideMenuProps.js";
 
+export * from "./components/SuggestionMarksTooltip/SuggestionMarksTooltip.js";
+export * from "./components/SuggestionMarksTooltip/SuggestionMarksTooltipController.js";
+export * from "./components/SuggestionMarksTooltip/SuggestionMarksTooltipProps.js";
+
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/BlockColorsItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/RemoveBlockItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/TableHeadersItem.js";

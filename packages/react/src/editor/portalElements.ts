@@ -26,6 +26,7 @@ export type PortalElementsMap = {
   filePanel?: PortalTarget;
   tableHandles?: PortalTarget;
   comments?: PortalTarget;
+  suggestionMarksTooltip?: PortalTarget;
 };
 
 export type PortalElementKey = Exclude<keyof PortalElementsMap, "default">;

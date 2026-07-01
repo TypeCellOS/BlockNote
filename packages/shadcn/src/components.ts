@@ -24,6 +24,7 @@ import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyIte
 import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem.js";
 import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel.js";
 import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader.js";
+import { SuggestionMarksTooltip } from "./suggestionMarks/SuggestionMarksTooltip.js";
 import { ExtendButton } from "./tableHandle/ExtendButton.js";
 import { TableHandle } from "./tableHandle/TableHandle.js";
 import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar.js";
@@ -90,6 +91,9 @@ export const components: Components = {
   Versioning: {
     Sidebar: VersioningSidebar,
     Snapshot: VersioningSnapshot,
+  },
+  SuggestionMarksTooltip: {
+    Root: SuggestionMarksTooltip,
   },
   Generic: {
     Badge: {

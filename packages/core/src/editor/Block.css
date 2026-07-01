@@ -791,7 +791,7 @@ serialized/static output, where the wrapper is a real, painted box.
 
 .dark.bn-root .bn-suggestion-mark {
   background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
-  color: var(--user-color-light);
+  color: white;
 }
 
 /*
@@ -1009,16 +1009,13 @@ background fill (unlike insertions, which carry a filled highlight).
 }
 
 /*
-Attribution tooltip for suggestion marks (<ins> / <del>). Positioned manually
-and portaled to <body> (see SuggestionMarks.ts), so it floats above the document
-instead of being clipped by an ancestor's overflow (e.g. a table cell). The
-background color is set inline from the mark's user color; only the static
-styling lives here.
+Attribution tooltip for suggestion marks (<ins> / <del> / modification).
+Positioning and portaling are handled by the React controller via floating-ui
+(see SuggestionMarksTooltipController), so only the static box styling lives
+here. The background color is set inline from the mark's user color unless an
+app-provided class overrides it (see getSuggestionMarkClassName).
 */
 .bn-suggestion-tooltip {
-  position: fixed;
-  top: 0;
-  left: 0;
   width: max-content;
   max-width: calc(100vw - 8px);
   padding: 0 4px;
@@ -1030,7 +1027,6 @@ styling lives here.
   border-radius: 4px;
   white-space: nowrap;
   pointer-events: none;
-  z-index: 10000;
 }
 
 .bn-root del {

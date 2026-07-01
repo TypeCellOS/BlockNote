@@ -16,6 +16,7 @@ import {
   VersioningEndpointsFactory,
 } from "../../extensions/Versioning/index.js";
 import { normalizeToUserStore, UserStoreOrResolver } from "../../user/index.js";
+import type { GetSuggestionMarkClassName } from "./YSuggestionMarks.js";
 
 export type CollaborationOptions = {
   /**
@@ -61,6 +62,14 @@ export type CollaborationOptions = {
    * The suggestion doc for the collaboration. If using suggestion mode
    */
   suggestionDoc?: Y.Doc;
+
+  /**
+   * Optional callback to override suggestion-mark styling by change type instead
+   * of by author. Given a mark's content/modification type, return a class name
+   * applied to the mark and its hover tooltip; the per-user color is then
+   * dropped for that mark. See {@link GetSuggestionMarkClassName}.
+   */
+  getSuggestionMarkClassName?: GetSuggestionMarkClassName;
 
   /**
    * The endpoints for the versioning functionality.
@@ -134,6 +143,8 @@ export function withCollaboration<
 export * from "./RelativePositionMapping.js";
 export * from "./YCursorPlugin.js";
 export * from "./YSync.js";
+export * from "./YSuggestionMarks.js";
+export * from "./SuggestionMarksExtension.js";
 export * from "./Versioning.js";
 export * from "./Suggestions.js";
 export * from "./snapshotBuilder.js";
