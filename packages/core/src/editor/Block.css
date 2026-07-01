@@ -23,7 +23,8 @@ BASIC STYLES
 .bn-block-content.ProseMirror-selectednode > *,
 /* Case for node view renderers */
 .ProseMirror-selectednode > .bn-block-content > *,
-/* Case for inline content (e.g. while the text cursor is within it) */
+/* Case for blocks/inline content where class is set manually */
+.bn-block-content .ProseMirror-selectednode,
 .bn-inline-content .ProseMirror-selectednode {
   border-radius: 4px;
   outline: 4px solid rgb(100, 160, 255);
@@ -566,11 +567,6 @@ NESTED BLOCKS
 /* INLINE MATH PREVIEW */
 /* Shares the block-preview markup/classes; these rules override the
    block-preview defaults that don't suit inline use. */
-.bn-inline-content-section .bn-preview-with-source-popup {
-  display: inline-block;
-  vertical-align: middle;
-}
-
 .bn-inline-content-section .bn-preview-container {
   padding: 0;
   min-height: 0;
@@ -592,8 +588,9 @@ NESTED BLOCKS
 .bn-inline-content-section .bn-add-source-code-button {
   display: inline-flex;
   gap: 4px;
+  height: 19px;
   margin-inline: 4px;
-  padding: 1px 6px;
+  padding: 0 6px;
 }
 
 .bn-inline-content-section .bn-add-source-code-button-icon {

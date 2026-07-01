@@ -116,21 +116,17 @@ export const createSourceBlockWithPreview = (
 
   const store = editor.getExtension(SourceBlockWithPreviewExtension)?.store;
 
-  // Sync the popup's initial open state so it survives a re-render (the block's
-  // DOM isn't mounted yet, so the selected class is left to `updateFromStore`).
-  previewWithSourcePopup.dataset.open =
-    store?.state.popupOpen === block.id ? "true" : "false";
-
-  const unsubscribeFromStore = store?.subscribe(() => {
+  const updateFromStore = () => {
     previewWithSourcePopup.dataset.open =
       store?.state.popupOpen === block.id ? "true" : "false";
-    previewWithSourcePopup
-      .closest(".bn-block-content")
-      ?.classList.toggle(
-        "ProseMirror-selectednode",
-        store?.state.selected === block.id,
-      );
-  });
+    previewWithSourcePopup.classList.toggle(
+      "ProseMirror-selectednode",
+      store?.state.selected === block.id,
+    );
+  };
+  updateFromStore();
+
+  const unsubscribeFromStore = store?.subscribe(updateFromStore);
 
   // Opens the popup when clicking the preview.
   const handleMouseDown = (event: MouseEvent) => {

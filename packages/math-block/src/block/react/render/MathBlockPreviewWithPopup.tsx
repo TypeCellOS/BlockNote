@@ -4,7 +4,7 @@ import {
   useExtension,
   useExtensionState,
 } from "@blocknote/react";
-import { MouseEvent, useEffect, useRef } from "react";
+import { MouseEvent } from "react";
 
 import { MathBlockConfig } from "../../createMathBlockConfig.js";
 import { getMathPlainTextContent } from "../../../shared/getMathPlainTextContent.js";
@@ -28,15 +28,6 @@ export const MathBlockPreviewWithPopup = (
     selector: (state) => state.selected === block.id,
   });
 
-  // The source is hidden, so highlight the whole block while the cursor is in
-  // it. Mirrors the vanilla `createSourceBlockWithPreview` store sync.
-  const rootRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    rootRef.current
-      ?.closest(".bn-block-content")
-      ?.classList.toggle("ProseMirror-selectednode", selected);
-  }, [selected]);
-
   const { mathMLString, error } = useLatexToMathMLString(source);
 
   // Opens the popup when clicking the preview.
@@ -56,8 +47,10 @@ export const MathBlockPreviewWithPopup = (
 
   return (
     <div
-      ref={rootRef}
-      className="bn-preview-with-source-popup"
+      className={
+        "bn-preview-with-source-popup" +
+        (selected ? " ProseMirror-selectednode" : "")
+      }
       data-open={popupOpen ? "true" : "false"}
     >
       <div

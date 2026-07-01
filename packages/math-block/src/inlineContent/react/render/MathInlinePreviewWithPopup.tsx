@@ -5,7 +5,7 @@ import {
   useExtensionState,
 } from "@blocknote/react";
 import { TextSelection } from "prosemirror-state";
-import { MouseEvent, useEffect, useRef } from "react";
+import { MouseEvent } from "react";
 
 import { MathInlineContentConfig } from "../../mathInlineContentConfig.js";
 import { SourceInlineContentWithPreviewExtension } from "../../SourceInlineContentWithPreviewExtension.js";
@@ -34,13 +34,6 @@ export const MathInlinePreviewWithPopup = (
     selector: (state) => state.selected === pos,
   });
 
-  const rootRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    rootRef.current
-      ?.closest(".bn-inline-content-section")
-      ?.classList.toggle("ProseMirror-selectednode", selected);
-  }, [selected]);
-
   const { mathMLString, error } = useLatexToMathMLString(source, true);
 
   // Opens the popup when clicking the preview.
@@ -65,8 +58,12 @@ export const MathInlinePreviewWithPopup = (
 
   return (
     <span
-      ref={rootRef}
-      className="bn-preview-with-source-popup"
+      // The source is hidden, so highlight the whole inline content while the
+      // cursor is in it.
+      className={
+        "bn-preview-with-source-popup" +
+        (selected ? " ProseMirror-selectednode" : "")
+      }
       data-open={selected ? "true" : "false"}
     >
       <span
