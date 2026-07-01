@@ -49,7 +49,8 @@ export const Snapshot = ({
         : undefined,
   });
 
-  const { comparisonMode, setComparisonMode } = useVersioningSidebar();
+  const { comparisonEnabled, comparisonMode, setComparisonMode } =
+    useVersioningSidebar();
 
   const dateString = dateToString(new Date(snapshot?.createdAt || 0));
   const [snapshotName, setSnapshotName] = useState(
@@ -94,46 +95,51 @@ export const Snapshot = ({
     }
   };
 
-  const actions = (
-    <Components.Generic.Toolbar.Root
-      variant="action-toolbar"
-      className="bn-action-toolbar"
-    >
-      <Components.Generic.Menu.Root position="bottom-start">
-        <Components.Generic.Menu.Trigger>
-          <Components.Generic.Toolbar.Button
-            className="bn-snapshot-menu-trigger"
-            mainTooltip="More"
-            variant="compact"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
-          >
-            <RiMoreFill size={16} />
-          </Components.Generic.Toolbar.Button>
-        </Components.Generic.Menu.Trigger>
-        <Components.Generic.Menu.Dropdown className="bn-menu-dropdown">
-          <Components.Generic.Menu.Item
-            icon={<RiArrowLeftRightLine />}
-            onClick={handleCompareWith}
-          >
-            Compare with this version
-          </Components.Generic.Menu.Item>
-          {canRestoreSnapshot && (
-            <Components.Generic.Menu.Item
-              icon={<RiArrowGoBackFill />}
-              onClick={() => {
-                void restoreSnapshot?.(snapshot.id);
+  // With comparison disabled the only remaining menu item is "Restore"; when
+  // that's unavailable too, there's nothing to show, so drop the menu entirely.
+  const actions =
+    comparisonEnabled || canRestoreSnapshot ? (
+      <Components.Generic.Toolbar.Root
+        variant="action-toolbar"
+        className="bn-action-toolbar"
+      >
+        <Components.Generic.Menu.Root position="bottom-start">
+          <Components.Generic.Menu.Trigger>
+            <Components.Generic.Toolbar.Button
+              className="bn-snapshot-menu-trigger"
+              mainTooltip="More"
+              variant="compact"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
               }}
             >
-              Restore
-            </Components.Generic.Menu.Item>
-          )}
-        </Components.Generic.Menu.Dropdown>
-      </Components.Generic.Menu.Root>
-    </Components.Generic.Toolbar.Root>
-  );
+              <RiMoreFill size={16} />
+            </Components.Generic.Toolbar.Button>
+          </Components.Generic.Menu.Trigger>
+          <Components.Generic.Menu.Dropdown className="bn-menu-dropdown">
+            {comparisonEnabled && (
+              <Components.Generic.Menu.Item
+                icon={<RiArrowLeftRightLine />}
+                onClick={handleCompareWith}
+              >
+                Compare with this version
+              </Components.Generic.Menu.Item>
+            )}
+            {canRestoreSnapshot && (
+              <Components.Generic.Menu.Item
+                icon={<RiArrowGoBackFill />}
+                onClick={() => {
+                  void restoreSnapshot?.(snapshot.id);
+                }}
+              >
+                Restore
+              </Components.Generic.Menu.Item>
+            )}
+          </Components.Generic.Menu.Dropdown>
+        </Components.Generic.Menu.Root>
+      </Components.Generic.Toolbar.Root>
+    ) : undefined;
 
   return (
     <Components.Versioning.Snapshot

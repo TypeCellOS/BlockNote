@@ -29,7 +29,8 @@ const VersioningSidebarHeader = (props: { onClose?: () => void }) => {
   const snapshots = useExtensionState(VersioningExtension, {
     selector: (state) => state.snapshots,
   });
-  const { comparisonMode, setComparisonMode } = useVersioningSidebar();
+  const { comparisonEnabled, comparisonMode, setComparisonMode } =
+    useVersioningSidebar();
 
   // Toggling comparison on immediately diffs whatever is currently shown
   // against its previous version; toggling off drops the diff and shows the
@@ -90,15 +91,17 @@ const VersioningSidebarHeader = (props: { onClose?: () => void }) => {
               <RiSaveLine size={16} />
             </Components.Generic.Toolbar.Button>
           )}
-          <Components.Generic.Toolbar.Button
-            mainTooltip={
-              comparisonMode ? "Turn off comparison" : "Turn on comparison"
-            }
-            isSelected={comparisonMode}
-            onClick={toggleComparison}
-          >
-            <RiArrowLeftRightLine size={16} />
-          </Components.Generic.Toolbar.Button>
+          {comparisonEnabled && (
+            <Components.Generic.Toolbar.Button
+              mainTooltip={
+                comparisonMode ? "Turn off comparison" : "Turn on comparison"
+              }
+              isSelected={comparisonMode}
+              onClick={toggleComparison}
+            >
+              <RiArrowLeftRightLine size={16} />
+            </Components.Generic.Toolbar.Button>
+          )}
         </Components.Generic.Toolbar.Root>
       </div>
       {props.onClose && (

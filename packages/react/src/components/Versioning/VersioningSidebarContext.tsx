@@ -1,3 +1,4 @@
+import { VersioningExtension } from "@blocknote/core/extensions";
 import {
   Dispatch,
   ReactNode,
@@ -7,6 +8,8 @@ import {
   useMemo,
   useState,
 } from "react";
+
+import { useExtension } from "../../hooks/useExtension.js";
 
 /**
  * UI-only state shared across the versioning sidebar (the header toggle,
@@ -19,10 +22,19 @@ import {
  */
 export type VersioningSidebarContextValue = {
   /**
+   * Whether the sidebar exposes version comparison at all. Mirrors the
+   * extension's {@link VersioningExtension.canCompareVersions} capability: when
+   * `false`, the comparison toggle and the "Compare with…" actions are hidden
+   * entirely, and clicking a version only ever views it. Backends that can't
+   * diff documents (e.g. the Yjs v13 adapter) report this off.
+   */
+  comparisonEnabled: boolean;
+  /**
    * Whether clicking a version shows a diff against another version. When
    * `true` (the default), clicking a version diffs it against its chronological
    * predecessor, and the baseline can be moved via "Compare with this version".
-   * When `false`, clicking a version only views it.
+   * When `false`, clicking a version only views it. Always `false` when
+   * {@link comparisonEnabled} is `false`.
    */
   comparisonMode: boolean;
   setComparisonMode: Dispatch<SetStateAction<boolean>>;
@@ -33,11 +45,20 @@ const VersioningSidebarContext = createContext<
 >(undefined);
 
 export const VersioningSidebarProvider = (props: { children: ReactNode }) => {
+  // Comparison availability is driven by the extension/adapter, not the host —
+  // backends that can't diff documents report `canCompareVersions: false`.
+  const { canCompareVersions } = useExtension(VersioningExtension);
   const [comparisonMode, setComparisonMode] = useState(true);
+  const comparisonEnabled = canCompareVersions;
 
   const value = useMemo(
-    () => ({ comparisonMode, setComparisonMode }),
-    [comparisonMode],
+    () => ({
+      comparisonEnabled,
+      // Comparison can never be active when it's disabled outright.
+      comparisonMode: comparisonEnabled && comparisonMode,
+      setComparisonMode,
+    }),
+    [comparisonEnabled, comparisonMode],
   );
 
   return (

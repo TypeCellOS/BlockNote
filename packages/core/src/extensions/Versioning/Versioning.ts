@@ -164,6 +164,18 @@ export type VersioningEndpointsFactory<I = any, O = any, A = any> = (
  */
 export interface PreviewController<O = any, A = any> {
   /**
+   * Whether this controller can render a diff between two versions (i.e.
+   * whether {@link enterPreview} does anything meaningful with
+   * `compareToContent`). Defaults to `true`.
+   *
+   * Set to `false` for backends that can only show a version on its own — e.g.
+   * the Yjs v13 adapter, which forks the document to a snapshot but has no way
+   * to diff it against another version. The extension surfaces this as
+   * {@link VersioningExtension.canCompareVersions} so the UI can hide the
+   * comparison affordances entirely.
+   */
+  supportsComparison?: boolean;
+  /**
    * Enter preview mode, showing the given snapshot content in the editor.
    *
    * @param snapshotContent     - The content of the snapshot to preview.
@@ -411,6 +423,9 @@ export const VersioningExtension = createExtension(
       listSnapshots: async (): Promise<VersionSnapshot[]> => {
         return await updateSnapshots();
       },
+      // Comparison is only offered when the preview controller can actually
+      // render a diff (see PreviewController.supportsComparison).
+      canCompareVersions: preview.supportsComparison !== false,
       canCreateSnapshot: endpoints.create !== undefined,
       createSnapshot: endpoints.create
         ? async (options?: {
