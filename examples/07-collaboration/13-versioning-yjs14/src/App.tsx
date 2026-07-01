@@ -3,7 +3,7 @@ import {
   createYHubVersioningEndpoints,
   withCollaboration,
 } from "@blocknote/core/y";
-import { UserExtension, VersioningExtension } from "@blocknote/core/extensions";
+import { VersioningExtension } from "@blocknote/core/extensions";
 import {
   BlockNoteViewEditor,
   useCreateBlockNote,
@@ -111,10 +111,10 @@ function VersionedEditor() {
         // Pass versioningEndpoints to the v14 CollaborationExtension which
         // automatically wires up the VersioningExtension with the Yjs adapter.
         versioningEndpoints,
+        // Resolves version-author ids (the seed's `attribution.by`) to usernames
+        // in the history sidebar and diff tooltips.
+        resolveUsers,
       },
-      // Resolves version-author ids (the seed's `attribution.by`) to usernames
-      // in the history sidebar and diff tooltips.
-      extensions: [UserExtension({ resolveUsers })],
     }),
   );
 

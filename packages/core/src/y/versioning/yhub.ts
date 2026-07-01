@@ -9,7 +9,7 @@ import {
   type VersionSnapshot,
 } from "../../extensions/Versioning/index.js";
 import { uint32 } from "lib0/random";
-import { UserExtension } from "../../extensions/User/index.js";
+import { YSyncExtension } from "../extensions/YSync.js";
 import { YCursorExtension } from "../extensions/YCursorPlugin.js";
 
 /**
@@ -370,7 +370,8 @@ export function createYHubVersioningEndpoints(
      * "current version" entry when the live document has unsaved edits.
      *
      * Filters the activity timeline to `type:version` markers, then resolves
-     * author user-ids to usernames via the editor's {@link UserExtension}.
+     * author user-ids to usernames via the collaboration user store (exposed on
+     * the {@link YSyncExtension}).
      */
     const list: VersioningEndpoints<
       Y.Type,
@@ -407,11 +408,11 @@ export function createYHubVersioningEndpoints(
       const all = currentEntry ? [currentEntry, ...snapshots] : snapshots;
 
       // Resolve the comma-separated author user-ids in each snapshot's
-      // `secondaryLabel` (from YHub's `by` field) to usernames via the editor's
-      // UserExtension. With no UserExtension (or for ids it can't resolve), the
-      // raw id is kept.
-      const userExt = editor.getExtension(UserExtension);
-      if (!userExt) {
+      // `secondaryLabel` (from YHub's `by` field) to usernames via the
+      // collaboration user store, which is exposed on the YSync extension. With
+      // no user store (or for ids it can't resolve), the raw id is kept.
+      const userStore = editor.getExtension(YSyncExtension)?.userStore;
+      if (!userStore) {
         return all;
       }
 
@@ -421,7 +422,7 @@ export function createYHubVersioningEndpoints(
           .map((t) => t.trim())
           .filter(Boolean) ?? [];
 
-      await userExt.loadUsers([
+      await userStore.loadUsers([
         ...new Set(all.flatMap((s) => splitIds(s.secondaryLabel))),
       ]);
 
@@ -433,7 +434,7 @@ export function createYHubVersioningEndpoints(
         return {
           ...s,
           secondaryLabel: ids
-            .map((id) => userExt.getUser(id)?.username ?? id)
+            .map((id) => userStore.getUser(id)?.username ?? id)
             .join(", "),
         };
       });

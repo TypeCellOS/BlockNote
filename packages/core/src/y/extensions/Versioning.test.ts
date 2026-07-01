@@ -9,6 +9,7 @@ import { VersioningExtension } from "../../extensions/Versioning/index.js";
 import type { VersioningEndpoints } from "../../extensions/Versioning/index.js";
 import { withCollaboration } from "./index.js";
 import { createYjsVersioningAdapter } from "./Versioning.js";
+import { YSyncExtension } from "./YSync.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -113,7 +114,11 @@ function createCollabEditor(opts?: { withVersioning?: boolean }) {
   const div = document.createElement("div");
   editor.mount(div);
 
-  return { editor, doc, fragment, endpoints };
+  // The versioning adapter resolves suggestion-author colors through the same
+  // user store the YSync extension builds, so tests reuse it too.
+  const userStore = editor.getExtension(YSyncExtension)!.userStore;
+
+  return { editor, doc, fragment, endpoints, userStore };
 }
 
 /** Clean up an editor and its Y.Doc. */
@@ -142,7 +147,7 @@ describe("createYjsVersioningAdapter", () => {
 
   it("getCurrentState returns the fragment passed to the adapter", () => {
     ctx = createCollabEditor();
-    const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment);
+    const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment, ctx.userStore);
     const state = adapter.getCurrentState();
 
     expect(state).toBe(ctx.fragment);
@@ -161,7 +166,7 @@ describe("createYjsVersioningAdapter", () => {
       { type: "paragraph", content: "Modified content" },
     ]);
 
-    const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment);
+    const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment, ctx.userStore);
     adapter.preview.enterPreview(snapshotData);
 
     expect(getEditorText(ctx.editor)).toContain("Original content");
@@ -180,7 +185,7 @@ describe("createYjsVersioningAdapter", () => {
       { type: "paragraph", content: "Current state" },
     ]);
 
-    const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment);
+    const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment, ctx.userStore);
     adapter.preview.enterPreview(snapshotData);
     expect(getEditorText(ctx.editor)).toContain("Snapshot state");
 
@@ -208,7 +213,7 @@ describe("createYjsVersioningAdapter", () => {
       { type: "paragraph", content: "Current" },
     ]);
 
-    const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment);
+    const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment, ctx.userStore);
 
     // Preview A
     adapter.preview.enterPreview(snapshotA);
@@ -229,7 +234,7 @@ describe("createYjsVersioningAdapter", () => {
       { type: "paragraph", content: "Content" },
     ]);
 
-    const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment);
+    const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment, ctx.userStore);
 
     // Should not throw or change anything
     adapter.preview.exitPreview();
@@ -242,7 +247,7 @@ describe("createYjsVersioningAdapter", () => {
       { type: "paragraph", content: "Content" },
     ]);
 
-    const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment);
+    const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment, ctx.userStore);
 
     // Should not throw and should leave the live document untouched.
     expect(() => adapter.preview.applyRestore(new Uint8Array())).not.toThrow();

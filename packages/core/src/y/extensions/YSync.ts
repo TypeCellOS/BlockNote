@@ -7,6 +7,7 @@ import { blockMatchNodes } from "./blockMatchNodes.js";
 import { CollaborationOptions } from "./index.js";
 import { SuggestionMarksExtension } from "./SuggestionMarksExtension.js";
 import { YSuggestionMarksExtension } from "./YSuggestionMarks.js";
+import { normalizeToUserStore, type UserStore } from "../../user/index.js";
 
 /**
  * Deterministic hash of a string to an unsigned 32-bit integer.
@@ -20,8 +21,9 @@ const hashStr = (s: string): number => {
 };
 
 /**
- * Pick a deterministic user-color from a palette based on user ids.
- * Must be deterministic so the sync plugin's readback matches the mapper output.
+ * Fallback palette used when a user isn't resolved in the {@link UserStore} (or
+ * has no color of their own). Must be deterministic so the sync plugin's readback
+ * matches the mapper output.
  */
 const userColorPalette: Array<{ light: string; dark: string }> = [
   { light: "#fff0c2", dark: "#8a6d1a" },
@@ -31,72 +33,90 @@ const userColorPalette: Array<{ light: string; dark: string }> = [
   { light: "#bef3ff", dark: "#0a7a8a" },
 ];
 
+/**
+ * Pick a user-color from the {@link UserStore} based on user ids, falling back to
+ * a deterministic palette entry when the (first) user isn't resolved yet or
+ * carries no color of their own.
+ *
+ * The lookup is synchronous and deterministic given the store's current state,
+ * which is what the sync plugin's readback requires. When a user later resolves
+ * with their own color, the next reconcile picks it up.
+ */
 const colorsForUserIds = (
+  userStore: UserStore,
   userIds: readonly string[] | undefined | null,
 ): { light: string; dark: string } => {
   if (!userIds || userIds.length === 0) {
     return userColorPalette[0];
   }
-  return userColorPalette[hashStr(userIds[0]) % userColorPalette.length];
+  const firstId = userIds[0];
+  const user = userStore.getUser(firstId);
+  if (user?.color && user.colorLight) {
+    return { light: user.colorLight, dark: user.color };
+  }
+  return userColorPalette[hashStr(firstId) % userColorPalette.length];
 };
 
 /**
- * Map a Y attribution to BlockNote's `y-attributed-*` mark attrs.
+ * Build the mapper from a Y attribution to BlockNote's `y-attributed-*` mark
+ * attrs, resolving user colors through the given {@link UserStore}.
  *
- * The mapper must be deterministic in `(format, attribution)` and emit
- * attrs that exactly match the declared mark schema in SuggestionMarks.ts.
- * Any mismatch causes the sync plugin to fire phantom reconcile dispatches
- * in a loop. See ATTRIBUTION.md in @y/prosemirror.
+ * The mapper must be deterministic in `(format, attribution)` (for a fixed store
+ * state) and emit attrs that exactly match the declared mark schema in
+ * SuggestionMarks.ts. Any mismatch causes the sync plugin to fire phantom
+ * reconcile dispatches in a loop. See ATTRIBUTION.md in @y/prosemirror.
  *
  * Declared attrs per mark (all three are the same shape):
  * - y-attributed-insert: { id, "user-color-light", "user-color-dark" }
  * - y-attributed-delete: { id, "user-color-light", "user-color-dark" }
  * - y-attributed-format: { id, "user-color-light", "user-color-dark" }
  */
-export const mapAttributionToMark = (
-  format: Record<string, unknown> | null,
-  attribution: {
-    insert?: readonly string[];
-    delete?: readonly string[];
-    format?: Record<string, readonly string[]>;
-    insertAt?: number;
-    deleteAt?: number;
-    formatAt?: number;
-  },
-): Record<string, unknown> => {
-  const out: Record<string, unknown> = { ...format };
+export const createMapAttributionToMark =
+  (userStore: UserStore) =>
+  (
+    format: Record<string, unknown> | null,
+    attribution: {
+      insert?: readonly string[];
+      delete?: readonly string[];
+      format?: Record<string, readonly string[]>;
+      insertAt?: number;
+      deleteAt?: number;
+      formatAt?: number;
+    },
+  ): Record<string, unknown> => {
+    const out: Record<string, unknown> = { ...format };
 
-  if (attribution.insert) {
-    const colors = colorsForUserIds(attribution.insert);
-    out["y-attributed-insert"] = {
-      userIds: attribution.insert,
-      "user-color-light": colors.light,
-      "user-color-dark": colors.dark,
-    };
-  }
+    if (attribution.insert) {
+      const colors = colorsForUserIds(userStore, attribution.insert);
+      out["y-attributed-insert"] = {
+        userIds: attribution.insert,
+        "user-color-light": colors.light,
+        "user-color-dark": colors.dark,
+      };
+    }
 
-  if (attribution.delete) {
-    const colors = colorsForUserIds(attribution.delete);
-    out["y-attributed-delete"] = {
-      userIds: attribution.delete,
-      "user-color-light": colors.light,
-      "user-color-dark": colors.dark,
-    };
-  }
+    if (attribution.delete) {
+      const colors = colorsForUserIds(userStore, attribution.delete);
+      out["y-attributed-delete"] = {
+        userIds: attribution.delete,
+        "user-color-light": colors.light,
+        "user-color-dark": colors.dark,
+      };
+    }
 
-  if (attribution.format) {
-    const userIds = [...new Set(Object.values(attribution.format).flat())];
-    const colors = colorsForUserIds(userIds);
-    out["y-attributed-format"] = {
-      userIds,
-      format: attribution.format,
-      "user-color-light": colors.light,
-      "user-color-dark": colors.dark,
-    };
-  }
+    if (attribution.format) {
+      const userIds = [...new Set(Object.values(attribution.format).flat())];
+      const colors = colorsForUserIds(userStore, userIds);
+      out["y-attributed-format"] = {
+        userIds,
+        format: attribution.format,
+        "user-color-light": colors.light,
+        "user-color-dark": colors.dark,
+      };
+    }
 
-  return out;
-};
+    return out;
+  };
 
 export const YSyncExtension = createExtension(
   ({
@@ -105,11 +125,21 @@ export const YSyncExtension = createExtension(
   }: ExtensionOptions<
     Pick<
       CollaborationOptions,
-      "fragment" | "attributionManager" | "suggestionDoc" | "provider"
+      | "fragment"
+      | "attributionManager"
+      | "suggestionDoc"
+      | "provider"
+      | "resolveUsers"
     >
   >) => {
+    // Resolve suggestion authors (usernames and colors) through this store. The
+    // collaboration extension passes an already-built store here (shared with
+    // comments/versioning); a resolver callback is also accepted for standalone
+    // use.
+    const userStore = normalizeToUserStore(options.resolveUsers);
     return {
       key: "ySync",
+      userStore,
       mount: () => {
         const configure = () => {
           editor.exec(
@@ -148,7 +178,7 @@ export const YSyncExtension = createExtension(
       prosemirrorPlugins: [
         syncPlugin({
           suggestionDoc: options.suggestionDoc,
-          mapAttributionToMark,
+          mapAttributionToMark: createMapAttributionToMark(userStore),
           // Node-pairing policy for the PM->Y diff: a `blockContainer` whose
           // block-content type changes is treated as a *different* node, so the
           // diff replaces the whole container (deleted + inserted siblings in
@@ -166,7 +196,7 @@ export const YSyncExtension = createExtension(
       // shown when hovering a suggestion mark.
       blockNoteExtensions: [
         YSuggestionMarksExtension(),
-        SuggestionMarksExtension(),
+        SuggestionMarksExtension({ userStore }),
       ],
     } as const;
   },

@@ -86,8 +86,9 @@ const ORG = "test-org";
 const DOC_ID = "test-doc";
 
 // The factory now returns a callback that receives the editor instance (used to
-// resolve author ids to usernames via the UserExtension). These tests create a
-// bare editor with no UserExtension, so author labels stay as the raw `by` ids.
+// resolve author ids to usernames via the collaboration user store on the YSync
+// extension). These tests create a bare editor with no collaboration/user store,
+// so author labels stay as the raw `by` ids.
 function makeEndpoints() {
   const editor = BlockNoteEditor.create();
   return createYHubVersioningEndpoints({

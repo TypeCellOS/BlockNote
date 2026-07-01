@@ -12,8 +12,9 @@ import { Transaction } from "prosemirror-state";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { PreviewController } from "../../extensions/Versioning/index.js";
 import { findTypeInOtherYdoc } from "../utils.js";
-import { mapAttributionToMark } from "./YSync.js";
+import { createMapAttributionToMark } from "./YSync.js";
 import { blockMatchNodes } from "./blockMatchNodes.js";
+import type { UserStore } from "../../user/index.js";
 
 /**
  * Empties the document before a {@link configureYProsemirror} refill so
@@ -33,14 +34,16 @@ function getProseMirrorTrFromYFragment({
   tr,
   fragment,
   attributionManager,
+  userStore,
 }: {
   tr: Transaction;
   fragment: Y.Type;
   attributionManager?: Y.AbstractAttributionManager;
+  userStore: UserStore;
 }): Transaction {
   const ycontent = deltaAttributionToFormat(
     fragment.toDeltaDeep(attributionManager || Y.noAttributionsManager),
-    mapAttributionToMark,
+    createMapAttributionToMark(userStore),
   );
   // @todo it is preferred to apply the minimal diff - at least for debugging purposes. the
   // document replacal is more reliable though
@@ -64,6 +67,7 @@ function getProseMirrorTrFromYFragment({
 export function createYjsVersioningAdapter(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.Type,
+  userStore: UserStore,
 ): {
   preview: PreviewController<Uint8Array, Y.ContentMap>;
   getCurrentState: () => Y.Type;
@@ -101,6 +105,7 @@ export function createYjsVersioningAdapter(
         editor.exec((state, dispatch) => {
           const tr = getProseMirrorTrFromYFragment({
             tr: state.tr,
+            userStore,
             fragment: findTypeInOtherYdoc(fragment, doc),
             // Pass the optional content map as `attrs` so the diff attribution
             // manager knows who/when authored each change. Without it, the AM

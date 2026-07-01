@@ -39,7 +39,7 @@ const VERSION_PLAN: Array<{
 }> = [
   // `authors` are user ids (see `userdata.ts`): 1 Alice, 2 Bob, 3 Carol,
   // 4 Dave, 5 Erin. They flow through to `attribution.by` and are resolved back
-  // to usernames by the UserExtension in the versioning UI.
+  // to usernames by the collaboration user store in the versioning UI.
   { name: "Initial budget skeleton", target: VERSIONS.v1, authors: ["1", "2"] },
   {
     name: "Flesh out the full project document",

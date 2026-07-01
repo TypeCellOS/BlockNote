@@ -15,6 +15,7 @@ import {
   VersioningEndpoints,
   VersioningEndpointsFactory,
 } from "../../extensions/Versioning/index.js";
+import { normalizeToUserStore, UserStoreOrResolver } from "../../user/index.js";
 
 export type CollaborationOptions = {
   /**
@@ -25,6 +26,18 @@ export type CollaborationOptions = {
    * The user info for the current user that's shown to other collaborators.
    */
   user: CollaborationUser;
+  /**
+   * Resolve user information (usernames, colors) for suggestions and versions,
+   * used to drive suggestion-author tooltips, suggestion colors and
+   * version-history author labels.
+   *
+   * Either a resolver function (called with the ids of users that are not yet
+   * cached, returning their information — a user store is built from it
+   * internally) or a pre-built user store (see `createUserStore`). Pass the same
+   * store you give the comments extension so a single de-duped user cache is
+   * shared across comments, suggestions and versioning.
+   */
+  resolveUsers?: UserStoreOrResolver;
   /**
    * A Yjs provider (used for awareness / cursor information)
    */
@@ -59,16 +72,27 @@ export type CollaborationOptions = {
 
 export const CollaborationExtension = createExtension(
   ({ editor, options }: ExtensionOptions<CollaborationOptions>) => {
+    // Build a single user store here (from a resolver callback or a store the
+    // consumer passed in) and hand that same store down to every sub-extension
+    // that needs it — suggestions, suggestion-mark tooltips/colors, versioning —
+    // so they share one de-duped cache. Passing the resolved store (rather than
+    // the raw resolver) is what guarantees the sharing: each child re-normalizes
+    // it to itself instead of building its own.
+    const userStore = normalizeToUserStore(options.resolveUsers);
+    const optionsWithUserStore = { ...options, resolveUsers: userStore };
     return {
       key: "collaboration",
+      userStore,
       blockNoteExtensions: [
-        options.suggestionDoc ? SuggestionsExtension(options) : null,
+        options.suggestionDoc
+          ? SuggestionsExtension(optionsWithUserStore)
+          : null,
         RelativePositionMappingExtension(),
-        YSyncExtension(options),
+        YSyncExtension(optionsWithUserStore),
         YCursorExtension(options),
         options.versioningEndpoints
           ? VersioningExtension({
-              ...createYjsVersioningAdapter(editor, options.fragment),
+              ...createYjsVersioningAdapter(editor, options.fragment, userStore),
               endpoints: options.versioningEndpoints,
             })
           : null,

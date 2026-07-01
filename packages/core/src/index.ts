@@ -19,6 +19,7 @@ export * from "./extensions/index.js";
 export * from "./extensions-shared/UiElementPosition.js";
 export * from "./i18n/dictionary.js";
 export * from "./schema/index.js";
+export * from "./user/index.js";
 export * from "./util/browser.js";
 export * from "./util/combineByGroup.js";
 export * from "./util/expandToWords.js";

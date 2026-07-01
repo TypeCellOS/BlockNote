@@ -4,11 +4,8 @@ import {
   SuggestionsExtension,
   createYHubVersioningEndpoints,
 } from "@blocknote/core/y";
-import {
-  UserExtension,
-  VersioningExtension,
-  type User,
-} from "@blocknote/core/extensions";
+import { type User } from "@blocknote/core";
+import { VersioningExtension } from "@blocknote/core/extensions";
 import {
   BlockNoteViewEditor,
   useCreateBlockNote,
@@ -184,10 +181,10 @@ export function DocumentEditor({
           id: user.id,
         },
         versioningEndpoints,
+        // Resolves version-author ids (YHub's `by`) to usernames in the history
+        // sidebar and diff tooltips.
+        resolveUsers,
       },
-      // Resolves version-author ids (YHub's `by`) to usernames in the history
-      // sidebar and diff tooltips.
-      extensions: [UserExtension({ resolveUsers })],
     }),
   );
 

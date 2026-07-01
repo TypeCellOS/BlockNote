@@ -5,8 +5,8 @@ import { useState } from "react";
 
 import { useDictionary } from "../../i18n/dictionary.js";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { useUsers } from "../../hooks/useUsers.js";
 import { useExtension } from "../../hooks/useExtension.js";
+import { useCommentUsers } from "./useCommentUsers.js";
 
 export const ReactionBadge = (props: {
   comment: CommentData;
@@ -28,7 +28,7 @@ export const ReactionBadge = (props: {
   }
 
   const [userIds, setUserIds] = useState<string[]>([]);
-  const users = useUsers(userIds);
+  const users = useCommentUsers(userIds);
 
   return (
     <Components.Generic.Badge.Root

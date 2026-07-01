@@ -14,6 +14,7 @@ import {
 } from "@y/prosemirror";
 import { CollaborationOptions } from "./index.js";
 import { findTypeInOtherYdoc } from "../utils.js";
+import { normalizeToUserStore } from "../../user/index.js";
 
 export const SuggestionsExtension = createExtension(
   ({ editor, options }: ExtensionOptions<CollaborationOptions>) => {
@@ -21,6 +22,9 @@ export const SuggestionsExtension = createExtension(
     if (!suggestionDoc) {
       throw new Error("Suggestion doc not found");
     }
+    // Shared with the rest of collaboration; the collaboration extension passes
+    // an already-built store here.
+    const userStore = normalizeToUserStore(options.resolveUsers);
 
     function getSuggestionElementAtPos(pos: number) {
       let currentNode = editor.prosemirrorView.nodeDOM(pos);
@@ -83,6 +87,7 @@ export const SuggestionsExtension = createExtension(
 
     return {
       key: "suggestions",
+      userStore,
       runsBefore: ["ySync"],
       viewSuggestions: () => {
         if (options.attributionManager) {

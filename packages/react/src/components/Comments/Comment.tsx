@@ -25,7 +25,7 @@ import { CommentEditor } from "./CommentEditor.js";
 import { EmojiPicker } from "./EmojiPicker.js";
 import { ReactionBadge } from "./ReactionBadge.js";
 import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
-import { useUser } from "../../hooks/useUsers.js";
+import { useCommentUser } from "./useCommentUsers.js";
 
 type CommentEditorActionsProps = {
   isFocused: boolean;
@@ -229,7 +229,7 @@ export const Comment = ({
     });
   }, [thread.id, threadStore]);
 
-  const user = useUser(comment.userId);
+  const user = useCommentUser(comment.userId);
 
   if (!comment.body) {
     return null;

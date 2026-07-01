@@ -3,12 +3,10 @@
  */
 import { describe, expect, expectTypeOf, it, vi } from "vite-plus/test";
 
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { User, UserExtension } from "./index.js";
+import { createUserStore, User } from "./index.js";
 
 function setup(resolveUsers: (userIds: string[]) => Promise<User[]>) {
-  const editor = BlockNoteEditor.create();
-  return UserExtension({ resolveUsers })({ editor });
+  return createUserStore(resolveUsers);
 }
 
 function makeUser(id: string): User {
@@ -19,32 +17,32 @@ function makeUser(id: string): User {
   };
 }
 
-describe("UserExtension", () => {
+describe("createUserStore", () => {
   it("loads users into the store and exposes them via getUser", async () => {
     const resolveUsers = vi.fn(async (ids: string[]) => ids.map(makeUser));
-    const ext = setup(resolveUsers);
+    const userStore = setup(resolveUsers);
 
-    await ext.loadUsers(["1", "2"]);
+    await userStore.loadUsers(["1", "2"]);
 
     expect(resolveUsers).toHaveBeenCalledTimes(1);
     expect(resolveUsers).toHaveBeenCalledWith(["1", "2"]);
-    expect(ext.getUser("1")).toEqual(makeUser("1"));
-    expect(ext.getUser("2")).toEqual(makeUser("2"));
-    expect(ext.store.state.size).toBe(2);
+    expect(userStore.getUser("1")).toEqual(makeUser("1"));
+    expect(userStore.getUser("2")).toEqual(makeUser("2"));
+    expect(userStore.store.state.size).toBe(2);
   });
 
   it("does not re-fetch users that are already cached", async () => {
     const resolveUsers = vi.fn(async (ids: string[]) => ids.map(makeUser));
-    const ext = setup(resolveUsers);
+    const userStore = setup(resolveUsers);
 
-    await ext.loadUsers(["1", "2"]);
-    await ext.loadUsers(["2", "3"]);
+    await userStore.loadUsers(["1", "2"]);
+    await userStore.loadUsers(["2", "3"]);
 
     // Only the missing "3" should be requested the second time.
     expect(resolveUsers).toHaveBeenCalledTimes(2);
     expect(resolveUsers).toHaveBeenNthCalledWith(2, ["3"]);
 
-    await ext.loadUsers(["1", "2", "3"]);
+    await userStore.loadUsers(["1", "2", "3"]);
     // Everything cached now → no further requests.
     expect(resolveUsers).toHaveBeenCalledTimes(2);
   });
@@ -56,12 +54,12 @@ describe("UserExtension", () => {
           setTimeout(() => resolve(ids.map(makeUser)), 10),
         ),
     );
-    const ext = setup(resolveUsers);
+    const userStore = setup(resolveUsers);
 
-    await Promise.all([ext.loadUsers(["1"]), ext.loadUsers(["1"])]);
+    await Promise.all([userStore.loadUsers(["1"]), userStore.loadUsers(["1"])]);
 
     expect(resolveUsers).toHaveBeenCalledTimes(1);
-    expect(ext.getUser("1")).toEqual(makeUser("1"));
+    expect(userStore.getUser("1")).toEqual(makeUser("1"));
   });
 
   it("refetchUsers ignores the cache and re-resolves", async () => {
@@ -72,31 +70,31 @@ describe("UserExtension", () => {
         username: `user-${id}-${counter++}`,
       })),
     );
-    const ext = setup(resolveUsers);
+    const userStore = setup(resolveUsers);
 
-    await ext.loadUsers(["1"]);
-    expect(ext.getUser("1")?.username).toBe("user-1-0");
+    await userStore.loadUsers(["1"]);
+    expect(userStore.getUser("1")?.username).toBe("user-1-0");
 
-    await ext.refetchUsers(["1"]);
+    await userStore.refetchUsers(["1"]);
     expect(resolveUsers).toHaveBeenCalledTimes(2);
-    expect(ext.getUser("1")?.username).toBe("user-1-1");
+    expect(userStore.getUser("1")?.username).toBe("user-1-1");
   });
 
   // Regression test for https://github.com/TypeCellOS/BlockNote/issues/1548
   it("does not emit a store update when a user cannot be resolved", async () => {
     // Resolver that never returns the requested user (can't find it).
     const resolveUsers = vi.fn(async () => [] as User[]);
-    const ext = setup(resolveUsers);
+    const userStore = setup(resolveUsers);
 
     const onUpdate = vi.fn();
-    const unsubscribe = ext.store.subscribe(onUpdate);
+    const unsubscribe = userStore.store.subscribe(onUpdate);
 
-    await ext.loadUsers(["missing"]);
+    await userStore.loadUsers(["missing"]);
 
     // Nothing was resolved, so no update should be emitted (which previously
     // could feed an infinite load loop in subscribers).
     expect(onUpdate).not.toHaveBeenCalled();
-    expect(ext.getUser("missing")).toBeUndefined();
+    expect(userStore.getUser("missing")).toBeUndefined();
 
     unsubscribe();
   });
@@ -107,15 +105,18 @@ describe("UserExtension", () => {
     const resolveUsers = async (ids: string[]): Promise<CustomUser[]> =>
       ids.map((id) => ({ ...makeUser(id), role: "admin" as const }));
 
-    const editor = BlockNoteEditor.create();
-    const ext = UserExtension({ resolveUsers })({ editor });
+    const userStore = createUserStore(resolveUsers);
 
-    await ext.loadUsers(["1"]);
+    await userStore.loadUsers(["1"]);
 
-    const user = ext.getUser("1");
+    const user = userStore.getUser("1");
     // Type-level: the custom property flows through.
-    expectTypeOf(ext.getUser).returns.toEqualTypeOf<CustomUser | undefined>();
-    expectTypeOf(ext.store.state).toEqualTypeOf<Map<string, CustomUser>>();
+    expectTypeOf(userStore.getUser).returns.toEqualTypeOf<
+      CustomUser | undefined
+    >();
+    expectTypeOf(userStore.store.state).toEqualTypeOf<
+      Map<string, CustomUser>
+    >();
 
     // Runtime: the resolved user carries the extra field.
     expect(user?.role).toBe("admin");

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import type { User } from "@blocknote/core/extensions";
+import type { User } from "@blocknote/core";
 
 import { USERS } from "./userdata.js";
 
