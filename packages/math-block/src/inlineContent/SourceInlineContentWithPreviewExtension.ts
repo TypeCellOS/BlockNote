@@ -88,7 +88,7 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
           ),
         }),
       ],
-      mount: ({ signal }) => {
+      mount: ({ dom, signal }) => {
         // The popup is open exactly when the selection is inside the inline
         // content, so we just track which inline content (if any) holds it.
         const unsubscribeSelectionChange = editor.onSelectionChange(() => {
@@ -101,6 +101,33 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
           });
         });
         signal.addEventListener("abort", unsubscribeSelectionChange);
+
+        // Sets `visibility: hidden` on the popup for a single frame when pressing up/down arrow
+        // keys. The popup is normally hidden through `opacity: 0`, which means it's still visible
+        // to the browser for navigation. Therefore, the up/down arrows can sometimes move the
+        // selection into the popup from unexpected positions, such as on the same line. Setting
+        // `visibility: hidden` makes the browser ignore it when determining the new selection.
+        const handleVerticalArrow = (event: KeyboardEvent) => {
+          if (event.key !== "ArrowUp" && event.key !== "ArrowDown") {
+            return;
+          }
+
+          // When the selection is already inside a source, leave navigation
+          // (moving within or out of it) to the browser as usual.
+          const { $from } = editor.prosemirrorState.selection;
+          if ($from.node().type.name === inlineContentType) {
+            return;
+          }
+
+          dom.classList.add("bn-suppress-source-popup-caret");
+          requestAnimationFrame(() =>
+            dom.classList.remove("bn-suppress-source-popup-caret"),
+          );
+        };
+        dom.addEventListener("keydown", handleVerticalArrow, {
+          capture: true,
+          signal,
+        });
       },
     };
   },

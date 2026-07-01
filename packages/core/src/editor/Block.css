@@ -496,6 +496,15 @@ NESTED BLOCKS
   pointer-events: auto;
 }
 
+/* Toggled for a single frame while an up/down arrow press is handled, so the
+   browser's geometry-based vertical caret movement skips the popup. */
+.bn-suppress-source-popup-caret
+  .bn-inline-content-section
+  .bn-preview-with-source-popup:not([data-open="true"])
+  .bn-source-block-popup {
+  visibility: hidden;
+}
+
 .bn-source-block-popup > div > select {
   outline: none !important;
   appearance: none;
