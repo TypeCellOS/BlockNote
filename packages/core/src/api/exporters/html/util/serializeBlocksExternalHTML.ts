@@ -227,7 +227,8 @@ function serializeBlock<
 
   const elementFragment = doc.createDocumentFragment();
 
-  if ((ret.dom as HTMLElement).classList.contains("bn-block-content")) {
+  // Needs optional chaining for handling <ol> lists export
+  if ((ret.dom as HTMLElement).classList?.contains("bn-block-content")) {
     const blockContentDataAttributes = [
       ...attrs,
       ...Array.from((ret.dom as HTMLElement).attributes),
@@ -242,13 +243,12 @@ function serializeBlock<
         attr.name !== "data-editable",
     );
 
-    // ret.dom = ret.dom.firstChild! as any;
     for (const attr of blockContentDataAttributes) {
       (ret.dom.firstChild! as HTMLElement).setAttribute(attr.name, attr.value);
     }
 
     addAttributesAndRemoveClasses(ret.dom.firstChild! as HTMLElement);
-    if (nestingLevel > 0) {
+    if (nestingLevel > 0 && typeof (ret.dom.firstChild as HTMLElement)?.setAttribute === 'function') {
       (ret.dom.firstChild! as HTMLElement).setAttribute(
         "data-nesting-level",
         nestingLevel.toString(),
@@ -257,7 +257,7 @@ function serializeBlock<
     elementFragment.append(...Array.from(ret.dom.childNodes));
   } else {
     elementFragment.append(ret.dom);
-    if (nestingLevel > 0) {
+    if (nestingLevel > 0 && typeof (ret.dom as HTMLElement).setAttribute === 'function') {
       (ret.dom as HTMLElement).setAttribute(
         "data-nesting-level",
         nestingLevel.toString(),
