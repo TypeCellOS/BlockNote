@@ -17,13 +17,14 @@ import {
 // Scenario data (the `initial` seed + the `apply` change) is shared with the
 // suggestion-gallery example so the gallery and these tests never drift.
 import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import type { SingleScenario } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
 
 const listToParagraph = scenarios.find(
   (s) => s.id === "type-list-to-paragraph",
-)!;
+) as SingleScenario;
 const paragraphToHeading = scenarios.find(
   (s) => s.id === "type-paragraph-to-heading",
-)!;
+) as SingleScenario;
 
 // Demote a bullet-list item to a plain paragraph. Inline content
 // "hello world" stays the same; only the wrapping node type changes.

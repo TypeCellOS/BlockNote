@@ -521,7 +521,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "high",
-        note: "throws error",
+        note: "Crashes in versioning mode — moving a block that carries a nested child subtree makes the diff renderer (enterPreview → y-prosemirror) throw lib0 'Unexpected case' (recursive applyDelta). Suggestion mode is fine (it uses a different diff path). Same core applyDelta bug as the concurrent-table crash.",
       },
     ],
   },
@@ -551,7 +551,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "high",
-        note: "throws error",
+        note: "Crashes in versioning mode — un-nesting restructures the parent's blockGroup, making the diff renderer (enterPreview → y-prosemirror) throw lib0 'Unexpected case' (recursive applyDelta). Suggestion mode is fine (it uses a different diff path). Same core applyDelta bug as the concurrent-table crash.",
       },
     ],
     category: "Nesting",

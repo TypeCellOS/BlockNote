@@ -23,29 +23,56 @@ import {
   IMG_SRC_BASE,
   scenarios,
 } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import type { SingleScenario } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
 
-const addHeading = scenarios.find((s) => s.id === "add-heading")!;
-const addBullet = scenarios.find((s) => s.id === "add-bullet")!;
-const addNumbered = scenarios.find((s) => s.id === "add-numbered")!;
-const addNestedBullets = scenarios.find((s) => s.id === "add-nested-bullets")!;
-const addColoredBlock = scenarios.find((s) => s.id === "add-colored-block")!;
+const addHeading = scenarios.find(
+  (s) => s.id === "add-heading",
+) as SingleScenario;
+const addBullet = scenarios.find(
+  (s) => s.id === "add-bullet",
+) as SingleScenario;
+const addNumbered = scenarios.find(
+  (s) => s.id === "add-numbered",
+) as SingleScenario;
+const addNestedBullets = scenarios.find(
+  (s) => s.id === "add-nested-bullets",
+) as SingleScenario;
+const addColoredBlock = scenarios.find(
+  (s) => s.id === "add-colored-block",
+) as SingleScenario;
 const nestBulletExisting = scenarios.find(
   (s) => s.id === "nest-bullet-existing",
-)!;
+) as SingleScenario;
 const addParagraphAfter = scenarios.find(
   (s) => s.id === "add-paragraph-after",
-)!;
-const removeParagraph = scenarios.find((s) => s.id === "remove-paragraph")!;
-const removeAll = scenarios.find((s) => s.id === "remove-all")!;
-const deleteNested = scenarios.find((s) => s.id === "delete-nested")!;
-const deleteParent = scenarios.find((s) => s.id === "delete-parent")!;
-const deleteImage = scenarios.find((s) => s.id === "delete-image")!;
+) as SingleScenario;
+const removeParagraph = scenarios.find(
+  (s) => s.id === "remove-paragraph",
+) as SingleScenario;
+const removeAll = scenarios.find(
+  (s) => s.id === "remove-all",
+) as SingleScenario;
+const deleteNested = scenarios.find(
+  (s) => s.id === "delete-nested",
+) as SingleScenario;
+const deleteParent = scenarios.find(
+  (s) => s.id === "delete-parent",
+) as SingleScenario;
+const deleteImage = scenarios.find(
+  (s) => s.id === "delete-image",
+) as SingleScenario;
 const deleteMixedParent = scenarios.find(
   (s) => s.id === "delete-mixed-parent",
-)!;
-const deleteCodeBlock = scenarios.find((s) => s.id === "delete-code-block")!;
-const deleteDivider = scenarios.find((s) => s.id === "delete-divider")!;
-const insertImage = scenarios.find((s) => s.id === "insert-image")!;
+) as SingleScenario;
+const deleteCodeBlock = scenarios.find(
+  (s) => s.id === "delete-code-block",
+) as SingleScenario;
+const deleteDivider = scenarios.find(
+  (s) => s.id === "delete-divider",
+) as SingleScenario;
+const insertImage = scenarios.find(
+  (s) => s.id === "insert-image",
+) as SingleScenario;
 
 // Empty doc gets a heading inserted at the top.
 test("suggestion mode: add heading to empty doc", async () => {

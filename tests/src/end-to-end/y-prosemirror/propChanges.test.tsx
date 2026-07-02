@@ -25,11 +25,20 @@ import {
   IMG_SRC_NEW,
   scenarios,
 } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import type { SingleScenario } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
 
-const textAlignment = scenarios.find((s) => s.id === "prop-text-alignment")!;
-const headingLevel = scenarios.find((s) => s.id === "prop-heading-level")!;
-const imageWidth = scenarios.find((s) => s.id === "prop-image-width")!;
-const imageSource = scenarios.find((s) => s.id === "prop-image-source")!;
+const textAlignment = scenarios.find(
+  (s) => s.id === "prop-text-alignment",
+) as SingleScenario;
+const headingLevel = scenarios.find(
+  (s) => s.id === "prop-heading-level",
+) as SingleScenario;
+const imageWidth = scenarios.find(
+  (s) => s.id === "prop-image-width",
+) as SingleScenario;
+const imageSource = scenarios.find(
+  (s) => s.id === "prop-image-source",
+) as SingleScenario;
 
 // Known issue — tracked in the suggestion gallery (the "Prop changes" scenarios,
 // e.g. "prop-text-alignment"): block-level prop changes generate no

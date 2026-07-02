@@ -17,12 +17,17 @@ import {
 // Scenario data (the `initial` seed + the `apply` change) is shared with the
 // suggestion-gallery example so the gallery and these tests never drift.
 import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import type { SingleScenario } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
 
-const indentBlock = scenarios.find((s) => s.id === "nesting-indent")!;
-const unindentBlock = scenarios.find((s) => s.id === "nesting-unindent")!;
+const indentBlock = scenarios.find(
+  (s) => s.id === "nesting-indent",
+) as SingleScenario;
+const unindentBlock = scenarios.find(
+  (s) => s.id === "nesting-unindent",
+) as SingleScenario;
 const changeParentType = scenarios.find(
   (s) => s.id === "nesting-change-parent-type",
-)!;
+) as SingleScenario;
 
 // Indent: take two sibling paragraphs and nest the second under the
 // first.

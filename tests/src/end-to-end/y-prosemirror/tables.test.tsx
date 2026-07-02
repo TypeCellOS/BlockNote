@@ -21,15 +21,32 @@ import {
 // Scenario data (the `initial` seed + the `apply` change) is shared with the
 // suggestion-gallery example so the gallery and these tests never drift.
 import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import type { SingleScenario } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
 
-const addRow = scenarios.find((s) => s.id === "table-add-row")!;
-const addColumn = scenarios.find((s) => s.id === "table-add-column")!;
-const removeRow = scenarios.find((s) => s.id === "table-remove-row")!;
-const removeColumn = scenarios.find((s) => s.id === "table-remove-column")!;
-const editCell = scenarios.find((s) => s.id === "table-edit-cell")!;
-const columnColor = scenarios.find((s) => s.id === "table-column-color")!;
-const mergeCells = scenarios.find((s) => s.id === "table-merge-cells")!;
-const splitCell = scenarios.find((s) => s.id === "table-split-cell")!;
+const addRow = scenarios.find(
+  (s) => s.id === "table-add-row",
+) as SingleScenario;
+const addColumn = scenarios.find(
+  (s) => s.id === "table-add-column",
+) as SingleScenario;
+const removeRow = scenarios.find(
+  (s) => s.id === "table-remove-row",
+) as SingleScenario;
+const removeColumn = scenarios.find(
+  (s) => s.id === "table-remove-column",
+) as SingleScenario;
+const editCell = scenarios.find(
+  (s) => s.id === "table-edit-cell",
+) as SingleScenario;
+const columnColor = scenarios.find(
+  (s) => s.id === "table-column-color",
+) as SingleScenario;
+const mergeCells = scenarios.find(
+  (s) => s.id === "table-merge-cells",
+) as SingleScenario;
+const splitCell = scenarios.find(
+  (s) => s.id === "table-split-cell",
+) as SingleScenario;
 
 // Add a third row to a 2x2 table.
 test("suggestion mode: add row", async () => {

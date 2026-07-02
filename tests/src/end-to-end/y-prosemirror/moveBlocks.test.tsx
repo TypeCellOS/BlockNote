@@ -18,11 +18,14 @@ import {
 // Scenario data (the `initial` seed + the `apply` change) is shared with the
 // suggestion-gallery example so the gallery and these tests never drift.
 import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import type { SingleScenario } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
 
-const moveParagraphUp = scenarios.find((s) => s.id === "move-paragraph-up")!;
+const moveParagraphUp = scenarios.find(
+  (s) => s.id === "move-paragraph-up",
+) as SingleScenario;
 const moveParagraphWithChildren = scenarios.find(
   (s) => s.id === "move-paragraph-with-children",
-)!;
+) as SingleScenario;
 
 // Move a plain paragraph one slot up. Base has three siblings; we
 // move the middle one to the top.

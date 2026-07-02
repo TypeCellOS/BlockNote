@@ -21,13 +21,20 @@ import {
 // Scenario data (the `initial` seed + the `apply` change) is shared with the
 // suggestion-gallery example so the gallery and these tests never drift.
 import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import type { SingleScenario } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
 
-const renameWord = scenarios.find((s) => s.id === "text-rename-word")!;
-const addBold = scenarios.find((s) => s.id === "text-add-bold")!;
-const removeBold = scenarios.find((s) => s.id === "text-remove-bold")!;
+const renameWord = scenarios.find(
+  (s) => s.id === "text-rename-word",
+) as SingleScenario;
+const addBold = scenarios.find(
+  (s) => s.id === "text-add-bold",
+) as SingleScenario;
+const removeBold = scenarios.find(
+  (s) => s.id === "text-remove-bold",
+) as SingleScenario;
 const addItalicToBold = scenarios.find(
   (s) => s.id === "text-add-italic-to-bold",
-)!;
+) as SingleScenario;
 
 // Pure text edit: replace one word with another and confirm the diff
 // is rendered as inline <ins>/<del> spans around the changed letters.
