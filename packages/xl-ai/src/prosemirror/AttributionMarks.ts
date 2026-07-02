@@ -187,8 +187,8 @@ export const SuggestionModificationMark = Mark.create({
  * exercises suggestions). The marks opt into being allowed on block nodes via
  * their `blockLevelSuggestion` option — see core's `suggestionMarks`.
  */
-export const SuggestionMarksExtension = createExtension(() => ({
-  key: "aiSuggestionMarks",
+export const AttributionMarksExtension = createExtension(() => ({
+  key: "aiAttributionMarks",
   tiptapExtensions: [
     SuggestionAddMark,
     SuggestionDeleteMark,

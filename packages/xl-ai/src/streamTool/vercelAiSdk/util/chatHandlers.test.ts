@@ -7,7 +7,7 @@ import {
   UIMessageChunk,
 } from "ai";
 import { describe, expect, it } from "vite-plus/test";
-import { SuggestionMarksExtension } from "../../../prosemirror/SuggestionMarks.js";
+import { AttributionMarksExtension } from "../../../prosemirror/AttributionMarks.js";
 import { aiDocumentFormats } from "../../../server.js";
 import { ChunkExecutionError } from "../../ChunkExecutionError.js";
 import { setupToolCallStreaming } from "./chatHandlers.js";
@@ -85,7 +85,7 @@ describe("setupToolCallStreaming", () => {
       // The stream tools apply changes as suggestions, which need the AI
       // suggestion marks (`insertion` / `deletion` / `modification`) in the
       // schema.
-      extensions: [SuggestionMarksExtension()],
+      extensions: [AttributionMarksExtension()],
       initialContent: [
         {
           type: "paragraph",
@@ -162,7 +162,7 @@ describe("setupToolCallStreaming", () => {
       // The stream tools apply changes as suggestions, which need the AI
       // suggestion marks (`insertion` / `deletion` / `modification`) in the
       // schema.
-      extensions: [SuggestionMarksExtension()],
+      extensions: [AttributionMarksExtension()],
       initialContent: [
         {
           type: "paragraph",

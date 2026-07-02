@@ -1,4 +1,4 @@
-import { getReferenceRect, SuggestionMarksExtension } from "@blocknote/core/y";
+import { AttributionExtension, getReferenceRect } from "@blocknote/core/y";
 import { flip, offset, shift } from "@floating-ui/react";
 import { FC, useMemo } from "react";
 
@@ -8,17 +8,17 @@ import {
   GenericPopover,
   GenericPopoverReference,
 } from "../Popovers/GenericPopover.js";
-import { SuggestionMarksTooltip } from "./SuggestionMarksTooltip.js";
-import { SuggestionMarksTooltipProps } from "./SuggestionMarksTooltipProps.js";
+import { AttributionTooltip } from "./AttributionTooltip.js";
+import { AttributionTooltipProps } from "./AttributionTooltipProps.js";
 
 /**
  * Renders the attribution tooltip for suggestion marks. All the logic (which
  * mark is hovered, nested-mark resolution, username resolution, optional
- * styling class) lives in the core `SuggestionMarksExtension`; this controller
+ * styling class) lives in the core `AttributionExtension`; this controller
  * just subscribes to its store and positions the tooltip with floating-ui.
  */
-export const SuggestionMarksTooltipController = (props: {
-  suggestionMarksTooltip?: FC<SuggestionMarksTooltipProps>;
+export const AttributionTooltipController = (props: {
+  attributionTooltip?: FC<AttributionTooltipProps>;
   floatingUIOptions?: FloatingUIOptions;
   /**
    * Override the DOM node this floating element portals into. Falls back to
@@ -26,7 +26,7 @@ export const SuggestionMarksTooltipController = (props: {
    */
   portalElement?: HTMLElement | null;
 }) => {
-  const state = useExtensionState(SuggestionMarksExtension, {
+  const state = useExtensionState(AttributionExtension, {
     selector: (state) => state,
   });
 
@@ -70,7 +70,7 @@ export const SuggestionMarksTooltipController = (props: {
     [props.floatingUIOptions, state],
   );
 
-  const Component = props.suggestionMarksTooltip || SuggestionMarksTooltip;
+  const Component = props.attributionTooltip || AttributionTooltip;
 
   return (
     <GenericPopover

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vite-plus/test";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { docToBlocks } from "./nodeConversions/nodeToBlock.js";
 import { getNodeId } from "./getBlockInfoFromPos.js";
-import { YSuggestionMarksExtension } from "../y/extensions/YSuggestionMarks.js";
+import { YAttributionMarksExtension } from "../y/extensions/YAttributionMarks.js";
 
 /**
  * Builds a `blockContainer` node holding a single paragraph with the given
@@ -37,7 +37,7 @@ describe("getNodeId", () => {
   function getSchema() {
     if (!editor) {
       editor = BlockNoteEditor.create({
-        extensions: [YSuggestionMarksExtension()],
+        extensions: [YAttributionMarksExtension()],
       });
     }
     return editor.pmSchema;
@@ -174,7 +174,7 @@ describe("docToBlocks round trip with suggested deletions", () => {
   function getSchema() {
     if (!editor) {
       editor = BlockNoteEditor.create({
-        extensions: [YSuggestionMarksExtension()],
+        extensions: [YAttributionMarksExtension()],
       });
     }
     return editor.pmSchema;

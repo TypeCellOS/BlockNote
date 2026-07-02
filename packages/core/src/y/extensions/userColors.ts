@@ -32,7 +32,7 @@ export const userColorPalette: Array<{ light: string; dark: string }> = [
  * The lookup is synchronous against the store's current cache. It is
  * intentionally *not* baked into the suggestion mark attributes (which must stay
  * deterministic for the Yjs sync reconcile) — instead it drives a decoration
- * layer (see `SuggestionMarksExtension`) so colors can load and update
+ * layer (see `AttributionExtension`) so colors can load and update
  * independently of the mark representation. When a user later resolves with
  * their own color, the next decoration rebuild picks it up.
  */

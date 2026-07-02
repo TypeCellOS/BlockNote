@@ -1011,7 +1011,7 @@ background fill (unlike insertions, which carry a filled highlight).
 /*
 Attribution tooltip for suggestion marks (<ins> / <del> / modification).
 Positioning and portaling are handled by the React controller via floating-ui
-(see SuggestionMarksTooltipController), so only the static box styling lives
+(see AttributionTooltipController), so only the static box styling lives
 here. The background color is set inline from the mark's user color unless an
 app-provided class overrides it (see getSuggestionMarkClassName).
 */

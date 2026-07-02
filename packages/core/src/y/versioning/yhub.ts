@@ -9,7 +9,7 @@ import {
   type VersionSnapshot,
 } from "../../extensions/Versioning/index.js";
 import { uint32 } from "lib0/random";
-import { YSyncExtension } from "../extensions/YSync.js";
+import { AttributionExtension } from "../extensions/AttributionExtension.js";
 import { YCursorExtension } from "../extensions/YCursorPlugin.js";
 
 /**
@@ -411,7 +411,7 @@ export function createYHubVersioningEndpoints(
       // `secondaryLabel` (from YHub's `by` field) to usernames via the
       // collaboration user store, which is exposed on the YSync extension. With
       // no user store (or for ids it can't resolve), the raw id is kept.
-      const userStore = editor.getExtension(YSyncExtension)?.userStore;
+      const userStore = editor.getExtension(AttributionExtension)?.userStore;
       if (!userStore) {
         return all;
       }

@@ -1,6 +1,6 @@
 import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
 import { expect, it } from "vite-plus/test";
-import { SuggestionMarksExtension } from "./SuggestionMarks.js";
+import { AttributionMarksExtension } from "./AttributionMarks.js";
 import { getApplySuggestionsTr, rebaseTool } from "./rebaseTool.js";
 
 function getExampleEditorWithSuggestions() {
@@ -8,7 +8,7 @@ function getExampleEditorWithSuggestions() {
     // The `insertion`/`deletion`/`modification` suggestion marks live with the
     // AI extension, so register them here (the schema needs them for
     // `applySuggestions` to run).
-    extensions: [SuggestionMarksExtension()],
+    extensions: [AttributionMarksExtension()],
     initialContent: [
       {
         id: "1",

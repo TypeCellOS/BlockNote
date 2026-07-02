@@ -261,7 +261,7 @@ export type ComponentProps = {
       children?: ReactNode;
     };
   };
-  SuggestionMarksTooltip: {
+  AttributionTooltip: {
     /**
      * The attribution tooltip shown when hovering a suggestion mark. Positioned
      * by floating-ui and portaled by the controller — this only styles the box.
@@ -269,7 +269,7 @@ export type ComponentProps = {
     Root: {
       className?: string;
       /**
-       * App-supplied class from `getSuggestionMarkClassName` (override path).
+       * App-supplied class from `getAttributionMarkClassName` (override path).
        * When set, `Root` applies it and ignores `backgroundColor`.
        */
       markClassName?: string;

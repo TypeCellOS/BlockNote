@@ -7,14 +7,14 @@ import {
   SuggestionMenu,
   TableHandlesExtension,
 } from "@blocknote/core/extensions";
-import { SuggestionMarksExtension } from "@blocknote/core/y";
+import { AttributionExtension } from "@blocknote/core/y";
 import { lazy, Suspense } from "react";
 
 import { FilePanelController } from "../components/FilePanel/FilePanelController.js";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController.js";
 import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController.js";
 import { SideMenuController } from "../components/SideMenu/SideMenuController.js";
-import { SuggestionMarksTooltipController } from "../components/SuggestionMarksTooltip/SuggestionMarksTooltipController.js";
+import { AttributionTooltipController } from "../components/AttributionTooltip/AttributionTooltipController.js";
 import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController.js";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController.js";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController.js";
@@ -82,7 +82,7 @@ export type BlockNoteDefaultUIProps = {
    * Whether the suggestion-marks attribution tooltip (shown on hover over a
    * suggestion mark in collaboration/suggestion mode) should be enabled.
    */
-  suggestionMarksTooltip?: boolean;
+  attributionTooltip?: boolean;
 
   /**
    * Per-element portal targets for floating UI. Each key corresponds to one
@@ -115,9 +115,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
   const filePanelPortal = resolvePortalTarget(map?.filePanel);
   const tableHandlesPortal = resolvePortalTarget(map?.tableHandles);
   const commentsPortal = resolvePortalTarget(map?.comments);
-  const suggestionMarksTooltipPortal = resolvePortalTarget(
-    map?.suggestionMarksTooltip,
-  );
+  const attributionTooltipPortal = resolvePortalTarget(map?.attributionTooltip);
 
   return (
     <>
@@ -164,10 +162,10 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
           <FloatingThreadController portalElement={commentsPortal} />
         </Suspense>
       )}
-      {editor.getExtension(SuggestionMarksExtension) &&
-        props.suggestionMarksTooltip !== false && (
-          <SuggestionMarksTooltipController
-            portalElement={suggestionMarksTooltipPortal}
+      {editor.getExtension(AttributionExtension) &&
+        props.attributionTooltip !== false && (
+          <AttributionTooltipController
+            portalElement={attributionTooltipPortal}
           />
         )}
     </>

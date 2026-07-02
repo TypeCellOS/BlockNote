@@ -29,7 +29,7 @@ export function suggestionMarks(editor: Editor | undefined): string {
   if (!editor) {
     return "";
   }
-  const hasSuggestionMark = editor.options.extensions.some((extension) => {
+  const hasAttributionMark = editor.options.extensions.some((extension) => {
     if (extension.type !== "mark") {
       return false;
     }
@@ -39,5 +39,5 @@ export function suggestionMarks(editor: Editor | undefined): string {
       group.split(" ").includes(BLOCK_LEVEL_SUGGESTION_GROUP)
     );
   });
-  return hasSuggestionMark ? BLOCK_LEVEL_SUGGESTION_GROUP : "";
+  return hasAttributionMark ? BLOCK_LEVEL_SUGGESTION_GROUP : "";
 }

@@ -20,7 +20,7 @@ import { fixTablesKey } from "prosemirror-tables";
 import { buildAIRequest, sendMessageWithAIRequest } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
 import { AIRequestHelpers, InvokeAIOptions } from "./types.js";
-import { SuggestionMarksExtension } from "./prosemirror/SuggestionMarks.js";
+import { AttributionMarksExtension } from "./prosemirror/AttributionMarks.js";
 
 type AIPluginState = {
   aiMenuState:
@@ -82,7 +82,7 @@ export const AIExtension = createExtension(
       key: "ai",
       options,
       store,
-      blockNoteExtensions: [SuggestionMarksExtension()],
+      blockNoteExtensions: [AttributionMarksExtension()],
       mount({ signal }: { signal: AbortSignal }) {
         let scrollInProgress = false;
         // Listens for `scroll` and `scrollend` events to see if a new scroll was

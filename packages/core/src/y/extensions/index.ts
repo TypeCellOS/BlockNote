@@ -1,22 +1,23 @@
-import type * as Y from "@y/y";
 import type { Awareness } from "@y/protocols/awareness";
+import type * as Y from "@y/y";
+import { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor.js";
 import {
   createExtension,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
-import { RelativePositionMappingExtension } from "./RelativePositionMapping.js";
-import { CollaborationUser, YCursorExtension } from "./YCursorPlugin.js";
-import { YSyncExtension } from "./YSync.js";
-import { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor.js";
-import { SuggestionsExtension } from "./Suggestions.js";
-import { createYjsVersioningAdapter } from "./Versioning.js";
 import {
-  VersioningExtension,
   VersioningEndpoints,
   VersioningEndpointsFactory,
+  VersioningExtension,
 } from "../../extensions/Versioning/index.js";
 import { normalizeToUserStore, UserStoreOrResolver } from "../../user/index.js";
-import type { GetSuggestionMarkClassName } from "./YSuggestionMarks.js";
+import { AttributionExtension } from "./AttributionExtension.js";
+import { RelativePositionMappingExtension } from "./RelativePositionMapping.js";
+import { SuggestionsExtension } from "./Suggestions.js";
+import { createYjsVersioningAdapter } from "./Versioning.js";
+import { CollaborationUser, YCursorExtension } from "./YCursorPlugin.js";
+import type { GetAttributionMarkClassName } from "./YAttributionMarks.js";
+import { YSyncExtension } from "./YSync.js";
 
 export type CollaborationOptions = {
   /**
@@ -67,9 +68,9 @@ export type CollaborationOptions = {
    * Optional callback to override suggestion-mark styling by change type instead
    * of by author. Given a mark's content/modification type, return a class name
    * applied to the mark and its hover tooltip; the per-user color is then
-   * dropped for that mark. See {@link GetSuggestionMarkClassName}.
+   * dropped for that mark. See {@link GetAttributionMarkClassName}.
    */
-  getSuggestionMarkClassName?: GetSuggestionMarkClassName;
+  getAttributionMarkClassName?: GetAttributionMarkClassName;
 
   /**
    * The endpoints for the versioning functionality.
@@ -105,6 +106,10 @@ export const CollaborationExtension = createExtension(
               endpoints: options.versioningEndpoints,
             })
           : null,
+        AttributionExtension({
+          resolveUsers: userStore,
+          getAttributionMarkClassName: options.getAttributionMarkClassName,
+        }),
       ].filter((a) => a !== null),
     } as const;
   },
@@ -140,11 +145,11 @@ export function withCollaboration<
   };
 }
 
+export * from "./AttributionExtension.js";
 export * from "./RelativePositionMapping.js";
+export * from "./snapshotBuilder.js";
+export * from "./Suggestions.js";
+export * from "./Versioning.js";
+export * from "./YAttributionMarks.js";
 export * from "./YCursorPlugin.js";
 export * from "./YSync.js";
-export * from "./YSuggestionMarks.js";
-export * from "./SuggestionMarksExtension.js";
-export * from "./Versioning.js";
-export * from "./Suggestions.js";
-export * from "./snapshotBuilder.js";

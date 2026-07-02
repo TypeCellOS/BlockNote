@@ -8,12 +8,12 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { BLOCK_LEVEL_SUGGESTION_GROUP } from "../../pm-nodes/suggestionMarks.js";
 
 /**
- * Describes a suggestion mark to {@link GetSuggestionMarkClassName}: whether it
+ * Describes a suggestion mark to {@link GetAttributionMarkClassName}: whether it
  * wraps inline content or a whole block, and which kind of change it represents.
  * `modificationType: "format"` corresponds to the `y-attributed-format`
  * (modification) mark.
  */
-export type SuggestionMarkStyleInfo = {
+export type AttributionMarkStyleInfo = {
   contentType: "inline-content" | "block";
   modificationType: "insert" | "delete" | "format";
 };
@@ -24,31 +24,31 @@ export type SuggestionMarkStyleInfo = {
  * - `{ content, tooltip }` to style the mark content and the tooltip
  *   independently.
  */
-export type SuggestionMarkClassNames =
+export type AttributionMarkClassNames =
   | string
   | { content: string; tooltip: string };
 
 /**
  * Optional callback to override suggestion-mark styling. Given a mark's
- * {@link SuggestionMarkStyleInfo}, it returns the class name(s) to apply (see
- * {@link SuggestionMarkClassNames}). When a class is returned, the default
+ * {@link AttributionMarkStyleInfo}, it returns the class name(s) to apply (see
+ * {@link AttributionMarkClassNames}). When a class is returned, the default
  * per-user color (the `--user-color-*` custom properties and the built-in
  * `.bn-suggestion-mark` / `.bn-suggestion-node` styling) is *not* applied to the
  * mark content, so the class fully controls its appearance — letting an app
  * color suggestions by change type (e.g. green insertions, red deletions)
  * instead of by author.
  */
-export type GetSuggestionMarkClassName = (
-  info: SuggestionMarkStyleInfo,
-) => SuggestionMarkClassNames;
+export type GetAttributionMarkClassName = (
+  info: AttributionMarkStyleInfo,
+) => AttributionMarkClassNames;
 
 /**
- * Resolve the {@link SuggestionMarkClassNames} returned by a
- * {@link GetSuggestionMarkClassName} callback to the class name for a single
+ * Resolve the {@link AttributionMarkClassNames} returned by a
+ * {@link GetAttributionMarkClassName} callback to the class name for a single
  * target (the mark `content` or its `tooltip`).
  */
-export const resolveSuggestionMarkClassName = (
-  result: SuggestionMarkClassNames | undefined,
+export const resolveAttributionMarkClassName = (
+  result: AttributionMarkClassNames | undefined,
   target: "content" | "tooltip",
 ): string | undefined =>
   result === undefined
@@ -61,10 +61,10 @@ export const resolveSuggestionMarkClassName = (
  * Shared mark view for the attribution marks (insert / delete / modification).
  * It renders the marked content and tags the wrapper with the author(s) via
  * `data-*` attributes. The attribution tooltip shown on hover is handled
- * separately by the `SuggestionMarksExtension`, which reads those attributes
+ * separately by the `AttributionExtension`, which reads those attributes
  * straight from the DOM — keeping this mark view purely presentational and the
  * tooltip state off of module scope. Author colors are applied separately as a
- * decoration layer (also in `SuggestionMarksExtension`), so they can resolve
+ * decoration layer (also in `AttributionExtension`), so they can resolve
  * asynchronously without being baked into the deterministic mark attrs.
  */
 const createAttributionMarkView =
@@ -72,7 +72,7 @@ const createAttributionMarkView =
     type: "insert" | "delete" | "modification",
     options?: {
       editor?: BlockNoteEditor<any, any, any>;
-      getSuggestionMarkClassName?: GetSuggestionMarkClassName;
+      getAttributionMarkClassName?: GetAttributionMarkClassName;
     },
   ) =>
   ({ mark, inline }: { mark: PMMark; inline: boolean }) => {
@@ -105,8 +105,8 @@ const createAttributionMarkView =
     // classes, and the per-user `--user-color-*` properties are omitted, so the
     // class fully controls the appearance (background, text color, etc.) with no
     // per-user color leaking through (see the type doc).
-    const contentClassName = resolveSuggestionMarkClassName(
-      options?.getSuggestionMarkClassName?.({
+    const contentClassName = resolveAttributionMarkClassName(
+      options?.getAttributionMarkClassName?.({
         contentType: inline ? "inline-content" : "block",
         modificationType: type === "modification" ? "format" : type,
       }),
@@ -120,7 +120,7 @@ const createAttributionMarkView =
     // applied to the inner content span (see `.bn-suggestion-mark` in Block.css)
     // using the `--user-color-*` custom properties. Those properties are *not*
     // set here — they're supplied by the decoration layer in
-    // `SuggestionMarksExtension`, which resolves colors from the user store
+    // `AttributionExtension`, which resolves colors from the user store
     // independently of the (deterministic, color-free) mark attrs. When an
     // override class owns the styling, no per-user color is applied at all.
     dom.style.cssText = "display: contents";
@@ -133,7 +133,7 @@ const createAttributionMarkView =
         contentDOM.className = contentClassName;
       } else {
         // Default path: the per-user highlight is painted by the color
-        // decoration (see `SuggestionMarksExtension`), which wraps the text in a
+        // decoration (see `AttributionExtension`), which wraps the text in a
         // span carrying the `.bn-suggestion-mark(--delete)` class *and* the
         // `--user-color-*` properties. Keep this content span structural
         // (`display: contents`) so it doesn't also match the highlight rules and
@@ -179,7 +179,7 @@ const createAttributionMarkView =
   };
 
 export const YAttributedInsertion = Mark.create<{
-  getSuggestionMarkClassName?: GetSuggestionMarkClassName;
+  getAttributionMarkClassName?: GetAttributionMarkClassName;
 }>({
   name: "y-attributed-insert",
   inclusive: false,
@@ -194,11 +194,11 @@ export const YAttributedInsertion = Mark.create<{
   },
   addMarkView() {
     return createAttributionMarkView("insert", {
-      getSuggestionMarkClassName: this.options.getSuggestionMarkClassName,
+      getAttributionMarkClassName: this.options.getAttributionMarkClassName,
     });
   },
   extendMarkSchema(extension) {
-    if (extension.name !== "y-attributed-insert") {
+    if (extension.name !== this.name) {
       return {};
     }
     return {
@@ -209,7 +209,7 @@ export const YAttributedInsertion = Mark.create<{
 
 export const YAttributedDeletion = Mark.create<{
   editor?: BlockNoteEditor<any, any, any>;
-  getSuggestionMarkClassName?: GetSuggestionMarkClassName;
+  getAttributionMarkClassName?: GetAttributionMarkClassName;
 }>({
   name: "y-attributed-delete",
   inclusive: false,
@@ -223,11 +223,11 @@ export const YAttributedDeletion = Mark.create<{
   addMarkView() {
     return createAttributionMarkView("delete", {
       editor: this.options.editor,
-      getSuggestionMarkClassName: this.options.getSuggestionMarkClassName,
+      getAttributionMarkClassName: this.options.getAttributionMarkClassName,
     });
   },
   extendMarkSchema(extension) {
-    if (extension.name !== "y-attributed-delete") {
+    if (extension.name !== this.name) {
       return {};
     }
     return {
@@ -237,7 +237,7 @@ export const YAttributedDeletion = Mark.create<{
 });
 
 export const YAttributedFormat = Mark.create<{
-  getSuggestionMarkClassName?: GetSuggestionMarkClassName;
+  getAttributionMarkClassName?: GetAttributionMarkClassName;
 }>({
   name: "y-attributed-format",
   inclusive: false,
@@ -251,11 +251,11 @@ export const YAttributedFormat = Mark.create<{
   },
   addMarkView() {
     return createAttributionMarkView("modification", {
-      getSuggestionMarkClassName: this.options.getSuggestionMarkClassName,
+      getAttributionMarkClassName: this.options.getAttributionMarkClassName,
     });
   },
   extendMarkSchema(extension) {
-    if (extension.name !== "y-attributed-format") {
+    if (extension.name !== this.name) {
       return {};
     }
     return {
@@ -271,22 +271,22 @@ export const YAttributedFormat = Mark.create<{
  * living in the default schema. The marks opt into being allowed on block nodes
  * via their `blockLevelSuggestion` option — see `suggestionMarks`.
  */
-export const YSuggestionMarksExtension = createExtension(
+export const YAttributionMarksExtension = createExtension(
   ({
     options,
   }: ExtensionOptions<
-    { getSuggestionMarkClassName?: GetSuggestionMarkClassName } | undefined
+    { getAttributionMarkClassName?: GetAttributionMarkClassName } | undefined
   >) => ({
-    key: "ySuggestionMarks",
+    key: "yAttributionMarks",
     tiptapExtensions: [
       YAttributedInsertion.configure({
-        getSuggestionMarkClassName: options?.getSuggestionMarkClassName,
+        getAttributionMarkClassName: options?.getAttributionMarkClassName,
       }),
       YAttributedDeletion.configure({
-        getSuggestionMarkClassName: options?.getSuggestionMarkClassName,
+        getAttributionMarkClassName: options?.getAttributionMarkClassName,
       }),
       YAttributedFormat.configure({
-        getSuggestionMarkClassName: options?.getSuggestionMarkClassName,
+        getAttributionMarkClassName: options?.getAttributionMarkClassName,
       }),
     ],
   }),

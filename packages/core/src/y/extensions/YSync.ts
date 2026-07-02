@@ -5,15 +5,12 @@ import {
 } from "../../editor/BlockNoteExtension.js";
 import { blockMatchNodes } from "./blockMatchNodes.js";
 import { CollaborationOptions } from "./index.js";
-import { SuggestionMarksExtension } from "./SuggestionMarksExtension.js";
-import { YSuggestionMarksExtension } from "./YSuggestionMarks.js";
-import { normalizeToUserStore } from "../../user/index.js";
 
 /**
  * Maps a Y attribution to BlockNote's `y-attributed-*` mark attrs.
  *
  * The mapper must be deterministic in `(format, attribution)` and emit attrs
- * that exactly match the declared mark schema in YSuggestionMarks.ts. Any
+ * that exactly match the declared mark schema in YAttributionMarks.ts. Any
  * mismatch causes the sync plugin to fire phantom reconcile dispatches in a
  * loop. See ATTRIBUTION.md in @y/prosemirror.
  *
@@ -22,7 +19,7 @@ import { normalizeToUserStore } from "../../user/index.js";
  * from the {@link UserStore}, so baking them in here would make the mapper's
  * output change under a fixed `(format, attribution)` once a user loads, which
  * is exactly the non-determinism that triggers the reconcile loop. Instead the
- * `SuggestionMarksExtension` applies colors as a decoration layer that can
+ * `AttributionExtension` applies colors as a decoration layer that can
  * update independently of the mark representation.
  */
 export const mapAttributionToMark = (
@@ -65,18 +62,11 @@ export const YSyncExtension = createExtension(
       | "attributionManager"
       | "suggestionDoc"
       | "provider"
-      | "resolveUsers"
-      | "getSuggestionMarkClassName"
+      | "getAttributionMarkClassName"
     >
   >) => {
-    // Resolve suggestion authors (usernames and colors) through this store. The
-    // collaboration extension passes an already-built store here (shared with
-    // comments/versioning); a resolver callback is also accepted for standalone
-    // use.
-    const userStore = normalizeToUserStore(options.resolveUsers);
     return {
       key: "ySync",
-      userStore,
       mount: () => {
         const configure = () => {
           editor.exec(
@@ -127,19 +117,6 @@ export const YSyncExtension = createExtension(
         }),
       ],
       runsBefore: ["default"],
-      // The `y-attributed-*` suggestion marks aren't part of the default schema
-      // — they're only needed with collaboration. Register them here (so the
-      // block node specs can allow them), along with the attribution tooltip
-      // shown when hovering a suggestion mark.
-      blockNoteExtensions: [
-        YSuggestionMarksExtension({
-          getSuggestionMarkClassName: options.getSuggestionMarkClassName,
-        }),
-        SuggestionMarksExtension({
-          userStore,
-          getSuggestionMarkClassName: options.getSuggestionMarkClassName,
-        }),
-      ],
     } as const;
   },
 );

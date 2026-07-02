@@ -21,7 +21,7 @@ import { PanelTextInput } from "./panel/PanelTextInput.js";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover.js";
 import { SideMenu } from "./sideMenu/SideMenu.js";
 import { SideMenuButton } from "./sideMenu/SideMenuButton.js";
-import { SuggestionMarksTooltip } from "./suggestionMarks/SuggestionMarksTooltip.js";
+import { AttributionTooltip } from "./attributionMarks/AttributionTooltip.js";
 import { SuggestionMenu } from "./suggestionMenu/SuggestionMenu.js";
 import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyItem.js";
 import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem.js";
@@ -76,8 +76,8 @@ export const components: Components = {
     Label: SuggestionMenuLabel,
     Loader: SuggestionMenuLoader,
   },
-  SuggestionMarksTooltip: {
-    Root: SuggestionMarksTooltip,
+  AttributionTooltip: {
+    Root: AttributionTooltip,
   },
   TableHandle: {
     Root: TableHandle,

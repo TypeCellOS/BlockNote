@@ -1,10 +1,9 @@
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 
-type SuggestionMarksTooltipProps =
-  ComponentProps["SuggestionMarksTooltip"]["Root"];
+type AttributionTooltipProps = ComponentProps["AttributionTooltip"]["Root"];
 
-export const SuggestionMarksTooltip = (props: SuggestionMarksTooltipProps) => {
+export const AttributionTooltip = (props: AttributionTooltipProps) => {
   const { className, markClassName, backgroundColor, children, ...rest } =
     props;
 

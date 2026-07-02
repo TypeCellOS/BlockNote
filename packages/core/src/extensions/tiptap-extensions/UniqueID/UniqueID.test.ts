@@ -6,7 +6,7 @@ import { Node } from "prosemirror-model";
 import { afterEach, beforeAll, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import { YSuggestionMarksExtension } from "../../../y/extensions/YSuggestionMarks.js";
+import { YAttributionMarksExtension } from "../../../y/extensions/YAttributionMarks.js";
 
 // Track editors created in each test so we can unmount them in afterEach —
 // otherwise prosemirror-view's DOMObserver leaves a setTimeout alive that
@@ -33,7 +33,7 @@ function createEditor() {
   // The suggested-deletion cases mark nodes with `y-attributed-delete`, which
   // only exists in the schema when the suggestion-marks bundle is loaded.
   const editor = BlockNoteEditor.create({
-    extensions: [YSuggestionMarksExtension()],
+    extensions: [YAttributionMarksExtension()],
   });
   editor.mount(document.createElement("div"));
   activeEditors.push(editor);

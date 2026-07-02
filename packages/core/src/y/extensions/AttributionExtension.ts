@@ -7,16 +7,20 @@ import {
   type ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
 import type { Dictionary } from "../../i18n/dictionary.js";
-import { normalizeToUserStore, type UserStore } from "../../user/index.js";
+import {
+  normalizeToUserStore,
+  type UserStoreOrResolver,
+} from "../../user/index.js";
 import { colorsForUserIds } from "./userColors.js";
 import {
-  resolveSuggestionMarkClassName,
-  type GetSuggestionMarkClassName,
-} from "./YSuggestionMarks.js";
+  resolveAttributionMarkClassName,
+  YAttributionMarksExtension,
+  type GetAttributionMarkClassName,
+} from "./YAttributionMarks.js";
 
 /**
  * The three attribution marks, mapped to the `modificationType` reported to
- * {@link GetSuggestionMarkClassName} (`y-attributed-format` → `"format"`).
+ * {@link GetAttributionMarkClassName} (`y-attributed-format` → `"format"`).
  */
 const ATTRIBUTION_MARK_TYPES = {
   "y-attributed-insert": "insert",
@@ -29,7 +33,7 @@ const COLOR_PLUGIN_KEY = new PluginKey("suggestionMarkColors");
 /**
  * Selector for the wrapper element of an attribution mark (insert / delete /
  * modification). Every such wrapper carries the author(s) in its `data-user-ids`
- * attribute (see `YSuggestionMarks.ts`), which is all we need to resolve the
+ * attribute (see `YAttributionMarks.ts`), which is all we need to resolve the
  * tooltip — so this extension reads attribution straight from the DOM rather
  * than keeping a separate registry of marks. Colors are resolved separately from
  * the user store (they're intentionally not on the mark, see `userColors.ts`).
@@ -120,10 +124,10 @@ export const getReferenceRect = (wrapper: Element): DOMRect => {
  * The state emitted for the attribution tooltip of the currently-hovered
  * suggestion mark, or `undefined` when nothing attributed is hovered. The
  * extension computes this; a React controller subscribes to it and renders +
- * positions the tooltip (see `SuggestionMarksTooltipController`), so this
+ * positions the tooltip (see `AttributionTooltipController`), so this
  * extension stays agnostic about how the tooltip is displayed.
  */
-export type SuggestionMarkTooltipState = {
+export type AttributionTooltipState = {
   /** The wrapper element the tooltip anchors to (floating-ui reference). */
   anchor: HTMLElement;
   /** Resolved display text (localized format label + usernames). */
@@ -139,7 +143,7 @@ export type SuggestionMarkTooltipState = {
   /** Localized formatting-change label, present only for `format` marks. */
   formatLabel?: string;
   /**
-   * Class name from the `getSuggestionMarkClassName` callback (override path).
+   * Class name from the `getAttributionMarkClassName` callback (override path).
    * When present, the tooltip applies this and skips the inline `color`.
    */
   className?: string;
@@ -161,7 +165,7 @@ export type SuggestionMarkTooltipState = {
  * State lives on this per-editor extension instance (a store) rather than in
  * module scope, so multiple editors on a page don't share one registry.
  */
-export const SuggestionMarksExtension = createExtension(
+export const AttributionExtension = createExtension(
   ({
     editor,
     options,
@@ -172,23 +176,16 @@ export const SuggestionMarksExtension = createExtension(
          * renders suggestion marks without attribution (e.g. the AI path) omits
          * it, and unresolved ids simply show as raw ids.
          */
-        userStore?: UserStore;
-        /** See {@link GetSuggestionMarkClassName}. */
-        getSuggestionMarkClassName?: GetSuggestionMarkClassName;
+        resolveUsers?: UserStoreOrResolver;
+        /** See {@link GetAttributionMarkClassName}. */
+        getAttributionMarkClassName?: GetAttributionMarkClassName;
       }
     | undefined
   >) => {
-    const userStore = normalizeToUserStore(options?.userStore);
-    const getSuggestionMarkClassName = options?.getSuggestionMarkClassName;
+    const userStore = normalizeToUserStore(options?.resolveUsers);
+    const getAttributionMarkClassName = options?.getAttributionMarkClassName;
 
-    const store = createStore<SuggestionMarkTooltipState | undefined>(
-      undefined,
-    );
-
-    // Authors we've already asked the store to resolve. We fetch each id at most
-    // once so a resolver that returns nothing for an id can't loop (a store
-    // update re-runs the decoration build, which would otherwise re-request it).
-    const requestedUserIds = new Set<string>();
+    const store = createStore<AttributionTooltipState | undefined>(undefined);
 
     // Build the mark-color decorations for a document. Suggestion marks carry
     // only `userIds` (kept deterministic for the Yjs sync reconcile); the author
@@ -196,11 +193,11 @@ export const SuggestionMarksExtension = createExtension(
     // `--user-color-*` custom properties the Block.css rules read. Inline marks
     // get an inline decoration around their text; block-level marks get a node
     // decoration on the wrapped block. When an app supplies a
-    // `getSuggestionMarkClassName` class for a mark, that class owns styling, so
+    // `getAttributionMarkClassName` class for a mark, that class owns styling, so
     // no per-user color decoration is emitted for it.
     const buildColorDecorations = (doc: Node): DecorationSet => {
       const decorations: Decoration[] = [];
-      const idsToLoad: string[] = [];
+      const idsToLoad = new Set<string>();
 
       doc.descendants((node, pos) => {
         for (const mark of node.marks) {
@@ -214,17 +211,12 @@ export const SuggestionMarksExtension = createExtension(
 
           const userIds = mark.attrs["userIds"] as string[] | null;
           if (userIds) {
-            for (const id of userIds) {
-              if (!requestedUserIds.has(id)) {
-                requestedUserIds.add(id);
-                idsToLoad.push(id);
-              }
-            }
+            userIds.forEach((id) => idsToLoad.add(id));
           }
 
           const contentType = node.isInline ? "inline-content" : "block";
-          const overrideClass = resolveSuggestionMarkClassName(
-            getSuggestionMarkClassName?.({ contentType, modificationType }),
+          const overrideClass = resolveAttributionMarkClassName(
+            getAttributionMarkClassName?.({ contentType, modificationType }),
             "content",
           );
           if (overrideClass) {
@@ -266,34 +258,34 @@ export const SuggestionMarksExtension = createExtension(
 
       // Kick off resolution for any authors we haven't seen; when they land the
       // store subscription below rebuilds the decorations with the real colors.
-      if (idsToLoad.length > 0) {
-        void userStore.loadUsers(idsToLoad);
+      if (idsToLoad.size > 0) {
+        void userStore.loadUsers(Array.from(idsToLoad));
       }
 
       return DecorationSet.create(doc, decorations);
     };
 
-    const colorPlugin = new Plugin<DecorationSet>({
-      key: COLOR_PLUGIN_KEY,
-      state: {
-        init: (_config, state) => buildColorDecorations(state.doc),
-        apply: (tr, value) =>
-          tr.docChanged || tr.getMeta(COLOR_PLUGIN_KEY)
-            ? buildColorDecorations(tr.doc)
-            : value,
-      },
-      props: {
-        decorations(state) {
-          return COLOR_PLUGIN_KEY.getState(state) ?? DecorationSet.empty;
-        },
-      },
-    });
-
     return {
-      key: "suggestionMarks",
+      key: "attribution",
       userStore,
       store,
-      prosemirrorPlugins: [colorPlugin],
+      prosemirrorPlugins: [
+        new Plugin<DecorationSet>({
+          key: COLOR_PLUGIN_KEY,
+          state: {
+            init: (_config, state) => buildColorDecorations(state.doc),
+            apply: (tr, value) =>
+              tr.docChanged || tr.getMeta(COLOR_PLUGIN_KEY)
+                ? buildColorDecorations(tr.doc)
+                : value,
+          },
+          props: {
+            decorations(state) {
+              return COLOR_PLUGIN_KEY.getState(state) ?? DecorationSet.empty;
+            },
+          },
+        }),
+      ],
       mount({ root, signal }) {
         // The wrapper currently showing a tooltip, tracked so we don't re-emit
         // state on every `mouseover` while the pointer stays on the same mark.
@@ -335,15 +327,15 @@ export const SuggestionMarksExtension = createExtension(
         const buildState = (
           anchor: HTMLElement,
           text: string,
-        ): SuggestionMarkTooltipState => {
+        ): AttributionTooltipState => {
           const isModification = anchor.dataset["format"] !== undefined;
-          const modificationType: SuggestionMarkTooltipState["modificationType"] =
+          const modificationType: AttributionTooltipState["modificationType"] =
             isModification
               ? "format"
               : anchor.tagName === "INS"
                 ? "insert"
                 : "delete";
-          const contentType: SuggestionMarkTooltipState["contentType"] =
+          const contentType: AttributionTooltipState["contentType"] =
             anchor.dataset["inline"] === "false" ? "block" : "inline-content";
 
           return {
@@ -362,8 +354,8 @@ export const SuggestionMarksExtension = createExtension(
             formatLabel: isModification
               ? formatChangeLabel(anchor.dataset["format"], editor.dictionary)
               : undefined,
-            className: resolveSuggestionMarkClassName(
-              getSuggestionMarkClassName?.({ contentType, modificationType }),
+            className: resolveAttributionMarkClassName(
+              getAttributionMarkClassName?.({ contentType, modificationType }),
               "tooltip",
             ),
           };
@@ -468,6 +460,16 @@ export const SuggestionMarksExtension = createExtension(
         });
         signal.addEventListener("abort", unsubscribe);
       },
+
+      // The `y-attributed-*` suggestion marks aren't part of the default schema
+      // — they're only needed with collaboration. Register them here (so the
+      // block node specs can allow them), along with the attribution tooltip
+      // shown when hovering a suggestion mark.
+      blockNoteExtensions: [
+        YAttributionMarksExtension({
+          getAttributionMarkClassName: options?.getAttributionMarkClassName,
+        }),
+      ],
     };
   },
 );
