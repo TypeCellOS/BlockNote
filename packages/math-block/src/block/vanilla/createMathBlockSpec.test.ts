@@ -160,12 +160,26 @@ describe("Math block source popup keyboard handling", () => {
       expect(pressKey("math", "a")).toBe(false);
     });
 
-    it("blocks deletion and indent keys while the popup is closed", () => {
+    it("Backspace deletes the whole block while the popup is closed", () => {
       expect(isPopupOpen("math")).toBe(false);
 
-      // These all edit the hidden source, so they're swallowed.
+      // The source is hidden, so Backspace removes the whole block rather than
+      // editing the source the user can't see.
       expect(pressKey("math", "Backspace")).toBe(true);
+      expect(editor.document.some((block) => block.id === "math")).toBe(false);
+    });
+
+    it("Delete deletes the whole block while the popup is closed", () => {
+      expect(isPopupOpen("math")).toBe(false);
+
       expect(pressKey("math", "Delete")).toBe(true);
+      expect(editor.document.some((block) => block.id === "math")).toBe(false);
+    });
+
+    it("blocks indent keys while the popup is closed", () => {
+      expect(isPopupOpen("math")).toBe(false);
+
+      // Tab edits the hidden source, so it's swallowed.
       expect(pressKey("math", "Tab")).toBe(true);
     });
 

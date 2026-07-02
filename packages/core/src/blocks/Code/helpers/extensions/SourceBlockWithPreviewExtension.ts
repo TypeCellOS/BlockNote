@@ -120,10 +120,16 @@ export const SourceBlockWithPreviewExtension = createExtension(
             return;
           }
 
+          if (event.key === "Backspace" || event.key === "Delete") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            editor.removeBlocks([block.id]);
+
+            return;
+          }
+
           if (
             (event.key.length === 1 && !event.ctrlKey && !event.metaKey) ||
-            event.key === "Backspace" ||
-            event.key === "Delete" ||
             event.key === "Tab"
           ) {
             event.preventDefault();
