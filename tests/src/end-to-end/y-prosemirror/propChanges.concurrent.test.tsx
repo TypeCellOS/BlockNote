@@ -4,14 +4,23 @@
  * suggestions. Same shape as `basicText.concurrent.test.tsx` but the
  * edits are block-level prop changes rather than content edits.
  *
- * See `propChanges.test.tsx` for the TODO on prop changes producing no
- * `y-attributed-*` mark – the same applies here.
+ * The "no `y-attributed-*` mark for block-prop changes" known issue (tracked in
+ * the suggestion gallery's "Prop changes" scenarios) applies here too.
  */
 import { expect, test } from "vite-plus/test";
 import { expectScreenshot, expectVisible } from "./fixtures/browserExpect.js";
 
 import { setupConcurrentSuggestionTest } from "./fixtures/concurrentSuggestionFixture.js";
 import { editorHtml, ydocXml } from "./fixtures/suggestionFixture.js";
+
+// Scenario data (the `initial` seed + A's/B's `applyA`/`applyB` changes) is
+// shared with the suggestion-gallery example so the two never drift.
+import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import type { ConcurrentScenario } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+
+const textColorVsBgColor = scenarios.find(
+  (s) => s.id === "concurrent-textcolor-vs-bgcolor",
+) as ConcurrentScenario;
 
 // Two users edit independent props on the same block: A changes
 // `textColor`, B changes `backgroundColor`. Neither edit touches the
@@ -35,9 +44,7 @@ test("concurrent: A changes textColor, B changes backgroundColor", async () => {
   });
 
   // Seed: plain "hello world" with default colors.
-  userA.editor.replaceBlocks(userA.editor.document, [
-    { id: "block-hello", type: "paragraph", content: "hello world" },
-  ]);
+  userA.editor.replaceBlocks(userA.editor.document, textColorVsBgColor.initial);
   seed();
   await expectVisible(
     screen.getByTestId(userA.testId).getByText("hello world"),
@@ -46,18 +53,10 @@ test("concurrent: A changes textColor, B changes backgroundColor", async () => {
   enableSuggestions();
 
   // A: change textColor to red.
-  const [blockA] = userA.editor.document;
-  userA.editor.updateBlock(blockA, {
-    type: "paragraph",
-    props: { textColor: "red" },
-  });
+  textColorVsBgColor.applyA(userA.editor);
 
   // B: change backgroundColor to yellow.
-  const [blockB] = userB.editor.document;
-  userB.editor.updateBlock(blockB, {
-    type: "paragraph",
-    props: { backgroundColor: "yellow" },
-  });
+  textColorVsBgColor.applyB(userB.editor);
 
   // Prop changes don't generate y-attributed marks, so we poll on the
   // individual editor doc states instead.

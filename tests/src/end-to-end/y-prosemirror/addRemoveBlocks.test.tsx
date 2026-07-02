@@ -15,16 +15,44 @@ import {
   ydocXml,
 } from "./fixtures/suggestionFixture.js";
 
-// Inline SVG data URL – avoids a network fetch for the image src.
-const IMG_SRC =
-  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23ff6b6b'/></svg>";
+// Scenario data (the `initial` seed + the `apply` change) is shared with the
+// suggestion-gallery example so the gallery and these tests never drift. The
+// image URL is imported from there too, so the poll below checks the exact value
+// the scenario sets.
+import {
+  IMG_SRC_BASE,
+  scenarios,
+} from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+
+const addHeading = scenarios.find((s) => s.id === "add-heading")!;
+const addBullet = scenarios.find((s) => s.id === "add-bullet")!;
+const addNumbered = scenarios.find((s) => s.id === "add-numbered")!;
+const addNestedBullets = scenarios.find((s) => s.id === "add-nested-bullets")!;
+const addColoredBlock = scenarios.find((s) => s.id === "add-colored-block")!;
+const nestBulletExisting = scenarios.find(
+  (s) => s.id === "nest-bullet-existing",
+)!;
+const addParagraphAfter = scenarios.find(
+  (s) => s.id === "add-paragraph-after",
+)!;
+const removeParagraph = scenarios.find((s) => s.id === "remove-paragraph")!;
+const removeAll = scenarios.find((s) => s.id === "remove-all")!;
+const deleteNested = scenarios.find((s) => s.id === "delete-nested")!;
+const deleteParent = scenarios.find((s) => s.id === "delete-parent")!;
+const deleteImage = scenarios.find((s) => s.id === "delete-image")!;
+const deleteMixedParent = scenarios.find(
+  (s) => s.id === "delete-mixed-parent",
+)!;
+const deleteCodeBlock = scenarios.find((s) => s.id === "delete-code-block")!;
+const deleteDivider = scenarios.find((s) => s.id === "delete-divider")!;
+const insertImage = scenarios.find((s) => s.id === "insert-image")!;
 
 // Empty doc gets a heading inserted at the top.
 test("suggestion mode: add heading to empty doc", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "add heading at top" });
 
-  editor.replaceBlocks(editor.document, []);
+  editor.replaceBlocks(editor.document, addHeading.initial);
   await sync();
 
   // See note in "add paragraph after existing block" – snapshot the
@@ -33,9 +61,7 @@ test("suggestion mode: add heading to empty doc", async () => {
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.replaceBlocks(editor.document, [
-    { id: "h0", type: "heading", props: { level: 1 }, content: "New heading" },
-  ]);
+  addHeading.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -116,16 +142,14 @@ test("suggestion mode: add bullet list item to empty doc", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "add bullet at top" });
 
-  editor.replaceBlocks(editor.document, []);
+  editor.replaceBlocks(editor.document, addBullet.initial);
   await sync();
 
   const baseDocXml = ydocXml(baseDoc);
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.replaceBlocks(editor.document, [
-    { id: "b0", type: "bulletListItem", content: "New bullet" },
-  ]);
+  addBullet.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -201,16 +225,14 @@ test("suggestion mode: add numbered list item to empty doc", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "add numbered at top" });
 
-  editor.replaceBlocks(editor.document, []);
+  editor.replaceBlocks(editor.document, addNumbered.initial);
   await sync();
 
   const baseDocXml = ydocXml(baseDoc);
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.replaceBlocks(editor.document, [
-    { id: "n0", type: "numberedListItem", content: "New numbered" },
-  ]);
+  addNumbered.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -282,48 +304,20 @@ test("suggestion mode: add numbered list item to empty doc", async () => {
 
 // Empty doc gets a 3-level nested bullet list inserted as a suggestion.
 //
-// TODO / KNOWN LIMITATION: nested bullets in suggestion mode render the
-// top-level `•` at every depth instead of `•` / `◦` / `▪`. The glyph is chosen
-// in CSS by depth-detecting chains (`[bulletListItem] ~ .bn-block-group >
-// .bn-block-outer > .bn-block > .bn-block-content`), but every level of an
-// inserted subtree is wrapped in the suggestion mark elements (`<ins>`/`<del>` +
-// `.bn-suggestion-node`, all `display: contents`) — on the blockContainer,
-// blockContent AND the children blockGroup — which breaks those chains at every
-// joint (both the `~` sibling and the `>` child links). Skipping the wrappers in
-// CSS at all of them is combinatorial and impractical.
-// Fix: compute each bullet's nesting level in JS (e.g. a decoration plugin like
-// `PreviousBlockType`, which already sets `data-*` attrs) and expose it as
-// `data-bullet-level` on the content, then pick the glyph with a plain,
-// wrapper-independent attribute selector:
-//   [data-content-type="bulletListItem"][data-bullet-level="1"]::before { content: "◦"; }
-// (This is why numbered lists, which use `--index: attr(data-index)`, are fine.)
-// Until then this baseline intentionally captures all three rows as `•`.
+// Known issue — tracked in the suggestion gallery ("add-nested-bullets").
+// This baseline intentionally captures all three rows as `•`.
 test("suggestion mode: add nested bullet list to empty doc", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "add nested bullets" });
 
-  editor.replaceBlocks(editor.document, []);
+  editor.replaceBlocks(editor.document, addNestedBullets.initial);
   await sync();
 
   const baseDocXml = ydocXml(baseDoc);
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "l0",
-      type: "bulletListItem",
-      content: "Level 0",
-      children: [
-        {
-          id: "l1",
-          type: "bulletListItem",
-          content: "Level 1",
-          children: [{ id: "l2", type: "bulletListItem", content: "Level 2" }],
-        },
-      ],
-    },
-  ]);
+  addNestedBullets.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -477,31 +471,21 @@ test("suggestion mode: add nested bullet list to empty doc", async () => {
 });
 
 // Empty doc gets a background-colored block (with a nested child) inserted as a
-// suggestion. The colored `.bn-block-content` is wrapped in `<ins>`, which
-// breaks `.bn-block:has(> .bn-block-content[data-background-color="…"])` – the
-// block-level fill that tints the nested child's area is lost (the content's
-// own fill still applies via the bare `[data-background-color]` selector).
+// suggestion.
+// Known issue — tracked in the suggestion gallery ("add-colored-block").
 // Validate: the parent row is tinted but the child's row is not.
 test("suggestion mode: add colored block with child to empty doc", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "add colored block" });
 
-  editor.replaceBlocks(editor.document, []);
+  editor.replaceBlocks(editor.document, addColoredBlock.initial);
   await sync();
 
   const baseDocXml = ydocXml(baseDoc);
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "c0",
-      type: "paragraph",
-      props: { backgroundColor: "blue" },
-      content: "Colored parent",
-      children: [{ id: "c1", type: "paragraph", content: "Child block" }],
-    },
-  ]);
+  addColoredBlock.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -579,26 +563,20 @@ test("suggestion mode: add colored block with child to empty doc", async () => {
 // nested under the first (`nestBlock`). Unlike the all-new subtree above, the
 // parent bullet already exists – only the newly-nested child is the suggestion.
 //
-// TODO / KNOWN LIMITATION: like "add nested bullet list to empty doc" above, the
-// nested child shows `•` instead of `◦` — `nestBlock` also wraps the new
-// blockGroup, breaking the CSS depth-detection chains. See that test for the
-// full explanation and the `data-bullet-level` fix. Baseline captures `•`.
+// Known issue — tracked in the suggestion gallery ("nest-bullet-existing"):
+// the nested child shows `•` instead of `◦`. Baseline captures `•`.
 test("suggestion mode: nest a bullet under an existing bullet", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "nest bullet under existing" });
 
-  editor.replaceBlocks(editor.document, [
-    { id: "p", type: "bulletListItem", content: "Parent" },
-    { id: "c", type: "bulletListItem", content: "Child" },
-  ]);
+  editor.replaceBlocks(editor.document, nestBulletExisting.initial);
   await sync();
 
   const baseDocXml = ydocXml(baseDoc);
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.setTextCursorPosition("c", "start");
-  editor.nestBlock();
+  nestBulletExisting.apply(editor);
 
   await expect.poll(() => editor.document[0]?.children?.length).toBe(1);
 
@@ -711,9 +689,7 @@ test("suggestion mode: add paragraph after existing block", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "append paragraph" });
 
-  editor.replaceBlocks(editor.document, [
-    { id: "h0", type: "heading", props: { level: 1 }, content: "Title" },
-  ]);
+  editor.replaceBlocks(editor.document, addParagraphAfter.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("Title"));
 
@@ -725,11 +701,7 @@ test("suggestion mode: add paragraph after existing block", async () => {
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.insertBlocks(
-    [{ id: "p0", type: "paragraph", content: "Body text" }],
-    "h0",
-    "after",
-  );
+  addParagraphAfter.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -817,10 +789,7 @@ test("suggestion mode: remove paragraph from heading+paragraph", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "remove body" });
 
-  editor.replaceBlocks(editor.document, [
-    { id: "h0", type: "heading", props: { level: 1 }, content: "Title" },
-    { id: "p0", type: "paragraph", content: "Body text" },
-  ]);
+  editor.replaceBlocks(editor.document, removeParagraph.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("Body text"));
 
@@ -830,7 +799,7 @@ test("suggestion mode: remove paragraph from heading+paragraph", async () => {
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.removeBlocks(["p0"]);
+  removeParagraph.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -899,9 +868,7 @@ test("suggestion mode: remove all blocks", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "delete all" });
 
-  editor.replaceBlocks(editor.document, [
-    { id: "p0", type: "paragraph", content: "Only block" },
-  ]);
+  editor.replaceBlocks(editor.document, removeAll.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("Only block"));
 
@@ -911,7 +878,7 @@ test("suggestion mode: remove all blocks", async () => {
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.removeBlocks(["p0"]);
+  removeAll.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -956,14 +923,7 @@ test("suggestion mode: delete nested block", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "delete inner block" });
 
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "parent",
-      type: "paragraph",
-      content: "Parent",
-      children: [{ id: "child", type: "paragraph", content: "Child" }],
-    },
-  ]);
+  editor.replaceBlocks(editor.document, deleteNested.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("Child"));
 
@@ -973,7 +933,7 @@ test("suggestion mode: delete nested block", async () => {
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.removeBlocks(["child"]);
+  deleteNested.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -1030,14 +990,7 @@ test("suggestion mode: delete parent block (with children)", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "delete outer block" });
 
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "parent",
-      type: "paragraph",
-      content: "Parent",
-      children: [{ id: "child", type: "paragraph", content: "Child" }],
-    },
-  ]);
+  editor.replaceBlocks(editor.document, deleteParent.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("Parent"));
 
@@ -1047,7 +1000,7 @@ test("suggestion mode: delete parent block (with children)", async () => {
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.removeBlocks(["parent"]);
+  deleteParent.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -1114,17 +1067,11 @@ test("suggestion mode: delete image block", async () => {
       userAction: "delete image",
     });
 
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "img",
-      type: "image",
-      props: { url: IMG_SRC, previewWidth: 150 },
-    },
-  ]);
+  editor.replaceBlocks(editor.document, deleteImage.initial);
   await sync();
   await expect
     .poll(() => (editor.document[0]?.props as { url?: string })?.url)
-    .toBe(IMG_SRC);
+    .toBe(IMG_SRC_BASE);
 
   // See note in "add paragraph after existing block" – snapshot the
   // clean base before suggestions mutate the bound `baseDoc`.
@@ -1132,7 +1079,7 @@ test("suggestion mode: delete image block", async () => {
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.removeBlocks(["img"]);
+  deleteImage.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -1212,21 +1159,7 @@ test("suggestion mode: delete parent with nested paragraph and image", async () 
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "delete mixed block" });
 
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "parent",
-      type: "paragraph",
-      content: "Parent",
-      children: [
-        { id: "p1", type: "paragraph", content: "Nested paragraph" },
-        {
-          id: "img",
-          type: "image",
-          props: { url: IMG_SRC, previewWidth: 150 },
-        },
-      ],
-    },
-  ]);
+  editor.replaceBlocks(editor.document, deleteMixedParent.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("Parent"));
 
@@ -1234,7 +1167,7 @@ test("suggestion mode: delete parent with nested paragraph and image", async () 
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.removeBlocks(["parent"]);
+  deleteMixedParent.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -1320,9 +1253,7 @@ test("suggestion mode: delete code block", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "delete code block" });
 
-  editor.replaceBlocks(editor.document, [
-    { id: "code", type: "codeBlock", content: "const x = 1;" },
-  ]);
+  editor.replaceBlocks(editor.document, deleteCodeBlock.initial);
   await sync();
   await expect.poll(() => editor.document[0]?.type).toBe("codeBlock");
 
@@ -1330,7 +1261,7 @@ test("suggestion mode: delete code block", async () => {
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.removeBlocks(["code"]);
+  deleteCodeBlock.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -1393,7 +1324,7 @@ test("suggestion mode: delete divider", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "delete divider" });
 
-  editor.replaceBlocks(editor.document, [{ id: "hr", type: "divider" }]);
+  editor.replaceBlocks(editor.document, deleteDivider.initial);
   await sync();
   await expect.poll(() => editor.document[0]?.type).toBe("divider");
 
@@ -1401,7 +1332,7 @@ test("suggestion mode: delete divider", async () => {
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.removeBlocks(["hr"]);
+  deleteDivider.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -1465,16 +1396,14 @@ test("suggestion mode: insert image block", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "insert image" });
 
-  editor.replaceBlocks(editor.document, []);
+  editor.replaceBlocks(editor.document, insertImage.initial);
   await sync();
 
   const baseDocXml = ydocXml(baseDoc);
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.replaceBlocks(editor.document, [
-    { id: "img", type: "image", props: { url: IMG_SRC, previewWidth: 150 } },
-  ]);
+  insertImage.apply(editor);
 
   await waitForSuggestion(editor);
 

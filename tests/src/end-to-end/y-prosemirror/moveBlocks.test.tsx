@@ -15,23 +15,28 @@ import {
   ydocXml,
 } from "./fixtures/suggestionFixture.js";
 
+// Scenario data (the `initial` seed + the `apply` change) is shared with the
+// suggestion-gallery example so the gallery and these tests never drift.
+import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+
+const moveParagraphUp = scenarios.find((s) => s.id === "move-paragraph-up")!;
+const moveParagraphWithChildren = scenarios.find(
+  (s) => s.id === "move-paragraph-with-children",
+)!;
+
 // Move a plain paragraph one slot up. Base has three siblings; we
 // move the middle one to the top.
 test("suggestion mode: move paragraph up", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "move middle up" });
 
-  editor.replaceBlocks(editor.document, [
-    { id: "first", type: "paragraph", content: "First" },
-    { id: "middle", type: "paragraph", content: "Middle" },
-    { id: "last", type: "paragraph", content: "Last" },
-  ]);
+  editor.replaceBlocks(editor.document, moveParagraphUp.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("First"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.moveBlocksUp("middle");
+  moveParagraphUp.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -116,21 +121,13 @@ test("suggestion mode: move paragraph with children", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "move parent + child up" });
 
-  editor.replaceBlocks(editor.document, [
-    { id: "first", type: "paragraph", content: "First" },
-    {
-      id: "parent",
-      type: "paragraph",
-      content: "Parent",
-      children: [{ id: "child", type: "paragraph", content: "Child" }],
-    },
-  ]);
+  editor.replaceBlocks(editor.document, moveParagraphWithChildren.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("First"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.moveBlocksUp("parent");
+  moveParagraphWithChildren.apply(editor);
 
   await waitForSuggestion(editor);
 

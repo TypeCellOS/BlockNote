@@ -9,6 +9,18 @@ import { expectScreenshot, expectVisible } from "./fixtures/browserExpect.js";
 import { setupConcurrentSuggestionTest } from "./fixtures/concurrentSuggestionFixture.js";
 import { editorHtml, ydocXml } from "./fixtures/suggestionFixture.js";
 
+// Scenario data (the `initial` seed + A's/B's `applyA`/`applyB` changes) is
+// shared with the suggestion-gallery example so the two never drift.
+import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import type { ConcurrentScenario } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+
+const headingVsList = scenarios.find(
+  (s) => s.id === "concurrent-heading-vs-list",
+) as ConcurrentScenario;
+const textVsHeading = scenarios.find(
+  (s) => s.id === "concurrent-text-vs-heading",
+) as ConcurrentScenario;
+
 // Two competing type changes on the same block: A wants a heading, B
 // wants a list item.
 test("concurrent: A → heading, B → list item", async () => {
@@ -29,9 +41,7 @@ test("concurrent: A → heading, B → list item", async () => {
     userBAction: "→ list item",
   });
 
-  userA.editor.replaceBlocks(userA.editor.document, [
-    { id: "block-hello", type: "paragraph", content: "hello world" },
-  ]);
+  userA.editor.replaceBlocks(userA.editor.document, headingVsList.initial);
   seed();
   await expectVisible(
     screen.getByTestId(userA.testId).getByText("hello world"),
@@ -39,14 +49,9 @@ test("concurrent: A → heading, B → list item", async () => {
 
   enableSuggestions();
 
-  const [blockA] = userA.editor.document;
-  userA.editor.updateBlock(blockA, {
-    type: "heading",
-    props: { level: 1 },
-  });
+  headingVsList.applyA(userA.editor);
 
-  const [blockB] = userB.editor.document;
-  userB.editor.updateBlock(blockB, { type: "bulletListItem" });
+  headingVsList.applyB(userB.editor);
 
   // TODO: should this be editor.document[0], or expose .documentWithoutDeletions?
   await expect.poll(() => userA.editor.document[1]?.type).toBe("heading");
@@ -202,9 +207,7 @@ test("concurrent: A edits text, B → heading", async () => {
     userBAction: "→ heading",
   });
 
-  userA.editor.replaceBlocks(userA.editor.document, [
-    { id: "block-hello", type: "paragraph", content: "hello world" },
-  ]);
+  userA.editor.replaceBlocks(userA.editor.document, textVsHeading.initial);
   seed();
   await expectVisible(
     screen.getByTestId(userA.testId).getByText("hello world"),
@@ -212,17 +215,9 @@ test("concurrent: A edits text, B → heading", async () => {
 
   enableSuggestions();
 
-  const [blockA] = userA.editor.document;
-  userA.editor.updateBlock(blockA, {
-    type: "paragraph",
-    content: "hello universe",
-  });
+  textVsHeading.applyA(userA.editor);
 
-  const [blockB] = userB.editor.document;
-  userB.editor.updateBlock(blockB, {
-    type: "heading",
-    props: { level: 1 },
-  });
+  textVsHeading.applyB(userB.editor);
 
   await expect
     .poll(() =>

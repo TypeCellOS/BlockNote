@@ -14,26 +14,30 @@ import {
   ydocXml,
 } from "./fixtures/suggestionFixture.js";
 
+// Scenario data (the `initial` seed + the `apply` change) is shared with the
+// suggestion-gallery example so the gallery and these tests never drift.
+import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+
+const listToParagraph = scenarios.find(
+  (s) => s.id === "type-list-to-paragraph",
+)!;
+const paragraphToHeading = scenarios.find(
+  (s) => s.id === "type-paragraph-to-heading",
+)!;
+
 // Demote a bullet-list item to a plain paragraph. Inline content
 // "hello world" stays the same; only the wrapping node type changes.
 test("suggestion mode: change list item to paragraph", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "list → paragraph" });
 
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "block-hello",
-      type: "bulletListItem",
-      content: "hello world",
-    },
-  ]);
+  editor.replaceBlocks(editor.document, listToParagraph.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  const [block] = editor.document;
-  editor.updateBlock(block, { type: "paragraph" });
+  listToParagraph.apply(editor);
 
   // TODO: should this be editor.document[0], or expose .documentWithoutDeletions?
   await expect.poll(() => editor.document[1]?.type).toBe("paragraph");
@@ -108,16 +112,13 @@ test("suggestion mode: change paragraph to heading", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "paragraph → heading" });
 
-  editor.replaceBlocks(editor.document, [
-    { id: "block-hello", type: "paragraph", content: "hello world" },
-  ]);
+  editor.replaceBlocks(editor.document, paragraphToHeading.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  const [block] = editor.document;
-  editor.updateBlock(block, { type: "heading", props: { level: 1 } });
+  paragraphToHeading.apply(editor);
 
   // TODO: should this be editor.document[0], or expose .documentWithoutDeletions?
   await expect.poll(() => editor.document[1]?.type).toBe("heading");

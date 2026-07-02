@@ -18,38 +18,31 @@ import {
   ydocXml,
 } from "./fixtures/suggestionFixture.js";
 
-// Shared 2x2 table baseline used by most of the tests below.
-const TABLE_2X2 = {
-  id: "table",
-  type: "table" as const,
-  content: {
-    type: "tableContent" as const,
-    rows: [{ cells: ["A1", "B1"] }, { cells: ["A2", "B2"] }],
-  },
-};
+// Scenario data (the `initial` seed + the `apply` change) is shared with the
+// suggestion-gallery example so the gallery and these tests never drift.
+import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+
+const addRow = scenarios.find((s) => s.id === "table-add-row")!;
+const addColumn = scenarios.find((s) => s.id === "table-add-column")!;
+const removeRow = scenarios.find((s) => s.id === "table-remove-row")!;
+const removeColumn = scenarios.find((s) => s.id === "table-remove-column")!;
+const editCell = scenarios.find((s) => s.id === "table-edit-cell")!;
+const columnColor = scenarios.find((s) => s.id === "table-column-color")!;
+const mergeCells = scenarios.find((s) => s.id === "table-merge-cells")!;
+const splitCell = scenarios.find((s) => s.id === "table-split-cell")!;
 
 // Add a third row to a 2x2 table.
 test("suggestion mode: add row", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "add row" });
 
-  editor.replaceBlocks(editor.document, [TABLE_2X2]);
+  editor.replaceBlocks(editor.document, addRow.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("A1"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [
-        { cells: ["A1", "B1"] },
-        { cells: ["A2", "B2"] },
-        { cells: ["A3", "B3"] },
-      ],
-    },
-  });
+  addRow.apply(editor);
 
   await expect.poll(() => editor.document[0]?.children.length).toBe(0);
   await expectVisible(screen.getByTestId("editor-A").getByText("A3"));
@@ -301,19 +294,13 @@ test("suggestion mode: add column", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "add column" });
 
-  editor.replaceBlocks(editor.document, [TABLE_2X2]);
+  editor.replaceBlocks(editor.document, addColumn.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("A1"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [{ cells: ["A1", "B1", "C1"] }, { cells: ["A2", "B2", "C2"] }],
-    },
-  });
+  addColumn.apply(editor);
 
   await expectVisible(screen.getByTestId("editor-A").getByText("C1"));
 
@@ -554,19 +541,13 @@ test("suggestion mode: remove row", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "remove last row" });
 
-  editor.replaceBlocks(editor.document, [TABLE_2X2]);
+  editor.replaceBlocks(editor.document, removeRow.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("A2"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [{ cells: ["A1", "B1"] }],
-    },
-  });
+  removeRow.apply(editor);
 
   await expectScreenshot(screen.getByTestId("editor-root"), "table-remove-row");
 
@@ -715,19 +696,13 @@ test("suggestion mode: remove column", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "remove last column" });
 
-  editor.replaceBlocks(editor.document, [TABLE_2X2]);
+  editor.replaceBlocks(editor.document, removeColumn.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("B1"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [{ cells: ["A1"] }, { cells: ["A2"] }],
-    },
-  });
+  removeColumn.apply(editor);
 
   await expectScreenshot(
     screen.getByTestId("editor-root"),
@@ -887,19 +862,13 @@ test("suggestion mode: update text in cell", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "edit top-left cell" });
 
-  editor.replaceBlocks(editor.document, [TABLE_2X2]);
+  editor.replaceBlocks(editor.document, editCell.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("A1"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [{ cells: ["A1 edited", "B1"] }, { cells: ["A2", "B2"] }],
-    },
-  });
+  editCell.apply(editor);
 
   await expectVisible(screen.getByTestId("editor-A").getByText("edited"));
 
@@ -1073,40 +1042,13 @@ test("suggestion mode: change column background color", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "highlight first column" });
 
-  editor.replaceBlocks(editor.document, [TABLE_2X2]);
+  editor.replaceBlocks(editor.document, columnColor.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("A1"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [
-        {
-          cells: [
-            {
-              type: "tableCell",
-              props: { backgroundColor: "yellow" },
-              content: ["A1"],
-            },
-            { type: "tableCell", content: ["B1"] },
-          ],
-        },
-        {
-          cells: [
-            {
-              type: "tableCell",
-              props: { backgroundColor: "yellow" },
-              content: ["A2"],
-            },
-            { type: "tableCell", content: ["B2"] },
-          ],
-        },
-      ],
-    },
-  });
+  columnColor.apply(editor);
 
   await expectScreenshot(
     screen.getByTestId("editor-root"),
@@ -1269,7 +1211,8 @@ test("suggestion mode: change column background color", async () => {
   `);
 });
 
-// TODO: this is broken as it's an extra "deleted column" is shown
+// Known issue — tracked in the suggestion gallery ("table-merge-cells"): the
+// diff shows a phantom extra "deleted column".
 
 // Merge two horizontally adjacent cells in the top row by setting
 // colspan=2 on the first cell and dropping the second.
@@ -1277,30 +1220,13 @@ test("suggestion mode: merge two cells", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "merge top-row cells" });
 
-  editor.replaceBlocks(editor.document, [TABLE_2X2]);
+  editor.replaceBlocks(editor.document, mergeCells.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("A1"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [
-        {
-          cells: [
-            {
-              type: "tableCell",
-              props: { colspan: 2 },
-              content: ["A1+B1"],
-            },
-          ],
-        },
-        { cells: ["A2", "B2"] },
-      ],
-    },
-  });
+  mergeCells.apply(editor);
 
   await expectScreenshot(
     screen.getByTestId("editor-root"),
@@ -1504,39 +1430,13 @@ test("suggestion mode: split a merged cell", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "split top-row cell" });
 
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "table",
-      type: "table",
-      content: {
-        type: "tableContent",
-        rows: [
-          {
-            cells: [
-              {
-                type: "tableCell",
-                props: { colspan: 2 },
-                content: ["A1+B1"],
-              },
-            ],
-          },
-          { cells: ["A2", "B2"] },
-        ],
-      },
-    },
-  ]);
+  editor.replaceBlocks(editor.document, splitCell.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("A1+B1"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [{ cells: ["A1", "B1"] }, { cells: ["A2", "B2"] }],
-    },
-  });
+  splitCell.apply(editor);
 
   await expectScreenshot(screen.getByTestId("editor-root"), "table-split-cell");
 

@@ -16,21 +16,24 @@ import {
   ydocXml,
 } from "./fixtures/suggestionFixture.js";
 
-// Tiny inline SVG data URLs – avoids a network fetch (placehold.co
-// occasionally returns after the screenshot is taken).
-const IMG_SRC_BASE =
-  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23ff6b6b'/></svg>";
-const IMG_SRC_NEW =
-  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%234ecdc4'/></svg>";
+// Scenario data (the `initial` seed + the `apply` change) is shared with the
+// suggestion-gallery example so the gallery and these tests never drift. The
+// image URLs are imported from there too, so the polls below check the exact
+// value the scenario sets.
+import {
+  IMG_SRC_BASE,
+  IMG_SRC_NEW,
+  scenarios,
+} from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
 
-// TODO: block-level prop changes generate NO `y-attributed-*` mark in
-// the editor's PM doc – the suggestion doc carries the new value but
-// the editor shows it as if it were already accepted. Compare with the
-// inline-format case in `basicText.test.tsx` which at least produces a
-// `y-attributed-format` mark (still no visual style, but at least
-// detectable from the data). Decide whether block-prop suggestions
-// should also be wrapped in a `y-attributed-format` (or similar) so
-// reviewers / accept-reject UI can target them.
+const textAlignment = scenarios.find((s) => s.id === "prop-text-alignment")!;
+const headingLevel = scenarios.find((s) => s.id === "prop-heading-level")!;
+const imageWidth = scenarios.find((s) => s.id === "prop-image-width")!;
+const imageSource = scenarios.find((s) => s.id === "prop-image-source")!;
+
+// Known issue — tracked in the suggestion gallery (the "Prop changes" scenarios,
+// e.g. "prop-text-alignment"): block-level prop changes generate no
+// `y-attributed-*` mark, so the pending change is invisible in the diff.
 //
 // Block-level prop change: paragraph's `textAlignment` flips from
 // "left" to "center". Text content is unchanged.
@@ -38,19 +41,13 @@ test("suggestion mode: change text alignment to center", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "center align" });
 
-  editor.replaceBlocks(editor.document, [
-    { id: "block-hello", type: "paragraph", content: "hello world" },
-  ]);
+  editor.replaceBlocks(editor.document, textAlignment.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  const [block] = editor.document;
-  editor.updateBlock(block, {
-    type: "paragraph",
-    props: { textAlignment: "center" },
-  });
+  textAlignment.apply(editor);
 
   // Prop changes don't generate `y-attributed-*` marks, so the
   // `waitForSuggestion` helper used elsewhere is too narrow here.
@@ -99,24 +96,13 @@ test("suggestion mode: change heading level from 1 to 2", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "demote heading" });
 
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "block-hello",
-      type: "heading",
-      props: { level: 1 },
-      content: "hello world",
-    },
-  ]);
+  editor.replaceBlocks(editor.document, headingLevel.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  const [block] = editor.document;
-  editor.updateBlock(block, {
-    type: "heading",
-    props: { level: 2 },
-  });
+  headingLevel.apply(editor);
 
   await expect
     .poll(() => (editor.document[0]?.props as { level?: number })?.level)
@@ -176,16 +162,7 @@ test("suggestion mode: resize image (previewWidth)", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "resize image" });
 
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "block-image",
-      type: "image",
-      props: {
-        url: IMG_SRC_BASE,
-        previewWidth: 200,
-      },
-    },
-  ]);
+  editor.replaceBlocks(editor.document, imageWidth.initial);
   await sync();
   // Default `alt=""` on the image makes it decorative, so
   // `getByRole("img")` doesn't see it. Poll on the prop having
@@ -196,11 +173,7 @@ test("suggestion mode: resize image (previewWidth)", async () => {
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  const [block] = editor.document;
-  editor.updateBlock(block, {
-    type: "image",
-    props: { previewWidth: 400 },
-  });
+  imageWidth.apply(editor);
 
   await expect
     .poll(
@@ -268,16 +241,7 @@ test("suggestion mode: change image source", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "swap image src" });
 
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "block-image",
-      type: "image",
-      props: {
-        url: IMG_SRC_BASE,
-        previewWidth: 200,
-      },
-    },
-  ]);
+  editor.replaceBlocks(editor.document, imageSource.initial);
   await sync();
   // Default `alt=""` on the image makes it decorative, so
   // `getByRole("img")` doesn't see it. Poll on the prop having
@@ -288,11 +252,7 @@ test("suggestion mode: change image source", async () => {
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  const [block] = editor.document;
-  editor.updateBlock(block, {
-    type: "image",
-    props: { url: IMG_SRC_NEW },
-  });
+  imageSource.apply(editor);
 
   await expect
     .poll(() => (editor.document[0]?.props as { url?: string })?.url)

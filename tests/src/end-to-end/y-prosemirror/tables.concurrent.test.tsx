@@ -13,29 +13,35 @@ import {
   ydocXml,
 } from "./fixtures/suggestionFixture.js";
 
-// Shared 2x2 starting table.
-const TABLE_2X2 = {
-  id: "table",
-  type: "table" as const,
-  content: {
-    type: "tableContent" as const,
-    rows: [{ cells: ["A1", "B1"] }, { cells: ["A2", "B2"] }],
-  },
-};
+// Scenario data (the `initial` seed + A's/B's `applyA`/`applyB` changes) is
+// shared with the suggestion-gallery example so the two never drift.
+import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import type { ConcurrentScenario } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+
+const deleteRowVsAddCol = scenarios.find(
+  (s) => s.id === "concurrent-table-row-vs-column",
+) as ConcurrentScenario;
+const addRowVsAddCol = scenarios.find(
+  (s) => s.id === "concurrent-table-row-and-column",
+) as ConcurrentScenario;
+const delColVsAddRow = scenarios.find(
+  (s) => s.id === "concurrent-table-delcol-vs-addrow",
+) as ConcurrentScenario;
+const seqColThenRow = scenarios.find(
+  (s) => s.id === "concurrent-table-seq-col-then-row",
+) as ConcurrentScenario;
+const seqRowThenCol = scenarios.find(
+  (s) => s.id === "concurrent-table-seq-row-then-col",
+) as ConcurrentScenario;
+const addColVsAddRow = scenarios.find(
+  (s) => s.id === "concurrent-table-addcol-vs-addrow",
+) as ConcurrentScenario;
 
 // A deletes the last row, B adds a third column. Two disjoint
 // structural edits to the same table.
 //
-// DIAGNOSED (deterministic): the crash is prosemirror-tables' `fixTables`, not
-// y-prosemirror. `tableEditing()` runs `fixTables` in its appendTransaction after
-// every transaction; on the merged doc it sees the suggestion-marked table (the
-// "deleted" row is still present, just marked) as malformed and emits
-// normalization steps that feed y-prosemirror a delta yjs can't apply — a
-// recursive `YType.applyDelta` ending in lib0's `Unexpected case`. Confirmed by a
-// controlled loop on `sync()`: 25/25 crashes with `fixTables` on, 0/25 with it
-// off. The fix is to block `fixTablesKey` transactions while suggestions are
-// active (mirroring AIExtension's block during `ai-writing`). Kept `test.fails`
-// until that lands.
+// Known issue — tracked in the suggestion gallery ("concurrent-table-row-vs-column").
+// Kept `test.fails` until the fix lands.
 //
 // NB: this throws synchronously in `sync()`, but it's invisible in a normal
 // `.fails` run — vitest suppresses a passing (expected-fail) test's error output,
@@ -58,29 +64,15 @@ test.fails("concurrent: A deletes a row, B adds a column", async () => {
     userBAction: "add column",
   });
 
-  userA.editor.replaceBlocks(userA.editor.document, [TABLE_2X2]);
+  userA.editor.replaceBlocks(userA.editor.document, deleteRowVsAddCol.initial);
   seed();
   await expectVisible(screen.getByTestId(userA.testId).getByText("A1"));
 
   enableSuggestions();
 
-  // A: drop row 2.
-  userA.editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [{ cells: ["A1", "B1"] }],
-    },
-  });
+  deleteRowVsAddCol.applyA(userA.editor);
 
-  // B: add a third column.
-  userB.editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [{ cells: ["A1", "B1", "C1"] }, { cells: ["A2", "B2", "C2"] }],
-    },
-  });
+  deleteRowVsAddCol.applyB(userB.editor);
 
   await waitForSuggestion(userA.editor);
   await waitForSuggestion(userB.editor);
@@ -120,33 +112,15 @@ test("concurrent: A adds a row, B adds a column", async () => {
     userBAction: "add column",
   });
 
-  userA.editor.replaceBlocks(userA.editor.document, [TABLE_2X2]);
+  userA.editor.replaceBlocks(userA.editor.document, addRowVsAddCol.initial);
   seed();
   await expectVisible(screen.getByTestId(userA.testId).getByText("A1"));
 
   enableSuggestions();
 
-  // A: add a third row.
-  userA.editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [
-        { cells: ["A1", "B1"] },
-        { cells: ["A2", "B2"] },
-        { cells: ["A3", "B3"] },
-      ],
-    },
-  });
+  addRowVsAddCol.applyA(userA.editor);
 
-  // B: add a third column.
-  userB.editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [{ cells: ["A1", "B1", "C1"] }, { cells: ["A2", "B2", "C2"] }],
-    },
-  });
+  addRowVsAddCol.applyB(userB.editor);
 
   await waitForSuggestion(userA.editor);
   await waitForSuggestion(userB.editor);
@@ -660,33 +634,15 @@ test("concurrent: A deletes a column, B adds a row", async () => {
     userBAction: "add row",
   });
 
-  userA.editor.replaceBlocks(userA.editor.document, [TABLE_2X2]);
+  userA.editor.replaceBlocks(userA.editor.document, delColVsAddRow.initial);
   seed();
   await expectVisible(screen.getByTestId(userA.testId).getByText("A1"));
 
   enableSuggestions();
 
-  // A: drop column B.
-  userA.editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [{ cells: ["A1"] }, { cells: ["A2"] }],
-    },
-  });
+  delColVsAddRow.applyA(userA.editor);
 
-  // B: add a third row.
-  userB.editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [
-        { cells: ["A1", "B1"] },
-        { cells: ["A2", "B2"] },
-        { cells: ["A3", "B3"] },
-      ],
-    },
-  });
+  delColVsAddRow.applyB(userB.editor);
 
   await waitForSuggestion(userA.editor);
   await waitForSuggestion(userB.editor);
@@ -1059,46 +1015,17 @@ test("sequential: A adds a column then a row, B adds a column", async () => {
     userBAction: "add column",
   });
 
-  userA.editor.replaceBlocks(userA.editor.document, [TABLE_2X2]);
+  userA.editor.replaceBlocks(userA.editor.document, seqColThenRow.initial);
   seed();
   await expectVisible(screen.getByTestId(userA.testId).getByText("A1"));
 
   enableSuggestions();
 
-  // A: add a third column.
-  userA.editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [{ cells: ["A1", "B1", "C1"] }, { cells: ["A2", "B2", "C2"] }],
-    },
-  });
+  seqColThenRow.applyA(userA.editor);
 
   await waitForSuggestion(userA.editor);
 
-  // A: then add a third row.
-  userA.editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [
-        { cells: ["A1", "B1", "C1"] },
-        { cells: ["A2", "B2", "C2"] },
-        { cells: ["A3", "B3", "C3"] },
-      ],
-    },
-  });
-
-  await waitForSuggestion(userA.editor);
-
-  // B: add their own column.
-  userB.editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [{ cells: ["A1", "B1", "D1"] }, { cells: ["A2", "B2", "D2"] }],
-    },
-  });
+  seqColThenRow.applyB(userB.editor);
 
   await waitForSuggestion(userB.editor);
 
@@ -1752,54 +1679,17 @@ test("sequential: A adds a row then a column, B adds a row", async () => {
     userBAction: "add row",
   });
 
-  userA.editor.replaceBlocks(userA.editor.document, [TABLE_2X2]);
+  userA.editor.replaceBlocks(userA.editor.document, seqRowThenCol.initial);
   seed();
   await expectVisible(screen.getByTestId(userA.testId).getByText("A1"));
 
   enableSuggestions();
 
-  // A: add a third row.
-  userA.editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [
-        { cells: ["A1", "B1"] },
-        { cells: ["A2", "B2"] },
-        { cells: ["A3", "B3"] },
-      ],
-    },
-  });
+  seqRowThenCol.applyA(userA.editor);
 
   await waitForSuggestion(userA.editor);
 
-  // A: then add a third column.
-  userA.editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [
-        { cells: ["A1", "B1", "C1"] },
-        { cells: ["A2", "B2", "C2"] },
-        { cells: ["A3", "B3", "C3"] },
-      ],
-    },
-  });
-
-  await waitForSuggestion(userA.editor);
-
-  // B: add their own row.
-  userB.editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [
-        { cells: ["A1", "B1"] },
-        { cells: ["A2", "B2"] },
-        { cells: ["D1", "D2"] },
-      ],
-    },
-  });
+  seqRowThenCol.applyB(userB.editor);
 
   await waitForSuggestion(userB.editor);
 
@@ -2463,33 +2353,15 @@ test("concurrent: A adds a column, B adds a row", async () => {
     userBAction: "add row",
   });
 
-  userA.editor.replaceBlocks(userA.editor.document, [TABLE_2X2]);
+  userA.editor.replaceBlocks(userA.editor.document, addColVsAddRow.initial);
   seed();
   await expectVisible(screen.getByTestId(userA.testId).getByText("A1"));
 
   enableSuggestions();
 
-  // A: add a third column.
-  userA.editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [{ cells: ["A1", "B1", "C1"] }, { cells: ["A2", "B2", "C2"] }],
-    },
-  });
+  addColVsAddRow.applyA(userA.editor);
 
-  // B: add a third row.
-  userB.editor.updateBlock("table", {
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [
-        { cells: ["A1", "B1"] },
-        { cells: ["A2", "B2"] },
-        { cells: ["A3", "B3"] },
-      ],
-    },
-  });
+  addColVsAddRow.applyB(userB.editor);
 
   await waitForSuggestion(userA.editor);
   await waitForSuggestion(userB.editor);

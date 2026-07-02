@@ -14,24 +14,29 @@ import {
   ydocXml,
 } from "./fixtures/suggestionFixture.js";
 
+// Scenario data (the `initial` seed + the `apply` change) is shared with the
+// suggestion-gallery example so the gallery and these tests never drift.
+import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+
+const indentBlock = scenarios.find((s) => s.id === "nesting-indent")!;
+const unindentBlock = scenarios.find((s) => s.id === "nesting-unindent")!;
+const changeParentType = scenarios.find(
+  (s) => s.id === "nesting-change-parent-type",
+)!;
+
 // Indent: take two sibling paragraphs and nest the second under the
 // first.
 test("suggestion mode: indent a block", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "indent N1" });
 
-  editor.replaceBlocks(editor.document, [
-    { id: "n0", type: "paragraph", content: "N0" },
-    { id: "n1", type: "paragraph", content: "N1" },
-  ]);
+  editor.replaceBlocks(editor.document, indentBlock.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("N0"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  // Place cursor in N1 and ask BlockNote to nest it under N0.
-  editor.setTextCursorPosition("n1", "start");
-  editor.nestBlock();
+  indentBlock.apply(editor);
 
   await expect.poll(() => editor.document[0]?.children.length).toBe(1);
 
@@ -119,21 +124,13 @@ test("suggestion mode: unindent a block", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "unindent N1" });
 
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "n0",
-      type: "paragraph",
-      content: "N0",
-      children: [{ id: "n1", type: "paragraph", content: "N1" }],
-    },
-  ]);
+  editor.replaceBlocks(editor.document, unindentBlock.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("N0"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  editor.setTextCursorPosition("n1", "start");
-  editor.unnestBlock();
+  unindentBlock.apply(editor);
 
   await expect.poll(() => editor.document.length).toBe(2);
 
@@ -209,21 +206,13 @@ test("suggestion mode: change block type of a block with children", async () => 
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "parent → heading" });
 
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "n0",
-      type: "paragraph",
-      content: "N0",
-      children: [{ id: "n1", type: "paragraph", content: "N1" }],
-    },
-  ]);
+  editor.replaceBlocks(editor.document, changeParentType.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("N0"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  const [parent] = editor.document;
-  editor.updateBlock(parent, { type: "heading", props: { level: 1 } });
+  changeParentType.apply(editor);
 
   // TODO: should this be editor.document[0], or expose .documentWithoutDeletions?
   await expect.poll(() => editor.document[1]?.type).toBe("heading");

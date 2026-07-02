@@ -18,6 +18,17 @@ import {
   ydocXml,
 } from "./fixtures/suggestionFixture.js";
 
+// Scenario data (the `initial` seed + the `apply` change) is shared with the
+// suggestion-gallery example so the gallery and these tests never drift.
+import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+
+const renameWord = scenarios.find((s) => s.id === "text-rename-word")!;
+const addBold = scenarios.find((s) => s.id === "text-add-bold")!;
+const removeBold = scenarios.find((s) => s.id === "text-remove-bold")!;
+const addItalicToBold = scenarios.find(
+  (s) => s.id === "text-add-italic-to-bold",
+)!;
+
 // Pure text edit: replace one word with another and confirm the diff
 // is rendered as inline <ins>/<del> spans around the changed letters.
 test("suggestion mode: 'hello world' -> 'hello universe'", async () => {
@@ -26,9 +37,7 @@ test("suggestion mode: 'hello world' -> 'hello universe'", async () => {
 
   // 1. Set the base doc to "hello world". The block id is pinned so the
   //    snapshots stay deterministic.
-  editor.replaceBlocks(editor.document, [
-    { id: "block-hello", type: "paragraph", content: "hello world" },
-  ]);
+  editor.replaceBlocks(editor.document, renameWord.initial);
 
   // 2. Replay base updates into the suggestion doc so both docs start
   //    from the same state.
@@ -41,8 +50,7 @@ test("suggestion mode: 'hello world' -> 'hello universe'", async () => {
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
   // 4. Replace "world" with "universe" via updateBlock.
-  const [block] = editor.document;
-  editor.updateBlock(block, { type: "paragraph", content: "hello universe" });
+  renameWord.apply(editor);
 
   // Wait for the suggestion edit to land in the DOM (React commits the
   // re-render on the next frame; without this the screenshot can race
@@ -121,9 +129,7 @@ test("suggestion mode: add bold to 'world'", async () => {
     await setupSuggestionTest({ userAction: "bold 'world'" });
 
   // Base: plain "hello world".
-  editor.replaceBlocks(editor.document, [
-    { id: "block-hello", type: "paragraph", content: "hello world" },
-  ]);
+  editor.replaceBlocks(editor.document, addBold.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
 
@@ -131,14 +137,7 @@ test("suggestion mode: add bold to 'world'", async () => {
 
   // Suggestion edit: bold the word "world" (content text is unchanged,
   // only the style differs).
-  const [block] = editor.document;
-  editor.updateBlock(block, {
-    type: "paragraph",
-    content: [
-      { type: "text", text: "hello ", styles: {} },
-      { type: "text", text: "world", styles: { bold: true } },
-    ],
-  });
+  addBold.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -197,16 +196,7 @@ test("suggestion mode: remove bold from 'world'", async () => {
     await setupSuggestionTest({ userAction: "unbold 'world'" });
 
   // Base: "hello " + bold "world".
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "block-hello",
-      type: "paragraph",
-      content: [
-        { type: "text", text: "hello ", styles: {} },
-        { type: "text", text: "world", styles: { bold: true } },
-      ],
-    },
-  ]);
+  editor.replaceBlocks(editor.document, removeBold.initial);
   await sync();
   // Use the full paragraph text – the User A column heading also
   // contains the word "world", which would clash with getByText.
@@ -215,11 +205,7 @@ test("suggestion mode: remove bold from 'world'", async () => {
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
   // Suggestion edit: strip bold from "world".
-  const [block] = editor.document;
-  editor.updateBlock(block, {
-    type: "paragraph",
-    content: "hello world",
-  });
+  removeBold.apply(editor);
 
   await waitForSuggestion(editor);
 
@@ -264,13 +250,9 @@ test("suggestion mode: remove bold from 'world'", async () => {
   `);
 });
 
-// TODO: the snapshot below reveals that `y-attributed-format` wraps
-// *all* marks on the affected range, not just the newly added one.
-// The PM XML shows
-//   <y-attributed-format><italic><bold>world</bold></italic></...>
-// so from the attribution data alone we can't tell which mark is new
-// (italic) and which is pre-existing (bold). If accept/reject logic
-// needs to revert only the new mark, this granularity is insufficient.
+// Known issue — tracked in the suggestion gallery ("text-add-italic-to-bold"):
+// the `y-attributed-format` mark wraps all marks on the range, not just the new
+// one, so the snapshot below can't distinguish the added mark from existing ones.
 //
 // Format added on top of an existing format: bold "world" gets italic
 // layered on (bold is preserved). Checks that suggestion attribution
@@ -280,30 +262,14 @@ test("suggestion mode: add italic to already-bold 'world'", async () => {
     await setupSuggestionTest({ userAction: "italic on top of bold" });
 
   // Base: "hello " + bold "world".
-  editor.replaceBlocks(editor.document, [
-    {
-      id: "block-hello",
-      type: "paragraph",
-      content: [
-        { type: "text", text: "hello ", styles: {} },
-        { type: "text", text: "world", styles: { bold: true } },
-      ],
-    },
-  ]);
+  editor.replaceBlocks(editor.document, addItalicToBold.initial);
   await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
   // Suggestion edit: add italic to "world" while keeping it bold.
-  const [block] = editor.document;
-  editor.updateBlock(block, {
-    type: "paragraph",
-    content: [
-      { type: "text", text: "hello ", styles: {} },
-      { type: "text", text: "world", styles: { bold: true, italic: true } },
-    ],
-  });
+  addItalicToBold.apply(editor);
 
   await waitForSuggestion(editor);
 

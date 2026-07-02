@@ -13,6 +13,18 @@ import {
   ydocXml,
 } from "./fixtures/suggestionFixture.js";
 
+// Scenario data (the `initial` seed + A's/B's `applyA`/`applyB` changes) is
+// shared with the suggestion-gallery example so the two never drift.
+import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import type { ConcurrentScenario } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+
+const indentCascade = scenarios.find(
+  (s) => s.id === "concurrent-indent-cascade",
+) as ConcurrentScenario;
+const nestBothUnderN0 = scenarios.find(
+  (s) => s.id === "concurrent-nest-both-under-n0",
+) as ConcurrentScenario;
+
 // Two cascading indents from a flat list of three siblings:
 //   A nests N1 under N0;
 //   B nests N2 under N1.
@@ -40,23 +52,17 @@ test("concurrent: A indents N1, B indents N2 below N1", async () => {
   });
 
   // Base: three siblings.
-  userA.editor.replaceBlocks(userA.editor.document, [
-    { id: "n0", type: "paragraph", content: "N0" },
-    { id: "n1", type: "paragraph", content: "N1" },
-    { id: "n2", type: "paragraph", content: "N2" },
-  ]);
+  userA.editor.replaceBlocks(userA.editor.document, indentCascade.initial);
   seed();
   await expectVisible(screen.getByTestId(userA.testId).getByText("N0"));
 
   enableSuggestions();
 
   // A: nest N1 under N0.
-  userA.editor.setTextCursorPosition("n1", "start");
-  userA.editor.nestBlock();
+  indentCascade.applyA(userA.editor);
 
   // B: nest N2 under N1 (in B's local view N1 is still a sibling).
-  userB.editor.setTextCursorPosition("n2", "start");
-  userB.editor.nestBlock();
+  indentCascade.applyB(userB.editor);
 
   await waitForSuggestion(userA.editor);
   await waitForSuggestion(userB.editor);
@@ -198,18 +204,11 @@ test("concurrent: A indents N1, B indents N2 below N1", async () => {
 //   A adds N1 as a child of N0;
 //   B adds N2 as a child of N0.
 //
-// KNOWN ISSUE: the CRDT merge result here is non-deterministic across
-// runs because it depends on `Y.Doc.clientID` tiebreaking, which is
-// randomly generated. Empirically we see two distinct outcomes:
-//   - A wins: N1 nested under N0, N2 ends up as a *sibling* of N0
-//     with `<y-attributed-insert>` (B's nesting is silently lost);
-//   - B wins: N2 nested under N0, plus an auto-injected empty
-//     paragraph appears with N1 nested under *that* empty paragraph.
-// Both are arguably bugs. We deliberately don't pin clientIDs at the
-// fixture level (that would mask this), so the test is skipped until
-// upstream merge behaviour is decided/fixed. The inline snapshots
-// below preserve the "A wins" variant captured against a pinned-ID
-// run, as documentation of one of the two observed outcomes.
+// Known issue (test skipped) — tracked in the suggestion gallery
+// ("concurrent-nest-both-under-n0"). We deliberately don't pin clientIDs at the
+// fixture level (that would mask the non-determinism); the inline snapshots
+// below preserve the "A wins" variant, captured against a pinned-ID run, as
+// documentation of one of the two observed outcomes.
 test.skip("concurrent: A nests N1 under N0, B nests N2 under N0", async () => {
   const {
     userA,
@@ -229,31 +228,17 @@ test.skip("concurrent: A nests N1 under N0, B nests N2 under N0", async () => {
   });
 
   // Base: single block N0.
-  userA.editor.replaceBlocks(userA.editor.document, [
-    { id: "n0", type: "paragraph", content: "N0" },
-  ]);
+  userA.editor.replaceBlocks(userA.editor.document, nestBothUnderN0.initial);
   seed();
   await expectVisible(screen.getByTestId(userA.testId).getByText("N0"));
 
   enableSuggestions();
 
   // A: insert N1 as sibling of N0, then nest under N0.
-  userA.editor.insertBlocks(
-    [{ id: "n1", type: "paragraph", content: "N1" }],
-    "n0",
-    "after",
-  );
-  userA.editor.setTextCursorPosition("n1", "start");
-  userA.editor.nestBlock();
+  nestBothUnderN0.applyA(userA.editor);
 
   // B: same shape with N2.
-  userB.editor.insertBlocks(
-    [{ id: "n2", type: "paragraph", content: "N2" }],
-    "n0",
-    "after",
-  );
-  userB.editor.setTextCursorPosition("n2", "start");
-  userB.editor.nestBlock();
+  nestBothUnderN0.applyB(userB.editor);
 
   await waitForSuggestion(userA.editor);
   await waitForSuggestion(userB.editor);
@@ -312,12 +297,8 @@ test.skip("concurrent: A nests N1 under N0, B nests N2 under N0", async () => {
       </blockContainer>
     </blockGroup>"
   `);
-  // TODO: the merge is asymmetric – A's N1 lands nested under N0 (as
-  // intended), but B's N2 ends up as a *sibling* even though B's local
-  // suggestion doc had N2 nested under N0 too. The first-to-nest wins,
-  // the second user's nesting is silently lost. If both users see the
-  // exact same operation in their local view, we'd expect the merge to
-  // preserve both nestings (or at least surface the conflict).
+  // The asymmetric merge below (A's N1 nests, B's N2 lands as a sibling) is the
+  // known issue tracked in the gallery ("concurrent-nest-both-under-n0").
   expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
