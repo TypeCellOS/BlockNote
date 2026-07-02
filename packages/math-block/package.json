@@ -66,6 +66,7 @@
     "@blocknote/xl-multi-column": "workspace:^",
     "@types/katex": "^0.16.7",
     "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "rimraf": "^5.0.10",
