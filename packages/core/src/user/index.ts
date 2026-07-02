@@ -149,7 +149,7 @@ export function createUserStore<U extends User = User>(
  */
 export type UserStoreOrResolver<U extends User = User> =
   | ((userIds: User["id"][]) => Promise<U[]>)
-  | UserStore<U>;
+  | UserStore<any>;
 
 /**
  * Normalize a {@link UserStoreOrResolver} to a {@link UserStore}:
