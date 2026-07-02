@@ -6,6 +6,11 @@ import {
 } from "../../editor/BlockNoteExtension.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { BLOCK_LEVEL_SUGGESTION_GROUP } from "../../pm-nodes/suggestionMarks.js";
+import {
+  fallbackColorForUserId,
+  userColorPalette,
+  userColorVarNames,
+} from "./userColors.js";
 
 /**
  * Describes a suggestion mark to {@link GetAttributionMarkClassName}: whether it
@@ -63,9 +68,16 @@ export const resolveAttributionMarkClassName = (
  * `data-*` attributes. The attribution tooltip shown on hover is handled
  * separately by the `AttributionExtension`, which reads those attributes
  * straight from the DOM — keeping this mark view purely presentational and the
- * tooltip state off of module scope. Author colors are applied separately as a
- * decoration layer (also in `AttributionExtension`), so they can resolve
- * asynchronously without being baked into the deterministic mark attrs.
+ * tooltip state off of module scope.
+ *
+ * Author colors are *not* baked into the (deterministic) mark attrs. Instead the
+ * wrapper sets the generic `--user-color-*` custom properties the Block.css rules
+ * read, sourcing them from the author's *per-user* CSS variable via
+ * `var(--user-color-<id>-*, <fallback>)`. Those per-user variables are populated
+ * on the editor root by `AttributionExtension` once the user resolves, so a mark
+ * shows the deterministic palette fallback immediately and recolors to the
+ * author's own color purely through the CSS cascade — no decoration, no doc
+ * transaction. See `userColors.ts`.
  */
 const createAttributionMarkView =
   (
@@ -118,28 +130,40 @@ const createAttributionMarkView =
     // suggestion spanning table cells) would otherwise break the normal layout.
     // Because a `display: contents` element paints nothing, the highlight is
     // applied to the inner content span (see `.bn-suggestion-mark` in Block.css)
-    // using the `--user-color-*` custom properties. Those properties are *not*
-    // set here — they're supplied by the decoration layer in
-    // `AttributionExtension`, which resolves colors from the user store
-    // independently of the (deterministic, color-free) mark attrs. When an
-    // override class owns the styling, no per-user color is applied at all.
-    dom.style.cssText = "display: contents";
+    // using the `--user-color-*` custom properties, which cascade down from here.
+    // They're sourced from the author's per-user variable (populated on the
+    // editor root by `AttributionExtension`) with the deterministic palette as a
+    // fallback, so a mark is colored before the user resolves and recolors via
+    // the cascade afterward. When an override class owns the styling, no per-user
+    // color is applied at all.
+    const userIds = (mark.attrs["userIds"] as string[] | null) ?? [];
+    const firstId = userIds[0];
+    const fallback = firstId
+      ? fallbackColorForUserId(firstId)
+      : userColorPalette[0];
+    if (contentClassName) {
+      dom.style.cssText = "display: contents";
+    } else {
+      const light = firstId
+        ? `var(${userColorVarNames(firstId).light}, ${fallback.light})`
+        : fallback.light;
+      const dark = firstId
+        ? `var(${userColorVarNames(firstId).dark}, ${fallback.dark})`
+        : fallback.dark;
+      dom.style.cssText =
+        "display: contents" +
+        `; --user-color-light: ${light}; --user-color-dark: ${dark}`;
+    }
 
     const contentDOM = document.createElement("span");
     if (inline) {
-      if (contentClassName) {
-        // Override path: the app-provided class fully owns styling (and no color
-        // decoration is emitted for it), so this span is the painted box.
-        contentDOM.className = contentClassName;
-      } else {
-        // Default path: the per-user highlight is painted by the color
-        // decoration (see `AttributionExtension`), which wraps the text in a
-        // span carrying the `.bn-suggestion-mark(--delete)` class *and* the
-        // `--user-color-*` properties. Keep this content span structural
-        // (`display: contents`) so it doesn't also match the highlight rules and
-        // double-paint (e.g. a doubled strike-through / dotted underline).
-        contentDOM.style.display = "contents";
-      }
+      // Inline content: the span is a real inline box that carries the highlight
+      // (default path) or the app-provided override class.
+      contentDOM.className =
+        contentClassName ??
+        (type === "delete"
+          ? "bn-suggestion-mark bn-suggestion-mark--delete"
+          : "bn-suggestion-mark");
     } else {
       // Block-level marks wrap block/table structure (e.g. <tr>/<td>/<p>). The
       // span must be `display: contents` so it doesn't inject an inline box into

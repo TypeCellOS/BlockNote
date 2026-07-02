@@ -1,3 +1,4 @@
+import { digestString } from "lib0/hash/fnv1a";
 import type { UserStore } from "../../user/index.js";
 
 /**
@@ -11,11 +12,7 @@ const hashStr = (s: string): number => {
   return Math.abs(hash);
 };
 
-/**
- * Fallback palette used when a user isn't resolved in the {@link UserStore} (or
- * has no color of their own). Deterministic in the user id so a mark keeps a
- * stable color until the real one loads.
- */
+/** Fallback palette used when a user has no resolved color of their own. */
 export const userColorPalette: Array<{ light: string; dark: string }> = [
   { light: "#fff0c2", dark: "#8a6d1a" },
   { light: "#fcc9c3", dark: "#8a2e24" },
@@ -24,17 +21,17 @@ export const userColorPalette: Array<{ light: string; dark: string }> = [
   { light: "#bef3ff", dark: "#0a7a8a" },
 ];
 
+/** The deterministic {@link userColorPalette} entry for a single user id. */
+export const fallbackColorForUserId = (
+  id: string,
+): { light: string; dark: string } =>
+  userColorPalette[hashStr(id) % userColorPalette.length];
+
 /**
- * Pick a user-color from the {@link UserStore} based on user ids, falling back
- * to a deterministic palette entry when the (first) user isn't resolved yet or
- * carries no color of their own.
- *
- * The lookup is synchronous against the store's current cache. It is
- * intentionally *not* baked into the suggestion mark attributes (which must stay
- * deterministic for the Yjs sync reconcile) — instead it drives a decoration
- * layer (see `AttributionExtension`) so colors can load and update
- * independently of the mark representation. When a user later resolves with
- * their own color, the next decoration rebuild picks it up.
+ * The (first) user's resolved color from the {@link UserStore}, or their
+ * {@link fallbackColorForUserId} palette entry. Used where a concrete color
+ * string is needed (the portaled hover tooltip); marks themselves use the
+ * cascaded {@link userColorVarNames} properties instead.
  */
 export const colorsForUserIds = (
   userStore: UserStore,
@@ -48,5 +45,28 @@ export const colorsForUserIds = (
   if (user?.color && user.colorLight) {
     return { light: user.colorLight, dark: user.color };
   }
-  return userColorPalette[hashStr(firstId) % userColorPalette.length];
+  return fallbackColorForUserId(firstId);
+};
+
+/**
+ * Reduce a user id to a fixed-width `[0-9a-f]` token safe to embed in a CSS
+ * custom-property name. Uses the (non-cryptographic) FNV-1a 32-bit hash; a
+ * collision only means two authors share a highlight color.
+ */
+export const cssVarUserId = (id: string): string =>
+  digestString(id).toString(16).padStart(8, "0");
+
+/**
+ * The `--user-color-<key>-{light,dark}` custom-property names for a user. Set on
+ * the editor root by `AttributionExtension`, read by the mark wrapper via
+ * `var(..., <fallback>)`.
+ */
+export const userColorVarNames = (
+  id: string,
+): { light: string; dark: string } => {
+  const key = cssVarUserId(id);
+  return {
+    light: `--user-color-${key}-light`,
+    dark: `--user-color-${key}-dark`,
+  };
 };
