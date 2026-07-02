@@ -1113,7 +1113,7 @@ test("suggestion mode: change column background color", async () => {
         <table textColor="default">
           <tableRow>
             <tableCell
-              backgroundColor="yellow"
+              backgroundColor="green"
               colspan="1"
               colwidth="null"
               rowspan="1"
@@ -1135,7 +1135,7 @@ test("suggestion mode: change column background color", async () => {
           </tableRow>
           <tableRow>
             <tableCell
-              backgroundColor="yellow"
+              backgroundColor="green"
               colspan="1"
               colwidth="null"
               rowspan="1"
@@ -1167,7 +1167,7 @@ test("suggestion mode: change column background color", async () => {
             <tableRow>
               <tableCell
                 textColor="default"
-                backgroundColor="yellow"
+                backgroundColor="green"
                 textAlignment="left"
                 colspan="1"
                 rowspan="1"
@@ -1187,7 +1187,7 @@ test("suggestion mode: change column background color", async () => {
             <tableRow>
               <tableCell
                 textColor="default"
-                backgroundColor="yellow"
+                backgroundColor="green"
                 textAlignment="left"
                 colspan="1"
                 rowspan="1"

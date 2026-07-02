@@ -261,9 +261,16 @@ test("concurrent: A bolds the word, B italicises the word", async () => {
               user-color-light="#fff0c2"
               user-color-dark="#8a6d1a"
             >
-              <italic>
-                <bold>world</bold>
-              </italic>
+              <y-attributed-format
+                userIds="A"
+                format="[object Object]"
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
+                <italic>
+                  <bold>world</bold>
+                </italic>
+              </y-attributed-format>
             </y-attributed-format>
           </paragraph>
         </blockContainer>
