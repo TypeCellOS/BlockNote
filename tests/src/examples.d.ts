@@ -47,3 +47,17 @@ declare module "@examples/07-collaboration/14-suggestion-gallery/src/scenarios" 
   export const IMG_SRC_BASE: string;
   export const IMG_SRC_NEW: string;
 }
+
+// The suggestion-gallery editor schema (default blocks + page break + multi-column),
+// shared with the fixtures so the test editors match the gallery. Declared loosely
+// (like the scenarios above) so the composite build never descends into the example
+// sources (TS6059 — see the note at the top).
+declare module "@examples/07-collaboration/14-suggestion-gallery/src/gallerySchema" {
+  import type { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export const gallerySchema: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export type GalleryEditor = BlockNoteEditor<any, any, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export type GalleryPartialBlock = PartialBlock<any, any, any>;
+}

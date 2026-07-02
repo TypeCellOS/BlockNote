@@ -34,7 +34,10 @@ import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import "@blocknote/core/style.css";
 
-import { BlockNoteEditor } from "@blocknote/core";
+import {
+  gallerySchema,
+  type GalleryEditor,
+} from "@examples/07-collaboration/14-suggestion-gallery/src/gallerySchema";
 import { SuggestionsExtension, withCollaboration } from "@blocknote/core/y";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
@@ -44,7 +47,7 @@ import { render } from "vitest-browser-react";
 import { page } from "../../../utils/context.js";
 
 export interface ConcurrentSuggestionUser {
-  editor: BlockNoteEditor;
+  editor: GalleryEditor;
   testId: string;
 }
 
@@ -151,14 +154,15 @@ export async function setupConcurrentSuggestionTest({
   const awarenessB = makeAwareness(baseDoc, USER_B);
   const awarenessMerged = makeAwareness(baseDoc, USER_MERGED);
 
-  let editorBase!: BlockNoteEditor;
-  let editorA!: BlockNoteEditor;
-  let editorB!: BlockNoteEditor;
-  let editorMerged!: BlockNoteEditor;
+  let editorBase!: GalleryEditor;
+  let editorA!: GalleryEditor;
+  let editorB!: GalleryEditor;
+  let editorMerged!: GalleryEditor;
 
   function Editors() {
     editorBase = useCreateBlockNote(
       withCollaboration({
+        schema: gallerySchema,
         collaboration: {
           fragment: baseDoc.get("doc"),
           provider: { awareness: new Awareness(baseDoc) },
@@ -168,6 +172,7 @@ export async function setupConcurrentSuggestionTest({
     );
     editorA = useCreateBlockNote(
       withCollaboration({
+        schema: gallerySchema,
         collaboration: {
           fragment: baseDoc.get("doc"),
           provider: { awareness: awarenessA },
@@ -179,6 +184,7 @@ export async function setupConcurrentSuggestionTest({
     );
     editorB = useCreateBlockNote(
       withCollaboration({
+        schema: gallerySchema,
         collaboration: {
           fragment: baseDoc.get("doc"),
           provider: { awareness: awarenessB },
@@ -190,6 +196,7 @@ export async function setupConcurrentSuggestionTest({
     );
     editorMerged = useCreateBlockNote(
       withCollaboration({
+        schema: gallerySchema,
         collaboration: {
           fragment: baseDoc.get("doc"),
           provider: { awareness: awarenessMerged },

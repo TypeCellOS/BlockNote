@@ -1821,6 +1821,8 @@ export const examples = {
           author: "yousefed",
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
+            "@blocknote/shared": "latest",
+            "@blocknote/xl-multi-column": "latest",
             "@y/protocols": "^1.0.6-rc.1",
             "@y/y": "^14.0.0-rc.16",
           } as any,

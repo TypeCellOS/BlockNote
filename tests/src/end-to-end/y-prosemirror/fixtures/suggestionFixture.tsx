@@ -20,7 +20,10 @@ import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import "@blocknote/core/style.css";
 
-import { BlockNoteEditor } from "@blocknote/core";
+import {
+  gallerySchema,
+  type GalleryEditor,
+} from "@examples/07-collaboration/14-suggestion-gallery/src/gallerySchema";
 import { withCollaboration } from "@blocknote/core/y";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
@@ -34,7 +37,7 @@ import { page } from "../../../utils/context.js";
 
 export interface SuggestionFixture {
   /** User A's editor – this is the one the test makes suggestions through. */
-  editor: BlockNoteEditor;
+  editor: GalleryEditor;
   /**
    * The `page` locator object (vite-plus browser context). Exposes
    * `getByTestId` / `getByText` for querying the rendered editors. Named
@@ -85,12 +88,13 @@ export async function setupSuggestionTest({
   );
   attributionManager.suggestionMode = true;
 
-  let editorA!: BlockNoteEditor;
-  let editorBase!: BlockNoteEditor;
+  let editorA!: GalleryEditor;
+  let editorBase!: GalleryEditor;
 
   function Editors() {
     editorA = useCreateBlockNote(
       withCollaboration({
+        schema: gallerySchema,
         collaboration: {
           fragment: baseDoc.get("doc"),
           provider: { awareness: baseAwareness },
@@ -102,6 +106,7 @@ export async function setupSuggestionTest({
     );
     editorBase = useCreateBlockNote(
       withCollaboration({
+        schema: gallerySchema,
         collaboration: {
           fragment: baseDoc.get("doc"),
           provider: { awareness: new Awareness(baseDoc) },
@@ -173,12 +178,14 @@ function countBlocks(blocks: { children?: unknown[] }[]): number {
  * transaction), so reading/encoding `baseDoc` immediately after a
  * `replaceBlocks`/`insertBlocks` call can observe the stale initial doc.
  *
- * We match on the number of `blockContainer`s: the binding flushes a
- * whole transaction atomically, so once the block count matches the
- * editor's document the structural content has been written.
+ * We match on the number of block nodes — `blockContainer` plus the
+ * multi-column `columnList` / `column` nodes, which serialise as their own
+ * elements rather than `blockContainer`s (the `<column` prefix matches both).
+ * The binding flushes a whole transaction atomically, so once the block count
+ * matches the editor's document the structural content has been written.
  */
 export async function waitForYDocSync(
-  editor: BlockNoteEditor,
+  editor: GalleryEditor,
   baseDoc: Y.Doc,
 ): Promise<void> {
   const expected = countBlocks(editor.document as { children?: unknown[] }[]);
@@ -187,7 +194,7 @@ export async function waitForYDocSync(
       // `XmlFragment` isn't exported from `@y/y` v14's types, so cast to
       // `any` to reach `.toString()` (matches `ydocXml` below).
       const xml = (baseDoc.get("doc") as any).toString();
-      const matches = xml.match(/<blockContainer/g);
+      const matches = xml.match(/<(?:blockContainer|column)/g);
       return matches ? matches.length : 0;
     })
     .toBe(expected);
@@ -203,9 +210,7 @@ export async function waitForYDocSync(
  * inserted text via `expect.element(getByText(...))` – it's more
  * meaningful.
  */
-export async function waitForSuggestion(
-  editor: BlockNoteEditor,
-): Promise<void> {
+export async function waitForSuggestion(editor: GalleryEditor): Promise<void> {
   await expect
     .poll(() => editor.prosemirrorState.doc.toString().includes("y-attributed"))
     .toBe(true);
@@ -346,7 +351,7 @@ function deltaAttrsToString(attrs: DeltaJson["attrs"] | undefined): string {
  * we don't want in snapshots) or `Node.toString()` (drops attrs, so
  * block ids and suggestion-mark colors would disappear).
  */
-export function editorHtml(editor: BlockNoteEditor): string {
+export function editorHtml(editor: GalleryEditor): string {
   return prettify(pmNodeToXml(editor.prosemirrorState.doc), {
     tag_wrap: true,
   });

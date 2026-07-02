@@ -67,6 +67,10 @@ export default defineConfig(
         // src/examples.d.ts.
         alias: {
           ...blockNoteSrcAliases,
+          // `@blocknote/shared` lives at the repo root (not under packages/), so
+          // it isn't picked up by the packages scan above. The suggestion-gallery
+          // scenarios import the shared `testDocument` from it.
+          "@blocknote/shared": path.resolve(__dirname, "../shared"),
           "@examples": path.resolve(__dirname, "../examples"),
         },
       },

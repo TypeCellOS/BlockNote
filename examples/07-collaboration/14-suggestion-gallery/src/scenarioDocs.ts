@@ -1,14 +1,21 @@
-import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import { blocksToYDoc } from "@blocknote/core/y";
 import * as Y from "@y/y";
+
+import {
+  gallerySchema,
+  type GalleryEditor,
+  type GalleryPartialBlock,
+} from "./gallerySchema";
 
 const FRAGMENT = "doc";
 
 // A headless editor, used only for its (default) schema when building Y.Docs
 // from blocks — `blocksToYDoc` needs an editor to resolve the schema. Created
 // lazily on first use so importing this module has no side effects.
-let schemaEditor: ReturnType<typeof BlockNoteEditor.create> | undefined;
-const getSchemaEditor = () => (schemaEditor ??= BlockNoteEditor.create());
+let schemaEditor: GalleryEditor | undefined;
+const getSchemaEditor = () =>
+  (schemaEditor ??= BlockNoteEditor.create({ schema: gallerySchema }));
 
 /**
  * Build a fully-seeded Y.Doc from blocks, **synchronously**. No editor is bound,
@@ -16,7 +23,7 @@ const getSchemaEditor = () => (schemaEditor ??= BlockNoteEditor.create());
  * competing initial blockGroup. This is the gate — but as the default path, which
  * lets the views skip the seed-then-poll-then-sync dance entirely.
  */
-export function docFromBlocks(blocks: PartialBlock[]): Y.Doc {
+export function docFromBlocks(blocks: GalleryPartialBlock[]): Y.Doc {
   return blocksToYDoc(getSchemaEditor(), blocks, FRAGMENT);
 }
 

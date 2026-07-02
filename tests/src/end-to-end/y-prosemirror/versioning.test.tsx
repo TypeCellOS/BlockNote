@@ -24,10 +24,16 @@ import { expect, test } from "vite-plus/test";
 // Scenario data is shared with the suggestion-gallery example, so this covers the
 // exact same cases the gallery's Versioning mode renders.
 import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import {
+  gallerySchema,
+  type GalleryEditor,
+} from "@examples/07-collaboration/14-suggestion-gallery/src/gallerySchema";
 
-// A headless editor, used only for its (default) schema when seeding Y.Docs.
-let schemaEditor: BlockNoteEditor | undefined;
-const getSchema = () => (schemaEditor ??= BlockNoteEditor.create());
+// A headless editor, used only for its schema (the gallery schema — default blocks
+// plus page break + multi-column) when seeding Y.Docs.
+let schemaEditor: GalleryEditor | undefined;
+const getSchema = () =>
+  (schemaEditor ??= BlockNoteEditor.create({ schema: gallerySchema }));
 
 function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
   return a.length === b.length && a.every((byte, i) => byte === b[i]);
@@ -44,13 +50,14 @@ function cloneWithId(source: Y.Doc, clientID: number): Y.Doc {
 
 /** Mount a collaborative editor on `doc`, returning it + a teardown. */
 function mountEditor(doc: Y.Doc): {
-  editor: BlockNoteEditor;
+  editor: GalleryEditor;
   teardown: () => void;
 } {
   const div = document.createElement("div");
   document.body.appendChild(div);
   const editor = BlockNoteEditor.create(
     withCollaboration({
+      schema: gallerySchema,
       collaboration: {
         fragment: doc.get("doc"),
         provider: undefined,

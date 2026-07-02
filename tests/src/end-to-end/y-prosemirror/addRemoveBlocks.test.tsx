@@ -73,6 +73,15 @@ const deleteDivider = scenarios.find(
 const insertImage = scenarios.find(
   (s) => s.id === "insert-image",
 ) as SingleScenario;
+const insertDivider = scenarios.find(
+  (s) => s.id === "insert-divider",
+) as SingleScenario;
+const addEmptyBlock = scenarios.find(
+  (s) => s.id === "add-empty-block",
+) as SingleScenario;
+const deleteOneEmpty = scenarios.find(
+  (s) => s.id === "delete-one-empty",
+) as SingleScenario;
 
 // Empty doc gets a heading inserted at the top.
 test("suggestion mode: add heading to empty doc", async () => {
@@ -1315,6 +1324,187 @@ test("suggestion mode: insert image block", async () => {
             </y-attributed-insert>
           </blockContainer>
         </y-attributed-insert>
+      </blockGroup>
+    </doc>"
+  `);
+});
+
+// Insert a divider between two paragraphs. The divider (content: "none") takes
+// the per-block inserted card, like an inserted image.
+test("suggestion mode: insert a divider between paragraphs", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "insert divider" });
+
+  editor.replaceBlocks(editor.document, insertDivider.initial);
+  await sync();
+  await expectVisible(screen.getByTestId("editor-A").getByText("Above"));
+
+  const baseDocXml = ydocXml(baseDoc);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  insertDivider.apply(editor);
+
+  await waitForSuggestion(editor);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "add-remove-insert-divider",
+  );
+
+  expect(baseDocXml).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="above">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Above</paragraph>
+      </blockContainer>
+      <blockContainer id="below">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Below</paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="above">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Above</paragraph>
+      </blockContainer>
+      <blockContainer id="1">
+        <divider></divider>
+      </blockContainer>
+      <blockContainer id="below">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Below</paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <blockContainer id="above">
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left">Above</paragraph>
+        </blockContainer>
+        <y-attributed-insert userIds="">
+          <blockContainer id="1">
+            <y-attributed-insert userIds="">
+              <divider></divider>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
+        <blockContainer id="below">
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left">Below</paragraph>
+        </blockContainer>
+      </blockGroup>
+    </doc>"
+  `);
+});
+
+// Insert an empty paragraph after an existing block. Exercises how an inserted
+// block with no inline content is flagged.
+test("suggestion mode: add an empty block", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "add empty block" });
+
+  editor.replaceBlocks(editor.document, addEmptyBlock.initial);
+  await sync();
+  await expectVisible(screen.getByTestId("editor-A").getByText("A paragraph"));
+
+  const baseDocXml = ydocXml(baseDoc);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  addEmptyBlock.apply(editor);
+
+  await waitForSuggestion(editor);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "add-remove-add-empty-block",
+  );
+
+  expect(baseDocXml).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="p">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">A paragraph</paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="p">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">A paragraph</paragraph>
+      </blockContainer>
+      <blockContainer id="1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <blockContainer id="p">
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left">A paragraph</paragraph>
+        </blockContainer>
+        <y-attributed-insert userIds="">
+          <blockContainer id="1">
+            <y-attributed-insert userIds="">
+              <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
+      </blockGroup>
+    </doc>"
+  `);
+});
+
+// Two empty paragraphs; delete one. Exercises how a deleted block with no inline
+// content is flagged.
+test("suggestion mode: delete one of two empty blocks", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "delete one empty block" });
+
+  editor.replaceBlocks(editor.document, deleteOneEmpty.initial);
+  await sync();
+  await expect.poll(() => editor.document.length).toBe(2);
+
+  const baseDocXml = ydocXml(baseDoc);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  deleteOneEmpty.apply(editor);
+
+  await waitForSuggestion(editor);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "add-remove-delete-one-empty",
+  );
+
+  expect(baseDocXml).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="e1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+      </blockContainer>
+      <blockContainer id="e2">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="e1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <blockContainer id="e1">
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
+        </blockContainer>
+        <y-attributed-delete userIds="">
+          <blockContainer id="e2">
+            <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
+          </blockContainer>
+        </y-attributed-delete>
       </blockGroup>
     </doc>"
   `);

@@ -69,6 +69,15 @@ mounts+=(
   -v "$PWD/tests/vite.config.browser.ts:/work/tests/vite.config.browser.ts"
   -v "$PWD/tests/vitestSetup.browser.ts:/work/tests/vitestSetup.browser.ts"
 )
+# The suggestion-gallery scenarios import the shared `testDocument` (aliased to
+# ../shared in vite.config.browser.ts). Only shared/package.json is baked into the
+# image (for the install), so mount the two source files it needs — they're
+# transpiled at test time just like packages/*/src (mounting individual files
+# keeps the image's node_modules symlinks intact).
+mounts+=(
+  -v "$PWD/shared/testDocument.ts:/work/shared/testDocument.ts"
+  -v "$PWD/shared/formatConversionTestUtil.ts:/work/shared/formatConversionTestUtil.ts"
+)
 # Mount the report dir so the html reporter's output lands on the host instead
 # of being thrown away with the container. Created on the host first so docker
 # binds the dir (not an anonymous mountpoint).

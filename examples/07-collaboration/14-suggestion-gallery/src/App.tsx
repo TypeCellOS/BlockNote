@@ -2,7 +2,7 @@ import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import "./style.css";
 
-import type { BlockNoteEditor } from "@blocknote/core";
+import type { GalleryEditor } from "./gallerySchema";
 import {
   createYjsVersioningAdapter,
   SuggestionsExtension,
@@ -15,6 +15,7 @@ import * as Y from "@y/y";
 import { useEffect, useState } from "react";
 
 import { ScenarioErrorBoundary } from "./ErrorBoundary";
+import { gallerySchema } from "./gallerySchema";
 import {
   buildSuggestionScenarioDocs,
   cloneDoc,
@@ -43,7 +44,7 @@ type SuggestionAuthor = {
   id: string;
   label: string;
   user: { name: string; color: string };
-  apply: (editor: BlockNoteEditor) => void;
+  apply: (editor: GalleryEditor) => void;
 };
 
 /**
@@ -91,6 +92,7 @@ function SuggestionsView({ scenario }: { scenario: SuggestionScenario }) {
 
   const baseEditor = useCreateBlockNote(
     withCollaboration({
+      schema: gallerySchema,
       collaboration: {
         fragment: setup.base.get("doc"),
         provider: { awareness: setup.baseAwareness },
@@ -203,7 +205,7 @@ function UserSuggestion({
   suggestionDoc: Y.Doc;
   manager: AttributionManager;
   user: { name: string; color: string };
-  apply?: (editor: BlockNoteEditor) => void;
+  apply?: (editor: GalleryEditor) => void;
   label: string;
 }) {
   const [setup] = useState(() => ({
@@ -212,6 +214,7 @@ function UserSuggestion({
 
   const editor = useCreateBlockNote(
     withCollaboration({
+      schema: gallerySchema,
       collaboration: {
         fragment: baseDoc.get("doc"),
         provider: { awareness: setup.awareness },
@@ -259,6 +262,7 @@ function MergedSuggestion({
 
   const editor = useCreateBlockNote(
     withCollaboration({
+      schema: gallerySchema,
       collaboration: {
         fragment: baseDoc.get("doc"),
         provider: { awareness: setup.awareness },
@@ -297,7 +301,7 @@ type VersioningUser = {
   id: string;
   label: string;
   user: { name: string; color: string };
-  apply: (editor: BlockNoteEditor) => void;
+  apply: (editor: GalleryEditor) => void;
 };
 
 /**
@@ -349,6 +353,7 @@ function VersioningView({ scenario }: { scenario: SuggestionScenario }) {
 
   const beforeEditor = useCreateBlockNote(
     withCollaboration({
+      schema: gallerySchema,
       collaboration: {
         fragment: setup.beforeDoc.get("doc"),
         provider: { awareness: setup.beforeAwareness },
@@ -424,6 +429,7 @@ function VersionMerge({
 
   const diffEditor = useCreateBlockNote(
     withCollaboration({
+      schema: gallerySchema,
       collaboration: {
         fragment: setup.afterDoc.get("doc"),
         provider: { awareness: setup.diffAwareness },
@@ -501,7 +507,7 @@ function UserVersion({
 }: {
   doc: Y.Doc;
   user: { name: string; color: string };
-  apply?: (editor: BlockNoteEditor) => void;
+  apply?: (editor: GalleryEditor) => void;
   label: string;
 }) {
   const [setup] = useState(() => ({
@@ -510,6 +516,7 @@ function UserVersion({
 
   const editor = useCreateBlockNote(
     withCollaboration({
+      schema: gallerySchema,
       collaboration: {
         fragment: doc.get("doc"),
         provider: { awareness: setup.awareness },
