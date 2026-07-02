@@ -464,6 +464,17 @@ NESTED BLOCKS
   color: inherit;
 }
 
+/* Default to dark theme as the code block has a dark background regardless of theme. */
+.shiki {
+  color: var(--shiki-dark);
+}
+.bn-source-block-popup .shiki {
+  color: var(--shiki-light);
+}
+.bn-root[data-color-scheme="dark"] .bn-source-block-popup .shiki {
+  color: var(--shiki-dark);
+}
+
 .bn-preview-with-source-popup {
   position: relative;
   flex: 1;
