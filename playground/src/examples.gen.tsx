@@ -1817,7 +1817,7 @@ export const examples = {
         pathFromRoot: "examples/07-collaboration/14-suggestion-gallery",
         config: {
           playground: true,
-          docs: true,
+          docs: false,
           author: "yousefed",
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
