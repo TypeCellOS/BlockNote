@@ -15,8 +15,8 @@ import {
 
 // Scenario data (the `initial` seed + A's/B's `applyA`/`applyB` changes) is
 // shared with the suggestion-gallery example so the two never drift.
-import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
 import type { ConcurrentScenario } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
 
 const indentCascade = scenarios.find(
   (s) => s.id === "concurrent-indent-cascade",
@@ -289,12 +289,14 @@ test("concurrent: A indents N1, B indents N2 below N1", async () => {
 //   A adds N1 as a child of N0;
 //   B adds N2 as a child of N0.
 //
-// Known issue (test skipped) — tracked in the suggestion gallery
-// ("concurrent-nest-both-under-n0"). We deliberately don't pin clientIDs at the
-// fixture level (that would mask the non-determinism); the inline snapshots
-// below preserve the "A wins" variant, captured against a pinned-ID run, as
-// documentation of one of the two observed outcomes.
-test.skip("concurrent: A nests N1 under N0, B nests N2 under N0", async () => {
+// This was previously skipped as non-deterministic — the merge dropped one
+// user's nesting depending on the `Y.Doc.clientID` tiebreak. With the
+// `blockMatchNodes` nesting check the merge is now clientID-independent: N0 is
+// duplicated so both A's and B's nestings survive (see the "concurrent-nest-
+// both-under-n0" note in the suggestion gallery). We deliberately still don't
+// pin clientIDs at the fixture level — verified stable across repeated unpinned
+// runs, so the converged snapshots below hold regardless of tiebreak.
+test("concurrent: A nests N1 under N0, B nests N2 under N0", async () => {
   const {
     userA,
     userB,
@@ -335,6 +337,11 @@ test.skip("concurrent: A nests N1 under N0, B nests N2 under N0", async () => {
   // 100px layout, sometimes 121px.
   await expectVisible(screen.getByTestId("editor-merged").getByText("N1"));
   await expectVisible(screen.getByTestId("editor-merged").getByText("N2"));
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "concurrent-nest-both-under-n0",
+  );
 
   expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
     "<blockGroup>
@@ -377,8 +384,13 @@ test.skip("concurrent: A nests N1 under N0, B nests N2 under N0", async () => {
           </blockContainer>
         </blockGroup>
       </blockContainer>
-      <blockContainer id="n2">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N2</paragraph>
+      <blockContainer id="n0">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+        <blockGroup>
+          <blockContainer id="n2">
+            <paragraph backgroundColor="default" textAlignment="left" textColor="default">N2</paragraph>
+          </blockContainer>
+        </blockGroup>
       </blockContainer>
     </blockGroup>"
   `);
@@ -387,21 +399,115 @@ test.skip("concurrent: A nests N1 under N0, B nests N2 under N0", async () => {
   expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <blockContainer id="n0">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
-          <blockGroup>
-            <blockContainer id="n1">
+        <y-attributed-delete
+          userIds="A"
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="n0">
+            <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
+          </blockContainer>
+        </y-attributed-delete>
+        <y-attributed-insert
+          userIds="A"
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="n0">
+            <y-attributed-insert
+              userIds="A"
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert user-color="#30bced">N1</y-attributed-insert>
+                <y-attributed-insert
+                  userIds="A"
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >N0</y-attributed-insert>
               </paragraph>
-            </blockContainer>
-          </blockGroup>
-        </blockContainer>
-        <blockContainer id="n2">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            <y-attributed-insert user-color="#30bced">N2</y-attributed-insert>
-          </paragraph>
-        </blockContainer>
+            </y-attributed-insert>
+            <y-attributed-insert
+              userIds="A"
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <blockGroup>
+                <y-attributed-insert
+                  userIds="A"
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
+                  <blockContainer id="n1">
+                    <y-attributed-insert
+                      userIds="A"
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
+                      <paragraph backgroundColor="default" textColor="default" textAlignment="left">
+                        <y-attributed-insert
+                          userIds="A"
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >N1</y-attributed-insert>
+                      </paragraph>
+                    </y-attributed-insert>
+                  </blockContainer>
+                </y-attributed-insert>
+              </blockGroup>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
+        <y-attributed-insert
+          userIds="B"
+          user-color-light="#fcc9c3"
+          user-color-dark="#8a2e24"
+        >
+          <blockContainer id="n0">
+            <y-attributed-insert
+              userIds="B"
+              user-color-light="#fcc9c3"
+              user-color-dark="#8a2e24"
+            >
+              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
+                <y-attributed-insert
+                  userIds="B"
+                  user-color-light="#fcc9c3"
+                  user-color-dark="#8a2e24"
+                >N0</y-attributed-insert>
+              </paragraph>
+            </y-attributed-insert>
+            <y-attributed-insert
+              userIds="B"
+              user-color-light="#fcc9c3"
+              user-color-dark="#8a2e24"
+            >
+              <blockGroup>
+                <y-attributed-insert
+                  userIds="B"
+                  user-color-light="#fcc9c3"
+                  user-color-dark="#8a2e24"
+                >
+                  <blockContainer id="n2">
+                    <y-attributed-insert
+                      userIds="B"
+                      user-color-light="#fcc9c3"
+                      user-color-dark="#8a2e24"
+                    >
+                      <paragraph backgroundColor="default" textColor="default" textAlignment="left">
+                        <y-attributed-insert
+                          userIds="B"
+                          user-color-light="#fcc9c3"
+                          user-color-dark="#8a2e24"
+                        >N2</y-attributed-insert>
+                      </paragraph>
+                    </y-attributed-insert>
+                  </blockContainer>
+                </y-attributed-insert>
+              </blockGroup>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
       </blockGroup>
     </doc>"
   `);
