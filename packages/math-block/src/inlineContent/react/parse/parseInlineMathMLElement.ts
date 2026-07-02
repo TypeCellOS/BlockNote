@@ -1,12 +1,13 @@
 import { MathMLToLaTeX } from "mathml-to-latex";
 import { Fragment, type Schema } from "prosemirror-model";
 
-export const parseBlockMathMLElement = (el: HTMLElement) =>
-  el.nodeName.toLowerCase() === "math" && el.getAttribute("display") === "block"
+export const parseInlineMathMLElement = (el: HTMLElement) =>
+  el.nodeName.toLowerCase() === "math" &&
+  el.getAttribute("display") === "inline"
     ? {}
     : undefined;
 
-export const parseBlockMathMLContent = ({
+export const parseInlineMathMLContent = ({
   el,
   schema,
 }: {

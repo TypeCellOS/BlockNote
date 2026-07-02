@@ -153,6 +153,7 @@ export function createReactInlineContentSpec<
       return getInlineContentParseRules(
         inlineContentConfig,
         inlineContentImplementation.parse,
+        inlineContentImplementation.parseContent,
       );
     },
 
