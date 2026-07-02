@@ -226,4 +226,31 @@ describe("Inline math source popup", () => {
       expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(3);
     });
   });
+
+  describe("clicking the OK button", () => {
+    beforeEach(async () => {
+      // Open the popup so the OK button has something to close.
+      selectSource();
+      await flush();
+      expect(isPopupOpen()).toBe(true);
+    });
+
+    it("closes the popup and moves the selection just after the inline content", async () => {
+      const { node, pos } = inlineMath();
+
+      const okButton = div.querySelector(
+        ".bn-code-block-source-popup-ok-button",
+      ) as HTMLElement;
+
+      okButton.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
+      );
+      await flush();
+
+      expect(isPopupOpen()).toBe(false);
+      expect(selectedNodeType()).not.toBe("inlineMath");
+      // The caret lands just after the inline math.
+      expect(editor.prosemirrorState.selection.from).toBe(pos + node.nodeSize);
+    });
+  });
 });

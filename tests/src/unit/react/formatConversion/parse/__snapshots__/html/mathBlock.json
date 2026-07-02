@@ -1,0 +1,15 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "a^2 + b^2 = c^2",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {},
+    "type": "math",
+  },
+]

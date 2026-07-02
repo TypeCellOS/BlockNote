@@ -4,6 +4,10 @@ import {
   defaultProps,
 } from "@blocknote/core";
 import {
+  createReactInlineMathSpec,
+  createReactMathBlockSpec,
+} from "@blocknote/math-block";
+import {
   createReactBlockSpec,
   createReactInlineContentSpec,
   createReactStyleSpec,
@@ -168,10 +172,12 @@ export const testSchema = BlockNoteSchema.create().extend({
     customParagraph: createCustomParagraph(),
     simpleCustomParagraph: createSimpleCustomParagraph(),
     contextParagraph: createContextParagraph(),
+    math: createReactMathBlockSpec(),
   },
   inlineContentSpecs: {
     mention: Mention,
     tag: Tag,
+    inlineMath: createReactInlineMathSpec(),
   },
   styleSpecs: {
     small: Small,

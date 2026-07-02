@@ -12,6 +12,7 @@
     "@blocknote/ariakit": "workspace:^",
     "@blocknote/core": "workspace:^",
     "@blocknote/mantine": "workspace:^",
+    "@blocknote/math-block": "workspace:^",
     "@blocknote/react": "workspace:^",
     "@blocknote/shadcn": "workspace:^",
     "@playwright/test": "1.60.0",

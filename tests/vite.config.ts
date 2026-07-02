@@ -53,6 +53,10 @@ export default defineConfig(
                   __dirname,
                   "../packages/mantine/src/",
                 ),
+                "@blocknote/math-block": path.resolve(
+                  __dirname,
+                  "../packages/math-block/src/",
+                ),
                 "@blocknote/server-util": path.resolve(
                   __dirname,
                   "../packages/server-util/src/",

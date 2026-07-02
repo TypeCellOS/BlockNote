@@ -5763,6 +5763,9 @@ importers:
       '@blocknote/mantine':
         specifier: workspace:^
         version: link:../packages/mantine
+      '@blocknote/math-block':
+        specifier: workspace:^
+        version: link:../packages/math-block
       '@blocknote/react':
         specifier: workspace:^
         version: link:../packages/react

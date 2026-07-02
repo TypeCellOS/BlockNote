@@ -254,4 +254,29 @@ describe("Math block source popup keyboard handling", () => {
       expect(editor.prosemirrorView.state.selection.$from.parentOffset).toBe(3);
     });
   });
+
+  describe("clicking the OK button", () => {
+    beforeEach(() => {
+      setup([
+        { id: "before", type: "paragraph", content: "before" },
+        { id: "math", type: "math", content: "a^2" },
+      ]);
+      editor.setTextCursorPosition("math", "start");
+      // Open the popup so the OK button has something to close.
+      pressKey("math", "Enter");
+      expect(isPopupOpen("math")).toBe(true);
+    });
+
+    it("closes the popup", () => {
+      const okButton = div.querySelector(
+        `.bn-block[data-id="math"] .bn-code-block-source-popup-ok-button`,
+      ) as HTMLElement;
+
+      okButton.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
+      );
+
+      expect(isPopupOpen("math")).toBe(false);
+    });
+  });
 });
