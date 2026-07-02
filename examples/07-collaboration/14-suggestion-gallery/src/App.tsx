@@ -557,7 +557,7 @@ function topSeverity(s: SuggestionScenario): "high" | "low" | "info" | null {
 
 function severityBadge(s: SuggestionScenario): string {
   const sev = topSeverity(s);
-  return sev ? " " + SEVERITY[sev].icon : "";
+  return sev ? SEVERITY[sev].icon + " " : "";
 }
 
 export default function App() {
@@ -586,9 +586,9 @@ export default function App() {
                   }
                   onClick={() => setSelectedId(s.id)}
                 >
-                  {s.title}
-                  {s.kind === "concurrent" ? " 👥" : ""}
                   {severityBadge(s)}
+                  {s.kind === "concurrent" ? "👥 " : ""}
+                  {s.title}
                 </button>
               ))}
           </div>

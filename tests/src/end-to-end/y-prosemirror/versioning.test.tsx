@@ -25,19 +25,6 @@ import { expect, test } from "vite-plus/test";
 // exact same cases the gallery's Versioning mode renders.
 import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
 
-// Scenarios that currently crash the versioning diff. `enterPreview` ->
-// y-prosemirror `applyDelta` throws lib0 "Unexpected case" when the change moves
-// a block that carries (or dissolves) a nested blockGroup, or when a concurrent
-// table merge feeds prosemirror-tables' fixTables a malformed table. Tracked as
-// high-severity feedback in the gallery. These run as `test.fails`; when core
-// fixes the bug they flip red to signal removing them from this set.
-const VERSIONING_CRASHES = new Set([
-  "move-paragraph-with-children",
-  "nesting-unindent",
-  "concurrent-table-row-vs-column",
-  "concurrent-nest-both-under-n0",
-]);
-
 // A headless editor, used only for its (default) schema when seeding Y.Docs.
 let schemaEditor: BlockNoteEditor | undefined;
 const getSchema = () => (schemaEditor ??= BlockNoteEditor.create());
@@ -86,9 +73,9 @@ for (const scenario of scenarios) {
     scenario.kind === "single"
       ? [scenario.apply]
       : [scenario.applyA, scenario.applyB];
-  const runner = VERSIONING_CRASHES.has(scenario.id) ? test.fails : test;
+  // const runner = VERSIONING_CRASHES.has(scenario.id) ? test.fails : test;
 
-  runner(`versioning diff: ${scenario.title}`, async () => {
+  test(`versioning diff: ${scenario.title}`, async () => {
     const teardown: Array<() => void> = [];
     try {
       // "Before": the scenario's initial blocks, seeded synchronously.

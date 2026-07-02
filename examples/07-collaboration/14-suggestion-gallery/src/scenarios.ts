@@ -213,6 +213,10 @@ export const scenarios: SuggestionScenario[] = [
         severity: "low",
         note: "Nested bullets all render as • instead of •/◦/▪ — the suggestion-mark wrappers (display: contents) break the depth-detecting CSS chains. Fix: compute each bullet's nesting level in JS and expose it as data-bullet-level, then pick the glyph with a wrapper-independent attribute selector (as numbered lists do with data-index).",
       },
+      {
+        severity: "low",
+        note: "Going from 0 to 1+ children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
+      },
     ],
     title: "Nest a bullet under another",
     category: "Add / remove blocks",
@@ -267,6 +271,12 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "delete-nested",
+    feedback: [
+      {
+        severity: "low",
+        note: "Going from 1+ to 0 children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
+      },
+    ],
     title: "Delete a nested block",
     category: "Add / remove blocks",
     description: "Delete the nested child of a parent block.",
@@ -518,18 +528,19 @@ export const scenarios: SuggestionScenario[] = [
       },
     ],
     apply: (editor) => editor.moveBlocksUp("parent"),
-    feedback: [
-      {
-        severity: "high",
-        note: "Crashes in versioning mode — moving a block that carries a nested child subtree makes the diff renderer (enterPreview → y-prosemirror) throw lib0 'Unexpected case' (recursive applyDelta). Suggestion mode is fine (it uses a different diff path). Same core applyDelta bug as the concurrent-table crash.",
-      },
-    ],
+    feedback: [],
   },
 
   // --- Nesting ---
   {
     kind: "single",
     id: "nesting-indent",
+    feedback: [
+      {
+        severity: "low",
+        note: "Going from 0 to 1+ children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
+      },
+    ],
     title: "Indent a block",
     category: "Nesting",
     description:
@@ -550,8 +561,8 @@ export const scenarios: SuggestionScenario[] = [
     title: "Unindent a block",
     feedback: [
       {
-        severity: "high",
-        note: "Crashes in versioning mode — un-nesting restructures the parent's blockGroup, making the diff renderer (enterPreview → y-prosemirror) throw lib0 'Unexpected case' (recursive applyDelta). Suggestion mode is fine (it uses a different diff path). Same core applyDelta bug as the concurrent-table crash.",
+        severity: "low",
+        note: "Going from 1+ to 0 children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
       },
     ],
     category: "Nesting",
@@ -949,8 +960,8 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-indent-cascade",
     feedback: [
       {
-        severity: "info",
-        note: "Block moves and (un)nesting are 'copy and replace' operations, so concurrent ones like these can get lost. This is a pre-existing issue, not specific to diffing / suggestions.",
+        severity: "low",
+        note: "Block N1 appears in two places. Previously this concurrency scenario would also not be correctly handled (one of the edits would be dropped).",
       },
     ],
     title: "Cascading indents",
@@ -975,8 +986,8 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-nest-both-under-n0",
     feedback: [
       {
-        severity: "high",
-        note: "throws error",
+        severity: "info",
+        note: "In this concurrent editing scenario the N0 block is duplicated. Previously this scenario would likely drop one of the changes, so it's not a regression per se. A better fix for the schema compatibility could resolve this.",
       },
     ],
     title: "Both nest a new block under N0",
