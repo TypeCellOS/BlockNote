@@ -270,15 +270,17 @@ test("suggestion mode: add italic to already-bold 'world'", async () => {
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-            "<blockGroup>
-              <blockContainer id="block-hello">
-                <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-                  hello
-                  <bold>world</bold>
-                </paragraph>
-              </blockContainer>
-            </blockGroup>"
-          `);
+    "<blockGroup>
+      <blockContainer id="block-hello">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+          hello
+          <italic>
+            <bold>world</bold>
+          </italic>
+        </paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
