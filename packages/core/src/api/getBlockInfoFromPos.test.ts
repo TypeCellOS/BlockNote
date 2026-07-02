@@ -4,6 +4,7 @@ import { describe, expect, it } from "vite-plus/test";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { docToBlocks } from "./nodeConversions/nodeToBlock.js";
 import { getNodeId } from "./getBlockInfoFromPos.js";
+import { YSuggestionMarksExtension } from "../y/extensions/YSuggestionMarks.js";
 
 /**
  * Builds a `blockContainer` node holding a single paragraph with the given
@@ -35,7 +36,9 @@ describe("getNodeId", () => {
   // single non-mounted editor instance is enough for all cases here.
   function getSchema() {
     if (!editor) {
-      editor = BlockNoteEditor.create();
+      editor = BlockNoteEditor.create({
+        extensions: [YSuggestionMarksExtension()],
+      });
     }
     return editor.pmSchema;
   }
@@ -170,7 +173,9 @@ describe("docToBlocks round trip with suggested deletions", () => {
 
   function getSchema() {
     if (!editor) {
-      editor = BlockNoteEditor.create();
+      editor = BlockNoteEditor.create({
+        extensions: [YSuggestionMarksExtension()],
+      });
     }
     return editor.pmSchema;
   }

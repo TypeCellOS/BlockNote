@@ -3,6 +3,7 @@ import { Node } from "@tiptap/core";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { BlockNoteDOMAttributes } from "../schema/index.js";
 import { mergeCSSClasses } from "../util/browser.js";
+import { suggestionMarks } from "./suggestionMarks.js";
 
 // Object containing all possible block attributes.
 const BlockAttributes: Record<string, string> = {
@@ -27,7 +28,9 @@ export const BlockContainer = Node.create<{
   // Ensures content-specific keyboard handlers trigger first.
   priority: 50,
   defining: true,
-  marks: "y-attributed-insert y-attributed-format y-attributed-delete",
+  marks() {
+    return suggestionMarks(this.editor);
+  },
   parseHTML() {
     return [
       {

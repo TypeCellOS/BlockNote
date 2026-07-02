@@ -46,6 +46,9 @@ export function createYjsVersioningAdapter(
     getCurrentState: () => fragment,
     getCurrentContent: () => Y.encodeStateAsUpdateV2(fragment.doc!),
     preview: {
+      // Yjs v13 can only fork the document to a single snapshot; it has no way
+      // to diff two versions, so comparison is unsupported.
+      supportsComparison: false,
       enterPreview(
         snapshotContent: Uint8Array,
         _compareToContent?: Uint8Array,

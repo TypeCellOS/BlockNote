@@ -22,7 +22,7 @@ afterEach(() => {
   editorsToCleanup.length = 0;
 });
 
-it.skip("creates an editor", () => {
+it("creates an editor", () => {
   const editor = BlockNoteEditor.create();
   editorsToCleanup.push(editor);
   const posInfo = editor.transact((tr) => getNearestBlockPos(tr.doc, 2));
@@ -30,7 +30,7 @@ it.skip("creates an editor", () => {
   expect(info.blockNoteType).toEqual("paragraph");
 });
 
-it.skip("immediately replaces doc", () => {
+it("immediately replaces doc", () => {
   const editor = BlockNoteEditor.create();
   editorsToCleanup.push(editor);
   const blocks = editor.tryParseMarkdownToBlocks(
@@ -79,7 +79,7 @@ it.skip("immediately replaces doc", () => {
   `);
 });
 
-it.skip("adds id attribute when requested", () => {
+it("adds id attribute when requested", () => {
   const editor = BlockNoteEditor.create({
     setIdAttribute: true,
   });
@@ -93,7 +93,7 @@ it.skip("adds id attribute when requested", () => {
   );
 });
 
-it.skip("updates block", () => {
+it("updates block", () => {
   const editor = BlockNoteEditor.create();
   editorsToCleanup.push(editor);
   editor.updateBlock(editor.document[0], {
@@ -101,7 +101,7 @@ it.skip("updates block", () => {
   });
 });
 
-it.skip("block prop types", () => {
+it("block prop types", () => {
   // this test checks whether the block props are correctly typed in typescript
   const editor = BlockNoteEditor.create();
   editorsToCleanup.push(editor);
@@ -122,7 +122,7 @@ it.skip("block prop types", () => {
   }
 });
 
-it.skip("onMount and onUnmount", async () => {
+it("onMount and onUnmount", async () => {
   const editor = BlockNoteEditor.create();
   editorsToCleanup.push(editor);
   let mounted = false;
@@ -145,7 +145,7 @@ it.skip("onMount and onUnmount", async () => {
   expect(unmounted).toBe(true);
 });
 
-it.skip("sets an initial block id when using Y.js", async () => {
+it("sets an initial block id when using Y.js", async () => {
   const doc = new Y.Doc();
   const fragment = doc.getXmlFragment("doc");
   let transactionCount = 0;
@@ -211,7 +211,7 @@ it.skip("sets an initial block id when using Y.js", async () => {
   );
 });
 
-it.skip("onBeforeChange", () => {
+it("onBeforeChange", () => {
   const editor = BlockNoteEditor.create();
   editorsToCleanup.push(editor);
   let beforeChangeCalled = false;

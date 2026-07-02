@@ -410,7 +410,6 @@ export function nodeToBlock<
 
   const blockInfo = getBlockInfoWithManualOffset(node, 0);
 
-  // TODO this id needs to lie when it is a deleted block for suggestion mode support
   let id: string;
   try {
     id = getNodeId(blockInfo.bnBlock.node, doc);
@@ -529,8 +528,6 @@ export function prosemirrorSliceToSlicedBlocks<
   S extends StyleSchema,
 >(
   slice: Slice,
-
-  // TODO doc here?
 ): {
   /**
    * The blocks that are included in the selection.
@@ -601,7 +598,6 @@ export function prosemirrorSliceToSlicedBlocks<
         return;
       }
 
-      // TODO this is not technically correct
       const block = nodeToBlock(blockContainer, slice.content.firstChild!);
       const childGroup =
         blockContainer.childCount > 1 ? blockContainer.child(1) : undefined;

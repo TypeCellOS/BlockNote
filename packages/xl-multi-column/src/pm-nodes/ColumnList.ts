@@ -1,3 +1,4 @@
+import { suggestionMarks } from "@blocknote/core";
 import { Node } from "@tiptap/core";
 
 export const ColumnList = Node.create({
@@ -7,7 +8,9 @@ export const ColumnList = Node.create({
   content: "column column+", // min two columns
   priority: 40, // should be below blockContainer
   defining: true,
-  marks: "y-attributed-delete y-attributed-insert y-attributed-format",
+  marks() {
+    return suggestionMarks(this.editor);
+  },
   parseHTML() {
     return [
       {

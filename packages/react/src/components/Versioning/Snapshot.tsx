@@ -7,6 +7,7 @@ import { useState } from "react";
 import {
   RiArrowGoBackFill,
   RiArrowLeftRightLine,
+  RiDeleteBinLine,
   RiMoreFill,
 } from "react-icons/ri";
 
@@ -28,6 +29,8 @@ export const Snapshot = ({
     restoreSnapshot,
     canUpdateSnapshotName,
     updateSnapshotName,
+    canDeleteSnapshot,
+    deleteSnapshot,
     previewSnapshot,
     previewCurrentVersion,
   } = useExtension(VersioningExtension);
@@ -49,7 +52,8 @@ export const Snapshot = ({
         : undefined,
   });
 
-  const { comparisonMode, setComparisonMode } = useVersioningSidebar();
+  const { comparisonEnabled, comparisonMode, setComparisonMode } =
+    useVersioningSidebar();
 
   const dateString = dateToString(new Date(snapshot?.createdAt || 0));
   const [snapshotName, setSnapshotName] = useState(
@@ -94,46 +98,62 @@ export const Snapshot = ({
     }
   };
 
-  const actions = (
-    <Components.Generic.Toolbar.Root
-      variant="action-toolbar"
-      className="bn-action-toolbar"
-    >
-      <Components.Generic.Menu.Root position="bottom-start">
-        <Components.Generic.Menu.Trigger>
-          <Components.Generic.Toolbar.Button
-            className="bn-snapshot-menu-trigger"
-            mainTooltip="More"
-            variant="compact"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
-          >
-            <RiMoreFill size={16} />
-          </Components.Generic.Toolbar.Button>
-        </Components.Generic.Menu.Trigger>
-        <Components.Generic.Menu.Dropdown className="bn-menu-dropdown">
-          <Components.Generic.Menu.Item
-            icon={<RiArrowLeftRightLine />}
-            onClick={handleCompareWith}
-          >
-            Compare with this version
-          </Components.Generic.Menu.Item>
-          {canRestoreSnapshot && (
-            <Components.Generic.Menu.Item
-              icon={<RiArrowGoBackFill />}
-              onClick={() => {
-                void restoreSnapshot?.(snapshot.id);
+  // The menu only appears when at least one of its items is available:
+  // "Compare with this version" (comparison), "Restore", or "Delete". When none
+  // apply, there's nothing to show, so drop the menu entirely.
+  const actions =
+    comparisonEnabled || canRestoreSnapshot || canDeleteSnapshot ? (
+      <Components.Generic.Toolbar.Root
+        variant="action-toolbar"
+        className="bn-action-toolbar"
+      >
+        <Components.Generic.Menu.Root position="bottom-start">
+          <Components.Generic.Menu.Trigger>
+            <Components.Generic.Toolbar.Button
+              className="bn-snapshot-menu-trigger"
+              mainTooltip="More"
+              variant="compact"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
               }}
             >
-              Restore
-            </Components.Generic.Menu.Item>
-          )}
-        </Components.Generic.Menu.Dropdown>
-      </Components.Generic.Menu.Root>
-    </Components.Generic.Toolbar.Root>
-  );
+              <RiMoreFill size={16} />
+            </Components.Generic.Toolbar.Button>
+          </Components.Generic.Menu.Trigger>
+          <Components.Generic.Menu.Dropdown className="bn-menu-dropdown">
+            {comparisonEnabled && (
+              <Components.Generic.Menu.Item
+                icon={<RiArrowLeftRightLine />}
+                onClick={handleCompareWith}
+              >
+                Compare with this version
+              </Components.Generic.Menu.Item>
+            )}
+            {canRestoreSnapshot && (
+              <Components.Generic.Menu.Item
+                icon={<RiArrowGoBackFill />}
+                onClick={() => {
+                  void restoreSnapshot?.(snapshot.id);
+                }}
+              >
+                Restore
+              </Components.Generic.Menu.Item>
+            )}
+            {canDeleteSnapshot && (
+              <Components.Generic.Menu.Item
+                icon={<RiDeleteBinLine />}
+                onClick={() => {
+                  void deleteSnapshot?.(snapshot.id);
+                }}
+              >
+                Delete
+              </Components.Generic.Menu.Item>
+            )}
+          </Components.Generic.Menu.Dropdown>
+        </Components.Generic.Menu.Root>
+      </Components.Generic.Toolbar.Root>
+    ) : undefined;
 
   return (
     <Components.Versioning.Snapshot
@@ -155,8 +175,28 @@ export const Snapshot = ({
             className="bn-snapshot-name"
             type="text"
             value={snapshotName}
+            // Editing the title is only allowed once this version is the one
+            // being viewed. Otherwise the first click just selects the version.
+            readOnly={!selected}
+            // Signal the interaction: a pointer (button-like) when the click
+            // will only select this version, a text caret once it's editable.
+            style={{ cursor: selected ? "text" : "pointer" }}
             onChange={(e) => setSnapshotName(e.target.value)}
-            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => {
+              // When this version isn't selected, keep the input from grabbing
+              // focus so the click falls through to the row and only selects
+              // the version — a second click (now selected) starts editing.
+              if (!selected) {
+                e.preventDefault();
+              }
+            }}
+            onClick={(e) => {
+              // Only swallow the click once editable; otherwise let it bubble
+              // to the row's handler so this version gets selected.
+              if (selected) {
+                e.stopPropagation();
+              }
+            }}
             onBlur={() =>
               updateSnapshotName?.(
                 snapshot.id,

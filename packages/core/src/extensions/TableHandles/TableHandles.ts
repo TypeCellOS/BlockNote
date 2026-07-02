@@ -261,8 +261,14 @@ export class TableHandlesView implements PluginView {
       throw new Error(`Block with ID ${blockEl.id} not found`);
     }
 
-    // rm as any
-    const block = nodeToBlock(pmNodeInfo.node, doc) as any;
+    const block = nodeToBlock(
+      pmNodeInfo.node,
+      doc,
+    ) as unknown as BlockFromConfigNoChildren<
+      DefaultBlockSchema["table"],
+      any,
+      any
+    >;
 
     if (editorHasBlockWithType(this.editor, "table")) {
       this.tablePos = pmNodeInfo.posBeforeNode + 1;

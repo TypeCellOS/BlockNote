@@ -1,9 +1,14 @@
 import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
 import { expect, it } from "vite-plus/test";
+import { SuggestionMarksExtension } from "./SuggestionMarks.js";
 import { getApplySuggestionsTr, rebaseTool } from "./rebaseTool.js";
 
 function getExampleEditorWithSuggestions() {
   const editor = BlockNoteEditor.create({
+    // The `insertion`/`deletion`/`modification` suggestion marks live with the
+    // AI extension, so register them here (the schema needs them for
+    // `applySuggestions` to run).
+    extensions: [SuggestionMarksExtension()],
     initialContent: [
       {
         id: "1",
@@ -24,25 +29,25 @@ function getExampleEditorWithSuggestions() {
     tr.addMark(
       block.blockContent.beforePos + 1,
       block.blockContent.beforePos + 6,
-      editor.pmSchema.mark("y-attributed-delete", {}),
+      editor.pmSchema.mark("deletion", { id: 1 }),
     );
 
     tr.addMark(
       block.blockContent.beforePos + 6,
       block.blockContent.beforePos + 8,
-      editor.pmSchema.mark("y-attributed-insert", {}),
+      editor.pmSchema.mark("insertion", { id: 2 }),
     );
   });
 
   return editor;
 }
 
-it.skip("should create some example suggestions", async () => {
+it("should create some example suggestions", async () => {
   const editor = getExampleEditorWithSuggestions();
   expect(editor.prosemirrorState.doc.toJSON()).toMatchSnapshot();
 });
 
-it.skip("should be able to apply changes to a clean doc (use invertMap)", async () => {
+it("should be able to apply changes to a clean doc (use invertMap)", async () => {
   const editor = getExampleEditorWithSuggestions();
 
   const cleaned = rebaseTool(editor, getApplySuggestionsTr(editor));
@@ -71,7 +76,7 @@ it.skip("should be able to apply changes to a clean doc (use invertMap)", async 
   expect(editor.prosemirrorState.doc.toJSON()).toMatchSnapshot();
 });
 
-it.skip("should be able to apply changes to a clean doc (use rebaseTr)", async () => {
+it("should be able to apply changes to a clean doc (use rebaseTr)", async () => {
   const editor = getExampleEditorWithSuggestions();
 
   const cleaned = rebaseTool(editor, getApplySuggestionsTr(editor));

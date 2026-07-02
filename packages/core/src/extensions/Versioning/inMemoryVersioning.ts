@@ -133,6 +133,15 @@ export function createInMemoryVersioningEndpoints(): VersioningEndpoints<
       stored.name = name;
       stored.updatedAt = Date.now();
     },
+
+    async deleteSnapshot(snapshot) {
+      const index = snapshots.findIndex((s) => s.id === snapshot.id);
+      if (index === -1) {
+        throw new Error(`Snapshot ${snapshot.id} not found`);
+      }
+      snapshots.splice(index, 1);
+      contents.delete(snapshot.id);
+    },
   };
 }
 

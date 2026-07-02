@@ -1,9 +1,23 @@
-import { configureYProsemirror } from "@y/prosemirror";
+import { configureYProsemirror, pauseSync } from "@y/prosemirror";
 import * as Y from "@y/y";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { PreviewController } from "../../extensions/Versioning/index.js";
 import { findTypeInOtherYdoc } from "../utils.js";
+
+/**
+ * Empties the document before a {@link configureYProsemirror} refill so
+ * ProseMirror rebuilds every node view instead of reusing a stale-positioned one
+ * (BlockNote node views resolve their block eagerly via `getPos()` and throw on
+ * a moved node). Sync is paused first so the clear never reaches the Y.Doc.
+ *
+ * TODO: remove once `configureYProsemirror` applies a minimal diff.
+ */
+function clearDocumentForConfigure(editor: BlockNoteEditor<any, any, any>) {
+  // Pause sync (ytype -> null) so the deletion below stays local.
+  editor.exec(pauseSync);
+  editor.removeBlocks(editor.document);
+}
 
 /**
  * Creates a Yjs-specific adapter that provides the {@link PreviewController}
@@ -46,6 +60,10 @@ export function createYjsVersioningAdapter(
 
         const doc = new Y.Doc();
         Y.applyUpdateV2(doc, snapshotContent);
+        // Empty the document before reconfiguring so ProseMirror rebuilds node
+        // views from scratch instead of reusing stale-positioned ones. See
+        // clearDocumentForConfigure.
+        clearDocumentForConfigure(editor);
         editor.exec(
           configureYProsemirror({
             ytype: findTypeInOtherYdoc(fragment, doc),
@@ -64,6 +82,10 @@ export function createYjsVersioningAdapter(
         );
       },
       exitPreview: () => {
+        // Empty the document before reconfiguring so ProseMirror rebuilds node
+        // views from scratch instead of reusing stale-positioned ones. See
+        // clearDocumentForConfigure.
+        clearDocumentForConfigure(editor);
         editor.exec(configureYProsemirror({ ytype: fragment }));
       },
       applyRestore: (_snapshotContent: Uint8Array) => {

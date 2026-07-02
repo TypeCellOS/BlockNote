@@ -1,6 +1,6 @@
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 import type { Dictionary } from "../../i18n/dictionary.js";
-import { UserExtension } from "../User/index.js";
+import { UserExtension } from "../../extensions/User/index.js";
 
 /**
  * Selector for the wrapper element of an attribution mark (insert / delete /

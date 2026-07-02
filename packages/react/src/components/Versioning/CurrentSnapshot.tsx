@@ -41,7 +41,8 @@ export const CurrentSnapshot = ({
       state.snapshots.filter((s) => s.id !== CURRENT_VERSION_ID),
   });
 
-  const { comparisonMode, setComparisonMode } = useVersioningSidebar();
+  const { comparisonEnabled, comparisonMode, setComparisonMode } =
+    useVersioningSidebar();
 
   // Clicking the current version shows a read-only diff of the live document
   // against the most recent snapshot. When comparison mode is off, or there's
@@ -59,7 +60,10 @@ export const CurrentSnapshot = ({
   // at least one snapshot to compare against.
   const oldestSnapshot = snapshots[snapshots.length - 1];
   const actions =
-    canPreviewCurrentVersion && previewCurrentVersion && oldestSnapshot ? (
+    comparisonEnabled &&
+    canPreviewCurrentVersion &&
+    previewCurrentVersion &&
+    oldestSnapshot ? (
       <Components.Generic.Toolbar.Root
         variant="action-toolbar"
         className="bn-action-toolbar"
