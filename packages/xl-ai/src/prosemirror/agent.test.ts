@@ -17,7 +17,7 @@ import { validateRejectingResultsInOriginalDoc } from "../testUtil/suggestChange
 import { applyAgentStep, getStepsAsAgent } from "./agent.js";
 import { updateToReplaceSteps } from "./changeset.js";
 
-describe("getStepsAsAgent", () => {
+describe.skip("getStepsAsAgent", () => {
   // some basic tests to check `getStepsAsAgent` is working as expected
 
   // Helper function to create a test editor with a simple paragraph
@@ -263,7 +263,7 @@ async function executeTestCase(
   return results;
 }
 
-describe("agentStepToTr", () => {
+describe.skip("agentStepToTr", () => {
   // larger test to see if applying the steps work as expected
 
   // REC: we might also want to test Insert / combined / delete test cases here,

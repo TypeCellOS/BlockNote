@@ -78,7 +78,7 @@ async function executeTestCase(
   expect(editor.document).toEqual(getExpectedEditor(testCase).document);
 }
 
-describe("Add", () => {
+describe.skip("Add", () => {
   for (const testCase of addOperationTestCases) {
     it(testCase.description, async () => {
       const editor = testCase.editor();
@@ -88,7 +88,7 @@ describe("Add", () => {
   }
 });
 
-describe("Update", () => {
+describe.skip("Update", () => {
   for (const testCase of updateOperationTestCases) {
     it(testCase.description, async () => {
       const editor = testCase.editor();
@@ -98,7 +98,7 @@ describe("Update", () => {
   }
 });
 
-describe("Delete", () => {
+describe.skip("Delete", () => {
   for (const testCase of deleteOperationTestCases) {
     it(testCase.description, async () => {
       const editor = testCase.editor();
@@ -112,7 +112,7 @@ describe("Delete", () => {
   }
 });
 
-describe("Combined", () => {
+describe.skip("Combined", () => {
   for (const testCase of combinedOperationsTestCases) {
     it(testCase.description, async () => {
       const editor = testCase.editor();

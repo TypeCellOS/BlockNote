@@ -418,6 +418,14 @@ export const no: Dictionary = {
       more_replies: (count) => `${count} flere svar`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "Formateringsendring",
+    deleted: "Slettet",
+    inserted_by: (users: string) => `Satt inn av: ${users}`,
+    deleted_by: (users: string) => `Slettet av: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Formateringsendring (${formats}) av: ${users}`,
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

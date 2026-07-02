@@ -10,13 +10,17 @@ BlockNote supports Comments, Comment Threads (replies) and emoji reactions out o
 To enable comments in your editor, you need to:
 
 - Create an instance of the `CommentsExtension` and pass it to the `extensions` editor option.
-- Pass `resolveUsers` to your `CommentsExtension` instance, so it can retrieve and display user information (names and avatars).
+- Create a user store with `createUserStore(resolveUsers)` and pass it to your `CommentsExtension` instance, so it can retrieve and display user information (names and avatars). Passing the store (rather than `resolveUsers` directly) lets you share a single de-duped user cache with collaboration by also passing it to the `collaboration` options.
 - Provide a `ThreadStore` to your `CommentsExtension` instance, so it can store and retrieve comment threads.
 - Enable real-time collaboration (see [Real-time collaboration](/docs/features/collaboration))
 - Optionally provide a schema for comments and comment editors to use. If left undefined, they will use the [default comment editor schema](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/Comments/defaultCommentEditorSchema.ts). See [here](/docs/features/custom-schemas) to find out more about custom schemas.
 
 ```tsx
+import { createUserStore } from "@blocknote/core";
 import { withCollaboration } from "@blocknote/core/yjs";
+
+// Return user information for the given userIds (see below).
+const userStore = createUserStore(async (userIds: string[]) => { ... });
 
 const editor = useCreateBlockNote(
   withCollaboration({
@@ -24,14 +28,18 @@ const editor = useCreateBlockNote(
       CommentsExtension({
         // See below.
         threadStore: ...,
-        // Return user information for the given userIds (see below).
-        resolveUsers: async (userIds: string[]) => { ... },
+        // A resolver callback or a user store. Pass the shared store so users
+        // are resolved once across comments and collaboration.
+        resolveUsers: userStore,
         // Optional, can be left undefined
         schema: BlockNoteSchema.create(...)
       }),
       ...
     ],
     collaboration: {
+      // Share the same user store so users are resolved once. `resolveUsers`
+      // accepts either a resolver callback or a pre-built user store.
+      resolveUsers: userStore,
       // See real-time collaboration docs
       ...
     },

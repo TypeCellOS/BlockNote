@@ -21,7 +21,7 @@ exports[`should be able to apply changes to a clean doc (use invertMap) 1`] = `
                   "marks": [
                     {
                       "attrs": {
-                        "id": null,
+                        "id": 1,
                       },
                       "type": "deletion",
                     },
@@ -68,7 +68,7 @@ exports[`should be able to apply changes to a clean doc (use rebaseTr) 1`] = `
                   "marks": [
                     {
                       "attrs": {
-                        "id": null,
+                        "id": 1,
                       },
                       "type": "deletion",
                     },
@@ -115,7 +115,7 @@ exports[`should create some example suggestions 1`] = `
                   "marks": [
                     {
                       "attrs": {
-                        "id": null,
+                        "id": 1,
                       },
                       "type": "deletion",
                     },
@@ -127,7 +127,7 @@ exports[`should create some example suggestions 1`] = `
                   "marks": [
                     {
                       "attrs": {
-                        "id": null,
+                        "id": 2,
                       },
                       "type": "insertion",
                     },

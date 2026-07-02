@@ -4,7 +4,8 @@ import { describe, expect, it } from "vite-plus/test";
 
 import {
   getBlockInfo,
-  getBlockInfoFromTransaction,
+  getBlockInfoFromSelection,
+  getNodeId,
 } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
@@ -137,12 +138,12 @@ describe("Test splitBlocks", () => {
 
     splitBlock(getEditor().transact((tr) => tr.selection.anchor));
 
-    const bnBlock = getEditor().transact(
-      (tr) => getBlockInfoFromTransaction(tr).bnBlock,
+    const blockId = getEditor().transact((tr) =>
+      getNodeId(getBlockInfoFromSelection(tr).bnBlock.node, tr.doc),
     );
 
     const anchorIsAtStartOfNewBlock =
-      bnBlock.node.attrs.id === "0" &&
+      blockId === "0" &&
       getEditor().transact((tr) => tr.selection.$anchor.parentOffset) === 0;
 
     expect(anchorIsAtStartOfNewBlock).toBeTruthy();

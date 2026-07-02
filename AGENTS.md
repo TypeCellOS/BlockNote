@@ -9,6 +9,8 @@ All commands below are listed under `package.json` in the project root. See `vit
 - `vp install`: Installs dependencies.
 - `vp run dev`: Starts the dev server on port 5173.
 - `vp run check`: Checks for linting and formatting issues across the project and attempt resolve issues automatically.
+- `vp run lint`: Checks for linting issues across the project and attempt resolve issues automatically. DO NOT USE `tsc`, or `pretter`, only lin
+- `vp run format`: Checks for formatting issues across the project and attempt resolve issues automatically. DO NOT USE `tsc`, or `pretter`, only format
 - `vp run build`: Builds the project.
 - `vp run preview`: Previews the build on port 3000.
 - `vp run test`: Runs unit tests. Append with `-u` to update snapshots. Append with a file name to target only that file.

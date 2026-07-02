@@ -400,6 +400,14 @@ export const vi: Dictionary = {
       more_replies: (count) => `${count} câu trả lời nữa`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "Thay đổi định dạng",
+    deleted: "Đã xóa",
+    inserted_by: (users: string) => `Được chèn bởi: ${users}`,
+    deleted_by: (users: string) => `Được xóa bởi: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Thay đổi định dạng (${formats}) bởi: ${users}`,
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

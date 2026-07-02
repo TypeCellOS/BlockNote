@@ -393,6 +393,14 @@ export const pt: Dictionary = {
       more_replies: (count) => `${count} respostas a mais`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "Alteração de formatação",
+    deleted: "Excluído",
+    inserted_by: (users: string) => `Inserido por: ${users}`,
+    deleted_by: (users: string) => `Excluído por: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Alteração de formatação (${formats}) por: ${users}`,
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

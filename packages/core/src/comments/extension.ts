@@ -7,12 +7,11 @@ import {
   ExtensionOptions,
 } from "../editor/BlockNoteExtension.js";
 import { ShowSelectionExtension } from "../extensions/ShowSelection/ShowSelection.js";
+import { normalizeToUserStore, UserStoreOrResolver } from "../user/index.js";
 import { CustomBlockNoteSchema } from "../schema/schema.js";
 import { CommentMark } from "./mark.js";
 import type { ThreadStore } from "./threadstore/ThreadStore.js";
 import type { CommentBody, ThreadData } from "./types.js";
-import { User } from "./types.js";
-import { UserStore } from "./userstore/UserStore.js";
 
 const PLUGIN_KEY = new PluginKey("blocknote-comments");
 
@@ -67,11 +66,16 @@ export const CommentsExtension = createExtension(
      */
     threadStore: ThreadStore;
     /**
-     * Resolve user information for comments.
+     * Resolve user information (names, avatars) for comment authors.
+     *
+     * Either a resolver function (called with the ids of users that are not yet
+     * cached, returning their information) or a pre-built user store (see
+     * `createUserStore`). Pass the same store to the collaboration options so a
+     * single de-duped user cache is shared across comments and collaboration.
      *
      * See [Comments](https://www.blocknotejs.org/docs/features/collaboration/comments) for more info.
      */
-    resolveUsers: (userIds: string[]) => Promise<User[]>;
+    resolveUsers: UserStoreOrResolver;
     /**
      * A schema to use for the comment editor (which allows you to customize the blocks and styles that are available in the comment editor)
      */
@@ -87,9 +91,12 @@ export const CommentsExtension = createExtension(
         "threadStore is required to be defined when using comments",
       );
     }
+    // Resolve users through this store, exposed on the extension instance so the
+    // comments UI can read from it directly. Accepts a resolver callback or a
+    // shared store (see the option docs above).
+    const userStore = normalizeToUserStore(resolveUsers);
     const markType = CommentMark.name;
 
-    const userStore = new UserStore<User>(resolveUsers);
     const store = createStore(
       {
         pendingComment: false,
@@ -157,6 +164,7 @@ export const CommentsExtension = createExtension(
     return {
       key: "comments",
       store,
+      userStore,
       runsBefore: ["link"],
       tiptapExtensions: [CommentMark],
       prosemirrorPlugins: [
@@ -362,7 +370,6 @@ export const CommentsExtension = createExtension(
           });
         }
       },
-      userStore,
       commentEditorSchema,
     } as const;
   },

@@ -9,7 +9,7 @@ import { FixupCreateAndFillExtension } from "./FixupCreateAndFill.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
 import { RelativePositionMappingExtension } from "./RelativePositionMapping.js";
 import { SchemaMigration } from "./schemaMigration/SchemaMigration.js";
-import { YCursorExtension } from "./YCursorPlugin.js";
+import { CollaborationUser, YCursorExtension } from "./YCursorPlugin.js";
 import { YSyncExtension } from "./YSync.js";
 import { YUndoExtension } from "./YUndo.js";
 
@@ -21,10 +21,7 @@ export type CollaborationOptions = {
   /**
    * The user info for the current user that's shown to other collaborators.
    */
-  user: {
-    name: string;
-    color: string;
-  };
+  user: CollaborationUser;
   /**
    * A Yjs provider (used for awareness / cursor information)
    */
@@ -32,7 +29,7 @@ export type CollaborationOptions = {
   /**
    * Optional function to customize how cursors of users are rendered
    */
-  renderCursor?: (user: any) => HTMLElement;
+  renderCursor?: (user: CollaborationUser) => HTMLElement;
   /**
    * Optional flag to set when the user label should be shown with the default
    * collaboration cursor. Setting to "always" will always show the label,
@@ -69,13 +66,6 @@ export function withCollaboration<
     collaboration: CollaborationOptions;
   },
 ): Options {
-  if (options.initialContent) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider",
-    );
-  }
-
   return {
     ...options,
     extensions: [
@@ -93,6 +83,7 @@ export function withCollaboration<
 export * from "./ForkYDoc.js";
 export * from "./RelativePositionMapping.js";
 export * from "./schemaMigration/SchemaMigration.js";
+export * from "./Versioning.js";
 export * from "./YCursorPlugin.js";
 export * from "./YSync.js";
 export * from "./YUndo.js";
