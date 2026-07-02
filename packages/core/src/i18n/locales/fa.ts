@@ -372,6 +372,10 @@ export const fa = {
   suggestion_changes: {
     formatting_change: "تغییر قالب‌بندی",
     deleted: "حذف\u200cشده",
+    inserted_by: (users: string) => `درج‌شده توسط: ${users}`,
+    deleted_by: (users: string) => `حذف‌شده توسط: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `تغییر قالب‌بندی (${formats}) توسط: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

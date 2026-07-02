@@ -428,6 +428,10 @@ export const uk: Dictionary = {
   suggestion_changes: {
     formatting_change: "Зміна форматування",
     deleted: "Видалено",
+    inserted_by: (users: string) => `Вставлено користувачем: ${users}`,
+    deleted_by: (users: string) => `Видалено користувачем: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Зміна форматування (${formats}) користувачем: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

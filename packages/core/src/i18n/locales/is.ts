@@ -417,6 +417,10 @@ export const is: Dictionary = {
   suggestion_changes: {
     formatting_change: "Sniðbreyting",
     deleted: "Eytt",
+    inserted_by: (users: string) => `Sett inn af: ${users}`,
+    deleted_by: (users: string) => `Eytt af: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Sniðbreyting (${formats}) af: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

@@ -445,6 +445,10 @@ export const zhTW: Dictionary = {
   suggestion_changes: {
     formatting_change: "格式變更",
     deleted: "已刪除",
+    inserted_by: (users: string) => `插入者：${users}`,
+    deleted_by: (users: string) => `刪除者：${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `格式變更（${formats}），變更者：${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

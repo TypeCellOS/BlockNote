@@ -417,6 +417,10 @@ export const hr: Dictionary = {
   suggestion_changes: {
     formatting_change: "Promjena oblikovanja",
     deleted: "Izbrisano",
+    inserted_by: (users: string) => `Umetnuo/la: ${users}`,
+    deleted_by: (users: string) => `Izbrisao/la: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Promjena oblikovanja (${formats}) od: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

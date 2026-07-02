@@ -61,6 +61,7 @@ export * from "./components/SideMenu/SideMenuProps.js";
 export * from "./components/AttributionTooltip/AttributionTooltip.js";
 export * from "./components/AttributionTooltip/AttributionTooltipController.js";
 export * from "./components/AttributionTooltip/AttributionTooltipProps.js";
+export * from "./components/AttributionTooltip/formatChangeLabel.js";
 
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/BlockColorsItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/RemoveBlockItem.js";

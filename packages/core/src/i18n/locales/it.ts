@@ -426,6 +426,10 @@ export const it: Dictionary = {
   suggestion_changes: {
     formatting_change: "Modifica formattazione",
     deleted: "Eliminato",
+    inserted_by: (users: string) => `Inserito da: ${users}`,
+    deleted_by: (users: string) => `Eliminato da: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Modifica formattazione (${formats}) da: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

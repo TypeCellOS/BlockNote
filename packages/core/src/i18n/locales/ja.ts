@@ -444,6 +444,10 @@ export const ja: Dictionary = {
   suggestion_changes: {
     formatting_change: "書式の変更",
     deleted: "削除済み",
+    inserted_by: (users: string) => `挿入者: ${users}`,
+    deleted_by: (users: string) => `削除者: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `書式の変更 (${formats}) 変更者: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

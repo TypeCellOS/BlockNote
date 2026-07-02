@@ -402,6 +402,10 @@ export const sk = {
   suggestion_changes: {
     formatting_change: "Zmena formátovania",
     deleted: "Odstránené",
+    inserted_by: (users: string) => `Vložil: ${users}`,
+    deleted_by: (users: string) => `Odstránil: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Zmena formátovania (${formats}) od: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

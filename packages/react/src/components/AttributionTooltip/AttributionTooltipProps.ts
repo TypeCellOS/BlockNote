@@ -4,7 +4,12 @@
  * (minus the anchor element, which the controller uses for positioning).
  */
 export type AttributionTooltipProps = {
-  /** Resolved display text (localized format label + usernames). */
+  /**
+   * Resolved display text (the localized format label, for modification marks,
+   * followed by the usernames). Composed by the controller from `users` and the
+   * configurable `formatChangeLabel`; a custom tooltip can render this directly
+   * or rebuild its own from `users` / `formatLabel`.
+   */
   text: string;
   /** Per-user author color; ignored by the default component when `className` is set. */
   color: string;
@@ -16,6 +21,14 @@ export type AttributionTooltipProps = {
   contentType: "inline-content" | "block";
   /** Resolved usernames (falls back to raw ids). */
   users: string[];
-  /** Localized formatting-change label, present only for `format` marks. */
+  /**
+   * The changed format keys (e.g. `["bold", "italic"]`), present only for
+   * `format` marks — the raw change context, for custom categorization.
+   */
+  format?: string[];
+  /**
+   * Localized formatting-change label (via `formatChangeLabel`), present only
+   * for `format` marks.
+   */
   formatLabel?: string;
 };

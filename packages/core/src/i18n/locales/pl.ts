@@ -395,6 +395,10 @@ export const pl: Dictionary = {
   suggestion_changes: {
     formatting_change: "Zmiana formatowania",
     deleted: "Usunięto",
+    inserted_by: (users: string) => `Wstawione przez: ${users}`,
+    deleted_by: (users: string) => `Usunięte przez: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Zmiana formatowania (${formats}) przez: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

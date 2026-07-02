@@ -5,7 +5,6 @@ import {
   createStore,
   type ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
-import type { Dictionary } from "../../i18n/dictionary.js";
 import {
   normalizeToUserStore,
   type UserStoreOrResolver,
@@ -44,45 +43,40 @@ const parseUserIds = (userIdsJSON: string | undefined): string[] => {
 };
 
 /**
- * Localized label for a modification mark's `data-format` (e.g. `"Bold, Italic"`),
- * looking each changed format up in the toolbar dictionary. Falls back to the
- * generic `"Formatting Change"` if any key is missing a translation.
+ * The changed format keys from a modification mark's `data-format` (e.g.
+ * `["bold", "italic"]`); `[]` if missing/malformed or an empty change. This is
+ * the raw change context — turning it into a localized label (e.g.
+ * `"Bold, Italic"`) is a view concern owned by the React layer's
+ * `formatChangeLabel`, so core stays i18n-agnostic here.
  */
-const formatChangeLabel = (
-  formatJSON: string | undefined,
-  dictionary: Dictionary,
-): string => {
-  const fallback = dictionary.suggestion_changes.formatting_change;
+const parseFormatKeys = (formatJSON: string | undefined): string[] => {
   if (!formatJSON) {
-    return fallback;
+    return [];
   }
   let format: unknown;
   try {
     format = JSON.parse(formatJSON);
   } catch {
-    return fallback;
+    return [];
   }
   if (typeof format !== "object" || format === null) {
-    return fallback;
+    return [];
   }
-  const keys = Object.keys(format);
-  if (keys.length === 0) {
-    return fallback;
+  return Object.keys(format);
+};
+
+/**
+ * The element with a real box to anchor the tooltip to. The wrapper is
+ * `display: contents` (no box of its own), so use its content span child,
+ * falling back further for block marks.
+ */
+const getReferenceElement = (wrapper: Element): Element => {
+  const content = wrapper.firstElementChild ?? wrapper;
+  const rect = content.getBoundingClientRect();
+  if (rect.width || rect.height) {
+    return content;
   }
-  const toolbar = dictionary.formatting_toolbar as Record<string, unknown>;
-  const names: string[] = [];
-  for (const key of keys) {
-    const entry = toolbar[key];
-    const tooltip =
-      entry && typeof entry === "object" && "tooltip" in entry
-        ? (entry as { tooltip: unknown }).tooltip
-        : undefined;
-    if (typeof tooltip !== "string") {
-      return fallback;
-    }
-    names.push(tooltip);
-  }
-  return names.join(", ");
+  return content.firstElementChild ?? content;
 };
 
 /**
@@ -90,14 +84,16 @@ const formatChangeLabel = (
  * its own), so use its content span child, falling back further for block marks.
  * Exported for the React controller's floating-ui `getBoundingClientRect`.
  */
-export const getReferenceRect = (wrapper: Element): DOMRect => {
-  const content = wrapper.firstElementChild ?? wrapper;
-  const rect = content.getBoundingClientRect();
-  if (rect.width || rect.height) {
-    return rect;
-  }
-  return content.firstElementChild?.getBoundingClientRect() ?? rect;
-};
+export const getReferenceRect = (wrapper: Element): DOMRect =>
+  getReferenceElement(wrapper).getBoundingClientRect();
+
+/**
+ * The per-line client rects of the reference element, for floating-ui's
+ * `inline()` middleware — it needs one rect per line to position off a
+ * multi-line mark, and virtual elements don't get a default `getClientRects`.
+ */
+export const getReferenceClientRects = (wrapper: Element): DOMRectList =>
+  getReferenceElement(wrapper).getClientRects();
 
 /**
  * State for the currently-hovered suggestion mark's tooltip (`undefined` when
@@ -107,8 +103,6 @@ export const getReferenceRect = (wrapper: Element): DOMRect => {
 export type AttributionTooltipState = {
   /** The wrapper element the tooltip anchors to (floating-ui reference). */
   anchor: HTMLElement;
-  /** Resolved display text (localized format label + usernames). */
-  text: string;
   /** Per-user background color, resolved from the user store (default path). */
   color: string;
   /** The kind of change — `format` is the modification mark. */
@@ -117,8 +111,12 @@ export type AttributionTooltipState = {
   contentType: "inline-content" | "block";
   /** Resolved usernames (falls back to raw ids), for custom renderers. */
   users: string[];
-  /** Localized formatting-change label, present only for `format` marks. */
-  formatLabel?: string;
+  /**
+   * The changed format keys (e.g. `["bold", "italic"]`), present only for
+   * `format` marks. This is the raw change context — the view layer turns it
+   * into a localized label via its `formatChangeLabel`.
+   */
+  format?: string[];
   /**
    * Class name from the `getAttributionMarkClassName` callback (override path).
    * When present, the tooltip applies this and skips the inline `color`.
@@ -134,7 +132,6 @@ export type AttributionTooltipState = {
  */
 export const AttributionExtension = createExtension(
   ({
-    editor,
     options,
   }: ExtensionOptions<
     | {
@@ -236,29 +233,23 @@ export const AttributionExtension = createExtension(
             (id) => userStore.getUser(id)?.username ?? id,
           );
 
-        // The tooltip text for a wrapper (empty if unattributed). Modification
-        // marks prefix the authors with a localized change label, e.g.
-        // `"Bold: Alice"`.
-        const attributionText = (wrapper: HTMLElement) => {
-          const users = usersLabelArray(wrapper.dataset["userIds"]).join(", ");
-          if (!users) {
+        // A stable identity string for a wrapper (empty if unattributed), used to
+        // (a) test whether a mark is attributed and (b) group adjacent marks with
+        // the *same* attribution under one tooltip. It's an internal grouping key,
+        // not the displayed text — that's composed in the view from `users` and
+        // the format label — so it's built from raw `data-*` (ids + format keys)
+        // and stays free of i18n/username resolution.
+        const attributionIdentity = (wrapper: HTMLElement) => {
+          const ids = parseUserIds(wrapper.dataset["userIds"]);
+          if (ids.length === 0) {
             return "";
           }
-          if (wrapper.dataset["format"] !== undefined) {
-            const label = formatChangeLabel(
-              wrapper.dataset["format"],
-              editor.dictionary,
-            );
-            return `${label}: ${users}`;
-          }
-          return users;
+          const format = parseFormatKeys(wrapper.dataset["format"]);
+          return `${format.join(",")}:${ids.join(",")}`;
         };
 
-        // Build the tooltip state from a wrapper's `data-*` attributes and text.
-        const buildState = (
-          anchor: HTMLElement,
-          text: string,
-        ): AttributionTooltipState => {
+        // Build the tooltip state from a wrapper's `data-*` attributes.
+        const buildState = (anchor: HTMLElement): AttributionTooltipState => {
           const isModification = anchor.dataset["format"] !== undefined;
           const modificationType: AttributionTooltipState["modificationType"] =
             isModification
@@ -271,7 +262,6 @@ export const AttributionExtension = createExtension(
 
           return {
             anchor,
-            text,
             // The tooltip is portaled outside the editor root, so it can't read
             // the cascaded per-user vars — resolve a concrete color from the store.
             color: colorsForUserIds(
@@ -281,8 +271,8 @@ export const AttributionExtension = createExtension(
             modificationType,
             contentType,
             users: usersLabelArray(anchor.dataset["userIds"]),
-            formatLabel: isModification
-              ? formatChangeLabel(anchor.dataset["format"], editor.dictionary)
+            format: isModification
+              ? parseFormatKeys(anchor.dataset["format"])
               : undefined,
             className: resolveAttributionMarkClassName(
               getAttributionMarkClassName?.({ contentType, modificationType }),
@@ -309,7 +299,7 @@ export const AttributionExtension = createExtension(
             if (!wrapper) {
               return undefined;
             }
-            if (attributionText(wrapper)) {
+            if (attributionIdentity(wrapper)) {
               return wrapper;
             }
             el = wrapper.parentElement;
@@ -326,10 +316,10 @@ export const AttributionExtension = createExtension(
             return;
           }
 
-          const text = attributionText(innermost);
-          // Anchor on the outermost ancestor with the *same* text so one tooltip
-          // covers the whole region; a differently-attributed ancestor breaks the
-          // chain, and unattributed ones are climbed past.
+          const identity = attributionIdentity(innermost);
+          // Anchor on the outermost ancestor with the *same* attribution so one
+          // tooltip covers the whole region; a differently-attributed ancestor
+          // breaks the chain, and unattributed ones are climbed past.
           let anchor = innermost;
           let el: Element | null = innermost.parentElement;
           while (el) {
@@ -337,10 +327,10 @@ export const AttributionExtension = createExtension(
             if (!ancestor) {
               break;
             }
-            const ancestorText = attributionText(ancestor);
-            if (ancestorText === text) {
+            const ancestorIdentity = attributionIdentity(ancestor);
+            if (ancestorIdentity === identity) {
               anchor = ancestor;
-            } else if (ancestorText) {
+            } else if (ancestorIdentity) {
               break;
             }
             el = ancestor.parentElement;
@@ -351,20 +341,17 @@ export const AttributionExtension = createExtension(
           }
 
           activeAnchor = anchor;
-          store.setState(buildState(anchor, text));
+          store.setState(buildState(anchor));
 
           // First hover renders raw ids (cache-only); load the authors and refresh
-          // the text once resolved, if this mark is still active.
+          // the resolved usernames once loaded, if this mark is still active.
           const ids = parseUserIds(anchor.dataset["userIds"]);
           if (ids.length > 0) {
             void userStore.loadUsers(ids).then(() => {
               if (activeAnchor !== anchor) {
                 return;
               }
-              const refreshed = attributionText(anchor);
-              if (refreshed) {
-                store.setState(buildState(anchor, refreshed));
-              }
+              store.setState(buildState(anchor));
             });
           }
         };
