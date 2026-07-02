@@ -45,10 +45,17 @@ async function clickTableHandleMenuItem(
   await mouseSequence([
     { type: "click", x: box.x + box.width / 2, y: box.y + box.height / 2 },
   ]);
-  const menu = await waitForSelector(".bn-table-handle-menu");
+  // Re-query across ALL open handle menus on every retry: after clicking a prior
+  // menu item a stale `.bn-table-handle-menu` can briefly linger in the DOM
+  // (notably on WebKit, which unmounts it a frame later), so capturing a single
+  // menu up front and only searching that one can lock onto the wrong (old) menu
+  // and never find the item. Scanning every menu each attempt finds it in the
+  // fresh one.
   const item = await vi.waitFor(() => {
     const candidate = Array.from(
-      menu.querySelectorAll<HTMLElement>(".mantine-Menu-item"),
+      document.querySelectorAll<HTMLElement>(
+        ".bn-table-handle-menu .mantine-Menu-item",
+      ),
     ).find((el) => el.textContent?.trim() === label);
     if (!candidate) {
       throw new Error(`Menu item "${label}" not found`);
