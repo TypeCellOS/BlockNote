@@ -1446,6 +1446,35 @@ export const examples = {
           "In this example, we create a custom block which renders a simple HTML paragraph with placeholder text. The block has no editable content.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
+        projectSlug: "math-block",
+        fullSlug: "custom-schema/math-block",
+        pathFromRoot: "examples/06-custom-schema/09-math-block",
+        config: {
+          playground: true,
+          docs: true,
+          author: "matthewlipski",
+          tags: [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu",
+          ],
+          dependencies: {
+            "@blocknote/code-block": "latest",
+            "@blocknote/math-block": "latest",
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Math Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          "In this example, we register the `@blocknote/math-block` block in a custom schema. The math block renders LaTeX as MathML (using Temml) for the browser to display natively, and reveals an editable LaTeX source popup when selected. Exporting to HTML produces a MathML `<math>` element, and pasting MathML back in is converted to LaTeX.\n\n**Try it out:** Click a formula to edit its LaTeX!\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+      },
+      {
         projectSlug: "draggable-inline-content",
         fullSlug: "custom-schema/draggable-inline-content",
         pathFromRoot: "examples/06-custom-schema/draggable-inline-content",

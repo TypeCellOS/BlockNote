@@ -1,0 +1,229 @@
+import type { Node as ProsemirrorNode } from "prosemirror-model";
+import type { ViewMutationRecord } from "prosemirror-view";
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import type { BlockFromConfig, StyledText } from "../../../../schema/index.js";
+import { createSourceBlock } from "./createSourceBlock.js";
+import { CodeBlockPreview } from "../../CodeBlockOptions.js";
+import { SourceBlockWithPreviewExtension } from "../extensions/SourceBlockWithPreviewExtension.js";
+
+// Element shown instead of the preview when block has no content.
+const createAddSourceButton = (editor: BlockNoteEditor<any>) => {
+  const addSourceButton = document.createElement("div");
+  addSourceButton.className = "bn-add-source-code-button";
+  addSourceButton.contentEditable = "false";
+
+  const addSourceButtonIcon = document.createElement("div");
+  addSourceButtonIcon.className = "bn-add-source-code-button-icon";
+  addSourceButtonIcon.innerHTML =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12l-5.657 5.657-1.414-1.414L21.172 12l-4.243-4.243 1.414-1.414L24 12zM2.828 12l4.243 4.243-1.414 1.414L0 12l5.657-5.657 1.414 1.414L2.828 12z"></path></svg>';
+  addSourceButton.appendChild(addSourceButtonIcon);
+
+  const addSourceButtonText = document.createElement("p");
+  addSourceButtonText.className = "bn-add-source-code-button-text";
+  addSourceButtonText.textContent =
+    editor.dictionary.code_block.add_source_button_text;
+  addSourceButton.appendChild(addSourceButtonText);
+
+  return { dom: addSourceButton };
+};
+
+// Renders a preview which can be clicked to show the block's inline content as code in a popup,
+// alongside a language picker if multiple languages are supported. If no preview is provided, just
+// renders the same thing as `createSourceBlock`.
+export const createSourceBlockWithPreview = (
+  block: BlockFromConfig<any, any, any>,
+  editor: BlockNoteEditor<any>,
+  options?:
+    | {
+        selectedLanguage: string;
+        supportedLanguages: Record<
+          string,
+          {
+            name: string;
+            createPreview?: CodeBlockPreview;
+          }
+        >;
+      }
+    | {
+        createPreview: CodeBlockPreview;
+      },
+) => {
+  if (
+    options &&
+    "selectedLanguage" in options &&
+    !(options.selectedLanguage in options.supportedLanguages)
+  ) {
+    throw new Error(`Language ${options.selectedLanguage} is not supported.`);
+  }
+
+  const sourceBlock = createSourceBlock(
+    block,
+    editor,
+    options && "selectedLanguage" in options ? options : undefined,
+  );
+
+  const sourceCode =
+    typeof block.content === "string"
+      ? block.content
+      : Array.isArray(block.content)
+        ? (block.content as StyledText<any>[]).map(({ text }) => text).join("")
+        : "";
+
+  // Tracks the source the preview was last rendered from, so `update` can tell
+  // a source-text change (which it handles in place) from any other update.
+  let currentSource = sourceCode;
+
+  const createPreview = options
+    ? "createPreview" in options
+      ? options.createPreview
+      : options.supportedLanguages[options.selectedLanguage].createPreview
+    : undefined;
+
+  const preview = createPreview
+    ? sourceCode.length > 0
+      ? createPreview(block, editor)
+      : createAddSourceButton(editor)
+    : undefined;
+
+  if (!preview) {
+    return sourceBlock;
+  }
+
+  const previewWithSourcePopup = document.createElement("div");
+  previewWithSourcePopup.className = "bn-preview-with-source-popup";
+  previewWithSourcePopup.dataset.open = "false";
+
+  const previewContainer = document.createElement("div");
+  previewContainer.className = "bn-preview-container";
+  previewContainer.contentEditable = "false";
+  previewContainer.appendChild(preview.dom);
+  previewWithSourcePopup.appendChild(previewContainer);
+
+  const sourceBlockPopup = document.createElement("div");
+  sourceBlockPopup.className = "bn-source-block-popup";
+  sourceBlockPopup.appendChild(sourceBlock.dom);
+
+  // Wrapper with an "OK" button that closes the popup.
+  const okButtonWrapper = document.createElement("div");
+  okButtonWrapper.className = "bn-code-block-source-popup-ok-button-wrapper";
+  okButtonWrapper.contentEditable = "false";
+
+  const okButton = document.createElement("button");
+  okButton.className = "bn-code-block-source-popup-ok-button";
+  okButton.textContent = "OK";
+  okButtonWrapper.appendChild(okButton);
+
+  // Lays the source code and the "OK" button out side by side, with the button
+  // to the right of the `pre` element.
+  const pre = sourceBlock.contentDOM.parentElement!;
+  const sourcePopupBody = document.createElement("div");
+  sourcePopupBody.className = "bn-code-block-source-popup-body";
+  sourceBlockPopup.insertBefore(sourcePopupBody, pre);
+  sourcePopupBody.appendChild(pre);
+  sourcePopupBody.appendChild(okButtonWrapper);
+
+  const errorMessage = "error" in preview && preview.error ? preview.error : "";
+
+  const sourceError = document.createElement("div");
+  sourceError.className = "bn-code-block-source-error";
+  sourceError.contentEditable = "false";
+  sourceError.textContent = errorMessage;
+  sourceError.style.display = errorMessage ? "block" : "none";
+  sourceBlockPopup.appendChild(sourceError);
+
+  previewWithSourcePopup.appendChild(sourceBlockPopup);
+
+  const store = editor.getExtension(SourceBlockWithPreviewExtension)?.store;
+
+  const updateFromStore = () => {
+    previewWithSourcePopup.dataset.open =
+      store?.state.popupOpen === block.id ? "true" : "false";
+    previewWithSourcePopup.classList.toggle(
+      "ProseMirror-selectednode",
+      store?.state.selected === block.id,
+    );
+  };
+  updateFromStore();
+
+  const unsubscribeFromStore = store?.subscribe(updateFromStore);
+
+  // Opens the popup when clicking the preview.
+  const handlePreviewMouseDown = (event: MouseEvent) => {
+    if (!editor.isEditable) {
+      return;
+    }
+
+    store?.setState((state) => ({ ...state, popupOpen: block.id }));
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    editor.setTextCursorPosition(block.id, "end");
+    editor.focus();
+  };
+  previewContainer.addEventListener("mousedown", handlePreviewMouseDown);
+
+  // Closes the popup when clicking the "OK" button.
+  const handleOkButtonMouseDown = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    store?.setState((state) => ({ ...state, popupOpen: undefined }));
+  };
+  okButton.addEventListener("mousedown", handleOkButtonMouseDown);
+
+  return {
+    dom: previewWithSourcePopup,
+    contentDOM: sourceBlock.contentDOM,
+    ignoreMutation: (mutation: ViewMutationRecord) =>
+      // Ignore mutations outside of the inline content container. Used mainly to ignore DOM
+      // changes caused preview updates.
+      !sourceBlock.contentDOM.parentElement ||
+      !sourceBlock.contentDOM.parentElement.contains(mutation.target),
+    update: (node: ProsemirrorNode) => {
+      // Always returns `false` and recreates the view when an update was triggered but the block's
+      // text content didn't change. If the text content did change and the preview didn't return
+      // an error, returns `true` preventing the view from getting recreated, and updates the
+      // preview in-place.
+      const newSource = node.textContent;
+      if (newSource === currentSource) {
+        return false;
+      }
+      currentSource = newSource;
+
+      if (!createPreview) {
+        return false;
+      }
+
+      const currentBlock = editor.getBlock(block.id);
+      if (!currentBlock) {
+        return false;
+      }
+
+      const preview =
+        newSource.length > 0
+          ? createPreview(
+              currentBlock as BlockFromConfig<any, any, any>,
+              editor,
+            )
+          : createAddSourceButton(editor);
+
+      const errorMessage =
+        "error" in preview && preview.error ? preview.error : "";
+      if (!errorMessage) {
+        previewContainer.replaceChildren(preview.dom);
+      }
+
+      sourceError.textContent = errorMessage;
+      sourceError.style.display = errorMessage ? "block" : "none";
+
+      return true;
+    },
+    destroy: () => {
+      sourceBlock.destroy();
+      unsubscribeFromStore?.();
+      previewContainer.removeEventListener("mousedown", handlePreviewMouseDown);
+      okButton.removeEventListener("mousedown", handleOkButtonMouseDown);
+    },
+  };
+};

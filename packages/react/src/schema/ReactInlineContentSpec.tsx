@@ -6,6 +6,8 @@ import {
   createInternalInlineContentSpec,
   CustomInlineContentConfig,
   CustomInlineContentImplementation,
+  Extension,
+  ExtensionFactoryInstance,
   getInlineContentParseRules,
   InlineContentFromConfig,
   InlineContentSchemaWithInlineContent,
@@ -44,6 +46,16 @@ export type ReactCustomInlineContentRenderProps<
     S
   >;
   contentRef: (node: HTMLElement | null) => void;
+  /**
+   * The ProseMirror node backing this inline content.
+   */
+  node: NodeViewProps["node"];
+  /**
+   * Returns this inline content's position in the document. When rendered
+   * outside the editor (i.e. serialized to HTML) this is a no-op that returns
+   * `undefined`.
+   */
+  getPos: NodeViewProps["getPos"];
 };
 
 // extend BlockConfig but use a React render function
@@ -105,6 +117,8 @@ export function InlineContentWrapper<
  * @param inlineContentImplementation - The React implementation, including a
  * `render` component and optionally a `toExternalHTML` component and `parse`
  * rules.
+ * @param extensions - Optional editor extensions registered alongside this
+ * inline content (e.g. for keyboard handling), mirroring block specs.
  * @returns An `InlineContentSpec` that can be passed to the editor's schema.
  */
 export function createReactInlineContentSpec<
@@ -114,6 +128,7 @@ export function createReactInlineContentSpec<
 >(
   inlineContentConfig: T,
   inlineContentImplementation: ReactInlineContentImplementation<T, S>,
+  extensions?: (Extension | ExtensionFactoryInstance)[],
 ): InlineContentSpec<T> {
   const node = Node.create({
     name: inlineContentConfig.type as T["type"],
@@ -138,6 +153,7 @@ export function createReactInlineContentSpec<
       return getInlineContentParseRules(
         inlineContentConfig,
         inlineContentImplementation.parse,
+        inlineContentImplementation.parseContent,
       );
     },
 
@@ -166,6 +182,8 @@ export function createReactInlineContentSpec<
               // No-op
             }}
             editor={editor}
+            node={node}
+            getPos={() => undefined}
           />
         ),
         editor,
@@ -205,6 +223,8 @@ export function createReactInlineContentSpec<
                     }
                   }}
                   editor={editor}
+                  node={props.node}
+                  getPos={props.getPos}
                   inlineContent={
                     nodeToCustomInlineContent(
                       props.node,
@@ -248,6 +268,12 @@ export function createReactInlineContentSpec<
       node,
       render(inlineContent, updateInlineContent, editor) {
         const Content = inlineContentImplementation.render;
+        // Rendered outside the editor (serialization), so there's no live node
+        // view - derive the node from the content and stub out `getPos`.
+        const node = inlineContentToNodes(
+          [inlineContent] as any,
+          editor.pmSchema,
+        )[0];
         const output = renderToDOMSpec((ref) => {
           return (
             <InlineContentWrapper
@@ -265,6 +291,8 @@ export function createReactInlineContentSpec<
                 editor={editor}
                 inlineContent={inlineContent}
                 updateInlineContent={updateInlineContent}
+                node={node}
+                getPos={() => undefined}
               />
             </InlineContentWrapper>
           );
@@ -275,6 +303,12 @@ export function createReactInlineContentSpec<
         const Content =
           inlineContentImplementation.toExternalHTML ||
           inlineContentImplementation.render;
+        // Rendered outside the editor (serialization), so there's no live node
+        // view - derive the node from the content and stub out `getPos`.
+        const node = inlineContentToNodes(
+          [inlineContent] as any,
+          editor.pmSchema,
+        )[0];
         const output = renderToDOMSpec((ref) => {
           return (
             <InlineContentWrapper
@@ -294,6 +328,8 @@ export function createReactInlineContentSpec<
                 updateInlineContent={() => {
                   // no-op
                 }}
+                node={node}
+                getPos={() => undefined}
               />
             </InlineContentWrapper>
           );
@@ -301,5 +337,6 @@ export function createReactInlineContentSpec<
         return output;
       },
     },
+    extensions,
   ) as any;
 }

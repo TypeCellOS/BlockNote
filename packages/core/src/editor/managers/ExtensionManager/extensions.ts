@@ -15,6 +15,7 @@ import {
   FilePanelExtension,
   FormattingToolbarExtension,
   HistoryExtension,
+  InlineContentBoundaryEditExtension,
   LinkToolbarExtension,
   NodeSelectionKeyboardExtension,
   PlaceholderExtension,
@@ -23,6 +24,7 @@ import {
   ShowSelectionExtension,
   SideMenuExtension,
   SuggestionMenu,
+  SyntaxHighlightingExtension,
   TableHandlesExtension,
   TrailingNodeExtension,
 } from "../../../extensions/index.js";
@@ -175,9 +177,14 @@ export function getDefaultExtensions(
     SideMenuExtension(options),
     SuggestionMenu(options),
     HistoryExtension(),
+    InlineContentBoundaryEditExtension(),
     PositionMappingExtension(),
     ...(options.trailingBlock !== false ? [TrailingNodeExtension()] : []),
   ] as ExtensionFactoryInstance[];
+
+  if (options.syntaxHighlighting) {
+    extensions.push(SyntaxHighlightingExtension(options.syntaxHighlighting));
+  }
 
   if ("table" in editor.schema.blockSpecs) {
     extensions.push(TableHandlesExtension(options));

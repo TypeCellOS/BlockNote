@@ -470,6 +470,37 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     },
     executeTest: testExportBlockNoteHTML,
   },
+  {
+    testCase: {
+      name: "math/basic",
+      content: [
+        {
+          type: "math",
+          content: "a^2 + b^2 = c^2",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "inlineMath/basic",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            "The identity ",
+            {
+              type: "inlineMath",
+              content: "e^{i\\pi} + 1 = 0",
+            } as const,
+            " is elegant.",
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
 ];
 
 export const exportTestInstancesHTML: TestInstance<

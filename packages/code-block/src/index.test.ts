@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { codeBlockOptions } from "./index.js";
+import { codeBlockOptions, createHighlighter } from "./index.js";
 
 describe("codeBlock", () => {
   it("should exist", () => {
@@ -11,7 +11,7 @@ describe("codeBlock", () => {
   it("should have supportedLanguages", () => {
     expect(codeBlockOptions.supportedLanguages).toBeDefined();
   });
-  it("should have createHighlighter", () => {
-    expect(codeBlockOptions.createHighlighter).toBeDefined();
+  it("exports a separate createHighlighter", () => {
+    expect(createHighlighter).toBeDefined();
   });
 });

@@ -9,6 +9,16 @@ import { createHighlighter } from "./shiki.bundle";
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
+    // The Shiki highlighter is configured at the editor level, separately from
+    // the code block's own options (default language & language menu).
+    syntaxHighlighting: {
+      // This creates a highlighter, it can be asynchronous to load it afterwards
+      createHighlighter: () =>
+        createHighlighter({
+          themes: ["dark-plus", "light-plus"],
+          langs: [],
+        }),
+    },
     schema: BlockNoteSchema.create().extend({
       blockSpecs: {
         codeBlock: createCodeBlockSpec({
@@ -27,12 +37,6 @@ export default function App() {
               name: "Vue",
             },
           },
-          // This creates a highlighter, it can be asynchronous to load it afterwards
-          createHighlighter: () =>
-            createHighlighter({
-              themes: ["dark-plus", "light-plus"],
-              langs: [],
-            }),
         }),
       },
     }),

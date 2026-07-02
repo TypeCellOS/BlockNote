@@ -22,7 +22,10 @@ BASIC STYLES
 
 .bn-block-content.ProseMirror-selectednode > *,
 /* Case for node view renderers */
-.ProseMirror-selectednode > .bn-block-content > * {
+.ProseMirror-selectednode > .bn-block-content > *,
+/* Case for blocks/inline content where class is set manually */
+.bn-block-content .ProseMirror-selectednode,
+.bn-inline-content .ProseMirror-selectednode {
   border-radius: 4px;
   outline: 4px solid rgb(100, 160, 255);
 }
@@ -451,6 +454,208 @@ NESTED BLOCKS
 .bn-block-content[data-content-type="codeBlock"] > div > select:focus {
   opacity: 0.5;
   transition-delay: 0.1s;
+}
+
+/* CODE BLOCK PREVIEW */
+.bn-block-content[data-content-type="codeBlock"]:has(
+    .bn-preview-with-source-popup
+  ) {
+  background-color: transparent;
+  color: inherit;
+}
+
+/* Default to dark theme as the code block has a dark background regardless of theme. */
+.shiki {
+  color: var(--shiki-dark);
+}
+.bn-source-block-popup .shiki {
+  color: var(--shiki-light);
+}
+.bn-root[data-color-scheme="dark"] .bn-source-block-popup .shiki {
+  color: var(--shiki-dark);
+}
+
+.bn-preview-with-source-popup {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.bn-preview-container {
+  padding: 12px;
+  min-height: 1.5em;
+  cursor: text;
+  overflow: auto;
+}
+
+.bn-source-block-popup {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 1;
+  background-color: var(--bn-colors-menu-background);
+  color: var(--bn-colors-menu-text);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  max-height: 200px;
+  opacity: 0;
+  overflow: auto;
+  pointer-events: none;
+}
+
+.bn-preview-with-source-popup[data-open="true"] .bn-source-block-popup {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Toggled for a single frame while an up/down arrow press is handled, so the
+   browser's geometry-based vertical caret movement skips the popup. */
+.bn-suppress-source-popup-caret
+  .bn-inline-content-section
+  .bn-preview-with-source-popup:not([data-open="true"])
+  .bn-source-block-popup {
+  visibility: hidden;
+}
+
+.bn-source-block-popup > div > select {
+  outline: none !important;
+  appearance: none;
+  user-select: none;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  font-size: 0.8em;
+  color: var(--bn-colors-menu-text);
+  padding: 8px 16px 0;
+}
+
+.bn-source-block-popup > div > select > option {
+  color: black;
+}
+
+.bn-code-block-source-popup-body {
+  display: flex;
+  align-items: flex-end;
+}
+
+.bn-code-block-source-popup-body > pre {
+  white-space: pre;
+  overflow-x: auto;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  tab-size: 2;
+  padding: 16px;
+}
+
+.bn-code-block-source-error {
+  border-top: var(--bn-border);
+  color: var(--bn-colors-highlights-red-text);
+  font-size: 0.8em;
+  padding: 8px 16px;
+  white-space: pre-wrap;
+}
+
+.bn-code-block-source-popup-ok-button-wrapper {
+  align-items: flex-end;
+  display: flex;
+  justify-content: flex-end;
+  padding: 15px 16px;
+}
+
+.bn-code-block-source-popup-ok-button {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  background-color: rgb(37, 99, 235);
+  color: white;
+  font-size: 0.8em;
+  font-weight: 500;
+  border-radius: var(--bn-border-radius-small);
+  padding: 4px 8px;
+}
+
+.bn-editor[contenteditable="true"] .bn-code-block-source-popup-ok-button:hover {
+  background-color: rgb(29, 78, 216);
+}
+
+.bn-add-source-code-button {
+  align-items: center;
+  background-color: rgb(242, 241, 238);
+  border-radius: 4px;
+  color: rgb(125, 121, 122);
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+}
+
+.bn-add-source-code-button:where(.dark, .dark *) {
+  background-color: rgb(70, 70, 70);
+  color: rgb(190, 190, 190);
+}
+
+.bn-editor[contenteditable="true"] .bn-add-source-code-button:hover {
+  background-color: rgb(225, 225, 225);
+}
+
+.bn-editor[contenteditable="true"]
+  .bn-add-source-code-button:hover:where(.dark, .dark *) {
+  background-color: rgb(90, 90, 90);
+}
+
+.bn-add-source-code-button-icon {
+  display: flex;
+  width: 24px;
+  height: 24px;
+}
+
+.bn-add-source-code-button-text {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* INLINE MATH PREVIEW */
+/* Shares the block-preview markup/classes; these rules override the
+   block-preview defaults that don't suit inline use. */
+.bn-inline-content-section .bn-preview-with-source-popup {
+  display: inline-block;
+}
+
+.bn-inline-content-section .bn-preview-container {
+  padding: 0;
+  min-height: 0;
+  cursor: pointer;
+}
+
+.bn-inline-content-section .bn-source-block-popup {
+  width: 300px;
+}
+
+/* Keeps the popup from collapsing to a sliver while the source is empty. */
+.bn-inline-content-section .bn-code-block-source-popup-body > pre {
+  min-height: 1.5em;
+  box-sizing: content-box;
+}
+
+/* The "add source" button sits inline among text, so it needs to be compact
+   rather than the full-size block-preview button. */
+.bn-inline-content-section .bn-add-source-code-button {
+  display: inline-flex;
+  gap: 4px;
+  height: 19px;
+  margin-inline: 4px;
+  padding: 0 6px;
+}
+
+.bn-inline-content-section .bn-add-source-code-button-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.bn-inline-content-section .bn-add-source-code-button-text {
+  font-size: 0.85em;
 }
 
 /* PAGE BREAK */

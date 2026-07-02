@@ -221,6 +221,9 @@ export const de: Dictionary = {
     add_block_button:
       "Leerer aufklappbarer Bereich. Klicken, um einen Block hinzuzufügen.",
   },
+  code_block: {
+    add_source_button_text: "Quellcode hinzufügen",
+  },
   side_menu: {
     add_block_label: "Block hinzufügen",
     drag_handle_label: "Blockmenü öffnen",

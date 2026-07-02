@@ -35,6 +35,7 @@ const devAliases: Record<string, string> = {
     __dirname,
     "../packages/xl-email-exporter/src",
   ),
+  "@blocknote/math-block": resolve(__dirname, "../packages/math-block/src"),
   // "@liveblocks/react-blocknote": resolve(
   //   __dirname,
   //   "../../liveblocks/packages/liveblocks-react-blocknote/src/",

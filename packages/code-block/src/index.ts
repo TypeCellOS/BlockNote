@@ -1,6 +1,13 @@
 import type { CodeBlockOptions } from "@blocknote/core";
-import { createHighlighter } from "./shiki.bundle.js";
+import { createHighlighter as createShikiHighlighter } from "./shiki.bundle.js";
 
+export const createHighlighter = () =>
+  createShikiHighlighter({
+    themes: ["github-dark", "github-light"],
+    langs: [],
+  });
+
+// TODO: Should this be here or in the core code block?
 export const codeBlockOptions = {
   defaultLanguage: "javascript",
   supportedLanguages: {
@@ -197,9 +204,4 @@ export const codeBlockOptions = {
       aliases: ["objective-c", "objc"],
     },
   },
-  createHighlighter: () =>
-    createHighlighter({
-      themes: ["github-dark", "github-light"],
-      langs: [],
-    }),
 } satisfies CodeBlockOptions;

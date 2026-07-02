@@ -201,6 +201,9 @@ export const nl: Dictionary = {
   toggle_blocks: {
     add_block_button: "Lege uitklapper. Klik om een blok toe te voegen.",
   },
+  code_block: {
+    add_source_button_text: "Broncode toevoegen",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Nieuw blok",

@@ -121,13 +121,12 @@
       "content": "inline",
       "propSchema": {
         "language": {
-          "default": "text",
+          "default": "javascript",
         },
       },
       "type": "codeBlock",
     },
     "extensions": [
-      [Function],
       [Function],
     ],
     "implementation": {
