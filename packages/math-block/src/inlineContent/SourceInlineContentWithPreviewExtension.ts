@@ -34,38 +34,42 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
       selected: undefined,
     });
 
-    // Moves the selection out of (just after) the inline content, which closes
-    // the popup via the selection-change handler below. Lets the keyboard
-    // commit-and-exit the source the same way arrowing past its end does, and
-    // keeps Enter from splitting the block while editing the source.
-    const moveSelectionOut = ({
-      editor,
-    }: {
-      editor: BlockNoteEditor<any, any, any>;
-    }) => {
-      const { $from } = editor.prosemirrorState.selection;
-      const node = $from.node();
-      if (node.type.name !== inlineContentType) {
-        return false;
-      }
+    // Moves the selection out of the inline content, to just `"before"` or
+    // `"after"` it, which closes the popup via the selection-change handler
+    // below. Lets the keyboard commit-and-exit the source the same way arrowing
+    // past its edge does, keeps Enter from splitting the block while editing the
+    // source, and lets the up/down arrows step out of the source rather than
+    // staying trapped inside it.
+    const moveSelectionOut =
+      (direction: "before" | "after") =>
+      ({ editor }: { editor: BlockNoteEditor<any, any, any> }) => {
+        const { $from } = editor.prosemirrorState.selection;
+        const node = $from.node();
+        if (node.type.name !== inlineContentType) {
+          return false;
+        }
 
-      const view = editor.prosemirrorView!;
-      const selection = Selection.near(
-        view.state.doc.resolve($from.after()),
-        1,
-      );
-      view.dispatch(view.state.tr.setSelection(selection));
+        const view = editor.prosemirrorView!;
+        const selection = Selection.near(
+          view.state.doc.resolve(
+            direction === "before" ? $from.before() : $from.after(),
+          ),
+          direction === "before" ? -1 : 1,
+        );
+        view.dispatch(view.state.tr.setSelection(selection));
 
-      return true;
-    };
+        return true;
+      };
 
     return {
       key,
       store,
       runsBefore,
       keyboardShortcuts: {
-        Enter: moveSelectionOut,
-        Escape: moveSelectionOut,
+        Enter: moveSelectionOut("after"),
+        Escape: moveSelectionOut("after"),
+        ArrowUp: moveSelectionOut("before"),
+        ArrowDown: moveSelectionOut("after"),
       },
       // Cannot use `inputRules` field as it only allows for converting matched content to blocks.
       prosemirrorPlugins: [
