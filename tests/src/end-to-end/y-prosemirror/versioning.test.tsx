@@ -35,6 +35,7 @@ const VERSIONING_CRASHES = new Set([
   "move-paragraph-with-children",
   "nesting-unindent",
   "concurrent-table-row-vs-column",
+  "concurrent-nest-both-under-n0",
 ]);
 
 // A headless editor, used only for its (default) schema when seeding Y.Docs.
