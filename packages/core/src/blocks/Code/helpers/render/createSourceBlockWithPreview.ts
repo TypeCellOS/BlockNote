@@ -103,6 +103,25 @@ export const createSourceBlockWithPreview = (
   sourceBlockPopup.className = "bn-source-block-popup";
   sourceBlockPopup.appendChild(sourceBlock.dom);
 
+  // Wrapper with an "OK" button that closes the popup.
+  const okButtonWrapper = document.createElement("div");
+  okButtonWrapper.className = "bn-code-block-source-popup-ok-button-wrapper";
+  okButtonWrapper.contentEditable = "false";
+
+  const okButton = document.createElement("button");
+  okButton.className = "bn-code-block-source-popup-ok-button";
+  okButton.textContent = "OK";
+  okButtonWrapper.appendChild(okButton);
+
+  // Lays the source code and the "OK" button out side by side, with the button
+  // to the right of the `pre` element.
+  const pre = sourceBlock.contentDOM.parentElement!;
+  const sourcePopupBody = document.createElement("div");
+  sourcePopupBody.className = "bn-code-block-source-popup-body";
+  sourceBlockPopup.insertBefore(sourcePopupBody, pre);
+  sourcePopupBody.appendChild(pre);
+  sourcePopupBody.appendChild(okButtonWrapper);
+
   const errorMessage = "error" in preview && preview.error ? preview.error : "";
 
   const sourceError = document.createElement("div");
@@ -129,7 +148,7 @@ export const createSourceBlockWithPreview = (
   const unsubscribeFromStore = store?.subscribe(updateFromStore);
 
   // Opens the popup when clicking the preview.
-  const handleMouseDown = (event: MouseEvent) => {
+  const handlePreviewMouseDown = (event: MouseEvent) => {
     if (!editor.isEditable) {
       return;
     }
@@ -142,7 +161,16 @@ export const createSourceBlockWithPreview = (
     editor.setTextCursorPosition(block.id, "end");
     editor.focus();
   };
-  previewContainer.addEventListener("mousedown", handleMouseDown);
+  previewContainer.addEventListener("mousedown", handlePreviewMouseDown);
+
+  // Closes the popup when clicking the "OK" button.
+  const handleOkButtonMouseDown = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    store?.setState((state) => ({ ...state, popupOpen: undefined }));
+  };
+  okButton.addEventListener("mousedown", handleOkButtonMouseDown);
 
   return {
     dom: previewWithSourcePopup,
@@ -194,7 +222,8 @@ export const createSourceBlockWithPreview = (
     destroy: () => {
       sourceBlock.destroy();
       unsubscribeFromStore?.();
-      previewContainer.removeEventListener("mousedown", handleMouseDown);
+      previewContainer.removeEventListener("mousedown", handlePreviewMouseDown);
+      okButton.removeEventListener("mousedown", handleOkButtonMouseDown);
     },
   };
 };

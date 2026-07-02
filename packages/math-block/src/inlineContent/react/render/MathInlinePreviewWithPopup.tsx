@@ -37,7 +37,7 @@ export const MathInlinePreviewWithPopup = (
   const { mathMLString, error } = useLatexToMathMLString(source, true);
 
   // Opens the popup when clicking the preview.
-  const handleMouseDown = (event: MouseEvent) => {
+  const handlePreviewMouseDown = (event: MouseEvent) => {
     if (!editor.isEditable || !pos) {
       return;
     }
@@ -56,6 +56,24 @@ export const MathInlinePreviewWithPopup = (
     editor.focus();
   };
 
+  // Closes the popup by moving the selection to just after the inline content.
+  const handleOkButtonMouseDown = (event: MouseEvent) => {
+    if (!editor.isEditable || !pos) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const view = editor.prosemirrorView!;
+    view.dispatch(
+      view.state.tr.setSelection(
+        TextSelection.create(view.state.tr.doc, pos + node.nodeSize),
+      ),
+    );
+    editor.focus();
+  };
+
   return (
     <span
       // The source is hidden, so highlight the whole inline content while the
@@ -69,7 +87,7 @@ export const MathInlinePreviewWithPopup = (
       <span
         className="bn-preview-container"
         contentEditable={false}
-        onMouseDown={handleMouseDown}
+        onMouseDown={handlePreviewMouseDown}
       >
         {source.length > 0 ? (
           <span dangerouslySetInnerHTML={{ __html: mathMLString }} />
@@ -80,9 +98,22 @@ export const MathInlinePreviewWithPopup = (
         )}
       </span>
       <div className="bn-source-block-popup">
-        <pre>
-          <code ref={contentRef} />
-        </pre>
+        <div className="bn-code-block-source-popup-body">
+          <pre>
+            <code ref={contentRef} />
+          </pre>
+          <div
+            className="bn-code-block-source-popup-ok-button-wrapper"
+            contentEditable={false}
+          >
+            <button
+              className="bn-code-block-source-popup-ok-button"
+              onMouseDown={handleOkButtonMouseDown}
+            >
+              OK
+            </button>
+          </div>
+        </div>
         <div
           className="bn-code-block-source-error"
           contentEditable={false}

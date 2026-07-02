@@ -485,6 +485,7 @@ NESTED BLOCKS
   padding: 12px;
   min-height: 1.5em;
   cursor: text;
+  overflow: auto;
 }
 
 .bn-source-block-popup {
@@ -498,7 +499,9 @@ NESTED BLOCKS
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
   box-shadow: var(--bn-shadow-medium);
+  max-height: 200px;
   opacity: 0;
+  overflow: auto;
   pointer-events: none;
 }
 
@@ -532,11 +535,17 @@ NESTED BLOCKS
   color: black;
 }
 
-.bn-source-block-popup > pre {
+.bn-code-block-source-popup-body {
+  display: flex;
+  align-items: flex-end;
+}
+
+.bn-code-block-source-popup-body > pre {
   white-space: pre;
   overflow-x: auto;
   margin: 0;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   tab-size: 2;
   padding: 16px;
 }
@@ -547,6 +556,29 @@ NESTED BLOCKS
   font-size: 0.8em;
   padding: 8px 16px;
   white-space: pre-wrap;
+}
+
+.bn-code-block-source-popup-ok-button-wrapper {
+  align-items: flex-end;
+  display: flex;
+  justify-content: flex-end;
+  padding: 15px 16px;
+}
+
+.bn-code-block-source-popup-ok-button {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  background-color: rgb(37, 99, 235);
+  color: white;
+  font-size: 0.8em;
+  font-weight: 500;
+  border-radius: var(--bn-border-radius-small);
+  padding: 4px 8px;
+}
+
+.bn-editor[contenteditable="true"] .bn-code-block-source-popup-ok-button:hover {
+  background-color: rgb(29, 78, 216);
 }
 
 .bn-add-source-code-button {
@@ -587,6 +619,10 @@ NESTED BLOCKS
 /* INLINE MATH PREVIEW */
 /* Shares the block-preview markup/classes; these rules override the
    block-preview defaults that don't suit inline use. */
+.bn-inline-content-section .bn-preview-with-source-popup {
+  display: inline-block;
+}
+
 .bn-inline-content-section .bn-preview-container {
   padding: 0;
   min-height: 0;
@@ -598,7 +634,7 @@ NESTED BLOCKS
 }
 
 /* Keeps the popup from collapsing to a sliver while the source is empty. */
-.bn-inline-content-section .bn-source-block-popup > pre {
+.bn-inline-content-section .bn-code-block-source-popup-body > pre {
   min-height: 1.5em;
   box-sizing: content-box;
 }

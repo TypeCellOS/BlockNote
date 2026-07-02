@@ -31,7 +31,7 @@ export const MathBlockPreviewWithPopup = (
   const { mathMLString, error } = useLatexToMathMLString(source);
 
   // Opens the popup when clicking the preview.
-  const handleMouseDown = (event: MouseEvent) => {
+  const handlePreviewMouseDown = (event: MouseEvent) => {
     if (!editor.isEditable) {
       return;
     }
@@ -45,6 +45,14 @@ export const MathBlockPreviewWithPopup = (
     editor.focus();
   };
 
+  // Closes the popup when clicking the "OK" button.
+  const handleOkButtonMouseDown = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    store.setState((state) => ({ ...state, popupOpen: undefined }));
+  };
+
   return (
     <div
       className={
@@ -56,7 +64,7 @@ export const MathBlockPreviewWithPopup = (
       <div
         className="bn-preview-container"
         contentEditable={false}
-        onMouseDown={handleMouseDown}
+        onMouseDown={handlePreviewMouseDown}
       >
         {source.length > 0 ? (
           <span dangerouslySetInnerHTML={{ __html: mathMLString }} />
@@ -67,9 +75,22 @@ export const MathBlockPreviewWithPopup = (
         )}
       </div>
       <div className="bn-source-block-popup">
-        <pre>
-          <code ref={contentRef} />
-        </pre>
+        <div className="bn-code-block-source-popup-body">
+          <pre>
+            <code ref={contentRef} />
+          </pre>
+          <div
+            className="bn-code-block-source-popup-ok-button-wrapper"
+            contentEditable={false}
+          >
+            <button
+              className="bn-code-block-source-popup-ok-button"
+              onMouseDown={handleOkButtonMouseDown}
+            >
+              OK
+            </button>
+          </div>
+        </div>
         <div
           className="bn-code-block-source-error"
           contentEditable={false}
