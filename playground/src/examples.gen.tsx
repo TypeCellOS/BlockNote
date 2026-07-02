@@ -1811,6 +1811,28 @@ export const examples = {
         readme:
           'This example shows how to use the `VersioningExtension` with collaborative editing using `@y/y` (v14). Snapshots are stored in localStorage using Yjs v2 state updates.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
       },
+      {
+        projectSlug: "suggestion-gallery",
+        fullSlug: "collaboration/suggestion-gallery",
+        pathFromRoot: "examples/07-collaboration/14-suggestion-gallery",
+        config: {
+          playground: true,
+          docs: false,
+          author: "yousefed",
+          tags: ["Advanced", "Development", "Collaboration"],
+          dependencies: {
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/y": "^14.0.0-rc.16",
+          } as any,
+        },
+        title: "Suggestion Scenarios Gallery",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          "Browse the suggestion (track-changes) rendering scenarios interactively. Each\nentry sets up a base document and applies a change in suggestion mode, so you can\nsee how insertions, deletions and type changes are visualized as a diff.\n\nThe **Base** pane (left) is read-only and shows the document before the change.\nThe **Suggestion** pane (right) is editable — keep typing to create more\nsuggestions on top.\n\nThese are the same scenarios covered by the y-prosemirror visual tests; the\nper-scenario definitions live in `src/scenarios.ts` so the tests and this gallery\nstay in sync.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/editor-basics/setup)\n- [Collaboration](/docs/collaboration/real-time-collaboration)",
+      },
     ],
   },
   extensions: {

@@ -110,22 +110,40 @@ export async function setupConcurrentSuggestionTest({
   // and the merged result is stable across runs, making these tests
   // reliable to snapshot.
 
+  // Each editor's attribution manager reads its `attrs` (a mutable
+  // `Y.Attributions`) on every transaction. We back each `attrs` with an
+  // in-memory store that records the author of each change (see
+  // `createInMemoryAttributionStore` below) so suggestions render in their
+  // author's color instead of all sharing the default. A and B are single-user
+  // docs, so every *local* edit is theirs. The merged doc replays A's and B's
+  // updates (see `sync()`); we tag those updates with the author id as the Yjs
+  // transaction origin so the merged view can color each change per user.
+  const attrsA = createInMemoryAttributionStore(suggestionDocA, (tr) =>
+    tr.local ? "A" : null,
+  );
   const managerA = Y.createAttributionManagerFromDiff(baseDoc, suggestionDocA, {
-    attrs: new Y.Attributions(),
+    attrs: attrsA,
   });
   managerA.suggestionMode = true;
 
+  const attrsB = createInMemoryAttributionStore(suggestionDocB, (tr) =>
+    tr.local ? "B" : null,
+  );
   const managerB = Y.createAttributionManagerFromDiff(baseDoc, suggestionDocB, {
-    attrs: new Y.Attributions(),
+    attrs: attrsB,
   });
   managerB.suggestionMode = true;
 
   // Merged is a viewer – it shows both users' suggestions but doesn't
   // record new ones, so `suggestionMode = false`.
+  const attrsMerged = createInMemoryAttributionStore(
+    suggestionDocMerged,
+    (tr) => (tr.origin === "A" || tr.origin === "B" ? tr.origin : null),
+  );
   const managerMerged = Y.createAttributionManagerFromDiff(
     baseDoc,
     suggestionDocMerged,
-    { attrs: new Y.Attributions() },
+    { attrs: attrsMerged },
   );
   managerMerged.suggestionMode = false;
 
@@ -239,8 +257,18 @@ export async function setupConcurrentSuggestionTest({
       editorMerged.getExtension(SuggestionsExtension)!.enableSuggestions();
     },
     sync: () => {
-      Y.applyUpdate(suggestionDocMerged, Y.encodeStateAsUpdate(suggestionDocA));
-      Y.applyUpdate(suggestionDocMerged, Y.encodeStateAsUpdate(suggestionDocB));
+      // Tag each user's updates with their id as the transaction origin so the
+      // merged doc's attribution store can color A's vs B's changes separately.
+      Y.applyUpdate(
+        suggestionDocMerged,
+        Y.encodeStateAsUpdate(suggestionDocA),
+        "A",
+      );
+      Y.applyUpdate(
+        suggestionDocMerged,
+        Y.encodeStateAsUpdate(suggestionDocB),
+        "B",
+      );
     },
   };
 }
@@ -252,4 +280,53 @@ function makeAwareness(
   const a = new Awareness(doc);
   a.setLocalStateField("user", user);
   return a;
+}
+
+/**
+ * In-memory attribution store — the local-only stand-in for the server-side
+ * attribution store (YHub) that real deployments use.
+ *
+ * It observes the doc and, for every transaction, records the author of that
+ * transaction's inserts/deletes into a mutable `Y.Attributions`. A
+ * `DiffAttributionManager` re-reads that same `attrs` object on each transaction
+ * (via its own `beforeObserverCalls` handler), so the suggestion marks pick up
+ * the author and render in their color (`colorsForUserIds` in YSync.ts).
+ *
+ * Crucially this store's handler must run BEFORE the manager's, so it is
+ * registered here and the caller creates the manager immediately afterwards
+ * (handlers fire in registration order) — the author is recorded before the
+ * manager reads it for the just-applied change.
+ *
+ * `resolveUserId(tr)` returns the transaction author's id, or null to skip
+ * (the base-content seed and the manager's base→suggestion flow carry no
+ * author and must stay unattributed).
+ */
+function createInMemoryAttributionStore(
+  doc: Y.Doc,
+  resolveUserId: (tr: any) => string | null,
+): Y.Attributions {
+  const attrs = new Y.Attributions();
+  doc.on("beforeObserverCalls", (tr: any) => {
+    const userId = resolveUserId(tr);
+    if (userId == null) {
+      return;
+    }
+    if (!tr.insertSet.isEmpty()) {
+      Y.insertIntoIdMap(
+        attrs.inserts,
+        Y.createIdMapFromIdSet(tr.insertSet, [
+          Y.createContentAttribute("insert", userId),
+        ]),
+      );
+    }
+    if (!tr.deleteSet.isEmpty()) {
+      Y.insertIntoIdMap(
+        attrs.deletes,
+        Y.createIdMapFromIdSet(tr.deleteSet, [
+          Y.createContentAttribute("delete", userId),
+        ]),
+      );
+    }
+  });
+  return attrs;
 }

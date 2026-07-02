@@ -1,6 +1,6 @@
+import { $prosemirrorDelta } from "@y/prosemirror";
 import * as delta from "lib0/delta";
 import * as schema from "lib0/schema";
-import { $prosemirrorDelta } from "@y/prosemirror";
 
 /**
  * Canonical name of a content delta's first block child (the child carried by an
@@ -21,6 +21,24 @@ const firstChild = (
     }
   }
   return null;
+};
+
+/**
+ * Whether a `blockContainer` delta carries a child `blockGroup` — i.e. the block
+ * has nested children. A container's content is `blockContent blockGroup?`, so
+ * this is what tells a leaf block apart from a parent.
+ */
+const hasBlockGroup = (d: schema.Unwrap<typeof $prosemirrorDelta>): boolean => {
+  for (const op of (d as any).children) {
+    if (delta.$insertOp.check(op)) {
+      for (const it of op.insert) {
+        if (delta.$deltaAny.check(it) && it.name === "blockGroup") {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
 };
 
 function getTableDimensions(
@@ -134,6 +152,16 @@ export const blockMatchNodes = (
   const childB = firstChild(b);
 
   if (childA?.name !== childB?.name) {
+    return false;
+  }
+
+  // A change in nesting is structural too: if one container gains or loses a
+  // child `blockGroup`, diffing it in place would insert/delete the blockGroup as
+  // a sibling of the block content inside a single container — schema-invalid.
+  // Treat it as different so the whole container is replaced instead, same as a
+  // content-type change. Keeps concurrent nesting merges (e.g. two users nesting
+  // a block under the same parent) from producing a lopsided in-place result.
+  if (hasBlockGroup(a) !== hasBlockGroup(b)) {
     return false;
   }
 

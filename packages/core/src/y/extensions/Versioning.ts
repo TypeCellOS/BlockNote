@@ -1,9 +1,19 @@
-import { configureYProsemirror, pauseSync } from "@y/prosemirror";
+import {
+  configureYProsemirror,
+  deltaAttributionToFormat,
+  pauseSync,
+  nodeToDelta,
+  deltaToPSteps,
+} from "@y/prosemirror";
+import * as d from "lib0/delta";
 import * as Y from "@y/y";
 
+import { Transaction } from "prosemirror-state";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { PreviewController } from "../../extensions/Versioning/index.js";
 import { findTypeInOtherYdoc } from "../utils.js";
+import { mapAttributionToMark } from "./YSync.js";
+import { blockMatchNodes } from "./blockMatchNodes.js";
 
 /**
  * Empties the document before a {@link configureYProsemirror} refill so
@@ -17,6 +27,29 @@ function clearDocumentForConfigure(editor: BlockNoteEditor<any, any, any>) {
   // Pause sync (ytype -> null) so the deletion below stays local.
   editor.exec(pauseSync);
   editor.removeBlocks(editor.document);
+}
+
+function getProseMirrorTrFromYFragment({
+  tr,
+  fragment,
+  attributionManager,
+}: {
+  tr: Transaction;
+  fragment: Y.Type;
+  attributionManager?: Y.AbstractAttributionManager;
+}): Transaction {
+  const ycontent = deltaAttributionToFormat(
+    fragment.toDeltaDeep(attributionManager || Y.noAttributionsManager),
+    mapAttributionToMark,
+  );
+  // @todo it is preferred to apply the minimal diff - at least for debugging purposes. the
+  // document replacal is more reliable though
+
+  const pcontent = nodeToDelta(tr.doc, undefined, true);
+  const diff = d.diff(pcontent.done(), ycontent.done(), {
+    compare: blockMatchNodes,
+  });
+  return deltaToPSteps(tr, diff, undefined, undefined);
 }
 
 /**
@@ -64,9 +97,11 @@ export function createYjsVersioningAdapter(
         // views from scratch instead of reusing stale-positioned ones. See
         // clearDocumentForConfigure.
         clearDocumentForConfigure(editor);
-        editor.exec(
-          configureYProsemirror({
-            ytype: findTypeInOtherYdoc(fragment, doc),
+
+        editor.exec((state, dispatch) => {
+          const tr = getProseMirrorTrFromYFragment({
+            tr: state.tr,
+            fragment: findTypeInOtherYdoc(fragment, doc),
             // Pass the optional content map as `attrs` so the diff attribution
             // manager knows who/when authored each change. Without it, the AM
             // only produces "what changed" (empty userIds, null timestamps) and
@@ -78,8 +113,12 @@ export function createYjsVersioningAdapter(
                   attributions ? { attrs: attributions } : undefined,
                 )
               : undefined,
-          }),
-        );
+          });
+          if (dispatch) {
+            dispatch(tr);
+          }
+          return true;
+        });
       },
       exitPreview: () => {
         // Empty the document before reconfiguring so ProseMirror rebuilds node

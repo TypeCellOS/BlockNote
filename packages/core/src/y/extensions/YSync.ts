@@ -53,7 +53,7 @@ const colorsForUserIds = (
  * - y-attributed-delete: { id, "user-color-light", "user-color-dark" }
  * - y-attributed-format: { id, "user-color-light", "user-color-dark" }
  */
-const mapAttributionToMark = (
+export const mapAttributionToMark = (
   format: Record<string, unknown> | null,
   attribution: {
     insert?: readonly string[];

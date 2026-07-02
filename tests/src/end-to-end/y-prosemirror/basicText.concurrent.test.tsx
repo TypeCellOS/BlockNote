@@ -28,6 +28,18 @@ import {
   ydocXml,
 } from "./fixtures/suggestionFixture.js";
 
+// Scenario data (the `initial` seed + A's/B's `applyA`/`applyB` changes) is
+// shared with the suggestion-gallery example so the two never drift.
+import { scenarios } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import type { ConcurrentScenario } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+
+const typoVsDelete = scenarios.find(
+  (s) => s.id === "concurrent-typo-vs-delete",
+) as ConcurrentScenario;
+const boldVsItalic = scenarios.find(
+  (s) => s.id === "concurrent-bold-vs-italic",
+) as ConcurrentScenario;
+
 // Concurrent text edits on overlapping range: A fixes a typo while B
 // deletes the whole word. After CRDT merge, snapshot what the merged
 // editor ends up displaying.
@@ -52,9 +64,7 @@ test("concurrent: A fixes typo, B deletes the word", async () => {
   // Seed: A writes "hello wrold" (typo) directly to baseDoc since
   // suggestion mode isn't on yet. Then `seed()` fans baseDoc into
   // all three suggestion docs so everyone starts from the same state.
-  userA.editor.replaceBlocks(userA.editor.document, [
-    { id: "block-hello", type: "paragraph", content: "hello wrold" },
-  ]);
+  userA.editor.replaceBlocks(userA.editor.document, typoVsDelete.initial);
   seed();
 
   await expectVisible(
@@ -67,15 +77,10 @@ test("concurrent: A fixes typo, B deletes the word", async () => {
   enableSuggestions();
 
   // A: fix typo "wrold" -> "world".
-  const [blockA] = userA.editor.document;
-  userA.editor.updateBlock(blockA, {
-    type: "paragraph",
-    content: "hello world",
-  });
+  typoVsDelete.applyA(userA.editor);
 
   // B: delete the misspelled word entirely.
-  const [blockB] = userB.editor.document;
-  userB.editor.updateBlock(blockB, { type: "paragraph", content: "hello " });
+  typoVsDelete.applyB(userB.editor);
 
   await waitForSuggestion(userA.editor);
   await waitForSuggestion(userB.editor);
@@ -89,15 +94,8 @@ test("concurrent: A fixes typo, B deletes the word", async () => {
     "concurrent-typo-fix-vs-delete",
   );
 
-  // TODO: the merged YDoc ends up at "hello o" – an `o` survives even
-  // though both A (who replaced "wrold" with "world") and B (who
-  // deleted "wrold" outright) effectively wanted "wrold" gone. The
-  // CRDT keeps A's inserted `o` because B's delete-range covered the
-  // original "wrold" letters but not A's freshly-inserted characters,
-  // so the union of "delete everything B saw" + "keep what A added"
-  // leaves a stray `o`. Worth deciding whether this is the desired
-  // merge semantic for the product or whether the suggestion layer
-  // should resolve overlapping edits differently.
+  // Known issue — tracked in the suggestion gallery ("concurrent-typo-vs-delete"):
+  // the merged doc keeps a stray "o" (the snapshot below is "hello o").
   expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="block-hello">
@@ -133,20 +131,30 @@ test("concurrent: A fixes typo, B deletes the word", async () => {
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
             <y-attributed-delete
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
+              userIds="B"
+              user-color-light="#fcc9c3"
+              user-color-dark="#8a2e24"
             >w</y-attributed-delete>
             <y-attributed-insert
-              userIds=""
+              userIds="A"
               user-color-light="#fff0c2"
               user-color-dark="#8a6d1a"
             >o</y-attributed-insert>
             <y-attributed-delete
-              userIds=""
+              userIds="B"
+              user-color-light="#fcc9c3"
+              user-color-dark="#8a2e24"
+            >r</y-attributed-delete>
+            <y-attributed-delete
+              userIds="A"
               user-color-light="#fff0c2"
               user-color-dark="#8a6d1a"
-            >rold</y-attributed-delete>
+            >o</y-attributed-delete>
+            <y-attributed-delete
+              userIds="B"
+              user-color-light="#fcc9c3"
+              user-color-dark="#8a2e24"
+            >ld</y-attributed-delete>
           </paragraph>
         </blockContainer>
       </blockGroup>
@@ -176,9 +184,7 @@ test("concurrent: A bolds the word, B italicises the word", async () => {
 
   // Seed: A writes plain "hello world" directly to baseDoc, then
   // `seed()` fans it into all three suggestion docs.
-  userA.editor.replaceBlocks(userA.editor.document, [
-    { id: "block-hello", type: "paragraph", content: "hello world" },
-  ]);
+  userA.editor.replaceBlocks(userA.editor.document, boldVsItalic.initial);
   seed();
 
   await expectVisible(
@@ -188,24 +194,10 @@ test("concurrent: A bolds the word, B italicises the word", async () => {
   enableSuggestions();
 
   // A: bold "world".
-  const [blockA] = userA.editor.document;
-  userA.editor.updateBlock(blockA, {
-    type: "paragraph",
-    content: [
-      { type: "text", text: "hello ", styles: {} },
-      { type: "text", text: "world", styles: { bold: true } },
-    ],
-  });
+  boldVsItalic.applyA(userA.editor);
 
   // B: italic "world".
-  const [blockB] = userB.editor.document;
-  userB.editor.updateBlock(blockB, {
-    type: "paragraph",
-    content: [
-      { type: "text", text: "hello ", styles: {} },
-      { type: "text", text: "world", styles: { italic: true } },
-    ],
-  });
+  boldVsItalic.applyB(userB.editor);
 
   await waitForSuggestion(userA.editor);
   await waitForSuggestion(userB.editor);
@@ -264,14 +256,21 @@ test("concurrent: A bolds the word, B italicises the word", async () => {
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
             <y-attributed-format
-              userIds=""
+              userIds="A,B"
               format="[object Object]"
               user-color-light="#fff0c2"
               user-color-dark="#8a6d1a"
             >
-              <italic>
-                <bold>world</bold>
-              </italic>
+              <y-attributed-format
+                userIds="A"
+                format="[object Object]"
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
+                <italic>
+                  <bold>world</bold>
+                </italic>
+              </y-attributed-format>
             </y-attributed-format>
           </paragraph>
         </blockContainer>

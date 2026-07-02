@@ -183,6 +183,11 @@ NESTED BLOCKS
   > .bn-block
   > div[data-type="modification"]
   > div[data-type="modification"]
+  > .bn-block-content[data-content-type="heading"],
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > :is(ins, del)
+  > .bn-suggestion-node
   > .bn-block-content[data-content-type="heading"] {
   font-size: var(--level);
   font-weight: bold;
@@ -239,6 +244,11 @@ NESTED BLOCKS
 .bn-block-outer:not([data-prev-type])
   > .bn-block
   > div[data-type="modification"]
+  > .bn-block-content[data-content-type="numberedListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > :is(ins, del)
+  > .bn-suggestion-node
   > .bn-block-content[data-content-type="numberedListItem"]::before {
   content: var(--index) ".";
 }
@@ -349,7 +359,12 @@ NESTED BLOCKS
 .bn-block-outer:not([data-prev-type])
   > .bn-block
   > div[data-type="modification"]
-  > .bn-block-content[data-content-type="bulletListItem"]::before {
+  > .bn-block-content[data-content-type="bulletListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > :is(ins, del)
+  > .bn-suggestion-node
+  .bn-block-content[data-content-type="bulletListItem"]::before {
   content: "•";
 }
 
@@ -785,10 +800,18 @@ Block-level (over a node) suggestion marks. The `.bn-suggestion-node` span is
 nodes (its children — e.g. <p>/<td>/<tr>) carry the highlight. Like inline marks
 they also show an attribution tooltip on hover (handled in JS, see
 SuggestionMarks.ts).
+
+This rule is the highlight for insertions, and the fallback for block deletions
+that wrap content with no `.bn-block-content` of their own (e.g. a deleted table
+row/cell). Block deletions that *do* wrap blocks are restyled per-block below.
 */
 .bn-suggestion-node > * {
   background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
   border-radius: 4px;
+}
+
+.dark.bn-root .bn-suggestion-node > * {
+  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
 }
 
 /*
@@ -796,7 +819,9 @@ A deleted block is tagged with a localized "Deleted" badge before its content.
 The wrapper span (.bn-suggestion-node--delete) is `display: contents` and can't
 render a pseudo-element of its own, so the badge is rendered on the first wrapped
 node, which inherits the label text from the `--deleted-label` custom property
-set in SuggestionMarks.ts (falling back to "Deleted" if absent).
+set in SuggestionMarks.ts (falling back to "Deleted" if absent). This is the
+fallback badge for deletions without a `.bn-block-content` (see above); deletions
+that wrap blocks get a per-block badge below instead.
 */
 .bn-suggestion-node--delete > *:first-child::before {
   content: var(--deleted-label, "Deleted");
@@ -814,8 +839,123 @@ set in SuggestionMarks.ts (falling back to "Deleted" if absent).
   color: var(--bn-colors-editor-text);
 }
 
-.dark.bn-root .bn-suggestion-node > * {
+/*
+Block suggestions are decided *per block*, not per mark: a deleted parent holding
+a paragraph and an image should strike the paragraph text yet still flag the image
+as deleted. So when a mark wraps real blocks we drop the subtree-wide highlight
+(scoped with `:has(.bn-block-content)` so table row/cell suggestions keep the
+fallback above) and restyle each `.bn-block-content` on its own terms below — for
+insertions and deletions alike.
+*/
+.bn-suggestion-node:has(.bn-block-content) > *,
+.dark.bn-root .bn-suggestion-node:has(.bn-block-content) > * {
+  background-color: transparent;
+}
+
+/* The fallback "Deleted" badge (above) is only for deletions with no
+   `.bn-block-content`; per-block deletions are flagged individually below. */
+.bn-suggestion-node--delete:has(.bn-block-content) > *:first-child::before {
+  content: none;
+}
+
+/*
+A block WITH inline content (paragraph, heading, list item, quote, code, …) needs
+no block-level background: a deletion strikes its text through in the author's
+color, while an insertion already highlights the text via its inline mark
+(.bn-suggestion-mark), so the transparent rule above is all it needs.
+`.bn-inline-content` is present only on inline-content blocks (table cells use a
+bare <p>; images/files/dividers have none), so it's what tells the two cases
+apart. It can be nested below `.bn-block-content` (e.g. code wraps it in <pre>),
+hence the descendant match.
+*/
+.bn-suggestion-node--delete .bn-block-content .bn-inline-content {
+  color: var(--user-color-dark);
+  text-decoration: line-through;
+}
+
+.dark.bn-root .bn-suggestion-node--delete .bn-block-content .bn-inline-content {
+  color: var(--user-color-light);
+}
+
+/*
+Deleted table cells are a special case: a <tr>/<td> has no `.bn-block-content` and
+its text sits in a bare <p> (not `.bn-inline-content`), so neither the
+strikethrough above nor the block card reaches it — and a table row/cell can't
+host the "Deleted" card anyway. Treat them like inline deletions instead: strike
+the cell text through in the author's color, and suppress the fallback badge.
+*/
+.bn-suggestion-node--delete :is(td, th) p {
+  color: var(--user-color-dark);
+  text-decoration: line-through;
+}
+
+.dark.bn-root .bn-suggestion-node--delete :is(td, th) p {
+  color: var(--user-color-light);
+}
+
+.bn-suggestion-node--delete > :is(table, tr, td, th):first-child::before {
+  content: none;
+}
+
+/*
+A block with NO inline content (image, file, divider, whole table, …) has no text
+to mark up, so the suggestion is shown as a filled card in the author's color, per
+block — on insertions and deletions alike. The card lives on `.bn-block-content`
+because it's the only element present for every block type (the suggestion wrapper
+spans the whole subtree; the media wrapper exists only for files), but it sets
+only non-collapsing properties — background / radius / padding never depend on the
+content's intrinsic size, so no block can break.
+*/
+.bn-suggestion-node .bn-block-content:not(:has(.bn-inline-content)) {
+  background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.dark.bn-root
+  .bn-suggestion-node
+  .bn-block-content:not(:has(.bn-inline-content)) {
   background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
+}
+
+/*
+Media (image/video/audio/file) has an intrinsic width via its
+`.bn-file-block-content-wrapper`, so the card hugs it instead of spanning the
+column. Width-less blocks (a divider's `flex: 1` <hr>, a table) keep full width on
+purpose — `fit-content` would collapse them to nothing, and full width is the
+right look for them anyway. This is the only place that touches sizing, and it's
+gated on a wrapper that only width-bearing blocks have.
+*/
+.bn-suggestion-node
+  .bn-block-content:not(:has(.bn-inline-content)):has(
+    > .bn-file-block-content-wrapper
+  ) {
+  width: fit-content;
+}
+
+/*
+A deletion additionally flags the block with the localized "Deleted" label, placed
+above the content (out of flow) with extra top padding reserving its row.
+*/
+.bn-suggestion-node--delete .bn-block-content:not(:has(.bn-inline-content)) {
+  position: relative;
+  padding: 48px 24px 24px;
+}
+
+.bn-suggestion-node--delete
+  .bn-block-content:not(:has(.bn-inline-content))::before {
+  content: var(--deleted-label, "Deleted");
+  /* Sits in the reserved top padding, above the content. Out of flow so it never
+     becomes a flex item beside the block. */
+  position: absolute;
+  top: 16px;
+  left: 24px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.2;
+  /* Use the editor's text color (themed for light/dark) rather than inheriting,
+     which would pick up the suggestion's user color. */
+  color: var(--bn-colors-editor-text);
 }
 
 /*
