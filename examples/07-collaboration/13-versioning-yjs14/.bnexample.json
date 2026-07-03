@@ -4,6 +4,7 @@
   "author": "yousefed",
   "tags": ["Advanced", "Development", "Collaboration"],
   "dependencies": {
+    "@y/prosemirror": "^2.0.0-4",
     "@y/protocols": "^1.0.6-rc.1",
     "@y/websocket": "^4.0.0-3",
     "@y/y": "^14.0.0-rc.16",

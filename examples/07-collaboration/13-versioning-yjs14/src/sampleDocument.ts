@@ -1,9 +1,10 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { buildSnapshots, seedYHubDocument } from "@blocknote/core/y";
-import type { SnapshotStep } from "@blocknote/core/y";
 
 import type { VersionBlock } from "./reconcile";
 import { buildContributions } from "./splitContributions";
+import { buildSnapshots } from "./snapshotBuilder";
+import type { SnapshotStep } from "./snapshotBuilder";
+import { seedYHubDocument } from "./seed";
 import { VERSIONS } from "./versions";
 
 /**

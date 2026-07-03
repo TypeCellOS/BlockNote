@@ -1,7 +1,7 @@
 import type { BlockNoteEditor } from "@blocknote/core";
-import type { SnapshotContribution } from "@blocknote/core/y";
 
 import { applyVersion } from "./reconcile";
+import type { SnapshotContribution } from "./snapshotBuilder";
 import type { VersionBlock } from "./reconcile";
 
 /**

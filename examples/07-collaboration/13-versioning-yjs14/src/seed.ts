@@ -2,7 +2,7 @@ import * as Y from "@y/y";
 import { encodeAny } from "lib0/buffer";
 import { uint32 } from "lib0/random";
 
-import type { BuildSnapshotsResult } from "../extensions/snapshotBuilder.js";
+import type { BuildSnapshotsResult } from "./snapshotBuilder";
 
 // ---------------------------------------------------------------------------
 // Types

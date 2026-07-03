@@ -1,8 +1,7 @@
+import { type Block, BlockNoteEditor, docToBlocks } from "@blocknote/core";
+import { docDiffToDelta } from "@blocknote/core/y";
 import { deltaToPNode, docToDelta } from "@y/prosemirror";
 import * as Y from "@y/y";
-
-import { type Block, BlockNoteEditor, docToBlocks } from "../../index.js";
-import { docDiffToDelta } from "../utils.js";
 
 /**
  * Build up Yjs snapshots of a document at named points in time.
