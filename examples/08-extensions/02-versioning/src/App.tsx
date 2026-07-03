@@ -7,15 +7,13 @@ import { DiffVersioningExtension } from "@blocknote/core/y";
 import {
   BlockNoteViewEditor,
   useCreateBlockNote,
-  useExtension,
   useExtensionState,
+  VersioningSidebar,
 } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useState } from "react";
-import { RiHistoryLine } from "react-icons/ri";
 
-import { VersionHistorySidebar } from "./VersionHistorySidebar";
 import "./style.css";
 
 export default function App() {
@@ -37,7 +35,7 @@ export default function App() {
       {
         type: "paragraph",
         content:
-          "Try editing this document, then open the Version History sidebar to " +
+          "Try editing this document, then use the Version History sidebar to " +
           "save snapshots. You can preview and restore older versions.",
       },
     ],
@@ -50,43 +48,39 @@ export default function App() {
     ],
   });
 
-  const { exitPreview } = useExtension(VersioningExtension, { editor });
   const { previewedSnapshotId } = useExtensionState(VersioningExtension, {
     editor,
   });
 
-  const [sidebar, setSidebar] = useState<"versionHistory" | "none">("none");
+  const [showSidebar, setShowSidebar] = useState(true);
 
   return (
-    <div className="versioning-example">
+    <div className="wrapper">
       <BlockNoteView
         editor={editor}
-        editable={
-          sidebar !== "versionHistory" || previewedSnapshotId === undefined
-        }
+        editable={previewedSnapshotId === undefined}
         renderEditor={false}
       >
-        <div className="main-container">
-          <div className={"editor-layout-wrapper"}>
-            <div className="sidebar-selectors">
-              <div
-                className={`sidebar-selector ${sidebar === "versionHistory" ? "selected" : ""}`}
-                onClick={() => {
-                  setSidebar((s) =>
-                    s !== "versionHistory" ? "versionHistory" : "none",
-                  );
-                  exitPreview();
-                }}
+        <div className="layout">
+          <div className="editor-panel">
+            <BlockNoteViewEditor />
+            {!showSidebar && (
+              <button
+                className="show-history-button"
+                onClick={() => setShowSidebar(true)}
               >
-                <RiHistoryLine />
-                <span>Version History</span>
-              </div>
-            </div>
-            <div className={"editor-section"}>
-              <BlockNoteViewEditor />
-            </div>
+                History
+              </button>
+            )}
           </div>
-          {sidebar === "versionHistory" && <VersionHistorySidebar />}
+          {showSidebar && (
+            <div className={"sidebar-section"}>
+              <VersioningSidebar
+                filter={"all"}
+                onClose={() => setShowSidebar(false)}
+              />
+            </div>
+          )}
         </div>
       </BlockNoteView>
     </div>

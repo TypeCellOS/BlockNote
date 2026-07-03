@@ -1,203 +1,71 @@
-.versioning-example {
-  align-items: flex-end;
-  background-color: var(--bn-colors-disabled-background);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  height: 100%;
+/* App layout only. The versioning sidebar's own styling (header, snapshot
+   rows, selected/comparing states, the "..." menu) ships with the UI library
+   (@blocknote/mantine etc.), so it isn't repeated here. */
+
+.wrapper {
+  height: calc(100vh - 20px);
+}
+
+.wrapper > .bn-container {
+  margin: 0;
   max-width: none;
+  padding: 0;
+}
+
+.layout {
+  display: flex;
+  gap: 0;
+  height: calc(100vh - 20px);
+}
+
+.editor-panel {
+  flex: 1;
+  height: calc(100vh - 20px);
+  min-width: 0;
   overflow: auto;
-  padding: 10px;
+  position: relative;
 }
 
-.versioning-example .main-container {
-  display: flex;
-  gap: 10px;
-  height: 100%;
+.editor-panel .bn-container {
+  height: calc(100vh - 20px);
+  margin: 0;
   max-width: none;
-  width: 100%;
+  padding: 0;
 }
 
-.versioning-example .editor-layout-wrapper {
-  align-items: center;
-  display: flex;
-  flex: 2;
-  flex-direction: column;
-  gap: 10px;
-  justify-content: center;
-  width: 100%;
-}
-
-.versioning-example .sidebar-selectors {
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  justify-content: space-between;
-  max-width: 700px;
-  width: 100%;
-}
-
-.versioning-example .sidebar-selector {
-  align-items: center;
-  background-color: var(--bn-colors-menu-background);
-  border-radius: var(--bn-border-radius-medium);
-  box-shadow: var(--bn-shadow-medium);
-  color: var(--bn-colors-menu-text);
-  cursor: pointer;
-  display: flex;
-  flex-direction: row;
-  font-family: var(--bn-font-family);
-  font-weight: 600;
-  gap: 8px;
-  justify-content: center;
-  padding: 10px;
-  user-select: none;
-  width: 100%;
-}
-
-.versioning-example .sidebar-selector:hover {
-  background-color: var(--bn-colors-hovered-background);
-  color: var(--bn-colors-hovered-text);
-}
-
-.versioning-example .sidebar-selector.selected {
-  background-color: var(--bn-colors-selected-background);
-  color: var(--bn-colors-selected-text);
-}
-
-.versioning-example .sidebar-section {
-  border-radius: var(--bn-border-radius-large);
-  box-shadow: var(--bn-shadow-medium);
-  display: flex;
-  flex-direction: column;
-  max-height: 100%;
-  min-width: 350px;
-  width: 100%;
-}
-
-.versioning-example .bn-editor,
-.versioning-example .bn-versioning-sidebar {
-  border-radius: var(--bn-border-radius-medium);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  height: 100%;
+.editor-panel .bn-editor {
+  height: calc(100vh - 20px);
   overflow: auto;
 }
 
-.versioning-example .editor-section {
+/* The history panel sits flush against the editor with a subtle divider. */
+.sidebar-section {
   background-color: var(--bn-colors-editor-background);
-  border-radius: var(--bn-border-radius-large);
-  display: block;
-  height: 90vh;
-  max-width: 700px;
-}
-
-.versioning-example .sidebar-section {
-  background-color: var(--bn-colors-editor-background);
-  border-radius: var(--bn-border-radius-large);
+  border-left: 1px solid var(--bn-colors-border);
+  box-shadow: -6px 0 16px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 20px);
+  overflow: auto;
   width: 350px;
 }
 
-.versioning-example .sidebar-section .settings {
-  padding-block: 16px;
-  padding-inline: 16px;
+.dark .sidebar-section {
+  border-left-color: #2c2c2c;
+  box-shadow: -6px 0 16px rgba(0, 0, 0, 0.3);
 }
 
-.versioning-example .bn-versioning-sidebar {
-  padding-inline: 16px;
-}
-
-.versioning-example .settings {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.versioning-example .settings-select {
-  display: flex;
-  gap: 10px;
-}
-
-.versioning-example .settings-select .bn-toolbar {
-  align-items: center;
-}
-
-.versioning-example .settings-select h2 {
-  color: var(--bn-colors-menu-text);
-  margin: 0;
-  font-size: 12px;
-  line-height: 12px;
-  padding-left: 14px;
-}
-
-.versioning-example .bn-snapshot {
+.show-history-button {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
   box-shadow: var(--bn-shadow-medium);
   color: var(--bn-colors-menu-text);
   cursor: pointer;
-  flex-direction: column;
-  gap: 16px;
-  display: flex;
-  overflow: visible;
-  padding: 16px 32px;
-  width: 100%;
-}
-
-.versioning-example .bn-snapshot-name {
-  background: transparent;
-  border: none;
-  color: var(--bn-colors-menu-text);
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 600;
-  padding: 0;
-  width: 100%;
-}
-
-.versioning-example .bn-snapshot-name:focus {
-  outline: none;
-}
-
-.versioning-example .bn-snapshot-body {
-  display: flex;
-  flex-direction: column;
-  font-size: 12px;
-  gap: 4px;
-}
-
-.versioning-example .bn-snapshot-button {
-  background-color: #4da3ff;
-  border: none;
-  border-radius: 4px;
-  color: var(--bn-colors-selected-text);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 0 8px;
-  width: fit-content;
-}
-
-.dark .bn-snapshot-button {
-  background-color: #0070e8;
-}
-
-.versioning-example .bn-snapshot-button:hover {
-  background-color: #73b7ff;
-}
-
-.dark .bn-snapshot-button:hover {
-  background-color: #3785d8;
-}
-
-.versioning-example .bn-versioning-sidebar .bn-snapshot.selected {
-  background-color: #f5f9fd;
-  border: 2px solid #c2dcf8;
-}
-
-.dark .bn-versioning-sidebar .bn-snapshot.selected {
-  background-color: #20242a;
-  border: 2px solid #23405b;
+  padding: 6px 12px;
+  position: absolute;
+  right: 16px;
+  top: 16px;
 }
