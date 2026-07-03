@@ -19,6 +19,8 @@ All commands below are listed under `package.json` in the project root. See `vit
 - `vp run e2e:updateSnaps`: Runs end-to-end tests & updates snapshots. Append with a file name to target only that file.
 - `vp help`: Prints a list of all available commands.
 
+ONLY USE `vp` or `pnpm`, never `npm` or `yarn`. `vpx` can do what `pnpx` does
+
 # Common Entry Points
 
 When writing a new feature, bug fix, or other modification, it may not be immediately clear where the code for it should be. There are a few files which are good to start looking in when this is the case:
