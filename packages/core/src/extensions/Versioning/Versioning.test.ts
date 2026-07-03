@@ -67,13 +67,13 @@ function setup(opts?: {
     (endpoints as any).restore = undefined;
   }
   if (opts?.withoutUpdateName) {
-    (endpoints as any).updateSnapshotName = undefined;
+    (endpoints as any).rename = undefined;
   }
 
   const ext = VersioningExtension({
     endpoints,
     preview,
-    getCurrentState: () => editor.document,
+    getCurrentDocument: () => editor.document,
   })({ editor });
 
   /** Seed a snapshot into the backend by capturing the current editor doc. */
@@ -88,7 +88,7 @@ function setup(opts?: {
     // Refresh the store so the extension can resolve the seeded snapshot by id
     // (preview/restore look snapshots up in the store, as the UI would after
     // listing).
-    await ext.listSnapshots();
+    await ext.list();
     return snapshot;
   };
 
@@ -157,7 +157,7 @@ describe("VersioningExtension", () => {
         },
       ]);
 
-      const result = await ctx.ext.listSnapshots();
+      const result = await ctx.ext.list();
 
       expect(result).toHaveLength(3);
       // Newest first: v3, v2, v1
@@ -169,7 +169,7 @@ describe("VersioningExtension", () => {
     });
 
     it("reflects backend changes on subsequent calls", async () => {
-      expect(await ctx.ext.listSnapshots()).toEqual([]);
+      expect(await ctx.ext.list()).toEqual([]);
 
       await ctx.endpoints.create!([
         {
@@ -181,7 +181,7 @@ describe("VersioningExtension", () => {
         },
       ]);
 
-      const after = await ctx.ext.listSnapshots();
+      const after = await ctx.ext.list();
       expect(after).toHaveLength(1);
     });
   });
@@ -194,7 +194,7 @@ describe("VersioningExtension", () => {
     it("captures the current state and adds the snapshot to the store", async () => {
       setEditorText(ctx.editor, "my document content");
 
-      const snapshot = await ctx.ext.createSnapshot!({ name: "Draft 1" });
+      const snapshot = await ctx.ext.create!({ name: "Draft 1" });
 
       expect(snapshot.name).toBe("Draft 1");
       expect(snapshot.id).toBeDefined();
@@ -213,9 +213,9 @@ describe("VersioningExtension", () => {
       vi.advanceTimersByTime(1000);
 
       // List so the store knows about the seeded snapshot.
-      await ctx.ext.listSnapshots();
+      await ctx.ext.list();
 
-      const newer = await ctx.ext.createSnapshot!({ name: "Newer" });
+      const newer = await ctx.ext.create!({ name: "Newer" });
 
       expect(ctx.ext.store.state.snapshots[0]!.id).toBe(newer.id);
       expect(ctx.ext.store.state.snapshots[1]!.id).toBe(old.id);
@@ -292,7 +292,7 @@ describe("VersioningExtension", () => {
 
       // Enter preview first, then restore.
       await ctx.ext.previewSnapshot(snap.id);
-      await ctx.ext.restoreSnapshot!(snap.id);
+      await ctx.ext.restore!(snap.id);
 
       expect(getEditorText(ctx.editor)).toBe("old content");
       expect(ctx.ext.store.state.previewedSnapshotId).toBeUndefined();
@@ -300,12 +300,12 @@ describe("VersioningExtension", () => {
 
     it("picks up server-side backup snapshots after re-listing", async () => {
       const snap = await ctx.seed("original");
-      await ctx.ext.listSnapshots();
+      await ctx.ext.list();
 
-      await ctx.ext.restoreSnapshot!(snap.id);
+      await ctx.ext.restore!(snap.id);
 
       // The in-memory endpoints create a backup snapshot on restore.
-      const updated = await ctx.ext.listSnapshots();
+      const updated = await ctx.ext.list();
       expect(updated.length).toBe(2);
       expect(updated.some((s) => s.restoredFromSnapshotId === snap.id)).toBe(
         true,
@@ -314,8 +314,8 @@ describe("VersioningExtension", () => {
 
     it("reports restore as unavailable when endpoint omits it", () => {
       const noRestore = setup({ withoutRestore: true });
-      expect(noRestore.ext.canRestoreSnapshot).toBe(false);
-      expect(noRestore.ext.restoreSnapshot).toBeUndefined();
+      expect(noRestore.ext.canRestore).toBe(false);
+      expect(noRestore.ext.restore).toBeUndefined();
       noRestore.editor.unmount();
     });
   });
@@ -327,22 +327,22 @@ describe("VersioningExtension", () => {
   describe("updating snapshot names", () => {
     it("renames a snapshot in the store and backend", async () => {
       const snap = await ctx.seed("content", "Original");
-      await ctx.ext.listSnapshots();
+      await ctx.ext.list();
 
-      await ctx.ext.updateSnapshotName!(snap.id, "Renamed");
+      await ctx.ext.rename!(snap.id, "Renamed");
 
       // Store was updated optimistically.
       expect(ctx.ext.store.state.snapshots[0]!.name).toBe("Renamed");
 
-      // Backend was also updated (verified via listSnapshots).
-      const list = await ctx.ext.listSnapshots();
+      // Backend was also updated (verified via list).
+      const list = await ctx.ext.list();
       expect(list.find((s) => s.id === snap.id)!.name).toBe("Renamed");
     });
 
     it("reports name updates as unavailable when endpoint omits it", () => {
       const noUpdate = setup({ withoutUpdateName: true });
-      expect(noUpdate.ext.canUpdateSnapshotName).toBe(false);
-      expect(noUpdate.ext.updateSnapshotName).toBeUndefined();
+      expect(noUpdate.ext.canRename).toBe(false);
+      expect(noUpdate.ext.rename).toBeUndefined();
       noUpdate.editor.unmount();
     });
   });
@@ -357,13 +357,13 @@ describe("VersioningExtension", () => {
 
       // 1. Create version 1.
       setEditorText(ctx.editor, "doc v1");
-      const v1 = await ctx.ext.createSnapshot!({ name: "Version 1" });
+      const v1 = await ctx.ext.create!({ name: "Version 1" });
 
       vi.advanceTimersByTime(1000);
 
       // 2. Modify and create version 2.
       setEditorText(ctx.editor, "doc v2");
-      const v2 = await ctx.ext.createSnapshot!({ name: "Version 2" });
+      const v2 = await ctx.ext.create!({ name: "Version 2" });
       expect(ctx.ext.store.state.snapshots[0]!.id).toBe(v2.id);
 
       // 3. Preview v1 with diff comparison against v2.
@@ -371,7 +371,7 @@ describe("VersioningExtension", () => {
       expect(getEditorText(ctx.editor)).toBe("doc v1");
 
       // 4. Restore v1.
-      await ctx.ext.restoreSnapshot!(v1.id);
+      await ctx.ext.restore!(v1.id);
       expect(getEditorText(ctx.editor)).toBe("doc v1");
       expect(ctx.ext.store.state.previewedSnapshotId).toBeUndefined();
 

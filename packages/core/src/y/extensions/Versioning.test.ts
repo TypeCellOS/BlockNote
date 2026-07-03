@@ -40,16 +40,18 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
         name: options?.name,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        restoredFromSnapshotId: options?.restoredFromSnapshot?.id,
+        restoredFromSnapshotId: options?.restoredFromSnapshot?.id
+          ? String(options.restoredFromSnapshot.id)
+          : undefined,
       };
       contents.set(snapshot.id, Y.encodeStateAsUpdateV2(fragment.doc!));
       snapshots.set(snapshot.id, snapshot);
       return snapshot;
     },
     getContent: async (snapshot) => {
-      const data = contents.get(snapshot.id);
+      const data = contents.get(String(snapshot.id));
       if (!data) {
-        throw new Error(`Snapshot ${snapshot.id} not found`);
+        throw new Error(`Snapshot ${String(snapshot.id)} not found`);
       }
       return data;
     },
@@ -64,7 +66,7 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
       contents.set(backup.id, Y.encodeStateAsUpdateV2(fragment.doc!));
       snapshots.set(backup.id, backup);
 
-      const snapshotContent = contents.get(snapshot.id)!;
+      const snapshotContent = contents.get(String(snapshot.id))!;
       const tempDoc = new Y.Doc();
       Y.applyUpdateV2(tempDoc, snapshotContent);
 
@@ -73,7 +75,7 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
         name: "Restored Snapshot",
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        restoredFromSnapshotId: snapshot.id,
+        restoredFromSnapshotId: String(snapshot.id),
       };
       contents.set(restored.id, Y.encodeStateAsUpdateV2(tempDoc));
       snapshots.set(restored.id, restored);
@@ -81,10 +83,10 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
 
       return snapshotContent;
     },
-    updateSnapshotName: async (snapshot, name) => {
-      const s = snapshots.get(snapshot.id);
+    rename: async (snapshot, name) => {
+      const s = snapshots.get(String(snapshot.id));
       if (!s) {
-        throw new Error(`Snapshot ${snapshot.id} not found`);
+        throw new Error(`Snapshot ${String(snapshot.id)} not found`);
       }
       s.name = name;
       s.updatedAt = Date.now();
@@ -140,10 +142,10 @@ describe("createYjsVersioningAdapter", () => {
     }
   });
 
-  it("getCurrentState returns the fragment passed to the adapter", () => {
+  it("getCurrentDocument returns the fragment passed to the adapter", () => {
     ctx = createCollabEditor();
     const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment);
-    const state = adapter.getCurrentState();
+    const state = adapter.getCurrentDocument();
 
     expect(state).toBe(ctx.fragment);
     expect(state.doc).toBe(ctx.doc);
@@ -270,7 +272,7 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Snapshot content" },
     ]);
-    const snapshot = await versioning.createSnapshot!({ name: "v1" });
+    const snapshot = await versioning.create!({ name: "v1" });
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Current content" },
@@ -290,7 +292,7 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Saved state" },
     ]);
-    const snapshot = await versioning.createSnapshot!({ name: "v1" });
+    const snapshot = await versioning.create!({ name: "v1" });
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Live state" },
@@ -310,19 +312,19 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Version 1" },
     ]);
-    const v1 = await versioning.createSnapshot!({ name: "v1" });
+    const v1 = await versioning.create!({ name: "v1" });
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Version 2" },
     ]);
-    const v2 = await versioning.createSnapshot!({ name: "v2" });
+    const v2 = await versioning.create!({ name: "v2" });
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Current state" },
     ]);
 
     // List and verify ordering
-    const list = await versioning.listSnapshots();
+    const list = await versioning.list();
     expect(list).toHaveLength(2);
     expect(list[0]!.id).toBe(v2.id);
 
@@ -338,19 +340,19 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
     expect(getEditorText(ctx.editor)).toContain("Current state");
   });
 
-  it("restoreSnapshot resolves with the restored snapshot content", async () => {
+  it("restore resolves with the restored snapshot content", async () => {
     ctx = createCollabEditor();
     const versioning = ctx.editor.getExtension(VersioningExtension)!;
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Content" },
     ]);
-    const snap = await versioning.createSnapshot!({ name: "v1" });
+    const snap = await versioning.create!({ name: "v1" });
 
     // applyRestore is a no-op for the Yjs adapter (the backend applies the
-    // restore and the change propagates over live sync), so restoreSnapshot
+    // restore and the change propagates over live sync), so restore
     // resolves with the snapshot content returned by the endpoint.
-    const content = await versioning.restoreSnapshot!(snap.id);
+    const content = await versioning.restore!(snap.id);
     expect(content).toBeInstanceOf(Uint8Array);
   });
 
@@ -362,17 +364,17 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Version 1" },
     ]);
-    const v1 = await versioning.createSnapshot!({ name: "v1" });
+    const v1 = await versioning.create!({ name: "v1" });
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Version 2" },
     ]);
-    const v2 = await versioning.createSnapshot!({ name: "v2" });
+    const v2 = await versioning.create!({ name: "v2" });
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Version 3" },
     ]);
-    await versioning.createSnapshot!({ name: "v3" });
+    await versioning.create!({ name: "v3" });
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Current live" },

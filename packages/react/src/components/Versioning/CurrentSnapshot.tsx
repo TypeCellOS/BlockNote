@@ -14,8 +14,9 @@ import { useVersioningSidebar } from "./VersioningSidebarContext.js";
  * The "current version" list row. Unlike {@link Snapshot}, it isn't backed by a
  * stored snapshot: clicking it previews the live document (read-only, diffed
  * against the most recent snapshot) or returns to live editing. It is rendered
- * only when the backend's `list()` emits an entry with {@link CURRENT_VERSION_ID}
- * (e.g. YHub when the live doc has edits beyond the latest saved version).
+ * only when the backend's `list()` emits an entry whose id is
+ * {@link CURRENT_VERSION_ID} (e.g. YHub when the live doc has edits beyond the
+ * latest saved version).
  *
  * The `snapshot` prop carries display metadata (last-edit timestamp + author)
  * but is never sent to `getContent`/`getAttributions` — those go through
@@ -29,7 +30,7 @@ export const CurrentSnapshot = ({
   previousSnapshot?: VersionSnapshot;
 }) => {
   const Components = useComponentsContext()!;
-  const { canPreviewCurrentVersion, previewCurrentVersion, exitPreview } =
+  const { canPreviewCurrent, previewCurrentVersion, exitPreview } =
     useExtension(VersioningExtension);
   const selected = useExtensionState(VersioningExtension, {
     selector: (state) => state.previewedSnapshotId === CURRENT_VERSION_ID,
@@ -61,7 +62,7 @@ export const CurrentSnapshot = ({
   const oldestSnapshot = snapshots[snapshots.length - 1];
   const actions =
     comparisonEnabled &&
-    canPreviewCurrentVersion &&
+    canPreviewCurrent &&
     previewCurrentVersion &&
     oldestSnapshot ? (
       <Components.Generic.Toolbar.Root

@@ -129,8 +129,8 @@ async function yhubFetch(
  * activity timeline to only these version markers, so intermediate edits
  * don't appear in the version history.
  *
- * Because YHub attributions are immutable, `updateSnapshotName` is not
- * supported — a version's name is fixed at creation time.
+ * Because YHub attributions are immutable, `rename` is not supported — a
+ * version's name is fixed at creation time.
  *
  * @example
  * ```ts
@@ -166,11 +166,12 @@ export function createYHubVersioningEndpoints(
     /**
      * Build the synthetic "current version" snapshot, or `undefined` when the
      * live document matches the latest saved version (no edits since).
-     *
-     * @param latestVersionTo The `to` timestamp of the most recent version
-     *   marker, or `undefined` when no versions exist yet.
      */
     const getCurrentVersionEntry = async (
+      /**
+       * The `to` timestamp of the most recent version marker, or `undefined`
+       * when no versions exist yet.
+       */
       latestVersionTo: number | undefined,
     ): Promise<VersionSnapshot | undefined> => {
       const params = new URLSearchParams({
@@ -187,10 +188,15 @@ export function createYHubVersioningEndpoints(
         return undefined;
       }
 
-      return activityToSnapshot({
-        ...latestEdit,
-        customAttributions: [{ k: "id", v: CURRENT_VERSION_ID }],
-      });
+      // Build the synthetic entry directly rather than via `activityToSnapshot`,
+      // whose `id` comes from a string-typed wire attribution — the current
+      // entry's id is the `CURRENT_VERSION_ID` symbol, not a real version id.
+      return {
+        id: CURRENT_VERSION_ID,
+        createdAt: latestEdit.to,
+        updatedAt: latestEdit.to,
+        secondaryLabel: latestEdit.by,
+      };
     };
 
     /**
@@ -336,7 +342,7 @@ export function createYHubVersioningEndpoints(
 
       if (!changeset.attributions) {
         throw new Error(
-          `YHub returned no attributions for snapshot ${snapshot.id}.`,
+          `YHub returned no attributions for snapshot ${String(snapshot.id)}.`,
         );
       }
 

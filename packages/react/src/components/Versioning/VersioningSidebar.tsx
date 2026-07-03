@@ -20,8 +20,8 @@ const VersioningSidebarHeader = (props: { onClose?: () => void }) => {
     exitPreview,
     previewSnapshot,
     previewCurrentVersion,
-    createSnapshot,
-    canCreateSnapshot,
+    create,
+    canCreate,
   } = useExtension(VersioningExtension);
   const previewedSnapshotId = useExtensionState(VersioningExtension, {
     selector: (state) => state.previewedSnapshotId,
@@ -77,7 +77,7 @@ const VersioningSidebarHeader = (props: { onClose?: () => void }) => {
           {/* Save the live document as a new version, prompting for an
               optional name. An empty (or whitespace-only) name is saved as
               `undefined`; cancelling the prompt aborts the save. */}
-          {canCreateSnapshot && (
+          {canCreate && (
             <Components.Generic.Toolbar.Button
               mainTooltip="Save current version"
               onClick={() => {
@@ -85,7 +85,7 @@ const VersioningSidebarHeader = (props: { onClose?: () => void }) => {
                 if (input === null) {
                   return;
                 }
-                void createSnapshot?.({ name: input.trim() || undefined });
+                void create?.({ name: input.trim() || undefined });
               }}
             >
               <RiSaveLine size={16} />
@@ -129,7 +129,7 @@ const VersioningSidebarContent = (props: {
   onClose?: () => void;
 }) => {
   const Components = useComponentsContext()!;
-  const { listSnapshots } = useExtension(VersioningExtension);
+  const { list } = useExtension(VersioningExtension);
   const { snapshots } = useExtensionState(VersioningExtension);
 
   // Load the version list when the sidebar is shown. The list is the source of
@@ -137,8 +137,8 @@ const VersioningSidebarContent = (props: {
   // backends surface via `list()` — so the sidebar can't rely on the host
   // having listed already.
   useEffect(() => {
-    void listSnapshots();
-  }, [listSnapshots]);
+    void list();
+  }, [list]);
 
   return (
     <Components.Versioning.Sidebar className="bn-versioning-sidebar">
@@ -155,11 +155,12 @@ const VersioningSidebarContent = (props: {
         .map((snapshot, i, arr) => {
           // The current version is driven by the backend's `list()` (it sorts
           // newest-first, so it lands at index 0) and is previewed live rather
-          // than fetched as a stored snapshot.
+          // than fetched as a stored snapshot. Its id is the CURRENT_VERSION_ID
+          // symbol, so derive a string React key for it.
           if (snapshot.id === CURRENT_VERSION_ID) {
             return (
               <CurrentSnapshot
-                key={snapshot.id}
+                key="current-version"
                 snapshot={snapshot}
                 previousSnapshot={arr[i + 1]}
               />

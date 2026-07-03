@@ -95,9 +95,12 @@ export function createInMemoryVersioningEndpoints(): VersioningEndpoints<
     },
 
     async restore(currentDoc, snapshot) {
-      const snapshotContent = contents.get(snapshot.id);
+      // Stored snapshots always have string ids (only the synthetic current
+      // entry carries the symbol, and it never reaches these methods).
+      const id = String(snapshot.id);
+      const snapshotContent = contents.get(id);
       if (!snapshotContent) {
-        throw new Error(`Snapshot ${snapshot.id} not found`);
+        throw new Error(`Snapshot ${id} not found`);
       }
 
       // Create a "Restored from …" snapshot of the current state before
@@ -109,7 +112,7 @@ export function createInMemoryVersioningEndpoints(): VersioningEndpoints<
         name: "Before restore",
         createdAt: now,
         updatedAt: now,
-        restoredFromSnapshotId: snapshot.id,
+        restoredFromSnapshotId: id,
       };
       snapshots.push(backup);
       contents.set(backupId, structuredClone(currentDoc));
@@ -118,29 +121,30 @@ export function createInMemoryVersioningEndpoints(): VersioningEndpoints<
     },
 
     async getContent(snapshot) {
-      const content = contents.get(snapshot.id);
+      const id = String(snapshot.id);
+      const content = contents.get(id);
       if (!content) {
-        throw new Error(`Snapshot ${snapshot.id} not found`);
+        throw new Error(`Snapshot ${id} not found`);
       }
       return structuredClone(content);
     },
 
-    async updateSnapshotName(snapshot, name) {
+    async rename(snapshot, name) {
       const stored = snapshots.find((s) => s.id === snapshot.id);
       if (!stored) {
-        throw new Error(`Snapshot ${snapshot.id} not found`);
+        throw new Error(`Snapshot ${String(snapshot.id)} not found`);
       }
       stored.name = name;
       stored.updatedAt = Date.now();
     },
 
-    async deleteSnapshot(snapshot) {
+    async remove(snapshot) {
       const index = snapshots.findIndex((s) => s.id === snapshot.id);
       if (index === -1) {
-        throw new Error(`Snapshot ${snapshot.id} not found`);
+        throw new Error(`Snapshot ${String(snapshot.id)} not found`);
       }
       snapshots.splice(index, 1);
-      contents.delete(snapshot.id);
+      contents.delete(String(snapshot.id));
     },
   };
 }
@@ -190,9 +194,9 @@ export function createInMemoryVersioningAdapter(
       },
     },
     preview: createInMemoryPreviewController(editor),
-    getCurrentState: () => editor.document,
+    getCurrentDocument: () => editor.document,
     // The live document is already in the snapshot content format (`Block[]`),
     // so previewing "current" as a diff just reuses the live blocks.
-    getCurrentContent: () => editor.document,
+    serializeCurrentContent: () => editor.document,
   };
 }

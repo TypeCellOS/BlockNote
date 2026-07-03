@@ -55,13 +55,13 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
     ctx.doc.destroy();
   });
 
-  it("getCurrentState returns the live fragment", () => {
+  it("getCurrentDocument returns the live fragment", () => {
     ctx = createCollabEditor();
     const adapter = createYjsVersioningAdapter(
       ctx.editor,
       ctx.collaborationOptions,
     );
-    const state = adapter.getCurrentState();
+    const state = adapter.getCurrentDocument();
     expect(state.doc).toBe(ctx.doc);
   });
 
@@ -313,16 +313,18 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<
         name: options?.name,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        restoredFromSnapshotId: options?.restoredFromSnapshot?.id,
+        restoredFromSnapshotId: options?.restoredFromSnapshot?.id
+          ? String(options.restoredFromSnapshot.id)
+          : undefined,
       };
       contents.set(snapshot.id, Y.encodeStateAsUpdate(fragment.doc!));
       snapshots.set(snapshot.id, snapshot);
       return snapshot;
     },
     getContent: async (snapshot) => {
-      const data = contents.get(snapshot.id);
+      const data = contents.get(String(snapshot.id));
       if (!data) {
-        throw new Error(`Snapshot ${snapshot.id} not found`);
+        throw new Error(`Snapshot ${String(snapshot.id)} not found`);
       }
       return data;
     },
@@ -336,13 +338,13 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<
       contents.set(backup.id, Y.encodeStateAsUpdate(fragment.doc!));
       snapshots.set(backup.id, backup);
 
-      const snapshotContent = contents.get(snapshot.id)!;
+      const snapshotContent = contents.get(String(snapshot.id))!;
       return snapshotContent;
     },
-    updateSnapshotName: async (snapshot, name) => {
-      const s = snapshots.get(snapshot.id);
+    rename: async (snapshot, name) => {
+      const s = snapshots.get(String(snapshot.id));
       if (!s) {
-        throw new Error(`Snapshot ${snapshot.id} not found`);
+        throw new Error(`Snapshot ${String(snapshot.id)} not found`);
       }
       s.name = name;
       s.updatedAt = Date.now();
@@ -397,7 +399,7 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
     const versioning = ctx2.editor.getExtension(VersioningExtension)!;
 
     setEditorText(ctx2.editor, "Snapshot content");
-    const snap = await versioning.createSnapshot!({ name: "v1" });
+    const snap = await versioning.create!({ name: "v1" });
 
     setEditorText(ctx2.editor, "Current content");
 
@@ -411,7 +413,7 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
     const versioning = ctx2.editor.getExtension(VersioningExtension)!;
 
     setEditorText(ctx2.editor, "Saved state");
-    const snap = await versioning.createSnapshot!({ name: "v1" });
+    const snap = await versioning.create!({ name: "v1" });
 
     setEditorText(ctx2.editor, "Live state");
 
@@ -428,15 +430,15 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
 
     // Create two versions
     setEditorText(ctx2.editor, "Version 1");
-    const v1 = await versioning.createSnapshot!({ name: "v1" });
+    const v1 = await versioning.create!({ name: "v1" });
 
     setEditorText(ctx2.editor, "Version 2");
-    const v2 = await versioning.createSnapshot!({ name: "v2" });
+    const v2 = await versioning.create!({ name: "v2" });
 
     setEditorText(ctx2.editor, "Current state");
 
     // List
-    const list = await versioning.listSnapshots();
+    const list = await versioning.list();
     expect(list).toHaveLength(2);
 
     // Preview older, then switch to newer
@@ -466,10 +468,10 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
 
     // Create two versions
     setEditorText(ctx2.editor, "Version 1");
-    const v1 = await versioning.createSnapshot!({ name: "v1" });
+    const v1 = await versioning.create!({ name: "v1" });
 
     setEditorText(ctx2.editor, "Version 2");
-    const v2 = await versioning.createSnapshot!({ name: "v2" });
+    const v2 = await versioning.create!({ name: "v2" });
 
     setEditorText(ctx2.editor, "Current state");
 
@@ -512,7 +514,7 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
 
     // Step 1: Create initial content and snapshot
     setEditorText(ctx2.editor, "Version 1");
-    const v1 = await versioning.createSnapshot!({ name: "v1" });
+    const v1 = await versioning.create!({ name: "v1" });
 
     setEditorText(ctx2.editor, "Current state");
 
@@ -530,7 +532,7 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
     setEditorText(ctx2.editor, "Edited after preview");
 
     // Step 5: Create a NEW snapshot of the edited content
-    const v2 = await versioning.createSnapshot!({ name: "v2" });
+    const v2 = await versioning.create!({ name: "v2" });
 
     // Step 6: Preview the NEW snapshot — this is where the browser crash happened
     // before the replaceExtension fix (y-prosemirror's view hooks would dispatch

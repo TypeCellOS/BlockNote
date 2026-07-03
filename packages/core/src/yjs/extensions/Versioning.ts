@@ -7,7 +7,7 @@ import { ForkYDocExtension } from "./ForkYDoc.js";
 
 /**
  * Creates a Yjs v13 adapter that provides the {@link PreviewController}
- * and `getCurrentState` callback required by the base
+ * and `getCurrentDocument` callback required by the base
  * {@link VersioningExtension}.
  *
  * Delegates to the {@link ForkYDocExtension} for entering/exiting preview:
@@ -17,17 +17,16 @@ import { ForkYDocExtension } from "./ForkYDoc.js";
  *   preview and restore the live document.
  * - **applyRestore**: calls `merge({ keepChanges: true })` to apply the
  *   snapshot content back to the live document.
- *
- * @param editor  - The BlockNote editor instance (must have ForkYDocExtension).
- * @param options - The full collaboration options (used for `fragment` access).
  */
 export function createYjsVersioningAdapter(
+  /** The BlockNote editor instance (must have ForkYDocExtension). */
   editor: BlockNoteEditor<any, any, any>,
+  /** The full collaboration options (used for `fragment` access). */
   options: CollaborationOptions,
 ): {
   preview: PreviewController<Uint8Array>;
-  getCurrentState: () => Y.XmlFragment;
-  getCurrentContent: () => Uint8Array;
+  getCurrentDocument: () => Y.XmlFragment;
+  serializeCurrentContent: () => Uint8Array;
 } {
   const { fragment } = options;
 
@@ -43,8 +42,8 @@ export function createYjsVersioningAdapter(
   }
 
   return {
-    getCurrentState: () => fragment,
-    getCurrentContent: () => Y.encodeStateAsUpdateV2(fragment.doc!),
+    getCurrentDocument: () => fragment,
+    serializeCurrentContent: () => Y.encodeStateAsUpdateV2(fragment.doc!),
     preview: {
       // Yjs v13 can only fork the document to a single snapshot; it has no way
       // to diff two versions, so comparison is unsupported.

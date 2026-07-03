@@ -126,9 +126,9 @@ function VersionedEditor() {
 
   const versioning = useExtension(VersioningExtension, { editor });
   useEffect(() => {
-    versioning.listSnapshots();
+    versioning.list();
     const interval = setInterval(() => {
-      versioning.listSnapshots();
+      versioning.list();
     }, 10000);
     return () => {
       clearInterval(interval);

@@ -54,7 +54,7 @@ function getProseMirrorTrFromYFragment({
 
 /**
  * Creates a Yjs-specific adapter that provides the {@link PreviewController}
- * and `getCurrentState` callback required by the base
+ * and `getCurrentDocument` callback required by the base
  * {@link VersioningExtension}.
  *
  * This is wired automatically by the {@link CollaborationExtension} when
@@ -66,16 +66,16 @@ export function createYjsVersioningAdapter(
   fragment: Y.Type,
 ): {
   preview: PreviewController<Uint8Array, Y.ContentMap>;
-  getCurrentState: () => Y.Type;
-  getCurrentContent: () => Uint8Array;
+  getCurrentDocument: () => Y.Type;
+  serializeCurrentContent: () => Uint8Array;
 } {
   return {
-    getCurrentState: () => fragment,
+    getCurrentDocument: () => fragment,
     // Serialise the live document as a V2 update — the same format that
     // `getContent` returns (via `convertUpdateFormatV1ToV2`) and that
     // `enterPreview` consumes (`applyUpdateV2`). Used to render a read-only
     // diff of the live document against a snapshot.
-    getCurrentContent: () => Y.encodeStateAsUpdateV2(fragment.doc!),
+    serializeCurrentContent: () => Y.encodeStateAsUpdateV2(fragment.doc!),
     preview: {
       enterPreview: (
         snapshotContent: Uint8Array,

@@ -150,7 +150,7 @@ describe("createInMemoryVersioningEndpoints", () => {
       { name: "old" },
     );
 
-    await endpoints.updateSnapshotName!(snap, "new");
+    await endpoints.rename!(snap, "new");
 
     const list = await endpoints.list();
     expect(list.find((s) => s.id === snap.id)!.name).toBe("new");
@@ -168,7 +168,7 @@ describe("createInMemoryVersioningEndpoints", () => {
       },
     ]);
 
-    await endpoints.deleteSnapshot!(snap);
+    await endpoints.remove!(snap);
 
     // No longer listed
     expect(await endpoints.list()).toHaveLength(0);
@@ -181,12 +181,8 @@ describe("createInMemoryVersioningEndpoints", () => {
     const missing = { id: "nope", createdAt: 0, updatedAt: 0 };
     await expect(endpoints.getContent(missing)).rejects.toThrow(/not found/i);
     await expect(endpoints.restore!([], missing)).rejects.toThrow(/not found/i);
-    await expect(endpoints.updateSnapshotName!(missing, "x")).rejects.toThrow(
-      /not found/i,
-    );
-    await expect(endpoints.deleteSnapshot!(missing)).rejects.toThrow(
-      /not found/i,
-    );
+    await expect(endpoints.rename!(missing, "x")).rejects.toThrow(/not found/i);
+    await expect(endpoints.remove!(missing)).rejects.toThrow(/not found/i);
   });
 });
 
@@ -290,20 +286,18 @@ describe("VersioningExtension + in-memory adapter", () => {
     const ext = VersioningExtension(adapter)({ editor });
 
     // 1. Create a snapshot of "initial doc"
-    const snap1 = await ext.createSnapshot!({ name: "v1" });
+    const snap1 = await ext.create!({ name: "v1" });
     expect(snap1.name).toBe("v1");
 
     // 2. Modify the document
     setEditorText(editor, "modified doc");
 
     // 3. Create another snapshot
-    await ext.createSnapshot!({ name: "v2" });
+    await ext.create!({ name: "v2" });
 
     // 4. List — both present (the adapter also surfaces a "current version"
     // entry, which isn't a stored snapshot).
-    const list = (await ext.listSnapshots()).filter(
-      (s) => s.id !== CURRENT_VERSION_ID,
-    );
+    const list = (await ext.list()).filter((s) => s.id !== CURRENT_VERSION_ID);
     expect(list).toHaveLength(2);
     expect(list.map((s) => s.name)).toContain("v1");
     expect(list.map((s) => s.name)).toContain("v2");
@@ -319,13 +313,13 @@ describe("VersioningExtension + in-memory adapter", () => {
     expect(ext.store.state.previewedSnapshotId).toBeUndefined();
 
     // 7. Restore the first snapshot
-    const restored = await ext.restoreSnapshot!(snap1.id);
+    const restored = await ext.restore!(snap1.id);
     expect(restored).toBeDefined();
     expect(getEditorText(editor)).toBe("initial doc");
 
     // 8. A backup snapshot was created by the endpoints (plus the adapter's
     // "current version" entry, which isn't a stored snapshot).
-    const afterRestore = (await ext.listSnapshots()).filter(
+    const afterRestore = (await ext.list()).filter(
       (s) => s.id !== CURRENT_VERSION_ID,
     );
     expect(afterRestore.length).toBe(3);
@@ -339,9 +333,9 @@ describe("VersioningExtension + in-memory adapter", () => {
     const adapter = createInMemoryVersioningAdapter(editor);
     const ext = VersioningExtension(adapter)({ editor });
 
-    const snap1 = await ext.createSnapshot!({ name: "baseline" });
+    const snap1 = await ext.create!({ name: "baseline" });
     setEditorText(editor, "changed doc");
-    const snap2 = await ext.createSnapshot!({ name: "current" });
+    const snap2 = await ext.create!({ name: "current" });
 
     // Preview snap2 compared to snap1. The in-memory preview controller
     // ignores the compareTo content (no diff rendering), but the call should
@@ -357,22 +351,20 @@ describe("VersioningExtension + in-memory adapter", () => {
     const adapter = createInMemoryVersioningAdapter(editor);
     const ext = VersioningExtension(adapter)({ editor });
 
-    const snap1 = await ext.createSnapshot!({ name: "keep" });
+    const snap1 = await ext.create!({ name: "keep" });
     setEditorText(editor, "changed doc");
-    const snap2 = await ext.createSnapshot!({ name: "remove" });
-    await ext.listSnapshots();
+    const snap2 = await ext.create!({ name: "remove" });
+    await ext.list();
 
-    expect(ext.canDeleteSnapshot).toBe(true);
-    await ext.deleteSnapshot!(snap2.id);
+    expect(ext.canRemove).toBe(true);
+    await ext.remove!(snap2.id);
 
     // Gone from the optimistic store...
     expect(
       ext.store.state.snapshots.find((s) => s.id === snap2.id),
     ).toBeUndefined();
     // ...and gone from the backend's authoritative list.
-    const list = (await ext.listSnapshots()).filter(
-      (s) => s.id !== CURRENT_VERSION_ID,
-    );
+    const list = (await ext.list()).filter((s) => s.id !== CURRENT_VERSION_ID);
     expect(list.map((s) => s.id)).toEqual([snap1.id]);
   });
 
@@ -380,14 +372,14 @@ describe("VersioningExtension + in-memory adapter", () => {
     const adapter = createInMemoryVersioningAdapter(editor);
     const ext = VersioningExtension(adapter)({ editor });
 
-    const snap = await ext.createSnapshot!({ name: "v1" });
+    const snap = await ext.create!({ name: "v1" });
     setEditorText(editor, "modified doc");
 
     // Preview the snapshot, then delete the version being previewed.
     await ext.previewSnapshot(snap.id);
     expect(ext.store.state.previewedSnapshotId).toBe(snap.id);
 
-    await ext.deleteSnapshot!(snap.id);
+    await ext.remove!(snap.id);
 
     // Preview was exited and the live document restored.
     expect(ext.store.state.previewedSnapshotId).toBeUndefined();
@@ -398,16 +390,16 @@ describe("VersioningExtension + in-memory adapter", () => {
     const adapter = createInMemoryVersioningAdapter(editor);
     const ext = VersioningExtension(adapter)({ editor });
 
-    const snap = await ext.createSnapshot!({ name: "draft" });
-    await ext.updateSnapshotName!(snap.id, "final");
+    const snap = await ext.create!({ name: "draft" });
+    await ext.rename!(snap.id, "final");
 
     // Store was updated optimistically
     expect(ext.store.state.snapshots.find((s) => s.id === snap.id)!.name).toBe(
       "final",
     );
 
-    // Backend also updated (verified via listSnapshots which calls endpoints.list)
-    const list = await ext.listSnapshots();
+    // Backend also updated (verified via list which calls endpoints.list)
+    const list = await ext.list();
     expect(list.find((s) => s.id === snap.id)!.name).toBe("final");
   });
 });

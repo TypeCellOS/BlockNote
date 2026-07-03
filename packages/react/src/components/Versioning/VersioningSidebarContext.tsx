@@ -23,7 +23,7 @@ import { useExtension } from "../../hooks/useExtension.js";
 export type VersioningSidebarContextValue = {
   /**
    * Whether the sidebar exposes version comparison at all. Mirrors the
-   * extension's {@link VersioningExtension.canCompareVersions} capability: when
+   * extension's {@link VersioningExtension.canCompare} capability: when
    * `false`, the comparison toggle and the "Compare with…" actions are hidden
    * entirely, and clicking a version only ever views it. Backends that can't
    * diff documents (e.g. the Yjs v13 adapter) report this off.
@@ -46,10 +46,10 @@ const VersioningSidebarContext = createContext<
 
 export const VersioningSidebarProvider = (props: { children: ReactNode }) => {
   // Comparison availability is driven by the extension/adapter, not the host —
-  // backends that can't diff documents report `canCompareVersions: false`.
-  const { canCompareVersions } = useExtension(VersioningExtension);
+  // backends that can't diff documents report `canCompare: false`.
+  const { canCompare } = useExtension(VersioningExtension);
   const [comparisonMode, setComparisonMode] = useState(true);
-  const comparisonEnabled = canCompareVersions;
+  const comparisonEnabled = canCompare;
 
   const value = useMemo(
     () => ({

@@ -12,9 +12,11 @@ import {
  */
 export interface VersionSnapshot {
   /**
-   * The unique identifier for the snapshot.
+   * The unique identifier for the snapshot. A plain string for real snapshots;
+   * the {@link CURRENT_VERSION_ID} symbol for the synthetic "Current version"
+   * entry (which no backend ever persists or round-trips).
    */
-  id: string;
+  id: string | typeof CURRENT_VERSION_ID;
 
   /**
    * The name of the snapshot.
@@ -44,171 +46,174 @@ export interface VersionSnapshot {
 }
 
 /**
- * Identifier for a single {@link VersionSnapshot}, either as a single identifier or the whole reference
+ * Identifier for a single {@link VersionSnapshot}, either the bare id or the
+ * whole reference. Tracks {@link VersionSnapshot.id}, so it also accepts the
+ * {@link CURRENT_VERSION_ID} symbol.
  */
-export type VersionSnapshotIdentifier = string | Pick<VersionSnapshot, "id">;
+export type VersionSnapshotIdentifier =
+  | VersionSnapshot["id"]
+  | Pick<VersionSnapshot, "id">;
 
 /**
- * Sentinel id used for the live ("current") document when it is previewed as a
- * read-only diff against a snapshot (see {@link VersioningExtension.previewCurrentVersion}).
+ * The `id` of the synthetic "Current version" entry — the live document shown at
+ * the top of `list()` and set as `previewedSnapshotId` while previewing it (see
+ * {@link VersioningExtension.previewCurrentVersion}).
  *
- * It is not a real snapshot id — it never appears in `store.state.snapshots` —
- * but it is stored in `previewedSnapshotId` so the UI can mark the "Current"
- * row as selected while still disabling editing (which is gated on
- * `previewedSnapshotId === undefined`).
+ * A `unique symbol`, not a string, so it can never clash with a real snapshot id.
+ * It's client-only — never fetched via `getContent` / `getAttributions` (the row
+ * is previewed live) and never serialised, so no backend round-trips it. Because
+ * {@link VersionSnapshot.id} is `string | typeof CURRENT_VERSION_ID`, code that
+ * needs a string form for this one row (e.g. a React `key`) derives it locally.
  */
-export const CURRENT_VERSION_ID = "current";
+export const CURRENT_VERSION_ID: unique symbol = Symbol("bn-current-version");
 
 /**
- * Defines the contract for versioning operations, including listing snapshots,
- * creating new snapshots, restoring to a snapshot, fetching snapshot content,
- * and updating snapshot names. Implementations of this interface provide the
- * necessary backend functionality to support versioning features in the editor.
+ * The backend contract for versioning: **where snapshot data lives** (pure
+ * storage — in-memory, `localStorage`, HTTP, …). Counterpart to
+ * {@link PreviewController} (*how a snapshot is rendered*) and
+ * {@link VersioningExtensionOptions} (*how the live editor is bridged in*);
+ * {@link VersioningExtension} orchestrates the three.
  *
- * @typeParam I - The type of the current document state passed to `create` and
- *   `restore` (e.g. `Y.Type` for Yjs-backed implementations).
- * @typeParam O - The type of serialised snapshot content returned by
- *   `getContent` and `restore` (e.g. `Uint8Array`).
- * @typeParam A - The type of optional attribution data returned by
- *   `getAttributions` (e.g. `Y.ContentMap` for Yjs-backed implementations).
+ * Type params trace the data flow:
+ * @typeParam Input - Live document handle passed to {@link create} / {@link restore},
+ *   from {@link VersioningExtensionOptions.getCurrentDocument} (e.g. `Y.Type`, `Block[]`).
+ * @typeParam Output - Serialised snapshot content from {@link getContent} /
+ *   {@link restore}, rendered by {@link PreviewController.enterPreview} (e.g. `Uint8Array`).
+ * @typeParam Attributions - Optional diff-authorship data from {@link getAttributions},
+ *   also consumed by {@link PreviewController.enterPreview} (e.g. `Y.ContentMap`).
  */
-export interface VersioningEndpoints<I = any, O = any, A = any> {
+export interface VersioningEndpoints<
+  Input = any,
+  Output = any,
+  Attributions = any,
+> {
   /**
    * List all snapshots for this document, sorted newest-first by
    * {@link VersionSnapshot.createdAt}.
    */
   list: () => Promise<VersionSnapshot[]>;
   /**
-   * Create a new snapshot for this document with the current content.
+   * Create a new snapshot from the current content.
    *
-   * @note if not provided, the UI will not offer a way to save a new snapshot.
-   * This is appropriate for backends that record continuous history rather than
-   * discrete, user-created snapshots (e.g. YHub's activity timeline).
+   * @note omit for backends with continuous history (e.g. YHub's activity
+   * timeline). Gates the extension's `canCreate` flag.
    */
   create?: (
-    fragment: I,
+    /** Live document to snapshot, from {@link VersioningExtensionOptions.getCurrentDocument}. */
+    content: Input,
     options?: {
-      /**
-       * The optional name for this snapshot.
-       */
+      /** Optional name for this snapshot. */
       name?: string;
-      /**
-       * The ID of the snapshot this one was restored from, if applicable.
-       */
+      /** Id of the snapshot this one was restored from, if any. */
       restoredFromSnapshot?: VersionSnapshot;
     },
   ) => Promise<VersionSnapshot>;
   /**
-   * Restore the current document to the provided snapshot. Implementations
-   * should create any backup / audit snapshots they need before returning.
+   * Restore the document to a snapshot. Implementations should create any backup
+   * snapshots they need before returning.
    *
-   * @param doc The current document state (used by some implementations to
-   *   create a backup snapshot before restoring).
-   * @param snapshot The identifier of the snapshot to restore.
-   *
-   * @note if not provided, the UI will not allow the user to restore a
-   * snapshot.
+   * @returns The restored content ({@link Output}, **not `void`**) — passed to
+   *   {@link PreviewController.applyRestore}.
+   * @note omit to disable restore. Gates the extension's `canRestore` flag.
    */
-  restore?: (doc: I, snapshot: VersionSnapshot) => Promise<O>;
+  restore?: (
+    /** Live document, from {@link VersioningExtensionOptions.getCurrentDocument} (for backup). */
+    doc: Input,
+    /** The snapshot to restore. */
+    snapshot: VersionSnapshot,
+  ) => Promise<Output>;
   /**
-   * Fetch the contents of a snapshot. Used for previewing before restore.
+   * Fetch a snapshot's content ({@link Output}) for preview — same format as
+   * {@link VersioningExtensionOptions.serializeCurrentContent}. Sibling of
+   * {@link getAttributions}; both are the storage-side fetch that
+   * {@link PreviewController.enterPreview} renders.
    */
-  getContent: (snapshot: VersionSnapshot) => Promise<O>;
+  getContent: (snapshot: VersionSnapshot) => Promise<Output>;
   /**
-   * Fetch optional attribution data describing *who* authored each change and
-   * *when*, for the diff between a snapshot and the version it is compared
-   * against. This is rendered as additional diff information (e.g. author and
-   * timestamp tooltips on inserted/deleted content) when previewing a version.
+   * Fetch diff-authorship data ({@link Attributions}: who/when) for the range
+   * `compareTo → snapshot`, rendered by {@link PreviewController.enterPreview}
+   * (its only consumer). Lives on the endpoint, not `enterPreview`, so one
+   * preview controller pairs with attribution-capable (YHub) or attribution-less
+   * (`localStorage`) backends — {@link Attributions} is that seam.
    *
-   * @param id          - The identifier of the snapshot being previewed.
-   * @param compareTo - When previewing a diff, the identifier of the baseline
-   *   snapshot the diff is computed against. Implementations may need both ends
-   *   of the range to resolve attributions.
-   *
-   * @note if not provided, version previews still render the content diff, but
-   * without author/timestamp attribution information.
+   * @note omit and previews still render the content diff, minus attribution.
    */
   getAttributions?: (
+    /** The previewed snapshot (the "new" side of the diff). */
     snapshot: VersionSnapshot,
+    /** The baseline it's diffed against (the "old" side). */
     compareTo?: VersionSnapshot,
-  ) => Promise<A>;
+  ) => Promise<Attributions>;
   /**
-   * Update the name of a snapshot.
+   * Rename a snapshot.
    *
-   * @note if not provided, the UI will not allow the user to update the name.
+   * @note omit to disable rename. Gates the extension's `canRename` flag.
    */
-  updateSnapshotName?: (
-    snapshot: VersionSnapshot,
-    name?: string,
-  ) => Promise<void>;
+  rename?: (snapshot: VersionSnapshot, name?: string) => Promise<void>;
   /**
-   * Permanently delete a snapshot.
+   * Permanently remove a snapshot.
    *
-   * @note if not provided, the UI will not offer a way to delete a snapshot.
-   * This is appropriate for backends with immutable history (e.g. YHub's
-   * activity timeline), where individual versions cannot be removed.
+   * @note omit for immutable-history backends (e.g. YHub). Gates the extension's
+   * `canRemove` flag.
    */
-  deleteSnapshot?: (snapshot: VersionSnapshot) => Promise<void>;
+  remove?: (snapshot: VersionSnapshot) => Promise<void>;
 }
 
 /**
- * A factory function for the endpoints to receive a reference to the editor
+ * A factory function for the endpoints to receive a reference to the editor.
+ *
+ * @typeParam Input - See {@link VersioningEndpoints}.
+ * @typeParam Output - See {@link VersioningEndpoints}.
+ * @typeParam Attributions - See {@link VersioningEndpoints}.
  */
-export type VersioningEndpointsFactory<I = any, O = any, A = any> = (
+export type VersioningEndpointsFactory<
+  Input = any,
+  Output = any,
+  Attributions = any,
+> = (
   editor: BlockNoteEditor<any, any, any>,
-) => VersioningEndpoints<I, O, A>;
+) => VersioningEndpoints<Input, Output, Attributions>;
 
 /**
- * Controls how snapshot previews and restores are rendered in the editor.
+ * Controls **how a snapshot is rendered** — the render-side counterpart to
+ * {@link VersioningEndpoints} (storage). {@link VersioningExtension} fetches
+ * content/attributions from the endpoints and delegates rendering here; keeping
+ * the two separate lets one controller pair with different backends.
  *
- * This is the integration point for framework-specific rendering (e.g. Yjs).
- * The base {@link VersioningExtension} fetches content from the endpoints and
- * delegates rendering to the preview controller.
- *
- * @typeParam O - The type of serialised snapshot content (must match the `O`
- *   type of the corresponding {@link VersioningEndpoints}).
- * @typeParam A - The type of optional attribution data (must match the `A`
- *   type of the corresponding {@link VersioningEndpoints}).
+ * @typeParam Output - Serialised snapshot content; matches the endpoints' `Output`.
+ * @typeParam Attributions - Optional attribution data; matches the endpoints' `Attributions`.
  */
-export interface PreviewController<O = any, A = any> {
+export interface PreviewController<Output = any, Attributions = any> {
   /**
-   * Whether this controller can render a diff between two versions (i.e.
-   * whether {@link enterPreview} does anything meaningful with
-   * `compareToContent`). Defaults to `true`.
-   *
-   * Set to `false` for backends that can only show a version on its own — e.g.
-   * the Yjs v13 adapter, which forks the document to a snapshot but has no way
-   * to diff it against another version. The extension surfaces this as
-   * {@link VersioningExtension.canCompareVersions} so the UI can hide the
-   * comparison affordances entirely.
+   * Whether {@link enterPreview} can render a diff (uses `compareToContent`).
+   * Defaults to `true`; `false` for show-one-version-only backends (e.g. the Yjs
+   * v13 adapter). Surfaced as {@link VersioningExtension.canCompare}.
    */
   supportsComparison?: boolean;
   /**
-   * Enter preview mode, showing the given snapshot content in the editor.
-   *
-   * @param snapshotContent     - The content of the snapshot to preview.
-   * @param compareToContent    - When provided, the editor should show a diff
-   *   between `compareToContent` (the baseline) and `snapshotContent`.
-   * @param attributions        - Optional attribution data for the diff,
-   *   describing who authored each change and when. Only meaningful alongside
-   *   `compareToContent`, and rendered as additional diff information.
+   * Enter preview mode. Arguments come from the endpoints:
+   * {@link VersioningEndpoints.getContent} (content) and
+   * {@link VersioningEndpoints.getAttributions} (attributions).
    */
   enterPreview: (
-    snapshotContent: O,
-    compareToContent?: O,
-    attributions?: A,
+    /** Snapshot to preview ({@link Output}, from {@link VersioningEndpoints.getContent}). */
+    snapshotContent: Output,
+    /** When set, diff `compareToContent` (baseline) against `snapshotContent`. */
+    compareToContent?: Output,
+    /**
+     * Diff attributions ({@link Attributions}, from
+     * {@link VersioningEndpoints.getAttributions}). Only meaningful with
+     * `compareToContent`.
+     */
+    attributions?: Attributions,
   ) => void;
-  /**
-   * Exit preview mode and resume normal editing.
-   */
+  /** Exit preview mode and resume normal editing. */
   exitPreview: () => void;
   /**
-   * Apply the restored snapshot content to the live document.
-   *
-   * Called after {@link VersioningEndpoints.restore} returns, *after* preview
-   * mode has already been exited.
+   * Apply restored content to the live document. Called with the {@link Output}
+   * from {@link VersioningEndpoints.restore}, after preview mode has exited.
    */
-  applyRestore: (snapshotContent: O) => void;
+  applyRestore: (snapshotContent: Output) => void;
 }
 
 /** Sort snapshots newest-first by creation time. */
@@ -219,44 +224,54 @@ export function sortSnapshotsNewestFirst(
 }
 
 /**
- * Options accepted by the {@link VersioningExtension}.
+ * Options accepted by the {@link VersioningExtension} — **how the live editor is
+ * bridged in**, alongside the {@link VersioningEndpoints} (storage) and
+ * {@link PreviewController} (rendering).
  *
- * @typeParam I - The type of the current document state.
- * @typeParam O - The type of serialised snapshot content.
- * @typeParam A - The type of optional attribution data.
+ * @typeParam Input - See {@link VersioningEndpoints}.
+ * @typeParam Output - See {@link VersioningEndpoints}.
+ * @typeParam Attributions - See {@link VersioningEndpoints}.
  */
-export type VersioningExtensionOptions<I = any, O = any, A = any> = {
+export type VersioningExtensionOptions<
+  Input = any,
+  Output = any,
+  Attributions = any,
+> = {
   /**
    * Backend storage for snapshots.
    */
-  endpoints: VersioningEndpoints<I, O, A> | VersioningEndpointsFactory<I, O, A>;
+  endpoints:
+    | VersioningEndpoints<Input, Output, Attributions>
+    | VersioningEndpointsFactory<Input, Output, Attributions>;
   /**
    * Controls how snapshot previews and restores are rendered in the editor.
    */
-  preview: PreviewController<O, A>;
+  preview: PreviewController<Output, Attributions>;
   /**
-   * Returns the current document state. This value is passed to
-   * {@link VersioningEndpoints.create} and {@link VersioningEndpoints.restore}.
+   * The **live, mutable document handle** ({@link Input}) the backend snapshots
+   * *from* / restores *into*. Passed to {@link VersioningEndpoints.create} and
+   * {@link VersioningEndpoints.restore}. Cf. {@link serializeCurrentContent} (a
+   * detached copy); the two coincide for some backends (in-memory:
+   * `Input === Output === Block[]`) and differ for others (Yjs: `Y.Type` vs `Uint8Array`).
    */
-  getCurrentState: () => I;
+  getCurrentDocument: () => Input;
   /**
-   * Returns the *serialized* content of the live document, in the same output
-   * format that {@link VersioningEndpoints.getContent} returns. Used to render
-   * a read-only diff of the live document against a snapshot (see
-   * {@link VersioningExtension.previewCurrentVersion}).
+   * The live document **serialised to snapshot format** ({@link Output}, matching
+   * {@link VersioningEndpoints.getContent}), for diffing the live doc against a
+   * snapshot (see {@link VersioningExtension.previewCurrentVersion}). Cf.
+   * {@link getCurrentDocument} (the live handle).
    *
-   * @note if not provided, the UI cannot offer a "Current version" diff.
-   * This is adapter-specific because serialization differs by backend (e.g.
-   * `Block[]` for in-memory, a `Uint8Array` Yjs update for Yjs-backed editors).
+   * @note omit and the UI can't offer a "Current version" diff. Gates the
+   * extension's `canPreviewCurrent` flag.
    */
-  getCurrentContent?: () => O | Promise<O>;
+  serializeCurrentContent?: () => Output | Promise<Output>;
 };
 
 function snapshotNotFoundError(
   id: VersionSnapshotIdentifier | undefined,
 ): never {
   const idResolved = typeof id === "object" ? id.id : id;
-  throw new Error(`Snapshot not found: ${idResolved}`);
+  throw new Error(`Snapshot not found: ${String(idResolved)}`);
 }
 
 export const VersioningExtension = createExtension(
@@ -270,8 +285,8 @@ export const VersioningExtension = createExtension(
     const {
       endpoints: endpointsRaw,
       preview,
-      getCurrentState,
-      getCurrentContent,
+      getCurrentDocument,
+      serializeCurrentContent,
     } = typeof optionsOrFactory === "function"
       ? optionsOrFactory(editor)
       : optionsOrFactory;
@@ -282,17 +297,19 @@ export const VersioningExtension = createExtension(
       snapshots: VersionSnapshot[];
       /**
        * The id of the version currently shown in the editor (the "new" side of
-       * a diff). `undefined` means the live, editable document. Can be
-       * {@link CURRENT_VERSION_ID} when previewing the live document as a
+       * a diff). `undefined` means the live, editable document. Is the
+       * {@link CURRENT_VERSION_ID} symbol when previewing the live document as a
        * read-only diff against a snapshot.
        */
-      previewedSnapshotId?: string;
+      previewedSnapshotId?: string | typeof CURRENT_VERSION_ID;
       /**
        * The id of the snapshot the preview is being diffed against (the
-       * "baseline" / old side). `undefined` when not showing a diff. Used to
-       * render the "Comparing to" indicator in the sidebar.
+       * "baseline" / old side). `undefined` when not showing a diff. Always a
+       * real snapshot id (never the current entry), but typed as the same union
+       * as {@link VersionSnapshot.id} since it's copied from one. Used to render
+       * the "Comparing to" indicator in the sidebar.
        */
-      compareToSnapshotId?: string;
+      compareToSnapshotId?: string | typeof CURRENT_VERSION_ID;
     }>({
       snapshots: [],
       previewedSnapshotId: undefined,
@@ -365,9 +382,9 @@ export const VersioningExtension = createExtension(
     /**
      * Preview the live ("current") document as a read-only diff against a
      * snapshot baseline. Unlike {@link previewSnapshot}, the "new" side of the
-     * diff is the live document — serialised via `getCurrentContent` — rather
-     * than a stored snapshot. The editor becomes non-editable while previewing
-     * (editing is gated on `previewedSnapshotId === undefined`).
+     * diff is the live document — serialised via `serializeCurrentContent` —
+     * rather than a stored snapshot. The editor becomes non-editable while
+     * previewing (editing is gated on `previewedSnapshotId === undefined`).
      */
     const previewCurrentVersion = async (previewOptions?: {
       /**
@@ -376,10 +393,10 @@ export const VersioningExtension = createExtension(
        */
       compareTo?: VersionSnapshotIdentifier;
     }) => {
-      if (!getCurrentContent) {
+      if (!serializeCurrentContent) {
         throw new Error(
-          "previewCurrentVersion requires `getCurrentContent` to be provided " +
-            "to the VersioningExtension options.",
+          "previewCurrentVersion requires `serializeCurrentContent` to be " +
+            "provided to the VersioningExtension options.",
         );
       }
 
@@ -399,7 +416,9 @@ export const VersioningExtension = createExtension(
         compareToContent = await endpoints.getContent(compareToSnapshot);
         if (endpoints.getAttributions) {
           // Synthesise a snapshot for the live document so timestamp-based
-          // backends (e.g. YHub) resolve the changeset window up to "now".
+          // backends (e.g. YHub) resolve the changeset window up to "now". The id
+          // is the current-version sentinel; backends ignore it and resolve the
+          // window from `createdAt`.
           const currentSnapshot: VersionSnapshot = {
             id: CURRENT_VERSION_ID,
             createdAt: Date.now(),
@@ -412,7 +431,7 @@ export const VersioningExtension = createExtension(
         }
       }
 
-      const currentContent = await getCurrentContent();
+      const currentContent = await serializeCurrentContent();
       preview.enterPreview(currentContent, compareToContent, attributions);
     };
 
@@ -428,14 +447,14 @@ export const VersioningExtension = createExtension(
     return {
       key: "versioning",
       store,
-      listSnapshots: async (): Promise<VersionSnapshot[]> => {
+      list: async (): Promise<VersionSnapshot[]> => {
         return await updateSnapshots();
       },
       // Comparison is only offered when the preview controller can actually
       // render a diff (see PreviewController.supportsComparison).
-      canCompareVersions: preview.supportsComparison !== false,
-      canCreateSnapshot: endpoints.create !== undefined,
-      createSnapshot: endpoints.create
+      canCompare: preview.supportsComparison !== false,
+      canCreate: endpoints.create !== undefined,
+      create: endpoints.create
         ? async (options?: {
             /**
              * The optional name for this snapshot.
@@ -446,7 +465,7 @@ export const VersioningExtension = createExtension(
              */
             restoredFromSnapshot?: VersionSnapshotIdentifier;
           }): Promise<VersionSnapshot> => {
-            const snapshot = await endpoints.create!(getCurrentState(), {
+            const snapshot = await endpoints.create!(getCurrentDocument(), {
               name: options?.name,
               restoredFromSnapshot: getSnapshot(options?.restoredFromSnapshot),
             });
@@ -477,8 +496,8 @@ export const VersioningExtension = createExtension(
             return snapshot;
           }
         : undefined,
-      canRestoreSnapshot: endpoints.restore !== undefined,
-      restoreSnapshot: endpoints.restore
+      canRestore: endpoints.restore !== undefined,
+      restore: endpoints.restore
         ? async (id: VersionSnapshotIdentifier) => {
             exitPreview();
             const snapshot = getSnapshot(id);
@@ -487,7 +506,7 @@ export const VersioningExtension = createExtension(
               snapshotNotFoundError(id);
             }
             const snapshotContent = await endpoints.restore!(
-              getCurrentState(),
+              getCurrentDocument(),
               snapshot,
             );
             preview.applyRestore(snapshotContent);
@@ -495,8 +514,8 @@ export const VersioningExtension = createExtension(
             return snapshotContent;
           }
         : undefined,
-      canUpdateSnapshotName: endpoints.updateSnapshotName !== undefined,
-      updateSnapshotName: endpoints.updateSnapshotName
+      canRename: endpoints.rename !== undefined,
+      rename: endpoints.rename
         ? async (
             id: VersionSnapshotIdentifier,
             name?: string,
@@ -505,7 +524,7 @@ export const VersioningExtension = createExtension(
             if (!snapshot) {
               snapshotNotFoundError(id);
             }
-            await endpoints.updateSnapshotName!(snapshot, name);
+            await endpoints.rename!(snapshot, name);
             store.setState((state) => ({
               ...state,
               snapshots: state.snapshots.map((s) =>
@@ -514,14 +533,14 @@ export const VersioningExtension = createExtension(
             }));
           }
         : undefined,
-      canDeleteSnapshot: endpoints.deleteSnapshot !== undefined,
-      deleteSnapshot: endpoints.deleteSnapshot
+      canRemove: endpoints.remove !== undefined,
+      remove: endpoints.remove
         ? async (id: VersionSnapshotIdentifier): Promise<void> => {
             const snapshot = getSnapshot(id);
             if (!snapshot) {
               snapshotNotFoundError(id);
             }
-            // If the snapshot being deleted is the one currently previewed, or
+            // If the snapshot being removed is the one currently previewed, or
             // the baseline it's being diffed against, exit preview first so the
             // editor returns to the live document instead of showing (or
             // comparing against) a version that no longer exists.
@@ -531,7 +550,7 @@ export const VersioningExtension = createExtension(
             ) {
               exitPreview();
             }
-            await endpoints.deleteSnapshot!(snapshot);
+            await endpoints.remove!(snapshot);
             // Remove it optimistically so the row disappears immediately, then
             // reconcile with the backend's authoritative list.
             store.setState((state) => ({
@@ -542,8 +561,8 @@ export const VersioningExtension = createExtension(
           }
         : undefined,
       previewSnapshot,
-      canPreviewCurrentVersion: getCurrentContent !== undefined,
-      previewCurrentVersion: getCurrentContent
+      canPreviewCurrent: serializeCurrentContent !== undefined,
+      previewCurrentVersion: serializeCurrentContent
         ? previewCurrentVersion
         : undefined,
       exitPreview,

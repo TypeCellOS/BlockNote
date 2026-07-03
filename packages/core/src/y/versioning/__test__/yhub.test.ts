@@ -431,12 +431,12 @@ describe("createYHubVersioningEndpoints", () => {
   });
 
   // -------------------------------------------------------------------------
-  // updateSnapshotName is NOT provided
+  // rename is NOT provided
   // -------------------------------------------------------------------------
-  describe("updateSnapshotName", () => {
+  describe("rename", () => {
     it("is not provided (attributions are immutable)", () => {
       const endpoints = makeEndpoints();
-      expect(endpoints.updateSnapshotName).toBeUndefined();
+      expect(endpoints.rename).toBeUndefined();
     });
   });
 

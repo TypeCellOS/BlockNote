@@ -25,12 +25,12 @@ export const Snapshot = ({
 }) => {
   const Components = useComponentsContext()!;
   const {
-    canRestoreSnapshot,
-    restoreSnapshot,
-    canUpdateSnapshotName,
-    updateSnapshotName,
-    canDeleteSnapshot,
-    deleteSnapshot,
+    canRestore,
+    restore,
+    canRename,
+    rename,
+    canRemove,
+    remove,
     previewSnapshot,
     previewCurrentVersion,
   } = useExtension(VersioningExtension);
@@ -102,7 +102,7 @@ export const Snapshot = ({
   // "Compare with this version" (comparison), "Restore", or "Delete". When none
   // apply, there's nothing to show, so drop the menu entirely.
   const actions =
-    comparisonEnabled || canRestoreSnapshot || canDeleteSnapshot ? (
+    comparisonEnabled || canRestore || canRemove ? (
       <Components.Generic.Toolbar.Root
         variant="action-toolbar"
         className="bn-action-toolbar"
@@ -130,21 +130,21 @@ export const Snapshot = ({
                 Compare with this version
               </Components.Generic.Menu.Item>
             )}
-            {canRestoreSnapshot && (
+            {canRestore && (
               <Components.Generic.Menu.Item
                 icon={<RiArrowGoBackFill />}
                 onClick={() => {
-                  void restoreSnapshot?.(snapshot.id);
+                  void restore?.(snapshot.id);
                 }}
               >
                 Restore
               </Components.Generic.Menu.Item>
             )}
-            {canDeleteSnapshot && (
+            {canRemove && (
               <Components.Generic.Menu.Item
                 icon={<RiDeleteBinLine />}
                 onClick={() => {
-                  void deleteSnapshot?.(snapshot.id);
+                  void remove?.(snapshot.id);
                 }}
               >
                 Delete
@@ -170,7 +170,7 @@ export const Snapshot = ({
         </div>
       )}
       <div className="bn-snapshot-body">
-        {canUpdateSnapshotName ? (
+        {canRename ? (
           <input
             className="bn-snapshot-name"
             type="text"
@@ -198,7 +198,7 @@ export const Snapshot = ({
               }
             }}
             onBlur={() =>
-              updateSnapshotName?.(
+              rename?.(
                 snapshot.id,
                 snapshotName === dateString ? undefined : snapshotName,
               )
