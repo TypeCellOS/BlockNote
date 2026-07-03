@@ -6,10 +6,11 @@ import {
   type ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
 import {
+  colorsForUserIds,
+  userColorVarNames,
   normalizeToUserStore,
   type UserStoreOrResolver,
 } from "../../user/index.js";
-import { colorsForUserIds, userColorVarNames } from "./userColors.js";
 import {
   resolveAttributionMarkClassName,
   YAttributionMarksExtension,

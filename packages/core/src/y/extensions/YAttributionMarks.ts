@@ -10,7 +10,7 @@ import {
   fallbackColorForUserId,
   userColorPalette,
   userColorVarNames,
-} from "./userColors.js";
+} from "../../user/index.js";
 
 /**
  * Describes a suggestion mark to {@link GetAttributionMarkClassName}: whether it

@@ -1,5 +1,5 @@
 import { digestString } from "lib0/hash/fnv1a";
-import type { UserStore } from "../../user/index.js";
+import type { UserStore } from "./UserStore.js";
 
 /**
  * Deterministic hash of a string to an unsigned 32-bit integer.
