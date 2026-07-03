@@ -1,6 +1,7 @@
+import { SourceInlineContentWithPreviewExtension } from "@blocknote/core";
 import { createReactInlineContentSpec } from "@blocknote/react";
 
-import { SourceInlineContentWithPreviewExtension } from "../SourceInlineContentWithPreviewExtension.js";
+import { MathInlineInputRulesExtension } from "../MathInlineInputRulesExtension.js";
 import { mathInlineContentConfig } from "../mathInlineContentConfig.js";
 import { MathInlinePreviewWithPopup } from "./render/MathInlinePreviewWithPopup.js";
 import { InlineMathMLElement } from "./toExternalHTML/InlineMathMLElement.js";
@@ -23,7 +24,8 @@ export const createReactInlineMathSpec = () =>
     [
       SourceInlineContentWithPreviewExtension({
         key: INLINE_MATH_PREVIEW_KEY,
-        inlineContentType: "inlineMath",
+        inlineContentType: mathInlineContentConfig.type,
       }),
+      MathInlineInputRulesExtension,
     ],
   );
