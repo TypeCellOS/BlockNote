@@ -206,6 +206,15 @@ export interface PreviewController<Output = any, Attributions = any> {
      * `compareToContent`.
      */
     attributions?: Attributions,
+    /**
+     * The snapshot(s) this preview is for (metadata only — the content is
+     * `snapshotContent` / `compareToContent`). Lets a controller label the
+     * preview with e.g. the version's name, without smuggling it through the
+     * {@link Attributions} channel. `snapshot` is the previewed version (the
+     * {@link CURRENT_VERSION_ID} entry when previewing the live document);
+     * `compareTo` is the baseline it's diffed against, if any.
+     */
+    context?: { snapshot: VersionSnapshot; compareTo?: VersionSnapshot },
   ) => void;
   /** Exit preview mode and resume normal editing. */
   exitPreview: () => void;
@@ -376,7 +385,10 @@ export const VersioningExtension = createExtension(
       }
 
       const snapshotContent = await endpoints.getContent(snapshot);
-      preview.enterPreview(snapshotContent, compareToContent, attributions);
+      preview.enterPreview(snapshotContent, compareToContent, attributions, {
+        snapshot,
+        compareTo: compareToSnapshot,
+      });
     };
 
     /**
@@ -410,20 +422,21 @@ export const VersioningExtension = createExtension(
         compareToSnapshotId: compareToSnapshot?.id,
       }));
 
+      // Synthesise a snapshot for the live document so timestamp-based backends
+      // (e.g. YHub) resolve the changeset window up to "now", and so the preview
+      // controller gets a snapshot to key off. The id is the current-version
+      // sentinel; backends ignore it and resolve the window from `createdAt`.
+      const currentSnapshot: VersionSnapshot = {
+        id: CURRENT_VERSION_ID,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+
       let compareToContent: unknown;
       let attributions: unknown;
       if (compareToSnapshot) {
         compareToContent = await endpoints.getContent(compareToSnapshot);
         if (endpoints.getAttributions) {
-          // Synthesise a snapshot for the live document so timestamp-based
-          // backends (e.g. YHub) resolve the changeset window up to "now". The id
-          // is the current-version sentinel; backends ignore it and resolve the
-          // window from `createdAt`.
-          const currentSnapshot: VersionSnapshot = {
-            id: CURRENT_VERSION_ID,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-          };
           attributions = await endpoints.getAttributions(
             currentSnapshot,
             compareToSnapshot,
@@ -432,7 +445,10 @@ export const VersioningExtension = createExtension(
       }
 
       const currentContent = await serializeCurrentContent();
-      preview.enterPreview(currentContent, compareToContent, attributions);
+      preview.enterPreview(currentContent, compareToContent, attributions, {
+        snapshot: currentSnapshot,
+        compareTo: compareToSnapshot,
+      });
     };
 
     const exitPreview = () => {

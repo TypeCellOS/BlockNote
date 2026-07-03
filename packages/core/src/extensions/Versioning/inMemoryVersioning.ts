@@ -9,6 +9,18 @@ import type {
 } from "./Versioning.js";
 import { CURRENT_VERSION_ID, sortSnapshotsNewestFirst } from "./Versioning.js";
 
+/**
+ * Label shown on a diff's marks for the version that introduced the changes.
+ * The previewed snapshot is the "new" side of the diff; the current-version
+ * entry (previewing the live doc) has no name, so it reads "Current version".
+ */
+function versionLabel(snapshot: VersionSnapshot): string {
+  if (snapshot.id === CURRENT_VERSION_ID) {
+    return "Current version";
+  }
+  return snapshot.name ?? "Unnamed version";
+}
+
 // ---------------------------------------------------------------------------
 // Preview Controller
 // ---------------------------------------------------------------------------
@@ -51,6 +63,8 @@ export function createInMemoryPreviewController(
     enterPreview(
       snapshotContent: Block<any, any, any>[],
       compareToContent?: Block<any, any, any>[],
+      _attributions?: unknown,
+      context?: { snapshot: VersionSnapshot; compareTo?: VersionSnapshot },
     ) {
       // Save the live doc on first enter (successive enters keep the original).
       if (savedDoc === undefined) {
@@ -59,8 +73,13 @@ export function createInMemoryPreviewController(
 
       const diff = getDiff();
       if (compareToContent && diff) {
-        // Render an attributed diff of compareTo → snapshot.
-        diff.renderDiff(snapshotContent, compareToContent);
+        // Render a diff of compareTo → snapshot, labelling the changes with the
+        // previewed version's name (the diff's single "author").
+        diff.renderDiff(
+          snapshotContent,
+          compareToContent,
+          context && versionLabel(context.snapshot),
+        );
         showingDiff = true;
         return;
       }

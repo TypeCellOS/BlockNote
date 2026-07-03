@@ -15,23 +15,28 @@ import { AttributionExtension } from "./AttributionExtension.js";
 import type { GetAttributionMarkClassName } from "./YAttributionMarks.js";
 
 /**
- * Default author identity used when a diff is rendered without an explicit
- * author. In the in-memory / non-collaborative case there is no real author, so
- * we attribute the whole baseline → snapshot change to a single synthetic user.
- * The two ids (`a` / `b`) give distinct colors when alternating between diffs.
+ * A version diff has a single "author" — the version that introduced the changes
+ * — not a real user, so all `y-attributed-*` marks carry one synthetic id. That
+ * id is derived from the version's label (see {@link diffAuthorId}) so it's stable
+ * per version: the user store caches resolved users by id, so a per-label id keeps
+ * each version's tooltip showing its own name instead of a stale cached one.
  */
-export const DEFAULT_DIFF_USERS: User[] = [
-  { id: "a", username: "User A", avatarUrl: "", color: "#e6194b" },
-  { id: "b", username: "User B", avatarUrl: "", color: "#3cb44b" },
-];
+const DIFF_AUTHOR_ID_PREFIX = "version:";
+
+/** The synthetic author id for a given version label. */
+const diffAuthorId = (label: string) => DIFF_AUTHOR_ID_PREFIX + label;
+
+/** Fallback label used when a diff is rendered without a version name. */
+const DEFAULT_DIFF_LABEL = "This version";
+
+/** Color used for the version diff marks. */
+const DIFF_AUTHOR_COLOR = "#4363d8";
 
 export type DiffVersioningExtensionOptions = {
   /**
-   * The users a diff's changes can be attributed to. Resolved to names/colors
-   * in the diff marks' hover tooltips. Defaults to {@link DEFAULT_DIFF_USERS}
-   * (User A / User B).
+   * The color used for the diff's attribution marks. Defaults to a blue.
    */
-  users?: User[];
+  color?: string;
   /**
    * See {@link GetAttributionMarkClassName}. Forwarded to the underlying
    * {@link AttributionExtension} to override mark styling by change type.
@@ -106,22 +111,37 @@ export const DiffVersioningExtension = createExtension(
     options: DiffVersioningExtensionOptions | undefined;
     editor: BlockNoteEditor<any, any, any>;
   }) => {
-    const users = options?.users ?? DEFAULT_DIFF_USERS;
+    const color = options?.color ?? DIFF_AUTHOR_COLOR;
+
+    // Resolve a synthetic author id back to its version label. The id encodes
+    // the label (`version:<label>`), so this is a pure decode — no shared mutable
+    // state, and the user store caches each version's "user" separately (so
+    // switching between version comparisons never shows a stale name).
     const resolveUsers = async (ids: string[]): Promise<User[]> =>
-      users.filter((u) => ids.includes(u.id));
+      ids
+        .filter((id) => id.startsWith(DIFF_AUTHOR_ID_PREFIX))
+        .map((id) => ({
+          id,
+          username: id.slice(DIFF_AUTHOR_ID_PREFIX.length),
+          avatarUrl: "",
+          color,
+        }));
 
     /**
      * Render a read-only diff of `baselineBlocks` → `snapshotBlocks` into the
-     * editor, attributing the whole change to `authorId` (defaults to the first
-     * configured user). Uses the "two-doc fork" recipe so the two Y.Docs share
-     * history — a hard requirement for `createAttributionManagerFromDiff`, which
-     * diffs by Yjs client/clock ids.
+     * editor. The changes are attributed to the version that introduced them:
+     * pass `versionLabel` to label the diff marks (shown in their hover tooltip,
+     * e.g. "Edited by: {versionLabel}"). Uses the "two-doc fork" recipe so the
+     * two Y.Docs share history — a hard requirement for
+     * `createAttributionManagerFromDiff`, which diffs by Yjs client/clock ids.
      */
     const renderDiff = (
       snapshotBlocks: Block<any, any, any>[],
       baselineBlocks: Block<any, any, any>[],
-      authorId: string = users[0]?.id ?? "a",
+      versionLabel: string = DEFAULT_DIFF_LABEL,
     ) => {
+      const authorId = diffAuthorId(versionLabel);
+
       if (!editor.pmSchema.marks["y-attributed-insert"]) {
         throw new Error(
           "DiffVersioningExtension: the y-attributed-* marks are missing from " +

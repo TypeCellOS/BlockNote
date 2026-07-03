@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { Block } from "../../blocks/defaultBlocks.js";
+import { AttributionExtension } from "./AttributionExtension.js";
 import { DiffVersioningExtension } from "./DiffVersioningExtension.js";
 
 // ---------------------------------------------------------------------------
@@ -130,12 +131,12 @@ describe("DiffVersioningExtension", () => {
     expect(unchanged).toContain("brown fox");
   });
 
-  it("attributes the diff to the author id (userIds on the marks)", () => {
+  it("attributes the diff to the version author id (userIds on the marks)", () => {
     const baseline = blocksFromText("hello world");
     const target = blocksFromText("hello there world");
 
     const diff = editor.getExtension(DiffVersioningExtension)!;
-    diff.renderDiff(target, baseline);
+    diff.renderDiff(target, baseline, "My version");
 
     const attributed = collectAttributedText(editor);
     const insertUserIds = attributed
@@ -143,8 +144,25 @@ describe("DiffVersioningExtension", () => {
       .filter(([n]) => n === "y-attributed-insert")
       .flatMap(([, ids]) => ids);
 
-    // Default author is the first configured user ("a" / User A).
-    expect(insertUserIds).toContain("a");
+    // A version diff has one synthetic author (the version). Its id encodes the
+    // version label, so the tooltip resolves to that name.
+    expect(insertUserIds).toContain("version:My version");
+  });
+
+  it("resolves the diff author to the version's name (tooltip label)", async () => {
+    const baseline = blocksFromText("hello world");
+    const target = blocksFromText("hello brave new world");
+
+    const diff = editor.getExtension(DiffVersioningExtension)!;
+    diff.renderDiff(target, baseline, "Draft 3");
+
+    // The version name is surfaced by resolving the marks' author id through the
+    // composed AttributionExtension's user store — this is what the hover tooltip
+    // shows ("…by {name}").
+    const attribution = editor.getExtension(AttributionExtension)!;
+    const authorId = "version:Draft 3";
+    await attribution.userStore.loadUsers([authorId]);
+    expect(attribution.userStore.getUser(authorId)?.username).toBe("Draft 3");
   });
 
   it("produces no attribution marks when the docs are identical", () => {
