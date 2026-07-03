@@ -1,18 +1,9 @@
-import { deltaToPNode, docToDelta, nodeToDelta } from "@y/prosemirror";
+import { deltaToPNode, docToDelta } from "@y/prosemirror";
 import * as Y from "@y/y";
 
 import { type Block, BlockNoteEditor, docToBlocks } from "../../index.js";
-import { diff } from "lib0/delta";
-import { blockMatchNodes } from "./blockMatchNodes.js";
-import { Node } from "prosemirror-model";
+import { docDiffToDelta } from "../utils.js";
 
-function docDiffToDelta(previousDoc: Node, newDoc: Node) {
-  const initialDelta = nodeToDelta(previousDoc);
-  const finalDelta = nodeToDelta(newDoc);
-  return diff(initialDelta.done(), finalDelta.done(), {
-    compare: blockMatchNodes,
-  });
-}
 /**
  * Build up Yjs snapshots of a document at named points in time.
  *

@@ -4338,6 +4338,12 @@ importers:
       '@mantine/hooks':
         specifier: ^9.0.2
         version: 9.1.1(react@19.2.5)
+      '@y/prosemirror':
+        specifier: 2.0.0-4
+        version: 2.0.0-4(patch_hash=d447c69fe5b5313ba878ba03da8b1e98ab3597b9080c66030e89923100f797da)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.18))(@y/y@14.0.0-rc.18)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
+      '@y/y':
+        specifier: 14.0.0-rc.18
+        version: 14.0.0-rc.18
       react:
         specifier: ^19.2.3
         version: 19.2.5

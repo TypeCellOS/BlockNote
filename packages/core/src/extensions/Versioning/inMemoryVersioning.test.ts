@@ -11,6 +11,7 @@ import {
 } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { DiffVersioningExtension } from "../../y/extensions/DiffVersioningExtension.js";
 import { CURRENT_VERSION_ID, VersioningExtension } from "./Versioning.js";
 import {
   createInMemoryPreviewController,
@@ -337,9 +338,9 @@ describe("VersioningExtension + in-memory adapter", () => {
     setEditorText(editor, "changed doc");
     const snap2 = await ext.create!({ name: "current" });
 
-    // Preview snap2 compared to snap1. The in-memory preview controller
-    // ignores the compareTo content (no diff rendering), but the call should
-    // succeed and show the snapshot content.
+    // Preview snap2 compared to snap1. Without the (opt-in) DiffVersioningExtension
+    // registered, the in-memory preview controller falls back to a static swap:
+    // it shows the snapshot content and renders no diff marks.
     await ext.previewSnapshot(snap2.id, { compareTo: snap1.id });
     expect(getEditorText(editor)).toBe("changed doc");
 
@@ -401,5 +402,68 @@ describe("VersioningExtension + in-memory adapter", () => {
     // Backend also updated (verified via list which calls endpoints.list)
     const list = await ext.list();
     expect(list.find((s) => s.id === snap.id)!.name).toBe("final");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tests — diff delegation to the opt-in DiffVersioningExtension
+// ---------------------------------------------------------------------------
+
+describe("in-memory versioning + DiffVersioningExtension", () => {
+  let editor: BlockNoteEditor<any, any, any>;
+
+  beforeEach(() => {
+    editor = BlockNoteEditor.create({
+      extensions: [DiffVersioningExtension()],
+    });
+    editor.mount(document.createElement("div"));
+    setEditorText(editor, "initial doc");
+  });
+
+  afterEach(() => {
+    editor.unmount();
+  });
+
+  const attributionMarkCount = () => {
+    let count = 0;
+    editor.prosemirrorState.doc.descendants((node) => {
+      count += node.marks.filter((m) =>
+        m.type.name.startsWith("y-attributed-"),
+      ).length;
+      return true;
+    });
+    return count;
+  };
+
+  it("previewing with compareTo renders an attributed diff", async () => {
+    const adapter = createInMemoryVersioningAdapter(editor);
+    const ext = VersioningExtension(adapter)({ editor });
+
+    const snap1 = await ext.create!({ name: "baseline" });
+    setEditorText(editor, "changed doc");
+    const snap2 = await ext.create!({ name: "current" });
+
+    await ext.previewSnapshot(snap2.id, { compareTo: snap1.id });
+
+    // The diff extension rendered attribution marks (initial vs changed doc).
+    expect(attributionMarkCount()).toBeGreaterThan(0);
+
+    // Exiting the preview clears the marks and restores the live document.
+    ext.exitPreview();
+    expect(attributionMarkCount()).toBe(0);
+    expect(getEditorText(editor)).toBe("changed doc");
+  });
+
+  it("previewing without compareTo shows content with no diff marks", async () => {
+    const adapter = createInMemoryVersioningAdapter(editor);
+    const ext = VersioningExtension(adapter)({ editor });
+
+    const snap1 = await ext.create!({ name: "baseline" });
+    setEditorText(editor, "changed doc");
+
+    await ext.previewSnapshot(snap1.id);
+
+    expect(getEditorText(editor)).toBe("initial doc");
+    expect(attributionMarkCount()).toBe(0);
   });
 });

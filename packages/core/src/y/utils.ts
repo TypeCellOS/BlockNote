@@ -1,4 +1,14 @@
-import { docToDelta, pmToFragment, deltaToPNode } from "@y/prosemirror";
+import {
+  deltaAttributionToFormat,
+  deltaToPNode,
+  deltaToPSteps,
+  docToDelta,
+  nodeToDelta,
+  pmToFragment,
+} from "@y/prosemirror";
+import * as d from "lib0/delta";
+import { Node } from "prosemirror-model";
+import { Transaction } from "prosemirror-state";
 import {
   type Block,
   type BlockNoteEditor,
@@ -9,6 +19,8 @@ import {
   blockToNode,
   docToBlocks,
 } from "../index.js";
+import { blockMatchNodes } from "./extensions/blockMatchNodes.js";
+import { mapAttributionToMark } from "./extensions/YSync.js";
 
 import * as Y from "@y/y";
 
@@ -178,8 +190,50 @@ export function blocksToYDoc<
   blocks: PartialBlock<BSchema, ISchema, SSchema>[],
   fragment = "prosemirror",
 ) {
-  const d = docToDelta(_blocksToProsemirrorNode(editor, blocks));
+  const delta = docToDelta(_blocksToProsemirrorNode(editor, blocks));
   const doc = new Y.Doc();
-  doc.get(fragment).applyDelta(d);
+  doc.get(fragment).applyDelta(delta);
   return doc;
+}
+
+/**
+ * Diff two ProseMirror documents into a delta, using BlockNote's node-pairing
+ * policy ({@link blockMatchNodes}) so a block's content-type change is reported
+ * as a replace rather than a schema-invalid in-place edit.
+ */
+export function docDiffToDelta(previousDoc: Node, newDoc: Node) {
+  const initialDelta = nodeToDelta(previousDoc);
+  const finalDelta = nodeToDelta(newDoc);
+  return d.diff(initialDelta.done(), finalDelta.done(), {
+    compare: blockMatchNodes,
+  });
+}
+
+/**
+ * Build a ProseMirror transaction that turns `tr.doc` into the content of a
+ * Y.Type `fragment`, applying the `attributionManager`'s authorship as
+ * `y-attributed-*` marks. Used to render a (read-only) diff of a snapshot / a
+ * version comparison into the editor.
+ */
+export function getProseMirrorTrFromYFragment({
+  tr,
+  fragment,
+  attributionManager,
+}: {
+  tr: Transaction;
+  fragment: Y.Type;
+  attributionManager?: Y.AbstractAttributionManager;
+}): Transaction {
+  const ycontent = deltaAttributionToFormat(
+    fragment.toDeltaDeep(attributionManager || Y.noAttributionsManager),
+    mapAttributionToMark,
+  );
+  // @todo it is preferred to apply the minimal diff - at least for debugging purposes. the
+  // document replacal is more reliable though
+
+  const pcontent = nodeToDelta(tr.doc, undefined, true);
+  const diff = d.diff(pcontent.done(), ycontent.done(), {
+    compare: blockMatchNodes,
+  });
+  return deltaToPSteps(tr, diff, undefined, undefined);
 }

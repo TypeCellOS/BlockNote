@@ -3,6 +3,7 @@ import {
   VersioningExtension,
   createInMemoryVersioningAdapter,
 } from "@blocknote/core/extensions";
+import { DiffVersioningExtension } from "@blocknote/core/y";
 import {
   BlockNoteViewEditor,
   useCreateBlockNote,
@@ -40,7 +41,13 @@ export default function App() {
           "save snapshots. You can preview and restore older versions.",
       },
     ],
-    extensions: [VersioningExtension(createInMemoryVersioningAdapter)],
+    extensions: [
+      VersioningExtension(createInMemoryVersioningAdapter),
+      // Opt into rendering version diffs: when comparing two versions the
+      // sidebar shows insertions/deletions as attributed marks. Without this
+      // extension the in-memory versioning falls back to a plain document swap.
+      DiffVersioningExtension(),
+    ],
   });
 
   const { exitPreview } = useExtension(VersioningExtension, { editor });

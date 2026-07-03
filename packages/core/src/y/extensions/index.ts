@@ -146,6 +146,7 @@ export function withCollaboration<
 }
 
 export * from "./AttributionExtension.js";
+export * from "./DiffVersioningExtension.js";
 export * from "./RelativePositionMapping.js";
 export * from "./snapshotBuilder.js";
 export * from "./Suggestions.js";

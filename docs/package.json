@@ -99,7 +99,7 @@
     "zod": "^4.3.5",
     "@y/protocols": "^1.0.6-rc.1",
     "@y/websocket": "^4.0.0-3",
-    "@y/y": "^14.0.0-rc.16",
+    "@y/y": "^14.0.0-rc.17",
     "@y/prosemirror": "^2.0.0-4",
     "@floating-ui/react": "^0.27.18",
     "lib0": "1.0.0-rc.13",

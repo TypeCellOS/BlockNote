@@ -18,6 +18,8 @@
     "@blocknote/shadcn": "latest",
     "@mantine/core": "^9.0.2",
     "@mantine/hooks": "^9.0.2",
+    "@y/y": "^14.0.0-rc.17",
+    "@y/prosemirror": "^2.0.0-4",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-icons": "5.6.0"

@@ -451,8 +451,13 @@ export const VersioningExtension = createExtension(
         return await updateSnapshots();
       },
       // Comparison is only offered when the preview controller can actually
-      // render a diff (see PreviewController.supportsComparison).
-      canCompare: preview.supportsComparison !== false,
+      // render a diff (see PreviewController.supportsComparison). A getter so a
+      // controller whose `supportsComparison` is itself dynamic (e.g. gated on
+      // an opt-in diff extension that may be registered after this one) is read
+      // lazily, not captured at init time.
+      get canCompare() {
+        return preview.supportsComparison !== false;
+      },
       canCreate: endpoints.create !== undefined,
       create: endpoints.create
         ? async (options?: {
