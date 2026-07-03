@@ -25,7 +25,9 @@ describe("createUserStore", () => {
     await userStore.loadUsers(["1", "2"]);
 
     expect(resolveUsers).toHaveBeenCalledTimes(1);
-    expect(resolveUsers).toHaveBeenCalledWith(["1", "2"]);
+    // The store itself is passed as the second argument, so resolvers can
+    // return synchronously and fill in more info via `setUser` later.
+    expect(resolveUsers).toHaveBeenCalledWith(["1", "2"], userStore);
     expect(userStore.getUser("1")).toEqual(makeUser("1"));
     expect(userStore.getUser("2")).toEqual(makeUser("2"));
     expect(userStore.store.state.size).toBe(2);
@@ -40,7 +42,7 @@ describe("createUserStore", () => {
 
     // Only the missing "3" should be requested the second time.
     expect(resolveUsers).toHaveBeenCalledTimes(2);
-    expect(resolveUsers).toHaveBeenNthCalledWith(2, ["3"]);
+    expect(resolveUsers).toHaveBeenNthCalledWith(2, ["3"], userStore);
 
     await userStore.loadUsers(["1", "2", "3"]);
     // Everything cached now → no further requests.

@@ -58,7 +58,8 @@ describe("AttributionExtension user loading", () => {
     addInsertMark(editor, ["alice"]);
 
     expect(resolveUsers).toHaveBeenCalledTimes(1);
-    expect(resolveUsers).toHaveBeenCalledWith(["alice"]);
+    // The extension's user store passes itself as the resolver's second arg.
+    expect(resolveUsers).toHaveBeenCalledWith(["alice"], expect.anything());
   });
 
   it("does not load users for changes without attribution marks", () => {
