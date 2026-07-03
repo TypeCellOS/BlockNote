@@ -63,16 +63,20 @@ export function createLocalStorageVersioningEndpoints(
     return [current, ...readSnapshots(storageKey)];
   };
 
-  const createSnapshot: VersioningEndpoints<
-    Y.XmlFragment,
-    Uint8Array
-  >["create"] = async (fragment, options) => {
+  // Stored snapshots always have string ids (only the synthetic current
+  // entry carries the CURRENT_VERSION_ID symbol, and it never reaches these
+  // endpoints), so coercing ids to strings below is safe.
+  const createSnapshot: NonNullable<
+    VersioningEndpoints<Y.XmlFragment, Uint8Array>["create"]
+  > = async (fragment, options) => {
     const snapshot = {
       id: crypto.randomUUID(),
       name: options?.name,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      restoredFromSnapshotId: options?.restoredFromSnapshot?.id,
+      restoredFromSnapshotId: options?.restoredFromSnapshot
+        ? String(options.restoredFromSnapshot.id)
+        : undefined,
     } satisfies VersionSnapshot;
 
     const contents = readContents(storageKey);
@@ -88,9 +92,10 @@ export function createLocalStorageVersioningEndpoints(
     Y.XmlFragment,
     Uint8Array
   >["getContent"] = async (snapshot) => {
-    const encoded = readContents(storageKey)[snapshot.id];
+    const id = String(snapshot.id);
+    const encoded = readContents(storageKey)[id];
     if (encoded === undefined) {
-      throw new Error(`Document snapshot ${snapshot.id} could not be found.`);
+      throw new Error(`Document snapshot ${id} could not be found.`);
     }
     return fromBase64(encoded);
   };
@@ -120,7 +125,9 @@ export function createLocalStorageVersioningEndpoints(
     const snapshots = readSnapshots(storageKey);
     const stored = snapshots.find((s) => s.id === snapshot.id);
     if (stored === undefined) {
-      throw new Error(`Document snapshot ${snapshot.id} could not be found.`);
+      throw new Error(
+        `Document snapshot ${String(snapshot.id)} could not be found.`,
+      );
     }
 
     stored.name = name;
@@ -134,7 +141,9 @@ export function createLocalStorageVersioningEndpoints(
   >["remove"] = async (snapshot) => {
     const snapshots = readSnapshots(storageKey);
     if (!snapshots.some((s) => s.id === snapshot.id)) {
-      throw new Error(`Document snapshot ${snapshot.id} could not be found.`);
+      throw new Error(
+        `Document snapshot ${String(snapshot.id)} could not be found.`,
+      );
     }
 
     // Drop the snapshot metadata and its stored content.
@@ -144,7 +153,7 @@ export function createLocalStorageVersioningEndpoints(
     );
 
     const contents = readContents(storageKey);
-    delete contents[snapshot.id];
+    delete contents[String(snapshot.id)];
     writeContents(storageKey, contents);
   };
 
