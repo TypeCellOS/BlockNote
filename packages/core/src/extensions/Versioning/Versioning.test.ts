@@ -11,6 +11,7 @@ import {
 } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { UserStoreOrResolver } from "../../user/index.js";
 import { sortSnapshotsNewestFirst, VersioningExtension } from "./Versioning.js";
 import type { VersionSnapshot } from "./Versioning.js";
 import {
@@ -56,6 +57,7 @@ function setup(opts?: {
   initialText?: string;
   withoutRestore?: boolean;
   withoutUpdateName?: boolean;
+  resolveUsers?: UserStoreOrResolver;
 }) {
   const editor = createEditor();
   setEditorText(editor, opts?.initialText ?? "initial doc");
@@ -74,6 +76,7 @@ function setup(opts?: {
     endpoints,
     preview,
     getCurrentDocument: () => editor.document,
+    resolveUsers: opts?.resolveUsers,
   })({ editor });
 
   /** Seed a snapshot into the backend by capturing the current editor doc. */
@@ -344,6 +347,57 @@ describe("VersioningExtension", () => {
       expect(noUpdate.ext.canRename).toBe(false);
       expect(noUpdate.ext.rename).toBeUndefined();
       noUpdate.editor.unmount();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // User store (author resolution for `VersionSnapshot.by`)
+  // -------------------------------------------------------------------------
+
+  describe("user store", () => {
+    it("exposes an empty user store when no resolveUsers is provided", async () => {
+      expect(ctx.ext.userStore).toBeDefined();
+      await ctx.ext.userStore.loadUsers(["u1"]);
+      expect(ctx.ext.userStore.getUser("u1")).toBeUndefined();
+    });
+
+    it("builds a de-duped user store from a resolveUsers callback", async () => {
+      const resolveUsers = vi.fn(async (ids: string[]) =>
+        ids.map((id) => ({ id, username: `name-${id}`, avatarUrl: "" })),
+      );
+      const withUsers = setup({ resolveUsers });
+
+      await withUsers.ext.userStore.loadUsers(["u1", "u2"]);
+      expect(withUsers.ext.userStore.getUser("u1")?.username).toBe("name-u1");
+      expect(withUsers.ext.userStore.getUser("u2")?.username).toBe("name-u2");
+
+      // Already-cached ids are not re-fetched.
+      await withUsers.ext.userStore.loadUsers(["u1"]);
+      expect(resolveUsers).toHaveBeenCalledTimes(1);
+
+      withUsers.editor.unmount();
+    });
+
+    it("passes `by` author ids through list() untouched", async () => {
+      const editor = createEditor();
+      const ext = VersioningExtension({
+        endpoints: {
+          list: async () => [snap("1", 100, { by: ["u1", "u2"] })],
+          getContent: async () => [],
+        },
+        preview: createInMemoryPreviewController(editor),
+        getCurrentDocument: () => editor.document,
+      })({ editor });
+
+      const result = await ext.list();
+
+      // Raw ids are preserved — resolving them to user info is the view
+      // layer's job (via `ext.userStore`), never the extension's.
+      expect(result[0]!.by).toEqual(["u1", "u2"]);
+      expect(result[0]!.secondaryLabel).toBeUndefined();
+      expect(ext.store.state.snapshots).toEqual(result);
+
+      editor.unmount();
     });
   });
 

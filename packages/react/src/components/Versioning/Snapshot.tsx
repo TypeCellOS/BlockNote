@@ -14,6 +14,7 @@ import {
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { dateToString } from "./dateToString.js";
+import { useSnapshotLabel } from "./useVersionUsers.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
 
 export const Snapshot = ({
@@ -54,6 +55,8 @@ export const Snapshot = ({
 
   const { comparisonEnabled, comparisonMode, setComparisonMode } =
     useVersioningSidebar();
+
+  const secondaryLabel = useSnapshotLabel(snapshot);
 
   const dateString = dateToString(new Date(snapshot?.createdAt || 0));
   const [snapshotName, setSnapshotName] = useState(
@@ -213,10 +216,8 @@ export const Snapshot = ({
         {revertedSnapshot && (
           <div className="bn-snapshot-original-date">{`Restored from ${dateToString(new Date(revertedSnapshot.createdAt))}`}</div>
         )}
-        {snapshot.secondaryLabel !== undefined && (
-          <div className="bn-snapshot-secondary-label">
-            {snapshot.secondaryLabel}
-          </div>
+        {secondaryLabel !== undefined && (
+          <div className="bn-snapshot-secondary-label">{secondaryLabel}</div>
         )}
       </div>
     </Components.Versioning.Snapshot>

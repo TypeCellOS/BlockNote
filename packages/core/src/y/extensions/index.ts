@@ -104,6 +104,7 @@ export const CollaborationExtension = createExtension(
           ? VersioningExtension({
               ...createYjsVersioningAdapter(editor, options.fragment),
               endpoints: options.versioningEndpoints,
+              resolveUsers: userStore,
             })
           : null,
         AttributionExtension({

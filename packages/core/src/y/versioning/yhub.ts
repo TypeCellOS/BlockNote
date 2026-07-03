@@ -9,7 +9,6 @@ import {
   type VersionSnapshot,
 } from "../../extensions/Versioning/index.js";
 import { uint32 } from "lib0/random";
-import { AttributionExtension } from "../extensions/AttributionExtension.js";
 import { YCursorExtension } from "../extensions/YCursorPlugin.js";
 
 /**
@@ -77,7 +76,9 @@ interface YHubChangeset {
  *
  * Version markers are activity entries created with `type:version` custom
  * attributions. The `id` attribution is used as the snapshot identifier.
- * The `name` attribution value becomes the snapshot name.
+ * The `name` attribution value becomes the snapshot name. The entry's `by`
+ * user-ids are passed through raw on {@link VersionSnapshot.by} — resolving
+ * them to user info is the view layer's job.
  */
 function activityToSnapshot(
   entry: YHubActivityEntry,
@@ -87,12 +88,17 @@ function activityToSnapshot(
     return undefined;
   }
   const name = entry.customAttributions?.find((a) => a.k === "name")?.v;
+  const by =
+    entry.by
+      ?.split(",")
+      .map((t) => t.trim())
+      .filter(Boolean) ?? [];
   return {
     id,
     name,
     createdAt: entry.to,
     updatedAt: entry.to,
-    secondaryLabel: entry.by,
+    by: by.length > 0 ? by : undefined,
   };
 }
 
@@ -191,11 +197,16 @@ export function createYHubVersioningEndpoints(
       // Build the synthetic entry directly rather than via `activityToSnapshot`,
       // whose `id` comes from a string-typed wire attribution — the current
       // entry's id is the `CURRENT_VERSION_ID` symbol, not a real version id.
+      const by =
+        latestEdit.by
+          ?.split(",")
+          .map((t) => t.trim())
+          .filter(Boolean) ?? [];
       return {
         id: CURRENT_VERSION_ID,
         createdAt: latestEdit.to,
         updatedAt: latestEdit.to,
-        secondaryLabel: latestEdit.by,
+        by: by.length > 0 ? by : undefined,
       };
     };
 
@@ -275,6 +286,7 @@ export function createYHubVersioningEndpoints(
         name: options?.name,
         createdAt: now,
         updatedAt: now,
+        by: user?.id,
       };
     };
 
@@ -375,9 +387,9 @@ export function createYHubVersioningEndpoints(
      * List all saved version snapshots (newest first), plus a synthetic
      * "current version" entry when the live document has unsaved edits.
      *
-     * Filters the activity timeline to `type:version` markers, then resolves
-     * author user-ids to usernames via the collaboration user store (exposed on
-     * the {@link YSyncExtension}).
+     * Filters the activity timeline to `type:version` markers. Author user-ids
+     * are passed through raw on {@link VersionSnapshot.by} — the view layer
+     * resolves them to user info via the versioning extension's user store.
      */
     const list: VersioningEndpoints<
       Y.Type,
@@ -411,39 +423,7 @@ export function createYHubVersioningEndpoints(
       const currentEntry = await getCurrentVersionEntry(
         snapshots[0]?.createdAt,
       );
-      const all = currentEntry ? [currentEntry, ...snapshots] : snapshots;
-
-      // Resolve the comma-separated author user-ids in each snapshot's
-      // `secondaryLabel` (from YHub's `by` field) to usernames via the
-      // collaboration user store, which is exposed on the YSync extension. With
-      // no user store (or for ids it can't resolve), the raw id is kept.
-      const userStore = editor.getExtension(AttributionExtension)?.userStore;
-      if (!userStore) {
-        return all;
-      }
-
-      const splitIds = (label: string | undefined) =>
-        label
-          ?.split(",")
-          .map((t) => t.trim())
-          .filter(Boolean) ?? [];
-
-      await userStore.loadUsers([
-        ...new Set(all.flatMap((s) => splitIds(s.secondaryLabel))),
-      ]);
-
-      return all.map((s) => {
-        const ids = splitIds(s.secondaryLabel);
-        if (ids.length === 0) {
-          return s;
-        }
-        return {
-          ...s,
-          secondaryLabel: ids
-            .map((id) => userStore.getUser(id)?.username ?? id)
-            .join(", "),
-        };
-      });
+      return currentEntry ? [currentEntry, ...snapshots] : snapshots;
     };
 
     return {

@@ -8,6 +8,7 @@ import { RiArrowLeftRightLine, RiMoreFill } from "react-icons/ri";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { dateToString } from "./dateToString.js";
+import { useSnapshotLabel } from "./useVersionUsers.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
 
 /**
@@ -44,6 +45,8 @@ export const CurrentSnapshot = ({
 
   const { comparisonEnabled, comparisonMode, setComparisonMode } =
     useVersioningSidebar();
+
+  const secondaryLabel = useSnapshotLabel(snapshot);
 
   // Clicking the current version shows a read-only diff of the live document
   // against the most recent snapshot. When comparison mode is off, or there's
@@ -110,15 +113,13 @@ export const CurrentSnapshot = ({
         {/* The timestamp + author of the last edit are only shown when the
             backend stamps them (e.g. YHub). Backends that don't track them
             (e.g. in-memory) just get the "Current version" label. */}
-        {snapshot.secondaryLabel !== undefined && (
+        {secondaryLabel !== undefined && (
           <div className="bn-snapshot-date">
             {dateToString(new Date(snapshot.createdAt))}
           </div>
         )}
-        {snapshot.secondaryLabel !== undefined && (
-          <div className="bn-snapshot-secondary-label">
-            {snapshot.secondaryLabel}
-          </div>
+        {secondaryLabel !== undefined && (
+          <div className="bn-snapshot-secondary-label">{secondaryLabel}</div>
         )}
       </div>
     </Components.Versioning.Snapshot>

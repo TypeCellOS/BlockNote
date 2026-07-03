@@ -23,7 +23,7 @@ import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 const VERSION_ENTRY_1 = {
   from: 1782218082853,
   to: 1782218082853,
-  by: "Charlie Brown",
+  by: "user-1",
   customAttributions: [
     { k: "type", v: "version" },
     { k: "id", v: "uuid-version-1" },
@@ -34,7 +34,7 @@ const VERSION_ENTRY_1 = {
 const VERSION_ENTRY_2 = {
   from: 1782218211312,
   to: 1782218211312,
-  by: "Dilbert Adams",
+  by: "user-2, user-3",
   customAttributions: [
     { k: "type", v: "version" },
     { k: "id", v: "uuid-version-2" },
@@ -45,13 +45,14 @@ const VERSION_ENTRY_2 = {
 // Snapshots as produced by `list()` (see `activityToSnapshot`): the activity
 // entry's `to` timestamp becomes both `createdAt` and `updatedAt`. The
 // changeset/rollback APIs are now driven by these timestamps directly, so the
-// endpoints no longer make an activity lookup to resolve them.
+// endpoints no longer make an activity lookup to resolve them. The entry's
+// comma-separated `by` user-ids are split into the snapshot's raw `by` array.
 const SNAPSHOT_1: VersionSnapshot = {
   id: "uuid-version-1",
   name: "Test Version 1",
   createdAt: VERSION_ENTRY_1.to,
   updatedAt: VERSION_ENTRY_1.to,
-  secondaryLabel: VERSION_ENTRY_1.by,
+  by: ["user-1"],
 };
 
 const SNAPSHOT_2: VersionSnapshot = {
@@ -59,7 +60,7 @@ const SNAPSHOT_2: VersionSnapshot = {
   name: "Test Version 2",
   createdAt: VERSION_ENTRY_2.to,
   updatedAt: VERSION_ENTRY_2.to,
-  secondaryLabel: VERSION_ENTRY_2.by,
+  by: ["user-2", "user-3"],
 };
 
 const PATCH_RESPONSE = { success: true, message: "Document updated" };
@@ -85,10 +86,11 @@ const BASE_URL = "https://yhub.test";
 const ORG = "test-org";
 const DOC_ID = "test-doc";
 
-// The factory now returns a callback that receives the editor instance (used to
-// resolve author ids to usernames via the collaboration user store on the YSync
-// extension). These tests create a bare editor with no collaboration/user store,
-// so author labels stay as the raw `by` ids.
+// The factory returns a callback that receives the editor instance (used to
+// stamp `create`d snapshots with the current cursor user's id). Author ids are
+// passed through raw on `VersionSnapshot.by` — resolving them to user info is
+// the view layer's job, not the endpoints'. These tests create a bare editor
+// with no collaboration extensions, so `create` gets no author id.
 function makeEndpoints() {
   const editor = BlockNoteEditor.create();
   return createYHubVersioningEndpoints({
@@ -146,9 +148,13 @@ describe("createYHubVersioningEndpoints", () => {
       expect(snapshots).toHaveLength(2);
       expect(snapshots[0].id).toBe("uuid-version-2");
       expect(snapshots[0].name).toBe("Test Version 2");
-      expect(snapshots[0].secondaryLabel).toBe("Dilbert Adams");
+      // The comma-separated `by` user-ids are split into a raw id array —
+      // never resolved to usernames here (that's the view layer's job).
+      expect(snapshots[0].by).toEqual(["user-2", "user-3"]);
+      expect(snapshots[0].secondaryLabel).toBeUndefined();
       expect(snapshots[1].id).toBe("uuid-version-1");
       expect(snapshots[1].name).toBe("Test Version 1");
+      expect(snapshots[1].by).toEqual(["user-1"]);
     });
 
     it("passes withCustomAttributions=type:version to the API", async () => {
@@ -220,7 +226,7 @@ describe("createYHubVersioningEndpoints", () => {
       const latestEdit = {
         from: 1782218300000,
         to: 1782218300000,
-        by: "Eve Online",
+        by: "user-4",
       };
       fetchSpy.mockResolvedValueOnce(
         mockFetchResponse([VERSION_ENTRY_2, VERSION_ENTRY_1]),
@@ -233,7 +239,8 @@ describe("createYHubVersioningEndpoints", () => {
       expect(snapshots).toHaveLength(3);
       expect(snapshots[0].id).toBe(CURRENT_VERSION_ID);
       expect(snapshots[0].createdAt).toBe(latestEdit.to);
-      expect(snapshots[0].secondaryLabel).toBe("Eve Online");
+      expect(snapshots[0].by).toEqual(["user-4"]);
+      expect(snapshots[0].secondaryLabel).toBeUndefined();
       // The real version markers follow, newest-first.
       expect(snapshots[1].id).toBe("uuid-version-2");
       expect(snapshots[2].id).toBe("uuid-version-1");
@@ -259,10 +266,40 @@ describe("createYHubVersioningEndpoints", () => {
       expect(patchInit.method).toBe("PATCH");
       expect(patchInit.body).toBeInstanceOf(Uint8Array);
 
-      // Optimistic snapshot has a UUID id and the provided name
+      // Optimistic snapshot has a UUID id and the provided name. With no
+      // yCursor extension there's no current user to attribute it to.
       expect(snapshot.id).toMatch(/^[0-9a-f-]+$/);
       expect(snapshot.name).toBe("My Version");
       expect(snapshot.createdAt).toBeGreaterThan(0);
+      expect(snapshot.by).toBeUndefined();
+    });
+
+    it("stamps the optimistic snapshot with the cursor user's id", async () => {
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse(PATCH_RESPONSE));
+
+      // Stub the editor so the yCursor extension reports a current user.
+      const editor = {
+        getExtension: (key: string) =>
+          key === "yCursor"
+            ? {
+                getUser: () => ({ id: "user-1", name: "Alice", color: "#f00" }),
+              }
+            : undefined,
+      } as unknown as BlockNoteEditor<any, any, any>;
+      const endpoints = createYHubVersioningEndpoints({
+        baseUrl: BASE_URL,
+        org: ORG,
+        docId: DOC_ID,
+      })(editor);
+
+      const snapshot = await endpoints.create!(makeFragment(), {
+        name: "My Version",
+      });
+
+      expect(snapshot.by).toBe("user-1");
+      // The PATCH is attributed to the same user.
+      const patchUrl = new URL(fetchSpy.mock.calls[0][0] as string);
+      expect(patchUrl.searchParams.get("userid")).toBe("user-1");
     });
 
     it("creates a version without a name", async () => {

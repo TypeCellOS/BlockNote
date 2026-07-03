@@ -1,4 +1,4 @@
-import type { User } from "@blocknote/core";
+import type { User, UserStore } from "@blocknote/core";
 
 // Integer-like ids make it obvious if username resolution ever breaks: the
 // version sidebar / diff tooltips would show a bare number (e.g. "1") instead
@@ -18,6 +18,15 @@ export const USERS: User[] = [
  * diff tooltips) by name instead of id. Mirrors the `resolveUsers` you'd
  * normally back with your own user database.
  */
-export async function resolveUsers(userIds: string[]): Promise<User[]> {
-  return USERS.filter((u) => userIds.includes(u.id));
+export async function resolveUsers(
+  userIds: string[],
+  store: UserStore<any>,
+): Promise<User[]> {
+  setTimeout(
+    () => {
+      store.setUser(USERS.filter((u) => userIds.includes(u.id)));
+    },
+    Math.random() * 200 + 300,
+  );
+  return [USERS[0]];
 }

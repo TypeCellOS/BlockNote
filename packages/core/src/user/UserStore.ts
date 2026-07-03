@@ -58,7 +58,34 @@ export type UserStore<U extends User = User> = {
    * The user has to be loaded via `loadUsers` first.
    */
   getUser: (userId: User["id"]) => U | undefined;
+  /**
+   * Manually set information about a user. This is useful if you have a
+   * resolver that returns partial information (e.g. just the username) and you
+   * want to fill in the rest later (e.g. avatarUrl).
+   */
+  setUser: (user: U | U[]) => void;
 };
+
+export type UserStoreResolver<U extends User = User> = (
+  /**
+   * The user ids to resolve. The resolver should return information for all of
+   * these users, or an empty array if none could be resolved.
+   */
+  userIds: User["id"][],
+  /**
+   * The {@link UserStore} that is calling this resolver. This allows you to return a user synchronously, and update the store later if you need to fetch additional information asynchronously.
+   */
+  store: UserStore<any>,
+) => Promise<U[]>;
+
+/**
+ * A resolver callback or an already-built {@link UserStore} — the shape that
+ * user-facing options (comments, collaboration) accept so callers can either let
+ * the extension build a store or pass a shared one.
+ */
+export type UserStoreOrResolver<U extends User = User> =
+  | ((userIds: User["id"][], store: UserStore<any>) => Promise<U[]>)
+  | UserStore<any>;
 
 /**
  * Creates a {@link UserStore} that retrieves and caches information about users.
@@ -76,7 +103,7 @@ export type UserStore<U extends User = User> = {
  * See [Comments](https://www.blocknotejs.org/docs/features/collaboration/comments) for more info.
  */
 export function createUserStore<U extends User = User>(
-  resolveUsers: (userIds: User["id"][]) => Promise<U[]>,
+  resolveUsers: (userIds: User["id"][], store: UserStore<any>) => Promise<U[]>,
 ): UserStore<U> {
   if (!resolveUsers) {
     throw new Error("resolveUsers is required to create a user store");
@@ -89,6 +116,33 @@ export function createUserStore<U extends User = User>(
   // not state that consumers need to subscribe to.
   const loadingUsers = new Set<User["id"]>();
 
+  const userStore: UserStore<U> = {
+    store,
+    async loadUsers(userIds) {
+      const missingUsers = userIds.filter(
+        (id) => !store.state.has(id) && !loadingUsers.has(id),
+      );
+      await fetchUsers(missingUsers);
+    },
+    async refetchUsers(userIds) {
+      const usersToFetch = userIds.filter((id) => !loadingUsers.has(id));
+      await fetchUsers(usersToFetch);
+    },
+    getUser(userId) {
+      return store.state.get(userId);
+    },
+    setUser(users) {
+      const usersArray = Array.isArray(users) ? users : [users];
+      store.setState((prevState) => {
+        const nextState = new Map(prevState);
+        for (const user of usersArray) {
+          nextState.set(user.id, user);
+        }
+        return nextState;
+      });
+    },
+  };
+
   async function fetchUsers(userIds: User["id"][]) {
     if (userIds.length === 0) {
       return;
@@ -99,7 +153,7 @@ export function createUserStore<U extends User = User>(
     }
 
     try {
-      const users = await resolveUsers(userIds);
+      const users = await resolveUsers(userIds, userStore);
       // Only update the store if any users were actually resolved. Emitting
       // an update when nothing changed (e.g. when the resolver can't find a
       // user) would needlessly notify subscribers and, combined with a
@@ -124,32 +178,8 @@ export function createUserStore<U extends User = User>(
     }
   }
 
-  return {
-    store,
-    async loadUsers(userIds: User["id"][]) {
-      const missingUsers = userIds.filter(
-        (id) => !store.state.has(id) && !loadingUsers.has(id),
-      );
-      await fetchUsers(missingUsers);
-    },
-    async refetchUsers(userIds: User["id"][]) {
-      const usersToFetch = userIds.filter((id) => !loadingUsers.has(id));
-      await fetchUsers(usersToFetch);
-    },
-    getUser(userId: User["id"]): U | undefined {
-      return store.state.get(userId);
-    },
-  };
+  return userStore;
 }
-
-/**
- * A resolver callback or an already-built {@link UserStore} — the shape that
- * user-facing options (comments, collaboration) accept so callers can either let
- * the extension build a store or pass a shared one.
- */
-export type UserStoreOrResolver<U extends User = User> =
-  | ((userIds: User["id"][]) => Promise<U[]>)
-  | UserStore<any>;
 
 /**
  * Normalize a {@link UserStoreOrResolver} to a {@link UserStore}:

@@ -4,6 +4,11 @@ import {
   createStore,
   type ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
+import {
+  normalizeToUserStore,
+  type User,
+  type UserStoreOrResolver,
+} from "../../user/index.js";
 
 /**
  * Represents a single snapshot of a document's history, including metadata and content information.
@@ -34,10 +39,23 @@ export interface VersionSnapshot {
   updatedAt: number;
 
   /**
-   * An optional secondary label for the snapshot, which can display additional information such as the author or a custom description.
+   * An optional secondary label for the snapshot, which can display additional information such as a custom description.
    * This is for display purposes only and is not used for any logic in the versioning system.
+   *
+   * For author attribution, prefer {@link by}: it holds raw user ids that the
+   * view layer resolves to user info (and keeps up to date as users load).
+   * When both are set, `secondaryLabel` wins.
    */
   secondaryLabel?: string;
+
+  /**
+   * The id(s) of the user(s) that authored this version, as raw user ids —
+   * never pre-resolved to display names. The view layer resolves them via the
+   * {@link VersioningExtension}'s user store (see
+   * {@link VersioningExtensionOptions.resolveUsers}), reactively updating as
+   * user info loads. Only used when {@link secondaryLabel} is unset.
+   */
+  by?: User["id"] | User["id"][];
 
   /**
    * The ID of the previous snapshot that this snapshot was restored from.
@@ -274,6 +292,19 @@ export type VersioningExtensionOptions<
    * extension's `canPreviewCurrent` flag.
    */
   serializeCurrentContent?: () => Output | Promise<Output>;
+  /**
+   * Resolve user information for the author ids in {@link VersionSnapshot.by},
+   * used by the view layer to render version-author labels.
+   *
+   * Either a resolver function (called with the ids of users that are not yet
+   * cached, returning their information — a user store is built from it
+   * internally) or a pre-built user store (see `createUserStore`). Pass the
+   * same store you give the comments/collaboration extensions so a single
+   * de-duped user cache is shared across features.
+   *
+   * @note omit and author ids are displayed as-is.
+   */
+  resolveUsers?: UserStoreOrResolver;
 };
 
 function snapshotNotFoundError(
@@ -296,12 +327,16 @@ export const VersioningExtension = createExtension(
       preview,
       getCurrentDocument,
       serializeCurrentContent,
+      resolveUsers,
     } = typeof optionsOrFactory === "function"
       ? optionsOrFactory(editor)
       : optionsOrFactory;
 
     const endpoints =
       typeof endpointsRaw === "function" ? endpointsRaw(editor) : endpointsRaw;
+    // With no resolver this is an empty store: `getUser` always misses, so the
+    // view layer falls back to showing the raw ids from `VersionSnapshot.by`.
+    const userStore = normalizeToUserStore(resolveUsers);
     const store = createStore<{
       snapshots: VersionSnapshot[];
       /**
@@ -463,6 +498,7 @@ export const VersioningExtension = createExtension(
     return {
       key: "versioning",
       store,
+      userStore,
       list: async (): Promise<VersionSnapshot[]> => {
         return await updateSnapshots();
       },
