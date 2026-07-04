@@ -140,6 +140,10 @@ export const SourceBlockWithPreviewExtension = createExtension(
           capture: true,
           signal,
         });
+
+        const handleBlur = () =>
+          store.setState((state) => ({ ...state, popupOpen: undefined }));
+        dom.addEventListener("blur", handleBlur, { capture: true, signal });
       },
     };
   },

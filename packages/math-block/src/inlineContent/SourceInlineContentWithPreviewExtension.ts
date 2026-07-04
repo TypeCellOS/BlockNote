@@ -132,6 +132,9 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
           capture: true,
           signal,
         });
+
+        const handleBlur = () => store.setState({ selected: undefined });
+        dom.addEventListener("blur", handleBlur, { capture: true, signal });
       },
     };
   },
