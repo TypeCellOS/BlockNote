@@ -501,7 +501,12 @@ NESTED BLOCKS
   box-shadow: var(--bn-shadow-medium);
   max-height: 200px;
   opacity: 0;
-  overflow: auto;
+  /* Only the source itself scrolls (see the popup body's `pre`), so the
+     language select, "OK" button, and error message stay visible for large
+     multiline sources. */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   pointer-events: none;
 }
 
@@ -538,11 +543,14 @@ NESTED BLOCKS
 .bn-code-block-source-popup-body {
   display: flex;
   align-items: flex-end;
+  flex: 1;
+  min-height: 0;
 }
 
 .bn-code-block-source-popup-body > pre {
   white-space: pre;
-  overflow-x: auto;
+  overflow: auto;
+  align-self: stretch;
   margin: 0;
   flex: 1;
   min-width: 0;

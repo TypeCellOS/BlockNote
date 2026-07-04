@@ -2,10 +2,14 @@
   "playground": true,
   "docs": true,
   "author": "areknawo",
-  "tags": [""],
+  "tags": [
+    ""
+  ],
   "dependencies": {
-    "@blocknote/xl-odt-exporter": "latest",
-    "@blocknote/xl-multi-column": "latest"
+    "@blocknote/math-block": "latest",
+    "@blocknote/mermaid-block": "latest",
+    "@blocknote/xl-multi-column": "latest",
+    "@blocknote/xl-odt-exporter": "latest"
   },
   "pro": true
 }

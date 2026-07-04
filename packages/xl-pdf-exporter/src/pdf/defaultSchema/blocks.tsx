@@ -2,9 +2,9 @@ import {
   BlockConfig,
   BlockFromConfigNoChildren,
   BlockMapping,
+  createPageBreakBlockConfig,
   DefaultBlockSchema,
   DefaultProps,
-  createPageBreakBlockConfig,
   StyledText,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
@@ -24,6 +24,7 @@ const FONT_SIZE = 16;
 type BSchema = DefaultBlockSchema & {
   pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
   math: BlockConfig<"math", {}, "inline">;
+  mermaid: BlockConfig<"mermaid", {}, "inline">;
 } & typeof multiColumnSchema.blockSchema;
 
 // Renders a block's inline content as monospaced source code. Used for both
@@ -161,8 +162,10 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
       </Text>
     );
   },
+  // TODO
   codeBlock: codeMapping,
   math: codeMapping,
+  mermaid: codeMapping,
   pageBreak: () => {
     return <View break key={"pageBreak"} />;
   },

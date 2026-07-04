@@ -97,7 +97,9 @@
     "y-partykit": "^0.0.25",
     "yjs": "^13.6.27",
     "zod": "^4.3.5",
-    "@blocknote/math-block": "workspace:*"
+    "@blocknote/math-block": "workspace:*",
+    "mermaid": "^11.0.0",
+    "@blocknote/mermaid-block": "workspace:*"
   },
   "devDependencies": {
     "@blocknote/code-block": "workspace:*",

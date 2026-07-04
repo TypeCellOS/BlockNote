@@ -2,8 +2,12 @@
   "playground": true,
   "docs": true,
   "author": "yousefed",
-  "tags": [""],
+  "tags": [
+    ""
+  ],
   "dependencies": {
+    "@blocknote/math-block": "latest",
+    "@blocknote/mermaid-block": "latest",
     "@blocknote/xl-docx-exporter": "latest",
     "@blocknote/xl-multi-column": "latest"
   },

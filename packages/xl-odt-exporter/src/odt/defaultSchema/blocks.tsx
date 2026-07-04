@@ -10,12 +10,13 @@ import {
   StyledText,
   TableCell,
 } from "@blocknote/core";
-import { ODTExporter } from "../odtExporter.js";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
+import { ODTExporter } from "../odtExporter.js";
 
 type BSchema = DefaultBlockSchema & {
   pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
   math: BlockConfig<"math", {}, "inline">;
+  mermaid: BlockConfig<"mermaid", {}, "inline">;
 } & typeof multiColumnSchema.blockSchema;
 
 // Renders a block's inline content as a code paragraph. Used for both code
@@ -525,9 +526,10 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       </table:table>
     );
   },
-
+// TODO
   codeBlock: codeMapping,
   math: codeMapping,
+  mermaid: codeMapping,
 
   file: async (block) => {
     return (

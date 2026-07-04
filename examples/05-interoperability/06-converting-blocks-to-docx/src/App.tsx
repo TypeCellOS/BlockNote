@@ -9,6 +9,11 @@ import * as locales from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  createReactInlineMathSpec,
+  createReactMathBlockSpec,
+} from "@blocknote/math-block";
+import { createReactMermaidBlockSpec } from "@blocknote/mermaid-block";
+import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   getPageBreakReactSlashMenuItems,
@@ -32,7 +37,16 @@ export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     // Adds support for page breaks & multi-column blocks.
-    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
+    // Adds support for math & Mermaid diagram blocks.
+    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())).extend({
+      blockSpecs: {
+        math: createReactMathBlockSpec(),
+        mermaid: createReactMermaidBlockSpec(),
+      },
+      inlineContentSpecs: {
+        inlineMath: createReactInlineMathSpec(),
+      },
+    }),
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,
@@ -323,6 +337,31 @@ export default function App() {
         content: `const helloWorld = (message) => {
   console.log("Hello World", message);
 };`,
+      },
+      {
+        type: "math",
+        content: "a^2 = \\sqrt{b^2 + c^2}",
+      },
+      {
+        type: "mermaid",
+        content: `graph TD
+  A[Start] --> B{Works?}
+  B -->|Yes| C[Ship it]
+  B -->|No| A`,
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Inline math: ",
+            styles: {},
+          },
+          {
+            type: "inlineMath",
+            content: "e^{i\\pi} + 1 = 0",
+          },
+        ],
       },
 
       {
