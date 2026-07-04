@@ -1,9 +1,13 @@
 import "@blocknote/core/fonts/inter.css";
-import { BlockNoteSchema } from "@blocknote/core";
+import {
+  BlockNoteSchema,
+  SourceBlockWithPreviewExtension,
+} from "@blocknote/core";
 import {
   filterSuggestionItems,
   insertOrUpdateBlockForSlashMenu,
 } from "@blocknote/core/extensions";
+import { TextSelection } from "prosemirror-state";
 import { createHighlighter } from "@blocknote/code-block";
 import {
   createReactInlineMathSpec,
@@ -35,10 +39,18 @@ const schema = BlockNoteSchema.create().extend({
 const insertMath = (editor: typeof schema.BlockNoteEditor) => ({
   title: "Math Block",
   subtext: "Insert a LaTeX math formula",
-  onItemClick: () =>
-    insertOrUpdateBlockForSlashMenu(editor, {
+  onItemClick: () => {
+    const block = insertOrUpdateBlockForSlashMenu(editor, {
       type: "math",
-    }),
+    });
+
+    // Move the selection inside the new block and open the popup.
+    editor.setTextCursorPosition(block.id, "end");
+    editor
+      .getExtension(SourceBlockWithPreviewExtension)
+      ?.store.setState((state) => ({ ...state, popupOpen: block.id }));
+    editor.focus();
+  },
   aliases: ["math", "latex", "formula", "equation"],
   group: "Advanced",
   icon: <TbMathFunction />,
@@ -49,11 +61,22 @@ const insertInlineMath = (editor: typeof schema.BlockNoteEditor) => ({
   title: "Inline Equation",
   subtext: "Insert an inline LaTeX equation",
   onItemClick: () => {
+    const view = editor.prosemirrorView!;
+    const insertPos = view.state.selection.from;
+
     editor.insertInlineContent([
       { type: "inlineMath", content: "" },
       // Adds a trailing space so the cursor can leave the equation.
       " ",
     ]);
+
+    // Move the selection inside the new block and open the popup.
+    view.dispatch(
+      view.state.tr.setSelection(
+        TextSelection.create(view.state.doc, insertPos + 1),
+      ),
+    );
+    editor.focus();
   },
   aliases: ["math", "latex", "formula", "equation"],
   group: "Advanced",
