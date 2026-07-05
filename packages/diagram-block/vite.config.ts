@@ -34,9 +34,9 @@ export default defineConfig(
         sourcemap: true,
         lib: {
           entry: {
-            "blocknote-mermaid-block": path.resolve(__dirname, "src/index.ts"),
+            "blocknote-diagram-block": path.resolve(__dirname, "src/index.ts"),
           },
-          name: "blocknote-mermaid-block",
+          name: "blocknote-diagram-block",
           formats: ["es", "cjs"],
           fileName: (format, entryName) =>
             format === "es" ? `${entryName}.js` : `${entryName}.cjs`,

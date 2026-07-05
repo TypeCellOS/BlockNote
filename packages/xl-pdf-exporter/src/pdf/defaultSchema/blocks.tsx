@@ -24,7 +24,7 @@ const FONT_SIZE = 16;
 type BSchema = DefaultBlockSchema & {
   pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
   math: BlockConfig<"math", {}, "inline">;
-  mermaid: BlockConfig<"mermaid", {}, "inline">;
+  diagram: BlockConfig<"diagram", {}, "inline">;
 } & typeof multiColumnSchema.blockSchema;
 
 // Renders a block's inline content as monospaced source code. Used for both
@@ -165,7 +165,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
   // TODO
   codeBlock: codeMapping,
   math: codeMapping,
-  mermaid: codeMapping,
+  diagram: codeMapping,
   pageBreak: () => {
     return <View break key={"pageBreak"} />;
   },

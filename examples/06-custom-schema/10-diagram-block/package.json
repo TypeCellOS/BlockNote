@@ -1,5 +1,5 @@
 {
-  "name": "@blocknote/example-custom-schema-mermaid-block",
+  "name": "@blocknote/example-custom-schema-diagram-block",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   "type": "module",
   "private": true,
@@ -21,7 +21,7 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "@blocknote/code-block": "latest",
-    "@blocknote/mermaid-block": "latest",
+    "@blocknote/diagram-block": "latest",
     "react-icons": "^5.5.0"
   },
   "devDependencies": {

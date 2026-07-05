@@ -12,7 +12,7 @@ import {
   createReactInlineMathSpec,
   createReactMathBlockSpec,
 } from "@blocknote/math-block";
-import { createReactMermaidBlockSpec } from "@blocknote/mermaid-block";
+import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
 import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
@@ -37,11 +37,11 @@ export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     // Adds support for page breaks & multi-column blocks.
-    // Adds support for math & Mermaid diagram blocks.
+    // Adds support for math & diagram blocks.
     schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())).extend({
       blockSpecs: {
         math: createReactMathBlockSpec(),
-        mermaid: createReactMermaidBlockSpec(),
+        diagram: createReactDiagramBlockSpec(),
       },
       inlineContentSpecs: {
         inlineMath: createReactInlineMathSpec(),
@@ -343,7 +343,7 @@ export default function App() {
         content: "a^2 = \\sqrt{b^2 + c^2}",
       },
       {
-        type: "mermaid",
+        type: "diagram",
         content: `graph TD
   A[Start] --> B{Works?}
   B -->|Yes| C[Ship it]

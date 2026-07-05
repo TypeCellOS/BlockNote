@@ -99,7 +99,7 @@
     "zod": "^4.3.5",
     "@blocknote/math-block": "workspace:*",
     "mermaid": "^11.0.0",
-    "@blocknote/mermaid-block": "workspace:*"
+    "@blocknote/diagram-block": "workspace:*"
   },
   "devDependencies": {
     "@blocknote/code-block": "workspace:*",

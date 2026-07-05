@@ -70,15 +70,15 @@ importers:
       '@blocknote/core':
         specifier: workspace:*
         version: link:../packages/core
+      '@blocknote/diagram-block':
+        specifier: workspace:*
+        version: link:../packages/diagram-block
       '@blocknote/mantine':
         specifier: workspace:*
         version: link:../packages/mantine
       '@blocknote/math-block':
         specifier: workspace:*
         version: link:../packages/math-block
-      '@blocknote/mermaid-block':
-        specifier: workspace:*
-        version: link:../packages/mermaid-block
       '@blocknote/react':
         specifier: workspace:*
         version: link:../packages/react
@@ -2734,15 +2734,15 @@ importers:
       '@blocknote/core':
         specifier: latest
         version: link:../../../packages/core
+      '@blocknote/diagram-block':
+        specifier: latest
+        version: link:../../../packages/diagram-block
       '@blocknote/mantine':
         specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/math-block':
         specifier: latest
         version: link:../../../packages/math-block
-      '@blocknote/mermaid-block':
-        specifier: latest
-        version: link:../../../packages/mermaid-block
       '@blocknote/react':
         specifier: latest
         version: link:../../../packages/react
@@ -2792,15 +2792,15 @@ importers:
       '@blocknote/core':
         specifier: latest
         version: link:../../../packages/core
+      '@blocknote/diagram-block':
+        specifier: latest
+        version: link:../../../packages/diagram-block
       '@blocknote/mantine':
         specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/math-block':
         specifier: latest
         version: link:../../../packages/math-block
-      '@blocknote/mermaid-block':
-        specifier: latest
-        version: link:../../../packages/mermaid-block
       '@blocknote/react':
         specifier: latest
         version: link:../../../packages/react
@@ -2847,15 +2847,15 @@ importers:
       '@blocknote/core':
         specifier: latest
         version: link:../../../packages/core
+      '@blocknote/diagram-block':
+        specifier: latest
+        version: link:../../../packages/diagram-block
       '@blocknote/mantine':
         specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/math-block':
         specifier: latest
         version: link:../../../packages/math-block
-      '@blocknote/mermaid-block':
-        specifier: latest
-        version: link:../../../packages/mermaid-block
       '@blocknote/react':
         specifier: latest
         version: link:../../../packages/react
@@ -3437,7 +3437,7 @@ importers:
         specifier: 'catalog:'
         version: 0.1.24(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(terser@5.46.2)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0))
 
-  examples/06-custom-schema/10-mermaid-block:
+  examples/06-custom-schema/10-diagram-block:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
@@ -3448,12 +3448,12 @@ importers:
       '@blocknote/core':
         specifier: latest
         version: link:../../../packages/core
+      '@blocknote/diagram-block':
+        specifier: latest
+        version: link:../../../packages/diagram-block
       '@blocknote/mantine':
         specifier: latest
         version: link:../../../packages/mantine
-      '@blocknote/mermaid-block':
-        specifier: latest
-        version: link:../../../packages/mermaid-block
       '@blocknote/react':
         specifier: latest
         version: link:../../../packages/react
@@ -4840,6 +4840,43 @@ importers:
         specifier: 'catalog:'
         version: 0.1.24(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(terser@5.46.2)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0))
 
+  packages/diagram-block:
+    dependencies:
+      '@blocknote/core':
+        specifier: workspace:^
+        version: link:../core
+      mermaid:
+        specifier: ^11.0.0
+        version: 11.16.0
+    devDependencies:
+      '@blocknote/react':
+        specifier: workspace:^
+        version: link:../react
+      '@types/react':
+        specifier: ^19.2.3
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.14)
+      react:
+        specifier: ^19.2.5
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.2.5
+        version: 19.2.5(react@19.2.5)
+      rimraf:
+        specifier: ^5.0.10
+        version: 5.0.10
+      rollup-plugin-webpack-stats:
+        specifier: ^0.2.6
+        version: 0.2.6(rollup@4.60.1)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.1.24(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(terser@5.46.2)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0))
+
   packages/mantine:
     dependencies:
       '@blocknote/core':
@@ -4922,43 +4959,6 @@ importers:
       '@types/katex':
         specifier: ^0.16.7
         version: 0.16.8
-      '@types/react':
-        specifier: ^19.2.3
-        version: 19.2.14
-      '@types/react-dom':
-        specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.14)
-      react:
-        specifier: ^19.2.5
-        version: 19.2.5
-      react-dom:
-        specifier: ^19.2.5
-        version: 19.2.5(react@19.2.5)
-      rimraf:
-        specifier: ^5.0.10
-        version: 5.0.10
-      rollup-plugin-webpack-stats:
-        specifier: ^0.2.6
-        version: 0.2.6(rollup@4.60.1)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      vite-plus:
-        specifier: 'catalog:'
-        version: 0.1.24(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(terser@5.46.2)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0))
-
-  packages/mermaid-block:
-    dependencies:
-      '@blocknote/core':
-        specifier: workspace:^
-        version: link:../core
-      mermaid:
-        specifier: ^11.0.0
-        version: 11.16.0
-    devDependencies:
-      '@blocknote/react':
-        specifier: workspace:^
-        version: link:../react
       '@types/react':
         specifier: ^19.2.3
         version: 19.2.14
@@ -5681,15 +5681,15 @@ importers:
       '@blocknote/core':
         specifier: workspace:^
         version: link:../packages/core
+      '@blocknote/diagram-block':
+        specifier: workspace:^
+        version: link:../packages/diagram-block
       '@blocknote/mantine':
         specifier: workspace:^
         version: link:../packages/mantine
       '@blocknote/math-block':
         specifier: workspace:^
         version: link:../packages/math-block
-      '@blocknote/mermaid-block':
-        specifier: workspace:^
-        version: link:../packages/mermaid-block
       '@blocknote/react':
         specifier: workspace:^
         version: link:../packages/react

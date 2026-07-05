@@ -18,7 +18,7 @@
     "@blocknote/core": "workspace:^",
     "@blocknote/mantine": "workspace:^",
     "@blocknote/math-block": "workspace:^",
-    "@blocknote/mermaid-block": "workspace:^",
+    "@blocknote/diagram-block": "workspace:^",
     "@blocknote/react": "workspace:^",
     "@blocknote/server-util": "workspace:^",
     "@blocknote/shadcn": "workspace:^",

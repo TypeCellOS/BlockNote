@@ -1127,8 +1127,8 @@ export const examples = {
           author: "yousefed",
           tags: ["Interoperability"],
           dependencies: {
+            "@blocknote/diagram-block": "latest",
             "@blocknote/math-block": "latest",
-            "@blocknote/mermaid-block": "latest",
             "@blocknote/xl-multi-column": "latest",
             "@blocknote/xl-pdf-exporter": "latest",
             "@react-pdf/renderer": "^4.3.0",
@@ -1154,8 +1154,8 @@ export const examples = {
           author: "yousefed",
           tags: [""],
           dependencies: {
+            "@blocknote/diagram-block": "latest",
             "@blocknote/math-block": "latest",
-            "@blocknote/mermaid-block": "latest",
             "@blocknote/xl-docx-exporter": "latest",
             "@blocknote/xl-multi-column": "latest",
           } as any,
@@ -1180,8 +1180,8 @@ export const examples = {
           author: "areknawo",
           tags: [""],
           dependencies: {
+            "@blocknote/diagram-block": "latest",
             "@blocknote/math-block": "latest",
-            "@blocknote/mermaid-block": "latest",
             "@blocknote/xl-multi-column": "latest",
             "@blocknote/xl-odt-exporter": "latest",
           } as any,
@@ -1481,9 +1481,9 @@ export const examples = {
           "In this example, we register the `@blocknote/math-block` block in a custom schema. The math block renders LaTeX as MathML (using Temml) for the browser to display natively, and reveals an editable LaTeX source popup when selected. Exporting to HTML produces a MathML `<math>` element, and pasting MathML back in is converted to LaTeX.\n\n**Try it out:** Click a formula to edit its LaTeX!\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
-        projectSlug: "mermaid-block",
-        fullSlug: "custom-schema/mermaid-block",
-        pathFromRoot: "examples/06-custom-schema/10-mermaid-block",
+        projectSlug: "diagram-block",
+        fullSlug: "custom-schema/diagram-block",
+        pathFromRoot: "examples/06-custom-schema/10-diagram-block",
         config: {
           playground: true,
           docs: true,
@@ -1497,17 +1497,17 @@ export const examples = {
           ],
           dependencies: {
             "@blocknote/code-block": "latest",
-            "@blocknote/mermaid-block": "latest",
+            "@blocknote/diagram-block": "latest",
             "react-icons": "^5.5.0",
           } as any,
         },
-        title: "Mermaid Diagram Block",
+        title: "Diagram Block",
         group: {
           pathFromRoot: "examples/06-custom-schema",
           slug: "custom-schema",
         },
         readme:
-          "In this example, we register the `@blocknote/mermaid-block` block in a custom schema. The block renders [Mermaid](https://mermaid.js.org/) diagrams from their source code, showing the rendered diagram in place of the source and revealing an editable source popup when selected - built from the same `SourceBlockWithPreview` component the math block uses, so the block itself is only a few dozen lines.\n\n**Try it out:** Click a diagram to edit its Mermaid source!\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+          "In this example, we register the `@blocknote/diagram-block` block in a custom schema. The block renders diagrams from [Mermaid](https://mermaid.js.org/) source code, showing the rendered diagram in place of the source and revealing an editable source popup when selected - built from the same `SourceBlockWithPreview` component the math block uses, so the block itself is only a few dozen lines.\n\n**Try it out:** Click a diagram to edit its Mermaid source!\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
         projectSlug: "draggable-inline-content",

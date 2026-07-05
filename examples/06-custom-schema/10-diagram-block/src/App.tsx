@@ -7,7 +7,7 @@ import {
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { createReactMermaidBlockSpec } from "@blocknote/mermaid-block";
+import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
 import {
   getDefaultReactSlashMenuItems,
   SuggestionMenuController,
@@ -19,20 +19,20 @@ import { TbSitemap } from "react-icons/tb";
 // for blocks that we want our editor to use.
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
-    // Creates an instance of the Mermaid block and adds it to the schema.
+    // Creates an instance of the Diagram block and adds it to the schema.
     // TODO: naing
-    mermaid: createReactMermaidBlockSpec(),
+    diagram: createReactDiagramBlockSpec(),
   },
 });
 
-// Slash menu item to insert a Mermaid block.
+// Slash menu item to insert a Diagram block.
 // TODO: extract?
-const insertMermaid = (editor: typeof schema.BlockNoteEditor) => ({
-  title: "Mermaid Diagram",
+const insertDiagram = (editor: typeof schema.BlockNoteEditor) => ({
+  title: "Diagram",
   subtext: "Insert a diagram rendered from Mermaid source",
   onItemClick: () =>
     insertOrUpdateBlockForSlashMenu(editor, {
-      type: "mermaid",
+      type: "diagram",
       content: "graph TD\n    A[Start] --> B[Stop]",
     }),
   aliases: ["mermaid", "diagram", "flowchart", "chart", "graph"],
@@ -43,11 +43,11 @@ const insertMermaid = (editor: typeof schema.BlockNoteEditor) => ({
 export default function App() {
   const editor = useCreateBlockNote({
     // Configures the syntax highlighting extension to use Mermaid syntax
-    // highlighting in the Mermaid block's source popup.
+    // highlighting in the Diagram block's source popup.
     syntaxHighlighting: {
       createHighlighter,
       highlightBlock: (block) =>
-        block.type === "mermaid" ? "mermaid" : block.props.language,
+        block.type === "diagram" ? "mermaid" : block.props.language,
     },
     schema,
     initialContent: [
@@ -56,10 +56,10 @@ export default function App() {
         content: "Click a diagram to edit its Mermaid source:",
       },
       {
-        type: "mermaid",
+        type: "diagram",
         content: `graph TD
   A[Write docs] --> B{Diagram needed?}
-  B -->|Yes| C[Type /mermaid]
+  B -->|Yes| C[Type /diagram]
   B -->|No| D[Keep writing]
   C --> D`,
       },
@@ -83,8 +83,8 @@ export default function App() {
           const lastAdvancedIndex = defaultItems.findLastIndex(
             (item) => item.group === "Advanced",
           );
-          // Inserts the Mermaid item at the end of the "Advanced" group.
-          defaultItems.splice(lastAdvancedIndex + 1, 0, insertMermaid(editor));
+          // Inserts the Diagram item at the end of the "Advanced" group.
+          defaultItems.splice(lastAdvancedIndex + 1, 0, insertDiagram(editor));
 
           // Returns filtered items based on the query.
           return filterSuggestionItems(defaultItems, query);

@@ -2,8 +2,8 @@ import { ReactCustomBlockRenderProps, SourceBlockWithPreview } from "@blocknote/
 import mermaid from "mermaid";
 import { useEffect, useState } from "react";
 
-import { getMermaidPlainTextContent } from "../../../shared/getMermaidPlainTextContent.js";
-import { MermaidBlockConfig } from "../../createMermaidBlockConfig.js";
+import { getDiagramPlainTextContent } from "../../../shared/getDiagramPlainTextContent.js";
+import { DiagramBlockConfig } from "../../createDiagramBlockConfig.js";
 
 // The diagrams are rendered manually whenever a block's source changes.
 let initialized = false;
@@ -70,10 +70,10 @@ export const useMermaidSVG = (source: string) => {
   return { svg, error };
 };
 // TODO: handle error cases / empty source
-export const MermaidBlockPreviewWithPopup = (
-  props: ReactCustomBlockRenderProps<MermaidBlockConfig>,
+export const DiagramBlockPreviewWithPopup = (
+  props: ReactCustomBlockRenderProps<DiagramBlockConfig>,
 ) => {
-  const source = getMermaidPlainTextContent(props.block.content);
+  const source = getDiagramPlainTextContent(props.block.content);
   const { svg, error } = useMermaidSVG(source);
 
   return (

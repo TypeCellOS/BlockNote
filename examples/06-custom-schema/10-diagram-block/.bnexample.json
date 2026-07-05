@@ -11,7 +11,7 @@
   ],
   "dependencies": {
     "@blocknote/code-block": "latest",
-    "@blocknote/mermaid-block": "latest",
+    "@blocknote/diagram-block": "latest",
     "react-icons": "^5.5.0"
   }
 }

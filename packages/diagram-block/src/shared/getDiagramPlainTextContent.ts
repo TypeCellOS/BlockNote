@@ -1,6 +1,6 @@
-// Converts rich text content in mermaid blocks to the plain text Mermaid
+// Converts rich text content in diagram blocks to the plain text Mermaid
 // source. Should be removed once we add plain text support for blocks.
-export const getMermaidPlainTextContent = (content: unknown): string => {
+export const getDiagramPlainTextContent = (content: unknown): string => {
   if (!Array.isArray(content)) {
     return "";
   }

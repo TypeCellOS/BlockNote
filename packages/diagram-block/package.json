@@ -1,5 +1,5 @@
 {
-  "name": "@blocknote/mermaid-block",
+  "name": "@blocknote/diagram-block",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "sideEffects": [
@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/TypeCellOS/BlockNote.git",
-    "directory": "packages/mermaid-block"
+    "directory": "packages/diagram-block"
   },
   "license": "MPL-2.0",
   "version": "0.51.4",
@@ -37,13 +37,13 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-mermaid-block.cjs",
-  "module": "./dist/blocknote-mermaid-block.js",
+  "main": "./dist/blocknote-diagram-block.cjs",
+  "module": "./dist/blocknote-diagram-block.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-mermaid-block.js",
-      "require": "./dist/blocknote-mermaid-block.cjs"
+      "import": "./dist/blocknote-diagram-block.js",
+      "require": "./dist/blocknote-diagram-block.cjs"
     }
   },
   "scripts": {

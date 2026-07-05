@@ -6,8 +6,8 @@
     ""
   ],
   "dependencies": {
+    "@blocknote/diagram-block": "latest",
     "@blocknote/math-block": "latest",
-    "@blocknote/mermaid-block": "latest",
     "@blocknote/xl-multi-column": "latest",
     "@blocknote/xl-odt-exporter": "latest"
   },

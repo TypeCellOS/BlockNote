@@ -30,7 +30,7 @@ import { multiColumnSchema } from "@blocknote/xl-multi-column";
 type BSchema = DefaultBlockSchema & {
   pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
   math: BlockConfig<"math", {}, "inline">;
-  mermaid: BlockConfig<"mermaid", {}, "inline">;
+  diagram: BlockConfig<"diagram", {}, "inline">;
 } & typeof multiColumnSchema.blockSchema;
 
 function blockPropsToStyles(
@@ -189,7 +189,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   },
   codeBlock: codeMapping,
   math: codeMapping,
-  mermaid: codeMapping,
+  diagram: codeMapping,
   pageBreak: () => {
     return new Paragraph({
       children: [new PageBreak()],
