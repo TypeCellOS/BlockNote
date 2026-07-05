@@ -1,4 +1,4 @@
-// Shown in place of the preview when the math content has no source yet.
+// Shown in place of the preview when the source content is empty.
 export const AddSourceButton = (props: { text: string }) => (
   <div className="bn-add-source-code-button" contentEditable={false}>
     <div className="bn-add-source-code-button-icon">
