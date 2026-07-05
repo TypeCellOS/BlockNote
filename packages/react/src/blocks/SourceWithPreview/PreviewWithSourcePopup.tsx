@@ -1,4 +1,4 @@
-import { MouseEventHandler, ReactNode } from "react";
+import { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
 
 export type PreviewWithSourcePopupProps = {
   /**
@@ -9,11 +9,11 @@ export type PreviewWithSourcePopupProps = {
   /**
    * Whether the source popup is shown.
    */
-  popupOpen: boolean;
+  isOpen: boolean;
   /**
    * Whether the preview is highlighted as selected.
    */
-  selected: boolean;
+  isSelected: boolean;
   /**
    * The rendered preview (e.g. a formula or diagram). Rendered inside a
    * non-editable container that opens the source popup on click.
@@ -29,8 +29,17 @@ export type PreviewWithSourcePopupProps = {
    * Ref for the element holding the editable source content.
    */
   contentRef: (node: HTMLElement | null) => void;
-  onPreviewMouseDown?: MouseEventHandler;
-  onOkMouseDown?: MouseEventHandler;
+  /**
+   * Additional props for the preview container, e.g. a mouse handler that
+   * opens the popup. `className` is merged with the container's own, and
+   * `contentEditable` can't be overridden.
+   */
+  previewContainerProps?: HTMLAttributes<HTMLElement>;
+  /**
+   * Additional props for the "OK" button, e.g. a mouse handler that closes
+   * the popup. `className` is merged with the button's own.
+   */
+  okButtonProps?: ButtonHTMLAttributes<HTMLButtonElement>;
 };
 
 /**
@@ -49,14 +58,19 @@ export const PreviewWithSourcePopup = (props: PreviewWithSourcePopupProps) => {
     <Wrapper
       className={
         "bn-preview-with-source-popup" +
-        (props.selected ? " ProseMirror-selectednode" : "")
+        (props.isSelected ? " ProseMirror-selectednode" : "")
       }
-      data-open={props.popupOpen ? "true" : "false"}
+      data-open={props.isOpen ? "true" : "false"}
     >
       <PreviewContainer
-        className="bn-preview-container"
+        {...props.previewContainerProps}
+        className={
+          "bn-preview-container" +
+          (props.previewContainerProps?.className
+            ? " " + props.previewContainerProps.className
+            : "")
+        }
         contentEditable={false}
-        onMouseDown={props.onPreviewMouseDown}
       >
         {props.preview}
       </PreviewContainer>
@@ -70,8 +84,15 @@ export const PreviewWithSourcePopup = (props: PreviewWithSourcePopupProps) => {
             contentEditable={false}
           >
             <button
-              className="bn-code-block-source-popup-ok-button"
-              onMouseDown={props.onOkMouseDown}
+              // Prevents form submission when the editor is inside a `form`.
+              type="button"
+              {...props.okButtonProps}
+              className={
+                "bn-code-block-source-popup-ok-button" +
+                (props.okButtonProps?.className
+                  ? " " + props.okButtonProps.className
+                  : "")
+              }
             >
               OK
             </button>

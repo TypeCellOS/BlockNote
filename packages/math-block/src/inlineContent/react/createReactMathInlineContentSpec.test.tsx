@@ -215,8 +215,13 @@ describe("Inline math source popup", () => {
         ".bn-preview-container",
       ) as HTMLElement;
 
+      // The popup opens on the click; the mousedown is dispatched too for a
+      // realistic event sequence.
       container.dispatchEvent(
         new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
+      );
+      container.dispatchEvent(
+        new MouseEvent("click", { bubbles: true, cancelable: true }),
       );
       await flush();
 
@@ -244,6 +249,9 @@ describe("Inline math source popup", () => {
 
       okButton.dispatchEvent(
         new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
+      );
+      okButton.dispatchEvent(
+        new MouseEvent("click", { bubbles: true, cancelable: true }),
       );
       await flush();
 

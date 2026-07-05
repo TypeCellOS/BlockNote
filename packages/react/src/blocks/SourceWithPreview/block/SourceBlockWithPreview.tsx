@@ -1,14 +1,14 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { MouseEvent, ReactNode } from "react";
 
+import { ReactCustomBlockRenderProps } from "../../../schema/ReactBlockSpec.js";
 import { AddSourceButton } from "../AddSourceButton.js";
 import { PreviewWithSourcePopup } from "../PreviewWithSourcePopup.js";
 import { useSourceBlockPreviewPopup } from "./useSourceBlockPreviewPopup.js";
 
-export type SourceBlockWithPreviewProps = {
-  // Only the ID is needed, so any block type is accepted.
-  block: { id: string };
-  editor: BlockNoteEditor<any, any, any>;
+export type SourceBlockWithPreviewProps = Pick<ReactCustomBlockRenderProps<any>, "block" | "editor"> & {
+  // Not picked from `ReactCustomBlockRenderProps` like the props above, as
+  // it's conditional on the block's content type there, which TypeScript
+  // can't resolve for a generic block config.
   contentRef: (node: HTMLElement | null) => void;
   /**
    * The block's source content as plain text. When empty, an "add source"
@@ -36,26 +36,32 @@ export type SourceBlockWithPreviewProps = {
  * The caller only provides the preview itself, making this the base for
  * custom blocks rendered from source code (math, diagrams, etc).
  */
-export const SourceBlockWithPreview = (props: SourceBlockWithPreviewProps) => {
+export const SourceBlockWithPreview = (
+  props: SourceBlockWithPreviewProps,
+) => {
   const { block, editor, contentRef, source, preview, error } = props;
 
   const popup = useSourceBlockPreviewPopup({ editor, block });
 
+  // The actions run on click (rather than mousedown), so keyboard &
+  // assistive technology activation also works. No mousedown focus guards:
+  // React's synthetic `onMouseDown` doesn't fire on node view elements, and
+  // testing with real input showed they aren't needed - `open`/`close`
+  // restore the editor's focus & selection themselves.
+
   // Opens the popup when clicking the preview.
-  const handlePreviewMouseDown = (event: MouseEvent) => {
+  const handlePreviewClick = (event: MouseEvent) => {
     if (!editor.isEditable) {
       return;
     }
 
-    event.preventDefault();
     event.stopPropagation();
 
     popup.open();
   };
 
   // Closes the popup when clicking the "OK" button.
-  const handleOkButtonMouseDown = (event: MouseEvent) => {
-    event.preventDefault();
+  const handleOkButtonClick = (event: MouseEvent) => {
     event.stopPropagation();
 
     popup.close();
@@ -63,8 +69,8 @@ export const SourceBlockWithPreview = (props: SourceBlockWithPreviewProps) => {
 
   return (
     <PreviewWithSourcePopup
-      popupOpen={popup.isOpen}
-      selected={popup.isSelected}
+      isOpen={popup.isOpen}
+      isSelected={popup.isSelected}
       preview={
         source.length > 0 ? (
           preview
@@ -76,8 +82,8 @@ export const SourceBlockWithPreview = (props: SourceBlockWithPreviewProps) => {
       }
       error={error}
       contentRef={contentRef}
-      onPreviewMouseDown={handlePreviewMouseDown}
-      onOkMouseDown={handleOkButtonMouseDown}
+      previewContainerProps={{ onClick: handlePreviewClick }}
+      okButtonProps={{ onClick: handleOkButtonClick }}
     />
   );
 };
