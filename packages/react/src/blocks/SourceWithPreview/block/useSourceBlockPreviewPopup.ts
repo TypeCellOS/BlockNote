@@ -47,6 +47,10 @@ export const useSourceBlockPreviewPopup = (props: {
 
   const close = () => {
     store.setState((state) => ({ ...state, popupOpen: undefined }));
+    // Restores focus in case closing was triggered by clicking the "OK"
+    // button, which moves focus to it - otherwise keyboard interactions (e.g.
+    // Enter to re-open the popup) stop reaching the editor.
+    editor.focus();
   };
 
   return { isOpen, isSelected, open, close };

@@ -29,7 +29,7 @@ export const createReactMathBlockSpec = createReactBlockSpec(
     // Math blocks always render a preview.
     SourceBlockWithPreviewExtension({
       key: MATH_BLOCK_PREVIEW_KEY,
-      blockType: "math",
+      blockType: createMathBlockConfig().type,
       hasPreview: () => true,
     }),
     MathBlockInputRulesExtension,

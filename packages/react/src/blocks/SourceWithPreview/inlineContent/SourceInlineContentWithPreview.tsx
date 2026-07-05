@@ -1,16 +1,14 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { MouseEvent, ReactNode } from "react";
 
+import { ReactCustomInlineContentRenderProps } from "../../../schema/ReactInlineContentSpec.js";
 import { AddSourceButton } from "../AddSourceButton.js";
 import { PreviewWithSourcePopup } from "../PreviewWithSourcePopup.js";
 import { useSourceInlineContentPreviewPopup } from "./useSourceInlineContentPreviewPopup.js";
 
-export type SourceInlineContentWithPreviewProps = {
-  editor: BlockNoteEditor<any, any, any>;
-  contentRef: (node: HTMLElement | null) => void;
-  // Only the size is needed, so any inline content node is accepted.
-  node: { nodeSize: number };
-  getPos: () => number | undefined;
+export type SourceInlineContentWithPreviewProps = Pick<
+  ReactCustomInlineContentRenderProps<any, any>,
+  "editor" | "contentRef" | "node" | "getPos"
+> & {
   /**
    * The inline content's source as plain text. When empty, an "add source"
    * button is shown in place of the preview.
@@ -44,25 +42,29 @@ export const SourceInlineContentWithPreview = (
 
   const popup = useSourceInlineContentPreviewPopup({ editor, node, getPos });
 
+  // The actions run on click (rather than mousedown), so keyboard &
+  // assistive technology activation also works. No mousedown focus guards:
+  // React's synthetic `onMouseDown` doesn't fire on node view elements, and
+  // testing with real input showed they aren't needed - `open`/`close`
+  // restore the editor's focus & selection themselves.
+
   // Opens the popup when clicking the preview.
-  const handlePreviewMouseDown = (event: MouseEvent) => {
+  const handlePreviewClick = (event: MouseEvent) => {
     if (!editor.isEditable) {
       return;
     }
 
-    event.preventDefault();
     event.stopPropagation();
 
     popup.open();
   };
 
   // Closes the popup when clicking the "OK" button.
-  const handleOkButtonMouseDown = (event: MouseEvent) => {
+  const handleOkButtonClick = (event: MouseEvent) => {
     if (!editor.isEditable) {
       return;
     }
 
-    event.preventDefault();
     event.stopPropagation();
 
     popup.close();
@@ -71,8 +73,8 @@ export const SourceInlineContentWithPreview = (
   return (
     <PreviewWithSourcePopup
       inline
-      popupOpen={popup.isOpen}
-      selected={popup.isSelected}
+      isOpen={popup.isOpen}
+      isSelected={popup.isSelected}
       preview={
         source.length > 0 ? (
           preview
@@ -84,8 +86,8 @@ export const SourceInlineContentWithPreview = (
       }
       error={error}
       contentRef={contentRef}
-      onPreviewMouseDown={handlePreviewMouseDown}
-      onOkMouseDown={handleOkButtonMouseDown}
+      previewContainerProps={{ onClick: handlePreviewClick }}
+      okButtonProps={{ onClick: handleOkButtonClick }}
     />
   );
 };

@@ -147,30 +147,38 @@ export const createSourceBlockWithPreview = (
 
   const unsubscribeFromStore = store?.subscribe(updateFromStore);
 
+  // The actions run on click (rather than mousedown), so keyboard &
+  // assistive technology activation also works. No mousedown focus guards,
+  // matching the React wrappers - the handlers restore the editor's focus &
+  // selection themselves.
+
   // Opens the popup when clicking the preview.
-  const handlePreviewMouseDown = (event: MouseEvent) => {
+  const handlePreviewClick = (event: MouseEvent) => {
     if (!editor.isEditable) {
       return;
     }
 
-    store?.setState((state) => ({ ...state, popupOpen: block.id }));
-
-    event.preventDefault();
     event.stopPropagation();
+
+    store?.setState((state) => ({ ...state, popupOpen: block.id }));
 
     editor.setTextCursorPosition(block.id, "end");
     editor.focus();
   };
-  previewContainer.addEventListener("mousedown", handlePreviewMouseDown);
+  previewContainer.addEventListener("click", handlePreviewClick);
 
   // Closes the popup when clicking the "OK" button.
-  const handleOkButtonMouseDown = (event: MouseEvent) => {
-    event.preventDefault();
+  const handleOkButtonClick = (event: MouseEvent) => {
     event.stopPropagation();
 
     store?.setState((state) => ({ ...state, popupOpen: undefined }));
+
+    // Restores focus, as clicking the "OK" button moves it to the button -
+    // otherwise keyboard interactions (e.g. Enter to re-open the popup) stop
+    // reaching the editor.
+    editor.focus();
   };
-  okButton.addEventListener("mousedown", handleOkButtonMouseDown);
+  okButton.addEventListener("click", handleOkButtonClick);
 
   return {
     dom: previewWithSourcePopup,
@@ -222,8 +230,8 @@ export const createSourceBlockWithPreview = (
     destroy: () => {
       sourceBlock.destroy();
       unsubscribeFromStore?.();
-      previewContainer.removeEventListener("mousedown", handlePreviewMouseDown);
-      okButton.removeEventListener("mousedown", handleOkButtonMouseDown);
+      previewContainer.removeEventListener("click", handlePreviewClick);
+      okButton.removeEventListener("click", handleOkButtonClick);
     },
   };
 };
