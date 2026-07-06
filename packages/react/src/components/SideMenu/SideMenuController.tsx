@@ -15,7 +15,9 @@ import { SideMenuProps } from "./SideMenuProps.js";
 // stay vertically centered on that line. This is done with a position offset
 // instead of stretching the menu element to the first line's height, as the
 // taller (invisible) element would block mouse interactions with content
-// rendered next to the block, e.g. the column resize borders.
+// rendered next to the block, e.g. the column resize borders. The values are
+// ported from the per-block-type CSS height rules that used to stretch the
+// menu: (first line height - 30px menu height) / 2.
 function getBlockOffset(
   editor: BlockNoteEditor<any, any, any>,
   block: Block<any, any, any>,

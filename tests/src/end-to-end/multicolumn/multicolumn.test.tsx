@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { MOD, page, userEvent } from "../../utils/context.js";
 import {
+  COLUMN_TRAILING_BLOCK_SELECTOR,
   DOC_TRAILING_BLOCK_SELECTOR,
   EDITOR_SELECTOR,
 } from "../../utils/const.js";
@@ -79,7 +80,7 @@ describe("Check Multi-Column Behaviour", () => {
     // The first column is shorter than its siblings, so its trailing block
     // widget fills the leftover space below its last block (#2820).
     await userEvent.click(
-      await waitForSelector(".bn-block-column > .bn-trailing-block"),
+      await waitForSelector(COLUMN_TRAILING_BLOCK_SELECTOR),
     );
     await userEvent.keyboard("Inside the column");
 

@@ -3,6 +3,7 @@ export const BLOCK_CONTAINER_SELECTOR = `[data-node-type="blockContainer"]`;
 export const BLOCK_GROUP_SELECTOR = `[data-node-type="blockGroup"]`;
 /* The document-level trailing block, as opposed to the ones columns render. */
 export const DOC_TRAILING_BLOCK_SELECTOR = `.bn-editor > .bn-block-group > .bn-trailing-block`;
+export const COLUMN_TRAILING_BLOCK_SELECTOR = `.bn-block-column > .bn-trailing-block`;
 
 export const H_ONE_BLOCK_SELECTOR = `[data-content-type=heading]:not([data-level])`;
 export const H_TWO_BLOCK_SELECTOR = `[data-content-type=heading][data-level="2"]`;
