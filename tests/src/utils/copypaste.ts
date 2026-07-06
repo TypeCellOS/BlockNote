@@ -1,3 +1,4 @@
+import { DOC_TRAILING_BLOCK_SELECTOR } from "./const.js";
 import { MOD, userEvent } from "./context.js";
 import { waitForSelector } from "./editor.js";
 
@@ -9,7 +10,7 @@ export async function copyPaste() {
   await userEvent.keyboard(`{${MOD}>}c{/${MOD}}`);
   // Exit out of any menus/toolbars which may block the trailing block.
   await userEvent.keyboard("{Escape}");
-  await userEvent.click(await waitForSelector(".bn-trailing-block"));
+  await userEvent.click(await waitForSelector(DOC_TRAILING_BLOCK_SELECTOR));
   await userEvent.keyboard(`{${MOD}>}v{/${MOD}}`);
 }
 

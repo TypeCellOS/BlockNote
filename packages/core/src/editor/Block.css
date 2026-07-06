@@ -723,6 +723,46 @@ NESTED BLOCKS
   padding: 12px 20px;
   /* scroll if we overflow, for example when tables or images are in the column */
   overflow-x: auto;
+  /* Lets the trailing block widget grow to fill the column's leftover height
+  when a sibling column is taller. */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Shows separators between a column list's columns while the mouse is over
+it. This clarifies where each column (and its clickable empty space) ends.
+The class is managed by the multi-column package's column resize plugin. The
+transition delay stops the separators from flashing in when the mouse just
+passes through the column list. */
+.bn-editor[contenteditable="true"]
+  .bn-column-list-hovered
+  > .bn-block-column:not(:last-child) {
+  box-shadow: 4px 0 0 #eee;
+  transition: box-shadow 0.2s ease 0.2s;
+}
+
+/* The border between two columns when the cursor is near their boundary or
+they're being resized, rendered on the boundary's left column. The class is
+managed by the multi-column package's column resize plugin. Unlike the
+lighter separators, it appears instantly, so the delayed transition is
+overridden. */
+.bn-editor[contenteditable="true"]
+  .bn-column-list-hovered
+  > .bn-block-column.bn-column-resize-border {
+  box-shadow: 4px 0 0 #ccc;
+  cursor: col-resize;
+  transition: none;
+}
+
+.bn-editor[contenteditable="true"]
+  .bn-block-column.bn-column-resize-border
+  + .bn-block-column {
+  cursor: col-resize;
+}
+
+.bn-block-column > .bn-trailing-block {
+  height: auto;
+  flex-grow: 1;
 }
 
 .bn-block-column:first-child {
