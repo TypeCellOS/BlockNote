@@ -31,6 +31,7 @@ export type CustomInlineContentImplementation<
 > = {
   meta?: {
     draggable?: boolean;
+    code?: boolean;
   };
 
   /**
@@ -215,6 +216,7 @@ export function createInlineContentSpec<
     draggable: inlineContentImplementation.meta?.draggable,
     selectable: inlineContentConfig.content === "styled",
     atom: inlineContentConfig.content === "none",
+    code: inlineContentImplementation.meta?.code,
     content: inlineContentConfig.content === "styled" ? "inline*" : "",
 
     addAttributes() {

@@ -15,6 +15,9 @@ export const createReactInlineMathSpec = () =>
   createReactInlineContentSpec(
     mathInlineContentConfig,
     {
+      meta: {
+        code: true,
+      },
       parse: parseInlineMathMLElement,
       parseContent: parseInlineMathMLContent,
       render: MathInlinePreviewWithPopup,

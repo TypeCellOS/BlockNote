@@ -137,6 +137,7 @@ export function createReactInlineContentSpec<
     selectable: inlineContentConfig.content === "styled",
     atom: inlineContentConfig.content === "none",
     draggable: inlineContentImplementation.meta?.draggable,
+    code: inlineContentImplementation.meta?.code,
     content: (inlineContentConfig.content === "styled"
       ? "inline*"
       : "") as T["content"] extends "styled" ? "inline*" : "",
