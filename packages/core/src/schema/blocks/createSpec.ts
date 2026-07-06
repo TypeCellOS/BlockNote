@@ -1,5 +1,10 @@
 import { Editor, Node } from "@tiptap/core";
-import { DOMParser, Fragment, TagParseRule } from "@tiptap/pm/model";
+import {
+  DOMParser,
+  Fragment,
+  Node as PMNode,
+  TagParseRule,
+} from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
 import {
@@ -92,14 +97,7 @@ export function getParseRules<
                 }
               }
 
-              if (config.content === "plain") {
-                // Plain blocks hold unstyled text only, so we parse the
-                // element's text content directly into a single text node.
-                const text = (node as HTMLElement).textContent ?? "";
-                return text ? Fragment.from(schema.text(text)) : Fragment.empty;
-              }
-
-              if (config.content === "inline") {
+              if (config.content === "inline" || config.content === "plain") {
                 // Parse the inline content if it exists
                 const element = node as HTMLElement;
 
@@ -109,7 +107,9 @@ export function getParseRules<
                 // Merge multiple paragraphs into one with line breaks
                 mergeParagraphs(
                   clone,
-                  implementation.meta?.code ? "\n" : "<br>",
+                  config.content === "plain" || implementation.meta?.code
+                    ? "\n"
+                    : "<br>",
                 );
 
                 // Parse the content directly as a paragraph to extract inline content
@@ -119,6 +119,27 @@ export function getParseRules<
                   preserveWhitespace: true,
                 });
 
+                if (config.content === "plain") {
+                  // Plain blocks hold text only, so non-text inline nodes are
+                  // flattened: line breaks become newline characters and other
+                  // nodes (e.g. mentions) are kept as their text.
+                  const textNodes: PMNode[] = [];
+                  parsed.content.forEach((child) => {
+                    if (child.isText) {
+                      textNodes.push(child);
+                    } else {
+                      const text =
+                        child.type === schema.linebreakReplacement
+                          ? "\n"
+                          : child.textContent;
+                      if (text) {
+                        textNodes.push(schema.text(text, child.marks));
+                      }
+                    }
+                  });
+
+                  return Fragment.fromArray(textNodes);
+                }
                 return parsed.content;
               }
               return Fragment.empty;

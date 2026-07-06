@@ -1,0 +1,31 @@
+[
+  {
+    "children": [],
+    "content": "const x = 1;
+log(x);",
+    "id": "1",
+    "props": {
+      "language": "javascript",
+    },
+    "type": "codeBlock",
+  },
+  {
+    "children": [],
+    "content": "line one
+line two",
+    "id": "2",
+    "props": {
+      "language": "text",
+    },
+    "type": "codeBlock",
+  },
+  {
+    "children": [],
+    "content": "<div class="a">escaped</div>",
+    "id": "3",
+    "props": {
+      "language": "html",
+    },
+    "type": "codeBlock",
+  },
+]
