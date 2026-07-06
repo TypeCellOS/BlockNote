@@ -1,18 +1,15 @@
-import { ReactCustomBlockRenderProps, SourceBlockWithPreview } from "@blocknote/react";
+import {
+  PreviewPlaceholder,
+  ReactCustomBlockRenderProps,
+  SourceBlockWithPreview,
+} from "@blocknote/react";
 import mermaid from "mermaid";
 import { useEffect, useState } from "react";
+import { SiMermaid } from "react-icons/si";
 
-import { getDiagramPlainTextContent } from "../../../shared/getDiagramPlainTextContent.js";
-import { DiagramBlockConfig } from "../../createDiagramBlockConfig.js";
-
-// The diagrams are rendered manually whenever a block's source changes.
-let initialized = false;
-const initializeMermaid = () => {
-  if (!initialized) {
-    initialized = true;
-    mermaid.initialize({ startOnLoad: false });
-  }
-};
+import { getDiagramPlainTextContent } from "../../shared/getDiagramPlainTextContent.js";
+import { initializeMermaid } from "../../shared/initializeMermaid.js";
+import { DiagramBlockConfig } from "../createDiagramBlockConfig.js";
 
 // Each render call needs its own element ID.
 let mermaidElementId = 0;
@@ -54,8 +51,6 @@ export const useMermaidSVG = (source: string) => {
           setError(undefined);
         }
       } catch (err) {
-        // Mermaid can leave its temporary render element behind on errors.
-        document.getElementById("d" + id)?.remove();
         if (!stale) {
           setError(err instanceof Error ? err.message : String(err));
         }
@@ -69,11 +64,10 @@ export const useMermaidSVG = (source: string) => {
 
   return { svg, error };
 };
-// TODO: handle error cases / empty source
 export const DiagramBlockPreviewWithPopup = (
   props: ReactCustomBlockRenderProps<DiagramBlockConfig>,
 ) => {
-  const source = getDiagramPlainTextContent(props.block.content);
+  const source = getDiagramPlainTextContent(props.block.content).trim();
   const { svg, error } = useMermaidSVG(source);
 
   return (
@@ -82,8 +76,21 @@ export const DiagramBlockPreviewWithPopup = (
       editor={props.editor}
       contentRef={props.contentRef}
       source={source}
-      preview={<div dangerouslySetInnerHTML={{ __html: svg }} />}
+      // `undefined` while nothing has rendered successfully, so an error
+      // shows the error state instead of an empty preview.
+      preview={
+        svg ? (
+          <div
+            // Centers the diagram - Mermaid's SVG is left-aligned otherwise.
+            style={{ display: "flex", justifyContent: "center" }}
+            dangerouslySetInnerHTML={{ __html: svg }}
+          />
+        ) : undefined
+      }
       error={error}
+      emptySourcePlaceholder={
+        <PreviewPlaceholder icon={<SiMermaid />} text="Add a Mermaid diagram" />
+      }
     />
   );
 };

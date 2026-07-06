@@ -1,4 +1,4 @@
-import { Selection } from "prosemirror-state";
+import { Selection, TextSelection } from "prosemirror-state";
 
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
@@ -71,6 +71,23 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
         Escape: moveSelectionOut("after"),
         ArrowUp: moveSelectionOut("before"),
         ArrowDown: moveSelectionOut("after"),
+        // While editing the source, selects the whole source instead of the
+        // whole document.
+        "Mod-a": ({ editor }) => {
+          const { $from } = editor.prosemirrorState.selection;
+          if ($from.node().type.name !== inlineContentType) {
+            return false;
+          }
+
+          const view = editor.prosemirrorView!;
+          view.dispatch(
+            view.state.tr.setSelection(
+              TextSelection.create(view.state.doc, $from.start(), $from.end()),
+            ),
+          );
+
+          return true;
+        },
       },
       mount: ({ dom, signal }) => {
         // The popup is open exactly when the selection is inside the inline

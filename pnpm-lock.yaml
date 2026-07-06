@@ -229,6 +229,9 @@ importers:
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
+      docx:
+        specifier: ^9.6.1
+        version: 9.6.1
       framer-motion:
         specifier: ^12.26.2
         version: 12.38.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -4864,6 +4867,9 @@ importers:
       react-dom:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.6.0(react@19.2.5)
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
@@ -4971,6 +4977,9 @@ importers:
       react-dom:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.6.0(react@19.2.5)
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
@@ -5416,6 +5425,9 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2
     devDependencies:
+      '@blocknote/diagram-block':
+        specifier: workspace:^
+        version: link:../diagram-block
       '@blocknote/shared':
         specifier: workspace:^
         version: link:../../shared
@@ -5569,6 +5581,9 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2
     devDependencies:
+      '@blocknote/diagram-block':
+        specifier: workspace:^
+        version: link:../diagram-block
       '@blocknote/shared':
         specifier: workspace:^
         version: link:../../shared
@@ -5615,6 +5630,9 @@ importers:
         specifier: ^4.3.0
         version: 4.3.2(react@19.2.5)
     devDependencies:
+      '@blocknote/diagram-block':
+        specifier: workspace:^
+        version: link:../diagram-block
       '@blocknote/shared':
         specifier: workspace:^
         version: link:../../shared
@@ -5876,6 +5894,9 @@ importers:
       '@blocknote/core':
         specifier: workspace:^
         version: link:../packages/core
+      '@blocknote/diagram-block':
+        specifier: workspace:^
+        version: link:../packages/diagram-block
       '@blocknote/mantine':
         specifier: workspace:^
         version: link:../packages/mantine
@@ -20191,7 +20212,7 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 25.5.0
+      '@types/node': 25.6.0
 
   '@types/cors@2.8.19':
     dependencies:
@@ -20407,7 +20428,7 @@ snapshots:
 
   '@types/mysql@2.15.27':
     dependencies:
-      '@types/node': 25.5.0
+      '@types/node': 25.6.0
 
   '@types/node@20.19.37':
     dependencies:
@@ -20445,7 +20466,7 @@ snapshots:
 
   '@types/pg@8.15.6':
     dependencies:
-      '@types/node': 25.5.0
+      '@types/node': 25.6.0
       pg-protocol: 1.13.0
       pg-types: 2.2.0
 
@@ -20481,7 +20502,7 @@ snapshots:
 
   '@types/tedious@4.0.14':
     dependencies:
-      '@types/node': 25.5.0
+      '@types/node': 25.6.0
 
   '@types/tough-cookie@4.0.5': {}
 

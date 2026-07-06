@@ -1,12 +1,14 @@
 import { StyleSchema } from "@blocknote/core";
 import {
+  PreviewPlaceholder,
   ReactCustomInlineContentRenderProps,
   SourceInlineContentWithPreview,
 } from "@blocknote/react";
+import { TbMathFunction } from "react-icons/tb";
 
-import { MathInlineContentConfig } from "../../mathInlineContentConfig.js";
 import { getMathPlainTextContent } from "../../../shared/getMathPlainTextContent.js";
 import { useLatexToMathMLString } from "../../../shared/react/render/useLatexToMathML.js";
+import { MathInlineContentConfig } from "../../mathInlineContentConfig.js";
 
 export const MathInlinePreviewWithPopup = (
   props: ReactCustomInlineContentRenderProps<
@@ -14,7 +16,7 @@ export const MathInlinePreviewWithPopup = (
     StyleSchema
   >,
 ) => {
-  const source = getMathPlainTextContent(props.inlineContent.content);
+  const source = getMathPlainTextContent(props.inlineContent.content).trim();
   const { mathMLString, error } = useLatexToMathMLString(source, true);
 
   return (
@@ -24,8 +26,22 @@ export const MathInlinePreviewWithPopup = (
       node={props.node}
       getPos={props.getPos}
       source={source}
-      preview={<span dangerouslySetInnerHTML={{ __html: mathMLString }} />}
+      // `undefined` while nothing has rendered successfully, so an error
+      // shows the error state instead of an empty preview.
+      preview={
+        mathMLString ? (
+          <span dangerouslySetInnerHTML={{ __html: mathMLString }} />
+        ) : undefined
+      }
       error={error}
+      emptySourcePlaceholder={
+        <PreviewPlaceholder
+          icon={<TbMathFunction />}
+          text={
+            props.editor.dictionary.code_block.add_source_button_text
+          }
+        />
+      }
     />
   );
 };

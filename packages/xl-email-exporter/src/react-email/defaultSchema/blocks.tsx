@@ -120,6 +120,7 @@ export const defaultReactEmailTextStyles = {
 type BSchema = DefaultBlockSchema & {
   pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
   math: BlockConfig<"math", {}, "inline">;
+  diagram: BlockConfig<"diagram", {}, "inline">;
 };
 
 // Renders a block's inline content as a code block. Used for both code blocks
@@ -292,6 +293,8 @@ export const createReactEmailBlockMappingForDefaultSchema = (
   codeBlock: (block) =>
     codeMapping(block, block.props.language as PrismLanguage, textStyles),
   math: (block) => codeMapping(block, "latex" as PrismLanguage, textStyles),
+  diagram: (block) =>
+    codeMapping(block, "mermaid" as PrismLanguage, textStyles),
   audio: (block) => {
     // Audio icon SVG
     const icon = (

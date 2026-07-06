@@ -18,6 +18,9 @@ export default defineConfig(
           },
         },
       },
+      test: {
+        setupFiles: ["./vitestSetup.ts"],
+      },
       plugins: [webpackStats() as any],
       // used so that vitest resolves the core package from the sources instead of the built version
       resolve: {
@@ -45,6 +48,16 @@ export default defineConfig(
           // make sure to externalize deps that shouldn't be bundled
           // into your library
           external: (source) => {
+            // Bundle react-icons into the output (tree-shaken) so consumers
+            // don't need to install it as a peer/runtime dependency.
+            const bundledDeps = ["react-icons"];
+            if (
+              bundledDeps.some(
+                (dep) => source === dep || source.startsWith(dep + "/"),
+              )
+            ) {
+              return false;
+            }
             if (
               Object.keys({
                 ...pkg.dependencies,
