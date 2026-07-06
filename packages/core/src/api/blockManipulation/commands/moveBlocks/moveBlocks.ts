@@ -164,7 +164,12 @@ export function moveBlocks(
     // When the non-empty block is moved up, the column is seen as empty and
     // collapsed in the removal step, so the following insertion fails.
     removeAndInsertBlocks(tr, blocks, [], { fixColumns: false });
-    insertBlocks(tr, flattenColumns(blocks), referenceBlock, placement);
+    insertBlocks<any, any, any>(
+      tr,
+      flattenColumns(blocks),
+      referenceBlock,
+      placement,
+    );
   });
 }
 
