@@ -15,9 +15,16 @@ import {
   ListItem,
 } from "../util/listItem.js";
 import { Table } from "../util/table/Table.js";
+import { Style } from "../types.js";
+import {
+  BLOCK_VERTICAL_PADDING,
+  PAGE_HEIGHT,
+  type PDFExporter,
+} from "../pdfExporter.js";
 
 const PIXELS_PER_POINT = 0.75;
 const FONT_SIZE = 16;
+const CAPTION_FONT_SIZE = FONT_SIZE * 0.8 * PIXELS_PER_POINT;
 
 export const pdfBlockMappingForDefaultSchema: BlockMapping<
   DefaultBlockSchema & {
@@ -237,11 +244,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
       <View wrap={false} key={"image" + block.id}>
         <Image
           src={await t.resolveFile(block.props.url)}
-          style={{
-            width: block.props.previewWidth
-              ? block.props.previewWidth * PIXELS_PER_POINT
-              : undefined,
-          }}
+          style={imageStyle(block.props, t)}
         />
         {caption(block.props, t)}
       </View>
@@ -277,6 +280,54 @@ function file(
   );
 }
 
+function previewWidthToPoints(
+  props: Partial<DefaultProps & { previewWidth: number }>,
+): number | undefined {
+  return props.previewWidth ? props.previewWidth * PIXELS_PER_POINT : undefined;
+}
+
+// Style values can also be strings ("10pt", "5%"); the page styles set in
+// `PDFExporter` are plain numbers, so treat anything else as the fallback.
+function points(value: number | string | undefined, fallback: number): number {
+  return typeof value === "number" ? value : fallback;
+}
+
+function imageStyle(
+  props: Partial<DefaultProps & { caption: string; previewWidth: number }>,
+  exporter: any,
+): Style {
+  const page: Style =
+    (exporter as PDFExporter<any, any, any>).styles?.page ?? {};
+  return {
+    width: previewWidthToPoints(props),
+    maxWidth: "100%",
+    // Images can't break across pages, so cap the box to the usable page
+    // height (accounting for the padding `transformBlocks` adds around every
+    // block); a taller box would spill an empty page after the bitmap. If
+    // there's a caption, also reserve one line for it. Known limitations:
+    // captions long enough to wrap, and headers passed to
+    // `toReactPDFDocument` (which take flow height on every page), can still
+    // make the unbreakable image group spill.
+    maxHeight:
+      PAGE_HEIGHT -
+      points(page.paddingTop, 0) -
+      points(page.paddingBottom, 0) -
+      2 * BLOCK_VERTICAL_PADDING -
+      (props.caption ? CAPTION_FONT_SIZE * points(page.lineHeight, 1.5) : 0),
+    // `contain` leaves slack inside the box when it's clamped by `maxWidth`
+    // or `maxHeight`, so pin the bitmap to the block's alignment edge. The
+    // box itself is aligned by `blocknoteDefaultPropsToReactPDFStyle` on the
+    // wrapper.
+    objectFit: "contain",
+    objectPosition:
+      props.textAlignment === "right"
+        ? "100% 0%"
+        : props.textAlignment === "center"
+          ? "50% 0%"
+          : "0% 0%",
+  };
+}
+
 function caption(
   props: Partial<DefaultProps & { caption: string; previewWidth: number }>,
   _exporter: any,
@@ -288,10 +339,9 @@ function caption(
     <Text
       key={"caption" + props.caption}
       style={{
-        width: props.previewWidth
-          ? props.previewWidth * PIXELS_PER_POINT
-          : undefined,
-        fontSize: FONT_SIZE * 0.8 * PIXELS_PER_POINT,
+        width: previewWidthToPoints(props),
+        maxWidth: "100%",
+        fontSize: CAPTION_FONT_SIZE,
       }}
     >
       {props.caption}

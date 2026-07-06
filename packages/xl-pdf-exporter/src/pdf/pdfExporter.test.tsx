@@ -9,8 +9,9 @@ import {
   defaultStyleSpecs,
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
-import { Text } from "@react-pdf/renderer";
+import { renderToBuffer, Text } from "@react-pdf/renderer";
 import { testDocument } from "@shared/testDocument.js";
+import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
 import reactElementToJSXString from "react-element-to-jsx-string";
 import { describe, expect, it } from "vite-plus/test";
 import { pdfDefaultSchemaMappings } from "./defaultSchema/index.js";
@@ -224,6 +225,95 @@ describe("exporter", () => {
     //   `${__dirname}/exampleWithHeaderAndFooter.pdf`
     // );
   });
+  it("should keep image alignment when the image box is clamped", async () => {
+    // `objectPosition` must follow `textAlignment`, otherwise images with
+    // slack in their box (`objectFit: "contain"` + `maxWidth` clamp) would
+    // always be pinned to the left edge.
+    const schema = BlockNoteSchema.create();
+    const exporter = new PDFExporter(schema, pdfDefaultSchemaMappings, {
+      resolveFileUrl: testResolveFileUrl,
+    });
+    const transformed = await exporter.toReactPDFDocument(
+      partialBlocksToBlocksForTesting(schema, [
+        {
+          type: "image",
+          props: {
+            url: "https://placehold.co/332x322.jpg",
+            // Wider than the page, so `maxWidth: 100%` clamps the box.
+            previewWidth: 2000,
+            textAlignment: "left",
+          },
+        },
+        {
+          type: "image",
+          props: {
+            url: "https://placehold.co/332x322.jpg",
+            previewWidth: 2000,
+            textAlignment: "center",
+          },
+        },
+        {
+          type: "image",
+          props: {
+            url: "https://placehold.co/332x322.jpg",
+            previewWidth: 2000,
+            textAlignment: "right",
+          },
+        },
+      ]),
+    );
+    const str = reactElementToJSXString(transformed);
+
+    await expect(str).toMatchFileSnapshot(
+      "__snapshots__/exampleWithAlignedImages.jsx",
+    );
+  });
+
+  it("should scale an image taller than the page instead of spilling a blank page", async () => {
+    // The image box's height comes from the bitmap's aspect ratio, and images
+    // can't break across pages, so without a `maxHeight` cap a too-tall box
+    // spills an empty trailing page.
+    const schema = BlockNoteSchema.create();
+    const exporter = new PDFExporter(schema, pdfDefaultSchemaMappings, {
+      resolveFileUrl: testResolveFileUrl,
+    });
+    const transformed = await exporter.toReactPDFDocument(
+      partialBlocksToBlocksForTesting(schema, [
+        {
+          type: "image",
+          props: { url: "https://placehold.co/400x800.jpg", previewWidth: 600 },
+        },
+      ]),
+    );
+    const pdf = (await renderToBuffer(transformed as any)).toString("latin1");
+
+    expect(pdf.match(/\/Type\s*\/Page[^s]/g)).toHaveLength(1);
+  });
+
+  it("should keep a page-height image and its caption on one page", async () => {
+    // A caption is rendered inside the same unbreakable group as the image,
+    // so the height cap must reserve a line for it.
+    const schema = BlockNoteSchema.create();
+    const exporter = new PDFExporter(schema, pdfDefaultSchemaMappings, {
+      resolveFileUrl: testResolveFileUrl,
+    });
+    const transformed = await exporter.toReactPDFDocument(
+      partialBlocksToBlocksForTesting(schema, [
+        {
+          type: "image",
+          props: {
+            url: "https://placehold.co/400x800.jpg",
+            previewWidth: 600,
+            caption: "A tall image",
+          },
+        },
+      ]),
+    );
+    const pdf = (await renderToBuffer(transformed as any)).toString("latin1");
+
+    expect(pdf.match(/\/Type\s*\/Page[^s]/g)).toHaveLength(1);
+  });
+
   it("should export a document with a multi-column block", async () => {
     const schema = BlockNoteSchema.create({
       blockSpecs: {
