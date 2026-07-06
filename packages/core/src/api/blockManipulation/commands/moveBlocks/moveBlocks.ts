@@ -13,7 +13,6 @@ import { getNearestBlockPos } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { insertBlocks } from "../insertBlocks/insertBlocks.js";
 import { removeAndInsertBlocks } from "../replaceBlocks/replaceBlocks.js";
-import { fixColumnList } from "../replaceBlocks/util/fixColumnList.js";
 
 type BlockSelectionData = (
   | {
@@ -152,40 +151,20 @@ export function moveBlocks(
   placement: "before" | "after",
 ) {
   editor.transact((tr) => {
-    // A `columnList` reference can be dissolved by `fixColumnList` when its
-    // `column`s are removed, leaving its ID invalid for re-insertion. Anchor
-    // to an adjacent block instead, which is unaffected by the removal.
-    const refBlock = editor.getBlock(referenceBlock);
-    if (refBlock?.type === "columnList") {
-      const adjacent =
-        placement === "after"
-          ? editor.getNextBlock(refBlock)
-          : editor.getPrevBlock(refBlock);
-      if (adjacent) {
-        referenceBlock = adjacent;
-        placement = placement === "after" ? "before" : "after";
-      }
-    }
-
-    // Don't fix columns/columnLists in the removal step. Otherwise, the
-    // following case breaks:
+    // Don't fix columns/columnLists in the removal step. Since a move is a
+    // rearrangement rather than a deletion, columns that it empties out are
+    // deliberately left as-is instead of being collapsed - this keeps moves
+    // free of side effects (and reversible by moving back), and matches
+    // dragging a block out of a column, which doesn't collapse it either.
+    // Fixing them mid-move also broke the following case:
     // <column>
     //  <paragraph></paragraph>
     //  <paragraph>Paragraph</paragraph>
     // </column>
-    // When the non-empty block is moved up, the column is now seen as empty
-    // and collapsed in the removal step, so the following insertion fails.
-    const { affectedColumnLists } = removeAndInsertBlocks(tr, blocks, [], {
-      fixColumns: false,
-    });
+    // When the non-empty block is moved up, the column is seen as empty and
+    // collapsed in the removal step, so the following insertion fails.
+    removeAndInsertBlocks(tr, blocks, [], { fixColumns: false });
     insertBlocks(tr, flattenColumns(blocks), referenceBlock, placement);
-
-    affectedColumnLists.forEach((id) => {
-      const posInfo = getNodeById(id, tr.doc);
-      if (posInfo) {
-        fixColumnList(tr, posInfo.posBeforeNode);
-      }
-    });
   });
 }
 
