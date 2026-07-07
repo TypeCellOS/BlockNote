@@ -65,6 +65,15 @@ export interface YHubVersioningOptions {
    * When set, forwarded as the `groupMaxDuration` query param.
    */
   groupMaxDuration?: number;
+
+  /**
+   * When `true`, adjacent edits are grouped together even when made by
+   * *different* users (their ids accumulate in the grouped entry's `by`).
+   * When `false` (the default), only same-user adjacent edits are merged.
+   * Forwarded as the `mergeUsers` query param.
+   * @default false
+   */
+  mergeUsers?: boolean;
 }
 
 /**
@@ -264,25 +273,48 @@ export function createYHubVersioningEndpoints(
     /**
      * Build the synthetic "current version" snapshot, or `undefined` when the
      * live document matches the latest saved version (no edits since).
+     *
+     * Both lookups are made here, independently of the grouped `list()` request:
+     *
+     *  - the newest activity entry of *any* kind (ungrouped, so its `to` is the
+     *    true last-edit time), and
+     *  - the newest **version marker** (via the `withCustomAttributions`
+     *    server-side filter).
+     *
+     * Deriving the marker time from `list()`'s grouped entries would be wrong:
+     * with grouping (especially `mergeUsers`) the newest marker's group absorbs
+     * the later unsaved edit, so the group's `to` equals the edit's `to` and the
+     * comparison below can never fire. Fetching the marker unmerged avoids that.
      */
-    const getCurrentVersionEntry = async (
-      /**
-       * The `to` timestamp of the most recent version marker, or `undefined`
-       * when no versions exist yet.
-       */
-      latestVersionTo: number | undefined,
-    ): Promise<VersionSnapshot | undefined> => {
-      const params = new URLSearchParams({
+    const getCurrentVersionEntry = async (): Promise<
+      VersionSnapshot | undefined
+    > => {
+      const latestParams = new URLSearchParams({
         order: "desc",
         limit: "1",
         customAttributions: "true",
       });
+      const latestVersionParams = new URLSearchParams({
+        order: "desc",
+        limit: "1",
+        customAttributions: "true",
+        // Server-side filter to `type:version` markers only, so this ignores the
+        // plain edits that would otherwise be the newest entries.
+        withCustomAttributions: "type:version",
+      });
 
-      const buf = await yhubFetch(`${activityUrl}?${params}`, headers);
-      const entries = decodeAny(new Uint8Array(buf)) as YHubActivityEntry[];
-      const latestEdit = entries[0];
+      const [latestBuf, latestVersionBuf] = await Promise.all([
+        yhubFetch(`${activityUrl}?${latestParams}`, headers),
+        yhubFetch(`${activityUrl}?${latestVersionParams}`, headers),
+      ]);
+      const latestEdit = (
+        decodeAny(new Uint8Array(latestBuf)) as YHubActivityEntry[]
+      )[0];
+      const latestVersion = (
+        decodeAny(new Uint8Array(latestVersionBuf)) as YHubActivityEntry[]
+      )[0];
 
-      if (!latestEdit || latestEdit.to <= (latestVersionTo ?? 0)) {
+      if (!latestEdit || latestEdit.to <= (latestVersion?.to ?? 0)) {
         return undefined;
       }
 
@@ -531,6 +563,7 @@ export function createYHubVersioningEndpoints(
       // note where these are deliberately left out of the destructure above).
       const groupMaxGap = options.groupMaxGap ?? 10000;
       const groupMaxDuration = options.groupMaxDuration;
+      const mergeUsers = options.mergeUsers;
 
       const params = new URLSearchParams({
         order: "desc",
@@ -547,6 +580,9 @@ export function createYHubVersioningEndpoints(
       }
       if (groupMaxDuration !== undefined) {
         params.set("groupMaxDuration", String(groupMaxDuration));
+      }
+      if (mergeUsers !== undefined) {
+        params.set("mergeUsers", String(mergeUsers));
       }
 
       const buf = await yhubFetch(`${activityUrl}?${params}`, headers);
@@ -572,16 +608,13 @@ export function createYHubVersioningEndpoints(
       );
 
       // Surface a "current version" entry when the live document has edits
-      // beyond the most recent saved version. We fetch the single most recent
-      // activity entry of *any* kind (no `type:version` filter): if its `to` is
-      // newer than the latest version marker, there have been edits since, and
-      // that entry also gives us the last-edit timestamp + author for the row.
+      // beyond the most recent saved version marker. `getCurrentVersionEntry`
+      // makes its own unmerged lookups (see there), so it is unaffected by the
+      // grouping/mergeUsers params used for the list above.
       //
       // This only re-evaluates when `list()` runs (sidebar open / refresh),
       // which matches how YHub versions load today.
-      const currentEntry = await getCurrentVersionEntry(
-        snapshots[0]?.createdAt,
-      );
+      const currentEntry = await getCurrentVersionEntry();
       return currentEntry ? [currentEntry, ...snapshots] : snapshots;
     };
 

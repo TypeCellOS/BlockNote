@@ -28,6 +28,8 @@ const yhubHost = "yhub.teleportal.tools";
 const org = "blocknote";
 const docId = `blocknote-version-yjs14-${Math.floor(Date.now())}`;
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 // YHub-backed versioning endpoints. YHub stores continuous edit history and
 // exposes its activity timeline as versions through BlockNote's versioning UI.
 // Constructing this opens no connection, so it's safe to do before seeding.
@@ -44,22 +46,61 @@ const versioningOptions = {
   // render *all* the grouped entries, so dragging groupMaxGap visibly grows and
   // shrinks the list instead of always bumping against a low cap.
   activityLimit: 500,
-  // Open already well-grouped (~one row per author-run) so the history reads as
-  // a short, understandable list; dragging groupMaxGap down explodes it.
-  groupMaxGap: 60 * 60_000,
+  // Open already well-grouped (~one row per version) so the history reads as a
+  // short, understandable list; dragging groupMaxGap down explodes it.
+  groupMaxGap: 1 * DAY_MS,
   groupMaxDuration: undefined as number | undefined,
+  // Whether adjacent edits by *different* users merge into one entry.
+  mergeUsers: true,
 };
 const versioningEndpoints = createYHubVersioningEndpoints(versioningOptions);
 
-// Slider bounds for the grouping knobs. The sample history spaces edits 30s–1h
-// apart (see snapshotBuilder), so a 0–1h range in 30s steps spans the whole
-// useful spectrum: at 0 every edit is its own row, and near an hour a version's
-// same-author runs collapse together. The controls display m/s for legibility.
-const GROUP_SLIDER_MAX_MS = 60 * 60_000;
-const GROUP_SLIDER_STEP_MS = 30_000;
+// Common "nice" gap values spanning 30 seconds → 1 week, offered as a dropdown.
+// The seeded history spans a few weeks with inter-edit gaps skewed toward hours
+// and days (see snapshotBuilder), so this ladder of values lets each choice
+// meaningfully re-shape the list: the hour values pull apart within-version
+// edits, the day values collapse whole versions. A dropdown (vs. a slider) makes
+// the exact value obvious and picking a specific one a single click.
+const SECOND_MS = 1000;
+const MINUTE_MS = 60 * SECOND_MS;
+const HOUR_MS = 60 * MINUTE_MS;
+const GROUP_GAP_STOPS = [
+  30 * SECOND_MS,
+  1 * MINUTE_MS,
+  2 * MINUTE_MS,
+  5 * MINUTE_MS,
+  10 * MINUTE_MS,
+  15 * MINUTE_MS,
+  30 * MINUTE_MS,
+  1 * HOUR_MS,
+  2 * HOUR_MS,
+  4 * HOUR_MS,
+  6 * HOUR_MS,
+  12 * HOUR_MS,
+  1 * DAY_MS,
+  2 * DAY_MS,
+  3 * DAY_MS,
+  5 * DAY_MS,
+  7 * DAY_MS,
+];
+
+/** The stop value nearest to `ms` (for snapping an arbitrary value to an option). */
+const nearestStop = (ms: number) =>
+  GROUP_GAP_STOPS.reduce((best, stop) =>
+    Math.abs(stop - ms) < Math.abs(best - ms) ? stop : best,
+  );
+
 const formatMs = (ms: number) => {
-  if (ms >= 60_000) {
-    const mins = ms / 60_000;
+  if (ms >= DAY_MS) {
+    const days = ms / DAY_MS;
+    return `${days.toFixed(days % 1 === 0 ? 0 : 1)}d`;
+  }
+  if (ms >= HOUR_MS) {
+    const hours = ms / HOUR_MS;
+    return `${hours.toFixed(hours % 1 === 0 ? 0 : 1)}h`;
+  }
+  if (ms >= MINUTE_MS) {
+    const mins = ms / MINUTE_MS;
     return `${mins.toFixed(mins % 1 === 0 ? 0 : 1)}m`;
   }
   return `${(ms / 1000).toFixed(ms % 1000 === 0 ? 0 : 1)}s`;
@@ -163,14 +204,15 @@ function VersionedEditor() {
     };
   }, [versioning]);
 
-  // Local mirror of the two grouping knobs. Changing either writes the value
-  // back onto the shared `versioningOptions` object and re-runs `list()` so the
-  // history sidebar re-groups immediately (the core `list()` reads these live).
+  // Local mirror of the grouping knobs. Changing any writes the value back onto
+  // the shared `versioningOptions` object and re-runs `list()` so the history
+  // sidebar re-groups immediately (the core `list()` reads these live).
   const [showSettings, setShowSettings] = useState(false);
   const [groupMaxGap, setGroupMaxGap] = useState(versioningOptions.groupMaxGap);
   const [groupMaxDuration, setGroupMaxDuration] = useState(
     versioningOptions.groupMaxDuration,
   );
+  const [mergeUsers, setMergeUsers] = useState(versioningOptions.mergeUsers);
 
   const applyGroupMaxGap = (value: number) => {
     setGroupMaxGap(value);
@@ -181,6 +223,12 @@ function VersionedEditor() {
   const applyGroupMaxDuration = (value: number | undefined) => {
     setGroupMaxDuration(value);
     versioningOptions.groupMaxDuration = value;
+    versioning.list();
+  };
+
+  const applyMergeUsers = (value: boolean) => {
+    setMergeUsers(value);
+    versioningOptions.mergeUsers = value;
     versioning.list();
   };
 
@@ -208,76 +256,61 @@ function VersionedEditor() {
                 <div className="config-panel-title">Configuration</div>
 
                 <div className="config-row">
-                  <label htmlFor="groupMaxGap">
-                    groupMaxGap
-                    <span className="config-value">
-                      {formatMs(groupMaxGap)}
-                    </span>
-                  </label>
-                  <input
+                  <label htmlFor="groupMaxGap">groupMaxGap</label>
+                  {/* A dropdown of common gap values (30s → 1week). Pick one and
+                      the history re-groups against the live document. */}
+                  <select
                     id="groupMaxGap"
-                    type="range"
-                    min={0}
-                    max={GROUP_SLIDER_MAX_MS}
-                    step={GROUP_SLIDER_STEP_MS}
-                    value={groupMaxGap}
+                    className="config-select"
+                    value={nearestStop(groupMaxGap)}
                     onChange={(e) =>
                       applyGroupMaxGap(Number(e.currentTarget.value))
                     }
-                  />
-                  <input
-                    type="number"
-                    min={0}
-                    step={GROUP_SLIDER_STEP_MS}
-                    value={groupMaxGap}
-                    onChange={(e) =>
-                      applyGroupMaxGap(Number(e.currentTarget.value))
-                    }
-                  />
+                  >
+                    {GROUP_GAP_STOPS.map((ms) => (
+                      <option key={ms} value={ms}>
+                        {formatMs(ms)}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="config-row">
-                  <label htmlFor="groupMaxDuration">
-                    groupMaxDuration
-                    <span className="config-value">
-                      {groupMaxDuration === undefined
-                        ? "unlimited"
-                        : formatMs(groupMaxDuration)}
-                    </span>
-                  </label>
-                  <input
+                  <label htmlFor="groupMaxDuration">groupMaxDuration</label>
+                  <select
                     id="groupMaxDuration"
-                    type="range"
-                    min={0}
-                    max={GROUP_SLIDER_MAX_MS}
-                    step={GROUP_SLIDER_STEP_MS}
-                    disabled={groupMaxDuration === undefined}
-                    value={groupMaxDuration ?? 0}
-                    onChange={(e) =>
-                      applyGroupMaxDuration(Number(e.currentTarget.value))
+                    className="config-select"
+                    value={
+                      groupMaxDuration === undefined
+                        ? "unlimited"
+                        : nearestStop(groupMaxDuration)
                     }
-                  />
-                  <input
-                    type="number"
-                    min={0}
-                    step={GROUP_SLIDER_STEP_MS}
-                    disabled={groupMaxDuration === undefined}
-                    value={groupMaxDuration ?? 0}
-                    onChange={(e) =>
-                      applyGroupMaxDuration(Number(e.currentTarget.value))
-                    }
-                  />
-                  <label className="config-unlimited">
+                    onChange={(e) => {
+                      const v = e.currentTarget.value;
+                      applyGroupMaxDuration(
+                        v === "unlimited" ? undefined : Number(v),
+                      );
+                    }}
+                  >
+                    <option value="unlimited">unlimited</option>
+                    {GROUP_GAP_STOPS.map((ms) => (
+                      <option key={ms} value={ms}>
+                        {formatMs(ms)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="config-row">
+                  <label className="config-toggle">
                     <input
                       type="checkbox"
-                      checked={groupMaxDuration === undefined}
-                      onChange={(e) =>
-                        applyGroupMaxDuration(
-                          e.currentTarget.checked ? undefined : 60000,
-                        )
-                      }
+                      checked={mergeUsers ?? false}
+                      onChange={(e) => applyMergeUsers(e.currentTarget.checked)}
                     />
-                    unlimited
+                    <span className="config-value">
+                      merge edits across users
+                    </span>
                   </label>
                 </div>
               </div>

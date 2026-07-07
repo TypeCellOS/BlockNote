@@ -138,7 +138,8 @@
   width: 100%;
 }
 
-.config-row input[type="number"] {
+.config-row input[type="number"],
+.config-select {
   background: var(--bn-colors-editor-background);
   border: 1px solid var(--bn-colors-border);
   border-radius: var(--bn-border-radius-small);
@@ -153,6 +154,19 @@
   display: flex;
   font-size: 12px;
   gap: 6px;
+}
+
+/* The mergeUsers boolean row: checkbox + label + a muted hint on the right. */
+.config-toggle {
+  align-items: center;
+  display: flex;
+  font-size: 12px;
+  font-weight: 500;
+  gap: 6px;
+}
+
+.config-toggle .config-value {
+  margin-left: auto;
 }
 
 .show-history-button {
