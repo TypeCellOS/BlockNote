@@ -1,11 +1,11 @@
 import { TextSelection } from "prosemirror-state";
 
-import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   createExtension,
   createStore,
-} from "../../../../editor/BlockNoteExtension.js";
-import { Block } from "../../../index.js";
+} from "../../editor/BlockNoteExtension.js";
+import { Block } from "../../blocks/index.js";
 
 export const SourceBlockWithPreviewExtension = createExtension(
   ({
@@ -87,9 +87,7 @@ export const SourceBlockWithPreviewExtension = createExtension(
             store.state.popupOpen === block.id
           ) {
             const view = editor.prosemirrorView!;
-            view.dispatch(
-              view.state.tr.insertText("\n")
-            );
+            view.dispatch(view.state.tr.insertText("\n"));
 
             return true;
           }

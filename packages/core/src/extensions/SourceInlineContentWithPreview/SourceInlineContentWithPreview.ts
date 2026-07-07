@@ -1,10 +1,10 @@
 import { Selection, TextSelection } from "prosemirror-state";
 
-import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   createExtension,
   createStore,
-} from "../../../../editor/BlockNoteExtension.js";
+} from "../../editor/BlockNoteExtension.js";
 
 /**
  * Inline-content counterpart of {@link SourceBlockWithPreviewExtension}. Drives

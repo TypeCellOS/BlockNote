@@ -12,6 +12,8 @@ export * from "./PositionMapping/PositionMapping.js";
 export * from "./PreviousBlockType/PreviousBlockType.js";
 export * from "./ShowSelection/ShowSelection.js";
 export * from "./SideMenu/SideMenu.js";
+export * from "./SourceBlockWithPreview/SourceBlockWithPreview.js";
+export * from "./SourceInlineContentWithPreview/SourceInlineContentWithPreview.js";
 export * from "./SuggestionMenu/DefaultGridSuggestionItem.js";
 export * from "./SyntaxHighlighting/SyntaxHighlighting.js";
 export * from "./SuggestionMenu/DefaultSuggestionItem.js";

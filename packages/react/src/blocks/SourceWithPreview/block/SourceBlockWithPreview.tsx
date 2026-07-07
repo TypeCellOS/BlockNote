@@ -16,12 +16,11 @@ export type SourceBlockWithPreviewProps = Pick<
 
 /**
  * Renders a block as a preview of its source content, with the editable
- * source in a popup - the React counterpart of `createSourceBlockWithPreview`
- * from `@blocknote/core`. The popup is controlled via
+ * source in a popup. The popup is controlled via
  * {@link useSourceBlockPreviewPopup}, so the block's
- * `SourceBlockWithPreviewExtension` must be registered with the block spec.
- * The caller only provides the preview itself, making this the base for
- * custom blocks rendered from source code (math, diagrams, etc).
+ * `SourceBlockWithPreviewExtension` (from `@blocknote/core`) must be registered
+ * with the block spec. The caller only provides the preview itself, making this
+ * the base for custom blocks rendered from source code (math, diagrams, etc).
  */
 export const SourceBlockWithPreview = (props: SourceBlockWithPreviewProps) => {
   const { block, editor, ...shared } = props;

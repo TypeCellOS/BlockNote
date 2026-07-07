@@ -1,4 +1,3 @@
-// import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { BlockFromConfig } from "../../schema/index.js";
 
