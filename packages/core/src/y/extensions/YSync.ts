@@ -67,6 +67,7 @@ export const YSyncExtension = createExtension(
   >) => {
     return {
       key: "ySync",
+      fragment: options.fragment,
       mount: () => {
         const configure = () => {
           editor.exec(

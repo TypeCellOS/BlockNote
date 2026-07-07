@@ -199,48 +199,77 @@ export function applyVersion(
   editor: BlockNoteEditor<any, any, any>,
   target: VersionBlock[],
 ): void {
-  editor.transact(() => {
-    const targetIds = collectIds(target);
+  // Wrap the whole reconciliation in a single top-level transaction, so all the
+  // block ops it emits collapse into one ProseMirror transaction (and one
+  // tiptap `update`).
+  editor.transact(() => reconcileInto(editor, target));
+}
 
-    // --- Fast path: building from scratch. If none of the live blocks survive
-    // into the target (e.g. the very first version applied to a fresh editor,
-    // whose only block is the default empty paragraph), replacing the whole
-    // document in one op avoids transiently emptying it — which would leave a
-    // transient id-less placeholder block that the incremental insert path
-    // cannot anchor against.
-    const liveIds = collectIds(editor.document);
-    const anySurvive = [...liveIds].some((id) => targetIds.has(id));
-    if (!anySurvive) {
-      editor.replaceBlocks(
-        editor.document,
-        target.map((b) => toPartial(b)),
-      );
+/**
+ * Reconcile the editor towards `target` *without* an enclosing
+ * `editor.transact` — each individual `editor.*` op therefore runs as its own
+ * top-level transaction and fires its own tiptap `update`. This is the
+ * per-edit path used to synthesize a fine-grained edit history (see
+ * `snapshotBuilder.ts`); prefer {@link applyVersion} for a single atomic
+ * version apply.
+ */
+export function applyVersionUnbatched(
+  editor: BlockNoteEditor<any, any, any>,
+  target: VersionBlock[],
+): void {
+  reconcileInto(editor, target);
+}
+
+/**
+ * The actual reconciliation body, factored out of {@link applyVersion} so it
+ * can run either batched (inside one `editor.transact`) or unbatched (each
+ * `editor.*` op as its own top-level transaction). The diff/reconcile logic is
+ * identical in both cases.
+ */
+function reconcileInto(
+  editor: BlockNoteEditor<any, any, any>,
+  target: VersionBlock[],
+): void {
+  const targetIds = collectIds(target);
+
+  // --- Fast path: building from scratch. If none of the live blocks survive
+  // into the target (e.g. the very first version applied to a fresh editor,
+  // whose only block is the default empty paragraph), replacing the whole
+  // document in one op avoids transiently emptying it — which would leave a
+  // transient id-less placeholder block that the incremental insert path
+  // cannot anchor against.
+  const liveIds = collectIds(editor.document);
+  const anySurvive = [...liveIds].some((id) => targetIds.has(id));
+  if (!anySurvive) {
+    editor.replaceBlocks(
+      editor.document,
+      target.map((b) => toPartial(b)),
+    );
+    return;
+  }
+
+  // --- 1. Removals. Only remove "roots" of removed subtrees: if a block is
+  // gone, all of its descendants go with it, so removing the topmost gone
+  // ancestor is enough (and removing a child after its parent would throw).
+  const toRemove: string[] = [];
+  walk(editor.document, (block, parentId) => {
+    if (targetIds.has(block.id)) {
       return;
     }
-
-    // --- 1. Removals. Only remove "roots" of removed subtrees: if a block is
-    // gone, all of its descendants go with it, so removing the topmost gone
-    // ancestor is enough (and removing a child after its parent would throw).
-    const toRemove: string[] = [];
-    walk(editor.document, (block, parentId) => {
-      if (targetIds.has(block.id)) {
-        return;
-      }
-      // Skip if an ancestor is already being removed.
-      if (parentId && toRemove.includes(parentId)) {
-        return;
-      }
-      toRemove.push(block.id);
-    });
-    if (toRemove.length > 0) {
-      editor.removeBlocks(toRemove);
+    // Skip if an ancestor is already being removed.
+    if (parentId && toRemove.includes(parentId)) {
+      return;
     }
-
-    // --- 2 & 3. Walk the target tree in document order and reconcile each
-    // block: insert if new, update if changed, move if mis-placed. Recursing in
-    // order means earlier siblings are already in place to anchor against.
-    reconcileList(editor, target, undefined);
+    toRemove.push(block.id);
   });
+  if (toRemove.length > 0) {
+    editor.removeBlocks(toRemove);
+  }
+
+  // --- 2 & 3. Walk the target tree in document order and reconcile each
+  // block: insert if new, update if changed, move if mis-placed. Recursing in
+  // order means earlier siblings are already in place to anchor against.
+  reconcileList(editor, target, undefined);
 }
 
 /** Look up a block in the live document by id (depth-first). */

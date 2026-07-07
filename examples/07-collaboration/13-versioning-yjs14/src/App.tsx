@@ -156,10 +156,7 @@ function VersionedEditor() {
           </div>
           {showSidebar && (
             <div className={"sidebar-section"}>
-              <VersioningSidebar
-                filter={"all"}
-                onClose={() => setShowSidebar(false)}
-              />
+              <VersioningSidebar onClose={() => setShowSidebar(false)} />
             </div>
           )}
         </div>

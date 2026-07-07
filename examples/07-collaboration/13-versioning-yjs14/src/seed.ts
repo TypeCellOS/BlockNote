@@ -1,8 +1,7 @@
 import * as Y from "@y/y";
 import { encodeAny } from "lib0/buffer";
-import { uint32 } from "lib0/random";
 
-import type { BuildSnapshotsResult } from "./snapshotBuilder";
+import type { BuildEditHistoryResult } from "./snapshotBuilder";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -25,10 +24,10 @@ export interface SeededVersion {
   name: string;
 }
 
-/** The parts of a {@link BuildSnapshotsResult} that {@link seedYHubDocument} needs. */
+/** The parts of a {@link BuildEditHistoryResult} that {@link seedYHubDocument} needs. */
 export type SeedableBuild = Pick<
-  BuildSnapshotsResult,
-  "baseUpdate" | "snapshots"
+  BuildEditHistoryResult,
+  "baseUpdate" | "steps"
 >;
 
 // ---------------------------------------------------------------------------
@@ -62,24 +61,24 @@ function makeVersionMarkerUpdate(): Uint8Array {
 
 /**
  * Pre-populate a YHub document with content **and** version history from a
- * {@link buildSnapshots} result, without a live editor / sync connection.
+ * {@link buildEditHistory} result, without a live editor / sync connection.
  *
- * Each step's contributions are PATCHed to `/ydoc/{org}/{docId}` as a single
- * ordered `patches` bulk request: one content patch per contributing user
- * (attributed via `by`, **no** version marker), followed by one marker patch
- * carrying a `type:version` custom attribution — the same marker
+ * Each step's captured transactions are PATCHed to `/ydoc/{org}/{docId}` as a
+ * single ordered `patches` bulk request: one content patch per captured
+ * transaction (attributed via `by`, **no** version marker), followed by one
+ * marker patch carrying a `type:version` custom attribution — the same marker
  * {@link createYHubVersioningEndpoints}'s `create` uses. Because the version's
  * attribution window spans all of its content patches, **multiple users are
  * attributed within the one version**. The starting document state
- * ({@link BuildSnapshotsResult.baseUpdate}) is PATCHed first, without a marker,
- * so the step updates have their baseline to merge onto.
+ * ({@link BuildEditHistoryResult.baseUpdate}) is PATCHed first, without a
+ * marker, so the step patches have their baseline to merge onto.
  *
- * Every patch carries an explicit, monotonically increasing `at` timestamp so
- * the backfilled history stays deterministically ordered (content before its
- * marker, each version after the previous one).
+ * Every patch carries the explicit `at` timestamp captured by
+ * {@link buildEditHistory}, so the backfilled history stays deterministically
+ * ordered (content before its marker, each version after the previous one).
  *
- * YHub speaks the V1 update format, so the V2 updates `buildSnapshots` produces
- * are converted; the synthetic marker update is already V1.
+ * YHub speaks the V1 update format, so the V2 updates `buildEditHistory`
+ * produces are converted; the synthetic marker update is already V1.
  *
  * @returns the version markers created, in order.
  *
@@ -87,7 +86,7 @@ function makeVersionMarkerUpdate(): Uint8Array {
  * ```ts
  * const editor = BlockNoteEditor.create();
  * // NOTE: target the same fragment key the live editor reads (`doc.get()` => "")
- * const build = await buildSnapshots(editor, steps, { fragment: "" });
+ * const build = await buildEditHistory(editor, steps, { fragment: "" });
  * await seedYHubDocument(
  *   { baseUrl: "https://yhub.example.com", org: workspaceId, docId },
  *   build,
@@ -114,54 +113,41 @@ export async function seedYHubDocument(
     }
   };
 
-  // Monotonic clock for the whole seed, so every patch is ordered and each
-  // version's content lands strictly before its marker.
-  let at = Date.now();
-
-  // 1. Starting document state — content only, no version marker.
+  // 1. Starting document state — content only, no version marker. Timestamp it
+  //    just before the first captured transaction so it sorts first.
   await send({
     update: Y.convertUpdateFormatV2ToV1(build.baseUpdate),
-    at: at++,
+    at: build.steps[0]?.patches[0]?.at ?? Date.now(),
     customAttributions: [],
   });
 
-  // 2. Each step: its per-user content patches, then a single `type:version`
-  //    marker patch so it appears as one snapshot attributed to every author.
+  // 2. Each step: one content patch per captured transaction, then a single
+  //    `type:version` marker patch so it appears as one snapshot attributed to
+  //    every author.
   const versions: SeededVersion[] = [];
-  for (const snapshot of build.snapshots) {
-    const id = String(uint32());
-
-    const patches: YHubPatch[] = [];
-    let lastAuthor: string | undefined;
-    for (const contribution of snapshot.contributions) {
-      const by = contribution.attribution?.by;
-      const author = typeof by === "string" ? by : undefined;
-      if (author) {
-        lastAuthor = author;
-      }
-      patches.push({
-        update: Y.convertUpdateFormatV2ToV1(contribution.update),
-        by: author,
-        at: at++,
-        customAttributions: [],
-      });
-    }
+  for (const step of build.steps) {
+    const patches: YHubPatch[] = step.patches.map((p) => ({
+      update: Y.convertUpdateFormatV2ToV1(p.update),
+      by: p.by,
+      at: p.at,
+      customAttributions: [],
+    }));
     // The marker patch carries the version itself. YHub attributes an entry to a
-    // single user, so credit the version to its most recent contributor (the
-    // per-content attribution still records who authored each part).
+    // single user, so credit the version to its last contributor (the per-content
+    // attribution still records who authored each part).
     patches.push({
       update: makeVersionMarkerUpdate(),
-      by: lastAuthor,
-      at: at++,
+      by: step.by,
+      at: step.at,
       customAttributions: [
         { k: "type", v: "version" },
-        { k: "id", v: id },
-        { k: "name", v: snapshot.name },
+        { k: "id", v: step.id },
+        { k: "name", v: step.name },
       ],
     });
 
     await send({ patches });
-    versions.push({ id, name: snapshot.name });
+    versions.push({ id: step.id, name: step.name });
   }
 
   return versions;

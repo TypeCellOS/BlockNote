@@ -15,6 +15,7 @@ import {
 } from "../../../extensions/Versioning/index.js";
 import { createYHubVersioningEndpoints } from "../yhub.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { createExtension } from "../../../editor/BlockNoteExtension.js";
 
 // ---------------------------------------------------------------------------
 // Fixture data — version entries now carry an `id` custom attribution (UUID).
@@ -101,6 +102,30 @@ function makeEndpoints() {
   })(editor);
 }
 
+// A lightweight stand-in for the real `ySync` extension. `getVersionNamesMap`
+// in yhub.ts reads the live collaboration doc exclusively via
+// `editor.getExtension("ySync")?.fragment.doc`, so a stub that just exposes the
+// fragment is enough to exercise the mutable `__bn_version_names` name store
+// without wiring up the full collaboration/prosemirror sync machinery.
+const ySyncStub = (fragment: Y.Type) =>
+  createExtension({ key: "ySync", fragment } as any);
+
+// Build endpoints against an editor that has a `ySync` extension whose fragment
+// belongs to `doc`, so the mutable version-name store on `doc` is reachable.
+function makeCollabEndpoints(doc: Y.Doc) {
+  const fragment = doc.get("default", "XmlFragment") as unknown as Y.Type;
+  (fragment as any).insert(0, ["hello"]);
+  const editor = BlockNoteEditor.create({
+    extensions: [ySyncStub(fragment)],
+  });
+  const endpoints = createYHubVersioningEndpoints({
+    baseUrl: BASE_URL,
+    org: ORG,
+    docId: DOC_ID,
+  })(editor);
+  return { endpoints, fragment };
+}
+
 function mockFetchResponse(body: unknown, status = 200) {
   const encoded = encodeAny(body);
   return new Response(encoded as Blob | BufferSource, {
@@ -157,8 +182,8 @@ describe("createYHubVersioningEndpoints", () => {
       expect(snapshots[1].by).toEqual(["user-1"]);
     });
 
-    it("passes withCustomAttributions=type:version to the API", async () => {
-      // First call: version markers. Second call: latest edit of any kind.
+    it("fetches the full activity timeline (no type:version filter) with grouping defaults", async () => {
+      // First call: full activity timeline. Second call: latest edit of any kind.
       fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
       fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
 
@@ -168,16 +193,88 @@ describe("createYHubVersioningEndpoints", () => {
       expect(fetchSpy).toHaveBeenCalledTimes(2);
       const versionUrl = new URL(fetchSpy.mock.calls[0][0] as string);
       expect(versionUrl.pathname).toBe(`/activity/${ORG}/${DOC_ID}`);
-      expect(versionUrl.searchParams.get("withCustomAttributions")).toBe(
-        "type:version",
-      );
+      // The `type:version` overlay filter is dropped so history entries are
+      // returned too.
+      expect(versionUrl.searchParams.get("withCustomAttributions")).toBe(null);
       expect(versionUrl.searchParams.get("customAttributions")).toBe("true");
+      // Grouping default is applied.
+      expect(versionUrl.searchParams.get("groupMaxGap")).toBe("60000");
 
       // The current-version probe fetches the latest entry of *any* type.
       const currentUrl = new URL(fetchSpy.mock.calls[1][0] as string);
       expect(currentUrl.pathname).toBe(`/activity/${ORG}/${DOC_ID}`);
       expect(currentUrl.searchParams.get("limit")).toBe("1");
       expect(currentUrl.searchParams.has("withCustomAttributions")).toBe(false);
+    });
+
+    it("forwards group + groupMaxDuration params when configured", async () => {
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
+
+      const endpoints = createYHubVersioningEndpoints({
+        baseUrl: BASE_URL,
+        org: ORG,
+        docId: DOC_ID,
+        activityLimit: 50,
+        group: true,
+        groupMaxDuration: 5000,
+      })(BlockNoteEditor.create());
+      await endpoints.list();
+
+      const versionUrl = new URL(fetchSpy.mock.calls[0][0] as string);
+      expect(versionUrl.searchParams.get("group")).toBe("true");
+      expect(versionUrl.searchParams.get("groupMaxDuration")).toBe("5000");
+    });
+
+    it("omits group params by default while keeping the groupMaxGap default", async () => {
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
+
+      // `makeEndpoints` builds the factory with no group/groupMaxDuration opts.
+      const endpoints = makeEndpoints();
+      await endpoints.list();
+
+      const versionUrl = new URL(fetchSpy.mock.calls[0][0] as string);
+      expect(versionUrl.searchParams.get("group")).toBe(null);
+      expect(versionUrl.searchParams.get("groupMaxDuration")).toBe(null);
+      expect(versionUrl.searchParams.get("groupMaxGap")).toBe("60000");
+    });
+
+    it("maps both named version entries and plain history entries", async () => {
+      const namedEntry = {
+        from: 2000,
+        to: 2000,
+        by: "user-1",
+        customAttributions: [
+          { k: "type", v: "version" },
+          { k: "id", v: "v1" },
+          { k: "name", v: "Named" },
+        ],
+      };
+      const historyEntry = {
+        from: 1000,
+        to: 1000,
+        by: "user-2",
+      };
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse([namedEntry, historyEntry]),
+      );
+      // Current-version probe: latest edit == the named entry's `to`, so no
+      // synthetic current row.
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([namedEntry]));
+
+      const endpoints = makeEndpoints();
+      const snapshots = await endpoints.list();
+
+      const named = snapshots.find((s) => s.name === "Named");
+      expect(named).toBeDefined();
+      expect(named!.id).toBe("v1");
+
+      // `historyEntry` is at index 1 in the mocked entries array, so its
+      // history id embeds that index: `history-<to>-<index>`.
+      const history = snapshots.find((s) => s.id === "history-1000-1");
+      expect(history).toBeDefined();
+      expect(history!.name).toBeUndefined();
     });
 
     it("returns empty array when no versions exist", async () => {
@@ -219,6 +316,48 @@ describe("createYHubVersioningEndpoints", () => {
 
       expect(snapshots).toHaveLength(1);
       expect(snapshots[0].id).toBe("uuid-version-1");
+    });
+
+    it("prefers the mutable __bn_version_names name over the attribution name", async () => {
+      const doc = new Y.Doc();
+      // The `ySync` extension's fragment belongs to `doc`, so the mutable
+      // name store on `doc` is what `getVersionNamesMap` reads.
+      const { endpoints } = makeCollabEndpoints(doc);
+
+      // Rename version "v1" in the mutable store on the live doc.
+      doc.get("__bn_version_names").setAttr("v1", "Renamed");
+
+      const versionEntry = {
+        from: 1782218082853,
+        to: 1782218082853,
+        by: "user-1",
+        customAttributions: [
+          { k: "type", v: "version" },
+          { k: "id", v: "v1" },
+          { k: "name", v: "Original" },
+        ],
+      };
+      // 1: activity fetch (version markers). 2: current-version probe — return
+      // the same entry so there's no newer edit and no synthetic current row.
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([versionEntry]));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([versionEntry]));
+
+      const snapshots = await endpoints.list();
+
+      expect(snapshots).toHaveLength(1);
+      expect(snapshots[0].id).toBe("v1");
+      expect(snapshots[0].name).toBe("Renamed");
+    });
+
+    it("falls back to the attribution name when the store has no entry", async () => {
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_1]));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_1]));
+
+      const endpoints = makeEndpoints();
+      const snapshots = await endpoints.list();
+
+      expect(snapshots).toHaveLength(1);
+      expect(snapshots[0].name).toBe("Test Version 1");
     });
 
     it("prepends a 'current version' entry when there are edits beyond the latest version", async () => {
@@ -310,6 +449,20 @@ describe("createYHubVersioningEndpoints", () => {
 
       expect(snapshot.name).toBeUndefined();
       expect(snapshot.id).toMatch(/^[0-9a-f-]+$/);
+    });
+
+    it("writes the version name into the __bn_version_names Y.Map on create", async () => {
+      const doc = new Y.Doc();
+      const { endpoints, fragment } = makeCollabEndpoints(doc);
+
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ success: true }));
+
+      const snapshot = await endpoints.create!(fragment as any, {
+        name: "My Version",
+      });
+
+      const names = doc.get("__bn_version_names");
+      expect(names.getAttr(snapshot.id as string)).toBe("My Version");
     });
 
     it("throws when the fragment is not attached to a doc", async () => {
@@ -468,12 +621,42 @@ describe("createYHubVersioningEndpoints", () => {
   });
 
   // -------------------------------------------------------------------------
-  // rename is NOT provided
+  // rename
   // -------------------------------------------------------------------------
   describe("rename", () => {
-    it("is not provided (attributions are immutable)", () => {
+    it("provides a rename endpoint", () => {
       const endpoints = makeEndpoints();
-      expect(endpoints.rename).toBeUndefined();
+      expect(typeof endpoints.rename).toBe("function");
+    });
+
+    it("rename sets the name in the Y.Map", async () => {
+      const doc = new Y.Doc();
+      const { endpoints, fragment } = makeCollabEndpoints(doc);
+
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ success: true }));
+      const snapshot = await endpoints.create!(fragment as any, {
+        name: "Old",
+      });
+
+      await endpoints.rename!(snapshot, "New");
+
+      const names = doc.get("__bn_version_names");
+      expect(names.getAttr(snapshot.id as string)).toBe("New");
+    });
+
+    it("rename with no name clears the entry", async () => {
+      const doc = new Y.Doc();
+      const { endpoints, fragment } = makeCollabEndpoints(doc);
+
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ success: true }));
+      const snapshot = await endpoints.create!(fragment as any, {
+        name: "Old",
+      });
+
+      await endpoints.rename!(snapshot, undefined);
+
+      const names = doc.get("__bn_version_names");
+      expect(names.hasAttr(snapshot.id as string)).toBe(false);
     });
   });
 

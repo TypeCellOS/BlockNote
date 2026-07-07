@@ -97,3 +97,36 @@
   line-height: 12px;
   padding-left: 14px;
 }
+
+/* The versioning sidebar's tab switcher (Named Versions / Version History).
+   The theme stylesheets (@blocknote/mantine etc.) also style these, but this
+   example imports the editor without a single theme stylesheet in scope for
+   the sidebar, so the tab rules are repeated here to guarantee they're styled. */
+.bn-versioning-sidebar-tabs {
+  border-bottom: 1px solid var(--bn-colors-border);
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.bn-versioning-sidebar-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--bn-colors-menu-text);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: -1px;
+  opacity: 0.6;
+  padding: 8px 4px;
+}
+
+.bn-versioning-sidebar-tab:hover {
+  opacity: 0.85;
+}
+
+.bn-versioning-sidebar-tab[aria-selected="true"] {
+  border-bottom-color: var(--bn-colors-menu-text);
+  opacity: 1;
+}

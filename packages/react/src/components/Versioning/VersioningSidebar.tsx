@@ -1,6 +1,7 @@
 import {
   CURRENT_VERSION_ID,
   VersioningExtension,
+  type VersionSnapshot,
 } from "@blocknote/core/extensions";
 import { useEffect } from "react";
 import { RiArrowLeftRightLine, RiCloseLine, RiSaveLine } from "react-icons/ri";
@@ -124,13 +125,11 @@ const VersioningSidebarHeader = (props: { onClose?: () => void }) => {
   );
 };
 
-const VersioningSidebarContent = (props: {
-  filter?: "named" | "all";
-  onClose?: () => void;
-}) => {
+const VersioningSidebarContent = (props: { onClose?: () => void }) => {
   const Components = useComponentsContext()!;
   const { list } = useExtension(VersioningExtension);
   const { snapshots } = useExtensionState(VersioningExtension);
+  const { activeTab, setActiveTab, showTabs } = useVersioningSidebar();
 
   // Load the version list when the sidebar is shown. The list is the source of
   // truth for what's rendered — including the "current version" entry that
@@ -140,45 +139,82 @@ const VersioningSidebarContent = (props: {
     void list();
   }, [list]);
 
+  // The current-version entry is always kept. Otherwise the "named" tab shows
+  // only user-created named versions, while the "history" tab shows the full
+  // edit timeline.
+  //
+  // A `history-*` snapshot is history-only regardless of any name: renaming
+  // such a row writes a name into the mutable name store, but it must never
+  // graduate into the "named" tab. So the named tab keeps only non-history
+  // snapshots that carry a name.
+  const keep = (snapshot: VersionSnapshot) => {
+    if (snapshot.id === CURRENT_VERSION_ID) {
+      return true;
+    }
+    return activeTab === "named"
+      ? typeof snapshot.id === "string" &&
+          !snapshot.id.startsWith("history-") &&
+          snapshot.name !== undefined
+      : true;
+  };
+
   return (
     <Components.Versioning.Sidebar className="bn-versioning-sidebar">
       <VersioningSidebarHeader onClose={props.onClose} />
-      {snapshots
-        .filter((snapshot) =>
-          // The current-version entry is never filtered out by "named".
-          snapshot.id === CURRENT_VERSION_ID
-            ? true
-            : props.filter === "named"
-              ? snapshot.name !== undefined
-              : true,
-        )
-        .map((snapshot, i, arr) => {
-          // The current version is driven by the backend's `list()` (it sorts
-          // newest-first, so it lands at index 0) and is previewed live rather
-          // than fetched as a stored snapshot. Its id is the CURRENT_VERSION_ID
-          // symbol, so derive a string React key for it.
-          if (snapshot.id === CURRENT_VERSION_ID) {
-            return (
-              <CurrentSnapshot
-                key="current-version"
-                snapshot={snapshot}
-                previousSnapshot={arr[i + 1]}
-              />
-            );
-          }
+      {showTabs && (
+        <div className="bn-versioning-sidebar-tabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            className="bn-versioning-sidebar-tab"
+            aria-selected={activeTab === "history"}
+            onClick={() => setActiveTab("history")}
+          >
+            Version History
+          </button>
+          <button
+            type="button"
+            role="tab"
+            className="bn-versioning-sidebar-tab"
+            aria-selected={activeTab === "named"}
+            onClick={() => setActiveTab("named")}
+          >
+            Named Versions
+          </button>
+        </div>
+      )}
+      {snapshots.filter(keep).map((snapshot, i, arr) => {
+        // The current version is driven by the backend's `list()` (it sorts
+        // newest-first, so it lands at index 0) and is previewed live rather
+        // than fetched as a stored snapshot. Its id is the CURRENT_VERSION_ID
+        // symbol, so derive a string React key for it.
+        if (snapshot.id === CURRENT_VERSION_ID) {
           return (
-            <Snapshot
-              key={snapshot.id}
+            <CurrentSnapshot
+              key="current-version"
               snapshot={snapshot}
               previousSnapshot={arr[i + 1]}
             />
           );
-        })}
+        }
+        return (
+          <Snapshot
+            key={snapshot.id}
+            snapshot={snapshot}
+            previousSnapshot={arr[i + 1]}
+          />
+        );
+      })}
     </Components.Versioning.Sidebar>
   );
 };
 
 export const VersioningSidebar = (props: {
+  /**
+   * When set, pins the sidebar to a single view and hides the tab switcher:
+   * `"named"` shows only user-created named versions, `"all"` shows the full
+   * edit history. When omitted, both tabs are shown (default active `"named"`).
+   */
   filter?: "named" | "all";
   /**
    * Called when the user closes the history panel via the header's close
@@ -189,8 +225,8 @@ export const VersioningSidebar = (props: {
   onClose?: () => void;
 }) => {
   return (
-    <VersioningSidebarProvider>
-      <VersioningSidebarContent filter={props.filter} onClose={props.onClose} />
+    <VersioningSidebarProvider filter={props.filter}>
+      <VersioningSidebarContent onClose={props.onClose} />
     </VersioningSidebarProvider>
   );
 };
