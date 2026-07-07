@@ -1,5 +1,4 @@
 import { getMarkRange, posToDOMRect } from "@tiptap/core";
-import * as Y from "@y/y";
 
 import {
   createExtension,
@@ -90,24 +89,24 @@ export const SuggestionsExtension = createExtension(
       userStore,
       runsBefore: ["ySync"],
       viewSuggestions: () => {
-        if (options.attributionManager) {
-          options.attributionManager.suggestionMode = false;
+        if (options.renderer) {
+          options.renderer.suggestionMode = false;
         }
         editor.exec(
           configureYProsemirror({
             ytype: findTypeInOtherYdoc(options.fragment, suggestionDoc),
-            attributionManager: options.attributionManager,
+            renderer: options.renderer,
           }),
         );
       },
       enableSuggestions: () => {
-        if (options.attributionManager) {
-          options.attributionManager.suggestionMode = true;
+        if (options.renderer) {
+          options.renderer.suggestionMode = true;
         }
         editor.exec(
           configureYProsemirror({
             ytype: findTypeInOtherYdoc(options.fragment, suggestionDoc),
-            attributionManager: options.attributionManager,
+            renderer: options.renderer,
           }),
         );
       },
@@ -115,7 +114,7 @@ export const SuggestionsExtension = createExtension(
         editor.exec(
           configureYProsemirror({
             ytype: options.fragment,
-            attributionManager: Y.noAttributionsManager,
+            renderer: null,
           }),
         );
       },

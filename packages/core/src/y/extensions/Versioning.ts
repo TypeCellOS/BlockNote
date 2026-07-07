@@ -72,12 +72,12 @@ export function createYjsVersioningAdapter(
           const tr = getProseMirrorTrFromYFragment({
             tr: state.tr,
             fragment: findTypeInOtherYdoc(fragment, doc),
-            // Pass the optional content map as `attrs` so the diff attribution
-            // manager knows who/when authored each change. Without it, the AM
+            // Pass the optional content map as `attrs` so the diff renderer
+            // knows who/when authored each change. Without it, the renderer
             // only produces "what changed" (empty userIds, null timestamps) and
             // downstream mark tooltips show "unknown / unknown time".
-            attributionManager: prevSnapshot
-              ? Y.createAttributionManagerFromDiff(
+            renderer: prevSnapshot
+              ? Y.createDiffRenderer(
                   prevSnapshot.fragment.doc!,
                   doc,
                   attributions ? { attrs: attributions } : undefined,

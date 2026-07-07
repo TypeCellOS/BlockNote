@@ -124,7 +124,7 @@ export async function setupConcurrentSuggestionTest({
   const attrsA = createInMemoryAttributionStore(suggestionDocA, (tr) =>
     tr.local ? "A" : null,
   );
-  const managerA = Y.createAttributionManagerFromDiff(baseDoc, suggestionDocA, {
+  const managerA = Y.createDiffRenderer(baseDoc, suggestionDocA, {
     attrs: attrsA,
   });
   managerA.suggestionMode = true;
@@ -132,7 +132,7 @@ export async function setupConcurrentSuggestionTest({
   const attrsB = createInMemoryAttributionStore(suggestionDocB, (tr) =>
     tr.local ? "B" : null,
   );
-  const managerB = Y.createAttributionManagerFromDiff(baseDoc, suggestionDocB, {
+  const managerB = Y.createDiffRenderer(baseDoc, suggestionDocB, {
     attrs: attrsB,
   });
   managerB.suggestionMode = true;
@@ -143,11 +143,9 @@ export async function setupConcurrentSuggestionTest({
     suggestionDocMerged,
     (tr) => (tr.origin === "A" || tr.origin === "B" ? tr.origin : null),
   );
-  const managerMerged = Y.createAttributionManagerFromDiff(
-    baseDoc,
-    suggestionDocMerged,
-    { attrs: attrsMerged },
-  );
+  const managerMerged = Y.createDiffRenderer(baseDoc, suggestionDocMerged, {
+    attrs: attrsMerged,
+  });
   managerMerged.suggestionMode = false;
 
   const awarenessA = makeAwareness(baseDoc, USER_A);
@@ -177,7 +175,7 @@ export async function setupConcurrentSuggestionTest({
           fragment: baseDoc.get("doc"),
           provider: { awareness: awarenessA },
           suggestionDoc: suggestionDocA,
-          attributionManager: managerA,
+          renderer: managerA,
           user: USER_A,
         },
       }),
@@ -189,7 +187,7 @@ export async function setupConcurrentSuggestionTest({
           fragment: baseDoc.get("doc"),
           provider: { awareness: awarenessB },
           suggestionDoc: suggestionDocB,
-          attributionManager: managerB,
+          renderer: managerB,
           user: USER_B,
         },
       }),
@@ -201,7 +199,7 @@ export async function setupConcurrentSuggestionTest({
           fragment: baseDoc.get("doc"),
           provider: { awareness: awarenessMerged },
           suggestionDoc: suggestionDocMerged,
-          attributionManager: managerMerged,
+          renderer: managerMerged,
           user: USER_MERGED,
         },
       }),
@@ -295,7 +293,7 @@ function makeAwareness(
  *
  * It observes the doc and, for every transaction, records the author of that
  * transaction's inserts/deletes into a mutable `Y.Attributions`. A
- * `DiffAttributionManager` re-reads that same `attrs` object on each transaction
+ * `DiffRenderer` re-reads that same `attrs` object on each transaction
  * (via its own `beforeObserverCalls` handler), so the suggestion marks pick up
  * the author and render in their color (`colorsForUserIds` in YSync.ts).
  *

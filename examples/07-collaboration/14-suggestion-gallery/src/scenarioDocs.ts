@@ -63,7 +63,7 @@ export function buildSuggestionScenarioDocs(
   const authors = authorIds.map((id, i) => {
     const suggestionDoc = cloneDoc(baseDoc, { isSuggestionDoc: true });
     suggestionDoc.clientID = i + 2;
-    const manager = Y.createAttributionManagerFromDiff(baseDoc, suggestionDoc, {
+    const manager = Y.createDiffRenderer(baseDoc, suggestionDoc, {
       attrs: createAttributionStore(suggestionDoc, (tr) =>
         tr.local ? id : null,
       ),
@@ -77,7 +77,7 @@ export function buildSuggestionScenarioDocs(
       ? (() => {
           const doc = cloneDoc(baseDoc, { isSuggestionDoc: true });
           doc.clientID = authorIds.length + 2;
-          const manager = Y.createAttributionManagerFromDiff(baseDoc, doc, {
+          const manager = Y.createDiffRenderer(baseDoc, doc, {
             attrs: createAttributionStore(doc, (tr) =>
               authorIds.includes(String(tr.origin)) ? String(tr.origin) : null,
             ),

@@ -54,12 +54,37 @@ function Workspace({
   const activeDoc = docId ? index.docs.find((d) => d.id === docId) : null;
   const [copied, setCopied] = useState(false);
 
-  const shareWorkspace = () => {
+  // A shared doc URL can reference a doc this browser has never seen (the
+  // index is localStorage-only). Register it so the editor mounts and syncs
+  // the content from the server. Ensure each id at most once per mount so
+  // deleting the currently open doc doesn't immediately re-create it.
+  const ensuredDocIdsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!docId || activeDoc || ensuredDocIdsRef.current.has(docId)) {
+      return;
+    }
+    ensuredDocIdsRef.current.add(docId);
+    index.ensure(docId);
+  }, [docId, activeDoc, index]);
+
+  const share = () => {
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
-    const url = window.location.href;
-    navigator.clipboard?.writeText(url).catch(() => {
-      window.prompt("Copy this URL to share the workspace", url);
+    const url = new URL(window.location.href);
+    // Don't embed the sharer's identity — identity is per-tab, so the opening
+    // tab should pick (or keep) its own user.
+    url.searchParams.delete("as");
+    url.hash = activeDoc
+      ? `/w/${workspaceId}/${activeDoc.id}`
+      : `/w/${workspaceId}`;
+    const link = url.toString();
+    navigator.clipboard?.writeText(link).catch(() => {
+      window.prompt(
+        activeDoc
+          ? "Copy this URL to share the document"
+          : "Copy this URL to share the workspace",
+        link,
+      );
     });
   };
 
@@ -91,10 +116,14 @@ function Workspace({
         <div className="app-header-right">
           <button
             className="btn btn-sm"
-            onClick={shareWorkspace}
-            title="Copy workspace URL"
+            onClick={share}
+            title={activeDoc ? "Copy document URL" : "Copy workspace URL"}
           >
-            {copied ? "Link copied" : "Share workspace"}
+            {copied
+              ? "Link copied"
+              : activeDoc
+                ? "Share document"
+                : "Share workspace"}
           </button>
           <UserMenu user={user} onSwitch={switchUser} onSignOut={signOut} />
         </div>

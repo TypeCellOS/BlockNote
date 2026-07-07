@@ -48,7 +48,7 @@ export function DocumentEditor({
     suggestionDoc: Y.Doc;
     provider: WebsocketProvider;
     suggestionProvider: WebsocketProvider;
-    attributionManager: ReturnType<typeof Y.createAttributionManagerFromDiff>;
+    renderer: ReturnType<typeof Y.createDiffRenderer>;
     versioningEndpoints: ReturnType<typeof createYHubVersioningEndpoints>;
   } | null>(null);
 
@@ -86,10 +86,7 @@ export function DocumentEditor({
         },
       },
     );
-    const attributionManager = Y.createAttributionManagerFromDiff(
-      doc,
-      suggestionDoc,
-    );
+    const renderer = Y.createDiffRenderer(doc, suggestionDoc);
 
     const versioningEndpoints = createYHubVersioningEndpoints({
       baseUrl: `https://${yhubHost}`,
@@ -102,7 +99,7 @@ export function DocumentEditor({
       suggestionDoc,
       provider,
       suggestionProvider,
-      attributionManager,
+      renderer,
       versioningEndpoints,
     };
   }
@@ -112,7 +109,7 @@ export function DocumentEditor({
     suggestionDoc,
     provider,
     suggestionProvider,
-    attributionManager,
+    renderer,
     versioningEndpoints,
   } = resourcesRef.current;
 
@@ -173,7 +170,7 @@ export function DocumentEditor({
       collaboration: {
         provider,
         suggestionDoc,
-        attributionManager,
+        renderer,
         fragment: doc.get(),
         user: {
           color: user.color ?? "#000000",

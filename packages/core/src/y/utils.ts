@@ -123,6 +123,9 @@ export function yfragmentToBlocks<
   SSchema extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, ISchema, SSchema>, fragment: Y.Type) {
   const pmNode = deltaToPNode(fragment.toDeltaDeep(), editor.pmSchema, null);
+  if (pmNode === null) {
+    return [];
+  }
   return docToBlocks<BSchema, ISchema, SSchema>(pmNode);
 }
 
@@ -211,21 +214,21 @@ export function docDiffToDelta(previousDoc: Node, newDoc: Node) {
 
 /**
  * Build a ProseMirror transaction that turns `tr.doc` into the content of a
- * Y.Type `fragment`, applying the `attributionManager`'s authorship as
+ * Y.Type `fragment`, applying the `renderer`'s authorship as
  * `y-attributed-*` marks. Used to render a (read-only) diff of a snapshot / a
  * version comparison into the editor.
  */
 export function getProseMirrorTrFromYFragment({
   tr,
   fragment,
-  attributionManager,
+  renderer,
 }: {
   tr: Transaction;
   fragment: Y.Type;
-  attributionManager?: Y.AbstractAttributionManager;
+  renderer?: Y.AbstractRenderer | null;
 }): Transaction {
   const ycontent = deltaAttributionToFormat(
-    fragment.toDeltaDeep(attributionManager || Y.noAttributionsManager),
+    fragment.toDeltaDeep({ renderer }),
     mapAttributionToMark,
   );
   // @todo it is preferred to apply the minimal diff - at least for debugging purposes. the

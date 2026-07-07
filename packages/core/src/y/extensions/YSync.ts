@@ -59,7 +59,7 @@ export const YSyncExtension = createExtension(
     Pick<
       CollaborationOptions,
       | "fragment"
-      | "attributionManager"
+      | "renderer"
       | "suggestionDoc"
       | "provider"
       | "getAttributionMarkClassName"
@@ -72,7 +72,9 @@ export const YSyncExtension = createExtension(
           editor.exec(
             configureYProsemirror({
               ytype: options.fragment,
-              attributionManager: options.attributionManager,
+              // purposefully not passing `renderer` here, this is only for syncing the main doc, not switching to suggestion mode
+              // In the future, we may want view suggestion mode to be the default, and then we can decide how to indicate that through the options.
+              // For now though, we are leaving suggestion mode as experimental and must be explicitly enabled through the SuggestionsExtension.
             }),
           );
         };

@@ -23,7 +23,7 @@ export const RelativePositionMappingExtension = createExtension(
             position + (side === "right" ? 1 : -1),
           ),
           ySyncPluginState.ytype,
-          ySyncPluginState.attributionManager,
+          ySyncPluginState.renderer,
         );
 
         return () => {
@@ -33,7 +33,7 @@ export const RelativePositionMappingExtension = createExtension(
           const pos = posStore(
             editor.prosemirrorState.doc,
             curYSyncPluginState.ytype,
-            curYSyncPluginState.attributionManager,
+            curYSyncPluginState.renderer,
           );
 
           // This can happen if the element is garbage collected

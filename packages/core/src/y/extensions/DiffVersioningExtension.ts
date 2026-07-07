@@ -133,7 +133,7 @@ export const DiffVersioningExtension = createExtension(
      * pass `versionLabel` to label the diff marks (shown in their hover tooltip,
      * e.g. "Edited by: {versionLabel}"). Uses the "two-doc fork" recipe so the
      * two Y.Docs share history — a hard requirement for
-     * `createAttributionManagerFromDiff`, which diffs by Yjs client/clock ids.
+     * `createDiffRenderer`, which diffs by Yjs client/clock ids.
      */
     const renderDiff = (
       snapshotBlocks: Block<any, any, any>[],
@@ -177,11 +177,7 @@ export const DiffVersioningExtension = createExtension(
         nextType.applyDelta(delta as any);
       }, authorId);
 
-      const attributionManager = Y.createAttributionManagerFromDiff(
-        prevDoc,
-        nextDoc,
-        { attrs },
-      );
+      const renderer = Y.createDiffRenderer(prevDoc, nextDoc, { attrs });
 
       // Clear the live doc first so ProseMirror rebuilds node views from
       // scratch (BlockNote node views resolve their block eagerly via getPos()
@@ -193,7 +189,7 @@ export const DiffVersioningExtension = createExtension(
         const tr = getProseMirrorTrFromYFragment({
           tr: state.tr,
           fragment: nextType,
-          attributionManager,
+          renderer,
         });
         if (dispatch) {
           dispatch(tr);

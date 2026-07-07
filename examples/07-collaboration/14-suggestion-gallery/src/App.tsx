@@ -38,7 +38,7 @@ function makeAwareness(doc: Y.Doc, name: string, color: string): Awareness {
 const USER_A = { name: "User A", color: "#8a6d1a" };
 const USER_B = { name: "User B", color: "#8a2e24" };
 
-type AttributionManager = ReturnType<typeof Y.createAttributionManagerFromDiff>;
+type Renderer = ReturnType<typeof Y.createDiffRenderer>;
 
 type SuggestionAuthor = {
   id: string;
@@ -203,7 +203,7 @@ function UserSuggestion({
 }: {
   baseDoc: Y.Doc;
   suggestionDoc: Y.Doc;
-  manager: AttributionManager;
+  manager: Renderer;
   user: { name: string; color: string };
   apply?: (editor: GalleryEditor) => void;
   label: string;
@@ -219,7 +219,7 @@ function UserSuggestion({
         fragment: baseDoc.get("doc"),
         provider: { awareness: setup.awareness },
         suggestionDoc,
-        attributionManager: manager,
+        renderer: manager,
         user,
       },
     }),
@@ -255,7 +255,7 @@ function MergedSuggestion({
   authorDocs,
 }: {
   baseDoc: Y.Doc;
-  merged: { doc: Y.Doc; manager: AttributionManager };
+  merged: { doc: Y.Doc; manager: Renderer };
   authorDocs: { id: string; doc: Y.Doc }[];
 }) {
   const [setup] = useState(() => ({ awareness: new Awareness(baseDoc) }));
@@ -267,7 +267,7 @@ function MergedSuggestion({
         fragment: baseDoc.get("doc"),
         provider: { awareness: setup.awareness },
         suggestionDoc: merged.doc,
-        attributionManager: merged.manager,
+        renderer: merged.manager,
         user: { name: "Merged", color: "#666666" },
       },
     }),

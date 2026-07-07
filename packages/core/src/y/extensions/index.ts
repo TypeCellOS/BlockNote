@@ -56,9 +56,9 @@ export type CollaborationOptions = {
    */
   showCursorLabels?: "always" | "activity";
   /**
-   * The attribution manager for the collaboration.
+   * The renderer for the collaboration.
    */
-  attributionManager?: Y.DiffAttributionManager;
+  renderer?: Y.DiffRenderer;
   /**
    * The suggestion doc for the collaboration. If using suggestion mode
    */

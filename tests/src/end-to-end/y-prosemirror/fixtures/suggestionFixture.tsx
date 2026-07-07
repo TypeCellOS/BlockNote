@@ -81,12 +81,10 @@ export async function setupSuggestionTest({
   });
 
   const suggestionDoc = new Y.Doc({ isSuggestionDoc: true });
-  const attributionManager = Y.createAttributionManagerFromDiff(
-    baseDoc,
-    suggestionDoc,
-    { attrs: new Y.Attributions() },
-  );
-  attributionManager.suggestionMode = true;
+  const renderer = Y.createDiffRenderer(baseDoc, suggestionDoc, {
+    attrs: new Y.Attributions(),
+  });
+  renderer.suggestionMode = true;
 
   let editorA!: GalleryEditor;
   let editorBase!: GalleryEditor;
@@ -99,7 +97,7 @@ export async function setupSuggestionTest({
           fragment: baseDoc.get("doc"),
           provider: { awareness: baseAwareness },
           suggestionDoc,
-          attributionManager,
+          renderer,
           user: { name: "User A", color: "#30bced" },
         },
       }),

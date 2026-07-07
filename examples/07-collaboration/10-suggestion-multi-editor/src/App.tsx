@@ -105,12 +105,8 @@ suggestingProvider.awareness.setLocalStateField("user", {
   name: "Charlie",
   color: "#ffbc42",
 });
-const suggestingAttributionManager = Y.createAttributionManagerFromDiff(
-  doc,
-  suggestingDoc,
-  { attrs },
-);
-suggestingAttributionManager.suggestionMode = false;
+const suggestingRenderer = Y.createDiffRenderer(doc, suggestingDoc, { attrs });
+suggestingRenderer.suggestionMode = false;
 
 const suggestionModeDoc = new Y.Doc({ isSuggestionDoc: true });
 const suggestionModeProvider = {
@@ -120,12 +116,10 @@ suggestionModeProvider.awareness.setLocalStateField("user", {
   name: "Debbie",
   color: "#ee6352",
 });
-const suggestionModeAttributionManager = Y.createAttributionManagerFromDiff(
-  doc,
-  suggestionModeDoc,
-  { attrs },
-);
-suggestionModeAttributionManager.suggestionMode = true;
+const suggestionModeRenderer = Y.createDiffRenderer(doc, suggestionModeDoc, {
+  attrs,
+});
+suggestionModeRenderer.suggestionMode = true;
 
 // Track local changes on suggestion docs with distinct user names
 trackAttributions(suggestingDoc, "Charlie", attrs);
@@ -157,13 +151,13 @@ setupTwoWaySync(suggestingDoc, suggestionModeDoc);
 function Editor({
   fragment,
   provider,
-  attributionManager,
+  renderer,
   userName,
   userColor,
 }: {
   fragment: Y.Type;
   provider: { awareness?: Awareness };
-  attributionManager?: Y.DiffAttributionManager;
+  renderer?: Y.DiffRenderer;
   userName: string;
   userColor: string;
 }) {
@@ -172,7 +166,7 @@ function Editor({
       collaboration: {
         fragment,
         provider,
-        attributionManager,
+        renderer,
         user: { name: userName, color: userColor },
       },
     }),
@@ -225,7 +219,7 @@ export default function App() {
           <Editor
             fragment={suggestingDoc.get("doc")}
             provider={suggestingProvider}
-            attributionManager={suggestingAttributionManager}
+            renderer={suggestingRenderer}
             userName="Charlie"
             userColor="#ffbc42"
           />
@@ -235,7 +229,7 @@ export default function App() {
           <Editor
             fragment={suggestionModeDoc.get("doc")}
             provider={suggestionModeProvider}
-            attributionManager={suggestionModeAttributionManager}
+            renderer={suggestionModeRenderer}
             userName="Debbie"
             userColor="#ee6352"
           />

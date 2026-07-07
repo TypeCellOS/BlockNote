@@ -15,7 +15,7 @@ LOCAL_YPM="${1:-$(cd "$BLOCKNOTE_ROOT/../y-prosemirror" && pwd)}"
 
 # Version of @y/prosemirror to patch. Must match the version pinned in
 # pnpm-workspace.yaml (overrides + patchedDependencies) and package.json files.
-YPM_VERSION="2.0.0-4"
+YPM_VERSION="2.0.0-6"
 
 if [[ ! -d "$LOCAL_YPM/src" ]]; then
   echo "ERROR: Cannot find y-prosemirror at $LOCAL_YPM"

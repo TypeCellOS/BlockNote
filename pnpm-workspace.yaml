@@ -19,9 +19,9 @@ overrides:
   "@tiptap/pm": "^3.0.0"
   "vitest": "4.1.7"
   "@vitest/runner": "4.1.7"
-  "@y/y": "14.0.0-rc.18"
-  "@y/prosemirror": "2.0.0-4"
-  "lib0": "1.0.0-rc.15"
+  "@y/y": "14.0.0-rc.23"
+  "@y/prosemirror": "2.0.0-6"
+  "lib0": "1.0.0-rc.22"
 allowBuilds:
   "@parcel/watcher": true
   "@sentry/cli": true
@@ -35,12 +35,14 @@ allowBuilds:
   workerd: false
   leveldown: false
 patchedDependencies:
-  "@y/prosemirror@2.0.0-4": "patches/@y__prosemirror@2.0.0-4.patch"
+  { "@y/prosemirror@2.0.0-6": patches/@y__prosemirror@2.0.0-6.patch }
 catalog:
   vite-plus: ^0.1.24
 minimumReleaseAgeExclude:
   - vite-plus
   - lib0
+  - "@y/y"
+  - "@y/prosemirror"
   - "@voidzero-dev/*"
   - oxlint
   - "@oxlint/*"

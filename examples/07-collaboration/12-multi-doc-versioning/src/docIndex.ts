@@ -73,6 +73,28 @@ export function useDocIndex() {
     [notify],
   );
 
+  // Registers a doc id that arrived via a shared URL but isn't in this
+  // browser's index yet. The index is local-only, while doc contents live on
+  // the collaboration server — so a placeholder entry is enough to open it.
+  const ensure = useCallback(
+    (id: string) => {
+      const current = readDocs();
+      if (current.some((d) => d.id === id)) {
+        return;
+      }
+      const now = Date.now();
+      current.push({
+        id,
+        title: "Shared document",
+        createdAt: now,
+        updatedAt: now,
+      });
+      writeDocs(current);
+      notify();
+    },
+    [notify],
+  );
+
   const rename = useCallback(
     (id: string, title: string) => {
       const current = readDocs();
@@ -119,7 +141,7 @@ export function useDocIndex() {
   );
 
   return useMemo(
-    () => ({ docs, create, rename, remove, touch }),
-    [docs, create, rename, remove, touch],
+    () => ({ docs, create, ensure, rename, remove, touch }),
+    [docs, create, ensure, rename, remove, touch],
   );
 }

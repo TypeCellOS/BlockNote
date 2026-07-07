@@ -85,7 +85,7 @@ export const ForkYDocExtension = createExtension(
         editor.exec(
           configureYProsemirror({
             ytype: originalFragment,
-            attributionManager: options.attributionManager,
+            renderer: options.renderer,
           }),
         );
 
