@@ -230,7 +230,15 @@ export function snapshotToProsemirrorNode(
 ) {
   const restored = Y.createDocFromSnapshot(result.ydoc, snapshot);
   const restoredType = restored.get(result.fragment);
-  return deltaToPNode(restoredType.toDeltaDeep(), result.editor.pmSchema, null);
+  const node = deltaToPNode(
+    restoredType.toDeltaDeep(),
+    result.editor.pmSchema,
+    null,
+  );
+  if (node === null) {
+    throw new Error("failed to materialize snapshot into a ProseMirror node");
+  }
+  return node;
 }
 
 /**
