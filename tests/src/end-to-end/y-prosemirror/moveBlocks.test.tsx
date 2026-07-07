@@ -48,58 +48,9 @@ test("suggestion mode: move paragraph up", async () => {
     "move-paragraph-up",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="first">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
-      </blockContainer>
-      <blockContainer id="middle">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Middle</paragraph>
-      </blockContainer>
-      <blockContainer id="last">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Last</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="middle">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Middle</paragraph>
-      </blockContainer>
-      <blockContainer id="first">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
-      </blockContainer>
-      <blockContainer id="last">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Last</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-insert userIds="">
-          <blockContainer id="middle">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert userIds="">Middle</y-attributed-insert>
-              </paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-        <blockContainer id="first">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">First</paragraph>
-        </blockContainer>
-        <y-attributed-delete userIds="">
-          <blockContainer id="middle">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">Middle</paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-        <blockContainer id="last">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">Last</paragraph>
-        </blockContainer>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Move a paragraph that has a nested child. The whole subtree should
@@ -123,75 +74,7 @@ test("suggestion mode: move paragraph with children", async () => {
     "move-paragraph-with-children",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="first">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
-      </blockContainer>
-      <blockContainer id="parent">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
-        <blockGroup>
-          <blockContainer id="child">
-            <paragraph backgroundColor="default" textAlignment="left" textColor="default">Child</paragraph>
-          </blockContainer>
-        </blockGroup>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="parent">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
-        <blockGroup>
-          <blockContainer id="child">
-            <paragraph backgroundColor="default" textAlignment="left" textColor="default">Child</paragraph>
-          </blockContainer>
-        </blockGroup>
-      </blockContainer>
-      <blockContainer id="first">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-insert userIds="">
-          <blockContainer id="parent">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert userIds="">Parent</y-attributed-insert>
-              </paragraph>
-            </y-attributed-insert>
-            <y-attributed-insert userIds="">
-              <blockGroup>
-                <y-attributed-insert userIds="">
-                  <blockContainer id="child">
-                    <y-attributed-insert userIds="">
-                      <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                        <y-attributed-insert userIds="">Child</y-attributed-insert>
-                      </paragraph>
-                    </y-attributed-insert>
-                  </blockContainer>
-                </y-attributed-insert>
-              </blockGroup>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-        <blockContainer id="first">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">First</paragraph>
-        </blockContainer>
-        <y-attributed-delete userIds="">
-          <blockContainer id="parent">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">Parent</paragraph>
-            <blockGroup>
-              <blockContainer id="child">
-                <paragraph backgroundColor="default" textColor="default" textAlignment="left">Child</paragraph>
-              </blockContainer>
-            </blockGroup>
-          </blockContainer>
-        </y-attributed-delete>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });

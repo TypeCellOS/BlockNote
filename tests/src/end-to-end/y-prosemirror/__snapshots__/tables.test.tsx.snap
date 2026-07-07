@@ -1,0 +1,1372 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`suggestion mode: add column 1`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add column 2`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add column 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="table">
+      <table textColor="default">
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A1</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B1</tableParagraph>
+          </tableCell>
+          <y-attributed-insert userIds="">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-insert userIds="">
+                <tableParagraph>
+                  <y-attributed-insert userIds="">C1</y-attributed-insert>
+                </tableParagraph>
+              </y-attributed-insert>
+            </tableCell>
+          </y-attributed-insert>
+        </tableRow>
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A2</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B2</tableParagraph>
+          </tableCell>
+          <y-attributed-insert userIds="">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-insert userIds="">
+                <tableParagraph>
+                  <y-attributed-insert userIds="">C2</y-attributed-insert>
+                </tableParagraph>
+              </y-attributed-insert>
+            </tableCell>
+          </y-attributed-insert>
+        </tableRow>
+      </table>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: add row 1`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add row 2`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B3</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add row 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="table">
+      <table textColor="default">
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A1</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B1</tableParagraph>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A2</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B2</tableParagraph>
+          </tableCell>
+        </tableRow>
+        <y-attributed-insert userIds="">
+          <tableRow>
+            <y-attributed-insert userIds="">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="">A3</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+            <y-attributed-insert userIds="">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="">B3</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+          </tableRow>
+        </y-attributed-insert>
+      </table>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: change column background color 1`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: change column background color 2`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="green"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="green"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: change column background color 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="table">
+      <table textColor="default">
+        <tableRow>
+          <tableCell
+            backgroundColor="green"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A1</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B1</tableParagraph>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell
+            backgroundColor="green"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A2</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B2</tableParagraph>
+          </tableCell>
+        </tableRow>
+      </table>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: merge two cells 1`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: merge two cells 2`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="2"
+          colwidth="[null,null]"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1+B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph></tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: merge two cells 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="table">
+      <table textColor="default">
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="2"
+            colwidth=","
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>
+              A1
+              <y-attributed-insert userIds="">+B1</y-attributed-insert>
+            </tableParagraph>
+          </tableCell>
+          <y-attributed-delete userIds="">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-delete userIds="">
+                <tableParagraph>
+                  <y-attributed-delete userIds="">B1</y-attributed-delete>
+                </tableParagraph>
+              </y-attributed-delete>
+            </tableCell>
+          </y-attributed-delete>
+        </tableRow>
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A2</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B2</tableParagraph>
+          </tableCell>
+          <y-attributed-insert userIds="">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-insert userIds="">
+                <tableParagraph></tableParagraph>
+              </y-attributed-insert>
+            </tableCell>
+          </y-attributed-insert>
+        </tableRow>
+      </table>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: remove column 1`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: remove column 2`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: remove column 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="table">
+      <table textColor="default">
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A1</tableParagraph>
+          </tableCell>
+          <y-attributed-delete userIds="">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-delete userIds="">
+                <tableParagraph>
+                  <y-attributed-delete userIds="">B1</y-attributed-delete>
+                </tableParagraph>
+              </y-attributed-delete>
+            </tableCell>
+          </y-attributed-delete>
+        </tableRow>
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A2</tableParagraph>
+          </tableCell>
+          <y-attributed-delete userIds="">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-delete userIds="">
+                <tableParagraph>
+                  <y-attributed-delete userIds="">B2</y-attributed-delete>
+                </tableParagraph>
+              </y-attributed-delete>
+            </tableCell>
+          </y-attributed-delete>
+        </tableRow>
+      </table>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: remove row 1`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: remove row 2`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: remove row 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="table">
+      <table textColor="default">
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A1</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B1</tableParagraph>
+          </tableCell>
+        </tableRow>
+        <y-attributed-delete userIds="">
+          <tableRow>
+            <y-attributed-delete userIds="">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-delete userIds="">
+                  <tableParagraph>
+                    <y-attributed-delete userIds="">A2</y-attributed-delete>
+                  </tableParagraph>
+                </y-attributed-delete>
+              </tableCell>
+            </y-attributed-delete>
+            <y-attributed-delete userIds="">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-delete userIds="">
+                  <tableParagraph>
+                    <y-attributed-delete userIds="">B2</y-attributed-delete>
+                  </tableParagraph>
+                </y-attributed-delete>
+              </tableCell>
+            </y-attributed-delete>
+          </tableRow>
+        </y-attributed-delete>
+      </table>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: split a merged cell 1`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="2"
+          colwidth="[null,null]"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1+B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: split a merged cell 2`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: split a merged cell 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="table">
+      <table textColor="default">
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>
+              A1
+              <y-attributed-delete userIds="">+B1</y-attributed-delete>
+            </tableParagraph>
+          </tableCell>
+          <y-attributed-insert userIds="">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-insert userIds="">
+                <tableParagraph>
+                  <y-attributed-insert userIds="">B1</y-attributed-insert>
+                </tableParagraph>
+              </y-attributed-insert>
+            </tableCell>
+          </y-attributed-insert>
+        </tableRow>
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A2</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B2</tableParagraph>
+          </tableCell>
+        </tableRow>
+      </table>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: update text in cell 1`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: update text in cell 2`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1 edited</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: update text in cell 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="table">
+      <table textColor="default">
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>
+              A1
+              <y-attributed-insert userIds="">edited</y-attributed-insert>
+            </tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B1</tableParagraph>
+          </tableCell>
+        </tableRow>
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A2</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B2</tableParagraph>
+          </tableCell>
+        </tableRow>
+      </table>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;

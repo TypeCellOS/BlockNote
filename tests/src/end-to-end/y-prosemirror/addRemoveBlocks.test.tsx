@@ -106,52 +106,9 @@ test("suggestion mode: add heading to empty doc", async () => {
     "add-remove-add-heading-to-empty",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="h0">
-        <heading
-          backgroundColor="default"
-          isToggleable="false"
-          level="1"
-          textAlignment="left"
-          textColor="default"
-        >New heading</heading>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="1">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="h0">
-            <y-attributed-insert userIds="">
-              <heading
-                backgroundColor="default"
-                textColor="default"
-                textAlignment="left"
-                level="1"
-                isToggleable="false"
-              >
-                <y-attributed-insert userIds="">New heading</y-attributed-insert>
-              </heading>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Empty doc gets a bullet list item inserted at the top. Exercises the
@@ -178,48 +135,9 @@ test("suggestion mode: add bullet list item to empty doc", async () => {
     "add-remove-add-bullet-to-empty",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="b0">
-        <bulletListItem
-          backgroundColor="default"
-          textAlignment="left"
-          textColor="default"
-        >New bullet</bulletListItem>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="1">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="b0">
-            <y-attributed-insert userIds="">
-              <bulletListItem
-                backgroundColor="default"
-                textColor="default"
-                textAlignment="left"
-              >
-                <y-attributed-insert userIds="">New bullet</y-attributed-insert>
-              </bulletListItem>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Empty doc gets a numbered list item inserted at the top. Exercises the
@@ -245,49 +163,9 @@ test("suggestion mode: add numbered list item to empty doc", async () => {
     "add-remove-add-numbered-to-empty",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-                          "<blockGroup>
-                            <blockContainer id="n0">
-                              <numberedListItem
-                                backgroundColor="default"
-                                start="undefined"
-                                textAlignment="left"
-                                textColor="default"
-                              >New numbered</numberedListItem>
-                            </blockContainer>
-                          </blockGroup>"
-                        `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="1">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="n0">
-            <y-attributed-insert userIds="">
-              <numberedListItem
-                backgroundColor="default"
-                textColor="default"
-                textAlignment="left"
-              >
-                <y-attributed-insert userIds="">New numbered</y-attributed-insert>
-              </numberedListItem>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Empty doc gets a 3-level nested bullet list inserted as a suggestion.
@@ -314,100 +192,9 @@ test("suggestion mode: add nested bullet list to empty doc", async () => {
     "add-remove-add-nested-bullets-to-empty",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="l0">
-        <bulletListItem
-          backgroundColor="default"
-          textAlignment="left"
-          textColor="default"
-        >Level 0</bulletListItem>
-        <blockGroup>
-          <blockContainer id="l1">
-            <bulletListItem
-              backgroundColor="default"
-              textAlignment="left"
-              textColor="default"
-            >Level 1</bulletListItem>
-            <blockGroup>
-              <blockContainer id="l2">
-                <bulletListItem
-                  backgroundColor="default"
-                  textAlignment="left"
-                  textColor="default"
-                >Level 2</bulletListItem>
-              </blockContainer>
-            </blockGroup>
-          </blockContainer>
-        </blockGroup>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="1">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="l0">
-            <y-attributed-insert userIds="">
-              <bulletListItem
-                backgroundColor="default"
-                textColor="default"
-                textAlignment="left"
-              >
-                <y-attributed-insert userIds="">Level 0</y-attributed-insert>
-              </bulletListItem>
-            </y-attributed-insert>
-            <y-attributed-insert userIds="">
-              <blockGroup>
-                <y-attributed-insert userIds="">
-                  <blockContainer id="l1">
-                    <y-attributed-insert userIds="">
-                      <bulletListItem
-                        backgroundColor="default"
-                        textColor="default"
-                        textAlignment="left"
-                      >
-                        <y-attributed-insert userIds="">Level 1</y-attributed-insert>
-                      </bulletListItem>
-                    </y-attributed-insert>
-                    <y-attributed-insert userIds="">
-                      <blockGroup>
-                        <y-attributed-insert userIds="">
-                          <blockContainer id="l2">
-                            <y-attributed-insert userIds="">
-                              <bulletListItem
-                                backgroundColor="default"
-                                textColor="default"
-                                textAlignment="left"
-                              >
-                                <y-attributed-insert userIds="">Level 2</y-attributed-insert>
-                              </bulletListItem>
-                            </y-attributed-insert>
-                          </blockContainer>
-                        </y-attributed-insert>
-                      </blockGroup>
-                    </y-attributed-insert>
-                  </blockContainer>
-                </y-attributed-insert>
-              </blockGroup>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Empty doc gets a background-colored block (with a nested child) inserted as a
@@ -434,58 +221,9 @@ test("suggestion mode: add colored block with child to empty doc", async () => {
     "add-remove-add-colored-block-to-empty",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-          "<blockGroup>
-            <blockContainer id="1">
-              <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-            </blockContainer>
-          </blockGroup>"
-        `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="c0">
-        <paragraph backgroundColor="blue" textAlignment="left" textColor="default">Colored parent</paragraph>
-        <blockGroup>
-          <blockContainer id="c1">
-            <paragraph backgroundColor="default" textAlignment="left" textColor="default">Child block</paragraph>
-          </blockContainer>
-        </blockGroup>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="1">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="c0">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="blue" textColor="default" textAlignment="left">
-                <y-attributed-insert userIds="">Colored parent</y-attributed-insert>
-              </paragraph>
-            </y-attributed-insert>
-            <y-attributed-insert userIds="">
-              <blockGroup>
-                <y-attributed-insert userIds="">
-                  <blockContainer id="c1">
-                    <y-attributed-insert userIds="">
-                      <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                        <y-attributed-insert userIds="">Child block</y-attributed-insert>
-                      </paragraph>
-                    </y-attributed-insert>
-                  </blockContainer>
-                </y-attributed-insert>
-              </blockGroup>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Two sibling bullets exist in the base; in suggestion mode the second is
@@ -514,98 +252,9 @@ test("suggestion mode: nest a bullet under an existing bullet", async () => {
     "add-remove-nest-bullet-under-existing",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p">
-        <bulletListItem
-          backgroundColor="default"
-          textAlignment="left"
-          textColor="default"
-        >Parent</bulletListItem>
-      </blockContainer>
-      <blockContainer id="c">
-        <bulletListItem
-          backgroundColor="default"
-          textAlignment="left"
-          textColor="default"
-        >Child</bulletListItem>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p">
-        <bulletListItem
-          backgroundColor="default"
-          textAlignment="left"
-          textColor="default"
-        >Parent</bulletListItem>
-        <blockGroup>
-          <blockContainer id="c">
-            <bulletListItem
-              backgroundColor="default"
-              textAlignment="left"
-              textColor="default"
-            >Child</bulletListItem>
-          </blockContainer>
-        </blockGroup>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="p">
-            <bulletListItem
-              backgroundColor="default"
-              textColor="default"
-              textAlignment="left"
-            >Parent</bulletListItem>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-delete userIds="">
-          <blockContainer id="c">
-            <bulletListItem
-              backgroundColor="default"
-              textColor="default"
-              textAlignment="left"
-            >Child</bulletListItem>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="p">
-            <y-attributed-insert userIds="">
-              <bulletListItem
-                backgroundColor="default"
-                textColor="default"
-                textAlignment="left"
-              >
-                <y-attributed-insert userIds="">Parent</y-attributed-insert>
-              </bulletListItem>
-            </y-attributed-insert>
-            <y-attributed-insert userIds="">
-              <blockGroup>
-                <y-attributed-insert userIds="">
-                  <blockContainer id="c">
-                    <y-attributed-insert userIds="">
-                      <bulletListItem
-                        backgroundColor="default"
-                        textColor="default"
-                        textAlignment="left"
-                      >
-                        <y-attributed-insert userIds="">Child</y-attributed-insert>
-                      </bulletListItem>
-                    </y-attributed-insert>
-                  </blockContainer>
-                </y-attributed-insert>
-              </blockGroup>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Add a paragraph after an existing heading.
@@ -634,59 +283,9 @@ test("suggestion mode: add paragraph after existing block", async () => {
     "add-remove-add-paragraph",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="h0">
-        <heading
-          backgroundColor="default"
-          isToggleable="false"
-          level="1"
-          textAlignment="left"
-          textColor="default"
-        >Title</heading>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="h0">
-        <heading
-          backgroundColor="default"
-          isToggleable="false"
-          level="1"
-          textAlignment="left"
-          textColor="default"
-        >Title</heading>
-      </blockContainer>
-      <blockContainer id="p0">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Body text</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="h0">
-          <heading
-            backgroundColor="default"
-            textColor="default"
-            textAlignment="left"
-            level="1"
-            isToggleable="false"
-          >Title</heading>
-        </blockContainer>
-        <y-attributed-insert userIds="">
-          <blockContainer id="p0">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert userIds="">Body text</y-attributed-insert>
-              </paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Block-level deletions render with a visible affordance so reviewers can spot a
@@ -720,55 +319,9 @@ test("suggestion mode: remove paragraph from heading+paragraph", async () => {
     "add-remove-remove-paragraph",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="h0">
-        <heading
-          backgroundColor="default"
-          isToggleable="false"
-          level="1"
-          textAlignment="left"
-          textColor="default"
-        >Title</heading>
-      </blockContainer>
-      <blockContainer id="p0">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Body text</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="h0">
-        <heading
-          backgroundColor="default"
-          isToggleable="false"
-          level="1"
-          textAlignment="left"
-          textColor="default"
-        >Title</heading>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="h0">
-          <heading
-            backgroundColor="default"
-            textColor="default"
-            textAlignment="left"
-            level="1"
-            isToggleable="false"
-          >Title</heading>
-        </blockContainer>
-        <y-attributed-delete userIds="">
-          <blockContainer id="p0">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">Body text</paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Remove every block from a doc that has one paragraph.
@@ -795,31 +348,9 @@ test("suggestion mode: remove all blocks", async () => {
     "add-remove-remove-all",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p0">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Only block</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            <y-attributed-delete userIds="">Only block</y-attributed-delete>
-          </paragraph>
-        </blockContainer>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Delete a nested child block, parent stays.
@@ -846,50 +377,9 @@ test("suggestion mode: delete nested block", async () => {
     "add-remove-delete-nested",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="parent">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
-        <blockGroup>
-          <blockContainer id="child">
-            <paragraph backgroundColor="default" textAlignment="left" textColor="default">Child</paragraph>
-          </blockContainer>
-        </blockGroup>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="parent">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="parent">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">Parent</paragraph>
-            <blockGroup>
-              <blockContainer id="child">
-                <paragraph backgroundColor="default" textColor="default" textAlignment="left">Child</paragraph>
-              </blockContainer>
-            </blockGroup>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="parent">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert userIds="">Parent</y-attributed-insert>
-              </paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Delete a parent block that has children. Documents what happens to
@@ -918,48 +408,9 @@ test("suggestion mode: delete parent block (with children)", async () => {
     "add-remove-delete-parent",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="parent">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
-        <blockGroup>
-          <blockContainer id="child">
-            <paragraph backgroundColor="default" textAlignment="left" textColor="default">Child</paragraph>
-          </blockContainer>
-        </blockGroup>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="parent">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">Parent</paragraph>
-            <blockGroup>
-              <blockContainer id="child">
-                <paragraph backgroundColor="default" textColor="default" textAlignment="left">Child</paragraph>
-              </blockContainer>
-            </blockGroup>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="1">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Delete the sole image block in suggestion mode. An image is an atom
@@ -994,54 +445,9 @@ test("suggestion mode: delete image block", async () => {
     "add-remove-delete-image",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="img">
-        <image
-          backgroundColor="default"
-          caption=""
-          name=""
-          previewWidth="150"
-          showPreview="true"
-          textAlignment="left"
-          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
-        ></image>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="img">
-            <image
-              textAlignment="left"
-              backgroundColor="default"
-              name=""
-              url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
-              caption=""
-              showPreview="true"
-              previewWidth="150"
-            ></image>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="1">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // A deleted parent paragraph whose children are a nested paragraph AND a nested
@@ -1070,70 +476,9 @@ test("suggestion mode: delete parent with nested paragraph and image", async () 
     "add-remove-delete-mixed-parent",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="parent">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
-        <blockGroup>
-          <blockContainer id="p1">
-            <paragraph backgroundColor="default" textAlignment="left" textColor="default">Nested paragraph</paragraph>
-          </blockContainer>
-          <blockContainer id="img">
-            <image
-              backgroundColor="default"
-              caption=""
-              name=""
-              previewWidth="150"
-              showPreview="true"
-              textAlignment="left"
-              url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
-            ></image>
-          </blockContainer>
-        </blockGroup>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="parent">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">Parent</paragraph>
-            <blockGroup>
-              <blockContainer id="p1">
-                <paragraph backgroundColor="default" textColor="default" textAlignment="left">Nested paragraph</paragraph>
-              </blockContainer>
-              <blockContainer id="img">
-                <image
-                  textAlignment="left"
-                  backgroundColor="default"
-                  name=""
-                  url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
-                  caption=""
-                  showPreview="true"
-                  previewWidth="150"
-                ></image>
-              </blockContainer>
-            </blockGroup>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="1">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // A deleted code block. Its inline content lives in `<pre><code class=
@@ -1161,38 +506,9 @@ test("suggestion mode: delete code block", async () => {
     "add-remove-delete-code-block",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="code">
-        <codeBlock language="text">const x = 1;</codeBlock>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="code">
-            <codeBlock language="text">const x = 1;</codeBlock>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="1">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // A deleted divider (`<hr>`, content: "none") takes the block "DELETED" card.
@@ -1220,38 +536,9 @@ test("suggestion mode: delete divider", async () => {
     "add-remove-delete-divider",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="hr">
-        <divider></divider>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="hr">
-            <divider></divider>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="1">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // An inserted image (no inline content) takes the same per-block card as a deleted
@@ -1279,54 +566,9 @@ test("suggestion mode: insert image block", async () => {
     "add-remove-insert-image",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="img">
-        <image
-          backgroundColor="default"
-          caption=""
-          name=""
-          previewWidth="150"
-          showPreview="true"
-          textAlignment="left"
-          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
-        ></image>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="1">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="img">
-            <y-attributed-insert userIds="">
-              <image
-                textAlignment="left"
-                backgroundColor="default"
-                name=""
-                url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
-                caption=""
-                showPreview="true"
-                previewWidth="150"
-              ></image>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Insert a divider between two paragraphs. The divider (content: "none") takes
@@ -1352,48 +594,9 @@ test("suggestion mode: insert a divider between paragraphs", async () => {
     "add-remove-insert-divider",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="above">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Above</paragraph>
-      </blockContainer>
-      <blockContainer id="below">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Below</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="above">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Above</paragraph>
-      </blockContainer>
-      <blockContainer id="1">
-        <divider></divider>
-      </blockContainer>
-      <blockContainer id="below">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Below</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="above">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">Above</paragraph>
-        </blockContainer>
-        <y-attributed-insert userIds="">
-          <blockContainer id="1">
-            <y-attributed-insert userIds="">
-              <divider></divider>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-        <blockContainer id="below">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">Below</paragraph>
-        </blockContainer>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Insert an empty paragraph after an existing block. Exercises how an inserted
@@ -1419,39 +622,9 @@ test("suggestion mode: add an empty block", async () => {
     "add-remove-add-empty-block",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">A paragraph</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">A paragraph</paragraph>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="p">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">A paragraph</paragraph>
-        </blockContainer>
-        <y-attributed-insert userIds="">
-          <blockContainer id="1">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Two empty paragraphs; delete one. Exercises how a deleted block with no inline
@@ -1477,35 +650,7 @@ test("suggestion mode: delete one of two empty blocks", async () => {
     "add-remove-delete-one-empty",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="e1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="e2">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="e1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="e1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-        </blockContainer>
-        <y-attributed-delete userIds="">
-          <blockContainer id="e2">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });

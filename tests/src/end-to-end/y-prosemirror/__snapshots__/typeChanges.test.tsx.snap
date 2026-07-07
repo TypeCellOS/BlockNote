@@ -1,0 +1,103 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`suggestion mode: change list item to paragraph 1`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <bulletListItem
+      backgroundColor="default"
+      textAlignment="left"
+      textColor="default"
+    >hello world</bulletListItem>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: change list item to paragraph 2`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: change list item to paragraph 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="block-hello">
+        <y-attributed-delete userIds="">
+          <bulletListItem
+            backgroundColor="default"
+            textAlignment="left"
+            textColor="default"
+          >
+            <y-attributed-delete userIds="">hello world</y-attributed-delete>
+          </bulletListItem>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="block-hello">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-insert userIds="">hello world</y-attributed-insert>
+          </paragraph>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: change paragraph to heading 1`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: change paragraph to heading 2`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <heading
+      backgroundColor="default"
+      isToggleable="false"
+      level="1"
+      textAlignment="left"
+      textColor="default"
+    >hello world</heading>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: change paragraph to heading 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="block-hello">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="">hello world</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="block-hello">
+        <y-attributed-insert userIds="">
+          <heading
+            backgroundColor="default"
+            isToggleable="false"
+            level="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <y-attributed-insert userIds="">hello world</y-attributed-insert>
+          </heading>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;

@@ -48,72 +48,15 @@ test("suggestion mode: indent a block", async () => {
 
   await expectScreenshot(screen.getByTestId("editor-root"), "nesting-indent");
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="n0">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
-      </blockContainer>
-      <blockContainer id="n1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="n0">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
-        <blockGroup>
-          <blockContainer id="n1">
-            <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
-          </blockContainer>
-        </blockGroup>
-      </blockContainer>
-    </blockGroup>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
   // Structural move encoded as insert-at-new-location + node-level
   // delete on the old location. The original N1 sibling at the bottom
   // is wrapped in `<y-attributed-delete>` (block-level mark) and the
   // new nested copy is wrapped in `<y-attributed-insert>` at several
   // levels. So accept/reject UI does have the data to render this
   // sensibly – the snapshot below is the source of truth.
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="n0">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-delete userIds="">
-          <blockContainer id="n1">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="n0">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert userIds="">N0</y-attributed-insert>
-              </paragraph>
-            </y-attributed-insert>
-            <y-attributed-insert userIds="">
-              <blockGroup>
-                <y-attributed-insert userIds="">
-                  <blockContainer id="n1">
-                    <y-attributed-insert userIds="">
-                      <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                        <y-attributed-insert userIds="">N1</y-attributed-insert>
-                      </paragraph>
-                    </y-attributed-insert>
-                  </blockContainer>
-                </y-attributed-insert>
-              </blockGroup>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Unindent: nested child becomes a sibling of its parent.
@@ -133,62 +76,9 @@ test("suggestion mode: unindent a block", async () => {
 
   await expectScreenshot(screen.getByTestId("editor-root"), "nesting-unindent");
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="n0">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
-        <blockGroup>
-          <blockContainer id="n1">
-            <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
-          </blockContainer>
-        </blockGroup>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="n0">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
-      </blockContainer>
-      <blockContainer id="n1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="n0">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
-            <blockGroup>
-              <blockContainer id="n1">
-                <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
-              </blockContainer>
-            </blockGroup>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="n0">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert userIds="">N0</y-attributed-insert>
-              </paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-        <y-attributed-insert userIds="">
-          <blockContainer id="n1">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert userIds="">N1</y-attributed-insert>
-              </paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Change parent block's type while keeping its children.
@@ -212,78 +102,7 @@ test("suggestion mode: change block type of a block with children", async () => 
     "nesting-change-parent-type",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="n0">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
-        <blockGroup>
-          <blockContainer id="n1">
-            <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
-          </blockContainer>
-        </blockGroup>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="n0">
-        <heading
-          backgroundColor="default"
-          isToggleable="false"
-          level="1"
-          textAlignment="left"
-          textColor="default"
-        >N0</heading>
-        <blockGroup>
-          <blockContainer id="n1">
-            <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
-          </blockContainer>
-        </blockGroup>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="n0">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
-            <blockGroup>
-              <blockContainer id="n1">
-                <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
-              </blockContainer>
-            </blockGroup>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="n0">
-            <y-attributed-insert userIds="">
-              <heading
-                backgroundColor="default"
-                textColor="default"
-                textAlignment="left"
-                level="1"
-                isToggleable="false"
-              >
-                <y-attributed-insert userIds="">N0</y-attributed-insert>
-              </heading>
-            </y-attributed-insert>
-            <y-attributed-insert userIds="">
-              <blockGroup>
-                <y-attributed-insert userIds="">
-                  <blockContainer id="n1">
-                    <y-attributed-insert userIds="">
-                      <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                        <y-attributed-insert userIds="">N1</y-attributed-insert>
-                      </paragraph>
-                    </y-attributed-insert>
-                  </blockContainer>
-                </y-attributed-insert>
-              </blockGroup>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });

@@ -47,37 +47,9 @@ test("suggestion mode: add a link", async () => {
 
   await expectScreenshot(screen.getByTestId("editor-root"), "links-add-link");
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Visit the site</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-          Visit
-          <link value="{&quot;href&quot;:&quot;https://example.com&quot;}" />the site</link>
-      </paragraph>
-    </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="p">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            Visit
-            <y-attributed-format userIds="" format="[object Object]">
-              <link href="https://example.com" />the site</link>
-          </y-attributed-format>
-        </paragraph>
-      </blockContainer>
-    </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // An existing link has its URL and text changed.
@@ -99,51 +71,9 @@ test("suggestion mode: edit a link", async () => {
 
   await expectScreenshot(screen.getByTestId("editor-root"), "links-edit-link");
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-          Visit
-          <link value="{&quot;href&quot;:&quot;https://old.example.com&quot;}" />the old site</link>
-      </paragraph>
-    </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-          Visit
-          <link value="{&quot;href&quot;:&quot;https://new.example.com&quot;}" />the new site</link>
-      </paragraph>
-    </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="p">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            Visit
-            <y-attributed-format userIds="" format="[object Object]">
-              <link href="https://new.example.com" />the</link>
-          </y-attributed-format>
-          <y-attributed-delete userIds="">
-            <link href="https://old.example.com" />old</link>
-        </y-attributed-delete>
-        <y-attributed-format userIds="" format="[object Object]">
-          <y-attributed-insert userIds="">
-            <link href="https://new.example.com" />new</link>
-        </y-attributed-insert>
-      </y-attributed-format>
-      <y-attributed-format userIds="" format="[object Object]">
-        <link href="https://new.example.com" />site</link>
-    </y-attributed-format>
-    </paragraph>
-    </blockContainer>
-    </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // An existing link is unlinked, keeping its text.
@@ -168,33 +98,7 @@ test("suggestion mode: remove a link", async () => {
     "links-remove-link",
   );
 
-  expect(baseDocXml).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-          Visit
-          <link value="{&quot;href&quot;:&quot;https://example.com&quot;}" />the site</link>
-      </paragraph>
-    </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Visit the site</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="p">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            Visit
-            <y-attributed-format userIds="" format="[object Object]">the site</y-attributed-format>
-          </paragraph>
-        </blockContainer>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(baseDocXml).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });

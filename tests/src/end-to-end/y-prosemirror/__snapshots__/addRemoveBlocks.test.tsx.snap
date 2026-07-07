@@ -1,0 +1,1044 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`suggestion mode: add an empty block 1`] = `
+"<blockGroup>
+  <blockContainer id="p">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">A paragraph</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add an empty block 2`] = `
+"<blockGroup>
+  <blockContainer id="p">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">A paragraph</paragraph>
+  </blockContainer>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add an empty block 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="p">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">A paragraph</paragraph>
+    </blockContainer>
+    <y-attributed-insert userIds="">
+      <blockContainer id="1">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: add bullet list item to empty doc 1`] = `
+"<blockGroup>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add bullet list item to empty doc 2`] = `
+"<blockGroup>
+  <blockContainer id="b0">
+    <bulletListItem
+      backgroundColor="default"
+      textAlignment="left"
+      textColor="default"
+    >New bullet</bulletListItem>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add bullet list item to empty doc 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="1">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="b0">
+        <y-attributed-insert userIds="">
+          <bulletListItem
+            backgroundColor="default"
+            textAlignment="left"
+            textColor="default"
+          >
+            <y-attributed-insert userIds="">New bullet</y-attributed-insert>
+          </bulletListItem>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: add colored block with child to empty doc 1`] = `
+"<blockGroup>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add colored block with child to empty doc 2`] = `
+"<blockGroup>
+  <blockContainer id="c0">
+    <paragraph backgroundColor="blue" textAlignment="left" textColor="default">Colored parent</paragraph>
+    <blockGroup>
+      <blockContainer id="c1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Child block</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add colored block with child to empty doc 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="1">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="c0">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="blue" textAlignment="left" textColor="default">
+            <y-attributed-insert userIds="">Colored parent</y-attributed-insert>
+          </paragraph>
+        </y-attributed-insert>
+        <y-attributed-insert userIds="">
+          <blockGroup>
+            <y-attributed-insert userIds="">
+              <blockContainer id="c1">
+                <y-attributed-insert userIds="">
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-insert userIds="">Child block</y-attributed-insert>
+                  </paragraph>
+                </y-attributed-insert>
+              </blockContainer>
+            </y-attributed-insert>
+          </blockGroup>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: add heading to empty doc 1`] = `
+"<blockGroup>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add heading to empty doc 2`] = `
+"<blockGroup>
+  <blockContainer id="h0">
+    <heading
+      backgroundColor="default"
+      isToggleable="false"
+      level="1"
+      textAlignment="left"
+      textColor="default"
+    >New heading</heading>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add heading to empty doc 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="1">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="h0">
+        <y-attributed-insert userIds="">
+          <heading
+            backgroundColor="default"
+            isToggleable="false"
+            level="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <y-attributed-insert userIds="">New heading</y-attributed-insert>
+          </heading>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: add nested bullet list to empty doc 1`] = `
+"<blockGroup>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add nested bullet list to empty doc 2`] = `
+"<blockGroup>
+  <blockContainer id="l0">
+    <bulletListItem
+      backgroundColor="default"
+      textAlignment="left"
+      textColor="default"
+    >Level 0</bulletListItem>
+    <blockGroup>
+      <blockContainer id="l1">
+        <bulletListItem
+          backgroundColor="default"
+          textAlignment="left"
+          textColor="default"
+        >Level 1</bulletListItem>
+        <blockGroup>
+          <blockContainer id="l2">
+            <bulletListItem
+              backgroundColor="default"
+              textAlignment="left"
+              textColor="default"
+            >Level 2</bulletListItem>
+          </blockContainer>
+        </blockGroup>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add nested bullet list to empty doc 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="1">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="l0">
+        <y-attributed-insert userIds="">
+          <bulletListItem
+            backgroundColor="default"
+            textAlignment="left"
+            textColor="default"
+          >
+            <y-attributed-insert userIds="">Level 0</y-attributed-insert>
+          </bulletListItem>
+        </y-attributed-insert>
+        <y-attributed-insert userIds="">
+          <blockGroup>
+            <y-attributed-insert userIds="">
+              <blockContainer id="l1">
+                <y-attributed-insert userIds="">
+                  <bulletListItem
+                    backgroundColor="default"
+                    textAlignment="left"
+                    textColor="default"
+                  >
+                    <y-attributed-insert userIds="">Level 1</y-attributed-insert>
+                  </bulletListItem>
+                </y-attributed-insert>
+                <y-attributed-insert userIds="">
+                  <blockGroup>
+                    <y-attributed-insert userIds="">
+                      <blockContainer id="l2">
+                        <y-attributed-insert userIds="">
+                          <bulletListItem
+                            backgroundColor="default"
+                            textAlignment="left"
+                            textColor="default"
+                          >
+                            <y-attributed-insert userIds="">Level 2</y-attributed-insert>
+                          </bulletListItem>
+                        </y-attributed-insert>
+                      </blockContainer>
+                    </y-attributed-insert>
+                  </blockGroup>
+                </y-attributed-insert>
+              </blockContainer>
+            </y-attributed-insert>
+          </blockGroup>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: add numbered list item to empty doc 1`] = `
+"<blockGroup>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add numbered list item to empty doc 2`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <numberedListItem
+      backgroundColor="default"
+      start="undefined"
+      textAlignment="left"
+      textColor="default"
+    >New numbered</numberedListItem>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add numbered list item to empty doc 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="1">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="n0">
+        <y-attributed-insert userIds="">
+          <numberedListItem
+            backgroundColor="default"
+            textAlignment="left"
+            textColor="default"
+          >
+            <y-attributed-insert userIds="">New numbered</y-attributed-insert>
+          </numberedListItem>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: add paragraph after existing block 1`] = `
+"<blockGroup>
+  <blockContainer id="h0">
+    <heading
+      backgroundColor="default"
+      isToggleable="false"
+      level="1"
+      textAlignment="left"
+      textColor="default"
+    >Title</heading>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add paragraph after existing block 2`] = `
+"<blockGroup>
+  <blockContainer id="h0">
+    <heading
+      backgroundColor="default"
+      isToggleable="false"
+      level="1"
+      textAlignment="left"
+      textColor="default"
+    >Title</heading>
+  </blockContainer>
+  <blockContainer id="p0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Body text</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add paragraph after existing block 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="h0">
+      <heading
+        backgroundColor="default"
+        isToggleable="false"
+        level="1"
+        textAlignment="left"
+        textColor="default"
+      >Title</heading>
+    </blockContainer>
+    <y-attributed-insert userIds="">
+      <blockContainer id="p0">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-insert userIds="">Body text</y-attributed-insert>
+          </paragraph>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: delete code block 1`] = `
+"<blockGroup>
+  <blockContainer id="code">
+    <codeBlock language="text">const x = 1;</codeBlock>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: delete code block 2`] = `
+"<blockGroup>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: delete code block 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="code">
+        <y-attributed-delete userIds="">
+          <codeBlock language="text">
+            <y-attributed-delete userIds="">const x = 1;</y-attributed-delete>
+          </codeBlock>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="1">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: delete divider 1`] = `
+"<blockGroup>
+  <blockContainer id="hr">
+    <divider></divider>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: delete divider 2`] = `
+"<blockGroup>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: delete divider 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="hr">
+        <y-attributed-delete userIds="">
+          <divider></divider>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="1">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: delete image block 1`] = `
+"<blockGroup>
+  <blockContainer id="img">
+    <image
+      backgroundColor="default"
+      caption=""
+      name=""
+      previewWidth="150"
+      showPreview="true"
+      textAlignment="left"
+      url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+    ></image>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: delete image block 2`] = `
+"<blockGroup>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: delete image block 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="img">
+        <y-attributed-delete userIds="">
+          <image
+            backgroundColor="default"
+            caption=""
+            name=""
+            previewWidth="150"
+            showPreview="true"
+            textAlignment="left"
+            url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+          ></image>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="1">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: delete nested block 1`] = `
+"<blockGroup>
+  <blockContainer id="parent">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
+    <blockGroup>
+      <blockContainer id="child">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Child</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: delete nested block 2`] = `
+"<blockGroup>
+  <blockContainer id="parent">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: delete nested block 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="parent">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="">Parent</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+        <y-attributed-delete userIds="">
+          <blockGroup>
+            <y-attributed-delete userIds="">
+              <blockContainer id="child">
+                <y-attributed-delete userIds="">
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-delete userIds="">Child</y-attributed-delete>
+                  </paragraph>
+                </y-attributed-delete>
+              </blockContainer>
+            </y-attributed-delete>
+          </blockGroup>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="parent">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-insert userIds="">Parent</y-attributed-insert>
+          </paragraph>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: delete one of two empty blocks 1`] = `
+"<blockGroup>
+  <blockContainer id="e1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+  <blockContainer id="e2">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: delete one of two empty blocks 2`] = `
+"<blockGroup>
+  <blockContainer id="e1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: delete one of two empty blocks 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="e1">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+    </blockContainer>
+    <y-attributed-delete userIds="">
+      <blockContainer id="e2">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: delete parent block (with children) 1`] = `
+"<blockGroup>
+  <blockContainer id="parent">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
+    <blockGroup>
+      <blockContainer id="child">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Child</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: delete parent block (with children) 2`] = `
+"<blockGroup>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: delete parent block (with children) 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="parent">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="">Parent</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+        <y-attributed-delete userIds="">
+          <blockGroup>
+            <y-attributed-delete userIds="">
+              <blockContainer id="child">
+                <y-attributed-delete userIds="">
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-delete userIds="">Child</y-attributed-delete>
+                  </paragraph>
+                </y-attributed-delete>
+              </blockContainer>
+            </y-attributed-delete>
+          </blockGroup>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="1">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: delete parent with nested paragraph and image 1`] = `
+"<blockGroup>
+  <blockContainer id="parent">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
+    <blockGroup>
+      <blockContainer id="p1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Nested paragraph</paragraph>
+      </blockContainer>
+      <blockContainer id="img">
+        <image
+          backgroundColor="default"
+          caption=""
+          name=""
+          previewWidth="150"
+          showPreview="true"
+          textAlignment="left"
+          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+        ></image>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: delete parent with nested paragraph and image 2`] = `
+"<blockGroup>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: delete parent with nested paragraph and image 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="parent">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="">Parent</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+        <y-attributed-delete userIds="">
+          <blockGroup>
+            <y-attributed-delete userIds="">
+              <blockContainer id="p1">
+                <y-attributed-delete userIds="">
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-delete userIds="">Nested paragraph</y-attributed-delete>
+                  </paragraph>
+                </y-attributed-delete>
+              </blockContainer>
+            </y-attributed-delete>
+            <y-attributed-delete userIds="">
+              <blockContainer id="img">
+                <y-attributed-delete userIds="">
+                  <image
+                    backgroundColor="default"
+                    caption=""
+                    name=""
+                    previewWidth="150"
+                    showPreview="true"
+                    textAlignment="left"
+                    url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+                  ></image>
+                </y-attributed-delete>
+              </blockContainer>
+            </y-attributed-delete>
+          </blockGroup>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="1">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: insert a divider between paragraphs 1`] = `
+"<blockGroup>
+  <blockContainer id="above">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Above</paragraph>
+  </blockContainer>
+  <blockContainer id="below">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Below</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: insert a divider between paragraphs 2`] = `
+"<blockGroup>
+  <blockContainer id="above">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Above</paragraph>
+  </blockContainer>
+  <blockContainer id="1">
+    <divider></divider>
+  </blockContainer>
+  <blockContainer id="below">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Below</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: insert a divider between paragraphs 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="above">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">Above</paragraph>
+    </blockContainer>
+    <y-attributed-insert userIds="">
+      <blockContainer id="1">
+        <y-attributed-insert userIds="">
+          <divider></divider>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+    <blockContainer id="below">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">Below</paragraph>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: insert image block 1`] = `
+"<blockGroup>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: insert image block 2`] = `
+"<blockGroup>
+  <blockContainer id="img">
+    <image
+      backgroundColor="default"
+      caption=""
+      name=""
+      previewWidth="150"
+      showPreview="true"
+      textAlignment="left"
+      url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+    ></image>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: insert image block 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="1">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="img">
+        <y-attributed-insert userIds="">
+          <image
+            backgroundColor="default"
+            caption=""
+            name=""
+            previewWidth="150"
+            showPreview="true"
+            textAlignment="left"
+            url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+          ></image>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: nest a bullet under an existing bullet 1`] = `
+"<blockGroup>
+  <blockContainer id="p">
+    <bulletListItem
+      backgroundColor="default"
+      textAlignment="left"
+      textColor="default"
+    >Parent</bulletListItem>
+  </blockContainer>
+  <blockContainer id="c">
+    <bulletListItem
+      backgroundColor="default"
+      textAlignment="left"
+      textColor="default"
+    >Child</bulletListItem>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: nest a bullet under an existing bullet 2`] = `
+"<blockGroup>
+  <blockContainer id="p">
+    <bulletListItem
+      backgroundColor="default"
+      textAlignment="left"
+      textColor="default"
+    >Parent</bulletListItem>
+    <blockGroup>
+      <blockContainer id="c">
+        <bulletListItem
+          backgroundColor="default"
+          textAlignment="left"
+          textColor="default"
+        >Child</bulletListItem>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: nest a bullet under an existing bullet 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="p">
+        <y-attributed-delete userIds="">
+          <bulletListItem
+            backgroundColor="default"
+            textAlignment="left"
+            textColor="default"
+          >
+            <y-attributed-delete userIds="">Parent</y-attributed-delete>
+          </bulletListItem>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-delete userIds="">
+      <blockContainer id="c">
+        <y-attributed-delete userIds="">
+          <bulletListItem
+            backgroundColor="default"
+            textAlignment="left"
+            textColor="default"
+          >
+            <y-attributed-delete userIds="">Child</y-attributed-delete>
+          </bulletListItem>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="p">
+        <y-attributed-insert userIds="">
+          <bulletListItem
+            backgroundColor="default"
+            textAlignment="left"
+            textColor="default"
+          >
+            <y-attributed-insert userIds="">Parent</y-attributed-insert>
+          </bulletListItem>
+        </y-attributed-insert>
+        <y-attributed-insert userIds="">
+          <blockGroup>
+            <y-attributed-insert userIds="">
+              <blockContainer id="c">
+                <y-attributed-insert userIds="">
+                  <bulletListItem
+                    backgroundColor="default"
+                    textAlignment="left"
+                    textColor="default"
+                  >
+                    <y-attributed-insert userIds="">Child</y-attributed-insert>
+                  </bulletListItem>
+                </y-attributed-insert>
+              </blockContainer>
+            </y-attributed-insert>
+          </blockGroup>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: remove all blocks 1`] = `
+"<blockGroup>
+  <blockContainer id="p0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Only block</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: remove all blocks 2`] = `
+"<blockGroup>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: remove all blocks 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="1">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+        <y-attributed-delete userIds="">Only block</y-attributed-delete>
+      </paragraph>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: remove paragraph from heading+paragraph 1`] = `
+"<blockGroup>
+  <blockContainer id="h0">
+    <heading
+      backgroundColor="default"
+      isToggleable="false"
+      level="1"
+      textAlignment="left"
+      textColor="default"
+    >Title</heading>
+  </blockContainer>
+  <blockContainer id="p0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Body text</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: remove paragraph from heading+paragraph 2`] = `
+"<blockGroup>
+  <blockContainer id="h0">
+    <heading
+      backgroundColor="default"
+      isToggleable="false"
+      level="1"
+      textAlignment="left"
+      textColor="default"
+    >Title</heading>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: remove paragraph from heading+paragraph 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="h0">
+      <heading
+        backgroundColor="default"
+        isToggleable="false"
+        level="1"
+        textAlignment="left"
+        textColor="default"
+      >Title</heading>
+    </blockContainer>
+    <y-attributed-delete userIds="">
+      <blockContainer id="p0">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="">Body text</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+  </blockGroup>
+</doc>"
+`;

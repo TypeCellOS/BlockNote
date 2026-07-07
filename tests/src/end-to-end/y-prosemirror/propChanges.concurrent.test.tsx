@@ -86,41 +86,9 @@ test("concurrent: A changes textColor, B changes backgroundColor", async () => {
     "concurrent-textColor-vs-backgroundColor",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="red">hello world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="yellow" textAlignment="left" textColor="default">hello world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="yellow" textAlignment="left" textColor="red">hello world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="block-hello">
-          <paragraph backgroundColor="yellow" textColor="red" textAlignment="left">hello world</paragraph>
-        </blockContainer>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocA)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocB)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocMerged)).toMatchSnapshot();
+  expect(editorHtml(merged.editor)).toMatchSnapshot();
 });

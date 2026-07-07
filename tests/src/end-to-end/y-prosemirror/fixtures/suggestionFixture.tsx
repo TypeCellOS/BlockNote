@@ -73,7 +73,15 @@ export interface SuggestionFixtureOptions {
 export async function setupSuggestionTest({
   userAction,
 }: SuggestionFixtureOptions): Promise<SuggestionFixture> {
+  // Fixed clientIDs so the snapshots are deterministic. Yjs assigns a
+  // random clientID to every `Y.Doc`, and that clientID is used to break
+  // ties when ordering concurrent items — so a random clientID makes the
+  // item order (and therefore the `toDeltaDeep` output and the diff the
+  // renderer computes) differ from run to run, flip-flopping the inline
+  // snapshots. Pinning both docs to stable clientIDs removes that source
+  // of non-determinism.
   const baseDoc = new Y.Doc();
+  baseDoc.clientID = 1;
   const baseAwareness = new Awareness(baseDoc);
   baseAwareness.setLocalStateField("user", {
     name: "User A",
@@ -81,6 +89,7 @@ export async function setupSuggestionTest({
   });
 
   const suggestionDoc = new Y.Doc({ isSuggestionDoc: true });
+  suggestionDoc.clientID = 2;
   const renderer = Y.createDiffRenderer(baseDoc, suggestionDoc, {
     attrs: new Y.Attributions(),
   });
@@ -199,18 +208,56 @@ export async function waitForYDocSync(
 }
 
 /**
- * Wait until any suggestion mark (`y-attributed-insert` /
- * `y-attributed-delete`) is present in the editor's PM doc. Use this
- * after a suggestion-mode edit before snapshotting/screenshotting –
- * the PM transaction is sync but the React/DOM commit is not.
+ * Wait until the editor's PM doc has *settled* after a suggestion-mode edit,
+ * i.e. a suggestion mark (`y-attributed-insert` / `y-attributed-delete`) is
+ * present AND the serialised doc has stopped changing. Use this after a
+ * suggestion-mode edit before snapshotting/screenshotting.
+ *
+ * Why a settle gate and not just "first appearance": as of @y/prosemirror
+ * v2.0.0-6 the RDT sync applies the suggestion decorations asynchronously and
+ * can apply-then-revert-then-reapply them across several microtask/animation
+ * frames (the same catch-and-revert `applyDelta` path that reconciles the
+ * base/suggestion docs). Gating on the *first* time `y-attributed` appears
+ * therefore captures a transient intermediate state, so `editorHtml(editor)`
+ * reads the doc with the decorations sometimes present and sometimes not –
+ * the snapshots flip-flop run to run. Instead we poll the serialised doc and
+ * only return once it (a) contains a suggestion mark and (b) has been byte-for-
+ * byte identical for a few consecutive reads, which means the decorations have
+ * finished settling.
  *
  * For tests whose edit changes visible text, prefer waiting on the
  * inserted text via `expect.element(getByText(...))` – it's more
  * meaningful.
  */
 export async function waitForSuggestion(editor: GalleryEditor): Promise<void> {
+  // Number of consecutive identical reads (that already contain a suggestion
+  // mark) required before we consider the doc settled.
+  const requiredStableReads = 5;
+  let lastSerialised: string | null = null;
+  let stableCount = 0;
+
   await expect
-    .poll(() => editor.prosemirrorState.doc.toString().includes("y-attributed"))
+    .poll(
+      () => {
+        const serialised = editor.prosemirrorState.doc.toString();
+        if (!serialised.includes("y-attributed")) {
+          // Decorations not applied yet – reset the stability counter.
+          lastSerialised = serialised;
+          stableCount = 0;
+          return false;
+        }
+        if (serialised === lastSerialised) {
+          stableCount += 1;
+        } else {
+          lastSerialised = serialised;
+          stableCount = 1;
+        }
+        return stableCount >= requiredStableReads;
+      },
+      // Poll frequently so the "consecutive reads" window spans a short, real
+      // stretch of wall-clock time rather than being satisfied instantly.
+      { interval: 20, timeout: 5000 },
+    )
     .toBe(true);
 }
 
@@ -227,9 +274,20 @@ export async function waitForSuggestion(editor: GalleryEditor): Promise<void> {
  * (suggestion metadata) on every insert op. Those marks are rendered as
  * nested tags (`<bold>world</bold>`) and attribution as an
  * `attribution="..."` attribute so the snapshots actually differ.
+ *
+ * We pass an explicit, stable `renderer` (`Y.baseRenderer`) rather than
+ * relying on `toDeltaDeep()`'s default. As of @y/prosemirror v2.0.0-6 the
+ * default renderer is ambient/mutable, so a no-arg call serialises the
+ * *same* Y.Doc differently from run to run (attribution-rich vs. plain),
+ * which makes these inline snapshots flip-flop and never converge. Passing
+ * `Y.baseRenderer` renders each doc's own intrinsic content + stored
+ * attribution deterministically, independent of any live DiffRenderer.
  */
-export function ydocXml(doc: Y.Doc): string {
-  const delta = (doc.get("doc") as any).toDeltaDeep().toJSON();
+export function ydocXml(
+  doc: Y.Doc,
+  renderer: Y.AbstractRenderer | null = Y.baseRenderer,
+): string {
+  const delta = (doc.get("doc") as any).toDeltaDeep({ renderer }).toJSON();
   return prettify(deltaToXml(delta), { tag_wrap: true });
 }
 
@@ -366,18 +424,25 @@ function pmNodeToXml(node: PMNode): string {
     });
     out = `<${node.type.name}${formatAttrs(node.attrs)}>${inner}</${node.type.name}>`;
   }
-  // PM stores marks outermost-first; wrap innermost-first to preserve order.
   // Non-text nodes can also carry marks (used by y-prosemirror for
-  // block-level attributions), so this applies to both branches.
-  for (const mark of node.marks) {
+  // block-level attributions), so this applies to both branches. Mark nesting
+  // order is not semantically meaningful, so sort by name to keep the
+  // serialized output deterministic across runs.
+  const sortedMarks = [...node.marks].sort((a, b) =>
+    a.type.name < b.type.name ? -1 : a.type.name > b.type.name ? 1 : 0,
+  );
+  for (const mark of sortedMarks) {
     out = `<${mark.type.name}${formatAttrs(mark.attrs)}>${out}</${mark.type.name}>`;
   }
   return out;
 }
 
 function formatAttrs(attrs: Record<string, unknown>): string {
+  // Sort by key so attribute order is deterministic across runs (attribute
+  // order is not semantically meaningful).
   return Object.entries(attrs)
     .filter(([, v]) => v !== null && v !== undefined)
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
     .map(([k, v]) => ` ${k}="${escapeXml(String(v))}"`)
     .join("");
 }

@@ -96,50 +96,11 @@ test("concurrent: A fixes typo, B deletes the word", async () => {
 
   // Known issue — tracked in the suggestion gallery ("concurrent-typo-vs-delete"):
   // the merged doc keeps a stray "o" (the snapshot below is "hello o").
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello wrold</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello o</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="block-hello">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            hello
-            <y-attributed-delete userIds="B">w</y-attributed-delete>
-            <y-attributed-insert userIds="A">o</y-attributed-insert>
-            <y-attributed-delete userIds="B">r</y-attributed-delete>
-            <y-attributed-delete userIds="A">o</y-attributed-delete>
-            <y-attributed-delete userIds="B">ld</y-attributed-delete>
-          </paragraph>
-        </blockContainer>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocA)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocB)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocMerged)).toMatchSnapshot();
+  expect(editorHtml(merged.editor)).toMatchSnapshot();
 });
 
 // Concurrent format edits on the same word: A adds bold, B adds
@@ -190,61 +151,9 @@ test("concurrent: A bolds the word, B italicises the word", async () => {
     "concurrent-bold-vs-italic",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-          hello
-          <bold>world</bold>
-        </paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-          hello
-          <italic>world</italic>
-        </paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-          hello
-          <italic>
-            <bold>world</bold>
-          </italic>
-        </paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="block-hello">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            hello
-            <y-attributed-format userIds="A,B" format="[object Object]">
-              <y-attributed-format userIds="A" format="[object Object]">
-                <italic>
-                  <bold>world</bold>
-                </italic>
-              </y-attributed-format>
-            </y-attributed-format>
-          </paragraph>
-        </blockContainer>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocA)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocB)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocMerged)).toMatchSnapshot();
+  expect(editorHtml(merged.editor)).toMatchSnapshot();
 });

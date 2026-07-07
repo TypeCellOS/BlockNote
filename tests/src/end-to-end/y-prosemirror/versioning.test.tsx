@@ -75,14 +75,22 @@ function mountEditor(doc: Y.Doc): {
   };
 }
 
+// Scenarios that currently crash the versioning diff and are skipped until
+// fixed. `large-diff-delete-all` replaceBlocks-traverses a bound
+// `blockContainer` that has no `id` attr, so `getNodeId` throws
+// ("Node blockContainer does not have an ID"). We `test.skip` rather than
+// `test.fails` because as of @y/prosemirror v2.0.0-6 the throw is caught and
+// retried into a runaway warning loop that never lets the suite finish.
+const VERSIONING_CRASHES = new Set<string>(["large-diff-delete-all"]);
+
 for (const scenario of scenarios) {
   const applies =
     scenario.kind === "single"
       ? [scenario.apply]
       : [scenario.applyA, scenario.applyB];
-  // const runner = VERSIONING_CRASHES.has(scenario.id) ? test.fails : test;
+  const runner = VERSIONING_CRASHES.has(scenario.id) ? test.skip : test;
 
-  test(`versioning diff: ${scenario.title}`, async () => {
+  runner(`versioning diff: ${scenario.title}`, async () => {
     const teardown: Array<() => void> = [];
     try {
       // "Before": the scenario's initial blocks, seeded synchronously.

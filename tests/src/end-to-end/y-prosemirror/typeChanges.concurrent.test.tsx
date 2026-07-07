@@ -66,96 +66,11 @@ test("concurrent: A → heading, B → list item", async () => {
     "concurrent-heading-vs-list",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <heading
-          backgroundColor="default"
-          isToggleable="false"
-          level="1"
-          textAlignment="left"
-          textColor="default"
-        >hello world</heading>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <bulletListItem
-          backgroundColor="default"
-          textAlignment="left"
-          textColor="default"
-        >hello world</bulletListItem>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <heading
-          backgroundColor="default"
-          isToggleable="false"
-          level="1"
-          textAlignment="left"
-          textColor="default"
-        >hello world</heading>
-      </blockContainer>
-      <blockContainer id="block-hello">
-        <bulletListItem
-          backgroundColor="default"
-          textAlignment="left"
-          textColor="default"
-        >hello world</bulletListItem>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="A">
-          <blockContainer id="block-hello">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">hello world</paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="A">
-          <blockContainer id="block-hello">
-            <y-attributed-insert userIds="A">
-              <heading
-                backgroundColor="default"
-                textColor="default"
-                textAlignment="left"
-                level="1"
-                isToggleable="false"
-              >
-                <y-attributed-insert userIds="A">hello world</y-attributed-insert>
-              </heading>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-        <y-attributed-insert userIds="B">
-          <blockContainer id="block-hello">
-            <y-attributed-insert userIds="B">
-              <bulletListItem
-                backgroundColor="default"
-                textColor="default"
-                textAlignment="left"
-              >
-                <y-attributed-insert userIds="B">hello world</y-attributed-insert>
-              </bulletListItem>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocA)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocB)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocMerged)).toMatchSnapshot();
+  expect(editorHtml(merged.editor)).toMatchSnapshot();
 });
 
 // Mixed: A does a text edit (no type change), B changes the type.
@@ -206,77 +121,9 @@ test("concurrent: A edits text, B → heading", async () => {
     "concurrent-text-edit-vs-heading",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello universe</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <heading
-          backgroundColor="default"
-          isToggleable="false"
-          level="1"
-          textAlignment="left"
-          textColor="default"
-        >hello world</heading>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <heading
-          backgroundColor="default"
-          isToggleable="false"
-          level="1"
-          textAlignment="left"
-          textColor="default"
-        >hello world</heading>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="B">
-          <blockContainer id="block-hello">
-            <y-attributed-delete userIds="B">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-delete userIds="B">hello</y-attributed-delete>
-                <y-attributed-delete userIds="A">wo</y-attributed-delete>
-                <y-attributed-delete userIds="B">r</y-attributed-delete>
-                <y-attributed-delete userIds="A">ld</y-attributed-delete>
-              </paragraph>
-            </y-attributed-delete>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="B">
-          <blockContainer id="block-hello">
-            <y-attributed-insert userIds="B">
-              <heading
-                backgroundColor="default"
-                textColor="default"
-                textAlignment="left"
-                level="1"
-                isToggleable="false"
-              >
-                <y-attributed-insert userIds="B">hello world</y-attributed-insert>
-              </heading>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocA)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocB)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocMerged)).toMatchSnapshot();
+  expect(editorHtml(merged.editor)).toMatchSnapshot();
 });

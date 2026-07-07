@@ -72,57 +72,11 @@ test("concurrent: A merges B into A, B edits block B", async () => {
     "merge-split-merge-vs-edit",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="a">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
-      </blockContainer>
-      <blockContainer id="b">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Second</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="a">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">FirstSecond</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="a">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
-      </blockContainer>
-      <blockContainer id="b">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Second (edited)</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="a">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">FirstSecond</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="a">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            First
-            <y-attributed-insert userIds="A">Second</y-attributed-insert>
-          </paragraph>
-        </blockContainer>
-        <y-attributed-delete userIds="A">
-          <blockContainer id="b">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">Second</paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocA)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocB)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocMerged)).toMatchSnapshot();
+  expect(editorHtml(merged.editor)).toMatchSnapshot();
 });
 
 // B splits the block in the middle (Enter) while A types at the end.
@@ -167,60 +121,9 @@ test("concurrent: B splits the block, A types at the end", async () => {
     "merge-split-split-vs-type",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello world!</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello</paragraph>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="p">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello !</paragraph>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="p">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            Hello
-            <y-attributed-delete userIds="B">world</y-attributed-delete>
-            <y-attributed-insert userIds="A">!</y-attributed-insert>
-          </paragraph>
-        </blockContainer>
-        <y-attributed-insert userIds="B">
-          <blockContainer id="1">
-            <y-attributed-insert userIds="B">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert userIds="B">world</y-attributed-insert>
-              </paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocA)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocB)).toMatchSnapshot();
+  expect(ydocXml(suggestionDocMerged)).toMatchSnapshot();
+  expect(editorHtml(merged.editor)).toMatchSnapshot();
 });

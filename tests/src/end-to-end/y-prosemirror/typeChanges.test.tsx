@@ -48,48 +48,9 @@ test("suggestion mode: change list item to paragraph", async () => {
     "type-change-list-to-paragraph",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <bulletListItem
-          backgroundColor="default"
-          textAlignment="left"
-          textColor="default"
-        >hello world</bulletListItem>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="block-hello">
-            <bulletListItem
-              backgroundColor="default"
-              textColor="default"
-              textAlignment="left"
-            >hello world</bulletListItem>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="block-hello">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert userIds="">hello world</y-attributed-insert>
-              </paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Promote a paragraph to a level-1 heading. Same inline content.
@@ -113,50 +74,7 @@ test("suggestion mode: change paragraph to heading", async () => {
     "type-change-paragraph-to-heading",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <heading
-          backgroundColor="default"
-          isToggleable="false"
-          level="1"
-          textAlignment="left"
-          textColor="default"
-        >hello world</heading>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <y-attributed-delete userIds="">
-          <blockContainer id="block-hello">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">hello world</paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-insert userIds="">
-          <blockContainer id="block-hello">
-            <y-attributed-insert userIds="">
-              <heading
-                backgroundColor="default"
-                textColor="default"
-                textAlignment="left"
-                level="1"
-                isToggleable="false"
-              >
-                <y-attributed-insert userIds="">hello world</y-attributed-insert>
-              </heading>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });

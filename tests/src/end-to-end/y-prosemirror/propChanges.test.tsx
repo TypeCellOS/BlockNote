@@ -74,29 +74,9 @@ test("suggestion mode: change text alignment to center", async () => {
     "prop-change-text-alignment",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="center" textColor="default">hello world</paragraph>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="block-hello">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="center">hello world</paragraph>
-        </blockContainer>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Block-level prop change on a heading: bump `level` from 1 to 2.
@@ -122,47 +102,9 @@ test("suggestion mode: change heading level from 1 to 2", async () => {
     "prop-change-heading-level",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <heading
-          backgroundColor="default"
-          isToggleable="false"
-          level="1"
-          textAlignment="left"
-          textColor="default"
-        >hello world</heading>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-hello">
-        <heading
-          backgroundColor="default"
-          isToggleable="false"
-          level="2"
-          textAlignment="left"
-          textColor="default"
-        >hello world</heading>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="block-hello">
-          <heading
-            backgroundColor="default"
-            textColor="default"
-            textAlignment="left"
-            level="2"
-            isToggleable="false"
-          >hello world</heading>
-        </blockContainer>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Image block prop change: `previewWidth`. Resizes the image, no
@@ -196,53 +138,9 @@ test("suggestion mode: resize image (previewWidth)", async () => {
     "prop-change-image-width",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-image">
-        <image
-          backgroundColor="default"
-          caption=""
-          name=""
-          previewWidth="200"
-          showPreview="true"
-          textAlignment="left"
-          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
-        ></image>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-image">
-        <image
-          backgroundColor="default"
-          caption=""
-          name=""
-          previewWidth="400"
-          showPreview="true"
-          textAlignment="left"
-          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
-        ></image>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="block-image">
-          <image
-            textAlignment="left"
-            backgroundColor="default"
-            name=""
-            url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
-            caption=""
-            showPreview="true"
-            previewWidth="400"
-          ></image>
-        </blockContainer>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });
 
 // Image block prop change: `url`. Swaps the image source.
@@ -272,51 +170,7 @@ test("suggestion mode: change image source", async () => {
     "prop-change-image-source",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-image">
-        <image
-          backgroundColor="default"
-          caption=""
-          name=""
-          previewWidth="200"
-          showPreview="true"
-          textAlignment="left"
-          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
-        ></image>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
-    "<blockGroup>
-      <blockContainer id="block-image">
-        <image
-          backgroundColor="default"
-          caption=""
-          name=""
-          previewWidth="200"
-          showPreview="true"
-          textAlignment="left"
-          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%234ecdc4'/&gt;&lt;/svg&gt;"
-        ></image>
-      </blockContainer>
-    </blockGroup>"
-  `);
-  expect(editorHtml(editor)).toMatchInlineSnapshot(`
-    "<doc>
-      <blockGroup>
-        <blockContainer id="block-image">
-          <image
-            textAlignment="left"
-            backgroundColor="default"
-            name=""
-            url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%234ecdc4'/&gt;&lt;/svg&gt;"
-            caption=""
-            showPreview="true"
-            previewWidth="200"
-          ></image>
-        </blockContainer>
-      </blockGroup>
-    </doc>"
-  `);
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
 });

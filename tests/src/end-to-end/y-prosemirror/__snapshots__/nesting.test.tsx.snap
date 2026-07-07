@@ -1,0 +1,232 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`suggestion mode: change block type of a block with children 1`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+    <blockGroup>
+      <blockContainer id="n1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: change block type of a block with children 2`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <heading
+      backgroundColor="default"
+      isToggleable="false"
+      level="1"
+      textAlignment="left"
+      textColor="default"
+    >N0</heading>
+    <blockGroup>
+      <blockContainer id="n1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: change block type of a block with children 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="n0">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="">N0</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+        <y-attributed-delete userIds="">
+          <blockGroup>
+            <y-attributed-delete userIds="">
+              <blockContainer id="n1">
+                <y-attributed-delete userIds="">
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-delete userIds="">N1</y-attributed-delete>
+                  </paragraph>
+                </y-attributed-delete>
+              </blockContainer>
+            </y-attributed-delete>
+          </blockGroup>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="n0">
+        <y-attributed-insert userIds="">
+          <heading
+            backgroundColor="default"
+            isToggleable="false"
+            level="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <y-attributed-insert userIds="">N0</y-attributed-insert>
+          </heading>
+        </y-attributed-insert>
+        <y-attributed-insert userIds="">
+          <blockGroup>
+            <y-attributed-insert userIds="">
+              <blockContainer id="n1">
+                <y-attributed-insert userIds="">
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-insert userIds="">N1</y-attributed-insert>
+                  </paragraph>
+                </y-attributed-insert>
+              </blockContainer>
+            </y-attributed-insert>
+          </blockGroup>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: indent a block 1`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+  </blockContainer>
+  <blockContainer id="n1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: indent a block 2`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+    <blockGroup>
+      <blockContainer id="n1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: indent a block 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="n0">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="">N0</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-delete userIds="">
+      <blockContainer id="n1">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="">N1</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="n0">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-insert userIds="">N0</y-attributed-insert>
+          </paragraph>
+        </y-attributed-insert>
+        <y-attributed-insert userIds="">
+          <blockGroup>
+            <y-attributed-insert userIds="">
+              <blockContainer id="n1">
+                <y-attributed-insert userIds="">
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-insert userIds="">N1</y-attributed-insert>
+                  </paragraph>
+                </y-attributed-insert>
+              </blockContainer>
+            </y-attributed-insert>
+          </blockGroup>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: unindent a block 1`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+    <blockGroup>
+      <blockContainer id="n1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: unindent a block 2`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+  </blockContainer>
+  <blockContainer id="n1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: unindent a block 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="">
+      <blockContainer id="n0">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="">N0</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+        <y-attributed-delete userIds="">
+          <blockGroup>
+            <y-attributed-delete userIds="">
+              <blockContainer id="n1">
+                <y-attributed-delete userIds="">
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-delete userIds="">N1</y-attributed-delete>
+                  </paragraph>
+                </y-attributed-delete>
+              </blockContainer>
+            </y-attributed-delete>
+          </blockGroup>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="n0">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-insert userIds="">N0</y-attributed-insert>
+          </paragraph>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+    <y-attributed-insert userIds="">
+      <blockContainer id="n1">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-insert userIds="">N1</y-attributed-insert>
+          </paragraph>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;

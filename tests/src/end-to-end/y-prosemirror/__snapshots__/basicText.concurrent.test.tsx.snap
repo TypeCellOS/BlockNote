@@ -1,0 +1,112 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`concurrent: A bolds the word, B italicises the word 1`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A bolds the word, B italicises the word 2`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+      hello
+      <bold>world</bold>
+    </paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A bolds the word, B italicises the word 3`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+      hello
+      <italic>world</italic>
+    </paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A bolds the word, B italicises the word 4`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+      hello
+      <italic>
+        <bold>world</bold>
+      </italic>
+    </paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A bolds the word, B italicises the word 5`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="block-hello">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+        hello
+        <y-attributed-format format="[object Object]" userIds="A,B">
+          <y-attributed-format format="[object Object]" userIds="A">
+            <italic>
+              <bold>world</bold>
+            </italic>
+          </y-attributed-format>
+        </y-attributed-format>
+      </paragraph>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`concurrent: A fixes typo, B deletes the word 1`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello wrold</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A fixes typo, B deletes the word 2`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A fixes typo, B deletes the word 3`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A fixes typo, B deletes the word 4`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello o</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A fixes typo, B deletes the word 5`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="block-hello">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+        hello
+        <y-attributed-delete userIds="B">w</y-attributed-delete>
+        <y-attributed-insert userIds="A">o</y-attributed-insert>
+        <y-attributed-delete userIds="B">r</y-attributed-delete>
+        <y-attributed-delete userIds="A">o</y-attributed-delete>
+        <y-attributed-delete userIds="B">ld</y-attributed-delete>
+      </paragraph>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
