@@ -15,6 +15,7 @@ export default defineConfig(
               { auto: true },
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
+            output: ["dist/**", "!dist/*.tsbuildinfo"],
           },
         },
       },
