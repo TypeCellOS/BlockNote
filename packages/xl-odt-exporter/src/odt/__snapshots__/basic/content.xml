@@ -468,6 +468,20 @@
             <text:p text:style-name="BN_S29">
                 All those moments will be lost in time, like tears in rain.
             </text:p>
+            <text:p text:style-name="Codeblock">
+                a^2 = \sqrt{b^2 + c^2}
+            </text:p>
+            <text:p text:style-name="Standard">
+                Inline math:
+                <text:span>
+                    e^{i\pi} + 1 = 0
+                </text:span>
+            </text:p>
+            <text:p text:style-name="Codeblock">
+                graph TD
+                <text:line-break></text:line-break>
+                A[Start] --&gt; B[End]
+            </text:p>
         </office:text>
     </office:body>
 </office:document-content>

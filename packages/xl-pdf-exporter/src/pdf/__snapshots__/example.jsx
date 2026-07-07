@@ -1186,5 +1186,96 @@
         </TEXT>
       </VIEW>
     </React.Fragment>
+    <React.Fragment key=".1:$math-block">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: undefined
+        }}
+      >
+        <VIEW
+          style={{
+            border: '1px solid #000000',
+            fontFamily: 'GeistMono',
+            fontSize: 12,
+            lineHeight: 1.25,
+            padding: 18
+          }}
+        >
+          <TEXT
+            style={{
+              marginLeft: 0
+            }}
+          >
+            {`a^2 = \sqrt{b^2 + c^2}`}
+          </TEXT>
+        </VIEW>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$paragraph-with-inline-math">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <TEXT>
+          <TEXT style={{}}>
+            Inline math:{' '}
+          </TEXT>
+          <TEXT
+            style={{
+              fontFamily: 'GeistMono'
+            }}
+          >
+            <TEXT style={{}}>
+              {`e^{i\pi} + 1 = 0`}
+            </TEXT>
+          </TEXT>
+        </TEXT>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$diagram-block">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: undefined
+        }}
+      >
+        <VIEW
+          style={{
+            border: '1px solid #000000',
+            fontFamily: 'GeistMono',
+            fontSize: 12,
+            lineHeight: 1.25,
+            padding: 18
+          }}
+        >
+          <TEXT
+            style={{
+              marginLeft: 0
+            }}
+          >
+            graph TD
+          </TEXT>
+          <TEXT
+            style={{
+              marginLeft: 14.25
+            }}
+          >
+            {`A[Start] --> B[End]`}
+          </TEXT>
+        </VIEW>
+      </VIEW>
+    </React.Fragment>
   </PAGE>
 </DOCUMENT>

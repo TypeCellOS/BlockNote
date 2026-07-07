@@ -154,9 +154,12 @@ importers:
       '@react-email/render':
         specifier: ^2.0.4
         version: 2.0.5(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@react-pdf/math':
+        specifier: ^2.0.1
+        version: 2.0.1(@react-pdf/renderer@4.5.1(react@19.2.5))(react@19.2.5)
       '@react-pdf/renderer':
-        specifier: ^4.3.0
-        version: 4.3.2(react@19.2.5)
+        specifier: ^4.5.1
+        version: 4.5.1(react@19.2.5)
       '@sentry/nextjs':
         specifier: ^10.34.0
         version: 10.47.0(@opentelemetry/context-async-hooks@2.6.1(@opentelemetry/api@1.9.1))(@opentelemetry/core@2.6.1(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.6.1(@opentelemetry/api@1.9.1))(next@16.2.7(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react@19.2.5)(webpack@5.105.4(esbuild@0.27.5))
@@ -250,6 +253,9 @@ importers:
       fumadocs-ui:
         specifier: npm:@fumadocs/base-ui@16.5.0
         version: '@fumadocs/base-ui@16.5.0(@types/react@19.2.14)(fumadocs-core@16.5.0(@types/react@19.2.14)(lucide-react@0.562.0(react@19.2.5))(next@16.2.7(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(zod@4.3.6))(next@16.2.7(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.2)'
+      katex:
+        specifier: ^0.16.11
+        version: 0.16.47
       lucide-react:
         specifier: ^0.562.0
         version: 0.562.0(react@19.2.5)
@@ -2764,9 +2770,12 @@ importers:
       '@mantine/hooks':
         specifier: ^9.0.2
         version: 9.1.1(react@19.2.5)
+      '@react-pdf/math':
+        specifier: ^2.0.1
+        version: 2.0.1(@react-pdf/renderer@4.5.1(react@19.2.5))(react@19.2.5)
       '@react-pdf/renderer':
-        specifier: ^4.3.0
-        version: 4.3.2(react@19.2.5)
+        specifier: ^4.5.1
+        version: 4.5.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2822,6 +2831,9 @@ importers:
       '@mantine/hooks':
         specifier: ^9.0.2
         version: 9.1.1(react@19.2.5)
+      katex:
+        specifier: ^0.16.11
+        version: 0.16.47
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2877,6 +2889,9 @@ importers:
       '@mantine/hooks':
         specifier: ^9.0.2
         version: 9.1.1(react@19.2.5)
+      katex:
+        specifier: ^0.16.11
+        version: 0.16.47
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -5424,6 +5439,9 @@ importers:
       image-meta:
         specifier: ^0.2.2
         version: 0.2.2
+      mathml2omml:
+        specifier: ^0.5.0
+        version: 0.5.0
     devDependencies:
       '@blocknote/diagram-block':
         specifier: workspace:^
@@ -5431,6 +5449,9 @@ importers:
       '@blocknote/shared':
         specifier: workspace:^
         version: link:../../shared
+      '@types/katex':
+        specifier: ^0.16.7
+        version: 0.16.8
       '@types/react':
         specifier: ^19.2.3
         version: 19.2.14
@@ -5440,6 +5461,9 @@ importers:
       '@zip.js/zip.js':
         specifier: ^2.8.8
         version: 2.8.26
+      katex:
+        specifier: ^0.16.11
+        version: 0.16.47
       react:
         specifier: ^19.2.5
         version: 19.2.5
@@ -5590,12 +5614,18 @@ importers:
       '@testing-library/react':
         specifier: ^16.3.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@types/katex':
+        specifier: ^0.16.7
+        version: 0.16.8
       '@types/react':
         specifier: ^19.2.3
         version: 19.2.14
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.14)
+      katex:
+        specifier: ^0.16.11
+        version: 0.16.47
       react:
         specifier: ^19.2.5
         version: 19.2.5
@@ -5627,8 +5657,8 @@ importers:
         specifier: workspace:^
         version: link:../xl-multi-column
       '@react-pdf/renderer':
-        specifier: ^4.3.0
-        version: 4.3.2(react@19.2.5)
+        specifier: ^4.5.1
+        version: 4.5.1(react@19.2.5)
     devDependencies:
       '@blocknote/diagram-block':
         specifier: workspace:^
@@ -5636,6 +5666,9 @@ importers:
       '@blocknote/shared':
         specifier: workspace:^
         version: link:../../shared
+      '@react-pdf/math':
+        specifier: ^2.0.1
+        version: 2.0.1(@react-pdf/renderer@4.5.1(react@19.2.5))(react@19.2.5)
       '@testing-library/react':
         specifier: ^16.3.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -7553,6 +7586,10 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@noble/ciphers@1.3.0':
+    resolution: {integrity: sha512-2I0gnIVPtfnMw9ee9h1dJG7tp81+8Ob3OJb3Mv37rx5L40/b0i7djjCVvGOVqc9AEIQyvyu1i6ypKdFw8R8gQw==}
+    engines: {node: ^14.21.3 || >=16}
+
   '@noble/ciphers@2.1.1':
     resolution: {integrity: sha512-bysYuiVfhxNJuldNXlFEitTVdNnYUc+XNJZd7Qm2a5j1vZHgY+fazadNFWFaMK/2vye0JVlxV3gHmC0WDfAOQw==}
     engines: {node: '>= 20.19.0'}
@@ -9060,48 +9097,54 @@ packages:
     peerDependencies:
       react: ^18.0 || ^19.0 || ^19.0.0-rc
 
-  '@react-pdf/fns@3.1.2':
-    resolution: {integrity: sha512-qTKGUf0iAMGg2+OsUcp9ffKnKi41RukM/zYIWMDJ4hRVYSr89Q7e3wSDW/Koqx3ea3Uy/z3h2y3wPX6Bdfxk6g==}
+  '@react-pdf/fns@3.1.3':
+    resolution: {integrity: sha512-0I7pApDr1/RLAKbizuLy/IHTEa93LSPy/bEwYniboC3Xqnp6Od8xFJKbKEzGw2wh/5zKFFwl00g4t9RwgIMc3w==}
 
-  '@react-pdf/font@4.0.4':
-    resolution: {integrity: sha512-8YtgGtL511txIEc9AjiilpZ7yjid8uCd8OGUl6jaL3LIHnrToUupSN4IzsMQpVTCMYiDLFnDNQzpZsOYtRS/Pg==}
+  '@react-pdf/font@4.0.8':
+    resolution: {integrity: sha512-deNd+emtZAJho1IlzKL9bRoLAGv/6oXOIKO2oZfs4RuXUrK1onLHbJO7e2YoVLPFP/sQxisRTnzdJFtd35iKwA==}
 
-  '@react-pdf/image@3.0.4':
-    resolution: {integrity: sha512-z0ogVQE0bKqgXQ5smgzIU857rLV7bMgVdrYsu3UfXDDLSzI7QPvzf6MFTFllX6Dx2rcsF13E01dqKPtJEM799g==}
+  '@react-pdf/image@3.1.0':
+    resolution: {integrity: sha512-ks7Ry8v711r8NvKWSELehj0BXBNPRihSnWsM09nDD8Ur175zbWBCK217LLwQMKDNYDVpkZaipdoJPom1LGaE9g==}
 
-  '@react-pdf/layout@4.4.2':
-    resolution: {integrity: sha512-gNu2oh8MiGR+NJZYTJ4c4q0nWCESBI6rKFiodVhE7OeVAjtzZzd6l65wsN7HXdWJqOZD3ttD97iE+tf5SOd/Yg==}
+  '@react-pdf/layout@4.6.1':
+    resolution: {integrity: sha512-gN6PmWoEffvlIkifLfEhMsVucRywVMyH3rnxdyOVOhGy0nWJKKGpHyPc4plbDdpP6EfZ0r8prHXujDSkIG2nSA==}
 
-  '@react-pdf/pdfkit@4.1.0':
-    resolution: {integrity: sha512-Wm/IOAv0h/U5Ra94c/PltFJGcpTUd/fwVMVeFD6X9tTTPCttIwg0teRG1Lqq617J8K4W7jpL/B0HTH0mjp3QpQ==}
+  '@react-pdf/math@2.0.1':
+    resolution: {integrity: sha512-o+QQA03iT76RiKe8uhOgof+5X7GzA4SUjjPbffi6IGwcOotuxTKm3uhZAnx18ioylSpJf4BcVgUazzb5Ycv8qw==}
+    peerDependencies:
+      '@react-pdf/renderer': '>=4.5.1'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@react-pdf/png-js@3.0.0':
-    resolution: {integrity: sha512-eSJnEItZ37WPt6Qv5pncQDxLJRK15eaRwPT+gZoujP548CodenOVp49GST8XJvKMFt9YqIBzGBV/j9AgrOQzVA==}
+  '@react-pdf/pdfkit@5.1.1':
+    resolution: {integrity: sha512-wNcdSsNlNYyGHGAgIdt453egBF7fiF9UxpRlklUfVvu8OWCrUppG9xiUrPLVoKiqWet5tMi0w6LmuFUJuYqjEg==}
 
-  '@react-pdf/primitives@4.1.1':
-    resolution: {integrity: sha512-IuhxYls1luJb7NUWy6q5avb1XrNaVj9bTNI40U9qGRuS6n7Hje/8H8Qi99Z9UKFV74bBP3DOf3L1wV2qZVgVrQ==}
+  '@react-pdf/primitives@4.3.0':
+    resolution: {integrity: sha512-nYXoZ36pvwNzbc54+DbL8RCn15jU7woJ9D/svnh5tpUXekJ+CbI4mZLo6boSv24CvJgychOu6h7gxX03B4ps0A==}
 
   '@react-pdf/reconciler@2.0.0':
     resolution: {integrity: sha512-7zaPRujpbHSmCpIrZ+b9HSTJHthcVZzX0Wx7RzvQGsGBUbHP4p6s5itXrAIOuQuPvDepoHGNOvf6xUuMVvdoyw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@react-pdf/render@4.3.2':
-    resolution: {integrity: sha512-el5KYM1sH/PKcO4tRCIm8/AIEmhtraaONbwCrBhFdehoGv6JtgnXiMxHGAvZbI5kEg051GbyP+XIU6f6YbOu6Q==}
+  '@react-pdf/render@4.5.1':
+    resolution: {integrity: sha512-IW/N4HWJWtioBXCf7n02IR24VJJ8gbdS3jGypf+vW/rSErEx3/URRzh9UK6Ma8Fpog9+T/W6GE2NHJ5AAKHhVA==}
 
-  '@react-pdf/renderer@4.3.2':
-    resolution: {integrity: sha512-EhPkj35gO9rXIyyx29W3j3axemvVY5RigMmlK4/6Ku0pXB8z9PEE/sz4ZBOShu2uot6V4xiCR3aG+t9IjJJlBQ==}
+  '@react-pdf/renderer@4.5.1':
+    resolution: {integrity: sha512-5r1VQrE6FRLXX5wWUxwZzM24E2BJMo6g8AQWuS8WyPs9ugu5yMnb2g8/RpPYka/Z6J+RUEWc32wty2NoUJF42Q==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@react-pdf/stylesheet@6.1.2':
-    resolution: {integrity: sha512-E3ftGRYUQGKiN3JOgtGsLDo0hGekA6dmkmi/MYACytmPTKxQRBSO3126MebmCq+t1rgU9uRlREIEawJ+8nzSbw==}
+  '@react-pdf/stylesheet@6.2.1':
+    resolution: {integrity: sha512-2+UEk+7e+z8baaWi2l5kPLWmwtJeOI+T5wW9GGeN3iDH7vd3kbTqOpN1yt9mmfNVZFxQsnDHpznFb5v5UF983A==}
 
-  '@react-pdf/textkit@6.1.0':
-    resolution: {integrity: sha512-sFlzDC9CDFrJsnL3B/+NHrk9+Advqk7iJZIStiYQDdskbow8GF/AGYrpIk+vWSnh35YxaGbHkqXq53XOxnyrjQ==}
+  '@react-pdf/svg@1.1.0':
+    resolution: {integrity: sha512-cTIHXiz9x1HrbfqzfxfZP3FRdDwUXG77QWF6Fb5MP/lV3ONxR+g0Z3hwtBatCS9HeGBQCpxX/Lzb8wHE+co1PA==}
 
-  '@react-pdf/types@2.9.2':
-    resolution: {integrity: sha512-dufvpKId9OajLLbgn9q7VLUmyo1Jf+iyGk2ZHmCL8nIDtL8N1Ejh9TH7+pXXrR0tdie1nmnEb5Bz9U7g4hI4/g==}
+  '@react-pdf/textkit@6.3.0':
+    resolution: {integrity: sha512-v6+V8nAcVwm7s2s1jIG2MD3Iw//x/k+XrH1foWOELBE4b32pyDgKyPXN/6KJE0dnX7+fVy27uctLNCLNMvzKzQ==}
+
+  '@react-pdf/types@2.11.1':
+    resolution: {integrity: sha512-i9xQgfaDU9QoeNnbp6rltXCWg1huEh195rpOuN8cE4BZ2FuLdQrsIcb2dhFF9aOxXf+XBA6LOSpIW051MDD/bw==}
 
   '@reduxjs/toolkit@2.11.2':
     resolution: {integrity: sha512-Kd6kAHTA6/nUpp8mySPqj3en3dm0tdMIgbttnQ1xFMVpufoj+ADi8pXLBsd4xzTRHQa7t/Jv8W5UnCuW4kuWMQ==}
@@ -11330,8 +11373,13 @@ packages:
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
 
-  color-string@1.9.1:
-    resolution: {integrity: sha512-shrVawQFojnZv6xM40anx4CkoDP+fZsw/ZerEMsW/pyzsRbElpsL/DBVW7q3ExxwusdNXI3lXpuhEZkzs8p5Eg==}
+  color-name@2.1.0:
+    resolution: {integrity: sha512-1bPaDNFm0axzE4MEAzKPuqKWeRaT43U/hyxKPBdqTfmPF+d6n7FSoTFxLVULUJOmiLp01KjhIPPH+HrXZJN4Rg==}
+    engines: {node: '>=12.20'}
+
+  color-string@2.1.4:
+    resolution: {integrity: sha512-Bb6Cq8oq0IjDOe8wJmi4JeNn763Xs9cfrBcaylK1tPypWzyoy2G3l90v9k64kjphl/ZJjPIShFztenRomi8WTg==}
+    engines: {node: '>=18'}
 
   color-support@1.1.3:
     resolution: {integrity: sha512-qiBjkpbMLO/HL68y+lh4q0/O1MZFj2RX6X/KmMa3+gJD3z+WwI1ZzDHysvqHGS3mP6mznPckpXmw1nI9cJjyRg==}
@@ -11443,9 +11491,6 @@ packages:
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
-
-  crypto-js@4.2.0:
-    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
 
   css-tree@3.2.1:
     resolution: {integrity: sha512-X7sjQzceUhu1u7Y/ylrRZFU2FS6LRiFVp6rKLPg23y3x3c3DOKAwuXGDp+PAGjh6CSnCjYeAul8pcT8bAl+lSA==}
@@ -12001,6 +12046,10 @@ packages:
     peerDependenciesMeta:
       jiti:
         optional: true
+
+  esm@3.2.25:
+    resolution: {integrity: sha512-U1suiZ2oDVWv4zPO56S0NcR5QriEahGtdN2OR6FiOG4WJvcjBVFB0qI4+eKoWFH483PKGuLuu6V8Z4T5g63UVA==}
+    engines: {node: '>=6'}
 
   espree@10.4.0:
     resolution: {integrity: sha512-j6PAQ2uUr79PZhBjP5C5fhl8e39FmRnOjsD5lGnWrFU8i2G776tBK7+nP8KuQUTTyAZUwfQqXAgrVH5MbH9CYQ==}
@@ -12665,9 +12714,6 @@ packages:
   is-arrayish@0.2.1:
     resolution: {integrity: sha512-zz06S8t0ozoDXMG+ube26zeCTNXcKIPJZJi8hBrF4idCLms4CG9QtK7qBl1boi5ODzFpjswb5JPmHCbMpjaYzg==}
 
-  is-arrayish@0.3.4:
-    resolution: {integrity: sha512-m6UrgzFVUYawGBh1dUsWR5M2Clqic9RVXC/9f8ceNlv2IcO9j9J/z8UoCLPqtsPBFNzEpfR3xftohbfqDx8EQA==}
-
   is-async-function@2.1.1:
     resolution: {integrity: sha512-9dgM/cZBnNvjzaMYHVoxxfPj2QXt22Ev7SuuPrs+xav0ukGB0S6d4ydZdEiM48kLx5kDV+QBPrpVnFyefL8kkQ==}
     engines: {node: '>= 0.4'}
@@ -12926,6 +12972,9 @@ packages:
 
   js-base64@3.7.8:
     resolution: {integrity: sha512-hNngCeKxIUQiEUN3GPJOkz4wF/YvdUdbNL9hsBcMQTkKzboD7T/q3OYOuuPZLUE6dBxSGpwhk5mwuDud7JVAow==}
+
+  js-md5@0.8.3:
+    resolution: {integrity: sha512-qR0HB5uP6wCuRMrWPTrkMaev7MJZwJuuw4fnwAzRgP4J4/F8RwtodOKpGp4XpqsLBFzzgqIO42efFAyz2Et6KQ==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -13227,8 +13276,15 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
+  mathjax-full@3.2.2:
+    resolution: {integrity: sha512-+LfG9Fik+OuI8SLwsiR02IVdjcnRCy5MufYLi0C3TdMT56L/pjB0alMVGgoWJF8pN9Rc7FESycZB9BMNWIid5w==}
+    deprecated: Version 4 replaces this package with the scoped package @mathjax/src
+
   mathml-to-latex@1.8.0:
     resolution: {integrity: sha512-gQ0uK3zqB8HwlfaXJkEL5rgaZNbKUiBMmBP/B/W+b+t6KcseLSuYb1b0BjLgS9ZiQa24ePkqTX8/6FaQuDL7wQ==}
+
+  mathml2omml@0.5.0:
+    resolution: {integrity: sha512-4eLs37a+TH+CL/M5XZZrlc75SNRJNPiZzIaeSSvH0UFCRaCdSYRHWvrlA7MUbeQks/z4sVhfg+GlcZhVVUHzqg==}
 
   mdast-util-find-and-replace@3.0.2:
     resolution: {integrity: sha512-Tmd1Vg/m3Xz43afeNxDIhWRtFZgM2VLyaf4vSTYwudTyeuTneoL3qtWMA5jeLyz/O1vDJmmV4QuScFCA2tBPwg==}
@@ -13292,6 +13348,9 @@ packages:
 
   mermaid@11.16.0:
     resolution: {integrity: sha512-Zvm3kbstgdpvIJPPItlL7fppIZ3kibvc1oZIGxdvk9t6UFz6flv+Jw7FtRGKwfcI8OckmH04LqG6LlS6X4B1pA==}
+
+  mhchemparser@4.2.1:
+    resolution: {integrity: sha512-kYmyrCirqJf3zZ9t/0wGgRZ4/ZJw//VwaRVGA75C4nhE60vtnIzhl9J9ndkX/h6hxSN7pjg/cE0VxbnNM+bnDQ==}
 
   micromark-core-commonmark@2.0.3:
     resolution: {integrity: sha512-RDBrHEMSxVFLg6xvnXmb1Ayr2WzLAWjeSATAoxwKYJV94TeNavgoIdA0a9ytzDSVzBy2YKFK+emCPOEibLeCrg==}
@@ -13473,6 +13532,9 @@ packages:
   minizlib@2.1.2:
     resolution: {integrity: sha512-bAxsR8BVfj60DWXHE3u30oHzfl4G7khkSuPW+qvpd7jFRHm7dLxOjUk1EHACJ/hxLY8phGJ0YhYHZo7jil7Qdg==}
     engines: {node: '>= 8'}
+
+  mj-context-menu@0.6.1:
+    resolution: {integrity: sha512-7NO5s6n10TIV96d4g2uDpG7ZDpIhMh0QNfGdJw/W47JswFcosz457wqz/b5sAKvl12sxINGFCn80NZHKwxQEXA==}
 
   mkdirp-classic@0.5.3:
     resolution: {integrity: sha512-gKLcREMhtuZRwRAfqP3RFW+TK4JqApVBtOIftVgjuABpAtpxhPGaDcfvbhNvD0B8iD1oUr/txX35NjcaY6Ns/A==}
@@ -13988,6 +14050,9 @@ packages:
     resolution: {integrity: sha512-hheHdokM8cdqCb0lcE3s+zT4t4W+vvjpGxsZlDnikarzx8tSzMebh3UiFtgqwFwnTnjYQcsyMF8ei2mCO/tpeA==}
     engines: {node: '>=18'}
     hasBin: true
+
+  png-js@2.0.0:
+    resolution: {integrity: sha512-GdzJuUMc6ZSpxFJWVxtOH1bzYHym+TOnveqUjb+VJIbZWbZzyiRGFiKhbiielfpYbgMlhHVhsJ0FTazfuRFkMA==}
 
   pngjs@3.4.0:
     resolution: {integrity: sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==}
@@ -14697,9 +14762,6 @@ packages:
   simple-get@4.0.1:
     resolution: {integrity: sha512-brv7p5WgH0jmQJr1ZDDfKDOSeWWg+OVypG99A/5vYGPqJ6pxiaHLy8nxtFjBA7oMa01ebA9gfh1uMCFqOuXxvA==}
 
-  simple-swizzle@0.2.4:
-    resolution: {integrity: sha512-nAu1WFPQSMNr2Zn9PGSZK9AGn4t/y97lEm+MXTtUDwfP0ksAIX4nO+6ruD9Jwut4C49SB1Ws+fbXsm/yScWOHw==}
-
   sirv@3.0.2:
     resolution: {integrity: sha512-2wcC/oGxHis/BoHkkPwldgiPSYcpZK3JU28WoMVv55yHJgcZ8rlXvuG9iZggz+sU1d4bRgIGASwyWqjxu3FM0g==}
     engines: {node: '>=18'}
@@ -14763,6 +14825,10 @@ packages:
 
   space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
+
+  speech-rule-engine@4.1.4:
+    resolution: {integrity: sha512-i/VCLG1fvRc95pMHRqG4aQNscv+9aIsqA2oI7ZQS51sTdUcDHYX6cpT8/tqZ+enjs1tKVwbRBWgxut9SWn+f9g==}
+    hasBin: true
 
   split2@4.2.0:
     resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
@@ -15537,6 +15603,9 @@ packages:
     resolution: {integrity: sha512-hUrmaWBdVDcxvYqnyh09zunKzROWjbZTiNy8dBEjkS7ehEDQibXJ7XvlmtbwuTclUiIyN+CyXQD4Vmko8fNm8w==}
     engines: {node: '>=8'}
     hasBin: true
+
+  wicked-good-xpath@1.3.0:
+    resolution: {integrity: sha512-Gd9+TUn5nXdwj/hFsPVx5cuHHiF5Bwuc30jZ4+ronF1qHK5O7HD0sgmXWSEgwKquT3ClLoKPVbO6qGwVwLzvAw==}
 
   wide-align@1.1.5:
     resolution: {integrity: sha512-eDMORYaPNZ4sQIuuYPDHdQvf4gyCF9rEEV/yPxGfwPkRodwEgiMUUXTx/dex+Me0wxx53S+NgUHaP7y3MGlDmg==}
@@ -17608,6 +17677,8 @@ snapshots:
   '@next/swc-win32-x64-msvc@16.2.7':
     optional: true
 
+  '@noble/ciphers@1.3.0': {}
+
   '@noble/ciphers@2.1.1': {}
 
   '@noble/hashes@1.8.0': {}
@@ -19053,48 +19124,54 @@ snapshots:
     dependencies:
       react: 19.2.5
 
-  '@react-pdf/fns@3.1.2': {}
+  '@react-pdf/fns@3.1.3': {}
 
-  '@react-pdf/font@4.0.4':
+  '@react-pdf/font@4.0.8':
     dependencies:
-      '@react-pdf/pdfkit': 4.1.0
-      '@react-pdf/types': 2.9.2
+      '@react-pdf/pdfkit': 5.1.1
+      '@react-pdf/types': 2.11.1
       fontkit: 2.0.4
       is-url: 1.2.4
 
-  '@react-pdf/image@3.0.4':
+  '@react-pdf/image@3.1.0':
     dependencies:
-      '@react-pdf/png-js': 3.0.0
+      '@react-pdf/svg': 1.1.0
       jay-peg: 1.1.1
+      png-js: 2.0.0
 
-  '@react-pdf/layout@4.4.2':
+  '@react-pdf/layout@4.6.1':
     dependencies:
-      '@react-pdf/fns': 3.1.2
-      '@react-pdf/image': 3.0.4
-      '@react-pdf/primitives': 4.1.1
-      '@react-pdf/stylesheet': 6.1.2
-      '@react-pdf/textkit': 6.1.0
-      '@react-pdf/types': 2.9.2
+      '@react-pdf/fns': 3.1.3
+      '@react-pdf/image': 3.1.0
+      '@react-pdf/primitives': 4.3.0
+      '@react-pdf/stylesheet': 6.2.1
+      '@react-pdf/textkit': 6.3.0
+      '@react-pdf/types': 2.11.1
       emoji-regex-xs: 1.0.0
       queue: 6.0.2
       yoga-layout: 3.2.1
 
-  '@react-pdf/pdfkit@4.1.0':
+  '@react-pdf/math@2.0.1(@react-pdf/renderer@4.5.1(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      '@react-pdf/renderer': 4.5.1(react@19.2.5)
+      '@react-pdf/svg': 1.1.0
+      mathjax-full: 3.2.2
+      react: 19.2.5
+
+  '@react-pdf/pdfkit@5.1.1':
     dependencies:
       '@babel/runtime': 7.29.2
-      '@react-pdf/png-js': 3.0.0
+      '@noble/ciphers': 1.3.0
+      '@noble/hashes': 1.8.0
       browserify-zlib: 0.2.0
-      crypto-js: 4.2.0
       fontkit: 2.0.4
       jay-peg: 1.1.1
+      js-md5: 0.8.3
       linebreak: 1.1.0
+      png-js: 2.0.0
       vite-compatible-readable-stream: 3.6.1
 
-  '@react-pdf/png-js@3.0.0':
-    dependencies:
-      browserify-zlib: 0.2.0
-
-  '@react-pdf/primitives@4.1.1': {}
+  '@react-pdf/primitives@4.3.0': {}
 
   '@react-pdf/reconciler@2.0.0(react@19.2.5)':
     dependencies:
@@ -19102,57 +19179,61 @@ snapshots:
       react: 19.2.5
       scheduler: 0.25.0-rc-603e6108-20241029
 
-  '@react-pdf/render@4.3.2':
+  '@react-pdf/render@4.5.1':
     dependencies:
       '@babel/runtime': 7.29.2
-      '@react-pdf/fns': 3.1.2
-      '@react-pdf/primitives': 4.1.1
-      '@react-pdf/textkit': 6.1.0
-      '@react-pdf/types': 2.9.2
+      '@react-pdf/fns': 3.1.3
+      '@react-pdf/primitives': 4.3.0
+      '@react-pdf/textkit': 6.3.0
+      '@react-pdf/types': 2.11.1
       abs-svg-path: 0.1.1
-      color-string: 1.9.1
+      color-string: 2.1.4
       normalize-svg-path: 1.1.0
       parse-svg-path: 0.1.2
       svg-arc-to-cubic-bezier: 3.2.0
 
-  '@react-pdf/renderer@4.3.2(react@19.2.5)':
+  '@react-pdf/renderer@4.5.1(react@19.2.5)':
     dependencies:
       '@babel/runtime': 7.29.2
-      '@react-pdf/fns': 3.1.2
-      '@react-pdf/font': 4.0.4
-      '@react-pdf/layout': 4.4.2
-      '@react-pdf/pdfkit': 4.1.0
-      '@react-pdf/primitives': 4.1.1
+      '@react-pdf/fns': 3.1.3
+      '@react-pdf/font': 4.0.8
+      '@react-pdf/layout': 4.6.1
+      '@react-pdf/pdfkit': 5.1.1
+      '@react-pdf/primitives': 4.3.0
       '@react-pdf/reconciler': 2.0.0(react@19.2.5)
-      '@react-pdf/render': 4.3.2
-      '@react-pdf/types': 2.9.2
+      '@react-pdf/render': 4.5.1
+      '@react-pdf/types': 2.11.1
       events: 3.3.0
       object-assign: 4.1.1
       prop-types: 15.8.1
       queue: 6.0.2
       react: 19.2.5
 
-  '@react-pdf/stylesheet@6.1.2':
+  '@react-pdf/stylesheet@6.2.1':
     dependencies:
-      '@react-pdf/fns': 3.1.2
-      '@react-pdf/types': 2.9.2
-      color-string: 1.9.1
+      '@react-pdf/fns': 3.1.3
+      '@react-pdf/types': 2.11.1
+      color-string: 2.1.4
       hsl-to-hex: 1.0.0
       media-engine: 1.0.3
       postcss-value-parser: 4.2.0
 
-  '@react-pdf/textkit@6.1.0':
+  '@react-pdf/svg@1.1.0':
     dependencies:
-      '@react-pdf/fns': 3.1.2
+      '@react-pdf/primitives': 4.3.0
+
+  '@react-pdf/textkit@6.3.0':
+    dependencies:
+      '@react-pdf/fns': 3.1.3
       bidi-js: 1.0.3
       hyphen: 1.14.1
       unicode-properties: 1.4.1
 
-  '@react-pdf/types@2.9.2':
+  '@react-pdf/types@2.11.1':
     dependencies:
-      '@react-pdf/font': 4.0.4
-      '@react-pdf/primitives': 4.1.1
-      '@react-pdf/stylesheet': 6.1.2
+      '@react-pdf/font': 4.0.8
+      '@react-pdf/primitives': 4.3.0
+      '@react-pdf/stylesheet': 6.2.1
 
   '@reduxjs/toolkit@2.11.2(react-redux@9.2.0(@types/react@19.2.14)(react@19.2.5)(redux@5.0.1))(react@19.2.5)':
     dependencies:
@@ -21672,10 +21753,11 @@ snapshots:
 
   color-name@1.1.4: {}
 
-  color-string@1.9.1:
+  color-name@2.1.0: {}
+
+  color-string@2.1.4:
     dependencies:
-      color-name: 1.1.4
-      simple-swizzle: 0.2.4
+      color-name: 2.1.0
 
   color-support@1.1.3:
     optional: true
@@ -21789,8 +21871,6 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
-
-  crypto-js@4.2.0: {}
 
   css-tree@3.2.1:
     dependencies:
@@ -22506,6 +22586,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  esm@3.2.25: {}
+
   espree@10.4.0:
     dependencies:
       acorn: 8.16.0
@@ -23212,8 +23294,6 @@ snapshots:
 
   is-arrayish@0.2.1: {}
 
-  is-arrayish@0.3.4: {}
-
   is-async-function@2.1.1:
     dependencies:
       async-function: 1.0.0
@@ -23466,6 +23546,8 @@ snapshots:
   jose@6.2.2: {}
 
   js-base64@3.7.8: {}
+
+  js-md5@0.8.3: {}
 
   js-tokens@4.0.0: {}
 
@@ -23737,9 +23819,18 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
+  mathjax-full@3.2.2:
+    dependencies:
+      esm: 3.2.25
+      mhchemparser: 4.2.1
+      mj-context-menu: 0.6.1
+      speech-rule-engine: 4.1.4
+
   mathml-to-latex@1.8.0:
     dependencies:
       '@xmldom/xmldom': 0.9.10
+
+  mathml2omml@0.5.0: {}
 
   mdast-util-find-and-replace@3.0.2:
     dependencies:
@@ -23935,6 +24026,8 @@ snapshots:
       stylis: 4.4.0
       ts-dedent: 2.3.0
       uuid: 14.0.1
+
+  mhchemparser@4.2.1: {}
 
   micromark-core-commonmark@2.0.3:
     dependencies:
@@ -24262,6 +24355,8 @@ snapshots:
       minipass: 3.3.6
       yallist: 4.0.0
     optional: true
+
+  mj-context-menu@0.6.1: {}
 
   mkdirp-classic@0.5.3: {}
 
@@ -25068,6 +25163,10 @@ snapshots:
       playwright-core: 1.60.0
     optionalDependencies:
       fsevents: 2.3.2
+
+  png-js@2.0.0:
+    dependencies:
+      fflate: 0.8.3
 
   pngjs@3.4.0: {}
 
@@ -26024,10 +26123,6 @@ snapshots:
       once: 1.4.0
       simple-concat: 1.0.1
 
-  simple-swizzle@0.2.4:
-    dependencies:
-      is-arrayish: 0.3.4
-
   sirv@3.0.2:
     dependencies:
       '@polka/url': 1.0.0-next.29
@@ -26111,6 +26206,12 @@ snapshots:
   source-map@0.7.6: {}
 
   space-separated-tokens@2.0.2: {}
+
+  speech-rule-engine@4.1.4:
+    dependencies:
+      '@xmldom/xmldom': 0.9.10
+      commander: 13.1.0
+      wicked-good-xpath: 1.3.0
 
   split2@4.2.0: {}
 
@@ -27242,6 +27343,8 @@ snapshots:
     dependencies:
       siginfo: 2.0.0
       stackback: 0.0.2
+
+  wicked-good-xpath@1.3.0: {}
 
   wide-align@1.1.5:
     dependencies:

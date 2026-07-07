@@ -46,6 +46,16 @@
       "import": "./dist/style.css",
       "require": "./dist/style.css",
       "style": "./dist/style.css"
+    },
+    "./diagram-block": {
+      "types": "./types/src/diagram-block/index.d.ts",
+      "import": "./dist/diagram-block.js",
+      "require": "./dist/diagram-block.cjs"
+    },
+    "./math-block": {
+      "types": "./types/src/math-block/index.d.ts",
+      "import": "./dist/math-block.js",
+      "require": "./dist/math-block.cjs"
     }
   },
   "scripts": {
@@ -62,20 +72,33 @@
     "image-meta": "^0.2.2"
   },
   "devDependencies": {
+    "@blocknote/diagram-block": "workspace:^",
     "@blocknote/shared": "workspace:^",
     "@testing-library/react": "^16.3.0",
+    "@types/katex": "^0.16.7",
     "@types/react": "^19.2.3",
+    "katex": "^0.16.11",
     "@types/react-dom": "^19.2.3",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "xml-formatter": "^3.6.7",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "xml-formatter": "^3.6.7"
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
-    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
+    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc",
+    "@blocknote/diagram-block": "workspace:^",
+    "katex": "^0.16.0"
+  },
+  "peerDependenciesMeta": {
+    "@blocknote/diagram-block": {
+      "optional": true
+    },
+    "katex": {
+      "optional": true
+    }
   }
 }

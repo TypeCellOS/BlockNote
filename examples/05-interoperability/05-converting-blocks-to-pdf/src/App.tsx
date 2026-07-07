@@ -8,11 +8,11 @@ import "@blocknote/core/fonts/inter.css";
 import * as locales from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
 import {
   createReactInlineMathSpec,
   createReactMathBlockSpec,
 } from "@blocknote/math-block";
-import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
 import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
@@ -29,6 +29,8 @@ import {
   PDFExporter,
   pdfDefaultSchemaMappings,
 } from "@blocknote/xl-pdf-exporter";
+import { diagramBlockMapping } from "@blocknote/xl-pdf-exporter/diagram-block";
+import { mathBlockMapping } from "@blocknote/xl-pdf-exporter/math-block";
 import { pdf, PDFViewer } from "@react-pdf/renderer";
 import { JSX, useEffect, useMemo, useReducer, useState } from "react";
 
@@ -441,7 +443,16 @@ export default function App() {
 
   // Exports the editor document to PDF whenever it changes.
   const onChange = async () => {
-    const exporter = new PDFExporter(editor.schema, pdfDefaultSchemaMappings);
+    const exporter = new PDFExporter(editor.schema, {
+      ...pdfDefaultSchemaMappings,
+      blockMapping: {
+        ...pdfDefaultSchemaMappings.blockMapping,
+        // Embeds diagrams as images instead of their Mermaid source.
+        diagram: diagramBlockMapping,
+        // Renders math blocks as formulas instead of their LaTeX source.
+        math: mathBlockMapping,
+      },
+    });
     const pdfDocument = await exporter.toReactPDFDocument(editor.document);
     setPDFDocument(pdfDocument);
     forceRerender();

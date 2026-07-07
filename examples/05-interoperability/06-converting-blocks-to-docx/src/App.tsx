@@ -23,6 +23,11 @@ import {
   DOCXExporter,
   docxDefaultSchemaMappings,
 } from "@blocknote/xl-docx-exporter";
+import { diagramBlockMapping } from "@blocknote/xl-docx-exporter/diagram-block";
+import {
+  inlineMathMapping,
+  mathBlockMapping,
+} from "@blocknote/xl-docx-exporter/math-block";
 import {
   getMultiColumnSlashMenuItems,
   multiColumnDropCursor,
@@ -435,7 +440,23 @@ export default function App() {
 
   // Exports the editor content to DOCX and downloads it.
   const onDownloadClick = async () => {
-    const exporter = new DOCXExporter(editor.schema, docxDefaultSchemaMappings);
+    const exporter = new DOCXExporter(editor.schema, {
+      ...docxDefaultSchemaMappings,
+      blockMapping: {
+        ...docxDefaultSchemaMappings.blockMapping,
+        // Embeds diagrams as images instead of their Mermaid source.
+        diagram: diagramBlockMapping,
+        // Renders math blocks as native equations instead of their LaTeX
+        // source.
+        math: mathBlockMapping,
+      },
+      inlineContentMapping: {
+        ...docxDefaultSchemaMappings.inlineContentMapping,
+        // Renders inline math as native equations instead of its LaTeX
+        // source.
+        inlineMath: inlineMathMapping,
+      },
+    });
     const blob = await exporter.toBlob(editor.document);
 
     const link = document.createElement("a");

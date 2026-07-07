@@ -23,6 +23,11 @@ import {
   ODTExporter,
   odtDefaultSchemaMappings,
 } from "@blocknote/xl-odt-exporter";
+import { diagramBlockMapping } from "@blocknote/xl-odt-exporter/diagram-block";
+import {
+  inlineMathMapping,
+  mathBlockMapping,
+} from "@blocknote/xl-odt-exporter/math-block";
 import {
   getMultiColumnSlashMenuItems,
   multiColumnDropCursor,
@@ -434,7 +439,23 @@ export default function App() {
 
   // Exports the editor content to ODT and downloads it.
   const onDownloadClick = async () => {
-    const exporter = new ODTExporter(editor.schema, odtDefaultSchemaMappings);
+    const exporter = new ODTExporter(editor.schema, {
+      ...odtDefaultSchemaMappings,
+      blockMapping: {
+        ...odtDefaultSchemaMappings.blockMapping,
+        // Embeds diagrams as images instead of their Mermaid source.
+        diagram: diagramBlockMapping,
+        // Renders math blocks as native equations instead of their LaTeX
+        // source.
+        math: mathBlockMapping,
+      },
+      inlineContentMapping: {
+        ...odtDefaultSchemaMappings.inlineContentMapping,
+        // Renders inline math as native equations instead of its LaTeX
+        // source.
+        inlineMath: inlineMathMapping,
+      },
+    });
     const blob = await exporter.toODTDocument(editor.document);
 
     const link = document.createElement("a");

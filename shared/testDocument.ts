@@ -1,7 +1,7 @@
 import {
   BlockNoteSchema,
-  defaultBlockSpecs,
   createPageBreakBlockSpec,
+  defaultBlockSpecs,
 } from "@blocknote/core";
 
 import { partialBlocksToBlocksForTesting } from "./formatConversionTestUtil.js";
@@ -303,3 +303,53 @@ export const testDocument = partialBlocksToBlocksForTesting(
     },
   ],
 );
+
+// TODO: fix this
+// Math, inline math & diagram blocks, covered by the exporters' default
+// mappings. Hand-built (rather than via `partialBlocksToBlocksForTesting`)
+// as their specs live in separate packages that `shared` doesn't depend on -
+// the exporters only need the block JSON.
+const sourceBlocksForTesting = [
+  {
+    id: "math-block",
+    type: "math",
+    props: {},
+    content: [
+      { type: "text", text: "a^2 = \\sqrt{b^2 + c^2}", styles: {} },
+    ],
+    children: [],
+  },
+  {
+    id: "paragraph-with-inline-math",
+    type: "paragraph",
+    props: {
+      backgroundColor: "default",
+      textColor: "default",
+      textAlignment: "left",
+    },
+    content: [
+      { type: "text", text: "Inline math: ", styles: {} },
+      {
+        type: "inlineMath",
+        props: {},
+        content: [{ type: "text", text: "e^{i\\pi} + 1 = 0", styles: {} }],
+      },
+    ],
+    children: [],
+  },
+  {
+    id: "diagram-block",
+    type: "diagram",
+    props: {},
+    content: [
+      {
+        type: "text",
+        text: "graph TD\n  A[Start] --> B[End]",
+        styles: {},
+      },
+    ],
+    children: [],
+  },
+] as unknown as typeof testDocument;
+
+testDocument.push(...sourceBlocksForTesting);
