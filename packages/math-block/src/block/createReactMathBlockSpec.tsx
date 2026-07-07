@@ -1,16 +1,29 @@
-import { SourceBlockWithPreviewExtension } from "@blocknote/core";
+import {
+  createBlockConfig,
+  SourceBlockWithPreviewExtension,
+} from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 
-import { createMathBlockConfig } from "../createMathBlockConfig.js";
-import { MathBlockInputRulesExtension } from "../MathBlockInputRulesExtension.js";
+import { MathBlockInputRulesExtension } from "./helpers/extensions/MathBlockInputRulesExtension.js";
 import {
   parseBlockMathMLElement,
   parseBlockMathMLContent,
-} from "../shared/parse/parseBlockMathMLElement.js";
-import { MathBlockPreviewWithPopup } from "./render/MathBlockPreviewWithPopup.js";
-import { BlockMathMLElement } from "./toExternalHTML/BlockMathMLElement.js";
+} from "./helpers/parse/parseBlockMathMLElement.js";
+import { MathBlockPreviewWithPopup } from "./helpers/render/MathBlockPreviewWithPopup.js";
+import { BlockMathMLElement } from "./helpers/toExternalHTML/BlockMathMLElement.js";
 
 const MATH_BLOCK_PREVIEW_KEY = "math-block-preview";
+
+export const createMathBlockConfig = createBlockConfig(
+  () =>
+    ({
+      type: "math" as const,
+      propSchema: {},
+      content: "inline" as const,
+    }) as const,
+);
+
+export type MathBlockConfig = ReturnType<typeof createMathBlockConfig>;
 
 export const createReactMathBlockSpec = createReactBlockSpec(
   createMathBlockConfig,

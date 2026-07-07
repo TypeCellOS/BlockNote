@@ -1,9 +1,9 @@
 import { ReactCustomBlockRenderProps } from "@blocknote/react";
 import type { ComponentType } from "react";
 
-import { MathBlockConfig } from "../../createMathBlockConfig.js";
-import { getMathPlainTextContent } from "../../../shared/getMathPlainTextContent.js";
-import { latexToMathMLElement } from "../../../shared/vanilla/toExternalHTML/latexToMathMLElement.js";
+import { MathBlockConfig } from "../../createReactMathBlockSpec.js";
+import { getMathPlainTextContent } from "../../../helpers/getMathPlainTextContent.js";
+import { latexToMathMLElement } from "../../../helpers/toExternalHTML/latexToMathMLElement.js";
 
 export const BlockMathMLElement = ({
   block,

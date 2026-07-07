@@ -1,12 +1,28 @@
-import { SourceBlockWithPreviewExtension } from "@blocknote/core";
+import {
+  createBlockConfig,
+  SourceBlockWithPreviewExtension,
+} from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 
-import { createDiagramBlockConfig } from "../createDiagramBlockConfig.js";
 import {
   parseDiagramCodeContent,
   parseDiagramCodeElement,
-} from "../shared/parse/parseDiagramCodeElement.js";
-import { DiagramBlockPreviewWithPopup } from "./DiagramBlockPreviewWithPopup.js";
+} from "./helpers/parse/parseDiagramCodeElement.js";
+import { DiagramBlockPreviewWithPopup } from "./helpers/render/DiagramBlockPreviewWithPopup.js";
+
+export const createDiagramBlockConfig = createBlockConfig(
+  () =>
+    ({
+      type: "diagram" as const,
+      // The block is semantically a diagram; Mermaid is its (only, for now)
+      // rendering engine. An `engine` prop with a "mermaid" default can be
+      // added later without breaking stored documents.
+      propSchema: {},
+      content: "inline" as const,
+    }) as const,
+);
+
+export type DiagramBlockConfig = ReturnType<typeof createDiagramBlockConfig>;
 
 export const createReactDiagramBlockSpec = createReactBlockSpec(
   createDiagramBlockConfig,
@@ -22,7 +38,15 @@ export const createReactDiagramBlockSpec = createReactBlockSpec(
     // rule must be tried first to claim the `language-mermaid` ones.
     runsBefore: ["codeBlock"],
     render: DiagramBlockPreviewWithPopup,
-    toExternalHTML: (props) => <pre><code className="language-mermaid" data-language="mermaid" ref={props.contentRef} /></pre>,
+    toExternalHTML: (props) => (
+      <pre>
+        <code
+          className="language-mermaid"
+          data-language="mermaid"
+          ref={props.contentRef}
+        />
+      </pre>
+    ),
   },
   [
     // Diagram blocks always render a preview. Diagram sources span multiple

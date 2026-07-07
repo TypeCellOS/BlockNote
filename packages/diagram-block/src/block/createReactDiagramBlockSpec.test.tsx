@@ -29,7 +29,9 @@ vi.mock("mermaid", () => ({
       }
       return true;
     }),
-    render: vi.fn(async () => ({ svg: '<svg data-mermaid-mock="true"></svg>' })),
+    render: vi.fn(async () => ({
+      svg: '<svg data-mermaid-mock="true"></svg>',
+    })),
   },
 }));
 

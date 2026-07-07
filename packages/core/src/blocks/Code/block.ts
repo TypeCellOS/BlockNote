@@ -6,7 +6,7 @@ import {
 import { createPreCode } from "./helpers/toExternalHTML/createPreCode.js";
 import { CodeKeyboardShortcutsExtension } from "./helpers/extensions/CodeKeyboardShortcutsExtension.js";
 import { CodeBlockOptions } from "./CodeBlockOptions.js";
-import { createSourceBlock } from "./helpers/render/createSourceBlock.js";
+import { createCodeBlock } from "./helpers/render/createCodeBlock.js";
 
 const CODE_BLOCK_KEYBOARD_SHORTCUTS_KEY = "code-block-keyboard-shortcuts";
 
@@ -23,6 +23,8 @@ export const createCodeBlockConfig = createBlockConfig(
     }) as const,
 );
 
+export type CodeBlockConfig = ReturnType<typeof createCodeBlockConfig>;
+
 export const createCodeBlockSpec = createBlockSpec(
   createCodeBlockConfig,
   (options) => ({
@@ -34,7 +36,7 @@ export const createCodeBlockSpec = createBlockSpec(
     parse: (el) => parsePreCode(el),
     parseContent: (opts) => parsePreCodeContent(opts, "codeBlock"),
     render: (block, editor) =>
-      createSourceBlock(
+      createCodeBlock(
         block,
         editor,
         options.supportedLanguages && {

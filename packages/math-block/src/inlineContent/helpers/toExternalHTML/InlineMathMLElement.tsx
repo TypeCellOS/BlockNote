@@ -2,9 +2,9 @@ import { StyleSchema } from "@blocknote/core";
 import { ReactCustomInlineContentRenderProps } from "@blocknote/react";
 import type { ComponentType } from "react";
 
-import { MathInlineContentConfig } from "../../mathInlineContentConfig.js";
-import { getMathPlainTextContent } from "../../../shared/getMathPlainTextContent.js";
-import { latexToMathMLElement } from "../../../shared/vanilla/toExternalHTML/latexToMathMLElement.js";
+import { MathInlineContentConfig } from "../../createReactMathInlineContentSpec.js";
+import { getMathPlainTextContent } from "../../../helpers/getMathPlainTextContent.js";
+import { latexToMathMLElement } from "../../../helpers/toExternalHTML/latexToMathMLElement.js";
 
 export const InlineMathMLElement = ({
   inlineContent,

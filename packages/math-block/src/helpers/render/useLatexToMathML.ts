@@ -1,6 +1,6 @@
 import { useRef } from "react";
 
-import { latexToHTMLString } from "../../latexToHTMLString.js";
+import { latexToHTMLString } from "../latexToHTMLString.js";
 
 export const useLatexToMathMLString = (latex: string, inline = false) => {
   const lastValidMathMLStringRef = useRef("");

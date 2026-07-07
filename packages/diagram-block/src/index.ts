@@ -1,7 +1,5 @@
-export * from "./block/createDiagramBlockConfig.js";
-export * from "./block/react/createReactDiagramBlockSpec.js";
-export * from "./block/react/DiagramBlockPreviewWithPopup.js";
-export * from "./block/shared/parse/parseDiagramCodeElement.js";
-export * from "./shared/getDiagramPlainTextContent.js";
-export * from "./shared/renderDiagramToImage.js";
-
+export * from "./block/createReactDiagramBlockSpec.js";
+export * from "./block/helpers/render/DiagramBlockPreviewWithPopup.js";
+export * from "./block/helpers/parse/parseDiagramCodeElement.js";
+export * from "./helpers/getDiagramPlainTextContent.js";
+export * from "./helpers/renderDiagramToImage.js";

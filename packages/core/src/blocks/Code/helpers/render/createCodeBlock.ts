@@ -54,7 +54,7 @@ export const createLanguageSelect = (
 
 // Renders the block's inline content as code, alongside a language picker, if multiple languages
 // are supported.
-export const createSourceBlock = (
+export const createCodeBlock = (
   block: BlockFromConfig<any, any, any>,
   editor: BlockNoteEditor<any>,
   options?: {

@@ -7,9 +7,9 @@ import mermaid from "mermaid";
 import { useEffect, useState } from "react";
 import { SiMermaid } from "react-icons/si";
 
-import { getDiagramPlainTextContent } from "../../shared/getDiagramPlainTextContent.js";
-import { initializeMermaid } from "../../shared/initializeMermaid.js";
-import { DiagramBlockConfig } from "../createDiagramBlockConfig.js";
+import { getDiagramPlainTextContent } from "../../../helpers/getDiagramPlainTextContent.js";
+import { initializeMermaid } from "../../../helpers/initializeMermaid.js";
+import { DiagramBlockConfig } from "../../createReactDiagramBlockSpec.js";
 
 // Each render call needs its own element ID.
 let mermaidElementId = 0;

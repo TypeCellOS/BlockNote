@@ -1,4 +1,4 @@
-import { latexToHTMLString } from "../../latexToHTMLString.js";
+import { latexToHTMLString } from "../latexToHTMLString.js";
 
 export const latexToMathMLElement = (latex: string, inline = false) => {
   const { htmlString: mathMLString, error } = latexToHTMLString(

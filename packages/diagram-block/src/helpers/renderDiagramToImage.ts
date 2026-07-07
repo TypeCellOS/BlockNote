@@ -35,10 +35,7 @@ export const renderDiagramToImage = async (
     svg,
     "image/svg+xml",
   ).documentElement;
-  const viewBox = svgElement
-    .getAttribute("viewBox")
-    ?.split(/\s+/)
-    .map(Number);
+  const viewBox = svgElement.getAttribute("viewBox")?.split(/\s+/).map(Number);
   const width = Math.ceil(viewBox?.[2] || 800);
   const height = Math.ceil(viewBox?.[3] || 600);
   // Sized at 2x so the diagram stays sharp in the exported document. The 2x

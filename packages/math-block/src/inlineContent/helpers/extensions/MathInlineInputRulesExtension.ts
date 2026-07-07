@@ -4,7 +4,7 @@ import {
   inputRules as inputRulesPlugin,
 } from "@handlewithcare/prosemirror-inputrules";
 
-import { mathInlineContentConfig } from "./mathInlineContentConfig.js";
+import { mathInlineContentConfig } from "../../createReactMathInlineContentSpec.js";
 
 /**
  * Converts text wrapped in LaTeX inline-math delimiters into inline math

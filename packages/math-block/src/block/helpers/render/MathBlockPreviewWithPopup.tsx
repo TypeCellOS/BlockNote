@@ -5,9 +5,9 @@ import {
 } from "@blocknote/react";
 import { TbMathFunction } from "react-icons/tb";
 
-import { getMathPlainTextContent } from "../../../shared/getMathPlainTextContent.js";
-import { useLatexToMathMLString } from "../../../shared/react/render/useLatexToMathML.js";
-import { MathBlockConfig } from "../../createMathBlockConfig.js";
+import { MathBlockConfig } from "../../createReactMathBlockSpec.js";
+import { getMathPlainTextContent } from "../../../helpers/getMathPlainTextContent.js";
+import { useLatexToMathMLString } from "../../../helpers/render/useLatexToMathML.js";
 
 export const MathBlockPreviewWithPopup = (
   props: ReactCustomBlockRenderProps<MathBlockConfig>,
@@ -32,9 +32,7 @@ export const MathBlockPreviewWithPopup = (
       emptySourcePlaceholder={
         <PreviewPlaceholder
           icon={<TbMathFunction />}
-          text={
-            props.editor.dictionary.code_block.add_source_button_text
-          }
+          text={props.editor.dictionary.code_block.add_source_button_text}
         />
       }
     />
