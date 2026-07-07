@@ -27,7 +27,8 @@ BASIC STYLES
 .bn-block-content .ProseMirror-selectednode,
 .bn-inline-content .ProseMirror-selectednode {
   border-radius: 4px;
-  outline: 4px solid rgb(100, 160, 255);
+  outline: 4px solid rgba(100, 160, 255, 0.3);
+  background-color: rgba(100, 160, 255, 0.08);
 }
 
 .bn-block-content::before {
