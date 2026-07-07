@@ -56,7 +56,7 @@ export interface YHubVersioningOptions {
   /**
    * Maximum gap (in ms) between edits for them to be grouped together.
    * Forwarded as the `groupMaxGap` query param.
-   * @default 60000
+   * @default 10000
    */
   groupMaxGap?: number;
 
@@ -237,8 +237,6 @@ export function createYHubVersioningEndpoints(
     headers = {},
     activityLimit = 50,
     group,
-    groupMaxGap = 60000,
-    groupMaxDuration,
   } = options;
 
   const activityUrl = `${baseUrl}/activity/${org}/${docId}`;
@@ -528,12 +526,18 @@ export function createYHubVersioningEndpoints(
       Uint8Array,
       Y.ContentMap
     >["list"] = async () => {
+      // Read the grouping knobs fresh from `options` so a caller mutating the
+      // object it passed in reconfigures grouping on the next refresh (see the
+      // note where these are deliberately left out of the destructure above).
+      const groupMaxGap = options.groupMaxGap ?? 10000;
+      const groupMaxDuration = options.groupMaxDuration;
+
       const params = new URLSearchParams({
         order: "desc",
         limit: String(activityLimit),
         customAttributions: "true",
       });
-      // Always send a concrete `groupMaxGap` (default 60000). Sending
+      // Always send a concrete `groupMaxGap`. Sending
       // `String(undefined)` here would make the server `parseInt("undefined")`
       // to NaN, silently disabling grouping — which surfaces every same-`to`
       // attribution as its own history entry and produces duplicate React keys.

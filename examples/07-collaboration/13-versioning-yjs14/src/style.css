@@ -31,6 +31,7 @@
   height: calc(100vh - 20px);
   min-width: 0;
   overflow: auto;
+  position: relative;
 }
 
 .editor-panel .bn-container {
@@ -64,6 +65,94 @@
 
 .sidebar-section .settings {
   padding: 8px;
+}
+
+/* Floating gear button pinned to the bottom-left of the viewport, opening the
+   live grouping "Configuration" panel. Styled like `.show-history-button`.
+   Both the gear and the panel are `position: fixed` with a very high z-index so
+   they stay above BlockNote's floating UI (toolbars, menus), which is portaled
+   to `document.body` and would otherwise pop up over an in-flow panel. */
+.config-gear-button {
+  align-items: center;
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: 50%;
+  box-shadow: var(--bn-shadow-medium);
+  bottom: 16px;
+  color: var(--bn-colors-menu-text);
+  cursor: pointer;
+  display: flex;
+  font-size: 18px;
+  height: 40px;
+  justify-content: center;
+  left: 16px;
+  line-height: 1;
+  position: fixed;
+  width: 40px;
+  z-index: 99999;
+}
+
+.config-panel {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  bottom: 68px;
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  left: 16px;
+  padding: 14px;
+  position: fixed;
+  width: 260px;
+  z-index: 99999;
+}
+
+.config-panel-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.config-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.config-row > label {
+  align-items: baseline;
+  display: flex;
+  font-size: 12px;
+  font-weight: 500;
+  justify-content: space-between;
+}
+
+.config-row .config-value {
+  color: var(--bn-colors-menu-text);
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.config-row input[type="range"] {
+  width: 100%;
+}
+
+.config-row input[type="number"] {
+  background: var(--bn-colors-editor-background);
+  border: 1px solid var(--bn-colors-border);
+  border-radius: var(--bn-border-radius-small);
+  color: var(--bn-colors-menu-text);
+  font-size: 12px;
+  padding: 4px 6px;
+  width: 100%;
+}
+
+.config-unlimited {
+  align-items: center;
+  display: flex;
+  font-size: 12px;
+  gap: 6px;
 }
 
 .show-history-button {

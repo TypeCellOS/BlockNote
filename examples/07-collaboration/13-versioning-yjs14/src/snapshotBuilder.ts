@@ -58,14 +58,30 @@ export type BuildEditHistoryResult = {
 };
 
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
-const MIN_STEP_MS = 200;
-const MAX_STEP_MS = 10_000;
+// Space edits 30s–1h apart. A sub-minute floor would let adjacent entries share
+// the same "X:YY PM" label and look identical, but 30s steps still read as
+// distinct once minute rollover happens; the spread up to an hour gives grouping
+// (groupMaxGap) a wide, visible range to merge across.
+const MIN_STEP_MS = 30_000;
+const MAX_STEP_MS = 60 * 60_000;
+
+// How many consecutive patches one author keeps before we (maybe) hand off to
+// another. YHub only merges *same-author* adjacent edits, so assigning authors
+// in contiguous runs — rather than randomly per patch — lets those runs collapse
+// into a handful of grouped entries, keeping the seeded history short and
+// readable while still crediting several contributors per version.
+const MIN_AUTHOR_RUN = 4;
+const MAX_AUTHOR_RUN = 7;
 
 const randomStep = () =>
   Math.floor(MIN_STEP_MS + Math.random() * (MAX_STEP_MS - MIN_STEP_MS));
 
 const randomAuthor = (authors: string[]) =>
   authors[Math.floor(Math.random() * authors.length)];
+
+const randomRunLength = () =>
+  MIN_AUTHOR_RUN +
+  Math.floor(Math.random() * (MAX_AUTHOR_RUN - MIN_AUTHOR_RUN + 1));
 
 /**
  * Reconcile an editor through a list of named steps, capturing every
@@ -111,10 +127,23 @@ export async function buildEditHistory(
 
     const patches: CapturedPatch[] = [];
     let lastAuthor: string | undefined;
+    // Assign authors in contiguous runs so same-author streaks can group. Start
+    // a run, and once it's exhausted switch to a *different* author (when the
+    // version has more than one) so the handoff is real.
+    let currentAuthor = randomAuthor(step.authors);
+    let runRemaining = randomRunLength();
     for (const { before, doc } of captured) {
+      if (runRemaining <= 0) {
+        const others = step.authors.filter((a) => a !== currentAuthor);
+        currentAuthor =
+          others.length > 0 ? randomAuthor(others) : currentAuthor;
+        runRemaining = randomRunLength();
+      }
+      runRemaining--;
+
       const delta = docDiffToDelta(before, doc);
       const beforeSV = Y.encodeStateVector(ydoc);
-      const by = randomAuthor(step.authors);
+      const by = currentAuthor;
       ydoc.transact(
         () => {
           yType.applyDelta(delta as any);
