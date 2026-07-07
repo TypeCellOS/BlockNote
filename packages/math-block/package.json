@@ -63,6 +63,7 @@
   },
   "devDependencies": {
     "@blocknote/react": "workspace:^",
+    "react-icons": "^5.5.0",
     "@blocknote/xl-multi-column": "workspace:^",
     "@types/katex": "^0.16.7",
     "@types/react": "^19.2.3",

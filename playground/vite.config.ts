@@ -36,6 +36,10 @@ const devAliases: Record<string, string> = {
     "../packages/xl-email-exporter/src",
   ),
   "@blocknote/math-block": resolve(__dirname, "../packages/math-block/src"),
+  "@blocknote/diagram-block": resolve(
+    __dirname,
+    "../packages/diagram-block/src",
+  ),
   // "@liveblocks/react-blocknote": resolve(
   //   __dirname,
   //   "../../liveblocks/packages/liveblocks-react-blocknote/src/",
@@ -105,6 +109,24 @@ export default defineConfig(((conf: { command: string }) => ({
     allowedHosts: ["host.docker.internal"],
   },
   resolve: {
-    alias: conf.command === "build" ? undefined : devAliases,
+    alias:
+      conf.command === "build"
+        ? {
+          // TODO: review
+            // The exporters' optional peer dependencies, used by their
+            // subpath entries (`…/diagram-block`, `…/math-block`). They
+            // can't be resolved from the workspace-linked exporter packages
+            // when those packages' devDependencies aren't installed (e.g.
+            // Vercel's filtered install), making Vite substitute an empty
+            // `__vite-optional-peer-dep` stub that fails the build - so
+            // resolve them from the playground's own dependencies instead.
+            "@blocknote/diagram-block": resolve(
+              __dirname,
+              "../packages/diagram-block",
+            ),
+            "@react-pdf/math": resolve(__dirname, "node_modules/@react-pdf/math"),
+            katex: resolve(__dirname, "node_modules/katex"),
+          }
+        : devAliases,
   },
 })) as Parameters<typeof defineConfig>[0]);

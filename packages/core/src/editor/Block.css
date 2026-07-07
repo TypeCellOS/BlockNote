@@ -502,7 +502,12 @@ NESTED BLOCKS
   box-shadow: var(--bn-shadow-medium);
   max-height: 200px;
   opacity: 0;
-  overflow: auto;
+  /* Only the source itself scrolls (see the popup body's `pre`), so the
+     language select, "OK" button, and error message stay visible for large
+     multiline sources. */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   pointer-events: none;
 }
 
@@ -539,11 +544,14 @@ NESTED BLOCKS
 .bn-code-block-source-popup-body {
   display: flex;
   align-items: flex-end;
+  flex: 1;
+  min-height: 0;
 }
 
 .bn-code-block-source-popup-body > pre {
   white-space: pre;
-  overflow-x: auto;
+  overflow: auto;
+  align-self: stretch;
   margin: 0;
   flex: 1;
   min-width: 0;
@@ -582,7 +590,10 @@ NESTED BLOCKS
   background-color: rgb(29, 78, 216);
 }
 
-.bn-add-source-code-button {
+/* Shown in place of the preview when there's nothing to render (see
+   `PreviewPlaceholder`): the "add source" state for an empty source, or -
+   with the error modifier - the compact error state. */
+.bn-preview-placeholder {
   align-items: center;
   background-color: rgb(242, 241, 238);
   border-radius: 4px;
@@ -592,27 +603,45 @@ NESTED BLOCKS
   padding: 12px;
 }
 
-.bn-add-source-code-button:where(.dark, .dark *) {
+.bn-preview-placeholder:where(.dark, .dark *) {
   background-color: rgb(70, 70, 70);
   color: rgb(190, 190, 190);
 }
 
-.bn-editor[contenteditable="true"] .bn-add-source-code-button:hover {
+.bn-editor[contenteditable="true"]
+  .bn-preview-placeholder:not(.bn-preview-placeholder-error):hover {
   background-color: rgb(225, 225, 225);
 }
 
 .bn-editor[contenteditable="true"]
-  .bn-add-source-code-button:hover:where(.dark, .dark *) {
+  .bn-preview-placeholder:not(.bn-preview-placeholder-error):hover:where(
+    .dark,
+    .dark *
+  ) {
   background-color: rgb(90, 90, 90);
 }
 
-.bn-add-source-code-button-icon {
+/* The error state only differs in color. The highlight variables already
+   flip with the theme, so this also overrides the dark rule above. */
+.bn-preview-placeholder-error {
+  background-color: var(--bn-colors-highlights-red-background);
+  color: var(--bn-colors-highlights-red-text);
+}
+
+.bn-preview-placeholder-icon {
   display: flex;
   width: 24px;
   height: 24px;
 }
 
-.bn-add-source-code-button-text {
+/* Icons render at 1em by default (e.g. react-icons), so stretch them to the
+   wrapper's size instead. */
+.bn-preview-placeholder-icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.bn-preview-placeholder-text {
   font-size: 0.9rem;
   margin: 0;
 }
@@ -640,9 +669,9 @@ NESTED BLOCKS
   box-sizing: content-box;
 }
 
-/* The "add source" button sits inline among text, so it needs to be compact
-   rather than the full-size block-preview button. */
-.bn-inline-content-section .bn-add-source-code-button {
+/* The placeholder sits inline among text, so it needs to be compact rather
+   than the full-size block-preview version. */
+.bn-inline-content-section .bn-preview-placeholder {
   display: inline-flex;
   gap: 4px;
   height: 19px;
@@ -650,12 +679,12 @@ NESTED BLOCKS
   padding: 0 6px;
 }
 
-.bn-inline-content-section .bn-add-source-code-button-icon {
+.bn-inline-content-section .bn-preview-placeholder-icon {
   width: 16px;
   height: 16px;
 }
 
-.bn-inline-content-section .bn-add-source-code-button-text {
+.bn-inline-content-section .bn-preview-placeholder-text {
   font-size: 0.85em;
 }
 

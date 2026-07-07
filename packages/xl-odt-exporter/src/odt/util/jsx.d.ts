@@ -22,6 +22,7 @@ declare module "react/jsx-runtime" {
       "text:tab": any;
       "draw:frame": any;
       "draw:image": any;
+      "draw:object": any;
       "draw:text-box": any;
       "table:table": any;
       "table:table-row": any;
@@ -30,6 +31,7 @@ declare module "react/jsx-runtime" {
       "manifest:manifest": any;
       "manifest:file-entry": any;
       "style:paragraph-properties": any;
+      "style:graphic-properties": any;
       "style:background-fill": any;
       "style:table-properties": any;
       "style:table-cell-properties": any;

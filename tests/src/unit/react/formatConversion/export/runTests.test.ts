@@ -5,6 +5,7 @@ import { testSchema } from "../../testSchema.js";
 import {
   exportTestInstancesBlockNoteHTML,
   exportTestInstancesHTML,
+  exportTestInstancesMarkdown,
 } from "./exportTestInstances.js";
 
 describe("React export tests (BlockNote HTML)", () => {
@@ -21,6 +22,16 @@ describe("React export tests (HTML)", () => {
   const getEditor = setupTestEditor(testSchema);
 
   for (const { testCase, executeTest } of exportTestInstancesHTML) {
+    it(`${testCase.name}`, async () => {
+      await executeTest(getEditor(), testCase);
+    });
+  }
+});
+
+describe("React export tests (Markdown)", () => {
+  const getEditor = setupTestEditor(testSchema);
+
+  for (const { testCase, executeTest } of exportTestInstancesMarkdown) {
     it(`${testCase.name}`, async () => {
       await executeTest(getEditor(), testCase);
     });

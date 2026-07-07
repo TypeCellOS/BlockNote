@@ -1,104 +1,42 @@
-import { SourceBlockWithPreviewExtension } from "@blocknote/core";
 import {
+  PreviewPlaceholder,
   ReactCustomBlockRenderProps,
-  useExtension,
-  useExtensionState,
+  SourceBlockWithPreview,
 } from "@blocknote/react";
-import { MouseEvent } from "react";
+import { TbMathFunction } from "react-icons/tb";
 
-import { MathBlockConfig } from "../../createMathBlockConfig.js";
 import { getMathPlainTextContent } from "../../../shared/getMathPlainTextContent.js";
-import { AddSourceButton } from "../../../shared/react/render/AddSourceButton.js";
 import { useLatexToMathMLString } from "../../../shared/react/render/useLatexToMathML.js";
+import { MathBlockConfig } from "../../createMathBlockConfig.js";
 
 export const MathBlockPreviewWithPopup = (
   props: ReactCustomBlockRenderProps<MathBlockConfig>,
 ) => {
-  const { block, editor, contentRef } = props;
-
-  const source = getMathPlainTextContent(block.content);
-
-  const { store } = useExtension(SourceBlockWithPreviewExtension, { editor });
-  const popupOpen = useExtensionState(SourceBlockWithPreviewExtension, {
-    editor,
-    selector: (state) => state.popupOpen === block.id,
-  });
-  const selected = useExtensionState(SourceBlockWithPreviewExtension, {
-    editor,
-    selector: (state) => state.selected === block.id,
-  });
-
+  const source = getMathPlainTextContent(props.block.content).trim();
   const { mathMLString, error } = useLatexToMathMLString(source);
 
-  // Opens the popup when clicking the preview.
-  const handlePreviewMouseDown = (event: MouseEvent) => {
-    if (!editor.isEditable) {
-      return;
-    }
-
-    store.setState((state) => ({ ...state, popupOpen: block.id }));
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    editor.setTextCursorPosition(block.id, "end");
-    editor.focus();
-  };
-
-  // Closes the popup when clicking the "OK" button.
-  const handleOkButtonMouseDown = (event: MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    store.setState((state) => ({ ...state, popupOpen: undefined }));
-  };
-
   return (
-    <div
-      className={
-        "bn-preview-with-source-popup" +
-        (selected ? " ProseMirror-selectednode" : "")
-      }
-      data-open={popupOpen ? "true" : "false"}
-    >
-      <div
-        className="bn-preview-container"
-        contentEditable={false}
-        onMouseDown={handlePreviewMouseDown}
-      >
-        {source.length > 0 ? (
+    <SourceBlockWithPreview
+      block={props.block}
+      editor={props.editor}
+      contentRef={props.contentRef}
+      source={source}
+      // `undefined` while nothing has rendered successfully, so an error
+      // shows the error state instead of an empty preview.
+      preview={
+        mathMLString ? (
           <span dangerouslySetInnerHTML={{ __html: mathMLString }} />
-        ) : (
-          <AddSourceButton
-            text={editor.dictionary.code_block.add_source_button_text}
-          />
-        )}
-      </div>
-      <div className="bn-source-block-popup">
-        <div className="bn-code-block-source-popup-body">
-          <pre>
-            <code ref={contentRef} />
-          </pre>
-          <div
-            className="bn-code-block-source-popup-ok-button-wrapper"
-            contentEditable={false}
-          >
-            <button
-              className="bn-code-block-source-popup-ok-button"
-              onMouseDown={handleOkButtonMouseDown}
-            >
-              OK
-            </button>
-          </div>
-        </div>
-        <div
-          className="bn-code-block-source-error"
-          contentEditable={false}
-          style={{ display: error ? "block" : "none" }}
-        >
-          {error}
-        </div>
-      </div>
-    </div>
+        ) : undefined
+      }
+      error={error}
+      emptySourcePlaceholder={
+        <PreviewPlaceholder
+          icon={<TbMathFunction />}
+          text={
+            props.editor.dictionary.code_block.add_source_button_text
+          }
+        />
+      }
+    />
   );
 };

@@ -1,9 +1,10 @@
-import { BlockNoteEditor, createExtension, createStore } from "@blocknote/core";
+import { Selection, TextSelection } from "prosemirror-state";
+
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
-  InputRule,
-  inputRules as inputRulesPlugin,
-} from "@handlewithcare/prosemirror-inputrules";
-import { Selection } from "prosemirror-state";
+  createExtension,
+  createStore,
+} from "../../../../editor/BlockNoteExtension.js";
 
 /**
  * Inline-content counterpart of {@link SourceBlockWithPreviewExtension}. Drives
@@ -70,28 +71,24 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
         Escape: moveSelectionOut("after"),
         ArrowUp: moveSelectionOut("before"),
         ArrowDown: moveSelectionOut("after"),
-      },
-      // Cannot use `inputRules` field as it only allows for converting matched content to blocks.
-      prosemirrorPlugins: [
-        inputRulesPlugin({
-          rules: [/\$([^$]+)\$$/, /\\\((.+?)\\\)$/].map(
-            (find) =>
-              new InputRule(find, (state, match, start, end) => {
-                const source = match[1]?.trim();
-                const nodeType = state.schema.nodes[inlineContentType];
-                if (!source || !nodeType) {
-                  return null;
-                }
+        // While editing the source, selects the whole source instead of the
+        // whole document.
+        "Mod-a": ({ editor }) => {
+          const { $from } = editor.prosemirrorState.selection;
+          if ($from.node().type.name !== inlineContentType) {
+            return false;
+          }
 
-                return state.tr.replaceRangeWith(
-                  start,
-                  end,
-                  nodeType.create(null, state.schema.text(source)),
-                );
-              }),
-          ),
-        }),
-      ],
+          const view = editor.prosemirrorView!;
+          view.dispatch(
+            view.state.tr.setSelection(
+              TextSelection.create(view.state.doc, $from.start(), $from.end()),
+            ),
+          );
+
+          return true;
+        },
+      },
       mount: ({ dom, signal }) => {
         // The popup is open exactly when the selection is inside the inline
         // content, so we just track which inline content (if any) holds it.

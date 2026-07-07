@@ -1,3 +1,5 @@
+import { TextSelection } from "prosemirror-state";
+
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
   createExtension,
@@ -8,13 +10,30 @@ import { Block } from "../../../index.js";
 export const SourceBlockWithPreviewExtension = createExtension(
   ({
     editor,
-    options: { key, blockType, hasPreview, runsBefore = [] },
+    options: {
+      key,
+      blockType,
+      hasPreview,
+      enterBehaviour = "close",
+      runsBefore = [],
+    },
   }: {
     editor: BlockNoteEditor<any>;
     options: {
       key: string;
       blockType: string;
       hasPreview: (block: Block<any, any, any>) => boolean;
+      /**
+       * What pressing Enter does while the popup is open:
+       * - `"close"`: commits the source and closes the popup - for
+       *   single-line sources (e.g. math).
+       * - `"newline"`: inserts a line break into the source - for multiline
+       *   sources (e.g. diagrams); the popup is then closed with Escape, the
+       *   "OK" button, or by moving the selection out.
+       *
+       * @default "close"
+       */
+      enterBehaviour?: "close" | "newline";
       runsBefore?: readonly string[];
     };
   }) => {
@@ -55,11 +74,24 @@ export const SourceBlockWithPreviewExtension = createExtension(
       store,
       runsBefore,
       keyboardShortcuts: {
-        // Toggles the popup.
+        // Toggles the popup. With the "newline" Enter behaviour, Enter
+        // inserts a line break while the popup is open instead of closing it.
         Enter: ({ editor }) => {
           const { block } = editor.getTextCursorPosition();
           if (!blockHasPreview(block)) {
             return false;
+          }
+
+          if (
+            enterBehaviour === "newline" &&
+            store.state.popupOpen === block.id
+          ) {
+            const view = editor.prosemirrorView!;
+            view.dispatch(
+              view.state.tr.insertText("\n")
+            );
+
+            return true;
           }
 
           editor.setTextCursorPosition(block.id, "end");
@@ -81,6 +113,28 @@ export const SourceBlockWithPreviewExtension = createExtension(
           editor.setTextCursorPosition(block.id, "end");
 
           store.setState((state) => ({ ...state, popupOpen: undefined }));
+
+          return true;
+        },
+        // While the popup is open, selects the whole source instead of the
+        // whole document.
+        "Mod-a": ({ editor }) => {
+          const { block } = editor.getTextCursorPosition();
+          if (!blockHasPreview(block) || store.state.popupOpen !== block.id) {
+            return false;
+          }
+
+          const view = editor.prosemirrorView!;
+          const { $from } = view.state.selection;
+          if ($from.parent.type.name !== blockType) {
+            return false;
+          }
+
+          view.dispatch(
+            view.state.tr.setSelection(
+              TextSelection.create(view.state.doc, $from.start(), $from.end()),
+            ),
+          );
 
           return true;
         },

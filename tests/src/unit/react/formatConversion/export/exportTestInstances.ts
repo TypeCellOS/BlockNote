@@ -2,6 +2,7 @@ import { ExportTestCase } from "../../../shared/formatConversion/export/exportTe
 import {
   testExportBlockNoteHTML,
   testExportHTML,
+  testExportMarkdown,
 } from "../../../shared/formatConversion/export/exportTestExecutors.js";
 import { TestInstance } from "../../../types.js";
 import {
@@ -501,6 +502,18 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     },
     executeTest: testExportBlockNoteHTML,
   },
+  {
+    testCase: {
+      name: "diagram/basic",
+      content: [
+        {
+          type: "diagram",
+          content: "graph TD\n  A[Start] --> B[End]",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
 ];
 
 export const exportTestInstancesHTML: TestInstance<
@@ -512,3 +525,25 @@ export const exportTestInstancesHTML: TestInstance<
   testCase,
   executeTest: testExportHTML,
 }));
+
+// Markdown export runs the external HTML through remark, so the diagram's
+// fenced-code representation should come out as a ```mermaid fence.
+export const exportTestInstancesMarkdown: TestInstance<
+  ExportTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
+  TestBlockSchema,
+  TestInlineContentSchema,
+  TestStyleSchema
+>[] = [
+  {
+    testCase: {
+      name: "diagram/basic",
+      content: [
+        {
+          type: "diagram",
+          content: "graph TD\n  A[Start] --> B[End]",
+        },
+      ],
+    },
+    executeTest: testExportMarkdown,
+  },
+];
