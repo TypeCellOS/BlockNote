@@ -5801,6 +5801,9 @@ importers:
       '@mui/material':
         specifier: ^5.18.0
         version: 5.18.0(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@react-pdf/math':
+        specifier: ^2.0.1
+        version: 2.0.1(@react-pdf/renderer@4.5.1(react@19.2.5))(react@19.2.5)
       '@uppy/core':
         specifier: ^3.13.1
         version: 3.13.1
@@ -5846,6 +5849,9 @@ importers:
       docx:
         specifier: ^9.5.1
         version: 9.5.1
+      katex:
+        specifier: ^0.16.11
+        version: 0.16.47
       react:
         specifier: ^19.2.5
         version: 19.2.5
