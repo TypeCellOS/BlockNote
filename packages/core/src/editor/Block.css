@@ -741,6 +741,12 @@ passes through the column list. */
   transition: box-shadow 0.2s ease 0.2s;
 }
 
+.bn-editor[contenteditable="true"]
+  .bn-column-list-hovered
+  > .bn-block-column:not(:last-child):where(.dark, .dark *) {
+  box-shadow: 4px 0 0 rgb(70, 70, 70);
+}
+
 /* The border between two columns when the cursor is near their boundary or
 they're being resized, rendered on the boundary's left column. The class is
 managed by the multi-column package's column resize plugin. Unlike the
@@ -752,6 +758,12 @@ overridden. */
   box-shadow: 4px 0 0 #ccc;
   cursor: col-resize;
   transition: none;
+}
+
+.bn-editor[contenteditable="true"]
+  .bn-column-list-hovered
+  > .bn-block-column.bn-column-resize-border:where(.dark, .dark *) {
+  box-shadow: 4px 0 0 rgb(110, 110, 110);
 }
 
 .bn-editor[contenteditable="true"]
