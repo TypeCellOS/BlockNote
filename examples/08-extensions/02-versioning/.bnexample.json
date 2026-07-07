@@ -4,7 +4,7 @@
   "author": "yousefed",
   "tags": ["Extension"],
   "dependencies": {
-    "@y/y": "^14.0.0-rc.17",
-    "@y/prosemirror": "^2.0.0-4"
+    "@y/y": "^14.0.0-rc.23",
+    "@y/prosemirror": "^2.0.0-6"
   }
 }
