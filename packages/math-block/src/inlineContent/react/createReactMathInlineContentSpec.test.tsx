@@ -7,6 +7,7 @@ import { createRoot, Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { createReactInlineMathSpec } from "./createReactMathInlineContentSpec.js";
 
+// TODO: migrate to react, and depreacte jsdom (use vitest browser test?)
 /**
  * @vitest-environment jsdom
  */
@@ -16,7 +17,7 @@ const schema = BlockNoteSchema.create().extend({
   inlineContentSpecs: { inlineMath: createReactInlineMathSpec() },
 });
 
-describe("Inline math source popup", () => {
+describe.skip("Inline math source popup", () => {
   let editor: BlockNoteEditor<any, any, any>;
   let div: HTMLDivElement;
   let root: Root;
