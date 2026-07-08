@@ -480,6 +480,12 @@ NESTED BLOCKS
   position: relative;
   flex: 1;
   min-width: 0;
+  /* Scopes the popup's anchor name (set on `.bn-preview-container`) to this
+     wrapper, so each popup binds to its own preview. Without this every
+     preview shares one global anchor name, and the `fixed` popup - whose
+     containing block is the viewport rather than its wrapper - would bind to
+     the wrong preview. */
+  anchor-scope: --bn-source-popup-anchor;
 }
 
 .bn-preview-container {
@@ -487,10 +493,18 @@ NESTED BLOCKS
   min-height: 1.5em;
   cursor: text;
   overflow: auto;
+  /* Anchor for the source popup (see `.bn-source-block-popup`), so the browser
+     can keep it in the viewport. Set on the preview rather than the wrapper as
+     the wrapper is the popup's containing block, and an element can't be
+     anchored to its own containing block - only to a descendant of it. */
+  anchor-name: --bn-source-popup-anchor;
 }
 
 .bn-source-block-popup {
   position: absolute;
+  /* Fallback positioning for browsers without anchor support - below the
+     preview, spanning its width. The `@supports` rule below upgrades this to
+     anchor positioning so the popup flips into view near a viewport edge. */
   top: calc(100% + 4px);
   left: 0;
   right: 0;
@@ -514,6 +528,33 @@ NESTED BLOCKS
 .bn-preview-with-source-popup[data-open="true"] .bn-source-block-popup {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* Positions the popup relative to its preview via anchor positioning, letting
+   the browser keep it fully visible: it sits below the preview and spans its
+   width by default, but flips above (`flip-block`) when there isn't room
+   below, e.g. near the bottom of a small viewport. Layered in `@supports` so
+   browsers without anchor positioning fall back to the static rules above. */
+@supports (anchor-name: --bn) {
+  .bn-source-block-popup {
+    /* `fixed` rather than `absolute` is required for the flip: `position-try`
+       only relocates the popup when it overflows the viewport, and that's only
+       measured against the viewport when the containing block is the viewport
+       (`fixed`). With `absolute` the overflow is measured against the
+       scrollable document, which extends past the fold, so it never flips.
+       Anchor positioning keeps the `fixed` popup glued to the preview as the
+       page scrolls. */
+    position: fixed;
+    position-anchor: --bn-source-popup-anchor;
+    top: anchor(bottom);
+    bottom: auto;
+    left: anchor(left);
+    right: anchor(right);
+    /* The 4px gap, replacing the fallback's `calc(100% + 4px)`. Uses margin so
+       it stays on the outer edge after a `flip-block`. */
+    margin-block: 4px;
+    position-try-fallbacks: flip-block;
+  }
 }
 
 /* Toggled for a single frame while an up/down arrow press is handled, so the
@@ -661,6 +702,21 @@ NESTED BLOCKS
 
 .bn-inline-content-section .bn-source-block-popup {
   width: 300px;
+}
+
+/* The inline popup keeps its fixed width rather than spanning the (narrow)
+   inline preview, so it's anchored at the preview's start edge and also given
+   `flip-inline` - near the right edge of a small viewport it flips to extend
+   from the preview's end edge instead of overflowing. */
+@supports (anchor-name: --bn) {
+  .bn-inline-content-section .bn-source-block-popup {
+    left: anchor(left);
+    right: auto;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+  }
 }
 
 /* Keeps the popup from collapsing to a sliver while the source is empty. */
