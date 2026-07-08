@@ -26,9 +26,23 @@ BASIC STYLES
 /* Case for blocks/inline content where class is set manually */
 .bn-block-content .ProseMirror-selectednode,
 .bn-inline-content .ProseMirror-selectednode {
+  /* Anchor for the `::after` highlight overlay below. */
+  position: relative;
+}
+
+/* Draws the selection highlight (border + translucent fill) as an overlay on
+   top of the element's content */
+.bn-block-content.ProseMirror-selectednode > *::after,
+.ProseMirror-selectednode > .bn-block-content > *::after,
+.bn-block-content .ProseMirror-selectednode::after,
+.bn-inline-content .ProseMirror-selectednode::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   border-radius: 4px;
-  outline: 4px solid rgba(100, 160, 255, 0.3);
   background-color: rgba(100, 160, 255, 0.08);
+  box-shadow: inset 0 0 0 4px rgba(100, 160, 255, 0.3);
+  pointer-events: none;
 }
 
 .bn-block-content::before {
