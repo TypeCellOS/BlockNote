@@ -47,37 +47,37 @@ export const blockTypeSelectItems = (
   {
     name: dict.slash_menu.heading.title,
     type: "heading",
-    props: { level: 1 },
+    props: { level: 1, isToggleable: false },
     icon: RiH1,
   },
   {
     name: dict.slash_menu.heading_2.title,
     type: "heading",
-    props: { level: 2 },
+    props: { level: 2, isToggleable: false },
     icon: RiH2,
   },
   {
     name: dict.slash_menu.heading_3.title,
     type: "heading",
-    props: { level: 3 },
+    props: { level: 3, isToggleable: false },
     icon: RiH3,
   },
   {
     name: dict.slash_menu.heading_4.title,
     type: "heading",
-    props: { level: 4 },
+    props: { level: 4, isToggleable: false },
     icon: RiH4,
   },
   {
     name: dict.slash_menu.heading_5.title,
     type: "heading",
-    props: { level: 5 },
+    props: { level: 5, isToggleable: false },
     icon: RiH5,
   },
   {
     name: dict.slash_menu.heading_6.title,
     type: "heading",
-    props: { level: 6 },
+    props: { level: 6, isToggleable: false },
     icon: RiH6,
   },
   {
@@ -145,18 +145,22 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   // the schema.
   const filteredItems = useMemo(
     () =>
-      (props.items || blockTypeSelectItems(editor.dictionary)).filter((item) =>
-        editorHasBlockWithType(
-          editor,
-          item.type,
-          Object.fromEntries(
-            Object.entries(item.props || {}).map(([propName, propValue]) => [
-              propName,
-              typeof propValue,
-            ]),
-          ) as Record<string, "string" | "number" | "boolean">,
-        ),
-      ),
+      (props.items || blockTypeSelectItems(editor.dictionary)).filter((item) => {
+        const blockSpec = editor.schema.blockSpecs[item.type];
+        if (!blockSpec) return false;
+
+        // Only pass props that exist in the block's schema. This prevents
+        // false rejections when a prop like isToggleable is conditionally
+        // excluded from the schema (e.g. allowToggleHeadings: false), while
+        // keeping the full props on the item for correct selection matching.
+        const schemaProps = Object.fromEntries(
+          Object.entries(item.props || {})
+            .filter(([propName]) => propName in blockSpec.config.propSchema)
+            .map(([propName, propValue]) => [propName, typeof propValue]),
+        ) as Record<string, "string" | "number" | "boolean">;
+
+        return editorHasBlockWithType(editor, item.type, schemaProps);
+      }),
     [editor, props.items],
   );
 
