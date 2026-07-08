@@ -66,6 +66,7 @@ export interface YHubVersioningOptions {
    */
   groupMaxDuration?: number;
 
+  // TODO mergeUsers is not in standard yhub, but it exists in our fork.
   /**
    * When `true`, adjacent edits are grouped together even when made by
    * *different* users (their ids accumulate in the grouped entry's `by`).
