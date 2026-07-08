@@ -1,3 +1,6 @@
 {
+  "installCommand": "cd .. && corepack enable && pnpm install",
+  "buildCommand": "cd .. && GOMAXPROCS=4 RAYON_NUM_THREADS=4 pnpm exec vp run --concurrency-limit 2 -r build",
+  "outputDirectory": "dist",
   "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }
