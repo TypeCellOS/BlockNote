@@ -1,6 +1,7 @@
 import "@blocknote/core/fonts/inter.css";
 import {
   BlockNoteSchema,
+  combineByGroup,
   SourceBlockWithPreviewExtension,
 } from "@blocknote/core";
 import {
@@ -128,22 +129,15 @@ export default function App() {
       <SuggestionMenuController
         triggerCharacter={"/"}
         getItems={async (query) => {
-          // Gets all default slash menu items.
-          const defaultItems = getDefaultReactSlashMenuItems(editor);
-          // Finds index of last item in "Advanced" group.
-          const lastAdvancedIndex = defaultItems.findLastIndex(
-            (item) => item.group === "Advanced",
-          );
-          // Inserts the Math items at the end of the "Advanced" group.
-          defaultItems.splice(
-            lastAdvancedIndex + 1,
-            0,
+          // Gets the default slash menu items and adds the Math items at the
+          // end of their group ("Advanced").
+          const items = combineByGroup(getDefaultReactSlashMenuItems(editor), [
             insertMath(editor),
             insertInlineMath(editor),
-          );
+          ]);
 
           // Returns filtered items based on the query.
-          return filterSuggestionItems(defaultItems, query);
+          return filterSuggestionItems(items, query);
         }}
       />
     </BlockNoteView>
