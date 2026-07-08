@@ -47,37 +47,37 @@ export const blockTypeSelectItems = (
   {
     name: dict.slash_menu.heading.title,
     type: "heading",
-    props: { level: 1, isToggleable: false },
+    props: { level: 1 },
     icon: RiH1,
   },
   {
     name: dict.slash_menu.heading_2.title,
     type: "heading",
-    props: { level: 2, isToggleable: false },
+    props: { level: 2 },
     icon: RiH2,
   },
   {
     name: dict.slash_menu.heading_3.title,
     type: "heading",
-    props: { level: 3, isToggleable: false },
+    props: { level: 3 },
     icon: RiH3,
   },
   {
     name: dict.slash_menu.heading_4.title,
     type: "heading",
-    props: { level: 4, isToggleable: false },
+    props: { level: 4 },
     icon: RiH4,
   },
   {
     name: dict.slash_menu.heading_5.title,
     type: "heading",
-    props: { level: 5, isToggleable: false },
+    props: { level: 5 },
     icon: RiH5,
   },
   {
     name: dict.slash_menu.heading_6.title,
     type: "heading",
-    props: { level: 6, isToggleable: false },
+    props: { level: 6 },
     icon: RiH6,
   },
   {
