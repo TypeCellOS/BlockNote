@@ -32,6 +32,22 @@ export type CustomInlineContentImplementation<
   meta?: {
     draggable?: boolean;
     code?: boolean;
+    /**
+     * When {@link code} is `true`, this can syntax highlight the contents of the
+     * inline content with the result of this callback.
+     */
+    // Method syntax (rather than an arrow-function property) so its parameter is
+    // checked bivariantly, keeping a specific implementation assignable to the
+    // generic spec record type.
+    highlight?(
+      inlineContent: Pick<InlineContentFromConfig<T, S>, "type" | "props">,
+    ): string | undefined;
+    /**
+     * Marks the inline content as rendering a preview with an editable source
+     * popup, driven by the editor-wide
+     * `SourceInlineContentWithPreviewExtension`.
+     */
+    hasPreview?: boolean;
   };
 
   /**

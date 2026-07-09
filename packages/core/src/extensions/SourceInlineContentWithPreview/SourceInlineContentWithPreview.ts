@@ -7,8 +7,11 @@ import {
 } from "../../editor/BlockNoteExtension.js";
 
 /**
- * Inline-content counterpart of {@link SourceBlockWithPreviewExtension}. Drives
- * the source popup for inline content with a preview.
+ * Inline-content counterpart of {@link SourceBlockWithPreviewExtension}. A
+ * single editor-wide extension that drives the source popup for inline content
+ * that renders a preview. Which inline content it activates on is decided by
+ * each spec's `meta.hasPreview` flag, so individual inline content opts in
+ * rather than the extension being configured with a type.
  *
  * Unlike the block version, the popup isn't toggled with a separate state flag:
  * it's open exactly when the selection is inside the inline content's source.
@@ -16,24 +19,23 @@ import {
  * the selection - moving the selection in opens its popup, moving it out closes
  * it. Since the source popup is always laid out (just hidden via opacity), the
  * cursor can navigate into and out of it with the arrow keys as usual.
+ *
+ * The extension is registered once (it's a default extension) and is a no-op
+ * when no inline content declares `meta.hasPreview`.
  */
 export const SourceInlineContentWithPreviewExtension = createExtension(
-  ({
-    editor,
-    options: { key, inlineContentType, runsBefore = [] },
-  }: {
-    editor: BlockNoteEditor<any, any, any>;
-    options: {
-      key: string;
-      inlineContentType: string;
-      runsBefore?: readonly string[];
-    };
-  }) => {
+  ({ editor }: { editor: BlockNoteEditor<any, any, any> }) => {
     const store = createStore<{
       selected: number | undefined;
     }>({
       selected: undefined,
     });
+
+    // Inline content has a preview iff its spec's implementation declares
+    // `meta.hasPreview`.
+    const nodeHasPreview = (nodeName: string) =>
+      !!editor.schema.inlineContentSpecs[nodeName]?.implementation?.meta
+        ?.hasPreview;
 
     // Moves the selection out of the inline content, to just `"before"` or
     // `"after"` it, which closes the popup via the selection-change handler
@@ -46,7 +48,7 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
       ({ editor }: { editor: BlockNoteEditor<any, any, any> }) => {
         const { $from } = editor.prosemirrorState.selection;
         const node = $from.node();
-        if (node.type.name !== inlineContentType) {
+        if (!nodeHasPreview(node.type.name)) {
           return false;
         }
 
@@ -63,9 +65,8 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
       };
 
     return {
-      key,
+      key: "sourceInlineContentWithPreview",
       store,
-      runsBefore,
       keyboardShortcuts: {
         Enter: moveSelectionOut("after"),
         Escape: moveSelectionOut("after"),
@@ -75,7 +76,7 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
         // whole document.
         "Mod-a": ({ editor }) => {
           const { $from } = editor.prosemirrorState.selection;
-          if ($from.node().type.name !== inlineContentType) {
+          if (!nodeHasPreview($from.node().type.name)) {
             return false;
           }
 
@@ -97,8 +98,9 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
           const node = $from.node();
 
           store.setState({
-            selected:
-              node.type.name === inlineContentType ? $from.before() : undefined,
+            selected: nodeHasPreview(node.type.name)
+              ? $from.before()
+              : undefined,
           });
         });
         signal.addEventListener("abort", unsubscribeSelectionChange);
@@ -116,7 +118,7 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
           // When the selection is already inside a source, leave navigation
           // (moving within or out of it) to the browser as usual.
           const { $from } = editor.prosemirrorState.selection;
-          if ($from.node().type.name === inlineContentType) {
+          if (nodeHasPreview($from.node().type.name)) {
             return;
           }
 

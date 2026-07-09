@@ -70,6 +70,13 @@ export interface BlockConfigMeta<
    * Enables syntax highlighting of the contents of the block with the result of this callback
    */
   highlight?(block: { type: TName; props: Props<TProps> }): string | undefined;
+
+  /**
+   * Marks the block as rendering a preview with an editable source popup, driven
+   * by the editor-wide `SourceBlockWithPreviewExtension`. When `true`, the
+   * block's source is hidden behind its preview and edited via the popup.
+   */
+  hasPreview?: boolean;
 }
 
 /**

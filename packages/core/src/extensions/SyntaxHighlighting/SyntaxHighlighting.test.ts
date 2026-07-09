@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vite-plus/test";
-import { SyntaxHighlightingExtension } from "./SyntaxHighlighting.js";
+import {
+  collectHighlightNodeTypes,
+  SyntaxHighlightingExtension,
+} from "./SyntaxHighlighting.js";
 
 /**
  * @vitest-environment jsdom
@@ -35,5 +38,83 @@ describe("SyntaxHighlightingExtension", () => {
 
   it("installs the plugin even without a highlighter (it no-ops at parse time)", () => {
     expect(pluginsFor({})).toHaveLength(1);
+  });
+});
+
+describe("collectHighlightNodeTypes", () => {
+  const highlight = () => "latex";
+
+  it("includes blocks with `content: inline` and a `meta.highlight`", () => {
+    const types = collectHighlightNodeTypes({
+      blockSpecs: {
+        // Highlightable: inline content + a highlight callback.
+        math: {
+          config: { type: "math", content: "inline" },
+          implementation: { meta: { highlight } },
+        },
+        // Not highlightable: no highlight callback.
+        paragraph: {
+          config: { type: "paragraph", content: "inline" },
+          implementation: { meta: {} },
+        },
+        // Not highlightable: `content: none` holds no editable text.
+        image: {
+          config: { type: "image", content: "none" },
+          implementation: { meta: { highlight } },
+        },
+      },
+      inlineContentSpecs: {},
+    });
+
+    expect(types).toEqual(["math"]);
+  });
+
+  it("includes inline content with `content: styled` and a `meta.highlight`", () => {
+    const types = collectHighlightNodeTypes({
+      blockSpecs: {},
+      inlineContentSpecs: {
+        // Highlightable: styled (editable rich text) + a highlight callback.
+        inlineMath: {
+          config: { type: "inlineMath", content: "styled" },
+          implementation: { meta: { highlight } },
+        },
+        // Not highlightable: no highlight callback.
+        mention: {
+          config: { type: "mention", content: "styled" },
+          implementation: { meta: {} },
+        },
+        // Not highlightable: `content: none` holds no editable text.
+        tag: {
+          config: { type: "tag", content: "none" },
+          implementation: { meta: { highlight } },
+        },
+        // Built-in `text`/`link` specs have string configs, not objects.
+        text: { config: "text", implementation: undefined },
+        link: { config: "link", implementation: undefined },
+      },
+    });
+
+    expect(types).toEqual(["inlineMath"]);
+  });
+
+  it("collects both block and inline-content highlight types together", () => {
+    const types = collectHighlightNodeTypes({
+      blockSpecs: {
+        math: {
+          config: { type: "math", content: "inline" },
+          implementation: { meta: { highlight } },
+        },
+      },
+      inlineContentSpecs: {
+        inlineMath: {
+          config: { type: "inlineMath", content: "styled" },
+          implementation: { meta: { highlight } },
+        },
+      },
+    });
+
+    expect(types).toContain("math");
+    expect(types).toContain("inlineMath");
+    expect(types).toHaveLength(2);
   });
 });

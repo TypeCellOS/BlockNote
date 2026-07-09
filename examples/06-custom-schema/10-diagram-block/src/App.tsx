@@ -1,4 +1,4 @@
-import { createHighlighter } from "@blocknote/code-block";
+import { syntaxHighlighter } from "@blocknote/code-block";
 import { BlockNoteSchema } from "@blocknote/core";
 import {
   filterSuggestionItems,
@@ -42,13 +42,9 @@ const insertDiagram = (editor: typeof schema.BlockNoteEditor) => ({
 
 export default function App() {
   const editor = useCreateBlockNote({
-    // Configures the syntax highlighting extension to use Mermaid syntax
-    // highlighting in the Diagram block's source popup.
-    syntaxHighlighting: {
-      createHighlighter,
-      highlightBlock: (block) =>
-        block.type === "diagram" ? "mermaid" : block.props.language,
-    },
+    // The syntax highlighter extension highlights the Diagram block's Mermaid
+    // source in its popup (the block declares `highlight: () => "mermaid"`).
+    extensions: [syntaxHighlighter],
     schema,
     initialContent: [
       {

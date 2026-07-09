@@ -804,6 +804,14 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
 
+            // NOTE: This likely doesn't work as intended - `blockSchema[type]`
+            // holds the block *config* (type/propSchema/content), which carries
+            // no `meta`, so `meta?.hardBreakShortcut` is always `undefined` and
+            // this falls back to the default. It should read from the block
+            // spec's implementation instead (i.e.
+            // `editor.schema.blockSpecs[type].implementation.meta`), the way the
+            // syntax-highlighting extension reads `meta.highlight`. Left as-is
+            // for a follow-up pass.
             const blockHardBreakShortcut =
               this.options.editor.schema.blockSchema[
                 blockInfo.blockNoteType as keyof typeof this.options.editor.schema.blockSchema

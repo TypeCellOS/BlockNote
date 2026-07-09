@@ -1,7 +1,4 @@
-import {
-  CustomInlineContentConfig,
-  SourceInlineContentWithPreviewExtension,
-} from "@blocknote/core";
+import { CustomInlineContentConfig } from "@blocknote/core";
 import { createReactInlineContentSpec } from "@blocknote/react";
 
 import { MathInlineInputRulesExtension } from "./helpers/extensions/MathInlineInputRulesExtension.js";
@@ -11,8 +8,6 @@ import {
 } from "./helpers/parse/parseInlineMathMLElement.js";
 import { MathInlinePreviewWithPopup } from "./helpers/render/MathInlinePreviewWithPopup.js";
 import { InlineMathMLElement } from "./helpers/toExternalHTML/InlineMathMLElement.js";
-
-const INLINE_MATH_PREVIEW_KEY = "inline-math-preview";
 
 export const mathInlineContentConfig = {
   type: "inlineMath" as const,
@@ -28,17 +23,14 @@ export const createReactInlineMathSpec = () =>
     {
       meta: {
         code: true,
+        highlight: () => "latex",
+        // Inline math always renders a preview with an editable source popup.
+        hasPreview: true,
       },
       parse: parseInlineMathMLElement,
       parseContent: parseInlineMathMLContent,
       render: MathInlinePreviewWithPopup,
       toExternalHTML: InlineMathMLElement,
     },
-    [
-      SourceInlineContentWithPreviewExtension({
-        key: INLINE_MATH_PREVIEW_KEY,
-        inlineContentType: mathInlineContentConfig.type,
-      }),
-      MathInlineInputRulesExtension,
-    ],
+    [MathInlineInputRulesExtension],
   );

@@ -43,6 +43,12 @@ export type InlineContentImplementation<T extends InlineContentConfig> =
            * Whether the inline content is draggable
            */
           draggable?: boolean;
+          /**
+           * Marks the inline content as rendering a preview with an editable
+           * source popup, driven by the editor-wide
+           * `SourceInlineContentWithPreviewExtension`.
+           */
+          hasPreview?: boolean;
         };
         node: Node;
         toExternalHTML?: (
