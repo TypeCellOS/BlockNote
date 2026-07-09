@@ -217,7 +217,10 @@ export const auth = betterAuth({
             },
           ],
           successUrl: "/thanks",
-          authenticatedUsersOnly: true,
+          // Pay-first: allow logged-out checkout. The buyer is reconciled to a
+          // BlockNote account by email in the webhook below
+          // (resolveUserForCustomer), then emailed a sign-in link.
+          authenticatedUsersOnly: false,
         }),
         portal(),
         webhooks({
@@ -230,11 +233,16 @@ export const auth = betterAuth({
               case "subscription.revoked":
               case "subscription.created":
               case "subscription.uncanceled": {
-                const authContext = await auth.$context;
-                const userId = payload.data.customer.externalId;
+                // Resolve the BlockNote account for this purchase. For pay-first
+                // (logged-out) checkouts the customer has no externalId, so this
+                // creates/links an account by email and sends a sign-in link.
+                const userId = await resolveUserForCustomer(
+                  payload.data.customer,
+                );
                 if (!userId) {
                   return;
                 }
+                const authContext = await auth.$context;
                 if (payload.data.status === "active") {
                   const productId = payload.data.product.id;
                   const planType = Object.values(PRODUCTS).find(
@@ -296,3 +304,82 @@ export const auth = betterAuth({
     }),
   },
 });
+
+// For "pay-first" checkouts the buyer may not have an account yet: the Polar
+// customer has no externalId because they checked out while logged out. Resolve
+// the BlockNote user for a Polar customer — creating one keyed on the checkout
+// email when needed — so the purchase can be provisioned and the buyer gets
+// access (via a sign-in link) to the account holding their new plan.
+async function resolveUserForCustomer(customer: {
+  id: string;
+  externalId?: string | null;
+  email?: string | null;
+  name?: string | null;
+}): Promise<string | null> {
+  // Authenticated purchase: the customer is already linked to a user.
+  if (customer.externalId) {
+    return customer.externalId;
+  }
+  const email = customer.email;
+  if (!email) {
+    return null;
+  }
+
+  const authContext = await auth.$context;
+  const existing = await authContext.internalAdapter.findUserByEmail(email);
+  if (existing?.user) {
+    // Existing account, but this logged-out purchase created an unlinked Polar
+    // customer — link it so the buyer's subscription is found.
+    await linkPolarCustomer(customer.id, existing.user.id);
+    return existing.user.id;
+  }
+
+  try {
+    const created = await authContext.internalAdapter.createUser({
+      email,
+      name: customer.name || email,
+      emailVerified: false,
+    });
+    // Link the Polar customer to the new account. Subscription and
+    // customer-portal lookups resolve a user's customer by externalId, so
+    // without this the buyer couldn't access or manage the plan they bought.
+    await linkPolarCustomer(customer.id, created.id);
+    // New account → email a sign-in link so they can access the plan they
+    // just bought. A mail failure must not block provisioning.
+    try {
+      await auth.api.signInMagicLink({
+        body: { email, callbackURL: "/pricing" },
+        headers: new Headers(),
+      });
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+    return created.id;
+  } catch (err) {
+    // A concurrent webhook for the same purchase may have created the user
+    // first (email is unique). Re-fetch instead of failing provisioning.
+    const retry = await authContext.internalAdapter.findUserByEmail(email);
+    if (retry?.user) {
+      await linkPolarCustomer(customer.id, retry.user.id);
+      return retry.user.id;
+    }
+    throw err;
+  }
+}
+
+// Link a Polar customer to a BlockNote user by setting the customer's
+// externalId. Subscription and customer-portal lookups resolve a user's Polar
+// customer by `externalId === user.id`, so a logged-out (pay-first) purchase
+// must be linked here or the buyer can't access/manage their subscription.
+// Best-effort: a failure is reported but must not block provisioning the plan,
+// and subsequent subscription events retry the link via the same path.
+async function linkPolarCustomer(customerId: string, userId: string) {
+  try {
+    await polarClient.customers.update({
+      id: customerId,
+      customerUpdate: { externalId: userId },
+    });
+  } catch (err) {
+    Sentry.captureException(err);
+  }
+}
