@@ -507,6 +507,7 @@ export type BlockImplementation<
       | Record<string, never>
       | ({
           blockContentDOMAttributes: Record<string, string>;
+          propSchema?: TProps;
         } & (
           | {
               renderType: "nodeView";
@@ -552,6 +553,7 @@ export type BlockImplementation<
   toExternalHTML?: (
     this: Partial<{
       blockContentDOMAttributes: Record<string, string>;
+      propSchema: TProps;
     }>,
     block: BlockFromConfig<BlockConfig<TName, TProps, TContent>, any, any>,
     editor: BlockNoteEditor<
