@@ -206,7 +206,12 @@ export function addNodeAndExtensionsToSpec<
             this.options.domAttributes?.blockContent || {};
 
           const nodeView = blockImplementation.render.call(
-            { blockContentDOMAttributes, props, renderType: "nodeView" },
+            {
+              blockContentDOMAttributes,
+              props,
+              renderType: "nodeView",
+              propSchema: blockConfig.propSchema,
+            },
             block as any,
             editor as any,
           );
@@ -248,6 +253,7 @@ export function addNodeAndExtensionsToSpec<
             blockContentDOMAttributes,
             props: undefined,
             renderType: "dom",
+            propSchema: blockConfig.propSchema,
           },
           block as any,
           editor as any,
@@ -261,13 +267,18 @@ export function addNodeAndExtensionsToSpec<
 
         return (
           blockImplementation.toExternalHTML?.call(
-            { blockContentDOMAttributes },
+            { blockContentDOMAttributes, propSchema: blockConfig.propSchema },
             block as any,
             editor as any,
             context,
           ) ??
           blockImplementation.render.call(
-            { blockContentDOMAttributes, renderType: "dom", props: undefined },
+            {
+              blockContentDOMAttributes,
+              renderType: "dom",
+              props: undefined,
+              propSchema: blockConfig.propSchema,
+            },
             block as any,
             editor as any,
           )
@@ -404,7 +415,7 @@ export function createBlockSpec<
             output,
             block.type,
             block.props,
-            blockConfig.propSchema,
+            this.propSchema ?? blockConfig.propSchema,
             blockImplementation.meta?.fileBlockAccept !== undefined,
           );
         },
@@ -423,7 +434,7 @@ export function createBlockSpec<
             output,
             block.type,
             block.props,
-            blockConfig.propSchema,
+            this.propSchema ?? blockConfig.propSchema,
             blockImplementation.meta?.fileBlockAccept !== undefined,
             this.blockContentDOMAttributes,
           ) satisfies NodeView;
