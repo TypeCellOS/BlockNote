@@ -8,7 +8,6 @@ import { CodeKeyboardShortcutsExtension } from "./helpers/extensions/CodeKeyboar
 import { SourceBlockWithPreviewExtension } from "./helpers/extensions/SourceBlockWithPreviewExtension.js";
 import { CodeBlockOptions } from "./CodeBlockOptions.js";
 import { createSourceBlockWithPreview } from "./helpers/render/createSourceBlockWithPreview.js";
-import { SyntaxHighlightingExtension } from "../../extensions/index.js";
 
 const CODE_BLOCK_KEYBOARD_SHORTCUTS_KEY = "code-block-keyboard-shortcuts";
 const CODE_BLOCK_PREVIEW_KEY = "code-block-preview";
@@ -50,23 +49,17 @@ export const createCodeBlockSpec = createBlockSpec(
       ),
     toExternalHTML: (block) => createPreCode(block),
   }),
-  (options) => {
-    return [
-      CodeKeyboardShortcutsExtension(options)(
-        CODE_BLOCK_KEYBOARD_SHORTCUTS_KEY,
-        "codeBlock",
-      ),
-      SourceBlockWithPreviewExtension({
-        key: CODE_BLOCK_PREVIEW_KEY,
-        blockType: "codeBlock",
-        hasPreview: (block) =>
-          !!options.supportedLanguages?.[block.props.language]?.createPreview,
-        runsBefore: [CODE_BLOCK_KEYBOARD_SHORTCUTS_KEY],
-      }),
-      options.createHighlighter &&
-        SyntaxHighlightingExtension({
-          createHighlighter: options.createHighlighter,
-        }),
-    ].filter((a) => !!a);
-  },
+  (options) => [
+    CodeKeyboardShortcutsExtension(options)(
+      CODE_BLOCK_KEYBOARD_SHORTCUTS_KEY,
+      "codeBlock",
+    ),
+    SourceBlockWithPreviewExtension({
+      key: CODE_BLOCK_PREVIEW_KEY,
+      blockType: "codeBlock",
+      hasPreview: (block) =>
+        !!options.supportedLanguages?.[block.props.language]?.createPreview,
+      runsBefore: [CODE_BLOCK_KEYBOARD_SHORTCUTS_KEY],
+    }),
+  ],
 );

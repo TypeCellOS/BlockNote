@@ -203,11 +203,23 @@ export class ExtensionManager {
       return undefined as any;
     }
 
+    // Extension keys must be unique. Registering a second extension with a key
+    // that's already taken - whether directly or as a dependency declared via
+    // another extension's `blockNoteExtensions` - is a configuration error: the
+    // duplicate would otherwise be silently dropped, hiding the bug (and leaving
+    // it ambiguous which instance's configuration wins). We fail loudly instead.
+    // A shared extension should be registered exactly once, not registered again
+    // by each consumer.
+    if (this.extensions.some((e) => e.key === instance.key)) {
+      throw new Error(
+        `An extension with key "${instance.key}" is already registered. ` +
+          `Extension keys must be unique - register the shared extension once ` +
+          `rather than registering it again.`,
+      );
+    }
+
     // A sub-extension declared via `blockNoteExtensions` must run before the
-    // extension that declares it. We record this dependency before the
-    // de-duplication check below, so that it applies even when multiple
-    // extensions declare the same sub-extension (and all but the first are
-    // de-duplicated).
+    // extension that declares it, so record that ordering edge.
     if (parentKey) {
       let dependents = this.blockNoteExtensionDependents.get(instance.key);
       if (!dependents) {
@@ -215,15 +227,6 @@ export class ExtensionManager {
         this.blockNoteExtensionDependents.set(instance.key, dependents);
       }
       dependents.add(parentKey);
-    }
-
-    // De-duplicate by key: if an extension with the same key is already
-    // registered, don't register it again. This allows an extension to declare
-    // a dependency on another extension via `blockNoteExtensions` without
-    // conflicting when the user (or another extension) registers that same
-    // extension directly. The first registration wins.
-    if (this.extensions.some((e) => e.key === instance.key)) {
-      return undefined as any;
     }
 
     // Now that we know that the extension is not disabled, we can add it to the extension factories

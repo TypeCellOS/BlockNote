@@ -4,7 +4,7 @@ import {
   filterSuggestionItems,
   insertOrUpdateBlockForSlashMenu,
 } from "@blocknote/core/extensions";
-import { codeBlockOptions } from "@blocknote/code-block";
+import { codeBlockOptions, syntaxHighlighter } from "@blocknote/code-block";
 import { createReactMathBlockSpec } from "@blocknote/math-block";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -40,6 +40,9 @@ const insertMath = (editor: typeof schema.BlockNoteEditor) => ({
 
 export default function App() {
   const editor = useCreateBlockNote({
+    // The syntax highlighter extension highlights both the code block and the
+    // LaTeX source of math blocks. Without it, they render as plain text.
+    extensions: [syntaxHighlighter],
     schema,
     initialContent: [
       {

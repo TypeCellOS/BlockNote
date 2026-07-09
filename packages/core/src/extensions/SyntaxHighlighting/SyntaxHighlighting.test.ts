@@ -6,8 +6,8 @@ import { SyntaxHighlightingExtension } from "./SyntaxHighlighting.js";
  */
 
 describe("SyntaxHighlightingExtension", () => {
-  // The extension only reads `editor.schema.blockSpecs`, so a minimal stub is
-  // enough.
+  // The extension only reads `editor.schema.blockSpecs` and
+  // `inlineContentSpecs`, so a minimal stub is enough.
   const fakeEditor = () =>
     ({
       schema: {
@@ -16,6 +16,7 @@ describe("SyntaxHighlightingExtension", () => {
           codeBlock: { config: { type: "codeBlock", content: "inline" } },
           image: { config: { type: "image", content: "none" } },
         },
+        inlineContentSpecs: {},
       },
     }) as any;
 
@@ -23,9 +24,9 @@ describe("SyntaxHighlightingExtension", () => {
     SyntaxHighlightingExtension(options)({ editor: fakeEditor() })
       .prosemirrorPlugins;
 
-  // Whether highlighting is enabled at all is decided by the editor (it only
-  // instantiates this extension when the `syntaxHighlighting` option is set), so
-  // the extension itself always installs the plugin once created.
+  // Whether highlighting is enabled at all is decided by the user (they choose
+  // to add this extension to the editor's `extensions`), so the extension
+  // itself always installs the plugin once created.
   it("installs a highlight plugin when a highlighter is configured", () => {
     const plugins = pluginsFor({ createHighlighter: async () => ({}) as any });
 

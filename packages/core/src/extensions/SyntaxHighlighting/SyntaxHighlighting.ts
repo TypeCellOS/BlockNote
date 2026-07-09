@@ -18,16 +18,18 @@ export type SyntaxHighlightingOptions = {
 
 /**
  * A single editor-wide extension that syntax-highlights block content. Which
- * blocks get highlighted (and as which language) is decided by the
- * `highlightBlock` option, so individual blocks don't configure it themselves.
+ * blocks get highlighted (and as which language) is decided by each spec's
+ * `meta.highlight` callback, so individual blocks declare their own language
+ * rather than the extension configuring them.
  *
- * Highlighting is opt-in: this extension is only instantiated when the
- * `syntaxHighlighting` option is configured (see `getDefaultExtensions`).
+ * Highlighting is opt-in: the user adds this extension to the editor's
+ * `extensions` (configured with a `createHighlighter`) to enable it. When it's
+ * absent, blocks render as plain text.
  */
 export const SyntaxHighlightingExtension = createExtension(
   ({ editor, options }: ExtensionOptions<SyntaxHighlightingOptions>) => {
-    // Every block with inline (text) content is a candidate; `highlightBlock`
-    // decides per-block whether and how to highlight it.
+    // Every block/inline-content spec with a `meta.highlight` callback is a
+    // candidate; that callback decides the language to highlight it as.
     const nodeTypes = [
       ...Object.values(editor.schema.blockSpecs),
       ...Object.values(editor.schema.inlineContentSpecs),

@@ -1,6 +1,5 @@
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { BlockFromConfig } from "../../schema/index.js";
-import { SyntaxHighlightingOptions } from "../../extensions/index.js";
 
 /**
  * Renders a preview of a code block's content (e.g. rendered LaTeX). Takes the
@@ -66,7 +65,7 @@ export type CodeBlockOptions = {
       createPreview?: CodeBlockPreview;
     }
   >;
-} & Partial<SyntaxHighlightingOptions>;
+};
 
 export function getLanguageId(
   options: CodeBlockOptions,
