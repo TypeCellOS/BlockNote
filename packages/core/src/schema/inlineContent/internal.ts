@@ -1,5 +1,9 @@
 import { KeyboardShortcutCommand, Node } from "@tiptap/core";
 
+import {
+  Extension,
+  ExtensionFactoryInstance,
+} from "../../editor/BlockNoteExtension.js";
 import { camelToDataKebab } from "../../util/string.js";
 import { PropSchema, Props } from "../propTypes.js";
 import {
@@ -77,10 +81,12 @@ export function createInternalInlineContentSpec<
 >(
   config: T,
   implementation: InlineContentImplementation<NoInfer<T>>,
+  extensions?: (Extension | ExtensionFactoryInstance)[],
 ): InlineContentSpec<T> {
   return {
     config,
     implementation,
+    extensions,
   } as const;
 }
 

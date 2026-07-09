@@ -1,8 +1,10 @@
 import {
+  BlockConfig,
+  BlockFromConfigNoChildren,
   BlockMapping,
+  createPageBreakBlockConfig,
   DefaultBlockSchema,
   DefaultProps,
-  createPageBreakBlockConfig,
   StyledText,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
@@ -19,10 +21,57 @@ import { Table } from "../util/table/Table.js";
 const PIXELS_PER_POINT = 0.75;
 const FONT_SIZE = 16;
 
+type BSchema = DefaultBlockSchema & {
+  pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  math: BlockConfig<"math", {}, "inline">;
+  diagram: BlockConfig<"diagram", {}, "inline">;
+} & typeof multiColumnSchema.blockSchema;
+
+// Renders a block's inline content as monospaced source code. Used for both
+// code blocks and math blocks (which store their LaTeX source as content).
+const codeMapping = (
+  block: BlockFromConfigNoChildren<BSchema[keyof BSchema], any, any>,
+) => {
+  // Code blocks should always contain a single `StyledText` inline content.
+  // However, if this is not the case for whatever reason, we can merge the
+  // text content of all `StyledText` content in them.
+  const textContent = (block.content as StyledText<any>[])
+    .map((item) => item.text)
+    .join("");
+  const lines = textContent.split("\n").map((line, index) => {
+    const indent = line.match(/^\s*/)?.[0].length || 0;
+
+    return (
+      <Text
+        key={`line_${index}` + block.id}
+        style={{
+          marginLeft: indent * 9.5 * PIXELS_PER_POINT,
+        }}
+      >
+        {line.trimStart() || <>&nbsp;</>}
+      </Text>
+    );
+  });
+
+  return (
+    <View
+      wrap={false}
+      style={{
+        padding: 24 * PIXELS_PER_POINT,
+        border: "1px solid #000000",
+        lineHeight: 1.25,
+        fontSize: FONT_SIZE * PIXELS_PER_POINT,
+        fontFamily: "GeistMono",
+      }}
+      key={"codeBlock" + block.id}
+    >
+      {lines}
+    </View>
+  );
+};
+
 export const pdfBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema & {
-    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  } & typeof multiColumnSchema.blockSchema,
+  BSchema,
   any,
   any,
   React.ReactElement<Text>,
@@ -113,44 +162,10 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
       </Text>
     );
   },
-  codeBlock: (block) => {
-    // Code blocks should always contain a single `StyledText` inline content.
-    // However, if this is not the case for whatever reason, we can merge the
-    // text content of all `StyledText` content in them.
-    const textContent = (block.content as StyledText<any>[])
-      .map((item) => item.text)
-      .join("");
-    const lines = textContent.split("\n").map((line, index) => {
-      const indent = line.match(/^\s*/)?.[0].length || 0;
-
-      return (
-        <Text
-          key={`line_${index}` + block.id}
-          style={{
-            marginLeft: indent * 9.5 * PIXELS_PER_POINT,
-          }}
-        >
-          {line.trimStart() || <>&nbsp;</>}
-        </Text>
-      );
-    });
-
-    return (
-      <View
-        wrap={false}
-        style={{
-          padding: 24 * PIXELS_PER_POINT,
-          border: "1px solid #000000",
-          lineHeight: 1.25,
-          fontSize: FONT_SIZE * PIXELS_PER_POINT,
-          fontFamily: "GeistMono",
-        }}
-        key={"codeBlock" + block.id}
-      >
-        {lines}
-      </View>
-    );
-  },
+  // TODO
+  codeBlock: codeMapping,
+  math: codeMapping,
+  diagram: codeMapping,
   pageBreak: () => {
     return <View break key={"pageBreak"} />;
   },

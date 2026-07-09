@@ -48,7 +48,7 @@
     "@polar-sh/sdk": "^0.42.2",
     "@react-email/components": "^1.0.4",
     "@react-email/render": "^2.0.4",
-    "@react-pdf/renderer": "^4.3.0",
+    "@react-pdf/renderer": "^4.5.1",
     "@sentry/nextjs": "^10.34.0",
     "@shikijs/core": "^4",
     "@shikijs/engine-javascript": "^4",
@@ -97,7 +97,12 @@
     "y-partykit": "^0.0.25",
     "yjs": "^13.6.27",
     "zod": "^4.3.5",
-    "@blocknote/math-block": "workspace:*"
+    "@blocknote/math-block": "workspace:*",
+    "mermaid": "^11.0.0",
+    "@blocknote/diagram-block": "workspace:*",
+    "docx": "^9.6.1",
+    "@react-pdf/math": "^2.0.1",
+    "katex": "^0.16.11"
   },
   "devDependencies": {
     "@blocknote/code-block": "workspace:*",

@@ -1,5 +1,7 @@
 import {
+  BlockConfig,
   BlockFromConfig,
+  BlockFromConfigNoChildren,
   BlockMapping,
   createPageBreakBlockConfig,
   DefaultBlockSchema,
@@ -8,8 +10,35 @@ import {
   StyledText,
   TableCell,
 } from "@blocknote/core";
-import { ODTExporter } from "../odtExporter.js";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
+import { ODTExporter } from "../odtExporter.js";
+
+type BSchema = DefaultBlockSchema & {
+  pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  math: BlockConfig<"math", {}, "inline">;
+  diagram: BlockConfig<"diagram", {}, "inline">;
+} & typeof multiColumnSchema.blockSchema;
+
+// Renders a block's inline content as a code paragraph. Used for both code
+// blocks and math blocks (which store their LaTeX source as content).
+const codeMapping = (
+  block: BlockFromConfigNoChildren<BSchema[keyof BSchema], any, any>,
+) => {
+  const textContent = (block.content as StyledText<any>[])[0]?.text || "";
+
+  return (
+    <text:p text:style-name="Codeblock">
+      {...textContent.split("\n").map((line, index) => {
+        return (
+          <>
+            {index !== 0 && <text:line-break />}
+            {line}
+          </>
+        );
+      })}
+    </text:p>
+  );
+};
 
 export const getTabs = (nestingLevel: number) => {
   return Array.from({ length: nestingLevel }, (_, i) => <text:tab key={i} />);
@@ -164,9 +193,7 @@ const wrapWithLists = (
 };
 
 export const odtBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema & {
-    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  } & typeof multiColumnSchema.blockSchema,
+  BSchema,
   any,
   any,
   React.ReactNode,
@@ -499,23 +526,10 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       </table:table>
     );
   },
-
-  codeBlock: (block) => {
-    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
-
-    return (
-      <text:p text:style-name="Codeblock">
-        {...textContent.split("\n").map((line, index) => {
-          return (
-            <>
-              {index !== 0 && <text:line-break />}
-              {line}
-            </>
-          );
-        })}
-      </text:p>
-    );
-  },
+// TODO
+  codeBlock: codeMapping,
+  math: codeMapping,
+  diagram: codeMapping,
 
   file: async (block) => {
     return (

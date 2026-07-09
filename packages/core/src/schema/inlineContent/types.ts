@@ -2,6 +2,10 @@ import { Node } from "@tiptap/core";
 import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema, Styles } from "../styles/types.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import {
+  Extension,
+  ExtensionFactoryInstance,
+} from "../../editor/BlockNoteExtension.js";
 import { ViewMutationRecord } from "prosemirror-view";
 
 export type CustomInlineContentConfig = {
@@ -76,6 +80,7 @@ export type InlineContentSchemaWithInlineContent<
 export type InlineContentSpec<T extends InlineContentConfig> = {
   config: T;
   implementation: InlineContentImplementation<T>;
+  extensions?: (Extension | ExtensionFactoryInstance)[];
 };
 
 // A Schema contains all the types (Configs) supported in an editor

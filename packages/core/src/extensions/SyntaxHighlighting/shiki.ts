@@ -72,7 +72,7 @@ export function lazyShikiPlugin(
     if (!parser) {
       parser =
         globalThisForShiki[shikiParserSymbol] ||
-        createParser(highlighter as any);
+        createParser(highlighter as any, pickThemeOptions(highlighter));
       globalThisForShiki[shikiParserSymbol] = parser;
     }
 
@@ -98,4 +98,19 @@ export function lazyShikiPlugin(
     },
     nodeTypes,
   });
+}
+
+// If a light and dark theme is added to the highlighter, this function specifies them in
+// `createParser`. This lets us use `--shiki-light` and `--shiki-dark` CSS variables for correct
+// styling for both light & dark editor themes.
+function pickThemeOptions(highlighter: HighlighterGeneric<any, any>) {
+  const themes = highlighter.getLoadedThemes();
+  const light = themes.find((t) => /light/i.test(t));
+  const dark = themes.find((t) => /dark/i.test(t));
+
+  if (light && dark) {
+    return { themes: { light, dark }, defaultColor: false as const };
+  }
+
+  return undefined;
 }

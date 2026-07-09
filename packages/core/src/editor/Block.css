@@ -22,9 +22,13 @@ BASIC STYLES
 
 .bn-block-content.ProseMirror-selectednode > *,
 /* Case for node view renderers */
-.ProseMirror-selectednode > .bn-block-content > * {
+.ProseMirror-selectednode > .bn-block-content > *,
+/* Case for blocks/inline content where class is set manually */
+.bn-block-content .ProseMirror-selectednode,
+.bn-inline-content .ProseMirror-selectednode {
   border-radius: 4px;
-  outline: 4px solid rgb(100, 160, 255);
+  outline: 4px solid rgba(100, 160, 255, 0.3);
+  background-color: rgba(100, 160, 255, 0.08);
 }
 
 .bn-block-content::before {
@@ -461,20 +465,46 @@ NESTED BLOCKS
   color: inherit;
 }
 
+/* Default to dark theme as the code block has a dark background regardless of theme. */
+.shiki {
+  color: var(--shiki-dark);
+}
+.bn-source-block-popup .shiki {
+  color: var(--shiki-light);
+}
+.bn-root[data-color-scheme="dark"] .bn-source-block-popup .shiki {
+  color: var(--shiki-dark);
+}
+
 .bn-preview-with-source-popup {
   position: relative;
   flex: 1;
   min-width: 0;
+  /* Scopes the popup's anchor name (set on `.bn-preview-container`) to this
+     wrapper, so each popup binds to its own preview. Without this every
+     preview shares one global anchor name, and the `fixed` popup - whose
+     containing block is the viewport rather than its wrapper - would bind to
+     the wrong preview. */
+  anchor-scope: --bn-source-popup-anchor;
 }
 
 .bn-preview-container {
   padding: 12px;
   min-height: 1.5em;
   cursor: text;
+  overflow: auto;
+  /* Anchor for the source popup (see `.bn-source-block-popup`), so the browser
+     can keep it in the viewport. Set on the preview rather than the wrapper as
+     the wrapper is the popup's containing block, and an element can't be
+     anchored to its own containing block - only to a descendant of it. */
+  anchor-name: --bn-source-popup-anchor;
 }
 
 .bn-source-block-popup {
   position: absolute;
+  /* Fallback positioning for browsers without anchor support - below the
+     preview, spanning its width. The `@supports` rule below upgrades this to
+     anchor positioning so the popup flips into view near a viewport edge. */
   top: calc(100% + 4px);
   left: 0;
   right: 0;
@@ -484,13 +514,56 @@ NESTED BLOCKS
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
   box-shadow: var(--bn-shadow-medium);
+  max-height: 200px;
   opacity: 0;
+  /* Only the source itself scrolls (see the popup body's `pre`), so the
+     language select, "OK" button, and error message stay visible for large
+     multiline sources. */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   pointer-events: none;
 }
 
 .bn-preview-with-source-popup[data-open="true"] .bn-source-block-popup {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* Positions the popup relative to its preview via anchor positioning, letting
+   the browser keep it fully visible: it sits below the preview and spans its
+   width by default, but flips above (`flip-block`) when there isn't room
+   below, e.g. near the bottom of a small viewport. Layered in `@supports` so
+   browsers without anchor positioning fall back to the static rules above. */
+@supports (anchor-name: --bn) {
+  .bn-source-block-popup {
+    /* `fixed` rather than `absolute` is required for the flip: `position-try`
+       only relocates the popup when it overflows the viewport, and that's only
+       measured against the viewport when the containing block is the viewport
+       (`fixed`). With `absolute` the overflow is measured against the
+       scrollable document, which extends past the fold, so it never flips.
+       Anchor positioning keeps the `fixed` popup glued to the preview as the
+       page scrolls. */
+    position: fixed;
+    position-anchor: --bn-source-popup-anchor;
+    top: anchor(bottom);
+    bottom: auto;
+    left: anchor(left);
+    right: anchor(right);
+    /* The 4px gap, replacing the fallback's `calc(100% + 4px)`. Uses margin so
+       it stays on the outer edge after a `flip-block`. */
+    margin-block: 4px;
+    position-try-fallbacks: flip-block;
+  }
+}
+
+/* Toggled for a single frame while an up/down arrow press is handled, so the
+   browser's geometry-based vertical caret movement skips the popup. */
+.bn-suppress-source-popup-caret
+  .bn-inline-content-section
+  .bn-preview-with-source-popup:not([data-open="true"])
+  .bn-source-block-popup {
+  visibility: hidden;
 }
 
 .bn-source-block-popup > div > select {
@@ -509,11 +582,20 @@ NESTED BLOCKS
   color: black;
 }
 
-.bn-source-block-popup > pre {
+.bn-code-block-source-popup-body {
+  display: flex;
+  align-items: flex-end;
+  flex: 1;
+  min-height: 0;
+}
+
+.bn-code-block-source-popup-body > pre {
   white-space: pre;
-  overflow-x: auto;
+  overflow: auto;
+  align-self: stretch;
   margin: 0;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   tab-size: 2;
   padding: 16px;
 }
@@ -526,9 +608,33 @@ NESTED BLOCKS
   white-space: pre-wrap;
 }
 
-/* Shown in place of the preview when the source is empty. Mirrors the file
-block's "add file" button styling. */
-.bn-add-source-code-button {
+.bn-code-block-source-popup-ok-button-wrapper {
+  align-items: flex-end;
+  display: flex;
+  justify-content: flex-end;
+  padding: 15px 16px;
+}
+
+.bn-code-block-source-popup-ok-button {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  background-color: rgb(37, 99, 235);
+  color: white;
+  font-size: 0.8em;
+  font-weight: 500;
+  border-radius: var(--bn-border-radius-small);
+  padding: 4px 8px;
+}
+
+.bn-editor[contenteditable="true"] .bn-code-block-source-popup-ok-button:hover {
+  background-color: rgb(29, 78, 216);
+}
+
+/* Shown in place of the preview when there's nothing to render (see
+   `PreviewPlaceholder`): the "add source" state for an empty source, or -
+   with the error modifier - the compact error state. */
+.bn-preview-placeholder {
   align-items: center;
   background-color: rgb(242, 241, 238);
   border-radius: 4px;
@@ -538,28 +644,104 @@ block's "add file" button styling. */
   padding: 12px;
 }
 
-.bn-add-source-code-button:where(.dark, .dark *) {
+.bn-preview-placeholder:where(.dark, .dark *) {
   background-color: rgb(70, 70, 70);
   color: rgb(190, 190, 190);
 }
 
-.bn-editor[contenteditable="true"] .bn-add-source-code-button:hover {
+.bn-editor[contenteditable="true"]
+  .bn-preview-placeholder:not(.bn-preview-placeholder-error):hover {
   background-color: rgb(225, 225, 225);
 }
 
 .bn-editor[contenteditable="true"]
-  .bn-add-source-code-button:hover:where(.dark, .dark *) {
+  .bn-preview-placeholder:not(.bn-preview-placeholder-error):hover:where(
+    .dark,
+    .dark *
+  ) {
   background-color: rgb(90, 90, 90);
 }
 
-.bn-add-source-code-button-icon {
+/* The error state only differs in color. The highlight variables already
+   flip with the theme, so this also overrides the dark rule above. */
+.bn-preview-placeholder-error {
+  background-color: var(--bn-colors-highlights-red-background);
+  color: var(--bn-colors-highlights-red-text);
+}
+
+.bn-preview-placeholder-icon {
+  display: flex;
   width: 24px;
   height: 24px;
 }
 
-.bn-add-source-code-button-text {
+/* Icons render at 1em by default (e.g. react-icons), so stretch them to the
+   wrapper's size instead. */
+.bn-preview-placeholder-icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.bn-preview-placeholder-text {
   font-size: 0.9rem;
   margin: 0;
+}
+
+/* INLINE MATH PREVIEW */
+/* Shares the block-preview markup/classes; these rules override the
+   block-preview defaults that don't suit inline use. */
+.bn-inline-content-section .bn-preview-with-source-popup {
+  display: inline-block;
+}
+
+.bn-inline-content-section .bn-preview-container {
+  padding: 0;
+  min-height: 0;
+  cursor: pointer;
+}
+
+.bn-inline-content-section .bn-source-block-popup {
+  width: 300px;
+}
+
+/* The inline popup keeps its fixed width rather than spanning the (narrow)
+   inline preview, so it's anchored at the preview's start edge and also given
+   `flip-inline` - near the right edge of a small viewport it flips to extend
+   from the preview's end edge instead of overflowing. */
+@supports (anchor-name: --bn) {
+  .bn-inline-content-section .bn-source-block-popup {
+    left: anchor(left);
+    right: auto;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+  }
+}
+
+/* Keeps the popup from collapsing to a sliver while the source is empty. */
+.bn-inline-content-section .bn-code-block-source-popup-body > pre {
+  min-height: 1.5em;
+  box-sizing: content-box;
+}
+
+/* The placeholder sits inline among text, so it needs to be compact rather
+   than the full-size block-preview version. */
+.bn-inline-content-section .bn-preview-placeholder {
+  display: inline-flex;
+  gap: 4px;
+  height: 19px;
+  margin-inline: 4px;
+  padding: 0 6px;
+}
+
+.bn-inline-content-section .bn-preview-placeholder-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.bn-inline-content-section .bn-preview-placeholder-text {
+  font-size: 0.85em;
 }
 
 /* PAGE BREAK */

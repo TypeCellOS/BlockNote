@@ -54,16 +54,20 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
+    "@handlewithcare/prosemirror-inputrules": "^0.1.4",
     "katex": "^0.16.11",
     "mathml-to-latex": "^1.8.0",
     "prosemirror-model": "^1.25.4",
-    "prosemirror-state": "^1.4.4"
+    "prosemirror-state": "^1.4.4",
+    "prosemirror-view": "^1.41.4"
   },
   "devDependencies": {
     "@blocknote/react": "workspace:^",
+    "react-icons": "^5.5.0",
     "@blocknote/xl-multi-column": "workspace:^",
     "@types/katex": "^0.16.7",
     "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "rimraf": "^5.0.10",

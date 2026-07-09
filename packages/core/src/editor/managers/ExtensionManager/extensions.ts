@@ -15,6 +15,7 @@ import {
   FilePanelExtension,
   FormattingToolbarExtension,
   HistoryExtension,
+  InlineContentBoundaryEditExtension,
   LinkToolbarExtension,
   NodeSelectionKeyboardExtension,
   PlaceholderExtension,
@@ -175,6 +176,7 @@ export function getDefaultExtensions(
     SideMenuExtension(options),
     SuggestionMenu(options),
     HistoryExtension(),
+    InlineContentBoundaryEditExtension(),
     PositionMappingExtension(),
     ...(options.trailingBlock !== false ? [TrailingNodeExtension()] : []),
   ] as ExtensionFactoryInstance[];

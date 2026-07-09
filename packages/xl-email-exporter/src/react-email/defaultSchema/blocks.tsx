@@ -1,4 +1,6 @@
 import {
+  BlockConfig,
+  BlockFromConfigNoChildren,
   BlockMapping,
   createPageBreakBlockConfig,
   DefaultBlockSchema,
@@ -115,12 +117,41 @@ export const defaultReactEmailTextStyles = {
   },
 } satisfies ReactEmailTextStyles;
 
+type BSchema = DefaultBlockSchema & {
+  pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  math: BlockConfig<"math", {}, "inline">;
+  diagram: BlockConfig<"diagram", {}, "inline">;
+};
+
+// Renders a block's inline content as a code block. Used for both code blocks
+// and math blocks (which store their LaTeX source as content); math has no
+// language, so it's passed explicitly.
+const codeMapping = (
+  block: BlockFromConfigNoChildren<BSchema[keyof BSchema], any, any>,
+  language: PrismLanguage,
+  textStyles: ReactEmailTextStyles,
+) => {
+  const textContent = (block.content as StyledText<any>[])[0]?.text || "";
+
+  return (
+    <CodeBlock
+      code={textContent}
+      fontFamily="'CommitMono', monospace"
+      language={language}
+      theme={dracula}
+      {...textStyles.codeBlock}
+      style={{
+        ...defaultReactEmailTextStyles.codeBlock.style,
+        ...textStyles.codeBlock?.style,
+      }}
+    />
+  );
+};
+
 export const createReactEmailBlockMappingForDefaultSchema = (
   textStyles: ReactEmailTextStyles = defaultReactEmailTextStyles,
 ): BlockMapping<
-  DefaultBlockSchema & {
-    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  },
+  BSchema,
   any,
   any,
   React.ReactElement<any>,
@@ -259,23 +290,11 @@ export const createReactEmailBlockMappingForDefaultSchema = (
     );
   },
 
-  codeBlock: (block) => {
-    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
-
-    return (
-      <CodeBlock
-        code={textContent}
-        fontFamily="'CommitMono', monospace"
-        language={block.props.language as PrismLanguage}
-        theme={dracula}
-        {...textStyles.codeBlock}
-        style={{
-          ...defaultReactEmailTextStyles.codeBlock.style,
-          ...textStyles.codeBlock?.style,
-        }}
-      />
-    );
-  },
+  codeBlock: (block) =>
+    codeMapping(block, block.props.language as PrismLanguage, textStyles),
+  math: (block) => codeMapping(block, "latex" as PrismLanguage, textStyles),
+  diagram: (block) =>
+    codeMapping(block, "mermaid" as PrismLanguage, textStyles),
   audio: (block) => {
     // Audio icon SVG
     const icon = (

@@ -117,6 +117,20 @@ export class ExtensionManager {
         this.addExtension(extension);
       }
     }
+
+    // Add the extensions from inline content specs (the built-in text/link
+    // specs carry none).
+    for (const inlineContent of Object.values(
+      this.editor.schema.inlineContentSpecs,
+    )) {
+      for (const extension of (
+        inlineContent as {
+          extensions?: (Extension | ExtensionFactoryInstance)[];
+        }
+      ).extensions ?? []) {
+        this.addExtension(extension);
+      }
+    }
   }
 
   /**

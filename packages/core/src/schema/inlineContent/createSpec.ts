@@ -1,6 +1,12 @@
 import { Node } from "@tiptap/core";
 
-import { TagParseRule } from "@tiptap/pm/model";
+import {
+  DOMParser,
+  Fragment,
+  Node as ProsemirrorNode,
+  Schema,
+  TagParseRule,
+} from "@tiptap/pm/model";
 import { inlineContentToNodes } from "../../api/nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeToBlock.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -25,12 +31,24 @@ export type CustomInlineContentImplementation<
 > = {
   meta?: {
     draggable?: boolean;
+    code?: boolean;
   };
 
   /**
    * Parses an external HTML element into a inline content of this type when it returns the block props object, otherwise undefined
    */
   parse?: (el: HTMLElement) => Partial<Props<T["propSchema"]>> | undefined;
+
+  /**
+   * Advanced parsing function that controls how the content within the inline
+   * content is parsed. This is not recommended to use, and is only useful for
+   * advanced use cases. Only applies to inline content with `content: "styled"`.
+   * Return `undefined` to fall through to the default inline content parsing.
+   */
+  parseContent?: (options: {
+    el: HTMLElement;
+    schema: Schema;
+  }) => Fragment | undefined;
 
   /**
    * Renders an inline content to DOM elements
@@ -54,6 +72,16 @@ export type CustomInlineContentImplementation<
     editor: BlockNoteEditor<any, any, S>,
     // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
     // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
+    /**
+     * The ProseMirror node backing this inline content.
+     */
+    node: ProsemirrorNode,
+    /**
+     * Returns this inline content's position in the document. When rendered
+     * outside the editor (i.e. serialized to HTML), this is a no-op that returns
+     * `undefined`.
+     */
+    getPos: () => number | undefined,
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
@@ -85,22 +113,65 @@ export type CustomInlineContentImplementation<
   runsBefore?: string[];
 };
 
+// Resolves the element whose children hold the inline content's editable
+// content, i.e. the `[data-editable]` element (or the element itself if it is /
+// contains none).
+function getEditableElement(element: HTMLElement) {
+  if (element.matches("[data-editable]")) {
+    return element;
+  }
+
+  return element.querySelector<HTMLElement>("[data-editable]") || element;
+}
+
+// Parses an element's children as inline content.
+function parseInlineContent(el: HTMLElement, schema: Schema) {
+  return DOMParser.fromSchema(schema).parse(el, {
+    topNode: schema.nodes.paragraph.create(),
+    preserveWhitespace: true,
+  }).content;
+}
+
 export function getInlineContentParseRules<C extends CustomInlineContentConfig>(
   config: C,
   customParseFunction?: CustomInlineContentImplementation<C, any>["parse"],
+  customParseContentFunction?: CustomInlineContentImplementation<
+    C,
+    any
+  >["parseContent"],
 ) {
+  // When a custom `parseContent` function is provided (and this inline content
+  // actually holds content), it controls how content within the inline content
+  // is parsed. This applies to _both_ parse rules below, as content copied from
+  // within the editor is tagged with `data-inline-content-type` (matched by the
+  // first rule), while content pasted from outside is matched by the custom
+  // `parse` function (the second rule). `resolveContentElement` locates the
+  // element whose children to parse as a fallback when `parseContent` returns
+  // `undefined`.
+  const getContent =
+    customParseContentFunction && config.content === "styled"
+      ? (resolveContentElement: (el: HTMLElement) => HTMLElement) =>
+          (node: HTMLElement, schema: Schema) => {
+            const result = customParseContentFunction({ el: node, schema });
+
+            // `parseContent` may return `undefined` to fall through to the
+            // default inline content parsing.
+            if (result !== undefined) {
+              return result;
+            }
+
+            return parseInlineContent(resolveContentElement(node), schema);
+          }
+      : undefined;
+
   const rules: TagParseRule[] = [
     {
       tag: `[data-inline-content-type="${config.type}"]`,
-      contentElement: (element) => {
-        const htmlElement = element as HTMLElement;
-
-        if (htmlElement.matches("[data-editable]")) {
-          return htmlElement;
-        }
-
-        return htmlElement.querySelector("[data-editable]") || htmlElement;
-      },
+      contentElement: (element) => getEditableElement(element as HTMLElement),
+      getContent: getContent
+        ? (node, schema) =>
+            getContent(getEditableElement)(node as HTMLElement, schema)
+        : undefined,
     },
   ];
 
@@ -120,6 +191,12 @@ export function getInlineContentParseRules<C extends CustomInlineContentConfig>(
 
         return props;
       },
+      // Because we do the parsing ourselves, we want to preserve whitespace for
+      // content we've parsed.
+      preserveWhitespace: getContent ? true : undefined,
+      getContent: getContent
+        ? (node, schema) => getContent((el) => el)(node as HTMLElement, schema)
+        : undefined,
     });
   }
   return rules;
@@ -139,6 +216,7 @@ export function createInlineContentSpec<
     draggable: inlineContentImplementation.meta?.draggable,
     selectable: inlineContentConfig.content === "styled",
     atom: inlineContentConfig.content === "none",
+    code: inlineContentImplementation.meta?.code,
     content: inlineContentConfig.content === "styled" ? "inline*" : "",
 
     addAttributes() {
@@ -153,6 +231,7 @@ export function createInlineContentSpec<
       return getInlineContentParseRules(
         inlineContentConfig,
         inlineContentImplementation.parse,
+        inlineContentImplementation.parseContent,
       );
     },
 
@@ -170,6 +249,8 @@ export function createInlineContentSpec<
           // No-op
         },
         editor,
+        node,
+        () => undefined,
       );
 
       return addInlineContentAttributes(
@@ -206,6 +287,8 @@ export function createInlineContentSpec<
             );
           },
           editor,
+          node,
+          getPos,
         );
 
         return addInlineContentAttributes(
@@ -225,10 +308,19 @@ export function createInlineContentSpec<
       ...inlineContentImplementation,
       toExternalHTML: inlineContentImplementation.toExternalHTML,
       render(inlineContent, updateInlineContent, editor) {
+        // Rendered outside the editor (serialization), so there's no live node
+        // view - derive the node from the content and stub out `getPos`.
+        const node = inlineContentToNodes(
+          [inlineContent] as any,
+          editor.pmSchema,
+        )[0];
+
         const output = inlineContentImplementation.render(
           inlineContent,
           updateInlineContent,
           editor,
+          node,
+          () => undefined,
         );
 
         return addInlineContentAttributes(
