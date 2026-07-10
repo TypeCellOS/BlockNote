@@ -75,7 +75,16 @@ export default defineConfig(((conf: { command: string }) => ({
       },
     },
   },
-  plugins: [react(), webpackStats(), Inspect(), tailwindcss()],
+  plugins: [
+    react(),
+    // The stats are only consumed by RelativeCI, which uploads them from the
+    // GitHub Actions build. Serializing the (huge) module graph at the end of
+    // the build costs a lot of memory, which the Vercel build container can't
+    // spare - it fails spawning processes (EAGAIN) right at that point.
+    ...(process.env.VERCEL ? [] : [webpackStats()]),
+    Inspect(),
+    tailwindcss(),
+  ],
   optimizeDeps: {
     // Exclude @blocknote/* source-aliased packages from pre-bundling so that
     // when Vite pre-bundles @liveblocks/react-blocknote, it treats
