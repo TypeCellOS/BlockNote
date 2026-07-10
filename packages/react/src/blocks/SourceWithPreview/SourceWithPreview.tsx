@@ -173,6 +173,9 @@ export const SourceWithPreview = (
         <div className="bn-code-block-source-popup-body">
           <pre>
             <code ref={contentRef} />
+            {inline && source.length === 0 && (
+              <br aria-hidden="true" contentEditable={false} />
+            )}
           </pre>
           <div
             className="bn-code-block-source-popup-ok-button-wrapper"

@@ -44,13 +44,13 @@ const insertMath = (editor: typeof schema.BlockNoteEditor) => ({
     const block = insertOrUpdateBlockForSlashMenu(editor, {
       type: "math",
     });
-
-    // Move the selection inside the new block and open the popup.
-    editor.setTextCursorPosition(block.id, "end");
     editor
       .getExtension(SourceBlockWithPreviewExtension)
       ?.store.setState((state) => ({ ...state, popupOpen: block.id }));
-    editor.focus();
+    requestAnimationFrame(() => {
+      editor.setTextCursorPosition(block.id, "end");
+      editor.focus();
+    });
   },
   aliases: ["math", "latex", "formula", "equation"],
   group: "Advanced",
@@ -70,14 +70,15 @@ const insertInlineMath = (editor: typeof schema.BlockNoteEditor) => ({
       // Adds a trailing space so the cursor can leave the equation.
       " ",
     ]);
-
-    // Move the selection inside the new block and open the popup.
-    view.dispatch(
-      view.state.tr.setSelection(
-        TextSelection.create(view.state.doc, insertPos + 1),
-      ),
-    );
-    editor.focus();
+    requestAnimationFrame(() => {
+      const view = editor.prosemirrorView!;
+      view.dispatch(
+        view.state.tr.setSelection(
+          TextSelection.create(view.state.doc, insertPos + 1),
+        ),
+      );
+      editor.focus();
+    });
   },
   aliases: ["math", "latex", "formula", "equation"],
   group: "Advanced",
