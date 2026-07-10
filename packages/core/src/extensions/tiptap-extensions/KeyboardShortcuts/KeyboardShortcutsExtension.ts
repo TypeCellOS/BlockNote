@@ -1,6 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { Fragment, Node } from "prosemirror-model";
-import { TextSelection } from "prosemirror-state";
+import { Plugin, TextSelection } from "prosemirror-state";
 
 import {
   getBottomNestedBlockInfo,
@@ -978,5 +978,48 @@ export const KeyboardShortcutsExtension = Extension.create<{
       "Mod-y": () => this.options.editor.redo(),
       "Shift-Mod-z": () => this.options.editor.redo(),
     };
+  },
+
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        props: {
+          handleDOMEvents: {
+            // Some Android IMEs (e.g. Firefox for Android) don't fire real
+            // `Backspace` key events, so the keymap never runs and the browser
+            // deletes content natively instead of lifting/merging blocks.
+            // ProseMirror only works around this on Chrome, so we route
+            // `deleteContentBackward` through the keymap like a real Backspace.
+            beforeinput: (view, event) => {
+              if (
+                event.inputType !== "deleteContentBackward" ||
+                !event.cancelable ||
+                view.composing ||
+                event.isComposing
+              ) {
+                return false;
+              }
+
+              const handled = view.someProp("handleKeyDown", (handler) =>
+                handler(
+                  view,
+                  new KeyboardEvent("keydown", {
+                    key: "Backspace",
+                    keyCode: 8,
+                  }),
+                ),
+              );
+
+              if (handled) {
+                event.preventDefault();
+                return true;
+              }
+
+              return false;
+            },
+          },
+        },
+      }),
+    ];
   },
 });
