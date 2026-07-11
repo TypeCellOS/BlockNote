@@ -1,53 +1,26 @@
 diff --git a/dist/index.cjs b/dist/index.cjs
-index ce89be47cebd61a79c6039950f6dcd10df0e3c7e..ee3b6ddc5c536ad5bf56965f328213f1e6667910 100644
+index ce89be47cebd61a79c6039950f6dcd10df0e3c7e..33557fd950bab552fcc0c01658bb8d4030b17dd2 100644
 --- a/dist/index.cjs
 +++ b/dist/index.cjs
-@@ -3580,6 +3580,22 @@ handlers.blur = function (view, _event) {
+@@ -3580,7 +3580,7 @@ handlers.blur = function (view, _event) {
  };
  handlers.beforeinput = function (view, _event) {
    var event = _event;
-+  // Some Android IMEs (e.g. AOSP LatinIME, FUTO) don't fire key events
-+  // for Backspace, so presses only surface as beforeinput events. On
-+  // Gecko, where this event can actually be canceled, run the regular
-+  // key handlers for Backspace, and prevent the default behavior when
-+  // they handle the key. (Chrome also claims the event is cancelable,
-+  // but calling preventDefault has no effect there, so it gets the
-+  // timeout-based workaround below instead.)
-+  if (gecko && android && event.inputType == "deleteContentBackward" && event.cancelable && !view.composing && !event.isComposing) {
-+    view.domObserver.forceFlush();
-+    if (view.someProp("handleKeyDown", function (f) {
-+      return f(view, keyEvent(8, "Backspace"));
-+    })) {
-+      event.preventDefault();
-+      return;
-+    }
-+  }
-   if (chrome && android && event.inputType == "deleteContentBackward") {
+-  if (chrome && android && event.inputType == "deleteContentBackward") {
++  if ((chrome || gecko) && android && event.inputType == "deleteContentBackward") {
      view.domObserver.flushSoon();
      var domChangeCount = view.input.domChangeCount;
+     setTimeout(function () {
 diff --git a/dist/index.js b/dist/index.js
-index 2f19364145a8bb8c0f44c738d58271c76078e6f9..5d480491ba005cd1f22bf554c5592f6ede91e195 100644
+index 2f19364145a8bb8c0f44c738d58271c76078e6f9..ec3ccd65b4fa02fddfc4badc8d6e62ad592a6b7b 100644
 --- a/dist/index.js
 +++ b/dist/index.js
-@@ -3837,6 +3837,21 @@ handlers.beforeinput = (view, _event) => {
-     let event = _event;
-     // We should probably do more with beforeinput events, but support
+@@ -3839,7 +3839,7 @@ handlers.beforeinput = (view, _event) => {
      // is so spotty that I'm still waiting to see where they are going.
-+    // Some Android IMEs (e.g. AOSP LatinIME, FUTO) don't fire key events
-+    // for Backspace, so presses only surface as beforeinput events. On
-+    // Gecko, where this event can actually be canceled, run the regular
-+    // key handlers for Backspace, and prevent the default behavior when
-+    // they handle the key. (Chrome also claims the event is cancelable,
-+    // but calling preventDefault has no effect there, so it gets the
-+    // timeout-based workaround below instead.)
-+    if (gecko && android && event.inputType == "deleteContentBackward" &&
-+        event.cancelable && !view.composing && !event.isComposing) {
-+        view.domObserver.forceFlush();
-+        if (view.someProp("handleKeyDown", f => f(view, keyEvent(8, "Backspace")))) {
-+            event.preventDefault();
-+            return;
-+        }
-+    }
      // Very specific hack to deal with backspace sometimes failing on
      // Chrome Android when after an uneditable node.
-     if (chrome && android && event.inputType == "deleteContentBackward") {
+-    if (chrome && android && event.inputType == "deleteContentBackward") {
++    if ((chrome || gecko) && android && event.inputType == "deleteContentBackward") {
+         view.domObserver.flushSoon();
+         let { domChangeCount } = view.input;
+         setTimeout(() => {
