@@ -23,8 +23,9 @@ import {
   PreviousBlockTypeExtension,
   ShowSelectionExtension,
   SideMenuExtension,
+  SourceBlockWithPreviewExtension,
+  SourceInlineContentWithPreviewExtension,
   SuggestionMenu,
-  SyntaxHighlightingExtension,
   TableHandlesExtension,
   TrailingNodeExtension,
 } from "../../../extensions/index.js";
@@ -175,16 +176,14 @@ export function getDefaultExtensions(
     PlaceholderExtension(options),
     ShowSelectionExtension(options),
     SideMenuExtension(options),
+    SourceBlockWithPreviewExtension(),
+    SourceInlineContentWithPreviewExtension(),
     SuggestionMenu(options),
     HistoryExtension(),
     InlineContentBoundaryEditExtension(),
     PositionMappingExtension(),
     ...(options.trailingBlock !== false ? [TrailingNodeExtension()] : []),
   ] as ExtensionFactoryInstance[];
-
-  if (options.syntaxHighlighting) {
-    extensions.push(SyntaxHighlightingExtension(options.syntaxHighlighting));
-  }
 
   if ("table" in editor.schema.blockSpecs) {
     extensions.push(TableHandlesExtension(options));

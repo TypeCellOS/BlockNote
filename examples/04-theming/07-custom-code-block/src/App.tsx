@@ -1,4 +1,8 @@
-import { BlockNoteSchema, createCodeBlockSpec } from "@blocknote/core";
+import {
+  BlockNoteSchema,
+  createCodeBlockSpec,
+  SyntaxHighlightingExtension,
+} from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -6,19 +10,22 @@ import { useCreateBlockNote } from "@blocknote/react";
 // Bundle created from `npx shiki-codegen --langs typescript,javascript,react --themes light-plus,dark-plus --engine javascript --precompiled ./shiki.bundle.ts`
 import { createHighlighter } from "./shiki.bundle";
 
+// Syntax highlighting is a separate extension, configured with a highlighter.
+// Here we build one from our own custom Shiki bundle (with `dark-plus` /
+// `light-plus` themes) and pass it to the editor's `extensions` below.
+const syntaxHighlighter = SyntaxHighlightingExtension({
+  // This creates a highlighter, it can be asynchronous to load it afterwards
+  createHighlighter: () =>
+    createHighlighter({
+      themes: ["dark-plus", "light-plus"],
+      langs: [],
+    }),
+});
+
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
-    // The Shiki highlighter is configured at the editor level, separately from
-    // the code block's own options (default language & language menu).
-    syntaxHighlighting: {
-      // This creates a highlighter, it can be asynchronous to load it afterwards
-      createHighlighter: () =>
-        createHighlighter({
-          themes: ["dark-plus", "light-plus"],
-          langs: [],
-        }),
-    },
+    extensions: [syntaxHighlighter],
     schema: BlockNoteSchema.create().extend({
       blockSpecs: {
         codeBlock: createCodeBlockSpec({

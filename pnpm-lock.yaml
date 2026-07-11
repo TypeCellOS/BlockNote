@@ -4782,8 +4782,8 @@ importers:
         specifier: ^0.2.99
         version: 0.2.117
       prosemirror-highlight:
-        specifier: ^0.15.1
-        version: 0.15.1(@shikijs/types@4.0.2)(@types/hast@3.0.4)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.0)(prosemirror-view@1.41.8)
+        specifier: ^0.15.3
+        version: 0.15.3(@shikijs/types@4.0.2)(@types/hast@3.0.4)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.0)(prosemirror-view@1.41.8)
       prosemirror-model:
         specifier: ^1.25.4
         version: 1.25.4
@@ -14176,8 +14176,8 @@ packages:
   prosemirror-gapcursor@1.4.1:
     resolution: {integrity: sha512-pMdYaEnjNMSwl11yjEGtgTmLkR08m/Vl+Jj443167p9eB3HVQKhYCc4gmHVDsLPODfZfjr/MmirsdyZziXbQKw==}
 
-  prosemirror-highlight@0.15.1:
-    resolution: {integrity: sha512-KcJUGNgqLED+eK/cisNtY3M+eDNLkZyWCdyi7B3RoW3rKHnhkKawnJAcr9p1F/e3q+oDB5Y5OiIrC11bxP7tFA==}
+  prosemirror-highlight@0.15.3:
+    resolution: {integrity: sha512-WVV2st0fX1w2TkAgmTmdbj77BlWYuLfW4BGXPo8JfIWsSly5xYcfID8QJQL+GT8kisMRuu4jgT6JAqj1DOwvvg==}
     peerDependencies:
       '@lezer/common': ^1.0.0
       '@lezer/highlight': ^1.0.0
@@ -25295,7 +25295,7 @@ snapshots:
       prosemirror-state: 1.4.4
       prosemirror-view: 1.41.8
 
-  prosemirror-highlight@0.15.1(@shikijs/types@4.0.2)(@types/hast@3.0.4)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.0)(prosemirror-view@1.41.8):
+  prosemirror-highlight@0.15.3(@shikijs/types@4.0.2)(@types/hast@3.0.4)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.0)(prosemirror-view@1.41.8):
     optionalDependencies:
       '@shikijs/types': 4.0.2
       '@types/hast': 3.0.4

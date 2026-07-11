@@ -7,36 +7,17 @@ import {
 } from "../../editor/BlockNoteExtension.js";
 import { Block } from "../../blocks/index.js";
 
+/**
+ * A single editor-wide extension that drives the source popup for blocks that
+ * render a preview. Which blocks it activates on is decided by each spec's
+ * `meta.hasPreview` flag, so individual blocks opt in rather than the extension
+ * being configured with a block type.
+ *
+ * The extension is registered once (it's a default extension) and is a no-op
+ * when no block declares `meta.hasPreview`.
+ */
 export const SourceBlockWithPreviewExtension = createExtension(
-  ({
-    editor,
-    options: {
-      key,
-      blockType,
-      hasPreview,
-      enterBehaviour = "close",
-      runsBefore = [],
-    },
-  }: {
-    editor: BlockNoteEditor<any>;
-    options: {
-      key: string;
-      blockType: string;
-      hasPreview: (block: Block<any, any, any>) => boolean;
-      /**
-       * What pressing Enter does while the popup is open:
-       * - `"close"`: commits the source and closes the popup - for
-       *   single-line sources (e.g. math).
-       * - `"newline"`: inserts a line break into the source - for multiline
-       *   sources (e.g. diagrams); the popup is then closed with Escape, the
-       *   "OK" button, or by moving the selection out.
-       *
-       * @default "close"
-       */
-      enterBehaviour?: "close" | "newline";
-      runsBefore?: readonly string[];
-    };
-  }) => {
+  ({ editor }: { editor: BlockNoteEditor<any> }) => {
     const store = createStore<{
       popupOpen: string | undefined;
       selected: string | undefined;
@@ -45,8 +26,11 @@ export const SourceBlockWithPreviewExtension = createExtension(
       selected: undefined,
     });
 
+    // A block has a preview iff its spec's implementation declares
+    // `meta.hasPreview` (read from the spec, like the syntax-highlighting
+    // extension reads `meta.highlight`).
     const blockHasPreview = (block: Block<any, any, any>) =>
-      block.type === blockType && hasPreview(block);
+      !!editor.schema.blockSpecs[block.type]?.implementation?.meta?.hasPreview;
 
     const handleArrow =
       (direction: "prev" | "next") =>
@@ -70,11 +54,10 @@ export const SourceBlockWithPreviewExtension = createExtension(
       };
 
     return {
-      key,
+      key: "sourceBlockWithPreview",
       store,
-      runsBefore,
       keyboardShortcuts: {
-        // Toggles the popup. With the "newline" Enter behaviour, Enter
+        // Toggles the popup. For multi-line sources (e.g. diagrams), Enter
         // inserts a line break while the popup is open instead of closing it.
         Enter: ({ editor }) => {
           const { block } = editor.getTextCursorPosition();
@@ -82,9 +65,18 @@ export const SourceBlockWithPreviewExtension = createExtension(
             return false;
           }
 
+          // While the popup is open on a multi-line source, insert a line break
+          // rather than closing. A preview block's source is multi-line when its
+          // spec configures Enter to insert a hard break
+          // (`meta.hardBreakShortcut === "enter"`), e.g. diagrams; single-line
+          // sources (e.g. math) leave it unset. Handled here (rather than
+          // falling through to the shared hard-break handler) because that
+          // handler currently reads `hardBreakShortcut` from the block config,
+          // which doesn't carry it - see the note in `KeyboardShortcutsExtension`.
           if (
-            enterBehaviour === "newline" &&
-            store.state.popupOpen === block.id
+            store.state.popupOpen === block.id &&
+            editor.schema.blockSpecs[block.type]?.implementation?.meta
+              ?.hardBreakShortcut === "enter"
           ) {
             const view = editor.prosemirrorView!;
             view.dispatch(view.state.tr.insertText("\n"));
@@ -124,7 +116,7 @@ export const SourceBlockWithPreviewExtension = createExtension(
 
           const view = editor.prosemirrorView!;
           const { $from } = view.state.selection;
-          if ($from.parent.type.name !== blockType) {
+          if ($from.parent.type.name !== block.type) {
             return false;
           }
 

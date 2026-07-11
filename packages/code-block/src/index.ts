@@ -1,13 +1,27 @@
 import type { CodeBlockOptions } from "@blocknote/core";
-import { createHighlighter as createShikiHighlighter } from "./shiki.bundle.js";
+import { SyntaxHighlightingExtension } from "@blocknote/core";
+import { createHighlighter } from "./shiki.bundle.js";
 
-export const createHighlighter = () =>
-  createShikiHighlighter({
-    themes: ["github-dark", "github-light"],
-    langs: [],
-  });
+/**
+ * A ready-to-use syntax highlighting extension, pre-configured with this
+ * package's bundled Shiki highlighter (the languages in `codeBlockOptions` and
+ * the `github-dark` / `github-light` themes). Add it to the editor's
+ * `extensions` to enable syntax highlighting for code blocks (and any other
+ * block that declares a language, such as the math block):
+ *
+ * @example
+ * ```ts
+ * useCreateBlockNote({ extensions: [syntaxHighlighter] });
+ * ```
+ */
+export const syntaxHighlighter = SyntaxHighlightingExtension({
+  createHighlighter: () =>
+    createHighlighter({
+      themes: ["github-dark", "github-light"],
+      langs: [],
+    }),
+});
 
-// TODO: Should this be here or in the core code block?
 export const codeBlockOptions = {
   defaultLanguage: "javascript",
   supportedLanguages: {

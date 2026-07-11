@@ -1,7 +1,4 @@
-import {
-  createBlockConfig,
-  SourceBlockWithPreviewExtension,
-} from "@blocknote/core";
+import { createBlockConfig } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 
 import { MathBlockInputRulesExtension } from "./helpers/extensions/MathBlockInputRulesExtension.js";
@@ -11,8 +8,6 @@ import {
 } from "./helpers/parse/parseBlockMathMLElement.js";
 import { MathBlockPreviewWithPopup } from "./helpers/render/MathBlockPreviewWithPopup.js";
 import { BlockMathMLElement } from "./helpers/toExternalHTML/BlockMathMLElement.js";
-
-const MATH_BLOCK_PREVIEW_KEY = "math-block-preview";
 
 export const createMathBlockConfig = createBlockConfig(
   () =>
@@ -32,19 +27,15 @@ export const createReactMathBlockSpec = createReactBlockSpec(
       code: true,
       defining: true,
       isolating: false,
+      highlight: () => "latex",
+      // Math blocks always render a preview (single-line source, so Enter
+      // commits/closes the popup - no `hardBreakShortcut` needed).
+      hasPreview: true,
     },
     parse: parseBlockMathMLElement,
     parseContent: parseBlockMathMLContent,
     render: MathBlockPreviewWithPopup,
     toExternalHTML: BlockMathMLElement,
   },
-  [
-    // Math blocks always render a preview.
-    SourceBlockWithPreviewExtension({
-      key: MATH_BLOCK_PREVIEW_KEY,
-      blockType: createMathBlockConfig().type,
-      hasPreview: () => true,
-    }),
-    MathBlockInputRulesExtension,
-  ],
+  [MathBlockInputRulesExtension],
 );

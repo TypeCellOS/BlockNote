@@ -107,10 +107,18 @@ export function createInlineContentSpecFromTipTapNode<
       propSchema,
       content: node.config.content === "inline*" ? "styled" : "none",
     },
+    // Cast needed because `implementation` is typed against the generic
+    // `CustomInlineContentConfig`, while `createInternalInlineContentSpec`
+    // expects the implementation for the specific (still-generic) config
+    // inferred from `node`/`propSchema` above.
     {
       ...implementation,
       node,
-    },
+    } as unknown as InlineContentImplementation<{
+      type: T["name"];
+      propSchema: P;
+      content: "styled" | "none";
+    }>,
   );
 }
 

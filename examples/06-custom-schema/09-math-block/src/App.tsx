@@ -9,7 +9,7 @@ import {
   insertOrUpdateBlockForSlashMenu,
 } from "@blocknote/core/extensions";
 import { TextSelection } from "prosemirror-state";
-import { createHighlighter } from "@blocknote/code-block";
+import { syntaxHighlighter } from "@blocknote/code-block";
 import {
   createReactInlineMathSpec,
   createReactMathBlockSpec,
@@ -87,13 +87,10 @@ const insertInlineMath = (editor: typeof schema.BlockNoteEditor) => ({
 
 export default function App() {
   const editor = useCreateBlockNote({
-    // Configures the syntax highlighting extension to always use LaTeX syntax highlighting in the
-    // Math block.
-    syntaxHighlighting: {
-      createHighlighter,
-      highlightBlock: (block) =>
-        block.type === "math" ? "latex" : block.props.language,
-    },
+    // The syntax highlighter extension highlights the LaTeX source of math
+    // blocks (they declare `highlight: () => "latex"`). Without it, they render
+    // as plain text.
+    extensions: [syntaxHighlighter],
     schema,
     initialContent: [
       {

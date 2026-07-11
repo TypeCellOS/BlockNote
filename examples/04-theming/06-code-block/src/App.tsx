@@ -3,15 +3,16 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
-// This packages some of the most used languages in on-demand bundle
-import { codeBlockOptions, createHighlighter } from "@blocknote/code-block";
+// This packages some of the most used languages in on-demand bundle, and a
+// ready-to-use syntax highlighter extension configured with them.
+import { codeBlockOptions, syntaxHighlighter } from "@blocknote/code-block";
 
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
-    // The Shiki highlighter is configured at the editor level, separately from
-    // the code block's own options (default language & language menu).
-    syntaxHighlighting: { createHighlighter },
+    // Adding the syntax highlighter extension enables syntax highlighting for
+    // the code block. Without it, code renders as plain text.
+    extensions: [syntaxHighlighter],
     schema: BlockNoteSchema.create().extend({
       blockSpecs: {
         codeBlock: createCodeBlockSpec(codeBlockOptions),

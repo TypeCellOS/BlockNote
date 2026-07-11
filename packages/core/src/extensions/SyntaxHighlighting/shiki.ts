@@ -1,8 +1,8 @@
 import type { HighlighterGeneric } from "@shikijs/types";
 import { Parser, createHighlightPlugin } from "prosemirror-highlight";
 import { createParser } from "prosemirror-highlight/shiki";
-import type { Block } from "../../blocks/defaultBlocks.js";
 import type { SyntaxHighlightingOptions } from "./SyntaxHighlighting.js";
+import { CustomBlockNoteSchema } from "../../schema/schema.js";
 
 export const shikiParserSymbol = Symbol.for("blocknote.shikiParser");
 export const shikiHighlighterPromiseSymbol = Symbol.for(
@@ -17,14 +17,14 @@ const PLAIN_TEXT_LANGUAGES = ["text", "none", "plaintext", "txt"];
  * Creates the syntax highlighting plugin for the given block types, lazily
  * loading the highlighter on first use.
  *
- * `highlightBlock` resolves each block to a language, which is passed straight
- * to Shiki - it resolves aliases and loads the grammar from its bundle, so any
- * language the provided highlighter bundles can be highlighted.
+ * Each spec's `meta.highlight` callback resolves a node to a language, which is
+ * passed straight to Shiki - it resolves aliases and loads the grammar from its
+ * bundle, so any language the provided highlighter bundles can be highlighted.
  */
 export function lazyShikiPlugin(
   options: SyntaxHighlightingOptions,
   nodeTypes: string[],
-  highlightBlock: (block: Block<any, any, any>) => string | undefined,
+  schema: CustomBlockNoteSchema<any, any, any>,
 ) {
   const globalThisForShiki = globalThis as {
     [shikiHighlighterPromiseSymbol]?: Promise<HighlighterGeneric<any, any>>;
@@ -82,13 +82,20 @@ export function lazyShikiPlugin(
   return createHighlightPlugin({
     parser: lazyParser,
     // The highlight plugin only gives us the block content node, so we can only
-    // reconstruct the block's `type` and `props` (which is all `highlightBlock`
-    // needs to pick a language).
-    languageExtractor: (node) =>
-      highlightBlock({
+    // reconstruct the block's `type` and `props` (which is all a spec's
+    // `meta.highlight` needs to pick a language).
+    languageExtractor: (node) => {
+      const nodeShape = {
         type: node.type.name,
         props: node.attrs,
-      } as Block<any, any, any>),
+      };
+      // search for the node in the blockSpec or inlineContentSpecs
+      const spec =
+        schema.blockSpecs[nodeShape.type] ||
+        schema.inlineContentSpecs[nodeShape.type];
+
+      return spec?.implementation?.meta?.highlight?.(nodeShape) ?? undefined;
+    },
     nodeTypes,
   });
 }

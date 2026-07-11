@@ -1,10 +1,14 @@
 import type { HighlighterGeneric } from "@shikijs/types";
-import type { Block } from "../../blocks/defaultBlocks.js";
 import {
   createExtension,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
 import { lazyShikiPlugin } from "./shiki.js";
+import {
+  CustomInlineContentConfig,
+  InlineContentSpec,
+  LooseBlockSpec,
+} from "../../schema/index.js";
 
 export type SyntaxHighlightingOptions = {
   /**
@@ -13,45 +17,72 @@ export type SyntaxHighlightingOptions = {
    *
    * When omitted, content renders without syntax highlighting.
    */
-  createHighlighter?: () => Promise<HighlighterGeneric<any, any>>;
-  /**
-   * Picks the language to highlight a block's content as - return the language
-   * key, or `undefined` to leave the block un-highlighted. This is where you
-   * enable highlighting for specific blocks.
-   *
-   * Defaults to the block's `language` prop (`(block) => block.props.language`),
-   * which covers the code block. Provide a custom function for blocks with a
-   * fixed language, e.g. for the math block:
-   * `(block) => (block.type === "math" ? "latex" : block.props.language)`.
-   */
-  highlightBlock?: (block: Block<any, any, any>) => string | undefined;
+  createHighlighter: () => Promise<HighlighterGeneric<any, any>>;
 };
 
-/** Highlights a block as its `language` prop (covers the code block). */
-export const defaultHighlightBlock = (block: Block<any, any, any>) =>
-  block.props.language as string | undefined;
+/**
+ * Collects the node type names that should be syntax-highlighted from a schema's
+ * block and inline-content specs.
+ *
+ * A spec is a candidate when it has a `meta.highlight` callback (which decides
+ * the language) AND the node actually holds editable text. Block and
+ * inline-content specs use different `content` value spaces, so "editable text"
+ * means `content === "inline"` for blocks and `content === "styled"` for inline
+ * content - hence the two are filtered separately.
+ *
+ * Inline content (e.g. inline math) is highlighted too: `prosemirror-highlight`
+ * collects nodes by `node.inlineContent` since v0.15.3
+ * (https://github.com/ocavue/prosemirror-highlight/pull/137), so inline nodes
+ * holding inline content are visited alongside text blocks.
+ */
+export function collectHighlightNodeTypes(schema: {
+  blockSpecs: Record<string, unknown>;
+  inlineContentSpecs: Record<string, unknown>;
+}): string[] {
+  const blockNodeTypes = Object.values(schema.blockSpecs)
+    .filter(
+      (blockSpec): blockSpec is LooseBlockSpec =>
+        typeof (blockSpec as LooseBlockSpec)?.config === "object" &&
+        (blockSpec as LooseBlockSpec).config.content === "inline" &&
+        !!(blockSpec as LooseBlockSpec).implementation?.meta?.highlight,
+    )
+    .map((blockSpec) => blockSpec.config.type);
+
+  const inlineContentNodeTypes = Object.values(schema.inlineContentSpecs)
+    .filter(
+      (
+        inlineContentSpec,
+      ): inlineContentSpec is InlineContentSpec<CustomInlineContentConfig> =>
+        typeof (
+          inlineContentSpec as InlineContentSpec<CustomInlineContentConfig>
+        )?.config === "object" &&
+        (inlineContentSpec as InlineContentSpec<CustomInlineContentConfig>)
+          .config.content === "styled" &&
+        !!(inlineContentSpec as InlineContentSpec<CustomInlineContentConfig>)
+          .implementation?.meta?.highlight,
+    )
+    .map((inlineContentSpec) => inlineContentSpec.config.type);
+
+  return [...blockNodeTypes, ...inlineContentNodeTypes];
+}
 
 /**
- * A single editor-wide extension that syntax-highlights block content. Which
- * blocks get highlighted (and as which language) is decided by the
- * `highlightBlock` option, so individual blocks don't configure it themselves.
+ * A single editor-wide extension that syntax-highlights block and inline-content
+ * content. Which nodes get highlighted (and as which language) is decided by
+ * each spec's `meta.highlight` callback, so individual specs declare their own
+ * language rather than the extension configuring them.
  *
- * Highlighting is opt-in: this extension is only instantiated when the
- * `syntaxHighlighting` option is configured (see `getDefaultExtensions`).
+ * Highlighting is opt-in: the user adds this extension to the editor's
+ * `extensions` (configured with a `createHighlighter`) to enable it. When it's
+ * absent, content renders as plain text.
  */
 export const SyntaxHighlightingExtension = createExtension(
   ({ editor, options }: ExtensionOptions<SyntaxHighlightingOptions>) => {
-    const highlightBlock = options.highlightBlock ?? defaultHighlightBlock;
-
-    // Every block with inline (text) content is a candidate; `highlightBlock`
-    // decides per-block whether and how to highlight it.
-    const nodeTypes = Object.values(editor.schema.blockSpecs)
-      .filter((blockSpec) => blockSpec.config.content === "inline")
-      .map((blockSpec) => blockSpec.config.type);
+    const nodeTypes = collectHighlightNodeTypes(editor.schema);
 
     return {
       key: "syntaxHighlighting",
-      prosemirrorPlugins: [lazyShikiPlugin(options, nodeTypes, highlightBlock)],
+      prosemirrorPlugins: [lazyShikiPlugin(options, nodeTypes, editor.schema)],
     };
   },
 );

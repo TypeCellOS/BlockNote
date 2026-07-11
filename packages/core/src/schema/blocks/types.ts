@@ -31,7 +31,10 @@ export type BlockNoteDOMAttributes = Partial<{
   [DOMElement in BlockNoteDOMElement]: Record<string, string>;
 }>;
 
-export interface BlockConfigMeta {
+export interface BlockConfigMeta<
+  TName extends string = string,
+  TProps extends PropSchema = PropSchema,
+> {
   /**
    * Defines which keyboard shortcut should be used to insert a hard break into the block's inline content.
    * @default "shift+enter"
@@ -62,6 +65,18 @@ export interface BlockConfigMeta {
    * Whether the block is a {@link https://prosemirror.net/docs/ref/#model.NodeSpec.isolating} block
    */
   isolating?: boolean;
+
+  /**
+   * Enables syntax highlighting of the contents of the block with the result of this callback
+   */
+  highlight?(block: { type: TName; props: Props<TProps> }): string | undefined;
+
+  /**
+   * Marks the block as rendering a preview with an editable source popup, driven
+   * by the editor-wide `SourceBlockWithPreviewExtension`. When `true`, the
+   * block's source is hidden behind its preview and edited via the popup.
+   */
+  hasPreview?: boolean;
 }
 
 /**
@@ -483,7 +498,7 @@ export type BlockImplementation<
   /**
    * Metadata
    */
-  meta?: BlockConfigMeta;
+  meta?: BlockConfigMeta<TName, TProps>;
   /**
    * A function that converts the block into a DOM element
    */

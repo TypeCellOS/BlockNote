@@ -1,7 +1,4 @@
-import {
-  createBlockConfig,
-  SourceBlockWithPreviewExtension,
-} from "@blocknote/core";
+import { createBlockConfig } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 
 import {
@@ -31,6 +28,21 @@ export const createReactDiagramBlockSpec = createReactBlockSpec(
       code: true,
       defining: true,
       isolating: false,
+      // Diagram source is Mermaid, so highlight it as such when the syntax
+      // highlighting extension is present.
+      //
+      // NOTE: this currently has no visible effect. Shiki's Mermaid grammar is
+      // a Markdown injection (`injectionSelector: "L:text.html.markdown"`) that
+      // only tokenizes inside a ```` ```mermaid ```` fence, so it produces no
+      // tokens for bare Mermaid source. See
+      // https://github.com/shikijs/shiki/issues/973 - once that's resolved
+      // upstream, highlighting should start working with no change here.
+      highlight: () => "mermaid",
+      // Diagram blocks always render a preview. Diagram sources span multiple
+      // lines, so Enter inserts a line break instead of closing the popup
+      // (`hardBreakShortcut: "enter"`).
+      hasPreview: true,
+      hardBreakShortcut: "enter",
     },
     parse: parseDiagramCodeElement,
     parseContent: parseDiagramCodeContent,
@@ -48,14 +60,4 @@ export const createReactDiagramBlockSpec = createReactBlockSpec(
       </pre>
     ),
   },
-  [
-    // Diagram blocks always render a preview. Diagram sources span multiple
-    // lines, so Enter inserts a line break instead of closing the popup.
-    SourceBlockWithPreviewExtension({
-      key: "diagram-block-preview",
-      blockType: "diagram",
-      hasPreview: () => true,
-      enterBehaviour: "newline",
-    }),
-  ],
 );

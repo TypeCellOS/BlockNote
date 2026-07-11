@@ -45,30 +45,28 @@ type CodeBlockOptions = {
 
 **Syntax Highlighting**
 
-Syntax highlighting is handled by a separate editor extension, configured at the editor level via the `syntaxHighlighting` option (not on the code block itself), so it can highlight any block's content:
+Syntax highlighting is handled by a separate editor extension that you add to the editor's `extensions` (not configured on the code block itself), so it can highlight any block that declares a language — the code block, and blocks like the math block. When the extension isn't added, those blocks render as plain text.
+
+The extension is configured with a Shiki highlighter:
 
 ```ts
 type SyntaxHighlightingOptions = {
-  createHighlighter?: () => Promise<HighlighterGeneric<any, any>>;
-  highlightBlock?: (block: {
-    type: string;
-    props: Record<string, any>;
-  }) => string | undefined;
+  createHighlighter: () => Promise<HighlighterGeneric<any, any>>;
 };
 ```
 
 `createHighlighter:` The [Shiki highlighter](https://shiki.style/guide/load-theme) to use for syntax highlighting.
 
-`highlightBlock:` Picks the language to highlight a block's content as (return the language key, or `undefined` to leave it un-highlighted). This is how you enable highlighting for specific blocks. Defaults to the block's `language` prop (`(block) => block.props.language`), which covers the code block. For a block with a fixed language, return it directly — e.g. for a math block: `(block) => (block.type === "math" ? "latex" : block.props.language)`.
+Which blocks get highlighted (and as which language) is decided by each block's spec via its `meta.highlight` callback — the code block highlights as its `language` prop, the math block always as `latex` — so you don't configure this on the extension.
 
-BlockNote provides a generic, ready-to-use set of these in the `@blocknote/code-block` package, which supports a wide range of languages. The code block options and the highlighter are exported separately:
+BlockNote provides a generic, ready-to-use highlighter in the `@blocknote/code-block` package, which supports a wide range of languages. It's exported as a pre-configured `syntaxHighlighter` extension, alongside the code block options:
 
 ```ts
 import { createCodeBlockSpec } from "@blocknote/core";
-import { codeBlockOptions, createHighlighter } from "@blocknote/code-block";
+import { codeBlockOptions, syntaxHighlighter } from "@blocknote/code-block";
 
 const editor = useCreateBlockNote({
-  syntaxHighlighting: { createHighlighter },
+  extensions: [syntaxHighlighter],
   schema: BlockNoteSchema.create().extend({
     blockSpecs: {
       codeBlock: createCodeBlockSpec(codeBlockOptions),
@@ -110,19 +108,22 @@ This will generate a `shiki.bundle.ts` file that you can use to create a syntax 
 Like this:
 
 ```ts
+import { SyntaxHighlightingExtension } from "@blocknote/core";
 import { createHighlighter } from "./shiki.bundle.js";
+
+// Build a syntax highlighter extension from your custom Shiki bundle, then add
+// it to the editor's `extensions`.
+const syntaxHighlighter = SyntaxHighlightingExtension({
+  createHighlighter: () =>
+    createHighlighter({
+      themes: ["light-plus", "dark-plus"],
+      langs: [],
+    }),
+});
 
 export default function App() {
   const editor = useCreateBlockNote({
-    // The highlighter is configured at the editor level, separately from the
-    // code block's own options.
-    syntaxHighlighting: {
-      createHighlighter: () =>
-        createHighlighter({
-          themes: ["light-plus", "dark-plus"],
-          langs: [],
-        }),
-    },
+    extensions: [syntaxHighlighter],
     schema: BlockNoteSchema.create().extend({
       blockSpecs: {
         codeBlock: createCodeBlockSpec({

@@ -32,6 +32,7 @@ export const createCodeBlockSpec = createBlockSpec(
       code: true,
       defining: true,
       isolating: false,
+      highlight: (block) => block.props.language,
     },
     parse: (el) => parsePreCode(el),
     parseContent: (opts) => parsePreCodeContent(opts, "codeBlock"),
@@ -46,12 +47,10 @@ export const createCodeBlockSpec = createBlockSpec(
       ),
     toExternalHTML: (block) => createPreCode(block),
   }),
-  (options) => {
-    return [
-      CodeKeyboardShortcutsExtension(options)(
-        CODE_BLOCK_KEYBOARD_SHORTCUTS_KEY,
-        "codeBlock",
-      ),
-    ];
-  },
+  (options) => [
+    CodeKeyboardShortcutsExtension(options)(
+      CODE_BLOCK_KEYBOARD_SHORTCUTS_KEY,
+      "codeBlock",
+    ),
+  ],
 );

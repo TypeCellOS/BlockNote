@@ -129,6 +129,23 @@ describe("Math block source popup keyboard handling", () => {
       expect(editor.getTextCursorPosition().block.id).toBe("math");
     });
 
+    it("Enter commits without inserting a line break (single-line source)", async () => {
+      pressKey("Enter");
+      await flush();
+      expect(isPopupOpen("math")).toBe(true);
+
+      // The math source is single-line (no `hardBreakShortcut: "enter"`), so
+      // unlike the diagram block, Enter closes the popup rather than extending
+      // the source with a newline.
+      pressKey("Enter");
+      await flush();
+
+      expect(isPopupOpen("math")).toBe(false);
+      expect(editor.getBlock("math")!.content).toEqual([
+        { type: "text", text: "a^2", styles: {} },
+      ]);
+    });
+
     it("Escape closes the source popup while editing", async () => {
       pressKey("Enter");
       await flush();

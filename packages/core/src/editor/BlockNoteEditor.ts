@@ -17,7 +17,6 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../blocks/index.js";
-import type { SyntaxHighlightingOptions } from "../extensions/SyntaxHighlighting/SyntaxHighlighting.js";
 import {
   BlockChangeExtension,
   DropCursorOptions,
@@ -253,13 +252,6 @@ export interface BlockNoteEditorOptions<
    * (note that the id is always set on the `data-id` attribute)
    */
   setIdAttribute?: boolean;
-
-  /**
-   * Options for syntax highlighting block content: the Shiki highlighter to use,
-   * and a `highlightBlock` function picking which blocks to highlight and as
-   * which language.
-   */
-  syntaxHighlighting?: SyntaxHighlightingOptions;
 
   /**
    * Determines behavior when pressing Tab (or Shift-Tab) while multiple blocks are selected and a toolbar is open.
