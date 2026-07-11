@@ -39,8 +39,13 @@ describe("plain content parsing", () => {
     );
 
     expect(blocks[0].type).toBe("customPlain");
-    expect(blocks[0].content).toBe("hello world");
-
+    expect(blocks[0].content).toEqual([
+      {
+        styles: {},
+        text: "hello world",
+        type: "text",
+      },
+    ]);
     editor._tiptapEditor.destroy();
   });
 
@@ -52,7 +57,13 @@ describe("plain content parsing", () => {
     );
 
     expect(blocks[0].type).toBe("customPlain");
-    expect(blocks[0].content).toBe("first\nsecond");
+    expect(blocks[0].content).toEqual([
+      {
+        styles: {},
+        text: "first\nsecond",
+        type: "text",
+      },
+    ]);
 
     editor._tiptapEditor.destroy();
   });
@@ -65,7 +76,13 @@ describe("plain content parsing", () => {
     );
 
     expect(blocks[0].type).toBe("customPlain");
-    expect(blocks[0].content).toBe("first\nsecond");
+    expect(blocks[0].content).toEqual([
+      {
+        styles: {},
+        text: "first\nsecond",
+        type: "text",
+      },
+    ]);
 
     editor._tiptapEditor.destroy();
   });

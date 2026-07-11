@@ -197,7 +197,13 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
 
     // The block survives reconstruction with its text intact...
     expect(editor.document.map((b) => b.type)).toEqual(["codeBlock"]);
-    expect(editor.document[0].content).toBe("const x = 1;");
+    expect(editor.document[0].content).toEqual([
+      {
+        styles: {},
+        text: "const x = 1;",
+        type: "text",
+      },
+    ]);
     // ...bold is NOT materialized into ProseMirror...
     expect(styleKeysOf(editor.document[0]).has("bold")).toBe(false);
     // ...but the mark is STILL in the Yjs fragment (we never mutate the Yjs doc).
@@ -222,7 +228,13 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
 
     // The code block survives in the editor...
     expect(editor.document.map((b) => b.type)).toEqual(["codeBlock"]);
-    expect(editor.document[0].content).toBe("const x = 1;");
+    expect(editor.document[0].content).toEqual([
+      {
+        styles: {},
+        text: "const x = 1;",
+        type: "text",
+      },
+    ]);
     // ...and in the Yjs fragment — i.e. it was NOT deleted (which would
     // otherwise propagate the deletion back to every peer)...
     expect(localFragment.toJSON()).toContain("const x = 1;");
@@ -241,14 +253,26 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
 
     const editor = createCollabEditor(fragment);
     const block = editor.document[0];
-    expect(block.content).toBe("const x = 1;");
+    expect(block.content).toEqual([
+      {
+        styles: {},
+        text: "const x = 1;",
+        type: "text",
+      },
+    ]);
 
     // Editing the reconstructed block applies cleanly despite the leftover bold
     // mark still living in the Yjs fragment.
     editor.updateBlock(block, { content: "const x = 2;" });
 
     expect(editor.document.map((b) => b.type)).toEqual(["codeBlock"]);
-    expect(editor.document[0].content).toBe("const x = 2;");
+    expect(editor.document[0].content).toEqual([
+      {
+        styles: {},
+        text: "const x = 2;",
+        type: "text",
+      },
+    ]);
     // Still no materialized formatting after the edit.
     expect(styleKeysOf(editor.document[0]).has("bold")).toBe(false);
 
@@ -268,7 +292,13 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
 
     // Block survives with text intact.
     expect(editor.document.map((b) => b.type)).toEqual(["codeBlock"]);
-    expect(editor.document[0].content).toBe("const x = 1;");
+    expect(editor.document[0].content).toEqual([
+      {
+        styles: {},
+        text: "const x = 1;",
+        type: "text",
+      },
+    ]);
 
     const after = markKeysIn(fragment);
     // Formatting left in Yjs but not materialized; suggestion (allowed) kept.
@@ -297,7 +327,13 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
 
     // Block survives with text intact.
     expect(editor.document.map((b) => b.type)).toEqual(["codeBlock"]);
-    expect(editor.document[0].content).toBe("const x = 1;");
+    expect(editor.document[0].content).toEqual([
+      {
+        styles: {},
+        text: "const x = 1;",
+        type: "text",
+      },
+    ]);
 
     const after = markKeysIn(fragment);
     // The hashed comment mark is kept (allowed); bold left in Yjs but not
@@ -324,7 +360,13 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
     // fragment is byte-for-byte unchanged.
     const editor = createCollabEditor(fragment);
     expect(editor.document.map((b) => b.type)).toEqual(["codeBlock"]);
-    expect(editor.document[0].content).toBe("const x = 1;");
+    expect(editor.document[0].content).toEqual([
+      {
+        styles: {},
+        text: "const x = 1;",
+        type: "text",
+      },
+    ]);
     expect(fragment.toJSON()).toBe(before);
 
     editor._tiptapEditor.destroy();

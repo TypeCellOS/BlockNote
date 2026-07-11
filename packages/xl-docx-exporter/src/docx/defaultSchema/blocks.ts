@@ -6,6 +6,7 @@ import {
   DefaultProps,
   UnreachableCaseError,
 } from "@blocknote/core";
+import { multiColumnSchema } from "@blocknote/xl-multi-column";
 import { getImageDimensions } from "@shared/util/imageUtil.js";
 import {
   CheckBox,
@@ -22,7 +23,6 @@ import {
   TextRun,
 } from "docx";
 import { Table } from "../util/Table.js";
-import { multiColumnSchema } from "@blocknote/xl-multi-column";
 
 function blockPropsToStyles(
   props: Partial<DefaultProps>,
@@ -162,8 +162,12 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     ];
   },
   codeBlock: (block) => {
-    // Code blocks hold plain (string) content.
-    const textContent = typeof block.content === "string" ? block.content : "";
+    // Code blocks hold plain content: at most a single unstyled text item.
+    const [textItem, ...excessItems] = block.content;
+    if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
+      throw new Error("expected plain block content to be a single text item");
+    }
+    const textContent = textItem?.text ?? "";
 
     return new Paragraph({
       style: "SourceCode",

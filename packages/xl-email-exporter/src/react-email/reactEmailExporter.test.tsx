@@ -490,8 +490,14 @@ describe("react email exporter", () => {
       {
         id: "1",
         type: "codeBlock",
-        // Code blocks hold plain (string) content.
-        content: "const hello = 'world';\nconsole.log(hello);",
+        // Code blocks hold plain content.
+        content: [
+          {
+            type: "text",
+            text: "const hello = 'world';\nconsole.log(hello);",
+            styles: {},
+          },
+        ],
         children: [],
         props: { language: "javascript" },
       },

@@ -259,8 +259,12 @@ export const createReactEmailBlockMappingForDefaultSchema = (
   },
 
   codeBlock: (block) => {
-    // Code blocks hold plain (string) content.
-    const textContent = typeof block.content === "string" ? block.content : "";
+    // Code blocks hold plain content: at most a single unstyled text item.
+    const [textItem, ...excessItems] = block.content;
+    if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
+      throw new Error("expected plain block content to be a single text item");
+    }
+    const textContent = textItem?.text ?? "";
 
     return (
       <CodeBlock

@@ -12,6 +12,7 @@ import type {
   InlineContent,
   InlineContentSchema,
   PartialInlineContent,
+  StyledText,
 } from "../inlineContent/types.js";
 import type { PropSchema, Props } from "../propTypes.js";
 import type { StyleSchema } from "../styles/types.js";
@@ -341,6 +342,18 @@ export type TableContent<
   }[];
 };
 
+// The content of a block with "plain" content (e.g. a code block): unstyled
+// text, represented as StyledText items whose `styles` is always empty.
+export type PlainContent = (StyledText<{}> & {
+  styles: Record<string, never>;
+})[];
+
+// Partial form of PlainContent: also accepts bare strings (both as the whole
+// content and as array items), which are normalized on write.
+export type PartialPlainContent =
+  | string
+  | (string | (StyledText<{}> & { styles: Record<string, never> }))[];
+
 // A BlockConfig has all the information to get the type of a Block (which is a specific instance of the BlockConfig.
 // i.e.: paragraphConfig: BlockConfig defines what a "paragraph" is / supports, and BlockFromConfigNoChildren<paragraphConfig> is the shape of a specific paragraph block.
 // (for internal use)
@@ -357,7 +370,7 @@ export type BlockFromConfigNoChildren<
     : B["content"] extends "table"
       ? TableContent<I, S>
       : B["content"] extends "plain"
-        ? string
+        ? PlainContent
         : B["content"] extends "none"
           ? undefined
           : never;
@@ -443,7 +456,7 @@ type PartialBlockFromConfigNoChildren<
     : B["content"] extends "table"
       ? PartialTableContent<I, S>
       : B["content"] extends "plain"
-        ? string
+        ? PartialPlainContent
         : B["content"] extends "none"
           ? undefined
           : never;

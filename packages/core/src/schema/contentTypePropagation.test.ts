@@ -5,6 +5,8 @@ import type {
   BlockConfig,
   BlockFromConfig,
   PartialBlockFromConfig,
+  PartialPlainContent as CorePartialPlainContent,
+  PlainContent as CorePlainContent,
 } from "./blocks/types.js";
 import { createInlineContentSpec } from "./inlineContent/createSpec.js";
 import type {
@@ -16,8 +18,10 @@ import type { StyleSchema } from "./styles/types.js";
 /**
  * Type-level tests asserting that a block's / inline content's `content` field
  * is inferred correctly from its config's `content` discriminant — in
- * particular that the `"plain"` content type propagates to `string`, the same
- * way `"inline"`/`"styled"` propagate to arrays and `"none"` to `undefined`.
+ * particular that a block's `"plain"` content type propagates to an unstyled
+ * StyledText array (`PlainContent`), an inline content's `"plain"` propagates
+ * to `string`, `"inline"`/`"styled"` propagate to arrays and `"none"` to
+ * `undefined`.
  *
  * The assertions are the type annotations and `@ts-expect-error` directives: if
  * propagation breaks, this file stops compiling, which `vp lint` / `tsgo`
@@ -50,12 +54,12 @@ describe("block content type propagation", () => {
     any
   >["content"];
 
-  it("'plain' content is a string", () => {
-    const isString: Equal<PlainContent, string> = true;
-    expect(isString).toBe(true);
+  it("'plain' content is an unstyled StyledText array", () => {
+    const isPlainContent: Equal<PlainContent, CorePlainContent> = true;
+    expect(isPlainContent).toBe(true);
 
-    // @ts-expect-error 'plain' content is a string, not an inline-content array
-    const bad: PlainContent = [{ type: "text", text: "x", styles: {} }];
+    // @ts-expect-error 'plain' content is a StyledText array, not a string
+    const bad: PlainContent = "x";
     void bad;
   });
 
@@ -78,13 +82,20 @@ describe("partial block content type propagation", () => {
     any
   >["content"];
 
-  it("'plain' partial content is an optional string", () => {
-    const isOptionalString: Equal<PartialPlainContent, string | undefined> =
-      true;
-    expect(isOptionalString).toBe(true);
+  it("'plain' partial content is optional unstyled text", () => {
+    const isPartialPlainContent: Equal<
+      PartialPlainContent,
+      CorePartialPlainContent | undefined
+    > = true;
+    expect(isPartialPlainContent).toBe(true);
 
-    // @ts-expect-error 'plain' content is a string, not an inline-content array
-    const bad: PartialPlainContent = [{ type: "text", text: "x", styles: {} }];
+    const good: PartialPlainContent = [{ type: "text", text: "x", styles: {} }];
+    void good;
+
+    const bad: PartialPlainContent = [
+      // @ts-expect-error bold is not a valid style for plain content
+      { type: "text", text: "x", styles: { bold: true } },
+    ];
     void bad;
   });
 });
@@ -150,8 +161,8 @@ describe("content type propagation through the spec factories", () => {
       any
     >["content"];
 
-    const isString: Equal<Content, string> = true;
-    expect(isString).toBe(true);
+    const isPlainContent: Equal<Content, CorePlainContent> = true;
+    expect(isPlainContent).toBe(true);
   });
 
   it("createInlineContentSpec propagates 'plain' to the inline content's content type", () => {

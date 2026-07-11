@@ -138,19 +138,17 @@ export function partialBlockToBlockForTesting<
     type: partialBlock.type!,
     props: {} as any,
     content:
-      contentType === "inline"
+      contentType === "inline" || contentType === "plain"
         ? []
-        : contentType === "plain"
-          ? ""
-          : contentType === "table"
-            ? {
-                type: "tableContent",
-                columnWidths: undefined,
-                headerRows: undefined,
-                headerCols: undefined,
-                rows: [],
-              }
-            : (undefined as any),
+        : contentType === "table"
+          ? {
+              type: "tableContent",
+              columnWidths: undefined,
+              headerRows: undefined,
+              headerCols: undefined,
+              rows: [],
+            }
+          : (undefined as any),
     children: [] as any,
     ...partialBlock,
   };
@@ -188,12 +186,7 @@ export function partialBlockToBlockForTesting<
 
   return {
     ...withDefaults,
-    // Plain content is a string and must be kept as-is (not converted into
-    // inline content).
-    content:
-      contentType === "plain"
-        ? (withDefaults.content ?? "")
-        : partialContentToInlineContent(withDefaults.content),
+    content: partialContentToInlineContent(withDefaults.content),
     children: withDefaults.children.map((c) => {
       return partialBlockToBlockForTesting(schema, c);
     }),

@@ -7,8 +7,8 @@ import {
   mapTableCell,
   TableCell,
 } from "@blocknote/core";
-import { ODTExporter } from "../odtExporter.js";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
+import { ODTExporter } from "../odtExporter.js";
 
 export const getTabs = (nestingLevel: number) => {
   return Array.from({ length: nestingLevel }, (_, i) => <text:tab key={i} />);
@@ -500,8 +500,12 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   },
 
   codeBlock: (block) => {
-    // Code blocks hold plain (string) content.
-    const textContent = typeof block.content === "string" ? block.content : "";
+    // Code blocks hold plain content: at most a single unstyled text item.
+    const [textItem, ...excessItems] = block.content;
+    if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
+      throw new Error("expected plain block content to be a single text item");
+    }
+    const textContent = textItem?.text ?? "";
 
     return (
       <text:p text:style-name="Codeblock">

@@ -286,7 +286,7 @@ export const createCodeBlockSpec = createBlockSpec(
                 props: {
                   language: attributes.language,
                 },
-                content: "",
+                content: [],
               };
             },
           },

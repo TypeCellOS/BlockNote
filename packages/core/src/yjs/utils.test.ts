@@ -1,7 +1,7 @@
-import { Block, docToBlocks } from "../index.js";
-import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
+import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import { Block, docToBlocks } from "../index.js";
 import {
   _blocksToProsemirrorNode,
   blocksToYDoc,
@@ -449,7 +449,9 @@ describe("Test yjs utils", () => {
         props: {
           language: "javascript",
         },
-        content: 'console.log("Hello, world!");',
+        content: [
+          { type: "text", text: "console.log('Hello, world!');", styles: {} },
+        ],
         children: [],
       },
       {
@@ -458,7 +460,7 @@ describe("Test yjs utils", () => {
         props: {
           language: "typescript",
         },
-        content: "const x: number = 42;",
+        content: [{ type: "text", text: "const x: number = 42;", styles: {} }],
         children: [],
       },
     ];
@@ -960,7 +962,13 @@ describe("Test yjs utils", () => {
         props: {
           language: "typescript",
         },
-        content: "const example = () => {\n  return 'code';\n};",
+        content: [
+          {
+            type: "text",
+            text: "const example = () => {\n  return 'code';\n};",
+            styles: {},
+          },
+        ],
         children: [],
       },
       {

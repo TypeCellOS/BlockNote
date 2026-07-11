@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { nodeToBlock } from "./nodeToBlock.js";
 import { blockToNode } from "./blockToNode.js";
+import { nodeToBlock } from "./nodeToBlock.js";
 
 /**
  * @vitest-environment jsdom
@@ -40,7 +40,13 @@ describe("blockToNode: plain-block backwards compatibility (write path)", () => 
     // Round-trips back to a plain string with no materialized formatting.
     const block = nodeToBlock(node, editor.pmSchema);
     expect(block.type).toBe("codeBlock");
-    expect(block.content).toBe("const x = 1;");
+    expect(block.content).toEqual([
+      {
+        styles: {},
+        text: "const x = 1;",
+        type: "text",
+      },
+    ]);
 
     editor._tiptapEditor.destroy();
   });
@@ -72,7 +78,13 @@ describe("blockToNode: plain-block backwards compatibility (write path)", () => 
     editor.mount(document.createElement("div"));
 
     expect(editor.document.map((b) => b.type)).toEqual(["codeBlock"]);
-    expect(editor.document[0].content).toBe("const x = 1;");
+    expect(editor.document[0].content).toEqual([
+      {
+        styles: {},
+        text: "const x = 1;",
+        type: "text",
+      },
+    ]);
 
     editor._tiptapEditor.destroy();
   });
@@ -84,7 +96,7 @@ describe("blockToNode: plain-block backwards compatibility (write path)", () => 
     // the block content is plain text.
     const node = blockToNode(legacyBoldCodeBlock as any, editor.pmSchema);
     const block = nodeToBlock(node, editor.pmSchema);
-    expect(typeof block.content).toBe("string");
+    expect(Array.isArray(block.content)).toBe(true);
 
     editor._tiptapEditor.destroy();
   });
