@@ -196,7 +196,7 @@ export function createBlockSpecFromTiptapNode<
   const T extends {
     node: Node;
     type: string;
-    content: "inline" | "table" | "none";
+    content: "inline" | "table" | "none" | "plain";
   },
   P extends PropSchema,
 >(

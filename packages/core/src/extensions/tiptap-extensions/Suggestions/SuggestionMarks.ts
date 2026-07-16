@@ -1,6 +1,8 @@
 import { Mark } from "@tiptap/core";
 import { MarkSpec } from "prosemirror-model";
 
+import { NON_FORMATTING_MARK_GROUP } from "../../../schema/markGroups.js";
+
 // This copies the marks from @handlewithcare/prosemirror-suggest-changes,
 // but uses the Tiptap Mark API instead so we can use them in BlockNote
 
@@ -10,6 +12,7 @@ export const SuggestionAddMark = Mark.create({
   name: "insertion",
   inclusive: false,
   excludes: "deletion modification insertion",
+  group: NON_FORMATTING_MARK_GROUP,
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap, so this doesn't actually work (considered not critical)
@@ -55,6 +58,7 @@ export const SuggestionDeleteMark = Mark.create({
   name: "deletion",
   inclusive: false,
   excludes: "insertion modification deletion",
+  group: NON_FORMATTING_MARK_GROUP,
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap
@@ -103,6 +107,7 @@ export const SuggestionModificationMark = Mark.create({
   name: "modification",
   inclusive: false,
   excludes: "deletion insertion",
+  group: NON_FORMATTING_MARK_GROUP,
   addAttributes() {
     // note: validate is supported in prosemirror but not in tiptap
     return {

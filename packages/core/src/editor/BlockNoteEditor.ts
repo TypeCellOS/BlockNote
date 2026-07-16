@@ -532,6 +532,10 @@ export class BlockNoteEditor<
         );
       }
       const schema = getSchema(tiptapOptions.extensions!);
+      // `blockToNode` (via `isPlainContentNodeType`) resolves the block schema
+      // through `schema.cached.blockNoteEditor`, so stamp it on this throwaway
+      // schema now — the real `pmSchema` is stamped separately below.
+      schema.cached.blockNoteEditor = this;
       const pmNodes = initialContent.map((b) =>
         blockToNode(b, schema, this.schema.styleSchema).toJSON(),
       );

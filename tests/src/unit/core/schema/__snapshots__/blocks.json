@@ -118,7 +118,7 @@
   },
   "codeBlock": {
     "config": {
-      "content": "inline",
+      "content": "plain",
       "propSchema": {
         "language": {
           "default": "text",

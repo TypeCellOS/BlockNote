@@ -476,6 +476,14 @@ export function nodeToBlock<
       inlineContentSchema,
       styleSchema,
     );
+  } else if (blockConfig.content === "plain") {
+    if (!blockInfo.isBlockContainer) {
+      throw new Error("impossible");
+    }
+    // Plain content is a single unstyled text item; an empty block is an
+    // empty array, matching inline content.
+    const text = blockInfo.blockContent.node.textContent;
+    content = text.length > 0 ? [{ type: "text", text, styles: {} }] : [];
   } else if (blockConfig.content === "none") {
     content = undefined;
   } else {
