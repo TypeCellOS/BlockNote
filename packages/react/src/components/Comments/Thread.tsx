@@ -1,4 +1,4 @@
-import { Dictionary, mergeCSSClasses } from "@blocknote/core";
+import { BlockNoteEditor, Dictionary, mergeCSSClasses } from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
 import { ThreadData } from "@blocknote/core/comments";
 import { FocusEvent, memo, useCallback } from "react";
@@ -86,6 +86,12 @@ export type ThreadProps = {
    * The tab index for the thread.
    */
   tabIndex?: number;
+  /**
+   * The editor used to compose a reply. Provided by `FloatingThreadController`
+   * so it can check for unsaved text before discarding the floating card. When
+   * omitted (e.g. in the sidebar), the thread creates its own.
+   */
+  newCommentEditor?: BlockNoteEditor<any, any, any>;
 };
 
 /**
@@ -102,6 +108,7 @@ export const Thread = ({
   onFocus,
   onBlur,
   tabIndex,
+  newCommentEditor: providedNewCommentEditor,
 }: ThreadProps) => {
   // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
   // (or optimistic local updates)
@@ -111,7 +118,7 @@ export const Thread = ({
 
   const comments = useExtension(CommentsExtension);
 
-  const newCommentEditor = useCreateBlockNote({
+  const ownNewCommentEditor = useCreateBlockNote({
     trailingBlock: false,
     dictionary: {
       ...dict,
@@ -121,6 +128,11 @@ export const Thread = ({
     },
     schema: comments.commentEditorSchema || defaultCommentEditorSchema,
   });
+
+  // Use the editor provided by the controller (which owns the dismiss
+  // lifecycle and checks for unsaved text before discarding), falling back to
+  // our own when the thread is rendered standalone (e.g. in the sidebar).
+  const newCommentEditor = providedNewCommentEditor ?? ownNewCommentEditor;
 
   const onNewCommentSave = useCallback(async () => {
     await comments.threadStore.addComment({

@@ -370,6 +370,7 @@ export const ar: Dictionary = {
     save_button_text: "حفظ",
     cancel_button_text: "إلغاء",
     deleted_reference_text: "تم حذف المحتوى الأصلي",
+    discard_pending_comment: "هل أنت متأكد أنك تريد تجاهل هذا التعليق؟",
     actions: {
       add_reaction: "أضف تفاعلًا",
       resolve: "حل",

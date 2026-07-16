@@ -377,6 +377,7 @@ export const pt: Dictionary = {
     save_button_text: "Salvar",
     cancel_button_text: "Cancelar",
     deleted_reference_text: "Conteúdo original excluído",
+    discard_pending_comment: "Tem certeza de que deseja descartar este comentário?",
     actions: {
       add_reaction: "Adicionar reação",
       resolve: "Resolver",
