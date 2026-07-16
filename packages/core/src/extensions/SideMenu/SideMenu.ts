@@ -600,6 +600,14 @@ export class SideMenuView<
       return;
     }
 
+    // Synthetic mousemove events created via `new Event("mousemove")` (e.g.
+    // dispatched by browser extensions) have no `clientX`/`clientY`, which
+    // would make `elementsFromPoint` throw on the resulting non-finite
+    // coordinates.
+    if (!Number.isFinite(event.clientX) || !Number.isFinite(event.clientY)) {
+      return;
+    }
+
     this.mousePos = { x: event.clientX, y: event.clientY };
 
     // We want the full area of the editor to check if the cursor is hovering
