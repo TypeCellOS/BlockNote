@@ -6,7 +6,7 @@ import {
   createPageBreakBlockConfig,
   DefaultBlockSchema,
   DefaultProps,
-  StyledText,
+  PlainContent,
   UnreachableCaseError,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
@@ -79,9 +79,18 @@ function blockPropsToStyles(
 }
 
 const codeMapping = (
-  block: BlockFromConfigNoChildren<BSchema[keyof BSchema], any, any>,
+  block: BlockFromConfigNoChildren<
+    BSchema["codeBlock"] | BSchema["math"] | BSchema["diagram"],
+    any,
+    any
+  >,
 ) => {
-  const textContent = (block.content as StyledText<any>[])[0]?.text || "";
+  // Code blocks hold plain content: at most a single unstyled text item.
+  const [textItem, ...excessItems] = block.content as PlainContent;
+  if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
+    throw new Error("expected plain block content to be a single text item");
+  }
+  const textContent = textItem?.text ?? "";
 
   return new Paragraph({
     style: "SourceCode",

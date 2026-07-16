@@ -15,7 +15,7 @@ export const createDiagramBlockConfig = createBlockConfig(
       // rendering engine. An `engine` prop with a "mermaid" default can be
       // added later without breaking stored documents.
       propSchema: {},
-      content: "inline" as const,
+      content: "plain" as const,
     }) as const,
 );
 

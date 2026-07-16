@@ -5,7 +5,7 @@ import {
   createPageBreakBlockConfig,
   DefaultBlockSchema,
   mapTableCell,
-  StyledText,
+  PlainContent,
 } from "@blocknote/core";
 import {
   CodeBlock,
@@ -123,15 +123,21 @@ type BSchema = DefaultBlockSchema & {
   diagram: BlockConfig<"diagram", {}, "inline">;
 };
 
-// Renders a block's inline content as a code block. Used for both code blocks
-// and math blocks (which store their LaTeX source as content); math has no
-// language, so it's passed explicitly.
 const codeMapping = (
-  block: BlockFromConfigNoChildren<BSchema[keyof BSchema], any, any>,
+  block: BlockFromConfigNoChildren<
+    BSchema["codeBlock"] | BSchema["math"] | BSchema["diagram"],
+    any,
+    any
+  >,
   language: PrismLanguage,
   textStyles: ReactEmailTextStyles,
 ) => {
-  const textContent = (block.content as StyledText<any>[])[0]?.text || "";
+  // Code blocks hold plain content: at most a single unstyled text item.
+  const [textItem, ...excessItems] = block.content as PlainContent;
+  if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
+    throw new Error("expected plain block content to be a single text item");
+  }
+  const textContent = textItem?.text ?? "";
 
   return (
     <CodeBlock
