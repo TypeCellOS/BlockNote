@@ -27,7 +27,7 @@ line two",
     ],
     "id": "2",
     "props": {
-      "language": "text",
+      "language": "javascript",
     },
     "type": "codeBlock",
   },

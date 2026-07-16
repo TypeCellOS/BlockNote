@@ -156,9 +156,16 @@ describe("Diagram block source popup", () => {
     await flush();
 
     // The selection spans exactly the block's source, not the document.
+    // Newlines are hard break nodes in the ProseMirror doc, so extract them as
+    // "\n" to match the block's source (where `getBlock` renders them as such).
     const selection = editor.prosemirrorState.selection;
     expect(
-      editor.prosemirrorState.doc.textBetween(selection.from, selection.to),
+      editor.prosemirrorState.doc.textBetween(
+        selection.from,
+        selection.to,
+        undefined,
+        (leafNode) => (leafNode.type.name === "hardBreak" ? "\n" : ""),
+      ),
     ).toBe(source());
     expect(isPopupOpen()).toBe(true);
   });
