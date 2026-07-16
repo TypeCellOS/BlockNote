@@ -13,6 +13,7 @@ import {
   InlineContentSchemaWithInlineContent,
   InlineContentSpec,
   inlineContentToNodes,
+  NON_FORMATTING_MARK_GROUP,
   nodeToCustomInlineContent,
   PartialCustomInlineContentFromConfig,
   Props,
@@ -113,7 +114,8 @@ export function InlineContentWrapper<
  * rendering.
  *
  * @param inlineContentConfig - The inline content type configuration, including
- * its `type` name, `propSchema`, and `content` mode (`"styled"` or `"none"`).
+ * its `type` name, `propSchema`, and `content` mode (`"styled"`, `"plain"`, or
+ * `"none"`).
  * @param inlineContentImplementation - The React implementation, including a
  * `render` component and optionally a `toExternalHTML` component and `parse`
  * rules.
@@ -134,13 +136,23 @@ export function createReactInlineContentSpec<
     name: inlineContentConfig.type as T["type"],
     inline: true,
     group: "inline",
-    selectable: inlineContentConfig.content === "styled",
+    selectable: inlineContentConfig.content !== "none",
     atom: inlineContentConfig.content === "none",
     draggable: inlineContentImplementation.meta?.draggable,
     code: inlineContentImplementation.meta?.code,
     content: (inlineContentConfig.content === "styled"
       ? "inline*"
-      : "") as T["content"] extends "styled" ? "inline*" : "",
+      : inlineContentConfig.content === "plain"
+        ? "text*"
+        : "") as T["content"] extends "styled" ? "inline*" : "",
+    // "plain" inline content holds unstyled text, so it disallows formatting
+    // marks (mirroring "plain" blocks). It still allows the non-formatting marks
+    // (comments and suggestions/diffs), which annotate content without changing
+    // it and are ignored by the content model.
+    marks:
+      inlineContentConfig.content === "plain"
+        ? NON_FORMATTING_MARK_GROUP
+        : undefined,
 
     addAttributes() {
       return propsToAttributes(inlineContentConfig.propSchema);

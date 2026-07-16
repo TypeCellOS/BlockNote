@@ -33,7 +33,7 @@ export type ReactCustomBlockRenderProps<
 > = {
   block: BlockNoDefaults<Record<Config["type"], Config>, any, any>;
   editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
-} & (Config["content"] extends "inline"
+} & (Config["content"] extends "inline" | "plain"
   ? {
       contentRef: (node: HTMLElement | null) => void;
     }
@@ -133,7 +133,7 @@ export function BlockContentWrapper<
 export function createReactBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const TOptions extends Record<string, any> | undefined = undefined,
 >(
   blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
@@ -159,7 +159,7 @@ export function createReactBlockSpec<
 export function createReactBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const BlockConf extends BlockConfig<TName, TProps, TContent>,
   const TOptions extends Partial<Record<string, any>>,
 >(
@@ -188,7 +188,7 @@ export function createReactBlockSpec<
 export function createReactBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const TOptions extends Record<string, any> | undefined = undefined,
 >(
   blockConfigOrCreator: BlockConfigOrCreator<TName, TProps, TContent, TOptions>,

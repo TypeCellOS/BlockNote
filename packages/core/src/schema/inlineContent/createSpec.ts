@@ -11,6 +11,7 @@ import { inlineContentToNodes } from "../../api/nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeToBlock.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { propsToAttributes } from "../blocks/internal.js";
+import { NON_FORMATTING_MARK_GROUP } from "../markGroups.js";
 import { Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
 import {
@@ -148,6 +149,26 @@ function parseInlineContent(el: HTMLElement, schema: Schema) {
   }).content;
 }
 
+// Flattens parsed inline content into text nodes only. "plain" inline content
+// holds text only, so non-text inline nodes are flattened: line breaks become
+// newline characters and other nodes (e.g. mentions) are kept as their text.
+function flattenToText(content: Fragment, schema: Schema) {
+  const textNodes: ProsemirrorNode[] = [];
+  content.forEach((child) => {
+    if (child.isText) {
+      textNodes.push(child);
+    } else {
+      const text =
+        child.type === schema.linebreakReplacement ? "\n" : child.textContent;
+      if (text) {
+        textNodes.push(schema.text(text, child.marks));
+      }
+    }
+  });
+
+  return Fragment.fromArray(textNodes);
+}
+
 export function getInlineContentParseRules<C extends CustomInlineContentConfig>(
   config: C,
   customParseFunction?: CustomInlineContentImplementation<C, any>["parse"],
@@ -165,7 +186,8 @@ export function getInlineContentParseRules<C extends CustomInlineContentConfig>(
   // element whose children to parse as a fallback when `parseContent` returns
   // `undefined`.
   const getContent =
-    customParseContentFunction && config.content === "styled"
+    customParseContentFunction &&
+    (config.content === "styled" || config.content === "plain")
       ? (resolveContentElement: (el: HTMLElement) => HTMLElement) =>
           (node: HTMLElement, schema: Schema) => {
             const result = customParseContentFunction({ el: node, schema });
@@ -173,10 +195,18 @@ export function getInlineContentParseRules<C extends CustomInlineContentConfig>(
             // `parseContent` may return `undefined` to fall through to the
             // default inline content parsing.
             if (result !== undefined) {
-              return result;
+              return config.content === "plain"
+                ? flattenToText(result, schema)
+                : result;
             }
 
-            return parseInlineContent(resolveContentElement(node), schema);
+            const parsed = parseInlineContent(
+              resolveContentElement(node),
+              schema,
+            );
+            return config.content === "plain"
+              ? flattenToText(parsed, schema)
+              : parsed;
           }
       : undefined;
 
@@ -230,10 +260,23 @@ export function createInlineContentSpec<
     inline: true,
     group: "inline",
     draggable: inlineContentImplementation.meta?.draggable,
-    selectable: inlineContentConfig.content === "styled",
+    selectable: inlineContentConfig.content !== "none",
     atom: inlineContentConfig.content === "none",
     code: inlineContentImplementation.meta?.code,
-    content: inlineContentConfig.content === "styled" ? "inline*" : "",
+    content:
+      inlineContentConfig.content === "styled"
+        ? "inline*"
+        : inlineContentConfig.content === "plain"
+          ? "text*"
+          : "",
+    // "plain" inline content holds unstyled text, so it disallows formatting
+    // marks (mirroring "plain" blocks). It still allows the non-formatting marks
+    // (comments and suggestions/diffs), which annotate content without changing
+    // it and are ignored by the content model.
+    marks:
+      inlineContentConfig.content === "plain"
+        ? NON_FORMATTING_MARK_GROUP
+        : undefined,
 
     addAttributes() {
       return propsToAttributes(inlineContentConfig.propSchema);
