@@ -90,7 +90,13 @@
   },
   {
     "children": [],
-    "content": "print('hello')",
+    "content": [
+      {
+        "styles": {},
+        "text": "print('hello')",
+        "type": "text",
+      },
+    ],
     "id": "6",
     "props": {
       "language": "python",

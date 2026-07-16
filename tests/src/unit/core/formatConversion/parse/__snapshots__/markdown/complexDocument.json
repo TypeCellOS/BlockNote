@@ -167,9 +167,15 @@
   },
   {
     "children": [],
-    "content": "function hello() {
+    "content": [
+      {
+        "styles": {},
+        "text": "function hello() {
   return "world";
 }",
+        "type": "text",
+      },
+    ],
     "id": "9",
     "props": {
       "language": "javascript",

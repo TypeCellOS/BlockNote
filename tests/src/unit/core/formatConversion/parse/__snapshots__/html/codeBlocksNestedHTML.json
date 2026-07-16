@@ -1,8 +1,14 @@
 [
   {
     "children": [],
-    "content": "const x = 1;
+    "content": [
+      {
+        "styles": {},
+        "text": "const x = 1;
 log(x);",
+        "type": "text",
+      },
+    ],
     "id": "1",
     "props": {
       "language": "javascript",
@@ -11,8 +17,14 @@ log(x);",
   },
   {
     "children": [],
-    "content": "line one
+    "content": [
+      {
+        "styles": {},
+        "text": "line one
 line two",
+        "type": "text",
+      },
+    ],
     "id": "2",
     "props": {
       "language": "text",
@@ -21,7 +33,13 @@ line two",
   },
   {
     "children": [],
-    "content": "<div class="a">escaped</div>",
+    "content": [
+      {
+        "styles": {},
+        "text": "<div class="a">escaped</div>",
+        "type": "text",
+      },
+    ],
     "id": "3",
     "props": {
       "language": "html",

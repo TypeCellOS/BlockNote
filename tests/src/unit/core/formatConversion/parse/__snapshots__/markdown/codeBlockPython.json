@@ -1,8 +1,14 @@
 [
   {
     "children": [],
-    "content": "def hello():
+    "content": [
+      {
+        "styles": {},
+        "text": "def hello():
     print("Hello, world!")",
+        "type": "text",
+      },
+    ],
     "id": "1",
     "props": {
       "language": "python",
