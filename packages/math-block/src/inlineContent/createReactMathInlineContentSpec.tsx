@@ -12,7 +12,7 @@ import { InlineMathMLElement } from "./helpers/toExternalHTML/InlineMathMLElemen
 export const mathInlineContentConfig = {
   type: "inlineMath" as const,
   propSchema: {},
-  content: "plain" as const,
+  content: "styled" as const,
 } satisfies CustomInlineContentConfig;
 
 export type MathInlineContentConfig = typeof mathInlineContentConfig;

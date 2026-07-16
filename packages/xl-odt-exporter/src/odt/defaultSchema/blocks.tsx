@@ -7,7 +7,7 @@ import {
   DefaultBlockSchema,
   DefaultProps,
   mapTableCell,
-  PlainContent,
+  StyledText,
   TableCell,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
@@ -19,19 +19,12 @@ type BSchema = DefaultBlockSchema & {
   diagram: BlockConfig<"diagram", {}, "inline">;
 } & typeof multiColumnSchema.blockSchema;
 
+// Renders a block's inline content as a code paragraph. Used for both code
+// blocks and math blocks (which store their LaTeX source as content).
 const codeMapping = (
-  block: BlockFromConfigNoChildren<
-    BSchema["codeBlock"] | BSchema["math"] | BSchema["diagram"],
-    any,
-    any
-  >,
+  block: BlockFromConfigNoChildren<BSchema[keyof BSchema], any, any>,
 ) => {
-  // Code blocks hold plain content: at most a single unstyled text item.
-  const [textItem, ...excessItems] = block.content as PlainContent;
-  if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
-    throw new Error("expected plain block content to be a single text item");
-  }
-  const textContent = textItem?.text ?? "";
+  const textContent = (block.content as StyledText<any>[])[0]?.text || "";
 
   return (
     <text:p text:style-name="Codeblock">
@@ -533,7 +526,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       </table:table>
     );
   },
-  // TODO
+// TODO
   codeBlock: codeMapping,
   math: codeMapping,
   diagram: codeMapping,

@@ -5,7 +5,7 @@ import {
   createPageBreakBlockConfig,
   DefaultBlockSchema,
   DefaultProps,
-  PlainContent,
+  StyledText,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
 import { Image, Link, Path, Svg, Text, View } from "@react-pdf/renderer";
@@ -27,19 +27,17 @@ type BSchema = DefaultBlockSchema & {
   diagram: BlockConfig<"diagram", {}, "inline">;
 } & typeof multiColumnSchema.blockSchema;
 
+// Renders a block's inline content as monospaced source code. Used for both
+// code blocks and math blocks (which store their LaTeX source as content).
 const codeMapping = (
-  block: BlockFromConfigNoChildren<
-    BSchema["codeBlock"] | BSchema["math"] | BSchema["diagram"],
-    any,
-    any
-  >,
+  block: BlockFromConfigNoChildren<BSchema[keyof BSchema], any, any>,
 ) => {
-  // Code blocks hold plain content: at most a single unstyled text item.
-  const [textItem, ...excessItems] = block.content as PlainContent;
-  if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
-    throw new Error("expected plain block content to be a single text item");
-  }
-  const textContent = textItem?.text ?? "";
+  // Code blocks should always contain a single `StyledText` inline content.
+  // However, if this is not the case for whatever reason, we can merge the
+  // text content of all `StyledText` content in them.
+  const textContent = (block.content as StyledText<any>[])
+    .map((item) => item.text)
+    .join("");
   const lines = textContent.split("\n").map((line, index) => {
     const indent = line.match(/^\s*/)?.[0].length || 0;
 

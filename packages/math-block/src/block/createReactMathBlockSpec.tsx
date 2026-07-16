@@ -14,7 +14,7 @@ export const createMathBlockConfig = createBlockConfig(
     ({
       type: "math" as const,
       propSchema: {},
-      content: "plain" as const,
+      content: "inline" as const,
     }) as const,
 );
 
