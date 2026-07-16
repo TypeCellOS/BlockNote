@@ -63,11 +63,8 @@ export type ReactCustomBlockImplementation<
 };
 
 export type ReactCustomBlockSpec<
-  B extends BlockConfig<string, PropSchema, "inline" | "none"> = BlockConfig<
-    string,
-    PropSchema,
-    "inline" | "none"
-  >,
+  B extends BlockConfig<string, PropSchema, "inline" | "none" | "plain"> =
+    BlockConfig<string, PropSchema, "inline" | "none" | "plain">,
 > = {
   config: B;
   implementation: ReactCustomBlockImplementation<B>;

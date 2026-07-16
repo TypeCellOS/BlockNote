@@ -185,12 +185,16 @@ export function getInlineContentParseRules<C extends CustomInlineContentConfig>(
   // `parse` function (the second rule). `resolveContentElement` locates the
   // element whose children to parse as a fallback when `parseContent` returns
   // `undefined`.
+  // "plain" inline content always needs `getContent` so its parsed content is
+  // flattened to text (`<br>`/line breaks become newline characters), regardless
+  // of whether a custom `parseContent` is provided — mirroring "plain" blocks.
+  // "styled" inline content only needs it to run a custom `parseContent`.
   const getContent =
-    customParseContentFunction &&
-    (config.content === "styled" || config.content === "plain")
+    config.content === "plain" ||
+    (customParseContentFunction && config.content === "styled")
       ? (resolveContentElement: (el: HTMLElement) => HTMLElement) =>
           (node: HTMLElement, schema: Schema) => {
-            const result = customParseContentFunction({ el: node, schema });
+            const result = customParseContentFunction?.({ el: node, schema });
 
             // `parseContent` may return `undefined` to fall through to the
             // default inline content parsing.
