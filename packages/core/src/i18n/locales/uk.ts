@@ -412,6 +412,7 @@ export const uk: Dictionary = {
     save_button_text: "Зберегти",
     cancel_button_text: "Скасувати",
     deleted_reference_text: "Оригінальний вміст видалено",
+    discard_pending_comment: "Ви впевнені, що хочете відхилити цей коментар?",
     actions: {
       add_reaction: "Додати реакцію",
       resolve: "Вирішити",

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { setupTestEnv } from "../setupTestEnv.js";
 
@@ -147,6 +147,51 @@ describe("Test moveBlocksDown", () => {
     getEditor().setSelection("column-paragraph-1", "paragraph-2");
 
     getEditor().moveBlocksDown();
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+});
+
+describe("Move past empty sibling within a column", () => {
+  beforeEach(() => {
+    getEditor().replaceBlocks(getEditor().document, [
+      {
+        id: "column-list-empty",
+        type: "columnList",
+        children: [
+          {
+            id: "column-empty-0",
+            type: "column",
+            children: [
+              { id: "empty-0", type: "paragraph" },
+              { id: "text-0", type: "paragraph", content: "Text 0" },
+            ],
+          },
+          {
+            id: "column-empty-1",
+            type: "column",
+            children: [
+              { id: "empty-1", type: "paragraph" },
+              { id: "text-1", type: "paragraph", content: "Text 1" },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
+
+  it("Move up above empty sibling", () => {
+    getEditor().setTextCursorPosition("text-0");
+
+    expect(() => getEditor().moveBlocksUp()).not.toThrow();
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Move down below empty sibling", () => {
+    getEditor().setTextCursorPosition("empty-0");
+
+    expect(() => getEditor().moveBlocksDown()).not.toThrow();
 
     expect(getEditor().document).toMatchSnapshot();
   });

@@ -387,6 +387,7 @@ export const vi: Dictionary = {
     save_button_text: "Lưu",
     cancel_button_text: "Hủy",
     deleted_reference_text: "Nội dung gốc đã bị xóa",
+    discard_pending_comment: "Bạn có chắc chắn muốn hủy bình luận này không?",
     actions: {
       add_reaction: "Thêm phản ứng",
       resolve: "Giải quyết",

@@ -64,7 +64,7 @@ exports[`creates json schema 1`] = `
           "additionalProperties": false,
           "properties": {
             "content": {
-              "$ref": "#/$defs/inlinecontent",
+              "type": "string",
             },
             "props": {
               "additionalProperties": false,

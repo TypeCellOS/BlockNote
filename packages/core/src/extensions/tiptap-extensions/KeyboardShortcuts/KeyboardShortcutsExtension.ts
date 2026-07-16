@@ -22,8 +22,8 @@ import {
   getBlockInfoFromSelection,
 } from "../../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
+import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
@@ -813,9 +813,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
             // syntax-highlighting extension reads `meta.highlight`. Left as-is
             // for a follow-up pass.
             const blockHardBreakShortcut =
-              this.options.editor.schema.blockSchema[
-                blockInfo.blockNoteType as keyof typeof this.options.editor.schema.blockSchema
-              ].meta?.hardBreakShortcut ?? "shift+enter";
+            this.options.editor.schema.blockSpecs[
+              blockInfo.blockNoteType
+            ]?.implementation?.meta?.hardBreakShortcut ?? "shift+enter";
 
             if (blockHardBreakShortcut === "none") {
               return false;

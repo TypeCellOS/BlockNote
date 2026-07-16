@@ -71,7 +71,7 @@ export function setTextCursorPosition(
 
   const info = getBlockInfo(posInfo);
 
-  const contentType: "none" | "inline" | "table" =
+  const contentType: "none" | "inline" | "table" | "plain" =
     schema.blockSchema[info.blockNoteType]!.content;
 
   if (info.isBlockContainer) {
@@ -81,7 +81,7 @@ export function setTextCursorPosition(
       return;
     }
 
-    if (contentType === "inline") {
+    if (contentType === "inline" || contentType === "plain") {
       if (placement === "start") {
         tr.setSelection(
           TextSelection.create(tr.doc, blockContent.beforePos + 1),

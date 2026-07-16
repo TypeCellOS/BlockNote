@@ -19,7 +19,7 @@ export const createCodeBlockConfig = createBlockConfig(
           default: defaultLanguage,
         },
       },
-      content: "inline",
+      content: "plain",
     }) as const,
 );
 

@@ -5,7 +5,7 @@ import {
   createExtension,
   type ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
-import { FixupCreateAndFillExtension } from "./FixupCreateAndFill.js";
+import { FixUpSchemaExtension } from "./FixUpSchema.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
 import { RelativePositionMappingExtension } from "./RelativePositionMapping.js";
 import { SchemaMigration } from "./schemaMigration/SchemaMigration.js";
@@ -47,7 +47,7 @@ export const CollaborationExtension = createExtension(
     return {
       key: "collaboration",
       blockNoteExtensions: [
-        FixupCreateAndFillExtension(),
+        FixUpSchemaExtension(),
         ForkYDocExtension(options),
         RelativePositionMappingExtension(),
         SchemaMigration(options),

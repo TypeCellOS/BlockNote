@@ -388,6 +388,7 @@ export const he: Dictionary = {
     save_button_text: "שמור",
     cancel_button_text: "בטל",
     deleted_reference_text: "התוכן המקורי נמחק",
+    discard_pending_comment: "האם אתה בטוח שברצונך לבטל את התגובה הזו?",
     actions: {
       add_reaction: "הוסף תגובה",
       resolve: "סמן כפתור",

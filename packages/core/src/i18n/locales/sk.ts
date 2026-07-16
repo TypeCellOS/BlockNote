@@ -386,6 +386,7 @@ export const sk = {
     save_button_text: "Uložiť",
     cancel_button_text: "Zrušiť",
     deleted_reference_text: "Pôvodný obsah odstránený",
+    discard_pending_comment: "Naozaj chcete zahodiť tento komentár?",
     actions: {
       add_reaction: "Pridať reakciu",
       resolve: "Vyriešiť",

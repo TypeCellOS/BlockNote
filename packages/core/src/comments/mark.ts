@@ -1,10 +1,14 @@
 import { Mark, mergeAttributes } from "@tiptap/core";
 
+import { NON_FORMATTING_MARK_GROUP } from "../schema/markGroups.js";
+
 export const CommentMark = Mark.create({
   name: "comment",
   excludes: "",
   inclusive: false,
   keepOnSplit: true,
+  // Allowed on "plain" blocks (e.g. code blocks) via this group.
+  group: NON_FORMATTING_MARK_GROUP,
 
   addAttributes() {
     // Return an object with attribute configuration

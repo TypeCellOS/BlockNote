@@ -9,6 +9,7 @@ import {
   StyledText,
   UnreachableCaseError,
 } from "@blocknote/core";
+import { multiColumnSchema } from "@blocknote/xl-multi-column";
 import { getImageDimensions } from "@shared/util/imageUtil.js";
 import {
   CheckBox,
@@ -25,7 +26,6 @@ import {
   TextRun,
 } from "docx";
 import { Table } from "../util/Table.js";
-import { multiColumnSchema } from "@blocknote/xl-multi-column";
 
 type BSchema = DefaultBlockSchema & {
   pageBreak: ReturnType<typeof createPageBreakBlockConfig>;

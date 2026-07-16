@@ -356,6 +356,7 @@ export const fa = {
     save_button_text: "ذخیره",
     cancel_button_text: "لغو",
     deleted_reference_text: "محتوای اصلی حذف شد",
+    discard_pending_comment: "آیا مطمئن هستید که می‌خواهید این دیدگاه را نادیده بگیرید؟",
     actions: {
       add_reaction: "افزودن واکنش",
       resolve: "حل کردن",

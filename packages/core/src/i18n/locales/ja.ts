@@ -428,6 +428,7 @@ export const ja: Dictionary = {
     save_button_text: "保存",
     cancel_button_text: "キャンセル",
     deleted_reference_text: "元のコンテンツが削除されました",
+    discard_pending_comment: "このコメントを破棄してもよろしいですか？",
     actions: {
       add_reaction: "リアクションを追加",
       resolve: "解決",

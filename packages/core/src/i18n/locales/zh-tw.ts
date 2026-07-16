@@ -429,6 +429,7 @@ export const zhTW: Dictionary = {
     save_button_text: "儲存",
     cancel_button_text: "取消",
     deleted_reference_text: "原始內容已刪除",
+    discard_pending_comment: "確定要捨棄此評論嗎？",
     actions: {
       add_reaction: "新增回應",
       resolve: "解決",

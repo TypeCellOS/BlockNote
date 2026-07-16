@@ -429,6 +429,7 @@ export const zh: Dictionary = {
     save_button_text: "保存",
     cancel_button_text: "取消",
     deleted_reference_text: "原始内容已删除",
+    discard_pending_comment: "确定要放弃此评论吗？",
     actions: {
       add_reaction: "添加反应",
       resolve: "解决",

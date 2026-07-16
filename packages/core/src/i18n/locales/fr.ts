@@ -434,6 +434,7 @@ export const fr: Dictionary = {
     save_button_text: "Enregistrer",
     cancel_button_text: "Annuler",
     deleted_reference_text: "Contenu d'origine supprimé",
+    discard_pending_comment: "Voulez-vous vraiment abandonner ce commentaire ?",
     actions: {
       add_reaction: "Ajouter une réaction",
       resolve: "Résoudre",

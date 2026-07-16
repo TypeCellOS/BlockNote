@@ -1,4 +1,5 @@
 import { Node } from "@tiptap/core";
+import { ViewMutationRecord } from "prosemirror-view";
 import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema, Styles } from "../styles/types.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -6,11 +7,11 @@ import {
   Extension,
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
-import { ViewMutationRecord } from "prosemirror-view";
+
 
 export type CustomInlineContentConfig = {
   type: string;
-  content: "styled" | "none"; // | "plain"
+  content: "styled" | "none" | "plain";
   readonly propSchema: PropSchema;
 };
 // InlineContentConfig contains the "schema" info about an InlineContent type

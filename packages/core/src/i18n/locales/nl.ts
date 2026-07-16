@@ -388,6 +388,7 @@ export const nl: Dictionary = {
     save_button_text: "Opslaan",
     cancel_button_text: "Annuleren",
     deleted_reference_text: "Originele inhoud verwijderd",
+    discard_pending_comment: "Weet je zeker dat je deze reactie wilt verwijderen?",
     actions: {
       add_reaction: "Reactie toevoegen",
       resolve: "Oplossen",
