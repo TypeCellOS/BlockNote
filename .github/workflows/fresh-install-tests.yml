@@ -34,7 +34,7 @@ jobs:
           persist-credentials: false
 
       - id: setup_vp
-        uses: voidzero-dev/setup-vp@2dec1e33f4ab2c6d5bce1b0c4607961bb1a3f7a1 # v1
+        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
         with:
           node-version-file: ".node-version"
           # Intentionally no install cache — we want fresh prod dep resolution.
