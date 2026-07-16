@@ -35,6 +35,7 @@ export { selectedFragmentToHTML } from "./api/clipboard/toClipboard/copyExtensio
 
 // Node conversions
 export * from "./api/nodeConversions/blockToNode.js";
+export * from "./api/nodeConversions/fragmentToBlocks.js";
 export * from "./api/nodeConversions/nodeToBlock.js";
 export * from "./extensions/tiptap-extensions/UniqueID/UniqueID.js";
 

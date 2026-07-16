@@ -4,6 +4,7 @@ import { describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { browserName, userEvent } from "../../utils/context.js";
 import {
+  DOC_TRAILING_BLOCK_SELECTOR,
   EDITOR_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
@@ -102,7 +103,7 @@ describe("Check Block Dragging Functionality", () => {
       await focusOnEditor();
       await executeSlashCommand("image");
       await userEvent.keyboard("{Escape}");
-      await userEvent.click(await waitForSelector(".bn-trailing-block"));
+      await userEvent.click(await waitForSelector(DOC_TRAILING_BLOCK_SELECTOR));
       await insertHeading(1);
 
       await dragAndDropBlock(IMAGE_SELECTOR, H_ONE_BLOCK_SELECTOR, false);
@@ -119,7 +120,7 @@ describe("Check Block Dragging Functionality", () => {
       await focusOnEditor();
       await executeSlashCommand("image");
       await userEvent.keyboard("{Escape}");
-      await userEvent.click(await waitForSelector(".bn-trailing-block"));
+      await userEvent.click(await waitForSelector(DOC_TRAILING_BLOCK_SELECTOR));
       await insertHeading(1);
 
       await dragAndDropBlock(IMAGE_SELECTOR, H_ONE_BLOCK_SELECTOR, false);

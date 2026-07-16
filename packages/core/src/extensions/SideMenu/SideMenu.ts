@@ -765,6 +765,14 @@ export const SideMenuExtension = createExtension(({ editor }) => {
     },
 
     /**
+     * Whether the side menu is currently frozen (e.g. because the drag handle
+     * menu is open).
+     */
+    get menuFrozen() {
+      return view!.menuFrozen;
+    },
+
+    /**
      * Freezes the side menu. When frozen, the side menu will stay
      * attached to the same block regardless of which block is hovered by the
      * mouse cursor.

@@ -1,5 +1,6 @@
+import { Block, BlockNoteEditor } from "@blocknote/core";
 import { SideMenuExtension } from "@blocknote/core/extensions";
-import { autoUpdate, ReferenceElement } from "@floating-ui/react";
+import { autoUpdate, offset, ReferenceElement } from "@floating-ui/react";
 import { FC, useCallback, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -8,6 +9,52 @@ import { BlockPopover } from "../Popovers/BlockPopover.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { SideMenu } from "./SideMenu.js";
 import { SideMenuProps } from "./SideMenuProps.js";
+
+// Returns the vertical offset of the side menu for the given block. Blocks
+// whose first line is taller than the side menu need the menu shifted down to
+// stay vertically centered on that line. This is done with a position offset
+// instead of stretching the menu element to the first line's height, as the
+// taller (invisible) element would block mouse interactions with content
+// rendered next to the block, e.g. the column resize borders. The values are
+// ported from the per-block-type CSS height rules that used to stretch the
+// menu: (first line height - 30px menu height) / 2.
+function getBlockOffset(
+  editor: BlockNoteEditor<any, any, any>,
+  block: Block<any, any, any>,
+): number {
+  if (block.type === "heading") {
+    switch (block.props.level) {
+      case 1:
+        return 39;
+      case 2:
+        return 27;
+      case 3:
+        return 18.5;
+      default:
+        return 0;
+    }
+  }
+
+  // File blocks without a URL all render the same "Add file" button,
+  // regardless of their type.
+  if (
+    editor.schema.blockSpecs[block.type]?.implementation.meta
+      ?.fileBlockAccept &&
+    !block.props.url
+  ) {
+    return 12;
+  }
+
+  if (block.type === "file") {
+    return 4;
+  }
+
+  if (block.type === "audio" || block.type === "table") {
+    return 15;
+  }
+
+  return 0;
+}
 
 export const SideMenuController = (props: {
   sideMenu?: FC<SideMenuProps>;
@@ -71,6 +118,13 @@ export const SideMenuController = (props: {
       useFloatingOptions: {
         open: show,
         placement: "left-start",
+        // Vertically centers the menu on the block's first line. On the
+        // "left-start" placement, the cross axis is the vertical one.
+        middleware: [
+          offset({
+            crossAxis: block ? getBlockOffset(editor, block) : 0,
+          }),
+        ],
         whileElementsMounted,
         ...props.floatingUIOptions?.useFloatingOptions,
       },
@@ -89,7 +143,7 @@ export const SideMenuController = (props: {
         ...props.floatingUIOptions?.elementProps,
       },
     }),
-    [props.floatingUIOptions, show, whileElementsMounted],
+    [props.floatingUIOptions, show, block, editor, whileElementsMounted],
   );
 
   const Component = props.sideMenu || SideMenu;
