@@ -371,6 +371,9 @@ export function nodeToCustomInlineContent<
       inlineContentSchema,
       styleSchema,
     ) as any; // TODO: is this safe? could we have Links here that are undesired?
+  } else if (icConfig.content === "plain") {
+    // Plain inline content is a single unstyled string.
+    content = node.textContent as any;
   } else {
     content = undefined;
   }

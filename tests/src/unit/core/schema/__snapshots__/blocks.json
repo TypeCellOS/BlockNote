@@ -128,12 +128,12 @@
     },
     "extensions": [
       [Function],
-      [Function],
     ],
     "implementation": {
       "meta": {
         "code": true,
         "defining": true,
+        "highlight": [Function],
         "isolating": false,
       },
       "node": null,
