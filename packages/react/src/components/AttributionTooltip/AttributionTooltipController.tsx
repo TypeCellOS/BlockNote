@@ -7,7 +7,6 @@ import { flip, offset, shift, inline } from "@floating-ui/react";
 import { FC, useMemo } from "react";
 
 import { useExtensionState } from "../../hooks/useExtension.js";
-import { useDictionary } from "../../i18n/dictionary.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -15,25 +14,22 @@ import {
 } from "../Popovers/GenericPopover.js";
 import { AttributionTooltip } from "./AttributionTooltip.js";
 import { AttributionTooltipProps } from "./AttributionTooltipProps.js";
-import {
-  defaultFormatChangeLabel,
-  FormatChangeLabel,
-} from "./formatChangeLabel.js";
+import { FormatChangeLabel } from "./formatChangeLabel.js";
 
 /**
  * Renders the attribution tooltip for suggestion marks. The core
  * `AttributionExtension` owns the mark logic (which mark is hovered, nested-mark
  * resolution, username resolution, optional styling class) and emits the raw
- * change context; this controller subscribes to its store, turns the raw
- * `format` keys into the tooltip text via the configurable `formatChangeLabel`,
- * and positions the tooltip with floating-ui.
+ * change context; this controller subscribes to its store and positions the
+ * tooltip with floating-ui. Composing the change context into localized text is
+ * left to the tooltip component itself.
  */
 export const AttributionTooltipController = (props: {
   attributionTooltip?: FC<AttributionTooltipProps>;
   /**
    * Turns a modification mark's changed formats into its tooltip label (e.g.
-   * `"Bold, Italic"`). Defaults to {@link defaultFormatChangeLabel}, which
-   * localizes each format via the formatting toolbar strings.
+   * `"Bold, Italic"`). Forwarded to the tooltip component, which falls back to
+   * localizing each format via the formatting toolbar strings.
    */
   formatChangeLabel?: FormatChangeLabel;
   floatingUIOptions?: FloatingUIOptions;
@@ -43,7 +39,6 @@ export const AttributionTooltipController = (props: {
    */
   portalElement?: HTMLElement | null;
 }) => {
-  const dictionary = useDictionary();
   const state = useExtensionState(AttributionExtension, {
     selector: (state) => state,
   });
@@ -93,39 +88,23 @@ export const AttributionTooltipController = (props: {
 
   const Component = props.attributionTooltip || AttributionTooltip;
 
-  // Compose the fully-localized tooltip text from the raw change context — e.g.
-  // `"Inserted by: Alice"`, `"Deleted by: Alice"`, or
-  // `"Formatting change (Bold, Italic) by: Alice"`. The outer sentence comes from
-  // the `suggestion_changes` dictionary (translated per locale) and the inner
-  // format list from the configurable `formatChangeLabel`.
-  const tooltipProps = useMemo<AttributionTooltipProps | undefined>(() => {
-    if (!state) {
-      return undefined;
-    }
-    const changes = dictionary.suggestion_changes;
-    const formatChangeLabel =
-      props.formatChangeLabel ?? defaultFormatChangeLabel;
-    const users = state.users.join(", ");
-    const formatLabel = state.format
-      ? formatChangeLabel({ format: state.format, dictionary })
-      : undefined;
-    const text =
-      state.modificationType === "insert"
-        ? changes.inserted_by(users)
-        : state.modificationType === "delete"
-          ? changes.deleted_by(users)
-          : changes.formatting_change_by(formatLabel ?? "", users);
-    return {
-      text,
-      color: state.color,
-      className: state.className,
-      modificationType: state.modificationType,
-      contentType: state.contentType,
-      users: state.users,
-      format: state.format,
-      formatLabel,
-    };
-  }, [state, props.formatChangeLabel, dictionary]);
+  // The raw change context is handed to the component as-is; composing it into
+  // display text (and localizing it) is the component's job.
+  const tooltipProps = useMemo<AttributionTooltipProps | undefined>(
+    () =>
+      state
+        ? {
+            color: state.color,
+            className: state.className,
+            modificationType: state.modificationType,
+            contentType: state.contentType,
+            users: state.users,
+            format: state.format,
+            formatChangeLabel: props.formatChangeLabel,
+          }
+        : undefined,
+    [state, props.formatChangeLabel],
+  );
 
   return (
     <GenericPopover

@@ -1,5 +1,9 @@
+import { useMemo } from "react";
+
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useDictionary } from "../../i18n/dictionary.js";
 import { AttributionTooltipProps } from "./AttributionTooltipProps.js";
+import { defaultFormatChangeLabel } from "./formatChangeLabel.js";
 
 /**
  * The default attribution tooltip shown when hovering a suggestion mark. Renders
@@ -12,6 +16,37 @@ import { AttributionTooltipProps } from "./AttributionTooltipProps.js";
  */
 export const AttributionTooltip = (props: AttributionTooltipProps) => {
   const Components = useComponentsContext()!;
+  const dictionary = useDictionary();
+
+  // Compose the fully-localized text from the raw change context — e.g.
+  // `"Inserted by: Alice"`, `"Deleted by: Alice"`, or
+  // `"Formatting change (Bold, Italic) by: Alice"`. The outer sentence comes
+  // from the `suggestion_changes` dictionary (translated per locale) and the
+  // inner format list from the configurable `formatChangeLabel`.
+  const text = useMemo(() => {
+    const changes = dictionary.suggestion_changes;
+    const formatChangeLabel =
+      props.formatChangeLabel ?? defaultFormatChangeLabel;
+    const users = props.users.join(", ");
+
+    if (props.modificationType === "insert") {
+      return changes.inserted_by(users);
+    }
+    if (props.modificationType === "delete") {
+      return changes.deleted_by(users);
+    }
+
+    const formatLabel = props.format
+      ? formatChangeLabel({ format: props.format, dictionary })
+      : "";
+    return changes.formatting_change_by(formatLabel, users);
+  }, [
+    dictionary,
+    props.formatChangeLabel,
+    props.users,
+    props.modificationType,
+    props.format,
+  ]);
 
   return (
     <Components.AttributionTooltip.Root
@@ -19,7 +54,7 @@ export const AttributionTooltip = (props: AttributionTooltipProps) => {
       markClassName={props.className}
       backgroundColor={props.className ? undefined : props.color}
     >
-      {props.text}
+      {text}
     </Components.AttributionTooltip.Root>
   );
 };

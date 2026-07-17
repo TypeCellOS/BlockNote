@@ -1,16 +1,15 @@
+import { FormatChangeLabel } from "./formatChangeLabel.js";
+
 /**
  * Props for the suggestion-marks attribution tooltip component. Mirrors the
  * `AttributionTooltipState` emitted by the core `AttributionExtension`
  * (minus the anchor element, which the controller uses for positioning).
+ *
+ * This is the raw change context: the component composes its own display text
+ * from it, so a custom tooltip can categorize or phrase changes differently
+ * rather than parsing a pre-built string.
  */
 export type AttributionTooltipProps = {
-  /**
-   * Resolved display text (the localized format label, for modification marks,
-   * followed by the usernames). Composed by the controller from `users` and the
-   * configurable `formatChangeLabel`; a custom tooltip can render this directly
-   * or rebuild its own from `users` / `formatLabel`.
-   */
-  text: string;
   /** Per-user author color; ignored by the default component when `className` is set. */
   color: string;
   /** App-supplied class from `getAttributionMarkClassName`, when configured. */
@@ -27,8 +26,9 @@ export type AttributionTooltipProps = {
    */
   format?: string[];
   /**
-   * Localized formatting-change label (via `formatChangeLabel`), present only
-   * for `format` marks.
+   * Turns a modification mark's changed formats into its label (e.g.
+   * `"Bold, Italic"`). Defaults to {@link defaultFormatChangeLabel} when the
+   * controller isn't given one.
    */
-  formatLabel?: string;
+  formatChangeLabel?: FormatChangeLabel;
 };
