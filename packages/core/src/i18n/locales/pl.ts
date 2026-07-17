@@ -376,6 +376,7 @@ export const pl: Dictionary = {
     save_button_text: "Zapisz",
     cancel_button_text: "Anuluj",
     deleted_reference_text: "Oryginalna treść usunięta",
+    discard_pending_comment: "Czy na pewno chcesz odrzucić ten komentarz?",
     actions: {
       add_reaction: "Dodaj reakcję",
       resolve: "Rozwiąż",

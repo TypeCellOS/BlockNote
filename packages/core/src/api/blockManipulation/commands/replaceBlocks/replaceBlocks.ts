@@ -21,6 +21,9 @@ export function removeAndInsertBlocks<
   tr: Transaction,
   blocksToRemove: BlockIdentifier[],
   blocksToInsert: PartialBlock<BSchema, I, S>[],
+  options: {
+    fixColumns?: boolean;
+  } = {},
 ): {
   insertedBlocks: Block<BSchema, I, S>[];
   removedBlocks: Block<BSchema, I, S>[];
@@ -116,7 +119,12 @@ export function removeAndInsertBlocks<
     );
   }
 
-  columnListPositions.forEach((pos) => fixColumnList(tr, pos));
+  // Collapses empty columns/columnLists. Callers where the removal isn't a
+  // deletion can opt out - e.g. `moveBlocks` re-inserts the blocks elsewhere
+  // and deliberately leaves emptied columns as-is.
+  if (options.fixColumns !== false) {
+    columnListPositions.forEach((pos) => fixColumnList(tr, pos));
+  }
 
   // Converts the nodes created from `blocksToInsert` into full `Block`s.
   const insertedBlocks = nodesToInsert.map((node) =>

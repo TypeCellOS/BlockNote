@@ -1,11 +1,17 @@
 import { Editor, Node } from "@tiptap/core";
-import { DOMParser, Fragment, TagParseRule } from "@tiptap/pm/model";
+import {
+  DOMParser,
+  Fragment,
+  Node as PMNode,
+  TagParseRule,
+} from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
 import {
   Extension,
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
+import { nonFormattingMarks } from "../markGroups.js";
 import { PropSchema } from "../propTypes.js";
 import {
   getBlockFromPos,
@@ -44,7 +50,7 @@ export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
 export function getParseRules<
   TName extends string,
   TProps extends PropSchema,
-  TContent extends "inline" | "none" | "table",
+  TContent extends "inline" | "none" | "table" | "plain",
 >(
   config: BlockConfig<TName, TProps, TContent>,
   implementation: BlockImplementation<TName, TProps, TContent>,
@@ -75,7 +81,9 @@ export function getParseRules<
       // Because we do the parsing ourselves, we want to preserve whitespace for content we've parsed
       preserveWhitespace: true,
       getContent:
-        config.content === "inline" || config.content === "none"
+        config.content === "inline" ||
+        config.content === "none" ||
+        config.content === "plain"
           ? (node, schema) => {
               if (implementation.parseContent) {
                 const result = implementation.parseContent({
@@ -89,7 +97,7 @@ export function getParseRules<
                 }
               }
 
-              if (config.content === "inline") {
+              if (config.content === "inline" || config.content === "plain") {
                 // Parse the inline content if it exists
                 const element = node as HTMLElement;
 
@@ -99,7 +107,9 @@ export function getParseRules<
                 // Merge multiple paragraphs into one with line breaks
                 mergeParagraphs(
                   clone,
-                  implementation.meta?.code ? "\n" : "<br>",
+                  config.content === "plain" || implementation.meta?.code
+                    ? "\n"
+                    : "<br>",
                 );
 
                 // Parse the content directly as a paragraph to extract inline content
@@ -109,6 +119,27 @@ export function getParseRules<
                   preserveWhitespace: true,
                 });
 
+                if (config.content === "plain") {
+                  // Plain blocks hold text only, so non-text inline nodes are
+                  // flattened: line breaks become newline characters and other
+                  // nodes (e.g. mentions) are kept as their text.
+                  const textNodes: PMNode[] = [];
+                  parsed.content.forEach((child) => {
+                    if (child.isText) {
+                      textNodes.push(child);
+                    } else {
+                      const text =
+                        child.type === schema.linebreakReplacement
+                          ? "\n"
+                          : child.textContent;
+                      if (text) {
+                        textNodes.push(schema.text(text, child.marks));
+                      }
+                    }
+                  });
+
+                  return Fragment.fromArray(textNodes);
+                }
                 return parsed.content;
               }
               return Fragment.empty;
@@ -140,7 +171,7 @@ export function getParseRules<
 export function addNodeAndExtensionsToSpec<
   TName extends string,
   TProps extends PropSchema,
-  TContent extends "inline" | "none" | "table",
+  TContent extends "inline" | "none" | "table" | "plain",
 >(
   blockConfig: BlockConfig<TName, TProps, TContent>,
   blockImplementation: BlockImplementation<TName, TProps, TContent>,
@@ -153,9 +184,26 @@ export function addNodeAndExtensionsToSpec<
       name: blockConfig.type,
       content: (blockConfig.content === "inline"
         ? "inline*"
-        : blockConfig.content === "none"
-          ? ""
-          : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
+        : blockConfig.content === "plain"
+          ? "text*"
+          : blockConfig.content === "none"
+            ? ""
+            : blockConfig.content) as TContent extends "inline"
+        ? "inline*"
+        : TContent extends "plain"
+          ? "text*"
+          : "",
+      // "plain" blocks hold unstyled text, so they disallow formatting marks.
+      // They still allow the non-formatting marks (comments and
+      // suggestions/diffs) — those annotate content without changing it and are
+      // ignored by the block model. `nonFormattingMarks` resolves the group only
+      // when at least one such mark is registered, so a plain block in an editor
+      // without any of them doesn't reference an empty (unknown) mark group.
+      marks() {
+        return blockConfig.content === "plain"
+          ? nonFormattingMarks(this.editor)
+          : undefined;
+      },
       group: "blockContent",
       selectable: blockImplementation.meta?.selectable ?? true,
       isolating: blockImplementation.meta?.isolating ?? true,
@@ -180,7 +228,11 @@ export function addNodeAndExtensionsToSpec<
         return wrapInBlockStructure(
           {
             dom: div,
-            contentDOM: blockConfig.content === "inline" ? div : undefined,
+            contentDOM:
+              blockConfig.content === "inline" ||
+              blockConfig.content === "plain"
+                ? div
+                : undefined,
           },
           blockConfig.type,
           {},
@@ -201,7 +253,12 @@ export function addNodeAndExtensionsToSpec<
             this.options.domAttributes?.blockContent || {};
 
           const nodeView = blockImplementation.render.call(
-            { blockContentDOMAttributes, props, renderType: "nodeView" },
+            {
+              blockContentDOMAttributes,
+              props,
+              renderType: "nodeView",
+              propSchema: blockConfig.propSchema,
+            },
             block as any,
             editor as any,
           );
@@ -243,6 +300,7 @@ export function addNodeAndExtensionsToSpec<
             blockContentDOMAttributes,
             props: undefined,
             renderType: "dom",
+            propSchema: blockConfig.propSchema,
           },
           block as any,
           editor as any,
@@ -256,13 +314,18 @@ export function addNodeAndExtensionsToSpec<
 
         return (
           blockImplementation.toExternalHTML?.call(
-            { blockContentDOMAttributes },
+            { blockContentDOMAttributes, propSchema: blockConfig.propSchema },
             block as any,
             editor as any,
             context,
           ) ??
           blockImplementation.render.call(
-            { blockContentDOMAttributes, renderType: "dom", props: undefined },
+            {
+              blockContentDOMAttributes,
+              renderType: "dom",
+              props: undefined,
+              propSchema: blockConfig.propSchema,
+            },
             block as any,
             editor as any,
           )
@@ -299,7 +362,7 @@ export function createBlockConfig<
 export function createBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const TOptions extends Partial<Record<string, any>> | undefined = undefined,
 >(
   blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
@@ -318,7 +381,7 @@ export function createBlockSpec<
 export function createBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const BlockConf extends BlockConfig<TName, TProps, TContent>,
   const TOptions extends Partial<Record<string, any>>,
 >(
@@ -344,7 +407,7 @@ export function createBlockSpec<
 export function createBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const TOptions extends Partial<Record<string, any>> | undefined = undefined,
 >(
   blockConfigOrCreator: BlockConfigOrCreator<TName, TProps, TContent, TOptions>,
@@ -399,7 +462,7 @@ export function createBlockSpec<
             output,
             block.type,
             block.props,
-            blockConfig.propSchema,
+            this.propSchema ?? blockConfig.propSchema,
             blockImplementation.meta?.fileBlockAccept !== undefined,
           );
         },
@@ -418,7 +481,7 @@ export function createBlockSpec<
             output,
             block.type,
             block.props,
-            blockConfig.propSchema,
+            this.propSchema ?? blockConfig.propSchema,
             blockImplementation.meta?.fileBlockAccept !== undefined,
             this.blockContentDOMAttributes,
           ) satisfies NodeView;

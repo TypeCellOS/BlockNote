@@ -139,8 +139,7 @@ export function wrapInBlockStructure<
   // element (inheritedProps) and props set to their default values.
   for (const [prop, value] of Object.entries(blockProps)) {
     const spec = propSchema[prop];
-    const defaultValue = spec.default;
-    if (value !== defaultValue) {
+    if (value !== spec?.default) {
       blockContent.setAttribute(camelToDataKebab(prop), value);
     }
   }
@@ -168,7 +167,7 @@ export function createBlockSpecFromTiptapNode<
   const T extends {
     node: Node;
     type: string;
-    content: "inline" | "table" | "none";
+    content: "inline" | "table" | "none" | "plain";
   },
   P extends PropSchema,
 >(

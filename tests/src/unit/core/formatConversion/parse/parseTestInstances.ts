@@ -825,6 +825,22 @@ console.log("Third Line")</code></pre>`,
   },
   {
     testCase: {
+      // Code copied from the web often nests HTML tags inside <code>:
+      // syntax-highlighting <span>s (e.g. GitHub), formatting tags, and <br>
+      // line breaks (<pre> allows phrasing content — it is not a raw-text
+      // element). The text should be extracted with formatting dropped and
+      // <br> converted to a newline. Literal angle brackets in code must be
+      // escaped in the source HTML and parse to their decoded text.
+      name: "codeBlocksNestedHTML",
+      content: `<pre><code class="language-javascript"><span class="pl-k">const</span> <span class="pl-s1">x</span> = <span class="pl-c1">1</span>;
+<span class="pl-en">log</span>(x);</code></pre>
+<pre><code>line <b>one</b><br>line two</code></pre>
+<pre><code class="language-html">&lt;div class="a"&gt;escaped&lt;/div&gt;</code></pre>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
       name: "basicBlockquote",
       content: `<blockquote>This is a blockquote</blockquote>
 <p>This is not a blockquote</p>`,

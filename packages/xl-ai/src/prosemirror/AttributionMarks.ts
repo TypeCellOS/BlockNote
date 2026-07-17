@@ -1,4 +1,8 @@
-import { BLOCK_LEVEL_SUGGESTION_GROUP, createExtension } from "@blocknote/core";
+import {
+  BLOCK_LEVEL_SUGGESTION_GROUP,
+  NON_FORMATTING_MARK_GROUP,
+  createExtension,
+} from "@blocknote/core";
 import { Mark } from "@tiptap/core";
 import { MarkSpec } from "prosemirror-model";
 
@@ -11,9 +15,12 @@ export const SuggestionAddMark = Mark.create({
   name: "insertion",
   inclusive: false,
   excludes: "deletion modification insertion",
-  // Allow this mark on block nodes (see core's `suggestionMarks`), so a whole
-  // block (e.g. a table row) can be marked as inserted in suggestion mode.
-  group: BLOCK_LEVEL_SUGGESTION_GROUP,
+  // Two groups: `BLOCK_LEVEL_SUGGESTION_GROUP` lets the mark sit on block nodes
+  // (see core's `suggestionMarks`), so a whole block (e.g. a table row) can be
+  // marked as inserted in suggestion mode; `NON_FORMATTING_MARK_GROUP` lets it
+  // annotate text inside `"plain"` blocks (e.g. code blocks) — see core's
+  // `nonFormattingMarks`.
+  group: `${BLOCK_LEVEL_SUGGESTION_GROUP} ${NON_FORMATTING_MARK_GROUP}`,
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap, so this doesn't actually work (considered not critical)
@@ -59,7 +66,7 @@ export const SuggestionDeleteMark = Mark.create({
   name: "deletion",
   inclusive: false,
   excludes: "insertion modification deletion",
-  group: BLOCK_LEVEL_SUGGESTION_GROUP,
+  group: `${BLOCK_LEVEL_SUGGESTION_GROUP} ${NON_FORMATTING_MARK_GROUP}`,
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap
@@ -108,7 +115,7 @@ export const SuggestionModificationMark = Mark.create({
   name: "modification",
   inclusive: false,
   excludes: "deletion insertion",
-  group: BLOCK_LEVEL_SUGGESTION_GROUP,
+  group: `${BLOCK_LEVEL_SUGGESTION_GROUP} ${NON_FORMATTING_MARK_GROUP}`,
   addAttributes() {
     // note: validate is supported in prosemirror but not in tiptap
     return {

@@ -407,6 +407,7 @@ export const it: Dictionary = {
     save_button_text: "Salva",
     cancel_button_text: "Annulla",
     deleted_reference_text: "Contenuto originale eliminato",
+    discard_pending_comment: "Vuoi davvero eliminare questo commento?",
     actions: {
       add_reaction: "Aggiungi reazione",
       resolve: "Risolvi",

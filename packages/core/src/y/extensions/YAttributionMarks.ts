@@ -6,6 +6,7 @@ import {
 } from "../../editor/BlockNoteExtension.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { BLOCK_LEVEL_SUGGESTION_GROUP } from "../../pm-nodes/suggestionMarks.js";
+import { NON_FORMATTING_MARK_GROUP } from "../../schema/markGroups.js";
 import {
   fallbackColorForUserId,
   userColorPalette,
@@ -208,9 +209,11 @@ export const YAttributedInsertion = Mark.create<{
   name: "y-attributed-insert",
   inclusive: false,
   excludes: "",
-  // Allow this mark on block nodes (see `suggestionMarks`), so a whole block can
-  // be marked as inserted in suggestion mode.
-  group: BLOCK_LEVEL_SUGGESTION_GROUP,
+  // Two groups: `BLOCK_LEVEL_SUGGESTION_GROUP` lets the mark sit on block nodes
+  // (see `suggestionMarks`), so a whole block can be marked as inserted in
+  // suggestion mode; `NON_FORMATTING_MARK_GROUP` lets it annotate text inside
+  // `"plain"` blocks (e.g. code blocks) — see `nonFormattingMarks`.
+  group: `${BLOCK_LEVEL_SUGGESTION_GROUP} ${NON_FORMATTING_MARK_GROUP}`,
   addAttributes() {
     return {
       userIds: { default: null },
@@ -238,7 +241,7 @@ export const YAttributedDeletion = Mark.create<{
   name: "y-attributed-delete",
   inclusive: false,
   excludes: "",
-  group: BLOCK_LEVEL_SUGGESTION_GROUP,
+  group: `${BLOCK_LEVEL_SUGGESTION_GROUP} ${NON_FORMATTING_MARK_GROUP}`,
   addAttributes() {
     return {
       userIds: { default: null },
@@ -266,7 +269,7 @@ export const YAttributedFormat = Mark.create<{
   name: "y-attributed-format",
   inclusive: false,
   excludes: "",
-  group: BLOCK_LEVEL_SUGGESTION_GROUP,
+  group: `${BLOCK_LEVEL_SUGGESTION_GROUP} ${NON_FORMATTING_MARK_GROUP}`,
   addAttributes() {
     return {
       userIds: { default: null },

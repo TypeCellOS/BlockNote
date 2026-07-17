@@ -17,8 +17,11 @@ export function getNodeById(
       return false;
     }
 
-    // Keeps traversing nodes if block with target ID has not been found.
-    if (!isNodeBlock(node) || getNodeId(node, doc) !== id) {
+    // Keeps traversing nodes if block with target ID has not been found. Some
+    // bnBlock nodes we merely pass over (e.g. `column`/`columnList`) may not
+    // carry an id — skip them without calling the throwing `getNodeId`, which
+    // errors on id-less nodes. Only nodes that actually have an id are compared.
+    if (!isNodeBlock(node) || !node.attrs.id || getNodeId(node, doc) !== id) {
       return true;
     }
 

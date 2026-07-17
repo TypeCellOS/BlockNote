@@ -59,7 +59,12 @@ function getUpdatedThreadPositions(doc: Node, markType: string) {
 export const CommentsExtension = createExtension(
   ({
     editor,
-    options: { schema: commentEditorSchema, threadStore, resolveUsers },
+    options: {
+      schema: commentEditorSchema,
+      threadStore,
+      resolveUsers,
+      confirmBeforeDiscard = true,
+    },
   }: ExtensionOptions<{
     /**
      * The thread store implementation to use for storing and retrieving comment threads
@@ -80,6 +85,14 @@ export const CommentsExtension = createExtension(
      * A schema to use for the comment editor (which allows you to customize the blocks and styles that are available in the comment editor)
      */
     schema?: CustomBlockNoteSchema<any, any, any>;
+    /**
+     * Whether to ask the user for confirmation before discarding unsaved text
+     * in a comment composer (a new comment, a reply, or an in-progress edit)
+     * when it's dismissed (e.g. by clicking outside or pressing Escape).
+     *
+     * @default true
+     */
+    confirmBeforeDiscard?: boolean;
   }>) => {
     if (!resolveUsers) {
       throw new Error(
@@ -371,6 +384,7 @@ export const CommentsExtension = createExtension(
         }
       },
       commentEditorSchema,
+      confirmBeforeDiscard,
     } as const;
   },
 );

@@ -385,6 +385,7 @@ export const en = {
     save_button_text: "Save",
     cancel_button_text: "Cancel",
     deleted_reference_text: "Original content deleted",
+    discard_pending_comment: "Are you sure you want to discard this comment?",
     actions: {
       add_reaction: "Add reaction",
       resolve: "Resolve",

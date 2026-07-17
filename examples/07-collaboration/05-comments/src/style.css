@@ -1,4 +1,4 @@
-.comments-main-container {
+.comments-main-container.bn-container {
   align-items: center;
   background-color: var(--bn-colors-disabled-background);
   display: flex;

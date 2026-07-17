@@ -12,6 +12,7 @@ import type {
   InlineContent,
   InlineContentSchema,
   PartialInlineContent,
+  StyledText,
 } from "../inlineContent/types.js";
 import type { PropSchema, Props } from "../propTypes.js";
 import type { StyleSchema } from "../styles/types.js";
@@ -67,7 +68,11 @@ export interface BlockConfigMeta {
 export interface BlockConfig<
   T extends string = string,
   PS extends PropSchema = PropSchema,
-  C extends "inline" | "none" | "table" = "inline" | "none" | "table",
+  C extends "inline" | "none" | "table" | "plain" =
+    | "inline"
+    | "none"
+    | "table"
+    | "plain",
 > {
   /**
    * The type of the block (unique identifier within a schema)
@@ -93,7 +98,7 @@ export interface BlockConfig<
 export type BlockConfigOrCreator<
   TName extends string = string,
   TProps extends PropSchema = PropSchema,
-  TContent extends "inline" | "none" = "inline" | "none",
+  TContent extends "inline" | "none" | "plain" = "inline" | "none" | "plain",
   TOptions extends Record<string, any> | undefined =
     | Record<string, any>
     | undefined,
@@ -108,8 +113,10 @@ export type BlockConfigOrCreator<
  */
 export type ExtractBlockConfigFromConfigOrCreator<
   ConfigOrCreator extends
-    | BlockConfig<string, PropSchema, "inline" | "none">
-    | ((...args: any[]) => BlockConfig<string, PropSchema, "inline" | "none">),
+    | BlockConfig<string, PropSchema, "inline" | "none" | "plain">
+    | ((
+        ...args: any[]
+      ) => BlockConfig<string, PropSchema, "inline" | "none" | "plain">),
 > = ConfigOrCreator extends (...args: any[]) => infer Config
   ? Config
   : ConfigOrCreator;
@@ -118,14 +125,18 @@ export type ExtractBlockConfigFromConfigOrCreator<
 export type CustomBlockConfig<
   T extends string = string,
   PS extends PropSchema = PropSchema,
-  C extends "inline" | "none" = "inline" | "none",
+  C extends "inline" | "none" | "plain" = "inline" | "none" | "plain",
 > = BlockConfig<T, PS, C>;
 
 // A Spec contains both the Config and Implementation
 export type BlockSpec<
   T extends string = string,
   PS extends PropSchema = PropSchema,
-  C extends "inline" | "none" | "table" = "inline" | "none" | "table",
+  C extends "inline" | "none" | "table" | "plain" =
+    | "inline"
+    | "none"
+    | "table"
+    | "plain",
 > = {
   config: BlockConfig<T, PS, C>;
   implementation: BlockImplementation<T, PS, C>;
@@ -139,7 +150,11 @@ export type BlockSpec<
 export type BlockSpecOrCreator<
   T extends string = string,
   PS extends PropSchema = PropSchema,
-  C extends "inline" | "none" | "table" = "inline" | "none" | "table",
+  C extends "inline" | "none" | "table" | "plain" =
+    | "inline"
+    | "none"
+    | "table"
+    | "plain",
   TOptions extends Record<string, any> | undefined =
     | Record<string, any>
     | undefined,
@@ -154,8 +169,10 @@ export type BlockSpecOrCreator<
  */
 export type ExtractBlockSpecFromSpecOrCreator<
   SpecOrCreator extends
-    | BlockSpec<string, PropSchema, "inline" | "none">
-    | ((...args: any[]) => BlockSpec<string, PropSchema, "inline" | "none">),
+    | BlockSpec<string, PropSchema, "inline" | "none" | "plain">
+    | ((
+        ...args: any[]
+      ) => BlockSpec<string, PropSchema, "inline" | "none" | "plain">),
 > = SpecOrCreator extends (...args: any[]) => infer Spec ? Spec : SpecOrCreator;
 
 /**
@@ -167,7 +184,11 @@ export type ExtractBlockSpecFromSpecOrCreator<
 export type LooseBlockSpec<
   T extends string = string,
   PS extends PropSchema = PropSchema,
-  C extends "inline" | "none" | "table" = "inline" | "none" | "table",
+  C extends "inline" | "none" | "table" | "plain" =
+    | "inline"
+    | "none"
+    | "table"
+    | "plain",
 > = {
   config: BlockConfig<T, PS, C>;
   implementation: Omit<
@@ -321,6 +342,18 @@ export type TableContent<
   }[];
 };
 
+// The content of a block with "plain" content (e.g. a code block): unstyled
+// text, represented as StyledText items whose `styles` is always empty.
+export type PlainContent = (StyledText<{}> & {
+  styles: Record<string, never>;
+})[];
+
+// Partial form of PlainContent: also accepts bare strings (both as the whole
+// content and as array items), which are normalized on write.
+export type PartialPlainContent =
+  | string
+  | (string | (StyledText<{}> & { styles: Record<string, never> }))[];
+
 // A BlockConfig has all the information to get the type of a Block (which is a specific instance of the BlockConfig.
 // i.e.: paragraphConfig: BlockConfig defines what a "paragraph" is / supports, and BlockFromConfigNoChildren<paragraphConfig> is the shape of a specific paragraph block.
 // (for internal use)
@@ -336,9 +369,11 @@ export type BlockFromConfigNoChildren<
     ? InlineContent<I, S>[]
     : B["content"] extends "table"
       ? TableContent<I, S>
-      : B["content"] extends "none"
-        ? undefined
-        : never;
+      : B["content"] extends "plain"
+        ? PlainContent
+        : B["content"] extends "none"
+          ? undefined
+          : never;
 };
 
 export type BlockFromConfig<
@@ -420,9 +455,11 @@ type PartialBlockFromConfigNoChildren<
     ? PartialInlineContent<I, S>
     : B["content"] extends "table"
       ? PartialTableContent<I, S>
-      : B["content"] extends "none"
-        ? undefined
-        : never;
+      : B["content"] extends "plain"
+        ? PartialPlainContent
+        : B["content"] extends "none"
+          ? undefined
+          : never;
 };
 
 type PartialBlocksWithoutChildren<
@@ -472,7 +509,11 @@ export type BlockIdentifier = { id: string } | string;
 export type BlockImplementation<
   TName extends string = string,
   TProps extends PropSchema = PropSchema,
-  TContent extends "inline" | "none" | "table" = "inline" | "none" | "table",
+  TContent extends "inline" | "none" | "table" | "plain" =
+    | "inline"
+    | "none"
+    | "table"
+    | "plain",
 > = {
   /**
    * Metadata
@@ -486,6 +527,7 @@ export type BlockImplementation<
       | Record<string, never>
       | ({
           blockContentDOMAttributes: Record<string, string>;
+          propSchema?: TProps;
         } & (
           | {
               renderType: "nodeView";
@@ -520,6 +562,7 @@ export type BlockImplementation<
   toExternalHTML?: (
     this: Partial<{
       blockContentDOMAttributes: Record<string, string>;
+      propSchema: TProps;
     }>,
     block: BlockFromConfig<BlockConfig<TName, TProps, TContent>, any, any>,
     editor: BlockNoteEditor<
@@ -589,10 +632,14 @@ export type BlockImplementationOrCreator<
  */
 export type ExtractBlockImplementationFromImplementationOrCreator<
   ImplementationOrCreator extends
-    | BlockImplementation<string, PropSchema, "inline" | "none">
+    | BlockImplementation<string, PropSchema, "inline" | "none" | "plain">
     | ((
         ...args: any[]
-      ) => BlockImplementation<string, PropSchema, "inline" | "none">),
+      ) => BlockImplementation<
+        string,
+        PropSchema,
+        "inline" | "none" | "plain"
+      >),
 > = ImplementationOrCreator extends (...args: any[]) => infer Implementation
   ? Implementation
   : ImplementationOrCreator;
@@ -601,5 +648,5 @@ export type ExtractBlockImplementationFromImplementationOrCreator<
 export type CustomBlockImplementation<
   T extends string = string,
   PS extends PropSchema = PropSchema,
-  C extends "inline" | "none" = "inline" | "none",
+  C extends "inline" | "none" | "plain" = "inline" | "none" | "plain",
 > = BlockImplementation<T, PS, C>;

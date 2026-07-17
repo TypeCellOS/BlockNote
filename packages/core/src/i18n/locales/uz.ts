@@ -418,6 +418,7 @@ export const uz: Dictionary = {
     save_button_text: "Saqlash",
     cancel_button_text: "Bekor qilish",
     deleted_reference_text: "Asl tarkib o‘chirildi",
+    discard_pending_comment: "Haqiqatan ham bu izohni bekor qilmoqchimisiz?",
     actions: {
       add_reaction: "Reaksiya qo‘shish",
       resolve: "Hal qilish",

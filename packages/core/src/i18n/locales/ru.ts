@@ -428,6 +428,8 @@ export const ru: Dictionary = {
     save_button_text: "Сохранить",
     cancel_button_text: "Отменить",
     deleted_reference_text: "Исходный контент удалён",
+    discard_pending_comment:
+      "Вы уверены, что хотите отменить этот комментарий?",
     actions: {
       add_reaction: "Добавить реакцию",
       resolve: "Решить",
