@@ -27,8 +27,9 @@ export type SyntaxHighlightingOptions = {
  * A spec is a candidate when it has a `meta.highlight` callback (which decides
  * the language) AND the node actually holds editable text. Block and
  * inline-content specs use different `content` value spaces, so "editable text"
- * means `content === "inline"` for blocks and `content === "styled"` for inline
- * content - hence the two are filtered separately.
+ * means `content === "plain"` for both blocks (code/math blocks) and inline
+ * content (inline math) - both hold plain text - hence the two are filtered
+ * separately.
  *
  * Inline content (e.g. inline math) is highlighted too: `prosemirror-highlight`
  * collects nodes by `node.inlineContent` since v0.15.3
@@ -43,7 +44,7 @@ export function collectHighlightNodeTypes(schema: {
     .filter(
       (blockSpec): blockSpec is LooseBlockSpec =>
         typeof (blockSpec as LooseBlockSpec)?.config === "object" &&
-        (blockSpec as LooseBlockSpec).config.content === "inline" &&
+        (blockSpec as LooseBlockSpec).config.content === "plain" &&
         !!(blockSpec as LooseBlockSpec).implementation?.meta?.highlight,
     )
     .map((blockSpec) => blockSpec.config.type);
@@ -57,7 +58,7 @@ export function collectHighlightNodeTypes(schema: {
           inlineContentSpec as InlineContentSpec<CustomInlineContentConfig>
         )?.config === "object" &&
         (inlineContentSpec as InlineContentSpec<CustomInlineContentConfig>)
-          .config.content === "styled" &&
+          .config.content === "plain" &&
         !!(inlineContentSpec as InlineContentSpec<CustomInlineContentConfig>)
           .implementation?.meta?.highlight,
     )

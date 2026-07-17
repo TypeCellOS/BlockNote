@@ -16,7 +16,7 @@ describe("SyntaxHighlightingExtension", () => {
       schema: {
         blockSpecs: {
           paragraph: { config: { type: "paragraph", content: "inline" } },
-          codeBlock: { config: { type: "codeBlock", content: "inline" } },
+          codeBlock: { config: { type: "codeBlock", content: "plain" } },
           image: { config: { type: "image", content: "none" } },
         },
         inlineContentSpecs: {},
@@ -44,12 +44,12 @@ describe("SyntaxHighlightingExtension", () => {
 describe("collectHighlightNodeTypes", () => {
   const highlight = () => "latex";
 
-  it("includes blocks with `content: inline` and a `meta.highlight`", () => {
+  it("includes blocks with `content: plain` and a `meta.highlight`", () => {
     const types = collectHighlightNodeTypes({
       blockSpecs: {
-        // Highlightable: inline content + a highlight callback.
+        // Highlightable: plain content + a highlight callback.
         math: {
-          config: { type: "math", content: "inline" },
+          config: { type: "math", content: "plain" },
           implementation: { meta: { highlight } },
         },
         // Not highlightable: no highlight callback.
@@ -69,18 +69,18 @@ describe("collectHighlightNodeTypes", () => {
     expect(types).toEqual(["math"]);
   });
 
-  it("includes inline content with `content: styled` and a `meta.highlight`", () => {
+  it("includes inline content with `content: plain` and a `meta.highlight`", () => {
     const types = collectHighlightNodeTypes({
       blockSpecs: {},
       inlineContentSpecs: {
-        // Highlightable: styled (editable rich text) + a highlight callback.
+        // Highlightable: plain (editable plain text) + a highlight callback.
         inlineMath: {
-          config: { type: "inlineMath", content: "styled" },
+          config: { type: "inlineMath", content: "plain" },
           implementation: { meta: { highlight } },
         },
         // Not highlightable: no highlight callback.
         mention: {
-          config: { type: "mention", content: "styled" },
+          config: { type: "mention", content: "plain" },
           implementation: { meta: {} },
         },
         // Not highlightable: `content: none` holds no editable text.
@@ -101,13 +101,13 @@ describe("collectHighlightNodeTypes", () => {
     const types = collectHighlightNodeTypes({
       blockSpecs: {
         math: {
-          config: { type: "math", content: "inline" },
+          config: { type: "math", content: "plain" },
           implementation: { meta: { highlight } },
         },
       },
       inlineContentSpecs: {
         inlineMath: {
-          config: { type: "inlineMath", content: "styled" },
+          config: { type: "inlineMath", content: "plain" },
           implementation: { meta: { highlight } },
         },
       },
