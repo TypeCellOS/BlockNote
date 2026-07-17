@@ -129,20 +129,37 @@ describe("Math block source popup keyboard handling", () => {
       expect(editor.getTextCursorPosition().block.id).toBe("math");
     });
 
-    it("Enter commits without inserting a line break (single-line source)", async () => {
+    it("Enter commits without inserting a line break", async () => {
       pressKey("Enter");
       await flush();
       expect(isPopupOpen("math")).toBe(true);
 
-      // The math source is single-line (no `hardBreakShortcut: "enter"`), so
-      // unlike the diagram block, Enter closes the popup rather than extending
-      // the source with a newline.
+      // Math uses `hardBreakShortcut: "shift+enter"`, so unlike the diagram
+      // block, a plain Enter closes the popup rather than extending the source
+      // with a newline (that needs Shift+Enter - see the next test).
       pressKey("Enter");
       await flush();
 
       expect(isPopupOpen("math")).toBe(false);
       expect(editor.getBlock("math")!.content).toEqual([
         { type: "text", text: "a^2", styles: {} },
+      ]);
+    });
+
+    it("Shift-Enter inserts a line break, keeping the popup open", async () => {
+      pressKey("Enter");
+      await flush();
+      expect(isPopupOpen("math")).toBe(true);
+
+      // Shift+Enter extends the plain-text source with a literal newline
+      // (not a `hardBreak` node, which "plain" content can't hold) instead of
+      // committing, so multi-line LaTeX is possible.
+      pressKey("Enter", { shiftKey: true });
+      await flush();
+
+      expect(isPopupOpen("math")).toBe(true);
+      expect(editor.getBlock("math")!.content).toEqual([
+        { type: "text", text: "a^2\n", styles: {} },
       ]);
     });
 

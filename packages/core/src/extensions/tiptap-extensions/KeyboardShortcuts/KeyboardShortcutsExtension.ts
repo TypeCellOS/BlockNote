@@ -804,6 +804,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
 
+            const blockSpec =
+              this.options.editor.schema.blockSpecs[blockInfo.blockNoteType];
+
             // NOTE: This likely doesn't work as intended - `blockSchema[type]`
             // holds the block *config* (type/propSchema/content), which carries
             // no `meta`, so `meta?.hardBreakShortcut` is always `undefined` and
@@ -813,8 +816,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
             // syntax-highlighting extension reads `meta.highlight`. Left as-is
             // for a follow-up pass.
             const blockHardBreakShortcut =
-              this.options.editor.schema.blockSpecs[blockInfo.blockNoteType]
-                ?.implementation?.meta?.hardBreakShortcut ?? "shift+enter";
+              blockSpec?.implementation?.meta?.hardBreakShortcut ??
+              "shift+enter";
 
             if (blockHardBreakShortcut === "none") {
               return false;
@@ -828,6 +831,15 @@ export const KeyboardShortcutsExtension = Extension.create<{
               // both enter and shift+enter.
               blockHardBreakShortcut === "enter"
             ) {
+              // "plain" blocks (e.g. code/math/diagram source) hold text only
+              // (their content is `text*`), which can't contain a `hardBreak`
+              // node - inserting one would split the block into a new one.
+              // They represent line breaks as literal newline characters.
+              if (blockSpec?.config?.content === "plain") {
+                tr.insertText("\n", tr.selection.head);
+                return true;
+              }
+
               const marks =
                 tr.storedMarks ||
                 tr.selection.$head

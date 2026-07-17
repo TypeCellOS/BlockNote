@@ -69,6 +69,7 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
       store,
       keyboardShortcuts: {
         Enter: moveSelectionOut("after"),
+        "Shift-Enter": moveSelectionOut("after"),
         Escape: moveSelectionOut("after"),
         ArrowUp: moveSelectionOut("before"),
         ArrowDown: moveSelectionOut("after"),

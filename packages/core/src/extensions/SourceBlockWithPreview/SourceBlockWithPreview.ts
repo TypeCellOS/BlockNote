@@ -57,22 +57,13 @@ export const SourceBlockWithPreviewExtension = createExtension(
       key: "sourceBlockWithPreview",
       store,
       keyboardShortcuts: {
-        // Toggles the popup. For multi-line sources (e.g. diagrams), Enter
-        // inserts a line break while the popup is open instead of closing it.
+        // Toggles the popup. This may be overridden by `hardBreakShortcut`.
         Enter: ({ editor }) => {
           const { block } = editor.getTextCursorPosition();
           if (!blockHasPreview(block)) {
             return false;
           }
 
-          // While the popup is open on a multi-line source, insert a line break
-          // rather than closing. A preview block's source is multi-line when its
-          // spec configures Enter to insert a hard break
-          // (`meta.hardBreakShortcut === "enter"`), e.g. diagrams; single-line
-          // sources (e.g. math) leave it unset. Handled here (rather than
-          // falling through to the shared hard-break handler) because that
-          // handler currently reads `hardBreakShortcut` from the block config,
-          // which doesn't carry it - see the note in `KeyboardShortcutsExtension`.
           if (
             store.state.popupOpen === block.id &&
             editor.schema.blockSpecs[block.type]?.implementation?.meta

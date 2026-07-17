@@ -24,7 +24,6 @@ export const createReactInlineMathSpec = () =>
       meta: {
         code: true,
         highlight: () => "latex",
-        // Inline math always renders a preview with an editable source popup.
         hasPreview: true,
       },
       parse: parseInlineMathMLElement,

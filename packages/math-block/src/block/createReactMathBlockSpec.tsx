@@ -28,9 +28,8 @@ export const createReactMathBlockSpec = createReactBlockSpec(
       defining: true,
       isolating: false,
       highlight: () => "latex",
-      // Math blocks always render a preview (single-line source, so Enter
-      // commits/closes the popup - no `hardBreakShortcut` needed).
       hasPreview: true,
+      hardBreakShortcut: "shift+enter",
     },
     parse: parseBlockMathMLElement,
     parseContent: parseBlockMathMLContent,

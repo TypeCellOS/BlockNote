@@ -38,9 +38,6 @@ export const createReactDiagramBlockSpec = createReactBlockSpec(
       // https://github.com/shikijs/shiki/issues/973 - once that's resolved
       // upstream, highlighting should start working with no change here.
       highlight: () => "mermaid",
-      // Diagram blocks always render a preview. Diagram sources span multiple
-      // lines, so Enter inserts a line break instead of closing the popup
-      // (`hardBreakShortcut: "enter"`).
       hasPreview: true,
       hardBreakShortcut: "enter",
     },
