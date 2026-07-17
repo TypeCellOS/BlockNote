@@ -1,9 +1,13 @@
-import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
+import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
-export const AttributionTooltip = (
-  props: ComponentProps["AttributionTooltip"]["Root"],
-) => {
+import { cn } from "../lib/utils.js";
+
+export const AttributionTooltip = forwardRef<
+  HTMLSpanElement,
+  ComponentProps["AttributionTooltip"]["Root"]
+>((props, ref) => {
   const { className, markClassName, backgroundColor, children, ...rest } =
     props;
 
@@ -11,10 +15,11 @@ export const AttributionTooltip = (
 
   return (
     <span
-      className={mergeCSSClasses(className || "", markClassName || "")}
+      className={cn(className, markClassName)}
       style={markClassName ? undefined : { backgroundColor }}
+      ref={ref}
     >
       {children}
     </span>
   );
-};
+});
