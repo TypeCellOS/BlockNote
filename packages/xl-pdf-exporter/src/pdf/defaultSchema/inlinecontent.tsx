@@ -8,7 +8,7 @@ type ICSchema = DefaultInlineContentSchema & {
   inlineMath: {
     type: "inlineMath";
     propSchema: Record<string, never>;
-    content: "styled";
+    content: "plain";
   };
 };
 
@@ -30,10 +30,10 @@ export const pdfInlineContentMappingForDefaultSchema: InlineContentMapping<
   },
   // TODO
   // Renders inline math as its monospaced LaTeX source.
-  inlineMath: (ic, exporter) => {
+  inlineMath: (ic) => {
     return (
       <Text key={"inlineMath"} style={{ fontFamily: "GeistMono" }}>
-        {ic.content.map((content) => exporter.transformStyledText(content))}
+        {ic.content}
       </Text>
     );
   },

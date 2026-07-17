@@ -10,7 +10,7 @@ type ICSchema = DefaultInlineContentSchema & {
   inlineMath: {
     type: "inlineMath";
     propSchema: Record<string, never>;
-    content: "styled";
+    content: "plain";
   };
 };
 
@@ -38,7 +38,7 @@ export const docxInlineContentMappingForDefaultSchema: InlineContentMapping<
   // TODO
   inlineMath: (ic) => {
     return new TextRun({
-      text: ic.content.map((content) => content.text).join(""),
+      text: ic.content,
       style: "VerbatimChar",
     });
   },
