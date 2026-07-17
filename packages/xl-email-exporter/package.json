@@ -55,18 +55,18 @@
   },
   "dependencies": {
     "@blocknote/core": "workspace:^",
-    "@react-email/components": "^1.0.5",
-    "@react-email/render": "^2.0.4",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.1.0",
     "web-streams-polyfill": "^4.2.0"
   },
   "devDependencies": {
     "@blocknote/shared": "workspace:^",
     "@types/jsdom": "^21.1.7",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-email": "^5.2.5",
-    "@types/react": "^19.2.3",
-    "@types/react-dom": "^19.2.3",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
