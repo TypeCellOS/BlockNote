@@ -18,7 +18,7 @@ const BASE_FILE_PATH = path.resolve(
 );
 
 // Main test suite with snapshot middleware
-describe.skip("Models", () => {
+describe("Models", () => {
   // Define server with snapshot middleware for the main tests
   const server = setupServer(
     snapshot({
@@ -102,11 +102,8 @@ describe.skip("Models", () => {
 });
 
 describe("streamToolsProvider", () => {
-  it("should return the correct stream tools", () => {
+  it.skip("should return the correct stream tools", () => {
     // test skipped, this is only to validate type inference
-    return;
-
-    /* eslint-disable no-unreachable */
     const editor = BlockNoteEditor.create();
     const streamTools = htmlBlockLLMFormat
       .getStreamToolsProvider({
