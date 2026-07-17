@@ -498,6 +498,7 @@ export class BlockNoteEditor<
       autofocus: newOptions.autofocus ?? false,
       extensions: tiptapExtensions,
       editorProps: {
+        scrollMargin: { top: 72, bottom: 72, left: 0, right: 0 },
         ...newOptions._tiptapOptions?.editorProps,
         attributes: {
           // As of TipTap v2.5.0 the tabIndex is removed when the editor is not
