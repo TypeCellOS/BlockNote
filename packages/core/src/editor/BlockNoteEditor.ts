@@ -114,20 +114,6 @@ export interface BlockNoteEditorOptions<
   domAttributes?: Partial<BlockNoteDOMAttributes>;
 
   /**
-   * Additional ProseMirror editor props to pass to the underlying editor view.
-   * Use this to configure options such as `scrollMargin`, `scrollThreshold`,
-   * `handleDOMEvents`, and other
-   * [ProseMirror EditorProps](https://prosemirror.net/docs/ref/#view.EditorProps).
-   *
-   * Note: `attributes` (use {@link domAttributes} instead) and `transformPasted`
-   * are managed by BlockNote and cannot be overridden here.
-   */
-  editorProps?: Omit<
-    NonNullable<EditorOptions["editorProps"]>,
-    "attributes" | "transformPasted"
-  >;
-
-  /**
    * Options for configuring the drop cursor behavior when dragging and dropping blocks.
    * Allows customization of cursor appearance and drop position computation through hooks.
    * @remarks `DropCursorOptions`
@@ -512,8 +498,8 @@ export class BlockNoteEditor<
       autofocus: newOptions.autofocus ?? false,
       extensions: tiptapExtensions,
       editorProps: {
+        scrollMargin: { top: 72, bottom: 72, left: 0, right: 0 },
         ...newOptions._tiptapOptions?.editorProps,
-        ...newOptions.editorProps,
         attributes: {
           // As of TipTap v2.5.0 the tabIndex is removed when the editor is not
           // editable, so you can't focus it. We want to revert this as we have
