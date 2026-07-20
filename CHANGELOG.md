@@ -1,3 +1,13 @@
+## 0.52.1 (2026-07-20)
+
+### 🩹 Fixes
+
+- **react:** Avoid importing yjs in the default UI ([#2902](https://github.com/TypeCellOS/BlockNote/pull/2902))
+
+### ❤️ Thank You
+
+- Nick Perez <nick@blocknotejs.org>
+
 ## 0.52.0 (2026-07-20)
 
 ### 🚀 Features

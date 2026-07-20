@@ -9,7 +9,7 @@
     "directory": "packages/xl-email-exporter"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.52.0",
+  "version": "0.52.1",
   "files": [
     "dist",
     "types",
