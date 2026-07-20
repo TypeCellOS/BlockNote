@@ -231,10 +231,43 @@ export const emojiData: EmojiMartData = _emojiData as EmojiMartData;
 `,
   );
 
+  // Build hexcode → slug mapping for search data generation
+  const hexcodeToSlug = {};
+  const compactEmojisReread = require("emojibase-data/en/compact.json");
+  const seenSlugs2 = new Set();
+  for (const emoji of compactEmojisReread) {
+    const cat = GROUP_TO_CATEGORY[emoji.group];
+    if (cat === null || cat === undefined) {
+      continue;
+    }
+    const entry = shortcodesMap[emoji.hexcode];
+    let s;
+    if (entry) {
+      s = (Array.isArray(entry) ? entry[0] : entry)
+        .replace(/_/g, "-")
+        .toLowerCase();
+    } else {
+      s = emoji.hexcode.toLowerCase();
+    }
+    if (seenSlugs2.has(s)) {
+      s = emoji.hexcode.toLowerCase();
+    }
+    if (seenSlugs2.has(s)) {
+      continue;
+    }
+    seenSlugs2.add(s);
+    hexcodeToSlug[emoji.hexcode] = s;
+  }
+
+  // Canonical slug order (sorted by hexcode for positional encoding)
+  const canonicalSlugs = Object.entries(hexcodeToSlug)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([, slug]) => slug);
+
   console.log(
     "  Wrote src/data/emojiData.json, src/data/types.ts, src/data/index.ts",
   );
-  return data;
+  return { data, hexcodeToSlug, canonicalSlugs };
 }
 
 function generateI18n() {
@@ -371,9 +404,96 @@ function generateI18n() {
   );
 }
 
+function generateSearchData(hexcodeToSlug, canonicalSlugs) {
+  console.log("Generating per-locale search data (positional encoding)...");
+
+  const searchDir = resolve(SRC_DIR, "search");
+  mkdirSync(searchDir, { recursive: true });
+
+  // Write the canonical slug order (shared across all locales)
+  writeFileSync(
+    resolve(searchDir, "slugs.json"),
+    JSON.stringify(canonicalSlugs) + "\n",
+  );
+
+  const hexcodeSet = new Set(Object.keys(hexcodeToSlug));
+  const generatedLocales = [];
+
+  for (const locale of EMOJIBASE_LOCALES) {
+    if (locale === "en") {
+      continue;
+    }
+
+    let localeEmojis;
+    try {
+      localeEmojis = require(`emojibase-data/${locale}/compact.json`);
+    } catch {
+      console.warn(
+        `  Warning: no emojibase compact data for ${locale}, skipping`,
+      );
+      continue;
+    }
+
+    // Build hexcode → localized data for this locale
+    const localeMap = {};
+    for (const emoji of localeEmojis) {
+      if (!hexcodeSet.has(emoji.hexcode)) {
+        continue;
+      }
+      const nameWords = new Set((emoji.label || "").toLowerCase().split(/\s+/));
+      const keywords = (emoji.tags || []).filter(
+        (t) => !nameWords.has(t.toLowerCase()),
+      );
+      localeMap[emoji.hexcode] = {
+        name: emoji.label || "",
+        keywords,
+      };
+    }
+
+    // Build reverse map slug → hexcode
+    const slugToHexcode = {};
+    for (const [hex, s] of Object.entries(hexcodeToSlug)) {
+      slugToHexcode[s] = hex;
+    }
+
+    // Encode in positional format: name\tkw1|kw2|kw3\n per line in canonical order
+    const lines = [];
+    for (const slug of canonicalSlugs) {
+      const hexcode = slugToHexcode[slug];
+      const entry = hexcode ? localeMap[hexcode] : undefined;
+      if (entry) {
+        lines.push(`${entry.name}\t${entry.keywords.join("|")}`);
+      } else {
+        lines.push("\t");
+      }
+    }
+
+    const encoded = lines.join("\n");
+    const varName = toVarName(locale);
+
+    writeFileSync(
+      resolve(searchDir, `${locale}.ts`),
+      `export const ${varName}SearchData = ${JSON.stringify(encoded)};\n`,
+    );
+
+    generatedLocales.push({ locale, varName });
+  }
+
+  // Write search/index.ts
+  const indexLines = generatedLocales.map(
+    ({ locale }) => `export * from "./${locale}.js";`,
+  );
+  writeFileSync(resolve(searchDir, "index.ts"), indexLines.join("\n") + "\n");
+
+  console.log(
+    `  Generated ${generatedLocales.length} search data files + slugs.json`,
+  );
+}
+
 function main() {
-  generateEmojiData();
+  const { hexcodeToSlug, canonicalSlugs } = generateEmojiData();
   generateI18n();
+  generateSearchData(hexcodeToSlug, canonicalSlugs);
   console.log("Done!");
 }
 

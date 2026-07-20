@@ -3,6 +3,7 @@ import type { EmojiMartData } from "@blocknote/emoji-data";
 import React, { useEffect, useRef } from "react";
 
 // Temporary fix for https://github.com/missive/emoji-mart/pull/929
+let currentLocale: string | undefined;
 let emojiLoadingPromise:
   | Promise<{
       emojiMart: typeof import("emoji-mart");
@@ -10,11 +11,14 @@ let emojiLoadingPromise:
     }>
   | undefined;
 
-async function loadEmojiMart() {
-  if (emojiLoadingPromise) {
+async function loadEmojiMart(locale?: string) {
+  const targetLocale = locale ?? "en";
+
+  if (emojiLoadingPromise && currentLocale === targetLocale) {
     return emojiLoadingPromise;
   }
 
+  currentLocale = targetLocale;
   emojiLoadingPromise = (async () => {
     const [emojiMartModule, emojiDataModule] = await Promise.all([
       import("emoji-mart"),
@@ -23,7 +27,15 @@ async function loadEmojiMart() {
 
     const emojiMart =
       "default" in emojiMartModule ? emojiMartModule.default : emojiMartModule;
-    const { emojiData } = emojiDataModule;
+
+    let { emojiData } = emojiDataModule;
+
+    if (targetLocale !== "en") {
+      const overlay = await emojiDataModule.loadSearchData(targetLocale);
+      if (overlay) {
+        emojiData = emojiDataModule.applySearchOverlay(emojiData, overlay);
+      }
+    }
 
     await emojiMart.init({ data: emojiData as any });
 
@@ -44,7 +56,7 @@ export default function EmojiPicker(props: any) {
 
   useEffect(() => {
     void (async () => {
-      const { emojiMart } = await loadEmojiMart();
+      const { emojiMart } = await loadEmojiMart(props.locale);
 
       instance.current = new emojiMart.Picker({ ...props, ref });
     })();

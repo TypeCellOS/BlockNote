@@ -6,9 +6,7 @@ import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import Picker from "./EmojiMartPicker.js";
 
-function useEmojiI18n(): EmojiI18n | undefined {
-  const dict = useDictionary();
-  const locale = dict.locale ?? "en";
+function useEmojiI18n(locale: string): EmojiI18n | undefined {
   const [i18n, setI18n] = useState<EmojiI18n | undefined>(undefined);
 
   useEffect(() => {
@@ -30,7 +28,9 @@ export const EmojiPicker = (props: {
   const Components = useComponentsContext()!;
   const blockNoteContext = useBlockNoteContext()!;
   const portalRoot = blockNoteContext.editor?.portalElement;
-  const emojiI18n = useEmojiI18n();
+  const dict = useDictionary();
+  const locale = dict.locale ?? "en";
+  const emojiI18n = useEmojiI18n(locale);
 
   if (!portalRoot) {
     throw new Error("Portal root not found");
@@ -74,6 +74,7 @@ export const EmojiPicker = (props: {
             props.onOpenChange?.(false);
           }}
           theme={blockNoteContext?.colorSchemePreference}
+          locale={locale}
           i18n={emojiI18n}
         />
       </Components.Generic.Popover.Content>

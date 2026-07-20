@@ -18,6 +18,17 @@ const perLocaleEntries = Object.fromEntries(
   }),
 );
 
+const searchFiles = readdirSync(path.resolve(__dirname, "src/search")).filter(
+  (f) => f.endsWith(".ts") && f !== "index.ts",
+);
+
+const perSearchEntries = Object.fromEntries(
+  searchFiles.map((f) => {
+    const name = f.replace(".ts", "");
+    return [`search/${name}`, path.resolve(__dirname, `src/search/${f}`)];
+  }),
+);
+
 // https://vitejs.dev/config/
 export default defineConfig(
   (conf) =>
@@ -42,6 +53,7 @@ export default defineConfig(
             "blocknote-emoji-data": path.resolve(__dirname, "src/index.ts"),
             locales: path.resolve(__dirname, "src/i18n/index.ts"),
             ...perLocaleEntries,
+            ...perSearchEntries,
           },
           name: "blocknote-emoji-data",
           formats: ["es", "cjs"],

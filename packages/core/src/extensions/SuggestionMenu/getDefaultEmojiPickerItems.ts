@@ -10,6 +10,7 @@ import {
 import { DefaultGridSuggestionItem } from "./DefaultGridSuggestionItem.js";
 
 // Temporary fix for https://github.com/missive/emoji-mart/pull/929
+let currentLocale: string | undefined;
 let emojiLoadingPromise:
   | Promise<{
       emojiMart: typeof import("emoji-mart");
@@ -17,11 +18,14 @@ let emojiLoadingPromise:
     }>
   | undefined;
 
-async function loadEmojiMart() {
-  if (emojiLoadingPromise) {
+async function loadEmojiMart(locale?: string) {
+  const targetLocale = locale ?? "en";
+
+  if (emojiLoadingPromise && currentLocale === targetLocale) {
     return emojiLoadingPromise;
   }
 
+  currentLocale = targetLocale;
   emojiLoadingPromise = (async () => {
     const [emojiMartModule, emojiDataModule] = await Promise.all([
       import("emoji-mart"),
@@ -30,7 +34,15 @@ async function loadEmojiMart() {
 
     const emojiMart =
       "default" in emojiMartModule ? emojiMartModule.default : emojiMartModule;
-    const { emojiData } = emojiDataModule;
+
+    let { emojiData } = emojiDataModule;
+
+    if (targetLocale !== "en") {
+      const overlay = await emojiDataModule.loadSearchData(targetLocale);
+      if (overlay) {
+        emojiData = emojiDataModule.applySearchOverlay(emojiData, overlay);
+      }
+    }
 
     await emojiMart.init({ data: emojiData as any });
 
@@ -56,7 +68,9 @@ export async function getDefaultEmojiPickerItems<
     return [];
   }
 
-  const { emojiData, emojiMart } = await loadEmojiMart();
+  const { emojiData, emojiMart } = await loadEmojiMart(
+    editor.dictionary.locale,
+  );
 
   const emojisToShow =
     query.trim() === ""
