@@ -58,6 +58,11 @@ export * from "./components/SideMenu/SideMenu.js";
 export * from "./components/SideMenu/SideMenuController.js";
 export * from "./components/SideMenu/SideMenuProps.js";
 
+export * from "./components/AttributionTooltip/AttributionTooltip.js";
+export * from "./components/AttributionTooltip/AttributionTooltipController.js";
+export * from "./components/AttributionTooltip/AttributionTooltipProps.js";
+export * from "./components/AttributionTooltip/formatChangeLabel.js";
+
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/BlockColorsItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/RemoveBlockItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/TableHeadersItem.js";
@@ -111,7 +116,9 @@ export { default as FloatingThreadController } from "./components/Comments/Float
 export * from "./components/Comments/Thread.js";
 export * from "./components/Comments/ThreadsSidebar.js";
 export * from "./components/Comments/useThreads.js";
-export * from "./components/Comments/useUsers.js";
+
+export * from "./components/Versioning/useVersionUsers.js";
+export * from "./components/Versioning/VersioningSidebar.js";
 
 export * from "./hooks/useActiveStyles.js";
 export * from "./hooks/useBlockNoteEditor.js";

@@ -19,6 +19,7 @@ import { PanelTextInput } from "./panel/PanelTextInput.js";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover.js";
 import { SideMenu } from "./sideMenu/SideMenu.js";
 import { SideMenuButton } from "./sideMenu/SideMenuButton.js";
+import { AttributionTooltip } from "./attributionMarks/AttributionTooltip.js";
 import { GridSuggestionMenu } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenu.js";
 import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuEmptyItem.js";
 import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem.js";
@@ -37,6 +38,10 @@ import { Card, CardSection, ExpandSectionsPrompt } from "./comments/Card.js";
 import { Comment } from "./comments/Comment.js";
 import { Editor } from "./comments/Editor.js";
 import { Badge, BadgeGroup } from "./badge/Badge.js";
+import {
+  Sidebar as VersioningSidebar,
+  Snapshot as VersioningSnapshot,
+} from "./versioning/Versioning.js";
 
 export const components: Components = {
   FormattingToolbar: {
@@ -73,6 +78,9 @@ export const components: Components = {
     Label: SuggestionMenuLabel,
     Loader: SuggestionMenuLoader,
   },
+  AttributionTooltip: {
+    Root: AttributionTooltip,
+  },
   TableHandle: {
     Root: TableHandle,
     ExtendButton: ExtendButton,
@@ -83,6 +91,10 @@ export const components: Components = {
     Card: Card,
     CardSection: CardSection,
     ExpandSectionsPrompt: ExpandSectionsPrompt,
+  },
+  Versioning: {
+    Sidebar: VersioningSidebar,
+    Snapshot: VersioningSnapshot,
   },
   Generic: {
     Badge: {

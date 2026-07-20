@@ -1,0 +1,115 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`suggestion mode: add a link 1`] = `
+"<blockGroup>
+  <blockContainer id="p">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Visit the site</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add a link 2`] = `
+"<blockGroup>
+  <blockContainer id="p">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+      Visit
+      <link value="{&quot;href&quot;:&quot;https://example.com&quot;}" />the site</link>
+  </paragraph>
+</blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add a link 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="p">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+        Visit
+        <y-attributed-format format="[object Object]" userIds="">
+          <link href="https://example.com" />the site</link>
+      </y-attributed-format>
+    </paragraph>
+  </blockContainer>
+</blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: edit a link 1`] = `
+"<blockGroup>
+  <blockContainer id="p">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+      Visit
+      <link value="{&quot;href&quot;:&quot;https://old.example.com&quot;}" />the old site</link>
+  </paragraph>
+</blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: edit a link 2`] = `
+"<blockGroup>
+  <blockContainer id="p">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+      Visit
+      <link value="{&quot;href&quot;:&quot;https://new.example.com&quot;}" />the new site</link>
+  </paragraph>
+</blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: edit a link 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="p">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+        Visit
+        <y-attributed-format format="[object Object]" userIds="">
+          <link href="https://new.example.com" />the</link>
+      </y-attributed-format>
+      <y-attributed-delete userIds="">
+        <link href="https://old.example.com" />old</link>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <y-attributed-format format="[object Object]" userIds="">
+        <link href="https://new.example.com" />new</link>
+    </y-attributed-format>
+  </y-attributed-insert>
+  <y-attributed-format format="[object Object]" userIds="">
+    <link href="https://new.example.com" />site</link>
+</y-attributed-format>
+</paragraph>
+</blockContainer>
+</blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: remove a link 1`] = `
+"<blockGroup>
+  <blockContainer id="p">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+      Visit
+      <link value="{&quot;href&quot;:&quot;https://example.com&quot;}" />the site</link>
+  </paragraph>
+</blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: remove a link 2`] = `
+"<blockGroup>
+  <blockContainer id="p">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Visit the site</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: remove a link 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="p">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+        Visit
+        <y-attributed-format format="[object Object]" userIds="">the site</y-attributed-format>
+      </paragraph>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;

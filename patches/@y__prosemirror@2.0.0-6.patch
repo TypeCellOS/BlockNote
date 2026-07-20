@@ -1,0 +1,351 @@
+diff --git a/dist/demo/prosemirror.d.ts b/dist/demo/prosemirror.d.ts
+deleted file mode 100644
+index c9b8da026e73cfa5b83aeed606cf289c6da79667..0000000000000000000000000000000000000000
+diff --git a/dist/demo/prosemirror.d.ts.map b/dist/demo/prosemirror.d.ts.map
+deleted file mode 100644
+index 60f5203a9f44de836b05155064898b3709836949..0000000000000000000000000000000000000000
+diff --git a/dist/demo/schema.d.ts b/dist/demo/schema.d.ts
+deleted file mode 100644
+index 579716a4a0af3c62efed3fdd6f5d2a24704e617c..0000000000000000000000000000000000000000
+diff --git a/dist/demo/schema.d.ts.map b/dist/demo/schema.d.ts.map
+deleted file mode 100644
+index f7879c19424714d1c0314eadd81aee0d3047f84d..0000000000000000000000000000000000000000
+diff --git a/dist/src/commands.d.ts b/dist/src/commands.d.ts
+index 62f626eb65c508c8e7adcf43d2018ff1d1bf6efd..667ddbb86d379f6229f8c1e2f4645ccbd2b6397a 100644
+--- a/dist/src/commands.d.ts
++++ b/dist/src/commands.d.ts
+@@ -1,10 +1,4 @@
+-/**
+- * Switch to pause mode (stop synchronization between prosemirror and ytype)
+- * @param {import('prosemirror-state').EditorState} state
+- * @param {((tr: import('prosemirror-state').Transaction) => void)?} dispatch
+- * @returns {boolean}
+- */
+-export function pauseSync(state: import("prosemirror-state").EditorState, dispatch: ((tr: import("prosemirror-state").Transaction) => void) | null): boolean;
++export function pauseSync(state: import("prosemirror-state").EditorState, dispatch?: (tr: import("prosemirror-state").Transaction) => void, view?: import("prosemirror-view").EditorView): boolean;
+ export function configureYProsemirror(opts?: {
+     ytype?: Y.Type<any> | null | undefined;
+     renderer?: Y.AbstractRenderer | null | undefined;
+diff --git a/dist/src/commands.d.ts.map b/dist/src/commands.d.ts.map
+index b3d7c4d9867667dd121690a6879d9886eb31db77..8e7d9a04e4988d661a0cc8a083761d2a8a16cf47 100644
+--- a/dist/src/commands.d.ts.map
++++ b/dist/src/commands.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"commands.d.ts","sourceRoot":"","sources":["../../src/commands.js"],"names":[],"mappings":"AAIA;;;;;GAKG;AACH,iCAJW,OAAO,mBAAmB,EAAE,WAAW,YACvC,CAAC,CAAC,EAAE,EAAE,OAAO,mBAAmB,EAAE,WAAW,KAAK,IAAI,CAAC,OAAC,GACtD,OAAO,CAanB;AAkBM,6CAJJ;IAAsB,KAAK;IACF,QAAQ;CACjC,GAAU,OAAO,mBAAmB,EAAE,OAAO,CAa/C;AAQM,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAQjF,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAExF;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAElJ;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAQ3I,qCAJI,MAAM,QACN,MAAM,GACJ,OAAO,mBAAmB,EAAE,OAAO,CAc/C;AAQM,qCAJI,MAAM,QACN,MAAM,GACJ,OAAO,mBAAmB,EAAE,OAAO,CAc/C;AAMM,oCAFM,OAAO,mBAAmB,EAAE,OAAO,CAW/C;AAMM,oCAFM,OAAO,mBAAmB,EAAE,OAAO,CAW/C;mBAjJkB,MAAM"}
+\ No newline at end of file
++{"version":3,"file":"commands.d.ts","sourceRoot":"","sources":["../../src/commands.js"],"names":[],"mappings":";AAqCO,6CAJJ;IAAsB,KAAK;IACF,QAAQ;CACjC,GAAU,OAAO,mBAAmB,EAAE,OAAO,CAa/C;AAQM,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAQjF,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAExF;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAElJ;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAQ3I,qCAJI,MAAM,QACN,MAAM,GACJ,OAAO,mBAAmB,EAAE,OAAO,CAc/C;AAQM,qCAJI,MAAM,QACN,MAAM,GACJ,OAAO,mBAAmB,EAAE,OAAO,CAc/C;AAMM,oCAFM,OAAO,mBAAmB,EAAE,OAAO,CAW/C;AAMM,oCAFM,OAAO,mBAAmB,EAAE,OAAO,CAW/C;mBA/IkB,MAAM"}
+\ No newline at end of file
+diff --git a/dist/src/index.d.ts b/dist/src/index.d.ts
+index d4c634df59f3695525e1be3b1fc89e3598e6edca..1a26ef98745535025578d9e9369cfcffad2dd3c8 100644
+--- a/dist/src/index.d.ts
++++ b/dist/src/index.d.ts
+@@ -6,5 +6,5 @@ export * from "./undo-plugin.js";
+ export * from "./cursor-plugin.js";
+ export { YSyncRdt } from "./rdt/y-sync.js";
+ export { ProsemirrorRdt } from "./rdt/prosemirror.js";
+-export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark, defaultAttributionConf, attributionMapperToConf, yattr2markname, pmToFragment, fragmentToPm } from "./sync-utils.js";
++export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark, defaultAttributionConf, attributionMapperToConf, yattr2markname, pmToFragment, fragmentToPm, deltaAttributionToFormat, deltaToPNode, deltaToPSteps, nodeToDelta } from "./sync-utils.js";
+ //# sourceMappingURL=index.d.ts.map
+\ No newline at end of file
+diff --git a/dist/src/rdt/prosemirror.d.ts.map b/dist/src/rdt/prosemirror.d.ts.map
+index 7656d2d019bcfc3ac8e587a54186e2510c60cb73..a99625f58988dea8f7e220cabbd0c46ac0055aa0 100644
+--- a/dist/src/rdt/prosemirror.d.ts.map
++++ b/dist/src/rdt/prosemirror.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"prosemirror.d.ts","sourceRoot":"","sources":["../../../src/rdt/prosemirror.js"],"names":[],"mappings":"AAsCA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GAuDG;AACH;WAFmC,CAAC,CAAC,EAAE,gBAAgB,EAAE,MAAM,EAAE,GAAG,KAAK,IAAI;aAAW,CAAC,GAAG,EAAE,cAAc,KAAK,IAAI;;IAGnH;;;;;;;;;;OAUG;IACH,6EATG;QAAoD,IAAI,EAAhD,OAAO,kBAAkB,EAAE,UAAU;QACL,eAAe;QAC3B,OAAO;QACX,OAAO,EAAvB,MAAM,GAAG;QAEM,kBAAkB;KAG3C,EAgCA;IA7BC,4CAAgB;IAChB,0CAAsC;IACtC,iCAAmC;IACnC,eAXe,GAAG,CAWI;IACtB;;;;;;;QAA+B;IAI/B;;;;;;OAMG;IACH,qBAFU,MAAM,OAAC,CAEsG;IACvH;;OAEG;IACH,QAFU,gBAAgB,CAE+D;IACzF,mBAAsB;IACtB;;;;;;OAMG;IACH,mBAAsB;IAGxB;;;OAGG;IACH,0BAEC;IAED;;;;;OAKG;IACH,aAFY,gBAAgB,CAI3B;IAED;;;OAGG;IACH,cAHW,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAalB;IAED;;;;OAIG;IACH,YAFY,OAAO,CAoBlB;IAED;;;;;OAKG;IACH,aA2BC;IAED;;;;;;;;;;;;;;;;OAgBG;IACH,cAJW,gBAAgB,UAChB,GAAG,GACF,KAAK,CAAC,YAAY,CAAC,GAAG,CAAC,GAAG,IAAI,CA4CzC;CAMF;6BA3S4B,iBAAiB;uBACvB,YAAY"}
+\ No newline at end of file
++{"version":3,"file":"prosemirror.d.ts","sourceRoot":"","sources":["../../../src/rdt/prosemirror.js"],"names":[],"mappings":"AAsCA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GAuDG;AACH;WAFmC,CAAC,CAAC,EAAE,gBAAgB,EAAE,MAAM,EAAE,GAAG,KAAK,IAAI;aAAW,CAAC,GAAG,EAAE,cAAc,KAAK,IAAI;;IAGnH;;;;;;;;;;OAUG;IACH,6EATG;QAAoD,IAAI,EAAhD,OAAO,kBAAkB,EAAE,UAAU;QACL,eAAe;QAC3B,OAAO;QACX,OAAO,EAAvB,MAAM,GAAG;QAEM,kBAAkB;KAG3C,EAgCA;IA7BC,4CAAgB;IAChB,0CAAsC;IACtC,iCAAmC;IACnC,eAXe,GAAG,CAWI;IACtB;;;;;;;QAA+B;IAI/B;;;;;;OAMG;IACH,qBAFU,MAAM,OAAC,CAEsG;IACvH;;OAEG;IACH,QAFU,gBAAgB,CAE+D;IACzF,mBAAsB;IACtB;;;;;;OAMG;IACH,mBAAsB;IAGxB;;;OAGG;IACH,0BAEC;IAED;;;;;OAKG;IACH,aAFY,gBAAgB,CAI3B;IAED;;;OAGG;IACH,cAHW,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAalB;IAED;;;;OAIG;IACH,YAFY,OAAO,CAoBlB;IAED;;;;;OAKG;IACH,aA2BC;IAED;;;;;;;;;;;;;;;;OAgBG;IACH,cAJW,gBAAgB,UAChB,GAAG,GACF,KAAK,CAAC,YAAY,CAAC,GAAG,CAAC,GAAG,IAAI,CAsDzC;CAMF;6BArT4B,iBAAiB;uBACvB,YAAY"}
+\ No newline at end of file
+diff --git a/dist/src/sync-utils.d.ts b/dist/src/sync-utils.d.ts
+index 539b2a70ae5d41575fa0f03c85e95d5d0f98165d..3fbb973027104938642e3c88ae588261323ec206 100644
+--- a/dist/src/sync-utils.d.ts
++++ b/dist/src/sync-utils.d.ts
+@@ -111,7 +111,7 @@ export function docToDelta(doc: Node): delta.Delta<{
+ export function deltaToPSteps(tr: import("prosemirror-state").Transaction, d: ProsemirrorDelta, pnode?: Node, currPos?: {
+     i: number;
+ }, attributedNodes?: AttributedNodesPredicate): import("prosemirror-state").Transaction;
+-export function deltaToPNode(d: ProsemirrorDelta, schema: import("prosemirror-model").Schema, dformat: delta.Formats | null, attributedNodes?: AttributedNodesPredicate): Node;
++export function deltaToPNode(d: ProsemirrorDelta, schema: import("prosemirror-model").Schema, dformat: delta.Formats | null, attributedNodes?: AttributedNodesPredicate): Node | null;
+ export function docDiffToDelta(beforeDoc: Node, afterDoc: Node): delta.Delta<{
+     name: string;
+     attrs: {
+diff --git a/dist/src/sync-utils.d.ts.map b/dist/src/sync-utils.d.ts.map
+index 29b2331b710abffb5bdc9e070738eefde9e297c2..0530725291c7b9c26ea34cf9d696321afeb4e0d9 100644
+--- a/dist/src/sync-utils.d.ts.map
++++ b/dist/src/sync-utils.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"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"}
+\ No newline at end of file
++{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"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"}
+\ No newline at end of file
+diff --git a/dist/tests/attributed-nodes.test.d.ts b/dist/tests/attributed-nodes.test.d.ts
+deleted file mode 100644
+index e6935d6a014cf43be563ee160c9f74f47abec7b8..0000000000000000000000000000000000000000
+diff --git a/dist/tests/attributed-nodes.test.d.ts.map b/dist/tests/attributed-nodes.test.d.ts.map
+deleted file mode 100644
+index 6ffb87ae68ef83567536bcae750eb39810a8ac75..0000000000000000000000000000000000000000
+diff --git a/dist/tests/cohort.d.ts b/dist/tests/cohort.d.ts
+deleted file mode 100644
+index 98770d13fccc4e0f1bf6607717004e1acfc4a7b5..0000000000000000000000000000000000000000
+diff --git a/dist/tests/cohort.d.ts.map b/dist/tests/cohort.d.ts.map
+deleted file mode 100644
+index 7c2422c1660824964d415d0eb161c027af7a1b65..0000000000000000000000000000000000000000
+diff --git a/dist/tests/commands.test.d.ts b/dist/tests/commands.test.d.ts
+deleted file mode 100644
+index a146af7a8e362fb103c61286c6702e8c1fbd82ca..0000000000000000000000000000000000000000
+diff --git a/dist/tests/commands.test.d.ts.map b/dist/tests/commands.test.d.ts.map
+deleted file mode 100644
+index 157cbef2ebd45c39253cb502934622d0e05e1abe..0000000000000000000000000000000000000000
+diff --git a/dist/tests/complexSchema.d.ts b/dist/tests/complexSchema.d.ts
+deleted file mode 100644
+index d515c309d65bf0cb25eb2f5d0f17ba6c580a9966..0000000000000000000000000000000000000000
+diff --git a/dist/tests/complexSchema.d.ts.map b/dist/tests/complexSchema.d.ts.map
+deleted file mode 100644
+index 6100c0e504b30b3bd55253dfaa8be562a3f95d6c..0000000000000000000000000000000000000000
+diff --git a/dist/tests/cursor.test.d.ts b/dist/tests/cursor.test.d.ts
+deleted file mode 100644
+index 2fcbb1cad1c80056bcd6bbad5836e5fdec5ee3f9..0000000000000000000000000000000000000000
+diff --git a/dist/tests/cursor.test.d.ts.map b/dist/tests/cursor.test.d.ts.map
+deleted file mode 100644
+index 24b239543f8c36e897282c130cc6941924f18a5b..0000000000000000000000000000000000000000
+diff --git a/dist/tests/custom-compare.test.d.ts b/dist/tests/custom-compare.test.d.ts
+deleted file mode 100644
+index f203e46a5f37505b7098d9e960ab73f7e8abc44c..0000000000000000000000000000000000000000
+diff --git a/dist/tests/custom-compare.test.d.ts.map b/dist/tests/custom-compare.test.d.ts.map
+deleted file mode 100644
+index ca5fae799c4636d7992604e86dbe710326556d5d..0000000000000000000000000000000000000000
+diff --git a/dist/tests/delta.test.d.ts b/dist/tests/delta.test.d.ts
+deleted file mode 100644
+index ec16d0836b3b5f1b9bc48b6ae1193eba09dd050b..0000000000000000000000000000000000000000
+diff --git a/dist/tests/delta.test.d.ts.map b/dist/tests/delta.test.d.ts.map
+deleted file mode 100644
+index a9b33d6a6fc09f298f7cba094e233930a8980763..0000000000000000000000000000000000000000
+diff --git a/dist/tests/index.d.ts b/dist/tests/index.d.ts
+deleted file mode 100644
+index e26a57a8ca84c682b2b77b57b9d6e340ffd33436..0000000000000000000000000000000000000000
+diff --git a/dist/tests/index.d.ts.map b/dist/tests/index.d.ts.map
+deleted file mode 100644
+index fe3992828209916ff4b2412cee13d0f522d1a1e5..0000000000000000000000000000000000000000
+diff --git a/dist/tests/index.node.d.ts b/dist/tests/index.node.d.ts
+deleted file mode 100644
+index 95867294f443b797ca7f2ae869106fa46ca530ab..0000000000000000000000000000000000000000
+diff --git a/dist/tests/index.node.d.ts.map b/dist/tests/index.node.d.ts.map
+deleted file mode 100644
+index 0b2bb0a8c721e902506511717d4d4f052932ddb5..0000000000000000000000000000000000000000
+diff --git a/dist/tests/overlapping-marks.test.d.ts b/dist/tests/overlapping-marks.test.d.ts
+deleted file mode 100644
+index e10fa41bcbbe47a8bd2836844d58d2d9e5ce8605..0000000000000000000000000000000000000000
+diff --git a/dist/tests/overlapping-marks.test.d.ts.map b/dist/tests/overlapping-marks.test.d.ts.map
+deleted file mode 100644
+index 3721a2a35a0232f4d25294432662297290edf81e..0000000000000000000000000000000000000000
+diff --git a/dist/tests/positions.test.d.ts b/dist/tests/positions.test.d.ts
+deleted file mode 100644
+index bb857eb74e21b89f3fc69516b051bcd0b545d449..0000000000000000000000000000000000000000
+diff --git a/dist/tests/positions.test.d.ts.map b/dist/tests/positions.test.d.ts.map
+deleted file mode 100644
+index ec25283e531e4a23b448f978695f31e3dd44f1db..0000000000000000000000000000000000000000
+diff --git a/dist/tests/suggestion-simulation.test.d.ts b/dist/tests/suggestion-simulation.test.d.ts
+deleted file mode 100644
+index 540700ae85d4d6e30c29fd26ee4ff6ddba0ade84..0000000000000000000000000000000000000000
+diff --git a/dist/tests/suggestion-simulation.test.d.ts.map b/dist/tests/suggestion-simulation.test.d.ts.map
+deleted file mode 100644
+index c30a4996afb1de798df52e01848b1ffed1ef1a30..0000000000000000000000000000000000000000
+diff --git a/dist/tests/suggestions.test.d.ts b/dist/tests/suggestions.test.d.ts
+deleted file mode 100644
+index 6d8f00814d8604e8a30eb07ae3c825fb40188d31..0000000000000000000000000000000000000000
+diff --git a/dist/tests/suggestions.test.d.ts.map b/dist/tests/suggestions.test.d.ts.map
+deleted file mode 100644
+index 437a8e751a2d2fb89cde921c267d23b40e3be834..0000000000000000000000000000000000000000
+diff --git a/dist/tests/tr.test.d.ts b/dist/tests/tr.test.d.ts
+deleted file mode 100644
+index 00781bfbf6cdda67b9a832291fef255c1365396e..0000000000000000000000000000000000000000
+diff --git a/dist/tests/tr.test.d.ts.map b/dist/tests/tr.test.d.ts.map
+deleted file mode 100644
+index 64d56446779ef951b09d0c5dc5a1a1da7c6ccefc..0000000000000000000000000000000000000000
+diff --git a/dist/tests/undo.test.d.ts b/dist/tests/undo.test.d.ts
+deleted file mode 100644
+index 73304221437551cc5e959abe3868f1ebcfe2acad..0000000000000000000000000000000000000000
+diff --git a/dist/tests/undo.test.d.ts.map b/dist/tests/undo.test.d.ts.map
+deleted file mode 100644
+index e275eb3b866b96b6bb2d1c54290466606a2e65e9..0000000000000000000000000000000000000000
+diff --git a/dist/tests/y-prosemirror.test.d.ts b/dist/tests/y-prosemirror.test.d.ts
+deleted file mode 100644
+index a619f8f45b3375c101877bb30fef85676e1ec753..0000000000000000000000000000000000000000
+diff --git a/dist/tests/y-prosemirror.test.d.ts.map b/dist/tests/y-prosemirror.test.d.ts.map
+deleted file mode 100644
+index e589c0a78b58b66c071d3cc3e97d32e81bec6643..0000000000000000000000000000000000000000
+diff --git a/dist/tests/y-sync-rdt.test.d.ts b/dist/tests/y-sync-rdt.test.d.ts
+deleted file mode 100644
+index 35c4ce6671060e933a0a54c3d94150215bda95c6..0000000000000000000000000000000000000000
+diff --git a/dist/tests/y-sync-rdt.test.d.ts.map b/dist/tests/y-sync-rdt.test.d.ts.map
+deleted file mode 100644
+index d1b36fbe2f871825ae9d96abdaf6ddbb47476ecd..0000000000000000000000000000000000000000
+diff --git a/src/commands.js b/src/commands.js
+index 3b7ec2ccb88d7863a770c1e0cc98fd72cf2781b5..46755a2009149c221040109b5ecdca28a8578ce8 100644
+--- a/src/commands.js
++++ b/src/commands.js
+@@ -4,9 +4,7 @@ import { absolutePositionToRelativePosition } from './positions.js'
+ 
+ /**
+  * Switch to pause mode (stop synchronization between prosemirror and ytype)
+- * @param {import('prosemirror-state').EditorState} state
+- * @param {((tr: import('prosemirror-state').Transaction) => void)?} dispatch
+- * @returns {boolean}
++ * @type {import('prosemirror-state').Command}
+  */
+ export function pauseSync (state, dispatch) {
+   const pluginState = ySyncPluginKey.getState(state)
+diff --git a/src/index.js b/src/index.js
+index 2e75b5a2dd1674ea88aeb13cde1d43513c353bed..2763e7f5dfb39e6c9323ce76cbb86d12515f2b9a 100644
+--- a/src/index.js
++++ b/src/index.js
+@@ -1,7 +1,7 @@
+ export * from './sync-plugin.js'
+ export * from './keys.js'
+ export * from './positions.js'
+-export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark, defaultAttributionConf, attributionMapperToConf, yattr2markname, pmToFragment, fragmentToPm } from './sync-utils.js'
++export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark, defaultAttributionConf, attributionMapperToConf, yattr2markname, pmToFragment, fragmentToPm, deltaAttributionToFormat, deltaToPNode, deltaToPSteps, nodeToDelta } from './sync-utils.js'
+ export * from './commands.js'
+ export * from './undo-plugin.js'
+ export * from './cursor-plugin.js'
+diff --git a/src/rdt/prosemirror.js b/src/rdt/prosemirror.js
+index cfc76909965fec6749b92170223bca0bcad537e9..f666671ab1a28d9d660daa78ac2a26348364b6dc 100644
+--- a/src/rdt/prosemirror.js
++++ b/src/rdt/prosemirror.js
+@@ -270,7 +270,12 @@ export class ProsemirrorRdt extends ObservableV2 {
+       // skeleton, and the fix below would write the skeleton into Y.
+       this._defaultFingerprint = null
+       tr = this.view.state.tr
+-      tr.replaceWith(0, tr.doc.content.size, deltaToPNode(/** @type {any} */ (expected), tr.doc.type.schema, null, this.attributedNodes))
++      const pDoc = deltaToPNode(/** @type {any} */ (expected), tr.doc.type.schema, null, this.attributedNodes)
++      if (pDoc === null) {
++        // The root document itself can't be materialized — nothing to recover.
++        throw new Error('[y/prosemirror]: failed to create document node')
++      }
++      tr.replaceWith(0, tr.doc.content.size, pDoc)
+     } else {
+       try {
+         tr = deltaToPSteps(this.view.state.tr, /** @type {any} */ (d), undefined, undefined, this.attributedNodes)
+@@ -278,7 +283,12 @@ export class ProsemirrorRdt extends ObservableV2 {
+         // Raw steps could not express the change against the schema — replace
+         // the whole document through ProseMirror's fitting `replaceWith`.
+         tr = this.view.state.tr
+-        tr.replaceWith(0, tr.doc.content.size, deltaToPNode(/** @type {any} */ (expected), tr.doc.type.schema, null, this.attributedNodes))
++        const pDoc = deltaToPNode(/** @type {any} */ (expected), tr.doc.type.schema, null, this.attributedNodes)
++        if (pDoc === null) {
++          // The root document itself can't be materialized — nothing to recover.
++          throw new Error('[y/prosemirror]: failed to create document node')
++        }
++        tr.replaceWith(0, tr.doc.content.size, pDoc)
+       }
+     }
+     if (tr.docChanged && !this._dispatch(tr)) {
+diff --git a/src/sync-utils.js b/src/sync-utils.js
+index 834e75955b4ff0e0209fcc543893b6a6a401d64b..e62e6c8bfeb970491e28adca4dec4e1a0d613fa2 100644
+--- a/src/sync-utils.js
++++ b/src/sync-utils.js
+@@ -638,7 +638,14 @@ export const deltaToPSteps = (tr, d, pnode = tr.doc, currPos = { i: 0 }, attribu
+       for (const ins of bundle.inserts) {
+         if (delta.$insertOp.check(ins)) {
+           for (const n of ins.insert) {
+-            newPChildren.push(deltaToPNode(n, schema, ins.format, attributedNodes))
++            const pn = deltaToPNode(n, schema, ins.format, attributedNodes)
++            if (pn === null) {
++              // Can't materialize this node incrementally — bail out so the
++              // caller falls back to the whole-document path, which drops
++              // invalid nodes coherently (#258).
++              throw new Error('[y/prosemirror]: failed to create node: ' + n.name)
++            }
++            newPChildren.push(pn)
+           }
+         } else { // text op
+           newPChildren.push(schema.text(ins.insert, formattingAttributesToMarks(ins.format, schema)))
+@@ -676,11 +683,24 @@ export const deltaToPSteps = (tr, d, pnode = tr.doc, currPos = { i: 0 }, attribu
+ }
+ 
+ /**
++ * Materialize a delta node as a ProseMirror node, or return null if the local
++ * schema can't represent it (yjs/y-prosemirror#258 — "delete the invalid
++ * node"). A null child is dropped by its parent; the dropped content surfaces
++ * as a "fix" diff in `ProsemirrorRdt.applyDelta`, which the binding
++ * propagates back into the ytype so all peers converge on the same
++ * schema-valid document. Callers that cannot recover from a null root must
++ * throw themselves. Null is returned when:
++ * - the node type doesn't exist in the schema (e.g. a peer runs a newer
++ *   schema version)
++ * - the node is missing a required attribute without a default
++ * - the children violate the content expression and dropping the rejected
++ *   ones still doesn't produce a fillable node
++ *
+  * @param {ProsemirrorDelta} d
+  * @param {import('prosemirror-model').Schema} schema
+  * @param {delta.Formats|null} dformat
+  * @param {AttributedNodesPredicate} [attributedNodes]
+- * @return {Node}
++ * @return {Node|null}
+  */
+ export const deltaToPNode = (d, schema, dformat, attributedNodes = defaultAttributedNodes) => {
+   /**
+@@ -690,13 +710,12 @@ export const deltaToPNode = (d, schema, dformat, attributedNodes = defaultAttrib
+   for (const attr of d.attrs) {
+     attrs[attr.key] = attr.value
+   }
+-  const dc = d.children.map(c => delta.$insertOp.check(c) ? c.insert.map(cn => deltaToPNode(cn, schema, c.format, attributedNodes)) : (delta.$textOp.check(c) ? [schema.text(c.insert, formattingAttributesToMarks(c.format, schema))] : []))
++  const dc = d.children.map(c => delta.$insertOp.check(c) ? c.insert.map(cn => deltaToPNode(cn, schema, c.format, attributedNodes)).filter(cn => cn !== null) : (delta.$textOp.check(c) ? [schema.text(c.insert, formattingAttributesToMarks(c.format, schema))] : []))
+   const canonical = d.name == null ? 'doc' : canonicalNodeName(d.name)
+   const nodeType = schema.nodes[attributedVariant(canonical, dformat, attributedNodes, schema)]
+   if (!nodeType) {
+-    throw new Error(
+-      '[y/prosemirror]: node type does not exist in the schema: ' + d.name
+-    )
++    // unknown node type — drop the node (#258)
++    return null
+   }
+   const inputChildren = dc.flat(1)
+   const inputMarks = formattingAttributesToMarks(dformat, schema)
+@@ -705,13 +724,38 @@ export const deltaToPNode = (d, schema, dformat, attributedNodes = defaultAttrib
+       'y-attributed': true
+     }, attrs)
+     : attrs
+-  const pNode = nodeType.createAndFill(
+-    finalAttrs,
+-    inputChildren,
+-    inputMarks
+-  )
+-  if (pNode === null) {
+-    throw new Error('[y/prosemirror]: failed to create node: ' + d.name)
++  /**
++   * @type {Node|null}
++   */
++  let pNode = null
++  try {
++    pNode = nodeType.createAndFill(
++      finalAttrs,
++      inputChildren,
++      inputMarks
++    )
++    if (pNode === null) {
++      // The children don't satisfy the node's content expression — e.g. two
++      // concurrently-initialized documents were merged, concatenating content
++      // that the schema only allows once (`doc { content: 'blockquote' }`
++      // holding two blockquotes). Greedily keep the children the content
++      // expression accepts and drop the ones it rejects — deterministic, so
++      // every peer materializes the same schema-valid document.
++      const fitted = []
++      let match = nodeType.contentMatch
++      for (const child of inputChildren) {
++        const nextMatch = match.matchType(child.type)
++        if (nextMatch != null) {
++          match = nextMatch
++          fitted.push(child)
++        }
++      }
++      pNode = nodeType.createAndFill(finalAttrs, fitted, inputMarks)
++    }
++  } catch (_e) {
++    // createAndFill throws e.g. for a missing required attribute without a
++    // default — the node can't be materialized at all; drop it (#258)
++    return null
+   }
+   return pNode
+ }

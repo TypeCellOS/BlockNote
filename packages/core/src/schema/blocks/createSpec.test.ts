@@ -1,9 +1,9 @@
-import { DOMParser as PMDOMParser } from "@tiptap/pm/model";
 import { describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
 import { defaultBlockSpecs } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { YAttributionMarksExtension } from "../../y/extensions/YAttributionMarks.js";
 import { createBlockConfig, createBlockSpec } from "../index.js";
 
 // A minimal "plain" content block WITHOUT a custom `parseContent`, so parsing
@@ -88,29 +88,34 @@ describe("plain content parsing", () => {
   });
 
   it("keeps allowed (non-formatting) marks while dropping formatting", () => {
-    const editor = createEditor();
-
-    // Checked at the ProseMirror level (parsing into a `blockGroup` top node,
-    // like `HTMLToBlocks` does) because the block model intentionally
-    // represents plain content as a bare string, without marks.
-    const container = document.createElement("div");
-    container.innerHTML = `<div class="custom-plain">hello <b>bold</b> <ins data-id="1">inserted</ins></div>`;
-    const parsed = PMDOMParser.fromSchema(editor.pmSchema).parse(container, {
-      topNode: editor.pmSchema.nodes["blockGroup"].create(),
+    // Every non-formatting mark comes from an optional extension. The Yjs
+    // attribution marks are the ones reachable from core, so they stand in for
+    // the `"annotation"` group here; register them so the group is non-empty.
+    const editor = BlockNoteEditor.create({
+      schema: BlockNoteSchema.create({
+        blockSpecs: { ...defaultBlockSpecs, customPlain },
+      }),
+      extensions: [YAttributionMarksExtension()],
     });
 
-    // blockGroup > blockContainer > customPlain
-    const blockContent = parsed.child(0).child(0);
-    expect(blockContent.type.name).toBe("customPlain");
-    expect(blockContent.textContent).toBe("hello bold inserted");
+    const plainType = editor.pmSchema.nodes["customPlain"];
+    const insertMark = editor.pmSchema.marks["y-attributed-insert"];
+    const boldMark = editor.pmSchema.marks["bold"];
 
-    const markNames = new Set<string>();
-    blockContent.forEach((child) => {
-      child.marks.forEach((mark) => markNames.add(mark.type.name));
-    });
-    // The suggestion mark is allowed on plain blocks and survives parsing;
-    // the formatting mark is dropped by the schema.
-    expect(markNames.has("insertion")).toBe(true);
+    // The plain block allows the non-formatting mark but not the formatting one.
+    expect(plainType.allowsMarkType(insertMark)).toBe(true);
+    expect(plainType.allowsMarkType(boldMark)).toBe(false);
+
+    // ...and so `allowedMarks` keeps the former while dropping the latter.
+    const markNames = new Set(
+      plainType
+        .allowedMarks([
+          insertMark.create({ userIds: ["test-user"] }),
+          boldMark.create(),
+        ])
+        .map((m) => m.type.name),
+    );
+    expect(markNames.has("y-attributed-insert")).toBe(true);
     expect(markNames.has("bold")).toBe(false);
 
     editor._tiptapEditor.destroy();

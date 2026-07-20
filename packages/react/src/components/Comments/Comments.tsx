@@ -3,7 +3,7 @@ import { ThreadData } from "@blocknote/core/comments";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { Comment } from "./Comment.js";
-import { useUsers } from "./useUsers.js";
+import { useCommentUsers } from "./useCommentUsers.js";
 
 export type CommentsProps = {
   thread: ThreadData;
@@ -16,7 +16,7 @@ export const Comments = ({
 }: CommentsProps) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const users = useUsers(thread.resolvedBy ? [thread.resolvedBy] : []);
+  const users = useCommentUsers(thread.resolvedBy ? [thread.resolvedBy] : []);
 
   // Maps all comments to elements.
   const comments = thread.comments.map((comment, index) => (

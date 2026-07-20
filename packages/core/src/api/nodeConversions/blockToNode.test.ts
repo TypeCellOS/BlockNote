@@ -1,8 +1,18 @@
+import type { Node, Schema } from "@tiptap/pm/model";
 import { describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { blockToNode } from "./blockToNode.js";
 import { nodeToBlock } from "./nodeToBlock.js";
+
+// `nodeToBlock(node, doc)` takes the containing document as its second argument
+// (it's used to disambiguate suggestion-deletion nodes). These fixtures build a
+// single `blockContainer` in isolation, so wrap it in a minimal valid doc.
+const wrapInDoc = (schema: Schema, blockContainer: Node): Node =>
+  schema.nodes["doc"].createChecked(
+    null,
+    schema.nodes["blockGroup"].createChecked(null, blockContainer),
+  );
 
 /**
  * @vitest-environment jsdom
@@ -38,7 +48,7 @@ describe("blockToNode: plain-block backwards compatibility (write path)", () => 
     expect(() => node.check()).not.toThrow();
 
     // Round-trips back to a plain string with no materialized formatting.
-    const block = nodeToBlock(node, editor.pmSchema);
+    const block = nodeToBlock(node, wrapInDoc(editor.pmSchema, node));
     expect(block.type).toBe("codeBlock");
     expect(block.content).toEqual([
       {
@@ -62,7 +72,7 @@ describe("blockToNode: plain-block backwards compatibility (write path)", () => 
       editor.pmSchema,
     );
 
-    const block = nodeToBlock(node, editor.pmSchema);
+    const block = nodeToBlock(node, wrapInDoc(editor.pmSchema, node));
     expect(block.type).toBe("paragraph");
     // Paragraph is "inline" content, so bold survives.
     expect(Array.isArray(block.content)).toBe(true);
@@ -95,7 +105,7 @@ describe("blockToNode: plain-block backwards compatibility (write path)", () => 
     // Build the node leniently and confirm the read path emits no styles even if
     // the block content is plain text.
     const node = blockToNode(legacyBoldCodeBlock as any, editor.pmSchema);
-    const block = nodeToBlock(node, editor.pmSchema);
+    const block = nodeToBlock(node, wrapInDoc(editor.pmSchema, node));
     expect(Array.isArray(block.content)).toBe(true);
 
     editor._tiptapEditor.destroy();

@@ -127,7 +127,7 @@ export function updateBlockTr<
     // currently, we calculate the new node and replace the entire node with the desired new node.
     // for this, we do a nodeToBlock on the existing block to get the children.
     // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
-    const existingBlock = nodeToBlock(blockInfo.bnBlock.node, pmSchema);
+    const existingBlock = nodeToBlock(blockInfo.bnBlock.node, tr.doc);
     const replacementNode = blockToNode(
       {
         children: existingBlock.children, // if no children are passed in, use existing children
@@ -146,9 +146,10 @@ export function updateBlockTr<
   }
 
   // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
-  // attributes.
-  tr.setNodeMarkup(blockInfo.bnBlock.beforePos, newBnBlockNodeType, {
-    ...blockInfo.bnBlock.node.attrs,
+
+  // attributes. Uses minimal steps so that an unchanged container (e.g. when
+  // only children or content changed) doesn't emit a step at all.
+  setNodeMarkupMinimal(tr, blockInfo.bnBlock.beforePos, newBnBlockNodeType, {
     ...block.props,
   });
 
@@ -219,29 +220,30 @@ function updateBlockContentNode<
   // Use either setNodeMarkup or replaceWith depending on whether the
   // content is being replaced or not.
   if (content === "keep") {
-    // use setNodeMarkup to only update the type and attributes
-    tr.setNodeMarkup(blockInfo.blockContent.beforePos, newNodeType, {
-      ...blockInfo.blockContent.node.attrs,
+    // only update the type and attributes, keeping the content as-is
+    setNodeMarkupMinimal(tr, blockInfo.blockContent.beforePos, newNodeType, {
       ...block.props,
     });
   } else if (replaceFromOffset !== undefined || replaceToOffset !== undefined) {
-    // first update markup of the containing node
-    tr.setNodeMarkup(blockInfo.blockContent.beforePos, newNodeType, {
-      ...blockInfo.blockContent.node.attrs,
-      ...block.props,
-    });
+    // Update the markup of the containing node, then get its (possibly shifted)
+    // position back.
+    const contentBeforePos = setNodeMarkupMinimalAndRemap(
+      tr,
+      blockInfo.blockContent.beforePos,
+      newNodeType,
+      { ...block.props },
+    );
 
-    const start =
-      blockInfo.blockContent.beforePos + 1 + (replaceFromOffset ?? 0);
+    const start = contentBeforePos + 1 + (replaceFromOffset ?? 0);
     const end =
-      blockInfo.blockContent.beforePos +
+      contentBeforePos +
       1 +
       (replaceToOffset ?? blockInfo.blockContent.node.content.size);
 
     // for content like table cells (where the blockcontent has nested PM nodes),
     // we need to figure out the correct openStart and openEnd for the slice when replacing
 
-    const contentDepth = tr.doc.resolve(blockInfo.blockContent.beforePos).depth;
+    const contentDepth = tr.doc.resolve(contentBeforePos).depth;
     const startDepth = tr.doc.resolve(start).depth;
     const endDepth = tr.doc.resolve(end).depth;
 
@@ -254,10 +256,30 @@ function updateBlockContentNode<
         endDepth - contentDepth - 1,
       ),
     );
+  } else if (
+    newNodeType === oldNodeType ||
+    newNodeType.validContent(blockInfo.blockContent.node.content)
+  ) {
+    // The new type can hold the existing content, so we can update the markup
+    // first and then diff the content. This keeps both steps minimal.
+    //
+    // First update the markup (type & attributes) of the content node using
+    // minimal steps (avoids replacing the whole node just to change attrs), then
+    // get its (possibly shifted) position back.
+    const contentBeforePos = setNodeMarkupMinimalAndRemap(
+      tr,
+      blockInfo.blockContent.beforePos,
+      newNodeType,
+      { ...block.props },
+    );
+
+    // Then replace only the part of the content that actually changed, keeping
+    // any shared prefix/suffix untouched.
+    replaceContentMinimal(tr, contentBeforePos, Fragment.from(content));
   } else {
-    // use replaceWith to replace the content and the block itself
-    // also reset the selection since replacing the block content
-    // sets it to the next block.
+    // The content type is incompatible with the new node type (e.g. switching
+    // between inline content, table content, and no content). We can't update
+    // the markup in-place, so replace the whole content node atomically.
     tr.replaceWith(
       blockInfo.blockContent.beforePos,
       blockInfo.blockContent.afterPos,
@@ -270,6 +292,197 @@ function updateBlockContentNode<
       ),
     );
   }
+}
+
+/**
+ * Replaces the content of the node at `nodePos` with `newContent`, only
+ * touching the range that actually differs between the old and new content.
+ *
+ * - For textblocks (inline content), this diffs at the character level using
+ *   `Fragment.findDiffStart`/`findDiffEnd`, so e.g. changing a single word only
+ *   replaces that word rather than the entire paragraph.
+ * - For nested content (like tables or blockGroups), the diff is snapped to
+ *   whole top-level children (rows / blocks), so only the changed children are
+ *   replaced while unchanged leading/trailing children are left untouched.
+ */
+function replaceContentMinimal(
+  tr: Transform,
+  nodePos: number,
+  newContent: Fragment,
+) {
+  const node = tr.doc.nodeAt(nodePos);
+  if (!node) {
+    throw new RangeError("No node at given position");
+  }
+
+  const oldContent = node.content;
+  // Position of the first child inside the node.
+  const contentStart = nodePos + 1;
+
+  if (node.isTextblock) {
+    // Inline content: diff at the character/token level. A flat slice (no open
+    // depth) is valid because the children are inline leaves.
+    const diffStart = oldContent.findDiffStart(newContent);
+    if (diffStart === null) {
+      return;
+    }
+
+    // `findDiffEnd` returns ends in TWO separate coordinate systems: `a` is an
+    // offset into the OLD content, `b` is an offset into the NEW content. They
+    // are NOT interchangeable when the two fragments differ in size.
+    const diffEnd = oldContent.findDiffEnd(newContent)!;
+    let { a: oldEnd, b: newEnd } = diffEnd;
+
+    // The shared prefix (`diffStart`) and shared suffix can overlap, e.g. when
+    // inserting/deleting a run of text at a boundary. When that happens an end
+    // can fall before `diffStart`. Push the ends forward so neither precedes the
+    // shared prefix, keeping the OLD and NEW ranges aligned by the same amount
+    // (each coordinate system is checked independently, then the larger shift is
+    // applied to both so the suffix stays in sync).
+    const shift = Math.max(0, diffStart - oldEnd, diffStart - newEnd);
+    if (shift > 0) {
+      oldEnd += shift;
+      newEnd += shift;
+    }
+
+    tr.replace(
+      // OLD-doc range to remove: uses old-content offsets.
+      contentStart + diffStart,
+      contentStart + oldEnd,
+      // Replacement: cut the NEW content using new-content offsets. `diffStart`
+      // is valid here because it lies within the shared prefix (identical in
+      // both fragments), and `newEnd` is a new-content offset.
+      new Slice(newContent.cut(diffStart, newEnd), 0, 0),
+    );
+    return;
+  }
+
+  // Nested/block content (table rows, child blocks, ...): snap the diff to whole
+  // top-level children so the replacement slice is always a valid sequence of
+  // complete children (open depth 0).
+  const oldChildCount = oldContent.childCount;
+  const newChildCount = newContent.childCount;
+
+  // Number of identical leading children.
+  let startIndex = 0;
+  while (
+    startIndex < oldChildCount &&
+    startIndex < newChildCount &&
+    oldContent.child(startIndex).eq(newContent.child(startIndex))
+  ) {
+    startIndex++;
+  }
+
+  // Number of identical trailing children (not overlapping the shared prefix).
+  let oldEndIndex = oldChildCount;
+  let newEndIndex = newChildCount;
+  while (
+    oldEndIndex > startIndex &&
+    newEndIndex > startIndex &&
+    oldContent.child(oldEndIndex - 1).eq(newContent.child(newEndIndex - 1))
+  ) {
+    oldEndIndex--;
+    newEndIndex--;
+  }
+
+  // Nothing changed.
+  if (startIndex === oldEndIndex && startIndex === newEndIndex) {
+    return;
+  }
+
+  // Convert child indices to document positions.
+  let from = contentStart;
+  for (let i = 0; i < startIndex; i++) {
+    from += oldContent.child(i).nodeSize;
+  }
+  let to = from;
+  for (let i = startIndex; i < oldEndIndex; i++) {
+    to += oldContent.child(i).nodeSize;
+  }
+
+  // Collect the changed replacement children.
+  const replacement: PMNode[] = [];
+  for (let i = startIndex; i < newEndIndex; i++) {
+    replacement.push(newContent.child(i));
+  }
+
+  // Use a strict ReplaceStep (rather than the lenient `tr.replace`) so that
+  // invalid content for the parent node type (e.g. a columnList that would end
+  // up with non-column children) throws instead of being silently coerced.
+  tr.step(
+    new ReplaceStep(from, to, new Slice(Fragment.from(replacement), 0, 0)),
+  );
+}
+
+/**
+ * Updates the type and/or attributes of the node at `pos` using the smallest
+ * possible set of steps.
+ *
+ * - If neither the type nor any attribute changes, no step is emitted.
+ * - If only attributes change (type stays the same), an `AttrStep` is emitted
+ *   for each changed attribute. These are minimal steps that don't touch the
+ *   node's content.
+ * - If the type changes, `setNodeMarkup` is used, which keeps the node's content
+ *   via a `ReplaceAroundStep`.
+ */
+function setNodeMarkupMinimal(
+  tr: Transform,
+  pos: number,
+  newType: NodeType,
+  newAttrs: Record<string, unknown>,
+) {
+  const node = tr.doc.nodeAt(pos);
+  if (!node) {
+    throw new RangeError("No node at given position");
+  }
+
+  // Only consider attributes that are actually valid for the target node type.
+  // `block.props` may contain props that belong to the content node but not the
+  // container (or vice versa), and these should be ignored here.
+  const validAttrs = newType.spec.attrs ?? {};
+  const filteredNewAttrs: Record<string, unknown> = {};
+  for (const attr of Object.keys(newAttrs)) {
+    if (attr in validAttrs) {
+      filteredNewAttrs[attr] = newAttrs[attr];
+    }
+  }
+
+  const mergedAttrs = { ...node.attrs, ...filteredNewAttrs };
+
+  if (node.type === newType) {
+    // Only emit AttrSteps for attributes that actually changed.
+    for (const attr of Object.keys(mergedAttrs)) {
+      if (mergedAttrs[attr] !== node.attrs[attr]) {
+        tr.setNodeAttribute(pos, attr, mergedAttrs[attr]);
+      }
+    }
+    return;
+  }
+
+  // Type changed - setNodeMarkup keeps the content via a ReplaceAroundStep.
+  tr.setNodeMarkup(pos, newType, mergedAttrs);
+}
+
+/**
+ * Applies a minimal markup update to the node at `pos`, then returns `pos`
+ * re-mapped through only the steps that update added.
+ *
+ * `setNodeMarkupMinimal` may add a step (e.g. a ReplaceAroundStep when the node
+ * type changes), which leaves the original `pos` stale. Because `tr` may already
+ * contain steps from earlier ops (other `updateBlock` calls sharing the same
+ * transaction), we map through only the steps added here — not the whole
+ * `tr.mapping` — using a -1 (before) bias so the position stays anchored before
+ * the node rather than being pushed past it.
+ */
+function setNodeMarkupMinimalAndRemap(
+  tr: Transform,
+  pos: number,
+  newType: NodeType,
+  newAttrs: Record<string, unknown>,
+): number {
+  const baseMapLen = tr.mapping.maps.length;
+  setNodeMarkupMinimal(tr, pos, newType, newAttrs);
+  return tr.mapping.slice(baseMapLen).map(pos, -1);
 }
 
 function updateChildren<
@@ -287,15 +500,13 @@ function updateChildren<
 
     // Checks if a blockGroup node already exists.
     if (blockInfo.childContainer) {
-      // Replaces all child nodes in the existing blockGroup with the ones created earlier.
-
-      // use a replacestep to avoid the fitting algorithm
-      tr.step(
-        new ReplaceStep(
-          blockInfo.childContainer.beforePos + 1,
-          blockInfo.childContainer.afterPos - 1,
-          new Slice(Fragment.from(childNodes), 0, 0),
-        ),
+      // Replaces the child nodes in the existing blockGroup, only touching the
+      // range that actually changed (keeping unchanged leading/trailing
+      // children untouched).
+      replaceContentMinimal(
+        tr,
+        blockInfo.childContainer.beforePos,
+        Fragment.from(childNodes),
       );
     } else {
       if (!blockInfo.isBlockContainer) {
@@ -340,8 +551,7 @@ export function updateBlock<
     .resolve(posInfo.posBeforeNode + 1) // TODO: clean?
     .node();
 
-  const pmSchema = getPmSchema(tr);
-  return nodeToBlock(blockContainerNode, pmSchema);
+  return nodeToBlock(blockContainerNode, tr.doc);
 }
 
 type CellAnchor = { row: number; col: number; offset: number };

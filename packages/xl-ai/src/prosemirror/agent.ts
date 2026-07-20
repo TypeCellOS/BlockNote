@@ -31,7 +31,7 @@ export type AgentStep = {
 export function getStepsAsAgent(inputTr: Transform) {
   const pmSchema = getPmSchema(inputTr);
 
-  const { modification } = pmSchema.marks;
+  const modification = pmSchema.marks["modification"];
 
   const agentSteps: AgentStep[] = [];
 

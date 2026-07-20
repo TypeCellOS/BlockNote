@@ -1,0 +1,141 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`suggestion mode: 'hello world' -> 'hello universe' 1`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: 'hello world' -> 'hello universe' 2`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello universe</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: 'hello world' -> 'hello universe' 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="block-hello">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+        hello
+        <y-attributed-delete userIds="">wo</y-attributed-delete>
+        <y-attributed-insert userIds="">unive</y-attributed-insert>
+        r
+        <y-attributed-delete userIds="">ld</y-attributed-delete>
+        <y-attributed-insert userIds="">se</y-attributed-insert>
+      </paragraph>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: add bold to 'world' 1`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add bold to 'world' 2`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+      hello
+      <bold>world</bold>
+    </paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add bold to 'world' 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="block-hello">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+        hello
+        <y-attributed-format format="[object Object]" userIds="">
+          <bold>world</bold>
+        </y-attributed-format>
+      </paragraph>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: add italic to already-bold 'world' 1`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+      hello
+      <bold>world</bold>
+    </paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add italic to already-bold 'world' 2`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+      hello
+      <italic>
+        <bold>world</bold>
+      </italic>
+    </paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: add italic to already-bold 'world' 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="block-hello">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+        hello
+        <y-attributed-format format="[object Object]" userIds="">
+          <italic>
+            <bold>world</bold>
+          </italic>
+        </y-attributed-format>
+      </paragraph>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: remove bold from 'world' 1`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+      hello
+      <bold>world</bold>
+    </paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: remove bold from 'world' 2`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: remove bold from 'world' 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="block-hello">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+        hello
+        <y-attributed-format format="[object Object]" userIds="">world</y-attributed-format>
+      </paragraph>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;

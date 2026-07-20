@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+#
+# Regenerates the pnpm patch for @y/prosemirror from a local build.
+#
+# Usage:
+#   ./scripts/patch-y-prosemirror.sh [path-to-y-prosemirror]
+#
+# Defaults to ../y-prosemirror relative to this repo root.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+BLOCKNOTE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+LOCAL_YPM="${1:-$(cd "$BLOCKNOTE_ROOT/../y-prosemirror" && pwd)}"
+
+# Version of @y/prosemirror to patch. Must match the version pinned in
+# pnpm-workspace.yaml (overrides + patchedDependencies) and package.json files.
+YPM_VERSION="2.0.0-6"
+
+if [[ ! -d "$LOCAL_YPM/src" ]]; then
+  echo "ERROR: Cannot find y-prosemirror at $LOCAL_YPM"
+  echo "Pass the path as an argument: $0 /path/to/y-prosemirror"
+  exit 1
+fi
+
+echo "==> Using local y-prosemirror at: $LOCAL_YPM"
+echo "==> BlockNote root: $BLOCKNOTE_ROOT"
+
+# 0. Build y-prosemirror so dist/ is up to date
+echo "==> Building y-prosemirror (npm run dist) ..."
+(cd "$LOCAL_YPM" && npm run dist)
+
+# Best-effort cleanup of any leftover patch dir (case-insensitive FS resolves this fine).
+STALE_PATCH_DIR="$BLOCKNOTE_ROOT/node_modules/.pnpm_patches/@y/prosemirror@$YPM_VERSION"
+
+# 1. Clean up any leftover patch dir, then start fresh
+if [[ -d "$STALE_PATCH_DIR" ]]; then
+  echo "==> Cleaning up old patch dir ..."
+  rm -rf "$STALE_PATCH_DIR"
+fi
+
+echo "==> Running pnpm patch @y/prosemirror@$YPM_VERSION ..."
+cd "$BLOCKNOTE_ROOT"
+# Capture pnpm's reported patch dir so we use the canonical on-disk path casing.
+# Constructing PATCH_DIR manually breaks on macOS when the repo is entered via a
+# differently-cased path (e.g. blockNote vs BlockNote): pnpm patch-commit matches
+# the path against state.json case-sensitively and fails with ERR_PNPM_INVALID_PATCH_DIR.
+PATCH_OUTPUT="$(pnpm patch @y/prosemirror@$YPM_VERSION)"
+echo "$PATCH_OUTPUT"
+# Escape dots in the version for the regex.
+YPM_VERSION_RE="${YPM_VERSION//./\\.}"
+PATCH_DIR="$(printf '%s\n' "$PATCH_OUTPUT" | grep -Eo "/.*/\.pnpm_patches/@y/prosemirror@$YPM_VERSION_RE" | head -n1)"
+
+if [[ -z "$PATCH_DIR" || ! -d "$PATCH_DIR" ]]; then
+  echo "ERROR: Could not determine patch dir from 'pnpm patch' output"
+  exit 1
+fi
+
+echo "==> Patch temp dir: $PATCH_DIR"
+
+# 2. Replace src/ with local build
+echo "==> Replacing src/ ..."
+rm -rf "$PATCH_DIR/src"
+cp -R "$LOCAL_YPM/src" "$PATCH_DIR/src"
+
+# 3. Replace dist/ with local build (only dist/src/ with .d.ts files)
+echo "==> Replacing dist/ ..."
+rm -rf "$PATCH_DIR/dist"
+mkdir -p "$PATCH_DIR/dist/src"
+cp -R "$LOCAL_YPM/dist/src/" "$PATCH_DIR/dist/src/"
+
+# 4. Copy global.d.ts if it exists
+if [[ -f "$LOCAL_YPM/global.d.ts" ]]; then
+  echo "==> Copying global.d.ts ..."
+  cp "$LOCAL_YPM/global.d.ts" "$PATCH_DIR/global.d.ts"
+fi
+
+# 5. Update package.json in the patch dir
+echo "==> Updating package.json ..."
+node -e "
+const fs = require('fs');
+const orig = JSON.parse(fs.readFileSync('$PATCH_DIR/package.json', 'utf8'));
+const local = JSON.parse(fs.readFileSync('$LOCAL_YPM/package.json', 'utf8'));
+
+// Keep the original version so pnpm doesn't try to fetch a different
+// version from the registry.
+orig.version = '$YPM_VERSION';
+
+// Update exports
+orig.exports = local.exports;
+
+// Update dependencies
+orig.dependencies = local.dependencies;
+
+// Update peerDependencies
+orig.peerDependencies = local.peerDependencies;
+
+// Update files list
+orig.files = local.files;
+
+// Update type/sideEffects if present
+if (local.type) orig.type = local.type;
+if ('sideEffects' in local) orig.sideEffects = local.sideEffects;
+
+fs.writeFileSync('$PATCH_DIR/package.json', JSON.stringify(orig, null, 2) + '\n');
+console.log('   package.json updated');
+"
+
+# 6. Commit the patch
+echo ""
+echo "==> Running pnpm patch-commit ..."
+pnpm patch-commit "$PATCH_DIR"
+
+echo ""
+echo "==> Done! Patch regenerated at patches/@y__prosemirror@$YPM_VERSION.patch"

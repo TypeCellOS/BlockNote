@@ -7,6 +7,7 @@ import { CommentsExtension } from "../../comments/extension.js";
 import { DefaultThreadStoreAuth } from "../../comments/threadstore/DefaultThreadStoreAuth.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import { YAttributionMarksExtension } from "../../y/extensions/YAttributionMarks.js";
 import { YjsThreadStore } from "../comments/YjsThreadStore.js";
 import { withCollaboration } from "../index.js";
 
@@ -73,14 +74,21 @@ const createLegacyEditor = (
         provider: undefined,
       },
       schema: legacySchema,
-      ...(opts.threadStore && {
-        extensions: [
-          CommentsExtension({
-            threadStore: opts.threadStore,
-            resolveUsers: async () => [],
-          }),
-        ],
-      }),
+      // Register the Yjs attribution marks — they're the annotation mark
+      // reachable from core (the AI suggestion marks live in xl-ai), so they
+      // stand in for the `"annotation"` group here and let the plain code block
+      // keep them while dropping formatting.
+      extensions: [
+        YAttributionMarksExtension(),
+        ...(opts.threadStore
+          ? [
+              CommentsExtension({
+                threadStore: opts.threadStore,
+                resolveUsers: async () => [],
+              }),
+            ]
+          : []),
+      ],
     }) as Parameters<typeof BlockNoteEditor.create>[0],
   ) as unknown as BlockNoteEditor<any, any, any>;
   editor.mount(document.createElement("div"));
@@ -95,7 +103,7 @@ const createLegacyEditor = (
 };
 
 // Populates `fragment` with a bold-formatted code block (optionally also a
-// suggestion/`insertion` mark).
+// suggestion / `y-attributed-insert` mark).
 const buildLegacyFormattedCodeBlock = (
   fragment: Y.XmlFragment,
   opts: { withSuggestion?: boolean } = {},
@@ -106,7 +114,9 @@ const buildLegacyFormattedCodeBlock = (
       tr.addMark(
         0,
         tr.doc.content.size,
-        editor.pmSchema.marks.insertion.create({ id: 1 }),
+        editor.pmSchema.marks["y-attributed-insert"].create({
+          userIds: ["test-user"],
+        }),
       ),
     );
   }
@@ -138,14 +148,19 @@ const createCollabEditor = (
         user: { color: "#ff0000", name: "Test User" },
         provider: undefined,
       },
-      ...(opts.threadStore && {
-        extensions: [
-          CommentsExtension({
-            threadStore: opts.threadStore,
-            resolveUsers: async () => [],
-          }),
-        ],
-      }),
+      // Register the same annotation mark on the reconstructing editor, so it's
+      // allowed on the plain block and materialized rather than dropped.
+      extensions: [
+        YAttributionMarksExtension(),
+        ...(opts.threadStore
+          ? [
+              CommentsExtension({
+                threadStore: opts.threadStore,
+                resolveUsers: async () => [],
+              }),
+            ]
+          : []),
+      ],
     }),
   );
   editor.mount(document.createElement("div"));
@@ -279,14 +294,18 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
     editor._tiptapEditor.destroy();
   });
 
-  it("keeps suggestion (insertion) marks while dropping formatting", () => {
+  it("keeps suggestion (y-attributed-insert) marks while dropping formatting", () => {
     const doc = new Y.Doc();
     const fragment = doc.getXmlFragment("doc");
     buildLegacyFormattedCodeBlock(fragment, { withSuggestion: true });
 
     const before = markKeysIn(fragment);
     expect(before.has("bold")).toBe(true);
-    expect(before.has("insertion")).toBe(true);
+    // y-prosemirror encodes a mark that carries attributes with a hash suffix
+    // (e.g. `y-attributed-insert--<hash>`).
+    expect([...before].some((k) => k.startsWith("y-attributed-insert"))).toBe(
+      true,
+    );
 
     const editor = createCollabEditor(fragment);
 
@@ -303,7 +322,9 @@ describe("FixUpSchema: formatted code block backwards compatibility", () => {
     const after = markKeysIn(fragment);
     // Formatting left in Yjs but not materialized; suggestion (allowed) kept.
     expect(after.has("bold")).toBe(true);
-    expect(after.has("insertion")).toBe(true);
+    expect([...after].some((k) => k.startsWith("y-attributed-insert"))).toBe(
+      true,
+    );
     expect(styleKeysOf(editor.document[0]).has("bold")).toBe(false);
 
     editor._tiptapEditor.destroy();

@@ -398,7 +398,8 @@ export const hr: Dictionary = {
     save_button_text: "Spremi",
     cancel_button_text: "Odustani",
     deleted_reference_text: "Originalni sadržaj je obrisan",
-    discard_pending_comment: "Jeste li sigurni da želite odbaciti ovaj komentar?",
+    discard_pending_comment:
+      "Jeste li sigurni da želite odbaciti ovaj komentar?",
     actions: {
       add_reaction: "Dodaj reakciju",
       resolve: "Riješi",
@@ -414,6 +415,14 @@ export const hr: Dictionary = {
       marked_as_resolved: "Označeno kao riješeno",
       more_replies: (count) => `${count} dodatnih odgovora`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Promjena oblikovanja",
+    deleted: "Izbrisano",
+    inserted_by: (users: string) => `Umetnuo/la: ${users}`,
+    deleted_by: (users: string) => `Izbrisao/la: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Promjena oblikovanja (${formats}) od: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

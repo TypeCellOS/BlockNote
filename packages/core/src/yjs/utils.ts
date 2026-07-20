@@ -17,6 +17,42 @@ import {
 } from "../index.js";
 
 /**
+ * Find a Y.AbstractType in another Y.Doc that corresponds to the same
+ * logical type in the original doc.
+ */
+export function findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
+  ytype: T,
+  otherYdoc: Y.Doc,
+): T {
+  const ydoc = ytype.doc;
+  if (!ydoc) {
+    throw new Error("type does not have a ydoc");
+  }
+  if (ytype._item === null) {
+    const rootKey = Array.from(ydoc.share.keys()).find(
+      (key) => ydoc.share.get(key) === ytype,
+    );
+    if (rootKey == null) {
+      throw new Error("type does not exist in other ydoc");
+    }
+    return otherYdoc.get(rootKey, ytype.constructor as new () => T) as T;
+  } else {
+    const ytypeItem = ytype._item;
+    const otherStructs = otherYdoc.store.clients.get(ytypeItem.id.client) ?? [];
+    const itemIndex = Y.findIndexSS(otherStructs, ytypeItem.id.clock);
+    const otherItem = otherStructs[itemIndex] as Y.Item | undefined;
+    if (!otherItem) {
+      throw new Error("type does not exist in other ydoc");
+    }
+    const otherContent = otherItem.content as Y.ContentType | undefined;
+    if (!otherContent) {
+      throw new Error("type does not exist in other ydoc");
+    }
+    return otherContent.type as T;
+  }
+}
+
+/**
  * Turn Prosemirror JSON to BlockNote style JSON
  * @param editor BlockNote editor
  * @param json Prosemirror JSON

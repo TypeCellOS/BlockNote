@@ -421,6 +421,14 @@ export const de: Dictionary = {
       more_replies: (count) => `${count} weitere Antworten`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "Formatierungsänderung",
+    deleted: "Gelöscht",
+    inserted_by: (users: string) => `Eingefügt von: ${users}`,
+    deleted_by: (users: string) => `Gelöscht von: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Formatierungsänderung (${formats}) von: ${users}`,
+  },
   generic: {
     ctrl_shortcut: "Strg",
   },

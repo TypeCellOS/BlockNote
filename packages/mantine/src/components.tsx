@@ -21,6 +21,7 @@ import { PanelTextInput } from "./panel/PanelTextInput.js";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover.js";
 import { SideMenu } from "./sideMenu/SideMenu.js";
 import { SideMenuButton } from "./sideMenu/SideMenuButton.js";
+import { AttributionTooltip } from "./attributionMarks/AttributionTooltip.js";
 import { SuggestionMenu } from "./suggestionMenu/SuggestionMenu.js";
 import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyItem.js";
 import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem.js";
@@ -35,6 +36,10 @@ import { TableHandle } from "./tableHandle/TableHandle.js";
 import { Toolbar } from "./toolbar/Toolbar.js";
 import { ToolbarButton } from "./toolbar/ToolbarButton.js";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect.js";
+import {
+  Sidebar as VersioningSidebar,
+  Snapshot as VersioningSnapshot,
+} from "./versioning/Versioning.js";
 
 export const components: Components = {
   FormattingToolbar: {
@@ -70,6 +75,9 @@ export const components: Components = {
     EmptyItem: SuggestionMenuEmptyItem,
     Label: SuggestionMenuLabel,
     Loader: SuggestionMenuLoader,
+  },
+  AttributionTooltip: {
+    Root: AttributionTooltip,
   },
   TableHandle: {
     Root: TableHandle,
@@ -110,5 +118,9 @@ export const components: Components = {
     Card,
     CardSection,
     ExpandSectionsPrompt,
+  },
+  Versioning: {
+    Sidebar: VersioningSidebar,
+    Snapshot: VersioningSnapshot,
   },
 };

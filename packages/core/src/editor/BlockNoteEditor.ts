@@ -680,6 +680,14 @@ export class BlockNoteEditor<
   ) => this._extensionManager.registerExtension(...args) as any;
 
   /**
+   * Atomically unregister old extensions and register new ones in a single
+   * plugin update, avoiding re-entrant dispatch issues.
+   */
+  public replaceExtension: ExtensionManager["replaceExtension"] = (
+    ...args: Parameters<ExtensionManager["replaceExtension"]>
+  ) => this._extensionManager.replaceExtension(...args);
+
+  /**
    * Get an extension from the editor
    */
   public getExtension: ExtensionManager["getExtension"] = ((

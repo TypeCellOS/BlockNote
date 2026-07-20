@@ -1,0 +1,146 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`suggestion mode: move paragraph up 1`] = `
+"<blockGroup>
+  <blockContainer id="first">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
+  </blockContainer>
+  <blockContainer id="middle">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Middle</paragraph>
+  </blockContainer>
+  <blockContainer id="last">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Last</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: move paragraph up 2`] = `
+"<blockGroup>
+  <blockContainer id="middle">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Middle</paragraph>
+  </blockContainer>
+  <blockContainer id="first">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
+  </blockContainer>
+  <blockContainer id="last">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Last</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: move paragraph up 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-insert userIds="">
+      <blockContainer id="middle">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-insert userIds="">Middle</y-attributed-insert>
+          </paragraph>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+    <blockContainer id="first">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
+    </blockContainer>
+    <y-attributed-delete userIds="">
+      <blockContainer id="middle">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="">Middle</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <blockContainer id="last">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">Last</paragraph>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: move paragraph with children 1`] = `
+"<blockGroup>
+  <blockContainer id="first">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
+  </blockContainer>
+  <blockContainer id="parent">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
+    <blockGroup>
+      <blockContainer id="child">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Child</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: move paragraph with children 2`] = `
+"<blockGroup>
+  <blockContainer id="parent">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
+    <blockGroup>
+      <blockContainer id="child">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">Child</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+  <blockContainer id="first">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: move paragraph with children 3`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-insert userIds="">
+      <blockContainer id="parent">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-insert userIds="">Parent</y-attributed-insert>
+          </paragraph>
+        </y-attributed-insert>
+        <y-attributed-insert userIds="">
+          <blockGroup>
+            <y-attributed-insert userIds="">
+              <blockContainer id="child">
+                <y-attributed-insert userIds="">
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-insert userIds="">Child</y-attributed-insert>
+                  </paragraph>
+                </y-attributed-insert>
+              </blockContainer>
+            </y-attributed-insert>
+          </blockGroup>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+    <blockContainer id="first">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
+    </blockContainer>
+    <y-attributed-delete userIds="">
+      <blockContainer id="parent">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="">Parent</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+        <y-attributed-delete userIds="">
+          <blockGroup>
+            <y-attributed-delete userIds="">
+              <blockContainer id="child">
+                <y-attributed-delete userIds="">
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-delete userIds="">Child</y-attributed-delete>
+                  </paragraph>
+                </y-attributed-delete>
+              </blockContainer>
+            </y-attributed-delete>
+          </blockGroup>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+  </blockGroup>
+</doc>"
+`;

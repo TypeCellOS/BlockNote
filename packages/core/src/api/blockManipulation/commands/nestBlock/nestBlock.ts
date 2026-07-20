@@ -3,7 +3,7 @@ import { Transaction } from "prosemirror-state";
 import { canJoin, liftTarget, ReplaceAroundStep } from "prosemirror-transform";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { getBlockInfoFromTransaction } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
 
 /**
  * Modified version of prosemirror-schema-list's sinkItem.
@@ -193,7 +193,7 @@ export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
 
 export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
   return editor.transact((tr) => {
-    const { bnBlock: blockContainer } = getBlockInfoFromTransaction(tr);
+    const { bnBlock: blockContainer } = getBlockInfoFromSelection(tr);
 
     return tr.doc.resolve(blockContainer.beforePos).nodeBefore !== null;
   });
@@ -201,7 +201,7 @@ export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
 
 export function canUnnestBlock(editor: BlockNoteEditor<any, any, any>) {
   return editor.transact((tr) => {
-    const { bnBlock: blockContainer } = getBlockInfoFromTransaction(tr);
+    const { bnBlock: blockContainer } = getBlockInfoFromSelection(tr);
 
     return tr.doc.resolve(blockContainer.beforePos).depth > 1;
   });

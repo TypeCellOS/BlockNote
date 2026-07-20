@@ -402,7 +402,8 @@ export const no: Dictionary = {
     save_button_text: "Lagre",
     cancel_button_text: "Avbryt",
     deleted_reference_text: "Originalt innhold slettet",
-    discard_pending_comment: "Er du sikker på at du vil forkaste denne kommentaren?",
+    discard_pending_comment:
+      "Er du sikker på at du vil forkaste denne kommentaren?",
     actions: {
       add_reaction: "Legg til reaksjon",
       resolve: "Løs",
@@ -418,6 +419,14 @@ export const no: Dictionary = {
       marked_as_resolved: "Merket som løst",
       more_replies: (count) => `${count} flere svar`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Formateringsendring",
+    deleted: "Slettet",
+    inserted_by: (users: string) => `Satt inn av: ${users}`,
+    deleted_by: (users: string) => `Slettet av: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Formateringsendring (${formats}) av: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

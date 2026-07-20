@@ -1,5 +1,6 @@
 "use client";
 
+import { createUserStore } from "@blocknote/core";
 import {
   DefaultThreadStoreAuth,
   CommentsExtension,
@@ -32,6 +33,10 @@ async function resolveUsers(userIds: string[]) {
 
   return HARDCODED_USERS.filter((user) => userIds.includes(user.id));
 }
+
+// A single user store, shared between the comments and collaboration extensions
+// so they use one de-duped cache of resolved users.
+const userStore = createUserStore(resolveUsers);
 
 // Sets up Yjs document and PartyKit Yjs provider.
 const doc = new Y.Doc();
@@ -82,8 +87,9 @@ export default function App() {
         provider,
         fragment: doc.getXmlFragment("blocknote"),
         user: { color: getRandomColor(), name: activeUser.username },
+        resolveUsers: userStore,
       },
-      extensions: [CommentsExtension({ threadStore, resolveUsers })],
+      extensions: [CommentsExtension({ threadStore, resolveUsers: userStore })],
     }),
     [activeUser, threadStore],
   );

@@ -428,7 +428,8 @@ export const ru: Dictionary = {
     save_button_text: "Сохранить",
     cancel_button_text: "Отменить",
     deleted_reference_text: "Исходный контент удалён",
-    discard_pending_comment: "Вы уверены, что хотите отменить этот комментарий?",
+    discard_pending_comment:
+      "Вы уверены, что хотите отменить этот комментарий?",
     actions: {
       add_reaction: "Добавить реакцию",
       resolve: "Решить",
@@ -444,6 +445,14 @@ export const ru: Dictionary = {
       marked_as_resolved: "Отмечено как решенное",
       more_replies: (count) => `${count} дополнительных ответов`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Изменение форматирования",
+    deleted: "Удалено",
+    inserted_by: (users: string) => `Вставлено: ${users}`,
+    deleted_by: (users: string) => `Удалено: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Изменение форматирования (${formats}): ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",
