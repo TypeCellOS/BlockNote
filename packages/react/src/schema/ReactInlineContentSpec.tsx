@@ -13,8 +13,8 @@ import {
   InlineContentSchemaWithInlineContent,
   InlineContentSpec,
   inlineContentToNodes,
-  NON_FORMATTING_MARK_GROUP,
   nodeToCustomInlineContent,
+  nonFormattingMarks,
   PartialCustomInlineContentFromConfig,
   Props,
   PropSchema,
@@ -148,11 +148,15 @@ export function createReactInlineContentSpec<
     // "plain" inline content holds unstyled text, so it disallows formatting
     // marks (mirroring "plain" blocks). It still allows the non-formatting marks
     // (comments and suggestions/diffs), which annotate content without changing
-    // it and are ignored by the content model.
-    marks:
-      inlineContentConfig.content === "plain"
-        ? NON_FORMATTING_MARK_GROUP
-        : undefined,
+    // it and are ignored by the content model. `nonFormattingMarks` resolves the
+    // group only when at least one such mark is registered, so a plain inline
+    // content in an editor without any of them doesn't reference an empty
+    // (unknown) mark group.
+    marks() {
+      return inlineContentConfig.content === "plain"
+        ? nonFormattingMarks(this.editor)
+        : undefined;
+    },
 
     addAttributes() {
       return propsToAttributes(inlineContentConfig.propSchema);

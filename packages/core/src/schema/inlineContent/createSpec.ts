@@ -11,7 +11,7 @@ import { inlineContentToNodes } from "../../api/nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeToBlock.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { propsToAttributes } from "../blocks/internal.js";
-import { NON_FORMATTING_MARK_GROUP } from "../markGroups.js";
+import { nonFormattingMarks } from "../markGroups.js";
 import { Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
 import {
@@ -276,11 +276,15 @@ export function createInlineContentSpec<
     // "plain" inline content holds unstyled text, so it disallows formatting
     // marks (mirroring "plain" blocks). It still allows the non-formatting marks
     // (comments and suggestions/diffs), which annotate content without changing
-    // it and are ignored by the content model.
-    marks:
-      inlineContentConfig.content === "plain"
-        ? NON_FORMATTING_MARK_GROUP
-        : undefined,
+    // it and are ignored by the content model. `nonFormattingMarks` resolves the
+    // group only when at least one such mark is registered, so a plain inline
+    // content in an editor without any of them doesn't reference an empty
+    // (unknown) mark group.
+    marks() {
+      return inlineContentConfig.content === "plain"
+        ? nonFormattingMarks(this.editor)
+        : undefined;
+    },
 
     addAttributes() {
       return propsToAttributes(inlineContentConfig.propSchema);
