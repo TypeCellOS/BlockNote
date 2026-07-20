@@ -54,6 +54,7 @@
     "hono": "^4.10.3"
   },
   "devDependencies": {
+    "@types/node": "22.13.13",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
