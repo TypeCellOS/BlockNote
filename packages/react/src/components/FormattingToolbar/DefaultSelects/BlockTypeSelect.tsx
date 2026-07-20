@@ -145,18 +145,22 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   // the schema.
   const filteredItems = useMemo(
     () =>
-      (props.items || blockTypeSelectItems(editor.dictionary)).filter((item) =>
-        editorHasBlockWithType(
-          editor,
-          item.type,
-          Object.fromEntries(
-            Object.entries(item.props || {}).map(([propName, propValue]) => [
-              propName,
-              typeof propValue,
-            ]),
-          ) as Record<string, "string" | "number" | "boolean">,
-        ),
-      ),
+      (props.items || blockTypeSelectItems(editor.dictionary)).filter((item) => {
+        const blockSpec = editor.schema.blockSpecs[item.type];
+        if (!blockSpec) return false;
+
+        // Only pass props that exist in the block's schema. This prevents
+        // false rejections when a prop like isToggleable is conditionally
+        // excluded from the schema (e.g. allowToggleHeadings: false), while
+        // keeping the full props on the item for correct selection matching.
+        const schemaProps = Object.fromEntries(
+          Object.entries(item.props || {})
+            .filter(([propName]) => propName in blockSpec.config.propSchema)
+            .map(([propName, propValue]) => [propName, typeof propValue]),
+        ) as Record<string, "string" | "number" | "boolean">;
+
+        return editorHasBlockWithType(editor, item.type, schemaProps);
+      }),
     [editor, props.items],
   );
 
