@@ -54,18 +54,22 @@ The Block Config describes the shape of your custom blocks. Use it to specify th
 ```typescript
 type BlockConfig = {
   type: string;
-  content: "inline" | "none";
+  content: "inline" | "plain" | "none";
   readonly propSchema: PropSchema;
 };
 ```
 
 `type:` Defines the identifier of the custom block.
 
-`content:` `inline` if your custom block should support rich text content, `none` if not.
+`content:` Defines what kind of editable content the block holds:
+
+- `"inline"` for rich text content, i.e. [inline content](/docs/foundations/document-structure#inline-content-objects) such as styled text and links.
+- `"plain"` for unstyled plain text, like a code block's source. Plain content can't hold formatting marks (bold, italic, etc.) or other inline content, and it's the only content type that supports [syntax highlighting](/docs/features/blocks/code-blocks#syntax-highlighting).
+- `"none"` if the block holds no editable content.
 
 <Callout type="info">
-  _In the alert demo, we want the user to be able to type text in our alert, so
-  we set `content` to `"inline"`._
+  _In the alert demo, we want the user to be able to type rich text in our
+  alert, so we set `content` to `"inline"`._
 </Callout>
 
 `propSchema:` The `PropSchema` specifies the props that the block supports. Block props (properties) are data stored with your Block in the document, and can be used to customize its appearance or behavior.
@@ -124,6 +128,10 @@ type ReactCustomBlockImplementation = {
     contest: { nestingLevel: number };
   }>;
   parse?: (element: HTMLElement) => PartialBlock["props"] | undefined;
+  parseContent?: (options: {
+    el: HTMLElement;
+    schema: Schema;
+  }) => Fragment | undefined;
   runsBefore?: string[];
   meta?: {
     hardBreakShortcut?: "shift+enter" | "enter" | "none";
@@ -132,6 +140,7 @@ type ReactCustomBlockImplementation = {
     code?: boolean;
     defining?: boolean;
     isolating?: boolean;
+    highlight?: (block: Block) => string | undefined;
   };
 };
 ```
@@ -142,7 +151,7 @@ type ReactCustomBlockImplementation = {
 
 - `editor:` The BlockNote editor instance that the block is in.
 
-- `contentRef:` A React `ref` you can use to mark which element in your block is editable, this is only available if your block config contains `content: "inline"`.
+- `contentRef:` A React `ref` you can use to mark which element in your block is editable. This is only available if your block config contains `content: "inline"` or `content: "plain"`.
 
 `toExternalHTML?:` This component is used whenever the block is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` for the HTML conversion. Takes the same props as `render` and an additional `context` prop, which is. an object with the following attributes:
 
@@ -158,11 +167,13 @@ type ReactCustomBlockImplementation = {
 
 - `element`: The HTML element that's being parsed.
 
+`parseContent?:` An advanced option used in conjunction with `parse` that allows for more control when converting HTML into blocks. Runs when `parse` returns non-undefined and corresponds to [getContent](https://prosemirror.net/docs/ref/#model.TagParseRule.getContent) in the ProseMirror API.
+
 `runsBefore?:` If this block has parsing or extensions that need to be given priority over any other blocks, you can pass their `type`s in an array here.
 
 `meta?:` An object for setting various generic properties of the block.
 
-- `hardBreakShortcut?:` Defines which keyboard shortcut should be used to insert a hard break into the block's inline content. Defaults to `"shift+enter"`.
+- `hardBreakShortcut?:` Defines which keyboard shortcut should be used to insert a hard break into the block's inline content. Defaults to `"shift+enter"`. For `content: "plain"` blocks (which can't hold hard break nodes), the shortcut inserts a literal newline (`"\n"`) instead.
 
 - `selectable?:` Can be set to false in order to make the block non-selectable, both using the mouse and keyboard. This also helps with being able to select non-editable content within the block. Should only be set to false when `content` is `none` and defaults to true.
 
@@ -173,6 +184,8 @@ type ReactCustomBlockImplementation = {
 - `defining?:` Whether this block is [defining](https://prosemirror.net/docs/ref/#model.NodeSpec.defining).
 
 - `isolating?:` Whether this block is [isolating](https://prosemirror.net/docs/ref/#model.NodeSpec.isolating).
+
+- `highlight?:` A callback that returns the language the block's text should be syntax-highlighted as (or `undefined` for no highlighting). Highlighting only takes effect when the [syntax highlighting extension](/docs/features/blocks/code-blocks#syntax-highlighting) is added to the editor.
 
 ### Block Extensions
 

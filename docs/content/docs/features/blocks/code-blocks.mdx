@@ -1,6 +1,6 @@
 ---
 title: Code Blocks
-description: How to add syntax highlighting to code blocks.
+description: How to add syntax highlighting to code blocks, and how to build blocks that render a preview of their source.
 ---
 
 # Code Blocks
@@ -43,23 +43,51 @@ type CodeBlockOptions = {
 
 `supportedLanguages:` The syntax highlighting languages supported by the code block, which is an empty array by default.
 
-**Syntax Highlighting**
+**Type & Props**
 
-Syntax highlighting is handled by a separate editor extension that you add to the editor's `extensions` (not configured on the code block itself), so it can highlight any block that declares a language — the code block, and blocks like the math block. When the extension isn't added, those blocks render as plain text.
+```ts
+type CodeBlock = {
+  id: string;
+  type: "codeBlock";
+  props: {
+    language: string;
+  };
+  content: StyledText[];
+  children: Block[];
+};
+```
 
-The extension is configured with a Shiki highlighter:
+`language:` The syntax highlighting language to use. Defaults to `text`, which has no highlighting.
+
+Unlike most blocks, the code block's `content` is [plain text](/docs/foundations/document-structure#plain-text-content).
+
+## Syntax Highlighting
+
+To enable syntax highlighting, you must add the `SyntaxHighlightingExtension` to the editor and configure it with a Shiki highlighter:
 
 ```ts
 type SyntaxHighlightingOptions = {
   createHighlighter: () => Promise<HighlighterGeneric<any, any>>;
 };
+
+const options: SyntaxHighlightingOptions = {
+  createHighlighter: ...
+};
+
+const syntaxHighlighter = SyntaxHighlightingExtension(options);
 ```
 
 `createHighlighter:` The [Shiki highlighter](https://shiki.style/guide/load-theme) to use for syntax highlighting.
 
-Which blocks get highlighted (and as which language) is decided by each block's spec via its `meta.highlight` callback — the code block highlights as its `language` prop, the math block always as `latex` — so you don't configure this on the extension.
+While the extension adds support & configuration for syntax highlighting, each block must specify if and how it should be highlighted. This is done in the block's spec via its `meta.highlight` callback:
 
-BlockNote provides a generic, ready-to-use highlighter in the `@blocknote/code-block` package, which supports a wide range of languages. It's exported as a pre-configured `syntaxHighlighter` extension, alongside the code block options:
+```ts
+type highlight: (block: Block) => string | undefined;
+```
+
+This function runs for each instance of the block, and returns the language that the block's text should be highlighted with. The supported languages are defined by the Shiki highlighter passed to the extension.
+
+BlockNote provides a generic, ready-to-use highlighter in the `@blocknote/code-block` package, which supports a wide range of languages. It's exported as a pre-configured `syntaxHighlighter` extension, alongside `codeBlockOptions`, which implements the `highlight` callback for the code block:
 
 ```ts
 import { createCodeBlockSpec } from "@blocknote/core";
@@ -76,22 +104,6 @@ const editor = useCreateBlockNote({
 ```
 
 See [this example](/examples/theming/code-block) to see it in action.
-
-**Type & Props**
-
-```ts
-type CodeBlock = {
-  id: string;
-  type: "codeBlock";
-  props: {
-    language: string;
-  };
-  content: InlineContent[];
-  children: Block[];
-};
-```
-
-`language:` The syntax highlighting language to use. Defaults to `text`, which has no highlighting.
 
 ## Custom Syntax Highlighting
 
@@ -147,3 +159,235 @@ export default function App() {
 See the custom code block example for a more detailed example.
 
 <Example name="theming/custom-code-block" />
+
+## Code Blocks with Previews
+
+<Callout type="info">
+  The blocks and inline content described below, as well as the components for
+  building your own, are only available in React (`@blocknote/react`).
+</Callout>
+
+Some blocks are authored as source code but are more useful shown as the thing that code produces - a LaTeX formula rendered as a formula, or Mermaid source rendered as a diagram. Unlike the code block above, these blocks show the rendered preview first, while the source code is edited in a popup.
+
+BlockNote ships two ready-to-use blocks built on this pattern:
+
+- `@blocknote/math-block` - a math block and inline math content, rendering LaTeX as MathML.
+- `@blocknote/diagram-block` - a diagram block, rendering [Mermaid](https://mermaid.js.org/) source.
+
+Both are added to your editor through a [custom schema](/docs/features/custom-schemas), and both reuse the same building blocks (`SourceBlockWithPreview` / `SourceInlineContentWithPreview`) that you can use to create your own.
+
+### Math Block
+
+The `@blocknote/math-block` package exports `createReactMathBlockSpec` (a block) and `createReactInlineMathSpec` (inline content). Add them to your schema's `blockSpecs` and `inlineContentSpecs` respectively:
+
+```tsx
+import { BlockNoteSchema } from "@blocknote/core";
+import {
+  createReactMathBlockSpec,
+  createReactInlineMathSpec,
+} from "@blocknote/math-block";
+
+const schema = BlockNoteSchema.create().extend({
+  blockSpecs: {
+    // Adds the Math block to the schema.
+    math: createReactMathBlockSpec(),
+  },
+  inlineContentSpecs: {
+    // Adds the inline Math content to the schema.
+    inlineMath: createReactInlineMathSpec(),
+  },
+});
+```
+
+The source popup highlights the LaTeX source using BlockNote's [syntax highlighting](#syntax-highlighting). The math block and inline math already declare their source language (`latex`) via their spec's `meta.highlight` callback, so all you need to do is add the syntax highlighting extension to your editor — no per-block configuration is required:
+
+```tsx
+import { syntaxHighlighter } from "@blocknote/code-block";
+
+const editor = useCreateBlockNote({
+  schema,
+  extensions: [syntaxHighlighter],
+});
+```
+
+The math block renders LaTeX as MathML (via [Temml](https://temml.org/)) for the browser to display natively. Exporting to HTML produces a MathML `<math>` element, and pasting MathML back in is converted to LaTeX. Additionally, the source code is rendered to an `annotation` element in the HTML export for lossless round-trip conversion.
+
+<Example name="custom-schema/math-block" />
+
+### Diagram Block
+
+The `@blocknote/diagram-block` package exports `createReactDiagramBlockSpec`, added the same way:
+
+```tsx
+import { BlockNoteSchema } from "@blocknote/core";
+import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
+
+const schema = BlockNoteSchema.create().extend({
+  blockSpecs: {
+    // Adds the Diagram block to the schema.
+    diagram: createReactDiagramBlockSpec(),
+  },
+});
+```
+
+As with the math block, the diagram block declares its source language (`mermaid`) via `meta.highlight`, so adding the [syntax highlighting](#syntax-highlighting) extension to your editor is all that's needed to highlight the Mermaid source in the popup — you don't configure the language per block.
+
+The block renders diagrams from Mermaid source, showing the rendered diagram in place of the source and revealing an editable source popup when selected.
+
+<Example name="custom-schema/diagram-block" />
+
+### Creating Your Own
+
+The math and diagram blocks are thin wrappers around two components from `@blocknote/react`, which you can use to build your own source-with-preview blocks and inline content:
+
+- `SourceBlockWithPreview` - for [custom blocks](/docs/features/custom-schemas/custom-blocks).
+- `SourceInlineContentWithPreview` - for [custom inline content](/docs/features/custom-schemas/custom-inline-content).
+
+Both render the preview you give them in place of the block/inline content, and manage the editable source popup for you. The popup is driven by an extension you register on the spec:
+
+- `SourceBlockWithPreviewExtension` (from `@blocknote/core`) for blocks.
+- `SourceInlineContentWithPreviewExtension` (from `@blocknote/core`) for inline content.
+
+#### Custom Block
+
+Create the block with `createReactBlockSpec`, using [`"plain"` content](/docs/features/custom-schemas/custom-blocks) (the source is stored as the block's plain text content), rendering `SourceBlockWithPreview`, and passing the matching extension:
+
+```tsx
+import {
+  createBlockConfig,
+  SourceBlockWithPreviewExtension,
+} from "@blocknote/core";
+import {
+  createReactBlockSpec,
+  PreviewPlaceholder,
+  ReactCustomBlockRenderProps,
+  SourceBlockWithPreview,
+} from "@blocknote/react";
+
+const createMyBlockConfig = createBlockConfig(
+  () =>
+    ({
+      type: "myBlock" as const,
+      propSchema: {},
+      content: "plain" as const,
+    }) as const,
+);
+
+type MyBlockConfig = ReturnType<typeof createMyBlockConfig>;
+
+const MyBlockPreview = (props: ReactCustomBlockRenderProps<MyBlockConfig>) => {
+  // The block's content as plain text, i.e. the source to render.
+  const source = props.block.content.map((c) => c.text ?? "").join("").trim();
+
+  // Render the source however you like. `render` may return `undefined` (e.g.
+  // when the source is empty or errored) - the preview then falls back to the
+  // empty/error state.
+  const { preview, error } = render(source);
+
+  return (
+    <SourceBlockWithPreview
+      block={props.block}
+      editor={props.editor}
+      contentRef={props.contentRef}
+      source={source}
+      // Pass the last successfully rendered preview (or `undefined`) so an
+      // errored source shows the error state instead of an empty preview.
+      preview={preview}
+      error={error}
+      // Optional: shown in place of the preview when the source is empty.
+      emptySourcePlaceholder={
+        <PreviewPlaceholder icon={<MyIcon />} text="Add source" />
+      }
+    />
+  );
+};
+
+const createMyBlockSpec = createReactBlockSpec(
+  createMyBlockConfig,
+  {
+    meta: { code: true, defining: true, isolating: false },
+    render: MyBlockPreview,
+  },
+  [
+    SourceBlockWithPreviewExtension({
+      key: "my-block-preview",
+      blockType: "myBlock",
+      // Whether a given block should render a preview at all. Blocks like math
+      // and diagrams always do, so they return `true`.
+      hasPreview: () => true,
+      // What Enter does while the popup is open: "close" for single-line
+      // sources (math), "newline" for multiline ones (diagrams). Defaults to
+      // "close".
+      enterBehaviour: "close",
+    }),
+  ],
+);
+```
+
+`SourceBlockWithPreview` accepts a few more props to customize the preview - `errorPreview` for the compact error state shown in place of the preview, and `emptySourcePlaceholder` (a string customizes the default placeholder's text, while an element replaces it entirely). See the `SourceWithPreviewProps` type for the full list.
+
+The `PreviewPlaceholder` component (also exported from `@blocknote/react`) renders the default empty/error placeholder, so you can reuse it with your own icon and text.
+
+Because the block uses `"plain"` content, you can also syntax-highlight the source in the popup (as the math and diagram blocks do): add a `highlight` callback to its `meta` that returns the source language, then add the [syntax highlighting](#syntax-highlighting) extension to your editor.
+
+#### Custom Inline Content
+
+Inline content works the same way, using `createReactInlineContentSpec`, `SourceInlineContentWithPreview`, and `SourceInlineContentWithPreviewExtension`:
+
+```tsx
+import {
+  CustomInlineContentConfig,
+  SourceInlineContentWithPreviewExtension,
+} from "@blocknote/core";
+import {
+  createReactInlineContentSpec,
+  ReactCustomInlineContentRenderProps,
+  SourceInlineContentWithPreview,
+} from "@blocknote/react";
+
+const myInlineConfig = {
+  type: "myInline" as const,
+  propSchema: {},
+  content: "plain" as const,
+} satisfies CustomInlineContentConfig;
+
+const MyInlinePreview = (
+  props: ReactCustomInlineContentRenderProps<typeof myInlineConfig, any>,
+) => {
+  // For "plain" inline content, `content` is already a plain string.
+  const source = props.inlineContent.content.trim();
+  const { preview, error } = render(source);
+
+  return (
+    <SourceInlineContentWithPreview
+      editor={props.editor}
+      node={props.node}
+      getPos={props.getPos}
+      contentRef={props.contentRef}
+      source={source}
+      preview={preview}
+      error={error}
+    />
+  );
+};
+
+const createMyInlineSpec = () =>
+  createReactInlineContentSpec(
+    myInlineConfig,
+    {
+      meta: { code: true },
+      render: MyInlinePreview,
+    },
+    [
+      SourceInlineContentWithPreviewExtension({
+        key: "my-inline-preview",
+        inlineContentType: "myInline",
+      }),
+    ],
+  );
+```
+
+Unlike blocks - which toggle the popup on click - inline content opens its popup exactly while the selection is inside its source, so it's always shown when selected.
+
+The `@blocknote/math-block` and `@blocknote/diagram-block` packages are the reference implementations of this pattern; reading their source is the quickest way to see it end to end.
+
