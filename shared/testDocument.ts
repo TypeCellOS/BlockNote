@@ -314,9 +314,7 @@ const sourceBlocksForTesting = [
     id: "math-block",
     type: "math",
     props: {},
-    content: [
-      { type: "text", text: "a^2 = \\sqrt{b^2 + c^2}", styles: {} },
-    ],
+    content: [{ type: "text", text: "a^2 = \\sqrt{b^2 + c^2}", styles: {} }],
     children: [],
   },
   {
@@ -332,7 +330,7 @@ const sourceBlocksForTesting = [
       {
         type: "inlineMath",
         props: {},
-        content: [{ type: "text", text: "e^{i\\pi} + 1 = 0", styles: {} }],
+        content: "e^{i\\pi} + 1 = 0",
       },
     ],
     children: [],

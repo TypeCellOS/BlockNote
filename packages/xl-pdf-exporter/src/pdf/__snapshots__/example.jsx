@@ -1234,9 +1234,7 @@
               fontFamily: 'GeistMono'
             }}
           >
-            <TEXT style={{}}>
-              {`e^{i\pi} + 1 = 0`}
-            </TEXT>
+            {`e^{i\pi} + 1 = 0`}
           </TEXT>
         </TEXT>
       </VIEW>
