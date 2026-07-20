@@ -7,7 +7,6 @@ import {
   SuggestionMenu,
   TableHandlesExtension,
 } from "@blocknote/core/extensions";
-import { AttributionExtension } from "@blocknote/core/y";
 import { lazy, Suspense } from "react";
 
 import { FilePanelController } from "../components/FilePanel/FilePanelController.js";
@@ -162,7 +161,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
           <FloatingThreadController portalElement={commentsPortal} />
         </Suspense>
       )}
-      {editor.getExtension(AttributionExtension) &&
+      {editor.getExtension("attribution") &&
         props.attributionTooltip !== false && (
           <AttributionTooltipController
             portalElement={attributionTooltipPortal}

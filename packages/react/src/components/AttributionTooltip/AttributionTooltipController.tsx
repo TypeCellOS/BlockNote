@@ -1,8 +1,4 @@
-import {
-  AttributionExtension,
-  getReferenceClientRects,
-  getReferenceRect,
-} from "@blocknote/core/y";
+import type { AttributionExtension } from "@blocknote/core/y";
 import { flip, offset, shift, inline } from "@floating-ui/react";
 import { FC, useMemo } from "react";
 
@@ -39,22 +35,33 @@ export const AttributionTooltipController = (props: {
    */
   portalElement?: HTMLElement | null;
 }) => {
-  const state = useExtensionState(AttributionExtension, {
+  const state = useExtensionState<typeof AttributionExtension>("attribution", {
     selector: (state) => state,
   });
 
-  // Position off the hovered mark. Block-level marks are `display: contents`, so
-  // a live `getBoundingClientRect` (via `getReferenceRect`) is provided rather
-  // than relying on the wrapper's own (zero-sized) box.
   const reference = useMemo<GenericPopoverReference | undefined>(
     () =>
       state
         ? {
             element: state.anchor,
-            getBoundingClientRect: () => getReferenceRect(state.anchor),
-            // Required by the `inline()` middleware — a virtual reference has no
-            // default `getClientRects`, and `inline()` reads per-line rects.
-            getClientRects: () => getReferenceClientRects(state.anchor),
+            getBoundingClientRect: () => {
+              const content = state.anchor.firstElementChild ?? state.anchor;
+              const rect = content.getBoundingClientRect();
+              const el =
+                rect.width || rect.height
+                  ? content
+                  : (content.firstElementChild ?? content);
+              return el.getBoundingClientRect();
+            },
+            getClientRects: () => {
+              const content = state.anchor.firstElementChild ?? state.anchor;
+              const rect = content.getBoundingClientRect();
+              const el =
+                rect.width || rect.height
+                  ? content
+                  : (content.firstElementChild ?? content);
+              return el.getClientRects();
+            },
           }
         : undefined,
     [state],
