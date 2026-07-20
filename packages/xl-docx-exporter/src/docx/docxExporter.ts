@@ -153,36 +153,39 @@ export class DOCXExporter<
     // Unfortunately, loading the variable font doesn't work
     // "./src/fonts/Inter-VariableFont_opsz,wght.ttf",
 
-    let interFont = await loadFileBuffer(
+    const interFont = await loadFileBuffer(
       await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf"),
     );
-    let geistMonoFont = await loadFileBuffer(
+    const geistMonoFont = await loadFileBuffer(
       await import("@shared/assets/fonts/GeistMono-Regular.ttf"),
     );
 
-    if (
-      interFont instanceof ArrayBuffer ||
-      geistMonoFont instanceof ArrayBuffer
-    ) {
-      // conversion with Polyfill needed because docxjs requires Buffer
-      // NOTE: the buffer/ import is intentional and as documented in
-      // the `buffer` package usage instructions
-      // https://github.com/feross/buffer?tab=readme-ov-file#usage
-      const BufferPolyfill = (await import("buffer/")).Buffer;
+    // `docx` requires each font's `data` to be a Node `Buffer`. We derive the
+    // exact expected type from `docx` itself (rather than referencing the
+    // global `Buffer` type, which isn't available in this package's tsconfig).
+    type FontData = NonNullable<DocumentOptions["fonts"]>[number]["data"];
 
-      if (interFont instanceof ArrayBuffer) {
-        interFont = BufferPolyfill.from(interFont) as unknown as Buffer;
+    // In the browser `loadFileBuffer` resolves to an `ArrayBuffer`, which
+    // `docx` doesn't accept, so we convert it to a `Buffer` using the `buffer/`
+    // polyfill. In Node it's already a `Buffer` and can be used as-is.
+    // NOTE: the buffer/ import is intentional and as documented in the `buffer`
+    // package usage instructions:
+    // https://github.com/feross/buffer?tab=readme-ov-file#usage
+    const toFontData = async (
+      font: Awaited<ReturnType<typeof loadFileBuffer>>,
+    ): Promise<FontData> => {
+      if (font instanceof ArrayBuffer) {
+        const BufferPolyfill = (await import("buffer/")).Buffer;
+        return BufferPolyfill.from(font) as unknown as FontData;
       }
-      if (geistMonoFont instanceof ArrayBuffer) {
-        geistMonoFont = BufferPolyfill.from(geistMonoFont) as unknown as Buffer;
-      }
-    }
+      return font as unknown as FontData;
+    };
 
     return [
-      { name: "Inter", data: interFont },
+      { name: "Inter", data: await toFontData(interFont) },
       {
         name: "GeistMono",
-        data: geistMonoFont,
+        data: await toFontData(geistMonoFont),
       },
     ];
   }
