@@ -3,7 +3,7 @@ import {
   createPageBreakBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
-import { testDocument } from "@shared/testDocument.js";
+import { testDocumentWithSourceBlocks as testDocument } from "@shared/testDocument.js";
 import { BlobReader, FileEntry, TextWriter, ZipReader } from "@zip.js/zip.js";
 import { beforeAll, describe, expect, it } from "vite-plus/test";
 import xmlFormat from "xml-formatter";

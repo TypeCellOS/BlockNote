@@ -304,11 +304,17 @@ export const testDocument = partialBlocksToBlocksForTesting(
   ],
 );
 
-// TODO: fix this
-// Math, inline math & diagram blocks, covered by the exporters' default
-// mappings. Hand-built (rather than via `partialBlocksToBlocksForTesting`)
-// as their specs live in separate packages that `shared` doesn't depend on -
-// the exporters only need the block JSON.
+// Math, inline math & diagram blocks. Their specs live in separate packages
+// (`@blocknote/math-block`, `@blocknote/diagram-block`) that `shared` doesn't
+// depend on, so they're hand-built (rather than via
+// `partialBlocksToBlocksForTesting`) — the exporters only need the block JSON.
+//
+// These are kept OUT of the base `testDocument` and exposed via
+// `testDocumentWithSourceBlocks` below, because `testDocument` is also consumed
+// by the suggestion-gallery example / e2e tests, whose editor schema does NOT
+// register these block types — seeding them there throws "schema.nodes[...] is
+// undefined". Only the exporters (which map the raw block JSON and don't need
+// the runtime specs) opt in to the extended document.
 const sourceBlocksForTesting = [
   {
     id: "math-block",
@@ -350,4 +356,13 @@ const sourceBlocksForTesting = [
   },
 ] as unknown as typeof testDocument;
 
-testDocument.push(...sourceBlocksForTesting);
+/**
+ * `testDocument` plus the math / inline-math / diagram blocks whose specs live
+ * in separate packages. Used by the exporter tests (which serialize raw block
+ * JSON via their default mappings and so don't need the runtime specs). The
+ * source blocks are appended at the end, so exporter snapshots are unaffected.
+ */
+export const testDocumentWithSourceBlocks = [
+  ...testDocument,
+  ...sourceBlocksForTesting,
+] as typeof testDocument;

@@ -10,7 +10,7 @@ import {
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { Text } from "@react-pdf/renderer";
-import { testDocument } from "@shared/testDocument.js";
+import { testDocumentWithSourceBlocks as testDocument } from "@shared/testDocument.js";
 import reactElementToJSXString from "react-element-to-jsx-string";
 import { describe, expect, it } from "vite-plus/test";
 import { mathBlockMapping } from "../math-block/index.js";

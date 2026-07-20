@@ -3,7 +3,7 @@ import {
   defaultBlockSpecs,
   createPageBreakBlockSpec,
 } from "@blocknote/core";
-import { testDocument } from "@shared/testDocument.js";
+import { testDocumentWithSourceBlocks as testDocument } from "@shared/testDocument.js";
 import {
   BlobReader,
   Entry,

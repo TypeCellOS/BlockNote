@@ -11,7 +11,7 @@ import {
   defaultInlineContentSpecs,
   defaultStyleSpecs,
 } from "@blocknote/core";
-import { testDocument } from "@shared/testDocument.js";
+import { testDocumentWithSourceBlocks as testDocument } from "@shared/testDocument.js";
 
 describe("react email exporter", () => {
   it("should export a document (HTML snapshot)", async () => {
