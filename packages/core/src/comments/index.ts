@@ -5,3 +5,4 @@ export * from "./threadstore/ThreadStore.js";
 export * from "./threadstore/ThreadStoreAuth.js";
 export * from "./threadstore/TipTapThreadStore.js";
 export * from "./types.js";
+export { CommentMark } from "../extensions/Comments/CommentMark.js";
