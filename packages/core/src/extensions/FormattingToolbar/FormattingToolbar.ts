@@ -24,21 +24,6 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
         return false;
       }
 
-      // Searches the content of the selection to see if it spans a node with a
-      // code spec.
-      let spansCode = false;
-      tr.selection.content().content.descendants((node) => {
-        if (node.type.spec.code) {
-          spansCode = true;
-        }
-        return !spansCode; // keep descending if we haven't found a code block
-      });
-
-      // Don't show if the selection spans a code block.
-      if (spansCode) {
-        return false;
-      }
-
       // Show toolbar otherwise.
       return true;
     });
