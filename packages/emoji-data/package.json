@@ -1,0 +1,62 @@
+{
+  "name": "@blocknote/emoji-data",
+  "homepage": "https://github.com/TypeCellOS/BlockNote",
+  "private": false,
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TypeCellOS/BlockNote.git",
+    "directory": "packages/emoji-data"
+  },
+  "license": "MPL-2.0",
+  "version": "0.52.1",
+  "files": [
+    "dist",
+    "types",
+    "src"
+  ],
+  "keywords": [
+    "emoji",
+    "emoji-mart",
+    "blocknote",
+    "i18n"
+  ],
+  "description": "Trimmed, localized emoji dataset for BlockNote (emoji-mart compatible, built from emojibase).",
+  "type": "module",
+  "source": "src/index.ts",
+  "types": "./types/src/index.d.ts",
+  "main": "./dist/blocknote-emoji-data.cjs",
+  "module": "./dist/blocknote-emoji-data.js",
+  "exports": {
+    ".": {
+      "types": "./types/src/index.d.ts",
+      "import": "./dist/blocknote-emoji-data.js",
+      "require": "./dist/blocknote-emoji-data.cjs"
+    },
+    "./locales": {
+      "types": "./types/src/i18n/index.d.ts",
+      "import": "./dist/locales.js",
+      "require": "./dist/locales.cjs"
+    },
+    "./locales/*": {
+      "types": "./types/src/i18n/locales/*.d.ts",
+      "import": "./dist/locales/*.js",
+      "require": "./dist/locales/*.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "vp dev",
+    "lint": "vp lint src",
+    "clean": "rimraf dist && rimraf types",
+    "generate-emoji-data": "node scripts/generate.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@emoji-mart/data": "^1.2.1",
+    "emojibase-data": "^16.0.1",
+    "rimraf": "^5.0.10",
+    "rollup-plugin-webpack-stats": "^0.2.6",
+    "typescript": "^5.9.3",
+    "vite-plus": "catalog:"
+  }
+}

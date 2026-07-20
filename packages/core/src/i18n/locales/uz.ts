@@ -1,6 +1,7 @@
 import { Dictionary } from "../dictionary.js";
 
 export const uz: Dictionary = {
+  locale: "uz",
   slash_menu: {
     heading: {
       title: "1-darajali sarlavha",

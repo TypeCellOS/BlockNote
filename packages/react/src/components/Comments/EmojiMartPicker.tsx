@@ -1,5 +1,5 @@
 // From https://github.com/missive/emoji-mart/blob/main/packages/emoji-mart-react/react.tsx
-import type { EmojiMartData } from "@emoji-mart/data";
+import type { EmojiMartData } from "@blocknote/emoji-data";
 import React, { useEffect, useRef } from "react";
 
 // Temporary fix for https://github.com/missive/emoji-mart/pull/929
@@ -16,22 +16,16 @@ async function loadEmojiMart() {
   }
 
   emojiLoadingPromise = (async () => {
-    // load dynamically because emoji-mart doesn't specify type: module and breaks in nodejs
     const [emojiMartModule, emojiDataModule] = await Promise.all([
       import("emoji-mart"),
-      // use a dynamic import to encourage bundle-splitting
-      // and a smaller initial client bundle size
-      import("@emoji-mart/data"),
+      import("@blocknote/emoji-data"),
     ]);
 
     const emojiMart =
       "default" in emojiMartModule ? emojiMartModule.default : emojiMartModule;
-    const emojiData =
-      "default" in emojiDataModule
-        ? (emojiDataModule.default as EmojiMartData)
-        : (emojiDataModule as EmojiMartData);
+    const { emojiData } = emojiDataModule;
 
-    await emojiMart.init({ data: emojiData });
+    await emojiMart.init({ data: emojiData as any });
 
     return { emojiMart, emojiData };
   })();

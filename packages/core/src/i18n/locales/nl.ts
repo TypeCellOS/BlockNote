@@ -1,6 +1,7 @@
 import type { Dictionary } from "../dictionary.js";
 
 export const nl: Dictionary = {
+  locale: "nl",
   slash_menu: {
     heading: {
       title: "Kop 1",

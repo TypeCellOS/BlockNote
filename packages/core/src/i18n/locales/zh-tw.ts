@@ -1,6 +1,7 @@
 import type { Dictionary } from "../dictionary.js";
 
 export const zhTW: Dictionary = {
+  locale: "zh-tw",
   slash_menu: {
     heading: {
       title: "一級標題",
