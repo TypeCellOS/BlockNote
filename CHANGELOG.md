@@ -8,6 +8,56 @@
 - **comments:** Confirm before discarding an unsaved comment (blo-1197) ([#2861](https://github.com/TypeCellOS/BlockNote/pull/2861))
 - **core:** Support "plain" block content (BLO-335) ([#2868](https://github.com/TypeCellOS/BlockNote/pull/2868))
 
+### ⚠️ Migration Guide
+
+**Yjs is now decoupled from `@blocknote/core`.** Instead of passing a `collaboration` option directly to the editor, you now wrap your editor options with the `withCollaboration` helper imported from `@blocknote/core/yjs`.
+
+Before (`< 0.52.0`):
+
+```typescript
+const editor = useCreateBlockNote({
+  // ...other editor options
+  collaboration: {
+    provider,
+    fragment: doc.getXmlFragment("document-store"),
+    user: {
+      name: "My Username",
+      color: "#ff0000",
+    },
+  },
+});
+```
+
+After (`>= 0.52.0`):
+
+```typescript
+// Import the helper from the decoupled Yjs entrypoint:
+import { withCollaboration } from "@blocknote/core/yjs";
+
+const editor = useCreateBlockNote(
+  withCollaboration({
+    // ...other editor options
+    collaboration: {
+      provider,
+      fragment: doc.getXmlFragment("document-store"),
+      user: {
+        name: "My Username",
+        color: "#ff0000",
+      },
+    },
+  }),
+);
+```
+
+The `collaboration` object itself (`provider`, `fragment`, `user`, `showCursorLabels`, etc.) is unchanged — you only need to:
+
+1. Import `withCollaboration` from `@blocknote/core/yjs`.
+2. Wrap your editor options object with `withCollaboration(...)`, keeping the `collaboration` property inside it.
+
+The same applies when creating an editor with `BlockNoteEditor.create(withCollaboration({ ... }))`.
+
+> **Note:** `@blocknote/core/yjs` uses Yjs v13 (the `yjs` package). There is also a `@blocknote/core/y` entrypoint that targets Yjs v14 (`@y/y`) and adds newer features such as suggestions and version history. Unless you specifically need those, use `@blocknote/core/yjs`.
+
 ### 🩹 Fixes
 
 - Align side menu to tables (BLO-1117) ([#2837](https://github.com/TypeCellOS/BlockNote/pull/2837))
