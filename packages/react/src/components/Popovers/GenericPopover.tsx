@@ -34,6 +34,10 @@ export type GenericPopoverReference =
       // When no reference element is provided, this can be provided as an
       // alternative "virtual" element to position the popover around.
       getBoundingClientRect: () => DOMRect;
+      // Optional per-line client rects, required by floating-ui's `inline()`
+      // middleware. Virtual elements have no default `getClientRects`, so it
+      // must be provided explicitly when `inline()` is used.
+      getClientRects?: () => DOMRectList;
     }
   | {
       element: Element;
@@ -44,6 +48,8 @@ export type GenericPopoverReference =
       // `cacheMountedBoundingClientRect` is `true` or unspecified, this
       // function is not called while the reference element is not mounted.
       getBoundingClientRect: () => DOMRect;
+      // See above.
+      getClientRects?: () => DOMRectList;
     };
 
 // Returns a modified version of `getBoundingClientRect`, if
@@ -179,10 +185,19 @@ export const GenericPopover = (
         refs.setReference(element);
       }
 
+      // Forward `getClientRects` when provided, so floating-ui's `inline()`
+      // middleware can read per-line rects off a virtual reference (it calls
+      // `getClientRects()`, which virtual elements lack by default).
+      const getClientRects =
+        "getClientRects" in props.reference
+          ? props.reference.getClientRects
+          : undefined;
+
       refs.setPositionReference({
         getBoundingClientRect: getMountedBoundingClientRectCache(
           props.reference,
         ),
+        ...(getClientRects ? { getClientRects } : {}),
         contextElement: element,
       });
     }

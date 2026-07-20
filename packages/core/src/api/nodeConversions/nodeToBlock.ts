@@ -1,4 +1,4 @@
-import { Mark, Node, Schema, Slice } from "@tiptap/pm/model";
+import { Mark, Node, Slice } from "@tiptap/pm/model";
 import type { Block } from "../../blocks/defaultBlocks.js";
 import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type {
@@ -18,12 +18,14 @@ import {
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
-import { getBlockInfoWithManualOffset } from "../getBlockInfoFromPos.js";
+import {
+  getBlockInfoWithManualOffset,
+  getNodeId,
+} from "../getBlockInfoFromPos.js";
 import {
   getBlockCache,
   getBlockSchema,
   getInlineContentSchema,
-  getPmSchema,
   getStyleSchema,
 } from "../pmUtil.js";
 
@@ -388,21 +390,17 @@ export function nodeToCustomInlineContent<
 
 /**
  * Convert a Prosemirror node to a BlockNote block.
- *
- * TODO: test changes
  */
 export function nodeToBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
->(
-  node: Node,
-  schema: Schema,
-  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
-  inlineContentSchema: I = getInlineContentSchema(schema) as I,
-  styleSchema: S = getStyleSchema(schema) as S,
-  blockCache = getBlockCache(schema),
-): Block<BSchema, I, S> {
+>(node: Node, doc: Node): Block<BSchema, I, S> {
+  const schema = node.type.schema;
+  const blockSchema = getBlockSchema(schema) as BSchema;
+  const inlineContentSchema = getInlineContentSchema(schema) as I;
+  const styleSchema = getStyleSchema(schema) as S;
+  const blockCache = getBlockCache(schema);
   if (!node.type.isInGroup("bnBlock")) {
     throw Error("Node should be a bnBlock, but is instead: " + node.type.name);
   }
@@ -415,10 +413,11 @@ export function nodeToBlock<
 
   const blockInfo = getBlockInfoWithManualOffset(node, 0);
 
-  let id = blockInfo.bnBlock.node.attrs.id;
-
-  // Only used for blocks converted from other formats.
-  if (id === null) {
+  let id: string;
+  try {
+    id = getNodeId(blockInfo.bnBlock.node, doc);
+  } catch {
+    // Only used for blocks converted from other formats.
     id = UniqueID.options.generateID();
   }
 
@@ -447,16 +446,7 @@ export function nodeToBlock<
 
   const children: Block<BSchema, I, S>[] = [];
   blockInfo.childContainer?.node.forEach((child) => {
-    children.push(
-      nodeToBlock(
-        child,
-        schema,
-        blockSchema,
-        inlineContentSchema,
-        styleSchema,
-        blockCache,
-      ),
-    );
+    children.push(nodeToBlock(child, doc));
   });
 
   let content: Block<any, any, any>["content"];
@@ -513,27 +503,11 @@ export function docToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
->(
-  doc: Node,
-  schema: Schema = getPmSchema(doc),
-  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
-  inlineContentSchema: I = getInlineContentSchema(schema) as I,
-  styleSchema: S = getStyleSchema(schema) as S,
-  blockCache = getBlockCache(schema),
-) {
+>(doc: Node) {
   const blocks: Block<BSchema, I, S>[] = [];
   if (doc.firstChild) {
     doc.firstChild.descendants((node) => {
-      blocks.push(
-        nodeToBlock(
-          node,
-          schema,
-          blockSchema,
-          inlineContentSchema,
-          styleSchema,
-          blockCache,
-        ),
-      );
+      blocks.push(nodeToBlock(node, doc));
       return false;
     });
   }
@@ -565,11 +539,6 @@ export function prosemirrorSliceToSlicedBlocks<
   S extends StyleSchema,
 >(
   slice: Slice,
-  schema: Schema,
-  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
-  inlineContentSchema: I = getInlineContentSchema(schema) as I,
-  styleSchema: S = getStyleSchema(schema) as S,
-  blockCache: WeakMap<Node, Block<BSchema, I, S>> = getBlockCache(schema),
 ): {
   /**
    * The blocks that are included in the selection.
@@ -640,14 +609,7 @@ export function prosemirrorSliceToSlicedBlocks<
         return;
       }
 
-      const block = nodeToBlock(
-        blockContainer,
-        schema,
-        blockSchema,
-        inlineContentSchema,
-        styleSchema,
-        blockCache,
-      );
+      const block = nodeToBlock(blockContainer, slice.content.firstChild!);
       const childGroup =
         blockContainer.childCount > 1 ? blockContainer.child(1) : undefined;
 

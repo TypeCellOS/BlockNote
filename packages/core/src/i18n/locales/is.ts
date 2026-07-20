@@ -401,7 +401,8 @@ export const is: Dictionary = {
     save_button_text: "Vista",
     cancel_button_text: "Hætta",
     deleted_reference_text: "Upprunalegu efni eytt",
-    discard_pending_comment: "Ertu viss um að þú viljir henda þessari athugasemd?",
+    discard_pending_comment:
+      "Ertu viss um að þú viljir henda þessari athugasemd?",
     actions: {
       add_reaction: "Bæta við viðbrögðum",
       resolve: "Leysa",
@@ -417,6 +418,14 @@ export const is: Dictionary = {
       marked_as_resolved: "Merkt sem leyst",
       more_replies: (count) => `${count} fleiri svör`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Sniðbreyting",
+    deleted: "Eytt",
+    inserted_by: (users: string) => `Sett inn af: ${users}`,
+    deleted_by: (users: string) => `Eytt af: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Sniðbreyting (${formats}) af: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

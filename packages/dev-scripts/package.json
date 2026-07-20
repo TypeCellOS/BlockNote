@@ -8,7 +8,7 @@
     "directory": "packages/dev-scripts"
   },
   "license": "MPL-2.0",
-  "version": "0.51.4",
+  "version": "0.52.0",
   "description": "",
   "type": "module",
   "scripts": {
@@ -17,9 +17,9 @@
     "clean": "rimraf dist && rimraf types"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
-    "glob": "^10.5.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "rimraf": "^5.0.10",

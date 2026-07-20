@@ -11,7 +11,7 @@
     "directory": "packages/xl-ai"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.51.4",
+  "version": "0.52.0",
   "files": [
     "dist",
     "types",
@@ -74,6 +74,7 @@
     "@blocknote/react": "workspace:^",
     "@floating-ui/react": "^0.27.18",
     "@handlewithcare/prosemirror-suggest-changes": "^0.1.8",
+    "@tiptap/core": "^3.13.0",
     "ai": "^6.0.5",
     "lodash.isequal": "^4.5.0",
     "lodash.merge": "^4.6.2",
@@ -100,6 +101,7 @@
     "@types/json-schema": "^7.0.15",
     "@types/lodash.isequal": "^4.5.8",
     "@types/lodash.merge": "^4.6.9",
+    "@types/node": "22.13.13",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",

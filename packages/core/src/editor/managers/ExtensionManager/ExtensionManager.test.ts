@@ -28,25 +28,42 @@ function pluginIndex(
   );
 }
 
-describe("ExtensionManager unique keys", () => {
-  it("throws when two extensions are registered directly with the same key", () => {
+describe("ExtensionManager de-duplication by key", () => {
+  it("registers only the first extension when two share a key", () => {
+    let mountCount = 0;
+
     const first = createExtension(() => ({
       key: "dup",
       value: "first",
+      mount() {
+        mountCount++;
+        return () => {};
+      },
     }));
     const second = createExtension(() => ({
       key: "dup",
       value: "second",
+      mount() {
+        mountCount++;
+        return () => {};
+      },
     }));
 
-    // Two registrations of the same key are a configuration error and must fail
-    // loudly rather than silently dropping the second.
-    expect(() => createMountedEditor([first(), second()])).toThrow(
-      /already registered/,
-    );
+    const editor = createMountedEditor([first(), second()]);
+
+    // The first registration wins.
+    expect(editor.getExtension(first)?.value).toBe("first");
+    // The second registration was skipped entirely.
+    expect(editor.getExtension(second)).toBeUndefined();
+    expect((editor.extensions.get("dup") as any)?.value).toBe("first");
+    expect(
+      [...editor.extensions.values()].filter((e) => e.key === "dup").length,
+    ).toBe(1);
+    // Only the registered extension was mounted.
+    expect(mountCount).toBe(1);
   });
 
-  it("throws when a blockNoteExtensions dependency reuses an already-registered key", () => {
+  it("does not re-register a dependency declared via blockNoteExtensions when it is already registered", () => {
     // Two distinct factories sharing the key "dep".
     const depDirect = createExtension(() => ({
       key: "dep",
@@ -61,31 +78,16 @@ describe("ExtensionManager unique keys", () => {
       blockNoteExtensions: [depFromParent()],
     }));
 
-    // Registering the dependency directly and also declaring a (distinct)
-    // extension with the same key via blockNoteExtensions is a duplicate - keys
-    // must be unique regardless of how the extension is registered.
-    expect(() => createMountedEditor([depDirect(), parent()])).toThrow(
-      /already registered/,
-    );
-  });
+    // Register the dependency directly first, then a parent that also pulls in
+    // its own "dep" via blockNoteExtensions.
+    const editor = createMountedEditor([depDirect(), parent()]);
 
-  it("throws when a shared sub-dependency is declared by two parents", () => {
-    // A single sub-extension factory declared by two different parents produces
-    // two distinct instances with the same key - a duplicate. Shared extensions
-    // must be registered once, not depended upon by multiple parents.
-    const sharedSub = createExtension(() => ({ key: "shared-sub" }));
-    const parentA = createExtension(() => ({
-      key: "parent-a",
-      blockNoteExtensions: [sharedSub()],
-    }));
-    const parentB = createExtension(() => ({
-      key: "parent-b",
-      blockNoteExtensions: [sharedSub()],
-    }));
-
-    expect(() => createMountedEditor([parentA(), parentB()])).toThrow(
-      /already registered/,
-    );
+    expect(editor.getExtension(parent)).toBeDefined();
+    // The directly-registered dependency wins; the one declared by the parent
+    // is skipped rather than overriding it.
+    expect(editor.getExtension(depDirect)?.value).toBe("direct");
+    expect(editor.getExtension(depFromParent)).toBeUndefined();
+    expect((editor.extensions.get("dep") as any)?.value).toBe("direct");
   });
 
   it("registers a dependency declared via blockNoteExtensions when it isn't registered otherwise", () => {
@@ -189,6 +191,59 @@ describe("ExtensionManager ordering", () => {
     // ...but its dependency still runs before it.
     expect(pluginIndex(editor, subKey)).toBeLessThan(
       pluginIndex(editor, parentKey),
+    );
+  });
+
+  it("runs a shared sub-dependency before both extensions that declare it", () => {
+    const subKey = new PluginKey("shared-sub");
+    const parentAKey = new PluginKey("shared-parent-a");
+    const parentBKey = new PluginKey("shared-parent-b");
+    const otherKey = new PluginKey("shared-other");
+
+    const other = createExtension(() => ({
+      key: "shared-other",
+      prosemirrorPlugins: [new Plugin({ key: otherKey })],
+    }));
+    // A single sub-extension instance declared by two different parents. It is
+    // registered once (de-duplicated) and must run before both parents.
+    const sharedSub = createExtension(() => ({
+      key: "shared-sub",
+      prosemirrorPlugins: [new Plugin({ key: subKey })],
+    }));
+    const parentA = createExtension(() => ({
+      key: "shared-parent-a",
+      blockNoteExtensions: [sharedSub()],
+      prosemirrorPlugins: [new Plugin({ key: parentAKey })],
+    }));
+    // parentB declares the *already-registered* sub (so its registration is
+    // de-duplicated) and has a higher base priority via runsBefore. The
+    // dependency must still be recorded on the de-duplicated path so the sub
+    // runs before parentB too.
+    const parentB = createExtension(() => ({
+      key: "shared-parent-b",
+      runsBefore: ["shared-other"],
+      blockNoteExtensions: [sharedSub()],
+      prosemirrorPlugins: [new Plugin({ key: parentBKey })],
+    }));
+
+    const editor = createMountedEditor([parentA(), parentB(), other()]);
+
+    // The sub is registered exactly once despite being declared twice.
+    expect(
+      [...editor.extensions.values()].filter((e) => e.key === "shared-sub")
+        .length,
+    ).toBe(1);
+
+    // parentB's higher base priority puts it before the unrelated extension...
+    expect(pluginIndex(editor, parentBKey)).toBeLessThan(
+      pluginIndex(editor, otherKey),
+    );
+    // ...but the shared sub still runs before both parents.
+    expect(pluginIndex(editor, subKey)).toBeLessThan(
+      pluginIndex(editor, parentAKey),
+    );
+    expect(pluginIndex(editor, subKey)).toBeLessThan(
+      pluginIndex(editor, parentBKey),
     );
   });
 });

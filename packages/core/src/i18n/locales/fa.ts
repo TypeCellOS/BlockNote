@@ -356,7 +356,8 @@ export const fa = {
     save_button_text: "ذخیره",
     cancel_button_text: "لغو",
     deleted_reference_text: "محتوای اصلی حذف شد",
-    discard_pending_comment: "آیا مطمئن هستید که می‌خواهید این دیدگاه را نادیده بگیرید؟",
+    discard_pending_comment:
+      "آیا مطمئن هستید که می‌خواهید این دیدگاه را نادیده بگیرید؟",
     actions: {
       add_reaction: "افزودن واکنش",
       resolve: "حل کردن",
@@ -372,6 +373,14 @@ export const fa = {
       marked_as_resolved: "به عنوان حل شده علامت‌گذاری شد",
       more_replies: (count: number) => `${count} پاسخ دیگر`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "تغییر قالب‌بندی",
+    deleted: "حذف\u200cشده",
+    inserted_by: (users: string) => `درج‌شده توسط: ${users}`,
+    deleted_by: (users: string) => `حذف‌شده توسط: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `تغییر قالب‌بندی (${formats}) توسط: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

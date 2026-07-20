@@ -1,0 +1,71 @@
+/* App layout only. The versioning sidebar's own styling (header, snapshot
+   rows, selected/comparing states, the "..." menu) ships with the UI library
+   (@blocknote/mantine etc.), so it isn't repeated here. */
+
+.wrapper {
+  height: calc(100vh - 20px);
+}
+
+.wrapper > .bn-container {
+  margin: 0;
+  max-width: none;
+  padding: 0;
+}
+
+.layout {
+  display: flex;
+  gap: 0;
+  height: calc(100vh - 20px);
+}
+
+.editor-panel {
+  flex: 1;
+  height: calc(100vh - 20px);
+  min-width: 0;
+  overflow: auto;
+  position: relative;
+}
+
+.editor-panel .bn-container {
+  height: calc(100vh - 20px);
+  margin: 0;
+  max-width: none;
+  padding: 0;
+}
+
+.editor-panel .bn-editor {
+  height: calc(100vh - 20px);
+  overflow: auto;
+}
+
+/* The history panel sits flush against the editor with a subtle divider. */
+.sidebar-section {
+  background-color: var(--bn-colors-editor-background);
+  border-left: 1px solid var(--bn-colors-border);
+  box-shadow: -6px 0 16px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 20px);
+  overflow: auto;
+  width: 350px;
+}
+
+.dark .sidebar-section {
+  border-left-color: #2c2c2c;
+  box-shadow: -6px 0 16px rgba(0, 0, 0, 0.3);
+}
+
+.show-history-button {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+}

@@ -1,0 +1,122 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`concurrent: A merges B into A, B edits block B 1`] = `
+"<blockGroup>
+  <blockContainer id="a">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
+  </blockContainer>
+  <blockContainer id="b">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Second</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A merges B into A, B edits block B 2`] = `
+"<blockGroup>
+  <blockContainer id="a">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">FirstSecond</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A merges B into A, B edits block B 3`] = `
+"<blockGroup>
+  <blockContainer id="a">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
+  </blockContainer>
+  <blockContainer id="b">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Second (edited)</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A merges B into A, B edits block B 4`] = `
+"<blockGroup>
+  <blockContainer id="a">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">FirstSecond</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A merges B into A, B edits block B 5`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="a">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+        First
+        <y-attributed-insert userIds="A">Second</y-attributed-insert>
+      </paragraph>
+    </blockContainer>
+    <y-attributed-delete userIds="A">
+      <blockContainer id="b">
+        <y-attributed-delete userIds="A">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="A">Second</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`concurrent: B splits the block, A types at the end 1`] = `
+"<blockGroup>
+  <blockContainer id="p">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: B splits the block, A types at the end 2`] = `
+"<blockGroup>
+  <blockContainer id="p">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello world!</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: B splits the block, A types at the end 3`] = `
+"<blockGroup>
+  <blockContainer id="p">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello</paragraph>
+  </blockContainer>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: B splits the block, A types at the end 4`] = `
+"<blockGroup>
+  <blockContainer id="p">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello !</paragraph>
+  </blockContainer>
+  <blockContainer id="1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: B splits the block, A types at the end 5`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="p">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+        Hello
+        <y-attributed-delete userIds="B">world</y-attributed-delete>
+        <y-attributed-insert userIds="A">!</y-attributed-insert>
+      </paragraph>
+    </blockContainer>
+    <y-attributed-insert userIds="B">
+      <blockContainer id="1">
+        <y-attributed-insert userIds="B">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-insert userIds="B">world</y-attributed-insert>
+          </paragraph>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;

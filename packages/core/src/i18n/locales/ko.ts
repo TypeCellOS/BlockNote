@@ -418,6 +418,14 @@ export const ko: Dictionary = {
       more_replies: (count) => `${count}개의 추가 답글`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "서식 변경",
+    deleted: "삭제됨",
+    inserted_by: (users: string) => `삽입한 사람: ${users}`,
+    deleted_by: (users: string) => `삭제한 사람: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `서식 변경 (${formats}) 변경한 사람: ${users}`,
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

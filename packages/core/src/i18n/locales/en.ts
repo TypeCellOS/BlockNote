@@ -405,6 +405,14 @@ export const en = {
       more_replies: (count: number) => `${count} more replies`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "Formatting Change",
+    deleted: "Deleted",
+    inserted_by: (users: string) => `Inserted by: ${users}`,
+    deleted_by: (users: string) => `Deleted by: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Formatting change (${formats}) by: ${users}`,
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

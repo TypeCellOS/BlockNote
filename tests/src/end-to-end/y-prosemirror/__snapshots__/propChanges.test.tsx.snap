@@ -1,0 +1,171 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`suggestion mode: change heading level from 1 to 2 1`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <heading
+      backgroundColor="default"
+      isToggleable="false"
+      level="1"
+      textAlignment="left"
+      textColor="default"
+    >hello world</heading>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: change heading level from 1 to 2 2`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <heading
+      backgroundColor="default"
+      isToggleable="false"
+      level="2"
+      textAlignment="left"
+      textColor="default"
+    >hello world</heading>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: change heading level from 1 to 2 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="block-hello">
+      <heading
+        backgroundColor="default"
+        isToggleable="false"
+        level="2"
+        textAlignment="left"
+        textColor="default"
+      >hello world</heading>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: change image source 1`] = `
+"<blockGroup>
+  <blockContainer id="block-image">
+    <image
+      backgroundColor="default"
+      caption=""
+      name=""
+      previewWidth="200"
+      showPreview="true"
+      textAlignment="left"
+      url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+    ></image>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: change image source 2`] = `
+"<blockGroup>
+  <blockContainer id="block-image">
+    <image
+      backgroundColor="default"
+      caption=""
+      name=""
+      previewWidth="200"
+      showPreview="true"
+      textAlignment="left"
+      url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%234ecdc4'/&gt;&lt;/svg&gt;"
+    ></image>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: change image source 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="block-image">
+      <image
+        backgroundColor="default"
+        caption=""
+        name=""
+        previewWidth="200"
+        showPreview="true"
+        textAlignment="left"
+        url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%234ecdc4'/&gt;&lt;/svg&gt;"
+      ></image>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: change text alignment to center 1`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: change text alignment to center 2`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="center" textColor="default">hello world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: change text alignment to center 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="block-hello">
+      <paragraph backgroundColor="default" textAlignment="center" textColor="default">hello world</paragraph>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`suggestion mode: resize image (previewWidth) 1`] = `
+"<blockGroup>
+  <blockContainer id="block-image">
+    <image
+      backgroundColor="default"
+      caption=""
+      name=""
+      previewWidth="200"
+      showPreview="true"
+      textAlignment="left"
+      url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+    ></image>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: resize image (previewWidth) 2`] = `
+"<blockGroup>
+  <blockContainer id="block-image">
+    <image
+      backgroundColor="default"
+      caption=""
+      name=""
+      previewWidth="400"
+      showPreview="true"
+      textAlignment="left"
+      url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+    ></image>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`suggestion mode: resize image (previewWidth) 3`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="block-image">
+      <image
+        backgroundColor="default"
+        caption=""
+        name=""
+        previewWidth="400"
+        showPreview="true"
+        textAlignment="left"
+        url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+      ></image>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;

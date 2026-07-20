@@ -30,7 +30,7 @@ export function HTMLToBlocks<
   const blocks: Block<BSchema, I, S>[] = [];
 
   for (let i = 0; i < parentNode.childCount; i++) {
-    blocks.push(nodeToBlock(parentNode.child(i), pmSchema));
+    blocks.push(nodeToBlock(parentNode.child(i), parentNode));
   }
 
   return blocks;

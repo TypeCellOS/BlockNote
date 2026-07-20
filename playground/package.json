@@ -60,11 +60,11 @@
     "react-dom": "^19.2.5",
     "react-icons": "^5.5.0",
     "react-router-dom": "^6.30.1",
-    "y-partykit": "^0.0.25",
-    "yjs": "^13.6.27"
+    "y-partykit": "^0.0.25"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.14",
+    "@types/node": "22.13.13",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",

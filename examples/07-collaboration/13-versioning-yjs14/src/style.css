@@ -1,0 +1,235 @@
+/* App layout only. The versioning sidebar's own styling (header, snapshot
+   rows, selected/comparing states, the "..." menu) ships with the UI library
+   (@blocknote/mantine etc.), so it isn't repeated here. */
+
+.wrapper {
+  height: calc(100vh - 20px);
+}
+
+.wrapper.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-family: system-ui, sans-serif;
+}
+
+.wrapper > .bn-container {
+  margin: 0;
+  max-width: none;
+  padding: 0;
+}
+
+.layout {
+  display: flex;
+  gap: 0;
+  height: calc(100vh - 20px);
+}
+
+.editor-panel {
+  flex: 1;
+  height: calc(100vh - 20px);
+  min-width: 0;
+  overflow: auto;
+  position: relative;
+}
+
+.editor-panel .bn-container {
+  height: calc(100vh - 20px);
+  margin: 0;
+  max-width: none;
+  padding: 0;
+}
+
+.editor-panel .bn-editor {
+  height: calc(100vh - 20px);
+  overflow: auto;
+}
+
+/* The history panel sits flush against the editor with a subtle divider. */
+.sidebar-section {
+  background-color: var(--bn-colors-editor-background);
+  border-left: 1px solid var(--bn-colors-border);
+  box-shadow: -6px 0 16px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 20px);
+  overflow: auto;
+  width: 350px;
+}
+
+.dark .sidebar-section {
+  border-left-color: #2c2c2c;
+  box-shadow: -6px 0 16px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-section .settings {
+  padding: 8px;
+}
+
+/* Floating gear button pinned to the bottom-left of the viewport, opening the
+   live grouping "Configuration" panel. Styled like `.show-history-button`.
+   Both the gear and the panel are `position: fixed` with a very high z-index so
+   they stay above BlockNote's floating UI (toolbars, menus), which is portaled
+   to `document.body` and would otherwise pop up over an in-flow panel. */
+.config-gear-button {
+  align-items: center;
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: 50%;
+  box-shadow: var(--bn-shadow-medium);
+  bottom: 16px;
+  color: var(--bn-colors-menu-text);
+  cursor: pointer;
+  display: flex;
+  font-size: 18px;
+  height: 40px;
+  justify-content: center;
+  left: 16px;
+  line-height: 1;
+  position: fixed;
+  width: 40px;
+  z-index: 99999;
+}
+
+.config-panel {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  bottom: 68px;
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  left: 16px;
+  padding: 14px;
+  position: fixed;
+  width: 260px;
+  z-index: 99999;
+}
+
+.config-panel-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.config-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.config-row > label {
+  align-items: baseline;
+  display: flex;
+  font-size: 12px;
+  font-weight: 500;
+  justify-content: space-between;
+}
+
+.config-row .config-value {
+  color: var(--bn-colors-menu-text);
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.config-row input[type="range"] {
+  width: 100%;
+}
+
+.config-row input[type="number"],
+.config-select {
+  background: var(--bn-colors-editor-background);
+  border: 1px solid var(--bn-colors-border);
+  border-radius: var(--bn-border-radius-small);
+  color: var(--bn-colors-menu-text);
+  font-size: 12px;
+  padding: 4px 6px;
+  width: 100%;
+}
+
+.config-unlimited {
+  align-items: center;
+  display: flex;
+  font-size: 12px;
+  gap: 6px;
+}
+
+/* The mergeUsers boolean row: checkbox + label + a muted hint on the right. */
+.config-toggle {
+  align-items: center;
+  display: flex;
+  font-size: 12px;
+  font-weight: 500;
+  gap: 6px;
+}
+
+.config-toggle .config-value {
+  margin-left: auto;
+}
+
+.show-history-button {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+}
+
+.settings-select {
+  display: flex;
+  gap: 10px;
+}
+
+.settings-select .bn-toolbar {
+  align-items: center;
+}
+
+.settings-select h2 {
+  color: var(--bn-colors-menu-text);
+  margin: 0;
+  font-size: 12px;
+  line-height: 12px;
+  padding-left: 14px;
+}
+
+/* The versioning sidebar's tab switcher (Named Versions / Version History).
+   The theme stylesheets (@blocknote/mantine etc.) also style these, but this
+   example imports the editor without a single theme stylesheet in scope for
+   the sidebar, so the tab rules are repeated here to guarantee they're styled. */
+.bn-versioning-sidebar-tabs {
+  border-bottom: 1px solid var(--bn-colors-border);
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.bn-versioning-sidebar-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--bn-colors-menu-text);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: -1px;
+  opacity: 0.6;
+  padding: 8px 4px;
+}
+
+.bn-versioning-sidebar-tab:hover {
+  opacity: 0.85;
+}
+
+.bn-versioning-sidebar-tab[aria-selected="true"] {
+  border-bottom-color: var(--bn-colors-menu-text);
+  opacity: 1;
+}

@@ -1,0 +1,12 @@
+{
+  "playground": true,
+  "docs": false,
+  "author": "nperez0111",
+  "tags": ["Advanced", "Collaboration"],
+  "dependencies": {
+    "@y/protocols": "^1.0.6-rc.1",
+    "@y/websocket": "^4.0.0-3",
+    "@y/y": "^14.0.0-rc.23",
+    "lib0": "1.0.0-rc.22"
+  }
+}

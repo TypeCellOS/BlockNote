@@ -34,9 +34,6 @@ import {
   HardBreak,
   KeyboardShortcutsExtension,
   LinkExtension,
-  SuggestionAddMark,
-  SuggestionDeleteMark,
-  SuggestionModificationMark,
   TextAlignmentExtension,
   TextColorExtension,
   UniqueID,
@@ -73,9 +70,6 @@ export function getDefaultTiptapExtensions(
     Text,
 
     // marks:
-    SuggestionAddMark,
-    SuggestionDeleteMark,
-    SuggestionModificationMark,
     ...(Object.values(editor.schema.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark.configure({
         editor: editor,

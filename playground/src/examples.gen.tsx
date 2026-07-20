@@ -1783,6 +1783,126 @@ export const examples = {
         readme:
           "A minimal comments example used for end-to-end testing. Uses a local Y.Doc (no collaboration provider) with a single hardcoded editor user.",
       },
+      {
+        projectSlug: "suggestion-multi-editor",
+        fullSlug: "collaboration/suggestion-multi-editor",
+        pathFromRoot: "examples/07-collaboration/10-suggestion-multi-editor",
+        config: {
+          playground: true,
+          docs: true,
+          author: "nperez0111",
+          tags: ["Advanced", "Saving/Loading", "Collaboration"],
+          dependencies: {
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/y": "^14.0.0-rc.23",
+            "@y/prosemirror": "^2.0.0-6",
+            "@y/websocket": "^4.0.0-rc.2",
+          } as any,
+        },
+        title: "Suggestions (Experimental)",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          "In this example, we have 4 editors (2 clients) & 1 in suggestion-view mode & 1 in suggestion-edit mode. To show the experimental support for suggesting content in (@y/y v14)",
+      },
+      {
+        projectSlug: "versioning-yjs13",
+        fullSlug: "collaboration/versioning-yjs13",
+        pathFromRoot: "examples/07-collaboration/11-versioning-yjs13",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Advanced", "Development", "Collaboration"],
+          dependencies: {
+            "y-websocket": "^2.1.0",
+            yjs: "^13.6.27",
+            lib0: "^0.2.99",
+          } as any,
+        },
+        title: "Local Storage Versioning (yjs v13)",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          'This example shows how to use the `VersioningExtension` with collaborative editing using `yjs` (v13). Snapshots are stored in localStorage using Yjs state updates.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+      },
+      {
+        projectSlug: "multi-doc-versioning",
+        fullSlug: "collaboration/multi-doc-versioning",
+        pathFromRoot: "examples/07-collaboration/12-multi-doc-versioning",
+        config: {
+          playground: true,
+          docs: false,
+          author: "nperez0111",
+          tags: ["Advanced", "Collaboration"],
+          dependencies: {
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/websocket": "^4.0.0-3",
+            "@y/y": "^14.0.0-rc.23",
+            lib0: "1.0.0-rc.22",
+          } as any,
+        },
+        title: "YHub Multi-Doc",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          "This example shows a multi-document collaborative editor with per-document version history, using BlockNote's `VersioningExtension` and Y.js v14.\n\n**Features:**\n\n- User picker (per-tab identity via `sessionStorage`)\n- Left sidebar with document list (create, rename, delete)\n- Collaborative editing with Y.js (including suggestion mode)\n- Right sidebar with version history powered by `VersioningSidebar`\n- Per-document versioning backed by `localStorage`\n- Open multiple tabs with different users via the `?as=` URL param\n\n**Relevant Docs:**\n\n- [Versioning](https://www.blocknotejs.org/docs/collaboration/versioning)\n- [Y.js Collaboration](https://www.blocknotejs.org/docs/collaboration)",
+      },
+      {
+        projectSlug: "versioning-yjs14",
+        fullSlug: "collaboration/versioning-yjs14",
+        pathFromRoot: "examples/07-collaboration/13-versioning-yjs14",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Advanced", "Development", "Collaboration"],
+          dependencies: {
+            "@y/prosemirror": "^2.0.0-6",
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/websocket": "^4.0.0-3",
+            "@y/y": "^14.0.0-rc.23",
+            lib0: "1.0.0-rc.22",
+          } as any,
+        },
+        title: "YHub Versioning (@y/y v14)",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          'This example shows how to use the `VersioningExtension` with collaborative editing using `@y/y` (v14). Snapshots are stored in localStorage using Yjs v2 state updates.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+      },
+      {
+        projectSlug: "suggestion-gallery",
+        fullSlug: "collaboration/suggestion-gallery",
+        pathFromRoot: "examples/07-collaboration/14-suggestion-gallery",
+        config: {
+          playground: true,
+          docs: false,
+          author: "yousefed",
+          tags: ["Advanced", "Development", "Collaboration"],
+          dependencies: {
+            "@blocknote/shared": "latest",
+            "@blocknote/xl-multi-column": "latest",
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/y": "^14.0.0-rc.23",
+          } as any,
+        },
+        title: "Suggestion Scenarios Gallery",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          "Browse the suggestion (track-changes) rendering scenarios interactively. Each\nentry sets up a base document and applies a change in suggestion mode, so you can\nsee how insertions, deletions and type changes are visualized as a diff.\n\nThe **Base** pane (left) is read-only and shows the document before the change.\nThe **Suggestion** pane (right) is editable — keep typing to create more\nsuggestions on top.\n\nThese are the same scenarios covered by the y-prosemirror visual tests; the\nper-scenario definitions live in `src/scenarios.ts` so the tests and this gallery\nstay in sync.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/editor-basics/setup)\n- [Collaboration](/docs/collaboration/real-time-collaboration)",
+      },
     ],
   },
   extensions: {
@@ -1810,6 +1930,28 @@ export const examples = {
         },
         readme:
           "This example shows how to set up a BlockNote editor with a TipTap extension that registers an InputRule to convert `->` into `→`.\n\n**Try it out:** Type `->` anywhere in the editor and see how it's automatically converted to a single arrow unicode character.",
+      },
+      {
+        projectSlug: "versioning",
+        fullSlug: "extensions/versioning",
+        pathFromRoot: "examples/08-extensions/02-versioning",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Extension"],
+          dependencies: {
+            "@y/y": "^14.0.0-rc.23",
+            "@y/prosemirror": "^2.0.0-6",
+          } as any,
+        },
+        title: "In-Memory Versioning",
+        group: {
+          pathFromRoot: "examples/08-extensions",
+          slug: "extensions",
+        },
+        readme:
+          'This example shows how to use the `VersioningExtension` without any collaboration layer (no Yjs required). Snapshots are stored in memory using ProseMirror JSON.\n\n**Try it out:** Edit the document, then use the Version History sidebar to save snapshots, preview older versions, rename them, and restore them. You can hide the sidebar with the close button and reopen it with the "History" button.',
       },
     ],
   },

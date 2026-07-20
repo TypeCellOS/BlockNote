@@ -13,6 +13,16 @@ export default defineConfig({
     // when `core`'s dist changes, `react`'s build cache misses because
     // its tsc step reads `core`'s `.d.ts` files.
     cache: { scripts: true },
+    tasks: {
+      // The release script is interactive and produces only side-effects
+      // (git commit/tag/push, npm publish). It reads a stable file set
+      // (package.json files), so vp would fingerprint it as unchanged and
+      // replay stale cached stdout instead of running it. Always run fresh.
+      deploy: {
+        command: "node scripts/release.mjs",
+        cache: false,
+      },
+    },
   },
   // Workspace-level project list for tooling that discovers tests across the
   // monorepo (e.g. the Vitest VSCode extension). Replaces the old

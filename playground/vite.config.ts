@@ -86,24 +86,7 @@ export default defineConfig(((conf: { command: string }) => ({
     tailwindcss(),
   ],
   optimizeDeps: {
-    // Exclude @blocknote/* source-aliased packages from pre-bundling so that
-    // when Vite pre-bundles @liveblocks/react-blocknote, it treats
-    // @blocknote/* imports as external rather than inlining a second copy
-    // (which would duplicate Selection.jsonID registrations like
-    // "multiple-node").
-    exclude: [
-      "@blocknote/core",
-      "@blocknote/react",
-      "@blocknote/ariakit",
-      "@blocknote/mantine",
-      "@blocknote/shadcn",
-      "@blocknote/xl-ai",
-      "@blocknote/xl-multi-column",
-      "@blocknote/xl-docx-exporter",
-      "@blocknote/xl-odt-exporter",
-      "@blocknote/xl-pdf-exporter",
-      "@blocknote/xl-email-exporter",
-    ],
+    // link: ['vite-react-ts-components'],
   },
   build: {
     sourcemap: true,
@@ -121,7 +104,7 @@ export default defineConfig(((conf: { command: string }) => ({
     alias:
       conf.command === "build"
         ? {
-          // TODO: review
+            // TODO: review
             // The exporters' optional peer dependencies, used by their
             // subpath entries (`…/diagram-block`, `…/math-block`). They
             // can't be resolved from the workspace-linked exporter packages
@@ -133,7 +116,10 @@ export default defineConfig(((conf: { command: string }) => ({
               __dirname,
               "../packages/diagram-block",
             ),
-            "@react-pdf/math": resolve(__dirname, "node_modules/@react-pdf/math"),
+            "@react-pdf/math": resolve(
+              __dirname,
+              "node_modules/@react-pdf/math",
+            ),
             katex: resolve(__dirname, "node_modules/katex"),
           }
         : devAliases,

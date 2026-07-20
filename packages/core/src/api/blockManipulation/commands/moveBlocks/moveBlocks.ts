@@ -9,7 +9,10 @@ import { CellSelection } from "prosemirror-tables";
 import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
-import { getNearestBlockPos } from "../../../getBlockInfoFromPos.js";
+import {
+  getBlockInfoAtNearest,
+  getNodeId,
+} from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { insertBlocks } from "../insertBlocks/insertBlocks.js";
 import { removeAndInsertBlocks } from "../replaceBlocks/replaceBlocks.js";
@@ -46,31 +49,34 @@ function getBlockSelectionData(
   editor: BlockNoteEditor<any, any, any>,
 ): BlockSelectionData {
   return editor.transact((tr) => {
-    const anchorBlockPosInfo = getNearestBlockPos(tr.doc, tr.selection.anchor);
+    const anchorBlockPosInfo = getBlockInfoAtNearest(tr, tr.selection.anchor);
+
+    const anchorBlockId = getNodeId(anchorBlockPosInfo.bnBlock.node, tr.doc);
 
     if (tr.selection instanceof CellSelection) {
       return {
         type: "cell" as const,
-        anchorBlockId: anchorBlockPosInfo.node.attrs.id,
+        anchorBlockId,
         anchorCellOffset:
-          tr.selection.$anchorCell.pos - anchorBlockPosInfo.posBeforeNode,
+          tr.selection.$anchorCell.pos - anchorBlockPosInfo.bnBlock.beforePos,
         headCellOffset:
-          tr.selection.$headCell.pos - anchorBlockPosInfo.posBeforeNode,
+          tr.selection.$headCell.pos - anchorBlockPosInfo.bnBlock.beforePos,
       };
     } else if (tr.selection instanceof NodeSelection) {
       return {
         type: "node" as const,
-        anchorBlockId: anchorBlockPosInfo.node.attrs.id,
+        anchorBlockId,
       };
     } else {
-      const headBlockPosInfo = getNearestBlockPos(tr.doc, tr.selection.head);
+      const headBlockPosInfo = getBlockInfoAtNearest(tr, tr.selection.head);
 
       return {
         type: "text" as const,
-        anchorBlockId: anchorBlockPosInfo.node.attrs.id,
-        headBlockId: headBlockPosInfo.node.attrs.id,
-        anchorOffset: tr.selection.anchor - anchorBlockPosInfo.posBeforeNode,
-        headOffset: tr.selection.head - headBlockPosInfo.posBeforeNode,
+        anchorBlockId,
+        headBlockId: getNodeId(headBlockPosInfo.bnBlock.node, tr.doc),
+        anchorOffset:
+          tr.selection.anchor - anchorBlockPosInfo.bnBlock.beforePos,
+        headOffset: tr.selection.head - headBlockPosInfo.bnBlock.beforePos,
       };
     }
   });

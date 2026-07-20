@@ -1,3 +1,88 @@
+## 0.52.0 (2026-07-20)
+
+### 🚀 Features
+
+- Migrate to Vite+ ([#2745](https://github.com/TypeCellOS/BlockNote/pull/2745))
+- Decouple yjs from blocknote/core ([#2741](https://github.com/TypeCellOS/BlockNote/pull/2741))
+- `moveBlocks` behaviour when leaving empty columns (BLO-1109) ([#2842](https://github.com/TypeCellOS/BlockNote/pull/2842))
+- **comments:** Confirm before discarding an unsaved comment (blo-1197) ([#2861](https://github.com/TypeCellOS/BlockNote/pull/2861))
+- **core:** Support "plain" block content (BLO-335) ([#2868](https://github.com/TypeCellOS/BlockNote/pull/2868))
+
+### ⚠️ Migration Guide
+
+**Yjs is now decoupled from `@blocknote/core`.** Instead of passing a `collaboration` option directly to the editor, you now wrap your editor options with the `withCollaboration` helper imported from `@blocknote/core/yjs`.
+
+Before (`< 0.52.0`):
+
+```typescript
+const editor = useCreateBlockNote({
+  // ...other editor options
+  collaboration: {
+    provider,
+    fragment: doc.getXmlFragment("document-store"),
+    user: {
+      name: "My Username",
+      color: "#ff0000",
+    },
+  },
+});
+```
+
+After (`>= 0.52.0`):
+
+```typescript
+// Import the helper from the decoupled Yjs entrypoint:
+import { withCollaboration } from "@blocknote/core/yjs";
+
+const editor = useCreateBlockNote(
+  withCollaboration({
+    // ...other editor options
+    collaboration: {
+      provider,
+      fragment: doc.getXmlFragment("document-store"),
+      user: {
+        name: "My Username",
+        color: "#ff0000",
+      },
+    },
+  }),
+);
+```
+
+The `collaboration` object itself (`provider`, `fragment`, `user`, `showCursorLabels`, etc.) is unchanged — you only need to:
+
+1. Import `withCollaboration` from `@blocknote/core/yjs`.
+2. Wrap your editor options object with `withCollaboration(...)`, keeping the `collaboration` property inside it.
+
+The same applies when creating an editor with `BlockNoteEditor.create(withCollaboration({ ... }))`.
+
+> **Note:** `@blocknote/core/yjs` uses Yjs v13 (the `yjs` package). There is also a `@blocknote/core/y` entrypoint that targets Yjs v14 (`@y/y`) and adds newer features such as suggestions and version history. Unless you specifically need those, use `@blocknote/core/yjs`.
+
+### 🩹 Fixes
+
+- Align side menu to tables (BLO-1117) ([#2837](https://github.com/TypeCellOS/BlockNote/pull/2837))
+- Remove cursor flicker in trailing block ([#2839](https://github.com/TypeCellOS/BlockNote/pull/2839))
+- **table:** Guard stale block after changes for table handles ([#2821](https://github.com/TypeCellOS/BlockNote/pull/2821))
+- **xl-ai:** Remove 'use client' from server entry (BLO-1235) ([57596cee6](https://github.com/TypeCellOS/BlockNote/commit/57596cee6))
+- **tables:** Tab causing indent in last table cell (BLO-1211) ([#2831](https://github.com/TypeCellOS/BlockNote/pull/2831))
+- **core:** Use dynamic propSchema when extending default block specs ([#2882](https://github.com/TypeCellOS/BlockNote/pull/2882))
+- **xl-pdf-exporter:** Fix emoji rendering for ZWJ sequences in PDF export ([#2871](https://github.com/TypeCellOS/BlockNote/pull/2871))
+- **core:** Ignore synthetic mousemove events without coordinates in side menu ([#2895](https://github.com/TypeCellOS/BlockNote/pull/2895))
+- **core:** Read hardBreakShortcut from block spec impl ([#2891](https://github.com/TypeCellOS/BlockNote/pull/2891))
+- **xl-email-exporter:** Update react-email deps to fix fresh install tests ([#2898](https://github.com/TypeCellOS/BlockNote/pull/2898))
+- **core:** Call scrollIntoView() on Enter ([#2802](https://github.com/TypeCellOS/BlockNote/pull/2802))
+
+### ❤️ Thank You
+
+- Nick The Sick ([@nperez0111](https://github.com/nperez0111))
+- Luc H <wereld03@gmail.com>
+- Nick Perez <nick@blocknotejs.org>
+- Yousef <yousefdardiry@gmail.com>
+- Matthew Lipski ([@matthewlipski](https://github.com/matthewlipski))
+- Alex Yang ([@himself65](https://github.com/himself65))
+- Yousefed <yousefdardiry@gmail.com>
+- Satoren <satoreyo@hotmail.com>
+
 ## 0.51.4 (2026-06-02)
 
 ### 🩹 Fixes

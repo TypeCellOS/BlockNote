@@ -1,10 +1,22 @@
-import { describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
 
 /**
  * @vitest-environment jsdom
  */
+
+// Track editors created in each test so we can unmount them in afterEach —
+// otherwise prosemirror-view's DOMObserver leaves a setTimeout alive that
+// fires after vitest tears down jsdom, throwing
+// `ReferenceError: document is not defined` and failing the run.
+const activeEditors: BlockNoteEditor<any, any, any>[] = [];
+
+afterEach(() => {
+  while (activeEditors.length) {
+    activeEditors.pop()!.unmount();
+  }
+});
 
 /**
  * Performance regression tests for issue #2595:
@@ -25,6 +37,7 @@ function createEditorWithBlocks(
 ) {
   const editor = BlockNoteEditor.create();
   editor.mount(document.createElement("div"));
+  activeEditors.push(editor);
   const blocks = [];
   for (let i = 0; i < blockCount; i++) {
     blocks.push({

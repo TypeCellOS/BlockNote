@@ -11,7 +11,7 @@ import {
   Extension,
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
-import { NON_FORMATTING_MARK_GROUP } from "../markGroups.js";
+import { nonFormattingMarks } from "../markGroups.js";
 import { PropSchema } from "../propTypes.js";
 import {
   getBlockFromPos,
@@ -196,10 +196,14 @@ export function addNodeAndExtensionsToSpec<
       // "plain" blocks hold unstyled text, so they disallow formatting marks.
       // They still allow the non-formatting marks (comments and
       // suggestions/diffs) — those annotate content without changing it and are
-      // ignored by the block model. The group's always-present suggestion marks
-      // keep this reference valid even when comments aren't configured.
-      marks:
-        blockConfig.content === "plain" ? NON_FORMATTING_MARK_GROUP : undefined,
+      // ignored by the block model. `nonFormattingMarks` resolves the group only
+      // when at least one such mark is registered, so a plain block in an editor
+      // without any of them doesn't reference an empty (unknown) mark group.
+      marks() {
+        return blockConfig.content === "plain"
+          ? nonFormattingMarks(this.editor)
+          : undefined;
+      },
       group: "blockContent",
       selectable: blockImplementation.meta?.selectable ?? true,
       isolating: blockImplementation.meta?.isolating ?? true,
@@ -243,12 +247,7 @@ export function addNodeAndExtensionsToSpec<
           // Gets the BlockNote editor instance
           const editor = this.options.editor;
           // Gets the block
-          const block = getBlockFromPos(
-            props.getPos,
-            editor,
-            this.editor,
-            blockConfig.type,
-          );
+          const block = getBlockFromPos(props.getPos, props.view.state.doc);
           // Gets the custom HTML attributes for `blockContent` nodes
           const blockContentDOMAttributes =
             this.options.domAttributes?.blockContent || {};

@@ -23,6 +23,8 @@
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitest/ui": "4.1.5",
+    "@y/protocols": "^1.0.6-rc.1",
+    "@y/y": "^14.0.0-rc.23",
     "htmlfy": "^0.6.7",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
