@@ -349,15 +349,19 @@ export const uk: Dictionary = {
     },
     align_left: {
       tooltip: "Вирівняти за лівим краєм",
+      label: "Ліво",
     },
     align_center: {
       tooltip: "Вирівняти по центру",
+      label: "По центру",
     },
     align_right: {
       tooltip: "Вирівняти за правим краєм",
+      label: "Право",
     },
     align_justify: {
       tooltip: "Вирівняти за шириною",
+      label: "По ширині",
     },
     table_cell_merge: {
       tooltip: "Об'єднати клітинки",

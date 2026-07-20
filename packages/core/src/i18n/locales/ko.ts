@@ -338,15 +338,19 @@ export const ko: Dictionary = {
     },
     align_left: {
       tooltip: "텍스트 왼쪽 맞춤",
+      label: "왼쪽",
     },
     align_center: {
       tooltip: "텍스트 가운데 맞춤",
+      label: "가운데",
     },
     align_right: {
       tooltip: "텍스트 오른쪽 맞춤",
+      label: "오른쪽",
     },
     align_justify: {
       tooltip: "텍스트 양쪽 맞춤",
+      label: "양쪽",
     },
     table_cell_merge: {
       tooltip: "셀 병합",

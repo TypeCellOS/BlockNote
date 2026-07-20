@@ -366,15 +366,19 @@ export const zhTW: Dictionary = {
     },
     align_left: {
       tooltip: "靠左對齊",
+      label: "靠左",
     },
     align_center: {
       tooltip: "置中",
+      label: "置中",
     },
     align_right: {
       tooltip: "靠右對齊",
+      label: "靠右",
     },
     align_justify: {
       tooltip: "兩端對齊",
+      label: "兩端",
     },
     table_cell_merge: {
       tooltip: "合併儲存格",

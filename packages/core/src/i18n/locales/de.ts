@@ -344,15 +344,19 @@ export const de: Dictionary = {
     },
     align_left: {
       tooltip: "Text linksbündig",
+      label: "Links",
     },
     align_center: {
       tooltip: "Text zentrieren",
+      label: "Zentriert",
     },
     align_right: {
       tooltip: "Text rechtsbündig",
+      label: "Rechts",
     },
     align_justify: {
       tooltip: "Text Blocksatz",
+      label: "Blocksatz",
     },
     table_cell_merge: {
       tooltip: "Zellen zusammenführen",

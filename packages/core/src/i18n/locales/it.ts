@@ -347,15 +347,19 @@ export const it: Dictionary = {
     },
     align_left: {
       tooltip: "Allinea testo a sinistra",
+      label: "Sinistra",
     },
     align_center: {
       tooltip: "Allinea testo al centro",
+      label: "Centro",
     },
     align_right: {
       tooltip: "Allinea testo a destra",
+      label: "Destra",
     },
     align_justify: {
       tooltip: "Giustifica testo",
+      label: "Giustifica",
     },
     table_cell_merge: {
       tooltip: "Unisci celle",
