@@ -650,12 +650,17 @@
           <IMAGE
             src={[object Blob]}
             style={{
+              maxHeight: 722.99,
+              maxWidth: '100%',
+              objectFit: 'contain',
+              objectPosition: '0% 0%',
               width: undefined
             }}
           />
           <TEXT
             style={{
               fontSize: 9.600000000000001,
+              maxWidth: '100%',
               width: undefined
             }}
           >
@@ -678,6 +683,10 @@
           <IMAGE
             src={[object Blob]}
             style={{
+              maxHeight: 737.39,
+              maxWidth: '100%',
+              objectFit: 'contain',
+              objectPosition: '100% 0%',
               width: 150
             }}
           />
@@ -719,6 +728,7 @@
           <TEXT
             style={{
               fontSize: 9.600000000000001,
+              maxWidth: '100%',
               width: undefined
             }}
           >
@@ -762,6 +772,7 @@
           <TEXT
             style={{
               fontSize: 9.600000000000001,
+              maxWidth: '100%',
               width: undefined
             }}
           >
@@ -818,6 +829,7 @@
           <TEXT
             style={{
               fontSize: 9.600000000000001,
+              maxWidth: '100%',
               width: undefined
             }}
           >
