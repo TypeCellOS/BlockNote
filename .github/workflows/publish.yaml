@@ -96,19 +96,13 @@ jobs:
       - name: Postpublish cleanup
         run: rm -rf packages/core/README.md packages/react/README.md
 
-      - name: Extract changelog for release
-        id: changelog
+      - name: Prepare release notes
         run: |
           TAG="${{ inputs.version || github.ref_name }}"
           VERSION="${TAG#v}"
-          node -e "
-            const fs = require('fs');
-            const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
-            const escaped = '${VERSION}'.replace(/[.*+?^\${}()|[\]\\\\]/g, '\\\\\$&');
-            const re = new RegExp('## ' + escaped + ' \\\\([^)]+\\\\)\\n([\\s\\S]*?)(?=\\n## |$)');
-            const match = changelog.match(re);
-            fs.writeFileSync('/tmp/release-body.md', match ? match[0] : 'Release ${VERSION}');
-          "
+          # Derive the release body from the matching CHANGELOG.md section, so
+          # the GitHub Release notes always match what was authored there.
+          node scripts/extract-changelog.mjs "$VERSION" /tmp/release-body.md
 
       - name: Create GitHub Release
         env:
