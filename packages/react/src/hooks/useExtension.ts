@@ -49,13 +49,17 @@ export function useExtensionState<
     : never,
   TSelected = NoInfer<ExtractStore<TStore>>,
 >(
-  plugin: T,
+  plugin: T | string,
   ctx?: {
     editor?: BlockNoteEditor<any, any, any>;
     selector?: (state: NoInfer<ExtractStore<TStore>>) => TSelected;
   },
 ): TSelected {
-  const { store } = useExtension(plugin, ctx);
+  const extension = useExtension(
+    plugin as ExtensionFactory | Extension | string,
+    ctx,
+  );
+  const { store } = extension;
   if (!store) {
     throw new Error("Store not found on plugin", { cause: { plugin } });
   }
