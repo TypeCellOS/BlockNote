@@ -69,39 +69,53 @@ package's directory; append `-u` to update snapshots.
 
 ## Releasing
 
-This diagram illustrates the release workflow for the BlockNote monorepo.
+All packages under `packages/` are released in lockstep (same version).
 
-![Release Workflow](./.resources/release-workflow.excalidraw.svg)
+### Prerequisites
 
-Essentially, when the maintainers have decided to release a new version of BlockNote, they will:
+- You must be on the `main` branch with a clean working tree
+- CI must be green
+- NPM trusted publishing must be configured for all public packages (see below)
 
-1.  Check that the `main` branch is in a releasable state:
-    - CI status of main branch is green
-    - Builds are passing
-2.  Bump the package versions using the `pnpm run deploy` command. This command will:
-    1. Based on semantic versioning, determine the next version number.
-    2. Apply the new version number to all publishable packages within the monorepo.
-    3. Generate a changelog for the new version.
-    4. Commit the changes to the `main` branch.
-    5. Create a new git tag for the new version.
-    6. Push the changes to the `origin` remote.
-    7. Create a new GitHub Release with the same name as the new version.
-    8. Trigger a release workflow.
+### Release flow
 
-The release workflow will:
+Run the interactive release script:
 
-1. Checkout the `main` branch.
-2. Install the dependencies.
-3. Build the project.
-4. Login to npm.
-5. Publish the packages to npm.
+```bash
+vp run deploy
+```
+
+The script will:
+
+1. Verify preconditions (clean tree, on main, up to date with origin)
+2. Present an interactive version picker (patch / minor / major / prerelease / custom) via [bumpp](https://github.com/antfu-collective/bumpp)
+3. Bump the version in all `packages/*/package.json` files
+4. Sync the lockfile
+5. Run a smoke test build (`vp run -r build`)
+6. Generate a changelog from conventional commits via [changelogen](https://github.com/unjs/changelogen)
+7. Open `$EDITOR` so you can review and edit the changelog before committing
+8. Commit, tag (`v{version}`), and push
+
+Once the tag is pushed, the CI publish workflow automatically:
+
+1. Builds all packages
+2. Publishes the 13 public packages to npm with [OIDC provenance](https://docs.npmjs.com/generating-provenance-statements)
+3. Creates a GitHub Release with the changelog content
+
+### NPM trusted publishing setup
+
+Each public `@blocknote/*` package must have a trusted publisher configured on npmjs.com:
+
+1. Go to `https://www.npmjs.com/package/@blocknote/{name}/access`
+2. Under "Trusted Publisher", select GitHub Actions
+3. Set: Owner = `TypeCellOS`, Repo = `BlockNote`, Workflow = `publish.yaml`
+
+No `NPM_TOKEN` secret is needed — publishing uses GitHub's OIDC tokens.
 
 ### Publishing a new package
 
-From time to time, you may need to publish a new package to npm. To do this, you cannot just deploy the package to npm, you need to:
+When adding a new public package to the monorepo:
 
-1.  Run `nx release version --dry-run` and check that the version number is correct for the package.
-    - Once this is done, you can run `nx release version` to actually apply the version bump locally (staged to your local git repo).
-2.  Run `nx release changelog --from <prev-version> <new-version> --dry-run` and check that the changelog is correct for the package.
-    - Once this is done, you can run the same command without the `--dry-run` flag to actually apply the changelog, commit & push the changes to the `main` branch.
-3.  The release workflow will automatically publish the package to npm.
+1. Ensure its `package.json` has `"private": false` and a `repository` field pointing to the BlockNote repo
+2. Configure a trusted publisher for it on npmjs.com (see above)
+3. The next release will automatically include it in the publish loop

@@ -1,4 +1,3 @@
-# ./.github/workflows/publish.yml
 name: Publish
 
 on:
@@ -9,25 +8,118 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version tag to publish (e.g., v0.x.x-hotfix)"
+        description: "Version tag to publish (e.g., v0.52.0)"
         required: true
         type: string
 
 permissions: {}
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   publish:
-    name: Publish
+    name: Publish to npm
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
+    permissions:
+      contents: write # for creating GitHub releases
+      id-token: write # for npm OIDC provenance
+
     steps:
-      - name: Publish disabled
-        # NX has been removed (it was driving `nx release publish`) and the
-        # replacement release tool is not yet in place. This workflow is
-        # intentionally a no-op so a stray tag push doesn't silently succeed
-        # without actually publishing anything. Once a release tool is wired
-        # up, restore the publish steps and remove this guard.
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
+        with:
+          node-version-file: ".node-version"
+          cache: true
+
+      - name: Install dependencies
+        run: vp install
+
+      - name: Prebuild
+        run: cp README.md packages/core/README.md && cp README.md packages/react/README.md
+
+      - name: Build packages
+        run: vp run -r build
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Publish packages to npm
         run: |
-          echo "::error::Publish workflow is disabled — release tooling is being replaced."
-          echo "::error::Re-enable this workflow once a release tool is wired up."
-          exit 1
+          TAG="${{ inputs.version || github.ref_name }}"
+          VERSION="${TAG#v}"
+
+          # Determine npm dist-tag from version string
+          if [[ "$VERSION" == *-* ]]; then
+            DIST_TAG=$(echo "$VERSION" | sed 's/.*-\([a-zA-Z]*\).*/\1/')
+          else
+            DIST_TAG="latest"
+          fi
+          echo "Publishing version $VERSION with dist-tag: $DIST_TAG"
+
+          FAILED=0
+          for pkg_dir in packages/*/; do
+            pkg_json="${pkg_dir}package.json"
+            is_private=$(node -e "console.log(JSON.parse(require('fs').readFileSync('${pkg_json}','utf8')).private || false)")
+            pkg_name=$(node -e "console.log(JSON.parse(require('fs').readFileSync('${pkg_json}','utf8')).name)")
+
+            if [ "$is_private" = "true" ]; then
+              echo "⏭️  Skipping private package: $pkg_name"
+              continue
+            fi
+
+            echo "📦 Publishing $pkg_name@$VERSION..."
+            PUBLISH_OUTPUT=$(cd "$pkg_dir" && pnpm publish --access public --tag "$DIST_TAG" --provenance --no-git-checks 2>&1) && true
+            PUBLISH_EXIT=$?
+            echo "$PUBLISH_OUTPUT"
+
+            if [ "$PUBLISH_EXIT" -ne 0 ]; then
+              if echo "$PUBLISH_OUTPUT" | grep -q "previously published\|already exists\|Cannot publish over"; then
+                echo "⚠️  $pkg_name@$VERSION already published, skipping."
+              else
+                echo "❌ Failed to publish $pkg_name"
+                FAILED=1
+              fi
+            fi
+          done
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo "::error::One or more packages failed to publish."
+            exit 1
+          fi
+
+      - name: Postpublish cleanup
+        run: rm -rf packages/core/README.md packages/react/README.md
+
+      - name: Extract changelog for release
+        id: changelog
+        run: |
+          TAG="${{ inputs.version || github.ref_name }}"
+          VERSION="${TAG#v}"
+          node -e "
+            const fs = require('fs');
+            const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
+            const escaped = '${VERSION}'.replace(/[.*+?^\${}()|[\]\\\\]/g, '\\\\\$&');
+            const re = new RegExp('## ' + escaped + ' \\\\([^)]+\\\\)\\n([\\s\\S]*?)(?=\\n## |$)');
+            const match = changelog.match(re);
+            fs.writeFileSync('/tmp/release-body.md', match ? match[0] : 'Release ${VERSION}');
+          "
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ inputs.version || github.ref_name }}"
+          PRERELEASE_FLAG=""
+          if [[ "$TAG" == *-* ]]; then
+            PRERELEASE_FLAG="--prerelease"
+          fi
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --notes-file /tmp/release-body.md \
+            $PRERELEASE_FLAG

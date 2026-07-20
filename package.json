@@ -3,6 +3,8 @@
   "type": "module",
   "devDependencies": {
     "@typescript/native-preview": "7.0.0-dev.20260615.1",
+    "bumpp": "^11.1.0",
+    "changelogen": "^0.6.1",
     "concurrently": "9.1.2",
     "eslint-plugin-import": "^2.32.0",
     "glob": "^10.5.0",
@@ -22,7 +24,6 @@
     "build:site": "vp run -r build:site",
     "check": "vp run check --fix",
     "clean": "vp run -r clean && vp cache clean",
-    "deploy": "echo not working:(",
     "gen": "vp run --filter @blocknote/dev-scripts gen",
     "install-playwright": "cd tests && vp exec playwright install --with-deps",
     "e2e:image": "bash tests/docker-build.sh",
