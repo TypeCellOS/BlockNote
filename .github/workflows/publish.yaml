@@ -74,7 +74,7 @@ jobs:
             fi
 
             echo "📦 Publishing $pkg_name@$VERSION..."
-            PUBLISH_OUTPUT=$(cd "$pkg_dir" && pnpm publish --access public --tag "$DIST_TAG" --provenance --no-git-checks 2>&1) && true
+            PUBLISH_OUTPUT=$(cd "$pkg_dir" && vp pm publish -- --access public --tag "$DIST_TAG" --provenance --no-git-checks 2>&1) && true
             PUBLISH_EXIT=$?
             echo "$PUBLISH_OUTPUT"
 
