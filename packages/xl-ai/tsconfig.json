@@ -20,6 +20,7 @@
     "emitDeclarationOnly": true,
     "composite": true,
     "skipLibCheck": true,
+    "types": ["node"],
     "paths": {
       "@shared/*": ["../../shared/*"]
     }

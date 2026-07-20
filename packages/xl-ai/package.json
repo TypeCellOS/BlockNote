@@ -101,6 +101,7 @@
     "@types/json-schema": "^7.0.15",
     "@types/lodash.isequal": "^4.5.8",
     "@types/lodash.merge": "^4.6.9",
+    "@types/node": "22.13.13",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
