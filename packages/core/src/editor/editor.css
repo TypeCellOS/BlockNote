@@ -141,7 +141,8 @@
   --bn-table-handle-size: calc(18px / 2);
   overflow-y: hidden;
   padding: var(--bn-table-handle-size) var(--bn-table-widget-size)
-    var(--bn-table-widget-size) var(--bn-table-handle-size);
+  var(--bn-table-widget-size) var(--bn-table-handle-size);
+  margin-top: calc(-1 * var(--bn-table-handle-size));
   position: relative;
   width: 100%;
 }
