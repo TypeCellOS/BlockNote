@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execSync, spawnSync } from "node:child_process";
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { createInterface } from "node:readline/promises";
 import { join } from "node:path";
 
@@ -32,9 +32,15 @@ function currentVersion() {
 
 function packageJsonPaths() {
   const dirs = readdirSync(join(ROOT, "packages"), { withFileTypes: true });
-  return dirs
-    .filter((d) => d.isDirectory())
-    .map((d) => `packages/${d.name}/package.json`);
+  return (
+    dirs
+      .filter((d) => d.isDirectory())
+      .map((d) => `packages/${d.name}/package.json`)
+      // Some directories under packages/ are stale (e.g. only contain
+      // node_modules/ or dist/ with no package.json). Skip them so bumpp and
+      // `git add` don't fail on non-existent pathspecs.
+      .filter((p) => existsSync(join(ROOT, p)))
+  );
 }
 
 async function confirm(rl, message) {
