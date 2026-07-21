@@ -89,7 +89,10 @@ export default defineConfig(((conf: { command: string }) => ({
     // link: ['vite-react-ts-components'],
   },
   build: {
-    sourcemap: true,
+    // Skipped on Vercel for the same reason as `webpackStats` above: emitting
+    // a map for each of the ~340 chunks doubles the file writes and memory of
+    // the largest build in the workspace, which is where the container dies.
+    sourcemap: !process.env.VERCEL,
   },
   preview: {
     port: 3000,
