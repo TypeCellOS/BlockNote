@@ -33,6 +33,7 @@ const loaders: Record<string, () => Promise<LocaleModule>> = {
   sk: () => import("./i18n/locales/sk.js"),
   sv: () => import("./i18n/locales/sv.js"),
   th: () => import("./i18n/locales/th.js"),
+  tr: () => import("./i18n/locales/tr.js"),
   uk: () => import("./i18n/locales/uk.js"),
   uz: () => import("./i18n/locales/uz.js"),
   vi: () => import("./i18n/locales/vi.js"),

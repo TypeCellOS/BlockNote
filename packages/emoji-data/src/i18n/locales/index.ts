@@ -28,6 +28,7 @@ export * from "./ru.js";
 export * from "./sk.js";
 export * from "./sv.js";
 export * from "./th.js";
+export * from "./tr.js";
 export * from "./uk.js";
 export * from "./uz.js";
 export * from "./vi.js";

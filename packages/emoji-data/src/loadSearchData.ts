@@ -1,14 +1,23 @@
 import type { EmojiMartData } from "./data/types.js";
-import _slugOrder from "./search/slugs.json" with { type: "json" };
-
-const slugOrder: string[] = _slugOrder as string[];
 
 export type SearchOverlay = Record<
   string,
   { name: string; keywords: string[] }
 >;
 
-function decodePositional(encoded: string): SearchOverlay {
+let slugOrder: string[] | undefined;
+
+async function loadSlugOrder(): Promise<string[]> {
+  if (slugOrder) {
+    return slugOrder;
+  }
+  const { slugOrder: order } = await import("./search/slugs.js");
+  slugOrder = order;
+  return slugOrder;
+}
+
+async function decodePositional(encoded: string): Promise<SearchOverlay> {
+  const slugs = await loadSlugOrder();
   const result: SearchOverlay = {};
   const lines = encoded.split("\n");
   for (let i = 0; i < lines.length; i++) {
@@ -18,7 +27,7 @@ function decodePositional(encoded: string): SearchOverlay {
     }
     const name = lines[i].substring(0, t);
     const kwStr = lines[i].substring(t + 1);
-    result[slugOrder[i]] = {
+    result[slugs[i]] = {
       name,
       keywords: kwStr ? kwStr.split("|") : [],
     };
@@ -58,6 +67,7 @@ const loaders: Record<string, () => Promise<SearchModule>> = {
   sk: () => import("./search/sk.js"),
   sv: () => import("./search/sv.js"),
   th: () => import("./search/th.js"),
+  tr: () => import("./search/tr.js"),
   uk: () => import("./search/uk.js"),
   uz: () => import("./search/uz.js"),
   vi: () => import("./search/vi.js"),
@@ -99,7 +109,7 @@ export async function loadSearchData(
     return undefined;
   }
 
-  const overlay = decodePositional(encoded);
+  const overlay = await decodePositional(encoded);
   searchCache.set(locale, overlay);
   return overlay;
 }
