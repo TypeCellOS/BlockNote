@@ -55,8 +55,10 @@ export default defineConfig(
         lib: {
           entry: {
             "blocknote-emoji-data": path.resolve(__dirname, "src/index.ts"),
+            data: path.resolve(__dirname, "src/data/index.ts"),
             locales: path.resolve(__dirname, "src/i18n/index.ts"),
             ...perLocaleEntries,
+            "search/slugs": path.resolve(__dirname, "src/search/slugs.ts"),
             ...perSearchEntries,
           },
           name: "blocknote-emoji-data",

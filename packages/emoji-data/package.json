@@ -33,6 +33,11 @@
       "import": "./dist/blocknote-emoji-data.js",
       "require": "./dist/blocknote-emoji-data.cjs"
     },
+    "./data": {
+      "types": "./types/src/data/index.d.ts",
+      "import": "./dist/data.js",
+      "require": "./dist/data.cjs"
+    },
     "./locales": {
       "types": "./types/src/i18n/index.d.ts",
       "import": "./dist/locales.js",
@@ -47,6 +52,7 @@
   "scripts": {
     "dev": "vp dev",
     "lint": "vp lint src",
+    "test": "vp test --run",
     "clean": "rimraf dist && rimraf types",
     "generate-emoji-data": "node scripts/generate.mjs"
   },

@@ -35,7 +35,7 @@ async function loadEmojiMart(locale?: string) {
     const emojiMart =
       "default" in emojiMartModule ? emojiMartModule.default : emojiMartModule;
 
-    let { emojiData } = emojiDataModule;
+    let emojiData = await emojiDataModule.loadEmojiData();
 
     if (targetLocale !== "en") {
       const overlay = await emojiDataModule.loadSearchData(targetLocale);

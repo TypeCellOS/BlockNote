@@ -1,4 +1,5 @@
 export const fa = {
+  locale: "fa",
   slash_menu: {
     heading: {
       title: "عنوان ۱",

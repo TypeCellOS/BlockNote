@@ -1,4 +1,4 @@
-import { nl } from "@blocknote/core/locales";
+import { tr as nl } from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
