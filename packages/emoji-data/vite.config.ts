@@ -19,7 +19,11 @@ const perLocaleEntries = Object.fromEntries(
 );
 
 const searchFiles = readdirSync(path.resolve(__dirname, "src/search")).filter(
-  (f) => f.endsWith(".ts") && f !== "index.ts",
+  (f) =>
+    f.endsWith(".ts") &&
+    f !== "index.ts" &&
+    f !== "positional.ts" &&
+    !f.endsWith(".test.ts"),
 );
 
 const perSearchEntries = Object.fromEntries(
@@ -31,7 +35,7 @@ const perSearchEntries = Object.fromEntries(
 
 // https://vitejs.dev/config/
 export default defineConfig(
-  (conf) =>
+  () =>
     ({
       run: {
         tasks: {

@@ -13,11 +13,11 @@ function decodePositional(encoded: string): SearchOverlay {
   const lines = encoded.split("\n");
   for (let i = 0; i < lines.length; i++) {
     const t = lines[i].indexOf("\t");
-    const name = lines[i].substring(0, t);
-    const kwStr = lines[i].substring(t + 1);
-    if (!name) {
+    if (t <= 0) {
       continue;
     }
+    const name = lines[i].substring(0, t);
+    const kwStr = lines[i].substring(t + 1);
     result[slugOrder[i]] = {
       name,
       keywords: kwStr ? kwStr.split("|") : [],
@@ -29,6 +29,7 @@ function decodePositional(encoded: string): SearchOverlay {
 type SearchModule = Record<string, string>;
 
 const loaders: Record<string, () => Promise<SearchModule>> = {
+  ar: () => import("./search/ar.js"),
   bn: () => import("./search/bn.js"),
   da: () => import("./search/da.js"),
   de: () => import("./search/de.js"),
@@ -36,10 +37,14 @@ const loaders: Record<string, () => Promise<SearchModule>> = {
   es: () => import("./search/es.js"),
   "es-mx": () => import("./search/es-mx.js"),
   et: () => import("./search/et.js"),
+  fa: () => import("./search/fa.js"),
   fi: () => import("./search/fi.js"),
   fr: () => import("./search/fr.js"),
+  he: () => import("./search/he.js"),
   hi: () => import("./search/hi.js"),
+  hr: () => import("./search/hr.js"),
   hu: () => import("./search/hu.js"),
+  is: () => import("./search/is.js"),
   it: () => import("./search/it.js"),
   ja: () => import("./search/ja.js"),
   ko: () => import("./search/ko.js"),
@@ -50,9 +55,11 @@ const loaders: Record<string, () => Promise<SearchModule>> = {
   pl: () => import("./search/pl.js"),
   pt: () => import("./search/pt.js"),
   ru: () => import("./search/ru.js"),
+  sk: () => import("./search/sk.js"),
   sv: () => import("./search/sv.js"),
   th: () => import("./search/th.js"),
   uk: () => import("./search/uk.js"),
+  uz: () => import("./search/uz.js"),
   vi: () => import("./search/vi.js"),
   zh: () => import("./search/zh.js"),
   "zh-hant": () => import("./search/zh-hant.js"),
