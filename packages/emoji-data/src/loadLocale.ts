@@ -33,6 +33,11 @@ const loaders: Record<string, () => Promise<LocaleModule>> = {
   "zh-hant": () => import("./i18n/locales/zh-hant.js"),
 };
 
+const LOCALE_ALIASES: Record<string, string> = {
+  no: "nb",
+  "zh-tw": "zh-hant",
+};
+
 const cache = new Map<string, EmojiI18n>();
 
 export async function loadEmojiLocale(locale: string): Promise<EmojiI18n> {
@@ -41,7 +46,8 @@ export async function loadEmojiLocale(locale: string): Promise<EmojiI18n> {
     return cached;
   }
 
-  const loader = loaders[locale] ?? loaders[locale.split("-")[0]];
+  const resolved = LOCALE_ALIASES[locale] ?? locale;
+  const loader = loaders[resolved] ?? loaders[resolved.split("-")[0]];
   const mod = await (loader ?? loaders.en)();
 
   const varName = locale.replace(/-([a-z])/g, (_: string, c: string) =>

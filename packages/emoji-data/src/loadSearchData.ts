@@ -58,6 +58,11 @@ const loaders: Record<string, () => Promise<SearchModule>> = {
   "zh-hant": () => import("./search/zh-hant.js"),
 };
 
+const LOCALE_ALIASES: Record<string, string> = {
+  no: "nb",
+  "zh-tw": "zh-hant",
+};
+
 const searchCache = new Map<string, SearchOverlay>();
 
 export async function loadSearchData(
@@ -72,7 +77,8 @@ export async function loadSearchData(
     return cached;
   }
 
-  const loader = loaders[locale] ?? loaders[locale.split("-")[0]];
+  const resolved = LOCALE_ALIASES[locale] ?? locale;
+  const loader = loaders[resolved] ?? loaders[resolved.split("-")[0]];
   if (!loader) {
     return undefined;
   }
