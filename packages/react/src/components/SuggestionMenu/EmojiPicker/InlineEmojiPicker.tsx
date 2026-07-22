@@ -43,15 +43,20 @@ function getTotalEmojiCount(root: HTMLElement): number {
   if (!grid) {
     return 0;
   }
-  const rowCount = Number(grid.getAttribute("aria-rowcount") ?? 0);
-  if (rowCount === 0) {
-    return 0;
-  }
-  // Last row may have fewer items. Read it from aria-colcount or estimate.
-  // Total = (rowCount - 1) * COLUMNS + lastRowSize, but we don't know
-  // lastRowSize cheaply. Use rowCount * COLUMNS as upper bound — clamping
-  // in navigation handles the overshoot.
-  return rowCount * COLUMNS;
+  return Number(grid.getAttribute("aria-rowcount") ?? 0) * COLUMNS;
+}
+
+function findButtonAtIndex(
+  root: HTMLElement,
+  absIndex: number,
+): HTMLButtonElement | null {
+  const firstRow = root.querySelector<HTMLElement>("[aria-rowindex]");
+  const firstRowIndex = Number(firstRow?.getAttribute("aria-rowindex") ?? 0);
+  const localIndex = absIndex - firstRowIndex * COLUMNS;
+  const buttons = root.querySelectorAll<HTMLButtonElement>(
+    ".bn-frimousse-emoji",
+  );
+  return buttons[localIndex] ?? null;
 }
 
 export function InlineEmojiPicker(props: {
@@ -72,6 +77,11 @@ export function InlineEmojiPicker(props: {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedEmoji, setSelectedEmoji] = useState({ emoji: "", label: "" });
 
+  // The selected emoji character — read during render by the Emoji component
+  // to apply data-selected. Using a ref so Frimousse's memoized re-renders
+  // always read the latest value without needing a state-triggered re-render.
+  const selectedCharRef = useRef("");
+
   useEffect(() => {
     void import("@blocknote/emoji-data").then(({ seedFrimousseCache }) =>
       seedFrimousseCache(locale).then((seededLocale) => {
@@ -84,14 +94,12 @@ export function InlineEmojiPicker(props: {
     setSelectedIndex(0);
   }, [props.query]);
 
-  // After selectedIndex changes, scroll the viewport so the target row
-  // is visible, wait for Frimousse to render it, then read the button.
+  // Scroll viewport and resolve selected emoji character when index changes
   useEffect(() => {
     const root = rootRef.current;
     if (!root) {
       return;
     }
-
     const viewport = root.querySelector<HTMLElement>("[frimousse-viewport]");
     if (!viewport) {
       return;
@@ -100,15 +108,9 @@ export function InlineEmojiPicker(props: {
     const rowHeight = getRowHeight(root);
     const headerHeight = getCategoryHeaderHeight(root);
     const targetRow = Math.floor(selectedIndex / COLUMNS);
-
-    // Estimate scroll position accounting for category headers.
-    // Frimousse's total height = rows * rowHeight + categories * headerHeight.
-    // We approximate the category count as roughly 1 per 20-30 rows.
-    // A simpler heuristic: each row is rowHeight, plus some slack for headers.
     const estimatedY = targetRow * rowHeight;
     const viewportHeight = viewport.clientHeight;
 
-    // Only scroll if the target row is outside the visible range
     if (
       estimatedY < viewport.scrollTop ||
       estimatedY + rowHeight >
@@ -117,41 +119,25 @@ export function InlineEmojiPicker(props: {
       viewport.scrollTop = Math.max(0, estimatedY - viewportHeight / 3);
     }
 
-    const applySelection = () => {
-      if (!rootRef.current) {
+    const resolve = () => {
+      const root = rootRef.current;
+      if (!root) {
         return;
       }
-      // Clear previous selection
-      for (const el of rootRef.current.querySelectorAll("[data-selected]")) {
-        el.removeAttribute("data-selected");
-      }
-
-      const buttons = rootRef.current.querySelectorAll<HTMLButtonElement>(
-        ".bn-frimousse-emoji",
-      );
-      // Map selectedIndex (absolute) to local index within rendered buttons.
-      const firstRow =
-        rootRef.current.querySelector<HTMLElement>("[aria-rowindex]");
-      const firstRowIndex = Number(
-        firstRow?.getAttribute("aria-rowindex") ?? 0,
-      );
-      const localIndex = selectedIndex - firstRowIndex * COLUMNS;
-
-      const btn = buttons[localIndex];
+      const btn = findButtonAtIndex(root, selectedIndex);
       if (btn) {
-        btn.setAttribute("data-selected", "");
+        const char = btn.textContent ?? "";
+        selectedCharRef.current = char;
         btn.scrollIntoView({ block: "nearest" });
         setSelectedEmoji({
-          emoji: btn.textContent ?? "",
+          emoji: char,
           label: btn.getAttribute("aria-label") ?? "",
         });
       }
     };
 
-    // Try immediately, then retry after a frame (for virtualization catch-up)
-    applySelection();
-    const frameId = requestAnimationFrame(applySelection);
-
+    resolve();
+    const frameId = requestAnimationFrame(resolve);
     return () => cancelAnimationFrame(frameId);
   }, [selectedIndex, props.query, resolvedLocale]);
 
@@ -182,16 +168,8 @@ export function InlineEmojiPicker(props: {
       } else if (event.key === "Enter" && !event.isComposing) {
         event.preventDefault();
         event.stopPropagation();
-        // Find the button at selectedIndex among rendered buttons
-        const firstRow = root.querySelector<HTMLElement>("[aria-rowindex]");
-        const firstRowIndex = Number(
-          firstRow?.getAttribute("aria-rowindex") ?? 0,
-        );
-        const localIndex = selectedIndex - firstRowIndex * COLUMNS;
-        const buttons = root.querySelectorAll<HTMLButtonElement>(
-          ".bn-frimousse-emoji",
-        );
-        buttons[localIndex]?.click();
+        const btn = findButtonAtIndex(root, selectedIndex);
+        btn?.click();
       }
     };
 
@@ -249,7 +227,13 @@ export function InlineEmojiPicker(props: {
               </div>
             ),
             Emoji: ({ emoji, ...emojiProps }) => (
-              <button className="bn-frimousse-emoji" {...emojiProps}>
+              <button
+                className="bn-frimousse-emoji"
+                data-selected={
+                  emoji.emoji === selectedCharRef.current ? "" : undefined
+                }
+                {...emojiProps}
+              >
                 {emoji.emoji}
               </button>
             ),
