@@ -1,3 +1,4 @@
+import { Node } from "prosemirror-model";
 import { CellSelection } from "prosemirror-tables";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { BlockConfig, PropSchema, PropSpec } from "../schema/index.js";
@@ -158,4 +159,9 @@ export function isTableCellSelection(
   selection: Selection,
 ): selection is CellSelection {
   return selection instanceof CellSelection;
+}
+
+export function isTableCellNode(node: Node): boolean {
+  const tableRole = node.type.spec.tableRole;
+  return tableRole === "cell" || tableRole === "header_cell";
 }
