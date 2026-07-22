@@ -22,6 +22,7 @@ overrides:
 
 patchedDependencies:
   '@y/prosemirror@2.0.0-6': e49b17b47e301dd138d7e383a779a0e2125bf7f038e10e3c740e26b43d988776
+  katex@0.16.47: cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7
 
 importers:
 
@@ -284,7 +285,7 @@ importers:
         version: '@fumadocs/base-ui@16.5.0(@types/react@19.2.14)(fumadocs-core@16.5.0(@types/react@19.2.14)(lucide-react@0.562.0(react@19.2.5))(next@16.2.7(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(zod@4.3.6))(next@16.2.7(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.2)'
       katex:
         specifier: ^0.16.11
-        version: 0.16.47
+        version: 0.16.47(patch_hash=cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7)
       lib0:
         specifier: 1.0.0-rc.22
         version: 1.0.0-rc.22
@@ -2868,7 +2869,7 @@ importers:
         version: 9.1.1(react@19.2.5)
       katex:
         specifier: ^0.16.11
-        version: 0.16.47
+        version: 0.16.47(patch_hash=cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2926,7 +2927,7 @@ importers:
         version: 9.1.1(react@19.2.5)
       katex:
         specifier: ^0.16.11
-        version: 0.16.47
+        version: 0.16.47(patch_hash=cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -5325,7 +5326,7 @@ importers:
         version: 0.1.4(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
       katex:
         specifier: ^0.16.11
-        version: 0.16.47
+        version: 0.16.47(patch_hash=cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7)
       mathml-to-latex:
         specifier: ^1.8.0
         version: 1.8.0
@@ -5840,7 +5841,7 @@ importers:
         version: 2.8.26
       katex:
         specifier: ^0.16.11
-        version: 0.16.47
+        version: 0.16.47(patch_hash=cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7)
       react:
         specifier: ^19.2.5
         version: 19.2.5
@@ -6005,7 +6006,7 @@ importers:
         version: 19.2.3(@types/react@19.2.14)
       katex:
         specifier: ^0.16.11
-        version: 0.16.47
+        version: 0.16.47(patch_hash=cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7)
       react:
         specifier: ^19.2.5
         version: 19.2.5
@@ -6231,7 +6232,7 @@ importers:
         version: 9.5.1
       katex:
         specifier: ^0.16.11
-        version: 0.16.47
+        version: 0.16.47(patch_hash=cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7)
       react:
         specifier: ^19.2.5
         version: 19.2.5
@@ -24517,7 +24518,7 @@ snapshots:
       readable-stream: 2.3.8
       setimmediate: 1.0.5
 
-  katex@0.16.47:
+  katex@0.16.47(patch_hash=cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7):
     dependencies:
       commander: 8.3.0
 
@@ -24952,7 +24953,7 @@ snapshots:
       dayjs: 1.11.21
       dompurify: 3.4.12
       es-toolkit: 1.45.1
-      katex: 0.16.47
+      katex: 0.16.47(patch_hash=cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7)
       khroma: 2.1.0
       marked: 16.4.2
       roughjs: 4.6.6
