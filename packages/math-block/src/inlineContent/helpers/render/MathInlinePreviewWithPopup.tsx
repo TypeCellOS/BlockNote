@@ -34,6 +34,7 @@ export const MathInlinePreviewWithPopup = (
         ) : undefined
       }
       error={error}
+      errorPreview={error}
       emptySourcePlaceholder={
         <PreviewPlaceholder
           icon={<TbMathFunction />}

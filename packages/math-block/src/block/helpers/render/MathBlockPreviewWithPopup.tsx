@@ -29,6 +29,7 @@ export const MathBlockPreviewWithPopup = (
         ) : undefined
       }
       error={error}
+      errorPreview={error}
       emptySourcePlaceholder={
         <PreviewPlaceholder
           icon={<TbMathFunction />}
