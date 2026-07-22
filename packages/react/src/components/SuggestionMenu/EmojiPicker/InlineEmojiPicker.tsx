@@ -36,12 +36,11 @@ export function InlineEmojiPicker(props: {
     undefined,
   );
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedEmoji, setSelectedEmoji] = useState({ emoji: "", label: "" });
 
   // Ref-based counter that resets each render and increments as each
   // Emoji component renders, so we can match selectedIndex to position.
   const emojiCounterRef = useRef(0);
-  // Mutable object to collect the selected emoji during render for the footer
-  const selectedEmojiRef = useRef({ emoji: "", label: "" });
 
   useEffect(() => {
     void import("@blocknote/emoji-data").then(({ seedFrimousseCache }) =>
@@ -55,16 +54,23 @@ export function InlineEmojiPicker(props: {
     setSelectedIndex(0);
   }, [props.query]);
 
-  // Scroll the selected emoji into view after render
+  // Scroll selected emoji into view and update footer label
   useEffect(() => {
     if (!rootRef.current) {
       return;
     }
-    const selected = rootRef.current.querySelector<HTMLElement>(
-      ".bn-frimousse-emoji[data-selected]",
+    const buttons = rootRef.current.querySelectorAll<HTMLButtonElement>(
+      ".bn-frimousse-emoji",
     );
-    selected?.scrollIntoView({ block: "nearest" });
-  });
+    const btn = buttons[selectedIndex];
+    if (btn) {
+      btn.scrollIntoView({ block: "nearest" });
+      setSelectedEmoji({
+        emoji: btn.textContent ?? "",
+        label: btn.getAttribute("aria-label") ?? "",
+      });
+    }
+  }, [selectedIndex, props.query, resolvedLocale]);
 
   useEffect(() => {
     const getEmojiCount = () => {
@@ -110,7 +116,6 @@ export function InlineEmojiPicker(props: {
 
   // Reset the render counter before each render
   emojiCounterRef.current = 0;
-  selectedEmojiRef.current = { emoji: "", label: "" };
 
   if (!resolvedLocale) {
     return (
@@ -162,12 +167,6 @@ export function InlineEmojiPicker(props: {
             Emoji: ({ emoji, ...emojiProps }) => {
               const idx = emojiCounterRef.current++;
               const isSelected = idx === selectedIndex;
-              if (isSelected) {
-                selectedEmojiRef.current = {
-                  emoji: emoji.emoji,
-                  label: emoji.label,
-                };
-              }
               return (
                 <button
                   className="bn-frimousse-emoji"
@@ -182,13 +181,13 @@ export function InlineEmojiPicker(props: {
         />
       </EmojiPicker.Viewport>
       <div className="bn-frimousse-footer">
-        {selectedEmojiRef.current.emoji ? (
+        {selectedEmoji.emoji ? (
           <div className="bn-frimousse-active-emoji">
             <span className="bn-frimousse-active-emoji-glyph">
-              {selectedEmojiRef.current.emoji}
+              {selectedEmoji.emoji}
             </span>
             <span className="bn-frimousse-active-emoji-label">
-              {selectedEmojiRef.current.label}
+              {selectedEmoji.label}
             </span>
           </div>
         ) : (
