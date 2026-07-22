@@ -7,6 +7,7 @@ import {
 } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
+import { ignoreNonContentMutations } from "../nodeViewMutations.js";
 import {
   Extension,
   ExtensionFactoryInstance,
@@ -270,6 +271,11 @@ export function addNodeAndExtensionsToSpec<
           if (blockImplementation.meta?.selectable === false) {
             applyNonSelectableBlockFix(typedNodeView, this.editor);
           }
+
+          // Ignores DOM mutations that don't affect the block's content, so
+          // that browser extensions which rewrite the DOM (e.g. Dark Reader)
+          // can't trigger an infinite re-render loop that freezes the tab.
+          ignoreNonContentMutations(typedNodeView);
 
           // See explanation for why `update` is not implemented for NodeViews
           // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464
