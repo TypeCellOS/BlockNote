@@ -24,21 +24,10 @@ export function GridSuggestionMenu<T extends DefaultReactGridSuggestionItem>(
     ) : null;
 
   const renderedItems = useMemo<JSX.Element[]>(() => {
-    // let currentGroup: string | undefined = undefined;
     const renderedItems = [];
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
-      // if (item.group !== currentGroup) {
-      //   currentGroup = item.group;
-      //   renderedItems.push(
-      //     <Components.SuggestionMenu.Label
-      //       className={"bn-suggestion-menu-label"}
-      //       key={currentGroup}>
-      //       {currentGroup}
-      //     </Components.SuggestionMenu.Label>
-      //   );
-      // }
 
       renderedItems.push(
         <Components.GridSuggestionMenu.Item

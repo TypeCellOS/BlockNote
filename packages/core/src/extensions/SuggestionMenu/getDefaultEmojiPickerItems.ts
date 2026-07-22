@@ -1,4 +1,4 @@
-import type { Emoji, EmojiMartData } from "@blocknote/emoji-data";
+import type { FrimousseEmojiData } from "@blocknote/emoji-data";
 
 import { defaultInlineContentSchema } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -9,47 +9,22 @@ import {
 } from "../../schema/index.js";
 import { DefaultGridSuggestionItem } from "./DefaultGridSuggestionItem.js";
 
-// Temporary fix for https://github.com/missive/emoji-mart/pull/929
 let currentLocale: string | undefined;
-let emojiLoadingPromise:
-  | Promise<{
-      emojiMart: typeof import("emoji-mart");
-      emojiData: EmojiMartData;
-    }>
-  | undefined;
+let dataPromise: Promise<FrimousseEmojiData> | undefined;
 
-async function loadEmojiMart(locale?: string) {
+async function loadEmojiData(locale?: string) {
   const targetLocale = locale ?? "en";
 
-  if (emojiLoadingPromise && currentLocale === targetLocale) {
-    return emojiLoadingPromise;
+  if (dataPromise && currentLocale === targetLocale) {
+    return dataPromise;
   }
 
   currentLocale = targetLocale;
-  emojiLoadingPromise = (async () => {
-    const [emojiMartModule, emojiDataModule] = await Promise.all([
-      import("emoji-mart"),
-      import("@blocknote/emoji-data"),
-    ]);
+  dataPromise = import("@blocknote/emoji-data").then(({ loadFrimousseData }) =>
+    loadFrimousseData(targetLocale),
+  );
 
-    const emojiMart =
-      "default" in emojiMartModule ? emojiMartModule.default : emojiMartModule;
-
-    let emojiData = await emojiDataModule.loadEmojiData();
-
-    if (targetLocale !== "en") {
-      const overlay = await emojiDataModule.loadSearchData(targetLocale);
-      if (overlay) {
-        emojiData = emojiDataModule.applySearchOverlay(emojiData, overlay);
-      }
-    }
-
-    await emojiMart.init({ data: emojiData as any });
-
-    return { emojiMart, emojiData };
-  })();
-
-  return emojiLoadingPromise;
+  return dataPromise;
 }
 
 export async function getDefaultEmojiPickerItems<
@@ -68,17 +43,17 @@ export async function getDefaultEmojiPickerItems<
     return [];
   }
 
-  const { emojiData, emojiMart } = await loadEmojiMart(
-    editor.dictionary.locale,
-  );
+  const data = await loadEmojiData(editor.dictionary.locale);
 
-  const emojisToShow =
-    query.trim() === ""
-      ? Object.values(emojiData.emojis)
-      : ((await emojiMart!.SearchIndex.search(query)) as Emoji[]);
+  let emojisToShow = data.emojis;
+
+  if (query.trim() !== "") {
+    const { searchEmojis } = await import("@blocknote/emoji-data");
+    emojisToShow = searchEmojis(data.emojis, query);
+  }
 
   return emojisToShow.map((emoji) => ({
-    id: emoji.skins[0].native,
-    onItemClick: () => editor.insertInlineContent(emoji.skins[0].native + " "),
+    id: emoji.emoji,
+    onItemClick: () => editor.insertInlineContent(emoji.emoji + " "),
   }));
 }

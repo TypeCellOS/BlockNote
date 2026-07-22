@@ -27,18 +27,11 @@ function expectSelectorCount(selector: string, count: number) {
   });
 }
 
-// emoji-mart renders `<em-emoji-picker>` as a custom element whose emoji
-// buttons live inside its shadow root, so a plain `document.querySelector`
-// can't reach them. These helpers pierce the shadow root.
+// Frimousse renders regular DOM elements (no shadow DOM), so standard
+// selectors work directly.
 function emojiButtons(): HTMLButtonElement[] {
-  const picker = document.querySelector("em-emoji-picker");
-  if (!picker?.shadowRoot) {
-    return [];
-  }
   return Array.from(
-    picker.shadowRoot.querySelectorAll<HTMLButtonElement>(
-      "button[aria-posinset]",
-    ),
+    document.querySelectorAll<HTMLButtonElement>("[frimousse-emoji]"),
   );
 }
 
@@ -89,7 +82,7 @@ describe("Check Comments functionality", () => {
     await userEvent.click(await waitForSelector('[data-test="addreaction"]'));
     const firstPickerButtons = await waitForEmojiButtons();
     await userEvent.click(firstPickerButtons[0]);
-    await expectSelectorCount("em-emoji-picker", 0);
+    await expectSelectorCount("[frimousse-root]", 0);
     await expectSelectorCount(".bn-comment-reaction", 1);
 
     // Add a second reaction via the add-reaction badge.
@@ -100,7 +93,7 @@ describe("Check Comments functionality", () => {
     // toggling the first one off.
     const secondPickerButtons = await waitForEmojiButtons(6);
     await userEvent.click(secondPickerButtons[5]);
-    await expectSelectorCount("em-emoji-picker", 0);
+    await expectSelectorCount("[frimousse-root]", 0);
     await expectSelectorCount(".bn-comment-reaction", 2);
   });
 

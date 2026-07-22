@@ -1,31 +1,6 @@
 import type { EmojiI18n } from "../dictionary.js";
 
 export const uk: EmojiI18n = {
-  search: "Пошук",
-  search_no_results_1: "О ні!",
-  search_no_results_2: "Не вдалося знайти це емодзі",
-  pick: "Виберіть емодзі…",
-  add_custom: "Додайте власні емодзі",
-  categories: {
-    search: "Результати пошуку",
-    frequent: "Часто використовується",
-    custom: "Кастомні",
-    people: "Смайли та люди",
-    nature: "тварини & природа",
-    foods: "їжа та напої",
-    activity: "діяльності",
-    places: "подорожі та місця",
-    objects: "об'єктів",
-    symbols: "cимволи",
-    flags: "прапори",
-  },
-  skins: {
-    "1": "За замовчуванням",
-    "2": "світлий тон шкіри",
-    "3": "помірно світлий тон шкіри",
-    "4": "помірний тон шкіри",
-    "5": "помірно темний тон шкіри",
-    "6": "темний тон шкіри",
-    choose: "Виберіть колір шкіри за замовчуванням",
-  },
+  search: "Search",
+  searchNoResults: "No emoji found",
 };

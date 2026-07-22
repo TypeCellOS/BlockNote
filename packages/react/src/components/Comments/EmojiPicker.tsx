@@ -4,13 +4,13 @@ import { ReactNode, useEffect, useState } from "react";
 import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useDictionary } from "../../i18n/dictionary.js";
-import Picker from "./EmojiMartPicker.js";
+import FrimoussePicker from "./FrimoussePicker.js";
 
 function useEmojiI18n(locale: string): EmojiI18n | undefined {
   const [i18n, setI18n] = useState<EmojiI18n | undefined>(undefined);
 
   useEffect(() => {
-    import("@blocknote/emoji-data").then(({ loadEmojiLocale }) =>
+    void import("@blocknote/emoji-data").then(({ loadEmojiLocale }) =>
       loadEmojiLocale(locale).then(setI18n),
     );
   }, [locale]);
@@ -41,9 +41,6 @@ export const EmojiPicker = (props: {
       <Components.Generic.Popover.Trigger>
         <div
           onClick={(event) => {
-            // Needed as the Picker component's onClickOutside handler
-            // fires immediately after otherwise, preventing the popover
-            // from opening.
             event.preventDefault();
             event.stopPropagation();
             setOpen(!open);
@@ -62,21 +59,17 @@ export const EmojiPicker = (props: {
         className={"bn-emoji-picker-popover"}
         variant={"panel-popover"}
       >
-        <Picker
-          perLine={7}
-          onClickOutside={() => {
-            setOpen(false);
-            props.onOpenChange?.(false);
-          }}
-          onEmojiSelect={(emoji: { native: string }) => {
-            props.onEmojiSelect(emoji);
-            setOpen(false);
-            props.onOpenChange?.(false);
-          }}
-          theme={blockNoteContext?.colorSchemePreference}
-          locale={locale}
-          i18n={emojiI18n}
-        />
+        {open && (
+          <FrimoussePicker
+            onEmojiSelect={(emoji) => {
+              props.onEmojiSelect(emoji);
+              setOpen(false);
+              props.onOpenChange?.(false);
+            }}
+            locale={locale}
+            i18n={emojiI18n}
+          />
+        )}
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
   );

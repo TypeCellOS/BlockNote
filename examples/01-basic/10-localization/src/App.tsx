@@ -1,21 +1,78 @@
-import { tr as nl } from "@blocknote/core/locales";
+import * as locales from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
-// import { useTranslation } from "some-i18n-library"; // You can use any i18n library you like
+import { useState } from "react";
+
+// Every dictionary exported by `@blocknote/core/locales`, keyed by its
+// language code (the same key used in the export, e.g. `zhTW`).
+const dictionaries = locales as Record<string, (typeof locales)["en"]>;
+
+// Human-readable names shown in the language picker.
+const languageNames: Record<string, string> = {
+  ar: "العربية",
+  de: "Deutsch",
+  en: "English",
+  es: "Español",
+  fa: "فارسی",
+  fr: "Français",
+  he: "עברית",
+  hr: "Hrvatski",
+  is: "Íslenska",
+  it: "Italiano",
+  ja: "日本語",
+  ko: "한국어",
+  nl: "Nederlands",
+  no: "Norsk",
+  pl: "Polski",
+  pt: "Português",
+  ru: "Русский",
+  sk: "Slovenčina",
+  tr: "Türkçe",
+  uk: "Українська",
+  uz: "Oʻzbekcha",
+  vi: "Tiếng Việt",
+  zh: "简体中文",
+  zhTW: "繁體中文",
+};
+
+const languageKeys = Object.keys(dictionaries).sort((a, b) =>
+  (languageNames[a] ?? a).localeCompare(languageNames[b] ?? b),
+);
+
+// Creates the editor with the given dictionary. This is a separate component so
+// that changing its `key` (see below) re-mounts it, re-creating the editor
+// instance with the newly selected language.
+function LocalizedEditor(props: { dictionary: (typeof locales)["en"] }) {
+  const editor = useCreateBlockNote({ dictionary: props.dictionary });
+
+  return <BlockNoteView editor={editor} />;
+}
 
 export default function App() {
-  // const { lang } = useTranslation('common'); // You can get the current language from the i18n library or alternatively from a router
-  // Creates a new editor instance.
-  const editor = useCreateBlockNote({
-    // Passes the Dutch (NL) dictionary to the editor instance.
-    // You can also provide your own dictionary here to customize the strings used in the editor,
-    // or submit a Pull Request to add support for your language of your choice
-    dictionary: nl,
-    // dictionary: locales[lang as keyof typeof locales], // Use the language from the i18n library dynamically
-  });
+  // The currently selected language.
+  const [language, setLanguage] = useState<keyof typeof dictionaries>("en");
 
-  // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} />;
+  return (
+    <div>
+      <label>
+        Language:{" "}
+        <select
+          value={language}
+          onChange={(event) => setLanguage(event.target.value)}
+        >
+          {languageKeys.map((key) => (
+            <option key={key} value={key}>
+              {languageNames[key] ?? key}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {/* Keying the editor by the language re-mounts it whenever the selection
+          changes, so the editor picks up the newly selected dictionary. */}
+      <LocalizedEditor key={language} dictionary={dictionaries[language]} />
+    </div>
+  );
 }

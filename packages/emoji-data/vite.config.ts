@@ -18,18 +18,21 @@ const perLocaleEntries = Object.fromEntries(
   }),
 );
 
-const searchFiles = readdirSync(path.resolve(__dirname, "src/search")).filter(
+const frimousseFiles = readdirSync(
+  path.resolve(__dirname, "src/frimousse"),
+).filter(
   (f) =>
     f.endsWith(".ts") &&
     f !== "index.ts" &&
-    f !== "positional.ts" &&
-    !f.endsWith(".test.ts"),
+    f !== "types.ts" &&
+    f !== "loadFrimousseData.ts" &&
+    f !== "seed.ts",
 );
 
-const perSearchEntries = Object.fromEntries(
-  searchFiles.map((f) => {
+const perFrimousseEntries = Object.fromEntries(
+  frimousseFiles.map((f) => {
     const name = f.replace(".ts", "");
-    return [`search/${name}`, path.resolve(__dirname, `src/search/${f}`)];
+    return [`frimousse/${name}`, path.resolve(__dirname, `src/frimousse/${f}`)];
   }),
 );
 
@@ -55,11 +58,19 @@ export default defineConfig(
         lib: {
           entry: {
             "blocknote-emoji-data": path.resolve(__dirname, "src/index.ts"),
-            data: path.resolve(__dirname, "src/data/index.ts"),
+            frimousse: path.resolve(__dirname, "src/frimousse/index.ts"),
+            "frimousse/types": path.resolve(
+              __dirname,
+              "src/frimousse/types.ts",
+            ),
+            "frimousse/loadFrimousseData": path.resolve(
+              __dirname,
+              "src/frimousse/loadFrimousseData.ts",
+            ),
+            "frimousse/seed": path.resolve(__dirname, "src/frimousse/seed.ts"),
+            ...perFrimousseEntries,
             locales: path.resolve(__dirname, "src/i18n/index.ts"),
             ...perLocaleEntries,
-            "search/slugs": path.resolve(__dirname, "src/search/slugs.ts"),
-            ...perSearchEntries,
           },
           name: "blocknote-emoji-data",
           formats: ["es", "cjs"],

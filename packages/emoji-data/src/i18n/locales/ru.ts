@@ -1,31 +1,6 @@
 import type { EmojiI18n } from "../dictionary.js";
 
 export const ru: EmojiI18n = {
-  search: "Поиск",
-  search_no_results_1: "О нет!",
-  search_no_results_2: "Эмодзи не найден",
-  pick: "Выберите эмодзи…",
-  add_custom: "Добавить свой эмодзи",
-  categories: {
-    search: "Результаты поиска",
-    frequent: "Часто используемые",
-    custom: "Свои",
-    people: "Эмоции и люди",
-    nature: "животные и природа",
-    foods: "еда и напитки",
-    activity: "варианты досуга",
-    places: "путешествия и местности",
-    objects: "предметы",
-    symbols: "символы",
-    flags: "флаг",
-  },
-  skins: {
-    "1": "По умолчанию",
-    "2": "светлый тон кожи",
-    "3": "средне-светлый тон кожи",
-    "4": "средний тон кожи",
-    "5": "средне-темный тон кожи",
-    "6": "темный тон кожи",
-    choose: "Выберите цвет кожи по умолчанию",
-  },
+  search: "Search",
+  searchNoResults: "No emoji found",
 };
