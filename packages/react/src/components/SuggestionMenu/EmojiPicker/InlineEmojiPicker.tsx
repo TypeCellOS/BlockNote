@@ -72,8 +72,6 @@ export function InlineEmojiPicker(props: {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedEmoji, setSelectedEmoji] = useState({ emoji: "", label: "" });
 
-  const emojiCounterRef = useRef(0);
-
   useEffect(() => {
     void import("@blocknote/emoji-data").then(({ seedFrimousseCache }) =>
       seedFrimousseCache(locale).then((seededLocale) => {
@@ -119,29 +117,40 @@ export function InlineEmojiPicker(props: {
       viewport.scrollTop = Math.max(0, estimatedY - viewportHeight / 3);
     }
 
-    // Wait a frame for Frimousse to render the new visible rows
-    const frameId = requestAnimationFrame(() => {
-      const buttons = root.querySelectorAll<HTMLButtonElement>(
+    const applySelection = () => {
+      if (!rootRef.current) {
+        return;
+      }
+      // Clear previous selection
+      for (const el of rootRef.current.querySelectorAll("[data-selected]")) {
+        el.removeAttribute("data-selected");
+      }
+
+      const buttons = rootRef.current.querySelectorAll<HTMLButtonElement>(
         ".bn-frimousse-emoji",
       );
-      // The rendered buttons are a subset. Find which one maps to selectedIndex.
-      // The first rendered button's absolute index = first row's aria-rowindex * COLUMNS.
-      const firstRow = root.querySelector<HTMLElement>("[aria-rowindex]");
+      // Map selectedIndex (absolute) to local index within rendered buttons.
+      const firstRow =
+        rootRef.current.querySelector<HTMLElement>("[aria-rowindex]");
       const firstRowIndex = Number(
         firstRow?.getAttribute("aria-rowindex") ?? 0,
       );
-      const firstAbsoluteIndex = firstRowIndex * COLUMNS;
-      const localIndex = selectedIndex - firstAbsoluteIndex;
+      const localIndex = selectedIndex - firstRowIndex * COLUMNS;
 
       const btn = buttons[localIndex];
       if (btn) {
+        btn.setAttribute("data-selected", "");
         btn.scrollIntoView({ block: "nearest" });
         setSelectedEmoji({
           emoji: btn.textContent ?? "",
           label: btn.getAttribute("aria-label") ?? "",
         });
       }
-    });
+    };
+
+    // Try immediately, then retry after a frame (for virtualization catch-up)
+    applySelection();
+    const frameId = requestAnimationFrame(applySelection);
 
     return () => cancelAnimationFrame(frameId);
   }, [selectedIndex, props.query, resolvedLocale]);
@@ -192,8 +201,6 @@ export function InlineEmojiPicker(props: {
     };
   }, [editorDOMElement, selectedIndex]);
 
-  emojiCounterRef.current = 0;
-
   if (!resolvedLocale) {
     return (
       <div className="bn-frimousse-picker">
@@ -241,19 +248,11 @@ export function InlineEmojiPicker(props: {
                 {children}
               </div>
             ),
-            Emoji: ({ emoji, ...emojiProps }) => {
-              const idx = emojiCounterRef.current++;
-              const isSelected = idx === selectedIndex;
-              return (
-                <button
-                  className="bn-frimousse-emoji"
-                  data-selected={isSelected ? "" : undefined}
-                  {...emojiProps}
-                >
-                  {emoji.emoji}
-                </button>
-              );
-            },
+            Emoji: ({ emoji, ...emojiProps }) => (
+              <button className="bn-frimousse-emoji" {...emojiProps}>
+                {emoji.emoji}
+              </button>
+            ),
           }}
         />
       </EmojiPicker.Viewport>
