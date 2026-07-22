@@ -20,6 +20,40 @@ function useEmojiI18n(locale: string): EmojiI18n | undefined {
 
 const COLUMNS = 9;
 
+function getRowHeight(root: HTMLElement): number {
+  return (
+    Number.parseFloat(
+      getComputedStyle(root).getPropertyValue("--frimousse-row-height"),
+    ) || 32
+  );
+}
+
+function getCategoryHeaderHeight(root: HTMLElement): number {
+  return (
+    Number.parseFloat(
+      getComputedStyle(root).getPropertyValue(
+        "--frimousse-category-header-height",
+      ),
+    ) || 30
+  );
+}
+
+function getTotalEmojiCount(root: HTMLElement): number {
+  const grid = root.querySelector<HTMLElement>("[role='grid']");
+  if (!grid) {
+    return 0;
+  }
+  const rowCount = Number(grid.getAttribute("aria-rowcount") ?? 0);
+  if (rowCount === 0) {
+    return 0;
+  }
+  // Last row may have fewer items. Read it from aria-colcount or estimate.
+  // Total = (rowCount - 1) * COLUMNS + lastRowSize, but we don't know
+  // lastRowSize cheaply. Use rowCount * COLUMNS as upper bound — clamping
+  // in navigation handles the overshoot.
+  return rowCount * COLUMNS;
+}
+
 export function InlineEmojiPicker(props: {
   query: string;
   closeMenu: () => void;
@@ -38,8 +72,6 @@ export function InlineEmojiPicker(props: {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedEmoji, setSelectedEmoji] = useState({ emoji: "", label: "" });
 
-  // Ref-based counter that resets each render and increments as each
-  // Emoji component renders, so we can match selectedIndex to position.
   const emojiCounterRef = useRef(0);
 
   useEffect(() => {
@@ -54,20 +86,54 @@ export function InlineEmojiPicker(props: {
     setSelectedIndex(0);
   }, [props.query]);
 
-  // Scroll selected emoji into view and update footer label.
-  // Frimousse virtualizes the list, so the target button may not exist in
-  // the DOM yet. We scroll the viewport by row height first, wait a frame
-  // for Frimousse to render the new row, then update.
+  // After selectedIndex changes, scroll the viewport so the target row
+  // is visible, wait for Frimousse to render it, then read the button.
   useEffect(() => {
-    if (!rootRef.current) {
+    const root = rootRef.current;
+    if (!root) {
       return;
     }
 
-    const updateSelected = () => {
-      const buttons = rootRef.current?.querySelectorAll<HTMLButtonElement>(
+    const viewport = root.querySelector<HTMLElement>("[frimousse-viewport]");
+    if (!viewport) {
+      return;
+    }
+
+    const rowHeight = getRowHeight(root);
+    const headerHeight = getCategoryHeaderHeight(root);
+    const targetRow = Math.floor(selectedIndex / COLUMNS);
+
+    // Estimate scroll position accounting for category headers.
+    // Frimousse's total height = rows * rowHeight + categories * headerHeight.
+    // We approximate the category count as roughly 1 per 20-30 rows.
+    // A simpler heuristic: each row is rowHeight, plus some slack for headers.
+    const estimatedY = targetRow * rowHeight;
+    const viewportHeight = viewport.clientHeight;
+
+    // Only scroll if the target row is outside the visible range
+    if (
+      estimatedY < viewport.scrollTop ||
+      estimatedY + rowHeight >
+        viewport.scrollTop + viewportHeight - headerHeight
+    ) {
+      viewport.scrollTop = Math.max(0, estimatedY - viewportHeight / 3);
+    }
+
+    // Wait a frame for Frimousse to render the new visible rows
+    const frameId = requestAnimationFrame(() => {
+      const buttons = root.querySelectorAll<HTMLButtonElement>(
         ".bn-frimousse-emoji",
       );
-      const btn = buttons?.[selectedIndex];
+      // The rendered buttons are a subset. Find which one maps to selectedIndex.
+      // The first rendered button's absolute index = first row's aria-rowindex * COLUMNS.
+      const firstRow = root.querySelector<HTMLElement>("[aria-rowindex]");
+      const firstRowIndex = Number(
+        firstRow?.getAttribute("aria-rowindex") ?? 0,
+      );
+      const firstAbsoluteIndex = firstRowIndex * COLUMNS;
+      const localIndex = selectedIndex - firstAbsoluteIndex;
+
+      const btn = buttons[localIndex];
       if (btn) {
         btn.scrollIntoView({ block: "nearest" });
         setSelectedEmoji({
@@ -75,51 +141,29 @@ export function InlineEmojiPicker(props: {
           label: btn.getAttribute("aria-label") ?? "",
         });
       }
-    };
+    });
 
-    // Try immediately — works when the button is already rendered
-    const buttons = rootRef.current.querySelectorAll<HTMLButtonElement>(
-      ".bn-frimousse-emoji",
-    );
-    if (buttons[selectedIndex]) {
-      updateSelected();
-    } else {
-      // Button not rendered yet (virtualized). Nudge the viewport scroll
-      // so Frimousse renders the target row, then retry.
-      const viewport = rootRef.current.querySelector<HTMLElement>(
-        "[frimousse-viewport]",
-      );
-      if (viewport) {
-        const rowHeight =
-          rootRef.current.querySelector<HTMLElement>(".bn-frimousse-emoji")
-            ?.offsetHeight ?? 32;
-        const targetRow = Math.floor(selectedIndex / COLUMNS);
-        viewport.scrollTop = targetRow * rowHeight;
-      }
-      requestAnimationFrame(updateSelected);
-    }
+    return () => cancelAnimationFrame(frameId);
   }, [selectedIndex, props.query, resolvedLocale]);
 
   useEffect(() => {
-    const getEmojiCount = () => {
-      if (!rootRef.current) {
-        return 0;
-      }
-      return rootRef.current.querySelectorAll(".bn-frimousse-emoji").length;
-    };
-
     const handleKeyDown = (event: KeyboardEvent) => {
-      const count = getEmojiCount();
+      const root = rootRef.current;
+      if (!root) {
+        return;
+      }
+
+      const count = getTotalEmojiCount(root);
       if (count === 0) {
         return;
       }
 
       if (event.key === "ArrowRight") {
         event.preventDefault();
-        setSelectedIndex((i) => (i + 1) % count);
+        setSelectedIndex((i) => Math.min(i + 1, count - 1));
       } else if (event.key === "ArrowLeft") {
         event.preventDefault();
-        setSelectedIndex((i) => (i - 1 + count) % count);
+        setSelectedIndex((i) => Math.max(i - 1, 0));
       } else if (event.key === "ArrowDown") {
         event.preventDefault();
         setSelectedIndex((i) => Math.min(i + COLUMNS, count - 1));
@@ -129,10 +173,16 @@ export function InlineEmojiPicker(props: {
       } else if (event.key === "Enter" && !event.isComposing) {
         event.preventDefault();
         event.stopPropagation();
-        const buttons = rootRef.current?.querySelectorAll<HTMLButtonElement>(
+        // Find the button at selectedIndex among rendered buttons
+        const firstRow = root.querySelector<HTMLElement>("[aria-rowindex]");
+        const firstRowIndex = Number(
+          firstRow?.getAttribute("aria-rowindex") ?? 0,
+        );
+        const localIndex = selectedIndex - firstRowIndex * COLUMNS;
+        const buttons = root.querySelectorAll<HTMLButtonElement>(
           ".bn-frimousse-emoji",
         );
-        buttons?.[selectedIndex]?.click();
+        buttons[localIndex]?.click();
       }
     };
 
@@ -142,7 +192,6 @@ export function InlineEmojiPicker(props: {
     };
   }, [editorDOMElement, selectedIndex]);
 
-  // Reset the render counter before each render
   emojiCounterRef.current = 0;
 
   if (!resolvedLocale) {
