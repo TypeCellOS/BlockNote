@@ -54,21 +54,49 @@ export function InlineEmojiPicker(props: {
     setSelectedIndex(0);
   }, [props.query]);
 
-  // Scroll selected emoji into view and update footer label
+  // Scroll selected emoji into view and update footer label.
+  // Frimousse virtualizes the list, so the target button may not exist in
+  // the DOM yet. We scroll the viewport by row height first, wait a frame
+  // for Frimousse to render the new row, then update.
   useEffect(() => {
     if (!rootRef.current) {
       return;
     }
+
+    const updateSelected = () => {
+      const buttons = rootRef.current?.querySelectorAll<HTMLButtonElement>(
+        ".bn-frimousse-emoji",
+      );
+      const btn = buttons?.[selectedIndex];
+      if (btn) {
+        btn.scrollIntoView({ block: "nearest" });
+        setSelectedEmoji({
+          emoji: btn.textContent ?? "",
+          label: btn.getAttribute("aria-label") ?? "",
+        });
+      }
+    };
+
+    // Try immediately — works when the button is already rendered
     const buttons = rootRef.current.querySelectorAll<HTMLButtonElement>(
       ".bn-frimousse-emoji",
     );
-    const btn = buttons[selectedIndex];
-    if (btn) {
-      btn.scrollIntoView({ block: "nearest" });
-      setSelectedEmoji({
-        emoji: btn.textContent ?? "",
-        label: btn.getAttribute("aria-label") ?? "",
-      });
+    if (buttons[selectedIndex]) {
+      updateSelected();
+    } else {
+      // Button not rendered yet (virtualized). Nudge the viewport scroll
+      // so Frimousse renders the target row, then retry.
+      const viewport = rootRef.current.querySelector<HTMLElement>(
+        "[frimousse-viewport]",
+      );
+      if (viewport) {
+        const rowHeight =
+          rootRef.current.querySelector<HTMLElement>(".bn-frimousse-emoji")
+            ?.offsetHeight ?? 32;
+        const targetRow = Math.floor(selectedIndex / COLUMNS);
+        viewport.scrollTop = targetRow * rowHeight;
+      }
+      requestAnimationFrame(updateSelected);
     }
   }, [selectedIndex, props.query, resolvedLocale]);
 
