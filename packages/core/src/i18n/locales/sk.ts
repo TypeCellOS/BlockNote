@@ -1,4 +1,5 @@
 export const sk = {
+  locale: "sk",
   slash_menu: {
     heading: {
       title: "Nadpis 1",
