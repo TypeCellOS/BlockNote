@@ -45,9 +45,9 @@ function findButtonAtIndex(
   const firstRow = root.querySelector<HTMLElement>("[aria-rowindex]");
   const firstRowIndex = Number(firstRow?.getAttribute("aria-rowindex") ?? 0);
   const localIndex = absIndex - firstRowIndex * COLUMNS;
-  const buttons = root.querySelectorAll<HTMLButtonElement>(
-    ".bn-frimousse-emoji",
-  );
+  const buttons = Array.from(
+    root.querySelectorAll<HTMLButtonElement>(".bn-frimousse-emoji"),
+  ).filter((btn) => !btn.closest("[aria-hidden]"));
   return buttons[localIndex] ?? null;
 }
 
