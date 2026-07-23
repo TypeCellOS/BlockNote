@@ -1,7 +1,9 @@
 import {
+  Block,
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
+  PartialBlock,
   StyleSchema,
 } from "@blocknote/core";
 import { insertOrUpdateBlockForSlashMenu } from "@blocknote/core/extensions";
@@ -27,6 +29,59 @@ export function checkMultiColumnBlocksInSchema<
   );
 }
 
+function getAncestorColumnList<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+>(editor: BlockNoteEditor<BSchema, I, S>): Block<BSchema, I, S> | undefined {
+  let block: Block<BSchema, I, S> | undefined =
+    editor.getTextCursorPosition().block;
+
+  while (block) {
+    const parent: Block<BSchema, I, S> | undefined =
+      editor.getParentBlock(block);
+
+    if (parent?.type === "columnList") {
+      return parent;
+    }
+
+    block = parent;
+  }
+
+  return undefined;
+}
+
+function insertColumnList<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+>(editor: BlockNoteEditor<BSchema, I, S>, numColumns: number) {
+  const columnList: PartialBlock<BSchema, I, S> = {
+    type: "columnList" as any,
+    children: Array.from({ length: numColumns }, () => ({
+      type: "column" as any,
+      children: [
+        {
+          type: "paragraph" as any,
+        },
+      ],
+    })),
+  };
+
+  const ancestorColumnList = getAncestorColumnList(editor);
+
+  if (ancestorColumnList) {
+    const newBlock = editor.insertBlocks(
+      [columnList],
+      ancestorColumnList,
+      "after",
+    )[0];
+    editor.setTextCursorPosition(newBlock, "start");
+  } else {
+    insertOrUpdateBlockForSlashMenu(editor, columnList);
+  }
+}
+
 export function getMultiColumnSlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -40,62 +95,14 @@ export function getMultiColumnSlashMenuItems<
         ...getMultiColumnDictionary(editor).slash_menu.two_columns,
         icon: <TbColumns2 size={18} />,
         onItemClick: () => {
-          insertOrUpdateBlockForSlashMenu(editor, {
-            type: "columnList",
-            children: [
-              {
-                type: "column",
-                children: [
-                  {
-                    type: "paragraph" as any,
-                  },
-                ],
-              },
-              {
-                type: "column",
-                children: [
-                  {
-                    type: "paragraph" as any,
-                  },
-                ],
-              },
-            ],
-          });
+          insertColumnList(editor, 2);
         },
       },
       {
         ...getMultiColumnDictionary(editor).slash_menu.three_columns,
         icon: <TbColumns3 size={18} />,
         onItemClick: () => {
-          insertOrUpdateBlockForSlashMenu(editor, {
-            type: "columnList",
-            children: [
-              {
-                type: "column",
-                children: [
-                  {
-                    type: "paragraph" as any,
-                  },
-                ],
-              },
-              {
-                type: "column",
-                children: [
-                  {
-                    type: "paragraph" as any,
-                  },
-                ],
-              },
-              {
-                type: "column",
-                children: [
-                  {
-                    type: "paragraph" as any,
-                  },
-                ],
-              },
-            ],
-          });
+          insertColumnList(editor, 3);
         },
       },
     );
