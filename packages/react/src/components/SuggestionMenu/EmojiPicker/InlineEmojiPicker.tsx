@@ -150,8 +150,11 @@ export function InlineEmojiPicker(props: {
       } else if (event.key === "Enter" && !event.isComposing) {
         event.preventDefault();
         event.stopPropagation();
-        const btn = findButtonAtIndex(root, selectedIndex);
-        btn?.click();
+        if (selectedCharRef.current) {
+          props.clearQuery();
+          props.closeMenu();
+          editor.insertInlineContent(selectedCharRef.current + " ");
+        }
       }
     };
 

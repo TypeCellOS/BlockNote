@@ -54,16 +54,22 @@ describe("FrimoussePicker — isolated component", () => {
     const buttons = await waitForEmojiButtons(2);
     const char = buttons[0].textContent;
 
-    buttons[0].click();
+    buttons[0].dispatchEvent(
+      new PointerEvent("pointerdown", { bubbles: true }),
+    );
+    buttons[0].dispatchEvent(new PointerEvent("pointerup", { bubbles: true }));
+    buttons[0].dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
-    expect(onEmojiSelect).toHaveBeenCalledWith({ native: char });
+    await vi.waitFor(() => {
+      expect(onEmojiSelect).toHaveBeenCalledWith({ native: char });
+    });
   });
 
   test("hovering an emoji highlights it and shows its label in the footer", async () => {
     const buttons = await waitForEmojiButtons(2);
 
     buttons[1].dispatchEvent(
-      new PointerEvent("pointerenter", { bubbles: true }),
+      new PointerEvent("pointerover", { bubbles: true }),
     );
 
     await vi.waitFor(() => {
@@ -152,12 +158,10 @@ describe("FrimoussePicker — isolated component", () => {
   test("scrolls viewport when navigating past visible rows and keeps highlight visible", async () => {
     const search =
       document.querySelector<HTMLInputElement>("[frimousse-search]");
-    search!.focus();
+    await userEvent.click(search!);
 
     // Activate the first emoji.
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
-    );
+    await userEvent.keyboard("{ArrowDown}");
     await vi.waitFor(() => {
       if (!activeEmoji()) {
         throw new Error("No highlighted emoji");
@@ -175,10 +179,10 @@ describe("FrimoussePicker — isolated component", () => {
     // the next set of rows before the scroll handler queries for them.
     const presses = 20;
     for (let i = 0; i < presses; i++) {
-      document.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
-      );
-      await new Promise((resolve) => requestAnimationFrame(resolve));
+      await userEvent.keyboard("{ArrowDown}");
+      // Allow frimousse's virtual list to re-render between presses
+      // so the scroll handler can find the target row element.
+      await new Promise((resolve) => setTimeout(resolve, 50));
     }
 
     await vi.waitFor(() => {
