@@ -32,7 +32,7 @@ function TestInlineEmojiPicker({
 function emojiButtons(): HTMLButtonElement[] {
   return Array.from(
     document.querySelectorAll<HTMLButtonElement>(".bn-frimousse-emoji"),
-  );
+  ).filter((btn) => !btn.closest("[aria-hidden]"));
 }
 
 function waitForEmojiButtons(min = 1): Promise<HTMLButtonElement[]> {

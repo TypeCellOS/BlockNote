@@ -67,16 +67,66 @@ export function InlineEmojiPicker(props: {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedEmoji, setSelectedEmoji] = useState({ emoji: "", label: "" });
 
-  // The selected emoji character — read during render by the Emoji component
-  // to apply data-selected. Using a ref so Frimousse's memoized re-renders
-  // always read the latest value without needing a state-triggered re-render.
-  const selectedCharRef = useRef("");
+  const selectedIndexRef = useRef(selectedIndex);
+  selectedIndexRef.current = selectedIndex;
 
   useEffect(() => {
     setSelectedIndex(0);
   }, [props.query]);
 
-  // Scroll viewport and resolve selected emoji character when index changes
+  // Apply data-selected and scroll to the target emoji.
+  // Runs via MutationObserver because frimousse virtualises rows and may
+  // re-render them at any time, destroying previous DOM mutations.
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) {
+      return;
+    }
+
+    const applySelection = () => {
+      const idx = selectedIndexRef.current;
+      const viewport = root.querySelector<HTMLElement>("[frimousse-viewport]");
+      if (!viewport) {
+        return;
+      }
+
+      const btn = findButtonAtIndex(root, idx);
+      if (!btn) {
+        return;
+      }
+
+      if (!btn.hasAttribute("data-selected")) {
+        for (const el of root.querySelectorAll("[data-selected]")) {
+          el.removeAttribute("data-selected");
+        }
+        btn.setAttribute("data-selected", "");
+      }
+
+      const emoji = btn.textContent ?? "";
+      const label = btn.getAttribute("aria-label") ?? "";
+      setSelectedEmoji((prev) => {
+        if (prev.emoji === emoji && prev.label === label) {
+          return prev;
+        }
+        return { emoji, label };
+      });
+    };
+
+    applySelection();
+
+    let raf = 0;
+    const observer = new MutationObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(applySelection);
+    });
+    observer.observe(root, { childList: true, subtree: true });
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, [resolvedLocale]);
+
+  // Scroll viewport when selection changes.
   useEffect(() => {
     const root = rootRef.current;
     if (!root) {
@@ -101,27 +151,20 @@ export function InlineEmojiPicker(props: {
       viewport.scrollTop = Math.max(0, estimatedY - viewportHeight / 3);
     }
 
-    const resolve = () => {
-      const root = rootRef.current;
-      if (!root) {
-        return;
-      }
-      const btn = findButtonAtIndex(root, selectedIndex);
-      if (btn) {
-        const char = btn.textContent ?? "";
-        selectedCharRef.current = char;
-        btn.scrollIntoView({ block: "nearest" });
-        setSelectedEmoji({
-          emoji: char,
-          label: btn.getAttribute("aria-label") ?? "",
-        });
-      }
-    };
-
-    resolve();
-    const frameId = requestAnimationFrame(resolve);
-    return () => cancelAnimationFrame(frameId);
-  }, [selectedIndex, props.query, resolvedLocale]);
+    // Clear old selection and apply new one.
+    for (const el of root.querySelectorAll("[data-selected]")) {
+      el.removeAttribute("data-selected");
+    }
+    const btn = findButtonAtIndex(root, selectedIndex);
+    if (btn) {
+      btn.setAttribute("data-selected", "");
+      btn.scrollIntoView({ block: "nearest" });
+      setSelectedEmoji({
+        emoji: btn.textContent ?? "",
+        label: btn.getAttribute("aria-label") ?? "",
+      });
+    }
+  }, [selectedIndex, props.query]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -217,13 +260,7 @@ export function InlineEmojiPicker(props: {
               </div>
             ),
             Emoji: ({ emoji, ...emojiProps }) => (
-              <button
-                className="bn-frimousse-emoji"
-                data-selected={
-                  emoji.emoji === selectedCharRef.current ? "" : undefined
-                }
-                {...emojiProps}
-              >
+              <button className="bn-frimousse-emoji" {...emojiProps}>
                 {emoji.emoji}
               </button>
             ),

@@ -91,7 +91,7 @@ describe("Check Dark Theme is Automatically Applied", () => {
     await userEvent.keyboard(":");
     await userEvent.keyboard("sm");
 
-    await waitForSelector(".bn-frimousse-picker");
+    await waitForSelector(".bn-frimousse-picker .bn-frimousse-emoji");
     await sleep(500);
     await expectElement(document.body).toMatchScreenshot("dark-emoji-picker");
   });

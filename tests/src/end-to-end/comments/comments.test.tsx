@@ -32,7 +32,7 @@ function expectSelectorCount(selector: string, count: number) {
 function emojiButtons(): HTMLButtonElement[] {
   return Array.from(
     document.querySelectorAll<HTMLButtonElement>("[frimousse-emoji]"),
-  );
+  ).filter((btn) => !btn.closest("[aria-hidden]"));
 }
 
 /** Resolves once the emoji picker has rendered at least `min` emoji buttons. */
