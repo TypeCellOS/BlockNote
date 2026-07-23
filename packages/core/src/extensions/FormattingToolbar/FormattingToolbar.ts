@@ -24,6 +24,21 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
         return false;
       }
 
+      // Searches the content of the selection to see if it spans a node that
+      // contains `"inline*"` content, as opposed to just plain text.
+      let spansInlineContent = false;
+      tr.selection.content().content.descendants((node, _pos, parent) => {
+        if (node.isText && parent?.type.spec.content === "inline*") {
+          spansInlineContent = true;
+        }
+        return !spansInlineContent; // keep descending until we find inline content
+      });
+
+      // Don't show if no node in the selection contains inline content.
+      if (!spansInlineContent) {
+        return false;
+      }
+
       // Show toolbar otherwise.
       return true;
     });
