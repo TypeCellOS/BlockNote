@@ -1,8 +1,9 @@
 {
   "$schema": "https://ui.shadcn.com/schema/index.json",
-  "style": "default",
+  "style": "base-vega",
   "rsc": false,
   "tsx": true,
+  "iconLibrary": "lucide",
   "tailwind": {
     "css": "src/style.css",
     "baseColor": "slate",

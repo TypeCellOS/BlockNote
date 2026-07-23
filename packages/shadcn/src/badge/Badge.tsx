@@ -1,5 +1,5 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, useBlockNoteEditor } from "@blocknote/react";
 import { forwardRef } from "react";
 
 import { cn } from "../lib/utils.js";
@@ -25,6 +25,10 @@ export const Badge = forwardRef<
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
+  // Portal the tooltip into the editor's portal element so it inherits the
+  // editor's light/dark color scheme instead of the document body's.
+  const editor = useBlockNoteEditor();
+
   const badge = (
     <ShadCNComponents.Button.Button
       variant={isSelected ? "secondary" : "outline"}
@@ -47,10 +51,9 @@ export const Badge = forwardRef<
 
   return (
     <ShadCNComponents.Tooltip.Tooltip>
-      <ShadCNComponents.Tooltip.TooltipTrigger asChild>
-        {badge}
-      </ShadCNComponents.Tooltip.TooltipTrigger>
+      <ShadCNComponents.Tooltip.TooltipTrigger render={badge} />
       <ShadCNComponents.Tooltip.TooltipContent
+        container={editor.portalElement}
         className={"flex flex-col items-center whitespace-pre-wrap"}
       >
         <span>{mainTooltip}</span>
@@ -71,7 +74,7 @@ export const BadgeGroup = forwardRef<
   const ShadCNComponents = useShadCNComponentsContext()!;
 
   return (
-    <ShadCNComponents.Tooltip.TooltipProvider delayDuration={0}>
+    <ShadCNComponents.Tooltip.TooltipProvider delay={0}>
       <div
         className={cn(className, "flex w-full flex-row flex-wrap gap-1")}
         ref={ref}
