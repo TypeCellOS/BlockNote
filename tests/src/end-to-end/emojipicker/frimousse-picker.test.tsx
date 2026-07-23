@@ -1,5 +1,5 @@
 import "@blocknote/mantine/style.css";
-import FrimoussePicker from "@blocknote/react/components/Comments/FrimoussePicker.js";
+import FrimoussePicker from "@blocknote/react/components/Comments/FrimoussePicker";
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";

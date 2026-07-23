@@ -46,6 +46,14 @@
       "import": "./dist/style.css",
       "require": "./dist/style.css",
       "style": "./dist/style.css"
+    },
+    "./components/Comments/FrimoussePicker": {
+      "types": "./types/src/components/Comments/FrimoussePicker.d.ts",
+      "default": "./src/components/Comments/FrimoussePicker.tsx"
+    },
+    "./components/SuggestionMenu/EmojiPicker/InlineEmojiPicker": {
+      "types": "./types/src/components/SuggestionMenu/EmojiPicker/InlineEmojiPicker.d.ts",
+      "default": "./src/components/SuggestionMenu/EmojiPicker/InlineEmojiPicker.tsx"
     }
   },
   "scripts": {

@@ -1,7 +1,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { InlineEmojiPicker } from "@blocknote/react/components/SuggestionMenu/EmojiPicker/InlineEmojiPicker.js";
+import { InlineEmojiPicker } from "@blocknote/react/components/SuggestionMenu/EmojiPicker/InlineEmojiPicker";
 import { useMemo } from "react";
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
