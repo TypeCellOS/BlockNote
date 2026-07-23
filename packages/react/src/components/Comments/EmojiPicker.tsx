@@ -1,22 +1,9 @@
-import type { EmojiI18n } from "@blocknote/emoji-data";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 
 import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useDictionary } from "../../i18n/dictionary.js";
-import FrimoussePicker from "./FrimoussePicker.js";
-
-function useEmojiI18n(locale: string): EmojiI18n | undefined {
-  const [i18n, setI18n] = useState<EmojiI18n | undefined>(undefined);
-
-  useEffect(() => {
-    void import("@blocknote/emoji-data").then(({ loadEmojiLocale }) =>
-      loadEmojiLocale(locale).then(setI18n),
-    );
-  }, [locale]);
-
-  return i18n;
-}
+import FrimoussePicker, { useEmojiI18n } from "./FrimoussePicker.js";
 
 export const EmojiPicker = (props: {
   onEmojiSelect: (emoji: { native: string }) => void;
