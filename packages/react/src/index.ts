@@ -16,6 +16,13 @@ export * from "./blocks/File/helpers/toExternalHTML/LinkWithCaption.js";
 export * from "./blocks/File/useResolveUrl.js";
 export * from "./blocks/Image/block.js";
 export * from "./blocks/PageBreak/getPageBreakReactSlashMenuItems.js";
+export * from "./blocks/SourceWithPreview/PreviewPlaceholder.js";
+export * from "./blocks/SourceWithPreview/SourceWithPreview.js";
+export * from "./blocks/SourceWithPreview/SourcePreviewPopup.js";
+export * from "./blocks/SourceWithPreview/block/SourceBlockWithPreview.js";
+export * from "./blocks/SourceWithPreview/block/useSourceBlockPreviewPopup.js";
+export * from "./blocks/SourceWithPreview/inlineContent/SourceInlineContentWithPreview.js";
+export * from "./blocks/SourceWithPreview/inlineContent/useSourceInlineContentPreviewPopup.js";
 export * from "./blocks/Video/block.js";
 export * from "./blocks/ToggleWrapper/ToggleWrapper.js";
 

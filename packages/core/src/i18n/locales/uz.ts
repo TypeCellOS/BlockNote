@@ -262,6 +262,9 @@ export const uz: Dictionary = {
     add_block_button: "Bo‘sh toggle. Blok qo‘shish uchun bosing.",
   },
 
+  code_block: {
+    add_source_button_text: "Manba kodini qoʻshish",
+  },
   side_menu: {
     add_block_label: "Blok qo‘shish",
     drag_handle_label: "Blok menyusini ochish",

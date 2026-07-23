@@ -192,6 +192,9 @@ export const pt: Dictionary = {
   toggle_blocks: {
     add_block_button: "Toggle vazio. Clique para adicionar um bloco.",
   },
+  code_block: {
+    add_source_button_text: "Adicionar código-fonte",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Adicionar bloco",

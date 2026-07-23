@@ -3,10 +3,11 @@ import {
   createPageBreakBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
-import { testDocument } from "@shared/testDocument.js";
+import { testDocumentWithSourceBlocks as testDocument } from "@shared/testDocument.js";
 import { BlobReader, FileEntry, TextWriter, ZipReader } from "@zip.js/zip.js";
 import { beforeAll, describe, expect, it } from "vite-plus/test";
 import xmlFormat from "xml-formatter";
+import { inlineMathMapping, mathBlockMapping } from "../math-block/index.js";
 import { odtDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { ODTExporter } from "./odtExporter.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
@@ -19,6 +20,48 @@ beforeAll(async () => {
 });
 
 describe("exporter", () => {
+  it(
+    "should export math as native formulas with the math-block mappings",
+    { timeout: 10000 },
+    async () => {
+      // Assembled outside the constructor call as the schema doesn't include
+      // the math specs - like the default mappings, the math entries just
+      // map the block JSON.
+      const mappings = {
+        ...odtDefaultSchemaMappings,
+        blockMapping: {
+          ...odtDefaultSchemaMappings.blockMapping,
+          math: mathBlockMapping,
+        },
+        inlineContentMapping: {
+          ...odtDefaultSchemaMappings.inlineContentMapping,
+          inlineMath: inlineMathMapping,
+        },
+      };
+      const exporter = new ODTExporter(
+        BlockNoteSchema.create({
+          blockSpecs: {
+            ...defaultBlockSpecs,
+            pageBreak: createPageBreakBlockSpec(),
+          },
+        }),
+        mappings,
+        { resolveFileUrl: testResolveFileUrl },
+      );
+
+      // The math block & inline math paragraph from the shared test document.
+      const odt = await exporter.toODTDocument(
+        testDocument.filter((block) =>
+          ["math-block", "paragraph-with-inline-math"].includes(block.id),
+        ),
+      );
+      await testODTDocumentAgainstSnapshot(odt, {
+        styles: "__snapshots__/withMathMappings/styles.xml",
+        content: "__snapshots__/withMathMappings/content.xml",
+      });
+    },
+  );
+
   it("should export a document", { timeout: 10000 }, async () => {
     const exporter = new ODTExporter(
       BlockNoteSchema.create({

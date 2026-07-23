@@ -1,0 +1,44 @@
+diff --git a/dist/katex.js b/dist/katex.js
+index 2de2003251a8e5dda149c3b707eaf28f42b459f2..e7e92bdbf7c67492119cb76f1eb2d608e3d568ec 100644
+--- a/dist/katex.js
++++ b/dist/katex.js
+@@ -14624,7 +14624,7 @@ const functions = _functions;
+  */
+ const spaceRegexString = "[ \r\n\t]";
+ const controlWordRegexString = "\\\\[a-zA-Z@]+";
+-const controlSymbolRegexString = "\\\\[^\uD800-\uDFFF]";
++const controlSymbolRegexString = "\\\\[^\\uD800-\\uDFFF]";
+ const controlWordWhitespaceRegexString = "(" + controlWordRegexString + ")" + spaceRegexString + "*";
+ const controlSpaceRegexString = "\\\\(\n|[ \r\t]+\n?)[ \r\t]*";
+ const combiningDiacriticalMarkString = "[\u0300-\u036f]";
+@@ -14635,7 +14635,7 @@ controlSpaceRegexString + "|") +
+ "([!-\\[\\]-\u2027\u202A-\uD7FF\uF900-\uFFFF]" + (// single codepoint
+ combiningDiacriticalMarkString + "*") +
+ // ...plus accents
+-"|[\uD800-\uDBFF][\uDC00-\uDFFF]" + (// surrogate pair
++"|[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]" + (// surrogate pair
+ combiningDiacriticalMarkString + "*") +
+ // ...plus accents
+ "|\\\\verb\\*([^]).*?\\4" +
+diff --git a/dist/katex.mjs b/dist/katex.mjs
+index b4a83b4b7b9b31064413fa7eb5447823110d7305..dc61e4c7d080560cd1b198fba3cbee86f27fb14d 100644
+--- a/dist/katex.mjs
++++ b/dist/katex.mjs
+@@ -13512,7 +13512,7 @@ var functions = _functions;
+  */
+ var spaceRegexString = "[ \r\n\t]";
+ var controlWordRegexString = "\\\\[a-zA-Z@]+";
+-var controlSymbolRegexString = "\\\\[^\uD800-\uDFFF]";
++var controlSymbolRegexString = "\\\\[^\\uD800-\\uDFFF]";
+ var controlWordWhitespaceRegexString = "(" + controlWordRegexString + ")" + spaceRegexString + "*";
+ var controlSpaceRegexString = "\\\\(\n|[ \r\t]+\n?)[ \r\t]*";
+ var combiningDiacriticalMarkString = "[\u0300-\u036f]";
+@@ -13523,7 +13523,7 @@ controlSpaceRegexString + "|") +
+ "([!-\\[\\]-\u2027\u202A-\uD7FF\uF900-\uFFFF]" + (// single codepoint
+ combiningDiacriticalMarkString + "*") +
+ // ...plus accents
+-"|[\uD800-\uDBFF][\uDC00-\uDFFF]" + (// surrogate pair
++"|[\\uD800-\\uDBFF][\\uDC00-\\uDFFF]" + (// surrogate pair
+ combiningDiacriticalMarkString + "*") +
+ // ...plus accents
+ "|\\\\verb\\*([^]).*?\\4" +

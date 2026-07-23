@@ -200,6 +200,9 @@ export const sk = {
   toggle_blocks: {
     add_block_button: "Prázdne prepínanie. Kliknite pre pridanie bloku.",
   },
+  code_block: {
+    add_source_button_text: "Pridať zdrojový kód",
+  },
   side_menu: {
     add_block_label: "Pridať blok",
     drag_handle_label: "Otvoriť menu bloku",

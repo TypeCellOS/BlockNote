@@ -222,6 +222,9 @@ export const it: Dictionary = {
   toggle_blocks: {
     add_block_button: "Toggle vuoto. Clicca per aggiungere un blocco.",
   },
+  code_block: {
+    add_source_button_text: "Aggiungi codice sorgente",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Aggiungi blocco",

@@ -168,6 +168,9 @@ export const fa = {
   toggle_blocks: {
     add_block_button: "تاشوی خالی. برای افزودن بلوک کلیک کنید.",
   },
+  code_block: {
+    add_source_button_text: "افزودن کد منبع",
+  },
   // from react package:
   side_menu: {
     add_block_label: "افزودن بلوک",

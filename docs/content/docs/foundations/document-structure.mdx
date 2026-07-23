@@ -68,7 +68,7 @@ type StyledText = {
 
 type CustomInlineContent = {
   type: string;
-  content: StyledText[] | undefined;
+  content: StyledText[] | string | undefined;
   props: Record<string, boolean | number | string>;
 };
 
@@ -91,7 +91,29 @@ The demo below shows the editor contents (document) in JSON. It's an array of `B
 
 ## Special Cases
 
-While most blocks use an array of `InlineContent` objects to describe their content (e.g.: paragraphs, headings, list items), some blocks, like [images](/docs/features/blocks/embeds#image), don't contain any rich text content, so their `content` fields will be `undefined`.
+While most blocks use an array of `InlineContent` objects to describe their content (e.g.: paragraphs, headings, list items), some blocks, like [images](/docs/features/blocks/embeds#image), don't contain any rich text content, so their `content` fields will be `undefined`. There are a few other cases where `content` will not contain `InlineContent`.
+
+### Plain Text Content
+
+Some blocks, like [code blocks](/docs/features/blocks/code-blocks), store their content as plain text rather than rich text. Their `content` is still an array of `StyledText` objects, but the text is always unstyled (its `styles` is an empty object) and can't contain links or other inline content:
+
+```typescript
+type PlainContent = {
+  type: "text";
+  text: string;
+  styles: {};
+}[];
+```
+
+To read a plain block's text, join the items' `text` together:
+
+```typescript
+const text = block.content.map((item) => item.text).join("");
+```
+
+[Custom inline content](/docs/features/custom-schemas/custom-inline-content) can hold plain text too, but there it's represented directly as a `string` rather than an array.
+
+Custom blocks and inline content opt into plain text content by setting `content: "plain"` - see [Custom Blocks](/docs/features/custom-schemas/custom-blocks) and [Custom Inline Content](/docs/features/custom-schemas/custom-inline-content).
 
 ### Column Blocks
 

@@ -246,6 +246,9 @@ export const fr: Dictionary = {
   toggle_blocks: {
     add_block_button: "Liste repliable vide. Cliquez pour ajouter un bloc.",
   },
+  code_block: {
+    add_source_button_text: "Ajouter le code source",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Ajouter un bloc",

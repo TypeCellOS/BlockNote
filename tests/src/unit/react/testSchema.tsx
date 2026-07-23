@@ -3,6 +3,11 @@ import {
   createPageBreakBlockSpec,
   defaultProps,
 } from "@blocknote/core";
+import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
+import {
+  createReactInlineMathSpec,
+  createReactMathBlockSpec,
+} from "@blocknote/math-block";
 import {
   createReactBlockSpec,
   createReactInlineContentSpec,
@@ -168,10 +173,13 @@ export const testSchema = BlockNoteSchema.create().extend({
     customParagraph: createCustomParagraph(),
     simpleCustomParagraph: createSimpleCustomParagraph(),
     contextParagraph: createContextParagraph(),
+    math: createReactMathBlockSpec(),
+    diagram: createReactDiagramBlockSpec(),
   },
   inlineContentSpecs: {
     mention: Mention,
     tag: Tag,
+    inlineMath: createReactInlineMathSpec(),
   },
   styleSpecs: {
     small: Small,

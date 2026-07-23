@@ -3,11 +3,21 @@ import {
   InlineContentMapping,
 } from "@blocknote/core";
 
+type ICSchema = DefaultInlineContentSchema & {
+  inlineMath: {
+    type: "inlineMath";
+    propSchema: Record<string, never>;
+    content: "plain";
+  };
+};
+
+// `React.ReactNode` result types, matching `ODTExporter`'s `Exporter`
+// generics - mismatched result types make the mappings unassignable.
 export const odtInlineContentMappingForDefaultSchema: InlineContentMapping<
-  DefaultInlineContentSchema,
+  ICSchema,
   any,
-  React.JSX.Element,
-  React.JSX.Element
+  React.ReactNode,
+  React.ReactNode
 > = {
   link: (ic, exporter) => {
     const content = ic.content.map((c) => exporter.transformStyledText(c));
@@ -27,5 +37,10 @@ export const odtInlineContentMappingForDefaultSchema: InlineContentMapping<
 
   text: (ic, exporter) => {
     return exporter.transformStyledText(ic);
+  },
+  // TODO
+  // Renders inline math as its LaTeX source.
+  inlineMath: (ic) => {
+    return <text:span>{ic.content}</text:span>;
   },
 };

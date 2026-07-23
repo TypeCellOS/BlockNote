@@ -200,6 +200,9 @@ export const es: Dictionary = {
   toggle_blocks: {
     add_block_button: "Toggle vacío. Haz clic para añadir un bloque.",
   },
+  code_block: {
+    add_source_button_text: "Agregar código fuente",
+  },
   side_menu: {
     add_block_label: "Agregar bloque",
     drag_handle_label: "Abrir menú de bloque",

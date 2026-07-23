@@ -240,6 +240,9 @@ export const ja: Dictionary = {
   toggle_blocks: {
     add_block_button: "空のトグルです。クリックしてブロックを追加。",
   },
+  code_block: {
+    add_source_button_text: "ソースコードを追加",
+  },
   // from react package:
   side_menu: {
     add_block_label: "ブロックを追加",

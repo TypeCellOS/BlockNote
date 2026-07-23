@@ -1127,9 +1127,12 @@ export const examples = {
           author: "yousefed",
           tags: ["Interoperability"],
           dependencies: {
-            "@blocknote/xl-pdf-exporter": "latest",
+            "@blocknote/diagram-block": "latest",
+            "@blocknote/math-block": "latest",
             "@blocknote/xl-multi-column": "latest",
-            "@react-pdf/renderer": "^4.3.0",
+            "@blocknote/xl-pdf-exporter": "latest",
+            "@react-pdf/math": "^2.0.1",
+            "@react-pdf/renderer": "^4.5.1",
           } as any,
           pro: true,
         },
@@ -1152,8 +1155,11 @@ export const examples = {
           author: "yousefed",
           tags: [""],
           dependencies: {
+            "@blocknote/diagram-block": "latest",
+            "@blocknote/math-block": "latest",
             "@blocknote/xl-docx-exporter": "latest",
             "@blocknote/xl-multi-column": "latest",
+            katex: "^0.16.11",
           } as any,
           pro: true,
         },
@@ -1176,8 +1182,11 @@ export const examples = {
           author: "areknawo",
           tags: [""],
           dependencies: {
-            "@blocknote/xl-odt-exporter": "latest",
+            "@blocknote/diagram-block": "latest",
+            "@blocknote/math-block": "latest",
             "@blocknote/xl-multi-column": "latest",
+            "@blocknote/xl-odt-exporter": "latest",
+            katex: "^0.16.11",
           } as any,
           pro: true,
         },
@@ -1444,6 +1453,64 @@ export const examples = {
         },
         readme:
           "In this example, we create a custom block which renders a simple HTML paragraph with placeholder text. The block has no editable content.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+      },
+      {
+        projectSlug: "math-block",
+        fullSlug: "custom-schema/math-block",
+        pathFromRoot: "examples/06-custom-schema/09-math-block",
+        config: {
+          playground: true,
+          docs: true,
+          author: "matthewlipski",
+          tags: [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu",
+          ],
+          dependencies: {
+            "@blocknote/code-block": "latest",
+            "@blocknote/math-block": "latest",
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Math Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          "In this example, we register the `@blocknote/math-block` block in a custom schema. The math block renders LaTeX as MathML (using Temml) for the browser to display natively, and reveals an editable LaTeX source popup when selected. Exporting to HTML produces a MathML `<math>` element, and pasting MathML back in is converted to LaTeX.\n\n**Try it out:** Click a formula to edit its LaTeX!\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+      },
+      {
+        projectSlug: "diagram-block",
+        fullSlug: "custom-schema/diagram-block",
+        pathFromRoot: "examples/06-custom-schema/10-diagram-block",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu",
+          ],
+          dependencies: {
+            "@blocknote/code-block": "latest",
+            "@blocknote/diagram-block": "latest",
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Diagram Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          "In this example, we register the `@blocknote/diagram-block` block in a custom schema. The block renders diagrams from [Mermaid](https://mermaid.js.org/) source code, showing the rendered diagram in place of the source and revealing an editable source popup when selected - built from the same `SourceBlockWithPreview` component the math block uses, so the block itself is only a few dozen lines.\n\n**Try it out:** Click a diagram to edit its Mermaid source!\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
         projectSlug: "draggable-inline-content",

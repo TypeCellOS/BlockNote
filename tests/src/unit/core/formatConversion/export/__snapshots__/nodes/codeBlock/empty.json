@@ -6,7 +6,7 @@
     "content": [
       {
         "attrs": {
-          "language": "text",
+          "language": "javascript",
         },
         "type": "codeBlock",
       },

@@ -39,6 +39,7 @@ function partialContentToInlineContent(
     | PartialTableCell<any, any>
     | TableContent<any>
     | undefined,
+  inlineContentSchema?: InlineContentSchema,
 ):
   | InlineContent<any, any>[]
   | TableContent<any>
@@ -62,10 +63,22 @@ function partialContentToInlineContent(
       } else {
         // custom inline content
 
+        // Plain inline content (e.g. inline math) resolves to a bare string,
+        // not a StyledText array - so keep the string as-is rather than
+        // treating it as text shorthand.
+        const config = inlineContentSchema?.[partialContent.type];
+        const isPlain =
+          typeof config === "object" && config.content === "plain";
+
         return {
           props: {},
           ...partialContent,
-          content: partialContentToInlineContent(partialContent.content),
+          content: isPlain
+            ? (partialContent.content ?? "")
+            : partialContentToInlineContent(
+                partialContent.content,
+                inlineContentSchema,
+              ),
         } as any;
       }
     });
@@ -78,12 +91,15 @@ function partialContentToInlineContent(
       rows: content.rows.map((row) => {
         const cells: any[] = row.cells.map((cell) => {
           if (!("type" in cell) || cell.type !== "tableCell") {
-            return partialContentToInlineContent({
-              type: "tableCell",
-              content: cell as any,
-            });
+            return partialContentToInlineContent(
+              {
+                type: "tableCell",
+                content: cell as any,
+              },
+              inlineContentSchema,
+            );
           }
-          return partialContentToInlineContent(cell);
+          return partialContentToInlineContent(cell, inlineContentSchema);
         });
 
         return {
@@ -95,7 +111,10 @@ function partialContentToInlineContent(
   } else if (content?.type === "tableCell") {
     return {
       type: "tableCell",
-      content: partialContentToInlineContent(content.content) as any[],
+      content: partialContentToInlineContent(
+        content.content,
+        inlineContentSchema,
+      ) as any[],
       props: {
         backgroundColor: content.props?.backgroundColor ?? "default",
         textColor: content.props?.textColor ?? "default",
@@ -118,7 +137,11 @@ export function partialBlocksToBlocksForTesting<
   partialBlocks: Array<PartialBlock<BSchema, I, S>>,
 ): Array<Block<BSchema, I, S>> {
   return partialBlocks.map((partialBlock) =>
-    partialBlockToBlockForTesting(schema.blockSchema, partialBlock),
+    partialBlockToBlockForTesting(
+      schema.blockSchema,
+      partialBlock,
+      schema.inlineContentSchema,
+    ),
   );
 }
 
@@ -129,6 +152,7 @@ export function partialBlockToBlockForTesting<
 >(
   schema: BSchema,
   partialBlock: PartialBlock<BSchema, I, S>,
+  inlineContentSchema?: InlineContentSchema,
 ): Block<BSchema, I, S> {
   const contentType: "inline" | "table" | "none" | "plain" =
     schema[partialBlock.type!].content;
@@ -166,7 +190,10 @@ export function partialBlockToBlockForTesting<
 
   if (contentType === "inline") {
     const content = withDefaults.content as InlineContent<I, S>[] | undefined;
-    withDefaults.content = partialContentToInlineContent(content) as any;
+    withDefaults.content = partialContentToInlineContent(
+      content,
+      inlineContentSchema,
+    ) as any;
   } else if (contentType === "table") {
     const content = withDefaults.content as TableContent<I, S> | undefined;
     withDefaults.content = {
@@ -179,16 +206,21 @@ export function partialBlockToBlockForTesting<
       headerCols: content?.headerCols || undefined,
       rows:
         content?.rows.map((row) => ({
-          cells: row.cells.map((cell) => partialContentToInlineContent(cell)),
+          cells: row.cells.map((cell) =>
+            partialContentToInlineContent(cell, inlineContentSchema),
+          ),
         })) || [],
     } as any;
   }
 
   return {
     ...withDefaults,
-    content: partialContentToInlineContent(withDefaults.content),
+    content: partialContentToInlineContent(
+      withDefaults.content,
+      inlineContentSchema,
+    ),
     children: withDefaults.children.map((c) => {
-      return partialBlockToBlockForTesting(schema, c);
+      return partialBlockToBlockForTesting(schema, c, inlineContentSchema);
     }),
   } as any;
 }

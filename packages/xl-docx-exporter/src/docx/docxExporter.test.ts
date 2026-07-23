@@ -3,7 +3,7 @@ import {
   defaultBlockSpecs,
   createPageBreakBlockSpec,
 } from "@blocknote/core";
-import { testDocument } from "@shared/testDocument.js";
+import { testDocumentWithSourceBlocks as testDocument } from "@shared/testDocument.js";
 import {
   BlobReader,
   Entry,
@@ -14,6 +14,7 @@ import {
 import { Packer, Paragraph, TextRun } from "docx";
 import { describe, expect, it } from "vite-plus/test";
 import xmlFormat from "xml-formatter";
+import { inlineMathMapping, mathBlockMapping } from "../math-block/index.js";
 import { docxDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { DOCXExporter } from "./docxExporter.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
@@ -32,6 +33,53 @@ const getZIPEntryContent = (entries: Entry[], fileName: string) => {
   return entry.getData!(new TextWriter());
 };
 describe("exporter", () => {
+  it(
+    "should export math as native equations with the math-block mappings",
+    { timeout: 10000 },
+    async () => {
+      // Assembled outside the constructor call as the schema doesn't include
+      // the math specs - like the default mappings, the math entries just
+      // map the block JSON.
+      const mappings = {
+        ...docxDefaultSchemaMappings,
+        blockMapping: {
+          ...docxDefaultSchemaMappings.blockMapping,
+          math: mathBlockMapping,
+        },
+        inlineContentMapping: {
+          ...docxDefaultSchemaMappings.inlineContentMapping,
+          inlineMath: inlineMathMapping,
+        },
+      };
+      const exporter = new DOCXExporter(
+        BlockNoteSchema.create({
+          blockSpecs: {
+            ...defaultBlockSpecs,
+            pageBreak: createPageBreakBlockSpec(),
+          },
+        }),
+        mappings,
+        { resolveFileUrl: testResolveFileUrl },
+      );
+
+      // The math block & inline math paragraph from the shared test document.
+      const doc = await exporter.toDocxJsDocument(
+        testDocument.filter((block) =>
+          ["math-block", "paragraph-with-inline-math"].includes(block.id),
+        ),
+        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+      );
+
+      const blob = await Packer.toBlob(doc);
+      const zip = new ZipReader(new BlobReader(blob));
+      const entries = await zip.getEntries();
+
+      await expect(
+        prettify(await getZIPEntryContent(entries, "word/document.xml")),
+      ).toMatchFileSnapshot("__snapshots__/withMathMappings/document.xml");
+    },
+  );
+
   it("should export a document", { timeout: 10000 }, async () => {
     const exporter = new DOCXExporter(
       BlockNoteSchema.create({

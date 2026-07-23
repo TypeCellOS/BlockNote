@@ -1,7 +1,11 @@
 /** Define the main block types **/
 // import { Extension, Node } from "@tiptap/core";
 import type { Node, NodeViewRendererProps } from "@tiptap/core";
-import type { Fragment, Schema } from "prosemirror-model";
+import type {
+  Fragment,
+  Node as ProsemirrorNode,
+  Schema,
+} from "prosemirror-model";
 import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type {
@@ -28,7 +32,10 @@ export type BlockNoteDOMAttributes = Partial<{
   [DOMElement in BlockNoteDOMElement]: Record<string, string>;
 }>;
 
-export interface BlockConfigMeta {
+export interface BlockConfigMeta<
+  TName extends string = string,
+  TProps extends PropSchema = PropSchema,
+> {
   /**
    * Defines which keyboard shortcut should be used to insert a hard break into the block's inline content.
    * @default "shift+enter"
@@ -59,6 +66,18 @@ export interface BlockConfigMeta {
    * Whether the block is a {@link https://prosemirror.net/docs/ref/#model.NodeSpec.isolating} block
    */
   isolating?: boolean;
+
+  /**
+   * Enables syntax highlighting of the contents of the block with the result of this callback
+   */
+  highlight?(block: { type: TName; props: Props<TProps> }): string | undefined;
+
+  /**
+   * Marks the block as rendering a preview with an editable source popup, driven
+   * by the editor-wide `SourceBlockWithPreviewExtension`. When `true`, the
+   * block's source is hidden behind its preview and edited via the popup.
+   */
+  hasPreview?: boolean;
 }
 
 /**
@@ -209,6 +228,7 @@ export type LooseBlockSpec<
       dom: HTMLElement | DocumentFragment;
       contentDOM?: HTMLElement;
       ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
+      update?: (node: ProsemirrorNode) => boolean;
       destroy?: () => void;
     };
     toExternalHTML?: (
@@ -267,6 +287,7 @@ export type BlockSpecs = {
         dom: HTMLElement | DocumentFragment;
         contentDOM?: HTMLElement;
         ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
+        update?: (node: ProsemirrorNode) => boolean;
         destroy?: () => void;
       };
       toExternalHTML?: (
@@ -518,7 +539,7 @@ export type BlockImplementation<
   /**
    * Metadata
    */
-  meta?: BlockConfigMeta;
+  meta?: BlockConfigMeta<TName, TProps>;
   /**
    * A function that converts the block into a DOM element
    */
@@ -552,6 +573,17 @@ export type BlockImplementation<
     dom: HTMLElement | DocumentFragment;
     contentDOM?: HTMLElement;
     ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
+    /**
+     * Called by ProseMirror when this block's node is updated (e.g. its content
+     * or props change). Return `true` to handle the update in place - keeping
+     * the existing DOM - or `false` to have the node view recreated via
+     * `render`. When omitted, ProseMirror keeps the node view and reconciles its
+     * `contentDOM` in place as long as the node type stays the same.
+     *
+     * Useful for blocks whose `render` builds custom DOM that needs to stay in
+     * sync with the node (e.g. a code block rendering a preview of its content).
+     */
+    update?: (node: ProsemirrorNode) => boolean;
     destroy?: () => void;
   };
 

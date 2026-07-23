@@ -1,8 +1,11 @@
 import {
+  BlockConfig,
+  BlockFromConfigNoChildren,
   BlockMapping,
+  createPageBreakBlockConfig,
   DefaultBlockSchema,
   DefaultProps,
-  createPageBreakBlockConfig,
+  PlainContent,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
 import { Image, Link, Path, Svg, Text, View } from "@react-pdf/renderer";
@@ -18,10 +21,59 @@ import { Table } from "../util/table/Table.js";
 const PIXELS_PER_POINT = 0.75;
 const FONT_SIZE = 16;
 
+type BSchema = DefaultBlockSchema & {
+  pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  math: BlockConfig<"math", {}, "inline">;
+  diagram: BlockConfig<"diagram", {}, "inline">;
+} & typeof multiColumnSchema.blockSchema;
+
+const codeMapping = (
+  block: BlockFromConfigNoChildren<
+    BSchema["codeBlock"] | BSchema["math"] | BSchema["diagram"],
+    any,
+    any
+  >,
+) => {
+  // Code blocks hold plain content: at most a single unstyled text item.
+  const [textItem, ...excessItems] = block.content as PlainContent;
+  if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
+    throw new Error("expected plain block content to be a single text item");
+  }
+  const textContent = textItem?.text ?? "";
+  const lines = textContent.split("\n").map((line, index) => {
+    const indent = line.match(/^\s*/)?.[0].length || 0;
+
+    return (
+      <Text
+        key={`line_${index}` + block.id}
+        style={{
+          marginLeft: indent * 9.5 * PIXELS_PER_POINT,
+        }}
+      >
+        {line.trimStart() || <>&nbsp;</>}
+      </Text>
+    );
+  });
+
+  return (
+    <View
+      wrap={false}
+      style={{
+        padding: 24 * PIXELS_PER_POINT,
+        border: "1px solid #000000",
+        lineHeight: 1.25,
+        fontSize: FONT_SIZE * PIXELS_PER_POINT,
+        fontFamily: "GeistMono",
+      }}
+      key={"codeBlock" + block.id}
+    >
+      {lines}
+    </View>
+  );
+};
+
 export const pdfBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema & {
-    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  } & typeof multiColumnSchema.blockSchema,
+  BSchema,
   any,
   any,
   React.ReactElement<Text>,
@@ -112,44 +164,10 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
       </Text>
     );
   },
-  codeBlock: (block) => {
-    // Code blocks hold plain content: at most a single unstyled text item.
-    const [textItem, ...excessItems] = block.content;
-    if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
-      throw new Error("expected plain block content to be a single text item");
-    }
-    const textContent = textItem?.text ?? "";
-    const lines = textContent.split("\n").map((line, index) => {
-      const indent = line.match(/^\s*/)?.[0].length || 0;
-
-      return (
-        <Text
-          key={`line_${index}` + block.id}
-          style={{
-            marginLeft: indent * 9.5 * PIXELS_PER_POINT,
-          }}
-        >
-          {line.trimStart() || <>&nbsp;</>}
-        </Text>
-      );
-    });
-
-    return (
-      <View
-        wrap={false}
-        style={{
-          padding: 24 * PIXELS_PER_POINT,
-          border: "1px solid #000000",
-          lineHeight: 1.25,
-          fontSize: FONT_SIZE * PIXELS_PER_POINT,
-          fontFamily: "GeistMono",
-        }}
-        key={"codeBlock" + block.id}
-      >
-        {lines}
-      </View>
-    );
-  },
+  // TODO
+  codeBlock: codeMapping,
+  math: codeMapping,
+  diagram: codeMapping,
   pageBreak: () => {
     return <View break key={"pageBreak"} />;
   },

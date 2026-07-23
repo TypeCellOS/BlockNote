@@ -214,6 +214,9 @@ export const is: Dictionary = {
   toggle_blocks: {
     add_block_button: "Tóm fellilína. Smelltu til að bæta við blokk.",
   },
+  code_block: {
+    add_source_button_text: "Bæta við frumkóða",
+  },
   side_menu: {
     add_block_label: "Bæta við blokki",
     drag_handle_label: "Opna blokkarvalmynd",

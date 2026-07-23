@@ -185,6 +185,9 @@ export const ar: Dictionary = {
   toggle_blocks: {
     add_block_button: "تبديل فارغ. انقر لإضافة كتلة.",
   },
+  code_block: {
+    add_source_button_text: "إضافة كود المصدر",
+  },
   // from react package:
   side_menu: {
     add_block_label: "إضافة محتوي",

@@ -243,6 +243,9 @@ export const ru: Dictionary = {
   toggle_blocks: {
     add_block_button: "Пустой переключатель. Нажмите, чтобы добавить блок.",
   },
+  code_block: {
+    add_source_button_text: "Добавить исходный код",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Добавить блок",

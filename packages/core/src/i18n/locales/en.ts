@@ -200,6 +200,9 @@ export const en = {
   toggle_blocks: {
     add_block_button: "Empty toggle. Click to add a block.",
   },
+  code_block: {
+    add_source_button_text: "Add source code",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Add block",

@@ -18,15 +18,17 @@ import { createBlockSpec } from "../../../schema/index.js";
 const createHardBreakTestBlockSpec = <
   const T extends string,
   const S extends "shift+enter" | "enter" | "none",
+  const C extends "inline" | "plain",
 >(
   type: T,
   hardBreakShortcut: S,
+  content: C = "inline" as C,
 ) =>
   createBlockSpec(
     {
       type,
       propSchema: {},
-      content: "inline",
+      content,
     },
     {
       meta: {
@@ -47,11 +49,22 @@ const schema = BlockNoteSchema.create({
     ...defaultBlockSpecs,
     hardBreakEnter: createHardBreakTestBlockSpec("hardBreakEnter", "enter"),
     hardBreakNone: createHardBreakTestBlockSpec("hardBreakNone", "none"),
+    // "plain" content (`text*`) can't hold a `hardBreak` node, so these blocks
+    // insert a literal newline character instead - e.g. code/math/diagram source.
+    hardBreakEnterPlain: createHardBreakTestBlockSpec(
+      "hardBreakEnterPlain",
+      "enter",
+      "plain",
+    ),
   },
 });
 
 function createEditor(
-  blockType: "paragraph" | "hardBreakEnter" | "hardBreakNone",
+  blockType:
+    | "paragraph"
+    | "hardBreakEnter"
+    | "hardBreakNone"
+    | "hardBreakEnterPlain",
 ) {
   const editor = BlockNoteEditor.create({
     schema,
@@ -85,6 +98,16 @@ function countHardBreaks(editor: BlockNoteEditor<any, any, any>) {
     }
   });
   return count;
+}
+
+function getTextContent(editor: BlockNoteEditor<any, any, any>) {
+  let text = "";
+  editor._tiptapEditor.state.doc.descendants((node) => {
+    if (node.isText) {
+      text += node.text;
+    }
+  });
+  return text;
 }
 
 describe("KeyboardShortcutsExtension hardBreakShortcut", () => {
@@ -149,6 +172,32 @@ describe("KeyboardShortcutsExtension hardBreakShortcut", () => {
 
     expect(countHardBreaks(editor)).toBe(0);
     expect(editor.document.length).toBe(2);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it('inserts a newline character on Enter when content is "plain"', () => {
+    const editor = createEditor("hardBreakEnterPlain");
+
+    pressKeys(editor, "Enter");
+
+    // A "plain" block can't hold a `hardBreak` node, so no node is inserted and
+    // the block is not split - a literal newline is added to its text instead.
+    expect(countHardBreaks(editor)).toBe(0);
+    expect(editor.document.length).toBe(1);
+    expect(getTextContent(editor)).toBe("Hello world\n");
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it('inserts a newline character on Shift-Enter when content is "plain"', () => {
+    const editor = createEditor("hardBreakEnterPlain");
+
+    pressKeys(editor, "Shift-Enter");
+
+    expect(countHardBreaks(editor)).toBe(0);
+    expect(editor.document.length).toBe(1);
+    expect(getTextContent(editor)).toBe("Hello world\n");
 
     editor._tiptapEditor.destroy();
   });
