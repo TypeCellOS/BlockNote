@@ -150,10 +150,14 @@ export function InlineEmojiPicker(props: {
       } else if (event.key === "Enter" && !event.isComposing) {
         event.preventDefault();
         event.stopPropagation();
-        if (selectedCharRef.current) {
-          props.clearQuery();
-          props.closeMenu();
-          editor.insertInlineContent(selectedCharRef.current + " ");
+        const btn = findButtonAtIndex(root, selectedIndex);
+        if (btn) {
+          const char = btn.textContent ?? "";
+          if (char) {
+            props.clearQuery();
+            props.closeMenu();
+            editor.insertInlineContent(char + " ");
+          }
         }
       }
     };
