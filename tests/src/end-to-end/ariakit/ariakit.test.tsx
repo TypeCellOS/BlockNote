@@ -63,6 +63,7 @@ describe("Check Ariakit UI", () => {
     await userEvent.keyboard(":");
     await userEvent.keyboard("sm");
 
+    await waitForSelector(".bn-frimousse-picker");
     await sleep(500);
     await expectElement(document.body).toMatchScreenshot(
       "ariakit-emoji-picker",

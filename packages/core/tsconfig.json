@@ -22,5 +22,5 @@
     "skipLibCheck": true,
     "noErrorTruncation": true
   },
-  "include": ["src", "src/**/*.json"]
+  "include": ["src", "src/emoji-data/**/*.json"]
 }

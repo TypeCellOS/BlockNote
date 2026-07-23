@@ -54,7 +54,7 @@ describe("FrimoussePicker — isolated component", () => {
     const buttons = await waitForEmojiButtons(2);
     const char = buttons[0].textContent;
 
-    await userEvent.click(buttons[0]);
+    buttons[0].click();
 
     expect(onEmojiSelect).toHaveBeenCalledWith({ native: char });
   });
@@ -62,7 +62,9 @@ describe("FrimoussePicker — isolated component", () => {
   test("hovering an emoji highlights it and shows its label in the footer", async () => {
     const buttons = await waitForEmojiButtons(2);
 
-    await userEvent.hover(buttons[1]);
+    buttons[1].dispatchEvent(
+      new PointerEvent("pointerenter", { bubbles: true }),
+    );
 
     await vi.waitFor(() => {
       const active = activeEmoji();
@@ -150,10 +152,12 @@ describe("FrimoussePicker — isolated component", () => {
   test("scrolls viewport when navigating past visible rows and keeps highlight visible", async () => {
     const search =
       document.querySelector<HTMLInputElement>("[frimousse-search]");
-    await userEvent.click(search!);
+    search!.focus();
 
     // Activate the first emoji.
-    await userEvent.keyboard("{ArrowDown}");
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
+    );
     await vi.waitFor(() => {
       if (!activeEmoji()) {
         throw new Error("No highlighted emoji");
@@ -167,9 +171,14 @@ describe("FrimoussePicker — isolated component", () => {
 
     // Press ArrowDown enough times to scroll past the initial viewport.
     // Frimousse uses 9 columns by default, so each ArrowDown jumps one row.
+    // Yield between presses so frimousse's virtualized list can re-render
+    // the next set of rows before the scroll handler queries for them.
     const presses = 20;
     for (let i = 0; i < presses; i++) {
-      await userEvent.keyboard("{ArrowDown}");
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
+      );
+      await new Promise((resolve) => requestAnimationFrame(resolve));
     }
 
     await vi.waitFor(() => {
