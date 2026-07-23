@@ -1,5 +1,5 @@
 import App from "@examples/01-basic/testing/src/App";
-import { beforeEach, describe, test } from "vite-plus/test";
+import { beforeEach, describe, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, EMOJI_PICKER_SELECTOR } from "../../utils/const.js";
@@ -48,7 +48,18 @@ describe("Check Emoji Picker Functionality", () => {
     await executeSlashCommand("emoji");
     await userEvent.keyboard("frog");
     await waitForSelector(EMOJI_PICKER_SELECTOR);
-    await sleep(500);
+    await vi.waitFor(
+      () => {
+        const btn = document.querySelector(
+          `${EMOJI_PICKER_SELECTOR} .bn-frimousse-emoji`,
+        );
+        if (!btn) {
+          throw new Error("No emoji buttons rendered yet");
+        }
+      },
+      { timeout: 5000 },
+    );
+    await sleep(200);
     await userEvent.keyboard("{Enter}");
     await waitForTextInEditor("🐸 ");
   });
