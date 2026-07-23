@@ -1,5 +1,5 @@
 import { EmojiPicker } from "frimousse";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../../hooks/useEditorDomElement.js";
@@ -51,6 +51,26 @@ function findButtonAtIndex(
   return buttons[localIndex] ?? null;
 }
 
+function scrollViewportTo(root: HTMLElement, selectedIndex: number) {
+  const viewport = root.querySelector<HTMLElement>("[frimousse-viewport]");
+  if (!viewport) {
+    return;
+  }
+
+  const rowHeight = getRowHeight(root);
+  const headerHeight = getCategoryHeaderHeight(root);
+  const targetRow = Math.floor(selectedIndex / COLUMNS);
+  const estimatedY = targetRow * rowHeight;
+  const viewportHeight = viewport.clientHeight;
+
+  if (
+    estimatedY < viewport.scrollTop ||
+    estimatedY + rowHeight > viewport.scrollTop + viewportHeight - headerHeight
+  ) {
+    viewport.scrollTop = Math.max(0, estimatedY - viewportHeight / 3);
+  }
+}
+
 export function InlineEmojiPicker(props: {
   query: string;
   closeMenu: () => void;
@@ -67,41 +87,27 @@ export function InlineEmojiPicker(props: {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedEmoji, setSelectedEmoji] = useState({ emoji: "", label: "" });
 
-  const selectedIndexRef = useRef(selectedIndex);
-  selectedIndexRef.current = selectedIndex;
-
   useEffect(() => {
     setSelectedIndex(0);
   }, [props.query]);
 
-  // Apply data-selected and scroll to the target emoji.
-  // Runs via MutationObserver because frimousse virtualises rows and may
-  // re-render them at any time, destroying previous DOM mutations.
-  useEffect(() => {
+  // Resolve the emoji character at selectedIndex. When the button is already
+  // in the DOM (common case: arrow keys within the visible viewport), the
+  // layout effect finds it immediately. The state change triggers a
+  // synchronous re-render before paint, so the Emoji component applies
+  // data-selected without a visible flash.
+  useLayoutEffect(() => {
     const root = rootRef.current;
     if (!root) {
       return;
     }
 
-    const applySelection = () => {
-      const idx = selectedIndexRef.current;
-      const viewport = root.querySelector<HTMLElement>("[frimousse-viewport]");
-      if (!viewport) {
-        return;
-      }
+    // Scroll first so frimousse can virtualise the target row.
+    scrollViewportTo(root, selectedIndex);
 
-      const btn = findButtonAtIndex(root, idx);
-      if (!btn) {
-        return;
-      }
-
-      if (!btn.hasAttribute("data-selected")) {
-        for (const el of root.querySelectorAll("[data-selected]")) {
-          el.removeAttribute("data-selected");
-        }
-        btn.setAttribute("data-selected", "");
-      }
-
+    const btn = findButtonAtIndex(root, selectedIndex);
+    if (btn) {
+      btn.scrollIntoView({ block: "nearest" });
       const emoji = btn.textContent ?? "";
       const label = btn.getAttribute("aria-label") ?? "";
       setSelectedEmoji((prev) => {
@@ -110,61 +116,55 @@ export function InlineEmojiPicker(props: {
         }
         return { emoji, label };
       });
-    };
+    }
+  }, [selectedIndex, props.query, resolvedLocale]);
 
-    applySelection();
-
-    let raf = 0;
-    const observer = new MutationObserver(() => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(applySelection);
-    });
-    observer.observe(root, { childList: true, subtree: true });
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(raf);
-    };
-  }, [resolvedLocale]);
-
-  // Scroll viewport when selection changes.
+  // Fallback for when the target button isn't in the DOM during the layout
+  // effect — either because frimousse is still loading emoji data on first
+  // mount, because a search query is being processed via requestIdleCallback,
+  // or because the viewport scroll from the layout effect triggered
+  // virtualisation and the new rows haven't rendered yet.
+  // Polls with requestAnimationFrame until the button appears.
   useEffect(() => {
     const root = rootRef.current;
     if (!root) {
       return;
     }
-    const viewport = root.querySelector<HTMLElement>("[frimousse-viewport]");
-    if (!viewport) {
+
+    const btn = findButtonAtIndex(root, selectedIndex);
+    if (btn) {
+      // Button already handled by the layout effect.
       return;
     }
 
-    const rowHeight = getRowHeight(root);
-    const headerHeight = getCategoryHeaderHeight(root);
-    const targetRow = Math.floor(selectedIndex / COLUMNS);
-    const estimatedY = targetRow * rowHeight;
-    const viewportHeight = viewport.clientHeight;
+    // Ensure viewport is scrolled to the target area.
+    scrollViewportTo(root, selectedIndex);
 
-    if (
-      estimatedY < viewport.scrollTop ||
-      estimatedY + rowHeight >
-        viewport.scrollTop + viewportHeight - headerHeight
-    ) {
-      viewport.scrollTop = Math.max(0, estimatedY - viewportHeight / 3);
-    }
+    let cancelled = false;
+    let frameId = 0;
 
-    // Clear old selection and apply new one.
-    for (const el of root.querySelectorAll("[data-selected]")) {
-      el.removeAttribute("data-selected");
-    }
-    const btn = findButtonAtIndex(root, selectedIndex);
-    if (btn) {
-      btn.setAttribute("data-selected", "");
-      btn.scrollIntoView({ block: "nearest" });
-      setSelectedEmoji({
-        emoji: btn.textContent ?? "",
-        label: btn.getAttribute("aria-label") ?? "",
-      });
-    }
-  }, [selectedIndex, props.query]);
+    const poll = () => {
+      if (cancelled) {
+        return;
+      }
+      const btn = findButtonAtIndex(root, selectedIndex);
+      if (btn) {
+        btn.scrollIntoView({ block: "nearest" });
+        setSelectedEmoji({
+          emoji: btn.textContent ?? "",
+          label: btn.getAttribute("aria-label") ?? "",
+        });
+        return;
+      }
+      frameId = requestAnimationFrame(poll);
+    };
+
+    frameId = requestAnimationFrame(poll);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frameId);
+    };
+  }, [selectedIndex, props.query, resolvedLocale]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -221,6 +221,7 @@ export function InlineEmojiPicker(props: {
 
   const frimousseLocale = resolvedLocale as any;
   const placeholder = `${i18n?.search ?? "Search"}…`;
+  const selectedChar = selectedEmoji.emoji;
 
   return (
     <EmojiPicker.Root
@@ -260,7 +261,11 @@ export function InlineEmojiPicker(props: {
               </div>
             ),
             Emoji: ({ emoji, ...emojiProps }) => (
-              <button className="bn-frimousse-emoji" {...emojiProps}>
+              <button
+                className="bn-frimousse-emoji"
+                data-selected={emoji.emoji === selectedChar ? "" : undefined}
+                {...emojiProps}
+              >
                 {emoji.emoji}
               </button>
             ),
