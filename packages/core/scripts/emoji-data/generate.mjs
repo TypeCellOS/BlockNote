@@ -2,7 +2,7 @@
 /**
  * Generates Frimousse-compatible emoji data and per-locale i18n files from
  * emojibase-data. Run with:
- *   pnpm --filter @blocknote/emoji-data generate-emoji-data
+ *   pnpm --filter @blocknote/core generate-emoji-data
  *
  * Build-time only — emojibase-data is a devDependency and does NOT ship at runtime.
  */
@@ -14,8 +14,8 @@ import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const SRC_DIR = resolve(__dirname, "../src");
-const STATIC_DIR = resolve(__dirname, "../static");
+const SRC_DIR = resolve(__dirname, "../../src/emoji-data");
+const STATIC_DIR = resolve(__dirname, "../../static");
 const SEARCH_OVERLAYS_DIR = resolve(__dirname, "search-overlays");
 
 // Skin tone key mapping: emojibase tone number → Frimousse skin tone key

@@ -25,7 +25,7 @@ function getHighestEmojiVersion(data: FrimousseEmojiData): number {
 
 /**
  * Pre-populates Frimousse's localStorage and sessionStorage caches with
- * data from @blocknote/emoji-data. When Frimousse finds valid cached data,
+ * data from @blocknote/core/emoji-data. When Frimousse finds valid cached data,
  * it skips its CDN fetch entirely — zero network dependency.
  *
  * Returns the locale the data was actually seeded under. This can differ from

@@ -15,7 +15,8 @@
   "files": [
     "dist",
     "types",
-    "src"
+    "src",
+    "static"
   ],
   "keywords": [
     "react",
@@ -81,6 +82,31 @@
       "types": "./types/src/y/index.d.ts",
       "import": "./dist/y.js",
       "require": "./dist/y.cjs"
+    },
+    "./emoji-data": {
+      "types": "./types/src/emoji-data/index.d.ts",
+      "import": "./dist/emoji-data.js",
+      "require": "./dist/emoji-data.cjs"
+    },
+    "./emoji-data/frimousse": {
+      "types": "./types/src/emoji-data/frimousse/index.d.ts",
+      "import": "./dist/emoji-data/frimousse.js",
+      "require": "./dist/emoji-data/frimousse.cjs"
+    },
+    "./emoji-data/frimousse/*": {
+      "types": "./types/src/emoji-data/frimousse/*.d.ts",
+      "import": "./dist/emoji-data/frimousse/*.js",
+      "require": "./dist/emoji-data/frimousse/*.cjs"
+    },
+    "./emoji-data/locales": {
+      "types": "./types/src/emoji-data/i18n/index.d.ts",
+      "import": "./dist/emoji-data/locales.js",
+      "require": "./dist/emoji-data/locales.cjs"
+    },
+    "./emoji-data/locales/*": {
+      "types": "./types/src/emoji-data/i18n/locales/*.d.ts",
+      "import": "./dist/emoji-data/locales/*.js",
+      "require": "./dist/emoji-data/locales/*.cjs"
     }
   },
   "scripts": {
@@ -91,10 +117,10 @@
     "test": "vp test --run",
     "test-watch": "vp test watch",
     "clean": "rimraf dist && rimraf types",
-    "update-tlds": "node scripts/update-tlds.mjs"
+    "update-tlds": "node scripts/update-tlds.mjs",
+    "generate-emoji-data": "node scripts/emoji-data/generate.mjs"
   },
   "dependencies": {
-    "@blocknote/emoji-data": "workspace:^",
     "@handlewithcare/prosemirror-inputrules": "^0.1.4",
     "@shikijs/types": "^4",
     "@tanstack/store": "^0.7.7",
@@ -117,6 +143,7 @@
     "prosemirror-view": "^1.41.4"
   },
   "devDependencies": {
+    "emojibase-data": "^16.0.1",
     "jsdom": "^29.0.2",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",

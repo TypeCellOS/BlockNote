@@ -1,4 +1,4 @@
-import type { EmojiI18n } from "@blocknote/emoji-data";
+import type { EmojiI18n } from "@blocknote/core/emoji-data";
 import { EmojiPicker } from "frimousse";
 import { useEffect, useState } from "react";
 
@@ -7,7 +7,7 @@ export function useEmojiI18n(locale: string): EmojiI18n | undefined {
 
   useEffect(() => {
     let cancelled = false;
-    void import("@blocknote/emoji-data").then(({ loadEmojiLocale }) =>
+    void import("@blocknote/core/emoji-data").then(({ loadEmojiLocale }) =>
       loadEmojiLocale(locale).then((data) => {
         if (!cancelled) {
           setI18n(data);
@@ -36,7 +36,7 @@ export function useResolvedLocale(
       return;
     }
     let cancelled = false;
-    void import("@blocknote/emoji-data").then(({ seedFrimousseCache }) =>
+    void import("@blocknote/core/emoji-data").then(({ seedFrimousseCache }) =>
       seedFrimousseCache(locale).then((seededLocale) => {
         if (!cancelled) {
           setResolvedLocale(seededLocale);

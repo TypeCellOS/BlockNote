@@ -1,4 +1,4 @@
-import type { FrimousseEmojiData } from "@blocknote/emoji-data";
+import type { FrimousseEmojiData } from "../../emoji-data/frimousse/types.js";
 
 import { defaultInlineContentSchema } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -20,8 +20,8 @@ async function loadEmojiData(locale?: string) {
   }
 
   currentLocale = targetLocale;
-  dataPromise = import("@blocknote/emoji-data").then(({ loadFrimousseData }) =>
-    loadFrimousseData(targetLocale),
+  dataPromise = import("../../emoji-data/index.js").then(
+    ({ loadFrimousseData }) => loadFrimousseData(targetLocale),
   );
 
   return dataPromise;
@@ -48,7 +48,7 @@ export async function getDefaultEmojiPickerItems<
   let emojisToShow = data.emojis;
 
   if (query.trim() !== "") {
-    const { searchEmojis } = await import("@blocknote/emoji-data");
+    const { searchEmojis } = await import("../../emoji-data/index.js");
     emojisToShow = searchEmojis(data.emojis, query);
   }
 
