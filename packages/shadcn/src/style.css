@@ -30,11 +30,11 @@
 }
 
 .bn-shadcn .bn-select {
-  max-height: var(--radix-select-content-available-height);
+  max-height: var(--available-height);
 }
 
 .bn-shadcn .bn-menu-dropdown {
-  max-height: var(--radix-dropdown-menu-content-available-height);
+  max-height: var(--available-height);
 }
 
 .bn-shadcn .bn-color-picker-dropdown {
