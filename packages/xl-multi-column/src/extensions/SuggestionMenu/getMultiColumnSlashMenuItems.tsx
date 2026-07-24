@@ -51,7 +51,7 @@ function getAncestorColumnList<
   return undefined;
 }
 
-function insertColumnList<
+export function insertColumnList<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
