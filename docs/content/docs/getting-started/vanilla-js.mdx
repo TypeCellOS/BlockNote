@@ -28,11 +28,15 @@ This is how to create a new BlockNote editor:
 
 ```typescript
 import { BlockNoteEditor } from "@blocknote/core";
+import "@blocknote/core/fonts/inter.css";
+import "@blocknote/core/style.css";
 
 const editor = BlockNoteEditor.create();
 
-editor.mount(document.getElementById("root")); // element to append the editor to
+editor.mount(document.getElementById("root")!); // element to append the editor to
 ```
+
+Make sure to import both `@blocknote/core/style.css` (the editor's styles) and `@blocknote/core/fonts/inter.css` (the default font).
 
 Now, you'll have a plain BlockNote instance on your page. However, it's missing some menus and other UI elements.
 
@@ -40,100 +44,35 @@ Now, you'll have a plain BlockNote instance on your page. However, it's missing 
 
 Because you can't use the built-in React [UI Components](/docs/react/components), you'll need to create and register your own UI elements.
 
-While it's up to you to decide how you want the elements to be rendered, BlockNote provides methods for updating the visibility, position, and state of your elements:
+Each UI element is backed by an [extension](/docs/features/extensions). You can retrieve an extension instance from the editor with `editor.getExtension(...)`, and each one exposes a [store](https://tanstack.com/store) that holds its current state (visibility, position, and any element-specific data). The available UI element extensions are:
+
+| UI element         | Extension                     |
+| ------------------ | ----------------------------- |
+| Formatting Toolbar | `FormattingToolbarExtension`  |
+| Link Toolbar       | `LinkToolbarExtension`        |
+| Side Menu          | `SideMenuExtension`           |
+| Suggestion Menu    | `SuggestionMenu`              |
+| File Panel         | `FilePanelExtension`          |
+| Table Handles      | `TableHandlesExtension`       |
+
+While it's up to you to decide how you want the elements to be rendered, the store lets you react to state changes so you can update the visibility, position, and contents of your elements:
 
 ```typescript
-type UIElement =
-  | "formattingToolbar"
-  | "linkToolbar"
-  | "filePanel"
-  | "sideMenu"
-  | "suggestionMenu"
-  | "tableHandles"
+import { SideMenuExtension } from "@blocknote/core";
 
-const uiElement: UIElement = ...;
+const extension = editor.getExtension(SideMenuExtension)!;
 
-editor[uiElement].onUpdate((uiElementState: ...) => {
-  ...;
-})
-```
+// Read the current state at any time:
+const state = extension.store.state;
 
-Let's look at how you could add the [Side Menu]() to your editor:
+// Subscribe to state changes, e.g. to reposition or show/hide your element:
+const unsubscribe = extension.store.subscribe(() => {
+  const state = extension.store.state;
 
-```typescript
-import { BlockNoteEditor } from "@blocknote/core";
-
-const editor = BlockNoteEditor.create();
-editor.mount(document.getElementById("root"));
-
-export function createButton(text: string, onClick?: () => void) {
-  const element = document.createElement("a");
-  element.href = "#";
-  element.text = text;
-  element.style.margin = "10px";
-
-  if (onClick) {
-    element.addEventListener("click", (e) => {
-      onClick();
-      e.preventDefault();
-    });
-  }
-
-  return element;
-}
-
-let element: HTMLElement;
-
-editor.sideMenu.onUpdate((sideMenuState) => {
-  if (!element) {
-    element = document.createElement("div");
-    element.style.background = "gray";
-    element.style.position = "absolute";
-    element.style.padding = "10px";
-    element.style.opacity = "0.8";
-    const addBtn = createButton("+", () => {
-      const blockContent = sideMenuState.block.content;
-      const isBlockEmpty =
-        blockContent !== undefined &&
-        Array.isArray(blockContent) &&
-        blockContent.length === 0;
-
-      if (isBlockEmpty) {
-        editor.setTextCursorPosition(sideMenuState.block);
-        editor.openSuggestionMenu("/");
-      } else {
-        const insertedBlock = editor.insertBlocks(
-          [{ type: "paragraph" }],
-          sideMenuState.block,
-          "after",
-        )[0];
-        editor.setTextCursorPosition(insertedBlock);
-        editor.openSuggestionMenu("/");
-      }
-    });
-    element.appendChild(addBtn);
-
-    const dragBtn = createButton("::", () => {});
-
-    dragBtn.addEventListener("dragstart", (evt) =>
-      editor.sideMenu.blockDragStart(evt, sideMenuState.block),
-    );
-    dragBtn.addEventListener("dragend", editor.sideMenu.blockDragEnd);
-    dragBtn.draggable = true;
-    element.style.display = "none";
-    element.appendChild(dragBtn);
-
-    document.getElementById("root")!.appendChild(element);
-  }
-
-  if (sideMenuState.show) {
-    element.style.display = "block";
-
-    element.style.top = sideMenuState.referencePos.top + "px";
-    element.style.left =
-      sideMenuState.referencePos.x - element.offsetWidth + "px";
-  } else {
-    element.style.display = "none";
-  }
+  // ...update your UI element based on `state`
 });
 ```
+
+Let's look at how you could add the [Side Menu](/docs/react/components/side-menu) to your editor. The example below mounts a plain editor and builds a custom Side Menu from scratch, using the extension's store to position it and its `blockDragStart`/`blockDragEnd` methods to handle dragging:
+
+<Example name="vanilla-js/vanilla-custom-side-menu" />

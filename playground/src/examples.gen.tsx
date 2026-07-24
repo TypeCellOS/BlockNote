@@ -2116,6 +2116,24 @@ export const examples = {
         },
         readme: "",
       },
+      {
+        projectSlug: "vanilla-custom-side-menu",
+        fullSlug: "vanilla-js/vanilla-custom-side-menu",
+        pathFromRoot: "examples/vanilla-js/vanilla-custom-side-menu",
+        config: {
+          playground: true,
+          docs: true,
+          author: "matthewlipski",
+          tags: ["Advanced", "UI Components", "Block Side Menu"],
+        },
+        title: "Custom Side Menu (Vanilla JS)",
+        group: {
+          pathFromRoot: "examples/vanilla-js",
+          slug: "vanilla-js",
+        },
+        readme:
+          "This example uses the vanilla JS API to create a plain BlockNote editor without `@blocknote/react`, mounting it manually and building a custom Side Menu from scratch.\n\n**Try it out:** Hover over a block to reveal the custom Side Menu, then use the `+` button to add a block or the `::` handle to drag it!\n\n**Relevant Docs:**\n\n- [Getting Started with Vanilla JS](/docs/getting-started/vanilla-js)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Extensions](/docs/features/extensions)",
+      },
     ],
   },
 };
