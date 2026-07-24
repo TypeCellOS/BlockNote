@@ -328,9 +328,9 @@
   color: var(--bn-colors-menu-text);
   height: fit-content;
   max-height: inherit;
+  max-width: 350px;
   overflow-y: auto;
   padding: 2px;
-  width: 350px;
 }
 
 .bn-mantine .bn-suggestion-menu-item {
