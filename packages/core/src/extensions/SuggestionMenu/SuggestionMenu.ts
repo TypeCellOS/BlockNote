@@ -336,10 +336,19 @@ export const SuggestionMenu = createExtension(({ editor }) => {
             // only on insert
             if (from === to) {
               const doc = view.state.doc;
-              for (const [triggerChar, menuOptions] of suggestionMenus) {
+              // Match longer trigger characters first, so a multi-character
+              // trigger (e.g. "img:") wins over a single-character one (e.g.
+              // the default emoji ":") that would otherwise shadow it.
+              const orderedMenus = [...suggestionMenus].sort(
+                ([a], [b]) => b.length - a.length,
+              );
+              for (const [triggerChar, menuOptions] of orderedMenus) {
                 const snippet =
                   triggerChar.length > 1
-                    ? doc.textBetween(from - triggerChar.length, from) + text
+                    ? // The already-typed prefix is the first `length - 1`
+                      // chars; `text` is the final char being inserted now.
+                      doc.textBetween(from - (triggerChar.length - 1), from) +
+                      text
                     : text;
 
                 if (triggerChar === snippet) {

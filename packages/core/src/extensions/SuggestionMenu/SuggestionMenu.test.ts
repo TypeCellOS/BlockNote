@@ -188,4 +188,68 @@ describe("SuggestionMenu", () => {
 
     editor._tiptapEditor.destroy();
   });
+
+  it("should prefer a multi-character trigger over a shadowing single-character one", () => {
+    const editor = createEditor();
+    const sm = editor.getExtension(SuggestionMenu)!;
+
+    // Register the single-character trigger first so it would shadow the
+    // multi-character one in insertion order (mirrors the default emoji ":"
+    // menu registered before a custom "img:" menu).
+    sm.addSuggestionMenu({ triggerCharacter: ":" });
+    sm.addSuggestionMenu({ triggerCharacter: "img:" });
+
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "paragraph-0",
+        type: "paragraph",
+        content: "img",
+      },
+    ]);
+
+    editor.setTextCursorPosition("paragraph-0", "end");
+
+    expect(getSuggestionPluginState(editor)).toBeUndefined();
+
+    // Typing the final ":" of "img:" should open the "img:" menu, not the ":"
+    // emoji menu.
+    const handled = simulateTextInput(editor, ":");
+
+    expect(handled).toBe(true);
+
+    const pluginState = getSuggestionPluginState(editor);
+    expect(pluginState).toBeDefined();
+    expect(pluginState.triggerCharacter).toBe("img:");
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("should match a multi-character trigger mid-line (not just at block start)", () => {
+    const editor = createEditor();
+    const sm = editor.getExtension(SuggestionMenu)!;
+
+    sm.addSuggestionMenu({ triggerCharacter: "img:" });
+
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "paragraph-0",
+        type: "paragraph",
+        content: "hello img",
+      },
+    ]);
+
+    editor.setTextCursorPosition("paragraph-0", "end");
+
+    expect(getSuggestionPluginState(editor)).toBeUndefined();
+
+    const handled = simulateTextInput(editor, ":");
+
+    expect(handled).toBe(true);
+
+    const pluginState = getSuggestionPluginState(editor);
+    expect(pluginState).toBeDefined();
+    expect(pluginState.triggerCharacter).toBe("img:");
+
+    editor._tiptapEditor.destroy();
+  });
 });
