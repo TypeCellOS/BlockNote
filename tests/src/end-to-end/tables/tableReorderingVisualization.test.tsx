@@ -94,13 +94,16 @@ describe("Table reordering visualization", () => {
       await mouseSequence([{ type: "up" }]);
 
       // Both decorations are transient - once the drop completes, neither
-      // should remain on any row/column.
-      expect(
-        document.querySelectorAll(".bn-table-drag-source-row"),
-      ).toHaveLength(0);
-      expect(document.querySelectorAll(".bn-table-drop-cursor")).toHaveLength(
-        0,
-      );
+      // should remain on any row/column. Cleanup runs off a `dragend`/state
+      // update, not synchronously with the mouseup, so wait for it.
+      await vi.waitFor(() => {
+        expect(
+          document.querySelectorAll(".bn-table-drag-source-row"),
+        ).toHaveLength(0);
+        expect(document.querySelectorAll(".bn-table-drop-cursor")).toHaveLength(
+          0,
+        );
+      });
     },
   );
 
@@ -138,9 +141,11 @@ describe("Table reordering visualization", () => {
       });
 
       await mouseSequence([{ type: "up" }]);
-      expect(
-        document.querySelectorAll(".bn-table-drag-source-col"),
-      ).toHaveLength(0);
+      await vi.waitFor(() => {
+        expect(
+          document.querySelectorAll(".bn-table-drag-source-col"),
+        ).toHaveLength(0);
+      });
     },
   );
 

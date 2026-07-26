@@ -55,8 +55,22 @@ export const TableDragSourceExtension = createExtension(() => ({
 
           const { draggedCellOrientation, originalIndex, tablePos } = dragState;
 
-          const tableResolvedPos = state.doc.resolve(tablePos + 1);
+          // `tablePos` is captured once at drag-start and isn't remapped
+          // against later transactions (matching BlockNote's own drop-cursor
+          // decoration, which has the same limitation). If a concurrent edit
+          // - locally or from another collaborator - shifts or removes the
+          // table while a drag is in progress, this resolve() would throw
+          // instead of just skipping the decoration; bail out safely instead.
+          let tableResolvedPos;
+          try {
+            tableResolvedPos = state.doc.resolve(tablePos + 1);
+          } catch {
+            return null;
+          }
           const tableNode = tableResolvedPos.node();
+          if (tableNode.type.name !== "table") {
+            return null;
+          }
           const decorations: Decoration[] = [];
 
           if (draggedCellOrientation === "row") {
