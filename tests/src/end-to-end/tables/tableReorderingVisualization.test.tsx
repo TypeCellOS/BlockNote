@@ -227,6 +227,20 @@ describe("Table reordering visualization", () => {
     },
   );
 
+  // Not covered by an automated test: BlockNote's own TableHandlesExtension
+  // stores `view.tablePos` (and `state.block`) once per mousemove and never
+  // remaps them through `tr.mapping`. A transaction that changes the
+  // document elsewhere while a drag is in progress - a concurrent local or
+  // collaborative edit - leaves them stale; the *next* dragover recomputes
+  // BlockNote's own drop-cursor decoration from that stale position and
+  // throws (confirmed via a manual repro: dispatching an unrelated
+  // transaction mid-drag throws a RangeError out of
+  // `TableHandles.ts`'s `decorations()`, before our own plugin's
+  // decorations ever run in that same view update). Our `tr.mapping` fix
+  // above keeps *our* plugin's state correct for when this is fixed
+  // upstream, but there's no way to exercise it in isolation while core's
+  // own code throws first - see the PR discussion for the upstream report.
+
   test.skipIf(skipDrag)(
     "dragging a column with a merged (rowspan) cell doesn't throw",
     async () => {

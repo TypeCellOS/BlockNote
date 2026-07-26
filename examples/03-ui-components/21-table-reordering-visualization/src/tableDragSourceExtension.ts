@@ -40,10 +40,24 @@ export const TableDragSourceExtension = createExtension(() => ({
           if (meta === null) {
             return null;
           }
-          if (meta && typeof meta === "object") {
+          if (
+            meta &&
+            typeof meta === "object" &&
+            typeof (meta as DragSourceMeta).tablePos === "number" &&
+            typeof (meta as DragSourceMeta).originalIndex === "number"
+          ) {
             return meta as DragSourceMeta;
           }
-          return prev;
+          if (!prev || !tr.docChanged) {
+            return prev;
+          }
+          // A transaction changed the document without setting our meta -
+          // e.g. a concurrent local or collaborative edit elsewhere in the
+          // doc while a drag is in progress. Remap the stored position
+          // through it instead of letting it go stale, so the highlight
+          // keeps tracking the table rather than just disappearing on the
+          // next `decorations()` call.
+          return { ...prev, tablePos: tr.mapping.map(prev.tablePos) };
         },
       },
       props: {
