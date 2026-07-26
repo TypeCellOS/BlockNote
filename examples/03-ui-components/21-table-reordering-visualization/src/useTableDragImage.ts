@@ -1,4 +1,4 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, getNodeById } from "@blocknote/core";
 import { TableHandlesExtension } from "@blocknote/core/extensions";
 import { useEffect } from "react";
 
@@ -102,11 +102,24 @@ export const useTableDragImage = (editor: BlockNoteEditor<any, any, any>) => {
         return;
       }
 
-      const anchorEl = document.elementFromPoint(
-        state.referencePosTable.x + 1,
-        state.referencePosTable.y + 1,
+      // Resolve the table's DOM node deterministically via its stable block
+      // ID, rather than hit-testing a point in `referencePosTable` - a
+      // handle, floating toolbar, or any other overlay covering that exact
+      // pixel would make `elementFromPoint` return the wrong element (or
+      // none), silently dropping the drag image.
+      const nodePosInfo = getNodeById(
+        state.block.id,
+        editor.prosemirrorState.doc,
       );
-      const table = anchorEl?.closest("table");
+      if (!nodePosInfo) {
+        return;
+      }
+      const tableNode = editor.prosemirrorView.domAtPos(
+        nodePosInfo.posBeforeNode + 2,
+      ).node;
+      const table = (
+        tableNode instanceof Element ? tableNode : tableNode.parentElement
+      )?.closest("table");
       if (!table) {
         return;
       }
@@ -123,17 +136,24 @@ export const useTableDragImage = (editor: BlockNoteEditor<any, any, any>) => {
         return;
       }
 
+      // Positioned on-screen but invisible, rather than pushed far outside
+      // the viewport: some browsers skip rendering/rasterizing elements
+      // placed way off-screen, which would make the native drag-image
+      // capture silently produce a blank image.
       dragImage.style.position = "fixed";
-      dragImage.style.top = "-9999px";
-      dragImage.style.left = "-9999px";
+      dragImage.style.top = "0";
+      dragImage.style.left = "0";
+      dragImage.style.opacity = "0.01";
       dragImage.style.pointerEvents = "none";
-      document.body.appendChild(dragImage);
 
-      event.dataTransfer.setDragImage(dragImage, 16, 16);
-
-      setTimeout(() => {
-        dragImage.remove();
-      }, 0);
+      try {
+        document.body.appendChild(dragImage);
+        event.dataTransfer.setDragImage(dragImage, 16, 16);
+      } finally {
+        setTimeout(() => {
+          dragImage.remove();
+        }, 0);
+      }
     };
 
     document.addEventListener("dragstart", handleDragStart);
