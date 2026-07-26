@@ -57,13 +57,22 @@ that existing lifecycle:
   `canColumnBeDraggedInto` guards already block most drags across a merged
   cell, so this mainly affects highlighting fidelity in edge cases, not
   document correctness - see the "merged (rowspan) cell" test.
-- **Concurrent edits mid-drag**: BlockNote's `dropHandler` snapshots the
-  table's content once at drag-start and doesn't refresh it while the drag
-  is in progress (only `mousemove`, which stops firing on the dragged-over
-  element during a native drag, triggers a refresh). If another
-  collaborator edits the same table while a drag is in progress, the drop
-  can overwrite their change with the pre-drag snapshot. This is existing
-  BlockNote core behavior this example doesn't touch or change.
+- **Concurrent edits mid-drag**: confirmed via manual repro, this is worse
+  than it first looked. BlockNote's `TableHandlesView` stores `tablePos`
+  (and the table content snapshot used by `dropHandler`) once per
+  `mousemove`, and never remaps them through `tr.mapping`. `mousemove`
+  doesn't fire on the dragged-over element during a native drag, so any
+  transaction that changes the document elsewhere while a drag is in
+  progress - a concurrent local or collaborative edit - leaves both stale.
+  The _next_ `dragover` recomputes BlockNote's own drop-cursor decoration
+  from that stale `tablePos` and throws (`RangeError`, confirmed), not just
+  "drops silently overwrite a concurrent change" as previously stated here.
+  `tableDragSourceExtension.ts`'s own plugin state now remaps `tablePos`
+  through `tr.mapping` so it doesn't share this specific failure mode, but
+  there's no way to verify that in an end-to-end test while BlockNote's own
+  decoration throws first in the same view update. This is pre-existing
+  BlockNote core behavior this example doesn't introduce - see the PR
+  discussion for the upstream report.
 
 ## Tests
 
@@ -73,7 +82,8 @@ appearance during a drag, per-cell tinting for column drags, cleanup on a
 cancelled drag, dragging a row with rich (bold) inline content, dragging a
 column across a merged cell, and the `/table` header-row default. It
 doesn't re-test BlockNote's own move/reorder logic, which is already
-covered by `tables.test.tsx`.
+covered by `tables.test.tsx`, and it doesn't cover the concurrent-edit
+scenario above - see that section for why.
 
 ## How It Works
 
