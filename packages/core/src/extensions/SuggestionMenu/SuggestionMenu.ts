@@ -338,44 +338,41 @@ export const SuggestionMenu = createExtension(({ editor }) => {
         },
 
         props: {
-          handleTextInput(view, from, to, text) {
-            // only on insert
-            if (from === to) {
-              const doc = view.state.doc;
-              // Sort triggers by length (longest first) so that a more specific
-              // multi-character trigger (e.g. "img:") is preferred over a shorter
-              // one (e.g. ":") that would otherwise shadow it by matching first.
-              const triggers = [...suggestionMenus.entries()].sort(
-                ([a], [b]) => b.length - a.length,
-              );
-              for (const [trigger, menuOptions] of triggers) {
-                const input =
-                  doc.textBetween(
-                    // If the cursor is at the very start of the document, and we are checking if
-                    // an n-character trigger has been entered (e.g. "img:"), we need to get the n
-                    // characters before the text cursor to compare do so. However, the text cursor
-                    // may be near the start of the document and not have n characters before it.
-                    Math.max(0, from - trigger.length - text.length),
-                    from,
-                  ) + text;
-                if (trigger === input) {
-                  // Check the per-suggestion-menu filter before activating.
-                  if (
-                    menuOptions.shouldOpen &&
-                    !menuOptions.shouldOpen(view.state.tr)
-                  ) {
-                    continue;
-                  }
-                  view.dispatch(view.state.tr.insertText(text));
-                  view.dispatch(
-                    view.state.tr
-                      .setMeta(suggestionMenuPluginKey, {
-                        triggerCharacter: input,
-                      })
-                      .scrollIntoView(),
-                  );
-                  return true;
+          handleTextInput(view, from, _to, text) {
+            const doc = view.state.doc;
+            // Sort triggers by length (longest first) so that a more specific
+            // multi-character trigger (e.g. "img:") is preferred over a shorter
+            // one (e.g. ":") that would otherwise shadow it by matching first.
+            const triggers = [...suggestionMenus.entries()].sort(
+              ([a], [b]) => b.length - a.length,
+            );
+            for (const [trigger, menuOptions] of triggers) {
+              const input =
+                doc.textBetween(
+                  // If the cursor is at the very start of the document, and we are checking if
+                  // an n-character trigger has been entered (e.g. "img:"), we need to get the n
+                  // characters before the text cursor to compare do so. However, the text cursor
+                  // may be near the start of the document and not have n characters before it.
+                  Math.max(0, from - (trigger.length - text.length)),
+                  from,
+                ) + text;
+              if (trigger === input) {
+                // Check the per-suggestion-menu filter before activating.
+                if (
+                  menuOptions.shouldOpen &&
+                  !menuOptions.shouldOpen(view.state.tr)
+                ) {
+                  continue;
                 }
+                view.dispatch(view.state.tr.insertText(text));
+                view.dispatch(
+                  view.state.tr
+                    .setMeta(suggestionMenuPluginKey, {
+                      triggerCharacter: input,
+                    })
+                    .scrollIntoView(),
+                );
+                return true;
               }
             }
             return false;
