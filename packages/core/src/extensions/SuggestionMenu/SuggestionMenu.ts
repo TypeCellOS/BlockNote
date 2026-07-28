@@ -150,6 +150,12 @@ type SuggestionPluginState =
   | undefined;
 
 export type SuggestionMenuOptions = {
+  /**
+   * The string that opens the suggestion menu when typed. Usually a single
+   * character (e.g. `"/"` or `"@"`), but multi-character strings such as
+   * `"img:"` are also supported. When multiple triggers could match the typed
+   * text, the longest one takes precedence.
+   */
   triggerCharacter: string;
   /**
    * Optional callback to determine whether the suggestion menu should be
