@@ -87,7 +87,15 @@ type highlight: (block: Block) => string | undefined;
 
 This function runs for each instance of the block, and returns the language that the block's text should be highlighted with. The supported languages are defined by the Shiki highlighter passed to the extension.
 
-BlockNote provides a generic, ready-to-use highlighter in the `@blocknote/code-block` package, which supports a wide range of languages. It's exported as a pre-configured `syntaxHighlighter` extension, alongside `codeBlockOptions`, which implements the `highlight` callback for the code block:
+BlockNote provides a generic, ready-to-use highlighter in the `@blocknote/code-block` package, which supports a wide range of languages. It's exported as a pre-configured `syntaxHighlighter` extension, alongside `codeBlockOptions`, which implements the `highlight` callback for the code block.
+
+First, install the `@blocknote/code-block` package:
+
+```bash
+npm install @blocknote/code-block
+```
+
+Then, add the `syntaxHighlighter` extension to your editor and pass `codeBlockOptions` to `createCodeBlockSpec`:
 
 ```ts
 import { createCodeBlockSpec } from "@blocknote/core";
