@@ -77,6 +77,11 @@ export function FormulaButton() {
 
   return (
     <components.FormattingToolbar.Button
+      // Stable selector for tests -- mirrors the `data-test` convention used
+      // by the default formatting toolbar buttons (e.g. "colors",
+      // "createLink"). Forwarded through Mantine's ToolbarButton to the
+      // native <button> via its `...rest` spread.
+      data-test="formula"
       mainTooltip={LABEL}
       onClick={() => {
         if (active) {
