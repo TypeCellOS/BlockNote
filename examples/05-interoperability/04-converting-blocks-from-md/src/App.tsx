@@ -5,12 +5,13 @@ import "@blocknote/mantine/style.css";
 import { ChangeEvent, useCallback, useEffect } from "react";
 
 import "./styles.css";
+import { schema } from "./schema";
 
 const initialMarkdown = "Hello, **world!**";
 
 export default function App() {
   // Creates a new editor instance.
-  const editor = useCreateBlockNote();
+  const editor = useCreateBlockNote({ schema });
 
   const markdownInputChanged = useCallback(
     (e: ChangeEvent<HTMLTextAreaElement>) => {
