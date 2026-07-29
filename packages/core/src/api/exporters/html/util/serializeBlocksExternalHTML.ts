@@ -265,15 +265,34 @@ function serializeBlock<
     }
   }
 
-  if (ret.contentDOM && block.content) {
-    const ic = serializeInlineContentExternalHTML(
-      editor,
-      block.content as any, // TODO
-      serializer,
-      { ...options, blockType: block.type },
-    );
+  if (ret.contentDOM) {
+    if (block.content) {
+      const ic = serializeInlineContentExternalHTML(
+        editor,
+        block.content as any, // TODO
+        serializer,
+        { ...options, blockType: block.type },
+      );
 
-    ret.contentDOM.appendChild(ic);
+      ret.contentDOM.appendChild(ic);
+    }
+
+    // Blocks with empty inline content (e.g. an empty paragraph) serialize to
+    // an element with no children (e.g. `<p></p>`), which is ignored when the
+    // HTML is parsed back into blocks. To make these blocks survive such a
+    // round trip, we fill their content with a non-breaking space.
+    //
+    // Only applies to blocks that hold inline content: containers (columns,
+    // tables) fill their `contentDOM` with child blocks later on, and code
+    // blocks would turn the placeholder into literal content.
+    const blockNodeType = editor.pmSchema.nodes[block.type as any];
+    if (
+      blockNodeType?.inlineContent &&
+      !blockNodeType.spec.code &&
+      ret.contentDOM.childNodes.length === 0
+    ) {
+      ret.contentDOM.appendChild(doc.createTextNode(" "));
+    }
   }
 
   let listType = undefined;
