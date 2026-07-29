@@ -1,11 +1,16 @@
-# Parsing Markdown to Blocks
+# Bài giảng có công thức toán/hóa
 
-This example shows how you can convert HTML content to a BlockNote document.
+Ví dụ này thay 2-pane preview cũ bằng một trình soạn thảo có thể chỉnh sửa
+được, hỗ trợ chèn công thức toán (LaTeX) và hóa học (mhchem `\ce{}`)
+qua một cửa sổ soạn thảo có 2 tab.
 
-Note that the editor itself is locked for editing by setting `editable` to `false`.
-
-**Try it out:** Edit the Markdown in the textarea to see the BlockNote document update!
+- Bài giảng ban đầu được nạp từ một mẫu markdown; `$...$` và `$$...$$` được
+  nhận diện và chuyển thành node công thức ngay khi tải.
+- Nhấp nút **∑ Công thức** trên formatting toolbar để mở cửa sổ soạn thảo.
+- Nhấp vào một công thức đã có sẵn để chỉnh sửa lại.
 
 **Relevant Docs:**
 
 - [Parsing Markdown to Blocks](/docs/features/import/markdown)
+- [Custom Inline Content](/docs/features/custom-schemas/custom-inline-content)
+- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)
