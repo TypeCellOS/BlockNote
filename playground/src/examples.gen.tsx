@@ -1107,6 +1107,12 @@ export const examples = {
           docs: true,
           author: "yousefed",
           tags: ["Basic", "Blocks", "Import/Export"],
+          dependencies: {
+            katex: "^0.16.11",
+          } as any,
+          devDependencies: {
+            "@types/katex": "^0.16.7",
+          },
         },
         title: "Parsing Markdown to Blocks",
         group: {
