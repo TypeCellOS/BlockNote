@@ -3,7 +3,10 @@ import {
   defaultBlockSpecs,
   defaultInlineContentSpecs,
 } from "@blocknote/core";
-import { createReactInlineContentSpec, createReactBlockSpec } from "@blocknote/react";
+import {
+  createReactInlineContentSpec,
+  createReactBlockSpec,
+} from "@blocknote/react";
 import { FormulaInlineView } from "./formula/FormulaInline";
 import { FormulaBlockView } from "./formula/FormulaBlock";
 import { useFormulaEditor } from "./formula/formulaContext";
@@ -23,7 +26,10 @@ export const formulaInline = createReactInlineContentSpec(
         <FormulaInlineView
           latex={props.inlineContent.props.latex}
           onOpenEditor={() =>
-            editor.openEdit({ kind: "inline", latex: props.inlineContent.props.latex })
+            editor.openEdit({
+              kind: "inline",
+              latex: props.inlineContent.props.latex,
+            })
           }
         />
       );
@@ -65,7 +71,7 @@ export const schema = BlockNoteSchema.create({
   },
   blockSpecs: {
     ...defaultBlockSpecs,
-    formulaBlock,
+    formulaBlock: formulaBlock(),
   },
 });
 
