@@ -1,17 +1,28 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  MathFieldWrapper,
+  sanitizePlaceholders,
+  type MathFieldHandle,
+} from "./MathFieldWrapper";
 import { renderLatex } from "./katexRenderer";
 import {
   useFormulaEditor,
   useFormulaEditorState,
   type FormulaTarget,
 } from "./formulaContext";
-import { mathPalette, chemPalette, type PaletteItem } from "./palettes";
-import { insertAtCaret } from "./insertAtCaret";
+import {
+  mathPaletteBasic,
+  mathPaletteAdvanced,
+  chemPaletteBasic,
+  chemPaletteAdvanced,
+  type PaletteItem,
+} from "./palettes";
 
 type Tab = "math" | "chem";
+type Mode = "basic" | "advanced";
 
 function inferTab(latex: string): Tab {
-  return /^\s*\\ce\{[\s\S]*\}\s*$/.test(latex) ? "chem" : "math";
+  return /\\ce\{/.test(latex) ? "chem" : "math";
 }
 
 export type FormulaEditorHandlers = {
@@ -28,58 +39,38 @@ export function FormulaEditorModal({
   const api = useFormulaEditor();
 
   const [tab, setTab] = useState<Tab>("math");
+  const [mode, setMode] = useState<Mode>("basic");
   const [latex, setLatex] = useState("");
   const [kind, setKind] = useState<"inline" | "block">("inline");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const mfRef = useRef<MathFieldHandle>(null);
 
   useEffect(() => {
     if (!state.open) return;
     setLatex(state.initialLatex);
     setKind(state.initialKind);
-    if (state.mode === "insert") {
-      setTab("math");
-    } else {
-      setTab(inferTab(state.initialLatex));
-    }
+    setMode("basic");
+    setTab(state.mode === "insert" ? "math" : inferTab(state.initialLatex));
   }, [state.open, state.mode, state.initialLatex, state.initialKind]);
 
-  const [preview, setPreview] = useState<{
-    html: string;
-    error: string | null;
-  }>({ html: "", error: null });
+  const items: PaletteItem[] = useMemo(() => {
+    if (tab === "math")
+      return mode === "basic" ? mathPaletteBasic : mathPaletteAdvanced;
+    return mode === "basic" ? chemPaletteBasic : chemPaletteAdvanced;
+  }, [tab, mode]);
 
-  useEffect(() => {
-    if (!state.open) return;
-    const handle = setTimeout(() => {
-      setPreview(renderLatex(latex, { displayMode: kind === "block" }));
-    }, 200);
-    return () => clearTimeout(handle);
-  }, [latex, kind, state.open]);
+  const isConfirmDisabled = latex.trim().length === 0;
 
-  const isConfirmDisabled = useMemo(
-    () => latex.trim().length === 0 || preview.error !== null,
-    [latex, preview.error],
-  );
-
-  const items = tab === "math" ? mathPalette : chemPalette;
-
-  const insertSnippet = (item: PaletteItem) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    const { value, caret } = insertAtCaret(textarea, item);
-    setLatex(value);
-    // restore caret after React re-renders
-    queueMicrotask(() => {
-      textarea.focus();
-      textarea.setSelectionRange(caret, caret);
-    });
+  const insertItem = (item: PaletteItem) => {
+    mfRef.current?.insert(item.insert);
   };
 
   const confirm = () => {
+    const finalLatex = sanitizePlaceholders(latex);
+    if (finalLatex.trim().length === 0) return;
     if (state.mode === "edit" && state.editTarget) {
-      handlers.onUpdate(state.editTarget, latex);
+      handlers.onUpdate(state.editTarget, finalLatex);
     } else {
-      handlers.onInsert(kind, latex);
+      handlers.onInsert(kind, finalLatex);
     }
     api.close();
   };
@@ -91,11 +82,35 @@ export function FormulaEditorModal({
       <div
         className="formula-modal"
         role="dialog"
-        aria-label="Soạn công thức"
+        aria-label="Soạn thảo công thức"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="formula-modal-header">
-          <h2>Soạn công thức</h2>
+          <h2>Soạn thảo công thức</h2>
+          <div
+            className="formula-modal-mode"
+            role="tablist"
+            aria-label="Chế độ"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === "basic"}
+              data-test="formula-mode-basic"
+              onClick={() => setMode("basic")}
+            >
+              Cơ bản
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === "advanced"}
+              data-test="formula-mode-advanced"
+              onClick={() => setMode("advanced")}
+            >
+              Nâng cao
+            </button>
+          </div>
           <button
             type="button"
             className="formula-modal-close"
@@ -106,17 +121,12 @@ export function FormulaEditorModal({
           </button>
         </div>
 
-        <div className="formula-modal-tabs" role="tablist">
+        <div className="formula-modal-tabs" role="tablist" aria-label="Loại">
           <button
             type="button"
             role="tab"
             aria-selected={tab === "math"}
-            onClick={() => {
-              setTab("math");
-              if (state.mode === "insert" && latex === "\\ce{}") {
-                setLatex("");
-              }
-            }}
+            onClick={() => setTab("math")}
           >
             Toán
           </button>
@@ -124,71 +134,49 @@ export function FormulaEditorModal({
             type="button"
             role="tab"
             aria-selected={tab === "chem"}
-            onClick={() => {
-              setTab("chem");
-              if (state.mode === "insert" && latex.trim().length === 0) {
-                setLatex("\\ce{}");
-                queueMicrotask(() => {
-                  const ta = textareaRef.current;
-                  if (!ta) return;
-                  ta.focus();
-                  ta.setSelectionRange(4, 4);
-                });
-              }
-            }}
+            onClick={() => setTab("chem")}
           >
             Hóa
           </button>
         </div>
 
-        <div className="formula-modal-palette" data-tab={tab}>
+        <div className="formula-modal-palette" data-tab={tab} data-mode={mode}>
           {items.map((item) => {
             const glyph = renderLatex(item.label, { displayMode: false });
             return (
               <button
-                key={`${tab}-${item.label}`}
+                key={`${tab}-${item.key}`}
                 type="button"
                 className="formula-palette-button"
                 title={item.tooltip}
-                onClick={() => insertSnippet(item)}
+                onClick={() => insertItem(item)}
                 dangerouslySetInnerHTML={{ __html: glyph.html }}
               />
             );
           })}
         </div>
 
-        <label className="formula-modal-input">
-          <span>LaTeX</span>
-          <textarea
-            ref={textareaRef}
+        <div className="formula-modal-field">
+          <MathFieldWrapper
+            ref={mfRef}
             value={latex}
-            onChange={(e) => setLatex(e.target.value)}
-            onKeyDown={(e) => {
-              if (
-                (e.ctrlKey || e.metaKey) &&
-                e.key === "Enter" &&
-                !isConfirmDisabled
-              ) {
-                e.preventDefault();
-                confirm();
-              }
-            }}
-            rows={4}
-            autoFocus
-            spellCheck={false}
+            onChange={setLatex}
+            virtualKeyboard={mode === "advanced"}
           />
-        </label>
-
-        <div className="formula-modal-preview">
-          <span>Xem trước</span>
-          <div
-            className="formula-modal-preview-body"
-            dangerouslySetInnerHTML={{ __html: preview.html }}
-          />
-          {preview.error && (
-            <div className="formula-modal-error">{preview.error}</div>
-          )}
         </div>
+
+        {mode === "advanced" && (
+          <label className="formula-modal-latex">
+            <span>LaTeX</span>
+            <textarea
+              value={latex}
+              onChange={(e) => setLatex(e.target.value)}
+              rows={3}
+              spellCheck={false}
+              data-test="formula-latex-textarea"
+            />
+          </label>
+        )}
 
         <div className="formula-modal-kind">
           <label>
@@ -222,7 +210,7 @@ export function FormulaEditorModal({
           <button
             type="button"
             disabled={isConfirmDisabled}
-            data-testid="formula-confirm"
+            data-test="formula-confirm"
             onClick={confirm}
           >
             {state.mode === "edit" ? "Cập nhật" : "Chèn"}
