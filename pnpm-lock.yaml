@@ -270,12 +270,18 @@ importers:
       fumadocs-ui:
         specifier: npm:@fumadocs/base-ui@16.5.0
         version: '@fumadocs/base-ui@16.5.0(@types/react@19.2.14)(fumadocs-core@16.5.0(@types/react@19.2.14)(lucide-react@0.562.0(react@19.2.5))(next@16.2.7(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(zod@4.3.6))(next@16.2.7(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.2)'
+      katex:
+        specifier: ^0.16.11
+        version: 0.16.47
       lib0:
         specifier: 1.0.0-rc.22
         version: 1.0.0-rc.22
       lucide-react:
         specifier: ^0.562.0
         version: 0.562.0(react@19.2.5)
+      mathlive:
+        specifier: ^0.110.0
+        version: 0.110.0
       motion:
         specifier: ^12.28.1
         version: 12.38.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -337,6 +343,9 @@ importers:
       '@types/better-sqlite3':
         specifier: ^7.6.13
         version: 7.6.13
+      '@types/katex':
+        specifier: ^0.16.7
+        version: 0.16.8
       '@types/mdx':
         specifier: ^2.0.13
         version: 2.0.13

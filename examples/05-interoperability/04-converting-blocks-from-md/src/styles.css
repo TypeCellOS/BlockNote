@@ -181,7 +181,7 @@
   cursor: pointer;
   background: #fff;
 }
-.formula-modal-actions button[data-testid="formula-confirm"] {
+.formula-modal-actions button[data-test="formula-confirm"] {
   background: #6ea8fe;
   color: white;
   border-color: #6ea8fe;
