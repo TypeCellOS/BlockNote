@@ -15,7 +15,7 @@ declare module "react" {
     interface IntrinsicElements {
       "math-field": React.DetailedHTMLProps<
         React.HTMLAttributes<HTMLElement> & {
-          "virtual-keyboard-mode"?: "manual" | "onfocus" | "off";
+          "math-virtual-keyboard-policy"?: "auto" | "manual" | "sandboxed";
           "read-only"?: string;
         },
         HTMLElement
@@ -117,7 +117,7 @@ export const MathFieldWrapper = forwardRef<
   return (
     <math-field
       ref={mfRef as any}
-      virtual-keyboard-mode={virtualKeyboard ? "onfocus" : "off"}
+      math-virtual-keyboard-policy={virtualKeyboard ? "auto" : "manual"}
       read-only={readOnly ? "" : undefined}
       style={style}
       className={className}
