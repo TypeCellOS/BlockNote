@@ -1109,6 +1109,7 @@ export const examples = {
           tags: ["Basic", "Blocks", "Import/Export"],
           dependencies: {
             katex: "^0.16.11",
+            mathlive: "^0.110.0",
           } as any,
           devDependencies: {
             "@types/katex": "^0.16.7",

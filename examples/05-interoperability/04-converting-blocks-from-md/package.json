@@ -20,7 +20,8 @@
     "@mantine/hooks": "^9.0.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "katex": "^0.16.11"
+    "katex": "^0.16.11",
+    "mathlive": "^0.110.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",
