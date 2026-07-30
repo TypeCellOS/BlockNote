@@ -112,36 +112,56 @@
   border-color: #6ea8fe;
 }
 
-.formula-modal-input {
+/* Mode toggle (Cơ bản / Nâng cao) trong header modal */
+.formula-modal-mode {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  margin-right: 12px;
+}
+.formula-modal-mode button {
+  padding: 4px 10px;
+  border: 1px solid var(--formula-modal-border);
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+.formula-modal-mode button[aria-selected="true"] {
+  background: #eaf2ff;
+  border-color: #6ea8fe;
+}
+
+/* MathLive field container */
+.formula-modal-field {
+  border: 1px solid var(--formula-modal-border);
+  border-radius: 4px;
+  padding: 4px;
+  background: #fff;
+}
+.formula-modal-field math-field {
+  min-height: 64px;
+  font-size: 20px;
+  padding: 8px;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* LaTeX textarea (advanced mode only) */
+.formula-modal-latex {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-.formula-modal-input textarea {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 14px;
+.formula-modal-latex textarea {
+  font-family:
+    ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
   padding: 8px;
   border: 1px solid var(--formula-modal-border);
   border-radius: 4px;
   resize: vertical;
-}
-
-.formula-modal-preview {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-height: 60px;
-  padding: 8px;
-  border: 1px dashed var(--formula-modal-border);
-  border-radius: 4px;
-}
-.formula-modal-preview-body {
-  text-align: center;
-}
-.formula-modal-error {
-  color: var(--formula-error-color);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
 }
 
 .formula-modal-kind {
@@ -169,4 +189,14 @@
 .formula-modal-actions button[disabled] {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+/* --- Slash menu scroll fix (scope local) --- */
+/* Bug package-level: .bn-suggestion-menu dùng `max-height: inherit` không
+ * nhận giá trị từ inline style floating-ui đặt trên container cha, dẫn tới
+ * menu không có max-height thực → wheel event xuyên xuống editor thay vì
+ * scroll trong menu. Override local bằng max-height cố định. */
+.bn-suggestion-menu {
+  max-height: 400px;
+  overflow-y: auto;
 }
