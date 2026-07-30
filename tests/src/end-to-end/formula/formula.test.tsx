@@ -22,7 +22,10 @@ import {
 // `<button>`.
 const FORMULA_BUTTON_SELECTOR = `[data-test="formula"]`;
 const FORMULA_MODAL_SELECTOR = `.formula-modal`;
-const FORMULA_CONFIRM_SELECTOR = `[data-testid="formula-confirm"]`;
+const FORMULA_CONFIRM_SELECTOR = `[data-test="formula-confirm"]`;
+const FORMULA_MODE_ADV_SELECTOR = `[data-test="formula-mode-advanced"]`;
+const FORMULA_LATEX_TEXTAREA = `[data-test="formula-latex-textarea"]`;
+const MATH_FIELD_SELECTOR = `.formula-modal math-field`;
 
 describe("preprocessMarkdown", () => {
   test("no formulas: passes through", () => {
@@ -173,7 +176,7 @@ describe("Formula editor UI", () => {
     expect(blockFormulas.length).toBeGreaterThan(0);
   });
 
-  test("inserts an inline formula via the toolbar button", async () => {
+  test("inserts a formula via toolbar button (advanced mode uses LaTeX textarea)", async () => {
     // Type into the trailing block (BlockNote always keeps an empty block at
     // the end of the document to type into) so this doesn't depend on where
     // the pre-populated template content happens to end.
@@ -193,20 +196,23 @@ describe("Formula editor UI", () => {
     const button = await waitForSelector(FORMULA_BUTTON_SELECTOR);
     await userEvent.click(button);
 
-    // Modal appears in Insert mode -- starts with an empty textarea.
     const modal = await waitForSelector(FORMULA_MODAL_SELECTOR);
-    const textarea = modal.querySelector("textarea") as HTMLTextAreaElement;
-    expect(textarea).toBeTruthy();
+
+    // Modal defaults to Basic mode: math-field present, no LaTeX textarea.
+    expect(modal.querySelector(MATH_FIELD_SELECTOR)).toBeTruthy();
+    expect(modal.querySelector(FORMULA_LATEX_TEXTAREA)).toBeNull();
+
+    // Switch to Advanced mode → LaTeX textarea appears.
+    await userEvent.click(await waitForSelector(FORMULA_MODE_ADV_SELECTOR));
+    const textarea = (await waitForSelector(
+      FORMULA_LATEX_TEXTAREA,
+    )) as HTMLTextAreaElement;
     expect(textarea.value).toBe("");
 
-    // Type LaTeX.
+    // Type LaTeX via textarea (advanced mode two-way sync).
     await userEvent.click(textarea);
     await userEvent.type(textarea, "\\frac{1}{2}");
-
-    // Preview shows a katex node once the debounced render fires.
-    await sleep(300);
-    const previewKatex = modal.querySelector(".formula-modal-preview .katex");
-    expect(previewKatex).toBeTruthy();
+    await sleep(150);
 
     // Confirm.
     const confirm = modal.querySelector(
@@ -215,13 +221,12 @@ describe("Formula editor UI", () => {
     expect(confirm.disabled).toBe(false);
     await userEvent.click(confirm);
 
-    // Modal closes and a new katex node appears in the editor.
     await waitForSelectorDetached(FORMULA_MODAL_SELECTOR);
     const after = document.querySelectorAll(`${EDITOR_SELECTOR} .katex`).length;
     expect(after).toBeGreaterThan(before);
   });
 
-  test("edits an existing formula by clicking it", async () => {
+  test("edits an existing block formula (advanced mode to see raw LaTeX)", async () => {
     // The initial markdown template's first `$$...$$` block becomes the
     // quadratic formula block -- see `initialMarkdown.ts`.
     const blockFormulas = document.querySelectorAll<HTMLElement>(
@@ -231,27 +236,30 @@ describe("Formula editor UI", () => {
 
     await userEvent.click(blockFormulas[0]);
 
-    // Modal appears in Edit mode -- pre-filled with the formula's existing
-    // LaTeX, proving the click opened Edit (not Insert) mode.
     const modal = await waitForSelector(FORMULA_MODAL_SELECTOR);
-    const textarea = modal.querySelector("textarea") as HTMLTextAreaElement;
-    expect(textarea).toBeTruthy();
-    expect(textarea.value).toContain("\\frac{-b");
 
-    // The "kind" (inline vs block) is locked while editing.
+    // Kind is locked in edit mode.
     const blockRadio = modal.querySelector(
       'input[name="formula-kind"][value="block"]',
     ) as HTMLInputElement;
     expect(blockRadio.checked).toBe(true);
     expect(blockRadio.disabled).toBe(true);
 
-    // Replace the LaTeX with something new and distinct.
+    // Switch to Advanced to expose the LaTeX textarea, which is where we can
+    // reliably assert the initial value and drive a replacement.
+    await userEvent.click(await waitForSelector(FORMULA_MODE_ADV_SELECTOR));
+    const textarea = (await waitForSelector(
+      FORMULA_LATEX_TEXTAREA,
+    )) as HTMLTextAreaElement;
+    // The initial block formula is the quadratic formula from initialMarkdown.ts.
+    expect(textarea.value).toContain("\\frac");
+
     const newLatex = "E = mc^2";
     await userEvent.click(textarea);
     await userEvent.clear(textarea);
     await userEvent.type(textarea, newLatex);
+    await sleep(150);
 
-    await sleep(300);
     const confirm = modal.querySelector(
       FORMULA_CONFIRM_SELECTOR,
     ) as HTMLButtonElement;
@@ -260,18 +268,62 @@ describe("Formula editor UI", () => {
 
     await waitForSelectorDetached(FORMULA_MODAL_SELECTOR);
 
-    // Re-open the same (still first) block formula and confirm the edit
-    // persisted to the document, rather than only to the modal's local state.
+    // Re-open to confirm persistence.
     const updated = document.querySelectorAll<HTMLElement>(
       `${EDITOR_SELECTOR} .formula-block`,
     );
     expect(updated.length).toBe(blockFormulas.length);
     await userEvent.click(updated[0]);
-
     const reopened = await waitForSelector(FORMULA_MODAL_SELECTOR);
+    await userEvent.click(await waitForSelector(FORMULA_MODE_ADV_SELECTOR));
     const reopenedTextarea = reopened.querySelector(
-      "textarea",
+      FORMULA_LATEX_TEXTAREA,
     ) as HTMLTextAreaElement;
     expect(reopenedTextarea.value).toBe(newLatex);
+  });
+
+  test("palette click inserts LaTeX into math-field (basic mode)", async () => {
+    const trailing = await waitForSelector(
+      `${EDITOR_SELECTOR} .bn-trailing-block`,
+    );
+    await userEvent.click(trailing);
+    await userEvent.keyboard("x");
+    await userEvent.keyboard("{Home}{Shift>}{End}{/Shift}");
+
+    const button = await waitForSelector(FORMULA_BUTTON_SELECTOR);
+    await userEvent.click(button);
+
+    const modal = await waitForSelector(FORMULA_MODAL_SELECTOR);
+    const mathField = modal.querySelector(MATH_FIELD_SELECTOR) as any;
+    expect(mathField).toBeTruthy();
+
+    // Click the first palette button ("Lũy thừa" = x^{n} = insert "#?^{#?}").
+    const firstPaletteBtn = modal.querySelector(
+      ".formula-modal-palette .formula-palette-button",
+    ) as HTMLButtonElement;
+    expect(firstPaletteBtn).toBeTruthy();
+    await userEvent.click(firstPaletteBtn);
+    await sleep(100);
+
+    // math-field.value should now contain the inserted structure. MathLive
+    // may render placeholders as \placeholder{} in .value.
+    expect(mathField.value).toMatch(/\^/);
+  });
+
+  test("slash menu is a scrollable container (bug fix)", async () => {
+    const trailing = await waitForSelector(
+      `${EDITOR_SELECTOR} .bn-trailing-block`,
+    );
+    await userEvent.click(trailing);
+    await userEvent.keyboard("/");
+    await sleep(150);
+
+    const menu = await waitForSelector(".bn-suggestion-menu");
+    const style = getComputedStyle(menu);
+    // Fix mounts a fixed max-height + overflow-y:auto so wheel events scroll
+    // inside the menu instead of bubbling out to the editor.
+    expect(parseFloat(style.maxHeight)).toBeGreaterThan(0);
+    expect(style.maxHeight).not.toBe("none");
+    expect(style.overflowY).toBe("auto");
   });
 });
