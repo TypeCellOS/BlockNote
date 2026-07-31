@@ -144,8 +144,8 @@ export async function setupToolCallStreaming(
   let errorSeen = false;
   // process results
   const toolCalls = Array.from(
-    toolCallStreams.values().filter((data) => data.complete),
-  );
+    toolCallStreams.values(),
+  ).filter((data) => data.complete);
   toolCalls.forEach((toolCall, index) => {
     const isErrorTool =
       toolCall.toolCallId === error?.chunk.metadata.toolCallId;
