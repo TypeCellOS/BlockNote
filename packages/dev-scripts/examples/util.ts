@@ -164,6 +164,7 @@ export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
     collaboration: "Collaboration",
     extensions: "Extensions",
     ai: "AI",
+    "vanilla-js": "Vanilla JS",
   };
 
   const groupsWithTitles = Object.fromEntries(
