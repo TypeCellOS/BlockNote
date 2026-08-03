@@ -550,7 +550,148 @@ inline styles, it is added to the base z-index. */
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
-/* Emoji Picker styling */
-.bn-root em-emoji-picker {
-  max-height: 100%;
+/* Frimousse Emoji Picker styling */
+.bn-frimousse-picker {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  height: 352px;
+  background-color: var(--bn-colors-menu-background);
+  border: 1px solid var(--bn-colors-hovered-background);
+  border-radius: 8px;
+  overflow: hidden;
+  isolation: isolate;
+  font-family: var(--bn-font-family);
+}
+
+.bn-frimousse-picker [frimousse-search] {
+  position: relative;
+  z-index: 10;
+  appearance: none;
+  margin: 8px 8px 0;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--bn-colors-hovered-background);
+  color: var(--bn-colors-editor-text);
+  font-size: 14px;
+  outline: none;
+}
+
+.bn-frimousse-search-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.bn-frimousse-picker [frimousse-viewport] {
+  position: relative;
+  flex: 1;
+  outline: none;
+}
+
+.bn-frimousse-loading,
+.bn-frimousse-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bn-colors-side-menu);
+  font-size: 14px;
+}
+
+.bn-frimousse-picker [frimousse-list] {
+  padding-bottom: 12px;
+  user-select: none;
+}
+
+.bn-frimousse-category-header {
+  padding: 12px 12px 6px;
+  background-color: var(--bn-colors-menu-background);
+  color: var(--bn-colors-side-menu);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.bn-frimousse-row {
+  padding-inline: 6px;
+  scroll-margin-block: 6px;
+}
+
+.bn-frimousse-emoji {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.bn-frimousse-emoji:hover,
+.bn-frimousse-emoji[data-active],
+.bn-frimousse-emoji[data-selected] {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-frimousse-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  border-top: 1px solid var(--bn-colors-hovered-background);
+  min-height: 32px;
+}
+
+.bn-frimousse-active-emoji {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.bn-frimousse-active-emoji-glyph {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.bn-frimousse-active-emoji-label {
+  font-size: 12px;
+  color: var(--bn-colors-editor-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bn-frimousse-active-emoji-placeholder {
+  color: var(--bn-colors-side-menu);
+}
+
+.bn-frimousse-skin-tone {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.bn-frimousse-skin-tone:hover {
+  background-color: var(--bn-colors-hovered-background);
 }

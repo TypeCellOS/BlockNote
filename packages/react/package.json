@@ -46,6 +46,14 @@
       "import": "./dist/style.css",
       "require": "./dist/style.css",
       "style": "./dist/style.css"
+    },
+    "./components/Comments/FrimoussePicker": {
+      "types": "./types/src/components/Comments/FrimoussePicker.d.ts",
+      "default": "./src/components/Comments/FrimoussePicker.tsx"
+    },
+    "./components/SuggestionMenu/EmojiPicker/InlineEmojiPicker": {
+      "types": "./types/src/components/SuggestionMenu/EmojiPicker/InlineEmojiPicker.d.ts",
+      "default": "./src/components/SuggestionMenu/EmojiPicker/InlineEmojiPicker.tsx"
     }
   },
   "scripts": {
@@ -58,14 +66,13 @@
   },
   "dependencies": {
     "@blocknote/core": "workspace:^",
-    "@emoji-mart/data": "^1.2.1",
     "@floating-ui/react": "^0.27.18",
     "@tanstack/react-store": "0.7.7",
     "@tiptap/core": "^3.13.0",
     "@tiptap/pm": "^3.13.0",
     "@tiptap/react": "^3.13.0",
-    "emoji-mart": "^5.6.0",
     "fast-deep-equal": "^3.1.3",
+    "frimousse": "^0.3.0",
     "use-sync-external-store": "1.6.0"
   },
   "devDependencies": {

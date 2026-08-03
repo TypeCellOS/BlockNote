@@ -1,5 +1,5 @@
 import App from "@examples/01-basic/testing/src/App";
-import { beforeEach, describe, expect, test } from "vite-plus/test";
+import { beforeEach, describe, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, EMOJI_PICKER_SELECTOR } from "../../utils/const.js";
@@ -21,13 +21,10 @@ beforeEach(async () => {
 });
 
 describe("Check Emoji Picker Functionality", () => {
-  test("should not show emoji picker when : is typed", async () => {
+  test("should show emoji picker when : is typed", async () => {
     await focusOnEditor();
     await openEmojiPicker();
-    // Give the editor a chance to (incorrectly) open the picker before
-    // asserting its absence, so the negative check isn't won by a race.
-    await sleep(500);
-    expect(document.querySelectorAll(EMOJI_PICKER_SELECTOR).length).toBe(0);
+    await waitForSelector(EMOJI_PICKER_SELECTOR);
   });
   test("should show emoji picker when : and query is typed", async () => {
     await focusOnEditor();
@@ -37,8 +34,8 @@ describe("Check Emoji Picker Functionality", () => {
   });
   test("Should be able to insert emoji", async () => {
     await focusOnEditor();
-    await executeEmojiCommand("sm");
-    await waitForTextInEditor("🛩️ ");
+    await executeEmojiCommand("frog");
+    await waitForTextInEditor("🐸 ");
   });
   test("Should be able to open emoji picker from slash menu", async () => {
     await focusOnEditor();
@@ -49,10 +46,21 @@ describe("Check Emoji Picker Functionality", () => {
   test("Should be able to insert emoji after slash command", async () => {
     await focusOnEditor();
     await executeSlashCommand("emoji");
-    await userEvent.keyboard("sm");
+    await userEvent.keyboard("frog");
     await waitForSelector(EMOJI_PICKER_SELECTOR);
-    await sleep(500);
+    await vi.waitFor(
+      () => {
+        const btn = document.querySelector(
+          `${EMOJI_PICKER_SELECTOR} .bn-frimousse-emoji`,
+        );
+        if (!btn) {
+          throw new Error("No emoji buttons rendered yet");
+        }
+      },
+      { timeout: 5000 },
+    );
+    await sleep(200);
     await userEvent.keyboard("{Enter}");
-    await waitForTextInEditor("🛩️ ");
+    await waitForTextInEditor("🐸 ");
   });
 });

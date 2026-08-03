@@ -1,6 +1,7 @@
 import { Dictionary } from "../dictionary.js";
 
 export const ru: Dictionary = {
+  locale: "ru",
   slash_menu: {
     heading: {
       title: "Заголовок 1 уровня",

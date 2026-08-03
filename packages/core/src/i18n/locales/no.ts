@@ -1,6 +1,7 @@
 import { Dictionary } from "../dictionary.js";
 
 export const no: Dictionary = {
+  locale: "no",
   slash_menu: {
     heading: {
       title: "Overskrift 1",

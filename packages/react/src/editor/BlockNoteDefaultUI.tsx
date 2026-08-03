@@ -14,7 +14,7 @@ import { FormattingToolbarController } from "../components/FormattingToolbar/For
 import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController.js";
 import { SideMenuController } from "../components/SideMenu/SideMenuController.js";
 import { AttributionTooltipController } from "../components/AttributionTooltip/AttributionTooltipController.js";
-import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController.js";
+import { EmojiPickerController } from "../components/SuggestionMenu/EmojiPicker/EmojiPickerController.js";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController.js";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController.js";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
@@ -138,10 +138,8 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
         />
       )}
       {editor.getExtension(SuggestionMenu) && props.emojiPicker !== false && (
-        <GridSuggestionMenuController
+        <EmojiPickerController
           triggerCharacter=":"
-          columns={10}
-          minQueryLength={2}
           portalElement={emojiPickerPortal}
         />
       )}
