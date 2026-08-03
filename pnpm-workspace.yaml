@@ -15,8 +15,8 @@ publicHoistPattern:
   - "prosemirror-*"
 overrides:
   "@headlessui/react": "^2.2.4"
-  "@tiptap/core": "^3.0.0"
-  "@tiptap/pm": "^3.0.0"
+  "@tiptap/core": "^3.29.2"
+  "@tiptap/pm": "^3.29.2"
   "vitest": "4.1.7"
   "@vitest/runner": "4.1.7"
   "@y/y": "14.0.0-rc.23"

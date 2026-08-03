@@ -53,8 +53,8 @@
     "@ai-sdk/react": "3.0.5",
     "@ai-sdk/gateway": "3.0.4",
     "@headlessui/react": "^2.2.4",
-    "@tiptap/core": "^3.0.0",
-    "@tiptap/pm": "^3.0.0"
+    "@tiptap/core": "^3.29.2",
+    "@tiptap/pm": "^3.29.2"
   },
   "workspaces": [
     "packages/*",
