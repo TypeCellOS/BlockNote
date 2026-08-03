@@ -5275,9 +5275,6 @@ importers:
       lucide-react:
         specifier: ^0.525.0
         version: 0.525.0(react@19.2.5)
-      react-hook-form:
-        specifier: ^7.65.0
-        version: 7.72.0(react@19.2.5)
       tailwind-merge:
         specifier: ^2.6.0
         version: 2.6.1
@@ -14255,12 +14252,6 @@ packages:
 
   react-hook-form@7.70.0:
     resolution: {integrity: sha512-COOMajS4FI3Wuwrs3GPpi/Jeef/5W1DRR84Yl5/ShlT3dKVFUfoGiEZ/QE6Uw8P4T2/CLJdcTVYKvWBMQTEpvw==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: ^16.8.0 || ^17 || ^18 || ^19
-
-  react-hook-form@7.72.0:
-    resolution: {integrity: sha512-V4v6jubaf6JAurEaVnT9aUPKFbNtDgohj5CIgVGyPHvT9wRx5OZHVjz31GsxnPNI278XMu+ruFz+wGOscHaLKw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
@@ -25457,10 +25448,6 @@ snapshots:
       react: 19.2.5
 
   react-hook-form@7.70.0(react@19.2.5):
-    dependencies:
-      react: 19.2.5
-
-  react-hook-form@7.72.0(react@19.2.5):
     dependencies:
       react: 19.2.5
 

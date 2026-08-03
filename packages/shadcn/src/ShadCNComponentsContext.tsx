@@ -22,7 +22,6 @@ import {
   DropdownMenuSubTrigger as ShadCNDropdownMenuSubTrigger,
   DropdownMenuTrigger as ShadCNDropdownMenuTrigger,
 } from "./components/ui/dropdown-menu.js";
-import { Form as ShadCNForm } from "./components/ui/form.js";
 import { Input as ShadCNInput } from "./components/ui/input.js";
 import { Label as ShadCNLabel } from "./components/ui/label.js";
 import {
@@ -82,9 +81,6 @@ export const ShadCNDefaultComponents = {
     DropdownMenuSubContent: ShadCNDropdownMenuSubContent,
     DropdownMenuSubTrigger: ShadCNDropdownMenuSubTrigger,
     DropdownMenuTrigger: ShadCNDropdownMenuTrigger,
-  },
-  Form: {
-    Form: ShadCNForm,
   },
   Input: {
     Input: ShadCNInput,
