@@ -61,3 +61,34 @@ declare module "@examples/07-collaboration/14-suggestion-gallery/src/gallerySche
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   export type GalleryPartialBlock = PartialBlock<any, any, any>;
 }
+
+// The formula editor example (04-converting-blocks-from-md) exposes a few
+// pure functions that the formula e2e test unit-tests directly, alongside
+// mounting `App`. Declared specifically (more specific than the `@examples/*`
+// wildcard above) so these named exports have real types without a `paths`
+// entry descending into the example sources (TS6059 — see the note at top).
+declare module "@examples/05-interoperability/04-converting-blocks-from-md/src/markdown/preprocessMarkdown" {
+  export type PreprocessResult = {
+    processed: string;
+    inlineMap: Map<string, string>;
+    blockMap: Map<string, string>;
+  };
+  export function preprocessMarkdown(md: string): PreprocessResult;
+}
+declare module "@examples/05-interoperability/04-converting-blocks-from-md/src/markdown/postprocessBlocks" {
+  export function postprocessBlocks<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    B = any,
+  >(
+    blocks: B[],
+    inlineMap: Map<string, string>,
+    blockMap: Map<string, string>,
+  ): B[];
+}
+declare module "@examples/05-interoperability/04-converting-blocks-from-md/src/formula/katexRenderer" {
+  export type RenderResult = { html: string; error: string | null };
+  export function renderLatex(
+    latex: string,
+    options?: { displayMode?: boolean },
+  ): RenderResult;
+}

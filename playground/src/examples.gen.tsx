@@ -1107,14 +1107,21 @@ export const examples = {
           docs: true,
           author: "yousefed",
           tags: ["Basic", "Blocks", "Import/Export"],
+          dependencies: {
+            katex: "^0.16.11",
+            mathlive: "^0.110.0",
+          } as any,
+          devDependencies: {
+            "@types/katex": "^0.16.7",
+          },
         },
-        title: "Parsing Markdown to Blocks",
+        title: "Bài giảng có công thức toán/hóa",
         group: {
           pathFromRoot: "examples/05-interoperability",
           slug: "interoperability",
         },
         readme:
-          "This example shows how you can convert HTML content to a BlockNote document.\n\nNote that the editor itself is locked for editing by setting `editable` to `false`.\n\n**Try it out:** Edit the Markdown in the textarea to see the BlockNote document update!\n\n**Relevant Docs:**\n\n- [Parsing Markdown to Blocks](/docs/features/import/markdown)",
+          "Ví dụ này thay 2-pane preview cũ bằng một trình soạn thảo có thể chỉnh sửa\nđược, hỗ trợ chèn công thức toán (LaTeX) và hóa học (mhchem `\\ce{}`)\nqua một cửa sổ soạn thảo có 2 tab.\n\n- Bài giảng ban đầu được nạp từ một mẫu markdown; `$...$` và `$$...$$` được\n  nhận diện và chuyển thành node công thức ngay khi tải.\n- Nhấp nút **∑ Công thức** trên formatting toolbar để mở cửa sổ soạn thảo.\n- Nhấp vào một công thức đã có sẵn để chỉnh sửa lại.\n\n**Relevant Docs:**\n\n- [Parsing Markdown to Blocks](/docs/features/import/markdown)\n- [Custom Inline Content](/docs/features/custom-schemas/custom-inline-content)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)",
       },
       {
         projectSlug: "converting-blocks-to-pdf",

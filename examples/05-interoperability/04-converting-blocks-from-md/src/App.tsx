@@ -1,53 +1,92 @@
 import "@blocknote/core/fonts/inter.css";
-import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { ChangeEvent, useCallback, useEffect } from "react";
+import { useCreateBlockNote } from "@blocknote/react";
+import { useEffect } from "react";
 
+import { schema } from "./schema";
+import { FormulaEditorProvider } from "./formula/formulaContext";
+import {
+  FormulaEditorModal,
+  type FormulaEditorHandlers,
+} from "./formula/FormulaEditorModal";
+import { CustomFormattingToolbar } from "./toolbar/CustomFormattingToolbar";
+import { preprocessMarkdown } from "./markdown/preprocessMarkdown";
+import { postprocessBlocks } from "./markdown/postprocessBlocks";
+import { initialMarkdown } from "./markdown/initialMarkdown";
 import "./styles.css";
 
-const initialMarkdown = "Hello, **world!**";
+function EditorShell() {
+  const editor = useCreateBlockNote({ schema });
 
-export default function App() {
-  // Creates a new editor instance.
-  const editor = useCreateBlockNote();
-
-  const markdownInputChanged = useCallback(
-    (e: ChangeEvent<HTMLTextAreaElement>) => {
-      // Whenever the current Markdown content changes, converts it to an array of
-      // Block objects and replaces the editor's content with them.
-      const blocks = editor.tryParseMarkdownToBlocks(e.target.value);
-      editor.replaceBlocks(editor.document, blocks);
-    },
-    [editor],
-  );
-
-  // For initialization; on mount, convert the initial Markdown to blocks and replace the default editor's content
   useEffect(() => {
-    const blocks = editor.tryParseMarkdownToBlocks(initialMarkdown);
-    editor.replaceBlocks(editor.document, blocks);
+    const { processed, inlineMap, blockMap } =
+      preprocessMarkdown(initialMarkdown);
+    const raw = editor.tryParseMarkdownToBlocks(processed);
+    const withFormulas = postprocessBlocks(raw as any, inlineMap, blockMap);
+    editor.replaceBlocks(editor.document, withFormulas as any);
+    // Intentionally run once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
 
-  // Renders the Markdown input and editor instance.
+  const handlers: FormulaEditorHandlers = {
+    onInsert(kind, latex) {
+      if (kind === "inline") {
+        editor.insertInlineContent([
+          {
+            type: "formulaInline",
+            props: { latex },
+            content: undefined,
+          } as any,
+        ]);
+      } else {
+        editor.insertBlocks(
+          [{ type: "formulaBlock", props: { latex } } as any],
+          editor.getTextCursorPosition().block,
+          "after",
+        );
+      }
+    },
+    onUpdate(target, latex) {
+      if (target.kind === "block") {
+        editor.updateBlock(target.blockId, {
+          type: "formulaBlock",
+          props: { latex },
+        } as any);
+      } else {
+        // Replace the inline node at the current selection. The simplest reliable
+        // path: replace the whole inline content of the containing block by
+        // rewriting the inline content list.
+        const block = editor.getTextCursorPosition().block;
+        if (!Array.isArray(block.content)) return;
+        const nextContent = block.content.map((node: any) => {
+          if (
+            node.type === "formulaInline" &&
+            node.props?.latex === target.latex
+          ) {
+            return { ...node, props: { latex } };
+          }
+          return node;
+        });
+        editor.updateBlock(block, { content: nextContent } as any);
+      }
+    },
+  };
+
   return (
-    <div className="views">
-      <div className="view-wrapper">
-        <div className="view-label">Markdown Input</div>
-        <div className="view">
-          <code>
-            <textarea
-              defaultValue={initialMarkdown}
-              onChange={markdownInputChanged}
-            />
-          </code>
-        </div>
-      </div>
-      <div className="view-wrapper">
-        <div className="view-label">Editor Output</div>
-        <div className="view">
-          <BlockNoteView editor={editor} editable={false} />
-        </div>
-      </div>
-    </div>
+    <>
+      <BlockNoteView editor={editor} editable={true} formattingToolbar={false}>
+        <CustomFormattingToolbar />
+      </BlockNoteView>
+      <FormulaEditorModal handlers={handlers} />
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <FormulaEditorProvider>
+      <EditorShell />
+    </FormulaEditorProvider>
   );
 }

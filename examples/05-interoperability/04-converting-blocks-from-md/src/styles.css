@@ -1,67 +1,202 @@
-.views {
-  container-name: views;
-  container-type: inline-size;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 8px;
-  height: 100%;
-  padding: 8px;
+:root {
+  --formula-modal-bg: #ffffff;
+  --formula-modal-border: #e2e2e6;
+  --formula-modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+  --formula-error-color: #c00;
 }
 
-.view-wrapper {
+.formula-inline {
+  cursor: pointer;
+  padding: 0 2px;
+  border-radius: 3px;
+}
+.formula-inline:hover,
+.formula-inline:focus {
+  outline: 2px solid #6ea8fe;
+  outline-offset: 1px;
+}
+
+.formula-block {
+  display: block;
+  cursor: pointer;
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+.formula-block:hover,
+.formula-block:focus {
+  outline: 2px solid #6ea8fe;
+  outline-offset: 2px;
+}
+
+.formula-placeholder {
+  color: #888;
+  font-style: italic;
+}
+
+.formula-error {
+  color: var(--formula-error-color);
+}
+
+.formula-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.formula-modal {
+  background: var(--formula-modal-bg);
+  border: 1px solid var(--formula-modal-border);
+  border-radius: 8px;
+  box-shadow: var(--formula-modal-shadow);
+  padding: 16px;
+  width: min(680px, 92vw);
+  max-height: 90vh;
+  overflow: auto;
   display: flex;
   flex-direction: column;
-  height: calc(50% - 4px);
-  width: 100%;
+  gap: 12px;
 }
 
-@container views (width > 1024px) {
-  .view-wrapper {
-    height: 100%;
-    width: calc(50% - 4px);
-  }
-}
-
-.view-label {
-  color: #0090ff;
+.formula-modal-header {
   display: flex;
-  font-size: 12px;
-  font-weight: bold;
+  align-items: center;
   justify-content: space-between;
-  margin-inline: 16px;
 }
-
-.view {
-  border: solid #0090ff 1px;
-  border-radius: 16px;
-  flex: 1;
-  height: 0;
-  padding: 8px;
-}
-
-.view .bn-container {
-  height: 100%;
-  margin: 0;
-  max-width: none;
-  padding: 0;
-}
-
-.view .bn-editor {
-  height: 100%;
-  overflow: auto;
-}
-
-.view textarea {
-  background-color: #0090ff20;
+.formula-modal-close {
+  font-size: 22px;
+  background: transparent;
   border: none;
-  border-radius: 8px;
-  flex: 1;
-  height: 100%;
-  margin: 0;
-  overflow: auto;
+  cursor: pointer;
+}
+
+.formula-modal-tabs {
+  display: flex;
+  gap: 8px;
+}
+.formula-modal-tabs button {
+  padding: 6px 14px;
+  border: 1px solid var(--formula-modal-border);
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+.formula-modal-tabs button[aria-selected="true"] {
+  background: #eaf2ff;
+  border-color: #6ea8fe;
+}
+
+.formula-modal-palette {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 6px;
   padding: 8px;
-  resize: none;
-  white-space: pre-wrap;
+  background: #f5f6fa;
+  border-radius: 4px;
+  max-height: 168px;
+  overflow: auto;
+}
+.formula-palette-button {
+  background: #fff;
+  border: 1px solid var(--formula-modal-border);
+  border-radius: 4px;
+  padding: 6px;
+  cursor: pointer;
+  min-height: 34px;
+}
+.formula-palette-button:hover {
+  border-color: #6ea8fe;
+}
+
+/* Mode toggle (Cơ bản / Nâng cao) trong header modal */
+.formula-modal-mode {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  margin-right: 12px;
+}
+.formula-modal-mode button {
+  padding: 4px 10px;
+  border: 1px solid var(--formula-modal-border);
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+.formula-modal-mode button[aria-selected="true"] {
+  background: #eaf2ff;
+  border-color: #6ea8fe;
+}
+
+/* MathLive field container */
+.formula-modal-field {
+  border: 1px solid var(--formula-modal-border);
+  border-radius: 4px;
+  padding: 4px;
+  background: #fff;
+}
+.formula-modal-field math-field {
+  min-height: 64px;
+  font-size: 20px;
+  padding: 8px;
+  display: block;
   width: 100%;
+  box-sizing: border-box;
+}
+
+/* LaTeX textarea (advanced mode only) */
+.formula-modal-latex {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.formula-modal-latex textarea {
+  font-family:
+    ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  padding: 8px;
+  border: 1px solid var(--formula-modal-border);
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.formula-modal-kind {
+  display: flex;
+  gap: 16px;
+}
+
+.formula-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.formula-modal-actions button {
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: 1px solid var(--formula-modal-border);
+  cursor: pointer;
+  background: #fff;
+}
+.formula-modal-actions button[data-test="formula-confirm"] {
+  background: #6ea8fe;
+  color: white;
+  border-color: #6ea8fe;
+}
+.formula-modal-actions button[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* --- Slash menu scroll fix (scope local) --- */
+/* Bug package-level: .bn-suggestion-menu dùng `max-height: inherit` không
+ * nhận giá trị từ inline style floating-ui đặt trên container cha, dẫn tới
+ * menu không có max-height thực → wheel event xuyên xuống editor thay vì
+ * scroll trong menu. Override local bằng max-height cố định. */
+.bn-suggestion-menu {
+  max-height: 400px;
+  overflow-y: auto;
 }
