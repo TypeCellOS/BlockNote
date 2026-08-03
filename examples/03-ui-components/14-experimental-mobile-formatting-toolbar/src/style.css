@@ -1,9 +1,146 @@
-.bn-container {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 8px;
+html,
+body {
+  margin: 0;
 }
 
-.bn-formatting-toolbar {
-  margin-inline: auto;
+/* Fixed-height, internally scrollable editor — a nested scroll container inside
+   the page's `.scroll-host`, to check nested scrolling works. */
+.bn-container {
+  height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+/* --- App shell (see DemoChrome) --- */
+
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 48px;
+  padding: 0 12px;
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.top-nav-title {
+  font: 600 15px/1 sans-serif;
+}
+
+.hamburger {
+  position: relative;
+}
+
+.hamburger-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 22px;
+  height: 16px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.hamburger-button span {
+  display: block;
+  height: 2px;
+  border-radius: 1px;
+  background: #fff;
+}
+
+.hamburger-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: 8px;
+  background: #fff;
+  color: #111;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.15);
+}
+
+.hamburger-menu a {
+  padding: 8px 10px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.hamburger-menu a:hover {
+  background: #f0f0f0;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.prose h2 {
+  margin: 0 0 8px;
+  font: 600 18px/1.2 sans-serif;
+}
+
+.prose p {
+  margin: 0 0 8px;
+  font: 14px/1.6 sans-serif;
+  color: #333;
+}
+
+/* A top-level wrapper div is the scroll container (the document itself doesn't
+   scroll), pinned to the visual viewport rectangle via the `--app-*` variables
+   (see `useVisualViewport`) so the bar sits directly above the keyboard on iOS —
+   where the layout viewport doesn't resize and can be left with a nonzero
+   `offsetTop`. */
+.scroll-host {
+  position: fixed;
+  top: var(--app-top, 0px);
+  left: var(--app-left, 0px);
+  width: var(--app-width, 100vw);
+  height: var(--app-height, 100dvh);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Stop overscroll at the boundary from chaining to the document. Without
+     this, dragging past the bottom on iOS rubber-bands the whole page, which
+     shifts the visual viewport (repinning the host mid-bounce → jitter) and
+     surfaces a second, document-level scrollbar. */
+  overscroll-behavior: contain;
+}
+
+/* The bar, pinned to the bottom of the visual viewport straight from the
+   `--app-*` variables — no JS positioning. `translateY(-100%)` puts its bottom
+   edge on the viewport bottom (avoiding a height measurement), and
+   `scale(1 / --app-scale)`, around that anchored bottom-left corner, cancels
+   pinch-zoom so it keeps its on-screen size. */
+.viewport-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  font: 11px/1 sans-serif;
+  color: #fff;
+  background: rgb(255 0 0 / 0.6);
+  transform: translate(
+      var(--app-left, 0px),
+      calc(var(--app-top, 0px) + var(--app-height, 0px))
+    )
+    translateY(-100%) scale(calc(1 / var(--app-scale, 1)));
+  transform-origin: left bottom;
+  will-change: transform;
 }
