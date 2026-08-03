@@ -3,6 +3,8 @@
 import * as React from "react";
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
 
+// Manual change from the shadcn CLI output: relative import instead of the
+// CLI's "@/lib/utils" alias (not resolvable when consumed from source).
 import { cn } from "../../lib/utils";
 
 function Popover({ ...props }: PopoverPrimitive.Root.Props) {
@@ -13,6 +15,9 @@ function PopoverTrigger({ ...props }: PopoverPrimitive.Trigger.Props) {
   return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />;
 }
 
+// Manual change from the shadcn CLI output: added a `container` prop (forwarded
+// to the Base UI Portal) so BlockNote can portal this into the editor's portal
+// element, which carries the light/dark color-scheme class.
 function PopoverContent({
   className,
   align = "center",

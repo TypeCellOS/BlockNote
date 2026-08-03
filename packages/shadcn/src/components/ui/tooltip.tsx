@@ -2,6 +2,8 @@
 
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 
+// Manual change from the shadcn CLI output: relative import instead of the
+// CLI's "@/lib/utils" alias (not resolvable when consumed from source).
 import { cn } from "../../lib/utils";
 
 function TooltipProvider({
@@ -25,6 +27,9 @@ function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 }
 
+// Manual change from the shadcn CLI output: added a `container` prop (forwarded
+// to the Base UI Portal) so BlockNote can portal this into the editor's portal
+// element, which carries the light/dark color-scheme class.
 function TooltipContent({
   className,
   side = "top",

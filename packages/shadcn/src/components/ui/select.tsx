@@ -1,6 +1,8 @@
 import * as React from "react";
 import { Select as SelectPrimitive } from "@base-ui/react/select";
 
+// Manual change from the shadcn CLI output: relative import instead of the
+// CLI's "@/lib/utils" alias (not resolvable when consumed from source).
 import { cn } from "../../lib/utils";
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react";
 
@@ -54,6 +56,9 @@ function SelectTrigger({
   );
 }
 
+// Manual change from the shadcn CLI output: added a `container` prop (forwarded
+// to the Base UI Portal) so BlockNote can portal this into the editor's portal
+// element, which carries the light/dark color-scheme class.
 function SelectContent({
   className,
   children,

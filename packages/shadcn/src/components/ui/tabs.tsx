@@ -3,8 +3,15 @@
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 import { cva, type VariantProps } from "class-variance-authority";
 
+// Manual change from the shadcn CLI output: relative import instead of the
+// CLI's "@/lib/utils" alias (not resolvable when consumed from source).
 import { cn } from "../../lib/utils";
 
+// Manual change from the shadcn CLI output: the CLI emits orientation variants
+// as `data-horizontal:` / `group-data-vertical/tabs:`, which Tailwind compiles
+// to `[data-horizontal]` etc. and never match Base UI's `data-orientation`
+// attribute (so tabs would render side-by-side). Rewritten throughout this file
+// to the arbitrary `data-[orientation=...]` form, which matches.
 function Tabs({
   className,
   orientation = "horizontal",

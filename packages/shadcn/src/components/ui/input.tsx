@@ -1,6 +1,8 @@
 import * as React from "react";
 import { Input as InputPrimitive } from "@base-ui/react/input";
 
+// Manual change from the shadcn CLI output: relative import instead of the
+// CLI's "@/lib/utils" alias (not resolvable when consumed from source).
 import { cn } from "../../lib/utils";
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {

@@ -3,6 +3,8 @@
 import * as React from "react";
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 
+// Manual change from the shadcn CLI output: relative import instead of the
+// CLI's "@/lib/utils" alias (not resolvable when consumed from source).
 import { cn } from "../../lib/utils";
 import { ChevronRightIcon, CheckIcon } from "lucide-react";
 
@@ -18,6 +20,13 @@ function DropdownMenuTrigger({ ...props }: MenuPrimitive.Trigger.Props) {
   return <MenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...props} />;
 }
 
+// Manual changes from the shadcn CLI output:
+// - Added a `container` prop (forwarded to the Base UI Portal) so BlockNote can
+//   portal the menu into the editor's portal element, which carries the
+//   light/dark color-scheme class.
+// - Removed the CLI's `w-(--anchor-width)` from the popup className so menus
+//   size to their content rather than the (icon-button) trigger width, which
+//   otherwise clamped them to `min-w-32` and wrapped long items.
 function DropdownMenuContent({
   align = "start",
   alignOffset = 0,
