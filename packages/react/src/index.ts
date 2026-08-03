@@ -139,6 +139,7 @@ export * from "./hooks/useEditorState.js";
 export * from "./schema/ReactBlockSpec.js";
 export * from "./schema/ReactInlineContentSpec.js";
 export * from "./schema/ReactStyleSpec.js";
+export * from "./schema/useNodeViewBlock.js";
 
 export * from "./icons.js";
 
