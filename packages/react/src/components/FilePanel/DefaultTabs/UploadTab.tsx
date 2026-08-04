@@ -53,6 +53,9 @@ export const UploadTab = <
         if (editor.uploadFile !== undefined) {
           try {
             let updateData = await editor.uploadFile(file, props.blockId);
+            if (!editor.getBlock(props.blockId)) {
+              return;
+            }
             if (typeof updateData === "string") {
               // received a url
               updateData = {

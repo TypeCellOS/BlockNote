@@ -245,6 +245,11 @@ export class SideMenuView<
         this.hoveredBlock!.getAttribute("data-id")!,
       );
       if (!sideMenuBlock) {
+        if (this.state?.show) {
+          this.state.show = false;
+          this.hoveredBlock = undefined;
+          this.emitUpdate(this.state);
+        }
         return;
       }
       this.state = {

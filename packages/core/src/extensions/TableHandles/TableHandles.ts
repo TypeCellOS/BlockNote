@@ -533,10 +533,10 @@ export class TableHandlesView implements PluginView {
     }
 
     // Hide handles if the table block has been removed.
-    this.state.block = this.editor.getBlock(this.state.block.id) as any;
+    const refreshedBlock = this.editor.getBlock(this.state.block.id);
     if (
-      !this.state.block ||
-      this.state.block.type !== "table" ||
+      !refreshedBlock ||
+      refreshedBlock.type !== "table" ||
       // when collaborating, the table element might be replaced and out of date
       // because yjs replaces the element when for example you change the color via the side menu
       !this.tableElement?.isConnected
@@ -548,6 +548,7 @@ export class TableHandlesView implements PluginView {
 
       return;
     }
+    this.state.block = refreshedBlock as typeof this.state.block;
 
     const { height: rowCount, width: colCount } = getDimensionsOfTable(
       this.state.block,

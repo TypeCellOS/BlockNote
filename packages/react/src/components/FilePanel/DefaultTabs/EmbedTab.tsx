@@ -41,6 +41,9 @@ export const EmbedTab = <
     (event: KeyboardEvent) => {
       if (event.key === "Enter" && !event.nativeEvent.isComposing) {
         event.preventDefault();
+        if (!editor.getBlock(props.blockId)) {
+          return;
+        }
         editor.updateBlock(props.blockId, {
           props: {
             name: filenameFromURL(currentURL),
@@ -53,6 +56,9 @@ export const EmbedTab = <
   );
 
   const handleURLClick = useCallback(() => {
+    if (!editor.getBlock(props.blockId)) {
+      return;
+    }
     editor.updateBlock(props.blockId, {
       props: {
         name: filenameFromURL(currentURL),
