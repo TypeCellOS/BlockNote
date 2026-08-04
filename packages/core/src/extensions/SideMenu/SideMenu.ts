@@ -241,6 +241,17 @@ export class SideMenuView<
     if (this.editor.isEditable) {
       const blockContentBoundingBox = block.node.getBoundingClientRect();
       const column = block.node.closest("[data-node-type=column]");
+      const sideMenuBlock = this.editor.getBlock(
+        this.hoveredBlock!.getAttribute("data-id")!,
+      );
+      if (!sideMenuBlock) {
+        if (this.state?.show) {
+          this.state.show = false;
+          this.hoveredBlock = undefined;
+          this.emitUpdate(this.state);
+        }
+        return;
+      }
       this.state = {
         show: true,
         referencePos: new DOMRect(
@@ -257,9 +268,7 @@ export class SideMenuView<
           blockContentBoundingBox.width,
           blockContentBoundingBox.height,
         ),
-        block: this.editor.getBlock(
-          this.hoveredBlock!.getAttribute("data-id")!,
-        )!,
+        block: sideMenuBlock,
       };
       this.updateState(this.state);
     }
