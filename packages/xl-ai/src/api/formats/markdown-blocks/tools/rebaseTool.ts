@@ -11,7 +11,11 @@ export function createMDRebaseTool(
   editor: BlockNoteEditor<any, any, any>,
 ) {
   const tr = getApplySuggestionsTr(editor);
-  const md = editor.blocksToMarkdownLossy([getBlock(tr.doc, id)!]);
+  const block = getBlock(tr.doc, id);
+  if (!block) {
+    throw new Error("block not found");
+  }
+  const md = editor.blocksToMarkdownLossy([block]);
   const blocks = editor.tryParseMarkdownToBlocks(md);
 
   const steps = updateToReplaceSteps(

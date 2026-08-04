@@ -29,7 +29,7 @@ export const UploadTab = <
 
   const editor = useBlockNoteEditor<B, I, S>();
 
-  const block = editor.getBlock(props.blockId)!;
+  const block = editor.getBlock(props.blockId);
 
   const [uploadFailed, setUploadFailed] = useState<boolean>(false);
 
@@ -75,6 +75,10 @@ export const UploadTab = <
     },
     [props.blockId, editor, setLoading],
   );
+
+  if (!block) {
+    return null;
+  }
 
   const spec = editor.schema.blockSpecs[block.type];
   const accept = spec.implementation.meta?.fileBlockAccept?.length

@@ -533,7 +533,7 @@ export class TableHandlesView implements PluginView {
     }
 
     // Hide handles if the table block has been removed.
-    this.state.block = this.editor.getBlock(this.state.block.id)!;
+    this.state.block = this.editor.getBlock(this.state.block.id) as any;
     if (
       !this.state.block ||
       this.state.block.type !== "table" ||
