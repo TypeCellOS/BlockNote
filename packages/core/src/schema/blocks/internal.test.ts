@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vite-plus/test";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { getNodeById } from "../../api/nodeUtil.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -15,6 +15,15 @@ describe("getBlockFromNodeView", () => {
         { type: "paragraph", content: "second" },
       ],
     });
+  });
+
+  afterEach(() => {
+    // Leaving the editor alive leaks a ProseMirror `DOMObserver`, whose
+    // `stop()` schedules a `flush()` 20ms later. That can outlive the test
+    // environment and then fail the run with `ReferenceError: document is not
+    // defined`, attributed to whichever test file happens to be running.
+    editor._tiptapEditor.destroy();
+    editor = undefined as any;
   });
 
   it("resolves from the position when it is valid", () => {
