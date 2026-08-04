@@ -118,47 +118,43 @@ export function getBlockFromNodeView(
   node: PMNode,
   doc: PMNode,
 ) {
-  let positionError: unknown;
-
   try {
     return getBlockFromPos(getPos, doc);
   } catch (e) {
-    // Kept only to rethrow below if there turns out to be nothing to render.
-    // Otherwise deliberately silent: this is expected and self-correcting, and
-    // there is nothing a consumer could do about it in the meantime.
-    positionError = e;
-  }
+    // Failing here means the node is not in `doc` — a re-entrant dispatch
+    // superseded the document ProseMirror is building node views for, and the
+    // node went with it. So there is no container to read an id from, and the
+    // block has to be built from the node alone. Deliberately silent: this is
+    // expected and self-correcting, and there is nothing a consumer could do
+    // about it in the meantime.
+    //
+    // `type`, `props` and `content` are read off the node and are correct.
+    // `children` is empty and `id` is freshly generated, i.e. it belongs to no
+    // block in the document — callers must not treat it as addressable. (It
+    // can't collide with a real block: ids are uuids, and the deterministic
+    // test-mode generator shares one monotonic counter with real ids.) This is
+    // short-lived; ProseMirror rebuilds the node view against the real document
+    // right after.
+    //
+    // The alternatives are worse. Throwing is the crash this exists to prevent.
+    // Returning an empty placeholder node view can leave the block
+    // *permanently* blank, since vanilla node views don't implement `update()`
+    // and so are only rebuilt when something else changes the document.
+    //
+    // `createAndFill` rather than `create` so an unexpected node shape yields
+    // `null` instead of throwing over the top of the original failure.
+    const standalone = doc.type.schema.nodes["blockContainer"]?.createAndFill(
+      null,
+      node,
+    );
+    if (standalone) {
+      return nodeToBlock(standalone, doc);
+    }
 
-  // Whenever this is reached, the node is not in `doc` — a re-entrant dispatch
-  // superseded the document ProseMirror is building node views for, and the
-  // node went with it. So there is no container to read an id from, and the
-  // block has to be built from the node alone.
-  //
-  // `type`, `props` and `content` are read off the node and are correct.
-  // `children` is empty and `id` is freshly generated, i.e. it belongs to no
-  // block in the document — callers must not treat it as addressable. (It can't
-  // collide with a real block: ids are uuids, and the deterministic test-mode
-  // generator shares one monotonic counter with real ids.) This is short-lived;
-  // ProseMirror rebuilds the node view against the real document right after.
-  //
-  // The alternatives are worse. Throwing is the crash this exists to prevent.
-  // Returning an empty placeholder node view can leave the block *permanently*
-  // blank, since vanilla node views don't implement `update()` and so are only
-  // rebuilt when something else changes the document.
-  //
-  // `createAndFill` rather than `create` so an unexpected node shape yields
-  // `null` instead of throwing over the top of the original failure.
-  const standalone = doc.type.schema.nodes["blockContainer"]?.createAndFill(
-    null,
-    node,
-  );
-  if (standalone) {
-    return nodeToBlock(standalone, doc);
+    // Nothing left to render from. Surface the original failure rather than
+    // inventing a block that isn't grounded in anything.
+    throw e;
   }
-
-  // Nothing left to render from. Surface the original failure rather than
-  // inventing a block that isn't grounded in anything.
-  throw positionError;
 }
 
 // Function that wraps the `dom` element returned from 'blockConfig.render' in a
