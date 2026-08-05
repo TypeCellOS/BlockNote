@@ -108,17 +108,6 @@ exports[`Backspace with multi-column > backspace at block start should move bloc
     "props": {},
     "type": "columnList",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "4",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -230,17 +219,6 @@ exports[`Backspace with multi-column > mid-text backspace next to columnList sho
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "4",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -334,17 +312,6 @@ exports[`Backspace with multi-column > second backspace should merge into previo
     "id": "0",
     "props": {},
     "type": "columnList",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "4",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
   },
 ]
 `;
@@ -446,17 +413,6 @@ exports[`Delete with multi-column > delete at block end should move first column
     "id": "0",
     "props": {},
     "type": "columnList",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "4",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
   },
 ]
 `;
@@ -569,17 +525,6 @@ exports[`Delete with multi-column > mid-text delete next to columnList should no
     "props": {},
     "type": "columnList",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "4",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -680,17 +625,6 @@ exports[`Delete with multi-column > second delete should merge first column bloc
     "id": "0",
     "props": {},
     "type": "columnList",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "4",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
   },
 ]
 `;

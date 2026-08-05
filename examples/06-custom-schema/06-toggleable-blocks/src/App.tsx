@@ -47,9 +47,6 @@ export default function App() {
         type: "paragraph",
         content: "Click the '>' icon to show/hide its children",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

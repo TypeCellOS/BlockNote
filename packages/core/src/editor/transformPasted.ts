@@ -113,6 +113,11 @@ export function transformPasted(slice: Slice, view: EditorView) {
   let f = Fragment.from(slice.content);
   f = wrapTableRows(f, view.state.schema);
 
+  const retyped = retypeLeadingParagraphForEmptyTarget(f, view, slice);
+  if (retyped) {
+    return retyped;
+  }
+
   if (isInTableCell(view)) {
     let hasTableContent = false;
     f.descendants((node) => {
@@ -171,6 +176,78 @@ export function transformPasted(slice: Slice, view: EditorView) {
     }
   }
   return new Slice(f, slice.openStart, slice.openEnd);
+}
+
+/**
+ * Pasting plain text into an empty inline-content block (e.g. an empty
+ * bullet list item) would normally replace that block with a paragraph:
+ * BlockNote's serializer always wraps content in
+ * `blockGroup > blockContainer > <block>`, producing a closed slice that
+ * ProseMirror inserts as a new block rather than splicing inline.
+ *
+ * To preserve the empty block's type, retype the leading paragraph in the
+ * slice to match the target block. Subsequent blocks in the slice are left
+ * alone and end up as siblings.
+ *
+ * Scoped to: empty, non-paragraph, inline-content target + paragraph leading
+ * the slice. A non-empty target already gives ProseMirror a valid inline
+ * insertion point so it splices correctly on its own; non-paragraph leading
+ * blocks (heading, list item, …) carry semantic meaning the user picked, so
+ * we keep the existing replace behavior.
+ */
+function retypeLeadingParagraphForEmptyTarget(
+  fragment: Fragment,
+  view: EditorView,
+  slice: Slice,
+): Slice | null {
+  if (isInTableCell(view)) {
+    return null;
+  }
+
+  // `transformPasted` is also called for drop events, where the slice will be
+  // inserted at the drop position rather than the current selection. In that
+  // case the selection-derived target is wrong, so bail out and let the
+  // default behavior handle drops.
+  if (view.dragging) {
+    return null;
+  }
+
+  const blockInfo = getBlockInfoFromSelection(view.state);
+  const target = blockInfo.isBlockContainer
+    ? blockInfo.blockContent.node
+    : null;
+  if (
+    !target ||
+    target.type.name === "paragraph" ||
+    target.type.spec.content !== "inline*" ||
+    target.childCount > 0
+  ) {
+    return null;
+  }
+
+  const blockGroup = fragment.firstChild;
+  const blockContainer = blockGroup?.firstChild;
+  const leading = blockContainer?.firstChild;
+  if (
+    blockGroup?.type.name !== "blockGroup" ||
+    blockContainer?.type.name !== "blockContainer" ||
+    leading?.type.name !== "paragraph"
+  ) {
+    return null;
+  }
+
+  const retyped = target.type.create(target.attrs, leading.content);
+  const newBlockContainer = blockContainer.copy(
+    blockContainer.content.replaceChild(0, retyped),
+  );
+  const newBlockGroup = blockGroup.copy(
+    blockGroup.content.replaceChild(0, newBlockContainer),
+  );
+  return new Slice(
+    fragment.replaceChild(0, newBlockGroup),
+    slice.openStart,
+    slice.openEnd,
+  );
 }
 
 /**

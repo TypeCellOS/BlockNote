@@ -19,7 +19,7 @@ export const Panel = forwardRef<
     defaultOpenTab,
     openTab,
     setOpenTab,
-    loading, // TODO: implement loading
+    loading: _loading, // TODO: implement loading
     ...rest
   } = props;
   assertEmpty(rest);
@@ -32,7 +32,7 @@ export const Panel = forwardRef<
       <AriakitTabProvider
         defaultSelectedId={defaultOpenTab}
         selectedId={openTab}
-        setActiveId={(activeId) => {
+        setActiveId={(activeId: string | null | undefined) => {
           if (activeId) {
             setOpenTab(activeId);
           }

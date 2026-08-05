@@ -6,6 +6,13 @@ export type BlockNoteViewContextValue = {
     autoFocus?: boolean;
     contentEditableProps?: Record<string, any>;
     editable?: boolean;
+    /**
+     * Resolved portal target for `editor.portalElement` — passed to
+     * `editor.mount()`. Comes from `portalElements.default` on
+     * `BlockNoteView`. `undefined` lets `mount()` use its default
+     * (`element.parentElement`, i.e. `bn-container`).
+     */
+    portalTarget?: HTMLElement | null;
   };
   defaultUIProps: BlockNoteDefaultUIProps;
 };

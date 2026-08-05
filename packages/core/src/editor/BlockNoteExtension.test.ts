@@ -1,4 +1,4 @@
-import { expect, it } from "vitest";
+import { expect, it } from "vite-plus/test";
 import { createExtension, ExtensionOptions } from "./BlockNoteExtension.js";
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
 

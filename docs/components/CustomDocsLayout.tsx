@@ -38,7 +38,7 @@ export function CustomDocsLayout({
                   ...base.nav,
                   children: (
                     <>
-                      {/* 
+                      {/*
                       Added custom sidebar toggle button for mobile views. 
                       This is specific to Docs, because it triggers the left sidebar (not the top nav)
                       */}

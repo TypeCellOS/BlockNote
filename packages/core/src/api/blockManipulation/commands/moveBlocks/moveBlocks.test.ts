@@ -1,8 +1,12 @@
 import { NodeSelection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
-import { getBlockInfoFromTransaction } from "../../../getBlockInfoFromPos.js";
+import {
+  getBlockInfoAtNearest,
+  getBlockInfoFromSelection,
+  getNodeId,
+} from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import {
   moveBlocksDown,
@@ -13,9 +17,7 @@ import {
 const getEditor = setupTestEnv();
 
 function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
-  const blockInfo = getEditor().transact((tr) =>
-    getBlockInfoFromTransaction(tr),
-  );
+  const blockInfo = getEditor().transact((tr) => getBlockInfoFromSelection(tr));
   if (!blockInfo.isBlockContainer) {
     throw new Error(
       `Selection points to a ${blockInfo.blockNoteType} node, not a blockContainer node`,
@@ -204,6 +206,48 @@ describe("Test moveBlocksUp", () => {
 
     expect(getEditor().document).toMatchSnapshot();
   });
+
+  it("Explicit block argument moves the given block", () => {
+    getEditor().setTextCursorPosition("paragraph-0");
+
+    moveBlocksUp(getEditor(), "paragraph-2");
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Explicit block argument does not change the selection", () => {
+    getEditor().setTextCursorPosition("paragraph-1");
+    makeSelectionSpanContent("text");
+
+    moveBlocksUp(getEditor(), "paragraph-2");
+
+    const { anchorBlockId, headBlockId } = getEditor().transact((tr) => ({
+      anchorBlockId: getNodeId(
+        getBlockInfoAtNearest(tr, tr.selection.anchor).bnBlock.node,
+        tr.doc,
+      ),
+      headBlockId: getNodeId(
+        getBlockInfoAtNearest(tr, tr.selection.head).bnBlock.node,
+        tr.doc,
+      ),
+    }));
+    expect(anchorBlockId).toBe("paragraph-1");
+    expect(headBlockId).toBe("paragraph-1");
+  });
+
+  it("Explicit block argument with first block is a no-op", () => {
+    const documentBefore = getEditor().document;
+
+    moveBlocksUp(getEditor(), "paragraph-0");
+
+    expect(getEditor().document).toEqual(documentBefore);
+  });
+
+  it("Explicit block argument with nested block", () => {
+    moveBlocksUp(getEditor(), "nested-paragraph-1");
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
 });
 
 describe("Test moveBlocksDown", () => {
@@ -232,7 +276,7 @@ describe("Test moveBlocksDown", () => {
   });
 
   it("Last block", () => {
-    getEditor().setTextCursorPosition("trailing-paragraph");
+    getEditor().setTextCursorPosition("paragraph-9");
 
     moveBlocksDown(getEditor());
 
@@ -283,6 +327,48 @@ describe("Test moveBlocksDown", () => {
     getEditor().setSelection("nested-paragraph-0", "nested-paragraph-1");
 
     moveBlocksDown(getEditor());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Explicit block argument moves the given block", () => {
+    getEditor().setTextCursorPosition("paragraph-9");
+
+    moveBlocksDown(getEditor(), "paragraph-0");
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Explicit block argument does not change the selection", () => {
+    getEditor().setTextCursorPosition("paragraph-1");
+    makeSelectionSpanContent("text");
+
+    moveBlocksDown(getEditor(), "paragraph-0");
+
+    const { anchorBlockId, headBlockId } = getEditor().transact((tr) => ({
+      anchorBlockId: getNodeId(
+        getBlockInfoAtNearest(tr, tr.selection.anchor).bnBlock.node,
+        tr.doc,
+      ),
+      headBlockId: getNodeId(
+        getBlockInfoAtNearest(tr, tr.selection.head).bnBlock.node,
+        tr.doc,
+      ),
+    }));
+    expect(anchorBlockId).toBe("paragraph-1");
+    expect(headBlockId).toBe("paragraph-1");
+  });
+
+  it("Explicit block argument with last block is a no-op", () => {
+    const documentBefore = getEditor().document;
+
+    moveBlocksDown(getEditor(), "trailing-paragraph");
+
+    expect(getEditor().document).toEqual(documentBefore);
+  });
+
+  it("Explicit block argument with nested block", () => {
+    moveBlocksDown(getEditor(), "nested-paragraph-0");
 
     expect(getEditor().document).toMatchSnapshot();
   });

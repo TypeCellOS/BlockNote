@@ -1,8 +1,8 @@
 import type { HighlighterGeneric } from "@shikijs/types";
+import { DOMParser } from "@tiptap/pm/model";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { lazyShikiPlugin } from "./shiki.js";
-import { DOMParser } from "@tiptap/pm/model";
 
 export type CodeBlockOptions = {
   /**
@@ -62,7 +62,7 @@ export const createCodeBlockConfig = createBlockConfig(
           default: defaultLanguage,
         },
       },
-      content: "inline",
+      content: "plain",
     }) as const,
 );
 

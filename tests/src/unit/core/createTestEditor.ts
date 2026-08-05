@@ -7,7 +7,7 @@ import {
   StyleSchema,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
-import { afterAll, beforeAll } from "vitest";
+import { afterAll, beforeAll } from "vite-plus/test";
 
 export const createTestEditor = <
   B extends BlockSchema,
@@ -39,6 +39,12 @@ export const createTestEditor = <
           }),
         },
       }),
+      links: {
+        HTMLAttributes: {
+          rel: "external",
+          "data-custom-attribute": true,
+        },
+      },
       tables: {
         splitCells: true,
         cellBackgroundColor: true,

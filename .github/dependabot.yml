@@ -55,3 +55,14 @@ updates:
           - "react-dom"
           - "yjs"
           - "y-prosemirror"
+    cooldown:
+      default-days: 7
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    cooldown:
+      default-days: 7

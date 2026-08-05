@@ -1,5 +1,5 @@
 import { BlockNoteEditor, expandPMRangeToWords } from "@blocknote/core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { getEditorWithFormattingAndMentions } from "../testUtil/cases/editors/formattingAndMentions.js";
 import {
   DocumentOperationTestCase,

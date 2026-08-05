@@ -19,9 +19,9 @@ export const tools = {
       ...(blockNoteSchemaToJSONSchema(editor.schema) as any),
     }),
     validateBlock: validateBlockFunction,
-    rebaseTool: async (_id, editor) =>
+    rebaseTool: (_id, editor) =>
       rebaseTool(editor, getApplySuggestionsTr(editor)),
-    toJSONToolCall: async (_editor, chunk) => {
+    toJSONToolCall: (_editor, chunk) => {
       return chunk.operation;
     },
   }),
@@ -35,9 +35,9 @@ export const tools = {
       ...(blockNoteSchemaToJSONSchema(editor.schema) as any),
     }),
     validateBlock: validateBlockFunction,
-    rebaseTool: async (_id, editor) =>
+    rebaseTool: (_id, editor) =>
       rebaseTool(editor, getApplySuggestionsTr(editor)),
-    toJSONToolCall: async (_editor, chunk) => {
+    toJSONToolCall: (_editor, chunk) => {
       const defaultPropsVals = Object.fromEntries(
         Object.entries(defaultProps).map(([key, val]) => {
           return [key, val.default];

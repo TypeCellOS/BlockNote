@@ -17,7 +17,6 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../blocks/index.js";
-import type { CollaborationOptions } from "../extensions/Collaboration/Collaboration.js";
 import {
   BlockChangeExtension,
   DropCursorOptions,
@@ -80,12 +79,6 @@ export interface BlockNoteEditorOptions<
    * @default false
    */
   autofocus?: FocusPosition;
-
-  /**
-   * When enabled, allows for collaboration between multiple users.
-   * See [Real-time Collaboration](https://www.blocknotejs.org/docs/advanced/real-time-collaboration) for more info.
-   */
-  collaboration?: CollaborationOptions;
 
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
@@ -192,10 +185,7 @@ export interface BlockNoteEditorOptions<
    * @deprecated, provide placeholders via dictionary instead
    * @internal
    */
-  placeholders?: Record<
-    string | "default" | "emptyDocument",
-    string | undefined
-  >;
+  placeholders?: Record<string, string | undefined>;
 
   /**
    * Custom paste handler that can be used to override the default paste behavior.
@@ -306,7 +296,8 @@ export interface BlockNoteEditorOptions<
   };
 
   /**
-   * An option which user can pass with `false` value to disable the automatic creation of a trailing new block on the next line when the user types or edits any block.
+   * When the editor document doesn't end in an empty paragraph block, this option causes the editor to render an element simulating one.
+   * When clicked by the user, it gets turned into an actual block at the end of the document. This element is not shown when the option is `false`.
    *
    * @default true
    */
@@ -500,17 +491,6 @@ export class BlockNoteEditor<
 
     const tiptapExtensions = this._extensionManager.getTiptapExtensions();
 
-    const collaborationEnabled =
-      this._extensionManager.hasExtension("ySync") ||
-      this._extensionManager.hasExtension("liveblocksExtension");
-
-    if (collaborationEnabled && newOptions.initialContent) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider",
-      );
-    }
-
     const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
@@ -518,12 +498,14 @@ export class BlockNoteEditor<
       autofocus: newOptions.autofocus ?? false,
       extensions: tiptapExtensions,
       editorProps: {
+        scrollMargin: { top: 72, bottom: 72, left: 0, right: 0 },
         ...newOptions._tiptapOptions?.editorProps,
         attributes: {
           // As of TipTap v2.5.0 the tabIndex is removed when the editor is not
           // editable, so you can't focus it. We want to revert this as we have
           // UI behaviour that relies on it.
           tabIndex: "0",
+          // eslint-disable-next-line @typescript-eslint/no-misused-spread
           ...newOptions._tiptapOptions?.editorProps?.attributes,
           ...newOptions.domAttributes?.editor,
           class: mergeCSSClasses(
@@ -537,29 +519,24 @@ export class BlockNoteEditor<
     } as any;
 
     try {
-      const initialContent =
-        newOptions.initialContent ||
-        (collaborationEnabled
-          ? [
-              {
-                type: "paragraph",
-                id: "initialBlockId",
-              },
-            ]
-          : [
-              {
-                type: "paragraph",
-                id: UniqueID.options.generateID(),
-              },
-            ]);
+      const initialContent = newOptions.initialContent || [
+        {
+          type: "paragraph",
+          id: UniqueID.options.generateID(),
+        },
+      ];
 
       if (!Array.isArray(initialContent) || initialContent.length === 0) {
         throw new Error(
           "initialContent must be a non-empty array of blocks, received: " +
-            initialContent,
+            JSON.stringify(initialContent),
         );
       }
       const schema = getSchema(tiptapOptions.extensions!);
+      // `blockToNode` (via `isPlainContentNodeType`) resolves the block schema
+      // through `schema.cached.blockNoteEditor`, so stamp it on this throwaway
+      // schema now — the real `pmSchema` is stamped separately below.
+      schema.cached.blockNoteEditor = this;
       const pmNodes = initialContent.map((b) =>
         blockToNode(b, schema, this.schema.styleSchema).toJSON(),
       );
@@ -589,25 +566,6 @@ export class BlockNoteEditor<
       );
     }
 
-    // When y-prosemirror creates an empty document, the `blockContainer` node is created with an `id` of `null`.
-    // This causes the unique id extension to generate a new id for the initial block, which is not what we want
-    // Since it will be randomly generated & cause there to be more updates to the ydoc
-    // This is a hack to make it so that anytime `schema.doc.createAndFill` is called, the initial block id is already set to "initialBlockId"
-    let cache: Node | undefined = undefined;
-    const oldCreateAndFill = this.pmSchema.nodes.doc.createAndFill;
-    this.pmSchema.nodes.doc.createAndFill = (...args: any) => {
-      if (cache) {
-        return cache;
-      }
-      const ret = oldCreateAndFill.apply(this.pmSchema.nodes.doc, args)!;
-
-      // create a copy that we can mutate (otherwise, assigning attrs is not safe and corrupts the pm state)
-      const jsonNode = JSON.parse(JSON.stringify(ret.toJSON()));
-      jsonNode.content[0].content[0].attrs.id = "initialBlockId";
-
-      cache = Node.fromJSON(this.pmSchema, jsonNode);
-      return cache;
-    };
     this.pmSchema.cached.blockNoteEditor = this;
 
     this._tiptapEditor.on("mount", () => {
@@ -722,6 +680,14 @@ export class BlockNoteEditor<
   ) => this._extensionManager.registerExtension(...args) as any;
 
   /**
+   * Atomically unregister old extensions and register new ones in a single
+   * plugin update, avoiding re-entrant dispatch issues.
+   */
+  public replaceExtension: ExtensionManager["replaceExtension"] = (
+    ...args: Parameters<ExtensionManager["replaceExtension"]>
+  ) => this._extensionManager.replaceExtension(...args);
+
+  /**
    * Get an extension from the editor
    */
   public getExtension: ExtensionManager["getExtension"] = ((
@@ -731,15 +697,27 @@ export class BlockNoteEditor<
   /**
    * Mount the editor to a DOM element.
    *
+   * @param element The DOM element to mount the editor's contenteditable into.
+   * @param options.portalTarget Where to mount `editor.portalElement` — the
+   *   container that floating UI (toolbars, menus, etc) portals into. When
+   *   omitted, defaults to `element.parentElement` (which is the editor's
+   *   `bn-container` in typical React usage), or to `document.body` /
+   *   the surrounding shadow root when no parent is available.
+   *
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
-  public mount = (element: HTMLElement) => {
+  public mount = (
+    element: HTMLElement,
+    options?: { portalTarget?: HTMLElement | null },
+  ) => {
     const root = element.getRootNode();
-    if (typeof ShadowRoot !== "undefined" && root instanceof ShadowRoot) {
-      root.appendChild(this.portalElement);
-    } else {
-      document.body.appendChild(this.portalElement);
-    }
+    const isInShadowRoot =
+      typeof ShadowRoot !== "undefined" && root instanceof ShadowRoot;
+    const target =
+      options?.portalTarget ??
+      element.parentElement ??
+      (isInShadowRoot ? (root as ShadowRoot) : document.body);
+    target.appendChild(this.portalElement);
     this._tiptapEditor.mount({ mount: element });
   };
 
@@ -1240,19 +1218,23 @@ export class BlockNoteEditor<
   /**
    * Moves the selected blocks up. If the previous block has children, moves
    * them to the end of its children. If there is no previous block, but the
-   * current blocks share a common parent, moves them out of & before it.
+   * current blocks share a common parent, moves them out of & before it. If a
+   * `blockIdentifier` is provided, that block is moved instead of the
+   * selection, and the selection is left unchanged.
    */
-  public moveBlocksUp() {
-    return this._blockManager.moveBlocksUp();
+  public moveBlocksUp(blockIdentifier?: BlockIdentifier) {
+    return this._blockManager.moveBlocksUp(blockIdentifier);
   }
 
   /**
    * Moves the selected blocks down. If the next block has children, moves
    * them to the start of its children. If there is no next block, but the
-   * current blocks share a common parent, moves them out of & after it.
+   * current blocks share a common parent, moves them out of & after it. If a
+   * `blockIdentifier` is provided, that block is moved instead of the
+   * selection, and the selection is left unchanged.
    */
-  public moveBlocksDown() {
-    return this._blockManager.moveBlocksDown();
+  public moveBlocksDown(blockIdentifier?: BlockIdentifier) {
+    return this._blockManager.moveBlocksDown(blockIdentifier);
   }
 
   /**

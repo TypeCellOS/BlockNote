@@ -26,6 +26,22 @@ import { getEnv } from "./getEnv";
 const BASE_URL =
   getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai";
 
+// Formatting toolbar with the `AIToolbarButton` added
+const FormattingToolbarWithAI = () => (
+  <FormattingToolbar>
+    {...getFormattingToolbarItems()}
+    {/* Add the AI button */}
+    <AIToolbarButton />
+  </FormattingToolbar>
+);
+
+// Slash menu items with the AI option added
+const getSlashMenuItemsWithAI = (editor: BlockNoteEditor<any, any, any>) => [
+  ...getDefaultReactSlashMenuItems(editor),
+  // add the default AI slash menu items, or define your own
+  ...getAISlashMenuItems(editor),
+];
+
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
@@ -41,7 +57,12 @@ export default function App() {
         transport: new DefaultChatTransport({
           // (see packages/xl-ai-server/src/routes/vercelAiSdkPersistence.ts)
           api: `${BASE_URL}/server-persistence/streamText`,
-          prepareSendMessagesRequest({ id, body, messages, requestMetadata }) {
+          prepareSendMessagesRequest({
+            id,
+            body,
+            messages,
+            requestMetadata: _requestMetadata,
+          }) {
             // we don't send the messages, just the information we need to compose / append messages server-side:
             // - the conversation id
             // - the new (last) message to send
@@ -112,54 +133,25 @@ export default function App() {
         {/* Add the AI Command menu to the editor */}
         <AIMenuController />
 
-        {/* We disabled the default formatting toolbar with `formattingToolbar=false` 
-        and replace it for one with an "AI button" (defined below). 
+        {/* We disabled the default formatting toolbar with `formattingToolbar=false`
+        and replace it for one with an "AI button" (defined below).
         (See "Formatting Toolbar" in docs)
         */}
-        <FormattingToolbarWithAI />
+        <FormattingToolbarController
+          formattingToolbar={FormattingToolbarWithAI}
+        />
 
-        {/* We disabled the default SlashMenu with `slashMenu=false` 
+        {/* We disabled the default SlashMenu with `slashMenu=false`
         and replace it for one with an AI option (defined below). 
         (See "Suggestion Menus" in docs)
         */}
-        <SuggestionMenuWithAI editor={editor} />
+        <SuggestionMenuController
+          triggerCharacter="/"
+          getItems={async (query) =>
+            filterSuggestionItems(getSlashMenuItemsWithAI(editor), query)
+          }
+        />
       </BlockNoteView>
     </div>
-  );
-}
-
-// Formatting toolbar with the `AIToolbarButton` added
-function FormattingToolbarWithAI() {
-  return (
-    <FormattingToolbarController
-      formattingToolbar={() => (
-        <FormattingToolbar>
-          {...getFormattingToolbarItems()}
-          {/* Add the AI button */}
-          <AIToolbarButton />
-        </FormattingToolbar>
-      )}
-    />
-  );
-}
-
-// Slash menu with the AI option added
-function SuggestionMenuWithAI(props: {
-  editor: BlockNoteEditor<any, any, any>;
-}) {
-  return (
-    <SuggestionMenuController
-      triggerCharacter="/"
-      getItems={async (query) =>
-        filterSuggestionItems(
-          [
-            ...getDefaultReactSlashMenuItems(props.editor),
-            // add the default AI slash menu items, or define your own
-            ...getAISlashMenuItems(props.editor),
-          ],
-          query,
-        )
-      }
-    />
   );
 }

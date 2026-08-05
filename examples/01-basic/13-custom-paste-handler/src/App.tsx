@@ -44,7 +44,7 @@ export default function App() {
               await navigator.clipboard.writeText(
                 "**This is markdown in the plain text format**",
               );
-            } catch (error) {
+            } catch {
               window.alert("Failed to copy plain text with markdown content");
             }
           }}
@@ -60,7 +60,7 @@ export default function App() {
                   "text/html": "<p><strong>HTML</strong></p>",
                 }),
               ]);
-            } catch (error) {
+            } catch {
               window.alert("Failed to copy HTML content");
             }
           }}
@@ -74,7 +74,7 @@ export default function App() {
               await navigator.clipboard.writeText(
                 "This is plain text in the plain text format",
               );
-            } catch (error) {
+            } catch {
               window.alert("Failed to copy plain text");
             }
           }}
@@ -96,7 +96,7 @@ export default function App() {
                   "text/markdown": "**Markdown**",
                 }),
               ]);
-            } catch (error) {
+            } catch {
               window.alert("Failed to copy multiple formats");
             }
           }}

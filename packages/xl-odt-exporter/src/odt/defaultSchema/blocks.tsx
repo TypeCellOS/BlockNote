@@ -5,14 +5,13 @@ import {
   DefaultBlockSchema,
   DefaultProps,
   mapTableCell,
-  StyledText,
   TableCell,
 } from "@blocknote/core";
-import { ODTExporter } from "../odtExporter.js";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
+import { ODTExporter } from "../odtExporter.js";
 
 export const getTabs = (nestingLevel: number) => {
-  return Array.from({ length: nestingLevel }, () => <text:tab />);
+  return Array.from({ length: nestingLevel }, (_, i) => <text:tab key={i} />);
 };
 
 const createParagraphStyle = (
@@ -501,7 +500,12 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   },
 
   codeBlock: (block) => {
-    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
+    // Code blocks hold plain content: at most a single unstyled text item.
+    const [textItem, ...excessItems] = block.content;
+    if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
+      throw new Error("expected plain block content to be a single text item");
+    }
+    const textContent = textItem?.text ?? "";
 
     return (
       <text:p text:style-name="Codeblock">

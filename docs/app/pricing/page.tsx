@@ -79,8 +79,32 @@ const tiers: Tier[] = [
     tagline: "Go premium",
     mostPopular: true,
     badge: "Recommended",
-    description:
-      "Commercial license for access to advanced features and technical support.",
+    description: (
+      <>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger
+              delay={100}
+              className="cursor-default font-medium underline decoration-stone-400 decoration-dotted decoration-1 underline-offset-4"
+            >
+              Commercial license
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[280px] p-3 leading-normal">
+              A commercial license is required to use the XL packages in
+              closed-source applications. See{" "}
+              <Link
+                href="/legal/blocknote-xl-commercial-license"
+                className="text-purple-600 hover:underline"
+              >
+                full license terms
+              </Link>{" "}
+              for details.
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>{" "}
+        for access to advanced features and technical support.
+      </>
+    ),
     price: { month: 390, year: 2340 },
     features: [
       <span key="commercial" className="font-semibold text-stone-900">
@@ -145,7 +169,7 @@ export default function Pricing() {
       <div className="mx-auto flex max-w-7xl flex-col items-center px-6 py-24 lg:px-8">
         {/* Header */}
         <div className="mb-12 text-center">
-          <p className="mb-4 text-xs font-bold uppercase tracking-widest text-purple-600">
+          <p className="mb-4 text-xs font-bold tracking-widest text-purple-600 uppercase">
             Pricing
           </p>
           <h1 className="mb-6 font-serif text-5xl text-stone-900 md:text-7xl">

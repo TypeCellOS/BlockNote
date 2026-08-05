@@ -26,7 +26,12 @@ export const createFileBlockWrapper = (
   element?: { dom: HTMLElement; destroy?: () => void },
   buttonIcon?: HTMLElement,
 ) => {
-  const wrapper = document.createElement("div");
+  // Use a <figure>/<figcaption> when the block has a caption, so the caption
+  // is semantically associated with its content for assistive tech. Falls back
+  // to a plain <div> when there is no caption (or the file has not been
+  // uploaded yet, since the upload UI never shows the caption).
+  const useFigure = block.props.url !== "" && !!block.props.caption;
+  const wrapper = document.createElement(useFigure ? "figure" : "div");
   wrapper.className = "bn-file-block-content-wrapper";
 
   // Show the add file button if the file has not been uploaded yet. Change to
@@ -73,7 +78,7 @@ export const createFileBlockWrapper = (
 
   // Show the caption if there is one.
   if (block.props.caption) {
-    const caption = document.createElement("p");
+    const caption = document.createElement("figcaption");
     caption.className = "bn-file-caption";
     caption.textContent = block.props.caption;
     wrapper.appendChild(caption);

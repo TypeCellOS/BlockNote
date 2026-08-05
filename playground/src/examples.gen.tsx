@@ -324,6 +324,25 @@
         "readme": "This example makes the editor read-only while showing the same content as the [Default Schema Showcase](/examples/basic/default-blocks) example.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Document Structure](/docs/foundations/document-structure)\n- [Default Schema](/docs/foundations/schemas)"
       },
       {
+        "projectSlug": "no-trailing-block",
+        "fullSlug": "basic/no-trailing-block",
+        "pathFromRoot": "examples/01-basic/17-no-trailing-block",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "No Trailing Block",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        },
+        "readme": "This example shows how to disable the automatic creation of a trailing block at the end of the editor by setting the `trailingBlock` option to `false`.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
@@ -476,7 +495,7 @@
             "Custom Schemas"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "react-icons": "^5.5.0"
           } as any
         },
@@ -851,6 +870,49 @@
           "slug": "ui-components"
         },
         "readme": "This example demonstrates how to use the `DRAG_EXCLUSION_CLASSNAME` to create separate drag & drop areas that don't interfere with BlockNote's built-in block drag & drop functionality.\n\n## Features\n\n- **Drag Exclusion**: Elements with the `bn-drag-exclude` classname are treated as separate drag & drop operations\n- **Independent Drag Areas**: Create custom drag & drop functionality alongside BlockNote's editor\n- **No Interference**: Custom drag operations won't trigger BlockNote's block reordering\n- **Side-by-side Demo**: Shows the editor and custom drag area working independently\n\n## How It Works\n\nBy adding the `DRAG_EXCLUSION_CLASSNAME` (`bn-drag-exclude`) to an element, you tell BlockNote's drag & drop handlers to ignore all drag events within that element and its children. This allows you to implement your own custom drag & drop logic without conflicts.\n\nThe exclusion check works by traversing up the DOM tree from the drag event target, checking if any ancestor has the exclusion classname. If found, BlockNote's handlers return early, leaving your custom handlers in full control.\n\n## Code Highlights\n\n### Import the constant:\n\n```tsx\nimport { DRAG_EXCLUSION_CLASSNAME } from \"@blocknote/core\";\n```\n\n### Apply it to your custom drag area:\n\n```tsx\n<div className={\"drag-demo-section \" + DRAG_EXCLUSION_CLASSNAME}>\n  {/* Your custom drag & drop UI */}\n  <div draggable onDragStart={handleDragStart} onDrop={handleDrop}>\n    Custom draggable items\n  </div>\n</div>\n```\n\n## Use Cases\n\n- **Custom UI elements**: Add draggable components within or near the editor\n- **File upload areas**: Create drag-and-drop file upload zones\n- **Sortable lists**: Implement custom sortable lists alongside the editor\n- **External integrations**: Integrate with third-party drag & drop libraries\n\n**Relevant Docs:**\n\n- [Side Menu (Drag Handle)](/docs/react/components/side-menu)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "suggestion-menus-grouping-ordering",
+        "fullSlug": "ui-components/suggestion-menus-grouping-ordering",
+        "pathFromRoot": "examples/03-ui-components/19-suggestion-menus-grouping-ordering",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "UI Components",
+            "Suggestion Menus",
+            "Slash Menu"
+          ]
+        },
+        "title": "Slash Menu Grouping & Ordering",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        },
+        "readme": "In this example, we filter and reorder the default Slash Menu items so that only the \"Basic blocks\" and \"Headings\" groups are shown, with \"Basic blocks\" appearing first.\n\n**Try it out:** Press the \"/\" key to open the Slash Menu and see the reordered groups!\n\n**Relevant Docs:**\n\n- [Item Grouping & Ordering](/docs/react/components/suggestion-menus)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "portal-elements",
+        "fullSlug": "ui-components/portal-elements",
+        "pathFromRoot": "examples/03-ui-components/20-portal-elements",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "UI Components",
+            "Advanced"
+          ]
+        },
+        "title": "Configuring Portal Targets",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        },
+        "readme": "By default, BlockNote's floating UI elements (formatting toolbar, slash menu, table handles, etc.) mount inside the editor's `bn-container`. The `portalElements` prop on `BlockNoteView` lets you change that — globally via `default`, or per element by key.\n\nThis example renders two editors side-by-side, both wrapped in a small `overflow: hidden` container. The left editor uses the default — the slash menu is clipped by the editor's bounds. The right editor passes `portalElements={{ default: document.body }}` so floating UI escapes the wrapper and renders fully.\n\n```tsx\n<BlockNoteView editor={editor} portalElements={{ default: document.body }} />\n```\n\n**Relevant Docs:**\n\n- [UI Components](/docs/react/components)"
       }
     ]
   },
@@ -1262,7 +1324,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "react-icons": "^5.5.0"
           } as any
         },
@@ -1336,7 +1398,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "react-icons": "^5.5.0"
           } as any,
           "pro": true
@@ -1365,7 +1427,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "react-icons": "^5.5.0"
           } as any
         },
@@ -1574,11 +1636,11 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "^3.17.0",
-            "@liveblocks/react": "^3.17.0",
-            "@liveblocks/react-blocknote": "^3.17.0",
-            "@liveblocks/react-tiptap": "^3.17.0",
-            "@liveblocks/react-ui": "^3.17.0",
+            "@liveblocks/client": "^3.19.5",
+            "@liveblocks/react": "^3.19.5",
+            "@liveblocks/react-blocknote": "^3.19.5",
+            "@liveblocks/react-tiptap": "^3.19.5",
+            "@liveblocks/react-ui": "^3.19.5",
             "yjs": "^13.6.27"
           } as any
         },
@@ -1649,7 +1711,7 @@
           ],
           "dependencies": {
             "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^8.3.11"
+            "@mantine/core": "^9.0.2"
           } as any
         },
         "title": "Comments & Threads",
@@ -1675,7 +1737,7 @@
           "dependencies": {
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27",
-            "@mantine/core": "^8.3.11"
+            "@mantine/core": "^9.0.2"
           } as any
         },
         "title": "Threads Sidebar",
@@ -1758,6 +1820,140 @@
           "slug": "collaboration"
         },
         "readme": "A minimal comments example used for end-to-end testing. Uses a local Y.Doc (no collaboration provider) with a single hardcoded editor user."
+      },
+      {
+        "projectSlug": "suggestion-multi-editor",
+        "fullSlug": "collaboration/suggestion-multi-editor",
+        "pathFromRoot": "examples/07-collaboration/10-suggestion-multi-editor",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "Advanced",
+            "Saving/Loading",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/y": "^14.0.0-rc.23",
+            "@y/prosemirror": "^2.0.0-6",
+            "@y/websocket": "^4.0.0-rc.2"
+          } as any
+        },
+        "title": "Suggestions (Experimental)",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        },
+        "readme": "In this example, we have 4 editors (2 clients) & 1 in suggestion-view mode & 1 in suggestion-edit mode. To show the experimental support for suggesting content in (@y/y v14)"
+      },
+      {
+        "projectSlug": "versioning-yjs13",
+        "fullSlug": "collaboration/versioning-yjs13",
+        "pathFromRoot": "examples/07-collaboration/11-versioning-yjs13",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Advanced",
+            "Development",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "y-websocket": "^2.1.0",
+            "yjs": "^13.6.27",
+            "lib0": "^0.2.99"
+          } as any
+        },
+        "title": "Local Storage Versioning (yjs v13)",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        },
+        "readme": "This example shows how to use the `VersioningExtension` with collaborative editing using `yjs` (v13). Snapshots are stored in localStorage using Yjs state updates.\n\n**Try it out:** Edit the document, then click the \"Version History\" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)"
+      },
+      {
+        "projectSlug": "multi-doc-versioning",
+        "fullSlug": "collaboration/multi-doc-versioning",
+        "pathFromRoot": "examples/07-collaboration/12-multi-doc-versioning",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "nperez0111",
+          "tags": [
+            "Advanced",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/websocket": "^4.0.0-3",
+            "@y/y": "^14.0.0-rc.23",
+            "lib0": "1.0.0-rc.22"
+          } as any
+        },
+        "title": "YHub Multi-Doc",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        },
+        "readme": "This example shows a multi-document collaborative editor with per-document version history, using BlockNote's `VersioningExtension` and Y.js v14.\n\n**Features:**\n\n- User picker (per-tab identity via `sessionStorage`)\n- Left sidebar with document list (create, rename, delete)\n- Collaborative editing with Y.js (including suggestion mode)\n- Right sidebar with version history powered by `VersioningSidebar`\n- Per-document versioning backed by `localStorage`\n- Open multiple tabs with different users via the `?as=` URL param\n\n**Relevant Docs:**\n\n- [Versioning](https://www.blocknotejs.org/docs/collaboration/versioning)\n- [Y.js Collaboration](https://www.blocknotejs.org/docs/collaboration)"
+      },
+      {
+        "projectSlug": "versioning-yjs14",
+        "fullSlug": "collaboration/versioning-yjs14",
+        "pathFromRoot": "examples/07-collaboration/13-versioning-yjs14",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Advanced",
+            "Development",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "@y/prosemirror": "^2.0.0-6",
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/websocket": "^4.0.0-3",
+            "@y/y": "^14.0.0-rc.23",
+            "lib0": "1.0.0-rc.22"
+          } as any
+        },
+        "title": "YHub Versioning (@y/y v14)",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        },
+        "readme": "This example shows how to use the `VersioningExtension` with collaborative editing using `@y/y` (v14). Snapshots are stored in localStorage using Yjs v2 state updates.\n\n**Try it out:** Edit the document, then click the \"Version History\" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)"
+      },
+      {
+        "projectSlug": "suggestion-gallery",
+        "fullSlug": "collaboration/suggestion-gallery",
+        "pathFromRoot": "examples/07-collaboration/14-suggestion-gallery",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "yousefed",
+          "tags": [
+            "Advanced",
+            "Development",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "@blocknote/shared": "latest",
+            "@blocknote/xl-multi-column": "latest",
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/y": "^14.0.0-rc.23"
+          } as any
+        },
+        "title": "Suggestion Scenarios Gallery",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        },
+        "readme": "Browse the suggestion (track-changes) rendering scenarios interactively. Each\nentry sets up a base document and applies a change in suggestion mode, so you can\nsee how insertions, deletions and type changes are visualized as a diff.\n\nThe **Base** pane (left) is read-only and shows the document before the change.\nThe **Suggestion** pane (right) is editable — keep typing to create more\nsuggestions on top.\n\nThese are the same scenarios covered by the y-prosemirror visual tests; the\nper-scenario definitions live in `src/scenarios.ts` so the tests and this gallery\nstay in sync.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/editor-basics/setup)\n- [Collaboration](/docs/collaboration/real-time-collaboration)"
       }
     ]
   },
@@ -1787,6 +1983,29 @@
           "slug": "extensions"
         },
         "readme": "This example shows how to set up a BlockNote editor with a TipTap extension that registers an InputRule to convert `->` into `→`.\n\n**Try it out:** Type `->` anywhere in the editor and see how it's automatically converted to a single arrow unicode character."
+      },
+      {
+        "projectSlug": "versioning",
+        "fullSlug": "extensions/versioning",
+        "pathFromRoot": "examples/08-extensions/02-versioning",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Extension"
+          ],
+          "dependencies": {
+            "@y/y": "^14.0.0-rc.23",
+            "@y/prosemirror": "^2.0.0-6"
+          } as any
+        },
+        "title": "In-Memory Versioning",
+        "group": {
+          "pathFromRoot": "examples/08-extensions",
+          "slug": "extensions"
+        },
+        "readme": "This example shows how to use the `VersioningExtension` without any collaboration layer (no Yjs required). Snapshots are stored in memory using ProseMirror JSON.\n\n**Try it out:** Edit the document, then use the Version History sidebar to save snapshots, preview older versions, rename them, and restore them. You can hide the sidebar with the close button and reopen it with the \"History\" button."
       }
     ]
   },
@@ -1808,7 +2027,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "ai": "^6.0.5"
           } as any
         },
@@ -1833,7 +2052,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "ai": "^6.0.5"
           } as any
         },
@@ -1858,7 +2077,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "ai": "^6.0.5",
             "react-icons": "^5.5.0"
           } as any
@@ -1884,7 +2103,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "ai": "^6.0.5",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27"
@@ -1911,7 +2130,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "ai": "^6.0.5",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27"
@@ -1939,7 +2158,7 @@
           "dependencies": {
             "@ai-sdk/groq": "^3.0.2",
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "ai": "^6.0.5"
           } as any
         },
@@ -1964,7 +2183,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "ai": "^6.0.5"
           } as any
         },
@@ -2031,6 +2250,27 @@
           "slug": "vanilla-js"
         },
         "readme": ""
+      },
+      {
+        "projectSlug": "vanilla-custom-side-menu",
+        "fullSlug": "vanilla-js/vanilla-custom-side-menu",
+        "pathFromRoot": "examples/vanilla-js/vanilla-custom-side-menu",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Advanced",
+            "UI Components",
+            "Block Side Menu"
+          ]
+        },
+        "title": "Custom Side Menu (Vanilla JS)",
+        "group": {
+          "pathFromRoot": "examples/vanilla-js",
+          "slug": "vanilla-js"
+        },
+        "readme": "This example uses the vanilla JS API to create a plain BlockNote editor without `@blocknote/react`, mounting it manually and building a custom Side Menu from scratch.\n\n**Try it out:** Hover over a block to reveal the custom Side Menu, then use the `+` button to add a block or the `::` handle to drag it!\n\n**Relevant Docs:**\n\n- [Getting Started with Vanilla JS](/docs/getting-started/vanilla-js)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Extensions](/docs/features/extensions)"
       }
     ]
   }

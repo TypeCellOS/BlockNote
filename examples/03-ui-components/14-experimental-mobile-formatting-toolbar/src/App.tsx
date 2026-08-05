@@ -21,9 +21,6 @@ export default function App() {
         content:
           "Check out the experimental mobile formatting toolbar by selecting some text (best experienced on a mobile device).",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

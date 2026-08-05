@@ -1,17 +1,24 @@
 name: RelativeCI
 
 on:
+  # zizmor: ignore[dangerous-triggers] -- workflow_run is the recommended pattern
+  # for RelativeCI; this workflow only downloads artifacts and reports bundle stats.
   workflow_run:
     workflows: ["build"]
     types:
       - completed
 
+permissions:
+  actions: read
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Send bundle stats and build information to RelativeCI (editor)
-        uses: relative-ci/agent-action@v2
+        uses: relative-ci/agent-action@fcf45416581928e8dd62eded78ce98c78e5149f8 # v3.2.3
         with:
           artifactName: relative-ci-artifacts-editor
           key: ${{ secrets.RELATIVE_CI_KEY }}

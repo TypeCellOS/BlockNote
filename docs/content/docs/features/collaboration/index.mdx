@@ -20,35 +20,40 @@ Let's see how you can add Multiplayer capabilities to your BlockNote setup, and 
 
 _Try the live demo on the [homepage](https://www.blocknotejs.org)_
 
-BlockNote uses [Yjs](https://github.com/yjs/yjs) for this, and you can set it up with the `collaboration` option:
+BlockNote uses [Yjs](https://github.com/yjs/yjs) for this, and you can set it up with the `withCollaboration` helper:
 
 ```typescript
 import * as Y from "yjs";
 import { WebrtcProvider } from "y-webrtc";
+import { withCollaboration } from "@blocknote/core/yjs";
 // ...
 
 const doc = new Y.Doc();
 
 const provider = new WebrtcProvider("my-document-id", doc); // setup a yjs provider (explained below)
-const editor = useCreateBlockNote({
-  // ...
-  collaboration: {
-    // The Yjs Provider responsible for transporting updates:
-    provider,
-    // Where to store BlockNote data in the Y.Doc:
-    fragment: doc.getXmlFragment("document-store"),
-    // Information (name and color) for this user:
-    user: {
-      name: "My Username",
-      color: "#ff0000",
+const editor = useCreateBlockNote(
+  withCollaboration({
+    // ...
+    collaboration: {
+      // The Yjs Provider responsible for transporting updates:
+      provider,
+      // Where to store BlockNote data in the Y.Doc:
+      fragment: doc.getXmlFragment("document-store"),
+      // Information (name and color) for this user:
+      user: {
+        name: "My Username",
+        color: "#ff0000",
+      },
+      // When to show user labels on the collaboration cursor. Set by default to
+      // "activity" (show when the cursor moves), but can also be set to "always".
+      showCursorLabels: "activity",
     },
-    // When to show user labels on the collaboration cursor. Set by default to
-    // "activity" (show when the cursor moves), but can also be set to "always".
-    showCursorLabels: "activity",
-  },
-  // ...
-});
+    // ...
+  }),
+);
 ```
+
+The `withCollaboration` function accepts all the regular editor options along with a `collaboration` property, and configures your editor for real-time collaboration.
 
 ## Yjs Providers
 

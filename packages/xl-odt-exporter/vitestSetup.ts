@@ -1,4 +1,4 @@
-import { afterEach, beforeEach } from "vitest";
+import { afterEach, beforeEach } from "vite-plus/test";
 
 beforeEach(() => {
   globalThis.window = globalThis.window || ({} as any);

@@ -54,7 +54,7 @@ export function createAddBlocksTool<T>(config: {
   rebaseTool: (
     id: string,
     editor: BlockNoteEditor<any, any, any>,
-  ) => Promise<RebaseTool>;
+  ) => RebaseTool;
   /**
    * Converts the operation from `AddBlocksToolCall<T>` to `AddBlocksToolCall<PartialBlock<any, any, any>>`
    *
@@ -68,7 +68,7 @@ export function createAddBlocksTool<T>(config: {
       isUpdateToPreviousOperation: boolean;
       isPossiblyPartial: boolean;
     },
-  ) => Promise<AddBlocksToolCall<PartialBlock<any, any, any>> | undefined>;
+  ) => AddBlocksToolCall<PartialBlock<any, any, any>> | undefined;
 }) {
   return (
     editor: BlockNoteEditor<any, any, any>,
@@ -196,7 +196,7 @@ export function createAddBlocksTool<T>(config: {
 
             const operation = chunk.operation as AddBlocksToolCall<T>;
 
-            const jsonToolCall = await config.toJSONToolCall(editor, {
+            const jsonToolCall = config.toJSONToolCall(editor, {
               ...chunk,
               operation,
             });
@@ -223,7 +223,7 @@ export function createAddBlocksTool<T>(config: {
               let agentSteps: AgentStep[] = [];
               if (i < addedBlockIds.length) {
                 // we have already added this block, so we need to update it
-                const tool = await config.rebaseTool(addedBlockIds[i], editor);
+                const tool = config.rebaseTool(addedBlockIds[i], editor);
                 const steps = updateToReplaceSteps(
                   {
                     id: addedBlockIds[i],

@@ -4,7 +4,7 @@ import "@blocknote/mantine/style.css";
 import React from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 // https://github.com/TypeCellOS/BlockNote/pull/2335
 describe("BlockNoteView new editor + hover", () => {

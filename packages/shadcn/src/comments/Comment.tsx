@@ -66,10 +66,10 @@ export const Comment = forwardRef<
   const {
     className,
     showActions,
-    authorInfo,
-    timeString,
+    authorInfo: _authorInfo,
+    timeString: _timeString,
     actions,
-    edited,
+    edited: _edited,
     emojiPickerOpen,
     children,
     ...rest
@@ -96,7 +96,7 @@ export const Comment = forwardRef<
       onMouseLeave={() => setHovered(false)}
     >
       {doShowActions ? (
-        <div className={"absolute right-0 top-0 z-10"} ref={focusRef}>
+        <div className={"absolute top-0 right-0 z-10"} ref={focusRef}>
           {actions}
         </div>
       ) : null}

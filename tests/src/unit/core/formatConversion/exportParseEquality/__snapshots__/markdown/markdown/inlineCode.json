@@ -1,0 +1,21 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "code": true,
+        },
+        "text": "Code text",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]

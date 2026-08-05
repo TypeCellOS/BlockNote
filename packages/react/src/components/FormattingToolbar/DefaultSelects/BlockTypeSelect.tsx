@@ -6,7 +6,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { useMemo } from "react";
-import type { IconType } from "react-icons";
+import type { IconType } from "../../../icons.js";
 import {
   RiH1,
   RiH2,

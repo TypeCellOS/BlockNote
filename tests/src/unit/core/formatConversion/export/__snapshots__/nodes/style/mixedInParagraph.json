@@ -1,0 +1,60 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "Normal ",
+            "type": "text",
+          },
+          {
+            "marks": [
+              {
+                "type": "bold",
+              },
+            ],
+            "text": "bold ",
+            "type": "text",
+          },
+          {
+            "marks": [
+              {
+                "type": "italic",
+              },
+            ],
+            "text": "italic ",
+            "type": "text",
+          },
+          {
+            "marks": [
+              {
+                "type": "code",
+              },
+            ],
+            "text": "code ",
+            "type": "text",
+          },
+          {
+            "marks": [
+              {
+                "type": "strike",
+              },
+            ],
+            "text": "strike",
+            "type": "text",
+          },
+        ],
+        "type": "paragraph",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

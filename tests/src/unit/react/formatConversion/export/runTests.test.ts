@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { describe, it } from "vite-plus/test";
 
 import { setupTestEditor } from "../../setupTestEditor.js";
 import { testSchema } from "../../testSchema.js";

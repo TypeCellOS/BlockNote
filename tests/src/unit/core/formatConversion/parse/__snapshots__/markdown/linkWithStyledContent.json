@@ -1,0 +1,27 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "content": [
+          {
+            "styles": {
+              "bold": true,
+            },
+            "text": "Bold link",
+            "type": "text",
+          },
+        ],
+        "href": "https://example.com",
+        "type": "link",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]

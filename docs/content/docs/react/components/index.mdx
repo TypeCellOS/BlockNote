@@ -14,3 +14,23 @@ BlockNote includes a number of UI Components (like menus and toolbars) that can 
   {/* - [Image Toolbar](/docs/react/components/image-toolbar) */}
 
 <CardTable path="/react/components" />
+
+## Configuring Portal Targets
+
+By default, all floating UI elements (toolbars, menus, table handles, etc.) portal into the editor's `bn-container` so they stay scoped to the editor. If your layout needs them to escape — e.g. an `overflow: hidden` ancestor that would clip large dropdowns, or a host modal with its own stacking context — pass a `portalElements` prop to `BlockNoteView`:
+
+```tsx
+<BlockNoteView
+  editor={editor}
+  portalElements={{
+    // Global default for any element not listed below.
+    default: document.body,
+    // Per-element overrides. Values can be HTMLElement, a CSS selector, or null (= document.body).
+    tableHandles: ".bn-container",
+  }}
+/>
+```
+
+Keys mirror the default UI flags (`formattingToolbar`, `linkToolbar`, `slashMenu`, `emojiPicker`, `sideMenu`, `filePanel`, `tableHandles`, `comments`). Manually-mounted Controllers also accept a `portalElement` prop that takes precedence over the map. See the [Portal Targets example](/examples/ui-components/portal-elements).
+
+Note: changing `portalElements.default` after mount requires remounting the editor (`editor.mount()` consults it once); per-element keys update reactively.

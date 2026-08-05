@@ -1,9 +1,82 @@
+import { execFileSync } from "node:child_process";
 import { globSync } from "tinyglobby";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const dir = path.parse(fileURLToPath(import.meta.url)).dir;
+const workspaceRoot = path.resolve(dir, "../../..");
+
+/**
+ * Writes a generated file, creating parent directories as needed, and records
+ * the absolute path in `written` so it can be formatted afterwards.
+ */
+export function writeGeneratedFile(
+  target: string,
+  content: string,
+  written: string[],
+) {
+  const absolute = path.resolve(target);
+  fs.mkdirSync(path.dirname(absolute), { recursive: true });
+  fs.writeFileSync(absolute, content);
+  written.push(absolute);
+}
+
+/**
+ * Atomically writes a file by writing to a unique temp file in the same
+ * directory and renaming it into place (rename is atomic on POSIX). This
+ * prevents readers from ever observing a truncated/empty file, which matters
+ * for shared files (e.g. docs/package.json) that may be read and written by
+ * concurrent `gen:docs` processes. Skips the write entirely when the on-disk
+ * content already matches, avoiding an unnecessary truncation window.
+ */
+export function writeFileAtomic(absolute: string, content: string) {
+  try {
+    if (fs.readFileSync(absolute, "utf-8") === content) {
+      return;
+    }
+  } catch {
+    // File does not exist yet (or could not be read) — fall through to write.
+  }
+  fs.mkdirSync(path.dirname(absolute), { recursive: true });
+  const tmp = `${absolute}.${process.pid}.${Date.now()}.${Math.random()
+    .toString(36)
+    .slice(2)}.tmp`;
+  fs.writeFileSync(tmp, content);
+  fs.renameSync(tmp, absolute);
+}
+
+/**
+ * Formats the given files in-place using `vp fmt`. Files that are excluded by
+ * oxfmt ignore rules (e.g. *.mdx) are tolerated. Runs in chunks to avoid argv
+ * length limits.
+ */
+export function formatFiles(files: string[]) {
+  const unique = [...new Set(files.map((file) => path.resolve(file)))];
+  if (unique.length === 0) {
+    return;
+  }
+
+  const chunkSize = 200;
+  for (let i = 0; i < unique.length; i += chunkSize) {
+    const chunk = unique.slice(i, i + chunkSize);
+    try {
+      execFileSync("vp", ["fmt", ...chunk, "--write"], {
+        encoding: "utf-8",
+        cwd: workspaceRoot,
+      });
+    } catch (err: any) {
+      const output = `${err?.stdout ?? ""}${err?.stderr ?? ""}`;
+      if (output.includes("Expected at least one target file")) {
+        // All files in this chunk were excluded by oxfmt ignore rules.
+        continue;
+      }
+      // eslint-disable-next-line no-console
+      console.error(output);
+      throw err;
+    }
+  }
+}
 
 export type Project = {
   /**
@@ -49,6 +122,40 @@ export type Project = {
   readme: string;
 };
 
+/**
+ * Reads a version specifier from the `catalog:` section of the workspace's
+ * `pnpm-workspace.yaml`. The `catalog:` protocol is pnpm-specific, so generated
+ * example `package.json` files (which are meant to run standalone, e.g. in
+ * StackBlitz via `npm install`) must inline a concrete version instead. Keeping
+ * the catalog as the single source of truth avoids drift when the version bumps.
+ */
+export function getCatalogVersion(name: string): string {
+  const workspaceFile = path.join(workspaceRoot, "pnpm-workspace.yaml");
+  const lines = fs.readFileSync(workspaceFile, "utf-8").split("\n");
+
+  let inCatalog = false;
+  for (const line of lines) {
+    if (/^catalog:\s*$/.test(line)) {
+      inCatalog = true;
+      continue;
+    }
+    if (inCatalog) {
+      // A non-indented, non-empty line ends the catalog block.
+      if (line.trim() !== "" && !/^\s/.test(line)) {
+        break;
+      }
+      const match = line.match(/^\s+(\S+):\s*(\S+)\s*$/);
+      if (match && match[1].replace(/^["']|["']$/g, "") === name) {
+        return match[2].replace(/^["']|["']$/g, "");
+      }
+    }
+  }
+
+  throw new Error(
+    `Could not find "${name}" in the catalog of ${workspaceFile}`,
+  );
+}
+
 export function groupBy<T>(arr: T[], key: (el: T) => string) {
   const groups: Record<string, T[]> = {};
   arr.forEach((val) => {
@@ -91,16 +198,19 @@ export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
     collaboration: "Collaboration",
     extensions: "Extensions",
     ai: "AI",
+    "vanilla-js": "Vanilla JS",
   };
 
   const groupsWithTitles = Object.fromEntries(
     Object.entries(grouped).map(([key, group]) => {
-      const title = meta[key];
-      if (!title) {
+      if (!(key in meta)) {
         throw new Error(
           `Missing group title for ${key}, add to docs/content/examples/meta.json?`,
         );
       }
+
+      const title = meta[key as keyof typeof meta];
+
       return [
         key,
         {

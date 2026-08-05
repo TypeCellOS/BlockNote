@@ -1,0 +1,22 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+          "italic": true,
+        },
+        "text": "bold and italic",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]

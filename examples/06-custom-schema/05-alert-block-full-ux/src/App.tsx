@@ -1,4 +1,4 @@
-import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
+import { BlockNoteSchema } from "@blocknote/core";
 import {
   filterSuggestionItems,
   insertOrUpdateBlockForSlashMenu,
@@ -13,6 +13,7 @@ import {
   SuggestionMenuController,
   blockTypeSelectItems,
   getDefaultReactSlashMenuItems,
+  useBlockNoteEditor,
   useCreateBlockNote,
 } from "@blocknote/react";
 
@@ -27,6 +28,31 @@ const schema = BlockNoteSchema.create().extend({
     alert: createAlert(),
   },
 });
+
+const CustomFormattingToolbar = () => {
+  const editor = useBlockNoteEditor<
+    typeof schema.blockSchema,
+    typeof schema.inlineContentSchema,
+    typeof schema.styleSchema
+  >();
+
+  return (
+    // Uses the default Formatting Toolbar.
+    <FormattingToolbar
+      // Sets the items in the Block Type Select.
+      blockTypeSelectItems={[
+        // Gets the default Block Type Select items.
+        ...blockTypeSelectItems(editor.dictionary),
+        // Adds an item for the Alert block.
+        {
+          name: "Alert",
+          type: "alert",
+          icon: RiAlertFill,
+        } satisfies BlockTypeSelectItem,
+      ]}
+    />
+  );
+};
 
 // Slash menu item to insert an Alert block
 const insertAlert = (editor: typeof schema.BlockNoteEditor) => ({
@@ -75,9 +101,6 @@ export default function App() {
         content:
           "Or select some text to see the alert in the Formatting Toolbar's Block Type Select",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 
@@ -86,22 +109,7 @@ export default function App() {
     <BlockNoteView editor={editor} formattingToolbar={false} slashMenu={false}>
       {/* Replaces the default Formatting Toolbar */}
       <FormattingToolbarController
-        formattingToolbar={() => (
-          // Uses the default Formatting Toolbar.
-          <FormattingToolbar
-            // Sets the items in the Block Type Select.
-            blockTypeSelectItems={[
-              // Gets the default Block Type Select items.
-              ...blockTypeSelectItems(editor.dictionary),
-              // Adds an item for the Alert block.
-              {
-                name: "Alert",
-                type: "alert",
-                icon: RiAlertFill,
-              } satisfies BlockTypeSelectItem,
-            ]}
-          />
-        )}
+        formattingToolbar={CustomFormattingToolbar}
       />
       {/* Replaces the default Slash Menu. */}
       <SuggestionMenuController

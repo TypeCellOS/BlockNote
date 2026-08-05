@@ -1,0 +1,219 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "isToggleable": false,
+          "level": 1,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "Document Title",
+            "type": "text",
+          },
+        ],
+        "type": "heading",
+      },
+    ],
+    "type": "blockContainer",
+  },
+  {
+    "attrs": {
+      "id": "2",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "Introduction paragraph.",
+            "type": "text",
+          },
+        ],
+        "type": "paragraph",
+      },
+    ],
+    "type": "blockContainer",
+  },
+  {
+    "attrs": {
+      "id": "3",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "isToggleable": false,
+          "level": 2,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "Section 1",
+            "type": "text",
+          },
+        ],
+        "type": "heading",
+      },
+    ],
+    "type": "blockContainer",
+  },
+  {
+    "attrs": {
+      "id": "4",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "Text with ",
+            "type": "text",
+          },
+          {
+            "marks": [
+              {
+                "type": "bold",
+              },
+            ],
+            "text": "bold",
+            "type": "text",
+          },
+          {
+            "text": " and ",
+            "type": "text",
+          },
+          {
+            "marks": [
+              {
+                "attrs": {
+                  "href": "https://example.com",
+                },
+                "type": "link",
+              },
+            ],
+            "text": "a link",
+            "type": "text",
+          },
+          {
+            "text": ".",
+            "type": "text",
+          },
+        ],
+        "type": "paragraph",
+      },
+    ],
+    "type": "blockContainer",
+  },
+  {
+    "attrs": {
+      "id": "5",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "First point",
+            "type": "text",
+          },
+        ],
+        "type": "bulletListItem",
+      },
+    ],
+    "type": "blockContainer",
+  },
+  {
+    "attrs": {
+      "id": "6",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "Second point",
+            "type": "text",
+          },
+        ],
+        "type": "bulletListItem",
+      },
+    ],
+    "type": "blockContainer",
+  },
+  {
+    "attrs": {
+      "id": "7",
+    },
+    "content": [
+      {
+        "type": "divider",
+      },
+    ],
+    "type": "blockContainer",
+  },
+  {
+    "attrs": {
+      "id": "8",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "A notable quote",
+            "type": "text",
+          },
+        ],
+        "type": "quote",
+      },
+    ],
+    "type": "blockContainer",
+  },
+  {
+    "attrs": {
+      "id": "9",
+    },
+    "content": [
+      {
+        "attrs": {
+          "language": "javascript",
+        },
+        "content": [
+          {
+            "text": "const x = 42;",
+            "type": "text",
+          },
+        ],
+        "type": "codeBlock",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

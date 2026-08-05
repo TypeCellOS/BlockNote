@@ -23,27 +23,21 @@ export const tools = {
     },
     validateBlock: validateBlockFunction,
     rebaseTool: createHTMLRebaseTool,
-    toJSONToolCall: async (editor, chunk) => {
+    toJSONToolCall: (editor, chunk) => {
       const initialMockID = (window as any).__TEST_OPTIONS?.mockID;
 
-      const blocks = (
-        await Promise.all(
-          chunk.operation.blocks.map(async (html) => {
-            const parsedHtml = chunk.isPossiblyPartial
-              ? getPartialHTML(html)
-              : html;
-            if (!parsedHtml) {
-              return [];
-            }
-            return (await editor.tryParseHTMLToBlocks(parsedHtml)).map(
-              (block) => {
-                delete (block as any).id;
-                return block;
-              },
-            );
-          }),
-        )
-      ).flat();
+      const blocks = chunk.operation.blocks.flatMap((html) => {
+        const parsedHtml = chunk.isPossiblyPartial
+          ? getPartialHTML(html)
+          : html;
+        if (!parsedHtml) {
+          return [];
+        }
+        return editor.tryParseHTMLToBlocks(parsedHtml).map((block) => {
+          delete (block as any).id;
+          return block;
+        });
+      });
 
       // hacky
       if ((window as any).__TEST_OPTIONS) {
@@ -71,7 +65,7 @@ export const tools = {
     },
     validateBlock: validateBlockFunction,
     rebaseTool: createHTMLRebaseTool,
-    toJSONToolCall: async (editor, chunk) => {
+    toJSONToolCall: (editor, chunk) => {
       const html = chunk.isPossiblyPartial
         ? getPartialHTML(chunk.operation.block)
         : chunk.operation.block;
@@ -80,7 +74,7 @@ export const tools = {
         return undefined;
       }
 
-      const block = (await editor.tryParseHTMLToBlocks(html))[0];
+      const block = editor.tryParseHTMLToBlocks(html)[0];
 
       // console.log("update", operation.block);
       // console.log("html", html);

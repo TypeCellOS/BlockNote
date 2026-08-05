@@ -1,0 +1,30 @@
+[
+  {
+    "children": [],
+    "content": undefined,
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "First",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "https://example.com/first.png",
+    },
+    "type": "image",
+  },
+  {
+    "children": [],
+    "content": undefined,
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "Second",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "https://example.com/second.png",
+    },
+    "type": "image",
+  },
+]

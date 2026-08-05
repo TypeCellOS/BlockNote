@@ -13,10 +13,10 @@ export default function App() {
   const editor = useCreateBlockNote();
 
   const markdownInputChanged = useCallback(
-    async (e: ChangeEvent<HTMLTextAreaElement>) => {
+    (e: ChangeEvent<HTMLTextAreaElement>) => {
       // Whenever the current Markdown content changes, converts it to an array of
       // Block objects and replaces the editor's content with them.
-      const blocks = await editor.tryParseMarkdownToBlocks(e.target.value);
+      const blocks = editor.tryParseMarkdownToBlocks(e.target.value);
       editor.replaceBlocks(editor.document, blocks);
     },
     [editor],
@@ -24,11 +24,8 @@ export default function App() {
 
   // For initialization; on mount, convert the initial Markdown to blocks and replace the default editor's content
   useEffect(() => {
-    async function loadInitialHTML() {
-      const blocks = await editor.tryParseMarkdownToBlocks(initialMarkdown);
-      editor.replaceBlocks(editor.document, blocks);
-    }
-    loadInitialHTML();
+    const blocks = editor.tryParseMarkdownToBlocks(initialMarkdown);
+    editor.replaceBlocks(editor.document, blocks);
   }, [editor]);
 
   // Renders the Markdown input and editor instance.

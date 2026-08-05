@@ -8,6 +8,7 @@ Sentry.init({
   dsn: "https://31af815601e4174f4443c863953eebe7@o4508925169500160.ingest.de.sentry.io/4508925646078032",
 
   // Add optional integrations for additional features
+  // eslint-disable-next-line import/namespace
   integrations: [Sentry.replayIntegration()],
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
@@ -31,4 +32,5 @@ Sentry.init({
   debug: false,
 });
 
+// eslint-disable-next-line import/namespace
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;

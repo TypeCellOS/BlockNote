@@ -629,7 +629,7 @@ exports[`Test updateBlock > Revert all props 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1269,7 +1269,7 @@ exports[`Test updateBlock > Revert single prop 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1909,7 +1909,7 @@ exports[`Test updateBlock > Update all props 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2549,7 +2549,7 @@ exports[`Test updateBlock > Update children 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -3131,7 +3131,7 @@ exports[`Test updateBlock > Update inline content to no content 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -4055,7 +4055,7 @@ exports[`Test updateBlock > Update inline content to table content 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -4634,7 +4634,7 @@ exports[`Test updateBlock > Update no content to empty inline content 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -5217,7 +5217,7 @@ exports[`Test updateBlock > Update no content to empty table content 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -5808,7 +5808,7 @@ exports[`Test updateBlock > Update no content to inline content 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -6735,7 +6735,7 @@ exports[`Test updateBlock > Update no content to table content 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -7303,7 +7303,7 @@ exports[`Test updateBlock > Update partial (offset start + end) 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -7864,7 +7864,7 @@ exports[`Test updateBlock > Update partial (offset start) 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -8425,7 +8425,7 @@ exports[`Test updateBlock > Update partial (props + offset end) 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -8993,7 +8993,7 @@ exports[`Test updateBlock > Update partial (table cell) 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -9561,7 +9561,7 @@ exports[`Test updateBlock > Update partial (table row) 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -10201,7 +10201,7 @@ exports[`Test updateBlock > Update single prop 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -10609,7 +10609,7 @@ exports[`Test updateBlock > Update table content to empty inline content 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -11029,7 +11029,7 @@ exports[`Test updateBlock > Update table content to inline content 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -11443,7 +11443,7 @@ exports[`Test updateBlock > Update table content to no content 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -12079,7 +12079,7 @@ exports[`Test updateBlock > Update type 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -12691,7 +12691,7 @@ exports[`Test updateBlock > Update with plain content 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -13331,7 +13331,7 @@ exports[`Test updateBlock > Update with styled content 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

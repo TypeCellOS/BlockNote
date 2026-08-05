@@ -398,6 +398,7 @@ export const ko: Dictionary = {
     save_button_text: "저장",
     cancel_button_text: "취소",
     deleted_reference_text: "원본 콘텐츠 삭제됨",
+    discard_pending_comment: "이 댓글을 삭제하시겠습니까?",
     actions: {
       add_reaction: "반응 추가",
       resolve: "해결",
@@ -413,6 +414,14 @@ export const ko: Dictionary = {
       marked_as_resolved: "해결됨으로 표시됨",
       more_replies: (count) => `${count}개의 추가 답글`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "서식 변경",
+    deleted: "삭제됨",
+    inserted_by: (users: string) => `삽입한 사람: ${users}`,
+    deleted_by: (users: string) => `삭제한 사람: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `서식 변경 (${formats}) 변경한 사람: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

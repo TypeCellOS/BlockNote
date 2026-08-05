@@ -38,6 +38,12 @@ export function SuggestionMenuController<
     shouldOpen?: SuggestionMenuOptions["shouldOpen"];
     minQueryLength?: number;
     floatingUIOptions?: FloatingUIOptions;
+    /**
+     * Override the DOM node this floating element portals into. Falls back to
+     * `editor.portalElement` (which by default is mounted inside `bn-container`)
+     * when omitted.
+     */
+    portalElement?: HTMLElement | null;
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
@@ -171,7 +177,11 @@ export function SuggestionMenuController<
   }
 
   return (
-    <GenericPopover reference={reference} {...floatingUIOptions}>
+    <GenericPopover
+      reference={reference}
+      portalElement={props.portalElement}
+      {...floatingUIOptions}
+    >
       {triggerCharacter && (
         <SuggestionMenuWrapper
           query={state.query}

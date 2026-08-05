@@ -111,7 +111,7 @@ serverPersistenceRoute.post("/streamText", async (c) => {
     }),
     originalMessages: validatedMessages,
     onFinish: ({ messages }) => {
-      saveChat({ chatId: id, messages });
+      void saveChat({ chatId: id, messages });
     },
   });
 });

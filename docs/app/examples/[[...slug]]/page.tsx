@@ -55,7 +55,7 @@ export default async function Page(props: PageProps<"/examples/[[...slug]]">) {
             </div>
             <Link
               href="/demo"
-              className="whitespace-nowrap rounded-full bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-purple-700"
+              className="rounded-full bg-purple-600 px-5 py-2.5 text-sm font-medium whitespace-nowrap text-white transition-colors hover:bg-purple-700"
             >
               Try the Demo &rarr;
             </Link>
@@ -87,7 +87,9 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const params = await props.params;
   const page = source.getPage(params.slug);
-  if (!page) notFound();
+  if (!page) {
+    notFound();
+  }
 
   return getFullMetadata({
     title: page.data.title,

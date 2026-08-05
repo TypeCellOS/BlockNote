@@ -1,10 +1,11 @@
 "use client";
 
+import { createUserStore } from "@blocknote/core";
 import {
   DefaultThreadStoreAuth,
-  YjsThreadStore,
   CommentsExtension,
 } from "@blocknote/core/comments";
+import { withCollaboration, YjsThreadStore } from "@blocknote/core/yjs";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
@@ -32,6 +33,10 @@ async function resolveUsers(userIds: string[]) {
 
   return HARDCODED_USERS.filter((user) => userIds.includes(user.id));
 }
+
+// A single user store, shared between the comments and collaboration extensions
+// so they use one de-duped cache of resolved users.
+const userStore = createUserStore(resolveUsers);
 
 // Sets up Yjs document and PartyKit Yjs provider.
 const doc = new Y.Doc();
@@ -73,18 +78,19 @@ export default function App() {
       doc.getMap("threads"),
       new DefaultThreadStoreAuth(activeUser.id, activeUser.role),
     );
-  }, [doc, activeUser]);
+  }, [activeUser]);
 
   // setup the editor with comments and collaboration
   const editor = useCreateBlockNote(
-    {
+    withCollaboration({
       collaboration: {
         provider,
         fragment: doc.getXmlFragment("blocknote"),
         user: { color: getRandomColor(), name: activeUser.username },
+        resolveUsers: userStore,
       },
-      extensions: [CommentsExtension({ threadStore, resolveUsers })],
-    },
+      extensions: [CommentsExtension({ threadStore, resolveUsers: userStore })],
+    }),
     [activeUser, threadStore],
   );
 

@@ -2,11 +2,10 @@
 import react from "@vitejs/plugin-react";
 import * as fs from "fs";
 import * as path from "path";
-import { defineConfig } from "vite";
+import { defineConfig } from "vite-plus";
 import tailwindcss from "@tailwindcss/vite";
-// import eslintPlugin from "vite-plugin-eslint";
 // https://vitejs.dev/config/
-export default defineConfig((conf) => ({
+export default defineConfig(((conf: { command: string }) => ({
   plugins: [react(), tailwindcss()],
   optimizeDeps: {},
   build: {
@@ -30,4 +29,4 @@ export default defineConfig((conf) => ({
             ),
           } as any),
   },
-}));
+})) as Parameters<typeof defineConfig>[0]);

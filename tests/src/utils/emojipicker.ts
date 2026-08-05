@@ -1,16 +1,17 @@
-import { Page } from "@playwright/test";
+import { userEvent } from "./context.js";
 import { EMOJI_PICKER_SELECTOR } from "./const.js";
+import { sleep, waitForSelector } from "./editor.js";
 
-export async function openEmojiPicker(page: Page) {
-  await page.keyboard.press(":");
+export async function openEmojiPicker() {
+  await userEvent.keyboard(":");
 }
 
-export async function executeEmojiCommand(page: Page, command: string) {
-  await openEmojiPicker(page);
-  await page.waitForTimeout(100);
-  await page.keyboard.type(command);
-  await page.waitForSelector(EMOJI_PICKER_SELECTOR);
-  await page.waitForTimeout(500);
-  await page.keyboard.press("Enter");
-  await page.waitForTimeout(500);
+export async function executeEmojiCommand(command: string) {
+  await openEmojiPicker();
+  await sleep(100);
+  await userEvent.keyboard(command);
+  await waitForSelector(EMOJI_PICKER_SELECTOR);
+  await sleep(500);
+  await userEvent.keyboard("{Enter}");
+  await sleep(500);
 }

@@ -10,7 +10,10 @@ export type TestExecutor<
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
-> = (editor: BlockNoteEditor<B, I, S>, testCase: TestCase) => Promise<void>;
+> = (
+  editor: BlockNoteEditor<B, I, S>,
+  testCase: TestCase,
+) => void | Promise<void>;
 
 export type TestInstance<
   TestCase,

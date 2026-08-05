@@ -1,15 +1,23 @@
 import { Editor, Node } from "@tiptap/core";
-import { DOMParser, Fragment, TagParseRule } from "@tiptap/pm/model";
+import {
+  DOMParser,
+  Fragment,
+  Node as PMNode,
+  TagParseRule,
+} from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
+import { ignoreNonContentMutations } from "../nodeViewMutations.js";
 import {
   Extension,
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
+import { nonFormattingMarks } from "../markGroups.js";
+import { suggestionMarks } from "../../pm-nodes/suggestionMarks.js";
 import { PropSchema } from "../propTypes.js";
 import {
   containerContentExpression,
-  getBlockFromPos,
+  getBlockFromNodeView,
   propsToAttributes,
   wrapInBlockStructure,
 } from "./internal.js";
@@ -46,7 +54,7 @@ export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
 export function getParseRules<
   TName extends string,
   TProps extends PropSchema,
-  TContent extends "inline" | "none" | "table",
+  TContent extends "inline" | "none" | "table" | "plain",
 >(
   config: BlockConfig<TName, TProps, TContent>,
   implementation: BlockImplementation<TName, TProps, TContent>,
@@ -77,7 +85,9 @@ export function getParseRules<
       // Because we do the parsing ourselves, we want to preserve whitespace for content we've parsed
       preserveWhitespace: true,
       getContent:
-        config.content === "inline" || config.content === "none"
+        config.content === "inline" ||
+        config.content === "none" ||
+        config.content === "plain"
           ? (node, schema) => {
               if (implementation.parseContent) {
                 const result = implementation.parseContent({
@@ -91,7 +101,7 @@ export function getParseRules<
                 }
               }
 
-              if (config.content === "inline") {
+              if (config.content === "inline" || config.content === "plain") {
                 // Parse the inline content if it exists
                 const element = node as HTMLElement;
 
@@ -101,7 +111,9 @@ export function getParseRules<
                 // Merge multiple paragraphs into one with line breaks
                 mergeParagraphs(
                   clone,
-                  implementation.meta?.code ? "\n" : "<br>",
+                  config.content === "plain" || implementation.meta?.code
+                    ? "\n"
+                    : "<br>",
                 );
 
                 // Parse the content directly as a paragraph to extract inline content
@@ -111,6 +123,27 @@ export function getParseRules<
                   preserveWhitespace: true,
                 });
 
+                if (config.content === "plain") {
+                  // Plain blocks hold text only, so non-text inline nodes are
+                  // flattened: line breaks become newline characters and other
+                  // nodes (e.g. mentions) are kept as their text.
+                  const textNodes: PMNode[] = [];
+                  parsed.content.forEach((child) => {
+                    if (child.isText) {
+                      textNodes.push(child);
+                    } else {
+                      const text =
+                        child.type === schema.linebreakReplacement
+                          ? "\n"
+                          : child.textContent;
+                      if (text) {
+                        textNodes.push(schema.text(text, child.marks));
+                      }
+                    }
+                  });
+
+                  return Fragment.fromArray(textNodes);
+                }
                 return parsed.content;
               }
               return Fragment.empty;
@@ -155,9 +188,14 @@ function buildContainerNode<
       containerConfig.topLevel === false
         ? "bnBlock childContainer"
         : "bnBlock childContainer blockGroupChild",
-    // All bnBlock-group structural nodes carry these collab annotation marks
-    // (see Doc, BlockGroup, BlockContainer, Table, Column/ColumnList).
-    marks: "deletion insertion modification",
+    // All bnBlock-group structural nodes allow the block-level suggestion marks
+    // (see Doc, BlockGroup, BlockContainer, Table), so a whole container can be
+    // marked inserted/deleted/modified in suggestion mode. Resolved
+    // conditionally so a plain editor without those marks doesn't reference an
+    // unknown mark group.
+    marks() {
+      return suggestionMarks(this.editor);
+    },
     selectable: blockImplementation.meta?.selectable ?? true,
     isolating: blockImplementation.meta?.isolating ?? true,
     defining: true,
@@ -268,7 +306,7 @@ function buildContainerNode<
 export function addNodeAndExtensionsToSpec<
   TName extends string,
   TProps extends PropSchema,
-  TContent extends "inline" | "none" | "table",
+  TContent extends "inline" | "none" | "table" | "plain",
 >(
   blockConfig: BlockConfig<TName, TProps, TContent>,
   blockImplementation: BlockImplementation<TName, TProps, TContent>,
@@ -277,9 +315,18 @@ export function addNodeAndExtensionsToSpec<
 ): LooseBlockSpec<TName, TProps, TContent> {
   // Normalize the `container: true` shorthand once, here. Downstream code
   // sees `ContainerConfig | undefined` only.
+  //
+  // Normalize in place rather than spreading into a fresh object: `init()`
+  // calls this per schema instance on the same shared `blockSpec.config`, and
+  // consumers such as `checkMultiColumnBlocksInSchema` compare
+  // `blockSchema[type]` by reference across schemas. A new object per call
+  // would break that identity. The mutation only fires for the `true`
+  // shorthand and is idempotent, so the shared config stays stable.
   const containerConfig: ContainerConfig | undefined =
     blockConfig.container === true ? {} : blockConfig.container;
-  blockConfig = { ...blockConfig, container: containerConfig };
+  if (blockConfig.container !== containerConfig) {
+    blockConfig.container = containerConfig;
+  }
 
   if (containerConfig && blockConfig.content !== "none") {
     throw new Error(
@@ -304,9 +351,26 @@ export function addNodeAndExtensionsToSpec<
       name: blockConfig.type,
       content: (blockConfig.content === "inline"
         ? "inline*"
-        : blockConfig.content === "none"
-          ? ""
-          : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
+        : blockConfig.content === "plain"
+          ? "text*"
+          : blockConfig.content === "none"
+            ? ""
+            : blockConfig.content) as TContent extends "inline"
+        ? "inline*"
+        : TContent extends "plain"
+          ? "text*"
+          : "",
+      // "plain" blocks hold unstyled text, so they disallow formatting marks.
+      // They still allow the non-formatting marks (comments and
+      // suggestions/diffs) — those annotate content without changing it and are
+      // ignored by the block model. `nonFormattingMarks` resolves the group only
+      // when at least one such mark is registered, so a plain block in an editor
+      // without any of them doesn't reference an empty (unknown) mark group.
+      marks() {
+        return blockConfig.content === "plain"
+          ? nonFormattingMarks(this.editor)
+          : undefined;
+      },
       group: "blockContent",
       selectable: blockImplementation.meta?.selectable ?? true,
       isolating: blockImplementation.meta?.isolating ?? true,
@@ -331,7 +395,11 @@ export function addNodeAndExtensionsToSpec<
         return wrapInBlockStructure(
           {
             dom: div,
-            contentDOM: blockConfig.content === "inline" ? div : undefined,
+            contentDOM:
+              blockConfig.content === "inline" ||
+              blockConfig.content === "plain"
+                ? div
+                : undefined,
           },
           blockConfig.type,
           {},
@@ -345,19 +413,26 @@ export function addNodeAndExtensionsToSpec<
         return (props) => {
           // Gets the BlockNote editor instance
           const editor = this.options.editor;
-          // Gets the block
-          const block = getBlockFromPos(
+          // Gets the block. Resolving this can't rely on `getPos()` alone —
+          // node views are constructed part-way through ProseMirror's
+          // reconciliation, where positions don't always line up with
+          // `view.state.doc` yet (see `getBlockFromNodeView`).
+          const block = getBlockFromNodeView(
             props.getPos,
-            editor,
-            this.editor,
-            blockConfig.type,
+            props.node,
+            props.view.state.doc,
           );
           // Gets the custom HTML attributes for `blockContent` nodes
           const blockContentDOMAttributes =
             this.options.domAttributes?.blockContent || {};
 
           const nodeView = blockImplementation.render.call(
-            { blockContentDOMAttributes, props, renderType: "nodeView" },
+            {
+              blockContentDOMAttributes,
+              props,
+              renderType: "nodeView",
+              propSchema: blockConfig.propSchema,
+            },
             block as any,
             editor as any,
           );
@@ -369,6 +444,11 @@ export function addNodeAndExtensionsToSpec<
           if (blockImplementation.meta?.selectable === false) {
             applyNonSelectableBlockFix(typedNodeView, this.editor);
           }
+
+          // Ignores DOM mutations that don't affect the block's content, so
+          // that browser extensions which rewrite the DOM (e.g. Dark Reader)
+          // can't trigger an infinite re-render loop that freezes the tab.
+          ignoreNonContentMutations(typedNodeView);
 
           // See explanation for why `update` is not implemented for NodeViews
           // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464
@@ -399,6 +479,7 @@ export function addNodeAndExtensionsToSpec<
             blockContentDOMAttributes,
             props: undefined,
             renderType: "dom",
+            propSchema: blockConfig.propSchema,
           },
           block as any,
           editor as any,
@@ -412,13 +493,18 @@ export function addNodeAndExtensionsToSpec<
 
         return (
           blockImplementation.toExternalHTML?.call(
-            { blockContentDOMAttributes },
+            { blockContentDOMAttributes, propSchema: blockConfig.propSchema },
             block as any,
             editor as any,
             context,
           ) ??
           blockImplementation.render.call(
-            { blockContentDOMAttributes, renderType: "dom", props: undefined },
+            {
+              blockContentDOMAttributes,
+              renderType: "dom",
+              props: undefined,
+              propSchema: blockConfig.propSchema,
+            },
             block as any,
             editor as any,
           )
@@ -455,7 +541,7 @@ export function createBlockConfig<
 export function createBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const TOptions extends Partial<Record<string, any>> | undefined = undefined,
 >(
   blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
@@ -474,7 +560,7 @@ export function createBlockSpec<
 export function createBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const BlockConf extends BlockConfig<TName, TProps, TContent>,
   const TOptions extends Partial<Record<string, any>>,
 >(
@@ -500,7 +586,7 @@ export function createBlockSpec<
 export function createBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const TOptions extends Partial<Record<string, any>> | undefined = undefined,
 >(
   blockConfigOrCreator: BlockConfigOrCreator<TName, TProps, TContent, TOptions>,
@@ -561,7 +647,7 @@ export function createBlockSpec<
             output,
             block.type,
             block.props,
-            blockConfig.propSchema,
+            this.propSchema ?? blockConfig.propSchema,
             blockImplementation.meta?.fileBlockAccept !== undefined,
           );
         },
@@ -584,7 +670,7 @@ export function createBlockSpec<
             output,
             block.type,
             block.props,
-            blockConfig.propSchema,
+            this.propSchema ?? blockConfig.propSchema,
             blockImplementation.meta?.fileBlockAccept !== undefined,
             this.blockContentDOMAttributes,
           ) satisfies NodeView;

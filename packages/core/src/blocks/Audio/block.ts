@@ -100,7 +100,7 @@ export const audioRender =
     const audio = document.createElement("audio");
     audio.className = "bn-audio";
     if (editor.resolveFileUrl) {
-      editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+      void editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
         audio.src = downloadUrl;
       });
     } else {
@@ -129,11 +129,8 @@ export const audioToExternalHTML =
     >,
   ) => {
     if (!block.props.url) {
-      const div = document.createElement("p");
-      div.textContent = "Add audio";
-
       return {
-        dom: div,
+        dom: document.createElement("audio"),
       };
     }
 

@@ -5,12 +5,25 @@ import {
   FilePanelController,
   FormattingToolbar,
   FormattingToolbarController,
+  FormattingToolbarProps,
   getFormattingToolbarItems,
   useCreateBlockNote,
 } from "@blocknote/react";
 
 import { FileReplaceButton } from "./FileReplaceButton";
 import { uploadFile, UppyFilePanel } from "./UppyFilePanel";
+
+const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
+  // Replaces default file replace button with one that opens Uppy.
+  const items = getFormattingToolbarItems();
+  items.splice(
+    items.findIndex((c) => c.key === "replaceFileButton"),
+    1,
+    <FileReplaceButton key={"fileReplaceButton"} />,
+  );
+
+  return <FormattingToolbar {...props}>{items}</FormattingToolbar>;
+};
 
 export default function App() {
   // Creates a new editor instance.
@@ -27,9 +40,6 @@ export default function App() {
       {
         type: "image",
       },
-      {
-        type: "paragraph",
-      },
     ],
     uploadFile,
   });
@@ -38,17 +48,7 @@ export default function App() {
   return (
     <BlockNoteView editor={editor} formattingToolbar={false} filePanel={false}>
       <FormattingToolbarController
-        formattingToolbar={(props) => {
-          // Replaces default file replace button with one that opens Uppy.
-          const items = getFormattingToolbarItems();
-          items.splice(
-            items.findIndex((c) => c.key === "replaceFileButton"),
-            1,
-            <FileReplaceButton key={"fileReplaceButton"} />,
-          );
-
-          return <FormattingToolbar {...props}>{items}</FormattingToolbar>;
-        }}
+        formattingToolbar={CustomFormattingToolbar}
       />
       {/* Replaces default file panel with Uppy one. */}
       <FilePanelController filePanel={UppyFilePanel} />

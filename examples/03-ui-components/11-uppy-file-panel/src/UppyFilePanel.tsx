@@ -32,7 +32,7 @@ const uppy = new Uppy()
   // server.
   .use(XHR, {
     endpoint: "https://tmpfiles.org/api/v1/upload",
-    getResponseData(text, resp) {
+    getResponseData(text, _resp) {
       return {
         url: JSON.parse(text).data.url.replace(
           "tmpfiles.org/",

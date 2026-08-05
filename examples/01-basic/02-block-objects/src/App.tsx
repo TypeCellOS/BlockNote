@@ -26,13 +26,11 @@ export default function App() {
         type: "paragraph",
         content: "This is a paragraph block",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 
   // Sets the initial document JSON
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => setBlocks(editor.document), []);
 
   // Renders the editor instance and its document JSON.

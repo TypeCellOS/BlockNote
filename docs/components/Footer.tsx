@@ -145,7 +145,7 @@ export function FooterContent() {
   );
 }
 
-export function Footer({ menu }: { menu?: boolean }): ReactElement {
+export function Footer({ menu: _menu }: { menu?: boolean }): ReactElement {
   return (
     <footer className="relative z-30 border-t border-stone-200 bg-stone-50">
       <div

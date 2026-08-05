@@ -28,7 +28,7 @@ import {
   RiVolumeUpFill,
 } from "react-icons/ri";
 
-import { IconType } from "react-icons";
+import type { IconType } from "../../icons.js";
 import { DefaultReactSuggestionItem } from "./types.js";
 
 const icons: Record<string, IconType> = {

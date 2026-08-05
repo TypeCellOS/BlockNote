@@ -10,7 +10,6 @@ import {
   Extension,
   ExtensionFactoryInstance,
   ExtractBlockConfigFromConfigOrCreator,
-  getBlockFromPos,
   mergeCSSClasses,
   Props,
   PropSchema,
@@ -23,13 +22,14 @@ import {
 } from "@tiptap/react";
 import { FC, ReactNode } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
+import { useNodeViewBlock } from "./useNodeViewBlock.js";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
 export type ReactCustomBlockRenderProps<
   B extends BlockConfigOrCreator,
-  Config extends
-    ExtractBlockConfigFromConfigOrCreator<B> = ExtractBlockConfigFromConfigOrCreator<B>,
+  Config extends ExtractBlockConfigFromConfigOrCreator<B> =
+    ExtractBlockConfigFromConfigOrCreator<B>,
 > = {
   block: BlockNoDefaults<Record<Config["type"], Config>, any, any>;
   editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
@@ -45,8 +45,8 @@ export type ReactCustomBlockRenderProps<
 // extend BlockConfig but use a React render function
 export type ReactCustomBlockImplementation<
   B extends BlockConfigOrCreator = BlockConfigOrCreator,
-  Config extends
-    ExtractBlockConfigFromConfigOrCreator<B> = ExtractBlockConfigFromConfigOrCreator<B>,
+  Config extends ExtractBlockConfigFromConfigOrCreator<B> =
+    ExtractBlockConfigFromConfigOrCreator<B>,
 > = Omit<
   CustomBlockImplementation<
     Config["type"],
@@ -279,20 +279,30 @@ export function createReactBlockSpec<
         },
         render(block, editor) {
           if (this.renderType === "nodeView") {
+            // The block core's `addNodeView` resolved when this node view was
+            // constructed (itself guarded, via `getBlockFromNodeView`). Seeds
+            // the fallback below so there is always something to render.
+            const initialBlock = block;
+
             return ReactNodeViewRenderer(
               (props: NodeViewProps) => {
                 // Vanilla JS node views are recreated on each update. However,
                 // using `ReactNodeViewRenderer` makes it so the node view is
                 // only created once, so the block we get in the node view will
                 // be outdated. Therefore, we have to get the block in the
-                // `ReactNodeViewRenderer` instead.
+                // `ReactNodeViewRenderer` instead. That position can be stale,
+                // so resolving it is guarded (see `useNodeViewBlock`).
                 const isContainer = props.node.type.isInGroup("bnBlock");
+                // `useNodeViewBlock` is a hook, so it must run unconditionally
+                // (rules of hooks). For container blocks its position-based
+                // result is discarded in favor of the id-based lookup below.
+                const nodeViewBlock = useNodeViewBlock(props, initialBlock);
                 let block;
                 if (isContainer) {
                   // Container blocks are bnBlock-group nodes (no blockContainer
                   // wrapper), so the id lives on `props.node.attrs.id`. The
-                  // standard getBlockFromPos walks up to a parent, which would
-                  // return the wrong node here.
+                  // standard position-based resolution walks up to a parent,
+                  // which would return the wrong node here.
                   const id = (props.node.attrs as Record<string, any>).id;
                   if (!id) {
                     throw new Error(
@@ -306,12 +316,7 @@ export function createReactBlockSpec<
                     );
                   }
                 } else {
-                  block = getBlockFromPos(
-                    props.getPos,
-                    editor,
-                    props.editor,
-                    blockConfig.type,
-                  );
+                  block = nodeViewBlock;
                 }
 
                 const ref = useReactNodeView().nodeViewContentRef;

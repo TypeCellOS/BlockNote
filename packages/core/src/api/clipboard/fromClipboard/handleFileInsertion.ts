@@ -5,7 +5,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { getNearestBlockPos } from "../../getBlockInfoFromPos.js";
+import { getBlockInfoAtNearest, getNodeId } from "../../getBlockInfoFromPos.js";
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 
 function checkFileExtensionsMatch(
@@ -159,16 +159,25 @@ export async function handleFileInsertion<
         }
 
         insertedBlockId = editor.transact((tr) => {
-          const posInfo = getNearestBlockPos(tr.doc, pos.pos);
+          const blockInfo = getBlockInfoAtNearest(tr, pos.pos);
+          const id = getNodeId(blockInfo.bnBlock.node, tr.doc);
+          // TODO technically data-id will always be the non-rewritten id, so there might be multiple in the document.
+          // getNodeId might find the wrong one (aka point to a deleted node when it should be a non-deleted on)
+          // This is acceptable right now, given that we don't expect edits on the document content
           const blockElement = editor.domElement?.querySelector(
-            `[data-id="${posInfo.node.attrs.id}"]`,
+            `[data-id="${id}"]`,
           );
 
           const blockRect = blockElement?.getBoundingClientRect();
 
+          const existingBlock = editor.getBlock(id);
+          if (!existingBlock) {
+            return;
+          }
+
           return insertOrUpdateBlock(
             editor,
-            editor.getBlock(posInfo.node.attrs.id)!,
+            existingBlock,
             fileBlock,
             blockRect && (blockRect.top + blockRect.bottom) / 2 > coords.top
               ? "before"
@@ -176,6 +185,10 @@ export async function handleFileInsertion<
           );
         });
       } else {
+        return;
+      }
+
+      if (!insertedBlockId) {
         return;
       }
 

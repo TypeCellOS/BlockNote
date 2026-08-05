@@ -3,10 +3,13 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   addTitleToGroups,
+  formatFiles,
   getExampleProjects,
   getProjectFiles,
   groupProjects,
   Project,
+  writeFileAtomic,
+  writeGeneratedFile,
 } from "./util.js";
 
 /*
@@ -23,7 +26,7 @@ const EXAMPLES_PAGES_DIR = path.resolve(DOCS_DIR, "./content/examples/");
  * Generates the <ExampleBlock> component that has all the source code of the example
  * This block can be used both in the /docs and in the /example page
  */
-async function generateCodeForExample(project: Project) {
+async function generateCodeForExample(project: Project, written: string[]) {
   const projectFiles = getProjectFiles(project);
   const componentTarget = path.join(
     COMPONENT_DIR,
@@ -33,18 +36,18 @@ async function generateCodeForExample(project: Project) {
   const indexFile = path.join(componentTarget, "index.tsx");
   fs.rmSync(componentTarget, { recursive: true, force: true });
   fs.mkdirSync(componentTarget, { recursive: true });
-  fs.writeFileSync(
+  writeGeneratedFile(
     indexFile,
     `"use client";
 import Component from "./App";
 
 export default Component;`,
+    written,
   );
 
   projectFiles.forEach(({ filename, code }) => {
     const target = path.join(componentTarget, filename);
-    fs.mkdirSync(path.dirname(target), { recursive: true });
-    fs.writeFileSync(target, code);
+    writeGeneratedFile(target, code, written);
   });
 }
 
@@ -61,22 +64,25 @@ ${project.readme}
  *
  * Consists of the contents of the readme
  */
-async function generatePageForExample(project: Project) {
+async function generatePageForExample(project: Project, written: string[]) {
   const code = templatePageForExample(project);
 
   const target = path.join(EXAMPLES_PAGES_DIR, project.fullSlug + ".mdx");
 
-  fs.writeFileSync(target, code);
+  writeGeneratedFile(target, code, written);
 }
 
 /**
  * generates meta.json file for each example group, so that order is preserved
  */
-async function generateMetaForExampleGroup(group: {
-  title: string;
-  slug: string;
-  projects: Project[];
-}) {
+async function generateMetaForExampleGroup(
+  group: {
+    title: string;
+    slug: string;
+    projects: Project[];
+  },
+  written: string[],
+) {
   if (!fs.existsSync(path.join(EXAMPLES_PAGES_DIR, group.slug))) {
     fs.mkdirSync(path.join(EXAMPLES_PAGES_DIR, group.slug));
   }
@@ -90,7 +96,7 @@ async function generateMetaForExampleGroup(group: {
 
   const code = JSON.stringify(meta, undefined, 2);
 
-  fs.writeFileSync(target, code);
+  writeGeneratedFile(target, code, written);
 }
 
 /**
@@ -98,7 +104,10 @@ async function generateMetaForExampleGroup(group: {
  * data about the examples & their groups for the components we use in the
  * docs. E.g. the interactive demos and example cards.
  */
-async function generateExampleGroupsData(projects: Project[]) {
+async function generateExampleGroupsData(
+  projects: Project[],
+  written: string[],
+) {
   const target = path.join(COMPONENT_DIR, "exampleGroupsData.gen.ts");
 
   const groups = addTitleToGroups(groupProjects(projects));
@@ -146,10 +155,10 @@ export type ExampleData = ExampleGroupsData[number]["examplesData"][number];
 export const exampleGroupsData: ExampleGroupsData = ${JSON.stringify(exampleGroupsData, undefined, 2)};
 `;
 
-  fs.writeFileSync(target, code);
+  writeGeneratedFile(target, code, written);
 }
 
-async function addDependenciesToExample(project: Project) {
+async function addDependenciesToExample(project: Project, written: string[]) {
   const dependencies = project.config.dependencies || {};
   const devDependencies = project.config.devDependencies || {};
   if (
@@ -157,8 +166,7 @@ async function addDependenciesToExample(project: Project) {
     Object.keys(devDependencies).length > 0
   ) {
     const packageJson = path.join(DOCS_DIR, "package.json");
-    const packageJsonContent = fs.readFileSync(packageJson, "utf-8");
-    const packageJsonObject = JSON.parse(packageJsonContent);
+    const packageJsonObject = JSON.parse(fs.readFileSync(packageJson, "utf-8"));
     packageJsonObject.dependencies = {
       ...packageJsonObject.dependencies,
       ...dependencies,
@@ -168,19 +176,23 @@ async function addDependenciesToExample(project: Project) {
       ...devDependencies,
     };
     // Change all instances of `@blocknote/*` to `workspace:*`, since we want packages to be installed from the workspace
-    Object.entries(packageJsonObject.dependencies).forEach(([key, value]) => {
+    Object.entries(packageJsonObject.dependencies).forEach(([key]) => {
       if (key.startsWith("@blocknote/")) {
         packageJsonObject.dependencies[key] = "workspace:*";
       }
     });
-    Object.entries(packageJsonObject.devDependencies).forEach(
-      ([key, value]) => {
-        if (key.startsWith("@blocknote/")) {
-          packageJsonObject.devDependencies[key] = "workspace:*";
-        }
-      },
-    );
-    fs.writeFileSync(packageJson, JSON.stringify(packageJsonObject, null, 2));
+    Object.entries(packageJsonObject.devDependencies).forEach(([key]) => {
+      if (key.startsWith("@blocknote/")) {
+        packageJsonObject.devDependencies[key] = "workspace:*";
+      }
+    });
+    // Atomic write so a concurrent `gen:docs` process can never read a
+    // truncated/empty docs/package.json (which previously caused
+    // `JSON.parse('')` to throw "Unexpected end of JSON input"). The merged
+    // content is deterministic, so skip-if-unchanged keeps this idempotent.
+    const target = path.resolve(packageJson);
+    writeFileAtomic(target, JSON.stringify(packageJsonObject, null, 2));
+    written.push(target);
   }
 }
 
@@ -199,17 +211,20 @@ fs.readdirSync(EXAMPLES_PAGES_DIR, { withFileTypes: true }).forEach((file) => {
 // generate new files
 const projects = getExampleProjects().filter((p) => p.config?.docs === true);
 const groups = addTitleToGroups(groupProjects(projects));
+const writtenFiles: string[] = [];
 
 for (const group of Object.values(groups)) {
-  await generateMetaForExampleGroup(group);
+  await generateMetaForExampleGroup(group, writtenFiles);
 
   for (const project of group.projects) {
     // eslint-disable-next-line no-console
     console.log("generating docs for", project.fullSlug);
-    await generateCodeForExample(project);
-    await generatePageForExample(project);
-    await addDependenciesToExample(project);
+    await generateCodeForExample(project, writtenFiles);
+    await generatePageForExample(project, writtenFiles);
+    await addDependenciesToExample(project, writtenFiles);
   }
 }
 
-await generateExampleGroupsData(projects);
+await generateExampleGroupsData(projects, writtenFiles);
+
+formatFiles(writtenFiles);

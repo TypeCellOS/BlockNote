@@ -83,7 +83,7 @@ export const createVideoBlockSpec = createBlockSpec(
       const video = document.createElement("video");
       video.className = "bn-visual-media";
       if (editor.resolveFileUrl) {
-        editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+        void editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
           video.src = downloadUrl;
         });
       } else {
@@ -92,7 +92,9 @@ export const createVideoBlockSpec = createBlockSpec(
       video.controls = true;
       video.contentEditable = "false";
       video.draggable = false;
-      video.width = block.props.previewWidth;
+      if (block.props.previewWidth) {
+        video.width = block.props.previewWidth;
+      }
       videoWrapper.appendChild(video);
 
       return createResizableFileBlockWrapper(
@@ -105,11 +107,8 @@ export const createVideoBlockSpec = createBlockSpec(
     },
     toExternalHTML(block) {
       if (!block.props.url) {
-        const div = document.createElement("p");
-        div.textContent = "Add video";
-
         return {
-          dom: div,
+          dom: document.createElement("video"),
         };
       }
 

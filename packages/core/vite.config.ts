@@ -1,11 +1,23 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite-plus";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  run: {
+    tasks: {
+      build: {
+        command: "tsgo && vp build",
+        input: [
+          { auto: true },
+          { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+        ],
+        output: ["dist/**", "!dist/*.tsbuildinfo"],
+      },
+    },
+  },
   test: {
     environment: "jsdom",
     setupFiles: ["./vitestSetup.ts"],
@@ -21,6 +33,7 @@ export default defineConfig({
         locales: path.resolve(__dirname, "src/i18n/index.ts"),
         extensions: path.resolve(__dirname, "src/extensions/index.ts"),
         yjs: path.resolve(__dirname, "src/yjs/index.ts"),
+        y: path.resolve(__dirname, "src/y/index.ts"),
       },
       name: "blocknote",
       cssFileName: "style",

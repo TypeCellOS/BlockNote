@@ -3,7 +3,6 @@ import {
   DefaultBlockSchema,
   DefaultProps,
   createPageBreakBlockConfig,
-  StyledText,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
 import { Image, Link, Path, Svg, Text, View } from "@react-pdf/renderer";
@@ -114,7 +113,12 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
     );
   },
   codeBlock: (block) => {
-    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
+    // Code blocks hold plain content: at most a single unstyled text item.
+    const [textItem, ...excessItems] = block.content;
+    if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
+      throw new Error("expected plain block content to be a single text item");
+    }
+    const textContent = textItem?.text ?? "";
     const lines = textContent.split("\n").map((line, index) => {
       const indent = line.match(/^\s*/)?.[0].length || 0;
 
@@ -135,8 +139,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
         wrap={false}
         style={{
           padding: 24 * PIXELS_PER_POINT,
-          backgroundColor: "#161616",
-          color: "#ffffff",
+          border: "1px solid #000000",
           lineHeight: 1.25,
           fontSize: FONT_SIZE * PIXELS_PER_POINT,
           fontFamily: "GeistMono",

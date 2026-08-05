@@ -426,6 +426,7 @@ export const zh: Dictionary = {
     save_button_text: "保存",
     cancel_button_text: "取消",
     deleted_reference_text: "原始内容已删除",
+    discard_pending_comment: "确定要放弃此评论吗？",
     actions: {
       add_reaction: "添加反应",
       resolve: "解决",
@@ -441,6 +442,14 @@ export const zh: Dictionary = {
       marked_as_resolved: "标记为已解决",
       more_replies: (count) => `还有 ${count} 条回复`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "格式更改",
+    deleted: "已删除",
+    inserted_by: (users: string) => `插入者：${users}`,
+    deleted_by: (users: string) => `删除者：${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `格式更改（${formats}），更改者：${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

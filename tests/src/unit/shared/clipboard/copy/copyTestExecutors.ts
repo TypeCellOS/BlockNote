@@ -1,5 +1,5 @@
 import { prettify } from "htmlfy";
-import { expect } from "vitest";
+import { expect } from "vite-plus/test";
 import {
   BlockNoteEditor,
   BlockSchema,

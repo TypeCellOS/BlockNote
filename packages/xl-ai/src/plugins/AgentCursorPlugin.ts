@@ -1,6 +1,13 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { defaultSelectionBuilder } from "y-prosemirror";
+
+// Pulled from `y-prosemirror`https://github.com/yjs/y-prosemirror/blob/v1.3.7/src/plugins/cursor-plugin.js
+const defaultSelectionBuilder = (user: { name: string; color: string }) => {
+  return {
+    style: `background-color: ${user.color}70`,
+    class: "ProseMirror-yjs-selection",
+  };
+};
 
 type AgentCursorState = {
   selection: { anchor: number; head: number } | undefined;

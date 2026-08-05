@@ -56,9 +56,6 @@ export default function App() {
         type: "paragraph",
         content: "Notice the new 'Insert Hello World' item - try it out!",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

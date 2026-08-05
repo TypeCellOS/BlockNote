@@ -11,12 +11,10 @@ export default function App() {
   return (
     <BlockNoteView
       editor={editor}
-      shadCNComponents={
-        {
-          // Pass modified ShadCN components from your project here.
-          // Otherwise, the default ShadCN components will be used.
-        }
-      }
+      shadCNComponents={{
+        // Pass modified ShadCN components from your project here.
+        // Otherwise, the default ShadCN components will be used.
+      }}
     />
   );
 }

@@ -12,6 +12,12 @@ import { FilePanelProps } from "./FilePanelProps.js";
 export const FilePanelController = (props: {
   filePanel?: FC<FilePanelProps>;
   floatingUIOptions?: FloatingUIOptions;
+  /**
+   * Override the DOM node this floating element portals into. Falls back to
+   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * when omitted.
+   */
+  portalElement?: HTMLElement | null;
 }) => {
   const editor = useBlockNoteEditor<any, any, any>();
 
@@ -54,7 +60,11 @@ export const FilePanelController = (props: {
   const Component = props.filePanel || FilePanel;
 
   return (
-    <BlockPopover blockId={blockId} {...floatingUIOptions}>
+    <BlockPopover
+      blockId={blockId}
+      portalElement={props.portalElement}
+      {...floatingUIOptions}
+    >
       {blockId && <Component blockId={blockId} />}
     </BlockPopover>
   );

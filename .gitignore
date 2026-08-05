@@ -10,6 +10,10 @@ examples/*/types
 tsconfig.tsbuildinfo
 # testing
 coverage
+# Vitest's attachment store (failure screenshots / diffs). Accumulates across
+# runs; the HTML reporter copies what it needs into playwright-report/data,
+# so the originals are unreferenced cruft.
+.vitest-attachments/
 
 # production
 /build
@@ -40,4 +44,7 @@ release
 .nx/
 # Nightshift plan artifacts (keep out of version control)
 .nightshift-plan
-.claude
+.claude/*
+!.claude/skills
+.playwright-cli
+.claude/skills/playwright-cli/screenshots

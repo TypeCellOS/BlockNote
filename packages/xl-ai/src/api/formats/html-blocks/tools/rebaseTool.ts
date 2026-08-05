@@ -5,7 +5,7 @@ import {
   rebaseTool,
 } from "../../../../prosemirror/rebaseTool.js";
 
-export async function createHTMLRebaseTool(
+export function createHTMLRebaseTool(
   id: string,
   editor: BlockNoteEditor<any, any, any>,
 ) {
@@ -15,7 +15,7 @@ export async function createHTMLRebaseTool(
     throw new Error("block not found");
   }
 
-  const html = await editor.blocksToHTMLLossy([
+  const html = editor.blocksToHTMLLossy([
     {
       ...block,
       children: [],
@@ -24,7 +24,7 @@ export async function createHTMLRebaseTool(
 
   const initialMockID = (window as any).__TEST_OPTIONS?.mockID;
 
-  const blocks = await editor.tryParseHTMLToBlocks(html);
+  const blocks = editor.tryParseHTMLToBlocks(html);
 
   // hacky
   if ((window as any).__TEST_OPTIONS) {

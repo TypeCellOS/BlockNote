@@ -15,6 +15,20 @@ import {
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
 
+/**
+ * Placeholder character inserted into empty inline-content blocks when
+ * exporting to external HTML. An empty block serializes to an element with no
+ * children (e.g. `<p></p>`), which is dropped when the HTML is parsed back into
+ * blocks. Filling it with this character keeps the block alive through the
+ * round trip, and the parser strips the character again so the block ends up
+ * empty (see `HTMLToBlocks`).
+ *
+ * The Unicode object replacement character (U+FFFC) is used because it's a
+ * reserved placeholder that users don't type, so it can be safely removed on
+ * import without discarding legitimate content (unlike a non-breaking space).
+ */
+export const EMPTY_BLOCK_PLACEHOLDER = "￼";
+
 function addAttributesAndRemoveClasses(element: HTMLElement) {
   // Removes all BlockNote specific class names.
   const className =
@@ -37,7 +51,7 @@ export function serializeInlineContentExternalHTML<
   editor: BlockNoteEditor<any, I, S>,
   blockContent: PartialBlock<BSchema, I, S>["content"],
   serializer: DOMSerializer,
-  options?: { document?: Document },
+  options?: { document?: Document; blockType?: string },
 ) {
   let nodes: Node[];
 
@@ -45,9 +59,17 @@ export function serializeInlineContentExternalHTML<
   if (!blockContent) {
     throw new Error("blockContent is required");
   } else if (typeof blockContent === "string") {
-    nodes = inlineContentToNodes([blockContent], editor.pmSchema);
+    nodes = inlineContentToNodes(
+      [blockContent],
+      editor.pmSchema,
+      options?.blockType,
+    );
   } else if (Array.isArray(blockContent)) {
-    nodes = inlineContentToNodes(blockContent, editor.pmSchema);
+    nodes = inlineContentToNodes(
+      blockContent,
+      editor.pmSchema,
+      options?.blockType,
+    );
   } else if (blockContent.type === "tableContent") {
     nodes = tableContentToNodes(blockContent, editor.pmSchema);
   } else {
@@ -257,15 +279,35 @@ function serializeBlock<
     }
   }
 
-  if (ret.contentDOM && block.content) {
-    const ic = serializeInlineContentExternalHTML(
-      editor,
-      block.content as any, // TODO
-      serializer,
-      options,
-    );
+  if (ret.contentDOM) {
+    if (block.content) {
+      const ic = serializeInlineContentExternalHTML(
+        editor,
+        block.content as any, // TODO
+        serializer,
+        { ...options, blockType: block.type },
+      );
 
-    ret.contentDOM.appendChild(ic);
+      ret.contentDOM.appendChild(ic);
+    }
+
+    // Blocks with empty inline content (e.g. an empty paragraph) serialize to
+    // an element with no children (e.g. `<p></p>`), which is ignored when the
+    // HTML is parsed back into blocks. To make these blocks survive such a
+    // round trip, we fill their content with a placeholder character that the
+    // parser strips out again (see `EMPTY_BLOCK_PLACEHOLDER`).
+    //
+    // Only applies to blocks that hold inline content: containers (columns,
+    // tables) fill their `contentDOM` with child blocks later on, and code
+    // blocks would turn the placeholder into literal content.
+    const blockNodeType = editor.pmSchema.nodes[block.type as any];
+    if (
+      blockNodeType?.inlineContent &&
+      !blockNodeType.spec.code &&
+      ret.contentDOM.childNodes.length === 0
+    ) {
+      ret.contentDOM.appendChild(doc.createTextNode(EMPTY_BLOCK_PLACEHOLDER));
+    }
   }
 
   let listType = undefined;
@@ -285,7 +327,8 @@ function serializeBlock<
         props.start &&
         props?.start !== 1
       ) {
-        list.setAttribute("start", props.start + "");
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        list.setAttribute("start", String(props.start));
       }
       fragment.append(list);
     }

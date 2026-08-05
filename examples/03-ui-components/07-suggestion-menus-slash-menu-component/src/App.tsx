@@ -18,6 +18,7 @@ function CustomSlashMenu(
     <div className={"slash-menu"}>
       {props.items.map((item, index) => (
         <div
+          key={item.title}
           className={`slash-menu-item ${
             props.selectedIndex === index ? "selected" : ""
           }`}
@@ -47,9 +48,6 @@ export default function App() {
       {
         type: "paragraph",
         content: "It's been replaced with a custom component",
-      },
-      {
-        type: "paragraph",
       },
     ],
   });

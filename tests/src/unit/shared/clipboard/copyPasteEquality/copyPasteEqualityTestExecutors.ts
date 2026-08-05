@@ -5,7 +5,7 @@ import {
   selectedFragmentToHTML,
   StyleSchema,
 } from "@blocknote/core";
-import { expect } from "vitest";
+import { expect } from "vite-plus/test";
 
 import { initTestEditor } from "../../testUtil.js";
 import { doPaste } from "../clipboardTestUtil.js";
@@ -21,7 +21,7 @@ export const testCopyPasteEquality = async <
 ) => {
   initTestEditor(editor, testCase.document, testCase.getCopyAndPasteSelection);
 
-  const { clipboardHTML } = selectedFragmentToHTML(
+  const { clipboardHTML, markdown } = selectedFragmentToHTML(
     editor.prosemirrorView,
     editor,
   );
@@ -29,7 +29,7 @@ export const testCopyPasteEquality = async <
   const originalDocument = editor.document;
   doPaste(
     editor.prosemirrorView,
-    "text",
+    markdown,
     clipboardHTML,
     false,
     new ClipboardEvent("paste"),

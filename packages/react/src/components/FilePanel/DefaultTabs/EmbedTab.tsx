@@ -26,7 +26,7 @@ export const EmbedTab = <
 
   const editor = useBlockNoteEditor<B, I, S>();
 
-  const block = editor.getBlock(props.blockId)!;
+  const block = editor.getBlock(props.blockId);
 
   const [currentURL, setCurrentURL] = useState<string>("");
 
@@ -41,7 +41,10 @@ export const EmbedTab = <
     (event: KeyboardEvent) => {
       if (event.key === "Enter" && !event.nativeEvent.isComposing) {
         event.preventDefault();
-        editor.updateBlock(block.id, {
+        if (!editor.getBlock(props.blockId)) {
+          return;
+        }
+        editor.updateBlock(props.blockId, {
           props: {
             name: filenameFromURL(currentURL),
             url: currentURL,
@@ -49,17 +52,24 @@ export const EmbedTab = <
         });
       }
     },
-    [editor, block.id, currentURL],
+    [editor, props.blockId, currentURL],
   );
 
   const handleURLClick = useCallback(() => {
-    editor.updateBlock(block.id, {
+    if (!editor.getBlock(props.blockId)) {
+      return;
+    }
+    editor.updateBlock(props.blockId, {
       props: {
         name: filenameFromURL(currentURL),
         url: currentURL,
       } as any,
     });
-  }, [editor, block.id, currentURL]);
+  }, [editor, props.blockId, currentURL]);
+
+  if (!block) {
+    return null;
+  }
 
   return (
     <Components.FilePanel.TabPanel className={"bn-tab-panel"}>

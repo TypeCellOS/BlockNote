@@ -23,6 +23,7 @@ function CustomEmojiPicker(
     >
       {props.items.map((item, index) => (
         <div
+          key={item.id ?? index}
           className={`emoji-picker-item ${
             props.selectedIndex === index ? "selected" : ""
           }`}
@@ -52,9 +53,6 @@ export default function App() {
       {
         type: "paragraph",
         content: "It's been replaced with a custom component",
-      },
-      {
-        type: "paragraph",
       },
     ],
   });

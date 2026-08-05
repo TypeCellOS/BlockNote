@@ -1,0 +1,16 @@
+[
+  {
+    "children": [],
+    "content": undefined,
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "alt text",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "https://example.com/image.png",
+    },
+    "type": "image",
+  },
+]

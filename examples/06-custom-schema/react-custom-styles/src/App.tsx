@@ -47,7 +47,7 @@ export const schema = BlockNoteSchema.create({
   },
 });
 
-const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
+const CustomFormattingToolbar = (_props: FormattingToolbarProps) => {
   const editor = useBlockNoteEditor(schema);
   const activeStyles = useActiveStyles(editor);
 

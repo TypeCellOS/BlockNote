@@ -34,7 +34,7 @@ function AuthenticationInput(props: {
           type={props.type}
           required
           autoComplete={props.type}
-          className="text-fd-accent-foreground outline-fd-border focus:outline-fd-primary focus:outline-3 block w-full rounded-md bg-white px-3 py-1.5 text-base outline-2 -outline-offset-1 focus:-outline-offset-2 sm:text-sm/6 dark:bg-black"
+          className="text-fd-accent-foreground outline-fd-border focus:outline-fd-primary block w-full rounded-md bg-white px-3 py-1.5 text-base outline-2 -outline-offset-1 focus:outline-3 focus:-outline-offset-2 sm:text-sm/6 dark:bg-black"
           onChange={props.onChange}
         />
       </div>
@@ -431,7 +431,7 @@ export default function AuthenticationPage(props: {
         </h2>
       </div>
 
-      <div className="mb-10 mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
+      <div className="mt-10 mb-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
         <div className="bg-fd-accent px-6 py-12 shadow sm:rounded-lg sm:px-12">
           <AuthenticationBox variant={props.variant} />
         </div>

@@ -21,9 +21,6 @@ export default function App() {
         type: "paragraph",
         content: "Select different blocks to see the JSON change below",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

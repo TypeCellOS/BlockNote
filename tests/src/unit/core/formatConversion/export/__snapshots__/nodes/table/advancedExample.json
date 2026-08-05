@@ -1,0 +1,265 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "content": [
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": [
+                    199,
+                  ],
+                  "rowspan": 1,
+                  "textAlignment": "center",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "This row has headers",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableHeader",
+              },
+              {
+                "attrs": {
+                  "backgroundColor": "red",
+                  "colspan": 1,
+                  "colwidth": [
+                    148,
+                  ],
+                  "rowspan": 1,
+                  "textAlignment": "center",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "This is ",
+                        "type": "text",
+                      },
+                      {
+                        "marks": [
+                          {
+                            "type": "bold",
+                          },
+                        ],
+                        "text": "RED",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableHeader",
+              },
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": [
+                    201,
+                  ],
+                  "rowspan": 1,
+                  "textAlignment": "center",
+                  "textColor": "blue",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "Text is Blue",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableHeader",
+              },
+            ],
+            "type": "tableRow",
+          },
+          {
+            "content": [
+              {
+                "attrs": {
+                  "backgroundColor": "yellow",
+                  "colspan": 2,
+                  "colwidth": [
+                    199,
+                    148,
+                  ],
+                  "rowspan": 2,
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "This spans 2 columns",
+                        "type": "text",
+                      },
+                      {
+                        "type": "hardBreak",
+                      },
+                      {
+                        "text": "and 2 rows",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableCell",
+              },
+              {
+                "attrs": {
+                  "backgroundColor": "gray",
+                  "colspan": 1,
+                  "colwidth": [
+                    201,
+                  ],
+                  "rowspan": 1,
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "Sooo many features",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableCell",
+              },
+            ],
+            "type": "tableRow",
+          },
+          {
+            "content": [
+              {
+                "attrs": {
+                  "backgroundColor": "gray",
+                  "colspan": 1,
+                  "colwidth": [
+                    201,
+                  ],
+                  "rowspan": 1,
+                  "textAlignment": "left",
+                  "textColor": "purple",
+                },
+                "content": [
+                  {
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableCell",
+              },
+            ],
+            "type": "tableRow",
+          },
+          {
+            "content": [
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": [
+                    199,
+                  ],
+                  "rowspan": 1,
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "A cell",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableCell",
+              },
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": [
+                    148,
+                  ],
+                  "rowspan": 1,
+                  "textAlignment": "right",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "Another Cell",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableCell",
+              },
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": [
+                    201,
+                  ],
+                  "rowspan": 1,
+                  "textAlignment": "center",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "Aligned center",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableCell",
+              },
+            ],
+            "type": "tableRow",
+          },
+        ],
+        "type": "table",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

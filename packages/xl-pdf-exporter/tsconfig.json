@@ -4,7 +4,7 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
-    "moduleResolution": "Node",
+    "moduleResolution": "Bundler",
     "jsx": "react-jsx",
     "strict": true,
     "sourceMap": true,
@@ -31,6 +31,9 @@
     },
     {
       "path": "../react"
+    },
+    {
+      "path": "../xl-multi-column"
     },
     {
       "path": "../../shared"

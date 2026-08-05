@@ -3,7 +3,7 @@ import {
   BlockNoteSchema,
   PartialBlock,
 } from "@blocknote/core";
-import { afterAll, beforeAll, beforeEach } from "vitest";
+import { afterAll, beforeAll, beforeEach } from "vite-plus/test";
 
 import { ColumnBlock, ColumnListBlock } from "../blocks/Columns/index.js";
 
@@ -105,9 +105,5 @@ const testDocument: PartialBlock<
     id: "paragraph-2",
     type: "paragraph",
     content: "Paragraph 2",
-  },
-  {
-    id: "trailing-paragraph",
-    type: "paragraph",
   },
 ];

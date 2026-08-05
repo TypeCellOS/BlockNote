@@ -17,9 +17,6 @@ export default function App() {
         type: "paragraph",
         content: "Check out the static formatting toolbar above!",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

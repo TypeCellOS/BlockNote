@@ -370,6 +370,7 @@ export const ar: Dictionary = {
     save_button_text: "حفظ",
     cancel_button_text: "إلغاء",
     deleted_reference_text: "تم حذف المحتوى الأصلي",
+    discard_pending_comment: "هل أنت متأكد أنك تريد تجاهل هذا التعليق؟",
     actions: {
       add_reaction: "أضف تفاعلًا",
       resolve: "حل",
@@ -385,6 +386,14 @@ export const ar: Dictionary = {
       marked_as_resolved: "تم وضع علامة كتم الحل",
       more_replies: (count) => `${count} ردود أخرى`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "تغيير التنسيق",
+    deleted: "محذوف",
+    inserted_by: (users: string) => `أُدرج بواسطة: ${users}`,
+    deleted_by: (users: string) => `حُذف بواسطة: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `تغيير التنسيق (${formats}) بواسطة: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

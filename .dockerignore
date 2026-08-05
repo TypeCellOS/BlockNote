@@ -1,0 +1,17 @@
+# Keep the e2e image build context lean and Linux-clean: never copy host
+# (macOS) node_modules or build outputs — deps are installed fresh inside the
+# image. What actually lands in the image is selected explicitly by the COPY
+# steps in tests/Dockerfile (manifests + example apps), not by exclusions here;
+# these entries just stop the heavy/irrelevant trees from bloating the context.
+**/node_modules
+**/dist
+**/types
+**/.vite
+**/.vite-plus
+**/*.tsbuildinfo
+**/.DS_Store
+.git
+**/test-results
+**/blob-report
+**/playwright-report
+tests/.vitest-attachments

@@ -6,10 +6,8 @@ import {
   getNodeById,
   UnreachableCaseError,
 } from "@blocknote/core";
-import {
-  ForkYDocExtension,
-  ShowSelectionExtension,
-} from "@blocknote/core/extensions";
+import { ShowSelectionExtension } from "@blocknote/core/extensions";
+import type { ForkYDocExtension } from "@blocknote/core/yjs";
 import {
   applySuggestions,
   revertSuggestions,
@@ -22,6 +20,7 @@ import { fixTablesKey } from "prosemirror-tables";
 import { buildAIRequest, sendMessageWithAIRequest } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
 import { AIRequestHelpers, InvokeAIOptions } from "./types.js";
+import { AttributionMarksExtension } from "./prosemirror/AttributionMarks.js";
 
 type AIPluginState = {
   aiMenuState:
@@ -83,6 +82,7 @@ export const AIExtension = createExtension(
       key: "ai",
       options,
       store,
+      blockNoteExtensions: [AttributionMarksExtension()],
       mount({ signal }: { signal: AbortSignal }) {
         let scrollInProgress = false;
         // Listens for `scroll` and `scrollend` events to see if a new scroll was
@@ -220,7 +220,9 @@ export const AIExtension = createExtension(
         });
 
         // If in collaboration mode, merge the changes back into the original yDoc
-        editor.getExtension(ForkYDocExtension)?.merge({ keepChanges: true });
+        editor
+          .getExtension<typeof ForkYDocExtension>("yForkDoc")
+          ?.merge({ keepChanges: true });
 
         this.closeAIMenu();
       },
@@ -238,7 +240,9 @@ export const AIExtension = createExtension(
         });
 
         // If in collaboration mode, discard the changes and revert to the original yDoc
-        editor.getExtension(ForkYDocExtension)?.merge({ keepChanges: false });
+        editor
+          .getExtension<typeof ForkYDocExtension>("yForkDoc")
+          ?.merge({ keepChanges: false });
         this.closeAIMenu();
       },
 
@@ -379,7 +383,8 @@ export const AIExtension = createExtension(
        */
       async invokeAI(opts: InvokeAIOptions) {
         this.setAIResponseStatus("thinking");
-        editor.getExtension(ForkYDocExtension)?.fork();
+        // If in collaboration mode, fork the yDoc to allow modifications without affecting the remote
+        editor.getExtension<typeof ForkYDocExtension>("yForkDoc")?.fork();
 
         try {
           // Create a new AbortController for this request

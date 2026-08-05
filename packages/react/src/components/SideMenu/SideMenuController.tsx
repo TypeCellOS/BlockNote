@@ -12,6 +12,12 @@ import { SideMenuProps } from "./SideMenuProps.js";
 export const SideMenuController = (props: {
   sideMenu?: FC<SideMenuProps>;
   floatingUIOptions?: Partial<FloatingUIOptions>;
+  /**
+   * Override the DOM node this floating element portals into. Falls back to
+   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * when omitted.
+   */
+  portalElement?: HTMLElement | null;
 }) => {
   const editor = useBlockNoteEditor();
   const state = useExtensionState(SideMenuExtension, {
@@ -89,7 +95,11 @@ export const SideMenuController = (props: {
   const Component = props.sideMenu || SideMenu;
 
   return (
-    <BlockPopover blockId={show ? block?.id : undefined} {...floatingUIOptions}>
+    <BlockPopover
+      blockId={show ? block?.id : undefined}
+      portalElement={props.portalElement}
+      {...floatingUIOptions}
+    >
       {block?.id && <Component />}
     </BlockPopover>
   );

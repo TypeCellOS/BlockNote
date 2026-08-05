@@ -1,19 +1,17 @@
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { getRelativeSelection, ySyncPluginKey } from "y-prosemirror";
 import {
   createExtension,
   createStore,
   ExtensionOptions,
 } from "../editor/BlockNoteExtension.js";
 import { ShowSelectionExtension } from "../extensions/ShowSelection/ShowSelection.js";
+import { normalizeToUserStore, UserStoreOrResolver } from "../user/index.js";
 import { CustomBlockNoteSchema } from "../schema/schema.js";
 import { CommentMark } from "./mark.js";
 import type { ThreadStore } from "./threadstore/ThreadStore.js";
 import type { CommentBody, ThreadData } from "./types.js";
-import { User } from "./types.js";
-import { UserStore } from "./userstore/UserStore.js";
 
 const PLUGIN_KEY = new PluginKey("blocknote-comments");
 
@@ -61,22 +59,40 @@ function getUpdatedThreadPositions(doc: Node, markType: string) {
 export const CommentsExtension = createExtension(
   ({
     editor,
-    options: { schema: commentEditorSchema, threadStore, resolveUsers },
+    options: {
+      schema: commentEditorSchema,
+      threadStore,
+      resolveUsers,
+      confirmBeforeDiscard = true,
+    },
   }: ExtensionOptions<{
     /**
      * The thread store implementation to use for storing and retrieving comment threads
      */
     threadStore: ThreadStore;
     /**
-     * Resolve user information for comments.
+     * Resolve user information (names, avatars) for comment authors.
+     *
+     * Either a resolver function (called with the ids of users that are not yet
+     * cached, returning their information) or a pre-built user store (see
+     * `createUserStore`). Pass the same store to the collaboration options so a
+     * single de-duped user cache is shared across comments and collaboration.
      *
      * See [Comments](https://www.blocknotejs.org/docs/features/collaboration/comments) for more info.
      */
-    resolveUsers: (userIds: string[]) => Promise<User[]>;
+    resolveUsers: UserStoreOrResolver;
     /**
      * A schema to use for the comment editor (which allows you to customize the blocks and styles that are available in the comment editor)
      */
     schema?: CustomBlockNoteSchema<any, any, any>;
+    /**
+     * Whether to ask the user for confirmation before discarding unsaved text
+     * in a comment composer (a new comment, a reply, or an in-progress edit)
+     * when it's dismissed (e.g. by clicking outside or pressing Escape).
+     *
+     * @default true
+     */
+    confirmBeforeDiscard?: boolean;
   }>) => {
     if (!resolveUsers) {
       throw new Error(
@@ -88,9 +104,12 @@ export const CommentsExtension = createExtension(
         "threadStore is required to be defined when using comments",
       );
     }
+    // Resolve users through this store, exposed on the extension instance so the
+    // comments UI can read from it directly. Accepts a resolver callback or a
+    // shared store (see the option docs above).
+    const userStore = normalizeToUserStore(resolveUsers);
     const markType = CommentMark.name;
 
-    const userStore = new UserStore<User>(resolveUsers);
     const store = createStore(
       {
         pendingComment: false,
@@ -158,6 +177,9 @@ export const CommentsExtension = createExtension(
     return {
       key: "comments",
       store,
+      userStore,
+      runsBefore: ["link"],
+      tiptapExtensions: [CommentMark],
       prosemirrorPlugins: [
         new Plugin<CommentsPluginState>({
           key: PLUGIN_KEY,
@@ -224,7 +246,7 @@ export const CommentsExtension = createExtension(
             },
             handleClick: (view, pos, event) => {
               if (event.button !== 0) {
-                return;
+                return false;
               }
 
               const node = view.state.doc.nodeAt(pos);
@@ -235,7 +257,7 @@ export const CommentsExtension = createExtension(
                   ...prev,
                   selectedThreadId: undefined,
                 }));
-                return;
+                return false;
               }
 
               const commentMark = node.marks.find(
@@ -243,15 +265,33 @@ export const CommentsExtension = createExtension(
                   mark.type.name === markType && mark.attrs.orphan !== true,
               );
 
-              const threadId = commentMark?.attrs.threadId as
-                | string
-                | undefined;
-              if (threadId !== store.state.selectedThreadId) {
-                store.setState((prev) => ({
-                  ...prev,
-                  selectedThreadId: threadId,
-                }));
+              if (!commentMark) {
+                // Clicked outside any comment thread. Deselect if needed but
+                // don't consume the event so other handlers (e.g. link
+                // navigation) can process it.
+                if (store.state.selectedThreadId !== undefined) {
+                  store.setState((prev) => ({
+                    ...prev,
+                    selectedThreadId: undefined,
+                  }));
+                }
+                return false;
               }
+
+              const threadId = commentMark.attrs.threadId as string;
+
+              // If the clicked thread is already selected, do nothing and let
+              // other handlers process the event (e.g. navigating a link).
+              if (threadId === store.state.selectedThreadId) {
+                return false;
+              }
+
+              store.setState((prev) => ({
+                ...prev,
+                selectedThreadId: threadId,
+              }));
+
+              return true;
             },
           },
         }),
@@ -331,21 +371,10 @@ export const CommentsExtension = createExtension(
       }) {
         const thread = await threadStore.createThread(options);
         if (threadStore.addThreadToDocument) {
-          const view = editor.prosemirrorView!;
-          const pmSelection = view.state.selection;
-          const ystate = ySyncPluginKey.getState(view.state);
-          const selection = {
-            prosemirror: {
-              head: pmSelection.head,
-              anchor: pmSelection.anchor,
-            },
-            yjs: ystate
-              ? getRelativeSelection(ystate.binding, view.state)
-              : undefined,
-          };
           await threadStore.addThreadToDocument({
             threadId: thread.id,
-            selection,
+            selection: editor.transact((tr) => tr.selection),
+            editor,
           });
         } else {
           (editor as any)._tiptapEditor.commands.setMark(markType, {
@@ -354,9 +383,8 @@ export const CommentsExtension = createExtension(
           });
         }
       },
-      userStore,
       commentEditorSchema,
-      tiptapExtensions: [CommentMark],
+      confirmBeforeDiscard,
     } as const;
   },
 );

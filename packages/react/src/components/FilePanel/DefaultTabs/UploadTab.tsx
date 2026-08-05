@@ -29,7 +29,7 @@ export const UploadTab = <
 
   const editor = useBlockNoteEditor<B, I, S>();
 
-  const block = editor.getBlock(props.blockId)!;
+  const block = editor.getBlock(props.blockId);
 
   const [uploadFailed, setUploadFailed] = useState<boolean>(false);
 
@@ -53,6 +53,9 @@ export const UploadTab = <
         if (editor.uploadFile !== undefined) {
           try {
             let updateData = await editor.uploadFile(file, props.blockId);
+            if (!editor.getBlock(props.blockId)) {
+              return;
+            }
             if (typeof updateData === "string") {
               // received a url
               updateData = {
@@ -63,7 +66,7 @@ export const UploadTab = <
               };
             }
             editor.updateBlock(props.blockId, updateData);
-          } catch (e) {
+          } catch {
             setUploadFailed(true);
           } finally {
             setLoading(false);
@@ -71,10 +74,14 @@ export const UploadTab = <
         }
       }
 
-      upload(file);
+      void upload(file);
     },
     [props.blockId, editor, setLoading],
   );
+
+  if (!block) {
+    return null;
+  }
 
   const spec = editor.schema.blockSpecs[block.type];
   const accept = spec.implementation.meta?.fileBlockAccept?.length

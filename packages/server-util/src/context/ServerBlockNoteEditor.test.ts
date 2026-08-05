@@ -1,5 +1,5 @@
 import { Block } from "@blocknote/core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { ServerBlockNoteEditor } from "./ServerBlockNoteEditor.js";
 
 describe("Test ServerBlockNoteEditor", () => {

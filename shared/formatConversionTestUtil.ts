@@ -130,7 +130,7 @@ export function partialBlockToBlockForTesting<
   schema: BSchema,
   partialBlock: PartialBlock<BSchema, I, S>,
 ): Block<BSchema, I, S> {
-  const contentType: "inline" | "table" | "none" =
+  const contentType: "inline" | "table" | "none" | "plain" =
     schema[partialBlock.type!].content;
 
   const withDefaults: Block<BSchema, I, S> = {
@@ -138,7 +138,7 @@ export function partialBlockToBlockForTesting<
     type: partialBlock.type!,
     props: {} as any,
     content:
-      contentType === "inline"
+      contentType === "inline" || contentType === "plain"
         ? []
         : contentType === "table"
           ? {

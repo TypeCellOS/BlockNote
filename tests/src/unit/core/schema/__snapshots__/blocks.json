@@ -122,7 +122,7 @@
   "codeBlock": {
     "config": {
       "container": undefined,
-      "content": "inline",
+      "content": "plain",
       "propSchema": {
         "language": {
           "default": "text",

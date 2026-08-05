@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 import {
   BlockNoteEditor,
@@ -29,7 +29,7 @@ function validateConversion(
 
   expect(node).toMatchSnapshot();
 
-  const outputBlock = nodeToBlock(node, editor.pmSchema);
+  const outputBlock = nodeToBlock(node, editor.prosemirrorState.doc);
 
   const fullOriginalBlock = partialBlockToBlockForTesting(
     editor.schema.blockSchema,

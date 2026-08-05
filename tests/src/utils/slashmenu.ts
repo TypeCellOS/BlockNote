@@ -1,15 +1,16 @@
-import { Page } from "@playwright/test";
+import { userEvent } from "./context.js";
 import { SLASH_MENU_SELECTOR } from "./const.js";
+import { sleep, waitForSelector } from "./editor.js";
 
-export async function openSlashMenu(page: Page) {
-  await page.keyboard.press("/");
-  await page.waitForSelector(SLASH_MENU_SELECTOR);
+export async function openSlashMenu() {
+  await userEvent.keyboard("/");
+  await waitForSelector(SLASH_MENU_SELECTOR);
 }
 
-export async function executeSlashCommand(page: Page, command: string) {
-  await openSlashMenu(page);
-  await page.waitForTimeout(100);
-  await page.keyboard.type(command);
-  await page.keyboard.press("Enter");
-  await page.waitForTimeout(500);
+export async function executeSlashCommand(command: string) {
+  await openSlashMenu();
+  await sleep(100);
+  await userEvent.keyboard(command);
+  await userEvent.keyboard("{Enter}");
+  await sleep(500);
 }

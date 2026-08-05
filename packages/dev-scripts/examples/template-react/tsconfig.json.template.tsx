@@ -1,6 +1,4 @@
-import type { Project } from "../util";
-
-const template = (project: Project) => ({
+const template = () => ({
   __comment: "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   compilerOptions: {
     target: "ESNext",
@@ -8,7 +6,6 @@ const template = (project: Project) => ({
     lib: ["DOM", "DOM.Iterable", "ESNext"],
     allowJs: false,
     skipLibCheck: true,
-    esModuleInterop: false,
     allowSyntheticDefaultImports: true,
     strict: true,
     forceConsistentCasingInFileNames: true,

@@ -1,0 +1,17 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "const x = 1;",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "language": "ts",
+    },
+    "type": "codeBlock",
+  },
+]

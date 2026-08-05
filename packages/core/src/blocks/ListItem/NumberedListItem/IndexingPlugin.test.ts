@@ -1,5 +1,5 @@
 import { Selection } from "prosemirror-state";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 
@@ -30,9 +30,7 @@ function createEditor() {
 
 function getDecorationSet(editor: BlockNoteEditor<any, any, any>) {
   const view = editor._tiptapEditor.view;
-  const plugin = view.state.plugins.find(
-    (p) => (p as any).key === PLUGIN_KEY,
-  );
+  const plugin = view.state.plugins.find((p) => (p as any).key === PLUGIN_KEY);
   if (!plugin) {
     throw new Error("IndexingPlugin not found");
   }
@@ -54,8 +52,7 @@ function getDataIndices(editor: BlockNoteEditor<any, any, any>) {
   const decos = decoSet.find(0, doc.nodeSize - 2);
   return decos.map((d: any) => {
     // Decoration attrs are stored on the decoration object
-    const attrs =
-      (d as any).type?.attrs ?? (d as any).attrs ?? (d as any).type;
+    const attrs = (d as any).type?.attrs ?? (d as any).attrs ?? (d as any).type;
     return parseInt(attrs["data-index"], 10);
   });
 }
@@ -287,11 +284,7 @@ describe("IndexingPlugin: typing preserves indices (early exit)", () => {
     const view = editor._tiptapEditor.view;
     let targetPos = 0;
     view.state.doc.descendants((node, pos) => {
-      if (
-        node.type.name === "numberedListItem" &&
-        targetPos === 0 &&
-        pos > 4
-      ) {
+      if (node.type.name === "numberedListItem" && targetPos === 0 && pos > 4) {
         targetPos = pos + 1; // inside the inline content
       }
     });

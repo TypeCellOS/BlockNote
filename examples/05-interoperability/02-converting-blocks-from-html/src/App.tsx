@@ -13,10 +13,10 @@ export default function App() {
   const editor = useCreateBlockNote();
 
   const htmlInputChanged = useCallback(
-    async (e: ChangeEvent<HTMLTextAreaElement>) => {
+    (e: ChangeEvent<HTMLTextAreaElement>) => {
       // Whenever the current HTML content changes, converts it to an array of
       // Block objects and replaces the editor's content with them.
-      const blocks = await editor.tryParseHTMLToBlocks(e.target.value);
+      const blocks = editor.tryParseHTMLToBlocks(e.target.value);
       editor.replaceBlocks(editor.document, blocks);
     },
     [editor],
@@ -24,11 +24,8 @@ export default function App() {
 
   // For initialization; on mount, convert the initial HTML to blocks and replace the default editor's content
   useEffect(() => {
-    async function loadInitialHTML() {
-      const blocks = await editor.tryParseHTMLToBlocks(initialHTML);
-      editor.replaceBlocks(editor.document, blocks);
-    }
-    loadInitialHTML();
+    const blocks = editor.tryParseHTMLToBlocks(initialHTML);
+    editor.replaceBlocks(editor.document, blocks);
   }, [editor]);
 
   // Renders the HTML input and editor instance.

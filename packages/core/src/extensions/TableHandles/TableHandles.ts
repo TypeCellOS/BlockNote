@@ -28,6 +28,7 @@ import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../api/nodeUtil.js";
 import {
   editorHasBlockWithType,
+  isTableCellNode,
   isTableCellSelection,
 } from "../../blocks/defaultBlockTypeGuards.js";
 import { DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
@@ -163,13 +164,9 @@ export class TableHandlesView implements PluginView {
       any
     >,
     private readonly pmView: EditorView,
-    emitUpdate: (state: TableHandlesState) => void,
+    emitUpdate: (state: TableHandlesState | undefined) => void,
   ) {
     this.emitUpdate = () => {
-      if (!this.state) {
-        throw new Error("Attempting to update uninitialized image toolbar");
-      }
-
       emitUpdate(this.state);
     };
 
@@ -257,20 +254,22 @@ export class TableHandlesView implements PluginView {
       | BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
       | undefined;
 
-    const pmNodeInfo = this.editor.transact((tr) =>
-      getNodeById(blockEl.id, tr.doc),
-    );
+    const { pmNodeInfo, doc } = this.editor.transact((tr) => ({
+      pmNodeInfo: getNodeById(blockEl.id, tr.doc),
+      doc: tr.doc,
+    }));
     if (!pmNodeInfo) {
       throw new Error(`Block with ID ${blockEl.id} not found`);
     }
 
     const block = nodeToBlock(
       pmNodeInfo.node,
-      this.editor.pmSchema,
-      this.editor.schema.blockSchema,
-      this.editor.schema.inlineContentSchema,
-      this.editor.schema.styleSchema,
-    );
+      doc,
+    ) as unknown as BlockFromConfigNoChildren<
+      DefaultBlockSchema["table"],
+      any,
+      any
+    >;
 
     if (editorHasBlockWithType(this.editor, "table")) {
       this.tablePos = pmNodeInfo.posBeforeNode + 1;
@@ -298,7 +297,7 @@ export class TableHandlesView implements PluginView {
 
       const hideHandles =
         // always hide handles when the actively hovered table changed
-        this.state?.block.id !== tableBlock.id ||
+        this.state?.block?.id !== tableBlock.id ||
         // make sure we don't hide existing handles (keep col / row index) when
         // we're hovering just above or to the right of a table
         event.clientX > tableRect.right ||
@@ -466,6 +465,8 @@ export class TableHandlesView implements PluginView {
     event.preventDefault();
 
     const { draggingState, colIndex, rowIndex } = this.state;
+    // Clear so a re-dispatched drop short-circuits above (issue #2691).
+    this.state.draggingState = undefined;
 
     const columnWidths = this.state.block.content.columnWidths;
 
@@ -533,21 +534,22 @@ export class TableHandlesView implements PluginView {
     }
 
     // Hide handles if the table block has been removed.
-    this.state.block = this.editor.getBlock(this.state.block.id)!;
+    const refreshedBlock = this.editor.getBlock(this.state.block.id);
     if (
-      !this.state.block ||
-      this.state.block.type !== "table" ||
+      !refreshedBlock ||
+      refreshedBlock.type !== "table" ||
       // when collaborating, the table element might be replaced and out of date
       // because yjs replaces the element when for example you change the color via the side menu
       !this.tableElement?.isConnected
     ) {
-      this.state.show = false;
-      this.state.showAddOrRemoveRowsButton = false;
-      this.state.showAddOrRemoveColumnsButton = false;
+      this.state = undefined;
+      this.tableId = undefined;
+      this.tableElement = undefined;
       this.emitUpdate();
 
       return;
     }
+    this.state.block = refreshedBlock as typeof this.state.block;
 
     const { height: rowCount, width: colCount } = getDimensionsOfTable(
       this.state.block,
@@ -626,7 +628,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         view: (editorView) => {
           view = new TableHandlesView(editor as any, editorView, (state) => {
             store.setState(
-              state.block
+              state?.block
                 ? {
                     ...state,
                     draggingState: state.draggingState
@@ -984,7 +986,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
      * Adds a row or column to the table using prosemirror-table commands
      */
     addRowOrColumn(
-      index: RelativeCellIndices["row"] | RelativeCellIndices["col"],
+      index: RelativeCellIndices["row"],
       direction:
         | { orientation: "row"; side: "above" | "below" }
         | { orientation: "column"; side: "left" | "right" },
@@ -1017,7 +1019,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
      * Removes a row or column from the table using prosemirror-table commands
      */
     removeRowOrColumn(
-      index: RelativeCellIndices["row"] | RelativeCellIndices["col"],
+      index: RelativeCellIndices["row"],
       direction: "row" | "column",
     ) {
       if (direction === "row") {
@@ -1106,15 +1108,26 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
           // When the selection is a normal text selection
           // Assumes we are within a tableParagraph
           // And find the from and to cells by resolving the positions
-          $fromCell = tr.doc.resolve(
-            selection.$from.pos - selection.$from.parentOffset - 1,
-          );
-          $toCell = tr.doc.resolve(
-            selection.$to.pos - selection.$to.parentOffset - 1,
-          );
+          const fromCellPos =
+            selection.$from.pos - selection.$from.parentOffset - 1;
+          const toCellPos = selection.$to.pos - selection.$to.parentOffset - 1;
 
-          // Opt-out when the selection is not pointing into cells
-          if ($fromCell.pos === 0 || $toCell.pos === 0) {
+          // Opt-out when the selection is not pointing into cells. This happens when the selection
+          // is at the start of the table's `blockContainer` node and therefore just before the
+          // actual `table` node.
+          if (fromCellPos < 0 || toCellPos < 0) {
+            return undefined;
+          }
+
+          $fromCell = tr.doc.resolve(fromCellPos);
+          $toCell = tr.doc.resolve(toCellPos);
+
+          // Opt-out when the selection is not actually pointing into table
+          // cells (e.g. a gap cursor next to a nested block).
+          if (
+            !isTableCellNode($fromCell.parent) ||
+            !isTableCellNode($toCell.parent)
+          ) {
             return undefined;
           }
         }

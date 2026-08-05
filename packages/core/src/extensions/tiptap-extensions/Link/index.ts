@@ -1,2 +1,2 @@
-export { Link } from "./link.js";
+export { Link, LinkExtension } from "./link.js";
 export { isAllowedUri } from "./link.js";

@@ -1,14 +1,14 @@
-import type { HTMLAttributes } from 'react';
-import type * as Base from './base';
-import type { LinkItemType } from '../link-item';
+import type { HTMLAttributes } from "react";
+import type * as Base from "./base";
+import type { LinkItemType } from "../link-item";
 
 type InternalComponents = Pick<
   typeof Base,
-  | 'SidebarFolder'
-  | 'SidebarFolderLink'
-  | 'SidebarFolderContent'
-  | 'SidebarFolderTrigger'
-  | 'SidebarItem'
+  | "SidebarFolder"
+  | "SidebarFolderLink"
+  | "SidebarFolderContent"
+  | "SidebarFolderTrigger"
+  | "SidebarItem"
 >;
 
 export function createLinkItemRenderer({
@@ -25,11 +25,13 @@ export function createLinkItemRenderer({
     item,
     ...props
   }: HTMLAttributes<HTMLElement> & {
-    item: Exclude<LinkItemType, { type: 'icon' }>;
+    item: Exclude<LinkItemType, { type: "icon" }>;
   }) {
-    if (item.type === 'custom') return <div {...props}>{item.children}</div>;
+    if (item.type === "custom") {
+      return <div {...props}>{item.children}</div>;
+    }
 
-    if (item.type === 'menu')
+    if (item.type === "menu") {
       return (
         <SidebarFolder {...props}>
           {item.url ? (
@@ -50,9 +52,15 @@ export function createLinkItemRenderer({
           </SidebarFolderContent>
         </SidebarFolder>
       );
+    }
 
     return (
-      <SidebarItem href={item.url} icon={item.icon} external={item.external} {...props}>
+      <SidebarItem
+        href={item.url}
+        icon={item.icon}
+        external={item.external}
+        {...props}
+      >
         {item.text}
       </SidebarItem>
     );

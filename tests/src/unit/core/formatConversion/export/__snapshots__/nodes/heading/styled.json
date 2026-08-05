@@ -1,0 +1,35 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "isToggleable": false,
+          "level": 1,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "marks": [
+              {
+                "type": "bold",
+              },
+            ],
+            "text": "Bold ",
+            "type": "text",
+          },
+          {
+            "text": "Heading",
+            "type": "text",
+          },
+        ],
+        "type": "heading",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

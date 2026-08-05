@@ -11,7 +11,7 @@
     "directory": "packages/core"
   },
   "license": "MPL-2.0",
-  "version": "0.49.0",
+  "version": "0.52.1",
   "files": [
     "dist",
     "types",
@@ -76,16 +76,20 @@
       "types": "./types/src/yjs/index.d.ts",
       "import": "./dist/yjs.js",
       "require": "./dist/yjs.cjs"
+    },
+    "./y": {
+      "types": "./types/src/y/index.d.ts",
+      "import": "./dist/y.js",
+      "require": "./dist/y.cjs"
     }
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "build-bundled": "tsc && vite build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
-    "preview": "vite preview",
-    "lint": "eslint src --max-warnings 0",
-    "test": "vitest --run",
-    "test-watch": "vitest watch",
+    "dev": "vp dev",
+    "build-bundled": "tsgo && vp build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
+    "preview": "vp preview",
+    "lint": "vp lint src",
+    "test": "vp test --run",
+    "test-watch": "vp test watch",
     "clean": "rimraf dist && rimraf types",
     "update-tlds": "node scripts/update-tlds.mjs"
   },
@@ -94,51 +98,62 @@
     "@handlewithcare/prosemirror-inputrules": "^0.1.4",
     "@shikijs/types": "^4",
     "@tanstack/store": "^0.7.7",
-    "@tiptap/core": "^3.13.0",
-    "@tiptap/extension-bold": "^3.13.0",
-    "@tiptap/extension-code": "^3.13.0",
-    "@tiptap/extension-horizontal-rule": "^3.13.0",
-    "@tiptap/extension-italic": "^3.13.0",
-    "@tiptap/extension-paragraph": "^3.13.0",
-    "@tiptap/extension-strike": "^3.13.0",
-    "@tiptap/extension-text": "^3.13.0",
-    "@tiptap/extension-underline": "^3.13.0",
-    "@tiptap/extensions": "^3.13.0",
-    "@tiptap/pm": "^3.13.0",
+    "@tiptap/core": "^3.29.2",
+    "@tiptap/extension-bold": "^3.29.2",
+    "@tiptap/extension-code": "^3.29.2",
+    "@tiptap/extension-italic": "^3.29.2",
+    "@tiptap/extension-strike": "^3.29.2",
+    "@tiptap/extension-text": "^3.29.2",
+    "@tiptap/extension-underline": "^3.29.2",
+    "@tiptap/extensions": "^3.29.2",
+    "@tiptap/pm": "^3.29.2",
     "emoji-mart": "^5.6.0",
     "fast-deep-equal": "^3.1.3",
-    "hast-util-from-dom": "^5.0.1",
-    "lib0": "^0.2.99",
+    "lib0": "1.0.0-rc.22",
     "prosemirror-highlight": "^0.15.1",
-    "prosemirror-model": "^1.25.4",
+    "prosemirror-model": "^1.25.11",
     "prosemirror-state": "^1.4.4",
-    "prosemirror-tables": "^1.8.3",
-    "prosemirror-transform": "^1.11.0",
-    "prosemirror-view": "^1.41.4",
-    "rehype-format": "^5.0.1",
-    "rehype-parse": "^9.0.1",
-    "rehype-remark": "^10.0.1",
-    "rehype-stringify": "^10.0.1",
-    "remark-gfm": "^4.0.1",
-    "remark-parse": "^11.0.0",
-    "remark-rehype": "^11.1.2",
-    "remark-stringify": "^11.0.0",
-    "unified": "^11.0.5",
-    "unist-util-visit": "^5.0.0",
-    "y-prosemirror": "^1.3.7",
-    "y-protocols": "^1.0.6",
-    "yjs": "^13.6.27"
+    "prosemirror-tables": "^1.8.5",
+    "prosemirror-transform": "^1.12.0",
+    "prosemirror-view": "^1.41.9"
   },
   "devDependencies": {
-    "@types/hast": "^3.0.4",
-    "eslint": "^8.57.1",
     "jsdom": "^29.0.2",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "vite": "^8.0.8",
-    "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^4.1.2"
+    "vite-plus": "catalog:",
+    "y-prosemirror": "^1.3.7",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.27"
+  },
+  "peerDependencies": {
+    "y-prosemirror": "^1.3.7",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.27",
+    "@y/y": "^14.0.0-rc.23",
+    "@y/prosemirror": "^2.0.0-6",
+    "@y/protocols": "^1.0.6-rc.1"
+  },
+  "peerDependenciesMeta": {
+    "y-prosemirror": {
+      "optional": true
+    },
+    "y-protocols": {
+      "optional": true
+    },
+    "yjs": {
+      "optional": true
+    },
+    "@y/y": {
+      "optional": true
+    },
+    "@y/prosemirror": {
+      "optional": true
+    },
+    "@y/protocols": {
+      "optional": true
+    }
   },
   "eslintConfig": {
     "extends": [

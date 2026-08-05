@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 import { TextSelection } from "@tiptap/pm/state";
 import { Slice, Fragment } from "@tiptap/pm/model";
 
@@ -26,7 +26,7 @@ function tokenizeToObjects(text: string, defaultProtocol = "http") {
  * - A link token wrapped in () or []
  */
 function isValidLinkStructure(
-  tokens: Array<{ isLink: boolean; value: string }>
+  tokens: Array<{ isLink: boolean; value: string }>,
 ) {
   if (tokens.length === 1) {
     return tokens[0].isLink;
@@ -51,7 +51,7 @@ function createEditor(links?: { isValidLink?: (href: string) => boolean }) {
 function typeTextThenSpace(
   editor: BlockNoteEditor<any, any, any>,
   blockId: string,
-  text: string
+  text: string,
 ) {
   editor.setTextCursorPosition(blockId, "end");
   const view = editor._tiptapEditor.view;
@@ -252,13 +252,9 @@ describe("findLinks() baseline behavior", () => {
     });
 
     it("keeps balanced parentheses in path (Wikipedia-style)", () => {
-      const results = findLinks(
-        "https://en.wikipedia.org/wiki/Foo_(bar)"
-      );
+      const results = findLinks("https://en.wikipedia.org/wiki/Foo_(bar)");
       expect(results).toHaveLength(1);
-      expect(results[0].value).toBe(
-        "https://en.wikipedia.org/wiki/Foo_(bar)"
-      );
+      expect(results[0].value).toBe("https://en.wikipedia.org/wiki/Foo_(bar)");
     });
   });
 
@@ -601,7 +597,11 @@ describe("Link extension autolink behavior", () => {
   describe("should autolink", () => {
     it("autolinks https URL when followed by space", () => {
       setupEditorWithBlock();
-      const links = typeTextThenSpace(editor, "test-block", "https://example.com");
+      const links = typeTextThenSpace(
+        editor,
+        "test-block",
+        "https://example.com",
+      );
       expect(links).toHaveLength(1);
       expect(links[0].href).toBe("https://example.com");
       expect(links[0].text).toBe("https://example.com");
@@ -609,7 +609,11 @@ describe("Link extension autolink behavior", () => {
 
     it("autolinks http URL when followed by space", () => {
       setupEditorWithBlock();
-      const links = typeTextThenSpace(editor, "test-block", "http://example.com");
+      const links = typeTextThenSpace(
+        editor,
+        "test-block",
+        "http://example.com",
+      );
       expect(links).toHaveLength(1);
       expect(links[0].href).toBe("http://example.com");
     });
@@ -635,7 +639,7 @@ describe("Link extension autolink behavior", () => {
       const links = typeTextThenSpace(
         editor,
         "test-block",
-        "https://example.com/path?q=1"
+        "https://example.com/path?q=1",
       );
       expect(links).toHaveLength(1);
       expect(links[0].href).toBe("https://example.com/path?q=1");
@@ -680,7 +684,7 @@ describe("Link extension autolink behavior", () => {
       const links = typeTextThenSpace(
         editor,
         "test-block",
-        "(https://example.com)"
+        "(https://example.com)",
       );
       expect(links).toHaveLength(1);
       expect(links[0].href).toBe("https://example.com");
@@ -692,7 +696,7 @@ describe("Link extension autolink behavior", () => {
       const links = typeTextThenSpace(
         editor,
         "test-block",
-        "[https://example.com]"
+        "[https://example.com]",
       );
       expect(links).toHaveLength(1);
       expect(links[0].href).toBe("https://example.com");
@@ -737,7 +741,7 @@ describe("Link extension paste handler behavior", () => {
 
     // Create selection over the text
     const tr = view.state.tr.setSelection(
-      TextSelection.create(view.state.doc, textStart, textEnd)
+      TextSelection.create(view.state.doc, textStart, textEnd),
     );
     view.dispatch(tr);
 
@@ -747,7 +751,7 @@ describe("Link extension paste handler behavior", () => {
 
     // Dispatch paste through the editor view
     const handled = view.someProp("handlePaste", (f) =>
-      f(view, new ClipboardEvent("paste"), slice)
+      f(view, new ClipboardEvent("paste"), slice),
     );
 
     expect(handled).toBeTruthy();
@@ -782,7 +786,7 @@ describe("Link extension paste handler behavior", () => {
     });
 
     const tr = view.state.tr.setSelection(
-      TextSelection.create(view.state.doc, textStart, textEnd)
+      TextSelection.create(view.state.doc, textStart, textEnd),
     );
     view.dispatch(tr);
 
@@ -790,7 +794,7 @@ describe("Link extension paste handler behavior", () => {
     const slice = new Slice(Fragment.from(textNode), 0, 0);
 
     const handled = view.someProp("handlePaste", (f) =>
-      f(view, new ClipboardEvent("paste"), slice)
+      f(view, new ClipboardEvent("paste"), slice),
     );
 
     // Should not be handled (not a URL)
@@ -819,7 +823,7 @@ describe("Link extension paste handler behavior", () => {
     const slice = new Slice(Fragment.from(textNode), 0, 0);
 
     const handled = view.someProp("handlePaste", (f) =>
-      f(view, new ClipboardEvent("paste"), slice)
+      f(view, new ClipboardEvent("paste"), slice),
     );
 
     // Should not be handled because selection is empty
@@ -849,7 +853,7 @@ describe("Link extension isValidLink option", () => {
     const links = typeTextThenSpace(
       editor,
       "test-block",
-      "https://example.com"
+      "https://example.com",
     );
     expect(links).toHaveLength(0);
   });
@@ -894,7 +898,7 @@ describe("Link extension isValidLink option", () => {
     });
 
     const tr = view.state.tr.setSelection(
-      TextSelection.create(view.state.doc, textStart, textEnd)
+      TextSelection.create(view.state.doc, textStart, textEnd),
     );
     view.dispatch(tr);
 
@@ -902,7 +906,7 @@ describe("Link extension isValidLink option", () => {
     const slice = new Slice(Fragment.from(textNode), 0, 0);
 
     const handled = view.someProp("handlePaste", (f) =>
-      f(view, new ClipboardEvent("paste"), slice)
+      f(view, new ClipboardEvent("paste"), slice),
     );
 
     expect(handled).toBeFalsy();

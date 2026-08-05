@@ -67,9 +67,6 @@ export default function App() {
         type: "paragraph",
         content: "Press the '/' key to open the Slash Menu and add another PDF",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

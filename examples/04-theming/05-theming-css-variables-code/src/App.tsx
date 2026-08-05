@@ -84,9 +84,6 @@ export default function App() {
         content:
           "Toggle light/dark mode in the page footer and see the theme change too",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

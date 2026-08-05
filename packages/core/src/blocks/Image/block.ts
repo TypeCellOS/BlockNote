@@ -109,16 +109,22 @@ export const imageRender =
     const image = document.createElement("img");
     image.className = "bn-visual-media";
     if (editor.resolveFileUrl) {
-      editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+      void editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
         image.src = downloadUrl;
       });
     } else {
       image.src = block.props.url;
     }
 
-    image.alt = block.props.name || block.props.caption || "BlockNote image";
+    // alt describes image content (per WCAG H86); figcaption (when present)
+    // is the contextual caption. Fall back to "" so unlabelled images are
+    // marked decorative rather than getting a noisy generic fallback.
+    image.alt = block.props.name || "";
     image.contentEditable = "false";
     image.draggable = false;
+    if (block.props.previewWidth) {
+      image.width = block.props.previewWidth;
+    }
     imageWrapper.appendChild(image);
 
     return createResizableFileBlockWrapper(
@@ -141,11 +147,8 @@ export const imageToExternalHTML =
     >,
   ) => {
     if (!block.props.url) {
-      const div = document.createElement("p");
-      div.textContent = "Add image";
-
       return {
-        dom: div,
+        dom: document.createElement("img"),
       };
     }
 
@@ -153,7 +156,7 @@ export const imageToExternalHTML =
     if (block.props.showPreview) {
       image = document.createElement("img");
       image.src = block.props.url;
-      image.alt = block.props.name || block.props.caption || "BlockNote image";
+      image.alt = block.props.name || "";
       if (block.props.previewWidth) {
         image.width = block.props.previewWidth;
       }

@@ -1,0 +1,17 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "console.log('Hello');",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "language": "text",
+    },
+    "type": "codeBlock",
+  },
+]

@@ -1,10 +1,12 @@
 "use client";
 
+import { createUserStore } from "@blocknote/core";
 import {
   CommentsExtension,
   DefaultThreadStoreAuth,
-  YjsThreadStore,
 } from "@blocknote/core/comments";
+import { withCollaboration, YjsThreadStore } from "@blocknote/core/yjs";
+
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
@@ -26,6 +28,10 @@ async function resolveUsers(userIds: string[]) {
 
   return HARDCODED_USERS.filter((user) => userIds.includes(user.id));
 }
+
+// A single user store, shared between the comments and collaboration extensions
+// so they use one de-duped cache of resolved users.
+const userStore = createUserStore(resolveUsers);
 
 // This follows the Y-Sweet example to setup a collabotive editor
 // (but of course, you also use other collaboration providers
@@ -74,14 +80,15 @@ function Document() {
 
   // setup the editor with comments and collaboration
   const editor = useCreateBlockNote(
-    {
+    withCollaboration({
       collaboration: {
         provider,
         fragment: doc.getXmlFragment("blocknote"),
         user: { color: getRandomColor(), name: activeUser.username },
+        resolveUsers: userStore,
       },
-      extensions: [CommentsExtension({ threadStore, resolveUsers })],
-    },
+      extensions: [CommentsExtension({ threadStore, resolveUsers: userStore })],
+    }),
     [activeUser, threadStore],
   );
 

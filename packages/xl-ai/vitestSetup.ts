@@ -1,5 +1,5 @@
 import { Agent, setGlobalDispatcher } from "undici";
-import { afterEach, beforeEach } from "vitest";
+import { afterEach, beforeEach } from "vite-plus/test";
 // make sure our fetch request uses HTTP/2
 setGlobalDispatcher(
   new Agent({

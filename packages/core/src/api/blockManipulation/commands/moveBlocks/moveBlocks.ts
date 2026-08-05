@@ -9,8 +9,13 @@ import { CellSelection } from "prosemirror-tables";
 import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
-import { getNearestBlockPos } from "../../../getBlockInfoFromPos.js";
+import {
+  getBlockInfoAtNearest,
+  getNodeId,
+} from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
+import { insertBlocks } from "../insertBlocks/insertBlocks.js";
+import { removeAndInsertBlocks } from "../replaceBlocks/replaceBlocks.js";
 
 type BlockSelectionData = (
   | {
@@ -44,31 +49,34 @@ function getBlockSelectionData(
   editor: BlockNoteEditor<any, any, any>,
 ): BlockSelectionData {
   return editor.transact((tr) => {
-    const anchorBlockPosInfo = getNearestBlockPos(tr.doc, tr.selection.anchor);
+    const anchorBlockPosInfo = getBlockInfoAtNearest(tr, tr.selection.anchor);
+
+    const anchorBlockId = getNodeId(anchorBlockPosInfo.bnBlock.node, tr.doc);
 
     if (tr.selection instanceof CellSelection) {
       return {
         type: "cell" as const,
-        anchorBlockId: anchorBlockPosInfo.node.attrs.id,
+        anchorBlockId,
         anchorCellOffset:
-          tr.selection.$anchorCell.pos - anchorBlockPosInfo.posBeforeNode,
+          tr.selection.$anchorCell.pos - anchorBlockPosInfo.bnBlock.beforePos,
         headCellOffset:
-          tr.selection.$headCell.pos - anchorBlockPosInfo.posBeforeNode,
+          tr.selection.$headCell.pos - anchorBlockPosInfo.bnBlock.beforePos,
       };
     } else if (tr.selection instanceof NodeSelection) {
       return {
         type: "node" as const,
-        anchorBlockId: anchorBlockPosInfo.node.attrs.id,
+        anchorBlockId,
       };
     } else {
-      const headBlockPosInfo = getNearestBlockPos(tr.doc, tr.selection.head);
+      const headBlockPosInfo = getBlockInfoAtNearest(tr, tr.selection.head);
 
       return {
         type: "text" as const,
-        anchorBlockId: anchorBlockPosInfo.node.attrs.id,
-        headBlockId: headBlockPosInfo.node.attrs.id,
-        anchorOffset: tr.selection.anchor - anchorBlockPosInfo.posBeforeNode,
-        headOffset: tr.selection.head - headBlockPosInfo.posBeforeNode,
+        anchorBlockId,
+        headBlockId: getNodeId(headBlockPosInfo.bnBlock.node, tr.doc),
+        anchorOffset:
+          tr.selection.anchor - anchorBlockPosInfo.bnBlock.beforePos,
+        headOffset: tr.selection.head - headBlockPosInfo.bnBlock.beforePos,
       };
     }
   });
@@ -123,29 +131,52 @@ function updateBlockSelectionFromData(
   tr.setSelection(selection);
 }
 
-/**
- * Replaces any `columnList` blocks with the children of their columns. This is
- * done here instead of in `getSelection` as we still need to remove the entire
- * `columnList` node but only insert the `blockContainer` nodes inside it.
- * @param blocks The blocks to flatten.
- */
+// Replaces top-level `column` blocks with their children, as a `column` is not
+// a valid block outside a `columnList`. Other blocks are returned as-is.
 function flattenColumns(
   blocks: Block<any, any, any>[],
 ): Block<any, any, any>[] {
-  return blocks
-    .map((block) => {
-      if (block.type === "columnList") {
-        return block.children
-          .map((column) => flattenColumns(column.children))
-          .flat();
-      }
+  return blocks.flatMap((block) =>
+    block.type === "column" ? block.children : [block],
+  );
+}
 
-      return {
-        ...block,
-        children: flattenColumns(block.children),
-      };
-    })
-    .flat();
+/**
+ * Removes the given blocks from the editor, then inserts them before/after a
+ * reference block.
+ * @param editor The BlockNote editor instance to move the blocks in.
+ * @param blocks The blocks to move.
+ * @param referenceBlock The reference block to insert the blocks before/after.
+ * @param placement Whether to insert the blocks before or after the reference
+ * block.
+ */
+export function moveBlocks(
+  editor: BlockNoteEditor<any, any, any>,
+  blocks: Block<any, any, any>[],
+  referenceBlock: BlockIdentifier,
+  placement: "before" | "after",
+) {
+  editor.transact((tr) => {
+    // Don't fix columns/columnLists in the removal step. Since a move is a
+    // rearrangement rather than a deletion, columns that it empties out are
+    // deliberately left as-is instead of being collapsed - this keeps moves
+    // free of side effects (and reversible by moving back), and matches
+    // dragging a block out of a column, which doesn't collapse it either.
+    // Fixing them mid-move also broke the following case:
+    // <column>
+    //  <paragraph></paragraph>
+    //  <paragraph>Paragraph</paragraph>
+    // </column>
+    // When the non-empty block is moved up, the column is seen as empty and
+    // collapsed in the removal step, so the following insertion fails.
+    removeAndInsertBlocks(tr, blocks, [], { fixColumns: false });
+    insertBlocks<any, any, any>(
+      tr,
+      flattenColumns(blocks),
+      referenceBlock,
+      placement,
+    );
+  });
 }
 
 /**
@@ -170,8 +201,7 @@ export function moveSelectedBlocksAndSelection(
     ];
     const selectionData = getBlockSelectionData(editor);
 
-    editor.removeBlocks(blocks);
-    editor.insertBlocks(flattenColumns(blocks), referenceBlock, placement);
+    moveBlocks(editor, blocks, referenceBlock, placement);
 
     updateBlockSelectionFromData(tr, selectionData);
   });
@@ -289,50 +319,91 @@ function getMoveDownPlacement(
   return { referenceBlock, placement };
 }
 
-export function moveBlocksUp(editor: BlockNoteEditor<any, any, any>) {
+export function moveBlocksUp(
+  editor: BlockNoteEditor<any, any, any>,
+  blockIdentifier?: BlockIdentifier,
+) {
   editor.transact(() => {
-    const selection = editor.getSelection();
-    const block = selection?.blocks[0] || editor.getTextCursorPosition().block;
+    let sourceBlock: Block<any, any, any> | undefined;
+    if (blockIdentifier) {
+      sourceBlock = editor.getBlock(blockIdentifier);
+      if (!sourceBlock) {
+        return;
+      }
+    } else {
+      const selection = editor.getSelection();
+      sourceBlock =
+        selection?.blocks[0] || editor.getTextCursorPosition().block;
+    }
 
     const moveUpPlacement = getMoveUpPlacement(
       editor,
-      editor.getPrevBlock(block),
-      editor.getParentBlock(block),
+      editor.getPrevBlock(sourceBlock),
+      editor.getParentBlock(sourceBlock),
     );
 
     if (!moveUpPlacement) {
       return;
     }
 
-    moveSelectedBlocksAndSelection(
-      editor,
-      moveUpPlacement.referenceBlock,
-      moveUpPlacement.placement,
-    );
+    if (blockIdentifier) {
+      moveBlocks(
+        editor,
+        [sourceBlock],
+        moveUpPlacement.referenceBlock,
+        moveUpPlacement.placement,
+      );
+    } else {
+      moveSelectedBlocksAndSelection(
+        editor,
+        moveUpPlacement.referenceBlock,
+        moveUpPlacement.placement,
+      );
+    }
   });
 }
 
-export function moveBlocksDown(editor: BlockNoteEditor<any, any, any>) {
+export function moveBlocksDown(
+  editor: BlockNoteEditor<any, any, any>,
+  blockIdentifier?: BlockIdentifier,
+) {
   editor.transact(() => {
-    const selection = editor.getSelection();
-    const block =
-      selection?.blocks[selection?.blocks.length - 1] ||
-      editor.getTextCursorPosition().block;
+    let sourceBlock: Block<any, any, any> | undefined;
+    if (blockIdentifier) {
+      sourceBlock = editor.getBlock(blockIdentifier);
+      if (!sourceBlock) {
+        return;
+      }
+    } else {
+      const selection = editor.getSelection();
+      sourceBlock =
+        selection?.blocks[selection?.blocks.length - 1] ||
+        editor.getTextCursorPosition().block;
+    }
 
     const moveDownPlacement = getMoveDownPlacement(
       editor,
-      editor.getNextBlock(block),
-      editor.getParentBlock(block),
+      editor.getNextBlock(sourceBlock),
+      editor.getParentBlock(sourceBlock),
     );
 
     if (!moveDownPlacement) {
       return;
     }
 
-    moveSelectedBlocksAndSelection(
-      editor,
-      moveDownPlacement.referenceBlock,
-      moveDownPlacement.placement,
-    );
+    if (blockIdentifier) {
+      moveBlocks(
+        editor,
+        [sourceBlock],
+        moveDownPlacement.referenceBlock,
+        moveDownPlacement.placement,
+      );
+    } else {
+      moveSelectedBlocksAndSelection(
+        editor,
+        moveDownPlacement.referenceBlock,
+        moveDownPlacement.placement,
+      );
+    }
   });
 }

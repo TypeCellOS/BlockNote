@@ -1,4 +1,4 @@
-import { afterEach, beforeEach } from "vitest";
+import { afterEach, beforeEach } from "vite-plus/test";
 
 beforeEach(() => {
   (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};

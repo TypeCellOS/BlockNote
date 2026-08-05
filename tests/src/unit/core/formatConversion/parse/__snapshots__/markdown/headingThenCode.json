@@ -1,0 +1,36 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Code Section",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "isToggleable": false,
+      "level": 2,
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "x = 42",
+        "type": "text",
+      },
+    ],
+    "id": "2",
+    "props": {
+      "language": "python",
+    },
+    "type": "codeBlock",
+  },
+]

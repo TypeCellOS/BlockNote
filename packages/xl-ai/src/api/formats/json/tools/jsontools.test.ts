@@ -1,6 +1,6 @@
 /* eslint-disable jest/valid-title */
 import { BlockNoteEditor, expandPMRangeToWords } from "@blocknote/core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { addOperationTestCases } from "../../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../../testUtil/cases/combinedOperationsTestCases.js";
 import { deleteOperationTestCases } from "../../../../testUtil/cases/deleteOperationTestCases.js";

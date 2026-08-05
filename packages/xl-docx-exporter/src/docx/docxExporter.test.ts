@@ -12,12 +12,13 @@ import {
   ZipReader,
 } from "@zip.js/zip.js";
 import { Packer, Paragraph, TextRun } from "docx";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import xmlFormat from "xml-formatter";
 import { docxDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { DOCXExporter } from "./docxExporter.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
+import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
 
 const getZIPEntryContent = (entries: Entry[], fileName: string) => {
   const entry = entries.find((entry) => {
@@ -40,6 +41,7 @@ describe("exporter", () => {
         },
       }),
       docxDefaultSchemaMappings,
+      { resolveFileUrl: testResolveFileUrl },
     );
     const doc = await exporter.toDocxJsDocument(testDocument, {
       sectionOptions: {},
@@ -73,6 +75,7 @@ describe("exporter", () => {
           },
         }),
         docxDefaultSchemaMappings,
+        { resolveFileUrl: testResolveFileUrl },
       );
 
       const doc = await exporter.toDocxJsDocument(testDocument, {
@@ -145,7 +148,9 @@ describe("exporter", () => {
           columnList: ColumnListBlock,
         },
       });
-      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
+      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
+        resolveFileUrl: testResolveFileUrl,
+      });
       const doc = await exporter.toDocxJsDocument(
         partialBlocksToBlocksForTesting(schema, [
           {
@@ -218,9 +223,7 @@ describe("exporter", () => {
     },
   );
 
-  async function exportAndGetStylesEntries(
-    locale?: string,
-  ) {
+  async function exportAndGetStylesEntries(locale?: string) {
     const exporter = new DOCXExporter(
       BlockNoteSchema.create({
         blockSpecs: {
@@ -229,6 +232,7 @@ describe("exporter", () => {
         },
       }),
       docxDefaultSchemaMappings,
+      { resolveFileUrl: testResolveFileUrl },
     );
     const doc = await exporter.toDocxJsDocument(testDocument, {
       sectionOptions: {},

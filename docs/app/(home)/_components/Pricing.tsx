@@ -8,7 +8,7 @@ export const Pricing: React.FC = () => {
       <div className="mx-auto max-w-4xl px-6">
         {/* Header */}
         <div className="mb-12 text-center">
-          <p className="mb-4 text-xs font-bold uppercase tracking-widest text-purple-600">
+          <p className="mb-4 text-xs font-bold tracking-widest text-purple-600 uppercase">
             Transparent pricing
           </p>
           <h2 className="mb-6 font-serif text-4xl text-stone-900 md:text-5xl">

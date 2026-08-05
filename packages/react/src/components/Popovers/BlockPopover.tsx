@@ -9,9 +9,10 @@ export const BlockPopover = (
   props: FloatingUIOptions & {
     blockId: string | undefined;
     children: ReactNode;
+    portalElement?: HTMLElement | null;
   },
 ) => {
-  const { blockId, children, ...floatingUIOptions } = props;
+  const { blockId, children, portalElement, ...floatingUIOptions } = props;
 
   const editor = useBlockNoteEditor<any, any, any>();
 
@@ -43,7 +44,11 @@ export const BlockPopover = (
   );
 
   return (
-    <GenericPopover reference={reference} {...floatingUIOptions}>
+    <GenericPopover
+      reference={reference}
+      portalElement={portalElement}
+      {...floatingUIOptions}
+    >
       {blockId !== undefined && children}
     </GenericPopover>
   );

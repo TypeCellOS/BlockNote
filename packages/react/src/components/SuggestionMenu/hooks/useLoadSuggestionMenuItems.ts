@@ -23,7 +23,7 @@ export function useLoadSuggestionMenuItems<T>(
 
     setLoading(true);
 
-    getItems(query).then((items) => {
+    void getItems(query).then((items) => {
       if (currentQuery.current !== thisQuery) {
         // outdated query returned, ignore the result
         return;

@@ -11,7 +11,7 @@ import {
 } from "@blocknote/core";
 import { TableHandlesExtension } from "@blocknote/core/extensions";
 import { useCallback } from "react";
-import { IconType } from "react-icons";
+import type { IconType } from "../../../icons.js";
 import {
   RiAlignCenter,
   RiAlignJustify,

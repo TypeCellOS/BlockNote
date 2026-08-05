@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { AddBlocksToolCall } from "../api/formats/base-tools/createAddBlocksTool.js";
 import { UpdateBlockToolCall } from "../api/formats/base-tools/createUpdateBlockTool.js";
 import { filterValidOperations } from "./filterValidOperations.js";

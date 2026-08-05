@@ -1,6 +1,7 @@
 import { type Node } from "prosemirror-model";
 import { type Transaction } from "prosemirror-state";
 import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
+import { getNodeId } from "../../../getBlockInfoFromPos.js";
 import type {
   BlockIdentifier,
   BlockSchema,
@@ -20,6 +21,9 @@ export function removeAndInsertBlocks<
   tr: Transaction,
   blocksToRemove: BlockIdentifier[],
   blocksToInsert: PartialBlock<BSchema, I, S>[],
+  options: {
+    fixColumns?: boolean;
+  } = {},
 ): {
   insertedBlocks: Block<BSchema, I, S>[];
   removedBlocks: Block<BSchema, I, S>[];
@@ -27,9 +31,11 @@ export function removeAndInsertBlocks<
   const pmSchema = getPmSchema(tr);
   // Converts the `PartialBlock`s to ProseMirror nodes to insert them into the
   // document.
-  const nodesToInsert: Node[] = blocksToInsert.map((block) =>
-    blockToNode(block, pmSchema),
-  );
+  const nodesToInsert: Node[] = blocksToInsert.map((block) => {
+    const node = blockToNode(block, pmSchema);
+    node.check(); // `blockToNode` is lenient; validate before mutating the doc
+    return node;
+  });
 
   const idsOfBlocksToRemove = new Set<string>(
     blocksToRemove.map((block) =>
@@ -52,18 +58,21 @@ export function removeAndInsertBlocks<
     }
 
     // Keeps traversing nodes if block with target ID has not been found.
-    if (
-      !node.type.isInGroup("bnBlock") ||
-      !idsOfBlocksToRemove.has(node.attrs.id)
-    ) {
+    if (!node.type.isInGroup("bnBlock")) {
+      return true;
+    }
+
+    const nodeId = getNodeId(node, tr.doc);
+
+    if (!idsOfBlocksToRemove.has(nodeId)) {
       return true;
     }
 
     // Saves the block that is being deleted.
-    removedBlocks.push(nodeToBlock(node, pmSchema));
-    idsOfBlocksToRemove.delete(node.attrs.id);
+    removedBlocks.push(nodeToBlock(node, tr.doc));
+    idsOfBlocksToRemove.delete(nodeId);
 
-    if (blocksToInsert.length > 0 && node.attrs.id === idOfFirstBlock) {
+    if (blocksToInsert.length > 0 && nodeId === idOfFirstBlock) {
       const oldDocSize = tr.doc.nodeSize;
       tr.insert(pos, nodesToInsert);
       const newDocSize = tr.doc.nodeSize;
@@ -110,11 +119,16 @@ export function removeAndInsertBlocks<
     );
   }
 
-  columnListPositions.forEach((pos) => fixColumnList(tr, pos));
+  // Collapses empty columns/columnLists. Callers where the removal isn't a
+  // deletion can opt out - e.g. `moveBlocks` re-inserts the blocks elsewhere
+  // and deliberately leaves emptied columns as-is.
+  if (options.fixColumns !== false) {
+    columnListPositions.forEach((pos) => fixColumnList(tr, pos));
+  }
 
   // Converts the nodes created from `blocksToInsert` into full `Block`s.
   const insertedBlocks = nodesToInsert.map((node) =>
-    nodeToBlock(node, pmSchema),
+    nodeToBlock(node, tr.doc),
   ) as Block<BSchema, I, S>[];
 
   return { insertedBlocks, removedBlocks };

@@ -1,0 +1,36 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "content": [
+          {
+            "styles": {},
+            "text": "Link1",
+            "type": "text",
+          },
+        ],
+        "href": "https://example1.com",
+        "type": "link",
+      },
+      {
+        "content": [
+          {
+            "styles": {},
+            "text": "Link2",
+            "type": "text",
+          },
+        ],
+        "href": "https://example2.com",
+        "type": "link",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]

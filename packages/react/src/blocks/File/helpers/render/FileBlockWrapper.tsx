@@ -29,8 +29,14 @@ export const FileBlockWrapper = (
 ) => {
   const showLoader = useUploadLoading(props.block.id);
 
+  // Use a <figure>/<figcaption> when the block has a caption, so the caption
+  // is semantically associated with its content for assistive tech.
+  const useFigure =
+    props.block.props.url !== "" && !!props.block.props.caption && !showLoader;
+  const Wrapper = useFigure ? "figure" : "div";
+
   return (
-    <div
+    <Wrapper
       className={"bn-file-block-content-wrapper"}
       onMouseEnter={props.onMouseEnter}
       onMouseLeave={props.onMouseLeave}
@@ -54,10 +60,12 @@ export const FileBlockWrapper = (
           )}
           {props.block.props.caption && (
             // Show the caption if there is one.
-            <p className={"bn-file-caption"}>{props.block.props.caption}</p>
+            <figcaption className={"bn-file-caption"}>
+              {props.block.props.caption}
+            </figcaption>
           )}
         </>
       )}
-    </div>
+    </Wrapper>
   );
 };

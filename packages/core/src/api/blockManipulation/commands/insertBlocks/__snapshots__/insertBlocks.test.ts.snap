@@ -664,7 +664,7 @@ exports[`Test insertBlocks > Insert multiple blocks after 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1339,7 +1339,7 @@ exports[`Test insertBlocks > Insert multiple blocks before 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1934,7 +1934,7 @@ exports[`Test insertBlocks > Insert single basic block after 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2541,7 +2541,7 @@ exports[`Test insertBlocks > Insert single basic block before (without type) 2`]
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -3136,7 +3136,7 @@ exports[`Test insertBlocks > Insert single basic block before 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -3847,7 +3847,7 @@ exports[`Test insertBlocks > Insert single complex block after 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -4558,7 +4558,7 @@ exports[`Test insertBlocks > Insert single complex block before 2`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

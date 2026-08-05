@@ -4,9 +4,8 @@ import {
   Node,
   Extension as TiptapExtension,
 } from "@tiptap/core";
-import { Gapcursor } from "@tiptap/extensions/gap-cursor";
-import { Link } from "../../../extensions/tiptap-extensions/Link/link.js";
 import { Text } from "@tiptap/extension-text";
+import { Gapcursor } from "@tiptap/extensions/gap-cursor";
 import { createDropFileExtension } from "../../../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../../../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../../../api/clipboard/toClipboard/copyExtension.js";
@@ -19,6 +18,7 @@ import {
   LinkToolbarExtension,
   NodeSelectionKeyboardExtension,
   PlaceholderExtension,
+  PositionMappingExtension,
   PreviousBlockTypeExtension,
   ShowSelectionExtension,
   SideMenuExtension,
@@ -30,20 +30,17 @@ import {
   BackgroundColorExtension,
   HardBreak,
   KeyboardShortcutsExtension,
-  SuggestionAddMark,
-  SuggestionDeleteMark,
-  SuggestionModificationMark,
+  LinkExtension,
   TextAlignmentExtension,
   TextColorExtension,
   UniqueID,
 } from "../../../extensions/tiptap-extensions/index.js";
 import { BlockContainer, BlockGroup, Doc } from "../../../pm-nodes/index.js";
-import {
+import type {
   BlockNoteEditor,
   BlockNoteEditorOptions,
 } from "../../BlockNoteEditor.js";
-import { ExtensionFactoryInstance } from "../../BlockNoteExtension.js";
-import { CollaborationExtension } from "../../../extensions/Collaboration/Collaboration.js";
+import type { ExtensionFactoryInstance } from "../../BlockNoteExtension.js";
 
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
@@ -84,17 +81,6 @@ export function getDefaultTiptapExtensions(
     Text,
 
     // marks:
-    SuggestionAddMark,
-    SuggestionDeleteMark,
-    SuggestionModificationMark,
-    Link.configure({
-      HTMLAttributes: options.links?.HTMLAttributes ?? {},
-      editor,
-      onClick: options.links?.onClick,
-      ...(options.links?.isValidLink
-        ? { isValidLink: options.links.isValidLink }
-        : {}),
-    }),
     ...(Object.values(editor.schema.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark.configure({
         editor: editor,
@@ -183,21 +169,23 @@ export function getDefaultExtensions(
     DropCursorExtension(options),
     FilePanelExtension(options),
     FormattingToolbarExtension(options),
+    LinkExtension({
+      HTMLAttributes: options.links?.HTMLAttributes ?? {},
+      onClick: options.links?.onClick,
+      ...(options.links?.isValidLink
+        ? { isValidLink: options.links.isValidLink }
+        : {}),
+    }),
     LinkToolbarExtension(options),
     NodeSelectionKeyboardExtension(),
     PlaceholderExtension(options),
     ShowSelectionExtension(options),
     SideMenuExtension(options),
     SuggestionMenu(options),
+    HistoryExtension(),
+    PositionMappingExtension(),
     ...(options.trailingBlock !== false ? [TrailingNodeExtension()] : []),
   ] as ExtensionFactoryInstance[];
-
-  if (options.collaboration) {
-    extensions.push(CollaborationExtension(options.collaboration));
-  } else {
-    // YUndo is not compatible with ProseMirror's history plugin
-    extensions.push(HistoryExtension());
-  }
 
   if ("table" in editor.schema.blockSpecs) {
     extensions.push(TableHandlesExtension(options));

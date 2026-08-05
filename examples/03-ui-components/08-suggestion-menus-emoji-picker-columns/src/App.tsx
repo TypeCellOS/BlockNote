@@ -22,9 +22,6 @@ export default function App() {
         type: "paragraph",
         content: "There are now 5 columns instead of 10",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

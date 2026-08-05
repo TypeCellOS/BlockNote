@@ -47,6 +47,7 @@ export const CreateLinkButton = () => {
   const dict = useDictionary();
 
   const formattingToolbar = useExtension(FormattingToolbarExtension);
+  // eslint-disable-next-line @typescript-eslint/unbound-method -- showSelection is a plain object method, not a class method
   const { showSelection } = useExtension(ShowSelectionExtension);
 
   const [showPopover, setShowPopover] = useState(false);

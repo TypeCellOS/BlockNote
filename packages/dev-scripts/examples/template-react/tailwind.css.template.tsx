@@ -1,6 +1,4 @@
-import type { Project } from "../util";
-
-const template = (project: Project) => `@import "tailwindcss";
+const template = () => `@import "tailwindcss";
 @import "tw-animate-css";
 
 /* Code below needed for ShadCN examples, check docs for more info. */

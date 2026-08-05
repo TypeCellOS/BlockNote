@@ -64,8 +64,7 @@ const SPECIAL_HOSTS = new Set(["localhost"]);
 const TRAILING_PUNCT = /[.,;:!?"']+$/;
 
 // Protocol URLs: http:// https:// ftp:// ftps://
-const PROTOCOL_RE =
-  /(?:https?|ftp|ftps):\/\/[^\s]+/g;
+const PROTOCOL_RE = /(?:https?|ftp|ftps):\/\/[^\s]+/g;
 
 // Mailto URLs: mailto:...
 const MAILTO_RE = /mailto:[^\s]+/g;
@@ -152,7 +151,7 @@ function isValidTld(hostname: string): boolean {
 function buildHref(
   value: string,
   type: string,
-  defaultProtocol: string
+  defaultProtocol: string,
 ): string {
   if (type === "email") {
     return "mailto:" + value;
@@ -183,10 +182,7 @@ interface RawMatch {
  * Find all URLs and email addresses in the given text.
  * Drop-in replacement for linkifyjs find().
  */
-export function findLinks(
-  text: string,
-  options?: FindOptions
-): LinkMatch[] {
+export function findLinks(text: string, options?: FindOptions): LinkMatch[] {
   if (!text) {
     return [];
   }
@@ -303,7 +299,7 @@ export function findLinks(
  */
 export function tokenizeLink(
   text: string,
-  defaultProtocol = "http"
+  defaultProtocol = "http",
 ): LinkMatch[] {
   if (!text) {
     return [nonLinkToken(text, 0, 0)];
@@ -386,10 +382,12 @@ function linkToken(
   value: string,
   start: number,
   end: number,
-  defaultProtocol: string
+  defaultProtocol: string,
 ): LinkMatch {
   const type =
-    value.includes("@") && !value.includes("://") && !value.startsWith("mailto:")
+    value.includes("@") &&
+    !value.includes("://") &&
+    !value.startsWith("mailto:")
       ? "email"
       : "url";
   return {
