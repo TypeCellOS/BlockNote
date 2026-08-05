@@ -14,7 +14,7 @@ import {
 
 import { createReactBlockSpec } from "./ReactBlockSpec.js";
 
-// Same shape as the example callout block (`examples/06-custom-schema/08-container-block`).
+// Same shape as the example callout block (`examples/06-custom-schema/09-container-block`).
 // This test exists to confirm the document-level transformation succeeds — it
 // does NOT mount BlockNoteView, so React rendering of the nodeView itself is
 // not exercised here.
@@ -68,12 +68,8 @@ describe("React updateBlock → container with defaultBlocks (document-level)", 
     ]);
   });
 
-  it(
-    "converts an empty paragraph to a callout via editor.updateBlock",
-    () => {
-      editor.updateBlock("p-0", { type: "callout" });
-      expect(editor.document).toMatchSnapshot();
-    },
-    5000,
-  );
+  it("converts an empty paragraph to a callout via editor.updateBlock", () => {
+    editor.updateBlock("p-0", { type: "callout" });
+    expect(editor.document).toMatchSnapshot();
+  }, 5000);
 });

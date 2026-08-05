@@ -236,9 +236,8 @@ export function createReactBlockSpec<
       implementation: {
         ...blockImplementation,
         toExternalHTML(block, editor, context) {
-          const isContainer = !!editor.pmSchema.nodes[block.type]?.isInGroup(
-            "bnBlock",
-          );
+          const isContainer =
+            !!editor.pmSchema.nodes[block.type]?.isInGroup("bnBlock");
           const BlockContent =
             blockImplementation.toExternalHTML || blockImplementation.render;
           const output = renderToDOMSpec((refCB) => {
@@ -369,9 +368,8 @@ export function createReactBlockSpec<
               },
             )(this.props!) as ReturnType<BlockImplementation["render"]>;
           } else {
-            const isContainer = !!editor.pmSchema.nodes[block.type]?.isInGroup(
-              "bnBlock",
-            );
+            const isContainer =
+              !!editor.pmSchema.nodes[block.type]?.isInGroup("bnBlock");
             const BlockContent = blockImplementation.render;
             const output = renderToDOMSpec((refCB) => {
               const content = (

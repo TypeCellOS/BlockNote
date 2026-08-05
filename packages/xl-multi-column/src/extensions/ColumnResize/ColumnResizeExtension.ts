@@ -1,8 +1,4 @@
-import {
-  BlockNoteEditor,
-  createExtension,
-  getNodeById,
-} from "@blocknote/core";
+import { BlockNoteEditor, createExtension, getNodeById } from "@blocknote/core";
 import { SideMenuExtension } from "@blocknote/core/extensions";
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";

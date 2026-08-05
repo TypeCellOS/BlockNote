@@ -62,7 +62,8 @@ export default function App() {
           },
           {
             type: "paragraph",
-            content: "Try pressing '/' inside this callout to add a heading or code block.",
+            content:
+              "Try pressing '/' inside this callout to add a heading or code block.",
           },
         ],
       },

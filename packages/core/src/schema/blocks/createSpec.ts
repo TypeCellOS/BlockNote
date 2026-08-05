@@ -170,10 +170,7 @@ export function getParseRules<
   return rules;
 }
 
-function buildContainerNode<
-  TName extends string,
-  TProps extends PropSchema,
->(
+function buildContainerNode<TName extends string, TProps extends PropSchema>(
   blockConfig: BlockConfig<TName, TProps, "none">,
   blockImplementation: BlockImplementation<TName, TProps, "none">,
   containerConfig: ContainerConfig,
@@ -348,116 +345,116 @@ export function addNodeAndExtensionsToSpec<
           priority,
         )
       : Node.create({
-      name: blockConfig.type,
-      content: (blockConfig.content === "inline"
-        ? "inline*"
-        : blockConfig.content === "plain"
-          ? "text*"
-          : blockConfig.content === "none"
-            ? ""
-            : blockConfig.content) as TContent extends "inline"
-        ? "inline*"
-        : TContent extends "plain"
-          ? "text*"
-          : "",
-      // "plain" blocks hold unstyled text, so they disallow formatting marks.
-      // They still allow the non-formatting marks (comments and
-      // suggestions/diffs) — those annotate content without changing it and are
-      // ignored by the block model. `nonFormattingMarks` resolves the group only
-      // when at least one such mark is registered, so a plain block in an editor
-      // without any of them doesn't reference an empty (unknown) mark group.
-      marks() {
-        return blockConfig.content === "plain"
-          ? nonFormattingMarks(this.editor)
-          : undefined;
-      },
-      group: "blockContent",
-      selectable: blockImplementation.meta?.selectable ?? true,
-      isolating: blockImplementation.meta?.isolating ?? true,
-      code: blockImplementation.meta?.code ?? false,
-      defining: blockImplementation.meta?.defining ?? true,
-      priority,
-      addAttributes() {
-        return propsToAttributes(blockConfig.propSchema);
-      },
-
-      parseHTML() {
-        return getParseRules(blockConfig, blockImplementation);
-      },
-
-      renderHTML({ HTMLAttributes }) {
-        // renderHTML is used for copy/pasting content from the editor back into
-        // the editor, so we need to make sure the `blockContent` element is
-        // structured correctly as this is what's used for parsing blocks. We
-        // just render a placeholder div inside as the `blockContent` element
-        // already has all the information needed for proper parsing.
-        const div = document.createElement("div");
-        return wrapInBlockStructure(
-          {
-            dom: div,
-            contentDOM:
-              blockConfig.content === "inline" ||
-              blockConfig.content === "plain"
-                ? div
-                : undefined,
+          name: blockConfig.type,
+          content: (blockConfig.content === "inline"
+            ? "inline*"
+            : blockConfig.content === "plain"
+              ? "text*"
+              : blockConfig.content === "none"
+                ? ""
+                : blockConfig.content) as TContent extends "inline"
+            ? "inline*"
+            : TContent extends "plain"
+              ? "text*"
+              : "",
+          // "plain" blocks hold unstyled text, so they disallow formatting marks.
+          // They still allow the non-formatting marks (comments and
+          // suggestions/diffs) — those annotate content without changing it and are
+          // ignored by the block model. `nonFormattingMarks` resolves the group only
+          // when at least one such mark is registered, so a plain block in an editor
+          // without any of them doesn't reference an empty (unknown) mark group.
+          marks() {
+            return blockConfig.content === "plain"
+              ? nonFormattingMarks(this.editor)
+              : undefined;
           },
-          blockConfig.type,
-          {},
-          blockConfig.propSchema,
-          blockImplementation.meta?.fileBlockAccept !== undefined,
-          HTMLAttributes,
-        );
-      },
+          group: "blockContent",
+          selectable: blockImplementation.meta?.selectable ?? true,
+          isolating: blockImplementation.meta?.isolating ?? true,
+          code: blockImplementation.meta?.code ?? false,
+          defining: blockImplementation.meta?.defining ?? true,
+          priority,
+          addAttributes() {
+            return propsToAttributes(blockConfig.propSchema);
+          },
 
-      addNodeView() {
-        return (props) => {
-          // Gets the BlockNote editor instance
-          const editor = this.options.editor;
-          // Gets the block. Resolving this can't rely on `getPos()` alone —
-          // node views are constructed part-way through ProseMirror's
-          // reconciliation, where positions don't always line up with
-          // `view.state.doc` yet (see `getBlockFromNodeView`).
-          const block = getBlockFromNodeView(
-            props.getPos,
-            props.node,
-            props.view.state.doc,
-          );
-          // Gets the custom HTML attributes for `blockContent` nodes
-          const blockContentDOMAttributes =
-            this.options.domAttributes?.blockContent || {};
+          parseHTML() {
+            return getParseRules(blockConfig, blockImplementation);
+          },
 
-          const nodeView = blockImplementation.render.call(
-            {
-              blockContentDOMAttributes,
-              props,
-              renderType: "nodeView",
-              propSchema: blockConfig.propSchema,
-            },
-            block as any,
-            editor as any,
-          );
+          renderHTML({ HTMLAttributes }) {
+            // renderHTML is used for copy/pasting content from the editor back into
+            // the editor, so we need to make sure the `blockContent` element is
+            // structured correctly as this is what's used for parsing blocks. We
+            // just render a placeholder div inside as the `blockContent` element
+            // already has all the information needed for proper parsing.
+            const div = document.createElement("div");
+            return wrapInBlockStructure(
+              {
+                dom: div,
+                contentDOM:
+                  blockConfig.content === "inline" ||
+                  blockConfig.content === "plain"
+                    ? div
+                    : undefined,
+              },
+              blockConfig.type,
+              {},
+              blockConfig.propSchema,
+              blockImplementation.meta?.fileBlockAccept !== undefined,
+              HTMLAttributes,
+            );
+          },
 
-          // Cast needed because render returns `dom: HTMLElement | DocumentFragment`
-          // but tiptap's NodeView expects `dom: HTMLElement`
-          const typedNodeView = nodeView as unknown as NodeView;
+          addNodeView() {
+            return (props) => {
+              // Gets the BlockNote editor instance
+              const editor = this.options.editor;
+              // Gets the block. Resolving this can't rely on `getPos()` alone —
+              // node views are constructed part-way through ProseMirror's
+              // reconciliation, where positions don't always line up with
+              // `view.state.doc` yet (see `getBlockFromNodeView`).
+              const block = getBlockFromNodeView(
+                props.getPos,
+                props.node,
+                props.view.state.doc,
+              );
+              // Gets the custom HTML attributes for `blockContent` nodes
+              const blockContentDOMAttributes =
+                this.options.domAttributes?.blockContent || {};
 
-          if (blockImplementation.meta?.selectable === false) {
-            applyNonSelectableBlockFix(typedNodeView, this.editor);
-          }
+              const nodeView = blockImplementation.render.call(
+                {
+                  blockContentDOMAttributes,
+                  props,
+                  renderType: "nodeView",
+                  propSchema: blockConfig.propSchema,
+                },
+                block as any,
+                editor as any,
+              );
 
-          // Ignores DOM mutations that don't affect the block's content, so
-          // that browser extensions which rewrite the DOM (e.g. Dark Reader)
-          // can't trigger an infinite re-render loop that freezes the tab.
-          ignoreNonContentMutations(typedNodeView);
+              // Cast needed because render returns `dom: HTMLElement | DocumentFragment`
+              // but tiptap's NodeView expects `dom: HTMLElement`
+              const typedNodeView = nodeView as unknown as NodeView;
 
-          // See explanation for why `update` is not implemented for NodeViews
-          // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464
-          // TODO: in a future version, we might want to implement updates so that
-          // vanilla blocks don't always re-render entirely (https://github.com/TypeCellOS/BlockNote/issues/220)
-          return typedNodeView;
-        };
-      },
-    }));
+              if (blockImplementation.meta?.selectable === false) {
+                applyNonSelectableBlockFix(typedNodeView, this.editor);
+              }
+
+              // Ignores DOM mutations that don't affect the block's content, so
+              // that browser extensions which rewrite the DOM (e.g. Dark Reader)
+              // can't trigger an infinite re-render loop that freezes the tab.
+              ignoreNonContentMutations(typedNodeView);
+
+              // See explanation for why `update` is not implemented for NodeViews
+              // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464
+              // TODO: in a future version, we might want to implement updates so that
+              // vanilla blocks don't always re-render entirely (https://github.com/TypeCellOS/BlockNote/issues/220)
+              return typedNodeView;
+            };
+          },
+        }));
 
   if (node.name !== blockConfig.type) {
     throw new Error(

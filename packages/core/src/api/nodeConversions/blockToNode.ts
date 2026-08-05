@@ -393,12 +393,17 @@ export function blockToNode(
     if (children.length === 0) {
       // `container` is normalized to `ContainerConfig | undefined` at spec
       // registration time (see addNodeAndExtensionsToSpec).
-      const containerConfig = getBlockSchema(schema)[block.type]
-        ?.container as ContainerConfig | undefined;
+      const containerConfig = getBlockSchema(schema)[block.type]?.container as
+        | ContainerConfig
+        | undefined;
       const defaultBlocks = containerConfig?.defaultBlocks;
       if (defaultBlocks && defaultBlocks.length > 0) {
         effectiveChildren = defaultBlocks.map((type) =>
-          blockToNode({ type } as PartialBlock<any, any, any>, schema, styleSchema),
+          blockToNode(
+            { type } as PartialBlock<any, any, any>,
+            schema,
+            styleSchema,
+          ),
         );
       }
     }

@@ -1,10 +1,5 @@
 import { createReactBlockSpec, NodeViewWrapper } from "@blocknote/react";
-import {
-  MdCheckCircle,
-  MdInfo,
-  MdLightbulb,
-  MdWarning,
-} from "react-icons/md";
+import { MdCheckCircle, MdInfo, MdLightbulb, MdWarning } from "react-icons/md";
 
 import "./styles.css";
 
