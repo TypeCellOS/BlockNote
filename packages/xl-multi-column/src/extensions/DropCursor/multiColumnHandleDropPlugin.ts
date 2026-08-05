@@ -1,12 +1,8 @@
 import type { BlockNoteEditor } from "@blocknote/core";
-import {
-  UniqueID,
-  createExtension,
-  getBlockInfo,
-  nodeToBlock,
-} from "@blocknote/core";
+import { createExtension, getBlockInfo, nodeToBlock } from "@blocknote/core";
 import { Plugin } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
+import { dropOntoBlock, dropOntoColumn } from "./dropHandlers.js";
 import { detectEdgePosition } from "./multiColumnDropCursor.js";
 
 /**
@@ -79,69 +75,21 @@ export function createMultiColumnHandleDropPlugin(
             });
           }
 
-          const index = columnList.children.findIndex(
-            (b) => b.id === blockInfo.bnBlock.node.attrs.id,
-          );
-
-          const newChildren = columnList.children
-            // If the dragged block is in one of the columns, remove it.
-            .map((column) => ({
-              ...column,
-              children: column.children.filter(
-                (block) => block.id !== draggedBlock.id,
-              ),
-            }))
-            // Remove empty columns (can happen when dragged block is removed).
-            .filter((column) => column.children.length > 0)
-            // Insert the dragged block in the correct position.
-            .toSpliced(edgePos.position === "left" ? index : index + 1, 0, {
-              type: "column",
-              children: [draggedBlock],
-              props: {},
-              content: undefined,
-              id: UniqueID.options.generateID(),
-            });
-
-          if (editor.getBlock(draggedBlock.id)) {
-            editor.removeBlocks([draggedBlock]);
-          }
-
-          editor.updateBlock(columnList, {
-            children: newChildren,
+          dropOntoColumn(editor, {
+            columnList,
+            targetColumnId: blockInfo.bnBlock.node.attrs.id,
+            draggedBlock,
+            position: edgePos.position,
           });
         } else {
           // Create new columnList with blocks as columns
           const block = nodeToBlock(blockInfo.bnBlock.node, view.state.doc);
 
-          // The user is dropping next to the original block being dragged - do
-          // nothing.
-          if (block.id === draggedBlock.id) {
-            return true;
-          }
-
-          const blocks =
-            edgePos.position === "left"
-              ? [draggedBlock, block]
-              : [block, draggedBlock];
-
-          if (editor.getBlock(draggedBlock.id)) {
-            editor.removeBlocks([draggedBlock]);
-          }
-
-          editor.replaceBlocks(
-            [block],
-            [
-              {
-                type: "columnList",
-                children: blocks.map((b) => {
-                  return {
-                    type: "column",
-                    children: [b],
-                  };
-                }),
-              },
-            ],
-          );
+          dropOntoBlock(editor, {
+            targetBlock: block,
+            draggedBlock,
+            position: edgePos.position,
+          });
         }
 
         return true; // Prevent default ProseMirror drop behavior

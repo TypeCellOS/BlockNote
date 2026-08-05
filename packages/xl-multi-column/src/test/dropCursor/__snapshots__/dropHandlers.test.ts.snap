@@ -1,0 +1,427 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`dropOntoBlock > wraps the dragged block and target block in a new columnList 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "1",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Paragraph 1",
+                "type": "text",
+              },
+            ],
+            "id": "paragraph-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "2",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+    ],
+    "content": undefined,
+    "id": "0",
+    "props": {},
+    "type": "columnList",
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 0",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 1",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 3",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-3",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-1",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+    ],
+    "content": undefined,
+    "id": "column-list-0",
+    "props": {},
+    "type": "columnList",
+  },
+]
+`;
+
+exports[`dropOntoColumn > 2-column layout, source column emptied by the drag (crash regression) > does not throw when dropped on the left edge of the sibling column 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Solo",
+                "type": "text",
+              },
+            ],
+            "id": "solo",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Sibling",
+                "type": "text",
+              },
+            ],
+            "id": "sibling",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-sibling",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+    ],
+    "content": undefined,
+    "id": "column-list-solo",
+    "props": {},
+    "type": "columnList",
+  },
+]
+`;
+
+exports[`dropOntoColumn > 2-column layout, source column emptied by the drag (crash regression) > does not throw when dropped on the right edge of the sibling column 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Sibling",
+                "type": "text",
+              },
+            ],
+            "id": "sibling",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-sibling",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Solo",
+                "type": "text",
+              },
+            ],
+            "id": "solo",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+    ],
+    "content": undefined,
+    "id": "column-list-solo",
+    "props": {},
+    "type": "columnList",
+  },
+]
+`;
+
+exports[`dropOntoColumn > 2-column layout, source column keeps other blocks (baseline) > moves the dragged block without disturbing its sibling 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Stays",
+                "type": "text",
+              },
+            ],
+            "id": "stays",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-source",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Dragged",
+                "type": "text",
+              },
+            ],
+            "id": "dragged",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Target",
+                "type": "text",
+              },
+            ],
+            "id": "target",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-target",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+    ],
+    "content": undefined,
+    "id": "column-list-baseline",
+    "props": {},
+    "type": "columnList",
+  },
+]
+`;
