@@ -1,8 +1,7 @@
-import PdfFileApp from "@examples/06-custom-schema/04-pdf-file-block/src/App";
 import TestingApp from "@examples/01-basic/testing/src/App";
+import PdfFileApp from "@examples/06-custom-schema/04-pdf-file-block/src/App";
 import { describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
-import { browserName, userEvent } from "../../utils/context.js";
 import {
   EDITOR_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
@@ -12,6 +11,7 @@ import {
   PARAGRAPH_SELECTOR,
   PDF_SELECTOR,
 } from "../../utils/const.js";
+import { browserName, userEvent } from "../../utils/context.js";
 import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
 import {
   compareDocToSnapshot,

@@ -1,3 +1,4 @@
+import { DOC_TRAILING_BLOCK_SELECTOR } from "./const.js";
 import { MOD, userEvent } from "./context.js";
 
 export function selectAll() {
@@ -10,8 +11,9 @@ export async function copyPaste() {
   await userEvent.keyboard("{Escape}");
   // The trailing block isn't always present (e.g. when the editor's last block
   // can't have one), so fall back to the last paragraph.
-  const trailingBlock =
-    document.querySelector<HTMLElement>(".bn-trailing-block");
+  const trailingBlock = document.querySelector<HTMLElement>(
+    DOC_TRAILING_BLOCK_SELECTOR,
+  );
   if (trailingBlock) {
     await userEvent.click(trailingBlock);
   } else {
