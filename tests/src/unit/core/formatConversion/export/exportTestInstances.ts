@@ -31,6 +31,25 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
   },
   {
     testCase: {
+      name: "paragraph/emptyBetween",
+      content: [
+        {
+          type: "paragraph",
+          content: "Before",
+        },
+        {
+          type: "paragraph",
+        },
+        {
+          type: "paragraph",
+          content: "After",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
       name: "paragraph/basic",
       content: [
         {

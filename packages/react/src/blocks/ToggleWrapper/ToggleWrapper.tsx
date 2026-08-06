@@ -58,10 +58,11 @@ export const ToggleWrapper = (
   );
 
   const handleToggle = (block: Block<any, any, any>) => {
-    (toggledState || defaultToggledState).set(
-      editor.getBlock(block)!,
-      !showChildren,
-    );
+    const currentBlock = editor.getBlock(block);
+    if (!currentBlock) {
+      return;
+    }
+    (toggledState || defaultToggledState).set(currentBlock, !showChildren);
     dispatch({
       type: "toggled",
     });
@@ -91,7 +92,10 @@ export const ToggleWrapper = (
         return 0;
       }
 
-      const newBlock = editor.getBlock(block)!;
+      const newBlock = editor.getBlock(block);
+      if (!newBlock) {
+        return 0;
+      }
       const newChildCount = newBlock.children.length || 0;
 
       if (newChildCount > childCount) {
@@ -122,7 +126,7 @@ export const ToggleWrapper = (
           className="bn-toggle-button"
           type="button"
           onMouseDown={(event) => event.preventDefault()}
-          onClick={() => handleToggle(editor.getBlock(block)!)}
+          onClick={() => handleToggle(block)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

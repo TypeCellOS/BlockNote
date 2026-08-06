@@ -1,6 +1,7 @@
 import { findChildrenInRange } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
+import { getNodeId } from "../../api/getBlockInfoFromPos.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 
 const PLUGIN_KEY = new PluginKey(`previous-blocks`);
@@ -93,7 +94,10 @@ export const PreviousBlockTypeExtension = createExtension(() => {
               (node) => node.attrs.id,
             );
             const oldNodesById = new Map(
-              oldNodes.map((node) => [node.node.attrs.id, node]),
+              oldNodes.map((node) => [
+                getNodeId(node.node, oldState.doc),
+                node,
+              ]),
             );
             const newNodes = findChildrenInRange(
               newState.doc,
@@ -102,7 +106,8 @@ export const PreviousBlockTypeExtension = createExtension(() => {
             );
 
             for (const node of newNodes) {
-              const oldNode = oldNodesById.get(node.node.attrs.id);
+              const nodeId = getNodeId(node.node, newState.doc);
+              const oldNode = oldNodesById.get(nodeId);
 
               const oldContentNode = oldNode?.node.firstChild;
               const newContentNode = node.node.firstChild;
@@ -122,11 +127,9 @@ export const PreviousBlockTypeExtension = createExtension(() => {
                   depth: oldState.doc.resolve(oldNode.pos).depth,
                 };
 
-                currentTransactionOriginalOldBlockAttrs[node.node.attrs.id] =
-                  oldAttrs;
+                currentTransactionOriginalOldBlockAttrs[nodeId] = oldAttrs;
 
-                prev.currentTransactionOldBlockAttrs[node.node.attrs.id] =
-                  oldAttrs;
+                prev.currentTransactionOldBlockAttrs[nodeId] = oldAttrs;
 
                 if (
                   oldAttrs.index !== newAttrs.index ||
@@ -137,7 +140,7 @@ export const PreviousBlockTypeExtension = createExtension(() => {
                   (oldAttrs as any)["depth-change"] =
                     oldAttrs.depth - newAttrs.depth;
 
-                  prev.updatedBlocks.add(node.node.attrs.id);
+                  prev.updatedBlocks.add(nodeId);
                 }
               }
             }
@@ -162,12 +165,13 @@ export const PreviousBlockTypeExtension = createExtension(() => {
                 return;
               }
 
-              if (!pluginState.updatedBlocks.has(node.attrs.id)) {
+              const id = getNodeId(node, state.doc);
+
+              if (!pluginState.updatedBlocks.has(id)) {
                 return;
               }
 
-              const prevAttrs =
-                pluginState.currentTransactionOldBlockAttrs[node.attrs.id];
+              const prevAttrs = pluginState.currentTransactionOldBlockAttrs[id];
               const decorationAttrs: any = {};
 
               for (const [nodeAttr, val] of Object.entries(prevAttrs)) {

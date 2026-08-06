@@ -383,6 +383,7 @@ export const sk = {
     save_button_text: "Uložiť",
     cancel_button_text: "Zrušiť",
     deleted_reference_text: "Pôvodný obsah odstránený",
+    discard_pending_comment: "Naozaj chcete zahodiť tento komentár?",
     actions: {
       add_reaction: "Pridať reakciu",
       resolve: "Vyriešiť",
@@ -398,6 +399,14 @@ export const sk = {
       marked_as_resolved: "Označené ako vyriešené",
       more_replies: (count: number) => `${count} ďalších odpovedí`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Zmena formátovania",
+    deleted: "Odstránené",
+    inserted_by: (users: string) => `Vložil: ${users}`,
+    deleted_by: (users: string) => `Odstránil: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Zmena formátovania (${formats}) od: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

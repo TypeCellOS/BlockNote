@@ -8,7 +8,6 @@ import type {
 } from "../../../schema/index.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../nodeUtil.js";
-import { getPmSchema } from "../../pmUtil.js";
 
 export function getBlock<
   BSchema extends BlockSchema,
@@ -20,14 +19,13 @@ export function getBlock<
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
-  const pmSchema = getPmSchema(doc);
 
   const posInfo = getNodeById(id, doc);
   if (!posInfo) {
     return undefined;
   }
 
-  return nodeToBlock(posInfo.node, pmSchema);
+  return nodeToBlock(posInfo.node, doc);
 }
 
 export function getPrevBlock<
@@ -42,7 +40,6 @@ export function getPrevBlock<
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
   const posInfo = getNodeById(id, doc);
-  const pmSchema = getPmSchema(doc);
   if (!posInfo) {
     return undefined;
   }
@@ -53,7 +50,7 @@ export function getPrevBlock<
     return undefined;
   }
 
-  return nodeToBlock(nodeToConvert, pmSchema);
+  return nodeToBlock(nodeToConvert, doc);
 }
 
 export function getNextBlock<
@@ -67,7 +64,6 @@ export function getNextBlock<
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
   const posInfo = getNodeById(id, doc);
-  const pmSchema = getPmSchema(doc);
   if (!posInfo) {
     return undefined;
   }
@@ -80,7 +76,7 @@ export function getNextBlock<
     return undefined;
   }
 
-  return nodeToBlock(nodeToConvert, pmSchema);
+  return nodeToBlock(nodeToConvert, doc);
 }
 
 export function getParentBlock<
@@ -93,7 +89,6 @@ export function getParentBlock<
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
-  const pmSchema = getPmSchema(doc);
   const posInfo = getNodeById(id, doc);
   if (!posInfo) {
     return undefined;
@@ -112,5 +107,5 @@ export function getParentBlock<
     return undefined;
   }
 
-  return nodeToBlock(nodeToConvert, pmSchema);
+  return nodeToBlock(nodeToConvert, doc);
 }

@@ -1,4 +1,4 @@
-import type { Node, Schema } from "prosemirror-model";
+import type { Node, NodeType, Schema } from "prosemirror-model";
 import { Transform } from "prosemirror-transform";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
@@ -51,4 +51,21 @@ export function getStyleSchema<S extends StyleSchema>(schema: Schema): S {
 
 export function getBlockCache(schema: Schema) {
   return getBlockNoteEditor(schema).blockCache;
+}
+
+/**
+ * Whether `nodeType` is a BlockNote block whose content type is `"plain"` — i.e.
+ * it holds unstyled text and only allows the non-formatting (`"annotation"`)
+ * marks. Resolved semantically from the block schema (the source of truth),
+ * reachable from `schema.cached.blockNoteEditor`.
+ *
+ * Returns `false` for every non-block / structural node type (`doc`,
+ * `blockGroup`, `text`, inline content, table sub-nodes), since those aren't
+ * keys in the block schema.
+ */
+export function isPlainContentNodeType(
+  schema: Schema,
+  nodeType: NodeType,
+): boolean {
+  return getBlockSchema(schema)[nodeType.name]?.content === "plain";
 }

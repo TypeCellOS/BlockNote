@@ -1,0 +1,43 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`concurrent: A changes textColor, B changes backgroundColor 1`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A changes textColor, B changes backgroundColor 2`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="red">hello world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A changes textColor, B changes backgroundColor 3`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="yellow" textAlignment="left" textColor="default">hello world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A changes textColor, B changes backgroundColor 4`] = `
+"<blockGroup>
+  <blockContainer id="block-hello">
+    <paragraph backgroundColor="yellow" textAlignment="left" textColor="red">hello world</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A changes textColor, B changes backgroundColor 5`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="block-hello">
+      <paragraph backgroundColor="yellow" textAlignment="left" textColor="red">hello world</paragraph>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;

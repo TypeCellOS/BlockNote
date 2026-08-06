@@ -1,4 +1,4 @@
-import * as glob from "glob";
+import { globSync } from "tinyglobby";
 import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import React from "react";
@@ -61,7 +61,7 @@ async function writeTemplate(
 }
 
 async function generateCodeForExample(project: Project, written: string[]) {
-  const templates = glob.sync(
+  const templates = globSync(
     replacePathSepToSlash(path.resolve(dir, "./template-react/*.template.tsx")),
   );
 

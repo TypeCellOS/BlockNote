@@ -1,0 +1,2252 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`concurrent: A adds a column, B adds a row 1`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A adds a column, B adds a row 2`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A adds a column, B adds a row 3`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B3</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A adds a column, B adds a row 4`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C2</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph></tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A adds a column, B adds a row 5`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="table">
+      <table textColor="default">
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A1</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B1</tableParagraph>
+          </tableCell>
+          <y-attributed-insert userIds="A">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-insert userIds="A">
+                <tableParagraph>
+                  <y-attributed-insert userIds="A">C1</y-attributed-insert>
+                </tableParagraph>
+              </y-attributed-insert>
+            </tableCell>
+          </y-attributed-insert>
+        </tableRow>
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A2</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B2</tableParagraph>
+          </tableCell>
+          <y-attributed-insert userIds="A">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-insert userIds="A">
+                <tableParagraph>
+                  <y-attributed-insert userIds="A">C2</y-attributed-insert>
+                </tableParagraph>
+              </y-attributed-insert>
+            </tableCell>
+          </y-attributed-insert>
+        </tableRow>
+        <y-attributed-insert userIds="B">
+          <tableRow>
+            <y-attributed-insert userIds="B">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="B">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="B">A3</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+            <y-attributed-insert userIds="B">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="B">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="B">B3</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
+          </tableRow>
+        </y-attributed-insert>
+      </table>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`concurrent: A adds a row, B adds a column 1`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A adds a row, B adds a column 2`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B3</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A adds a row, B adds a column 3`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A adds a row, B adds a column 4`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C2</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph></tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A adds a row, B adds a column 5`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="table">
+      <table textColor="default">
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A1</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B1</tableParagraph>
+          </tableCell>
+          <y-attributed-insert userIds="B">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-insert userIds="B">
+                <tableParagraph>
+                  <y-attributed-insert userIds="B">C1</y-attributed-insert>
+                </tableParagraph>
+              </y-attributed-insert>
+            </tableCell>
+          </y-attributed-insert>
+        </tableRow>
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A2</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B2</tableParagraph>
+          </tableCell>
+          <y-attributed-insert userIds="B">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-insert userIds="B">
+                <tableParagraph>
+                  <y-attributed-insert userIds="B">C2</y-attributed-insert>
+                </tableParagraph>
+              </y-attributed-insert>
+            </tableCell>
+          </y-attributed-insert>
+        </tableRow>
+        <y-attributed-insert userIds="A">
+          <tableRow>
+            <y-attributed-insert userIds="A">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="A">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="A">A3</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+            <y-attributed-insert userIds="A">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="A">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="A">B3</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
+          </tableRow>
+        </y-attributed-insert>
+      </table>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`concurrent: A deletes a column, B adds a row 1`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A deletes a column, B adds a row 2`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A deletes a column, B adds a row 3`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B3</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A deletes a column, B adds a row 4`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B3</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A deletes a column, B adds a row 5`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="table">
+      <table textColor="default">
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A1</tableParagraph>
+          </tableCell>
+          <y-attributed-delete userIds="A">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-delete userIds="A">
+                <tableParagraph>
+                  <y-attributed-delete userIds="A">B1</y-attributed-delete>
+                </tableParagraph>
+              </y-attributed-delete>
+            </tableCell>
+          </y-attributed-delete>
+        </tableRow>
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A2</tableParagraph>
+          </tableCell>
+          <y-attributed-delete userIds="A">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-delete userIds="A">
+                <tableParagraph>
+                  <y-attributed-delete userIds="A">B2</y-attributed-delete>
+                </tableParagraph>
+              </y-attributed-delete>
+            </tableCell>
+          </y-attributed-delete>
+        </tableRow>
+        <y-attributed-insert userIds="B">
+          <tableRow>
+            <y-attributed-insert userIds="B">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="B">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="B">A3</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+            <y-attributed-insert userIds="B">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="B">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="B">B3</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+          </tableRow>
+        </y-attributed-insert>
+      </table>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`sequential: A adds a column then a row, B adds a column 1`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`sequential: A adds a column then a row, B adds a column 2`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C2</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C3</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`sequential: A adds a column then a row, B adds a column 3`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>D1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>D2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`sequential: A adds a column then a row, B adds a column 4`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>D1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>D2</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph></tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`sequential: A adds a column then a row, B adds a column 5`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="table">
+      <table textColor="default">
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A1</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B1</tableParagraph>
+          </tableCell>
+          <y-attributed-insert userIds="A">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-insert userIds="A">
+                <tableParagraph>
+                  <y-attributed-insert userIds="A">C1</y-attributed-insert>
+                </tableParagraph>
+              </y-attributed-insert>
+            </tableCell>
+          </y-attributed-insert>
+          <y-attributed-insert userIds="B">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-insert userIds="B">
+                <tableParagraph>
+                  <y-attributed-insert userIds="B">D1</y-attributed-insert>
+                </tableParagraph>
+              </y-attributed-insert>
+            </tableCell>
+          </y-attributed-insert>
+        </tableRow>
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A2</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B2</tableParagraph>
+          </tableCell>
+          <y-attributed-insert userIds="A">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-insert userIds="A">
+                <tableParagraph>
+                  <y-attributed-insert userIds="A">C2</y-attributed-insert>
+                </tableParagraph>
+              </y-attributed-insert>
+            </tableCell>
+          </y-attributed-insert>
+          <y-attributed-insert userIds="B">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-insert userIds="B">
+                <tableParagraph>
+                  <y-attributed-insert userIds="B">D2</y-attributed-insert>
+                </tableParagraph>
+              </y-attributed-insert>
+            </tableCell>
+          </y-attributed-insert>
+        </tableRow>
+        <y-attributed-insert userIds="A">
+          <tableRow>
+            <y-attributed-insert userIds="A">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="A">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="A">A3</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+            <y-attributed-insert userIds="A">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="A">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="A">B3</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+            <y-attributed-insert userIds="A">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="A">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="A">C3</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
+          </tableRow>
+        </y-attributed-insert>
+      </table>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`sequential: A adds a row then a column, B adds a row 1`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`sequential: A adds a row then a column, B adds a row 2`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C2</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C3</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`sequential: A adds a row then a column, B adds a row 3`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>D1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>D2</tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`sequential: A adds a row then a column, B adds a row 4`] = `
+"<blockGroup>
+  <blockContainer id="table">
+    <table textColor="default">
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C1</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C2</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>A3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>B3</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>C3</tableParagraph>
+        </tableCell>
+      </tableRow>
+      <tableRow>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>D1</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph>D2</tableParagraph>
+        </tableCell>
+        <tableCell
+          backgroundColor="default"
+          colspan="1"
+          colwidth="null"
+          rowspan="1"
+          textAlignment="left"
+          textColor="default"
+        >
+          <tableParagraph></tableParagraph>
+        </tableCell>
+      </tableRow>
+    </table>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`sequential: A adds a row then a column, B adds a row 5`] = `
+"<doc>
+  <blockGroup>
+    <blockContainer id="table">
+      <table textColor="default">
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A1</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B1</tableParagraph>
+          </tableCell>
+          <y-attributed-insert userIds="A">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-insert userIds="A">
+                <tableParagraph>
+                  <y-attributed-insert userIds="A">C1</y-attributed-insert>
+                </tableParagraph>
+              </y-attributed-insert>
+            </tableCell>
+          </y-attributed-insert>
+        </tableRow>
+        <tableRow>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>A2</tableParagraph>
+          </tableCell>
+          <tableCell
+            backgroundColor="default"
+            colspan="1"
+            rowspan="1"
+            textAlignment="left"
+            textColor="default"
+          >
+            <tableParagraph>B2</tableParagraph>
+          </tableCell>
+          <y-attributed-insert userIds="A">
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <y-attributed-insert userIds="A">
+                <tableParagraph>
+                  <y-attributed-insert userIds="A">C2</y-attributed-insert>
+                </tableParagraph>
+              </y-attributed-insert>
+            </tableCell>
+          </y-attributed-insert>
+        </tableRow>
+        <y-attributed-insert userIds="A">
+          <tableRow>
+            <y-attributed-insert userIds="A">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="A">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="A">A3</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+            <y-attributed-insert userIds="A">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="A">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="A">B3</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+            <y-attributed-insert userIds="A">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="A">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="A">C3</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+          </tableRow>
+        </y-attributed-insert>
+        <y-attributed-insert userIds="B">
+          <tableRow>
+            <y-attributed-insert userIds="B">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="B">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="B">D1</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+            <y-attributed-insert userIds="B">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="B">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="B">D2</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
+          </tableRow>
+        </y-attributed-insert>
+      </table>
+    </blockContainer>
+  </blockGroup>
+</doc>"
+`;

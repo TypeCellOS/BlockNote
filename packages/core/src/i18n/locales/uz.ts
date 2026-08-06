@@ -418,6 +418,7 @@ export const uz: Dictionary = {
     save_button_text: "Saqlash",
     cancel_button_text: "Bekor qilish",
     deleted_reference_text: "Asl tarkib o‘chirildi",
+    discard_pending_comment: "Haqiqatan ham bu izohni bekor qilmoqchimisiz?",
     actions: {
       add_reaction: "Reaksiya qo‘shish",
       resolve: "Hal qilish",
@@ -435,6 +436,14 @@ export const uz: Dictionary = {
     },
   },
 
+  suggestion_changes: {
+    formatting_change: "Formatlash o'zgarishi",
+    deleted: "O'chirildi",
+    inserted_by: (users: string) => `Qo'shgan: ${users}`,
+    deleted_by: (users: string) => `O'chirgan: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Formatlash o'zgarishi (${formats}), o'zgartirgan: ${users}`,
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

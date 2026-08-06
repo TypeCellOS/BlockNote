@@ -431,6 +431,7 @@ export const fr: Dictionary = {
     save_button_text: "Enregistrer",
     cancel_button_text: "Annuler",
     deleted_reference_text: "Contenu d'origine supprimé",
+    discard_pending_comment: "Voulez-vous vraiment abandonner ce commentaire ?",
     actions: {
       add_reaction: "Ajouter une réaction",
       resolve: "Résoudre",
@@ -446,6 +447,14 @@ export const fr: Dictionary = {
       marked_as_resolved: "Marqué comme résolu",
       more_replies: (count) => `${count} réponses de plus`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Modification de mise en forme",
+    deleted: "Supprimé",
+    inserted_by: (users: string) => `Inséré par : ${users}`,
+    deleted_by: (users: string) => `Supprimé par : ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Modification de mise en forme (${formats}) par : ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

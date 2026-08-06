@@ -49,7 +49,7 @@ export function insertBlocks<
   // Now that the `PartialBlock`s have been converted to nodes, we can
   // re-convert them into full `Block`s.
   const insertedBlocks = nodesToInsert.map((node) =>
-    nodeToBlock(node, pmSchema),
+    nodeToBlock(node, tr.doc),
   ) as Block<BSchema, I, S>[];
 
   return insertedBlocks;

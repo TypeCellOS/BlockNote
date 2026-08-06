@@ -385,6 +385,7 @@ export const he: Dictionary = {
     save_button_text: "שמור",
     cancel_button_text: "בטל",
     deleted_reference_text: "התוכן המקורי נמחק",
+    discard_pending_comment: "האם אתה בטוח שברצונך לבטל את התגובה הזו?",
     actions: {
       add_reaction: "הוסף תגובה",
       resolve: "סמן כפתור",
@@ -400,6 +401,14 @@ export const he: Dictionary = {
       marked_as_resolved: "סומן כפתור",
       more_replies: (count: number) => `${count} תגובות נוספות`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "שינוי עיצוב",
+    deleted: "נמחק",
+    inserted_by: (users: string) => `נוסף על ידי: ${users}`,
+    deleted_by: (users: string) => `נמחק על ידי: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `שינוי עיצוב (${formats}) על ידי: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

@@ -13,6 +13,7 @@ import { FilePanelController } from "../components/FilePanel/FilePanelController
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController.js";
 import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController.js";
 import { SideMenuController } from "../components/SideMenu/SideMenuController.js";
+import { AttributionTooltipController } from "../components/AttributionTooltip/AttributionTooltipController.js";
 import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController.js";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController.js";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController.js";
@@ -77,6 +78,12 @@ export type BlockNoteDefaultUIProps = {
   comments?: boolean;
 
   /**
+   * Whether the suggestion-marks attribution tooltip (shown on hover over a
+   * suggestion mark in collaboration/suggestion mode) should be enabled.
+   */
+  attributionTooltip?: boolean;
+
+  /**
    * Per-element portal targets for floating UI. Each key corresponds to one
    * of the default UI elements; values can be an `HTMLElement`, a CSS
    * selector string, or `null` (= `document.body`). The optional `default`
@@ -107,6 +114,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
   const filePanelPortal = resolvePortalTarget(map?.filePanel);
   const tableHandlesPortal = resolvePortalTarget(map?.tableHandles);
   const commentsPortal = resolvePortalTarget(map?.comments);
+  const attributionTooltipPortal = resolvePortalTarget(map?.attributionTooltip);
 
   return (
     <>
@@ -153,6 +161,12 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
           <FloatingThreadController portalElement={commentsPortal} />
         </Suspense>
       )}
+      {editor.getExtension("attribution") &&
+        props.attributionTooltip !== false && (
+          <AttributionTooltipController
+            portalElement={attributionTooltipPortal}
+          />
+        )}
     </>
   );
 }

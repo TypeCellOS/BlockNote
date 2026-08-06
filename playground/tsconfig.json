@@ -15,6 +15,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "composite": true,
+    "types": ["node"],
     "rootDir": ".."
   },
   "include": ["src", "../examples", "./vite.config.ts"],

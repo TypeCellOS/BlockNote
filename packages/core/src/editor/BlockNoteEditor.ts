@@ -498,6 +498,7 @@ export class BlockNoteEditor<
       autofocus: newOptions.autofocus ?? false,
       extensions: tiptapExtensions,
       editorProps: {
+        scrollMargin: { top: 72, bottom: 72, left: 0, right: 0 },
         ...newOptions._tiptapOptions?.editorProps,
         attributes: {
           // As of TipTap v2.5.0 the tabIndex is removed when the editor is not
@@ -532,6 +533,10 @@ export class BlockNoteEditor<
         );
       }
       const schema = getSchema(tiptapOptions.extensions!);
+      // `blockToNode` (via `isPlainContentNodeType`) resolves the block schema
+      // through `schema.cached.blockNoteEditor`, so stamp it on this throwaway
+      // schema now — the real `pmSchema` is stamped separately below.
+      schema.cached.blockNoteEditor = this;
       const pmNodes = initialContent.map((b) =>
         blockToNode(b, schema, this.schema.styleSchema).toJSON(),
       );
@@ -673,6 +678,14 @@ export class BlockNoteEditor<
   public registerExtension: ExtensionManager["registerExtension"] = (
     ...args: Parameters<ExtensionManager["registerExtension"]>
   ) => this._extensionManager.registerExtension(...args) as any;
+
+  /**
+   * Atomically unregister old extensions and register new ones in a single
+   * plugin update, avoiding re-entrant dispatch issues.
+   */
+  public replaceExtension: ExtensionManager["replaceExtension"] = (
+    ...args: Parameters<ExtensionManager["replaceExtension"]>
+  ) => this._extensionManager.replaceExtension(...args);
 
   /**
    * Get an extension from the editor

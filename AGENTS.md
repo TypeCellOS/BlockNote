@@ -9,12 +9,17 @@ All commands below are listed under `package.json` in the project root. See `vit
 - `vp install`: Installs dependencies.
 - `vp run dev`: Starts the dev server on port 5173.
 - `vp run check`: Checks for linting and formatting issues across the project and attempt resolve issues automatically.
+- `vp run lint`: Checks for linting & typee-check issues across the project and attempt resolve issues automatically. DO NOT USE `tsc`, or `pretter`, only lint
+- `vp run format`: Checks for formatting issues across the project and attempt resolve issues automatically. DO NOT USE `tsc`, or `pretter`, only format
 - `vp run build`: Builds the project.
 - `vp run preview`: Previews the build on port 3000.
 - `vp run test`: Runs unit tests. Append with `-u` to update snapshots. Append with a file name to target only that file.
+  - To run individual unit tests, use `vp run test <file>`. For example, `vp run test packages/core/src/extensions/Versioning/inMemoryVersioning.test.ts`.
 - `vp run e2e`: Runs end-to-end tests. Append with a file name to target only that file.
 - `vp run e2e:updateSnaps`: Runs end-to-end tests & updates snapshots. Append with a file name to target only that file.
-- `vp help`: Prints a list of all availabel commands.
+- `vp help`: Prints a list of all available commands.
+
+ONLY USE `vp` or `pnpm`, never `npm` or `yarn`. `vpx` can do what `pnpx` does
 
 # Common Entry Points
 
@@ -27,4 +32,4 @@ When writing a new feature, bug fix, or other modification, it may not be immedi
 
 # Additional Notes
 
-- Do not create git commits.
+- Do not create git commits, unless asked for directly, and do not add Co-Authored-By lines to commits.

@@ -1,10 +1,8 @@
-import PdfFileApp from "@examples/06-custom-schema/04-pdf-file-block/src/App";
 import TestingApp from "@examples/01-basic/testing/src/App";
+import PdfFileApp from "@examples/06-custom-schema/04-pdf-file-block/src/App";
 import { describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
-import { browserName, userEvent } from "../../utils/context.js";
 import {
-  DOC_TRAILING_BLOCK_SELECTOR,
   EDITOR_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
@@ -13,6 +11,7 @@ import {
   PARAGRAPH_SELECTOR,
   PDF_SELECTOR,
 } from "../../utils/const.js";
+import { browserName, userEvent } from "../../utils/context.js";
 import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
 import {
   compareDocToSnapshot,
@@ -103,7 +102,8 @@ describe("Check Block Dragging Functionality", () => {
       await focusOnEditor();
       await executeSlashCommand("image");
       await userEvent.keyboard("{Escape}");
-      await userEvent.click(await waitForSelector(DOC_TRAILING_BLOCK_SELECTOR));
+      const paragraphs = document.querySelectorAll(PARAGRAPH_SELECTOR);
+      await userEvent.click(paragraphs[paragraphs.length - 1]);
       await insertHeading(1);
 
       await dragAndDropBlock(IMAGE_SELECTOR, H_ONE_BLOCK_SELECTOR, false);
@@ -120,7 +120,8 @@ describe("Check Block Dragging Functionality", () => {
       await focusOnEditor();
       await executeSlashCommand("image");
       await userEvent.keyboard("{Escape}");
-      await userEvent.click(await waitForSelector(DOC_TRAILING_BLOCK_SELECTOR));
+      const paragraphs = document.querySelectorAll(PARAGRAPH_SELECTOR);
+      await userEvent.click(paragraphs[paragraphs.length - 1]);
       await insertHeading(1);
 
       await dragAndDropBlock(IMAGE_SELECTOR, H_ONE_BLOCK_SELECTOR, false);

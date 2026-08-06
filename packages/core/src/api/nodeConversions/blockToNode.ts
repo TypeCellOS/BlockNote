@@ -19,7 +19,7 @@ import {
 import { getColspan, isPartialTableCell } from "../../util/table.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
 import { getAbsoluteTableCells } from "../blockManipulation/tables/tables.js";
-import { getStyleSchema } from "../pmUtil.js";
+import { getStyleSchema, isPlainContentNodeType } from "../pmUtil.js";
 
 /**
  * Convert a StyledText inline element to a
@@ -52,11 +52,23 @@ function styledTextToNodes<T extends StyleSchema>(
     }
   }
 
+  // Backwards compat: old BlockNote JSON may carry formatting marks (e.g. bold)
+  // on a block whose content type is now "plain". Those marks aren't allowed on
+  // the node, and would make `createChecked` throw when the block is assembled.
+  // Drop them here (for plain blocks only) — comment/suggestion (annotation)
+  // marks are allowed and kept by `allowedMarks`.
+  const allowedMarks =
+    blockType &&
+    schema.nodes[blockType] &&
+    isPlainContentNodeType(schema, schema.nodes[blockType])
+      ? [...schema.nodes[blockType].allowedMarks(marks)]
+      : marks;
+
   const parseHardBreaks = !blockType || !schema.nodes[blockType].spec.code;
 
   if (!parseHardBreaks) {
     return styledText.text.length > 0
-      ? [schema.text(styledText.text, marks)]
+      ? [schema.text(styledText.text, allowedMarks)]
       : [];
   }
 
@@ -72,7 +84,7 @@ function styledTextToNodes<T extends StyleSchema>(
         if (text === "\n") {
           return schema.nodes["hardBreak"].createChecked();
         } else {
-          return schema.text(text, marks);
+          return schema.text(text, allowedMarks);
         }
       })
   );

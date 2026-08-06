@@ -186,9 +186,9 @@ describe("Code block input rule", () => {
     const after = editor.document[0];
     expect(after.type).toBe("codeBlock");
     expect(after.id).toBe(block.id);
-    expect(
-      (after.content as Array<{ type: string; text: string }>)[0].text,
-    ).toBe("hello");
+    expect(after.content).toEqual([
+      { type: "text", text: "hello", styles: {} },
+    ]);
   });
 
   it("places cursor inside the new code block after Enter conversion", () => {
@@ -205,9 +205,9 @@ describe("Code block input rule", () => {
     const after = editor.document[0];
     expect(after.type).toBe("codeBlock");
     expect(after.id).toBe(block.id);
-    expect(
-      (after.content as Array<{ type: string; text: string }>)[0].text,
-    ).toBe("world");
+    expect(after.content).toEqual([
+      { type: "text", text: "world", styles: {} },
+    ]);
   });
 
   it("Enter inside an existing code block does not retrigger conversion", () => {

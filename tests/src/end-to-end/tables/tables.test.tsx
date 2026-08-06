@@ -12,6 +12,59 @@ import { mouseSequence, moveMouseOverElement } from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 import { insertParagraph } from "../../utils/copypaste.js";
 
+// Hovers `cell` to reveal the table handles, then returns the row or
+// column handle. The column handle is rendered with a
+// `transform: rotate(0.25turn)` on the `.bn-table-handle` element
+// itself; the row handle has no transform.
+async function getTableHandle(
+  cell: HTMLElement,
+  orientation: "row" | "column",
+): Promise<HTMLElement> {
+  await moveMouseOverElement(cell);
+  return vi.waitFor(() => {
+    const candidate = Array.from(
+      document.querySelectorAll<HTMLElement>(".bn-table-handle"),
+    ).find((el) => {
+      const isColumn = el.style.transform.includes("rotate");
+      return orientation === "column" ? isColumn : !isColumn;
+    });
+    if (!candidate) {
+      throw new Error(`${orientation} table handle not visible`);
+    }
+    return candidate;
+  });
+}
+
+// Opens the handle's menu and clicks the menu item whose text matches
+// `label` (menu items have no test id / aria-label, only text).
+async function clickTableHandleMenuItem(
+  handle: HTMLElement,
+  label: string,
+): Promise<void> {
+  const box = handle.getBoundingClientRect();
+  await mouseSequence([
+    { type: "click", x: box.x + box.width / 2, y: box.y + box.height / 2 },
+  ]);
+  // Re-query across ALL open handle menus on every retry: after clicking a prior
+  // menu item a stale `.bn-table-handle-menu` can briefly linger in the DOM
+  // (notably on WebKit, which unmounts it a frame later), so capturing a single
+  // menu up front and only searching that one can lock onto the wrong (old) menu
+  // and never find the item. Scanning every menu each attempt finds it in the
+  // fresh one.
+  const item = await vi.waitFor(() => {
+    const candidate = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        ".bn-table-handle-menu .mantine-Menu-item",
+      ),
+    ).find((el) => el.textContent?.trim() === label);
+    if (!candidate) {
+      throw new Error(`Menu item "${label}" not found`);
+    }
+    return candidate;
+  });
+  await userEvent.click(item);
+}
+
 beforeEach(async () => {
   await render(<App />);
   await waitForSelector(EDITOR_SELECTOR);
@@ -220,6 +273,32 @@ describe("Check Table interactions", () => {
       ).map((t) => (t.textContent ?? "").trim());
       // Expected: only R2 moved. Buggy (#2691): R3 follows along.
       expect(order).toEqual(["R1", "R3", "R4", "R5", "R2"]);
+    },
+  );
+  // Drives the table handle menus to grow the table: first add a
+  // column to the right, then add a row below. Playwright doesn't
+  // correctly simulate the hover/drag interactions for table handles
+  // in Firefox.
+  test.skipIf(browserName === "firefox")(
+    "Add column then add row via table handle menus",
+    async () => {
+      await focusOnEditor();
+      await executeSlashCommand("table");
+      await waitForSelector(TABLE_SELECTOR);
+
+      const firstCell = document.querySelector(
+        `${TABLE_SELECTOR} tbody tr td`,
+      ) as HTMLElement;
+
+      // Add a column to the right of the first column.
+      const columnHandle = await getTableHandle(firstCell, "column");
+      await clickTableHandleMenuItem(columnHandle, "Add column right");
+
+      // Add a row below the first row.
+      const rowHandle = await getTableHandle(firstCell, "row");
+      await clickTableHandleMenuItem(rowHandle, "Add row below");
+
+      await compareDocToSnapshot("addColumnThenRow");
     },
   );
 });

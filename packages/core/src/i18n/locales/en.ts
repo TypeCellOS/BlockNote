@@ -385,6 +385,7 @@ export const en = {
     save_button_text: "Save",
     cancel_button_text: "Cancel",
     deleted_reference_text: "Original content deleted",
+    discard_pending_comment: "Are you sure you want to discard this comment?",
     actions: {
       add_reaction: "Add reaction",
       resolve: "Resolve",
@@ -400,6 +401,14 @@ export const en = {
       marked_as_resolved: "Marked as resolved",
       more_replies: (count: number) => `${count} more replies`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Formatting Change",
+    deleted: "Deleted",
+    inserted_by: (users: string) => `Inserted by: ${users}`,
+    deleted_by: (users: string) => `Deleted by: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Formatting change (${formats}) by: ${users}`,
   },
   generic: {
     ctrl_shortcut: "Ctrl",

@@ -32,7 +32,7 @@ const PIXELS_PER_POINT = 0.75;
 type Options = ExporterOptions & {
   /**
    *
-   * @default uses the remote emoji source hosted on cloudflare (https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/)
+   * @default uses Twemoji images from jdecked/twemoji on jsDelivr CDN
    */
   emojiSource: false | ReturnType<typeof Font.getEmojiSource>;
 };
@@ -97,8 +97,15 @@ export class PDFExporter<
   ) {
     const defaults = {
       emojiSource: {
-        format: "png",
-        url: "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/",
+        builder: (code: string) => {
+          // Twemoji filenames include fe0f in ZWJ sequences but not in
+          // standalone emojis, so strip it only when there's no ZWJ (200d).
+          const resolved = code.includes("200d")
+            ? code
+            : code.replace(/-fe0f/g, "");
+          return `https://cdn.jsdelivr.net/gh/jdecked/twemoji@v17.0.3/assets/72x72/${resolved}.png`;
+        },
+        withVariationSelectors: true,
       },
       resolveFileUrl: corsProxyResolveFileUrl,
       colors: COLORS_DEFAULT,

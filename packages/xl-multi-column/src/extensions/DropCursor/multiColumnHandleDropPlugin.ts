@@ -50,7 +50,7 @@ export function createMultiColumnHandleDropPlugin(
 
           const columnList = nodeToBlock<any, any, any>(
             parentBlock,
-            editor.pmSchema,
+            view.state.doc,
           );
 
           // Normalize column widths to average of 1
@@ -129,7 +129,7 @@ export function createMultiColumnHandleDropPlugin(
           });
         } else {
           // Create new columnList with blocks as columns
-          const block = nodeToBlock(blockInfo.bnBlock.node, editor.pmSchema);
+          const block = nodeToBlock(blockInfo.bnBlock.node, view.state.doc);
 
           // The user is dropping next to one of the blocks being dragged - do
           // nothing.

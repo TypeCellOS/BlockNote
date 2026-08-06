@@ -9,8 +9,13 @@ import { CellSelection } from "prosemirror-tables";
 import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
-import { getNearestBlockPos } from "../../../getBlockInfoFromPos.js";
+import {
+  getBlockInfoAtNearest,
+  getNodeId,
+} from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
+import { insertBlocks } from "../insertBlocks/insertBlocks.js";
+import { removeAndInsertBlocks } from "../replaceBlocks/replaceBlocks.js";
 
 type BlockSelectionData = (
   | {
@@ -44,31 +49,34 @@ function getBlockSelectionData(
   editor: BlockNoteEditor<any, any, any>,
 ): BlockSelectionData {
   return editor.transact((tr) => {
-    const anchorBlockPosInfo = getNearestBlockPos(tr.doc, tr.selection.anchor);
+    const anchorBlockPosInfo = getBlockInfoAtNearest(tr, tr.selection.anchor);
+
+    const anchorBlockId = getNodeId(anchorBlockPosInfo.bnBlock.node, tr.doc);
 
     if (tr.selection instanceof CellSelection) {
       return {
         type: "cell" as const,
-        anchorBlockId: anchorBlockPosInfo.node.attrs.id,
+        anchorBlockId,
         anchorCellOffset:
-          tr.selection.$anchorCell.pos - anchorBlockPosInfo.posBeforeNode,
+          tr.selection.$anchorCell.pos - anchorBlockPosInfo.bnBlock.beforePos,
         headCellOffset:
-          tr.selection.$headCell.pos - anchorBlockPosInfo.posBeforeNode,
+          tr.selection.$headCell.pos - anchorBlockPosInfo.bnBlock.beforePos,
       };
     } else if (tr.selection instanceof NodeSelection) {
       return {
         type: "node" as const,
-        anchorBlockId: anchorBlockPosInfo.node.attrs.id,
+        anchorBlockId,
       };
     } else {
-      const headBlockPosInfo = getNearestBlockPos(tr.doc, tr.selection.head);
+      const headBlockPosInfo = getBlockInfoAtNearest(tr, tr.selection.head);
 
       return {
         type: "text" as const,
-        anchorBlockId: anchorBlockPosInfo.node.attrs.id,
-        headBlockId: headBlockPosInfo.node.attrs.id,
-        anchorOffset: tr.selection.anchor - anchorBlockPosInfo.posBeforeNode,
-        headOffset: tr.selection.head - headBlockPosInfo.posBeforeNode,
+        anchorBlockId,
+        headBlockId: getNodeId(headBlockPosInfo.bnBlock.node, tr.doc),
+        anchorOffset:
+          tr.selection.anchor - anchorBlockPosInfo.bnBlock.beforePos,
+        headOffset: tr.selection.head - headBlockPosInfo.bnBlock.beforePos,
       };
     }
   });
@@ -148,24 +156,26 @@ export function moveBlocks(
   referenceBlock: BlockIdentifier,
   placement: "before" | "after",
 ) {
-  editor.transact(() => {
-    // A `columnList` reference can be dissolved by `fixColumnList` when its
-    // `column`s are removed, leaving its ID invalid for re-insertion. Anchor
-    // to an adjacent block instead, which is unaffected by the removal.
-    const refBlock = editor.getBlock(referenceBlock);
-    if (refBlock?.type === "columnList") {
-      const adjacent =
-        placement === "after"
-          ? editor.getNextBlock(refBlock)
-          : editor.getPrevBlock(refBlock);
-      if (adjacent) {
-        referenceBlock = adjacent;
-        placement = placement === "after" ? "before" : "after";
-      }
-    }
-
-    editor.removeBlocks(blocks);
-    editor.insertBlocks(flattenColumns(blocks), referenceBlock, placement);
+  editor.transact((tr) => {
+    // Don't fix columns/columnLists in the removal step. Since a move is a
+    // rearrangement rather than a deletion, columns that it empties out are
+    // deliberately left as-is instead of being collapsed - this keeps moves
+    // free of side effects (and reversible by moving back), and matches
+    // dragging a block out of a column, which doesn't collapse it either.
+    // Fixing them mid-move also broke the following case:
+    // <column>
+    //  <paragraph></paragraph>
+    //  <paragraph>Paragraph</paragraph>
+    // </column>
+    // When the non-empty block is moved up, the column is seen as empty and
+    // collapsed in the removal step, so the following insertion fails.
+    removeAndInsertBlocks(tr, blocks, [], { fixColumns: false });
+    insertBlocks<any, any, any>(
+      tr,
+      flattenColumns(blocks),
+      referenceBlock,
+      placement,
+    );
   });
 }
 

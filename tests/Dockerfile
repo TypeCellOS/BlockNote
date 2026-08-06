@@ -24,19 +24,24 @@ FROM mcr.microsoft.com/playwright:v1.60.0-noble
 WORKDIR /work
 
 # pnpm matching the repo's packageManager.
-RUN corepack enable && corepack prepare pnpm@11.5.1 --activate
+RUN corepack enable && corepack prepare pnpm@11.8.0 --activate
 
 # Copy ONLY the dependency manifests — every workspace member's package.json plus
 # the lockfile/workspace file — preserving their paths with --parents. These are
 # the entire input to `pnpm install`, so editing package *source* can't bust this
 # layer (or the install below); only a manifest or the lockfile changing does.
 COPY --parents pnpm-lock.yaml pnpm-workspace.yaml **/package.json ./
+# pnpm patches are referenced by the lockfile and required during install.
+COPY patches ./patches
 
 # Install workspace deps (Linux binaries) + bootstrap the vite-plus toolchain
 # (the root `prepare` script runs `vp config`, which fetches vp's node runtime).
 # `docs` is excluded: its fumadocs-mdx postinstall needs docs source we don't
-# ship, and the e2e suite never touches docs.
-RUN pnpm install --frozen-lockfile --filter '!docs'
+# ship, and the e2e suite never touches docs. The `--filter '!docs'` alone is not
+# enough — pnpm still runs the docs `postinstall` lifecycle script, which fails
+# in fumadocs-mdx. SKIP_DOCS_POSTINSTALL makes that script a no-op (see
+# docs/package.json) without disabling the native build scripts other deps need.
+RUN SKIP_DOCS_POSTINSTALL=1 pnpm install --frozen-lockfile --filter '!docs'
 
 # Bake in the example apps: the tests import them and vite transpiles them from
 # source at run time. They sit after the install layer, so editing an example

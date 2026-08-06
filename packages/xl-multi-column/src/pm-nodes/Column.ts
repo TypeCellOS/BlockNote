@@ -1,3 +1,4 @@
+import { suggestionMarks } from "@blocknote/core";
 import { Node } from "@tiptap/core";
 
 import { createColumnResizeExtension } from "../extensions/ColumnResize/ColumnResizeExtension.js";
@@ -9,7 +10,9 @@ export const Column = Node.create({
   content: "blockContainer+",
   priority: 40,
   defining: true,
-  marks: "deletion insertion modification",
+  marks() {
+    return suggestionMarks(this.editor);
+  },
   addAttributes() {
     return {
       width: {

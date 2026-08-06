@@ -9,7 +9,7 @@
     "directory": "packages/xl-odt-exporter"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.51.4",
+  "version": "0.52.1",
   "files": [
     "dist",
     "types",
@@ -64,6 +64,7 @@
   "devDependencies": {
     "@blocknote/shared": "workspace:^",
     "@testing-library/react": "^16.3.0",
+    "@types/node": "22.13.13",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "react": "^19.2.5",

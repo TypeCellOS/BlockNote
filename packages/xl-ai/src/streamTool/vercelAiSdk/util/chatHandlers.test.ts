@@ -7,6 +7,7 @@ import {
   UIMessageChunk,
 } from "ai";
 import { describe, expect, it } from "vite-plus/test";
+import { AttributionMarksExtension } from "../../../prosemirror/AttributionMarks.js";
 import { aiDocumentFormats } from "../../../server.js";
 import { ChunkExecutionError } from "../../ChunkExecutionError.js";
 import { setupToolCallStreaming } from "./chatHandlers.js";
@@ -81,6 +82,10 @@ describe("setupToolCallStreaming", () => {
 
   it("should handle abort signal", async () => {
     const editor = BlockNoteEditor.create({
+      // The stream tools apply changes as suggestions, which need the AI
+      // suggestion marks (`insertion` / `deletion` / `modification`) in the
+      // schema.
+      extensions: [AttributionMarksExtension()],
       initialContent: [
         {
           type: "paragraph",
@@ -154,6 +159,10 @@ describe("setupToolCallStreaming", () => {
 
   it("should handle abort signal that is already aborted", async () => {
     const editor = BlockNoteEditor.create({
+      // The stream tools apply changes as suggestions, which need the AI
+      // suggestion marks (`insertion` / `deletion` / `modification`) in the
+      // schema.
+      extensions: [AttributionMarksExtension()],
       initialContent: [
         {
           type: "paragraph",

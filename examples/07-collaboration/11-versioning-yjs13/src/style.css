@@ -1,0 +1,141 @@
+.wrapper {
+  height: calc(100vh - 20px);
+}
+
+.wrapper > .bn-container {
+  margin: 0;
+  max-width: none;
+  padding: 0;
+}
+
+.layout {
+  display: flex;
+  gap: 8px;
+  height: calc(100vh - 20px);
+}
+
+.editor-panel {
+  flex: 1;
+  height: calc(100vh - 20px);
+  min-width: 0;
+  overflow: auto;
+}
+
+.editor-panel .bn-container {
+  height: calc(100vh - 20px);
+  margin: 0;
+  max-width: none;
+  padding: 0;
+}
+
+.editor-panel .bn-editor {
+  height: calc(100vh - 20px);
+  overflow: auto;
+}
+
+.sidebar-section {
+  background-color: var(--bn-colors-disabled-background);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 20px);
+  overflow: auto;
+  width: 350px;
+}
+
+.sidebar-section .settings {
+  padding: 8px;
+}
+
+.bn-versioning-sidebar {
+  flex: 1;
+  overflow: auto;
+  padding-inline: 16px;
+}
+
+.settings-select {
+  display: flex;
+  gap: 10px;
+}
+
+.settings-select .bn-toolbar {
+  align-items: center;
+}
+
+.settings-select h2 {
+  color: var(--bn-colors-menu-text);
+  margin: 0;
+  font-size: 12px;
+  line-height: 12px;
+  padding-left: 14px;
+}
+
+.bn-snapshot {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 10px;
+  overflow: visible;
+  padding: 16px 32px;
+  width: 100%;
+}
+
+.bn-snapshot-name {
+  background: transparent;
+  border: none;
+  color: var(--bn-colors-menu-text);
+  font-size: 16px;
+  font-weight: 600;
+  padding: 0;
+  width: 100%;
+}
+
+.bn-snapshot-name:focus {
+  outline: none;
+}
+
+.bn-snapshot-body {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  gap: 4px;
+}
+
+.bn-snapshot-button {
+  background-color: #4da3ff;
+  border: none;
+  border-radius: 4px;
+  color: var(--bn-colors-selected-text);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 8px;
+  width: fit-content;
+}
+
+.dark .bn-snapshot-button {
+  background-color: #0070e8;
+}
+
+.bn-snapshot-button:hover {
+  background-color: #73b7ff;
+}
+
+.dark .bn-snapshot-button:hover {
+  background-color: #3785d8;
+}
+
+.bn-versioning-sidebar .bn-snapshot.selected {
+  background-color: #f5f9fd;
+  border: 2px solid #c2dcf8;
+}
+
+.dark .bn-versioning-sidebar .bn-snapshot.selected {
+  background-color: #20242a;
+  border: 2px solid #23405b;
+}

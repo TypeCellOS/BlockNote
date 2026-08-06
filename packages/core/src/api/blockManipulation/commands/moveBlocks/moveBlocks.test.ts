@@ -3,8 +3,9 @@ import { CellSelection } from "prosemirror-tables";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
-  getBlockInfoFromTransaction,
-  getNearestBlockPos,
+  getBlockInfoAtNearest,
+  getBlockInfoFromSelection,
+  getNodeId,
 } from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import {
@@ -16,9 +17,7 @@ import {
 const getEditor = setupTestEnv();
 
 function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
-  const blockInfo = getEditor().transact((tr) =>
-    getBlockInfoFromTransaction(tr),
-  );
+  const blockInfo = getEditor().transact((tr) => getBlockInfoFromSelection(tr));
   if (!blockInfo.isBlockContainer) {
     throw new Error(
       `Selection points to a ${blockInfo.blockNoteType} node, not a blockContainer node`,
@@ -222,13 +221,16 @@ describe("Test moveBlocksUp", () => {
 
     moveBlocksUp(getEditor(), "paragraph-2");
 
-    const { anchor, head } = getEditor().transact((tr) => tr.selection);
-    const anchorBlockId = getEditor().transact(
-      (tr) => getNearestBlockPos(tr.doc, anchor).node.attrs.id,
-    );
-    const headBlockId = getEditor().transact(
-      (tr) => getNearestBlockPos(tr.doc, head).node.attrs.id,
-    );
+    const { anchorBlockId, headBlockId } = getEditor().transact((tr) => ({
+      anchorBlockId: getNodeId(
+        getBlockInfoAtNearest(tr, tr.selection.anchor).bnBlock.node,
+        tr.doc,
+      ),
+      headBlockId: getNodeId(
+        getBlockInfoAtNearest(tr, tr.selection.head).bnBlock.node,
+        tr.doc,
+      ),
+    }));
     expect(anchorBlockId).toBe("paragraph-1");
     expect(headBlockId).toBe("paragraph-1");
   });
@@ -343,13 +345,16 @@ describe("Test moveBlocksDown", () => {
 
     moveBlocksDown(getEditor(), "paragraph-0");
 
-    const { anchor, head } = getEditor().transact((tr) => tr.selection);
-    const anchorBlockId = getEditor().transact(
-      (tr) => getNearestBlockPos(tr.doc, anchor).node.attrs.id,
-    );
-    const headBlockId = getEditor().transact(
-      (tr) => getNearestBlockPos(tr.doc, head).node.attrs.id,
-    );
+    const { anchorBlockId, headBlockId } = getEditor().transact((tr) => ({
+      anchorBlockId: getNodeId(
+        getBlockInfoAtNearest(tr, tr.selection.anchor).bnBlock.node,
+        tr.doc,
+      ),
+      headBlockId: getNodeId(
+        getBlockInfoAtNearest(tr, tr.selection.head).bnBlock.node,
+        tr.doc,
+      ),
+    }));
     expect(anchorBlockId).toBe("paragraph-1");
     expect(headBlockId).toBe("paragraph-1");
   });
