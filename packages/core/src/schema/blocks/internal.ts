@@ -6,7 +6,26 @@ import type { ExtensionFactoryInstance } from "../../editor/BlockNoteExtension.j
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
 import { PropSchema, Props } from "../propTypes.js";
-import { LooseBlockSpec } from "./types.js";
+import { ContainerConfig, LooseBlockSpec } from "./types.js";
+
+// Builds the ProseMirror content expression for a container block from its
+// cardinality config.
+export function containerContentExpression(config: ContainerConfig): string {
+  const min = config.min;
+  const max = config.max;
+
+  if (max !== undefined) {
+    const effectiveMin = min ?? 1;
+    return `blockGroupChild{${effectiveMin},${max}}`;
+  }
+  if (min === 0) {
+    return "blockGroupChild*";
+  }
+  if (min === undefined || min === 1) {
+    return "blockGroupChild+";
+  }
+  return `blockGroupChild{${min},}`;
+}
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
