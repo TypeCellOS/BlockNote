@@ -40,7 +40,7 @@ function checkLinkInSchema(
   );
 }
 
-export const CreateLinkButton = () => {
+export const CreateLinkButton = (props: { direction?: "up" | "down" }) => {
   const editor = useBlockNoteEditor<any, any, any>();
   const editorDOMElement = useEditorDOMElement();
   const Components = useComponentsContext()!;
@@ -115,6 +115,7 @@ export const CreateLinkButton = () => {
     <Components.Generic.Popover.Root
       open={showPopover}
       onOpenChange={setShowPopover}
+      position={props.direction === "up" ? "top" : undefined}
     >
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}

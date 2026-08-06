@@ -535,19 +535,43 @@ inline styles, it is added to the base z-index. */
   gap: 4px;
 }
 
-/* Mobile formatting toolbar positioning */
+/* Mobile formatting toolbar positioning. Pinned to the bottom of the visual
+   viewport from the `--bn-vv-*` variables published by
+   ExperimentalMobileFormattingToolbarController: `translateY(-100%)` puts the
+   toolbar's bottom edge on the viewport bottom without measuring its height, and
+   `scale(1 / --bn-vv-scale)` around that anchored corner cancels pinch-zoom so
+   it keeps its on-screen size. */
 .bn-mobile-formatting-toolbar {
   display: flex;
   position: fixed;
-  bottom: var(--bn-mobile-keyboard-offset, 0px);
+  top: 0;
   left: 0;
   right: 0;
   z-index: calc(var(--bn-ui-base-z-index) + 40);
-  transition: bottom 0.15s ease-out;
+  transform: translate(
+      var(--bn-vv-left, 0px),
+      calc(var(--bn-vv-top, 0px) + var(--bn-vv-height, 0px))
+    )
+    translateY(-100%) scale(calc(1 / var(--bn-vv-scale, 1)));
+  transform-origin: left bottom;
+  will-change: transform;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  /* No `overflow` here: `direction: up` dropdowns render above the toolbar and
+     must not be clipped. Note `overflow-x` would force `overflow-y: auto` too,
+     which is exactly what clips them. Horizontal scroll lives on the inner
+     `.bn-mobile-formatting-toolbar-scroll` element instead. */
+}
+
+/* Inner horizontal scroller for the toolbar buttons. Its overflow does not clip
+   the dropdowns: their containing block is the positioned outer toolbar, so they
+   escape this element entirely. */
+.bn-mobile-formatting-toolbar-scroll {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
   touch-action: pan-x;
   -webkit-overflow-scrolling: touch;
-  overflow-x: auto;
-  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 /* Emoji Picker styling */

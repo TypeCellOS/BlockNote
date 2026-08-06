@@ -13,7 +13,7 @@ import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
-export const FileRenameButton = () => {
+export const FileRenameButton = (props: { direction?: "up" | "down" }) => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
 
@@ -88,6 +88,7 @@ export const FileRenameButton = () => {
     <Components.Generic.Popover.Root
       open={popoverOpen}
       onOpenChange={setPopoverOpen}
+      position={props.direction === "up" ? "top" : undefined}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button

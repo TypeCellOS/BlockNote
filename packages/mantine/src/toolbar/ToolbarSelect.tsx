@@ -4,7 +4,7 @@ import {
   Menu as MantineMenu,
 } from "@mantine/core";
 
-import { assertEmpty, isSafari } from "@blocknote/core";
+import { assertEmpty, isSafari, isTouchDevice } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 import { HiChevronDown } from "react-icons/hi";
@@ -14,7 +14,7 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, ...rest } = props;
+  const { className, items, isDisabled, direction, ...rest } = props;
 
   assertEmpty(rest);
 
@@ -27,18 +27,34 @@ export const ToolbarSelect = forwardRef<
   return (
     <MantineMenu
       withinPortal={false}
+      position={direction === "up" ? "top-start" : "bottom-start"}
       transitionProps={{
         exitDuration: 0,
       }}
       disabled={isDisabled}
-      middlewares={{ flip: true, shift: true, inline: false, size: true }}
+      // Don't move focus into the dropdown on open: on mobile that blurs the
+      // editor's contentEditable and dismisses the on-screen keyboard.
+      // `withInitialFocusPlaceholder={false}` drops the focusable placeholder
+      // Mantine otherwise autofocuses.
+      trapFocus={false}
+      returnFocus={false}
+      withInitialFocusPlaceholder={false}
+      // When opening upward (mobile, above the keyboard) don't let `flip` send
+      // it back down: there's always room above and floating-ui's overflow
+      // detection is unreliable inside the transformed toolbar.
+      middlewares={{
+        flip: direction !== "up",
+        shift: true,
+        inline: false,
+        size: true,
+      }}
     >
       <MantineMenu.Target>
         <MantineButton
           // Needed as Safari doesn't focus button elements on mouse down
           // unlike other browsers.
           onMouseDown={(e) => {
-            if (isSafari()) {
+            if (isSafari() && !isTouchDevice()) {
               (e.currentTarget as HTMLButtonElement).focus();
             }
           }}

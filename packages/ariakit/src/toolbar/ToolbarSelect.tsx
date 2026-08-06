@@ -16,7 +16,7 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, ...rest } = props;
+  const { className, items, isDisabled, direction, ...rest } = props;
 
   assertEmpty(rest);
 
@@ -27,7 +27,11 @@ export const ToolbarSelect = forwardRef<
   };
 
   return (
-    <AriakitSelectProvider value={selectedItem.text} setValue={setValue}>
+    <AriakitSelectProvider
+      value={selectedItem.text}
+      setValue={setValue}
+      placement={direction === "up" ? "top" : "bottom"}
+    >
       <AriakitSelect
         className={"bn-ak-button bn-ak-secondary"}
         disabled={isDisabled}

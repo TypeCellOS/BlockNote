@@ -40,7 +40,7 @@ function checkColorInSchema<Color extends "text" | "background">(
   );
 }
 
-export const ColorStyleButton = () => {
+export const ColorStyleButton = (props: { direction?: "up" | "down" }) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
   const editor = useBlockNoteEditor<
@@ -136,7 +136,9 @@ export const ColorStyleButton = () => {
   }
 
   return (
-    <Components.Generic.Menu.Root>
+    <Components.Generic.Menu.Root
+      position={props.direction === "up" ? "top" : undefined}
+    >
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}

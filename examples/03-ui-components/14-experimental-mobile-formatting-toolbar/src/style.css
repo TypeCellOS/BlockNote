@@ -100,16 +100,16 @@ body {
 }
 
 /* A top-level wrapper div is the scroll container (the document itself doesn't
-   scroll), pinned to the visual viewport rectangle via the `--app-*` variables
-   (see `useVisualViewport`) so the bar sits directly above the keyboard on iOS —
-   where the layout viewport doesn't resize and can be left with a nonzero
-   `offsetTop`. */
+   scroll — the controller locks it), pinned to the visual viewport rectangle via
+   the `--bn-vv-*` variables the controller publishes, so it sits directly above
+   the keyboard on iOS — where the layout viewport doesn't resize and can be left
+   with a nonzero `offsetTop`. */
 .scroll-host {
   position: fixed;
-  top: var(--app-top, 0px);
-  left: var(--app-left, 0px);
-  width: var(--app-width, 100vw);
-  height: var(--app-height, 100dvh);
+  top: var(--bn-vv-top, 0px);
+  left: var(--bn-vv-left, 0px);
+  width: var(--bn-vv-width, 100vw);
+  height: var(--bn-vv-height, 100dvh);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   /* Stop overscroll at the boundary from chaining to the document. Without
@@ -117,30 +117,4 @@ body {
      shifts the visual viewport (repinning the host mid-bounce → jitter) and
      surfaces a second, document-level scrollbar. */
   overscroll-behavior: contain;
-}
-
-/* The bar, pinned to the bottom of the visual viewport straight from the
-   `--app-*` variables — no JS positioning. `translateY(-100%)` puts its bottom
-   edge on the viewport bottom (avoiding a height measurement), and
-   `scale(1 / --app-scale)`, around that anchored bottom-left corner, cancels
-   pinch-zoom so it keeps its on-screen size. */
-.viewport-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 20px;
-  font: 11px/1 sans-serif;
-  color: #fff;
-  background: rgb(255 0 0 / 0.6);
-  transform: translate(
-      var(--app-left, 0px),
-      calc(var(--app-top, 0px) + var(--app-height, 0px))
-    )
-    translateY(-100%) scale(calc(1 / var(--app-scale, 1)));
-  transform-origin: left bottom;
-  will-change: transform;
 }

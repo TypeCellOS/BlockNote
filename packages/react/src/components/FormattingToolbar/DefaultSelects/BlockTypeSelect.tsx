@@ -125,7 +125,10 @@ export const blockTypeSelectItems = (
   },
 ];
 
-export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
+export const BlockTypeSelect = (props: {
+  items?: BlockTypeSelectItem[];
+  direction?: "up" | "down";
+}) => {
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<
@@ -212,6 +215,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     <Components.FormattingToolbar.Select
       className={"bn-select"}
       items={selectItems}
+      direction={props.direction}
     />
   );
 };

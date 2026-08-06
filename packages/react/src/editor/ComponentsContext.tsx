@@ -47,6 +47,7 @@ type ToolbarSelectType = {
     isDisabled?: boolean;
   }[];
   isDisabled?: boolean;
+  direction?: "up" | "down";
 };
 
 type MenuButtonType = {

@@ -6,7 +6,7 @@ import {
   Tooltip as MantineTooltip,
 } from "@mantine/core";
 
-import { assertEmpty, isSafari } from "@blocknote/core";
+import { assertEmpty, isSafari, isTouchDevice } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef, useState } from "react";
 
@@ -60,7 +60,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         // Needed as Safari doesn't focus button elements on mouse down
         // unlike other browsers.
         onMouseDown={(e) => {
-          if (isSafari()) {
+          if (isSafari() && !isTouchDevice()) {
             (e.currentTarget as HTMLButtonElement).focus();
           }
         }}
@@ -93,7 +93,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         // Needed as Safari doesn't focus button elements on mouse down
         // unlike other browsers.
         onMouseDown={(e) => {
-          if (isSafari()) {
+          if (isSafari() && !isTouchDevice()) {
             (e.currentTarget as HTMLButtonElement).focus();
           }
         }}

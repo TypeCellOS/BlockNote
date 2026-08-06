@@ -12,7 +12,7 @@ import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { FilePanel } from "../../FilePanel/FilePanel.js";
 
-export const FileReplaceButton = () => {
+export const FileReplaceButton = (props: { direction?: "up" | "down" }) => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
 
@@ -56,7 +56,9 @@ export const FileReplaceButton = () => {
   }
 
   return (
-    <Components.Generic.Popover.Root position={"bottom"}>
+    <Components.Generic.Popover.Root
+      position={props.direction === "up" ? "top" : "bottom"}
+    >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}

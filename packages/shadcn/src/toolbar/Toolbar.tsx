@@ -125,7 +125,15 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, ...rest } = props;
+  // TODO: `direction` (up/down) isn't wired to the Radix Select's side yet;
+  // destructured here so it doesn't trip `assertEmpty`.
+  const {
+    className,
+    items,
+    isDisabled,
+    direction: _direction,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
