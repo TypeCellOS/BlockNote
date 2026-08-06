@@ -258,7 +258,16 @@ export function createReactBlockSpec<
               />
             );
             if (isContainer) {
-              return content;
+              return (
+                <BlockContentWrapper
+                  blockType={block.type}
+                  blockProps={block.props}
+                  propSchema={blockConfig.propSchema}
+                  domAttributes={this.blockContentDOMAttributes}
+                >
+                  {content}
+                </BlockContentWrapper>
+              );
             }
             return (
               <BlockContentWrapper

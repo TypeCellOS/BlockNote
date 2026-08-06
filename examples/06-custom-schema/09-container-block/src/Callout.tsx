@@ -59,6 +59,7 @@ export const createCallout = createReactBlockSpec(
             type={"button"}
             contentEditable={false}
             onClick={cycleFlavor}
+            aria-label={`Cycle callout flavor (current: ${flavor.title})`}
             title={`Click to cycle flavor (current: ${flavor.title})`}
           >
             <Icon size={20} />

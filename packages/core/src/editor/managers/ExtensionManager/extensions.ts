@@ -66,7 +66,11 @@ export function getDefaultTiptapExtensions(
         // the id lives on its attrs rather than on a wrapping blockContainer.
         ...Object.entries(editor.schema.blockSpecs)
           .filter(([, spec]) => {
-            const group = (spec.implementation.node as Node).config.group;
+            const node = spec.implementation.node as Node | undefined;
+            if (!node?.config) {
+              return false;
+            }
+            const group = node.config.group;
             return (
               typeof group === "string" &&
               group.split(/\s+/).includes("bnBlock")

@@ -342,6 +342,7 @@ export function blockToNode(
   block: PartialBlock<any, any, any>,
   schema: Schema,
   styleSchema: StyleSchema = getStyleSchema(schema),
+  _seenNodeTypes?: Set<string>,
 ) {
   let id = block.id;
 
@@ -398,13 +399,18 @@ export function blockToNode(
         | undefined;
       const defaultBlocks = containerConfig?.defaultBlocks;
       if (defaultBlocks && defaultBlocks.length > 0) {
-        effectiveChildren = defaultBlocks.map((type) =>
-          blockToNode(
-            { type } as PartialBlock<any, any, any>,
-            schema,
-            styleSchema,
-          ),
-        );
+        const seenNodes = _seenNodeTypes ?? new Set<string>();
+        seenNodes.add(block.type);
+        effectiveChildren = defaultBlocks
+          .filter((type) => !seenNodes.has(type))
+          .map((type) =>
+            blockToNode(
+              { type } as PartialBlock<any, any, any>,
+              schema,
+              styleSchema,
+              seenNodes,
+            ),
+          );
       }
     }
 

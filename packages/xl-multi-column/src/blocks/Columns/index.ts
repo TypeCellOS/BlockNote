@@ -64,6 +64,8 @@ export const ColumnBlock = createBlockSpec(
           }
           if (newNode.attrs.id) {
             dom.setAttribute("data-id", newNode.attrs.id);
+          } else {
+            dom.removeAttribute("data-id");
           }
           return true;
         },
