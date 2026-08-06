@@ -1853,7 +1853,7 @@ export const examples = {
           tags: ["Extension"],
           pro: true,
           dependencies: {
-            "@tiptap/core": "^3.13.0",
+            "@tiptap/core": "^3.29.2",
           } as any,
         },
         title: "TipTap extension (arrow InputRule)",
