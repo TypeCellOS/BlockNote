@@ -6,6 +6,7 @@ import {
   TagParseRule,
 } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
+import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
 import { ignoreNonContentMutations } from "../nodeViewMutations.js";
 import {
@@ -273,12 +274,9 @@ function buildContainerNode<TName extends string, TProps extends PropSchema>(
             `Container block "${blockConfig.type}" is missing an id attribute. Make sure it is registered with UniqueID.`,
           );
         }
-        const block = editor.getBlock(blockIdentifier);
-        if (!block) {
-          throw new Error(
-            `Container block with id "${blockIdentifier}" not found.`,
-          );
-        }
+        const block =
+          editor.getBlock(blockIdentifier) ??
+          nodeToBlock(props.node, editor.prosemirrorView.state.doc);
         const blockContentDOMAttributes =
           this.options.domAttributes?.blockContent || {};
 

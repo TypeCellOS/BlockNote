@@ -11,6 +11,7 @@ import {
   ExtensionFactoryInstance,
   ExtractBlockConfigFromConfigOrCreator,
   mergeCSSClasses,
+  nodeToBlock,
   Props,
   PropSchema,
 } from "@blocknote/core";
@@ -317,12 +318,9 @@ export function createReactBlockSpec<
                       `Container block "${blockConfig.type}" is missing an id attribute.`,
                     );
                   }
-                  block = editor.getBlock(id);
-                  if (!block) {
-                    throw new Error(
-                      `Container block with id "${id}" not found.`,
-                    );
-                  }
+                  block =
+                    editor.getBlock(id) ??
+                    nodeToBlock(props.node, editor.prosemirrorView.state.doc);
                 } else {
                   block = nodeViewBlock;
                 }
