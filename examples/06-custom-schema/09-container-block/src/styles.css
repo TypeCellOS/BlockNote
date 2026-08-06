@@ -1,0 +1,93 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.item {
+  border-radius: 0.5rem;
+  flex: 1;
+  overflow: hidden;
+}
+
+.item.bordered {
+  border: 1px solid gray;
+}
+
+.item pre {
+  border-radius: 0.5rem;
+  height: 100%;
+  overflow: auto;
+  padding-block: 1rem;
+  padding-inline: 54px;
+  width: 100%;
+  white-space: pre-wrap;
+}
+
+.callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-grow: 1;
+  border-radius: 6px;
+  padding: 12px 16px;
+  border-left: 4px solid var(--callout-accent, #888);
+  background-color: var(--callout-bg, #f3f4f6);
+}
+
+.callout[data-flavor="tip"] {
+  --callout-accent: #d97706;
+  --callout-bg: #fff7ed;
+}
+
+.callout[data-flavor="info"] {
+  --callout-accent: #507aff;
+  --callout-bg: #e6ebff;
+}
+
+.callout[data-flavor="warning"] {
+  --callout-accent: #b91c1c;
+  --callout-bg: #fef2f2;
+}
+
+.callout[data-flavor="success"] {
+  --callout-accent: #16a34a;
+  --callout-bg: #ecfdf5;
+}
+
+[data-color-scheme="dark"] .callout[data-flavor="tip"] {
+  --callout-bg: #432e0e;
+}
+
+[data-color-scheme="dark"] .callout[data-flavor="info"] {
+  --callout-bg: #1e2a5c;
+}
+
+[data-color-scheme="dark"] .callout[data-flavor="warning"] {
+  --callout-bg: #4a1212;
+}
+
+[data-color-scheme="dark"] .callout[data-flavor="success"] {
+  --callout-bg: #0d3b21;
+}
+
+.callout-icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--callout-accent, #888);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.callout-icon-button:hover {
+  opacity: 0.75;
+}
+
+.callout-body {
+  flex-grow: 1;
+  min-width: 0;
+}
