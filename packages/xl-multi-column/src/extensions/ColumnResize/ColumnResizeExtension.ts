@@ -238,12 +238,26 @@ class ColumnResizePluginView implements PluginView {
     // If the user isn't currently resizing columns, we want to update the
     // plugin state to maybe show or hide the resize border between columns.
     if (pluginState.type !== "resize") {
-      // Ignore mouse moves over the side menu so the borders don't flicker
-      // away while the cursor crosses it on the way to a column boundary.
+      // Mouse moves over the side menu keep the current hover state so the
+      // borders don't flicker away while the cursor crosses it on the way to
+      // a column boundary. Hovering one of the menu's buttons is different -
+      // there the user's likely target is the button, so the resize border
+      // is hidden while the lighter separators stay visible.
       if (
         event.target instanceof Element &&
         event.target.closest(".bn-side-menu")
       ) {
+        if (
+          pluginState.type === "hover-column" &&
+          event.target.closest(".bn-button")
+        ) {
+          this.view.dispatch(
+            this.view.state.tr.setMeta(columnResizePluginKey, {
+              type: "hover-column-list",
+              columnList: pluginState.columnList,
+            }),
+          );
+        }
         return;
       }
 

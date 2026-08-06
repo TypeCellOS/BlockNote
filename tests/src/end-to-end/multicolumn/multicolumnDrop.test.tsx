@@ -77,6 +77,40 @@ function blockContent(text: string) {
   return page.getByText(text).element().closest(".bn-block-content")!;
 }
 
+// A three-column layout where each column contains a single block, for
+// reproducing edge drops where an emptied column precedes the drop target.
+function ThreeColumnApp() {
+  const editor = useCreateBlockNote({
+    schema: withMultiColumn(BlockNoteSchema.create()),
+    dropCursor: multiColumnDropCursor,
+    initialContent: [
+      {
+        type: "paragraph",
+        content: "Paragraph outside columns",
+      },
+      {
+        type: "columnList",
+        children: [
+          {
+            type: "column",
+            children: [{ type: "paragraph", content: "Column A block" }],
+          },
+          {
+            type: "column",
+            children: [{ type: "paragraph", content: "Column B block" }],
+          },
+          {
+            type: "column",
+            children: [{ type: "paragraph", content: "Column C block" }],
+          },
+        ],
+      },
+    ],
+  });
+
+  return <BlockNoteView editor={editor} />;
+}
+
 // Playwright doesn't correctly simulate drag events in Firefox, hence the
 // `skipIf`s.
 describe("Check Multi-Column Drop Behaviour", () => {
@@ -133,6 +167,56 @@ describe("Check Multi-Column Drop Behaviour", () => {
       );
 
       await compareDocToSnapshot("dragMultipleBlocksToNewColumn");
+    },
+  );
+
+  // Dropping a column's only block on that column's own edge used to move
+  // the block to the other side of the column list: the insertion index was
+  // computed before the emptied column was filtered out, so it pointed one
+  // slot too far to the right. It's now a no-op, so the document (including
+  // the column's ID) should stay unchanged.
+  test.skipIf(browserName === "firefox")(
+    "Check dragging a column's only block to its own column's edge",
+    async () => {
+      await focusOnOutsideParagraph();
+
+      await dragAndDropBlock(
+        page.getByText("Left column block").element(),
+        page
+          .getByText("Left column block")
+          .element()
+          .closest(".bn-block-column")!,
+        false,
+      );
+
+      await compareDocToSnapshot("dragOnlyBlockToOwnColumnEdge");
+    },
+  );
+});
+
+describe("Check Multi-Column Drop Behaviour With Three Columns", () => {
+  beforeEach(async () => {
+    await render(<ThreeColumnApp />);
+    await waitForSelector(EDITOR_SELECTOR);
+  });
+
+  // Dragging the only block of the first column onto the second column's
+  // right edge should place the new column directly after the second column.
+  // The insertion index used to be computed before the emptied first column
+  // was filtered out, which shifted the new column one slot too far to the
+  // right (after the third column).
+  test.skipIf(browserName === "firefox")(
+    "Check dragging a column's only block to a later column's edge",
+    async () => {
+      await focusOnOutsideParagraph();
+
+      await dragAndDropBlock(
+        page.getByText("Column A block").element(),
+        page.getByText("Column B block").element().closest(".bn-block-column")!,
+        false,
+      );
+
+      await compareDocToSnapshot("dragOnlyBlockToLaterColumnEdge");
     },
   );
 });

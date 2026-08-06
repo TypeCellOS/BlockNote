@@ -43,6 +43,20 @@ export function createMultiColumnHandleDropPlugin(
         const draggedBlockIds = new Set(draggedBlocks.map((block) => block.id));
 
         if (blockInfo.blockNoteType === "column") {
+          // The user is dropping the target column's entire contents on the
+          // column's own edge - the new column would just replace the
+          // emptied target in the same position, so do nothing. This also
+          // keeps the column's ID and width instead of resetting them.
+          let allTargetChildrenDragged = true;
+          blockInfo.bnBlock.node.forEach((child) => {
+            if (!draggedBlockIds.has(child.attrs.id)) {
+              allTargetChildrenDragged = false;
+            }
+          });
+          if (allTargetChildrenDragged) {
+            return true;
+          }
+
           // Insert new column in existing columnList
           const parentBlock = view.state.doc
             .resolve(blockInfo.bnBlock.beforePos)
@@ -80,15 +94,13 @@ export function createMultiColumnHandleDropPlugin(
             });
           }
 
-          const index = columnList.children.findIndex(
-            (b) => b.id === blockInfo.bnBlock.node.attrs.id,
-          );
+          const targetColumnId = blockInfo.bnBlock.node.attrs.id;
 
           // Tracks which of the dragged blocks were already in the column
           // list - removing those from their old position is handled by
           // filtering the column list's children instead of `removeBlocks`.
           const blocksAlreadyInColumnList = new Set<string>();
-          const newChildren = columnList.children
+          const remainingColumns = columnList.children
             // If any of the dragged blocks are in one of the columns, remove
             // them.
             .map((column) => ({
@@ -104,16 +116,33 @@ export function createMultiColumnHandleDropPlugin(
             }))
             // Remove empty columns (can happen when dragged blocks are
             // removed).
-            .filter((column) => column.children.length > 0)
-            // Insert the dragged blocks as a new column in the correct
-            // position.
-            .toSpliced(edgePos.position === "left" ? index : index + 1, 0, {
-              type: "column",
-              children: draggedBlocks,
-              props: {},
-              content: undefined,
-              id: UniqueID.options.generateID(),
-            });
+            .filter((column) => column.children.length > 0);
+
+          // The insertion index is computed on the remaining columns, as
+          // removing an emptied column before the drop target shifts the
+          // target's position in the list.
+          const targetIndex = remainingColumns.findIndex(
+            (column) => column.id === targetColumnId,
+          );
+          if (targetIndex === -1) {
+            // The target column can only be missing if the drag emptied it,
+            // which is handled as a no-op above.
+            throw new Error(
+              "Drop target column not found in the remaining columns",
+            );
+          }
+          const insertionIndex =
+            edgePos.position === "left" ? targetIndex : targetIndex + 1;
+
+          // Insert the dragged blocks as a new column in the correct
+          // position.
+          const newChildren = remainingColumns.toSpliced(insertionIndex, 0, {
+            type: "column",
+            children: draggedBlocks,
+            props: {},
+            content: undefined,
+            id: UniqueID.options.generateID(),
+          });
 
           const blocksToRemove = draggedBlocks.filter(
             (block) =>
