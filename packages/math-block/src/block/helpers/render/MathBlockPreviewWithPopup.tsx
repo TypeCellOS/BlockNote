@@ -29,7 +29,9 @@ export const MathBlockPreviewWithPopup = (
         ) : undefined
       }
       error={error}
-      errorPreview={error}
+      errorPreview={
+        props.editor.dictionary.code_block.math_block_preview_error_text
+      }
       emptySourcePlaceholder={
         <PreviewPlaceholder
           icon={<TbMathFunction />}

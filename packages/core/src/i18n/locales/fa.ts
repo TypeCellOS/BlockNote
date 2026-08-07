@@ -170,6 +170,11 @@ export const fa = {
   },
   code_block: {
     add_source_button_text: "افزودن کد منبع",
+    math_block_preview_error_text: "خطای نحوی بلوک ریاضی - برای رفع کلیک کنید",
+    math_inline_preview_error_text:
+      "خطای نحوی ریاضی درون‌خطی - برای رفع کلیک کنید",
+    diagram_block_preview_error_text:
+      "خطای نحوی بلوک نمودار - برای رفع کلیک کنید",
   },
   // from react package:
   side_menu: {

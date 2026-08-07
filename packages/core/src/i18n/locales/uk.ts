@@ -227,6 +227,12 @@ export const uk: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Додати вихідний код",
+    math_block_preview_error_text:
+      "Синтаксична помилка в математичному блоці — натисніть, щоб виправити",
+    math_inline_preview_error_text:
+      "Синтаксична помилка у вбудованій формулі — натисніть, щоб виправити",
+    diagram_block_preview_error_text:
+      "Синтаксична помилка в блоці діаграми — натисніть, щоб виправити",
   },
   // from react package:
   side_menu: {

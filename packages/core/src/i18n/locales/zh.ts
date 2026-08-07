@@ -243,6 +243,9 @@ export const zh: Dictionary = {
   },
   code_block: {
     add_source_button_text: "添加源代码",
+    math_block_preview_error_text: "数学块语法错误 - 点击修复",
+    math_inline_preview_error_text: "行内数学语法错误 - 点击修复",
+    diagram_block_preview_error_text: "图表块语法错误 - 点击修复",
   },
   // from react package:
   side_menu: {

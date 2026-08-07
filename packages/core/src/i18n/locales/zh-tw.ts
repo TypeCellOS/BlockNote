@@ -243,6 +243,9 @@ export const zhTW: Dictionary = {
   },
   code_block: {
     add_source_button_text: "新增原始碼",
+    math_block_preview_error_text: "數學區塊語法錯誤 - 點擊修正",
+    math_inline_preview_error_text: "行內數學語法錯誤 - 點擊修正",
+    diagram_block_preview_error_text: "圖表區塊語法錯誤 - 點擊修正",
   },
   // from react package:
   side_menu: {

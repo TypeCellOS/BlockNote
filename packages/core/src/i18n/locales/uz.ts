@@ -264,6 +264,12 @@ export const uz: Dictionary = {
 
   code_block: {
     add_source_button_text: "Manba kodini qoʻshish",
+    math_block_preview_error_text:
+      "Matematik blokda sintaksis xatosi - tuzatish uchun bosing",
+    math_inline_preview_error_text:
+      "Matn ichidagi matematikada sintaksis xatosi - tuzatish uchun bosing",
+    diagram_block_preview_error_text:
+      "Diagramma blokida sintaksis xatosi - tuzatish uchun bosing",
   },
   side_menu: {
     add_block_label: "Blok qo‘shish",

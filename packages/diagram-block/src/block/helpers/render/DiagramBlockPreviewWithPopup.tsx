@@ -88,6 +88,9 @@ export const DiagramBlockPreviewWithPopup = (
         ) : undefined
       }
       error={error}
+      errorPreview={
+        props.editor.dictionary.code_block.diagram_block_preview_error_text
+      }
       emptySourcePlaceholder={
         <PreviewPlaceholder icon={<SiMermaid />} text="Add a Mermaid diagram" />
       }
