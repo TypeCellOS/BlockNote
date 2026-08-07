@@ -23,7 +23,7 @@
 
 ### ❤️ Thank You
 
-- Yousef <yousefdardiry@gmail.com>
+- Yousef
 - Nick Perez <nick@blocknotejs.org>
 - Matthew Lipski ([@matthewlipski](https://github.com/matthewlipski))
 
