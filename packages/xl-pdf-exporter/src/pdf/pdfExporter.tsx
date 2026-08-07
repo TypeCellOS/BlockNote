@@ -29,6 +29,12 @@ import { Style } from "./types.js";
 const FONT_SIZE = 16;
 const PIXELS_PER_POINT = 0.75;
 
+// Height in points of the page rendered by `toReactPDFDocument`; keep in sync
+// with the `<Page size="A4">` element there.
+export const PAGE_HEIGHT = 841.89;
+// Vertical padding `transformBlocks` adds around every block.
+export const BLOCK_VERTICAL_PADDING = 3 * PIXELS_PER_POINT;
+
 type Options = ExporterOptions & {
   /**
    *
@@ -166,7 +172,7 @@ export class PDFExporter<
         <Fragment key={b.id}>
           <View
             style={{
-              paddingVertical: 3 * PIXELS_PER_POINT,
+              paddingVertical: BLOCK_VERTICAL_PADDING,
               ...this.styles.block,
               ...style,
             }}
