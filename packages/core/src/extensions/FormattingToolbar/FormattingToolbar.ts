@@ -1,47 +1,66 @@
-import { TextSelection } from "prosemirror-state";
+import { TextSelection, type Transaction } from "prosemirror-state";
 
 import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
 
+/**
+ * Determines whether the formatting toolbar should be shown for the selection
+ * of the given transaction.
+ *
+ * Exported for testing.
+ */
+export function formattingToolbarShouldShow(tr: Transaction): boolean {
+  // Don't show if the selection is empty.
+  if (tr.selection.empty) {
+    return false;
+  }
+
+  // Don't show if the selection is a text selection but contains no text.
+  if (
+    tr.selection instanceof TextSelection &&
+    tr.doc.textBetween(tr.selection.from, tr.selection.to).length === 0
+  ) {
+    return false;
+  }
+
+  // Inspects the content of the selection to see whether it spans a node with a
+  // code spec (e.g. a code block), and whether it also contains any non-code
+  // inline content that the toolbar could actually format.
+  let spansCode = false;
+  let spansNonCodeInlineContent = false;
+  tr.selection.content().content.descendants((node) => {
+    if (node.type.spec.code) {
+      spansCode = true;
+      // No need to descend into code content - it can't be formatted.
+      return false;
+    }
+
+    if (node.isInline) {
+      spansNonCodeInlineContent = true;
+    }
+
+    return true;
+  });
+
+  // Don't show if the selection is entirely within code, i.e. it spans a code
+  // node but has no other formattable inline content. A selection spanning both
+  // a code block and regular content (#2865) should still show the toolbar,
+  // since the non-code content can be formatted.
+  if (spansCode && !spansNonCodeInlineContent) {
+    return false;
+  }
+
+  // Show toolbar otherwise.
+  return true;
+}
+
 export const FormattingToolbarExtension = createExtension(({ editor }) => {
   const store = createStore(false);
 
   const shouldShow = () => {
-    return editor.transact((tr) => {
-      // Don't show if the selection is empty, or is a text selection with no
-      // text.
-      if (tr.selection.empty) {
-        return false;
-      }
-
-      // Don't show if the selection is a text selection but contains no text.
-      if (
-        tr.selection instanceof TextSelection &&
-        tr.doc.textBetween(tr.selection.from, tr.selection.to).length === 0
-      ) {
-        return false;
-      }
-
-      // Searches the content of the selection to see if it spans a node with a
-      // code spec.
-      let spansCode = false;
-      tr.selection.content().content.descendants((node) => {
-        if (node.type.spec.code) {
-          spansCode = true;
-        }
-        return !spansCode; // keep descending if we haven't found a code block
-      });
-
-      // Don't show if the selection spans a code block.
-      if (spansCode) {
-        return false;
-      }
-
-      // Show toolbar otherwise.
-      return true;
-    });
+    return editor.transact((tr) => formattingToolbarShouldShow(tr));
   };
 
   return {
