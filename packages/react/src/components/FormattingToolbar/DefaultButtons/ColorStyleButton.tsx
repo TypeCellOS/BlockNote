@@ -7,7 +7,7 @@ import {
 import { useCallback, useContext } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
-import { ExperimentalMobileFormattingToolbarPortalContext } from "../ExperimentalMobileFormattingToolbarPortalContext.js";
+import { MobileFormattingToolbarPortalContext } from "../MobileFormattingToolbarPortalContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -44,9 +44,7 @@ function checkColorInSchema<Color extends "text" | "background">(
 export const ColorStyleButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const portalRoot = useContext(
-    ExperimentalMobileFormattingToolbarPortalContext,
-  );
+  const portalRoot = useContext(MobileFormattingToolbarPortalContext);
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,

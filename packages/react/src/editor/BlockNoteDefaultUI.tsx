@@ -11,6 +11,7 @@ import { lazy, Suspense } from "react";
 
 import { FilePanelController } from "../components/FilePanel/FilePanelController.js";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController.js";
+import { MobileFormattingToolbarController } from "../components/FormattingToolbar/MobileFormattingToolbarController.js";
 import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController.js";
 import { SideMenuController } from "../components/SideMenu/SideMenuController.js";
 import { AttributionTooltipController } from "../components/AttributionTooltip/AttributionTooltipController.js";
@@ -18,6 +19,7 @@ import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridS
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController.js";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController.js";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
+import { useIsMobile } from "../hooks/useIsMobile.js";
 import { PortalElementsMap, resolvePortalTarget } from "./portalElements.js";
 
 // Lazily load the comments components to avoid pulling in the comments extensions into the main bundle
@@ -98,6 +100,7 @@ export type BlockNoteDefaultUIProps = {
 
 export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
   const editor = useBlockNoteEditor();
+  const isMobile = useIsMobile();
 
   if (!editor) {
     throw new Error(
@@ -119,11 +122,14 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
   return (
     <>
       {editor.getExtension(FormattingToolbarExtension) &&
-        props.formattingToolbar !== false && (
+        props.formattingToolbar !== false &&
+        (isMobile ? (
+          <MobileFormattingToolbarController />
+        ) : (
           <FormattingToolbarController
             portalElement={formattingToolbarPortal}
           />
-        )}
+        ))}
       {editor.getExtension(LinkToolbarExtension) &&
         props.linkToolbar !== false && (
           <LinkToolbarController portalElement={linkToolbarPortal} />

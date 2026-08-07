@@ -28,7 +28,7 @@ import {
 } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
-import { ExperimentalMobileFormattingToolbarPortalContext } from "../ExperimentalMobileFormattingToolbarPortalContext.js";
+import { MobileFormattingToolbarPortalContext } from "../MobileFormattingToolbarPortalContext.js";
 
 export type BlockTypeSelectItem = {
   name: string;
@@ -130,9 +130,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   const Components = useComponentsContext()!;
   // Set inside the mobile formatting toolbar, so the dropdown portals out of the
   // toolbar's scroll container instead of being clipped by it.
-  const portalRoot = useContext(
-    ExperimentalMobileFormattingToolbarPortalContext,
-  );
+  const portalRoot = useContext(MobileFormattingToolbarPortalContext);
 
   const editor = useBlockNoteEditor<
     BlockSchema,

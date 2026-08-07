@@ -18,14 +18,12 @@ import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
-import { ExperimentalMobileFormattingToolbarPortalContext } from "../ExperimentalMobileFormattingToolbarPortalContext.js";
+import { MobileFormattingToolbarPortalContext } from "../MobileFormattingToolbarPortalContext.js";
 
 export const FileRenameButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
-  const portalRoot = useContext(
-    ExperimentalMobileFormattingToolbarPortalContext,
-  );
+  const portalRoot = useContext(MobileFormattingToolbarPortalContext);
 
   const editor = useBlockNoteEditor<
     BlockSchema,

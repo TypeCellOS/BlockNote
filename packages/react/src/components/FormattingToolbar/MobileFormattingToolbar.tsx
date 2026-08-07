@@ -6,7 +6,7 @@ import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
 /**
  * A formatting toolbar tailored for mobile — where it sits just above the
- * on-screen keyboard (see `ExperimentalMobileFormattingToolbarController`).
+ * on-screen keyboard (see `MobileFormattingToolbarController`).
  *
  * For now it renders the same items as the regular `FormattingToolbar` — their
  * dropdowns/popovers open above the keyboard automatically via floating-ui's

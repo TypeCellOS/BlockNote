@@ -1,8 +1,5 @@
 import "@blocknote/core/fonts/inter.css";
-import {
-  ExperimentalMobileFormattingToolbarController,
-  useCreateBlockNote,
-} from "@blocknote/react";
+import { useCreateBlockNote, useVisualViewport } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 
@@ -29,16 +26,21 @@ const initialContent = [
 export default function App() {
   const editor = useCreateBlockNote({ initialContent });
 
+  // Opt into the "non-scrolling document" behavior: locks document scroll so the
+  // toolbar stays smoothly pinned above the keyboard during scroll, and publishes
+  // the `--bn-vv-*` variables this `.scroll-host` is sized against.
+  useVisualViewport();
+
   return (
-    // The document itself doesn't scroll — the controller locks it and pins this
-    // `.scroll-host` to the visual viewport via the `--bn-vv-*` variables.
+    // The document itself doesn't scroll — `useVisualViewport` locks it and pins
+    // this `.scroll-host` to the visual viewport via the `--bn-vv-*` variables.
     <div className="scroll-host">
       <NavBar />
       <main className="app-main">
         <StaticText />
-        <BlockNoteView editor={editor} formattingToolbar={false}>
-          <ExperimentalMobileFormattingToolbarController />
-        </BlockNoteView>
+        {/* On mobile, the default UI automatically shows the mobile formatting
+            toolbar above the keyboard - no extra setup needed. */}
+        <BlockNoteView editor={editor} />
         <StaticText />
       </main>
     </div>

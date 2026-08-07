@@ -104,10 +104,10 @@ body {
 }
 
 /* A top-level wrapper div is the scroll container (the document itself doesn't
-   scroll — the controller locks it), pinned to the visual viewport rectangle via
-   the `--bn-vv-*` variables the controller publishes, so it sits directly above
-   the keyboard on iOS — where the layout viewport doesn't resize and can be left
-   with a nonzero `offsetTop`. */
+   scroll — `useVisualViewport` locks it), pinned to the visual viewport
+   rectangle via the `--bn-vv-*` variables it publishes, so it sits directly
+   above the keyboard on iOS — where the layout viewport doesn't resize and can
+   be left with a nonzero `offsetTop`. */
 .scroll-host {
   position: fixed;
   top: var(--bn-vv-top, 0px);

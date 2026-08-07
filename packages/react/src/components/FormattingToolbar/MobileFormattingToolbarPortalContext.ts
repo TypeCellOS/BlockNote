@@ -13,5 +13,5 @@ import { createContext } from "react";
  * `null` when not inside the mobile toolbar (e.g. the desktop toolbar), in which
  * case buttons render their dropdowns inline as usual.
  */
-export const ExperimentalMobileFormattingToolbarPortalContext =
+export const MobileFormattingToolbarPortalContext =
   createContext<HTMLElement | null>(null);

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { RiLink } from "react-icons/ri";
 
 import {
@@ -20,7 +20,7 @@ import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useExtension } from "../../../hooks/useExtension.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { EditLinkMenuItems } from "../../LinkToolbar/EditLinkMenuItems.js";
-import { ExperimentalMobileFormattingToolbarPortalContext } from "../ExperimentalMobileFormattingToolbarPortalContext.js";
+import { MobileFormattingToolbarPortalContext } from "../MobileFormattingToolbarPortalContext.js";
 
 function checkLinkInSchema(
   editor: BlockNoteEditor<BlockSchema, any, StyleSchema>,
@@ -46,9 +46,7 @@ export const CreateLinkButton = () => {
   const editorDOMElement = useEditorDOMElement();
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const portalRoot = useContext(
-    ExperimentalMobileFormattingToolbarPortalContext,
-  );
+  const portalRoot = useContext(MobileFormattingToolbarPortalContext);
 
   const formattingToolbar = useExtension(FormattingToolbarExtension);
   // eslint-disable-next-line @typescript-eslint/unbound-method -- showSelection is a plain object method, not a class method
@@ -59,6 +57,17 @@ export const CreateLinkButton = () => {
     showSelection(showPopover, "createLinkButton");
     return () => showSelection(false, "createLinkButton");
   }, [showPopover, showSelection]);
+
+  // Return focus to editor on close.
+  const setPopoverOpen = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        editor.focus();
+      }
+      setShowPopover(open);
+    },
+    [editor],
+  );
 
   const state = useEditorState({
     editor,
@@ -118,7 +127,7 @@ export const CreateLinkButton = () => {
   return (
     <Components.Generic.Popover.Root
       open={showPopover}
-      onOpenChange={setShowPopover}
+      onOpenChange={setPopoverOpen}
       portalRoot={portalRoot}
     >
       <Components.Generic.Popover.Trigger>
@@ -133,7 +142,7 @@ export const CreateLinkButton = () => {
             dict.generic.ctrl_shortcut,
           )}
           icon={<RiLink />}
-          onClick={() => setShowPopover((open) => !open)}
+          onClick={() => setPopoverOpen(!showPopover)}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content

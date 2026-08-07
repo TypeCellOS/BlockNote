@@ -536,8 +536,8 @@ inline styles, it is added to the base z-index. */
 }
 
 /* Mobile formatting toolbar positioning. Pinned to the bottom of the visual
-   viewport from the `--bn-vv-*` variables published by
-   ExperimentalMobileFormattingToolbarController: `translateY(-100%)` puts the
+   viewport from the `--bn-vv-*` variables published by `useVisualViewportRect`
+   (used by MobileFormattingToolbarController): `translateY(-100%)` puts the
    toolbar's bottom edge on the viewport bottom without measuring its height, and
    `scale(1 / --bn-vv-scale)` around that anchored corner cancels pinch-zoom so
    it keeps its on-screen size. */

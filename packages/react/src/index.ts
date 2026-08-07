@@ -37,8 +37,9 @@ export * from "./components/FormattingToolbar/DefaultSelects/BlockTypeSelect.js"
 export * from "./components/FormattingToolbar/FormattingToolbar.js";
 export * from "./components/FormattingToolbar/MobileFormattingToolbar.js";
 export * from "./components/FormattingToolbar/FormattingToolbarController.js";
-export * from "./components/FormattingToolbar/ExperimentalMobileFormattingToolbarController.js";
-export * from "./components/FormattingToolbar/ExperimentalMobileFormattingToolbarPortalContext.js";
+export * from "./components/FormattingToolbar/MobileFormattingToolbarController.js";
+export * from "./components/FormattingToolbar/MobileFormattingToolbarPortalContext.js";
+export * from "./components/FormattingToolbar/useVisualViewport.js";
 export * from "./components/FormattingToolbar/FormattingToolbarProps.js";
 
 export * from "./components/LinkToolbar/DefaultButtons/DeleteLinkButton.js";
@@ -130,6 +131,7 @@ export * from "./hooks/useEditorDomElement.js";
 export * from "./hooks/useEditorSelectionBoundingBox.js";
 export * from "./hooks/useEditorSelectionChange.js";
 export * from "./hooks/useFocusWithin.js";
+export * from "./hooks/useIsMobile.js";
 export * from "./hooks/useOnUploadEnd.js";
 export * from "./hooks/useOnUploadStart.js";
 export * from "./hooks/usePrefersColorScheme.js";
