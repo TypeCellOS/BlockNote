@@ -50,9 +50,21 @@ export default defineConfig(
       build: {
         sourcemap: true,
         lib: {
-          entry: path.resolve(__dirname, "src/index.ts"),
+          entry: {
+            "blocknote-xl-odt-exporter": path.resolve(
+              __dirname,
+              "src/index.ts",
+            ),
+            "diagram-block": path.resolve(
+              __dirname,
+              "src/diagram-block/index.ts",
+            ),
+            "math-block": path.resolve(__dirname, "src/math-block/index.tsx"),
+          },
           name: "blocknote-xl-odt-exporter",
-          fileName: "blocknote-xl-odt-exporter",
+          formats: ["es", "cjs"],
+          fileName: (format, entryName) =>
+            format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
         },
         rollupOptions: {
           // make sure to externalize deps that shouldn't be bundled

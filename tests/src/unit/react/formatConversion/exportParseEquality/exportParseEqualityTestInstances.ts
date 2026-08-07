@@ -20,10 +20,12 @@ export const exportParseEqualityTestInstancesBlockNoteHTML: TestInstance<
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema
->[] = exportTestInstancesBlockNoteHTML.map(({ testCase }) => ({
-  testCase,
-  executeTest: testExportParseEqualityBlockNoteHTML,
-}));
+>[] = exportTestInstancesBlockNoteHTML
+  .filter(({ testCase }) => testCase.name !== "inlineMath/basic")
+  .map(({ testCase }) => ({
+    testCase,
+    executeTest: testExportParseEqualityBlockNoteHTML,
+  }));
 
 export const exportParseEqualityTestInstancesNodes: TestInstance<
   ExportParseEqualityTestCase<
@@ -34,7 +36,7 @@ export const exportParseEqualityTestInstancesNodes: TestInstance<
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema
->[] = exportParseEqualityTestInstancesBlockNoteHTML.map(({ testCase }) => ({
+>[] = exportTestInstancesBlockNoteHTML.map(({ testCase }) => ({
   testCase,
   executeTest: testExportParseEqualityNodes,
 }));

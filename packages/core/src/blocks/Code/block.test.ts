@@ -8,7 +8,7 @@ import {
 } from "vite-plus/test";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { PartialBlock } from "../defaultBlocks.js";
-import { getLanguageId, type CodeBlockOptions } from "./block.js";
+import { getLanguageId, type CodeBlockOptions } from "./CodeBlockOptions.js";
 
 /**
  * @vitest-environment jsdom

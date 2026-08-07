@@ -2,10 +2,15 @@
   "playground": true,
   "docs": true,
   "author": "yousefed",
-  "tags": [""],
+  "tags": [
+    ""
+  ],
   "dependencies": {
+    "@blocknote/diagram-block": "latest",
+    "@blocknote/math-block": "latest",
     "@blocknote/xl-docx-exporter": "latest",
-    "@blocknote/xl-multi-column": "latest"
+    "@blocknote/xl-multi-column": "latest",
+    "katex": "^0.16.11"
   },
   "pro": true
 }

@@ -221,6 +221,15 @@ export const de: Dictionary = {
     add_block_button:
       "Leerer aufklappbarer Bereich. Klicken, um einen Block hinzuzufügen.",
   },
+  code_block: {
+    add_source_button_text: "Quellcode hinzufügen",
+    math_block_preview_error_text:
+      "Syntaxfehler im Mathe-Block – zum Beheben klicken",
+    math_inline_preview_error_text:
+      "Syntaxfehler in Inline-Mathematik – zum Beheben klicken",
+    diagram_block_preview_error_text:
+      "Syntaxfehler im Diagramm-Block – zum Beheben klicken",
+  },
   side_menu: {
     add_block_label: "Block hinzufügen",
     drag_handle_label: "Blockmenü öffnen",

@@ -192,6 +192,15 @@ export const pt: Dictionary = {
   toggle_blocks: {
     add_block_button: "Toggle vazio. Clique para adicionar um bloco.",
   },
+  code_block: {
+    add_source_button_text: "Adicionar código-fonte",
+    math_block_preview_error_text:
+      "Erro de sintaxe no bloco de matemática - clique para corrigir",
+    math_inline_preview_error_text:
+      "Erro de sintaxe na matemática em linha - clique para corrigir",
+    diagram_block_preview_error_text:
+      "Erro de sintaxe no bloco de diagrama - clique para corrigir",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Adicionar bloco",

@@ -9,6 +9,11 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  createReactInlineMathSpec,
+  createReactMathBlockSpec,
+} from "@blocknote/math-block";
+import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
+import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   getPageBreakReactSlashMenuItems,
@@ -18,6 +23,11 @@ import {
   ODTExporter,
   odtDefaultSchemaMappings,
 } from "@blocknote/xl-odt-exporter";
+import { diagramBlockMapping } from "@blocknote/xl-odt-exporter/diagram-block";
+import {
+  inlineMathMapping,
+  mathBlockMapping,
+} from "@blocknote/xl-odt-exporter/math-block";
 import {
   getMultiColumnSlashMenuItems,
   multiColumnDropCursor,
@@ -32,7 +42,16 @@ export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     // Adds support for page breaks & multi-column blocks.
-    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
+    // Adds support for math & diagram blocks.
+    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())).extend({
+      blockSpecs: {
+        math: createReactMathBlockSpec(),
+        diagram: createReactDiagramBlockSpec(),
+      },
+      inlineContentSpecs: {
+        inlineMath: createReactInlineMathSpec(),
+      },
+    }),
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,
@@ -325,6 +344,31 @@ export default function App() {
 };`,
       },
       {
+        type: "math",
+        content: "a^2 = \\sqrt{b^2 + c^2}",
+      },
+      {
+        type: "diagram",
+        content: `graph TD
+  A[Start] --> B{Works?}
+  B -->|Yes| C[Ship it]
+  B -->|No| A`,
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Inline math: ",
+            styles: {},
+          },
+          {
+            type: "inlineMath",
+            content: "e^{i\\pi} + 1 = 0",
+          },
+        ],
+      },
+      {
         type: "columnList",
         children: [
           {
@@ -395,7 +439,23 @@ export default function App() {
 
   // Exports the editor content to ODT and downloads it.
   const onDownloadClick = async () => {
-    const exporter = new ODTExporter(editor.schema, odtDefaultSchemaMappings);
+    const exporter = new ODTExporter(editor.schema, {
+      ...odtDefaultSchemaMappings,
+      blockMapping: {
+        ...odtDefaultSchemaMappings.blockMapping,
+        // Embeds diagrams as images instead of their Mermaid source.
+        diagram: diagramBlockMapping,
+        // Renders math blocks as native equations instead of their LaTeX
+        // source.
+        math: mathBlockMapping,
+      },
+      inlineContentMapping: {
+        ...odtDefaultSchemaMappings.inlineContentMapping,
+        // Renders inline math as native equations instead of its LaTeX
+        // source.
+        inlineMath: inlineMathMapping,
+      },
+    });
     const blob = await exporter.toODTDocument(editor.document);
 
     const link = document.createElement("a");

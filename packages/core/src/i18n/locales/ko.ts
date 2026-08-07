@@ -213,6 +213,13 @@ export const ko: Dictionary = {
   toggle_blocks: {
     add_block_button: "비어 있는 토글입니다. 클릭하여 블록을 추가하세요.",
   },
+  code_block: {
+    add_source_button_text: "소스 코드 추가",
+    math_block_preview_error_text: "수식 블록 구문 오류 - 클릭하여 수정",
+    math_inline_preview_error_text: "인라인 수식 구문 오류 - 클릭하여 수정",
+    diagram_block_preview_error_text:
+      "다이어그램 블록 구문 오류 - 클릭하여 수정",
+  },
   // from react package:
   side_menu: {
     add_block_label: "블록 추가",

@@ -44,6 +44,14 @@ export class ODTExporter<
     }
   >();
 
+  // Embedded object sub-documents (e.g. formulas), added as
+  // "Object N/content.xml" entries in the ODT file.
+  private objects: Array<{
+    path: string;
+    contentXml: string;
+    mediaType: string;
+  }> = [];
+
   private styleCounter = 0;
 
   public readonly options: ExporterOptions;
@@ -290,6 +298,18 @@ export class ODTExporter<
             />
           );
         })}
+        {this.objects.flatMap((object) => [
+          <manifest:file-entry
+            key={object.path}
+            manifest:media-type={object.mediaType}
+            manifest:full-path={object.path}
+          />,
+          <manifest:file-entry
+            key={`${object.path}content.xml`}
+            manifest:media-type="text/xml"
+            manifest:full-path={`${object.path}content.xml`}
+          />,
+        ])}
       </manifest:manifest>
     );
     const zipWriter = new ZipWriter(
@@ -323,6 +343,12 @@ export class ODTExporter<
         new BlobReader(picture.file),
       );
     });
+    this.objects.forEach((object) => {
+      void zipWriter.add(
+        `${object.path}content.xml`,
+        new TextReader(object.contentXml),
+      );
+    });
 
     return zipWriter.close();
   }
@@ -331,6 +357,30 @@ export class ODTExporter<
     const styleName = `BN_S${++this.styleCounter}`;
     this.automaticStyles.set(styleName, style(styleName));
     return styleName;
+  }
+
+  /**
+   * Registers an embedded object sub-document (e.g. a formula) and returns
+   * its path, for referencing from a `draw:object`'s `xlink:href`:
+   *
+   * ```tsx
+   * <draw:frame draw:style-name="..." text:anchor-type="as-char">
+   *   <draw:object
+   *     xlink:href={path}
+   *     xlink:type="simple"
+   *     xlink:show="embed"
+   *     xlink:actuate="onLoad"
+   *   />
+   * </draw:frame>
+   * ```
+   */
+  public registerObject(
+    contentXml: string,
+    mediaType = "application/vnd.oasis.opendocument.formula",
+  ): string {
+    const path = `Object ${this.objects.length + 1}/`;
+    this.objects.push({ path, contentXml, mediaType });
+    return path;
   }
 
   public async registerPicture(url: string): Promise<{

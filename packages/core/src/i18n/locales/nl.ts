@@ -201,6 +201,15 @@ export const nl: Dictionary = {
   toggle_blocks: {
     add_block_button: "Lege uitklapper. Klik om een blok toe te voegen.",
   },
+  code_block: {
+    add_source_button_text: "Broncode toevoegen",
+    math_block_preview_error_text:
+      "Syntaxfout in wiskundeblok - klik om te herstellen",
+    math_inline_preview_error_text:
+      "Syntaxfout in inline-wiskunde - klik om te herstellen",
+    diagram_block_preview_error_text:
+      "Syntaxfout in diagramblok - klik om te herstellen",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Nieuw blok",

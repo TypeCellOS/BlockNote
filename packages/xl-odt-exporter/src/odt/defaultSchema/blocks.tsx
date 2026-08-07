@@ -1,14 +1,51 @@
 import {
+  BlockConfig,
   BlockFromConfig,
+  BlockFromConfigNoChildren,
   BlockMapping,
   createPageBreakBlockConfig,
   DefaultBlockSchema,
   DefaultProps,
   mapTableCell,
+  PlainContent,
   TableCell,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
 import { ODTExporter } from "../odtExporter.js";
+
+type BSchema = DefaultBlockSchema & {
+  pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  math: BlockConfig<"math", {}, "inline">;
+  diagram: BlockConfig<"diagram", {}, "inline">;
+} & typeof multiColumnSchema.blockSchema;
+
+const codeMapping = (
+  block: BlockFromConfigNoChildren<
+    BSchema["codeBlock"] | BSchema["math"] | BSchema["diagram"],
+    any,
+    any
+  >,
+) => {
+  // Code blocks hold plain content: at most a single unstyled text item.
+  const [textItem, ...excessItems] = block.content as PlainContent;
+  if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
+    throw new Error("expected plain block content to be a single text item");
+  }
+  const textContent = textItem?.text ?? "";
+
+  return (
+    <text:p text:style-name="Codeblock">
+      {...textContent.split("\n").map((line, index) => {
+        return (
+          <>
+            {index !== 0 && <text:line-break />}
+            {line}
+          </>
+        );
+      })}
+    </text:p>
+  );
+};
 
 export const getTabs = (nestingLevel: number) => {
   return Array.from({ length: nestingLevel }, (_, i) => <text:tab key={i} />);
@@ -163,9 +200,7 @@ const wrapWithLists = (
 };
 
 export const odtBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema & {
-    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  } & typeof multiColumnSchema.blockSchema,
+  BSchema,
   any,
   any,
   React.ReactNode,
@@ -498,28 +533,10 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       </table:table>
     );
   },
-
-  codeBlock: (block) => {
-    // Code blocks hold plain content: at most a single unstyled text item.
-    const [textItem, ...excessItems] = block.content;
-    if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
-      throw new Error("expected plain block content to be a single text item");
-    }
-    const textContent = textItem?.text ?? "";
-
-    return (
-      <text:p text:style-name="Codeblock">
-        {...textContent.split("\n").map((line, index) => {
-          return (
-            <>
-              {index !== 0 && <text:line-break />}
-              {line}
-            </>
-          );
-        })}
-      </text:p>
-    );
-  },
+  // TODO
+  codeBlock: codeMapping,
+  math: codeMapping,
+  diagram: codeMapping,
 
   file: async (block) => {
     return (

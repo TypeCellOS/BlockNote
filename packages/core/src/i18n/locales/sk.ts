@@ -200,6 +200,15 @@ export const sk = {
   toggle_blocks: {
     add_block_button: "Prázdne prepínanie. Kliknite pre pridanie bloku.",
   },
+  code_block: {
+    add_source_button_text: "Pridať zdrojový kód",
+    math_block_preview_error_text:
+      "Chyba syntaxe v matematickom bloku – kliknutím opravíte",
+    math_inline_preview_error_text:
+      "Chyba syntaxe vo vloženej matematike – kliknutím opravíte",
+    diagram_block_preview_error_text:
+      "Chyba syntaxe v bloku diagramu – kliknutím opravíte",
+  },
   side_menu: {
     add_block_label: "Pridať blok",
     drag_handle_label: "Otvoriť menu bloku",

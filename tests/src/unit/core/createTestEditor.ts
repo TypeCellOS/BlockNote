@@ -26,10 +26,15 @@ export const createTestEditor = <
       schema: schema.extend({
         blockSpecs: {
           codeBlock: createCodeBlockSpec({
+            defaultLanguage: "javascript",
             supportedLanguages: {
               javascript: {
                 name: "JavaScript",
                 aliases: ["js"],
+              },
+              typescript: {
+                name: "TypeScript",
+                aliases: ["ts"],
               },
               python: {
                 name: "Python",

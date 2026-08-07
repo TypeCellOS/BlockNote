@@ -50,14 +50,18 @@ The Inline Content Config describes the shape of your custom inline content. Use
 ```typescript
 type CustomInlineContentConfig = {
   type: string;
-  content: "styled" | "none";
+  content: "styled" | "plain" | "none";
   readonly propSchema: PropSchema;
 };
 ```
 
 `type:` Defines the identifier of the custom inline content.
 
-`content:` `styled` if your custom inline content should contain [`StyledText`](/docs/foundations/document-structure#inline-content-objects), `none` if not.
+`content:` Defines what kind of editable content the inline content holds:
+
+- `"styled"` for rich text, i.e. [`StyledText`](/docs/foundations/document-structure#inline-content-objects).
+- `"plain"` for unstyled plain text, like an inline code or inline math source. Plain content can't hold formatting marks (bold, italic, etc.), and it's the only content type that supports [syntax highlighting](/docs/features/blocks/code-blocks#syntax-highlighting).
+- `"none"` if the inline content holds no editable content.
 
 <Callout type="info">
   _In the mentions demo, we want each mention to be a single, non-editable
@@ -130,7 +134,7 @@ type ReactCustomInlineContentImplementation = {
 
 - `inlineContent:` The inline content that should be rendered. Its type and props will match the type and PropSchema defined in the Inline Content Config.
 
-- `contentRef:` A React `ref` you can use to mark which element in your inline content is editable, this is only available if your inline content config contains `content: "styled"`.
+- `contentRef:` A React `ref` you can use to mark which element in your inline content is editable, this is only available if your inline content config contains `content: "styled"` or `content: "plain"`.
 
 - `draggable:` Specifies whether the inline content can be dragged within the editor. If set to `true`, the inline content will be draggable. Defaults to `false` if not specified. If this is true, you should add `data-drag-handle` to the DOM element that should function as the drag handle.
 

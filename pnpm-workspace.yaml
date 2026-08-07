@@ -35,7 +35,10 @@ allowBuilds:
   workerd: false
   leveldown: false
 patchedDependencies:
-  { "@y/prosemirror@2.0.0-6": patches/@y__prosemirror@2.0.0-6.patch }
+  {
+    "@y/prosemirror@2.0.0-6": patches/@y__prosemirror@2.0.0-6.patch,
+    katex@0.16.47: patches/katex@0.16.47.patch,
+  }
 catalog:
   vite-plus: ^0.1.24
 minimumReleaseAgeExclude:

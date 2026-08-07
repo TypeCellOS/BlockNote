@@ -22,9 +22,27 @@ BASIC STYLES
 
 .bn-block-content.ProseMirror-selectednode > *,
 /* Case for node view renderers */
-.ProseMirror-selectednode > .bn-block-content > * {
+.ProseMirror-selectednode > .bn-block-content > *,
+/* Case for blocks/inline content where class is set manually */
+.bn-block-content .ProseMirror-selectednode,
+.bn-inline-content .ProseMirror-selectednode {
+  /* Anchor for the `::after` highlight overlay below. */
+  position: relative;
+}
+
+/* Draws the selection highlight (border + translucent fill) as an overlay on
+   top of the element's content */
+.bn-block-content.ProseMirror-selectednode > *::after,
+.ProseMirror-selectednode > .bn-block-content > *::after,
+.bn-block-content .ProseMirror-selectednode::after,
+.bn-inline-content .ProseMirror-selectednode::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   border-radius: 4px;
-  outline: 4px solid rgb(100, 160, 255);
+  background-color: rgba(100, 160, 255, 0.08);
+  box-shadow: inset 0 0 0 4px rgba(100, 160, 255, 0.3);
+  pointer-events: none;
 }
 
 .bn-block-content::before {
@@ -466,6 +484,227 @@ NESTED BLOCKS
 .bn-block-content[data-content-type="codeBlock"] > div > select:focus {
   opacity: 0.5;
   transition-delay: 0.1s;
+}
+
+/* CODE BLOCK PREVIEW */
+.bn-block-content[data-content-type="codeBlock"]:has(
+    .bn-preview-with-source-popup
+  ) {
+  background-color: transparent;
+  color: inherit;
+}
+
+/* Default to dark theme as the code block has a dark background regardless of theme. */
+.shiki {
+  color: var(--shiki-dark);
+}
+.bn-source-block-popup .shiki {
+  color: var(--shiki-light);
+}
+.bn-root[data-color-scheme="dark"] .bn-source-block-popup .shiki {
+  color: var(--shiki-dark);
+}
+
+.bn-preview-with-source-popup {
+  position: relative;
+}
+
+.bn-block-content .bn-preview-with-source-popup {
+  display: flex;
+  padding: 12px;
+  width: 100%;
+}
+
+.bn-inline-content-section .bn-preview-with-source-popup {
+  display: inline-block;
+  padding: 0;
+  width: fit-content;
+}
+
+.bn-preview-container {
+  anchor-name: --bn-source-popup-anchor;
+  cursor: pointer;
+}
+
+.bn-block-content .bn-preview-container {
+  overflow: auto;
+  width: 100%;
+}
+
+.bn-inline-content-section .bn-preview-container {
+  overflow: visible;
+  width: fit-content;
+}
+
+.bn-source-block-popup {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  color: transparent;
+  height: 0;
+  left: 0;
+  margin-top: 4px;
+  overflow: clip;
+  position: absolute;
+  top: 100%;
+  width: 0;
+  z-index: 0;
+}
+
+.bn-preview-with-source-popup[data-open="true"] .bn-source-block-popup {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  height: unset;
+  z-index: 1;
+}
+
+.bn-block-content
+  .bn-preview-with-source-popup[data-open="true"]
+  .bn-source-block-popup {
+  width: 100%;
+}
+
+.bn-inline-content-section
+  .bn-preview-with-source-popup[data-open="true"]
+  .bn-source-block-popup {
+  width: 300px;
+}
+
+.bn-code-block-source-popup-body {
+  align-items: flex-end;
+  display: flex;
+}
+
+.bn-code-block-source-popup-body > pre {
+  align-self: center;
+  flex: 1;
+  margin: 0;
+  max-height: 200px;
+  overflow: auto;
+  padding: 16px;
+  tab-size: 2;
+  white-space: pre;
+  width: 0;
+}
+
+.bn-code-block-source-error {
+  border-top: var(--bn-border);
+  color: var(--bn-colors-highlights-red-text);
+  font-size: 0.8em;
+  padding: 8px 16px;
+  white-space: pre-wrap;
+}
+
+.bn-code-block-source-popup-ok-button-wrapper {
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 14px 16px;
+}
+
+.bn-code-block-source-popup-ok-button {
+  appearance: none;
+  background-color: rgb(37, 99, 235);
+  border: none;
+  border-radius: var(--bn-border-radius-small);
+  color: white;
+  cursor: pointer;
+  font-size: 0.8em;
+  font-weight: 500;
+  padding: 4px 8px;
+}
+
+.bn-code-block-source-popup-ok-button:hover {
+  background-color: rgb(29, 78, 216);
+}
+
+.bn-preview-with-source-popup:has(.bn-preview-placeholder) {
+  padding: 0;
+}
+
+.bn-preview-placeholder {
+  align-items: center;
+  background-color: rgb(242, 241, 238);
+  border-radius: 4px;
+  color: rgb(125, 121, 122);
+  display: flex;
+}
+
+.bn-block-content .bn-preview-placeholder {
+  gap: 10px;
+  padding: 12px;
+}
+
+.bn-inline-content-section .bn-preview-placeholder {
+  gap: 4px;
+  padding: 0 4px;
+}
+
+.bn-preview-placeholder:where(.dark, .dark *) {
+  background-color: rgb(70, 70, 70);
+  color: rgb(190, 190, 190);
+}
+
+.bn-editor[contenteditable="true"]
+  .bn-preview-placeholder:not(.bn-preview-placeholder-error):hover {
+  background-color: rgb(225, 225, 225);
+}
+
+.bn-editor[contenteditable="true"]
+  .bn-preview-placeholder:not(.bn-preview-placeholder-error):hover:where(
+    .dark,
+    .dark *
+  ) {
+  background-color: rgb(90, 90, 90);
+}
+
+.bn-preview-placeholder-error {
+  background-color: var(--bn-colors-highlights-red-background);
+  color: var(--bn-colors-highlights-red-text);
+}
+
+.bn-preview-placeholder-icon {
+  align-items: center;
+  display: flex;
+}
+
+.bn-block-content .bn-preview-placeholder-icon {
+  height: 24px;
+  width: 24px;
+}
+
+.bn-inline-content-section .bn-preview-placeholder-icon {
+  height: 14px;
+  width: 14px;
+}
+
+.bn-preview-placeholder-icon > svg {
+  height: 100%;
+  width: 100%;
+}
+
+.bn-preview-placeholder-text {
+  margin: 0;
+}
+
+.bn-block-content .bn-preview-placeholder-text {
+  font-size: 0.9rem;
+}
+
+.bn-inline-content-section .bn-preview-placeholder-text {
+  font-size: 0.7rem;
+}
+
+/* Toggled for a single frame while an up/down arrow press is handled, so the
+   browser's geometry-based vertical caret movement skips the popup. */
+.bn-suppress-source-popup-caret
+  .bn-inline-content-section
+  .bn-preview-with-source-popup:not([data-open="true"])
+  .bn-source-block-popup {
+  visibility: hidden;
 }
 
 /* PAGE BREAK */

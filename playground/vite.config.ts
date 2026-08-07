@@ -35,6 +35,11 @@ const devAliases: Record<string, string> = {
     __dirname,
     "../packages/xl-email-exporter/src",
   ),
+  "@blocknote/math-block": resolve(__dirname, "../packages/math-block/src"),
+  "@blocknote/diagram-block": resolve(
+    __dirname,
+    "../packages/diagram-block/src",
+  ),
   // "@liveblocks/react-blocknote": resolve(
   //   __dirname,
   //   "../../liveblocks/packages/liveblocks-react-blocknote/src/",
@@ -70,12 +75,24 @@ export default defineConfig(((conf: { command: string }) => ({
       },
     },
   },
-  plugins: [react(), webpackStats(), Inspect(), tailwindcss()],
+  plugins: [
+    react(),
+    // The stats are only consumed by RelativeCI, which uploads them from the
+    // GitHub Actions build. Serializing the (huge) module graph at the end of
+    // the build costs a lot of memory, which the Vercel build container can't
+    // spare - it fails spawning processes (EAGAIN) right at that point.
+    ...(process.env.VERCEL ? [] : [webpackStats()]),
+    Inspect(),
+    tailwindcss(),
+  ],
   optimizeDeps: {
     // link: ['vite-react-ts-components'],
   },
   build: {
-    sourcemap: true,
+    // Skipped on Vercel for the same reason as `webpackStats` above: emitting
+    // a map for each of the ~340 chunks doubles the file writes and memory of
+    // the largest build in the workspace, which is where the container dies.
+    sourcemap: !process.env.VERCEL,
   },
   preview: {
     port: 3000,
@@ -87,6 +104,27 @@ export default defineConfig(((conf: { command: string }) => ({
     allowedHosts: ["host.docker.internal"],
   },
   resolve: {
-    alias: conf.command === "build" ? undefined : devAliases,
+    alias:
+      conf.command === "build"
+        ? {
+            // TODO: review
+            // The exporters' optional peer dependencies, used by their
+            // subpath entries (`…/diagram-block`, `…/math-block`). They
+            // can't be resolved from the workspace-linked exporter packages
+            // when those packages' devDependencies aren't installed (e.g.
+            // Vercel's filtered install), making Vite substitute an empty
+            // `__vite-optional-peer-dep` stub that fails the build - so
+            // resolve them from the playground's own dependencies instead.
+            "@blocknote/diagram-block": resolve(
+              __dirname,
+              "../packages/diagram-block",
+            ),
+            "@react-pdf/math": resolve(
+              __dirname,
+              "node_modules/@react-pdf/math",
+            ),
+            katex: resolve(__dirname, "node_modules/katex"),
+          }
+        : devAliases,
   },
 })) as Parameters<typeof defineConfig>[0]);

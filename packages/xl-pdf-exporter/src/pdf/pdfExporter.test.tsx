@@ -10,9 +10,10 @@ import {
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { Text } from "@react-pdf/renderer";
-import { testDocument } from "@shared/testDocument.js";
+import { testDocumentWithSourceBlocks as testDocument } from "@shared/testDocument.js";
 import reactElementToJSXString from "react-element-to-jsx-string";
 import { describe, expect, it } from "vite-plus/test";
+import { mathBlockMapping } from "../math-block/index.js";
 import { pdfDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { PDFExporter } from "./pdfExporter.js";
 import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
@@ -157,6 +158,42 @@ describe("exporter", () => {
 
     // still works (no error)
     new PDFExporter(schema, pdfDefaultSchemaMappings);
+  });
+
+  it("should export math as formulas with the math-block mappings", async () => {
+    // Assembled outside the constructor call as the schema doesn't include
+    // the math specs - like the default mappings, the math entries just map
+    // the block JSON.
+    const mappings = {
+      ...pdfDefaultSchemaMappings,
+      blockMapping: {
+        ...pdfDefaultSchemaMappings.blockMapping,
+        math: mathBlockMapping,
+      },
+    };
+    const exporter = new PDFExporter(
+      BlockNoteSchema.create({
+        blockSpecs: {
+          ...defaultBlockSpecs,
+          pageBreak: createPageBreakBlockSpec(),
+          column: ColumnBlock,
+          columnList: ColumnListBlock,
+        },
+      }),
+      mappings,
+    );
+
+    // The math block & inline math paragraph from the shared test document.
+    const transformed = await exporter.toReactPDFDocument(
+      testDocument.filter((block) =>
+        ["math-block", "paragraph-with-inline-math"].includes(block.id),
+      ),
+    );
+    const str = reactElementToJSXString(transformed);
+
+    await expect(str).toMatchFileSnapshot(
+      "__snapshots__/exampleWithMathMappings.jsx",
+    );
   });
 
   it("should export a document", async () => {

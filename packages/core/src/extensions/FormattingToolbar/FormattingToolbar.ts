@@ -24,18 +24,18 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
         return false;
       }
 
-      // Searches the content of the selection to see if it spans a node with a
-      // code spec.
-      let spansCode = false;
-      tr.selection.content().content.descendants((node) => {
-        if (node.type.spec.code) {
-          spansCode = true;
+      // Searches the content of the selection to see if it spans a node that
+      // contains `"inline*"` content, as opposed to just plain text.
+      let spansInlineContent = false;
+      tr.selection.content().content.descendants((node, _pos, parent) => {
+        if (node.isText && parent?.type.spec.content === "inline*") {
+          spansInlineContent = true;
         }
-        return !spansCode; // keep descending if we haven't found a code block
+        return !spansInlineContent; // keep descending until we find inline content
       });
 
-      // Don't show if the selection spans a code block.
-      if (spansCode) {
+      // Don't show if no node in the selection contains inline content.
+      if (!spansInlineContent) {
         return false;
       }
 

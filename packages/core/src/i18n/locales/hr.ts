@@ -213,6 +213,15 @@ export const hr: Dictionary = {
   toggle_blocks: {
     add_block_button: "Prazan sklopivi blok. Klikni da dodaš sadržaj.",
   },
+  code_block: {
+    add_source_button_text: "Dodaj izvorni kôd",
+    math_block_preview_error_text:
+      "Sintaksna pogreška u matematičkom bloku - kliknite za popravak",
+    math_inline_preview_error_text:
+      "Sintaksna pogreška u umetnutoj matematici - kliknite za popravak",
+    diagram_block_preview_error_text:
+      "Sintaksna pogreška u bloku dijagrama - kliknite za popravak",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Dodaj blok",

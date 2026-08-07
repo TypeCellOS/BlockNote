@@ -202,6 +202,12 @@ export const he: Dictionary = {
   toggle_blocks: {
     add_block_button: "מתג ריק. לחץ כדי להוסיף בלוק.",
   },
+  code_block: {
+    add_source_button_text: "הוסף קוד מקור",
+    math_block_preview_error_text: "שגיאת תחביר בבלוק מתמטי - לחץ לתיקון",
+    math_inline_preview_error_text: "שגיאת תחביר במתמטיקה מוטבעת - לחץ לתיקון",
+    diagram_block_preview_error_text: "שגיאת תחביר בבלוק תרשים - לחץ לתיקון",
+  },
   side_menu: {
     add_block_label: "הוסף בלוק",
     drag_handle_label: "פתח תפריט בלוק",

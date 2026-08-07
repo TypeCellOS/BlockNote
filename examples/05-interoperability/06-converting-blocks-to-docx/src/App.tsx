@@ -9,6 +9,11 @@ import * as locales from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  createReactInlineMathSpec,
+  createReactMathBlockSpec,
+} from "@blocknote/math-block";
+import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
+import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   getPageBreakReactSlashMenuItems,
@@ -18,6 +23,11 @@ import {
   DOCXExporter,
   docxDefaultSchemaMappings,
 } from "@blocknote/xl-docx-exporter";
+import { diagramBlockMapping } from "@blocknote/xl-docx-exporter/diagram-block";
+import {
+  inlineMathMapping,
+  mathBlockMapping,
+} from "@blocknote/xl-docx-exporter/math-block";
 import {
   getMultiColumnSlashMenuItems,
   multiColumnDropCursor,
@@ -32,7 +42,16 @@ export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     // Adds support for page breaks & multi-column blocks.
-    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
+    // Adds support for math & diagram blocks.
+    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())).extend({
+      blockSpecs: {
+        math: createReactMathBlockSpec(),
+        diagram: createReactDiagramBlockSpec(),
+      },
+      inlineContentSpecs: {
+        inlineMath: createReactInlineMathSpec(),
+      },
+    }),
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,
@@ -324,6 +343,31 @@ export default function App() {
   console.log("Hello World", message);
 };`,
       },
+      {
+        type: "math",
+        content: "a^2 = \\sqrt{b^2 + c^2}",
+      },
+      {
+        type: "diagram",
+        content: `graph TD
+  A[Start] --> B{Works?}
+  B -->|Yes| C[Ship it]
+  B -->|No| A`,
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Inline math: ",
+            styles: {},
+          },
+          {
+            type: "inlineMath",
+            content: "e^{i\\pi} + 1 = 0",
+          },
+        ],
+      },
 
       {
         type: "columnList",
@@ -396,7 +440,23 @@ export default function App() {
 
   // Exports the editor content to DOCX and downloads it.
   const onDownloadClick = async () => {
-    const exporter = new DOCXExporter(editor.schema, docxDefaultSchemaMappings);
+    const exporter = new DOCXExporter(editor.schema, {
+      ...docxDefaultSchemaMappings,
+      blockMapping: {
+        ...docxDefaultSchemaMappings.blockMapping,
+        // Embeds diagrams as images instead of their Mermaid source.
+        diagram: diagramBlockMapping,
+        // Renders math blocks as native equations instead of their LaTeX
+        // source.
+        math: mathBlockMapping,
+      },
+      inlineContentMapping: {
+        ...docxDefaultSchemaMappings.inlineContentMapping,
+        // Renders inline math as native equations instead of its LaTeX
+        // source.
+        inlineMath: inlineMathMapping,
+      },
+    });
     const blob = await exporter.toBlob(editor.document);
 
     const link = document.createElement("a");

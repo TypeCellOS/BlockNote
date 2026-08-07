@@ -7,12 +7,12 @@ import {
 } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
-import { ignoreNonContentMutations } from "../nodeViewMutations.js";
 import {
   Extension,
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
 import { nonFormattingMarks } from "../markGroups.js";
+import { ignoreNonContentMutations } from "../nodeViewMutations.js";
 import { PropSchema } from "../propTypes.js";
 import {
   getBlockFromNodeView,
@@ -279,6 +279,13 @@ export function addNodeAndExtensionsToSpec<
             applyNonSelectableBlockFix(typedNodeView, this.editor);
           }
 
+          // We don't add a default `update` method to the node view - when a
+          // block doesn't provide one, ProseMirror keeps the node view and
+          // reconciles its `contentDOM` in place as long as the node type stays
+          // the same. Blocks that build custom DOM which needs to stay in sync
+          // with the node (e.g. the code block's preview) can return an `update`
+          // function from `render` to handle updates in place.
+
           // Ignores DOM mutations that don't affect the block's content, so
           // that browser extensions which rewrite the DOM (e.g. Dark Reader)
           // can't trigger an infinite re-render loop that freezes the tab.
@@ -286,8 +293,7 @@ export function addNodeAndExtensionsToSpec<
 
           // See explanation for why `update` is not implemented for NodeViews
           // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464
-          // TODO: in a future version, we might want to implement updates so that
-          // vanilla blocks don't always re-render entirely (https://github.com/TypeCellOS/BlockNote/issues/220)
+          // https://github.com/TypeCellOS/BlockNote/issues/220
           return typedNodeView;
         };
       },

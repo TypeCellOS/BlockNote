@@ -1,9 +1,12 @@
 import {
+  BlockConfig,
+  BlockFromConfigNoChildren,
   BlockMapping,
   COLORS_DEFAULT,
   createPageBreakBlockConfig,
   DefaultBlockSchema,
   DefaultProps,
+  PlainContent,
   UnreachableCaseError,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
@@ -23,6 +26,12 @@ import {
   TextRun,
 } from "docx";
 import { Table } from "../util/Table.js";
+
+type BSchema = DefaultBlockSchema & {
+  pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  math: BlockConfig<"math", {}, "inline">;
+  diagram: BlockConfig<"diagram", {}, "inline">;
+} & typeof multiColumnSchema.blockSchema;
 
 function blockPropsToStyles(
   props: Partial<DefaultProps>,
@@ -68,10 +77,36 @@ function blockPropsToStyles(
                 })(),
   };
 }
+
+const codeMapping = (
+  block: BlockFromConfigNoChildren<
+    BSchema["codeBlock"] | BSchema["math"] | BSchema["diagram"],
+    any,
+    any
+  >,
+) => {
+  // Code blocks hold plain content: at most a single unstyled text item.
+  const [textItem, ...excessItems] = block.content as PlainContent;
+  if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
+    throw new Error("expected plain block content to be a single text item");
+  }
+  const textContent = textItem?.text ?? "";
+
+  return new Paragraph({
+    style: "SourceCode",
+    children: [
+      ...textContent.split("\n").map((line, index) => {
+        return new TextRun({
+          text: line,
+          break: index > 0 ? 1 : 0,
+        });
+      }),
+    ],
+  });
+};
+
 export const docxBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema & {
-    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  } & typeof multiColumnSchema.blockSchema,
+  BSchema,
   any,
   any,
   | Promise<Paragraph[] | Paragraph | DocxTable>
@@ -161,26 +196,9 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       ...caption(block.props, exporter),
     ];
   },
-  codeBlock: (block) => {
-    // Code blocks hold plain content: at most a single unstyled text item.
-    const [textItem, ...excessItems] = block.content;
-    if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
-      throw new Error("expected plain block content to be a single text item");
-    }
-    const textContent = textItem?.text ?? "";
-
-    return new Paragraph({
-      style: "SourceCode",
-      children: [
-        ...textContent.split("\n").map((line, index) => {
-          return new TextRun({
-            text: line,
-            break: index > 0 ? 1 : 0,
-          });
-        }),
-      ],
-    });
-  },
+  codeBlock: codeMapping,
+  math: codeMapping,
+  diagram: codeMapping,
   pageBreak: () => {
     return new Paragraph({
       children: [new PageBreak()],

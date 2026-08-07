@@ -185,6 +185,13 @@ export const ar: Dictionary = {
   toggle_blocks: {
     add_block_button: "تبديل فارغ. انقر لإضافة كتلة.",
   },
+  code_block: {
+    add_source_button_text: "إضافة كود المصدر",
+    math_block_preview_error_text: "خطأ في صيغة بلوك الرياضيات - انقر للإصلاح",
+    math_inline_preview_error_text:
+      "خطأ في صيغة الرياضيات المضمنة - انقر للإصلاح",
+    diagram_block_preview_error_text: "خطأ في صيغة بلوك المخطط - انقر للإصلاح",
+  },
   // from react package:
   side_menu: {
     add_block_label: "إضافة محتوي",

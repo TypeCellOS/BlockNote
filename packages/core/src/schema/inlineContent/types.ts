@@ -1,8 +1,13 @@
 import { Node } from "@tiptap/core";
 import { ViewMutationRecord } from "prosemirror-view";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema, Styles } from "../styles/types.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import {
+  Extension,
+  ExtensionFactoryInstance,
+} from "../../editor/BlockNoteExtension.js";
+
 
 export type CustomInlineContentConfig = {
   type: string;
@@ -16,11 +21,35 @@ export type InlineContentConfig = CustomInlineContentConfig | "text" | "link";
 // InlineContentImplementation contains the "implementation" info about an InlineContent element
 // such as the functions / Nodes required to render and / or serialize it
 export type InlineContentImplementation<T extends InlineContentConfig> =
-  T extends "link" | "text"
-    ? undefined
-    : {
+  T extends CustomInlineContentConfig
+    ? {
         meta?: {
+          /**
+           * Whether the inline content is a {@link https://prosemirror.net/docs/ref/#model.NodeSpec.code} block
+           */
+          code?: boolean;
+          /**
+           * When {@link code} is `true`, this can syntax highlight the contents of the block with the result of this callback
+           */
+          // Method syntax (rather than an arrow-function property) so its
+          // parameter is checked bivariantly, keeping a specific
+          // implementation assignable to the generic spec record type.
+          highlight?(
+            inlineContent: Pick<
+              CustomInlineContentFromConfig<T, any>,
+              "type" | "props"
+            >,
+          ): string | undefined;
+          /**
+           * Whether the inline content is draggable
+           */
           draggable?: boolean;
+          /**
+           * Marks the inline content as rendering a preview with an editable
+           * source popup, driven by the editor-wide
+           * `SourceInlineContentWithPreviewExtension`.
+           */
+          hasPreview?: boolean;
         };
         node: Node;
         toExternalHTML?: (
@@ -43,7 +72,8 @@ export type InlineContentImplementation<T extends InlineContentConfig> =
           destroy?: () => void;
         };
         runsBefore?: string[];
-      };
+      }
+    : undefined;
 
 export type InlineContentSchemaWithInlineContent<
   IType extends string,
@@ -57,6 +87,7 @@ export type InlineContentSchemaWithInlineContent<
 export type InlineContentSpec<T extends InlineContentConfig> = {
   config: T;
   implementation: InlineContentImplementation<T>;
+  extensions?: (Extension | ExtensionFactoryInstance)[];
 };
 
 // A Schema contains all the types (Configs) supported in an editor
