@@ -1,0 +1,155 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "0"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Paragraph outside columns"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "columnList",
+          "attrs": {
+            "id": "1"
+          },
+          "content": [
+            {
+              "type": "column",
+              "attrs": {
+                "id": "2",
+                "width": 1
+              },
+              "content": [
+                {
+                  "type": "blockContainer",
+                  "attrs": {
+                    "id": "3"
+                  },
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textColor": "default",
+                        "textAlignment": "left"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Left column block"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "column",
+              "attrs": {
+                "id": "8",
+                "width": 1
+              },
+              "content": [
+                {
+                  "type": "blockContainer",
+                  "attrs": {
+                    "id": "5"
+                  },
+                  "content": [
+                    {
+                      "type": "bulletListItem",
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textColor": "default",
+                        "textAlignment": "left"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Right block 1"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "blockContainer",
+                  "attrs": {
+                    "id": "6"
+                  },
+                  "content": [
+                    {
+                      "type": "bulletListItem",
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textColor": "default",
+                        "textAlignment": "left"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Right block 2"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "column",
+              "attrs": {
+                "id": "4",
+                "width": 1
+              },
+              "content": [
+                {
+                  "type": "blockContainer",
+                  "attrs": {
+                    "id": "7"
+                  },
+                  "content": [
+                    {
+                      "type": "bulletListItem",
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textColor": "default",
+                        "textAlignment": "left"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Right block 3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

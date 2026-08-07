@@ -20,12 +20,12 @@
     "@mantine/hooks": "^9.0.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "@tiptap/core": "^3.13.0"
+    "@tiptap/core": "^3.29.2"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "vite-plus": "catalog:"
+    "vite-plus": "^0.1.24"
   }
 }

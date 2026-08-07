@@ -28,6 +28,7 @@ import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../api/nodeUtil.js";
 import {
   editorHasBlockWithType,
+  isTableCellNode,
   isTableCellSelection,
 } from "../../blocks/defaultBlockTypeGuards.js";
 import { DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
@@ -533,10 +534,10 @@ export class TableHandlesView implements PluginView {
     }
 
     // Hide handles if the table block has been removed.
-    this.state.block = this.editor.getBlock(this.state.block.id)!;
+    const refreshedBlock = this.editor.getBlock(this.state.block.id);
     if (
-      !this.state.block ||
-      this.state.block.type !== "table" ||
+      !refreshedBlock ||
+      refreshedBlock.type !== "table" ||
       // when collaborating, the table element might be replaced and out of date
       // because yjs replaces the element when for example you change the color via the side menu
       !this.tableElement?.isConnected
@@ -548,6 +549,7 @@ export class TableHandlesView implements PluginView {
 
       return;
     }
+    this.state.block = refreshedBlock as typeof this.state.block;
 
     const { height: rowCount, width: colCount } = getDimensionsOfTable(
       this.state.block,
@@ -1106,15 +1108,26 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
           // When the selection is a normal text selection
           // Assumes we are within a tableParagraph
           // And find the from and to cells by resolving the positions
-          $fromCell = tr.doc.resolve(
-            selection.$from.pos - selection.$from.parentOffset - 1,
-          );
-          $toCell = tr.doc.resolve(
-            selection.$to.pos - selection.$to.parentOffset - 1,
-          );
+          const fromCellPos =
+            selection.$from.pos - selection.$from.parentOffset - 1;
+          const toCellPos = selection.$to.pos - selection.$to.parentOffset - 1;
 
-          // Opt-out when the selection is not pointing into cells
-          if ($fromCell.pos === 0 || $toCell.pos === 0) {
+          // Opt-out when the selection is not pointing into cells. This happens when the selection
+          // is at the start of the table's `blockContainer` node and therefore just before the
+          // actual `table` node.
+          if (fromCellPos < 0 || toCellPos < 0) {
+            return undefined;
+          }
+
+          $fromCell = tr.doc.resolve(fromCellPos);
+          $toCell = tr.doc.resolve(toCellPos);
+
+          // Opt-out when the selection is not actually pointing into table
+          // cells (e.g. a gap cursor next to a nested block).
+          if (
+            !isTableCellNode($fromCell.parent) ||
+            !isTableCellNode($toCell.parent)
+          ) {
             return undefined;
           }
         }

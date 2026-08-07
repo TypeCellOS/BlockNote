@@ -255,37 +255,11 @@ inline styles, it is added to the base z-index. */
   --bn-ui-base-z-index: 0;
 }
 
-/* Matches Side Menu height to block line height */
+/* Matches Side Menu height to block line height. For blocks with a taller
+first line (e.g. headings), the menu is not stretched - instead, the
+SideMenuController offsets its position to keep it centered on the line. */
 .bn-side-menu {
   height: 30px;
-}
-
-.bn-side-menu[data-block-type="heading"][data-level="1"] {
-  height: 108px;
-}
-
-.bn-side-menu[data-block-type="heading"][data-level="2"] {
-  height: 84px;
-}
-
-.bn-side-menu[data-block-type="heading"][data-level="3"] {
-  height: 67px;
-}
-
-.bn-side-menu[data-block-type="file"] {
-  height: 38px;
-}
-
-.bn-side-menu[data-block-type="audio"] {
-  height: 60px;
-}
-
-.bn-side-menu[data-url="false"] {
-  height: 54px;
-}
-
-.bn-side-menu[data-block-type="table"] {
-  height: 60px;
 }
 
 /* Thread sidebar styling */

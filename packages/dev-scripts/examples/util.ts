@@ -122,6 +122,40 @@ export type Project = {
   readme: string;
 };
 
+/**
+ * Reads a version specifier from the `catalog:` section of the workspace's
+ * `pnpm-workspace.yaml`. The `catalog:` protocol is pnpm-specific, so generated
+ * example `package.json` files (which are meant to run standalone, e.g. in
+ * StackBlitz via `npm install`) must inline a concrete version instead. Keeping
+ * the catalog as the single source of truth avoids drift when the version bumps.
+ */
+export function getCatalogVersion(name: string): string {
+  const workspaceFile = path.join(workspaceRoot, "pnpm-workspace.yaml");
+  const lines = fs.readFileSync(workspaceFile, "utf-8").split("\n");
+
+  let inCatalog = false;
+  for (const line of lines) {
+    if (/^catalog:\s*$/.test(line)) {
+      inCatalog = true;
+      continue;
+    }
+    if (inCatalog) {
+      // A non-indented, non-empty line ends the catalog block.
+      if (line.trim() !== "" && !/^\s/.test(line)) {
+        break;
+      }
+      const match = line.match(/^\s+(\S+):\s*(\S+)\s*$/);
+      if (match && match[1].replace(/^["']|["']$/g, "") === name) {
+        return match[2].replace(/^["']|["']$/g, "");
+      }
+    }
+  }
+
+  throw new Error(
+    `Could not find "${name}" in the catalog of ${workspaceFile}`,
+  );
+}
+
 export function groupBy<T>(arr: T[], key: (el: T) => string) {
   const groups: Record<string, T[]> = {};
   arr.forEach((val) => {
@@ -164,6 +198,7 @@ export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
     collaboration: "Collaboration",
     extensions: "Extensions",
     ai: "AI",
+    "vanilla-js": "Vanilla JS",
   };
 
   const groupsWithTitles = Object.fromEntries(

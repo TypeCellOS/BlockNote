@@ -1,7 +1,6 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
-import { createContext, forwardRef, useContext } from "react";
-import { createPortal } from "react-dom";
+import { ComponentProps, useBlockNoteEditor } from "@blocknote/react";
+import { createContext, forwardRef, ReactElement, useContext } from "react";
 
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
@@ -44,9 +43,10 @@ export const PopoverTrigger = forwardRef(
     const ShadCNComponents = useShadCNComponentsContext()!;
 
     return (
-      <ShadCNComponents.Popover.PopoverTrigger ref={ref} asChild={true}>
-        {children}
-      </ShadCNComponents.Popover.PopoverTrigger>
+      <ShadCNComponents.Popover.PopoverTrigger
+        ref={ref}
+        render={children as ReactElement}
+      />
     );
   },
 );
@@ -62,9 +62,15 @@ export const PopoverContent = forwardRef<
   const ShadCNComponents = useShadCNComponentsContext()!;
   const portalRoot = useContext(PortalRootContext);
 
-  const content = (
+  // Default to the editor's portal element (which carries the color-scheme
+  // class) so popovers inherit light/dark mode instead of the document body's,
+  // even when the caller doesn't pass an explicit portalRoot.
+  const editor = useBlockNoteEditor();
+
+  return (
     <ShadCNComponents.Popover.PopoverContent
       sideOffset={8}
+      container={portalRoot ?? editor.portalElement}
       className={cn(
         className,
         "flex flex-col gap-2",
@@ -77,10 +83,4 @@ export const PopoverContent = forwardRef<
       {children}
     </ShadCNComponents.Popover.PopoverContent>
   );
-
-  if (portalRoot) {
-    return createPortal(content, portalRoot);
-  }
-
-  return content;
 });
