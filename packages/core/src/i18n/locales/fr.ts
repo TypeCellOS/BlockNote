@@ -371,15 +371,19 @@ export const fr: Dictionary = {
     },
     align_left: {
       tooltip: "Aligner le texte à gauche",
+      label: "Gauche",
     },
     align_center: {
       tooltip: "Aligner le texte au centre",
+      label: "Centre",
     },
     align_right: {
       tooltip: "Aligner le texte à droite",
+      label: "Droite",
     },
     align_justify: {
       tooltip: "Justifier le texte",
+      label: "Justifier",
     },
     table_cell_merge: {
       tooltip: "Fusionner les cellules",

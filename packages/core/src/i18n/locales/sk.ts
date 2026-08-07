@@ -323,15 +323,19 @@ export const sk = {
     },
     align_left: {
       tooltip: "Zarovnať text vľavo",
+      label: "Vľavo",
     },
     align_center: {
       tooltip: "Zarovnať text na stred",
+      label: "Stred",
     },
     align_right: {
       tooltip: "Zarovnať text vpravo",
+      label: "Vpravo",
     },
     align_justify: {
       tooltip: "Zarovnať text do bloku",
+      label: "Do bloku",
     },
     table_cell_merge: {
       tooltip: "Zlúčiť bunky",

@@ -368,15 +368,19 @@ export const ru: Dictionary = {
     },
     align_left: {
       tooltip: "Текст по левому краю",
+      label: "Влево",
     },
     align_center: {
       tooltip: "Текст по середине",
+      label: "По центру",
     },
     align_right: {
       tooltip: "Текст по правому краю",
+      label: "Вправо",
     },
     align_justify: {
       tooltip: "По середине текст",
+      label: "По ширине",
     },
     table_cell_merge: {
       tooltip: "Объединить ячейки",

@@ -370,10 +370,10 @@ export const uz: Dictionary = {
     nest: { tooltip: "O‘ngga surish", secondary_tooltip: "Tab" },
     unnest: { tooltip: "Chapga surish", secondary_tooltip: "Shift+Tab" },
 
-    align_left: { tooltip: "Chapga tekislash" },
-    align_center: { tooltip: "Markazga tekislash" },
-    align_right: { tooltip: "O‘ngga tekislash" },
-    align_justify: { tooltip: "Eniga tekislash" },
+    align_left: { tooltip: "Chapga tekislash", label: "Chap" },
+    align_center: { tooltip: "Markazga tekislash", label: "Markaz" },
+    align_right: { tooltip: "O’ngga tekislash", label: "O’ng" },
+    align_justify: { tooltip: "Eniga tekislash", label: "Eni bo’yicha" },
 
     table_cell_merge: { tooltip: "Kataklarni birlashtirish" },
     comment: { tooltip: "Izoh qo‘shish" },

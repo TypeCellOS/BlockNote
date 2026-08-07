@@ -338,15 +338,19 @@ export const hr: Dictionary = {
     },
     align_left: {
       tooltip: "Poravnaj tekst lijevo",
+      label: "Lijevo",
     },
     align_center: {
       tooltip: "Poravnaj tekst po sredini",
+      label: "Sredina",
     },
     align_right: {
       tooltip: "Poravnaj tekst desno",
+      label: "Desno",
     },
     align_justify: {
       tooltip: "Poravnaj tekst obostrano",
+      label: "Obostrano",
     },
     table_cell_merge: {
       tooltip: "Spoji ćelije",

@@ -323,15 +323,19 @@ export const es: Dictionary = {
     },
     align_left: {
       tooltip: "Alinear texto a la izquierda",
+      label: "Izquierda",
     },
     align_center: {
       tooltip: "Alinear texto al centro",
+      label: "Centro",
     },
     align_right: {
       tooltip: "Alinear texto a la derecha",
+      label: "Derecha",
     },
     align_justify: {
       tooltip: "Justificar texto",
+      label: "Justificar",
     },
     table_cell_merge: {
       tooltip: "Combinar celdas",

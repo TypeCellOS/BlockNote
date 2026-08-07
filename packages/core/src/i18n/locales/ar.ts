@@ -310,15 +310,19 @@ export const ar: Dictionary = {
     },
     align_left: {
       tooltip: "محاذاة النص إلى اليسار",
+      label: "يسار",
     },
     align_center: {
       tooltip: "محاذاة النص في المنتصف",
+      label: "وسط",
     },
     align_right: {
       tooltip: "محاذاة النص إلى اليمين",
+      label: "يمين",
     },
     align_justify: {
       tooltip: "ضبط النص",
+      label: "ضبط",
     },
     table_cell_merge: {
       tooltip: "جمع الخلايا",

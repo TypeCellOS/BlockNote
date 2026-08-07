@@ -324,15 +324,19 @@ export const vi: Dictionary = {
     },
     align_left: {
       tooltip: "Căn trái văn bản",
+      label: "Trái",
     },
     align_center: {
       tooltip: "Căn giữa văn bản",
+      label: "Giữa",
     },
     align_right: {
       tooltip: "Căn phải văn bản",
+      label: "Phải",
     },
     align_justify: {
       tooltip: "Căn đều văn bản",
+      label: "Đều",
     },
     table_cell_merge: {
       tooltip: "Gộp các ô",

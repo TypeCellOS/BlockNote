@@ -338,15 +338,19 @@ export const is: Dictionary = {
     },
     align_left: {
       tooltip: "Vinstrijafna texta",
+      label: "Vinstri",
     },
     align_center: {
       tooltip: "Miðjustilla texta",
+      label: "Miðja",
     },
     align_right: {
       tooltip: "Hægrijafna texta",
+      label: "Hægri",
     },
     align_justify: {
       tooltip: "Jafna texta",
+      label: "Jafna",
     },
     table_cell_merge: {
       tooltip: "Sameina dálka",

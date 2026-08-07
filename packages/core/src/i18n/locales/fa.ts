@@ -293,15 +293,19 @@ export const fa = {
     },
     align_left: {
       tooltip: "تراز متن چپ",
+      label: "چپ",
     },
     align_center: {
       tooltip: "تراز متن وسط",
+      label: "وسط",
     },
     align_right: {
       tooltip: "تراز متن راست",
+      label: "راست",
     },
     align_justify: {
       tooltip: "تراز متن دوطرفه",
+      label: "دوطرفه",
     },
     table_cell_merge: {
       tooltip: "ادغام سلول‌ها",
