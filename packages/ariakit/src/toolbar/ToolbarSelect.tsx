@@ -16,7 +16,8 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, direction, ...rest } = props;
+  const { className, items, isDisabled, direction, portalRoot, ...rest } =
+    props;
 
   assertEmpty(rest);
 
@@ -44,6 +45,7 @@ export const ToolbarSelect = forwardRef<
         className={mergeCSSClasses("bn-ak-popover", className || "")}
         ref={ref}
         gutter={4}
+        portalElement={portalRoot ?? undefined}
       >
         {items.map((option) => (
           <AriakitSelectItem

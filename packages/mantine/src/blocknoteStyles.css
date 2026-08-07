@@ -155,10 +155,6 @@
   overflow: auto;
 }
 
-.bn-mantine .mantine-Button-root[aria-controls*="dropdown"] {
-  min-width: fit-content;
-}
-
 /* Toolbar styling */
 .bn-mantine .bn-toolbar {
   background-color: var(--bn-colors-menu-background);
@@ -183,6 +179,7 @@
   border: none;
   border-radius: var(--bn-border-radius-small);
   color: var(--bn-colors-menu-text);
+  flex-shrink: 0;
 }
 
 .bn-toolbar .mantine-Button-root:hover,

@@ -7,9 +7,13 @@ body {
    the page's `.scroll-host`, to check nested scrolling works. */
 .bn-container {
   height: 300px;
-  overflow-y: auto;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
+}
+
+.bn-editor {
+  height: 100%;
+  overflow: auto;
 }
 
 /* --- App shell (see DemoChrome) --- */

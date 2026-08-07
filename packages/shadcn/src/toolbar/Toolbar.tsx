@@ -1,6 +1,7 @@
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
+import { createPortal } from "react-dom";
 
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
@@ -132,6 +133,7 @@ export const ToolbarSelect = forwardRef<
     items,
     isDisabled,
     direction: _direction,
+    portalRoot,
     ...rest
   } = props;
 
@@ -153,6 +155,20 @@ export const ToolbarSelect = forwardRef<
     return null;
   }
 
+  const content = (
+    <ShadCNComponents.Select.SelectContent className={className} ref={ref}>
+      {items.map((item) => (
+        <ShadCNComponents.Select.SelectItem
+          disabled={item.isDisabled}
+          key={item.text}
+          value={item.text}
+        >
+          <SelectItemContent {...item} />
+        </ShadCNComponents.Select.SelectItem>
+      ))}
+    </ShadCNComponents.Select.SelectContent>
+  );
+
   return (
     <ShadCNComponents.Select.Select
       value={selectedItem.text}
@@ -164,17 +180,7 @@ export const ToolbarSelect = forwardRef<
       <ShadCNComponents.Select.SelectTrigger className={"border-none"}>
         <ShadCNComponents.Select.SelectValue />
       </ShadCNComponents.Select.SelectTrigger>
-      <ShadCNComponents.Select.SelectContent className={className} ref={ref}>
-        {items.map((item) => (
-          <ShadCNComponents.Select.SelectItem
-            disabled={item.isDisabled}
-            key={item.text}
-            value={item.text}
-          >
-            <SelectItemContent {...item} />
-          </ShadCNComponents.Select.SelectItem>
-        ))}
-      </ShadCNComponents.Select.SelectContent>
+      {portalRoot ? createPortal(content, portalRoot) : content}
     </ShadCNComponents.Select.Select>
   );
 });

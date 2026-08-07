@@ -57,10 +57,16 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       <MantineButton
         aria-label={label}
         className={className}
-        // Needed as Safari doesn't focus button elements on mouse down
-        // unlike other browsers.
-        onMouseDown={(e) => {
-          if (isSafari() && !isTouchDevice()) {
+        onPointerDown={(e) => {
+          // Prevents focus shift on mo
+          if (isTouchDevice()) {
+            e.preventDefault();
+            return;
+          }
+
+          // Needed as Safari doesn't focus button elements on mouse down
+          // unlike other browsers.
+          if (isSafari()) {
             (e.currentTarget as HTMLButtonElement).focus();
           }
         }}
@@ -96,6 +102,10 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           if (isSafari() && !isTouchDevice()) {
             (e.currentTarget as HTMLButtonElement).focus();
           }
+        }}
+        onPointerDown={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
         }}
         onClick={(event) => {
           // We manually hide the tooltip onclick, because the click event

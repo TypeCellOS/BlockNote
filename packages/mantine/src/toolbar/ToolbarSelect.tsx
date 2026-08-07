@@ -14,7 +14,8 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, direction, ...rest } = props;
+  const { className, items, isDisabled, direction, portalRoot, ...rest } =
+    props;
 
   assertEmpty(rest);
 
@@ -26,7 +27,8 @@ export const ToolbarSelect = forwardRef<
 
   return (
     <MantineMenu
-      withinPortal={false}
+      withinPortal={!!portalRoot}
+      portalProps={portalRoot ? { target: portalRoot } : undefined}
       position={direction === "up" ? "top-start" : "bottom-start"}
       transitionProps={{
         exitDuration: 0,
@@ -51,10 +53,16 @@ export const ToolbarSelect = forwardRef<
     >
       <MantineMenu.Target>
         <MantineButton
-          // Needed as Safari doesn't focus button elements on mouse down
-          // unlike other browsers.
-          onMouseDown={(e) => {
-            if (isSafari() && !isTouchDevice()) {
+          onPointerDown={(e) => {
+            // Prevents focus shift on mo
+            if (isTouchDevice()) {
+              e.preventDefault();
+              return;
+            }
+
+            // Needed as Safari doesn't focus button elements on mouse down
+            // unlike other browsers.
+            if (isSafari()) {
               (e.currentTarget as HTMLButtonElement).focus();
             }
           }}

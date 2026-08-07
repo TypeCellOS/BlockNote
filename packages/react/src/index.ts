@@ -38,6 +38,7 @@ export * from "./components/FormattingToolbar/FormattingToolbar.js";
 export * from "./components/FormattingToolbar/MobileFormattingToolbar.js";
 export * from "./components/FormattingToolbar/FormattingToolbarController.js";
 export * from "./components/FormattingToolbar/ExperimentalMobileFormattingToolbarController.js";
+export * from "./components/FormattingToolbar/ExperimentalMobileFormattingToolbarPortalContext.js";
 export * from "./components/FormattingToolbar/FormattingToolbarProps.js";
 
 export * from "./components/LinkToolbar/DefaultButtons/DeleteLinkButton.js";

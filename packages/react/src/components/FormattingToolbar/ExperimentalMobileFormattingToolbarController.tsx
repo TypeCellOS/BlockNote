@@ -1,10 +1,8 @@
-import { isSafari } from "@blocknote/core";
 import { FC, useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { ExperimentalMobileFormattingToolbarPortalContext } from "./ExperimentalMobileFormattingToolbarPortalContext.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
-import { MobileFormattingToolbar } from "./MobileFormattingToolbar.js";
+import { FormattingToolbar } from "./FormattingToolbar.js";
 
 type VisualViewportRect = {
   top: number;
@@ -120,72 +118,38 @@ function isVirtualKeyboardOpen(viewport: VisualViewportRect): boolean {
  * visual viewport via those same variables (an element scroll, since the
  * document itself can no longer scroll).
  *
+ * The toolbar itself scrolls horizontally (`overflow-x: auto`), which clips any
+ * inline dropdown on mobile. So the outer `.bn-mobile-formatting-toolbar`
+ * wrapper — outside that scroll container — is published via
+ * {@link ExperimentalMobileFormattingToolbarPortalContext}, and buttons portal
+ * their menus/popovers into it (see e.g. `ColorStyleButton`).
+ *
  * Shown while the virtual keyboard is open.
  */
 export const ExperimentalMobileFormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
 }) => {
-  const editor = useBlockNoteEditor();
   const viewport = useVisualViewport();
-
-  // The toolbar is `position: fixed` (pinned to the visual viewport), but a
-  // scroll container clips fixed descendants on mobile — and `.bn-container`
-  // (which BlockNoteView renders) is often the scroll container. So we portal
-  // the toolbar onto `<body>`, out of the editor. That also escapes the editor's
-  // theme root, so we mirror its theme classes onto our body-level container to
-  // keep the toolbar's colors.
-  const [container] = useState(() => document.createElement("div"));
-
-  useEffect(() => {
-    document.body.appendChild(container);
-    return () => container.remove();
-  }, [container]);
-
-  // Keep the container's theme in sync with the editor's themed portal element.
-  // No dependency array: this also runs after BlockNoteView's own theming effect
-  // (which runs after this child's effects on first mount) and on re-renders.
-  useEffect(() => {
-    const themeRoot = editor.portalElement;
-    container.className = themeRoot.className;
-    for (const attr of ["data-color-scheme", "data-mantine-color-scheme"]) {
-      const value = themeRoot.getAttribute(attr);
-      if (value !== null) {
-        container.setAttribute(attr, value);
-      }
-    }
-  });
+  // The non-scrolling wrapper, published so buttons can portal their dropdowns
+  // out of the horizontally scrolling toolbar. A callback ref into state so the
+  // context updates once the element mounts.
+  const [toolbarElement, setToolbarElement] = useState<HTMLDivElement | null>(
+    null,
+  );
 
   if (!isVirtualKeyboardOpen(viewport)) {
     return null;
   }
 
-  const Component = props.formattingToolbar || MobileFormattingToolbar;
+  const Component = props.formattingToolbar || FormattingToolbar;
 
-  return createPortal(
-    <div
-      className="bn-mobile-formatting-toolbar"
-      // Tapping a control must not dismiss the keyboard, which happens when the
-      // editor's contentEditable loses focus. On non-Safari browsers the default
-      // `mousedown` action focuses the tapped button, so we prevent it. On
-      // Safari/iOS we must NOT preventDefault: the default doesn't focus the
-      // button there anyway, and preventing it cancels the tap's synthesized
-      // `click`, so nothing would open. (iOS keeps editor focus on its own since
-      // the controls' explicit Safari focus is skipped on touch — see
-      // ToolbarButton/ToolbarSelect.)
-      onMouseDown={(e) => {
-        if (!isSafari()) {
-          e.preventDefault();
-        }
-      }}
+  return (
+    <ExperimentalMobileFormattingToolbarPortalContext.Provider
+      value={toolbarElement}
     >
-      {/* Inner element owns the horizontal scroll. The outer toolbar must NOT
-          clip, or upward-opening dropdowns (rendered above it) get cut off. The
-          dropdowns escape this scroller because their containing block is the
-          positioned outer toolbar, not this element. */}
-      <div className="bn-mobile-formatting-toolbar-scroll">
+      <div className="bn-mobile-formatting-toolbar" ref={setToolbarElement}>
         <Component />
       </div>
-    </div>,
-    container,
+    </ExperimentalMobileFormattingToolbarPortalContext.Provider>
   );
 };

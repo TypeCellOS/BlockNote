@@ -1,11 +1,16 @@
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
-import { forwardRef, useMemo } from "react";
+import { createContext, forwardRef, useContext, useMemo } from "react";
+import { createPortal } from "react-dom";
 
 import type { DropdownMenuTrigger as ShadCNDropdownMenuTrigger } from "../components/ui/dropdown-menu.js";
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
+
+const PortalRootContext = createContext<HTMLElement | null | undefined>(
+  undefined,
+);
 
 // hacky HoC to change DropdownMenuTrigger to open a menu on PointerUp instead of PointerDown
 // Needed to fix this issue: https://github.com/radix-ui/primitives/issues/2867
@@ -39,6 +44,7 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     children,
     onOpenChange,
     position: _position, // Unused
+    portalRoot,
     sub,
     ...rest
   } = props;
@@ -52,7 +58,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       <ShadCNComponents.DropdownMenu.DropdownMenuSub
         onOpenChange={onOpenChange}
       >
-        {children}
+        <PortalRootContext.Provider value={portalRoot}>
+          {children}
+        </PortalRootContext.Provider>
       </ShadCNComponents.DropdownMenu.DropdownMenuSub>
     );
   } else {
@@ -61,7 +69,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
         modal={false}
         onOpenChange={onOpenChange}
       >
-        {children}
+        <PortalRootContext.Provider value={portalRoot}>
+          {children}
+        </PortalRootContext.Provider>
       </ShadCNComponents.DropdownMenu.DropdownMenu>
     );
   }
@@ -108,6 +118,7 @@ export const MenuDropdown = forwardRef<
   assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
+  const portalRoot = useContext(PortalRootContext);
 
   if (sub) {
     return (
@@ -118,16 +129,22 @@ export const MenuDropdown = forwardRef<
         {children}
       </ShadCNComponents.DropdownMenu.DropdownMenuSubContent>
     );
-  } else {
-    return (
-      <ShadCNComponents.DropdownMenu.DropdownMenuContent
-        className={className}
-        ref={ref}
-      >
-        {children}
-      </ShadCNComponents.DropdownMenu.DropdownMenuContent>
-    );
   }
+
+  const content = (
+    <ShadCNComponents.DropdownMenu.DropdownMenuContent
+      className={className}
+      ref={ref}
+    >
+      {children}
+    </ShadCNComponents.DropdownMenu.DropdownMenuContent>
+  );
+
+  if (portalRoot) {
+    return createPortal(content, portalRoot);
+  }
+
+  return content;
 });
 
 export const MenuItem = forwardRef<

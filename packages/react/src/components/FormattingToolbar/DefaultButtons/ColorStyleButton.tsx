@@ -4,9 +4,10 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { ExperimentalMobileFormattingToolbarPortalContext } from "../ExperimentalMobileFormattingToolbarPortalContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -40,9 +41,12 @@ function checkColorInSchema<Color extends "text" | "background">(
   );
 }
 
-export const ColorStyleButton = (props: { direction?: "up" | "down" }) => {
+export const ColorStyleButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
+  const portalRoot = useContext(
+    ExperimentalMobileFormattingToolbarPortalContext,
+  );
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -136,9 +140,7 @@ export const ColorStyleButton = (props: { direction?: "up" | "down" }) => {
   }
 
   return (
-    <Components.Generic.Menu.Root
-      position={props.direction === "up" ? "top" : undefined}
-    >
+    <Components.Generic.Menu.Root portalRoot={portalRoot}>
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}

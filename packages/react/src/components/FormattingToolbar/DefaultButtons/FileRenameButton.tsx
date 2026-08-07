@@ -5,17 +5,27 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  useCallback,
+  useContext,
+  useState,
+} from "react";
 import { RiFontFamily } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
+import { ExperimentalMobileFormattingToolbarPortalContext } from "../ExperimentalMobileFormattingToolbarPortalContext.js";
 
-export const FileRenameButton = (props: { direction?: "up" | "down" }) => {
+export const FileRenameButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
+  const portalRoot = useContext(
+    ExperimentalMobileFormattingToolbarPortalContext,
+  );
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -88,7 +98,7 @@ export const FileRenameButton = (props: { direction?: "up" | "down" }) => {
     <Components.Generic.Popover.Root
       open={popoverOpen}
       onOpenChange={setPopoverOpen}
-      position={props.direction === "up" ? "top" : undefined}
+      portalRoot={portalRoot}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button

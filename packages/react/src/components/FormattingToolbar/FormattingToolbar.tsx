@@ -27,19 +27,12 @@ import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
 export const getFormattingToolbarItems = (
   blockTypeSelectItems?: BlockTypeSelectItem[],
-  // Which way the toolbar's dropdowns/popovers open. The mobile toolbar passes
-  // `"up"` so its menus open above the on-screen keyboard rather than behind it.
-  direction?: "up" | "down",
 ): JSX.Element[] => [
-  <BlockTypeSelect
-    key={"blockTypeSelect"}
-    items={blockTypeSelectItems}
-    direction={direction}
-  />,
+  <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
   <TableCellMergeButton key={"tableCellMergeButton"} />,
-  <FileCaptionButton key={"fileCaptionButton"} direction={direction} />,
-  <FileReplaceButton key={"replaceFileButton"} direction={direction} />,
-  <FileRenameButton key={"fileRenameButton"} direction={direction} />,
+  <FileCaptionButton key={"fileCaptionButton"} />,
+  <FileReplaceButton key={"replaceFileButton"} />,
+  <FileRenameButton key={"fileRenameButton"} />,
   <FileDeleteButton key={"fileDeleteButton"} />,
   <FileDownloadButton key={"fileDownloadButton"} />,
   <FilePreviewButton key={"filePreviewButton"} />,
@@ -53,10 +46,10 @@ export const getFormattingToolbarItems = (
   <TextAlignButton textAlignment={"left"} key={"textAlignLeftButton"} />,
   <TextAlignButton textAlignment={"center"} key={"textAlignCenterButton"} />,
   <TextAlignButton textAlignment={"right"} key={"textAlignRightButton"} />,
-  <ColorStyleButton key={"colorStyleButton"} direction={direction} />,
+  <ColorStyleButton key={"colorStyleButton"} />,
   <NestBlockButton key={"nestBlockButton"} />,
   <UnnestBlockButton key={"unnestBlockButton"} />,
-  <CreateLinkButton key={"createLinkButton"} direction={direction} />,
+  <CreateLinkButton key={"createLinkButton"} />,
   <AddCommentButton key={"addCommentButton"} />,
   <AddTiptapCommentButton key={"addTiptapCommentButton"} />,
 ];

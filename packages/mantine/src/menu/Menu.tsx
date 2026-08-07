@@ -16,7 +16,7 @@ const SubMenuContext = createContext<
 >(undefined);
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
-  const { children, onOpenChange, position, sub, ...rest } = props;
+  const { children, onOpenChange, position, portalRoot, sub, ...rest } = props;
 
   assertEmpty(rest);
 
@@ -40,7 +40,8 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
 
   return (
     <MantineMenu
-      withinPortal={false}
+      withinPortal={!!portalRoot}
+      portalProps={portalRoot ? { target: portalRoot } : undefined}
       middlewares={{ flip, shift: true, inline: false, size: true }}
       onChange={onOpenChange}
       position={position}

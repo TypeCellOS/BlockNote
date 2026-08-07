@@ -11,13 +11,18 @@ import {
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
+import { createContext, forwardRef, useContext } from "react";
+
+const PortalRootContext = createContext<HTMLElement | null | undefined>(
+  undefined,
+);
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
     children,
     onOpenChange,
     position,
+    portalRoot,
     sub: _sub, // unused
     ...rest
   } = props;
@@ -30,7 +35,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       setOpen={onOpenChange}
       virtualFocus={true}
     >
-      {children}
+      <PortalRootContext.Provider value={portalRoot}>
+        {children}
+      </PortalRootContext.Provider>
     </AriakitMenuProvider>
   );
 };
@@ -48,10 +55,13 @@ export const MenuDropdown = forwardRef<
 
   assertEmpty(rest);
 
+  const portalRoot = useContext(PortalRootContext);
+
   return (
     <AriakitMenu
       unmountOnHide={true}
       className={mergeCSSClasses("bn-ak-menu", className || "")}
+      portalElement={portalRoot ?? undefined}
       ref={ref}
     >
       {children}

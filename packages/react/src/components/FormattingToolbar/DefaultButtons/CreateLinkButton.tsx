@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { RiLink } from "react-icons/ri";
 
 import {
@@ -20,6 +20,7 @@ import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useExtension } from "../../../hooks/useExtension.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { EditLinkMenuItems } from "../../LinkToolbar/EditLinkMenuItems.js";
+import { ExperimentalMobileFormattingToolbarPortalContext } from "../ExperimentalMobileFormattingToolbarPortalContext.js";
 
 function checkLinkInSchema(
   editor: BlockNoteEditor<BlockSchema, any, StyleSchema>,
@@ -40,11 +41,14 @@ function checkLinkInSchema(
   );
 }
 
-export const CreateLinkButton = (props: { direction?: "up" | "down" }) => {
+export const CreateLinkButton = () => {
   const editor = useBlockNoteEditor<any, any, any>();
   const editorDOMElement = useEditorDOMElement();
   const Components = useComponentsContext()!;
   const dict = useDictionary();
+  const portalRoot = useContext(
+    ExperimentalMobileFormattingToolbarPortalContext,
+  );
 
   const formattingToolbar = useExtension(FormattingToolbarExtension);
   // eslint-disable-next-line @typescript-eslint/unbound-method -- showSelection is a plain object method, not a class method
@@ -115,7 +119,7 @@ export const CreateLinkButton = (props: { direction?: "up" | "down" }) => {
     <Components.Generic.Popover.Root
       open={showPopover}
       onOpenChange={setShowPopover}
-      position={props.direction === "up" ? "top" : undefined}
+      portalRoot={portalRoot}
     >
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}
