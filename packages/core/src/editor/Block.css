@@ -536,6 +536,14 @@ NESTED BLOCKS
   width: fit-content;
 }
 
+/* Additional right padding for equation numbers. */
+.bn-block-content .bn-preview-container .katex-html {
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 100%;
+  padding-right: 2.5em;
+}
+
 .bn-source-block-popup {
   background-color: transparent;
   border: none;

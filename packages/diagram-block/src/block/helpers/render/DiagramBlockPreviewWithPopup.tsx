@@ -9,6 +9,7 @@ import { SiMermaid } from "react-icons/si";
 
 import { getDiagramPlainTextContent } from "../../../helpers/getDiagramPlainTextContent.js";
 import { initializeMermaid } from "../../../helpers/initializeMermaid.js";
+import { trimDiagramSVG } from "../../../helpers/trimDiagramSVG.js";
 import { getDiagramDictionary } from "../../../i18n/dictionary.js";
 import { DiagramBlockConfig } from "../../createReactDiagramBlockSpec.js";
 
@@ -48,7 +49,7 @@ export const useMermaidSVG = (source: string) => {
         await mermaid.parse(source);
         const { svg } = await mermaid.render(id, source);
         if (!stale) {
-          setSVG(svg);
+          setSVG(trimDiagramSVG(svg));
           setError(undefined);
         }
       } catch (err) {
