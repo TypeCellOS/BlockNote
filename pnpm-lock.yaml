@@ -5503,6 +5503,9 @@ importers:
       vite-plus:
         specifier: 'catalog:'
         version: 0.1.24(@opentelemetry/api@1.9.1)(@types/node@22.13.13)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(terser@5.46.2)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.9.0))(yaml@2.9.0)
+      yjs:
+        specifier: ^13.6.27
+        version: 13.6.30
 
   packages/xl-ai-server:
     dependencies:
