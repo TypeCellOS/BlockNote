@@ -14,9 +14,9 @@ import { DefaultSuggestionItem } from "./DefaultSuggestionItem.js";
 import { SuggestionMenu } from "./SuggestionMenu.js";
 
 // Sets the editor's text cursor position to the next content editable block,
-// so either a block with inline content or a table. The last block is always a
-// paragraph, so this function won't try to set the cursor position past the
-// last block.
+// so either a block with inline content or a table. If no such block exists
+// after the current one, an empty paragraph is appended to the end of the
+// document and the cursor is moved to it.
 function setSelectionToNextContentEditableBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -29,6 +29,16 @@ function setSelectionToNextContentEditableBlock<
   while (contentType === "none") {
     block = editor.getTextCursorPosition().nextBlock;
     if (block === undefined) {
+      // No content editable block exists after the current one, so we append
+      // an empty paragraph to the end of the document and move the cursor to
+      // it.
+      const lastBlock = editor.document[editor.document.length - 1];
+      const newBlock = editor.insertBlocks(
+        [{ type: "paragraph" }],
+        lastBlock,
+        "after",
+      )[0];
+      editor.setTextCursorPosition(newBlock, "end");
       return;
     }
     contentType = editor.schema.blockSchema[block.type].content as

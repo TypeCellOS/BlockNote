@@ -13,15 +13,10 @@ import {
 
 const PLUGIN_KEY = new PluginKey<DecorationSet>("trailingNode");
 
-// Skip the widget when the editor isn't editable, or when the document already
-// ends with an empty paragraph block (since the user can just type into it).
-function shouldShowTrailingWidget(doc: PMNode, isEditable: boolean): boolean {
-  if (!isEditable) {
-    return false;
-  }
-
-  const rootGroup = doc.lastChild;
-  const lastBlock = rootGroup?.lastChild;
+// Skip the widget when the container already ends with an empty paragraph
+// block (since the user can just type into it).
+function containerNeedsTrailingWidget(container: PMNode): boolean {
+  const lastBlock = container.lastChild;
   const lastContent = lastBlock?.firstChild;
 
   return !(
@@ -31,12 +26,48 @@ function shouldShowTrailingWidget(doc: PMNode, isEditable: boolean): boolean {
   );
 }
 
+// Returns the position at the end of each container that should render a
+// trailing widget: the root blockGroup, and columns from the multi-column
+// package. Nested blockGroups (a block's children) are excluded, as they have
+// no empty space below them for a widget to occupy.
+function getTrailingWidgetPositions(doc: PMNode): number[] {
+  // When the schema has no columns, the root blockGroup is the only possible
+  // container, so traversing the doc to find others can be skipped.
+  if (!doc.type.schema.nodes["column"]) {
+    const rootGroup = doc.lastChild;
+    return rootGroup && containerNeedsTrailingWidget(rootGroup)
+      ? [doc.content.size - 1]
+      : [];
+  }
+
+  const positions: number[] = [];
+
+  doc.descendants((node, pos, parent) => {
+    if (node.isTextblock) {
+      return false;
+    }
+
+    const isContainer =
+      node.type.name === "column" ||
+      (node.type.name === "blockGroup" && parent?.type.name === "doc");
+
+    if (isContainer && containerNeedsTrailingWidget(node)) {
+      positions.push(pos + node.nodeSize - 1);
+    }
+
+    return true;
+  });
+
+  return positions;
+}
+
 /**
  * Renders a fake trailing block as a widget decoration after the last block of
- * the document. Clicking it inserts a real trailing block and moves the
- * selection into it. This way the trailing block is not part of the document
- * content, so it doesn't appear when the editor is read-only or when the
- * content is exported.
+ * the document, as well as of any other container that blocks can be appended
+ * to (e.g. columns). Clicking it inserts a real trailing block in the
+ * container and moves the selection into it. This way the trailing block is
+ * not part of the document content, so it doesn't appear when the editor is
+ * read-only or when the content is exported.
  */
 export const TrailingNodeExtension = createExtension(
   ({ editor }: ExtensionOptions) => {
@@ -52,17 +83,33 @@ export const TrailingNodeExtension = createExtension(
             // based on this click.
             event.preventDefault();
 
+            const view = editor.prosemirrorView;
+            if (!view) {
+              return;
+            }
+
+            // The widget may have been remapped since it was created, so its
+            // container is resolved from its current DOM position instead of
+            // captured up front.
+            const container = view.state.doc.resolve(
+              view.posAtDOM(el, 0),
+            ).parent;
+            const lastBlockId = container.lastChild?.attrs["id"];
+            if (!lastBlockId) {
+              return;
+            }
+
             editor.transact((tr) => {
               const [insertedBlock] = editor.insertBlocks(
                 [{ type: "paragraph" }],
-                editor.document[editor.document.length - 1],
+                lastBlockId,
                 "after",
               );
               editor.setTextCursorPosition(insertedBlock, "start");
               tr.scrollIntoView();
             });
 
-            editor.prosemirrorView?.focus();
+            view.focus();
           });
           return el;
         },
@@ -70,29 +117,44 @@ export const TrailingNodeExtension = createExtension(
       );
     }
 
-    // Maps the existing DecorationSet through the transaction, then
-    // incrementally adds or removes the widget only if the show/hide state
-    // crossed over. The underlying Decoration (and its rendered DOM) stays
-    // reference-stable across transactions.
+    // Maps the existing DecorationSet through the transaction, then diffs it
+    // against the containers that should currently show a widget, only adding
+    // and removing where the two differ. Decorations (and their rendered DOM)
+    // stay reference-stable across transactions for unchanged containers.
     function nextDecorationSet(
       tr: Transaction,
       oldSet: DecorationSet,
       isEditable: boolean,
     ): DecorationSet {
       const mapped = oldSet.map(tr.mapping, tr.doc);
-      const existing = mapped.find();
-      const wasShowing = existing.length > 0;
-      const shouldShow = shouldShowTrailingWidget(tr.doc, isEditable);
+      const desiredPositions = new Set(
+        isEditable ? getTrailingWidgetPositions(tr.doc) : [],
+      );
 
-      if (wasShowing === shouldShow) {
-        return mapped;
+      const keptPositions = new Set<number>();
+      const stale: Decoration[] = [];
+      for (const decoration of mapped.find()) {
+        if (
+          desiredPositions.has(decoration.from) &&
+          !keptPositions.has(decoration.from)
+        ) {
+          keptPositions.add(decoration.from);
+        } else {
+          stale.push(decoration);
+        }
       }
-      if (wasShowing) {
-        return mapped.remove(existing);
+      const missing = [...desiredPositions].filter(
+        (pos) => !keptPositions.has(pos),
+      );
+
+      let next = mapped;
+      if (stale.length > 0) {
+        next = next.remove(stale);
       }
-      return mapped.add(tr.doc, [
-        createTrailingWidget(tr.doc.content.size - 1),
-      ]);
+      if (missing.length > 0) {
+        next = next.add(tr.doc, missing.map(createTrailingWidget));
+      }
+      return next;
     }
 
     return {
@@ -133,8 +195,9 @@ export const TrailingNodeExtension = createExtension(
           props: {
             decorations: (state) => PLUGIN_KEY.getState(state),
             // Prevents ProseMirror from trying to move the selection into the
-            // trailing block, which causes the text caret to flicker in it
-            // before returning to its previous position.
+            // trailing block at the end of the document, which causes the text
+            // caret to flicker in it before returning to its previous
+            // position.
             handleKeyDown: (view, event) => {
               if (event.key !== "ArrowRight" && event.key !== "ArrowDown") {
                 return false;
@@ -150,8 +213,11 @@ export const TrailingNodeExtension = createExtension(
                 return false;
               }
 
+              const rootGroup = view.state.doc.lastChild;
               if (
-                !shouldShowTrailingWidget(view.state.doc, editor.isEditable)
+                !editor.isEditable ||
+                !rootGroup ||
+                !containerNeedsTrailingWidget(rootGroup)
               ) {
                 return false;
               }
