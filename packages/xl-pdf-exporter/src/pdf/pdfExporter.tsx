@@ -35,6 +35,26 @@ type Options = ExporterOptions & {
    * @default uses Twemoji images from jdecked/twemoji on jsDelivr CDN
    */
   emojiSource: false | ReturnType<typeof Font.getEmojiSource>;
+  /**
+   * Additional fonts to register for PDF rendering.
+   * Each entry is passed directly to react-pdf's `Font.register()`.
+   *
+   * Useful for adding support for non-Latin scripts (e.g., CJK characters).
+   *
+   * @example
+   * fonts: [
+   *   {
+   *     family: "NotoSansSC",
+   *     src: "https://fonts.gstatic.com/s/notosanssc/...",
+   *   },
+   * ],
+   */
+  fonts?: Parameters<typeof Font.register>[0][];
+  /**
+   * Override the default font family for the PDF document.
+   * @default "Inter"
+   */
+  fontFamily?: string;
 };
 
 /**
@@ -243,6 +263,12 @@ export class PDFExporter<
       src: font,
     });
 
+    if (this.options.fonts) {
+      for (const f of this.options.fonts) {
+        Font.register(f);
+      }
+    }
+
     this.fontsRegistered = true;
   }
 
@@ -266,9 +292,13 @@ export class PDFExporter<
   ) {
     await this.registerFonts();
 
+    const pageStyle = this.options.fontFamily
+      ? { ...this.styles.page, fontFamily: this.options.fontFamily }
+      : this.styles.page;
+
     return (
       <Document>
-        <Page dpi={100} size="A4" style={this.styles.page}>
+        <Page dpi={100} size="A4" style={pageStyle}>
           {options.header && (
             <View fixed style={this.styles.header}>
               {options.header}
