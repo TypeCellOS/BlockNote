@@ -4,11 +4,19 @@ import {
   filterSuggestionItems,
   insertOrUpdateBlockForSlashMenu,
 } from "@blocknote/core/extensions";
+import * as locales from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
 import {
+  createReactDiagramBlockSpec,
+  getDiagramBlockTypeSelectItems,
+  locales as diagramLocales,
+} from "@blocknote/diagram-block";
+import {
+  blockTypeSelectItems,
+  FormattingToolbar,
+  FormattingToolbarController,
   getDefaultReactSlashMenuItems,
   SuggestionMenuController,
   useCreateBlockNote,
@@ -46,6 +54,12 @@ export default function App() {
     // source in its popup (the block declares `highlight: () => "mermaid"`).
     extensions: [syntaxHighlighter],
     schema,
+    // Merges the default dictionary with the diagram dictionary, under the
+    // `diagram` key the diagram block reads its strings from.
+    dictionary: {
+      ...locales.en,
+      diagram: diagramLocales.en,
+    },
     initialContent: [
       {
         type: "paragraph",
@@ -68,7 +82,19 @@ export default function App() {
 
   // Renders the editor instance using a React component.
   return (
-    <BlockNoteView editor={editor} slashMenu={false}>
+    <BlockNoteView editor={editor} slashMenu={false} formattingToolbar={false}>
+      {/* Replaces the default Formatting Toolbar, adding the Diagram block to
+          the block type select so blocks can be converted to it. */}
+      <FormattingToolbarController
+        formattingToolbar={() => (
+          <FormattingToolbar
+            blockTypeSelectItems={[
+              ...blockTypeSelectItems(editor.dictionary),
+              ...getDiagramBlockTypeSelectItems(),
+            ]}
+          />
+        )}
+      />
       {/* Replaces the default Slash Menu. */}
       <SuggestionMenuController
         triggerCharacter={"/"}

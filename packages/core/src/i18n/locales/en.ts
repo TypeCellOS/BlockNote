@@ -202,10 +202,6 @@ export const en = {
   },
   code_block: {
     add_source_button_text: "Add source code",
-    math_block_preview_error_text: "Math block syntax error - click to fix",
-    math_inline_preview_error_text: "Inline math syntax error - click to fix",
-    diagram_block_preview_error_text:
-      "Diagram block syntax error - click to fix",
   },
   // from react package:
   side_menu: {

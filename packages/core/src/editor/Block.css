@@ -586,9 +586,24 @@ NESTED BLOCKS
   max-height: 200px;
   overflow: auto;
   padding: 16px;
+  position: relative;
   tab-size: 2;
   white-space: pre;
   width: 0;
+}
+
+.bn-code-block-source-popup-input-empty::before {
+  color: currentColor;
+  content: attr(data-placeholder);
+  left: 16px;
+  opacity: 0.5;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  right: 16px;
+  text-overflow: ellipsis;
+  top: 16px;
+  white-space: nowrap;
 }
 
 .bn-code-block-source-error {
@@ -606,15 +621,23 @@ NESTED BLOCKS
 }
 
 .bn-code-block-source-popup-ok-button {
+  align-items: center;
   appearance: none;
   background-color: rgb(37, 99, 235);
   border: none;
   border-radius: var(--bn-border-radius-small);
   color: white;
   cursor: pointer;
+  display: flex;
   font-size: 0.8em;
   font-weight: 500;
+  gap: 4px;
   padding: 4px 8px;
+}
+
+.bn-code-block-source-popup-ok-button-icon {
+  height: 1.2em;
+  width: 1.2em;
 }
 
 .bn-code-block-source-popup-ok-button:hover {

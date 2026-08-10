@@ -221,12 +221,6 @@ export const no: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Legg til kildekode",
-    math_block_preview_error_text:
-      "Syntaksfeil i matteblokk – klikk for å rette",
-    math_inline_preview_error_text:
-      "Syntaksfeil i innebygd matematikk – klikk for å rette",
-    diagram_block_preview_error_text:
-      "Syntaksfeil i diagramblokk – klikk for å rette",
   },
   side_menu: {
     add_block_label: "Legg til blokk",

@@ -194,12 +194,6 @@ export const pl: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Dodaj kod źródłowy",
-    math_block_preview_error_text:
-      "Błąd składni w bloku matematycznym – kliknij, aby naprawić",
-    math_inline_preview_error_text:
-      "Błąd składni w matematyce wierszowej – kliknij, aby naprawić",
-    diagram_block_preview_error_text:
-      "Błąd składni w bloku diagramu – kliknij, aby naprawić",
   },
   side_menu: {
     add_block_label: "Dodaj blok",

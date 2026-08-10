@@ -245,12 +245,6 @@ export const ru: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Добавить исходный код",
-    math_block_preview_error_text:
-      "Синтаксическая ошибка в математическом блоке — нажмите, чтобы исправить",
-    math_inline_preview_error_text:
-      "Синтаксическая ошибка во встроенной формуле — нажмите, чтобы исправить",
-    diagram_block_preview_error_text:
-      "Синтаксическая ошибка в блоке диаграммы — нажмите, чтобы исправить",
   },
   // from react package:
   side_menu: {

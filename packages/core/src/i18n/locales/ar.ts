@@ -187,10 +187,6 @@ export const ar: Dictionary = {
   },
   code_block: {
     add_source_button_text: "إضافة كود المصدر",
-    math_block_preview_error_text: "خطأ في صيغة بلوك الرياضيات - انقر للإصلاح",
-    math_inline_preview_error_text:
-      "خطأ في صيغة الرياضيات المضمنة - انقر للإصلاح",
-    diagram_block_preview_error_text: "خطأ في صيغة بلوك المخطط - انقر للإصلاح",
   },
   // from react package:
   side_menu: {

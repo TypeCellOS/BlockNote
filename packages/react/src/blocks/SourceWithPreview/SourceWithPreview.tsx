@@ -1,5 +1,6 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { MouseEvent, ReactNode, useRef } from "react";
+import { MdKeyboardReturn } from "react-icons/md";
 
 import { PreviewPlaceholder } from "./PreviewPlaceholder.js";
 import { SourcePreviewPopup } from "./SourcePreviewPopup.js";
@@ -49,6 +50,11 @@ export type SourceWithPreviewProps = {
    * The full `error` is only shown in the popup while editing.
    */
   errorPreview?: ReactNode;
+  /**
+   * Placeholder shown in the source input popup while the source is empty
+   * (e.g. "Enter a LaTeX equation").
+   */
+  sourcePlaceholder?: string;
 };
 
 /**
@@ -80,6 +86,7 @@ export const SourceWithPreview = (
     error,
     emptySourcePlaceholder,
     errorPreview,
+    sourcePlaceholder,
   } = props;
 
   // Whether the error has been "committed": shown while the popup was
@@ -171,7 +178,16 @@ export const SourceWithPreview = (
       </PreviewContainer>
       <div className="bn-source-block-popup">
         <div className="bn-code-block-source-popup-body">
-          <pre>
+          <pre
+            className={
+              source.length === 0 && sourcePlaceholder
+                ? "bn-code-block-source-popup-input-empty"
+                : undefined
+            }
+            // Shows `sourcePlaceholder` via CSS (`::before`) while the source
+            // is empty.
+            data-placeholder={sourcePlaceholder}
+          >
             <code ref={contentRef} />
             {inline && source.length === 0 && (
               <br aria-hidden="true" contentEditable={false} />
@@ -188,6 +204,10 @@ export const SourceWithPreview = (
               onClick={handleOkButtonClick}
             >
               OK
+              <MdKeyboardReturn
+                className="bn-code-block-source-popup-ok-button-icon"
+                aria-hidden="true"
+              />
             </button>
           </div>
         </div>

@@ -216,12 +216,6 @@ export const is: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Bæta við frumkóða",
-    math_block_preview_error_text:
-      "Málfræðivilla í stærðfræðiblokk - smelltu til að laga",
-    math_inline_preview_error_text:
-      "Málfræðivilla í innfelldri stærðfræði - smelltu til að laga",
-    diagram_block_preview_error_text:
-      "Málfræðivilla í skýringarmyndablokk - smelltu til að laga",
   },
   side_menu: {
     add_block_label: "Bæta við blokki",
