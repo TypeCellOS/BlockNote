@@ -117,11 +117,9 @@ export const CommentsExtension = createExtension(
         threadPositions: new Map<string, { from: number; to: number }>(),
       },
       {
-        onUpdate() {
+        onUpdate(state, prevState) {
           // If the selected thread id changed, we need to update the decorations
-          if (
-            store.state.selectedThreadId !== store.prevState.selectedThreadId
-          ) {
+          if (state.selectedThreadId !== prevState.selectedThreadId) {
             // So, we issue a transaction to update the decorations
             editor.transact((tr) => tr.setMeta(PLUGIN_KEY, true));
           }

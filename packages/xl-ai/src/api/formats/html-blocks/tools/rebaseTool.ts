@@ -1,4 +1,5 @@
 import { BlockNoteEditor, getBlock } from "@blocknote/core";
+import { Mapping } from "prosemirror-transform";
 import { updateToReplaceSteps } from "../../../../prosemirror/changeset.js";
 import {
   getApplySuggestionsTr,
@@ -47,13 +48,24 @@ export function createHTMLRebaseTool(
     tr.doc,
   );
 
-  if (steps.length) {
-    throw new Error("html diff", {
-      cause: {
-        html,
-        htmlBlock,
-      },
-    });
+  // The HTML round-trip isn't always lossless: marks that aren't part of the
+  // BlockNote document model (`blocknoteIgnore`, e.g. comments) don't survive
+  // it. Apply the difference to the projection, so operations are applied to
+  // the document as the HTML format sees it, and are then rebased onto the
+  // actual document (same as `createMDRebaseTool` does for markdown).
+  const stepMapping = new Mapping();
+  for (const step of steps) {
+    const mapped = step.map(stepMapping);
+    if (!mapped) {
+      throw new Error("html diff", {
+        cause: {
+          html,
+          htmlBlock,
+        },
+      });
+    }
+    tr.step(mapped);
+    stepMapping.appendMap(mapped.getMap());
   }
 
   return rebaseTool(editor, tr);

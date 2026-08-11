@@ -55,7 +55,7 @@
     "@tiptap/core": "^3.29.2",
     "prosemirror-model": "^1.25.11",
     "prosemirror-state": "^1.4.4",
-    "prosemirror-view": "^1.41.9"
+    "prosemirror-view": "^1.42.2"
   },
   "devDependencies": {
     "@blocknote/shared": "workspace:^",
