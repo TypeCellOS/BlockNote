@@ -8,7 +8,7 @@
     "preview": "vp preview",
     "lint": "vp lint src",
     "clean": "rimraf dist",
-    "build:vercel": "cd .. && GOMAXPROCS=4 TOKIO_WORKER_THREADS=4 RAYON_NUM_THREADS=4 UV_THREADPOOL_SIZE=4 NODE_OPTIONS=--v8-pool-size=4 pnpm exec vp run --verbose --concurrency-limit 1 --filter '@blocknote/example-editor...' build || (echo 'vp run failed (Vercel builders intermittently hit spawn EAGAIN) - retrying once on warm cache...' && pnpm exec vp run --verbose --concurrency-limit 1 --filter '@blocknote/example-editor...' build)"
+    "build:vercel": "cd .. && echo \"[diag] nproc=$(ulimit -u) pids.max=$(cat /sys/fs/cgroup/pids.max 2>/dev/null) pids.current=$(cat /sys/fs/cgroup/pids.current 2>/dev/null) procs=$(ps -e 2>/dev/null | wc -l)\" && GOMAXPROCS=4 TOKIO_WORKER_THREADS=4 RAYON_NUM_THREADS=4 UV_THREADPOOL_SIZE=4 NODE_OPTIONS=--v8-pool-size=4 pnpm exec vp run --verbose --concurrency-limit 1 --filter '@blocknote/example-editor...' build || { echo '[diag] spawn failure state:'; echo \"[diag] nproc=$(ulimit -u) pids.current=$(cat /sys/fs/cgroup/pids.current 2>/dev/null) procs=$(ps -e 2>/dev/null | wc -l)\"; ps -e -o stat= 2>/dev/null | sort | uniq -c; echo '[diag] retrying once on warm cache...'; pnpm exec vp run --verbose --concurrency-limit 1 --filter '@blocknote/example-editor...' build; }"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.2",
