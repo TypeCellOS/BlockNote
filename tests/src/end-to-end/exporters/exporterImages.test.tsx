@@ -22,8 +22,8 @@ import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
 import { decodeAndSample } from "@shared/util/browserImageTestUtil.js";
 import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
 import { afterEach, describe, expect, test } from "vite-plus/test";
-import { browserName, page } from "../../utils/context.js";
-import { expectElement } from "../../utils/editor.js";
+import { browserName } from "../../utils/context.js";
+import { screenshotFull } from "../../utils/screenshotFull.js";
 
 // Complete exports of the full shared test document with the default
 // mappings in a real browser, where the mappings' `typeof document` checks
@@ -62,34 +62,6 @@ function createExportFrame(width: string) {
   frame.style.background = "white";
   document.body.append(frame);
   return frame;
-}
-
-// Screenshots an element that may be taller than the browser window, at
-// full resolution. Captures only contain what the tester iframe actually
-// paints - pixels below its fold come out blank white - so the iframe must
-// first grow past the content (`page.viewport`). The harness then scales
-// the iframe down to fit the window (see static.test.tsx), which would
-// shrink the baseline - so the scale transform on the iframe's wrapper is
-// neutralized (same origin) for the duration of the capture; Playwright
-// captures beyond the window fine. If a harness update changes this DOM,
-// the capture comes out downscaled and fails the baseline's dimension
-// check - loudly, not silently.
-async function screenshotFull(element: HTMLElement, name: string) {
-  const height = Math.max(
-    720,
-    Math.ceil(element.getBoundingClientRect().bottom) + 40,
-  );
-  await page.viewport(1280, height);
-  (window.frameElement?.parentElement as HTMLElement | null)?.style.setProperty(
-    "transform",
-    "none",
-  );
-  try {
-    await expectElement(element).toMatchScreenshot(name);
-  } finally {
-    // Re-lays-out the wrapper, including its transform.
-    await page.viewport(1280, 720);
-  }
 }
 
 describe("email export through a complete exporter in the browser", () => {
