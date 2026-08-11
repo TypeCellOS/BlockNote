@@ -76,7 +76,7 @@ export const SourceWithPreview = (
     inline?: boolean;
     /**
      * Whether pressing Enter in the source popup does what the "OK" button
-     * does (closing the popup).
+     * does (closing the popup). Shows the return-key icon on the "OK" button.
      */
     enterSubmits?: boolean;
   },
@@ -240,7 +240,7 @@ export const SourceWithPreview = (
               className="bn-code-block-source-popup-ok-button"
               onClick={handleOkButtonClick}
             >
-              OK
+              {editor.dictionary.code_block.ok_button_text}
               {enterSubmits && (
                 <MdKeyboardReturn
                   className="bn-code-block-source-popup-ok-button-icon"

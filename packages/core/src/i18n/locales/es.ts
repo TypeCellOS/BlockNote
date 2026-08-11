@@ -202,6 +202,7 @@ export const es: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Agregar código fuente",
+    ok_button_text: "Aceptar",
   },
   side_menu: {
     add_block_label: "Agregar bloque",

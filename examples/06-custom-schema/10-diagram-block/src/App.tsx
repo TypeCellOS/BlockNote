@@ -1,9 +1,6 @@
 import { syntaxHighlighter } from "@blocknote/code-block";
-import { BlockNoteSchema } from "@blocknote/core";
-import {
-  filterSuggestionItems,
-  insertOrUpdateBlockForSlashMenu,
-} from "@blocknote/core/extensions";
+import { BlockNoteSchema, combineByGroup } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import * as locales from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -11,6 +8,7 @@ import "@blocknote/mantine/style.css";
 import {
   createReactDiagramBlockSpec,
   getDiagramBlockTypeSelectItems,
+  getDiagramSlashMenuItems,
   locales as diagramLocales,
 } from "@blocknote/diagram-block";
 import {
@@ -21,31 +19,14 @@ import {
   SuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { TbSitemap } from "react-icons/tb";
 
 // Our schema with block specs, which contain the configs and implementations
 // for blocks that we want our editor to use.
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
     // Creates an instance of the Diagram block and adds it to the schema.
-    // TODO: naing
     diagram: createReactDiagramBlockSpec(),
   },
-});
-
-// Slash menu item to insert a Diagram block.
-// TODO: extract?
-const insertDiagram = (editor: typeof schema.BlockNoteEditor) => ({
-  title: "Diagram",
-  subtext: "Insert a diagram rendered from Mermaid source",
-  onItemClick: () =>
-    insertOrUpdateBlockForSlashMenu(editor, {
-      type: "diagram",
-      content: "graph TD\n    A[Start] --> B[Stop]",
-    }),
-  aliases: ["mermaid", "diagram", "flowchart", "chart", "graph"],
-  group: "Advanced",
-  icon: <TbSitemap />,
 });
 
 export default function App() {
@@ -90,7 +71,7 @@ export default function App() {
           <FormattingToolbar
             blockTypeSelectItems={[
               ...blockTypeSelectItems(editor.dictionary),
-              ...getDiagramBlockTypeSelectItems(),
+              ...getDiagramBlockTypeSelectItems(editor),
             ]}
           />
         )}
@@ -99,17 +80,15 @@ export default function App() {
       <SuggestionMenuController
         triggerCharacter={"/"}
         getItems={async (query) => {
-          // Gets all default slash menu items.
-          const defaultItems = getDefaultReactSlashMenuItems(editor);
-          // Finds index of last item in "Advanced" group.
-          const lastAdvancedIndex = defaultItems.findLastIndex(
-            (item) => item.group === "Advanced",
+          // Gets the default slash menu items and adds the Diagram item at
+          // the end of its group ("Advanced").
+          const items = combineByGroup(
+            getDefaultReactSlashMenuItems(editor),
+            getDiagramSlashMenuItems(editor),
           );
-          // Inserts the Diagram item at the end of the "Advanced" group.
-          defaultItems.splice(lastAdvancedIndex + 1, 0, insertDiagram(editor));
 
           // Returns filtered items based on the query.
-          return filterSuggestionItems(defaultItems, query);
+          return filterSuggestionItems(items, query);
         }}
       />
     </BlockNoteView>

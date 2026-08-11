@@ -619,7 +619,8 @@ NESTED BLOCKS
   color: var(--bn-colors-highlights-red-text);
   font-size: 0.8em;
   padding: 8px 16px;
-  white-space: pre-wrap;
+  white-space: pre-wrap !important;
+  font-family: monospace;
 }
 
 .bn-code-block-source-popup-ok-button-wrapper {

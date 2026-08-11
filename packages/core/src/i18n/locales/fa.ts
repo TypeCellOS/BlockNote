@@ -170,6 +170,7 @@ export const fa = {
   },
   code_block: {
     add_source_button_text: "افزودن کد منبع",
+    ok_button_text: "تأیید",
   },
   // from react package:
   side_menu: {

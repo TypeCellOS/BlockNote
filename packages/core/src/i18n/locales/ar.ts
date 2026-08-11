@@ -187,6 +187,7 @@ export const ar: Dictionary = {
   },
   code_block: {
     add_source_button_text: "إضافة كود المصدر",
+    ok_button_text: "موافق",
   },
   // from react package:
   side_menu: {

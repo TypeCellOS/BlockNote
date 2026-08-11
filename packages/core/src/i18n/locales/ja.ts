@@ -242,6 +242,7 @@ export const ja: Dictionary = {
   },
   code_block: {
     add_source_button_text: "ソースコードを追加",
+    ok_button_text: "OK",
   },
   // from react package:
   side_menu: {
