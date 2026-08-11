@@ -71,8 +71,6 @@ export class Store<TState> {
     this.prevState = this.state;
     this.state = isUpdaterFunction(updater) ? updater(this.prevState) : updater;
 
-    this.options?.onUpdate?.(this.state, this.prevState);
-
     flush(this);
   }
 
@@ -94,22 +92,31 @@ function isUpdaterFunction<T>(updater: Updater<T>): updater is (prev: T) => T {
   return typeof updater === "function";
 }
 
-// Notifying listeners can synchronously trigger further `setState` calls — a listener that
-// dispatches a ProseMirror transaction, for example. Rather than recursing, re-entrant
-// writes are queued and drained by the outermost flush, so a write during notification
-// still reaches every listener but the stack stays flat.
+// Both `onUpdate` and listener notification can synchronously trigger further `setState`
+// calls — a callback that dispatches a ProseMirror transaction, for example. Rather than
+// recursing, re-entrant writes are queued and drained by the outermost flush, so a write
+// made during a callback still reaches every listener but the stack stays flat and
+// subscribers see the settled state once.
+//
+// `onUpdate` therefore runs *inside* the flush transaction: the store is queued and the
+// flush is marked in progress before the callback fires, so a nested write it makes is
+// coalesced into this drain rather than starting its own.
 let isFlushing = false;
 const pendingUpdates = new Set<Store<any>>();
 
 function flush(store: Store<any>) {
   pendingUpdates.add(store);
 
-  if (isFlushing) {
-    return;
-  }
+  const isOutermost = !isFlushing;
+  isFlushing = true;
 
   try {
-    isFlushing = true;
+    store.options?.onUpdate?.(store.state, store.prevState);
+
+    if (!isOutermost) {
+      return;
+    }
+
     while (pendingUpdates.size > 0) {
       const stores = Array.from(pendingUpdates);
       pendingUpdates.clear();
@@ -118,6 +125,11 @@ function flush(store: Store<any>) {
       }
     }
   } finally {
-    isFlushing = false;
+    if (isOutermost) {
+      isFlushing = false;
+      // A throwing callback would otherwise strand queued stores, letting them notify
+      // during an unrelated store's next flush.
+      pendingUpdates.clear();
+    }
   }
 }
