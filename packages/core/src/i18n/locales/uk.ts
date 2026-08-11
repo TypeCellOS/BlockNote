@@ -437,6 +437,11 @@ export const uk: Dictionary = {
     formatting_change_by: (formats: string, users: string) =>
       `Зміна форматування (${formats}) користувачем: ${users}`,
   },
+  exporter: {
+    open_file: "Відкрити файл",
+    open_video_file: "Відкрити відео",
+    open_audio_file: "Відкрити аудіо",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

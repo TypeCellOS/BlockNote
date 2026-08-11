@@ -1,4 +1,5 @@
 import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
+import { en } from "@blocknote/core/locales";
 import {
   DOCXExporter,
   docxDefaultSchemaMappings,
@@ -19,7 +20,10 @@ beforeAll(async () => {
   globalThis.Blob = (await import("node:buffer")).Blob;
 });
 
-function createExporter(diagram: ReturnType<typeof createDiagramBlockMapping>) {
+function createExporter(
+  diagram: ReturnType<typeof createDiagramBlockMapping>,
+  options?: ConstructorParameters<typeof DOCXExporter>[2],
+) {
   return new DOCXExporter(
     BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
     {
@@ -29,6 +33,7 @@ function createExporter(diagram: ReturnType<typeof createDiagramBlockMapping>) {
         diagram,
       },
     } as any,
+    options,
   );
 }
 
@@ -147,5 +152,37 @@ describe("docx exporter mappings", () => {
     await expect(
       exporter.toDocxJsDocument(diagramDocument, documentOptions),
     ).rejects.toThrow('renderer produced "image/webp"');
+  });
+
+  it("should render placeholders from the configured dictionary", async () => {
+    // Exporter strings are never hardcoded: the placeholder comes from the
+    // `diagram` section of the exporter's dictionary, exactly as it would
+    // from an editor dictionary (bundled English when not configured).
+    const exporter = createExporter(
+      createDiagramBlockMapping({ renderDiagram: renderInvalidDiagram }),
+      {
+        dictionary: {
+          ...en,
+          diagram: {
+            exporter: {
+              invalid_diagram: (source: string, error: string) =>
+                `Ungültiges Diagramm „${source}": ${error}`,
+            },
+          },
+        },
+      },
+    );
+
+    const doc = await exporter.toDocxJsDocument(
+      diagramDocument,
+      documentOptions,
+    );
+    const documentXML = await zipEntryContent(
+      await Packer.toBlob(doc),
+      "word/document.xml",
+    );
+
+    expect(documentXML).toContain("Ungültiges Diagramm");
+    expect(documentXML).not.toContain("Invalid diagram");
   });
 });

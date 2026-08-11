@@ -108,7 +108,6 @@ export default defineConfig(((conf: { command: string }) => ({
     alias:
       conf.command === "build"
         ? {
-            // TODO: review
             // The exporters' optional peer dependencies, used by their
             // subpath entries (`…/diagram-block`, `…/math-block`). They
             // can't be resolved from the workspace-linked exporter packages
@@ -116,9 +115,13 @@ export default defineConfig(((conf: { command: string }) => ({
             // Vercel's filtered install), making Vite substitute an empty
             // `__vite-optional-peer-dep` stub that fails the build - so
             // resolve them from the playground's own dependencies instead.
+            // Points at `src/` (like the dev aliases): the prefix replace
+            // bypasses the package's exports map, and only under `src/` do
+            // subpath imports (`…/diagram-block/docx-exporter`) land on
+            // real directories with index files.
             "@blocknote/diagram-block": resolve(
               __dirname,
-              "../packages/diagram-block",
+              "../packages/diagram-block/src",
             ),
             "@react-pdf/math": resolve(
               __dirname,

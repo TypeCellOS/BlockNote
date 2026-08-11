@@ -528,7 +528,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   },
   codeBlock: codeMapping,
 
-  file: async (block) => {
+  file: async (block, exporter) => {
     return (
       <>
         <text:p style:style-name="Standard">
@@ -541,11 +541,11 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
               xlink:href={block.props.url}
             >
               <text:span text:style-name="Internet_20_link">
-                Open file
+                {exporter.dictionary.open_file}
               </text:span>
             </text:a>
           ) : (
-            "Open file"
+            exporter.dictionary.open_file
           )}
         </text:p>
         {block.props.caption && (
@@ -555,7 +555,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     );
   },
 
-  video: (block) => (
+  video: (block, exporter) => (
     <>
       <text:p style:style-name="Standard">
         <text:a
@@ -565,7 +565,9 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
           xlink:show="replace"
           xlink:href={block.props.url}
         >
-          <text:span text:style-name="Internet_20_link">Open video</text:span>
+          <text:span text:style-name="Internet_20_link">
+            {exporter.dictionary.open_video_file}
+          </text:span>
         </text:a>
       </text:p>
       {block.props.caption && (
@@ -574,7 +576,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     </>
   ),
 
-  audio: (block) => (
+  audio: (block, exporter) => (
     <>
       <text:p style:style-name="Standard">
         <text:a
@@ -584,7 +586,9 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
           xlink:show="replace"
           xlink:href={block.props.url}
         >
-          <text:span text:style-name="Internet_20_link">Open audio</text:span>
+          <text:span text:style-name="Internet_20_link">
+            {exporter.dictionary.open_audio_file}
+          </text:span>
         </text:a>
       </text:p>
       {block.props.caption && (

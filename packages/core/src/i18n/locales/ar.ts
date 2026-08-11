@@ -398,6 +398,11 @@ export const ar: Dictionary = {
     formatting_change_by: (formats: string, users: string) =>
       `تغيير التنسيق (${formats}) بواسطة: ${users}`,
   },
+  exporter: {
+    open_file: "فتح الملف",
+    open_video_file: "فتح الفيديو",
+    open_audio_file: "فتح الصوت",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

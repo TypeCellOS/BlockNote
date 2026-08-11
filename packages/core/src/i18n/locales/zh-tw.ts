@@ -454,6 +454,11 @@ export const zhTW: Dictionary = {
     formatting_change_by: (formats: string, users: string) =>
       `格式變更（${formats}），變更者：${users}`,
   },
+  exporter: {
+    open_file: "開啟檔案",
+    open_video_file: "開啟影片",
+    open_audio_file: "開啟音訊",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

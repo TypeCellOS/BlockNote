@@ -173,19 +173,19 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   },
   audio: (block, exporter) => {
     return [
-      file(block.props, "Open audio", exporter),
+      file(block.props, exporter.dictionary.open_audio_file, exporter),
       ...caption(block.props, exporter),
     ];
   },
   video: (block, exporter) => {
     return [
-      file(block.props, "Open video", exporter),
+      file(block.props, exporter.dictionary.open_video_file, exporter),
       ...caption(block.props, exporter),
     ];
   },
   file: (block, exporter) => {
     return [
-      file(block.props, "Open file", exporter),
+      file(block.props, exporter.dictionary.open_file, exporter),
       ...caption(block.props, exporter),
     ];
   },

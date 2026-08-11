@@ -426,6 +426,11 @@ export const ko: Dictionary = {
     formatting_change_by: (formats: string, users: string) =>
       `서식 변경 (${formats}) 변경한 사람: ${users}`,
   },
+  exporter: {
+    open_file: "파일 열기",
+    open_video_file: "동영상 열기",
+    open_audio_file: "오디오 열기",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

@@ -3,6 +3,7 @@ import {
   defaultBlockSpecs,
   createPageBreakBlockSpec,
 } from "@blocknote/core";
+import { de } from "@blocknote/core/locales";
 import { testDocument } from "@shared/testDocument.js";
 import {
   BlobReader,
@@ -240,6 +241,40 @@ describe("exporter", () => {
     const zip = new ZipReader(new BlobReader(blob));
     return zip.getEntries();
   }
+
+  it(
+    "should export file links with the configured dictionary",
+    { timeout: 10000 },
+    async () => {
+      // Exporter strings are never hardcoded - the file link text comes
+      // from the `exporter` section of the configured dictionary (English
+      // when not configured).
+      const exporter = new DOCXExporter(
+        BlockNoteSchema.create({
+          blockSpecs: {
+            ...defaultBlockSpecs,
+            pageBreak: createPageBreakBlockSpec(),
+          },
+        }),
+        docxDefaultSchemaMappings,
+        { resolveFileUrl: testResolveFileUrl, dictionary: de },
+      );
+      const doc = await exporter.toDocxJsDocument(testDocument, {
+        sectionOptions: {},
+        documentOptions: {},
+        locale: "de-DE",
+      });
+
+      const zip = new ZipReader(new BlobReader(await Packer.toBlob(doc)));
+      const documentXML = await getZIPEntryContent(
+        await zip.getEntries(),
+        "word/document.xml",
+      );
+
+      expect(documentXML).toContain("Datei öffnen");
+      expect(documentXML).not.toContain("Open file");
+    },
+  );
 
   it(
     "should export a document without w:lang when no locale is provided",

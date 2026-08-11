@@ -382,6 +382,11 @@ export const fa = {
     formatting_change_by: (formats: string, users: string) =>
       `تغییر قالب‌بندی (${formats}) توسط: ${users}`,
   },
+  exporter: {
+    open_file: "باز کردن فایل",
+    open_video_file: "باز کردن ویدیو",
+    open_audio_file: "باز کردن صدا",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

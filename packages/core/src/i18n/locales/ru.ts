@@ -457,6 +457,11 @@ export const ru: Dictionary = {
     formatting_change_by: (formats: string, users: string) =>
       `Изменение форматирования (${formats}): ${users}`,
   },
+  exporter: {
+    open_file: "Открыть файл",
+    open_video_file: "Открыть видео",
+    open_audio_file: "Открыть аудио",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

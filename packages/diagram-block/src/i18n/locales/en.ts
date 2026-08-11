@@ -4,4 +4,8 @@ export const en = {
     input_placeholder: "Enter diagram",
     preview_error_text: "Diagram block syntax error - click to fix",
   },
+  exporter: {
+    invalid_diagram: (source: string, error: string) =>
+      `Invalid diagram "${source}": ${error}`,
+  },
 };

@@ -1,9 +1,14 @@
-import type { BlockConfig, BlockFromConfigNoChildren } from "@blocknote/core";
+import type {
+  BlockConfig,
+  BlockFromConfigNoChildren,
+  Exporter,
+} from "@blocknote/core";
 import { plainContentToString } from "@blocknote/core";
 import { AlignmentType, ImportedXmlComponent, Paragraph, TextRun } from "docx";
 import { mml2omml } from "mathml2omml";
 
 import { latexToMathML } from "../exporterHelpers/latexToMathML.js";
+import { getMathExporterDictionary } from "../i18n/dictionary.js";
 
 type MathBlock = BlockFromConfigNoChildren<
   BlockConfig<"math", {}, "plain">,
@@ -36,10 +41,15 @@ function latexToDocxEquation(
 
 // Mirrors the editor, which shows the error state in the preview
 // placeholder. The LaTeX source identifies which formula broke; the message
-// comes from the typed error result, so it's safe to show.
-function errorText(source: string, message: string) {
+// comes from the typed error result, so it's safe to show. The text comes
+// from the math dictionary (see ExporterOptions.dictionary).
+function errorText(
+  exporter: Exporter<any, any, any, any, any, any, any>,
+  source: string,
+  message: string,
+) {
   return new TextRun({
-    text: `Invalid formula "${source}": ${message}`,
+    text: getMathExporterDictionary(exporter).invalid_formula(source, message),
     italics: true,
     color: "999999",
   });
@@ -62,7 +72,10 @@ function errorText(source: string, message: string) {
  * });
  * ```
  */
-export function mathBlockMapping(block: MathBlock) {
+export function mathBlockMapping(
+  block: MathBlock,
+  exporter: Exporter<any, any, any, any, any, any, any>,
+) {
   const source = plainContentToString(block.content);
   if (!source.trim()) {
     return new Paragraph({});
@@ -72,7 +85,7 @@ export function mathBlockMapping(block: MathBlock) {
   if (result.error !== undefined) {
     return new Paragraph({
       alignment: AlignmentType.CENTER,
-      children: [errorText(source, result.error)],
+      children: [errorText(exporter, source, result.error)],
     });
   }
 
@@ -99,7 +112,10 @@ export function mathBlockMapping(block: MathBlock) {
  * });
  * ```
  */
-export function inlineMathMapping(inlineContent: InlineMath) {
+export function inlineMathMapping(
+  inlineContent: InlineMath,
+  exporter: Exporter<any, any, any, any, any, any, any>,
+) {
   const source = inlineContent.content;
   if (!source.trim()) {
     return new TextRun({ text: "" });
@@ -107,7 +123,7 @@ export function inlineMathMapping(inlineContent: InlineMath) {
 
   const result = latexToDocxEquation(source, true);
   if (result.error !== undefined) {
-    return errorText(source, result.error);
+    return errorText(exporter, source, result.error);
   }
 
   return result.equation as any;

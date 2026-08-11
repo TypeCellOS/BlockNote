@@ -9,4 +9,8 @@ export const en = {
     input_placeholder: "Enter equation",
     preview_error_text: "Inline math syntax error - click to fix",
   },
+  exporter: {
+    invalid_formula: (source: string, error: string) =>
+      `Invalid formula "${source}": ${error}`,
+  },
 };

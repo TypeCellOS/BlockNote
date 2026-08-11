@@ -411,6 +411,11 @@ export const sk = {
     formatting_change_by: (formats: string, users: string) =>
       `Zmena formátovania (${formats}) od: ${users}`,
   },
+  exporter: {
+    open_file: "Otvoriť súbor",
+    open_video_file: "Otvoriť video",
+    open_audio_file: "Otvoriť zvuk",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

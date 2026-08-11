@@ -427,6 +427,11 @@ export const is: Dictionary = {
     formatting_change_by: (formats: string, users: string) =>
       `Sniðbreyting (${formats}) af: ${users}`,
   },
+  exporter: {
+    open_file: "Opna skrá",
+    open_video_file: "Opna myndband",
+    open_audio_file: "Opna hljóð",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

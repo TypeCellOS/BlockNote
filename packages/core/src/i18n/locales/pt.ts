@@ -406,6 +406,11 @@ export const pt: Dictionary = {
     formatting_change_by: (formats: string, users: string) =>
       `Alteração de formatação (${formats}) por: ${users}`,
   },
+  exporter: {
+    open_file: "Abrir arquivo",
+    open_video_file: "Abrir vídeo",
+    open_audio_file: "Abrir áudio",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

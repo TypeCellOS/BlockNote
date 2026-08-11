@@ -414,6 +414,11 @@ export const nl: Dictionary = {
     formatting_change_by: (formats: string, users: string) =>
       `Opmaakwijziging (${formats}) door: ${users}`,
   },
+  exporter: {
+    open_file: "Bestand openen",
+    open_video_file: "Video openen",
+    open_audio_file: "Audio openen",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

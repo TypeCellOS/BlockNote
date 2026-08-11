@@ -1,4 +1,8 @@
-import type { BlockConfig, BlockFromConfigNoChildren } from "@blocknote/core";
+import type {
+  BlockConfig,
+  BlockFromConfigNoChildren,
+  Exporter,
+} from "@blocknote/core";
 import { exportImageToDataURL, plainContentToString } from "@blocknote/core";
 import { Math } from "@react-pdf/math";
 import { Image, Text, View } from "@react-pdf/renderer";
@@ -8,6 +12,7 @@ import {
   RasterizeSVG,
   rasterizeSVGInBrowser,
 } from "../exporterHelpers/renderMathToImage.js";
+import { getMathExporterDictionary } from "../i18n/dictionary.js";
 
 type MathBlock = BlockFromConfigNoChildren<
   BlockConfig<"math", {}, "plain">,
@@ -31,12 +36,17 @@ const FONT_SIZE_POINTS = 16 * 0.75;
 
 // Mirrors the editor, which shows the error state in the preview
 // placeholder. The LaTeX source identifies which formula broke; the message
-// comes from the typed error result, so it's safe to show.
-function errorText(source: string, message: string, key: string) {
+// comes from the typed error result, so it's safe to show. The text comes
+// from the math dictionary (see ExporterOptions.dictionary).
+function errorText(
+  exporter: Exporter<any, any, any, any, any, any, any>,
+  source: string,
+  message: string,
+  key: string,
+) {
   return (
     <Text key={key} style={{ color: "#999999" }}>
-      {/* todo: trasnalte / or drop text */}
-      {`Invalid formula "${source}": ${message}`}
+      {getMathExporterDictionary(exporter).invalid_formula(source, message)}
     </Text>
   );
 }
@@ -59,7 +69,10 @@ function errorText(source: string, message: string, key: string) {
  * });
  * ```
  */
-export function mathBlockMapping(block: MathBlock) {
+export function mathBlockMapping(
+  block: MathBlock,
+  exporter: Exporter<any, any, any, any, any, any, any>,
+) {
   const source = plainContentToString(block.content);
   if (!source.trim()) {
     return <View key={"math"} />;
@@ -74,7 +87,7 @@ export function mathBlockMapping(block: MathBlock) {
   if (validation.error !== undefined) {
     return (
       <View key={"math"} style={{ alignItems: "center" }}>
-        {errorText(source, validation.error, "math-error")}
+        {errorText(exporter, source, validation.error, "math-error")}
       </View>
     );
   }
@@ -116,7 +129,10 @@ export function mathBlockMapping(block: MathBlock) {
 export function createInlineMathMapping(options?: {
   rasterize?: RasterizeSVG;
 }) {
-  return (inlineContent: InlineMath) => {
+  return (
+    inlineContent: InlineMath,
+    exporter: Exporter<any, any, any, any, any, any, any>,
+  ) => {
     const source = inlineContent.content;
     if (!source.trim()) {
       return <Text key={"inlineMath"} />;
@@ -138,7 +154,7 @@ export function createInlineMathMapping(options?: {
       fontSize: FONT_SIZE_POINTS,
     });
     if (result.error !== undefined) {
-      return errorText(source, result.error, "inlineMath");
+      return errorText(exporter, source, result.error, "inlineMath");
     }
 
     return (

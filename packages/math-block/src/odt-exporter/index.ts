@@ -4,6 +4,7 @@ import { ODTExporter } from "@blocknote/xl-odt-exporter";
 import { createElement } from "react";
 
 import { latexToMathML } from "../exporterHelpers/latexToMathML.js";
+import { getMathExporterDictionary } from "../i18n/dictionary.js";
 
 // The ODT elements are created with `createElement` string tags rather than
 // JSX: the ODT exporter's namespaced tags (`text:p`, `draw:frame`, ...) need
@@ -79,7 +80,7 @@ function errorText(
   return createElement(
     "text:span",
     { "text:style-name": styleName },
-    `Invalid formula "${source}": ${message}`,
+    getMathExporterDictionary(exporter).invalid_formula(source, message),
   );
 }
 

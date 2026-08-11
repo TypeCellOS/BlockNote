@@ -447,6 +447,11 @@ export const uz: Dictionary = {
     formatting_change_by: (formats: string, users: string) =>
       `Formatlash o'zgarishi (${formats}), o'zgartirgan: ${users}`,
   },
+  exporter: {
+    open_file: "Faylni ochish",
+    open_video_file: "Videoni ochish",
+    open_audio_file: "Audioni ochish",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

@@ -413,6 +413,11 @@ export const en = {
     formatting_change_by: (formats: string, users: string) =>
       `Formatting change (${formats}) by: ${users}`,
   },
+  exporter: {
+    open_file: "Open file",
+    open_video_file: "Open video",
+    open_audio_file: "Open audio",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

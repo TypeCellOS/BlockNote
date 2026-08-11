@@ -427,6 +427,11 @@ export const hr: Dictionary = {
     formatting_change_by: (formats: string, users: string) =>
       `Promjena oblikovanja (${formats}) od: ${users}`,
   },
+  exporter: {
+    open_file: "Otvori datoteku",
+    open_video_file: "Otvori videozapis",
+    open_audio_file: "Otvori audiozapis",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

@@ -1,4 +1,8 @@
-import type { BlockConfig, BlockFromConfigNoChildren } from "@blocknote/core";
+import type {
+  BlockConfig,
+  BlockFromConfigNoChildren,
+  Exporter,
+} from "@blocknote/core";
 import { exportImageToDataURL, plainContentToString } from "@blocknote/core";
 import { Image, Text, View } from "@react-pdf/renderer";
 
@@ -6,6 +10,7 @@ import {
   RenderDiagram,
   renderDiagramToImage,
 } from "../helpers/renderDiagramToImage.js";
+import { getDiagramExporterDictionary } from "../i18n/dictionary.js";
 
 export type { RenderDiagram } from "../helpers/renderDiagramToImage.js";
 
@@ -21,12 +26,20 @@ const MAX_WIDTH_POINTS = 400;
 // Mirrors the editor, which shows the error state in the preview
 // placeholder. The (first line of the) source identifies which diagram
 // broke; the message comes from the typed error result, so it's safe to
-// show. Both span multiple lines, so only the first of each is used.
-function errorText(source: string, message: string) {
+// show. Both span multiple lines, so only the first of each is used. The
+// text comes from the diagram dictionary (see ExporterOptions.dictionary).
+function errorText(
+  exporter: Exporter<any, any, any, any, any, any, any>,
+  source: string,
+  message: string,
+) {
   return (
     <View key={"diagram"} style={{ alignItems: "center" }}>
       <Text style={{ color: "#999999" }}>
-        {`Invalid diagram "${source.split("\n")[0]}": ${message.split("\n")[0]}`}
+        {getDiagramExporterDictionary(exporter).invalid_diagram(
+          source.split("\n")[0],
+          message.split("\n")[0],
+        )}
       </Text>
     </View>
   );
@@ -55,7 +68,10 @@ function errorText(source: string, message: string) {
 export function createDiagramBlockMapping(options?: {
   renderDiagram?: RenderDiagram;
 }) {
-  return async (block: DiagramBlock) => {
+  return async (
+    block: DiagramBlock,
+    exporter: Exporter<any, any, any, any, any, any, any>,
+  ) => {
     const source = plainContentToString(block.content);
     if (!source.trim()) {
       return <View key={"diagram"} />;
@@ -72,7 +88,7 @@ export function createDiagramBlockMapping(options?: {
 
     const result = await renderDiagram(source);
     if (result.error !== undefined) {
-      return errorText(source, result.error);
+      return errorText(exporter, source, result.error);
     }
 
     return (

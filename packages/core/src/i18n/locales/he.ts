@@ -413,6 +413,11 @@ export const he: Dictionary = {
     formatting_change_by: (formats: string, users: string) =>
       `שינוי עיצוב (${formats}) על ידי: ${users}`,
   },
+  exporter: {
+    open_file: "פתח קובץ",
+    open_video_file: "פתח וידאו",
+    open_audio_file: "פתח שמע",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

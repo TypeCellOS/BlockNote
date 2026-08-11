@@ -453,6 +453,11 @@ export const ja: Dictionary = {
     formatting_change_by: (formats: string, users: string) =>
       `書式の変更 (${formats}) 変更者: ${users}`,
   },
+  exporter: {
+    open_file: "ファイルを開く",
+    open_video_file: "動画を開く",
+    open_audio_file: "音声を開く",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

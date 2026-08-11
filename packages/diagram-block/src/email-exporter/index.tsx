@@ -1,4 +1,8 @@
-import type { BlockConfig, BlockFromConfigNoChildren } from "@blocknote/core";
+import type {
+  BlockConfig,
+  BlockFromConfigNoChildren,
+  Exporter,
+} from "@blocknote/core";
 import { plainContentToString } from "@blocknote/core";
 import {
   dataURLImageDelivery,
@@ -10,6 +14,7 @@ import {
   RenderDiagram,
   renderDiagramToImage,
 } from "../helpers/renderDiagramToImage.js";
+import { getDiagramExporterDictionary } from "../i18n/dictionary.js";
 
 export type { RenderDiagram } from "../helpers/renderDiagramToImage.js";
 
@@ -50,7 +55,10 @@ export function createDiagramBlockMapping(options?: {
   renderDiagram?: RenderDiagram;
   imageDelivery?: ReactEmailImageDelivery;
 }) {
-  return async (block: DiagramBlock) => {
+  return async (
+    block: DiagramBlock,
+    exporter: Exporter<any, any, any, any, any, any, any>,
+  ) => {
     const source = plainContentToString(block.content);
     if (!source.trim()) {
       return <span />;
@@ -71,10 +79,14 @@ export function createDiagramBlockMapping(options?: {
       // placeholder. The (first line of the) source identifies which diagram
       // broke; the message comes from the typed error result, so it's safe
       // to show. Both span multiple lines, so only the first of each is
-      // used.
+      // used. The text comes from the diagram dictionary (see
+      // ExporterOptions.dictionary).
       return (
         <Text style={{ color: "#999999", textAlign: "center" }}>
-          {`Invalid diagram "${source.split("\n")[0]}": ${result.error.split("\n")[0]}`}
+          {getDiagramExporterDictionary(exporter).invalid_diagram(
+            source.split("\n")[0],
+            result.error.split("\n")[0],
+          )}
         </Text>
       );
     }

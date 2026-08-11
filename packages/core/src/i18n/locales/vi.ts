@@ -412,6 +412,11 @@ export const vi: Dictionary = {
     formatting_change_by: (formats: string, users: string) =>
       `Thay đổi định dạng (${formats}) bởi: ${users}`,
   },
+  exporter: {
+    open_file: "Mở tệp",
+    open_video_file: "Mở video",
+    open_audio_file: "Mở âm thanh",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

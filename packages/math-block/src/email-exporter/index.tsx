@@ -1,4 +1,8 @@
-import type { BlockConfig, BlockFromConfigNoChildren } from "@blocknote/core";
+import type {
+  BlockConfig,
+  BlockFromConfigNoChildren,
+  Exporter,
+} from "@blocknote/core";
 import { plainContentToString } from "@blocknote/core";
 import {
   dataURLImageDelivery,
@@ -28,6 +32,7 @@ export type {
   RasterizeSVG,
   SVGExportImage,
 } from "../exporterHelpers/renderMathToImage.js";
+import { getMathExporterDictionary } from "../i18n/dictionary.js";
 
 type MathImageOptions = {
   /**
@@ -52,9 +57,14 @@ const FONT_SIZE_PIXELS = 16;
 
 // Mirrors the editor, which shows the error state in the preview
 // placeholder. The LaTeX source identifies which formula broke; the message
-// comes from the typed error result, so it's safe to show.
-function errorText(source: string, message: string): string {
-  return `Invalid formula "${source}": ${message}`;
+// comes from the typed error result, so it's safe to show. The text comes
+// from the math dictionary (see ExporterOptions.dictionary).
+function errorText(
+  exporter: Exporter<any, any, any, any, any, any, any>,
+  source: string,
+  message: string,
+): string {
+  return getMathExporterDictionary(exporter).invalid_formula(source, message);
 }
 
 /**
@@ -76,7 +86,10 @@ function errorText(source: string, message: string): string {
  * ```
  */
 export function createMathBlockMapping(options?: MathImageOptions) {
-  return async (block: MathBlock) => {
+  return async (
+    block: MathBlock,
+    exporter: Exporter<any, any, any, any, any, any, any>,
+  ) => {
     const source = plainContentToString(block.content);
     if (!source.trim()) {
       return <span />;
@@ -97,7 +110,7 @@ export function createMathBlockMapping(options?: MathImageOptions) {
     if (result.error !== undefined) {
       return (
         <Text style={{ color: "#999999", textAlign: "center" }}>
-          {errorText(source, result.error)}
+          {errorText(exporter, source, result.error)}
         </Text>
       );
     }
@@ -143,7 +156,10 @@ export function createMathBlockMapping(options?: MathImageOptions) {
 export function createInlineMathMapping(
   options?: Pick<MathImageOptions, "imageDelivery">,
 ) {
-  return (inlineContent: InlineMath) => {
+  return (
+    inlineContent: InlineMath,
+    exporter: Exporter<any, any, any, any, any, any, any>,
+  ) => {
     const source = inlineContent.content;
     if (!source.trim()) {
       return <span />;
@@ -156,7 +172,7 @@ export function createInlineMathMapping(
     if (result.error !== undefined) {
       return (
         <span style={{ color: "#999999" }}>
-          {errorText(source, result.error)}
+          {errorText(exporter, source, result.error)}
         </span>
       );
     }

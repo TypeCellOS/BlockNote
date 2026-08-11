@@ -10,6 +10,7 @@ import {
   RenderDiagram,
   renderDiagramToImage,
 } from "../helpers/renderDiagramToImage.js";
+import { getDiagramExporterDictionary } from "../i18n/dictionary.js";
 
 export type { RenderDiagram } from "../helpers/renderDiagramToImage.js";
 
@@ -24,8 +25,15 @@ type DiagramBlock = BlockFromConfigNoChildren<
 // broke; the message comes from the typed error result, so it's safe to
 // show. Both span multiple lines, so only the first of each is used.
 // Styled muted like the other exporters' placeholders.
-function errorMessage(source: string, message: string): string {
-  return `Invalid diagram "${source.split("\n")[0]}": ${message.split("\n")[0]}`;
+function errorMessage(
+  exporter: ODTExporter<any, any, any>,
+  source: string,
+  message: string,
+): string {
+  return getDiagramExporterDictionary(exporter).invalid_diagram(
+    source.split("\n")[0],
+    message.split("\n")[0],
+  );
 }
 
 function errorParagraph(
@@ -50,7 +58,7 @@ function errorParagraph(
     createElement(
       "text:span",
       { "text:style-name": styleName },
-      errorMessage(source, message),
+      errorMessage(exporter, source, message),
     ),
   );
 }

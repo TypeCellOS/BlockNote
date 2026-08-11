@@ -291,7 +291,7 @@ export const createReactEmailBlockMappingForDefaultSchema = (
 
   codeBlock: (block) =>
     codeMapping(block, block.props.language as PrismLanguage, textStyles),
-  audio: (block) => {
+  audio: (block, exporter) => {
     // Audio icon SVG
     const icon = (
       <svg
@@ -313,7 +313,7 @@ export const createReactEmailBlockMappingForDefaultSchema = (
         <FileLink
           url={block.props.url}
           name={block.props.name}
-          defaultText="Open audio file"
+          defaultText={exporter.dictionary.open_audio_file}
           icon={icon}
         />
         <Caption
@@ -324,7 +324,7 @@ export const createReactEmailBlockMappingForDefaultSchema = (
       </div>
     );
   },
-  video: (block) => {
+  video: (block, exporter) => {
     // Video icon SVG
     const icon = (
       <svg
@@ -346,7 +346,7 @@ export const createReactEmailBlockMappingForDefaultSchema = (
         <FileLink
           url={block.props.url}
           name={block.props.name}
-          defaultText="Open video file"
+          defaultText={exporter.dictionary.open_video_file}
           icon={icon}
         />
         <Caption
@@ -357,7 +357,7 @@ export const createReactEmailBlockMappingForDefaultSchema = (
       </div>
     );
   },
-  file: (block) => {
+  file: (block, exporter) => {
     // File icon SVG
     const icon = (
       <svg
@@ -379,7 +379,7 @@ export const createReactEmailBlockMappingForDefaultSchema = (
         <FileLink
           url={block.props.url}
           name={block.props.name}
-          defaultText="Open file"
+          defaultText={exporter.dictionary.open_file}
           icon={icon}
         />
         <Caption
