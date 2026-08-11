@@ -5370,9 +5370,6 @@ importers:
       katex:
         specifier: ^0.16.11
         version: 0.16.47(patch_hash=cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7)
-      mathml-to-latex:
-        specifier: ^1.8.0
-        version: 1.8.0
       prosemirror-model:
         specifier: ^1.25.4
         version: 1.25.11
@@ -13858,9 +13855,6 @@ packages:
   mathjax-full@3.2.2:
     resolution: {integrity: sha512-+LfG9Fik+OuI8SLwsiR02IVdjcnRCy5MufYLi0C3TdMT56L/pjB0alMVGgoWJF8pN9Rc7FESycZB9BMNWIid5w==}
     deprecated: Version 4 replaces this package with the scoped package @mathjax/src
-
-  mathml-to-latex@1.8.0:
-    resolution: {integrity: sha512-gQ0uK3zqB8HwlfaXJkEL5rgaZNbKUiBMmBP/B/W+b+t6KcseLSuYb1b0BjLgS9ZiQa24ePkqTX8/6FaQuDL7wQ==}
 
   mathml2omml@0.5.0:
     resolution: {integrity: sha512-4eLs37a+TH+CL/M5XZZrlc75SNRJNPiZzIaeSSvH0UFCRaCdSYRHWvrlA7MUbeQks/z4sVhfg+GlcZhVVUHzqg==}
@@ -24782,10 +24776,6 @@ snapshots:
       mhchemparser: 4.2.1
       mj-context-menu: 0.6.1
       speech-rule-engine: 4.1.4
-
-  mathml-to-latex@1.8.0:
-    dependencies:
-      '@xmldom/xmldom': 0.9.10
 
   mathml2omml@0.5.0: {}
 
