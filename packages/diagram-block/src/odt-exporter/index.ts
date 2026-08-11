@@ -1,4 +1,8 @@
-import type { BlockConfig, BlockFromConfigNoChildren } from "@blocknote/core";
+import type {
+  BlockConfig,
+  BlockFromConfigNoChildren,
+  Exporter,
+} from "@blocknote/core";
 import { exportImageToDataURL, plainContentToString } from "@blocknote/core";
 import {
   createODTImageParagraph,
@@ -86,7 +90,14 @@ function errorParagraph(
 export function createDiagramBlockMapping(options?: {
   renderDiagram?: RenderDiagram;
 }) {
-  return async (block: DiagramBlock, exporter: ODTExporter<any, any, any>) => {
+  return async (
+    block: DiagramBlock,
+    exporter: Exporter<any, any, any, any, any, any, any>,
+  ) => {
+    // Only the ODTExporter invokes ODT mappings, but mapping signatures are
+    // contravariant in the exporter parameter, so requiring the subclass here
+    // wouldn't satisfy the mapping type - hence the base type + cast.
+    const odtExporter = exporter as ODTExporter<any, any, any>;
     const source = plainContentToString(block.content);
     if (!source.trim()) {
       return createElement("text:p");
@@ -103,13 +114,13 @@ export function createDiagramBlockMapping(options?: {
 
     const result = await renderDiagram(source);
     if (result.error !== undefined) {
-      return errorParagraph(source, result.error, exporter);
+      return errorParagraph(source, result.error, odtExporter);
     }
 
     // The image may be rendered above its display size for sharpness, so
     // pass the diagram's display dimensions rather than the picture's own.
     return await createODTImageParagraph(
-      exporter,
+      odtExporter,
       exportImageToDataURL(result.image),
       {
         width: result.image.width,

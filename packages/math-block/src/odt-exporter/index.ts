@@ -1,4 +1,8 @@
-import type { BlockConfig, BlockFromConfigNoChildren } from "@blocknote/core";
+import type {
+  BlockConfig,
+  BlockFromConfigNoChildren,
+  Exporter,
+} from "@blocknote/core";
 import { plainContentToString } from "@blocknote/core";
 import { ODTExporter } from "@blocknote/xl-odt-exporter";
 import { createElement } from "react";
@@ -103,8 +107,12 @@ function errorText(
  */
 export function mathBlockMapping(
   block: MathBlock,
-  exporter: ODTExporter<any, any, any>,
+  exporter: Exporter<any, any, any, any, any, any, any>,
 ) {
+  // Only the ODTExporter invokes ODT mappings, but mapping signatures are
+  // contravariant in the exporter parameter, so requiring the subclass here
+  // wouldn't satisfy the mapping type - hence the base type + cast.
+  const odtExporter = exporter as ODTExporter<any, any, any>;
   const source = plainContentToString(block.content);
   if (!source.trim()) {
     return createElement("text:p");
@@ -115,11 +123,11 @@ export function mathBlockMapping(
     return createElement(
       "text:p",
       null,
-      errorText(source, mathML.error, exporter),
+      errorText(source, mathML.error, odtExporter),
     );
   }
 
-  const styleName = exporter.registerStyle((name) =>
+  const styleName = odtExporter.registerStyle((name) =>
     createElement(
       "style:style",
       {
@@ -136,7 +144,7 @@ export function mathBlockMapping(
   return createElement(
     "text:p",
     { "text:style-name": styleName },
-    formulaFrame(exporter, mathML.mathML),
+    formulaFrame(odtExporter, mathML.mathML),
   );
 }
 
@@ -159,8 +167,12 @@ export function mathBlockMapping(
  */
 export function inlineMathMapping(
   inlineContent: InlineMath,
-  exporter: ODTExporter<any, any, any>,
+  exporter: Exporter<any, any, any, any, any, any, any>,
 ) {
+  // Only the ODTExporter invokes ODT mappings, but mapping signatures are
+  // contravariant in the exporter parameter, so requiring the subclass here
+  // wouldn't satisfy the mapping type - hence the base type + cast.
+  const odtExporter = exporter as ODTExporter<any, any, any>;
   const source = inlineContent.content;
   if (!source.trim()) {
     return createElement("text:span");
@@ -168,8 +180,8 @@ export function inlineMathMapping(
 
   const mathML = latexToMathML(source, true);
   if (mathML.error !== undefined) {
-    return errorText(source, mathML.error, exporter);
+    return errorText(source, mathML.error, odtExporter);
   }
 
-  return formulaFrame(exporter, mathML.mathML);
+  return formulaFrame(odtExporter, mathML.mathML);
 }
