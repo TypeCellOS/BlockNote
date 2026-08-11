@@ -132,13 +132,20 @@ export const SourceBlockWithPreviewExtension = createExtension(
         const unsubscribeSelectionChange = editor.onSelectionChange(() => {
           const { block } = editor.getTextCursorPosition();
 
-          store.setState((state) => ({
-            selected: blockHasPreview(block) ? block.id : undefined,
-            popupOpen:
-              state.popupOpen && state.popupOpen !== block.id
-                ? undefined
-                : state.popupOpen,
-          }));
+          const selected = blockHasPreview(block) ? block.id : undefined;
+          const popupOpen =
+            store.state.popupOpen && store.state.popupOpen !== block.id
+              ? undefined
+              : store.state.popupOpen;
+
+          if (
+            selected === store.state.selected &&
+            popupOpen === store.state.popupOpen
+          ) {
+            return;
+          }
+
+          store.setState((state) => ({ ...state, selected, popupOpen }));
         });
         signal.addEventListener("abort", unsubscribeSelectionChange);
 

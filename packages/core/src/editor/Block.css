@@ -537,7 +537,7 @@ NESTED BLOCKS
 }
 
 /* Additional right padding for equation numbers. */
-.bn-block-content .bn-preview-container .katex-html {
+.bn-block-content .bn-preview-container .katex-html:has(> .tag) {
   box-sizing: border-box;
   width: max-content;
   min-width: 100%;
