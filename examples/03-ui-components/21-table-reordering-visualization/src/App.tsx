@@ -13,9 +13,7 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 
-import { TableDragSourceExtension } from "./tableDragSourceExtension";
 import "./tableStyles.css";
-import { useTableDragImage } from "./useTableDragImage";
 
 // BlockNote's stock "/table" item inserts a table with no header row, so it
 // never picks up the header styling until someone manually toggles it on.
@@ -52,12 +50,11 @@ export default function App() {
       cellTextColor: true,
       headers: true,
     },
-    extensions: [TableDragSourceExtension()],
     initialContent: [
       {
         type: "heading",
         props: { level: 2 },
-        content: "Enriched Reordering Visualization for BlockNote.js Tables",
+        content: "Restyling BlockNote.js Table Reordering",
       },
       {
         type: "table",
@@ -75,8 +72,6 @@ export default function App() {
       },
     ],
   });
-
-  useTableDragImage(editor);
 
   return (
     <BlockNoteView editor={editor} slashMenu={false}>

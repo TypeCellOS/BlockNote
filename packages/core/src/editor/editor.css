@@ -58,11 +58,53 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Marks the edge a dragged table row/column would be dropped at. */
 .bn-table-drop-cursor {
   position: absolute;
   z-index: 20;
   background-color: #adf;
+  border-radius: 2px;
   pointer-events: none;
+}
+
+/* Marks the table row/column currently being dragged. */
+.bn-editor [data-content-type="table"] .bn-table-drag-source-row,
+.bn-editor [data-content-type="table"] .bn-table-drag-source-col {
+  /* Translucent rather than a flat tint, so it reads as a wash over whatever
+   the cell's own background is - including a dark theme, where an opaque
+   light fill would blot out the text. */
+  background-color: rgb(170 221 255 / 22%);
+  /* An outline rather than a border, so it doesn't shift the cell's contents,
+   and inset so adjacent cells in the dragged row/column don't double it up. */
+  outline: 1.5px dashed #adf;
+  outline-offset: -1.5px;
+}
+
+/* Snapshot of the row/column being dragged, shown next to the cursor. Built in
+ `TableHandles/dragPreview.ts`, and appended outside the editor - so it can't
+ rely on any of the `.bn-editor` scoped table styling above. */
+.bn-table-drag-preview table {
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--bn-colors-editor-background, #fff);
+  color: var(--bn-colors-editor-text, inherit);
+  border-radius: 8px;
+  box-shadow:
+    0 8px 24px rgb(0 0 0 / 18%),
+    0 2px 6px rgb(0 0 0 / 10%);
+  overflow: hidden;
+}
+
+.bn-table-drag-preview th,
+.bn-table-drag-preview td {
+  border: 2px solid #adf;
+  padding: 5px 10px;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 12%);
+}
+
+.bn-table-drag-preview th {
+  font-weight: bold;
+  text-align: left;
 }
 
 .bn-drag-preview {

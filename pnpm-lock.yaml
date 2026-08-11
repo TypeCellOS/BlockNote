@@ -2311,12 +2311,6 @@ importers:
       '@mantine/hooks':
         specifier: ^9.0.2
         version: 9.1.1(react@19.2.5)
-      prosemirror-state:
-        specifier: ^1.4.4
-        version: 1.4.4
-      prosemirror-view:
-        specifier: ^1.41.4
-        version: 1.41.8
       react:
         specifier: ^19.2.3
         version: 19.2.5

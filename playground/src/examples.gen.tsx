@@ -892,6 +892,31 @@ export const examples = {
         readme:
           "By default, BlockNote's floating UI elements (formatting toolbar, slash menu, table handles, etc.) mount inside the editor's `bn-container`. The `portalElements` prop on `BlockNoteView` lets you change that — globally via `default`, or per element by key.\n\nThis example renders two editors side-by-side, both wrapped in a small `overflow: hidden` container. The left editor uses the default — the slash menu is clipped by the editor's bounds. The right editor passes `portalElements={{ default: document.body }}` so floating UI escapes the wrapper and renders fully.\n\n```tsx\n<BlockNoteView editor={editor} portalElements={{ default: document.body }} />\n```\n\n**Relevant Docs:**\n\n- [UI Components](/docs/react/components)",
       },
+      {
+        projectSlug: "table-reordering-visualization",
+        fullSlug: "ui-components/table-reordering-visualization",
+        pathFromRoot:
+          "examples/03-ui-components/21-table-reordering-visualization",
+        config: {
+          playground: true,
+          docs: false,
+          author: "must",
+          tags: [
+            "Intermediate",
+            "UI Components",
+            "Tables",
+            "Drag & Drop",
+            "Appearance & Styling",
+          ],
+        },
+        title: "Table Reordering Visualization",
+        group: {
+          pathFromRoot: "examples/03-ui-components",
+          slug: "ui-components",
+        },
+        readme:
+          "BlockNote gives table row/column dragging visual feedback out of the box: a\nsnapshot of the row/column follows the cursor, the row/column being dragged is\ntinted and outlined, and a drop indicator marks where it would land.\n\nThis example shows how to restyle a table - and those built-in drag\naffordances - to match your own product, using a Microsoft Loop-inspired look:\n\n- **Restyled tables**: rounded card look, muted header row, hairline\n  borders, and a row-hover highlight instead of a harsh black grid.\n- **Retuned drag affordances**: the built-in drag source highlight, drop\n  indicator and drag snapshot recolored to the same palette.\n- **Header row by default**: the `/table` command starts new tables with\n  a header row already enabled, so the header styling is visible right away.\n\n## How It Works\n\nEverything here is CSS plus one slash-menu tweak - no extensions, no event\nhandling. BlockNote's `TableHandlesExtension` owns the whole drag lifecycle and\nexposes it through classes you can target:\n\n| Class                      | What it's on                                   |\n| -------------------------- | ---------------------------------------------- |\n| `bn-table-drag-source-row` | every cell of the row being dragged            |\n| `bn-table-drag-source-col` | every cell of the column being dragged         |\n| `bn-table-drop-cursor`     | a bar on the edge the row/column would drop at |\n| `bn-table-drag-preview`    | the snapshot shown next to the cursor          |\n\nThe first three are ProseMirror decorations inside the editor, so they're\nscoped under `.bn-editor [data-content-type=\"table\"]` like any other table\nstyle. `bn-table-drag-preview` is different: it's appended outside the editor\n(the browser can only use an attached element as a drag image), so it has to be\nstyled through its own class rather than through the table selectors.\n\n`tableStyles.css` does the restyling; `App.tsx` overrides the default `/table`\nslash-menu item so new tables start with `headerRows: 1`.\n\n## Known Limitations\n\n- **Keyboard and touch**: BlockNote's table drag handles are `draggable` +\n  `onDragStart` only today (see `TableHandle.tsx`) - there's no\n  keyboard-operable reorder path, and native HTML5 drag-and-drop isn't\n  supported on touch browsers at all. Both are gaps in BlockNote's table-drag\n  feature as a whole, not something this example introduces or fixes.\n- **Accessibility**: for the same reason, there's no keyboard focus\n  restoration to verify after a reorder - the interaction can't be reached by\n  keyboard in the first place yet.\n\n**Relevant Docs:**\n\n- [Tables](/docs/features/blocks/tables)\n- [Overriding CSS](/docs/react/styling-theming/overriding-css)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Slash Menu](/docs/react/components/suggestion-menus)",
+      },
     ],
   },
   theming: {
