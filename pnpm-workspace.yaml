@@ -15,6 +15,13 @@ publicHoistPattern:
   - "prosemirror-*"
 overrides:
   "@headlessui/react": "^2.2.4"
+  # fumadocs-core still declares @shikijs/rehype ^3 while the rest of the
+  # workspace (code-block, docs, fumadocs-twoslash) is on shiki 4.4.3 - two
+  # shiki identities in one graph make the docs' rehype transformer types
+  # clash ("ShikiTransformer | ShikiTransformer"). Force one shiki everywhere.
+  "shiki": "^4.4.3"
+  "@shikijs/rehype": "^4.4.3"
+  "@shikijs/types": "^4.4.3"
   "@tiptap/core": "^3.29.2"
   "@tiptap/pm": "^3.29.2"
   "vitest": "4.1.7"
