@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { KeyboardEvent, MouseEvent, ReactNode, useId, useRef } from "react";
+import { MouseEvent, ReactNode, useId, useRef } from "react";
 import { MdKeyboardReturn } from "react-icons/md";
 
 import { PreviewPlaceholder } from "./PreviewPlaceholder.js";
@@ -133,14 +133,6 @@ export const SourceWithPreview = (
   // when the input is focused.
   const errorId = useId();
 
-  // Whether the preview container acts as a button: only for placeholders
-  // (see `showingPlaceholder`), and only when the source can actually be
-  // edited.
-  const previewIsButton =
-    editor.isEditable &&
-    (source.length === 0 ||
-      (error != null && (errorCommittedRef.current || preview == null)));
-
   // What to show in place of the source: the empty state, the preview, or -
   // when the source has an error that's committed (or no last-good preview
   // to keep showing) - the error state.
@@ -151,25 +143,18 @@ export const SourceWithPreview = (
         ? errorState
         : preview;
 
+  // Whether the source is empty and the preview instead shows a button to edit it.
+  const previewIsButton =
+    editor.isEditable &&
+    (source.length === 0 ||
+      (error != null && (errorCommittedRef.current || preview == null)));
+
   // Opens the popup when clicking the preview.
   const handlePreviewClick = (event: MouseEvent) => {
     if (!editor.isEditable) {
       return;
     }
 
-    event.stopPropagation();
-
-    popup.open();
-  };
-
-  // Opens the popup on Enter/Space when the preview is a button, matching
-  // native button activation.
-  const handlePreviewKeyDown = (event: KeyboardEvent) => {
-    if (!previewIsButton || (event.key !== "Enter" && event.key !== " ")) {
-      return;
-    }
-
-    event.preventDefault();
     event.stopPropagation();
 
     popup.open();
@@ -197,11 +182,9 @@ export const SourceWithPreview = (
       <PreviewContainer
         className="bn-preview-container"
         contentEditable={false}
-        // When no source code is available, the "Add source" button should be accessible.
+        // When no source code is available, the "Add source" button should have the appropriate role.
         role={previewIsButton ? "button" : undefined}
-        tabIndex={previewIsButton ? 0 : undefined}
         onClick={handlePreviewClick}
-        onKeyDown={handlePreviewKeyDown}
       >
         {previewContent}
       </PreviewContainer>
