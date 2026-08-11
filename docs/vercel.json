@@ -1,6 +1,6 @@
 {
   "cleanUrls": true,
-  "buildCommand": "cd .. && corepack enable && RAYON_NUM_THREADS=4 NODE_OPTIONS=--v8-pool-size=4 pnpm exec vp run --verbose --concurrency-limit 1 --filter 'docs...' build && pnpm --filter @blocknote/dev-scripts run gen && cd docs && pnpm exec fumadocs-mdx && NODE_OPTIONS='--max-old-space-size=6144 --v8-pool-size=4' pnpm exec next build",
+  "buildCommand": "corepack enable && pnpm run build:vercel",
   "installCommand": "cd .. && corepack enable && pnpm install",
   "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" = \"gh-pages\" ]"
 }
