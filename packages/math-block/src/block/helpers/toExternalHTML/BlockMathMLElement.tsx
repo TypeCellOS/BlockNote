@@ -8,9 +8,8 @@ import { latexToMathMLElement } from "../../../helpers/toExternalHTML/latexToMat
 export const BlockMathMLElement = ({
   block,
 }: ReactCustomBlockRenderProps<MathBlockConfig>) => {
-  const { mathMLElement } = latexToMathMLElement(
-    getMathPlainTextContent(block.content),
-  );
+  const source = getMathPlainTextContent(block.content);
+  const { mathMLElement } = latexToMathMLElement(source);
   if (!mathMLElement) {
     return null;
   }
@@ -20,6 +19,7 @@ export const BlockMathMLElement = ({
   const Math = "math" as unknown as ComponentType<{
     xmlns: string;
     display: string;
+    alttext: string;
     dangerouslySetInnerHTML: { __html: string };
   }>;
 
@@ -27,6 +27,7 @@ export const BlockMathMLElement = ({
     <Math
       xmlns="http://www.w3.org/1998/Math/MathML"
       display="block"
+      alttext={source}
       dangerouslySetInnerHTML={{ __html: mathMLElement.innerHTML }}
     />
   );

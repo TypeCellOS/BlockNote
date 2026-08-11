@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { MouseEvent, ReactNode, useRef } from "react";
+import { KeyboardEvent, MouseEvent, ReactNode, useId, useRef } from "react";
 import { MdKeyboardReturn } from "react-icons/md";
 
 import { PreviewPlaceholder } from "./PreviewPlaceholder.js";
@@ -129,6 +129,18 @@ export const SourceWithPreview = (
       errorPreview
     );
 
+  // Links the source input to the render error so screen readers announce it
+  // when the input is focused.
+  const errorId = useId();
+
+  // Whether the preview container acts as a button: only for placeholders
+  // (see `showingPlaceholder`), and only when the source can actually be
+  // edited.
+  const previewIsButton =
+    editor.isEditable &&
+    (source.length === 0 ||
+      (error != null && (errorCommittedRef.current || preview == null)));
+
   // What to show in place of the source: the empty state, the preview, or -
   // when the source has an error that's committed (or no last-good preview
   // to keep showing) - the error state.
@@ -139,18 +151,25 @@ export const SourceWithPreview = (
         ? errorState
         : preview;
 
-  // The actions run on click (rather than mousedown), so keyboard &
-  // assistive technology activation also works. No mousedown focus guards:
-  // React's synthetic `onMouseDown` doesn't fire on node view elements, and
-  // testing with real input showed they aren't needed - `open`/`close`
-  // restore the editor's focus & selection themselves.
-
   // Opens the popup when clicking the preview.
   const handlePreviewClick = (event: MouseEvent) => {
     if (!editor.isEditable) {
       return;
     }
 
+    event.stopPropagation();
+
+    popup.open();
+  };
+
+  // Opens the popup on Enter/Space when the preview is a button, matching
+  // native button activation.
+  const handlePreviewKeyDown = (event: KeyboardEvent) => {
+    if (!previewIsButton || (event.key !== "Enter" && event.key !== " ")) {
+      return;
+    }
+
+    event.preventDefault();
     event.stopPropagation();
 
     popup.open();
@@ -178,7 +197,11 @@ export const SourceWithPreview = (
       <PreviewContainer
         className="bn-preview-container"
         contentEditable={false}
+        // When no source code is available, the "Add source" button should be accessible.
+        role={previewIsButton ? "button" : undefined}
+        tabIndex={previewIsButton ? 0 : undefined}
         onClick={handlePreviewClick}
+        onKeyDown={handlePreviewKeyDown}
       >
         {previewContent}
       </PreviewContainer>
@@ -190,11 +213,15 @@ export const SourceWithPreview = (
                 ? "bn-code-block-source-popup-input-empty"
                 : undefined
             }
-            // Shows `sourcePlaceholder` via CSS (`::before`) while the source
-            // is empty.
             data-placeholder={sourcePlaceholder}
+            aria-hidden={popup.isOpen ? undefined : true}
           >
-            <code ref={contentRef} />
+            <code
+              ref={contentRef}
+              aria-label={sourcePlaceholder}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? errorId : undefined}
+            />
             {inline && source.length === 0 && (
               <br aria-hidden="true" contentEditable={false} />
             )}
@@ -202,6 +229,10 @@ export const SourceWithPreview = (
           <div
             className="bn-code-block-source-popup-ok-button-wrapper"
             contentEditable={false}
+            // Keeps the "OK" button out of the tab order & accessibility tree
+            // while the popup is closed (it's only clipped visually, not
+            // removed from the DOM).
+            inert={!popup.isOpen}
           >
             <button
               // Prevents form submission when the editor is inside a `form`.
@@ -220,9 +251,15 @@ export const SourceWithPreview = (
           </div>
         </div>
         <div
+          id={errorId}
           className="bn-code-block-source-error"
           contentEditable={false}
           style={{ display: error ? "block" : "none" }}
+          // Announced while editing (the popup is open); silenced & removed
+          // from the tree once the popup closes, where the compact error
+          // preview takes over.
+          role="alert"
+          inert={!popup.isOpen}
         >
           {error}
         </div>

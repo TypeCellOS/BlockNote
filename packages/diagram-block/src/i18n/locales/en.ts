@@ -3,5 +3,6 @@ export const en = {
     add_source_text: "Add a Mermaid diagram",
     input_placeholder: "Enter diagram",
     preview_error_text: "Diagram block syntax error - click to fix",
+    preview_label: "Mermaid diagram",
   },
 };

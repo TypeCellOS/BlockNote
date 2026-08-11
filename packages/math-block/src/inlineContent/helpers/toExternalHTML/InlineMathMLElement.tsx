@@ -12,10 +12,8 @@ export const InlineMathMLElement = ({
   MathInlineContentConfig,
   StyleSchema
 >) => {
-  const { mathMLElement } = latexToMathMLElement(
-    getMathPlainTextContent(inlineContent.content),
-    true,
-  );
+  const source = getMathPlainTextContent(inlineContent.content);
+  const { mathMLElement } = latexToMathMLElement(source, true);
   if (!mathMLElement) {
     return null;
   }
@@ -25,6 +23,7 @@ export const InlineMathMLElement = ({
   const Math = "math" as unknown as ComponentType<{
     xmlns: string;
     display: string;
+    alttext: string;
     dangerouslySetInnerHTML: { __html: string };
   }>;
 
@@ -32,6 +31,7 @@ export const InlineMathMLElement = ({
     <Math
       xmlns="http://www.w3.org/1998/Math/MathML"
       display="inline"
+      alttext={source}
       dangerouslySetInnerHTML={{ __html: mathMLElement.innerHTML }}
     />
   );
