@@ -1,6 +1,6 @@
 {
   "installCommand": "cd .. && corepack enable && pnpm install",
-  "buildCommand": "cd .. && GOMAXPROCS=4 TOKIO_WORKER_THREADS=4 RAYON_NUM_THREADS=4 UV_THREADPOOL_SIZE=4 NODE_OPTIONS=--v8-pool-size=4 pnpm exec vp run --verbose --concurrency-limit 1 --filter '@blocknote/example-editor...' build",
+  "buildCommand": "corepack enable && pnpm run build:vercel",
   "outputDirectory": "dist",
   "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" = \"gh-pages\" ]",
   "rewrites": [{ "source": "/(.*)", "destination": "/" }]
