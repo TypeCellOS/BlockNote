@@ -110,6 +110,47 @@ new DOCXExporter(schema, {
 });
 ```
 
+### Math & diagram blocks
+
+The [math and diagram blocks](/docs/features/blocks/code-blocks#code-blocks-with-previews) live in separate packages, and so do their DOCX mappings. Spread them into the default mappings to export math as native (editable) Word equations and diagrams as embedded images:
+
+```typescript
+import {
+  inlineMathMapping,
+  mathBlockMapping,
+} from "@blocknote/math-block/docx-exporter";
+import { createDiagramBlockMapping } from "@blocknote/diagram-block/docx-exporter";
+
+const exporter = new DOCXExporter(editor.schema, {
+  ...docxDefaultSchemaMappings,
+  blockMapping: {
+    ...docxDefaultSchemaMappings.blockMapping,
+    math: mathBlockMapping,
+    diagram: createDiagramBlockMapping(),
+  },
+  inlineContentMapping: {
+    ...docxDefaultSchemaMappings.inlineContentMapping,
+    inlineMath: inlineMathMapping,
+  },
+});
+```
+
+Invalid LaTeX or Mermaid sources render an error placeholder with the error message, mirroring the editor.
+
+Math exports fine server-side (the LaTeX is converted to OMML without rendering). Rendering diagrams to images, however, requires a browser — when exporting server-side, pass a `renderDiagram` function to `createDiagramBlockMapping` (e.g. backed by [`@mermaid-js/mermaid-cli`](https://github.com/mermaid-js/mermaid-cli) or a [Kroki](https://kroki.io) server); without one, the export throws:
+
+```typescript
+import { createDiagramBlockMapping } from "@blocknote/diagram-block/docx-exporter";
+import type { RenderDiagram } from "@blocknote/diagram-block/docx-exporter";
+
+const renderDiagram: RenderDiagram = async (source) => {
+  // Render the Mermaid source to an image with your renderer of choice.
+  return { dataURL, width, height };
+};
+
+createDiagramBlockMapping({ renderDiagram });
+```
+
 ### Exporter options
 
 The `DOCXExporter` constructor takes an optional `options` parameter.

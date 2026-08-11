@@ -44,6 +44,26 @@
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-math-block.js",
       "require": "./dist/blocknote-math-block.cjs"
+    },
+    "./docx-exporter": {
+      "types": "./types/src/docx-exporter/index.d.ts",
+      "import": "./dist/docx-exporter.js",
+      "require": "./dist/docx-exporter.cjs"
+    },
+    "./odt-exporter": {
+      "types": "./types/src/odt-exporter/index.d.ts",
+      "import": "./dist/odt-exporter.js",
+      "require": "./dist/odt-exporter.cjs"
+    },
+    "./pdf-exporter": {
+      "types": "./types/src/pdf-exporter/index.d.ts",
+      "import": "./dist/pdf-exporter.js",
+      "require": "./dist/pdf-exporter.cjs"
+    },
+    "./email-exporter": {
+      "types": "./types/src/email-exporter/index.d.ts",
+      "import": "./dist/email-exporter.js",
+      "require": "./dist/email-exporter.cjs"
     }
   },
   "scripts": {
@@ -57,6 +77,7 @@
     "@handlewithcare/prosemirror-inputrules": "^0.1.4",
     "katex": "^0.16.11",
     "mathml-to-latex": "^1.8.0",
+    "mathml2omml": "^0.5.0",
     "prosemirror-model": "^1.25.4",
     "prosemirror-state": "^1.4.4",
     "prosemirror-view": "^1.41.4"
@@ -64,21 +85,72 @@
   "devDependencies": {
     "@blocknote/react": "workspace:^",
     "react-icons": "^5.5.0",
+    "@blocknote/shared": "workspace:^",
+    "@blocknote/xl-docx-exporter": "workspace:^",
+    "@blocknote/xl-email-exporter": "workspace:^",
     "@blocknote/xl-multi-column": "workspace:^",
+    "@blocknote/xl-odt-exporter": "workspace:^",
+    "@blocknote/xl-pdf-exporter": "workspace:^",
+    "@react-email/components": "^1.0.12",
+    "@react-pdf/math": "^2.0.1",
+    "@react-pdf/renderer": "^4.5.1",
     "@types/katex": "^0.16.7",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
+    "@zip.js/zip.js": "^2.8.8",
+    "docx": "^9.6.1",
+    "mathjax-full": "^3.2.2",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-element-to-jsx-string": "^17.0.1",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "xml-formatter": "^3.6.7"
   },
   "peerDependencies": {
     "@blocknote/core": "workspace:^",
     "@blocknote/react": "workspace:^",
+    "@blocknote/xl-docx-exporter": "workspace:^",
+    "@blocknote/xl-email-exporter": "workspace:^",
+    "@blocknote/xl-odt-exporter": "workspace:^",
+    "@blocknote/xl-pdf-exporter": "workspace:^",
+    "@react-email/components": "^1.0.12",
+    "@react-pdf/math": "^2.0.0",
+    "@react-pdf/renderer": "^4.5.1",
+    "docx": "^9.6.1",
+    "mathjax-full": "^3.2.2",
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
     "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
+  },
+  "peerDependenciesMeta": {
+    "@blocknote/xl-docx-exporter": {
+      "optional": true
+    },
+    "@blocknote/xl-email-exporter": {
+      "optional": true
+    },
+    "@blocknote/xl-odt-exporter": {
+      "optional": true
+    },
+    "@blocknote/xl-pdf-exporter": {
+      "optional": true
+    },
+    "@react-email/components": {
+      "optional": true
+    },
+    "@react-pdf/math": {
+      "optional": true
+    },
+    "@react-pdf/renderer": {
+      "optional": true
+    },
+    "docx": {
+      "optional": true
+    },
+    "mathjax-full": {
+      "optional": true
+    }
   }
 }

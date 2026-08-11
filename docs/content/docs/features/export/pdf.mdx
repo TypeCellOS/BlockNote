@@ -83,6 +83,38 @@ new PDFExporter(schema, {
 });
 ```
 
+### Math & diagram blocks
+
+The [math and diagram blocks](/docs/features/blocks/code-blocks#code-blocks-with-previews) live in separate packages, and so do their PDF mappings. Spread them into the default mappings to export math blocks as vector formulas (via `@react-pdf/math`), inline math as images flowing with the text, and diagrams as embedded images:
+
+```typescript
+import {
+  createInlineMathMapping,
+  mathBlockMapping,
+} from "@blocknote/math-block/pdf-exporter";
+import { createDiagramBlockMapping } from "@blocknote/diagram-block/pdf-exporter";
+
+const exporter = new PDFExporter(editor.schema, {
+  ...pdfDefaultSchemaMappings,
+  blockMapping: {
+    ...pdfDefaultSchemaMappings.blockMapping,
+    math: mathBlockMapping,
+    diagram: createDiagramBlockMapping(),
+  },
+  inlineContentMapping: {
+    ...pdfDefaultSchemaMappings.inlineContentMapping,
+    inlineMath: createInlineMathMapping(),
+  },
+});
+```
+
+Math blocks require the `@react-pdf/math` package. Invalid LaTeX or Mermaid sources render an error placeholder with the error message, mirroring the editor. Note that the PDF exporter renders LaTeX with MathJax while the editor (and the DOCX/ODT exporters) use KaTeX — rare constructs supported by only one of the two may render differently.
+
+Math blocks export fine server-side (they're vector output, no rasterization involved). Inline math and diagrams, however, are rasterized to images, which the built-in implementations can only do in the browser. When exporting server-side, plug in your own — without one, the export throws:
+
+- `createInlineMathMapping({ rasterize })` — a `RasterizeSVG` function, e.g. backed by [`@resvg/resvg-js`](https://github.com/nlopes/resvg-js) or [`sharp`](https://sharp.pixelplumbing.com/).
+- `createDiagramBlockMapping({ renderDiagram })` — a `RenderDiagram` function, e.g. backed by [`@mermaid-js/mermaid-cli`](https://github.com/mermaid-js/mermaid-cli) or a [Kroki](https://kroki.io) server.
+
 ### Exporter options
 
 The `PDFExporter` constructor takes an optional `options` parameter.

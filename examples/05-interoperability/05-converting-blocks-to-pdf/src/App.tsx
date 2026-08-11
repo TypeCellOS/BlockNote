@@ -29,8 +29,11 @@ import {
   PDFExporter,
   pdfDefaultSchemaMappings,
 } from "@blocknote/xl-pdf-exporter";
-import { diagramBlockMapping } from "@blocknote/xl-pdf-exporter/diagram-block";
-import { mathBlockMapping } from "@blocknote/xl-pdf-exporter/math-block";
+import { diagramBlockMapping } from "@blocknote/diagram-block/pdf-exporter";
+import {
+  inlineMathMapping,
+  mathBlockMapping,
+} from "@blocknote/math-block/pdf-exporter";
 import { pdf, PDFViewer } from "@react-pdf/renderer";
 import { JSX, useEffect, useMemo, useReducer, useState } from "react";
 
@@ -451,6 +454,11 @@ export default function App() {
         diagram: diagramBlockMapping,
         // Renders math blocks as formulas instead of their LaTeX source.
         math: mathBlockMapping,
+      },
+      inlineContentMapping: {
+        ...pdfDefaultSchemaMappings.inlineContentMapping,
+        // Renders inline math as formula images instead of its LaTeX source.
+        inlineMath: inlineMathMapping,
       },
     });
     const pdfDocument = await exporter.toReactPDFDocument(editor.document);

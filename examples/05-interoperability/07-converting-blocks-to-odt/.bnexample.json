@@ -2,9 +2,7 @@
   "playground": true,
   "docs": true,
   "author": "areknawo",
-  "tags": [
-    ""
-  ],
+  "tags": [""],
   "dependencies": {
     "@blocknote/diagram-block": "latest",
     "@blocknote/math-block": "latest",

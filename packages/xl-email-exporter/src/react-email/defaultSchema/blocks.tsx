@@ -1,5 +1,4 @@
 import {
-  BlockConfig,
   BlockFromConfigNoChildren,
   BlockMapping,
   createPageBreakBlockConfig,
@@ -119,16 +118,10 @@ export const defaultReactEmailTextStyles = {
 
 type BSchema = DefaultBlockSchema & {
   pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  math: BlockConfig<"math", {}, "inline">;
-  diagram: BlockConfig<"diagram", {}, "inline">;
 };
 
 const codeMapping = (
-  block: BlockFromConfigNoChildren<
-    BSchema["codeBlock"] | BSchema["math"] | BSchema["diagram"],
-    any,
-    any
-  >,
+  block: BlockFromConfigNoChildren<BSchema["codeBlock"], any, any>,
   language: PrismLanguage,
   textStyles: ReactEmailTextStyles,
 ) => {
@@ -298,9 +291,6 @@ export const createReactEmailBlockMappingForDefaultSchema = (
 
   codeBlock: (block) =>
     codeMapping(block, block.props.language as PrismLanguage, textStyles),
-  math: (block) => codeMapping(block, "latex" as PrismLanguage, textStyles),
-  diagram: (block) =>
-    codeMapping(block, "mermaid" as PrismLanguage, textStyles),
   audio: (block) => {
     // Audio icon SVG
     const icon = (

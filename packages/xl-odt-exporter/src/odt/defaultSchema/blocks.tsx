@@ -1,5 +1,4 @@
 import {
-  BlockConfig,
   BlockFromConfig,
   BlockFromConfigNoChildren,
   BlockMapping,
@@ -15,16 +14,10 @@ import { ODTExporter } from "../odtExporter.js";
 
 type BSchema = DefaultBlockSchema & {
   pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  math: BlockConfig<"math", {}, "inline">;
-  diagram: BlockConfig<"diagram", {}, "inline">;
 } & typeof multiColumnSchema.blockSchema;
 
 const codeMapping = (
-  block: BlockFromConfigNoChildren<
-    BSchema["codeBlock"] | BSchema["math"] | BSchema["diagram"],
-    any,
-    any
-  >,
+  block: BlockFromConfigNoChildren<BSchema["codeBlock"], any, any>,
 ) => {
   // Code blocks hold plain content: at most a single unstyled text item.
   const [textItem, ...excessItems] = block.content as PlainContent;
@@ -533,10 +526,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       </table:table>
     );
   },
-  // TODO
   codeBlock: codeMapping,
-  math: codeMapping,
-  diagram: codeMapping,
 
   file: async (block) => {
     return (

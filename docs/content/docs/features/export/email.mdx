@@ -116,6 +116,60 @@ new ReactEmailExporter(schema, {
 });
 ```
 
+### Math & diagram blocks
+
+The [math and diagram blocks](/docs/features/blocks/code-blocks#code-blocks-with-previews) live in separate packages, and so do their email mappings. Spread them into the default mappings to export math and diagrams as images, with the LaTeX/Mermaid source as the alt text:
+
+```typescript
+import {
+  createInlineMathMapping,
+  createMathBlockMapping,
+} from "@blocknote/math-block/email-exporter";
+import { createDiagramBlockMapping } from "@blocknote/diagram-block/email-exporter";
+
+const exporter = new ReactEmailExporter(editor.schema, {
+  ...reactEmailDefaultSchemaMappings,
+  blockMapping: {
+    ...reactEmailDefaultSchemaMappings.blockMapping,
+    math: createMathBlockMapping(),
+    diagram: createDiagramBlockMapping(),
+  },
+  inlineContentMapping: {
+    ...reactEmailDefaultSchemaMappings.inlineContentMapping,
+    inlineMath: createInlineMathMapping(),
+  },
+});
+```
+
+Invalid LaTeX or Mermaid sources render an error placeholder with the error message, mirroring the editor.
+
+**Image delivery.** By default the images are embedded as data URLs — self-contained, but some email clients (notably Gmail and Outlook for Windows) don't display data URL images and show the alt text instead. For those, deliver the images as inline `cid:` attachments (the most widely supported way to embed generated images) and pass the collected attachments to your mailer at send time:
+
+```typescript
+import { createCIDImageDelivery } from "@blocknote/xl-email-exporter";
+
+const imageDelivery = createCIDImageDelivery();
+const exporter = new ReactEmailExporter(editor.schema, {
+  ...reactEmailDefaultSchemaMappings,
+  blockMapping: {
+    ...reactEmailDefaultSchemaMappings.blockMapping,
+    math: createMathBlockMapping({ imageDelivery }),
+    diagram: createDiagramBlockMapping({ imageDelivery }),
+  },
+  inlineContentMapping: {
+    ...reactEmailDefaultSchemaMappings.inlineContentMapping,
+    inlineMath: createInlineMathMapping({ imageDelivery }),
+  },
+});
+
+const html = await exporter.toReactEmailDocument(editor.document);
+
+// e.g. with nodemailer (works the same with other mailers):
+await transporter.sendMail({ html, attachments: imageDelivery.attachments });
+```
+
+**Server-side rendering.** Emails are usually rendered server-side at send time. Math handles this out of the box: block math is rasterized to PNG in the browser and embedded as SVG elsewhere (pass `rasterize` to `createMathBlockMapping`, e.g. backed by [`@resvg/resvg-js`](https://github.com/nlopes/resvg-js), to get PNGs server-side too — more email clients display them); inline math is always embedded as SVG. Rendering diagrams, however, requires a browser — when exporting server-side, pass a `renderDiagram` function to `createDiagramBlockMapping` (e.g. backed by [`@mermaid-js/mermaid-cli`](https://github.com/mermaid-js/mermaid-cli) or a [Kroki](https://kroki.io) server); without one, the export throws.
+
 ### Exporter options
 
 The `ReactEmailExporter` constructor takes an optional `options` parameter.

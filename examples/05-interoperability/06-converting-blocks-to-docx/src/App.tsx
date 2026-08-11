@@ -23,11 +23,11 @@ import {
   DOCXExporter,
   docxDefaultSchemaMappings,
 } from "@blocknote/xl-docx-exporter";
-import { diagramBlockMapping } from "@blocknote/xl-docx-exporter/diagram-block";
+import { diagramBlockMapping } from "@blocknote/diagram-block/docx-exporter";
 import {
   inlineMathMapping,
   mathBlockMapping,
-} from "@blocknote/xl-docx-exporter/math-block";
+} from "@blocknote/math-block/docx-exporter";
 import {
   getMultiColumnSlashMenuItems,
   multiColumnDropCursor,

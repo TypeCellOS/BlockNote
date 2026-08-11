@@ -1,0 +1,240 @@
+import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
+import { diagramBlockMapping as emailDiagramBlockMapping } from "@blocknote/diagram-block/email-exporter";
+import { diagramBlockMapping as pdfDiagramBlockMapping } from "@blocknote/diagram-block/pdf-exporter";
+import {
+  inlineMathMapping as emailInlineMathMapping,
+  mathBlockMapping as emailMathBlockMapping,
+} from "@blocknote/math-block/email-exporter";
+import {
+  inlineMathMapping as pdfInlineMathMapping,
+  mathBlockMapping as pdfMathBlockMapping,
+} from "@blocknote/math-block/pdf-exporter";
+import {
+  ReactEmailExporter,
+  reactEmailDefaultSchemaMappings,
+} from "@blocknote/xl-email-exporter";
+import {
+  PDFExporter,
+  pdfDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter";
+import { pdf } from "@react-pdf/renderer";
+import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
+import { decodeAndSample } from "@shared/util/browserImageTestUtil.js";
+import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
+import { afterEach, describe, expect, test } from "vite-plus/test";
+import { browserName } from "../../utils/context.js";
+import { expectElement } from "../../utils/editor.js";
+
+// Complete exports of the full shared test document with the default
+// mappings in a real browser, where the mappings' `typeof document` checks
+// select the built-in image implementations. These are the only tests of
+// that composition - the packages' (node) unit suites always take the
+// headless side of those checks (or plug in stubs), and the colocated
+// `.browser.test` files call the implementations directly, bypassing the
+// mappings. A broken default wiring or inverted environment check passes
+// every one of those tests and only fails here - while breaking the primary
+// real-world path, exporting from the browser. Lives in this package because
+// it spans math-block, diagram-block and the exporters, and this is the
+// repo's only browser-mode runner.
+
+// An invalid diagram, whose typed error must render as a placeholder without
+// failing the export.
+const invalidDiagramBlock = {
+  id: "invalid-diagram",
+  type: "diagram",
+  props: {},
+  content: [{ type: "text", text: "not a valid diagram !!", styles: {} }],
+  children: [],
+} as any;
+
+const schema = () => BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs });
+
+afterEach(() => {
+  document.getElementById("export-under-test")?.remove();
+});
+
+// Creates the container the export under test is rendered into (removed
+// again by the afterEach above).
+function createExportFrame(width: string) {
+  const frame = document.createElement("div");
+  frame.id = "export-under-test";
+  frame.style.width = width;
+  frame.style.background = "white";
+  document.body.append(frame);
+  return frame;
+}
+
+// Captures only contain what the ~1280x720 tester iframe actually paints -
+// pixels below its fold come out blank white - and growing the iframe
+// (`page.viewport()`) makes the harness scale it down to fit the window,
+// shrinking the baseline (see static.test.tsx). So exports taller than the
+// window are captured as a sequence of window-sized pages instead, at full
+// resolution, one baseline file per page.
+const CAPTURE_PAGE_HEIGHT = 690;
+
+describe("email export through a complete exporter in the browser", () => {
+  test("renders math and diagrams to images", { timeout: 30000 }, async () => {
+    // The full shared test document, minus the media blocks: the email
+    // mappings embed media by their (remote) URLs directly, which the
+    // screenshot below would then try to load over the network.
+    const emailDocument = [
+      ...testDocumentWithSourceBlocks.filter(
+        (block) => !["image", "video", "audio", "file"].includes(block.type),
+      ),
+      invalidDiagramBlock,
+    ];
+
+    const exporter = new ReactEmailExporter(schema(), {
+      ...reactEmailDefaultSchemaMappings,
+      blockMapping: {
+        ...reactEmailDefaultSchemaMappings.blockMapping,
+        math: emailMathBlockMapping,
+        diagram: emailDiagramBlockMapping,
+      },
+      inlineContentMapping: {
+        ...reactEmailDefaultSchemaMappings.inlineContentMapping,
+        inlineMath: emailInlineMathMapping,
+      },
+    } as any);
+
+    const html = await exporter.toReactEmailDocument(emailDocument as any);
+
+    // Three generated images: block math (rasterized to PNG in the
+    // browser), inline math (always SVG), and the valid diagram (PNG). The
+    // invalid diagram renders the error placeholder instead - and doesn't
+    // fail the export.
+    const srcs = [...html.matchAll(/<img[^>]*src="(data:[^"]+)"/g)].map(
+      (match) => match[1].replaceAll("&amp;", "&").replaceAll("&#x27;", "'"),
+    );
+    expect(srcs).toHaveLength(3);
+    expect(srcs[0]).toMatch(/^data:image\/png/);
+    expect(srcs[1]).toMatch(/^data:image\/svg\+xml/);
+    expect(srcs[2]).toMatch(/^data:image\/png/);
+    for (const src of srcs) {
+      expect((await decodeAndSample(src)).inkedPixels).toBeGreaterThan(0);
+    }
+    expect(html).toContain("Invalid diagram");
+
+    // Visual regression of the exported email as a client would show it,
+    // captured as CAPTURE_PAGE_HEIGHT-tall pages of the 600px-wide (typical
+    // email client width) render.
+    const frame = createExportFrame("600px");
+    frame.style.height = `${CAPTURE_PAGE_HEIGHT}px`;
+    frame.style.overflow = "hidden";
+    const content = document.createElement("div");
+    content.innerHTML = html;
+    frame.append(content);
+    // Wait until every image is ready to paint - a screenshot taken while a
+    // data: URL is still decoding captures a gap (and unloaded images throw
+    // off the page count measurement).
+    await Promise.all(
+      [...content.querySelectorAll("img")].map((img) => img.decode()),
+    );
+    const pageCount = Math.ceil(content.scrollHeight / CAPTURE_PAGE_HEIGHT);
+    for (let i = 0; i < pageCount; i++) {
+      content.style.transform = `translateY(-${i * CAPTURE_PAGE_HEIGHT}px)`;
+      await expectElement(frame).toMatchScreenshot(
+        `email-export-page-${i + 1}`,
+      );
+    }
+  });
+});
+
+describe("pdf export through a complete exporter in the browser", () => {
+  // Chromium only: the produced PDF is the same file everywhere (react-pdf
+  // lays it out from bundled fonts, not browser rendering), so per-browser
+  // runs would only re-test pdf.js's rasterizer at 3x the suite cost.
+  test.skipIf(browserName !== "chromium")(
+    "renders math and diagrams to images in the produced PDF",
+    { timeout: 60000 },
+    async () => {
+      const mappings = {
+        ...pdfDefaultSchemaMappings,
+        blockMapping: {
+          ...pdfDefaultSchemaMappings.blockMapping,
+          math: pdfMathBlockMapping,
+          diagram: pdfDiagramBlockMapping,
+        },
+        inlineContentMapping: {
+          ...pdfDefaultSchemaMappings.inlineContentMapping,
+          inlineMath: pdfInlineMathMapping,
+        },
+      };
+      // The full shared test document: unlike the email mappings, the PDF
+      // exporter fetches media through `resolveFileUrl`, so the test
+      // resolver keeps it deterministic and offline.
+      const exporter = new PDFExporter(schema(), mappings as any, {
+        resolveFileUrl: testResolveFileUrl,
+      });
+
+      const transformed = await exporter.toReactPDFDocument([
+        ...testDocumentWithSourceBlocks,
+        invalidDiagramBlock,
+      ] as any);
+
+      // The element tree carries the inline math as an image with
+      // react-pdf's async (rasterizing) src function, and the diagram as a
+      // rendered PNG.
+      const images: any[] = [];
+      const collectImages = (node: any) => {
+        if (!node || typeof node !== "object") {
+          return;
+        }
+        if (Array.isArray(node)) {
+          node.forEach(collectImages);
+          return;
+        }
+        if (node.type === "IMAGE") {
+          images.push(node);
+        }
+        collectImages(node.props?.children);
+      };
+      collectImages(transformed);
+      expect(images.some((i) => typeof i.props.src === "function")).toBe(true);
+      expect(
+        images.some((i) => String(i.props.src).startsWith("data:image/png")),
+      ).toBe(true);
+
+      // Produce the actual file - this runs react-pdf's asset resolution,
+      // which invokes the inline math's rasterizing src function.
+      const blob = await pdf(transformed as any).toBlob();
+      const bytes = new Uint8Array(await blob.arrayBuffer());
+      expect(new TextDecoder().decode(bytes.slice(0, 5))).toBe("%PDF-");
+
+      // Render the produced PDF's pages with pdf.js (pure JS - the reason
+      // the old Node-side attempt at this failed was native canvas
+      // dependencies, which a real browser doesn't need) and screenshot
+      // them, stacked, as a visual regression of the actual export.
+      const pdfjs = await import("pdfjs-dist");
+      const workerUrl = (
+        await import("pdfjs-dist/build/pdf.worker.min.mjs?url" as string)
+      ).default;
+      pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+
+      const parsed = await pdfjs.getDocument({ data: bytes }).promise;
+      // The test document contains a page break.
+      expect(parsed.numPages).toBeGreaterThanOrEqual(2);
+
+      // Screenshot each page as its own baseline, rendered at a scale where
+      // a full page fits the capturable area 1:1 (pdf.js is a vector
+      // renderer, so unlike the email capture there's no need to slice).
+      const frame = createExportFrame("fit-content");
+      for (let n = 1; n <= parsed.numPages; n++) {
+        const pdfPage = await parsed.getPage(n);
+        const scale =
+          CAPTURE_PAGE_HEIGHT / pdfPage.getViewport({ scale: 1 }).height;
+        const viewport = pdfPage.getViewport({ scale });
+        const canvas = document.createElement("canvas");
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        canvas.style.display = "block";
+        await pdfPage.render({
+          canvasContext: canvas.getContext("2d")!,
+          viewport,
+        } as any).promise;
+        frame.replaceChildren(canvas);
+        await expectElement(frame).toMatchScreenshot(`pdf-export-page-${n}`);
+      }
+    },
+  );
+});

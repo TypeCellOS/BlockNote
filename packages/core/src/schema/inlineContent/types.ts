@@ -8,7 +8,6 @@ import {
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
 
-
 export type CustomInlineContentConfig = {
   type: string;
   content: "styled" | "none" | "plain";

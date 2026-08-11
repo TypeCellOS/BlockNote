@@ -78,6 +78,8 @@ function serializeNode(node: Node, ctx: SerializeContext): string {
       return serializeTable(el, ctx);
     case "hr":
       return ctx.indent + "***\n\n";
+    case "math":
+      return serializeMathBlock(el, ctx);
     case "img":
       return serializeImage(el, ctx);
     case "video":
@@ -188,6 +190,21 @@ function serializeCodeBlock(el: HTMLElement, ctx: SerializeContext): string {
     fence +
     "\n\n"
   );
+}
+
+// The LaTeX source of a MathML element, taken from the annotation KaTeX
+// embeds in its output (also what external HTML parsing reads). Falls back to
+// the element's text content for MathML from other sources.
+function extractMathLatexSource(el: Element): string {
+  const annotation = el.querySelector(
+    'annotation[encoding="application/x-tex"]',
+  );
+  return (annotation?.textContent ?? el.textContent ?? "").trim();
+}
+
+function serializeMathBlock(el: HTMLElement, ctx: SerializeContext): string {
+  const latex = extractMathLatexSource(el);
+  return ctx.indent + "$$\n" + latex + "\n$$\n\n";
 }
 
 function extractCodeContent(el: Element): string {
@@ -775,6 +792,16 @@ function serializeInlineContent(el: Element): string {
         case "br":
           result += "\\\n";
           break;
+        case "math": {
+          // Inline math — emit its LaTeX source as a math span. Collapsed to
+          // a single line, as $...$ spans cannot contain newlines.
+          const latex = extractMathLatexSource(childEl)
+            .split("\n")
+            .map((line) => line.trim())
+            .join(" ");
+          result += `$${latex}$`;
+          break;
+        }
         case "span":
           // Color spans, etc. — strip the tag, keep content
           result += serializeInlineContent(childEl);

@@ -1,6 +1,6 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
 
 // https://vitejs.dev/config/
@@ -21,6 +21,16 @@ export default defineConfig(
       },
       test: {
         setupFiles: ["./vitestSetup.ts"],
+        // `.browser.test` files need a real browser; the tests package's
+        // browser suite runs them.
+        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
+      },
+      // The ODT exporter sources (loaded via the test aliases) use JSX
+      // namespace tags (e.g. <text:p>), which Vite's oxc rejects by default.
+      oxc: {
+        jsx: {
+          throwIfNamespace: false,
+        },
       },
       plugins: [webpackStats() as any],
       // used so that vitest resolves the core package from the sources instead of the built version
@@ -29,9 +39,30 @@ export default defineConfig(
           conf.command === "build"
             ? ({} as Record<string, string>)
             : ({
+                "@shared": path.resolve(__dirname, "../../shared/"),
                 // load live from sources with live reload working
                 "@blocknote/core": path.resolve(__dirname, "../core/src/"),
                 "@blocknote/react": path.resolve(__dirname, "../react/src/"),
+                "@blocknote/xl-docx-exporter": path.resolve(
+                  __dirname,
+                  "../xl-docx-exporter/src/",
+                ),
+                "@blocknote/xl-email-exporter": path.resolve(
+                  __dirname,
+                  "../xl-email-exporter/src/",
+                ),
+                "@blocknote/xl-multi-column": path.resolve(
+                  __dirname,
+                  "../xl-multi-column/src/",
+                ),
+                "@blocknote/xl-odt-exporter": path.resolve(
+                  __dirname,
+                  "../xl-odt-exporter/src/",
+                ),
+                "@blocknote/xl-pdf-exporter": path.resolve(
+                  __dirname,
+                  "../xl-pdf-exporter/src/",
+                ),
               } as Record<string, string>),
       },
       build: {
@@ -39,6 +70,22 @@ export default defineConfig(
         lib: {
           entry: {
             "blocknote-math-block": path.resolve(__dirname, "src/index.ts"),
+            "docx-exporter": path.resolve(
+              __dirname,
+              "src/docx-exporter/index.ts",
+            ),
+            "odt-exporter": path.resolve(
+              __dirname,
+              "src/odt-exporter/index.ts",
+            ),
+            "pdf-exporter": path.resolve(
+              __dirname,
+              "src/pdf-exporter/index.tsx",
+            ),
+            "email-exporter": path.resolve(
+              __dirname,
+              "src/email-exporter/index.tsx",
+            ),
           },
           name: "blocknote-math-block",
           formats: ["es", "cjs"],

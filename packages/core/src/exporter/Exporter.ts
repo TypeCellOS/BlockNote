@@ -67,17 +67,26 @@ export abstract class Exporter<
 
   public mapStyles(styles: Styles<S>) {
     const stylesArray = Object.entries(styles).map(([key, value]) => {
-      const mappedStyle = this.mappings.styleMapping[key](value, this);
+      const mapping = this.mappings.styleMapping[key];
+      if (!mapping) {
+        throw new Error(
+          `Exporter is missing a style mapping for style "${key}". If this style comes from a separate package, spread that package's exporter mappings into your styleMapping.`,
+        );
+      }
+      const mappedStyle = mapping(value, this);
       return mappedStyle;
     });
     return stylesArray;
   }
 
   public mapInlineContent(inlineContent: InlineContent<I, S>) {
-    return this.mappings.inlineContentMapping[inlineContent.type](
-      inlineContent,
-      this,
-    );
+    const mapping = this.mappings.inlineContentMapping[inlineContent.type];
+    if (!mapping) {
+      throw new Error(
+        `Exporter is missing an inline content mapping for inline content type "${inlineContent.type}". If this inline content comes from a separate package, spread that package's exporter mappings into your inlineContentMapping.`,
+      );
+    }
+    return mapping(inlineContent, this);
   }
 
   public transformInlineContent(inlineContentArray: InlineContent<I, S>[]) {
@@ -92,12 +101,12 @@ export abstract class Exporter<
     numberedListIndex: number,
     children?: Array<Awaited<RB>>,
   ) {
-    return this.mappings.blockMapping[block.type](
-      block,
-      this,
-      nestingLevel,
-      numberedListIndex,
-      children,
-    );
+    const mapping = this.mappings.blockMapping[block.type];
+    if (!mapping) {
+      throw new Error(
+        `Exporter is missing a block mapping for block type "${block.type}". If this block comes from a separate package, spread that package's exporter mappings into your blockMapping.`,
+      );
+    }
+    return mapping(block, this, nestingLevel, numberedListIndex, children);
   }
 }

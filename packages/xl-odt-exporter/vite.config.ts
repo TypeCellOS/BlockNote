@@ -55,11 +55,6 @@ export default defineConfig(
               __dirname,
               "src/index.ts",
             ),
-            "diagram-block": path.resolve(
-              __dirname,
-              "src/diagram-block/index.ts",
-            ),
-            "math-block": path.resolve(__dirname, "src/math-block/index.tsx"),
           },
           name: "blocknote-xl-odt-exporter",
           formats: ["es", "cjs"],

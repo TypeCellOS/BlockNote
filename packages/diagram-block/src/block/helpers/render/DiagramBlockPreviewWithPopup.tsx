@@ -7,7 +7,7 @@ import mermaid from "mermaid";
 import { useEffect, useState } from "react";
 import { SiMermaid } from "react-icons/si";
 
-import { getDiagramPlainTextContent } from "../../../helpers/getDiagramPlainTextContent.js";
+import { plainContentToString } from "@blocknote/core";
 import { initializeMermaid } from "../../../helpers/initializeMermaid.js";
 import { DiagramBlockConfig } from "../../createReactDiagramBlockSpec.js";
 
@@ -67,7 +67,7 @@ export const useMermaidSVG = (source: string) => {
 export const DiagramBlockPreviewWithPopup = (
   props: ReactCustomBlockRenderProps<DiagramBlockConfig>,
 ) => {
-  const source = getDiagramPlainTextContent(props.block.content).trim();
+  const source = plainContentToString(props.block.content).trim();
   const { svg, error } = useMermaidSVG(source);
 
   return (

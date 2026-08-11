@@ -6,13 +6,7 @@ import {
 import { ExternalHyperlink, ParagraphChild, TextRun } from "docx";
 import type { DOCXExporter } from "../docxExporter.js";
 
-type ICSchema = DefaultInlineContentSchema & {
-  inlineMath: {
-    type: "inlineMath";
-    propSchema: Record<string, never>;
-    content: "plain";
-  };
-};
+type ICSchema = DefaultInlineContentSchema;
 
 export const docxInlineContentMappingForDefaultSchema: InlineContentMapping<
   ICSchema,
@@ -33,13 +27,5 @@ export const docxInlineContentMappingForDefaultSchema: InlineContentMapping<
   },
   text: (ic, t) => {
     return t.transformStyledText(ic);
-  },
-  // Renders inline math as its monospaced LaTeX source.
-  // TODO
-  inlineMath: (ic) => {
-    return new TextRun({
-      text: ic.content,
-      style: "VerbatimChar",
-    });
   },
 };

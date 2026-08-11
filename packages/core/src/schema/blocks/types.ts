@@ -375,6 +375,24 @@ export type PartialPlainContent =
   | string
   | (string | (StyledText<{}> & { styles: Record<string, never> }))[];
 
+/**
+ * The text of a block's `"plain"` content (e.g. a code block's source code).
+ * Accepts the partial form too: block render/export paths can receive
+ * `PartialBlock`s (e.g. the HTML serializers take them directly), where
+ * plain content may still be the bare-string sugar.
+ */
+export function plainContentToString(
+  content: PlainContent | PartialPlainContent,
+): string {
+  if (typeof content === "string") {
+    return content;
+  }
+
+  return content
+    .map((item) => (typeof item === "string" ? item : item.text))
+    .join("");
+}
+
 // A BlockConfig has all the information to get the type of a Block (which is a specific instance of the BlockConfig.
 // i.e.: paragraphConfig: BlockConfig defines what a "paragraph" is / supports, and BlockFromConfigNoChildren<paragraphConfig> is the shape of a specific paragraph block.
 // (for internal use)

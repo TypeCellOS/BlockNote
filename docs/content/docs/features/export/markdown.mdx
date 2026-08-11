@@ -33,6 +33,8 @@ const markdownFromBlocks = editor.blocksToMarkdownLossy(blocks);
 
 The output is simplified as Markdown does not support all features of BlockNote (e.g.: children of blocks which aren't list items are un-nested and certain styles are removed).
 
+[Math and diagram blocks](/docs/features/blocks/code-blocks#code-blocks-with-previews) export to their common Markdown notations: math blocks as `$$` blocks, inline math as `$...$` spans, and diagrams as ` ```mermaid ` fenced code blocks.
+
 **Demo**
 
 <Example name="interoperability/converting-blocks-to-md" />

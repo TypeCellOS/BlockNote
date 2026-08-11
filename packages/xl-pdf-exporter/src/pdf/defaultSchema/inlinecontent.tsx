@@ -4,13 +4,7 @@ import {
 } from "@blocknote/core";
 import { Link, Text } from "@react-pdf/renderer";
 
-type ICSchema = DefaultInlineContentSchema & {
-  inlineMath: {
-    type: "inlineMath";
-    propSchema: Record<string, never>;
-    content: "plain";
-  };
-};
+type ICSchema = DefaultInlineContentSchema;
 
 export const pdfInlineContentMappingForDefaultSchema: InlineContentMapping<
   ICSchema,
@@ -27,14 +21,5 @@ export const pdfInlineContentMappingForDefaultSchema: InlineContentMapping<
   },
   text: (ic, exporter) => {
     return exporter.transformStyledText(ic);
-  },
-  // TODO
-  // Renders inline math as its monospaced LaTeX source.
-  inlineMath: (ic) => {
-    return (
-      <Text key={"inlineMath"} style={{ fontFamily: "GeistMono" }}>
-        {ic.content}
-      </Text>
-    );
   },
 };

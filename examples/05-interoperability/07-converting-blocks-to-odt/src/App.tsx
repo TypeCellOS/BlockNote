@@ -23,11 +23,11 @@ import {
   ODTExporter,
   odtDefaultSchemaMappings,
 } from "@blocknote/xl-odt-exporter";
-import { diagramBlockMapping } from "@blocknote/xl-odt-exporter/diagram-block";
+import { diagramBlockMapping } from "@blocknote/diagram-block/odt-exporter";
 import {
   inlineMathMapping,
   mathBlockMapping,
-} from "@blocknote/xl-odt-exporter/math-block";
+} from "@blocknote/math-block/odt-exporter";
 import {
   getMultiColumnSlashMenuItems,
   multiColumnDropCursor,

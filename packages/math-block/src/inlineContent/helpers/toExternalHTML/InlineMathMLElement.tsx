@@ -3,7 +3,6 @@ import { ReactCustomInlineContentRenderProps } from "@blocknote/react";
 import type { ComponentType } from "react";
 
 import { MathInlineContentConfig } from "../../createReactMathInlineContentSpec.js";
-import { getMathPlainTextContent } from "../../../helpers/getMathPlainTextContent.js";
 import { latexToMathMLElement } from "../../../helpers/toExternalHTML/latexToMathMLElement.js";
 
 export const InlineMathMLElement = ({
@@ -12,10 +11,7 @@ export const InlineMathMLElement = ({
   MathInlineContentConfig,
   StyleSchema
 >) => {
-  const { mathMLElement } = latexToMathMLElement(
-    getMathPlainTextContent(inlineContent.content),
-    true,
-  );
+  const { mathMLElement } = latexToMathMLElement(inlineContent.content, true);
   if (!mathMLElement) {
     return null;
   }

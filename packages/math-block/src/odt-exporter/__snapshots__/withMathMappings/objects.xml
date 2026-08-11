@@ -1,0 +1,81 @@
+<!-- Object 1/content.xml -->
+<?xml version="1.0" encoding="UTF-8"?>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <semantics>
+        <mrow>
+            <msup>
+                <mi>
+                    a
+                </mi>
+                <mn>
+                    2
+                </mn>
+            </msup>
+            <mo>
+                =
+            </mo>
+            <msqrt>
+                <mrow>
+                    <msup>
+                        <mi>
+                            b
+                        </mi>
+                        <mn>
+                            2
+                        </mn>
+                    </msup>
+                    <mo>
+                        +
+                    </mo>
+                    <msup>
+                        <mi>
+                            c
+                        </mi>
+                        <mn>
+                            2
+                        </mn>
+                    </msup>
+                </mrow>
+            </msqrt>
+        </mrow>
+        <annotation encoding="application/x-tex">
+            a^2 = \sqrt{b^2 + c^2}
+        </annotation>
+    </semantics>
+</math>
+<!-- Object 2/content.xml -->
+<?xml version="1.0" encoding="UTF-8"?>
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+    <semantics>
+        <mrow>
+            <msup>
+                <mi>
+                    e
+                </mi>
+                <mrow>
+                    <mi>
+                        i
+                    </mi>
+                    <mi>
+                        π
+                    </mi>
+                </mrow>
+            </msup>
+            <mo>
+                +
+            </mo>
+            <mn>
+                1
+            </mn>
+            <mo>
+                =
+            </mo>
+            <mn>
+                0
+            </mn>
+        </mrow>
+        <annotation encoding="application/x-tex">
+            e^{i\pi} + 1 = 0
+        </annotation>
+    </semantics>
+</math>

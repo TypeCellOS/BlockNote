@@ -1,5 +1,4 @@
 import {
-  BlockConfig,
   BlockFromConfigNoChildren,
   BlockMapping,
   createPageBreakBlockConfig,
@@ -23,16 +22,10 @@ const FONT_SIZE = 16;
 
 type BSchema = DefaultBlockSchema & {
   pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  math: BlockConfig<"math", {}, "inline">;
-  diagram: BlockConfig<"diagram", {}, "inline">;
 } & typeof multiColumnSchema.blockSchema;
 
 const codeMapping = (
-  block: BlockFromConfigNoChildren<
-    BSchema["codeBlock"] | BSchema["math"] | BSchema["diagram"],
-    any,
-    any
-  >,
+  block: BlockFromConfigNoChildren<BSchema["codeBlock"], any, any>,
 ) => {
   // Code blocks hold plain content: at most a single unstyled text item.
   const [textItem, ...excessItems] = block.content as PlainContent;
@@ -164,10 +157,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
       </Text>
     );
   },
-  // TODO
   codeBlock: codeMapping,
-  math: codeMapping,
-  diagram: codeMapping,
   pageBreak: () => {
     return <View break key={"pageBreak"} />;
   },

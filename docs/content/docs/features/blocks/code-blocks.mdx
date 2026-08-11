@@ -218,7 +218,9 @@ const editor = useCreateBlockNote({
 });
 ```
 
-The math block renders LaTeX as MathML (via [Temml](https://temml.org/)) for the browser to display natively. Exporting to HTML produces a MathML `<math>` element, and pasting MathML back in is converted to LaTeX. Additionally, the source code is rendered to an `annotation` element in the HTML export for lossless round-trip conversion.
+The math block renders LaTeX as MathML (via [KaTeX](https://katex.org/)) for the browser to display natively. Exporting to HTML produces a MathML `<math>` element, and pasting MathML back in is converted to LaTeX. Additionally, the source code is rendered to an `annotation` element in the HTML export for lossless round-trip conversion.
+
+Math and diagram blocks can also be exported to [Markdown](/docs/features/export/markdown), [PDF](/docs/features/export/pdf), [DOCX](/docs/features/export/docx), [ODT](/docs/features/export/odt), and [email](/docs/features/export/email) — see each format's docs for the mappings to wire up.
 
 <Example name="custom-schema/math-block" />
 

@@ -6,7 +6,6 @@ import {
 } from "@blocknote/react";
 import { TbMathFunction } from "react-icons/tb";
 
-import { getMathPlainTextContent } from "../../../helpers/getMathPlainTextContent.js";
 import { useLatexToMathMLString } from "../../../helpers/render/useLatexToMathML.js";
 import { MathInlineContentConfig } from "../../createReactMathInlineContentSpec.js";
 
@@ -16,7 +15,7 @@ export const MathInlinePreviewWithPopup = (
     StyleSchema
   >,
 ) => {
-  const source = getMathPlainTextContent(props.inlineContent.content).trim();
+  const source = props.inlineContent.content.trim();
   const { mathMLString, error } = useLatexToMathMLString(source, true);
 
   return (

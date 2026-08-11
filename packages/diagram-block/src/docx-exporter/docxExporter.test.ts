@@ -1,0 +1,151 @@
+import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
+import {
+  DOCXExporter,
+  docxDefaultSchemaMappings,
+} from "@blocknote/xl-docx-exporter";
+import { BlobReader, ZipReader } from "@zip.js/zip.js";
+import { Packer } from "docx";
+import { beforeAll, describe, expect, it } from "vite-plus/test";
+
+import {
+  diagramDocument,
+  renderInvalidDiagram,
+  zipEntryContent,
+} from "../exporterTestUtil.js";
+import { createDiagramBlockMapping, diagramBlockMapping } from "./index.js";
+
+beforeAll(async () => {
+  // @ts-expect-error - Blob polyfill for Node test environment
+  globalThis.Blob = (await import("node:buffer")).Blob;
+});
+
+function createExporter(diagram: ReturnType<typeof createDiagramBlockMapping>) {
+  return new DOCXExporter(
+    BlockNoteSchema.create({ blockSpecs: defaultBlockSpecs }),
+    {
+      ...docxDefaultSchemaMappings,
+      blockMapping: {
+        ...docxDefaultSchemaMappings.blockMapping,
+        diagram,
+      },
+    } as any,
+  );
+}
+
+const documentOptions = {
+  sectionOptions: {},
+  documentOptions: {},
+  locale: "en-US",
+} as any;
+
+describe("docx exporter mappings", () => {
+  it("should render an error placeholder for invalid sources", async () => {
+    // The renderer returns invalid sources as a typed error, and the
+    // mapping renders the error placeholder, identifying the diagram by the
+    // source's first line.
+    const exporter = createExporter(
+      createDiagramBlockMapping({ renderDiagram: renderInvalidDiagram }),
+    );
+
+    const doc = await exporter.toDocxJsDocument(
+      diagramDocument,
+      documentOptions,
+    );
+    const documentXML = await zipEntryContent(
+      await Packer.toBlob(doc),
+      "word/document.xml",
+    );
+
+    expect(documentXML).toContain("Invalid diagram");
+    expect(documentXML).toContain("graph TD");
+    expect(documentXML).toContain("No diagram type detected");
+    expect(documentXML).not.toContain("w:drawing");
+  });
+
+  it("should throw a descriptive error without a renderer outside the browser", async () => {
+    // The built-in Mermaid renderer can't work here, and silently degrading
+    // is worse than failing loudly - the error names the `renderDiagram`
+    // option to pass.
+    const exporter = createExporter(diagramBlockMapping);
+
+    await expect(
+      exporter.toDocxJsDocument(diagramDocument, documentOptions),
+    ).rejects.toThrow("pass a `renderDiagram` function");
+  });
+
+  it("should render empty diagrams as an empty paragraph", async () => {
+    // Empty source isn't an error - there's just nothing to render (and the
+    // renderer is never invoked, so no browser is needed).
+    const exporter = createExporter(diagramBlockMapping);
+
+    const doc = await exporter.toDocxJsDocument(
+      [
+        {
+          id: "1",
+          type: "diagram",
+          props: {},
+          content: [],
+          children: [],
+        },
+      ] as any,
+      documentOptions,
+    );
+    const documentXML = await zipEntryContent(
+      await Packer.toBlob(doc),
+      "word/document.xml",
+    );
+
+    expect(documentXML).not.toContain("Invalid diagram");
+    expect(documentXML).not.toContain("w:drawing");
+  });
+
+  it("should embed the image with the renderer's actual format", async () => {
+    // Renderers aren't required to produce PNGs - the embed must carry the
+    // format the image declares.
+    const exporter = createExporter(
+      createDiagramBlockMapping({
+        renderDiagram: async () => ({
+          image: {
+            mimeType: "image/jpeg",
+            data: new Uint8Array([0, 0, 0]),
+            width: 100,
+            height: 50,
+          },
+        }),
+      }),
+    );
+
+    const doc = await exporter.toDocxJsDocument(
+      diagramDocument,
+      documentOptions,
+    );
+    const entries = await new ZipReader(
+      new BlobReader(await Packer.toBlob(doc)),
+    ).getEntries();
+
+    expect(
+      entries.some((entry) => /media\/.*\.jpe?g$/.test(entry.filename)),
+    ).toBe(true);
+  });
+
+  it("should throw when the renderer produces a format DOCX can't embed", async () => {
+    // An unknown format is a renderer contract violation - mislabeling the
+    // bytes would corrupt the document, so it fails loudly instead.
+    const exporter = createExporter(
+      createDiagramBlockMapping({
+        renderDiagram: async () => ({
+          image: {
+            mimeType: "image/webp",
+            data: new Uint8Array([0, 0, 0]),
+            width: 100,
+            height: 50,
+          },
+        }),
+      }),
+    );
+
+    await expect(
+      exporter.toDocxJsDocument(diagramDocument, documentOptions),
+    ).rejects.toThrow('renderer produced "image/webp"');
+  });
+});

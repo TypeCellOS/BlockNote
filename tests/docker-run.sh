@@ -77,6 +77,9 @@ mounts+=(
 mounts+=(
   -v "$PWD/shared/testDocument.ts:/work/shared/testDocument.ts"
   -v "$PWD/shared/formatConversionTestUtil.ts:/work/shared/formatConversionTestUtil.ts"
+  -v "$PWD/shared/api:/work/shared/api"
+  -v "$PWD/shared/util:/work/shared/util"
+  -v "$PWD/shared/assets:/work/shared/assets"
 )
 # Mount the report dir so the html reporter's output lands on the host instead
 # of being thrown away with the container. Created on the host first so docker

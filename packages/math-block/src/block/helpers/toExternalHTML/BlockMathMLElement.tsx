@@ -2,14 +2,14 @@ import { ReactCustomBlockRenderProps } from "@blocknote/react";
 import type { ComponentType } from "react";
 
 import { MathBlockConfig } from "../../createReactMathBlockSpec.js";
-import { getMathPlainTextContent } from "../../../helpers/getMathPlainTextContent.js";
+import { plainContentToString } from "@blocknote/core";
 import { latexToMathMLElement } from "../../../helpers/toExternalHTML/latexToMathMLElement.js";
 
 export const BlockMathMLElement = ({
   block,
 }: ReactCustomBlockRenderProps<MathBlockConfig>) => {
   const { mathMLElement } = latexToMathMLElement(
-    getMathPlainTextContent(block.content),
+    plainContentToString(block.content),
   );
   if (!mathMLElement) {
     return null;

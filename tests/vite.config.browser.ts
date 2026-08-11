@@ -1,7 +1,7 @@
+import tailwindcss from "@tailwindcss/vite";
 import * as fs from "fs";
 import * as path from "path";
-import tailwindcss from "@tailwindcss/vite";
-import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
+import { defineConfig, type UserConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
 import { positionalMouse } from "./src/utils/positionalMouse.js";
 
@@ -67,16 +67,30 @@ export default defineConfig(
         // src/examples.d.ts.
         alias: {
           ...blockNoteSrcAliases,
-          // `@blocknote/shared` lives at the repo root (not under packages/), so
-          // it isn't picked up by the packages scan above. The suggestion-gallery
-          // scenarios import the shared `testDocument` from it.
+          // The shared test-utils package lives at the repo root (not under
+          // packages/), so it isn't picked up by the packages scan above. It
+          // needs two aliases for its two kinds of consumers: example apps
+          // import it by its real package name (`@blocknote/shared/...`, as
+          // the suggestion-gallery scenarios do), while test code uses the
+          // repo-wide `@shared` path alias (matching the packages' vite and
+          // tsconfig setups).
+          // TODO: shouldn't the gallery example also just use @shared for consistency?
           "@blocknote/shared": path.resolve(__dirname, "../shared"),
+          "@shared": path.resolve(__dirname, "../shared"),
           "@examples": path.resolve(__dirname, "../examples"),
         },
       },
       test: {
         name: "e2e",
-        include: ["./src/end-to-end/**/*.test.tsx"],
+        // Besides the end-to-end tests, this suite also runs the packages'
+        // `.browser.test` files: unit tests for browser-only implementations
+        // (canvas rasterization, Mermaid rendering), colocated with the code
+        // they test but needing a real browser. The packages' own (node)
+        // vitest configs exclude them.
+        include: [
+          "./src/end-to-end/**/*.test.tsx",
+          "../packages/*/src/**/*.browser.test.{ts,tsx}",
+        ],
         setupFiles: ["./vitestSetup.browser.ts"],
         // Running three browsers concurrently inside one Docker container already
         // saturates CPU; layering per-browser file parallelism on top causes

@@ -526,8 +526,9 @@ export const exportTestInstancesHTML: TestInstance<
   executeTest: testExportHTML,
 }));
 
-// Markdown export runs the external HTML through remark, so the diagram's
-// fenced-code representation should come out as a ```mermaid fence.
+// Markdown export runs the external HTML through the markdown serializer:
+// the diagram's fenced-code representation should come out as a ```mermaid
+// fence, and math's MathML (via its LaTeX source annotation) as $$/$ spans.
 export const exportTestInstancesMarkdown: TestInstance<
   ExportTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
   TestBlockSchema,
@@ -541,6 +542,37 @@ export const exportTestInstancesMarkdown: TestInstance<
         {
           type: "diagram",
           content: "graph TD\n  A[Start] --> B[End]",
+        },
+      ],
+    },
+    executeTest: testExportMarkdown,
+  },
+  {
+    testCase: {
+      name: "math/basic",
+      content: [
+        {
+          type: "math",
+          content: "a^2 + b^2 = c^2",
+        },
+      ],
+    },
+    executeTest: testExportMarkdown,
+  },
+  {
+    testCase: {
+      name: "inlineMath/basic",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            "The identity ",
+            {
+              type: "inlineMath",
+              content: "e^{i\\pi} + 1 = 0",
+            } as const,
+            " is elegant.",
+          ],
         },
       ],
     },

@@ -1133,6 +1133,7 @@ export const examples = {
             "@blocknote/xl-pdf-exporter": "latest",
             "@react-pdf/math": "^2.0.1",
             "@react-pdf/renderer": "^4.5.1",
+            "mathjax-full": "^3.2.2",
           } as any,
           pro: true,
         },
@@ -1209,6 +1210,8 @@ export const examples = {
           author: "jmarbutt",
           tags: [""],
           dependencies: {
+            "@blocknote/diagram-block": "latest",
+            "@blocknote/math-block": "latest",
             "@blocknote/xl-email-exporter": "latest",
             "@react-email/render": "^2.0.4",
           } as any,

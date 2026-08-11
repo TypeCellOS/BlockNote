@@ -2,6 +2,13 @@
 
 BlockNote is a block-based rich text editor for the web. It's designed as a batteries-included product that offers a solid user experience with minimal setup. However, it also offers extensibility via plugins and custom block types.
 
+# Code Conventions
+
+- **Leverage the type system so mistakes surface at compile time, not runtime.** Model states and outcomes explicitly: discriminated unions over boolean flags with optional fields, no `any` or casts that hide a case a caller should handle, exhaustive `switch`es over union members. If the compiler can enforce a contract, prefer that over documentation or runtime checks.
+- **Expected failures are values, not exceptions.** When an operation can fail as part of normal use (canonical example: parsing user input, like LaTeX or Mermaid source), that failure is part of the function's contract — so it belongs in the return type. Catch it at the lowest level (the small adapter around the throwing third-party call) and convert it into a Result-style discriminated union (e.g. `{ error?: undefined; ...data } | { error: string }`). The failure then propagates through the type system, and the compiler forces every caller to decide how to handle it. Exceptions don't appear in TypeScript signatures, so a thrown expected error is invisible to callers — and a `try/catch` around a whole pipeline conflates expected failures with genuine bugs.
+- **Exceptions are only for unexpected failures** — broken invariants, environment or infrastructure problems, programmer errors. Let them propagate and fail loudly; don't catch-and-continue. Corollary: never render a caught exception's message into user-facing output (documents, UI) — a catch-all can capture anything, and arbitrary messages can leak internals. Only messages carried by typed expected-error results are known-safe to display.
+- **Prefer `function name() {}` declarations over `const name = () => {}`** for named functions (anonymous callbacks and returned closures can stay arrows).
+
 # Common Commands
 
 All commands below are listed under `package.json` in the project root. See `vite.config.ts` for relevant configuration settings.

@@ -1,5 +1,4 @@
 import {
-  BlockConfig,
   BlockFromConfigNoChildren,
   BlockMapping,
   COLORS_DEFAULT,
@@ -29,8 +28,6 @@ import { Table } from "../util/Table.js";
 
 type BSchema = DefaultBlockSchema & {
   pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  math: BlockConfig<"math", {}, "inline">;
-  diagram: BlockConfig<"diagram", {}, "inline">;
 } & typeof multiColumnSchema.blockSchema;
 
 function blockPropsToStyles(
@@ -79,11 +76,7 @@ function blockPropsToStyles(
 }
 
 const codeMapping = (
-  block: BlockFromConfigNoChildren<
-    BSchema["codeBlock"] | BSchema["math"] | BSchema["diagram"],
-    any,
-    any
-  >,
+  block: BlockFromConfigNoChildren<BSchema["codeBlock"], any, any>,
 ) => {
   // Code blocks hold plain content: at most a single unstyled text item.
   const [textItem, ...excessItems] = block.content as PlainContent;
@@ -197,8 +190,6 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     ];
   },
   codeBlock: codeMapping,
-  math: codeMapping,
-  diagram: codeMapping,
   pageBreak: () => {
     return new Paragraph({
       children: [new PageBreak()],

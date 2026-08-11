@@ -6,13 +6,13 @@ import {
 import { TbMathFunction } from "react-icons/tb";
 
 import { MathBlockConfig } from "../../createReactMathBlockSpec.js";
-import { getMathPlainTextContent } from "../../../helpers/getMathPlainTextContent.js";
+import { plainContentToString } from "@blocknote/core";
 import { useLatexToMathMLString } from "../../../helpers/render/useLatexToMathML.js";
 
 export const MathBlockPreviewWithPopup = (
   props: ReactCustomBlockRenderProps<MathBlockConfig>,
 ) => {
-  const source = getMathPlainTextContent(props.block.content).trim();
+  const source = plainContentToString(props.block.content).trim();
   const { mathMLString, error } = useLatexToMathMLString(source);
 
   return (
