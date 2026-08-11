@@ -51,9 +51,15 @@ export const RelativePositionMappingExtension = createExtension(
           const curYSyncPluginState = ySyncPluginKey.getState(
             editor.prosemirrorState,
           ) as typeof ySyncPluginState;
+          // Resolve against the doc that owns the currently bound type, and not
+          // against `curYSyncPluginState.doc`. Those can point at different
+          // Y.Docs (e.g. right after forking the doc, see `ForkYDocExtension`),
+          // in which case the resolved type wouldn't be part of the bound
+          // fragment and the position would be reported as "not found".
+          const boundType = curYSyncPluginState.binding.type;
           const pos = relativePositionToAbsolutePosition(
-            curYSyncPluginState.doc,
-            curYSyncPluginState.binding.type,
+            boundType.doc,
+            boundType,
             relativePosition,
             curYSyncPluginState.binding.mapping,
           );

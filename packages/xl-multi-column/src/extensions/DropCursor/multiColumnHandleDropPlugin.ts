@@ -2,6 +2,7 @@ import type { BlockNoteEditor } from "@blocknote/core";
 import {
   UniqueID,
   createExtension,
+  fragmentToBlocks,
   getBlockInfo,
   nodeToBlock,
 } from "@blocknote/core";
@@ -32,16 +33,30 @@ export function createMultiColumnHandleDropPlugin(
           return false; // Let ProseMirror handle regular drops
         }
 
-        if (slice.content.childCount === 0) {
+        // `fragmentToBlocks` instead of converting the fragment's children
+        // directly, as multi-block selections can produce fragments where the
+        // blocks are nested in e.g. a `blockGroup` node.
+        const draggedBlocks = fragmentToBlocks<any, any, any>(slice.content);
+        if (draggedBlocks.length === 0) {
           return false; // Let ProseMirror handle empty slice drops
         }
-
-        const draggedBlock = nodeToBlock(
-          slice.content.child(0),
-          view.state.doc,
-        );
+        const draggedBlockIds = new Set(draggedBlocks.map((block) => block.id));
 
         if (blockInfo.blockNoteType === "column") {
+          // The user is dropping the target column's entire contents on the
+          // column's own edge - the new column would just replace the
+          // emptied target in the same position, so do nothing. This also
+          // keeps the column's ID and width instead of resetting them.
+          let allTargetChildrenDragged = true;
+          blockInfo.bnBlock.node.forEach((child) => {
+            if (!draggedBlockIds.has(child.attrs.id)) {
+              allTargetChildrenDragged = false;
+            }
+          });
+          if (allTargetChildrenDragged) {
+            return true;
+          }
+
           // Insert new column in existing columnList
           const parentBlock = view.state.doc
             .resolve(blockInfo.bnBlock.beforePos)
@@ -79,31 +94,63 @@ export function createMultiColumnHandleDropPlugin(
             });
           }
 
-          const index = columnList.children.findIndex(
-            (b) => b.id === blockInfo.bnBlock.node.attrs.id,
-          );
+          const targetColumnId = blockInfo.bnBlock.node.attrs.id;
 
-          const newChildren = columnList.children
-            // If the dragged block is in one of the columns, remove it.
+          // Tracks which of the dragged blocks were already in the column
+          // list - removing those from their old position is handled by
+          // filtering the column list's children instead of `removeBlocks`.
+          const blocksAlreadyInColumnList = new Set<string>();
+          const remainingColumns = columnList.children
+            // If any of the dragged blocks are in one of the columns, remove
+            // them.
             .map((column) => ({
               ...column,
-              children: column.children.filter(
-                (block) => block.id !== draggedBlock.id,
-              ),
-            }))
-            // Remove empty columns (can happen when dragged block is removed).
-            .filter((column) => column.children.length > 0)
-            // Insert the dragged block in the correct position.
-            .toSpliced(edgePos.position === "left" ? index : index + 1, 0, {
-              type: "column",
-              children: [draggedBlock],
-              props: {},
-              content: undefined,
-              id: UniqueID.options.generateID(),
-            });
+              children: column.children.filter((block) => {
+                if (!draggedBlockIds.has(block.id)) {
+                  return true;
+                }
 
-          if (editor.getBlock(draggedBlock.id)) {
-            editor.removeBlocks([draggedBlock]);
+                blocksAlreadyInColumnList.add(block.id);
+                return false;
+              }),
+            }))
+            // Remove empty columns (can happen when dragged blocks are
+            // removed).
+            .filter((column) => column.children.length > 0);
+
+          // The insertion index is computed on the remaining columns, as
+          // removing an emptied column before the drop target shifts the
+          // target's position in the list.
+          const targetIndex = remainingColumns.findIndex(
+            (column) => column.id === targetColumnId,
+          );
+          if (targetIndex === -1) {
+            // The target column can only be missing if the drag emptied it,
+            // which is handled as a no-op above.
+            throw new Error(
+              "Drop target column not found in the remaining columns",
+            );
+          }
+          const insertionIndex =
+            edgePos.position === "left" ? targetIndex : targetIndex + 1;
+
+          // Insert the dragged blocks as a new column in the correct
+          // position.
+          const newChildren = remainingColumns.toSpliced(insertionIndex, 0, {
+            type: "column",
+            children: draggedBlocks,
+            props: {},
+            content: undefined,
+            id: UniqueID.options.generateID(),
+          });
+
+          const blocksToRemove = draggedBlocks.filter(
+            (block) =>
+              editor.getBlock(block.id) &&
+              !blocksAlreadyInColumnList.has(block.id),
+          );
+          if (blocksToRemove.length > 0) {
+            editor.removeBlocks(blocksToRemove);
           }
 
           editor.updateBlock(columnList, {
@@ -113,19 +160,22 @@ export function createMultiColumnHandleDropPlugin(
           // Create new columnList with blocks as columns
           const block = nodeToBlock(blockInfo.bnBlock.node, view.state.doc);
 
-          // The user is dropping next to the original block being dragged - do
+          // The user is dropping next to one of the blocks being dragged - do
           // nothing.
-          if (block.id === draggedBlock.id) {
+          if (draggedBlockIds.has(block.id)) {
             return true;
           }
 
-          const blocks =
+          const columns =
             edgePos.position === "left"
-              ? [draggedBlock, block]
-              : [block, draggedBlock];
+              ? [draggedBlocks, [block]]
+              : [[block], draggedBlocks];
 
-          if (editor.getBlock(draggedBlock.id)) {
-            editor.removeBlocks([draggedBlock]);
+          const blocksToRemove = draggedBlocks.filter((draggedBlock) =>
+            editor.getBlock(draggedBlock.id),
+          );
+          if (blocksToRemove.length > 0) {
+            editor.removeBlocks(blocksToRemove);
           }
 
           editor.replaceBlocks(
@@ -133,10 +183,10 @@ export function createMultiColumnHandleDropPlugin(
             [
               {
                 type: "columnList",
-                children: blocks.map((b) => {
+                children: columns.map((children) => {
                   return {
                     type: "column",
-                    children: [b],
+                    children,
                   };
                 }),
               },

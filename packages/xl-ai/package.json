@@ -11,7 +11,7 @@
     "directory": "packages/xl-ai"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.52.1",
+  "version": "0.53.0",
   "files": [
     "dist",
     "types",
@@ -74,15 +74,15 @@
     "@blocknote/react": "workspace:^",
     "@floating-ui/react": "^0.27.18",
     "@handlewithcare/prosemirror-suggest-changes": "^0.1.8",
-    "@tiptap/core": "^3.13.0",
+    "@tiptap/core": "^3.29.2",
     "ai": "^6.0.5",
     "lodash.isequal": "^4.5.0",
     "lodash.merge": "^4.6.2",
-    "prosemirror-changeset": "^2.3.1",
-    "prosemirror-model": "^1.25.4",
+    "prosemirror-changeset": "^2.4.1",
+    "prosemirror-model": "^1.25.11",
     "prosemirror-state": "^1.4.4",
-    "prosemirror-tables": "^1.8.3",
-    "prosemirror-transform": "^1.11.0",
+    "prosemirror-tables": "^1.8.5",
+    "prosemirror-transform": "^1.12.0",
     "prosemirror-view": "^1.42.2"
   },
   "devDependencies": {
@@ -114,7 +114,8 @@
     "typescript": "^5.9.3",
     "undici": "^6.22.0",
     "vite-plugin-externalize-deps": "^0.10.0",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "yjs": "^13.6.27"
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",

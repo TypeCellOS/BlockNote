@@ -15,6 +15,20 @@ import {
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
 
+/**
+ * Placeholder character inserted into empty inline-content blocks when
+ * exporting to external HTML. An empty block serializes to an element with no
+ * children (e.g. `<p></p>`), which is dropped when the HTML is parsed back into
+ * blocks. Filling it with this character keeps the block alive through the
+ * round trip, and the parser strips the character again so the block ends up
+ * empty (see `HTMLToBlocks`).
+ *
+ * The Unicode object replacement character (U+FFFC) is used because it's a
+ * reserved placeholder that users don't type, so it can be safely removed on
+ * import without discarding legitimate content (unlike a non-breaking space).
+ */
+export const EMPTY_BLOCK_PLACEHOLDER = "￼";
+
 function addAttributesAndRemoveClasses(element: HTMLElement) {
   // Removes all BlockNote specific class names.
   const className =
@@ -265,15 +279,35 @@ function serializeBlock<
     }
   }
 
-  if (ret.contentDOM && block.content) {
-    const ic = serializeInlineContentExternalHTML(
-      editor,
-      block.content as any, // TODO
-      serializer,
-      { ...options, blockType: block.type },
-    );
+  if (ret.contentDOM) {
+    if (block.content) {
+      const ic = serializeInlineContentExternalHTML(
+        editor,
+        block.content as any, // TODO
+        serializer,
+        { ...options, blockType: block.type },
+      );
 
-    ret.contentDOM.appendChild(ic);
+      ret.contentDOM.appendChild(ic);
+    }
+
+    // Blocks with empty inline content (e.g. an empty paragraph) serialize to
+    // an element with no children (e.g. `<p></p>`), which is ignored when the
+    // HTML is parsed back into blocks. To make these blocks survive such a
+    // round trip, we fill their content with a placeholder character that the
+    // parser strips out again (see `EMPTY_BLOCK_PLACEHOLDER`).
+    //
+    // Only applies to blocks that hold inline content: containers (columns,
+    // tables) fill their `contentDOM` with child blocks later on, and code
+    // blocks would turn the placeholder into literal content.
+    const blockNodeType = editor.pmSchema.nodes[block.type as any];
+    if (
+      blockNodeType?.inlineContent &&
+      !blockNodeType.spec.code &&
+      ret.contentDOM.childNodes.length === 0
+    ) {
+      ret.contentDOM.appendChild(doc.createTextNode(EMPTY_BLOCK_PLACEHOLDER));
+    }
   }
 
   let listType = undefined;

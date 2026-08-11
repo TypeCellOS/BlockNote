@@ -93,6 +93,70 @@ export function getBlockFromPos(getPos: () => number | undefined, doc: PMNode) {
   return block;
 }
 
+/**
+ * Resolves the block a node view should render, tolerating a `getPos()` that
+ * can't be trusted.
+ *
+ * ProseMirror derives `getPos()` from its view-desc tree, but
+ * `EditorView.updateStateInner` assigns the new state *before* it reconciles
+ * that tree. Anything that runs partway through reconciliation - a re-entrant
+ * dispatch from a node view's effect, TipTap's `flushSync` while mounting a
+ * node view - therefore sees positions that no longer line up with
+ * `view.state.doc`. The position then either lands out of range or, just as
+ * bad, in range but pointing at the wrong node.
+ *
+ * Node views are constructed inside that same window, so this applies at
+ * construction just as much as on re-render. The state is always transient:
+ * ProseMirror finishes reconciling and rebuilds the node view against the
+ * current document immediately after. So we degrade instead of throwing,
+ * because a stale frame is invisible where a throw is not.
+ *
+ * See issues #2937, #2682 and #2621.
+ */
+export function getBlockFromNodeView(
+  getPos: () => number | undefined,
+  node: PMNode,
+  doc: PMNode,
+) {
+  try {
+    return getBlockFromPos(getPos, doc);
+  } catch (e) {
+    // Failing here means the node is not in `doc` — a re-entrant dispatch
+    // superseded the document ProseMirror is building node views for, and the
+    // node went with it. So there is no container to read an id from, and the
+    // block has to be built from the node alone. Deliberately silent: this is
+    // expected and self-correcting, and there is nothing a consumer could do
+    // about it in the meantime.
+    //
+    // `type`, `props` and `content` are read off the node and are correct.
+    // `children` is empty and `id` is freshly generated, i.e. it belongs to no
+    // block in the document — callers must not treat it as addressable. (It
+    // can't collide with a real block: ids are uuids, and the deterministic
+    // test-mode generator shares one monotonic counter with real ids.) This is
+    // short-lived; ProseMirror rebuilds the node view against the real document
+    // right after.
+    //
+    // The alternatives are worse. Throwing is the crash this exists to prevent.
+    // Returning an empty placeholder node view can leave the block
+    // *permanently* blank, since vanilla node views don't implement `update()`
+    // and so are only rebuilt when something else changes the document.
+    //
+    // `createAndFill` rather than `create` so an unexpected node shape yields
+    // `null` instead of throwing over the top of the original failure.
+    const standalone = doc.type.schema.nodes["blockContainer"]?.createAndFill(
+      null,
+      node,
+    );
+    if (standalone) {
+      return nodeToBlock(standalone, doc);
+    }
+
+    // Nothing left to render from. Surface the original failure rather than
+    // inventing a block that isn't grounded in anything.
+    throw e;
+  }
+}
+
 // Function that wraps the `dom` element returned from 'blockConfig.render' in a
 // `blockContent` div, which contains the block type and props as HTML
 // attributes. If `blockConfig.render` also returns a `contentDOM`, it also adds

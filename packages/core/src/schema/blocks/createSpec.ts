@@ -7,6 +7,7 @@ import {
 } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
+import { ignoreNonContentMutations } from "../nodeViewMutations.js";
 import {
   Extension,
   ExtensionFactoryInstance,
@@ -14,7 +15,7 @@ import {
 import { nonFormattingMarks } from "../markGroups.js";
 import { PropSchema } from "../propTypes.js";
 import {
-  getBlockFromPos,
+  getBlockFromNodeView,
   propsToAttributes,
   wrapInBlockStructure,
 } from "./internal.js";
@@ -246,8 +247,15 @@ export function addNodeAndExtensionsToSpec<
         return (props) => {
           // Gets the BlockNote editor instance
           const editor = this.options.editor;
-          // Gets the block
-          const block = getBlockFromPos(props.getPos, props.view.state.doc);
+          // Gets the block. Resolving this can't rely on `getPos()` alone —
+          // node views are constructed part-way through ProseMirror's
+          // reconciliation, where positions don't always line up with
+          // `view.state.doc` yet (see `getBlockFromNodeView`).
+          const block = getBlockFromNodeView(
+            props.getPos,
+            props.node,
+            props.view.state.doc,
+          );
           // Gets the custom HTML attributes for `blockContent` nodes
           const blockContentDOMAttributes =
             this.options.domAttributes?.blockContent || {};
@@ -270,6 +278,11 @@ export function addNodeAndExtensionsToSpec<
           if (blockImplementation.meta?.selectable === false) {
             applyNonSelectableBlockFix(typedNodeView, this.editor);
           }
+
+          // Ignores DOM mutations that don't affect the block's content, so
+          // that browser extensions which rewrite the DOM (e.g. Dark Reader)
+          // can't trigger an infinite re-render loop that freezes the tab.
+          ignoreNonContentMutations(typedNodeView);
 
           // See explanation for why `update` is not implemented for NodeViews
           // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464

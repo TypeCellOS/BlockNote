@@ -59,7 +59,13 @@ export class RESTYjsThreadStore extends YjsThreadStoreBase {
   }) => {
     const { threadId, selection } = options;
 
-    const binding = ySyncPluginKey.getState(options.editor.prosemirrorState);
+    // Note: the positions have to be resolved against the *binding's* type and
+    // mapping. The plugin state has a `type` of its own, but no `mapping`, and
+    // its `type` can go stale (e.g. while the doc is forked, see
+    // `ForkYDocExtension`).
+    const binding = ySyncPluginKey.getState(
+      options.editor.prosemirrorState,
+    )?.binding;
     const yjsSelection = binding
       ? {
           head: absolutePositionToRelativePosition(

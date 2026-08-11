@@ -1,3 +1,32 @@
+## 0.53.0 (2026-08-06)
+
+### 🚀 Features
+
+- **shadcn:** ⚠️ Use base-ui instead of radix (BLO-1279) ([#2913](https://github.com/TypeCellOS/BlockNote/pull/2913))
+
+### 🩹 Fixes
+
+- getCellSelection throwing error in positions (BLO-1193) ([#2911](https://github.com/TypeCellOS/BlockNote/pull/2911))
+- Multi-column slash menu items within a column (BLO-905) ([#2914](https://github.com/TypeCellOS/BlockNote/pull/2914))
+- Suggestion menu behaviour (BLO-1283, BLO-955) ([#2930](https://github.com/TypeCellOS/BlockNote/pull/2930))
+- Ignore useless block/inline content mutations (BLO-1224) ([#2912](https://github.com/TypeCellOS/BlockNote/pull/2912))
+- **slash-menu:** Better overflow behavior (BLO-1192) ([#2909](https://github.com/TypeCellOS/BlockNote/pull/2909))
+- Slash menu item selection behaviour (BLO-1222) ([#2838](https://github.com/TypeCellOS/BlockNote/pull/2838))
+- HTML export/parse round trip ignoring empty blocks (BLO-873) ([#2931](https://github.com/TypeCellOS/BlockNote/pull/2931))
+- **core:** Guard getBlock() calls to prevent TypeError on stale blocks ([#2941](https://github.com/TypeCellOS/BlockNote/pull/2941))
+- Stop stale node view positions crashing the editor ([#2938](https://github.com/TypeCellOS/BlockNote/pull/2938))
+- Multi-column trailing blocks, column hover borders & drop cursor left edge BLO-1226 ([#2885](https://github.com/TypeCellOS/BlockNote/pull/2885))
+
+#### ⚠️ Breaking Changes
+
+- **shadcn:** ⚠️ Use base-ui instead of radix (BLO-1279) ([#2913](https://github.com/TypeCellOS/BlockNote/pull/2913))
+
+### ❤️ Thank You
+
+- Yousef
+- Nick Perez <nick@blocknotejs.org>
+- Matthew Lipski ([@matthewlipski](https://github.com/matthewlipski))
+
 ## 0.52.1 (2026-07-20)
 
 ### 🩹 Fixes
