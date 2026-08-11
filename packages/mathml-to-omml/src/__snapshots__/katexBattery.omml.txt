@@ -1,0 +1,1229 @@
+===== fraction: \frac{a}{b}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:f>
+        <m:num>
+            <m:r>
+                <m:t>
+                    a
+                </m:t>
+            </m:r>
+        </m:num>
+        <m:den>
+            <m:r>
+                <m:t>
+                    b
+                </m:t>
+            </m:r>
+        </m:den>
+    </m:f>
+</m:oMath>
+
+===== binomial: \binom{n}{k}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:d>
+        <m:e>
+            <m:f>
+                <m:fPr>
+                    <m:type m:val="noBar"/>
+                </m:fPr>
+                <m:num>
+                    <m:r>
+                        <m:t>
+                            n
+                        </m:t>
+                    </m:r>
+                </m:num>
+                <m:den>
+                    <m:r>
+                        <m:t>
+                            k
+                        </m:t>
+                    </m:r>
+                </m:den>
+            </m:f>
+        </m:e>
+    </m:d>
+</m:oMath>
+
+===== square root: a^2 = \sqrt{b^2 + c^2}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:sSup>
+        <m:e>
+            <m:r>
+                <m:t>
+                    a
+                </m:t>
+            </m:r>
+        </m:e>
+        <m:sup>
+            <m:r>
+                <m:t>
+                    2
+                </m:t>
+            </m:r>
+        </m:sup>
+    </m:sSup>
+    <m:r>
+        <m:t>
+            =
+        </m:t>
+    </m:r>
+    <m:rad>
+        <m:radPr>
+            <m:degHide m:val="1"/>
+        </m:radPr>
+        <m:deg/>
+        <m:e>
+            <m:sSup>
+                <m:e>
+                    <m:r>
+                        <m:t>
+                            b
+                        </m:t>
+                    </m:r>
+                </m:e>
+                <m:sup>
+                    <m:r>
+                        <m:t>
+                            2
+                        </m:t>
+                    </m:r>
+                </m:sup>
+            </m:sSup>
+            <m:r>
+                <m:t>
+                    +
+                </m:t>
+            </m:r>
+            <m:sSup>
+                <m:e>
+                    <m:r>
+                        <m:t>
+                            c
+                        </m:t>
+                    </m:r>
+                </m:e>
+                <m:sup>
+                    <m:r>
+                        <m:t>
+                            2
+                        </m:t>
+                    </m:r>
+                </m:sup>
+            </m:sSup>
+        </m:e>
+    </m:rad>
+</m:oMath>
+
+===== nth root: \sqrt[3]{x}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:rad>
+        <m:deg>
+            <m:r>
+                <m:t>
+                    3
+                </m:t>
+            </m:r>
+        </m:deg>
+        <m:e>
+            <m:r>
+                <m:t>
+                    x
+                </m:t>
+            </m:r>
+        </m:e>
+    </m:rad>
+</m:oMath>
+
+===== subscript + superscript: x_i^2
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:sSubSup>
+        <m:e>
+            <m:r>
+                <m:t>
+                    x
+                </m:t>
+            </m:r>
+        </m:e>
+        <m:sub>
+            <m:r>
+                <m:t>
+                    i
+                </m:t>
+            </m:r>
+        </m:sub>
+        <m:sup>
+            <m:r>
+                <m:t>
+                    2
+                </m:t>
+            </m:r>
+        </m:sup>
+    </m:sSubSup>
+</m:oMath>
+
+===== prime: f'(x)
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:sSup>
+        <m:e>
+            <m:r>
+                <m:t>
+                    f
+                </m:t>
+            </m:r>
+        </m:e>
+        <m:sup>
+            <m:r>
+                <m:t>
+                    ′
+                </m:t>
+            </m:r>
+        </m:sup>
+    </m:sSup>
+    <m:r>
+        <m:t>
+            (x)
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== euler: e^{i\pi} + 1 = 0
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:sSup>
+        <m:e>
+            <m:r>
+                <m:t>
+                    e
+                </m:t>
+            </m:r>
+        </m:e>
+        <m:sup>
+            <m:r>
+                <m:t>
+                    iπ
+                </m:t>
+            </m:r>
+        </m:sup>
+    </m:sSup>
+    <m:r>
+        <m:t>
+            +1=0
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== sum with limits (display): \sum_{i=1}^{n} i^2
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:nary>
+        <m:naryPr>
+            <m:chr m:val="∑"/>
+            <m:limLoc m:val="undOvr"/>
+            <m:grow m:val="1"/>
+        </m:naryPr>
+        <m:sub>
+            <m:r>
+                <m:t>
+                    i=1
+                </m:t>
+            </m:r>
+        </m:sub>
+        <m:sup>
+            <m:r>
+                <m:t>
+                    n
+                </m:t>
+            </m:r>
+        </m:sup>
+        <m:e>
+            <m:sSup>
+                <m:e>
+                    <m:r>
+                        <m:t>
+                            i
+                        </m:t>
+                    </m:r>
+                </m:e>
+                <m:sup>
+                    <m:r>
+                        <m:t>
+                            2
+                        </m:t>
+                    </m:r>
+                </m:sup>
+            </m:sSup>
+        </m:e>
+    </m:nary>
+</m:oMath>
+
+===== sum with limits (inline): \sum_{i=1}^{n} i^2
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:nary>
+        <m:naryPr>
+            <m:chr m:val="∑"/>
+            <m:limLoc m:val="subSup"/>
+            <m:grow m:val="1"/>
+        </m:naryPr>
+        <m:sub>
+            <m:r>
+                <m:t>
+                    i=1
+                </m:t>
+            </m:r>
+        </m:sub>
+        <m:sup>
+            <m:r>
+                <m:t>
+                    n
+                </m:t>
+            </m:r>
+        </m:sup>
+        <m:e>
+            <m:sSup>
+                <m:e>
+                    <m:r>
+                        <m:t>
+                            i
+                        </m:t>
+                    </m:r>
+                </m:e>
+                <m:sup>
+                    <m:r>
+                        <m:t>
+                            2
+                        </m:t>
+                    </m:r>
+                </m:sup>
+            </m:sSup>
+        </m:e>
+    </m:nary>
+</m:oMath>
+
+===== sum without limits: \sum x
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:nary>
+        <m:naryPr>
+            <m:chr m:val="∑"/>
+            <m:limLoc m:val="undOvr"/>
+            <m:grow m:val="1"/>
+            <m:subHide m:val="1"/>
+            <m:supHide m:val="1"/>
+        </m:naryPr>
+        <m:sub/>
+        <m:sup/>
+        <m:e>
+            <m:r>
+                <m:t>
+                    x
+                </m:t>
+            </m:r>
+        </m:e>
+    </m:nary>
+</m:oMath>
+
+===== sum standalone: \sum_{i=1}^{n}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:limUpp>
+        <m:e>
+            <m:limLow>
+                <m:e>
+                    <m:r>
+                        <m:t>
+                            ∑
+                        </m:t>
+                    </m:r>
+                </m:e>
+                <m:lim>
+                    <m:r>
+                        <m:t>
+                            i=1
+                        </m:t>
+                    </m:r>
+                </m:lim>
+            </m:limLow>
+        </m:e>
+        <m:lim>
+            <m:r>
+                <m:t>
+                    n
+                </m:t>
+            </m:r>
+        </m:lim>
+    </m:limUpp>
+</m:oMath>
+
+===== sum followed by relation: \sum_{i} x = y
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:nary>
+        <m:naryPr>
+            <m:chr m:val="∑"/>
+            <m:limLoc m:val="undOvr"/>
+            <m:grow m:val="1"/>
+            <m:supHide m:val="1"/>
+        </m:naryPr>
+        <m:sub>
+            <m:r>
+                <m:t>
+                    i
+                </m:t>
+            </m:r>
+        </m:sub>
+        <m:sup/>
+        <m:e>
+            <m:r>
+                <m:t>
+                    x
+                </m:t>
+            </m:r>
+        </m:e>
+    </m:nary>
+    <m:r>
+        <m:t>
+            =y
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== integral: \int_0^\infty e^{-x} \, dx
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:nary>
+        <m:naryPr>
+            <m:limLoc m:val="subSup"/>
+            <m:grow m:val="1"/>
+        </m:naryPr>
+        <m:sub>
+            <m:r>
+                <m:t>
+                    0
+                </m:t>
+            </m:r>
+        </m:sub>
+        <m:sup>
+            <m:r>
+                <m:t>
+                    ∞
+                </m:t>
+            </m:r>
+        </m:sup>
+        <m:e>
+            <m:sSup>
+                <m:e>
+                    <m:r>
+                        <m:t>
+                            e
+                        </m:t>
+                    </m:r>
+                </m:e>
+                <m:sup>
+                    <m:r>
+                        <m:t>
+                            −x
+                        </m:t>
+                    </m:r>
+                </m:sup>
+            </m:sSup>
+        </m:e>
+    </m:nary>
+    <m:r>
+        <m:rPr>
+            <m:nor/>
+        </m:rPr>
+        <m:t xml:space="preserve"> </m:t>
+    </m:r>
+    <m:r>
+        <m:t>
+            dx
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== contour integral: \oint_C f
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:nary>
+        <m:naryPr>
+            <m:chr m:val="∮"/>
+            <m:limLoc m:val="subSup"/>
+            <m:grow m:val="1"/>
+            <m:supHide m:val="1"/>
+        </m:naryPr>
+        <m:sub>
+            <m:r>
+                <m:t>
+                    C
+                </m:t>
+            </m:r>
+        </m:sub>
+        <m:sup/>
+        <m:e>
+            <m:r>
+                <m:t>
+                    f
+                </m:t>
+            </m:r>
+        </m:e>
+    </m:nary>
+</m:oMath>
+
+===== limit: \lim_{x \to 0} \frac{\sin x}{x}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:limLow>
+        <m:e>
+            <m:r>
+                <m:rPr>
+                    <m:sty m:val="p"/>
+                </m:rPr>
+                <m:t>
+                    lim
+                </m:t>
+            </m:r>
+        </m:e>
+        <m:lim>
+            <m:r>
+                <m:t>
+                    x→0
+                </m:t>
+            </m:r>
+        </m:lim>
+    </m:limLow>
+    <m:f>
+        <m:num>
+            <m:r>
+                <m:rPr>
+                    <m:sty m:val="p"/>
+                </m:rPr>
+                <m:t>
+                    sin
+                </m:t>
+            </m:r>
+            <m:r>
+                <m:t>
+                    x
+                </m:t>
+            </m:r>
+        </m:num>
+        <m:den>
+            <m:r>
+                <m:t>
+                    x
+                </m:t>
+            </m:r>
+        </m:den>
+    </m:f>
+</m:oMath>
+
+===== parentheses: \left( \frac{a}{b} \right)
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:d>
+        <m:e>
+            <m:f>
+                <m:num>
+                    <m:r>
+                        <m:t>
+                            a
+                        </m:t>
+                    </m:r>
+                </m:num>
+                <m:den>
+                    <m:r>
+                        <m:t>
+                            b
+                        </m:t>
+                    </m:r>
+                </m:den>
+            </m:f>
+        </m:e>
+    </m:d>
+</m:oMath>
+
+===== evaluation bar: \left. \frac{df}{dx} \right|_{x=0}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:sSub>
+        <m:e>
+            <m:d>
+                <m:dPr>
+                    <m:begChr m:val=""/>
+                    <m:endChr m:val="∣"/>
+                </m:dPr>
+                <m:e>
+                    <m:f>
+                        <m:num>
+                            <m:r>
+                                <m:t>
+                                    df
+                                </m:t>
+                            </m:r>
+                        </m:num>
+                        <m:den>
+                            <m:r>
+                                <m:t>
+                                    dx
+                                </m:t>
+                            </m:r>
+                        </m:den>
+                    </m:f>
+                </m:e>
+            </m:d>
+        </m:e>
+        <m:sub>
+            <m:r>
+                <m:t>
+                    x=0
+                </m:t>
+            </m:r>
+        </m:sub>
+    </m:sSub>
+</m:oMath>
+
+===== angle brackets: \langle x, y \rangle
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:r>
+        <m:t>
+            ⟨x,y⟩
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== matrix: \begin{pmatrix} a & b \\ c & d \end{pmatrix}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:d>
+        <m:e>
+            <m:m>
+                <m:mPr>
+                    <m:mcs>
+                        <m:mc>
+                            <m:mcPr>
+                                <m:count m:val="2"/>
+                                <m:mcJc m:val="center"/>
+                            </m:mcPr>
+                        </m:mc>
+                    </m:mcs>
+                </m:mPr>
+                <m:mr>
+                    <m:e>
+                        <m:r>
+                            <m:t>
+                                a
+                            </m:t>
+                        </m:r>
+                    </m:e>
+                    <m:e>
+                        <m:r>
+                            <m:t>
+                                b
+                            </m:t>
+                        </m:r>
+                    </m:e>
+                </m:mr>
+                <m:mr>
+                    <m:e>
+                        <m:r>
+                            <m:t>
+                                c
+                            </m:t>
+                        </m:r>
+                    </m:e>
+                    <m:e>
+                        <m:r>
+                            <m:t>
+                                d
+                            </m:t>
+                        </m:r>
+                    </m:e>
+                </m:mr>
+            </m:m>
+        </m:e>
+    </m:d>
+</m:oMath>
+
+===== cases: \begin{cases} x & x > 0 \\ 0 & \text{else} \end{cases}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:d>
+        <m:dPr>
+            <m:begChr m:val="{"/>
+            <m:endChr m:val=""/>
+        </m:dPr>
+        <m:e>
+            <m:m>
+                <m:mPr>
+                    <m:mcs>
+                        <m:mc>
+                            <m:mcPr>
+                                <m:count m:val="2"/>
+                                <m:mcJc m:val="left"/>
+                            </m:mcPr>
+                        </m:mc>
+                    </m:mcs>
+                </m:mPr>
+                <m:mr>
+                    <m:e>
+                        <m:r>
+                            <m:t>
+                                x
+                            </m:t>
+                        </m:r>
+                    </m:e>
+                    <m:e>
+                        <m:r>
+                            <m:t>
+                                x&gt;0
+                            </m:t>
+                        </m:r>
+                    </m:e>
+                </m:mr>
+                <m:mr>
+                    <m:e>
+                        <m:r>
+                            <m:t>
+                                0
+                            </m:t>
+                        </m:r>
+                    </m:e>
+                    <m:e>
+                        <m:r>
+                            <m:rPr>
+                                <m:nor/>
+                            </m:rPr>
+                            <m:t>
+                                else
+                            </m:t>
+                        </m:r>
+                    </m:e>
+                </m:mr>
+            </m:m>
+        </m:e>
+    </m:d>
+</m:oMath>
+
+===== aligned: \begin{aligned} a &= b + c \\ d &= e \end{aligned}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:m>
+        <m:mPr>
+            <m:mcs>
+                <m:mc>
+                    <m:mcPr>
+                        <m:count m:val="1"/>
+                        <m:mcJc m:val="right"/>
+                    </m:mcPr>
+                </m:mc>
+                <m:mc>
+                    <m:mcPr>
+                        <m:count m:val="1"/>
+                        <m:mcJc m:val="left"/>
+                    </m:mcPr>
+                </m:mc>
+            </m:mcs>
+        </m:mPr>
+        <m:mr>
+            <m:e>
+                <m:r>
+                    <m:t>
+                        a
+                    </m:t>
+                </m:r>
+            </m:e>
+            <m:e>
+                <m:r>
+                    <m:t>
+                        =b+c
+                    </m:t>
+                </m:r>
+            </m:e>
+        </m:mr>
+        <m:mr>
+            <m:e>
+                <m:r>
+                    <m:t>
+                        d
+                    </m:t>
+                </m:r>
+            </m:e>
+            <m:e>
+                <m:r>
+                    <m:t>
+                        =e
+                    </m:t>
+                </m:r>
+            </m:e>
+        </m:mr>
+    </m:m>
+</m:oMath>
+
+===== hat: \hat{x}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:acc>
+        <m:accPr>
+            <m:chr m:val="̂"/>
+        </m:accPr>
+        <m:e>
+            <m:r>
+                <m:t>
+                    x
+                </m:t>
+            </m:r>
+        </m:e>
+    </m:acc>
+</m:oMath>
+
+===== vector arrow: \vec{v}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:acc>
+        <m:accPr>
+            <m:chr m:val="⃗"/>
+        </m:accPr>
+        <m:e>
+            <m:r>
+                <m:t>
+                    v
+                </m:t>
+            </m:r>
+        </m:e>
+    </m:acc>
+</m:oMath>
+
+===== bar accent: \bar{y}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:acc>
+        <m:accPr>
+            <m:chr m:val="̄"/>
+        </m:accPr>
+        <m:e>
+            <m:r>
+                <m:t>
+                    y
+                </m:t>
+            </m:r>
+        </m:e>
+    </m:acc>
+</m:oMath>
+
+===== tilde: \tilde{a}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:acc>
+        <m:accPr>
+            <m:chr m:val="̃"/>
+        </m:accPr>
+        <m:e>
+            <m:r>
+                <m:t>
+                    a
+                </m:t>
+            </m:r>
+        </m:e>
+    </m:acc>
+</m:oMath>
+
+===== double dot: \ddot{x}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:acc>
+        <m:accPr>
+            <m:chr m:val="̈"/>
+        </m:accPr>
+        <m:e>
+            <m:r>
+                <m:t>
+                    x
+                </m:t>
+            </m:r>
+        </m:e>
+    </m:acc>
+</m:oMath>
+
+===== overline: \overline{AB}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:bar>
+        <m:barPr>
+            <m:pos m:val="top"/>
+        </m:barPr>
+        <m:e>
+            <m:r>
+                <m:t>
+                    AB
+                </m:t>
+            </m:r>
+        </m:e>
+    </m:bar>
+</m:oMath>
+
+===== underline: \underline{x}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:bar>
+        <m:barPr>
+            <m:pos m:val="bot"/>
+        </m:barPr>
+        <m:e>
+            <m:r>
+                <m:t>
+                    x
+                </m:t>
+            </m:r>
+        </m:e>
+    </m:bar>
+</m:oMath>
+
+===== overbrace: \overbrace{a+b}^{n}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:limUpp>
+        <m:e>
+            <m:groupChr>
+                <m:groupChrPr>
+                    <m:chr m:val="⏞"/>
+                    <m:pos m:val="top"/>
+                    <m:vertJc m:val="bot"/>
+                </m:groupChrPr>
+                <m:e>
+                    <m:r>
+                        <m:t>
+                            a+b
+                        </m:t>
+                    </m:r>
+                </m:e>
+            </m:groupChr>
+        </m:e>
+        <m:lim>
+            <m:r>
+                <m:t>
+                    n
+                </m:t>
+            </m:r>
+        </m:lim>
+    </m:limUpp>
+</m:oMath>
+
+===== underbrace: \underbrace{a+b}_{n}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:limLow>
+        <m:e>
+            <m:groupChr>
+                <m:groupChrPr>
+                    <m:chr m:val="⏟"/>
+                    <m:pos m:val="bot"/>
+                    <m:vertJc m:val="top"/>
+                </m:groupChrPr>
+                <m:e>
+                    <m:r>
+                        <m:t>
+                            a+b
+                        </m:t>
+                    </m:r>
+                </m:e>
+            </m:groupChr>
+        </m:e>
+        <m:lim>
+            <m:r>
+                <m:t>
+                    n
+                </m:t>
+            </m:r>
+        </m:lim>
+    </m:limLow>
+</m:oMath>
+
+===== math alphabets: \mathbb{R} \mathcal{L} \mathfrak{g}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:r>
+        <m:t>
+            ℝℒ𝔤
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== bold: \mathbf{v} \boldsymbol{\alpha}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:r>
+        <m:rPr>
+            <m:sty m:val="b"/>
+        </m:rPr>
+        <m:t>
+            v
+        </m:t>
+    </m:r>
+    <m:r>
+        <m:rPr>
+            <m:sty m:val="bi"/>
+        </m:rPr>
+        <m:t>
+            α
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== upright, sans, mono: \mathrm{d} \mathsf{A} \mathtt{x}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:r>
+        <m:rPr>
+            <m:sty m:val="p"/>
+        </m:rPr>
+        <m:t>
+            d
+        </m:t>
+    </m:r>
+    <m:r>
+        <m:t>
+            𝖠𝚡
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== text: \text{hello world}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:r>
+        <m:rPr>
+            <m:nor/>
+        </m:rPr>
+        <m:t>
+            hello world
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== functions: \sin x + \log_2 n
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:r>
+        <m:rPr>
+            <m:sty m:val="p"/>
+        </m:rPr>
+        <m:t>
+            sin
+        </m:t>
+    </m:r>
+    <m:r>
+        <m:t>
+            x+
+        </m:t>
+    </m:r>
+    <m:sSub>
+        <m:e>
+            <m:r>
+                <m:rPr>
+                    <m:sty m:val="p"/>
+                </m:rPr>
+                <m:t>
+                    log
+                </m:t>
+            </m:r>
+        </m:e>
+        <m:sub>
+            <m:r>
+                <m:t>
+                    2
+                </m:t>
+            </m:r>
+        </m:sub>
+    </m:sSub>
+    <m:r>
+        <m:t>
+            n
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== operatorname: \operatorname{tr}(A)
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:r>
+        <m:rPr>
+            <m:sty m:val="p"/>
+        </m:rPr>
+        <m:t>
+            tr
+        </m:t>
+    </m:r>
+    <m:r>
+        <m:t>
+            (A)
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== boxed: \boxed{E = mc^2}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:borderBox>
+        <m:e>
+            <m:r>
+                <m:t>
+                    E=m
+                </m:t>
+            </m:r>
+            <m:sSup>
+                <m:e>
+                    <m:r>
+                        <m:t>
+                            c
+                        </m:t>
+                    </m:r>
+                </m:e>
+                <m:sup>
+                    <m:r>
+                        <m:t>
+                            2
+                        </m:t>
+                    </m:r>
+                </m:sup>
+            </m:sSup>
+        </m:e>
+    </m:borderBox>
+</m:oMath>
+
+===== cancel: \cancel{x}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:borderBox>
+        <m:borderBoxPr>
+            <m:hideTop m:val="1"/>
+            <m:hideBot m:val="1"/>
+            <m:hideLeft m:val="1"/>
+            <m:hideRight m:val="1"/>
+            <m:strikeBLTR m:val="1"/>
+        </m:borderBoxPr>
+        <m:e>
+            <m:r>
+                <m:t>
+                    x
+                </m:t>
+            </m:r>
+        </m:e>
+    </m:borderBox>
+</m:oMath>
+
+===== symbols: \alpha + \infty \pm \cdot
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:r>
+        <m:t>
+            α+∞±⋅
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== extensible arrow: x \xrightarrow{f} y
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:r>
+        <m:t>
+            x
+        </m:t>
+    </m:r>
+    <m:limUpp>
+        <m:e>
+            <m:r>
+                <m:t>
+                    →
+                </m:t>
+            </m:r>
+        </m:e>
+        <m:lim>
+            <m:r>
+                <m:t>
+                    f
+                </m:t>
+            </m:r>
+        </m:lim>
+    </m:limUpp>
+    <m:r>
+        <m:t>
+            y
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== spacing: a\,b\;c\quad d
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:r>
+        <m:t>
+            a
+        </m:t>
+    </m:r>
+    <m:r>
+        <m:rPr>
+            <m:nor/>
+        </m:rPr>
+        <m:t xml:space="preserve"> </m:t>
+    </m:r>
+    <m:r>
+        <m:t>
+            b
+        </m:t>
+    </m:r>
+    <m:r>
+        <m:rPr>
+            <m:nor/>
+        </m:rPr>
+        <m:t xml:space="preserve">  </m:t>
+    </m:r>
+    <m:r>
+        <m:t>
+            c d
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== partial derivatives: \frac{\partial f}{\partial x}
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:f>
+        <m:num>
+            <m:r>
+                <m:t>
+                    ∂f
+                </m:t>
+            </m:r>
+        </m:num>
+        <m:den>
+            <m:r>
+                <m:t>
+                    ∂x
+                </m:t>
+            </m:r>
+        </m:den>
+    </m:f>
+</m:oMath>
+
+===== phantom: a + \phantom{b} + c
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:r>
+        <m:t>
+            a+
+        </m:t>
+    </m:r>
+    <m:phant>
+        <m:phantPr>
+            <m:show m:val="0"/>
+        </m:phantPr>
+        <m:e>
+            <m:r>
+                <m:t>
+                    b
+                </m:t>
+            </m:r>
+        </m:e>
+    </m:phant>
+    <m:r>
+        <m:t>
+            +c
+        </m:t>
+    </m:r>
+</m:oMath>
+
+===== overset: X \overset{!}{=} Y
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:r>
+        <m:t>
+            X
+        </m:t>
+    </m:r>
+    <m:limUpp>
+        <m:e>
+            <m:r>
+                <m:t>
+                    =
+                </m:t>
+            </m:r>
+        </m:e>
+        <m:lim>
+            <m:r>
+                <m:t>
+                    !
+                </m:t>
+            </m:r>
+        </m:lim>
+    </m:limUpp>
+    <m:r>
+        <m:t>
+            Y
+        </m:t>
+    </m:r>
+</m:oMath>

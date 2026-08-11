@@ -1,0 +1,9 @@
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <m:rad>
+    <m:radPr>
+      <m:degHide m:val="on"/>
+    </m:radPr>
+    <m:deg/>
+    <m:e/>
+  </m:rad>
+</m:oMath>

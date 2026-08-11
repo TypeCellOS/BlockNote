@@ -68,11 +68,11 @@
   },
   "dependencies": {
     "@blocknote/core": "workspace:^",
+    "@blocknote/mathml-to-omml": "workspace:^",
     "@blocknote/xl-multi-column": "workspace:^",
     "buffer": "^6.0.3",
     "docx": "^9.6.1",
-    "image-meta": "^0.2.2",
-    "mathml2omml": "^0.5.0"
+    "image-meta": "^0.2.2"
   },
   "devDependencies": {
     "@blocknote/diagram-block": "workspace:^",

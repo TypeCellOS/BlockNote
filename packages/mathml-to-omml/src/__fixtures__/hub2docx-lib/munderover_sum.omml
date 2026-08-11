@@ -1,0 +1,29 @@
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <m:nary>
+    <m:naryPr>
+      <m:chr m:val="∑"/>
+      <m:limLoc m:val="undOvr"/>
+      <m:grow m:val="1"/>
+      <m:subHide m:val="off"/>
+      <m:supHide m:val="off"/>
+    </m:naryPr>
+    <m:sub>
+      <m:r>
+        <m:t xml:space="preserve">j=1</m:t>
+      </m:r>
+    </m:sub>
+    <m:sup>
+      <m:r>
+        <m:t xml:space="preserve">n</m:t>
+      </m:r>
+    </m:sup>
+    <m:e>
+      <m:r>
+        <m:t xml:space="preserve">j</m:t>
+      </m:r>
+    </m:e>
+  </m:nary>
+  <m:r>
+    <m:t xml:space="preserve">x</m:t>
+  </m:r>
+</m:oMath>

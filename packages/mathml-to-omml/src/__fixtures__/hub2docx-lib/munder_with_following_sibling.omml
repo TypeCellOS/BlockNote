@@ -1,0 +1,17 @@
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <m:limLow>
+    <m:e>
+      <m:r>
+        <m:t xml:space="preserve">a</m:t>
+      </m:r>
+    </m:e>
+    <m:lim>
+      <m:r>
+        <m:t xml:space="preserve">b</m:t>
+      </m:r>
+    </m:lim>
+  </m:limLow>
+  <m:r>
+    <m:t xml:space="preserve">c</m:t>
+  </m:r>
+</m:oMath>

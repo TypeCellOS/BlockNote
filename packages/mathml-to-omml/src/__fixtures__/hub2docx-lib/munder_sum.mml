@@ -1,0 +1,18 @@
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mrow>
+    <munder>
+      <mo>&#8721;</mo>
+      <mrow>
+        <mi>j</mi>
+        <mo>=</mo>
+        <mn>1</mn>
+      </mrow>
+    </munder>
+    <mrow>
+      <mi>j</mi>
+    </mrow>
+    <mrow>
+      <mi>x</mi>
+    </mrow>
+  </mrow>
+</math>

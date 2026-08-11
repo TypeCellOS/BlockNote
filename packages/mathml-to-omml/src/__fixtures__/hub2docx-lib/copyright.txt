@@ -1,0 +1,5 @@
+The following applies to all files in this folder:
+
+Copyright (c) 2015--2022, transpect.io
+Source: https://github.com/transpect/hub2docx-lib
+License: BSD 2-Clause "Simplified" License (see LICENSE)

@@ -5420,6 +5420,37 @@ importers:
         specifier: 'catalog:'
         version: 0.1.24(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(terser@5.46.2)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.9.0))(yaml@2.9.0)
 
+  packages/mathml-to-omml:
+    dependencies:
+      fast-xml-parser:
+        specifier: ^5.10.1
+        version: 5.10.1
+    devDependencies:
+      '@types/katex':
+        specifier: ^0.16.7
+        version: 0.16.8
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.6.0
+      katex:
+        specifier: ^0.16.11
+        version: 0.16.47(patch_hash=cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7)
+      rimraf:
+        specifier: ^5.0.10
+        version: 5.0.10
+      rollup-plugin-webpack-stats:
+        specifier: ^0.2.6
+        version: 0.2.6(rollup@4.60.1)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.1.24(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(terser@5.46.2)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.9.0))(yaml@2.9.0)
+      xml-formatter:
+        specifier: ^3.6.7
+        version: 3.7.0
+
   packages/react:
     dependencies:
       '@blocknote/core':
@@ -5818,6 +5849,9 @@ importers:
       '@blocknote/core':
         specifier: workspace:^
         version: link:../core
+      '@blocknote/mathml-to-omml':
+        specifier: workspace:^
+        version: link:../mathml-to-omml
       '@blocknote/xl-multi-column':
         specifier: workspace:^
         version: link:../xl-multi-column
@@ -5830,9 +5864,6 @@ importers:
       image-meta:
         specifier: ^0.2.2
         version: 0.2.2
-      mathml2omml:
-        specifier: ^0.5.0
-        version: 0.5.0
     devDependencies:
       '@blocknote/diagram-block':
         specifier: workspace:^
@@ -8037,6 +8068,9 @@ packages:
   '@noble/hashes@2.0.1':
     resolution: {integrity: sha512-XlOlEbQcE9fmuXxrVTXCTlG2nlRXa9Rj3rr5Ue/+tX+nmkgbX720YHh0VR3hBF9xDvwnb8D2shVGOwNx+ulArw==}
     engines: {node: '>= 20.19.0'}
+
+  '@nodable/entities@3.0.0':
+    resolution: {integrity: sha512-8L9xFeTYKhm49xfIypoe2W5wV1m/3Z58kT+7kR9A8OyFxcPduI4VmxaUMQyKYrRjUoLLSXv6EKKID5Tvj9cUVw==}
 
   '@open-draft/deferred-promise@2.2.0':
     resolution: {integrity: sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA==}
@@ -11436,6 +11470,9 @@ packages:
   any-promise@1.3.0:
     resolution: {integrity: sha512-7UvmKalWRt1wgjL1RrGxoSJW/0QZFIegpeGvZG9kjp8vrRu55XTHbwnqq2GpXm9uLbcuhxm3IqX9OB4MZR1b2A==}
 
+  anynum@1.0.1:
+    resolution: {integrity: sha512-N6//FLET/tXYNM/F6ABca1oH6fWB+KlTt909Le28WMDBk8oaT4vY17DCrwg2MvmuqUKt3Ni4N5dGJ/EoBgcO6A==}
+
   aproba@2.1.0:
     resolution: {integrity: sha512-tLIEcj5GuR2RSTnxNKdkK0dJ/GrC7P38sUkiDmDuHfsHmbagTFAxDVIBltoklXEVIQ/f14IL8IMJ5pn9Hez1Ew==}
 
@@ -12695,6 +12732,13 @@ packages:
   fast-xml-builder@1.1.4:
     resolution: {integrity: sha512-f2jhpN4Eccy0/Uz9csxh3Nu6q4ErKxf0XIsasomfOihuSUa3/xw6w8dnOtCDgEItQFJG8KyXPzQXzcODDrrbOg==}
 
+  fast-xml-builder@1.3.0:
+    resolution: {integrity: sha512-F74cZEdCvuw9P41GAC3rod4X04jjWGM1JPEv/GWSqFTWLsdyMSBMBMlm9Hk3GLBgLBbdBNY8yee0pQh2RBVESQ==}
+
+  fast-xml-parser@5.10.1:
+    resolution: {integrity: sha512-IEMIf7298kXuZSRFoGfMYrl7is8LpavODgbNz1cwIudv7KwVFnuU+UsMporfq6PD6aXSlawZlARiA3UywCTfMw==}
+    hasBin: true
+
   fast-xml-parser@5.5.8:
     resolution: {integrity: sha512-Z7Fh2nVQSb2d+poDViM063ix2ZGt9jmY1nWhPfHBOK2Hgnb/OW3P4Et3P/81SEej0J7QbWtJqxO05h8QYfK7LQ==}
     hasBin: true
@@ -13407,6 +13451,9 @@ packages:
     resolution: {integrity: sha512-mE00Gnza5EEB3Ds0HfMyllZzbBrmLOX3vfWoj9A9PEnTfratQ/BcaJOuMhnkhjXvb2+FkY3VuHqtAGpTPmglFQ==}
     engines: {node: '>=18'}
 
+  is-unsafe@2.0.0:
+    resolution: {integrity: sha512-2LdV822R+wmI86unXA93WCFpL6g+av8ynWk0nrHyJqGop5VoocYsSLFgN8jrfalT6iGeLNM4KXuVSsULP53kEA==}
+
   is-url@1.2.4:
     resolution: {integrity: sha512-ITvGim8FhRiYe4IQ5uHSkj7pVaPDrCTkNd3yq3cV7iZAcJdHTUMPMEHcqSOy9xZ9qFenQCvi+2wjH9a1nXqHww==}
 
@@ -13861,9 +13908,6 @@ packages:
 
   mathml-to-latex@1.8.0:
     resolution: {integrity: sha512-gQ0uK3zqB8HwlfaXJkEL5rgaZNbKUiBMmBP/B/W+b+t6KcseLSuYb1b0BjLgS9ZiQa24ePkqTX8/6FaQuDL7wQ==}
-
-  mathml2omml@0.5.0:
-    resolution: {integrity: sha512-4eLs37a+TH+CL/M5XZZrlc75SNRJNPiZzIaeSSvH0UFCRaCdSYRHWvrlA7MUbeQks/z4sVhfg+GlcZhVVUHzqg==}
 
   mdast-util-find-and-replace@3.0.2:
     resolution: {integrity: sha512-Tmd1Vg/m3Xz43afeNxDIhWRtFZgM2VLyaf4vSTYwudTyeuTneoL3qtWMA5jeLyz/O1vDJmmV4QuScFCA2tBPwg==}
@@ -14520,6 +14564,10 @@ packages:
 
   path-expression-matcher@1.2.0:
     resolution: {integrity: sha512-DwmPWeFn+tq7TiyJ2CxezCAirXjFxvaiD03npak3cRjlP9+OjTmSy1EpIrEbh+l6JgUundniloMLDQ/6VTdhLQ==}
+    engines: {node: '>=14.0.0'}
+
+  path-expression-matcher@1.6.2:
+    resolution: {integrity: sha512-enSlaiat05iasnzmgNxRj8reFdj3puY2QpNgP1aPIaVfT6nn9ICuPoFlKHk8EN22HcwewshO+mN2DGbkCEOtqQ==}
     engines: {node: '>=14.0.0'}
 
   path-is-absolute@1.0.1:
@@ -15545,6 +15593,9 @@ packages:
   strnum@2.2.2:
     resolution: {integrity: sha512-DnR90I+jtXNSTXWdwrEy9FakW7UX+qUZg28gj5fk2vxxl7uS/3bpI4fjFYVmdK9etptYBPNkpahuQnEwhwECqA==}
 
+  strnum@2.4.1:
+    resolution: {integrity: sha512-M9eUSMT2dCB2cTNPG7UYj6KuK7RJR2SN2+yCV/fTW3xzTCS6EaGZ5pSMgDIjB7r8zSfTGk+dvvn9rTjpVS9Mwg==}
+
   structured-clone-es@2.0.0:
     resolution: {integrity: sha512-5UuAHmBLXYPCl22xWJrFuGmIhBKQzxISPVz6E7nmTmTcAOpUzlbjKJsRrCE4vADmMQ0dzeCnlWn9XufnAGf76Q==}
 
@@ -16309,6 +16360,10 @@ packages:
   xml-name-validator@5.0.0:
     resolution: {integrity: sha512-EvGK8EJ3DhaHfbRlETOWAS5pO9MZITeauHKJyb8wyajUfQUenkIg2MvLDTZ4T/TgIcm3HU0TFBgWWboAZ30UHg==}
     engines: {node: '>=18'}
+
+  xml-naming@0.3.0:
+    resolution: {integrity: sha512-ghig2TBE/H11aOVgmahA3MhimvkBr6JIYknH/Dhdk10nXwdbIqBJsbfMxpvFPG8bAw77gN29aQWvKpmVoPlvPQ==}
+    engines: {node: '>=16.0.0'}
 
   xml-parser-xo@4.1.5:
     resolution: {integrity: sha512-TxyRxk9sTOUg3glxSIY6f0nfuqRll2OEF8TspLgh5mZkLuBgheCn3zClcDSGJ58TvNmiwyCCuat4UajPud/5Og==}
@@ -17884,7 +17939,7 @@ snapshots:
 
   '@jest/pattern@30.0.1':
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 25.6.0
       jest-regex-util: 30.0.1
 
   '@jest/schemas@30.0.5':
@@ -17897,7 +17952,7 @@ snapshots:
       '@jest/schemas': 30.0.5
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 22.13.13
+      '@types/node': 25.6.0
       '@types/yargs': 17.0.35
       chalk: 4.1.2
 
@@ -18360,6 +18415,8 @@ snapshots:
   '@noble/hashes@1.8.0': {}
 
   '@noble/hashes@2.0.1': {}
+
+  '@nodable/entities@3.0.0': {}
 
   '@open-draft/deferred-promise@2.2.0': {}
 
@@ -21002,11 +21059,11 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 25.6.0
 
   '@types/cors@2.8.19':
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 25.6.0
 
   '@types/d3-array@3.2.2': {}
 
@@ -21178,7 +21235,7 @@ snapshots:
 
   '@types/jsdom@21.1.7':
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 25.6.0
       '@types/tough-cookie': 4.0.5
       parse5: 7.3.0
 
@@ -21218,7 +21275,7 @@ snapshots:
 
   '@types/mysql@2.15.27':
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 25.6.0
 
   '@types/node@20.19.37':
     dependencies:
@@ -21256,7 +21313,7 @@ snapshots:
 
   '@types/pg@8.15.6':
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 25.6.0
       pg-protocol: 1.13.0
       pg-types: 2.2.0
 
@@ -21268,7 +21325,7 @@ snapshots:
 
   '@types/pixelmatch@5.2.6':
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 25.6.0
 
   '@types/prop-types@15.7.15': {}
 
@@ -21292,7 +21349,7 @@ snapshots:
 
   '@types/tedious@4.0.14':
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 25.6.0
 
   '@types/tough-cookie@4.0.5': {}
 
@@ -21310,7 +21367,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 25.6.0
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -22170,6 +22227,8 @@ snapshots:
   ansis@4.2.0: {}
 
   any-promise@1.3.0: {}
+
+  anynum@1.0.1: {}
 
   aproba@2.1.0:
     optional: true
@@ -23163,7 +23222,7 @@ snapshots:
   engine.io@6.6.6:
     dependencies:
       '@types/cors': 2.8.19
-      '@types/node': 22.13.13
+      '@types/node': 25.6.0
       '@types/ws': 8.18.1
       accepts: 1.3.8
       base64id: 2.0.0
@@ -23598,6 +23657,20 @@ snapshots:
   fast-xml-builder@1.1.4:
     dependencies:
       path-expression-matcher: 1.2.0
+
+  fast-xml-builder@1.3.0:
+    dependencies:
+      path-expression-matcher: 1.6.2
+      xml-naming: 0.3.0
+
+  fast-xml-parser@5.10.1:
+    dependencies:
+      '@nodable/entities': 3.0.0
+      fast-xml-builder: 1.3.0
+      is-unsafe: 2.0.0
+      path-expression-matcher: 1.6.2
+      strnum: 2.4.1
+      xml-naming: 0.3.0
 
   fast-xml-parser@5.5.8:
     dependencies:
@@ -24325,6 +24398,8 @@ snapshots:
 
   is-unicode-supported@2.1.0: {}
 
+  is-unsafe@2.0.0: {}
+
   is-url@1.2.4: {}
 
   is-weakmap@2.0.2: {}
@@ -24401,7 +24476,7 @@ snapshots:
   jest-mock@30.3.0:
     dependencies:
       '@jest/types': 30.3.0
-      '@types/node': 22.13.13
+      '@types/node': 25.6.0
       jest-util: 30.3.0
 
   jest-regex-util@30.0.1: {}
@@ -24409,7 +24484,7 @@ snapshots:
   jest-util@30.3.0:
     dependencies:
       '@jest/types': 30.3.0
-      '@types/node': 22.13.13
+      '@types/node': 25.6.0
       chalk: 4.1.2
       ci-info: 4.4.0
       graceful-fs: 4.2.11
@@ -24417,7 +24492,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 25.6.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -24786,8 +24861,6 @@ snapshots:
   mathml-to-latex@1.8.0:
     dependencies:
       '@xmldom/xmldom': 0.9.10
-
-  mathml2omml@0.5.0: {}
 
   mdast-util-find-and-replace@3.0.2:
     dependencies:
@@ -26069,6 +26142,8 @@ snapshots:
   path-exists@4.0.0: {}
 
   path-expression-matcher@1.2.0: {}
+
+  path-expression-matcher@1.6.2: {}
 
   path-is-absolute@1.0.1:
     optional: true
@@ -27359,6 +27434,10 @@ snapshots:
 
   strnum@2.2.2: {}
 
+  strnum@2.4.1:
+    dependencies:
+      anynum: 1.0.1
+
   structured-clone-es@2.0.0: {}
 
   stubborn-fs@2.0.0:
@@ -28518,6 +28597,8 @@ snapshots:
       sax: 1.6.0
 
   xml-name-validator@5.0.0: {}
+
+  xml-naming@0.3.0: {}
 
   xml-parser-xo@4.1.5: {}
 

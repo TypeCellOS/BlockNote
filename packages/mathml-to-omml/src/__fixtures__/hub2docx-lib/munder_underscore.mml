@@ -1,0 +1,10 @@
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <munder accentunder="true">
+    <mrow>
+      <msub>
+        <mi>U</mi>
+      </msub>
+    </mrow>
+    <mo stretchy="true">_</mo>
+  </munder>
+</math>

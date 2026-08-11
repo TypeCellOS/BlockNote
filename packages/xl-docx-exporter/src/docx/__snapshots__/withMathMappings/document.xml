@@ -5,61 +5,68 @@
             <w:pPr>
                 <w:jc w:val="center"/>
             </w:pPr>
-            <m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+            <m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
                 <m:sSup>
-                    <m:sSupPr>
-                        <m:ctrlPr/>
-                    </m:sSupPr>
                     <m:e>
                         <m:r>
-                            <m:t xml:space="preserve">a</m:t>
+                            <m:t>
+                                a
+                            </m:t>
                         </m:r>
                     </m:e>
                     <m:sup>
                         <m:r>
-                            <m:t xml:space="preserve">2</m:t>
+                            <m:t>
+                                2
+                            </m:t>
                         </m:r>
                     </m:sup>
                 </m:sSup>
                 <m:r>
-                    <m:t xml:space="preserve">=</m:t>
+                    <m:t>
+                        =
+                    </m:t>
                 </m:r>
                 <m:rad>
                     <m:radPr>
-                        <m:degHide m:val="on"/>
+                        <m:degHide m:val="1"/>
                     </m:radPr>
                     <m:deg/>
                     <m:e>
                         <m:sSup>
-                            <m:sSupPr>
-                                <m:ctrlPr/>
-                            </m:sSupPr>
                             <m:e>
                                 <m:r>
-                                    <m:t xml:space="preserve">b</m:t>
+                                    <m:t>
+                                        b
+                                    </m:t>
                                 </m:r>
                             </m:e>
                             <m:sup>
                                 <m:r>
-                                    <m:t xml:space="preserve">2</m:t>
+                                    <m:t>
+                                        2
+                                    </m:t>
                                 </m:r>
                             </m:sup>
                         </m:sSup>
                         <m:r>
-                            <m:t xml:space="preserve">+</m:t>
+                            <m:t>
+                                +
+                            </m:t>
                         </m:r>
                         <m:sSup>
-                            <m:sSupPr>
-                                <m:ctrlPr/>
-                            </m:sSupPr>
                             <m:e>
                                 <m:r>
-                                    <m:t xml:space="preserve">c</m:t>
+                                    <m:t>
+                                        c
+                                    </m:t>
                                 </m:r>
                             </m:e>
                             <m:sup>
                                 <m:r>
-                                    <m:t xml:space="preserve">2</m:t>
+                                    <m:t>
+                                        2
+                                    </m:t>
                                 </m:r>
                             </m:sup>
                         </m:sSup>
@@ -71,24 +78,27 @@
             <w:r>
                 <w:t xml:space="preserve">Inline math: </w:t>
             </w:r>
-            <m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+            <m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
                 <m:sSup>
-                    <m:sSupPr>
-                        <m:ctrlPr/>
-                    </m:sSupPr>
                     <m:e>
                         <m:r>
-                            <m:t xml:space="preserve">e</m:t>
+                            <m:t>
+                                e
+                            </m:t>
                         </m:r>
                     </m:e>
                     <m:sup>
                         <m:r>
-                            <m:t xml:space="preserve">iπ</m:t>
+                            <m:t>
+                                iπ
+                            </m:t>
                         </m:r>
                     </m:sup>
                 </m:sSup>
                 <m:r>
-                    <m:t xml:space="preserve">+1=0</m:t>
+                    <m:t>
+                        +1=0
+                    </m:t>
                 </m:r>
             </m:oMath>
         </w:p>

@@ -1,0 +1,20 @@
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <m:bar >
+    <m:barPr>
+     <m:pos m:val="bot"/>
+    </m:barPr>
+    <m:e>
+      <m:sSub>
+        <m:sSubPr>
+          <m:ctrlPr/>
+        </m:sSubPr>
+        <m:e>
+          <m:r>
+            <m:t xml:space="preserve">U</m:t>
+          </m:r>
+        </m:e>
+        <m:sub/>
+      </m:sSub>
+    </m:e>
+  </m:bar>
+</m:oMath>

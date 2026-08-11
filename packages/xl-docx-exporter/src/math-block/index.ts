@@ -1,6 +1,6 @@
+import { mathMLToOMML } from "@blocknote/mathml-to-omml";
 import { AlignmentType, ImportedXmlComponent, Paragraph } from "docx";
 import katex from "katex";
-import { mml2omml } from "mathml2omml";
 
 import { docxBlockMappingForDefaultSchema } from "../docx/defaultSchema/blocks.js";
 import { docxInlineContentMappingForDefaultSchema } from "../docx/defaultSchema/inlinecontent.js";
@@ -46,7 +46,9 @@ const latexToEquation = (latex: string, inline: boolean) => {
   // `fromXmlString` parses the XML *document*, returning a nameless wrapper
   // component around the `m:oMath` root element - unwrap it, or it would
   // serialize as an (invalid) `<undefined>` element.
-  const imported = ImportedXmlComponent.fromXmlString(mml2omml(mathML)) as any;
+  const imported = ImportedXmlComponent.fromXmlString(
+    mathMLToOMML(mathML),
+  ) as any;
   return imported.root[0] as ImportedXmlComponent;
 };
 

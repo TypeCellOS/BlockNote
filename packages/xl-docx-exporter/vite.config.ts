@@ -35,6 +35,10 @@ export default defineConfig(
                 "@shared": path.resolve(__dirname, "../../shared/"),
                 // load live from sources with live reload working
                 "@blocknote/core": path.resolve(__dirname, "../core/src/"),
+                "@blocknote/mathml-to-omml": path.resolve(
+                  __dirname,
+                  "../mathml-to-omml/src/",
+                ),
                 "@blocknote/react": path.resolve(__dirname, "../react/src/"),
                 "@blocknote/xl-multi-column": path.resolve(
                   __dirname,
@@ -56,7 +60,10 @@ export default defineConfig(
               __dirname,
               "src/index.ts",
             ),
-            "diagram-block": path.resolve(__dirname, "src/diagram-block/index.ts"),
+            "diagram-block": path.resolve(
+              __dirname,
+              "src/diagram-block/index.ts",
+            ),
             "math-block": path.resolve(__dirname, "src/math-block/index.ts"),
           },
           name: "blocknote-xl-docx-exporter",
