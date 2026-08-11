@@ -18,7 +18,15 @@ export function latexToMathML(
     });
   } catch (error) {
     // The boundary that converts KaTeX's parse throw into the typed result.
-    return { error: error instanceof Error ? error.message : String(error) };
+    // Only `ParseError`s are expected (invalid user LaTeX) - their messages
+    // are safe to show to readers. Anything else is a bug and propagates.
+    // `ParseError` is read off the same `katex` object whose
+    // `renderToString` just ran, so unlike a separate class import it can't
+    // diverge under bundler interop.
+    if (!(error instanceof katex.ParseError)) {
+      throw error;
+    }
+    return { error: error.message };
   }
 
   // KaTeX wraps the MathML in a `span`; callers only need the `math`
