@@ -109,8 +109,11 @@ describe("email export through a complete exporter in the browser", () => {
     // browser), inline math (always SVG), and the valid diagram (PNG). The
     // invalid diagram renders the error placeholder instead - and doesn't
     // fail the export.
+    // Decodes the HTML-escaped attribute value; `&amp;` must be decoded
+    // last - decoding it first would double-unescape sequences like
+    // `&amp;#x27;` (an escaped literal `&#x27;`) into `'`.
     const srcs = [...html.matchAll(/<img[^>]*src="(data:[^"]+)"/g)].map(
-      (match) => match[1].replaceAll("&amp;", "&").replaceAll("&#x27;", "'"),
+      (match) => match[1].replaceAll("&#x27;", "'").replaceAll("&amp;", "&"),
     );
     expect(srcs).toHaveLength(3);
     expect(srcs[0]).toMatch(/^data:image\/png/);
