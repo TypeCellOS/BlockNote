@@ -53,3 +53,8 @@ minimumReleaseAgeExclude:
   - "@oxlint-tsgolint/*"
   - oxfmt
   - "@oxfmt/*"
+
+# pdfjs-dist pulls @napi-rs/canvas (native binaries) for Node-side
+# rendering, which we never do - pdf.js only runs in the browser suite.
+ignoredOptionalDependencies:
+  - "@napi-rs/canvas"

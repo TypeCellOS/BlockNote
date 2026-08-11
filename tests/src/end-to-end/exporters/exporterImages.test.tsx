@@ -22,7 +22,7 @@ import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
 import { decodeAndSample } from "@shared/util/browserImageTestUtil.js";
 import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
 import { afterEach, describe, expect, test } from "vite-plus/test";
-import { browserName } from "../../utils/context.js";
+import { browserName, page } from "../../utils/context.js";
 import { expectElement } from "../../utils/editor.js";
 
 // Complete exports of the full shared test document with the default
@@ -64,13 +64,33 @@ function createExportFrame(width: string) {
   return frame;
 }
 
-// Captures only contain what the ~1280x720 tester iframe actually paints -
-// pixels below its fold come out blank white - and growing the iframe
-// (`page.viewport()`) makes the harness scale it down to fit the window,
-// shrinking the baseline (see static.test.tsx). So exports taller than the
-// window are captured as a sequence of window-sized pages instead, at full
-// resolution, one baseline file per page.
-const CAPTURE_PAGE_HEIGHT = 690;
+// Screenshots an element that may be taller than the browser window, at
+// full resolution. Captures only contain what the tester iframe actually
+// paints - pixels below its fold come out blank white - so the iframe must
+// first grow past the content (`page.viewport`). The harness then scales
+// the iframe down to fit the window (see static.test.tsx), which would
+// shrink the baseline - so the scale transform on the iframe's wrapper is
+// neutralized (same origin) for the duration of the capture; Playwright
+// captures beyond the window fine. If a harness update changes this DOM,
+// the capture comes out downscaled and fails the baseline's dimension
+// check - loudly, not silently.
+async function screenshotFull(element: HTMLElement, name: string) {
+  const height = Math.max(
+    720,
+    Math.ceil(element.getBoundingClientRect().bottom) + 40,
+  );
+  await page.viewport(1280, height);
+  (window.frameElement?.parentElement as HTMLElement | null)?.style.setProperty(
+    "transform",
+    "none",
+  );
+  try {
+    await expectElement(element).toMatchScreenshot(name);
+  } finally {
+    // Re-lays-out the wrapper, including its transform.
+    await page.viewport(1280, 720);
+  }
+}
 
 describe("email export through a complete exporter in the browser", () => {
   test("renders math and diagrams to images", { timeout: 30000 }, async () => {
@@ -116,27 +136,16 @@ describe("email export through a complete exporter in the browser", () => {
     expect(html).toContain("Invalid diagram");
 
     // Visual regression of the exported email as a client would show it,
-    // captured as CAPTURE_PAGE_HEIGHT-tall pages of the 600px-wide (typical
-    // email client width) render.
+    // rendered at 600px (typical email client width).
     const frame = createExportFrame("600px");
-    frame.style.height = `${CAPTURE_PAGE_HEIGHT}px`;
-    frame.style.overflow = "hidden";
-    const content = document.createElement("div");
-    content.innerHTML = html;
-    frame.append(content);
+    frame.innerHTML = html;
     // Wait until every image is ready to paint - a screenshot taken while a
     // data: URL is still decoding captures a gap (and unloaded images throw
-    // off the page count measurement).
+    // off the height measurement in screenshotFull).
     await Promise.all(
-      [...content.querySelectorAll("img")].map((img) => img.decode()),
+      [...frame.querySelectorAll("img")].map((img) => img.decode()),
     );
-    const pageCount = Math.ceil(content.scrollHeight / CAPTURE_PAGE_HEIGHT);
-    for (let i = 0; i < pageCount; i++) {
-      content.style.transform = `translateY(-${i * CAPTURE_PAGE_HEIGHT}px)`;
-      await expectElement(frame).toMatchScreenshot(
-        `email-export-page-${i + 1}`,
-      );
-    }
+    await screenshotFull(frame, "email-export");
   });
 });
 
@@ -215,15 +224,11 @@ describe("pdf export through a complete exporter in the browser", () => {
       // The test document contains a page break.
       expect(parsed.numPages).toBeGreaterThanOrEqual(2);
 
-      // Screenshot each page as its own baseline, rendered at a scale where
-      // a full page fits the capturable area 1:1 (pdf.js is a vector
-      // renderer, so unlike the email capture there's no need to slice).
+      // Screenshot each page as its own full-resolution baseline.
       const frame = createExportFrame("fit-content");
       for (let n = 1; n <= parsed.numPages; n++) {
         const pdfPage = await parsed.getPage(n);
-        const scale =
-          CAPTURE_PAGE_HEIGHT / pdfPage.getViewport({ scale: 1 }).height;
-        const viewport = pdfPage.getViewport({ scale });
+        const viewport = pdfPage.getViewport({ scale: 1 });
         const canvas = document.createElement("canvas");
         canvas.width = viewport.width;
         canvas.height = viewport.height;
@@ -233,7 +238,7 @@ describe("pdf export through a complete exporter in the browser", () => {
           viewport,
         } as any).promise;
         frame.replaceChildren(canvas);
-        await expectElement(frame).toMatchScreenshot(`pdf-export-page-${n}`);
+        await screenshotFull(frame, `pdf-export-page-${n}`);
       }
     },
   );
