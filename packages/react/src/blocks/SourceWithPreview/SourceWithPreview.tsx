@@ -74,12 +74,18 @@ export const SourceWithPreview = (
      * Renders with `span` wrappers for inline content.
      */
     inline?: boolean;
+    /**
+     * Whether pressing Enter in the source popup does what the "OK" button
+     * does (closing the popup).
+     */
+    enterSubmits?: boolean;
   },
 ) => {
   const {
     editor,
     popup,
     inline,
+    enterSubmits = true,
     contentRef,
     source,
     preview,
@@ -204,10 +210,12 @@ export const SourceWithPreview = (
               onClick={handleOkButtonClick}
             >
               OK
-              <MdKeyboardReturn
-                className="bn-code-block-source-popup-ok-button-icon"
-                aria-hidden="true"
-              />
+              {enterSubmits && (
+                <MdKeyboardReturn
+                  className="bn-code-block-source-popup-ok-button-icon"
+                  aria-hidden="true"
+                />
+              )}
             </button>
           </div>
         </div>

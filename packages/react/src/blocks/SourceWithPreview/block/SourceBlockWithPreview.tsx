@@ -27,5 +27,16 @@ export const SourceBlockWithPreview = (props: SourceBlockWithPreviewProps) => {
 
   const popup = useSourceBlockPreviewPopup({ editor, block });
 
-  return <SourceWithPreview editor={editor} popup={popup} {...shared} />;
+  const enterSubmits =
+    editor.schema.blockSpecs[block.type]?.implementation?.meta
+      ?.hardBreakShortcut !== "enter";
+
+  return (
+    <SourceWithPreview
+      editor={editor}
+      popup={popup}
+      enterSubmits={enterSubmits}
+      {...shared}
+    />
+  );
 };
