@@ -7,6 +7,12 @@ import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { User } from "../../user/index.js";
 import { AttributionExtension } from "./AttributionExtension.js";
 
+// Editors created during a test, destroyed in afterEach: an undestroyed
+// EditorView leaves ProseMirror DOMObserver timers behind, which fire after
+// the jsdom environment is torn down ("document is not defined" as an
+// unhandled error - flaky, timing-dependent, mostly on slow CI).
+const editors: BlockNoteEditor[] = [];
+
 // A `resolveUsers` spy plus an editor with the AttributionExtension registered.
 // No Yjs/collaboration needed — the extension's load plugin only cares that a
 // transaction adds a `y-attributed-*` mark, which we do directly below.
@@ -26,6 +32,7 @@ function createEditor() {
     extensions: [AttributionExtension({ resolveUsers })],
   });
   editor.mount(document.createElement("div"));
+  editors.push(editor);
 
   return { editor, resolveUsers };
 }
@@ -47,6 +54,9 @@ function addInsertMark(editor: BlockNoteEditor, userIds: string[]) {
 
 describe("AttributionExtension user loading", () => {
   afterEach(() => {
+    for (const editor of editors.splice(0)) {
+      editor._tiptapEditor.destroy();
+    }
     vi.restoreAllMocks();
   });
 
