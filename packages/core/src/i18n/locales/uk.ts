@@ -227,6 +227,7 @@ export const uk: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Додати вихідний код",
+    ok_button_text: "ОК",
   },
   // from react package:
   side_menu: {

@@ -203,6 +203,7 @@ export const nl: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Broncode toevoegen",
+    ok_button_text: "OK",
   },
   // from react package:
   side_menu: {

@@ -204,6 +204,7 @@ export const he: Dictionary = {
   },
   code_block: {
     add_source_button_text: "הוסף קוד מקור",
+    ok_button_text: "אישור",
   },
   side_menu: {
     add_block_label: "הוסף בלוק",

@@ -243,6 +243,7 @@ export const zh: Dictionary = {
   },
   code_block: {
     add_source_button_text: "添加源代码",
+    ok_button_text: "确定",
   },
   // from react package:
   side_menu: {

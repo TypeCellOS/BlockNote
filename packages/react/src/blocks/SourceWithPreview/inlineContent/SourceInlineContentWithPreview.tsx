@@ -27,5 +27,8 @@ export const SourceInlineContentWithPreview = (
 
   const popup = useSourceInlineContentPreviewPopup({ editor, node, getPos });
 
+  // Enter always commits-and-exits inline sources (see
+  // `SourceInlineContentWithPreviewExtension`), so the default `enterSubmits`
+  // applies and the "OK" button always shows the return-key icon.
   return <SourceWithPreview inline editor={editor} popup={popup} {...shared} />;
 };

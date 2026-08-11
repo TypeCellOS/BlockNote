@@ -194,6 +194,7 @@ export const pt: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Adicionar código-fonte",
+    ok_button_text: "OK",
   },
   // from react package:
   side_menu: {

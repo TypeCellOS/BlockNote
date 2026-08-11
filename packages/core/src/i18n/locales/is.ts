@@ -216,6 +216,7 @@ export const is: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Bæta við frumkóða",
+    ok_button_text: "Í lagi",
   },
   side_menu: {
     add_block_label: "Bæta við blokki",
