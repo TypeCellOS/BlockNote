@@ -53,7 +53,7 @@ bash tests/docker-run.sh -e CI=1 -- --run [filters]
 
 A specific test file may be targeted by appending (part of) its name as a filter. A single browser may be targeted with `--project "e2e (chromium)"`. Individual tests in a file may be disabled using `skip`, i.e. `test.skip("Test name", ...)` (remember to revert this once all tests pass).
 
-Screenshot baselines can be regenerated with the `-u` argument, which must come **after** the filters (`--run <filters> -u`): written as `--run -u <filter>`, the filter is parsed as the flag's value and the **whole** suite runs in update mode, silently rewriting unrelated baselines. Baselines are per-browser (`<name>-<browser>-linux.png`); after regenerating, always inspect the images before committing them.
+Screenshot baselines can be regenerated with the `-u` argument, which must come **after** the filters (`--run <filters> -u`): written as `--run -u <filter>`, the filter is parsed as the flag's value and the **whole** suite runs in update mode, silently rewriting unrelated baselines. Note that `-u` only rewrites baselines whose comparison **fails** — a small intended change (e.g. a short text edit) that fits inside the suite's 2% pixel tolerance leaves the baseline stale while the test passes. To force a fresh capture, delete the baseline file first. Baselines are per-browser (`<name>-<browser>-linux.png`); after regenerating, always inspect the images before committing them.
 
 If Docker isn't running, notify the user to launch it.
 

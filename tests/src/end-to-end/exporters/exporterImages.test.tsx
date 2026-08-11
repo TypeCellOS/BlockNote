@@ -37,13 +37,26 @@ import { screenshotFull } from "../../utils/screenshotFull.js";
 // it spans math-block, diagram-block and the exporters, and this is the
 // repo's only browser-mode runner.
 
-// An invalid diagram, whose typed error must render as a placeholder without
-// failing the export.
+// An invalid diagram and an invalid formula, whose typed errors must render
+// as placeholders without failing the export. Unlike the packages' node
+// suites, this exercises the real error classes through vite's
+// bundling/interop of mermaid and mathjax-full - e.g. a mis-resolved
+// `TexError` import only breaks here (and in real apps), not in node.
 const invalidDiagramBlock = {
   id: "invalid-diagram",
   type: "diagram",
   props: {},
   content: [{ type: "text", text: "not a valid diagram !!", styles: {} }],
+  children: [],
+} as any;
+const invalidMathBlock = {
+  id: "invalid-math",
+  type: "math",
+  props: {},
+  // A structural error: MathJax's `noundefined` package renders unknown
+  // commands as text rather than erroring, so an unknown command wouldn't
+  // reach the error path.
+  content: [{ type: "text", text: "\\frac{1}{", styles: {} }],
   children: [],
 } as any;
 
@@ -74,6 +87,7 @@ describe("email export through a complete exporter in the browser", () => {
         (block) => !["image", "video", "audio", "file"].includes(block.type),
       ),
       invalidDiagramBlock,
+      invalidMathBlock,
     ];
 
     const exporter = new ReactEmailExporter(schema(), {
@@ -106,6 +120,7 @@ describe("email export through a complete exporter in the browser", () => {
       expect((await decodeAndSample(src)).inkedPixels).toBeGreaterThan(0);
     }
     expect(html).toContain("Invalid diagram");
+    expect(html).toContain("Invalid formula");
 
     // Visual regression of the exported email as a client would show it,
     // rendered at 600px (typical email client width).
@@ -151,6 +166,7 @@ describe("pdf export through a complete exporter in the browser", () => {
       const transformed = await exporter.toReactPDFDocument([
         ...testDocumentWithSourceBlocks,
         invalidDiagramBlock,
+        invalidMathBlock,
       ] as any);
 
       // The element tree carries the inline math as an image with

@@ -4,6 +4,17 @@ import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
 import { TeX } from "mathjax-full/js/input/tex.js";
 import TexError from "mathjax-full/js/input/tex/TexError.js";
 import { mathjax } from "mathjax-full/js/mathjax.js";
+
+// `mathjax-full` ships CommonJS, and depending on the consumer's bundler
+// interop the default import above is either the class itself or a
+// `{ default: class }` namespace object (observed with Vite serving the
+// package from source). Resolve whichever is the constructor - using the
+// namespace directly makes `instanceof` throw "Right-hand side of
+// 'instanceof' is not callable" on the first invalid formula.
+function isTexError(error: unknown): error is InstanceType<typeof TexError> {
+  const texErrorClass: unknown = (TexError as any).default ?? TexError;
+  return typeof texErrorClass === "function" && error instanceof texErrorClass;
+}
 import { SVG } from "mathjax-full/js/output/svg.js";
 
 // Registers the TeX packages listed in `TEX_PACKAGES` below - a curated set
@@ -99,7 +110,7 @@ export function latexToMathSVG(
     // The boundary that converts MathJax's TeX-error throw (see
     // `formatError` above) into the typed result. Only `TexError`s are
     // expected (invalid user LaTeX) - anything else is a bug and propagates.
-    if (!(error instanceof TexError)) {
+    if (!isTexError(error)) {
       throw error;
     }
     return { error: error.message };
