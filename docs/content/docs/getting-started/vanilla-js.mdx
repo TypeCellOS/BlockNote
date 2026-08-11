@@ -44,7 +44,7 @@ Now, you'll have a plain BlockNote instance on your page. However, it's missing 
 
 Because you can't use the built-in React [UI Components](/docs/react/components), you'll need to create and register your own UI elements.
 
-Each UI element is backed by an [extension](/docs/features/extensions). You can retrieve an extension instance from the editor with `editor.getExtension(...)`, and each one exposes a [store](https://tanstack.com/store) that holds its current state (visibility, position, and any element-specific data). The available UI element extensions are:
+Each UI element is backed by an [extension](/docs/features/extensions). You can retrieve an extension instance from the editor with `editor.getExtension(...)`, and each one exposes a store that holds its current state (visibility, position, and any element-specific data). A store is a small observable container with three members: `state` to read the current value, `setState` to update it, and `subscribe` to be notified of changes. The available UI element extensions are:
 
 | UI element         | Extension                     |
 | ------------------ | ----------------------------- |
