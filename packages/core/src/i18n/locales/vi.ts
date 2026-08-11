@@ -201,6 +201,7 @@ export const vi: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Thêm mã nguồn",
+    ok_button_text: "OK",
   },
   // từ gói phản ứng:
   side_menu: {

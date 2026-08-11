@@ -21,31 +21,21 @@ type DiagramBlock = BlockFromConfigNoChildren<
 >;
 
 // Mirrors the editor, which shows the error state in the preview
-// placeholder. The (first line of the) source identifies which diagram broke;
-// the message comes from the typed error result, so it's safe to show.
-// Mermaid messages span multiple lines, so only the first is used. The text
-// comes from the diagram dictionary (see ExporterOptions.dictionary).
-function errorMessage(
-  exporter: Exporter<any, any, any, any, any, any, any>,
-  source: string,
-  message: string,
-): string {
-  return getDiagramExporterDictionary(exporter).invalid_diagram(
-    source.split("\n")[0],
-    message.split("\n")[0],
-  );
-}
-
+// placeholder, identifying the diagram by the (first line of the) source.
+// The parser's message is deliberately NOT rendered: it's authoring detail
+// (and untranslated English) - the editor is where the author sees and
+// fixes it.
 function errorParagraph(
   exporter: Exporter<any, any, any, any, any, any, any>,
   source: string,
-  message: string,
 ) {
   return new Paragraph({
     alignment: AlignmentType.CENTER,
     children: [
       new TextRun({
-        text: errorMessage(exporter, source, message),
+        text: getDiagramExporterDictionary(exporter).invalid_diagram(
+          source.split("\n")[0],
+        ),
         italics: true,
         color: "999999",
       }),
@@ -96,7 +86,7 @@ export function createDiagramBlockMapping(options?: {
 
     const result = await renderDiagram(source);
     if (result.error !== undefined) {
-      return errorParagraph(exporter, source, result.error);
+      return errorParagraph(exporter, source);
     }
 
     // Plugged-in renderers aren't required to produce PNGs; embed with the

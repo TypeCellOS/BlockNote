@@ -537,7 +537,7 @@ NESTED BLOCKS
 }
 
 /* Additional right padding for equation numbers. */
-.bn-block-content .bn-preview-container .katex-html {
+.bn-block-content .bn-preview-container .katex-html:has(> .tag) {
   box-sizing: border-box;
   width: max-content;
   min-width: 100%;
@@ -619,7 +619,8 @@ NESTED BLOCKS
   color: var(--bn-colors-highlights-red-text);
   font-size: 0.8em;
   padding: 8px 16px;
-  white-space: pre-wrap;
+  white-space: pre-wrap !important;
+  font-family: monospace;
 }
 
 .bn-code-block-source-popup-ok-button-wrapper {
@@ -660,7 +661,7 @@ NESTED BLOCKS
   align-items: center;
   background-color: rgb(242, 241, 238);
   border-radius: 4px;
-  color: rgb(125, 121, 122);
+  color: rgb(95, 91, 92);
   display: flex;
 }
 

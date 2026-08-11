@@ -78,12 +78,13 @@
               </span>
               <div class="bn-source-block-popup">
                 <div class="bn-code-block-source-popup-body">
-                  <pre data-placeholder="Enter equation">
-                    <code data-editable="">e^{i\pi} + 1 = 0</code>
+                  <pre data-placeholder="E = mc^2" aria-hidden="true">
+                    <code aria-label="E = mc^2" data-editable="">e^{i\pi} + 1 = 0</code>
                   </pre>
                   <div
                     class="bn-code-block-source-popup-ok-button-wrapper"
                     contenteditable="false"
+                    inert=""
                   >
                     <button type="button" class="bn-code-block-source-popup-ok-button">
                       OK
@@ -105,9 +106,12 @@
                   </div>
                 </div>
                 <div
+                  id="_r_1_"
                   class="bn-code-block-source-error"
                   contenteditable="false"
                   style="display: none;"
+                  role="alert"
+                  inert=""
                 ></div>
               </div>
             </span>

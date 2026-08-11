@@ -248,6 +248,7 @@ export const fr: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Ajouter le code source",
+    ok_button_text: "OK",
   },
   // from react package:
   side_menu: {

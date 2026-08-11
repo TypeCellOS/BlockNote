@@ -194,6 +194,7 @@ export const pl: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Dodaj kod źródłowy",
+    ok_button_text: "OK",
   },
   side_menu: {
     add_block_label: "Dodaj blok",

@@ -221,6 +221,7 @@ export const no: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Legg til kildekode",
+    ok_button_text: "OK",
   },
   side_menu: {
     add_block_label: "Legg til blokk",

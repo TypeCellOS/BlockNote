@@ -40,16 +40,15 @@ function latexToDocxEquation(
 }
 
 // Mirrors the editor, which shows the error state in the preview
-// placeholder. The LaTeX source identifies which formula broke; the message
-// comes from the typed error result, so it's safe to show. The text comes
-// from the math dictionary (see ExporterOptions.dictionary).
+// placeholder, identifying the formula by its source. The parser's message
+// is deliberately NOT rendered: it's authoring detail (and untranslated
+// English) - the editor is where the author sees and fixes it.
 function errorText(
   exporter: Exporter<any, any, any, any, any, any, any>,
   source: string,
-  message: string,
 ) {
   return new TextRun({
-    text: getMathExporterDictionary(exporter).invalid_formula(source, message),
+    text: getMathExporterDictionary(exporter).invalid_formula(source),
     italics: true,
     color: "999999",
   });
@@ -85,7 +84,7 @@ export function mathBlockMapping(
   if (result.error !== undefined) {
     return new Paragraph({
       alignment: AlignmentType.CENTER,
-      children: [errorText(exporter, source, result.error)],
+      children: [errorText(exporter, source)],
     });
   }
 
@@ -123,7 +122,7 @@ export function inlineMathMapping(
 
   const result = latexToDocxEquation(source, true);
   if (result.error !== undefined) {
-    return errorText(exporter, source, result.error);
+    return errorText(exporter, source);
   }
 
   return result.equation as any;

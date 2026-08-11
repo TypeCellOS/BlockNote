@@ -215,6 +215,7 @@ export const hr: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Dodaj izvorni kôd",
+    ok_button_text: "U redu",
   },
   // from react package:
   side_menu: {

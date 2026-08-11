@@ -86,6 +86,8 @@ export const DiagramBlockPreviewWithPopup = (
           <div
             // Centers the diagram - Mermaid's SVG is left-aligned otherwise.
             style={{ display: "flex", justifyContent: "center" }}
+            role="img"
+            aria-label={dict.preview_label}
             dangerouslySetInnerHTML={{ __html: svg }}
           />
         ) : undefined

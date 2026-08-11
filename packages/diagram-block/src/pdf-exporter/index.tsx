@@ -24,21 +24,19 @@ const PIXELS_PER_POINT = 0.75;
 const MAX_WIDTH_POINTS = 400;
 
 // Mirrors the editor, which shows the error state in the preview
-// placeholder. The (first line of the) source identifies which diagram
-// broke; the message comes from the typed error result, so it's safe to
-// show. Both span multiple lines, so only the first of each is used. The
-// text comes from the diagram dictionary (see ExporterOptions.dictionary).
+// placeholder, identifying the diagram by the (first line of the) source.
+// The parser's message is deliberately NOT rendered: it's authoring detail
+// (and untranslated English) - the editor is where the author sees and
+// fixes it.
 function errorText(
   exporter: Exporter<any, any, any, any, any, any, any>,
   source: string,
-  message: string,
 ) {
   return (
     <View key={"diagram"} style={{ alignItems: "center" }}>
       <Text style={{ color: "#999999" }}>
         {getDiagramExporterDictionary(exporter).invalid_diagram(
           source.split("\n")[0],
-          message.split("\n")[0],
         )}
       </Text>
     </View>
@@ -88,7 +86,7 @@ export function createDiagramBlockMapping(options?: {
 
     const result = await renderDiagram(source);
     if (result.error !== undefined) {
-      return errorText(exporter, source, result.error);
+      return errorText(exporter, source);
     }
 
     return (

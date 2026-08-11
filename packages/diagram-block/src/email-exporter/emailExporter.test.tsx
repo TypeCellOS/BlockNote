@@ -58,7 +58,6 @@ describe("email exporter mappings", () => {
 
     expect(html).toContain("Invalid diagram");
     expect(html).toContain("graph TD");
-    expect(html).toContain("No diagram type detected");
     expect(html).not.toContain("<img");
   });
 

@@ -1,16 +1,15 @@
 import { ReactCustomBlockRenderProps } from "@blocknote/react";
 import type { ComponentType } from "react";
 
-import { MathBlockConfig } from "../../createReactMathBlockSpec.js";
 import { plainContentToString } from "@blocknote/core";
 import { latexToMathMLElement } from "../../../helpers/toExternalHTML/latexToMathMLElement.js";
+import { MathBlockConfig } from "../../createReactMathBlockSpec.js";
 
 export const BlockMathMLElement = ({
   block,
 }: ReactCustomBlockRenderProps<MathBlockConfig>) => {
-  const { mathMLElement } = latexToMathMLElement(
-    plainContentToString(block.content),
-  );
+  const source = plainContentToString(block.content);
+  const { mathMLElement } = latexToMathMLElement(source);
   if (!mathMLElement) {
     return null;
   }
@@ -20,6 +19,7 @@ export const BlockMathMLElement = ({
   const Math = "math" as unknown as ComponentType<{
     xmlns: string;
     display: string;
+    alttext: string;
     dangerouslySetInnerHTML: { __html: string };
   }>;
 
@@ -27,6 +27,7 @@ export const BlockMathMLElement = ({
     <Math
       xmlns="http://www.w3.org/1998/Math/MathML"
       display="block"
+      alttext={source}
       dangerouslySetInnerHTML={{ __html: mathMLElement.innerHTML }}
     />
   );

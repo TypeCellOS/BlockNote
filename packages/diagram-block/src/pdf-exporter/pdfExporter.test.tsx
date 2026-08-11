@@ -63,7 +63,6 @@ describe("pdf exporter mappings", () => {
 
     expect(str).toContain("Invalid diagram");
     expect(str).toContain("graph TD");
-    expect(str).toContain("No diagram type detected");
     expect(str).not.toContain("data:image");
   });
 });

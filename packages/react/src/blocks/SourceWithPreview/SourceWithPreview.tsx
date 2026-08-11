@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { MouseEvent, ReactNode, useRef } from "react";
+import { MouseEvent, ReactNode, useId, useRef } from "react";
 import { MdKeyboardReturn } from "react-icons/md";
 
 import { PreviewPlaceholder } from "./PreviewPlaceholder.js";
@@ -74,12 +74,18 @@ export const SourceWithPreview = (
      * Renders with `span` wrappers for inline content.
      */
     inline?: boolean;
+    /**
+     * Whether pressing Enter in the source popup does what the "OK" button
+     * does (closing the popup). Shows the return-key icon on the "OK" button.
+     */
+    enterSubmits?: boolean;
   },
 ) => {
   const {
     editor,
     popup,
     inline,
+    enterSubmits = true,
     contentRef,
     source,
     preview,
@@ -123,6 +129,10 @@ export const SourceWithPreview = (
       errorPreview
     );
 
+  // Links the source input to the render error so screen readers announce it
+  // when the input is focused.
+  const errorId = useId();
+
   // What to show in place of the source: the empty state, the preview, or -
   // when the source has an error that's committed (or no last-good preview
   // to keep showing) - the error state.
@@ -133,11 +143,11 @@ export const SourceWithPreview = (
         ? errorState
         : preview;
 
-  // The actions run on click (rather than mousedown), so keyboard &
-  // assistive technology activation also works. No mousedown focus guards:
-  // React's synthetic `onMouseDown` doesn't fire on node view elements, and
-  // testing with real input showed they aren't needed - `open`/`close`
-  // restore the editor's focus & selection themselves.
+  // Whether the source is empty and the preview instead shows a button to edit it.
+  const previewIsButton =
+    editor.isEditable &&
+    (source.length === 0 ||
+      (error != null && (errorCommittedRef.current || preview == null)));
 
   // Opens the popup when clicking the preview.
   const handlePreviewClick = (event: MouseEvent) => {
@@ -172,6 +182,8 @@ export const SourceWithPreview = (
       <PreviewContainer
         className="bn-preview-container"
         contentEditable={false}
+        // When no source code is available, the "Add source" button should have the appropriate role.
+        role={previewIsButton ? "button" : undefined}
         onClick={handlePreviewClick}
       >
         {previewContent}
@@ -184,11 +196,15 @@ export const SourceWithPreview = (
                 ? "bn-code-block-source-popup-input-empty"
                 : undefined
             }
-            // Shows `sourcePlaceholder` via CSS (`::before`) while the source
-            // is empty.
             data-placeholder={sourcePlaceholder}
+            aria-hidden={popup.isOpen ? undefined : true}
           >
-            <code ref={contentRef} />
+            <code
+              ref={contentRef}
+              aria-label={sourcePlaceholder}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? errorId : undefined}
+            />
             {inline && source.length === 0 && (
               <br aria-hidden="true" contentEditable={false} />
             )}
@@ -196,6 +212,10 @@ export const SourceWithPreview = (
           <div
             className="bn-code-block-source-popup-ok-button-wrapper"
             contentEditable={false}
+            // Keeps the "OK" button out of the tab order & accessibility tree
+            // while the popup is closed (it's only clipped visually, not
+            // removed from the DOM).
+            inert={!popup.isOpen}
           >
             <button
               // Prevents form submission when the editor is inside a `form`.
@@ -203,18 +223,26 @@ export const SourceWithPreview = (
               className="bn-code-block-source-popup-ok-button"
               onClick={handleOkButtonClick}
             >
-              OK
-              <MdKeyboardReturn
-                className="bn-code-block-source-popup-ok-button-icon"
-                aria-hidden="true"
-              />
+              {editor.dictionary.code_block.ok_button_text}
+              {enterSubmits && (
+                <MdKeyboardReturn
+                  className="bn-code-block-source-popup-ok-button-icon"
+                  aria-hidden="true"
+                />
+              )}
             </button>
           </div>
         </div>
         <div
+          id={errorId}
           className="bn-code-block-source-error"
           contentEditable={false}
           style={{ display: error ? "block" : "none" }}
+          // Announced while editing (the popup is open); silenced & removed
+          // from the tree once the popup closes, where the compact error
+          // preview takes over.
+          role="alert"
+          inert={!popup.isOpen}
         >
           {error}
         </div>

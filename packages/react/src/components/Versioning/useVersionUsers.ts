@@ -3,10 +3,10 @@ import {
   VersioningExtension,
   VersionSnapshot,
 } from "@blocknote/core/extensions";
-import { useStore } from "@tanstack/react-store";
 import { useEffect } from "react";
 
 import { useExtension } from "../../hooks/useExtension.js";
+import { useStore } from "../../hooks/useStore.js";
 
 /**
  * Reads users from the versioning extension's user store, loading any that

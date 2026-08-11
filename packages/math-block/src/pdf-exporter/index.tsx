@@ -35,18 +35,17 @@ export type {
 const FONT_SIZE_POINTS = 16 * 0.75;
 
 // Mirrors the editor, which shows the error state in the preview
-// placeholder. The LaTeX source identifies which formula broke; the message
-// comes from the typed error result, so it's safe to show. The text comes
-// from the math dictionary (see ExporterOptions.dictionary).
+// placeholder, identifying the formula by its source. The parser's message
+// is deliberately NOT rendered: it's authoring detail (and untranslated
+// English) - the editor is where the author sees and fixes it.
 function errorText(
   exporter: Exporter<any, any, any, any, any, any, any>,
   source: string,
-  message: string,
   key: string,
 ) {
   return (
     <Text key={key} style={{ color: "#999999" }}>
-      {getMathExporterDictionary(exporter).invalid_formula(source, message)}
+      {getMathExporterDictionary(exporter).invalid_formula(source)}
     </Text>
   );
 }
@@ -87,7 +86,7 @@ export function mathBlockMapping(
   if (validation.error !== undefined) {
     return (
       <View key={"math"} style={{ alignItems: "center" }}>
-        {errorText(exporter, source, validation.error, "math-error")}
+        {errorText(exporter, source, "math-error")}
       </View>
     );
   }
@@ -154,7 +153,7 @@ export function createInlineMathMapping(options?: {
       fontSize: FONT_SIZE_POINTS,
     });
     if (result.error !== undefined) {
-      return errorText(exporter, source, result.error, "inlineMath");
+      return errorText(exporter, source, "inlineMath");
     }
 
     return (

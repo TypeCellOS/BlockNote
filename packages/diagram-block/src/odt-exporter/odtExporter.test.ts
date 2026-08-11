@@ -64,7 +64,6 @@ describe("odt exporter mappings", () => {
 
     expect(contentXML).toContain("Invalid diagram");
     expect(contentXML).toContain("graph TD");
-    expect(contentXML).toContain("No diagram type detected");
     expect(contentXML).not.toContain("draw:image");
   });
 

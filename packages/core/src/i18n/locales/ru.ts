@@ -245,6 +245,7 @@ export const ru: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Добавить исходный код",
+    ok_button_text: "ОК",
   },
   // from react package:
   side_menu: {

@@ -243,6 +243,7 @@ export const zhTW: Dictionary = {
   },
   code_block: {
     add_source_button_text: "新增原始碼",
+    ok_button_text: "確定",
   },
   // from react package:
   side_menu: {

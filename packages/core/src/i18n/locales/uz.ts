@@ -264,6 +264,7 @@ export const uz: Dictionary = {
 
   code_block: {
     add_source_button_text: "Manba kodini qoʻshish",
+    ok_button_text: "OK",
   },
   side_menu: {
     add_block_label: "Blok qo‘shish",

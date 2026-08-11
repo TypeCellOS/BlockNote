@@ -2,8 +2,8 @@ import { StyleSchema } from "@blocknote/core";
 import { ReactCustomInlineContentRenderProps } from "@blocknote/react";
 import type { ComponentType } from "react";
 
-import { MathInlineContentConfig } from "../../createReactMathInlineContentSpec.js";
 import { latexToMathMLElement } from "../../../helpers/toExternalHTML/latexToMathMLElement.js";
+import { MathInlineContentConfig } from "../../createReactMathInlineContentSpec.js";
 
 export const InlineMathMLElement = ({
   inlineContent,
@@ -21,6 +21,7 @@ export const InlineMathMLElement = ({
   const Math = "math" as unknown as ComponentType<{
     xmlns: string;
     display: string;
+    alttext: string;
     dangerouslySetInnerHTML: { __html: string };
   }>;
 
@@ -28,6 +29,7 @@ export const InlineMathMLElement = ({
     <Math
       xmlns="http://www.w3.org/1998/Math/MathML"
       display="inline"
+      alttext={inlineContent.content}
       dangerouslySetInnerHTML={{ __html: mathMLElement.innerHTML }}
     />
   );

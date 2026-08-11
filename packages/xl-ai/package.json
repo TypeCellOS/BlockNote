@@ -83,7 +83,7 @@
     "prosemirror-state": "^1.4.4",
     "prosemirror-tables": "^1.8.5",
     "prosemirror-transform": "^1.12.0",
-    "prosemirror-view": "^1.41.9"
+    "prosemirror-view": "^1.42.2"
   },
   "devDependencies": {
     "@blocknote/shared": "workspace:^",
@@ -114,7 +114,8 @@
     "typescript": "^5.9.3",
     "undici": "^6.22.0",
     "vite-plugin-externalize-deps": "^0.10.0",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "yjs": "^13.6.27"
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",

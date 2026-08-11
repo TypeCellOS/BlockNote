@@ -224,6 +224,7 @@ export const it: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Aggiungi codice sorgente",
+    ok_button_text: "OK",
   },
   // from react package:
   side_menu: {

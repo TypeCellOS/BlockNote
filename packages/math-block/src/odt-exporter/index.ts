@@ -62,14 +62,11 @@ function formulaFrame(exporter: ODTExporter<any, any, any>, mathML: string) {
 }
 
 // Mirrors the editor, which shows the error state in the preview
-// placeholder. The LaTeX source identifies which formula broke; the message
-// comes from the typed error result, so it's safe to show. Styled muted like
-// the other exporters' placeholders.
-function errorText(
-  source: string,
-  message: string,
-  exporter: ODTExporter<any, any, any>,
-) {
+// placeholder, identifying the formula by its source. The parser's message
+// is deliberately NOT rendered: it's authoring detail (and untranslated
+// English) - the editor is where the author sees and fixes it. Styled muted like the other
+// exporters' placeholders.
+function errorText(source: string, exporter: ODTExporter<any, any, any>) {
   const styleName = exporter.registerStyle((name) =>
     createElement(
       "style:style",
@@ -84,7 +81,7 @@ function errorText(
   return createElement(
     "text:span",
     { "text:style-name": styleName },
-    getMathExporterDictionary(exporter).invalid_formula(source, message),
+    getMathExporterDictionary(exporter).invalid_formula(source),
   );
 }
 
@@ -120,11 +117,7 @@ export function mathBlockMapping(
 
   const mathML = latexToMathML(source, false);
   if (mathML.error !== undefined) {
-    return createElement(
-      "text:p",
-      null,
-      errorText(source, mathML.error, odtExporter),
-    );
+    return createElement("text:p", null, errorText(source, odtExporter));
   }
 
   const styleName = odtExporter.registerStyle((name) =>
@@ -180,7 +173,7 @@ export function inlineMathMapping(
 
   const mathML = latexToMathML(source, true);
   if (mathML.error !== undefined) {
-    return errorText(source, mathML.error, odtExporter);
+    return errorText(source, odtExporter);
   }
 
   return formulaFrame(odtExporter, mathML.mathML);

@@ -25,26 +25,21 @@ type DiagramBlock = BlockFromConfigNoChildren<
 >;
 
 // Mirrors the editor, which shows the error state in the preview
-// placeholder. The (first line of the) source identifies which diagram
-// broke; the message comes from the typed error result, so it's safe to
-// show. Both span multiple lines, so only the first of each is used.
-// Styled muted like the other exporters' placeholders.
+// placeholder, identifying the diagram by the (first line of the) source.
+// The parser's message is deliberately NOT rendered: it's authoring detail
+// (and untranslated English) - the editor is where the author sees and
+// fixes it. Styled muted like the
+// other exporters' placeholders.
 function errorMessage(
   exporter: ODTExporter<any, any, any>,
   source: string,
-  message: string,
 ): string {
   return getDiagramExporterDictionary(exporter).invalid_diagram(
     source.split("\n")[0],
-    message.split("\n")[0],
   );
 }
 
-function errorParagraph(
-  source: string,
-  message: string,
-  exporter: ODTExporter<any, any, any>,
-) {
+function errorParagraph(source: string, exporter: ODTExporter<any, any, any>) {
   const styleName = exporter.registerStyle((name) =>
     createElement(
       "style:style",
@@ -62,7 +57,7 @@ function errorParagraph(
     createElement(
       "text:span",
       { "text:style-name": styleName },
-      errorMessage(exporter, source, message),
+      errorMessage(exporter, source),
     ),
   );
 }
@@ -114,7 +109,7 @@ export function createDiagramBlockMapping(options?: {
 
     const result = await renderDiagram(source);
     if (result.error !== undefined) {
-      return errorParagraph(source, result.error, odtExporter);
+      return errorParagraph(source, odtExporter);
     }
 
     // The image may be rendered above its display size for sharpness, so

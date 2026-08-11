@@ -202,6 +202,7 @@ export const sk = {
   },
   code_block: {
     add_source_button_text: "Pridať zdrojový kód",
+    ok_button_text: "OK",
   },
   side_menu: {
     add_block_label: "Pridať blok",

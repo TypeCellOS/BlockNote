@@ -63,7 +63,6 @@ describe("docx exporter mappings", () => {
 
     expect(documentXML).toContain("Invalid diagram");
     expect(documentXML).toContain("graph TD");
-    expect(documentXML).toContain("No diagram type detected");
     expect(documentXML).not.toContain("w:drawing");
   });
 
@@ -165,8 +164,8 @@ describe("docx exporter mappings", () => {
           ...en,
           diagram: {
             exporter: {
-              invalid_diagram: (source: string, error: string) =>
-                `Ungültiges Diagramm „${source}": ${error}`,
+              invalid_diagram: (source: string) =>
+                `Ungültiges Diagramm „${source}"`,
             },
           },
         },

@@ -215,6 +215,7 @@ export const ko: Dictionary = {
   },
   code_block: {
     add_source_button_text: "소스 코드 추가",
+    ok_button_text: "확인",
   },
   // from react package:
   side_menu: {

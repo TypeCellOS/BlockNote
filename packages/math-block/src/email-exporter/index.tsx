@@ -56,15 +56,14 @@ type MathImageOptions = {
 const FONT_SIZE_PIXELS = 16;
 
 // Mirrors the editor, which shows the error state in the preview
-// placeholder. The LaTeX source identifies which formula broke; the message
-// comes from the typed error result, so it's safe to show. The text comes
-// from the math dictionary (see ExporterOptions.dictionary).
+// placeholder, identifying the formula by its source. The parser's message
+// is deliberately NOT rendered: it's authoring detail (and untranslated
+// English) - the editor is where the author sees and fixes it.
 function errorText(
   exporter: Exporter<any, any, any, any, any, any, any>,
   source: string,
-  message: string,
 ): string {
-  return getMathExporterDictionary(exporter).invalid_formula(source, message);
+  return getMathExporterDictionary(exporter).invalid_formula(source);
 }
 
 /**
@@ -110,7 +109,7 @@ export function createMathBlockMapping(options?: MathImageOptions) {
     if (result.error !== undefined) {
       return (
         <Text style={{ color: "#999999", textAlign: "center" }}>
-          {errorText(exporter, source, result.error)}
+          {errorText(exporter, source)}
         </Text>
       );
     }
@@ -171,9 +170,7 @@ export function createInlineMathMapping(
     });
     if (result.error !== undefined) {
       return (
-        <span style={{ color: "#999999" }}>
-          {errorText(exporter, source, result.error)}
-        </span>
+        <span style={{ color: "#999999" }}>{errorText(exporter, source)}</span>
       );
     }
 
