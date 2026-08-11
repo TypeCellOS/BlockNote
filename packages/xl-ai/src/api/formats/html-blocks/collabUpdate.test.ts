@@ -16,13 +16,25 @@ import {
 import type { ForkYDocExtension } from "@blocknote/core/yjs";
 import { withCollaboration } from "@blocknote/core/yjs";
 import { TextSelection } from "prosemirror-state";
-import { describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
 import { AIExtension } from "../../../AIExtension.js";
 import { StreamToolExecutor } from "../../../streamTool/StreamToolExecutor.js";
 import { StreamTool } from "../../../streamTool/streamTool.js";
 import { tools } from "./tools/index.js";
+
+// Editors created during a test are tracked here so they can be torn down in
+// `afterEach`. Without this, a mounted editor's ProseMirror view leaks async
+// work that fires after Vitest disposes the jsdom environment, surfacing as an
+// unhandled `ReferenceError: document is not defined`.
+const mountedEditors: BlockNoteEditor<any, any, any>[] = [];
+
+afterEach(() => {
+  while (mountedEditors.length) {
+    mountedEditors.pop()?._tiptapEditor.destroy();
+  }
+});
 
 function createLocalEditor(text: string) {
   const editor = BlockNoteEditor.create({
@@ -31,6 +43,7 @@ function createLocalEditor(text: string) {
     extensions: [AIExtension()],
   });
   editor.mount(document.createElement("div"));
+  mountedEditors.push(editor);
 
   return { editor, fork: () => undefined };
 }
@@ -49,6 +62,7 @@ function createCollabEditor(text: string) {
     }),
   );
   editor.mount(document.createElement("div"));
+  mountedEditors.push(editor);
 
   editor.replaceBlocks(editor.document, [{ type: "paragraph", content: text }]);
 
