@@ -8,15 +8,21 @@ import {
   filterSuggestionItems,
   insertOrUpdateBlockForSlashMenu,
 } from "@blocknote/core/extensions";
+import * as locales from "@blocknote/core/locales";
 import { TextSelection } from "prosemirror-state";
 import { syntaxHighlighter } from "@blocknote/code-block";
 import {
   createReactInlineMathSpec,
   createReactMathBlockSpec,
+  getMathBlockTypeSelectItems,
+  locales as mathLocales,
 } from "@blocknote/math-block";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  blockTypeSelectItems,
+  FormattingToolbar,
+  FormattingToolbarController,
   getDefaultReactSlashMenuItems,
   SuggestionMenuController,
   useCreateBlockNote,
@@ -92,6 +98,12 @@ export default function App() {
     // as plain text.
     extensions: [syntaxHighlighter],
     schema,
+    // Merges the default dictionary with the math dictionary, under the `math`
+    // key the math block/inline content read their strings from.
+    dictionary: {
+      ...locales.en,
+      math: mathLocales.en,
+    },
     initialContent: [
       {
         type: "paragraph",
@@ -122,7 +134,19 @@ export default function App() {
 
   // Renders the editor instance using a React component.
   return (
-    <BlockNoteView editor={editor} slashMenu={false}>
+    <BlockNoteView editor={editor} slashMenu={false} formattingToolbar={false}>
+      {/* Replaces the default Formatting Toolbar, adding the Math block to the
+          block type select so blocks can be converted to it. */}
+      <FormattingToolbarController
+        formattingToolbar={() => (
+          <FormattingToolbar
+            blockTypeSelectItems={[
+              ...blockTypeSelectItems(editor.dictionary),
+              ...getMathBlockTypeSelectItems(),
+            ]}
+          />
+        )}
+      />
       {/* Replaces the default Slash Menu. */}
       <SuggestionMenuController
         triggerCharacter={"/"}

@@ -9,6 +9,8 @@ import { SiMermaid } from "react-icons/si";
 
 import { plainContentToString } from "@blocknote/core";
 import { initializeMermaid } from "../../../helpers/initializeMermaid.js";
+import { trimDiagramSVG } from "../../../helpers/trimDiagramSVG.js";
+import { getDiagramDictionary } from "../../../i18n/dictionary.js";
 import { DiagramBlockConfig } from "../../createReactDiagramBlockSpec.js";
 
 // Each render call needs its own element ID.
@@ -47,7 +49,7 @@ export const useMermaidSVG = (source: string) => {
         await mermaid.parse(source);
         const { svg } = await mermaid.render(id, source);
         if (!stale) {
-          setSVG(svg);
+          setSVG(trimDiagramSVG(svg));
           setError(undefined);
         }
       } catch (err) {
@@ -69,6 +71,7 @@ export const DiagramBlockPreviewWithPopup = (
 ) => {
   const source = plainContentToString(props.block.content).trim();
   const { svg, error } = useMermaidSVG(source);
+  const dict = getDiagramDictionary(props.editor).block;
 
   return (
     <SourceBlockWithPreview
@@ -89,11 +92,16 @@ export const DiagramBlockPreviewWithPopup = (
       }
       error={error}
       errorPreview={
-        props.editor.dictionary.code_block.diagram_block_preview_error_text
+        <PreviewPlaceholder
+          error
+          icon={<SiMermaid />}
+          text={dict.preview_error_text}
+        />
       }
       emptySourcePlaceholder={
-        <PreviewPlaceholder icon={<SiMermaid />} text="Add a Mermaid diagram" />
+        <PreviewPlaceholder icon={<SiMermaid />} text={dict.add_source_text} />
       }
+      sourcePlaceholder={dict.input_placeholder}
     />
   );
 };

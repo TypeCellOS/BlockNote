@@ -201,12 +201,6 @@ export const vi: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Thêm mã nguồn",
-    math_block_preview_error_text:
-      "Lỗi cú pháp trong khối toán học - nhấp để sửa",
-    math_inline_preview_error_text:
-      "Lỗi cú pháp trong toán học nội tuyến - nhấp để sửa",
-    diagram_block_preview_error_text:
-      "Lỗi cú pháp trong khối sơ đồ - nhấp để sửa",
   },
   // từ gói phản ứng:
   side_menu: {

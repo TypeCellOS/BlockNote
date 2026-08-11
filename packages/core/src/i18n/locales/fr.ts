@@ -248,12 +248,6 @@ export const fr: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Ajouter le code source",
-    math_block_preview_error_text:
-      "Erreur de syntaxe dans le bloc mathématique - cliquez pour corriger",
-    math_inline_preview_error_text:
-      "Erreur de syntaxe dans les mathématiques en ligne - cliquez pour corriger",
-    diagram_block_preview_error_text:
-      "Erreur de syntaxe dans le bloc de diagramme - cliquez pour corriger",
   },
   // from react package:
   side_menu: {

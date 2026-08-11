@@ -202,12 +202,6 @@ export const es: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Agregar código fuente",
-    math_block_preview_error_text:
-      "Error de sintaxis en el bloque de matemáticas: haz clic para corregir",
-    math_inline_preview_error_text:
-      "Error de sintaxis en matemáticas en línea: haz clic para corregir",
-    diagram_block_preview_error_text:
-      "Error de sintaxis en el bloque de diagrama: haz clic para corregir",
   },
   side_menu: {
     add_block_label: "Agregar bloque",

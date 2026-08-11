@@ -203,12 +203,6 @@ export const nl: Dictionary = {
   },
   code_block: {
     add_source_button_text: "Broncode toevoegen",
-    math_block_preview_error_text:
-      "Syntaxfout in wiskundeblok - klik om te herstellen",
-    math_inline_preview_error_text:
-      "Syntaxfout in inline-wiskunde - klik om te herstellen",
-    diagram_block_preview_error_text:
-      "Syntaxfout in diagramblok - klik om te herstellen",
   },
   // from react package:
   side_menu: {

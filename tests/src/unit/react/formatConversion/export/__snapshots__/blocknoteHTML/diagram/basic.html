@@ -11,7 +11,10 @@
           <div class="bn-preview-container" contenteditable="false"></div>
           <div class="bn-source-block-popup">
             <div class="bn-code-block-source-popup-body">
-              <pre>
+              <pre
+                class="bn-code-block-source-popup-input-empty"
+                data-placeholder="Enter diagram"
+              >
                 <code class="bn-inline-content">graph TD
   A[Start] --&gt; B[End]</code>
               </pre>
@@ -19,7 +22,23 @@
                 class="bn-code-block-source-popup-ok-button-wrapper"
                 contenteditable="false"
               >
-                <button type="button" class="bn-code-block-source-popup-ok-button">OK</button>
+                <button type="button" class="bn-code-block-source-popup-ok-button">
+                  OK
+                  <svg
+                    stroke="currentColor"
+                    fill="currentColor"
+                    stroke-width="0"
+                    viewBox="0 0 24 24"
+                    class="bn-code-block-source-popup-ok-button-icon"
+                    aria-hidden="true"
+                    height="1em"
+                    width="1em"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path fill="none" d="M0 0h24v24H0z"></path>
+                    <path d="M19 7v4H5.83l3.58-3.59L8 6l-6 6 6 6 1.41-1.41L5.83 13H21V7z"></path>
+                  </svg>
+                </button>
               </div>
             </div>
             <div

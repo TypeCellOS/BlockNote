@@ -7,6 +7,7 @@ import {
 import { TbMathFunction } from "react-icons/tb";
 
 import { useLatexToMathMLString } from "../../../helpers/render/useLatexToMathML.js";
+import { getMathDictionary } from "../../../i18n/dictionary.js";
 import { MathInlineContentConfig } from "../../createReactMathInlineContentSpec.js";
 
 export const MathInlinePreviewWithPopup = (
@@ -17,6 +18,7 @@ export const MathInlinePreviewWithPopup = (
 ) => {
   const source = props.inlineContent.content.trim();
   const { mathMLString, error } = useLatexToMathMLString(source, true);
+  const dict = getMathDictionary(props.editor).inline;
 
   return (
     <SourceInlineContentWithPreview
@@ -34,14 +36,19 @@ export const MathInlinePreviewWithPopup = (
       }
       error={error}
       errorPreview={
-        props.editor.dictionary.code_block.math_inline_preview_error_text
+        <PreviewPlaceholder
+          error
+          icon={<TbMathFunction />}
+          text={dict.preview_error_text}
+        />
       }
       emptySourcePlaceholder={
         <PreviewPlaceholder
           icon={<TbMathFunction />}
-          text={props.editor.dictionary.code_block.add_source_button_text}
+          text={dict.add_source_text}
         />
       }
+      sourcePlaceholder={dict.input_placeholder}
     />
   );
 };
