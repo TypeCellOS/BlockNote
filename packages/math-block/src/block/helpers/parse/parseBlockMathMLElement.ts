@@ -1,4 +1,3 @@
-import { MathMLToLaTeX } from "mathml-to-latex";
 import { Fragment, type Schema } from "prosemirror-model";
 
 export const parseBlockMathMLElement = (el: HTMLElement) =>
@@ -18,18 +17,8 @@ export const parseBlockMathMLContent = ({
     (annotation) => annotation.getAttribute("encoding") === "application/x-tex",
   );
 
-  // Prioritize getting source from annotation (guaranteed lossless), else parse
-  // MathML elements to LaTeX.
-  let latex: string | undefined;
-  if (texAnnotation?.textContent) {
-    latex = texAnnotation.textContent.trim();
-  } else {
-    try {
-      latex = MathMLToLaTeX.convert(el.outerHTML).trim();
-    } catch {}
-  }
+  const latex = texAnnotation?.textContent?.trim();
 
-  // Fall through to default parsing if we couldn't derive the source.
   if (!latex) {
     return undefined;
   }
