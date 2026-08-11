@@ -68,14 +68,11 @@ export default defineConfig(
         alias: {
           ...blockNoteSrcAliases,
           // The shared test-utils package lives at the repo root (not under
-          // packages/), so it isn't picked up by the packages scan above. It
-          // needs two aliases for its two kinds of consumers: example apps
-          // import it by its real package name (`@blocknote/shared/...`, as
-          // the suggestion-gallery scenarios do), while test code uses the
-          // repo-wide `@shared` path alias (matching the packages' vite and
-          // tsconfig setups).
-          // TODO: shouldn't the gallery example also just use @shared for consistency?
-          "@blocknote/shared": path.resolve(__dirname, "../shared"),
+          // packages/), so it isn't picked up by the packages scan above.
+          // All consumers - test code and example apps alike - import it via
+          // the repo-wide `@shared` path alias (matching the packages' vite
+          // and tsconfig setups); the package itself is private, so its name
+          // resolves nowhere outside the workspace anyway.
           "@shared": path.resolve(__dirname, "../shared"),
           "@examples": path.resolve(__dirname, "../examples"),
         },

@@ -16,6 +16,10 @@ export default defineConfig(((conf: { command: string }) => ({
       !fs.existsSync(path.resolve(__dirname, "../../packages/core/src"))
         ? {}
         : ({
+            // The repo-wide alias for the shared test-utils package this
+            // example depends on (private, so it only resolves inside the
+            // monorepo).
+            "@shared": path.resolve(__dirname, "../../../shared/"),
             // Comment out the lines below to load a built version of blocknote
             // or, keep as is to load live from sources with live reload working
             "@blocknote/core": path.resolve(
