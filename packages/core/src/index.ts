@@ -23,6 +23,7 @@ export * from "./user/index.js";
 export * from "./util/browser.js";
 export * from "./util/combineByGroup.js";
 export * from "./util/expandToWords.js";
+export * from "./util/Store.js";
 export * from "./util/string.js";
 export * from "./util/table.js";
 export * from "./util/typescript.js";
