@@ -475,6 +475,48 @@ describe("Test updateBlock", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 
+  it("Update inline content to plain content", () => {
+    expect(
+      getEditor().transact((tr) =>
+        updateBlock(tr, "paragraph-0", {
+          type: "codeBlock",
+        }),
+      ),
+    ).toMatchSnapshot();
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Update styled inline content to plain content", () => {
+    // The plain block can't hold formatting marks, so the styling is dropped
+    // but the text is preserved.
+    expect(
+      getEditor().transact((tr) =>
+        updateBlock(tr, "paragraph-with-styled-content", {
+          type: "codeBlock",
+        }),
+      ),
+    ).toMatchSnapshot();
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Update plain content to inline content", () => {
+    getEditor().transact((tr) =>
+      updateBlock(tr, "paragraph-0", { type: "codeBlock" }),
+    );
+
+    expect(
+      getEditor().transact((tr) =>
+        updateBlock(tr, "paragraph-0", {
+          type: "paragraph",
+        }),
+      ),
+    ).toMatchSnapshot();
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
   it("Update no content to empty inline content", () => {
     expect(
       getEditor().transact((tr) =>
