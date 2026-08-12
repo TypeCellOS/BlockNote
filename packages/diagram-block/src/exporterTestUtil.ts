@@ -16,7 +16,7 @@ export const diagramDocument = [
 
 // A real (1x1 transparent) PNG: some export paths probe the image bytes for
 // metadata, so stub images must be actual PNGs.
-export const pngBytes = Uint8Array.from(
+const pngBytes = Uint8Array.from(
   atob(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
   ),
