@@ -17,7 +17,7 @@ export const getMathBlockTypeSelectItems = (
 ): BlockTypeSelectItem[] => [
   {
     name: getMathDictionary(editor).block_type_select.name,
-    type: "math",
+    type: "mathBlock",
     icon: TbMathFunction,
   },
 ];

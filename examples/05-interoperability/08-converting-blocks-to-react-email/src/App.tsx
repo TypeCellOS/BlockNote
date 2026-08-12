@@ -46,11 +46,11 @@ export default function App() {
     // Adds support for math & diagram blocks.
     schema: withPageBreak(BlockNoteSchema.create()).extend({
       blockSpecs: {
-        math: createReactMathBlockSpec(),
+        mathBlock: createReactMathBlockSpec(),
         diagram: createReactDiagramBlockSpec(),
       },
       inlineContentSpecs: {
-        inlineMath: createReactInlineMathSpec(),
+        math: createReactInlineMathSpec(),
       },
     }),
     // Adds support for advanced table features.
@@ -340,7 +340,7 @@ export default function App() {
 };`,
       },
       {
-        type: "math",
+        type: "mathBlock",
         content: "a^2 = \\sqrt{b^2 + c^2}",
       },
       {
@@ -352,7 +352,7 @@ export default function App() {
             styles: {},
           },
           {
-            type: "inlineMath",
+            type: "math",
             content: "e^{i\\pi} + 1 = 0",
           },
         ],
@@ -399,12 +399,12 @@ export default function App() {
           // & Outlook also display) by passing an `imageDelivery` from
           // `createCIDImageDelivery()` to each mapping, and handing its
           // `attachments` to your mailer alongside the HTML.
-          math: createMathBlockMapping(),
+          mathBlock: createMathBlockMapping(),
           diagram: createDiagramBlockMapping(),
         },
         inlineContentMapping: {
           ...reactEmailDefaultSchemaMappings.inlineContentMapping,
-          inlineMath: createInlineMathMapping(),
+          math: createInlineMathMapping(),
         },
       },
       {

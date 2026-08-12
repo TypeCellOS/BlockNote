@@ -12,7 +12,7 @@ import { BlockMathMLElement } from "./helpers/toExternalHTML/BlockMathMLElement.
 export const createMathBlockConfig = createBlockConfig(
   () =>
     ({
-      type: "math" as const,
+      type: "mathBlock" as const,
       propSchema: {},
       content: "plain" as const,
     }) as const,

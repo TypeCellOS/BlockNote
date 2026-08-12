@@ -11,7 +11,7 @@ import { createReactMathBlockSpec } from "./createReactMathBlockSpec.js";
 
 // The math block isn't a default block, so register it in a custom schema.
 const schema = BlockNoteSchema.create().extend({
-  blockSpecs: { math: createReactMathBlockSpec() },
+  blockSpecs: { mathBlock: createReactMathBlockSpec() },
 });
 
 describe("Math block source popup keyboard handling", () => {
@@ -101,7 +101,7 @@ describe("Math block source popup keyboard handling", () => {
     beforeEach(async () => {
       await setup([
         { id: "before", type: "paragraph", content: "before" },
-        { id: "math", type: "math", content: "a^2" },
+        { id: "math", type: "mathBlock", content: "a^2" },
         { id: "after", type: "paragraph", content: "after" },
       ]);
       editor.setTextCursorPosition("math", "start");
@@ -285,7 +285,7 @@ describe("Math block source popup keyboard handling", () => {
   describe("at the document edges", () => {
     it("ArrowLeft with no previous block defers to the default", async () => {
       await setup([
-        { id: "math", type: "math", content: "a^2" },
+        { id: "math", type: "mathBlock", content: "a^2" },
         { id: "after", type: "paragraph", content: "after" },
       ]);
       editor.setTextCursorPosition("math", "start");
@@ -298,7 +298,7 @@ describe("Math block source popup keyboard handling", () => {
     it("ArrowRight with no next block defers to the default", async () => {
       await setup([
         { id: "before", type: "paragraph", content: "before" },
-        { id: "math", type: "math", content: "a^2" },
+        { id: "math", type: "mathBlock", content: "a^2" },
       ]);
       editor.setTextCursorPosition("math", "start");
 
@@ -312,7 +312,7 @@ describe("Math block source popup keyboard handling", () => {
     beforeEach(async () => {
       await setup([
         { id: "before", type: "paragraph", content: "before" },
-        { id: "math", type: "math", content: "a^2" },
+        { id: "math", type: "mathBlock", content: "a^2" },
       ]);
       editor.setTextCursorPosition("before", "start");
     });
@@ -345,7 +345,7 @@ describe("Math block source popup keyboard handling", () => {
     beforeEach(async () => {
       await setup([
         { id: "before", type: "paragraph", content: "before" },
-        { id: "math", type: "math", content: "a^2" },
+        { id: "math", type: "mathBlock", content: "a^2" },
       ]);
       editor.setTextCursorPosition("math", "start");
       // Open the popup so the OK button has something to close.

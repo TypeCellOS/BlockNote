@@ -37,11 +37,11 @@ const createExporter = (mappings: {
       ...reactEmailDefaultSchemaMappings,
       blockMapping: {
         ...reactEmailDefaultSchemaMappings.blockMapping,
-        math: mappings.math,
+        mathBlock: mappings.math,
       },
       inlineContentMapping: {
         ...reactEmailDefaultSchemaMappings.inlineContentMapping,
-        inlineMath: mappings.inlineMath,
+        math: mappings.inlineMath,
       },
     } as any,
   );
@@ -69,7 +69,7 @@ describe("email exporter mappings", () => {
     const html = await exporter.toReactEmailDocument([
       {
         id: "1",
-        type: "math",
+        type: "mathBlock",
         props: {},
         content: [{ type: "text", text: "\\invalidcommand{", styles: {} }],
         children: [],
@@ -80,7 +80,7 @@ describe("email exporter mappings", () => {
         props: {},
         content: [
           { type: "text", text: "Broken: ", styles: {} },
-          { type: "inlineMath", props: {}, content: "\\invalidcommand{" },
+          { type: "math", props: {}, content: "\\invalidcommand{" },
         ],
         children: [],
       },

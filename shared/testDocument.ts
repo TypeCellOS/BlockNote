@@ -318,7 +318,7 @@ export const testDocument = partialBlocksToBlocksForTesting(
 const sourceBlocksForTesting = [
   {
     id: "math-block",
-    type: "math",
+    type: "mathBlock",
     props: {},
     content: [{ type: "text", text: "a^2 = \\sqrt{b^2 + c^2}", styles: {} }],
     children: [],
@@ -334,7 +334,7 @@ const sourceBlocksForTesting = [
     content: [
       { type: "text", text: "Inline math: ", styles: {} },
       {
-        type: "inlineMath",
+        type: "math",
         props: {},
         content: "e^{i\\pi} + 1 = 0",
       },

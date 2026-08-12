@@ -21,13 +21,13 @@ export function getMathSlashMenuItems(
 ): Omit<DefaultReactSuggestionItem, "key">[] {
   const items: Omit<DefaultReactSuggestionItem, "key">[] = [];
 
-  if ("math" in editor.schema.blockSchema) {
+  if ("mathBlock" in editor.schema.blockSchema) {
     items.push({
       ...getMathDictionary(editor).slash_menu.math_block,
       icon: <TbMathFunction size={18} />,
       onItemClick: () => {
         const block = insertOrUpdateBlockForSlashMenu(editor, {
-          type: "math",
+          type: "mathBlock",
         });
         // Opens the new block's source popup so the equation can be typed
         // right away.
@@ -42,7 +42,7 @@ export function getMathSlashMenuItems(
     });
   }
 
-  if ("inlineMath" in editor.schema.inlineContentSchema) {
+  if ("math" in editor.schema.inlineContentSchema) {
     items.push({
       ...getMathDictionary(editor).slash_menu.inline_math,
       icon: <TbMathFunction size={18} />,
@@ -51,7 +51,7 @@ export function getMathSlashMenuItems(
         const insertPos = view.state.selection.from;
 
         editor.insertInlineContent([
-          { type: "inlineMath", content: "" },
+          { type: "math", content: "" },
           // Adds a trailing space so the cursor can leave the equation.
           " ",
         ]);

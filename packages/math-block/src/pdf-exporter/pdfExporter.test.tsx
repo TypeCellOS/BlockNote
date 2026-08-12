@@ -37,11 +37,11 @@ function createExporter(
     ...pdfDefaultSchemaMappings,
     blockMapping: {
       ...pdfDefaultSchemaMappings.blockMapping,
-      math: mathBlockMapping,
+      mathBlock: mathBlockMapping,
     },
     inlineContentMapping: {
       ...pdfDefaultSchemaMappings.inlineContentMapping,
-      inlineMath,
+      math: inlineMath,
     },
   };
 
@@ -79,7 +79,7 @@ describe("pdf exporter mappings", () => {
     const transformed = await exporter.toReactPDFDocument([
       {
         id: "1",
-        type: "math",
+        type: "mathBlock",
         props: {},
         content: [{ type: "text", text: "\\invalidcommand{", styles: {} }],
         children: [],
@@ -90,7 +90,7 @@ describe("pdf exporter mappings", () => {
         props: {},
         content: [
           { type: "text", text: "Broken: ", styles: {} },
-          { type: "inlineMath", props: {}, content: "\\invalidcommand{" },
+          { type: "math", props: {}, content: "\\invalidcommand{" },
         ],
         children: [],
       },
@@ -108,12 +108,12 @@ describe("pdf exporter mappings", () => {
     const exporter = createExporter(inlineMathMapping);
 
     const transformed = await exporter.toReactPDFDocument([
-      { id: "1", type: "math", props: {}, content: [], children: [] },
+      { id: "1", type: "mathBlock", props: {}, content: [], children: [] },
       {
         id: "2",
         type: "paragraph",
         props: {},
-        content: [{ type: "inlineMath", props: {}, content: "" }],
+        content: [{ type: "math", props: {}, content: "" }],
         children: [],
       },
     ] as any);

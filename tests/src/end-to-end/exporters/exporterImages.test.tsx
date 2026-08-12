@@ -51,7 +51,7 @@ const invalidDiagramBlock = {
 } as any;
 const invalidMathBlock = {
   id: "invalid-math",
-  type: "math",
+  type: "mathBlock",
   props: {},
   // A structural error: MathJax's `noundefined` package renders unknown
   // commands as text rather than erroring, so an unknown command wouldn't

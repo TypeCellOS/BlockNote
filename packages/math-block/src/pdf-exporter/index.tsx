@@ -15,12 +15,12 @@ import {
 import { getMathExporterDictionary } from "../i18n/dictionary.js";
 
 type MathBlock = BlockFromConfigNoChildren<
-  BlockConfig<"math", {}, "plain">,
+  BlockConfig<"mathBlock", {}, "plain">,
   any,
   any
 >;
 
-type InlineMath = { type: "inlineMath"; content: string };
+type InlineMath = { type: "math"; content: string };
 
 export {
   latexToMathSVG,
@@ -63,7 +63,7 @@ function errorText(
  *   ...pdfDefaultSchemaMappings,
  *   blockMapping: {
  *     ...pdfDefaultSchemaMappings.blockMapping,
- *     math: mathBlockMapping,
+ *     mathBlock: mathBlockMapping,
  *   },
  * });
  * ```
@@ -120,7 +120,7 @@ export function mathBlockMapping(
  *   ...pdfDefaultSchemaMappings,
  *   inlineContentMapping: {
  *     ...pdfDefaultSchemaMappings.inlineContentMapping,
- *     inlineMath: createInlineMathMapping({ rasterize }),
+ *     math: createInlineMathMapping({ rasterize }),
  *   },
  * });
  * ```

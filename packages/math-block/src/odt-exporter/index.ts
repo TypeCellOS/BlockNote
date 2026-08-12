@@ -16,12 +16,12 @@ import { getMathExporterDictionary } from "../i18n/dictionary.js";
 // neither of which this package sets up for its React sources.
 
 type MathBlock = BlockFromConfigNoChildren<
-  BlockConfig<"math", {}, "plain">,
+  BlockConfig<"mathBlock", {}, "plain">,
   any,
   any
 >;
 
-type InlineMath = { type: "inlineMath"; content: string };
+type InlineMath = { type: "math"; content: string };
 
 // A formula object, anchored as a character so it can sit inline among text.
 // The MathML goes into an object sub-document (rather than inline into the
@@ -97,7 +97,7 @@ function errorText(source: string, exporter: ODTExporter<any, any, any>) {
  *   ...odtDefaultSchemaMappings,
  *   blockMapping: {
  *     ...odtDefaultSchemaMappings.blockMapping,
- *     math: mathBlockMapping,
+ *     mathBlock: mathBlockMapping,
  *   },
  * });
  * ```
@@ -153,7 +153,7 @@ export function mathBlockMapping(
  *   ...odtDefaultSchemaMappings,
  *   inlineContentMapping: {
  *     ...odtDefaultSchemaMappings.inlineContentMapping,
- *     inlineMath: inlineMathMapping,
+ *     math: inlineMathMapping,
  *   },
  * });
  * ```
