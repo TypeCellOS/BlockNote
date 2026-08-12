@@ -21,7 +21,7 @@ export const copyTestInstancesHTML: TestInstance<
       name: "mathBlock",
       document: [
         {
-          type: "math",
+          type: "mathBlock",
           content: "a^2 + b^2 = c^2",
         },
       ],
@@ -29,7 +29,7 @@ export const copyTestInstancesHTML: TestInstance<
         let startPos: number | undefined = undefined;
 
         doc.descendants((node, pos) => {
-          if (node.type.name === "math") {
+          if (node.type.name === "mathBlock") {
             startPos = pos;
           }
         });
@@ -45,14 +45,14 @@ export const copyTestInstancesHTML: TestInstance<
   },
   {
     testCase: {
-      name: "inlineMath",
+      name: "math",
       document: [
         {
           type: "paragraph",
           content: [
             "The identity ",
             {
-              type: "inlineMath",
+              type: "math",
               content: "e^{i\\pi} + 1 = 0",
             } as const,
             " is elegant.",

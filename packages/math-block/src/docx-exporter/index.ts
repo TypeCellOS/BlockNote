@@ -11,12 +11,12 @@ import { latexToMathML } from "../exporterHelpers/latexToMathML.js";
 import { getMathExporterDictionary } from "../i18n/dictionary.js";
 
 type MathBlock = BlockFromConfigNoChildren<
-  BlockConfig<"math", {}, "plain">,
+  BlockConfig<"mathBlock", {}, "plain">,
   any,
   any
 >;
 
-type InlineMath = { type: "inlineMath"; content: string };
+type InlineMath = { type: "math"; content: string };
 
 // Converts LaTeX to a native Word equation (OMML): KaTeX renders the LaTeX
 // to MathML, which is then converted to OMML. Invalid LaTeX comes back as a
@@ -66,7 +66,7 @@ function errorText(
  *   ...docxDefaultSchemaMappings,
  *   blockMapping: {
  *     ...docxDefaultSchemaMappings.blockMapping,
- *     math: mathBlockMapping,
+ *     mathBlock: mathBlockMapping,
  *   },
  * });
  * ```
@@ -106,7 +106,7 @@ export function mathBlockMapping(
  *   ...docxDefaultSchemaMappings,
  *   inlineContentMapping: {
  *     ...docxDefaultSchemaMappings.inlineContentMapping,
- *     inlineMath: inlineMathMapping,
+ *     math: inlineMathMapping,
  *   },
  * });
  * ```

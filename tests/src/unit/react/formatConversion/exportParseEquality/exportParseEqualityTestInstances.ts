@@ -21,7 +21,7 @@ export const exportParseEqualityTestInstancesBlockNoteHTML: TestInstance<
   TestInlineContentSchema,
   TestStyleSchema
 >[] = exportTestInstancesBlockNoteHTML
-  .filter(({ testCase }) => testCase.name !== "inlineMath/basic")
+  .filter(({ testCase }) => testCase.name !== "math/basic")
   .map(({ testCase }) => ({
     testCase,
     executeTest: testExportParseEqualityBlockNoteHTML,

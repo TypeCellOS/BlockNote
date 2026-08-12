@@ -26,11 +26,11 @@ import {
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
     // Creates an instance of the Math block and adds it to the schema.
-    math: createReactMathBlockSpec(),
+    mathBlock: createReactMathBlockSpec(),
   },
   inlineContentSpecs: {
     // Creates an instance of the inline Math content and adds it to the schema.
-    inlineMath: createReactInlineMathSpec(),
+    math: createReactInlineMathSpec(),
   },
 });
 
@@ -53,18 +53,18 @@ export default function App() {
         content: "Click a formula to edit its LaTeX source:",
       },
       {
-        type: "math",
+        type: "mathBlock",
         content: "a^2 = \\sqrt{b^2 + c^2}",
       },
       {
-        type: "math",
+        type: "mathBlock",
         content: "\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}",
       },
       {
         type: "paragraph",
         content: [
           "Equations can also be inline, like ",
-          { type: "inlineMath", content: "e^{i\\pi} + 1 = 0" },
+          { type: "math", content: "e^{i\\pi} + 1 = 0" },
           ". Click one to edit its LaTeX source.",
         ],
       },

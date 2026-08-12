@@ -29,11 +29,11 @@ import {
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
     // Adds the Math block to the schema.
-    math: createReactMathBlockSpec(),
+    mathBlock: createReactMathBlockSpec(),
   },
   inlineContentSpecs: {
     // Adds the inline Math content to the schema.
-    inlineMath: createReactInlineMathSpec(),
+    math: createReactInlineMathSpec(),
   },
 });
 ```
@@ -97,11 +97,11 @@ const exporter = new DOCXExporter(editor.schema, {
   ...docxDefaultSchemaMappings,
   blockMapping: {
     ...docxDefaultSchemaMappings.blockMapping,
-    math: mathBlockMapping,
+    mathBlock: mathBlockMapping,
   },
   inlineContentMapping: {
     ...docxDefaultSchemaMappings.inlineContentMapping,
-    inlineMath: inlineMathMapping,
+    math: inlineMathMapping,
   },
 });
 ```
@@ -130,7 +130,7 @@ import {
 } from "@blocknote/math-block/pdf-exporter";
 
 // Spread into the PDFExporter's mappings as for DOCX above - note that
-// inline math is a factory here: `inlineMath: createInlineMathMapping()`.
+// inline math is a factory here: `math: createInlineMathMapping()`.
 ```
 
 The inline math factory takes one option:
@@ -161,8 +161,8 @@ import {
 } from "@blocknote/math-block/email-exporter";
 
 // Spread into the ReactEmailExporter's mappings as for DOCX above - both
-// are factories here: `math: createMathBlockMapping()` and
-// `inlineMath: createInlineMathMapping()`.
+// are factories here: `mathBlock: createMathBlockMapping()` and
+// `math: createInlineMathMapping()`.
 ```
 
 Both factories take delivery-related options:

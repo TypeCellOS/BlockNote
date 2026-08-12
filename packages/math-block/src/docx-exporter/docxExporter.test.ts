@@ -50,11 +50,11 @@ describe("docx exporter mappings", () => {
       ...docxDefaultSchemaMappings,
       blockMapping: {
         ...docxDefaultSchemaMappings.blockMapping,
-        math: mathBlockMapping,
+        mathBlock: mathBlockMapping,
       },
       inlineContentMapping: {
         ...docxDefaultSchemaMappings.inlineContentMapping,
-        inlineMath: inlineMathMapping,
+        math: inlineMathMapping,
       },
     };
     const exporter = new DOCXExporter(
@@ -93,11 +93,11 @@ describe("docx exporter mappings", () => {
       ...docxDefaultSchemaMappings,
       blockMapping: {
         ...docxDefaultSchemaMappings.blockMapping,
-        math: mathBlockMapping,
+        mathBlock: mathBlockMapping,
       },
       inlineContentMapping: {
         ...docxDefaultSchemaMappings.inlineContentMapping,
-        inlineMath: inlineMathMapping,
+        math: inlineMathMapping,
       },
     };
     const exporter = new DOCXExporter(
@@ -115,7 +115,7 @@ describe("docx exporter mappings", () => {
       [
         {
           id: "1",
-          type: "math",
+          type: "mathBlock",
           props: {},
           content: [{ type: "text", text: "\\invalidcommand{", styles: {} }],
           children: [],
@@ -126,7 +126,7 @@ describe("docx exporter mappings", () => {
           props: {},
           content: [
             { type: "text", text: "Broken: ", styles: {} },
-            { type: "inlineMath", props: {}, content: "\\invalidcommand{" },
+            { type: "math", props: {}, content: "\\invalidcommand{" },
           ],
           children: [],
         },

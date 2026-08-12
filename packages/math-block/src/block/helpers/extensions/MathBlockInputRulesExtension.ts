@@ -14,11 +14,11 @@ export const MathBlockInputRulesExtension = createExtension({
   inputRules: [
     {
       find: /^\$\$\s$/,
-      replace: () => ({ type: "math", props: {}, content: [] }),
+      replace: () => ({ type: "mathBlock", props: {}, content: [] }),
     },
     {
       find: /^\\\[\s$/,
-      replace: () => ({ type: "math", props: {}, content: [] }),
+      replace: () => ({ type: "mathBlock", props: {}, content: [] }),
     },
   ],
 });

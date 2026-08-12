@@ -173,13 +173,13 @@ export const testSchema = BlockNoteSchema.create().extend({
     customParagraph: createCustomParagraph(),
     simpleCustomParagraph: createSimpleCustomParagraph(),
     contextParagraph: createContextParagraph(),
-    math: createReactMathBlockSpec(),
+    mathBlock: createReactMathBlockSpec(),
     diagram: createReactDiagramBlockSpec(),
   },
   inlineContentSpecs: {
     mention: Mention,
     tag: Tag,
-    inlineMath: createReactInlineMathSpec(),
+    math: createReactInlineMathSpec(),
   },
   styleSpecs: {
     small: Small,

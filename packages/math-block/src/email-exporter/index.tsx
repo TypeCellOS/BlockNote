@@ -17,12 +17,12 @@ import {
 } from "../exporterHelpers/renderMathToImage.js";
 
 type MathBlock = BlockFromConfigNoChildren<
-  BlockConfig<"math", {}, "plain">,
+  BlockConfig<"mathBlock", {}, "plain">,
   any,
   any
 >;
 
-type InlineMath = { type: "inlineMath"; content: string };
+type InlineMath = { type: "math"; content: string };
 
 export {
   latexToMathSVG,
@@ -79,7 +79,7 @@ function errorText(
  *   ...reactEmailDefaultSchemaMappings,
  *   blockMapping: {
  *     ...reactEmailDefaultSchemaMappings.blockMapping,
- *     math: createMathBlockMapping({ imageDelivery }),
+ *     mathBlock: createMathBlockMapping({ imageDelivery }),
  *   },
  * });
  * ```
@@ -147,7 +147,7 @@ export function createMathBlockMapping(options?: MathImageOptions) {
  *   ...reactEmailDefaultSchemaMappings,
  *   inlineContentMapping: {
  *     ...reactEmailDefaultSchemaMappings.inlineContentMapping,
- *     inlineMath: createInlineMathMapping({ imageDelivery }),
+ *     math: createInlineMathMapping({ imageDelivery }),
  *   },
  * });
  * ```

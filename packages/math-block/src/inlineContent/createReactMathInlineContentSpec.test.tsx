@@ -14,7 +14,7 @@ import { createReactInlineMathSpec } from "./createReactMathInlineContentSpec.js
 
 // Inline math isn't default inline content, so register it in a custom schema.
 const schema = BlockNoteSchema.create().extend({
-  inlineContentSpecs: { inlineMath: createReactInlineMathSpec() },
+  inlineContentSpecs: { math: createReactInlineMathSpec() },
 });
 
 describe.skip("Inline math source popup", () => {
@@ -34,11 +34,7 @@ describe.skip("Inline math source popup", () => {
         {
           id: "para",
           type: "paragraph",
-          content: [
-            "before ",
-            { type: "inlineMath", content: "a^2" },
-            " after",
-          ],
+          content: ["before ", { type: "math", content: "a^2" }, " after"],
         },
       ],
     });
@@ -66,7 +62,7 @@ describe.skip("Inline math source popup", () => {
   function inlineMath(): { node: Node; pos: number } {
     let result: { node: Node; pos: number } | undefined;
     editor.prosemirrorState.doc.descendants((node, pos) => {
-      if (node.type.name === "inlineMath") {
+      if (node.type.name === "math") {
         result = { node, pos };
         return false;
       }
@@ -170,7 +166,7 @@ describe.skip("Inline math source popup", () => {
 
       expect(isPopupOpen()).toBe(false);
       // The caret lands just after the inline math, back in the paragraph.
-      expect(selectedNodeType()).not.toBe("inlineMath");
+      expect(selectedNodeType()).not.toBe("math");
     });
 
     it("Escape moves the selection out of the source and closes the popup", async () => {
@@ -178,7 +174,7 @@ describe.skip("Inline math source popup", () => {
       await flush();
 
       expect(isPopupOpen()).toBe(false);
-      expect(selectedNodeType()).not.toBe("inlineMath");
+      expect(selectedNodeType()).not.toBe("math");
     });
 
     it("ArrowUp moves the selection just before the inline content", async () => {
@@ -188,7 +184,7 @@ describe.skip("Inline math source popup", () => {
       await flush();
 
       expect(isPopupOpen()).toBe(false);
-      expect(selectedNodeType()).not.toBe("inlineMath");
+      expect(selectedNodeType()).not.toBe("math");
       // The caret lands just before the inline math (at its start position).
       expect(editor.prosemirrorState.selection.from).toBe(pos);
     });
@@ -200,7 +196,7 @@ describe.skip("Inline math source popup", () => {
       await flush();
 
       expect(isPopupOpen()).toBe(false);
-      expect(selectedNodeType()).not.toBe("inlineMath");
+      expect(selectedNodeType()).not.toBe("math");
       // The caret lands just after the inline math.
       expect(editor.prosemirrorState.selection.from).toBe(pos + node.nodeSize);
     });
@@ -227,7 +223,7 @@ describe.skip("Inline math source popup", () => {
       await flush();
 
       expect(isPopupOpen()).toBe(true);
-      expect(selectedNodeType()).toBe("inlineMath");
+      expect(selectedNodeType()).toBe("math");
       // The cursor lands at the end of the source (after "a^2").
       expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(3);
     });
@@ -257,7 +253,7 @@ describe.skip("Inline math source popup", () => {
       await flush();
 
       expect(isPopupOpen()).toBe(false);
-      expect(selectedNodeType()).not.toBe("inlineMath");
+      expect(selectedNodeType()).not.toBe("math");
       // The caret lands just after the inline math.
       expect(editor.prosemirrorState.selection.from).toBe(pos + node.nodeSize);
     });

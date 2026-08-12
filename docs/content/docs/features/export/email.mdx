@@ -196,12 +196,12 @@ const exporter = new ReactEmailExporter(editor.schema, {
   ...reactEmailDefaultSchemaMappings,
   blockMapping: {
     ...reactEmailDefaultSchemaMappings.blockMapping,
-    math: createMathBlockMapping({ imageDelivery }),
+    mathBlock: createMathBlockMapping({ imageDelivery }),
     diagram: createDiagramBlockMapping({ imageDelivery }),
   },
   inlineContentMapping: {
     ...reactEmailDefaultSchemaMappings.inlineContentMapping,
-    inlineMath: createInlineMathMapping({ imageDelivery }),
+    math: createInlineMathMapping({ imageDelivery }),
   },
 });
 

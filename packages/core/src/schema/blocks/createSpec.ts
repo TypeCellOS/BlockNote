@@ -279,13 +279,6 @@ export function addNodeAndExtensionsToSpec<
             applyNonSelectableBlockFix(typedNodeView, this.editor);
           }
 
-          // We don't add a default `update` method to the node view - when a
-          // block doesn't provide one, ProseMirror keeps the node view and
-          // reconciles its `contentDOM` in place as long as the node type stays
-          // the same. Blocks that build custom DOM which needs to stay in sync
-          // with the node (e.g. the code block's preview) can return an `update`
-          // function from `render` to handle updates in place.
-
           // Ignores DOM mutations that don't affect the block's content, so
           // that browser extensions which rewrite the DOM (e.g. Dark Reader)
           // can't trigger an infinite re-render loop that freezes the tab.

@@ -10,7 +10,7 @@ import { MathInlinePreviewWithPopup } from "./helpers/render/MathInlinePreviewWi
 import { InlineMathMLElement } from "./helpers/toExternalHTML/InlineMathMLElement.js";
 
 export const mathInlineContentConfig = {
-  type: "inlineMath" as const,
+  type: "math" as const,
   propSchema: {},
   content: "plain" as const,
 } satisfies CustomInlineContentConfig;
