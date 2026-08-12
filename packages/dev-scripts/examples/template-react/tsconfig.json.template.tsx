@@ -1,6 +1,6 @@
 import type { Project } from "../util";
 
-const template = (project: Project) => ({
+const template = (_project: Project) => ({
   __comment: "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   compilerOptions: {
     target: "ESNext",
@@ -18,11 +18,9 @@ const template = (project: Project) => ({
     noEmit: true,
     jsx: "react-jsx",
     composite: true,
-    // The repo-wide alias for the shared test-utils package, for examples
-    // that depend on it (private, so it only resolves inside the monorepo).
-    ...(project.config.dependencies?.["@blocknote/shared"]
-      ? { paths: { "@shared/*": ["../../../shared/*"] } }
-      : {}),
+    // The repo-wide alias for the shared test-utils directory (private, so it
+    // only resolves inside the monorepo). Harmless for examples that don't use it.
+    paths: { "@shared/*": ["../../../shared/*"] },
   },
   include: ["."],
   __ADD_FOR_LOCAL_DEV_references: [

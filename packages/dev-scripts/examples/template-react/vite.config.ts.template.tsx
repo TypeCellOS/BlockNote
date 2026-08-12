@@ -25,15 +25,11 @@ export default defineConfig(((conf: { command: string }) => ({
       conf.command === "build" ||
       !fs.existsSync(path.resolve(__dirname, "../../packages/core/src"))
         ? {}
-        : ({${
-          project.config.dependencies?.["@blocknote/shared"]
-            ? `
-            // The repo-wide alias for the shared test-utils package this
-            // example depends on (private, so it only resolves inside the
-            // monorepo).
-            "@shared": path.resolve(__dirname, "../../../shared/"),`
-            : ""
-        }
+        : ({
+            // The repo-wide alias for the shared test-utils directory (private,
+            // so it only resolves inside the monorepo). Harmless for examples
+            // that don't use it.
+            "@shared": path.resolve(__dirname, "../../../shared/"),
             // Comment out the lines below to load a built version of blocknote
             // or, keep as is to load live from sources with live reload working
             "@blocknote/core": path.resolve(
