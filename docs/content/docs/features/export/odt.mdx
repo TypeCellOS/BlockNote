@@ -87,36 +87,7 @@ new ODTExporter(schema, {
 
 ### Math & diagram blocks
 
-The [math and diagram blocks](/docs/features/blocks/code-blocks#code-blocks-with-previews) live in separate packages, and so do their ODT mappings. Spread them into the default mappings to export math as native (editable) formula objects and diagrams as embedded images:
-
-```typescript
-import {
-  ODTExporter,
-  odtDefaultSchemaMappings,
-} from "@blocknote/xl-odt-exporter";
-import {
-  inlineMathMapping,
-  mathBlockMapping,
-} from "@blocknote/math-block/odt-exporter";
-import { createDiagramBlockMapping } from "@blocknote/diagram-block/odt-exporter";
-
-const exporter = new ODTExporter(editor.schema, {
-  ...odtDefaultSchemaMappings,
-  blockMapping: {
-    ...odtDefaultSchemaMappings.blockMapping,
-    math: mathBlockMapping,
-    diagram: createDiagramBlockMapping(),
-  },
-  inlineContentMapping: {
-    ...odtDefaultSchemaMappings.inlineContentMapping,
-    inlineMath: inlineMathMapping,
-  },
-});
-```
-
-Invalid LaTeX or Mermaid sources render an error placeholder identifying the offending source, mirroring the editor.
-
-Math exports fine server-side (the LaTeX is converted to MathML without rendering). Rendering diagrams to images, however, requires a browser — when exporting server-side, pass a `renderDiagram` function to `createDiagramBlockMapping` (e.g. backed by [`@mermaid-js/mermaid-cli`](https://github.com/mermaid-js/mermaid-cli) or a [Kroki](https://kroki.io) server); without one, the export throws.
+The [math](/docs/features/blocks/math) and [diagram](/docs/features/blocks/diagrams) blocks ship their own ODT mappings — math exports as native (editable) formula objects, diagrams as embedded images. See [exporting math](/docs/features/blocks/math#odt) and [exporting diagrams](/docs/features/blocks/diagrams#exporting) for the setup.
 
 ### Exporter options
 

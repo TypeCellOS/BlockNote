@@ -105,10 +105,12 @@ type PlainContent = {
 }[];
 ```
 
-To read a plain block's text, join the items' `text` together:
+To read a plain block's text, use `plainContentToString`:
 
 ```typescript
-const text = block.content.map((item) => item.text).join("");
+import { plainContentToString } from "@blocknote/core";
+
+const text = plainContentToString(block.content);
 ```
 
 [Custom inline content](/docs/features/custom-schemas/custom-inline-content) can hold plain text too, but there it's represented directly as a `string` rather than an array.

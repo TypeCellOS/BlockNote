@@ -1516,6 +1516,27 @@ export const examples = {
           "In this example, we register the `@blocknote/diagram-block` block in a custom schema. The block renders diagrams from [Mermaid](https://mermaid.js.org/) source code, showing the rendered diagram in place of the source and revealing an editable source popup when selected - built from the same `SourceBlockWithPreview` component the math block uses, so the block itself is only a few dozen lines.\n\n**Try it out:** Click a diagram to edit its Mermaid source!\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
+        projectSlug: "source-with-preview",
+        fullSlug: "custom-schema/source-with-preview",
+        pathFromRoot: "examples/06-custom-schema/11-source-with-preview",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Advanced", "Blocks", "Custom Schemas"],
+          dependencies: {
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Source with Preview Blocks",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          'In this example, we build custom blocks on the source-with-preview pattern — the same building blocks behind BlockNote\'s math and diagram blocks. A custom "CSV table" block renders its comma-separated source as a table, and a custom "color" inline content renders a CSS color as a swatch. Both show the rendered preview in place, while the source is edited in a popup.\n\n**Try it out:** Click the table or a color chip to edit its source!\n\n**Relevant Docs:**\n\n- [Source with Preview Blocks](/docs/features/custom-schemas/source-with-preview)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Custom Inline Content](/docs/features/custom-schemas/custom-inline-content)',
+      },
+      {
         projectSlug: "draggable-inline-content",
         fullSlug: "custom-schema/draggable-inline-content",
         pathFromRoot: "examples/06-custom-schema/draggable-inline-content",

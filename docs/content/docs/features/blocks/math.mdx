@@ -1,0 +1,192 @@
+---
+title: Math & Equations
+description: LaTeX math blocks and inline math for BlockNote — rendered as formulas in the editor, and exportable to Markdown, PDF, DOCX, ODT, and email.
+---
+
+# Math & Equations
+
+The `@blocknote/math-block` package adds mathematical notation to your documents: a **math block** for standalone equations and **inline math** that flows with the surrounding text. Both are authored as LaTeX in a source popup and rendered as formulas — [KaTeX](https://katex.org/) converts the LaTeX to MathML, which browsers display natively.
+
+<Callout type="info">
+  This block is only available in React (`@blocknote/react`).
+</Callout>
+
+```bash
+npm install @blocknote/math-block
+```
+
+## Adding to your editor
+
+The package exports `createReactMathBlockSpec` (the block) and `createReactInlineMathSpec` (the inline content). Add them to your schema's `blockSpecs` and `inlineContentSpecs` respectively:
+
+```tsx
+import { BlockNoteSchema } from "@blocknote/core";
+import {
+  createReactMathBlockSpec,
+  createReactInlineMathSpec,
+} from "@blocknote/math-block";
+
+const schema = BlockNoteSchema.create().extend({
+  blockSpecs: {
+    // Adds the Math block to the schema.
+    math: createReactMathBlockSpec(),
+  },
+  inlineContentSpecs: {
+    // Adds the inline Math content to the schema.
+    inlineMath: createReactInlineMathSpec(),
+  },
+});
+```
+
+To highlight the LaTeX source in the popup, add the [syntax highlighting](/docs/features/blocks/code-blocks#syntax-highlighting) extension to your editor. The math block and inline math already declare their source language (`latex`), so no per-block configuration is needed:
+
+```tsx
+import { syntaxHighlighter } from "@blocknote/code-block";
+
+const editor = useCreateBlockNote({
+  schema,
+  extensions: [syntaxHighlighter],
+});
+```
+
+## Menu items & localization
+
+Because the math specs live in an optional package, their editor integrations are opt-in too — the package exports everything needed:
+
+```tsx
+import {
+  getMathSlashMenuItems, // Slash Menu items for inserting math
+  getMathBlockTypeSelectItems, // Block Type Select item for the Formatting Toolbar
+  locales as mathLocales, // dictionary strings, merged under the `math` key
+} from "@blocknote/math-block";
+```
+
+- `getMathSlashMenuItems(editor)` returns [Slash Menu](/docs/react/components/suggestion-menus#slash-menu) items for inserting a math block or inline math — combine them with the default items via `combineByGroup`.
+- `getMathBlockTypeSelectItems(editor)` returns a [Block Type Select](/docs/react/components/formatting-toolbar) item for turning a block into a math block, to spread alongside the defaults.
+- `mathLocales` translates the math strings — merge a locale into the editor's `dictionary` under the `math` key (see [Localization](/docs/features/localization)); without one, the bundled English strings are used.
+
+The example below wires them all up.
+
+## Example
+
+<Example name="custom-schema/math-block" />
+
+## Exporting
+
+Math exports to every format BlockNote supports:
+
+- **HTML** works out of the box — the export produces a native MathML `<math>` element (with the LaTeX embedded for lossless round-trips), and pasting MathML back in converts to LaTeX.
+- **[Markdown](/docs/features/export/markdown)** also works out of the box — math blocks export as `$$` blocks and inline math as `$...$` spans, their common Markdown notations.
+- **PDF, DOCX, ODT, and email** use exporter mappings, which live as subpaths of this package — spread them into the default mappings of the exporter you use, as shown per format below. Invalid LaTeX renders an error placeholder identifying the offending source, mirroring the editor.
+
+### DOCX
+
+With the [DOCX exporter](/docs/features/export/docx), math exports as native (editable) Word equations. Works server-side out of the box — the LaTeX is converted to OMML without rendering:
+
+```typescript
+import {
+  DOCXExporter,
+  docxDefaultSchemaMappings,
+} from "@blocknote/xl-docx-exporter";
+import {
+  inlineMathMapping,
+  mathBlockMapping,
+} from "@blocknote/math-block/docx-exporter";
+
+const exporter = new DOCXExporter(editor.schema, {
+  ...docxDefaultSchemaMappings,
+  blockMapping: {
+    ...docxDefaultSchemaMappings.blockMapping,
+    math: mathBlockMapping,
+  },
+  inlineContentMapping: {
+    ...docxDefaultSchemaMappings.inlineContentMapping,
+    inlineMath: inlineMathMapping,
+  },
+});
+```
+
+### ODT
+
+With the [ODT exporter](/docs/features/export/odt), math exports as native (editable) formula objects. Also works server-side out of the box (LaTeX is converted to MathML without rendering):
+
+```typescript
+import {
+  inlineMathMapping,
+  mathBlockMapping,
+} from "@blocknote/math-block/odt-exporter";
+
+// Spread into the ODTExporter's mappings exactly as for DOCX above.
+```
+
+### PDF
+
+With the [PDF exporter](/docs/features/export/pdf), math blocks export as vector formulas — no rasterization, so they also work server-side out of the box. Inline math is rasterized to images that flow with the text:
+
+```typescript
+import {
+  createInlineMathMapping,
+  mathBlockMapping,
+} from "@blocknote/math-block/pdf-exporter";
+
+// Spread into the PDFExporter's mappings as for DOCX above - note that
+// inline math is a factory here: `inlineMath: createInlineMathMapping()`.
+```
+
+The inline math factory takes one option:
+
+```typescript
+createInlineMathMapping(options?: {
+  /**
+   * Rasterizes the formula SVG to an image. Defaults to the built-in
+   * canvas rasterizer, which only works in the browser - when exporting
+   * server-side, pass one backed by e.g. `@resvg/resvg-js` or `sharp`;
+   * without it, a server-side export throws. The `RasterizeSVG` type is
+   * exported from the same subpath.
+   */
+  rasterize?: RasterizeSVG;
+});
+```
+
+Math blocks require the `@react-pdf/math` package (a peer dependency of the PDF mapping).
+
+### Email
+
+With the [email exporter](/docs/features/export/email), math exports as images with the LaTeX source as the alt text: math blocks are rasterized to PNG in the browser (and embedded as SVG elsewhere), inline math is always embedded as SVG:
+
+```typescript
+import {
+  createInlineMathMapping,
+  createMathBlockMapping,
+} from "@blocknote/math-block/email-exporter";
+
+// Spread into the ReactEmailExporter's mappings as for DOCX above - both
+// are factories here: `math: createMathBlockMapping()` and
+// `inlineMath: createInlineMathMapping()`.
+```
+
+Both factories take delivery-related options:
+
+```typescript
+createMathBlockMapping(options?: {
+  /**
+   * Rasterizes the formula SVG to a raster image. Defaults to the built-in
+   * canvas rasterizer in the browser; elsewhere (e.g. server-side email
+   * rendering at send time), the formula is embedded as an SVG instead -
+   * pass a rasterizer (e.g. backed by `@resvg/resvg-js` or `sharp`) to get
+   * PNGs there, which more email clients display.
+   */
+  rasterize?: RasterizeSVG;
+  /**
+   * How generated images get into the email: embedded as data URLs by
+   * default, or as inline `cid:` attachments - see the email exporter's
+   * image delivery docs.
+   */
+  imageDelivery?: ReactEmailImageDelivery;
+});
+
+// `createInlineMathMapping` takes the same `imageDelivery` option (inline
+// math is always SVG, so there's no `rasterize`).
+```
+
+Some email clients don't display data URL images — see [image delivery](/docs/features/export/email#math--diagram-blocks) on the email page for delivering the generated images as inline `cid:` attachments instead.
