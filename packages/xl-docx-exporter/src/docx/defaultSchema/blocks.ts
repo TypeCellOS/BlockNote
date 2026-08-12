@@ -29,7 +29,7 @@ import { Table } from "../util/Table.js";
 
 type BSchema = DefaultBlockSchema & {
   pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  math: BlockConfig<"math", {}, "inline">;
+  mathBlock: BlockConfig<"mathBlock", {}, "inline">;
   diagram: BlockConfig<"diagram", {}, "inline">;
 } & typeof multiColumnSchema.blockSchema;
 
@@ -80,7 +80,7 @@ function blockPropsToStyles(
 
 const codeMapping = (
   block: BlockFromConfigNoChildren<
-    BSchema["codeBlock"] | BSchema["math"] | BSchema["diagram"],
+    BSchema["codeBlock"] | BSchema["mathBlock"] | BSchema["diagram"],
     any,
     any
   >,
@@ -197,7 +197,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     ];
   },
   codeBlock: codeMapping,
-  math: codeMapping,
+  mathBlock: codeMapping,
   diagram: codeMapping,
   pageBreak: () => {
     return new Paragraph({

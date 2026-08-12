@@ -16,8 +16,8 @@ export const defaultReactEmailLinkStyles: ReactEmailLinkStyles = {
 };
 
 type ICSchema = DefaultInlineContentSchema & {
-  inlineMath: {
-    type: "inlineMath";
+  math: {
+    type: "math";
     propSchema: Record<string, never>;
     content: "plain";
   };
@@ -44,7 +44,7 @@ export const createReactEmailInlineContentMappingForDefaultSchema = (
     return t.transformStyledText(ic);
   },
   // Renders inline math as its monospaced LaTeX source.
-  inlineMath: (ic) => {
+  math: (ic) => {
     return <span style={{ fontFamily: "monospace" }}>{ic.content}</span>;
   },
 });

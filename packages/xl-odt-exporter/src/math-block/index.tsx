@@ -51,10 +51,7 @@ const latexToMathML = (latex: string, inline: boolean): string => {
 // LibreOffice load the formula as a real formula object and compute its
 // natural size (sized frames get the formula scaled-to-fit instead, and
 // inline MathML renders at zero size).
-const formulaFrame = (
-  exporter: ODTExporter<any, any, any>,
-  mathML: string,
-) => {
+const formulaFrame = (exporter: ODTExporter<any, any, any>, mathML: string) => {
   const objectPath = exporter.registerObject(
     '<?xml version="1.0" encoding="UTF-8"?>\n' + mathML,
   );
@@ -92,7 +89,7 @@ const formulaFrame = (
  *   ...odtDefaultSchemaMappings,
  *   blockMapping: {
  *     ...odtDefaultSchemaMappings.blockMapping,
- *     math: mathBlockMapping,
+ *     mathBlock: mathBlockMapping,
  *   },
  * });
  * ```
@@ -103,7 +100,7 @@ const formulaFrame = (
  * the default source code rendering.
  */
 export const mathBlockMapping = (
-  ...args: Parameters<typeof odtBlockMappingForDefaultSchema.math>
+  ...args: Parameters<typeof odtBlockMappingForDefaultSchema.mathBlock>
 ) => {
   const [block, exporter] = args;
 
@@ -132,7 +129,7 @@ export const mathBlockMapping = (
       </text:p>
     );
   } catch {
-    return odtBlockMappingForDefaultSchema.math(...args);
+    return odtBlockMappingForDefaultSchema.mathBlock(...args);
   }
 };
 
@@ -145,13 +142,13 @@ export const mathBlockMapping = (
  *   ...odtDefaultSchemaMappings,
  *   inlineContentMapping: {
  *     ...odtDefaultSchemaMappings.inlineContentMapping,
- *     inlineMath: inlineMathMapping,
+ *     math: inlineMathMapping,
  *   },
  * });
  * ```
  */
 export const inlineMathMapping = (
-  ...args: Parameters<typeof odtInlineContentMappingForDefaultSchema.inlineMath>
+  ...args: Parameters<typeof odtInlineContentMappingForDefaultSchema.math>
 ) => {
   const [inlineContent, exporter] = args;
 
@@ -166,6 +163,6 @@ export const inlineMathMapping = (
       latexToMathML(source, true),
     );
   } catch {
-    return odtInlineContentMappingForDefaultSchema.inlineMath(...args);
+    return odtInlineContentMappingForDefaultSchema.math(...args);
   }
 };

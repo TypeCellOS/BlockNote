@@ -198,11 +198,11 @@ import {
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
     // Adds the Math block to the schema.
-    math: createReactMathBlockSpec(),
+    mathBlock: createReactMathBlockSpec(),
   },
   inlineContentSpecs: {
     // Adds the inline Math content to the schema.
-    inlineMath: createReactInlineMathSpec(),
+    math: createReactInlineMathSpec(),
   },
 });
 ```

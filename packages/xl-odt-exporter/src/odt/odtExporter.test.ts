@@ -31,11 +31,11 @@ describe("exporter", () => {
         ...odtDefaultSchemaMappings,
         blockMapping: {
           ...odtDefaultSchemaMappings.blockMapping,
-          math: mathBlockMapping,
+          mathBlock: mathBlockMapping,
         },
         inlineContentMapping: {
           ...odtDefaultSchemaMappings.inlineContentMapping,
-          inlineMath: inlineMathMapping,
+          math: inlineMathMapping,
         },
       };
       const exporter = new ODTExporter(

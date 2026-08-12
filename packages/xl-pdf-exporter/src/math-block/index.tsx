@@ -33,7 +33,7 @@ const getPlainTextContent = (content: unknown): string => {
  *   ...pdfDefaultSchemaMappings,
  *   blockMapping: {
  *     ...pdfDefaultSchemaMappings.blockMapping,
- *     math: mathBlockMapping,
+ *     mathBlock: mathBlockMapping,
  *   },
  * });
  * ```
@@ -46,13 +46,13 @@ const getPlainTextContent = (content: unknown): string => {
  * math keeps the default mapping (its LaTeX source in a monospaced font).
  */
 export const mathBlockMapping = (
-  ...args: Parameters<typeof pdfBlockMappingForDefaultSchema.math>
+  ...args: Parameters<typeof pdfBlockMappingForDefaultSchema.mathBlock>
 ) => {
   const [block] = args;
 
   const source = getPlainTextContent(block.content);
   if (!source.trim()) {
-    return pdfBlockMappingForDefaultSchema.math(...args);
+    return pdfBlockMappingForDefaultSchema.mathBlock(...args);
   }
 
   return (

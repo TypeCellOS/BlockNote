@@ -4,8 +4,8 @@ import {
 } from "@blocknote/core";
 
 type ICSchema = DefaultInlineContentSchema & {
-  inlineMath: {
-    type: "inlineMath";
+  math: {
+    type: "math";
     propSchema: Record<string, never>;
     content: "plain";
   };
@@ -40,7 +40,7 @@ export const odtInlineContentMappingForDefaultSchema: InlineContentMapping<
   },
   // TODO
   // Renders inline math as its LaTeX source.
-  inlineMath: (ic) => {
+  math: (ic) => {
     return <text:span>{ic.content}</text:span>;
   },
 };

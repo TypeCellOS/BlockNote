@@ -44,11 +44,11 @@ describe("exporter", () => {
         ...docxDefaultSchemaMappings,
         blockMapping: {
           ...docxDefaultSchemaMappings.blockMapping,
-          math: mathBlockMapping,
+          mathBlock: mathBlockMapping,
         },
         inlineContentMapping: {
           ...docxDefaultSchemaMappings.inlineContentMapping,
-          inlineMath: inlineMathMapping,
+          math: inlineMathMapping,
         },
       };
       const exporter = new DOCXExporter(

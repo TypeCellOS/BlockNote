@@ -5,8 +5,8 @@ import {
 import { Link, Text } from "@react-pdf/renderer";
 
 type ICSchema = DefaultInlineContentSchema & {
-  inlineMath: {
-    type: "inlineMath";
+  math: {
+    type: "math";
     propSchema: Record<string, never>;
     content: "plain";
   };
@@ -30,9 +30,9 @@ export const pdfInlineContentMappingForDefaultSchema: InlineContentMapping<
   },
   // TODO
   // Renders inline math as its monospaced LaTeX source.
-  inlineMath: (ic) => {
+  math: (ic) => {
     return (
-      <Text key={"inlineMath"} style={{ fontFamily: "GeistMono" }}>
+      <Text key={"math"} style={{ fontFamily: "GeistMono" }}>
         {ic.content}
       </Text>
     );

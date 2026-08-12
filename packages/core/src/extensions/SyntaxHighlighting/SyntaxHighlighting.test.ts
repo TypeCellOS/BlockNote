@@ -48,8 +48,8 @@ describe("collectHighlightNodeTypes", () => {
     const types = collectHighlightNodeTypes({
       blockSpecs: {
         // Highlightable: plain content + a highlight callback.
-        math: {
-          config: { type: "math", content: "plain" },
+        mathBlock: {
+          config: { type: "mathBlock", content: "plain" },
           implementation: { meta: { highlight } },
         },
         // Not highlightable: no highlight callback.
@@ -66,7 +66,7 @@ describe("collectHighlightNodeTypes", () => {
       inlineContentSpecs: {},
     });
 
-    expect(types).toEqual(["math"]);
+    expect(types).toEqual(["mathBlock"]);
   });
 
   it("includes inline content with `content: plain` and a `meta.highlight`", () => {
@@ -74,8 +74,8 @@ describe("collectHighlightNodeTypes", () => {
       blockSpecs: {},
       inlineContentSpecs: {
         // Highlightable: plain (editable plain text) + a highlight callback.
-        inlineMath: {
-          config: { type: "inlineMath", content: "plain" },
+        math: {
+          config: { type: "math", content: "plain" },
           implementation: { meta: { highlight } },
         },
         // Not highlightable: no highlight callback.
@@ -94,27 +94,27 @@ describe("collectHighlightNodeTypes", () => {
       },
     });
 
-    expect(types).toEqual(["inlineMath"]);
+    expect(types).toEqual(["math"]);
   });
 
   it("collects both block and inline-content highlight types together", () => {
     const types = collectHighlightNodeTypes({
       blockSpecs: {
+        mathBlock: {
+          config: { type: "mathBlock", content: "plain" },
+          implementation: { meta: { highlight } },
+        },
+      },
+      inlineContentSpecs: {
         math: {
           config: { type: "math", content: "plain" },
           implementation: { meta: { highlight } },
         },
       },
-      inlineContentSpecs: {
-        inlineMath: {
-          config: { type: "inlineMath", content: "plain" },
-          implementation: { meta: { highlight } },
-        },
-      },
     });
 
+    expect(types).toContain("mathBlock");
     expect(types).toContain("math");
-    expect(types).toContain("inlineMath");
     expect(types).toHaveLength(2);
   });
 });

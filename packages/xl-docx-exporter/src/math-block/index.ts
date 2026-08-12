@@ -59,7 +59,7 @@ const latexToEquation = (latex: string, inline: boolean) => {
  *   ...docxDefaultSchemaMappings,
  *   blockMapping: {
  *     ...docxDefaultSchemaMappings.blockMapping,
- *     math: mathBlockMapping,
+ *     mathBlock: mathBlockMapping,
  *   },
  * });
  * ```
@@ -70,7 +70,7 @@ const latexToEquation = (latex: string, inline: boolean) => {
  * the default source code rendering.
  */
 export const mathBlockMapping = (
-  ...args: Parameters<typeof docxBlockMappingForDefaultSchema.math>
+  ...args: Parameters<typeof docxBlockMappingForDefaultSchema.mathBlock>
 ) => {
   const [block] = args;
 
@@ -85,7 +85,7 @@ export const mathBlockMapping = (
       children: [latexToEquation(source, false) as any],
     });
   } catch {
-    return docxBlockMappingForDefaultSchema.math(...args);
+    return docxBlockMappingForDefaultSchema.mathBlock(...args);
   }
 };
 
@@ -98,15 +98,13 @@ export const mathBlockMapping = (
  *   ...docxDefaultSchemaMappings,
  *   inlineContentMapping: {
  *     ...docxDefaultSchemaMappings.inlineContentMapping,
- *     inlineMath: inlineMathMapping,
+ *     math: inlineMathMapping,
  *   },
  * });
  * ```
  */
 export const inlineMathMapping = (
-  ...args: Parameters<
-    typeof docxInlineContentMappingForDefaultSchema.inlineMath
-  >
+  ...args: Parameters<typeof docxInlineContentMappingForDefaultSchema.math>
 ) => {
   const [inlineContent] = args;
 
@@ -118,6 +116,6 @@ export const inlineMathMapping = (
 
     return latexToEquation(source, true) as any;
   } catch {
-    return docxInlineContentMappingForDefaultSchema.inlineMath(...args);
+    return docxInlineContentMappingForDefaultSchema.math(...args);
   }
 };

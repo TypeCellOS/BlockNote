@@ -7,8 +7,8 @@ import { ExternalHyperlink, ParagraphChild, TextRun } from "docx";
 import type { DOCXExporter } from "../docxExporter.js";
 
 type ICSchema = DefaultInlineContentSchema & {
-  inlineMath: {
-    type: "inlineMath";
+  math: {
+    type: "math";
     propSchema: Record<string, never>;
     content: "plain";
   };
@@ -36,7 +36,7 @@ export const docxInlineContentMappingForDefaultSchema: InlineContentMapping<
   },
   // Renders inline math as its monospaced LaTeX source.
   // TODO
-  inlineMath: (ic) => {
+  math: (ic) => {
     return new TextRun({
       text: ic.content,
       style: "VerbatimChar",

@@ -45,11 +45,11 @@ export default function App() {
     // Adds support for math & diagram blocks.
     schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())).extend({
       blockSpecs: {
-        math: createReactMathBlockSpec(),
+        mathBlock: createReactMathBlockSpec(),
         diagram: createReactDiagramBlockSpec(),
       },
       inlineContentSpecs: {
-        inlineMath: createReactInlineMathSpec(),
+        math: createReactInlineMathSpec(),
       },
     }),
     dropCursor: multiColumnDropCursor,
@@ -344,7 +344,7 @@ export default function App() {
 };`,
       },
       {
-        type: "math",
+        type: "mathBlock",
         content: "a^2 = \\sqrt{b^2 + c^2}",
       },
       {
@@ -363,7 +363,7 @@ export default function App() {
             styles: {},
           },
           {
-            type: "inlineMath",
+            type: "math",
             content: "e^{i\\pi} + 1 = 0",
           },
         ],
@@ -447,13 +447,13 @@ export default function App() {
         diagram: diagramBlockMapping,
         // Renders math blocks as native equations instead of their LaTeX
         // source.
-        math: mathBlockMapping,
+        mathBlock: mathBlockMapping,
       },
       inlineContentMapping: {
         ...odtDefaultSchemaMappings.inlineContentMapping,
         // Renders inline math as native equations instead of its LaTeX
         // source.
-        inlineMath: inlineMathMapping,
+        math: inlineMathMapping,
       },
     });
     const blob = await exporter.toODTDocument(editor.document);

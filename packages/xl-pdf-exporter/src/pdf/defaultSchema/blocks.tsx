@@ -23,13 +23,13 @@ const FONT_SIZE = 16;
 
 type BSchema = DefaultBlockSchema & {
   pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  math: BlockConfig<"math", {}, "inline">;
+  mathBlock: BlockConfig<"mathBlock", {}, "inline">;
   diagram: BlockConfig<"diagram", {}, "inline">;
 } & typeof multiColumnSchema.blockSchema;
 
 const codeMapping = (
   block: BlockFromConfigNoChildren<
-    BSchema["codeBlock"] | BSchema["math"] | BSchema["diagram"],
+    BSchema["codeBlock"] | BSchema["mathBlock"] | BSchema["diagram"],
     any,
     any
   >,
@@ -166,7 +166,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
   },
   // TODO
   codeBlock: codeMapping,
-  math: codeMapping,
+  mathBlock: codeMapping,
   diagram: codeMapping,
   pageBreak: () => {
     return <View break key={"pageBreak"} />;

@@ -168,7 +168,7 @@ describe("exporter", () => {
       ...pdfDefaultSchemaMappings,
       blockMapping: {
         ...pdfDefaultSchemaMappings.blockMapping,
-        math: mathBlockMapping,
+        mathBlock: mathBlockMapping,
       },
     };
     const exporter = new PDFExporter(

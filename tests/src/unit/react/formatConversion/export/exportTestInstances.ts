@@ -473,10 +473,10 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
   },
   {
     testCase: {
-      name: "math/basic",
+      name: "mathBlock/basic",
       content: [
         {
-          type: "math",
+          type: "mathBlock",
           content: "a^2 + b^2 = c^2",
         },
       ],
@@ -485,14 +485,14 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
   },
   {
     testCase: {
-      name: "inlineMath/basic",
+      name: "math/basic",
       content: [
         {
           type: "paragraph",
           content: [
             "The identity ",
             {
-              type: "inlineMath",
+              type: "math",
               content: "e^{i\\pi} + 1 = 0",
             } as const,
             " is elegant.",

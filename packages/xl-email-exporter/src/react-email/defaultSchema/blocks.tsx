@@ -119,13 +119,13 @@ export const defaultReactEmailTextStyles = {
 
 type BSchema = DefaultBlockSchema & {
   pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  math: BlockConfig<"math", {}, "inline">;
+  mathBlock: BlockConfig<"mathBlock", {}, "inline">;
   diagram: BlockConfig<"diagram", {}, "inline">;
 };
 
 const codeMapping = (
   block: BlockFromConfigNoChildren<
-    BSchema["codeBlock"] | BSchema["math"] | BSchema["diagram"],
+    BSchema["codeBlock"] | BSchema["mathBlock"] | BSchema["diagram"],
     any,
     any
   >,
@@ -298,7 +298,8 @@ export const createReactEmailBlockMappingForDefaultSchema = (
 
   codeBlock: (block) =>
     codeMapping(block, block.props.language as PrismLanguage, textStyles),
-  math: (block) => codeMapping(block, "latex" as PrismLanguage, textStyles),
+  mathBlock: (block) =>
+    codeMapping(block, "latex" as PrismLanguage, textStyles),
   diagram: (block) =>
     codeMapping(block, "mermaid" as PrismLanguage, textStyles),
   audio: (block) => {
