@@ -12,7 +12,7 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsgo && vp build",
+            command: "tsc && vp build",
             input: [
               { auto: true },
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
