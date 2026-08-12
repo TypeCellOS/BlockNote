@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vite-plus/test";
+import { trackPosition } from "../../api/positionMapping.js";
 import * as Y from "yjs";
 import { Awareness } from "y-protocols/awareness";
 import { BlockNoteEditor } from "../../index.js";
@@ -212,5 +213,41 @@ describe("ForkYDocExtension", () => {
     // Merge and keep changes
     forkYDoc.merge({ keepChanges: true });
     expect(getEditorText(ctx.editor)).toContain("Forked modification");
+  });
+
+  // https://github.com/TypeCellOS/BlockNote/issues/2946
+  it("can track positions while forked", () => {
+    ctx = createCollabEditor();
+    setEditorText(ctx.editor, "Hello World");
+
+    const forkYDoc = ctx.editor.getExtension(ForkYDocExtension)!;
+    forkYDoc.fork();
+
+    // Store position at "Hello| World"
+    const getCursorPos = trackPosition(ctx.editor, 8);
+    expect(getCursorPos()).toBe(8);
+
+    // Insert text at the beginning of "|Hello World"
+    ctx.editor._tiptapEditor.commands.insertContentAt(3, "Test ");
+    expect(getCursorPos()).toBe(13);
+  });
+
+  // https://github.com/TypeCellOS/BlockNote/issues/2946
+  it("can track positions across fork and merge", () => {
+    ctx = createCollabEditor();
+    setEditorText(ctx.editor, "Hello World");
+
+    // Store position at "Hello| World"
+    const getCursorPos = trackPosition(ctx.editor, 8);
+
+    const forkYDoc = ctx.editor.getExtension(ForkYDocExtension)!;
+    forkYDoc.fork();
+    expect(getCursorPos()).toBe(8);
+
+    ctx.editor._tiptapEditor.commands.insertContentAt(3, "Test ");
+    expect(getCursorPos()).toBe(13);
+
+    forkYDoc.merge({ keepChanges: true });
+    expect(getCursorPos()).toBe(13);
   });
 });

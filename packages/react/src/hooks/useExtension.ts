@@ -1,13 +1,11 @@
 import {
   BlockNoteEditor,
-  createStore,
   Extension,
   ExtensionFactory,
+  Store,
 } from "@blocknote/core";
-import { useStore } from "@tanstack/react-store";
 import { useBlockNoteEditor } from "./useBlockNoteEditor.js";
-
-type Store<T> = ReturnType<typeof createStore<T>>;
+import { useStore } from "./useStore.js";
 
 /**
  * Use an extension instance

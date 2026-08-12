@@ -40,6 +40,7 @@ patchedDependencies:
     katex@0.16.47: patches/katex@0.16.47.patch,
   }
 catalog:
+  vite: ^8.0.0
   vite-plus: ^0.1.24
 minimumReleaseAgeExclude:
   - vite-plus

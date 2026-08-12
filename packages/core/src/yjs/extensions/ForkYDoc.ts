@@ -1,5 +1,6 @@
-import { yUndoPluginKey } from "y-prosemirror";
+import { ySyncPluginKey, yUndoPluginKey } from "y-prosemirror";
 import * as Y from "yjs";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   createExtension,
   createStore,
@@ -10,6 +11,26 @@ import { YCursorExtension } from "./YCursorPlugin.js";
 import { YSyncExtension } from "./YSync.js";
 import { YUndoExtension } from "./YUndo.js";
 import { findTypeInOtherYdoc } from "../utils.js";
+
+/**
+ * Point the `ySync` plugin state at `fragment`.
+ *
+ * Swapping the `ySync` plugin reconfigures the ProseMirror state, and
+ * ProseMirror carries over the state of plugins that share a key instead of
+ * re-initializing them. So the new plugin's `binding` (which is set from its
+ * view, via a transaction) ends up on the new fragment, while `type` and `doc`
+ * still point at the fragment the editor was bound to before. Anything reading
+ * those (e.g. `RelativePositionMappingExtension`) would then mix up the two
+ * Y.Docs, so we set them explicitly here.
+ */
+function bindYSyncPluginStateTo(
+  editor: BlockNoteEditor<any, any, any>,
+  fragment: Y.XmlFragment,
+) {
+  editor.transact((tr) =>
+    tr.setMeta(ySyncPluginKey, { type: fragment, doc: fragment.doc }),
+  );
+}
 
 export const ForkYDocExtension = createExtension(
   ({ editor, options }: ExtensionOptions<CollaborationOptions>) => {
@@ -84,6 +105,8 @@ export const ForkYDocExtension = createExtension(
           ],
         );
 
+        bindYSyncPluginStateTo(editor, forkedFragment);
+
         // Tell the store that the editor is now forked
         store.setState({ isForked: true });
       },
@@ -109,6 +132,8 @@ export const ForkYDocExtension = createExtension(
             YUndoExtension(),
           ],
         );
+
+        bindYSyncPluginStateTo(editor, originalFragment);
 
         // Reset the undo stack to the original undo stack
         yUndoPluginKey.getState(
