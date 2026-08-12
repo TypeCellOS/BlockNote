@@ -111,6 +111,7 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
         // to the browser for navigation. Therefore, the up/down arrows can sometimes move the
         // selection into the popup from unexpected positions, such as on the same line. Setting
         // `visibility: hidden` makes the browser ignore it when determining the new selection.
+        // TODO: This is hacky, we should find a cleaner solution.
         const handleVerticalArrow = (event: KeyboardEvent) => {
           if (event.key !== "ArrowUp" && event.key !== "ArrowDown") {
             return;
