@@ -560,6 +560,48 @@ export const exportTestInstancesMarkdown: TestInstance<
     executeTest: testExportMarkdown,
   },
   {
+    // Nested multi-line blocks must indent every line (including the closing
+    // delimiter) - an unindented line would end the list item. Toggle items
+    // are the case where this occurs: external HTML flattens other list
+    // items' non-list children to siblings, but keeps toggle children
+    // nested.
+    testCase: {
+      name: "math/nested",
+      content: [
+        {
+          type: "toggleListItem",
+          content: "The theorem:",
+          children: [
+            {
+              type: "math",
+              content: "a^2 +\nb^2 = c^2",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportMarkdown,
+  },
+  {
+    testCase: {
+      name: "codeBlock/nested",
+      content: [
+        {
+          type: "toggleListItem",
+          content: "The snippet:",
+          children: [
+            {
+              type: "codeBlock",
+              props: { language: "javascript" },
+              content: "const a = 1;\n\nconst b = 2;",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportMarkdown,
+  },
+  {
     testCase: {
       name: "inlineMath/basic",
       content: [

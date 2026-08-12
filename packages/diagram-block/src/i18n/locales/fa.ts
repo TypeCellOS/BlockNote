@@ -19,6 +19,7 @@ export const fa: DiagramDictionary = {
     name: "نمودار",
   },
   exporter: {
-    invalid_diagram: (source: string) => `نمودار نامعتبر "${source}"`,
+    invalid_diagram: (source: string) =>
+      `نمودار نامعتبر "\u2068${source}\u2069"`,
   },
 };

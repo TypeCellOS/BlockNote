@@ -14,6 +14,8 @@ import { getDiagramExporterDictionary } from "../i18n/dictionary.js";
 
 export type { RenderDiagram } from "../helpers/renderDiagramToImage.js";
 
+const MAX_WIDTH_PIXELS = 600;
+
 type DiagramBlock = BlockFromConfigNoChildren<
   BlockConfig<"diagram", {}, "plain">,
   any,
@@ -107,6 +109,10 @@ export function createDiagramBlockMapping(options?: {
       );
     }
 
+    // A DOCX body is ~624px wide with default margins; Word clips wider
+    // images at the right margin, so scale the display size down to fit
+    // (the image data keeps its full resolution).
+    const displayWidth = Math.min(result.image.width, MAX_WIDTH_PIXELS);
     return new Paragraph({
       alignment: AlignmentType.CENTER,
       children: [
@@ -114,8 +120,10 @@ export function createDiagramBlockMapping(options?: {
           data: result.image.data,
           type: imageType,
           transformation: {
-            width: result.image.width,
-            height: result.image.height,
+            width: displayWidth,
+            height: Math.round(
+              (displayWidth / result.image.width) * result.image.height,
+            ),
           },
         }),
       ],

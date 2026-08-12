@@ -29,6 +29,7 @@ export const fa: MathDictionary = {
     name: "معادله",
   },
   exporter: {
-    invalid_formula: (source: string) => `فرمول نامعتبر "${source}"`,
+    invalid_formula: (source: string) =>
+      `فرمول نامعتبر "\u2068${source}\u2069"`,
   },
 };

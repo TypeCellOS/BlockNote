@@ -108,7 +108,7 @@ const exporter = new PDFExporter(editor.schema, {
 });
 ```
 
-Math blocks require the `@react-pdf/math` package. Invalid LaTeX or Mermaid sources render an error placeholder with the error message, mirroring the editor. Note that the PDF exporter renders LaTeX with MathJax while the editor (and the DOCX/ODT exporters) use KaTeX — rare constructs supported by only one of the two may render differently.
+Math blocks require the `@react-pdf/math` package. Invalid LaTeX or Mermaid sources render an error placeholder identifying the offending source, mirroring the editor. Note that the PDF exporter renders LaTeX with MathJax while the editor (and the DOCX/ODT exporters) use KaTeX — rare constructs supported by only one of the two may render differently.
 
 Math blocks export fine server-side (they're vector output, no rasterization involved). Inline math and diagrams, however, are rasterized to images, which the built-in implementations can only do in the browser. When exporting server-side, plug in your own — without one, the export throws:
 

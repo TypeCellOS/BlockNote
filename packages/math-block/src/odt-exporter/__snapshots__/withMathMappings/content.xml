@@ -22,9 +22,6 @@
         <style:style style:family="graphic" style:name="BN_S2" style:parent-style-name="Formula">
             <style:graphic-properties style:vertical-pos="middle" style:vertical-rel="text"></style:graphic-properties>
         </style:style>
-        <style:style style:family="graphic" style:name="BN_S3" style:parent-style-name="Formula">
-            <style:graphic-properties style:vertical-pos="middle" style:vertical-rel="text"></style:graphic-properties>
-        </style:style>
     </office:automatic-styles>
     <office:body>
         <office:text>
@@ -35,7 +32,7 @@
             </text:p>
             <text:p text:style-name="Standard">
                 Inline math:
-                <draw:frame draw:style-name="BN_S3" text:anchor-type="as-char">
+                <draw:frame draw:style-name="BN_S2" text:anchor-type="as-char">
                     <draw:object xlink:href="Object 2/" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"></draw:object>
                 </draw:frame>
             </text:p>

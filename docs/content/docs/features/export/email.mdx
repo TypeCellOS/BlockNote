@@ -141,7 +141,7 @@ const exporter = new ReactEmailExporter(editor.schema, {
 });
 ```
 
-Invalid LaTeX or Mermaid sources render an error placeholder with the error message, mirroring the editor.
+Invalid LaTeX or Mermaid sources render an error placeholder identifying the offending source, mirroring the editor.
 
 **Image delivery.** By default the images are embedded as data URLs — self-contained, but some email clients (notably Gmail and Outlook for Windows) don't display data URL images and show the alt text instead. For those, deliver the images as inline `cid:` attachments (the most widely supported way to embed generated images) and pass the collected attachments to your mailer at send time:
 

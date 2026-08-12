@@ -153,6 +153,35 @@ describe("docx exporter mappings", () => {
     ).rejects.toThrow('renderer produced "image/webp"');
   });
 
+  it("should scale wide diagrams down to the page width", async () => {
+    // Word clips images wider than the body area at the right margin, so
+    // the display size is clamped (1200x600 -> 600x300; EMU = px * 9525).
+    const exporter = createExporter(
+      createDiagramBlockMapping({
+        renderDiagram: async () => ({
+          image: {
+            mimeType: "image/png",
+            data: new Uint8Array([0, 0, 0]),
+            width: 1200,
+            height: 600,
+          },
+        }),
+      }),
+    );
+
+    const doc = await exporter.toDocxJsDocument(
+      diagramDocument,
+      documentOptions,
+    );
+    const documentXML = await zipEntryContent(
+      await Packer.toBlob(doc),
+      "word/document.xml",
+    );
+
+    expect(documentXML).toContain('cx="5715000"');
+    expect(documentXML).toContain('cy="2857500"');
+  });
+
   it("should render placeholders from the configured dictionary", async () => {
     // Exporter strings are never hardcoded: the placeholder comes from the
     // `diagram` section of the exporter's dictionary, exactly as it would

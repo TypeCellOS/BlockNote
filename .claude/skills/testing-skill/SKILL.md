@@ -47,7 +47,7 @@ Updating tests can be done by adding the `-u` argument, i.e. `vp run test -u`. A
 
 End-to-end tests run in vitest browser mode (chromium, firefox and webkit) inside a Docker container, so screenshot baselines are identical locally and on CI. Run them from the repository root:
 
-```
+```bash
 bash tests/docker-run.sh -e CI=1 -- --run [filters]
 ```
 

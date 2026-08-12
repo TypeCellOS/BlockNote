@@ -29,6 +29,7 @@ export const ar: MathDictionary = {
     name: "معادلة",
   },
   exporter: {
-    invalid_formula: (source: string) => `صيغة غير صالحة "${source}"`,
+    invalid_formula: (source: string) =>
+      `صيغة غير صالحة "\u2068${source}\u2069"`,
   },
 };

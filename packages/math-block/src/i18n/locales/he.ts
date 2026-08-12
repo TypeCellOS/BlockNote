@@ -29,6 +29,7 @@ export const he: MathDictionary = {
     name: "משוואה",
   },
   exporter: {
-    invalid_formula: (source: string) => `נוסחה לא חוקית "${source}"`,
+    invalid_formula: (source: string) =>
+      `נוסחה לא חוקית "\u2068${source}\u2069"`,
   },
 };

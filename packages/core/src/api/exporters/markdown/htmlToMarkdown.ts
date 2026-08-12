@@ -177,18 +177,20 @@ function serializeCodeBlock(el: HTMLElement, ctx: SerializeContext): string {
 
   // For empty code blocks, don't add a newline between the fences
   if (!code) {
-    return ctx.indent + fence + language + "\n" + fence + "\n\n";
+    return ctx.indent + fence + language + "\n" + ctx.indent + fence + "\n\n";
   }
 
+  // Every (non-blank) line carries the indent - inside a list item or
+  // blockquote, an unindented line would end the parent container. Blank
+  // lines stay blank: they don't terminate an indented fence, and indenting
+  // them would add trailing whitespace.
+  const lines = [
+    fence + language,
+    ...(code.endsWith("\n") ? code.slice(0, -1) : code).split("\n"),
+    fence,
+  ];
   return (
-    ctx.indent +
-    fence +
-    language +
-    "\n" +
-    code +
-    (code.endsWith("\n") ? "" : "\n") +
-    fence +
-    "\n\n"
+    lines.map((line) => (line ? ctx.indent + line : line)).join("\n") + "\n\n"
   );
 }
 
@@ -204,7 +206,13 @@ function extractMathLatexSource(el: Element): string {
 
 function serializeMathBlock(el: HTMLElement, ctx: SerializeContext): string {
   const latex = extractMathLatexSource(el);
-  return ctx.indent + "$$\n" + latex + "\n$$\n\n";
+  // Every (non-blank) line carries the indent - inside a list item or
+  // blockquote, an unindented line would end the parent container.
+  return (
+    ["$$", ...latex.split("\n"), "$$"]
+      .map((line) => (line ? ctx.indent + line : line))
+      .join("\n") + "\n\n"
+  );
 }
 
 function extractCodeContent(el: Element): string {

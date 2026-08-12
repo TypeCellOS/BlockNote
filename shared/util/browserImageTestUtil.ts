@@ -20,7 +20,10 @@ export async function decodeAndSample(dataURL: string): Promise<{
   const canvas = document.createElement("canvas");
   canvas.width = image.naturalWidth || image.width;
   canvas.height = image.naturalHeight || image.height;
-  const context = canvas.getContext("2d")!;
+  const context = canvas.getContext("2d");
+  if (!context) {
+    throw new Error("2D canvas context unavailable for decoding images");
+  }
   context.drawImage(image, 0, 0);
 
   const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;

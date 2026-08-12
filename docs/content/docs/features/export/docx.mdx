@@ -135,7 +135,7 @@ const exporter = new DOCXExporter(editor.schema, {
 });
 ```
 
-Invalid LaTeX or Mermaid sources render an error placeholder with the error message, mirroring the editor.
+Invalid LaTeX or Mermaid sources render an error placeholder identifying the offending source, mirroring the editor.
 
 Math exports fine server-side (the LaTeX is converted to OMML without rendering). Rendering diagrams to images, however, requires a browser — when exporting server-side, pass a `renderDiagram` function to `createDiagramBlockMapping` (e.g. backed by [`@mermaid-js/mermaid-cli`](https://github.com/mermaid-js/mermaid-cli) or a [Kroki](https://kroki.io) server); without one, the export throws:
 
@@ -145,7 +145,9 @@ import type { RenderDiagram } from "@blocknote/diagram-block/docx-exporter";
 
 const renderDiagram: RenderDiagram = async (source) => {
   // Render the Mermaid source to an image with your renderer of choice.
-  return { dataURL, width, height };
+  return {
+    image: { data: pngBytes, mimeType: "image/png", width, height },
+  };
 };
 
 createDiagramBlockMapping({ renderDiagram });

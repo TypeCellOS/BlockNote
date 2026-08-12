@@ -53,6 +53,7 @@ export class ODTExporter<
   }> = [];
 
   private styleCounter = 0;
+  private readonly registeredStyleNames = new Map<string, string>();
 
   public readonly options: ExporterOptions;
 
@@ -107,15 +108,22 @@ export class ODTExporter<
       return styledText.text;
     }
 
-    const styleName = `BN_T${++this.styleCounter}`;
-
-    // Store the complete style element
-    this.automaticStyles.set(
-      styleName,
-      <style:style style:name={styleName} style:family="text">
-        <style:text-properties {...styles} />
-      </style:style>,
-    );
+    // Like `registerStyle`, identical style combinations are deduplicated -
+    // every styled run (each bold word, say) would otherwise create its own
+    // automatic style. The key is prefixed so the two key spaces can't
+    // collide.
+    const key = "T:" + JSON.stringify(styles);
+    let styleName = this.registeredStyleNames.get(key);
+    if (styleName === undefined) {
+      styleName = `BN_T${++this.styleCounter}`;
+      this.automaticStyles.set(
+        styleName,
+        <style:style style:name={styleName} style:family="text">
+          <style:text-properties {...styles} />
+        </style:style>,
+      );
+      this.registeredStyleNames.set(key, styleName);
+    }
 
     return <text:span text:style-name={styleName}>{styledText.text}</text:span>;
   }
@@ -354,8 +362,18 @@ export class ODTExporter<
   }
 
   public registerStyle(style: (name: string) => React.ReactNode): string {
+    // Identical definitions are deduplicated: mappings register their styles
+    // per block, and a document with many alike blocks would otherwise fill
+    // the automatic styles with copies. The definition is keyed by its
+    // rendered shape, with a placeholder where the generated name appears.
+    const key = "S:" + JSON.stringify(style("BN_STYLE_NAME_PLACEHOLDER"));
+    const existing = this.registeredStyleNames.get(key);
+    if (existing !== undefined) {
+      return existing;
+    }
     const styleName = `BN_S${++this.styleCounter}`;
     this.automaticStyles.set(styleName, style(styleName));
+    this.registeredStyleNames.set(key, styleName);
     return styleName;
   }
 

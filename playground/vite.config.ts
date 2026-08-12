@@ -123,6 +123,9 @@ export default defineConfig(((conf: { command: string }) => ({
               __dirname,
               "../packages/diagram-block/src",
             ),
+            // The shared test-utils package the suggestion-gallery example
+            // imports; dev mode resolves it via devAliases above.
+            "@shared": resolve(__dirname, "../shared"),
             "@react-pdf/math": resolve(
               __dirname,
               "node_modules/@react-pdf/math",

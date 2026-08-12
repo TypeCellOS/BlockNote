@@ -19,6 +19,7 @@ export const ar: DiagramDictionary = {
     name: "مخطط",
   },
   exporter: {
-    invalid_diagram: (source: string) => `مخطط غير صالح "${source}"`,
+    invalid_diagram: (source: string) =>
+      `مخطط غير صالح "\u2068${source}\u2069"`,
   },
 };

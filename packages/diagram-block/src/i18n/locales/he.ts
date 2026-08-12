@@ -19,6 +19,7 @@ export const he: DiagramDictionary = {
     name: "תרשים",
   },
   exporter: {
-    invalid_diagram: (source: string) => `תרשים לא חוקי "${source}"`,
+    invalid_diagram: (source: string) =>
+      `תרשים לא חוקי "\u2068${source}\u2069"`,
   },
 };
