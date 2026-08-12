@@ -41,7 +41,11 @@ import "../style.css";
 import { mergeCSSClasses } from "../util/browser.js";
 import { EventEmitter } from "../util/EventEmitter.js";
 import type { NoInfer } from "../util/typescript.js";
-import { ExtensionFactoryInstance } from "./BlockNoteExtension.js";
+import {
+  Extension,
+  ExtensionFactory,
+  ExtensionFactoryInstance,
+} from "./BlockNoteExtension.js";
 import type { TextCursorPosition } from "./cursorPositionTypes.js";
 import {
   BlockManager,
@@ -690,9 +694,26 @@ export class BlockNoteEditor<
   /**
    * Get an extension from the editor
    */
-  public getExtension: ExtensionManager["getExtension"] = ((
-    ...args: Parameters<ExtensionManager["getExtension"]>
-  ) => this._extensionManager.getExtension(...args)) as any;
+  // Declared as an explicit intersection of the two `ExtensionManager`
+  // overloads rather than `ExtensionManager["getExtension"]`: indexed access on
+  // an overloaded method collapses the signatures, which widened the factory
+  // overload's `ReturnType<ReturnType<T>>` result to `any` (losing e.g. a
+  // returned extension's `store` type).
+  public getExtension: (<
+    const Ext extends Extension | ExtensionFactory = Extension,
+  >(
+    extension: string,
+  ) =>
+    | (Ext extends Extension
+        ? Ext
+        : Ext extends ExtensionFactory
+          ? ReturnType<ReturnType<Ext>>
+          : never)
+    | undefined) &
+    (<const T extends ExtensionFactory>(
+      extension: T,
+    ) => ReturnType<ReturnType<T>> | undefined) = ((extension: any) =>
+    this._extensionManager.getExtension(extension)) as any;
 
   /**
    * Mount the editor to a DOM element.
