@@ -4,6 +4,7 @@ import { TagParseRule } from "@tiptap/pm/model";
 import { inlineContentToNodes } from "../../api/nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeToBlock.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { ignoreNonContentMutations } from "../nodeViewMutations.js";
 import { propsToAttributes } from "../blocks/internal.js";
 import { Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
@@ -208,12 +209,19 @@ export function createInlineContentSpec<
           editor,
         );
 
-        return addInlineContentAttributes(
+        const nodeView = addInlineContentAttributes(
           output,
           inlineContentConfig.type,
           node.attrs as Props<T["propSchema"]>,
           inlineContentConfig.propSchema,
         );
+
+        // Ignores DOM mutations that don't affect the inline content, so that
+        // browser extensions which rewrite the DOM (e.g. Dark Reader) can't
+        // trigger an infinite re-render loop that freezes the tab.
+        ignoreNonContentMutations(nodeView);
+
+        return nodeView;
       };
     },
   });

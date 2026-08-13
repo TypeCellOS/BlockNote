@@ -170,9 +170,14 @@ export async function handleFileInsertion<
 
           const blockRect = blockElement?.getBoundingClientRect();
 
+          const existingBlock = editor.getBlock(id);
+          if (!existingBlock) {
+            return;
+          }
+
           return insertOrUpdateBlock(
             editor,
-            editor.getBlock(id)!,
+            existingBlock,
             fileBlock,
             blockRect && (blockRect.top + blockRect.bottom) / 2 > coords.top
               ? "before"
@@ -180,6 +185,10 @@ export async function handleFileInsertion<
           );
         });
       } else {
+        return;
+      }
+
+      if (!insertedBlockId) {
         return;
       }
 

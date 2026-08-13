@@ -1,43 +1,14 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, useBlockNoteEditor } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
-import { createContext, forwardRef, useContext, useMemo } from "react";
-import { createPortal } from "react-dom";
-
-import type { DropdownMenuTrigger as ShadCNDropdownMenuTrigger } from "../components/ui/dropdown-menu.js";
+import { forwardRef, ReactElement } from "react";
+import { createContext, useContext } from "react";
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
 const PortalRootContext = createContext<HTMLElement | null | undefined>(
   undefined,
 );
-
-// hacky HoC to change DropdownMenuTrigger to open a menu on PointerUp instead of PointerDown
-// Needed to fix this issue: https://github.com/radix-ui/primitives/issues/2867
-const MenuTriggerWithPointerUp = (Comp: typeof ShadCNDropdownMenuTrigger) =>
-  forwardRef<any, React.ComponentProps<typeof ShadCNDropdownMenuTrigger>>(
-    (props, ref) => {
-      return (
-        <Comp
-          onPointerDown={(e) => {
-            if (!(e.nativeEvent as any).fakeEvent) {
-              // setting ctrlKey will block the menu from opening
-              // as it will block this line: https://github.com/radix-ui/primitives/blob/b32a93318cdfce383c2eec095710d35ffbd33a1c/packages/react/dropdown-menu/src/DropdownMenu.tsx#L120
-              e.ctrlKey = true;
-            }
-          }}
-          onPointerUp={(event) => {
-            // dispatch a pointerdown event so the Radix pointer down handler gets called that opens the menu
-            const e = new PointerEvent("pointerdown", event.nativeEvent);
-            (e as any).fakeEvent = true;
-            event.target.dispatchEvent(e);
-          }}
-          {...props}
-          ref={ref}
-        />
-      );
-    },
-  );
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
@@ -86,14 +57,6 @@ export const MenuTrigger = (
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
-  const DropdownMenuTrigger = useMemo(
-    () =>
-      MenuTriggerWithPointerUp(
-        ShadCNComponents.DropdownMenu.DropdownMenuTrigger,
-      ),
-    [ShadCNComponents.DropdownMenu.DropdownMenuTrigger],
-  );
-
   if (sub) {
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenuSubTrigger>
@@ -102,9 +65,9 @@ export const MenuTrigger = (
     );
   } else {
     return (
-      <DropdownMenuTrigger asChild={true} {...rest}>
-        {children}
-      </DropdownMenuTrigger>
+      <ShadCNComponents.DropdownMenu.DropdownMenuTrigger
+        render={children as ReactElement}
+      />
     );
   }
 };
@@ -120,31 +83,32 @@ export const MenuDropdown = forwardRef<
   const ShadCNComponents = useShadCNComponentsContext()!;
   const portalRoot = useContext(PortalRootContext);
 
+  // Portal into the editor's portal element (which carries the color-scheme
+  // class) so the menu inherits light/dark mode instead of the document body's.
+  const editor = useBlockNoteEditor();
+  const container = editor.portalElement;
+
   if (sub) {
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenuSubContent
         className={className}
+        container={portalRoot || container}
         ref={ref}
       >
         {children}
       </ShadCNComponents.DropdownMenu.DropdownMenuSubContent>
     );
+  } else {
+    return (
+      <ShadCNComponents.DropdownMenu.DropdownMenuContent
+        className={className}
+        container={portalRoot || container}
+        ref={ref}
+      >
+        {children}
+      </ShadCNComponents.DropdownMenu.DropdownMenuContent>
+    );
   }
-
-  const content = (
-    <ShadCNComponents.DropdownMenu.DropdownMenuContent
-      className={className}
-      ref={ref}
-    >
-      {children}
-    </ShadCNComponents.DropdownMenu.DropdownMenuContent>
-  );
-
-  if (portalRoot) {
-    return createPortal(content, portalRoot);
-  }
-
-  return content;
 });
 
 export const MenuItem = forwardRef<
@@ -225,11 +189,13 @@ export const MenuLabel = forwardRef<
   const ShadCNComponents = useShadCNComponentsContext()!;
 
   return (
-    <ShadCNComponents.DropdownMenu.DropdownMenuLabel
-      className={className}
-      ref={ref}
-    >
-      {children}
-    </ShadCNComponents.DropdownMenu.DropdownMenuLabel>
+    <ShadCNComponents.DropdownMenu.DropdownMenuGroup>
+      <ShadCNComponents.DropdownMenu.DropdownMenuLabel
+        className={className}
+        ref={ref}
+      >
+        {children}
+      </ShadCNComponents.DropdownMenu.DropdownMenuLabel>
+    </ShadCNComponents.DropdownMenu.DropdownMenuGroup>
   );
 });

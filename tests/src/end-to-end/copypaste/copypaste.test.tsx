@@ -4,7 +4,10 @@ import NonEditableApp from "@examples/06-custom-schema/08-non-editable-block/src
 import { beforeEach, describe, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { browserName, MOD, userEvent } from "../../utils/context.js";
-import { EDITOR_SELECTOR } from "../../utils/const.js";
+import {
+  DOC_TRAILING_BLOCK_SELECTOR,
+  EDITOR_SELECTOR,
+} from "../../utils/const.js";
 import {
   copyPaste,
   copyPasteAll,
@@ -201,7 +204,7 @@ describe("Check Copy/Paste From Non-Editable Block", () => {
 
       // Click the trailing block to create a new empty paragraph and focus
       // the editor there.
-      await userEvent.click(await waitForSelector(".bn-trailing-block"));
+      await userEvent.click(await waitForSelector(DOC_TRAILING_BLOCK_SELECTOR));
 
       await userEvent.keyboard(`{${MOD}>}v{/${MOD}}`);
 

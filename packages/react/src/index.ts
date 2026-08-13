@@ -136,6 +136,7 @@ export * from "./hooks/useOnUploadEnd.js";
 export * from "./hooks/useOnUploadStart.js";
 export * from "./hooks/usePrefersColorScheme.js";
 export * from "./hooks/useSelectedBlocks.js";
+export * from "./hooks/useStore.js";
 export * from "./hooks/useUploadLoading.js";
 export * from "./hooks/useExtension.js";
 export * from "./hooks/useEditorState.js";
@@ -143,6 +144,7 @@ export * from "./hooks/useEditorState.js";
 export * from "./schema/ReactBlockSpec.js";
 export * from "./schema/ReactInlineContentSpec.js";
 export * from "./schema/ReactStyleSpec.js";
+export * from "./schema/useNodeViewBlock.js";
 
 export * from "./icons.js";
 

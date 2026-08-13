@@ -55,11 +55,8 @@ export function detectEdgePosition(
 
   let position: "regular" | "left" | "right" = "regular";
 
-  if (
-    event.clientX <=
-    blockRect.left +
-      blockRect.width * PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP
-  ) {
+  if (event.clientX <= blockRect.left) {
+    // for left edge, there's no margin to consider (drop must be to left of the block)
     position = "left";
   } else if (
     event.clientX >=

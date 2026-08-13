@@ -9,7 +9,7 @@
     "directory": "packages/xl-multi-column"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.52.1",
+  "version": "0.53.0",
   "files": [
     "dist",
     "types",
@@ -52,10 +52,10 @@
   "dependencies": {
     "@blocknote/core": "workspace:^",
     "@blocknote/react": "workspace:^",
-    "@tiptap/core": "^3.13.0",
-    "prosemirror-model": "^1.25.4",
+    "@tiptap/core": "^3.29.2",
+    "prosemirror-model": "^1.25.11",
     "prosemirror-state": "^1.4.4",
-    "prosemirror-view": "^1.41.4"
+    "prosemirror-view": "^1.42.2"
   },
   "devDependencies": {
     "@blocknote/shared": "workspace:^",

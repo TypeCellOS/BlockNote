@@ -1,7 +1,6 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, useBlockNoteEditor } from "@blocknote/react";
 import { forwardRef } from "react";
-import { createPortal } from "react-dom";
 
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
@@ -24,7 +23,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
     const ShadCNComponents = useShadCNComponentsContext()!;
 
     return (
-      <ShadCNComponents.Tooltip.TooltipProvider delayDuration={0}>
+      <ShadCNComponents.Tooltip.TooltipProvider delay={0}>
         <div
           className={cn(
             className,
@@ -66,6 +65,10 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
 
     const ShadCNComponents = useShadCNComponentsContext()!;
 
+    // Portal the tooltip into the editor's portal element so it inherits the
+    // editor's light/dark color scheme instead of the document body's.
+    const editor = useBlockNoteEditor();
+
     const trigger =
       isSelected === undefined ? (
         <ShadCNComponents.Button.Button
@@ -88,7 +91,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         <ShadCNComponents.Toggle.Toggle
           className={cn(
             className,
-            "data-[state=open]:bg-accent data-[state=closed]:text-accent-foreground",
+            "aria-expanded:bg-accent aria-expanded:text-accent-foreground",
             variant === "compact" ? "h-6 min-w-6 p-0" : "",
           )}
           size={variant === "compact" ? "sm" : "default"}
@@ -96,8 +99,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           onClick={onClick}
           pressed={isSelected}
           disabled={isDisabled}
-          data-state={isSelected ? "on" : "off"}
-          data-disabled={isDisabled}
           ref={ref}
           {...rest}
         >
@@ -108,10 +109,9 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
 
     return (
       <ShadCNComponents.Tooltip.Tooltip>
-        <ShadCNComponents.Tooltip.TooltipTrigger asChild>
-          {trigger}
-        </ShadCNComponents.Tooltip.TooltipTrigger>
+        <ShadCNComponents.Tooltip.TooltipTrigger render={trigger} />
         <ShadCNComponents.Tooltip.TooltipContent
+          container={editor.portalElement}
           className={"flex flex-col items-center whitespace-pre-wrap"}
         >
           <span>{mainTooltip}</span>
@@ -132,6 +132,10 @@ export const ToolbarSelect = forwardRef<
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
+  // Portal into the editor's portal element (which carries the color-scheme
+  // class) so the dropdown inherits light/dark mode instead of the body's.
+  const editor = useBlockNoteEditor();
+
   // TODO?
   const SelectItemContent = (props: any) => (
     <div className={"flex items-center gap-1"}>
@@ -146,20 +150,6 @@ export const ToolbarSelect = forwardRef<
     return null;
   }
 
-  const content = (
-    <ShadCNComponents.Select.SelectContent className={className} ref={ref}>
-      {items.map((item) => (
-        <ShadCNComponents.Select.SelectItem
-          disabled={item.isDisabled}
-          key={item.text}
-          value={item.text}
-        >
-          <SelectItemContent {...item} />
-        </ShadCNComponents.Select.SelectItem>
-      ))}
-    </ShadCNComponents.Select.SelectContent>
-  );
-
   return (
     <ShadCNComponents.Select.Select
       value={selectedItem.text}
@@ -171,7 +161,25 @@ export const ToolbarSelect = forwardRef<
       <ShadCNComponents.Select.SelectTrigger className={"border-none"}>
         <ShadCNComponents.Select.SelectValue />
       </ShadCNComponents.Select.SelectTrigger>
-      {portalRoot ? createPortal(content, portalRoot) : content}
+      <ShadCNComponents.Select.SelectContent
+        className={className}
+        container={portalRoot || editor.portalElement}
+        // Position the dropdown below the trigger (classic dropdown behavior)
+        // instead of aligning the selected item over the trigger (the Base UI
+        // default).
+        alignItemWithTrigger={false}
+        ref={ref}
+      >
+        {items.map((item) => (
+          <ShadCNComponents.Select.SelectItem
+            disabled={item.isDisabled}
+            key={item.text}
+            value={item.text}
+          >
+            <SelectItemContent {...item} />
+          </ShadCNComponents.Select.SelectItem>
+        ))}
+      </ShadCNComponents.Select.SelectContent>
     </ShadCNComponents.Select.Select>
   );
 });

@@ -1,5 +1,5 @@
-import { Store } from "@tanstack/store";
 import { createStore } from "../editor/BlockNoteExtension.js";
+import { Store } from "../util/Store.js";
 
 /**
  * A collaborator of the document.

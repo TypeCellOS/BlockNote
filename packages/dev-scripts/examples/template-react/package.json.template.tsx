@@ -1,4 +1,4 @@
-import type { Project } from "../util";
+import { getCatalogVersion, type Project } from "../util.js";
 
 const template = (project: Project) => ({
   name: "@blocknote/example-" + project.fullSlug.replace("/", "-"),
@@ -7,10 +7,10 @@ const template = (project: Project) => ({
   private: true,
   version: "0.12.4",
   scripts: {
-    start: "vp dev",
-    dev: "vp dev",
-    "build:prod": "tsc && vp build",
-    preview: "vp preview",
+    start: "vite",
+    dev: "vite",
+    "build:prod": "tsc && vite build",
+    preview: "vite preview",
   },
   dependencies: {
     "@blocknote/ariakit": "latest",
@@ -39,7 +39,7 @@ const template = (project: Project) => ({
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "vite-plus": "catalog:",
+    vite: getCatalogVersion("vite"),
     ...(project.config?.devDependencies || {}),
   },
 });

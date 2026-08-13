@@ -10,7 +10,6 @@ import {
   Extension,
   ExtensionFactoryInstance,
   ExtractBlockConfigFromConfigOrCreator,
-  getBlockFromPos,
   mergeCSSClasses,
   Props,
   PropSchema,
@@ -23,6 +22,7 @@ import {
 } from "@tiptap/react";
 import { FC, ReactNode } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
+import { useNodeViewBlock } from "./useNodeViewBlock.js";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
@@ -267,17 +267,20 @@ export function createReactBlockSpec<
         },
         render(block, editor) {
           if (this.renderType === "nodeView") {
+            // The block core's `addNodeView` resolved when this node view was
+            // constructed (itself guarded, via `getBlockFromNodeView`). Seeds
+            // the fallback below so there is always something to render.
+            const initialBlock = block;
+
             return ReactNodeViewRenderer(
               (props: NodeViewProps) => {
                 // Vanilla JS node views are recreated on each update. However,
                 // using `ReactNodeViewRenderer` makes it so the node view is
                 // only created once, so the block we get in the node view will
                 // be outdated. Therefore, we have to get the block in the
-                // `ReactNodeViewRenderer` instead.
-                const block = getBlockFromPos(
-                  props.getPos,
-                  props.view.state.doc,
-                );
+                // `ReactNodeViewRenderer` instead. That position can be stale,
+                // so resolving it is guarded (see `useNodeViewBlock`).
+                const block = useNodeViewBlock(props, initialBlock);
 
                 const ref = useReactNodeView().nodeViewContentRef;
 

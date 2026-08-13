@@ -1,9 +1,9 @@
 import { User } from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
-import { useStore } from "@tanstack/react-store";
 import { useEffect } from "react";
 
 import { useExtension } from "../../hooks/useExtension.js";
+import { useStore } from "../../hooks/useStore.js";
 
 /**
  * Reads users from the comments extension's user store, loading any that aren't

@@ -8,11 +8,20 @@ import {
   StyleSchema,
 } from "../../../schema/index.js";
 import { createExternalHTMLExporter } from "../html/externalHTMLExporter.js";
+import { EMPTY_BLOCK_PLACEHOLDER } from "../html/util/serializeBlocksExternalHTML.js";
 import { htmlToMarkdown } from "./htmlToMarkdown.js";
 
 // Needs to be sync because it's used in drag handler event (SideMenuPlugin)
 export function cleanHTMLToMarkdown(cleanHTMLString: string) {
-  return htmlToMarkdown(cleanHTMLString);
+  // The external HTML exporter fills empty inline-content blocks with a
+  // placeholder character so they survive an HTML round trip (see
+  // `EMPTY_BLOCK_PLACEHOLDER`). Markdown has no need for that placeholder, so we
+  // remove it to avoid it showing up as a stray character in the output.
+  const withoutPlaceholder = cleanHTMLString
+    .split(EMPTY_BLOCK_PLACEHOLDER)
+    .join("");
+
+  return htmlToMarkdown(withoutPlaceholder);
 }
 
 export function blocksToMarkdown<

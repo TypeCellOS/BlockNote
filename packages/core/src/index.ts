@@ -23,6 +23,7 @@ export * from "./user/index.js";
 export * from "./util/browser.js";
 export * from "./util/combineByGroup.js";
 export * from "./util/expandToWords.js";
+export * from "./util/Store.js";
 export * from "./util/string.js";
 export * from "./util/table.js";
 export * from "./util/typescript.js";
@@ -37,6 +38,7 @@ export { selectedFragmentToHTML } from "./api/clipboard/toClipboard/copyExtensio
 
 // Node conversions
 export * from "./api/nodeConversions/blockToNode.js";
+export * from "./api/nodeConversions/fragmentToBlocks.js";
 export * from "./api/nodeConversions/nodeToBlock.js";
 export * from "./extensions/tiptap-extensions/UniqueID/UniqueID.js";
 

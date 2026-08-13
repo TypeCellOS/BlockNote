@@ -1,3 +1,4 @@
+import { GapCursor } from "@tiptap/pm/gapcursor";
 import { TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import {
@@ -10,6 +11,7 @@ import {
 } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { TableHandlesExtension } from "../../extensions/TableHandles/TableHandles.js";
 import type { PartialBlock } from "../defaultBlocks.js";
 
 /**
@@ -125,5 +127,105 @@ describe("Table Enter keyboard shortcut", () => {
     const before = editor.document;
     expect(() => pressEnter(editor)).not.toThrow();
     expect(editor.document).toStrictEqual(before);
+  });
+});
+
+describe("TableHandlesExtension.getCellSelection", () => {
+  let editor: BlockNoteEditor;
+  const div = document.createElement("div");
+
+  beforeAll(() => {
+    editor = BlockNoteEditor.create();
+    editor.mount(div);
+  });
+
+  afterAll(() => {
+    editor._tiptapEditor.destroy();
+    editor = undefined as any;
+  });
+
+  function getCellSelection() {
+    return editor.getExtension(TableHandlesExtension)!.getCellSelection();
+  }
+
+  it("returns undefined for a gap cursor left of a leading table without crashing", () => {
+    // A table as the first block in the document, matching the crash repro
+    // where clicking in the left margin places a gap cursor at doc start.
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [{ cells: ["Cell 1", "Cell 2"] }],
+        },
+      },
+    ]);
+
+    editor.transact((tr) => tr.setSelection(new GapCursor(tr.doc.resolve(0))));
+
+    expect(() => getCellSelection()).not.toThrow();
+    expect(getCellSelection()).toBeUndefined();
+  });
+
+  it("returns undefined for a gap cursor next to a nested block without crashing", () => {
+    // A table as the first block, followed by a nested block. Clicking the
+    // nested block's left margin places a gap cursor that is not inside a cell.
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [{ cells: ["Cell 1", "Cell 2"] }],
+        },
+      },
+      {
+        type: "paragraph",
+        content: "Parent",
+        children: [{ type: "paragraph", content: "Nested" }],
+      },
+    ]);
+
+    let nestedPos = -1;
+    editor.prosemirrorView.state.doc.descendants((node, pos) => {
+      if (nestedPos === -1 && node.isText && node.text === "Nested") {
+        nestedPos = pos;
+      }
+      return true;
+    });
+    editor.transact((tr) =>
+      tr.setSelection(new GapCursor(tr.doc.resolve(nestedPos - 1))),
+    );
+
+    expect(() => getCellSelection()).not.toThrow();
+    expect(getCellSelection()).toBeUndefined();
+  });
+
+  it("returns the cell indices for a text selection inside a cell", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [
+            { cells: ["Cell 1", "Cell 2"] },
+            { cells: ["Cell 3", "Cell 4"] },
+          ],
+        },
+      },
+    ]);
+
+    let cellPos = -1;
+    editor.prosemirrorView.state.doc.descendants((node, pos) => {
+      if (cellPos === -1 && node.isText && node.text === "Cell 4") {
+        cellPos = pos;
+      }
+      return true;
+    });
+    editor.transact((tr) =>
+      tr.setSelection(TextSelection.create(tr.doc, cellPos + 1)),
+    );
+
+    expect(getCellSelection()?.from).toEqual({ row: 1, col: 1 });
+    expect(getCellSelection()?.to).toEqual({ row: 1, col: 1 });
   });
 });
