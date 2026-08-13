@@ -7,12 +7,12 @@ import {
 } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
-import { ignoreNonContentMutations } from "../nodeViewMutations.js";
 import {
   Extension,
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
 import { nonFormattingMarks } from "../markGroups.js";
+import { ignoreNonContentMutations } from "../nodeViewMutations.js";
 import { PropSchema } from "../propTypes.js";
 import {
   getBlockFromNodeView,
@@ -286,8 +286,7 @@ export function addNodeAndExtensionsToSpec<
 
           // See explanation for why `update` is not implemented for NodeViews
           // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464
-          // TODO: in a future version, we might want to implement updates so that
-          // vanilla blocks don't always re-render entirely (https://github.com/TypeCellOS/BlockNote/issues/220)
+          // https://github.com/TypeCellOS/BlockNote/issues/220
           return typedNodeView;
         };
       },

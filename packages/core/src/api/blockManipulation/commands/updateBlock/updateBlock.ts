@@ -202,14 +202,26 @@ function updateBlockContentNode<
     // Since some block types contain inline content and others don't,
     // we either need to call setNodeMarkup to just update type &
     // attributes, or replaceWith to replace the whole blockContent.
+    const oldContent = blockInfo.blockContent.node.content;
     if (oldNodeType.spec.content === "") {
       // keep old content, because it's empty anyway and should be compatible with
       // any newContentType
-    } else if (newNodeType.spec.content !== oldNodeType.spec.content) {
-      // the content type changed, replace the previous content
-      content = [];
-    } else {
+    } else if (newNodeType.spec.content === oldNodeType.spec.content) {
       // keep old content, because the content type is the same and should be compatible
+    } else if (newNodeType.validContent(oldContent)) {
+      // The content-type strings differ (e.g. "inline*" vs a plain block's
+      // "text*"), but the existing content is still valid for the new type
+      // (e.g. plain, unstyled text), so keep it rather than clearing it.
+    } else if (newNodeType.inlineContent && oldNodeType.inlineContent) {
+      // Both blocks hold text, but the existing content isn't directly valid
+      // for the new type (e.g. converting styled/complex inline content into a
+      // plain block that disallows formatting marks and inline nodes). Preserve
+      // the text, dropping the styling the new type can't represent.
+      const text = blockInfo.blockContent.node.textContent;
+      content = text.length > 0 ? [pmSchema.text(text)] : [];
+    } else {
+      // the content type changed and is incompatible, replace the previous content
+      content = [];
     }
   }
 

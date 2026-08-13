@@ -168,6 +168,10 @@ export const fa = {
   toggle_blocks: {
     add_block_button: "تاشوی خالی. برای افزودن بلوک کلیک کنید.",
   },
+  code_block: {
+    add_source_button_text: "افزودن کد منبع",
+    ok_button_text: "تأیید",
+  },
   // from react package:
   side_menu: {
     add_block_label: "افزودن بلوک",
@@ -378,6 +382,11 @@ export const fa = {
     deleted_by: (users: string) => `حذف‌شده توسط: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `تغییر قالب‌بندی (${formats}) توسط: ${users}`,
+  },
+  exporter: {
+    open_file: "باز کردن فایل",
+    open_video_file: "باز کردن ویدیو",
+    open_audio_file: "باز کردن صدا",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

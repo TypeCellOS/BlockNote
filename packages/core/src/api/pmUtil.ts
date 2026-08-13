@@ -54,18 +54,26 @@ export function getBlockCache(schema: Schema) {
 }
 
 /**
- * Whether `nodeType` is a BlockNote block whose content type is `"plain"` — i.e.
- * it holds unstyled text and only allows the non-formatting (`"annotation"`)
- * marks. Resolved semantically from the block schema (the source of truth),
- * reachable from `schema.cached.blockNoteEditor`.
+ * Whether `nodeType` is a BlockNote block or inline content whose content type
+ * is `"plain"` — i.e. it holds unstyled text and only allows the non-formatting
+ * (`"annotation"`) marks. Resolved semantically from the block / inline content
+ * schema (the source of truth), reachable from `schema.cached.blockNoteEditor`.
  *
- * Returns `false` for every non-block / structural node type (`doc`,
- * `blockGroup`, `text`, inline content, table sub-nodes), since those aren't
- * keys in the block schema.
+ * Returns `false` for every other node type (`doc`, `blockGroup`, `text`, table
+ * sub-nodes, and non-plain blocks / inline content), since those aren't plain
+ * content keys in either schema.
  */
 export function isPlainContentNodeType(
   schema: Schema,
   nodeType: NodeType,
 ): boolean {
-  return getBlockSchema(schema)[nodeType.name]?.content === "plain";
+  if (getBlockSchema(schema)[nodeType.name]?.content === "plain") {
+    return true;
+  }
+
+  const inlineContentConfig = getInlineContentSchema(schema)[nodeType.name];
+  return (
+    typeof inlineContentConfig === "object" &&
+    inlineContentConfig.content === "plain"
+  );
 }

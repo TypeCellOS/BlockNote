@@ -241,6 +241,10 @@ export const zh: Dictionary = {
   toggle_blocks: {
     add_block_button: "空的切换区。点击添加区块。",
   },
+  code_block: {
+    add_source_button_text: "添加源代码",
+    ok_button_text: "确定",
+  },
   // from react package:
   side_menu: {
     add_block_label: "添加块",
@@ -450,6 +454,11 @@ export const zh: Dictionary = {
     deleted_by: (users: string) => `删除者：${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `格式更改（${formats}），更改者：${users}`,
+  },
+  exporter: {
+    open_file: "打开文件",
+    open_video_file: "打开视频",
+    open_audio_file: "打开音频",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

@@ -8,6 +8,11 @@ import "@blocknote/core/fonts/inter.css";
 import * as locales from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
+import {
+  createReactInlineMathSpec,
+  createReactMathBlockSpec,
+} from "@blocknote/math-block";
 import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
@@ -24,6 +29,11 @@ import {
   PDFExporter,
   pdfDefaultSchemaMappings,
 } from "@blocknote/xl-pdf-exporter";
+import { diagramBlockMapping } from "@blocknote/diagram-block/pdf-exporter";
+import {
+  inlineMathMapping,
+  mathBlockMapping,
+} from "@blocknote/math-block/pdf-exporter";
 import { pdf, PDFViewer } from "@react-pdf/renderer";
 import { JSX, useEffect, useMemo, useReducer, useState } from "react";
 
@@ -38,7 +48,16 @@ export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     // Adds support for page breaks & multi-column blocks.
-    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
+    // Adds support for math & diagram blocks.
+    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())).extend({
+      blockSpecs: {
+        mathBlock: createReactMathBlockSpec(),
+        diagram: createReactDiagramBlockSpec(),
+      },
+      inlineContentSpecs: {
+        math: createReactInlineMathSpec(),
+      },
+    }),
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,
@@ -331,6 +350,31 @@ export default function App() {
 };`,
       },
       {
+        type: "mathBlock",
+        content: "a^2 = \\sqrt{b^2 + c^2}",
+      },
+      {
+        type: "diagram",
+        content: `graph TD
+  A[Start] --> B{Works?}
+  B -->|Yes| C[Ship it]
+  B -->|No| A`,
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Inline math: ",
+            styles: {},
+          },
+          {
+            type: "math",
+            content: "e^{i\\pi} + 1 = 0",
+          },
+        ],
+      },
+      {
         type: "columnList",
         children: [
           {
@@ -402,7 +446,21 @@ export default function App() {
 
   // Exports the editor document to PDF whenever it changes.
   const onChange = async () => {
-    const exporter = new PDFExporter(editor.schema, pdfDefaultSchemaMappings);
+    const exporter = new PDFExporter(editor.schema, {
+      ...pdfDefaultSchemaMappings,
+      blockMapping: {
+        ...pdfDefaultSchemaMappings.blockMapping,
+        // Embeds diagrams as images instead of their Mermaid source.
+        diagram: diagramBlockMapping,
+        // Renders math blocks as formulas instead of their LaTeX source.
+        mathBlock: mathBlockMapping,
+      },
+      inlineContentMapping: {
+        ...pdfDefaultSchemaMappings.inlineContentMapping,
+        // Renders inline math as formula images instead of its LaTeX source.
+        math: inlineMathMapping,
+      },
+    });
     const pdfDocument = await exporter.toReactPDFDocument(editor.document);
     setPDFDocument(pdfDocument);
     forceRerender();

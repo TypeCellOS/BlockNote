@@ -8,7 +8,7 @@ Paragraph 1
 * [ ] Check List Item 1
 * Toggle List Item 1
 
-```text
+```javascript
 console.log("Hello World");
 ```
 

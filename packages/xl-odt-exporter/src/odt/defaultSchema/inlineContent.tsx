@@ -3,11 +3,15 @@ import {
   InlineContentMapping,
 } from "@blocknote/core";
 
+type ICSchema = DefaultInlineContentSchema;
+
+// `React.ReactNode` result types, matching `ODTExporter`'s `Exporter`
+// generics - mismatched result types make the mappings unassignable.
 export const odtInlineContentMappingForDefaultSchema: InlineContentMapping<
-  DefaultInlineContentSchema,
+  ICSchema,
   any,
-  React.JSX.Element,
-  React.JSX.Element
+  React.ReactNode,
+  React.ReactNode
 > = {
   link: (ic, exporter) => {
     const content = ic.content.map((c) => exporter.transformStyledText(c));

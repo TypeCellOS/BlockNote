@@ -44,7 +44,16 @@ export class ODTExporter<
     }
   >();
 
+  // Embedded object sub-documents (e.g. formulas), added as
+  // "Object N/content.xml" entries in the ODT file.
+  private objects: Array<{
+    path: string;
+    contentXml: string;
+    mediaType: string;
+  }> = [];
+
   private styleCounter = 0;
+  private readonly registeredStyleNames = new Map<string, string>();
 
   public readonly options: ExporterOptions;
 
@@ -99,15 +108,22 @@ export class ODTExporter<
       return styledText.text;
     }
 
-    const styleName = `BN_T${++this.styleCounter}`;
-
-    // Store the complete style element
-    this.automaticStyles.set(
-      styleName,
-      <style:style style:name={styleName} style:family="text">
-        <style:text-properties {...styles} />
-      </style:style>,
-    );
+    // Like `registerStyle`, identical style combinations are deduplicated -
+    // every styled run (each bold word, say) would otherwise create its own
+    // automatic style. The key is prefixed so the two key spaces can't
+    // collide.
+    const key = "T:" + JSON.stringify(styles);
+    let styleName = this.registeredStyleNames.get(key);
+    if (styleName === undefined) {
+      styleName = `BN_T${++this.styleCounter}`;
+      this.automaticStyles.set(
+        styleName,
+        <style:style style:name={styleName} style:family="text">
+          <style:text-properties {...styles} />
+        </style:style>,
+      );
+      this.registeredStyleNames.set(key, styleName);
+    }
 
     return <text:span text:style-name={styleName}>{styledText.text}</text:span>;
   }
@@ -290,6 +306,18 @@ export class ODTExporter<
             />
           );
         })}
+        {this.objects.flatMap((object) => [
+          <manifest:file-entry
+            key={object.path}
+            manifest:media-type={object.mediaType}
+            manifest:full-path={object.path}
+          />,
+          <manifest:file-entry
+            key={`${object.path}content.xml`}
+            manifest:media-type="text/xml"
+            manifest:full-path={`${object.path}content.xml`}
+          />,
+        ])}
       </manifest:manifest>
     );
     const zipWriter = new ZipWriter(
@@ -323,14 +351,54 @@ export class ODTExporter<
         new BlobReader(picture.file),
       );
     });
+    this.objects.forEach((object) => {
+      void zipWriter.add(
+        `${object.path}content.xml`,
+        new TextReader(object.contentXml),
+      );
+    });
 
     return zipWriter.close();
   }
 
   public registerStyle(style: (name: string) => React.ReactNode): string {
+    // Identical definitions are deduplicated: mappings register their styles
+    // per block, and a document with many alike blocks would otherwise fill
+    // the automatic styles with copies. The definition is keyed by its
+    // rendered shape, with a placeholder where the generated name appears.
+    const key = "S:" + JSON.stringify(style("BN_STYLE_NAME_PLACEHOLDER"));
+    const existing = this.registeredStyleNames.get(key);
+    if (existing !== undefined) {
+      return existing;
+    }
     const styleName = `BN_S${++this.styleCounter}`;
     this.automaticStyles.set(styleName, style(styleName));
+    this.registeredStyleNames.set(key, styleName);
     return styleName;
+  }
+
+  /**
+   * Registers an embedded object sub-document (e.g. a formula) and returns
+   * its path, for referencing from a `draw:object`'s `xlink:href`:
+   *
+   * ```tsx
+   * <draw:frame draw:style-name="..." text:anchor-type="as-char">
+   *   <draw:object
+   *     xlink:href={path}
+   *     xlink:type="simple"
+   *     xlink:show="embed"
+   *     xlink:actuate="onLoad"
+   *   />
+   * </draw:frame>
+   * ```
+   */
+  public registerObject(
+    contentXml: string,
+    mediaType = "application/vnd.oasis.opendocument.formula",
+  ): string {
+    const path = `Object ${this.objects.length + 1}/`;
+    this.objects.push({ path, contentXml, mediaType });
+    return path;
   }
 
   public async registerPicture(url: string): Promise<{

@@ -243,6 +243,10 @@ export const ru: Dictionary = {
   toggle_blocks: {
     add_block_button: "Пустой переключатель. Нажмите, чтобы добавить блок.",
   },
+  code_block: {
+    add_source_button_text: "Добавить исходный код",
+    ok_button_text: "ОК",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Добавить блок",
@@ -453,6 +457,11 @@ export const ru: Dictionary = {
     deleted_by: (users: string) => `Удалено: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Изменение форматирования (${formats}): ${users}`,
+  },
+  exporter: {
+    open_file: "Открыть файл",
+    open_video_file: "Открыть видео",
+    open_audio_file: "Открыть аудио",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

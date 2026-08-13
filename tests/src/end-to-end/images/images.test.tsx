@@ -130,6 +130,26 @@ describe("Check Image Block and Toolbar functionality", () => {
 
     await compareDocToSnapshot("deleteImage");
   });
+  test("Should show formatting toolbar when image block is selected", async () => {
+    await render(<TestingApp />);
+    await waitForSelector(EDITOR_SELECTOR);
+    await focusOnEditor();
+    await executeSlashCommand("image");
+
+    await userEvent.click(await waitForSelector(`[data-test="embed-tab"]`));
+    await userEvent.click(await waitForSelector(`[data-test="embed-input"]`));
+    await userEvent.keyboard(IMAGE_EMBED_URL);
+    await userEvent.click(
+      await waitForSelector(`[data-test="embed-input-button"]`),
+    );
+    await waitForSelector(`img[src="${IMAGE_EMBED_URL}"]`);
+    await sleep(500);
+
+    await userEvent.click(await waitForSelector(`img`));
+
+    const toolbar = await waitForSelector(".bn-formatting-toolbar");
+    await expectElement(toolbar).toBeVisible();
+  });
   test("Should open file panel but not formatting toolbar when inserting image with no trailing block", async () => {
     await render(<NoTrailingBlockApp />);
     await waitForSelector(EDITOR_SELECTOR);

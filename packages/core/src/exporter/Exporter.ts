@@ -1,5 +1,7 @@
 import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
 import { COLORS_DEFAULT } from "../editor/defaultColors.js";
+import type { Dictionary } from "../i18n/dictionary.js";
+import { en } from "../i18n/locales/index.js";
 import {
   BlockFromConfig,
   BlockSchema,
@@ -34,6 +36,20 @@ export type ExporterOptions = {
    * Colors to use for background of blocks, font colors, and highlight colors
    */
   colors: typeof COLORS_DEFAULT;
+  /**
+   * The strings an exporter renders into the produced document (file link
+   * texts, error placeholders). Accepts a locale from
+   * `@blocknote/core/locales` or an editor dictionary; block packages that
+   * ship their own exporter strings (e.g. math, diagram) read their sections
+   * from this same object, exactly as they do from an editor dictionary.
+   *
+   * @default the English strings
+   */
+  dictionary?: { exporter: Dictionary["exporter"] } & {
+    // Block packages read their own sections (e.g. `math`, `diagram`) from
+    // the same object; their types live with those packages.
+    [blockDictionary: string]: unknown;
+  };
 };
 export abstract class Exporter<
   B extends BlockSchema,
@@ -54,6 +70,15 @@ export abstract class Exporter<
     public readonly options: ExporterOptions,
   ) {}
 
+  /**
+   * The strings this exporter renders into the produced document - the
+   * `exporter` section of the configured dictionary (the `dictionary`
+   * option of {@link ExporterOptions}), or the English defaults.
+   */
+  public get dictionary(): Dictionary["exporter"] {
+    return this.options.dictionary?.exporter ?? en.exporter;
+  }
+
   public async resolveFile(url: string) {
     if (!this.options?.resolveFileUrl) {
       return (await fetch(url)).blob();
@@ -67,17 +92,26 @@ export abstract class Exporter<
 
   public mapStyles(styles: Styles<S>) {
     const stylesArray = Object.entries(styles).map(([key, value]) => {
-      const mappedStyle = this.mappings.styleMapping[key](value, this);
+      const mapping = this.mappings.styleMapping[key];
+      if (!mapping) {
+        throw new Error(
+          `Exporter is missing a style mapping for style "${key}". If this style comes from a separate package, spread that package's exporter mappings into your styleMapping.`,
+        );
+      }
+      const mappedStyle = mapping(value, this);
       return mappedStyle;
     });
     return stylesArray;
   }
 
   public mapInlineContent(inlineContent: InlineContent<I, S>) {
-    return this.mappings.inlineContentMapping[inlineContent.type](
-      inlineContent,
-      this,
-    );
+    const mapping = this.mappings.inlineContentMapping[inlineContent.type];
+    if (!mapping) {
+      throw new Error(
+        `Exporter is missing an inline content mapping for inline content type "${inlineContent.type}". If this inline content comes from a separate package, spread that package's exporter mappings into your inlineContentMapping.`,
+      );
+    }
+    return mapping(inlineContent, this);
   }
 
   public transformInlineContent(inlineContentArray: InlineContent<I, S>[]) {
@@ -92,12 +126,12 @@ export abstract class Exporter<
     numberedListIndex: number,
     children?: Array<Awaited<RB>>,
   ) {
-    return this.mappings.blockMapping[block.type](
-      block,
-      this,
-      nestingLevel,
-      numberedListIndex,
-      children,
-    );
+    const mapping = this.mappings.blockMapping[block.type];
+    if (!mapping) {
+      throw new Error(
+        `Exporter is missing a block mapping for block type "${block.type}". If this block comes from a separate package, spread that package's exporter mappings into your blockMapping.`,
+      );
+    }
+    return mapping(block, this, nestingLevel, numberedListIndex, children);
   }
 }

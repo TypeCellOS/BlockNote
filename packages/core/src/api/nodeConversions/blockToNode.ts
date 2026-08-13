@@ -64,7 +64,11 @@ function styledTextToNodes<T extends StyleSchema>(
       ? [...schema.nodes[blockType].allowedMarks(marks)]
       : marks;
 
-  const parseHardBreaks = !blockType || !schema.nodes[blockType].spec.code;
+  // Plain content nodes hold raw text — including newlines —
+  // rather than inline content, so they can't contain `hardBreak` nodes. Keep
+  // newlines as text characters for them instead of splitting into hard breaks.
+  const parseHardBreaks =
+    !blockType || !isPlainContentNodeType(schema, schema.nodes[blockType]);
 
   if (!parseHardBreaks) {
     return styledText.text.length > 0

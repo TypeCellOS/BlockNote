@@ -221,6 +221,10 @@ export const de: Dictionary = {
     add_block_button:
       "Leerer aufklappbarer Bereich. Klicken, um einen Block hinzuzufügen.",
   },
+  code_block: {
+    add_source_button_text: "Quellcode hinzufügen",
+    ok_button_text: "OK",
+  },
   side_menu: {
     add_block_label: "Block hinzufügen",
     drag_handle_label: "Blockmenü öffnen",
@@ -428,6 +432,11 @@ export const de: Dictionary = {
     deleted_by: (users: string) => `Gelöscht von: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Formatierungsänderung (${formats}) von: ${users}`,
+  },
+  exporter: {
+    open_file: "Datei öffnen",
+    open_video_file: "Video öffnen",
+    open_audio_file: "Audio öffnen",
   },
   generic: {
     ctrl_shortcut: "Strg",

@@ -6,12 +6,15 @@ import {
   createInternalInlineContentSpec,
   CustomInlineContentConfig,
   CustomInlineContentImplementation,
+  Extension,
+  ExtensionFactoryInstance,
   getInlineContentParseRules,
   InlineContentFromConfig,
   InlineContentSchemaWithInlineContent,
   InlineContentSpec,
   inlineContentToNodes,
   nodeToCustomInlineContent,
+  nonFormattingMarks,
   PartialCustomInlineContentFromConfig,
   Props,
   PropSchema,
@@ -44,6 +47,16 @@ export type ReactCustomInlineContentRenderProps<
     S
   >;
   contentRef: (node: HTMLElement | null) => void;
+  /**
+   * The ProseMirror node backing this inline content.
+   */
+  node: NodeViewProps["node"];
+  /**
+   * Returns this inline content's position in the document. When rendered
+   * outside the editor (i.e. serialized to HTML) this is a no-op that returns
+   * `undefined`.
+   */
+  getPos: NodeViewProps["getPos"];
 };
 
 // extend BlockConfig but use a React render function
@@ -101,10 +114,13 @@ export function InlineContentWrapper<
  * rendering.
  *
  * @param inlineContentConfig - The inline content type configuration, including
- * its `type` name, `propSchema`, and `content` mode (`"styled"` or `"none"`).
+ * its `type` name, `propSchema`, and `content` mode (`"styled"`, `"plain"`, or
+ * `"none"`).
  * @param inlineContentImplementation - The React implementation, including a
  * `render` component and optionally a `toExternalHTML` component and `parse`
  * rules.
+ * @param extensions - Optional editor extensions registered alongside this
+ * inline content (e.g. for keyboard handling), mirroring block specs.
  * @returns An `InlineContentSpec` that can be passed to the editor's schema.
  */
 export function createReactInlineContentSpec<
@@ -114,17 +130,33 @@ export function createReactInlineContentSpec<
 >(
   inlineContentConfig: T,
   inlineContentImplementation: ReactInlineContentImplementation<T, S>,
+  extensions?: (Extension | ExtensionFactoryInstance)[],
 ): InlineContentSpec<T> {
   const node = Node.create({
     name: inlineContentConfig.type as T["type"],
     inline: true,
     group: "inline",
-    selectable: inlineContentConfig.content === "styled",
+    selectable: inlineContentConfig.content !== "none",
     atom: inlineContentConfig.content === "none",
     draggable: inlineContentImplementation.meta?.draggable,
+    code: inlineContentImplementation.meta?.code,
     content: (inlineContentConfig.content === "styled"
       ? "inline*"
-      : "") as T["content"] extends "styled" ? "inline*" : "",
+      : inlineContentConfig.content === "plain"
+        ? "text*"
+        : "") as T["content"] extends "styled" ? "inline*" : "",
+    // "plain" inline content holds unstyled text, so it disallows formatting
+    // marks (mirroring "plain" blocks). It still allows the non-formatting marks
+    // (comments and suggestions/diffs), which annotate content without changing
+    // it and are ignored by the content model. `nonFormattingMarks` resolves the
+    // group only when at least one such mark is registered, so a plain inline
+    // content in an editor without any of them doesn't reference an empty
+    // (unknown) mark group.
+    marks() {
+      return inlineContentConfig.content === "plain"
+        ? nonFormattingMarks(this.editor)
+        : undefined;
+    },
 
     addAttributes() {
       return propsToAttributes(inlineContentConfig.propSchema);
@@ -138,6 +170,7 @@ export function createReactInlineContentSpec<
       return getInlineContentParseRules(
         inlineContentConfig,
         inlineContentImplementation.parse,
+        inlineContentImplementation.parseContent,
       );
     },
 
@@ -166,6 +199,8 @@ export function createReactInlineContentSpec<
               // No-op
             }}
             editor={editor}
+            node={node}
+            getPos={() => undefined}
           />
         ),
         editor,
@@ -205,6 +240,8 @@ export function createReactInlineContentSpec<
                     }
                   }}
                   editor={editor}
+                  node={props.node}
+                  getPos={props.getPos}
                   inlineContent={
                     nodeToCustomInlineContent(
                       props.node,
@@ -248,6 +285,12 @@ export function createReactInlineContentSpec<
       node,
       render(inlineContent, updateInlineContent, editor) {
         const Content = inlineContentImplementation.render;
+        // Rendered outside the editor (serialization), so there's no live node
+        // view - derive the node from the content and stub out `getPos`.
+        const node = inlineContentToNodes(
+          [inlineContent] as any,
+          editor.pmSchema,
+        )[0];
         const output = renderToDOMSpec((ref) => {
           return (
             <InlineContentWrapper
@@ -265,6 +308,8 @@ export function createReactInlineContentSpec<
                 editor={editor}
                 inlineContent={inlineContent}
                 updateInlineContent={updateInlineContent}
+                node={node}
+                getPos={() => undefined}
               />
             </InlineContentWrapper>
           );
@@ -275,6 +320,12 @@ export function createReactInlineContentSpec<
         const Content =
           inlineContentImplementation.toExternalHTML ||
           inlineContentImplementation.render;
+        // Rendered outside the editor (serialization), so there's no live node
+        // view - derive the node from the content and stub out `getPos`.
+        const node = inlineContentToNodes(
+          [inlineContent] as any,
+          editor.pmSchema,
+        )[0];
         const output = renderToDOMSpec((ref) => {
           return (
             <InlineContentWrapper
@@ -294,6 +345,8 @@ export function createReactInlineContentSpec<
                 updateInlineContent={() => {
                   // no-op
                 }}
+                node={node}
+                getPos={() => undefined}
               />
             </InlineContentWrapper>
           );
@@ -301,5 +354,6 @@ export function createReactInlineContentSpec<
         return output;
       },
     },
+    extensions,
   ) as any;
 }
