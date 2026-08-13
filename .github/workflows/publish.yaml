@@ -31,7 +31,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: voidzero-dev/setup-vp@143f5f385f39b1b753ffed1a01ad443811855c8b # v1.16.1
+      - uses: voidzero-dev/setup-vp@313600b80b104eadebb9111787d37a2e83e014ca # v1.17.0
         with:
           node-version-file: ".node-version"
           cache: true
@@ -45,13 +45,16 @@ jobs:
       - name: Build packages
         run: vp run -r build
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           registry-url: "https://registry.npmjs.org"
+          # Publishing workflow: never restore a potentially poisoned cache.
+          package-manager-cache: false
 
       - name: Publish packages to npm
+        env:
+          TAG: ${{ inputs.version || github.ref_name }}
         run: |
-          TAG="${{ inputs.version || github.ref_name }}"
           VERSION="${TAG#v}"
 
           # Determine npm dist-tag from version string
@@ -97,8 +100,9 @@ jobs:
         run: rm -rf packages/core/README.md packages/react/README.md
 
       - name: Prepare release notes
+        env:
+          TAG: ${{ inputs.version || github.ref_name }}
         run: |
-          TAG="${{ inputs.version || github.ref_name }}"
           VERSION="${TAG#v}"
           # Derive the release body from the matching CHANGELOG.md section, so
           # the GitHub Release notes always match what was authored there.
@@ -107,8 +111,8 @@ jobs:
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.version || github.ref_name }}
         run: |
-          TAG="${{ inputs.version || github.ref_name }}"
           PRERELEASE_FLAG=""
           if [[ "$TAG" == *-* ]]; then
             PRERELEASE_FLAG="--prerelease"
