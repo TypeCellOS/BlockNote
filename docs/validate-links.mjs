@@ -1,12 +1,18 @@
-import { getTableOfContents } from "fumadocs-core/content/toc";
-import { getSlugs } from "fumadocs-core/source";
-import {
-  printErrors,
-  readFiles,
-  scanURLs,
-  validateFiles,
-} from "next-validate-link";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// The content globs below are cwd-relative, and the glob library captures
+// `process.cwd()` when it is first imported - so pin the cwd to this
+// script's directory *before* loading it (via dynamic imports; static
+// imports would hoist above the chdir). Run from any other directory
+// without this, the globs silently match zero files and report success.
+process.chdir(path.dirname(fileURLToPath(import.meta.url)));
+
+const { getTableOfContents } = await import("fumadocs-core/content/toc");
+const { getSlugs } = await import("fumadocs-core/source");
+const { printErrors, readFiles, scanURLs, validateFiles } =
+  await import("next-validate-link");
+
 async function checkLinks() {
   const docsFiles = await readFiles("content/docs/**/*.{md,mdx}");
   const pagesFiles = await readFiles("content/pages/**/*.{md,mdx}");
