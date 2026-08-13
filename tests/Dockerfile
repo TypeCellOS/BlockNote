@@ -51,4 +51,11 @@ COPY examples ./examples
 
 WORKDIR /work/tests
 # Callers append flags, e.g. `docker run <img> --run` or `--ui --watch --no-open`.
-ENTRYPOINT ["pnpm", "exec", "vp", "test", "-c", "vite.config.browser.ts"]
+# `vp` is invoked through its bin symlink rather than `pnpm exec`: under CI=1
+# (which the run scripts set) `pnpm exec` first verifies node_modules against the
+# lockfile and re-installs when they differ. The install above is filtered
+# (`!docs`), so that check always fires — and reinstalling docs pulls
+# better-sqlite3, whose prebuilt binary isn't always available; the node-gyp
+# fallback then fails since this image has no `make`. The image's deps are
+# correct by construction, so there's nothing to verify.
+ENTRYPOINT ["node_modules/.bin/vp", "test", "-c", "vite.config.browser.ts"]

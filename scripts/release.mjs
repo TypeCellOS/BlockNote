@@ -213,4 +213,4 @@ To recover:
   }
 }
 
-main();
+void main();

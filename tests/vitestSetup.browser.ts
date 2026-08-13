@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, beforeEach } from "vite-plus/test";
-import { page } from "vite-plus/test/browser/context";
+import { page } from "vite-plus/test/browser";
 
 // Browser-mode setup. Unlike the jsdom `vitestSetup.ts`, we don't mock
 // ClipboardEvent/DragEvent/matchMedia here — the real browser provides them.

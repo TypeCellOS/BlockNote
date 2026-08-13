@@ -11,7 +11,7 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsgo && vp build",
+            command: "tsc && vp build",
             input: [
               { auto: true },
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
@@ -50,9 +50,16 @@ export default defineConfig(
       build: {
         sourcemap: true,
         lib: {
-          entry: path.resolve(__dirname, "src/index.ts"),
+          entry: {
+            "blocknote-xl-odt-exporter": path.resolve(
+              __dirname,
+              "src/index.ts",
+            ),
+          },
           name: "blocknote-xl-odt-exporter",
-          fileName: "blocknote-xl-odt-exporter",
+          formats: ["es", "cjs"],
+          fileName: (format, entryName) =>
+            format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
         },
         rollupOptions: {
           // make sure to externalize deps that shouldn't be bundled

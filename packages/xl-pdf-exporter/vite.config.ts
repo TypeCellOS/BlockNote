@@ -11,7 +11,7 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsgo && vp build",
+            command: "tsc && vp build",
             input: [
               { auto: true },
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
@@ -21,7 +21,7 @@ export default defineConfig(
         },
       },
       test: {
-        environment: "jsdom",
+        environment: "node",
         setupFiles: ["./vitestSetup.ts"],
         testTimeout: 15000,
         // assetsInclude: [

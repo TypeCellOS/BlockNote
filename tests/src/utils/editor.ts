@@ -1,5 +1,5 @@
 import { expect, vi } from "vite-plus/test";
-import type { Locator } from "vite-plus/test/browser/context";
+import type { Locator } from "vite-plus/test/browser";
 import { userEvent } from "./context.js";
 import { EDITOR_SELECTOR } from "./const.js";
 
