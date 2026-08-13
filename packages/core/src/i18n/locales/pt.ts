@@ -192,6 +192,10 @@ export const pt: Dictionary = {
   toggle_blocks: {
     add_block_button: "Toggle vazio. Clique para adicionar um bloco.",
   },
+  code_block: {
+    add_source_button_text: "Adicionar código-fonte",
+    ok_button_text: "OK",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Adicionar bloco",
@@ -402,6 +406,11 @@ export const pt: Dictionary = {
     deleted_by: (users: string) => `Excluído por: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Alteração de formatação (${formats}) por: ${users}`,
+  },
+  exporter: {
+    open_file: "Abrir arquivo",
+    open_video_file: "Abrir vídeo",
+    open_audio_file: "Abrir áudio",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

@@ -185,6 +185,10 @@ export const ar: Dictionary = {
   toggle_blocks: {
     add_block_button: "تبديل فارغ. انقر لإضافة كتلة.",
   },
+  code_block: {
+    add_source_button_text: "إضافة كود المصدر",
+    ok_button_text: "موافق",
+  },
   // from react package:
   side_menu: {
     add_block_label: "إضافة محتوي",
@@ -394,6 +398,11 @@ export const ar: Dictionary = {
     deleted_by: (users: string) => `حُذف بواسطة: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `تغيير التنسيق (${formats}) بواسطة: ${users}`,
+  },
+  exporter: {
+    open_file: "فتح الملف",
+    open_video_file: "فتح الفيديو",
+    open_audio_file: "فتح الصوت",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

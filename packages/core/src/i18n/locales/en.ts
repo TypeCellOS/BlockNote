@@ -200,6 +200,10 @@ export const en = {
   toggle_blocks: {
     add_block_button: "Empty toggle. Click to add a block.",
   },
+  code_block: {
+    add_source_button_text: "Add source code",
+    ok_button_text: "OK",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Add block",
@@ -409,6 +413,11 @@ export const en = {
     deleted_by: (users: string) => `Deleted by: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Formatting change (${formats}) by: ${users}`,
+  },
+  exporter: {
+    open_file: "Open file",
+    open_video_file: "Open video",
+    open_audio_file: "Open audio",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

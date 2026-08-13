@@ -13,6 +13,7 @@
       },
       "type": "mention",
     },
+    "extensions": undefined,
     "implementation": {
       "node": null,
       "parse": [Function],
@@ -26,6 +27,7 @@
       "propSchema": {},
       "type": "tag",
     },
+    "extensions": undefined,
     "implementation": {
       "node": null,
       "parse": [Function],

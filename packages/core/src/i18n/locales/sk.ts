@@ -200,6 +200,10 @@ export const sk = {
   toggle_blocks: {
     add_block_button: "Prázdne prepínanie. Kliknite pre pridanie bloku.",
   },
+  code_block: {
+    add_source_button_text: "Pridať zdrojový kód",
+    ok_button_text: "OK",
+  },
   side_menu: {
     add_block_label: "Pridať blok",
     drag_handle_label: "Otvoriť menu bloku",
@@ -407,6 +411,11 @@ export const sk = {
     deleted_by: (users: string) => `Odstránil: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Zmena formátovania (${formats}) od: ${users}`,
+  },
+  exporter: {
+    open_file: "Otvoriť súbor",
+    open_video_file: "Otvoriť video",
+    open_audio_file: "Otvoriť zvuk",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

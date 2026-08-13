@@ -4,6 +4,8 @@
   "author": "jmarbutt",
   "tags": [""],
   "dependencies": {
+    "@blocknote/diagram-block": "latest",
+    "@blocknote/math-block": "latest",
     "@blocknote/xl-email-exporter": "latest",
     "@react-email/render": "^2.0.4"
   },

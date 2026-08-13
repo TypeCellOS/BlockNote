@@ -47,6 +47,10 @@ describe("Check static rendering", () => {
           "static-rendering-equality",
           {
             comparatorOptions: { allowedMismatchedPixels: 200 },
+            // scale: "css" is load-bearing: with the harness's fit-to-window
+            // transform on the tester iframe, Playwright's css/device capture
+            // paths rasterize slightly differently, and dropping it pushes
+            // the diff past the pixel budget (empirically, chromium).
             screenshotOptions: { scale: "css", mask: masks() },
           },
         );

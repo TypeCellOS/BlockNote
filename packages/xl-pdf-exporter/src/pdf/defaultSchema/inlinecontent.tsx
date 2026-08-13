@@ -4,8 +4,10 @@ import {
 } from "@blocknote/core";
 import { Link, Text } from "@react-pdf/renderer";
 
+type ICSchema = DefaultInlineContentSchema;
+
 export const pdfInlineContentMappingForDefaultSchema: InlineContentMapping<
-  DefaultInlineContentSchema,
+  ICSchema,
   any,
   React.ReactElement<Link> | React.ReactElement<Text>,
   React.ReactElement<Text>

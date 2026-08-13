@@ -192,6 +192,10 @@ export const pl: Dictionary = {
     add_block_button:
       "Brak bloków do rozwinięcia. Kliknij, aby dodać pierwszego.",
   },
+  code_block: {
+    add_source_button_text: "Dodaj kod źródłowy",
+    ok_button_text: "OK",
+  },
   side_menu: {
     add_block_label: "Dodaj blok",
     drag_handle_label: "Otwórz menu bloków",
@@ -400,6 +404,11 @@ export const pl: Dictionary = {
     deleted_by: (users: string) => `Usunięte przez: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Zmiana formatowania (${formats}) przez: ${users}`,
+  },
+  exporter: {
+    open_file: "Otwórz plik",
+    open_video_file: "Otwórz wideo",
+    open_audio_file: "Otwórz audio",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

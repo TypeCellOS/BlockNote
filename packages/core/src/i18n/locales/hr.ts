@@ -213,6 +213,10 @@ export const hr: Dictionary = {
   toggle_blocks: {
     add_block_button: "Prazan sklopivi blok. Klikni da dodaš sadržaj.",
   },
+  code_block: {
+    add_source_button_text: "Dodaj izvorni kôd",
+    ok_button_text: "U redu",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Dodaj blok",
@@ -423,6 +427,11 @@ export const hr: Dictionary = {
     deleted_by: (users: string) => `Izbrisao/la: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Promjena oblikovanja (${formats}) od: ${users}`,
+  },
+  exporter: {
+    open_file: "Otvori datoteku",
+    open_video_file: "Otvori videozapis",
+    open_audio_file: "Otvori audiozapis",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

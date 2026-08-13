@@ -24,7 +24,7 @@ import type { StyleSchema } from "./styles/types.js";
  * `undefined`.
  *
  * The assertions are the type annotations and `@ts-expect-error` directives: if
- * propagation breaks, this file stops compiling, which `vp lint` / `tsgo`
+ * propagation breaks, this file stops compiling, which `vp lint` / `tsc`
  * catches in CI (note that `vp test`, which strips types via esbuild, does not
  * — these tests are guarded by the type-checker, not the runner). The `it`
  * bodies otherwise contain no meaningful runtime logic, mirroring the existing

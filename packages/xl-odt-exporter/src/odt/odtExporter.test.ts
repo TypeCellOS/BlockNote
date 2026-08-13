@@ -3,10 +3,10 @@ import {
   createPageBreakBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
+import { testODTDocumentAgainstSnapshot } from "@shared/util/odtTestUtil.js";
 import { testDocument } from "@shared/testDocument.js";
-import { BlobReader, FileEntry, TextWriter, ZipReader } from "@zip.js/zip.js";
 import { beforeAll, describe, expect, it } from "vite-plus/test";
-import xmlFormat from "xml-formatter";
+import { createElement } from "react";
 import { odtDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { ODTExporter } from "./odtExporter.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
@@ -146,32 +146,35 @@ describe("exporter", () => {
       });
     },
   );
+
+  it("deduplicates identical automatic styles", () => {
+    const exporter = new ODTExporter(
+      BlockNoteSchema.create({
+        blockSpecs: {
+          ...defaultBlockSpecs,
+          pageBreak: createPageBreakBlockSpec(),
+        },
+      }),
+      odtDefaultSchemaMappings,
+      { resolveFileUrl: testResolveFileUrl },
+    );
+
+    const italic = (name: string) =>
+      createElement(
+        "style:style",
+        { "style:family": "text", "style:name": name },
+        createElement("style:text-properties", { "fo:font-style": "italic" }),
+      );
+    const bold = (name: string) =>
+      createElement(
+        "style:style",
+        { "style:family": "text", "style:name": name },
+        createElement("style:text-properties", { "fo:font-weight": "bold" }),
+      );
+
+    expect(exporter.registerStyle(italic)).toBe(exporter.registerStyle(italic));
+    expect(exporter.registerStyle(italic)).not.toBe(
+      exporter.registerStyle(bold),
+    );
+  });
 });
-
-async function testODTDocumentAgainstSnapshot(
-  odt: globalThis.Blob,
-  snapshots: {
-    styles: string;
-    content: string;
-  },
-) {
-  const zipReader = new ZipReader(new BlobReader(odt));
-  const entries = await zipReader.getEntries();
-  const stylesXMLWriter = new TextWriter();
-  const contentXMLWriter = new TextWriter();
-  const stylesXML = entries.find(
-    (entry) => entry.filename === "styles.xml",
-  ) as FileEntry;
-  const contentXML = entries.find((entry) => {
-    return entry.filename === "content.xml";
-  }) as FileEntry;
-
-  expect(stylesXML).toBeDefined();
-  expect(contentXML).toBeDefined();
-  await expect(
-    xmlFormat(await stylesXML.getData(stylesXMLWriter)),
-  ).toMatchFileSnapshot(snapshots.styles);
-  await expect(
-    xmlFormat(await contentXML.getData(contentXMLWriter)),
-  ).toMatchFileSnapshot(snapshots.content);
-}

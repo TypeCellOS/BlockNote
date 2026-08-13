@@ -241,6 +241,10 @@ export const zhTW: Dictionary = {
   toggle_blocks: {
     add_block_button: "空的切換區。點擊新增區塊。",
   },
+  code_block: {
+    add_source_button_text: "新增原始碼",
+    ok_button_text: "確定",
+  },
   // from react package:
   side_menu: {
     add_block_label: "新增區塊",
@@ -450,6 +454,11 @@ export const zhTW: Dictionary = {
     deleted_by: (users: string) => `刪除者：${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `格式變更（${formats}），變更者：${users}`,
+  },
+  exporter: {
+    open_file: "開啟檔案",
+    open_video_file: "開啟影片",
+    open_audio_file: "開啟音訊",
   },
   generic: {
     ctrl_shortcut: "Ctrl",
