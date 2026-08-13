@@ -47,7 +47,6 @@ type ToolbarSelectType = {
     isDisabled?: boolean;
   }[];
   isDisabled?: boolean;
-  direction?: "up" | "down";
   portalRoot?: HTMLElement | null;
 };
 

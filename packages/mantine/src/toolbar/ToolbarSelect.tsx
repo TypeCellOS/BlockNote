@@ -14,8 +14,7 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, direction, portalRoot, ...rest } =
-    props;
+  const { className, items, isDisabled, portalRoot, ...rest } = props;
 
   assertEmpty(rest);
 
@@ -29,7 +28,7 @@ export const ToolbarSelect = forwardRef<
     <MantineMenu
       withinPortal={!!portalRoot}
       portalProps={portalRoot ? { target: portalRoot } : undefined}
-      position={direction === "up" ? "top-start" : "bottom-start"}
+      position={"bottom-start"}
       transitionProps={{
         exitDuration: 0,
       }}
@@ -41,11 +40,8 @@ export const ToolbarSelect = forwardRef<
       trapFocus={false}
       returnFocus={false}
       withInitialFocusPlaceholder={false}
-      // When opening upward (mobile, above the keyboard) don't let `flip` send
-      // it back down: there's always room above and floating-ui's overflow
-      // detection is unreliable inside the transformed toolbar.
       middlewares={{
-        flip: direction !== "up",
+        flip: true,
         shift: true,
         inline: false,
         size: true,

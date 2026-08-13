@@ -557,8 +557,8 @@ inline styles, it is added to the base z-index. */
   will-change: transform;
   transition: transform 0.2s cubic-bezier(0.5, 1, 0.89, 1);
   padding-bottom: env(safe-area-inset-bottom, 0);
-  /* No `overflow` here: `direction: up` dropdowns render above the toolbar and
-     must not be clipped. Note `overflow-x` would force `overflow-y: auto` too,
+  /* No `overflow` here: dropdowns flip to render above the toolbar and must not
+     be clipped. Note `overflow-x` would force `overflow-y: auto` too,
      which is exactly what clips them. Horizontal scroll lives on the inner
      `.bn-mobile-formatting-toolbar-scroll` element instead. */
 }
