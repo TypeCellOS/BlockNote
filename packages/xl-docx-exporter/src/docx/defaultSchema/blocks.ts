@@ -22,6 +22,7 @@ import {
   TableRow,
   TextRun,
 } from "docx";
+import { clampListLevel } from "../listLevels.js";
 import { Table } from "../util/Table.js";
 
 function blockPropsToStyles(
@@ -103,7 +104,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       children: exporter.transformInlineContent(block.content),
       numbering: {
         reference: "blocknote-numbered-list",
-        level: nestingLevel,
+        level: clampListLevel(nestingLevel),
       },
     });
   },
@@ -113,7 +114,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       children: exporter.transformInlineContent(block.content),
       numbering: {
         reference: "blocknote-bullet-list",
-        level: nestingLevel,
+        level: clampListLevel(nestingLevel),
       },
     });
   },

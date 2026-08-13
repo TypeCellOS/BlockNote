@@ -2,6 +2,7 @@ import {
   BlockNoteSchema,
   defaultBlockSpecs,
   createPageBreakBlockSpec,
+  PartialBlock,
 } from "@blocknote/core";
 import { testDocument } from "@shared/testDocument.js";
 import {
@@ -220,6 +221,66 @@ describe("exporter", () => {
       await expect(
         prettify(await getZIPEntryContent(entries, "word/styles.xml")),
       ).toMatchFileSnapshot("__snapshots__/withMultiColumn/styles.xml");
+    },
+  );
+
+  it(
+    "should clamp list nesting deeper than DOCX supports",
+    { timeout: 10000 },
+    async () => {
+      const schema = BlockNoteSchema.create({
+        blockSpecs: { ...defaultBlockSpecs },
+      });
+
+      // A list nested `depth` items deep, i.e. nesting levels 0..depth-1.
+      const nestedList = (depth: number) => {
+        type SchemaPartialBlock = PartialBlock<
+          typeof schema.blockSchema,
+          typeof schema.inlineContentSchema,
+          typeof schema.styleSchema
+        >;
+
+        let block: SchemaPartialBlock = {
+          type: "bulletListItem",
+          content: `level ${depth}`,
+        };
+        for (let i = depth - 1; i >= 1; i--) {
+          block = {
+            type: "bulletListItem",
+            content: `level ${i}`,
+            children: [block],
+          };
+        }
+        return [block];
+      };
+      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
+        resolveFileUrl: testResolveFileUrl,
+      });
+
+      // Deeper than the 9 levels the numbering config defines. Without
+      // clamping, `docx` throws "Level cannot be greater than 9" and the whole
+      // export fails.
+      const doc = await exporter.toDocxJsDocument(
+        partialBlocksToBlocksForTesting(schema, nestedList(12)),
+        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+      );
+
+      const blob = await Packer.toBlob(doc);
+      const zip = new ZipReader(new BlobReader(blob));
+      const entries = await zip.getEntries();
+      const documentXml = await getZIPEntryContent(
+        entries,
+        "word/document.xml",
+      );
+
+      const levels = [...documentXml.matchAll(/<w:ilvl w:val="(\d+)"\/>/g)].map(
+        (match) => Number(match[1]),
+      );
+
+      // Every item is still exported, and every level it references is one the
+      // numbering config actually defines (0-8) - levels past that are pinned
+      // to the deepest defined level rather than dropped or left undefined.
+      expect(levels).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8]);
     },
   );
 
