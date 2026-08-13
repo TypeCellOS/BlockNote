@@ -1,0 +1,127 @@
+---
+title: Diagrams
+description: Mermaid diagram blocks for BlockNote — rendered as diagrams in the editor, and exportable to Markdown, PDF, DOCX, ODT, and email.
+---
+
+# Diagrams
+
+The `@blocknote/diagram-block` package adds a **diagram block**: authored as [Mermaid](https://mermaid.js.org/) source in a source popup, rendered as the diagram it describes — flowcharts, sequence diagrams, Gantt charts, and everything else Mermaid supports.
+
+<Callout type="info">
+  This block is only available in React (`@blocknote/react`).
+</Callout>
+
+```bash
+npm install @blocknote/diagram-block
+```
+
+## Adding to your editor
+
+The package exports `createReactDiagramBlockSpec`. Add it to your schema's `blockSpecs`:
+
+```tsx
+import { BlockNoteSchema } from "@blocknote/core";
+import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
+
+const schema = BlockNoteSchema.create().extend({
+  blockSpecs: {
+    // Adds the Diagram block to the schema.
+    diagram: createReactDiagramBlockSpec(),
+  },
+});
+```
+
+To highlight the Mermaid source in the popup, add the [syntax highlighting](/docs/features/blocks/code-blocks#syntax-highlighting) extension to your editor. The diagram block already declares its source language (`mermaid`), so no per-block configuration is needed:
+
+```tsx
+import { syntaxHighlighter } from "@blocknote/code-block";
+
+const editor = useCreateBlockNote({
+  schema,
+  extensions: [syntaxHighlighter],
+});
+```
+
+## Menu items & localization
+
+Because the diagram spec lives in an optional package, its editor integrations are opt-in too — the package exports everything needed:
+
+```tsx
+import {
+  getDiagramSlashMenuItems, // Slash Menu item for inserting a diagram
+  getDiagramBlockTypeSelectItems, // Block Type Select item for the Formatting Toolbar
+  locales as diagramLocales, // dictionary strings, merged under the `diagram` key
+} from "@blocknote/diagram-block";
+```
+
+- `getDiagramSlashMenuItems(editor)` returns a [Slash Menu](/docs/react/components/suggestion-menus#slash-menu) item for inserting a diagram — combine it with the default items via `combineByGroup`.
+- `getDiagramBlockTypeSelectItems(editor)` returns a [Block Type Select](/docs/react/components/formatting-toolbar) item for turning a block into a diagram, to spread alongside the defaults.
+- `diagramLocales` translates the diagram strings — merge a locale into the editor's `dictionary` under the `diagram` key (see [Localization](/docs/features/localization)); without one, the bundled English strings are used.
+
+The example below wires them all up.
+
+## Example
+
+<Example name="custom-schema/diagram-block" />
+
+## Exporting
+
+Diagrams export to every format BlockNote supports. [Markdown](/docs/features/export/markdown) works out of the box — diagrams export as ` ```mermaid ` fenced code blocks, their common Markdown notation.
+
+The [PDF](/docs/features/export/pdf), [DOCX](/docs/features/export/docx), [ODT](/docs/features/export/odt), and [email](/docs/features/export/email) exporters embed the diagram as an image via their mappings — they live as subpaths of this package, and each exports a `createDiagramBlockMapping` factory to spread into the exporter's default mappings. The [DOCX exporter](/docs/features/export/docx) shown here; the [PDF](/docs/features/export/pdf), [ODT](/docs/features/export/odt), and [email](/docs/features/export/email) exporters work the same way with their respective subpaths:
+
+```typescript
+import {
+  DOCXExporter,
+  docxDefaultSchemaMappings,
+} from "@blocknote/xl-docx-exporter";
+import { createDiagramBlockMapping } from "@blocknote/diagram-block/docx-exporter";
+// ...or "@blocknote/diagram-block/pdf-exporter",
+//       "@blocknote/diagram-block/odt-exporter",
+//       "@blocknote/diagram-block/email-exporter"
+
+const exporter = new DOCXExporter(editor.schema, {
+  ...docxDefaultSchemaMappings,
+  blockMapping: {
+    ...docxDefaultSchemaMappings.blockMapping,
+    diagram: createDiagramBlockMapping(),
+  },
+});
+```
+
+The factory takes one option:
+
+```typescript
+createDiagramBlockMapping(options?: {
+  /**
+   * Renders the Mermaid source to an image. Defaults to the built-in
+   * Mermaid renderer, which only works in the browser - see "Exporting
+   * server-side" below.
+   */
+  renderDiagram?: RenderDiagram;
+});
+```
+
+Invalid Mermaid sources render an error placeholder identifying the offending source, mirroring the editor.
+
+The email subpath's factory additionally takes an `imageDelivery` option: some email clients don't display the default data URL images, and the generated images can be delivered as inline `cid:` attachments instead — see [image delivery](/docs/features/export/email#math--diagram-blocks) on the email page.
+
+### Exporting server-side
+
+Rendering Mermaid source to an image requires a browser, so the built-in renderer only works for client-side exports. When exporting server-side, pass a `renderDiagram` function to `createDiagramBlockMapping` — without one, a server-side export throws:
+
+```typescript
+import { createDiagramBlockMapping } from "@blocknote/diagram-block/docx-exporter";
+import type { RenderDiagram } from "@blocknote/diagram-block/docx-exporter";
+
+const renderDiagram: RenderDiagram = async (source) => {
+  // Render the Mermaid source to an image with your renderer of choice.
+  return {
+    image: { data: pngBytes, mimeType: "image/png", width, height },
+  };
+};
+
+createDiagramBlockMapping({ renderDiagram });
+```
+
+Common choices for the server-side renderer are [`@mermaid-js/mermaid-cli`](https://github.com/mermaid-js/mermaid-cli) (renders in a headless browser) or a [Kroki](https://kroki.io) server. Invalid Mermaid source is an expected failure — return it as `{ error }` rather than throwing, and the export renders the error placeholder for that block instead of failing.
