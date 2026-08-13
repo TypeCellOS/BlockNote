@@ -1,3 +1,25 @@
+## 0.54.0 (2026-08-13)
+
+### 🚀 Features
+
+- Adds a Math block ([2a34f7d70](https://github.com/TypeCellOS/BlockNote/commit/2a34f7d70))
+- Adds a Diagram block ([0fca0ee7a](https://github.com/TypeCellOS/BlockNote/commit/0fca0ee7a))
+- **core:** Source-with-preview, syntax highlighting & exporter images ([503c796d3](https://github.com/TypeCellOS/BlockNote/commit/503c796d3))
+
+### 🩹 Fixes
+
+- **ai:** Operations on collaborative documents ([#2952](https://github.com/TypeCellOS/BlockNote/pull/2952))
+- **ai:** Operations on blocks containing comments ([#2953](https://github.com/TypeCellOS/BlockNote/pull/2953))
+- **pdf:** Add custom font and fontFamily options for CJK ([#2945](https://github.com/TypeCellOS/BlockNote/pull/2945))
+- Expose first suggestion as active descendant ([#2965](https://github.com/TypeCellOS/BlockNote/pull/2965))
+- **xl-docx-exporter:** Clamp list nesting to the levels DOCX defines ([#2969](https://github.com/TypeCellOS/BlockNote/pull/2969))
+
+### ❤️ Thank You
+
+- Adarshsm <adarshmudugal@gmail.com>
+- Nick The Sick ([@nperez0111](https://github.com/nperez0111))
+- Pupuking723 <2318857637@qq.com>
+
 ## 0.53.0 (2026-08-06)
 
 ### 🚀 Features
