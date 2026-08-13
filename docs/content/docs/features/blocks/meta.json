@@ -6,6 +6,8 @@
     "tables",
     "embeds",
     "code-blocks",
+    "math",
+    "diagrams",
     "inline-content",
     "custom",
     "..."
