@@ -38,3 +38,40 @@ The first element in the default Formatting Toolbar is the Block Type Select, an
 <Example name="ui-components/formatting-toolbar-block-type-items" />
 
 Here, we use the `FormattingToolbar` component but keep the default buttons (we don't pass any children). Instead, we pass our customized Block Type Select items using the `blockTypeSelectItems` prop.
+
+## Mobile Formatting Toolbar
+
+On mobile, BlockNote's default UI automatically shows a dedicated formatting toolbar pinned just above the on-screen keyboard - no setup needed. It renders the same items as the regular Formatting Toolbar, but stays anchored to the keyboard so it's always reachable while editing on a touch device. Try it in any of the previous examples to see it in action!
+
+Due to browser limitations, scrolling the page can cause the mobile Formatting Toolbar to appear laggy or jittery. BlockNote offers a workaround for these limitations, which you can see below.
+
+<Example name="ui-components/mobile-formatting-toolbar" />
+
+Here, the lag/jitter is eliminated, at the cost of `<body>` and its ancestors no longer being scrollable. Instead, all scrollable page content must be in a scrollable container that's a descendant of `<body>`.
+
+To set this up, first lock scrolling on the document itself. This prevents the browser from scrolling `<html>`/`<body>`, which is what causes the toolbar to jitter:
+
+```css
+html,
+body {
+  margin: 0;
+  overflow: hidden;
+}
+```
+
+Then, make your scroll container (`.scroll-host` in the demo) the element that actually scrolls. It's pinned to the visual viewport using the `--bn-vv-*` CSS variables that BlockNote publishes on the root element (`--bn-vv-top`, `--bn-vv-left`, `--bn-vv-width`, and `--bn-vv-height`), so it always lines up with the visible area above the keyboard:
+
+```css
+.scroll-host {
+  position: fixed;
+  top: var(--bn-vv-top, 0px);
+  left: var(--bn-vv-left, 0px);
+  width: var(--bn-vv-width, 100vw);
+  height: var(--bn-vv-height, 100dvh);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+```
+
+BlockNote keeps the `--bn-vv-*` variables up to date as the keyboard opens/closes and the user zooms or pans, so both the toolbar and your scroll container stay aligned with the visual viewport without any JavaScript on your end.
