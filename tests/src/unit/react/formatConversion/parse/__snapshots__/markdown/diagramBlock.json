@@ -1,0 +1,16 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "graph TD
+  A[Start] --> B[End]",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {},
+    "type": "diagram",
+  },
+]
