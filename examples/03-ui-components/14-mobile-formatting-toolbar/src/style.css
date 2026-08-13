@@ -1,6 +1,7 @@
 html,
 body {
   margin: 0;
+  overflow: hidden;
 }
 
 /* Fixed-height, internally scrollable editor — a nested scroll container inside
@@ -104,10 +105,11 @@ body {
 }
 
 /* A top-level wrapper div is the scroll container (the document itself doesn't
-   scroll — `useVisualViewport` locks it), pinned to the visual viewport
-   rectangle via the `--bn-vv-*` variables it publishes, so it sits directly
-   above the keyboard on iOS — where the layout viewport doesn't resize and can
-   be left with a nonzero `offsetTop`. */
+   scroll — `html`/`body` are locked with `overflow: hidden` above), pinned to
+   the visual viewport rectangle via the `--bn-vv-*` variables the mobile
+   toolbar controller publishes, so it sits directly above the keyboard on iOS —
+   where the layout viewport doesn't resize and can be left with a nonzero
+   `offsetTop`. */
 .scroll-host {
   position: fixed;
   top: var(--bn-vv-top, 0px);

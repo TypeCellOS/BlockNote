@@ -25,10 +25,10 @@ function readVisualViewport(): VisualViewportRect {
  * mobile toolbar (and the app's scroll container) can position themselves off
  * the viewport without a React re-render, and returning it as an object for JS.
  *
- * Does not lock document scroll — that's the opt-in part, see
- * {@link useVisualViewport}. This is what
- * {@link MobileFormattingToolbarController} relies on for positioning and
- * keyboard detection.
+ * Does not lock document scroll. For the smoother "non-scrolling document"
+ * behavior, the host app opts in with CSS (see
+ * {@link MobileFormattingToolbarController}). This is what that controller
+ * relies on for positioning and keyboard detection.
  */
 export function useVisualViewportRect(): VisualViewportRect {
   const [rect, setRect] = useState(readVisualViewport);
@@ -49,7 +49,7 @@ export function useVisualViewportRect(): VisualViewportRect {
     update();
 
     // Fire on keyboard open/close, zoom/pan, and (unless the document is locked
-    // via `useVisualViewport`) content scroll.
+    // via CSS) content scroll.
     vp?.addEventListener("resize", update);
     vp?.addEventListener("scroll", update);
     window.addEventListener("resize", update);
@@ -85,41 +85,4 @@ export function isVirtualKeyboardOpen(viewport: VisualViewportRect): boolean {
   const layoutHeight = viewport.height * viewport.scale;
   maxLayoutViewportHeight = Math.max(maxLayoutViewportHeight, layoutHeight);
   return maxLayoutViewportHeight - layoutHeight > 150;
-}
-
-/**
- * Opt-in smooth-scrolling setup for the mobile formatting toolbar.
- *
- * On top of tracking the visual viewport (see {@link useVisualViewportRect}), it
- * locks the document so it never scrolls: with a non-scrolling document, content
- * scroll becomes an element scroll that never moves the visual viewport, so the
- * toolbar stays pinned above the keyboard during scroll with no per-frame work
- * (and, on iOS, browser chrome doesn't shift things mid-scroll).
- *
- * The cost is that the document itself can no longer scroll — the host app must
- * put its scrollable content in an element sized to the visual viewport (via the
- * same `--bn-vv-*` variables this publishes). Call this from your app only if
- * you want that behavior; `MobileFormattingToolbarController` works without it,
- * just without the non-scrolling-document smoothness.
- */
-export function useVisualViewport(): VisualViewportRect {
-  useEffect(() => {
-    const html = document.documentElement;
-    const body = document.body;
-
-    // Saved only so they can be restored when the hook unmounts.
-    const prevHtmlOverflow = html.style.overflow;
-    const prevBodyOverflow = body.style.overflow;
-    html.style.overflow = "hidden";
-    body.style.overflow = "hidden";
-
-    return () => {
-      html.style.overflow = prevHtmlOverflow;
-      body.style.overflow = prevBodyOverflow;
-    };
-  }, []);
-
-  // Publishing the CSS vars here too is idempotent with the controller's own
-  // tracking (same values written to the same properties).
-  return useVisualViewportRect();
 }

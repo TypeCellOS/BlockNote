@@ -6,7 +6,7 @@ import { FormattingToolbar } from "./FormattingToolbar.js";
 import {
   isVirtualKeyboardOpen,
   useVisualViewportRect,
-} from "./useVisualViewport.js";
+} from "./useVisualViewportRect.js";
 
 /**
  * Mobile formatting toolbar controller.
@@ -19,9 +19,9 @@ import {
  *
  * By default it does not lock document scroll. For the smoother
  * "non-scrolling document" behavior (the toolbar staying pinned during scroll
- * with no per-frame work), the host app opts in by calling
- * {@link useVisualViewport} and sizing its scroll container to the visual
- * viewport via the same `--bn-vv-*` variables.
+ * with no per-frame work), the host app opts in via CSS: locking document
+ * scroll (`overflow: hidden` on `html`/`body`) and sizing its scroll container
+ * to the visual viewport via the same `--bn-vv-*` variables.
  *
  * The toolbar itself scrolls horizontally (`overflow-x: auto`), which clips any
  * inline dropdown on mobile. So the outer `.bn-mobile-formatting-toolbar`

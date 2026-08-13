@@ -1,5 +1,5 @@
 import "@blocknote/core/fonts/inter.css";
-import { useCreateBlockNote, useVisualViewport } from "@blocknote/react";
+import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 
@@ -26,14 +26,10 @@ const initialContent = [
 export default function App() {
   const editor = useCreateBlockNote({ initialContent });
 
-  // Opt into the "non-scrolling document" behavior: locks document scroll so the
-  // toolbar stays smoothly pinned above the keyboard during scroll, and publishes
-  // the `--bn-vv-*` variables this `.scroll-host` is sized against.
-  useVisualViewport();
-
   return (
-    // The document itself doesn't scroll — `useVisualViewport` locks it and pins
-    // this `.scroll-host` to the visual viewport via the `--bn-vv-*` variables.
+    // To make the formatting toolbar scrolling smoother, we lock the `document.body` scrolling
+    // using CSS so we can use `position: fixed` on the toolbar. Therefore, we need to use a
+    // descendant element for scrolling.
     <div className="scroll-host">
       <NavBar />
       <main className="app-main">
