@@ -1,47 +1,17 @@
-import { createUserEvent, page } from "vite-plus/test/browser/context";
+import { commands, page, server, userEvent } from "vite-plus/test/browser";
 
-// This vite-plus build's `@vitest/browser/context` runtime only exports
-// `createUserEvent`, `page`, `cdp`, `locators`, `utils` — there is no default
-// `userEvent`, `server`, or `commands` export (the published `.d.ts` lists them,
-// but they aren't in the runtime bundle). So we adapt here and re-export a
-// single shared API surface for the e2e utils + tests to consume.
-
-/** Shared userEvent instance (preserves keyboard/pointer state across calls). */
-export const userEvent = createUserEvent();
-
-export { page };
-
-/**
- * Triggers a custom browser command registered in `vite.config.browser.ts`
- * (e.g. `positionalMouse`). The public `server.commands` API isn't exported in
- * this build, so we go through the browser runner directly.
- */
-export function triggerCommand<T = unknown>(
-  name: string,
-  args: unknown[] = [],
-): Promise<T> {
-  return (window as any).__vitest_browser_runner__.commands.triggerCommand(
-    name,
-    args,
-  );
-}
-
-const ua = navigator.userAgent;
+// `vite-plus/test/browser` re-exports `vitest/browser`, which Vitest replaces
+// with a generated virtual module while running in Browser Mode. Import it from
+// this single place so the e2e utils + tests share one `userEvent` instance
+// (it preserves keyboard/pointer state across calls) and one command surface.
+export { commands, page, server, userEvent };
 
 /** The browser instance the current test is running in. */
-export const browserName: "chromium" | "firefox" | "webkit" = /Firefox/.test(ua)
-  ? "firefox"
-  : /Chrome|Chromium|HeadlessChrome/.test(ua)
-    ? "chromium"
-    : "webkit";
+export const browserName = server.browser as "chromium" | "firefox" | "webkit";
 
 /**
  * Platform modifier for `userEvent.keyboard` (Cmd on macOS, Ctrl elsewhere) —
- * the equivalent of Playwright's `ControlOrMeta`. Derived from the browser the
- * test runs in, since `server.platform` isn't available.
+ * the equivalent of Playwright's `ControlOrMeta`.
  */
-export const MOD: "Meta" | "Control" = /Mac|iPhone|iPad/i.test(
-  navigator.platform || ua,
-)
-  ? "Meta"
-  : "Control";
+export const MOD: "Meta" | "Control" =
+  server.platform === "darwin" ? "Meta" : "Control";

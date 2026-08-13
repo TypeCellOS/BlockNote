@@ -15,13 +15,46 @@ publicHoistPattern:
   - "prosemirror-*"
 overrides:
   "@headlessui/react": "^2.2.4"
+  # fumadocs-core still declares @shikijs/rehype ^3 while the rest of the
+  # workspace (code-block, docs, fumadocs-twoslash) is on shiki 4.4.3 - two
+  # shiki identities in one graph make the docs' rehype transformer types
+  # clash ("ShikiTransformer | ShikiTransformer"). Force one shiki everywhere.
+  "shiki": "^4.4.3"
+  "@shikijs/rehype": "^4.4.3"
+  "@shikijs/types": "^4.4.3"
   "@tiptap/core": "^3.29.2"
   "@tiptap/pm": "^3.29.2"
-  "vitest": "4.1.7"
-  "@vitest/runner": "4.1.7"
+  # vite-plus declares @types/node and jsdom as peers, so every distinct version
+  # of them in the workspace produces a separate vite-plus (and therefore vitest)
+  # instance. `vp run test` starts the runner from the workspace root while each
+  # test file resolves `vite-plus/test` relative to itself, so a package on a
+  # different instance ends up with a second SnapshotClient and every
+  # `toMatchSnapshot` fails with "The snapshot state for '...' is not found".
+  # Pin both so the whole workspace shares one instance.
+  "@types/node": "^25.6.0"
+  "jsdom": "^29.0.2"
+  "vitest": "4.1.10"
+  "@vitest/runner": "4.1.10"
+  # @vitest/mocker must stay >=4.1.10: earlier builds only recognize `vitest`
+  # as the mocks-API source, so `vi.mock` imported from `vite-plus/test` fails
+  # to hoist ("problems in resolving the mocks API"). 4.1.10 adds vite-plus/test.
+  "@vitest/mocker": "4.1.10"
   "@y/y": "14.0.0-rc.23"
   "@y/prosemirror": "2.0.0-6"
   "lib0": "1.0.0-rc.22"
+packageExtensions:
+  # `@vitest/ui` is an *optional peer* of vitest, which vite-plus re-exposes as
+  # an optional peer of its own. Only `tests` declares it (its browser config
+  # uses the `html` reporter), so it used to be resolved in that one importer
+  # and missing everywhere else - two `vite-plus` peer keys, two physical
+  # instances. Declaring it in more importers doesn't help: an importer that
+  # depends on it directly resolves it *without* vitest attached, so the key
+  # differs either way. Making it a regular dependency of vite-plus satisfies
+  # the peer inside vite-plus itself, so it drops out of the peer key entirely
+  # and every importer shares one instance.
+  vite-plus:
+    dependencies:
+      "@vitest/ui": "4.1.5"
 allowBuilds:
   "@parcel/watcher": true
   "@sentry/cli": true
@@ -35,10 +68,13 @@ allowBuilds:
   workerd: false
   leveldown: false
 patchedDependencies:
-  { "@y/prosemirror@2.0.0-6": patches/@y__prosemirror@2.0.0-6.patch }
+  {
+    "@y/prosemirror@2.0.0-6": patches/@y__prosemirror@2.0.0-6.patch,
+    katex@0.16.47: patches/katex@0.16.47.patch,
+  }
 catalog:
   vite: ^8.0.0
-  vite-plus: ^0.1.24
+  vite-plus: ^0.2.9
 minimumReleaseAgeExclude:
   - vite-plus
   - lib0
@@ -51,3 +87,8 @@ minimumReleaseAgeExclude:
   - "@oxlint-tsgolint/*"
   - oxfmt
   - "@oxfmt/*"
+
+# pdfjs-dist pulls @napi-rs/canvas (native binaries) for Node-side
+# rendering, which we never do - pdf.js only runs in the browser suite.
+ignoredOptionalDependencies:
+  - "@napi-rs/canvas"

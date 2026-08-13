@@ -9,21 +9,31 @@
     "src"
   ],
   "scripts": {
-    "clean": "tsgo --build --clean"
+    "clean": "tsc --build --clean"
   },
   "dependencies": {
     "@blocknote/core": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "22.13.13",
-    "typescript": "^5.9.3",
-    "vite-plus": "catalog:"
+    "@zip.js/zip.js": "^2.8.8",
+    "typescript": "^7.0.2",
+    "vite-plus": "catalog:",
+    "xml-formatter": "^3.6.7"
   },
   "peerDependencies": {
-    "image-meta": "^0.2.1"
+    "@zip.js/zip.js": "^2.8.8",
+    "image-meta": "^0.2.1",
+    "xml-formatter": "^3.6.7"
   },
   "peerDependenciesMeta": {
+    "@zip.js/zip.js": {
+      "optional": true
+    },
     "image-meta": {
+      "optional": true
+    },
+    "xml-formatter": {
       "optional": true
     }
   }

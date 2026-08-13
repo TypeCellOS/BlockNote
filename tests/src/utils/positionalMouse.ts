@@ -4,7 +4,6 @@ import type {
   FrameLocator,
   Page,
 } from "@playwright/test";
-import type {} from "vite-plus/test/browser";
 import type { BrowserCommand } from "vite-plus/test/node";
 
 // Vite+ overrides `BrowserCommandContext` with itself, but for some reason it uses:
@@ -25,6 +24,17 @@ export type MouseAction =
   | { type: "down" }
   | { type: "up" }
   | { type: "click"; x: number; y: number; clickCount?: number };
+
+/**
+ * Browser-side signature of the {@link positionalMouse} command below, i.e. what
+ * `BrowserCommand<MouseAction[]>` turns into once Vitest strips the (Node-only)
+ * `BrowserCommandContext` first parameter. Used by `mouse.ts` to type the
+ * command on the browser `commands` object — see the note there on why this
+ * can't be a `declare module` augmentation.
+ */
+export type PositionalMouseCommand = (
+  ...actions: MouseAction[]
+) => Promise<void>;
 
 /**
  * Vitest's `userEvent` doesn't have several mouse commands that we relied on in Playwright, namely
@@ -69,10 +79,3 @@ export const positionalMouse: BrowserCommand<MouseAction[]> = async (
     }
   }
 };
-
-// Add command to types, as registering it in `vite.config.browser.ts` isn't enough.
-declare module "vite-plus/test/browser" {
-  interface BrowserCommands {
-    positionalMouse: (...actions: MouseAction[]) => Promise<void>;
-  }
-}
