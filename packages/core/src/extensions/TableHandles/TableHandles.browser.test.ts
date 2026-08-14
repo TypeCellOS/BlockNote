@@ -280,4 +280,26 @@ describe("TableHandlesView mouse handling", () => {
 
     expect(tableHandlesState()?.show).toBe(false);
   });
+
+  // The table's position is captured when the handles attach to a cell, but
+  // the table shifts whenever content before it changes - a collaborator or an
+  // extension editing while a handle menu sits open, say. Acting on the handles
+  // afterwards used to resolve the stale position, landing in the wrong node.
+  it("acts on the hovered table after content is inserted before it", () => {
+    moveMouseOver(tableCell(0, 0));
+
+    editor.insertBlocks(
+      [{ type: "paragraph", content: "Inserted" }],
+      "table-0",
+      "before",
+    );
+
+    editor
+      .getExtension(TableHandlesExtension)!
+      .addRowOrColumn(0, { orientation: "row", side: "below" });
+
+    expect(
+      mountPoint.querySelectorAll('[data-id="table-0"] tbody tr'),
+    ).toHaveLength(3);
+  });
 });
