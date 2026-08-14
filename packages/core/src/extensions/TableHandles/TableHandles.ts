@@ -27,7 +27,7 @@ import {
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../api/nodeUtil.js";
 import {
-  editorHasBlockWithType,
+  blockHasType,
   isTableCellNode,
   isTableCellSelection,
 } from "../../blocks/defaultBlockTypeGuards.js";
@@ -188,6 +188,17 @@ export class TableHandlesView implements PluginView {
     this.mouseState = "down";
   };
 
+  // Hides the handles if they're currently shown. Used whenever the mouse moves
+  // somewhere that shouldn't have table handles attached to it.
+  hideHandles = () => {
+    if (this.state?.show) {
+      this.state.show = false;
+      this.state.showAddOrRemoveRowsButton = false;
+      this.state.showAddOrRemoveColumnsButton = false;
+      this.emitUpdate();
+    }
+  };
+
   mouseUpHandler = (event: MouseEvent) => {
     this.mouseState = "up";
     this.mouseMoveHandler(event);
@@ -219,22 +230,12 @@ export class TableHandlesView implements PluginView {
       // hide draghandles when selecting text as they could be in the way of the user
       this.mouseState = "selecting";
 
-      if (this.state?.show) {
-        this.state.show = false;
-        this.state.showAddOrRemoveRowsButton = false;
-        this.state.showAddOrRemoveColumnsButton = false;
-        this.emitUpdate();
-      }
+      this.hideHandles();
       return;
     }
 
     if (!target || !this.editor.isEditable) {
-      if (this.state?.show) {
-        this.state.show = false;
-        this.state.showAddOrRemoveRowsButton = false;
-        this.state.showAddOrRemoveColumnsButton = false;
-        this.emitUpdate();
-      }
+      this.hideHandles();
       return;
     }
 
@@ -248,38 +249,40 @@ export class TableHandlesView implements PluginView {
     if (!blockEl) {
       return;
     }
-    this.tableElement = blockEl.node;
-
-    let tableBlock:
-      | BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
-      | undefined;
 
     const { pmNodeInfo, doc } = this.editor.transact((tr) => ({
       pmNodeInfo: getNodeById(blockEl.id, tr.doc),
       doc: tr.doc,
     }));
+
+    // The hovered cell may belong to a document other than this editor's, as a
+    // custom block can embed a nested editor which itself contains a table. The
+    // nested editor's DOM is inside this view's DOM, so its cells still reach
+    // this handler, but its block IDs are unknown here.
     if (!pmNodeInfo) {
-      throw new Error(`Block with ID ${blockEl.id} not found`);
+      this.hideHandles();
+      return;
     }
 
-    const block = nodeToBlock(
-      pmNodeInfo.node,
-      doc,
-    ) as unknown as BlockFromConfigNoChildren<
+    const block = nodeToBlock(pmNodeInfo.node, doc);
+
+    // `domCellAround` matches any `TD`/`TH` in the DOM, so the hovered block may
+    // just as well be a custom block that renders a table of its own. Checking
+    // the block itself (rather than only whether the schema has a table block)
+    // keeps the handles off blocks that have no table content to work with.
+    if (!blockHasType(block, this.editor, "table")) {
+      this.hideHandles();
+      return;
+    }
+
+    const tableBlock = block as unknown as BlockFromConfigNoChildren<
       DefaultBlockSchema["table"],
       any,
       any
     >;
 
-    if (editorHasBlockWithType(this.editor, "table")) {
-      this.tablePos = pmNodeInfo.posBeforeNode + 1;
-      tableBlock = block;
-    }
-
-    if (!tableBlock) {
-      return;
-    }
-
+    this.tablePos = pmNodeInfo.posBeforeNode + 1;
+    this.tableElement = blockEl.node;
     this.tableId = blockEl.id;
     const widgetContainer = target.domNode
       .closest(".tableWrapper")
@@ -916,11 +919,8 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
      * interfering with open submenus.
      */
     hideHandlesIfNotFrozen() {
-      if (!view!.menuFrozen && view!.state?.show) {
-        view!.state.show = false;
-        view!.state.showAddOrRemoveRowsButton = false;
-        view!.state.showAddOrRemoveColumnsButton = false;
-        view!.emitUpdate();
+      if (!view!.menuFrozen) {
+        view!.hideHandles();
       }
     },
 
