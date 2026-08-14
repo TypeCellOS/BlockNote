@@ -17,6 +17,7 @@ import { moveMouseOverElement } from "../../utils/mouse.js";
 // transparent box when it's actually painted.
 
 const COLORED_BLOCK_SELECTOR = '[data-background-color="blue"]';
+const TABLE_BLOCK_SELECTOR = '[data-content-type="table"]';
 const DRAG_PREVIEW_SELECTOR = ".bn-drag-preview";
 
 // Replaces the document with a single blue-backgrounded paragraph.
@@ -52,6 +53,61 @@ async function seedColoredBlock() {
   });
 
   return waitForSelector(`${EDITOR_SELECTOR} ${COLORED_BLOCK_SELECTOR}`);
+}
+
+const CELL_ATTRS = {
+  textColor: "default",
+  backgroundColor: "default",
+  textAlignment: "left",
+  colspan: 1,
+  rowspan: 1,
+  colwidth: null,
+};
+
+// Replaces the document with a single table block.
+async function seedTableBlock() {
+  (
+    window as unknown as {
+      ProseMirror: { commands: { setContent: (doc: unknown) => void } };
+    }
+  ).ProseMirror.commands.setContent({
+    type: "doc",
+    content: [
+      {
+        type: "blockGroup",
+        content: [
+          {
+            type: "blockContainer",
+            attrs: { id: "0" },
+            content: [
+              {
+                type: "table",
+                attrs: { textColor: "default" },
+                content: [
+                  ["R1C1", "R1C2"],
+                  ["R2C1", "R2C2"],
+                ].map((cells) => ({
+                  type: "tableRow",
+                  content: cells.map((text) => ({
+                    type: "tableCell",
+                    attrs: CELL_ATTRS,
+                    content: [
+                      {
+                        type: "tableParagraph",
+                        content: [{ type: "text", text }],
+                      },
+                    ],
+                  })),
+                })),
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+
+  return waitForSelector(`${EDITOR_SELECTOR} ${TABLE_BLOCK_SELECTOR}`);
 }
 
 /**
@@ -147,6 +203,31 @@ describe("Block drag preview", () => {
       ";position:fixed;top:200px;left:40px;z-index:9999;";
 
     await expectElement(preview).toMatchScreenshot("blockDragPreview");
+
+    endDrag();
+  });
+
+  // The table's cell borders come from BlockNote's own stylesheet rather than
+  // from the block's attributes, so they only survive into the preview if that
+  // styling is scoped somewhere the preview can reach. It used to be scoped to
+  // `.bn-editor`, which the preview is deliberately outside of, so a dragged
+  // table came out as unstyled text.
+  test("keeps the table's cell borders", async () => {
+    const table = await seedTableBlock();
+    const borderInEditor = getComputedStyle(
+      document.querySelector(`${EDITOR_SELECTOR} ${TABLE_BLOCK_SELECTOR} td`)!,
+    ).border;
+
+    const preview = await captureDragPreview(table);
+
+    const previewCell = preview.querySelector(`${TABLE_BLOCK_SELECTOR} td`);
+    expect(previewCell).not.toBeNull();
+    expect(getComputedStyle(previewCell!).border).toBe(borderInEditor);
+    expect(borderInEditor).not.toBe("");
+
+    preview.style.cssText +=
+      ";position:fixed;top:200px;left:40px;z-index:9999;";
+    await expectElement(preview).toMatchScreenshot("tableBlockDragPreview");
 
     endDrag();
   });

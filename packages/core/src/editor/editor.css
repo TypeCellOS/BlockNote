@@ -81,8 +81,8 @@
 }
 
 /* Snapshot of the row/column being dragged, shown next to the cursor. Built in
- `TableHandles/dragPreview.ts`, and appended outside the editor - so it can't
- rely on any of the `.bn-editor` scoped table styling above. */
+ `TableHandles/dragPreview.ts` out of bare cell clones, so it sits outside any
+ `[data-content-type="table"]` and gets none of the table styling below. */
 .bn-table-drag-preview table {
   border-collapse: separate;
   border-spacing: 0;
@@ -187,23 +187,30 @@
 }
 
 /* table related: */
-.bn-editor [data-content-type="table"] table {
+/* Scoped to `.bn-root` rather than `.bn-editor`: a table can be rendered
+ outside the contenteditable but still inside the editor's root - most notably
+ in the drag preview, which is mounted into `editor.portalElement` so that it
+ doesn't have to live in the editor's layout to be styled like it. Anything
+ here that's editor chrome rather than the table's own appearance (the
+ `.tableWrapper` padding that makes room for the handles, the drag source
+ highlight) stays scoped to `.bn-editor` above. */
+.bn-root [data-content-type="table"] table {
   width: auto !important;
   word-break: break-word;
 }
-.bn-editor [data-content-type="table"] th,
-.bn-editor [data-content-type="table"] td {
+.bn-root [data-content-type="table"] th,
+.bn-root [data-content-type="table"] td {
   border: 1px solid #ddd;
   padding: 5px 10px;
 }
 
-.bn-editor [data-content-type="table"] th {
+.bn-root [data-content-type="table"] th {
   font-weight: bold;
   text-align: left;
 }
 
-.bn-editor [data-content-type="table"] th > p,
-.bn-editor [data-content-type="table"] td > p {
+.bn-root [data-content-type="table"] th > p,
+.bn-root [data-content-type="table"] td > p {
   min-height: 1.5rem;
 }
 
