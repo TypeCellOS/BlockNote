@@ -39,7 +39,7 @@ export * from "./components/FormattingToolbar/MobileFormattingToolbar.js";
 export * from "./components/FormattingToolbar/FormattingToolbarController.js";
 export * from "./components/FormattingToolbar/MobileFormattingToolbarController.js";
 export * from "./components/FormattingToolbar/MobileFormattingToolbarPortalContext.js";
-export * from "./components/FormattingToolbar/useVisualViewportRect.js";
+export * from "./components/FormattingToolbar/useVirtualKeyboard.js";
 export * from "./components/FormattingToolbar/FormattingToolbarProps.js";
 
 export * from "./components/LinkToolbar/DefaultButtons/DeleteLinkButton.js";

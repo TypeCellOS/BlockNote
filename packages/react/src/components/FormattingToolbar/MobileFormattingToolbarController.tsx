@@ -3,17 +3,14 @@ import { FC, useState } from "react";
 import { MobileFormattingToolbarPortalContext } from "./MobileFormattingToolbarPortalContext.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
-import {
-  isVirtualKeyboardOpen,
-  useVisualViewportRect,
-} from "./useVisualViewportRect.js";
+import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
 
 /**
  * Mobile formatting toolbar controller.
  *
  * Pins the formatting toolbar to the bottom of the visual viewport — just above
  * the on-screen keyboard — positioning itself purely from the `--bn-vv-*` CSS
- * variables published by {@link useVisualViewportRect} (see
+ * variables published by {@link useVirtualKeyboard} (see
  * `.bn-mobile-formatting-toolbar` in the styles), so it needs no re-render to
  * follow the viewport.
  *
@@ -34,7 +31,7 @@ import {
 export const MobileFormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
 }) => {
-  const viewport = useVisualViewportRect();
+  const keyboardOpen = useVirtualKeyboard();
   // The non-scrolling wrapper, published so buttons can portal their dropdowns
   // out of the horizontally scrolling toolbar. A callback ref into state so the
   // context updates once the element mounts.
@@ -42,7 +39,7 @@ export const MobileFormattingToolbarController = (props: {
     null,
   );
 
-  if (!isVirtualKeyboardOpen(viewport)) {
+  if (!keyboardOpen) {
     return null;
   }
 
