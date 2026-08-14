@@ -8,6 +8,7 @@ import { fragmentToBlocks } from "../../api/nodeConversions/fragmentToBlocks.js"
 import { getNodeById } from "../../api/nodeUtil.js";
 import { Block } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { attachDragPreview } from "../../extensions-shared/dragPreviewContainer.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import {
   BlockSchema,
@@ -65,7 +66,12 @@ function blockPositionsFromSelection(selection: Selection, doc: Node) {
   return { from: beforeFirstBlockPos, to: afterLastBlockPos };
 }
 
-function setDragImage(view: EditorView, from: number, to = from) {
+function setDragImage(
+  editor: BlockNoteEditor<any, any, any>,
+  view: EditorView,
+  from: number,
+  to = from,
+) {
   if (from === to) {
     // Moves to position to be just after the first (and only) selected block.
     to += view.state.doc.resolve(from + 1).node().nodeSize;
@@ -95,8 +101,26 @@ function setDragImage(view: EditorView, from: number, to = from) {
     }
   }
 
+  // The clone is rendered outside `.bn-editor`, so nothing there constrains its
+  // width any more and the blocks re-wrap to fit whatever the drag preview
+  // container happens to give them. Pinning it to the width the blocks actually
+  // have in the editor keeps the preview a picture of the block rather than a
+  // reflowed copy of it.
+  //
+  // `getComputedStyle().width` resolves to the used content-box width, so
+  // `box-sizing` has to be pinned alongside it: `.bn-drag-preview` adds its own
+  // padding, and apps that set `box-sizing: border-box` globally (most of them)
+  // would otherwise have that padding eat into the width rather than sit
+  // outside it, leaving the preview narrower than the block by twice the
+  // padding.
+  const parentWidth = getComputedStyle(parent).width;
+  if (parentWidth.endsWith("px")) {
+    (parentClone as HTMLElement).style.boxSizing = "content-box";
+    (parentClone as HTMLElement).style.width = parentWidth;
+  }
+
   // dataTransfer.setDragImage(element) only works if element is attached to the DOM.
-  unsetDragImage(view.root);
+  unsetDragImage();
   dragImageElement = parentClone;
 
   // Browsers may have CORS policies which prevents iframes from being
@@ -124,23 +148,16 @@ function setDragImage(view: EditorView, from: number, to = from) {
   dragImageElement.className =
     dragImageElement.className + " bn-drag-preview " + inheritedClasses;
 
-  if (view.root instanceof ShadowRoot) {
-    view.root.appendChild(dragImageElement);
-  } else {
-    view.root.body.appendChild(dragImageElement);
-  }
+  attachDragPreview(editor, dragImageElement);
 }
 
-export function unsetDragImage(rootEl: Document | ShadowRoot) {
-  if (dragImageElement !== undefined) {
-    if (rootEl instanceof ShadowRoot) {
-      rootEl.removeChild(dragImageElement);
-    } else {
-      rootEl.body.removeChild(dragImageElement);
-    }
-
-    dragImageElement = undefined;
-  }
+export function unsetDragImage() {
+  // `remove()` rather than `removeChild()` on the container it was added to:
+  // the preview only outlives a single drag when something went wrong (a missed
+  // `dragend`, an editor unmounting mid-drag), and in those cases the container
+  // may no longer be its parent.
+  dragImageElement?.remove();
+  dragImageElement = undefined;
 }
 
 export function dragStart<
@@ -182,12 +199,12 @@ export function dragStart<
       view.dispatch(
         view.state.tr.setSelection(MultipleNodeSelection.create(doc, from, to)),
       );
-      setDragImage(view, from, to);
+      setDragImage(editor, view, from, to);
     } else {
       view.dispatch(
         view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos)),
       );
-      setDragImage(view, pos);
+      setDragImage(editor, view, pos);
     }
 
     const selectedSlice = view.state.selection.content();

@@ -110,12 +110,7 @@ function setDragImage(
   dataTransfer: DataTransfer,
 ) {
   const dragImage = view.tableElement
-    ? setTableDragImage(
-        editor.prosemirrorView,
-        view.tableElement,
-        cells,
-        orientation,
-      )
+    ? setTableDragImage(editor, view.tableElement, cells, orientation)
     : undefined;
 
   if (dragImage) {

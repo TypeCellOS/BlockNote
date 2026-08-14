@@ -1,5 +1,12 @@
 import App from "@examples/01-basic/testing/src/App";
-import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { EDITOR_SELECTOR, TABLE_SELECTOR } from "../../utils/const.js";
 import { browserName, userEvent } from "../../utils/context.js";
@@ -167,6 +174,50 @@ async function startDrag(
   await dragOver(onto);
 }
 
+/**
+ * Records the element handed to `DataTransfer.setDragImage` for the next drag.
+ *
+ * The snapshot is removed from the page as soon as the browser has rasterized
+ * it (it can't be left there hidden - Firefox and WebKit rasterize the element
+ * as painted, so hiding it would hide the drag image too), which makes the spy
+ * the only way to get hold of it. It's also the most direct assertion
+ * available: this is the exact element the browser was asked to draw. The image
+ * the user ends up seeing is composited by the OS and can't be inspected here.
+ *
+ * Restores itself after each test.
+ */
+function spyOnDragImage() {
+  // Deliberately unbound - it's called back with `.call(this, ...)` below, and
+  // reassigned to the prototype afterwards.
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const original = DataTransfer.prototype.setDragImage;
+  let image: Element | undefined;
+
+  DataTransfer.prototype.setDragImage = function (element, x, y) {
+    image = element;
+    return original.call(this, element, x, y);
+  };
+  restoreDragImageSpy = () => {
+    DataTransfer.prototype.setDragImage = original;
+  };
+
+  return {
+    captured() {
+      if (!image) {
+        throw new Error("No drag image was handed to setDragImage");
+      }
+      return image;
+    },
+  };
+}
+
+let restoreDragImageSpy: (() => void) | undefined;
+
+afterEach(() => {
+  restoreDragImageSpy?.();
+  restoreDragImageSpy = undefined;
+});
+
 async function dragOver(cell: HTMLElement): Promise<void> {
   const { x, y } = centerOf(cell);
   await mouseSequence([{ type: "move", x, y, steps: 10 }]);
@@ -240,18 +291,9 @@ describe("Table drag visuals", () => {
   test.skipIf(skipDrag)(
     "shows a snapshot of the dragged row next to the cursor",
     async () => {
+      const dragImage = spyOnDragImage();
       await startDrag(cellAt(1, 0), "row", cellAt(2, 0));
-
-      // The snapshot is what the browser hands to `setDragImage`. It stays in
-      // the DOM (invisible) for the duration of the drag - the composited image
-      // the user actually sees is drawn by the OS and can't be inspected here.
-      const preview = await vi.waitFor(() => {
-        const el = document.querySelector(DRAG_PREVIEW);
-        if (!el) {
-          throw new Error("Drag preview not attached");
-        }
-        return el;
-      });
+      const preview = dragImage.captured();
 
       // One row, holding a copy of each cell in it.
       expect(preview.querySelectorAll("tr")).toHaveLength(1);
@@ -277,15 +319,9 @@ describe("Table drag visuals", () => {
   test.skipIf(skipDrag)(
     "shows a snapshot of the dragged column next to the cursor",
     async () => {
+      const dragImage = spyOnDragImage();
       await startDrag(cellAt(0, 2), "column", cellAt(0, 1));
-
-      const preview = await vi.waitFor(() => {
-        const el = document.querySelector(DRAG_PREVIEW);
-        if (!el) {
-          throw new Error("Drag preview not attached");
-        }
-        return el;
-      });
+      const preview = dragImage.captured();
 
       // One row per cell in the column.
       expect(preview.querySelectorAll("tr")).toHaveLength(3);

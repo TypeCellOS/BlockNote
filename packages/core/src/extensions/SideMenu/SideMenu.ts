@@ -765,7 +765,7 @@ export const SideMenuExtension = createExtension(({ editor }) => {
      * Handles drag & drop events for blocks.
      */
     blockDragEnd() {
-      unsetDragImage(editor.prosemirrorView.root);
+      unsetDragImage();
       if (view) {
         view.isDragOrigin = false;
       }

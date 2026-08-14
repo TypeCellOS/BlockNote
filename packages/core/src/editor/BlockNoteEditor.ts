@@ -720,10 +720,11 @@ export class BlockNoteEditor<
    *
    * @param element The DOM element to mount the editor's contenteditable into.
    * @param options.portalTarget Where to mount `editor.portalElement` — the
-   *   container that floating UI (toolbars, menus, etc) portals into. When
-   *   omitted, defaults to `element.parentElement` (which is the editor's
-   *   `bn-container` in typical React usage), or to `document.body` /
-   *   the surrounding shadow root when no parent is available.
+   *   container that floating UI (toolbars, menus, etc) portals into, and that
+   *   drag previews are attached to. When omitted, defaults to
+   *   `element.parentElement` (which is the editor's `bn-container` in typical
+   *   React usage), or to `document.body` / the surrounding shadow root when no
+   *   parent is available.
    *
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
@@ -777,8 +778,11 @@ export class BlockNoteEditor<
   private _portalElement: HTMLElement | undefined;
 
   /**
-   * The portal container element at `document.body` used by floating UI
-   * elements (menus, toolbars) to escape overflow:hidden ancestors.
+   * The portal container element used by floating UI elements (menus,
+   * toolbars) to escape overflow:hidden ancestors, and by drag previews, which
+   * have to render with the same inherited CSS as the content they're a preview
+   * of. Mounted inside the editor's container by default; see `mount`'s
+   * `portalTarget` option to put it elsewhere.
    * Set by BlockNoteView; undefined in headless mode.
    */
   public get portalElement() {

@@ -1,6 +1,6 @@
-import { EditorView } from "prosemirror-view";
-
 import { RelativeCellIndices } from "../../api/blockManipulation/tables/tables.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { attachDragPreview } from "../../extensions-shared/dragPreviewContainer.js";
 import {
   DRAG_SOURCE_COL_CLASS,
   DRAG_SOURCE_ROW_CLASS,
@@ -59,7 +59,7 @@ function cloneCellWithSize(cell: Element): HTMLElement {
  * back to the hidden drag image.
  */
 export function setTableDragImage(
-  view: EditorView,
+  editor: BlockNoteEditor<any, any, any>,
   // The block container element for the table, i.e. `TableHandlesView`'s
   // `tableElement`.
   blockElement: HTMLElement,
@@ -108,20 +108,10 @@ export function setTableDragImage(
   const wrapper = document.createElement("div");
   wrapper.appendChild(table);
 
-  // The preview is appended outside the editor, so the theme variables (which
-  // `@blocknote/react` defines on `.bn-root`) only resolve if it carries the
-  // class, and the colour scheme, itself.
-  const colorScheme = view.dom
-    .closest(".bn-root")
-    ?.getAttribute("data-color-scheme");
-  if (colorScheme) {
-    wrapper.setAttribute("data-color-scheme", colorScheme);
-  }
-
   // TODO: This is hacky, need a better way of assigning classes to the editor
   //  so that they can also be applied to the drag preview. Same caveat as the
   //  equivalent code in `SideMenu/dragging.ts`.
-  const inheritedClasses = view.dom.className
+  const inheritedClasses = editor.prosemirrorView.dom.className
     .split(" ")
     .filter(
       (className) =>
@@ -132,27 +122,23 @@ export function setTableDragImage(
     .join(" ");
 
   wrapper.className =
-    `bn-root bn-drag-preview bn-table-drag-preview ${inheritedClasses}`.trim();
+    `bn-drag-preview bn-table-drag-preview ${inheritedClasses}`.trim();
 
   // dataTransfer.setDragImage(element) only works if element is attached to the
   // DOM.
   unsetTableDragImage();
   dragImageElement = wrapper;
 
-  if (view.root instanceof ShadowRoot) {
-    view.root.appendChild(wrapper);
-  } else {
-    view.root.body.appendChild(wrapper);
-  }
+  attachDragPreview(editor, wrapper);
 
   return wrapper;
 }
 
 export function unsetTableDragImage() {
-  // `remove()` rather than `removeChild()` on the root the element was added
-  // to: the preview outlives a single drag only when something went wrong (a
-  // missed `dragend`, an editor unmounting mid-drag), and in those cases the
-  // root it was attached to may no longer be its parent.
+  // `remove()` rather than `removeChild()` on the container it was added to:
+  // the preview outlives a single drag only when something went wrong (a missed
+  // `dragend`, an editor unmounting mid-drag), and in those cases the container
+  // may no longer be its parent.
   dragImageElement?.remove();
   dragImageElement = undefined;
 }

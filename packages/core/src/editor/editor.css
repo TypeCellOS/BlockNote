@@ -112,20 +112,18 @@
   top: 0;
   left: 0;
   padding: 10px;
-  /* Sort of a hack but seems like the most reliable solution. */
-  /* Drag preview element needs to be within bounds of the document area or it
-   won't work in some cases. */
-  /* Negative z-index covers most cases, but the element can still be visible
-   if UI elements are translucent. */
-  /* Setting opacity has no effect on the drag preview but does affect the
-   element. Unless it's set to 0, in which case the drag preview also becomes
-   hidden. So setting it to an extremely low value instead makes the element
-   functionally invisible while not affecting the drag preview itself. */
-  opacity: 0.001;
-  /* The element is kept in the DOM after setDragImage captures its snapshot,
-   so it can overlap the editor and block drops in that area. Disabling
-   pointer-events lets drag/drop events pass through to the editor while
-   leaving the captured preview unaffected. */
+  /* The drag preview element needs to be within the bounds of the document area
+   or it won't be captured in some cases. */
+  /* This element exists only to be rasterized by `setDragImage`, so it can't be
+   hidden the usual ways: `display` and `visibility` stop it being captured at
+   all, and `opacity` erases it from the captured image too in Firefox and
+   WebKit (Chrome is the odd one out in ignoring it). It's removed as soon as
+   the browser has taken its snapshot instead - see `attachDragPreview` - and
+   parked behind the page's content until then so it never becomes visible. */
+  z-index: -1;
+  /* The element overlaps the editor while it's being captured, so it could
+   block drops in that area. Disabling pointer-events lets drag/drop events pass
+   through to the editor while leaving the captured preview unaffected. */
   pointer-events: none;
 }
 

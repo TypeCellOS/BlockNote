@@ -69,7 +69,7 @@ describe("setTableDragImage", () => {
     const block = editor.getBlock("table-0")! as any;
 
     const preview = setTableDragImage(
-      editor.prosemirrorView,
+      editor,
       blockElement(),
       getCellsAtRowHandle(block, 1),
       "row",
@@ -83,7 +83,7 @@ describe("setTableDragImage", () => {
     const block = editor.getBlock("table-0")! as any;
 
     const preview = setTableDragImage(
-      editor.prosemirrorView,
+      editor,
       blockElement(),
       getCellsAtColumnHandle(block, 2),
       "col",
@@ -98,7 +98,7 @@ describe("setTableDragImage", () => {
     // `DataTransfer.setDragImage` only works with an element that's in the
     // document.
     const preview = setTableDragImage(
-      editor.prosemirrorView,
+      editor,
       blockElement(),
       getCellsAtRowHandle(block, 0),
       "row",
@@ -113,22 +113,30 @@ describe("setTableDragImage", () => {
     expect(preview.isConnected).toBe(false);
   });
 
+  // The browser rasterizes the snapshot in place, so it has to sit somewhere
+  // that resolves the same CSS as the table it's a picture of. `document.body`
+  // doesn't: anything inherited from an ancestor of the editor - a theme class,
+  // or custom properties on a wrapper element - stops applying there.
+  it("attaches the snapshot inside the editor's portal container", () => {
+    const block = editor.getBlock("table-0")! as any;
+
+    const preview = setTableDragImage(
+      editor,
+      blockElement(),
+      getCellsAtRowHandle(block, 0),
+      "row",
+    )!;
+
+    expect(editor.portalElement.contains(preview)).toBe(true);
+    expect(mountPoint.parentElement!.contains(editor.portalElement)).toBe(true);
+  });
+
   it("replaces a previous snapshot rather than stacking them", () => {
     const block = editor.getBlock("table-0")! as any;
     const cells = getCellsAtRowHandle(block, 0);
 
-    const first = setTableDragImage(
-      editor.prosemirrorView,
-      blockElement(),
-      cells,
-      "row",
-    )!;
-    const second = setTableDragImage(
-      editor.prosemirrorView,
-      blockElement(),
-      cells,
-      "row",
-    )!;
+    const first = setTableDragImage(editor, blockElement(), cells, "row")!;
+    const second = setTableDragImage(editor, blockElement(), cells, "row")!;
 
     expect(first.isConnected).toBe(false);
     expect(second.isConnected).toBe(true);
@@ -139,7 +147,7 @@ describe("setTableDragImage", () => {
 
     expect(
       setTableDragImage(
-        editor.prosemirrorView,
+        editor,
         document.createElement("div"),
         getCellsAtRowHandle(block, 0),
         "row",
