@@ -81,13 +81,37 @@ function createEditor(
   return editor;
 }
 
+/** Creates a mounted editor with the cursor at the end of the first block. */
+function createEditorWithBlocks(
+  blocks: ((typeof schema)["PartialBlock"] & { id: string })[],
+) {
+  const editor = BlockNoteEditor.create({ schema, initialContent: blocks });
+  editor.mount(document.createElement("div"));
+  editor.setTextCursorPosition(blocks[0].id, "end");
+  return editor;
+}
+
 /**
- * Simulates a keyboard shortcut by dispatching a keydown event through the
- * editor's `handleKeyDown` props, which is how ProseMirror invokes the
- * keymap plugins created by `addKeyboardShortcuts`.
+ * Simulates a keyboard shortcut (e.g. "Enter", "Mod-a") via ProseMirror's
+ * `handleKeyDown` prop, and returns whether it was handled. Can't go via
+ * TipTap's `keyboardShortcut` command, which replays only the shortcut's steps
+ * - so it drops shortcuts that just move the selection.
  */
 function pressKeys(editor: BlockNoteEditor<any, any, any>, keys: string) {
-  editor._tiptapEditor.commands.keyboardShortcut(keys);
+  const lastSeparatorIndex = keys.lastIndexOf("-");
+  const modifiers = keys.slice(0, lastSeparatorIndex);
+  const event = new KeyboardEvent("keydown", {
+    key: keys.slice(lastSeparatorIndex + 1),
+    // `Mod` is Cmd on macOS and Ctrl elsewhere - tests run in jsdom, which
+    // isn't macOS.
+    ctrlKey: modifiers.includes("Mod") || modifiers.includes("Ctrl"),
+    shiftKey: modifiers.includes("Shift"),
+    cancelable: true,
+  });
+
+  const view = editor._tiptapEditor.view;
+
+  return view.someProp("handleKeyDown", (f) => f(view, event)) ?? false;
 }
 
 function countHardBreaks(editor: BlockNoteEditor<any, any, any>) {
@@ -198,6 +222,77 @@ describe("KeyboardShortcutsExtension hardBreakShortcut", () => {
     expect(countHardBreaks(editor)).toBe(0);
     expect(editor.document.length).toBe(1);
     expect(getTextContent(editor)).toBe("Hello world\n");
+
+    editor._tiptapEditor.destroy();
+  });
+});
+
+describe("KeyboardShortcutsExtension select all", () => {
+  // Select-all used to have no keybinding, so it fell through to the browser.
+  // ProseMirror couldn't map the resulting DOM selection onto a document
+  // starting with a check list item (which renders its checkbox before its
+  // content), so it stayed unselected and Backspace only edited one block.
+  const checkListItemFirst = [
+    { id: "block-0", type: "checkListItem", content: "Check 1" },
+    { id: "block-1", type: "checkListItem", content: "Check 2" },
+    { id: "block-2", type: "paragraph", content: "Hello world" },
+  ] as const;
+
+  it("selects the whole document on Mod-a", () => {
+    const editor = createEditorWithBlocks([...checkListItemFirst]);
+
+    expect(pressKeys(editor, "Mod-a")).toBe(true);
+
+    const { selection, doc } = editor._tiptapEditor.state;
+    expect(selection.from).toBe(0);
+    expect(selection.to).toBe(doc.content.size);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it.each([
+    ["starting with check list items", [...checkListItemFirst]],
+    [
+      "of only check list items",
+      [
+        { id: "block-0", type: "checkListItem", content: "Check 1" },
+        { id: "block-1", type: "checkListItem", content: "Check 2" },
+      ] as const,
+    ],
+    [
+      "of paragraphs",
+      [
+        { id: "block-0", type: "paragraph", content: "Hello" },
+        { id: "block-1", type: "paragraph", content: "World" },
+      ] as const,
+    ],
+  ])("clears a document %s on Mod-a + Backspace", (_, blocks) => {
+    const editor = createEditorWithBlocks([...blocks]);
+
+    pressKeys(editor, "Mod-a");
+    pressKeys(editor, "Backspace");
+
+    // The schema refills the emptied doc with a single default block.
+    expect(editor.document.map((block) => block.type)).toEqual(["paragraph"]);
+    expect(editor.document[0].content).toEqual([]);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  // A whole-document selection's endpoints lie outside any block, which
+  // `getNearestBlockPos` still has to resolve.
+  it("returns every block from getSelection while everything is selected", () => {
+    const editor = createEditorWithBlocks([
+      { id: "block-0", type: "checkListItem", content: "Check 1" },
+      { id: "block-1", type: "paragraph", content: "Hello world" },
+    ]);
+
+    pressKeys(editor, "Mod-a");
+
+    expect(editor.getSelection()?.blocks.map((block) => block.type)).toEqual([
+      "checkListItem",
+      "paragraph",
+    ]);
 
     editor._tiptapEditor.destroy();
   });

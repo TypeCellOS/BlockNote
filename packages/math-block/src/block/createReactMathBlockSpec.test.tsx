@@ -264,12 +264,23 @@ describe("Math block source popup keyboard handling", () => {
       expect(isPopupOpen("math")).toBe(false);
 
       // Single-character keys are only blocked when no Ctrl/Cmd is held, so
-      // shortcuts pass through - keeping copy/select-all/find working.
+      // shortcuts pass through - keeping copy/find working.
       // (Cut/paste also pass through; that's a known limitation.)
       expect(pressKey("c", { ctrlKey: true })).toBe(false);
-      expect(pressKey("a", { ctrlKey: true })).toBe(false);
       expect(pressKey("f", { ctrlKey: true })).toBe(false);
       expect(pressKey("v", { metaKey: true })).toBe(false);
+    });
+
+    it("defers select-all to the editor while the popup is closed", () => {
+      expect(isPopupOpen("math")).toBe(false);
+
+      // Not swallowed by the block either, but reported as handled since the
+      // editor binds it - and it selects the whole doc, not just this block.
+      expect(pressKey("a", { ctrlKey: true })).toBe(true);
+
+      const { selection, doc } = editor._tiptapEditor.state;
+      expect(selection.from).toBe(0);
+      expect(selection.to).toBe(doc.content.size);
     });
 
     it("defers deletion keys to the default while the popup is open", async () => {
