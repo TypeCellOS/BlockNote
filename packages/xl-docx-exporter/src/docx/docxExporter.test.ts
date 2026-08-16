@@ -334,6 +334,82 @@ describe("exporter", () => {
     },
   );
 
+  it(
+    "should give each list its own numbering instance",
+    { timeout: 10000 },
+    async () => {
+      const schema = BlockNoteSchema.create({
+        blockSpecs: { ...defaultBlockSpecs },
+      });
+
+      // Two separate numbered lists split by a paragraph, then a bullet list.
+      // Each is a distinct list and must not continue the previous one, so each
+      // needs its own `w:numId`. A nested item stays part of its parent list.
+      const blocks: PartialBlock<
+        typeof schema.blockSchema,
+        typeof schema.inlineContentSchema,
+        typeof schema.styleSchema
+      >[] = [
+        {
+          type: "numberedListItem",
+          content: "list one item one",
+          children: [{ type: "numberedListItem", content: "nested" }],
+        },
+        { type: "numberedListItem", content: "list one item two" },
+        { type: "paragraph", content: "a paragraph breaks the list" },
+        { type: "numberedListItem", content: "list two item one" },
+        { type: "numberedListItem", content: "list two item two" },
+        { type: "bulletListItem", content: "a bullet list" },
+      ];
+
+      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
+        resolveFileUrl: testResolveFileUrl,
+      });
+
+      const doc = await exporter.toDocxJsDocument(
+        partialBlocksToBlocksForTesting(schema, blocks),
+        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+      );
+
+      const documentXml = await getZIPEntryContent(
+        await new ZipReader(
+          new BlobReader(await Packer.toBlob(doc)),
+        ).getEntries(),
+        "word/document.xml",
+      );
+
+      // Paragraphs appear in document order: list-one item one, its nested
+      // child, list-one item two, list-two item one, list-two item two, bullet.
+      const numIds = [
+        ...documentXml.matchAll(/<w:numId w:val="(\d+)"\/>/g),
+      ].map((match) => Number(match[1]));
+
+      expect(numIds).toHaveLength(6);
+      const [listOneA, listOneNested, listOneB, listTwoA, listTwoB, bullet] =
+        numIds;
+
+      // Items in the same list at the same level share one numId, so the list
+      // numbers continuously (1, 2) instead of restarting per item.
+      expect(listOneB).toBe(listOneA);
+      expect(listTwoB).toBe(listTwoA);
+
+      // A nested sub-list is its own list: it gets its own numId and restarts,
+      // rather than continuing its parent's numbering.
+      expect(listOneNested).not.toBe(listOneA);
+
+      // Separate lists get separate numIds so they don't continue each other -
+      // this is the actual bug (#2225): before the fix every numbered list
+      // shared one numId and the second list continued 3, 4, ... instead of 1, 2.
+      expect(listTwoA).not.toBe(listOneA);
+      expect(listOneNested).not.toBe(listTwoA);
+
+      // The bullet list is distinct from every numbered list too.
+      expect(bullet).not.toBe(listOneA);
+      expect(bullet).not.toBe(listTwoA);
+      expect(bullet).not.toBe(listOneNested);
+    },
+  );
+
   async function exportAndGetStylesEntries(locale?: string) {
     const exporter = new DOCXExporter(
       BlockNoteSchema.create({

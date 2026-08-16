@@ -126,23 +126,27 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       ],
     });
   },
-  numberedListItem: (block, exporter, nestingLevel) => {
+  numberedListItem: (block, exporter, nestingLevel, numberingInstance) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props, exporter.options.colors),
       children: exporter.transformInlineContent(block.content),
       numbering: {
         reference: "blocknote-numbered-list",
         level: clampListLevel(nestingLevel),
+        // Each distinct list gets its own instance so separate lists don't
+        // continue each other's numbering (see DOCXExporter.transformBlocks).
+        instance: numberingInstance,
       },
     });
   },
-  bulletListItem: (block, exporter, nestingLevel) => {
+  bulletListItem: (block, exporter, nestingLevel, numberingInstance) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props, exporter.options.colors),
       children: exporter.transformInlineContent(block.content),
       numbering: {
         reference: "blocknote-bullet-list",
         level: clampListLevel(nestingLevel),
+        instance: numberingInstance,
       },
     });
   },
