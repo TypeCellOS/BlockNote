@@ -219,6 +219,10 @@ export const no: Dictionary = {
   toggle_blocks: {
     add_block_button: "Tomt toggle. Klikk for å legge til en blokk.",
   },
+  code_block: {
+    add_source_button_text: "Legg til kildekode",
+    ok_button_text: "OK",
+  },
   side_menu: {
     add_block_label: "Legg til blokk",
     drag_handle_label: "Åpne blokkmeny",
@@ -427,6 +431,11 @@ export const no: Dictionary = {
     deleted_by: (users: string) => `Slettet av: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Formateringsendring (${formats}) av: ${users}`,
+  },
+  exporter: {
+    open_file: "Åpne fil",
+    open_video_file: "Åpne video",
+    open_audio_file: "Åpne lyd",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

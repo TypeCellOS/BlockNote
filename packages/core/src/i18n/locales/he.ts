@@ -202,6 +202,10 @@ export const he: Dictionary = {
   toggle_blocks: {
     add_block_button: "מתג ריק. לחץ כדי להוסיף בלוק.",
   },
+  code_block: {
+    add_source_button_text: "הוסף קוד מקור",
+    ok_button_text: "אישור",
+  },
   side_menu: {
     add_block_label: "הוסף בלוק",
     drag_handle_label: "פתח תפריט בלוק",
@@ -409,6 +413,11 @@ export const he: Dictionary = {
     deleted_by: (users: string) => `נמחק על ידי: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `שינוי עיצוב (${formats}) על ידי: ${users}`,
+  },
+  exporter: {
+    open_file: "פתח קובץ",
+    open_video_file: "פתח וידאו",
+    open_audio_file: "פתח שמע",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

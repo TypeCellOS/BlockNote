@@ -7,7 +7,8 @@
     "dev": "vp dev --host",
     "preview": "vp preview",
     "lint": "vp lint src",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "build:vercel": "cd .. && vp_build() { pnpm exec vp run --verbose --concurrency-limit 1 --filter '@blocknote/example-editor...' build; }; diag() { echo \"[diag] $1 pids.current=$(cat /sys/fs/cgroup/pids.current 2>/dev/null) pids.max=$(cat /sys/fs/cgroup/pids.max 2>/dev/null) mem=$(cat /sys/fs/cgroup/memory.current 2>/dev/null)/$(cat /sys/fs/cgroup/memory.max 2>/dev/null) procs=$(ps -e 2>/dev/null | wc -l)\"; }; vp_build || { diag fail-1; echo '[diag] Vercel builders intermittently fail spawns (host-side EAGAIN); retrying on warm cache...'; sleep 15; vp_build; } || { diag fail-2; sleep 60; vp_build; } || { diag fail-3; sleep 180; vp_build; }"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.2",
@@ -17,6 +18,8 @@
     "@blocknote/code-block": "workspace:^",
     "@blocknote/core": "workspace:^",
     "@blocknote/mantine": "workspace:^",
+    "@blocknote/math-block": "workspace:^",
+    "@blocknote/diagram-block": "workspace:^",
     "@blocknote/react": "workspace:^",
     "@blocknote/server-util": "workspace:^",
     "@blocknote/shadcn": "workspace:^",
@@ -26,6 +29,8 @@
     "@blocknote/xl-multi-column": "workspace:^",
     "@blocknote/xl-odt-exporter": "workspace:^",
     "@blocknote/xl-pdf-exporter": "workspace:^",
+    "@react-pdf/math": "^2.0.1",
+    "katex": "^0.16.11",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@liveblocks/client": "^3.17.0",

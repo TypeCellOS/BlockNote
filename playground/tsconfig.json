@@ -16,7 +16,10 @@
     "jsx": "react-jsx",
     "composite": true,
     "types": ["node"],
-    "rootDir": ".."
+    "rootDir": "..",
+    "paths": {
+      "@shared/*": ["../shared/*"]
+    }
   },
   "include": ["src", "../examples", "./vite.config.ts"],
   "references": [

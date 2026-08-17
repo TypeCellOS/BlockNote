@@ -121,19 +121,19 @@
       "content": "plain",
       "propSchema": {
         "language": {
-          "default": "text",
+          "default": "javascript",
         },
       },
       "type": "codeBlock",
     },
     "extensions": [
       [Function],
-      [Function],
     ],
     "implementation": {
       "meta": {
         "code": true,
         "defining": true,
+        "highlight": [Function],
         "isolating": false,
       },
       "node": null,

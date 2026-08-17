@@ -78,6 +78,8 @@ function serializeNode(node: Node, ctx: SerializeContext): string {
       return serializeTable(el, ctx);
     case "hr":
       return ctx.indent + "***\n\n";
+    case "math":
+      return serializeMathBlock(el, ctx);
     case "img":
       return serializeImage(el, ctx);
     case "video":
@@ -175,18 +177,41 @@ function serializeCodeBlock(el: HTMLElement, ctx: SerializeContext): string {
 
   // For empty code blocks, don't add a newline between the fences
   if (!code) {
-    return ctx.indent + fence + language + "\n" + fence + "\n\n";
+    return ctx.indent + fence + language + "\n" + ctx.indent + fence + "\n\n";
   }
 
+  // Every (non-blank) line carries the indent - inside a list item or
+  // blockquote, an unindented line would end the parent container. Blank
+  // lines stay blank: they don't terminate an indented fence, and indenting
+  // them would add trailing whitespace.
+  const lines = [
+    fence + language,
+    ...(code.endsWith("\n") ? code.slice(0, -1) : code).split("\n"),
+    fence,
+  ];
   return (
-    ctx.indent +
-    fence +
-    language +
-    "\n" +
-    code +
-    (code.endsWith("\n") ? "" : "\n") +
-    fence +
-    "\n\n"
+    lines.map((line) => (line ? ctx.indent + line : line)).join("\n") + "\n\n"
+  );
+}
+
+// The LaTeX source of a MathML element, taken from the annotation KaTeX
+// embeds in its output (also what external HTML parsing reads). Falls back to
+// the element's text content for MathML from other sources.
+function extractMathLatexSource(el: Element): string {
+  const annotation = el.querySelector(
+    'annotation[encoding="application/x-tex"]',
+  );
+  return (annotation?.textContent ?? el.textContent ?? "").trim();
+}
+
+function serializeMathBlock(el: HTMLElement, ctx: SerializeContext): string {
+  const latex = extractMathLatexSource(el);
+  // Every (non-blank) line carries the indent - inside a list item or
+  // blockquote, an unindented line would end the parent container.
+  return (
+    ["$$", ...latex.split("\n"), "$$"]
+      .map((line) => (line ? ctx.indent + line : line))
+      .join("\n") + "\n\n"
   );
 }
 
@@ -775,6 +800,16 @@ function serializeInlineContent(el: Element): string {
         case "br":
           result += "\\\n";
           break;
+        case "math": {
+          // Inline math — emit its LaTeX source as a math span. Collapsed to
+          // a single line, as $...$ spans cannot contain newlines.
+          const latex = extractMathLatexSource(childEl)
+            .split("\n")
+            .map((line) => line.trim())
+            .join(" ");
+          result += `$${latex}$`;
+          break;
+        }
         case "span":
           // Color spans, etc. — strip the tag, keep content
           result += serializeInlineContent(childEl);

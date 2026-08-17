@@ -1,3 +1,7 @@
 {
+  "installCommand": "cd .. && corepack enable && pnpm install",
+  "buildCommand": "corepack enable && pnpm run build:vercel",
+  "outputDirectory": "dist",
+  "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" = \"gh-pages\" ]",
   "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }

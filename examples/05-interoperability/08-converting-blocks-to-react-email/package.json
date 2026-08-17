@@ -20,6 +20,8 @@
     "@mantine/hooks": "^9.0.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
+    "@blocknote/diagram-block": "latest",
+    "@blocknote/math-block": "latest",
     "@blocknote/xl-email-exporter": "latest",
     "@react-email/render": "^2.0.4"
   },

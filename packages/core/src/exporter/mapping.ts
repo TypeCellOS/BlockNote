@@ -42,7 +42,10 @@ export type InlineContentMapping<
 > = {
   [K in keyof I]: (
     inlineContent: InlineContentFromConfig<I[K], S>,
-    exporter: Exporter<any, I, S, any, RI, any, TS>,
+    // Deliberately loose on the schema generics, like `BlockMapping` above -
+    // otherwise a mapping declared for one schema can't be reused (e.g.
+    // spread) in a mapping for a schema with different types.
+    exporter: Exporter<any, any, any, any, RI, any, TS>,
   ) => RI;
 };
 

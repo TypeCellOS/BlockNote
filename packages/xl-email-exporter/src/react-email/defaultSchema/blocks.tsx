@@ -1,8 +1,10 @@
 import {
+  BlockFromConfigNoChildren,
   BlockMapping,
   createPageBreakBlockConfig,
   DefaultBlockSchema,
   mapTableCell,
+  PlainContent,
 } from "@blocknote/core";
 import {
   CodeBlock,
@@ -114,12 +116,41 @@ export const defaultReactEmailTextStyles = {
   },
 } satisfies ReactEmailTextStyles;
 
+type BSchema = DefaultBlockSchema & {
+  pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+};
+
+const codeMapping = (
+  block: BlockFromConfigNoChildren<BSchema["codeBlock"], any, any>,
+  language: PrismLanguage,
+  textStyles: ReactEmailTextStyles,
+) => {
+  // Code blocks hold plain content: at most a single unstyled text item.
+  const [textItem, ...excessItems] = block.content as PlainContent;
+  if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
+    throw new Error("expected plain block content to be a single text item");
+  }
+  const textContent = textItem?.text ?? "";
+
+  return (
+    <CodeBlock
+      code={textContent}
+      fontFamily="'CommitMono', monospace"
+      language={language}
+      theme={dracula}
+      {...textStyles.codeBlock}
+      style={{
+        ...defaultReactEmailTextStyles.codeBlock.style,
+        ...textStyles.codeBlock?.style,
+      }}
+    />
+  );
+};
+
 export const createReactEmailBlockMappingForDefaultSchema = (
   textStyles: ReactEmailTextStyles = defaultReactEmailTextStyles,
 ): BlockMapping<
-  DefaultBlockSchema & {
-    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  },
+  BSchema,
   any,
   any,
   React.ReactElement<any>,
@@ -258,29 +289,9 @@ export const createReactEmailBlockMappingForDefaultSchema = (
     );
   },
 
-  codeBlock: (block) => {
-    // Code blocks hold plain content: at most a single unstyled text item.
-    const [textItem, ...excessItems] = block.content;
-    if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
-      throw new Error("expected plain block content to be a single text item");
-    }
-    const textContent = textItem?.text ?? "";
-
-    return (
-      <CodeBlock
-        code={textContent}
-        fontFamily="'CommitMono', monospace"
-        language={block.props.language as PrismLanguage}
-        theme={dracula}
-        {...textStyles.codeBlock}
-        style={{
-          ...defaultReactEmailTextStyles.codeBlock.style,
-          ...textStyles.codeBlock?.style,
-        }}
-      />
-    );
-  },
-  audio: (block) => {
+  codeBlock: (block) =>
+    codeMapping(block, block.props.language as PrismLanguage, textStyles),
+  audio: (block, exporter) => {
     // Audio icon SVG
     const icon = (
       <svg
@@ -302,7 +313,7 @@ export const createReactEmailBlockMappingForDefaultSchema = (
         <FileLink
           url={block.props.url}
           name={block.props.name}
-          defaultText="Open audio file"
+          defaultText={exporter.dictionary.open_audio_file}
           icon={icon}
         />
         <Caption
@@ -313,7 +324,7 @@ export const createReactEmailBlockMappingForDefaultSchema = (
       </div>
     );
   },
-  video: (block) => {
+  video: (block, exporter) => {
     // Video icon SVG
     const icon = (
       <svg
@@ -335,7 +346,7 @@ export const createReactEmailBlockMappingForDefaultSchema = (
         <FileLink
           url={block.props.url}
           name={block.props.name}
-          defaultText="Open video file"
+          defaultText={exporter.dictionary.open_video_file}
           icon={icon}
         />
         <Caption
@@ -346,7 +357,7 @@ export const createReactEmailBlockMappingForDefaultSchema = (
       </div>
     );
   },
-  file: (block) => {
+  file: (block, exporter) => {
     // File icon SVG
     const icon = (
       <svg
@@ -368,7 +379,7 @@ export const createReactEmailBlockMappingForDefaultSchema = (
         <FileLink
           url={block.props.url}
           name={block.props.name}
-          defaultText="Open file"
+          defaultText={exporter.dictionary.open_file}
           icon={icon}
         />
         <Caption

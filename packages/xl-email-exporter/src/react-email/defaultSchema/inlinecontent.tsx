@@ -15,10 +15,12 @@ export const defaultReactEmailLinkStyles: ReactEmailLinkStyles = {
   link: {},
 };
 
+type ICSchema = DefaultInlineContentSchema;
+
 export const createReactEmailInlineContentMappingForDefaultSchema = (
   linkStyles: ReactEmailLinkStyles = defaultReactEmailLinkStyles,
 ): InlineContentMapping<
-  DefaultInlineContentSchema,
+  ICSchema,
   DefaultStyleSchema,
   React.ReactElement<typeof Link> | React.ReactElement<HTMLSpanElement>,
   React.ReactElement<HTMLSpanElement>

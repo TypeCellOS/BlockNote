@@ -199,6 +199,10 @@ export const vi: Dictionary = {
   toggle_blocks: {
     add_block_button: "Toggle trống. Nhấp để thêm khối.",
   },
+  code_block: {
+    add_source_button_text: "Thêm mã nguồn",
+    ok_button_text: "OK",
+  },
   // từ gói phản ứng:
   side_menu: {
     add_block_label: "Thêm khối",
@@ -408,6 +412,11 @@ export const vi: Dictionary = {
     deleted_by: (users: string) => `Được xóa bởi: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Thay đổi định dạng (${formats}) bởi: ${users}`,
+  },
+  exporter: {
+    open_file: "Mở tệp",
+    open_video_file: "Mở video",
+    open_audio_file: "Mở âm thanh",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

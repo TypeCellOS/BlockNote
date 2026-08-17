@@ -136,13 +136,23 @@ export function createInMemoryVersioningEndpoints(): VersioningEndpoints<
   const contents = new Map<string, Block<any, any, any>[]>();
   let nextId = 1;
 
+  // `Date.now()` only has millisecond resolution, so two snapshots created in
+  // the same tick would share a timestamp and `sortSnapshotsNewestFirst` (which
+  // has nothing else to order on) could list them oldest-first. Hand out
+  // strictly increasing timestamps so creation order is always preserved.
+  let lastTimestamp = 0;
+  function nextTimestamp() {
+    lastTimestamp = Math.max(Date.now(), lastTimestamp + 1);
+    return lastTimestamp;
+  }
+
   return {
     async list() {
       return sortSnapshotsNewestFirst([...snapshots]);
     },
 
     async create(currentDoc, options) {
-      const now = Date.now();
+      const now = nextTimestamp();
       const id = String(nextId++);
       const snapshot: VersionSnapshot = {
         id,
@@ -166,7 +176,7 @@ export function createInMemoryVersioningEndpoints(): VersioningEndpoints<
 
       // Create a "Restored from …" snapshot of the current state before
       // restoring, so the user can undo the restore.
-      const now = Date.now();
+      const now = nextTimestamp();
       const backupId = String(nextId++);
       const backup: VersionSnapshot = {
         id: backupId,
@@ -196,7 +206,7 @@ export function createInMemoryVersioningEndpoints(): VersioningEndpoints<
         throw new Error(`Snapshot ${String(snapshot.id)} not found`);
       }
       stored.name = name;
-      stored.updatedAt = Date.now();
+      stored.updatedAt = nextTimestamp();
     },
 
     async remove(snapshot) {

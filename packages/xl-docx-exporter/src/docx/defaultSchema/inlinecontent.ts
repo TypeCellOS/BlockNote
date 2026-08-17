@@ -6,8 +6,10 @@ import {
 import { ExternalHyperlink, ParagraphChild, TextRun } from "docx";
 import type { DOCXExporter } from "../docxExporter.js";
 
+type ICSchema = DefaultInlineContentSchema;
+
 export const docxInlineContentMappingForDefaultSchema: InlineContentMapping<
-  DefaultInlineContentSchema,
+  ICSchema,
   DefaultStyleSchema,
   ParagraphChild,
   TextRun

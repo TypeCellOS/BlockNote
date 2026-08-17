@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": true,
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.53.0",
+  "version": "0.54.0",
   "files": [
     "dist",
     "types",
@@ -57,7 +57,7 @@
     "@types/node": "22.13.13",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "undici": "^6.22.0",
     "vite-node": "^6.0.0",
     "vite-plugin-externalize-deps": "^0.10.0",

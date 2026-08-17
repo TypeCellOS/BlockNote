@@ -16,16 +16,9 @@ import { describe, expect, it } from "vite-plus/test";
 import { pdfDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { PDFExporter } from "./pdfExporter.js";
 import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
-// import * as ReactPDF from "@react-pdf/renderer";
-// expect.extend({ toMatchImageSnapshot });
-// import { toMatchImageSnapshot } from "jest-image-snapshot";
-// import { pdf } from "pdf-to-img";
 
 describe("exporter", () => {
   it("typescript: schema with extra block", async () => {
-    // const exporter = createPdfExporterForDefaultSchema();
-    // const ps = exporter.transform(testDocument);
-
     const schema = BlockNoteSchema.create({
       blockSpecs: {
         ...defaultBlockSpecs,
@@ -177,24 +170,11 @@ describe("exporter", () => {
 
     await expect(str).toMatchFileSnapshot("__snapshots__/example.jsx");
 
-    // would be nice to compare pdf images, but currently doesn't work on mac os (due to node canvas installation issue)
-
-    // await ReactPDF.render(transformed, `${__dirname}/example.pdf`);
-    // eslint-disable-next-line
-    // const b = await ReactPDF(transformed);
-
-    // await toMatchBinaryFileSnapshot(b, `__snapshots__/example.pdf`);
-    // expect(b.toString("utf-8")).toMatchFileSnapshot(
-    //   `__snapshots__/example.pdf`
-    // );
-    // const doc = await pdf(`${__dirname}/example.pdf`);
-
-    // // expect(doc.length).toBe(2);
-    // // expect(doc.metadata).toEqual({ ... });
-
-    // for await (const page of doc) {
-    //   expect(page).toMatchImageSnapshot();
-    // }
+    // Visual verification of an actually produced PDF lives in the browser
+    // suite (tests/src/end-to-end/exporters/exporterImages.test.tsx), which
+    // renders the file's pages with pdf.js and screenshots them - possible
+    // there because a real browser needs no native canvas dependencies,
+    // which is what blocked doing this in Node.
   });
 
   it("should export a document with header and footer", async () => {
@@ -218,11 +198,6 @@ describe("exporter", () => {
     await expect(str).toMatchFileSnapshot(
       "__snapshots__/exampleWithHeaderAndFooter.jsx",
     );
-
-    // await ReactPDF.render(
-    //   transformed,
-    //   `${__dirname}/exampleWithHeaderAndFooter.pdf`
-    // );
   });
   it("should export a document with a multi-column block", async () => {
     const schema = BlockNoteSchema.create({

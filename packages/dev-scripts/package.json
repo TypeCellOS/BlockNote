@@ -8,7 +8,7 @@
     "directory": "packages/dev-scripts"
   },
   "license": "MPL-2.0",
-  "version": "0.53.0",
+  "version": "0.54.0",
   "description": "",
   "type": "module",
   "scripts": {
@@ -25,7 +25,7 @@
     "rimraf": "^5.0.10",
     "tinyglobby": "0.2.12",
     "tsx": "^4.20.6",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "vite-plus": "catalog:"
   },
   "dependencies": {}

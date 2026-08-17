@@ -1,12 +1,24 @@
-import { triggerCommand } from "./context.js";
+import { commands } from "./context.js";
 import { DRAG_HANDLE_SELECTOR } from "./const.js";
 import { sleep, waitForSelector } from "./editor.js";
-import type { MouseAction } from "./positionalMouse.js";
+import type { MouseAction, PositionalMouseCommand } from "./positionalMouse.js";
 
 // `positionalMouse` is registered as a browser command in vite.config.browser.ts.
 // `import type` above keeps the (Node-only) command module out of the browser bundle.
+//
+// Custom commands are normally declared by augmenting Vitest's `BrowserCommands`
+// interface, but that isn't possible here: it's declared in `vitest/internal/browser`,
+// which the context modules only import (never re-export), and `vitest` isn't a
+// direct dependency of this project — we go through `vite-plus/test/browser`.
+// Augmenting a module that merely re-exports declares an unrelated interface, so
+// the command is typed at this single boundary instead, against the signature
+// derived from its implementation.
+const browserCommands = commands as typeof commands & {
+  positionalMouse: PositionalMouseCommand;
+};
+
 function runMouse(actions: MouseAction[]): Promise<void> {
-  return triggerCommand("positionalMouse", actions);
+  return browserCommands.positionalMouse(...actions);
 }
 
 /** Bounding rect of an element, resolved from a selector or the element itself. */

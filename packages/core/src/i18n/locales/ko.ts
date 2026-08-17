@@ -213,6 +213,10 @@ export const ko: Dictionary = {
   toggle_blocks: {
     add_block_button: "비어 있는 토글입니다. 클릭하여 블록을 추가하세요.",
   },
+  code_block: {
+    add_source_button_text: "소스 코드 추가",
+    ok_button_text: "확인",
+  },
   // from react package:
   side_menu: {
     add_block_label: "블록 추가",
@@ -422,6 +426,11 @@ export const ko: Dictionary = {
     deleted_by: (users: string) => `삭제한 사람: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `서식 변경 (${formats}) 변경한 사람: ${users}`,
+  },
+  exporter: {
+    open_file: "파일 열기",
+    open_video_file: "동영상 열기",
+    open_audio_file: "오디오 열기",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

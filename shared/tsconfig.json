@@ -18,7 +18,8 @@
     "emitDeclarationOnly": true,
     "types": ["node"]
   },
-  "include": ["."],
+  "include": ["*.ts", "api/**/*.ts", "util/**/*.ts"],
+  "exclude": ["dist", "assets", "vite.config.ts"],
   "references": [
     {
       "path": "../packages/core/"

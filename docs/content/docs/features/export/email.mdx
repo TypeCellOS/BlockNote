@@ -126,6 +126,10 @@ const defaultOptions = {
   // a function to resolve external resources in order to avoid CORS issues
   // by default, this calls a BlockNote hosted server-side proxy to resolve files
   resolveFileUrl: corsProxyResolveFileUrl,
+  // the strings rendered into the exported document (file link texts, error
+  // placeholders); pass a locale from @blocknote/core/locales (or your
+  // editor's dictionary) to export in another language
+  dictionary: locales.en,
   // the colors to use in the email for things like highlighting, background colors and font colors.
   colors: COLORS_DEFAULT, // defaults from @blocknote/core
 };
@@ -168,3 +172,43 @@ new ReactEmailExporter(schema, {
   styleMapping,
 });
 ```
+
+### Math & diagram blocks
+
+The [math](/docs/features/blocks/math) and [diagram](/docs/features/blocks/diagrams) blocks ship their own email mappings, exporting as images with the LaTeX/Mermaid source as the alt text. See [exporting math](/docs/features/blocks/math#email) and [exporting diagrams](/docs/features/blocks/diagrams#exporting) for the setup.
+
+**Image delivery.** By default the images are embedded as data URLs — self-contained, but some email clients (notably Gmail and Outlook for Windows) don't display data URL images and show the alt text instead. For those, deliver the images as inline `cid:` attachments (the most widely supported way to embed generated images) and pass the collected attachments to your mailer at send time:
+
+```typescript
+import {
+  ReactEmailExporter,
+  reactEmailDefaultSchemaMappings,
+  createCIDImageDelivery,
+} from "@blocknote/xl-email-exporter";
+import {
+  createInlineMathMapping,
+  createMathBlockMapping,
+} from "@blocknote/math-block/email-exporter";
+import { createDiagramBlockMapping } from "@blocknote/diagram-block/email-exporter";
+
+const imageDelivery = createCIDImageDelivery();
+const exporter = new ReactEmailExporter(editor.schema, {
+  ...reactEmailDefaultSchemaMappings,
+  blockMapping: {
+    ...reactEmailDefaultSchemaMappings.blockMapping,
+    mathBlock: createMathBlockMapping({ imageDelivery }),
+    diagram: createDiagramBlockMapping({ imageDelivery }),
+  },
+  inlineContentMapping: {
+    ...reactEmailDefaultSchemaMappings.inlineContentMapping,
+    math: createInlineMathMapping({ imageDelivery }),
+  },
+});
+
+const html = await exporter.toReactEmailDocument(editor.document);
+
+// e.g. with nodemailer (works the same with other mailers):
+await transporter.sendMail({ html, attachments: imageDelivery.attachments });
+```
+
+**Server-side rendering.** Emails are usually rendered server-side at send time — see [exporting math](/docs/features/blocks/math#email) and [exporting diagrams server-side](/docs/features/blocks/diagrams#exporting-server-side) for what that needs.

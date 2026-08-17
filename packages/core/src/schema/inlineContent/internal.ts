@@ -1,5 +1,9 @@
 import { KeyboardShortcutCommand, Node } from "@tiptap/core";
 
+import {
+  Extension,
+  ExtensionFactoryInstance,
+} from "../../editor/BlockNoteExtension.js";
 import { camelToDataKebab } from "../../util/string.js";
 import { PropSchema, Props } from "../propTypes.js";
 import {
@@ -77,10 +81,12 @@ export function createInternalInlineContentSpec<
 >(
   config: T,
   implementation: InlineContentImplementation<NoInfer<T>>,
+  extensions?: (Extension | ExtensionFactoryInstance)[],
 ): InlineContentSpec<T> {
   return {
     config,
     implementation,
+    extensions,
   } as const;
 }
 
@@ -99,12 +105,25 @@ export function createInlineContentSpecFromTipTapNode<
     {
       type: node.name as T["name"],
       propSchema,
-      content: node.config.content === "inline*" ? "styled" : "none",
+      content:
+        node.config.content === "inline*"
+          ? "styled"
+          : node.config.content === "text*"
+            ? "plain"
+            : "none",
     },
+    // Cast needed because `implementation` is typed against the generic
+    // `CustomInlineContentConfig`, while `createInternalInlineContentSpec`
+    // expects the implementation for the specific (still-generic) config
+    // inferred from `node`/`propSchema` above.
     {
       ...implementation,
       node,
-    },
+    } as unknown as InlineContentImplementation<{
+      type: T["name"];
+      propSchema: P;
+      content: "styled" | "none" | "plain";
+    }>,
   );
 }
 

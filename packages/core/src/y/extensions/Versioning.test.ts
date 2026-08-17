@@ -31,15 +31,26 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
   >();
   const contents = new Map<string, Uint8Array>();
 
+  // `Date.now()` only has millisecond resolution, so snapshots created in quick
+  // succession (as they are in these tests) can share a timestamp, which leaves
+  // the newest-first ordering of `list()` ambiguous. Hand out strictly
+  // increasing timestamps so creation order is always recoverable.
+  let lastTimestamp = 0;
+  function nextTimestamp() {
+    lastTimestamp = Math.max(Date.now(), lastTimestamp + 1);
+    return lastTimestamp;
+  }
+
   return {
     list: async () =>
       [...snapshots.values()].sort((a, b) => b.createdAt - a.createdAt),
     create: async (fragment, options) => {
+      const now = nextTimestamp();
       const snapshot = {
         id: crypto.randomUUID(),
         name: options?.name,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: now,
+        updatedAt: now,
         restoredFromSnapshotId: options?.restoredFromSnapshot?.id
           ? String(options.restoredFromSnapshot.id)
           : undefined,
@@ -57,11 +68,12 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
     },
     restore: async (fragment, snapshot) => {
       // Create backup
+      const backupTimestamp = nextTimestamp();
       const backup = {
         id: crypto.randomUUID(),
         name: "Backup",
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: backupTimestamp,
+        updatedAt: backupTimestamp,
       };
       contents.set(backup.id, Y.encodeStateAsUpdateV2(fragment.doc!));
       snapshots.set(backup.id, backup);
@@ -70,11 +82,12 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
       const tempDoc = new Y.Doc();
       Y.applyUpdateV2(tempDoc, snapshotContent);
 
+      const restoredTimestamp = nextTimestamp();
       const restored = {
         id: crypto.randomUUID(),
         name: "Restored Snapshot",
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: restoredTimestamp,
+        updatedAt: restoredTimestamp,
         restoredFromSnapshotId: String(snapshot.id),
       };
       contents.set(restored.id, Y.encodeStateAsUpdateV2(tempDoc));
@@ -89,7 +102,7 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
         throw new Error(`Snapshot ${String(snapshot.id)} not found`);
       }
       s.name = name;
-      s.updatedAt = Date.now();
+      s.updatedAt = nextTimestamp();
     },
   };
 }

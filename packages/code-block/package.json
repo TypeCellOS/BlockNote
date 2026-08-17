@@ -9,7 +9,7 @@
     "directory": "packages/code-block"
   },
   "license": "MPL-2.0",
-  "version": "0.53.0",
+  "version": "0.54.0",
   "files": [
     "dist",
     "types",
@@ -49,18 +49,18 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@shikijs/core": "^4",
-    "@shikijs/engine-javascript": "^4",
-    "@shikijs/langs-precompiled": "^4",
-    "@shikijs/themes": "^4"
+    "@shikijs/core": "^4.4.3",
+    "@shikijs/engine-javascript": "^4.4.3",
+    "@shikijs/langs-precompiled": "^4.4.3",
+    "@shikijs/themes": "^4.4.3"
   },
   "optionalDependencies": {
-    "@shikijs/types": "^4"
+    "@shikijs/types": "^4.4.3"
   },
   "devDependencies": {
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {

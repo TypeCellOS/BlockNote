@@ -214,6 +214,10 @@ export const is: Dictionary = {
   toggle_blocks: {
     add_block_button: "Tóm fellilína. Smelltu til að bæta við blokk.",
   },
+  code_block: {
+    add_source_button_text: "Bæta við frumkóða",
+    ok_button_text: "Í lagi",
+  },
   side_menu: {
     add_block_label: "Bæta við blokki",
     drag_handle_label: "Opna blokkarvalmynd",
@@ -423,6 +427,11 @@ export const is: Dictionary = {
     deleted_by: (users: string) => `Eytt af: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Sniðbreyting (${formats}) af: ${users}`,
+  },
+  exporter: {
+    open_file: "Opna skrá",
+    open_video_file: "Opna myndband",
+    open_audio_file: "Opna hljóð",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

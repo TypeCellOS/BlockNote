@@ -24,6 +24,7 @@ import {
 import { Exporter, ExporterOptions } from "@blocknote/core";
 import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
 import { loadFileBuffer } from "@shared/util/fileUtil.js";
+import { DOCX_LIST_LEVEL_COUNT } from "./listLevels.js";
 
 // get constructor arg type from Document
 type DocumentOptions = Partial<ConstructorParameters<typeof Document>[0]>;
@@ -210,13 +211,18 @@ export class DOCXExporter<
       externalStyles = externalStyles.replace(/\s*<w:lang\b[^>]*\/>/g, "");
     }
 
-    const bullets = ["•"]; //, "◦", "▪"]; (these don't look great, just use solid bullet for now)
+    // Cycle bullet symbols by depth (filled disc, hollow circle, filled
+    // square), the same convention Word/LibreOffice/Google Docs use, so nested
+    // bullet levels are visually distinct instead of all rendering as "•"
+    // (#2226). These Unicode glyphs render in the document font, so they don't
+    // depend on Symbol/Wingdings being installed.
+    const bullets = ["•", "○", "▪"];
     return {
       numbering: {
         config: [
           {
             reference: "blocknote-numbered-list",
-            levels: Array.from({ length: 9 }, (_, i) => ({
+            levels: Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => ({
               start: 1,
               level: i,
               format: LevelFormat.DECIMAL,
@@ -234,7 +240,7 @@ export class DOCXExporter<
           },
           {
             reference: "blocknote-bullet-list",
-            levels: Array.from({ length: 9 }, (_, i) => ({
+            levels: Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => ({
               start: 1,
               level: i,
               format: LevelFormat.BULLET,

@@ -83,6 +83,10 @@ new PDFExporter(schema, {
 });
 ```
 
+### Math & diagram blocks
+
+The [math](/docs/features/blocks/math) and [diagram](/docs/features/blocks/diagrams) blocks ship their own PDF mappings — math blocks export as vector formulas, inline math as images flowing with the text, diagrams as embedded images. See [exporting math](/docs/features/blocks/math#pdf) and [exporting diagrams](/docs/features/blocks/diagrams#exporting) for the setup.
+
 ### Exporter options
 
 The `PDFExporter` constructor takes an optional `options` parameter.
@@ -99,6 +103,10 @@ const defaultOptions = {
   // a function to resolve external resources in order to avoid CORS issues
   // by default, this calls a BlockNote hosted server-side proxy to resolve files
   resolveFileUrl: corsProxyResolveFileUrl,
+  // the strings rendered into the exported document (file link texts, error
+  // placeholders); pass a locale from @blocknote/core/locales (or your
+  // editor's dictionary) to export in another language
+  dictionary: locales.en,
   // the colors to use in the PDF for things like highlighting, background colors and font colors.
   colors: COLORS_DEFAULT, // defaults from @blocknote/core
 };

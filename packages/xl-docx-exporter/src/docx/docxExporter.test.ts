@@ -2,7 +2,9 @@ import {
   BlockNoteSchema,
   defaultBlockSpecs,
   createPageBreakBlockSpec,
+  PartialBlock,
 } from "@blocknote/core";
+import { de } from "@blocknote/core/locales";
 import { testDocument } from "@shared/testDocument.js";
 import {
   BlobReader,
@@ -59,8 +61,6 @@ describe("exporter", () => {
     await expect(
       prettify(await getZIPEntryContent(entries, "word/styles.xml")),
     ).toMatchFileSnapshot("__snapshots__/basic/styles.xml");
-
-    // fs.writeFileSync(__dirname + "/My Document.docx", buffer);
   });
 
   it(
@@ -106,8 +106,6 @@ describe("exporter", () => {
       });
 
       const blob = await Packer.toBlob(doc);
-
-      // fs.writeFileSync(__dirname + "/My Document.docx", buffer);
 
       const zip = new ZipReader(new BlobReader(blob));
       const entries = await zip.getEntries();
@@ -223,6 +221,119 @@ describe("exporter", () => {
     },
   );
 
+  it(
+    "should clamp list nesting deeper than DOCX supports",
+    { timeout: 10000 },
+    async () => {
+      const schema = BlockNoteSchema.create({
+        blockSpecs: { ...defaultBlockSpecs },
+      });
+
+      // A list nested `depth` items deep, i.e. nesting levels 0..depth-1.
+      const nestedList = (depth: number) => {
+        type SchemaPartialBlock = PartialBlock<
+          typeof schema.blockSchema,
+          typeof schema.inlineContentSchema,
+          typeof schema.styleSchema
+        >;
+
+        let block: SchemaPartialBlock = {
+          type: "bulletListItem",
+          content: `level ${depth}`,
+        };
+        for (let i = depth - 1; i >= 1; i--) {
+          block = {
+            type: "bulletListItem",
+            content: `level ${i}`,
+            children: [block],
+          };
+        }
+        return [block];
+      };
+      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
+        resolveFileUrl: testResolveFileUrl,
+      });
+
+      // Deeper than the 9 levels the numbering config defines. Without
+      // clamping, `docx` throws "Level cannot be greater than 9" and the whole
+      // export fails.
+      const doc = await exporter.toDocxJsDocument(
+        partialBlocksToBlocksForTesting(schema, nestedList(12)),
+        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+      );
+
+      const blob = await Packer.toBlob(doc);
+      const zip = new ZipReader(new BlobReader(blob));
+      const entries = await zip.getEntries();
+      const documentXml = await getZIPEntryContent(
+        entries,
+        "word/document.xml",
+      );
+
+      const levels = [...documentXml.matchAll(/<w:ilvl w:val="(\d+)"\/>/g)].map(
+        (match) => Number(match[1]),
+      );
+
+      // Every item is still exported, and every level it references is one the
+      // numbering config actually defines (0-8) - levels past that are pinned
+      // to the deepest defined level rather than dropped or left undefined.
+      expect(levels).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 8]);
+    },
+  );
+
+  it(
+    "should use distinct bullet symbols per nesting level",
+    { timeout: 10000 },
+    async () => {
+      const schema = BlockNoteSchema.create({
+        blockSpecs: { ...defaultBlockSpecs },
+      });
+
+      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
+        resolveFileUrl: testResolveFileUrl,
+      });
+
+      const doc = await exporter.toDocxJsDocument(
+        partialBlocksToBlocksForTesting(schema, [
+          { type: "bulletListItem", content: "level 0" },
+        ]),
+        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+      );
+
+      const numberingXml = await getZIPEntryContent(
+        await new ZipReader(
+          new BlobReader(await Packer.toBlob(doc)),
+        ).getEntries(),
+        "word/numbering.xml",
+      );
+
+      // numbering.xml defines both the numbered and bullet abstract numberings,
+      // each with a `w:lvl` per depth. Pick out the bullet levels (numFmt
+      // "bullet") and read each level's glyph (`w:lvlText`) by depth (`w:ilvl`).
+      const bulletTextByLevel = new Map<number, string>();
+      for (const block of numberingXml.matchAll(
+        /<w:lvl\b[^>]*w:ilvl="(\d+)"[^>]*>([\s\S]*?)<\/w:lvl>/g,
+      )) {
+        const body = block[2];
+        if (!/<w:numFmt w:val="bullet"\/>/.test(body)) {
+          continue;
+        }
+        const text = body.match(/<w:lvlText w:val="([^"]*)"/);
+        if (text) {
+          bulletTextByLevel.set(Number(block[1]), text[1]);
+        }
+      }
+
+      // The first three levels must be visually distinct (not all "•"), matching
+      // how Word/LibreOffice/Google Docs render nested bullets (#2226).
+      expect([0, 1, 2].map((level) => bulletTextByLevel.get(level))).toEqual([
+        "•",
+        "○",
+        "▪",
+      ]);
+    },
+  );
+
   async function exportAndGetStylesEntries(locale?: string) {
     const exporter = new DOCXExporter(
       BlockNoteSchema.create({
@@ -244,6 +355,40 @@ describe("exporter", () => {
     const zip = new ZipReader(new BlobReader(blob));
     return zip.getEntries();
   }
+
+  it(
+    "should export file links with the configured dictionary",
+    { timeout: 10000 },
+    async () => {
+      // Exporter strings are never hardcoded - the file link text comes
+      // from the `exporter` section of the configured dictionary (English
+      // when not configured).
+      const exporter = new DOCXExporter(
+        BlockNoteSchema.create({
+          blockSpecs: {
+            ...defaultBlockSpecs,
+            pageBreak: createPageBreakBlockSpec(),
+          },
+        }),
+        docxDefaultSchemaMappings,
+        { resolveFileUrl: testResolveFileUrl, dictionary: de },
+      );
+      const doc = await exporter.toDocxJsDocument(testDocument, {
+        sectionOptions: {},
+        documentOptions: {},
+        locale: "de-DE",
+      });
+
+      const zip = new ZipReader(new BlobReader(await Packer.toBlob(doc)));
+      const documentXML = await getZIPEntryContent(
+        await zip.getEntries(),
+        "word/document.xml",
+      );
+
+      expect(documentXML).toContain("Datei öffnen");
+      expect(documentXML).not.toContain("Open file");
+    },
+  );
 
   it(
     "should export a document without w:lang when no locale is provided",

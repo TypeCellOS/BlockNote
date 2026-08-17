@@ -1,4 +1,4 @@
-import { testDocument } from "@blocknote/shared/testDocument";
+import { testDocument } from "@shared/testDocument.js";
 
 import type { GalleryEditor, GalleryPartialBlock } from "./gallerySchema";
 
