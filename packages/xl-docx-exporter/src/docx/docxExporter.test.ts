@@ -281,6 +281,59 @@ describe("exporter", () => {
     },
   );
 
+  it(
+    "should use distinct bullet symbols per nesting level",
+    { timeout: 10000 },
+    async () => {
+      const schema = BlockNoteSchema.create({
+        blockSpecs: { ...defaultBlockSpecs },
+      });
+
+      const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings, {
+        resolveFileUrl: testResolveFileUrl,
+      });
+
+      const doc = await exporter.toDocxJsDocument(
+        partialBlocksToBlocksForTesting(schema, [
+          { type: "bulletListItem", content: "level 0" },
+        ]),
+        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
+      );
+
+      const numberingXml = await getZIPEntryContent(
+        await new ZipReader(
+          new BlobReader(await Packer.toBlob(doc)),
+        ).getEntries(),
+        "word/numbering.xml",
+      );
+
+      // numbering.xml defines both the numbered and bullet abstract numberings,
+      // each with a `w:lvl` per depth. Pick out the bullet levels (numFmt
+      // "bullet") and read each level's glyph (`w:lvlText`) by depth (`w:ilvl`).
+      const bulletTextByLevel = new Map<number, string>();
+      for (const block of numberingXml.matchAll(
+        /<w:lvl\b[^>]*w:ilvl="(\d+)"[^>]*>([\s\S]*?)<\/w:lvl>/g,
+      )) {
+        const body = block[2];
+        if (!/<w:numFmt w:val="bullet"\/>/.test(body)) {
+          continue;
+        }
+        const text = body.match(/<w:lvlText w:val="([^"]*)"/);
+        if (text) {
+          bulletTextByLevel.set(Number(block[1]), text[1]);
+        }
+      }
+
+      // The first three levels must be visually distinct (not all "•"), matching
+      // how Word/LibreOffice/Google Docs render nested bullets (#2226).
+      expect([0, 1, 2].map((level) => bulletTextByLevel.get(level))).toEqual([
+        "•",
+        "○",
+        "▪",
+      ]);
+    },
+  );
+
   async function exportAndGetStylesEntries(locale?: string) {
     const exporter = new DOCXExporter(
       BlockNoteSchema.create({

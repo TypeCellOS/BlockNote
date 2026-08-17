@@ -211,7 +211,12 @@ export class DOCXExporter<
       externalStyles = externalStyles.replace(/\s*<w:lang\b[^>]*\/>/g, "");
     }
 
-    const bullets = ["•"]; //, "◦", "▪"]; (these don't look great, just use solid bullet for now)
+    // Cycle bullet symbols by depth (filled disc, hollow circle, filled
+    // square), the same convention Word/LibreOffice/Google Docs use, so nested
+    // bullet levels are visually distinct instead of all rendering as "•"
+    // (#2226). These Unicode glyphs render in the document font, so they don't
+    // depend on Symbol/Wingdings being installed.
+    const bullets = ["•", "○", "▪"];
     return {
       numbering: {
         config: [
