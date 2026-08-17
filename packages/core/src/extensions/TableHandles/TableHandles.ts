@@ -69,32 +69,130 @@ export type TableHandlesState = {
   widgetContainer: HTMLElement | undefined;
 };
 
-function setHiddenDragImage(rootEl: Document | ShadowRoot) {
-  if (dragImageElement) {
-    return;
+/**
+ * Copies the cells of the row/column being dragged into a standalone element,
+ * which is then used as the native drag image so that the content being moved
+ * visibly follows the cursor.
+ *
+ * The copy is wrapped in an element carrying the editor's own class list and
+ * appended next to the editor, rather than to the document body, so that all
+ * editor-scoped table styling - including any app-level overrides of it, and
+ * whichever theme/colour scheme the editor is nested in - applies to the drag
+ * image exactly as it does to the real table.
+ */
+function setTableDragImage(
+  editorElement: HTMLElement,
+  tableElement: HTMLTableElement,
+  cells: RelativeCellIndices[],
+  orientation: "row" | "col",
+) {
+  unsetTableDragImage();
+
+  const tableCopy = tableElement.cloneNode(false) as HTMLTableElement;
+  // The clone inherits the width and minimum width the real table is given
+  // inline, both of which cover all of its columns - a minimum width of
+  // `columns * --default-cell-min-width` would stretch a copy holding a single
+  // column to the width of the whole table. The copy is sized by its cells
+  // instead.
+  tableCopy.style.removeProperty("width");
+  tableCopy.style.removeProperty("min-width");
+  tableCopy.style.removeProperty("max-width");
+  // How the table lays out and how borders between cells are drawn are both
+  // set on `.ProseMirror table`, which the copy is deliberately outside of, so
+  // they're carried over directly. Without them the browser defaults apply:
+  // borders between cells double up, and auto layout lets a cell grow past the
+  // width set on it below to fit its content, making the copy wider than the
+  // column it's a copy of.
+  const tableStyle = window.getComputedStyle(tableElement);
+  tableCopy.style.tableLayout = tableStyle.tableLayout;
+  tableCopy.style.borderCollapse = tableStyle.borderCollapse;
+  tableCopy.style.borderSpacing = tableStyle.borderSpacing;
+  const tbody = document.createElement("tbody");
+  tableCopy.appendChild(tbody);
+
+  // Dragging a row copies a single row of cells, dragging a column copies one
+  // cell from each row.
+  const rows = orientation === "row" ? [cells] : cells.map((cell) => [cell]);
+
+  for (const rowCells of rows) {
+    const sourceRow = tableElement.rows[rowCells[0]?.row];
+    if (!sourceRow) {
+      continue;
+    }
+
+    const rowCopy = sourceRow.cloneNode(false) as HTMLTableRowElement;
+
+    for (const { row, col } of rowCells) {
+      const sourceCell = tableElement.rows[row]?.cells[col];
+      if (!sourceCell) {
+        continue;
+      }
+
+      const cellRect = sourceCell.getBoundingClientRect();
+      const cellCopy = sourceCell.cloneNode(true) as HTMLTableCellElement;
+      // The drag highlight is already on the source cells by the time the
+      // drag image is built, but the drag image represents the cells as
+      // they'll look once dropped, so it shouldn't be tinted.
+      cellCopy.classList.remove("bn-table-drag-source");
+      // The copy is laid out on its own, so merged cells have no neighbouring
+      // cells left to span into, and the widths that the table's <colgroup>
+      // would have supplied are gone too. Both are replaced by the size the
+      // cell actually has on screen, which keeps the drag image the same size
+      // as what's being dragged.
+      cellCopy.rowSpan = 1;
+      cellCopy.colSpan = 1;
+      cellCopy.style.boxSizing = "border-box";
+      cellCopy.style.width = `${cellRect.width}px`;
+      cellCopy.style.height = `${cellRect.height}px`;
+      rowCopy.appendChild(cellCopy);
+    }
+
+    if (rowCopy.childElementCount > 0) {
+      tbody.appendChild(rowCopy);
+    }
   }
+
+  // The editor's own classes are inherited so that theme/appearance styles
+  // reach the copied cells, but the classes identifying it *as* the editor are
+  // left off - other code looks editors up by those (e.g. `SideMenuView`
+  // measuring every `.bn-editor` in the document), and this isn't one.
+  const inheritedClasses = editorElement.className
+    .split(" ")
+    .filter(
+      (className) =>
+        className !== "ProseMirror" &&
+        className !== "bn-root" &&
+        className !== "bn-editor",
+    )
+    .join(" ");
 
   dragImageElement = document.createElement("div");
-  dragImageElement.innerHTML = "_";
-  dragImageElement.style.opacity = "0";
-  dragImageElement.style.height = "1px";
-  dragImageElement.style.width = "1px";
-  if (rootEl instanceof Document) {
-    rootEl.body.appendChild(dragImageElement);
+  dragImageElement.className = `${inheritedClasses} bn-table-drag-preview`;
+
+  if (tbody.childElementCount > 0) {
+    // Table styles are scoped to `[data-content-type="table"]` within
+    // `.bn-editor`, so the drag image recreates that structure around the
+    // copied cells instead of relying on the cloned <table>'s own attributes.
+    const blockContent = document.createElement("div");
+    blockContent.setAttribute("data-content-type", "table");
+    blockContent.appendChild(tableCopy);
+    dragImageElement.appendChild(blockContent);
   } else {
-    rootEl.appendChild(dragImageElement);
+    // No cells could be copied (e.g. the handle's index no longer resolves to
+    // anything in the table). Fall back to an empty element, which keeps the
+    // browser from falling back to its own drag image of the drag handle.
+    dragImageElement.style.height = "1px";
+    dragImageElement.style.width = "1px";
   }
+
+  (editorElement.parentElement ?? editorElement).appendChild(dragImageElement);
+
+  return dragImageElement;
 }
 
-function unsetHiddenDragImage(rootEl: Document | ShadowRoot) {
-  if (dragImageElement) {
-    if (rootEl instanceof Document) {
-      rootEl.body.removeChild(dragImageElement);
-    } else {
-      rootEl.removeChild(dragImageElement);
-    }
-    dragImageElement = undefined;
-  }
+function unsetTableDragImage() {
+  dragImageElement?.remove();
+  dragImageElement = undefined;
 }
 
 function getChildIndex(node: Element) {
@@ -643,6 +741,38 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
 
   const store = createStore<TableHandlesState | undefined>(undefined);
 
+  // Replaces the browser's default drag image (which would be the drag handle
+  // itself) with a copy of the row/column being dragged.
+  const applyDragImage = (
+    event: { dataTransfer: DataTransfer | null },
+    orientation: "row" | "col",
+    index: number,
+  ) => {
+    const tableElement = view?.tableElement?.querySelector("table");
+    if (!event.dataTransfer || !view?.state || !tableElement) {
+      return;
+    }
+
+    const dragImage = setTableDragImage(
+      editor.prosemirrorView.dom as HTMLElement,
+      tableElement,
+      orientation === "row"
+        ? getCellsAtRowHandle(view.state.block, index)
+        : getCellsAtColumnHandle(view.state.block, index),
+      orientation,
+    );
+
+    // The row handle sits halfway down the row's left edge, and the column
+    // handle halfway along the column's top edge, so the drag image is
+    // anchored to the cursor at that same point.
+    const { width, height } = dragImage.getBoundingClientRect();
+    event.dataTransfer.setDragImage(
+      dragImage,
+      orientation === "row" ? 0 : width / 2,
+      orientation === "row" ? height / 2 : 0,
+    );
+  };
+
   return {
     key: "tableHandles",
     store,
@@ -664,8 +794,9 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
           });
           return view;
         },
-        // We use decorations to render the drop cursor when dragging a table row
-        // or column. The decorations are updated in the `dragOverHandler` method.
+        // We use decorations to highlight the row or column being dragged, and
+        // to render the drop cursor showing where it will end up. The
+        // decorations are updated in the `dragOverHandler` method.
         props: {
           decorations: (state) => {
             if (
@@ -686,27 +817,53 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
               return;
             }
 
-            const newIndex =
-              view.state.draggingState.draggedCellOrientation === "row"
-                ? view.state.rowIndex
-                : view.state.colIndex;
-
-            if (newIndex === undefined) {
-              return;
-            }
-
             const decorations: Decoration[] = [];
             const { block, draggingState } = view.state;
             const { originalIndex, draggedCellOrientation } = draggingState;
 
-            // Return empty decorations if:
+            if (!block) {
+              return DecorationSet.create(state.doc, decorations);
+            }
+
+            // Gets the table to show the decorations in.
+            const tableResolvedPos = state.doc.resolve(tablePos + 1);
+
+            // Highlights the cells of the row/column being dragged, so it stays
+            // clear what is being moved while the drop cursor shows where it
+            // will be moved to.
+            const draggedCells =
+              draggedCellOrientation === "row"
+                ? getCellsAtRowHandle(block, originalIndex)
+                : getCellsAtColumnHandle(block, originalIndex);
+
+            draggedCells.forEach(({ row, col }) => {
+              // Gets the row in the table, then the cell within that row.
+              const rowResolvedPos = state.doc.resolve(
+                tableResolvedPos.posAtIndex(row) + 1,
+              );
+              const cellPos = rowResolvedPos.posAtIndex(col);
+              const cellNode = state.doc.resolve(cellPos + 1).node();
+
+              decorations.push(
+                Decoration.node(cellPos, cellPos + cellNode.nodeSize, {
+                  class: "bn-table-drag-source",
+                }),
+              );
+            });
+
+            const newIndex =
+              draggedCellOrientation === "row"
+                ? view.state.rowIndex
+                : view.state.colIndex;
+
+            // Only the highlight is shown, without a drop cursor, if:
+            // - The cursor isn't over a cell
             // - Dragging to same position
-            // - No block exists
             // - Row drag not allowed
             // - Column drag not allowed
             if (
+              newIndex === undefined ||
               newIndex === originalIndex ||
-              !block ||
               (draggedCellOrientation === "row" &&
                 !canRowBeDraggedInto(block, originalIndex, newIndex)) ||
               (draggedCellOrientation === "col" &&
@@ -715,10 +872,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
               return DecorationSet.create(state.doc, decorations);
             }
 
-            // Gets the table to show the drop cursor in.
-            const tableResolvedPos = state.doc.resolve(tablePos + 1);
-
-            if (view.state.draggingState.draggedCellOrientation === "row") {
+            if (draggedCellOrientation === "row") {
               const cellsInRow = getCellsAtRowHandle(
                 view.state.block,
                 newIndex,
@@ -859,8 +1013,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         return;
       }
 
-      setHiddenDragImage(editor.prosemirrorView.root);
-      event.dataTransfer!.setDragImage(dragImageElement!, 0, 0);
+      applyDragImage(event, "col", view.state.colIndex);
       event.dataTransfer!.effectAllowed = "move";
     },
 
@@ -899,8 +1052,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         return;
       }
 
-      setHiddenDragImage(editor.prosemirrorView.root);
-      event.dataTransfer!.setDragImage(dragImageElement!, 0, 0);
+      applyDragImage(event, "row", view!.state.rowIndex);
       event.dataTransfer!.effectAllowed = "copyMove";
     },
 
@@ -924,7 +1076,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         return;
       }
 
-      unsetHiddenDragImage(editor.prosemirrorView.root);
+      unsetTableDragImage();
     },
 
     /**
