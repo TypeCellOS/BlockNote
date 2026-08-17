@@ -131,7 +131,6 @@ export * from "./hooks/useEditorDomElement.js";
 export * from "./hooks/useEditorSelectionBoundingBox.js";
 export * from "./hooks/useEditorSelectionChange.js";
 export * from "./hooks/useFocusWithin.js";
-export * from "./hooks/useIsMobile.js";
 export * from "./hooks/useOnUploadEnd.js";
 export * from "./hooks/useOnUploadStart.js";
 export * from "./hooks/usePrefersColorScheme.js";

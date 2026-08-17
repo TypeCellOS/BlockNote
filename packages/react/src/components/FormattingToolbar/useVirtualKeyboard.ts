@@ -13,6 +13,10 @@ let maxLayoutViewportHeight = 0;
  * URL-bar show/hide (~60-100px) and below any real keyboard (~250px+).
  */
 function isVirtualKeyboardOpen(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
   const vp = window.visualViewport;
   const layoutHeight = (vp?.height ?? window.innerHeight) * (vp?.scale ?? 1);
   maxLayoutViewportHeight = Math.max(maxLayoutViewportHeight, layoutHeight);

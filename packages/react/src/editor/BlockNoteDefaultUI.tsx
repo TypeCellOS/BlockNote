@@ -1,3 +1,4 @@
+import { isTouchDevice } from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
 import {
   FilePanelExtension,
@@ -19,7 +20,6 @@ import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridS
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController.js";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController.js";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
-import { useIsMobile } from "../hooks/useIsMobile.js";
 import { PortalElementsMap, resolvePortalTarget } from "./portalElements.js";
 
 // Lazily load the comments components to avoid pulling in the comments extensions into the main bundle
@@ -100,7 +100,6 @@ export type BlockNoteDefaultUIProps = {
 
 export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
   const editor = useBlockNoteEditor();
-  const isMobile = useIsMobile();
 
   if (!editor) {
     throw new Error(
@@ -123,7 +122,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
     <>
       {editor.getExtension(FormattingToolbarExtension) &&
         props.formattingToolbar !== false &&
-        (isMobile ? (
+        (isTouchDevice() ? (
           <MobileFormattingToolbarController />
         ) : (
           <FormattingToolbarController
