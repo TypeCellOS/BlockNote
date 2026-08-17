@@ -42,7 +42,6 @@ export * from "./components/FormattingToolbar/DefaultButtons/TableCellMergeButto
 export * from "./components/FormattingToolbar/DefaultButtons/TextAlignButton.js";
 export * from "./components/FormattingToolbar/DefaultSelects/BlockTypeSelect.js";
 export * from "./components/FormattingToolbar/FormattingToolbar.js";
-export * from "./components/FormattingToolbar/MobileFormattingToolbar.js";
 export * from "./components/FormattingToolbar/FormattingToolbarController.js";
 export * from "./components/FormattingToolbar/MobileFormattingToolbarController.js";
 export * from "./editor/PortalContext.js";
