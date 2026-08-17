@@ -4,7 +4,7 @@ import {
 } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, PortalContext } from "@blocknote/react";
 import { createContext, forwardRef, useContext } from "react";
 
 const SubMenuContext = createContext<
@@ -16,9 +16,13 @@ const SubMenuContext = createContext<
 >(undefined);
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
-  const { children, onOpenChange, position, portalRoot, sub, ...rest } = props;
+  const { children, onOpenChange, position, sub, ...rest } = props;
 
   assertEmpty(rest);
+
+  // The DOM node menus portal into, e.g. the mobile formatting toolbar's
+  // non-scrolling wrapper. `null` when there's no such target.
+  const portalRoot = useContext(PortalContext);
 
   // When explicitly positioned to a `top` placement (e.g. the mobile toolbar's
   // color menu, opening above the keyboard) don't let `flip` send it back down.

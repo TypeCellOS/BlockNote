@@ -38,7 +38,7 @@ export * from "./components/FormattingToolbar/FormattingToolbar.js";
 export * from "./components/FormattingToolbar/MobileFormattingToolbar.js";
 export * from "./components/FormattingToolbar/FormattingToolbarController.js";
 export * from "./components/FormattingToolbar/MobileFormattingToolbarController.js";
-export * from "./components/FormattingToolbar/MobileFormattingToolbarPortalContext.js";
+export * from "./editor/PortalContext.js";
 export * from "./components/FormattingToolbar/useVirtualKeyboard.js";
 export * from "./components/FormattingToolbar/FormattingToolbarProps.js";
 

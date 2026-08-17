@@ -5,25 +5,17 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import {
-  ChangeEvent,
-  KeyboardEvent,
-  useCallback,
-  useContext,
-  useState,
-} from "react";
+import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 import { RiInputField } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
-import { MobileFormattingToolbarPortalContext } from "../MobileFormattingToolbarPortalContext.js";
 
 export const FileCaptionButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
-  const portalRoot = useContext(MobileFormattingToolbarPortalContext);
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -96,7 +88,6 @@ export const FileCaptionButton = () => {
     <Components.Generic.Popover.Root
       open={popoverOpen}
       onOpenChange={setPopoverOpen}
-      portalRoot={portalRoot}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button

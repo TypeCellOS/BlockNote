@@ -1,21 +1,19 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, useBlockNoteEditor } from "@blocknote/react";
+import {
+  ComponentProps,
+  PortalContext,
+  useBlockNoteEditor,
+} from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
-import { forwardRef, ReactElement } from "react";
-import { createContext, useContext } from "react";
+import { forwardRef, ReactElement, useContext } from "react";
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
-
-const PortalRootContext = createContext<HTMLElement | null | undefined>(
-  undefined,
-);
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
     children,
     onOpenChange,
     position: _position, // Unused
-    portalRoot,
     sub,
     ...rest
   } = props;
@@ -29,9 +27,7 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       <ShadCNComponents.DropdownMenu.DropdownMenuSub
         onOpenChange={onOpenChange}
       >
-        <PortalRootContext.Provider value={portalRoot}>
-          {children}
-        </PortalRootContext.Provider>
+        {children}
       </ShadCNComponents.DropdownMenu.DropdownMenuSub>
     );
   } else {
@@ -40,9 +36,7 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
         modal={false}
         onOpenChange={onOpenChange}
       >
-        <PortalRootContext.Provider value={portalRoot}>
-          {children}
-        </PortalRootContext.Provider>
+        {children}
       </ShadCNComponents.DropdownMenu.DropdownMenu>
     );
   }
@@ -81,10 +75,14 @@ export const MenuDropdown = forwardRef<
   assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
-  const portalRoot = useContext(PortalRootContext);
 
-  // Portal into the editor's portal element (which carries the color-scheme
-  // class) so the menu inherits light/dark mode instead of the document body's.
+  // The DOM node the menu portals into, e.g. the mobile formatting toolbar's
+  // non-scrolling wrapper. `null` when there's no such target.
+  const portalRoot = useContext(PortalContext);
+
+  // Otherwise default to the editor's portal element (which carries the
+  // color-scheme class) so the menu inherits light/dark mode instead of the
+  // document body's.
   const editor = useBlockNoteEditor();
   const container = editor.portalElement;
 

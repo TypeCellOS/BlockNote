@@ -5,12 +5,8 @@ import {
 } from "@ariakit/react";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
-import { createContext, forwardRef, useContext } from "react";
-
-const PortalRootContext = createContext<HTMLElement | null | undefined>(
-  undefined,
-);
+import { ComponentProps, PortalContext } from "@blocknote/react";
+import { forwardRef, useContext } from "react";
 
 export const PopoverTrigger = forwardRef<
   HTMLButtonElement,
@@ -31,7 +27,9 @@ export const PopoverContent = forwardRef<
 
   assertEmpty(rest);
 
-  const portalRoot = useContext(PortalRootContext);
+  // The DOM node the popover portals into, e.g. the mobile formatting toolbar's
+  // non-scrolling wrapper. `null` when there's no such target.
+  const portalRoot = useContext(PortalContext);
 
   return (
     <AriakitPopover
@@ -51,7 +49,7 @@ export const PopoverContent = forwardRef<
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
-  const { children, open, onOpenChange, position, portalRoot, ...rest } = props;
+  const { children, open, onOpenChange, position, ...rest } = props;
 
   assertEmpty(rest);
 
@@ -61,9 +59,7 @@ export const Popover = (
       setOpen={onOpenChange}
       placement={position}
     >
-      <PortalRootContext.Provider value={portalRoot}>
-        {children}
-      </PortalRootContext.Provider>
+      {children}
     </AriakitPopoverProvider>
   );
 };

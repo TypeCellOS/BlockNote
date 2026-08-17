@@ -5,15 +5,19 @@ import {
 } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
+import { ComponentProps, PortalContext } from "@blocknote/react";
+import { forwardRef, useContext } from "react";
 
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
-  const { open, onOpenChange, position, portalRoot, children, ...rest } = props;
+  const { open, onOpenChange, position, children, ...rest } = props;
 
   assertEmpty(rest);
+
+  // The DOM node the popover portals into, e.g. the mobile formatting toolbar's
+  // non-scrolling wrapper. `null` when there's no such target.
+  const portalRoot = useContext(PortalContext);
 
   return (
     <MantinePopover

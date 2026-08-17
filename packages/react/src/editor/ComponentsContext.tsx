@@ -47,7 +47,6 @@ type ToolbarSelectType = {
     isDisabled?: boolean;
   }[];
   isDisabled?: boolean;
-  portalRoot?: HTMLElement | null;
 };
 
 type MenuButtonType = {
@@ -334,7 +333,6 @@ export type ComponentProps = {
           | "bottom"
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
-        portalRoot?: HTMLElement | null;
         children?: ReactNode;
       };
       Divider: {
@@ -374,7 +372,6 @@ export type ComponentProps = {
           | "bottom"
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
-        portalRoot?: HTMLElement | null;
         children?: ReactNode;
       };
       Content: {

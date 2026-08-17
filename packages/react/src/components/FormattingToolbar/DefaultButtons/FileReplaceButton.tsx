@@ -4,7 +4,6 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useContext } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
@@ -12,12 +11,10 @@ import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { FilePanel } from "../../FilePanel/FilePanel.js";
-import { MobileFormattingToolbarPortalContext } from "../MobileFormattingToolbarPortalContext.js";
 
 export const FileReplaceButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
-  const portalRoot = useContext(MobileFormattingToolbarPortalContext);
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -59,7 +56,7 @@ export const FileReplaceButton = () => {
   }
 
   return (
-    <Components.Generic.Popover.Root portalRoot={portalRoot}>
+    <Components.Generic.Popover.Root>
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}

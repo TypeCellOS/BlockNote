@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { RiLink } from "react-icons/ri";
 
 import {
@@ -20,7 +20,6 @@ import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useExtension } from "../../../hooks/useExtension.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { EditLinkMenuItems } from "../../LinkToolbar/EditLinkMenuItems.js";
-import { MobileFormattingToolbarPortalContext } from "../MobileFormattingToolbarPortalContext.js";
 
 function checkLinkInSchema(
   editor: BlockNoteEditor<BlockSchema, any, StyleSchema>,
@@ -46,7 +45,6 @@ export const CreateLinkButton = () => {
   const editorDOMElement = useEditorDOMElement();
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const portalRoot = useContext(MobileFormattingToolbarPortalContext);
 
   const formattingToolbar = useExtension(FormattingToolbarExtension);
   // eslint-disable-next-line @typescript-eslint/unbound-method -- showSelection is a plain object method, not a class method
@@ -128,7 +126,6 @@ export const CreateLinkButton = () => {
     <Components.Generic.Popover.Root
       open={showPopover}
       onOpenChange={setPopoverOpen}
-      portalRoot={portalRoot}
     >
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}

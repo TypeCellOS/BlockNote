@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 
-import { MobileFormattingToolbarPortalContext } from "./MobileFormattingToolbarPortalContext.js";
+import { PortalContext } from "../../editor/PortalContext.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
 import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
@@ -23,8 +23,8 @@ import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
  * The toolbar itself scrolls horizontally (`overflow-x: auto`), which clips any
  * inline dropdown on mobile. So the outer `.bn-mobile-formatting-toolbar`
  * wrapper — outside that scroll container — is published via
- * {@link MobileFormattingToolbarPortalContext}, and buttons portal
- * their menus/popovers into it (see e.g. `ColorStyleButton`).
+ * {@link PortalContext}, which the generic UI adapters read to portal their
+ * menus/popovers into it automatically.
  *
  * Shown while the virtual keyboard is open.
  */
@@ -46,10 +46,10 @@ export const MobileFormattingToolbarController = (props: {
   const Component = props.formattingToolbar || FormattingToolbar;
 
   return (
-    <MobileFormattingToolbarPortalContext.Provider value={toolbarElement}>
+    <PortalContext.Provider value={toolbarElement}>
       <div className="bn-mobile-formatting-toolbar" ref={setToolbarElement}>
         <Component />
       </div>
-    </MobileFormattingToolbarPortalContext.Provider>
+    </PortalContext.Provider>
   );
 };

@@ -10,19 +10,14 @@ import {
 } from "@ariakit/react";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
-import { createContext, forwardRef, useContext } from "react";
-
-const PortalRootContext = createContext<HTMLElement | null | undefined>(
-  undefined,
-);
+import { ComponentProps, PortalContext } from "@blocknote/react";
+import { forwardRef, useContext } from "react";
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
     children,
     onOpenChange,
     position,
-    portalRoot,
     sub: _sub, // unused
     ...rest
   } = props;
@@ -35,9 +30,7 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       setOpen={onOpenChange}
       virtualFocus={true}
     >
-      <PortalRootContext.Provider value={portalRoot}>
-        {children}
-      </PortalRootContext.Provider>
+      {children}
     </AriakitMenuProvider>
   );
 };
@@ -55,7 +48,9 @@ export const MenuDropdown = forwardRef<
 
   assertEmpty(rest);
 
-  const portalRoot = useContext(PortalRootContext);
+  // The DOM node the menu portals into, e.g. the mobile formatting toolbar's
+  // non-scrolling wrapper. `null` when there's no such target.
+  const portalRoot = useContext(PortalContext);
 
   return (
     <AriakitMenu

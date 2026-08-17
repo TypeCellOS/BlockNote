@@ -5,7 +5,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import type { IconType } from "../../../icons.js";
 import {
   RiH1,
@@ -28,7 +28,6 @@ import {
 } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
-import { MobileFormattingToolbarPortalContext } from "../MobileFormattingToolbarPortalContext.js";
 
 export type BlockTypeSelectItem = {
   name: string;
@@ -128,9 +127,6 @@ export const blockTypeSelectItems = (
 
 export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   const Components = useComponentsContext()!;
-  // Set inside the mobile formatting toolbar, so the dropdown portals out of the
-  // toolbar's scroll container instead of being clipped by it.
-  const portalRoot = useContext(MobileFormattingToolbarPortalContext);
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -216,7 +212,6 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     <Components.FormattingToolbar.Select
       className={"bn-select"}
       items={selectItems}
-      portalRoot={portalRoot}
     />
   );
 };
