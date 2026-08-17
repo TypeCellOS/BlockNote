@@ -49,13 +49,15 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       middlewares={{ flip, shift: true, inline: false, size: true }}
       onChange={onOpenChange}
       position={position}
-      // Don't move focus into the dropdown on open: on mobile that blurs the
-      // editor's contentEditable and dismisses the on-screen keyboard.
+      // Only when portalling into the mobile toolbar: don't move focus into the
+      // dropdown on open, since on mobile that blurs the editor's
+      // contentEditable and dismisses the on-screen keyboard.
       // `withInitialFocusPlaceholder={false}` drops the focusable placeholder
-      // Mantine otherwise autofocuses.
-      trapFocus={false}
-      returnFocus={false}
-      withInitialFocusPlaceholder={false}
+      // Mantine otherwise autofocuses. On desktop we leave Mantine's defaults
+      // (focus trapping/return) intact for accessibility.
+      trapFocus={portalRoot ? false : undefined}
+      returnFocus={portalRoot ? false : undefined}
+      withInitialFocusPlaceholder={portalRoot ? false : undefined}
     >
       {children}
     </MantineMenu>

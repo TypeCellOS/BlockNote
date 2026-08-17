@@ -509,12 +509,6 @@ SideMenuController offsets its position to keep it centered on the line. */
   gap: 4px;
 }
 
-/* Mobile formatting toolbar positioning. Pinned to the bottom of the visual
-   viewport from the `--bn-vv-*` variables published by `useVisualViewportRect`
-   (used by MobileFormattingToolbarController): `translateY(-100%)` puts the
-   toolbar's bottom edge on the viewport bottom without measuring its height, and
-   `scale(1 / --bn-vv-scale)` around that anchored corner cancels pinch-zoom so
-   it keeps its on-screen size. */
 .bn-mobile-formatting-toolbar {
   display: flex;
   position: fixed;
@@ -531,28 +525,12 @@ SideMenuController offsets its position to keep it centered on the line. */
   will-change: transform;
   transition: transform 0.2s cubic-bezier(0.5, 1, 0.89, 1);
   padding-bottom: env(safe-area-inset-bottom, 0);
-  /* No `overflow` here: dropdowns flip to render above the toolbar and must not
-     be clipped. Note `overflow-x` would force `overflow-y: auto` too,
-     which is exactly what clips them. Horizontal scroll lives on the inner
-     `.bn-mobile-formatting-toolbar-scroll` element instead. */
 }
 
 @media (prefers-reduced-motion: reduce) {
   .bn-mobile-formatting-toolbar {
     transition: none;
   }
-}
-
-/* Inner horizontal scroller for the toolbar buttons. Its overflow does not clip
-   the dropdowns: their containing block is the positioned outer toolbar, so they
-   escape this element entirely. */
-.bn-mobile-formatting-toolbar-scroll {
-  display: flex;
-  flex: 1;
-  min-width: 0;
-  overflow-x: auto;
-  touch-action: pan-x;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Emoji Picker styling */

@@ -1,9 +1,11 @@
 import { useLayoutEffect, useState } from "react";
 
 // The tallest layout-equivalent viewport height seen so far — our stand-in for
-// "keyboard closed". Module scope so it survives re-renders; it only ever grows,
-// so refreshing it from a render pass is safe.
+// "keyboard closed" — and the layout width it was measured at. Module scope so
+// they survive re-renders; the height only ever grows within a given width, so
+// refreshing it from a render pass is safe.
 let maxLayoutViewportHeight = 0;
+let baselineLayoutWidth = 0;
 
 /**
  * Whether the on-screen keyboard is open, from the current visual viewport. We
@@ -11,6 +13,10 @@ let maxLayoutViewportHeight = 0;
  * pinch-zoom (which also shrinks `height`) doesn't count — against the tallest
  * value seen, treating a drop of more than 150px as open: comfortably above
  * URL-bar show/hide (~60-100px) and below any real keyboard (~250px+).
+ *
+ * The keyboard never changes the viewport width, but an orientation change
+ * does — so when the (zoom-invariant) width changes we reset the baseline,
+ * otherwise a shorter landscape viewport would be mistaken for an open keyboard.
  */
 function isVirtualKeyboardOpen(): boolean {
   if (typeof window === "undefined") {
@@ -18,7 +24,15 @@ function isVirtualKeyboardOpen(): boolean {
   }
 
   const vp = window.visualViewport;
-  const layoutHeight = (vp?.height ?? window.innerHeight) * (vp?.scale ?? 1);
+  const scale = vp?.scale ?? 1;
+  const layoutHeight = (vp?.height ?? window.innerHeight) * scale;
+  const layoutWidth = (vp?.width ?? window.innerWidth) * scale;
+
+  if (layoutWidth !== baselineLayoutWidth) {
+    baselineLayoutWidth = layoutWidth;
+    maxLayoutViewportHeight = 0;
+  }
+
   maxLayoutViewportHeight = Math.max(maxLayoutViewportHeight, layoutHeight);
   return maxLayoutViewportHeight - layoutHeight > 150;
 }
@@ -69,11 +83,6 @@ export function useVirtualKeyboard(): boolean {
     window.addEventListener("resize", update);
 
     return () => {
-      html.style.removeProperty("--bn-vv-top");
-      html.style.removeProperty("--bn-vv-left");
-      html.style.removeProperty("--bn-vv-width");
-      html.style.removeProperty("--bn-vv-height");
-      html.style.removeProperty("--bn-vv-scale");
       vp?.removeEventListener("resize", update);
       vp?.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);

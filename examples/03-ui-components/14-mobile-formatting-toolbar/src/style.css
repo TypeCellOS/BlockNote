@@ -43,9 +43,12 @@ body {
 .hamburger-button {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  width: 22px;
-  height: 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  margin: -10px;
   padding: 0;
   background: none;
   border: none;
@@ -54,6 +57,7 @@ body {
 
 .hamburger-button span {
   display: block;
+  width: 22px;
   height: 2px;
   border-radius: 1px;
   background: #fff;
@@ -74,6 +78,9 @@ body {
 }
 
 .hamburger-menu a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
   padding: 8px 10px;
   color: inherit;
   text-decoration: none;

@@ -30,4 +30,8 @@ export const isSafari = () =>
   /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
 export const isTouchDevice = () =>
-  typeof navigator !== "undefined" && navigator.maxTouchPoints > 0;
+  typeof navigator !== "undefined" &&
+  navigator.maxTouchPoints > 0 &&
+  typeof window !== "undefined" &&
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(pointer: coarse)").matches;
