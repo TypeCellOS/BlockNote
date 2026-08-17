@@ -203,6 +203,16 @@
   color: var(--bn-colors-disabled-text);
 }
 
+.bn-mobile-formatting-toolbar .bn-toolbar .mantine-Button-root {
+  height: 40px;
+  padding-inline: 12px;
+}
+
+.bn-mobile-formatting-toolbar .bn-toolbar .mantine-ActionIcon-root {
+  width: 40px;
+  height: 40px;
+}
+
 .bn-toolbar .mantine-Menu-item {
   font-size: 12px;
   height: 30px;
