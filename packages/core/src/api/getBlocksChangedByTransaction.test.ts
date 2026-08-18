@@ -2,7 +2,10 @@ import { describe, expect, it, beforeEach } from "vite-plus/test";
 
 import { setupTestEnv } from "./blockManipulation/setupTestEnv.js";
 import { getBlocksChangedByTransaction } from "./getBlocksChangedByTransaction.js";
+import { getBlockInfo } from "./getBlockInfoFromPos.js";
+import { getNodeById } from "./nodeUtil.js";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import { PartialBlock } from "../blocks/defaultBlocks.js";
 
 const getEditor = setupTestEnv();
 
@@ -568,5 +571,213 @@ describe("getBlocksChangedByTransaction", () => {
     await expect(blocksChanged).toMatchFileSnapshot(
       "__snapshots__/blocks-moved-insert-changes-sibling-order.json",
     );
+  });
+});
+
+/**
+ * These exercise the ranged optimization: getBlocksChangedByTransaction only
+ * snapshots the range a transaction touched, not the whole document. In a large
+ * document the failure modes are (a) missing a real change and (b) reporting a
+ * block that didn't actually change. Each test edits a big document and asserts
+ * the exact set of reported changes.
+ */
+describe("getBlocksChangedByTransaction - ranged optimization", () => {
+  let editor: BlockNoteEditor;
+
+  const LARGE = 200;
+
+  function makeParagraphs(count: number): PartialBlock[] {
+    return Array.from({ length: count }, (_, i) => ({
+      id: `p-${i}`,
+      type: "paragraph",
+      content: `Paragraph ${i}`,
+    }));
+  }
+
+  function summarize(changes: Array<{ type: string; block: { id: string } }>) {
+    return changes.map((change) => ({
+      type: change.type,
+      id: change.block.id,
+    }));
+  }
+
+  beforeEach(() => {
+    editor = getEditor();
+  });
+
+  it("reports only the changed block for a prop update deep in a large doc", () => {
+    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
+
+    const changes = editor.transact((tr) => {
+      editor.updateBlock("p-120", { props: { backgroundColor: "red" } });
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    expect(summarize(changes)).toEqual([{ type: "update", id: "p-120" }]);
+  });
+
+  it("reports only the edited block for a content insertion in a large doc", () => {
+    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
+
+    const changes = editor.transact((tr) => {
+      editor.setTextCursorPosition("p-77", "start");
+      editor.insertInlineContent("Hello ");
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    expect(summarize(changes)).toEqual([{ type: "update", id: "p-77" }]);
+  });
+
+  it("reports two distant prop updates without reporting the blocks between them", () => {
+    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
+
+    const changes = editor.transact((tr) => {
+      editor.updateBlock("p-10", { props: { backgroundColor: "red" } });
+      editor.updateBlock("p-190", { props: { backgroundColor: "blue" } });
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    const summary = summarize(changes);
+    expect(summary).toContainEqual({ type: "update", id: "p-10" });
+    expect(summary).toContainEqual({ type: "update", id: "p-190" });
+    expect(summary).toHaveLength(2);
+  });
+
+  it("reports a mark-only change as an update (empty-map AddMarkStep)", () => {
+    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
+
+    const changes = editor.transact((tr) => {
+      const posInfo = getNodeById("p-140", tr.doc);
+      if (!posInfo) {
+        throw new Error("block not found");
+      }
+      const info = getBlockInfo(posInfo);
+      if (!info.isBlockContainer) {
+        throw new Error("expected a block container");
+      }
+      // Adding a mark produces an AddMarkStep, whose StepMap is empty — the case
+      // getChangedRange has to recover from the step's own from/to.
+      tr.addMark(
+        info.blockContent.beforePos + 1,
+        info.blockContent.afterPos - 1,
+        editor.pmSchema.marks.bold.create(),
+      );
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    expect(summarize(changes)).toEqual([{ type: "update", id: "p-140" }]);
+  });
+
+  it("reports mixed insert/update/delete across a large doc in one transaction", () => {
+    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
+
+    const changes = editor.transact((tr) => {
+      editor.updateBlock("p-20", { props: { backgroundColor: "red" } });
+      editor.removeBlocks(["p-100"]);
+      editor.insertBlocks(
+        [{ id: "inserted", type: "paragraph", content: "new" }],
+        "p-180",
+        "after",
+      );
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    const summary = summarize(changes);
+    expect(summary).toContainEqual({ type: "update", id: "p-20" });
+    expect(summary).toContainEqual({ type: "delete", id: "p-100" });
+    expect(summary).toContainEqual({ type: "insert", id: "inserted" });
+    expect(summary).toHaveLength(3);
+  });
+
+  it("reports an insert at the very start of a large doc", () => {
+    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
+
+    const changes = editor.transact((tr) => {
+      editor.insertBlocks(
+        [{ id: "new-first", type: "paragraph", content: "X" }],
+        "p-0",
+        "before",
+      );
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    expect(summarize(changes)).toEqual([{ type: "insert", id: "new-first" }]);
+  });
+
+  it("reports an insert at the very end of a large doc", () => {
+    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
+
+    const changes = editor.transact((tr) => {
+      editor.insertBlocks(
+        [{ id: "new-last", type: "paragraph", content: "X" }],
+        `p-${LARGE - 1}`,
+        "after",
+      );
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    expect(summarize(changes)).toEqual([{ type: "insert", id: "new-last" }]);
+  });
+
+  it("reports a delete in the middle without touching the blocks it shifts", () => {
+    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
+
+    const changes = editor.transact((tr) => {
+      editor.removeBlocks(["p-100"]);
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    expect(summarize(changes)).toEqual([{ type: "delete", id: "p-100" }]);
+  });
+
+  it("reports a single move for a block moved across a large span", () => {
+    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
+
+    const changes = editor.transact((tr) => {
+      const block = editor.getBlock("p-5");
+      editor.removeBlocks(["p-5"]);
+      editor.insertBlocks([{ ...block }], "p-195", "after");
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    expect(summarize(changes)).toEqual([{ type: "move", id: "p-5" }]);
+  });
+
+  it("does not report ancestor blocks when a deeply nested block changes", () => {
+    const blocks = makeParagraphs(100);
+    blocks[50] = {
+      id: "parent",
+      type: "paragraph",
+      content: "Parent",
+      children: [
+        {
+          id: "child",
+          type: "paragraph",
+          content: "Child",
+          children: [
+            { id: "grandchild", type: "paragraph", content: "Grandchild" },
+          ],
+        },
+      ],
+    };
+    editor.replaceBlocks(editor.document, blocks);
+
+    const changes = editor.transact((tr) => {
+      editor.updateBlock("grandchild", { props: { backgroundColor: "red" } });
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    expect(summarize(changes)).toEqual([{ type: "update", id: "grandchild" }]);
+  });
+
+  it("returns no changes for a selection-only transaction in a large doc", () => {
+    editor.replaceBlocks(editor.document, makeParagraphs(LARGE));
+
+    const changes = editor.transact((tr) => {
+      editor.setTextCursorPosition("p-100", "end");
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    expect(changes).toEqual([]);
   });
 });
