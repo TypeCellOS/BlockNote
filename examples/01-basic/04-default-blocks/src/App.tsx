@@ -2,6 +2,8 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
+import { Button, Popover, Text, TextInput } from "@mantine/core";
+import { useRef } from "react";
 
 export default function App() {
   // Creates a new editor instance.
@@ -148,6 +150,66 @@ export default function App() {
     ],
   });
 
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
   // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} />;
+  return (
+    <>
+      {/*<input*/}
+      {/*  style={{*/}
+      {/*    position: "fixed",*/}
+      {/*    top: "0",*/}
+      {/*    zIndex: "20000",*/}
+      {/*    transform: "translate(20px, 20px)",*/}
+      {/*  }}*/}
+      {/*/>*/}
+      <Popover key={"fes"} width={200} position="bottom" withArrow shadow="md">
+        <Popover.Target>
+          <Button
+            onPointerDown={(event) => {
+              event.preventDefault();
+              return;
+            }}
+          >
+            Toggle popover
+          </Button>
+        </Popover.Target>
+        <Popover.Dropdown>
+          <Text size="xs">
+            This is uncontrolled popover, it is opened when button is clicked
+          </Text>
+          <TextInput label="Input label" description="Input description" />
+        </Popover.Dropdown>
+      </Popover>
+      <BlockNoteView editor={editor} />
+      <div style={{ height: "2000px" }}></div>
+      <Popover key={"fes"} width={200} position="top" withArrow shadow="md">
+        <Popover.Target>
+          <Button
+            onPointerDown={(event) => {
+              event.preventDefault();
+              return;
+            }}
+          >
+            Toggle popover
+          </Button>
+        </Popover.Target>
+        <Popover.Dropdown>
+          <Text size="xs">
+            This is uncontrolled popover, it is opened when button is clicked
+          </Text>
+          <TextInput
+            label="Input label"
+            description="Input description"
+            onClickCapture={(e) => {
+              console.log(e.target instanceof HTMLInputElement);
+              if (e.target instanceof HTMLInputElement) {
+                e.target.scrollIntoView();
+              }
+            }}
+          />
+        </Popover.Dropdown>
+      </Popover>
+    </>
+  );
 }

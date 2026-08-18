@@ -6,12 +6,14 @@ import {
 import {
   ChangeEvent,
   KeyboardEvent,
+  MouseEvent,
   useCallback,
   useEffect,
   useState,
 } from "react";
 import { RiLink, RiText } from "react-icons/ri";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { LinkToolbarProps } from "./LinkToolbarProps.js";
@@ -36,6 +38,7 @@ export const EditLinkMenuItems = (
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
+  const editor = useBlockNoteEditor();
 
   // eslint-disable-next-line @typescript-eslint/unbound-method -- editLink is a plain object method, not a class method
   const { editLink } = useExtension(LinkToolbarExtension);
@@ -80,6 +83,19 @@ export const EditLinkMenuItems = (
     props.setToolbarPositionFrozen?.(false);
   }, [editLink, currentUrl, currentText, props]);
 
+  // Scrolling the input into view works around an Android Chrome issue where
+  // the input is otherwise left hidden behind the on-screen keyboard. We then
+  // restore the scroll position to the editor selection.
+  const handleClickCapture = useCallback(
+    (event: MouseEvent<HTMLInputElement>) => {
+      event.currentTarget.scrollIntoView();
+      setTimeout(() => {
+        editor.transact((tr) => tr.scrollIntoView());
+      }, 1000);
+    },
+    [editor],
+  );
+
   return (
     <Components.Generic.Form.Root>
       {/* // TODO: add labels? */}
@@ -87,11 +103,12 @@ export const EditLinkMenuItems = (
         className={"bn-text-input"}
         name="url"
         icon={<RiLink />}
-        autoFocus={true}
+        autoFocus={false}
         placeholder={dict.link_toolbar.form.url_placeholder}
         value={currentUrl}
         onKeyDown={handleEnter}
         onChange={handleUrlChange}
+        onClickCapture={handleClickCapture}
         onSubmit={handleSubmit}
       />
       {showTextField !== false && (
@@ -103,6 +120,7 @@ export const EditLinkMenuItems = (
           value={currentText}
           onKeyDown={handleEnter}
           onChange={handleTextChange}
+          onClickCapture={handleClickCapture}
           onSubmit={handleSubmit}
         />
       )}

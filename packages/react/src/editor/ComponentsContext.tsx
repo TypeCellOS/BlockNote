@@ -317,6 +317,7 @@ export type ComponentProps = {
         value: string;
         onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
         onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+        onClickCapture?: (event: MouseEvent<HTMLInputElement>) => void;
         onSubmit?: () => void;
         autoComplete?: HTMLInputAutoCompleteAttribute;
         "aria-activedescendant"?: string;
