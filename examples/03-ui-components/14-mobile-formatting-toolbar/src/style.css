@@ -1,6 +1,16 @@
 html,
 body {
   margin: 0;
+}
+
+/* The pinned scroll container layout is toggled by the switch in the nav bar,
+   which adds `.pinned-scroll-container` to `<html>` (see App.tsx). In a real
+   app you'd apply these rules unconditionally, without the class. */
+
+/* Pinned scroll container layout, step 1: lock scrolling on the document
+   itself. All page content scrolls inside `.scroll-host` below instead. */
+html.pinned-scroll-container,
+html.pinned-scroll-container body {
   overflow: hidden;
 }
 
@@ -17,7 +27,7 @@ body {
   overflow: auto;
 }
 
-/* --- App shell (see DemoChrome) --- */
+/* --- Dummy app UI (see DummyUI.tsx) --- */
 
 .top-nav {
   position: sticky;
@@ -34,6 +44,50 @@ body {
 
 .top-nav-title {
   font: 600 15px/1 sans-serif;
+}
+
+/* Switch for the pinned scroll container layout, pushed to the right edge. */
+.layout-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  margin-left: auto;
+  padding: 0 4px 0 10px;
+  background: none;
+  border: none;
+  color: inherit;
+  font: 13px/1 sans-serif;
+  cursor: pointer;
+}
+
+.layout-toggle-track {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: #555;
+  transition: background 0.15s;
+}
+
+.layout-toggle[aria-pressed="true"] .layout-toggle-track {
+  background: #4caf50;
+}
+
+.layout-toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
+}
+
+.layout-toggle[aria-pressed="true"] .layout-toggle-track::after {
+  transform: translateX(16px);
 }
 
 .hamburger {
@@ -111,13 +165,16 @@ body {
   color: #333;
 }
 
-/* A top-level wrapper div is the scroll container (the document itself doesn't
-   scroll — `html`/`body` are locked with `overflow: hidden` above), pinned to
-   the visual viewport rectangle via the `--bn-vv-*` variables the mobile
-   toolbar controller publishes, so it sits directly above the keyboard on iOS —
-   where the layout viewport doesn't resize and can be left with a nonzero
-   `offsetTop`. */
-.scroll-host {
+/* Pinned scroll container layout, step 2: a top-level wrapper div is the scroll
+   container (the document itself doesn't scroll — `html`/`body` are locked with
+   `overflow: hidden` above), pinned to the visual viewport rectangle via the
+   `--bn-vv-*` variables the mobile toolbar controller publishes, so it sits
+   directly above the keyboard on iOS — where the layout viewport doesn't resize
+   and can be left with a nonzero `offsetTop`.
+
+   With the layout toggled off, `.scroll-host` is a plain wrapper and the
+   document scrolls as usual (the default "scrolling document" layout). */
+html.pinned-scroll-container .scroll-host {
   position: fixed;
   top: var(--bn-vv-top, 0px);
   left: var(--bn-vv-left, 0px);
