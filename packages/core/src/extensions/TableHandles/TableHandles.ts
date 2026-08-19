@@ -10,7 +10,7 @@ import {
   mergeCells,
   splitCell,
 } from "prosemirror-tables";
-import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
+import { DecorationSet, EditorView } from "prosemirror-view";
 import {
   RelativeCellIndices,
   addRowsOrColumns,
@@ -42,6 +42,8 @@ import {
   BlockSchemaWithBlock,
 } from "../../schema/index.js";
 import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
+import { getTableDragDecorations } from "./dragDecorations.js";
+import { setTableDragImage, unsetTableDragImage } from "./dragPreview.js";
 
 let dragImageElement: HTMLElement | undefined;
 
@@ -94,6 +96,33 @@ function unsetHiddenDragImage(rootEl: Document | ShadowRoot) {
     }
     dragImageElement = undefined;
   }
+}
+
+// Sets the image shown next to the cursor while dragging a table row or column
+// to a snapshot of that row/column. Falls back to the hidden 1x1 image if the
+// snapshot can't be built, since leaving the drag image unset makes the browser
+// fill in its own - a ghost of the entire editor.
+function setDragImage(
+  editor: BlockNoteEditor<any, any, any>,
+  view: TableHandlesView,
+  cells: RelativeCellIndices[],
+  orientation: "row" | "col",
+  dataTransfer: DataTransfer,
+) {
+  const dragImage = view.tableElement
+    ? setTableDragImage(editor, view.tableElement, cells, orientation)
+    : undefined;
+
+  if (dragImage) {
+    // Offset so the snapshot trails the cursor instead of sitting centered
+    // under it, which would hide the cell being pointed at.
+    dataTransfer.setDragImage(dragImage, 16, 16);
+
+    return;
+  }
+
+  setHiddenDragImage(editor.prosemirrorView.root);
+  dataTransfer.setDragImage(dragImageElement!, 0, 0);
 }
 
 function getChildIndex(node: Element) {
@@ -609,6 +638,10 @@ export class TableHandlesView implements PluginView {
       "drop",
       this.dropHandler as unknown as EventListener,
     );
+
+    // The drag image is normally cleaned up on `dragEnd`, which won't fire if
+    // the editor unmounts mid-drag.
+    unsetTableDragImage();
   }
 }
 
@@ -640,148 +673,40 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
           });
           return view;
         },
-        // We use decorations to render the drop cursor when dragging a table row
-        // or column. The decorations are updated in the `dragOverHandler` method.
+        // We use decorations to highlight the row or column being dragged, and
+        // to render the drop cursor at the position it would be dropped into.
+        // The decorations are updated in the `dragOverHandler` method.
         props: {
           decorations: (state) => {
             if (
               view === undefined ||
               view.state === undefined ||
               view.state.draggingState === undefined ||
-              view.tablePos === undefined
+              view.tablePos === undefined ||
+              !view.state.block
             ) {
               return;
             }
 
-            const newIndex =
-              view.state.draggingState.draggedCellOrientation === "row"
-                ? view.state.rowIndex
-                : view.state.colIndex;
+            const { draggedCellOrientation, originalIndex } =
+              view.state.draggingState;
 
-            if (newIndex === undefined) {
-              return;
-            }
-
-            const decorations: Decoration[] = [];
-            const { block, draggingState } = view.state;
-            const { originalIndex, draggedCellOrientation } = draggingState;
-
-            // Return empty decorations if:
-            // - Dragging to same position
-            // - No block exists
-            // - Row drag not allowed
-            // - Column drag not allowed
-            if (
-              newIndex === originalIndex ||
-              !block ||
-              (draggedCellOrientation === "row" &&
-                !canRowBeDraggedInto(block, originalIndex, newIndex)) ||
-              (draggedCellOrientation === "col" &&
-                !canColumnBeDraggedInto(block, originalIndex, newIndex))
-            ) {
-              return DecorationSet.create(state.doc, decorations);
-            }
-
-            // Gets the table to show the drop cursor in.
-            const tableResolvedPos = state.doc.resolve(view.tablePos + 1);
-
-            if (view.state.draggingState.draggedCellOrientation === "row") {
-              const cellsInRow = getCellsAtRowHandle(
+            return DecorationSet.create(
+              state.doc,
+              getTableDragDecorations(
+                state.doc,
+                view.tablePos,
                 view.state.block,
-                newIndex,
-              );
-
-              cellsInRow.forEach(({ row, col }) => {
-                // Gets each row in the table.
-                const rowResolvedPos = state.doc.resolve(
-                  tableResolvedPos.posAtIndex(row) + 1,
-                );
-
-                // Gets the cell within the row.
-                const cellResolvedPos = state.doc.resolve(
-                  rowResolvedPos.posAtIndex(col) + 1,
-                );
-                const cellNode = cellResolvedPos.node();
-                // Creates a decoration at the start or end of each cell,
-                // depending on whether the new index is before or after the
-                // original index.
-                const decorationPos =
-                  cellResolvedPos.pos +
-                  (newIndex > originalIndex ? cellNode.nodeSize - 2 : 0);
-                decorations.push(
-                  // The widget is a small bar which spans the width of the cell.
-                  Decoration.widget(decorationPos, () => {
-                    const widget = document.createElement("div");
-                    widget.className = "bn-table-drop-cursor";
-                    widget.style.left = "0";
-                    widget.style.right = "0";
-                    // This is only necessary because the drop indicator's height
-                    // is an even number of pixels, whereas the border between
-                    // table cells is an odd number of pixels. So this makes the
-                    // positioning slightly more consistent regardless of where
-                    // the row is being dropped.
-                    if (newIndex > originalIndex) {
-                      widget.style.bottom = "-2px";
-                    } else {
-                      widget.style.top = "-3px";
-                    }
-                    widget.style.height = "4px";
-
-                    return widget;
-                  }),
-                );
-              });
-            } else {
-              const cellsInColumn = getCellsAtColumnHandle(
-                view.state.block,
-                newIndex,
-              );
-
-              cellsInColumn.forEach(({ row, col }) => {
-                // Gets each row in the table.
-                const rowResolvedPos = state.doc.resolve(
-                  tableResolvedPos.posAtIndex(row) + 1,
-                );
-
-                // Gets the cell within the row.
-                const cellResolvedPos = state.doc.resolve(
-                  rowResolvedPos.posAtIndex(col) + 1,
-                );
-                const cellNode = cellResolvedPos.node();
-
-                // Creates a decoration at the start or end of each cell,
-                // depending on whether the new index is before or after the
-                // original index.
-                const decorationPos =
-                  cellResolvedPos.pos +
-                  (newIndex > originalIndex ? cellNode.nodeSize - 2 : 0);
-
-                decorations.push(
-                  // The widget is a small bar which spans the height of the cell.
-                  Decoration.widget(decorationPos, () => {
-                    const widget = document.createElement("div");
-                    widget.className = "bn-table-drop-cursor";
-                    widget.style.top = "0";
-                    widget.style.bottom = "0";
-                    // This is only necessary because the drop indicator's width
-                    // is an even number of pixels, whereas the border between
-                    // table cells is an odd number of pixels. So this makes the
-                    // positioning slightly more consistent regardless of where
-                    // the column is being dropped.
-                    if (newIndex > originalIndex) {
-                      widget.style.right = "-2px";
-                    } else {
-                      widget.style.left = "-3px";
-                    }
-                    widget.style.width = "4px";
-
-                    return widget;
-                  }),
-                );
-              });
-            }
-
-            return DecorationSet.create(state.doc, decorations);
+                {
+                  draggedCellOrientation,
+                  originalIndex,
+                  newIndex:
+                    draggedCellOrientation === "row"
+                      ? view.state.rowIndex
+                      : view.state.colIndex,
+                },
+              ),
+            );
           },
         },
       }),
@@ -805,9 +730,11 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         );
       }
 
+      const originalIndex = view.state.colIndex;
+
       view.state.draggingState = {
         draggedCellOrientation: "col",
-        originalIndex: view.state.colIndex,
+        originalIndex,
         mousePos: event.clientX,
       };
       view.emitUpdate();
@@ -826,8 +753,13 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         return;
       }
 
-      setHiddenDragImage(editor.prosemirrorView.root);
-      event.dataTransfer!.setDragImage(dragImageElement!, 0, 0);
+      setDragImage(
+        editor,
+        view,
+        getCellsAtColumnHandle(view.state.block, originalIndex),
+        "col",
+        event.dataTransfer!,
+      );
       event.dataTransfer!.effectAllowed = "move";
     },
 
@@ -845,9 +777,11 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         );
       }
 
+      const originalIndex = view!.state.rowIndex;
+
       view!.state.draggingState = {
         draggedCellOrientation: "row",
-        originalIndex: view!.state.rowIndex,
+        originalIndex,
         mousePos: event.clientY,
       };
       view!.emitUpdate();
@@ -866,8 +800,13 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         return;
       }
 
-      setHiddenDragImage(editor.prosemirrorView.root);
-      event.dataTransfer!.setDragImage(dragImageElement!, 0, 0);
+      setDragImage(
+        editor,
+        view!,
+        getCellsAtRowHandle(view!.state.block, originalIndex),
+        "row",
+        event.dataTransfer!,
+      );
       event.dataTransfer!.effectAllowed = "copyMove";
     },
 
@@ -892,6 +831,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
       }
 
       unsetHiddenDragImage(editor.prosemirrorView.root);
+      unsetTableDragImage();
     },
 
     /**

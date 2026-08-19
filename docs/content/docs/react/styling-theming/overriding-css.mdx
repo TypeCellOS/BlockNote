@@ -36,6 +36,13 @@ BlockNote uses classes with the `bn-` prefix to style editor elements. Here are 
 - `.bn-drag-handle-menu`: Drag handle menu.
 - `.bn-suggestion-menu`: Suggestion menu.
 
+#### Table Row & Column Dragging
+
+- `.bn-table-handle`: Row & column drag handles.
+- `.bn-table-drag-source-row` / `.bn-table-drag-source-col`: Every cell of the row/column being dragged.
+- `.bn-table-drop-cursor`: Bar marking the edge the row/column would be dropped at.
+- `.bn-table-drag-preview`: Snapshot of the row/column shown next to the cursor. Rendered outside the editor, so selectors scoped to `.bn-editor` won't match it.
+
 ### BlockNote CSS Attributes
 
 BlockNote uses data attributes to target specific block types and properties:

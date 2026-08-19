@@ -1,0 +1,124 @@
+/**
+ * Palette
+ *
+ * Declared on `.bn-root` rather than on the table, for two reasons: the drag
+ * handles render in a portal outside the editor, and so does the drag
+ * snapshot - BlockNote puts `bn-root` and the active color scheme on both, so
+ * anything defined here reaches them.
+ */
+.bn-root {
+  --table-border: #e2e2ea;
+  --table-shadow: rgb(0 0 0 / 6%);
+  --table-header-bg: #f0f0f3;
+  --table-header-text: #5d5d70;
+  --table-row-hover: #d3d4e0;
+  --table-accent: #4a48b8;
+  --table-handle-hover-bg: #eef1fa;
+  --table-handle-hover-text: #5e5cd0;
+  /* Kept translucent so they read as a wash over the cell's own background
+   rather than replacing it - a flat fill light enough for this palette would
+   blot out the text in dark mode. */
+  --table-drag-tint: rgb(94 92 208 / 14%);
+  --table-drag-outline: rgb(94 92 208 / 45%);
+  --table-selected: rgb(94 92 208 / 18%);
+}
+
+.bn-root[data-color-scheme="dark"] {
+  --table-border: #3b3b46;
+  --table-shadow: rgb(0 0 0 / 40%);
+  --table-header-bg: #2c2c35;
+  --table-header-text: #a6a6bd;
+  --table-row-hover: #35353f;
+  /* The light-mode accent is a dark purple, which all but disappears against
+   the dark editor background. */
+  --table-accent: #9391ff;
+  --table-handle-hover-bg: #35354a;
+  --table-handle-hover-text: #b3b1ff;
+  --table-drag-tint: rgb(147 145 255 / 22%);
+  --table-drag-outline: rgb(147 145 255 / 55%);
+  --table-selected: rgb(147 145 255 / 25%);
+}
+
+/**
+ * Tables
+ * Loop/Notion-style card look: rounded outer border, muted header row,
+ * hairline internal grid and a hover highlight instead of the default
+ * harsh black grid lines.
+ */
+.bn-editor [data-content-type="table"] table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--table-border);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px var(--table-shadow);
+  overflow: hidden;
+}
+.bn-editor [data-content-type="table"] th,
+.bn-editor [data-content-type="table"] td {
+  border: none;
+  border-right: 1px solid var(--table-border);
+  border-bottom: 1px solid var(--table-border);
+  padding: 10px 16px;
+  transition: background-color 0.15s ease;
+}
+.bn-editor [data-content-type="table"] th:last-child,
+.bn-editor [data-content-type="table"] td:last-child {
+  border-right: none;
+}
+.bn-editor [data-content-type="table"] tr:last-child th,
+.bn-editor [data-content-type="table"] tr:last-child td {
+  border-bottom: none;
+}
+.bn-editor [data-content-type="table"] th {
+  background-color: var(--table-header-bg);
+  color: var(--table-header-text);
+  font-weight: 600;
+  font-size: 0.8125em;
+  letter-spacing: 0.01em;
+}
+.bn-editor [data-content-type="table"] tr:hover > td {
+  background-color: var(--table-row-hover);
+}
+.bn-editor [data-content-type="table"] .selectedCell:after {
+  background: var(--table-selected);
+  opacity: 1;
+}
+
+/**
+ * Row/column reordering: BlockNote already highlights the row/column being
+ * dragged and marks the drop position; these just retune the built-in
+ * affordances to the palette above, so the drag state stays distinguishable
+ * from this table's own hover and selection colors.
+ */
+.bn-editor [data-content-type="table"] td.bn-table-drag-source-row,
+.bn-editor [data-content-type="table"] th.bn-table-drag-source-row,
+.bn-editor [data-content-type="table"] td.bn-table-drag-source-col,
+.bn-editor [data-content-type="table"] th.bn-table-drag-source-col {
+  background-color: var(--table-drag-tint);
+  outline-color: var(--table-drag-outline);
+}
+.bn-editor [data-content-type="table"] .bn-table-drop-cursor {
+  background-color: var(--table-accent);
+}
+
+/* The drag snapshot is rendered outside `.bn-editor`, so it's styled through
+ its own class rather than the table selectors above. */
+.bn-table-drag-preview th,
+.bn-table-drag-preview td {
+  border-color: var(--table-accent);
+  padding: 10px 16px;
+}
+
+/* Row/column drag handles and add-row/add-column buttons. */
+.bn-mantine .bn-table-handle,
+.bn-mantine .bn-table-cell-handle {
+  border-radius: 2px;
+}
+.bn-mantine .bn-table-handle:hover,
+.bn-mantine .bn-table-handle-dragging,
+.bn-mantine .bn-table-cell-handle:hover,
+.bn-mantine .bn-extend-button:hover,
+.bn-mantine .bn-extend-button-editing {
+  background-color: var(--table-handle-hover-bg);
+  color: var(--table-handle-hover-text);
+}
