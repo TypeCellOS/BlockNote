@@ -39,7 +39,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 // fields fresh on each call, so writing new values here + re-running `list()`
 // reshapes the history sidebar against the same document, no editor recreation.
 const versioningOptions = {
-  baseUrl: `https://${yhubHost}`,
+  baseUrl: `https://${yhubHost}/api`,
   org,
   docId,
   // The seeded history has a few hundred edits; a high limit lets the sidebar
@@ -108,7 +108,7 @@ const formatMs = (ms: number) => {
 
 const doc = new Y.Doc();
 const provider = new WebsocketProvider(
-  `wss://${yhubHost}/ws`,
+  `wss://${yhubHost}/api/ws/v1`,
   `${org}/${docId}`,
   doc,
   {
@@ -128,7 +128,7 @@ const preparePromise: Promise<void> = (async () => {
   if (!(doc.get("bn").length > 0)) {
     provider.disconnect();
     await seedSampleVersions({
-      baseUrl: `https://${yhubHost}`,
+      baseUrl: `https://${yhubHost}/api`,
       org,
       docId,
       fragment: "bn",
