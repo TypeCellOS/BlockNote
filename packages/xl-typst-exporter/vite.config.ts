@@ -38,6 +38,10 @@ export default defineConfig(
             : ({
                 "@shared": path.resolve(__dirname, "../../shared/"),
                 "@blocknote/core": path.resolve(__dirname, "../core/src/"),
+                "@blocknote/xl-multi-column": path.resolve(
+                  __dirname,
+                  "../xl-multi-column/src/",
+                ),
               } as Record<string, string>),
       },
       server: {
@@ -61,10 +65,7 @@ export default defineConfig(
         },
         rollupOptions: {
           external: (source) =>
-            source.startsWith("@blocknote/") ||
-            source.startsWith("@myriaddreamin/") ||
-            source === "@cantoo/pdf-lib" ||
-            source.startsWith("node:"),
+            source.startsWith("@blocknote/") || source.startsWith("node:"),
           output: { globals: {} },
         },
       },

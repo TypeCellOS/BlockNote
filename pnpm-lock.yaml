@@ -6252,9 +6252,6 @@ importers:
       '@myriaddreamin/typst.ts':
         specifier: ^0.8.0-rc3
         version: 0.8.0-rc3(@myriaddreamin/typst-ts-web-compiler@0.8.0-rc3)
-      '@react-pdf/renderer':
-        specifier: ^4.5.1
-        version: 4.5.1(react@19.2.5)
     devDependencies:
       '@blocknote/shared':
         specifier: workspace:^
@@ -6262,6 +6259,9 @@ importers:
       '@myriaddreamin/typst-ts-node-compiler':
         specifier: ^0.8.0-rc3
         version: 0.8.0-rc3
+      '@react-pdf/renderer':
+        specifier: ^4.5.1
+        version: 4.5.1(react@19.2.5)
       '@testing-library/react':
         specifier: ^16.3.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)

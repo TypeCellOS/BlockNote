@@ -148,7 +148,7 @@ export class PDFExporter<
   }
 
   /**
-   * Mostly for internal use, you probably want to use `toBlob` or `toReactPDFDocument` instead.
+   * Mostly for internal use, you probably want to use `toReactPDFDocument` instead.
    */
   public transformStyledText(styledText: StyledText<S>) {
     const stylesArray = this.mapStyles(styledText.styles);
@@ -161,7 +161,7 @@ export class PDFExporter<
   }
 
   /**
-   * Mostly for internal use, you probably want to use `toBlob` or `toReactPDFDocument` instead.
+   * Mostly for internal use, you probably want to use `toReactPDFDocument` instead.
    */
   public async transformBlocks(
     blocks: Block<B, I, S>[], // Or BlockFromConfig<B[keyof B], I, S>?

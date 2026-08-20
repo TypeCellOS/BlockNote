@@ -22,7 +22,7 @@ import {
  * (mirrors how the other exporters scope their constructor options). Per-document
  * options live in {@link TypstDocumentOptions} and are passed to `toTypst`.
  */
-type Options = ExporterOptions & {
+export type TypstExporterOptions = ExporterOptions & {
   /**
    * Body font family, as Typst sees it (the font's internal family name). The
    * font must be loaded into the compiler. Defaults to BlockNote's "Inter 18pt".
@@ -116,7 +116,7 @@ export class TypstExporter<
   (inner: string) => string, // RS - style -> wrapper
   string // TS - styled text -> Typst expression
 > {
-  public readonly options: Options;
+  public readonly options: TypstExporterOptions;
 
   /**
    * Image bytes registered so far, keyed by content key (source URL or e.g.
@@ -148,7 +148,7 @@ export class TypstExporter<
       (inner: string) => string,
       string
     >["mappings"],
-    options?: Partial<Options>,
+    options?: Partial<TypstExporterOptions>,
   ) {
     const defaults = {
       fontFamily: "Inter 18pt",
@@ -158,7 +158,7 @@ export class TypstExporter<
       // Proxy cross-origin image fetches so any host works in the browser, not
       // only CORS-enabled ones (mirrors the pdf/docx exporters).
       resolveFileUrl: corsProxyResolveFileUrl,
-    } satisfies Partial<Options>;
+    } satisfies Partial<TypstExporterOptions>;
     const newOptions = { ...defaults, ...options };
     super(schema, mappings, newOptions);
     this.options = newOptions;

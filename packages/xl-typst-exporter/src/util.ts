@@ -1,10 +1,4 @@
-import {
-  Exporter,
-  ExporterOptions,
-  InlineContent,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { ExporterOptions } from "@blocknote/core";
 
 /** px -> pt (Typst works in points; BlockNote sizes are in px). */
 export const PT = 0.75;
@@ -61,30 +55,6 @@ export const TOGGLE_CHEVRON = `#box(baseline: 0.02em, move(dy: 0.04em, polygon(f
 /** A Typst string literal, e.g. `"foo"`. */
 export function strLit(s: string): string {
   return `"${escStr(s)}"`;
-}
-
-/**
- * Join an array of inline-content expressions into Typst markup.
- *
- * Each inline mapping returns a Typst *expression* (e.g. `strong("x")`,
- * `link("u")[...]`). Prefixing each with `#` turns it into markup. We render
- * text as Typst string literals (`#"..."`) rather than raw markup so we never
- * have to escape markup-significant characters (`#`, `/`, `*`, `_`, `@`, ...).
- */
-export function joinInline(
-  exporter: Exporter<
-    any,
-    InlineContentSchema,
-    StyleSchema,
-    any,
-    string,
-    any,
-    string
-  >,
-  inline: InlineContent<any, any>[],
-): string {
-  const pieces = exporter.transformInlineContent(inline) as string[];
-  return pieces.map((p) => "#" + p).join("");
 }
 
 /** Resolve a BlockNote color name to a hex string, or undefined for default. */

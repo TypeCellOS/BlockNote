@@ -121,34 +121,29 @@ import {
 
 ### PDF
 
-With the [PDF exporter](/docs/features/export/pdf), math blocks export as vector formulas — no rasterization, so they also work server-side out of the box. Inline math is rasterized to images that flow with the text:
+With the [PDF exporter](/docs/features/export/pdf) (or the standalone
+[Typst exporter](/docs/features/export/typst) — they share mappings), math
+blocks and inline math export as **native Typst equations**: real, selectable
+text, no rasterization, so they also work server-side out of the box:
 
 ```typescript
 import {
-  createInlineMathMapping,
+  inlineMathMapping,
   mathBlockMapping,
-} from "@blocknote/math-block/pdf-exporter";
+} from "@blocknote/math-block/typst-exporter";
 
-// Spread into the PDFExporter's mappings as for DOCX above - note that
-// inline math is a factory here: `math: createInlineMathMapping()`.
+// Spread into the PDFExporter's mappings as for DOCX above:
+// `mathBlock: mathBlockMapping` and `math: inlineMathMapping`.
 ```
 
-The inline math factory takes one option:
+The LaTeX is converted to Typst's math notation. Most KaTeX commands are
+covered; a valid formula using an uncovered command fails the export loudly
+(rather than silently exporting something else), while invalid LaTeX renders
+the error placeholder as in other formats.
 
-```typescript
-createInlineMathMapping(options?: {
-  /**
-   * Rasterizes the formula SVG to an image. Defaults to the built-in
-   * canvas rasterizer, which only works in the browser - when exporting
-   * server-side, pass one backed by e.g. `@resvg/resvg-js` or `sharp`;
-   * without it, a server-side export throws. The `RasterizeSVG` type is
-   * exported from the same subpath.
-   */
-  rasterize?: RasterizeSVG;
-});
-```
-
-Math blocks require the `@react-pdf/math` package (a peer dependency of the PDF mapping).
+The deprecated [react-pdf exporter](/docs/features/export/pdf#deprecated-the-react-pdf-exporter)'s
+mappings remain available from `@blocknote/math-block/pdf-exporter` during its
+deprecation window.
 
 ### Email
 

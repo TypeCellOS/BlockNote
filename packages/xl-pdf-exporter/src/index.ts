@@ -77,7 +77,7 @@ export class PDFExporter<
    */
   public async toBytes(
     blocks: Block<B, I, S>[],
-    options: PdfExportOptions,
+    options: PdfExportOptions = {},
     documentOptions?: TypstDocumentOptions,
   ): Promise<Uint8Array> {
     const { declarePdfUA: withDeclaration = true, ...compileOptions } = options;
@@ -113,7 +113,7 @@ export class PDFExporter<
   /** Export a document to a PDF Blob (e.g. for downloads / object URLs). */
   public async toBlob(
     blocks: Block<B, I, S>[],
-    options: PdfExportOptions,
+    options: PdfExportOptions = {},
     documentOptions?: TypstDocumentOptions,
   ): Promise<Blob> {
     const bytes = await this.toBytes(blocks, options, documentOptions);

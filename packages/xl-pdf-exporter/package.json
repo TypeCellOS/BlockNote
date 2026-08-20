@@ -17,19 +17,17 @@
   ],
   "keywords": [
     "pdf",
-    "react",
+    "pdf-ua",
+    "accessibility",
+    "tagged-pdf",
+    "typst",
     "javascript",
     "editor",
     "typescript",
     "prosemirror",
-    "wysiwyg",
-    "rich-text-editor",
-    "notion",
-    "yjs",
-    "block-based",
-    "tiptap"
+    "block-based"
   ],
-  "description": "A \"Notion-style\" block-based extensible text editor built on top of Prosemirror and Tiptap.",
+  "description": "Accessible (PDF/UA-1) PDF export for BlockNote documents, powered by Typst.",
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
@@ -45,11 +43,6 @@
       "types": "./types/src/react-pdf/index.d.ts",
       "import": "./dist/react-pdf.js",
       "require": "./dist/react-pdf.cjs"
-    },
-    "./style.css": {
-      "import": "./dist/style.css",
-      "require": "./dist/style.css",
-      "style": "./dist/style.css"
     }
   },
   "scripts": {
@@ -57,13 +50,11 @@
     "lint": "vp lint src",
     "test": "vp test --run",
     "test-watch": "vp test watch",
-    "clean": "rimraf dist && rimraf types",
-    "email": "email dev"
+    "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
     "@blocknote/core": "workspace:^",
     "@blocknote/xl-multi-column": "workspace:^",
-    "@react-pdf/renderer": "^4.5.1",
     "@blocknote/xl-typst-exporter": "workspace:^",
     "@myriaddreamin/typst.ts": "^0.8.0-rc3",
     "@myriaddreamin/typst-ts-web-compiler": "^0.8.0-rc3",
@@ -82,11 +73,24 @@
     "typescript": "^7.0.2",
     "vite-plus": "catalog:",
     "@myriaddreamin/typst-ts-node-compiler": "^0.8.0-rc3",
-    "@types/node": "22.13.13"
+    "@types/node": "22.13.13",
+    "@react-pdf/renderer": "^4.5.1"
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
-    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
+    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc",
+    "@react-pdf/renderer": "^4.5.1"
   },
-  "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"
+  "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d",
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "@react-pdf/renderer": {
+      "optional": true
+    }
+  }
 }

@@ -36,8 +36,8 @@ PDF/UA-1   ──►  verify with veraPDF --flavour ua1
 Why the last step exists: the published Typst wasm binding can produce a tagged
 PDF but does not expose the `--pdf-standard ua-1` export option, so two
 declarations (`/ViewerPreferences/DisplayDocTitle` and the `pdfuaid` XMP) are
-added in JS. Conformance is verified end-to-end in `src/pdfua/golden.test.ts`
-(runs veraPDF when it's installed).
+added in JS. Conformance is verified end-to-end in `src/pdfua/pdfua.test.ts`
+(gated on veraPDF).
 
 ## Usage
 

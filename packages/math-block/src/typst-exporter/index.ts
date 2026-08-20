@@ -117,15 +117,15 @@ export function inlineMathMapping(
 ): string {
   const source = inlineContent.content;
   if (!source.trim()) {
-    // Inline mappings return a Typst *expression*; an empty string literal
+    // Inline mappings return Typst *markup*; an empty string literal
     // renders nothing.
-    return `""`;
+    return `#""`;
   }
 
   const result = latexToTypstMath(source);
   if (result.error !== undefined) {
-    return errorText(exporter, source);
+    return `#${errorText(exporter, source)}`;
   }
 
-  return `math.equation(alt: ${strLit(source)}, $${result.math}$)`;
+  return `#math.equation(alt: ${strLit(source)}, $${result.math}$)`;
 }

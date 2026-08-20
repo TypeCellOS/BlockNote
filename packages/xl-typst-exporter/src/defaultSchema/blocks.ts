@@ -10,7 +10,7 @@ import {
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
 import type { TypstExporter } from "../typstExporter.js";
-import { colorHex, joinInline, PT, strLit, TOGGLE_CHEVRON } from "../util.js";
+import { colorHex, PT, strLit, TOGGLE_CHEVRON } from "../util.js";
 
 /** The props the media helpers read - a structural subset of the default
  * file-block props (the mapping's `BlockMapping` typing checks call sites). */
@@ -103,27 +103,34 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
   // not be empty - `applyBlockProps` drops the block wrapper for empty results
   // (so empty math/diagram blocks stay invisible) - so an empty string literal
   // stands in as the "blank line" content.
-  paragraph: (block, exporter) => joinInline(exporter, block.content) || '#""',
+  paragraph: (block, exporter) =>
+    exporter.transformInlineContent(block.content).join("") || '#""',
 
   heading: (block, exporter) =>
-    `#heading(level: ${block.props.level ?? 1}, outlined: true)[${joinInline(
-      exporter,
-      block.content,
-    )}]`,
+    `#heading(level: ${block.props.level ?? 1}, outlined: true)[${exporter
+      .transformInlineContent(block.content)
+      .join("")}]`,
 
   quote: (block, exporter) =>
-    `#quote(block: true)[${joinInline(exporter, block.content)}]`,
+    `#quote(block: true)[${exporter
+      .transformInlineContent(block.content)
+      .join("")}]`,
 
   // --- list items: return only the item BODY; transformBlocks groups runs of
   // consecutive items into a single Typst list()/enum() so the tag tree is a
   // proper L > LI structure. -------------------------------------------------
-  bulletListItem: (block, exporter) => joinInline(exporter, block.content),
-  numberedListItem: (block, exporter) => joinInline(exporter, block.content),
-  checkListItem: (block, exporter) => joinInline(exporter, block.content),
+  bulletListItem: (block, exporter) =>
+    exporter.transformInlineContent(block.content).join(""),
+  numberedListItem: (block, exporter) =>
+    exporter.transformInlineContent(block.content).join(""),
+  checkListItem: (block, exporter) =>
+    exporter.transformInlineContent(block.content).join(""),
   // toggle has no list semantics in PDF; render its label like a paragraph
   // (children are appended generically by transformBlocks).
   toggleListItem: (block, exporter) =>
-    `${TOGGLE_CHEVRON}${joinInline(exporter, block.content)}`,
+    `${TOGGLE_CHEVRON}${exporter
+      .transformInlineContent(block.content)
+      .join("")}`,
 
   // --- code -> Code -----------------------------------------------------------
   codeBlock: (block) => {
@@ -185,7 +192,7 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
       cell: (typeof rows)[number][number],
       isHeader: boolean,
     ) {
-      let inner = joinInline(exporter, cell.content);
+      let inner = exporter.transformInlineContent(cell.content).join("");
       const tc = colorHex(exporter, cell.props?.textColor, "text");
       if (tc) {
         inner = `#text(fill: rgb("${tc}"))[${inner}]`;
