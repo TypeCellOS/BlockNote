@@ -1,6 +1,7 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 import { PortalContext } from "../../editor/PortalContext.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
 import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
@@ -26,12 +27,38 @@ import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
  * {@link PortalContext}, which the generic UI adapters read to portal their
  * menus/popovers into it automatically.
  *
- * Shown while the virtual keyboard is open.
+ * Shown while the virtual keyboard is open and this editor holds focus. The
+ * focus check is essential when multiple editors share a page: the virtual
+ * keyboard is a single, page-wide signal, so without it every editor's
+ * controller would show its toolbar whenever any editor (or any other input)
+ * opened the keyboard. Touch toolbar buttons `preventDefault` on pointer down
+ * to keep the editor focused, so tapping them doesn't dismiss the toolbar.
  */
 export const MobileFormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
 }) => {
+  const editor = useBlockNoteEditor();
   const keyboardOpen = useVirtualKeyboard();
+
+  // Whether this editor holds focus, kept in sync via its `focus`/`blur`
+  // events so the toolbar shows/hides as focus enters or leaves the editor.
+  const [focused, setFocused] = useState(() => editor.isFocused());
+  useEffect(() => {
+    // Re-sync on mount in case focus changed before the listeners attached.
+    setFocused(editor.isFocused());
+
+    const onFocus = () => setFocused(true);
+    const onBlur = () => setFocused(false);
+
+    editor._tiptapEditor.on("focus", onFocus);
+    editor._tiptapEditor.on("blur", onBlur);
+
+    return () => {
+      editor._tiptapEditor.off("focus", onFocus);
+      editor._tiptapEditor.off("blur", onBlur);
+    };
+  }, [editor]);
+
   // The non-scrolling wrapper, published so buttons can portal their dropdowns
   // out of the horizontally scrolling toolbar. A callback ref into state so the
   // context updates once the element mounts.
@@ -39,7 +66,7 @@ export const MobileFormattingToolbarController = (props: {
     null,
   );
 
-  if (!keyboardOpen) {
+  if (!keyboardOpen || !focused) {
     return null;
   }
 
