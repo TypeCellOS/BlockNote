@@ -1,6 +1,6 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig } from "vite-plus";
+import { configDefaults, defineConfig } from "vite-plus";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
@@ -21,6 +21,9 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["./vitestSetup.ts"],
+    // `.browser.test` files need a real browser; the tests package's browser
+    // suite runs them.
+    exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
   },
   plugins: [webpackStats()],
   build: {
