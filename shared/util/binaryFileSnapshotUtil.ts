@@ -78,6 +78,10 @@ export async function toMatchBinaryFileSnapshot(
       const actualPath = /\.[^./]+$/.test(filepath)
         ? filepath.replace(/(\.[^./]+)$/, ".actual$1")
         : `${filepath}.actual`;
+      // A missing baseline may mean its directory is missing too - the
+      // diagnostic write must not itself throw ENOENT and mask the snapshot
+      // mismatch below.
+      fs.mkdirSync(path.dirname(actualPath), { recursive: true });
       fs.writeFileSync(actualPath, buffer);
     }
     throw new Error(`${filepath} not matching `);

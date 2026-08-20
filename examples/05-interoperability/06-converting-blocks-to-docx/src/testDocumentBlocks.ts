@@ -1,5 +1,5 @@
 // AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY.
-// Generated from shared/testDocumentBlocks.ts — run `npm run gen` to update.
+// Generated from shared/testDocumentBlocks.ts — run `pnpm run gen` to update.
 import type { PartialBlock } from "@blocknote/core";
 
 /**

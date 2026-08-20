@@ -28,7 +28,7 @@ const template = () => {
   );
   const source = fs.readFileSync(sharedFile, "utf-8");
   return `// AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY.
-// Generated from shared/testDocumentBlocks.ts — run \`npm run gen\` to update.
+// Generated from shared/testDocumentBlocks.ts — run \`pnpm run gen\` to update.
 ${source}`;
 };
 

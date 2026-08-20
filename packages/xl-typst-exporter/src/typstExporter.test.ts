@@ -305,6 +305,52 @@ describe("TypstExporter", () => {
     },
   );
 
+  it("keeps the default colors when a caller forwards undefined for them", async () => {
+    // A caller forwarding its own optional (`{ colors: maybeColors }`) must
+    // not erase the default palette - the constructor defaults per key.
+    const exporter = new TypstExporter(schema, typstDefaultSchemaMappings, {
+      colors: undefined,
+    });
+
+    const typ = await exporter.toTypst(
+      partialBlocksToBlocksForTesting(schema, [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "x", styles: { textColor: "red" } }],
+        },
+      ]),
+    );
+
+    // Colored through the default palette (COLORS_DEFAULT.red.text).
+    expect(typ).toContain('rgb("#e03e3e")');
+  });
+
+  it("renders header-column cells with the header treatment", async () => {
+    const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
+
+    const typ = await exporter.toTypst(
+      partialBlocksToBlocksForTesting(schema, [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            headerCols: 1,
+            rows: [{ cells: ["R1", "V1"] }, { cells: ["R2", "V2"] }],
+          },
+        },
+      ]),
+    );
+
+    // The first column is a header column: its cells are bold (the editor's
+    // header treatment), while the data cells stay plain...
+    expect(typ).toContain('#strong[#"R1"]');
+    expect(typ).toContain('#strong[#"R2"]');
+    expect(typ).not.toContain('#strong[#"V1"]');
+    expect(typ).not.toContain('#strong[#"V2"]');
+    // ...and with no header ROWS there is no table.header call.
+    expect(typ).not.toContain("table.header(");
+  });
+
   it("renders a placeholder figure for an image without a URL", async () => {
     const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
 

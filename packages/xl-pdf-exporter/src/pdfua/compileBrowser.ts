@@ -68,6 +68,17 @@ function fontFingerprint(bytes: Uint8Array): string {
   return `${bytes.length}:${hash}`;
 }
 
+// Canonicalizes a getModule result for the compatibility check below.
+// Strings compare by value on their own, but the equally-documented
+// `getModule: () => new URL(..., import.meta.url)` pattern returns a fresh
+// `URL` instance per call - comparing those by identity would spuriously
+// reject every compile after the first. URLs therefore compare by href;
+// other module forms (bytes, WebAssembly.Module, Response) keep reference
+// identity, as callers hold onto those.
+function moduleSourceKey(source: unknown): unknown {
+  return source instanceof URL ? source.href : source;
+}
+
 // The wasm compiler is a page-level singleton (typst.ts's own `$typst` is
 // module-global), so its init-time inputs — wasm module, font set, default
 // font preloading — are fixed by the first compile. A later compile that
@@ -100,12 +111,13 @@ async function getSnippet(options: TypstCompileOptions): Promise<TypstSnippet> {
       (f) => !configured!.fonts.has(fontFingerprint(f)),
     );
     // getModule is compared by its *resolved* source (the URL/module it
-    // returns), not by function identity - callers typically pass a fresh
-    // closure per call around the same URL. Omitting it after a first call
-    // that had one means "reuse what's loaded" and is fine.
+    // returns, canonicalized via `moduleSourceKey`), not by function
+    // identity - callers typically pass a fresh closure per call around the
+    // same URL. Omitting it after a first call that had one means "reuse
+    // what's loaded" and is fine.
     const moduleChanged =
       options.getModule !== undefined &&
-      options.getModule() !== configured.moduleSource;
+      moduleSourceKey(options.getModule()) !== configured.moduleSource;
     if (
       newFonts.length > 0 ||
       moduleChanged ||
@@ -147,7 +159,7 @@ async function getSnippet(options: TypstCompileOptions): Promise<TypstSnippet> {
   configured = {
     snippet: $typst,
     fonts: new Set(fonts.map(fontFingerprint)),
-    moduleSource: options.getModule?.(),
+    moduleSource: moduleSourceKey(options.getModule?.()),
     preloadDefaultFonts: options.preloadDefaultFonts !== false,
   };
   return configured.snippet;

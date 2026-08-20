@@ -187,6 +187,7 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
         ")"
       : String(ncol);
     const headerRows: number = data.headerRows ?? 0;
+    const headerCols: number = data.headerCols ?? 0;
 
     function renderCell(
       cell: (typeof rows)[number][number],
@@ -224,7 +225,10 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
 
     // Typst allows at most ONE table.header, which may span several rows -
     // all header-row cells go into a single call (tagged TH), body rows
-    // follow as plain cell lists.
+    // follow as plain cell lists. Cells in header COLUMNS get the same
+    // header treatment (bold, matching the editor and the other exporters);
+    // Typst's table.header only models header rows, so there is no per-cell
+    // TH tag to give them - the styling is what carries over.
     const headerCells = rows
       .slice(0, headerRows)
       .flatMap((cells) => cells.map((c) => renderCell(c, true)));
@@ -232,11 +236,17 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
       ...(headerCells.length
         ? [`  table.header(${headerCells.join(", ")}),`]
         : []),
-      ...rows
-        .slice(headerRows)
-        .map(
-          (cells) => `  ${cells.map((c) => renderCell(c, false)).join(", ")},`,
-        ),
+      ...rows.slice(headerRows).map((cells) => {
+        // The header-column check counts spanned tracks, not cell indexes -
+        // a merged cell before a header column must not shift the check.
+        let col = 0;
+        const rendered = cells.map((c) => {
+          const isHeader = col < headerCols;
+          col += getColspan(c);
+          return renderCell(c, isHeader);
+        });
+        return `  ${rendered.join(", ")},`;
+      }),
     ];
 
     return `#table(\n  columns: ${colSpec},\n  stroke: 0.5pt + luma(200),\n  inset: 6pt,\n${lines.join(

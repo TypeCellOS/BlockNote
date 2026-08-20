@@ -177,7 +177,11 @@ describe("pdf/ua-1: BlockNote -> Typst -> PDF (conformance + visual)", () => {
       "Start Docker - the visual snapshot rasterizes through a digest-pinned poppler container so the PNG baselines are byte-stable across environments.",
     );
     const dir = mkdtempSync(join(tmpdir(), "bn-visual-"));
-    const pages = rasterizePdf(tagged, dir);
+    // Rasterize the *final* PDF/UA artifact (post `declarePdfUA`), not the
+    // intermediate tagged PDF - the post-process is metadata-only, so the
+    // raster is identical, and this way a post-process regression that did
+    // alter page content would fail the visual snapshot too.
+    const pages = rasterizePdf(Buffer.from(ua), dir);
     expect(pages.length).toBeGreaterThan(0);
 
     // Compare each page against its committed baseline PNG; on mismatch the

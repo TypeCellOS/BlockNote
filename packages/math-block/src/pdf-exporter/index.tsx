@@ -68,6 +68,12 @@ function errorText(
  * });
  * ```
  */
+/**
+ * @deprecated Mapping for the react-pdf based exporter
+ * (`@blocknote/xl-pdf-exporter/react-pdf`), which is deprecated - use the
+ * Typst mapping from `@blocknote/math-block/typst-exporter` with the
+ * Typst-based `PDFExporter` instead.
+ */
 export function mathBlockMapping(
   block: MathBlock,
   exporter: Exporter<any, any, any, any, any, any, any>,

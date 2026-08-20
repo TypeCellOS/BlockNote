@@ -18,6 +18,33 @@ function loadFixture(): Uint8Array {
   return new Uint8Array(readFileSync(path));
 }
 
+// A minimal one-page PDF whose /Metadata stream holds the given XMP packet,
+// for exercising declarePdfUA against XMP shapes the Typst fixture cannot
+// produce (e.g. a pre-existing pdfuaid:part claim).
+async function pdfWithXmp(xmp: string): Promise<Uint8Array> {
+  const doc = await PDFDocument.create();
+  doc.addPage();
+  const bytes = new TextEncoder().encode(xmp);
+  doc.catalog.set(
+    PDFName.of("Metadata"),
+    doc.context.register(
+      PDFRawStream.of(
+        doc.context.obj({
+          Type: "Metadata",
+          Subtype: "XML",
+          Length: bytes.length,
+        }),
+        bytes,
+      ),
+    ),
+  );
+  return doc.save({ useObjectStreams: false });
+}
+
+function xmpWithDescription(content: string): string {
+  return `<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:pdfuaid="http://www.aiim.org/pdfua/ns/id/">${content}</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="r"?>`;
+}
+
 describe("declarePdfUA", () => {
   it("adds DisplayDocTitle + pdfuaid:part=1 to a tagged PDF", async () => {
     const out = await declarePdfUA(loadFixture());
@@ -51,5 +78,33 @@ describe("declarePdfUA", () => {
     const xmp = new TextDecoder().decode(meta.getContents());
     // not doubled
     expect(xmp.match(/<pdfuaid:part>/g)?.length).toBe(1);
+  });
+
+  it("keeps an existing PDF/UA-1 claim without doubling it", async () => {
+    const out = await declarePdfUA(
+      await pdfWithXmp(xmpWithDescription("<pdfuaid:part>1</pdfuaid:part>")),
+    );
+    const doc = await PDFDocument.load(out, { updateMetadata: false });
+    const meta = doc.context.lookup(
+      doc.catalog.get(PDFName.of("Metadata")),
+    ) as PDFRawStream;
+    const xmp = new TextDecoder().decode(meta.getContents());
+    expect(xmp.match(/<pdfuaid:part>/g)?.length).toBe(1);
+  });
+
+  it("rejects an existing claim of a different PDF/UA part", async () => {
+    await expect(
+      declarePdfUA(
+        await pdfWithXmp(xmpWithDescription("<pdfuaid:part>2</pdfuaid:part>")),
+      ),
+    ).rejects.toThrow("pdfuaid:part");
+  });
+
+  it("rejects an existing empty pdfuaid:part element", async () => {
+    await expect(
+      declarePdfUA(
+        await pdfWithXmp(xmpWithDescription("<pdfuaid:part></pdfuaid:part>")),
+      ),
+    ).rejects.toThrow("pdfuaid:part");
   });
 });

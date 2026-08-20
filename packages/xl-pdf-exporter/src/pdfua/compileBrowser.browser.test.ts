@@ -15,7 +15,14 @@ import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
 // purpose (`preloadDefaultFonts: false`, no font bytes): glyphs don't
 // matter here, and it keeps the suite offline.
 const OPTIONS = {
-  getModule: () => compilerWasmUrl,
+  // A fresh `URL` per call - the documented bundler pattern
+  // (`() => new URL(..., import.meta.url)`). The compiler compares
+  // getModule results across compiles to detect configuration changes, so
+  // every later test in this suite doubles as a regression test that
+  // equivalent-but-fresh URL objects are compared by value, not identity
+  // (identity comparison would reject each compile after the first as
+  // "already initialized with different options").
+  getModule: () => new URL(compilerWasmUrl, document.baseURI),
   preloadDefaultFonts: false,
 } as const;
 

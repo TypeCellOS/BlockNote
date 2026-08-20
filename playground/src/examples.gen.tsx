@@ -1144,7 +1144,7 @@ export const examples = {
           slug: "interoperability",
         },
         readme:
-          '> **Deprecated:** this example uses the react-pdf based exporter\n> (`@blocknote/xl-pdf-exporter/react-pdf`), which is deprecated and will be\n> removed after a few releases. Use the Typst-based `PDFExporter` instead -\n> see the "Exporting documents to tagged PDF (PDF/UA)" example - which\n> produces accessible, tagged PDF/UA-1 output.\n\nThis example exports the current document (all blocks) as an PDF file and downloads it to your computer.\n\n**Try it out:** Edit the document and click "Download .pdf" at the top to download the PDF file.',
+          '> **Deprecated:** this example uses the react-pdf based exporter\n> (`@blocknote/xl-pdf-exporter/react-pdf`), which is deprecated and will be\n> removed after a few releases. Use the Typst-based `PDFExporter` instead -\n> see the "Exporting documents to tagged PDF (PDF/UA)" example - which\n> produces accessible, tagged PDF/UA-1 output.\n\nThis example exports the current document (all blocks) as a PDF file and downloads it to your computer.\n\n**Try it out:** Edit the document and click "Download .pdf" at the top to download the PDF file.',
       },
       {
         projectSlug: "converting-blocks-to-docx",

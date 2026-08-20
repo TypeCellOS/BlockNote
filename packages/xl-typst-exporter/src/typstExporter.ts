@@ -150,16 +150,21 @@ export class TypstExporter<
     >["mappings"],
     options?: Partial<TypstExporterOptions>,
   ) {
-    const defaults = {
-      fontFamily: "Inter 18pt",
-      monoFontFamily: "Geist Mono",
-      fontSize: 12,
-      colors: COLORS_DEFAULT,
+    // Defaulted per key (not a bare spread of `options` over defaults):
+    // `Partial` admits explicitly-undefined entries - typically a caller
+    // forwarding its own optional, e.g. `{ colors: maybeColors }` - and a
+    // spread would let those erase the default, crashing later lookups like
+    // `options.colors[name]` whose types promise a value.
+    const newOptions = {
+      ...options,
+      fontFamily: options?.fontFamily ?? "Inter 18pt",
+      monoFontFamily: options?.monoFontFamily ?? "Geist Mono",
+      fontSize: options?.fontSize ?? 12,
+      colors: options?.colors ?? COLORS_DEFAULT,
       // Proxy cross-origin image fetches so any host works in the browser, not
       // only CORS-enabled ones (mirrors the pdf/docx exporters).
-      resolveFileUrl: corsProxyResolveFileUrl,
-    } satisfies Partial<TypstExporterOptions>;
-    const newOptions = { ...defaults, ...options };
+      resolveFileUrl: options?.resolveFileUrl ?? corsProxyResolveFileUrl,
+    };
     super(schema, mappings, newOptions);
     this.options = newOptions;
   }

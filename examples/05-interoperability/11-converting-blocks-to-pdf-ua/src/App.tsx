@@ -324,9 +324,13 @@ export default function App() {
       <div className="view-wrapper">
         <div className="view-label">
           {label}
-          <span className="view-label-download" onClick={onDownloadClick}>
+          <button
+            type="button"
+            className="view-label-download"
+            onClick={onDownloadClick}
+          >
             Download
-          </span>
+          </button>
         </div>
         <div className="view">
           {pdfUrl ? (

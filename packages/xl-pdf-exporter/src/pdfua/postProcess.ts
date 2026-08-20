@@ -110,16 +110,35 @@ function readMetadataXmp(doc: PDFDocument): string {
  *
  * Regex-based on purpose: a DOM round-trip isn't available in node and
  * re-serializing the whole packet risks perturbing metadata this code
- * doesn't understand. A packet without any description throws; the
+ * doesn't understand. A packet without any description throws (as does one
+ * already claiming a pdfuaid:part other than 1); the
  * long-term replacement is the compiler's own `--pdf-standard ua-1` flag
  * once the wasm binding exposes it (see the TODO in index.ts).
  */
 function withPdfUaIdentifier(xmp: string): string {
-  // Already identified - matched as the actual element/attribute form, not
-  // as a bare substring (document text merely *mentioning* "pdfuaid:part"
-  // must not skip the declaration).
-  if (/<pdfuaid:part[\s>]|pdfuaid:part\s*=/.test(xmp)) {
+  // Already identified as PDF/UA-1 (element or attribute form) - nothing to
+  // do. Matched as the actual element/attribute form, not as a bare
+  // substring (document text merely *mentioning* "pdfuaid:part" must not
+  // skip the declaration).
+  if (
+    /<pdfuaid:part\s*>\s*1\s*<\/pdfuaid:part>|pdfuaid:part\s*=\s*["']\s*1\s*["']/.test(
+      xmp,
+    )
+  ) {
     return xmp;
+  }
+
+  // Any other existing identifier - a different part, or an empty or
+  // otherwise unreadable value - is a conflicting claim. Keeping it would
+  // return a document that does not declare PDF/UA-1 as success, and
+  // rewriting a foreign value in place is exactly the kind of splice the
+  // regex approach must not attempt (see above) - so throw, per this
+  // module's contract.
+  if (/<pdfuaid:part[\s>]|pdfuaid:part\s*=/.test(xmp)) {
+    throw new Error(
+      "declarePdfUA: the document's XMP metadata already contains a " +
+        "pdfuaid:part identifier that does not declare PDF/UA-1",
+    );
   }
 
   // Find the first (outermost) description's open tag. Group 1 = its
