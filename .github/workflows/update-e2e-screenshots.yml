@@ -1,0 +1,62 @@
+# Regenerates the Linux screenshot baselines for the browser (e2e) suite in
+# the same Playwright container the e2e jobs use, and uploads them as an
+# artifact to download and commit. Linux baselines can otherwise only be
+# produced locally through docker; this is the push-button alternative.
+name: Update e2e screenshots
+
+on:
+  workflow_dispatch:
+    inputs:
+      filter:
+        description: "Test file filter (empty = all browser tests)"
+        required: false
+        default: "exporterImages"
+
+permissions:
+  contents: read
+
+jobs:
+  update-screenshots:
+    name: "Update screenshots"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 100
+          persist-credentials: false
+
+      - uses: voidzero-dev/setup-vp@313600b80b104eadebb9111787d37a2e83e014ca # v1.17.0
+        with:
+          node-version-file: ".node-version"
+          cache: true
+
+      - name: Install dependencies
+        run: vp install
+
+      # `-u` must come after the filter, and each browser runs separately so a
+      # failure in one doesn't stop the others' baselines from updating.
+      - name: Update screenshots (chromium)
+        run: HOME=/root vp test -c vite.config.browser.ts --run --browser chromium ${{ inputs.filter }} -u
+        working-directory: tests
+        continue-on-error: true
+      - name: Update screenshots (firefox)
+        run: HOME=/root vp test -c vite.config.browser.ts --run --browser firefox ${{ inputs.filter }} -u
+        working-directory: tests
+        continue-on-error: true
+      - name: Update screenshots (webkit)
+        run: HOME=/root vp test -c vite.config.browser.ts --run --browser webkit ${{ inputs.filter }} -u
+        working-directory: tests
+        continue-on-error: true
+
+      - name: Show changed baselines
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE" && git status --porcelain tests/src
+
+      - name: Upload updated screenshots
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: updated-screenshots
+          path: tests/src/**/__screenshots__/
+          retention-days: 7
