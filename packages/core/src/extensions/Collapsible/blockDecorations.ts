@@ -95,9 +95,10 @@ export const INVALIDATE_BLOCK_DECORATIONS = "bn-invalidate-block-decorations";
 export function createBlockDecorationPlugin(
   key: PluginKey<DecorationSet>,
   decorate: BlockDecorator,
-  // `decorations` is this plugin's own: it serves the set built above, so a
-  // caller passing one would silently replace it. Excluded rather than merged,
-  // since a caller wanting extra decorations should return them from `decorate`.
+  // `decorations` is this plugin's own: it serves the set built above. Excluded
+  // rather than merged, since a caller wanting extra decorations should return
+  // them from `decorate`. It's also spread ahead of `decorations` below, so an
+  // untyped caller can't replace the set and take the collapse controls with it.
   props?: Omit<EditorProps, "decorations">,
 ) {
   return new Plugin<DecorationSet>({
@@ -113,6 +114,6 @@ export function createBlockDecorationPlugin(
           : oldSet;
       },
     },
-    props: { decorations: (state) => key.getState(state), ...props },
+    props: { ...props, decorations: (state) => key.getState(state) },
   });
 }
