@@ -109,7 +109,6 @@
     "shiki": "^4.4.3",
     "tailwind-merge": "^3.4.0",
     "typescript-5": "npm:typescript@^5.9.3",
-    "y-partykit": "^0.0.25",
     "y-websocket": "^2.1.0",
     "yjs": "^13.6.27",
     "zod": "^4.3.5"

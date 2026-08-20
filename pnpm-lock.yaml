@@ -348,9 +348,6 @@ importers:
       typescript-5:
         specifier: npm:typescript@^5.9.3
         version: typescript@5.9.3
-      y-partykit:
-        specifier: ^0.0.25
-        version: 0.0.25
       y-websocket:
         specifier: ^2.1.0
         version: 2.1.0(yjs@13.6.30)
