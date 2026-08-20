@@ -1,3 +1,4 @@
+import { isPdf, TEST_PNG_BYTES } from "@shared/util/testBytesUtil.js";
 import { describe, expect, test } from "vite-plus/test";
 
 import { compileTypstToTaggedPdf } from "./compileBrowser.js";
@@ -18,23 +19,11 @@ const OPTIONS = {
   preloadDefaultFonts: false,
 } as const;
 
-// A 1x1 PNG asset, as the exporters register them.
-const PNG = Uint8Array.from(
-  atob(
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
-  ),
-  (c) => c.charCodeAt(0),
-);
-
-function isPdf(bytes: Uint8Array) {
-  return new TextDecoder().decode(bytes.slice(0, 5)) === "%PDF-";
-}
-
 describe("compileTypstToTaggedPdf", () => {
   test("compiles markup with mapped assets", { timeout: 60000 }, async () => {
     const pdf = await compileTypstToTaggedPdf(
       `#set document(title: "t")\nHello #image("/assets/a.png", width: 10pt)`,
-      { ...OPTIONS, assets: new Map([["/assets/a.png", PNG]]) },
+      { ...OPTIONS, assets: new Map([["/assets/a.png", TEST_PNG_BYTES]]) },
     );
     expect(isPdf(pdf)).toBe(true);
   });
@@ -46,11 +35,12 @@ describe("compileTypstToTaggedPdf", () => {
       // Shadow files are global compiler state; without serialization one
       // compile's resetShadow lands mid-flight in the other and it fails
       // with file-not-found (the debounced re-export scenario).
-      const compile = (path: string) =>
-        compileTypstToTaggedPdf(
+      function compile(path: string) {
+        return compileTypstToTaggedPdf(
           `#set document(title: "t")\n#image("${path}", width: 10pt)`,
-          { ...OPTIONS, assets: new Map([[path, PNG]]) },
+          { ...OPTIONS, assets: new Map([[path, TEST_PNG_BYTES]]) },
         );
+      }
       const [a, b] = await Promise.all([
         compile("/assets/one.png"),
         compile("/assets/two.png"),

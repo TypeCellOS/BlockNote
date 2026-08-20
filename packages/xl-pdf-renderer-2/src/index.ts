@@ -31,11 +31,16 @@ export {
  * -> declared PDF/UA-1.
  *
  * Concurrency: the shared compile stage is serialized internally (see
- * `compileTypstToTaggedPdf`), so overlapping exports are *safe* - but like
- * any async function, independent calls may complete out of call order.
- * Callers that only want the newest result (e.g. a live preview exporting
- * on every change) should guard for that themselves, as the pdf-ua example
- * does.
+ * `compileTypstToTaggedPdf`) and the exporter's asset registry is
+ * append-only, so overlapping exports are *safe* - but like any async
+ * function, independent calls may complete out of call order. Callers that
+ * only want the newest result (e.g. a live preview exporting on every
+ * change) should guard for that themselves, as the pdf-ua example does.
+ *
+ * Exporter lifetime: the registry accumulates for as long as the exporter
+ * lives, so when repeatedly exporting *changing* content, create a fresh
+ * exporter per export (construction is cheap) rather than reusing one -
+ * see the note on `TypstExporter`'s asset registry.
  *
  * Always verify output with veraPDF (`--flavour ua1`) in CI — this composes a
  * conformant document but does not itself guarantee conformance of arbitrary
@@ -55,11 +60,21 @@ export async function blocksToPdfUA<
   documentOptions?: TypstDocumentOptions,
 ): Promise<Uint8Array> {
   const typst = await exporter.toTypst(blocks, documentOptions);
+  // The images collected during the export are mapped into the compiler
+  // alongside (not instead of) any assets the caller supplied - e.g. an
+  // image referenced from the header/footer markup. A caller asset under the
+  // exporter's own key space would be silently shadowed by the merge, so
+  // that's rejected loudly instead.
+  for (const key of compileOptions.assets?.keys() ?? []) {
+    if (exporter.assetFiles.has(key)) {
+      throw new Error(
+        `blocksToPdfUA: the caller-supplied asset "${key}" collides with an ` +
+          `asset registered by the exporter - use a path outside /assets/`,
+      );
+    }
+  }
   const taggedPdf = await compileTypstToTaggedPdf(typst, {
     ...compileOptions,
-    // The images collected during the export are mapped into the compiler
-    // alongside (not instead of) any assets the caller supplied - e.g. an
-    // image referenced from the header/footer markup.
     assets: new Map([...(compileOptions.assets ?? []), ...exporter.assetFiles]),
   });
   // TODO: collapse this into one step once the web compiler supports native

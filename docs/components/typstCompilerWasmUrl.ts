@@ -1,9 +1,11 @@
 // The Typst compiler wasm for the docs build (see next.config.ts): the
 // pdf-ua example bundles it via Vite's `?url`; under the docs site the
-// import is aliased here, resolving to the same version from the CDN (the
-// docs are online by definition, and inlining the ~29MB wasm is not). The
-// version comes from the installed package so the two can't skew.
-import pkg from "@myriaddreamin/typst-ts-web-compiler/package.json";
-
-const url = `https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler@${pkg.version}/pkg/typst_ts_web_compiler_bg.wasm`;
+// import is aliased here. `new URL(..., import.meta.url)` is Turbopack's
+// static-asset reference: the ~29MB wasm is emitted as a hashed static
+// file and served by the site itself - no CDN involved, and the version
+// can't skew from the installed package because it IS the installed file.
+const url = new URL(
+  "../node_modules/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm",
+  import.meta.url,
+).href;
 export default url;

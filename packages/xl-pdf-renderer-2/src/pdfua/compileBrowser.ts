@@ -27,7 +27,11 @@ export interface TypstCompileOptions {
    */
   emojiFont?: Uint8Array | Uint8Array[];
   /**
-   * Fetch Typst's default font assets (Libertinus Serif, etc.).
+   * Fetch Typst's default font assets (Libertinus Serif, New Computer Modern
+   * Math, etc.) from the jsdelivr CDN. Pass `false` for fully offline,
+   * bundled-fonts-only compiles - then supply every font the document needs
+   * via {@link fonts}, *including a math font* (e.g. NewCMMath-Regular.otf)
+   * when the document contains equations.
    * @default true
    */
   preloadDefaultFonts?: boolean;
@@ -49,20 +53,35 @@ function fontList(options: TypstCompileOptions): Uint8Array[] {
   return [...(options.fonts ?? []), ...emojiFonts];
 }
 
+// A cheap content fingerprint for font byte arrays, so byte-identical fonts
+// pass the compatibility check even as fresh Uint8Array instances (a caller
+// refetching the same files per export, test retries, HMR) - reference
+// identity would spuriously reject them. Length plus the first bytes is
+// discriminating enough: a font file's table directory (offsets, checksums)
+// sits at the start, so different fonts diverge immediately.
+function fontFingerprint(bytes: Uint8Array): string {
+  let hash = 0;
+  const end = Math.min(bytes.length, 256);
+  for (let i = 0; i < end; i++) {
+    hash = (hash * 31 + bytes[i]) | 0;
+  }
+  return `${bytes.length}:${hash}`;
+}
+
 // The wasm compiler is a page-level singleton (typst.ts's own `$typst` is
 // module-global), so its init-time inputs — wasm module, font set, default
 // font preloading — are fixed by the first compile. A later compile that
 // tries to CHANGE them throws a descriptive error instead of silently
 // compiling with the first call's configuration: pass every font the page
-// will need on the first call, reusing the same byte arrays across calls.
-// (These constraints — and that a failed wasm load can only be recovered by
-// a page reload — are inherent to the `$typst` snippet singleton; lifting
-// them means moving to typst.ts's per-instance compiler API.)
+// will need on the first call. (These constraints — and that a failed wasm
+// load can only be recovered by a page reload — are inherent to the
+// `$typst` snippet singleton; lifting them means moving to typst.ts's
+// per-instance compiler API.)
 let configured:
   | {
       snippet: TypstSnippet;
-      fonts: Set<Uint8Array>;
-      hasGetModule: boolean;
+      fonts: Set<string>;
+      moduleSource: unknown;
       preloadDefaultFonts: boolean;
     }
   | undefined;
@@ -77,18 +96,26 @@ let queue: Promise<unknown> = Promise.resolve();
 
 async function getSnippet(options: TypstCompileOptions): Promise<TypstSnippet> {
   if (configured) {
-    const newFonts = fontList(options).filter((f) => !configured!.fonts.has(f));
+    const newFonts = fontList(options).filter(
+      (f) => !configured!.fonts.has(fontFingerprint(f)),
+    );
+    // getModule is compared by its *resolved* source (the URL/module it
+    // returns), not by function identity - callers typically pass a fresh
+    // closure per call around the same URL. Omitting it after a first call
+    // that had one means "reuse what's loaded" and is fine.
+    const moduleChanged =
+      options.getModule !== undefined &&
+      options.getModule() !== configured.moduleSource;
     if (
       newFonts.length > 0 ||
-      Boolean(options.getModule) !== configured.hasGetModule ||
+      moduleChanged ||
       (options.preloadDefaultFonts !== false) !== configured.preloadDefaultFonts
     ) {
       throw new Error(
         "The Typst compiler is already initialized with different options. " +
           "Its wasm module and fonts are loaded once, on the first compile - " +
           "pass every font (and the getModule/preloadDefaultFonts settings) " +
-          "the page will need on the first compileTypstToTaggedPdf call, " +
-          "reusing the same byte arrays across calls.",
+          "the page will need on the first compileTypstToTaggedPdf call.",
       );
     }
     return configured.snippet;
@@ -102,6 +129,13 @@ async function getSnippet(options: TypstCompileOptions): Promise<TypstSnippet> {
   const providers = [];
   if (options.preloadDefaultFonts !== false) {
     providers.push(TypstSnippet.preloadFontAssets());
+  } else {
+    // The explicit opt-out marker matters: without a provider whose options
+    // say `assets: false`, the compiler driver force-loads its default
+    // 'text' font assets (Libertinus, New CM Math, ...) from the jsdelivr
+    // CDN even when no preload provider was given - exactly the network
+    // dependency this option exists to remove.
+    providers.push(TypstSnippet.disableDefaultFontAssets());
   }
   const fonts = fontList(options);
   for (const font of fonts) {
@@ -112,8 +146,8 @@ async function getSnippet(options: TypstCompileOptions): Promise<TypstSnippet> {
   }
   configured = {
     snippet: $typst,
-    fonts: new Set(fonts),
-    hasGetModule: Boolean(options.getModule),
+    fonts: new Set(fonts.map(fontFingerprint)),
+    moduleSource: options.getModule?.(),
     preloadDefaultFonts: options.preloadDefaultFonts !== false,
   };
   return configured.snippet;
@@ -142,8 +176,13 @@ export async function compileTypstToTaggedPdf(
     }
     return pdf;
   });
-  // Keep the chain alive whether this compile succeeds or fails; the failure
-  // still propagates through `run` to this caller.
-  queue = run.catch(() => undefined);
+  // Keep the chain alive whether this compile succeeds or fails (the failure
+  // still propagates through `run` to this caller) - and resolve it to
+  // undefined either way, so the module-global chain doesn't pin the last
+  // compile's multi-MB PDF bytes in memory for the page's lifetime.
+  queue = run.then(
+    () => undefined,
+    () => undefined,
+  );
   return run;
 }

@@ -108,8 +108,17 @@ export class ODTExporter<
     const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);
 
+    // A hard line break (shift+enter) arrives as "\n" inside the text. ODF
+    // collapses raw whitespace, so explicit <text:line-break/> elements are
+    // emitted between the lines instead (same as the code block mapping).
+    const text = styledText.text
+      .split("\n")
+      .flatMap((line, index) =>
+        index === 0 ? [line] : [<text:line-break key={index} />, line],
+      );
+
     if (Object.keys(styles).length === 0) {
-      return styledText.text;
+      return text;
     }
 
     // Like `registerStyle`, identical style combinations are deduplicated -
@@ -129,7 +138,7 @@ export class ODTExporter<
       this.registeredStyleNames.set(key, styleName);
     }
 
-    return <text:span text:style-name={styleName}>{styledText.text}</text:span>;
+    return <text:span text:style-name={styleName}>{text}</text:span>;
   }
 
   public async transformBlocks(

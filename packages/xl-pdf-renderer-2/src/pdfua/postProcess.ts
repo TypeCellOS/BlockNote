@@ -110,19 +110,21 @@ function readMetadataXmp(doc: PDFDocument): string {
  *
  * Regex-based on purpose: a DOM round-trip isn't available in node and
  * re-serializing the whole packet risks perturbing metadata this code
- * doesn't understand. The known failure modes throw (see the end); the
+ * doesn't understand. A packet without any description throws; the
  * long-term replacement is the compiler's own `--pdf-standard ua-1` flag
  * once the wasm binding exposes it (see the TODO in index.ts).
  */
 function withPdfUaIdentifier(xmp: string): string {
-  // Already identified (e.g. a PDF that went through this before).
-  if (/pdfuaid:part/.test(xmp)) {
+  // Already identified - matched as the actual element/attribute form, not
+  // as a bare substring (document text merely *mentioning* "pdfuaid:part"
+  // must not skip the declaration).
+  if (/<pdfuaid:part[\s>]|pdfuaid:part\s*=/.test(xmp)) {
     return xmp;
   }
 
-  // Step 1: find the first description's open tag. Group 1 = its attributes,
-  // group 2 = "/" when the element is self-closing (attribute-only XMP,
-  // common from non-Typst producers).
+  // Find the first (outermost) description's open tag. Group 1 = its
+  // attributes, group 2 = "/" when the element is self-closing
+  // (attribute-only XMP, common from non-Typst producers).
   const openTag = /<rdf:Description\b([^>]*?)(\/?)>/.exec(xmp);
   if (!openTag) {
     throw new Error(
@@ -131,43 +133,23 @@ function withPdfUaIdentifier(xmp: string): string {
   }
   const [match, attrs, selfClosing] = openTag;
 
-  // Step 2: make sure the `pdfuaid` prefix is bound on the element.
+  // Bind the `pdfuaid` prefix on the element, then rebuild it with the
+  // identifier as its FIRST child (property order in RDF is insignificant,
+  // and inserting at the open tag keeps this a single replace - appending
+  // before a closing tag could land inside a *nested* description, e.g. an
+  // XMP struct value). A self-closing element is expanded so the property
+  // has somewhere to live. The replacement goes through a function because
+  // the spliced text is document-derived - as a replacement *string*,
+  // `$`-patterns in it (e.g. `$&`) would be expanded by String.replace.
   const attrsWithNs = /pdfuaid/.test(attrs)
     ? attrs
     : `${attrs} xmlns:pdfuaid="${PDFUA_NS}"`;
   const part = `<pdfuaid:part>1</pdfuaid:part>`;
-
-  // Step 3: rebuild the element with the identifier inside. A self-closing
-  // element is expanded so the property has somewhere to live. Replacements
-  // go through functions because the spliced text is document-derived - as a
-  // replacement *string*, `$`-patterns in it (e.g. `$&`) would be expanded
-  // by String.replace.
-  let result: string;
-  if (selfClosing) {
-    result = xmp.replace(
-      match,
-      () => `<rdf:Description${attrsWithNs}>${part}</rdf:Description>`,
-    );
-  } else {
-    const withNs = xmp.replace(match, () => `<rdf:Description${attrsWithNs}>`);
-    result = withNs.replace(
-      /<\/rdf:Description>/,
-      () => `${part}</rdf:Description>`,
-    );
-    if (result === withNs) {
-      throw new Error(
-        "declarePdfUA: the document's XMP <rdf:Description> has no closing tag",
-      );
-    }
-  }
-
-  // Step 4: the whole point of the rewrite is the identifier - if the
-  // splicing misfired on XMP these regexes mishandled, fail loudly rather
-  // than return an undeclared PDF as success.
-  if (!/pdfuaid:part/.test(result)) {
-    throw new Error(
-      "declarePdfUA: failed to inject the PDF/UA identifier into the XMP metadata",
-    );
-  }
-  return result;
+  return xmp.replace(
+    match,
+    () =>
+      `<rdf:Description${attrsWithNs}>${part}${
+        selfClosing ? "</rdf:Description>" : ""
+      }`,
+  );
 }

@@ -40,19 +40,34 @@ import {
 // Bundle the Typst compiler wasm so it resolves locally (no CDN / importer).
 import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
 // Bundle BlockNote's fonts (Inter + Geist Mono) + a color emoji font so the
-// export matches the editor and works fully offline. Noto Color Emoji is the
-// pure-COLRv1 build (~5MB), which Typst renders in color. `new URL(...,
-// import.meta.url)` is the bundler-portable asset reference (Vite and the
-// docs site's Turbopack both emit the file and return its URL).
-const fontUrl = (file: string) =>
-  new URL(`./fonts/${file}`, import.meta.url).href;
-const interRegular = fontUrl("Inter_18pt-Regular.ttf");
-const interItalic = fontUrl("Inter_18pt-Italic.ttf");
-const interBold = fontUrl("Inter_18pt-Bold.ttf");
-const interBoldItalic = fontUrl("Inter_18pt-BoldItalic.ttf");
-const geistMono = fontUrl("GeistMono-Regular.ttf");
-const notoColorEmoji = fontUrl("Noto-COLRv1.ttf");
-import { useEffect, useMemo, useRef, useState } from "react";
+// export matches the editor and works fully offline, plus a math font (New
+// Computer Modern Math, Typst's default) for the math blocks - with
+// `preloadDefaultFonts: false` no fonts come from a CDN, so every needed
+// font must be bundled. Noto Color Emoji is the pure-COLRv1 build (~5MB),
+// which Typst renders in color. `new URL(<literal>, import.meta.url)` is
+// the bundler-portable asset reference (Vite and the docs site's Turbopack
+// both emit the file and return its URL) - but only with a full string
+// literal per file: a shared helper with a template path breaks Turbopack's
+// static analysis (every URL silently resolves to one file).
+const interRegular = new URL("./fonts/Inter_18pt-Regular.ttf", import.meta.url)
+  .href;
+const interItalic = new URL("./fonts/Inter_18pt-Italic.ttf", import.meta.url)
+  .href;
+const interBold = new URL("./fonts/Inter_18pt-Bold.ttf", import.meta.url).href;
+const interBoldItalic = new URL(
+  "./fonts/Inter_18pt-BoldItalic.ttf",
+  import.meta.url,
+).href;
+const geistMono = new URL("./fonts/GeistMono-Regular.ttf", import.meta.url)
+  .href;
+const notoColorEmoji = new URL("./fonts/Noto-COLRv1.ttf", import.meta.url).href;
+const newCMMathRegular = new URL(
+  "./fonts/NewCMMath-Regular.otf",
+  import.meta.url,
+).href;
+const newCMMathBook = new URL("./fonts/NewCMMath-Book.otf", import.meta.url)
+  .href;
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "./styles.css";
 
@@ -64,6 +79,8 @@ const BODY_FONT_URLS = [
   interBold,
   interBoldItalic,
   geistMono,
+  newCMMathRegular,
+  newCMMathBook,
 ];
 async function fetchFont(url: string) {
   const res = await fetch(url);
@@ -93,8 +110,8 @@ function loadFonts() {
 }
 
 /**
- * Exports the given document to a PDF/UA object URL, re-exporting
- * (debounced) whenever `blocks` changes.
+ * Exports the given document to a PDF/UA object URL, re-exporting whenever
+ * `blocks` changes.
  *
  * The effect-with-cleanup idiom keeps only the newest result: when a newer
  * version (or unmount) invalidates the effect, the cleanup marks the running
@@ -104,26 +121,22 @@ function loadFonts() {
  * display is this component's concern, not the exporter's.
  */
 function usePdfUA(
-  exporter: TypstExporter<any, any, any>,
+  makeExporter: () => TypstExporter<any, any, any>,
   blocks: Block<any, any, any>[],
 ) {
   const [pdfUrl, setPdfUrl] = useState<string>();
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading",
   );
-  const isFirstExport = useRef(true);
 
   useEffect(() => {
     let stale = false;
     setStatus("loading");
-    // Debounce edits; the initial export runs immediately.
-    const delay = isFirstExport.current ? 0 : 600;
-    isFirstExport.current = false;
-    const timer = setTimeout(async () => {
+    void (async () => {
       try {
         const { fonts, emojiFont } = await loadFonts();
         const bytes = await blocksToPdfUA(
-          exporter,
+          makeExporter(),
           blocks,
           {
             getModule: () => compilerWasmUrl,
@@ -155,12 +168,11 @@ function usePdfUA(
         console.error(e);
         setStatus("error");
       }
-    }, delay);
+    })();
     return () => {
       stale = true;
-      clearTimeout(timer);
     };
-  }, [exporter, blocks]);
+  }, [makeExporter, blocks]);
 
   // Each object URL is revoked when replaced by the next one (and the last
   // one on unmount).
@@ -246,9 +258,10 @@ export default function App() {
     [editor],
   );
 
-  // The exporter is reused across exports so its image/diagram asset cache
-  // survives re-exports (the schema, mappings and options are all static).
-  const exporter = useMemo(
+  // A fresh exporter per export: its asset registry is append-only for the
+  // exporter's lifetime, so reusing one across re-exports would accumulate
+  // every image/diagram variant it has ever rendered.
+  const makeExporter = useCallback(
     () =>
       new TypstExporter(
         editor.schema,
@@ -273,13 +286,19 @@ export default function App() {
     [editor],
   );
 
-  // The document snapshot driving the export - updated on every change, so
-  // the export effect depends on the data it exports.
+  // The document snapshot driving the export - the export effect depends on
+  // the data it exports. Updated debounced: reading `editor.document`
+  // converts the whole document to blocks, so it shouldn't run (and the
+  // export shouldn't restart) on every keystroke.
   const [blocks, setBlocks] = useState(() => editor.document);
-  const { pdfUrl, status } = usePdfUA(exporter, blocks);
+  const { pdfUrl, status } = usePdfUA(makeExporter, blocks);
 
-  // Re-export whenever the document changes (debounced inside the hook).
-  const onChange = () => setBlocks(editor.document);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(debounceTimer.current), []);
+  const onChange = () => {
+    clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => setBlocks(editor.document), 600);
+  };
 
   const onDownloadClick = () => {
     if (!pdfUrl) {

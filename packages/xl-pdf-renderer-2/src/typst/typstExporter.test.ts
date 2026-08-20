@@ -193,6 +193,62 @@ describe("TypstExporter", () => {
     expect(asset!.byteLength).toBeGreaterThan(0);
   });
 
+  it("keeps nested children outside the parent's alignment scope", async () => {
+    // Typst's `align` styles everything in its scope, but in the editor a
+    // block's alignment applies to its own content only - indenting a block
+    // under a right-aligned heading must not right-align the child.
+    const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
+    const typ = await exporter.toTypst(
+      partialBlocksToBlocksForTesting(schema, [
+        {
+          type: "heading",
+          props: { level: 1, textAlignment: "right" },
+          content: "Heading right",
+          children: [
+            {
+              type: "heading",
+              props: { level: 2 },
+              content: "Heading 2",
+            },
+          ],
+        },
+      ]),
+    );
+
+    // The parent's own content is aligned...
+    expect(typ).toContain(
+      '#align(right)[#heading(level: 1, outlined: true)[#"Heading right"]]',
+    );
+    // ...while the indented child sits outside that scope, unaligned.
+    const child = '#heading(level: 2, outlined: true)[#"Heading 2"]';
+    expect(typ).toContain(child);
+    expect(typ.indexOf("#pad(left: 1.5em)")).toBeLessThan(typ.indexOf(child));
+    expect(typ).not.toContain(`#align(right)[#block`);
+  });
+
+  it("rejects caller assets that collide with exporter-registered ones", async () => {
+    const { blocksToPdfUA } = await import("../index.js");
+    const exporter = new TypstExporter(schema, typstDefaultSchemaMappings, {
+      resolveFileUrl: testResolveFileUrl,
+    });
+
+    // The document's image registers `/assets/asset-0`; a caller asset under
+    // the same key would be silently shadowed by the merge, so the export
+    // must fail loudly instead (before ever reaching the compiler).
+    await expect(
+      blocksToPdfUA(
+        exporter,
+        partialBlocksToBlocksForTesting(schema, [
+          {
+            type: "image",
+            props: { url: "https://placehold.co/60x60.png", caption: "Cap" },
+          },
+        ]),
+        { assets: new Map([["/assets/asset-0", new Uint8Array([1])]]) },
+      ),
+    ).rejects.toThrow('the caller-supplied asset "/assets/asset-0" collides');
+  });
+
   it("fails the export when an image can't be resolved", async () => {
     // An unreachable image is an environment failure, not expected input -
     // the export fails loudly instead of silently degrading the document

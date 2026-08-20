@@ -600,7 +600,8 @@
             </table:table>
             <text:p text:style-name="Standard">
                 A hard line break
-within a single paragraph
+                <text:line-break></text:line-break>
+                within a single paragraph
             </text:p>
             <text:p text:style-name="Codeblock">
                 const helloWorld = (message) =&gt; {

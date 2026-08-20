@@ -1026,8 +1026,9 @@
         </w:tbl>
         <w:p>
             <w:r>
-                <w:t xml:space="preserve">A hard line break
-within a single paragraph</w:t>
+                <w:t xml:space="preserve">A hard line break</w:t>
+                <w:cr/>
+                <w:t xml:space="preserve">within a single paragraph</w:t>
             </w:r>
         </w:p>
         <w:p>

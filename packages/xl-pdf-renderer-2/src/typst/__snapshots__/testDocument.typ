@@ -38,7 +38,7 @@
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Paragraph"]
 
-#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[]
+#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#""]
 
 #block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"Heading"]]
 
@@ -131,7 +131,7 @@
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#link("https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3")[#"Open audio file"]#linebreak()#text(size: 9.6pt, fill: luma(110))[#"From https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3"]]
 
-#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[]
+#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#""]
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"audio.mp3"#linebreak()#text(size: 9.6pt, fill: luma(110))[#"Audio file caption"]]
 

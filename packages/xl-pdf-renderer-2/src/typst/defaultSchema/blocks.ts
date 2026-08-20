@@ -2,6 +2,8 @@ import {
   BlockMapping,
   createPageBreakBlockConfig,
   DefaultBlockSchema,
+  getColspan,
+  getRowspan,
   mapTableCell,
   StyledText,
   TableContent,
@@ -97,7 +99,11 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
   string
 > = {
   // --- text blocks -> P / Hn / BlockQuote -------------------------------------
-  paragraph: (block, exporter) => joinInline(exporter, block.content),
+  // An empty paragraph is a blank line in the editor. Its mapping result must
+  // not be empty - `applyBlockProps` drops the block wrapper for empty results
+  // (so empty math/diagram blocks stay invisible) - so an empty string literal
+  // stands in as the "blank line" content.
+  paragraph: (block, exporter) => joinInline(exporter, block.content) || '#""',
 
   heading: (block, exporter) =>
     `#heading(level: ${block.props.level ?? 1}, outlined: true)[${joinInline(
@@ -151,13 +157,19 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
   // --- table -> Table > TR > (TH|TD) -----------------------------------------
   table: (block, exporter) => {
     const data = block.content as TableContent<any, any>;
-    const rows = data.rows ?? [];
+    // Cells normalized once up front (a cell may be a bare content array);
+    // the track count and the rendered cells both read from this.
+    const rows = (data.rows ?? []).map((row) =>
+      row.cells.map((c) => mapTableCell(c)),
+    );
     // The track count must count *spanned* tracks, not cells - a merged
     // first-row cell covers several columns.
-    const rowSpanWidth = (row: (typeof rows)[number]) =>
-      row.cells.reduce((n, c) => n + (mapTableCell(c).props?.colspan ?? 1), 0);
     const ncol =
-      data.columnWidths?.length || Math.max(1, ...rows.map(rowSpanWidth));
+      data.columnWidths?.length ||
+      Math.max(
+        1,
+        ...rows.map((cells) => cells.reduce((n, c) => n + getColspan(c), 0)),
+      );
     const colSpec = data.columnWidths?.length
       ? "(" +
         data.columnWidths
@@ -169,11 +181,10 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
       : String(ncol);
     const headerRows: number = data.headerRows ?? 0;
 
-    const renderCell = (
-      c: (typeof rows)[number]["cells"][number],
+    function renderCell(
+      cell: (typeof rows)[number][number],
       isHeader: boolean,
-    ) => {
-      const cell = mapTableCell(c);
+    ) {
       let inner = joinInline(exporter, cell.content);
       const tc = colorHex(exporter, cell.props?.textColor, "text");
       if (tc) {
@@ -187,11 +198,11 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
       const opts: string[] = [];
       // Merged cells span extra tracks; Typst then flows the remaining cells
       // into the correct columns (the covered cells are absent from the row).
-      if ((cell.props?.colspan ?? 1) > 1) {
-        opts.push(`colspan: ${cell.props.colspan}`);
+      if (getColspan(cell) > 1) {
+        opts.push(`colspan: ${getColspan(cell)}`);
       }
-      if ((cell.props?.rowspan ?? 1) > 1) {
-        opts.push(`rowspan: ${cell.props.rowspan}`);
+      if (getRowspan(cell) > 1) {
+        opts.push(`rowspan: ${getRowspan(cell)}`);
       }
       const bc = colorHex(exporter, cell.props?.backgroundColor, "background");
       if (bc) {
@@ -202,14 +213,14 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
         opts.push(`align: ${align}`);
       }
       return opts.length ? `table.cell(${opts.join(", ")})${body}` : body;
-    };
+    }
 
     // Typst allows at most ONE table.header, which may span several rows -
     // all header-row cells go into a single call (tagged TH), body rows
     // follow as plain cell lists.
     const headerCells = rows
       .slice(0, headerRows)
-      .flatMap((row) => row.cells.map((c) => renderCell(c, true)));
+      .flatMap((cells) => cells.map((c) => renderCell(c, true)));
     const lines = [
       ...(headerCells.length
         ? [`  table.header(${headerCells.join(", ")}),`]
@@ -217,8 +228,7 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
       ...rows
         .slice(headerRows)
         .map(
-          (row) =>
-            `  ${row.cells.map((c) => renderCell(c, false)).join(", ")},`,
+          (cells) => `  ${cells.map((c) => renderCell(c, false)).join(", ")},`,
         ),
     ];
 

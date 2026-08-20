@@ -72,7 +72,13 @@ export async function toMatchBinaryFileSnapshot(
 
   if (option === "none" || (option === "new" && fileBuffer !== undefined)) {
     if (options.writeActualOnMismatch) {
-      fs.writeFileSync(filepath.replace(/(\.[^.]+)$/, ".actual$1"), buffer);
+      // `name.ext` -> `name.actual.ext`; an extension-less path gets a plain
+      // `.actual` suffix (the no-match case must never fall through to the
+      // baseline path itself).
+      const actualPath = /\.[^./]+$/.test(filepath)
+        ? filepath.replace(/(\.[^./]+)$/, ".actual$1")
+        : `${filepath}.actual`;
+      fs.writeFileSync(actualPath, buffer);
     }
     throw new Error(`${filepath} not matching `);
   }

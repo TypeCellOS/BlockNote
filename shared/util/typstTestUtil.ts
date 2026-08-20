@@ -1,5 +1,15 @@
 import { resolve } from "node:path";
 
+type NodeCompilerInstance =
+  import("@myriaddreamin/typst-ts-node-compiler").NodeCompiler;
+
+// One shared compiler for the common (default-font) case - creating a
+// NodeCompiler scans system fonts, which would dominate test time if every
+// compile created its own. Its shadow files are reset per call; a call with
+// custom `fontBlobs` gets a throwaway compiler instead, since fonts are
+// fixed at creation.
+let defaultCompiler: NodeCompilerInstance | undefined;
+
 /**
  * Compiles Typst source with the node compiler for tests, mapping an
  * exporter's collected `assetFiles` into the compiler first.
@@ -24,9 +34,16 @@ export async function compileTypstForTesting(
 ): Promise<Buffer> {
   const { NodeCompiler } =
     await import("@myriaddreamin/typst-ts-node-compiler");
-  const compiler = options.fontBlobs?.length
-    ? NodeCompiler.create({ fontArgs: [{ fontBlobs: options.fontBlobs }] })
-    : NodeCompiler.create();
+  let compiler: NodeCompilerInstance;
+  if (options.fontBlobs?.length) {
+    compiler = NodeCompiler.create({
+      fontArgs: [{ fontBlobs: options.fontBlobs }],
+    });
+  } else {
+    defaultCompiler ??= NodeCompiler.create();
+    compiler = defaultCompiler;
+    compiler.resetShadow();
+  }
   for (const [path, bytes] of options.assets ?? []) {
     compiler.mapShadow(
       resolve(process.cwd(), path.replace(/^\/+/, "")),
@@ -36,10 +53,8 @@ export async function compileTypstForTesting(
   return compiler.pdf(
     { mainFileContent: typst },
     {
-      ...(options.pdfStandard ? { pdfStandard: options.pdfStandard } : {}),
-      ...(options.creationTimestamp !== undefined
-        ? { creationTimestamp: options.creationTimestamp }
-        : {}),
+      pdfStandard: options.pdfStandard,
+      creationTimestamp: options.creationTimestamp,
     },
   );
 }

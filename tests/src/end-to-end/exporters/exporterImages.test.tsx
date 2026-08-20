@@ -29,6 +29,10 @@ import {
 import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
 // eslint-disable-next-line import/no-unresolved
 import interRegularUrl from "@shared/assets/fonts/inter/Inter_18pt-Regular.ttf?url";
+// Typst needs a math-capable font for equations; with `preloadDefaultFonts:
+// false` (no CDN fonts) it must be bundled like the body font.
+import newCMMathBookUrl from "@shared/assets/fonts/newcm/NewCMMath-Book.otf?url";
+import newCMMathRegularUrl from "@shared/assets/fonts/newcm/NewCMMath-Regular.otf?url";
 import {
   PDFExporter,
   pdfDefaultSchemaMappings,
@@ -36,6 +40,7 @@ import {
 import { pdf } from "@react-pdf/renderer";
 import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
 import { decodeAndSample } from "@shared/util/browserImageTestUtil.js";
+import { isPdf } from "@shared/util/testBytesUtil.js";
 import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
 import { afterEach, describe, expect, test } from "vite-plus/test";
 import { browserName } from "../../utils/context.js";
@@ -209,17 +214,19 @@ describe("pdf/ua export through the complete typst pipeline in the browser", () 
       // Compile through the real wasm pipeline (the node unit suites
       // substitute the node compiler; only this covers what browsers run),
       // then declare PDF/UA - the same steps blocksToPdfUA composes.
-      const font = new Uint8Array(
-        await (await fetch(interRegularUrl)).arrayBuffer(),
+      const fonts = await Promise.all(
+        [interRegularUrl, newCMMathRegularUrl, newCMMathBookUrl].map(
+          async (url) => new Uint8Array(await (await fetch(url)).arrayBuffer()),
+        ),
       );
       const tagged = await compileTypstToTaggedPdf(typ, {
         getModule: () => compilerWasmUrl,
-        fonts: [font],
+        fonts,
         preloadDefaultFonts: false,
         assets: exporter.assetFiles,
       });
       const ua = await declarePdfUA(tagged);
-      expect(new TextDecoder().decode(ua.slice(0, 5))).toBe("%PDF-");
+      expect(isPdf(ua)).toBe(true);
       expect(ua.byteLength).toBeGreaterThan(10_000);
     },
   );
@@ -285,7 +292,7 @@ describe("pdf export through a complete exporter in the browser", () => {
       // which invokes the inline math's rasterizing src function.
       const blob = await pdf(transformed as any).toBlob();
       const bytes = new Uint8Array(await blob.arrayBuffer());
-      expect(new TextDecoder().decode(bytes.slice(0, 5))).toBe("%PDF-");
+      expect(isPdf(bytes)).toBe(true);
 
       // Render the produced PDF's pages with pdf.js (pure JS - the reason
       // the old Node-side attempt at this failed was native canvas

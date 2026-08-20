@@ -119,10 +119,16 @@ export class TypstExporter<
   public readonly options: Options;
 
   /**
-   * Image bytes collected during export, keyed by source URL. Typst can't
-   * inline raster bytes, so each image is referenced by a virtual path in the
-   * markup and its bytes must be mapped into the compiler's filesystem (see
-   * {@link assetFiles} and `blocksToPdfUA`). Mirrors the ODT exporter's picture
+   * Image bytes registered so far, keyed by content key (source URL or e.g.
+   * a diagram source). Typst can't inline raster bytes, so each image is
+   * referenced by a virtual path in the markup and its bytes must be mapped
+   * into the compiler's filesystem (see {@link assetFiles} and
+   * `blocksToPdfUA`). Append-only for the exporter's lifetime - which keeps
+   * overlapping exports and pre-registered assets safe (paths never dangle
+   * or get reassigned). The flip side: re-exporting *changing* content on
+   * one long-lived exporter accumulates every asset it has ever rendered
+   * (e.g. one SVG per diagram edit), so create a fresh exporter per export
+   * instead - construction is cheap. Mirrors the ODT exporter's picture
    * collection.
    */
   private readonly assets = new Map<
@@ -259,6 +265,9 @@ export class TypstExporter<
     );
     let content = body;
     if (children.length) {
+      // As in `wrapBlock`: the item's alignment wraps its own body only, so
+      // nested children keep their own alignment (matching the editor).
+      content = this.applyOwnAlignment(block.props, content);
       // Separate the item body from its children with a blank line so a child
       // *paragraph* becomes its own block (a single "\n" is only a soft break in
       // Typst markup); nested lists carry their own indentation either way.
@@ -272,7 +281,12 @@ export class TypstExporter<
       // any nested children are wrapped together so children nest under the item.
       content = `#list(marker: ${checkboxMarker(checked ?? false)}, [${content}])`;
     }
-    return this.applyBlockProps(block.props, content);
+    return this.applyBlockProps(
+      children.length
+        ? { ...block.props, textAlignment: undefined }
+        : block.props,
+      content,
+    );
   }
 
   /**
@@ -331,11 +345,40 @@ export class TypstExporter<
     }
     let inner = self;
     if (children.length) {
+      // Alignment scopes to the block's *own* content: Typst's `align`/`par`
+      // style everything in their scope, but in the editor nested children
+      // keep their own alignment. So with children present the alignment
+      // wraps `self` here, and is withheld from the outer wrapper below.
+      inner = this.applyOwnAlignment(block.props, inner);
       inner += "\n#pad(left: 1.5em)[\n" + children.join("\n\n") + "\n]";
     }
     // Headings get extra top padding (the editor's ~18px heading top spacing).
     const extraTop = block.type === "heading" ? "8pt" : undefined;
-    return this.applyBlockProps(block.props, inner, { extraTop });
+    return this.applyBlockProps(
+      children.length
+        ? { ...block.props, textAlignment: undefined }
+        : block.props,
+      inner,
+      { extraTop },
+    );
+  }
+
+  /**
+   * The alignment part of `applyBlockProps`, for wrapping a parent's own
+   * content when its children must stay outside the alignment scope.
+   */
+  private applyOwnAlignment(
+    props: { textAlignment?: string },
+    s: string,
+  ): string {
+    if (props?.textAlignment === "justify") {
+      return `#par(justify: true)[${s}]`;
+    }
+    const align = props?.textAlignment;
+    if (align === "right" || align === "center") {
+      return `#align(${align})[${s}]`;
+    }
+    return s;
   }
 
   /**
@@ -354,9 +397,12 @@ export class TypstExporter<
     s: string,
     opts?: { extraTop?: string },
   ): string {
-    // An empty body still gets the block wrapper: an empty paragraph is a
-    // blank line in the editor, and the wrapper's vertical inset is what
-    // preserves it (the other exporters emit an empty paragraph likewise).
+    // A mapping that rendered nothing stays invisible (an empty math or
+    // diagram block must not become a stray padded box) - the paragraph
+    // mapping itself emits a sentinel for the blank-line case.
+    if (!s) {
+      return s;
+    }
     // Same color resolution the style mapping uses for inline text/highlight.
     const tc = colorHex(this, props?.textColor, "text");
     const bc = colorHex(this, props?.backgroundColor, "background");
@@ -460,8 +506,10 @@ export class TypstExporter<
       return cached.path;
     }
     const blob = await this.resolveFile(url);
-    const bytes = new Uint8Array(await blob.arrayBuffer());
-    return this.registerImageBytes(url, bytes);
+    return this.registerImageBytes(
+      url,
+      new Uint8Array(await blob.arrayBuffer()),
+    );
   }
 
   /**

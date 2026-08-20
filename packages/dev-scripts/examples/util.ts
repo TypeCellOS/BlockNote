@@ -230,10 +230,29 @@ export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
   return groupsWithTitles;
 }
 
-export type Files = {
-  filename: string;
-  code: string;
-}[];
+// Example files copied into generated trees verbatim (fonts, images, ...) -
+// reading these as UTF-8 text would corrupt every byte >= 0x80 (each becomes
+// the U+FFFD replacement character).
+const BINARY_EXTENSIONS = new Set([
+  ".gif",
+  ".ico",
+  ".jpeg",
+  ".jpg",
+  ".otf",
+  ".pdf",
+  ".png",
+  ".ttf",
+  ".wasm",
+  ".webp",
+  ".woff",
+  ".woff2",
+]);
+
+export type ProjectFile =
+  | { filename: string; kind: "text"; code: string }
+  | { filename: string; kind: "binary"; sourcePath: string };
+
+export type Files = ProjectFile[];
 
 export function getProjectFiles(project: Project): Files {
   const dir = path.resolve("../..", project.pathFromRoot, "src");
@@ -243,8 +262,12 @@ export function getProjectFiles(project: Project): Files {
   });
   return files.map((fullPath) => {
     const filename = fullPath.substring(dir.length);
+    if (BINARY_EXTENSIONS.has(path.extname(fullPath).toLowerCase())) {
+      return { filename, kind: "binary" as const, sourcePath: fullPath };
+    }
     return {
       filename,
+      kind: "text" as const,
       code: fs.readFileSync(fullPath, "utf-8"),
     };
   });

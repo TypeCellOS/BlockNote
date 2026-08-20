@@ -1,9 +1,6 @@
 import { withSentryConfig } from "@sentry/nextjs";
 import { createMDX } from "fumadocs-mdx/next";
 import { NextConfig } from "next";
-import { createRequire } from "node:module";
-
-const require = createRequire(import.meta.url);
 import { redirects } from "./redirects";
 
 const withMDX = createMDX();
@@ -28,33 +25,15 @@ const config = {
   turbopack: {
     resolveAlias: {
       "@myriaddreamin/typst-ts-renderer": "./components/typstRendererStub.ts",
+      // Both key forms on purpose: Turbopack matches the alias key against
+      // the request with its query in some resolution paths and without it
+      // in others, so covering `/wasm` and `/wasm?url` makes the demo's
+      // `?url` import resolve in both.
       "@myriaddreamin/typst-ts-web-compiler/wasm":
         "./components/typstCompilerWasmUrl.ts",
       "@myriaddreamin/typst-ts-web-compiler/wasm?url":
         "./components/typstCompilerWasmUrl.ts",
     },
-  },
-  webpack: (webpackConfig) => {
-    // The generated example demos are written for Vite, where `?url` asset
-    // imports (fonts, the Typst compiler wasm) resolve to a URL string. Give
-    // webpack the same semantics so those demos compile here too.
-    webpackConfig.module.rules.push({
-      resourceQuery: /^\?url$/,
-      type: "asset/resource",
-    });
-    webpackConfig.resolve.alias = {
-      ...webpackConfig.resolve.alias,
-      // The Typst compiler package's canvas-renderer entry dynamically
-      // imports this optional peer; the pdf-ua demo only compiles (never
-      // renders to canvas), so it isn't installed - stub it out rather than
-      // letting webpack's static resolution fail the build.
-      "@myriaddreamin/typst-ts-renderer": false,
-      // Resolve the compiler's `./wasm` exports subpath to the file
-      // directly - webpack fails to resolve the subpath from the demo tree.
-      "@myriaddreamin/typst-ts-web-compiler/wasm":
-        require.resolve("@myriaddreamin/typst-ts-web-compiler/wasm"),
-    };
-    return webpackConfig;
   },
   images: {
     remotePatterns: [

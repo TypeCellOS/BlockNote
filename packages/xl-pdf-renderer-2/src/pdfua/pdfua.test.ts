@@ -42,9 +42,54 @@ function requireTool(command: string, args: string[], installHint: string) {
     execFileSync(command, args, { stdio: "ignore" });
   } catch {
     throw new Error(
-      `\`${command}\` is required by this test but not on PATH. ${installHint}`,
+      `\`${command} ${args.join(" ")}\` failed - it is required by this test. ${installHint}`,
     );
   }
+}
+
+// The rasterizer for the visual snapshots, as a digest-pinned container
+// (mirroring the veraPDF image in tests/scripts/install-pdf-tooling.sh):
+// the PNG baselines are compared byte-exactly, so every environment - a
+// macOS laptop, CI, next year's CI - must run the *identical* poppler
+// build. `--platform linux/amd64` below keeps even the binary the same on
+// Apple Silicon (via Rosetta). Repoint deliberately, regenerating the
+// baselines (`vp test --run src/pdfua/pdfua.test.ts -u`) in the same
+// change. install-pdf-tooling.sh greps this constant to pre-pull the image
+// on CI.
+const POPPLER_IMAGE =
+  "minidocks/poppler@sha256:0817047a6d6078f1af9931860646e8c21234c0c1777d2f05b79df8434cb194de"; // :latest as of 2026-08-20
+
+/** Rasterizes each page to `page-N.png` in `dir`, returning the file names. */
+function rasterizePdf(pdf: Buffer, dir: string): string[] {
+  writeFileSync(join(dir, "doc.pdf"), pdf);
+  // The host user's uid/gid, so the container-written PNGs are readable and
+  // cleanable by the test process on Linux bind mounts.
+  const user = process.getuid
+    ? ["--user", `${process.getuid()}:${process.getgid!()}`]
+    : [];
+  execFileSync(
+    "docker",
+    [
+      "run",
+      "--rm",
+      "--platform",
+      "linux/amd64",
+      ...user,
+      "-v",
+      `${dir}:/data`,
+      POPPLER_IMAGE,
+      "pdftoppm",
+      "-png",
+      "-r",
+      "96",
+      "/data/doc.pdf",
+      "/data/page",
+    ],
+    { stdio: "ignore" },
+  );
+  return readdirSync(dir)
+    .filter((f) => f.endsWith(".png"))
+    .sort();
 }
 
 function veraPdfVerdict(pdf: Uint8Array): string {
@@ -125,22 +170,12 @@ describe("pdf/ua-1: BlockNote -> Typst -> PDF (conformance + visual)", () => {
 
   it("matches the per-page visual snapshot", async () => {
     requireTool(
-      "pdftoppm",
-      ["-v"],
-      "Install poppler (`brew install poppler` / `apt install poppler-utils`) - it rasterizes the visual snapshots.",
+      "docker",
+      ["info"],
+      "Start Docker - the visual snapshot rasterizes through a digest-pinned poppler container so the PNG baselines are byte-stable across environments.",
     );
     const dir = mkdtempSync(join(tmpdir(), "bn-visual-"));
-    writeFileSync(join(dir, "doc.pdf"), tagged);
-    execFileSync("pdftoppm", [
-      "-png",
-      "-r",
-      "96",
-      join(dir, "doc.pdf"),
-      join(dir, "page"),
-    ]);
-    const pages = readdirSync(dir)
-      .filter((f) => f.endsWith(".png"))
-      .sort();
+    const pages = rasterizePdf(tagged, dir);
     expect(pages.length).toBeGreaterThan(0);
 
     // Compare each page against its committed baseline PNG; on mismatch the

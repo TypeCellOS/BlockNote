@@ -45,9 +45,16 @@ export default Component;`,
     written,
   );
 
-  projectFiles.forEach(({ filename, code }) => {
-    const target = path.join(componentTarget, filename);
-    writeGeneratedFile(target, code, written);
+  projectFiles.forEach((file) => {
+    const target = path.join(componentTarget, file.filename);
+    if (file.kind === "binary") {
+      // Byte-for-byte - a text round-trip would corrupt these (and they
+      // don't go through the formatter, so they're not tracked as written).
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.copyFileSync(file.sourcePath, target);
+      return;
+    }
+    writeGeneratedFile(target, file.code, written);
   });
 }
 
@@ -126,10 +133,14 @@ async function generateExampleGroupsData(
       showStackBlitzLink: project.config.stackBlitz ?? true,
       pathFromRoot: project.pathFromRoot,
       files: Object.fromEntries(
-        getProjectFiles(project).map((file) => [
-          file.filename.substring(1), // remove leading slash
-          file.code,
-        ]),
+        getProjectFiles(project)
+          // Binary assets (fonts, images) are copied into the demo tree but
+          // aren't part of the displayed source code.
+          .filter((file) => file.kind === "text")
+          .map((file) => [
+            file.filename.substring(1), // remove leading slash
+            file.code,
+          ]),
       ),
     })),
   }));

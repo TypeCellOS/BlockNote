@@ -35,6 +35,7 @@
     "@blocknote/xl-multi-column": "workspace:*",
     "@blocknote/xl-odt-exporter": "workspace:*",
     "@blocknote/xl-pdf-exporter": "workspace:*",
+    "@blocknote/xl-pdf-renderer-2": "workspace:*",
     "@floating-ui/react": "^0.27.18",
     "@fumadocs/base-ui": "16.5.0",
     "@liveblocks/client": "^3.19.5",
@@ -47,6 +48,8 @@
     "@marsidev/react-turnstile": "^1.4.2",
     "@mui/icons-material": "^5.16.1",
     "@mui/material": "^5.16.1",
+    "@myriaddreamin/typst-ts-web-compiler": "^0.8.0-rc3",
+    "@myriaddreamin/typst.ts": "^0.8.0-rc3",
     "@orama/orama": "^3.1.18",
     "@polar-sh/better-auth": "^1.6.4",
     "@polar-sh/sdk": "^0.42.2",
@@ -112,10 +115,7 @@
     "y-partykit": "^0.0.25",
     "y-websocket": "^2.1.0",
     "yjs": "^13.6.27",
-    "zod": "^4.3.5",
-    "@blocknote/xl-pdf-renderer-2": "workspace:*",
-    "@myriaddreamin/typst.ts": "^0.8.0-rc3",
-    "@myriaddreamin/typst-ts-web-compiler": "^0.8.0-rc3"
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@blocknote/code-block": "workspace:*",
