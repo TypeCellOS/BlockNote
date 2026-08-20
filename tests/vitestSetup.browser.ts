@@ -72,7 +72,12 @@ const CONSOLE_WARN_DENYLIST: RegExp[] = [/\[y\/prosemirror\]/];
 
 function formatConsoleArg(arg: unknown): string {
   if (arg instanceof Error) {
-    return arg.stack ?? String(arg);
+    // V8 stacks begin with the "Name: message" line, but WebKit and Firefox
+    // stacks contain only frames — compose both so allowlist patterns can
+    // always match against the message, whatever the engine.
+    const head = String(arg);
+    const stack = arg.stack ?? "";
+    return stack.startsWith(head) ? stack : `${head}\n${stack}`;
   }
   if (typeof arg === "string") {
     return arg;
