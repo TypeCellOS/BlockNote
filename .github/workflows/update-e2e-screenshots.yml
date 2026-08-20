@@ -11,6 +11,11 @@ on:
         description: "Test file filter (empty = all browser tests)"
         required: false
         default: "exporterImages"
+  # workflow_dispatch only works once the file is on the default branch;
+  # until then, touching this file re-triggers a run on the feature branch.
+  push:
+    paths:
+      - ".github/workflows/update-e2e-screenshots.yml"
 
 permissions:
   contents: read
@@ -39,15 +44,15 @@ jobs:
       # `-u` must come after the filter, and each browser runs separately so a
       # failure in one doesn't stop the others' baselines from updating.
       - name: Update screenshots (chromium)
-        run: HOME=/root vp test -c vite.config.browser.ts --run --browser chromium ${{ inputs.filter }} -u
+        run: HOME=/root vp test -c vite.config.browser.ts --run --browser chromium ${{ inputs.filter || 'exporterImages' }} -u
         working-directory: tests
         continue-on-error: true
       - name: Update screenshots (firefox)
-        run: HOME=/root vp test -c vite.config.browser.ts --run --browser firefox ${{ inputs.filter }} -u
+        run: HOME=/root vp test -c vite.config.browser.ts --run --browser firefox ${{ inputs.filter || 'exporterImages' }} -u
         working-directory: tests
         continue-on-error: true
       - name: Update screenshots (webkit)
-        run: HOME=/root vp test -c vite.config.browser.ts --run --browser webkit ${{ inputs.filter }} -u
+        run: HOME=/root vp test -c vite.config.browser.ts --run --browser webkit ${{ inputs.filter || 'exporterImages' }} -u
         working-directory: tests
         continue-on-error: true
 
