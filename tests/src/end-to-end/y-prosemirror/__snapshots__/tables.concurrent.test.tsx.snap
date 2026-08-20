@@ -290,16 +290,6 @@ exports[`concurrent: A adds a column, B adds a row 4`] = `
         >
           <tableParagraph>B3</tableParagraph>
         </tableCell>
-        <tableCell
-          backgroundColor="default"
-          colspan="1"
-          colwidth="null"
-          rowspan="1"
-          textAlignment="left"
-          textColor="default"
-        >
-          <tableParagraph></tableParagraph>
-        </tableCell>
       </tableRow>
     </table>
   </blockContainer>
@@ -413,15 +403,6 @@ exports[`concurrent: A adds a column, B adds a row 5`] = `
                 </y-attributed-insert>
               </tableCell>
             </y-attributed-insert>
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
-            >
-              <tableParagraph></tableParagraph>
-            </tableCell>
           </tableRow>
         </y-attributed-insert>
       </table>
@@ -720,16 +701,6 @@ exports[`concurrent: A adds a row, B adds a column 4`] = `
         >
           <tableParagraph>B3</tableParagraph>
         </tableCell>
-        <tableCell
-          backgroundColor="default"
-          colspan="1"
-          colwidth="null"
-          rowspan="1"
-          textAlignment="left"
-          textColor="default"
-        >
-          <tableParagraph></tableParagraph>
-        </tableCell>
       </tableRow>
     </table>
   </blockContainer>
@@ -843,15 +814,6 @@ exports[`concurrent: A adds a row, B adds a column 5`] = `
                 </y-attributed-insert>
               </tableCell>
             </y-attributed-insert>
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
-            >
-              <tableParagraph></tableParagraph>
-            </tableCell>
           </tableRow>
         </y-attributed-insert>
       </table>
@@ -1523,16 +1485,6 @@ exports[`sequential: A adds a column then a row, B adds a column 4`] = `
         >
           <tableParagraph>C3</tableParagraph>
         </tableCell>
-        <tableCell
-          backgroundColor="default"
-          colspan="1"
-          colwidth="null"
-          rowspan="1"
-          textAlignment="left"
-          textColor="default"
-        >
-          <tableParagraph></tableParagraph>
-        </tableCell>
       </tableRow>
     </table>
   </blockContainer>
@@ -1691,15 +1643,6 @@ exports[`sequential: A adds a column then a row, B adds a column 5`] = `
                 </y-attributed-insert>
               </tableCell>
             </y-attributed-insert>
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
-            >
-              <tableParagraph></tableParagraph>
-            </tableCell>
           </tableRow>
         </y-attributed-insert>
       </table>
@@ -2062,16 +2005,6 @@ exports[`sequential: A adds a row then a column, B adds a row 4`] = `
         >
           <tableParagraph>D2</tableParagraph>
         </tableCell>
-        <tableCell
-          backgroundColor="default"
-          colspan="1"
-          colwidth="null"
-          rowspan="1"
-          textAlignment="left"
-          textColor="default"
-        >
-          <tableParagraph></tableParagraph>
-        </tableCell>
       </tableRow>
     </table>
   </blockContainer>
@@ -2234,15 +2167,6 @@ exports[`sequential: A adds a row then a column, B adds a row 5`] = `
                 </y-attributed-insert>
               </tableCell>
             </y-attributed-insert>
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
-            >
-              <tableParagraph></tableParagraph>
-            </tableCell>
           </tableRow>
         </y-attributed-insert>
       </table>
