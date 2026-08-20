@@ -2,6 +2,7 @@ import { findChildrenInRange } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { getNodeId } from "../../api/getBlockInfoFromPos.js";
+import { getChangedRange } from "../../api/getChangedRange.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 
 const PLUGIN_KEY = new PluginKey(`previous-blocks`);
@@ -72,9 +73,10 @@ export const PreviousBlockTypeExtension = createExtension(() => {
               return prev;
             }
 
-            // Only check nodes affected by the transaction, not the entire document.
-            // changedRange() is O(steps) unlike tiptap's getChangedRanges which is O(steps²).
-            const newRange = transaction.changedRange();
+            // Only check nodes in the changed range, not the whole document.
+            // getChangedRange() also covers attribute-only steps (AttrStep), so a
+            // block whose `level`/`index` changes with no content edit is caught.
+            const newRange = getChangedRange(transaction);
             if (!newRange) {
               return prev;
             }

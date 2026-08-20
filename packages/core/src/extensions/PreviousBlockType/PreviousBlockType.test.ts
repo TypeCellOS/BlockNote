@@ -96,4 +96,25 @@ describe("PreviousBlockType: scoped traversal", () => {
     ).length;
     expect(trackedBlockCount).toBeLessThan(10);
   });
+
+  it("detects attribute-only changes (heading level) that emit an AttrStep", () => {
+    const editor = createEditorWithBlocks(100, "heading");
+
+    // Changing only a heading's level (type stays "heading") emits an AttrStep,
+    // whose StepMap is empty — so ProseMirror's changedRange() returns null and
+    // the change would be missed unless the scoped range also covers AttrSteps.
+    const firstBlock = editor.document[0];
+    editor.updateBlock(firstBlock, { props: { level: 2 } } as any);
+
+    const state = getPreviousBlockTypePluginState(editor);
+
+    expect(state.updatedBlocks.size).toBe(1);
+    expect(state.updatedBlocks.has(firstBlock.id)).toBe(true);
+
+    // Still scoped to the changed range, not all 100 blocks.
+    const trackedBlockCount = Object.keys(
+      state.currentTransactionOldBlockAttrs,
+    ).length;
+    expect(trackedBlockCount).toBeLessThan(10);
+  });
 });
