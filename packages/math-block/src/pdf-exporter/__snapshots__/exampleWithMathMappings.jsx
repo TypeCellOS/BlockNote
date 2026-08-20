@@ -11,7 +11,7 @@
       paddingTop: 35
     }}
   >
-    <React.Fragment key=".1:$math-block">
+    <React.Fragment key=".1:$0">
       <VIEW
         style={{
           alignItems: undefined,
@@ -32,7 +32,7 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:$paragraph-with-inline-math">
+    <React.Fragment key=".1:$1">
       <VIEW
         style={{
           alignItems: undefined,
