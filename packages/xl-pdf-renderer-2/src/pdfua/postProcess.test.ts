@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { PDFDict, PDFDocument, PDFName, PDFRawStream } from "pdf-lib";
+import { PDFDict, PDFDocument, PDFName, PDFRawStream } from "@cantoo/pdf-lib";
 import { describe, expect, it } from "vite-plus/test";
 import { declarePdfUA } from "./postProcess.js";
 

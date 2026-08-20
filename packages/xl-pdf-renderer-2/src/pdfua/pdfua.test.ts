@@ -16,7 +16,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { PDFDict, PDFDocument, PDFName } from "pdf-lib";
+import { PDFDict, PDFDocument, PDFName } from "@cantoo/pdf-lib";
 import { beforeAll, describe, expect, it } from "vite-plus/test";
 import { typstDefaultSchemaMappings } from "../typst/defaultSchema/index.js";
 import { TypstExporter } from "../typst/typstExporter.js";

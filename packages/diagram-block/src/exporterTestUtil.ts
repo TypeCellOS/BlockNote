@@ -39,6 +39,19 @@ export const renderInvalidDiagram: RenderDiagram = async () => ({
   error: "No diagram type detected",
 });
 
+// An SVG-producing stub, standing in for the browser `renderDiagramToSVG`
+// default of the Typst exporter mapping.
+export const renderDiagramSVG: RenderDiagram = async () => ({
+  image: {
+    mimeType: "image/svg+xml",
+    data: new TextEncoder().encode(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="50"><rect width="100" height="50" fill="#eee"/><text x="10" y="30">Hi</text></svg>',
+    ),
+    width: 100,
+    height: 50,
+  },
+});
+
 export async function zipEntryContent(
   zip: globalThis.Blob,
   filename: string,

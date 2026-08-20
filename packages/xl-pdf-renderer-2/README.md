@@ -22,7 +22,7 @@ Typst markup
    │  compileTypstToTaggedPdf()      (wasm Typst engine, client-side)
    ▼
 tagged PDF
-   │  declarePdfUA()                 (pdf-lib; adds the UA-1 declaration)
+   │  declarePdfUA()                 (@cantoo/pdf-lib; adds the UA-1 declaration)
    ▼
 PDF/UA-1   ──►  verify with veraPDF --flavour ua1
 ```
@@ -59,6 +59,41 @@ Lower-level building blocks (`toTypst`, `compileTypstToTaggedPdf`,
 `declarePdfUA`) are exported individually if you need a server-side or custom
 compile step.
 
+### Math & diagram blocks
+
+`@blocknote/math-block` and `@blocknote/diagram-block` ship Typst mappings
+(mirroring their docx/odt/pdf ones). Math renders as _native Typst equations_
+(real text, converted from LaTeX with `tex2typst`) and diagrams as embedded
+_vector SVG_ (labels as SVG text in the document's font, crisp at any zoom) —
+both carrying alt text, as PDF/UA requires:
+
+```ts
+import { diagramBlockMapping } from "@blocknote/diagram-block/typst-exporter";
+import {
+  inlineMathMapping,
+  mathBlockMapping,
+} from "@blocknote/math-block/typst-exporter";
+
+new TypstExporter(schema, {
+  ...typstDefaultSchemaMappings,
+  blockMapping: {
+    ...typstDefaultSchemaMappings.blockMapping,
+    mathBlock: mathBlockMapping,
+    diagram: diagramBlockMapping,
+  },
+  inlineContentMapping: {
+    ...typstDefaultSchemaMappings.inlineContentMapping,
+    math: inlineMathMapping,
+  },
+});
+```
+
+### CJK / additional scripts
+
+Like the react-pdf exporter's `fonts` + `fontFamily` options: load the extra
+font's bytes via the compile options' `fonts`, and declare the fallback list on
+the exporter — `fontFamily: ["Inter 18pt", "Noto Sans SC"]`.
+
 ## PDF/UA notes
 
 - **Alt text:** every figure must have non-empty alt text. BlockNote's image
@@ -80,9 +115,15 @@ compile step.
 
 ## Status / follow-ups
 
-- [ ] Real image embedding (currently placeholder figures; wire `resolveFile` +
-      `image(bytes)` / `mapShadow`)
+Done: real image embedding (`resolveFile` → shadow files), table header rows →
+`TH`, multi-column layout (as an untagged grid), code syntax highlighting
+(Typst-native via `raw(lang:)`), math & diagram mappings (see above), CJK via
+`fontFamily` fallback lists.
+
 - [ ] `alt` field on image/file/video blocks
-- [ ] Table header rows → `TH` (BlockNote doesn't mark headers by default)
-- [ ] Multi-column (`@blocknote/xl-multi-column`) blocks
+      ([#2853](https://github.com/TypeCellOS/BlockNote/issues/2853)) — until
+      then caption/name is the alt fallback
 - [ ] Bundle/standardize default + emoji fonts for turnkey browser use
+- [ ] Native `--pdf-standard ua-1` once the _web_ compiler exposes it (the node
+      compiler already does — `pdfStandard: "ua-1"` — which would make
+      `declarePdfUA` unnecessary server-side)

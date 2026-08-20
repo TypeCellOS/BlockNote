@@ -1281,6 +1281,8 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-pdf-renderer-2": "latest",
             "@blocknote/xl-multi-column": "latest",
+            "@blocknote/math-block": "latest",
+            "@blocknote/diagram-block": "latest",
             "@myriaddreamin/typst.ts": "^0.8.0-rc3",
             "@myriaddreamin/typst-ts-web-compiler": "^0.8.0-rc3",
           } as any,

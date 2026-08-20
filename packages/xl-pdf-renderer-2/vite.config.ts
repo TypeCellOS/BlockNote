@@ -59,7 +59,7 @@ export default defineConfig(
           external: (source) =>
             source.startsWith("@blocknote/") ||
             source.startsWith("@myriaddreamin/") ||
-            source === "pdf-lib" ||
+            source === "@cantoo/pdf-lib" ||
             source.startsWith("node:"),
           output: { globals: {} },
         },

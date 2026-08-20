@@ -27,8 +27,14 @@ type Options = ExporterOptions & {
   /**
    * Body font family, as Typst sees it (the font's internal family name). The
    * font must be loaded into the compiler. Defaults to BlockNote's "Inter 18pt".
+   *
+   * Pass an array to declare a fallback list (applied in order) — the way to
+   * support scripts the primary font doesn't cover, e.g. CJK: load the extra
+   * font's bytes via the compile options' `fonts` and list its family here,
+   * `["Inter 18pt", "Noto Sans SC"]`. (Mirrors the react-pdf exporter's
+   * `fonts` + `fontFamily` options for CJK.)
    */
-  fontFamily: string;
+  fontFamily: string | string[];
   /** Monospace font family for code. Defaults to "Geist Mono". */
   monoFontFamily: string;
   /** Base font size in points. Defaults to 12 (≈ BlockNote's 16px). */
@@ -344,11 +350,17 @@ export class TypstExporter<
   private preamble(doc: TypstDocumentOptions): string {
     const { fontFamily, monoFontFamily, fontSize, emojiFontFamily } =
       this.options;
-    // List the emoji font as an explicit fallback so emoji runs (incl. ZWJ
-    // sequences) shape as a unit in it, rather than per-glyph auto-fallback.
-    const fontArg = emojiFontFamily
-      ? `(${strLit(fontFamily)}, ${strLit(emojiFontFamily)})`
-      : strLit(fontFamily);
+    // The body font list, in fallback order. The emoji font goes last so emoji
+    // runs (incl. ZWJ sequences) shape as a unit in it, rather than per-glyph
+    // auto-fallback.
+    const families = Array.isArray(fontFamily) ? [...fontFamily] : [fontFamily];
+    if (emojiFontFamily) {
+      families.push(emojiFontFamily);
+    }
+    const fontArg =
+      families.length === 1
+        ? strLit(families[0])
+        : `(${families.map(strLit).join(", ")})`;
     const title = doc.title ?? "Document";
     const author = doc.author ?? "";
     const lang = doc.lang ?? "en";
@@ -416,11 +428,28 @@ export class TypstExporter<
     }
     const blob = await this.resolveFile(url);
     const bytes = new Uint8Array(await blob.arrayBuffer());
-    const path = `/assets/asset-${this.assets.size}.${imageExtension(
-      blob.type,
-      url,
-    )}`;
-    this.assets.set(url, { path, bytes });
+    return this.registerImageBytes(url, bytes, imageExtension(blob.type, url));
+  }
+
+  /**
+   * Register already-resolved image bytes as a Typst shadow file, returning the
+   * virtual path to reference via `image("...")`. Cached per `key` — pass a key
+   * that identifies the rendered content (e.g. the source it was rendered
+   * from). For images that live at a URL, use {@link registerImage} instead.
+   * The `extension` must match the actual bytes (Typst infers the format from
+   * the path).
+   */
+  public registerImageBytes(
+    key: string,
+    bytes: Uint8Array,
+    extension: string,
+  ): string {
+    const cached = this.assets.get(key);
+    if (cached) {
+      return cached.path;
+    }
+    const path = `/assets/asset-${this.assets.size}.${extension}`;
+    this.assets.set(key, { path, bytes });
     return path;
   }
 

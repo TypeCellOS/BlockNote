@@ -16,6 +16,9 @@ export {
   type TypstDocumentOptions,
 } from "./typst/typstExporter.js";
 export * from "./typst/defaultSchema/index.js";
+// String-literal helpers for authors of custom Typst mappings (e.g. the
+// math-block / diagram-block `typst-exporter` entry points).
+export { escStr, strLit } from "./typst/util.js";
 export { declarePdfUA } from "./pdfua/postProcess.js";
 export {
   compileTypstToTaggedPdf,
@@ -50,7 +53,7 @@ export async function blocksToPdfUA<
   // PDF/UA-1 export. typst's node compiler already accepts `pdfStandard: "ua-1"`,
   // which emits a veraPDF-conformant PDF/UA-1 directly (verified: 0 failed
   // checks) and validates accessibility at compile time (errors on missing alt
-  // text) — making `declarePdfUA` (and the `pdf-lib` dependency) unnecessary.
+  // text) — making `declarePdfUA` (and the `@cantoo/pdf-lib` dependency) unnecessary.
   // `@myriaddreamin/typst.ts`'s browser `pdf()` does not yet expose a PDF
   // standard option, so the post-process is still required for the wasm path.
   return declarePdfUA(taggedPdf);

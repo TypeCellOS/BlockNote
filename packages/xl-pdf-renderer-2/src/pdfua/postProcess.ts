@@ -1,4 +1,4 @@
-import { PDFDict, PDFDocument, PDFName, PDFRawStream } from "pdf-lib";
+import { PDFDocument, PDFName, PDFRawStream } from "@cantoo/pdf-lib";
 
 const PDFUA_NS = "http://www.aiim.org/pdfua/ns/id/";
 
@@ -13,7 +13,7 @@ const PDFUA_NS = "http://www.aiim.org/pdfua/ns/id/";
  *   1. `catalog /ViewerPreferences << /DisplayDocTitle true >>`  (ISO 14289-1, 7.1)
  *   2. the PDF/UA identification in XMP metadata (`pdfuaid:part = 1`) (clause 5)
  *
- * We add both here in pure JS (pdf-lib runs in the browser), so the whole
+ * We add both here in pure JS (@cantoo/pdf-lib runs in the browser), so the whole
  * pipeline stays client-side. The output should always be independently
  * verified with veraPDF — see the conformance gate in `pdfua.test.ts`.
  *
@@ -27,14 +27,7 @@ export async function declarePdfUA(pdfBytes: Uint8Array): Promise<Uint8Array> {
   const catalog = doc.catalog;
 
   // 1) ViewerPreferences / DisplayDocTitle = true
-  let viewerPrefs = catalog.lookup(PDFName.of("ViewerPreferences"), PDFDict) as
-    | PDFDict
-    | undefined;
-  if (!viewerPrefs) {
-    viewerPrefs = ctx.obj({}) as PDFDict;
-    catalog.set(PDFName.of("ViewerPreferences"), viewerPrefs);
-  }
-  viewerPrefs.set(PDFName.of("DisplayDocTitle"), ctx.obj(true));
+  catalog.getOrCreateViewerPreferences().setDisplayDocTitle(true);
 
   // 2) Inject pdfuaid:part=1 into the XMP packet, preserving any existing XMP.
   const xmp = injectPdfUaId(readMetadataXmp(doc));

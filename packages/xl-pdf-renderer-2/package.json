@@ -9,7 +9,7 @@
     "directory": "packages/xl-pdf-renderer-2"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.51.4",
+  "version": "0.54.0",
   "files": [
     "dist",
     "types",
@@ -52,7 +52,7 @@
     "@blocknote/xl-multi-column": "workspace:^",
     "@myriaddreamin/typst.ts": "^0.8.0-rc3",
     "@myriaddreamin/typst-ts-web-compiler": "^0.8.0-rc3",
-    "pdf-lib": "^1.17.1"
+    "@cantoo/pdf-lib": "^2.9.1"
   },
   "devDependencies": {
     "@blocknote/shared": "workspace:^",

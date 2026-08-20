@@ -9,6 +9,7 @@ import { SiMermaid } from "react-icons/si";
 
 import { plainContentToString } from "@blocknote/core";
 import { initializeMermaid } from "../../../helpers/initializeMermaid.js";
+import { withSVGFontFamily } from "../../../helpers/svgFontFamily.js";
 import { trimDiagramSVG } from "../../../helpers/trimDiagramSVG.js";
 import { getDiagramDictionary } from "../../../i18n/dictionary.js";
 import { DiagramBlockConfig } from "../../createReactDiagramBlockSpec.js";
@@ -22,7 +23,7 @@ let mermaidElementId = 0;
  * has fully rendered, and swapping inline SVG commits in a single frame - so
  * the preview never flashes.
  */
-export const useMermaidSVG = (source: string) => {
+export const useMermaidSVG = (source: string, fontFamily?: string) => {
   const [svg, setSVG] = useState("");
   const [error, setError] = useState<string | undefined>(undefined);
 
@@ -49,7 +50,11 @@ export const useMermaidSVG = (source: string) => {
         await mermaid.parse(source);
         const { svg } = await mermaid.render(id, source);
         if (!stale) {
-          setSVG(trimDiagramSVG(svg));
+          // Diagrams display in the editor's own font (see
+          // `setSVGFontFamily`) - the same treatment the export renderers
+          // apply, so the preview shows what exports produce.
+          const trimmed = trimDiagramSVG(svg);
+          setSVG(fontFamily ? withSVGFontFamily(trimmed, fontFamily) : trimmed);
           setError(undefined);
         }
       } catch (err) {
@@ -62,7 +67,7 @@ export const useMermaidSVG = (source: string) => {
     return () => {
       stale = true;
     };
-  }, [source]);
+  }, [source, fontFamily]);
 
   return { svg, error };
 };
@@ -70,7 +75,13 @@ export const DiagramBlockPreviewWithPopup = (
   props: ReactCustomBlockRenderProps<DiagramBlockConfig>,
 ) => {
   const source = plainContentToString(props.block.content).trim();
-  const { svg, error } = useMermaidSVG(source);
+  // The editor's computed font (themeable via CSS), so diagrams match the
+  // document they live in - the block renders inside the editor, so the
+  // element is mounted by the time this renders.
+  const fontFamily = props.editor.domElement
+    ? getComputedStyle(props.editor.domElement).fontFamily
+    : undefined;
+  const { svg, error } = useMermaidSVG(source, fontFamily);
   const dict = getDiagramDictionary(props.editor).block;
 
   return (

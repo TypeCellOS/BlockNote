@@ -9,6 +9,16 @@ import "@blocknote/core/fonts/inter.css";
 import * as locales from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
+import { diagramBlockMapping } from "@blocknote/diagram-block/typst-exporter";
+import {
+  createReactInlineMathSpec,
+  createReactMathBlockSpec,
+} from "@blocknote/math-block";
+import {
+  inlineMathMapping,
+  mathBlockMapping,
+} from "@blocknote/math-block/typst-exporter";
 import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
@@ -78,7 +88,16 @@ export default function App() {
 
   // Creates a new editor instance with support for page breaks.
   const editor = useCreateBlockNote({
-    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
+    // Adds support for math & diagram blocks.
+    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())).extend({
+      blockSpecs: {
+        mathBlock: createReactMathBlockSpec(),
+        diagram: createReactDiagramBlockSpec(),
+      },
+      inlineContentSpecs: {
+        math: createReactInlineMathSpec(),
+      },
+    }),
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,
@@ -90,7 +109,37 @@ export default function App() {
       cellTextColor: true,
       headers: true,
     },
-    initialContent: testDocumentBlocks,
+    initialContent: [
+      ...testDocumentBlocks,
+      // The math & diagram blocks aren't part of the shared test document,
+      // since the exporter unit tests' schemas don't register them, so they're
+      // appended here instead.
+      {
+        type: "mathBlock",
+        content: "a^2 = \\sqrt{b^2 + c^2}",
+      },
+      {
+        type: "diagram",
+        content: `graph TD
+  A[Start] --> B{Works?}
+  B -->|Yes| C[Ship it]
+  B -->|No| A`,
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Inline math: ",
+            styles: {},
+          },
+          {
+            type: "math",
+            content: "e^{i\\pi} + 1 = 0",
+          },
+        ],
+      },
+    ],
   });
 
   // Additional Slash Menu items for page breaks.
@@ -113,7 +162,20 @@ export default function App() {
     try {
       const exporter = new TypstExporter(
         editor.schema,
-        typstDefaultSchemaMappings,
+        {
+          ...typstDefaultSchemaMappings,
+          blockMapping: {
+            ...typstDefaultSchemaMappings.blockMapping,
+            // Renders math blocks as native Typst equations, and diagrams as
+            // embedded images - both carrying alt text for PDF/UA.
+            mathBlock: mathBlockMapping,
+            diagram: diagramBlockMapping,
+          },
+          inlineContentMapping: {
+            ...typstDefaultSchemaMappings.inlineContentMapping,
+            math: inlineMathMapping,
+          },
+        },
         // Noto Color Emoji is the internal family name of the bundled emoji
         // font; listing it lets ZWJ emoji (e.g. 🚶‍♀️) shape correctly.
         { emojiFontFamily: "Noto Color Emoji" },
@@ -131,8 +193,8 @@ export default function App() {
         { title: "BlockNote document", lang: "en" },
       );
       const url = URL.createObjectURL(
-        // pdf-lib always returns a view over a plain (non-shared) buffer; the
-        // cast narrows `ArrayBufferLike` for `BlobPart`.
+        // @cantoo/pdf-lib always returns a view over a plain (non-shared)
+        // buffer; the cast narrows `ArrayBufferLike` for `BlobPart`.
         new Blob([bytes as Uint8Array<ArrayBuffer>], {
           type: "application/pdf",
         }),

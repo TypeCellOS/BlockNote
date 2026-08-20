@@ -63,6 +63,10 @@ export default defineConfig(
                   __dirname,
                   "../xl-pdf-exporter/src/",
                 ),
+                "@blocknote/xl-pdf-renderer-2": path.resolve(
+                  __dirname,
+                  "../xl-pdf-renderer-2/src/",
+                ),
               } as Record<string, string>),
       },
       build: {
@@ -85,6 +89,10 @@ export default defineConfig(
             "email-exporter": path.resolve(
               __dirname,
               "src/email-exporter/index.tsx",
+            ),
+            "typst-exporter": path.resolve(
+              __dirname,
+              "src/typst-exporter/index.ts",
             ),
           },
           name: "blocknote-math-block",
