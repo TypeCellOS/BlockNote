@@ -203,6 +203,34 @@ export const testDocumentBlocks: PartialBlock<any, any, any>[] = [
     content: "Numbered List Item 6",
   },
   {
+    type: "toggleListItem",
+    content: "Toggle List Item",
+    children: [
+      {
+        type: "paragraph",
+        content: "Content nested inside the toggle list item.",
+      },
+      {
+        type: "bulletListItem",
+        content: "A nested bullet inside the toggle",
+      },
+    ],
+  },
+  {
+    type: "heading",
+    content: "Toggle Heading",
+    props: {
+      level: 2,
+      isToggleable: true,
+    },
+    children: [
+      {
+        type: "paragraph",
+        content: "Content nested inside the toggle heading.",
+      },
+    ],
+  },
+  {
     type: "table",
     content: {
       type: "tableContent",

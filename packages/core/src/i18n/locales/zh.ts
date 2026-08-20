@@ -241,6 +241,10 @@ export const zh: Dictionary = {
   toggle_blocks: {
     add_block_button: "空的切换区。点击添加区块。",
   },
+  code_block: {
+    add_source_button_text: "添加源代码",
+    ok_button_text: "确定",
+  },
   // from react package:
   side_menu: {
     add_block_label: "添加块",
@@ -426,6 +430,7 @@ export const zh: Dictionary = {
     save_button_text: "保存",
     cancel_button_text: "取消",
     deleted_reference_text: "原始内容已删除",
+    discard_pending_comment: "确定要放弃此评论吗？",
     actions: {
       add_reaction: "添加反应",
       resolve: "解决",
@@ -441,6 +446,19 @@ export const zh: Dictionary = {
       marked_as_resolved: "标记为已解决",
       more_replies: (count) => `还有 ${count} 条回复`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "格式更改",
+    deleted: "已删除",
+    inserted_by: (users: string) => `插入者：${users}`,
+    deleted_by: (users: string) => `删除者：${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `格式更改（${formats}），更改者：${users}`,
+  },
+  exporter: {
+    open_file: "打开文件",
+    open_video_file: "打开视频",
+    open_audio_file: "打开音频",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

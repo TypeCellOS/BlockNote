@@ -1,3 +1,149 @@
+## 0.54.0 (2026-08-13)
+
+### 🚀 Features
+
+- Adds a Math block ([2a34f7d70](https://github.com/TypeCellOS/BlockNote/commit/2a34f7d70))
+- Adds a Diagram block ([0fca0ee7a](https://github.com/TypeCellOS/BlockNote/commit/0fca0ee7a))
+- **core:** Source-with-preview, syntax highlighting & exporter images ([503c796d3](https://github.com/TypeCellOS/BlockNote/commit/503c796d3))
+
+### 🩹 Fixes
+
+- **ai:** Operations on collaborative documents ([#2952](https://github.com/TypeCellOS/BlockNote/pull/2952))
+- **ai:** Operations on blocks containing comments ([#2953](https://github.com/TypeCellOS/BlockNote/pull/2953))
+- **pdf:** Add custom font and fontFamily options for CJK ([#2945](https://github.com/TypeCellOS/BlockNote/pull/2945))
+- Expose first suggestion as active descendant ([#2965](https://github.com/TypeCellOS/BlockNote/pull/2965))
+- **xl-docx-exporter:** Clamp list nesting to the levels DOCX defines ([#2969](https://github.com/TypeCellOS/BlockNote/pull/2969))
+
+### ❤️ Thank You
+
+- Adarshsm <adarshmudugal@gmail.com>
+- Nick The Sick ([@nperez0111](https://github.com/nperez0111))
+- Pupuking723 <2318857637@qq.com>
+
+## 0.53.0 (2026-08-06)
+
+### 🚀 Features
+
+- **shadcn:** ⚠️ Use base-ui instead of radix (BLO-1279) ([#2913](https://github.com/TypeCellOS/BlockNote/pull/2913))
+
+### 🩹 Fixes
+
+- getCellSelection throwing error in positions (BLO-1193) ([#2911](https://github.com/TypeCellOS/BlockNote/pull/2911))
+- Multi-column slash menu items within a column (BLO-905) ([#2914](https://github.com/TypeCellOS/BlockNote/pull/2914))
+- Suggestion menu behaviour (BLO-1283, BLO-955) ([#2930](https://github.com/TypeCellOS/BlockNote/pull/2930))
+- Ignore useless block/inline content mutations (BLO-1224) ([#2912](https://github.com/TypeCellOS/BlockNote/pull/2912))
+- **slash-menu:** Better overflow behavior (BLO-1192) ([#2909](https://github.com/TypeCellOS/BlockNote/pull/2909))
+- Slash menu item selection behaviour (BLO-1222) ([#2838](https://github.com/TypeCellOS/BlockNote/pull/2838))
+- HTML export/parse round trip ignoring empty blocks (BLO-873) ([#2931](https://github.com/TypeCellOS/BlockNote/pull/2931))
+- **core:** Guard getBlock() calls to prevent TypeError on stale blocks ([#2941](https://github.com/TypeCellOS/BlockNote/pull/2941))
+- Stop stale node view positions crashing the editor ([#2938](https://github.com/TypeCellOS/BlockNote/pull/2938))
+- Multi-column trailing blocks, column hover borders & drop cursor left edge BLO-1226 ([#2885](https://github.com/TypeCellOS/BlockNote/pull/2885))
+
+#### ⚠️ Breaking Changes
+
+- **shadcn:** ⚠️ Use base-ui instead of radix (BLO-1279) ([#2913](https://github.com/TypeCellOS/BlockNote/pull/2913))
+
+### ❤️ Thank You
+
+- Yousef
+- Nick Perez <nick@blocknotejs.org>
+- Matthew Lipski ([@matthewlipski](https://github.com/matthewlipski))
+
+## 0.52.1 (2026-07-20)
+
+### 🩹 Fixes
+
+- **react:** Avoid importing yjs in the default UI ([#2902](https://github.com/TypeCellOS/BlockNote/pull/2902))
+
+### ❤️ Thank You
+
+- Nick Perez <nick@blocknotejs.org>
+
+## 0.52.0 (2026-07-20)
+
+### 🚀 Features
+
+- Migrate to Vite+ ([#2745](https://github.com/TypeCellOS/BlockNote/pull/2745))
+- Decouple yjs from blocknote/core ([#2741](https://github.com/TypeCellOS/BlockNote/pull/2741))
+- `moveBlocks` behaviour when leaving empty columns (BLO-1109) ([#2842](https://github.com/TypeCellOS/BlockNote/pull/2842))
+- **comments:** Confirm before discarding an unsaved comment (blo-1197) ([#2861](https://github.com/TypeCellOS/BlockNote/pull/2861))
+- **core:** Support "plain" block content (BLO-335) ([#2868](https://github.com/TypeCellOS/BlockNote/pull/2868))
+
+### ⚠️ Migration Guide
+
+**Yjs is now decoupled from `@blocknote/core`.** Instead of passing a `collaboration` option directly to the editor, you now wrap your editor options with the `withCollaboration` helper imported from `@blocknote/core/yjs`.
+
+Before (`< 0.52.0`):
+
+```typescript
+const editor = useCreateBlockNote({
+  // ...other editor options
+  collaboration: {
+    provider,
+    fragment: doc.getXmlFragment("document-store"),
+    user: {
+      name: "My Username",
+      color: "#ff0000",
+    },
+  },
+});
+```
+
+After (`>= 0.52.0`):
+
+```typescript
+// Import the helper from the decoupled Yjs entrypoint:
+import { withCollaboration } from "@blocknote/core/yjs";
+
+const editor = useCreateBlockNote(
+  withCollaboration({
+    // ...other editor options
+    collaboration: {
+      provider,
+      fragment: doc.getXmlFragment("document-store"),
+      user: {
+        name: "My Username",
+        color: "#ff0000",
+      },
+    },
+  }),
+);
+```
+
+The `collaboration` object itself (`provider`, `fragment`, `user`, `showCursorLabels`, etc.) is unchanged — you only need to:
+
+1. Import `withCollaboration` from `@blocknote/core/yjs`.
+2. Wrap your editor options object with `withCollaboration(...)`, keeping the `collaboration` property inside it.
+
+The same applies when creating an editor with `BlockNoteEditor.create(withCollaboration({ ... }))`.
+
+> **Note:** `@blocknote/core/yjs` uses Yjs v13 (the `yjs` package). There is also a `@blocknote/core/y` entrypoint that targets Yjs v14 (`@y/y`) and adds newer features such as suggestions and version history. Unless you specifically need those, use `@blocknote/core/yjs`.
+
+### 🩹 Fixes
+
+- Align side menu to tables (BLO-1117) ([#2837](https://github.com/TypeCellOS/BlockNote/pull/2837))
+- Remove cursor flicker in trailing block ([#2839](https://github.com/TypeCellOS/BlockNote/pull/2839))
+- **table:** Guard stale block after changes for table handles ([#2821](https://github.com/TypeCellOS/BlockNote/pull/2821))
+- **xl-ai:** Remove 'use client' from server entry (BLO-1235) ([57596cee6](https://github.com/TypeCellOS/BlockNote/commit/57596cee6))
+- **tables:** Tab causing indent in last table cell (BLO-1211) ([#2831](https://github.com/TypeCellOS/BlockNote/pull/2831))
+- **core:** Use dynamic propSchema when extending default block specs ([#2882](https://github.com/TypeCellOS/BlockNote/pull/2882))
+- **xl-pdf-exporter:** Fix emoji rendering for ZWJ sequences in PDF export ([#2871](https://github.com/TypeCellOS/BlockNote/pull/2871))
+- **core:** Ignore synthetic mousemove events without coordinates in side menu ([#2895](https://github.com/TypeCellOS/BlockNote/pull/2895))
+- **core:** Read hardBreakShortcut from block spec impl ([#2891](https://github.com/TypeCellOS/BlockNote/pull/2891))
+- **xl-email-exporter:** Update react-email deps to fix fresh install tests ([#2898](https://github.com/TypeCellOS/BlockNote/pull/2898))
+- **core:** Call scrollIntoView() on Enter ([#2802](https://github.com/TypeCellOS/BlockNote/pull/2802))
+
+### ❤️ Thank You
+
+- Nick The Sick ([@nperez0111](https://github.com/nperez0111))
+- Luc H <wereld03@gmail.com>
+- Nick Perez <nick@blocknotejs.org>
+- Yousef <yousefdardiry@gmail.com>
+- Matthew Lipski ([@matthewlipski](https://github.com/matthewlipski))
+- Alex Yang ([@himself65](https://github.com/himself65))
+- Yousefed <yousefdardiry@gmail.com>
+- Satoren <satoreyo@hotmail.com>
+
 ## 0.51.4 (2026-06-02)
 
 ### 🩹 Fixes

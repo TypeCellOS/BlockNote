@@ -61,7 +61,7 @@
     "@types/node": "22.13.13",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "vite-plus": "catalog:"
   },
   "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"

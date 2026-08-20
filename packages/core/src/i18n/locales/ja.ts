@@ -240,6 +240,10 @@ export const ja: Dictionary = {
   toggle_blocks: {
     add_block_button: "空のトグルです。クリックしてブロックを追加。",
   },
+  code_block: {
+    add_source_button_text: "ソースコードを追加",
+    ok_button_text: "OK",
+  },
   // from react package:
   side_menu: {
     add_block_label: "ブロックを追加",
@@ -425,6 +429,7 @@ export const ja: Dictionary = {
     save_button_text: "保存",
     cancel_button_text: "キャンセル",
     deleted_reference_text: "元のコンテンツが削除されました",
+    discard_pending_comment: "このコメントを破棄してもよろしいですか？",
     actions: {
       add_reaction: "リアクションを追加",
       resolve: "解決",
@@ -440,6 +445,19 @@ export const ja: Dictionary = {
       marked_as_resolved: "解決済みとしてマーク",
       more_replies: (count) => `${count} 件の追加返信`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "書式の変更",
+    deleted: "削除済み",
+    inserted_by: (users: string) => `挿入者: ${users}`,
+    deleted_by: (users: string) => `削除者: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `書式の変更 (${formats}) 変更者: ${users}`,
+  },
+  exporter: {
+    open_file: "ファイルを開く",
+    open_video_file: "動画を開く",
+    open_audio_file: "音声を開く",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

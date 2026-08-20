@@ -1,6 +1,6 @@
+import tailwindcss from "@tailwindcss/vite";
 import * as fs from "fs";
 import * as path from "path";
-import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, type UserConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
 import { positionalMouse } from "./src/utils/positionalMouse.js";
@@ -67,12 +67,27 @@ export default defineConfig(
         // src/examples.d.ts.
         alias: {
           ...blockNoteSrcAliases,
+          // The shared test-utils package lives at the repo root (not under
+          // packages/), so it isn't picked up by the packages scan above.
+          // All consumers - test code and example apps alike - import it via
+          // the repo-wide `@shared` path alias (matching the packages' vite
+          // and tsconfig setups); the package itself is private, so its name
+          // resolves nowhere outside the workspace anyway.
+          "@shared": path.resolve(__dirname, "../shared"),
           "@examples": path.resolve(__dirname, "../examples"),
         },
       },
       test: {
         name: "e2e",
-        include: ["./src/end-to-end/**/*.test.tsx"],
+        // Besides the end-to-end tests, this suite also runs the packages'
+        // `.browser.test` files: unit tests for browser-only implementations
+        // (canvas rasterization, Mermaid rendering), colocated with the code
+        // they test but needing a real browser. The packages' own (node)
+        // vitest configs exclude them.
+        include: [
+          "./src/end-to-end/**/*.test.tsx",
+          "../packages/*/src/**/*.browser.test.{ts,tsx}",
+        ],
         setupFiles: ["./vitestSetup.browser.ts"],
         // Running three browsers concurrently inside one Docker container already
         // saturates CPU; layering per-browser file parallelism on top causes
@@ -97,6 +112,22 @@ export default defineConfig(
         outputFile: { html: "./playwright-report/index.html" },
         browser: {
           enabled: true,
+          // Global default tolerance for every `toMatchScreenshot` assertion.
+          // The three browsers run in one contended Docker container and minor
+          // anti-aliasing / sub-pixel font-rendering differences (e.g. a 24px /
+          // 0.01-ratio diff on a table screenshot) are not real regressions but
+          // still fail an exact pixel comparison. Allow up to 2% of pixels to
+          // differ — comfortably above the observed ~0.01 flake while a genuine
+          // layout/content change moves far more than that. Per-test calls can
+          // still tighten or loosen this via comparatorOptions.
+          expect: {
+            toMatchScreenshot: {
+              comparatorName: "pixelmatch",
+              comparatorOptions: {
+                allowedMismatchedPixelRatio: 0.02,
+              },
+            },
+          },
           provider: playwright({
             contextOptions: { viewport: VIEWPORT },
           }),

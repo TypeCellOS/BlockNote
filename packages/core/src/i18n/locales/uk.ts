@@ -225,6 +225,10 @@ export const uk: Dictionary = {
   toggle_blocks: {
     add_block_button: "Порожній перемикач. Натисніть, щоб додати блок.",
   },
+  code_block: {
+    add_source_button_text: "Додати вихідний код",
+    ok_button_text: "ОК",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Додати блок",
@@ -409,6 +413,7 @@ export const uk: Dictionary = {
     save_button_text: "Зберегти",
     cancel_button_text: "Скасувати",
     deleted_reference_text: "Оригінальний вміст видалено",
+    discard_pending_comment: "Ви впевнені, що хочете відхилити цей коментар?",
     actions: {
       add_reaction: "Додати реакцію",
       resolve: "Вирішити",
@@ -424,6 +429,19 @@ export const uk: Dictionary = {
       marked_as_resolved: "Позначено як вирішене",
       more_replies: (count) => `${count} додаткових відповідей`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Зміна форматування",
+    deleted: "Видалено",
+    inserted_by: (users: string) => `Вставлено користувачем: ${users}`,
+    deleted_by: (users: string) => `Видалено користувачем: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Зміна форматування (${formats}) користувачем: ${users}`,
+  },
+  exporter: {
+    open_file: "Відкрити файл",
+    open_video_file: "Відкрити відео",
+    open_audio_file: "Відкрити аудіо",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

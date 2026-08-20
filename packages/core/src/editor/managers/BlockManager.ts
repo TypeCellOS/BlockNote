@@ -46,7 +46,7 @@ export class BlockManager<
    */
   public get document(): Block<BSchema, ISchema, SSchema>[] {
     return this.editor.transact((tr) => {
-      return docToBlocks(tr.doc, this.editor.pmSchema);
+      return docToBlocks(tr.doc);
     });
   }
 

@@ -219,6 +219,10 @@ export const no: Dictionary = {
   toggle_blocks: {
     add_block_button: "Tomt toggle. Klikk for å legge til en blokk.",
   },
+  code_block: {
+    add_source_button_text: "Legg til kildekode",
+    ok_button_text: "OK",
+  },
   side_menu: {
     add_block_label: "Legg til blokk",
     drag_handle_label: "Åpne blokkmeny",
@@ -402,6 +406,8 @@ export const no: Dictionary = {
     save_button_text: "Lagre",
     cancel_button_text: "Avbryt",
     deleted_reference_text: "Originalt innhold slettet",
+    discard_pending_comment:
+      "Er du sikker på at du vil forkaste denne kommentaren?",
     actions: {
       add_reaction: "Legg til reaksjon",
       resolve: "Løs",
@@ -417,6 +423,19 @@ export const no: Dictionary = {
       marked_as_resolved: "Merket som løst",
       more_replies: (count) => `${count} flere svar`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Formateringsendring",
+    deleted: "Slettet",
+    inserted_by: (users: string) => `Satt inn av: ${users}`,
+    deleted_by: (users: string) => `Slettet av: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Formateringsendring (${formats}) av: ${users}`,
+  },
+  exporter: {
+    open_file: "Åpne fil",
+    open_video_file: "Åpne video",
+    open_audio_file: "Åpne lyd",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

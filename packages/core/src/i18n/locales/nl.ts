@@ -201,6 +201,10 @@ export const nl: Dictionary = {
   toggle_blocks: {
     add_block_button: "Lege uitklapper. Klik om een blok toe te voegen.",
   },
+  code_block: {
+    add_source_button_text: "Broncode toevoegen",
+    ok_button_text: "OK",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Nieuw blok",
@@ -385,6 +389,8 @@ export const nl: Dictionary = {
     save_button_text: "Opslaan",
     cancel_button_text: "Annuleren",
     deleted_reference_text: "Originele inhoud verwijderd",
+    discard_pending_comment:
+      "Weet je zeker dat je deze reactie wilt verwijderen?",
     actions: {
       add_reaction: "Reactie toevoegen",
       resolve: "Oplossen",
@@ -400,6 +406,19 @@ export const nl: Dictionary = {
       marked_as_resolved: "Gemarkeerd als opgelost",
       more_replies: (count) => `${count} extra reacties`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Opmaakwijziging",
+    deleted: "Verwijderd",
+    inserted_by: (users: string) => `Ingevoegd door: ${users}`,
+    deleted_by: (users: string) => `Verwijderd door: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Opmaakwijziging (${formats}) door: ${users}`,
+  },
+  exporter: {
+    open_file: "Bestand openen",
+    open_video_file: "Video openen",
+    open_audio_file: "Audio openen",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

@@ -1,15 +1,44 @@
 import {
   BlockFromConfig,
+  BlockFromConfigNoChildren,
   BlockMapping,
   createPageBreakBlockConfig,
   DefaultBlockSchema,
   DefaultProps,
   mapTableCell,
-  StyledText,
+  PlainContent,
   TableCell,
 } from "@blocknote/core";
-import { ODTExporter } from "../odtExporter.js";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
+import { ODTExporter } from "../odtExporter.js";
+
+type BSchema = DefaultBlockSchema & {
+  pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+} & typeof multiColumnSchema.blockSchema;
+
+const codeMapping = (
+  block: BlockFromConfigNoChildren<BSchema["codeBlock"], any, any>,
+) => {
+  // Code blocks hold plain content: at most a single unstyled text item.
+  const [textItem, ...excessItems] = block.content as PlainContent;
+  if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
+    throw new Error("expected plain block content to be a single text item");
+  }
+  const textContent = textItem?.text ?? "";
+
+  return (
+    <text:p text:style-name="Codeblock">
+      {...textContent.split("\n").map((line, index) => {
+        return (
+          <>
+            {index !== 0 && <text:line-break />}
+            {line}
+          </>
+        );
+      })}
+    </text:p>
+  );
+};
 
 export const getTabs = (nestingLevel: number) => {
   return Array.from({ length: nestingLevel }, (_, i) => <text:tab key={i} />);
@@ -164,9 +193,7 @@ const wrapWithLists = (
 };
 
 export const odtBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema & {
-    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  } & typeof multiColumnSchema.blockSchema,
+  BSchema,
   any,
   any,
   React.ReactNode,
@@ -499,25 +526,9 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       </table:table>
     );
   },
+  codeBlock: codeMapping,
 
-  codeBlock: (block) => {
-    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
-
-    return (
-      <text:p text:style-name="Codeblock">
-        {...textContent.split("\n").map((line, index) => {
-          return (
-            <>
-              {index !== 0 && <text:line-break />}
-              {line}
-            </>
-          );
-        })}
-      </text:p>
-    );
-  },
-
-  file: async (block) => {
+  file: async (block, exporter) => {
     return (
       <>
         <text:p style:style-name="Standard">
@@ -530,11 +541,11 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
               xlink:href={block.props.url}
             >
               <text:span text:style-name="Internet_20_link">
-                Open file
+                {exporter.dictionary.open_file}
               </text:span>
             </text:a>
           ) : (
-            "Open file"
+            exporter.dictionary.open_file
           )}
         </text:p>
         {block.props.caption && (
@@ -544,7 +555,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     );
   },
 
-  video: (block) => (
+  video: (block, exporter) => (
     <>
       <text:p style:style-name="Standard">
         <text:a
@@ -554,7 +565,9 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
           xlink:show="replace"
           xlink:href={block.props.url}
         >
-          <text:span text:style-name="Internet_20_link">Open video</text:span>
+          <text:span text:style-name="Internet_20_link">
+            {exporter.dictionary.open_video_file}
+          </text:span>
         </text:a>
       </text:p>
       {block.props.caption && (
@@ -563,7 +576,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     </>
   ),
 
-  audio: (block) => (
+  audio: (block, exporter) => (
     <>
       <text:p style:style-name="Standard">
         <text:a
@@ -573,7 +586,9 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
           xlink:show="replace"
           xlink:href={block.props.url}
         >
-          <text:span text:style-name="Internet_20_link">Open audio</text:span>
+          <text:span text:style-name="Internet_20_link">
+            {exporter.dictionary.open_audio_file}
+          </text:span>
         </text:a>
       </text:p>
       {block.props.caption && (

@@ -358,6 +358,7 @@ describe("react email exporter", () => {
       {
         id: "1",
         type: "codeBlock",
+        // Code blocks hold plain content.
         content: [
           {
             type: "text",

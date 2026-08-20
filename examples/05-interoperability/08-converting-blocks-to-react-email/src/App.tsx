@@ -18,6 +18,16 @@ import {
   useCreateBlockNote,
   usePrefersColorScheme,
 } from "@blocknote/react";
+import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
+import { createDiagramBlockMapping } from "@blocknote/diagram-block/email-exporter";
+import {
+  createReactInlineMathSpec,
+  createReactMathBlockSpec,
+} from "@blocknote/math-block";
+import {
+  createInlineMathMapping,
+  createMathBlockMapping,
+} from "@blocknote/math-block/email-exporter";
 import {
   ReactEmailExporter,
   reactEmailDefaultSchemaMappings,
@@ -41,7 +51,16 @@ export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     // Adds support for page breaks & multi-column blocks.
-    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
+    // Adds support for math & diagram blocks.
+    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())).extend({
+      blockSpecs: {
+        mathBlock: createReactMathBlockSpec(),
+        diagram: createReactDiagramBlockSpec(),
+      },
+      inlineContentSpecs: {
+        math: createReactInlineMathSpec(),
+      },
+    }),
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,
@@ -55,7 +74,37 @@ export default function App() {
       headers: true,
     },
     // Sets initial editor content.
-    initialContent: testDocumentBlocks,
+    initialContent: [
+      ...testDocumentBlocks,
+      // The math & diagram blocks aren't part of the shared test document,
+      // since the exporter unit tests' schemas don't register them, so they're
+      // appended here instead.
+      {
+        type: "mathBlock",
+        content: "a^2 = \\sqrt{b^2 + c^2}",
+      },
+      {
+        type: "diagram",
+        content: `graph TD
+  A[Start] --> B{Works?}
+  B -->|Yes| C[Ship it]
+  B -->|No| A`,
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Inline math: ",
+            styles: {},
+          },
+          {
+            type: "math",
+            content: "e^{i\\pi} + 1 = 0",
+          },
+        ],
+      },
+    ],
   });
 
   // Additional Slash Menu items for page breaks.
@@ -81,7 +130,24 @@ export default function App() {
       existingContext?.colorSchemePreference || systemColorScheme;
     const exporter = new ReactEmailExporter(
       editor.schema,
-      reactEmailDefaultSchemaMappings,
+      {
+        ...reactEmailDefaultSchemaMappings,
+        blockMapping: {
+          ...reactEmailDefaultSchemaMappings.blockMapping,
+          // Renders math blocks & diagrams as images with the source as alt
+          // text. Embedded as data URLs by default - when actually sending
+          // emails, deliver them as inline attachments instead (which Gmail
+          // & Outlook also display) by passing an `imageDelivery` from
+          // `createCIDImageDelivery()` to each mapping, and handing its
+          // `attachments` to your mailer alongside the HTML.
+          mathBlock: createMathBlockMapping(),
+          diagram: createDiagramBlockMapping(),
+        },
+        inlineContentMapping: {
+          ...reactEmailDefaultSchemaMappings.inlineContentMapping,
+          math: createInlineMathMapping(),
+        },
+      },
       {
         colors:
           colorScheme === "dark" ? COLORS_DARK_MODE_DEFAULT : COLORS_DEFAULT,

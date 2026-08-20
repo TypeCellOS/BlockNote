@@ -16,6 +16,13 @@ export * from "./blocks/File/helpers/toExternalHTML/LinkWithCaption.js";
 export * from "./blocks/File/useResolveUrl.js";
 export * from "./blocks/Image/block.js";
 export * from "./blocks/PageBreak/getPageBreakReactSlashMenuItems.js";
+export * from "./blocks/SourceWithPreview/PreviewPlaceholder.js";
+export * from "./blocks/SourceWithPreview/SourceWithPreview.js";
+export * from "./blocks/SourceWithPreview/SourcePreviewPopup.js";
+export * from "./blocks/SourceWithPreview/block/SourceBlockWithPreview.js";
+export * from "./blocks/SourceWithPreview/block/useSourceBlockPreviewPopup.js";
+export * from "./blocks/SourceWithPreview/inlineContent/SourceInlineContentWithPreview.js";
+export * from "./blocks/SourceWithPreview/inlineContent/useSourceInlineContentPreviewPopup.js";
 export * from "./blocks/Video/block.js";
 export * from "./blocks/ToggleWrapper/ToggleWrapper.js";
 
@@ -57,6 +64,11 @@ export * from "./components/SideMenu/DefaultButtons/DragHandleButton.js";
 export * from "./components/SideMenu/SideMenu.js";
 export * from "./components/SideMenu/SideMenuController.js";
 export * from "./components/SideMenu/SideMenuProps.js";
+
+export * from "./components/AttributionTooltip/AttributionTooltip.js";
+export * from "./components/AttributionTooltip/AttributionTooltipController.js";
+export * from "./components/AttributionTooltip/AttributionTooltipProps.js";
+export * from "./components/AttributionTooltip/formatChangeLabel.js";
 
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/BlockColorsItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/RemoveBlockItem.js";
@@ -111,7 +123,9 @@ export { default as FloatingThreadController } from "./components/Comments/Float
 export * from "./components/Comments/Thread.js";
 export * from "./components/Comments/ThreadsSidebar.js";
 export * from "./components/Comments/useThreads.js";
-export * from "./components/Comments/useUsers.js";
+
+export * from "./components/Versioning/useVersionUsers.js";
+export * from "./components/Versioning/VersioningSidebar.js";
 
 export * from "./hooks/useActiveStyles.js";
 export * from "./hooks/useBlockNoteEditor.js";
@@ -125,6 +139,7 @@ export * from "./hooks/useOnUploadEnd.js";
 export * from "./hooks/useOnUploadStart.js";
 export * from "./hooks/usePrefersColorScheme.js";
 export * from "./hooks/useSelectedBlocks.js";
+export * from "./hooks/useStore.js";
 export * from "./hooks/useUploadLoading.js";
 export * from "./hooks/useExtension.js";
 export * from "./hooks/useEditorState.js";
@@ -132,6 +147,7 @@ export * from "./hooks/useEditorState.js";
 export * from "./schema/ReactBlockSpec.js";
 export * from "./schema/ReactInlineContentSpec.js";
 export * from "./schema/ReactStyleSpec.js";
+export * from "./schema/useNodeViewBlock.js";
 
 export * from "./icons.js";
 

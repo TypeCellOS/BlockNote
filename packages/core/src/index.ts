@@ -6,6 +6,7 @@ export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";
 export * from "./api/getBlockInfoFromPos.js";
 export * from "./api/getBlocksChangedByTransaction.js";
+export * from "./pm-nodes/suggestionMarks.js";
 export * from "./api/nodeUtil.js";
 export * from "./api/pmUtil.js";
 export * from "./blocks/index.js";
@@ -18,14 +19,19 @@ export * from "./extensions/index.js";
 export * from "./extensions-shared/UiElementPosition.js";
 export * from "./i18n/dictionary.js";
 export * from "./schema/index.js";
+export * from "./user/index.js";
 export * from "./util/browser.js";
 export * from "./util/combineByGroup.js";
 export * from "./util/expandToWords.js";
+export * from "./util/Store.js";
 export * from "./util/string.js";
 export * from "./util/table.js";
 export * from "./util/typescript.js";
 
-export type { CodeBlockOptions } from "./blocks/Code/block.js";
+export type {
+  CodeBlockOptions,
+  CodeBlockPreview,
+} from "./blocks/Code/CodeBlockOptions.js";
 export { assertEmpty, UnreachableCaseError } from "./util/typescript.js";
 
 export * from "./util/EventEmitter.js";
@@ -35,6 +41,7 @@ export { selectedFragmentToHTML } from "./api/clipboard/toClipboard/copyExtensio
 
 // Node conversions
 export * from "./api/nodeConversions/blockToNode.js";
+export * from "./api/nodeConversions/fragmentToBlocks.js";
 export * from "./api/nodeConversions/nodeToBlock.js";
 export * from "./extensions/tiptap-extensions/UniqueID/UniqueID.js";
 

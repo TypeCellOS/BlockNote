@@ -11,6 +11,7 @@ import {
 } from "../../schema/index.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
+import { suggestionMarks } from "../../pm-nodes/suggestionMarks.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
@@ -38,6 +39,10 @@ const TiptapTableHeader = Node.create<{
    * So, we manually fix this up when reading back in the `nodeToBlock` and only ever place a single tableContent back into the cell.
    */
   content: "tableContent+",
+
+  marks() {
+    return suggestionMarks(this.editor);
+  },
 
   addAttributes() {
     return {
@@ -99,6 +104,10 @@ const TiptapTableCell = Node.create<{
 
   content: "tableContent+",
 
+  marks() {
+    return suggestionMarks(this.editor);
+  },
+
   addAttributes() {
     return {
       colspan: {
@@ -152,7 +161,9 @@ const TiptapTableNode = Node.create({
   group: "blockContent",
   tableRole: "table",
 
-  marks: "deletion insertion modification",
+  marks() {
+    return suggestionMarks(this.editor);
+  },
   isolating: true,
 
   parseHTML() {
@@ -347,7 +358,9 @@ const TiptapTableRow = Node.create<{
   content: "(tableCell | tableHeader)+",
 
   tableRole: "row",
-  marks: "deletion insertion modification",
+  marks() {
+    return suggestionMarks(this.editor);
+  },
   parseHTML() {
     return [{ tag: "tr" }];
   },

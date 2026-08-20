@@ -1,0 +1,176 @@
+/* eslint-disable testing-library/render-result-naming-convention */
+/**
+ * Vitest browser-mode tests for prop-change suggestions: block-level
+ * attribute edits (text alignment, heading level, image width / source,
+ * etc.) rather than content/text edits. Each test follows the same
+ * shape as `basicText.test.tsx`: seed, enable suggestions, edit, then
+ * screenshot + inline snapshots of base/suggestion docs + PM doc.
+ */
+import { SuggestionsExtension } from "@blocknote/core/y";
+import { expect, test } from "vite-plus/test";
+import { expectScreenshot, expectVisible } from "./fixtures/browserExpect.js";
+
+import {
+  editorHtml,
+  setupSuggestionTest,
+  ydocXml,
+} from "./fixtures/suggestionFixture.js";
+
+// Scenario data (the `initial` seed + the `apply` change) is shared with the
+// suggestion-gallery example so the gallery and these tests never drift. The
+// image URLs are imported from there too, so the polls below check the exact
+// value the scenario sets.
+import {
+  IMG_SRC_BASE,
+  IMG_SRC_NEW,
+  scenarios,
+} from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+import type { SingleScenario } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarios";
+
+const textAlignment = scenarios.find(
+  (s) => s.id === "prop-text-alignment",
+) as SingleScenario;
+const headingLevel = scenarios.find(
+  (s) => s.id === "prop-heading-level",
+) as SingleScenario;
+const imageWidth = scenarios.find(
+  (s) => s.id === "prop-image-width",
+) as SingleScenario;
+const imageSource = scenarios.find(
+  (s) => s.id === "prop-image-source",
+) as SingleScenario;
+
+// Known issue — tracked in the suggestion gallery (the "Prop changes" scenarios,
+// e.g. "prop-text-alignment"): block-level prop changes generate no
+// `y-attributed-*` mark, so the pending change is invisible in the diff.
+//
+// Block-level prop change: paragraph's `textAlignment` flips from
+// "left" to "center". Text content is unchanged.
+test("suggestion mode: change text alignment to center", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "center align" });
+
+  editor.replaceBlocks(editor.document, textAlignment.initial);
+  await sync();
+  await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  textAlignment.apply(editor);
+
+  // Prop changes don't generate `y-attributed-*` marks, so the
+  // `waitForSuggestion` helper used elsewhere is too narrow here.
+  // Poll on the editor's view of the prop instead.
+  await expect
+    .poll(
+      () =>
+        (editor.document[0]?.props as { textAlignment?: string })
+          ?.textAlignment,
+    )
+    .toBe("center");
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "prop-change-text-alignment",
+  );
+
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
+});
+
+// Block-level prop change on a heading: bump `level` from 1 to 2.
+// Same lack of attribution as the alignment case.
+test("suggestion mode: change heading level from 1 to 2", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "demote heading" });
+
+  editor.replaceBlocks(editor.document, headingLevel.initial);
+  await sync();
+  await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  headingLevel.apply(editor);
+
+  await expect
+    .poll(() => (editor.document[0]?.props as { level?: number })?.level)
+    .toBe(2);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "prop-change-heading-level",
+  );
+
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
+});
+
+// Image block prop change: `previewWidth`. Resizes the image, no
+// content/text change.
+test("suggestion mode: resize image (previewWidth)", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "resize image" });
+
+  editor.replaceBlocks(editor.document, imageWidth.initial);
+  await sync();
+  // Default `alt=""` on the image makes it decorative, so
+  // `getByRole("img")` doesn't see it. Poll on the prop having
+  // landed in the editor instead.
+  await expect
+    .poll(() => (editor.document[0]?.props as { url?: string })?.url)
+    .toBe(IMG_SRC_BASE);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  imageWidth.apply(editor);
+
+  await expect
+    .poll(
+      () =>
+        (editor.document[0]?.props as { previewWidth?: number })?.previewWidth,
+    )
+    .toBe(400);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "prop-change-image-width",
+  );
+
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
+});
+
+// Image block prop change: `url`. Swaps the image source.
+test("suggestion mode: change image source", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "swap image src" });
+
+  editor.replaceBlocks(editor.document, imageSource.initial);
+  await sync();
+  // Default `alt=""` on the image makes it decorative, so
+  // `getByRole("img")` doesn't see it. Poll on the prop having
+  // landed in the editor instead.
+  await expect
+    .poll(() => (editor.document[0]?.props as { url?: string })?.url)
+    .toBe(IMG_SRC_BASE);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  imageSource.apply(editor);
+
+  await expect
+    .poll(() => (editor.document[0]?.props as { url?: string })?.url)
+    .toBe(IMG_SRC_NEW);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "prop-change-image-source",
+  );
+
+  expect(ydocXml(baseDoc)).toMatchSnapshot();
+  expect(ydocXml(suggestionDoc)).toMatchSnapshot();
+  expect(editorHtml(editor)).toMatchSnapshot();
+});

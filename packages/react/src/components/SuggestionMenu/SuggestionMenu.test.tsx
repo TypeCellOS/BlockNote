@@ -1,4 +1,5 @@
 import { expect, it } from "vite-plus/test";
+import { getSuggestionMenuItemId } from "./getSuggestionMenuItemId.js";
 import { SuggestionMenuController } from "./SuggestionMenuController.js";
 
 it("has good typing", () => {
@@ -39,4 +40,10 @@ it("has good typing", () => {
   );
 
   expect(menu).toBeDefined();
+});
+
+it("returns an active descendant id for the first suggestion", () => {
+  expect(getSuggestionMenuItemId(0)).toBe("bn-suggestion-menu-item-0");
+  expect(getSuggestionMenuItemId(2)).toBe("bn-suggestion-menu-item-2");
+  expect(getSuggestionMenuItemId(undefined)).toBeUndefined();
 });

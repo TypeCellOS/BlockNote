@@ -4,7 +4,7 @@ import { cn } from "@/lib/fumadocs/cn";
 import * as Sentry from "@sentry/nextjs";
 import { track } from "@vercel/analytics";
 import { CheckIcon } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 
 type Frequency = "month" | "year";
 
@@ -37,11 +37,12 @@ function TierCTAButton({
   frequency: Frequency;
 }) {
   const { data: session } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
   let text =
     tier.cta === "get-started"
       ? "Get Started"
       : tier.cta === "buy"
-        ? "Sign up"
+        ? "Buy now"
         : tier.cta === "contact"
           ? "Contact us"
           : "Sign up";
@@ -71,6 +72,7 @@ function TierCTAButton({
     !isPurple &&
       !isGreen &&
       "bg-white border border-stone-300 text-stone-900 hover:border-purple-300 hover:text-purple-600",
+    isLoading && "pointer-events-none opacity-70",
   );
 
   return (
@@ -80,18 +82,19 @@ function TierCTAButton({
           return;
         }
 
-        track("Signup", { tier: tier.id });
-        if (!session) {
-          Sentry.captureEvent({
-            message: "click-pricing-signup",
-            level: "info",
-            extra: { tier: tier.id },
-          });
-          track("click-pricing-signup", { tier: tier.id });
+        // Prevent repeat clicks from opening duplicate checkout sessions while
+        // the request is in flight.
+        if (isLoading) {
+          e.preventDefault();
+          e.stopPropagation();
           return;
         }
 
-        if (session.planType === "free") {
+        track("Signup", { tier: tier.id });
+        if (!session || session.planType === "free") {
+          // Pay-first: logged-out buyers go straight to checkout (no sign-up
+          // wall). They're reconciled to an account by email in the webhook and
+          // emailed a sign-in link (see lib/auth.ts).
           Sentry.captureEvent({
             message: "click-pricing-buy-now",
             level: "info",
@@ -104,7 +107,16 @@ function TierCTAButton({
             frequency === "year" && tier.id === "business"
               ? "business-yearly"
               : tier.id;
-          await authClient.checkout({ slug: checkoutSlug });
+          setIsLoading(true);
+          try {
+            const ret = await authClient.checkout({ slug: checkoutSlug });
+            if (ret?.error) {
+              throw new Error(JSON.stringify(ret.error));
+            }
+          } catch (err) {
+            Sentry.captureException(err);
+            setIsLoading(false);
+          }
         } else {
           const isCurrentPlan =
             tier.id === "business"
@@ -127,11 +139,18 @@ function TierCTAButton({
           }
           e.preventDefault();
           e.stopPropagation();
-          await authClient.customer.portal();
+          setIsLoading(true);
+          try {
+            await authClient.customer.portal();
+          } catch (err) {
+            Sentry.captureException(err);
+            setIsLoading(false);
+          }
         }
       }}
-      href={tier.href ?? (session ? undefined : "/signup")}
+      href={tier.href ?? undefined}
       aria-describedby={tier.id}
+      aria-disabled={isLoading}
       className={buttonClasses}
     >
       {text}

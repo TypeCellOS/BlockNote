@@ -10,6 +10,12 @@ const config = {
   reactStrictMode: true,
   serverExternalPackages: ["typescript", "twoslash"],
   reactCompiler: true,
+  // TypeScript 7 ships only the native `tsc` binary; it no longer exposes the
+  // JS compiler API that Next's in-process type check uses. Shell out to the
+  // CLI instead.
+  experimental: {
+    useTypeScriptCli: true,
+  },
   redirects,
   images: {
     remotePatterns: [

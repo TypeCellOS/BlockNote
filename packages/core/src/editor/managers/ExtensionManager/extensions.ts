@@ -15,6 +15,7 @@ import {
   FilePanelExtension,
   FormattingToolbarExtension,
   HistoryExtension,
+  InlineContentBoundaryEditExtension,
   LinkToolbarExtension,
   NodeSelectionKeyboardExtension,
   PlaceholderExtension,
@@ -22,6 +23,8 @@ import {
   PreviousBlockTypeExtension,
   ShowSelectionExtension,
   SideMenuExtension,
+  SourceBlockWithPreviewExtension,
+  SourceInlineContentWithPreviewExtension,
   SuggestionMenu,
   TableHandlesExtension,
   TrailingNodeExtension,
@@ -31,9 +34,6 @@ import {
   HardBreak,
   KeyboardShortcutsExtension,
   LinkExtension,
-  SuggestionAddMark,
-  SuggestionDeleteMark,
-  SuggestionModificationMark,
   TextAlignmentExtension,
   TextColorExtension,
   UniqueID,
@@ -70,9 +70,6 @@ export function getDefaultTiptapExtensions(
     Text,
 
     // marks:
-    SuggestionAddMark,
-    SuggestionDeleteMark,
-    SuggestionModificationMark,
     ...(Object.values(editor.schema.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark.configure({
         editor: editor,
@@ -173,8 +170,11 @@ export function getDefaultExtensions(
     PlaceholderExtension(options),
     ShowSelectionExtension(options),
     SideMenuExtension(options),
+    SourceBlockWithPreviewExtension(),
+    SourceInlineContentWithPreviewExtension(),
     SuggestionMenu(options),
     HistoryExtension(),
+    InlineContentBoundaryEditExtension(),
     PositionMappingExtension(),
     ...(options.trailingBlock !== false ? [TrailingNodeExtension()] : []),
   ] as ExtensionFactoryInstance[];

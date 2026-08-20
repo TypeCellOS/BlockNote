@@ -39,6 +39,12 @@ const devAliases: Record<string, string> = {
     __dirname,
     "../packages/xl-email-exporter/src",
   ),
+  "@blocknote/code-block": resolve(__dirname, "../packages/code-block/src"),
+  "@blocknote/math-block": resolve(__dirname, "../packages/math-block/src"),
+  "@blocknote/diagram-block": resolve(
+    __dirname,
+    "../packages/diagram-block/src",
+  ),
   // "@liveblocks/react-blocknote": resolve(
   //   __dirname,
   //   "../../liveblocks/packages/liveblocks-react-blocknote/src/",
@@ -65,7 +71,7 @@ export default defineConfig(((conf: { command: string }) => ({
   run: {
     tasks: {
       build: {
-        command: "tsgo && vp build",
+        command: "tsc && vp build",
         input: [
           { auto: true },
           { pattern: "!**/*.tsbuildinfo", base: "workspace" },
@@ -74,29 +80,24 @@ export default defineConfig(((conf: { command: string }) => ({
       },
     },
   },
-  plugins: [react(), webpackStats(), Inspect(), tailwindcss()],
+  plugins: [
+    react(),
+    // The stats are only consumed by RelativeCI, which uploads them from the
+    // GitHub Actions build. Serializing the (huge) module graph at the end of
+    // the build costs a lot of memory, which the Vercel build container can't
+    // spare - it fails spawning processes (EAGAIN) right at that point.
+    ...(process.env.VERCEL ? [] : [webpackStats()]),
+    Inspect(),
+    tailwindcss(),
+  ],
   optimizeDeps: {
-    // Exclude @blocknote/* source-aliased packages from pre-bundling so that
-    // when Vite pre-bundles @liveblocks/react-blocknote, it treats
-    // @blocknote/* imports as external rather than inlining a second copy
-    // (which would duplicate Selection.jsonID registrations like
-    // "multiple-node").
-    exclude: [
-      "@blocknote/core",
-      "@blocknote/react",
-      "@blocknote/ariakit",
-      "@blocknote/mantine",
-      "@blocknote/shadcn",
-      "@blocknote/xl-ai",
-      "@blocknote/xl-multi-column",
-      "@blocknote/xl-docx-exporter",
-      "@blocknote/xl-odt-exporter",
-      "@blocknote/xl-pdf-exporter",
-      "@blocknote/xl-email-exporter",
-    ],
+    // link: ['vite-react-ts-components'],
   },
   build: {
-    sourcemap: true,
+    // Skipped on Vercel for the same reason as `webpackStats` above: emitting
+    // a map for each of the ~340 chunks doubles the file writes and memory of
+    // the largest build in the workspace, which is where the container dies.
+    sourcemap: !process.env.VERCEL,
   },
   preview: {
     port: 3000,
@@ -108,6 +109,33 @@ export default defineConfig(((conf: { command: string }) => ({
     allowedHosts: ["host.docker.internal"],
   },
   resolve: {
-    alias: conf.command === "build" ? undefined : devAliases,
+    alias:
+      conf.command === "build"
+        ? {
+            // The exporters' optional peer dependencies, used by their
+            // subpath entries (`…/diagram-block`, `…/math-block`). They
+            // can't be resolved from the workspace-linked exporter packages
+            // when those packages' devDependencies aren't installed (e.g.
+            // Vercel's filtered install), making Vite substitute an empty
+            // `__vite-optional-peer-dep` stub that fails the build - so
+            // resolve them from the playground's own dependencies instead.
+            // Points at `src/` (like the dev aliases): the prefix replace
+            // bypasses the package's exports map, and only under `src/` do
+            // subpath imports (`…/diagram-block/docx-exporter`) land on
+            // real directories with index files.
+            "@blocknote/diagram-block": resolve(
+              __dirname,
+              "../packages/diagram-block/src",
+            ),
+            // The shared test-utils package the suggestion-gallery example
+            // imports; dev mode resolves it via devAliases above.
+            "@shared": resolve(__dirname, "../shared"),
+            "@react-pdf/math": resolve(
+              __dirname,
+              "node_modules/@react-pdf/math",
+            ),
+            katex: resolve(__dirname, "node_modules/katex"),
+          }
+        : devAliases,
   },
 })) as Parameters<typeof defineConfig>[0]);

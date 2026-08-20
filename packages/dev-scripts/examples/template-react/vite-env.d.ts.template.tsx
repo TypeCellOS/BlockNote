@@ -1,3 +1,3 @@
-const template = () => `/// <reference types="vite-plus/client" />\n`;
+const template = () => `/// <reference types="vite/client" />\n`;
 
 export default template;

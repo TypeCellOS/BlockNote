@@ -221,6 +221,10 @@ export const de: Dictionary = {
     add_block_button:
       "Leerer aufklappbarer Bereich. Klicken, um einen Block hinzuzufügen.",
   },
+  code_block: {
+    add_source_button_text: "Quellcode hinzufügen",
+    ok_button_text: "OK",
+  },
   side_menu: {
     add_block_label: "Block hinzufügen",
     drag_handle_label: "Blockmenü öffnen",
@@ -404,6 +408,7 @@ export const de: Dictionary = {
     save_button_text: "Speichern",
     cancel_button_text: "Abbrechen",
     deleted_reference_text: "Originalinhalt gelöscht",
+    discard_pending_comment: "Möchten Sie diesen Kommentar wirklich verwerfen?",
     actions: {
       add_reaction: "Reaktion hinzufügen",
       resolve: "Lösen",
@@ -419,6 +424,19 @@ export const de: Dictionary = {
       marked_as_resolved: "Als gelöst markiert",
       more_replies: (count) => `${count} weitere Antworten`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Formatierungsänderung",
+    deleted: "Gelöscht",
+    inserted_by: (users: string) => `Eingefügt von: ${users}`,
+    deleted_by: (users: string) => `Gelöscht von: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Formatierungsänderung (${formats}) von: ${users}`,
+  },
+  exporter: {
+    open_file: "Datei öffnen",
+    open_video_file: "Video öffnen",
+    open_audio_file: "Audio öffnen",
   },
   generic: {
     ctrl_shortcut: "Strg",

@@ -1,12 +1,14 @@
 import {
+  BlockFromConfigNoChildren,
   BlockMapping,
   COLORS_DEFAULT,
   createPageBreakBlockConfig,
   DefaultBlockSchema,
   DefaultProps,
-  StyledText,
+  PlainContent,
   UnreachableCaseError,
 } from "@blocknote/core";
+import { multiColumnSchema } from "@blocknote/xl-multi-column";
 import { getImageDimensions } from "@shared/util/imageUtil.js";
 import {
   CheckBox,
@@ -22,8 +24,12 @@ import {
   TableRow,
   TextRun,
 } from "docx";
+import { clampListLevel } from "../listLevels.js";
 import { Table } from "../util/Table.js";
-import { multiColumnSchema } from "@blocknote/xl-multi-column";
+
+type BSchema = DefaultBlockSchema & {
+  pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+} & typeof multiColumnSchema.blockSchema;
 
 function blockPropsToStyles(
   props: Partial<DefaultProps>,
@@ -69,10 +75,32 @@ function blockPropsToStyles(
                 })(),
   };
 }
+
+const codeMapping = (
+  block: BlockFromConfigNoChildren<BSchema["codeBlock"], any, any>,
+) => {
+  // Code blocks hold plain content: at most a single unstyled text item.
+  const [textItem, ...excessItems] = block.content as PlainContent;
+  if (excessItems.length > 0 || (textItem && !("text" in textItem))) {
+    throw new Error("expected plain block content to be a single text item");
+  }
+  const textContent = textItem?.text ?? "";
+
+  return new Paragraph({
+    style: "SourceCode",
+    children: [
+      ...textContent.split("\n").map((line, index) => {
+        return new TextRun({
+          text: line,
+          break: index > 0 ? 1 : 0,
+        });
+      }),
+    ],
+  });
+};
+
 export const docxBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema & {
-    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
-  } & typeof multiColumnSchema.blockSchema,
+  BSchema,
   any,
   any,
   | Promise<Paragraph[] | Paragraph | DocxTable>
@@ -104,7 +132,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       children: exporter.transformInlineContent(block.content),
       numbering: {
         reference: "blocknote-numbered-list",
-        level: nestingLevel,
+        level: clampListLevel(nestingLevel),
       },
     });
   },
@@ -114,7 +142,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       children: exporter.transformInlineContent(block.content),
       numbering: {
         reference: "blocknote-bullet-list",
-        level: nestingLevel,
+        level: clampListLevel(nestingLevel),
       },
     });
   },
@@ -146,37 +174,23 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   },
   audio: (block, exporter) => {
     return [
-      file(block.props, "Open audio", exporter),
+      file(block.props, exporter.dictionary.open_audio_file, exporter),
       ...caption(block.props, exporter),
     ];
   },
   video: (block, exporter) => {
     return [
-      file(block.props, "Open video", exporter),
+      file(block.props, exporter.dictionary.open_video_file, exporter),
       ...caption(block.props, exporter),
     ];
   },
   file: (block, exporter) => {
     return [
-      file(block.props, "Open file", exporter),
+      file(block.props, exporter.dictionary.open_file, exporter),
       ...caption(block.props, exporter),
     ];
   },
-  codeBlock: (block) => {
-    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
-
-    return new Paragraph({
-      style: "SourceCode",
-      children: [
-        ...textContent.split("\n").map((line, index) => {
-          return new TextRun({
-            text: line,
-            break: index > 0 ? 1 : 0,
-          });
-        }),
-      ],
-    });
-  },
+  codeBlock: codeMapping,
   pageBreak: () => {
     return new Paragraph({
       children: [new PageBreak()],

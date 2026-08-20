@@ -85,6 +85,10 @@ new ODTExporter(schema, {
 });
 ```
 
+### Math & diagram blocks
+
+The [math](/docs/features/blocks/math) and [diagram](/docs/features/blocks/diagrams) blocks ship their own ODT mappings — math exports as native (editable) formula objects, diagrams as embedded images. See [exporting math](/docs/features/blocks/math#odt) and [exporting diagrams](/docs/features/blocks/diagrams#exporting) for the setup.
+
 ### Exporter options
 
 The `ODTExporter` constructor takes an optional `options` parameter.
@@ -95,6 +99,10 @@ const defaultOptions = {
   // a function to resolve external resources in order to avoid CORS issues
   // by default, this calls a BlockNote hosted server-side proxy to resolve files
   resolveFileUrl: corsProxyResolveFileUrl,
+  // the strings rendered into the exported document (file link texts, error
+  // placeholders); pass a locale from @blocknote/core/locales (or your
+  // editor's dictionary) to export in another language
+  dictionary: locales.en,
   // the colors to use in the ODT for things like highlighting, background colors and font colors.
   colors: COLORS_DEFAULT, // defaults from @blocknote/core
 };

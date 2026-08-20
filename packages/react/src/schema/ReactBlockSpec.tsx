@@ -10,7 +10,6 @@ import {
   Extension,
   ExtensionFactoryInstance,
   ExtractBlockConfigFromConfigOrCreator,
-  getBlockFromPos,
   mergeCSSClasses,
   Props,
   PropSchema,
@@ -23,6 +22,7 @@ import {
 } from "@tiptap/react";
 import { FC, ReactNode } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
+import { useNodeViewBlock } from "./useNodeViewBlock.js";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
@@ -33,7 +33,7 @@ export type ReactCustomBlockRenderProps<
 > = {
   block: BlockNoDefaults<Record<Config["type"], Config>, any, any>;
   editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
-} & (Config["content"] extends "inline"
+} & (Config["content"] extends "inline" | "plain"
   ? {
       contentRef: (node: HTMLElement | null) => void;
     }
@@ -63,11 +63,8 @@ export type ReactCustomBlockImplementation<
 };
 
 export type ReactCustomBlockSpec<
-  B extends BlockConfig<string, PropSchema, "inline" | "none"> = BlockConfig<
-    string,
-    PropSchema,
-    "inline" | "none"
-  >,
+  B extends BlockConfig<string, PropSchema, "inline" | "none" | "plain"> =
+    BlockConfig<string, PropSchema, "inline" | "none" | "plain">,
 > = {
   config: B;
   implementation: ReactCustomBlockImplementation<B>;
@@ -133,7 +130,7 @@ export function BlockContentWrapper<
 export function createReactBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const TOptions extends Record<string, any> | undefined = undefined,
 >(
   blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
@@ -159,7 +156,7 @@ export function createReactBlockSpec<
 export function createReactBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const BlockConf extends BlockConfig<TName, TProps, TContent>,
   const TOptions extends Partial<Record<string, any>>,
 >(
@@ -188,7 +185,7 @@ export function createReactBlockSpec<
 export function createReactBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const TOptions extends Record<string, any> | undefined = undefined,
 >(
   blockConfigOrCreator: BlockConfigOrCreator<TName, TProps, TContent, TOptions>,
@@ -267,19 +264,20 @@ export function createReactBlockSpec<
         },
         render(block, editor) {
           if (this.renderType === "nodeView") {
+            // The block core's `addNodeView` resolved when this node view was
+            // constructed (itself guarded, via `getBlockFromNodeView`). Seeds
+            // the fallback below so there is always something to render.
+            const initialBlock = block;
+
             return ReactNodeViewRenderer(
               (props: NodeViewProps) => {
                 // Vanilla JS node views are recreated on each update. However,
                 // using `ReactNodeViewRenderer` makes it so the node view is
                 // only created once, so the block we get in the node view will
                 // be outdated. Therefore, we have to get the block in the
-                // `ReactNodeViewRenderer` instead.
-                const block = getBlockFromPos(
-                  props.getPos,
-                  editor,
-                  props.editor,
-                  blockConfig.type,
-                );
+                // `ReactNodeViewRenderer` instead. That position can be stale,
+                // so resolving it is guarded (see `useNodeViewBlock`).
+                const block = useNodeViewBlock(props, initialBlock);
 
                 const ref = useReactNodeView().nodeViewContentRef;
 

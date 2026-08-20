@@ -24,6 +24,7 @@ import {
 import { Exporter, ExporterOptions } from "@blocknote/core";
 import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
 import { loadFileBuffer } from "@shared/util/fileUtil.js";
+import { DOCX_LIST_LEVEL_COUNT } from "./listLevels.js";
 
 // get constructor arg type from Document
 type DocumentOptions = Partial<ConstructorParameters<typeof Document>[0]>;
@@ -153,36 +154,39 @@ export class DOCXExporter<
     // Unfortunately, loading the variable font doesn't work
     // "./src/fonts/Inter-VariableFont_opsz,wght.ttf",
 
-    let interFont = await loadFileBuffer(
+    const interFont = await loadFileBuffer(
       await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf"),
     );
-    let geistMonoFont = await loadFileBuffer(
+    const geistMonoFont = await loadFileBuffer(
       await import("@shared/assets/fonts/GeistMono-Regular.ttf"),
     );
 
-    if (
-      interFont instanceof ArrayBuffer ||
-      geistMonoFont instanceof ArrayBuffer
-    ) {
-      // conversion with Polyfill needed because docxjs requires Buffer
-      // NOTE: the buffer/ import is intentional and as documented in
-      // the `buffer` package usage instructions
-      // https://github.com/feross/buffer?tab=readme-ov-file#usage
-      const Buffer = (await import("buffer/")).Buffer;
+    // `docx` requires each font's `data` to be a Node `Buffer`. We derive the
+    // exact expected type from `docx` itself (rather than referencing the
+    // global `Buffer` type, which isn't available in this package's tsconfig).
+    type FontData = NonNullable<DocumentOptions["fonts"]>[number]["data"];
 
-      if (interFont instanceof ArrayBuffer) {
-        interFont = Buffer.from(interFont) as unknown as Buffer;
+    // In the browser `loadFileBuffer` resolves to an `ArrayBuffer`, which
+    // `docx` doesn't accept, so we convert it to a `Buffer` using the `buffer/`
+    // polyfill. In Node it's already a `Buffer` and can be used as-is.
+    // NOTE: the buffer/ import is intentional and as documented in the `buffer`
+    // package usage instructions:
+    // https://github.com/feross/buffer?tab=readme-ov-file#usage
+    const toFontData = async (
+      font: Awaited<ReturnType<typeof loadFileBuffer>>,
+    ): Promise<FontData> => {
+      if (font instanceof ArrayBuffer) {
+        const BufferPolyfill = (await import("buffer/")).Buffer;
+        return BufferPolyfill.from(font) as unknown as FontData;
       }
-      if (geistMonoFont instanceof ArrayBuffer) {
-        geistMonoFont = Buffer.from(geistMonoFont) as unknown as Buffer;
-      }
-    }
+      return font as unknown as FontData;
+    };
 
     return [
-      { name: "Inter", data: interFont },
+      { name: "Inter", data: await toFontData(interFont) },
       {
         name: "GeistMono",
-        data: geistMonoFont,
+        data: await toFontData(geistMonoFont),
       },
     ];
   }
@@ -207,13 +211,18 @@ export class DOCXExporter<
       externalStyles = externalStyles.replace(/\s*<w:lang\b[^>]*\/>/g, "");
     }
 
-    const bullets = ["•"]; //, "◦", "▪"]; (these don't look great, just use solid bullet for now)
+    // Cycle bullet symbols by depth (filled disc, hollow circle, filled
+    // square), the same convention Word/LibreOffice/Google Docs use, so nested
+    // bullet levels are visually distinct instead of all rendering as "•"
+    // (#2226). These Unicode glyphs render in the document font, so they don't
+    // depend on Symbol/Wingdings being installed.
+    const bullets = ["•", "○", "▪"];
     return {
       numbering: {
         config: [
           {
             reference: "blocknote-numbered-list",
-            levels: Array.from({ length: 9 }, (_, i) => ({
+            levels: Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => ({
               start: 1,
               level: i,
               format: LevelFormat.DECIMAL,
@@ -231,7 +240,7 @@ export class DOCXExporter<
           },
           {
             reference: "blocknote-bullet-list",
-            levels: Array.from({ length: 9 }, (_, i) => ({
+            levels: Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => ({
               start: 1,
               level: i,
               format: LevelFormat.BULLET,

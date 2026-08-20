@@ -1020,11 +1020,11 @@ export const examples = {
           tags: ["Basic"],
           dependencies: {
             "@blocknote/code-block": "latest",
-            "@shikijs/core": "^4",
-            "@shikijs/engine-javascript": "^4",
-            "@shikijs/langs-precompiled": "^4",
-            "@shikijs/themes": "^4",
-            "@shikijs/types": "^4",
+            "@shikijs/core": "^4.4.3",
+            "@shikijs/engine-javascript": "^4.4.3",
+            "@shikijs/langs-precompiled": "^4.4.3",
+            "@shikijs/themes": "^4.4.3",
+            "@shikijs/types": "^4.4.3",
           } as any,
         },
         title: "Custom Code Block Theme & Language",
@@ -1128,9 +1128,13 @@ export const examples = {
           tags: ["Interoperability"],
           sharedTestDocument: true,
           dependencies: {
-            "@blocknote/xl-pdf-exporter": "latest",
+            "@blocknote/diagram-block": "latest",
+            "@blocknote/math-block": "latest",
             "@blocknote/xl-multi-column": "latest",
-            "@react-pdf/renderer": "^4.3.0",
+            "@blocknote/xl-pdf-exporter": "latest",
+            "@react-pdf/math": "^2.0.1",
+            "@react-pdf/renderer": "^4.5.1",
+            "mathjax-full": "^3.2.2",
           } as any,
           pro: true,
         },
@@ -1154,8 +1158,11 @@ export const examples = {
           tags: [""],
           sharedTestDocument: true,
           dependencies: {
+            "@blocknote/diagram-block": "latest",
+            "@blocknote/math-block": "latest",
             "@blocknote/xl-docx-exporter": "latest",
             "@blocknote/xl-multi-column": "latest",
+            katex: "^0.16.11",
           } as any,
           pro: true,
         },
@@ -1179,8 +1186,11 @@ export const examples = {
           tags: [""],
           sharedTestDocument: true,
           dependencies: {
-            "@blocknote/xl-odt-exporter": "latest",
+            "@blocknote/diagram-block": "latest",
+            "@blocknote/math-block": "latest",
             "@blocknote/xl-multi-column": "latest",
+            "@blocknote/xl-odt-exporter": "latest",
+            katex: "^0.16.11",
           } as any,
           pro: true,
         },
@@ -1204,6 +1214,8 @@ export const examples = {
           tags: [""],
           sharedTestDocument: true,
           dependencies: {
+            "@blocknote/diagram-block": "latest",
+            "@blocknote/math-block": "latest",
             "@blocknote/xl-email-exporter": "latest",
             "@blocknote/xl-multi-column": "latest",
             "@react-email/render": "^2.0.4",
@@ -1269,8 +1281,8 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-pdf-renderer-2": "latest",
             "@blocknote/xl-multi-column": "latest",
-            "@myriaddreamin/typst.ts": "^0.7.0",
-            "@myriaddreamin/typst-ts-web-compiler": "^0.7.0",
+            "@myriaddreamin/typst.ts": "^0.8.0-rc3",
+            "@myriaddreamin/typst-ts-web-compiler": "^0.8.0-rc3",
           } as any,
           pro: true,
         },
@@ -1476,6 +1488,85 @@ export const examples = {
         },
         readme:
           "In this example, we create a custom block which renders a simple HTML paragraph with placeholder text. The block has no editable content.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+      },
+      {
+        projectSlug: "math-block",
+        fullSlug: "custom-schema/math-block",
+        pathFromRoot: "examples/06-custom-schema/09-math-block",
+        config: {
+          playground: true,
+          docs: true,
+          author: "matthewlipski",
+          tags: [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu",
+          ],
+          dependencies: {
+            "@blocknote/code-block": "latest",
+            "@blocknote/math-block": "latest",
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Math Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          "In this example, we register the `@blocknote/math-block` block in a custom schema. The math block renders LaTeX as MathML (using Temml) for the browser to display natively, and reveals an editable LaTeX source popup when selected. Exporting to HTML produces a MathML `<math>` element, and pasting MathML back in is converted to LaTeX.\n\n**Try it out:** Click a formula to edit its LaTeX!\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+      },
+      {
+        projectSlug: "diagram-block",
+        fullSlug: "custom-schema/diagram-block",
+        pathFromRoot: "examples/06-custom-schema/10-diagram-block",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu",
+          ],
+          dependencies: {
+            "@blocknote/code-block": "latest",
+            "@blocknote/diagram-block": "latest",
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Diagram Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          "In this example, we register the `@blocknote/diagram-block` block in a custom schema. The block renders diagrams from [Mermaid](https://mermaid.js.org/) source code, showing the rendered diagram in place of the source and revealing an editable source popup when selected - built from the same `SourceBlockWithPreview` component the math block uses, so the block itself is only a few dozen lines.\n\n**Try it out:** Click a diagram to edit its Mermaid source!\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+      },
+      {
+        projectSlug: "source-with-preview",
+        fullSlug: "custom-schema/source-with-preview",
+        pathFromRoot: "examples/06-custom-schema/11-source-with-preview",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Advanced", "Blocks", "Custom Schemas"],
+          dependencies: {
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Source with Preview Blocks",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          'In this example, we build custom blocks on the source-with-preview pattern — the same building blocks behind BlockNote\'s math and diagram blocks. A custom "CSV table" block renders its comma-separated source as a table, and a custom "color" inline content renders a CSS color as a swatch. Both show the rendered preview in place, while the source is edited in a popup.\n\n**Try it out:** Click the table or a color chip to edit its source!\n\n**Relevant Docs:**\n\n- [Source with Preview Blocks](/docs/features/custom-schemas/source-with-preview)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Custom Inline Content](/docs/features/custom-schemas/custom-inline-content)',
       },
       {
         projectSlug: "draggable-inline-content",
@@ -1748,6 +1839,125 @@ export const examples = {
         readme:
           "A minimal comments example used for end-to-end testing. Uses a local Y.Doc (no collaboration provider) with a single hardcoded editor user.",
       },
+      {
+        projectSlug: "suggestion-multi-editor",
+        fullSlug: "collaboration/suggestion-multi-editor",
+        pathFromRoot: "examples/07-collaboration/10-suggestion-multi-editor",
+        config: {
+          playground: true,
+          docs: true,
+          author: "nperez0111",
+          tags: ["Advanced", "Saving/Loading", "Collaboration"],
+          dependencies: {
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/y": "^14.0.0-rc.23",
+            "@y/prosemirror": "^2.0.0-6",
+            "@y/websocket": "^4.0.0-rc.2",
+          } as any,
+        },
+        title: "Suggestions (Experimental)",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          "In this example, we have 4 editors (2 clients) & 1 in suggestion-view mode & 1 in suggestion-edit mode. To show the experimental support for suggesting content in (@y/y v14)",
+      },
+      {
+        projectSlug: "versioning-yjs13",
+        fullSlug: "collaboration/versioning-yjs13",
+        pathFromRoot: "examples/07-collaboration/11-versioning-yjs13",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Advanced", "Development", "Collaboration"],
+          dependencies: {
+            "y-websocket": "^2.1.0",
+            yjs: "^13.6.27",
+            lib0: "^0.2.99",
+          } as any,
+        },
+        title: "Local Storage Versioning (yjs v13)",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          'This example shows how to use the `VersioningExtension` with collaborative editing using `yjs` (v13). Snapshots are stored in localStorage using Yjs state updates.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+      },
+      {
+        projectSlug: "multi-doc-versioning",
+        fullSlug: "collaboration/multi-doc-versioning",
+        pathFromRoot: "examples/07-collaboration/12-multi-doc-versioning",
+        config: {
+          playground: true,
+          docs: false,
+          author: "nperez0111",
+          tags: ["Advanced", "Collaboration"],
+          dependencies: {
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/websocket": "^4.0.0-3",
+            "@y/y": "^14.0.0-rc.23",
+            lib0: "1.0.0-rc.22",
+          } as any,
+        },
+        title: "YHub Multi-Doc",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          "This example shows a multi-document collaborative editor with per-document version history, using BlockNote's `VersioningExtension` and Y.js v14.\n\n**Features:**\n\n- User picker (per-tab identity via `sessionStorage`)\n- Left sidebar with document list (create, rename, delete)\n- Collaborative editing with Y.js (including suggestion mode)\n- Right sidebar with version history powered by `VersioningSidebar`\n- Per-document versioning backed by `localStorage`\n- Open multiple tabs with different users via the `?as=` URL param\n\n**Relevant Docs:**\n\n- [Versioning](https://www.blocknotejs.org/docs/collaboration/versioning)\n- [Y.js Collaboration](https://www.blocknotejs.org/docs/collaboration)",
+      },
+      {
+        projectSlug: "versioning-yjs14",
+        fullSlug: "collaboration/versioning-yjs14",
+        pathFromRoot: "examples/07-collaboration/13-versioning-yjs14",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Advanced", "Development", "Collaboration"],
+          dependencies: {
+            "@y/prosemirror": "^2.0.0-6",
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/websocket": "^4.0.0-3",
+            "@y/y": "^14.0.0-rc.23",
+            lib0: "1.0.0-rc.22",
+          } as any,
+        },
+        title: "YHub Versioning (@y/y v14)",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          'This example shows how to use the `VersioningExtension` with collaborative editing using `@y/y` (v14). Snapshots are stored in localStorage using Yjs v2 state updates.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+      },
+      {
+        projectSlug: "suggestion-gallery",
+        fullSlug: "collaboration/suggestion-gallery",
+        pathFromRoot: "examples/07-collaboration/14-suggestion-gallery",
+        config: {
+          playground: true,
+          docs: false,
+          author: "yousefed",
+          tags: ["Advanced", "Development", "Collaboration"],
+          dependencies: {
+            "@blocknote/xl-multi-column": "latest",
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/y": "^14.0.0-rc.23",
+          } as any,
+        },
+        title: "Suggestion Scenarios Gallery",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          "Browse the suggestion (track-changes) rendering scenarios interactively. Each\nentry sets up a base document and applies a change in suggestion mode, so you can\nsee how insertions, deletions and type changes are visualized as a diff.\n\nThe **Base** pane (left) is read-only and shows the document before the change.\nThe **Suggestion** pane (right) is editable — keep typing to create more\nsuggestions on top.\n\nThese are the same scenarios covered by the y-prosemirror visual tests; the\nper-scenario definitions live in `src/scenarios.ts` so the tests and this gallery\nstay in sync.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/editor-basics/setup)\n- [Collaboration](/docs/collaboration/real-time-collaboration)",
+      },
     ],
   },
   extensions: {
@@ -1765,7 +1975,7 @@ export const examples = {
           tags: ["Extension"],
           pro: true,
           dependencies: {
-            "@tiptap/core": "^3.13.0",
+            "@tiptap/core": "^3.29.2",
           } as any,
         },
         title: "TipTap extension (arrow InputRule)",
@@ -1775,6 +1985,28 @@ export const examples = {
         },
         readme:
           "This example shows how to set up a BlockNote editor with a TipTap extension that registers an InputRule to convert `->` into `→`.\n\n**Try it out:** Type `->` anywhere in the editor and see how it's automatically converted to a single arrow unicode character.",
+      },
+      {
+        projectSlug: "versioning",
+        fullSlug: "extensions/versioning",
+        pathFromRoot: "examples/08-extensions/02-versioning",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Extension"],
+          dependencies: {
+            "@y/y": "^14.0.0-rc.23",
+            "@y/prosemirror": "^2.0.0-6",
+          } as any,
+        },
+        title: "In-Memory Versioning",
+        group: {
+          pathFromRoot: "examples/08-extensions",
+          slug: "extensions",
+        },
+        readme:
+          'This example shows how to use the `VersioningExtension` without any collaboration layer (no Yjs required). Snapshots are stored in memory using ProseMirror JSON.\n\n**Try it out:** Edit the document, then use the Version History sidebar to save snapshots, preview older versions, rename them, and restore them. You can hide the sidebar with the close button and reopen it with the "History" button.',
       },
     ],
   },
@@ -2005,6 +2237,24 @@ export const examples = {
           slug: "vanilla-js",
         },
         readme: "",
+      },
+      {
+        projectSlug: "vanilla-custom-side-menu",
+        fullSlug: "vanilla-js/vanilla-custom-side-menu",
+        pathFromRoot: "examples/vanilla-js/vanilla-custom-side-menu",
+        config: {
+          playground: true,
+          docs: true,
+          author: "matthewlipski",
+          tags: ["Advanced", "UI Components", "Block Side Menu"],
+        },
+        title: "Custom Side Menu (Vanilla JS)",
+        group: {
+          pathFromRoot: "examples/vanilla-js",
+          slug: "vanilla-js",
+        },
+        readme:
+          "This example uses the vanilla JS API to create a plain BlockNote editor without `@blocknote/react`, mounting it manually and building a custom Side Menu from scratch.\n\n**Try it out:** Hover over a block to reveal the custom Side Menu, then use the `+` button to add a block or the `::` handle to drag it!\n\n**Relevant Docs:**\n\n- [Getting Started with Vanilla JS](/docs/getting-started/vanilla-js)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Extensions](/docs/features/extensions)",
       },
     ],
   },

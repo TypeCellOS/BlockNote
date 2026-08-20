@@ -106,7 +106,7 @@ export const testExportParseEqualityNodes = <
   );
 
   expect(
-    exported.map((node) => nodeToBlock(node, editor.pmSchema)),
+    exported.map((node) => nodeToBlock(node, editor.prosemirrorState.doc)),
   ).toStrictEqual(
     partialBlocksToBlocksForTesting(editor.schema, testCase.content),
   );

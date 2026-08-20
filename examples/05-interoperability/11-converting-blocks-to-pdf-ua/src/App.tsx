@@ -73,8 +73,8 @@ export default function App() {
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading",
   );
-  const urlRef = useRef<string>();
-  const debounce = useRef<ReturnType<typeof setTimeout>>();
+  const urlRef = useRef<string | undefined>(undefined);
+  const debounce = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Creates a new editor instance with support for page breaks.
   const editor = useCreateBlockNote({
@@ -131,7 +131,11 @@ export default function App() {
         { title: "BlockNote document", lang: "en" },
       );
       const url = URL.createObjectURL(
-        new Blob([bytes], { type: "application/pdf" }),
+        // pdf-lib always returns a view over a plain (non-shared) buffer; the
+        // cast narrows `ArrayBufferLike` for `BlobPart`.
+        new Blob([bytes as Uint8Array<ArrayBuffer>], {
+          type: "application/pdf",
+        }),
       );
       if (urlRef.current) {
         URL.revokeObjectURL(urlRef.current);

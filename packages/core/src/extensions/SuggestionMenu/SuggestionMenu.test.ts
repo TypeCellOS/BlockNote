@@ -140,6 +140,124 @@ describe("SuggestionMenu", () => {
     editor._tiptapEditor.destroy();
   });
 
+  it("should open a suggestion menu with a multi-character trigger", () => {
+    const editor = createEditor();
+    const sm = editor.getExtension(SuggestionMenu)!;
+
+    sm.addSuggestionMenu({ triggerCharacter: "img:" });
+
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "paragraph-0",
+        type: "paragraph",
+        content: "img",
+      },
+    ]);
+
+    editor.setTextCursorPosition("paragraph-0", "end");
+
+    expect(getSuggestionPluginState(editor)).toBeUndefined();
+
+    // Typing the final ":" completes the "img:" trigger.
+    const handled = simulateTextInput(editor, ":");
+
+    expect(handled).toBe(true);
+
+    const pluginState = getSuggestionPluginState(editor);
+    expect(pluginState).toBeDefined();
+    expect(pluginState.triggerCharacter).toBe("img:");
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("should match a multi-character trigger that is preceded by other text", () => {
+    const editor = createEditor();
+    const sm = editor.getExtension(SuggestionMenu)!;
+
+    sm.addSuggestionMenu({ triggerCharacter: "img:" });
+
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "paragraph-0",
+        type: "paragraph",
+        content: "hello img",
+      },
+    ]);
+
+    editor.setTextCursorPosition("paragraph-0", "end");
+
+    expect(getSuggestionPluginState(editor)).toBeUndefined();
+
+    const handled = simulateTextInput(editor, ":");
+
+    expect(handled).toBe(true);
+
+    const pluginState = getSuggestionPluginState(editor);
+    expect(pluginState).toBeDefined();
+    expect(pluginState.triggerCharacter).toBe("img:");
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("should prefer a longer trigger over a shorter one that would shadow it", () => {
+    const editor = createEditor();
+    const sm = editor.getExtension(SuggestionMenu)!;
+
+    // Register the shorter ":" trigger first so it would win in insertion
+    // order, then the longer "img:" trigger that ends in the same character.
+    sm.addSuggestionMenu({ triggerCharacter: ":" });
+    sm.addSuggestionMenu({ triggerCharacter: "img:" });
+
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "paragraph-0",
+        type: "paragraph",
+        content: "img",
+      },
+    ]);
+
+    editor.setTextCursorPosition("paragraph-0", "end");
+
+    const handled = simulateTextInput(editor, ":");
+
+    expect(handled).toBe(true);
+
+    const pluginState = getSuggestionPluginState(editor);
+    expect(pluginState).toBeDefined();
+    expect(pluginState.triggerCharacter).toBe("img:");
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("should fall back to the shorter trigger when the longer one does not match", () => {
+    const editor = createEditor();
+    const sm = editor.getExtension(SuggestionMenu)!;
+
+    sm.addSuggestionMenu({ triggerCharacter: ":" });
+    sm.addSuggestionMenu({ triggerCharacter: "img:" });
+
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "paragraph-0",
+        type: "paragraph",
+        content: "hello",
+      },
+    ]);
+
+    editor.setTextCursorPosition("paragraph-0", "end");
+
+    // "hello" + ":" doesn't complete "img:", so the bare ":" trigger wins.
+    const handled = simulateTextInput(editor, ":");
+
+    expect(handled).toBe(true);
+
+    const pluginState = getSuggestionPluginState(editor);
+    expect(pluginState).toBeDefined();
+    expect(pluginState.triggerCharacter).toBe(":");
+
+    editor._tiptapEditor.destroy();
+  });
+
   it("should still allow suggestion menus without shouldTrigger in table content", () => {
     const editor = createEditor();
     const sm = editor.getExtension(SuggestionMenu)!;

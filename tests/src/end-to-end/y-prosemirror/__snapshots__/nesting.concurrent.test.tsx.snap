@@ -1,0 +1,261 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`concurrent: A indents N1, B indents N2 below N1 1`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+  </blockContainer>
+  <blockContainer id="n1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+  </blockContainer>
+  <blockContainer id="n2">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N2</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A indents N1, B indents N2 below N1 2`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+    <blockGroup>
+      <blockContainer id="n1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+  <blockContainer id="n2">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N2</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A indents N1, B indents N2 below N1 3`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+  </blockContainer>
+  <blockContainer id="n1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+    <blockGroup>
+      <blockContainer id="n2">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N2</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A indents N1, B indents N2 below N1 4`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+    <blockGroup>
+      <blockContainer id="n1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+  <blockContainer id="n1">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+    <blockGroup>
+      <blockContainer id="n2">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N2</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A indents N1, B indents N2 below N1 5`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="A">
+      <blockContainer id="n0">
+        <y-attributed-delete userIds="A">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="A">N0</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-delete userIds="A">
+      <blockContainer id="n1">
+        <y-attributed-delete userIds="A">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="A">N1</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="A">
+      <blockContainer id="n0">
+        <y-attributed-insert userIds="A">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-insert userIds="A">N0</y-attributed-insert>
+          </paragraph>
+        </y-attributed-insert>
+        <y-attributed-insert userIds="A">
+          <blockGroup>
+            <y-attributed-insert userIds="A">
+              <blockContainer id="n1">
+                <y-attributed-insert userIds="A">
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-insert userIds="A">N1</y-attributed-insert>
+                  </paragraph>
+                </y-attributed-insert>
+              </blockContainer>
+            </y-attributed-insert>
+          </blockGroup>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+    <y-attributed-delete userIds="B">
+      <blockContainer id="n2">
+        <y-attributed-delete userIds="B">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="B">N2</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="B">
+      <blockContainer id="n1">
+        <y-attributed-insert userIds="B">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-insert userIds="B">N1</y-attributed-insert>
+          </paragraph>
+        </y-attributed-insert>
+        <y-attributed-insert userIds="B">
+          <blockGroup>
+            <y-attributed-insert userIds="B">
+              <blockContainer id="n2">
+                <y-attributed-insert userIds="B">
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-insert userIds="B">N2</y-attributed-insert>
+                  </paragraph>
+                </y-attributed-insert>
+              </blockContainer>
+            </y-attributed-insert>
+          </blockGroup>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;
+
+exports[`concurrent: A nests N1 under N0, B nests N2 under N0 1`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A nests N1 under N0, B nests N2 under N0 2`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+    <blockGroup>
+      <blockContainer id="n1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A nests N1 under N0, B nests N2 under N0 3`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+    <blockGroup>
+      <blockContainer id="n2">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N2</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A nests N1 under N0, B nests N2 under N0 4`] = `
+"<blockGroup>
+  <blockContainer id="n0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+    <blockGroup>
+      <blockContainer id="n1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+  <blockContainer id="n0">
+    <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+    <blockGroup>
+      <blockContainer id="n2">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N2</paragraph>
+      </blockContainer>
+    </blockGroup>
+  </blockContainer>
+</blockGroup>"
+`;
+
+exports[`concurrent: A nests N1 under N0, B nests N2 under N0 5`] = `
+"<doc>
+  <blockGroup>
+    <y-attributed-delete userIds="A">
+      <blockContainer id="n0">
+        <y-attributed-delete userIds="A">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="A">N0</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="A">
+      <blockContainer id="n0">
+        <y-attributed-insert userIds="A">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-insert userIds="A">N0</y-attributed-insert>
+          </paragraph>
+        </y-attributed-insert>
+        <y-attributed-insert userIds="A">
+          <blockGroup>
+            <y-attributed-insert userIds="A">
+              <blockContainer id="n1">
+                <y-attributed-insert userIds="A">
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-insert userIds="A">N1</y-attributed-insert>
+                  </paragraph>
+                </y-attributed-insert>
+              </blockContainer>
+            </y-attributed-insert>
+          </blockGroup>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+    <y-attributed-insert userIds="B">
+      <blockContainer id="n0">
+        <y-attributed-insert userIds="B">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-insert userIds="B">N0</y-attributed-insert>
+          </paragraph>
+        </y-attributed-insert>
+        <y-attributed-insert userIds="B">
+          <blockGroup>
+            <y-attributed-insert userIds="B">
+              <blockContainer id="n2">
+                <y-attributed-insert userIds="B">
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-insert userIds="B">N2</y-attributed-insert>
+                  </paragraph>
+                </y-attributed-insert>
+              </blockContainer>
+            </y-attributed-insert>
+          </blockGroup>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
+  </blockGroup>
+</doc>"
+`;

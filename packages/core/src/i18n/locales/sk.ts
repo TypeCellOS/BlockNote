@@ -200,6 +200,10 @@ export const sk = {
   toggle_blocks: {
     add_block_button: "Prázdne prepínanie. Kliknite pre pridanie bloku.",
   },
+  code_block: {
+    add_source_button_text: "Pridať zdrojový kód",
+    ok_button_text: "OK",
+  },
   side_menu: {
     add_block_label: "Pridať blok",
     drag_handle_label: "Otvoriť menu bloku",
@@ -383,6 +387,7 @@ export const sk = {
     save_button_text: "Uložiť",
     cancel_button_text: "Zrušiť",
     deleted_reference_text: "Pôvodný obsah odstránený",
+    discard_pending_comment: "Naozaj chcete zahodiť tento komentár?",
     actions: {
       add_reaction: "Pridať reakciu",
       resolve: "Vyriešiť",
@@ -398,6 +403,19 @@ export const sk = {
       marked_as_resolved: "Označené ako vyriešené",
       more_replies: (count: number) => `${count} ďalších odpovedí`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Zmena formátovania",
+    deleted: "Odstránené",
+    inserted_by: (users: string) => `Vložil: ${users}`,
+    deleted_by: (users: string) => `Odstránil: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Zmena formátovania (${formats}) od: ${users}`,
+  },
+  exporter: {
+    open_file: "Otvoriť súbor",
+    open_video_file: "Otvoriť video",
+    open_audio_file: "Otvoriť zvuk",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

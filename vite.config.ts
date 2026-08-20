@@ -13,6 +13,16 @@ export default defineConfig({
     // when `core`'s dist changes, `react`'s build cache misses because
     // its tsc step reads `core`'s `.d.ts` files.
     cache: { scripts: true },
+    tasks: {
+      // The release script is interactive and produces only side-effects
+      // (git commit/tag/push, npm publish). It reads a stable file set
+      // (package.json files), so vp would fingerprint it as unchanged and
+      // replay stale cached stdout instead of running it. Always run fresh.
+      deploy: {
+        command: "node scripts/release.mjs",
+        cache: false,
+      },
+    },
   },
   // Workspace-level project list for tooling that discovers tests across the
   // monorepo (e.g. the Vitest VSCode extension). Replaces the old
@@ -100,14 +110,14 @@ export default defineConfig({
       "**/ui/**",
       "**/.source/**",
       // Non-library directories: skip all linting here.
-      // - docs/ needs Next.js type generation (next-env.d.ts) to typecheck
-      // - examples/, playground/, tests/ have 91+ separate tsconfigs that
-      //   each spin up a tsgolint instance, adding ~20s to the type-aware pass.
-      //   These are consumer/demo code — library packages are what matter.
+      // - docs/ and tests/nextjs-test-app/ need Next.js type generation
+      //   (next-env.d.ts / .next) before they can be type-checked.
+      // - examples/ has 91 separate tsconfigs that each spin up a tsgolint
+      //   instance, adding ~20s to the type-aware pass; it's demo code.
       "docs/**",
       "examples/**",
       "playground/**",
-      "tests/**",
+      "tests/nextjs-test-app/**",
       "fumadocs/**",
     ],
   },

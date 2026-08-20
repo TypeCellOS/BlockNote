@@ -8,6 +8,7 @@ import {
   getProjectFiles,
   groupProjects,
   Project,
+  writeFileAtomic,
   writeGeneratedFile,
 } from "./util.js";
 
@@ -165,8 +166,7 @@ async function addDependenciesToExample(project: Project, written: string[]) {
     Object.keys(devDependencies).length > 0
   ) {
     const packageJson = path.join(DOCS_DIR, "package.json");
-    const packageJsonContent = fs.readFileSync(packageJson, "utf-8");
-    const packageJsonObject = JSON.parse(packageJsonContent);
+    const packageJsonObject = JSON.parse(fs.readFileSync(packageJson, "utf-8"));
     packageJsonObject.dependencies = {
       ...packageJsonObject.dependencies,
       ...dependencies,
@@ -186,11 +186,13 @@ async function addDependenciesToExample(project: Project, written: string[]) {
         packageJsonObject.devDependencies[key] = "workspace:*";
       }
     });
-    writeGeneratedFile(
-      packageJson,
-      JSON.stringify(packageJsonObject, null, 2),
-      written,
-    );
+    // Atomic write so a concurrent `gen:docs` process can never read a
+    // truncated/empty docs/package.json (which previously caused
+    // `JSON.parse('')` to throw "Unexpected end of JSON input"). The merged
+    // content is deterministic, so skip-if-unchanged keeps this idempotent.
+    const target = path.resolve(packageJson);
+    writeFileAtomic(target, JSON.stringify(packageJsonObject, null, 2));
+    written.push(target);
   }
 }
 

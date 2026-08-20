@@ -192,6 +192,10 @@ export const pt: Dictionary = {
   toggle_blocks: {
     add_block_button: "Toggle vazio. Clique para adicionar um bloco.",
   },
+  code_block: {
+    add_source_button_text: "Adicionar código-fonte",
+    ok_button_text: "OK",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Adicionar bloco",
@@ -377,6 +381,8 @@ export const pt: Dictionary = {
     save_button_text: "Salvar",
     cancel_button_text: "Cancelar",
     deleted_reference_text: "Conteúdo original excluído",
+    discard_pending_comment:
+      "Tem certeza de que deseja descartar este comentário?",
     actions: {
       add_reaction: "Adicionar reação",
       resolve: "Resolver",
@@ -392,6 +398,19 @@ export const pt: Dictionary = {
       marked_as_resolved: "Marcado como resolvido",
       more_replies: (count) => `${count} respostas a mais`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Alteração de formatação",
+    deleted: "Excluído",
+    inserted_by: (users: string) => `Inserido por: ${users}`,
+    deleted_by: (users: string) => `Excluído por: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Alteração de formatação (${formats}) por: ${users}`,
+  },
+  exporter: {
+    open_file: "Abrir arquivo",
+    open_video_file: "Abrir vídeo",
+    open_audio_file: "Abrir áudio",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

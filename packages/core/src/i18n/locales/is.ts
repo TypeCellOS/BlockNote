@@ -214,6 +214,10 @@ export const is: Dictionary = {
   toggle_blocks: {
     add_block_button: "Tóm fellilína. Smelltu til að bæta við blokk.",
   },
+  code_block: {
+    add_source_button_text: "Bæta við frumkóða",
+    ok_button_text: "Í lagi",
+  },
   side_menu: {
     add_block_label: "Bæta við blokki",
     drag_handle_label: "Opna blokkarvalmynd",
@@ -398,6 +402,8 @@ export const is: Dictionary = {
     save_button_text: "Vista",
     cancel_button_text: "Hætta",
     deleted_reference_text: "Upprunalegu efni eytt",
+    discard_pending_comment:
+      "Ertu viss um að þú viljir henda þessari athugasemd?",
     actions: {
       add_reaction: "Bæta við viðbrögðum",
       resolve: "Leysa",
@@ -413,6 +419,19 @@ export const is: Dictionary = {
       marked_as_resolved: "Merkt sem leyst",
       more_replies: (count) => `${count} fleiri svör`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Sniðbreyting",
+    deleted: "Eytt",
+    inserted_by: (users: string) => `Sett inn af: ${users}`,
+    deleted_by: (users: string) => `Eytt af: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Sniðbreyting (${formats}) af: ${users}`,
+  },
+  exporter: {
+    open_file: "Opna skrá",
+    open_video_file: "Opna myndband",
+    open_audio_file: "Opna hljóð",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

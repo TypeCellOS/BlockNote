@@ -199,6 +199,10 @@ export const vi: Dictionary = {
   toggle_blocks: {
     add_block_button: "Toggle trống. Nhấp để thêm khối.",
   },
+  code_block: {
+    add_source_button_text: "Thêm mã nguồn",
+    ok_button_text: "OK",
+  },
   // từ gói phản ứng:
   side_menu: {
     add_block_label: "Thêm khối",
@@ -384,6 +388,7 @@ export const vi: Dictionary = {
     save_button_text: "Lưu",
     cancel_button_text: "Hủy",
     deleted_reference_text: "Nội dung gốc đã bị xóa",
+    discard_pending_comment: "Bạn có chắc chắn muốn hủy bình luận này không?",
     actions: {
       add_reaction: "Thêm phản ứng",
       resolve: "Giải quyết",
@@ -399,6 +404,19 @@ export const vi: Dictionary = {
       marked_as_resolved: "Đã đánh dấu là đã giải quyết",
       more_replies: (count) => `${count} câu trả lời nữa`,
     },
+  },
+  suggestion_changes: {
+    formatting_change: "Thay đổi định dạng",
+    deleted: "Đã xóa",
+    inserted_by: (users: string) => `Được chèn bởi: ${users}`,
+    deleted_by: (users: string) => `Được xóa bởi: ${users}`,
+    formatting_change_by: (formats: string, users: string) =>
+      `Thay đổi định dạng (${formats}) bởi: ${users}`,
+  },
+  exporter: {
+    open_file: "Mở tệp",
+    open_video_file: "Mở video",
+    open_audio_file: "Mở âm thanh",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

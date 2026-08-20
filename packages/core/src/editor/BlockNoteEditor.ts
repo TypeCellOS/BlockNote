@@ -41,7 +41,11 @@ import "../style.css";
 import { mergeCSSClasses } from "../util/browser.js";
 import { EventEmitter } from "../util/EventEmitter.js";
 import type { NoInfer } from "../util/typescript.js";
-import { ExtensionFactoryInstance } from "./BlockNoteExtension.js";
+import {
+  Extension,
+  ExtensionFactory,
+  ExtensionFactoryInstance,
+} from "./BlockNoteExtension.js";
 import type { TextCursorPosition } from "./cursorPositionTypes.js";
 import {
   BlockManager,
@@ -498,6 +502,7 @@ export class BlockNoteEditor<
       autofocus: newOptions.autofocus ?? false,
       extensions: tiptapExtensions,
       editorProps: {
+        scrollMargin: { top: 72, bottom: 72, left: 0, right: 0 },
         ...newOptions._tiptapOptions?.editorProps,
         attributes: {
           // As of TipTap v2.5.0 the tabIndex is removed when the editor is not
@@ -532,6 +537,10 @@ export class BlockNoteEditor<
         );
       }
       const schema = getSchema(tiptapOptions.extensions!);
+      // `blockToNode` (via `isPlainContentNodeType`) resolves the block schema
+      // through `schema.cached.blockNoteEditor`, so stamp it on this throwaway
+      // schema now — the real `pmSchema` is stamped separately below.
+      schema.cached.blockNoteEditor = this;
       const pmNodes = initialContent.map((b) =>
         blockToNode(b, schema, this.schema.styleSchema).toJSON(),
       );
@@ -675,11 +684,36 @@ export class BlockNoteEditor<
   ) => this._extensionManager.registerExtension(...args) as any;
 
   /**
+   * Atomically unregister old extensions and register new ones in a single
+   * plugin update, avoiding re-entrant dispatch issues.
+   */
+  public replaceExtension: ExtensionManager["replaceExtension"] = (
+    ...args: Parameters<ExtensionManager["replaceExtension"]>
+  ) => this._extensionManager.replaceExtension(...args);
+
+  /**
    * Get an extension from the editor
    */
-  public getExtension: ExtensionManager["getExtension"] = ((
-    ...args: Parameters<ExtensionManager["getExtension"]>
-  ) => this._extensionManager.getExtension(...args)) as any;
+  // Declared as an explicit intersection of the two `ExtensionManager`
+  // overloads rather than `ExtensionManager["getExtension"]`: indexed access on
+  // an overloaded method collapses the signatures, which widened the factory
+  // overload's `ReturnType<ReturnType<T>>` result to `any` (losing e.g. a
+  // returned extension's `store` type).
+  public getExtension: (<
+    const Ext extends Extension | ExtensionFactory = Extension,
+  >(
+    extension: string,
+  ) =>
+    | (Ext extends Extension
+        ? Ext
+        : Ext extends ExtensionFactory
+          ? ReturnType<ReturnType<Ext>>
+          : never)
+    | undefined) &
+    (<const T extends ExtensionFactory>(
+      extension: T,
+    ) => ReturnType<ReturnType<T>> | undefined) = ((extension: any) =>
+    this._extensionManager.getExtension(extension)) as any;
 
   /**
    * Mount the editor to a DOM element.

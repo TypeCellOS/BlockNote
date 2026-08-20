@@ -2,6 +2,7 @@ import { ExportTestCase } from "../../../shared/formatConversion/export/exportTe
 import {
   testExportBlockNoteHTML,
   testExportHTML,
+  testExportMarkdown,
 } from "../../../shared/formatConversion/export/exportTestExecutors.js";
 import { TestInstance } from "../../../types.js";
 import {
@@ -470,6 +471,49 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     },
     executeTest: testExportBlockNoteHTML,
   },
+  {
+    testCase: {
+      name: "mathBlock/basic",
+      content: [
+        {
+          type: "mathBlock",
+          content: "a^2 + b^2 = c^2",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "math/basic",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            "The identity ",
+            {
+              type: "math",
+              content: "e^{i\\pi} + 1 = 0",
+            } as const,
+            " is elegant.",
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "diagram/basic",
+      content: [
+        {
+          type: "diagram",
+          content: "graph TD\n  A[Start] --> B[End]",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
 ];
 
 export const exportTestInstancesHTML: TestInstance<
@@ -481,3 +525,99 @@ export const exportTestInstancesHTML: TestInstance<
   testCase,
   executeTest: testExportHTML,
 }));
+
+// Markdown export runs the external HTML through the markdown serializer:
+// the diagram's fenced-code representation should come out as a ```mermaid
+// fence, and math's MathML (via its LaTeX source annotation) as $$/$ spans.
+export const exportTestInstancesMarkdown: TestInstance<
+  ExportTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
+  TestBlockSchema,
+  TestInlineContentSchema,
+  TestStyleSchema
+>[] = [
+  {
+    testCase: {
+      name: "diagram/basic",
+      content: [
+        {
+          type: "diagram",
+          content: "graph TD\n  A[Start] --> B[End]",
+        },
+      ],
+    },
+    executeTest: testExportMarkdown,
+  },
+  {
+    testCase: {
+      name: "math/basic",
+      content: [
+        {
+          type: "mathBlock",
+          content: "a^2 + b^2 = c^2",
+        },
+      ],
+    },
+    executeTest: testExportMarkdown,
+  },
+  {
+    // Nested multi-line blocks must indent every line (including the closing
+    // delimiter) - an unindented line would end the list item. Toggle items
+    // are the case where this occurs: external HTML flattens other list
+    // items' non-list children to siblings, but keeps toggle children
+    // nested.
+    testCase: {
+      name: "math/nested",
+      content: [
+        {
+          type: "toggleListItem",
+          content: "The theorem:",
+          children: [
+            {
+              type: "mathBlock",
+              content: "a^2 +\nb^2 = c^2",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportMarkdown,
+  },
+  {
+    testCase: {
+      name: "codeBlock/nested",
+      content: [
+        {
+          type: "toggleListItem",
+          content: "The snippet:",
+          children: [
+            {
+              type: "codeBlock",
+              props: { language: "javascript" },
+              content: "const a = 1;\n\nconst b = 2;",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportMarkdown,
+  },
+  {
+    testCase: {
+      name: "inlineMath/basic",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            "The identity ",
+            {
+              type: "math",
+              content: "e^{i\\pi} + 1 = 0",
+            } as const,
+            " is elegant.",
+          ],
+        },
+      ],
+    },
+    executeTest: testExportMarkdown,
+  },
+];

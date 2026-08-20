@@ -29,7 +29,7 @@ function validateConversion(
 
   expect(node).toMatchSnapshot();
 
-  const outputBlock = nodeToBlock(node, editor.pmSchema);
+  const outputBlock = nodeToBlock(node, editor.prosemirrorState.doc);
 
   const fullOriginalBlock = partialBlockToBlockForTesting(
     editor.schema.blockSchema,
