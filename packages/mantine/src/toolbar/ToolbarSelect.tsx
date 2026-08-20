@@ -32,18 +32,12 @@ export const ToolbarSelect = forwardRef<
     <MantineMenu
       withinPortal={!!portalRoot}
       portalProps={portalRoot ? { target: portalRoot } : undefined}
-      position={"bottom-start"}
       transitionProps={{
         exitDuration: 0,
       }}
       disabled={isDisabled}
-      // Don't move focus into the dropdown on open: on mobile that blurs the
-      // editor's contentEditable and dismisses the on-screen keyboard.
-      // `withInitialFocusPlaceholder={false}` drops the focusable placeholder
-      // Mantine otherwise autofocuses.
-      trapFocus={false}
-      returnFocus={false}
-      withInitialFocusPlaceholder={false}
+      // Do not move focus to dropdown on mobile.
+      trapFocus={portalRoot ? false : undefined}
       middlewares={{
         flip: true,
         shift: true,
