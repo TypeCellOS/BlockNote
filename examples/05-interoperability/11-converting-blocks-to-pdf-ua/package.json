@@ -20,7 +20,7 @@
     "@mantine/hooks": "^9.0.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "@blocknote/xl-pdf-renderer-2": "latest",
+    "@blocknote/xl-pdf-exporter": "latest",
     "@blocknote/xl-multi-column": "latest",
     "@blocknote/math-block": "latest",
     "@blocknote/diagram-block": "latest",

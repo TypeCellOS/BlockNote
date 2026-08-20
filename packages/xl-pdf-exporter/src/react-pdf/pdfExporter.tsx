@@ -59,6 +59,14 @@ type Options = ExporterOptions & {
 
 /**
  * Exports a BlockNote document to a .pdf file using the react-pdf library.
+ *
+ * @deprecated The react-pdf based exporter is superseded by the Typst-based
+ * `PDFExporter` at the package root (`@blocknote/xl-pdf-exporter`), which
+ * produces accessible, tagged PDF/UA-1 output with better fidelity. This
+ * entry point (`@blocknote/xl-pdf-exporter/react-pdf`) will be removed
+ * after a deprecation window of a few releases. Note the new exporter takes
+ * *Typst* mappings (`typstDefaultSchemaMappings`), so custom blocks need a
+ * Typst mapping instead of a react-pdf one.
  */
 export class PDFExporter<
   B extends BlockSchema,

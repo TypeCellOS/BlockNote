@@ -7,7 +7,7 @@ import {
 import {
   PDFExporter,
   pdfDefaultSchemaMappings,
-} from "@blocknote/xl-pdf-exporter";
+} from "@blocknote/xl-pdf-exporter/react-pdf";
 import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
 import reactElementToJSXString from "react-element-to-jsx-string";
 import { describe, expect, it } from "vite-plus/test";

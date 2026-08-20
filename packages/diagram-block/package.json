@@ -103,7 +103,7 @@
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^7.0.2",
     "vite-plus": "catalog:",
-    "@blocknote/xl-pdf-renderer-2": "workspace:^",
+    "@blocknote/xl-typst-exporter": "workspace:^",
     "@myriaddreamin/typst-ts-node-compiler": "^0.8.0-rc3"
   },
   "peerDependencies": {
@@ -116,7 +116,7 @@
     "docx": "^9.6.1",
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
     "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc",
-    "@blocknote/xl-pdf-renderer-2": "workspace:^"
+    "@blocknote/xl-typst-exporter": "workspace:^"
   },
   "peerDependenciesMeta": {
     "@blocknote/xl-docx-exporter": {
@@ -140,7 +140,7 @@
     "docx": {
       "optional": true
     },
-    "@blocknote/xl-pdf-renderer-2": {
+    "@blocknote/xl-typst-exporter": {
       "optional": true
     }
   }

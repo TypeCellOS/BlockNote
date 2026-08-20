@@ -226,29 +226,6 @@ describe("TypstExporter", () => {
     expect(typ).not.toContain(`#align(right)[#block`);
   });
 
-  it("rejects caller assets that collide with exporter-registered ones", async () => {
-    const { blocksToPdfUA } = await import("../index.js");
-    const exporter = new TypstExporter(schema, typstDefaultSchemaMappings, {
-      resolveFileUrl: testResolveFileUrl,
-    });
-
-    // The document's image registers `/assets/asset-0`; a caller asset under
-    // the same key would be silently shadowed by the merge, so the export
-    // must fail loudly instead (before ever reaching the compiler).
-    await expect(
-      blocksToPdfUA(
-        exporter,
-        partialBlocksToBlocksForTesting(schema, [
-          {
-            type: "image",
-            props: { url: "https://placehold.co/60x60.png", caption: "Cap" },
-          },
-        ]),
-        { assets: new Map([["/assets/asset-0", new Uint8Array([1])]]) },
-      ),
-    ).rejects.toThrow('the caller-supplied asset "/assets/asset-0" collides');
-  });
-
   it("fails the export when an image can't be resolved", async () => {
     // An unreachable image is an environment failure, not expected input -
     // the export fails loudly instead of silently degrading the document

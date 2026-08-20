@@ -27,10 +27,9 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
-  TypstExporter,
-  blocksToPdfUA,
+  PDFExporter,
   typstDefaultSchemaMappings,
-} from "@blocknote/xl-pdf-renderer-2";
+} from "@blocknote/xl-pdf-exporter";
 import {
   getMultiColumnSlashMenuItems,
   locales as multiColumnLocales,
@@ -121,7 +120,7 @@ function loadFonts() {
  * display is this component's concern, not the exporter's.
  */
 function usePdfUA(
-  makeExporter: () => TypstExporter<any, any, any>,
+  makeExporter: () => PDFExporter<any, any, any>,
   blocks: Block<any, any, any>[],
 ) {
   const [pdfUrl, setPdfUrl] = useState<string>();
@@ -135,8 +134,7 @@ function usePdfUA(
     void (async () => {
       try {
         const { fonts, emojiFont } = await loadFonts();
-        const bytes = await blocksToPdfUA(
-          makeExporter(),
+        const blob = await makeExporter().toBlob(
           blocks,
           {
             getModule: () => compilerWasmUrl,
@@ -149,16 +147,7 @@ function usePdfUA(
         if (stale) {
           return;
         }
-        setPdfUrl(
-          URL.createObjectURL(
-            // @cantoo/pdf-lib always returns a view over a plain
-            // (non-shared) buffer; the cast narrows `ArrayBufferLike` for
-            // `BlobPart`.
-            new Blob([bytes as Uint8Array<ArrayBuffer>], {
-              type: "application/pdf",
-            }),
-          ),
-        );
+        setPdfUrl(URL.createObjectURL(blob));
         setStatus("ready");
       } catch (e) {
         if (stale) {
@@ -263,7 +252,7 @@ export default function App() {
   // every image/diagram variant it has ever rendered.
   const makeExporter = useCallback(
     () =>
-      new TypstExporter(
+      new PDFExporter(
         editor.schema,
         {
           ...typstDefaultSchemaMappings,

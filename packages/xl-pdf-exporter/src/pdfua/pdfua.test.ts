@@ -14,8 +14,10 @@ import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { beforeAll, describe, expect, it } from "vite-plus/test";
-import { typstDefaultSchemaMappings } from "../typst/defaultSchema/index.js";
-import { TypstExporter } from "../typst/typstExporter.js";
+import {
+  TypstExporter,
+  typstDefaultSchemaMappings,
+} from "@blocknote/xl-typst-exporter";
 import { declarePdfUA } from "./postProcess.js";
 
 // The fonts the exporter references (Inter 18pt + Geist Mono), from the shared

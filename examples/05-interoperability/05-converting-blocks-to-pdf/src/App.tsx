@@ -29,7 +29,7 @@ import {
 import {
   PDFExporter,
   pdfDefaultSchemaMappings,
-} from "@blocknote/xl-pdf-exporter";
+} from "@blocknote/xl-pdf-exporter/react-pdf";
 import { diagramBlockMapping } from "@blocknote/diagram-block/pdf-exporter";
 import {
   inlineMathMapping,

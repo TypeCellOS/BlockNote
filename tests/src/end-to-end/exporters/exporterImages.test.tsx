@@ -23,7 +23,7 @@ import {
   declarePdfUA,
   TypstExporter,
   typstDefaultSchemaMappings,
-} from "@blocknote/xl-pdf-renderer-2";
+} from "@blocknote/xl-pdf-exporter";
 // Bundled wasm + a body font so the Typst compile below runs fully offline.
 // eslint-disable-next-line import/no-unresolved
 import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
@@ -36,7 +36,7 @@ import newCMMathRegularUrl from "@shared/assets/fonts/newcm/NewCMMath-Regular.ot
 import {
   PDFExporter,
   pdfDefaultSchemaMappings,
-} from "@blocknote/xl-pdf-exporter";
+} from "@blocknote/xl-pdf-exporter/react-pdf";
 import { pdf } from "@react-pdf/renderer";
 import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
 import { decodeAndSample } from "@shared/util/browserImageTestUtil.js";
@@ -213,7 +213,7 @@ describe("pdf/ua export through the complete typst pipeline in the browser", () 
 
       // Compile through the real wasm pipeline (the node unit suites
       // substitute the node compiler; only this covers what browsers run),
-      // then declare PDF/UA - the same steps blocksToPdfUA composes.
+      // then declare PDF/UA - the same steps PDFExporter.toBytes composes.
       const fonts = await Promise.all(
         [interRegularUrl, newCMMathRegularUrl, newCMMathBookUrl].map(
           async (url) => new Uint8Array(await (await fetch(url)).arrayBuffer()),

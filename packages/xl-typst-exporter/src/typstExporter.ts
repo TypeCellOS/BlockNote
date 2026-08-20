@@ -122,8 +122,9 @@ export class TypstExporter<
    * Image bytes registered so far, keyed by content key (source URL or e.g.
    * a diagram source). Typst can't inline raster bytes, so each image is
    * referenced by a virtual path in the markup and its bytes must be mapped
-   * into the compiler's filesystem (see {@link assetFiles} and
-   * `blocksToPdfUA`). Append-only for the exporter's lifetime - which keeps
+   * into the compiler's filesystem (see {@link assetFiles}; e.g.
+   * @blocknote/xl-pdf-exporter's `PDFExporter.toBytes` does this).
+   * Append-only for the exporter's lifetime - which keeps
    * overlapping exports and pre-registered assets safe (paths never dangle
    * or get reassigned). The flip side: re-exporting *changing* content on
    * one long-lived exporter accumulates every asset it has ever rendered

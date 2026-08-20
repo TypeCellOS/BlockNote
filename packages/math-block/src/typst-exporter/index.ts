@@ -4,7 +4,7 @@ import type {
   Exporter,
 } from "@blocknote/core";
 import { plainContentToString } from "@blocknote/core";
-import { errorPlaceholder, strLit } from "@blocknote/xl-pdf-renderer-2";
+import { errorPlaceholder, strLit } from "@blocknote/xl-typst-exporter";
 import { tex2typst } from "tex2typst";
 
 import { latexToMathML } from "../exporterHelpers/latexToMathML.js";

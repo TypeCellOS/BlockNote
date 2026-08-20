@@ -14,7 +14,9 @@ export default defineConfig(
               { auto: true },
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
-            output: ["dist/**", "!dist/*.tsbuildinfo"],
+            // `types/**` must be declared too: a cache replay that restores only
+            // dist/ leaves consumers without declarations (tsc is skipped).
+            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
           },
         },
       },
@@ -47,12 +49,12 @@ export default defineConfig(
         sourcemap: true,
         lib: {
           entry: {
-            "blocknote-xl-pdf-renderer-2": path.resolve(
+            "blocknote-xl-typst-exporter": path.resolve(
               __dirname,
               "src/index.ts",
             ),
           },
-          name: "blocknote-xl-pdf-renderer-2",
+          name: "blocknote-xl-typst-exporter",
           formats: ["es", "cjs"],
           fileName: (format, entryName) =>
             format === "es" ? `${entryName}.js` : `${entryName}.cjs`,

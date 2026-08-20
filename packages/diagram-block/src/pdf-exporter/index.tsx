@@ -109,4 +109,10 @@ export function createDiagramBlockMapping(options?: {
  * - see {@link createDiagramBlockMapping}. Browser-only; when exporting
  * elsewhere, use the factory to pass a `renderDiagram` function.
  */
+/**
+ * @deprecated Mapping for the react-pdf based exporter
+ * (`@blocknote/xl-pdf-exporter/react-pdf`), which is deprecated - use the
+ * Typst mapping from `@blocknote/diagram-block/typst-exporter` with the
+ * Typst-based `PDFExporter` instead.
+ */
 export const diagramBlockMapping = createDiagramBlockMapping();

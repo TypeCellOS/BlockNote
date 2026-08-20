@@ -38,7 +38,7 @@
     "rimraf": "^5.0.10",
     "vite-plus": "catalog:",
     "vitest-browser-react": "^2.2.0",
-    "@blocknote/xl-pdf-renderer-2": "workspace:^",
+    "@blocknote/xl-typst-exporter": "workspace:^",
     "@myriaddreamin/typst-ts-web-compiler": "^0.8.0-rc3"
   },
   "dependencies": {

@@ -1,7 +1,7 @@
 # Exporting documents to tagged PDF (PDF/UA)
 
 This example exports the current document to an **accessible, tagged PDF/UA-1**
-file using the Typst-powered `@blocknote/xl-pdf-renderer-2`. Unlike a plain PDF,
+file using the Typst-powered `@blocknote/xl-pdf-exporter`. Unlike a plain PDF,
 a tagged PDF carries a logical structure tree (headings, paragraphs, lists,
 tables, figures with alt text, links) that screen readers can navigate.
 

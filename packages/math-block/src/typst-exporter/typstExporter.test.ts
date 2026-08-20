@@ -2,7 +2,7 @@ import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import {
   TypstExporter,
   typstDefaultSchemaMappings,
-} from "@blocknote/xl-pdf-renderer-2";
+} from "@blocknote/xl-typst-exporter";
 import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
 import { compileTypstForTesting } from "@shared/util/typstTestUtil.js";
 import { describe, expect, it } from "vite-plus/test";

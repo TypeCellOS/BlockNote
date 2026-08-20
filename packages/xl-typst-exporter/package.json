@@ -1,12 +1,12 @@
 {
-  "name": "@blocknote/xl-pdf-renderer-2",
+  "name": "@blocknote/xl-typst-exporter",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/TypeCellOS/BlockNote.git",
-    "directory": "packages/xl-pdf-renderer-2"
+    "directory": "packages/xl-typst-exporter"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
   "version": "0.54.0",
@@ -16,28 +16,25 @@
     "src"
   ],
   "keywords": [
-    "pdf",
-    "pdf-ua",
-    "accessibility",
-    "tagged-pdf",
     "typst",
+    "export",
     "javascript",
     "editor",
     "typescript",
     "prosemirror",
     "block-based"
   ],
-  "description": "Accessible (PDF/UA-1) PDF export for BlockNote, powered by Typst.",
+  "description": "Typst export for BlockNote documents - the shared foundation of the Typst-powered PDF exporter.",
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-xl-pdf-renderer-2.cjs",
-  "module": "./dist/blocknote-xl-pdf-renderer-2.js",
+  "main": "./dist/blocknote-xl-typst-exporter.cjs",
+  "module": "./dist/blocknote-xl-typst-exporter.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-xl-pdf-renderer-2.js",
-      "require": "./dist/blocknote-xl-pdf-renderer-2.cjs"
+      "import": "./dist/blocknote-xl-typst-exporter.js",
+      "require": "./dist/blocknote-xl-typst-exporter.cjs"
     }
   },
   "scripts": {
@@ -49,10 +46,7 @@
   },
   "dependencies": {
     "@blocknote/core": "workspace:^",
-    "@blocknote/xl-multi-column": "workspace:^",
-    "@myriaddreamin/typst.ts": "^0.8.0-rc3",
-    "@myriaddreamin/typst-ts-web-compiler": "^0.8.0-rc3",
-    "@cantoo/pdf-lib": "^2.9.1"
+    "@blocknote/xl-multi-column": "workspace:^"
   },
   "devDependencies": {
     "@blocknote/shared": "workspace:^",

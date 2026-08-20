@@ -1138,13 +1138,13 @@ export const examples = {
           } as any,
           pro: true,
         },
-        title: "Exporting documents to PDF",
+        title: "Exporting documents to PDF (react-pdf, deprecated)",
         group: {
           pathFromRoot: "examples/05-interoperability",
           slug: "interoperability",
         },
         readme:
-          'This example exports the current document (all blocks) as an PDF file and downloads it to your computer.\n\n**Try it out:** Edit the document and click "Download .pdf" at the top to download the PDF file.',
+          '> **Deprecated:** this example uses the react-pdf based exporter\n> (`@blocknote/xl-pdf-exporter/react-pdf`), which is deprecated and will be\n> removed after a few releases. Use the Typst-based `PDFExporter` instead -\n> see the "Exporting documents to tagged PDF (PDF/UA)" example - which\n> produces accessible, tagged PDF/UA-1 output.\n\nThis example exports the current document (all blocks) as an PDF file and downloads it to your computer.\n\n**Try it out:** Edit the document and click "Download .pdf" at the top to download the PDF file.',
       },
       {
         projectSlug: "converting-blocks-to-docx",
@@ -1279,7 +1279,7 @@ export const examples = {
           tags: ["Interoperability", "Accessibility"],
           sharedTestDocument: true,
           dependencies: {
-            "@blocknote/xl-pdf-renderer-2": "latest",
+            "@blocknote/xl-pdf-exporter": "latest",
             "@blocknote/xl-multi-column": "latest",
             "@blocknote/math-block": "latest",
             "@blocknote/diagram-block": "latest",
@@ -1294,7 +1294,7 @@ export const examples = {
           slug: "interoperability",
         },
         readme:
-          'This example exports the current document to an **accessible, tagged PDF/UA-1**\nfile using the Typst-powered `@blocknote/xl-pdf-renderer-2`. Unlike a plain PDF,\na tagged PDF carries a logical structure tree (headings, paragraphs, lists,\ntables, figures with alt text, links) that screen readers can navigate.\n\n**Try it out:** Edit the document — the PDF preview updates live. Click\n"Download" to save it, then verify it with a tool like\n[veraPDF](https://verapdf.org/) (`--flavour ua1`) or the Acrobat Tags panel.\n\n> The first export downloads the Typst compiler (wasm) and fonts, so it may take\n> a moment. Images render as tagged placeholder figures for now.',
+          'This example exports the current document to an **accessible, tagged PDF/UA-1**\nfile using the Typst-powered `@blocknote/xl-pdf-exporter`. Unlike a plain PDF,\na tagged PDF carries a logical structure tree (headings, paragraphs, lists,\ntables, figures with alt text, links) that screen readers can navigate.\n\n**Try it out:** Edit the document — the PDF preview updates live. Click\n"Download" to save it, then verify it with a tool like\n[veraPDF](https://verapdf.org/) (`--flavour ua1`) or the Acrobat Tags panel.\n\n> The first export downloads the Typst compiler (wasm) and fonts, so it may take\n> a moment. Images render as tagged placeholder figures for now.',
       },
     ],
   },

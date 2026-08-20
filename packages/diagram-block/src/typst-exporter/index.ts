@@ -4,8 +4,8 @@ import type {
   Exporter,
 } from "@blocknote/core";
 import { plainContentToString } from "@blocknote/core";
-import type { TypstExporter } from "@blocknote/xl-pdf-renderer-2";
-import { errorPlaceholder, strLit } from "@blocknote/xl-pdf-renderer-2";
+import type { TypstExporter } from "@blocknote/xl-typst-exporter";
+import { errorPlaceholder, strLit } from "@blocknote/xl-typst-exporter";
 
 import type { RenderDiagram } from "../helpers/renderDiagramToImage.js";
 import { renderDiagramToSVG } from "../helpers/renderDiagramToSVG.js";

@@ -26,9 +26,9 @@ const devAliases: Record<string, string> = {
     __dirname,
     "../packages/xl-pdf-exporter/src",
   ),
-  "@blocknote/xl-pdf-renderer-2": resolve(
+  "@blocknote/xl-typst-exporter": resolve(
     __dirname,
-    "../packages/xl-pdf-renderer-2/src",
+    "../packages/xl-typst-exporter/src",
   ),
   "@shared": resolve(__dirname, "../shared"),
   "@blocknote/xl-multi-column": resolve(
@@ -131,9 +131,9 @@ export default defineConfig(((conf: { command: string }) => ({
             // the math/diagram `typst-exporter` subpaths import it, and its
             // optional-peer status in those packages means Vercel's filtered
             // install would leave it unresolvable from their dist builds.
-            "@blocknote/xl-pdf-renderer-2": resolve(
+            "@blocknote/xl-typst-exporter": resolve(
               __dirname,
-              "../packages/xl-pdf-renderer-2/src",
+              "../packages/xl-typst-exporter/src",
             ),
             // math-block's typst entry's optional peer, resolved from the
             // playground's own dependencies (like @react-pdf/math below).

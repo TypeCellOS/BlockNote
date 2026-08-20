@@ -1,9 +1,15 @@
-# @blocknote/xl-pdf-renderer-2
+# @blocknote/xl-pdf-exporter
 
 Accessible (**PDF/UA-1**) PDF export for BlockNote, powered by the
-[Typst](https://typst.app) engine. A tagged-PDF replacement for
-`@blocknote/xl-pdf-exporter` (which is built on react-pdf and emits untagged
-PDFs — see [#2806](https://github.com/TypeCellOS/BlockNote/issues/2806)).
+[Typst](https://typst.app) engine.
+
+> **Migrating from the react-pdf exporter?** The previous react-pdf based
+> `PDFExporter` (which emits untagged PDFs — see
+> [#2806](https://github.com/TypeCellOS/BlockNote/issues/2806)) is still
+> available from `@blocknote/xl-pdf-exporter/react-pdf` during its
+> deprecation window; change only the import specifier. Note the new
+> exporter takes _Typst_ mappings, so custom blocks need a Typst mapping
+> instead of a react-pdf one.
 
 ## Why
 
@@ -16,7 +22,7 @@ default, and the output validates as PDF/UA-1 with veraPDF.
 
 ```
 BlockNote blocks
-   │  TypstExporter.toTypst()        (pure; runs anywhere)
+   │  TypstExporter.toTypst()        (pure; @blocknote/xl-typst-exporter)
    ▼
 Typst markup
    │  compileTypstToTaggedPdf()      (wasm Typst engine, client-side)
@@ -37,27 +43,30 @@ added in JS. Conformance is verified end-to-end in `src/pdfua/golden.test.ts`
 
 ```ts
 import {
-  TypstExporter,
+  PDFExporter,
   typstDefaultSchemaMappings,
-  blocksToPdfUA,
-} from "@blocknote/xl-pdf-renderer-2";
-import wasmUrl from "@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm?url";
+} from "@blocknote/xl-pdf-exporter";
+import wasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
 import emojiFont from "./NotoEmoji-Regular.ttf"; // bundle an emoji font for full UA-1
 
-const exporter = new TypstExporter(editor.schema, typstDefaultSchemaMappings, {
-  title: "My document", // required for PDF/UA
-  lang: "en",
-});
+const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings);
 
-const pdfBytes = await blocksToPdfUA(exporter, editor.document, {
-  getModule: () => wasmUrl,
-  fonts: [new Uint8Array(await (await fetch(emojiFont)).arrayBuffer())],
-});
+const blob = await exporter.toBlob(
+  editor.document,
+  {
+    getModule: () => wasmUrl,
+    emojiFont: new Uint8Array(await (await fetch(emojiFont)).arrayBuffer()),
+  },
+  { title: "My document", lang: "en" }, // title is required for PDF/UA
+);
 ```
 
-Lower-level building blocks (`toTypst`, `compileTypstToTaggedPdf`,
+The Typst layer (`TypstExporter`, the default mappings, `strLit`,
+`errorPlaceholder`) lives in `@blocknote/xl-typst-exporter` and is re-exported
+here. Lower-level building blocks (`toTypst`, `compileTypstToTaggedPdf`,
 `declarePdfUA`) are exported individually if you need a server-side or custom
-compile step.
+compile step - and `toBytes` takes `declarePdfUA: false` to produce a
+tagged-but-unclaimed PDF (e.g. for a document known not to conform).
 
 ### Math & diagram blocks
 
@@ -74,7 +83,7 @@ import {
   mathBlockMapping,
 } from "@blocknote/math-block/typst-exporter";
 
-new TypstExporter(schema, {
+new PDFExporter(schema, {
   ...typstDefaultSchemaMappings,
   blockMapping: {
     ...typstDefaultSchemaMappings.blockMapping,
@@ -117,12 +126,12 @@ Following the repo's error conventions (AGENTS.md): failures in _user input_
 (LaTeX or Mermaid source that doesn't parse) render the editor-style grey
 placeholder; _environment_ failures fail the export loudly — an image URL that
 can't be resolved rejects `toTypst`, and a Typst compile error rejects
-`blocksToPdfUA` — rather than silently degrading the document.
+the export — rather than silently degrading the document.
 
 The wasm compiler is a page-level singleton: its wasm module and fonts load on
 the first compile, later compiles reuse them, and a call that tries to change
 them throws. Pass every font the page will need on the first
-`compileTypstToTaggedPdf`/`blocksToPdfUA` call, reusing the same byte arrays
+compile, reusing the same byte arrays
 across calls. Concurrent compiles are serialized internally.
 
 ## PDF/UA notes
@@ -138,11 +147,12 @@ across calls. Concurrent compiles are serialized internally.
 
 ## Tests
 
-- `src/typst/typstExporter.test.ts` — exporter → Typst (snapshot is the golden `.typ`)
+- `xl-typst-exporter/src/typstExporter.test.ts` — exporter → Typst (snapshot
+  is the golden `.typ`)
 - `src/pdfua/postProcess.test.ts` — the UA-1 declaration, unit-tested
-- `src/pdfua/golden.test.ts` — full pipeline (exporter → tagged PDF → declare),
-  with a `veraPDF --flavour ua1` conformance gate when veraPDF is installed
-  (skipped otherwise, so it's CI-portable)
+- `src/pdfua/pdfua.test.ts` — full pipeline (exporter → tagged PDF → declare),
+  gated on `veraPDF --flavour ua1` conformance and per-page visual snapshots
+  rasterized through a digest-pinned poppler container
 
 ## Status / follow-ups
 

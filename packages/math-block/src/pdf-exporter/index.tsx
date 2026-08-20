@@ -171,4 +171,10 @@ export function createInlineMathMapping(options?: {
  * options - see {@link createInlineMathMapping}. Browser-only; when
  * exporting elsewhere, use the factory to pass a `rasterize` function.
  */
+/**
+ * @deprecated Mappings for the react-pdf based exporter
+ * (`@blocknote/xl-pdf-exporter/react-pdf`), which is deprecated - use the
+ * Typst mappings from `@blocknote/math-block/typst-exporter` with the
+ * Typst-based `PDFExporter` instead.
+ */
 export const inlineMathMapping = createInlineMathMapping();

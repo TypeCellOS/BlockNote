@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installs the tooling the xl-pdf-renderer-2 unit tests gate on:
+# Installs the tooling the xl-pdf-exporter unit tests gate on:
 #  - pdftoppm (poppler) rasterizes the per-page visual snapshots; the test
 #    itself runs it through a digest-pinned container (see pdfua.test.ts) so
 #    the byte-exact PNG baselines can't drift with the host's poppler - this
@@ -23,7 +23,7 @@ VERAPDF_IMAGE="ghcr.io/verapdf/cli@sha256:65583906f9abb4683242cd605c4317e821e60f
 # to the baselines it renders); grep it out rather than duplicating the digest.
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 POPPLER_IMAGE="$(grep -o 'minidocks/poppler@sha256:[0-9a-f]*' \
-  "$ROOT/packages/xl-pdf-renderer-2/src/pdfua/pdfua.test.ts" | head -1)"
+  "$ROOT/packages/xl-pdf-exporter/src/pdfua/pdfua.test.ts" | head -1)"
 test -n "$POPPLER_IMAGE"
 
 docker pull -q "$VERAPDF_IMAGE"

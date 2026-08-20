@@ -1,6 +1,6 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
@@ -16,7 +16,9 @@ export default defineConfig(
               { auto: true },
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
-            output: ["dist/**", "!dist/*.tsbuildinfo"],
+            // `types/**` must be declared too: a cache replay that restores only
+            // dist/ leaves consumers without declarations (tsc is skipped).
+            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
           },
         },
       },
@@ -24,6 +26,9 @@ export default defineConfig(
         environment: "node",
         setupFiles: ["./vitestSetup.ts"],
         testTimeout: 15000,
+        // `.browser.test` files need a real browser; the tests package's
+        // browser suite runs them.
+        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
         // assetsInclude: [
         //   "**/*.woff",
         //   "**/*.woff2",
@@ -48,6 +53,10 @@ export default defineConfig(
                   __dirname,
                   "../xl-multi-column/src/",
                 ),
+                "@blocknote/xl-typst-exporter": path.resolve(
+                  __dirname,
+                  "../xl-typst-exporter/src/",
+                ),
               } as Record<string, string>),
       },
       server: {
@@ -64,6 +73,7 @@ export default defineConfig(
               __dirname,
               "src/index.ts",
             ),
+            "react-pdf": path.resolve(__dirname, "src/react-pdf/index.ts"),
           },
           name: "blocknote-xl-pdf-exporter",
           formats: ["es", "cjs"],

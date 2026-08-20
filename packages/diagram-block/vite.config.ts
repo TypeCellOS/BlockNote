@@ -63,9 +63,9 @@ export default defineConfig(
                   __dirname,
                   "../xl-pdf-exporter/src/",
                 ),
-                "@blocknote/xl-pdf-renderer-2": path.resolve(
+                "@blocknote/xl-typst-exporter": path.resolve(
                   __dirname,
-                  "../xl-pdf-renderer-2/src/",
+                  "../xl-typst-exporter/src/",
                 ),
               } as Record<string, string>),
       },

@@ -111,7 +111,7 @@
     "typescript": "^7.0.2",
     "vite-plus": "catalog:",
     "xml-formatter": "^3.6.7",
-    "@blocknote/xl-pdf-renderer-2": "workspace:^",
+    "@blocknote/xl-typst-exporter": "workspace:^",
     "tex2typst": "^0.6.2",
     "@myriaddreamin/typst-ts-node-compiler": "^0.8.0-rc3"
   },
@@ -128,7 +128,7 @@
     "mathml2omml": "^0.5.0",
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
     "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc",
-    "@blocknote/xl-pdf-renderer-2": "workspace:^",
+    "@blocknote/xl-typst-exporter": "workspace:^",
     "tex2typst": "^0.6.2"
   },
   "peerDependenciesMeta": {
@@ -162,7 +162,7 @@
     "mathml2omml": {
       "optional": true
     },
-    "@blocknote/xl-pdf-renderer-2": {
+    "@blocknote/xl-typst-exporter": {
       "optional": true
     },
     "tex2typst": {
