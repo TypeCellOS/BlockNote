@@ -1,8 +1,11 @@
+import { Schema } from "prosemirror-model";
+import { EditorState } from "prosemirror-state";
 import { describe, expect, it, beforeEach } from "vite-plus/test";
 
 import { setupTestEnv } from "./blockManipulation/setupTestEnv.js";
 import { getBlocksChangedByTransaction } from "./getBlocksChangedByTransaction.js";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import { YAttributionMarksExtension } from "../y/extensions/YAttributionMarks.js";
 
 const getEditor = setupTestEnv();
 
@@ -568,5 +571,70 @@ describe("getBlocksChangedByTransaction", () => {
     await expect(blocksChanged).toMatchFileSnapshot(
       "__snapshots__/blocks-moved-insert-changes-sibling-order.json",
     );
+  });
+});
+
+/**
+ * Builds a `blockContainer` holding a single paragraph with the given block
+ * `id`. When `suggestedDelete` is true, the container carries a
+ * `y-attributed-delete` mark, simulating a node that a suggestion / version
+ * diff keeps in the document after it has been deleted — it shares its `id`
+ * with the live node it was deleted from, and `getNodeId` disambiguates it
+ * positionally ("0-1" = the deletion-marked node with 1 same-id node before
+ * it).
+ */
+function makeBlockContainer(
+  schema: Schema,
+  id: string,
+  text: string,
+  suggestedDelete: boolean,
+) {
+  const paragraph = schema.nodes["paragraph"].createChecked(
+    {},
+    schema.text(text),
+  );
+  const marks = suggestedDelete
+    ? [schema.marks["y-attributed-delete"].create({ userIds: ["A"] })]
+    : undefined;
+  return schema.nodes["blockContainer"].createChecked({ id }, paragraph, marks);
+}
+
+/**
+ * Regression tests: change tracking on suggestion-rendered docs. Suggested-
+ * deletion copies duplicate a live block's id and are only disambiguated
+ * *positionally* (see `getNodeId`), so diffing them across the before/after
+ * docs used to misreport unchanged copies as delete+insert pairs — they are
+ * now excluded from the snapshots as rendering artifacts.
+ */
+describe("getBlocksChangedByTransaction on suggestion docs", () => {
+  it("reports only the real change when a block before a suggested deletion is deleted", () => {
+    const suggestionEditor = BlockNoteEditor.create({
+      extensions: [YAttributionMarksExtension()],
+    });
+    const schema = suggestionEditor.pmSchema;
+    const doc = schema.nodes["doc"].createChecked(
+      {},
+      schema.nodes["blockGroup"].createChecked({}, [
+        makeBlockContainer(schema, "0", "Live", false),
+        makeBlockContainer(schema, "1", "Other", false),
+        makeBlockContainer(schema, "0", "Deleted", true),
+      ]),
+    );
+
+    // Delete the live "0" block. The deleted copy is untouched — but its
+    // positional lying id shifts from "0-1" to "0-0", which used to make the
+    // before/after diff misreport it as a delete of "0-1" plus an insert of
+    // "0-0".
+    const live = doc.firstChild!.child(0);
+    const tr = EditorState.create({ doc }).tr.delete(1, 1 + live.nodeSize);
+
+    const changes = getBlocksChangedByTransaction(tr).map((change) => [
+      change.type,
+      change.block.id,
+    ]);
+
+    // The only change is the deletion of the live block "0" — the deleted
+    // copy is a rendering artifact and never appears in change events.
+    expect(changes).toEqual([["delete", "0"]]);
   });
 });
