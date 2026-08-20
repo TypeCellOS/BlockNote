@@ -4,13 +4,12 @@
  * The other files in this folder exercise the SuggestionsExtension diff overlay.
  * This one exercises the OTHER diff path — `createYjsVersioningAdapter`'s
  * `enterPreview`, which reconfigures the editor through y-prosemirror
- * (`configureYProsemirror`). That path crashes for a few scenarios: moving a
- * block that carries (or dissolves) a nested blockGroup makes y-prosemirror's
- * `applyDelta` throw lib0 "Unexpected case". Each scenario is run through the
- * same shape the gallery's Versioning mode uses — every user applies their
- * change on their own clone of the base, the clones are merged via the Yjs CRDT,
- * and the merge is diffed against the base — so any scenario (single or
- * concurrent) that breaks the versioning diff is caught in CI.
+ * (`configureYProsemirror`). Each scenario is run through the same shape the
+ * gallery's Versioning mode uses — every user applies their change on their
+ * own clone of the base, the clones are merged via the Yjs CRDT, and the merge
+ * is diffed against the base; the preview is then RE-entered after a follow-up
+ * edit (the gallery's live re-diff) — so any scenario (single or concurrent)
+ * that breaks the versioning diff or its re-render is caught in CI.
  */
 import { BlockNoteEditor } from "@blocknote/core";
 import {
@@ -75,22 +74,13 @@ function mountEditor(doc: Y.Doc): {
   };
 }
 
-// Scenarios that currently crash the versioning diff and are skipped until
-// fixed. `large-diff-delete-all` replaceBlocks-traverses a bound
-// `blockContainer` that has no `id` attr, so `getNodeId` throws
-// ("Node blockContainer does not have an ID"). We `test.skip` rather than
-// `test.fails` because as of @y/prosemirror v2.0.0-6 the throw is caught and
-// retried into a runaway warning loop that never lets the suite finish.
-const VERSIONING_CRASHES = new Set<string>(["large-diff-delete-all"]);
-
 for (const scenario of scenarios) {
   const applies =
     scenario.kind === "single"
       ? [scenario.apply]
       : [scenario.applyA, scenario.applyB];
-  const runner = VERSIONING_CRASHES.has(scenario.id) ? test.skip : test;
 
-  runner(`versioning diff: ${scenario.title}`, async () => {
+  test(`versioning diff: ${scenario.title}`, async () => {
     const teardown: Array<() => void> = [];
     try {
       // "Before": the scenario's initial blocks, seeded synchronously.

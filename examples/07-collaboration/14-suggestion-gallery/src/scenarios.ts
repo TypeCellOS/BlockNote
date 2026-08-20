@@ -1,6 +1,19 @@
+import { addIdsToBlocks } from "@shared/formatConversionTestUtil.js";
 import { testDocument } from "@shared/testDocument.js";
 
 import type { GalleryEditor, GalleryPartialBlock } from "./gallerySchema";
+
+// The shared test document is a snapshot fixture and deliberately carries
+// empty-string block ids (real ids would be minted at module load, making the
+// exporter snapshots that embed them non-deterministic). Empty ids violate the
+// editor's id contract though — `getNodeId` throws on them, which crashed the
+// large-diff scenarios' `replaceBlocks`/`insertBlocks` calls. Follow the
+// conversion-test convention: the consumer assigns ids (on a clone, so the
+// shared fixture stays untouched for other importers).
+const testDocumentWithIds = structuredClone(
+  testDocument,
+) as unknown as GalleryPartialBlock[];
+addIdsToBlocks(testDocumentWithIds);
 
 /**
  * A browsable suggestion scenario.
@@ -1590,11 +1603,7 @@ export const scenarios: SuggestionScenario[] = [
       "Insert every block type from the shared test document at once — a stress test for large diffs.",
     initial: [{ id: "anchor", type: "paragraph", content: "Document start" }],
     apply: (editor) =>
-      editor.insertBlocks(
-        testDocument as unknown as GalleryPartialBlock[],
-        "anchor",
-        "after",
-      ),
+      editor.insertBlocks(testDocumentWithIds, "anchor", "after"),
     feedback: [
       {
         severity: "high",
@@ -1609,7 +1618,7 @@ export const scenarios: SuggestionScenario[] = [
     category: "Large diffs",
     description:
       "Remove every block of the shared test document, leaving a single paragraph — a stress test for large diffs.",
-    initial: testDocument as unknown as GalleryPartialBlock[],
+    initial: testDocumentWithIds,
     apply: (editor) =>
       editor.replaceBlocks(editor.document, [
         { type: "paragraph", content: "(all content removed)" },
