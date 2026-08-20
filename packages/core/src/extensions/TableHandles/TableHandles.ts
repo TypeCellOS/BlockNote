@@ -44,8 +44,6 @@ import {
 } from "../../schema/index.js";
 import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
 
-let dragImageElement: HTMLElement | undefined;
-
 // TODO consider switching this to jotai, it is a bit messy and noisy
 export type TableHandlesState = {
   show: boolean;
@@ -80,14 +78,12 @@ export type TableHandlesState = {
  * whichever theme/colour scheme the editor is nested in - applies to the drag
  * image exactly as it does to the real table.
  */
-function setTableDragImage(
+function buildTableDragImage(
   editorElement: HTMLElement,
   tableElement: HTMLTableElement,
   cells: RelativeCellIndices[],
   orientation: "row" | "col",
 ) {
-  unsetTableDragImage();
-
   const tableCopy = tableElement.cloneNode(false) as HTMLTableElement;
   // The clone inherits the width and minimum width the real table is given
   // inline, both of which cover all of its columns - a minimum width of
@@ -166,7 +162,7 @@ function setTableDragImage(
     )
     .join(" ");
 
-  dragImageElement = document.createElement("div");
+  const dragImageElement = document.createElement("div");
   dragImageElement.className = `${inheritedClasses} bn-table-drag-preview`;
 
   if (tbody.childElementCount > 0) {
@@ -188,11 +184,6 @@ function setTableDragImage(
   (editorElement.parentElement ?? editorElement).appendChild(dragImageElement);
 
   return dragImageElement;
-}
-
-function unsetTableDragImage() {
-  dragImageElement?.remove();
-  dragImageElement = undefined;
 }
 
 function getChildIndex(node: Element) {
@@ -249,6 +240,10 @@ export class TableHandlesView implements PluginView {
   public tableId: string | undefined;
   public tablePos: number | undefined;
   public tableElement: HTMLElement | undefined;
+
+  // Owned per view rather than per module: a page can hold several editors, so
+  // tearing one down must not remove a drag image belonging to another.
+  private dragImageElement: HTMLElement | undefined;
 
   public menuFrozen = false;
 
@@ -719,10 +714,33 @@ export class TableHandlesView implements PluginView {
     this.emitUpdate();
   }
 
+  // Replaces the browser's default drag image (which would be the drag handle
+  // itself) with a copy of the row/column being dragged.
+  setDragImage(
+    tableElement: HTMLTableElement,
+    cells: RelativeCellIndices[],
+    orientation: "row" | "col",
+  ) {
+    this.unsetDragImage();
+    this.dragImageElement = buildTableDragImage(
+      this.pmView.dom as HTMLElement,
+      tableElement,
+      cells,
+      orientation,
+    );
+
+    return this.dragImageElement;
+  }
+
+  unsetDragImage() {
+    this.dragImageElement?.remove();
+    this.dragImageElement = undefined;
+  }
+
   destroy() {
     // The drag image is normally cleaned up on `dragEnd`, which never arrives
     // if the editor is torn down mid-drag.
-    unsetTableDragImage();
+    this.unsetDragImage();
 
     this.pmView.dom.removeEventListener("mousemove", this.mouseMoveHandler);
     window.removeEventListener("mouseup", this.mouseUpHandler);
@@ -757,8 +775,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
       return;
     }
 
-    const dragImage = setTableDragImage(
-      editor.prosemirrorView.dom as HTMLElement,
+    const dragImage = view.setDragImage(
       tableElement,
       orientation === "row"
         ? getCellsAtRowHandle(view.state.block, index)
@@ -1080,7 +1097,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         return;
       }
 
-      unsetTableDragImage();
+      view!.unsetDragImage();
     },
 
     /**

@@ -181,7 +181,10 @@
  exactly as specific as `.bn-editor ...` was on its own. */
 :is(.bn-editor, .bn-table-drag-preview) [data-content-type="table"] table {
   width: auto !important;
-  word-break: break-word;
+  /* `word-break: break-word` is deprecated; it is defined as exactly this pair,
+   including the effect on min-content size that the table layout depends on. */
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 :is(.bn-editor, .bn-table-drag-preview) [data-content-type="table"] th,
 :is(.bn-editor, .bn-table-drag-preview) [data-content-type="table"] td {
