@@ -77,6 +77,50 @@ describe("Test splitBlocks", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 
+  it("Block has children, split at end of content", () => {
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(
+        tr.doc,
+        "paragraph-with-children",
+        "Paragraph with children".length,
+      );
+    });
+
+    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
+
+    // The children must stay with the original block rather than being
+    // reparented onto the newly created one.
+    const original = getEditor().document.find(
+      (block) => block.id === "paragraph-with-children",
+    )!;
+    expect(original.children.map((child) => child.id)).toEqual([
+      "nested-paragraph-0",
+    ]);
+
+    const newBlock = getEditor().document.find((block) => block.id === "0")!;
+    expect(newBlock.children).toEqual([]);
+  });
+
+  it("Block has children, split at start of content", () => {
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "paragraph-with-children", 0);
+    });
+
+    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
+
+    // The first half keeps no content, so the children go with the second one,
+    // which does — rather than being stranded on an empty block.
+    const original = getEditor().document.find(
+      (block) => block.id === "paragraph-with-children",
+    )!;
+    expect(original.children).toEqual([]);
+
+    const newBlock = getEditor().document.find((block) => block.id === "0")!;
+    expect(newBlock.children.map((child) => child.id)).toEqual([
+      "nested-paragraph-0",
+    ]);
+  });
+
   it("Keep type", () => {
     getEditor().transact((tr) => {
       setSelectionWithOffset(tr.doc, "heading-0", 4);

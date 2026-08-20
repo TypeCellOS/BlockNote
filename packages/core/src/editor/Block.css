@@ -306,41 +306,74 @@ NESTED BLOCKS
   justify-content: flex-end;
 }
 
-/* Toggle */
-.bn-block:has(
-    > .bn-block-content > div > .bn-toggle-wrapper[data-show-children="false"]
-  )
-  > .bn-block-group,
-.bn-block:has(
-    > .react-renderer
-      > .bn-block-content
-      > div
-      > .bn-toggle-wrapper[data-show-children="false"]
-  )
-  > .bn-block-group {
+/* Collapsible blocks (toggle headings, toggle list items). All of this comes
+   from `CollapsibleExtension`: the buttons are widget decorations, so they sit
+   inside `.bn-block` alongside the content, and the `data-` attributes are node
+   decorations, which ProseMirror puts on `.bn-block-outer`. */
+
+.bn-block-outer[data-collapsed="true"] > .bn-block > .bn-block-group {
   display: none;
 }
 
-.bn-toggle-wrapper {
-  display: flex;
+/* The chevron sits left of the content; everything below wraps onto its own
+   line. */
+.bn-block-outer[data-collapsible="true"] > .bn-block {
   align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
-.bn-toggle-button {
+.bn-block-outer[data-collapsible="true"] > .bn-block > .bn-block-content {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+}
+
+.bn-block-outer[data-collapsible="true"] > .bn-block > .bn-collapse-add-block,
+.bn-block-outer[data-collapsible="true"] > .bn-block > .bn-block-group {
+  flex: 0 0 100%;
+}
+
+.bn-collapse-button {
   color: var(--bn-colors-editor-text);
   padding: 3px;
 }
 
-.bn-toggle-button > svg {
+/* Headings pad 18px at the top (see HEADINGS above), so centring the chevron
+   against the whole content box leaves it sitting above the text. This pushes it
+   back down.
+
+   The value is empirical, and only right for a single-line heading around the
+   default level — the correct offset depends on the heading's line box, which
+   scales with `--level`, and that custom property is set on the content element,
+   a sibling the button can't read it from. Not visible in the screenshot tests
+   either, which mask `.bn-collapse-button`. Wants a proper pass: align to
+   `flex-start` and offset by the first line's height. */
+.bn-block-outer[data-collapsible="true"]:has(
+    > .bn-block > .bn-block-content[data-content-type="heading"]
+  )
+  > .bn-block
+  > .bn-collapse-button {
+  margin-top: 15px;
+}
+
+.bn-collapse-button > svg {
   width: 18px;
   height: 18px;
 }
 
-.bn-toggle-wrapper[data-show-children="true"] .bn-toggle-button {
+.bn-block-outer[data-collapsible="true"]:not([data-collapsed="true"])
+  > .bn-block
+  > .bn-collapse-button {
   transform: rotate(90deg);
 }
 
-.bn-toggle-add-block-button {
+.bn-collapse-button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.bn-collapse-add-block-button {
   font-size: 16px;
   color: var(--bn-colors-side-menu);
   font-weight: normal;
@@ -349,8 +382,8 @@ NESTED BLOCKS
   width: fit-content;
 }
 
-.bn-toggle-button,
-.bn-toggle-add-block-button {
+.bn-collapse-button,
+.bn-collapse-add-block-button {
   background: none;
   border: none;
   border-radius: var(--bn-border-radius-small);
@@ -359,8 +392,8 @@ NESTED BLOCKS
   user-select: none;
 }
 
-.bn-toggle-button:hover,
-.bn-toggle-add-block-button:hover {
+.bn-collapse-button:not(:disabled):hover,
+.bn-collapse-add-block-button:hover {
   background-color: var(--bn-colors-hovered-background);
 }
 

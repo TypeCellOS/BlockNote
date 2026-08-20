@@ -2,6 +2,7 @@ import { splitBlockTr } from "../../api/blockManipulation/commands/splitBlock/sp
 import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { handleCollapsibleEnter } from "../../extensions/Collapsible/collapsibleEnter.js";
 
 export const handleEnter = (
   editor: BlockNoteEditor<any, any, any>,
@@ -21,6 +22,12 @@ export const handleEnter = (
 
   if (!(blockContent.node.type.name === listItemType) || !selectionEmpty) {
     return false;
+  }
+
+  // Has to happen here rather than in the editor-wide Enter handling, which
+  // this handler runs ahead of.
+  if (editor.transact((tr) => handleCollapsibleEnter(editor, tr))) {
+    return true;
   }
 
   if (blockContent.node.childCount === 0) {

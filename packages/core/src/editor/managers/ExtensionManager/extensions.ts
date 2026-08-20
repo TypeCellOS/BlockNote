@@ -11,6 +11,7 @@ import { createPasteFromClipboardExtension } from "../../../api/clipboard/fromCl
 import { createCopyToClipboardExtension } from "../../../api/clipboard/toClipboard/copyExtension.js";
 import {
   BlockChangeExtension,
+  CollapsibleExtension,
   DropCursorExtension,
   FilePanelExtension,
   FormattingToolbarExtension,
@@ -155,6 +156,7 @@ export function getDefaultExtensions(
 ) {
   const extensions = [
     BlockChangeExtension(),
+    CollapsibleExtension(),
     DropCursorExtension(options),
     FilePanelExtension(options),
     FormattingToolbarExtension(options),

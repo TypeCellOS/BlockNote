@@ -39,11 +39,16 @@ describe("Check static rendering", () => {
       //   Playwright's `maxDiffPixels`: a small allowance for the image caption
       //   text, which renders slightly differently (e.g. '×' vs 'x').
       const masks = () =>
-        ["video", "audio", 'input[type="checkbox"]', ".bn-toggle-button"]
+        ["video", "audio", 'input[type="checkbox"]', ".bn-collapse-button"]
           .flatMap((sel) => [...document.querySelectorAll(sel)])
           .map((el) => page.elementLocator(el));
-      const matchEquality = () =>
-        expectElement(document.body).toMatchScreenshot(
+      const matchEquality = async () => {
+        // The code block's monospace webfont is only requested once a code
+        // block first paints, so the editor rendered first would otherwise be
+        // captured with the fallback font and the second one without it.
+        await document.fonts.ready;
+
+        return expectElement(document.body).toMatchScreenshot(
           "static-rendering-equality",
           {
             comparatorOptions: { allowedMismatchedPixels: 200 },
@@ -54,6 +59,7 @@ describe("Check static rendering", () => {
             screenshotOptions: { scale: "css", mask: masks() },
           },
         );
+      };
 
       const liveEditor = await render(<BasicBlocksApp />);
       await waitForSelector(EDITOR_SELECTOR);

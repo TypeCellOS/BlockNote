@@ -1,4 +1,5 @@
 export * from "./BlockChange/BlockChange.js";
+export * from "./Collapsible/Collapsible.js";
 export * from "./DropCursor/DropCursor.js";
 export * from "./FilePanel/FilePanel.js";
 export * from "./FormattingToolbar/FormattingToolbar.js";

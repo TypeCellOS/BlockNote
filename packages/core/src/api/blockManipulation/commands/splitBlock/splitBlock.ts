@@ -52,7 +52,43 @@ export const splitBlockTr = (
     },
   ];
 
+  // A block's children live in a `blockGroup` that sits *after* its content
+  // inside the `blockContainer`. A plain split would therefore hand that group
+  // to the new block, i.e. the new block would steal the original's children.
+  // To avoid that, the group is detached before the split and put back on the
+  // original block afterwards. Both happen in the same transaction, so this is
+  // still a single undo step.
+  //
+  // Splitting at the very start is the exception: there the first half keeps no
+  // content at all and the whole of it moves to the second, so the children
+  // follow it rather than being left behind on an empty block. That's what a
+  // plain `tr.split` already does.
+  const splitAtStart = posInBlock === info.blockContent.beforePos + 1;
+  const childContainer = splitAtStart ? undefined : info.childContainer;
+
+  if (childContainer) {
+    // The group sits after `posInBlock`, so deleting it doesn't shift the split
+    // position.
+    tr.delete(childContainer.beforePos, childContainer.afterPos);
+  }
+
   tr.split(posInBlock, 2, types);
+
+  if (childContainer) {
+    // The original block starts before `posInBlock`, so its position is
+    // unaffected by the delete and the split.
+    const originalBlockInfo = getBlockInfo(
+      getNearestBlockPos(tr.doc, nearestBlockContainerPos.posBeforeNode),
+    );
+
+    if (!originalBlockInfo.isBlockContainer) {
+      throw new Error(
+        "Block that was just split is no longer a block container",
+      );
+    }
+
+    tr.insert(originalBlockInfo.blockContent.afterPos, childContainer.node);
+  }
 
   return true;
 };

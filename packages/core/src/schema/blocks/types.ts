@@ -78,6 +78,20 @@ export interface BlockConfigMeta<
    * block's source is hidden behind its preview and edited via the popup.
    */
   hasPreview?: boolean;
+
+  /**
+   * Gives the block a chevron that hides its children, via
+   * `CollapsibleExtension`. Collapse state is per-user and never part of the
+   * document.
+   *
+   * The callback form opts in based on props (e.g. `heading` only when
+   * `props.isToggleable`). Like {@link highlight}, its parameter is untyped: a
+   * `TName`/`TProps`-typed one would make `BlockConfigMeta` contravariant and
+   * stop specs being collected into a schema.
+   */
+  collapsible?:
+    | boolean
+    | ((block: { type: string; props: Record<string, any> }) => boolean);
 }
 
 /**

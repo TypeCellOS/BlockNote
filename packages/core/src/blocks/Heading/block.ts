@@ -7,7 +7,6 @@ import {
   parseDefaultProps,
 } from "../defaultProps.js";
 import { getDetailsContent } from "../getDetailsContent.js";
-import { createToggleWrapper } from "../ToggleWrapper/createToggleWrapper.js";
 
 const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
 
@@ -63,6 +62,8 @@ export const createHeadingBlockSpec = createBlockSpec(
   ({ allowToggleHeadings = true }: HeadingOptions = {}) => ({
     meta: {
       isolating: false,
+      // Handled by `CollapsibleExtension`.
+      collapsible: (block) => allowToggleHeadings && !!block.props.isToggleable,
     },
     parse(e) {
       if (allowToggleHeadings && e.tagName === "DETAILS") {
@@ -126,13 +127,8 @@ export const createHeadingBlockSpec = createBlockSpec(
         }
       : {}),
     runsBefore: ["toggleListItem"],
-    render(block, editor) {
+    render(block) {
       const dom = document.createElement(`h${block.props.level}`);
-
-      if (allowToggleHeadings) {
-        const toggleWrapper = createToggleWrapper(block, editor, dom);
-        return { ...toggleWrapper, contentDOM: dom };
-      }
 
       return {
         dom,

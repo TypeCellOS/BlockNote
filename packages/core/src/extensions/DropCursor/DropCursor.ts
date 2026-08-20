@@ -8,8 +8,13 @@ import {
   hasExclusionClassname,
   type DropCursorPosition,
 } from "./utils.js";
+import {
+  getBlockInfo,
+  getNearestBlockPos,
+} from "../../api/getBlockInfoFromPos.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
+import { CollapsibleExtension } from "../Collapsible/Collapsible.js";
 
 export const DRAG_EXCLUSION_CLASSNAME = "bn-drag-exclude";
 
@@ -186,6 +191,23 @@ export const DropCursorExtension = createExtension<
         const point = dropPoint(view.state.doc, target, view.dragging.slice);
         if (point != null) {
           target = point;
+        }
+      }
+
+      // A collapsible block that's expanded and childless has no `blockGroup`
+      // yet, so `dropPoint` can't find a position inside it and would put the
+      // cursor next to it instead. `CollapsibleExtension` resolves the same
+      // target the drop handler will use, so the cursor can't end up somewhere
+      // other than where the block lands.
+      const collapsibleTargetPos = editor
+        .getExtension(CollapsibleExtension)
+        ?.getDropTargetPos(view, e, view.dragging?.slice);
+      if (collapsibleTargetPos !== undefined) {
+        const targetInfo = getBlockInfo(
+          getNearestBlockPos(view.state.doc, collapsibleTargetPos),
+        );
+        if (targetInfo.isBlockContainer) {
+          target = targetInfo.blockContent.afterPos;
         }
       }
 

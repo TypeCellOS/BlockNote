@@ -3,6 +3,10 @@ import { DOMSerializer, Fragment, Node } from "prosemirror-model";
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
+  createCollapseButton,
+  isBlockCollapsible,
+} from "../../../../extensions/Collapsible/Collapsible.js";
+import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -196,6 +200,18 @@ function serializeBlock<
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   };
+
+  // `CollapsibleExtension` doesn't run when exporting, so the chevron is added
+  // here to keep the layout identical to the editor's. It can't fold anything,
+  // so it's rendered inert.
+  if (isBlockCollapsible(editor, block.type as string, props)) {
+    const collapseButton = createCollapseButton(true);
+    collapseButton.setAttribute("aria-hidden", "true");
+    collapseButton.setAttribute("tabindex", "-1");
+
+    bc.dom.setAttribute("data-collapsible", "true");
+    bc.contentDOM?.appendChild(collapseButton);
+  }
 
   bc.contentDOM?.appendChild(ret.dom);
 
