@@ -44,10 +44,12 @@ import {
   ODTExporter,
   odtDefaultSchemaMappings,
 } from "@blocknote/xl-odt-exporter";
+// The deprecated react-pdf exporter; the demo's PDF action migrates to the
+// Typst-based PDFExporter with the examples/docs pass for the new API.
 import {
   PDFExporter,
   pdfDefaultSchemaMappings,
-} from "@blocknote/xl-pdf-exporter";
+} from "@blocknote/xl-pdf-exporter/react-pdf";
 import { pdf } from "@react-pdf/renderer";
 import { DefaultChatTransport } from "ai";
 import { useTheme } from "next-themes";
