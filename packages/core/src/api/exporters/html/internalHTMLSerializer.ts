@@ -55,21 +55,6 @@ const makeCheckListItemsReadOnly = (element: HTMLElement) => {
   return element;
 };
 
-// Forces toggle blocks (toggle headings, toggle list items) to be expanded.
-// This is because event listeners for the toggle button are lost when
-// serializing HTML elements to a string, so the button no longer works if the
-// HTML string is rendered out.
-const forceToggleBlocksShow = (element: HTMLElement) => {
-  const hiddenToggleWrappers = element.querySelectorAll(
-    '.bn-toggle-wrapper[data-show-children="false"]',
-  );
-  hiddenToggleWrappers.forEach((toggleWrapper) => {
-    toggleWrapper.setAttribute("data-show-children", "true");
-  });
-
-  return element;
-};
-
 // Adds minimum cell widths, which would normally be done by the
 // `columnResizing` extension. This extension doesn't run when exporting to
 // HTML, so we have to add this manually.
@@ -154,7 +139,6 @@ export const createInternalHTMLSerializer = <
   const transforms: ((element: HTMLElement) => HTMLElement)[] = [
     addIndexToNumberedListItems,
     makeCheckListItemsReadOnly,
-    forceToggleBlocksShow,
     addTableMinCellWidths,
     addTableWrappers,
     addTrailingBreakToEmptyInlineContent,

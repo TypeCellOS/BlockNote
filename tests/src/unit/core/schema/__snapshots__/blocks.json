@@ -266,6 +266,7 @@
     ],
     "implementation": {
       "meta": {
+        "collapsible": [Function],
         "isolating": false,
       },
       "node": null,
@@ -566,6 +567,7 @@
     ],
     "implementation": {
       "meta": {
+        "collapsible": true,
         "isolating": false,
       },
       "node": null,

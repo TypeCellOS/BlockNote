@@ -6,7 +6,6 @@ import {
   parseDefaultProps,
 } from "../../defaultProps.js";
 import { getDetailsContent } from "../../getDetailsContent.js";
-import { createToggleWrapper } from "../../ToggleWrapper/createToggleWrapper.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
 
 export type ToggleListItemBlockConfig = ReturnType<
@@ -29,6 +28,7 @@ export const createToggleListItemBlockSpec = createBlockSpec(
   {
     meta: {
       isolating: false,
+      collapsible: true,
     },
     parse(element) {
       if (element.tagName === "DETAILS") {
@@ -71,14 +71,13 @@ export const createToggleListItemBlockSpec = createBlockSpec(
       );
     },
     runsBefore: ["bulletListItem"],
-    render(block, editor) {
+    render() {
       const paragraphEl = document.createElement("p");
-      const toggleWrapper = createToggleWrapper(
-        block as any,
-        editor,
-        paragraphEl,
-      );
-      return { ...toggleWrapper, contentDOM: paragraphEl };
+
+      return {
+        dom: paragraphEl,
+        contentDOM: paragraphEl,
+      };
     },
     toExternalHTML(block) {
       const li = document.createElement("li");

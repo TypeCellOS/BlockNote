@@ -22,6 +22,7 @@ import {
   getBlockInfoFromSelection,
 } from "../../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { handleCollapsibleEnter } from "../../Collapsible/collapsibleEnter.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
 
@@ -915,6 +916,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
+        // Starts a first child instead of splitting, at the end of an expanded
+        // collapsible block's title. Toggle list items don't reach this — their
+        // own Enter shortcut runs first, and calls the same handler.
+        () =>
+          commands.command(({ tr }) =>
+            handleCollapsibleEnter(this.options.editor, tr),
+          ),
         // Splits the current block, moving content inside that's after the cursor to a new text block below. Also
         // deletes the selection beforehand, if it's not empty.
         () =>

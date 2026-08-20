@@ -111,9 +111,11 @@
   width: 100%;
 }
 
-/* Indent line styling */
+/* Indent line styling. Collapsible blocks are excluded: their chevron already
+   shows where their children begin. */
 .bn-block-group
-  .bn-block:not(:has(.bn-toggle-wrapper))
+  .bn-block-outer:not([data-collapsible="true"])
+  > .bn-block
   .bn-block-group
   .bn-block-outer:not([data-prev-depth-changed])::before {
   border-left: 1px solid var(--bn-colors-side-menu);

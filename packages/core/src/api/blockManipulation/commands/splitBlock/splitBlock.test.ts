@@ -77,6 +77,30 @@ describe("Test splitBlocks", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 
+  it("Block has children, split at end of content", () => {
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(
+        tr.doc,
+        "paragraph-with-children",
+        "Paragraph with children".length,
+      );
+    });
+
+    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
+
+    // The children must stay with the original block rather than being
+    // reparented onto the newly created one.
+    const original = getEditor().document.find(
+      (block) => block.id === "paragraph-with-children",
+    )!;
+    expect(original.children.map((child) => child.id)).toEqual([
+      "nested-paragraph-0",
+    ]);
+
+    const newBlock = getEditor().document.find((block) => block.id === "0")!;
+    expect(newBlock.children).toEqual([]);
+  });
+
   it("Keep type", () => {
     getEditor().transact((tr) => {
       setSelectionWithOffset(tr.doc, "heading-0", 4);

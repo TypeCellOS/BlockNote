@@ -622,23 +622,6 @@ exports[`Test splitBlocks > Block has children 1`] = `
     "type": "paragraph",
   },
   {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Para",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-with-children",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
     "children": [
       {
         "children": [
@@ -676,6 +659,23 @@ exports[`Test splitBlocks > Block has children 1`] = `
         "type": "paragraph",
       },
     ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Para",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-with-children",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
     "content": [
       {
         "styles": {},
