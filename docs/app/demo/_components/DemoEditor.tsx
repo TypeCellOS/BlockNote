@@ -201,12 +201,18 @@ function DemoEditorInner({
     const doc = new Y.Doc();
     const provider = new WebsocketProvider(
       `wss://${YHUB_HOST}/api/ws/v1`,
-      `${YHUB_ORG}/demo-${roomId}`,
+      `${YHUB_ORG}/demo-${encodeURIComponent(roomId)}`,
       doc,
     );
     return { doc, provider };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId]);
+
+  useEffect(() => {
+    return () => {
+      provider.destroy();
+    };
+  }, [provider]);
   // Thread Store
   const threadStore = useMemo(() => {
     return new YjsThreadStore(
