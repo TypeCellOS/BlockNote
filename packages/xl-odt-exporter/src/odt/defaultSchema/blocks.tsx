@@ -1,5 +1,7 @@
 import {
   BlockFromConfig,
+  getColspan,
+  getRowspan,
   BlockFromConfigNoChildren,
   BlockMapping,
   createPageBreakBlockConfig,
@@ -486,9 +488,78 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     const getCellStyleName = createTableCellStyle(ex);
     const tableStyleName = createTableStyle(ex, { width: tableWidthPT });
 
+    // Cells normalized once; merged cells span extra grid tracks, so the
+    // column count must count *spanned* tracks, not cells.
+    const rows = block.content.rows.map((row) =>
+      row.cells.map((c) => mapTableCell(c)),
+    );
+    const colCount =
+      block.content.columnWidths.length ||
+      Math.max(
+        1,
+        ...rows.map((cells) => cells.reduce((n, c) => n + getColspan(c), 0)),
+      );
+
+    // ODF's merged-cell model: the spanning cell carries
+    // table:number-columns/rows-spanned, and every covered grid position
+    // must still be occupied by a <table:covered-table-cell/> - both the
+    // horizontal continuations in the same row and the vertical ones in the
+    // rows below. BlockNote (like HTML) simply omits covered cells, so the
+    // grid walk below tracks how many upcoming rows each column is covered
+    // for (`coveredBelow`) and re-inserts the placeholders.
+    const coveredBelow: number[] = new Array(colCount).fill(0);
+    const renderedRows = rows.map((cells, rowIndex) => {
+      const rowChildren: React.ReactNode[] = [];
+      let nextCell = 0;
+      let col = 0;
+      while (col < colCount) {
+        if (coveredBelow[col] > 0) {
+          coveredBelow[col]--;
+          rowChildren.push(<table:covered-table-cell key={`cov-${col}`} />);
+          col++;
+          continue;
+        }
+        const cell = cells[nextCell++];
+        if (!cell) {
+          // A short row (fewer cells than the grid has tracks) still needs
+          // every position occupied.
+          rowChildren.push(<table:table-cell key={`pad-${col}`} />);
+          col++;
+          continue;
+        }
+        const colspan = getColspan(cell);
+        const rowspan = getRowspan(cell);
+        rowChildren.push(
+          <table:table-cell
+            key={`cell-${col}`}
+            table:style-name={getCellStyleName(cell)}
+            office:value-type="string"
+            style:text-align-source="fix"
+            style:paragraph-properties-text-align={cell.props.textAlignment}
+            table:number-columns-spanned={colspan > 1 ? colspan : undefined}
+            table:number-rows-spanned={rowspan > 1 ? rowspan : undefined}
+          >
+            <text:p text:style-name="Standard">
+              {exporter.transformInlineContent(cell.content)}
+            </text:p>
+          </table:table-cell>,
+        );
+        for (let i = 0; i < colspan; i++) {
+          if (i > 0) {
+            rowChildren.push(
+              <table:covered-table-cell key={`cov-${col + i}`} />,
+            );
+          }
+          coveredBelow[col + i] += rowspan - 1;
+        }
+        col += colspan;
+      }
+      return <table:table-row key={rowIndex}>{rowChildren}</table:table-row>;
+    });
+
     return (
       <table:table table:name={block.id} table:style-name={tableStyleName}>
-        {block.content.rows[0]?.cells.map((_, i) => {
+        {Array.from({ length: colCount }, (_, i) => {
           const colWidthPX =
             block.content.columnWidths[i] || DEFAULT_COLUMN_WIDTH_PX;
           const colWidthPT = colWidthPX * 0.75;
@@ -501,28 +572,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
           ));
           return <table:table-column table:style-name={style} key={i} />;
         })}
-        {block.content.rows.map((row, rowIndex) => (
-          <table:table-row key={rowIndex}>
-            {row.cells.map((c, colIndex) => {
-              const cell = mapTableCell(c);
-              return (
-                <table:table-cell
-                  key={`${rowIndex}-${colIndex}`}
-                  table:style-name={getCellStyleName(cell)}
-                  office:value-type="string"
-                  style:text-align-source="fix"
-                  style:paragraph-properties-text-align={
-                    cell.props.textAlignment
-                  }
-                >
-                  <text:p text:style-name="Standard">
-                    {exporter.transformInlineContent(cell.content)}
-                  </text:p>
-                </table:table-cell>
-              );
-            })}
-          </table:table-row>
-        ))}
+        {renderedRows}
       </table:table>
     );
   },

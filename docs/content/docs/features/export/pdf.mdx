@@ -45,10 +45,12 @@ const blob = await exporter.toBlob(
 );
 ```
 
-By default the Typst compiler (a ~30MB wasm file) and its stock fonts are
-loaded from a CDN on the first export — handy to get started, but for
-production you'll want to bundle them, which also makes the export match the
-editor's own font: see [Fonts & offline use](#fonts--offline-use).
+This works out of the box: the export matches the editor's look (Inter body
+text, Geist Mono code) and handles math blocks and emoji — the default fonts
+ship inside the package and load lazily on the first export, with no CDN
+involved. The Typst compiler itself (a ~30MB wasm file) is the one thing
+loaded from a CDN by default; for production you'll want to bundle it: see
+[Fonts & offline use](#fonts--offline-use).
 
 When repeatedly exporting changing content (e.g. a live preview), create a
 fresh exporter per export — construction is cheap, and an exporter instance
@@ -150,8 +152,13 @@ new PDFExporter(editor.schema, {
 
 ### Fonts & offline use
 
-The compile options (the second parameter of `toBlob` / `toBytes`) control
-what gets loaded into the Typst compiler:
+By default, exports use a font set matching the editor — Inter (body), Geist
+Mono (code), New Computer Modern Math (math blocks) and Noto Color Emoji
+(emoji, [required for PDF/UA](#pdfua-conformance)) — embedded in the package
+and loaded lazily on the first export. Fonts never touch a CDN; the compiler
+wasm is the only CDN default, and bundling it makes the export fully
+offline. The compile options (the second parameter of `toBlob` / `toBytes`)
+control all of it:
 
 ```typescript
 import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
@@ -161,35 +168,41 @@ const blob = await exporter.toBlob(editor.document, {
   // of loaded from a CDN. Install @myriaddreamin/typst-ts-web-compiler to
   // import it.
   getModule: () => compilerWasmUrl,
-  // Font bytes to load into the compiler - e.g. BlockNote's Inter and
-  // Geist Mono, and a math font (New Computer Modern Math) when the
-  // document contains math blocks.
-  fonts: [interRegular, interBold, geistMono, newCMMath],
+});
+```
+
+To take full control of fonts (e.g. a different look, or trimming the lazily
+loaded defaults — the emoji font alone is ~5MB), pass your own font bytes.
+Each option independently replaces its bundled default: supplying `fonts`
+keeps the default emoji font (and vice versa), and an explicit empty array
+disables one entirely:
+
+```typescript
+const blob = await exporter.toBlob(editor.document, {
+  // Font bytes (Uint8Array) to load into the compiler.
+  fonts: [myBodyFont, myMonoFont],
   // An emoji-capable font. Browsers give the compiler no access to OS
   // fonts, so without one emoji render as missing glyphs (and fail PDF/UA).
-  emojiFont: notoColorEmoji,
-  // Skip fetching Typst's stock fonts from its CDN - with the fonts above
-  // bundled, the export runs fully offline.
-  preloadDefaultFonts: false,
+  emojiFont: myEmojiFont,
+  // Optionally also preload Typst's stock fonts (from its CDN) as
+  // fallback faces for glyphs your fonts don't cover.
+  preloadDefaultFonts: true,
 });
 ```
 
 The wasm and fonts are loaded once, on the page's first export, and reused
 afterwards — pass every font the page will need on that first call. The
-[example](/examples/interoperability/converting-blocks-to-pdf-ua) bundles all
-of the above and works fully offline.
+[example](/examples/interoperability/converting-blocks-to-pdf-ua) bundles
+everything explicitly and works fully offline.
 
-To match the editor's look, set the exporter's font families to the fonts you
-loaded (defaults: `"Inter 18pt"` body, `"Geist Mono"` code). This is also how
-you cover scripts the primary font doesn't, e.g. CJK — load the extra font's
-bytes and declare a fallback list:
+When passing custom fonts, set the exporter's font families to match
+(defaults: `"Inter 18pt"` body, `"Geist Mono"` code, `"Noto Color Emoji"`
+emoji). This is also how you cover scripts the primary font doesn't, e.g.
+CJK — load the extra font's bytes and declare a fallback list:
 
 ```typescript
 const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings, {
   fontFamily: ["Inter 18pt", "Noto Sans SC"],
-  // The family name of the font passed via the `emojiFont` compile option -
-  // listing it makes multi-codepoint emoji (e.g. 🚶‍♀️) shape correctly.
-  emojiFontFamily: "Noto Color Emoji",
 });
 ```
 

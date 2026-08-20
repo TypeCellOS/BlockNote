@@ -1,17 +1,25 @@
 import {
   Block,
+  BlockNoteSchema,
   BlockSchema,
+  Exporter,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
 import {
   TypstDocumentOptions,
   TypstExporter,
+  TypstExporterOptions,
 } from "@blocknote/xl-typst-exporter";
 import {
   compileTypstToTaggedPdf,
   TypstCompileOptions,
 } from "./pdfua/compileBrowser.js";
+import {
+  DEFAULT_EMOJI_FONT_FAMILY,
+  loadDefaultBodyFonts,
+  loadDefaultEmojiFont,
+} from "./pdfua/defaultFonts.js";
 import { declarePdfUA } from "./pdfua/postProcess.js";
 
 // The Typst layer is re-exported so PDF consumers need only this package.
@@ -55,6 +63,12 @@ export type PdfExportOptions = TypstCompileOptions & {
  * accumulates assets for its lifetime: create a fresh exporter per export
  * when repeatedly exporting changing content (construction is cheap).
  *
+ * Zero-config exports match the editor: the compile options' `fonts` and
+ * `emojiFont` each default (independently) to the bundled set - Inter,
+ * Geist Mono, New Computer Modern Math resp. Noto Color Emoji - loaded
+ * lazily from the package. Pass a value (or an explicit `[]` for none) to
+ * take over either.
+ *
  * Concurrency: the shared compile stage is serialized internally (see
  * `compileTypstToTaggedPdf`) and the asset registry is append-only, so
  * overlapping exports are *safe* - but like any async calls, independent
@@ -70,6 +84,29 @@ export class PDFExporter<
   S extends StyleSchema,
   I extends InlineContentSchema,
 > extends TypstExporter<B, S, I> {
+  public constructor(
+    schema: BlockNoteSchema<B, I, S>,
+    mappings: Exporter<
+      NoInfer<B>,
+      NoInfer<I>,
+      NoInfer<S>,
+      string,
+      string,
+      (inner: string) => string,
+      string
+    >["mappings"],
+    options?: Partial<TypstExporterOptions>,
+  ) {
+    super(schema, mappings, {
+      // The bundled default fonts (see `defaultFonts.ts`) include Noto
+      // Color Emoji; declaring the family by default lets multi-codepoint
+      // emoji shape correctly with zero config. Callers supplying their own
+      // fonts can override (or unset) it.
+      emojiFontFamily: DEFAULT_EMOJI_FONT_FAMILY,
+      ...options,
+    });
+  }
+
   /**
    * Export a document to PDF bytes: BlockNote document -> Typst -> tagged
    * PDF (wasm) -> declared PDF/UA-1 (unless opted out via
@@ -95,8 +132,24 @@ export class PDFExporter<
         );
       }
     }
+    // Zero-config fonts: each option defaults independently to the bundled
+    // set matching the editor - `undefined` means "use the default", a
+    // supplied value (including an explicit `[]` for none) takes over. The
+    // independence keeps the bytes consistent with the constructor's
+    // independent `emojiFontFamily` default: custom body fonts don't
+    // silently drop emoji support, and vice versa.
+    const [fonts, emojiFont] = await Promise.all([
+      compileOptions.fonts === undefined
+        ? loadDefaultBodyFonts()
+        : compileOptions.fonts,
+      compileOptions.emojiFont === undefined
+        ? loadDefaultEmojiFont()
+        : compileOptions.emojiFont,
+    ]);
     const taggedPdf = await compileTypstToTaggedPdf(typst, {
       ...compileOptions,
+      fonts,
+      emojiFont,
       assets: new Map([...(compileOptions.assets ?? []), ...this.assetFiles]),
     });
     // TODO: collapse this into one step once the web compiler supports native

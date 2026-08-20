@@ -31,7 +31,7 @@ function fontBlobs(): Buffer[] {
     `${shared}/inter/Inter_18pt-Bold.ttf`,
     `${shared}/inter/Inter_18pt-BoldItalic.ttf`,
     `${shared}/GeistMono-Regular.ttf`,
-    "src/pdfua/__fixtures__/Noto-COLRv1.ttf",
+    `${shared}/noto/Noto-COLRv1.ttf`,
   ];
   return paths.map((p) => Buffer.from(readFileSync(resolve(process.cwd(), p))));
 }

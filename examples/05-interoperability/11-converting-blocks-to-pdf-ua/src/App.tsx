@@ -37,76 +37,12 @@ import {
   withMultiColumn,
 } from "@blocknote/xl-multi-column";
 // Bundle the Typst compiler wasm so it resolves locally (no CDN / importer).
+// Fonts need no setup: the exporter's bundled defaults (Inter, Geist Mono,
+// math, emoji - matching the editor) load lazily from the package.
 import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
-// Bundle BlockNote's fonts (Inter + Geist Mono) + a color emoji font so the
-// export matches the editor and works fully offline, plus a math font (New
-// Computer Modern Math, Typst's default) for the math blocks - with
-// `preloadDefaultFonts: false` no fonts come from a CDN, so every needed
-// font must be bundled. Noto Color Emoji is the pure-COLRv1 build (~5MB),
-// which Typst renders in color. `new URL(<literal>, import.meta.url)` is
-// the bundler-portable asset reference (Vite and the docs site's Turbopack
-// both emit the file and return its URL) - but only with a full string
-// literal per file: a shared helper with a template path breaks Turbopack's
-// static analysis (every URL silently resolves to one file).
-const interRegular = new URL("./fonts/Inter_18pt-Regular.ttf", import.meta.url)
-  .href;
-const interItalic = new URL("./fonts/Inter_18pt-Italic.ttf", import.meta.url)
-  .href;
-const interBold = new URL("./fonts/Inter_18pt-Bold.ttf", import.meta.url).href;
-const interBoldItalic = new URL(
-  "./fonts/Inter_18pt-BoldItalic.ttf",
-  import.meta.url,
-).href;
-const geistMono = new URL("./fonts/GeistMono-Regular.ttf", import.meta.url)
-  .href;
-const notoColorEmoji = new URL("./fonts/Noto-COLRv1.ttf", import.meta.url).href;
-const newCMMathRegular = new URL(
-  "./fonts/NewCMMath-Regular.otf",
-  import.meta.url,
-).href;
-const newCMMathBook = new URL("./fonts/NewCMMath-Book.otf", import.meta.url)
-  .href;
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "./styles.css";
-
-// Fetch the bundled fonts once and reuse them across exports. The emoji font is
-// kept separate so it can be passed via the dedicated `emojiFont` option.
-const BODY_FONT_URLS = [
-  interRegular,
-  interItalic,
-  interBold,
-  interBoldItalic,
-  geistMono,
-  newCMMathRegular,
-  newCMMathBook,
-];
-async function fetchFont(url: string) {
-  const res = await fetch(url);
-  if (!res.ok) {
-    // A dev server's HTML fallback page must not be loaded as font bytes.
-    throw new Error(`Failed to fetch font ${url}: ${res.status}`);
-  }
-  return new Uint8Array(await res.arrayBuffer());
-}
-
-let fontsPromise:
-  | Promise<{ fonts: Uint8Array[]; emojiFont: Uint8Array }>
-  | undefined;
-function loadFonts() {
-  if (!fontsPromise) {
-    fontsPromise = Promise.all([
-      Promise.all(BODY_FONT_URLS.map(fetchFont)),
-      fetchFont(notoColorEmoji),
-    ]).then(([fonts, emojiFont]) => ({ fonts, emojiFont }));
-    // A transient fetch failure must not poison every later export - clear
-    // the cache so the next export retries.
-    fontsPromise.catch(() => {
-      fontsPromise = undefined;
-    });
-  }
-  return fontsPromise;
-}
 
 /**
  * Exports the given document to a PDF/UA object URL, re-exporting whenever
@@ -133,15 +69,9 @@ function usePdfUA(
     setStatus("loading");
     void (async () => {
       try {
-        const { fonts, emojiFont } = await loadFonts();
         const blob = await makeExporter().toBlob(
           blocks,
-          {
-            getModule: () => compilerWasmUrl,
-            fonts,
-            emojiFont,
-            preloadDefaultFonts: false,
-          },
+          { getModule: () => compilerWasmUrl },
           { title: "BlockNote document", lang: "en" },
         );
         if (stale) {
@@ -252,26 +182,20 @@ export default function App() {
   // every image/diagram variant it has ever rendered.
   const makeExporter = useCallback(
     () =>
-      new PDFExporter(
-        editor.schema,
-        {
-          ...typstDefaultSchemaMappings,
-          blockMapping: {
-            ...typstDefaultSchemaMappings.blockMapping,
-            // Renders math blocks as native Typst equations, and diagrams as
-            // embedded images - both carrying alt text for PDF/UA.
-            mathBlock: mathBlockMapping,
-            diagram: diagramBlockMapping,
-          },
-          inlineContentMapping: {
-            ...typstDefaultSchemaMappings.inlineContentMapping,
-            math: inlineMathMapping,
-          },
+      new PDFExporter(editor.schema, {
+        ...typstDefaultSchemaMappings,
+        blockMapping: {
+          ...typstDefaultSchemaMappings.blockMapping,
+          // Renders math blocks as native Typst equations, and diagrams as
+          // embedded images - both carrying alt text for PDF/UA.
+          mathBlock: mathBlockMapping,
+          diagram: diagramBlockMapping,
         },
-        // Noto Color Emoji is the internal family name of the bundled emoji
-        // font; listing it lets ZWJ emoji (e.g. 🚶‍♀️) shape correctly.
-        { emojiFontFamily: "Noto Color Emoji" },
-      ),
+        inlineContentMapping: {
+          ...typstDefaultSchemaMappings.inlineContentMapping,
+          math: inlineMathMapping,
+        },
+      }),
     [editor],
   );
 

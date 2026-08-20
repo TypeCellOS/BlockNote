@@ -27,12 +27,12 @@ export interface TypstCompileOptions {
    */
   emojiFont?: Uint8Array | Uint8Array[];
   /**
-   * Fetch Typst's default font assets (Libertinus Serif, New Computer Modern
-   * Math, etc.) from the jsdelivr CDN. Pass `false` for fully offline,
-   * bundled-fonts-only compiles - then supply every font the document needs
-   * via {@link fonts}, *including a math font* (e.g. NewCMMath-Regular.otf)
-   * when the document contains equations.
-   * @default true
+   * Additionally fetch Typst's stock font assets (Libertinus Serif, DejaVu
+   * Sans Mono, etc.) from the jsdelivr CDN, as fallback faces for glyphs
+   * the supplied fonts don't cover. Off by default: `PDFExporter` already
+   * loads a bundled default font set (body, code, math, emoji), so
+   * zero-config exports make no font CDN requests at all.
+   * @default false
    */
   preloadDefaultFonts?: boolean;
   /**
@@ -121,7 +121,7 @@ async function getSnippet(options: TypstCompileOptions): Promise<TypstSnippet> {
     if (
       newFonts.length > 0 ||
       moduleChanged ||
-      (options.preloadDefaultFonts !== false) !== configured.preloadDefaultFonts
+      (options.preloadDefaultFonts === true) !== configured.preloadDefaultFonts
     ) {
       throw new Error(
         "The Typst compiler is already initialized with different options. " +
@@ -139,14 +139,14 @@ async function getSnippet(options: TypstCompileOptions): Promise<TypstSnippet> {
     $typst.setCompilerInitOptions({ getModule: options.getModule });
   }
   const providers = [];
-  if (options.preloadDefaultFonts !== false) {
+  if (options.preloadDefaultFonts === true) {
     providers.push(TypstSnippet.preloadFontAssets());
   } else {
     // The explicit opt-out marker matters: without a provider whose options
-    // say `assets: false`, the compiler driver force-loads its default
-    // 'text' font assets (Libertinus, New CM Math, ...) from the jsdelivr
-    // CDN even when no preload provider was given - exactly the network
-    // dependency this option exists to remove.
+    // say `assets: false`, the compiler driver force-loads its stock 'text'
+    // font assets (Libertinus, New CM Math, ...) from the jsdelivr CDN even
+    // when no preload provider was given - which would silently reintroduce
+    // a CDN dependency behind this off-by-default option.
     providers.push(TypstSnippet.disableDefaultFontAssets());
   }
   const fonts = fontList(options);
@@ -160,7 +160,7 @@ async function getSnippet(options: TypstCompileOptions): Promise<TypstSnippet> {
     snippet: $typst,
     fonts: new Set(fonts.map(fontFingerprint)),
     moduleSource: moduleSourceKey(options.getModule?.()),
-    preloadDefaultFonts: options.preloadDefaultFonts !== false,
+    preloadDefaultFonts: options.preloadDefaultFonts === true,
   };
   return configured.snippet;
 }

@@ -15,7 +15,9 @@ export default defineConfig(
               { auto: true },
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
-            output: ["dist/**", "!dist/*.tsbuildinfo"],
+            // `types/**` must be declared too: a cache replay that restores only
+            // dist/ leaves consumers without declarations (tsc is skipped).
+            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
           },
         },
       },
