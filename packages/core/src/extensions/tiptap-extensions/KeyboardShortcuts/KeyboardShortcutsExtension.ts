@@ -918,8 +918,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
           }),
         // Starts a first child instead of splitting, at the end of an expanded
         // collapsible block's title. Toggle list items don't reach this — their
-        // own Enter shortcut runs first, and calls the same handler.
+        // own Enter shortcut runs first, and calls the same handler. Plain Enter
+        // only: `Shift-Enter` gets here too once a block opts out of hard breaks
+        // with `hardBreakShortcut: "none"`, and should still split.
         () =>
+          !withShift &&
           commands.command(({ tr }) =>
             handleCollapsibleEnter(this.options.editor, tr),
           ),

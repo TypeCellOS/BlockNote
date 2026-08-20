@@ -96,10 +96,12 @@ export type CollapsibleOptions = {
  * Whether a block of `type` with `props` declares itself collapsible.
  *
  * Shared with the HTML exporter, which has to reproduce what the extension
- * renders without an editor view to read decorations from.
+ * renders without an editor view to read decorations from. It takes only the
+ * schema rather than a whole editor, so an editor with a concrete block schema
+ * can be passed without a cast.
  */
 export function isBlockCollapsible(
-  editor: BlockNoteEditor<any, any, any>,
+  editor: Pick<BlockNoteEditor<any, any, any>, "schema">,
   type: string,
   props: Record<string, any>,
 ): boolean {
@@ -111,15 +113,28 @@ export function isBlockCollapsible(
     : !!collapsible;
 }
 
+/** The DOM id given to a collapsible block's child group, for `aria-controls`. */
+export function collapsibleChildrenId(blockId: string): string {
+  return `bn-collapse-children-${blockId}`;
+}
+
 /**
  * The chevron shown to the left of a collapsible block's content. It's the
- * disclosure control for the block's children, so it carries `aria-expanded`.
+ * disclosure control for the block's children, so it carries `aria-expanded`,
+ * and `aria-controls` naming what it discloses where there is anything to name —
+ * a childless block has no group to point at.
  */
-export function createCollapseButton(expanded: boolean): HTMLButtonElement {
+export function createCollapseButton(
+  expanded: boolean,
+  controls?: string,
+): HTMLButtonElement {
   const button = document.createElement("button");
   button.className = "bn-collapse-button";
   button.type = "button";
   button.setAttribute("aria-expanded", expanded ? "true" : "false");
+  if (controls) {
+    button.setAttribute("aria-controls", controls);
+  }
   button.innerHTML =
     // https://fonts.google.com/icons?selected=Material+Symbols+Rounded:chevron_right:FILL@0;wght@700;GRAD@0;opsz@24&icon.query=chevron&icon.style=Rounded&icon.size=24&icon.color=%23e8eaed
     '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="CURRENTCOLOR"><path d="M320-200v-560l440 280-440 280Z"/></svg>';
@@ -147,10 +162,6 @@ export const CollapsibleExtension = createExtension(
 
     const isExpanded = (id: string) => toggledState.get({ id });
 
-    // Child counts as of each block's last decoration, so that a block which
-    // gains one can expand rather than appear to swallow it.
-    const childCounts = new Map<string, number>();
-
     /** Redraws the decorations, for state that isn't in the document. */
     function invalidate() {
       // A headless editor has no view to redraw.
@@ -176,8 +187,16 @@ export const CollapsibleExtension = createExtension(
       }
     });
 
-    function createChevron(id: string, expanded: boolean, disabled: boolean) {
-      const button = createCollapseButton(expanded);
+    function createChevron(
+      id: string,
+      expanded: boolean,
+      disabled: boolean,
+      hasChildren: boolean,
+    ) {
+      const button = createCollapseButton(
+        expanded,
+        hasChildren ? collapsibleChildrenId(id) : undefined,
+      );
       button.disabled = disabled;
       // Keeps the editor's selection (and focus) where it was.
       button.addEventListener("mousedown", (event) => event.preventDefault());
@@ -227,17 +246,26 @@ export const CollapsibleExtension = createExtension(
 
     const collapsiblePlugin = createBlockDecorationPlugin(
       collapsiblePluginKey,
-      (info, pos, id) => {
+      (info, pos, id, previous) => {
         const props = info.blockContent.node.attrs;
         if (!isBlockCollapsible(editor, info.blockNoteType, props)) {
           return [];
         }
 
         const childCount = info.childContainer?.node.childCount ?? 0;
-        if (childCount > (childCounts.get(id) ?? childCount)) {
+        // The count as of the last time this block was decorated, carried on the
+        // decoration so it lives and dies with the block. A block that has just
+        // gained a child expands, rather than appearing to swallow it — note
+        // that this writes collapse state from inside `apply`, which a remote
+        // insert can therefore trigger. It's idempotent, and the write is to
+        // per-user storage rather than the document.
+        const lastChildCount = previous.find(
+          (decoration) => decoration.spec.childCount !== undefined,
+        )?.spec.childCount;
+
+        if (childCount > (lastChildCount ?? childCount)) {
           toggledState.set({ id }, true);
         }
-        childCounts.set(id, childCount);
 
         const expanded = isExpanded(id);
         // Nothing to reveal, and no "add a block" button either.
@@ -252,20 +280,34 @@ export const CollapsibleExtension = createExtension(
               "data-collapsible": "true",
               ...(expanded ? {} : { "data-collapsed": "true" }),
             },
-            { blockId: id },
+            { blockId: id, childCount },
           ),
           Decoration.widget(
             pos + 1,
-            () => createChevron(id, expanded, disabled),
+            () => createChevron(id, expanded, disabled, childCount > 0),
             {
               blockId: id,
               side: -1,
               // Everything the button's DOM depends on, so ProseMirror reuses
               // it until one of them changes.
-              key: `bn-collapse-button:${id}:${expanded}:${disabled}`,
+              key: `bn-collapse-button:${id}:${expanded}:${disabled}:${
+                childCount > 0
+              }`,
             },
           ),
         ];
+
+        // Names the group the chevron discloses, for `aria-controls`.
+        if (info.childContainer) {
+          decorations.push(
+            Decoration.node(
+              info.childContainer.beforePos,
+              info.childContainer.afterPos,
+              { id: collapsibleChildrenId(id) },
+              { blockId: id },
+            ),
+          );
+        }
 
         // An expanded block with no children gets an "add a block" button, so
         // its chevron has something to reveal.

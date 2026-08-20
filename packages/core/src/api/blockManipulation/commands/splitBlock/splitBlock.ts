@@ -58,7 +58,13 @@ export const splitBlockTr = (
   // To avoid that, the group is detached before the split and put back on the
   // original block afterwards. Both happen in the same transaction, so this is
   // still a single undo step.
-  const childContainer = info.childContainer;
+  //
+  // Splitting at the very start is the exception: there the first half keeps no
+  // content at all and the whole of it moves to the second, so the children
+  // follow it rather than being left behind on an empty block. That's what a
+  // plain `tr.split` already does.
+  const splitAtStart = posInBlock === info.blockContent.beforePos + 1;
+  const childContainer = splitAtStart ? undefined : info.childContainer;
 
   if (childContainer) {
     // The group sits after `posInBlock`, so deleting it doesn't shift the split

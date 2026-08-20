@@ -13,11 +13,18 @@ export type BlockContainerInfo = Extract<
 /**
  * The decorations one block needs right now, or none. Every decoration must
  * carry a `blockId` spec, so the stale ones can be found again.
+ *
+ * `previous` holds the block's decorations from before this transaction, mapped
+ * to their current positions. A decorator that needs to compare against the last
+ * time it ran can keep that state in a decoration's spec and read it back here,
+ * rather than in a side table it would have to prune itself — ProseMirror drops
+ * a decoration when its block goes away.
  */
 export type BlockDecorator = (
   info: BlockContainerInfo,
   pos: number,
   id: string,
+  previous: readonly Decoration[],
 ) => Decoration[];
 
 function nextDecorationSet(
@@ -54,7 +61,14 @@ function nextDecorationSet(
       // Recorded even when `decorate` returns nothing, so that a block which
       // stopped wanting decorations has its old ones dropped.
       rescanned.add(id);
-      added.push(...decorate(info, pos, id));
+      added.push(
+        ...decorate(
+          info,
+          pos,
+          id,
+          mapped.find(pos, pos + node.nodeSize, (spec) => spec.blockId === id),
+        ),
+      );
     }
 
     return true;
@@ -81,7 +95,10 @@ export const INVALIDATE_BLOCK_DECORATIONS = "bn-invalidate-block-decorations";
 export function createBlockDecorationPlugin(
   key: PluginKey<DecorationSet>,
   decorate: BlockDecorator,
-  props?: EditorProps,
+  // `decorations` is this plugin's own: it serves the set built above, so a
+  // caller passing one would silently replace it. Excluded rather than merged,
+  // since a caller wanting extra decorations should return them from `decorate`.
+  props?: Omit<EditorProps, "decorations">,
 ) {
   return new Plugin<DecorationSet>({
     key,

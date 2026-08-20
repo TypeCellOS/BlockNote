@@ -1,7 +1,13 @@
+import { TextSelection } from "prosemirror-state";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
-import type { PartialBlock } from "../../blocks/defaultBlocks.js";
+import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
+import {
+  defaultBlockSpecs,
+  type PartialBlock,
+} from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { createBlockSpec } from "../../schema/index.js";
 import { CollapsibleExtension } from "./Collapsible.js";
 
 /**
@@ -26,8 +32,16 @@ afterEach(() => {
   window.localStorage.clear();
 });
 
-function createEditor(initialContent: PartialBlock<any, any, any>[]) {
-  const editor = BlockNoteEditor.create({ initialContent });
+function createEditor(
+  initialContent: PartialBlock<any, any, any>[],
+  schema?: BlockNoteSchema<any, any, any>,
+): BlockNoteEditor<any, any, any> {
+  // Spread rather than passed as `undefined`, which isn't the same as absent
+  // here — it overrides the default schema with nothing.
+  const editor = BlockNoteEditor.create({
+    initialContent,
+    ...(schema ? { schema } : {}),
+  } as any);
   editor.mount(document.createElement("div"));
   activeEditors.push(editor);
 
@@ -67,17 +81,43 @@ function addChildButton(editor: BlockNoteEditor<any, any, any>, id: string) {
  * equivalent: it replays only the *steps* a handler dispatched, so a selection
  * the handler set is dropped.
  */
-function pressEnter(editor: BlockNoteEditor<any, any, any>) {
+function pressEnter(
+  editor: BlockNoteEditor<any, any, any>,
+  { shift = false }: { shift?: boolean } = {},
+) {
   const view = editor.prosemirrorView;
   const event = new KeyboardEvent("keydown", {
     key: "Enter",
     code: "Enter",
+    shiftKey: shift,
     bubbles: true,
     cancelable: true,
   });
 
   view.someProp("handleKeyDown", (handler) => handler(view, event));
 }
+
+/** A collapsible block that takes no hard breaks, so Shift-Enter falls through. */
+const NO_HARD_BREAK_SCHEMA = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    collapsibleNoHardBreak: createBlockSpec(
+      {
+        type: "collapsibleNoHardBreak",
+        propSchema: {},
+        content: "inline",
+      },
+      {
+        meta: { collapsible: true, hardBreakShortcut: "none" },
+        render: () => {
+          const dom = document.createElement("p");
+
+          return { dom, contentDOM: dom };
+        },
+      },
+    )(),
+  },
+});
 
 const TOGGLE_HEADING: PartialBlock<any, any, any> = {
   id: "toggle-heading",
@@ -169,6 +209,26 @@ describe("CollapsibleExtension", () => {
     expect(chevron(editor, "plain")).toBe(null);
     expect(chevron(editor, "plain-heading")).toBe(null);
     expect(chevron(editor, "toggle-heading")).not.toBe(null);
+  });
+
+  it("points the chevron at the group it discloses, for screen readers", () => {
+    const editor = createEditor(TOGGLE_HEADING_WITH_CHILD);
+    const button = chevron(editor, "toggle-heading")!;
+
+    const controls = button.getAttribute("aria-controls");
+    expect(controls).toBe("bn-collapse-children-toggle-heading");
+    // The link has to actually resolve, or it's worse than saying nothing.
+    expect(
+      editor.prosemirrorView.dom.querySelector(`#${controls}`)?.className,
+    ).toContain("bn-block-group");
+
+    // Nothing to point at while the block has no children.
+    const childless = createEditor([
+      { id: "toggle", type: "toggleListItem", content: "Toggle" },
+    ]);
+    expect(chevron(childless, "toggle")!.hasAttribute("aria-controls")).toBe(
+      false,
+    );
   });
 
   // #2124
@@ -397,11 +457,66 @@ describe("CollapsibleExtension", () => {
       expect(editor.document[0].type).toBe("paragraph");
       expect(editor.document[0].children).toHaveLength(0);
 
-      // A cursor part-way through the title splits it, keeping the children.
+      // A cursor part-way through the title splits it, keeping the children on
+      // the half that keeps the title.
       editor.setTextCursorPosition("toggle", "start");
+      editor.transact((tr) =>
+        tr.setSelection(TextSelection.create(tr.doc, tr.selection.from + 3)),
+      );
       pressEnter(editor);
       const toggle = editor.document.find((block) => block.id === "toggle")!;
       expect(toggle.children.map((child) => child.id)).toEqual(["child"]);
+    });
+
+    // At the very start there's no title left on the original half to keep the
+    // children company, so they go with the text instead of being stranded on an
+    // empty block. Notion likewise leaves the toggle intact and puts the new
+    // block above it.
+    it("moves the children with the title when splitting at the start", () => {
+      const editor = createEditor([
+        {
+          id: "toggle",
+          type: "toggleListItem",
+          content: "Toggle",
+          children: [{ id: "child", type: "paragraph", content: "Child" }],
+        },
+      ]);
+      collapsible(editor).setCollapsed({ id: "toggle" }, false);
+
+      editor.setTextCursorPosition("toggle", "start");
+      pressEnter(editor);
+
+      const [empty, withTitle] = editor.document;
+      expect(empty.content).toEqual([]);
+      expect(empty.children).toHaveLength(0);
+      expect(withTitle.content).toEqual([
+        { type: "text", text: "Toggle", styles: {} },
+      ]);
+      expect(withTitle.children.map((child) => child.id)).toEqual(["child"]);
+    });
+
+    // A block that opts out of hard breaks lets Shift-Enter fall through to the
+    // default Enter chain. It should still split there rather than start a
+    // child, the way it did before this handler existed. Needs a block with
+    // `hardBreakShortcut: "none"`: with the default, the hard-break handler runs
+    // first and this never gets the chance to go wrong.
+    it("ignores Shift-Enter", () => {
+      const editor = createEditor(
+        [{ id: "toggle", type: "collapsibleNoHardBreak", content: "Toggle" }],
+        NO_HARD_BREAK_SCHEMA,
+      );
+      collapsible(editor).setCollapsed({ id: "toggle" }, false);
+      editor.setTextCursorPosition("toggle", "end");
+
+      pressEnter(editor, { shift: true });
+
+      expect(editor.document).toHaveLength(2);
+      expect(editor.document[0].children).toHaveLength(0);
+
+      // ...whereas plain Enter still starts a child.
+      editor.setTextCursorPosition("toggle", "end");
+      pressEnter(editor);
+      expect(editor.document[0].children).toHaveLength(1);
     });
   });
 });

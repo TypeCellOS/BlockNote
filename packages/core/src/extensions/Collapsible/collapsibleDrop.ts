@@ -97,7 +97,13 @@ export function handleCollapsibleDrop(
     return false;
   }
 
+  // Without one there's nothing to check the target against below, so the drop
+  // would land at a position nothing has vouched for.
   const targetId = view.state.doc.nodeAt(targetPos)?.attrs.id;
+  if (!targetId) {
+    return false;
+  }
+
   const tr = view.state.tr;
 
   if (moved) {

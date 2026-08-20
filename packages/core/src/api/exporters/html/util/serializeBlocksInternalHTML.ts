@@ -204,7 +204,7 @@ function serializeBlock<
   // `CollapsibleExtension` doesn't run when exporting, so the chevron is added
   // here to keep the layout identical to the editor's. It can't fold anything,
   // so it's rendered inert.
-  if (isBlockCollapsible(editor as any, block.type as string, props)) {
+  if (isBlockCollapsible(editor, block.type as string, props)) {
     const collapseButton = createCollapseButton(true);
     collapseButton.setAttribute("aria-hidden", "true");
     collapseButton.setAttribute("tabindex", "-1");
