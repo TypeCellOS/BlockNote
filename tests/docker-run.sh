@@ -78,6 +78,7 @@ mounts+=(
 # keeps the image's node_modules symlinks intact).
 mounts+=(
   -v "$PWD/shared/testDocument.ts:/work/shared/testDocument.ts"
+  -v "$PWD/shared/testDocumentBlocks.ts:/work/shared/testDocumentBlocks.ts"
   -v "$PWD/shared/formatConversionTestUtil.ts:/work/shared/formatConversionTestUtil.ts"
   -v "$PWD/shared/api:/work/shared/api"
   -v "$PWD/shared/util:/work/shared/util"
