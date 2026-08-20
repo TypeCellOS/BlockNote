@@ -31,11 +31,7 @@ export const ToolbarSelect = forwardRef<
   };
 
   return (
-    <AriakitSelectProvider
-      value={selectedItem.text}
-      setValue={setValue}
-      placement={"bottom"}
-    >
+    <AriakitSelectProvider value={selectedItem.text} setValue={setValue}>
       <AriakitSelect
         className={"bn-ak-button bn-ak-secondary"}
         disabled={isDisabled}
