@@ -113,6 +113,9 @@ jobs:
         with:
           name: e2e-attachments-${{ matrix.browser }}-${{ matrix.shardIndex }}
           path: tests/.vitest-attachments/
+          # The attachments dir is a dot-directory; without this the action
+          # silently uploads nothing ("No files were found").
+          include-hidden-files: true
           retention-days: 7
 
   merge-reports:
