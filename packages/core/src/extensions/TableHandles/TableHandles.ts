@@ -720,6 +720,10 @@ export class TableHandlesView implements PluginView {
   }
 
   destroy() {
+    // The drag image is normally cleaned up on `dragEnd`, which never arrives
+    // if the editor is torn down mid-drag.
+    unsetTableDragImage();
+
     this.pmView.dom.removeEventListener("mousemove", this.mouseMoveHandler);
     window.removeEventListener("mouseup", this.mouseUpHandler);
     this.pmView.dom.removeEventListener("mousedown", this.viewMousedownHandler);
