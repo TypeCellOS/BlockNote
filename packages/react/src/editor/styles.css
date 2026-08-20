@@ -511,10 +511,11 @@ SideMenuController offsets its position to keep it centered on the line. */
 
 .bn-mobile-formatting-toolbar {
   display: flex;
+  justify-content: center;
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
+  width: var(--bn-vv-width, 100vw);
   z-index: calc(var(--bn-ui-base-z-index) + 40);
   transform: translate(
       var(--bn-vv-left, 0px),
