@@ -49,7 +49,9 @@ body {
 
 .mantine-AppShell-root {
   height: 100vh;
-  width: 100vw;
+  /* Not `100vw`: that includes the vertical scrollbar's width, so any example
+     taller than the viewport would overflow horizontally. */
+  width: 100%;
 }
 
 .mantine-AppShell-navbar {
