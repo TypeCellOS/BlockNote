@@ -11,30 +11,18 @@ diff --git a/dist/demo/schema.d.ts.map b/dist/demo/schema.d.ts.map
 deleted file mode 100644
 index f7879c19424714d1c0314eadd81aee0d3047f84d..0000000000000000000000000000000000000000
 diff --git a/dist/src/commands.d.ts b/dist/src/commands.d.ts
-index 62f626eb65c508c8e7adcf43d2018ff1d1bf6efd..667ddbb86d379f6229f8c1e2f4645ccbd2b6397a 100644
+index 62f626eb65c508c8e7adcf43d2018ff1d1bf6efd..cdbe62ceacb97998d11fbc87785a74e485f67916 100644
 --- a/dist/src/commands.d.ts
 +++ b/dist/src/commands.d.ts
-@@ -1,10 +1,4 @@
--/**
-- * Switch to pause mode (stop synchronization between prosemirror and ytype)
-- * @param {import('prosemirror-state').EditorState} state
-- * @param {((tr: import('prosemirror-state').Transaction) => void)?} dispatch
-- * @returns {boolean}
-- */
+@@ -4,7 +4,7 @@
+  * @param {((tr: import('prosemirror-state').Transaction) => void)?} dispatch
+  * @returns {boolean}
+  */
 -export function pauseSync(state: import("prosemirror-state").EditorState, dispatch: ((tr: import("prosemirror-state").Transaction) => void) | null): boolean;
 +export function pauseSync(state: import("prosemirror-state").EditorState, dispatch?: (tr: import("prosemirror-state").Transaction) => void, view?: import("prosemirror-view").EditorView): boolean;
  export function configureYProsemirror(opts?: {
      ytype?: Y.Type<any> | null | undefined;
      renderer?: Y.AbstractRenderer | null | undefined;
-diff --git a/dist/src/commands.d.ts.map b/dist/src/commands.d.ts.map
-index b3d7c4d9867667dd121690a6879d9886eb31db77..8e7d9a04e4988d661a0cc8a083761d2a8a16cf47 100644
---- a/dist/src/commands.d.ts.map
-+++ b/dist/src/commands.d.ts.map
-@@ -1 +1 @@
--{"version":3,"file":"commands.d.ts","sourceRoot":"","sources":["../../src/commands.js"],"names":[],"mappings":"AAIA;;;;;GAKG;AACH,iCAJW,OAAO,mBAAmB,EAAE,WAAW,YACvC,CAAC,CAAC,EAAE,EAAE,OAAO,mBAAmB,EAAE,WAAW,KAAK,IAAI,CAAC,OAAC,GACtD,OAAO,CAanB;AAkBM,6CAJJ;IAAsB,KAAK;IACF,QAAQ;CACjC,GAAU,OAAO,mBAAmB,EAAE,OAAO,CAa/C;AAQM,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAQjF,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAExF;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAElJ;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAQ3I,qCAJI,MAAM,QACN,MAAM,GACJ,OAAO,mBAAmB,EAAE,OAAO,CAc/C;AAQM,qCAJI,MAAM,QACN,MAAM,GACJ,OAAO,mBAAmB,EAAE,OAAO,CAc/C;AAMM,oCAFM,OAAO,mBAAmB,EAAE,OAAO,CAW/C;AAMM,oCAFM,OAAO,mBAAmB,EAAE,OAAO,CAW/C;mBAjJkB,MAAM"}
-\ No newline at end of file
-+{"version":3,"file":"commands.d.ts","sourceRoot":"","sources":["../../src/commands.js"],"names":[],"mappings":";AAqCO,6CAJJ;IAAsB,KAAK;IACF,QAAQ;CACjC,GAAU,OAAO,mBAAmB,EAAE,OAAO,CAa/C;AAQM,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAQjF,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAExF;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAElJ;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAQ3I,qCAJI,MAAM,QACN,MAAM,GACJ,OAAO,mBAAmB,EAAE,OAAO,CAc/C;AAQM,qCAJI,MAAM,QACN,MAAM,GACJ,OAAO,mBAAmB,EAAE,OAAO,CAc/C;AAMM,oCAFM,OAAO,mBAAmB,EAAE,OAAO,CAW/C;AAMM,oCAFM,OAAO,mBAAmB,EAAE,OAAO,CAW/C;mBA/IkB,MAAM"}
-\ No newline at end of file
 diff --git a/dist/src/index.d.ts b/dist/src/index.d.ts
 index d4c634df59f3695525e1be3b1fc89e3598e6edca..1a26ef98745535025578d9e9369cfcffad2dd3c8 100644
 --- a/dist/src/index.d.ts
@@ -47,15 +35,18 @@ index d4c634df59f3695525e1be3b1fc89e3598e6edca..1a26ef98745535025578d9e9369cfcff
 +export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark, defaultAttributionConf, attributionMapperToConf, yattr2markname, pmToFragment, fragmentToPm, deltaAttributionToFormat, deltaToPNode, deltaToPSteps, nodeToDelta } from "./sync-utils.js";
  //# sourceMappingURL=index.d.ts.map
 \ No newline at end of file
-diff --git a/dist/src/rdt/prosemirror.d.ts.map b/dist/src/rdt/prosemirror.d.ts.map
-index 7656d2d019bcfc3ac8e587a54186e2510c60cb73..a99625f58988dea8f7e220cabbd0c46ac0055aa0 100644
---- a/dist/src/rdt/prosemirror.d.ts.map
-+++ b/dist/src/rdt/prosemirror.d.ts.map
-@@ -1 +1 @@
--{"version":3,"file":"prosemirror.d.ts","sourceRoot":"","sources":["../../../src/rdt/prosemirror.js"],"names":[],"mappings":"AAsCA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GAuDG;AACH;WAFmC,CAAC,CAAC,EAAE,gBAAgB,EAAE,MAAM,EAAE,GAAG,KAAK,IAAI;aAAW,CAAC,GAAG,EAAE,cAAc,KAAK,IAAI;;IAGnH;;;;;;;;;;OAUG;IACH,6EATG;QAAoD,IAAI,EAAhD,OAAO,kBAAkB,EAAE,UAAU;QACL,eAAe;QAC3B,OAAO;QACX,OAAO,EAAvB,MAAM,GAAG;QAEM,kBAAkB;KAG3C,EAgCA;IA7BC,4CAAgB;IAChB,0CAAsC;IACtC,iCAAmC;IACnC,eAXe,GAAG,CAWI;IACtB;;;;;;;QAA+B;IAI/B;;;;;;OAMG;IACH,qBAFU,MAAM,OAAC,CAEsG;IACvH;;OAEG;IACH,QAFU,gBAAgB,CAE+D;IACzF,mBAAsB;IACtB;;;;;;OAMG;IACH,mBAAsB;IAGxB;;;OAGG;IACH,0BAEC;IAED;;;;;OAKG;IACH,aAFY,gBAAgB,CAI3B;IAED;;;OAGG;IACH,cAHW,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAalB;IAED;;;;OAIG;IACH,YAFY,OAAO,CAoBlB;IAED;;;;;OAKG;IACH,aA2BC;IAED;;;;;;;;;;;;;;;;OAgBG;IACH,cAJW,gBAAgB,UAChB,GAAG,GACF,KAAK,CAAC,YAAY,CAAC,GAAG,CAAC,GAAG,IAAI,CA4CzC;CAMF;6BA3S4B,iBAAiB;uBACvB,YAAY"}
-\ No newline at end of file
-+{"version":3,"file":"prosemirror.d.ts","sourceRoot":"","sources":["../../../src/rdt/prosemirror.js"],"names":[],"mappings":"AAsCA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GAuDG;AACH;WAFmC,CAAC,CAAC,EAAE,gBAAgB,EAAE,MAAM,EAAE,GAAG,KAAK,IAAI;aAAW,CAAC,GAAG,EAAE,cAAc,KAAK,IAAI;;IAGnH;;;;;;;;;;OAUG;IACH,6EATG;QAAoD,IAAI,EAAhD,OAAO,kBAAkB,EAAE,UAAU;QACL,eAAe;QAC3B,OAAO;QACX,OAAO,EAAvB,MAAM,GAAG;QAEM,kBAAkB;KAG3C,EAgCA;IA7BC,4CAAgB;IAChB,0CAAsC;IACtC,iCAAmC;IACnC,eAXe,GAAG,CAWI;IACtB;;;;;;;QAA+B;IAI/B;;;;;;OAMG;IACH,qBAFU,MAAM,OAAC,CAEsG;IACvH;;OAEG;IACH,QAFU,gBAAgB,CAE+D;IACzF,mBAAsB;IACtB;;;;;;OAMG;IACH,mBAAsB;IAGxB;;;OAGG;IACH,0BAEC;IAED;;;;;OAKG;IACH,aAFY,gBAAgB,CAI3B;IAED;;;OAGG;IACH,cAHW,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAalB;IAED;;;;OAIG;IACH,YAFY,OAAO,CAoBlB;IAED;;;;;OAKG;IACH,aA2BC;IAED;;;;;;;;;;;;;;;;OAgBG;IACH,cAJW,gBAAgB,UAChB,GAAG,GACF,KAAK,CAAC,YAAY,CAAC,GAAG,CAAC,GAAG,IAAI,CAsDzC;CAMF;6BArT4B,iBAAiB;uBACvB,YAAY"}
-\ No newline at end of file
+diff --git a/dist/src/sync-plugin.d.ts b/dist/src/sync-plugin.d.ts
+index 45ec8b1bf75771a2ebaba3e7a6622666398c7c22..6fa16961f93ec1146f592d5eb25905bc5355d563 100644
+--- a/dist/src/sync-plugin.d.ts
++++ b/dist/src/sync-plugin.d.ts
+@@ -33,6 +33,7 @@ export function syncPlugin(opts?: {
+     attributedNodes?: AttributedNodesPredicate | undefined;
+     customCompare?: NodeCompare | undefined;
+     transformers?: (($d: s.Schema<any>) => dt.Template<any, any>)[] | undefined;
++    onInternalError?: ((err: Error, errCode: number) => any) | null | undefined;
+ }): Plugin;
+ /**
+  * The y-prosemirror binding is a bi-directional synchronization with the provided Y.Type and the EditorView
 diff --git a/dist/src/sync-utils.d.ts b/dist/src/sync-utils.d.ts
 index 539b2a70ae5d41575fa0f03c85e95d5d0f98165d..3fbb973027104938642e3c88ae588261323ec206 100644
 --- a/dist/src/sync-utils.d.ts
@@ -69,15 +60,6 @@ index 539b2a70ae5d41575fa0f03c85e95d5d0f98165d..3fbb973027104938642e3c88ae588261
  export function docDiffToDelta(beforeDoc: Node, afterDoc: Node): delta.Delta<{
      name: string;
      attrs: {
-diff --git a/dist/src/sync-utils.d.ts.map b/dist/src/sync-utils.d.ts.map
-index 29b2331b710abffb5bdc9e070738eefde9e297c2..0530725291c7b9c26ea34cf9d696321afeb4e0d9 100644
---- a/dist/src/sync-utils.d.ts.map
-+++ b/dist/src/sync-utils.d.ts.map
-@@ -1 +1 @@
--{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"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"}
-\ No newline at end of file
-+{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"AA0WA;;;;;;;GAOG;AACH,mCANW,IAAI,YACJ,CAAC,CAAC,IAAI,iBAEd;IAAmC,QAAQ;CAC3C,GAAU,CAAC,CAAC,IAAI,CASlB;AAED;;;;;;;;;GASG;AACH,uCARW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,wDAE/C;IAAkC,QAAQ;IACO,oBAAoB,KA3RxB,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,KACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI;IAyRD,eAAe;CACtD,GAAU,OAAO,mBAAmB,EAAE,WAAW,CAiBnD;AAED;;;;;GAKG;AACH,uCAJW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,GACtC,IAAI,CAIf;AA4bD;;;;;;;;;;;;;;;;;GAiBG;AACH,oCAJW,IAAI,mBACJ,MAAM,GACL,MAAM,EAAE,CAwBnB;AAED;;;;;GAKG;AACH,yCAJW,MAAM,EAAE,QACR,IAAI,GACH,MAAM,CAgCjB;AAp5BD;;;;;;;IAA4I;AAE5I;;;;;;;GAOG;AACH,gCAAiC,cAAc,CAAA;AAE/C;;;;;GAKG;AACH,qCAFU,wBAAwB,CAEe;AAS1C,wCAHI,MAAM,GACL,MAAM,CAKR;AAcH,iDANI,MAAM,UACN,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,GAAG,SAAS,mBAC1C,wBAAwB,UACxB,OAAO,mBAAmB,EAAE,MAAM,GACjC,MAAM,CAajB;AAgCM,4CALyC,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,GACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,CAiC1C;AAwEM,gDAHI,iBAAiB,GAChB,eAAe,CAMzB;AAEF;;;;;;GAMG;AACH,qCAFU,eAAe,CAEiE;AAOnF,4CAHI,KAAK,CAAC,QAAQ,mCA4CL,gBAAgB,CACnC;AAqBM,yCAHI,MAAM,GACL,MAAM,CAE2E;AAmDtF,wDAHI;IAAC,CAAC,GAAG,EAAC,MAAM,GAAE,GAAG,CAAA;CAAC,GAAC,IAAI,UACvB,OAAO,mBAAmB,EAAE,MAAM,sCAGwE;AAM9G,iCAHI,KAAK,CAAC,IAAI,CAAC,GACV,gBAAgB,CAW3B;AAgEM,+BAPI,IAAI,aACJ,MAAM,OAAC,iBACP,OAAO,GAGN,gBAAgB,CAoB3B;AAKM,gCAFI,IAAI;;;;;;;GAEwC;AAyEhD,kCAPI,OAAO,mBAAmB,EAAE,WAAW,KACvC,gBAAgB,UAChB,IAAI,YACJ;IAAE,CAAC,EAAE,MAAM,CAAA;CAAE,oBACb,wBAAwB,GACvB,OAAO,mBAAmB,EAAE,WAAW,CAoKlD;AAsBM,gCANI,gBAAgB,UAChB,OAAO,mBAAmB,EAAE,MAAM,WAClC,KAAK,CAAC,OAAO,GAAC,IAAI,oBAClB,wBAAwB,GACvB,IAAI,GAAC,IAAI,CA0DpB;AAMM,0CAHI,IAAI,YACJ,IAAI;;;;;;;GAMd;AAKM,8BAFI,OAAO,mBAAmB,EAAE,WAAW;;;;;;;GAkBjD;AA+CM,kCAJI,OAAO,uBAAuB,EAAE,IAAI,aACpC,OAAO,mBAAmB,EAAE,IAAI,GAC/B,gBAAgB,CAQ3B;AAoGM,wCALI,IAAI,YACJ,MAAM,OACN,CAAC,CAAC,EAAC,KAAK,CAAC,eAAe,KAAG,GAAG,GAC7B,gBAAgB,CAa3B;;;;;;;;;;;;;qCAzvBY,CAAC,CAAC,EAAE,OAAO,YAAY,EAAE,WAAW,KAAK,GAAG;;;;;;;;;;;;;8BAC5C;IAAE,MAAM,CAAC,EAAE,sBAAsB,CAAC;IAAC,MAAM,CAAC,EAAE,sBAAsB,CAAC;IAAC,MAAM,CAAC,EAAE,sBAAsB,CAAC;IAAC,KAAK,CAAC,EAAE,sBAAsB,CAAA;CAAE;;;;;iCAiTrI,KAAK,CAAC,aAAa;;;;;;;;;aAQlB,KAAK,CAAC,KAAK,CAAC,QAAQ,CAAC,GAAG,CAAC,GAAC,KAAK,CAAC,MAAM,CAAC;;;;aACvC,KAAK,CAAC,KAAK,CAAC,QAAQ,CAAC;;qBAtfG,mBAAmB;mBAPtC,MAAM;uBAEF,YAAY;mBAIhB,aAAa"}
-\ No newline at end of file
 diff --git a/dist/tests/attributed-nodes.test.d.ts b/dist/tests/attributed-nodes.test.d.ts
 deleted file mode 100644
 index e6935d6a014cf43be563ee160c9f74f47abec7b8..0000000000000000000000000000000000000000
@@ -240,6 +222,28 @@ index cfc76909965fec6749b92170223bca0bcad537e9..f666671ab1a28d9d660daa78ac2a2634
        }
      }
      if (tr.docChanged && !this._dispatch(tr)) {
+diff --git a/src/sync-plugin.js b/src/sync-plugin.js
+index bc8702874bc1a81a1354525fc1734aca97e583a0..39ce2a36c423d74d15e8956de9af3648eff25cfb 100644
+--- a/src/sync-plugin.js
++++ b/src/sync-plugin.js
+@@ -75,6 +75,7 @@ const $maybeSyncPluginStateUpdate = $syncPluginStateUpdate.nullable
+  * @param {AttributedNodesPredicate} [opts.attributedNodes] Optional predicate `(nodeName, kinds) => boolean`. When it returns `true` for an attributed node *and* a `{nodeName}--attributed` type exists in the schema, that node is rendered under the variant type (the `y-attributed-*` marks are still applied). `kinds` is `{ insert?, delete?, format? }`. The variant is a pure rendering concern - the canonical name is what is stored in the Y document. The predicate must be deterministic in `(nodeName, kinds)`.
+  * @param {NodeCompare} [opts.customCompare] Optional predicate `(a, b) => boolean` that shifts the *diffing boundary*. To sync, y-prosemirror diffs the ProseMirror doc against the Y document as `lib0/delta` trees; lib0's `diff` decides for each candidate node pair whether to pair them (diff *in place* via a `modify` op) or to **replace the old subtree wholesale** (delete + insert). By default a pair is matched purely on node name (`a.name === b.name`). Supply this to move the boundary - e.g. make a `blockContainer` only pair when its first child type also matches (`(a, b) => a.name === b.name && (a.name !== 'blockContainer' || firstChildName(a) === firstChildName(b))`), so changing the first child replaces the whole container instead of editing it in place. Receives the raw `lib0/delta` nodes `(fromNode, toNode)` (each exposing `.name`, `.attrs`, `.children`) and is forwarded to `lib0/delta.diff` as its `compare` option, applied recursively down the tree. Generally keep the `a.name === b.name` check; omit the option to keep lib0's name-only default.
+  * @param {Array<(($d: s.Schema<any>) => dt.Template<any, any>)>} [opts.transformers] Optional custom transformer stages, slotted into the pipeline **between** `fullAttributions` and `attributionToFormat`, in data→view (`applyA`) order. Each is a `$d => Template` factory (see `lib0/delta/transformer`); the input schema is threaded left to right. Custom transformers see changes in canonical document space, with the complete accumulated attribution on every attribution-bearing op.
++ * @param {null|((err:Error,errCode:number)=>any)} [opts.onInternalError] forwarded to {@link YSyncRdt} - listen to internal errors for debugging purposes (unstable API)
+  * @returns {Plugin}
+  */
+ export function syncPlugin (opts = {}) {
+@@ -130,7 +131,8 @@ export function syncPlugin (opts = {}) {
+           ytype,
+           renderer,
+           origin: ySyncPluginKey.get(view.state),
+-          compare
++          compare,
++          onInternalError: opts.onInternalError || null
+         })
+         const pmRdt = new ProsemirrorRdt({
+           view,
 diff --git a/src/sync-utils.js b/src/sync-utils.js
 index 834e75955b4ff0e0209fcc543893b6a6a401d64b..e62e6c8bfeb970491e28adca4dec4e1a0d613fa2 100644
 --- a/src/sync-utils.js
