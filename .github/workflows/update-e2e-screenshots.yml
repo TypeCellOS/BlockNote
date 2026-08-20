@@ -22,6 +22,12 @@ jobs:
     timeout-minutes: 30
     container:
       image: mcr.microsoft.com/playwright:v1.60.0-noble
+    env:
+      # Routed through env so the input never expands into the shell script
+      # itself (template-level expansion is a code-injection vector - zizmor
+      # template-injection). Deliberately unquoted at use sites: an empty
+      # filter must expand to no argument at all.
+      FILTER: ${{ inputs.filter }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -39,15 +45,15 @@ jobs:
       # `-u` must come after the filter, and each browser runs separately so a
       # failure in one doesn't stop the others' baselines from updating.
       - name: Update screenshots (chromium)
-        run: HOME=/root vp test -c vite.config.browser.ts --run --browser chromium ${{ inputs.filter }} -u
+        run: HOME=/root vp test -c vite.config.browser.ts --run --browser chromium $FILTER -u
         working-directory: tests
         continue-on-error: true
       - name: Update screenshots (firefox)
-        run: HOME=/root vp test -c vite.config.browser.ts --run --browser firefox ${{ inputs.filter }} -u
+        run: HOME=/root vp test -c vite.config.browser.ts --run --browser firefox $FILTER -u
         working-directory: tests
         continue-on-error: true
       - name: Update screenshots (webkit)
-        run: HOME=/root vp test -c vite.config.browser.ts --run --browser webkit ${{ inputs.filter }} -u
+        run: HOME=/root vp test -c vite.config.browser.ts --run --browser webkit $FILTER -u
         working-directory: tests
         continue-on-error: true
 
