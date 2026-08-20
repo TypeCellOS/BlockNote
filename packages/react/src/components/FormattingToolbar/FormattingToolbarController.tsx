@@ -5,6 +5,7 @@ import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { DesktopFormattingToolbarController } from "./DesktopFormattingToolbarController.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 import { MobileFormattingToolbarController } from "./MobileFormattingToolbarController.js";
+import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
 
 export const FormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
@@ -16,7 +17,11 @@ export const FormattingToolbarController = (props: {
    */
   portalElement?: HTMLElement | null;
 }) => {
-  if (isTouchDevice()) {
+  const keyboardOpen = useVirtualKeyboard();
+
+  // Checks both if the device is touch-capable and the virtual keyboard is open, as phones,
+  // tablets, etc. can still use external keyboards and mice.
+  if (isTouchDevice() && keyboardOpen) {
     return (
       <MobileFormattingToolbarController
         formattingToolbar={props.formattingToolbar}
