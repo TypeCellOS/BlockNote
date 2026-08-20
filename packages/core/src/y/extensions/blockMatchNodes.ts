@@ -41,79 +41,6 @@ const hasBlockGroup = (d: schema.Unwrap<typeof $prosemirrorDelta>): boolean => {
   return false;
 };
 
-function getTableDimensions(
-  d: schema.Unwrap<typeof $prosemirrorDelta>,
-): { rows: number; cols: number } | null {
-  if (d.name !== "table") {
-    return null;
-  }
-
-  // Collect all rows with their cells' colspan/rowspan values.
-  const rows: Array<Array<{ colspan: number; rowspan: number }>> = [];
-  for (const op of (d as any).children) {
-    if (delta.$insertOp.check(op)) {
-      for (const tr of op.insert as Array<
-        schema.Unwrap<typeof $prosemirrorDelta>
-      >) {
-        if (tr.name !== "tableRow") {
-          return null;
-        }
-        const cells: Array<{ colspan: number; rowspan: number }> = [];
-        for (const trOp of (tr as any).children) {
-          if (delta.$insertOp.check(trOp)) {
-            for (const td of trOp.insert as Array<
-              schema.Unwrap<typeof $prosemirrorDelta>
-            >) {
-              if (td.name !== "tableCell" && td.name !== "tableHeader") {
-                return null;
-              }
-              cells.push({
-                colspan: Number(td.attrs.colspan) || 1,
-                rowspan: Number(td.attrs.rowspan) || 1,
-              });
-            }
-          }
-        }
-        rows.push(cells);
-      }
-    }
-  }
-
-  if (rows.length === 0) {
-    return null;
-  }
-
-  // Build an occupancy grid to determine the true column count.
-  // Each entry in `grid[r]` tracks which columns are already occupied
-  // (by a cell from a previous row with rowspan > 1).
-  const grid: boolean[][] = [];
-  for (let r = 0; r < rows.length; r++) {
-    if (!grid[r]) {
-      grid[r] = [];
-    }
-    let col = 0;
-    for (const cell of rows[r]) {
-      // Skip columns already occupied by a rowspan from above.
-      while (grid[r][col]) {
-        col++;
-      }
-      // Mark all slots this cell occupies.
-      for (let dr = 0; dr < cell.rowspan; dr++) {
-        if (!grid[r + dr]) {
-          grid[r + dr] = [];
-        }
-        for (let dc = 0; dc < cell.colspan; dc++) {
-          grid[r + dr][col + dc] = true;
-        }
-      }
-      col += cell.colspan;
-    }
-  }
-
-  const numCols = Math.max(...grid.map((row) => row.length));
-  return { rows: rows.length, cols: numCols };
-}
-
 /**
  * BlockNote's node-pairing policy for y-prosemirror's `matchNodes` option
  * (forwarded to `lib0/delta.diff`). This is the schema-specific bit that lives
@@ -148,6 +75,19 @@ export const blockMatchNodes = (
     return true;
   }
 
+  // Two containers with *different* block ids are different blocks, no matter
+  // how similar their content — pairing them would diff one block into the
+  // other in place. That rendered e.g. a full-document replacement as edits
+  // *inside* the first deleted block instead of a separately inserted one.
+  // Only enforced when both sides carry an id, so content converted from
+  // outside the editor (which may not have ids yet) still pairs by shape.
+  // Delta attrs are op-wrapped ({ type, value }) — compare the values.
+  const idA = (a as any).attrs?.id?.value;
+  const idB = (b as any).attrs?.id?.value;
+  if (idA && idB && idA !== idB) {
+    return false;
+  }
+
   const childA = firstChild(a);
   const childB = firstChild(b);
 
@@ -163,19 +103,6 @@ export const blockMatchNodes = (
   // a block under the same parent) from producing a lopsided in-place result.
   if (hasBlockGroup(a) !== hasBlockGroup(b)) {
     return false;
-  }
-
-  if (childA?.name === "table" && childB?.name === "table") {
-    const dimA = getTableDimensions(childA);
-    const dimB = getTableDimensions(childB);
-    if (
-      dimA !== null &&
-      dimB !== null &&
-      dimA.rows !== dimB.rows &&
-      dimA.cols !== dimB.cols
-    ) {
-      return false;
-    }
   }
 
   return true;

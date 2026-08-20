@@ -978,11 +978,22 @@ exports[`suggestion mode: remove all blocks 2`] = `
 exports[`suggestion mode: remove all blocks 3`] = `
 "<doc>
   <blockGroup>
-    <blockContainer id="1">
-      <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-        <y-attributed-delete userIds="">Only block</y-attributed-delete>
-      </paragraph>
-    </blockContainer>
+    <y-attributed-delete userIds="">
+      <blockContainer id="p0">
+        <y-attributed-delete userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+            <y-attributed-delete userIds="">Only block</y-attributed-delete>
+          </paragraph>
+        </y-attributed-delete>
+      </blockContainer>
+    </y-attributed-delete>
+    <y-attributed-insert userIds="">
+      <blockContainer id="1">
+        <y-attributed-insert userIds="">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+        </y-attributed-insert>
+      </blockContainer>
+    </y-attributed-insert>
   </blockGroup>
 </doc>"
 `;

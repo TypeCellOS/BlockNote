@@ -27,7 +27,13 @@ function createDiffEditor() {
 function blocksFromText(text: string): Block<any, any, any>[] {
   const e = BlockNoteEditor.create();
   e.mount(document.createElement("div"));
-  e.replaceBlocks(e.document, [{ type: "paragraph", content: text }]);
+  // Stable id: the before/after docs a diff compares represent the *same*
+  // logical block at two points in time, and blocks keep their id across
+  // edits. Minting a fresh id per call would make `blockMatchNodes` treat the
+  // two versions as different blocks (replace) instead of one edited block.
+  e.replaceBlocks(e.document, [
+    { id: "diff-block", type: "paragraph", content: text },
+  ]);
   const blocks = e.document;
   e.unmount();
   return blocks;
