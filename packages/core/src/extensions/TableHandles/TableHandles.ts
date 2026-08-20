@@ -1,3 +1,4 @@
+import type { Node } from "prosemirror-model";
 import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
 import {
   CellSelection,
@@ -526,6 +527,44 @@ export class TableHandlesView implements PluginView {
 
     return true;
   };
+  /**
+   * The position just before the table node, resolved against `doc`.
+   *
+   * `tablePos` is only refreshed on `mousemove`, which doesn't fire while a
+   * native drag is in progress, so any transaction that changes the document
+   * mid-drag leaves it stale - resolving it then lands in the wrong node, or
+   * past the end of the document, and throws (#2921).
+   *
+   * Rather than mapping the stored position through every transaction, it's
+   * checked against the document it's about to be used with and re-resolved
+   * from the table's block ID when it no longer points at that table. That
+   * also covers the table node being replaced outright rather than moved,
+   * which a mapping wouldn't follow - it happens when collaborating.
+   */
+  getTablePos(doc: Node): number | undefined {
+    if (this.tableId === undefined) {
+      return undefined;
+    }
+
+    // `tablePos` sits just inside the block container, so the node it resolves
+    // into is the container, which carries the ID to check against. A false
+    // negative here only costs the lookup below, so the cheap check is enough.
+    if (this.tablePos !== undefined && this.tablePos <= doc.content.size) {
+      try {
+        if (doc.resolve(this.tablePos).parent.attrs.id === this.tableId) {
+          return this.tablePos;
+        }
+      } catch {
+        // Out of range for this document - re-resolve below.
+      }
+    }
+
+    const posInfo = getNodeById(this.tableId, doc);
+    this.tablePos = posInfo && posInfo.posBeforeNode + 1;
+
+    return this.tablePos;
+  }
+
   // Updates drag handles when the table is modified or removed.
   update() {
     if (!this.state || !this.state.show) {
@@ -645,9 +684,16 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
             if (
               view === undefined ||
               view.state === undefined ||
-              view.state.draggingState === undefined ||
-              view.tablePos === undefined
+              view.state.draggingState === undefined
             ) {
+              return;
+            }
+
+            // Resolved against the state being rendered, rather than read from
+            // the last `mousemove`, so a document change mid-drag can't leave
+            // the decorations pointing at a position that no longer exists.
+            const tablePos = view.getTablePos(state.doc);
+            if (tablePos === undefined) {
               return;
             }
 
@@ -681,7 +727,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
             }
 
             // Gets the table to show the drop cursor in.
-            const tableResolvedPos = state.doc.resolve(view.tablePos + 1);
+            const tableResolvedPos = state.doc.resolve(tablePos + 1);
 
             if (view.state.draggingState.draggedCellOrientation === "row") {
               const cellsInRow = getCellsAtRowHandle(
@@ -816,7 +862,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
             view!.state!.draggingState!.draggedCellOrientation,
           originalIndex: view!.state!.colIndex,
           newIndex: view!.state!.colIndex,
-          tablePos: view!.tablePos,
+          tablePos: view!.getTablePos(tr.doc),
         }),
       );
 
@@ -856,7 +902,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
             view!.state!.draggingState!.draggedCellOrientation,
           originalIndex: view!.state!.rowIndex,
           newIndex: view!.state!.rowIndex,
-          tablePos: view!.tablePos,
+          tablePos: view!.getTablePos(tr.doc),
         }),
       );
 
@@ -952,7 +998,12 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         throw new Error("Table handles view not initialized");
       }
 
-      const tableResolvedPos = state.doc.resolve(view.tablePos! + 1);
+      const tablePos = view.getTablePos(state.doc);
+      if (tablePos === undefined) {
+        throw new Error("Table handles view is not attached to a table");
+      }
+
+      const tableResolvedPos = state.doc.resolve(tablePos + 1);
       const startRowResolvedPos = state.doc.resolve(
         tableResolvedPos.posAtIndex(relativeStartCell.row) + 1,
       );

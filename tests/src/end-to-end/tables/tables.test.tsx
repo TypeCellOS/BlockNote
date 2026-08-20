@@ -1,6 +1,7 @@
 import App from "@examples/01-basic/testing/src/App";
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
+import type { EditorView } from "prosemirror-view";
 import { browserName, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, TABLE_SELECTOR } from "../../utils/const.js";
 import {
@@ -299,6 +300,114 @@ describe("Check Table interactions", () => {
       await clickTableHandleMenuItem(rowHandle, "Add row below");
 
       await compareDocToSnapshot("addColumnThenRow");
+    },
+  );
+
+  // Regression test for https://github.com/TypeCellOS/BlockNote/issues/2921.
+  // `TableHandlesView.tablePos` is only refreshed on `mousemove`, which does
+  // not fire while a native drag is in progress. A transaction that changes
+  // the document elsewhere mid-drag - a concurrent local edit, or another
+  // collaborator's change over Yjs - therefore used to leave it stale, and the
+  // next `dragover` resolved it into the wrong node and threw a RangeError out
+  // of `decorations()`. That breaks `dispatchTransaction` for the *other*
+  // edit, not just the drag. Playwright doesn't correctly simulate drag events
+  // in Firefox.
+  test.skipIf(browserName === "firefox")(
+    "Document change mid-drag should not break the drag",
+    async () => {
+      await focusOnEditor();
+      await userEvent.keyboard("Paragraph above the table");
+      await userEvent.keyboard("{Enter}");
+      await executeSlashCommand("table");
+      await waitForSelector(TABLE_SELECTOR);
+
+      const rows = document.querySelectorAll(`${TABLE_SELECTOR} tbody tr`);
+      const handle = await getTableHandle(
+        rows[0].querySelector("td") as HTMLElement,
+        "row",
+      );
+      const handleBox = handle.getBoundingClientRect();
+      const secondRowBox = (
+        rows[1].querySelector("td") as HTMLElement
+      ).getBoundingClientRect();
+
+      await mouseSequence([
+        {
+          type: "move",
+          x: handleBox.x + handleBox.width / 2,
+          y: handleBox.y + handleBox.height / 2,
+          steps: 5,
+        },
+        { type: "down" },
+        {
+          type: "move",
+          x: secondRowBox.x + secondRowBox.width / 2,
+          y: secondRowBox.y + secondRowBox.height / 2,
+          steps: 10,
+        },
+      ]);
+
+      // Inserts into the paragraph above the table, shifting every position
+      // after it - including the table's - while the drag is still in
+      // progress.
+      const view = (
+        window as unknown as {
+          ProseMirror: { view: EditorView };
+        }
+      ).ProseMirror.view;
+      let firstTextblockPos: number | undefined;
+      view.state.doc.descendants((node, pos) => {
+        if (firstTextblockPos !== undefined) {
+          return false;
+        }
+        if (node.isTextblock) {
+          firstTextblockPos = pos + 1;
+          return false;
+        }
+        return true;
+      });
+      expect(firstTextblockPos).toBeDefined();
+      // Long enough that the stale table position lands inside the paragraph
+      // rather than a little short of the table, which is what turns a wrong
+      // position into a thrown RangeError.
+      const insertedText = "X".repeat(80);
+      view.dispatch(
+        view.state.tr.insertText(
+          insertedText,
+          firstTextblockPos!,
+          firstTextblockPos!,
+        ),
+      );
+
+      // The next dragover recomputes the decorations against the shifted
+      // document. The drop cursor still rendering proves the table position
+      // was re-resolved rather than merely swallowed by a guard.
+      const lastRowBox = (
+        document.querySelectorAll(
+          `${TABLE_SELECTOR} tbody tr`,
+        )[1] as HTMLElement
+      ).getBoundingClientRect();
+      await mouseSequence([
+        {
+          type: "move",
+          x: lastRowBox.x + lastRowBox.width / 2,
+          y: lastRowBox.y + lastRowBox.height / 2 + 2,
+          steps: 10,
+        },
+      ]);
+
+      await vi.waitFor(() => {
+        expect(
+          document.querySelectorAll(".bn-table-drop-cursor").length,
+        ).toBeGreaterThan(0);
+      });
+
+      await mouseSequence([{ type: "up" }]);
+
+      // The concurrent edit landed, i.e. its transaction dispatched normally.
+      expect(document.querySelector(EDITOR_SELECTOR)!.textContent).toContain(
+        `${insertedText}Paragraph above the table`,
+      );
     },
   );
 });
