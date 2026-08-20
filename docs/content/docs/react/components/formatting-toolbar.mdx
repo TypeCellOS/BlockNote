@@ -54,7 +54,7 @@ This is what you get without any changes to your app. The toolbar follows the vi
 
 ### Pinned scroll container
 
-In this layout, `<html>` and `<body>` are locked and all page content lives inside a single scroll container that BlockNote keeps aligned with the visual viewport. Since the document never scrolls, the toolbar can stay at a truly fixed position and the lag/jitter disappears. The trade-off is that browser gestures which rely on document scrolling, like pull-to-refresh, no longer work.
+In this layout, `<html>` and `<body>` are locked and all page content lives inside a single scroll container that BlockNote keeps aligned with the visual viewport. Since the document never scrolls, the toolbar can stay at a truly fixed position and the lag/jitter disappears. Since the document no longer scrolls, this comes with some potential trade-offs. Browser gestures that rely on document scrolling, like pull-to-refresh, may stop working and browser UI elements like the address bar, which normally hides and reappears as you scroll, may stay fixed. Note that these trade-offs are browser-dependent - some will not have either, while others will have both.
 
 Setting it up takes two CSS rules. First, lock scrolling on the document:
 
@@ -81,6 +81,6 @@ Then make your scroll container (`.scroll-host` in the example below) the elemen
 }
 ```
 
-BlockNote keeps `--bn-vv-top`, `--bn-vv-left`, `--bn-vv-width`, and `--bn-vv-height` (plus `--bn-vv-scale`, the pinch-zoom factor) up to date as the keyboard opens and closes and as the user pans or zooms, so the scroll container always lines up with the visible area above the keyboard without any JavaScript on your end.
+These variables track the [visual viewport](https://developer.mozilla.org/en-US/docs/Web/API/VisualViewport) - the part of the page actually visible above the keyboard. BlockNote keeps `--bn-vv-top`, `--bn-vv-left`, `--bn-vv-width`, and `--bn-vv-height` (plus `--bn-vv-scale`, the pinch-zoom factor) up to date as the keyboard opens and closes and as the user pans or zooms, so the scroll container always lines up with the visible area above the keyboard without any JavaScript on your end.
 
 Because this layout changes how the whole page scrolls, the example can't be embedded here - open the [standalone example](https://playground.blocknotejs.org/ui-components/mobile-formatting-toolbar?hideMenu=true) on a phone instead. It puts a navigation bar, some static text, and the editor inside a `.scroll-host` styled as above, and the switch in the navigation bar toggles the pinned scroll container layout on and off so you can compare it with the default scrolling document. Select some text and scroll in each layout to see the difference.
