@@ -104,6 +104,7 @@ for (const scenario of scenarios) {
       const afterDoc = cloneWithId(beforeDoc, 2);
       teardown.push(() => afterDoc.destroy());
 
+      const userEditors: { editor: GalleryEditor; doc: Y.Doc }[] = [];
       for (let i = 0; i < applies.length; i++) {
         const userDoc = cloneWithId(beforeDoc, 3 + i);
         const { editor, teardown: unmount } = mountEditor(userDoc);
@@ -111,6 +112,7 @@ for (const scenario of scenarios) {
           unmount();
           userDoc.destroy();
         });
+        userEditors.push({ editor, doc: userDoc });
 
         applies[i](editor);
         // Wait for the y-prosemirror binding to flush the change into `userDoc`.
@@ -134,6 +136,37 @@ for (const scenario of scenarios) {
 
       // Reached only when enterPreview didn't throw: the diff is now showing.
       expect(diffEditor.prosemirrorState.doc.childCount).toBeGreaterThan(0);
+
+      // Keep editing after the diff is showing — the gallery re-renders the
+      // Diff on every Version 2 edit, and the versioning UI re-enters preview
+      // whenever another version is selected. Re-entering preview must replace
+      // the diff that is already rendered, including the one rendered for a
+      // moved block, which shows the same block id twice (the deleted copy and
+      // the inserted one).
+      const lastUser = userEditors[userEditors.length - 1];
+      const editedStateBefore = Y.encodeStateAsUpdateV2(lastUser.doc);
+      const lastBlock = lastUser.editor.document.at(-1)!;
+      lastUser.editor.insertBlocks(
+        [{ type: "paragraph", content: "follow-up edit" }],
+        lastBlock,
+        "after",
+      );
+      await expect
+        .poll(
+          () =>
+            !bytesEqual(
+              Y.encodeStateAsUpdateV2(lastUser.doc),
+              editedStateBefore,
+            ),
+        )
+        .toBe(true);
+      Y.applyUpdate(afterDoc, Y.encodeStateAsUpdate(lastUser.doc));
+
+      adapter.preview.enterPreview(Y.encodeStateAsUpdateV2(afterDoc), before);
+
+      expect(diffEditor.prosemirrorState.doc.textContent).toContain(
+        "follow-up edit",
+      );
     } finally {
       teardown.reverse().forEach((fn) => fn());
     }

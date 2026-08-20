@@ -51,7 +51,16 @@ export function removeAndInsertBlocks<
       : blocksToRemove[0].id;
   let removedSize = 0;
 
-  tr.doc.descendants((node, pos) => {
+  // The IDs to remove were derived from the document as it is *now* (e.g. via
+  // `editor.document`), so resolve them against that same document rather than
+  // `tr.doc`, which mutates as blocks get deleted below. This matters for
+  // suggested-deletion nodes: `getNodeId` disambiguates them from the live node
+  // sharing their `id` by their index among same-id nodes, so once the live
+  // node has been deleted from `tr.doc` the index — and thus the ID — would no
+  // longer match.
+  const doc = tr.doc;
+
+  doc.descendants((node, pos) => {
     // Skips traversing nodes after all target blocks have been removed.
     if (idsOfBlocksToRemove.size === 0) {
       return false;
@@ -62,14 +71,14 @@ export function removeAndInsertBlocks<
       return true;
     }
 
-    const nodeId = getNodeId(node, tr.doc);
+    const nodeId = getNodeId(node, doc);
 
     if (!idsOfBlocksToRemove.has(nodeId)) {
       return true;
     }
 
     // Saves the block that is being deleted.
-    removedBlocks.push(nodeToBlock(node, tr.doc));
+    removedBlocks.push(nodeToBlock(node, doc));
     idsOfBlocksToRemove.delete(nodeId);
 
     if (blocksToInsert.length > 0 && nodeId === idOfFirstBlock) {
