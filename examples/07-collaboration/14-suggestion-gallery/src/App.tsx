@@ -466,11 +466,35 @@ function VersionMerge({
         setup.attrs,
       );
     renderDiff();
-    setup.afterDoc.on("update", renderDiff);
+    // Defer the re-render out of the Yjs observer chain. `afterDoc`'s update
+    // events fire synchronously inside the *typing* editor's Y transaction
+    // commit, so rendering the Diff directly in the handler runs enterPreview
+    // within that editor's sync machinery — a failure there gets caught by
+    // its y-sync last-resort catch and reduced to a console warning (which
+    // once hid a stale-diff bug for two months), and it interrupts the
+    // remaining observers mid-forward. A microtask lets the CRDT forwarding
+    // complete untouched, coalesces update bursts into one render, and makes
+    // a render failure surface as a real uncaught error.
+    let renderQueued = false;
+    let disposed = false;
+    const scheduleRenderDiff = () => {
+      if (renderQueued) {
+        return;
+      }
+      renderQueued = true;
+      queueMicrotask(() => {
+        renderQueued = false;
+        if (!disposed) {
+          renderDiff();
+        }
+      });
+    };
+    setup.afterDoc.on("update", scheduleRenderDiff);
 
     return () => {
+      disposed = true;
       offs.forEach((off) => off());
-      setup.afterDoc.off("update", renderDiff);
+      setup.afterDoc.off("update", scheduleRenderDiff);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
