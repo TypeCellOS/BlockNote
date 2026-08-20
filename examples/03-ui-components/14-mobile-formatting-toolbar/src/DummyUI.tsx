@@ -28,11 +28,27 @@ function HamburgerMenu() {
   );
 }
 
-export function NavBar() {
+export function NavBar(props: {
+  pinnedScrollContainer: boolean;
+  onPinnedScrollContainerChange: (enabled: boolean) => void;
+}) {
   return (
     <header className="top-nav">
       <HamburgerMenu />
       <span className="top-nav-title">Lorem Ipsum</span>
+      {/* Switches between the default "scrolling document" layout and the
+          "pinned scroll container" layout, to compare the toolbar in both. */}
+      <button
+        type="button"
+        className="layout-toggle"
+        aria-pressed={props.pinnedScrollContainer}
+        onClick={() =>
+          props.onPinnedScrollContainerChange(!props.pinnedScrollContainer)
+        }
+      >
+        Pinned scroll container
+        <span className="layout-toggle-track" aria-hidden="true" />
+      </button>
     </header>
   );
 }

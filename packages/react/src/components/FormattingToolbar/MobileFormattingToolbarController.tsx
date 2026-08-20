@@ -15,11 +15,13 @@ import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
  * `.bn-mobile-formatting-toolbar` in the styles), so it needs no re-render to
  * follow the viewport.
  *
- * By default it does not lock document scroll. For the smoother
- * "non-scrolling document" behavior (the toolbar staying pinned during scroll
- * with no per-frame work), the host app opts in via CSS: locking document
- * scroll (`overflow: hidden` on `html`/`body`) and sizing its scroll container
- * to the visual viewport via the same `--bn-vv-*` variables.
+ * Works with both page layouts described in the docs. In the default
+ * "scrolling document" layout the toolbar follows the visual viewport as the
+ * page scrolls. For the smoother "pinned scroll container" layout (the toolbar
+ * staying pinned during scroll with no per-frame work), the host app opts in
+ * via CSS: locking document scroll (`overflow: hidden` on `html`/`body`) and
+ * pinning its scroll container to the visual viewport via the same `--bn-vv-*`
+ * variables.
  *
  * The toolbar itself scrolls horizontally (`overflow-x: auto`), which clips any
  * inline dropdown on mobile. So the outer `.bn-mobile-formatting-toolbar`

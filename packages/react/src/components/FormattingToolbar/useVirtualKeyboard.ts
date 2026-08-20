@@ -58,8 +58,8 @@ function isVirtualKeyboardOpen(): boolean {
  * opens/closes, not on every viewport change (zoom/pan/scroll) — those keep the
  * CSS properties up to date without a re-render.
  *
- * Does not lock document scroll. For the smoother "non-scrolling document"
- * behavior, the host app opts in with CSS (see
+ * Does not lock document scroll. For the smoother "pinned scroll container"
+ * layout, the host app opts in with CSS (see
  * {@link MobileFormattingToolbarController}). This is what that controller
  * relies on for positioning and keyboard detection.
  */
