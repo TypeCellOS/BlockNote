@@ -1,6 +1,6 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 
 // https://vitejs.dev/config/
 export default defineConfig(
@@ -19,8 +19,10 @@ export default defineConfig(
         },
       },
       test: {
-        environment: "jsdom",
-        setupFiles: ["./vitestSetup.ts"],
+        environment: "node",
+        // `.browser.test` files need a real browser; the tests package's
+        // browser suite runs them.
+        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
         testTimeout: 15000,
       },
       plugins: [webpackStats() as any],

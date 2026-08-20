@@ -1,6 +1,7 @@
 import {
   Exporter,
   ExporterOptions,
+  InlineContent,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -8,14 +9,20 @@ import {
 /** px -> pt (Typst works in points; BlockNote sizes are in px). */
 export const PT = 0.75;
 
+const ESC: Record<string, string> = {
+  "\\": "\\\\",
+  '"': '\\"',
+  "\n": "\\n",
+  "\t": "\\t",
+};
+
 /** Escape a JS string for use inside a Typst string literal "...". */
 export function escStr(s: string): string {
+  // CRLF and lone CR both mean a line break - dropping the CR outright would
+  // silently merge lines (e.g. in code blocks from old-Mac clipboards).
   return String(s)
-    .replace(/\\/g, "\\\\")
-    .replace(/"/g, '\\"')
-    .replace(/\r/g, "")
-    .replace(/\n/g, "\\n")
-    .replace(/\t/g, "\\t");
+    .replace(/\r\n?/g, "\n")
+    .replace(/[\\"\n\t]/g, (c) => ESC[c]);
 }
 
 /**
@@ -74,7 +81,7 @@ export function joinInline(
     any,
     string
   >,
-  inline: any[],
+  inline: InlineContent<any, any>[],
 ): string {
   const pieces = exporter.transformInlineContent(inline) as string[];
   return pieces.map((p) => "#" + p).join("");
@@ -96,28 +103,12 @@ export function colorHex(
   return colors[name]?.[kind];
 }
 
-const MIME_EXT: Record<string, string> = {
-  "image/png": "png",
-  "image/jpeg": "jpg",
-  "image/gif": "gif",
-  "image/webp": "webp",
-  "image/svg+xml": "svg",
-  "image/bmp": "bmp",
-  "image/avif": "avif",
-};
-
 /**
- * Pick a file extension for an image from its MIME type, falling back to the
- * URL's extension and then `png`. Typst infers the image format from the
- * shadow-file path's extension, so this needs to match the actual bytes.
+ * The grey editor-style placeholder used when a block's user-written source
+ * is invalid (e.g. LaTeX or Mermaid that doesn't parse) - a Typst
+ * *expression* (no leading `#`); mirrors the color the editor and the other
+ * exporters use for their error placeholders.
  */
-export function imageExtension(
-  mimeType: string | undefined,
-  url: string,
-): string {
-  if (mimeType && MIME_EXT[mimeType]) {
-    return MIME_EXT[mimeType];
-  }
-  const match = /\.([a-z0-9]+)(?:[?#]|$)/i.exec(url);
-  return match ? match[1].toLowerCase() : "png";
+export function errorPlaceholder(message: string): string {
+  return `text(fill: rgb("#999999"), ${strLit(message)})`;
 }

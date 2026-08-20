@@ -5,7 +5,7 @@ import type {
 } from "@blocknote/core";
 import { plainContentToString } from "@blocknote/core";
 import type { TypstExporter } from "@blocknote/xl-pdf-renderer-2";
-import { strLit } from "@blocknote/xl-pdf-renderer-2";
+import { errorPlaceholder, strLit } from "@blocknote/xl-pdf-renderer-2";
 
 import type { RenderDiagram } from "../helpers/renderDiagramToImage.js";
 import { renderDiagramToSVG } from "../helpers/renderDiagramToSVG.js";
@@ -22,14 +22,6 @@ type DiagramBlock = BlockFromConfigNoChildren<
 const PIXELS_PER_POINT = 0.75;
 const MAX_WIDTH_POINTS = 400;
 
-const MIME_EXT: Record<string, string> = {
-  "image/png": "png",
-  "image/jpeg": "jpg",
-  "image/gif": "gif",
-  "image/webp": "webp",
-  "image/svg+xml": "svg",
-};
-
 // Mirrors the editor, which shows the error state in the preview
 // placeholder, identifying the diagram by the (first line of the) source.
 // The parser's message is deliberately NOT rendered: it's authoring detail
@@ -39,11 +31,11 @@ function errorText(
   exporter: Exporter<any, any, any, any, any, any, any>,
   source: string,
 ): string {
-  return `#align(center)[#text(fill: rgb("#999999"), ${strLit(
+  return `#align(center)[#${errorPlaceholder(
     getDiagramExporterDictionary(exporter).invalid_diagram(
       source.split("\n")[0],
     ),
-  )})]`;
+  )}]`;
 }
 
 /**
@@ -81,12 +73,14 @@ export function createDiagramBlockMapping(options?: {
       return "";
     }
 
-    // The default renderer emits vector SVG, with labels in the document's
-    // own (first) font family - Typst resolves it against the same loaded
-    // fonts as the body text.
     const typstExporter = exporter as unknown as TypstExporter<any, any, any>;
-    const family = typstExporter.options.fontFamily;
-    const fontFamily = `"${Array.isArray(family) ? family[0] : family}", sans-serif`;
+
+    // The default renderer emits vector SVG, with labels in the exporter's
+    // resolved font list (fontFamilies: the CJK fallbacks AND the emoji
+    // family must reach diagram labels, exactly as they do body text).
+    const fontFamily = `${typstExporter.fontFamilies
+      .map((f) => `"${f}"`)
+      .join(", ")}, sans-serif`;
     const renderDiagram =
       options?.renderDiagram ??
       (typeof document !== "undefined"
@@ -108,7 +102,6 @@ export function createDiagramBlockMapping(options?: {
     const path = typstExporter.registerImageBytes(
       `diagram:${source}`,
       result.image.data,
-      MIME_EXT[result.image.mimeType] ?? "png",
     );
     const width = Math.min(
       result.image.width * PIXELS_PER_POINT,

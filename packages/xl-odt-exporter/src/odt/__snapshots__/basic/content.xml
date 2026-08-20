@@ -132,6 +132,7 @@
             <text:p text:style-name="Standard">
                 Paragraph
             </text:p>
+            <text:p text:style-name="Standard"></text:p>
             <text:h text:outline-level="1" text:style-name="Heading_20_1">
                 Heading
             </text:h>
@@ -521,6 +522,72 @@
                     </table:table-cell>
                 </table:table-row>
             </table:table>
+            <table:table table:name="" table:style-name="BN_S20">
+                <table:table-column table:style-name="BN_S14"></table:table-column>
+                <table:table-column table:style-name="BN_S14"></table:table-column>
+                <table:table-row>
+                    <table:table-cell table:style-name="BN_S15" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                        <text:p text:style-name="Standard">
+                            Merged Header
+                        </text:p>
+                    </table:table-cell>
+                    <table:table-cell table:style-name="BN_S15" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                        <text:p text:style-name="Standard">
+                            Header C
+                        </text:p>
+                    </table:table-cell>
+                </table:table-row>
+                <table:table-row>
+                    <table:table-cell table:style-name="BN_S15" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                        <text:p text:style-name="Standard">
+                            Header A
+                        </text:p>
+                    </table:table-cell>
+                    <table:table-cell table:style-name="BN_S15" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                        <text:p text:style-name="Standard">
+                            Header B
+                        </text:p>
+                    </table:table-cell>
+                    <table:table-cell table:style-name="BN_S15" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                        <text:p text:style-name="Standard">
+                            Header C2
+                        </text:p>
+                    </table:table-cell>
+                </table:table-row>
+                <table:table-row>
+                    <table:table-cell table:style-name="BN_S15" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                        <text:p text:style-name="Standard">
+                            Merged Rows
+                        </text:p>
+                    </table:table-cell>
+                    <table:table-cell table:style-name="BN_S15" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                        <text:p text:style-name="Standard">
+                            Cell B1
+                        </text:p>
+                    </table:table-cell>
+                    <table:table-cell table:style-name="BN_S15" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                        <text:p text:style-name="Standard">
+                            Cell C1
+                        </text:p>
+                    </table:table-cell>
+                </table:table-row>
+                <table:table-row>
+                    <table:table-cell table:style-name="BN_S15" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                        <text:p text:style-name="Standard">
+                            Cell B2
+                        </text:p>
+                    </table:table-cell>
+                    <table:table-cell table:style-name="BN_S15" office:value-type="string" style:text-align-source="fix" style:paragraph-properties-text-align="left">
+                        <text:p text:style-name="Standard">
+                            Cell C2
+                        </text:p>
+                    </table:table-cell>
+                </table:table-row>
+            </table:table>
+            <text:p text:style-name="Standard">
+                A hard line break
+within a single paragraph
+            </text:p>
             <text:p text:style-name="Codeblock">
                 const helloWorld = (message) =&gt; {
                 <text:line-break></text:line-break>

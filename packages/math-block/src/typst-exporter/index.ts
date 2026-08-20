@@ -4,7 +4,7 @@ import type {
   Exporter,
 } from "@blocknote/core";
 import { plainContentToString } from "@blocknote/core";
-import { strLit } from "@blocknote/xl-pdf-renderer-2";
+import { errorPlaceholder, strLit } from "@blocknote/xl-pdf-renderer-2";
 import { tex2typst } from "tex2typst";
 
 import { latexToMathML } from "../exporterHelpers/latexToMathML.js";
@@ -42,9 +42,9 @@ function errorText(
   exporter: Exporter<any, any, any, any, any, any, any>,
   source: string,
 ): string {
-  return `text(fill: rgb("#999999"), ${strLit(
+  return errorPlaceholder(
     getMathExporterDictionary(exporter).invalid_formula(source),
-  )})`;
+  );
 }
 
 /**
@@ -52,7 +52,13 @@ function errorText(
  * as native Typst equations (real text, not images - the LaTeX is converted
  * to Typst math notation with `tex2typst`). The equation carries the LaTeX
  * source as its alt text, as PDF/UA requires formulas to have one. Invalid
- * LaTeX renders an error placeholder (mirroring the editor):
+ * LaTeX renders an error placeholder (mirroring the editor).
+ *
+ * Known limitation: `tex2typst` does not translate every valid KaTeX
+ * command - an untranslatable one (e.g. `\coloneqq`) passes validation here
+ * but fails the Typst *compile* with an "unknown variable" error, failing
+ * the export loudly (deliberately: a valid formula the pipeline can't
+ * render must not silently become something else):
  *
  * ```ts
  * import { mathBlockMapping } from "@blocknote/math-block/typst-exporter";

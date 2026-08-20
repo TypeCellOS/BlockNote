@@ -24,8 +24,10 @@ const testDocumentSchema = BlockNoteSchema.create({
 // which would be a workspace build cycle. The conversion below only reads each
 // block type's `content` kind and prop defaults, so the two entries are
 // declared by hand instead, typed to structurally match the configs of
-// `ColumnBlock` / `ColumnListBlock`.
-const columnBlockSchema: {
+// `ColumnBlock` / `ColumnListBlock`. Exported so xl-multi-column's tests can
+// guard against drift from the real specs (see `testDocumentSchema.test` in
+// that package).
+export const columnBlockSchema: {
   column: {
     type: "column";
     content: "none";

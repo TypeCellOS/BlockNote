@@ -55,6 +55,7 @@
                 <w:t xml:space="preserve">Paragraph</w:t>
             </w:r>
         </w:p>
+        <w:p/>
         <w:p>
             <w:pPr>
                 <w:pStyle w:val="Heading1"/>
@@ -852,6 +853,183 @@
                 </w:tc>
             </w:tr>
         </w:tbl>
+        <w:tbl>
+            <w:tblPr>
+                <w:tblW w:type="auto" w:w="100"/>
+                <w:tblBorders>
+                    <w:top w:val="single" w:color="auto" w:sz="4"/>
+                    <w:left w:val="single" w:color="auto" w:sz="4"/>
+                    <w:bottom w:val="single" w:color="auto" w:sz="4"/>
+                    <w:right w:val="single" w:color="auto" w:sz="4"/>
+                    <w:insideH w:val="single" w:color="auto" w:sz="4"/>
+                    <w:insideV w:val="single" w:color="auto" w:sz="4"/>
+                </w:tblBorders>
+                <w:tblLayout w:type="autofit"/>
+            </w:tblPr>
+            <w:tblGrid>
+                <w:gridCol w:w="1800"/>
+                <w:gridCol w:w="1800"/>
+                <w:gridCol w:w="1800"/>
+            </w:tblGrid>
+            <w:tr>
+                <w:trPr>
+                    <w:tblHeader/>
+                </w:trPr>
+                <w:tc>
+                    <w:tcPr>
+                        <w:gridSpan w:val="2"/>
+                    </w:tcPr>
+                    <w:p>
+                        <w:pPr>
+                            <w:rPr>
+                                <w:b/>
+                                <w:bCs/>
+                            </w:rPr>
+                        </w:pPr>
+                        <w:r>
+                            <w:t xml:space="preserve">Merged Header</w:t>
+                        </w:r>
+                    </w:p>
+                </w:tc>
+                <w:tc>
+                    <w:tcPr>
+                        <w:gridSpan w:val="1"/>
+                    </w:tcPr>
+                    <w:p>
+                        <w:pPr>
+                            <w:rPr>
+                                <w:b/>
+                                <w:bCs/>
+                            </w:rPr>
+                        </w:pPr>
+                        <w:r>
+                            <w:t xml:space="preserve">Header C</w:t>
+                        </w:r>
+                    </w:p>
+                </w:tc>
+            </w:tr>
+            <w:tr>
+                <w:trPr>
+                    <w:tblHeader/>
+                </w:trPr>
+                <w:tc>
+                    <w:tcPr>
+                        <w:gridSpan w:val="1"/>
+                    </w:tcPr>
+                    <w:p>
+                        <w:pPr>
+                            <w:rPr>
+                                <w:b/>
+                                <w:bCs/>
+                            </w:rPr>
+                        </w:pPr>
+                        <w:r>
+                            <w:t xml:space="preserve">Header A</w:t>
+                        </w:r>
+                    </w:p>
+                </w:tc>
+                <w:tc>
+                    <w:tcPr>
+                        <w:gridSpan w:val="1"/>
+                    </w:tcPr>
+                    <w:p>
+                        <w:pPr>
+                            <w:rPr>
+                                <w:b/>
+                                <w:bCs/>
+                            </w:rPr>
+                        </w:pPr>
+                        <w:r>
+                            <w:t xml:space="preserve">Header B</w:t>
+                        </w:r>
+                    </w:p>
+                </w:tc>
+                <w:tc>
+                    <w:tcPr>
+                        <w:gridSpan w:val="1"/>
+                    </w:tcPr>
+                    <w:p>
+                        <w:pPr>
+                            <w:rPr>
+                                <w:b/>
+                                <w:bCs/>
+                            </w:rPr>
+                        </w:pPr>
+                        <w:r>
+                            <w:t xml:space="preserve">Header C2</w:t>
+                        </w:r>
+                    </w:p>
+                </w:tc>
+            </w:tr>
+            <w:tr>
+                <w:tc>
+                    <w:tcPr>
+                        <w:gridSpan w:val="1"/>
+                        <w:vMerge w:val="restart"/>
+                    </w:tcPr>
+                    <w:p>
+                        <w:r>
+                            <w:t xml:space="preserve">Merged Rows</w:t>
+                        </w:r>
+                    </w:p>
+                </w:tc>
+                <w:tc>
+                    <w:tcPr>
+                        <w:gridSpan w:val="1"/>
+                    </w:tcPr>
+                    <w:p>
+                        <w:r>
+                            <w:t xml:space="preserve">Cell B1</w:t>
+                        </w:r>
+                    </w:p>
+                </w:tc>
+                <w:tc>
+                    <w:tcPr>
+                        <w:gridSpan w:val="1"/>
+                    </w:tcPr>
+                    <w:p>
+                        <w:r>
+                            <w:t xml:space="preserve">Cell C1</w:t>
+                        </w:r>
+                    </w:p>
+                </w:tc>
+            </w:tr>
+            <w:tr>
+                <w:tc>
+                    <w:tcPr>
+                        <w:gridSpan w:val="1"/>
+                        <w:vMerge w:val="continue"/>
+                    </w:tcPr>
+                    <w:p/>
+                </w:tc>
+                <w:tc>
+                    <w:tcPr>
+                        <w:gridSpan w:val="1"/>
+                    </w:tcPr>
+                    <w:p>
+                        <w:r>
+                            <w:t xml:space="preserve">Cell B2</w:t>
+                        </w:r>
+                    </w:p>
+                </w:tc>
+                <w:tc>
+                    <w:tcPr>
+                        <w:gridSpan w:val="1"/>
+                    </w:tcPr>
+                    <w:p>
+                        <w:r>
+                            <w:t xml:space="preserve">Cell C2</w:t>
+                        </w:r>
+                    </w:p>
+                </w:tc>
+            </w:tr>
+        </w:tbl>
+        <w:p>
+            <w:r>
+                <w:t xml:space="preserve">A hard line break
+within a single paragraph</w:t>
+            </w:r>
+        </w:p>
         <w:p>
             <w:pPr>
                 <w:pStyle w:val="SourceCode"/>

@@ -87,7 +87,14 @@ minimumReleaseAgeExclude:
   - "@oxlint-tsgolint/*"
   - oxfmt
   - "@oxfmt/*"
-  - "@myriaddreamin/*"
+  # The Typst compiler family is pinned to a fresh rc line; excluded from the
+  # release-age quarantine by exact name (plus the node compiler's
+  # per-platform binaries) rather than waiving the whole scope.
+  - "@myriaddreamin/typst.ts"
+  - "@myriaddreamin/typst-ts-web-compiler"
+  - "@myriaddreamin/typst-ts-renderer"
+  - "@myriaddreamin/typst-ts-node-compiler"
+  - "@myriaddreamin/typst-ts-node-compiler-*"
 
 # pdfjs-dist pulls @napi-rs/canvas (native binaries) for Node-side
 # rendering, which we never do - pdf.js only runs in the browser suite.

@@ -37,6 +37,9 @@ jobs:
       - name: Lint packages
         run: vp lint
 
+      - name: Install PDF tooling (veraPDF conformance gate + poppler visual snapshots)
+        run: bash tests/scripts/install-pdf-tooling.sh
+
       - name: Run unit tests
         run: vp run test
 

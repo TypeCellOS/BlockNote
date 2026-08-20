@@ -53,30 +53,27 @@ class TestExporter<
   }
 }
 
-// Mappings covering the default schema, used as the baseline. Built generically
-// — only the *types* matter here, not the (no-op) implementations.
+// Mappings covering the default schema, used as the baseline. These tests are
+// purely type-level (nothing is ever invoked), so only the declared types
+// matter - plain casts, no runtime construction.
 const defaultSchema = BlockNoteSchema.create();
-const noop = () => "";
-const blockMapping = Object.fromEntries(
-  Object.keys(defaultSchema.blockSchema).map((k) => [k, noop]),
-) as unknown as BlockMapping<
+const blockMapping = {} as BlockMapping<
   typeof defaultSchema.blockSchema,
   typeof defaultSchema.inlineContentSchema,
   typeof defaultSchema.styleSchema,
   string,
   string
 >;
-const inlineContentMapping = Object.fromEntries(
-  Object.keys(defaultSchema.inlineContentSchema).map((k) => [k, noop]),
-) as unknown as InlineContentMapping<
+const inlineContentMapping = {} as InlineContentMapping<
   typeof defaultSchema.inlineContentSchema,
   typeof defaultSchema.styleSchema,
   string,
   string
 >;
-const styleMapping = Object.fromEntries(
-  Object.keys(defaultSchema.styleSchema).map((k) => [k, noop]),
-) as unknown as StyleMapping<typeof defaultSchema.styleSchema, string>;
+const styleMapping = {} as StyleMapping<
+  typeof defaultSchema.styleSchema,
+  string
+>;
 const defaultMappings = { blockMapping, inlineContentMapping, styleMapping };
 
 describe("Exporter mapping typing", () => {

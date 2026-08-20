@@ -4,6 +4,7 @@ import {
   typstDefaultSchemaMappings,
 } from "@blocknote/xl-pdf-renderer-2";
 import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
+import { compileTypstForTesting } from "@shared/util/typstTestUtil.js";
 import { describe, expect, it } from "vite-plus/test";
 
 import { inlineMathMapping, mathBlockMapping } from "./index.js";
@@ -53,13 +54,10 @@ describe("typst exporter mappings", () => {
       // Compile under Typst's own PDF/UA-1 validation - it *errors* on
       // equations without alt text, so this proves the mappings' equations
       // stay UA-conformant end-to-end.
-      const { NodeCompiler } =
-        await import("@myriaddreamin/typst-ts-node-compiler");
-      const pdf = NodeCompiler.create().pdf(
-        { mainFileContent: typst },
-        { pdfStandard: "ua-1" },
-      );
-      expect(pdf?.length).toBeGreaterThan(0);
+      const pdf = await compileTypstForTesting(typst, {
+        pdfStandard: "ua-1",
+      });
+      expect(pdf.length).toBeGreaterThan(0);
     },
   );
 

@@ -32,16 +32,10 @@ async function writeTemplate(
   written: string[],
 ) {
   const template = await import(pathToFileURL(templateFile).toString());
-  if (
-    project.config.tailwind !== true &&
-    templateFile.endsWith("tailwind.css.template.tsx")
-  ) {
-    return;
-  }
-  if (
-    project.config.sharedTestDocument !== true &&
-    templateFile.endsWith("testDocumentBlocks.ts.template.tsx")
-  ) {
+  // Templates own their applicability (`shouldGenerate`) and, when the file
+  // doesn't belong at the example root, their target path (`targetPath`) -
+  // so this writer stays free of per-template special cases.
+  if (template.shouldGenerate && !template.shouldGenerate(project)) {
     return;
   }
   const ret = await template.default(project);
@@ -49,7 +43,8 @@ async function writeTemplate(
   const targetFilePath = path.join(
     "../../",
     project.pathFromRoot,
-    path.basename(templateFile).replace(".template.tsx", ""),
+    template.targetPath ??
+      path.basename(templateFile).replace(".template.tsx", ""),
   );
 
   let stringOutput: string | undefined = undefined;

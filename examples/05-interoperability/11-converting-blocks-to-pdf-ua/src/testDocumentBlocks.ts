@@ -63,6 +63,11 @@ export const testDocumentBlocks: PartialBlock<any, any, any>[] = [
     type: "paragraph",
     content: "Paragraph",
   },
+  // An empty paragraph: a blank line in the editor, which exporters must
+  // preserve as vertical space rather than dropping the block.
+  {
+    type: "paragraph",
+  },
   {
     type: "heading",
     content: "Heading",
@@ -378,6 +383,54 @@ export const testDocumentBlocks: PartialBlock<any, any, any>[] = [
         },
       ],
     },
+  },
+  // An "advanced" table: two header rows and merged cells (colspan /
+  // rowspan) - the features behind the editor's `splitCells` /
+  // `headers` table options, which exporters must place correctly.
+  {
+    type: "table",
+    content: {
+      type: "tableContent",
+      // Explicit widths for all three tracks: the merged first-row cell
+      // means the row alone doesn't reveal the column count.
+      columnWidths: [undefined, undefined, undefined],
+      headerRows: 2,
+      rows: [
+        {
+          cells: [
+            {
+              type: "tableCell",
+              content: "Merged Header",
+              props: { colspan: 2 },
+            },
+            { type: "tableCell", content: "Header C" },
+          ],
+        },
+        {
+          cells: ["Header A", "Header B", "Header C2"],
+        },
+        {
+          cells: [
+            {
+              type: "tableCell",
+              content: "Merged Rows",
+              props: { rowspan: 2 },
+            },
+            { type: "tableCell", content: "Cell B1" },
+            { type: "tableCell", content: "Cell C1" },
+          ],
+        },
+        {
+          cells: ["Cell B2", "Cell C2"],
+        },
+      ],
+    },
+  },
+  // A hard line break (shift+enter) inside one paragraph - a single block
+  // whose text spans two lines.
+  {
+    type: "paragraph",
+    content: "A hard line break\nwithin a single paragraph",
   },
   {
     type: "codeBlock",

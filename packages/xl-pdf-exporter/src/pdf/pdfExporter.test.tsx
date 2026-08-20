@@ -10,11 +10,6 @@ import reactElementToJSXString from "react-element-to-jsx-string";
 import { describe, expect, it } from "vite-plus/test";
 import { pdfDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { PDFExporter } from "./pdfExporter.js";
-// import * as ReactPDF from "@react-pdf/renderer";
-// expect.extend({ toMatchImageSnapshot });
-// import { toMatchImageSnapshot } from "jest-image-snapshot";
-// import { pdf } from "pdf-to-img";
-
 describe("exporter", () => {
   it("should export a document", async () => {
     const exporter = new PDFExporter(

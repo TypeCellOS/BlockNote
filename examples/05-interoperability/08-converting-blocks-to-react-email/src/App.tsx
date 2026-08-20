@@ -1,4 +1,4 @@
-import { testDocumentBlocks } from "../testDocumentBlocks";
+import { testDocumentBlocks } from "./testDocumentBlocks";
 import {
   BlockNoteSchema,
   COLORS_DARK_MODE_DEFAULT,

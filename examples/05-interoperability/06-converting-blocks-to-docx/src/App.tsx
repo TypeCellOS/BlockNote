@@ -1,4 +1,4 @@
-import { testDocumentBlocks } from "../testDocumentBlocks";
+import { testDocumentBlocks } from "./testDocumentBlocks";
 import {
   BlockNoteSchema,
   combineByGroup,

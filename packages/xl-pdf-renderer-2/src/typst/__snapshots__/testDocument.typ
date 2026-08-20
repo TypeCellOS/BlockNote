@@ -17,6 +17,7 @@
 #show raw.where(block: true): it => block(width: 100%, inset: 12pt, radius: 3pt, fill: luma(248), stroke: 0.5pt + luma(210), it)
 #show quote.where(block: true): it => block(inset: (left: 14pt, y: 4pt), stroke: (left: 2pt + rgb("#7D797A")), text(fill: rgb("#7D797A"), it.body))
 #set figure(numbering: none)
+#show figure: set block(breakable: false)
 #show figure.caption: set text(size: 9.6pt, fill: luma(110))
 #show link: set text(fill: rgb("#0b6e99"))
 #let _cb-unchecked = box(baseline: 0.24em, width: 0.9em, height: 0.9em, radius: 2pt, stroke: 0.08em + luma(148), fill: white)
@@ -36,6 +37,8 @@
 #block(width: 100%, fill: rgb("#fbe4e4"), inset: (x: 6pt, top: 6.9pt, bottom: 6.9pt))[#strong("This paragraph has a background color")]
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Paragraph"]
+
+#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[]
 
 #block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"Heading"]]
 
@@ -120,15 +123,15 @@
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Open file"]
 
-#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#[#show figure: set align(left); #figure(image("/assets/asset-0.jpg", width: 80%), caption: [#"From https://placehold.co/332x322.jpg"], alt: "From https://placehold.co/332x322.jpg")]]
+#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#[#show figure: set align(left); #figure(image("/assets/asset-0", width: 80%), caption: [#"From https://placehold.co/332x322.jpg"], alt: "From https://placehold.co/332x322.jpg")]]
 
-#align(right)[#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#[#show figure: set align(right); #figure(image("/assets/asset-0.jpg", width: 150.0pt), alt: "https://placehold.co/332x322.jpg")]]]
+#align(right)[#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#[#show figure: set align(right); #figure(image("/assets/asset-0", width: 150.0pt), alt: "https://placehold.co/332x322.jpg")]]]
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#link("https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm")[#"Open video file"]#linebreak()#text(size: 9.6pt, fill: luma(110))[#"From https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm"]]
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#link("https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3")[#"Open audio file"]#linebreak()#text(size: 9.6pt, fill: luma(110))[#"From https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3"]]
 
-
+#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[]
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"audio.mp3"#linebreak()#text(size: 9.6pt, fill: luma(110))[#"Audio file caption"]]
 
@@ -144,6 +147,17 @@
   [#"Table Cell 4"], [#highlight(fill: rgb("#ddebf1"), text(fill: rgb("#e03e3e"), strong("Table Cell Bold Colored 5")))], [#"Table Cell 6"],
   [#"Table Cell 7"], [#"Table Cell 8"], [#"Table Cell 9"],
 )]
+
+#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#table(
+  columns: (auto, auto, auto),
+  stroke: 0.5pt + luma(200),
+  inset: 6pt,
+  table.header(table.cell(colspan: 2)[#strong[#"Merged Header"]], [#strong[#"Header C"]], [#strong[#"Header A"]], [#strong[#"Header B"]], [#strong[#"Header C2"]]),
+  table.cell(rowspan: 2)[#"Merged Rows"], [#"Cell B1"], [#"Cell C1"],
+  [#"Cell B2"], [#"Cell C2"],
+)]
+
+#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"A hard line break\nwithin a single paragraph"]
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#raw("const helloWorld = (message) => {\n  console.log(\"Hello World\", message);\n};", block: true, lang: "javascript")]
 

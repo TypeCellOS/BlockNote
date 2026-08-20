@@ -134,6 +134,19 @@
           textAlign: 'left'
         }}
       >
+        <TEXT />
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
         <TEXT
           style={{
             fontSize: 24,
@@ -1406,6 +1419,237 @@
           }}
           transformer={[object Object]}
         />
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: undefined
+        }}
+      >
+        <Table
+          data={{
+            columnWidths: [
+              undefined,
+              undefined,
+              undefined
+            ],
+            headerCols: undefined,
+            headerRows: 2,
+            rows: [
+              {
+                cells: [
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Merged Header',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 2,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Header C',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  }
+                ]
+              },
+              {
+                cells: [
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Header A',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Header B',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Header C2',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  }
+                ]
+              },
+              {
+                cells: [
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Merged Rows',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 2,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Cell B1',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Cell C1',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  }
+                ]
+              },
+              {
+                cells: [
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Cell B2',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Cell C2',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  }
+                ]
+              }
+            ],
+            type: 'tableContent'
+          }}
+          transformer={[object Object]}
+        />
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <TEXT>
+          <TEXT style={{}}>
+            A hard line break
+            within a single paragraph
+          </TEXT>
+        </TEXT>
       </VIEW>
     </React.Fragment>
     <React.Fragment key=".1:$">

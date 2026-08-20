@@ -14,7 +14,6 @@ import {
   CHECKBOX_MARKER_DEFS,
   checkboxMarker,
   colorHex,
-  imageExtension,
   strLit,
 } from "./util.js";
 
@@ -71,6 +70,16 @@ export type TypstDocumentOptions = {
    * @default "en"
    */
   lang?: string;
+  /**
+   * Typst paper name, e.g. `"a4"`, `"us-letter"`.
+   * @default "a4"
+   */
+  paper?: string;
+  /**
+   * Page margin as a Typst length, e.g. `"48pt"`, `"2cm"`.
+   * @default "48pt" (≈ the editor's horizontal padding applied to A4)
+   */
+  margin?: string;
   /**
    * Raw Typst markup placed in the running page header, e.g. `"My Document"` or
    * `"#context counter(page).display()"`. Typst tags it as a pagination
@@ -148,6 +157,22 @@ export class TypstExporter<
     this.options = newOptions;
   }
 
+  /**
+   * The resolved body font list, in fallback order - `fontFamily` normalized
+   * to an array with `emojiFontFamily` appended last, so emoji runs (incl.
+   * ZWJ sequences) shape as a unit in that font rather than per-glyph
+   * auto-fallback. The single source for font resolution: the preamble and
+   * font-sensitive mappings (e.g. diagram labels) must agree on it.
+   */
+  public get fontFamilies(): string[] {
+    const { fontFamily, emojiFontFamily } = this.options;
+    const families = Array.isArray(fontFamily) ? [...fontFamily] : [fontFamily];
+    if (emojiFontFamily) {
+      families.push(emojiFontFamily);
+    }
+    return families;
+  }
+
   /** Render a single styled-text run to a Typst expression. */
   public transformStyledText(styledText: StyledText<S>): string {
     const styles = styledText.styles;
@@ -180,14 +205,16 @@ export class TypstExporter<
       const kind = LIST_KIND[b.type];
 
       if (kind) {
+        // Only the first item's `start` matters (matching the editor's
+        // numbering); the traversal is generic over the schema, so the prop
+        // read is shaped. `wrapList` treats undefined as the default.
+        const start =
+          kind === "numbered"
+            ? (b.props as { start?: number }).start
+            : undefined;
         const items: string[] = [];
-        let start: number | undefined;
         while (i < blocks.length && LIST_KIND[blocks[i].type] === kind) {
-          const item = blocks[i];
-          if (kind === "numbered" && start === undefined) {
-            start = (item.props as any).start ?? 1;
-          }
-          items.push(await this.renderListItem(item, nestingLevel));
+          items.push(await this.renderListItem(blocks[i], nestingLevel));
           i++;
         }
         out.push(this.wrapList(kind, items, start));
@@ -238,14 +265,14 @@ export class TypstExporter<
       content += "\n\n" + children.join("\n\n");
     }
     if (block.type === "checkListItem") {
-      const checked = (block.props as any)?.checked;
+      const checked = (block.props as { checked?: boolean }).checked;
       // Use the checkbox as the item's list marker (so wrapped lines hang under
       // the text) via a single-item inner list; wrapList groups these under one
       // outer marker-less list, keeping a proper L > LI structure. The body and
       // any nested children are wrapped together so children nest under the item.
-      content = `#list(marker: ${checkboxMarker(checked)}, [${content}])`;
+      content = `#list(marker: ${checkboxMarker(checked ?? false)}, [${content}])`;
     }
-    return this.applyBlockProps(block.props as any, content);
+    return this.applyBlockProps(block.props, content);
   }
 
   /**
@@ -260,7 +287,7 @@ export class TypstExporter<
   ): Promise<string> {
     const columns = block.children;
     const tracks = columns
-      .map((c) => `${(c.props as any)?.width ?? 1}fr`)
+      .map((c) => `${(c.props as { width?: number }).width ?? 1}fr`)
       .join(", ");
     const cells: string[] = [];
     for (const col of columns) {
@@ -281,7 +308,9 @@ export class TypstExporter<
   ): string {
     const body = items.map((it) => `[${it}]`).join(",\n  ");
     if (kind === "numbered") {
-      const startArg = start && start !== 1 ? `start: ${start},\n  ` : "";
+      // `start: 0` is a valid value (e.g. from pasted <ol start="0">).
+      const startArg =
+        start !== undefined && start !== 1 ? `start: ${start},\n  ` : "";
       return `#enum(\n  ${startArg}${body}\n)`;
     }
     if (kind === "check") {
@@ -306,7 +335,7 @@ export class TypstExporter<
     }
     // Headings get extra top padding (the editor's ~18px heading top spacing).
     const extraTop = block.type === "heading" ? "8pt" : undefined;
-    return this.applyBlockProps(block.props as any, inner, { extraTop });
+    return this.applyBlockProps(block.props, inner, { extraTop });
   }
 
   /**
@@ -317,13 +346,17 @@ export class TypstExporter<
    * half the block-to-block gap; `extraTop` adds space above headings.
    */
   private applyBlockProps(
-    props: any,
+    props: {
+      textColor?: string;
+      backgroundColor?: string;
+      textAlignment?: string;
+    },
     s: string,
     opts?: { extraTop?: string },
   ): string {
-    if (!s) {
-      return s;
-    }
+    // An empty body still gets the block wrapper: an empty paragraph is a
+    // blank line in the editor, and the wrapper's vertical inset is what
+    // preserves it (the other exporters emit an empty paragraph likewise).
     // Same color resolution the style mapping uses for inline text/highlight.
     const tc = colorHex(this, props?.textColor, "text");
     const bc = colorHex(this, props?.backgroundColor, "background");
@@ -348,15 +381,8 @@ export class TypstExporter<
   }
 
   private preamble(doc: TypstDocumentOptions): string {
-    const { fontFamily, monoFontFamily, fontSize, emojiFontFamily } =
-      this.options;
-    // The body font list, in fallback order. The emoji font goes last so emoji
-    // runs (incl. ZWJ sequences) shape as a unit in it, rather than per-glyph
-    // auto-fallback.
-    const families = Array.isArray(fontFamily) ? [...fontFamily] : [fontFamily];
-    if (emojiFontFamily) {
-      families.push(emojiFontFamily);
-    }
+    const { monoFontFamily, fontSize } = this.options;
+    const families = this.fontFamilies;
     const fontArg =
       families.length === 1
         ? strLit(families[0])
@@ -365,8 +391,12 @@ export class TypstExporter<
     const author = doc.author ?? "";
     const lang = doc.lang ?? "en";
     const { header, footer } = doc;
-    // Margins ≈ the editor's 8% horizontal padding (54px / 670px) applied to A4.
-    const pageArgs = [`paper: "a4"`, `margin: 48pt`];
+    // Default margins ≈ the editor's 8% horizontal padding (54px / 670px)
+    // applied to A4.
+    const pageArgs = [
+      `paper: ${strLit(doc.paper ?? "a4")}`,
+      `margin: ${doc.margin ?? "48pt"}`,
+    ];
     if (header) {
       pageArgs.push(`header: [${header}]`);
     }
@@ -406,6 +436,9 @@ export class TypstExporter<
       // is handled inside the figure body (a full-width box), since Typst
       // figures ignore outer/scoped `align`.
       `#set figure(numbering: none)`,
+      // A figure taller than the remaining space moves to the next page whole
+      // instead of being sliced at the page boundary (react-pdf's wrap=false).
+      `#show figure: set block(breakable: false)`,
       // Figure captions: smaller, muted.
       `#show figure.caption: set text(size: 9.6pt, fill: luma(110))`,
       // Links: BlockNote blue.
@@ -428,7 +461,7 @@ export class TypstExporter<
     }
     const blob = await this.resolveFile(url);
     const bytes = new Uint8Array(await blob.arrayBuffer());
-    return this.registerImageBytes(url, bytes, imageExtension(blob.type, url));
+    return this.registerImageBytes(url, bytes);
   }
 
   /**
@@ -436,19 +469,20 @@ export class TypstExporter<
    * virtual path to reference via `image("...")`. Cached per `key` — pass a key
    * that identifies the rendered content (e.g. the source it was rendered
    * from). For images that live at a URL, use {@link registerImage} instead.
-   * The `extension` must match the actual bytes (Typst infers the format from
-   * the path).
+   *
+   * The path carries no file extension on purpose: Typst detects the format
+   * from the bytes when the extension doesn't assert one, and a *wrongly
+   * guessed* known extension (a lying content-type, an extensionless URL) is
+   * the only way to make it misdecode good bytes — while genuinely
+   * undecodable bytes fail the compile with Typst's own error (verified
+   * against the engine).
    */
-  public registerImageBytes(
-    key: string,
-    bytes: Uint8Array,
-    extension: string,
-  ): string {
+  public registerImageBytes(key: string, bytes: Uint8Array): string {
     const cached = this.assets.get(key);
     if (cached) {
       return cached.path;
     }
-    const path = `/assets/asset-${this.assets.size}.${extension}`;
+    const path = `/assets/asset-${this.assets.size}`;
     this.assets.set(key, { path, bytes });
     return path;
   }

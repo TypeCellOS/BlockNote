@@ -1,5 +1,6 @@
-import { testDocumentBlocks } from "../testDocumentBlocks";
+import { testDocumentBlocks } from "./testDocumentBlocks";
 import {
+  Block,
   BlockNoteSchema,
   combineByGroup,
   withPageBreak,
@@ -40,14 +41,18 @@ import {
 import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
 // Bundle BlockNote's fonts (Inter + Geist Mono) + a color emoji font so the
 // export matches the editor and works fully offline. Noto Color Emoji is the
-// pure-COLRv1 build (~5MB), which Typst renders in color.
-import interRegular from "./fonts/Inter_18pt-Regular.ttf?url";
-import interItalic from "./fonts/Inter_18pt-Italic.ttf?url";
-import interBold from "./fonts/Inter_18pt-Bold.ttf?url";
-import interBoldItalic from "./fonts/Inter_18pt-BoldItalic.ttf?url";
-import geistMono from "./fonts/GeistMono-Regular.ttf?url";
-import notoColorEmoji from "./fonts/Noto-COLRv1.ttf?url";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+// pure-COLRv1 build (~5MB), which Typst renders in color. `new URL(...,
+// import.meta.url)` is the bundler-portable asset reference (Vite and the
+// docs site's Turbopack both emit the file and return its URL).
+const fontUrl = (file: string) =>
+  new URL(`./fonts/${file}`, import.meta.url).href;
+const interRegular = fontUrl("Inter_18pt-Regular.ttf");
+const interItalic = fontUrl("Inter_18pt-Italic.ttf");
+const interBold = fontUrl("Inter_18pt-Bold.ttf");
+const interBoldItalic = fontUrl("Inter_18pt-BoldItalic.ttf");
+const geistMono = fontUrl("GeistMono-Regular.ttf");
+const notoColorEmoji = fontUrl("Noto-COLRv1.ttf");
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import "./styles.css";
 
@@ -60,10 +65,14 @@ const BODY_FONT_URLS = [
   interBoldItalic,
   geistMono,
 ];
-const fetchFont = (url: string) =>
-  fetch(url)
-    .then((r) => r.arrayBuffer())
-    .then((b) => new Uint8Array(b));
+async function fetchFont(url: string) {
+  const res = await fetch(url);
+  if (!res.ok) {
+    // A dev server's HTML fallback page must not be loaded as font bytes.
+    throw new Error(`Failed to fetch font ${url}: ${res.status}`);
+  }
+  return new Uint8Array(await res.arrayBuffer());
+}
 
 let fontsPromise:
   | Promise<{ fonts: Uint8Array[]; emojiFont: Uint8Array }>
@@ -74,18 +83,99 @@ function loadFonts() {
       Promise.all(BODY_FONT_URLS.map(fetchFont)),
       fetchFont(notoColorEmoji),
     ]).then(([fonts, emojiFont]) => ({ fonts, emojiFont }));
+    // A transient fetch failure must not poison every later export - clear
+    // the cache so the next export retries.
+    fontsPromise.catch(() => {
+      fontsPromise = undefined;
+    });
   }
   return fontsPromise;
 }
 
-export default function App() {
+/**
+ * Exports the given document to a PDF/UA object URL, re-exporting
+ * (debounced) whenever `blocks` changes.
+ *
+ * The effect-with-cleanup idiom keeps only the newest result: when a newer
+ * version (or unmount) invalidates the effect, the cleanup marks the running
+ * export stale and its result is dropped. Overlapping exports are *safe* -
+ * the exporter serializes its shared compile stage internally - but like any
+ * async calls they may complete out of call order, and which result to
+ * display is this component's concern, not the exporter's.
+ */
+function usePdfUA(
+  exporter: TypstExporter<any, any, any>,
+  blocks: Block<any, any, any>[],
+) {
   const [pdfUrl, setPdfUrl] = useState<string>();
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading",
   );
-  const urlRef = useRef<string | undefined>(undefined);
-  const debounce = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const isFirstExport = useRef(true);
 
+  useEffect(() => {
+    let stale = false;
+    setStatus("loading");
+    // Debounce edits; the initial export runs immediately.
+    const delay = isFirstExport.current ? 0 : 600;
+    isFirstExport.current = false;
+    const timer = setTimeout(async () => {
+      try {
+        const { fonts, emojiFont } = await loadFonts();
+        const bytes = await blocksToPdfUA(
+          exporter,
+          blocks,
+          {
+            getModule: () => compilerWasmUrl,
+            fonts,
+            emojiFont,
+            preloadDefaultFonts: false,
+          },
+          { title: "BlockNote document", lang: "en" },
+        );
+        if (stale) {
+          return;
+        }
+        setPdfUrl(
+          URL.createObjectURL(
+            // @cantoo/pdf-lib always returns a view over a plain
+            // (non-shared) buffer; the cast narrows `ArrayBufferLike` for
+            // `BlobPart`.
+            new Blob([bytes as Uint8Array<ArrayBuffer>], {
+              type: "application/pdf",
+            }),
+          ),
+        );
+        setStatus("ready");
+      } catch (e) {
+        if (stale) {
+          return;
+        }
+        // eslint-disable-next-line no-console
+        console.error(e);
+        setStatus("error");
+      }
+    }, delay);
+    return () => {
+      stale = true;
+      clearTimeout(timer);
+    };
+  }, [exporter, blocks]);
+
+  // Each object URL is revoked when replaced by the next one (and the last
+  // one on unmount).
+  useEffect(() => {
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [pdfUrl]);
+
+  return { pdfUrl, status };
+}
+
+export default function App() {
   // Creates a new editor instance with support for page breaks.
   const editor = useCreateBlockNote({
     // Adds support for math & diagram blocks.
@@ -156,11 +246,11 @@ export default function App() {
     [editor],
   );
 
-  // Exports the editor document to a PDF/UA-1 file (Typst wasm + post-process).
-  const exportPdf = useCallback(async () => {
-    setStatus("loading");
-    try {
-      const exporter = new TypstExporter(
+  // The exporter is reused across exports so its image/diagram asset cache
+  // survives re-exports (the schema, mappings and options are all static).
+  const exporter = useMemo(
+    () =>
+      new TypstExporter(
         editor.schema,
         {
           ...typstDefaultSchemaMappings,
@@ -179,62 +269,24 @@ export default function App() {
         // Noto Color Emoji is the internal family name of the bundled emoji
         // font; listing it lets ZWJ emoji (e.g. 🚶‍♀️) shape correctly.
         { emojiFontFamily: "Noto Color Emoji" },
-      );
-      const { fonts, emojiFont } = await loadFonts();
-      const bytes = await blocksToPdfUA(
-        exporter,
-        editor.document,
-        {
-          getModule: () => compilerWasmUrl,
-          fonts,
-          emojiFont,
-          preloadDefaultFonts: false,
-        },
-        { title: "BlockNote document", lang: "en" },
-      );
-      const url = URL.createObjectURL(
-        // @cantoo/pdf-lib always returns a view over a plain (non-shared)
-        // buffer; the cast narrows `ArrayBufferLike` for `BlobPart`.
-        new Blob([bytes as Uint8Array<ArrayBuffer>], {
-          type: "application/pdf",
-        }),
-      );
-      if (urlRef.current) {
-        URL.revokeObjectURL(urlRef.current);
-      }
-      urlRef.current = url;
-      setPdfUrl(url);
-      setStatus("ready");
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
-      setStatus("error");
-    }
-  }, [editor]);
+      ),
+    [editor],
+  );
 
-  // Export on mount, and clean up the object URL on unmount.
-  useEffect(() => {
-    void exportPdf();
-    return () => {
-      if (urlRef.current) {
-        URL.revokeObjectURL(urlRef.current);
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // The document snapshot driving the export - updated on every change, so
+  // the export effect depends on the data it exports.
+  const [blocks, setBlocks] = useState(() => editor.document);
+  const { pdfUrl, status } = usePdfUA(exporter, blocks);
 
-  // Re-export (debounced) whenever the document changes.
-  const onChange = () => {
-    clearTimeout(debounce.current);
-    debounce.current = setTimeout(() => void exportPdf(), 600);
-  };
+  // Re-export whenever the document changes (debounced inside the hook).
+  const onChange = () => setBlocks(editor.document);
 
   const onDownloadClick = () => {
-    if (!urlRef.current) {
+    if (!pdfUrl) {
       return;
     }
     const link = document.createElement("a");
-    link.href = urlRef.current;
+    link.href = pdfUrl;
     link.download = "blocknote (pdf-ua).pdf";
     document.body.appendChild(link);
     link.click();

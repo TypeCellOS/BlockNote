@@ -1,6 +1,9 @@
 import { withSentryConfig } from "@sentry/nextjs";
 import { createMDX } from "fumadocs-mdx/next";
 import { NextConfig } from "next";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
 import { redirects } from "./redirects";
 
 const withMDX = createMDX();
@@ -17,6 +20,42 @@ const config = {
     useTypeScriptCli: true,
   },
   redirects,
+  // `next build` runs Turbopack; the demo examples are written for Vite, so
+  // give their `?url` asset imports (fonts, the Typst compiler wasm) the
+  // same URL-string semantics here, and stub the compiler's optional
+  // canvas-renderer peer (the pdf-ua demo only compiles, never renders to
+  // canvas, so the peer isn't installed).
+  turbopack: {
+    resolveAlias: {
+      "@myriaddreamin/typst-ts-renderer": "./components/typstRendererStub.ts",
+      "@myriaddreamin/typst-ts-web-compiler/wasm":
+        "./components/typstCompilerWasmUrl.ts",
+      "@myriaddreamin/typst-ts-web-compiler/wasm?url":
+        "./components/typstCompilerWasmUrl.ts",
+    },
+  },
+  webpack: (webpackConfig) => {
+    // The generated example demos are written for Vite, where `?url` asset
+    // imports (fonts, the Typst compiler wasm) resolve to a URL string. Give
+    // webpack the same semantics so those demos compile here too.
+    webpackConfig.module.rules.push({
+      resourceQuery: /^\?url$/,
+      type: "asset/resource",
+    });
+    webpackConfig.resolve.alias = {
+      ...webpackConfig.resolve.alias,
+      // The Typst compiler package's canvas-renderer entry dynamically
+      // imports this optional peer; the pdf-ua demo only compiles (never
+      // renders to canvas), so it isn't installed - stub it out rather than
+      // letting webpack's static resolution fail the build.
+      "@myriaddreamin/typst-ts-renderer": false,
+      // Resolve the compiler's `./wasm` exports subpath to the file
+      // directly - webpack fails to resolve the subpath from the demo tree.
+      "@myriaddreamin/typst-ts-web-compiler/wasm":
+        require.resolve("@myriaddreamin/typst-ts-web-compiler/wasm"),
+    };
+    return webpackConfig;
+  },
   images: {
     remotePatterns: [
       {

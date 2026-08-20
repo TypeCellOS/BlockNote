@@ -49,6 +49,14 @@ function getSnapshotOptions() {
 export async function toMatchBinaryFileSnapshot(
   buffer: Buffer,
   filepath: string,
+  options: {
+    /**
+     * On a mismatch that fails the test, also write the received bytes next
+     * to the baseline (as `<name>.actual.<ext>`) so they can be inspected /
+     * diffed - useful for image snapshots.
+     */
+    writeActualOnMismatch?: boolean;
+  } = {},
 ) {
   const fileBuffer = fs.existsSync(filepath)
     ? fs.readFileSync(filepath)
@@ -63,6 +71,9 @@ export async function toMatchBinaryFileSnapshot(
   }
 
   if (option === "none" || (option === "new" && fileBuffer !== undefined)) {
+    if (options.writeActualOnMismatch) {
+      fs.writeFileSync(filepath.replace(/(\.[^.]+)$/, ".actual$1"), buffer);
+    }
     throw new Error(`${filepath} not matching `);
   }
 

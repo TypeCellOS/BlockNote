@@ -4,7 +4,7 @@ import {
   SourceBlockWithPreview,
 } from "@blocknote/react";
 import mermaid from "mermaid";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SiMermaid } from "react-icons/si";
 
 import { plainContentToString } from "@blocknote/core";
@@ -77,10 +77,16 @@ export const DiagramBlockPreviewWithPopup = (
   const source = plainContentToString(props.block.content).trim();
   // The editor's computed font (themeable via CSS), so diagrams match the
   // document they live in - the block renders inside the editor, so the
-  // element is mounted by the time this renders.
-  const fontFamily = props.editor.domElement
-    ? getComputedStyle(props.editor.domElement).fontFamily
-    : undefined;
+  // element is mounted by the time this renders. Memoized: getComputedStyle
+  // forces style work, and block components re-render on every editor
+  // update.
+  const fontFamily = useMemo(
+    () =>
+      props.editor.domElement
+        ? getComputedStyle(props.editor.domElement).fontFamily
+        : undefined,
+    [props.editor.domElement],
+  );
   const { svg, error } = useMermaidSVG(source, fontFamily);
   const dict = getDiagramDictionary(props.editor).block;
 

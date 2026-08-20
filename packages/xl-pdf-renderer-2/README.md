@@ -88,11 +88,42 @@ new TypstExporter(schema, {
 });
 ```
 
+Known limitation: the LaTeX-to-Typst translation (`tex2typst`) does not cover
+every valid KaTeX command — an untranslatable command (e.g. `\coloneqq`,
+`\xrightarrow{f}`, `\stackrel`, `\phantom`) passes the mapping's KaTeX
+validation but fails the Typst compile with an "unknown variable" error,
+failing the export. This is deliberate: only _invalid_ input degrades to a
+placeholder; a valid formula the pipeline cannot render must fail loudly
+rather than silently export something else.
+
+Alternatives measured (32-command KaTeX corpus, output compiled standalone):
+`tex2typst` 28/32; `mitex-wasm` 14/32 — mitex's output presumes its Typst
+package's prelude of shim definitions (even `pmatrix`/`cases`/`\text` fail
+without it), so using it at mapping time means shipping and version-pinning
+that prelude into every document, and using it as a Typst package means
+registry access plus a wasm-in-wasm plugin runtime in the browser compiler.
+`tylax` is a Rust CLI/library (no npm artifact) aimed at whole-document
+conversion. `tex2typst` is also the most recently maintained of the three.
+
 ### CJK / additional scripts
 
 Like the react-pdf exporter's `fonts` + `fontFamily` options: load the extra
 font's bytes via the compile options' `fonts`, and declare the fallback list on
 the exporter — `fontFamily: ["Inter 18pt", "Noto Sans SC"]`.
+
+### Error handling
+
+Following the repo's error conventions (AGENTS.md): failures in _user input_
+(LaTeX or Mermaid source that doesn't parse) render the editor-style grey
+placeholder; _environment_ failures fail the export loudly — an image URL that
+can't be resolved rejects `toTypst`, and a Typst compile error rejects
+`blocksToPdfUA` — rather than silently degrading the document.
+
+The wasm compiler is a page-level singleton: its wasm module and fonts load on
+the first compile, later compiles reuse them, and a call that tries to change
+them throws. Pass every font the page will need on the first
+`compileTypstToTaggedPdf`/`blocksToPdfUA` call, reusing the same byte arrays
+across calls. Concurrent compiles are serialized internally.
 
 ## PDF/UA notes
 
@@ -123,6 +154,11 @@ Done: real image embedding (`resolveFile` → shadow files), table header rows �
 - [ ] `alt` field on image/file/video blocks
       ([#2853](https://github.com/TypeCellOS/BlockNote/issues/2853)) — until
       then caption/name is the alt fallback
+- [ ] Heading-hierarchy conformance: PDF/UA-1 requires the document's first
+      heading to be level 1 (Typst's own `ua-1` validation enforces it). A
+      BlockNote document starting at H2 still compiles through the browser
+      pipeline but the declared PDF is non-conformant — either normalize
+      heading levels on export or surface it to the caller
 - [ ] Bundle/standardize default + emoji fonts for turnkey browser use
 - [ ] Native `--pdf-standard ua-1` once the _web_ compiler exposes it (the node
       compiler already does — `pdfStandard: "ua-1"` — which would make

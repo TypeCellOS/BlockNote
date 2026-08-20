@@ -3,20 +3,16 @@ import {
   createPageBreakBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
+import { PDFDict, PDFDocument, PDFName } from "@cantoo/pdf-lib";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { testDocument } from "@shared/testDocument.js";
+import { toMatchBinaryFileSnapshot } from "@shared/util/binaryFileSnapshotUtil.js";
+import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
+import { compileTypstForTesting } from "@shared/util/typstTestUtil.js";
 import { execFileSync } from "node:child_process";
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
-import { PDFDict, PDFDocument, PDFName } from "@cantoo/pdf-lib";
+import { join, resolve } from "node:path";
 import { beforeAll, describe, expect, it } from "vite-plus/test";
 import { typstDefaultSchemaMappings } from "../typst/defaultSchema/index.js";
 import { TypstExporter } from "../typst/typstExporter.js";
@@ -38,18 +34,25 @@ function fontBlobs(): Buffer[] {
   return paths.map((p) => Buffer.from(readFileSync(resolve(process.cwd(), p))));
 }
 
-// A deterministic 1×1 grey PNG, returned for every image URL so the compiled
-// output (its veraPDF verdict and visual snapshot) doesn't depend on network
-// image fetches. Real image fetching/embedding is covered by typstExporter.test.
-const STUB_IMAGE =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==";
-
-function veraPdfVerdict(pdf: Uint8Array): string | undefined {
+// These tests are gates, and a gate whose tooling is missing must fail
+// loudly - a silent pass would report conformance/visual coverage that was
+// never checked.
+function requireTool(command: string, args: string[], installHint: string) {
   try {
-    execFileSync("verapdf", ["--version"], { stdio: "ignore" });
+    execFileSync(command, args, { stdio: "ignore" });
   } catch {
-    return undefined; // veraPDF not installed -> skip the conformance gate
+    throw new Error(
+      `\`${command}\` is required by this test but not on PATH. ${installHint}`,
+    );
   }
+}
+
+function veraPdfVerdict(pdf: Uint8Array): string {
+  requireTool(
+    "verapdf",
+    ["--version"],
+    "Install veraPDF (https://verapdf.org) - it is the PDF/UA conformance gate.",
+  );
   const dir = mkdtempSync(join(tmpdir(), "pdfua-"));
   const file = join(dir, "out.pdf");
   writeFileSync(file, pdf);
@@ -63,18 +66,9 @@ function veraPdfVerdict(pdf: Uint8Array): string | undefined {
   }
 }
 
-function pdftoppmAvailable(): boolean {
-  try {
-    execFileSync("pdftoppm", ["-v"], { stdio: "ignore" });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// Compiles the shared test document once (with deterministic stub images), then
-// asserts both PDF/UA-1 conformance and a per-page visual snapshot off the same
-// render.
+// Compiles the shared test document once (with the network-free test image
+// resolver), then asserts both PDF/UA-1 conformance and a per-page visual
+// snapshot off the same render.
 describe("pdf/ua-1: BlockNote -> Typst -> PDF (conformance + visual)", () => {
   let tagged: Buffer;
   let ua: Uint8Array;
@@ -91,10 +85,11 @@ describe("pdf/ua-1: BlockNote -> Typst -> PDF (conformance + visual)", () => {
       }),
       typstDefaultSchemaMappings,
       // List the color emoji font explicitly so ZWJ emoji shape correctly (the
-      // font bytes are loaded via fontBlobs()); stub images for determinism.
+      // font bytes are loaded via fontBlobs()); the shared test resolver keeps
+      // the render deterministic and network-free.
       {
         emojiFontFamily: "Noto Color Emoji",
-        resolveFileUrl: async () => STUB_IMAGE,
+        resolveFileUrl: testResolveFileUrl,
       },
     );
     const typ = await exporter.toTypst(testDocument, {
@@ -103,27 +98,13 @@ describe("pdf/ua-1: BlockNote -> Typst -> PDF (conformance + visual)", () => {
       author: "BlockNote",
     });
 
-    // Compile to a *tagged* PDF (no UA flag), mirroring the browser path. The
-    // collected images are mapped into the compiler's virtual filesystem. The
-    // node compiler resolves a project-absolute Typst path (`/assets/..`) against
-    // the cwd, so key the shadow by that resolved absolute path. (The browser
-    // path in `compileBrowser.ts` uses the `/assets/..` virtual path directly.)
-    const { NodeCompiler } =
-      await import("@myriaddreamin/typst-ts-node-compiler");
-    const compiler = NodeCompiler.create({
-      fontArgs: [{ fontBlobs: fontBlobs() }],
-    });
-    for (const [path, bytes] of exporter.assetFiles) {
-      compiler.mapShadow(
-        resolve(process.cwd(), path.replace(/^\/+/, "")),
-        Buffer.from(bytes),
-      );
-    }
+    // Compile to a *tagged* PDF (no UA flag), mirroring the browser path.
     tagged = Buffer.from(
-      compiler.pdf(
-        { mainFileContent: typ },
-        { creationTimestamp: 1_700_000_000 },
-      ),
+      await compileTypstForTesting(typ, {
+        assets: exporter.assetFiles,
+        fontBlobs: fontBlobs(),
+        creationTimestamp: 1_700_000_000,
+      }),
     );
     // Declare PDF/UA-1 via our post-process.
     ua = await declarePdfUA(new Uint8Array(tagged));
@@ -136,19 +117,18 @@ describe("pdf/ua-1: BlockNote -> Typst -> PDF (conformance + visual)", () => {
     const vp = doc.catalog.lookup(PDFName.of("ViewerPreferences"), PDFDict);
     expect(String(vp!.get(PDFName.of("DisplayDocTitle")))).toBe("true");
 
-    // Full conformance gate when veraPDF is available.
+    // Full conformance gate.
     const verdict = veraPdfVerdict(ua);
-    if (verdict !== undefined) {
-      expect(verdict).toContain('isCompliant="true"');
-      expect(verdict).toContain('failedChecks="0"');
-    }
+    expect(verdict).toContain('isCompliant="true"');
+    expect(verdict).toContain('failedChecks="0"');
   });
 
-  it("matches the per-page visual snapshot", () => {
-    // Visual snapshots need a PDF rasterizer; skip cleanly where it's absent.
-    if (!pdftoppmAvailable()) {
-      return;
-    }
+  it("matches the per-page visual snapshot", async () => {
+    requireTool(
+      "pdftoppm",
+      ["-v"],
+      "Install poppler (`brew install poppler` / `apt install poppler-utils`) - it rasterizes the visual snapshots.",
+    );
     const dir = mkdtempSync(join(tmpdir(), "bn-visual-"));
     writeFileSync(join(dir, "doc.pdf"), tagged);
     execFileSync("pdftoppm", [
@@ -163,34 +143,17 @@ describe("pdf/ua-1: BlockNote -> Typst -> PDF (conformance + visual)", () => {
       .sort();
     expect(pages.length).toBeGreaterThan(0);
 
-    // Compare each page against its committed baseline PNG. `-u` (or a missing
-    // baseline) writes the image; otherwise a byte mismatch fails the test and
-    // dumps an `.actual.png` next to the baseline for inspection.
-    const update =
-      (
-        expect.getState() as unknown as {
-          snapshotState?: { _updateSnapshot?: string };
-        }
-      ).snapshotState?._updateSnapshot ?? "new";
+    // Compare each page against its committed baseline PNG; on mismatch the
+    // received render is dumped next to the baseline for inspection.
     for (let i = 0; i < pages.length; i++) {
-      const png = readFileSync(join(dir, pages[i]));
-      const snap = resolve(
-        process.cwd(),
-        `src/pdfua/__snapshots__/render/testDocument-${i + 1}.png`,
+      await toMatchBinaryFileSnapshot(
+        readFileSync(join(dir, pages[i])),
+        resolve(
+          process.cwd(),
+          `src/pdfua/__snapshots__/render/testDocument-${i + 1}.png`,
+        ),
+        { writeActualOnMismatch: true },
       );
-      if (!existsSync(snap) || update === "all") {
-        mkdirSync(dirname(snap), { recursive: true });
-        writeFileSync(snap, png);
-        continue;
-      }
-      const baseline = readFileSync(snap);
-      if (!png.equals(baseline)) {
-        writeFileSync(snap.replace(/\.png$/, ".actual.png"), png);
-      }
-      expect(
-        png.equals(baseline),
-        `page ${i + 1} render differs from baseline (see .actual.png)`,
-      ).toBe(true);
     }
   });
 });

@@ -6377,6 +6377,9 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: workspace:^
         version: link:../packages/xl-pdf-exporter
+      '@blocknote/xl-pdf-renderer-2':
+        specifier: workspace:^
+        version: link:../packages/xl-pdf-renderer-2
       '@emotion/react':
         specifier: 11.14.0
         version: 11.14.0(@types/react@19.2.14)(react@19.2.5)
@@ -6410,6 +6413,9 @@ importers:
       '@mui/material':
         specifier: ^5.18.0
         version: 5.18.0(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@myriaddreamin/typst-ts-web-compiler':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3
       '@react-pdf/math':
         specifier: ^2.0.1
         version: 2.0.1(@react-pdf/renderer@4.5.1(react@19.2.5))(react@19.2.5)
@@ -6473,6 +6479,9 @@ importers:
       react-router-dom:
         specifier: ^6.30.1
         version: 6.30.3(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      tex2typst:
+        specifier: ^0.6.2
+        version: 0.6.2
       y-partykit:
         specifier: ^0.0.25
         version: 0.0.25
@@ -6520,6 +6529,9 @@ importers:
         specifier: ^0.2.1
         version: 0.2.2
     devDependencies:
+      '@myriaddreamin/typst-ts-node-compiler':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0
@@ -6572,6 +6584,12 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: workspace:^
         version: link:../packages/xl-pdf-exporter
+      '@blocknote/xl-pdf-renderer-2':
+        specifier: workspace:^
+        version: link:../packages/xl-pdf-renderer-2
+      '@myriaddreamin/typst-ts-web-compiler':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0

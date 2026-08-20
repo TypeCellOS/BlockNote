@@ -6,6 +6,8 @@ import {
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 import { testDocument } from "@shared/testDocument.js";
+import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
+import { compileTypstForTesting } from "@shared/util/typstTestUtil.js";
 import { describe, expect, it } from "vite-plus/test";
 import { typstDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { TypstExporter } from "./typstExporter.js";
@@ -29,12 +31,14 @@ const fullSchema = BlockNoteSchema.create({
 
 describe("TypstExporter", () => {
   it("exports a real BlockNote document to Typst", async () => {
-    // fullSchema (incl. multi-column) matches the shared testDocument. Resolves
-    // the document's images over the network, like the other exporters.
-    // emojiFontFamily matches the example + pdfua.test, so the snapshot
-    // exercises the explicit emoji-font fallback (needed for ZWJ emoji).
+    // fullSchema (incl. multi-column) matches the shared testDocument. The
+    // document's images resolve through the network-free test resolver, like
+    // the other exporters' tests. emojiFontFamily matches the example +
+    // pdfua.test, so the snapshot exercises the explicit emoji-font fallback
+    // (needed for ZWJ emoji).
     const exporter = new TypstExporter(fullSchema, typstDefaultSchemaMappings, {
       emojiFontFamily: "Noto Color Emoji",
+      resolveFileUrl: testResolveFileUrl,
     });
 
     const typ = await exporter.toTypst(testDocument, {
@@ -92,7 +96,13 @@ describe("TypstExporter", () => {
       partialBlocksToBlocksForTesting(schema, [
         { type: "paragraph", content: "x" },
       ]),
-      { title: "My Report", author: "Jane Doe", lang: "fr" },
+      {
+        title: "My Report",
+        author: "Jane Doe",
+        lang: "fr",
+        paper: "us-letter",
+        margin: "2cm",
+      },
     );
 
     expect(typ).toContain(
@@ -102,6 +112,7 @@ describe("TypstExporter", () => {
       '#set text(font: "Times New Roman", size: 14pt, lang: "fr")',
     );
     expect(typ).toContain('#show raw: set text(font: "Courier New")');
+    expect(typ).toContain('#set page(paper: "us-letter", margin: 2cm)');
   });
 
   it("escapes Typst-significant characters in text content", async () => {
@@ -153,8 +164,9 @@ describe("TypstExporter", () => {
   });
 
   it("embeds a resolved image as a Typst image() shadow file", async () => {
-    // Fetches the image for real (no local resolver), like the other exporters.
-    const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
+    const exporter = new TypstExporter(schema, typstDefaultSchemaMappings, {
+      resolveFileUrl: testResolveFileUrl,
+    });
 
     const typ = await exporter.toTypst(
       partialBlocksToBlocksForTesting(schema, [
@@ -170,32 +182,109 @@ describe("TypstExporter", () => {
     );
 
     // Real image, not the placeholder rectangle. previewWidth 100px -> 75pt.
+    // Asset paths are extension-less: Typst detects the format from the
+    // bytes (see registerImageBytes).
     expect(typ).toContain(
-      '#figure(image("/assets/asset-0.png", width: 75.0pt), caption: [#"Cap"], alt: "Cap")',
+      '#figure(image("/assets/asset-0", width: 75.0pt), caption: [#"Cap"], alt: "Cap")',
     );
     // ...and its bytes are collected for the compiler.
-    const asset = exporter.assetFiles.get("/assets/asset-0.png");
+    const asset = exporter.assetFiles.get("/assets/asset-0");
     expect(asset).toBeInstanceOf(Uint8Array);
     expect(asset!.byteLength).toBeGreaterThan(0);
   });
 
-  // TODO: review
-  it("falls back to a placeholder figure when an image can't be resolved", async () => {
+  it("fails the export when an image can't be resolved", async () => {
+    // An unreachable image is an environment failure, not expected input -
+    // the export fails loudly instead of silently degrading the document
+    // (see the error-handling conventions in AGENTS.md).
     const exporter = new TypstExporter(schema, typstDefaultSchemaMappings, {
-      // TODO: review
       resolveFileUrl: async () => {
         throw new Error("offline");
       },
     });
 
+    await expect(
+      exporter.toTypst(
+        partialBlocksToBlocksForTesting(schema, [
+          { type: "image", props: { url: "https://example.com/x.png" } },
+        ]),
+      ),
+    ).rejects.toThrow("offline");
+  });
+
+  it(
+    "spans merged table cells and emits a single multi-row header",
+    { timeout: 20000 },
+    async () => {
+      const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
+
+      const typ = await exporter.toTypst(
+        partialBlocksToBlocksForTesting(schema, [
+          {
+            type: "table",
+            content: {
+              type: "tableContent",
+              headerRows: 2,
+              // Explicit widths for both tracks: the test-fixture converter
+              // would otherwise derive the column count from the first row's
+              // cell count, which a merged first-row cell undercounts (the
+              // editor always stores full-length columnWidths).
+              columnWidths: [100, 100],
+              rows: [
+                {
+                  cells: [
+                    {
+                      type: "tableCell",
+                      content: "Wide header",
+                      props: { colspan: 2 },
+                    },
+                  ],
+                },
+                { cells: ["H1", "H2"] },
+                {
+                  // Homogeneous cells: a row is either all inline content or
+                  // all tableCell objects (see PartialTableContent).
+                  cells: [
+                    {
+                      type: "tableCell",
+                      content: "Tall",
+                      props: { rowspan: 2 },
+                    },
+                    { type: "tableCell", content: "B1" },
+                  ],
+                },
+                { cells: ["B2"] },
+              ],
+            },
+          },
+        ]),
+      );
+
+      // Merged cells span their tracks, so following cells stay in the right
+      // columns...
+      expect(typ).toContain("colspan: 2");
+      expect(typ).toContain("rowspan: 2");
+      // ...and both header rows live in ONE table.header - Typst rejects a
+      // table with more than one.
+      expect(typ.match(/table\.header\(/g)).toHaveLength(1);
+      const pdf = await compileTypstForTesting(typ);
+      expect(pdf.length).toBeGreaterThan(0);
+    },
+  );
+
+  it("renders a placeholder figure for an image without a URL", async () => {
+    const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
+
     const typ = await exporter.toTypst(
       partialBlocksToBlocksForTesting(schema, [
-        { type: "image", props: { url: "https://example.com/x.png" } },
+        { type: "image", props: { caption: "Later" } },
       ]),
     );
 
+    // Nothing to embed yet - a placeholder rectangle in a Figure that still
+    // carries alt text (PDF/UA requires one on every figure).
     expect(typ).toContain("#figure(rect(");
-    expect(typ).toContain('alt: "https://example.com/x.png"');
+    expect(typ).toContain('alt: "Later"');
     expect(exporter.assetFiles.size).toBe(0);
   });
 });

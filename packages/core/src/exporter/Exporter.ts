@@ -93,8 +93,10 @@ export abstract class Exporter<
   /**
    * Fetch a URL as a Blob, throwing a clear error on a non-OK response. Without
    * this an error page (404 / rate-limit / proxy failure) would be returned as
-   * the file's bytes and silently embedded as a corrupt image; callers can catch
-   * this to fall back (e.g. to a placeholder).
+   * the file's bytes and silently embedded as a corrupt image. An unreachable
+   * file is an environment failure, not expected input, so it fails the export
+   * loudly (see the error-handling conventions in AGENTS.md) rather than
+   * degrading the document silently.
    */
   private async fetchBlob(url: string): Promise<Blob> {
     const res = await fetch(url);

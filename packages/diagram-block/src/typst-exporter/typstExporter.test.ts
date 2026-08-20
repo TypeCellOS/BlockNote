@@ -1,10 +1,9 @@
-import { resolve } from "node:path";
-
 import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import {
   TypstExporter,
   typstDefaultSchemaMappings,
 } from "@blocknote/xl-pdf-renderer-2";
+import { compileTypstForTesting } from "@shared/util/typstTestUtil.js";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
@@ -51,28 +50,16 @@ describe("typst exporter mappings", () => {
 
       // The rendered image is registered as a compiler asset.
       const assets = exporter.assetFiles;
-      expect([...assets.keys()]).toEqual(["/assets/asset-0.png"]);
+      expect([...assets.keys()]).toEqual(["/assets/asset-0"]);
 
       // Compile under Typst's own PDF/UA-1 validation - it *errors* on
       // figures without alt text, so this proves the mapping's figures stay
       // UA-conformant end-to-end.
-      const { NodeCompiler } =
-        await import("@myriaddreamin/typst-ts-node-compiler");
-      const compiler = NodeCompiler.create();
-      for (const [path, bytes] of assets) {
-        // The node compiler resolves a project-absolute Typst path
-        // (`/assets/..`) against the cwd, so key the shadow by that resolved
-        // absolute path (mirroring the xl-pdf-renderer-2 tests).
-        compiler.mapShadow(
-          resolve(process.cwd(), path.replace(/^\/+/, "")),
-          Buffer.from(bytes),
-        );
-      }
-      const pdf = compiler.pdf(
-        { mainFileContent: typst },
-        { pdfStandard: "ua-1" },
-      );
-      expect(pdf?.length).toBeGreaterThan(0);
+      const pdf = await compileTypstForTesting(typst, {
+        assets,
+        pdfStandard: "ua-1",
+      });
+      expect(pdf.length).toBeGreaterThan(0);
     },
   );
 
@@ -89,23 +76,14 @@ describe("typst exporter mappings", () => {
       });
 
       const assets = exporter.assetFiles;
-      expect([...assets.keys()]).toEqual(["/assets/asset-0.svg"]);
-      expect(typst).toContain('image("/assets/asset-0.svg"');
+      expect([...assets.keys()]).toEqual(["/assets/asset-0"]);
+      expect(typst).toContain('image("/assets/asset-0"');
 
-      const { NodeCompiler } =
-        await import("@myriaddreamin/typst-ts-node-compiler");
-      const compiler = NodeCompiler.create();
-      for (const [path, bytes] of assets) {
-        compiler.mapShadow(
-          resolve(process.cwd(), path.replace(/^\/+/, "")),
-          Buffer.from(bytes),
-        );
-      }
-      const pdf = compiler.pdf(
-        { mainFileContent: typst },
-        { pdfStandard: "ua-1" },
-      );
-      expect(pdf?.length).toBeGreaterThan(0);
+      const pdf = await compileTypstForTesting(typst, {
+        assets,
+        pdfStandard: "ua-1",
+      });
+      expect(pdf.length).toBeGreaterThan(0);
     },
   );
 

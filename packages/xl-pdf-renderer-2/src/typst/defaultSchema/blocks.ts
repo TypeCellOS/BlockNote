@@ -4,30 +4,37 @@ import {
   DefaultBlockSchema,
   mapTableCell,
   StyledText,
+  TableContent,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
 import type { TypstExporter } from "../typstExporter.js";
 import { colorHex, joinInline, PT, strLit, TOGGLE_CHEVRON } from "../util.js";
 
+/** The props the media helpers read - a structural subset of the default
+ * file-block props (the mapping's `BlockMapping` typing checks call sites). */
+type MediaProps = {
+  url?: string;
+  caption?: string;
+  name?: string;
+  previewWidth?: number;
+  textAlignment?: string;
+};
+
 /** Figure width from a media block's `previewWidth` (px -> pt), else 80%. */
-function figureWidth(props: any): string {
-  return props?.previewWidth
+function figureWidth(props: MediaProps): string {
+  return props.previewWidth
     ? `${(props.previewWidth * PT).toFixed(1)}pt`
     : "80%";
 }
 
 /**
- * Render a media block (video/audio/file, or an image we couldn't resolve) as a
- * tagged Figure with a placeholder body + non-empty Alt text. PDF/UA requires
- * every figure to have alt text, so we always fall back to a non-empty label.
- *
- * These media types have no raster to embed (Typst is a document, not a player),
- * so a drawn rectangle stands in for them. Images are embedded for real — see
- * {@link imageFigure}.
+ * Render an image block that has no URL yet (nothing to embed) as a tagged
+ * Figure with a placeholder body. PDF/UA requires every figure to have
+ * non-empty alt text, so the caption/name fall back to a fixed label.
  */
-function mediaFigure(props: any, fallbackAlt: string): string {
-  const caption: string | undefined = props?.caption;
-  const alt = caption || props?.name || props?.url || fallbackAlt;
+function imagePlaceholderFigure(props: MediaProps): string {
+  const caption = props.caption;
+  const alt = caption || props.name || "Image";
   const captionArg = caption ? `, caption: [#${strLit(caption)}]` : "";
   return `#figure(rect(width: ${figureWidth(props)}, height: 3cm, fill: luma(235), stroke: 0.5pt + luma(180))${captionArg}, alt: ${strLit(alt)})`;
 }
@@ -38,10 +45,8 @@ function mediaFigure(props: any, fallbackAlt: string): string {
  * exporter), which show an "Open …" link rather than the media itself. A link
  * with descriptive text is also better for PDF/UA than a blank rectangle.
  */
-function mediaLink(props: any, fallback: string): string {
-  const url: string | undefined = props?.url;
-  const caption: string | undefined = props?.caption;
-  const name: string | undefined = props?.name;
+function mediaLink(props: MediaProps, fallback: string): string {
+  const { url, caption, name } = props;
   const label = name || fallback;
   const main = url
     ? `#link(${strLit(url)})[#${strLit(label)}]`
@@ -54,35 +59,32 @@ function mediaLink(props: any, fallback: string): string {
 }
 
 /**
- * Render an image block as a tagged Figure containing the *real* embedded image.
- * The bytes are resolved + registered as a Typst shadow file by the exporter and
- * referenced here by virtual path. Falls back to a placeholder rectangle if the
- * file can't be resolved (offline, bad URL, no resolver).
+ * Render an image block as a tagged Figure containing the *real* embedded
+ * image. The bytes are resolved + registered as a Typst shadow file by the
+ * exporter and referenced here by virtual path. A URL that fails to resolve
+ * is an environment failure and fails the export loudly (the throw from
+ * `resolveFile` propagates) — see the error-handling conventions in
+ * AGENTS.md; only an image with no URL at all renders a placeholder.
  */
 async function imageFigure(
-  props: any,
+  props: MediaProps,
   exporter: TypstExporter<any, any, any>,
 ): Promise<string> {
-  const url: string | undefined = props?.url;
-  const caption: string | undefined = props?.caption;
-  const alt = caption || props?.name || url || "Image";
-  if (url) {
-    try {
-      const path = await exporter.registerImage(url);
-      const captionArg = caption ? `, caption: [#${strLit(caption)}]` : "";
-      // Typst figures ignore an *outer* `align`; the mechanism that works
-      // (typst PR #4276) is `show figure: set align(...)`, scoped per image —
-      // this aligns the image and its caption together, defaulting to left.
-      const a = props?.textAlignment;
-      const align = a === "center" || a === "right" ? a : "left";
-      return `#[#show figure: set align(${align}); #figure(image(${strLit(
-        path,
-      )}, width: ${figureWidth(props)})${captionArg}, alt: ${strLit(alt)})]`;
-    } catch {
-      // fall through to the placeholder if the image can't be resolved
-    }
+  const { url, caption } = props;
+  if (!url) {
+    return imagePlaceholderFigure(props);
   }
-  return mediaFigure(props, "Image");
+  const alt = caption || props.name || url;
+  const path = await exporter.registerImage(url);
+  const captionArg = caption ? `, caption: [#${strLit(caption)}]` : "";
+  // Typst figures ignore an *outer* `align`; the mechanism that works
+  // (typst PR #4276) is `show figure: set align(...)`, scoped per image —
+  // this aligns the image and its caption together, defaulting to left.
+  const a = props.textAlignment;
+  const align = a === "center" || a === "right" ? a : "left";
+  return `#[#show figure: set align(${align}); #figure(image(${strLit(
+    path,
+  )}, width: ${figureWidth(props)})${captionArg}, alt: ${strLit(alt)})]`;
 }
 
 export const typstBlockMappingForDefaultSchema: BlockMapping<
@@ -122,7 +124,7 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
     const text = (block.content as StyledText<any>[])
       .map((c) => c.text)
       .join("");
-    const lang = (block.props as any)?.language || "";
+    const lang = block.props.language || "";
     return `#raw(${strLit(text)}, block: true, lang: ${strLit(lang)})`;
   },
 
@@ -148,9 +150,14 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
 
   // --- table -> Table > TR > (TH|TD) -----------------------------------------
   table: (block, exporter) => {
-    const data: any = block.content;
-    const rows: any[] = data.rows ?? [];
-    const ncol = data.columnWidths?.length || rows[0]?.cells.length || 1;
+    const data = block.content as TableContent<any, any>;
+    const rows = data.rows ?? [];
+    // The track count must count *spanned* tracks, not cells - a merged
+    // first-row cell covers several columns.
+    const rowSpanWidth = (row: (typeof rows)[number]) =>
+      row.cells.reduce((n, c) => n + (mapTableCell(c).props?.colspan ?? 1), 0);
+    const ncol =
+      data.columnWidths?.length || Math.max(1, ...rows.map(rowSpanWidth));
     const colSpec = data.columnWidths?.length
       ? "(" +
         data.columnWidths
@@ -162,38 +169,58 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
       : String(ncol);
     const headerRows: number = data.headerRows ?? 0;
 
-    const lines = rows.map((row: any, ri: number) => {
-      const isHeader = ri < headerRows;
-      const cells = row.cells.map((c: any) => {
-        const cell = mapTableCell(c);
-        let inner = joinInline(exporter, cell.content);
-        const tc = colorHex(exporter, cell.props?.textColor, "text");
-        if (tc) {
-          inner = `#text(fill: rgb("${tc}"))[${inner}]`;
-        }
-        // Header cells are bold, matching the editor.
-        if (isHeader) {
-          inner = `#strong[${inner}]`;
-        }
-        const body = `[${inner}]`;
-        const opts: string[] = [];
-        const bc = colorHex(
-          exporter,
-          cell.props?.backgroundColor,
-          "background",
-        );
-        if (bc) {
-          opts.push(`fill: rgb("${bc}")`);
-        }
-        const align = cell.props?.textAlignment;
-        if (align === "center" || align === "right") {
-          opts.push(`align: ${align}`);
-        }
-        return opts.length ? `table.cell(${opts.join(", ")})${body}` : body;
-      });
-      const joined = cells.join(", ");
-      return isHeader ? `  table.header(${joined}),` : `  ${joined},`;
-    });
+    const renderCell = (
+      c: (typeof rows)[number]["cells"][number],
+      isHeader: boolean,
+    ) => {
+      const cell = mapTableCell(c);
+      let inner = joinInline(exporter, cell.content);
+      const tc = colorHex(exporter, cell.props?.textColor, "text");
+      if (tc) {
+        inner = `#text(fill: rgb("${tc}"))[${inner}]`;
+      }
+      // Header cells are bold, matching the editor.
+      if (isHeader) {
+        inner = `#strong[${inner}]`;
+      }
+      const body = `[${inner}]`;
+      const opts: string[] = [];
+      // Merged cells span extra tracks; Typst then flows the remaining cells
+      // into the correct columns (the covered cells are absent from the row).
+      if ((cell.props?.colspan ?? 1) > 1) {
+        opts.push(`colspan: ${cell.props.colspan}`);
+      }
+      if ((cell.props?.rowspan ?? 1) > 1) {
+        opts.push(`rowspan: ${cell.props.rowspan}`);
+      }
+      const bc = colorHex(exporter, cell.props?.backgroundColor, "background");
+      if (bc) {
+        opts.push(`fill: rgb("${bc}")`);
+      }
+      const align = cell.props?.textAlignment;
+      if (align === "center" || align === "right") {
+        opts.push(`align: ${align}`);
+      }
+      return opts.length ? `table.cell(${opts.join(", ")})${body}` : body;
+    };
+
+    // Typst allows at most ONE table.header, which may span several rows -
+    // all header-row cells go into a single call (tagged TH), body rows
+    // follow as plain cell lists.
+    const headerCells = rows
+      .slice(0, headerRows)
+      .flatMap((row) => row.cells.map((c) => renderCell(c, true)));
+    const lines = [
+      ...(headerCells.length
+        ? [`  table.header(${headerCells.join(", ")}),`]
+        : []),
+      ...rows
+        .slice(headerRows)
+        .map(
+          (row) =>
+            `  ${row.cells.map((c) => renderCell(c, false)).join(", ")},`,
+        ),
+    ];
 
     return `#table(\n  columns: ${colSpec},\n  stroke: 0.5pt + luma(200),\n  inset: 6pt,\n${lines.join(
       "\n",

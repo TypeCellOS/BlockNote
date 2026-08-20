@@ -33,62 +33,117 @@ export interface TypstCompileOptions {
   preloadDefaultFonts?: boolean;
   /**
    * Image/asset files to map into the compiler's virtual filesystem, keyed by
-   * the Typst path referenced in the source (e.g. `/assets/asset-0.png`).
+   * the Typst path referenced in the source (e.g. `/assets/asset-0`).
    * Populate from `TypstExporter.assetFiles`.
    */
   assets?: ReadonlyMap<string, Uint8Array>;
 }
 
-let snippetPromise: Promise<TypstSnippet> | undefined;
+function fontList(options: TypstCompileOptions): Uint8Array[] {
+  const emojiFonts =
+    options.emojiFont === undefined
+      ? []
+      : Array.isArray(options.emojiFont)
+        ? options.emojiFont
+        : [options.emojiFont];
+  return [...(options.fonts ?? []), ...emojiFonts];
+}
+
+// The wasm compiler is a page-level singleton (typst.ts's own `$typst` is
+// module-global), so its init-time inputs — wasm module, font set, default
+// font preloading — are fixed by the first compile. A later compile that
+// tries to CHANGE them throws a descriptive error instead of silently
+// compiling with the first call's configuration: pass every font the page
+// will need on the first call, reusing the same byte arrays across calls.
+// (These constraints — and that a failed wasm load can only be recovered by
+// a page reload — are inherent to the `$typst` snippet singleton; lifting
+// them means moving to typst.ts's per-instance compiler API.)
+let configured:
+  | {
+      snippet: TypstSnippet;
+      fonts: Set<Uint8Array>;
+      hasGetModule: boolean;
+      preloadDefaultFonts: boolean;
+    }
+  | undefined;
+
+// Compiles are serialized: shadow files (the per-document image assets) are
+// state on the shared compiler, so overlapping compiles would reset or read
+// each other's assets mid-flight. The chain also covers initialization, so
+// two concurrent first compiles cannot double-initialize. A failed compile
+// must not break the chain for the next caller, hence the swallow-and-await
+// structure below (the failure still rejects that caller's own promise).
+let queue: Promise<unknown> = Promise.resolve();
 
 async function getSnippet(options: TypstCompileOptions): Promise<TypstSnippet> {
-  if (!snippetPromise) {
-    snippetPromise = (async () => {
-      const { $typst, TypstSnippet } =
-        await import("@myriaddreamin/typst.ts/contrib/snippet");
-      if (options.getModule) {
-        $typst.setCompilerInitOptions({ getModule: options.getModule });
-      }
-      const providers = [];
-      if (options.preloadDefaultFonts !== false) {
-        providers.push(TypstSnippet.preloadFontAssets());
-      }
-      const emojiFonts =
-        options.emojiFont === undefined
-          ? []
-          : Array.isArray(options.emojiFont)
-            ? options.emojiFont
-            : [options.emojiFont];
-      for (const font of [...(options.fonts ?? []), ...emojiFonts]) {
-        providers.push(TypstSnippet.preloadFontData(font));
-      }
-      if (providers.length) {
-        $typst.use(...providers);
-      }
-      return $typst;
-    })();
+  if (configured) {
+    const newFonts = fontList(options).filter((f) => !configured!.fonts.has(f));
+    if (
+      newFonts.length > 0 ||
+      Boolean(options.getModule) !== configured.hasGetModule ||
+      (options.preloadDefaultFonts !== false) !== configured.preloadDefaultFonts
+    ) {
+      throw new Error(
+        "The Typst compiler is already initialized with different options. " +
+          "Its wasm module and fonts are loaded once, on the first compile - " +
+          "pass every font (and the getModule/preloadDefaultFonts settings) " +
+          "the page will need on the first compileTypstToTaggedPdf call, " +
+          "reusing the same byte arrays across calls.",
+      );
+    }
+    return configured.snippet;
   }
-  return snippetPromise;
+
+  const { $typst, TypstSnippet } =
+    await import("@myriaddreamin/typst.ts/contrib/snippet");
+  if (options.getModule) {
+    $typst.setCompilerInitOptions({ getModule: options.getModule });
+  }
+  const providers = [];
+  if (options.preloadDefaultFonts !== false) {
+    providers.push(TypstSnippet.preloadFontAssets());
+  }
+  const fonts = fontList(options);
+  for (const font of fonts) {
+    providers.push(TypstSnippet.preloadFontData(font));
+  }
+  if (providers.length) {
+    $typst.use(...providers);
+  }
+  configured = {
+    snippet: $typst,
+    fonts: new Set(fonts),
+    hasGetModule: Boolean(options.getModule),
+    preloadDefaultFonts: options.preloadDefaultFonts !== false,
+  };
+  return configured.snippet;
 }
 
 /**
  * Compile Typst source to a *tagged* PDF using the browser (wasm) engine.
- * The compiler is initialized once and reused across calls.
+ * The compiler is initialized once and reused; concurrent calls are
+ * serialized (see above).
  */
 export async function compileTypstToTaggedPdf(
   typst: string,
   options: TypstCompileOptions,
 ): Promise<Uint8Array> {
-  const $typst = await getSnippet(options);
-  // Shadow files are per-compile; reset so a previous document's assets don't
-  // leak into this one (the snippet/compiler is reused across calls).
-  await $typst.resetShadow();
-  for (const [path, bytes] of options.assets ?? []) {
-    await $typst.mapShadow(path, bytes);
-  }
-  const pdf = await $typst.pdf({ mainContent: typst });
-  if (!pdf) {
-    throw new Error("Typst wasm compilation produced no output");
-  }
-  return pdf;
+  const run = queue.then(async () => {
+    const $typst = await getSnippet(options);
+    // Shadow files are per-compile; reset so a previous document's assets
+    // don't leak into this one.
+    await $typst.resetShadow();
+    for (const [path, bytes] of options.assets ?? []) {
+      await $typst.mapShadow(path, bytes);
+    }
+    const pdf = await $typst.pdf({ mainContent: typst });
+    if (!pdf) {
+      throw new Error("Typst wasm compilation produced no output");
+    }
+    return pdf;
+  });
+  // Keep the chain alive whether this compile succeeds or fails; the failure
+  // still propagates through `run` to this caller.
+  queue = run.catch(() => undefined);
+  return run;
 }

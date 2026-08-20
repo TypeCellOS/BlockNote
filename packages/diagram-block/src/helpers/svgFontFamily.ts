@@ -24,7 +24,12 @@ export function setSVGFontFamily(
     styleElement.textContent =
       styleElement.textContent?.replace(
         /font-family:[^;}]*/g,
-        `font-family:${fontFamily}`,
+        // A replacer function, because as a replacement *string* `$`-patterns
+        // are special to String.replace (`$&` splices in the matched text) -
+        // and `fontFamily` is external input (theme / exporter config) that
+        // may legally contain them. A function's return value is inserted
+        // verbatim.
+        () => `font-family:${fontFamily}`,
       ) ?? null;
   }
   for (const element of svgElement.querySelectorAll("[font-family]")) {
