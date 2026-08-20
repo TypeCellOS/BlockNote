@@ -1,5 +1,51 @@
 import { useLayoutEffect, useState } from "react";
 
+// Styles for the opt-in "non-scrolling document" setup. A host app that adds the
+// `bn-scroll-host` class to its scroll container gets a fixed-position element
+// pinned to the visual viewport (via the `--bn-vv-*` variables published below),
+// with the document itself locked so the browser can't scroll `<html>`/`<body>`
+// — which is what makes the mobile toolbar jitter. Scoping the lock with `:has`
+// means it only kicks in when a scroll host is actually present, so importing
+// this hook never changes scrolling for apps that don't opt in.
+const SCROLL_HOST_STYLE_ID = "bn-scroll-host-styles";
+const SCROLL_HOST_STYLES = `
+html:has(.bn-scroll-host),
+body:has(.bn-scroll-host) {
+  overflow: hidden;
+}
+
+.bn-scroll-host {
+  position: fixed;
+  top: var(--bn-vv-top, 0px);
+  left: var(--bn-vv-left, 0px);
+  width: var(--bn-vv-width, 100vw);
+  height: var(--bn-vv-height, 100dvh);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Stop overscroll at the boundary from chaining to the document. Without
+     this, dragging past the bottom on iOS rubber-bands the whole page, which
+     shifts the visual viewport (repinning the host mid-bounce → jitter) and
+     surfaces a second, document-level scrollbar. */
+  overscroll-behavior: contain;
+}
+`;
+
+/** Injects the `bn-scroll-host` stylesheet into `<head>` once, if not already there. */
+function injectScrollHostStyles(): void {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  if (document.getElementById(SCROLL_HOST_STYLE_ID)) {
+    return;
+  }
+
+  const style = document.createElement("style");
+  style.id = SCROLL_HOST_STYLE_ID;
+  style.textContent = SCROLL_HOST_STYLES;
+  document.head.appendChild(style);
+}
+
 // The tallest layout-equivalent viewport height seen so far — our stand-in for
 // "keyboard closed" — and the layout width it was measured at. Module scope so
 // they survive re-renders; the height only ever grows within a given width, so
@@ -58,15 +104,17 @@ function isVirtualKeyboardOpen(): boolean {
  * opens/closes, not on every viewport change (zoom/pan/scroll) — those keep the
  * CSS properties up to date without a re-render.
  *
- * Does not lock document scroll. For the smoother "pinned scroll container"
- * layout, the host app opts in with CSS (see
- * {@link MobileFormattingToolbarController}). This is what that controller
- * relies on for positioning and keyboard detection.
+ * For the smoother "pinned scroll container" layout, the host app opts in by
+ * adding the `bn-scroll-host` class to its scroll container — the matching
+ * styles (and the document scroll lock) are injected here, so no extra CSS is
+ * needed on the consumer's end.
  */
 export function useVirtualKeyboard(): boolean {
   const [open, setOpen] = useState(isVirtualKeyboardOpen);
 
   useLayoutEffect(() => {
+    injectScrollHostStyles();
+
     const html = document.documentElement;
 
     const vp = window.visualViewport;
