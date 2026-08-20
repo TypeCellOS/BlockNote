@@ -63,6 +63,10 @@ const CONSOLE_ERROR_ALLOWLIST: RegExp[] = [
   // so React cannot guarantee those children stay untouched. Inherent to the
   // integration (fires in the custom-blocks e2e), not a swallowed failure.
   /A component is `contentEditable` and contains `children` managed by React/,
+  // Benign browser-generated layout notice (one frame's observations were
+  // superseded before delivery). Fires under load — WebKit/Firefox on CI
+  // especially — and is universally treated as noise, not a swallowed failure.
+  /ResizeObserver loop (completed with undelivered notifications|limit exceeded)/,
 ];
 const CONSOLE_WARN_DENYLIST: RegExp[] = [/\[y\/prosemirror\]/];
 
