@@ -55,7 +55,8 @@ export class StyleManager<
   public getActiveStyles() {
     return this.editor.transact((tr) => {
       const styles: Styles<SSchema> = {};
-      const marks = tr.selection.$to.marks();
+      const marks =
+        (tr.selection.empty && tr.storedMarks) || tr.selection.$to.marks();
 
       for (const mark of marks) {
         const config = this.editor.schema.styleSchema[mark.type.name];

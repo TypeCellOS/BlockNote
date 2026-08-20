@@ -74,6 +74,8 @@ export const CreateLinkButton = () => {
       if (
         // The editor is read-only.
         !editor.isEditable ||
+        // The selection is empty, i.e. no content is selected.
+        editor.prosemirrorState.selection.empty ||
         // Links are not in the schema.
         !checkLinkInSchema(editor) ||
         // Table cells are selected.
