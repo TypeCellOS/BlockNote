@@ -27,6 +27,10 @@ const initialContent = [
 
 export default function App() {
   const editor = useCreateBlockNote({ initialContent });
+  // A second editor, to check the mobile toolbar still works with multiple
+  // editors on a page: the scroll-host styles are injected only once and each
+  // editor tracks the shared visual viewport independently.
+  const secondEditor = useCreateBlockNote({ initialContent });
 
   // Which element scrolls the page. The "pinned scroll container" layout is
   // opt-in via a single class: adding `bn-scroll-host` to the scroll container
@@ -50,6 +54,8 @@ export default function App() {
         {/* On mobile, the default UI automatically shows the mobile formatting
             toolbar above the keyboard - no extra setup needed. */}
         <BlockNoteView editor={editor} />
+        <StaticText />
+        <BlockNoteView editor={secondEditor} />
         <StaticText />
       </main>
     </div>
