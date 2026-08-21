@@ -14,7 +14,7 @@ export const handleEnter = (
     };
   });
 
-  if (!blockInfo.isBlockContainer) {
+  if (!blockInfo.isWrappedBlock) {
     return false;
   }
   const { bnBlock: blockContainer, blockContent } = blockInfo;

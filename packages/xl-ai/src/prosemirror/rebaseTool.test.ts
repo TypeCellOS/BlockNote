@@ -21,7 +21,7 @@ function getExampleEditorWithSuggestions() {
   const blockPos = getNodeById("1", editor.prosemirrorState.doc)!;
 
   const block = getBlockInfo(blockPos);
-  if (!block.isBlockContainer) {
+  if (!block.isWrappedBlock) {
     throw new Error("Block is not a container");
   }
 
@@ -56,7 +56,7 @@ it("should be able to apply changes to a clean doc (use invertMap)", async () =>
 
   const block = getBlockInfo(blockPos);
 
-  if (!block.isBlockContainer) {
+  if (!block.isWrappedBlock) {
     throw new Error("Block is not a container");
   }
 
@@ -85,7 +85,7 @@ it("should be able to apply changes to a clean doc (use rebaseTr)", async () => 
 
   const block = getBlockInfo(blockPos);
 
-  if (!block.isBlockContainer) {
+  if (!block.isWrappedBlock) {
     throw new Error("Block is not a container");
   }
 

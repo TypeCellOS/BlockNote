@@ -118,7 +118,11 @@ export function transformPasted(slice: Slice, view: EditorView) {
     return retyped;
   }
 
-  if (isInTableCell(view)) {
+  // `tableParagraph` only exists in schemas with the default table blocks. A
+  // schema with a custom table implementation (e.g. container-block cells,
+  // which hold real blocks and need no inline conversion) skips this branch.
+  const tableParagraph = view.state.schema.nodes.tableParagraph;
+  if (tableParagraph && isInTableCell(view)) {
     let hasTableContent = false;
     f.descendants((node) => {
       if (node.type.isInGroup("tableContent")) {
@@ -128,7 +132,7 @@ export function transformPasted(slice: Slice, view: EditorView) {
     if (
       !hasTableContent &&
       // is the content valid for a table paragraph?
-      !view.state.schema.nodes.tableParagraph.validContent(f)
+      !tableParagraph.validContent(f)
     ) {
       // if not, convert the content to inline content
       return new Slice(
@@ -213,9 +217,7 @@ function retypeLeadingParagraphForEmptyTarget(
   }
 
   const blockInfo = getBlockInfoFromSelection(view.state);
-  const target = blockInfo.isBlockContainer
-    ? blockInfo.blockContent.node
-    : null;
+  const target = blockInfo.isWrappedBlock ? blockInfo.blockContent.node : null;
   if (
     !target ||
     target.type.name === "paragraph" ||
@@ -275,7 +277,7 @@ function shouldApplyFix(fragment: Fragment, view: EditorView) {
       // for both paste and drop events. Drop events can potentially cause
       // issues as they don't always happen at the current selection.
       const blockInfo = getBlockInfoFromSelection(view.state);
-      if (blockInfo.isBlockContainer) {
+      if (blockInfo.isWrappedBlock) {
         const selectedBlockHasTableContent =
           blockInfo.blockContent.node.type.spec.content === "tableRow+";
 

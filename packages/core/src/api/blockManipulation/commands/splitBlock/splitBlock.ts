@@ -36,7 +36,7 @@ export const splitBlockTr = (
 
   const info = getBlockInfo(nearestBlockContainerPos);
 
-  if (!info.isBlockContainer) {
+  if (!info.isWrappedBlock) {
     return false;
   }
   const schema = getPmSchema(tr);

@@ -246,6 +246,24 @@ export class ReactEmailExporter<
         i = nextIndex;
         continue;
       }
+      if (this.isContainerBlock(b.type)) {
+        // Container blocks (columnList, column, custom containers): the
+        // mapping owns the placement of the children, so they are passed in
+        // and not rendered as an indented sibling list.
+        const containerChildren = await this.transformBlocks(
+          b.children,
+          nestingLevel + 1,
+        );
+        const containerSelf = (await this.mapBlock(
+          b as any,
+          nestingLevel,
+          0,
+          containerChildren as any,
+        )) as any;
+        ret.push(<React.Fragment key={b.id}>{containerSelf}</React.Fragment>);
+        i++;
+        continue;
+      }
       // Non-list blocks
       const children = await this.transformBlocks(b.children, nestingLevel + 1);
       const self = (await this.mapBlock(b as any, nestingLevel, 0)) as any;

@@ -80,7 +80,7 @@ function createCollabEditor(text: string) {
 function selectWholeFirstBlock(editor: BlockNoteEditor<any, any, any>) {
   const id = editor.document[0].id;
   const info = getBlockInfo(getNodeById(id, editor.prosemirrorState.doc)!);
-  if (!info.isBlockContainer) {
+  if (!info.isWrappedBlock) {
     throw new Error("not a block container");
   }
   const from = info.blockContent.beforePos + 1;

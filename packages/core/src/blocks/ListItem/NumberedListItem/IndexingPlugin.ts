@@ -32,7 +32,7 @@ function calculateListItemIndex(
 
   // Fast path: previous sibling already in cache
   const blockInfo = getBlockInfo({ posBeforeNode: pos, node });
-  if (!blockInfo.isBlockContainer) {
+  if (!blockInfo.isWrappedBlock) {
     throw new Error("impossible");
   }
   const prevBlock = tr.doc.resolve(blockInfo.bnBlock.beforePos).nodeBefore;
@@ -80,7 +80,7 @@ function calculateListItemIndex(
     posBeforeNode: lastInChain.pos,
     node: lastInChain.node,
   });
-  if (!lastInfo.isBlockContainer) {
+  if (!lastInfo.isWrappedBlock) {
     throw new Error("impossible");
   }
   const predecessorNode = tr.doc.resolve(lastInfo.bnBlock.beforePos).nodeBefore;

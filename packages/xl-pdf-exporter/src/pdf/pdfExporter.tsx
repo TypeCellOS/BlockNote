@@ -176,7 +176,7 @@ export class PDFExporter<
         children,
       ); // TODO: any
 
-      if (["pageBreak", "columnList", "column"].includes(b.type)) {
+      if (b.type === "pageBreak" || this.isContainerBlock(b.type)) {
         ret.push(self);
         continue;
       }

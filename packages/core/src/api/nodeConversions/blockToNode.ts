@@ -1,4 +1,11 @@
-import { Attrs, Fragment, Mark, Node, Schema } from "@tiptap/pm/model";
+import {
+  Attrs,
+  Fragment,
+  Mark,
+  Node,
+  NodeType,
+  Schema,
+} from "@tiptap/pm/model";
 
 import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type {
@@ -16,10 +23,23 @@ import {
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
+// `isContainerNode` comes from `children.js` directly (rather than via its
+// `fixContainer.js` re-export) because `fixContainer.js` imports the seeding
+// machinery below; going through it would create an import cycle.
+import {
+  getChildrenConfig,
+  getContentContainerNodeTypes,
+  isContainerNode,
+  resolveChildren,
+} from "../../schema/blocks/children.js";
 import { getColspan, isPartialTableCell } from "../../util/table.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
 import { getAbsoluteTableCells } from "../blockManipulation/tables/tables.js";
-import { getStyleSchema, isPlainContentNodeType } from "../pmUtil.js";
+import {
+  getBlockSchema,
+  getStyleSchema,
+  isPlainContentNodeType,
+} from "../pmUtil.js";
 
 /**
  * Convert a StyledText inline element to a
@@ -334,6 +354,175 @@ function blockOrInlineContentToContentNode(
   return contentNode;
 }
 
+const EMPTY_SEEDING: ReadonlySet<string> = new Set();
+
+function unwrapsWhenEmptied(blockType: string, schema: Schema): boolean {
+  const blockConfig = getBlockSchema(schema)[blockType];
+  const children = blockConfig ? getChildrenConfig(blockConfig) : undefined;
+  return !!children && resolveChildren(children).whenEmptied === "unwrap";
+}
+
+// `createAndFill` produces nodes with `id: null`; patch them before use.
+function withGeneratedIds(node: Node): Node {
+  if (node.isText) {
+    return node;
+  }
+
+  const children: Node[] = [];
+  let childChanged = false;
+  node.forEach((child) => {
+    const next = withGeneratedIds(child);
+    childChanged ||= next !== child;
+    children.push(next);
+  });
+
+  const needsId = node.type.isInGroup("bnBlock") && node.attrs.id === null;
+  if (!needsId && !childChanged) {
+    return node;
+  }
+
+  return node.type.create(
+    needsId ? { ...node.attrs, id: UniqueID.options.generateID() } : node.attrs,
+    childChanged ? Fragment.from(children) : node.content,
+    node.marks,
+  );
+}
+
+function seedDefaultChildren(
+  blockType: string,
+  schema: Schema,
+  styleSchema: StyleSchema,
+  seedingTypes: ReadonlySet<string>,
+): Node[] | undefined {
+  const blockSchemaConfig = getBlockSchema(schema)[blockType];
+  const childrenConfig = blockSchemaConfig
+    ? getChildrenConfig(blockSchemaConfig)
+    : undefined;
+
+  if (!childrenConfig) {
+    return undefined;
+  }
+
+  const defaultChildren = resolveChildren(childrenConfig).default;
+  if (!defaultChildren || defaultChildren.length === 0) {
+    return undefined;
+  }
+
+  if (seedingTypes.has(blockType)) {
+    throw new Error(
+      `Seeding "${blockType}" ends up seeding it again (${[...seedingTypes, blockType].join(" -> ")}). ` +
+        "Give the cyclic default explicit children, or remove the self-reference.",
+    );
+  }
+
+  const nextSeeding = new Set(seedingTypes).add(blockType);
+  return defaultChildren.map((child) =>
+    blockToNode(
+      child as PartialBlock<any, any, any>,
+      schema,
+      styleSchema,
+      nextSeeding,
+    ),
+  );
+}
+
+/**
+ * The nodes `whenEmptied: "refill"` appends when a container's non-empty
+ * children drop below `min`: the unconsumed tail of its `default`
+ * (`default[from..min-1]`), each converted exactly like an inserted block.
+ * Empty when the container has no `default`; the caller pads any remainder
+ * with empty fill.
+ */
+export function seedRefillChildren(
+  blockType: string,
+  schema: Schema,
+  from: number,
+  min: number,
+): Node[] {
+  const blockConfig = getBlockSchema(schema)[blockType];
+  const children = blockConfig ? getChildrenConfig(blockConfig) : undefined;
+  const defaultChildren = children
+    ? resolveChildren(children).default
+    : undefined;
+  if (!defaultChildren) {
+    return [];
+  }
+
+  return defaultChildren
+    .slice(from, min)
+    .map((child) => blockToNode(child as PartialBlock<any, any, any>, schema));
+}
+
+function partialContentToInlineNodes(
+  block: PartialBlock<any, any, any>,
+  contentNodeName: string,
+  schema: Schema,
+  styleSchema: StyleSchema,
+): Node[] {
+  if (block.content === undefined) {
+    return [];
+  }
+  if (typeof block.content === "string" || Array.isArray(block.content)) {
+    return inlineContentToNodes(
+      typeof block.content === "string" ? [block.content] : block.content,
+      schema,
+      contentNodeName,
+      styleSchema,
+    );
+  }
+
+  throw new Error(
+    `Block "${block.type}" cannot have content of type "${block.content.type}".`,
+  );
+}
+
+function createContainerChildrenNode(
+  blockType: string,
+  type: NodeType,
+  schema: Schema,
+  styleSchema: StyleSchema,
+  seedingTypes: ReadonlySet<string>,
+  attrs: Attrs | null = null,
+): Node {
+  const seeded = seedDefaultChildren(
+    blockType,
+    schema,
+    styleSchema,
+    seedingTypes,
+  );
+
+  if (!seeded && unwrapsWhenEmptied(blockType, schema)) {
+    return type.create(attrs);
+  }
+
+  const node = type.createAndFill(attrs, seeded);
+  if (!node) {
+    throw new Error(
+      `Cannot create block "${blockType}": its \`default\` children don't fit its \`children\` config ` +
+        `(it accepts \`${type.spec.content}\`).`,
+    );
+  }
+
+  return node;
+}
+
+// Skips `createAndFill` for unwrap-on-empty containers (fill would be undone
+// by the next repair pass) and for unfittable content (let `node.check()`
+// report it).
+function createExplicitChildrenNode(
+  blockType: string,
+  type: NodeType,
+  schema: Schema,
+  children: Node[],
+  attrs: Attrs | null = null,
+): Node {
+  if (unwrapsWhenEmptied(blockType, schema)) {
+    return type.create(attrs, children);
+  }
+
+  return type.createAndFill(attrs, children) ?? type.create(attrs, children);
+}
+
 /**
  * Converts a BlockNote block to a Prosemirror node.
  */
@@ -341,6 +530,7 @@ export function blockToNode(
   block: PartialBlock<any, any, any>,
   schema: Schema,
   styleSchema: StyleSchema = getStyleSchema(schema),
+  seedingTypes: ReadonlySet<string> = EMPTY_SEEDING,
 ) {
   let id = block.id;
 
@@ -352,7 +542,7 @@ export function blockToNode(
 
   if (block.children) {
     for (const child of block.children) {
-      children.push(blockToNode(child, schema, styleSchema));
+      children.push(blockToNode(child, schema, styleSchema, seedingTypes));
     }
   }
 
@@ -360,9 +550,11 @@ export function blockToNode(
     !block.type || // can happen if block.type is not defined (this should create the default node)
     schema.nodes[block.type].isInGroup("blockContent");
 
-  if (isBlockContent) {
-    // Blocks with a type that matches "blockContent" group always need to be wrapped in a blockContainer
+  const contentContainerTypes = block.type
+    ? getContentContainerNodeTypes(schema, block.type)
+    : undefined;
 
+  if (isBlockContent) {
     const contentNode = blockOrInlineContentToContentNode(
       block,
       schema,
@@ -381,15 +573,69 @@ export function blockToNode(
       },
       groupNode ? [contentNode, groupNode] : contentNode,
     );
-  } else if (schema.nodes[block.type].isInGroup("bnBlock")) {
-    // `create` (not `createChecked`) so partial container blocks pass through;
-    // callers that mutate the doc validate via `node.check()` before inserting.
+  } else if (contentContainerTypes) {
+    // A container with its own content: the content and the children each get
+    // a node of their own, since a ProseMirror node holds either inline
+    // content or block content but never both.
+    const { contentType, childrenType } = contentContainerTypes;
+
+    const contentNode = contentType.createChecked(
+      null,
+      partialContentToInlineNodes(block, contentType.name, schema, styleSchema),
+    );
+
+    const childrenNode =
+      block.children !== undefined
+        ? createExplicitChildrenNode(block.type, childrenType, schema, children)
+        : createContainerChildrenNode(
+            block.type,
+            childrenType,
+            schema,
+            styleSchema,
+            seedingTypes,
+          );
+
+    return withGeneratedIds(
+      schema.nodes[block.type].create({ id: id, ...block.props }, [
+        contentNode,
+        childrenNode,
+      ]),
+    );
+  } else if (
+    schema.nodes[block.type].isInGroup("bnBlock") &&
+    !getChildrenConfig(schema.nodes[block.type].spec.blockConfig ?? {})
+  ) {
+    // Legacy path for `@blocknote/xl-multi-column`'s hand-written PM nodes,
+    // which sit in the `bnBlock` group but have no `children` config. Plain
+    // `create` (not `createChecked` and no fill), so invalid structures
+    // surface via `node.check()` when the caller mutates the doc. Removed
+    // once multi-column is migrated onto the container API.
     return schema.nodes[block.type].create(
       {
         id: id,
         ...block.props,
       },
       children,
+    );
+  } else if (isContainerNode(schema.nodes[block.type])) {
+    const type = schema.nodes[block.type];
+    const attrs = { id: id, ...block.props };
+
+    if (block.children !== undefined) {
+      return withGeneratedIds(
+        createExplicitChildrenNode(block.type, type, schema, children, attrs),
+      );
+    }
+
+    return withGeneratedIds(
+      createContainerChildrenNode(
+        block.type,
+        type,
+        schema,
+        styleSchema,
+        seedingTypes,
+        attrs,
+      ),
     );
   } else {
     throw new Error(

@@ -116,7 +116,7 @@ export class DOCXExporter<
     for (const b of blocks) {
       let children = await this.transformBlocks(b.children, nestingLevel + 1);
 
-      if (!["columnList", "column"].includes(b.type)) {
+      if (!this.isContainerBlock(b.type)) {
         children = children.map((c, _i) => {
           // NOTE: nested tables not supported (we can't insert the new Tab before a table)
           if (
@@ -139,7 +139,7 @@ export class DOCXExporter<
         0 /*unused*/,
         children,
       ); // TODO: any
-      if (["columnList", "column"].includes(b.type)) {
+      if (this.isContainerBlock(b.type)) {
         ret.push(self as Table);
       } else if (Array.isArray(self)) {
         ret.push(...self, ...children);
