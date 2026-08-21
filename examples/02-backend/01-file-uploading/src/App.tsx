@@ -1,21 +1,16 @@
+import { uploadFile_DEV_ONLY } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 
-// Uploads a file to tmpfiles.org and returns the URL to the uploaded file.
+// "Uploads" a file using BlockNote's dev-only helper, which encodes it as a
+// base64 data URL. We add a short delay first to simulate the latency of a real
+// server upload. In a real app you'd replace this with an upload to your own
+// backend that returns a URL to the stored file.
 async function uploadFile(file: File) {
-  const body = new FormData();
-  body.append("file", file);
-
-  const ret = await fetch("https://tmpfiles.org/api/v1/upload", {
-    method: "POST",
-    body: body,
-  });
-  return (await ret.json()).data.url.replace(
-    "tmpfiles.org/",
-    "tmpfiles.org/dl/",
-  );
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  return uploadFile_DEV_ONLY(file);
 }
 
 export default function App() {
