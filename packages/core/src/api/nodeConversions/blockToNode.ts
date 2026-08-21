@@ -612,22 +612,6 @@ export function blockToNode(
         childrenNode,
       ]),
     );
-  } else if (
-    schema.nodes[block.type].isInGroup("bnBlock") &&
-    !getChildrenConfig(schema.nodes[block.type].spec.blockConfig ?? {})
-  ) {
-    // Legacy path for `@blocknote/xl-multi-column`'s hand-written PM nodes,
-    // which sit in the `bnBlock` group but have no `children` config. Plain
-    // `create` (not `createChecked` and no fill), so invalid structures
-    // surface via `node.check()` when the caller mutates the doc. Removed
-    // once multi-column is migrated onto the container API.
-    return schema.nodes[block.type].create(
-      {
-        id: id,
-        ...block.props,
-      },
-      children,
-    );
   } else if (isContainerNode(schema.nodes[block.type])) {
     const type = schema.nodes[block.type];
     const attrs = { id: id, ...block.props };
