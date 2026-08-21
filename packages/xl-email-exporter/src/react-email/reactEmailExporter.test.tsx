@@ -6,12 +6,26 @@ import {
   createPageBreakBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
+import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { testDocument } from "@shared/testDocument.js";
+
+// Schema including the multi-column blocks, matching the shared testDocument.
+// The columns are container blocks, so the exporter only recognizes them as
+// such (and lets their mappings place the children) when they're in the
+// schema it was constructed with.
+const fullSchema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    pageBreak: createPageBreakBlockSpec(),
+    column: ColumnBlock,
+    columnList: ColumnListBlock,
+  },
+});
 
 describe("react email exporter", () => {
   it("should export a document (HTML snapshot)", async () => {
     const exporter = new ReactEmailExporter(
-      BlockNoteSchema.create(),
+      fullSchema,
       reactEmailDefaultSchemaMappings,
     );
 
@@ -21,12 +35,7 @@ describe("react email exporter", () => {
 
   it("should export a document with preview", async () => {
     const exporter = new ReactEmailExporter(
-      BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
-        },
-      }),
+      fullSchema,
       reactEmailDefaultSchemaMappings,
     );
 
@@ -38,12 +47,7 @@ describe("react email exporter", () => {
 
   it("should export a document with multiple preview lines", async () => {
     const exporter = new ReactEmailExporter(
-      BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
-        },
-      }),
+      fullSchema,
       reactEmailDefaultSchemaMappings,
     );
 
@@ -655,7 +659,7 @@ describe("react email exporter", () => {
 
   it("should handle document with custom body styles", async () => {
     const exporter = new ReactEmailExporter(
-      BlockNoteSchema.create(),
+      fullSchema,
       reactEmailDefaultSchemaMappings,
     );
 
