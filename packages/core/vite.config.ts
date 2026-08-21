@@ -37,6 +37,7 @@ export default defineConfig({
         blocks: path.resolve(__dirname, "src/blocks/index.ts"),
         locales: path.resolve(__dirname, "src/i18n/index.ts"),
         extensions: path.resolve(__dirname, "src/extensions/index.ts"),
+        internal: path.resolve(__dirname, "src/internal.ts"),
         yjs: path.resolve(__dirname, "src/yjs/index.ts"),
         y: path.resolve(__dirname, "src/y/index.ts"),
       },

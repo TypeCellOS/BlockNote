@@ -169,15 +169,12 @@ export function setSelection(
       headBlockInfo.blockNoteType as keyof typeof schema.blockSchema
     ];
 
-  if (
-    !anchorBlockInfo.isBlockContainer ||
-    anchorBlockConfig.content === "none"
-  ) {
+  if (!anchorBlockInfo.isWrappedBlock || anchorBlockConfig.content === "none") {
     throw new Error(
       `Attempting to set selection anchor in block without content (id ${startBlockId})`,
     );
   }
-  if (!headBlockInfo.isBlockContainer || headBlockConfig.content === "none") {
+  if (!headBlockInfo.isWrappedBlock || headBlockConfig.content === "none") {
     throw new Error(
       `Attempting to set selection anchor in block without content (id ${endBlockId})`,
     );

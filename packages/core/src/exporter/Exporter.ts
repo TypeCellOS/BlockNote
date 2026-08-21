@@ -11,6 +11,7 @@ import {
   StyledText,
   Styles,
 } from "../schema/index.js";
+import { isContainerType } from "../schema/blocks/children.js";
 
 import type {
   BlockMapping,
@@ -60,15 +61,41 @@ export abstract class Exporter<
   RS,
   TS,
 > {
+  // Stored with erased generics: a generically-typed property would change
+  // the class's variance in B/I/S and break mapping inference at subclass
+  // construction sites (the schema param was previously inference-only).
+  private readonly blockNoteSchema: BlockNoteSchema<any, any, any>;
+
   public constructor(
-    _schema: BlockNoteSchema<B, I, S>, // only used for type inference
+    schema: BlockNoteSchema<B, I, S>,
     protected readonly mappings: {
       blockMapping: BlockMapping<B, I, S, RB, RI>;
       inlineContentMapping: InlineContentMapping<I, S, RI, TS>;
       styleMapping: StyleMapping<S, RS>;
     },
     public readonly options: ExporterOptions,
-  ) {}
+  ) {
+    this.blockNoteSchema = schema;
+  }
+
+  /**
+   * Whether a block type is a container block (declares `children`, e.g.
+   * `columnList`, `column`, or a custom callout). Container mappings own the
+   * placement of their children, so exporters must not append the children
+   * after the container's own output.
+   */
+  public isContainerBlock(blockType: string): boolean {
+    // Legacy: `@blocknote/xl-multi-column`'s hand-written specs, which have
+    // no `children` config. Removed once multi-column is migrated onto the
+    // container API.
+    if (blockType === "columnList" || blockType === "column") {
+      return true;
+    }
+    const spec = (this.blockNoteSchema.blockSpecs as Record<string, any>)[
+      blockType
+    ];
+    return !!spec && isContainerType(spec.config);
+  }
 
   /**
    * The strings this exporter renders into the produced document - the
@@ -147,7 +174,9 @@ export abstract class Exporter<
     const mapping = this.mappings.blockMapping[block.type];
     if (!mapping) {
       throw new Error(
-        `Exporter is missing a block mapping for block type "${block.type}". If this block comes from a separate package, spread that package's exporter mappings into your blockMapping.`,
+        this.isContainerBlock(block.type)
+          ? `No mapping found for container block type "${block.type}". Container blocks require an explicit block mapping that places their children.`
+          : `Exporter is missing a block mapping for block type "${block.type}". If this block comes from a separate package, spread that package's exporter mappings into your blockMapping.`,
       );
     }
     return mapping(block, this, nestingLevel, numberedListIndex, children);

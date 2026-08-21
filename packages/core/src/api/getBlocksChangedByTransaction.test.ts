@@ -652,8 +652,8 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
         throw new Error("block not found");
       }
       const info = getBlockInfo(posInfo);
-      if (!info.isBlockContainer) {
-        throw new Error("expected a block container");
+      if (!info.isWrappedBlock) {
+        throw new Error("expected a wrapped block");
       }
       // Adding a mark produces an AddMarkStep, whose StepMap is empty — the case
       // getChangedRange has to recover from the step's own from/to.

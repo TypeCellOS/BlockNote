@@ -41,7 +41,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
     getTestSelection: (editor: BlockNoteEditor<any, any, any>) => {
       const posInfo = getNodeById("ref2", editor.prosemirrorState.doc)!;
       const block = getBlockInfo(posInfo);
-      if (!block.isBlockContainer) {
+      if (!block.isWrappedBlock) {
         throw new Error("Block is not a block container");
       }
       return {
@@ -68,7 +68,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
     getTestSelection: (editor: BlockNoteEditor<any, any, any>) => {
       const posInfo = getNodeById("ref1", editor.prosemirrorState.doc)!;
       const block = getBlockInfo(posInfo);
-      if (!block.isBlockContainer) {
+      if (!block.isWrappedBlock) {
         throw new Error("Block is not a block container");
       }
       // 'ello, world! Dow are yo'
@@ -737,7 +737,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
     getTestSelection(editor) {
       const posInfo = getNodeById("ref2", editor.prosemirrorState.doc)!;
       const block = getBlockInfo(posInfo);
-      if (!block.isBlockContainer) {
+      if (!block.isWrappedBlock) {
         throw new Error("Block is not a block container");
       }
       return {

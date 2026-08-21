@@ -11,7 +11,7 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
     };
   });
 
-  if (!blockInfo.isBlockContainer) {
+  if (!blockInfo.isWrappedBlock) {
     return false;
   }
   const { bnBlock: blockContainer, blockContent } = blockInfo;

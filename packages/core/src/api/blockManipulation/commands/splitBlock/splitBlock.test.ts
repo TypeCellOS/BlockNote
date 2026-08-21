@@ -35,7 +35,7 @@ function setSelectionWithOffset(
 
   const info = getBlockInfo(posInfo);
 
-  if (!info.isBlockContainer) {
+  if (!info.isWrappedBlock) {
     throw new Error("Target block is not a block container");
   }
 
