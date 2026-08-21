@@ -2,6 +2,7 @@ import type { Node, NodeType, Schema } from "prosemirror-model";
 import { Transform } from "prosemirror-transform";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
+import { blockTypeOfContainerContentNode } from "../schema/blocks/children.js";
 import type { BlockSchema } from "../schema/blocks/types.js";
 import type { InlineContentSchema } from "../schema/inlineContent/types.js";
 import type { StyleSchema } from "../schema/styles/types.js";
@@ -67,7 +68,16 @@ export function isPlainContentNodeType(
   schema: Schema,
   nodeType: NodeType,
 ): boolean {
-  if (getBlockSchema(schema)[nodeType.name]?.content === "plain") {
+  const blockSchema = getBlockSchema(schema);
+  // A content-bearing container's content lives in a generated node, so it
+  // isn't a key in the block schema — resolve it back to the block it belongs
+  // to.
+  const blockType =
+    blockTypeOfContainerContentNode(nodeType.name) ?? nodeType.name;
+
+  if (
+    (blockSchema[nodeType.name] ?? blockSchema[blockType])?.content === "plain"
+  ) {
     return true;
   }
 

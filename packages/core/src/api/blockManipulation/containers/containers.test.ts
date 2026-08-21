@@ -1,0 +1,411 @@
+// @vitest-environment node
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vite-plus/test";
+
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { containerSchema } from "./containers.fixture.js";
+
+type PartialBlock = (typeof containerSchema)["PartialBlock"];
+
+// Document-model behaviour of container blocks: seeding, schema enforcement,
+// repair and selection. All of it is `Block` JSON in and `Block` JSON out, so
+// the editor stays headless and this suite runs with no DOM at all.
+//
+// The halves that genuinely need one — the keymap (which tiptap can only reach
+// through a mounted view) and HTML/markdown serialization (which builds real
+// DOM) — live in `containers.browser.test.ts`.
+
+const schema = containerSchema;
+
+let editor: BlockNoteEditor<
+  typeof schema.blockSchema,
+  typeof schema.inlineContentSchema,
+  typeof schema.styleSchema
+>;
+
+beforeAll(() => {
+  editor = BlockNoteEditor.create({ schema });
+});
+
+afterAll(() => {
+  editor._tiptapEditor.destroy();
+  editor = undefined as any;
+});
+
+beforeEach(() => {
+  editor.replaceBlocks(editor.document, [
+    { id: "p-0", type: "paragraph", content: "Paragraph 0" },
+    { id: "p-1", type: "paragraph", content: "Paragraph 1" },
+  ]);
+});
+
+describe("children insertion & seeding", () => {
+  it("seeds `default` when inserted without children", () => {
+    editor.insertBlocks([{ type: "callout", id: "c-0" }], "p-1", "after");
+
+    const callout = editor.getBlock("c-0")!;
+    expect(callout.children).toHaveLength(1);
+    expect(callout.children[0].type).toBe("paragraph");
+  });
+
+  // The minimal container config used to be a landmine: `min` defaults to 1,
+  // nothing seeded it, and the most obvious insert threw a raw ProseMirror
+  // `RangeError: Invalid content for node ...`.
+  it("fills a container that has no `default` rather than throwing", () => {
+    expect(() =>
+      editor.insertBlocks([{ type: "sealedBox", id: "b-0" }], "p-1", "after"),
+    ).not.toThrow();
+
+    const box = editor.getBlock("b-0")!;
+    expect(box.children).toHaveLength(1);
+    expect(box.children[0].type).toBe("paragraph");
+  });
+
+  it("gives auto-filled children real ids", () => {
+    // Auto-filled nodes come straight from the schema with `id: null`, and the
+    // UniqueID plugin never sees them — `insertBlocks` converts back through
+    // `nodeToBlock` before the transaction is dispatched.
+    editor.insertBlocks([{ type: "sealedBox", id: "b-0" }], "p-1", "after");
+
+    const child = editor.getBlock("b-0")!.children[0];
+    expect(child.id).toBeTruthy();
+    expect(editor.getBlock(child.id)).toBeDefined();
+  });
+
+  it("does not re-seed a container round-tripped through the document", () => {
+    editor.insertBlocks([{ type: "callout", id: "c-0" }], "p-1", "after");
+    const inserted = editor.getBlock("c-0")!;
+
+    // `nodeToBlock` always emits an array, so a round-trip must not read an
+    // empty one as "unspecified" and seed on top of it.
+    editor.replaceBlocks([inserted], [inserted]);
+
+    expect(editor.getBlock("c-0")!.children).toHaveLength(
+      inserted.children.length,
+    );
+  });
+
+  // `children: []` is a caller asking for a container with no children, which
+  // a `min: 1` container cannot be. It used to be taken at face value, which
+  // built a node below its minimum: `insertBlocks` then threw a raw
+  // `Invalid content for node callout: <>` from its `node.check()`.
+  it("fills an explicitly empty `children` array up to `min`", () => {
+    expect(() =>
+      editor.insertBlocks(
+        [{ type: "callout", id: "c-0", children: [] }],
+        "p-1",
+        "after",
+      ),
+    ).not.toThrow();
+
+    const callout = editor.getBlock("c-0")!;
+    expect(callout.children).toHaveLength(1);
+    expect(callout.children[0].type).toBe("paragraph");
+    expect(callout.children[0].id).toBeTruthy();
+  });
+
+  it("does not pad explicit children that already satisfy the config", () => {
+    editor.insertBlocks(
+      [
+        {
+          type: "grid",
+          id: "g-0",
+          children: [{ type: "gridCell" }, { type: "gridCell" }],
+        },
+      ],
+      "p-1",
+      "after",
+    );
+
+    expect(editor.getBlock("g-0")!.children).toHaveLength(2);
+  });
+
+  // A container that unwraps as it empties out is the one case explicit
+  // children are *not* padded: adding a second column to a one-column
+  // columnList would invent content the next repair pass deletes anyway.
+  it("refuses rather than pads a container that unwraps when emptied", () => {
+    expect(() =>
+      editor.insertBlocks(
+        [{ type: "grid", id: "g-1", children: [{ type: "gridCell" }] }],
+        "p-1",
+        "after",
+      ),
+    ).toThrow();
+  });
+
+  // A pure container has no content of its own, but the block it replaces did
+  // — so that content becomes its first child rather than being dropped.
+  it("carries content into the first child when converting via updateBlock", () => {
+    editor.updateBlock("p-1", { type: "callout" });
+
+    const callout = editor.document[1];
+    expect(callout.type).toBe("callout");
+    expect(callout.children).toHaveLength(1);
+    expect(callout.children[0].type).toBe("paragraph");
+    expect(callout.children[0].content).toEqual([
+      { type: "text", text: "Paragraph 1", styles: {} },
+    ]);
+  });
+
+  it("seeds `default` when converting an empty block via updateBlock", () => {
+    editor.updateBlock("p-1", { content: [] });
+    editor.updateBlock("p-1", { type: "callout" });
+
+    const callout = editor.document[1];
+    expect(callout.type).toBe("callout");
+    expect(callout.children).toHaveLength(1);
+    expect(callout.children[0].type).toBe("paragraph");
+    expect(callout.children[0].content).toEqual([]);
+  });
+
+  it("accepts arbitrary block children, including nested containers", () => {
+    editor.insertBlocks(
+      [
+        {
+          type: "callout",
+          id: "c-0",
+          children: [
+            { type: "heading", content: "In callout" },
+            {
+              type: "callout",
+              id: "c-1",
+              children: [{ type: "paragraph", content: "Nested" }],
+            },
+          ],
+        },
+      ],
+      "p-1",
+      "after",
+    );
+
+    const callout = editor.getBlock("c-0")!;
+    expect(callout.children.map((child) => child.type)).toEqual([
+      "heading",
+      "callout",
+    ]);
+    expect(editor.getBlock("c-1")!.children[0].type).toBe("paragraph");
+  });
+
+  it("rejects non-allowed children for a restricted container", () => {
+    expect(() =>
+      editor.insertBlocks(
+        [
+          {
+            type: "grid",
+            children: [
+              { type: "paragraph", content: "not a cell" },
+              { type: "paragraph", content: "not a cell" },
+            ],
+          },
+        ],
+        "p-1",
+        "after",
+      ),
+    ).toThrow();
+  });
+
+  it("accepts allowed children for a restricted container", () => {
+    editor.insertBlocks(
+      [
+        {
+          type: "grid",
+          id: "g-0",
+          children: [
+            {
+              type: "gridCell",
+              children: [{ type: "paragraph", content: "Cell A" }],
+            },
+            {
+              type: "gridCell",
+              children: [{ type: "paragraph", content: "Cell B" }],
+            },
+          ],
+        },
+      ],
+      "p-1",
+      "after",
+    );
+
+    const grid = editor.getBlock("g-0")!;
+    expect(grid.children.map((child) => child.type)).toEqual([
+      "gridCell",
+      "gridCell",
+    ]);
+  });
+
+  it("rejects inserting a containerOnly block at the document root", () => {
+    expect(() =>
+      editor.insertBlocks(
+        [{ type: "gridCell", children: [{ type: "paragraph" }] }],
+        "p-1",
+        "after",
+      ),
+    ).toThrow();
+  });
+
+  // The `allow: "any"` wildcard compiles to the containers placeable
+  // anywhere, so a containerOnly block only fits where a parent names it
+  // explicitly.
+  it("rejects a containerOnly block under a wildcard-allow container", () => {
+    expect(() =>
+      editor.insertBlocks(
+        [
+          {
+            type: "callout",
+            children: [{ type: "gridCell", children: [{ type: "paragraph" }] }],
+          },
+        ],
+        "p-1",
+        "after",
+      ),
+    ).toThrow();
+  });
+});
+
+describe("boundary", () => {
+  it("derives ProseMirror `isolating` from `boundary`", () => {
+    const nodes = editor.pmSchema.nodes;
+    expect(nodes["openBox"].spec.isolating).toBe(false);
+    // "isolated" is the default...
+    expect(nodes["callout"].spec.isolating).toBe(true);
+    // ...and "sealed" also isolates.
+    expect(nodes["sealedBox"].spec.isolating).toBe(true);
+  });
+});
+
+// `initialContent` is the only path that builds a document without validating
+// it: `blockToNode` is deliberately lenient, and `createDocument` builds from
+// JSON. So blocks `insertBlocks` rejects used to load happily, and a container
+// below its `min` stayed below it for the life of the document.
+describe("initialContent enforcement", () => {
+  const createWith = (initialContent: PartialBlock[]) => {
+    return BlockNoteEditor.create({ schema, initialContent });
+  };
+
+  it("fills an explicitly empty `children` array up to `min`", () => {
+    const loaded = createWith([{ type: "callout", id: "c-0", children: [] }]);
+
+    const callout = loaded.getBlock("c-0")!;
+    expect(callout.children).toHaveLength(1);
+    expect(callout.children[0].type).toBe("paragraph");
+
+    loaded._tiptapEditor.destroy();
+  });
+
+  it("rejects a container it cannot legally fill", () => {
+    expect(() =>
+      createWith([
+        { type: "grid", id: "g-0", children: [{ type: "gridCell" }] },
+      ]),
+    ).toThrow(/initialContent/);
+  });
+});
+
+describe("children repair", () => {
+  it("keeps a default container when its only child is removed (refilled)", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "callout",
+        id: "c-0",
+        children: [{ id: "c-p-0", type: "paragraph", content: "Only child" }],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.removeBlocks(["c-p-0"]);
+
+    const callout = editor.getBlock("c-0")!;
+    expect(callout).toBeDefined();
+    expect(callout.children).toHaveLength(1);
+    expect(callout.children[0].type).toBe("paragraph");
+    expect(callout.children[0].content).toEqual([]);
+  });
+
+  it("refills below `min` from the unconsumed tail of `default`", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "seededPair",
+        id: "s-0",
+        children: [
+          { id: "s-p-0", type: "paragraph", content: "Kept" },
+          { id: "s-p-1", type: "paragraph", content: "Removed" },
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.removeBlocks(["s-p-1"]);
+
+    // One child survives (k = 1), so the top-up seeds `default[1]` — not an
+    // empty paragraph, and not `default[0]`.
+    const pair = editor.getBlock("s-0")!;
+    expect(pair.children).toHaveLength(2);
+    expect(pair.children[0].content).toEqual([
+      { type: "text", text: "Kept", styles: {} },
+    ]);
+    expect(pair.children[1].content).toEqual([
+      { type: "text", text: "Seed B", styles: {} },
+    ]);
+  });
+
+  it("unwraps a repair-configured container when only one non-empty child remains", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "grid",
+        id: "g-0",
+        children: [
+          {
+            type: "gridCell",
+            id: "cell-a",
+            children: [{ id: "cell-a-p", type: "paragraph", content: "A" }],
+          },
+          {
+            type: "gridCell",
+            id: "cell-b",
+            children: [{ id: "cell-b-p", type: "paragraph", content: "B" }],
+          },
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.removeBlocks(["cell-a-p"]);
+
+    expect(editor.document).toMatchSnapshot();
+    // The grid has been unwrapped: cell B's content replaced it.
+    expect(editor.getBlock("g-0")).toBeUndefined();
+    expect(editor.document.map((block) => block.id)).toEqual([
+      "cell-b-p",
+      "trailing",
+    ]);
+  });
+});
+
+describe("children selection", () => {
+  it("getSelectionCutBlocks handles selections reaching into a container", () => {
+    editor.replaceBlocks(editor.document, [
+      { id: "before", type: "paragraph", content: "Before" },
+      {
+        type: "callout",
+        id: "c-0",
+        children: [
+          { id: "c-p-0", type: "paragraph", content: "First" },
+          { id: "c-p-1", type: "paragraph", content: "Second" },
+        ],
+      },
+    ]);
+    editor.setSelection("before", "c-p-0");
+
+    // Previously threw "unexpected" for any partial selection touching a
+    // container (breaking comments/AI selection handling).
+    const result = editor.getSelectionCutBlocks();
+    expect(result.blocks.length).toBeGreaterThanOrEqual(1);
+    expect(result.blocks.map((block) => block.id)).toContain("before");
+  });
+});

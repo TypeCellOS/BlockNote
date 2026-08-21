@@ -1,0 +1,100 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.item {
+  border-radius: 0.5rem;
+  flex: 1;
+  overflow: hidden;
+}
+
+.item.bordered {
+  border: 1px solid gray;
+}
+
+.item pre {
+  border-radius: 0.5rem;
+  height: 100%;
+  overflow: auto;
+  padding-block: 1rem;
+  padding-inline: 54px;
+  width: 100%;
+  white-space: pre-wrap;
+}
+
+/* The grid is plain CSS tables on divs. The React node-view wrappers between
+   the regions carry `display: contents`, so the row and cell boxes end up
+   direct children of the table box as far as layout is concerned. */
+.container-table {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.container-table-rows {
+  display: table;
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.container-table-row {
+  display: table-row;
+}
+
+.container-table-cell {
+  display: table-cell;
+  border: 1px solid #d0d0d0;
+  padding: 4px 8px;
+  vertical-align: top;
+}
+
+.container-table-header {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
+
+[data-color-scheme="dark"] .container-table-cell {
+  border-color: #4b4b4b;
+}
+
+[data-color-scheme="dark"] .container-table-header {
+  background-color: #2e2e2e;
+}
+
+.container-table-controls {
+  display: flex;
+  gap: 4px;
+  padding-top: 4px;
+  /* Only reveal the controls while working in the table. */
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.container-table:hover .container-table-controls,
+.container-table:focus-within .container-table-controls {
+  opacity: 1;
+}
+
+.container-table-controls button {
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.container-table-controls button:hover {
+  background-color: #f3f4f6;
+}
+
+[data-color-scheme="dark"] .container-table-controls button {
+  border-color: #4b4b4b;
+}
+
+[data-color-scheme="dark"] .container-table-controls button:hover {
+  background-color: #2e2e2e;
+}

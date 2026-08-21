@@ -1,0 +1,330 @@
+---
+title: Container Blocks
+description: Learn how to create custom blocks that hold other blocks as their body
+---
+
+# Container Blocks
+
+A *container block* is a custom block that holds other blocks as its body — like a Notion-style callout wrapping a paragraph and a code block, a toggle with a title and a body, or a multi-column layout. BlockNote's built-in multi-column blocks (`columnList` / `column`) are implemented with this same mechanism.
+
+## Declaring a Container Block
+
+Add the `children` option to your block config (created with [`createBlockSpec` or `createReactBlockSpec`](/docs/features/custom-schemas/custom-blocks)). The only required field is `allow`, so the smallest container is:
+
+```typescript
+import { createReactBlockSpec } from "@blocknote/react";
+
+const createCallout = createReactBlockSpec(
+  {
+    type: "callout",
+    propSchema: {},
+    content: "none",
+    // Makes this a container: its body is other blocks.
+    children: { allow: "any" },
+  },
+  {
+    // Child blocks mount into the element you attach `contentRef` to.
+    render: (props) => <div className="callout" ref={props.contentRef} />,
+  },
+);
+```
+
+`children: { allow: "any" }` accepts any block, requires at least one, and can never throw: when a container is created without children, BlockNote fills it with whatever its schema requires.
+
+At runtime the contained blocks live on `block.children` — the same field used for indented (nested) blocks. In fact, every regular block behaves as if it were declared with `children: { allow: "any", min: 0 }`; declaring `children` yourself is how you take control of the counts, the allowed types, and the rendering of that same field:
+
+```json
+{
+  "id": "callout-1",
+  "type": "callout",
+  "props": {},
+  "children": [
+    {
+      "id": "para-1",
+      "type": "paragraph",
+      "content": [{ "type": "text", "text": "Hello", "styles": {} }],
+      "children": []
+    }
+  ]
+}
+```
+
+### Where children render
+
+There is only one placement mechanism, and it is the one you already use for inline content. `contentRef` (React) / `contentDOM` (vanilla) marks **the block's editable region**; what goes in that region depends on the block:
+
+| block | `contentRef` element holds |
+| --- | --- |
+| `content: "inline"`, no `children` | its inline content |
+| `content: "none"` + `children` | its child blocks |
+| `content: "inline"` + `children` | its inline content, then its child blocks |
+| `content: "plain"` + `children` | its plain-text content, then its child blocks |
+
+A `content: "none"` block *without* `children` is the only kind with nothing to place, and it's the only kind that isn't offered a `contentRef` at all.
+
+Container blocks own their entire outer DOM — BlockNote doesn't wrap them in the usual block element. Whatever element your `render` returns *is* the block's element, and BlockNote stamps the attributes it relies on for parsing and UI positioning onto it: `data-node-type`, `data-id`, and each non-default prop as a `data-*` attribute. You write a plain `<div className="callout">` and `data-flavor="info"` lands on it, in the live editor and in serialized HTML alike.
+
+<Callout type="info">
+  _Because the framework wrappers React puts above your element carry `display:
+  contents`, they contribute no box: your element lays out exactly as if it were
+  the block's root. Selection is mirrored onto it as a `data-selected`
+  attribute, so `[data-selected]` is what you style for the selected state._
+</Callout>
+
+The demo below puts this together: a callout block that can contain any other blocks. Its title is a regular `<input>` backed by a string prop rather than document content — a pattern covered in [Editable fields that aren't document content](#editable-fields-that-arent-document-content):
+
+<Example name="custom-schema/container-block" />
+
+## Containers with their own content
+
+A container can have inline content *of its own* as well as children — a toggle's title with its body beneath it, a card header, a callout whose first line is real rich text rather than a plain `<input>`. Combine `content: "inline"` with `children`, and place both with the same single `contentRef`:
+
+```typescript
+const createToggle = createReactBlockSpec(
+  {
+    type: "toggle",
+    propSchema: {},
+    // The toggle's own title...
+    content: "inline",
+    // ...and its body.
+    children: { allow: "any", min: 0 },
+  },
+  {
+    render: (props) => (
+      <div className="toggle">
+        <span className="chevron" contentEditable={false} />
+        <div className="toggle-main" ref={props.contentRef} />
+      </div>
+    ),
+  },
+);
+```
+
+This is purely additive: adding `children` to an existing block is one config line and **zero render changes**. The block keeps its `Block` JSON shape — `content` for its own content, `children` for its body — identical to any other nested block.
+
+`content: "plain"` combines with `children` the same way, for a head that is text but not *rich* text — no formatting marks, no inline nodes, like a code block's source. A file group whose header is a literal filename would use it:
+
+```typescript
+{
+  type: "fileGroup",
+  propSchema: {},
+  // The group's filename: plain, unformattable text.
+  content: "plain",
+  // The files it groups.
+  children: { allow: "any" },
+}
+```
+
+### The two regions
+
+Inside the `contentRef` element, BlockNote renders two sibling elements with stable attributes derived from the block type:
+
+- `[data-content-type="<type>"]` — the block's own (inline or plain) content.
+- `[data-children-of="<type>"]` — its child blocks.
+
+You never place these yourself; you style them. The host element between them carries `display: contents`, so a grid on your own root reaches them directly:
+
+```css
+.toggle      { display: grid; grid-template-columns: auto 1fr; }
+.toggle-main { display: contents; }
+.chevron                     { grid-column: 1; grid-row: 1; }
+[data-content-type="toggle"] { grid-column: 2; grid-row: 1; }
+[data-children-of="toggle"]  { grid-column: 2; grid-row: 2; }
+```
+
+<Callout type="warn">
+  **Two limits, both imposed by ProseMirror:** reading order is always
+  content-then-children, and your own markup cannot be interleaved between the
+  two regions or wrap only one of them. A grid (or `order`) can reorder them
+  *visually*; the DOM order is fixed.
+</Callout>
+
+## `children` options
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `allow` | — (required) | What may appear as a child: `"any"`, `"blocks"`, `"containers"`, or an array of container block types. See [Restricting children](#restricting-children). |
+| `min` / `max` | `1` / unbounded | How many children are allowed. Compiled into the editor schema. |
+| `default` | — | Partial blocks to create the container with when it's inserted without an explicit `children` array, and the source of `"refill"` top-ups. Validated against the rest of the config when the schema is created. See [Defaults and refilling](#defaults-and-refilling). |
+| `whenEmptied` | `"refill"` | What happens when fewer non-empty children remain than `min`: `"refill"` tops the container back up from `default`; `"unwrap"` replaces the container with its surviving children, or removes it entirely when none are left. Column lists use `"unwrap"` so emptied columns disappear and a one-column list dissolves. |
+| `boundary` | `"isolated"` | What crosses the container's edge — the caret, selections, or nothing. See [Boundaries](#boundaries). |
+
+`placement` sits next to `children` on the block config rather than inside it, because it's a fact about *this* block rather than about its children:
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `placement` | `"anywhere"` | `"containerOnly"` restricts the block to containers that name it in their `children.allow` array — like a `column`, which only makes sense inside a `columnList` — and requires the block to be a container itself. `"anywhere"` is valid on any block; on a regular block it simply restates the default. |
+
+Purely behavioral options that apply to *every* block kind stay in the block implementation's `meta`:
+
+| Meta option | Default | Description |
+| --- | --- | --- |
+| `draggable` | `true` | Whether the block gets a side menu drag handle. A block that opts out is skipped when looking for a handle, so the handle falls through to the nearest draggable ancestor. |
+
+<Callout type="warn">
+  _`whenEmptied` never destroys typed text: for a container with its own
+  content, neither value does anything while that content is non-empty._
+</Callout>
+
+## Defaults and refilling
+
+`default` is an insertion template: a container inserted without an explicit `children` array is created with those blocks. Omit it and BlockNote fills the container with empty blocks its schema accepts.
+
+The same template drives `whenEmptied: "refill"`. When a refill container's non-empty children drop below `min` — say `k` remain — BlockNote appends `default[k]` through `default[min - 1]` at the end, falling back to empty blocks where `default` is absent or has no entry for a position. A checklist with `min: 2` and a two-entry `default` that loses its second item gets `default[1]` back, not a bare paragraph.
+
+## Boundaries
+
+`boundary` declares what may cross a container's edge:
+
+| Value | What crosses the edge |
+| --- | --- |
+| `"open"` | Everything: the caret, editing gestures, and text selections — a selection can start inside one child and end outside the container. `columnList` uses this so a selection can span columns. |
+| `"isolated"` (default) | The caret and editing gestures cross, but a text selection cannot span the edge. |
+| `"sealed"` | Nothing crosses implicitly: the caret doesn't wander in via arrow keys or Backspace, and from outside, the container selects and deletes as a single unit. |
+
+For editing gestures, `"open"` and `"isolated"` behave identically — the
+editor moves blocks across the edge implicitly, which is the right feel for
+flow regions. Backspace at the start of a container's first child moves that
+child out; Backspace at the start of the block *after* a container moves it
+inside; Delete mirrors both. And Enter on an empty **last** child moves that
+block out below the container — the "double-Enter escapes" gesture every
+list editor has (an empty block mid-container never ejects; spacing inside a
+block is Shift+Enter's job). Columns and callouts want exactly this. The two
+values differ only in whether a *text selection* can reach across the edge.
+
+### Sealed containers
+
+A compartment — a table cell is the canonical case — wants the opposite:
+whatever happens at its edges, content stays where it is. Declaring
+`boundary: "sealed"` gets that in one line:
+
+```typescript
+// A cell: holds any blocks, but nothing crosses its edge implicitly.
+children: { allow: "any", boundary: "sealed" },
+placement: "containerOnly",
+```
+
+Sealed means every *implicit* move across the edge is off, in both
+directions — without it, each of these would need a hand-written keyboard
+handler:
+
+- Backspace at the start of the first child no longer moves it out; the
+  keystroke does nothing. Deeper in the container, Backspace behaves as
+  usual — merging into the previous sibling, un-indenting nested blocks.
+- Delete at the end of the last child no longer pulls the next block in.
+- Backspace after (or Delete before) a sealed container selects the
+  container instead of merging into it, so a second press deletes it as a
+  whole, deliberately.
+- Arrow keys from outside treat the container as a unit rather than
+  stepping the caret inside; clicking inside still places the caret, and
+  editing within the container is unrestricted.
+- Enter never moves the trailing block out: there is no double-Enter escape
+  from a sealed container.
+
+The setting is deliberately key-agnostic — it declares a fact about the
+boundary, not a keybinding — so any gesture that would implicitly move the
+caret or content across the edge consults it.
+
+One thing seals never bind: the block manipulation API. `insertBlocks` and
+the rest ignore `boundary` entirely — an API call is an intentional
+crossing, so it can always place content inside a sealed container.
+
+## Restricting children
+
+`allow` takes one of four forms:
+
+```typescript
+allow: "any" | "blocks" | "containers" | string[]
+```
+
+- `"any"` — any regular block, plus any container placeable anywhere.
+- `"blocks"` — regular blocks only, no containers.
+- `"containers"` — any anywhere-placeable container, no regular blocks.
+- `string[]` — only the named container block types.
+
+The wildcard forms (`"any"`, `"containers"`) exclude `placement: "containerOnly"` types: a `column` never shows up inside your callout just because the callout accepts "any" block. A containerOnly type appears only where a parent names it in an array.
+
+The array form is exact because container blocks are each their own ProseMirror node type. Every **regular** block — paragraph, heading, code block — is the *same* ProseMirror node internally, so "only headings" is not something the schema can enforce yet. Naming a regular block type in the array is a startup error saying per-type filtering of regular blocks is not yet supported — the array is where that will land later, with no API change.
+
+This is exactly how the multi-column blocks are defined:
+
+```typescript
+// The outer container: only columns, at least two of them;
+// unwraps when it drops to one, and selections span its columns.
+children: {
+  allow: ["column"],
+  min: 2,
+  whenEmptied: "unwrap",
+  boundary: "open",
+}
+
+// The column: holds any blocks, but only lives inside a columnList.
+children: { allow: "any" },
+placement: "containerOnly",
+```
+
+## Inserting into a container
+
+[`editor.insertBlocks`](/docs/reference/editor/manipulating-content#inserting-blocks) takes two nested placements alongside the sibling ones:
+
+```typescript
+// Siblings of the reference block:
+editor.insertBlocks([{ type: "paragraph" }], calloutId, "before");
+editor.insertBlocks([{ type: "paragraph" }], calloutId, "after");
+
+// Nested inside it, as its first or last child:
+editor.insertBlocks([{ type: "paragraph" }], calloutId, "start");
+editor.insertBlocks([{ type: "paragraph" }], calloutId, "end");
+```
+
+The nested placements are what addresses a container with no children to point at — a `min: 0` container that is currently empty has no child block to insert before or after. Whether a block fits is answered by the schema, so it's your `children` config that decides.
+
+## Validation
+
+Configurations are checked when the schema is created, and fail up front with a message naming the block. Beyond unknown block types and impossible `default` children, this catches:
+
+- an `allow` that permits nothing — an empty array, or a wildcard form when no anywhere-placeable container exists;
+- an `allow` array naming an unknown type, or naming a regular block type (per-type filtering of regular blocks is [not yet supported](#restricting-children));
+- `content: "table"` combined with `children`;
+- a `placement: "containerOnly"` block that no container's `allow` array names, or `placement: "containerOnly"` on a regular block;
+- **container cycles** — a container that (transitively) requires a child that requires it back could never be created. An `allow` that permits regular blocks breaks the cycle, since they're always satisfiable.
+
+## Parsing HTML into a container
+
+Containers go through the same parsing path as regular blocks. The default rule matches the marker BlockNote puts on the block's root, `[data-node-type="<type>"]`, which is what makes HTML produced by BlockNote round-trip.
+
+To recognize *foreign* HTML, add `implementation.parse` — it returns the block's props, or `undefined` to decline:
+
+```typescript
+{
+  render: (props) => <div className="card" ref={props.contentRef} />,
+  parse: (el) =>
+    el.classList.contains("card")
+      ? { tone: el.getAttribute("data-tone") ?? undefined }
+      : undefined,
+}
+```
+
+With no `parseContent`, ProseMirror parses the element's children with the normal block rules, so `<div class="card"><p>…</p><h1>…</h1></div>` becomes a card with a paragraph and a heading. Supply `parseContent` only if you need to build the body yourself; inline nodes it returns become paragraph children, except a leading inline run in a container that has its own content, which becomes that content.
+
+`runsBefore` orders your parse rule against other blocks'. On a container it may only name **other containers**: container nodes register in a priority band below regular blocks, so a container can never be ordered ahead of one — a container's `tag: "*"` rule is always considered after every regular block's. Naming a regular block there is an error rather than a silent no-op.
+
+<Callout type="warn">
+  **`allow` does not filter what a user pastes.** Pasted HTML is parsed with
+  `blockGroup` as its top node, and ProseMirror's fitting algorithm places
+  content your container's expression rejects *after* the container rather than
+  dropping it. `allow` constrains the document model, not the parser.
+</Callout>
+
+## Interop behavior
+
+- **HTML**: containers serialize to a `<div data-node-type="...">` with their children nested inside and non-default props as `data-*` attributes, and parse back losslessly. A container with its own content serializes its two regions as `[data-content-type]` and `[data-children-of]` elements.
+- **External HTML** (`blocksToHTMLLossy`, copy to another app) is intentionally semantic and lossy. Override `toExternalHTML` and return a `childrenDOM` to say where children belong in your own markup — this is how toggles export as `<details>`.
+- **Markdown**: containers are flattened — their children are exported in order, and Markdown import never produces containers.
+- **Exporters** (`@blocknote/xl-docx-exporter`, `xl-pdf-exporter`, `xl-odt-exporter`, `xl-email-exporter`): container blocks require an explicit block mapping that places their children; a missing mapping throws a clear error.
+
+## Editable fields that aren't document content
+
+Not every editable field belongs in the document. If a field doesn't need rich text formatting, comments, or multiplayer cursors — a name, a URL, a label — store it as a **string prop** and render a regular `<input>` inside the block, in a `contentEditable={false}` wrapper, committing the value with `editor.updateBlock`. The callout demo on this page does exactly that for its title.
+
+Reach for a container's own `content: "inline"` when the field *is* prose, and for a string prop when it's data.

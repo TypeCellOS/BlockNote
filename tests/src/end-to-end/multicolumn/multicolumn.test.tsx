@@ -11,6 +11,7 @@ import {
 import {
   compareDocToSnapshot,
   focusOnEditor,
+  sleep,
   waitForSelector,
 } from "../../utils/editor.js";
 import {
@@ -132,5 +133,61 @@ describe("Check Multi-Column Behaviour", () => {
     await userEvent.keyboard("{Delete}");
 
     await compareDocToSnapshot("deleteEndOfColumnList");
+  });
+});
+
+// Which block the side menu attaches to is resolved from live layout
+// (`elementsFromPoint` / `posAtCoords`). The pieces below that are covered
+// closer to the code: the arithmetic in
+// `packages/core/src/extensions/SideMenu/sideMenuContainerGeometry.test.ts`
+// (node, plain rects) and the DOM/layout adapters in the `.browser.test.ts`
+// beside it. This is the whole path, through a real column list.
+//
+// Each column carries 25px of its own left padding and the side menu renders
+// into it, so the coordinates the lookup is handed belong to one column while
+// horizontally overlapping the column before it. `SideMenu.ts` compensates by
+// re-probing 50px further right once `isHorizontalContainer` recognises the
+// column list; drop that (or let the detection fail — a `display: contents`
+// element reports a zero rect, which is exactly what would silently defeat it)
+// and the menu attaches to a block in the *previous* column instead. Only the
+// padding is affected: hovering a block's own text resolves correctly either
+// way, which is why this can't be tested by hovering a block.
+describe("Check side menu placement inside a column list", () => {
+  /** Vertical centre of a rect — what the menu lines itself up with. */
+  const centerY = (rect: DOMRect) => rect.y + rect.height / 2;
+
+  test("Check drag handle resolves the block on the hovered row of a column", async () => {
+    await focusOnEditor();
+
+    // The last column is the only one holding several blocks, so it's the only
+    // place a wrongly resolved block is distinguishable by its row.
+    const target = page.getByText("Block 2").element();
+    const columnRect = getRect(target.closest(".bn-block-column")!);
+
+    await mouseSequence([
+      {
+        type: "move",
+        x: columnRect.x + 5,
+        y: centerY(getRect(target)),
+        steps: 5,
+      },
+    ]);
+    await waitForSelector(DRAG_HANDLE_SELECTOR);
+    await sleep(150);
+    const handleRect = getRect(DRAG_HANDLE_SELECTOR);
+
+    expect(handleRect.x).toBeLessThan(getRect(target).x);
+
+    // The handle lines up with the hovered block's row rather than any other
+    // block's — a stronger claim than a pixel tolerance would be, since every
+    // candidate is only a line-height away, and it's what distinguishes this
+    // column's blocks from the neighbouring column's.
+    const distance = (rect: DOMRect) =>
+      Math.abs(centerY(handleRect) - centerY(rect));
+    for (const other of ["Block 1", "Block 3", "So is this heading!"]) {
+      expect(distance(getRect(target))).toBeLessThan(
+        distance(getRect(page.getByText(other).element())),
+      );
+    }
   });
 });

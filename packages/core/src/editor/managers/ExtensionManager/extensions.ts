@@ -39,6 +39,7 @@ import {
   UniqueID,
 } from "../../../extensions/tiptap-extensions/index.js";
 import { BlockContainer, BlockGroup, Doc } from "../../../pm-nodes/index.js";
+import { isContainerType } from "../../../schema/blocks/children.js";
 import type {
   BlockNoteEditor,
   BlockNoteEditorOptions,
@@ -62,7 +63,16 @@ export function getDefaultTiptapExtensions(
 
     UniqueID.configure({
       // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
-      types: ["blockContainer", "columnList", "column"],
+      types: [
+        "blockContainer",
+        // Container block specs whose PM node is itself in the `bnBlock` group
+        // (column, columnList, callout, etc.) — i.e. the bnBlock node IS the
+        // block, so the id lives on its attrs rather than on a wrapping
+        // blockContainer.
+        ...Object.entries(editor.schema.blockSpecs)
+          .filter(([, spec]) => isContainerType((spec as any).config))
+          .map(([type]) => type),
+      ],
       setIdAttribute: options.setIdAttribute,
       isWithinEditor: editor.isWithinEditor,
     }),
@@ -129,6 +139,16 @@ export function getDefaultTiptapExtensions(
                 domAttributes: options.domAttributes,
               }),
             ]
+          : []),
+        // Nodes the block's node depends on but which aren't blocks
+        // themselves (a content-bearing container's content & children nodes).
+        ...("extraNodes" in blockSpec.implementation
+          ? (blockSpec.implementation.extraNodes as Node[]).map((node) =>
+              node.configure({
+                editor: editor,
+                domAttributes: options.domAttributes,
+              }),
+            )
           : []),
       ];
     }),

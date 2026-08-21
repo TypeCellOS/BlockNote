@@ -5,8 +5,10 @@ import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
   InlineContentSchema,
+  isContainerType,
   StyleSchema,
 } from "../../../../schema/index.js";
+import { fillContainerAttributes } from "../../../../schema/blocks/containerAttributes.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   inlineContentToNodes,
@@ -126,6 +128,30 @@ export function serializeInlineContentInternalHTML<
   return fragment;
 }
 
+/**
+ * Appends the two region elements a content-bearing container's generated
+ * `__content` / `__children` nodes render, so that internal HTML matches what
+ * the editor puts in the DOM (and what the generated parse rules match).
+ */
+function createContainerRegions(
+  contentDOM: HTMLElement,
+  blockType: string,
+  options?: { document?: Document },
+): { content: HTMLElement; children: HTMLElement } {
+  const doc = options?.document ?? document;
+
+  const content = doc.createElement("div");
+  content.className = "bn-inline-content";
+  content.setAttribute("data-content-type", blockType);
+
+  const children = doc.createElement("div");
+  children.setAttribute("data-children-of", blockType);
+
+  contentDOM.append(content, children);
+
+  return { content, children };
+}
+
 function serializeBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -159,7 +185,28 @@ function serializeBlock<
     editor as any,
   );
 
-  if (ret.contentDOM && block.content) {
+  // Asked of the block config rather than of its ProseMirror node: a container
+  // that has its own content compiles to an outer node holding a separate
+  // children node, so the outer node is not itself a `childContainer` — but
+  // the block is still a container and still owns its outer DOM.
+  const blockConfig = editor.schema.blockSchema[block.type as any];
+  const isContainer = isContainerType(blockConfig);
+
+  // A container with its own content holds two nodes — the generated
+  // `__content` and `__children` — and so renders two region elements inside
+  // its content host. They are not decoration: without them only the *first*
+  // child parses back inside the container. ProseMirror has to invent the
+  // `__children` wrapping while parsing, and `blockContainer`'s `blockOuter`
+  // skip rule re-syncs the parse context to the container afterwards, closing
+  // that invented wrapping again.
+  const regions =
+    isContainer && ret.contentDOM && blockConfig.content !== "none"
+      ? createContainerRegions(ret.contentDOM, block.type!, options)
+      : undefined;
+
+  const contentHost = regions?.content ?? ret.contentDOM;
+
+  if (contentHost && block.content) {
     const ic = serializeInlineContentInternalHTML(
       editor,
       block.content as any, // TODO
@@ -167,12 +214,34 @@ function serializeBlock<
       block.type,
       options,
     );
-    ret.contentDOM.appendChild(ic);
+    contentHost.appendChild(ic);
   }
 
-  const pmType = editor.pmSchema.nodes[block.type as any];
+  if (isContainer) {
+    // Container blocks own their outer DOM. Internal HTML must round-trip
+    // losslessly, so make sure the attributes the generated parse rules read
+    // (the type marker and non-default props as `data-*`) are present even
+    // when the block's render didn't add them. Author-set attributes win.
+    fillContainerAttributes(
+      ret.dom as HTMLElement,
+      block.type!,
+      props,
+      blockConfig.propSchema,
+    );
 
-  if (pmType.isInGroup("bnBlock")) {
+    // A pure container holds its children directly in its `contentDOM`; one
+    // with its own content puts them in the children region, after the content
+    // region — the reading order the document model itself imposes.
+    const childrenHost = regions?.children ?? ret.contentDOM;
+    // Mark where the children live so the container's round-trip parse rule
+    // can scope itself to this element (`contentElement` in `getParseRules`).
+    // A render is free to put non-content UI text elsewhere in its DOM
+    // (button labels, captions, ...), and without the marker that text would
+    // parse back as document content. Content-bearing containers get the
+    // marker from `createContainerRegions`.
+    if (!regions && ret.contentDOM) {
+      ret.contentDOM.setAttribute("data-children-of", block.type!);
+    }
     if (block.children && block.children.length > 0) {
       const fragment = serializeBlocks(
         editor,
@@ -181,7 +250,7 @@ function serializeBlock<
         options,
       );
 
-      ret.contentDOM?.append(fragment);
+      childrenHost?.append(fragment);
     }
     return ret.dom;
   }

@@ -6,8 +6,10 @@ import {
   BlockImplementation,
   BlockSchema,
   InlineContentSchema,
+  isContainerType,
   StyleSchema,
 } from "../../../../schema/index.js";
+import { fillContainerAttributes } from "../../../../schema/blocks/containerAttributes.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   inlineContentToNodes,
@@ -270,6 +272,21 @@ function serializeBlock<
     }
     elementFragment.append(...Array.from(ret.dom.childNodes));
   } else {
+    // Asked of the block config rather than of its ProseMirror node — see the
+    // same check in `serializeBlocksInternalHTML`.
+    if (isContainerType(editor.schema.blockSchema[block.type as any])) {
+      // Container blocks own their outer DOM. Make sure the attributes
+      // needed to parse the HTML back (the type marker and non-default
+      // props, in the same `data-*` convention `propsToAttributes` reads)
+      // are present even when the block's render didn't add them.
+      // Author-set attributes win.
+      fillContainerAttributes(
+        ret.dom as HTMLElement,
+        block.type!,
+        props,
+        editor.schema.blockSchema[block.type as any].propSchema,
+      );
+    }
     elementFragment.append(ret.dom);
     if (nestingLevel > 0) {
       (ret.dom as HTMLElement).setAttribute(
@@ -297,15 +314,23 @@ function serializeBlock<
     // round trip, we fill their content with a placeholder character that the
     // parser strips out again (see `EMPTY_BLOCK_PLACEHOLDER`).
     //
-    // Only applies to blocks that hold inline content: containers (columns,
-    // tables) fill their `contentDOM` with child blocks later on, and code
-    // blocks would turn the placeholder into literal content.
+    // Only applies to blocks that hold inline content: pure containers
+    // (columns, tables) fill their `contentDOM` with child blocks later on,
+    // and code blocks would turn the placeholder into literal content.
+    //
+    // A container that has its *own* content needs the placeholder for a
+    // second reason, and its outer node isn't `inlineContent` so it needs its
+    // own check: that node's content is `<type>__content <type>__children`, so
+    // a parser reading a block element first has nothing to satisfy the
+    // content node with and cannot open the children node — every child then
+    // lands *after* the container instead of inside it. A leading text node is
+    // what opens the content node.
     const blockNodeType = editor.pmSchema.nodes[block.type as any];
-    if (
-      blockNodeType?.inlineContent &&
-      !blockNodeType.spec.code &&
-      ret.contentDOM.childNodes.length === 0
-    ) {
+    const blockConfig = editor.schema.blockSchema[block.type as any];
+    const needsPlaceholder = blockNodeType?.inlineContent
+      ? !blockNodeType.spec.code
+      : isContainerType(blockConfig) && blockConfig.content !== "none";
+    if (needsPlaceholder && ret.contentDOM.childNodes.length === 0) {
       ret.contentDOM.appendChild(doc.createTextNode(EMPTY_BLOCK_PLACEHOLDER));
     }
   }

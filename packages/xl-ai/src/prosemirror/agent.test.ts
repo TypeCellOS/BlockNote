@@ -39,7 +39,7 @@ describe.skip("getStepsAsAgent", () => {
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
     const block = getBlockInfo(blockPos);
-    if (!block.isBlockContainer) {
+    if (!block.isWrappedBlock) {
       throw new Error("Block is not a container");
     }
 
@@ -72,7 +72,7 @@ describe.skip("getStepsAsAgent", () => {
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
     const block = getBlockInfo(blockPos);
-    if (!block.isBlockContainer) {
+    if (!block.isWrappedBlock) {
       throw new Error("Block is not a container");
     }
 
@@ -98,7 +98,7 @@ describe.skip("getStepsAsAgent", () => {
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
     const block = getBlockInfo(blockPos);
-    if (!block.isBlockContainer) {
+    if (!block.isWrappedBlock) {
       throw new Error("Block is not a container");
     }
 
@@ -128,7 +128,7 @@ describe.skip("getStepsAsAgent", () => {
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
     const block = getBlockInfo(blockPos);
-    if (!block.isBlockContainer) {
+    if (!block.isWrappedBlock) {
       throw new Error("Block is not a container");
     }
 
@@ -157,7 +157,7 @@ describe.skip("getStepsAsAgent", () => {
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
     const block = getBlockInfo(blockPos);
-    if (!block.isBlockContainer) {
+    if (!block.isWrappedBlock) {
       throw new Error("Block is not a container");
     }
 

@@ -1,11 +1,18 @@
 import { afterEach, beforeEach } from "vite-plus/test";
 
+// This setup file also runs for test files that opt into the plain `node`
+// environment (`@vitest-environment node`), where there is no `window` at all.
+// `__TEST_OPTIONS` (which drives deterministic block IDs) therefore hangs off
+// `window` when there is one and off `globalThis` otherwise — the same
+// resolution `UniqueID`'s `generateID` uses.
+const testHost: any = (globalThis as any).window ?? globalThis;
+
 beforeEach(() => {
-  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
+  testHost.__TEST_OPTIONS = {};
 });
 
 afterEach(() => {
-  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+  delete testHost.__TEST_OPTIONS;
 });
 
 // Mock ClipboardEvent

@@ -27,8 +27,15 @@ const createReproBlock = createReactBlockSpec(
   { render: (props) => <p ref={props.contentRef} /> },
 );
 
+// A container block, whose node view's node IS the bnBlock — resolved by id
+// instead of by position.
+const createBoxBlock = createReactBlockSpec(
+  { type: "box", propSchema: {}, content: "none", children: { allow: "any" } },
+  { render: (props) => <div ref={props.contentRef} /> },
+);
+
 const schema = BlockNoteSchema.create().extend({
-  blockSpecs: { repro: createReproBlock() },
+  blockSpecs: { repro: createReproBlock(), box: createBoxBlock() },
 });
 
 let editor: BlockNoteEditor<any, any, any>;
@@ -43,6 +50,7 @@ beforeEach(() => {
       { type: "paragraph", content: "first" },
       { type: "repro", content: "target block" },
       { type: "paragraph", content: "last" },
+      { type: "box", children: [{ type: "paragraph", content: "inside" }] },
     ],
   }) as BlockNoteEditor<any, any, any>;
 
@@ -78,11 +86,14 @@ function renderHook(
   return resolved;
 }
 
-// Only the two fields `useNodeViewBlock` reads. Built structurally so `tests`
-// doesn't need a dependency on `@tiptap/react` just for its prop types.
-function makeProps(getPos: () => number | undefined) {
+// Only the fields `useNodeViewBlock` reads. Built structurally so `tests`
+// doesn't need a dependency on `@tiptap/react` just for its prop types. The
+// `node` defaults to a regular (non-container) block's node shape; container
+// tests pass the real PM node instead.
+function makeProps(getPos: () => number | undefined, node?: unknown) {
   return {
     getPos,
+    node: node ?? { type: { isInGroup: () => false } },
     view: { state: { doc: editor.prosemirrorState.doc } },
   } as unknown as Parameters<typeof useNodeViewBlock>[0];
 }
@@ -169,5 +180,35 @@ describe("useNodeViewBlock", () => {
 
     expect(resolved.id).toBe(target.id);
     expect(resolved).not.toBe(seed);
+  });
+
+  it("rejects container blocks loudly instead of resolving the wrong block", () => {
+    const box = editor.document[3];
+    const { node } = getNodeById(box.id, editor.prosemirrorState.doc)!;
+    const props = makeProps(() => undefined, node);
+
+    let captured: unknown;
+
+    function Probe() {
+      useNodeViewBlock(props, box);
+      return null;
+    }
+
+    root = createRoot(div, {
+      // React 19 reports uncaught render errors here instead of rethrowing
+      // out of `flushSync`.
+      onUncaughtError: (error: unknown) => {
+        captured = error;
+      },
+    });
+    try {
+      flushSync(() => {
+        root!.render(<Probe />);
+      });
+    } catch (error) {
+      captured = error;
+    }
+
+    expect(String(captured)).toMatch(/cannot resolve container block "box"/);
   });
 });

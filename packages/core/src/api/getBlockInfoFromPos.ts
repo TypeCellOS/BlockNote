@@ -1,6 +1,12 @@
 import { Node, ResolvedPos } from "prosemirror-model";
 import { EditorState, Transaction } from "prosemirror-state";
 
+import {
+  CHILD_CONTAINER_GROUP,
+  CONTAINER_CONTENT_GROUP,
+  isContentContainerNode,
+} from "../schema/blocks/children.js";
+
 type SingleBlockInfo = {
   node: Node;
   beforePos: number;
@@ -20,13 +26,16 @@ export type BlockInfo = {
   blockNoteType: string;
 } & (
   | {
-      // In case we're not dealing with a BlockContainer, we're dealing with a "wrapper node" (like a Column or ColumnList), so it will always have children
+      // A container block (Column, ColumnList, a custom container): its own node
+      // holds its children directly, and it has no `blockContent` of its own.
 
       /**
-       * The Prosemirror node that holds block.children. For non-blockContainer, this node will be the same as bnBlock.
+       * The Prosemirror node that holds block.children. For a container block,
+       * this node is the same as bnBlock.
        */
       childContainer: SingleBlockInfo;
-      isBlockContainer: false;
+      blockContent?: undefined;
+      isWrappedBlock: false;
     }
   | {
       /**
@@ -38,9 +47,16 @@ export type BlockInfo = {
        */
       blockContent: SingleBlockInfo;
       /**
-       * Whether bnBlock is a blockContainer node
+       * Whether `bnBlock` wraps the block's content in a node of its own —
+       * either a `blockContainer` (an ordinary block wrapped for nesting), or
+       * a container block that has its own content as well as children. Both
+       * have the same shape: a content node, then an optional child container.
+       *
+       * Note this is roughly the *opposite* of "is a container block": a
+       * column has `isWrappedBlock: false`. Sites that need "is this literally
+       * a `blockContainer`" should read `bnBlock.node.type.name`.
        */
-      isBlockContainer: true;
+      isWrappedBlock: true;
     }
 );
 
@@ -183,48 +199,47 @@ export function getBlockInfoWithManualOffset(
     afterPos: bnBlockAfterPos,
   };
 
-  if (bnBlockNode.type.name === "blockContainer") {
+  // A container block that has its own content is shaped like a
+  // `blockContainer`: a content node followed by a node holding its children.
+  // Discriminating on that shape rather than on the node's name is what lets
+  // every branch written against `blockContainer` cover it too.
+  const isContentContainer = isContentContainerNode(bnBlockNode);
+
+  if (bnBlockNode.type.name === "blockContainer" || isContentContainer) {
     let blockContent: SingleBlockInfo | undefined;
-    let blockGroup: SingleBlockInfo | undefined;
+    let childContainer: SingleBlockInfo | undefined;
 
     bnBlockNode.forEach((node, offset) => {
-      if (node.type.spec.group === "blockContent") {
-        // console.log(beforePos, offset);
-        const blockContentNode = node;
-        const blockContentBeforePos = bnBlockBeforePos + offset + 1;
-        const blockContentAfterPos = blockContentBeforePos + node.nodeSize;
+      const beforePos = bnBlockBeforePos + offset + 1;
+      const afterPos = beforePos + node.nodeSize;
 
-        blockContent = {
-          node: blockContentNode,
-          beforePos: blockContentBeforePos,
-          afterPos: blockContentAfterPos,
-        };
-      } else if (node.type.name === "blockGroup") {
-        const blockGroupNode = node;
-        const blockGroupBeforePos = bnBlockBeforePos + offset + 1;
-        const blockGroupAfterPos = blockGroupBeforePos + node.nodeSize;
-
-        blockGroup = {
-          node: blockGroupNode,
-          beforePos: blockGroupBeforePos,
-          afterPos: blockGroupAfterPos,
-        };
+      if (
+        node.type.spec.group === "blockContent" ||
+        node.type.isInGroup(CONTAINER_CONTENT_GROUP)
+      ) {
+        blockContent = { node, beforePos, afterPos };
+      } else if (node.type.isInGroup(CHILD_CONTAINER_GROUP)) {
+        childContainer = { node, beforePos, afterPos };
       }
     });
 
     if (!blockContent) {
       throw new Error(
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        `blockContainer node does not contain a blockContent node in its children: ${bnBlockNode}`,
+        `${bnBlockNode.type.name} node does not contain a content node in its children: ${bnBlockNode}`,
       );
     }
 
     return {
-      isBlockContainer: true,
+      isWrappedBlock: true,
       bnBlock,
       blockContent,
-      childContainer: blockGroup,
-      blockNoteType: blockContent.node.type.name,
+      childContainer,
+      // A `blockContainer` is a generic wrapper, so its type comes from the
+      // content node inside it. A container block *is* its own type.
+      blockNoteType: isContentContainer
+        ? bnBlockNode.type.name
+        : blockContent.node.type.name,
     };
   } else {
     if (!bnBlock.node.type.isInGroup("childContainer")) {
@@ -235,7 +250,7 @@ export function getBlockInfoWithManualOffset(
     }
 
     return {
-      isBlockContainer: false,
+      isWrappedBlock: false,
       bnBlock: bnBlock,
       childContainer: bnBlock,
       blockNoteType: bnBlock.node.type.name,

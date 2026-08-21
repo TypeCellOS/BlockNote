@@ -1,0 +1,244 @@
+import type { Node, NodeType, Schema } from "prosemirror-model";
+
+import type {
+  BlockConfig,
+  ChildrenAllow,
+  ChildrenConfig,
+  PartialBlockNoDefaults,
+} from "./types.js";
+
+/** A {@link ChildrenConfig} with every default filled in. */
+export type ResolvedChildren = {
+  blocks: boolean;
+  /** `true` for any container type; a (possibly empty) list otherwise. */
+  containers: true | readonly string[];
+  /** What `whenEmptied` compares against. */
+  min: number;
+  max: number | undefined;
+  default: readonly PartialBlockNoDefaults<any, any, any>[] | undefined;
+  whenEmptied: "refill" | "unwrap";
+  boundary: "open" | "isolated" | "sealed";
+};
+
+export const CHILD_CONTAINER_GROUP = "childContainer";
+
+export const BLOCK_GROUP_CHILD_GROUP = "blockGroupChild";
+
+// Joined by every container block placeable anywhere (`placement` other than
+// `"containerOnly"`). It's what the `allow` container wildcards (`"any"`,
+// `"containers"`) compile to: a containerOnly type only ever lives where a
+// container names it explicitly, so it stays out of the group.
+export const ANY_CONTAINER_GROUP = "anyContainer";
+
+// Not `blockContent` — that's a legal child of `blockContainer`, so a paste
+// could produce an unrepresentable `blockContainer > toggle__content`.
+export const CONTAINER_CONTENT_GROUP = "containerContent";
+
+// `__` because PM's expression parser only accepts word characters in node names.
+const CONTENT_NODE_SUFFIX = "__content";
+const CHILDREN_NODE_SUFFIX = "__children";
+
+export function containerContentNodeName(blockType: string): string {
+  return `${blockType}${CONTENT_NODE_SUFFIX}`;
+}
+
+export function containerChildrenNodeName(blockType: string): string {
+  return `${blockType}${CHILDREN_NODE_SUFFIX}`;
+}
+
+export function blockTypeOfContainerContentNode(
+  nodeName: string,
+): string | undefined {
+  return nodeName.endsWith(CONTENT_NODE_SUFFIX)
+    ? nodeName.slice(0, -CONTENT_NODE_SUFFIX.length)
+    : undefined;
+}
+
+export function blockTypeOfContainerChildrenNode(
+  nodeName: string,
+): string | undefined {
+  return nodeName.endsWith(CHILDREN_NODE_SUFFIX)
+    ? nodeName.slice(0, -CHILDREN_NODE_SUFFIX.length)
+    : undefined;
+}
+
+// Whether `type` is a node that holds child blocks directly: a pure container
+// block's own node, or a generated `__children` node. (`blockGroup` is in the
+// group too but is regular-block nesting machinery, not a container.)
+export function isContainerNode(type: NodeType): boolean {
+  return type.isInGroup(CHILD_CONTAINER_GROUP) && type.name !== "blockGroup";
+}
+
+// Whether `node` is a container that has its own content (children live in
+// a generated `__children` node). Not the same as `isContainerNode`.
+export function isContentContainerNode(node: Node): boolean {
+  return !!node.firstChild?.type.isInGroup(CONTAINER_CONTENT_GROUP);
+}
+
+/**
+ * Whether `node` is a container block's node in either shape — a pure
+ * container (children held directly) or a content-bearing container (children
+ * held in a generated `__children` node). The disjunction every nav/repair
+ * call site needs.
+ */
+export function isContainerBlockNode(node: Node): boolean {
+  return isContainerNode(node.type) || isContentContainerNode(node);
+}
+
+export function getContentContainerNodeTypes(
+  schema: Schema,
+  blockType: string,
+): { contentType: NodeType; childrenType: NodeType } | undefined {
+  const contentType = schema.nodes[containerContentNodeName(blockType)];
+  const childrenType = schema.nodes[containerChildrenNodeName(blockType)];
+
+  return contentType && childrenType
+    ? { contentType, childrenType }
+    : undefined;
+}
+
+// Below `blockContainer`'s priority (50) so PM's `fillBefore` picks
+// `blockContainer` first, avoiding recursion through nested containers.
+export const CONTAINER_NODE_PRIORITY = 40;
+
+const CONTAINER_PRIORITY_BAND = { min: 30, max: 49 };
+const DEFAULT_SPEC_PRIORITY = 101;
+
+// Maps `sortByDependencies` priority into the container band (30–49).
+// Preserves relative order but keeps all containers below regular blocks.
+export function containerNodePriority(priority: number | undefined): number {
+  if (priority === undefined) {
+    return CONTAINER_NODE_PRIORITY;
+  }
+
+  const steps = Math.round((priority - DEFAULT_SPEC_PRIORITY) / 10);
+
+  return Math.min(
+    CONTAINER_PRIORITY_BAND.max,
+    Math.max(CONTAINER_PRIORITY_BAND.min, CONTAINER_NODE_PRIORITY + steps),
+  );
+}
+
+export function getChildrenConfig(config: {
+  children?: ChildrenConfig;
+}): ChildrenConfig | undefined {
+  return config.children;
+}
+
+export function isContainerType(config: {
+  children?: ChildrenConfig;
+}): boolean {
+  return config.children !== undefined;
+}
+
+export function isPlaceableAnywhere(config: {
+  placement?: BlockConfig["placement"];
+}): boolean {
+  return config.placement !== "containerOnly";
+}
+
+const resolvedCache = new WeakMap<ChildrenConfig, ResolvedChildren>();
+
+export function resolveChildren(children: ChildrenConfig): ResolvedChildren {
+  const cached = resolvedCache.get(children);
+  if (cached) {
+    return cached;
+  }
+
+  const resolved: ResolvedChildren = {
+    ...resolveAllow(children.allow),
+    min: children.min ?? 1,
+    max: children.max,
+    default: children.default,
+    whenEmptied: children.whenEmptied ?? "refill",
+    boundary: children.boundary ?? "isolated",
+  };
+
+  resolvedCache.set(children, resolved);
+  return resolved;
+}
+
+function resolveAllow(
+  allow: ChildrenAllow,
+): Pick<ResolvedChildren, "blocks" | "containers"> {
+  if (allow === "any") {
+    return { blocks: true, containers: true };
+  }
+  if (allow === "blocks") {
+    return { blocks: true, containers: [] };
+  }
+  if (allow === "containers") {
+    return { blocks: false, containers: true };
+  }
+  return { blocks: false, containers: allow };
+}
+
+/**
+ * Whether `node` belongs to a container with a `"sealed"` boundary — one whose
+ * edge content may never implicitly cross (a table cell rather than a column).
+ * Reads the block config off the node's spec, so it works on a container
+ * block's own node and on its generated `__children` node alike.
+ */
+export function isSealed(node: Node): boolean {
+  const children = getChildrenConfig(node.type.spec.blockConfig ?? {});
+  return (
+    children !== undefined && resolveChildren(children).boundary === "sealed"
+  );
+}
+
+export function childrenContentExpression(children: ChildrenConfig): string {
+  const resolved = resolveChildren(children);
+  return allowTerm(resolved) + quantifier(resolved.min, resolved.max);
+}
+
+function allowTerm(resolved: ResolvedChildren): string {
+  // "Anything" is already a group, so use it rather than spelling out a union
+  // that would need rebuilding whenever the schema gains a container type.
+  if (resolved.blocks && resolved.containers === true) {
+    return BLOCK_GROUP_CHILD_GROUP;
+  }
+
+  const terms: string[] = [];
+  // `blockContainer` FIRST: PM's `fillBefore` picks the first matching type in
+  // a union, and filling with `blockContainer` (rather than another container)
+  // keeps auto-fill from recursing through nested containers.
+  if (resolved.blocks) {
+    terms.push("blockContainer");
+  }
+  // The wildcard is the `anyContainer` group, not `childContainer` — that
+  // group also contains `blockGroup`, which is not a block.
+  if (resolved.containers === true) {
+    terms.push(ANY_CONTAINER_GROUP);
+  } else {
+    terms.push(...resolved.containers);
+  }
+
+  if (terms.length === 0) {
+    // Validation rejects this first; this is a bug-guard, not a user-facing
+    // error path.
+    throw new Error(
+      "Container `allow` permits nothing. This is a bug in BlockNote.",
+    );
+  }
+
+  return terms.length === 1 ? terms[0] : `(${terms.join(" | ")})`;
+}
+
+function quantifier(min: number, max: number | undefined): string {
+  if (max === undefined) {
+    if (min === 0) {
+      return "*";
+    }
+    if (min === 1) {
+      return "+";
+    }
+    return `{${min},}`;
+  }
+  if (min === max) {
+    return max === 1 ? "" : `{${min}}`;
+  }
+  if (min === 0 && max === 1) {
+    return "?";
+  }
+  return `{${min},${max}}`;
+}

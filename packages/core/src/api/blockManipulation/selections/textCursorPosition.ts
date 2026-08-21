@@ -74,7 +74,7 @@ export function setTextCursorPosition(
   const contentType: "none" | "inline" | "table" | "plain" =
     schema.blockSchema[info.blockNoteType]!.content;
 
-  if (info.isBlockContainer) {
+  if (info.isWrappedBlock) {
     const blockContent = info.blockContent;
     if (contentType === "none") {
       tr.setSelection(NodeSelection.create(tr.doc, blockContent.beforePos));
@@ -110,8 +110,15 @@ export function setTextCursorPosition(
   } else {
     const child =
       placement === "start"
-        ? info.childContainer.node.firstChild!
-        : info.childContainer.node.lastChild!;
+        ? info.childContainer.node.firstChild
+        : info.childContainer.node.lastChild;
+
+    if (!child) {
+      // A container allowed to hold no children has no text to put a cursor
+      // in, so the container itself is selected instead.
+      tr.setSelection(NodeSelection.create(tr.doc, info.bnBlock.beforePos));
+      return;
+    }
 
     setTextCursorPosition(tr, getNodeId(child, tr.doc), placement);
   }

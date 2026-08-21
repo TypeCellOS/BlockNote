@@ -7,6 +7,7 @@ import {
 } from "@tiptap/core";
 import { type Command, type Transaction } from "@tiptap/pm/state";
 import { Node, Schema } from "prosemirror-model";
+import type { BlockPlacement } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import type { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import {
@@ -37,6 +38,7 @@ import type {
   StyleSchema,
   StyleSpecs,
 } from "../schema/index.js";
+import { assertContainerSchemaInvariants } from "../schema/blocks/assertSchemaInvariants.js";
 import "../style.css";
 import { mergeCSSClasses } from "../util/browser.js";
 import { EventEmitter } from "../util/EventEmitter.js";
@@ -558,6 +560,13 @@ export class BlockNoteEditor<
         tiptapOptions.parseOptions,
       );
 
+      // `blockToNode` is lenient, and `createDocument` builds from JSON without
+      // validating — so without this the one path that never checks its result
+      // is the one that seeds the whole document. A container below its
+      // `children.min` would reach the editor and stay there, where the same
+      // blocks passed to `insertBlocks` would have been rejected.
+      doc.check();
+
       this._tiptapEditor = new TiptapEditor({
         ...tiptapOptions,
         content: doc.toJSON(),
@@ -571,6 +580,8 @@ export class BlockNoteEditor<
     }
 
     this.pmSchema.cached.blockNoteEditor = this;
+
+    assertContainerSchemaInvariants(this.pmSchema);
 
     this._tiptapEditor.on("mount", () => {
       this.headless = false;
@@ -1051,13 +1062,14 @@ export class BlockNoteEditor<
    * error if the reference block could not be found.
    * @param blocksToInsert An array of partial blocks that should be inserted.
    * @param referenceBlock An identifier for an existing block, at which the new blocks should be inserted.
-   * @param placement Whether the blocks should be inserted just before, just after, or nested inside the
-   * `referenceBlock`.
+   * @param placement Where the blocks go relative to the `referenceBlock`: as its previous (`"before"`) or next
+   * (`"after"`) sibling, or nested inside it as its first (`"start"`) or last (`"end"`) children. Throws an error if
+   * the `referenceBlock` (or its parent, for `"before"`/`"after"`) doesn't accept the blocks there.
    */
   public insertBlocks(
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[],
     referenceBlock: BlockIdentifier,
-    placement: "before" | "after" = "before",
+    placement: BlockPlacement = "before",
   ) {
     return this._blockManager.insertBlocks(
       blocksToInsert,

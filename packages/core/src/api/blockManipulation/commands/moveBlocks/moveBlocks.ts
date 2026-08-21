@@ -14,7 +14,8 @@ import {
   getNodeId,
 } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
-import { insertBlocks } from "../insertBlocks/insertBlocks.js";
+import { flattenNonInsertableBlocks } from "../../containers/fixContainer.js";
+import { getInsertionPos, insertBlocks } from "../insertBlocks/insertBlocks.js";
 import { removeAndInsertBlocks } from "../replaceBlocks/replaceBlocks.js";
 
 type BlockSelectionData = (
@@ -131,16 +132,6 @@ function updateBlockSelectionFromData(
   tr.setSelection(selection);
 }
 
-// Replaces top-level `column` blocks with their children, as a `column` is not
-// a valid block outside a `columnList`. Other blocks are returned as-is.
-function flattenColumns(
-  blocks: Block<any, any, any>[],
-): Block<any, any, any>[] {
-  return blocks.flatMap((block) =>
-    block.type === "column" ? block.children : [block],
-  );
-}
-
 /**
  * Removes the given blocks from the editor, then inserts them before/after a
  * reference block.
@@ -169,10 +160,12 @@ export function moveBlocks(
     // </column>
     // When the non-empty block is moved up, the column is seen as empty and
     // collapsed in the removal step, so the following insertion fails.
-    removeAndInsertBlocks(tr, blocks, [], { fixColumns: false });
+    removeAndInsertBlocks(tr, blocks, [], { fixContainers: false });
     insertBlocks<any, any, any>(
       tr,
-      flattenColumns(blocks),
+      // Blocks that can't stand on their own outside their container (e.g. a
+      // `column` outside its `columnList`) are replaced by their children.
+      flattenNonInsertableBlocks(blocks, editor.pmSchema),
       referenceBlock,
       placement,
     );
@@ -207,12 +200,33 @@ export function moveSelectedBlocksAndSelection(
   });
 }
 
-// Checks if a block is in a valid place after being moved. This check is
-// primitive at the moment and only returns false if the block's parent is a
-// `columnList` block. This is because regular blocks cannot be direct children
-// of `columnList` blocks.
-function checkPlacementIsValid(parentBlock?: Block<any, any, any>): boolean {
-  return !parentBlock || parentBlock.type !== "columnList";
+// Checks if a regular block would be in a valid place after being moved
+// before/after `referenceBlock`. A regular block nests under any non-container
+// block (it goes into that block's `blockGroup`), but a container block (e.g. a
+// `columnList`) only accepts what its content expression allows.
+//
+// Deferred to `getInsertionPos` so that "can a block go here?" has exactly one
+// answer, shared with `insertBlocks` — and so that it comes from the schema
+// rather than from a rule restated here.
+function checkPlacementIsValid(
+  editor: BlockNoteEditor<any, any, any>,
+  referenceBlock: Block<any, any, any>,
+  placement: "before" | "after",
+): boolean {
+  return editor.transact((tr) => {
+    const posInfo = getNodeById(referenceBlock.id, tr.doc);
+    if (!posInfo) {
+      return false;
+    }
+    return (
+      getInsertionPos(
+        tr.doc,
+        posInfo,
+        placement,
+        editor.pmSchema.nodes["blockContainer"],
+      ) !== null
+    );
+  });
 }
 
 // Gets the placement for moving a block up. This has 3 cases:
@@ -253,8 +267,8 @@ function getMoveUpPlacement(
     return undefined;
   }
 
-  const referenceBlockParent = editor.getParentBlock(referenceBlock);
-  if (!checkPlacementIsValid(referenceBlockParent)) {
+  if (!checkPlacementIsValid(editor, referenceBlock, placement)) {
+    const referenceBlockParent = editor.getParentBlock(referenceBlock);
     return getMoveUpPlacement(
       editor,
       placement === "after"
@@ -305,8 +319,8 @@ function getMoveDownPlacement(
     return undefined;
   }
 
-  const referenceBlockParent = editor.getParentBlock(referenceBlock);
-  if (!checkPlacementIsValid(referenceBlockParent)) {
+  if (!checkPlacementIsValid(editor, referenceBlock, placement)) {
+    const referenceBlockParent = editor.getParentBlock(referenceBlock);
     return getMoveDownPlacement(
       editor,
       placement === "before"

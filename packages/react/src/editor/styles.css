@@ -111,6 +111,13 @@
   width: 100%;
 }
 
+/* Container blocks own their outer DOM: the block's root element is the one
+   its `render` returned, so the wrapper React needs around it must not be a
+   box of its own. */
+.bn-react-node-view-renderer.bn-container-node-view {
+  display: contents;
+}
+
 /* Indent line styling */
 .bn-block-group
   .bn-block:not(:has(.bn-toggle-wrapper))

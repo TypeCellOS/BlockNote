@@ -1,4 +1,7 @@
-import { insertBlocks } from "../../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
+import {
+  BlockPlacement,
+  insertBlocks,
+} from "../../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import {
   moveBlocksDown,
   moveBlocksUp,
@@ -150,13 +153,13 @@ export class BlockManager<
    * error if the reference block could not be found.
    * @param blocksToInsert An array of partial blocks that should be inserted.
    * @param referenceBlock An identifier for an existing block, at which the new blocks should be inserted.
-   * @param placement Whether the blocks should be inserted just before, just after, or nested inside the
-   * `referenceBlock`.
+   * @param placement Where the blocks go relative to the `referenceBlock`: as its previous (`"before"`) or next
+   * (`"after"`) sibling, or nested inside it as its first (`"start"`) or last (`"end"`) children.
    */
   public insertBlocks(
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[],
     referenceBlock: BlockIdentifier,
-    placement: "before" | "after" = "before",
+    placement: BlockPlacement = "before",
   ) {
     return this.editor.transact((tr) =>
       insertBlocks(tr, blocksToInsert, referenceBlock, placement),

@@ -1,5 +1,7 @@
 import { Mark, Node, Slice } from "@tiptap/pm/model";
 import type { Block } from "../../blocks/defaultBlocks.js";
+import { isContainerNode } from "../blockManipulation/containers/fixContainer.js";
+import { isContentContainerNode } from "../../schema/blocks/children.js";
 import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type {
   BlockSchema,
@@ -430,7 +432,7 @@ export function nodeToBlock<
   const props: any = {};
   for (const [attr, value] of Object.entries({
     ...node.attrs,
-    ...(blockInfo.isBlockContainer ? blockInfo.blockContent.node.attrs : {}),
+    ...(blockInfo.isWrappedBlock ? blockInfo.blockContent.node.attrs : {}),
   })) {
     const propSchema = blockSpec.propSchema;
 
@@ -452,7 +454,7 @@ export function nodeToBlock<
   let content: Block<any, any, any>["content"];
 
   if (blockConfig.content === "inline") {
-    if (!blockInfo.isBlockContainer) {
+    if (!blockInfo.isWrappedBlock) {
       throw new Error("impossible");
     }
     content = contentNodeToInlineContent(
@@ -461,7 +463,7 @@ export function nodeToBlock<
       styleSchema,
     );
   } else if (blockConfig.content === "table") {
-    if (!blockInfo.isBlockContainer) {
+    if (!blockInfo.isWrappedBlock) {
       throw new Error("impossible");
     }
     content = contentNodeToTableContent(
@@ -470,7 +472,7 @@ export function nodeToBlock<
       styleSchema,
     );
   } else if (blockConfig.content === "plain") {
-    if (!blockInfo.isBlockContainer) {
+    if (!blockInfo.isWrappedBlock) {
       throw new Error("impossible");
     }
     // Plain content is a single unstyled text item; an empty block is an
@@ -533,6 +535,24 @@ export function docToBlocks<
  * </blockGroup>
  *
  */
+/**
+ * The node holding a bnBlock's children when that node holds them directly:
+ * the container itself for a pure container, its generated `__children` node
+ * for a container that also has its own content. `undefined` for a
+ * `blockContainer`, whose children live in an optional `blockGroup`.
+ */
+function getChildrenHolder(node: Node): Node | undefined {
+  if (isContentContainerNode(node)) {
+    // The children live in the generated `__children` node, which is the last
+    // child. When a slice boundary cuts through the container's own `__content`,
+    // the `__children` node is absent from the slice — its last (and only)
+    // child is then the `__content` node, which holds no children of its own.
+    const lastChild = node.lastChild;
+    return lastChild && isContainerNode(lastChild.type) ? lastChild : undefined;
+  }
+  return isContainerNode(node.type) ? node : undefined;
+}
+
 export function prosemirrorSliceToSlicedBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -563,7 +583,9 @@ export function prosemirrorSliceToSlicedBlocks<
     blockCutAtStart: string | undefined;
     blockCutAtEnd: string | undefined;
   } {
-    if (node.type.name !== "blockGroup") {
+    // Both `blockGroup` and container nodes (columnList, column, callout,
+    // ...) hold bnBlock children directly, so both can be processed here.
+    if (node.type.name !== "blockGroup" && !isContainerNode(node.type)) {
       throw new Error("unexpected");
     }
     const blocks: Block<BSchema, I, S>[] = [];
@@ -571,6 +593,68 @@ export function prosemirrorSliceToSlicedBlocks<
     let blockCutAtEnd: string | undefined;
 
     node.forEach((blockContainer, _offset, index) => {
+      const isFirstBlock = index === 0;
+      const isLastBlock = index === node.childCount - 1;
+
+      const childrenHolder = getChildrenHolder(blockContainer);
+      if (childrenHolder) {
+        // A container child. When the slice boundary is open inside it, the
+        // selection covers part of its children — skip the container wrapper
+        // and splice in the included children (mirroring the
+        // nested-blockGroup descent below). When fully enclosed, convert it
+        // wholesale.
+        const openAtStart = isFirstBlock && openStart > 0;
+        const openAtEnd = isLastBlock && openEnd > 0;
+
+        // A container that also has its own content keeps its children one
+        // node deeper, in its generated `__children` node.
+        const depthToChildren = childrenHolder === blockContainer ? 1 : 2;
+
+        if (openAtStart || openAtEnd) {
+          const ret = processNode(
+            childrenHolder,
+            openAtStart ? Math.max(0, openStart - depthToChildren) : 0,
+            openAtEnd ? Math.max(0, openEnd - depthToChildren) : 0,
+          );
+          if (openAtStart) {
+            blockCutAtStart = ret.blockCutAtStart;
+          }
+          if (openAtEnd) {
+            blockCutAtEnd = ret.blockCutAtEnd;
+          }
+          blocks.push(...ret.blocks);
+          return;
+        }
+
+        blocks.push(
+          nodeToBlock(blockContainer, slice.content.firstChild!) as Block<
+            BSchema,
+            I,
+            S
+          >,
+        );
+        return;
+      }
+
+      if (isContentContainerNode(blockContainer)) {
+        // A content-bearing container whose `__children` node is absent from
+        // the slice: the boundary cut through its own `__content`, so it has no
+        // children to splice in. Convert it wholesale (with its cut content),
+        // recording the cut boundary so callers know the block was sliced.
+        const block = nodeToBlock(
+          blockContainer,
+          slice.content.firstChild!,
+        ) as Block<BSchema, I, S>;
+        if (isFirstBlock && openStart > 0) {
+          blockCutAtStart = block.id;
+        }
+        if (isLastBlock && openEnd > 0) {
+          blockCutAtEnd = block.id;
+        }
+        blocks.push(block);
+        return;
+      }
+
       if (blockContainer.type.name !== "blockContainer") {
         throw new Error("unexpected");
       }
@@ -582,9 +666,6 @@ export function prosemirrorSliceToSlicedBlocks<
           "unexpected, blockContainer.childCount: " + blockContainer.childCount,
         );
       }
-
-      const isFirstBlock = index === 0;
-      const isLastBlock = index === node.childCount - 1;
 
       if (blockContainer.firstChild!.type.name === "blockGroup") {
         // this is the parent where a selection starts within one of its children,
