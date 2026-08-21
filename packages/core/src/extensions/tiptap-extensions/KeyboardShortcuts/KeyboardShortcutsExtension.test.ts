@@ -1,3 +1,4 @@
+import { Selection, TextSelection } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteSchema } from "../../../blocks/BlockNoteSchema.js";
@@ -109,6 +110,81 @@ function getTextContent(editor: BlockNoteEditor<any, any, any>) {
   });
   return text;
 }
+
+describe("KeyboardShortcutsExtension Mod-a (select all)", () => {
+  // BlockNote disables TipTap's core extensions, so it has no default `Mod-a`
+  // binding and select-all used to rely on the browser's native behaviour. That
+  // native select-all collapses to a cursor when the editor's first element is
+  // non-editable - e.g. the checkbox `<div>` of a check list item as the first
+  // block - so `Mod-a` is now handled explicitly. These tests exercise the
+  // keymap path (not native selection) and would collapse before the fix.
+  function createSelectAllEditor(
+    blocks: { type: "paragraph" | "checkListItem"; content: string }[],
+  ) {
+    const editor = BlockNoteEditor.create({
+      schema,
+      initialContent: blocks.map((block, index) => ({
+        id: `block-${index}`,
+        ...block,
+      })),
+    });
+    editor.mount(document.createElement("div"));
+    return editor;
+  }
+
+  // Dispatches a real `Mod-a` keydown through ProseMirror's `handleKeyDown`, the
+  // path browsers use to invoke the keymap. TipTap's `keyboardShortcut` command
+  // doesn't reliably simulate modifier combos in jsdom, and prosemirror-keymap
+  // resolves `Mod` to `Ctrl` outside of a Mac environment (jsdom reports none).
+  function pressSelectAll(editor: BlockNoteEditor<any, any, any>) {
+    const view = editor._tiptapEditor.view;
+    const event = new KeyboardEvent("keydown", {
+      key: "a",
+      code: "KeyA",
+      ctrlKey: true,
+    });
+    view.someProp("handleKeyDown", (handler) => handler(view, event));
+  }
+
+  function expectWholeDocSelected(editor: BlockNoteEditor<any, any, any>) {
+    const { selection, doc } = editor._tiptapEditor.state;
+    // Select-all spans all content as a `TextSelection` (from the first
+    // selectable position to the last), not an `AllSelection`.
+    expect(selection).toBeInstanceOf(TextSelection);
+    expect(selection.from).toBe(Selection.atStart(doc).from);
+    expect(selection.to).toBe(Selection.atEnd(doc).to);
+  }
+
+  it("selects the whole document", () => {
+    const editor = createSelectAllEditor([
+      { type: "paragraph", content: "First" },
+      { type: "paragraph", content: "Second" },
+    ]);
+    editor.setTextCursorPosition("block-0", "end");
+
+    pressSelectAll(editor);
+
+    expectWholeDocSelected(editor);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("selects the whole document when the first block is a check list item", () => {
+    const editor = createSelectAllEditor([
+      { type: "checkListItem", content: "First" },
+      { type: "paragraph", content: "Second" },
+    ]);
+    // Place the cursor in a later block to make sure select-all still spans the
+    // whole document, not just the current block.
+    editor.setTextCursorPosition("block-1", "end");
+
+    pressSelectAll(editor);
+
+    expectWholeDocSelected(editor);
+
+    editor._tiptapEditor.destroy();
+  });
+});
 
 describe("KeyboardShortcutsExtension hardBreakShortcut", () => {
   it("inserts a hard break on Shift-Enter by default", () => {

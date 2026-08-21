@@ -1,6 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { Fragment, Node } from "prosemirror-model";
-import { TextSelection } from "prosemirror-state";
+import { Selection, TextSelection } from "prosemirror-state";
 
 import {
   getBottomNestedBlockInfo,
@@ -997,6 +997,20 @@ export const KeyboardShortcutsExtension = Extension.create<{
       "Mod-z": () => this.options.editor.undo(),
       "Mod-y": () => this.options.editor.redo(),
       "Shift-Mod-z": () => this.options.editor.redo(),
+      "Mod-a": () => {
+        const view = this.editor.view;
+        const { doc, tr } = view.state;
+        // Use a `TextSelection` from the document start to end as an `AllSelection` creates from/
+        // to positions outside a block, causing errors when calling e.g. `getBlock`.
+        const selection = TextSelection.between(
+          Selection.atStart(doc).$from,
+          Selection.atEnd(doc).$to,
+        );
+
+        view.dispatch(tr.setSelection(selection).scrollIntoView());
+
+        return true;
+      },
     };
   },
 });
