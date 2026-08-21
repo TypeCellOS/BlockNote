@@ -5,7 +5,7 @@ import {
   createCodeBlockSpec,
   InlineContentSchema,
   StyleSchema,
-  uploadToTmpFilesDotOrg_DEV_ONLY,
+  uploadFile_DEV_ONLY,
 } from "@blocknote/core";
 import { afterAll, beforeAll } from "vite-plus/test";
 
@@ -57,7 +57,7 @@ export const createTestEditor = <
         headers: true,
       },
       trailingBlock: false,
-      uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
+      uploadFile: uploadFile_DEV_ONLY,
     }) as any;
     editor.mount(div);
   });
