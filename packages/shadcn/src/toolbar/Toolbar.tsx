@@ -1,10 +1,6 @@
 import { assertEmpty } from "@blocknote/core";
-import {
-  ComponentProps,
-  PortalContext,
-  useBlockNoteEditor,
-} from "@blocknote/react";
-import { forwardRef, useContext } from "react";
+import { ComponentProps, useBlockNoteEditor } from "@blocknote/react";
+import { forwardRef } from "react";
 
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
@@ -130,19 +126,14 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, ...rest } = props;
+  const { className, items, isDisabled, portalRoot, ...rest } = props;
 
   assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
-  // The DOM node the dropdown portals into, e.g. the mobile formatting
-  // toolbar's non-scrolling wrapper. `null` when there's no such target.
-  const portalRoot = useContext(PortalContext);
-
-  // Otherwise default to the editor's portal element (which carries the
-  // color-scheme class) so the dropdown inherits light/dark mode instead of the
-  // body's.
+  // Default to the editor's portal element (which carries the color-scheme
+  // class) so the dropdown inherits light/dark mode instead of the body's.
   const editor = useBlockNoteEditor();
 
   // TODO?
@@ -172,7 +163,7 @@ export const ToolbarSelect = forwardRef<
       </ShadCNComponents.Select.SelectTrigger>
       <ShadCNComponents.Select.SelectContent
         className={className}
-        container={portalRoot || editor.portalElement}
+        container={portalRoot ?? editor.portalElement}
         // Position the dropdown below the trigger (classic dropdown behavior)
         // instead of aligning the selected item over the trigger (the Base UI
         // default).

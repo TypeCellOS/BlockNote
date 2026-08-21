@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 
-import { PortalContext } from "../../editor/PortalContext.js";
+import { UIModeContext } from "../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
@@ -17,17 +17,19 @@ import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
  *
  * Works with both page layouts described in the docs. In the default
  * "scrolling document" layout the toolbar follows the visual viewport as the
- * page scrolls. For the smoother "pinned scroll container" layout (the toolbar
+ * page scrolls. For the smoother "scroll container" layout (the toolbar
  * staying pinned during scroll with no per-frame work), the host app opts in
  * via CSS: locking document scroll (`overflow: hidden` on `html`/`body`) and
  * pinning its scroll container to the visual viewport via the same `--bn-vv-*`
  * variables.
  *
  * The toolbar itself scrolls horizontally (`overflow-x: auto`), which clips any
- * inline dropdown on mobile. So the outer `.bn-mobile-formatting-toolbar`
- * wrapper — outside that scroll container — is published via
- * {@link PortalContext}, which the generic UI adapters read to portal their
- * menus/popovers into it automatically.
+ * inline dropdown on mobile. So this publishes {@link UIModeContext} as
+ * `"mobile"`, which the toolbar's dropdown buttons read (via `useUIMode`) to
+ * pass `editor.portalElement` as the `portalRoot` of their
+ * menus/popovers/selects — rendering them outside the scroll container. A set
+ * `portalRoot` also tells the UI adapters not to move focus into the dropdown,
+ * which would blur the editor and dismiss the keyboard.
  *
  * Shown while the virtual keyboard is open and this editor holds focus. The
  * focus check is essential when multiple editors share a page: the virtual
@@ -61,13 +63,6 @@ export const MobileFormattingToolbarController = (props: {
     };
   }, [editor]);
 
-  // The non-scrolling wrapper, published so buttons can portal their dropdowns
-  // out of the horizontally scrolling toolbar. A callback ref into state so the
-  // context updates once the element mounts.
-  const [toolbarElement, setToolbarElement] = useState<HTMLDivElement | null>(
-    null,
-  );
-
   if (!keyboardOpen || !focused) {
     return null;
   }
@@ -75,10 +70,10 @@ export const MobileFormattingToolbarController = (props: {
   const Component = props.formattingToolbar || FormattingToolbar;
 
   return (
-    <PortalContext.Provider value={toolbarElement}>
-      <div className="bn-mobile-formatting-toolbar" ref={setToolbarElement}>
+    <UIModeContext.Provider value="mobile">
+      <div className="bn-mobile-formatting-toolbar">
         <Component />
       </div>
-    </PortalContext.Provider>
+    </UIModeContext.Provider>
   );
 };

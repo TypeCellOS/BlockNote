@@ -7,6 +7,7 @@ import {
 import { useCallback } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -43,6 +44,7 @@ function checkColorInSchema<Color extends "text" | "background">(
 export const ColorStyleButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
+  const uiMode = useUIMode();
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -136,7 +138,9 @@ export const ColorStyleButton = () => {
   }
 
   return (
-    <Components.Generic.Menu.Root>
+    <Components.Generic.Menu.Root
+      portalRoot={uiMode === "mobile" ? editor.portalElement : undefined}
+    >
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}

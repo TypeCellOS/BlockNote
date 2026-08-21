@@ -1,19 +1,22 @@
 import { assertEmpty } from "@blocknote/core";
-import {
-  ComponentProps,
-  PortalContext,
-  useBlockNoteEditor,
-} from "@blocknote/react";
+import { ComponentProps, useBlockNoteEditor } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
-import { forwardRef, ReactElement, useContext } from "react";
+import { createContext, forwardRef, ReactElement, useContext } from "react";
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
+
+// Threads the `portalRoot` override from `Menu` down to `MenuDropdown`, where
+// shadcn's `container` prop actually lives.
+const PortalRootContext = createContext<HTMLElement | null | undefined>(
+  undefined,
+);
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
     children,
     onOpenChange,
     position: _position, // Unused
+    portalRoot,
     sub,
     ...rest
   } = props;
@@ -27,7 +30,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       <ShadCNComponents.DropdownMenu.DropdownMenuSub
         onOpenChange={onOpenChange}
       >
-        {children}
+        <PortalRootContext.Provider value={portalRoot}>
+          {children}
+        </PortalRootContext.Provider>
       </ShadCNComponents.DropdownMenu.DropdownMenuSub>
     );
   } else {
@@ -36,7 +41,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
         modal={false}
         onOpenChange={onOpenChange}
       >
-        {children}
+        <PortalRootContext.Provider value={portalRoot}>
+          {children}
+        </PortalRootContext.Provider>
       </ShadCNComponents.DropdownMenu.DropdownMenu>
     );
   }
@@ -76,21 +83,17 @@ export const MenuDropdown = forwardRef<
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
-  // The DOM node the menu portals into, e.g. the mobile formatting toolbar's
-  // non-scrolling wrapper. `null` when there's no such target.
-  const portalRoot = useContext(PortalContext);
-
-  // Otherwise default to the editor's portal element (which carries the
-  // color-scheme class) so the menu inherits light/dark mode instead of the
-  // document body's.
+  const portalRoot = useContext(PortalRootContext);
+  // Default to the editor's portal element (which carries the color-scheme
+  // class) so the menu inherits light/dark mode instead of the document body's.
   const editor = useBlockNoteEditor();
-  const container = editor.portalElement;
+  const container = portalRoot ?? editor.portalElement;
 
   if (sub) {
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenuSubContent
         className={className}
-        container={portalRoot || container}
+        container={container}
         ref={ref}
       >
         {children}
@@ -100,7 +103,7 @@ export const MenuDropdown = forwardRef<
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenuContent
         className={className}
-        container={portalRoot || container}
+        container={container}
         ref={ref}
       >
         {children}

@@ -5,25 +5,24 @@ import {
 } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, PortalContext } from "@blocknote/react";
-import { forwardRef, useContext } from "react";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
-  const { open, onOpenChange, position, children, ...rest } = props;
+  const { open, onOpenChange, position, portalRoot, children, ...rest } = props;
 
   assertEmpty(rest);
-
-  // The DOM node the popover portals into, e.g. the mobile formatting toolbar's
-  // non-scrolling wrapper. `null` when there's no such target.
-  const portalRoot = useContext(PortalContext);
 
   return (
     <MantinePopover
       middlewares={{ size: { padding: 20 } }}
       withinPortal={!!portalRoot}
       portalProps={portalRoot ? { target: portalRoot } : undefined}
+      // Do not move focus to dropdown when portaled (mobile), as it blurs the
+      // editor's contentEditable and dismisses the on-screen keyboard.
+      trapFocus={portalRoot ? false : undefined}
       opened={open}
       onChange={onOpenChange}
       position={position}

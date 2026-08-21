@@ -9,6 +9,7 @@ import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 import { RiFontFamily } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -16,6 +17,7 @@ import { useDictionary } from "../../../i18n/dictionary.js";
 export const FileRenameButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
+  const uiMode = useUIMode();
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -88,6 +90,7 @@ export const FileRenameButton = () => {
     <Components.Generic.Popover.Root
       open={popoverOpen}
       onOpenChange={setPopoverOpen}
+      portalRoot={uiMode === "mobile" ? editor.portalElement : undefined}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
