@@ -86,23 +86,6 @@ export function fragmentToBlocks<
     }
 
     if (node.type.isInGroup("bnBlock")) {
-      // Legacy path for `@blocknote/xl-multi-column`'s hand-written PM nodes,
-      // which have no `children` config: flatten only a single-column
-      // columnList (not the entire column list has been selected), and keep
-      // every other column list intact, as before. Removed once multi-column
-      // is migrated onto the container API.
-      const blockConfig = getBlockSchema(node.type.schema)[node.type.name];
-      if (isContainerNode(node.type) && !getChildrenConfig(blockConfig ?? {})) {
-        if (node.type.name === "columnList" && node.childCount === 1) {
-          node.firstChild?.forEach((child) => {
-            blocks.push(nodeToBlock(child, node));
-          });
-          return false;
-        }
-        blocks.push(nodeToBlock(node, node));
-        return false;
-      }
-
       pushFlattened(node, node);
       return false;
     }

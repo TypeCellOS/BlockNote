@@ -40,21 +40,14 @@ export function getContainerUIInfo(
   )) {
     const draggable = spec.implementation?.meta?.draggable !== false;
 
-    // Legacy: `@blocknote/xl-multi-column`'s hand-written specs, which have
-    // no `children` config. Removed once multi-column is migrated onto the
-    // container API.
-    const isLegacyColumnType = type === "columnList" || type === "column";
-
-    if (!isContainerType(spec.config) && !isLegacyColumnType) {
+    if (!isContainerType(spec.config)) {
       if (!draggable) {
         nonDraggableBlockTypes.add(type);
       }
       continue;
     }
     containerTypes.add(type);
-    // Legacy column nodes are never draggable themselves; only the blocks
-    // inside them are (matching the pre-container side menu behavior).
-    if (draggable && !isLegacyColumnType) {
+    if (draggable) {
       draggableContainerTypes.add(type);
     }
   }

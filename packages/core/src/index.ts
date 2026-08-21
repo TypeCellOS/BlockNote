@@ -6,9 +6,6 @@ export * from "./api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 // node type a container?") that integrations legitimately ask. It is defined
 // in `children.ts` and re-exported via `fixContainer.ts`.
 export { isContainerNode } from "./api/blockManipulation/containers/fixContainer.js";
-// Legacy column repair for `@blocknote/xl-multi-column`'s hand-written PM
-// nodes. Removed once multi-column is migrated onto the container API.
-export * from "./api/blockManipulation/commands/replaceBlocks/util/fixColumnList.js";
 export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
 export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";
