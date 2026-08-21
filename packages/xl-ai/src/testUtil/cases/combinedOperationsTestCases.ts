@@ -47,7 +47,7 @@ export const combinedOperationsTestCases: DocumentOperationTestCase[] = [
       const posInfo = getNodeById("ref2", editor.prosemirrorState.doc)!;
 
       const block = getBlockInfo(posInfo);
-      if (!block.isBlockContainer) {
+      if (!block.isWrappedBlock) {
         throw new Error("Block is not a block container");
       }
       return {

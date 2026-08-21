@@ -18,7 +18,7 @@ const getEditor = setupTestEnv();
 
 function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
   const blockInfo = getEditor().transact((tr) => getBlockInfoFromSelection(tr));
-  if (!blockInfo.isBlockContainer) {
+  if (!blockInfo.isWrappedBlock) {
     throw new Error(
       `Selection points to a ${blockInfo.blockNoteType} node, not a blockContainer node`,
     );

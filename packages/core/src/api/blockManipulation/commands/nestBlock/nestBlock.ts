@@ -19,9 +19,7 @@ function sinkItem(tr: Transaction, itemType: NodeType, groupType: NodeType) {
   const { $from, $to } = tr.selection;
   const range = $from.blockRange(
     $to,
-    (node) =>
-      node.childCount > 0 &&
-      (node.type.name === "blockGroup" || node.type.name === "column"), // change 1
+    (node) => node.childCount > 0 && node.type.isInGroup("childContainer"), // change 1
   );
   if (!range) {
     return false;
@@ -163,9 +161,7 @@ export function liftItem(
   const { $from, $to } = tr.selection;
   const range = $from.blockRange(
     $to,
-    (node) =>
-      node.childCount > 0 &&
-      (node.type.name === "blockGroup" || node.type.name === "column"), // change 1
+    (node) => node.childCount > 0 && node.type.isInGroup("childContainer"), // change 1
   );
   if (!range) {
     return false;
@@ -195,14 +191,36 @@ export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
   return editor.transact((tr) => {
     const { bnBlock: blockContainer } = getBlockInfoFromSelection(tr);
 
-    return tr.doc.resolve(blockContainer.beforePos).nodeBefore !== null;
+    // Mirrors `sinkItem`'s precondition: nesting is only possible under a
+    // previous sibling that is itself a `blockContainer`. (A previous sibling
+    // of another type, e.g. a container block, made this return true while
+    // `nestBlock` did nothing.)
+    return (
+      tr.doc.resolve(blockContainer.beforePos).nodeBefore?.type ===
+      editor.pmSchema.nodes["blockContainer"]
+    );
   });
 }
 
 export function canUnnestBlock(editor: BlockNoteEditor<any, any, any>) {
   return editor.transact((tr) => {
-    const { bnBlock: blockContainer } = getBlockInfoFromSelection(tr);
+    const { $from, $to } = tr.selection;
 
-    return tr.doc.resolve(blockContainer.beforePos).depth > 1;
+    // Mirrors `liftItem`'s preconditions instead of approximating with depth.
+    // A block whose depth > 1 because it sits inside a container (e.g. a
+    // column) is not un-nestable, only a block nested under another
+    // `blockContainer` is.
+    const range = $from.blockRange(
+      $to,
+      (node) => node.childCount > 0 && node.type.isInGroup("childContainer"),
+    );
+    if (!range) {
+      return false;
+    }
+
+    return (
+      $from.node(range.depth - 1).type ===
+      editor.pmSchema.nodes["blockContainer"]
+    );
   });
 }

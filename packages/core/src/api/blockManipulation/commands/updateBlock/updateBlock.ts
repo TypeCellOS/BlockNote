@@ -2,6 +2,7 @@ import {
   Fragment,
   type NodeType,
   type Node as PMNode,
+  type Schema,
   Slice,
 } from "prosemirror-model";
 import { TextSelection, Transaction } from "prosemirror-state";
@@ -27,7 +28,12 @@ import {
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
-import { getPmSchema } from "../../../pmUtil.js";
+import { getBlockSchema, getPmSchema } from "../../../pmUtil.js";
+import {
+  getContentContainerNodeTypes,
+  isContainerType,
+  isContentContainerNode,
+} from "../../../../schema/blocks/children.js";
 
 // for compatibility with tiptap. TODO: remove as we want to remove dependency on tiptap command interface
 export const updateBlockCommand = <
@@ -82,40 +88,75 @@ export function updateBlockTr<
 
   // Adds blockGroup node with child blocks if necessary.
 
-  const oldNodeType = pmSchema.nodes[blockInfo.blockNoteType];
-  const newNodeType = pmSchema.nodes[block.type || blockInfo.blockNoteType];
+  const newBlockType = block.type || blockInfo.blockNoteType;
+  const newNodeType = pmSchema.nodes[newBlockType];
   const newBnBlockNodeType = newNodeType.isInGroup("bnBlock")
     ? newNodeType
     : pmSchema.nodes["blockContainer"];
 
-  if (blockInfo.isBlockContainer && newNodeType.isInGroup("blockContent")) {
-    const replaceFromOffset =
-      replaceFromPos !== undefined &&
-      replaceFromPos > blockInfo.blockContent.beforePos &&
-      replaceFromPos < blockInfo.blockContent.afterPos
-        ? replaceFromPos - blockInfo.blockContent.beforePos - 1
-        : undefined;
+  // The dispatch below is about content nodes, not block nodes. A container
+  // with its own content keeps that content in a generated node rather than in
+  // its own, so routing on the block's node type would send an update of its
+  // content to the full-replace arm, where it used to be silently dropped.
+  const isContentContainer = isContentContainerNode(blockInfo.bnBlock.node);
 
-    const replaceToOffset =
-      replaceToPos !== undefined &&
-      replaceToPos > blockInfo.blockContent.beforePos &&
-      replaceToPos < blockInfo.blockContent.afterPos
-        ? replaceToPos - blockInfo.blockContent.beforePos - 1
-        : undefined;
+  const replaceFromOffset =
+    blockInfo.blockContent &&
+    replaceFromPos !== undefined &&
+    replaceFromPos > blockInfo.blockContent.beforePos &&
+    replaceFromPos < blockInfo.blockContent.afterPos
+      ? replaceFromPos - blockInfo.blockContent.beforePos - 1
+      : undefined;
 
+  const replaceToOffset =
+    blockInfo.blockContent &&
+    replaceToPos !== undefined &&
+    replaceToPos > blockInfo.blockContent.beforePos &&
+    replaceToPos < blockInfo.blockContent.afterPos
+      ? replaceToPos - blockInfo.blockContent.beforePos - 1
+      : undefined;
+
+  if (
+    blockInfo.isWrappedBlock &&
+    blockInfo.bnBlock.node.type.name === "blockContainer" &&
+    newNodeType.isInGroup("blockContent")
+  ) {
     updateChildren(block, tr, blockInfo);
     // The code below determines the new content of the block.
     // or "keep" to keep as-is
     updateBlockContentNode(
       block,
       tr,
-      oldNodeType,
+      pmSchema.nodes[blockInfo.blockNoteType],
       newNodeType,
       blockInfo,
       replaceFromOffset,
       replaceToOffset,
     );
-  } else if (!blockInfo.isBlockContainer && newNodeType.isInGroup("bnBlock")) {
+  } else if (
+    blockInfo.isWrappedBlock &&
+    isContentContainer &&
+    newBlockType === blockInfo.blockNoteType
+  ) {
+    // Same container, so its generated content node stays as it is. Only what
+    // that node holds may change.
+    const contentNodeType = blockInfo.blockContent.node.type;
+
+    updateChildren(block, tr, blockInfo);
+    updateBlockContentNode(
+      block,
+      tr,
+      contentNodeType,
+      contentNodeType,
+      blockInfo,
+      replaceFromOffset,
+      replaceToOffset,
+    );
+  } else if (
+    !blockInfo.isWrappedBlock &&
+    newNodeType.isInGroup("bnBlock") &&
+    !getContentContainerNodeTypes(pmSchema, newBlockType)
+  ) {
     updateChildren(block, tr, blockInfo);
     // old node was a bnBlock type (like column or columnList) and new block as well
     // No op, we just update the bnBlock below (at end of function) and have already updated the children
@@ -128,9 +169,21 @@ export function updateBlockTr<
     // for this, we do a nodeToBlock on the existing block to get the children.
     // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
     const existingBlock = nodeToBlock(blockInfo.bnBlock.node, tr.doc);
+    const carried = carryOverContent(
+      existingBlock.content,
+      newBlockType,
+      pmSchema,
+    );
+    // If no children are passed in, use the existing block's, but only when
+    // there actually are some. `nodeToBlock` always emits an array, and an
+    // empty one would read as "explicitly childless", suppressing the seeding
+    // a container needs when converting from a childless block.
+    const children = [...carried.children, ...existingBlock.children];
+
     const replacementNode = blockToNode(
       {
-        children: existingBlock.children, // if no children are passed in, use existing children
+        ...(carried.content ? { content: carried.content } : {}),
+        ...(children.length > 0 ? { children } : {}),
         ...block,
       },
       pmSchema,
@@ -156,6 +209,41 @@ export function updateBlockTr<
   if (cellAnchor) {
     restoreCellAnchor(tr, blockInfo, cellAnchor);
   }
+}
+
+function carryOverContent(
+  existingContent: Block<any, any, any>["content"],
+  newBlockType: string,
+  pmSchema: Schema,
+): {
+  content?: PartialBlock<any, any, any>["content"];
+  children: PartialBlock<any, any, any>[];
+} {
+  const nothing = { children: [] };
+
+  if (!existingContent || !Array.isArray(existingContent)) {
+    return nothing;
+  }
+  if (existingContent.length === 0) {
+    return nothing;
+  }
+
+  const targetConfig = getBlockSchema(pmSchema)[newBlockType];
+  if (!targetConfig) {
+    return nothing;
+  }
+
+  if (targetConfig.content === "inline" || targetConfig.content === "plain") {
+    return { content: existingContent, children: [] };
+  }
+
+  if (targetConfig.content === "none" && isContainerType(targetConfig)) {
+    return {
+      children: [{ type: "paragraph", content: existingContent } as any],
+    };
+  }
+
+  return nothing;
 }
 
 function updateBlockContentNode<
@@ -521,7 +609,7 @@ function updateChildren<
         Fragment.from(childNodes),
       );
     } else {
-      if (!blockInfo.isBlockContainer) {
+      if (!blockInfo.isWrappedBlock) {
         throw new Error("impossible");
       }
       // Inserts a new blockGroup containing the child nodes created earlier.
@@ -637,7 +725,7 @@ function restoreCellAnchor(
   // 1) Resolve the table node in the current document
   let tablePos = -1;
 
-  if (blockInfo.isBlockContainer) {
+  if (blockInfo.isWrappedBlock) {
     // Prefer the blockContent position when available (points directly at the PM table node)
     tablePos = tr.mapping.map(blockInfo.blockContent.beforePos);
   } else {

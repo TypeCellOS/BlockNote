@@ -1,6 +1,10 @@
 import { Node } from "prosemirror-model";
-import { EditorState } from "prosemirror-state";
+import { EditorState, TextSelection } from "prosemirror-state";
 
+import {
+  isContentContainerNode,
+  isSealed,
+} from "../../../../schema/blocks/children.js";
 import {
   BlockInfo,
   getBlockInfoFromResolvedPos,
@@ -90,8 +94,20 @@ export const getNextBlockInfo = (doc: Node, beforePos: number) => {
  *
  * Then the bottom nested block returned is D.
  */
-export const getBottomNestedBlockInfo = (doc: Node, blockInfo: BlockInfo) => {
-  while (blockInfo.childContainer) {
+export const getBottomNestedBlockInfo = (
+  doc: Node,
+  blockInfo: BlockInfo,
+  // Callers that move content stop the descent at a sealed container, getting
+  // the container itself rather than a block inside it. Caret-only callers
+  // descend through. Sealed boundaries govern content, not navigation.
+  opts?: { stopAtSealed?: boolean },
+) => {
+  // A container that allows zero children can have an empty child container,
+  // in which case the block itself is the bottom one.
+  while (blockInfo.childContainer && blockInfo.childContainer.node.childCount) {
+    if (opts?.stopAtSealed && isSealed(blockInfo.childContainer.node)) {
+      break;
+    }
     const group = blockInfo.childContainer.node;
 
     const newPos = doc
@@ -105,11 +121,17 @@ export const getBottomNestedBlockInfo = (doc: Node, blockInfo: BlockInfo) => {
 
 const canMerge = (prevBlockInfo: BlockInfo, nextBlockInfo: BlockInfo) => {
   return (
-    prevBlockInfo.isBlockContainer &&
+    prevBlockInfo.isWrappedBlock &&
     prevBlockInfo.blockContent.node.type.spec.content === "inline*" &&
     prevBlockInfo.blockContent.node.childCount > 0 &&
-    nextBlockInfo.isBlockContainer &&
-    nextBlockInfo.blockContent.node.type.spec.content === "inline*"
+    // A content-bearing container is `isWrappedBlock` with an `inline*`
+    // title, but stitching across its boundary would orphan its required
+    // `__children` node. `mergeIntoContainerContent` is the only supported
+    // merge involving one.
+    !isContentContainerNode(prevBlockInfo.bnBlock.node) &&
+    nextBlockInfo.isWrappedBlock &&
+    nextBlockInfo.blockContent.node.type.spec.content === "inline*" &&
+    !isContentContainerNode(nextBlockInfo.bnBlock.node)
   );
 };
 
@@ -120,7 +142,7 @@ const mergeBlocks = (
   nextBlockInfo: BlockInfo,
 ) => {
   // Un-nests all children of the next block.
-  if (!nextBlockInfo.isBlockContainer) {
+  if (!nextBlockInfo.isWrappedBlock) {
     throw new Error(
       `Attempted to merge block at position ${nextBlockInfo.bnBlock.beforePos} into previous block at position ${prevBlockInfo.bnBlock.beforePos}, but next block is not a block container`,
     );
@@ -147,19 +169,78 @@ const mergeBlocks = (
   // removing the closing tags of the first block and the opening tags of the
   // second one to stitch them together.
   if (dispatch) {
-    if (!prevBlockInfo.isBlockContainer) {
+    if (!prevBlockInfo.isWrappedBlock) {
       throw new Error(
         `Attempted to merge block at position ${nextBlockInfo.bnBlock.beforePos} into previous block at position ${prevBlockInfo.bnBlock.beforePos}, but previous block is not a block container`,
       );
     }
 
-    // TODO: test merging between a columnList and paragraph, between two columnLists, and v.v.
+    // Merging into or out of container blocks (columnLists, callouts, ...)
+    // is intentionally unsupported; `canMerge` refuses it above. The
+    // container-boundary Backspace/Delete branches in
+    // `KeyboardShortcutsExtension` handle those cases by moving blocks
+    // across the boundary instead of merging their content.
     dispatch(
       state.tr.delete(
         prevBlockInfo.blockContent.afterPos - 1,
         nextBlockInfo.blockContent.beforePos + 1,
       ),
     );
+  }
+
+  return true;
+};
+
+/**
+ * Merges a container's first child into the container's own content. This is
+ * the Backspace-at-the-start-of-the-first-child case for a container that has
+ * a title of its own. The child's own children stay in the container, taking
+ * its place.
+ *
+ * Deliberately separate from `canMerge`/`mergeBlocks`: a pure container has
+ * no content to merge into, so those keep refusing container boundaries
+ * outright and the "move the block out" branch still handles them. Returns
+ * false whenever either side isn't inline content, falling through to that
+ * branch.
+ */
+export const mergeIntoContainerContent = (
+  state: EditorState,
+  dispatch: ((args?: any) => any) | undefined,
+  containerInfo: BlockInfo,
+  childInfo: BlockInfo,
+) => {
+  if (!containerInfo.isWrappedBlock || !childInfo.isWrappedBlock) {
+    return false;
+  }
+
+  const title = containerInfo.blockContent;
+  const childContent = childInfo.blockContent;
+
+  if (
+    title.node.type.spec.content !== "inline*" ||
+    childContent.node.type.spec.content !== "inline*"
+  ) {
+    return false;
+  }
+
+  if (dispatch) {
+    const tr = state.tr;
+
+    // The title lies before the children, so none of these positions shift the
+    // ones used after them.
+    if (childInfo.childContainer?.node.childCount) {
+      tr.insert(
+        childInfo.bnBlock.afterPos,
+        childInfo.childContainer.node.content,
+      );
+    }
+    tr.delete(childInfo.bnBlock.beforePos, childInfo.bnBlock.afterPos);
+
+    const titleEndPos = title.afterPos - 1;
+    tr.insert(titleEndPos, childContent.node.content);
+    tr.setSelection(TextSelection.create(tr.doc, titleEndPos));
+
+    dispatch(tr);
   }
 
   return true;

@@ -16,6 +16,10 @@ import {
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "./index.js";
+import {
+  validateChildrenConfigs,
+  validateContainerRunsBefore,
+} from "./blocks/validateChildren.js";
 
 function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
   if (!obj) {
@@ -89,6 +93,26 @@ export class CustomBlockNoteSchema<
         key: key,
         runsBefore: val.implementation?.runsBefore ?? [],
       })),
+    );
+
+    // Validation runs before the nodes are built, so misconfigurations
+    // surface as clear errors rather than as opaque ProseMirror ones.
+    const blockConfigs = Object.fromEntries(
+      Object.entries(this.opts.blockSpecs).map(([key, blockSpec]) => [
+        key,
+        blockSpec.config,
+      ]),
+    );
+
+    validateChildrenConfigs(blockConfigs);
+    validateContainerRunsBefore(
+      blockConfigs,
+      Object.fromEntries(
+        Object.entries(this.opts.blockSpecs).map(([key, blockSpec]) => [
+          key,
+          blockSpec.implementation?.runsBefore,
+        ]),
+      ),
     );
 
     const blockSpecs = Object.fromEntries(
