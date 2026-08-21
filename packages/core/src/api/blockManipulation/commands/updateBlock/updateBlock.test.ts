@@ -181,7 +181,7 @@ describe("Test updateBlock", () => {
       getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
     );
 
-    if (!info.isBlockContainer) {
+    if (!info.isWrappedBlock) {
       throw new Error("heading-with-everything is not a block container");
     }
 
@@ -210,7 +210,7 @@ describe("Test updateBlock", () => {
       getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
     );
 
-    if (!info.isBlockContainer) {
+    if (!info.isWrappedBlock) {
       throw new Error("heading-with-everything is not a block container");
     }
 
@@ -240,7 +240,7 @@ describe("Test updateBlock", () => {
       getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
     );
 
-    if (!info.isBlockContainer) {
+    if (!info.isWrappedBlock) {
       throw new Error("heading-with-everything is not a block container");
     }
 
@@ -273,7 +273,7 @@ describe("Test updateBlock", () => {
       getNodeById("table-0", getEditor().prosemirrorState.doc)!,
     );
 
-    if (!info.isBlockContainer) {
+    if (!info.isWrappedBlock) {
       throw new Error("table-0 is not a block container");
     }
 
@@ -303,7 +303,7 @@ describe("Test updateBlock", () => {
       getNodeById("table-0", getEditor().prosemirrorState.doc)!,
     );
 
-    if (!info.isBlockContainer) {
+    if (!info.isWrappedBlock) {
       throw new Error("table-0 is not a block container");
     }
 
@@ -940,7 +940,7 @@ describe("Test updateBlock minimal steps", () => {
         editor.prosemirrorState.doc,
       )!,
     );
-    if (!info.isBlockContainer) {
+    if (!info.isWrappedBlock) {
       throw new Error("paragraph-with-styled-content is not a block container");
     }
 

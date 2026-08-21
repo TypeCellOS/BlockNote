@@ -1,11 +1,13 @@
-import { Editor, Node } from "@tiptap/core";
+import { Editor, Node, NodeViewRendererProps } from "@tiptap/core";
 import {
   DOMParser,
   Fragment,
   Node as PMNode,
+  Schema as PMSchema,
   TagParseRule,
 } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
+import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
 import {
   Extension,
@@ -13,8 +15,24 @@ import {
 } from "../../editor/BlockNoteExtension.js";
 import { nonFormattingMarks } from "../markGroups.js";
 import { ignoreNonContentMutations } from "../nodeViewMutations.js";
+import { suggestionMarks } from "../../pm-nodes/suggestionMarks.js";
 import { PropSchema } from "../propTypes.js";
 import {
+  ANY_CONTAINER_GROUP,
+  BLOCK_GROUP_CHILD_GROUP,
+  CHILD_CONTAINER_GROUP,
+  CONTAINER_CONTENT_GROUP,
+  childrenContentExpression,
+  containerChildrenNodeName,
+  containerContentNodeName,
+  containerNodePriority,
+  getChildrenConfig,
+  isPlaceableAnywhere,
+  resolveChildren,
+} from "./children.js";
+import { applyContainerAttributes } from "./containerAttributes.js";
+import {
+  applyDOMAttributes,
   getBlockFromNodeView,
   propsToAttributes,
   wrapInBlockStructure,
@@ -45,9 +63,78 @@ export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
   };
 }
 
-// Function that uses the 'parse' function of a blockConfig to create a
-// TipTap node's `parseHTML` property. This is only used for parsing content
-// from the clipboard.
+// Wraps inline runs from `parseContent` into paragraphs so they fit a
+// container's block content expression. A leading inline run in a
+// content-bearing container stays inline (it's the block's own content).
+function toContainerChildren(
+  fragment: Fragment,
+  schema: PMSchema,
+  hasOwnContent: boolean,
+): Fragment {
+  const out: PMNode[] = [];
+  let inlineRun: PMNode[] = [];
+  let seenBlock = false;
+
+  const flush = () => {
+    if (inlineRun.length === 0) {
+      return;
+    }
+    out.push(
+      ...(hasOwnContent && !seenBlock
+        ? inlineRun
+        : [schema.nodes["paragraph"].create(null, inlineRun)]),
+    );
+    inlineRun = [];
+  };
+
+  fragment.forEach((child) => {
+    if (child.isInline) {
+      inlineRun.push(child);
+      return;
+    }
+    flush();
+    seenBlock = true;
+    out.push(child);
+  });
+  flush();
+
+  return Fragment.fromArray(out);
+}
+
+// Finds the element holding a serialized container block's content, marked
+// `data-children-of` by the internal HTML serializer. For a pure container
+// that element holds the children and is the content element; for a container
+// with its own content it's the generated children *region*, whose parent
+// hosts both regions and is the content element. Returns undefined when no
+// marker belonging to *this* block (rather than a same-typed nested
+// container) is present.
+function findContainerContentElement(
+  el: HTMLElement,
+  config: { type: string; content: string },
+): HTMLElement | undefined {
+  const selector = `[data-children-of="${config.type}"]`;
+
+  const resolve = (host: HTMLElement) =>
+    config.content === "none" ? host : (host.parentElement ?? undefined);
+
+  // The block's root may itself be the children host (a render that passes
+  // its own root to `contentRef`). `querySelectorAll` only sees descendants.
+  if (el.matches(selector)) {
+    return resolve(el);
+  }
+
+  for (const host of el.querySelectorAll<HTMLElement>(selector)) {
+    // Skip hosts of same-typed *nested* containers: this block's own host is
+    // the one with no other container root between it and `el`.
+    if (host.parentElement?.closest("[data-node-type]") === el) {
+      return resolve(host);
+    }
+  }
+
+  return undefined;
+}
+
+// Creates `parseHTML` rules for clipboard parsing.
 export function getParseRules<
   TName extends string,
   TProps extends PropSchema,
@@ -55,12 +142,28 @@ export function getParseRules<
 >(
   config: BlockConfig<TName, TProps, TContent>,
   implementation: BlockImplementation<TName, TProps, TContent>,
+  kind: "regular" | "container" = "regular",
 ) {
+  const isContainer = kind === "container";
+
   const rules: TagParseRule[] = [
-    {
-      tag: "[data-content-type=" + config.type + "]",
-      contentElement: ".bn-inline-content",
-    },
+    isContainer
+      ? {
+          tag: `[data-node-type=${config.type}]`,
+          // Scope the round-trip parse to the block's content region, so text
+          // the render puts elsewhere in its DOM (button labels, captions,
+          // ...) doesn't parse back as document content. The internal HTML
+          // serializer marks the region with `data-children-of`; HTML without
+          // the marker (older or hand-written) falls back to the whole
+          // element, the previous behavior.
+          contentElement: (el) =>
+            findContainerContentElement(el as HTMLElement, config) ??
+            (el as HTMLElement),
+        }
+      : {
+          tag: "[data-content-type=" + config.type + "]",
+          contentElement: ".bn-inline-content",
+        },
   ];
 
   if (implementation.parse) {
@@ -81,10 +184,25 @@ export function getParseRules<
       },
       // Because we do the parsing ourselves, we want to preserve whitespace for content we've parsed
       preserveWhitespace: true,
-      getContent:
-        config.content === "inline" ||
-        config.content === "none" ||
-        config.content === "plain"
+      getContent: isContainer
+        ? implementation.parseContent
+          ? (node, schema) =>
+              toContainerChildren(
+                implementation.parseContent!({
+                  el: node as HTMLElement,
+                  schema,
+                }) ??
+                  DOMParser.fromSchema(schema).parse(node as HTMLElement, {
+                    topNode: schema.nodes["blockGroup"].create(),
+                    preserveWhitespace: true,
+                  }).content,
+                schema,
+                config.content !== "none",
+              )
+          : undefined
+        : config.content === "inline" ||
+            config.content === "none" ||
+            config.content === "plain"
           ? (node, schema) => {
               if (implementation.parseContent) {
                 const result = implementation.parseContent({
@@ -167,6 +285,377 @@ export function getParseRules<
   return rules;
 }
 
+function buildContainerNode<TName extends string, TProps extends PropSchema>(
+  blockConfig: BlockConfig<TName, TProps, "none">,
+  blockImplementation: BlockImplementation<TName, TProps, "none">,
+  priority?: number,
+) {
+  const children = getChildrenConfig(blockConfig)!;
+
+  const groups = ["bnBlock", CHILD_CONTAINER_GROUP];
+  if (isPlaceableAnywhere(blockConfig)) {
+    groups.push(BLOCK_GROUP_CHILD_GROUP, ANY_CONTAINER_GROUP);
+  }
+
+  return Node.create({
+    name: blockConfig.type,
+    content: childrenContentExpression(children),
+    group: groups.join(" "),
+    marks() {
+      return suggestionMarks(this.editor);
+    },
+    selectable: blockImplementation.meta?.selectable ?? true,
+    // Derived from `boundary`: an "open" container lets everything cross its
+    // edge; "isolated" and "sealed" both map to PM `isolating: true`.
+    isolating: resolveChildren(children).boundary !== "open",
+    defining: true,
+    priority: containerNodePriority(priority),
+    addAttributes() {
+      return propsToAttributes(blockConfig.propSchema);
+    },
+
+    parseHTML() {
+      return getParseRules(blockConfig, blockImplementation, "container");
+    },
+
+    renderHTML({ HTMLAttributes }) {
+      const dom = document.createElement("div");
+      dom.setAttribute("data-node-type", blockConfig.type);
+      for (const [attribute, value] of Object.entries(HTMLAttributes)) {
+        dom.setAttribute(attribute, value as string);
+      }
+      return { dom, contentDOM: dom };
+    },
+
+    addNodeView() {
+      return (props) =>
+        containerNodeView(blockConfig, blockImplementation, props, {
+          editor: this.options.editor,
+          tiptapEditor: this.editor,
+          blockContentDOMAttributes:
+            this.options.domAttributes?.blockContent || {},
+        });
+    },
+  });
+}
+
+function containerRootDOM(output: {
+  dom: HTMLElement | DocumentFragment;
+  rootDOM?: HTMLElement | null;
+}): HTMLElement | DocumentFragment | null | undefined {
+  return output.rootDOM === undefined ? output.dom : output.rootDOM;
+}
+
+function containerNodeView<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none" | "plain",
+>(
+  blockConfig: BlockConfig<TName, TProps, TContent>,
+  blockImplementation: BlockImplementation<TName, TProps, TContent>,
+  props: NodeViewRendererProps,
+  context: {
+    editor: unknown;
+    tiptapEditor: Editor;
+    blockContentDOMAttributes: Record<string, string>;
+  },
+): NodeView {
+  const block = nodeToBlock(props.node, props.view.state.doc);
+
+  const nodeView = blockImplementation.render.call(
+    {
+      blockContentDOMAttributes: context.blockContentDOMAttributes,
+      props,
+      renderType: "nodeView",
+      propSchema: blockConfig.propSchema,
+    },
+    block as any,
+    context.editor as any,
+  );
+
+  const rootDOM = () => containerRootDOM(nodeView);
+
+  applyContainerAttributes(
+    rootDOM(),
+    blockConfig.type,
+    block.props as any,
+    blockConfig.propSchema,
+    block.id,
+  );
+
+  const typedNodeView = nodeView as unknown as NodeView;
+
+  // Mark the children host in the live DOM, mirroring what the internal HTML
+  // serializer emits, so the container's round-trip parse rule can scope
+  // itself to it (`contentElement` in `getParseRules`) when ProseMirror
+  // re-reads editor DOM. Content-bearing containers get the marker from their
+  // generated `__children` node's own DOM instead.
+  if (blockConfig.content === "none" && typedNodeView.contentDOM) {
+    (typedNodeView.contentDOM as HTMLElement).setAttribute(
+      "data-children-of",
+      blockConfig.type,
+    );
+  }
+
+  if (blockImplementation.meta?.selectable === false) {
+    applyNonSelectableBlockFix(typedNodeView, context.tiptapEditor);
+  }
+
+  ignoreNonContentMutations(typedNodeView);
+
+  const update = typedNodeView.update?.bind(typedNodeView);
+  if (update) {
+    typedNodeView.update = (node, decorations, innerDecorations) => {
+      if (node.type.name !== blockConfig.type) {
+        return false;
+      }
+      if (update(node, decorations, innerDecorations) === false) {
+        return false;
+      }
+      applyContainerAttributes(
+        rootDOM(),
+        blockConfig.type,
+        nodeToBlock(node, props.view.state.doc).props as any,
+        blockConfig.propSchema,
+        node.attrs.id,
+      );
+      return true;
+    };
+  }
+
+  return typedNodeView;
+}
+
+function buildContentContainerNode<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "plain",
+>(
+  blockConfig: BlockConfig<TName, TProps, TContent>,
+  blockImplementation: BlockImplementation<TName, TProps, TContent>,
+  priority?: number,
+): { node: Node; extraNodes: Node[] } {
+  const children = getChildrenConfig(blockConfig)!;
+
+  const contentName = containerContentNodeName(blockConfig.type);
+  const childrenName = containerChildrenNodeName(blockConfig.type);
+  const nodePriority = containerNodePriority(priority);
+
+  const groups = ["bnBlock"];
+  if (isPlaceableAnywhere(blockConfig)) {
+    groups.push(BLOCK_GROUP_CHILD_GROUP, ANY_CONTAINER_GROUP);
+  }
+
+  const node = Node.create({
+    name: blockConfig.type,
+    content: `${contentName} ${childrenName}`,
+    group: groups.join(" "),
+    marks() {
+      return suggestionMarks(this.editor);
+    },
+    selectable: blockImplementation.meta?.selectable ?? true,
+    // Derived from `boundary`: an "open" container lets everything cross its
+    // edge; "isolated" and "sealed" both map to PM `isolating: true`.
+    isolating: resolveChildren(children).boundary !== "open",
+    defining: true,
+    priority: nodePriority,
+    addAttributes() {
+      return propsToAttributes(blockConfig.propSchema);
+    },
+
+    parseHTML() {
+      return getParseRules(blockConfig, blockImplementation, "container");
+    },
+
+    renderHTML({ HTMLAttributes }) {
+      const dom = document.createElement("div");
+      dom.setAttribute("data-node-type", blockConfig.type);
+      for (const [attribute, value] of Object.entries(HTMLAttributes)) {
+        dom.setAttribute(attribute, value as string);
+      }
+      return { dom, contentDOM: dom };
+    },
+
+    addNodeView() {
+      return (props) =>
+        containerNodeView(blockConfig, blockImplementation, props, {
+          editor: this.options.editor,
+          tiptapEditor: this.editor,
+          blockContentDOMAttributes:
+            this.options.domAttributes?.blockContent || {},
+        });
+    },
+  });
+
+  const contentNode = Node.create({
+    name: contentName,
+    group: CONTAINER_CONTENT_GROUP,
+    content: blockConfig.content === "plain" ? "text*" : "inline*",
+    marks() {
+      return blockConfig.content === "plain"
+        ? nonFormattingMarks(this.editor)
+        : undefined;
+    },
+    code: blockImplementation.meta?.code ?? false,
+    defining: true,
+    priority: nodePriority,
+
+    parseHTML() {
+      return [{ tag: `[data-content-type=${blockConfig.type}]` }];
+    },
+
+    renderHTML() {
+      const dom = document.createElement("div");
+      dom.className = "bn-inline-content";
+      dom.setAttribute("data-content-type", blockConfig.type);
+      return { dom, contentDOM: dom };
+    },
+  });
+
+  const childrenNode = Node.create({
+    name: childrenName,
+    group: CHILD_CONTAINER_GROUP,
+    content: childrenContentExpression(children),
+    marks() {
+      return suggestionMarks(this.editor);
+    },
+    priority: nodePriority,
+
+    parseHTML() {
+      return [{ tag: `[data-children-of=${blockConfig.type}]` }];
+    },
+
+    renderHTML() {
+      const dom = document.createElement("div");
+      dom.setAttribute("data-children-of", blockConfig.type);
+      return { dom, contentDOM: dom };
+    },
+  });
+
+  return { node, extraNodes: [contentNode, childrenNode] };
+}
+
+function buildRegularNode<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none" | "table" | "plain",
+>(
+  blockConfig: BlockConfig<TName, TProps, TContent>,
+  blockImplementation: BlockImplementation<TName, TProps, TContent>,
+  priority?: number,
+) {
+  return Node.create({
+    name: blockConfig.type,
+    content: (blockConfig.content === "inline"
+      ? "inline*"
+      : blockConfig.content === "plain"
+        ? "text*"
+        : blockConfig.content === "none"
+          ? ""
+          : blockConfig.content) as TContent extends "inline"
+      ? "inline*"
+      : TContent extends "plain"
+        ? "text*"
+        : "",
+    // "plain" blocks hold unstyled text, so they disallow formatting marks.
+    // They still allow the non-formatting marks (comments and
+    // suggestions/diffs), which annotate content without changing it and are
+    // ignored by the block model. `nonFormattingMarks` resolves the group only
+    // when at least one such mark is registered, so a plain block in an editor
+    // without any of them doesn't reference an empty (unknown) mark group.
+    marks() {
+      return blockConfig.content === "plain"
+        ? nonFormattingMarks(this.editor)
+        : undefined;
+    },
+    group: "blockContent",
+    selectable: blockImplementation.meta?.selectable ?? true,
+    isolating: blockImplementation.meta?.isolating ?? true,
+    code: blockImplementation.meta?.code ?? false,
+    defining: blockImplementation.meta?.defining ?? true,
+    priority,
+    addAttributes() {
+      return propsToAttributes(blockConfig.propSchema);
+    },
+
+    parseHTML() {
+      return getParseRules(blockConfig, blockImplementation);
+    },
+
+    renderHTML({ HTMLAttributes }) {
+      // renderHTML is used for copy/pasting content from the editor back into
+      // the editor, so we need to make sure the `blockContent` element is
+      // structured correctly as this is what's used for parsing blocks. We
+      // just render a placeholder div inside as the `blockContent` element
+      // already has all the information needed for proper parsing.
+      const div = document.createElement("div");
+      return wrapInBlockStructure(
+        {
+          dom: div,
+          contentDOM:
+            blockConfig.content === "inline" || blockConfig.content === "plain"
+              ? div
+              : undefined,
+        },
+        blockConfig.type,
+        {},
+        blockConfig.propSchema,
+        blockImplementation.meta?.fileBlockAccept !== undefined,
+        HTMLAttributes,
+      );
+    },
+
+    addNodeView() {
+      return (props) => {
+        // Gets the BlockNote editor instance
+        const editor = this.options.editor;
+        // Gets the block. Resolving this can't rely on `getPos()` alone:
+        // node views are constructed part-way through ProseMirror's
+        // reconciliation, where positions don't always line up with
+        // `view.state.doc` yet (see `getBlockFromNodeView`).
+        const block = getBlockFromNodeView(
+          props.getPos,
+          props.node,
+          props.view.state.doc,
+        );
+        // Gets the custom HTML attributes for `blockContent` nodes
+        const blockContentDOMAttributes =
+          this.options.domAttributes?.blockContent || {};
+
+        const nodeView = blockImplementation.render.call(
+          {
+            blockContentDOMAttributes,
+            props,
+            renderType: "nodeView",
+            propSchema: blockConfig.propSchema,
+          },
+          block as any,
+          editor as any,
+        );
+
+        // Cast needed because render returns `dom: HTMLElement | DocumentFragment`
+        // but tiptap's NodeView expects `dom: HTMLElement`
+        const typedNodeView = nodeView as unknown as NodeView;
+
+        if (blockImplementation.meta?.selectable === false) {
+          applyNonSelectableBlockFix(typedNodeView, this.editor);
+        }
+
+        // Ignores DOM mutations that don't affect the block's content, so
+        // that browser extensions which rewrite the DOM (e.g. Dark Reader)
+        // can't trigger an infinite re-render loop that freezes the tab.
+        ignoreNonContentMutations(typedNodeView);
+
+        // See explanation for why `update` is not implemented for NodeViews
+        // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464
+        // TODO: in a future version, we might want to implement updates so that
+        // vanilla blocks don't always re-render entirely (https://github.com/TypeCellOS/BlockNote/issues/220)
+        return typedNodeView;
+      };
+    },
+  });
+}
+
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function addNodeAndExtensionsToSpec<
@@ -179,135 +668,82 @@ export function addNodeAndExtensionsToSpec<
   extensions?: (ExtensionFactoryInstance | Extension)[],
   priority?: number,
 ): LooseBlockSpec<TName, TProps, TContent> {
-  const node =
-    ((blockImplementation as any).node as Node) ||
-    Node.create({
-      name: blockConfig.type,
-      content: (blockConfig.content === "inline"
-        ? "inline*"
-        : blockConfig.content === "plain"
-          ? "text*"
-          : blockConfig.content === "none"
-            ? ""
-            : blockConfig.content) as TContent extends "inline"
-        ? "inline*"
-        : TContent extends "plain"
-          ? "text*"
-          : "",
-      // "plain" blocks hold unstyled text, so they disallow formatting marks.
-      // They still allow the non-formatting marks (comments and
-      // suggestions/diffs) — those annotate content without changing it and are
-      // ignored by the block model. `nonFormattingMarks` resolves the group only
-      // when at least one such mark is registered, so a plain block in an editor
-      // without any of them doesn't reference an empty (unknown) mark group.
-      marks() {
-        return blockConfig.content === "plain"
-          ? nonFormattingMarks(this.editor)
-          : undefined;
-      },
-      group: "blockContent",
-      selectable: blockImplementation.meta?.selectable ?? true,
-      isolating: blockImplementation.meta?.isolating ?? true,
-      code: blockImplementation.meta?.code ?? false,
-      defining: blockImplementation.meta?.defining ?? true,
-      priority,
-      addAttributes() {
-        return propsToAttributes(blockConfig.propSchema);
-      },
+  // A `children` + `content: "table"` combination is rejected by
+  // `validateChildrenConfigs` when the schema is built.
+  const childrenConfig = getChildrenConfig(blockConfig);
 
-      parseHTML() {
-        return getParseRules(blockConfig, blockImplementation);
-      },
+  const isContainer = childrenConfig !== undefined;
 
-      renderHTML({ HTMLAttributes }) {
-        // renderHTML is used for copy/pasting content from the editor back into
-        // the editor, so we need to make sure the `blockContent` element is
-        // structured correctly as this is what's used for parsing blocks. We
-        // just render a placeholder div inside as the `blockContent` element
-        // already has all the information needed for proper parsing.
-        const div = document.createElement("div");
-        return wrapInBlockStructure(
-          {
-            dom: div,
-            contentDOM:
-              blockConfig.content === "inline" ||
-              blockConfig.content === "plain"
-                ? div
-                : undefined,
-          },
-          blockConfig.type,
-          {},
-          blockConfig.propSchema,
-          blockImplementation.meta?.fileBlockAccept !== undefined,
-          HTMLAttributes,
-        );
-      },
-
-      addNodeView() {
-        return (props) => {
-          // Gets the BlockNote editor instance
-          const editor = this.options.editor;
-          // Gets the block. Resolving this can't rely on `getPos()` alone —
-          // node views are constructed part-way through ProseMirror's
-          // reconciliation, where positions don't always line up with
-          // `view.state.doc` yet (see `getBlockFromNodeView`).
-          const block = getBlockFromNodeView(
-            props.getPos,
-            props.node,
-            props.view.state.doc,
-          );
-          // Gets the custom HTML attributes for `blockContent` nodes
-          const blockContentDOMAttributes =
-            this.options.domAttributes?.blockContent || {};
-
-          const nodeView = blockImplementation.render.call(
-            {
-              blockContentDOMAttributes,
-              props,
-              renderType: "nodeView",
-              propSchema: blockConfig.propSchema,
-            },
-            block as any,
-            editor as any,
-          );
-
-          // Cast needed because render returns `dom: HTMLElement | DocumentFragment`
-          // but tiptap's NodeView expects `dom: HTMLElement`
-          const typedNodeView = nodeView as unknown as NodeView;
-
-          if (blockImplementation.meta?.selectable === false) {
-            applyNonSelectableBlockFix(typedNodeView, this.editor);
+  // A container with its own content is built from three nodes (see
+  // `buildContentContainerNode`); every other kind of block is a single node.
+  const built: { node: Node; extraNodes?: Node[] } = (
+    blockImplementation as any
+  ).node
+    ? { node: (blockImplementation as any).node as Node }
+    : childrenConfig && blockConfig.content !== "none"
+      ? buildContentContainerNode(
+          blockConfig as unknown as BlockConfig<
+            TName,
+            TProps,
+            "inline" | "plain"
+          >,
+          blockImplementation as unknown as BlockImplementation<
+            TName,
+            TProps,
+            "inline" | "plain"
+          >,
+          priority,
+        )
+      : childrenConfig
+        ? {
+            node: buildContainerNode(
+              blockConfig as unknown as BlockConfig<TName, TProps, "none">,
+              blockImplementation as unknown as BlockImplementation<
+                TName,
+                TProps,
+                "none"
+              >,
+              priority,
+            ),
           }
+        : {
+            node: buildRegularNode(blockConfig, blockImplementation, priority),
+          };
 
-          // Ignores DOM mutations that don't affect the block's content, so
-          // that browser extensions which rewrite the DOM (e.g. Dark Reader)
-          // can't trigger an infinite re-render loop that freezes the tab.
-          ignoreNonContentMutations(typedNodeView);
+  const { node: builtNode, extraNodes } = built;
 
-          // See explanation for why `update` is not implemented for NodeViews
-          // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464
-          // https://github.com/TypeCellOS/BlockNote/issues/220
-          return typedNodeView;
-        };
-      },
-    });
-
-  if (node.name !== blockConfig.type) {
+  if (builtNode.name !== blockConfig.type) {
     throw new Error(
       "Node name does not match block type. This is a bug in BlockNote.",
     );
   }
+
+  // The block's config is stored on its nodes' PM specs
+  // (`NodeSpec.blockConfig`), so code holding a bare `Node` can consult it
+  // without an editor or schema reference. Generated `__content`/`__children`
+  // nodes carry their owning block's config. (`extendNodeSchema` hooks run
+  // for every node in the schema, hence the name gate.)
+  const specNodeNames = new Set([
+    builtNode.name,
+    ...(extraNodes?.map((extraNode) => extraNode.name) ?? []),
+  ]);
+  const node = builtNode.extend({
+    extendNodeSchema(extension) {
+      return specNodeNames.has(extension.name) ? { blockConfig } : {};
+    },
+  });
 
   return {
     config: blockConfig,
     implementation: {
       ...blockImplementation,
       node,
+      ...(extraNodes ? { extraNodes } : {}),
       render(block, editor) {
         const blockContentDOMAttributes =
           node.options.domAttributes?.blockContent || {};
 
-        return blockImplementation.render.call(
+        const output = blockImplementation.render.call(
           {
             blockContentDOMAttributes,
             props: undefined,
@@ -317,6 +753,18 @@ export function addNodeAndExtensionsToSpec<
           block as any,
           editor as any,
         );
+
+        if (isContainer) {
+          applyContainerAttributes(
+            containerRootDOM(output),
+            blockConfig.type,
+            block.props as any,
+            blockConfig.propSchema,
+            block.id,
+          );
+        }
+
+        return output;
       },
       // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
       // post-processing in externalHTMLExporter should not be necessary
@@ -324,7 +772,7 @@ export function addNodeAndExtensionsToSpec<
         const blockContentDOMAttributes =
           node.options.domAttributes?.blockContent || {};
 
-        return (
+        const output =
           blockImplementation.toExternalHTML?.call(
             { blockContentDOMAttributes, propSchema: blockConfig.propSchema },
             block as any,
@@ -340,8 +788,19 @@ export function addNodeAndExtensionsToSpec<
             },
             block as any,
             editor as any,
-          )
-        );
+          );
+
+        if (output && isContainer) {
+          applyContainerAttributes(
+            containerRootDOM(output),
+            blockConfig.type,
+            block.props as any,
+            blockConfig.propSchema,
+            block.id,
+          );
+        }
+
+        return output;
       },
     },
     extensions,
@@ -452,6 +911,8 @@ export function createBlockSpec<
         : extensionsOrCreator
       : undefined;
 
+    const isContainer = getChildrenConfig(blockConfig) !== undefined;
+
     return {
       config: blockConfig,
       implementation: {
@@ -468,6 +929,11 @@ export function createBlockSpec<
 
           if (output === undefined) {
             return undefined;
+          }
+
+          if (isContainer) {
+            applyDOMAttributes(output.dom, this.blockContentDOMAttributes);
+            return output;
           }
 
           return wrapInBlockStructure(
@@ -488,6 +954,11 @@ export function createBlockSpec<
             block as any,
             editor as any,
           );
+
+          if (isContainer) {
+            applyDOMAttributes(output.dom, this.blockContentDOMAttributes);
+            return output;
+          }
 
           const nodeView = wrapInBlockStructure(
             output,

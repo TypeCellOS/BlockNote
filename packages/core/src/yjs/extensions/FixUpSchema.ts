@@ -25,7 +25,15 @@ export const FixUpSchemaExtension = createExtension(({ editor }) => {
 
       // create a copy that we can mutate (otherwise, assigning attrs is not safe and corrupts the pm state)
       const jsonNode = JSON.parse(JSON.stringify(ret.toJSON()));
-      jsonNode.content[0].content[0].attrs.id = "initialBlockId";
+      // The first fill of the doc's blockGroup is guaranteed to be a
+      // `blockContainer` (container block nodes register at lower priority
+      // precisely so auto-fill picks `blockContainer` first), but guard on
+      // the node actually carrying an id attr in case a custom schema
+      // changes that.
+      const firstBlock = jsonNode.content?.[0]?.content?.[0];
+      if (firstBlock?.attrs && "id" in firstBlock.attrs) {
+        firstBlock.attrs.id = "initialBlockId";
+      }
 
       cache = Node.fromJSON(schema, jsonNode);
       return cache;

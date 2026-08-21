@@ -563,7 +563,7 @@ export class ExtensionManager {
                 const blockInfo = getBlockInfoFromSelection(tr);
 
                 if (
-                  !blockInfo.isBlockContainer ||
+                  !blockInfo.isWrappedBlock ||
                   this.editor.schema.blockSchema[blockInfo.blockNoteType]
                     ?.content !== "inline"
                 ) {
