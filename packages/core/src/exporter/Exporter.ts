@@ -85,12 +85,6 @@ export abstract class Exporter<
    * after the container's own output.
    */
   public isContainerBlock(blockType: string): boolean {
-    // Legacy: `@blocknote/xl-multi-column`'s hand-written specs, which have
-    // no `children` config. Removed once multi-column is migrated onto the
-    // container API.
-    if (blockType === "columnList" || blockType === "column") {
-      return true;
-    }
     const spec = (this.blockNoteSchema.blockSpecs as Record<string, any>)[
       blockType
     ];

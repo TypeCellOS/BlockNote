@@ -257,20 +257,6 @@ function serializeBlock<
     return ret.dom;
   }
 
-  // Legacy path for `@blocknote/xl-multi-column`'s hand-written PM nodes,
-  // which sit in the `bnBlock` group but have no `children` config. They own
-  // their outer DOM and hold their children directly in their `contentDOM`.
-  // Removed once multi-column is migrated onto the container API.
-  const pmType = editor.pmSchema.nodes[block.type!];
-  if (pmType?.isInGroup("bnBlock")) {
-    if (block.children && block.children.length > 0) {
-      ret.contentDOM?.append(
-        serializeBlocks(editor, block.children, serializer, options),
-      );
-    }
-    return ret.dom;
-  }
-
   // wrap the block in a blockContainer
   const bc = BC_NODE.spec?.toDOM?.(
     BC_NODE.create({

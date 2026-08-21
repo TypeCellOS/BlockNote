@@ -14,7 +14,6 @@ import {
 import type { ResolvedChildren } from "../../../schema/blocks/children.js";
 import { seedRefillChildren } from "../../nodeConversions/blockToNode.js";
 import { getNodeById } from "../../nodeUtil.js";
-import { fixColumnList } from "../commands/replaceBlocks/util/fixColumnList.js";
 
 // Defined in `children.ts` (it answers a schema-level question); re-exported
 // here because the public root export (`index.ts`) imports it from this
@@ -149,12 +148,6 @@ export function fixContainer(tr: Transaction, containerPos: number) {
   const config = childrenConfig ? resolveChildren(childrenConfig) : undefined;
 
   if (!config) {
-    // Legacy repair for `@blocknote/xl-multi-column`'s hand-written PM nodes,
-    // which have no `children` config but sit in the `childContainer` group.
-    // Removed once multi-column is migrated onto the container API.
-    if (target.blockNode.type.name === "columnList") {
-      fixColumnList(tr, target.blockPos);
-    }
     return;
   }
 

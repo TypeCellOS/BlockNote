@@ -65,11 +65,6 @@ export function getDefaultTiptapExtensions(
       // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
       types: [
         "blockContainer",
-        // Legacy: `@blocknote/xl-multi-column`'s hand-written PM nodes, which
-        // have no `children` config and so aren't picked up below. Removed
-        // once multi-column is migrated onto the container API.
-        "columnList",
-        "column",
         // Container block specs whose PM node is itself in the `bnBlock`
         // group (column, columnList, callout, etc.). The bnBlock node is the
         // block itself, so the id lives on its attrs rather than on a

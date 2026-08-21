@@ -11,6 +11,7 @@ import {
 import {
   compareDocToSnapshot,
   focusOnEditor,
+  sleep,
   waitForSelector,
 } from "../../utils/editor.js";
 import {
@@ -132,5 +133,55 @@ describe("Check Multi-Column Behaviour", () => {
     await userEvent.keyboard("{Delete}");
 
     await compareDocToSnapshot("deleteEndOfColumnList");
+  });
+});
+
+// Which block the side menu attaches to is resolved from live layout
+// (`elementsFromPoint` / `posAtCoords`); the geometry pieces below that are
+// unit-tested in `packages/core/src/extensions/SideMenu/
+// sideMenuContainerGeometry.browser.test.ts`. This tests the whole path,
+// through a real column list. Hovering a column's left padding hands the
+// lookup coordinates that horizontally overlap the previous column, and
+// `SideMenu.ts` only resolves the right block by re-probing further right
+// once `isHorizontalContainer` recognises the column list. If that
+// compensation (or the detection) breaks, the menu attaches to a block in
+// the previous column.
+describe("Check side menu placement inside a column list", () => {
+  /** Vertical centre of a rect, which the menu lines itself up with. */
+  const centerY = (rect: DOMRect) => rect.y + rect.height / 2;
+
+  test("Check drag handle resolves the block on the hovered row of a column", async () => {
+    await focusOnEditor();
+
+    // The last column is the only one holding several blocks, so it's the only
+    // place a wrongly resolved block is distinguishable by its row.
+    const target = page.getByText("Block 2").element();
+    const columnRect = getRect(target.closest(".bn-block-column")!);
+
+    await mouseSequence([
+      {
+        type: "move",
+        x: columnRect.x + 5,
+        y: centerY(getRect(target)),
+        steps: 5,
+      },
+    ]);
+    await waitForSelector(DRAG_HANDLE_SELECTOR);
+    await sleep(150);
+    const handleRect = getRect(DRAG_HANDLE_SELECTOR);
+
+    expect(handleRect.x).toBeLessThan(getRect(target).x);
+
+    // The handle lines up with the hovered block's row rather than any other
+    // block's. This is a stronger check than a pixel tolerance, since every
+    // candidate is only a line-height away, and it is what distinguishes
+    // this column's blocks from the neighbouring column's.
+    const distance = (rect: DOMRect) =>
+      Math.abs(centerY(handleRect) - centerY(rect));
+    for (const other of ["Block 1", "Block 3", "So is this heading!"]) {
+      expect(distance(getRect(target))).toBeLessThan(
+        distance(getRect(page.getByText(other).element())),
+      );
+    }
   });
 });
