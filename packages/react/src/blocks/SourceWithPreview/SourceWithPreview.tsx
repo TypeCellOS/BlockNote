@@ -1,5 +1,12 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { MouseEvent, ReactNode, useId, useRef } from "react";
+import {
+  autoUpdate,
+  flip,
+  offset,
+  shift,
+  useFloating,
+} from "@floating-ui/react";
+import { MouseEvent, ReactNode, useCallback, useId, useRef } from "react";
 import { MdKeyboardReturn } from "react-icons/md";
 
 import { PreviewPlaceholder } from "./PreviewPlaceholder.js";
@@ -129,6 +136,20 @@ export const SourceWithPreview = (
       errorPreview
     );
 
+  const { refs, floatingStyles } = useFloating({
+    placement: "bottom-start",
+    strategy: "fixed",
+    middleware: [offset(4), flip(), shift({ padding: 8 })],
+    whileElementsMounted: autoUpdate,
+  });
+
+  const isFloating = inline === true && popup.isOpen;
+
+  const setAnchor = useCallback(
+    (node: HTMLElement | null) => refs.setPositionReference(node),
+    [refs],
+  );
+
   // Links the source input to the render error so screen readers announce it
   // when the input is focused.
   const errorId = useId();
@@ -182,13 +203,18 @@ export const SourceWithPreview = (
       <PreviewContainer
         className="bn-preview-container"
         contentEditable={false}
+        ref={setAnchor}
         // When no source code is available, the "Add source" button should have the appropriate role.
         role={previewIsButton ? "button" : undefined}
         onClick={handlePreviewClick}
       >
         {previewContent}
       </PreviewContainer>
-      <div className="bn-source-block-popup">
+      <div
+        className="bn-source-block-popup"
+        ref={isFloating ? refs.setFloating : undefined}
+        style={isFloating ? floatingStyles : undefined}
+      >
         <div className="bn-code-block-source-popup-body">
           <pre
             className={
