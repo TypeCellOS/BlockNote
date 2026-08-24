@@ -46,7 +46,6 @@ export { assertContainerSchemaInvariants } from "./schema/blocks/assertSchemaInv
 export {
   applyContainerAttributes,
   fillContainerAttributes,
-  getContainerAttributes,
 } from "./schema/blocks/containerAttributes.js";
 
 // Repairing a container after its children changed.
