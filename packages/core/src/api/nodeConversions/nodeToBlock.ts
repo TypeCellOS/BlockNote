@@ -1,8 +1,8 @@
 import { Mark, Node, Slice } from "@tiptap/pm/model";
 import type { Block } from "../../blocks/defaultBlocks.js";
-import { isContainerNode } from "../blockManipulation/containers/fixContainer.js";
 import {
   blockTypeOfContainerChildrenNode,
+  isContainerNode,
   isContentContainerNode,
 } from "../../schema/blocks/children.js";
 import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";

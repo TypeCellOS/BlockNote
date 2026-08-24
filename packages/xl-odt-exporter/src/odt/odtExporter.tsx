@@ -156,10 +156,18 @@ export class ODTExporter<
       }
 
       if (this.isContainerBlock(block.type)) {
-        const children = await this.transformBlocks(block.children, 0);
+        // Legacy columns render as an ODT table whose cells reset indentation
+        // to 0. Schema-defined containers are ordinary nested blocks, so they
+        // preserve the current nesting level like every other exporter.
+        const isLegacyColumn =
+          block.type === "columnList" || block.type === "column";
+        const children = await this.transformBlocks(
+          block.children,
+          isLegacyColumn ? 0 : nestingLevel + 1,
+        );
         const content = await this.mapBlock(
           block as any,
-          0,
+          isLegacyColumn ? 0 : nestingLevel,
           numberedListIndex,
           children,
         );

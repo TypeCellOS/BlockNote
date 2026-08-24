@@ -492,7 +492,12 @@ function createContainerChildrenNode(
   );
 
   if (!seeded && unwrapsWhenEmptied(blockType, schema)) {
-    return type.create(attrs);
+    // Fill so the node satisfies its own content expression for the
+    // `node.check()` that runs before the repair pass (e.g. in
+    // `removeAndInsertBlocks`); that pass then unwraps the still-empty
+    // container. Without the fill, a `min >= 1` unwrap container with no
+    // `default` produces a schema-invalid node and `check()` throws.
+    return type.createAndFill(attrs) ?? type.create(attrs);
   }
 
   const node = type.createAndFill(attrs, seeded);
@@ -506,9 +511,10 @@ function createContainerChildrenNode(
   return node;
 }
 
-// Skips `createAndFill` for unwrap-on-empty containers (fill would be undone
-// by the next repair pass) and for unfittable content (let `node.check()`
-// report it).
+// Passes explicit children straight through for unwrap-on-empty containers
+// (fill would be undone by the next repair pass) and for unfittable content
+// (let `node.check()` report it). An empty child list is the exception: it
+// still needs filling to survive the pre-repair `node.check()`.
 function createExplicitChildrenNode(
   blockType: string,
   type: NodeType,
@@ -517,7 +523,12 @@ function createExplicitChildrenNode(
   attrs: Attrs | null = null,
 ): Node {
   if (unwrapsWhenEmptied(blockType, schema)) {
-    return type.create(attrs, children);
+    // An empty explicit `children: []` would leave a `min >= 1` container
+    // schema-invalid and fail the pre-repair `node.check()`, so fill it (the
+    // repair pass unwraps it). Non-empty explicit children are left as given.
+    return children.length === 0
+      ? (type.createAndFill(attrs) ?? type.create(attrs))
+      : type.create(attrs, children);
   }
 
   return type.createAndFill(attrs, children) ?? type.create(attrs, children);

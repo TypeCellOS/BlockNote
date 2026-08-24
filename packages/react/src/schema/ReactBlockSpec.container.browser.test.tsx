@@ -82,6 +82,8 @@ describe("React container block document model", () => {
     expect(block.children.map((child: any) => child.id)).toEqual(["b-child"]);
     // The child is an ordinary block of the document, reachable by id.
     expect(headless.getBlock("b-child")).toBeDefined();
+
+    headless._tiptapEditor.destroy();
   });
 });
 
@@ -108,6 +110,8 @@ describe("React container block external HTML", () => {
     expect(html).toContain('class="callout"');
     expect(html).toContain('data-node-type="callout"');
     expect(html).toContain("Hello");
+
+    editor._tiptapEditor.destroy();
   });
 });
 
