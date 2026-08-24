@@ -355,4 +355,51 @@ describe("content-bearing container: keyboard", () => {
       { type: "text", text: "TitleAfter", styles: {} },
     ]);
   });
+
+  it("Delete pulling a deeply-nested leaf out lands the caret in the moved block", async () => {
+    // The pulled leaf is two container levels deep, so a caret set from its
+    // pre-move position (before the source container is drained/repaired) would
+    // land in the wrong block. The caret must follow the moved block.
+    editor.replaceBlocks(editor.document, [
+      { id: "before", type: "paragraph", content: "Before" },
+      {
+        id: "outer",
+        type: "callout",
+        children: [
+          {
+            id: "inner",
+            type: "callout",
+            children: [{ id: "deep", type: "paragraph", content: "Deep" }],
+          },
+        ],
+      },
+    ]);
+
+    await pressKey("Delete", { block: "before", placement: "end" });
+
+    expect(editor.getTextCursorPosition().block.id).toBe("deep");
+    expect(editor.getParentBlock("deep")).toBeUndefined();
+  });
+
+  it("Backspace merging the first child into the title repairs the container", async () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "g-0",
+        type: "titledGrid",
+        content: "",
+        children: [
+          { id: "g-p-0", type: "paragraph", content: "" },
+          { id: "g-p-1", type: "paragraph", content: "B" },
+        ],
+      },
+    ]);
+
+    await pressKey("Backspace", { block: "g-p-0", placement: "start" });
+
+    // Merging the first child into the (empty) title drops the grid below its
+    // `min`; with the title still empty, the unwrap repair collapses it rather
+    // than leaving a padded empty child behind.
+    expect(editor.getBlock("g-0")).toBeUndefined();
+    expect(editor.document.map((block) => block.id)).toContain("g-p-1");
+  });
 });

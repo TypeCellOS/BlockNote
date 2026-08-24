@@ -361,7 +361,7 @@ function buildContainerNode<TName extends string, TProps extends PropSchema>(
   });
 }
 
-function containerRootDOM(output: {
+export function containerRootDOM(output: {
   dom: HTMLElement | DocumentFragment;
   rootDOM?: HTMLElement | null;
 }): HTMLElement | DocumentFragment | null | undefined {

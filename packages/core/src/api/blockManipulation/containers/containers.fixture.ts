@@ -105,6 +105,19 @@ const SeededPair = createBlockSpec(
   { render: renderDiv },
 )();
 
+// A container that only accepts regular blocks, not other container blocks.
+// Used to check that placement validation matches on the moved block's real
+// node type rather than always assuming a `blockContainer`.
+const BlocksOnlyBox = createBlockSpec(
+  {
+    type: "blocksOnlyBox" as const,
+    propSchema: {},
+    content: "none",
+    children: { allow: "blocks" },
+  },
+  { render: renderDiv },
+)();
+
 export const containerSchema = BlockNoteSchema.create().extend({
   blockSpecs: {
     ...defaultBlockSpecs,
@@ -115,5 +128,6 @@ export const containerSchema = BlockNoteSchema.create().extend({
     grid: Grid,
     gridCell: GridCell,
     seededPair: SeededPair,
+    blocksOnlyBox: BlocksOnlyBox,
   } as const,
 });

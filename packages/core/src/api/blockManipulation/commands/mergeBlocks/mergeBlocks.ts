@@ -5,6 +5,8 @@ import {
   isContentContainerNode,
   isSealed,
 } from "../../../../schema/blocks/children.js";
+import { getAncestorContainers } from "../../containers/containerNav.js";
+import { fixContainersById } from "../../containers/fixContainer.js";
 import {
   BlockInfo,
   getBlockInfoFromResolvedPos,
@@ -226,6 +228,15 @@ export const mergeIntoContainerContent = (
   if (dispatch) {
     const tr = state.tr;
 
+    // The container (and its ancestors) may need `whenEmptied` repair once the
+    // child is removed - e.g. an unwrap container left with an empty title
+    // collapses, or a refill container reseeds its default. Captured before the
+    // deletes, applied after.
+    const containersToFix = getAncestorContainers(
+      state.doc,
+      childInfo.bnBlock.beforePos,
+    );
+
     // The title lies before the children, so none of these positions shift the
     // ones used after them.
     if (childInfo.childContainer?.node.childCount) {
@@ -238,7 +249,16 @@ export const mergeIntoContainerContent = (
 
     const titleEndPos = title.afterPos - 1;
     tr.insert(titleEndPos, childContent.node.content);
-    tr.setSelection(TextSelection.create(tr.doc, titleEndPos));
+
+    const stepsBeforeFix = tr.steps.length;
+    fixContainersById(tr, containersToFix);
+    // Place the caret at the merge point, mapped through any repair (which may
+    // have unwrapped or reseeded the container, so the raw position can shift).
+    tr.setSelection(
+      TextSelection.near(
+        tr.doc.resolve(tr.mapping.slice(stepsBeforeFix).map(titleEndPos)),
+      ),
+    );
 
     dispatch(tr);
   }
