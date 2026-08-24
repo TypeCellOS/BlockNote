@@ -35,18 +35,6 @@ import { useNodeViewBlock } from "./useNodeViewBlock.js";
 // scope so the style object is referentially stable across renders.
 const DISPLAY_CONTENTS: CSSProperties = { display: "contents" };
 
-/**
- * Whether the block has an editable region for its `render` to place: its
- * inline content, its child blocks, or both for a container that also has
- * its own content. Only a `content: "none"` block without `children` has
- * nothing to place, so it is the only kind that doesn't get a `contentRef`.
- */
-type HasEditableRegion<Config> = Config extends { children: ChildrenConfig }
-  ? true
-  : Config extends { content: "none" }
-    ? false
-    : true;
-
 export type ReactCustomBlockRenderProps<
   B extends BlockConfigOrCreator,
   Config extends ExtractBlockConfigFromConfigOrCreator<B> =
@@ -54,15 +42,15 @@ export type ReactCustomBlockRenderProps<
 > = {
   block: BlockNoDefaults<Record<Config["type"], Config>, any, any>;
   editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
-} & (Config["content"] extends "table"
-  ? object
-  : HasEditableRegion<Config> extends true
-    ? {
-        // Points to where the block's editable region mounts: its inline
-        // content, its child blocks, or, for a container that has its own
-        // content, its content followed by its children.
-        contentRef: (node: HTMLElement | null) => void;
-      }
+  // A block gets a `contentRef` for its `render` to mount its editable region:
+  // its inline content, its child blocks, or, for a container that also has
+  // its own content, its content followed by its children. Only a
+  // `content: "none"` block without `children` (and the table block, whose
+  // content is managed separately) has nothing to place.
+} & (Config extends { children: ChildrenConfig }
+  ? { contentRef: (node: HTMLElement | null) => void }
+  : Config["content"] extends "inline" | "plain"
+    ? { contentRef: (node: HTMLElement | null) => void }
     : object);
 
 // extend BlockConfig but use a React render function
