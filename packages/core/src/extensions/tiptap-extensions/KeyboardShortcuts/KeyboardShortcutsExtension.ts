@@ -999,15 +999,43 @@ export const KeyboardShortcutsExtension = Extension.create<{
       "Shift-Mod-z": () => this.options.editor.redo(),
       "Mod-a": () => {
         const view = this.editor.view;
-        const { doc, tr } = view.state;
-        // Use a `TextSelection` from the document start to end as an `AllSelection` creates from/
-        // to positions outside a block, causing errors when calling e.g. `getBlock`.
-        const selection = TextSelection.between(
-          Selection.atStart(doc).$from,
-          Selection.atEnd(doc).$to,
-        );
+        const { doc, selection, tr } = view.state;
 
-        view.dispatch(tr.setSelection(selection).scrollIntoView());
+        // Follows Notion: the first `Mod-a` selects the current block's content,
+        // and any subsequent `Mod-a` expands the selection to the whole
+        // document. We use `TextSelection`s rather than an `AllSelection` for the
+        // whole-document case as the latter creates from/to positions outside a
+        // block, causing errors when calling e.g. `getBlock`.
+        const blockInfo = getBlockInfoFromSelection(view.state);
+        const blockContentRange = blockInfo.isBlockContainer
+          ? {
+              from: blockInfo.blockContent.beforePos + 1,
+              to: blockInfo.blockContent.afterPos - 1,
+            }
+          : undefined;
+
+        // Expands to the whole document when there's no selectable block content
+        // to select first, when the selection already extends beyond the current
+        // block, or when the current block's content is already fully selected.
+        const selectWholeDoc =
+          blockContentRange === undefined ||
+          selection.from < blockContentRange.from ||
+          selection.to > blockContentRange.to ||
+          (selection.from === blockContentRange.from &&
+            selection.to === blockContentRange.to);
+
+        const nextSelection = selectWholeDoc
+          ? TextSelection.between(
+              Selection.atStart(doc).$from,
+              Selection.atEnd(doc).$to,
+            )
+          : TextSelection.create(
+              doc,
+              blockContentRange.from,
+              blockContentRange.to,
+            );
+
+        view.dispatch(tr.setSelection(nextSelection).scrollIntoView());
 
         return true;
       },
