@@ -1,7 +1,7 @@
 import { camelToDataKebab } from "../../util/string.js";
 import { PropSchema, Props } from "../propTypes.js";
 
-export function getContainerAttributes<PSchema extends PropSchema>(
+function getContainerAttributes<PSchema extends PropSchema>(
   blockType: string,
   blockProps: Partial<Props<PSchema>>,
   propSchema: PSchema,

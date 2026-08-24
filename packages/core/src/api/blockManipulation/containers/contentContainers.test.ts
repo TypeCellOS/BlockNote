@@ -9,6 +9,7 @@ import {
 } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { fragmentToBlocks } from "../../nodeConversions/fragmentToBlocks.js";
 import { contentContainerSchema } from "./contentContainers.fixture.js";
 
 // Document-model behaviour of content-bearing containers (the "toggle" shape:
@@ -304,5 +305,125 @@ describe("content-bearing container: selection", () => {
     expect(result.blockCutAtEnd).toBe("t-0");
     const toggle = result.blocks.find((block) => block.id === "t-0")!;
     expect(toggle.children).toEqual([]);
+  });
+
+  it("fragmentToBlocks handles a selection ending inside the title", () => {
+    editor.replaceBlocks(editor.document, [
+      { id: "before", type: "paragraph", content: "Before" },
+      {
+        type: "titledGrid",
+        id: "g-0",
+        content: "Kept title",
+        children: [
+          { id: "g-p-0", type: "paragraph", content: "A" },
+          { id: "g-p-1", type: "paragraph", content: "B" },
+        ],
+      },
+    ]);
+    editor.setSelection("before", "g-0");
+
+    // The copy-to-HTML path slices the selection and flattens it via
+    // `fragmentToBlocks`. The selection ends inside the container's own title,
+    // before any of its children, so the generated `__children` node is absent
+    // from the slice. Flattening must not recurse into the content node and
+    // must return the container whole (title, no children).
+    const { from, to } = editor.prosemirrorState.selection;
+    const fragment = editor.prosemirrorState.doc.slice(from, to, false).content;
+
+    const blocks = fragmentToBlocks(fragment);
+    expect(blocks.map((block) => block.type)).toEqual([
+      "paragraph",
+      "titledGrid",
+    ]);
+    const grid = blocks.find((block) => block.type === "titledGrid")!;
+    expect(grid.children).toEqual([]);
+  });
+
+  // The mirror of the case above: the selection covers the children but not the
+  // container's own title, so the sliced container node has its `__content`
+  // removed and the `__children` node as its first child. The cut must splice
+  // in the selected children rather than throwing.
+  it("getSelectionCutBlocks handles a selection spanning only the children", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "t-0",
+        type: "toggle",
+        content: "Title",
+        children: [
+          { id: "t-p-0", type: "paragraph", content: "First" },
+          { id: "t-p-1", type: "paragraph", content: "Second" },
+        ],
+      },
+    ]);
+    editor.setSelection("t-p-0", "t-p-1");
+
+    const result = editor.getSelectionCutBlocks();
+    expect(result.blocks.map((block) => block.id)).toEqual(["t-p-0", "t-p-1"]);
+  });
+
+  // Same shape through the drag/copy `fragmentToBlocks` path, whose slice keeps
+  // the container wrapper (`includeParents`), so the truncated container node
+  // reaches `fragmentToBlocks` and must flatten to its selected children.
+  it("fragmentToBlocks handles a selection spanning only the children", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "t-0",
+        type: "toggle",
+        content: "Title",
+        children: [
+          { id: "t-p-0", type: "paragraph", content: "First" },
+          { id: "t-p-1", type: "paragraph", content: "Second" },
+        ],
+      },
+    ]);
+    editor.setSelection("t-p-0", "t-p-1");
+
+    const { from, to } = editor.prosemirrorState.selection;
+    const fragment = editor.prosemirrorState.doc.slice(from, to, true).content;
+
+    const blocks = fragmentToBlocks(fragment);
+    expect(blocks.map((block) => block.type)).toEqual([
+      "paragraph",
+      "paragraph",
+    ]);
+    expect(blocks.map((block) => (block.content as any)?.[0]?.text)).toEqual([
+      "First",
+      "Second",
+    ]);
+  });
+});
+
+describe("content-bearing container: navigation", () => {
+  beforeEach(() => {
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "t-0",
+        type: "toggle",
+        content: "Title",
+        children: [
+          { id: "t-p-0", type: "paragraph", content: "First" },
+          { id: "t-p-1", type: "paragraph", content: "Second" },
+        ],
+      },
+    ]);
+  });
+
+  // A child's parent PM node is the container's generated `__children` node, so
+  // `getParentBlock` has to climb to the owning container rather than convert
+  // that node directly.
+  it("getParentBlock returns the container for a child", () => {
+    const parent = editor.getParentBlock("t-p-0");
+    expect(parent?.id).toBe("t-0");
+    expect(parent?.type).toBe("toggle");
+  });
+
+  it("moveBlocksUp reorders a child within the container", () => {
+    editor.setTextCursorPosition("t-p-1");
+    editor.moveBlocksUp();
+
+    expect(editor.getBlock("t-0")!.children.map((child) => child.id)).toEqual([
+      "t-p-1",
+      "t-p-0",
+    ]);
   });
 });
