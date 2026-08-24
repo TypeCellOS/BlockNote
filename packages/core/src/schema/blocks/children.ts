@@ -84,6 +84,33 @@ export function isContainerBlockNode(node: Node): boolean {
   return isContainerNode(node.type) || isContentContainerNode(node);
 }
 
+/**
+ * The node that directly holds a container's child blocks, or `undefined` if
+ * `node` is not a container (a `blockContainer`, whose children live in an
+ * optional `blockGroup`, always returns `undefined`):
+ * - a content-bearing container → its generated `__children` node (the last
+ *   child). When a slice boundary cut through the container's own `__content`,
+ *   that node is absent and the last child is `__content` instead, so the
+ *   container has no children to flatten → `undefined`.
+ * - the mirror case, a slice that cut through the `__content` and left the
+ *   `__children` node as the first child → that first child.
+ * - a pure container → the node itself.
+ */
+export function getContainerChildrenHolder(node: Node): Node | undefined {
+  if (isContentContainerNode(node)) {
+    const lastChild = node.lastChild;
+    return lastChild && isContainerNode(lastChild.type) ? lastChild : undefined;
+  }
+  const firstChild = node.firstChild;
+  if (
+    firstChild &&
+    blockTypeOfContainerChildrenNode(firstChild.type.name) === node.type.name
+  ) {
+    return firstChild;
+  }
+  return isContainerNode(node.type) ? node : undefined;
+}
+
 export function getContentContainerNodeTypes(
   schema: Schema,
   blockType: string,
