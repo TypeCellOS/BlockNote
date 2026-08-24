@@ -2,21 +2,20 @@ import { afterEach, beforeEach } from "vite-plus/test";
 
 // This setup file also runs for test files that opt into the plain `node`
 // environment (`@vitest-environment node`), where there is no `window` at
-// all. Everything below is a DOM mock, so it is a no-op there.
+// all. The DOM mocks below are a no-op there.
 const hasWindow = typeof window !== "undefined";
 
+// Match the core setup: the deterministic-ID options live on `window` when it
+// exists and on `globalThis` in the node environment, since `generateID` reads
+// them from `(globalThis.window ?? globalThis).__TEST_OPTIONS`.
+const testHost: any = (globalThis as any).window ?? globalThis;
+
 beforeEach(() => {
-  if (!hasWindow) {
-    return;
-  }
-  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
+  testHost.__TEST_OPTIONS = {};
 });
 
 afterEach(() => {
-  if (!hasWindow) {
-    return;
-  }
-  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+  delete testHost.__TEST_OPTIONS;
 });
 
 // Mock ClipboardEvent

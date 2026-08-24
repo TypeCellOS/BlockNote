@@ -1,6 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { Fragment, Node } from "prosemirror-model";
-import { NodeSelection, TextSelection } from "prosemirror-state";
+import { NodeSelection, TextSelection, Transaction } from "prosemirror-state";
 
 import {
   getBottomNestedBlockInfo,
@@ -38,6 +38,34 @@ import {
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
+
+// Moves `node` out of its container to `insertAt` (a position in the pre-delete
+// doc): deletes it from `[from, to]`, re-inserts it, repairs the containers it
+// left behind (their `whenEmptied` min/unwrap/refill), and places the caret
+// inside the moved block. Every position is mapped through the deletion and the
+// repair, so the caret lands correctly even when the repair rewrites the source
+// container. Shared by the Backspace/Delete/Enter container-boundary branches.
+function moveBlockOutAndPlaceCaret(
+  tr: Transaction,
+  {
+    from,
+    to,
+    node,
+    insertAt,
+  }: { from: number; to: number; node: Node; insertAt: number },
+) {
+  const containersToFix = getAncestorContainers(tr.doc, from);
+  tr.delete(from, to);
+  const insertionPos = tr.mapping.map(insertAt);
+  tr.insert(insertionPos, node);
+  const stepsBeforeFix = tr.steps.length;
+  fixContainersById(tr, containersToFix);
+  tr.setSelection(
+    TextSelection.near(
+      tr.doc.resolve(tr.mapping.slice(stepsBeforeFix).map(insertionPos) + 1),
+    ),
+  );
+}
 
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
@@ -369,20 +397,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             if (dispatch) {
-              const containersToFix = getAncestorContainers(
-                tr.doc,
-                blockInfo.bnBlock.beforePos,
-              );
-
-              tr.delete(
-                blockInfo.bnBlock.beforePos,
-                blockInfo.bnBlock.afterPos,
-              );
-              tr.insert(insertionPos, blockInfo.bnBlock.node);
-              fixContainersById(tr, containersToFix);
-              tr.setSelection(
-                TextSelection.near(tr.doc.resolve(insertionPos + 1)),
-              );
+              moveBlockOutAndPlaceCaret(tr, {
+                from: blockInfo.bnBlock.beforePos,
+                to: blockInfo.bnBlock.afterPos,
+                node: blockInfo.bnBlock.node,
+                insertAt: insertionPos,
+              });
             }
 
             return true;
@@ -413,12 +433,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 prevBlockInfo,
               );
               if (!bottomNestedPrevBlockInfo.isWrappedBlock) {
-                return false;
-              }
-              if (
-                !bottomNestedPrevBlockInfo ||
-                !bottomNestedPrevBlockInfo.isWrappedBlock
-              ) {
                 return false;
               }
 
@@ -719,20 +733,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             if (dispatch) {
-              const containersToFix = getAncestorContainers(
-                tr.doc,
-                firstLeaf.beforePos,
-              );
-
-              tr.delete(
-                firstLeaf.beforePos,
-                firstLeaf.beforePos + firstLeaf.node.nodeSize,
-              );
-              tr.insert(blockInfo.bnBlock.afterPos, firstLeaf.node);
-              fixContainersById(tr, containersToFix);
-              tr.setSelection(
-                TextSelection.near(tr.doc.resolve(firstLeaf.beforePos)),
-              );
+              moveBlockOutAndPlaceCaret(tr, {
+                from: firstLeaf.beforePos,
+                to: firstLeaf.beforePos + firstLeaf.node.nodeSize,
+                node: firstLeaf.node,
+                insertAt: blockInfo.bnBlock.afterPos,
+              });
 
               return true;
             }
@@ -801,20 +807,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             if (dispatch) {
-              const containersToFix = getAncestorContainers(
-                tr.doc,
-                target.beforePos,
-              );
-
-              tr.delete(
-                target.beforePos,
-                target.beforePos + target.node.nodeSize,
-              );
-              tr.insert(blockInfo.bnBlock.afterPos, target.node);
-              fixContainersById(tr, containersToFix);
-              tr.setSelection(
-                TextSelection.near(tr.doc.resolve(target.beforePos)),
-              );
+              moveBlockOutAndPlaceCaret(tr, {
+                from: target.beforePos,
+                to: target.beforePos + target.node.nodeSize,
+                node: target.node,
+                insertAt: blockInfo.bnBlock.afterPos,
+              });
             }
 
             return true;
@@ -1213,32 +1211,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             if (dispatch) {
-              const containersToFix = getAncestorContainers(
-                tr.doc,
-                blockInfo.bnBlock.beforePos,
-              );
-
-              tr.delete(
-                blockInfo.bnBlock.beforePos,
-                blockInfo.bnBlock.afterPos,
-              );
-              // The insertion position, mapped through the deletion (and any
-              // schema-driven refill it triggered).
-              const insertionPos = tr.mapping.map(containerAfterPos);
-              tr.insert(insertionPos, blockInfo.bnBlock.node);
-              const stepsBeforeFix = tr.steps.length;
-              fixContainersById(tr, containersToFix);
-              // The exited container lies before the inserted block, so a
-              // repair that rewrites it (e.g. an emptied column unwrapping
-              // its list) shifts the block. Map the position through the
-              // repair's steps before placing the caret.
-              tr.setSelection(
-                TextSelection.near(
-                  tr.doc.resolve(
-                    tr.mapping.slice(stepsBeforeFix).map(insertionPos) + 1,
-                  ),
-                ),
-              );
+              moveBlockOutAndPlaceCaret(tr, {
+                from: blockInfo.bnBlock.beforePos,
+                to: blockInfo.bnBlock.afterPos,
+                node: blockInfo.bnBlock.node,
+                insertAt: containerAfterPos,
+              });
               tr.scrollIntoView();
             }
 

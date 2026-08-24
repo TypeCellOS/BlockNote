@@ -347,3 +347,45 @@ describe("children selection", () => {
     expect(result.blocks.map((block) => block.id)).toContain("before");
   });
 });
+
+describe("empty unwrap container", () => {
+  // A `min >= 1`, `whenEmptied: "unwrap"` container with no `default` used to
+  // build a schema-invalid node, so `node.check()` (run before the repair
+  // pass) threw a raw RangeError instead of inserting.
+  it("inserting an empty unwrap container does not throw", () => {
+    editor.replaceBlocks(editor.document, [
+      { id: "p-0", type: "paragraph", content: "Paragraph 0" },
+    ]);
+
+    expect(() =>
+      editor.insertBlocks([{ type: "grid" }] as any, "p-0", "after"),
+    ).not.toThrow();
+  });
+});
+
+describe("moveBlocks placement validation", () => {
+  // `checkPlacementIsValid` used to probe with `blockContainer`, so it accepted
+  // a placement inside a blocks-only container for a container block (e.g. a
+  // `callout`) that `insertBlocks` then rejected, throwing. It must validate
+  // against the moved block's real node type and skip the invalid placement.
+  it("moving a container block past a blocks-only container does not throw", () => {
+    editor.replaceBlocks(editor.document, [
+      { id: "p-0", type: "paragraph", content: "Paragraph 0" },
+      {
+        id: "box",
+        type: "blocksOnlyBox",
+        children: [{ id: "box-p", type: "paragraph", content: "Inside" }],
+      },
+      {
+        id: "c-0",
+        type: "callout",
+        children: [{ id: "c-p", type: "paragraph", content: "Callout" }],
+      },
+    ]);
+
+    expect(() => editor.moveBlocksUp("c-0")).not.toThrow();
+    // The callout can't nest in the blocks-only box, so it lands above it as a
+    // top-level sibling rather than being forced inside.
+    expect(editor.getParentBlock("c-0")).toBeUndefined();
+  });
+});
