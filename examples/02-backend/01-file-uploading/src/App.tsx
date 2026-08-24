@@ -1,16 +1,20 @@
-import { uploadFile_DEV_ONLY } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 
-// "Uploads" a file using BlockNote's dev-only helper, which encodes it as a
-// base64 data URL. We add a short delay first to simulate the latency of a real
-// server upload. In a real app you'd replace this with an upload to your own
-// backend that returns a URL to the stored file.
+// "Uploads" a file by encoding it as a base64 data URL. We add a short delay
+// first to simulate the latency of a real server upload. In a real app you'd
+// replace this with an upload to your own backend that returns a URL to the
+// stored file.
 async function uploadFile(file: File) {
   await new Promise((resolve) => setTimeout(resolve, 1000));
-  return uploadFile_DEV_ONLY(file);
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
 }
 
 export default function App() {

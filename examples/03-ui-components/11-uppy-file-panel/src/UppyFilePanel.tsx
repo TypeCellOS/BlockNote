@@ -1,4 +1,3 @@
-import { uploadFile_DEV_ONLY } from "@blocknote/core";
 import { FilePanelProps, useBlockNoteEditor } from "@blocknote/react";
 import Uppy, { UploadCompleteCallback } from "@uppy/core";
 import "@uppy/core/dist/style.min.css";
@@ -46,7 +45,7 @@ export function UppyFilePanel(props: FilePanelProps) {
         editor.updateBlock(blockId, {
           props: {
             name: file.name,
-            url: await uploadFile_DEV_ONLY(file.data as File),
+            url: await uploadFile(file.data as File),
           },
         });
 
@@ -66,6 +65,14 @@ export function UppyFilePanel(props: FilePanelProps) {
 
 // Implementation for the BlockNote `uploadFile` function.
 // This function is used when for example, files are dropped into the editor.
+// It "uploads" a file by encoding it as a base64 data URL. In a real app you'd
+// replace this with an upload to your own backend that returns a URL to the
+// stored file.
 export async function uploadFile(file: File) {
-  return uploadFile_DEV_ONLY(file);
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
 }

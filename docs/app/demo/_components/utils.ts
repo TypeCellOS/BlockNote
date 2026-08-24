@@ -1,5 +1,3 @@
-import { uploadFile_DEV_ONLY } from "@blocknote/core";
-
 export const HARDCODED_USERS = [
   {
     id: "user-1",
@@ -66,9 +64,14 @@ export async function resolveUsers(userIds: string[]) {
   return HARDCODED_USERS.filter((user) => userIds.includes(user.id));
 }
 
-// "Uploads" a file using BlockNote's dev-only helper, which encodes it as a
-// base64 data URL. In a real app you'd replace this with an upload to your own
-// backend that returns a URL to the stored file.
+// "Uploads" a file by encoding it as a base64 data URL. In a real app you'd
+// replace this with an upload to your own backend that returns a URL to the
+// stored file.
 export async function uploadFile(file: File) {
-  return uploadFile_DEV_ONLY(file);
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
 }
