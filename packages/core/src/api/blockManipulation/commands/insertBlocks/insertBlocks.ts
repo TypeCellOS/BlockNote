@@ -51,6 +51,11 @@ export function getInsertionPos(
 ): { pos: number; wrapIn?: NodeType } | null {
   const { node, posBeforeNode } = reference;
 
+  const descend = (holder: Node, pos: number) =>
+    placement === "start"
+      ? descendToFirstInsertionPos(holder, pos, nodeType)
+      : descendToLastInsertionPos(holder, pos, nodeType);
+
   if (placement === "before" || placement === "after") {
     const pos =
       placement === "before" ? posBeforeNode : posBeforeNode + node.nodeSize;
@@ -66,10 +71,7 @@ export function getInsertionPos(
   // into. The helpers ignore sealed boundaries by default, which is correct
   // here: an explicit `insertBlocks` placement is an intentional crossing.
   if (isContainerBlockNode(node)) {
-    const pos =
-      placement === "start"
-        ? descendToFirstInsertionPos(node, posBeforeNode, nodeType)
-        : descendToLastInsertionPos(node, posBeforeNode, nodeType);
+    const pos = descend(node, posBeforeNode);
 
     return pos === null ? null : { pos };
   }
@@ -89,10 +91,7 @@ export function getInsertionPos(
       : null;
   }
 
-  const pos =
-    placement === "start"
-      ? descendToFirstInsertionPos(node.lastChild!, blockGroupPos, nodeType)
-      : descendToLastInsertionPos(node.lastChild!, blockGroupPos, nodeType);
+  const pos = descend(node.lastChild!, blockGroupPos);
 
   return pos === null ? null : { pos };
 }

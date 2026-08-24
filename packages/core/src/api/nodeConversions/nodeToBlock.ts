@@ -1,7 +1,7 @@
 import { Mark, Node, Slice } from "@tiptap/pm/model";
 import type { Block } from "../../blocks/defaultBlocks.js";
 import {
-  blockTypeOfContainerChildrenNode,
+  getContainerChildrenHolder,
   isContainerNode,
   isContentContainerNode,
 } from "../../schema/blocks/children.js";
@@ -538,36 +538,6 @@ export function docToBlocks<
  * </blockGroup>
  *
  */
-/**
- * The node holding a bnBlock's children when that node holds them directly:
- * the container itself for a pure container, its generated `__children` node
- * for a container that also has its own content. `undefined` for a
- * `blockContainer`, whose children live in an optional `blockGroup`.
- */
-function getChildrenHolder(node: Node): Node | undefined {
-  if (isContentContainerNode(node)) {
-    // The children live in the generated `__children` node, which is the
-    // last child. When a slice boundary cuts through the container's own
-    // `__content`, the `__children` node is absent from the slice; its last
-    // (and only) child is then the `__content` node, which holds no children
-    // of its own.
-    const lastChild = node.lastChild;
-    return lastChild && isContainerNode(lastChild.type) ? lastChild : undefined;
-  }
-  // The mirror case: a slice boundary cut through the container's own
-  // `__content`, so the `__children` node is left as the first (and only)
-  // child. The node isn't a content container by `isContentContainerNode`
-  // (which reads `firstChild`), but its children still live one node deeper.
-  const firstChild = node.firstChild;
-  if (
-    firstChild &&
-    blockTypeOfContainerChildrenNode(firstChild.type.name) === node.type.name
-  ) {
-    return firstChild;
-  }
-  return isContainerNode(node.type) ? node : undefined;
-}
-
 export function prosemirrorSliceToSlicedBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -611,7 +581,7 @@ export function prosemirrorSliceToSlicedBlocks<
       const isFirstBlock = index === 0;
       const isLastBlock = index === node.childCount - 1;
 
-      const childrenHolder = getChildrenHolder(blockContainer);
+      const childrenHolder = getContainerChildrenHolder(blockContainer);
       if (childrenHolder) {
         // A container child. When the slice boundary is open inside it, the
         // selection covers part of its children, so skip the container
