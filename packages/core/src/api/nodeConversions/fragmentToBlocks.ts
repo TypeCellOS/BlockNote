@@ -6,8 +6,8 @@ import {
   StyleSchema,
 } from "../../schema/index.js";
 import {
-  blockTypeOfContainerChildrenNode,
   getChildrenConfig,
+  getContainerChildrenHolder,
   isContainerNode,
   isContentContainerNode,
   isPlaceableAnywhere,
@@ -16,38 +16,9 @@ import {
 import { getBlockSchema } from "../pmUtil.js";
 import { nodeToBlock } from "./nodeToBlock.js";
 
-function getContainerChildren(
-  node: Node,
-): { blockType: string; children: Node } | undefined {
-  if (isContentContainerNode(node)) {
-    // The children live in the generated `__children` node, the last child.
-    // When a slice boundary cuts through the container's own `__content`, that
-    // node is absent and the last child is the `__content` node instead; the
-    // container then has no children to flatten and is converted whole.
-    const lastChild = node.lastChild;
-    return lastChild && isContainerNode(lastChild.type)
-      ? { blockType: node.type.name, children: lastChild }
-      : undefined;
-  }
-  // Mirror case: a slice cut through the container's own `__content`, leaving
-  // its `__children` node as the first child. The children are still there,
-  // one node deeper, and the container is flattened to them.
-  const firstChild = node.firstChild;
-  if (
-    firstChild &&
-    blockTypeOfContainerChildrenNode(firstChild.type.name) === node.type.name
-  ) {
-    return { blockType: node.type.name, children: firstChild };
-  }
-  if (isContainerNode(node.type)) {
-    return { blockType: node.type.name, children: node };
-  }
-  return undefined;
-}
-
 function isSelfContainedContainer(node: Node): boolean {
-  const container = getContainerChildren(node);
-  if (!container) {
+  const children = getContainerChildrenHolder(node);
+  if (!children) {
     return false;
   }
   // A content-bearing container whose own `__content` was sliced away (the
@@ -56,15 +27,14 @@ function isSelfContainedContainer(node: Node): boolean {
   if (!isContentContainerNode(node) && !isContainerNode(node.type)) {
     return false;
   }
-  const blockConfig =
-    getBlockSchema(node.type.schema)[container.blockType] ?? {};
-  const children = getChildrenConfig(blockConfig);
-  if (!children) {
+  const blockConfig = getBlockSchema(node.type.schema)[node.type.name] ?? {};
+  const childrenConfig = getChildrenConfig(blockConfig);
+  if (!childrenConfig) {
     return false;
   }
   return (
     isPlaceableAnywhere(blockConfig) &&
-    container.children.childCount >= resolveChildren(children).min
+    children.childCount >= resolveChildren(childrenConfig).min
   );
 }
 
@@ -96,13 +66,13 @@ export function fragmentToBlocks<
   const blocks: BlockNoDefaults<B, I, S>[] = [];
 
   const pushFlattened = (node: Node, root: Node) => {
-    const container = getContainerChildren(node);
-    if (container && !isSelfContainedContainer(node)) {
+    const childrenHolder = getContainerChildrenHolder(node);
+    if (childrenHolder && !isSelfContainedContainer(node)) {
       const content = containerContentAsBlock<B, I, S>(node, root);
       if (content) {
         blocks.push(content);
       }
-      container.children.forEach((child) => pushFlattened(child, root));
+      childrenHolder.forEach((child) => pushFlattened(child, root));
       return;
     }
     blocks.push(nodeToBlock(node, root));
