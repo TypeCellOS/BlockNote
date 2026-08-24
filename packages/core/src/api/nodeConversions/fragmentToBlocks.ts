@@ -6,6 +6,7 @@ import {
   StyleSchema,
 } from "../../schema/index.js";
 import {
+  blockTypeOfContainerChildrenNode,
   getChildrenConfig,
   isContainerNode,
   isContentContainerNode,
@@ -19,7 +20,24 @@ function getContainerChildren(
   node: Node,
 ): { blockType: string; children: Node } | undefined {
   if (isContentContainerNode(node)) {
-    return { blockType: node.type.name, children: node.lastChild! };
+    // The children live in the generated `__children` node, the last child.
+    // When a slice boundary cuts through the container's own `__content`, that
+    // node is absent and the last child is the `__content` node instead; the
+    // container then has no children to flatten and is converted whole.
+    const lastChild = node.lastChild;
+    return lastChild && isContainerNode(lastChild.type)
+      ? { blockType: node.type.name, children: lastChild }
+      : undefined;
+  }
+  // Mirror case: a slice cut through the container's own `__content`, leaving
+  // its `__children` node as the first child. The children are still there,
+  // one node deeper, and the container is flattened to them.
+  const firstChild = node.firstChild;
+  if (
+    firstChild &&
+    blockTypeOfContainerChildrenNode(firstChild.type.name) === node.type.name
+  ) {
+    return { blockType: node.type.name, children: firstChild };
   }
   if (isContainerNode(node.type)) {
     return { blockType: node.type.name, children: node };
@@ -30,6 +48,12 @@ function getContainerChildren(
 function isSelfContainedContainer(node: Node): boolean {
   const container = getContainerChildren(node);
   if (!container) {
+    return false;
+  }
+  // A content-bearing container whose own `__content` was sliced away (the
+  // mirror case above) is a partial selection, never whole. Flatten it to the
+  // selected children rather than converting the truncated container.
+  if (!isContentContainerNode(node) && !isContainerNode(node.type)) {
     return false;
   }
   const blockConfig =

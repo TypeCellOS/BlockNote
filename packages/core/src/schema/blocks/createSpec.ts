@@ -285,31 +285,34 @@ export function getParseRules<
   return rules;
 }
 
-function buildContainerNode<TName extends string, TProps extends PropSchema>(
-  blockConfig: BlockConfig<TName, TProps, "none">,
-  blockImplementation: BlockImplementation<TName, TProps, "none">,
-  priority?: number,
+// The block's own PM node, shared by pure containers and content-bearing
+// containers. They differ only in their `content` expression, their `group`
+// (a pure container is itself a `childContainer`; a content-bearing one holds
+// its children in a separate node), and the priority passed in — everything
+// else (marks, selectable, isolating, parse/render, node view) is identical.
+function createContainerOwnNode<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none" | "plain",
+>(
+  blockConfig: BlockConfig<TName, TProps, TContent>,
+  blockImplementation: BlockImplementation<TName, TProps, TContent>,
+  options: { content: string; group: string; priority: number },
 ) {
-  const children = getChildrenConfig(blockConfig)!;
-
-  const groups = ["bnBlock", CHILD_CONTAINER_GROUP];
-  if (isPlaceableAnywhere(blockConfig)) {
-    groups.push(BLOCK_GROUP_CHILD_GROUP, ANY_CONTAINER_GROUP);
-  }
-
   return Node.create({
     name: blockConfig.type,
-    content: childrenContentExpression(children),
-    group: groups.join(" "),
+    content: options.content,
+    group: options.group,
     marks() {
       return suggestionMarks(this.editor);
     },
     selectable: blockImplementation.meta?.selectable ?? true,
     // Derived from `boundary`: an "open" container lets everything cross its
     // edge; "isolated" and "sealed" both map to PM `isolating: true`.
-    isolating: resolveChildren(children).boundary !== "open",
+    isolating:
+      resolveChildren(getChildrenConfig(blockConfig)!).boundary !== "open",
     defining: true,
-    priority: containerNodePriority(priority),
+    priority: options.priority,
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);
     },
@@ -336,6 +339,25 @@ function buildContainerNode<TName extends string, TProps extends PropSchema>(
             this.options.domAttributes?.blockContent || {},
         });
     },
+  });
+}
+
+function buildContainerNode<TName extends string, TProps extends PropSchema>(
+  blockConfig: BlockConfig<TName, TProps, "none">,
+  blockImplementation: BlockImplementation<TName, TProps, "none">,
+  priority?: number,
+) {
+  const children = getChildrenConfig(blockConfig)!;
+
+  const groups = ["bnBlock", CHILD_CONTAINER_GROUP];
+  if (isPlaceableAnywhere(blockConfig)) {
+    groups.push(BLOCK_GROUP_CHILD_GROUP, ANY_CONTAINER_GROUP);
+  }
+
+  return createContainerOwnNode(blockConfig, blockImplementation, {
+    content: childrenContentExpression(children),
+    group: groups.join(" "),
+    priority: containerNodePriority(priority),
   });
 }
 
@@ -446,45 +468,10 @@ function buildContentContainerNode<
     groups.push(BLOCK_GROUP_CHILD_GROUP, ANY_CONTAINER_GROUP);
   }
 
-  const node = Node.create({
-    name: blockConfig.type,
+  const node = createContainerOwnNode(blockConfig, blockImplementation, {
     content: `${contentName} ${childrenName}`,
     group: groups.join(" "),
-    marks() {
-      return suggestionMarks(this.editor);
-    },
-    selectable: blockImplementation.meta?.selectable ?? true,
-    // Derived from `boundary`: an "open" container lets everything cross its
-    // edge; "isolated" and "sealed" both map to PM `isolating: true`.
-    isolating: resolveChildren(children).boundary !== "open",
-    defining: true,
     priority: nodePriority,
-    addAttributes() {
-      return propsToAttributes(blockConfig.propSchema);
-    },
-
-    parseHTML() {
-      return getParseRules(blockConfig, blockImplementation, "container");
-    },
-
-    renderHTML({ HTMLAttributes }) {
-      const dom = document.createElement("div");
-      dom.setAttribute("data-node-type", blockConfig.type);
-      for (const [attribute, value] of Object.entries(HTMLAttributes)) {
-        dom.setAttribute(attribute, value as string);
-      }
-      return { dom, contentDOM: dom };
-    },
-
-    addNodeView() {
-      return (props) =>
-        containerNodeView(blockConfig, blockImplementation, props, {
-          editor: this.options.editor,
-          tiptapEditor: this.editor,
-          blockContentDOMAttributes:
-            this.options.domAttributes?.blockContent || {},
-        });
-    },
   });
 
   const contentNode = Node.create({

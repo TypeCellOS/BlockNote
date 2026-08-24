@@ -1,7 +1,10 @@
 import { Mark, Node, Slice } from "@tiptap/pm/model";
 import type { Block } from "../../blocks/defaultBlocks.js";
 import { isContainerNode } from "../blockManipulation/containers/fixContainer.js";
-import { isContentContainerNode } from "../../schema/blocks/children.js";
+import {
+  blockTypeOfContainerChildrenNode,
+  isContentContainerNode,
+} from "../../schema/blocks/children.js";
 import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type {
   BlockSchema,
@@ -550,6 +553,17 @@ function getChildrenHolder(node: Node): Node | undefined {
     // of its own.
     const lastChild = node.lastChild;
     return lastChild && isContainerNode(lastChild.type) ? lastChild : undefined;
+  }
+  // The mirror case: a slice boundary cut through the container's own
+  // `__content`, so the `__children` node is left as the first (and only)
+  // child. The node isn't a content container by `isContentContainerNode`
+  // (which reads `firstChild`), but its children still live one node deeper.
+  const firstChild = node.firstChild;
+  if (
+    firstChild &&
+    blockTypeOfContainerChildrenNode(firstChild.type.name) === node.type.name
+  ) {
+    return firstChild;
   }
   return isContainerNode(node.type) ? node : undefined;
 }
