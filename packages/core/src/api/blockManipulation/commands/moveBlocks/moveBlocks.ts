@@ -1,3 +1,4 @@
+import { NodeType } from "prosemirror-model";
 import {
   NodeSelection,
   Selection,
@@ -212,21 +213,31 @@ function checkPlacementIsValid(
   editor: BlockNoteEditor<any, any, any>,
   referenceBlock: Block<any, any, any>,
   placement: "before" | "after",
+  nodeType: NodeType,
 ): boolean {
   return editor.transact((tr) => {
     const posInfo = getNodeById(referenceBlock.id, tr.doc);
     if (!posInfo) {
       return false;
     }
-    return (
-      getInsertionPos(
-        tr.doc,
-        posInfo,
-        placement,
-        editor.pmSchema.nodes["blockContainer"],
-      ) !== null
-    );
+    return getInsertionPos(tr.doc, posInfo, placement, nodeType) !== null;
   });
+}
+
+// The PM node type `insertBlocks` validates a destination against: the first
+// flattened block's own node type when it's a container (e.g. `callout`),
+// otherwise the generic `blockContainer` wrapper. Mirrors what `moveBlocks`
+// inserts (`flattenNonInsertableBlocks` + `insertBlocks`), so the placement
+// pre-check agrees with the insertion instead of always assuming a regular
+// block.
+function movedNodeType(
+  editor: BlockNoteEditor<any, any, any>,
+  block: Block<any, any, any>,
+): NodeType {
+  const blockContainer = editor.pmSchema.nodes["blockContainer"];
+  const first = flattenNonInsertableBlocks([block], editor.pmSchema)[0];
+  const nodeType = first?.type ? editor.pmSchema.nodes[first.type] : undefined;
+  return nodeType?.isInGroup("bnBlock") ? nodeType : blockContainer;
 }
 
 // Gets the placement for moving a block up. This has 3 cases:
@@ -241,6 +252,7 @@ function checkPlacementIsValid(
 // the block is already at the top of the document.
 function getMoveUpPlacement(
   editor: BlockNoteEditor<any, any, any>,
+  nodeType: NodeType,
   prevBlock?: Block<any, any, any>,
   parentBlock?: Block<any, any, any>,
 ):
@@ -267,10 +279,11 @@ function getMoveUpPlacement(
     return undefined;
   }
 
-  if (!checkPlacementIsValid(editor, referenceBlock, placement)) {
+  if (!checkPlacementIsValid(editor, referenceBlock, placement, nodeType)) {
     const referenceBlockParent = editor.getParentBlock(referenceBlock);
     return getMoveUpPlacement(
       editor,
+      nodeType,
       placement === "after"
         ? referenceBlock
         : editor.getPrevBlock(referenceBlock),
@@ -293,6 +306,7 @@ function getMoveUpPlacement(
 // the block is already at the bottom of the document.
 function getMoveDownPlacement(
   editor: BlockNoteEditor<any, any, any>,
+  nodeType: NodeType,
   nextBlock?: Block<any, any, any>,
   parentBlock?: Block<any, any, any>,
 ):
@@ -319,10 +333,11 @@ function getMoveDownPlacement(
     return undefined;
   }
 
-  if (!checkPlacementIsValid(editor, referenceBlock, placement)) {
+  if (!checkPlacementIsValid(editor, referenceBlock, placement, nodeType)) {
     const referenceBlockParent = editor.getParentBlock(referenceBlock);
     return getMoveDownPlacement(
       editor,
+      nodeType,
       placement === "before"
         ? referenceBlock
         : editor.getNextBlock(referenceBlock),
@@ -352,6 +367,7 @@ export function moveBlocksUp(
 
     const moveUpPlacement = getMoveUpPlacement(
       editor,
+      movedNodeType(editor, sourceBlock),
       editor.getPrevBlock(sourceBlock),
       editor.getParentBlock(sourceBlock),
     );
@@ -383,20 +399,28 @@ export function moveBlocksDown(
 ) {
   editor.transact(() => {
     let sourceBlock: Block<any, any, any> | undefined;
+    // The block whose position anchors the move (the last of a selection when
+    // moving down) vs. the first block that gets inserted, which is what the
+    // placement check must validate against.
+    let firstMovedBlock: Block<any, any, any> | undefined;
     if (blockIdentifier) {
       sourceBlock = editor.getBlock(blockIdentifier);
       if (!sourceBlock) {
         return;
       }
+      firstMovedBlock = sourceBlock;
     } else {
       const selection = editor.getSelection();
       sourceBlock =
         selection?.blocks[selection?.blocks.length - 1] ||
         editor.getTextCursorPosition().block;
+      firstMovedBlock =
+        selection?.blocks[0] || editor.getTextCursorPosition().block;
     }
 
     const moveDownPlacement = getMoveDownPlacement(
       editor,
+      movedNodeType(editor, firstMovedBlock),
       editor.getNextBlock(sourceBlock),
       editor.getParentBlock(sourceBlock),
     );

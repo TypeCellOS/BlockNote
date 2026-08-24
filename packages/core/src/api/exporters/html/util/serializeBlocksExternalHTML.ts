@@ -10,6 +10,7 @@ import {
   StyleSchema,
 } from "../../../../schema/index.js";
 import { fillContainerAttributes } from "../../../../schema/blocks/containerAttributes.js";
+import { containerRootDOM } from "../../../../schema/blocks/createSpec.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   inlineContentToNodes,
@@ -281,7 +282,7 @@ function serializeBlock<
       // are present even when the block's render didn't add them.
       // Author-set attributes win.
       fillContainerAttributes(
-        ret.dom as HTMLElement,
+        containerRootDOM(ret),
         block.type!,
         props,
         editor.schema.blockSchema[block.type as any].propSchema,

@@ -7,7 +7,7 @@ function getContainerAttributes<PSchema extends PropSchema>(
   propSchema: PSchema,
   id: string | undefined,
 ): Record<string, string> {
-  const attributes: Record<string, string> = { "data-node-type": blockType };
+  const attributes: Record<string, string> = {};
 
   for (const [prop, value] of Object.entries(blockProps)) {
     if (value === undefined || value === propSchema[prop]?.default) {
@@ -16,6 +16,9 @@ function getContainerAttributes<PSchema extends PropSchema>(
     attributes[camelToDataKebab(prop)] = `${value}`;
   }
 
+  // Emit the reserved markers after the prop loop so a prop whose name
+  // kebab-cases to `data-node-type` or `data-id` can't overwrite them.
+  attributes["data-node-type"] = blockType;
   if (id) {
     attributes["data-id"] = id;
   }
@@ -55,11 +58,16 @@ export function applyContainerAttributes<PSchema extends PropSchema>(
 
 // Like `applyContainerAttributes` but won't overwrite existing attributes.
 export function fillContainerAttributes<PSchema extends PropSchema>(
-  dom: HTMLElement,
+  dom: HTMLElement | DocumentFragment | undefined | null,
   blockType: string,
   blockProps: Partial<Props<PSchema>>,
   propSchema: PSchema,
 ) {
+  const element = dom as HTMLElement | undefined;
+  if (!element || typeof element.setAttribute !== "function") {
+    return;
+  }
+
   const attributes = getContainerAttributes(
     blockType,
     blockProps,
@@ -68,8 +76,8 @@ export function fillContainerAttributes<PSchema extends PropSchema>(
   );
 
   for (const [attr, value] of Object.entries(attributes)) {
-    if (!dom.hasAttribute(attr)) {
-      dom.setAttribute(attr, value);
+    if (!element.hasAttribute(attr)) {
+      element.setAttribute(attr, value);
     }
   }
 }

@@ -183,7 +183,7 @@ describe("useNodeViewBlock", () => {
   });
 
   it("rejects container blocks loudly instead of resolving the wrong block", () => {
-    const box = editor.document[3];
+    const box = editor.document.find((block) => block.type === "box")!;
     const { node } = getNodeById(box.id, editor.prosemirrorState.doc)!;
     const props = makeProps(() => undefined, node);
 

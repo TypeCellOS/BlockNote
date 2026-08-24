@@ -10,6 +10,7 @@ import {
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { fragmentToBlocks } from "../../nodeConversions/fragmentToBlocks.js";
+import { splitBlockTr } from "../commands/splitBlock/splitBlock.js";
 import { contentContainerSchema } from "./contentContainers.fixture.js";
 
 // Document-model behaviour of content-bearing containers (the "toggle" shape:
@@ -122,9 +123,7 @@ describe("content-bearing container: repair", () => {
 describe("content-bearing container: childless container", () => {
   it("setTextCursorPosition on a childless pure container does not throw", () => {
     // A pure container that allows zero children has no child to descend into.
-    editor.replaceBlocks(editor.document, [
-      { id: "p-0", type: "paragraph", content: "Paragraph 0" },
-    ]);
+    // The `beforeEach` already seeds `p-0`.
     editor.insertBlocks(
       [{ type: "emptyBox", id: "b-0", children: [] } as any],
       "p-0",
@@ -390,6 +389,28 @@ describe("content-bearing container: selection", () => {
       "First",
       "Second",
     ]);
+  });
+});
+
+describe("content-bearing container: split", () => {
+  // Splitting a content-bearing container's own node is impossible (its content
+  // expression requires the generated content/children pair), so `tr.split`
+  // would throw. `splitBlockTr` must refuse it; the Enter handler's chain then
+  // aborts to a no-op instead of crashing.
+  it("splitBlockTr refuses a content-bearing container title", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "t-0",
+        type: "toggle",
+        content: "Title",
+        children: [{ id: "t-p-0", type: "paragraph", content: "Child" }],
+      },
+    ]);
+    editor.setTextCursorPosition("t-0", "end");
+    const pos = editor.prosemirrorState.selection.from;
+
+    const result = editor.transact((tr) => splitBlockTr(tr, pos));
+    expect(result).toBe(false);
   });
 });
 
