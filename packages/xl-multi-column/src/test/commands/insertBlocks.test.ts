@@ -6,14 +6,11 @@ const getEditor = setupTestEnv();
 
 describe("Test insertBlocks", () => {
   it("Insert empty column list", () => {
-    // should throw an error as we don't allow empty column lists
-    expect(() => {
-      getEditor().insertBlocks(
-        [{ type: "columnList" }],
-        "paragraph-0",
-        "after",
-      );
-    }).toThrow();
+    // An empty column list is filled to a valid two-column list (each with an
+    // empty paragraph) instead of throwing.
+    getEditor().insertBlocks([{ type: "columnList" }], "paragraph-0", "after");
+
+    expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Insert column list with empty column", () => {
