@@ -1,4 +1,4 @@
-import { Extension } from "@tiptap/core";
+import { CommandProps, Extension } from "@tiptap/core";
 import { Fragment, Node } from "prosemirror-model";
 import { NodeSelection, TextSelection, Transaction } from "prosemirror-state";
 
@@ -67,6 +67,42 @@ function moveBlockOutAndPlaceCaret(
   );
 }
 
+// If the sibling in `direction` of the current block is a sealed container,
+// selects it (a NodeSelection) instead of merging across its sealed boundary,
+// so a second Backspace/Delete can delete the container explicitly. Returns a
+// command: `false` when nothing to select, `true` once handled. Shared by the
+// Backspace (prev) and Delete (next) boundary branches.
+function selectSealedSiblingCommand(direction: "prev" | "next") {
+  return ({ state, tr, dispatch }: CommandProps) => {
+    const blockInfo = getBlockInfoFromSelection(state);
+    if (!blockInfo.isWrappedBlock) {
+      return false;
+    }
+
+    const atEdge =
+      direction === "prev"
+        ? state.selection.from === blockInfo.blockContent.beforePos + 1
+        : state.selection.from === blockInfo.blockContent.afterPos - 1;
+    if (!atEdge || !state.selection.empty) {
+      return false;
+    }
+
+    const sibling = (
+      direction === "prev" ? getPrevBlockInfo : getNextBlockInfo
+    )(state.doc, blockInfo.bnBlock.beforePos);
+    if (!sibling || !isSealed(sibling.bnBlock.node)) {
+      return false;
+    }
+
+    if (dispatch && NodeSelection.isSelectable(sibling.bnBlock.node)) {
+      tr.setSelection(
+        NodeSelection.create(tr.doc, sibling.bnBlock.beforePos),
+      ).scrollIntoView();
+    }
+    return true;
+  };
+}
+
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
   tabBehavior: "prefer-navigate-ui" | "prefer-indent";
@@ -131,39 +167,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
           }),
         // If the previous sibling is a sealed container, selects it instead
         // of merging into it. Merging into a content-bearing container's
-        // title would cross the sealed boundary. Selection lets a second
-        // Backspace delete the container explicitly.
-        () =>
-          commands.command(({ state, tr, dispatch }) => {
-            const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isWrappedBlock) {
-              return false;
-            }
-
-            const selectionAtBlockStart =
-              state.selection.from === blockInfo.blockContent.beforePos + 1;
-            if (!selectionAtBlockStart || !state.selection.empty) {
-              return false;
-            }
-
-            const prevBlockInfo = getPrevBlockInfo(
-              state.doc,
-              blockInfo.bnBlock.beforePos,
-            );
-            if (!prevBlockInfo || !isSealed(prevBlockInfo.bnBlock.node)) {
-              return false;
-            }
-
-            if (
-              dispatch &&
-              NodeSelection.isSelectable(prevBlockInfo.bnBlock.node)
-            ) {
-              tr.setSelection(
-                NodeSelection.create(tr.doc, prevBlockInfo.bnBlock.beforePos),
-              ).scrollIntoView();
-            }
-            return true;
-          }),
+        // title would cross the sealed boundary.
+        () => commands.command(selectSealedSiblingCommand("prev")),
         // Merges block with the previous one if it isn't indented, and the selection is at the start of the
         // block. The target block for merging must contain inline content.
         () =>
@@ -635,37 +640,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // If the next sibling is a sealed container, selects it instead of
         // merging it in. Delete counterpart of the sealed-previous-sibling
         // Backspace case.
-        () =>
-          commands.command(({ state, tr, dispatch }) => {
-            const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isWrappedBlock) {
-              return false;
-            }
-
-            const selectionAtBlockEnd =
-              state.selection.from === blockInfo.blockContent.afterPos - 1;
-            if (!selectionAtBlockEnd || !state.selection.empty) {
-              return false;
-            }
-
-            const nextBlockInfo = getNextBlockInfo(
-              state.doc,
-              blockInfo.bnBlock.beforePos,
-            );
-            if (!nextBlockInfo || !isSealed(nextBlockInfo.bnBlock.node)) {
-              return false;
-            }
-
-            if (
-              dispatch &&
-              NodeSelection.isSelectable(nextBlockInfo.bnBlock.node)
-            ) {
-              tr.setSelection(
-                NodeSelection.create(tr.doc, nextBlockInfo.bnBlock.beforePos),
-              ).scrollIntoView();
-            }
-            return true;
-          }),
+        () => commands.command(selectSealedSiblingCommand("next")),
         // Merges block with the next one (at the same nesting level or lower),
         // if one exists, the block has no children, and the selection is at the
         // end of the block.
