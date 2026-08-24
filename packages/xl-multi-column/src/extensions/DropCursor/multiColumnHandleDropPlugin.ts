@@ -124,6 +124,15 @@ export function createMultiColumnHandleDropPlugin(
 
           const targetColumnId = blockInfo.bnBlock.node.attrs.id;
 
+          // The target itself is one of the dragged blocks (only possible
+          // when the container holds plain blocks directly) - the dragged
+          // blocks would be re-inserted around their own position, so do
+          // nothing, same as dropping a typed target's entire contents on
+          // its own edge.
+          if (!targetIsChildContainer && draggedBlockIds.has(targetColumnId)) {
+            return true;
+          }
+
           // Tracks which of the dragged blocks were already in the column
           // list - removing those from their old position is handled by
           // filtering the column list's children instead of `removeBlocks`.
@@ -147,10 +156,20 @@ export function createMultiColumnHandleDropPlugin(
                 : column,
             )
             // Remove empty columns (can happen when dragged blocks are
-            // removed).
-            .filter(
-              (column) => !targetIsChildContainer || column.children.length > 0,
-            );
+            // removed) and, when the container holds plain blocks directly,
+            // dragged direct children (which are re-inserted at the drop
+            // position).
+            .filter((column) => {
+              if (targetIsChildContainer) {
+                return column.children.length > 0;
+              }
+              if (!draggedBlockIds.has(column.id)) {
+                return true;
+              }
+
+              blocksAlreadyInColumnList.add(column.id);
+              return false;
+            });
 
           // The insertion index is computed on the remaining columns, as
           // removing an emptied column before the drop target shifts the
