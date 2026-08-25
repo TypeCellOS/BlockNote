@@ -1,11 +1,6 @@
 import type { Node, NodeType } from "prosemirror-model";
 
-import {
-  isContainerBlockNode,
-  isContainerNode,
-  isContentContainerNode,
-  isSealed,
-} from "../../../schema/blocks/children.js";
+import { isContainerNode, isSealed } from "../../../schema/blocks/children.js";
 
 /**
  * Seal handling for the navigation helpers below. By default the helpers
@@ -48,15 +43,6 @@ export function descendToFirstInsertionPos(
   containerBeforePos: number,
   nodeType: NodeType,
 ): number | null {
-  // A content container's children start after the content node.
-  if (isContentContainerNode(container)) {
-    return descendToFirstInsertionPos(
-      container.lastChild!,
-      containerBeforePos + 1 + container.firstChild!.nodeSize,
-      nodeType,
-    );
-  }
-
   const startPos = containerBeforePos + 1;
   if (container.contentMatchAt(0).matchType(nodeType)) {
     return startPos;
@@ -78,14 +64,6 @@ export function getFirstLeafBlock(
   if (opts?.respectSealed && isSealed(container)) {
     return null;
   }
-  if (isContentContainerNode(container)) {
-    return getFirstLeafBlock(
-      container.lastChild!,
-      containerBeforePos + 1 + container.firstChild!.nodeSize,
-      opts,
-    );
-  }
-
   const firstChild = container.firstChild;
   if (!firstChild) {
     return null;
@@ -116,9 +94,7 @@ export function ascendToInsertablePos(
     if (parent.contentMatchAt($pos.index()).matchType(nodeType)) {
       return pos;
     }
-    // A content-bearing container is climbed out of too: the ascent may sit
-    // right after its `__children` node, where only that node's siblings fit.
-    if ($pos.depth > 0 && isContainerBlockNode(parent)) {
+    if ($pos.depth > 0 && isContainerNode(parent.type)) {
       // With `respectSealed`, climbing out of a sealed container would move
       // content across its boundary.
       if (opts?.respectSealed && isSealed(parent)) {
@@ -139,7 +115,7 @@ export function getAncestorContainers(
   const containers: { id: string; depth: number }[] = [];
   for (let depth = $pos.depth; depth > 0; depth--) {
     const ancestor = $pos.node(depth);
-    if (isContainerBlockNode(ancestor) && ancestor.attrs.id) {
+    if (isContainerNode(ancestor.type) && ancestor.attrs.id) {
       containers.push({ id: ancestor.attrs.id, depth });
     }
   }

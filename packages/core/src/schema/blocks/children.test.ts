@@ -85,22 +85,12 @@ const validate = (containers: Record<string, ContainerFixture>) => () =>
   validateChildrenConfigs(configsWith(containers));
 
 describe("validateChildrenConfigs", () => {
-  it("accepts valid shapes: minimal, columnList-style, content-bearing", () => {
+  it("accepts valid shapes: minimal and columnList-style", () => {
     expect(validate({ callout: { children: { allow: "any" } } })).not.toThrow();
     expect(
       validate({
         grid: { children: { allow: ["gridCell"], min: 2 } },
         gridCell: { children: { allow: "any" }, placement: "containerOnly" },
-      }),
-    ).not.toThrow();
-    // A container may have its own inline content (the toggle shape).
-    expect(() =>
-      validateChildrenConfigs({
-        toggle: {
-          type: "toggle",
-          content: "inline",
-          children: { allow: "any" },
-        },
       }),
     ).not.toThrow();
   });
@@ -215,28 +205,18 @@ describe("validateChildrenConfigs", () => {
     ).toThrow(/only applies to container blocks/);
   });
 
-  it("rejects `children` on a table block", () => {
-    expect(() =>
-      validateChildrenConfigs({
-        bad: { type: "bad", content: "table", children: { allow: "any" } },
-      }),
-    ).toThrow(/cannot be combined with `content: "table"`/);
-  });
-
-  // The content & children nodes are generated from the block type, so a block
-  // type that happens to have one of those names would clash with them.
-  it("rejects a block type that collides with a generated node name", () => {
-    expect(() =>
-      validateChildrenConfigs({
-        toggle: {
-          type: "toggle",
-          content: "inline",
-          children: { allow: "any" },
-        },
-        toggle__content: { type: "toggle__content", content: "inline" },
-      }),
-    ).toThrow(/collides with the block type of the same name/);
-  });
+  // A container block's body is its children; combining `children` with any
+  // content of the block's own is not supported.
+  it.each(["inline", "plain", "table"] as const)(
+    'rejects `children` combined with `content: "%s"`',
+    (content) => {
+      expect(() =>
+        validateChildrenConfigs({
+          bad: { type: "bad", content, children: { allow: "any" } },
+        }),
+      ).toThrow(/`children` can only be combined with `content: "none"`/);
+    },
+  );
 
   // `fillBefore` recurses across node types, so a cycle blows the stack
   // rather than returning null. It has to be caught before the schema is

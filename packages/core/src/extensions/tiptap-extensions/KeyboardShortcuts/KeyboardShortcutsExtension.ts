@@ -8,7 +8,6 @@ import {
   getParentBlockInfo,
   getPrevBlockInfo,
   mergeBlocksCommand,
-  mergeIntoContainerContent,
 } from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
 import {
   liftItem,
@@ -25,10 +24,7 @@ import {
   getAncestorContainers,
   getFirstLeafBlock,
 } from "../../../api/blockManipulation/containers/containerNav.js";
-import {
-  isContentContainerNode,
-  isSealed,
-} from "../../../schema/blocks/children.js";
+import { isSealed } from "../../../schema/blocks/children.js";
 import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
@@ -166,8 +162,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             return false;
           }),
         // If the previous sibling is a sealed container, selects it instead
-        // of merging into it. Merging into a content-bearing container's
-        // title would cross the sealed boundary.
+        // of merging into it.
         () => commands.command(selectSealedSiblingCommand("prev")),
         // Merges block with the previous one if it isn't indented, and the selection is at the start of the
         // block. The target block for merging must contain inline content.
@@ -230,15 +225,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               state.doc,
               blockInfo.bnBlock.beforePos,
             );
-            // A content-bearing container is `isWrappedBlock` but still a
-            // container to descend into. Its non-empty-body merges are
-            // handled by the merge branch above; this catches the rest
-            // (e.g. an empty body, which refuses to merge).
-            if (
-              !prevBlockInfo ||
-              (prevBlockInfo.isWrappedBlock &&
-                !isContentContainerNode(prevBlockInfo.bnBlock.node))
-            ) {
+            if (!prevBlockInfo || prevBlockInfo.isWrappedBlock) {
               return false;
             }
 
@@ -292,46 +279,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             return false;
-          }),
-        // If the block is the first child of a container that has its own
-        // content, merges it into that content. Counterpart of the Delete
-        // case. A pure container has nothing to merge into, so it falls
-        // through to the "move it out" branch below, as before.
-        () =>
-          commands.command(({ state, dispatch }) => {
-            const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isWrappedBlock) {
-              return false;
-            }
-
-            const selectionAtBlockStart =
-              state.selection.from === blockInfo.blockContent.beforePos + 1;
-            if (!selectionAtBlockStart || !state.selection.empty) {
-              return false;
-            }
-
-            // Only the container's first child.
-            if (state.doc.resolve(blockInfo.bnBlock.beforePos).nodeBefore) {
-              return false;
-            }
-
-            const parentInfo = getParentBlockInfo(
-              state.doc,
-              blockInfo.bnBlock.beforePos,
-            );
-            if (
-              !parentInfo ||
-              !isContentContainerNode(parentInfo.bnBlock.node)
-            ) {
-              return false;
-            }
-
-            return mergeIntoContainerContent(
-              state,
-              dispatch,
-              parentInfo,
-              blockInfo,
-            );
           }),
         // If the block is the first in a container (e.g. a column or a
         // callout), moves it out: to the end of the previous sibling
@@ -608,11 +555,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   )
                   .deleteRange(
                     // Deletes whole child container if there's only one
-                    // child. A container with its own content always keeps
-                    // its children node (it's part of its content
-                    // expression), so there only the child is deleted.
-                    childContainer.node.childCount === 1 &&
-                      !isContentContainerNode(blockInfo.bnBlock.node)
+                    // child.
+                    childContainer.node.childCount === 1
                       ? {
                           from: childContainer.beforePos,
                           to: childContainer.afterPos,
@@ -1086,56 +1030,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             return false;
-          }),
-        // Enter inside the content of a container that has children of its own
-        // (a toggle's title): everything after the cursor becomes a new first
-        // child, and the cursor moves into it. At the end of the title that's
-        // a new empty first child. Without this, the generic split below would
-        // try to split the container itself.
-        () =>
-          commands.command(({ state, tr, dispatch }) => {
-            const blockInfo = getBlockInfoFromSelection(state);
-            if (
-              !blockInfo.isWrappedBlock ||
-              !blockInfo.childContainer ||
-              !isContentContainerNode(blockInfo.bnBlock.node)
-            ) {
-              return false;
-            }
-            const { blockContent, childContainer } = blockInfo;
-
-            const titleEndPos = blockContent.afterPos - 1;
-            if (
-              state.selection.from < blockContent.beforePos + 1 ||
-              state.selection.to > titleEndPos
-            ) {
-              return false;
-            }
-
-            if (dispatch) {
-              // The tail of the title, empty when the cursor is at its end.
-              const tail = blockContent.node.content.cut(
-                state.selection.to - blockContent.beforePos - 1,
-              );
-              const newChild = state.schema.nodes[
-                "blockContainer"
-              ].createAndFill(
-                undefined,
-                state.schema.nodes["paragraph"].create(undefined, tail),
-              )!;
-
-              // Removes the tail (and anything selected) from the title, then
-              // prepends it to the container's children.
-              tr.delete(state.selection.from, titleEndPos);
-              const insertionPos = tr.mapping.map(childContainer.beforePos + 1);
-              tr.insert(insertionPos, newChild);
-              tr.setSelection(
-                TextSelection.near(tr.doc.resolve(insertionPos + 1)),
-              );
-              tr.scrollIntoView();
-            }
-
-            return true;
           }),
         // If the block is empty and the last child of a non-sealed container,
         // moves the block out (double Enter exits the container). The block

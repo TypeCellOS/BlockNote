@@ -21,10 +21,7 @@ import {
   ANY_CONTAINER_GROUP,
   BLOCK_GROUP_CHILD_GROUP,
   CHILD_CONTAINER_GROUP,
-  CONTAINER_CONTENT_GROUP,
   childrenContentExpression,
-  containerChildrenNodeName,
-  containerContentNodeName,
   containerNodePriority,
   getChildrenConfig,
   isPlaceableAnywhere,
@@ -64,26 +61,16 @@ export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
 }
 
 // Wraps inline runs from `parseContent` into paragraphs so they fit a
-// container's block content expression. A leading inline run in a
-// content-bearing container stays inline (it's the block's own content).
-function toContainerChildren(
-  fragment: Fragment,
-  schema: PMSchema,
-  hasOwnContent: boolean,
-): Fragment {
+// container's block content expression.
+function toContainerChildren(fragment: Fragment, schema: PMSchema): Fragment {
   const out: PMNode[] = [];
   let inlineRun: PMNode[] = [];
-  let seenBlock = false;
 
   const flush = () => {
     if (inlineRun.length === 0) {
       return;
     }
-    out.push(
-      ...(hasOwnContent && !seenBlock
-        ? inlineRun
-        : [schema.nodes["paragraph"].create(null, inlineRun)]),
-    );
+    out.push(schema.nodes["paragraph"].create(null, inlineRun));
     inlineRun = [];
   };
 
@@ -93,7 +80,6 @@ function toContainerChildren(
       return;
     }
     flush();
-    seenBlock = true;
     out.push(child);
   });
   flush();
@@ -101,33 +87,27 @@ function toContainerChildren(
   return Fragment.fromArray(out);
 }
 
-// Finds the element holding a serialized container block's content, marked
-// `data-children-of` by the internal HTML serializer. For a pure container
-// that element holds the children and is the content element; for a container
-// with its own content it's the generated children *region*, whose parent
-// hosts both regions and is the content element. Returns undefined when no
-// marker belonging to *this* block (rather than a same-typed nested
+// Finds the element holding a serialized container block's children, marked
+// `data-children-of` by the internal HTML serializer. Returns undefined when
+// no marker belonging to *this* block (rather than a same-typed nested
 // container) is present.
 function findContainerContentElement(
   el: HTMLElement,
-  config: { type: string; content: string },
+  config: { type: string },
 ): HTMLElement | undefined {
   const selector = `[data-children-of="${config.type}"]`;
-
-  const resolve = (host: HTMLElement) =>
-    config.content === "none" ? host : (host.parentElement ?? undefined);
 
   // The block's root may itself be the children host (a render that passes
   // its own root to `contentRef`). `querySelectorAll` only sees descendants.
   if (el.matches(selector)) {
-    return resolve(el);
+    return el;
   }
 
   for (const host of el.querySelectorAll<HTMLElement>(selector)) {
     // Skip hosts of same-typed *nested* containers: this block's own host is
     // the one with no other container root between it and `el`.
     if (host.parentElement?.closest("[data-node-type]") === el) {
-      return resolve(host);
+      return host;
     }
   }
 
@@ -197,7 +177,6 @@ export function getParseRules<
                     preserveWhitespace: true,
                   }).content,
                 schema,
-                config.content !== "none",
               )
           : undefined
         : config.content === "inline" ||
@@ -285,34 +264,31 @@ export function getParseRules<
   return rules;
 }
 
-// The block's own PM node, shared by pure containers and content-bearing
-// containers. They differ only in their `content` expression, their `group`
-// (a pure container is itself a `childContainer`; a content-bearing one holds
-// its children in a separate node), and the priority passed in — everything
-// else (marks, selectable, isolating, parse/render, node view) is identical.
-function createContainerOwnNode<
-  TName extends string,
-  TProps extends PropSchema,
-  TContent extends "inline" | "none" | "plain",
->(
-  blockConfig: BlockConfig<TName, TProps, TContent>,
-  blockImplementation: BlockImplementation<TName, TProps, TContent>,
-  options: { content: string; group: string; priority: number },
+function buildContainerNode<TName extends string, TProps extends PropSchema>(
+  blockConfig: BlockConfig<TName, TProps, "none">,
+  blockImplementation: BlockImplementation<TName, TProps, "none">,
+  priority?: number,
 ) {
+  const children = getChildrenConfig(blockConfig)!;
+
+  const groups = ["bnBlock", CHILD_CONTAINER_GROUP];
+  if (isPlaceableAnywhere(blockConfig)) {
+    groups.push(BLOCK_GROUP_CHILD_GROUP, ANY_CONTAINER_GROUP);
+  }
+
   return Node.create({
     name: blockConfig.type,
-    content: options.content,
-    group: options.group,
+    content: childrenContentExpression(children),
+    group: groups.join(" "),
     marks() {
       return suggestionMarks(this.editor);
     },
     selectable: blockImplementation.meta?.selectable ?? true,
     // Derived from `boundary`: an "open" container lets everything cross its
     // edge; "isolated" and "sealed" both map to PM `isolating: true`.
-    isolating:
-      resolveChildren(getChildrenConfig(blockConfig)!).boundary !== "open",
+    isolating: resolveChildren(children).boundary !== "open",
     defining: true,
-    priority: options.priority,
+    priority: containerNodePriority(priority),
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);
     },
@@ -342,25 +318,6 @@ function createContainerOwnNode<
   });
 }
 
-function buildContainerNode<TName extends string, TProps extends PropSchema>(
-  blockConfig: BlockConfig<TName, TProps, "none">,
-  blockImplementation: BlockImplementation<TName, TProps, "none">,
-  priority?: number,
-) {
-  const children = getChildrenConfig(blockConfig)!;
-
-  const groups = ["bnBlock", CHILD_CONTAINER_GROUP];
-  if (isPlaceableAnywhere(blockConfig)) {
-    groups.push(BLOCK_GROUP_CHILD_GROUP, ANY_CONTAINER_GROUP);
-  }
-
-  return createContainerOwnNode(blockConfig, blockImplementation, {
-    content: childrenContentExpression(children),
-    group: groups.join(" "),
-    priority: containerNodePriority(priority),
-  });
-}
-
 export function containerRootDOM(output: {
   dom: HTMLElement | DocumentFragment;
   rootDOM?: HTMLElement | null;
@@ -381,13 +338,9 @@ export function containerRootDOM(output: {
   return output.dom;
 }
 
-function containerNodeView<
-  TName extends string,
-  TProps extends PropSchema,
-  TContent extends "inline" | "none" | "plain",
->(
-  blockConfig: BlockConfig<TName, TProps, TContent>,
-  blockImplementation: BlockImplementation<TName, TProps, TContent>,
+function containerNodeView<TName extends string, TProps extends PropSchema>(
+  blockConfig: BlockConfig<TName, TProps, "none">,
+  blockImplementation: BlockImplementation<TName, TProps, "none">,
   props: NodeViewRendererProps,
   context: {
     editor: unknown;
@@ -423,9 +376,8 @@ function containerNodeView<
   // Mark the children host in the live DOM, mirroring what the internal HTML
   // serializer emits, so the container's round-trip parse rule can scope
   // itself to it (`contentElement` in `getParseRules`) when ProseMirror
-  // re-reads editor DOM. Content-bearing containers get the marker from their
-  // generated `__children` node's own DOM instead.
-  if (blockConfig.content === "none" && typedNodeView.contentDOM) {
+  // re-reads editor DOM.
+  if (typedNodeView.contentDOM) {
     (typedNodeView.contentDOM as HTMLElement).setAttribute(
       "data-children-of",
       blockConfig.type,
@@ -459,80 +411,6 @@ function containerNodeView<
   }
 
   return typedNodeView;
-}
-
-function buildContentContainerNode<
-  TName extends string,
-  TProps extends PropSchema,
-  TContent extends "inline" | "plain",
->(
-  blockConfig: BlockConfig<TName, TProps, TContent>,
-  blockImplementation: BlockImplementation<TName, TProps, TContent>,
-  priority?: number,
-): { node: Node; extraNodes: Node[] } {
-  const children = getChildrenConfig(blockConfig)!;
-
-  const contentName = containerContentNodeName(blockConfig.type);
-  const childrenName = containerChildrenNodeName(blockConfig.type);
-  const nodePriority = containerNodePriority(priority);
-
-  const groups = ["bnBlock"];
-  if (isPlaceableAnywhere(blockConfig)) {
-    groups.push(BLOCK_GROUP_CHILD_GROUP, ANY_CONTAINER_GROUP);
-  }
-
-  const node = createContainerOwnNode(blockConfig, blockImplementation, {
-    content: `${contentName} ${childrenName}`,
-    group: groups.join(" "),
-    priority: nodePriority,
-  });
-
-  const contentNode = Node.create({
-    name: contentName,
-    group: CONTAINER_CONTENT_GROUP,
-    content: blockConfig.content === "plain" ? "text*" : "inline*",
-    marks() {
-      return blockConfig.content === "plain"
-        ? nonFormattingMarks(this.editor)
-        : undefined;
-    },
-    code: blockImplementation.meta?.code ?? false,
-    defining: true,
-    priority: nodePriority,
-
-    parseHTML() {
-      return [{ tag: `[data-content-type=${blockConfig.type}]` }];
-    },
-
-    renderHTML() {
-      const dom = document.createElement("div");
-      dom.className = "bn-inline-content";
-      dom.setAttribute("data-content-type", blockConfig.type);
-      return { dom, contentDOM: dom };
-    },
-  });
-
-  const childrenNode = Node.create({
-    name: childrenName,
-    group: CHILD_CONTAINER_GROUP,
-    content: childrenContentExpression(children),
-    marks() {
-      return suggestionMarks(this.editor);
-    },
-    priority: nodePriority,
-
-    parseHTML() {
-      return [{ tag: `[data-children-of=${blockConfig.type}]` }];
-    },
-
-    renderHTML() {
-      const dom = document.createElement("div");
-      dom.setAttribute("data-children-of", blockConfig.type);
-      return { dom, contentDOM: dom };
-    },
-  });
-
-  return { node, extraNodes: [contentNode, childrenNode] };
 }
 
 function buildRegularNode<
@@ -668,49 +546,25 @@ export function addNodeAndExtensionsToSpec<
   extensions?: (ExtensionFactoryInstance | Extension)[],
   priority?: number,
 ): LooseBlockSpec<TName, TProps, TContent> {
-  // A `children` + `content: "table"` combination is rejected by
-  // `validateChildrenConfigs` when the schema is built.
+  // A `children` config combined with any `content` other than `"none"` is
+  // rejected by `validateChildrenConfigs` when the schema is built.
   const childrenConfig = getChildrenConfig(blockConfig);
 
   const isContainer = childrenConfig !== undefined;
 
-  // A container with its own content is built from three nodes (see
-  // `buildContentContainerNode`); every other kind of block is a single node.
-  const built: { node: Node; extraNodes?: Node[] } = (
-    blockImplementation as any
-  ).node
-    ? { node: (blockImplementation as any).node as Node }
-    : childrenConfig && blockConfig.content !== "none"
-      ? buildContentContainerNode(
-          blockConfig as unknown as BlockConfig<
-            TName,
-            TProps,
-            "inline" | "plain"
-          >,
+  const builtNode: Node = (blockImplementation as any).node
+    ? ((blockImplementation as any).node as Node)
+    : childrenConfig
+      ? buildContainerNode(
+          blockConfig as unknown as BlockConfig<TName, TProps, "none">,
           blockImplementation as unknown as BlockImplementation<
             TName,
             TProps,
-            "inline" | "plain"
+            "none"
           >,
           priority,
         )
-      : childrenConfig
-        ? {
-            node: buildContainerNode(
-              blockConfig as unknown as BlockConfig<TName, TProps, "none">,
-              blockImplementation as unknown as BlockImplementation<
-                TName,
-                TProps,
-                "none"
-              >,
-              priority,
-            ),
-          }
-        : {
-            node: buildRegularNode(blockConfig, blockImplementation, priority),
-          };
-
-  const { node: builtNode, extraNodes } = built;
+      : buildRegularNode(blockConfig, blockImplementation, priority);
 
   if (builtNode.name !== blockConfig.type) {
     throw new Error(
@@ -718,18 +572,13 @@ export function addNodeAndExtensionsToSpec<
     );
   }
 
-  // The block's config is stored on its nodes' PM specs
+  // The block's config is stored on its node's PM spec
   // (`NodeSpec.blockConfig`), so code holding a bare `Node` can consult it
-  // without an editor or schema reference. Generated `__content`/`__children`
-  // nodes carry their owning block's config. (`extendNodeSchema` hooks run
+  // without an editor or schema reference. (`extendNodeSchema` hooks run
   // for every node in the schema, hence the name gate.)
-  const specNodeNames = new Set([
-    builtNode.name,
-    ...(extraNodes?.map((extraNode) => extraNode.name) ?? []),
-  ]);
   const node = builtNode.extend({
     extendNodeSchema(extension) {
-      return specNodeNames.has(extension.name) ? { blockConfig } : {};
+      return extension.name === builtNode.name ? { blockConfig } : {};
     },
   });
 
@@ -738,7 +587,6 @@ export function addNodeAndExtensionsToSpec<
     implementation: {
       ...blockImplementation,
       node,
-      ...(extraNodes ? { extraNodes } : {}),
       render(block, editor) {
         const blockContentDOMAttributes =
           node.options.domAttributes?.blockContent || {};

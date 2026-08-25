@@ -129,30 +129,6 @@ export function serializeInlineContentInternalHTML<
   return fragment;
 }
 
-/**
- * Appends the two region elements a content-bearing container's generated
- * `__content` / `__children` nodes render, so that internal HTML matches what
- * the editor puts in the DOM (and what the generated parse rules match).
- */
-function createContainerRegions(
-  contentDOM: HTMLElement,
-  blockType: string,
-  options?: { document?: Document },
-): { content: HTMLElement; children: HTMLElement } {
-  const doc = options?.document ?? document;
-
-  const content = doc.createElement("div");
-  content.className = "bn-inline-content";
-  content.setAttribute("data-content-type", blockType);
-
-  const children = doc.createElement("div");
-  children.setAttribute("data-children-of", blockType);
-
-  contentDOM.append(content, children);
-
-  return { content, children };
-}
-
 function serializeBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -186,29 +162,10 @@ function serializeBlock<
     editor as any,
   );
 
-  // Asked of the block config rather than of its ProseMirror node. A
-  // container that has its own content compiles to an outer node holding a
-  // separate children node, so the outer node is not itself a
-  // `childContainer`, but the block is still a container and still owns its
-  // outer DOM.
   const blockConfig = editor.schema.blockSchema[block.type as any];
   const isContainer = isContainerType(blockConfig);
 
-  // A container with its own content holds two generated nodes, `__content`
-  // and `__children`, and so renders two region elements inside its content
-  // host. Without them only the first child parses back inside the
-  // container. ProseMirror has to invent the `__children` wrapping while
-  // parsing, and `blockContainer`'s `blockOuter` skip rule re-syncs the
-  // parse context to the container afterwards, closing that invented
-  // wrapping again.
-  const regions =
-    isContainer && ret.contentDOM && blockConfig.content !== "none"
-      ? createContainerRegions(ret.contentDOM, block.type!, options)
-      : undefined;
-
-  const contentHost = regions?.content ?? ret.contentDOM;
-
-  if (contentHost && block.content) {
+  if (ret.contentDOM && block.content) {
     const ic = serializeInlineContentInternalHTML(
       editor,
       block.content as any, // TODO
@@ -216,7 +173,7 @@ function serializeBlock<
       block.type,
       options,
     );
-    contentHost.appendChild(ic);
+    ret.contentDOM.appendChild(ic);
   }
 
   if (isContainer) {
@@ -231,17 +188,12 @@ function serializeBlock<
       blockConfig.propSchema,
     );
 
-    // A pure container holds its children directly in its `contentDOM`; one
-    // with its own content puts them in the children region, after the
-    // content region, matching the order the document model imposes.
-    const childrenHost = regions?.children ?? ret.contentDOM;
     // Mark where the children live so the container's round-trip parse rule
     // can scope itself to this element (`contentElement` in `getParseRules`).
     // A render is free to put non-content UI text elsewhere in its DOM
     // (button labels, captions, ...), and without the marker that text would
-    // parse back as document content. Content-bearing containers get the
-    // marker from `createContainerRegions`.
-    if (!regions && ret.contentDOM) {
+    // parse back as document content.
+    if (ret.contentDOM) {
       ret.contentDOM.setAttribute("data-children-of", block.type!);
     }
     if (block.children && block.children.length > 0) {
@@ -252,7 +204,7 @@ function serializeBlock<
         options,
       );
 
-      childrenHost?.append(fragment);
+      ret.contentDOM?.append(fragment);
     }
     return ret.dom;
   }

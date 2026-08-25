@@ -31,6 +31,8 @@ const createCallout = createReactBlockSpec(
 
 `children: { allow: "any" }` accepts any block, requires at least one, and never throws. When a container is created without children, BlockNote fills it with whatever its schema requires.
 
+A container block always declares `content: "none"`: its body is its children. Combining `children` with any other `content` is a schema-creation error. For an editable title or caption, use a string prop rendered as an `<input>`, as the demo below does.
+
 At runtime the contained blocks live on `block.children`, the same field used for indented (nested) blocks. In fact, every regular block behaves as if it were declared with `children: { allow: "any", min: 0 }`; declaring `children` yourself is how you take control of the counts, the allowed types, and the rendering of that same field:
 
 ```json
@@ -57,8 +59,6 @@ There is only one placement mechanism, and it is the one you already use for inl
 | --- | --- |
 | `content: "inline"`, no `children` | its inline content |
 | `content: "none"` + `children` | its child blocks |
-| `content: "inline"` + `children` | its inline content, then its child blocks |
-| `content: "plain"` + `children` | its plain-text content, then its child blocks |
 
 A `content: "none"` block *without* `children` is the only kind with nothing to place, and it's the only kind that isn't offered a `contentRef` at all.
 
@@ -71,63 +71,9 @@ Container blocks own their entire outer DOM. BlockNote doesn't wrap them in the 
   attribute, so `[data-selected]` is what you style for the selected state._
 </Callout>
 
-The demo below puts this together: a callout block that can contain any other blocks. Its title is a regular `<input>` backed by a string prop rather than document content:
+The demo below puts this together: a callout block that can contain any other blocks. Its title is a regular `<input>` backed by a string prop rather than document content — the pattern to reach for whenever a container needs an editable heading, caption, or label of its own:
 
 <Example name="custom-schema/container-block" />
-
-## Containers with their own content
-
-A container can have inline content *of its own* as well as children: a toggle's title with its body beneath it, a card header, or a callout whose first line is real rich text rather than a plain `<input>`. Combine `content: "inline"` with `children`, and place both with the same single `contentRef`:
-
-```typescript
-const createToggle = createReactBlockSpec(
-  {
-    type: "toggle",
-    propSchema: {},
-    // The toggle's own title...
-    content: "inline",
-    // ...and its body.
-    children: { allow: "any", min: 0 },
-  },
-  {
-    render: (props) => (
-      <div className="toggle">
-        <span className="chevron" contentEditable={false} />
-        <div className="toggle-main" ref={props.contentRef} />
-      </div>
-    ),
-  },
-);
-```
-
-This is purely additive: adding `children` to an existing block is one config line and no render changes. The block keeps its `Block` JSON shape, with `content` for its own content and `children` for its body, identical to any other nested block.
-
-`content: "plain"` combines with `children` the same way, for a head that is text but not *rich* text: no formatting marks and no inline nodes, like a code block's source. A file group whose header is a literal filename would use it:
-
-```typescript
-{
-  type: "fileGroup",
-  propSchema: {},
-  // The group's filename: plain, unformattable text.
-  content: "plain",
-  // The files it groups.
-  children: { allow: "any" },
-}
-```
-
-### The two regions
-
-Inside the `contentRef` element, BlockNote renders the block's own content as `[data-content-type="<type>"]` and its children as `[data-children-of="<type>"]`. You style these; you never place them yourself. The host element between them carries `display: contents`, so a grid on your own root reaches them directly:
-
-```css
-.toggle      { display: grid; grid-template-columns: auto 1fr; }
-.toggle-main { display: contents; }
-.chevron                     { grid-column: 1; grid-row: 1; }
-[data-content-type="toggle"] { grid-column: 2; grid-row: 1; }
-[data-children-of="toggle"]  { grid-column: 2; grid-row: 2; }
-```
-
-Their DOM order is fixed as content-then-children. Use a grid or `order` to place them visually.
 
 ## `children` options
 
@@ -152,8 +98,7 @@ Purely behavioral options that apply to *every* block kind stay in the block imp
 | `draggable` | `true` | Whether the block gets a side menu drag handle. A block that opts out is skipped when looking for a handle, so the handle falls through to the nearest draggable ancestor. |
 
 <Callout type="warn">
-  _`whenEmptied` never destroys typed text. For a container with its own
-  content, neither value does anything while that content is non-empty._
+  _`whenEmptied` never destroys typed text: only empty children are dropped._
 </Callout>
 
 ## Defaults and refilling
@@ -236,7 +181,7 @@ Configurations are checked when the schema is created, and fail up front with a 
 
 - an `allow` that permits nothing: an empty array, or a wildcard form when no anywhere-placeable container exists;
 - an `allow` array naming an unknown type, or naming a regular block type (per-type filtering of regular blocks is [not yet supported](#restricting-children));
-- `content: "table"` combined with `children`;
+- `children` combined with any `content` other than `"none"`;
 - a `placement: "containerOnly"` block that no container's `allow` array names, or `placement: "containerOnly"` on a regular block;
 - container cycles: a container that (transitively) requires a child that requires it back could never be created. An `allow` that permits regular blocks breaks the cycle, since they're always satisfiable.
 
