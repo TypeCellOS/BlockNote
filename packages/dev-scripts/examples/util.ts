@@ -125,6 +125,11 @@ export type Project = {
      * self-contained.
      */
     sharedTestDocument?: boolean;
+    /**
+     * Which BlockNote UI library the generated package.json depends on
+     * (default: mantine).
+     */
+    uiLib?: "mantine" | "ariakit" | "shadcn";
   };
   readme: string;
 };
@@ -248,7 +253,7 @@ const BINARY_EXTENSIONS = new Set([
   ".woff2",
 ]);
 
-export type ProjectFile =
+type ProjectFile =
   | { filename: string; kind: "text"; code: string }
   | { filename: string; kind: "binary"; sourcePath: string };
 

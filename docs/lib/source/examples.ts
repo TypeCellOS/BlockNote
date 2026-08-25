@@ -17,7 +17,14 @@ export function getPageImage(page: InferPageType<typeof source>) {
   };
 }
 
-async function getLLMText(page: InferPageType<typeof source>) {
+/**
+ * Consumed via the `import * as examples` namespace in
+ * app/llms-full.txt/route.ts (`source.getLLMText(...)`), which static
+ * analysis can miss — keep this exported.
+ *
+ * @public
+ */
+export async function getLLMText(page: InferPageType<typeof source>) {
   const processed = await page.data.getText("processed");
 
   return `# ${page.data.title}

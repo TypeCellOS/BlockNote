@@ -1,5 +1,5 @@
 import * as Y from "yjs";
-import { toBase64, fromBase64 } from "lib0/buffer";
+import { toBase64, fromBase64 } from "./base64";
 
 import {
   CURRENT_VERSION_ID,

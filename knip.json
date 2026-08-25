@@ -6,6 +6,7 @@
     "bumpp",
     "changelogen",
     "@blocknote/shared",
+    "@blocknote/xl-typst-compiler",
     "image-meta",
     "@react-email/.+"
   ],
@@ -14,6 +15,7 @@
     "packages/*/types/**",
     "packages/shadcn/src/components/ui/**",
     "docs/components/fumadocs/**",
+    "docs/components/typstCompilerWasmUrl.ts",
     "**/shiki.bundle.ts"
   ],
   "rules": {
@@ -50,6 +52,14 @@
       "entry": ["src/index.ts", "src/*-exporter/index.{ts,tsx}"],
       "project": ["src/**", "*.{ts,tsx}"]
     },
+    "packages/xl-pdf-exporter": {
+      "entry": ["src/index.ts", "src/react-pdf/index.ts"],
+      "project": ["src/**", "*.{ts,tsx}"]
+    },
+    "packages/xl-typst-compiler": {
+      "entry": ["src/index.{ts,tsx}", "scripts/*.mjs"],
+      "ignoreDependencies": ["wasm-pack"]
+    },
     "packages/xl-ai": {
       "entry": ["src/index.ts", "src/i18n/locales/index.ts", "src/server.ts"],
       "project": ["src/**", "*.{ts,tsx}"]
@@ -60,22 +70,18 @@
     },
     "examples/*/*": {
       "ignoreDependencies": [
-        "@blocknote/ariakit",
-        "@blocknote/mantine",
-        "@blocknote/shadcn",
         "@blocknote/core",
         "@blocknote/react",
+        "@blocknote/mantine",
         "@mantine/core",
         "@mantine/hooks"
       ]
     },
     "examples/02-backend/04-rendering-static-documents": {
       "ignoreDependencies": [
-        "@blocknote/ariakit",
-        "@blocknote/mantine",
-        "@blocknote/shadcn",
         "@blocknote/core",
         "@blocknote/react",
+        "@blocknote/mantine",
         "@mantine/core",
         "@mantine/hooks",
         "@blocknote/server-util"
@@ -83,11 +89,9 @@
     },
     "examples/03-ui-components/11-uppy-file-panel": {
       "ignoreDependencies": [
-        "@blocknote/ariakit",
-        "@blocknote/mantine",
-        "@blocknote/shadcn",
         "@blocknote/core",
         "@blocknote/react",
+        "@blocknote/mantine",
         "@mantine/core",
         "@mantine/hooks",
         "@uppy/xhr-upload"
@@ -96,11 +100,9 @@
     "examples/07-collaboration/02-liveblocks": {
       "entry": ["src/App.tsx", "liveblocks.config.ts"],
       "ignoreDependencies": [
-        "@blocknote/ariakit",
-        "@blocknote/mantine",
-        "@blocknote/shadcn",
         "@blocknote/core",
         "@blocknote/react",
+        "@blocknote/mantine",
         "@mantine/core",
         "@mantine/hooks",
         "@liveblocks/client"
@@ -110,7 +112,12 @@
       "ignoreDependencies": [".+"]
     },
     "playground": {
-      "ignoreDependencies": [".+"]
+      "ignoreDependencies": [
+        "@blocknote/.+",
+        "@mantine/hooks",
+        "katex",
+        "tex2typst"
+      ]
     },
     "tests": {
       "entry": [

@@ -13,7 +13,7 @@ import "@blocknote/mantine/style.css";
 
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
-import { toBase64, fromBase64 } from "lib0/buffer";
+import { toBase64, fromBase64 } from "./base64";
 
 import { VersionHistorySidebar } from "./VersionHistorySidebar";
 import "./style.css";

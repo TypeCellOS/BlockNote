@@ -1,4 +1,6 @@
 export {
+  DEFAULT_FONT_FAMILY,
+  DEFAULT_MONO_FONT_FAMILY,
   TypstExporter,
   type TypstDocumentOptions,
   type TypstExporterOptions,
