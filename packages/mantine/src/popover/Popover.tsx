@@ -18,10 +18,12 @@ export const Popover = (
   return (
     <MantinePopover
       middlewares={{ size: { padding: 20 } }}
-      withinPortal={!!portalRoot}
-      portalProps={portalRoot ? { target: portalRoot } : undefined}
-      // Do not move focus to dropdown when portaled (mobile), as it blurs the
-      // editor's contentEditable and dismisses the on-screen keyboard.
+      // On mobile (signalled by `portalRoot` being set) the dropdown lives
+      // inside the toolbar's horizontal scroll container, which would clip it.
+      // Fixed positioning escapes that clip without needing a portal.
+      floatingStrategy={portalRoot ? "fixed" : undefined}
+      // Do not move focus to the dropdown on mobile, as it blurs the editor's
+      // contentEditable and dismisses the on-screen keyboard.
       trapFocus={portalRoot ? false : undefined}
       opened={open}
       onChange={onOpenChange}

@@ -26,14 +26,17 @@ export const ToolbarSelect = forwardRef<
 
   return (
     <MantineMenu
-      withinPortal={!!portalRoot}
-      portalProps={portalRoot ? { target: portalRoot } : undefined}
+      withinPortal={false}
+      // On mobile (signalled by `portalRoot` being set) the dropdown lives
+      // inside the toolbar's horizontal scroll container, which would clip it.
+      // Fixed positioning escapes that clip without needing a portal.
+      floatingStrategy={portalRoot ? "fixed" : undefined}
       transitionProps={{
         exitDuration: 0,
       }}
       disabled={isDisabled}
-      // Do not move focus to dropdown when portaled (mobile), as it blurs the
-      // editor's contentEditable and dismisses the on-screen keyboard.
+      // Do not move focus to the dropdown on mobile, as it blurs the editor's
+      // contentEditable and dismisses the on-screen keyboard.
       trapFocus={portalRoot ? false : undefined}
       middlewares={{
         flip: true,

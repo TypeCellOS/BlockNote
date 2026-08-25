@@ -20,16 +20,12 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
 
   assertEmpty(rest);
 
-  // When explicitly positioned to a `top` placement (e.g. the mobile toolbar's
-  // color menu, opening above the keyboard) don't let `flip` send it back down.
-  const flip = !position?.startsWith("top");
-
   if (sub) {
     return (
       <MantineMenu.Sub
         transitionProps={{ duration: 250, exitDelay: 250 }}
         withinPortal={false}
-        middlewares={{ flip, shift: true, inline: false, size: true }}
+        middlewares={{ flip: true, shift: true, inline: false, size: true }}
         onChange={onOpenChange}
         position={position}
       >
@@ -45,9 +41,10 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       // Do not move focus to dropdown when portaled (mobile), as it blurs the
       // editor's contentEditable and dismisses the on-screen keyboard.
       trapFocus={portalRoot ? false : undefined}
-      middlewares={{ flip, shift: true, inline: false, size: true }}
+      middlewares={{ flip: true, shift: true, inline: false, size: true }}
       onChange={onOpenChange}
       position={position}
+      returnFocus={false}
     >
       {children}
     </MantineMenu>

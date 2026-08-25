@@ -5,8 +5,6 @@ import { createContext, forwardRef, ReactElement, useContext } from "react";
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
-// Threads the `portalRoot` override from `Popover` down to `PopoverContent`,
-// where shadcn's `container` prop actually lives.
 const PortalRootContext = createContext<HTMLElement | null | undefined>(
   undefined,
 );

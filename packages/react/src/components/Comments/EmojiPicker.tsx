@@ -20,8 +20,6 @@ export const EmojiPicker = (props: {
   }
 
   return (
-    // Portal into the editor's portal element (which carries the color-scheme
-    // class) so the picker inherits light/dark mode instead of the body's.
     <Components.Generic.Popover.Root open={open} portalRoot={portalRoot}>
       <Components.Generic.Popover.Trigger>
         <div

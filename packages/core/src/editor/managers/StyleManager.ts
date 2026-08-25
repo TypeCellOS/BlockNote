@@ -56,6 +56,8 @@ export class StyleManager<
     return this.editor.transact((tr) => {
       const styles: Styles<SSchema> = {};
       const marks =
+        // Also track active marks that are not in the document. E.g. the bold mark can be selected
+        // so that typing applies bold text, even if the text cursor isn't already within bold text.
         (tr.selection.empty && tr.storedMarks) || tr.selection.$to.marks();
 
       for (const mark of marks) {
