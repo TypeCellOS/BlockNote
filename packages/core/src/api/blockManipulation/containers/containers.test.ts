@@ -116,9 +116,6 @@ describe("children insertion & seeding", () => {
     ).toThrow();
   });
 
-  // `updateBlock` conversions into and out of containers (content carried into
-  // the first child, etc.) are covered in `contentContainers.test.ts`.
-
   it("accepts arbitrary block children, including nested containers", () => {
     editor.insertBlocks(
       [

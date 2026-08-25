@@ -1,12 +1,7 @@
 import { Node } from "prosemirror-model";
-import { EditorState, TextSelection } from "prosemirror-state";
+import { EditorState } from "prosemirror-state";
 
-import {
-  isContentContainerNode,
-  isSealed,
-} from "../../../../schema/blocks/children.js";
-import { getAncestorContainers } from "../../containers/containerNav.js";
-import { fixContainersById } from "../../containers/fixContainer.js";
+import { isSealed } from "../../../../schema/blocks/children.js";
 import {
   BlockInfo,
   getBlockInfoFromResolvedPos,
@@ -126,14 +121,8 @@ const canMerge = (prevBlockInfo: BlockInfo, nextBlockInfo: BlockInfo) => {
     prevBlockInfo.isWrappedBlock &&
     prevBlockInfo.blockContent.node.type.spec.content === "inline*" &&
     prevBlockInfo.blockContent.node.childCount > 0 &&
-    // A content-bearing container is `isWrappedBlock` with an `inline*`
-    // title, but stitching across its boundary would orphan its required
-    // `__children` node. `mergeIntoContainerContent` is the only supported
-    // merge involving one.
-    !isContentContainerNode(prevBlockInfo.bnBlock.node) &&
     nextBlockInfo.isWrappedBlock &&
-    nextBlockInfo.blockContent.node.type.spec.content === "inline*" &&
-    !isContentContainerNode(nextBlockInfo.bnBlock.node)
+    nextBlockInfo.blockContent.node.type.spec.content === "inline*"
   );
 };
 
@@ -188,79 +177,6 @@ const mergeBlocks = (
         nextBlockInfo.blockContent.beforePos + 1,
       ),
     );
-  }
-
-  return true;
-};
-
-/**
- * Merges a container's first child into the container's own content. This is
- * the Backspace-at-the-start-of-the-first-child case for a container that has
- * a title of its own. The child's own children stay in the container, taking
- * its place.
- *
- * Deliberately separate from `canMerge`/`mergeBlocks`: a pure container has
- * no content to merge into, so those keep refusing container boundaries
- * outright and the "move the block out" branch still handles them. Returns
- * false whenever either side isn't inline content, falling through to that
- * branch.
- */
-export const mergeIntoContainerContent = (
-  state: EditorState,
-  dispatch: ((args?: any) => any) | undefined,
-  containerInfo: BlockInfo,
-  childInfo: BlockInfo,
-) => {
-  if (!containerInfo.isWrappedBlock || !childInfo.isWrappedBlock) {
-    return false;
-  }
-
-  const title = containerInfo.blockContent;
-  const childContent = childInfo.blockContent;
-
-  if (
-    title.node.type.spec.content !== "inline*" ||
-    childContent.node.type.spec.content !== "inline*"
-  ) {
-    return false;
-  }
-
-  if (dispatch) {
-    const tr = state.tr;
-
-    // The container (and its ancestors) may need `whenEmptied` repair once the
-    // child is removed - e.g. an unwrap container left with an empty title
-    // collapses, or a refill container reseeds its default. Captured before the
-    // deletes, applied after.
-    const containersToFix = getAncestorContainers(
-      state.doc,
-      childInfo.bnBlock.beforePos,
-    );
-
-    // The title lies before the children, so none of these positions shift the
-    // ones used after them.
-    if (childInfo.childContainer?.node.childCount) {
-      tr.insert(
-        childInfo.bnBlock.afterPos,
-        childInfo.childContainer.node.content,
-      );
-    }
-    tr.delete(childInfo.bnBlock.beforePos, childInfo.bnBlock.afterPos);
-
-    const titleEndPos = title.afterPos - 1;
-    tr.insert(titleEndPos, childContent.node.content);
-
-    const stepsBeforeFix = tr.steps.length;
-    fixContainersById(tr, containersToFix);
-    // Place the caret at the merge point, mapped through any repair (which may
-    // have unwrapped or reseeded the container, so the raw position can shift).
-    tr.setSelection(
-      TextSelection.near(
-        tr.doc.resolve(tr.mapping.slice(stepsBeforeFix).map(titleEndPos)),
-      ),
-    );
-
-    dispatch(tr);
   }
 
   return true;

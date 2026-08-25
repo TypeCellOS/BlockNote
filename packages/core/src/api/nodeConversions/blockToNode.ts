@@ -28,7 +28,6 @@ import {
 // machinery below; going through it would create an import cycle.
 import {
   getChildrenConfig,
-  getContentContainerNodeTypes,
   isContainerNode,
   resolveChildren,
 } from "../../schema/blocks/children.js";
@@ -453,29 +452,6 @@ export function seedRefillChildren(
     .map((child) => blockToNode(child as PartialBlock<any, any, any>, schema));
 }
 
-function partialContentToInlineNodes(
-  block: PartialBlock<any, any, any>,
-  contentNodeName: string,
-  schema: Schema,
-  styleSchema: StyleSchema,
-): Node[] {
-  if (block.content === undefined) {
-    return [];
-  }
-  if (typeof block.content === "string" || Array.isArray(block.content)) {
-    return inlineContentToNodes(
-      typeof block.content === "string" ? [block.content] : block.content,
-      schema,
-      contentNodeName,
-      styleSchema,
-    );
-  }
-
-  throw new Error(
-    `Block "${block.type}" cannot have content of type "${block.content.type}".`,
-  );
-}
-
 function createContainerChildrenNode(
   blockType: string,
   type: NodeType,
@@ -561,10 +537,6 @@ export function blockToNode(
     !block.type || // can happen if block.type is not defined (this should create the default node)
     schema.nodes[block.type].isInGroup("blockContent");
 
-  const contentContainerTypes = block.type
-    ? getContentContainerNodeTypes(schema, block.type)
-    : undefined;
-
   if (isBlockContent) {
     const contentNode = blockOrInlineContentToContentNode(
       block,
@@ -583,34 +555,6 @@ export function blockToNode(
         ...block.props,
       },
       groupNode ? [contentNode, groupNode] : contentNode,
-    );
-  } else if (contentContainerTypes) {
-    // A container with its own content: the content and the children each get
-    // a node of their own, since a ProseMirror node holds either inline
-    // content or block content but never both.
-    const { contentType, childrenType } = contentContainerTypes;
-
-    const contentNode = contentType.createChecked(
-      null,
-      partialContentToInlineNodes(block, contentType.name, schema, styleSchema),
-    );
-
-    const childrenNode =
-      block.children !== undefined
-        ? createExplicitChildrenNode(block.type, childrenType, schema, children)
-        : createContainerChildrenNode(
-            block.type,
-            childrenType,
-            schema,
-            styleSchema,
-            seedingTypes,
-          );
-
-    return withGeneratedIds(
-      schema.nodes[block.type].create({ id: id, ...block.props }, [
-        contentNode,
-        childrenNode,
-      ]),
     );
   } else if (isContainerNode(schema.nodes[block.type])) {
     const type = schema.nodes[block.type];

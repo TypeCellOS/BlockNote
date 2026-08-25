@@ -1,11 +1,7 @@
 import { Node, ResolvedPos } from "prosemirror-model";
 import { EditorState, Transaction } from "prosemirror-state";
 
-import {
-  CHILD_CONTAINER_GROUP,
-  CONTAINER_CONTENT_GROUP,
-  isContentContainerNode,
-} from "../schema/blocks/children.js";
+import { CHILD_CONTAINER_GROUP } from "../schema/blocks/children.js";
 
 type SingleBlockInfo = {
   node: Node;
@@ -48,14 +44,12 @@ export type BlockInfo = {
        */
       blockContent: SingleBlockInfo;
       /**
-       * Whether `bnBlock` wraps the block's content in a node of its own:
-       * either a `blockContainer` (an ordinary block wrapped for nesting), or
-       * a container block that has its own content as well as children. Both
-       * have the same shape: a content node, then an optional child container.
+       * Whether `bnBlock` wraps the block's content in a node of its own: a
+       * `blockContainer` (an ordinary block wrapped for nesting), shaped as a
+       * content node followed by an optional child container.
        *
-       * Note this is roughly the opposite of "is a container block": a
-       * column has `isWrappedBlock: false`. Sites that need "is this literally
-       * a `blockContainer`" should read `bnBlock.node.type.name`.
+       * Note this is the opposite of "is a container block": a column has
+       * `isWrappedBlock: false`.
        */
       isWrappedBlock: true;
     }
@@ -200,13 +194,7 @@ export function getBlockInfoWithManualOffset(
     afterPos: bnBlockAfterPos,
   };
 
-  // A container block that has its own content is shaped like a
-  // `blockContainer`: a content node followed by a node holding its children.
-  // Discriminating on that shape rather than on the node's name lets every
-  // branch written against `blockContainer` cover it too.
-  const isContentContainer = isContentContainerNode(bnBlockNode);
-
-  if (bnBlockNode.type.name === "blockContainer" || isContentContainer) {
+  if (bnBlockNode.type.name === "blockContainer") {
     let blockContent: SingleBlockInfo | undefined;
     let childContainer: SingleBlockInfo | undefined;
 
@@ -214,10 +202,7 @@ export function getBlockInfoWithManualOffset(
       const beforePos = bnBlockBeforePos + offset + 1;
       const afterPos = beforePos + node.nodeSize;
 
-      if (
-        node.type.spec.group === "blockContent" ||
-        node.type.isInGroup(CONTAINER_CONTENT_GROUP)
-      ) {
+      if (node.type.spec.group === "blockContent") {
         blockContent = { node, beforePos, afterPos };
       } else if (node.type.isInGroup(CHILD_CONTAINER_GROUP)) {
         childContainer = { node, beforePos, afterPos };
@@ -237,11 +222,8 @@ export function getBlockInfoWithManualOffset(
       blockContent,
       childContainer,
       // A `blockContainer` is a generic wrapper, so its type comes from the
-      // content node inside it. A container block's node type is the block
-      // type itself.
-      blockNoteType: isContentContainer
-        ? bnBlockNode.type.name
-        : blockContent.node.type.name,
+      // content node inside it.
+      blockNoteType: blockContent.node.type.name,
     };
   } else {
     if (!bnBlock.node.type.isInGroup("childContainer")) {

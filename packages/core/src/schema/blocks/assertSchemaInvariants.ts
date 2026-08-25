@@ -55,8 +55,6 @@ function assertBlockGroupFillsWithBlockContainer(pmSchema: Schema) {
 function assertAnyContainerGroupMatchesConfigs(pmSchema: Schema) {
   for (const type of Object.values(pmSchema.nodes)) {
     const blockConfig = type.spec.blockConfig;
-    // Only a block's own node. Generated `__content`/`__children` nodes
-    // carry their owning block's config under a different node name.
     if (!blockConfig || blockConfig.type !== type.name) {
       continue;
     }

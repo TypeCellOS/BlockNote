@@ -1,5 +1,4 @@
 import { Fragment } from "prosemirror-model";
-import { AllSelection } from "prosemirror-state";
 import {
   afterAll,
   beforeAll,
@@ -17,9 +16,8 @@ import { createBlockSpec } from "./createSpec.js";
 // Every test here goes through `tryParseHTMLToBlocks`, which parses real HTML
 // into a real DOM (`document.implementation.createHTMLDocument` in
 // `api/parsers/html/util/nestedLists.ts`) before ProseMirror's parser ever
-// runs. The clipboard test additionally needs a mounted view for
-// `view.serializeForClipboard`. Parsing HTML is the capability under test, so
-// the whole suite runs against a real browser engine rather than jsdom's.
+// runs. Parsing HTML is the capability under test, so the whole suite runs
+// against a real browser engine rather than jsdom's.
 
 const renderDiv = () => {
   const dom = document.createElement("div");
@@ -63,42 +61,6 @@ const Quote = createBlockSpec(
   },
 )();
 
-// A container with its own content, to test the two generated nodes
-// through the clipboard.
-const Toggle = createBlockSpec(
-  {
-    type: "toggle" as const,
-    propSchema: { open: { default: true } },
-    content: "inline",
-    children: { allow: "any" },
-  },
-  { render: renderDiv },
-)();
-
-// A content-bearing container whose `parseContent` returns a leading run of
-// inline nodes followed by a block, the shape that has to split across the
-// two generated nodes.
-const Section = createBlockSpec(
-  {
-    type: "section" as const,
-    propSchema: {},
-    content: "inline",
-    children: { allow: "any" },
-  },
-  {
-    render: renderDiv,
-    parse: (el) => (el.tagName === "SECTION" ? {} : undefined),
-    parseContent: ({ el, schema }) =>
-      Fragment.fromArray([
-        schema.text(el.getAttribute("data-title") || "untitled"),
-        schema.nodes["paragraph"].create(
-          null,
-          schema.text(el.textContent?.trim() || "empty"),
-        ),
-      ]),
-  },
-)();
-
 // A pure container whose render puts non-content UI text next to the children
 // host, the table-with-controls shape. That text must never round-trip into
 // document content.
@@ -127,8 +89,6 @@ const schema = BlockNoteSchema.create().extend({
     ...defaultBlockSpecs,
     card: Card,
     quote: Quote,
-    toggle: Toggle,
-    section: Section,
     widget: Widget,
   } as const,
 });
@@ -188,121 +148,9 @@ describe("container `parse`", () => {
       { type: "text", text: "Quoted text", styles: {} },
     ]);
   });
-
-  it("splits `parseContent` across a content-bearing container's two regions", () => {
-    const blocks = editor.tryParseHTMLToBlocks(
-      '<section data-title="Title">Body</section>',
-    );
-
-    expect(blocks).toHaveLength(1);
-    expect(blocks[0].type).toBe("section");
-    // The leading inline run is the block's own content; the block that
-    // follows it is a child.
-    expect(blocks[0].content).toEqual([
-      { type: "text", text: "Title", styles: {} },
-    ]);
-    expect(blocks[0].children.map((child: any) => child.type)).toEqual([
-      "paragraph",
-    ]);
-    expect(blocks[0].children[0].content).toEqual([
-      { type: "text", text: "Body", styles: {} },
-    ]);
-  });
 });
 
 describe("container HTML round-trip", () => {
-  const toggleBlocks = [
-    {
-      id: "t-0",
-      type: "toggle" as const,
-      props: { open: false },
-      content: "Title",
-      children: [
-        { id: "t-p-0", type: "paragraph" as const, content: "Body" },
-        { id: "t-p-1", type: "heading" as const, content: "Sub" },
-      ],
-    },
-  ];
-
-  const expectRoundTripped = (parsed: any[]) => {
-    expect(parsed).toHaveLength(1);
-    expect(parsed[0].type).toBe("toggle");
-    expect(parsed[0].props.open).toBe(false);
-    expect(parsed[0].content).toEqual([
-      { type: "text", text: "Title", styles: {} },
-    ]);
-    expect(
-      parsed[0].children.map((child: any) => [
-        child.type,
-        child.content?.[0]?.text,
-      ]),
-    ).toEqual([
-      ["paragraph", "Body"],
-      ["heading", "Sub"],
-    ]);
-  };
-
-  it("round-trips a content-bearing container through full HTML", () => {
-    editor.replaceBlocks(editor.document, toggleBlocks);
-
-    const html = editor.blocksToFullHTML(editor.document);
-    expect(html).toContain('data-node-type="toggle"');
-
-    expectRoundTripped(editor.tryParseHTMLToBlocks(html));
-  });
-
-  it("round-trips a content-bearing container through the clipboard", () => {
-    editor.replaceBlocks(editor.document, toggleBlocks);
-
-    // A copy puts ProseMirror's own serialization on the clipboard, which
-    // renders the generated content & children nodes.
-    const view = editor._tiptapEditor.view;
-    view.dispatch(view.state.tr.setSelection(new AllSelection(view.state.doc)));
-    const clipboardHTML = view.serializeForClipboard(
-      view.state.selection.content(),
-    ).dom.innerHTML;
-
-    expect(clipboardHTML).toContain('data-content-type="toggle"');
-    expect(clipboardHTML).toContain('data-children-of="toggle"');
-
-    expectRoundTripped(editor.tryParseHTMLToBlocks(clipboardHTML));
-  });
-
-  it("round-trips a content-bearing container through external HTML", () => {
-    editor.replaceBlocks(editor.document, toggleBlocks);
-
-    const html = editor.blocksToHTMLLossy(editor.document);
-    expect(html).toContain('data-node-type="toggle"');
-
-    expectRoundTripped(editor.tryParseHTMLToBlocks(html));
-  });
-
-  // Two children, because the one-child case passes either way. External HTML
-  // has no marker element for the container's own content, so an empty title
-  // leaves the parser reading a block element first. With nothing to satisfy
-  // the content node, it can't open the children node, and every child used
-  // to land after the container.
-  it("round-trips an empty-titled container's children through external HTML", () => {
-    editor.replaceBlocks(editor.document, [
-      { ...toggleBlocks[0], content: undefined },
-    ]);
-
-    const html = editor.blocksToHTMLLossy(editor.document);
-    const parsed = editor.tryParseHTMLToBlocks(html);
-
-    expect(parsed).toHaveLength(1);
-    expect(parsed[0].type).toBe("toggle");
-    expect(
-      (parsed[0] as any).children.map((child: any) => [
-        child.type,
-        child.content?.[0]?.text,
-      ]),
-    ).toEqual([
-      ["paragraph", "Body"],
-      ["heading", "Sub"],
-    ]);
-  });
-
   // Regression: internal HTML renders the block's full DOM, so a render with
   // non-content UI text next to the children host (control buttons, labels)
   // used to leak that text into the document as extra blocks on re-parse.

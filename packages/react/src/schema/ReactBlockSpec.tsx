@@ -43,8 +43,7 @@ export type ReactCustomBlockRenderProps<
   block: BlockNoDefaults<Record<Config["type"], Config>, any, any>;
   editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
   // A block gets a `contentRef` for its `render` to mount its editable region:
-  // its inline content, its child blocks, or, for a container that also has
-  // its own content, its content followed by its children. Only a
+  // its inline content, or, for a container, its child blocks. Only a
   // `content: "none"` block without `children` (and the table block, whose
   // content is managed separately) has nothing to place.
 } & (Config extends { children: ChildrenConfig }
@@ -387,16 +386,13 @@ export function createReactBlockSpec<
                       ref(element);
                       if (element) {
                         element.dataset.nodeViewContent = "";
-                        // Mark the children host of a pure container so the
+                        // Mark the children host of a container so the
                         // round-trip parse rule can scope itself to it (see
-                        // `getParseRules`); a content-bearing container's
-                        // regions carry their own markers.
-                        if (blockConfig.content === "none") {
-                          element.setAttribute(
-                            "data-children-of",
-                            blockConfig.type,
-                          );
-                        }
+                        // `getParseRules`).
+                        element.setAttribute(
+                          "data-children-of",
+                          blockConfig.type,
+                        );
                       }
                     }}
                   />
@@ -455,9 +451,7 @@ export function createReactBlockSpec<
               // TipTap appends its content host into whichever element the
               // block passed `contentRef` to. `display: contents` keeps that
               // host from contributing a box, so the block's editable region
-              // lays out exactly where the author put the ref. For a
-              // container that has its own content, the content and children
-              // regions sit there as siblings.
+              // lays out exactly where the author put the ref.
               if (nodeView.contentDOM) {
                 nodeView.contentDOM.style.display = "contents";
               }

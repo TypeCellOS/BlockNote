@@ -8,7 +8,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { isContainerBlockNode } from "../../../../schema/blocks/children.js";
+import { isContainerNode } from "../../../../schema/blocks/children.js";
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
@@ -66,11 +66,10 @@ export function getInsertionPos(
       : null;
   }
 
-  // A container holds its children itself, or, when it has content of its
-  // own, in its generated `__children` node, which the descent helpers step
-  // into. The helpers ignore sealed boundaries by default, which is correct
-  // here: an explicit `insertBlocks` placement is an intentional crossing.
-  if (isContainerBlockNode(node)) {
+  // A container holds its children itself. The descent helpers ignore sealed
+  // boundaries by default, which is correct here: an explicit `insertBlocks`
+  // placement is an intentional crossing.
+  if (isContainerNode(node.type)) {
     const pos = descend(node, posBeforeNode);
 
     return pos === null ? null : { pos };
