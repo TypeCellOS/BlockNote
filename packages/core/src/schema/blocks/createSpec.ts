@@ -364,8 +364,21 @@ function buildContainerNode<TName extends string, TProps extends PropSchema>(
 export function containerRootDOM(output: {
   dom: HTMLElement | DocumentFragment;
   rootDOM?: HTMLElement | null;
-}): HTMLElement | DocumentFragment | null | undefined {
-  return output.rootDOM === undefined ? output.dom : output.rootDOM;
+}): HTMLElement | null {
+  if (output.rootDOM !== undefined) {
+    return output.rootDOM;
+  }
+  if (output.dom instanceof DocumentFragment) {
+    // A fragment can't hold attributes, so the round-trip markers
+    // (`data-node-type`, prop `data-*`) would be lost with it as the root.
+    // When it wraps a single element (the shape a React render produces),
+    // that element is the block's real root. A multi-element fragment has no
+    // root to mark, so its container HTML can't parse back.
+    return output.dom.children.length === 1
+      ? (output.dom.children[0] as HTMLElement)
+      : null;
+  }
+  return output.dom;
 }
 
 function containerNodeView<
