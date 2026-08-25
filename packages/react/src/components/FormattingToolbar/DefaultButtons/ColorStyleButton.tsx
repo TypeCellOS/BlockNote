@@ -139,6 +139,12 @@ export const ColorStyleButton = () => {
 
   return (
     <Components.Generic.Menu.Root
+      // On mobile the formatting toolbar scrolls horizontally, which clips the
+      // inline dropdown. Portalling it to `editor.portalElement` escapes that
+      // clip; a set `portalRoot` also stops focus moving into the dropdown,
+      // which would blur the editor and dismiss the on-screen keyboard. On
+      // desktop there's no such clipping, so we keep the default inline
+      // rendering. See `MobileFormattingToolbarController`.
       portalRoot={uiMode === "mobile" ? editor.portalElement : undefined}
     >
       <Components.Generic.Menu.Trigger>

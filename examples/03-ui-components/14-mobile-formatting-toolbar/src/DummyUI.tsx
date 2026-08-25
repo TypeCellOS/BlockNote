@@ -18,10 +18,10 @@ function HamburgerMenu() {
       </button>
       {open && (
         <nav className="dummy-hamburger-menu">
-          <a href="#">Home</a>
-          <a href="#">Documents</a>
-          <a href="#">Shared with me</a>
-          <a href="#">Settings</a>
+          <a href="#">Dummy link 1</a>
+          <a href="#">Dummy link 2</a>
+          <a href="#">Dummy link 3</a>
+          <a href="#">Dummy link 4</a>
         </nav>
       )}
     </div>
@@ -31,7 +31,7 @@ function HamburgerMenu() {
 export function NavBar(props: {
   scrollMode: "scrolling-document" | "scroll-container";
   onScrollModeChange: (
-    scrollContainer: "scrolling-document" | "scroll-container",
+    scrollMode: "scrolling-document" | "scroll-container",
   ) => void;
 }) {
   return (

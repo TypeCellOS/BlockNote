@@ -537,12 +537,12 @@ SideMenuController offsets its position to keep it centered on the line. */
 /* CSS styles for scroll container pinned to virtual viewport. Used to make the mobile formatting
  toolbar scroll smoother. `bn-vv-*` variables track virtual viewport and are set in
  `useVirtualKeyboard`. */
-html:has(.bn-scroll-host),
-body:has(.bn-scroll-host) {
+html:has(.bn-scroll-container),
+body:has(.bn-scroll-container) {
   overflow: hidden;
 }
 
-.bn-scroll-host {
+.bn-scroll-container {
   position: fixed;
   top: var(--bn-vv-top, 0px);
   left: var(--bn-vv-left, 0px);
@@ -552,8 +552,8 @@ body:has(.bn-scroll-host) {
   -webkit-overflow-scrolling: touch;
   /* Stop overscroll at the boundary from chaining to the document. Without
      this, dragging past the bottom on iOS rubber-bands the whole page, which
-     shifts the visual viewport (repinning the host mid-bounce → jitter) and
-     surfaces a second, document-level scrollbar. */
+     shifts the visual viewport (repinning the container mid-bounce → jitter)
+     and surfaces a second, document-level scrollbar. */
   overscroll-behavior: contain;
 }
 

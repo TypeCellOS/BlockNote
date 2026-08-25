@@ -59,9 +59,10 @@ function isVirtualKeyboardOpen(): boolean {
  * CSS properties up to date without a re-render.
  *
  * For the smoother "pinned scroll container" layout, the host app opts in by
- * adding the `bn-scroll-host` class to its scroll container — the matching
- * styles (and the document scroll lock) live in `editor/styles.css`, keyed off
- * that class and the `--bn-vv-*` variables this hook publishes.
+ * adding the `bn-scroll-container` class to the element wrapping its page
+ * content — the matching styles (and the document scroll lock) live in
+ * `editor/styles.css`, keyed off that class and the `--bn-vv-*` variables this
+ * hook publishes.
  */
 export function useVirtualKeyboard(): boolean {
   const [open, setOpen] = useState(isVirtualKeyboardOpen);

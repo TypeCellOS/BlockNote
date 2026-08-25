@@ -106,6 +106,12 @@ export const FileRenameButton = () => {
     <Components.Generic.Popover.Root
       open={popoverOpen}
       onOpenChange={setPopoverOpen}
+      // On mobile the formatting toolbar scrolls horizontally, which clips the
+      // inline popover. Portalling it to `editor.portalElement` escapes that
+      // clip; a set `portalRoot` also stops focus moving into the popover, which
+      // would blur the editor and dismiss the on-screen keyboard. On desktop
+      // there's no such clipping, so we keep the default inline rendering. See
+      // `MobileFormattingToolbarController`.
       portalRoot={uiMode === "mobile" ? editor.portalElement : undefined}
     >
       <Components.Generic.Popover.Trigger>

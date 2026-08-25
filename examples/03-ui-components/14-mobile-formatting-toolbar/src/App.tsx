@@ -28,16 +28,16 @@ const initialContent = [
 export default function App() {
   const editor = useCreateBlockNote({ initialContent });
   // A second editor, to check the mobile toolbar still works with multiple
-  // editors on a page: the scroll-host styles are injected only once and each
-  // editor tracks the shared visual viewport independently.
+  // editors on a page: the scroll container styles come from BlockNote's stylesheet
+  // and each editor tracks the shared visual viewport independently.
   const secondEditor = useCreateBlockNote({ initialContent });
 
-  // Which element scrolls the page. The "pinned scroll container" layout is
-  // opt-in via a single class: adding `bn-scroll-host` to the scroll container
-  // makes BlockNote's injected styles lock document scroll and pin the container
-  // to the visual viewport. Switching layouts is therefore just adding/removing
-  // the class - a real app would apply it unconditionally, the switch is only
-  // here so you can compare both.
+  // Which element scrolls the page. The "pinned scroll container" layout is opt-in
+  // via a single class: adding `bn-scroll-container` to the element wrapping the page
+  // content makes BlockNote's stylesheet lock document scroll and pin that
+  // element to the visual viewport. Switching layouts is therefore just
+  // adding/removing the class - a real app would apply it unconditionally, the
+  // switch is only here so you can compare both.
   const [scrollMode, setScrollMode] = useState<
     "scrolling-document" | "scroll-container"
   >("scroll-container");
@@ -45,7 +45,7 @@ export default function App() {
   return (
     <div
       className={
-        scrollMode === "scroll-container" ? "bn-scroll-host" : undefined
+        scrollMode === "scroll-container" ? "bn-scroll-container" : undefined
       }
     >
       <NavBar scrollMode={scrollMode} onScrollModeChange={setScrollMode} />

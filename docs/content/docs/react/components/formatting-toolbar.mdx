@@ -43,7 +43,7 @@ Here, we use the `FormattingToolbar` component but keep the default buttons (we 
 
 On touch devices, BlockNote's default UI replaces the floating Formatting Toolbar with a mobile Formatting Toolbar that sits just above the on-screen keyboard. It shows the same items as the regular Formatting Toolbar and is enabled by default - there's nothing to set up. Open any of the examples above on a phone to see it.
 
-The mobile Formatting Toolbar works with two page layouts. Which one you get is decided purely by your app's CSS:
+The mobile Formatting Toolbar works with two page layouts. Which one you get depends on your app's layout:
 
 - **Scrolling document** (the default): the page scrolls as usual and BlockNote repositions the toolbar as you scroll.
 - **Scroll container**: the document itself doesn't scroll; a container pinned to the visual viewport scrolls instead, and the toolbar never has to move.
@@ -54,33 +54,33 @@ This is what you get without any changes to your app. The toolbar follows the vi
 
 ### Scroll container
 
-In this layout, `<html>` and `<body>` are locked and all page content lives inside a single scroll container that BlockNote keeps aligned with the visual viewport. Since the document never scrolls, the toolbar can stay at a truly fixed position and the lag/jitter disappears. Since the document no longer scrolls, this comes with some potential trade-offs. Browser gestures that rely on document scrolling, like pull-to-refresh, may stop working and browser UI elements like the address bar, which normally hides and reappears as you scroll, may stay fixed. Note that these trade-offs are browser-dependent - some will have neither, while others will have both.
+In this layout, `<html>` and `<body>` are locked and all page content lives inside a single scroll container that BlockNote keeps aligned with the visual viewport. Since the document never scrolls, the toolbar can stay at a truly fixed position and the lag/jitter disappears. This comes with some potential trade-offs though. Browser gestures that rely on document scrolling, like pull-to-refresh, may stop working and browser UI elements like the address bar, which normally hides and reappears as you scroll, may stay fixed. Note that these trade-offs are browser-dependent - some will have neither, while others will have both.
 
-To set this up, add the `bn-scroll-host` class to your scroll container:
+To set this up, add the `bn-scroll-container` class to the element that wraps all your scrollable page content:
 
 ```tsx
-<div className="bn-scroll-host">{/* nav, editor, page content... */}</div>
+<div className="bn-scroll-container">{/* nav, editor, page content... */}</div>
 ```
 
 <Callout type="warning">
-  Your app should only ever have a single `bn-scroll-host` element. It's pinned
-  to the visual viewport with `position: fixed`, so multiple hosts would overlap
-  each other. Wrap all your scrollable page content in one host.
+  Your app should only ever have a single `bn-scroll-container` element. It's
+  pinned to the visual viewport with `position: fixed`, so multiple containers
+  would overlap each other. Wrap all your scrollable page content in one.
 </Callout>
 
-That's all the setup needed. BlockNote injects the following styles for you:
+That's all the setup needed. These styles ship in BlockNote's stylesheet:
 
 ```css
-html:has(.bn-scroll-host),
-body:has(.bn-scroll-host) {
+html:has(.bn-scroll-container),
+body:has(.bn-scroll-container) {
   overflow: hidden;
 }
 ```
 
-This locks scrolling on `<html>` and `<body>` whenever a `bn-scroll-host` element is present. It's then pinned to the visual viewport using the `--bn-vv-*` CSS variables that BlockNote publishes on `<html>`:
+This locks scrolling on `<html>` and `<body>` whenever a `bn-scroll-container` element is present. The container is then pinned to the visual viewport using the `--bn-vv-*` CSS variables, which BlockNote sets on `<html>` at runtime as the viewport changes:
 
 ```css
-.bn-scroll-host {
+.bn-scroll-container {
   position: fixed;
   top: var(--bn-vv-top, 0px);
   left: var(--bn-vv-left, 0px);
@@ -94,4 +94,4 @@ This locks scrolling on `<html>` and `<body>` whenever a `bn-scroll-host` elemen
 
 These variables track the [visual viewport](https://developer.mozilla.org/en-US/docs/Web/API/VisualViewport) - the part of the page actually visible above the keyboard. BlockNote keeps `--bn-vv-top`, `--bn-vv-left`, `--bn-vv-width`, and `--bn-vv-height` (plus `--bn-vv-scale`, the pinch-zoom factor) up to date as the keyboard opens and closes and as the user pans or zooms, so the scroll container always lines up with the visible area above the keyboard without any JavaScript on your end.
 
-Because this layout changes how the whole page scrolls, the example can't be embedded here - open the [standalone example](https://playground.blocknotejs.org/ui-components/mobile-formatting-toolbar?hideMenu=true) on a phone instead. It puts a navigation bar, some static text, and the editor inside a container with the `bn-scroll-host` class, and the switch in the navigation bar toggles the pinned scroll container layout on and off so you can compare it with the default scrolling document. Select some text and scroll in each layout to see the difference.
+Because this layout changes how the whole page scrolls, the example can't be embedded here - open the [standalone example](https://playground.blocknotejs.org/ui-components/mobile-formatting-toolbar?hideMenu=true) on a phone instead. It puts a navigation bar, some static text, and the editor inside an element with the `bn-scroll-container` class, and the switch in the navigation bar toggles the pinned scroll container layout on and off so you can compare it with the default scrolling document. Select some text and scroll in each layout to see the difference.
