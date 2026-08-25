@@ -210,9 +210,10 @@ export interface BlockConfig<
    * `contentRef` (React) / `contentDOM` (vanilla), the same way it would place
    * inline content.
    *
-   * Can be combined with `content: "inline"` / `"plain"`, in which case the
-   * block has its own content *and* children, and both are placed in that one
-   * editable region. Only `content: "table"` is incompatible.
+   * Only `content: "none"` may be combined with `children`; a container
+   * block has no content of its own. Combining `children` with any other
+   * `content` is a schema-creation error. (Content-bearing containers may be
+   * supported in a future version, at which point this restriction lifts.)
    *
    * `children: { allow: "any" }` is the minimal container.
    */
@@ -237,8 +238,7 @@ declare module "prosemirror-model" {
      * The config of the BlockNote block this node was built from, so code
      * holding a bare `Node` can read block-level facts (children config,
      * placement, ...) without an editor or schema reference. Set on every
-     * node built from a block spec; a container's generated
-     * `__content`/`__children` nodes carry their owning block's config.
+     * node built from a block spec.
      */
     blockConfig?: BlockConfig;
   }
@@ -382,12 +382,6 @@ export type LooseBlockSpec<
       | undefined;
 
     node: Node;
-    /**
-     * Nodes the block's own node needs in the schema but which aren't blocks
-     * themselves: the generated content & children nodes of a container block
-     * that has its own content. Registered alongside `node`.
-     */
-    extraNodes?: Node[];
   };
   extensions?: (Extension | ExtensionFactoryInstance)[];
 };

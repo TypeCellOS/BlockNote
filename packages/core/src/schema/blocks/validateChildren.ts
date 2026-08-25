@@ -1,6 +1,4 @@
 import {
-  containerChildrenNodeName,
-  containerContentNodeName,
   getChildrenConfig,
   isContainerType,
   isPlaceableAnywhere,
@@ -73,31 +71,17 @@ function validateOne(
   blockConfigs: Record<string, ValidatableConfig>,
   acceptCtx: AllowAcceptContext,
 ) {
-  // A container may have its own content: it then becomes a node holding a
-  // content node and a children node. A table can't. Its content is already
-  // a node tree of its own, with nowhere to put the children node.
-  if (config.content === "table") {
+  // A container block's body is its children; it has no content of its own.
+  // Combining the two (a "content container") is not supported — only
+  // `content: "none"` may be combined with `children`. Blocks wanting an
+  // editable title alongside their children can use a string prop instead.
+  if (config.content !== "none") {
     fail(
       type,
-      '`children` cannot be combined with `content: "table"`. A table block\'s content is already a structure of its own.',
+      `\`children\` can only be combined with \`content: "none"\`, but this block declares \`content: "${config.content}"\`. ` +
+        "A container block holds child blocks instead of its own content. " +
+        "For an editable title or caption, use a string prop rendered as an input.",
     );
-  }
-
-  if (config.content !== "none") {
-    // The content & children nodes are generated from the block type, so a
-    // block type that happens to have the generated name would silently
-    // overwrite one of them.
-    for (const generated of [
-      containerContentNodeName(type),
-      containerChildrenNodeName(type),
-    ]) {
-      if (generated in blockConfigs) {
-        fail(
-          type,
-          `it has its own content as well as \`children\`, so it generates a node named "${generated}", which collides with the block type of the same name. Rename one of the two.`,
-        );
-      }
-    }
   }
 
   // Mirror the type-level contract for JS consumers: `allow` is required, and

@@ -29,11 +29,7 @@ import {
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { getBlockSchema, getPmSchema } from "../../../pmUtil.js";
-import {
-  getContentContainerNodeTypes,
-  isContainerType,
-  isContentContainerNode,
-} from "../../../../schema/blocks/children.js";
+import { isContainerType } from "../../../../schema/blocks/children.js";
 
 // for compatibility with tiptap. TODO: remove as we want to remove dependency on tiptap command interface
 export const updateBlockCommand = <
@@ -94,12 +90,6 @@ export function updateBlockTr<
     ? newNodeType
     : pmSchema.nodes["blockContainer"];
 
-  // The dispatch below is about content nodes, not block nodes. A container
-  // with its own content keeps that content in a generated node rather than in
-  // its own, so routing on the block's node type would send an update of its
-  // content to the full-replace arm, where it used to be silently dropped.
-  const isContentContainer = isContentContainerNode(blockInfo.bnBlock.node);
-
   const replaceFromOffset =
     blockInfo.blockContent &&
     replaceFromPos !== undefined &&
@@ -134,28 +124,8 @@ export function updateBlockTr<
       replaceToOffset,
     );
   } else if (
-    blockInfo.isWrappedBlock &&
-    isContentContainer &&
-    newBlockType === blockInfo.blockNoteType
-  ) {
-    // Same container, so its generated content node stays as it is. Only what
-    // that node holds may change.
-    const contentNodeType = blockInfo.blockContent.node.type;
-
-    updateChildren(block, tr, blockInfo);
-    updateBlockContentNode(
-      block,
-      tr,
-      contentNodeType,
-      contentNodeType,
-      blockInfo,
-      replaceFromOffset,
-      replaceToOffset,
-    );
-  } else if (
     !blockInfo.isWrappedBlock &&
-    newNodeType.isInGroup("bnBlock") &&
-    !getContentContainerNodeTypes(pmSchema, newBlockType)
+    newNodeType.isInGroup("bnBlock")
   ) {
     updateChildren(block, tr, blockInfo);
     // old node was a bnBlock type (like column or columnList) and new block as well
@@ -237,7 +207,7 @@ function carryOverContent(
     return { content: existingContent, children: [] };
   }
 
-  if (targetConfig.content === "none" && isContainerType(targetConfig)) {
+  if (isContainerType(targetConfig)) {
     return {
       children: [{ type: "paragraph", content: existingContent } as any],
     };

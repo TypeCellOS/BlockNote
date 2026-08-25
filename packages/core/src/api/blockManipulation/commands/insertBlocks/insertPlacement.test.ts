@@ -32,10 +32,6 @@ const schema = BlockNoteSchema.create().extend({
       content: "none",
       children: { allow: "any", min: 0 },
     }),
-    titledBox: container("titledBox", {
-      content: "inline",
-      children: { allow: "any", min: 0 },
-    }),
     // A container that only accepts other containers, so an insertion has to
     // descend a level to find a place for a regular block.
     grid: container("grid", {
@@ -107,25 +103,6 @@ describe('insertBlocks "start" / "end"', () => {
       "existing",
       "last",
     ]);
-  });
-
-  it("inserts into a childless container that has its own content", () => {
-    editor.replaceBlocks(editor.document, [
-      { id: "t-0", type: "titledBox", content: "Title" },
-      { id: "trailing", type: "paragraph", content: "" },
-    ]);
-    expect(editor.getBlock("t-0")!.children).toHaveLength(0);
-
-    editor.insertBlocks([{ id: "first", type: "paragraph" }], "t-0", "start");
-    editor.insertBlocks([{ id: "last", type: "paragraph" }], "t-0", "end");
-
-    const toggle = editor.getBlock("t-0")!;
-    // The title is content, not a child. A nested insertion must not land
-    // in it, or before it.
-    expect(toggle.content).toEqual([
-      { type: "text", text: "Title", styles: {} },
-    ]);
-    expect(toggle.children.map((child) => child.id)).toEqual(["first", "last"]);
   });
 
   it("descends into a nested container that accepts the block", () => {
