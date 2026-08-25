@@ -321,22 +321,12 @@ function serializeBlock<
     // round trip, we fill their content with a placeholder character that the
     // parser strips out again (see `EMPTY_BLOCK_PLACEHOLDER`).
     //
-    // Only applies to blocks that hold inline content: pure containers
-    // (columns, tables) fill their `contentDOM` with child blocks later on,
-    // and code blocks would turn the placeholder into literal content.
-    //
-    // A container that has its own content needs the placeholder for a
-    // second reason, and its outer node isn't `inlineContent` so it needs
-    // its own check. That node's content is `<type>__content
-    // <type>__children`. A parser reading a block element first has nothing
-    // to satisfy the content node with, so it cannot open the children node,
-    // and every child lands after the container instead of inside it. A
-    // leading text node opens the content node.
+    // Only applies to blocks that hold inline content: containers (columns,
+    // tables) fill their `contentDOM` with child blocks later on, and code
+    // blocks would turn the placeholder into literal content.
     const blockNodeType = editor.pmSchema.nodes[block.type as any];
-    const blockConfig = editor.schema.blockSchema[block.type as any];
-    const needsPlaceholder = blockNodeType?.inlineContent
-      ? !blockNodeType.spec.code
-      : isContainerType(blockConfig) && blockConfig.content !== "none";
+    const needsPlaceholder =
+      !!blockNodeType?.inlineContent && !blockNodeType.spec.code;
     if (needsPlaceholder && ret.contentDOM.childNodes.length === 0) {
       ret.contentDOM.appendChild(doc.createTextNode(EMPTY_BLOCK_PLACEHOLDER));
     }

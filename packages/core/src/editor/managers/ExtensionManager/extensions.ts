@@ -140,16 +140,6 @@ export function getDefaultTiptapExtensions(
               }),
             ]
           : []),
-        // Nodes the block's node depends on but which aren't blocks
-        // themselves (a content-bearing container's content & children nodes).
-        ...("extraNodes" in blockSpec.implementation
-          ? (blockSpec.implementation.extraNodes as Node[]).map((node) =>
-              node.configure({
-                editor: editor,
-                domAttributes: options.domAttributes,
-              }),
-            )
-          : []),
       ];
     }),
     createCopyToClipboardExtension(editor),

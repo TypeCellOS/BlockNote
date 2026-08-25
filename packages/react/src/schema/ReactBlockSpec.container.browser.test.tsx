@@ -17,7 +17,7 @@ import { createReactBlockSpec } from "./ReactBlockSpec.js";
  * `api/blockManipulation/containers/`.
  */
 
-// A pure container: its `contentRef` element holds its child blocks.
+// A container: its `contentRef` element holds its child blocks.
 const createCallout = createReactBlockSpec(
   {
     type: "callout",
@@ -34,57 +34,10 @@ const createCallout = createReactBlockSpec(
   },
 );
 
-// Adding `children` to an existing block takes one config line and no render
-// changes. This render is the structure every inline-content React block
-// already has, `contentRef` on a plain div
-// (`examples/06-custom-schema/01-alert-block` reduced to its structure).
-const createAlertWithBody = createReactBlockSpec(
-  {
-    type: "alertWithBody",
-    propSchema: { flavor: { default: "warning" } },
-    content: "inline",
-    children: { allow: "any" },
-  },
-  {
-    render: ({ contentRef }) => (
-      <div className="alert">
-        <div className="alert-icon-wrapper" contentEditable={false} />
-        <div className="inline-content" ref={contentRef} />
-      </div>
-    ),
-  },
-);
-
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
     callout: createCallout(),
-    alertWithBody: createAlertWithBody(),
   },
-});
-
-describe("React container block document model", () => {
-  it("an inline-content block gains a body by adding `children` alone", () => {
-    const headless = BlockNoteEditor.create({ schema });
-
-    headless.replaceBlocks(headless.document, [
-      {
-        id: "b-0",
-        type: "alertWithBody",
-        content: "Heads up",
-        children: [{ id: "b-child", type: "paragraph", content: "Details" }],
-      },
-    ] as any);
-
-    const block = headless.getBlock("b-0")!;
-    expect(block.content).toEqual([
-      { type: "text", text: "Heads up", styles: {} },
-    ]);
-    expect(block.children.map((child: any) => child.id)).toEqual(["b-child"]);
-    // The child is an ordinary block of the document, reachable by id.
-    expect(headless.getBlock("b-child")).toBeDefined();
-
-    headless._tiptapEditor.destroy();
-  });
 });
 
 describe("React container block external HTML", () => {

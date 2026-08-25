@@ -5,7 +5,6 @@ import {
   getNearestBlockPos,
 } from "../../../getBlockInfoFromPos.js";
 import { getPmSchema } from "../../../pmUtil.js";
-import { isContentContainerNode } from "../../../../schema/blocks/children.js";
 
 export const splitBlockCommand = (
   posInBlock: number,
@@ -38,14 +37,6 @@ export const splitBlockTr = (
   const info = getBlockInfo(nearestBlockContainerPos);
 
   if (!info.isWrappedBlock) {
-    return false;
-  }
-  // A content-bearing container's own node can't be split: its content
-  // expression requires the generated `__content`/`__children` pair, so
-  // `tr.split` (which would start a second container with a bare paragraph)
-  // throws. Splitting a title has no meaning anyway, so refuse it — callers
-  // fall through to a no-op.
-  if (isContentContainerNode(info.bnBlock.node)) {
     return false;
   }
   const schema = getPmSchema(tr);

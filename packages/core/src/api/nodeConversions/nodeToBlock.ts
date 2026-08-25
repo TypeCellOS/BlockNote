@@ -1,10 +1,6 @@
 import { Mark, Node, Slice } from "@tiptap/pm/model";
 import type { Block } from "../../blocks/defaultBlocks.js";
-import {
-  getContainerChildrenHolder,
-  isContainerNode,
-  isContentContainerNode,
-} from "../../schema/blocks/children.js";
+import { isContainerNode } from "../../schema/blocks/children.js";
 import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type {
   BlockSchema,
@@ -581,8 +577,7 @@ export function prosemirrorSliceToSlicedBlocks<
       const isFirstBlock = index === 0;
       const isLastBlock = index === node.childCount - 1;
 
-      const childrenHolder = getContainerChildrenHolder(blockContainer);
-      if (childrenHolder) {
+      if (isContainerNode(blockContainer.type)) {
         // A container child. When the slice boundary is open inside it, the
         // selection covers part of its children, so skip the container
         // wrapper and splice in the included children (mirroring the
@@ -591,15 +586,11 @@ export function prosemirrorSliceToSlicedBlocks<
         const openAtStart = isFirstBlock && openStart > 0;
         const openAtEnd = isLastBlock && openEnd > 0;
 
-        // A container that also has its own content keeps its children one
-        // node deeper, in its generated `__children` node.
-        const depthToChildren = childrenHolder === blockContainer ? 1 : 2;
-
         if (openAtStart || openAtEnd) {
           const ret = processNode(
-            childrenHolder,
-            openAtStart ? Math.max(0, openStart - depthToChildren) : 0,
-            openAtEnd ? Math.max(0, openEnd - depthToChildren) : 0,
+            blockContainer,
+            openAtStart ? Math.max(0, openStart - 1) : 0,
+            openAtEnd ? Math.max(0, openEnd - 1) : 0,
           );
           if (openAtStart) {
             blockCutAtStart = ret.blockCutAtStart;
@@ -618,26 +609,6 @@ export function prosemirrorSliceToSlicedBlocks<
             S
           >,
         );
-        return;
-      }
-
-      if (isContentContainerNode(blockContainer)) {
-        // A content-bearing container whose `__children` node is absent from
-        // the slice: the boundary cut through its own `__content`, so it has
-        // no children to splice in. Convert it wholesale (with its cut
-        // content), recording the cut boundary so callers know the block was
-        // sliced.
-        const block = nodeToBlock(
-          blockContainer,
-          slice.content.firstChild!,
-        ) as Block<BSchema, I, S>;
-        if (isFirstBlock && openStart > 0) {
-          blockCutAtStart = block.id;
-        }
-        if (isLastBlock && openEnd > 0) {
-          blockCutAtEnd = block.id;
-        }
-        blocks.push(block);
         return;
       }
 

@@ -12,23 +12,15 @@
  */
 
 // How a `children` config compiles to a ProseMirror content expression, and
-// the node groups and generated node names derived from it.
+// the node groups derived from it.
 export {
   ANY_CONTAINER_GROUP,
   BLOCK_GROUP_CHILD_GROUP,
   CHILD_CONTAINER_GROUP,
-  CONTAINER_CONTENT_GROUP,
   CONTAINER_NODE_PRIORITY,
-  blockTypeOfContainerChildrenNode,
-  blockTypeOfContainerContentNode,
   childrenContentExpression,
-  containerChildrenNodeName,
-  containerContentNodeName,
   containerNodePriority,
   getChildrenConfig,
-  getContentContainerNodeTypes,
-  isContainerBlockNode,
-  isContentContainerNode,
   isPlaceableAnywhere,
   resolveChildren,
 } from "./schema/blocks/children.js";

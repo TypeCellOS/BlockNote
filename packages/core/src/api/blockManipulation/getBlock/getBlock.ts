@@ -6,7 +6,6 @@ import type {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { blockTypeOfContainerChildrenNode } from "../../../schema/blocks/children.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../nodeUtil.js";
 
@@ -98,16 +97,12 @@ export function getParentBlock<
   const $posBeforeNode = doc.resolve(posInfo.posBeforeNode);
   const parentNode = $posBeforeNode.node();
   const grandparentNode = $posBeforeNode.node(-1);
-  // A block's children live in its parent's `blockGroup` (regular nesting) or,
-  // for a content-bearing container, in the container's generated `__children`
-  // node. In both cases the actual parent block is the grandparent. A pure
-  // container holds its children directly, so its own node is the parent.
-  const parentIsChildHolder =
-    parentNode.type.name === "blockGroup" ||
-    blockTypeOfContainerChildrenNode(parentNode.type.name) !== undefined;
+  // A block's children live in its parent's `blockGroup` (regular nesting),
+  // in which case the actual parent block is the grandparent. A container
+  // holds its children directly, so its own node is the parent.
   const nodeToConvert =
     grandparentNode.type.name !== "doc"
-      ? parentIsChildHolder
+      ? parentNode.type.name === "blockGroup"
         ? grandparentNode
         : parentNode
       : undefined;

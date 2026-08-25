@@ -5,10 +5,8 @@ import type { Schema } from "prosemirror-model";
 
 import {
   BLOCK_GROUP_CHILD_GROUP,
-  blockTypeOfContainerChildrenNode,
   getChildrenConfig,
   isContainerNode,
-  isContentContainerNode,
   resolveChildren,
 } from "../../../schema/blocks/children.js";
 import type { ResolvedChildren } from "../../../schema/blocks/children.js";
@@ -71,8 +69,6 @@ function isInsertableChild(node: Node): boolean {
 type ContainerRepairTarget = {
   blockPos: number;
   blockNode: Node;
-  childrenPos: number;
-  contentNode: Node | undefined;
 };
 
 function getContainerRepairTarget(
@@ -80,40 +76,16 @@ function getContainerRepairTarget(
   containerPos: number,
 ): ContainerRepairTarget | undefined {
   const node = doc.resolve(containerPos).nodeAfter;
-  if (!node) {
+  if (!node || !isContainerNode(node.type)) {
     return undefined;
   }
 
-  if (isContentContainerNode(node)) {
-    const contentNode = node.firstChild!;
-    return {
-      blockPos: containerPos,
-      blockNode: node,
-      childrenPos: containerPos + 1 + contentNode.nodeSize,
-      contentNode,
-    };
-  }
-
-  if (!isContainerNode(node.type)) {
-    return undefined;
-  }
-
-  // A `__children` node: normalize to the block that owns it.
-  if (blockTypeOfContainerChildrenNode(node.type.name)) {
-    return getContainerRepairTarget(doc, doc.resolve(containerPos).before());
-  }
-
-  return {
-    blockPos: containerPos,
-    blockNode: node,
-    childrenPos: containerPos,
-    contentNode: undefined,
-  };
+  return { blockPos: containerPos, blockNode: node };
 }
 
 /**
  * The (possibly rebuilt) block at the repair target, with where its children
- * now live and where they start. Recomputed after each mutation of `tr`.
+ * now start. Recomputed after each mutation of `tr`.
  */
 function refreshRepairTarget(
   tr: Transaction,
@@ -124,13 +96,7 @@ function refreshRepairTarget(
     return undefined;
   }
 
-  return target.contentNode
-    ? {
-        children: refreshedBlock.lastChild!,
-        childrenStart:
-          target.blockPos + 1 + refreshedBlock.firstChild!.nodeSize + 1,
-      }
-    : { children: refreshedBlock, childrenStart: target.blockPos + 1 };
+  return { children: refreshedBlock, childrenStart: target.blockPos + 1 };
 }
 
 export function fixContainer(tr: Transaction, containerPos: number) {
@@ -152,13 +118,6 @@ export function fixContainer(tr: Transaction, containerPos: number) {
   }
 
   if (config.whenEmptied === "unwrap") {
-    // Unwrapping an emptied content-bearing container deletes the whole block,
-    // so don't run it while the container's own content is non-empty. (Refill
-    // only rewrites the `__children` node and never touches `__content`, so it
-    // is safe regardless.)
-    if (target.contentNode && target.contentNode.content.size > 0) {
-      return;
-    }
     unwrapContainer(tr, target, config);
   } else {
     // `blockConfig` is set whenever `config` is.
@@ -171,7 +130,7 @@ function unwrapContainer(
   target: ContainerRepairTarget,
   config: ResolvedChildren,
 ) {
-  removeEmptyChildren(tr, target.childrenPos);
+  removeEmptyChildren(tr, target.blockPos);
 
   const refreshed = refreshRepairTarget(tr, target);
   if (!refreshed) {

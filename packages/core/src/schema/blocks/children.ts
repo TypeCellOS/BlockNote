@@ -1,4 +1,4 @@
-import type { Node, NodeType, Schema } from "prosemirror-model";
+import type { Node, NodeType } from "prosemirror-model";
 
 import type {
   BlockConfig,
@@ -30,97 +30,11 @@ export const BLOCK_GROUP_CHILD_GROUP = "blockGroupChild";
 // container names it explicitly, so it stays out of the group.
 export const ANY_CONTAINER_GROUP = "anyContainer";
 
-// Not `blockContent`. That is a legal child of `blockContainer`, so a paste
-// could produce an unrepresentable `blockContainer > toggle__content`.
-export const CONTAINER_CONTENT_GROUP = "containerContent";
-
-// `__` because PM's expression parser only accepts word characters in node names.
-const CONTENT_NODE_SUFFIX = "__content";
-const CHILDREN_NODE_SUFFIX = "__children";
-
-export function containerContentNodeName(blockType: string): string {
-  return `${blockType}${CONTENT_NODE_SUFFIX}`;
-}
-
-export function containerChildrenNodeName(blockType: string): string {
-  return `${blockType}${CHILDREN_NODE_SUFFIX}`;
-}
-
-export function blockTypeOfContainerContentNode(
-  nodeName: string,
-): string | undefined {
-  return nodeName.endsWith(CONTENT_NODE_SUFFIX)
-    ? nodeName.slice(0, -CONTENT_NODE_SUFFIX.length)
-    : undefined;
-}
-
-export function blockTypeOfContainerChildrenNode(
-  nodeName: string,
-): string | undefined {
-  return nodeName.endsWith(CHILDREN_NODE_SUFFIX)
-    ? nodeName.slice(0, -CHILDREN_NODE_SUFFIX.length)
-    : undefined;
-}
-
-// Whether `type` is a node that holds child blocks directly: a pure container
-// block's own node, or a generated `__children` node. (`blockGroup` is in the
-// group too but is regular-block nesting machinery, not a container.)
+// Whether `type` is a node that holds child blocks directly: a container
+// block's own node. (`blockGroup` is in the group too but is regular-block
+// nesting machinery, not a container.)
 export function isContainerNode(type: NodeType): boolean {
   return type.isInGroup(CHILD_CONTAINER_GROUP) && type.name !== "blockGroup";
-}
-
-// Whether `node` is a container that has its own content (children live in
-// a generated `__children` node). Not the same as `isContainerNode`.
-export function isContentContainerNode(node: Node): boolean {
-  return !!node.firstChild?.type.isInGroup(CONTAINER_CONTENT_GROUP);
-}
-
-/**
- * Whether `node` is a container block's node in either shape: a pure
- * container (children held directly) or a content-bearing container (children
- * held in a generated `__children` node).
- */
-export function isContainerBlockNode(node: Node): boolean {
-  return isContainerNode(node.type) || isContentContainerNode(node);
-}
-
-/**
- * The node that directly holds a container's child blocks, or `undefined` if
- * `node` is not a container (a `blockContainer`, whose children live in an
- * optional `blockGroup`, always returns `undefined`):
- * - a content-bearing container → its generated `__children` node (the last
- *   child). When a slice boundary cut through the container's own `__content`,
- *   that node is absent and the last child is `__content` instead, so the
- *   container has no children to flatten → `undefined`.
- * - the mirror case, a slice that cut through the `__content` and left the
- *   `__children` node as the first child → that first child.
- * - a pure container → the node itself.
- */
-export function getContainerChildrenHolder(node: Node): Node | undefined {
-  if (isContentContainerNode(node)) {
-    const lastChild = node.lastChild;
-    return lastChild && isContainerNode(lastChild.type) ? lastChild : undefined;
-  }
-  const firstChild = node.firstChild;
-  if (
-    firstChild &&
-    blockTypeOfContainerChildrenNode(firstChild.type.name) === node.type.name
-  ) {
-    return firstChild;
-  }
-  return isContainerNode(node.type) ? node : undefined;
-}
-
-export function getContentContainerNodeTypes(
-  schema: Schema,
-  blockType: string,
-): { contentType: NodeType; childrenType: NodeType } | undefined {
-  const contentType = schema.nodes[containerContentNodeName(blockType)];
-  const childrenType = schema.nodes[containerChildrenNodeName(blockType)];
-
-  return contentType && childrenType
-    ? { contentType, childrenType }
-    : undefined;
 }
 
 // Below `blockContainer`'s priority (50) so PM's `fillBefore` picks
@@ -202,8 +116,7 @@ function resolveAllow(
 /**
  * Whether `node` belongs to a container with a `"sealed"` boundary, one whose
  * edge content may never implicitly cross (a table cell rather than a column).
- * Reads the block config off the node's spec, so it works on a container
- * block's own node and on its generated `__children` node alike.
+ * Reads the block config off the node's spec.
  */
 export function isSealed(node: Node): boolean {
   const children = getChildrenConfig(node.type.spec.blockConfig ?? {});
