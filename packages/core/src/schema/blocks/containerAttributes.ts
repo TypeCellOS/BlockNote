@@ -27,14 +27,13 @@ function getContainerAttributes<PSchema extends PropSchema>(
 }
 
 export function applyContainerAttributes<PSchema extends PropSchema>(
-  dom: HTMLElement | DocumentFragment | undefined | null,
+  element: HTMLElement | undefined | null,
   blockType: string,
   blockProps: Partial<Props<PSchema>>,
   propSchema: PSchema,
   id: string | undefined,
 ) {
-  const element = dom as HTMLElement | undefined;
-  if (!element || typeof element.setAttribute !== "function") {
+  if (!element) {
     return;
   }
 
@@ -58,13 +57,12 @@ export function applyContainerAttributes<PSchema extends PropSchema>(
 
 // Like `applyContainerAttributes` but won't overwrite existing attributes.
 export function fillContainerAttributes<PSchema extends PropSchema>(
-  dom: HTMLElement | DocumentFragment | undefined | null,
+  element: HTMLElement | undefined | null,
   blockType: string,
   blockProps: Partial<Props<PSchema>>,
   propSchema: PSchema,
 ) {
-  const element = dom as HTMLElement | undefined;
-  if (!element || typeof element.setAttribute !== "function") {
+  if (!element) {
     return;
   }
 

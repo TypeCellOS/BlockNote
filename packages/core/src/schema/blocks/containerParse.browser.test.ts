@@ -336,6 +336,91 @@ describe("container HTML round-trip", () => {
   });
 });
 
+describe("container fragment root", () => {
+  // A container whose render returns a `DocumentFragment` wrapping a single
+  // element and no `rootDOM`, the shape a React render produces. The fragment
+  // itself can't hold attributes, so `containerRootDOM` must resolve to the
+  // wrapped element for the round-trip markers (`data-node-type`, prop
+  // `data-*`) to survive serialization.
+  const Panel = createBlockSpec(
+    {
+      type: "panel" as const,
+      propSchema: { tone: { default: "neutral" } },
+      content: "none",
+      children: { allow: "any" },
+    },
+    {
+      render: () => {
+        const root = document.createElement("div");
+        const fragment = document.createDocumentFragment();
+        fragment.append(root);
+        return { dom: fragment, contentDOM: root };
+      },
+    },
+  )();
+
+  const panelBlocks = [
+    {
+      id: "pn-0",
+      type: "panel" as const,
+      props: { tone: "warning" },
+      children: [{ id: "pn-p-0", type: "paragraph" as const, content: "Body" }],
+    },
+  ];
+
+  const expectRoundTripped = (parsed: any[]) => {
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0].type).toBe("panel");
+    expect(parsed[0].props.tone).toBe("warning");
+    expect(
+      parsed[0].children.map((child: any) => [
+        child.type,
+        child.content?.[0]?.text,
+      ]),
+    ).toEqual([["paragraph", "Body"]]);
+  };
+
+  // Headless: a fragment `dom` is only valid for serialization renders, not
+  // as a mounted node view's root, which ProseMirror requires to be an
+  // element.
+  const makeEditor = () =>
+    BlockNoteEditor.create({
+      schema: BlockNoteSchema.create().extend({
+        blockSpecs: { ...defaultBlockSpecs, panel: Panel } as const,
+      }),
+    }) as BlockNoteEditor<any, any, any>;
+
+  it("round-trips a fragment-rendered container through full HTML", () => {
+    const other = makeEditor();
+    try {
+      other.replaceBlocks(other.document, panelBlocks);
+
+      const html = other.blocksToFullHTML(other.document);
+      expect(html).toContain('data-node-type="panel"');
+      expect(html).toContain('data-tone="warning"');
+
+      expectRoundTripped(other.tryParseHTMLToBlocks(html));
+    } finally {
+      other._tiptapEditor.destroy();
+    }
+  });
+
+  it("round-trips a fragment-rendered container through external HTML", () => {
+    const other = makeEditor();
+    try {
+      other.replaceBlocks(other.document, panelBlocks);
+
+      const html = other.blocksToHTMLLossy(other.document);
+      expect(html).toContain('data-node-type="panel"');
+      expect(html).toContain('data-tone="warning"');
+
+      expectRoundTripped(other.tryParseHTMLToBlocks(html));
+    } finally {
+      other._tiptapEditor.destroy();
+    }
+  });
+});
+
 describe("container `runsBefore`", () => {
   const ambiguous = (type: string) =>
     createBlockSpec(
