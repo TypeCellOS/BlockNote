@@ -47,8 +47,12 @@ export const ToolbarSelect = forwardRef<
     >
       <MantineMenu.Target>
         <MantineButton
-          onPointerDown={(e) => {
-            // Prevents focus shift on mo
+          onMouseDown={(e) => {
+            // On touch, keep focus on the editor (so the on-screen keyboard
+            // stays open) without canceling the tap's click. `mousedown` is the
+            // compat event that moves focus, so preventing it keeps focus here
+            // while the click still fires. Preventing `pointerdown` instead
+            // suppresses the synthesized click on iOS WebKit.
             if (isTouchDevice()) {
               e.preventDefault();
               return;

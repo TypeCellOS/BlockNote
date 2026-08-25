@@ -44,15 +44,30 @@ export const MobileFormattingToolbarController = (props: {
   const editor = useBlockNoteEditor();
   const keyboardOpen = useVirtualKeyboard();
 
-  // Whether this editor holds focus, kept in sync via its `focus`/`blur`
-  // events so the toolbar shows/hides as focus enters or leaves the editor.
+  // Whether focus is within this editor's UI, kept in sync via its
+  // `focus`/`blur` events so the toolbar shows/hides as focus enters or leaves
+  // the editor.
   const [focused, setFocused] = useState(() => editor.isFocused());
   useEffect(() => {
     // Re-sync on mount in case focus changed before the listeners attached.
     setFocused(editor.isFocused());
 
     const onFocus = () => setFocused(true);
-    const onBlur = () => setFocused(false);
+    // When the editor's content blurs, focus may still be within the editor's
+    // own floating UI — e.g. a toolbar popover's input autofocusing, which
+    // portals into `editor.portalElement`. Treating that as "focus left the
+    // editor" would unmount this toolbar (and the popover with it), so it would
+    // appear to never open. `relatedTarget` is unreliable on mobile, so we
+    // re-check `document.activeElement` on the next frame and only hide once
+    // focus has truly left the editor and its portal.
+    const onBlur = () => {
+      requestAnimationFrame(() => {
+        const active = document.activeElement;
+        setFocused(
+          editor.isFocused() || (!!active && editor.isWithinEditor(active)),
+        );
+      });
+    };
 
     editor._tiptapEditor.on("focus", onFocus);
     editor._tiptapEditor.on("blur", onBlur);

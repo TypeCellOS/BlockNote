@@ -59,6 +59,14 @@ export const FileReplaceButton = () => {
 
   return (
     <Components.Generic.Popover.Root
+      onOpenChange={(open) => {
+        // Return focus to the editor when closing, so on mobile the on-screen
+        // keyboard and formatting toolbar stay up instead of being dismissed as
+        // focus falls back to `<body>`.
+        if (!open) {
+          editor.focus();
+        }
+      }}
       portalRoot={uiMode === "mobile" ? editor.portalElement : undefined}
     >
       <Components.Generic.Popover.Trigger>

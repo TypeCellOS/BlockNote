@@ -55,7 +55,20 @@ export const FileCaptionButton = () => {
     },
   });
 
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [popoverOpen, setPopoverOpenState] = useState(false);
+
+  // Return focus to the editor when closing, so on mobile the on-screen
+  // keyboard and formatting toolbar stay up instead of being dismissed as
+  // focus falls back to `<body>`.
+  const setPopoverOpen = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        editor.focus();
+      }
+      setPopoverOpenState(open);
+    },
+    [editor],
+  );
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -75,12 +88,15 @@ export const FileCaptionButton = () => {
     [block, editor],
   );
 
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    if (event.key === "Enter" && !event.nativeEvent.isComposing) {
-      event.preventDefault();
-      setPopoverOpen(false);
-    }
-  }, []);
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
+        event.preventDefault();
+        setPopoverOpen(false);
+      }
+    },
+    [setPopoverOpen],
+  );
 
   if (block === undefined) {
     return null;
@@ -98,7 +114,7 @@ export const FileCaptionButton = () => {
           label={dict.formatting_toolbar.file_caption.tooltip}
           mainTooltip={dict.formatting_toolbar.file_caption.tooltip}
           icon={<RiInputField />}
-          onClick={() => setPopoverOpen((open) => !open)}
+          onClick={() => setPopoverOpen(!popoverOpen)}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
