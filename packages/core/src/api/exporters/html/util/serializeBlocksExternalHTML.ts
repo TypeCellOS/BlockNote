@@ -244,10 +244,15 @@ function serializeBlock<
 
   const elementFragment = doc.createDocumentFragment();
 
-  if ((ret.dom as HTMLElement).classList.contains("bn-block-content")) {
+  // A fragment `dom` (the shape a React render produces) can't hold classes
+  // or attributes itself; its resolved root element (the single element it
+  // wraps, if any) stands in for it everywhere below.
+  const rootElement = containerRootDOM(ret);
+
+  if (rootElement?.classList.contains("bn-block-content")) {
     const blockContentDataAttributes = [
       ...attrs,
-      ...Array.from((ret.dom as HTMLElement).attributes),
+      ...Array.from(rootElement.attributes),
     ].filter(
       (attr) =>
         attr.name.startsWith("data") &&
@@ -259,19 +264,23 @@ function serializeBlock<
         attr.name !== "data-editable",
     );
 
-    // ret.dom = ret.dom.firstChild! as any;
     for (const attr of blockContentDataAttributes) {
-      (ret.dom.firstChild! as HTMLElement).setAttribute(attr.name, attr.value);
+      (rootElement.firstChild! as HTMLElement).setAttribute(
+        attr.name,
+        attr.value,
+      );
     }
 
-    addAttributesAndRemoveClasses(ret.dom.firstChild! as HTMLElement);
+    addAttributesAndRemoveClasses(rootElement.firstChild! as HTMLElement);
     if (nestingLevel > 0) {
-      (ret.dom.firstChild! as HTMLElement).setAttribute(
+      (rootElement.firstChild! as HTMLElement).setAttribute(
         "data-nesting-level",
         nestingLevel.toString(),
       );
     }
-    elementFragment.append(...Array.from(ret.dom.childNodes));
+    // Discard the `bn-block-content` wrapper (and, for a fragment `dom`, the
+    // fragment around it) and keep only its children.
+    elementFragment.append(...Array.from(rootElement.childNodes));
   } else {
     // Asked of the block config rather than of its ProseMirror node. See the
     // same check in `serializeBlocksInternalHTML`.
@@ -282,7 +291,7 @@ function serializeBlock<
       // are present even when the block's render didn't add them.
       // Author-set attributes win.
       fillContainerAttributes(
-        containerRootDOM(ret),
+        rootElement,
         block.type!,
         props,
         editor.schema.blockSchema[block.type as any].propSchema,
@@ -290,10 +299,7 @@ function serializeBlock<
     }
     elementFragment.append(ret.dom);
     if (nestingLevel > 0) {
-      (ret.dom as HTMLElement).setAttribute(
-        "data-nesting-level",
-        nestingLevel.toString(),
-      );
+      rootElement?.setAttribute("data-nesting-level", nestingLevel.toString());
     }
   }
 

@@ -384,8 +384,13 @@ describe("moveBlocks placement validation", () => {
     ]);
 
     expect(() => editor.moveBlocksUp("c-0")).not.toThrow();
-    // The callout can't nest in the blocks-only box, so it lands above it as a
-    // top-level sibling rather than being forced inside.
+    // The callout can't nest in the blocks-only box, so it lands directly
+    // above it as a top-level sibling rather than being forced inside.
     expect(editor.getParentBlock("c-0")).toBeUndefined();
+    expect(editor.document.map((block) => block.id)).toEqual([
+      "p-0",
+      "c-0",
+      "box",
+    ]);
   });
 });
