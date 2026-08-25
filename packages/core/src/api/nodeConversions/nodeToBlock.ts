@@ -23,10 +23,7 @@ import {
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
-import {
-  getBlockInfoWithManualOffset,
-  getNodeId,
-} from "../getBlockInfoFromPos.js";
+import { getBlockInfoFromNode, getNodeId } from "../getBlockInfoFromPos.js";
 import {
   getBlockCache,
   getBlockSchema,
@@ -407,7 +404,7 @@ export function nodeToBlock<
   const styleSchema = getStyleSchema(schema) as S;
   const blockCache = getBlockCache(schema);
   if (!node.type.isInGroup("bnBlock")) {
-    throw Error("Node should be a bnBlock, but is instead: " + node.type.name);
+    throw Error("Node should be a block, but is instead: " + node.type.name);
   }
 
   const cachedBlock = blockCache?.get(node);
@@ -416,11 +413,11 @@ export function nodeToBlock<
     return cachedBlock;
   }
 
-  const blockInfo = getBlockInfoWithManualOffset(node, 0);
+  const blockInfo = getBlockInfoFromNode(node, 0);
 
   let id: string;
   try {
-    id = getNodeId(blockInfo.bnBlock.node, doc);
+    id = getNodeId(blockInfo.block.node, doc);
   } catch {
     // Only used for blocks converted from other formats.
     id = UniqueID.options.generateID();
@@ -435,7 +432,7 @@ export function nodeToBlock<
   const props: any = {};
   for (const [attr, value] of Object.entries({
     ...node.attrs,
-    ...(blockInfo.isWrappedBlock ? blockInfo.blockContent.node.attrs : {}),
+    ...(blockInfo.hasContent ? blockInfo.content.node.attrs : {}),
   })) {
     const propSchema = blockSpec.propSchema;
 
@@ -450,37 +447,37 @@ export function nodeToBlock<
   const blockConfig = blockSchema[blockInfo.blockNoteType];
 
   const children: Block<BSchema, I, S>[] = [];
-  blockInfo.childContainer?.node.forEach((child) => {
+  blockInfo.children?.node.forEach((child) => {
     children.push(nodeToBlock(child, doc));
   });
 
   let content: Block<any, any, any>["content"];
 
   if (blockConfig.content === "inline") {
-    if (!blockInfo.isWrappedBlock) {
+    if (!blockInfo.hasContent) {
       throw new Error("impossible");
     }
     content = contentNodeToInlineContent(
-      blockInfo.blockContent.node,
+      blockInfo.content.node,
       inlineContentSchema,
       styleSchema,
     );
   } else if (blockConfig.content === "table") {
-    if (!blockInfo.isWrappedBlock) {
+    if (!blockInfo.hasContent) {
       throw new Error("impossible");
     }
     content = contentNodeToTableContent(
-      blockInfo.blockContent.node,
+      blockInfo.content.node,
       inlineContentSchema,
       styleSchema,
     );
   } else if (blockConfig.content === "plain") {
-    if (!blockInfo.isWrappedBlock) {
+    if (!blockInfo.hasContent) {
       throw new Error("impossible");
     }
     // Plain content is a single unstyled text item; an empty block is an
     // empty array, matching inline content.
-    const text = blockInfo.blockContent.node.textContent;
+    const text = blockInfo.content.node.textContent;
     content = text.length > 0 ? [{ type: "text", text, styles: {} }] : [];
   } else if (blockConfig.content === "none") {
     content = undefined;
@@ -569,7 +566,7 @@ export function prosemirrorSliceToSlicedBlocks<
     blockCutAtEnd: string | undefined;
   } {
     // Both `blockGroup` and container nodes (columnList, column, callout,
-    // ...) hold bnBlock children directly, so both can be processed here.
+    // ...) hold block children directly, so both can be processed here.
     if (node.type.name !== "blockGroup" && !isContainerNode(node.type)) {
       throw new Error("unexpected");
     }

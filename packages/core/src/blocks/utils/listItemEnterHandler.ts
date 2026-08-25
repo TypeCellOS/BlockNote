@@ -14,16 +14,16 @@ export const handleEnter = (
     };
   });
 
-  if (!blockInfo.isWrappedBlock) {
+  if (!blockInfo.hasContent) {
     return false;
   }
-  const { bnBlock: blockContainer, blockContent } = blockInfo;
+  const { block: blockContainer, content } = blockInfo;
 
-  if (!(blockContent.node.type.name === listItemType) || !selectionEmpty) {
+  if (!(content.node.type.name === listItemType) || !selectionEmpty) {
     return false;
   }
 
-  if (blockContent.node.childCount === 0) {
+  if (blockInfo.isContentEmpty) {
     editor.transact((tr) => {
       updateBlockTr(tr, blockContainer.beforePos, {
         type: "paragraph",
@@ -31,7 +31,7 @@ export const handleEnter = (
       });
     });
     return true;
-  } else if (blockContent.node.childCount > 0) {
+  } else if (content.node.childCount > 0) {
     return editor.transact((tr) => {
       tr.deleteSelection();
       tr.scrollIntoView();

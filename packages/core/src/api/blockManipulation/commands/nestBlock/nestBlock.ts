@@ -189,7 +189,7 @@ export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
 
 export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
   return editor.transact((tr) => {
-    const { bnBlock: blockContainer } = getBlockInfoFromSelection(tr);
+    const { block: blockContainer } = getBlockInfoFromSelection(tr);
 
     // Mirrors `sinkItem`'s precondition: nesting is only possible under a
     // previous sibling that is itself a `blockContainer`. (A previous sibling

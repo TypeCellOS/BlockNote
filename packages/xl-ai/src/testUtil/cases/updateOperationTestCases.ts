@@ -1,4 +1,8 @@
-import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  getBlockInfoFromNode,
+  getNodeById,
+} from "@blocknote/core";
 import { AIExtension } from "../../AIExtension.js";
 import { getEditorWithBlockFormatting } from "./editors/blockFormatting.js";
 import { getEditorWithFormattingAndMentions } from "./editors/formattingAndMentions.js";
@@ -40,13 +44,13 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
     ],
     getTestSelection: (editor: BlockNoteEditor<any, any, any>) => {
       const posInfo = getNodeById("ref2", editor.prosemirrorState.doc)!;
-      const block = getBlockInfo(posInfo);
-      if (!block.isWrappedBlock) {
+      const block = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
+      if (!block.hasContent) {
         throw new Error("Block is not a block container");
       }
       return {
-        from: block.blockContent.beforePos + 1,
-        to: block.blockContent.beforePos + 1 + "Hello".length,
+        from: block.content.beforePos + 1,
+        to: block.content.beforePos + 1 + "Hello".length,
       };
     },
     userPrompt: "translate to German",
@@ -67,14 +71,14 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
     ],
     getTestSelection: (editor: BlockNoteEditor<any, any, any>) => {
       const posInfo = getNodeById("ref1", editor.prosemirrorState.doc)!;
-      const block = getBlockInfo(posInfo);
-      if (!block.isWrappedBlock) {
+      const block = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
+      if (!block.hasContent) {
         throw new Error("Block is not a block container");
       }
       // 'ello, world! Dow are yo'
       return {
-        from: block.blockContent.beforePos + 2,
-        to: block.blockContent.afterPos - 3,
+        from: block.content.beforePos + 2,
+        to: block.content.afterPos - 3,
       };
     },
     userPrompt: "fix spelling",
@@ -736,12 +740,12 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
     userPrompt: "turn into list (update existing blocks)",
     getTestSelection(editor) {
       const posInfo = getNodeById("ref2", editor.prosemirrorState.doc)!;
-      const block = getBlockInfo(posInfo);
-      if (!block.isWrappedBlock) {
+      const block = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
+      if (!block.hasContent) {
         throw new Error("Block is not a block container");
       }
       return {
-        from: block.blockContent.beforePos + 1,
+        from: block.content.beforePos + 1,
         to: editor.prosemirrorState.doc.content.size,
       };
     },

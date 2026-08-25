@@ -9,7 +9,10 @@ import {
   StyleSchema,
 } from "../../../schema/index.js";
 import { expandPMRangeToWords } from "../../../util/expandToWords.js";
-import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
+import {
+  getBlockInfoFromNode,
+  getNearestBlockPos,
+} from "../../getBlockInfoFromPos.js";
 import {
   nodeToBlock,
   prosemirrorSliceToSlicedBlocks,
@@ -157,8 +160,14 @@ export function setSelection(
     throw new Error(`Block with ID ${endBlockId} not found`);
   }
 
-  const anchorBlockInfo = getBlockInfo(anchorPosInfo);
-  const headBlockInfo = getBlockInfo(headPosInfo);
+  const anchorBlockInfo = getBlockInfoFromNode(
+    anchorPosInfo.node,
+    anchorPosInfo.posBeforeNode,
+  );
+  const headBlockInfo = getBlockInfoFromNode(
+    headPosInfo.node,
+    headPosInfo.posBeforeNode,
+  );
 
   const anchorBlockConfig =
     schema.blockSchema[
@@ -169,12 +178,12 @@ export function setSelection(
       headBlockInfo.blockNoteType as keyof typeof schema.blockSchema
     ];
 
-  if (!anchorBlockInfo.isWrappedBlock || anchorBlockConfig.content === "none") {
+  if (!anchorBlockInfo.hasContent || anchorBlockConfig.content === "none") {
     throw new Error(
       `Attempting to set selection anchor in block without content (id ${startBlockId})`,
     );
   }
-  if (!headBlockInfo.isWrappedBlock || headBlockConfig.content === "none") {
+  if (!headBlockInfo.hasContent || headBlockConfig.content === "none") {
     throw new Error(
       `Attempting to set selection anchor in block without content (id ${endBlockId})`,
     );
@@ -184,30 +193,30 @@ export function setSelection(
   let endPos: number;
 
   if (anchorBlockConfig.content === "table") {
-    const tableMap = TableMap.get(anchorBlockInfo.blockContent.node);
+    const tableMap = TableMap.get(anchorBlockInfo.content.node);
     const firstCellPos =
-      anchorBlockInfo.blockContent.beforePos +
-      tableMap.positionAt(0, 0, anchorBlockInfo.blockContent.node) +
+      anchorBlockInfo.content.beforePos +
+      tableMap.positionAt(0, 0, anchorBlockInfo.content.node) +
       1;
     startPos = firstCellPos + 2;
   } else {
-    startPos = anchorBlockInfo.blockContent.beforePos + 1;
+    startPos = anchorBlockInfo.contentStart;
   }
 
   if (headBlockConfig.content === "table") {
-    const tableMap = TableMap.get(headBlockInfo.blockContent.node);
+    const tableMap = TableMap.get(headBlockInfo.content.node);
     const lastCellPos =
-      headBlockInfo.blockContent.beforePos +
+      headBlockInfo.content.beforePos +
       tableMap.positionAt(
         tableMap.height - 1,
         tableMap.width - 1,
-        headBlockInfo.blockContent.node,
+        headBlockInfo.content.node,
       ) +
       1;
     const lastCellNodeSize = tr.doc.resolve(lastCellPos).nodeAfter!.nodeSize;
     endPos = lastCellPos + lastCellNodeSize - 2;
   } else {
-    endPos = headBlockInfo.blockContent.afterPos - 1;
+    endPos = headBlockInfo.contentEnd;
   }
 
   // TODO: We should polish up the `MultipleNodeSelection` and use that instead.

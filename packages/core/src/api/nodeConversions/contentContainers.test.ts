@@ -7,10 +7,10 @@ import { defaultBlockSpecs } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createBlockSpec } from "../../schema/blocks/createSpec.js";
 import {
-  getBottomNestedBlockInfo,
+  getBlockInfoFromNode,
+  getLastDescendantBlockInfo,
   getPrevBlockInfo,
-} from "../blockManipulation/commands/mergeBlocks/mergeBlocks.js";
-import { getBlockInfoWithManualOffset } from "../getBlockInfoFromPos.js";
+} from "../getBlockInfoFromPos.js";
 import { blockToNode } from "./blockToNode.js";
 import { nodeToBlock } from "./nodeToBlock.js";
 
@@ -152,7 +152,7 @@ describe("content-bearing container: node shape", () => {
     const contentNode = node.child(0);
     expect(contentNode.type.name).toBe("toggle__content");
     expect(contentNode.type.isInGroup("containerContent")).toBe(true);
-    // Deliberately not in `blockContent`. `blockContainer` accepts that
+    // Deliberately not in the `blockContent` group. `blockContainer` accepts that
     // group, so a paste could otherwise produce
     // `blockContainer > toggle__content`.
     expect(contentNode.type.isInGroup("blockContent")).toBe(false);
@@ -245,22 +245,59 @@ describe("content-bearing container: BlockInfo", () => {
       pmSchema,
     );
 
-    const info = getBlockInfoWithManualOffset(node, 0);
+    const info = getBlockInfoFromNode(node, 0);
 
     // Structurally identical to a `blockContainer`, so every keyboard branch
     // written against one covers this too.
-    expect(info.isWrappedBlock).toBe(true);
-    expect(info.blockContent!.node.type.name).toBe("toggle__content");
-    expect(info.childContainer!.node.type.name).toBe("toggle__children");
+    expect(info.hasContent).toBe(true);
+    expect(info.content!.node.type.name).toBe("toggle__content");
+    expect(info.children!.node.type.name).toBe("toggle__children");
     // The type comes from the outer node. A `blockContainer` is a generic
     // wrapper, but a container block is its own type.
     expect(info.blockNoteType).toBe("toggle");
 
     // Positions are those of the nodes themselves.
-    expect(info.bnBlock.beforePos).toBe(0);
-    expect(info.blockContent!.beforePos).toBe(1);
-    expect(info.blockContent!.afterPos).toBe(1 + node.child(0).nodeSize);
-    expect(info.childContainer!.beforePos).toBe(1 + node.child(0).nodeSize);
+    expect(info.block.beforePos).toBe(0);
+    expect(info.content!.beforePos).toBe(1);
+    expect(info.content!.afterPos).toBe(1 + node.child(0).nodeSize);
+    expect(info.children!.beforePos).toBe(1 + node.child(0).nodeSize);
+
+    // Derived positions and predicates.
+    expect(info.contentStart).toBe(info.content!.beforePos + 1);
+    expect(info.contentEnd).toBe(info.content!.afterPos - 1);
+    expect(info.contentKind).toBe("inline");
+    expect(info.isContentEmpty).toBe(false);
+    expect(info.children!.childrenStart).toBe(info.children!.beforePos + 1);
+    expect(info.children!.childrenEnd).toBe(info.children!.afterPos - 1);
+  });
+
+  it("a pure container has children bounds but no content fields", () => {
+    const node = blockToNode(
+      {
+        id: "pc-0",
+        type: "pureDefault",
+        children: [{ id: "c-0", type: "paragraph", content: "Child" }],
+      } as any,
+      pmSchema,
+    );
+
+    const info = getBlockInfoFromNode(node, 0);
+
+    expect(info.hasContent).toBe(false);
+    if (info.hasContent) {
+      throw new Error("expected a pure container");
+    }
+    expect(info.content).toBeUndefined();
+    expect(info.contentStart).toBeUndefined();
+    expect(info.contentEnd).toBeUndefined();
+    expect(info.contentKind).toBeUndefined();
+    expect(info.isContentEmpty).toBeUndefined();
+
+    // A pure container holds its children directly: `children` is the block
+    // node itself, and the bounds point just inside it.
+    expect(info.children.node).toBe(node);
+    expect(info.children.childrenStart).toBe(info.block.beforePos + 1);
+    expect(info.children.childrenEnd).toBe(info.block.afterPos - 1);
   });
 
   it("handles a container with zero children", () => {
@@ -280,13 +317,13 @@ describe("content-bearing container: BlockInfo", () => {
     const doc = wrapInDoc(paragraphNode, toggleNode);
 
     const togglePos = 1 + paragraphNode.nodeSize;
-    const info = getBlockInfoWithManualOffset(toggleNode, togglePos);
-    expect(info.childContainer!.node.childCount).toBe(0);
+    const info = getBlockInfoFromNode(toggleNode, togglePos);
+    expect(info.children!.node.childCount).toBe(0);
 
     // An empty child container has no last child to descend into, so the
     // block itself is the bottom one.
-    expect(() => getBottomNestedBlockInfo(doc, info)).not.toThrow();
-    expect(getBottomNestedBlockInfo(doc, info).bnBlock.node).toBe(toggleNode);
+    expect(() => getLastDescendantBlockInfo(doc, info)).not.toThrow();
+    expect(getLastDescendantBlockInfo(doc, info).block.node).toBe(toggleNode);
 
     expect(() => getPrevBlockInfo(doc, togglePos)).not.toThrow();
     expect(getPrevBlockInfo(doc, togglePos)!.blockNoteType).toBe("paragraph");

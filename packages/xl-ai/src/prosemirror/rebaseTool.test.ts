@@ -1,4 +1,8 @@
-import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  getBlockInfoFromNode,
+  getNodeById,
+} from "@blocknote/core";
 import { expect, it } from "vite-plus/test";
 import { AttributionMarksExtension } from "./AttributionMarks.js";
 import { getApplySuggestionsTr, rebaseTool } from "./rebaseTool.js";
@@ -20,21 +24,21 @@ function getExampleEditorWithSuggestions() {
 
   const blockPos = getNodeById("1", editor.prosemirrorState.doc)!;
 
-  const block = getBlockInfo(blockPos);
-  if (!block.isWrappedBlock) {
+  const block = getBlockInfoFromNode(blockPos.node, blockPos.posBeforeNode);
+  if (!block.hasContent) {
     throw new Error("Block is not a container");
   }
 
   editor.transact((tr) => {
     tr.addMark(
-      block.blockContent.beforePos + 1,
-      block.blockContent.beforePos + 6,
+      block.content.beforePos + 1,
+      block.content.beforePos + 6,
       editor.pmSchema.mark("deletion", { id: 1 }),
     );
 
     tr.addMark(
-      block.blockContent.beforePos + 6,
-      block.blockContent.beforePos + 8,
+      block.content.beforePos + 6,
+      block.content.beforePos + 8,
       editor.pmSchema.mark("insertion", { id: 2 }),
     );
   });
@@ -54,13 +58,13 @@ it("should be able to apply changes to a clean doc (use invertMap)", async () =>
 
   const blockPos = getNodeById("1", cleaned.doc)!;
 
-  const block = getBlockInfo(blockPos);
+  const block = getBlockInfoFromNode(blockPos.node, blockPos.posBeforeNode);
 
-  if (!block.isWrappedBlock) {
+  if (!block.hasContent) {
     throw new Error("Block is not a container");
   }
 
-  const start = block.blockContent.beforePos + 1;
+  const start = block.content.beforePos + 1;
   const end = start + 2;
 
   expect(cleaned.doc.textBetween(start, end)).toBe("Hi");
@@ -83,13 +87,13 @@ it("should be able to apply changes to a clean doc (use rebaseTr)", async () => 
 
   const blockPos = getNodeById("1", cleaned.doc)!;
 
-  const block = getBlockInfo(blockPos);
+  const block = getBlockInfoFromNode(blockPos.node, blockPos.posBeforeNode);
 
-  if (!block.isWrappedBlock) {
+  if (!block.hasContent) {
     throw new Error("Block is not a container");
   }
 
-  const start = block.blockContent.beforePos + 1;
+  const start = block.content.beforePos + 1;
   const end = start + 2;
 
   expect(cleaned.doc.textBetween(start, end)).toBe("Hi");

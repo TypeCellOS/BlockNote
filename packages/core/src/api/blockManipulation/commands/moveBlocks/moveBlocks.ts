@@ -11,7 +11,7 @@ import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
 import {
-  getBlockInfoAtNearest,
+  getBlockInfoNearPos,
   getNodeId,
 } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
@@ -51,18 +51,18 @@ function getBlockSelectionData(
   editor: BlockNoteEditor<any, any, any>,
 ): BlockSelectionData {
   return editor.transact((tr) => {
-    const anchorBlockPosInfo = getBlockInfoAtNearest(tr, tr.selection.anchor);
+    const anchorBlockPosInfo = getBlockInfoNearPos(tr, tr.selection.anchor);
 
-    const anchorBlockId = getNodeId(anchorBlockPosInfo.bnBlock.node, tr.doc);
+    const anchorBlockId = getNodeId(anchorBlockPosInfo.block.node, tr.doc);
 
     if (tr.selection instanceof CellSelection) {
       return {
         type: "cell" as const,
         anchorBlockId,
         anchorCellOffset:
-          tr.selection.$anchorCell.pos - anchorBlockPosInfo.bnBlock.beforePos,
+          tr.selection.$anchorCell.pos - anchorBlockPosInfo.block.beforePos,
         headCellOffset:
-          tr.selection.$headCell.pos - anchorBlockPosInfo.bnBlock.beforePos,
+          tr.selection.$headCell.pos - anchorBlockPosInfo.block.beforePos,
       };
     } else if (tr.selection instanceof NodeSelection) {
       return {
@@ -70,15 +70,14 @@ function getBlockSelectionData(
         anchorBlockId,
       };
     } else {
-      const headBlockPosInfo = getBlockInfoAtNearest(tr, tr.selection.head);
+      const headBlockPosInfo = getBlockInfoNearPos(tr, tr.selection.head);
 
       return {
         type: "text" as const,
         anchorBlockId,
-        headBlockId: getNodeId(headBlockPosInfo.bnBlock.node, tr.doc),
-        anchorOffset:
-          tr.selection.anchor - anchorBlockPosInfo.bnBlock.beforePos,
-        headOffset: tr.selection.head - headBlockPosInfo.bnBlock.beforePos,
+        headBlockId: getNodeId(headBlockPosInfo.block.node, tr.doc),
+        anchorOffset: tr.selection.anchor - anchorBlockPosInfo.block.beforePos,
+        headOffset: tr.selection.head - headBlockPosInfo.block.beforePos,
       };
     }
   });

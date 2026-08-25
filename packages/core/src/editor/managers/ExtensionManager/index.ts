@@ -563,7 +563,7 @@ export class ExtensionManager {
                 const blockInfo = getBlockInfoFromSelection(tr);
 
                 if (
-                  !blockInfo.isWrappedBlock ||
+                  !blockInfo.hasContent ||
                   this.editor.schema.blockSchema[blockInfo.blockNoteType]
                     ?.content !== "inline"
                 ) {
@@ -571,14 +571,14 @@ export class ExtensionManager {
                 }
 
                 tr.deleteRange(start, end);
-                updateBlockTr(tr, blockInfo.bnBlock.beforePos, replaceWith);
+                updateBlockTr(tr, blockInfo.block.beforePos, replaceWith);
                 // updateBlockTr's replaceWith path leaves the selection after
                 // the new block when the content is replaced wholesale (e.g.
                 // when the rule returns content: []). Move the cursor back
                 // inside the new block so the user can keep typing.
                 setTextCursorPosition(
                   tr,
-                  getNodeId(blockInfo.bnBlock.node, tr.doc),
+                  getNodeId(blockInfo.block.node, tr.doc),
                   "start",
                 );
                 return tr;
