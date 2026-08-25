@@ -5,7 +5,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 
-export type TestExecutor<
+type TestExecutor<
   TestCase,
   B extends BlockSchema,
   I extends InlineContentSchema,

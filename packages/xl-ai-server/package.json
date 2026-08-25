@@ -60,7 +60,6 @@
     "typescript": "^7.0.2",
     "undici": "^6.22.0",
     "vite-node": "^6.0.0",
-    "vite-plugin-externalize-deps": "^0.10.0",
     "vite-plus": "catalog:"
   }
 }

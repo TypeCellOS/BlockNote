@@ -11,7 +11,7 @@ const STORAGE_KEY = "bn-multi-doc-user";
  * users simultaneously. The `?as=<id>` URL param takes precedence and is
  * persisted into sessionStorage.
  */
-export const getCurrentUser = (): User | null => {
+const getCurrentUser = (): User | null => {
   try {
     const fromUrl = new URLSearchParams(window.location.search).get("as");
     if (fromUrl && USERS.some((u) => u.id === fromUrl)) {

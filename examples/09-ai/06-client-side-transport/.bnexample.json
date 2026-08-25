@@ -6,7 +6,6 @@
   "dependencies": {
     "@ai-sdk/groq": "^3.0.2",
     "@blocknote/xl-ai": "latest",
-    "@mantine/core": "^9.0.2",
-    "ai": "^6.0.5"
+    "@mantine/core": "^9.0.2"
   }
 }

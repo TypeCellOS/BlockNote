@@ -49,7 +49,7 @@ export const HARDCODED_USERS = [
   },
 ];
 
-export const getRandomUser = () => {
+const getRandomUser = () => {
   return HARDCODED_USERS[Math.floor(Math.random() * HARDCODED_USERS.length)];
 };
 

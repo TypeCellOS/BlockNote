@@ -3,7 +3,7 @@ import { cn } from "@/lib/fumadocs/cn";
 import { ReactNode } from "react";
 import gradients from "./gradients.module.css";
 
-export function HeroText({
+function HeroText({
   children,
   className,
   h1,
@@ -37,7 +37,7 @@ export function SectionHeader({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function SectionSubHeader({ children }: { children: React.ReactNode }) {
+function SectionSubHeader({ children }: { children: React.ReactNode }) {
   return (
     <h2
       className={cn(
@@ -50,7 +50,7 @@ export function SectionSubHeader({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function SectionSubtext({
+function SectionSubtext({
   children,
   className,
 }: {
@@ -69,7 +69,7 @@ export function SectionSubtext({
   );
 }
 
-export function SectionIntro({
+function SectionIntro({
   header,
   subtext,
 }: {

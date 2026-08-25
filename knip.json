@@ -1,0 +1,142 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "ignoreBinaries": ["mkcert", "vp_build", "email"],
+  "ignoreDependencies": [
+    "oxlint-tsgolint",
+    "bumpp",
+    "changelogen",
+    "@blocknote/shared",
+    "image-meta",
+    "@react-email/.+"
+  ],
+  "ignoreFiles": ["**/__snapshots__/**"],
+  "ignore": [
+    "packages/*/types/**",
+    "packages/shadcn/src/components/ui/**",
+    "docs/components/fumadocs/**",
+    "**/shiki.bundle.ts"
+  ],
+  "rules": {
+    "optionalPeerDependencies": "off",
+    "catalog": "off"
+  },
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/*.mjs"]
+    },
+    "packages/*": {
+      "entry": ["src/index.{ts,tsx}"],
+      "project": ["src/**", "*.{ts,tsx}"]
+    },
+    "packages/core": {
+      "entry": [
+        "src/index.ts",
+        "src/comments/index.ts",
+        "src/blocks/index.ts",
+        "src/i18n/index.ts",
+        "src/extensions/index.ts",
+        "src/yjs/index.ts",
+        "src/y/index.ts",
+        "vite.config.bundled.ts",
+        "scripts/*.mjs"
+      ],
+      "project": ["src/**", "*.{ts,tsx}"]
+    },
+    "packages/math-block": {
+      "entry": ["src/index.ts", "src/*-exporter/index.{ts,tsx}"],
+      "project": ["src/**", "*.{ts,tsx}"]
+    },
+    "packages/diagram-block": {
+      "entry": ["src/index.ts", "src/*-exporter/index.{ts,tsx}"],
+      "project": ["src/**", "*.{ts,tsx}"]
+    },
+    "packages/xl-ai": {
+      "entry": ["src/index.ts", "src/i18n/locales/index.ts", "src/server.ts"],
+      "project": ["src/**", "*.{ts,tsx}"]
+    },
+    "packages/dev-scripts": {
+      "entry": ["src/index.{ts,tsx}", "examples/template-react/*.template.tsx"],
+      "ignore": ["examples/template-react/vite-env.d.ts.template.tsx"]
+    },
+    "examples/*/*": {
+      "ignoreDependencies": [
+        "@blocknote/ariakit",
+        "@blocknote/mantine",
+        "@blocknote/shadcn",
+        "@blocknote/core",
+        "@blocknote/react",
+        "@mantine/core",
+        "@mantine/hooks"
+      ]
+    },
+    "examples/02-backend/04-rendering-static-documents": {
+      "ignoreDependencies": [
+        "@blocknote/ariakit",
+        "@blocknote/mantine",
+        "@blocknote/shadcn",
+        "@blocknote/core",
+        "@blocknote/react",
+        "@mantine/core",
+        "@mantine/hooks",
+        "@blocknote/server-util"
+      ]
+    },
+    "examples/03-ui-components/11-uppy-file-panel": {
+      "ignoreDependencies": [
+        "@blocknote/ariakit",
+        "@blocknote/mantine",
+        "@blocknote/shadcn",
+        "@blocknote/core",
+        "@blocknote/react",
+        "@mantine/core",
+        "@mantine/hooks",
+        "@uppy/xhr-upload"
+      ]
+    },
+    "examples/07-collaboration/02-liveblocks": {
+      "entry": ["src/App.tsx", "liveblocks.config.ts"],
+      "ignoreDependencies": [
+        "@blocknote/ariakit",
+        "@blocknote/mantine",
+        "@blocknote/shadcn",
+        "@blocknote/core",
+        "@blocknote/react",
+        "@mantine/core",
+        "@mantine/hooks",
+        "@liveblocks/client"
+      ]
+    },
+    "docs": {
+      "ignoreDependencies": [".+"]
+    },
+    "playground": {
+      "ignoreDependencies": [".+"]
+    },
+    "tests": {
+      "entry": [
+        "src/end-to-end/**/*.test.{ts,tsx}",
+        "src/unit/**/*.test.{ts,tsx}",
+        "playwright/index.tsx",
+        "vite.config.browser.ts"
+      ],
+      "paths": {
+        "@examples/*": ["../examples/*"],
+        "@shared/*": ["../shared/*"]
+      },
+      "ignoreDependencies": [
+        "@blocknote/ariakit",
+        "@blocknote/shadcn",
+        "@vitest/ui"
+      ]
+    },
+    "tests/nextjs-test-app": {
+      "entry": ["app/**/{page,layout,route}.tsx", "next.config.ts"],
+      "ignoreDependencies": [
+        "@mantine/core",
+        "@mantine/hooks",
+        "react",
+        "react-dom"
+      ]
+    }
+  }
+}

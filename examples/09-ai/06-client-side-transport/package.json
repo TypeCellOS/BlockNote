@@ -21,8 +21,7 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "@ai-sdk/groq": "^3.0.2",
-    "@blocknote/xl-ai": "latest",
-    "ai": "^6.0.5"
+    "@blocknote/xl-ai": "latest"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",

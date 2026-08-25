@@ -1,6 +1,6 @@
 import { BlockNoteSchema, createInlineContentSpec } from "@blocknote/core";
 
-export const mention = createInlineContentSpec(
+const mention = createInlineContentSpec(
   {
     type: "mention",
     propSchema: {

@@ -4,7 +4,7 @@
  * TODO: should find a way to test automatically in all environments
  */
 
-export async function loadFileDataUrl(
+async function loadFileDataUrl(
   requireUrl: { default: string },
   mimeType: string,
 ) {

@@ -20,7 +20,6 @@
     "@mantine/hooks": "^9.0.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "@blocknote/code-block": "latest",
     "@shikijs/core": "^4.4.3",
     "@shikijs/engine-javascript": "^4.4.3",
     "@shikijs/langs-precompiled": "^4.4.3",

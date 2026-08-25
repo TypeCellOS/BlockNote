@@ -4,7 +4,7 @@ import type { User, UserStore } from "@blocknote/core";
 // version sidebar / diff tooltips would show a bare number (e.g. "1") instead
 // of a name. The seed (`sampleDocument.ts`) attributes each contribution to one
 // of these ids via `attribution.by`.
-export const USERS: User[] = [
+const USERS: User[] = [
   { id: "1", username: "Alice", avatarUrl: "", color: "#e6194b" },
   { id: "2", username: "Bob", avatarUrl: "", color: "#3cb44b" },
   { id: "3", username: "Carol", avatarUrl: "", color: "#f58231" },

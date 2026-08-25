@@ -22,10 +22,6 @@ export default defineConfig(
           },
         },
       },
-      test: {
-        environment: "jsdom",
-        setupFiles: ["./vitestSetup.ts"],
-      },
       plugins: [webpackStats()],
       // used so that vitest resolves the core package from the sources instead of the built version
       resolve: {

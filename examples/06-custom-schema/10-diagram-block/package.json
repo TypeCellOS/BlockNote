@@ -21,8 +21,7 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "@blocknote/code-block": "latest",
-    "@blocknote/diagram-block": "latest",
-    "react-icons": "^5.5.0"
+    "@blocknote/diagram-block": "latest"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",

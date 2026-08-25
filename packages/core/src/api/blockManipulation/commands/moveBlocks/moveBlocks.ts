@@ -150,7 +150,7 @@ function flattenColumns(
  * @param placement Whether to insert the blocks before or after the reference
  * block.
  */
-export function moveBlocks(
+function moveBlocks(
   editor: BlockNoteEditor<any, any, any>,
   blocks: Block<any, any, any>[],
   referenceBlock: BlockIdentifier,

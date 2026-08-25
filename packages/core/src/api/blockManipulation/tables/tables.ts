@@ -184,7 +184,7 @@ type OccupancyGrid = (RelativeCellIndices & {
  *
  * @returns an {@link OccupancyGrid}
  */
-export function getTableCellOccupancyGrid(
+function getTableCellOccupancyGrid(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
 ): OccupancyGrid {
   const { height, width } = getDimensionsOfTable(block);
@@ -257,7 +257,7 @@ export function getTableCellOccupancyGrid(
  *
  * @note This will remove duplicates from the occupancy grid. And does no bounds checking for validity of the occupancy grid.
  */
-export function getTableRowsFromOccupancyGrid(
+function getTableRowsFromOccupancyGrid(
   occupancyGrid: OccupancyGrid,
 ): TableContent<any, any>["rows"] {
   // Because a cell can have a rowspan or colspan, it can occupy multiple cells in the occupancy grid

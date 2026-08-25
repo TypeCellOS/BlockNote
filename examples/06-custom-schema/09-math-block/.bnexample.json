@@ -11,7 +11,6 @@
   ],
   "dependencies": {
     "@blocknote/code-block": "latest",
-    "@blocknote/math-block": "latest",
-    "react-icons": "^5.5.0"
+    "@blocknote/math-block": "latest"
   }
 }
