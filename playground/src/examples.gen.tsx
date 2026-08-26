@@ -317,6 +317,78 @@ export const examples = {
           "This example shows how to disable the automatic creation of a trailing block at the end of the editor by setting the `trailingBlock` option to `false`.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
+        projectSlug: "visual-viewport-toolbar",
+        fullSlug: "basic/visual-viewport-toolbar",
+        pathFromRoot: "examples/01-basic/18-visual-viewport-toolbar",
+        config: {
+          playground: true,
+          docs: true,
+          author: "matthewlipski",
+          tags: ["Basic", "Formatting Toolbar"],
+        },
+        title: "Toolbar Above Virtual Keyboard (Visual Viewport API)",
+        group: {
+          pathFromRoot: "examples/01-basic",
+          slug: "basic",
+        },
+        readme:
+          "This example renders a dummy formatting toolbar (a semi-transparent blue bar) that stays pinned just above the virtual keyboard, positioned using the [Visual Viewport API](https://developer.mozilla.org/en-US/docs/Web/API/Visual_Viewport_API). It's meant to demonstrate the known Android gap between the toolbar and the keyboard, caused by bottom browser UI shrinking the visual viewport.\n\n**Try it out:** On a mobile device, focus the editor to open the virtual keyboard and watch the blue bar reposition above it.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Visual Viewport API](https://developer.mozilla.org/en-US/docs/Web/API/Visual_Viewport_API)",
+      },
+      {
+        projectSlug: "virtual-keyboard-toolbar",
+        fullSlug: "basic/virtual-keyboard-toolbar",
+        pathFromRoot: "examples/01-basic/19-virtual-keyboard-toolbar",
+        config: {
+          playground: true,
+          docs: true,
+          author: "matthewlipski",
+          tags: ["Basic", "Formatting Toolbar"],
+        },
+        title: "Toolbar Above Virtual Keyboard (Virtual Keyboard API)",
+        group: {
+          pathFromRoot: "examples/01-basic",
+          slug: "basic",
+        },
+        readme:
+          "This example renders a dummy formatting toolbar (a semi-transparent blue bar) pinned just above the virtual keyboard, positioned using the [Virtual Keyboard API](https://developer.mozilla.org/en-US/docs/Web/API/VirtualKeyboard_API). It behaves like the Visual Viewport version and exhibits the same Android gap between the toolbar and the keyboard.\n\n**Only works on Chrome, Edge, and derivatives of those** — the Virtual Keyboard API is unsupported on Firefox and Safari, where the blue bar will stay at the bottom of the screen.\n\n**Try it out:** On a supported mobile browser, focus the editor to open the virtual keyboard and watch the blue bar reposition above it.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Virtual Keyboard API](https://developer.mozilla.org/en-US/docs/Web/API/VirtualKeyboard_API)",
+      },
+      {
+        projectSlug: "popover-input-keyboard",
+        fullSlug: "basic/popover-input-keyboard",
+        pathFromRoot: "examples/01-basic/20-popover-input-keyboard",
+        config: {
+          playground: true,
+          docs: true,
+          author: "matthewlipski",
+          tags: ["Basic"],
+        },
+        title: "Input in Popover Closing Keyboard",
+        group: {
+          pathFromRoot: "examples/01-basic",
+          slug: "basic",
+        },
+        readme:
+          "This example is a real BlockNote editor with a dummy formatting toolbar holding a single Mantine popover, whose dropdown contains a text input - mirroring the real thing, where buttons like the file caption / rename buttons open a popover input from the toolbar. There's enough content to scroll a selection (and with it the toolbar) anywhere between the top & bottom of the screen.\n\nOn Android Chrome, focusing the input while the toolbar is low in the viewport opens the virtual keyboard and then immediately dismisses it, since the browser can't scroll an input inside a popover into view. See the `popover-input-scroll-fix` example for a workaround.\n\n**Try it out:** On a mobile device, select some text near the bottom of the screen, open the popover, and tap the input.\n\n**Relevant Docs:**\n\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Mantine Popover](https://mantine.dev/core/popover/)",
+      },
+      {
+        projectSlug: "popover-input-scroll-fix",
+        fullSlug: "basic/popover-input-scroll-fix",
+        pathFromRoot: "examples/01-basic/21-popover-input-scroll-fix",
+        config: {
+          playground: true,
+          docs: true,
+          author: "matthewlipski",
+          tags: ["Basic"],
+        },
+        title: "Input in Popover Closing Keyboard (Fixed)",
+        group: {
+          pathFromRoot: "examples/01-basic",
+          slug: "basic",
+        },
+        readme:
+          "This is the same editor + dummy formatting toolbar as the `popover-input-keyboard` example, but with the fix from [PR #2982](https://github.com/TypeCellOS/BlockNote/pull/2982) applied. Calling `scrollIntoView` on the input just before focus moves to it (on pointer-down capture, which fires before focus — unlike click) stops Android Chrome from dismissing the virtual keyboard.\n\n**Try it out:** On a mobile device, select some text near the bottom of the screen, open the popover, and tap the input — the keyboard now stays open.\n\n**Relevant Docs:**\n\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Mantine Popover](https://mantine.dev/core/popover/)\n- [Element.scrollIntoView()](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView)",
+      },
+      {
         projectSlug: "testing",
         fullSlug: "basic/testing",
         pathFromRoot: "examples/01-basic/testing",
@@ -754,7 +826,7 @@ export const examples = {
           slug: "ui-components",
         },
         readme:
-          "On touch devices, BlockNote's default UI shows a Formatting Toolbar above the on-screen keyboard - no setup needed. This example demos the opt-in, CSS-only **pinned scroll container** layout: `html`/`body` scrolling is locked and a `.scroll-host` pinned to the visual viewport scrolls instead, so the toolbar stays perfectly in place while scrolling. Use the switch in the nav bar to toggle it off and compare with the default scrolling document layout.\n\n**Relevant Docs:**\n\n- [Mobile Formatting Toolbar](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+          "This example demos the opt-in **scroll container** layout: adding the `bn-scroll-container` class to the element wrapping your page content locks `html`/`body` scrolling and pins that element to the visual viewport (using styles from BlockNote's stylesheet), so the toolbar stays perfectly in place while scrolling and zooming. Use the switch in the nav bar to toggle it off and compare it with the default scrolling document layout.\n\n**Relevant Docs:**\n\n- [Mobile Formatting Toolbar](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
         projectSlug: "advanced-tables",
