@@ -11,7 +11,6 @@ import {
   StyledText,
   Styles,
 } from "../schema/index.js";
-import { isContainerType } from "../schema/blocks/children.js";
 
 import type {
   BlockMapping,
@@ -88,7 +87,7 @@ export abstract class Exporter<
     const spec = (this.blockNoteSchema.blockSpecs as Record<string, any>)[
       blockType
     ];
-    return !!spec && isContainerType(spec.config);
+    return !!spec && spec.config.children !== undefined;
   }
 
   /**

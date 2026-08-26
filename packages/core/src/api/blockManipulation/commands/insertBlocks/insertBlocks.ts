@@ -8,26 +8,22 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { isContainerNode } from "../../../../schema/blocks/children.js";
+import { getBlockInfoFromNode } from "../../../getBlockInfoFromPos.js";
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { getPmSchema } from "../../../pmUtil.js";
-import {
-  descendToFirstInsertionPos,
-  descendToLastInsertionPos,
-} from "../../containers/containerNav.js";
+import { descendToInsertionPos } from "../../containers/containerNav.js";
 
 /**
- * Where blocks go relative to a reference block. `"before"`/`"after"` make them
- * siblings of it; `"start"`/`"end"` nest them inside it, as its first or last
- * children.
+ * Where blocks go relative to a reference block. `"before"`/`"after"` make
+ * them siblings of it; `"first-child"`/`"last-child"` nest them inside it.
  *
  * The nested placements cover containers that have no children to point at:
  * a `min: 0` container that is currently empty has no child block to insert
  * before or after.
  */
-export type BlockPlacement = "before" | "after" | "start" | "end";
+export type BlockPlacement = "before" | "after" | "first-child" | "last-child";
 
 /**
  * Resolves a `placement` against a reference block into the document position
@@ -51,11 +47,6 @@ export function getInsertionPos(
 ): { pos: number; wrapIn?: NodeType } | null {
   const { node, posBeforeNode } = reference;
 
-  const descend = (holder: Node, pos: number) =>
-    placement === "start"
-      ? descendToFirstInsertionPos(holder, pos, nodeType)
-      : descendToLastInsertionPos(holder, pos, nodeType);
-
   if (placement === "before" || placement === "after") {
     const pos =
       placement === "before" ? posBeforeNode : posBeforeNode + node.nodeSize;
@@ -66,33 +57,30 @@ export function getInsertionPos(
       : null;
   }
 
-  // A container holds its children itself. The descent helpers ignore sealed
-  // boundaries by default, which is correct here: an explicit `insertBlocks`
-  // placement is an intentional crossing.
-  if (isContainerNode(node.type)) {
-    const pos = descend(node, posBeforeNode);
+  const info = getBlockInfoFromNode(node, posBeforeNode);
+
+  if (info.children) {
+    // The descent helper can stop at sealed boundaries but this caller lets
+    // it cross: an explicit `insertBlocks` placement is an intentional
+    // crossing.
+    const pos = descendToInsertionPos(
+      info,
+      nodeType,
+      placement === "first-child" ? "first" : "last",
+    );
 
     return pos === null ? null : { pos };
   }
 
-  // A regular block keeps its children in a `blockGroup` that only exists once
-  // it has some.
+  // No children holder implies a `blockContainer` with no children yet
+  // (containers always have one): its `blockGroup` is lazy (`blockContent
+  // blockGroup?`), so the position after the content node only becomes valid
+  // once the nodes are wrapped in a new group.
   const blockGroupType = nodeType.schema.nodes["blockGroup"];
-  if (node.type.name !== "blockContainer" || !blockGroupType) {
-    return null;
-  }
 
-  const blockGroupPos = posBeforeNode + 1 + node.firstChild!.nodeSize;
-
-  if (node.childCount < 2) {
-    return blockGroupType.contentMatch.matchType(nodeType)
-      ? { pos: blockGroupPos, wrapIn: blockGroupType }
-      : null;
-  }
-
-  const pos = descend(node.lastChild!, blockGroupPos);
-
-  return pos === null ? null : { pos };
+  return info.hasContent && blockGroupType?.contentMatch.matchType(nodeType)
+    ? { pos: info.content.afterPos, wrapIn: blockGroupType }
+    : null;
 }
 
 export function insertBlocks<
@@ -134,7 +122,7 @@ export function insertBlocks<
       `Cannot insert a block of type "${blocksToInsert[0].type ?? "paragraph"}" ` +
         (placement === "before" || placement === "after"
           ? `${placement} block with ID ${id}: its parent does not accept it.`
-          : `at the ${placement} of block with ID ${id}: the block does not accept it as a child.`),
+          : `as the ${placement} of block with ID ${id}: the block does not accept it as a child.`),
     );
   }
 

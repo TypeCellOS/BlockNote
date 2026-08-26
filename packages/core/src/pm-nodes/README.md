@@ -99,6 +99,10 @@ We use Prosemirror "groups" to help organize this schema. Here is a list of the 
 
 _Note that the last two groups, `bnBlock` and `childContainer`, are not used anywhere in the schema. They are however helpful while programming. For example, we can check whether a node is a `bnBlock`, and then we know it corresponds to a BlockNote Block. Or, we can check whether a node is a `childContainer`, and then we know it's a container of a BlockNote Block's `children`. See `getBlockInfoFromPos` for an example of how this is used._
 
+## Relation to container blocks
+
+The `blockContainer` + `blockGroup` pair predates the container-blocks API, but it behaves exactly like a container block configured `children: { allow: "any", min: 1, whenEmptied: "unwrap", boundary: "open" }`: any block may nest, a nested `blockGroup` disappears when its last child does, and nothing blocks selections at its edge. The code shares what it can (reading children through `BlockInfo.children`, writing them through `childrenHolder.ts`, the group-membership predicates in `children.ts`), but the node pair itself stays: collapsing regular blocks onto the container mechanism would change the ProseMirror tree of every existing document, which is a document-format migration (collaboration data, HTML round-trip, and snapshots all pin the current shape), not a refactor.
+
 ## Example document
 
 ```xml

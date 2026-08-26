@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach } from "vite-plus/test";
 
 import { setupTestEnv } from "./blockManipulation/setupTestEnv.js";
 import { getBlocksChangedByTransaction } from "./getBlocksChangedByTransaction.js";
-import { getBlockInfo } from "./getBlockInfoFromPos.js";
+import { getBlockInfoFromNode } from "./getBlockInfoFromPos.js";
 import { getNodeById } from "./nodeUtil.js";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { PartialBlock } from "../blocks/defaultBlocks.js";
@@ -651,15 +651,15 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
       if (!posInfo) {
         throw new Error("block not found");
       }
-      const info = getBlockInfo(posInfo);
-      if (!info.isWrappedBlock) {
+      const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
+      if (!info.hasContent) {
         throw new Error("expected a wrapped block");
       }
       // Adding a mark produces an AddMarkStep, whose StepMap is empty — the case
       // getChangedRange has to recover from the step's own from/to.
       tr.addMark(
-        info.blockContent.beforePos + 1,
-        info.blockContent.afterPos - 1,
+        info.content.beforePos + 1,
+        info.content.afterPos - 1,
         editor.pmSchema.marks.bold.create(),
       );
       return getBlocksChangedByTransaction(tr);

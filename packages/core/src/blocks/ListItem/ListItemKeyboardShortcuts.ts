@@ -11,17 +11,17 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
     };
   });
 
-  if (!blockInfo.isWrappedBlock) {
+  if (!blockInfo.hasContent) {
     return false;
   }
-  const { bnBlock: blockContainer, blockContent } = blockInfo;
+  const { block: blockContainer, content } = blockInfo;
 
   if (
     !(
-      blockContent.node.type.name === "toggleListItem" ||
-      blockContent.node.type.name === "bulletListItem" ||
-      blockContent.node.type.name === "numberedListItem" ||
-      blockContent.node.type.name === "checkListItem"
+      content.node.type.name === "toggleListItem" ||
+      content.node.type.name === "bulletListItem" ||
+      content.node.type.name === "numberedListItem" ||
+      content.node.type.name === "checkListItem"
     ) ||
     !selectionEmpty
   ) {
@@ -32,7 +32,7 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
     () =>
       // Changes list item block to a paragraph block if the content is empty.
       commands.command(() => {
-        if (blockContent.node.childCount === 0) {
+        if (blockInfo.isContentEmpty) {
           return commands.command(
             updateBlockCommand(blockContainer.beforePos, {
               type: "paragraph",
@@ -48,7 +48,7 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
       // Splits the current block, moving content inside that's after the cursor
       // to a new block of the same type below.
       commands.command(() => {
-        if (blockContent.node.childCount > 0) {
+        if (content.node.childCount > 0) {
           chain()
             .deleteSelection()
             .command(splitBlockCommand(state.selection.from, true))

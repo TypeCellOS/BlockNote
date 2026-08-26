@@ -3,7 +3,6 @@ import { Transaction } from "prosemirror-state";
 import { canJoin, liftTarget, ReplaceAroundStep } from "prosemirror-transform";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
 
 /**
  * Modified version of prosemirror-schema-list's sinkItem.
@@ -62,14 +61,17 @@ function sinkItem(tr: Transaction, itemType: NodeType, groupType: NodeType) {
   return true;
 }
 
-export function nestBlock(editor: BlockNoteEditor<any, any, any>) {
-  return editor.transact((tr) => {
-    return sinkItem(
+function nestCommand(editor: BlockNoteEditor<any, any, any>) {
+  return (tr: Transaction) =>
+    sinkItem(
       tr,
       editor.pmSchema.nodes["blockContainer"],
       editor.pmSchema.nodes["blockGroup"],
     );
-  });
+}
+
+export function nestBlock(editor: BlockNoteEditor<any, any, any>) {
+  return editor.transact(nestCommand(editor));
 }
 
 /**
@@ -177,50 +179,28 @@ export function liftItem(
   return false;
 }
 
-export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
-  return editor.transact((tr) =>
+function unnestCommand(editor: BlockNoteEditor<any, any, any>) {
+  return (tr: Transaction) =>
     liftItem(
       tr,
       editor.pmSchema.nodes["blockContainer"],
       editor.pmSchema.nodes["blockGroup"],
-    ),
-  );
+    );
 }
 
-export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
-  return editor.transact((tr) => {
-    const { bnBlock: blockContainer } = getBlockInfoFromSelection(tr);
+export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
+  return editor.transact(unnestCommand(editor));
+}
 
-    // Mirrors `sinkItem`'s precondition: nesting is only possible under a
-    // previous sibling that is itself a `blockContainer`. (A previous sibling
-    // of another type, e.g. a container block, made this return true while
-    // `nestBlock` did nothing.)
-    return (
-      tr.doc.resolve(blockContainer.beforePos).nodeBefore?.type ===
-      editor.pmSchema.nodes["blockContainer"]
-    );
-  });
+// `canExec` hands the command a transaction it never dispatches, so "can I
+// nest?" is answered by nesting and throwing the result away. A second
+// statement of the preconditions would drift from the command it describes —
+// and did: it read a previous sibling's mere existence, so a container block
+// before the cursor enabled the button while `nestBlock` did nothing.
+export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
+  return editor.canExec((state) => nestCommand(editor)(state.tr));
 }
 
 export function canUnnestBlock(editor: BlockNoteEditor<any, any, any>) {
-  return editor.transact((tr) => {
-    const { $from, $to } = tr.selection;
-
-    // Mirrors `liftItem`'s preconditions instead of approximating with depth.
-    // A block whose depth > 1 because it sits inside a container (e.g. a
-    // column) is not un-nestable, only a block nested under another
-    // `blockContainer` is.
-    const range = $from.blockRange(
-      $to,
-      (node) => node.childCount > 0 && node.type.isInGroup("childContainer"),
-    );
-    if (!range) {
-      return false;
-    }
-
-    return (
-      $from.node(range.depth - 1).type ===
-      editor.pmSchema.nodes["blockContainer"]
-    );
-  });
+  return editor.canExec((state) => unnestCommand(editor)(state.tr));
 }

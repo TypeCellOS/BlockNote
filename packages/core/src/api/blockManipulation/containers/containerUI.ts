@@ -1,5 +1,4 @@
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import { isContainerType } from "../../../schema/blocks/children.js";
 
 export type ContainerUIInfo = {
   containerTypes: ReadonlySet<string>;
@@ -40,7 +39,7 @@ export function getContainerUIInfo(
   )) {
     const draggable = spec.implementation?.meta?.draggable !== false;
 
-    if (!isContainerType(spec.config)) {
+    if (spec.config.children === undefined) {
       if (!draggable) {
         nonDraggableBlockTypes.add(type);
       }

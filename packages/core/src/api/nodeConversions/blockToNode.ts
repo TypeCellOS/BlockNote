@@ -3,7 +3,6 @@ import {
   Fragment,
   Mark,
   Node,
-  NodeType,
   Schema,
 } from "@tiptap/pm/model";
 
@@ -24,10 +23,10 @@ import {
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
 // `isContainerNode` comes from `children.js` directly (rather than via its
-// `fixContainer.js` re-export) because `fixContainer.js` imports the seeding
-// machinery below; going through it would create an import cycle.
+// `fixContainer.js` re-export) because `fixContainer.js` imports `blockToNode`
+// below; going through it would create an import cycle.
 import {
-  getChildrenConfig,
+  createBlockGroup,
   isContainerNode,
   resolveChildren,
 } from "../../schema/blocks/children.js";
@@ -307,13 +306,17 @@ export function tableContentToNodes<
   return rowNodes;
 }
 
+/**
+ * Converts a block's (or custom inline content element's) `content` field to a
+ * `blockContent` (or custom inline content) prosemirror node.
+ */
 function blockOrInlineContentToContentNode(
   block:
     | PartialBlock<any, any, any>
     | PartialCustomInlineContentFromConfig<any, any>,
   schema: Schema,
   styleSchema: StyleSchema,
-) {
+): Node {
   let contentNode: Node;
   let type = block.type;
 
@@ -356,158 +359,27 @@ function blockOrInlineContentToContentNode(
 const EMPTY_SEEDING: ReadonlySet<string> = new Set();
 
 function unwrapsWhenEmptied(blockType: string, schema: Schema): boolean {
-  const blockConfig = getBlockSchema(schema)[blockType];
-  const children = blockConfig ? getChildrenConfig(blockConfig) : undefined;
+  const children = getBlockSchema(schema)[blockType]?.children;
   return !!children && resolveChildren(children).whenEmptied === "unwrap";
 }
 
-// `createAndFill` produces nodes with `id: null`; patch them before use.
+// `createAndFill` fills with schema defaults, which leaves `id: null`. Always
+// rebuilds: the only inputs are freshly created nodes, so there is no shared
+// structure worth preserving.
 function withGeneratedIds(node: Node): Node {
   if (node.isText) {
     return node;
   }
 
   const children: Node[] = [];
-  let childChanged = false;
-  node.forEach((child) => {
-    const next = withGeneratedIds(child);
-    childChanged ||= next !== child;
-    children.push(next);
-  });
+  node.forEach((child) => children.push(withGeneratedIds(child)));
 
   const needsId = node.type.isInGroup("bnBlock") && node.attrs.id === null;
-  if (!needsId && !childChanged) {
-    return node;
-  }
-
   return node.type.create(
     needsId ? { ...node.attrs, id: UniqueID.options.generateID() } : node.attrs,
-    childChanged ? Fragment.from(children) : node.content,
+    Fragment.from(children),
     node.marks,
   );
-}
-
-function seedDefaultChildren(
-  blockType: string,
-  schema: Schema,
-  styleSchema: StyleSchema,
-  seedingTypes: ReadonlySet<string>,
-): Node[] | undefined {
-  const blockSchemaConfig = getBlockSchema(schema)[blockType];
-  const childrenConfig = blockSchemaConfig
-    ? getChildrenConfig(blockSchemaConfig)
-    : undefined;
-
-  if (!childrenConfig) {
-    return undefined;
-  }
-
-  const defaultChildren = resolveChildren(childrenConfig).default;
-  if (!defaultChildren || defaultChildren.length === 0) {
-    return undefined;
-  }
-
-  if (seedingTypes.has(blockType)) {
-    throw new Error(
-      `Seeding "${blockType}" ends up seeding it again (${[...seedingTypes, blockType].join(" -> ")}). ` +
-        "Give the cyclic default explicit children, or remove the self-reference.",
-    );
-  }
-
-  const nextSeeding = new Set(seedingTypes).add(blockType);
-  return defaultChildren.map((child) =>
-    blockToNode(
-      child as PartialBlock<any, any, any>,
-      schema,
-      styleSchema,
-      nextSeeding,
-    ),
-  );
-}
-
-/**
- * The nodes `whenEmptied: "refill"` appends when a container's non-empty
- * children drop below `min`: the unconsumed tail of its `default`
- * (`default[from..min-1]`), each converted exactly like an inserted block.
- * Empty when the container has no `default`; the caller pads any remainder
- * with empty fill.
- */
-export function seedRefillChildren(
-  blockType: string,
-  schema: Schema,
-  from: number,
-  min: number,
-): Node[] {
-  const blockConfig = getBlockSchema(schema)[blockType];
-  const children = blockConfig ? getChildrenConfig(blockConfig) : undefined;
-  const defaultChildren = children
-    ? resolveChildren(children).default
-    : undefined;
-  if (!defaultChildren) {
-    return [];
-  }
-
-  return defaultChildren
-    .slice(from, min)
-    .map((child) => blockToNode(child as PartialBlock<any, any, any>, schema));
-}
-
-function createContainerChildrenNode(
-  blockType: string,
-  type: NodeType,
-  schema: Schema,
-  styleSchema: StyleSchema,
-  seedingTypes: ReadonlySet<string>,
-  attrs: Attrs | null = null,
-): Node {
-  const seeded = seedDefaultChildren(
-    blockType,
-    schema,
-    styleSchema,
-    seedingTypes,
-  );
-
-  if (!seeded && unwrapsWhenEmptied(blockType, schema)) {
-    // Fill so the node satisfies its own content expression for the
-    // `node.check()` that runs before the repair pass (e.g. in
-    // `removeAndInsertBlocks`); that pass then unwraps the still-empty
-    // container. Without the fill, a `min >= 1` unwrap container with no
-    // `default` produces a schema-invalid node and `check()` throws.
-    return type.createAndFill(attrs) ?? type.create(attrs);
-  }
-
-  const node = type.createAndFill(attrs, seeded);
-  if (!node) {
-    throw new Error(
-      `Cannot create block "${blockType}": its \`default\` children don't fit its \`children\` config ` +
-        `(it accepts \`${type.spec.content}\`).`,
-    );
-  }
-
-  return node;
-}
-
-// Passes explicit children straight through for unwrap-on-empty containers
-// (fill would be undone by the next repair pass) and for unfittable content
-// (let `node.check()` report it). An empty child list is the exception: it
-// still needs filling to survive the pre-repair `node.check()`.
-function createExplicitChildrenNode(
-  blockType: string,
-  type: NodeType,
-  schema: Schema,
-  children: Node[],
-  attrs: Attrs | null = null,
-): Node {
-  if (unwrapsWhenEmptied(blockType, schema)) {
-    // An empty explicit `children: []` would leave a `min >= 1` container
-    // schema-invalid and fail the pre-repair `node.check()`, so fill it (the
-    // repair pass unwraps it). Non-empty explicit children are left as given.
-    return children.length === 0
-      ? (type.createAndFill(attrs) ?? type.create(attrs))
-      : type.create(attrs, children);
-  }
-
-  return type.createAndFill(attrs, children) ?? type.create(attrs, children);
 }
 
 /**
@@ -545,9 +417,7 @@ export function blockToNode(
     );
 
     const groupNode =
-      children.length > 0
-        ? schema.nodes["blockGroup"].createChecked({}, children)
-        : undefined;
+      children.length > 0 ? createBlockGroup(schema, children) : undefined;
 
     return schema.nodes["blockContainer"].createChecked(
       {
@@ -560,22 +430,60 @@ export function blockToNode(
     const type = schema.nodes[block.type];
     const attrs = { id: id, ...block.props };
 
+    // Explicit children are padded up to the container's `min` so that even a
+    // `children: []` satisfies the content expression, and so survives the
+    // `node.check()` callers run before touching the doc. The exception is a
+    // non-empty child list on a container that unwraps as it empties: padding
+    // it would invent content the next repair pass deletes anyway, so it is
+    // passed through as given and `node.check()` reports the shortfall.
     if (block.children !== undefined) {
-      return withGeneratedIds(
-        createExplicitChildrenNode(block.type, type, schema, children, attrs),
+      const padded =
+        children.length === 0 || !unwrapsWhenEmptied(block.type, schema)
+          ? type.createAndFill(attrs, children)
+          : null;
+
+      return withGeneratedIds(padded ?? type.create(attrs, children));
+    }
+
+    // No explicit `children`: seed the container from its `children` config's
+    // `default`, converting each default child exactly like an inserted block.
+    // `seedingTypes` tracks the container types currently being seeded so a
+    // cyclic `default` (a container whose default children seed it again)
+    // fails loudly instead of recursing forever.
+    const childrenConfig = getBlockSchema(schema)[block.type]?.children;
+    const defaultChildren = childrenConfig
+      ? resolveChildren(childrenConfig).default
+      : undefined;
+
+    let seeded: Node[] | undefined;
+    if (defaultChildren && defaultChildren.length > 0) {
+      if (seedingTypes.has(block.type)) {
+        throw new Error(
+          `Seeding "${block.type}" ends up seeding it again (${[...seedingTypes, block.type].join(" -> ")}). ` +
+            "Give the cyclic default explicit children, or remove the self-reference.",
+        );
+      }
+
+      const nextSeeding = new Set(seedingTypes).add(block.type);
+      seeded = defaultChildren.map((child) =>
+        blockToNode(
+          child as PartialBlock<any, any, any>,
+          schema,
+          styleSchema,
+          nextSeeding,
+        ),
       );
     }
 
-    return withGeneratedIds(
-      createContainerChildrenNode(
-        block.type,
-        type,
-        schema,
-        styleSchema,
-        seedingTypes,
-        attrs,
-      ),
-    );
+    const node = type.createAndFill(attrs, seeded);
+    if (!node) {
+      throw new Error(
+        `Cannot create block "${block.type}": its \`default\` children don't fit its \`children\` config ` +
+          `(it accepts \`${type.spec.content}\`).`,
+      );
+    }
+
+    return withGeneratedIds(node);
   } else {
     throw new Error(
       `block type ${block.type} doesn't match blockContent or bnBlock group`,

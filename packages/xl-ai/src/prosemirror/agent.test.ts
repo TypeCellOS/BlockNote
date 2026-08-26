@@ -1,7 +1,7 @@
 import {
   BlockNoteEditor,
   expandPMRangeToWords,
-  getBlockInfo,
+  getBlockInfoFromNode,
   getNodeById,
 } from "@blocknote/core";
 import { Fragment, Slice } from "prosemirror-model";
@@ -38,12 +38,12 @@ describe.skip("getStepsAsAgent", () => {
     const doc = editor.prosemirrorState.doc;
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
-    const block = getBlockInfo(blockPos);
-    if (!block.isWrappedBlock) {
+    const block = getBlockInfoFromNode(blockPos.node, blockPos.posBeforeNode);
+    if (!block.hasContent) {
       throw new Error("Block is not a container");
     }
 
-    const contentStart = block.blockContent.beforePos;
+    const contentStart = block.content.beforePos;
 
     // Create a ReplaceStep that replaces "Hello" with "Hi"
     const from = contentStart + 1; // +1 to skip the initial position
@@ -71,13 +71,13 @@ describe.skip("getStepsAsAgent", () => {
     const doc = editor.prosemirrorState.doc;
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
-    const block = getBlockInfo(blockPos);
-    if (!block.isWrappedBlock) {
+    const block = getBlockInfoFromNode(blockPos.node, blockPos.posBeforeNode);
+    if (!block.hasContent) {
       throw new Error("Block is not a container");
     }
 
     const tr = editor.prosemirrorState.tr.setNodeMarkup(
-      block.blockContent.beforePos,
+      block.content.beforePos,
       editor.pmSchema.nodes.heading,
     );
 
@@ -97,13 +97,13 @@ describe.skip("getStepsAsAgent", () => {
     const doc = editor.prosemirrorState.doc;
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
-    const block = getBlockInfo(blockPos);
-    if (!block.isWrappedBlock) {
+    const block = getBlockInfoFromNode(blockPos.node, blockPos.posBeforeNode);
+    if (!block.hasContent) {
       throw new Error("Block is not a container");
     }
 
     const tr = editor.prosemirrorState.tr.setNodeMarkup(
-      block.blockContent.beforePos,
+      block.content.beforePos,
       undefined,
       {
         textAlignment: "right",
@@ -127,17 +127,17 @@ describe.skip("getStepsAsAgent", () => {
     const doc = editor.prosemirrorState.doc;
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
-    const block = getBlockInfo(blockPos);
-    if (!block.isWrappedBlock) {
+    const block = getBlockInfoFromNode(blockPos.node, blockPos.posBeforeNode);
+    if (!block.hasContent) {
       throw new Error("Block is not a container");
     }
 
     const step = new ReplaceStep(
-      block.blockContent.beforePos,
-      block.blockContent.beforePos + 3,
+      block.content.beforePos,
+      block.content.beforePos + 3,
       // for simplicity, we're not actually changing the node type and content, but we just use the existing document
       // as replacement content
-      doc.slice(block.blockContent.beforePos, block.blockContent.beforePos + 3),
+      doc.slice(block.content.beforePos, block.content.beforePos + 3),
     );
 
     const tr = new Transform(doc);
@@ -156,12 +156,12 @@ describe.skip("getStepsAsAgent", () => {
 
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
-    const block = getBlockInfo(blockPos);
-    if (!block.isWrappedBlock) {
+    const block = getBlockInfoFromNode(blockPos.node, blockPos.posBeforeNode);
+    if (!block.hasContent) {
       throw new Error("Block is not a container");
     }
 
-    const contentStart = block.blockContent.beforePos;
+    const contentStart = block.content.beforePos;
 
     // Create two ReplaceSteps
     // 1. Replace "Hello" with "Hi"

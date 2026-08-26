@@ -5,7 +5,6 @@ import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
   InlineContentSchema,
-  isContainerType,
   StyleSchema,
 } from "../../../../schema/index.js";
 import { fillContainerAttributes } from "../../../../schema/blocks/containerAttributes.js";
@@ -163,7 +162,7 @@ function serializeBlock<
   );
 
   const blockConfig = editor.schema.blockSchema[block.type as any];
-  const isContainer = isContainerType(blockConfig);
+  const isContainer = blockConfig.children !== undefined;
 
   if (ret.contentDOM && block.content) {
     const ic = serializeInlineContentInternalHTML(

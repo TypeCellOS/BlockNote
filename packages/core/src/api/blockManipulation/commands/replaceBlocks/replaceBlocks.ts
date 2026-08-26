@@ -53,7 +53,12 @@ export function removeAndInsertBlocks<
     typeof blocksToRemove[0] === "string"
       ? blocksToRemove[0]
       : blocksToRemove[0].id;
-  let removedSize = 0;
+
+  // The walk below reads the document as it is now, but mutates it as it
+  // goes, so its positions go stale. `tr.mapping` already tracks exactly
+  // that; sliced from here so it ignores steps the caller added earlier.
+  const stepsBefore = tr.steps.length;
+  const mapPos = (pos: number) => tr.mapping.slice(stepsBefore).map(pos);
 
   tr.doc.descendants((node, pos) => {
     // Skips traversing nodes after all target blocks have been removed.
@@ -77,16 +82,10 @@ export function removeAndInsertBlocks<
     idsOfBlocksToRemove.delete(nodeId);
 
     if (blocksToInsert.length > 0 && nodeId === idOfFirstBlock) {
-      const oldDocSize = tr.doc.nodeSize;
-      tr.insert(pos, nodesToInsert);
-      const newDocSize = tr.doc.nodeSize;
-
-      removedSize += oldDocSize - newDocSize;
+      tr.insert(mapPos(pos), nodesToInsert);
     }
 
-    const oldDocSize = tr.doc.nodeSize;
-
-    const $pos = tr.doc.resolve(pos - removedSize);
+    const $pos = tr.doc.resolve(mapPos(pos));
 
     for (const container of getAncestorContainers($pos.doc, $pos.pos)) {
       if (!containersToFix.some((c) => c.id === container.id)) {
@@ -94,21 +93,23 @@ export function removeAndInsertBlocks<
       }
     }
 
+    // When the block is the only child of a nested `blockGroup`, delete the
+    // group with it (`blockGroup` acting as a `min: 1, whenEmptied: "unwrap"`
+    // container). This can't route through `fixContainer`: repair runs after
+    // the delete, and by then ProseMirror's replace-fitting has padded the
+    // `blockGroupChild+` group with a fresh empty `blockContainer`
+    // indistinguishable from an intentional one. Only here, before the
+    // delete, is "this was the group's last child" still knowable.
+    const parent = $pos.node();
     if (
-      $pos.node().type.name === "blockGroup" &&
+      parent.type.name === "blockGroup" &&
       $pos.node($pos.depth - 1).type.name !== "doc" &&
-      $pos.node().childCount === 1
+      parent.childCount === 1
     ) {
-      // Checks if the block is the only child of a parent `blockGroup` node.
-      // In this case, we need to delete the parent `blockGroup` node instead
-      // of just the `blockContainer`.
       tr.delete($pos.before(), $pos.after());
     } else {
-      tr.delete(pos - removedSize, pos - removedSize + node.nodeSize);
+      tr.delete($pos.pos, $pos.pos + node.nodeSize);
     }
-
-    const newDocSize = tr.doc.nodeSize;
-    removedSize += oldDocSize - newDocSize;
 
     return false;
   });

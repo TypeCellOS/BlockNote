@@ -1,7 +1,7 @@
 import { EditorState, Transaction } from "prosemirror-state";
 
 import {
-  getBlockInfo,
+  getBlockInfoFromNode,
   getNearestBlockPos,
 } from "../../../getBlockInfoFromPos.js";
 import { getPmSchema } from "../../../pmUtil.js";
@@ -34,21 +34,24 @@ export const splitBlockTr = (
 ): boolean => {
   const nearestBlockContainerPos = getNearestBlockPos(tr.doc, posInBlock);
 
-  const info = getBlockInfo(nearestBlockContainerPos);
+  const info = getBlockInfoFromNode(
+    nearestBlockContainerPos.node,
+    nearestBlockContainerPos.posBeforeNode,
+  );
 
-  if (!info.isWrappedBlock) {
+  if (!info.hasContent) {
     return false;
   }
   const schema = getPmSchema(tr);
 
   const types = [
     {
-      type: info.bnBlock.node.type, // always keep blockcontainer type
-      attrs: keepProps ? { ...info.bnBlock.node.attrs, id: undefined } : {},
+      type: info.block.node.type, // always keep blockcontainer type
+      attrs: keepProps ? { ...info.block.node.attrs, id: undefined } : {},
     },
     {
-      type: keepType ? info.blockContent.node.type : schema.nodes["paragraph"],
-      attrs: keepProps ? { ...info.blockContent.node.attrs } : {},
+      type: keepType ? info.content.node.type : schema.nodes["paragraph"],
+      attrs: keepProps ? { ...info.content.node.attrs } : {},
     },
   ];
 

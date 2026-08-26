@@ -23,8 +23,6 @@ import {
   CHILD_CONTAINER_GROUP,
   childrenContentExpression,
   containerNodePriority,
-  getChildrenConfig,
-  isPlaceableAnywhere,
   resolveChildren,
 } from "./children.js";
 import { applyContainerAttributes } from "./containerAttributes.js";
@@ -270,10 +268,10 @@ function buildContainerNode<TName extends string, TProps extends PropSchema>(
   blockImplementation: BlockImplementation<TName, TProps, "none">,
   priority?: number,
 ) {
-  const children = getChildrenConfig(blockConfig)!;
+  const children = blockConfig.children!;
 
   const groups = ["bnBlock", CHILD_CONTAINER_GROUP];
-  if (isPlaceableAnywhere(blockConfig)) {
+  if (blockConfig.placement !== "containerOnly") {
     groups.push(BLOCK_GROUP_CHILD_GROUP, ANY_CONTAINER_GROUP);
   }
 
@@ -549,7 +547,7 @@ export function addNodeAndExtensionsToSpec<
 ): LooseBlockSpec<TName, TProps, TContent> {
   // A `children` config combined with any `content` other than `"none"` is
   // rejected by `validateChildrenConfigs` when the schema is built.
-  const childrenConfig = getChildrenConfig(blockConfig);
+  const childrenConfig = blockConfig.children;
 
   const isContainer = childrenConfig !== undefined;
 
@@ -760,7 +758,7 @@ export function createBlockSpec<
         : extensionsOrCreator
       : undefined;
 
-    const isContainer = getChildrenConfig(blockConfig) !== undefined;
+    const isContainer = blockConfig.children !== undefined;
 
     return {
       config: blockConfig,

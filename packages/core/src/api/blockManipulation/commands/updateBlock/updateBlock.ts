@@ -19,17 +19,17 @@ import type { StyleSchema } from "../../../../schema/styles/types.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   type BlockInfo,
-  getBlockInfoFromResolvedPos,
+  getBlockInfoAt,
 } from "../../../getBlockInfoFromPos.js";
+import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import {
-  blockToNode,
   inlineContentToNodes,
   tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { getBlockSchema, getPmSchema } from "../../../pmUtil.js";
-import { isContainerType } from "../../../../schema/blocks/children.js";
+import { createBlockGroup } from "../../../../schema/blocks/children.js";
 
 // for compatibility with tiptap. TODO: remove as we want to remove dependency on tiptap command interface
 export const updateBlockCommand = <
@@ -65,7 +65,7 @@ export function updateBlockTr<
   replaceFromPos?: number,
   replaceToPos?: number,
 ) {
-  const blockInfo = getBlockInfoFromResolvedPos(tr.doc.resolve(posBeforeBlock));
+  const blockInfo = getBlockInfoAt(tr.doc, posBeforeBlock);
 
   let cellAnchor: CellAnchor | null = null;
   if (blockInfo.blockNoteType === "table") {
@@ -91,46 +91,26 @@ export function updateBlockTr<
     : pmSchema.nodes["blockContainer"];
 
   const replaceFromOffset =
-    blockInfo.blockContent &&
+    blockInfo.hasContent &&
     replaceFromPos !== undefined &&
-    replaceFromPos > blockInfo.blockContent.beforePos &&
-    replaceFromPos < blockInfo.blockContent.afterPos
-      ? replaceFromPos - blockInfo.blockContent.beforePos - 1
+    replaceFromPos >= blockInfo.contentStart &&
+    replaceFromPos <= blockInfo.contentEnd
+      ? replaceFromPos - blockInfo.contentStart
       : undefined;
 
   const replaceToOffset =
-    blockInfo.blockContent &&
+    blockInfo.hasContent &&
     replaceToPos !== undefined &&
-    replaceToPos > blockInfo.blockContent.beforePos &&
-    replaceToPos < blockInfo.blockContent.afterPos
-      ? replaceToPos - blockInfo.blockContent.beforePos - 1
+    replaceToPos >= blockInfo.contentStart &&
+    replaceToPos <= blockInfo.contentEnd
+      ? replaceToPos - blockInfo.contentStart
       : undefined;
 
-  if (
-    blockInfo.isWrappedBlock &&
-    blockInfo.bnBlock.node.type.name === "blockContainer" &&
-    newNodeType.isInGroup("blockContent")
-  ) {
-    updateChildren(block, tr, blockInfo);
-    // The code below determines the new content of the block.
-    // or "keep" to keep as-is
-    updateBlockContentNode(
-      block,
-      tr,
-      pmSchema.nodes[blockInfo.blockNoteType],
-      newNodeType,
-      blockInfo,
-      replaceFromOffset,
-      replaceToOffset,
-    );
-  } else if (
-    !blockInfo.isWrappedBlock &&
-    newNodeType.isInGroup("bnBlock")
-  ) {
-    updateChildren(block, tr, blockInfo);
-    // old node was a bnBlock type (like column or columnList) and new block as well
-    // No op, we just update the bnBlock below (at end of function) and have already updated the children
-  } else {
+  // `hasContent` is exactly `blockContainer`-ness, and a block type resolves
+  // to either a `blockContent` node (a regular block) or a `bnBlock` one (a
+  // container), so the two together say whether the update keeps the block's
+  // shape. Only a same-shape update can happen in place.
+  if (blockInfo.hasContent !== newNodeType.isInGroup("blockContent")) {
     // switching from blockContainer to non-blockContainer or v.v.
     // currently breaking for column slash menu items converting empty block
     // to column.
@@ -138,7 +118,7 @@ export function updateBlockTr<
     // currently, we calculate the new node and replace the entire node with the desired new node.
     // for this, we do a nodeToBlock on the existing block to get the children.
     // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
-    const existingBlock = nodeToBlock(blockInfo.bnBlock.node, tr.doc);
+    const existingBlock = nodeToBlock(blockInfo.block.node, tr.doc);
     const carried = carryOverContent(
       existingBlock.content,
       newBlockType,
@@ -160,19 +140,35 @@ export function updateBlockTr<
     );
     replacementNode.check(); // `blockToNode` is lenient; validate before mutating the doc
     tr.replaceWith(
-      blockInfo.bnBlock.beforePos,
-      blockInfo.bnBlock.afterPos,
+      blockInfo.block.beforePos,
+      blockInfo.block.afterPos,
       replacementNode,
     );
 
     return;
   }
 
+  updateChildren(block, tr, blockInfo);
+
+  if (blockInfo.hasContent) {
+    // The code below determines the new content of the block.
+    // or "keep" to keep as-is
+    updateBlockContentNode(
+      block,
+      tr,
+      pmSchema.nodes[blockInfo.blockNoteType],
+      newNodeType,
+      blockInfo,
+      replaceFromOffset,
+      replaceToOffset,
+    );
+  }
+
   // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
 
   // attributes. Uses minimal steps so that an unchanged container (e.g. when
   // only children or content changed) doesn't emit a step at all.
-  setNodeMarkupMinimal(tr, blockInfo.bnBlock.beforePos, newBnBlockNodeType, {
+  setNodeMarkupMinimal(tr, blockInfo.block.beforePos, newBnBlockNodeType, {
     ...block.props,
   });
 
@@ -207,7 +203,7 @@ function carryOverContent(
     return { content: existingContent, children: [] };
   }
 
-  if (isContainerType(targetConfig)) {
+  if (targetConfig.children !== undefined) {
     return {
       children: [{ type: "paragraph", content: existingContent } as any],
     };
@@ -226,10 +222,10 @@ function updateBlockContentNode<
   oldNodeType: NodeType,
   newNodeType: NodeType,
   blockInfo: {
-    childContainer?:
+    children?:
       | { node: PMNode; beforePos: number; afterPos: number }
       | undefined;
-    blockContent: { node: PMNode; beforePos: number; afterPos: number };
+    content: { node: PMNode; beforePos: number; afterPos: number };
   },
   replaceFromOffset?: number,
   replaceToOffset?: number,
@@ -259,8 +255,8 @@ function updateBlockContentNode<
     // no custom content has been provided, use existing content IF possible
     // Since some block types contain inline content and others don't,
     // we either need to call setNodeMarkup to just update type &
-    // attributes, or replaceWith to replace the whole blockContent.
-    const oldContent = blockInfo.blockContent.node.content;
+    // attributes, or replaceWith to replace the whole content.
+    const oldContent = blockInfo.content.node.content;
     if (oldNodeType.spec.content === "") {
       // keep old content, because it's empty anyway and should be compatible with
       // any newContentType
@@ -275,7 +271,7 @@ function updateBlockContentNode<
       // for the new type (e.g. converting styled/complex inline content into a
       // plain block that disallows formatting marks and inline nodes). Preserve
       // the text, dropping the styling the new type can't represent.
-      const text = blockInfo.blockContent.node.textContent;
+      const text = blockInfo.content.node.textContent;
       content = text.length > 0 ? [pmSchema.text(text)] : [];
     } else {
       // the content type changed and is incompatible, replace the previous content
@@ -283,7 +279,7 @@ function updateBlockContentNode<
     }
   }
 
-  // Now, changes the blockContent node type and adds the provided props
+  // Now, changes the content node type and adds the provided props
   // as attributes. Also preserves all existing attributes that are
   // compatible with the new type.
   //
@@ -291,7 +287,7 @@ function updateBlockContentNode<
   // content is being replaced or not.
   if (content === "keep") {
     // only update the type and attributes, keeping the content as-is
-    setNodeMarkupMinimal(tr, blockInfo.blockContent.beforePos, newNodeType, {
+    setNodeMarkupMinimal(tr, blockInfo.content.beforePos, newNodeType, {
       ...block.props,
     });
   } else if (replaceFromOffset !== undefined || replaceToOffset !== undefined) {
@@ -299,7 +295,7 @@ function updateBlockContentNode<
     // position back.
     const contentBeforePos = setNodeMarkupMinimalAndRemap(
       tr,
-      blockInfo.blockContent.beforePos,
+      blockInfo.content.beforePos,
       newNodeType,
       { ...block.props },
     );
@@ -308,7 +304,7 @@ function updateBlockContentNode<
     const end =
       contentBeforePos +
       1 +
-      (replaceToOffset ?? blockInfo.blockContent.node.content.size);
+      (replaceToOffset ?? blockInfo.content.node.content.size);
 
     // for content like table cells (where the blockcontent has nested PM nodes),
     // we need to figure out the correct openStart and openEnd for the slice when replacing
@@ -328,7 +324,7 @@ function updateBlockContentNode<
     );
   } else if (
     newNodeType === oldNodeType ||
-    newNodeType.validContent(blockInfo.blockContent.node.content)
+    newNodeType.validContent(blockInfo.content.node.content)
   ) {
     // The new type can hold the existing content, so we can update the markup
     // first and then diff the content. This keeps both steps minimal.
@@ -338,7 +334,7 @@ function updateBlockContentNode<
     // get its (possibly shifted) position back.
     const contentBeforePos = setNodeMarkupMinimalAndRemap(
       tr,
-      blockInfo.blockContent.beforePos,
+      blockInfo.content.beforePos,
       newNodeType,
       { ...block.props },
     );
@@ -351,11 +347,11 @@ function updateBlockContentNode<
     // between inline content, table content, and no content). We can't update
     // the markup in-place, so replace the whole content node atomically.
     tr.replaceWith(
-      blockInfo.blockContent.beforePos,
-      blockInfo.blockContent.afterPos,
+      blockInfo.content.beforePos,
+      blockInfo.content.afterPos,
       newNodeType.createChecked(
         {
-          ...blockInfo.blockContent.node.attrs,
+          ...blockInfo.content.node.attrs,
           ...block.props,
         },
         content,
@@ -568,24 +564,23 @@ function updateChildren<
       return node;
     });
 
-    // Checks if a blockGroup node already exists.
-    if (blockInfo.childContainer) {
-      // Replaces the child nodes in the existing blockGroup, only touching the
-      // range that actually changed (keeping unchanged leading/trailing
-      // children untouched).
+    if (blockInfo.children) {
+      // Replaces the child nodes in the existing children holder, only
+      // touching the range that actually changed (keeping unchanged
+      // leading/trailing children untouched).
       replaceContentMinimal(
         tr,
-        blockInfo.childContainer.beforePos,
+        blockInfo.children.beforePos,
         Fragment.from(childNodes),
       );
-    } else {
-      if (!blockInfo.isWrappedBlock) {
-        throw new Error("impossible");
-      }
-      // Inserts a new blockGroup containing the child nodes created earlier.
+    } else if (blockInfo.hasContent) {
+      // A `blockContainer` with no children yet: its `blockGroup` is lazy
+      // (`blockContent blockGroup?`), so create it around the child nodes and
+      // insert it after the content node. (Containers always have a children
+      // holder, so no holder implies a `blockContainer`.)
       tr.insert(
-        blockInfo.blockContent.afterPos,
-        pmSchema.nodes["blockGroup"].createChecked({}, childNodes),
+        blockInfo.content.afterPos,
+        createBlockGroup(pmSchema, childNodes),
       );
     }
   }
@@ -617,11 +612,14 @@ export function updateBlock<
     replaceToPos,
   );
 
-  const blockContainerNode = tr.doc
-    .resolve(posInfo.posBeforeNode + 1) // TODO: clean?
-    .node();
+  // `updateBlockTr` may have replaced the node, so re-resolve it at the same
+  // position (an update never moves the block).
+  const updatedNode = tr.doc.resolve(posInfo.posBeforeNode).nodeAfter;
+  if (!updatedNode) {
+    throw new Error(`Block with ID ${id} not found after update`);
+  }
 
-  return nodeToBlock(blockContainerNode, tr.doc);
+  return nodeToBlock(updatedNode, tr.doc);
 }
 
 type CellAnchor = { row: number; col: number; offset: number };
@@ -695,12 +693,12 @@ function restoreCellAnchor(
   // 1) Resolve the table node in the current document
   let tablePos = -1;
 
-  if (blockInfo.isWrappedBlock) {
-    // Prefer the blockContent position when available (points directly at the PM table node)
-    tablePos = tr.mapping.map(blockInfo.blockContent.beforePos);
+  if (blockInfo.hasContent) {
+    // Prefer the content position when available (points directly at the PM table node)
+    tablePos = tr.mapping.map(blockInfo.content.beforePos);
   } else {
-    // Fallback: scan within the mapped bnBlock range to find the inner table node
-    const start = tr.mapping.map(blockInfo.bnBlock.beforePos);
+    // Fallback: scan within the mapped block range to find the inner table node
+    const start = tr.mapping.map(blockInfo.block.beforePos);
     const end = start + (tr.doc.nodeAt(start)?.nodeSize || 0);
     tr.doc.nodesBetween(start, end, (node, pos) => {
       if (node.type.name === "table") {

@@ -1,16 +1,20 @@
-import { Fragment, Slice, type Node } from "prosemirror-model";
+import { Fragment, Slice, type Node, type NodeType } from "prosemirror-model";
 import { type Transaction } from "prosemirror-state";
 import { ReplaceAroundStep } from "prosemirror-transform";
-import type { Schema } from "prosemirror-model";
 
 import {
-  BLOCK_GROUP_CHILD_GROUP,
-  getChildrenConfig,
+  type BlockInfo,
+  getBlockInfoFromNode,
+} from "../../getBlockInfoFromPos.js";
+
+import {
+  isBlockGroupInsertable,
   isContainerNode,
   resolveChildren,
 } from "../../../schema/blocks/children.js";
 import type { ResolvedChildren } from "../../../schema/blocks/children.js";
-import { seedRefillChildren } from "../../nodeConversions/blockToNode.js";
+import type { PartialBlock } from "../../../blocks/defaultBlocks.js";
+import { blockToNode } from "../../nodeConversions/blockToNode.js";
 import { getNodeById } from "../../nodeUtil.js";
 
 // Defined in `children.ts` (it answers a schema-level question); re-exported
@@ -59,58 +63,40 @@ export function removeEmptyChildren(tr: Transaction, containerPos: number) {
   }
 }
 
-function isInsertableChild(node: Node): boolean {
-  return (
-    node.type.name === "blockContainer" ||
-    node.type.isInGroup(BLOCK_GROUP_CHILD_GROUP)
-  );
-}
-
-type ContainerRepairTarget = {
-  blockPos: number;
-  blockNode: Node;
-};
-
-function getContainerRepairTarget(
-  doc: Node,
-  containerPos: number,
-): ContainerRepairTarget | undefined {
-  const node = doc.resolve(containerPos).nodeAfter;
-  if (!node || !isContainerNode(node.type)) {
-    return undefined;
-  }
-
-  return { blockPos: containerPos, blockNode: node };
-}
-
 /**
- * The (possibly rebuilt) block at the repair target, with where its children
- * now start. Recomputed after each mutation of `tr`.
+ * The container's BlockInfo at `containerPos` in `tr`'s current doc, or
+ * `undefined` when the node there is gone or no longer of `type`.
  */
-function refreshRepairTarget(
+function getContainerInfo(
   tr: Transaction,
-  target: ContainerRepairTarget,
-): { children: Node; childrenStart: number } | undefined {
-  const refreshedBlock = tr.doc.resolve(target.blockPos).nodeAfter;
-  if (!refreshedBlock || refreshedBlock.type !== target.blockNode.type) {
+  containerPos: number,
+  type: NodeType,
+): Extract<BlockInfo, { hasContent: false }> | undefined {
+  const node = tr.doc.resolve(containerPos).nodeAfter;
+  if (!node || node.type !== type) {
     return undefined;
   }
-
-  return { children: refreshedBlock, childrenStart: target.blockPos + 1 };
+  const info = getBlockInfoFromNode(node, containerPos);
+  if (info.hasContent) {
+    // `type` is a container node type, so its BlockInfo always takes the
+    // no-content arm.
+    throw new Error(
+      `Container node "${type.name}" unexpectedly resolved with a content node.`,
+    );
+  }
+  return info;
 }
 
 export function fixContainer(tr: Transaction, containerPos: number) {
-  const target = getContainerRepairTarget(tr.doc, containerPos);
-  if (!target) {
+  const node = tr.doc.resolve(containerPos).nodeAfter;
+  if (!node || !isContainerNode(node.type)) {
     throw new Error(
       "Invalid containerPos: does not point to a container node.",
     );
   }
 
-  const blockConfig = target.blockNode.type.spec.blockConfig;
-  const childrenConfig = blockConfig
-    ? getChildrenConfig(blockConfig)
-    : undefined;
+  const blockConfig = node.type.spec.blockConfig;
+  const childrenConfig = blockConfig?.children;
   const config = childrenConfig ? resolveChildren(childrenConfig) : undefined;
 
   if (!config) {
@@ -118,28 +104,33 @@ export function fixContainer(tr: Transaction, containerPos: number) {
   }
 
   if (config.whenEmptied === "unwrap") {
-    unwrapContainer(tr, target, config);
+    unwrapContainer(tr, containerPos, node.type, config);
   } else {
-    // `blockConfig` is set whenever `config` is.
-    refillContainer(tr, target, config, blockConfig!.type);
+    refillContainer(tr, containerPos, node.type, config);
   }
 }
 
 function unwrapContainer(
   tr: Transaction,
-  target: ContainerRepairTarget,
+  containerPos: number,
+  type: NodeType,
   config: ResolvedChildren,
 ) {
-  removeEmptyChildren(tr, target.blockPos);
+  // Emptied children are dropped unconditionally, even when the container
+  // sits at or above `min` afterwards: for an unwrap container (a
+  // columnList), a child the user emptied is done for — an emptied third
+  // column disappears rather than lingering. This deliberately differs from
+  // `refillContainer`, which leaves empty children alone at or above `min`.
+  removeEmptyChildren(tr, containerPos);
 
-  const refreshed = refreshRepairTarget(tr, target);
-  if (!refreshed) {
+  const info = getContainerInfo(tr, containerPos, type);
+  if (!info) {
     return;
   }
-  const { children: refreshedChildren, childrenStart } = refreshed;
+  const { childrenStart } = info.children;
 
   const nonEmptyChildren: { child: Node; offset: number }[] = [];
-  refreshedChildren.forEach((child, offset) => {
+  info.children.node.forEach((child, offset) => {
     if (!isEmptyContainerChild(child)) {
       nonEmptyChildren.push({ child, offset });
     }
@@ -149,11 +140,10 @@ function unwrapContainer(
     return;
   }
 
-  const refreshedBlock = tr.doc.resolve(target.blockPos).nodeAfter!;
-  const blockEnd = target.blockPos + refreshedBlock.nodeSize;
+  const blockEnd = info.block.afterPos;
 
   if (nonEmptyChildren.length === 0) {
-    tr.delete(target.blockPos, blockEnd);
+    tr.delete(info.block.beforePos, blockEnd);
     return;
   }
 
@@ -162,13 +152,13 @@ function unwrapContainer(
     const { child, offset } = nonEmptyChildren[0];
     const childStart = childrenStart + offset;
 
-    const [gapFrom, gapTo] = isInsertableChild(child)
+    const [gapFrom, gapTo] = isBlockGroupInsertable(child.type)
       ? [childStart, childStart + child.nodeSize]
       : [childStart + 1, childStart + child.nodeSize - 1];
 
     tr.step(
       new ReplaceAroundStep(
-        target.blockPos,
+        info.block.beforePos,
         blockEnd,
         gapFrom,
         gapTo,
@@ -183,13 +173,13 @@ function unwrapContainer(
   // Several survivors but still below `min`: rebuild replacement content.
   const replacement: Node[] = [];
   for (const { child } of nonEmptyChildren) {
-    if (isInsertableChild(child)) {
+    if (isBlockGroupInsertable(child.type)) {
       replacement.push(child);
     } else {
       child.forEach((grandChild) => replacement.push(grandChild));
     }
   }
-  tr.replaceWith(target.blockPos, blockEnd, Fragment.from(replacement));
+  tr.replaceWith(info.block.beforePos, blockEnd, Fragment.from(replacement));
 }
 
 /**
@@ -205,15 +195,15 @@ function unwrapContainer(
  */
 function refillContainer(
   tr: Transaction,
-  target: ContainerRepairTarget,
+  containerPos: number,
+  type: NodeType,
   config: ResolvedChildren,
-  blockType: string,
 ) {
-  const current = refreshRepairTarget(tr, target);
-  if (!current) {
+  const info = getContainerInfo(tr, containerPos, type);
+  if (!info) {
     return;
   }
-  const { children, childrenStart } = current;
+  const { node: children, childrenStart, childrenEnd } = info.children;
 
   const survivors: Node[] = [];
   children.forEach((child) => {
@@ -227,12 +217,15 @@ function refillContainer(
     return;
   }
 
-  const seeds = seedRefillChildren(
-    blockType,
-    tr.doc.type.schema,
-    survivors.length,
-    config.min,
-  );
+  // The refill seeds are the unconsumed tail of the container's `default`
+  // (`default[survivors.length..min-1]`), each converted exactly like an
+  // inserted block. Empty when the container has no `default`; the remainder
+  // is padded with empty fill below.
+  const seeds = (config.default ?? [])
+    .slice(survivors.length, config.min)
+    .map((child) =>
+      blockToNode(child as PartialBlock<any, any, any>, tr.doc.type.schema),
+    );
 
   if (seeds.length === 0) {
     // No `default` to seed from, so empty children are the right fill, and
@@ -241,7 +234,7 @@ function refillContainer(
     const match = children.type.contentMatch.matchFragment(children.content);
     const fill = match?.fillBefore(Fragment.empty, true);
     if (fill && fill.size > 0) {
-      tr.insert(childrenStart + children.content.size, fill);
+      tr.insert(childrenEnd, fill);
     }
     return;
   }
@@ -255,9 +248,17 @@ function refillContainer(
     content = content.append(fill);
   }
 
-  tr.replaceWith(childrenStart, childrenStart + children.content.size, content);
+  tr.replaceWith(childrenStart, childrenEnd, content);
 }
 
+/**
+ * Runs `fixContainer` on each of the given containers, looked up by ID in
+ * `tr`'s current doc. Containers are repaired deepest-first so that an inner
+ * repair (e.g. a column emptying out) is observed by the outer container's
+ * repair (e.g. its columnList unwrapping) in the same pass. Containers that
+ * no longer exist by the time their turn comes are skipped — an earlier
+ * repair may have removed them.
+ */
 export function fixContainersById(
   tr: Transaction,
   containers: { id: string; depth: number }[],
@@ -271,29 +272,4 @@ export function fixContainersById(
       }
       fixContainer(tr, target.posBeforeNode);
     });
-}
-
-export function flattenNonInsertableBlocks<
-  T extends { type?: string; content?: unknown; children?: T[] },
->(blocks: T[], pmSchema: Schema): T[] {
-  return blocks.flatMap((block) => {
-    const nodeType = block.type ? pmSchema.nodes[block.type] : undefined;
-    if (
-      nodeType &&
-      nodeType.isInGroup("bnBlock") &&
-      !nodeType.isInGroup(BLOCK_GROUP_CHILD_GROUP)
-    ) {
-      const children = flattenNonInsertableBlocks(
-        block.children ?? [],
-        pmSchema,
-      );
-      return Array.isArray(block.content) && block.content.length > 0
-        ? [
-            { type: "paragraph", content: block.content } as unknown as T,
-            ...children,
-          ]
-        : children;
-    }
-    return [block];
-  });
 }

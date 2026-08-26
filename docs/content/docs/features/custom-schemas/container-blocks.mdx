@@ -169,8 +169,8 @@ editor.insertBlocks([{ type: "paragraph" }], calloutId, "before");
 editor.insertBlocks([{ type: "paragraph" }], calloutId, "after");
 
 // Nested inside it, as its first or last child:
-editor.insertBlocks([{ type: "paragraph" }], calloutId, "start");
-editor.insertBlocks([{ type: "paragraph" }], calloutId, "end");
+editor.insertBlocks([{ type: "paragraph" }], calloutId, "first-child");
+editor.insertBlocks([{ type: "paragraph" }], calloutId, "last-child");
 ```
 
 The nested placements are what addresses a container with no children to point at. A `min: 0` container that is currently empty has no child block to insert before or after. Whether a block fits is answered by the schema, so it's your `children` config that decides.

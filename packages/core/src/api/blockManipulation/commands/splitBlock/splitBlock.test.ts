@@ -3,7 +3,7 @@ import { TextSelection } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
-  getBlockInfo,
+  getBlockInfoFromNode,
   getBlockInfoFromSelection,
   getNodeId,
 } from "../../../getBlockInfoFromPos.js";
@@ -33,15 +33,15 @@ function setSelectionWithOffset(
     throw new Error(`Block with ID ${targetBlockId} not found`);
   }
 
-  const info = getBlockInfo(posInfo);
+  const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
-  if (!info.isWrappedBlock) {
+  if (!info.hasContent) {
     throw new Error("Target block is not a block container");
   }
 
   getEditor().transact((tr) =>
     tr.setSelection(
-      TextSelection.create(doc, info.blockContent.beforePos + offset + 1),
+      TextSelection.create(doc, info.content.beforePos + offset + 1),
     ),
   );
 }
@@ -139,7 +139,7 @@ describe("Test splitBlocks", () => {
     splitBlock(getEditor().transact((tr) => tr.selection.anchor));
 
     const blockId = getEditor().transact((tr) =>
-      getNodeId(getBlockInfoFromSelection(tr).bnBlock.node, tr.doc),
+      getNodeId(getBlockInfoFromSelection(tr).block.node, tr.doc),
     );
 
     const anchorIsAtStartOfNewBlock =

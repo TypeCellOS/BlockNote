@@ -9,6 +9,8 @@ import {
 } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { getParentBlockInfo } from "../../getBlockInfoFromPos.js";
+import { getNodeById } from "../../nodeUtil.js";
 import { containerSchema } from "./containers.fixture.js";
 
 type PartialBlock = (typeof containerSchema)["PartialBlock"];
@@ -319,6 +321,96 @@ describe("children repair", () => {
       "cell-b-p",
       "trailing",
     ]);
+  });
+
+  // Unlike `refillContainer` (which leaves empty children alone at or above
+  // `min` — they may be intentional), the unwrap repair drops emptied
+  // children unconditionally: an emptied third column disappears rather than
+  // lingering, even though the list stays valid without unwrapping. The
+  // multicolumn e2e snapshots pin the same behavior from the keyboard side.
+  it("drops emptied children of an unwrap container even at or above `min`", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "grid",
+        id: "g-0",
+        children: [
+          {
+            type: "gridCell",
+            id: "cell-a",
+            children: [
+              { id: "cell-a-p", type: "paragraph", content: "A" },
+              { id: "cell-a-extra", type: "paragraph", content: "A2" },
+            ],
+          },
+          {
+            type: "gridCell",
+            id: "cell-b",
+            children: [{ id: "cell-b-p", type: "paragraph", content: "B" }],
+          },
+          {
+            type: "gridCell",
+            id: "cell-c",
+            children: [{ id: "cell-c-p", type: "paragraph", content: "" }],
+          },
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    // Removing a block inside cell A runs repair on the grid; the emptied
+    // cell C is dropped, and with cells A and B still meeting `min: 2` the
+    // grid itself survives.
+    editor.removeBlocks(["cell-a-extra"]);
+
+    const grid = editor.getBlock("g-0")!;
+    expect(grid.children.map((cell) => cell.id)).toEqual(["cell-a", "cell-b"]);
+  });
+});
+
+describe("parent lookups for container children", () => {
+  // Regression: `getParentBlockInfo` used to skip the container level for
+  // container children (returning the grid for a block inside a gridCell),
+  // which made the Delete-at-end climb run its sealed-container check on the
+  // wrong node. The parent of a block is the block whose `children` contains
+  // it: the cell.
+  it("returns the container as the parent of its direct children", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "grid",
+        id: "g-0",
+        children: [
+          {
+            type: "gridCell",
+            id: "cell-a",
+            children: [{ id: "cell-a-p", type: "paragraph", content: "A" }],
+          },
+          {
+            type: "gridCell",
+            id: "cell-b",
+            children: [{ id: "cell-b-p", type: "paragraph", content: "B" }],
+          },
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.transact((tr) => {
+      // The block directly containing a cell's paragraph is the cell.
+      const cellChild = getNodeById("cell-a-p", tr.doc)!;
+      expect(
+        getParentBlockInfo(tr.doc, cellChild.posBeforeNode)?.blockNoteType,
+      ).toBe("gridCell");
+
+      // The parent of a cell is the grid; the parent of the grid (a
+      // top-level block) is undefined.
+      const cell = getNodeById("cell-a", tr.doc)!;
+      expect(
+        getParentBlockInfo(tr.doc, cell.posBeforeNode)?.blockNoteType,
+      ).toBe("grid");
+
+      const grid = getNodeById("g-0", tr.doc)!;
+      expect(getParentBlockInfo(tr.doc, grid.posBeforeNode)).toBeUndefined();
+    });
   });
 });
 

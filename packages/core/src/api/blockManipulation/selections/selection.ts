@@ -1,5 +1,4 @@
 import { TextSelection, type Transaction } from "prosemirror-state";
-import { TableMap } from "prosemirror-tables";
 import { Block } from "../../../blocks/defaultBlocks.js";
 import { Selection } from "../../../editor/selectionTypes.js";
 import {
@@ -9,13 +8,16 @@ import {
   StyleSchema,
 } from "../../../schema/index.js";
 import { expandPMRangeToWords } from "../../../util/expandToWords.js";
-import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
+import {
+  blockEdgePos,
+  getBlockInfoFromNode,
+  getNearestBlockPos,
+} from "../../getBlockInfoFromPos.js";
 import {
   nodeToBlock,
   prosemirrorSliceToSlicedBlocks,
 } from "../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../nodeUtil.js";
-import { getBlockNoteSchema, getPmSchema } from "../../pmUtil.js";
 
 export function getSelection<
   BSchema extends BlockSchema,
@@ -140,8 +142,6 @@ export function setSelection(
   const startBlockId =
     typeof startBlock === "string" ? startBlock : startBlock.id;
   const endBlockId = typeof endBlock === "string" ? endBlock : endBlock.id;
-  const pmSchema = getPmSchema(tr);
-  const schema = getBlockNoteSchema(pmSchema);
 
   if (startBlockId === endBlockId) {
     throw new Error(
@@ -157,57 +157,26 @@ export function setSelection(
     throw new Error(`Block with ID ${endBlockId} not found`);
   }
 
-  const anchorBlockInfo = getBlockInfo(anchorPosInfo);
-  const headBlockInfo = getBlockInfo(headPosInfo);
+  const anchorBlockInfo = getBlockInfoFromNode(
+    anchorPosInfo.node,
+    anchorPosInfo.posBeforeNode,
+  );
+  const headBlockInfo = getBlockInfoFromNode(
+    headPosInfo.node,
+    headPosInfo.posBeforeNode,
+  );
 
-  const anchorBlockConfig =
-    schema.blockSchema[
-      anchorBlockInfo.blockNoteType as keyof typeof schema.blockSchema
-    ];
-  const headBlockConfig =
-    schema.blockSchema[
-      headBlockInfo.blockNoteType as keyof typeof schema.blockSchema
-    ];
-
-  if (!anchorBlockInfo.isWrappedBlock || anchorBlockConfig.content === "none") {
+  const startPos = blockEdgePos(anchorBlockInfo, "start");
+  if (startPos === null) {
     throw new Error(
       `Attempting to set selection anchor in block without content (id ${startBlockId})`,
     );
   }
-  if (!headBlockInfo.isWrappedBlock || headBlockConfig.content === "none") {
+  const endPos = blockEdgePos(headBlockInfo, "end");
+  if (endPos === null) {
     throw new Error(
-      `Attempting to set selection anchor in block without content (id ${endBlockId})`,
+      `Attempting to set selection head in block without content (id ${endBlockId})`,
     );
-  }
-
-  let startPos: number;
-  let endPos: number;
-
-  if (anchorBlockConfig.content === "table") {
-    const tableMap = TableMap.get(anchorBlockInfo.blockContent.node);
-    const firstCellPos =
-      anchorBlockInfo.blockContent.beforePos +
-      tableMap.positionAt(0, 0, anchorBlockInfo.blockContent.node) +
-      1;
-    startPos = firstCellPos + 2;
-  } else {
-    startPos = anchorBlockInfo.blockContent.beforePos + 1;
-  }
-
-  if (headBlockConfig.content === "table") {
-    const tableMap = TableMap.get(headBlockInfo.blockContent.node);
-    const lastCellPos =
-      headBlockInfo.blockContent.beforePos +
-      tableMap.positionAt(
-        tableMap.height - 1,
-        tableMap.width - 1,
-        headBlockInfo.blockContent.node,
-      ) +
-      1;
-    const lastCellNodeSize = tr.doc.resolve(lastCellPos).nodeAfter!.nodeSize;
-    endPos = lastCellPos + lastCellNodeSize - 2;
-  } else {
-    endPos = headBlockInfo.blockContent.afterPos - 1;
   }
 
   // TODO: We should polish up the `MultipleNodeSelection` and use that instead.

@@ -1,5 +1,5 @@
-// import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
-import { getBlockInfo, getNodeById } from "@blocknote/core";
+// import { BlockNoteEditor, getBlockInfoFromNode, getNodeById } from "@blocknote/core";
+import { getBlockInfoFromNode, getNodeById } from "@blocknote/core";
 import { getEditorWithFormattingAndMentions } from "./editors/formattingAndMentions.js";
 import { DocumentOperationTestCase } from "./index.js";
 
@@ -46,13 +46,13 @@ export const combinedOperationsTestCases: DocumentOperationTestCase[] = [
     getTestSelection: (editor) => {
       const posInfo = getNodeById("ref2", editor.prosemirrorState.doc)!;
 
-      const block = getBlockInfo(posInfo);
-      if (!block.isWrappedBlock) {
+      const block = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
+      if (!block.hasContent) {
         throw new Error("Block is not a block container");
       }
       return {
-        from: block.blockContent.beforePos + 1,
-        to: block.blockContent.beforePos + 1 + "Hello".length,
+        from: block.content.beforePos + 1,
+        to: block.content.beforePos + 1 + "Hello".length,
       };
     },
     userPrompt:

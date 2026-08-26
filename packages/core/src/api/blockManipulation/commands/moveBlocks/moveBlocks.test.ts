@@ -3,7 +3,7 @@ import { CellSelection } from "prosemirror-tables";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
-  getBlockInfoAtNearest,
+  getBlockInfoNearPos,
   getBlockInfoFromSelection,
   getNodeId,
 } from "../../../getBlockInfoFromPos.js";
@@ -18,12 +18,12 @@ const getEditor = setupTestEnv();
 
 function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
   const blockInfo = getEditor().transact((tr) => getBlockInfoFromSelection(tr));
-  if (!blockInfo.isWrappedBlock) {
+  if (!blockInfo.hasContent) {
     throw new Error(
       `Selection points to a ${blockInfo.blockNoteType} node, not a blockContainer node`,
     );
   }
-  const { blockContent } = blockInfo;
+  const { content } = blockInfo;
 
   const editor = getEditor();
   if (selectionType === "cell") {
@@ -31,22 +31,22 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
       tr.setSelection(
         CellSelection.create(
           tr.doc,
-          tr.doc.resolve(blockContent.beforePos + 3).before(),
-          tr.doc.resolve(blockContent.afterPos - 3).before(),
+          tr.doc.resolve(content.beforePos + 3).before(),
+          tr.doc.resolve(content.afterPos - 3).before(),
         ),
       ),
     );
   } else if (selectionType === "node") {
     editor.transact((tr) =>
-      tr.setSelection(NodeSelection.create(tr.doc, blockContent.beforePos)),
+      tr.setSelection(NodeSelection.create(tr.doc, content.beforePos)),
     );
   } else {
     editor.transact((tr) =>
       tr.setSelection(
         TextSelection.create(
           tr.doc,
-          blockContent.beforePos + 1,
-          blockContent.afterPos - 1,
+          content.beforePos + 1,
+          content.afterPos - 1,
         ),
       ),
     );
@@ -223,11 +223,11 @@ describe("Test moveBlocksUp", () => {
 
     const { anchorBlockId, headBlockId } = getEditor().transact((tr) => ({
       anchorBlockId: getNodeId(
-        getBlockInfoAtNearest(tr, tr.selection.anchor).bnBlock.node,
+        getBlockInfoNearPos(tr, tr.selection.anchor).block.node,
         tr.doc,
       ),
       headBlockId: getNodeId(
-        getBlockInfoAtNearest(tr, tr.selection.head).bnBlock.node,
+        getBlockInfoNearPos(tr, tr.selection.head).block.node,
         tr.doc,
       ),
     }));
@@ -347,11 +347,11 @@ describe("Test moveBlocksDown", () => {
 
     const { anchorBlockId, headBlockId } = getEditor().transact((tr) => ({
       anchorBlockId: getNodeId(
-        getBlockInfoAtNearest(tr, tr.selection.anchor).bnBlock.node,
+        getBlockInfoNearPos(tr, tr.selection.anchor).block.node,
         tr.doc,
       ),
       headBlockId: getNodeId(
-        getBlockInfoAtNearest(tr, tr.selection.head).bnBlock.node,
+        getBlockInfoNearPos(tr, tr.selection.head).block.node,
         tr.doc,
       ),
     }));
