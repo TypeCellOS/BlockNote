@@ -18,8 +18,6 @@ export const Popover = (
   return (
     <MantinePopover
       middlewares={{ size: { padding: 20 } }}
-      // On mobile (signalled by `portalRoot` being set) the dropdown lives
-      // inside the toolbar's horizontal scroll container, which would clip it.
       withinPortal={!!portalRoot}
       portalProps={portalRoot ? { target: portalRoot } : undefined}
       // Do not move focus to the dropdown on mobile, as it blurs the editor's
