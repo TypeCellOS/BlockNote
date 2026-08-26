@@ -25,9 +25,9 @@ const container = (type: string, config: Record<string, unknown>) =>
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
     ...defaultBlockSpecs,
-    // Why `"start"`/`"end"` exist: a container that may legally hold nothing
-    // has no child block to address, so `"before"`/`"after"` cannot reach
-    // inside it.
+    // Why `"first-child"`/`"last-child"` exist: a container that may legally
+    // hold nothing has no child block to address, so `"before"`/`"after"`
+    // cannot reach inside it.
     box: container("box", {
       content: "none",
       children: { allow: "any", min: 0 },
@@ -68,7 +68,7 @@ beforeEach(() => {
   ]);
 });
 
-describe('insertBlocks "start" / "end"', () => {
+describe('insertBlocks "first-child" / "last-child"', () => {
   it("inserts into a childless container", () => {
     editor.replaceBlocks(editor.document, [
       { id: "b-0", type: "box" },
@@ -76,8 +76,16 @@ describe('insertBlocks "start" / "end"', () => {
     ]);
     expect(editor.getBlock("b-0")!.children).toHaveLength(0);
 
-    editor.insertBlocks([{ id: "first", type: "paragraph" }], "b-0", "start");
-    editor.insertBlocks([{ id: "last", type: "paragraph" }], "b-0", "end");
+    editor.insertBlocks(
+      [{ id: "first", type: "paragraph" }],
+      "b-0",
+      "first-child",
+    );
+    editor.insertBlocks(
+      [{ id: "last", type: "paragraph" }],
+      "b-0",
+      "last-child",
+    );
 
     expect(editor.getBlock("b-0")!.children.map((child) => child.id)).toEqual([
       "first",
@@ -95,8 +103,16 @@ describe('insertBlocks "start" / "end"', () => {
       { id: "trailing", type: "paragraph", content: "" },
     ]);
 
-    editor.insertBlocks([{ id: "first", type: "paragraph" }], "b-0", "start");
-    editor.insertBlocks([{ id: "last", type: "paragraph" }], "b-0", "end");
+    editor.insertBlocks(
+      [{ id: "first", type: "paragraph" }],
+      "b-0",
+      "first-child",
+    );
+    editor.insertBlocks(
+      [{ id: "last", type: "paragraph" }],
+      "b-0",
+      "last-child",
+    );
 
     expect(editor.getBlock("b-0")!.children.map((child) => child.id)).toEqual([
       "first",
@@ -120,8 +136,16 @@ describe('insertBlocks "start" / "end"', () => {
 
     // `grid` itself only accepts `cell`s, so both placements have to find the
     // leading/trailing cell rather than giving up.
-    editor.insertBlocks([{ id: "first", type: "paragraph" }], "g-0", "start");
-    editor.insertBlocks([{ id: "last", type: "paragraph" }], "g-0", "end");
+    editor.insertBlocks(
+      [{ id: "first", type: "paragraph" }],
+      "g-0",
+      "first-child",
+    );
+    editor.insertBlocks(
+      [{ id: "last", type: "paragraph" }],
+      "g-0",
+      "last-child",
+    );
 
     const grid = editor.getBlock("g-0")!;
     expect(grid.children[0].children.map((child: any) => child.id)).toContain(
@@ -137,8 +161,16 @@ describe('insertBlocks "start" / "end"', () => {
       { id: "p-0", type: "paragraph", content: "Paragraph 0" },
     ]);
 
-    editor.insertBlocks([{ id: "existing", type: "paragraph" }], "p-0", "end");
-    editor.insertBlocks([{ id: "first", type: "paragraph" }], "p-0", "start");
+    editor.insertBlocks(
+      [{ id: "existing", type: "paragraph" }],
+      "p-0",
+      "last-child",
+    );
+    editor.insertBlocks(
+      [{ id: "first", type: "paragraph" }],
+      "p-0",
+      "first-child",
+    );
 
     expect(editor.getBlock("p-0")!.children.map((child) => child.id)).toEqual([
       "first",
@@ -157,7 +189,7 @@ describe('insertBlocks "start" / "end"', () => {
     ]);
 
     expect(() =>
-      editor.insertBlocks([{ type: "paragraph" }], "s-0", "end"),
+      editor.insertBlocks([{ type: "paragraph" }], "s-0", "last-child"),
     ).toThrow(/does not accept it as a child/);
   });
 

@@ -3,7 +3,7 @@ import type { Transaction } from "@tiptap/pm/state";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
 
-import { getBlockInfo } from "../../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromNode } from "../../../api/getBlockInfoFromPos.js";
 
 // Loosely based on https://github.com/ueberdosis/tiptap/blob/7ac01ef0b816a535e903b5ca92492bff110a71ae/packages/extension-mathematics/src/MathematicsPlugin.ts (MIT)
 
@@ -31,11 +31,11 @@ function calculateListItemIndex(
   const hasStart = !!node.firstChild!.attrs["start"];
 
   // Fast path: previous sibling already in cache
-  const blockInfo = getBlockInfo({ posBeforeNode: pos, node });
-  if (!blockInfo.isWrappedBlock) {
+  const blockInfo = getBlockInfoFromNode(node, pos);
+  if (!blockInfo.hasContent) {
     throw new Error("impossible");
   }
-  const prevBlock = tr.doc.resolve(blockInfo.bnBlock.beforePos).nodeBefore;
+  const prevBlock = tr.doc.resolve(blockInfo.block.beforePos).nodeBefore;
   const prevBlockIndex = prevBlock ? map.get(prevBlock) : undefined;
   if (prevBlockIndex !== undefined) {
     const index = prevBlockIndex + 1;
@@ -48,7 +48,7 @@ function calculateListItemIndex(
   // or the start of the parent.
   const chain: { node: Node; pos: number }[] = [{ node, pos }];
   let curNode = prevBlock;
-  let curBeforePos = blockInfo.bnBlock.beforePos;
+  let curBeforePos = blockInfo.block.beforePos;
 
   while (curNode) {
     const cachedIndex = map.get(curNode);
@@ -56,16 +56,16 @@ function calculateListItemIndex(
       // Found a cached predecessor — start counting from here
       break;
     }
-    const curInfo = getBlockInfo({
-      posBeforeNode: curBeforePos - curNode.nodeSize,
-      node: curNode,
-    });
+    const curInfo = getBlockInfoFromNode(
+      curNode,
+      curBeforePos - curNode.nodeSize,
+    );
     if (curInfo.blockNoteType !== "numberedListItem") {
       break;
     }
     chain.push({ node: curNode, pos: curBeforePos - curNode.nodeSize });
-    const nextPrev = tr.doc.resolve(curInfo.bnBlock.beforePos).nodeBefore;
-    curBeforePos = curInfo.bnBlock.beforePos;
+    const nextPrev = tr.doc.resolve(curInfo.block.beforePos).nodeBefore;
+    curBeforePos = curInfo.block.beforePos;
     curNode = nextPrev;
   }
 
@@ -76,14 +76,11 @@ function calculateListItemIndex(
 
   // Determine starting index from the block just before the chain
   const lastInChain = chain[chain.length - 1];
-  const lastInfo = getBlockInfo({
-    posBeforeNode: lastInChain.pos,
-    node: lastInChain.node,
-  });
-  if (!lastInfo.isWrappedBlock) {
+  const lastInfo = getBlockInfoFromNode(lastInChain.node, lastInChain.pos);
+  if (!lastInfo.hasContent) {
     throw new Error("impossible");
   }
-  const predecessorNode = tr.doc.resolve(lastInfo.bnBlock.beforePos).nodeBefore;
+  const predecessorNode = tr.doc.resolve(lastInfo.block.beforePos).nodeBefore;
   const predecessorIndex = predecessorNode
     ? map.get(predecessorNode)
     : undefined;

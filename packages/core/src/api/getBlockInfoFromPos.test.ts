@@ -1,9 +1,17 @@
-import { Schema } from "prosemirror-model";
+import { Node, Schema } from "prosemirror-model";
 import { describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import { blockToNode } from "./nodeConversions/blockToNode.js";
 import { docToBlocks } from "./nodeConversions/nodeToBlock.js";
-import { getNodeId } from "./getBlockInfoFromPos.js";
+import {
+  getBlockInfoFromNode,
+  getLastDescendantBlockInfo,
+  getNextBlockInfo,
+  getNodeId,
+  getParentBlockInfo,
+  getPrevBlockInfo,
+} from "./getBlockInfoFromPos.js";
 import { YAttributionMarksExtension } from "../y/extensions/YAttributionMarks.js";
 
 /**
@@ -164,6 +172,227 @@ describe("getNodeId", () => {
 
     expect(() => getNodeId(orphanDeleted, doc)).toThrow(
       /not found in document/,
+    );
+  });
+});
+
+describe("derived position and content fields", () => {
+  let editor: BlockNoteEditor;
+
+  // Only the schema is needed to construct nodes; a single non-mounted editor
+  // instance is enough for all cases here.
+  function getSchema() {
+    if (!editor) {
+      editor = BlockNoteEditor.create();
+    }
+    return editor.pmSchema;
+  }
+
+  it("precomputes content bounds for an inline-content block", () => {
+    const schema = getSchema();
+    const node = blockToNode(
+      { id: "0", type: "paragraph", content: "Hello" } as any,
+      schema,
+    );
+
+    // A non-zero offset, so the derived positions provably include it.
+    const info = getBlockInfoFromNode(node, 10);
+
+    expect(info.hasContent).toBe(true);
+    expect(info.contentStart).toBe(info.content!.beforePos + 1);
+    expect(info.contentEnd).toBe(info.content!.afterPos - 1);
+    expect(info.contentKind).toBe("inline");
+    expect(info.isContentEmpty).toBe(false);
+    expect(info.children).toBeUndefined();
+  });
+
+  it("flags an empty inline-content block", () => {
+    const schema = getSchema();
+    const node = blockToNode(
+      { id: "0", type: "paragraph", content: "" } as any,
+      schema,
+    );
+
+    const info = getBlockInfoFromNode(node, 0);
+
+    expect(info.contentKind).toBe("inline");
+    expect(info.isContentEmpty).toBe(true);
+    // An empty content node still has an inside: start and end coincide.
+    expect(info.contentStart).toBe(info.contentEnd);
+  });
+
+  it("precomputes children bounds when a block has children", () => {
+    const schema = getSchema();
+    const node = blockToNode(
+      {
+        id: "0",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "1", type: "paragraph", content: "Child" }],
+      } as any,
+      schema,
+    );
+
+    const info = getBlockInfoFromNode(node, 0);
+
+    expect(info.children).toBeDefined();
+    expect(info.children!.childrenStart).toBe(info.children!.beforePos + 1);
+    expect(info.children!.childrenEnd).toBe(info.children!.afterPos - 1);
+  });
+
+  it("classifies a table's content", () => {
+    const schema = getSchema();
+    const node = blockToNode(
+      {
+        id: "0",
+        type: "table",
+        content: { type: "tableContent", rows: [{ cells: ["A"] }] },
+      } as any,
+      schema,
+    );
+
+    const info = getBlockInfoFromNode(node, 0);
+
+    expect(info.contentKind).toBe("table");
+    expect(info.isContentEmpty).toBe(false);
+  });
+
+  it("classifies a content-less block", () => {
+    const schema = getSchema();
+    const node = blockToNode({ id: "0", type: "image" } as any, schema);
+
+    const info = getBlockInfoFromNode(node, 0);
+
+    // The block HAS a content node; that node just accepts no content.
+    expect(info.hasContent).toBe(true);
+    expect(info.contentKind).toBe("none");
+    expect(info.isContentEmpty).toBe(true);
+  });
+
+  it("classifies plain-text content as plain", () => {
+    const schema = getSchema();
+    const node = blockToNode(
+      { id: "0", type: "codeBlock", content: "let x;" } as any,
+      schema,
+    );
+
+    const info = getBlockInfoFromNode(node, 0);
+
+    expect(info.contentKind).toBe("plain");
+  });
+});
+
+describe("navigation helpers on plain nested blocks", () => {
+  let editor: BlockNoteEditor;
+
+  function getSchema() {
+    if (!editor) {
+      editor = BlockNoteEditor.create();
+    }
+    return editor.pmSchema;
+  }
+
+  // doc
+  // └ blockGroup
+  //   ├ A
+  //   │ ├ B
+  //   │ └ C
+  //   │   └ D
+  //   └ E
+  function buildDoc() {
+    const schema = getSchema();
+    const nodeA = blockToNode(
+      {
+        id: "A",
+        type: "paragraph",
+        content: "A",
+        children: [
+          { id: "B", type: "paragraph", content: "B" },
+          {
+            id: "C",
+            type: "paragraph",
+            content: "C",
+            children: [{ id: "D", type: "paragraph", content: "D" }],
+          },
+        ],
+      } as any,
+      schema,
+    );
+    const nodeE = blockToNode(
+      { id: "E", type: "paragraph", content: "E" } as any,
+      schema,
+    );
+    return schema.nodes["doc"].createChecked(
+      {},
+      schema.nodes["blockGroup"].createChecked({}, [nodeA, nodeE]),
+    );
+  }
+
+  function posOf(doc: Node, id: string): number {
+    let found: number | undefined;
+    doc.descendants((node, pos) => {
+      if (node.attrs.id === id) {
+        found = pos;
+        return false;
+      }
+      return true;
+    });
+    if (found === undefined) {
+      throw new Error(`Block ${id} not found`);
+    }
+    return found;
+  }
+
+  it("finds the parent block, or undefined at the top level", () => {
+    const doc = buildDoc();
+    expect(getParentBlockInfo(doc, posOf(doc, "B"))?.block.node.attrs.id).toBe(
+      "A",
+    );
+    expect(getParentBlockInfo(doc, posOf(doc, "D"))?.block.node.attrs.id).toBe(
+      "C",
+    );
+    expect(getParentBlockInfo(doc, posOf(doc, "A"))).toBeUndefined();
+  });
+
+  it("finds the previous sibling, or undefined for a first child", () => {
+    const doc = buildDoc();
+    expect(getPrevBlockInfo(doc, posOf(doc, "C"))?.block.node.attrs.id).toBe(
+      "B",
+    );
+    expect(getPrevBlockInfo(doc, posOf(doc, "E"))?.block.node.attrs.id).toBe(
+      "A",
+    );
+    expect(getPrevBlockInfo(doc, posOf(doc, "B"))).toBeUndefined();
+  });
+
+  it("finds the next sibling, or undefined for a last child", () => {
+    const doc = buildDoc();
+    expect(getNextBlockInfo(doc, posOf(doc, "B"))?.block.node.attrs.id).toBe(
+      "C",
+    );
+    expect(getNextBlockInfo(doc, posOf(doc, "A"))?.block.node.attrs.id).toBe(
+      "E",
+    );
+    expect(getNextBlockInfo(doc, posOf(doc, "C"))).toBeUndefined();
+  });
+
+  it("descends to the deepest last block", () => {
+    const doc = buildDoc();
+    const infoA = getBlockInfoFromNode(
+      doc.nodeAt(posOf(doc, "A"))!,
+      posOf(doc, "A"),
+    );
+    expect(getLastDescendantBlockInfo(doc, infoA).block.node.attrs.id).toBe(
+      "D",
+    );
+
+    const infoE = getBlockInfoFromNode(
+      doc.nodeAt(posOf(doc, "E"))!,
+      posOf(doc, "E"),
+    );
+    // No children: the block itself is the bottom one.
+    expect(getLastDescendantBlockInfo(doc, infoE).block.node.attrs.id).toBe(
+      "E",
     );
   });
 });

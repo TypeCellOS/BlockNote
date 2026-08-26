@@ -1,4 +1,4 @@
-import { NodeType } from "prosemirror-model";
+import type { Schema } from "prosemirror-model";
 import {
   NodeSelection,
   Selection,
@@ -11,13 +11,41 @@ import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
 import {
-  getBlockInfoAtNearest,
+  isBlockGroupInsertable,
+  isContainerNode,
+} from "../../../../schema/blocks/children.js";
+import {
+  getBlockInfoNearPos,
   getNodeId,
 } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
-import { flattenNonInsertableBlocks } from "../../containers/fixContainer.js";
 import { getInsertionPos, insertBlocks } from "../insertBlocks/insertBlocks.js";
 import { removeAndInsertBlocks } from "../replaceBlocks/replaceBlocks.js";
+
+/**
+ * Dissolves `placement: "containerOnly"` blocks into their children.
+ *
+ * A `containerOnly` block (a `column`, say) is defined only in terms of the
+ * container that holds it, so it can't land anywhere a regular block goes —
+ * moving one out of its container moves its children instead. Every other
+ * block passes through as itself.
+ */
+function dissolveContainerOnlyBlocks(
+  blocks: Block<any, any, any>[],
+  pmSchema: Schema,
+): Block<any, any, any>[] {
+  return blocks.flatMap((block) => {
+    const nodeType = pmSchema.nodes[block.type];
+    // A container denied the `blockGroupChild` group is one declared
+    // `placement: "containerOnly"`.
+    const isContainerOnly =
+      isContainerNode(nodeType) && !isBlockGroupInsertable(nodeType);
+
+    return isContainerOnly
+      ? dissolveContainerOnlyBlocks(block.children, pmSchema)
+      : [block];
+  });
+}
 
 type BlockSelectionData = (
   | {
@@ -51,18 +79,18 @@ function getBlockSelectionData(
   editor: BlockNoteEditor<any, any, any>,
 ): BlockSelectionData {
   return editor.transact((tr) => {
-    const anchorBlockPosInfo = getBlockInfoAtNearest(tr, tr.selection.anchor);
+    const anchorBlockPosInfo = getBlockInfoNearPos(tr, tr.selection.anchor);
 
-    const anchorBlockId = getNodeId(anchorBlockPosInfo.bnBlock.node, tr.doc);
+    const anchorBlockId = getNodeId(anchorBlockPosInfo.block.node, tr.doc);
 
     if (tr.selection instanceof CellSelection) {
       return {
         type: "cell" as const,
         anchorBlockId,
         anchorCellOffset:
-          tr.selection.$anchorCell.pos - anchorBlockPosInfo.bnBlock.beforePos,
+          tr.selection.$anchorCell.pos - anchorBlockPosInfo.block.beforePos,
         headCellOffset:
-          tr.selection.$headCell.pos - anchorBlockPosInfo.bnBlock.beforePos,
+          tr.selection.$headCell.pos - anchorBlockPosInfo.block.beforePos,
       };
     } else if (tr.selection instanceof NodeSelection) {
       return {
@@ -70,15 +98,14 @@ function getBlockSelectionData(
         anchorBlockId,
       };
     } else {
-      const headBlockPosInfo = getBlockInfoAtNearest(tr, tr.selection.head);
+      const headBlockPosInfo = getBlockInfoNearPos(tr, tr.selection.head);
 
       return {
         type: "text" as const,
         anchorBlockId,
-        headBlockId: getNodeId(headBlockPosInfo.bnBlock.node, tr.doc),
-        anchorOffset:
-          tr.selection.anchor - anchorBlockPosInfo.bnBlock.beforePos,
-        headOffset: tr.selection.head - headBlockPosInfo.bnBlock.beforePos,
+        headBlockId: getNodeId(headBlockPosInfo.block.node, tr.doc),
+        anchorOffset: tr.selection.anchor - anchorBlockPosInfo.block.beforePos,
+        headOffset: tr.selection.head - headBlockPosInfo.block.beforePos,
       };
     }
   });
@@ -164,9 +191,7 @@ export function moveBlocks(
     removeAndInsertBlocks(tr, blocks, [], { fixContainers: false });
     insertBlocks<any, any, any>(
       tr,
-      // Blocks that can't stand on their own outside their container (e.g. a
-      // `column` outside its `columnList`) are replaced by their children.
-      flattenNonInsertableBlocks(blocks, editor.pmSchema),
+      dissolveContainerOnlyBlocks(blocks, editor.pmSchema),
       referenceBlock,
       placement,
     );
@@ -213,8 +238,19 @@ function checkPlacementIsValid(
   editor: BlockNoteEditor<any, any, any>,
   referenceBlock: Block<any, any, any>,
   placement: "before" | "after",
-  nodeType: NodeType,
+  movedBlock: Block<any, any, any>,
 ): boolean {
+  // The PM node type to validate the destination against: the first block
+  // `moveBlocks` would actually insert, which is `movedBlock` itself unless it
+  // dissolves. A container (e.g. a `callout`) is inserted as its own node
+  // type; anything else goes in as a generic `blockContainer` wrapper.
+  const first = dissolveContainerOnlyBlocks([movedBlock], editor.pmSchema)[0];
+  const firstType = first ? editor.pmSchema.nodes[first.type] : undefined;
+  const nodeType =
+    firstType && isContainerNode(firstType)
+      ? firstType
+      : editor.pmSchema.nodes["blockContainer"];
+
   return editor.transact((tr) => {
     const posInfo = getNodeById(referenceBlock.id, tr.doc);
     if (!posInfo) {
@@ -222,22 +258,6 @@ function checkPlacementIsValid(
     }
     return getInsertionPos(tr.doc, posInfo, placement, nodeType) !== null;
   });
-}
-
-// The PM node type `insertBlocks` validates a destination against: the first
-// flattened block's own node type when it's a container (e.g. `callout`),
-// otherwise the generic `blockContainer` wrapper. Mirrors what `moveBlocks`
-// inserts (`flattenNonInsertableBlocks` + `insertBlocks`), so the placement
-// pre-check agrees with the insertion instead of always assuming a regular
-// block.
-function movedNodeType(
-  editor: BlockNoteEditor<any, any, any>,
-  block: Block<any, any, any>,
-): NodeType {
-  const blockContainer = editor.pmSchema.nodes["blockContainer"];
-  const first = flattenNonInsertableBlocks([block], editor.pmSchema)[0];
-  const nodeType = first?.type ? editor.pmSchema.nodes[first.type] : undefined;
-  return nodeType?.isInGroup("bnBlock") ? nodeType : blockContainer;
 }
 
 // Gets the placement for moving a block up. This has 3 cases:
@@ -252,7 +272,7 @@ function movedNodeType(
 // the block is already at the top of the document.
 function getMoveUpPlacement(
   editor: BlockNoteEditor<any, any, any>,
-  nodeType: NodeType,
+  movedBlock: Block<any, any, any>,
   prevBlock?: Block<any, any, any>,
   parentBlock?: Block<any, any, any>,
 ):
@@ -279,11 +299,11 @@ function getMoveUpPlacement(
     return undefined;
   }
 
-  if (!checkPlacementIsValid(editor, referenceBlock, placement, nodeType)) {
+  if (!checkPlacementIsValid(editor, referenceBlock, placement, movedBlock)) {
     const referenceBlockParent = editor.getParentBlock(referenceBlock);
     return getMoveUpPlacement(
       editor,
-      nodeType,
+      movedBlock,
       placement === "after"
         ? referenceBlock
         : editor.getPrevBlock(referenceBlock),
@@ -306,7 +326,7 @@ function getMoveUpPlacement(
 // the block is already at the bottom of the document.
 function getMoveDownPlacement(
   editor: BlockNoteEditor<any, any, any>,
-  nodeType: NodeType,
+  movedBlock: Block<any, any, any>,
   nextBlock?: Block<any, any, any>,
   parentBlock?: Block<any, any, any>,
 ):
@@ -333,11 +353,11 @@ function getMoveDownPlacement(
     return undefined;
   }
 
-  if (!checkPlacementIsValid(editor, referenceBlock, placement, nodeType)) {
+  if (!checkPlacementIsValid(editor, referenceBlock, placement, movedBlock)) {
     const referenceBlockParent = editor.getParentBlock(referenceBlock);
     return getMoveDownPlacement(
       editor,
-      nodeType,
+      movedBlock,
       placement === "before"
         ? referenceBlock
         : editor.getNextBlock(referenceBlock),
@@ -367,7 +387,7 @@ export function moveBlocksUp(
 
     const moveUpPlacement = getMoveUpPlacement(
       editor,
-      movedNodeType(editor, sourceBlock),
+      sourceBlock,
       editor.getPrevBlock(sourceBlock),
       editor.getParentBlock(sourceBlock),
     );
@@ -420,7 +440,7 @@ export function moveBlocksDown(
 
     const moveDownPlacement = getMoveDownPlacement(
       editor,
-      movedNodeType(editor, firstMovedBlock),
+      firstMovedBlock,
       editor.getNextBlock(sourceBlock),
       editor.getParentBlock(sourceBlock),
     );

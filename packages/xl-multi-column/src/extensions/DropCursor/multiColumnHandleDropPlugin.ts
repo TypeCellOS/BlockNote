@@ -3,7 +3,7 @@ import {
   UniqueID,
   createExtension,
   fragmentToBlocks,
-  getBlockInfoWithManualOffset,
+  getBlockInfoFromNode,
   isContainerNode,
   nodeToBlock,
 } from "@blocknote/core";
@@ -27,7 +27,7 @@ export function createMultiColumnHandleDropPlugin(
           return false; // Let ProseMirror handle the drop (e.g. outside editor bounds)
         }
 
-        const blockInfo = getBlockInfoWithManualOffset(
+        const blockInfo = getBlockInfoFromNode(
           edgePos.node,
           edgePos.posBeforeNode,
         );
@@ -49,7 +49,7 @@ export function createMultiColumnHandleDropPlugin(
         // Whether the edge target is a `columnList` (after `detectEdgePosition`
         // hoisted blocks inside a column to the column itself, the target's
         // parent is the columnList).
-        const $target = view.state.doc.resolve(blockInfo.bnBlock.beforePos);
+        const $target = view.state.doc.resolve(blockInfo.block.beforePos);
         const targetInHorizontalContainer =
           $target.node().type.name === "columnList";
 
@@ -62,7 +62,7 @@ export function createMultiColumnHandleDropPlugin(
           // A column is a pure container: its `children` node is the column
           // node itself.
           const columnChildren =
-            blockInfo.childContainer?.node ?? blockInfo.bnBlock.node;
+            blockInfo.children?.node ?? blockInfo.block.node;
           columnChildren.forEach((child) => {
             if (!draggedBlockIds.has(child.attrs.id)) {
               allTargetChildrenDragged = false;
@@ -85,7 +85,7 @@ export function createMultiColumnHandleDropPlugin(
           // containers (like `column`) that wrap the actual blocks, or plain
           // blocks spliced in directly.
           const targetIsChildContainer = isContainerNode(
-            blockInfo.bnBlock.node.type,
+            blockInfo.block.node.type,
           );
 
           // Normalize column widths to average of 1
@@ -122,7 +122,7 @@ export function createMultiColumnHandleDropPlugin(
             }
           }
 
-          const targetColumnId = blockInfo.bnBlock.node.attrs.id;
+          const targetColumnId = blockInfo.block.node.attrs.id;
 
           // The target itself is one of the dragged blocks (only possible
           // when the container holds plain blocks directly) - the dragged
@@ -221,7 +221,7 @@ export function createMultiColumnHandleDropPlugin(
           });
         } else {
           // Create new columnList with blocks as columns
-          const block = nodeToBlock(blockInfo.bnBlock.node, view.state.doc);
+          const block = nodeToBlock(blockInfo.block.node, view.state.doc);
 
           // The user is dropping next to one of the blocks being dragged - do
           // nothing.

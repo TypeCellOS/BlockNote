@@ -6,9 +6,8 @@
  * can use it. Not part of the public API: anything here may change in any
  * release, without a major version bump or a deprecation.
  *
- * The public counterparts stay on the root entrypoint: `isContainerType`,
- * `isContainerNode`, and the `children` config types (`ChildrenConfig`,
- * `ChildrenAllow`).
+ * The public counterparts stay on the root entrypoint: `isContainerNode` and
+ * the `children` config types (`ChildrenConfig`, `ChildrenAllow`).
  */
 
 // How a `children` config compiles to a ProseMirror content expression, and
@@ -20,18 +19,8 @@ export {
   CONTAINER_NODE_PRIORITY,
   childrenContentExpression,
   containerNodePriority,
-  getChildrenConfig,
-  isPlaceableAnywhere,
   resolveChildren,
 } from "./schema/blocks/children.js";
-
-// Validation of `children` configs, run when a schema is built.
-export {
-  validateChildrenConfigs,
-  validateContainerRunsBefore,
-} from "./schema/blocks/validateChildren.js";
-
-export { assertContainerSchemaInvariants } from "./schema/blocks/assertSchemaInvariants.js";
 
 // The attributes a container block's root element carries, and the three ways
 // they get there (node view, HTML serialization, framework render).
@@ -44,7 +33,6 @@ export {
 export {
   fixContainer,
   fixContainersById,
-  flattenNonInsertableBlocks,
   isEmptyContainerChild,
   removeEmptyChildren,
 } from "./api/blockManipulation/containers/fixContainer.js";
@@ -52,8 +40,7 @@ export {
 // Position-based navigation through arbitrarily nested containers.
 export {
   ascendToInsertablePos,
-  descendToFirstInsertionPos,
-  descendToLastInsertionPos,
+  descendToInsertionPos,
   getAncestorContainers,
   getFirstLeafBlock,
 } from "./api/blockManipulation/containers/containerNav.js";

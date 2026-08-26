@@ -10,7 +10,7 @@
 import {
   BlockNoteEditor,
   expandPMRangeToWords,
-  getBlockInfo,
+  getBlockInfoFromNode,
   getNodeById,
 } from "@blocknote/core";
 import type { ForkYDocExtension } from "@blocknote/core/yjs";
@@ -79,12 +79,13 @@ function createCollabEditor(text: string) {
  */
 function selectWholeFirstBlock(editor: BlockNoteEditor<any, any, any>) {
   const id = editor.document[0].id;
-  const info = getBlockInfo(getNodeById(id, editor.prosemirrorState.doc)!);
-  if (!info.isWrappedBlock) {
+  const posInfo = getNodeById(id, editor.prosemirrorState.doc)!;
+  const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
+  if (!info.hasContent) {
     throw new Error("not a block container");
   }
-  const from = info.blockContent.beforePos + 1;
-  const to = info.blockContent.afterPos - 1;
+  const from = info.content.beforePos + 1;
+  const to = info.content.afterPos - 1;
 
   editor.transact((tr) => {
     tr.setSelection(TextSelection.create(tr.doc, from, to));

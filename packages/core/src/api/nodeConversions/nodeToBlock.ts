@@ -19,10 +19,8 @@ import {
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
-import {
-  getBlockInfoWithManualOffset,
-  getNodeId,
-} from "../getBlockInfoFromPos.js";
+import { getBlockInfoFromNode, getNodeId } from "../getBlockInfoFromPos.js";
+import type { BlockInfo } from "../getBlockInfoFromPos.js";
 import {
   getBlockCache,
   getBlockSchema,
@@ -389,6 +387,17 @@ export function nodeToCustomInlineContent<
   return ic;
 }
 
+// A config declaring content and a node shaped to hold it state the same
+// fact, but nothing ties them together in the type system.
+function contentNode(blockInfo: BlockInfo, declared: string): Node {
+  if (!blockInfo.hasContent) {
+    throw new Error(
+      `Block "${blockInfo.blockNoteType}" declares ${declared} content but holds children.`,
+    );
+  }
+  return blockInfo.content.node;
+}
+
 /**
  * Convert a Prosemirror node to a BlockNote block.
  */
@@ -403,7 +412,7 @@ export function nodeToBlock<
   const styleSchema = getStyleSchema(schema) as S;
   const blockCache = getBlockCache(schema);
   if (!node.type.isInGroup("bnBlock")) {
-    throw Error("Node should be a bnBlock, but is instead: " + node.type.name);
+    throw Error("Node should be a block, but is instead: " + node.type.name);
   }
 
   const cachedBlock = blockCache?.get(node);
@@ -412,28 +421,28 @@ export function nodeToBlock<
     return cachedBlock;
   }
 
-  const blockInfo = getBlockInfoWithManualOffset(node, 0);
+  const blockInfo = getBlockInfoFromNode(node, 0);
 
   let id: string;
   try {
-    id = getNodeId(blockInfo.bnBlock.node, doc);
+    id = getNodeId(blockInfo.block.node, doc);
   } catch {
     // Only used for blocks converted from other formats.
     id = UniqueID.options.generateID();
   }
 
-  const blockSpec = blockSchema[blockInfo.blockNoteType];
+  const blockConfig = blockSchema[blockInfo.blockNoteType];
 
-  if (!blockSpec) {
+  if (!blockConfig) {
     throw Error("Block is of an unrecognized type: " + blockInfo.blockNoteType);
   }
 
   const props: any = {};
   for (const [attr, value] of Object.entries({
     ...node.attrs,
-    ...(blockInfo.isWrappedBlock ? blockInfo.blockContent.node.attrs : {}),
+    ...(blockInfo.hasContent ? blockInfo.content.node.attrs : {}),
   })) {
-    const propSchema = blockSpec.propSchema;
+    const propSchema = blockConfig.propSchema;
 
     if (
       attr in propSchema &&
@@ -443,40 +452,29 @@ export function nodeToBlock<
     }
   }
 
-  const blockConfig = blockSchema[blockInfo.blockNoteType];
-
   const children: Block<BSchema, I, S>[] = [];
-  blockInfo.childContainer?.node.forEach((child) => {
+  blockInfo.children?.node.forEach((child) => {
     children.push(nodeToBlock(child, doc));
   });
 
   let content: Block<any, any, any>["content"];
 
   if (blockConfig.content === "inline") {
-    if (!blockInfo.isWrappedBlock) {
-      throw new Error("impossible");
-    }
     content = contentNodeToInlineContent(
-      blockInfo.blockContent.node,
+      contentNode(blockInfo, blockConfig.content),
       inlineContentSchema,
       styleSchema,
     );
   } else if (blockConfig.content === "table") {
-    if (!blockInfo.isWrappedBlock) {
-      throw new Error("impossible");
-    }
     content = contentNodeToTableContent(
-      blockInfo.blockContent.node,
+      contentNode(blockInfo, blockConfig.content),
       inlineContentSchema,
       styleSchema,
     );
   } else if (blockConfig.content === "plain") {
-    if (!blockInfo.isWrappedBlock) {
-      throw new Error("impossible");
-    }
     // Plain content is a single unstyled text item; an empty block is an
     // empty array, matching inline content.
-    const text = blockInfo.blockContent.node.textContent;
+    const text = contentNode(blockInfo, blockConfig.content).textContent;
     content = text.length > 0 ? [{ type: "text", text, styles: {} }] : [];
   } else if (blockConfig.content === "none") {
     content = undefined;
@@ -565,7 +563,7 @@ export function prosemirrorSliceToSlicedBlocks<
     blockCutAtEnd: string | undefined;
   } {
     // Both `blockGroup` and container nodes (columnList, column, callout,
-    // ...) hold bnBlock children directly, so both can be processed here.
+    // ...) hold block children directly, so both can be processed here.
     if (node.type.name !== "blockGroup" && !isContainerNode(node.type)) {
       throw new Error("unexpected");
     }
@@ -573,32 +571,43 @@ export function prosemirrorSliceToSlicedBlocks<
     let blockCutAtStart: string | undefined;
     let blockCutAtEnd: string | undefined;
 
+    // Descends into a child-holding node the slice boundary is open inside
+    // of: the holder wrapper is skipped and the included children are spliced
+    // in, propagating cut ids from whichever ends are open. Shared by open
+    // container children and the degenerate `blockContainer`-around-
+    // `blockGroup` wrapper — regular nesting's version of the same shape.
+    function descendOpenHolder(
+      holder: Node,
+      openAtStart: boolean,
+      openAtEnd: boolean,
+    ) {
+      const ret = processNode(
+        holder,
+        openAtStart ? Math.max(0, openStart - 1) : 0,
+        openAtEnd ? Math.max(0, openEnd - 1) : 0,
+      );
+      if (openAtStart) {
+        blockCutAtStart = ret.blockCutAtStart;
+      }
+      if (openAtEnd) {
+        blockCutAtEnd = ret.blockCutAtEnd;
+      }
+      blocks.push(...ret.blocks);
+    }
+
     node.forEach((blockContainer, _offset, index) => {
       const isFirstBlock = index === 0;
       const isLastBlock = index === node.childCount - 1;
 
       if (isContainerNode(blockContainer.type)) {
         // A container child. When the slice boundary is open inside it, the
-        // selection covers part of its children, so skip the container
-        // wrapper and splice in the included children (mirroring the
-        // nested-blockGroup descent below). When fully enclosed, convert it
-        // wholesale.
+        // selection covers part of its children; when fully enclosed, convert
+        // it wholesale.
         const openAtStart = isFirstBlock && openStart > 0;
         const openAtEnd = isLastBlock && openEnd > 0;
 
         if (openAtStart || openAtEnd) {
-          const ret = processNode(
-            blockContainer,
-            openAtStart ? Math.max(0, openStart - 1) : 0,
-            openAtEnd ? Math.max(0, openEnd - 1) : 0,
-          );
-          if (openAtStart) {
-            blockCutAtStart = ret.blockCutAtStart;
-          }
-          if (openAtEnd) {
-            blockCutAtEnd = ret.blockCutAtEnd;
-          }
-          blocks.push(...ret.blocks);
+          descendOpenHolder(blockContainer, openAtStart, openAtEnd);
           return;
         }
 
@@ -634,16 +643,11 @@ export function prosemirrorSliceToSlicedBlocks<
         if (!isFirstBlock) {
           throw new Error("unexpected");
         }
-        const ret = processNode(
-          blockContainer.firstChild!,
-          Math.max(0, openStart - 1),
-          isLastBlock ? Math.max(0, openEnd - 1) : 0,
-        );
-        blockCutAtStart = ret.blockCutAtStart;
-        if (isLastBlock) {
-          blockCutAtEnd = ret.blockCutAtEnd;
-        }
-        blocks.push(...ret.blocks);
+        // Open at the start by construction (a `blockContainer` can only lead
+        // with its `blockGroup` when the slice cut its content node away);
+        // open at the end whenever it is also the last block, matching the
+        // pre-refactor cut propagation.
+        descendOpenHolder(blockContainer.firstChild!, true, isLastBlock);
         return;
       }
 

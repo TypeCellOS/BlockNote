@@ -6,9 +6,7 @@ import {
   StyleSchema,
 } from "../../schema/index.js";
 import {
-  getChildrenConfig,
   isContainerNode,
-  isPlaceableAnywhere,
   resolveChildren,
 } from "../../schema/blocks/children.js";
 import { getBlockSchema } from "../pmUtil.js";
@@ -18,13 +16,13 @@ function isSelfContainedContainer(node: Node): boolean {
   if (!isContainerNode(node.type)) {
     return false;
   }
-  const blockConfig = getBlockSchema(node.type.schema)[node.type.name] ?? {};
-  const childrenConfig = getChildrenConfig(blockConfig);
-  if (!childrenConfig) {
+  const blockConfig = getBlockSchema(node.type.schema)[node.type.name];
+  const childrenConfig = blockConfig?.children;
+  if (!blockConfig || !childrenConfig) {
     return false;
   }
   return (
-    isPlaceableAnywhere(blockConfig) &&
+    blockConfig.placement !== "containerOnly" &&
     node.childCount >= resolveChildren(childrenConfig).min
   );
 }

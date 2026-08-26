@@ -6,7 +6,6 @@ import {
   BlockImplementation,
   BlockSchema,
   InlineContentSchema,
-  isContainerType,
   StyleSchema,
 } from "../../../../schema/index.js";
 import { fillContainerAttributes } from "../../../../schema/blocks/containerAttributes.js";
@@ -284,7 +283,7 @@ function serializeBlock<
   } else {
     // Asked of the block config rather than of its ProseMirror node. See the
     // same check in `serializeBlocksInternalHTML`.
-    if (isContainerType(editor.schema.blockSchema[block.type as any])) {
+    if (editor.schema.blockSchema[block.type as any].children !== undefined) {
       // Container blocks own their outer DOM. Make sure the attributes
       // needed to parse the HTML back (the type marker and non-default
       // props, in the same `data-*` convention `propsToAttributes` reads)

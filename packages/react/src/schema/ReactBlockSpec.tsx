@@ -12,7 +12,6 @@ import {
   Extension,
   ExtensionFactoryInstance,
   ExtractBlockConfigFromConfigOrCreator,
-  isContainerType,
   mergeCSSClasses,
   nodeToBlock,
   Props,
@@ -249,7 +248,7 @@ export function createReactBlockSpec<
       implementation: {
         ...blockImplementation,
         toExternalHTML(block, editor, context) {
-          const isContainer = isContainerType(blockConfig);
+          const isContainer = blockConfig.children !== undefined;
           const BlockContent = (blockImplementation.toExternalHTML ||
             blockImplementation.render) as FC<any>;
           const output = renderToDOMSpec((refCB) => {
@@ -300,7 +299,7 @@ export function createReactBlockSpec<
             // Container-ness is fixed per spec, so the node-view component
             // can be chosen once. Each variant uses only the hooks and
             // wrappers it needs.
-            const isContainer = isContainerType(blockConfig);
+            const isContainer = blockConfig.children !== undefined;
             const BlockContent = blockImplementation.render as FC<any>;
             const blockContentDOMAttributes = this.blockContentDOMAttributes;
 
@@ -464,7 +463,7 @@ export function createReactBlockSpec<
 
             return nodeView;
           } else {
-            const isContainer = isContainerType(blockConfig);
+            const isContainer = blockConfig.children !== undefined;
             const BlockContent = blockImplementation.render as FC<any>;
             const output = renderToDOMSpec((refCB) => {
               const content = (

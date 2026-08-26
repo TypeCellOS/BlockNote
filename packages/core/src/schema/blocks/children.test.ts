@@ -116,133 +116,26 @@ describe("validateChildrenConfigs", () => {
     ).not.toThrow();
   });
 
-  // Malformed configs, each rejected with a specific message (JS consumers
-  // don't get the type errors TS consumers do). `allow: ["heading"]` used to
-  // silently compile to "any regular block", so naming a regular block is a
-  // hard error until per-type filtering is supported.
+  // Only what nothing else catches. ProseMirror parses `{min,max}` without
+  // comparing the two, so an inverted range silently becomes "exactly min";
+  // and `allow: ["heading"]` compiles to a perfectly valid schema that
+  // quietly restricts nothing, since every regular block is the same node.
+  // Every other way a `children` config can be wrong is reported by
+  // TypeScript at compile time or by ProseMirror with a message of its own.
   it.each<[string, ContainerFixture["children"], RegExp]>([
-    ["missing `allow`", {} as unknown as ChildrenConfig, /`allow` is required/],
     [
-      "unknown `allow` form",
-      { allow: "everything" } as unknown as ChildrenConfig,
-      /`allow` must be/,
-    ],
-    ["unknown type in allow array", { allow: ["nope"] }, /nope/],
-    [
-      "regular block type in allow array",
-      { allow: ["heading"] },
-      /not yet supported/,
-    ],
-    ["allow that permits nothing", { allow: [] }, /permits nothing/],
-    [
-      "containers wildcard with no other containers",
-      { allow: "containers" },
-      /no other container block types/,
-    ],
-    ["negative minimum", { allow: "any", min: -1 }, /non-negative integer/],
-    [
-      "maximum smaller than minimum",
+      "a maximum smaller than the minimum",
       { allow: "any", min: 3, max: 2 },
       /greater than or equal/,
     ],
     [
-      "unknown boundary value",
-      { allow: "any", boundary: "shut" } as unknown as ChildrenConfig,
-      /`boundary` must be "open", "isolated" or "sealed"/,
-    ],
-    [
-      "`default` violating the child count",
-      { allow: "any", min: 2, default: [{ type: "paragraph" }] },
-      /fewer than the 2 required/,
+      "a regular block type in the allow array",
+      { allow: ["heading"] },
+      /not yet supported/,
     ],
   ])("rejects %s", (_name, children, message) => {
     expect(validate({ box: { children } })).toThrow(message);
   });
-
-  it("rejects `default` containing a block that isn't permitted", () => {
-    expect(
-      validate({
-        grid: {
-          children: {
-            allow: ["gridCell"],
-            min: 2,
-            default: [{ type: "paragraph" }, { type: "paragraph" }],
-          },
-        },
-        gridCell: {
-          children: { allow: "any" },
-          placement: "containerOnly",
-        },
-      }),
-    ).toThrow(/not permitted/);
-  });
-
-  // The wildcards compile to the containers placeable anywhere, so a
-  // containerOnly block only fits where a parent names it explicitly. Every
-  // configuration that would leave one unreachable, or in an unsatisfiable
-  // `default`, is rejected up front.
-  it("rejects containerOnly blocks that nothing can hold", () => {
-    // In a wildcard `default`, which would build an unsatisfiable node:
-    expect(
-      validate({
-        box: { children: { allow: "any", default: [{ type: "cell" }] } },
-        cell: { children: { allow: "any" }, placement: "containerOnly" },
-      }),
-    ).toThrow(/not permitted/);
-    // Unreachable, even though a wildcard container exists:
-    expect(
-      validate({
-        box: { children: { allow: "any" } },
-        cell: { children: { allow: "any" }, placement: "containerOnly" },
-      }),
-    ).toThrow(/could never be inserted/);
-    // Unreachable, because no container's allow list names it:
-    expect(
-      validate({
-        grid: { children: { allow: ["gridCell"], min: 2 } },
-        gridCell: {
-          children: { allow: "blocks" },
-          placement: "containerOnly",
-        },
-        orphan: {
-          children: { allow: "blocks" },
-          placement: "containerOnly",
-        },
-      }),
-    ).toThrow(/could never be inserted/);
-    // A `containers` wildcard needs at least one placeable-anywhere one:
-    expect(
-      validate({
-        box: { children: { allow: "containers" } },
-        cell: { children: { allow: "any" }, placement: "containerOnly" },
-      }),
-    ).toThrow(/placeable anywhere/);
-  });
-
-  it("rejects placement on a block that isn't a container", () => {
-    expect(() =>
-      validateChildrenConfigs({
-        paragraph: {
-          type: "paragraph",
-          content: "inline",
-          placement: "containerOnly",
-        },
-      }),
-    ).toThrow(/only applies to container blocks/);
-  });
-
-  // A container block's body is its children; combining `children` with any
-  // content of the block's own is not supported.
-  it.each(["inline", "plain", "table"] as const)(
-    'rejects `children` combined with `content: "%s"`',
-    (content) => {
-      expect(() =>
-        validateChildrenConfigs({
-          bad: { type: "bad", content, children: { allow: "any" } },
-        }),
-      ).toThrow(/`children` can only be combined with `content: "none"`/);
-    },
-  );
 
   // `fillBefore` recurses across node types, so a cycle blows the stack
   // rather than returning null. It has to be caught before the schema is
