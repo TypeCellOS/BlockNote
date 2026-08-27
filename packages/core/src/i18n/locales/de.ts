@@ -297,6 +297,10 @@ export const de: Dictionary = {
       tooltip: "Beschriftung bearbeiten",
       input_placeholder: "Beschriftung bearbeiten",
     },
+    file_alt: {
+      tooltip: "Alternativtext bearbeiten",
+      input_placeholder: "Alternativtext bearbeiten",
+    },
     file_replace: {
       tooltip: {
         image: "Bild ersetzen",

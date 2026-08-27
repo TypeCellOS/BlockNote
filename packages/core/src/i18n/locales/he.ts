@@ -278,6 +278,10 @@ export const he: Dictionary = {
       tooltip: "ערוך כיתוב",
       input_placeholder: "ערוך כיתוב",
     },
+    file_alt: {
+      tooltip: "ערוך טקסט חלופי",
+      input_placeholder: "ערוך טקסט חלופי",
+    },
     file_replace: {
       tooltip: {
         image: "החלף תמונה",

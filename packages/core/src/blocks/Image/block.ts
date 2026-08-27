@@ -39,6 +39,10 @@ export const createImageBlockConfig = createBlockConfig(
         caption: {
           default: "" as const,
         },
+        // Image alt text (accessibility label, sets the img "alt" attribute).
+        alt: {
+          default: "" as const,
+        },
 
         showPreview: {
           default: true,
@@ -117,9 +121,10 @@ export const imageRender =
     }
 
     // alt describes image content (per WCAG H86); figcaption (when present)
-    // is the contextual caption. Fall back to "" so unlabelled images are
-    // marked decorative rather than getting a noisy generic fallback.
-    image.alt = block.props.name || "";
+    // is the contextual caption. Prefer the explicit alt text, falling back to
+    // the file name for backwards compatibility, then "" so unlabelled images
+    // are marked decorative rather than getting a noisy generic fallback.
+    image.alt = block.props.alt || block.props.name || "";
     image.contentEditable = "false";
     image.draggable = false;
     if (block.props.previewWidth) {
@@ -156,7 +161,7 @@ export const imageToExternalHTML =
     if (block.props.showPreview) {
       image = document.createElement("img");
       image.src = block.props.url;
-      image.alt = block.props.name || "";
+      image.alt = block.props.alt || block.props.name || "";
       if (block.props.previewWidth) {
         image.width = block.props.previewWidth;
       }

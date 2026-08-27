@@ -246,6 +246,7 @@ exports[`Test splitBlocks > Basic 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -831,6 +832,7 @@ exports[`Test splitBlocks > Block has children 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -1416,6 +1418,7 @@ exports[`Test splitBlocks > Don't keep props 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -2001,6 +2004,7 @@ exports[`Test splitBlocks > Don't keep type 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -2580,6 +2584,7 @@ exports[`Test splitBlocks > End of content 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -3167,6 +3172,7 @@ exports[`Test splitBlocks > Keep type 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",

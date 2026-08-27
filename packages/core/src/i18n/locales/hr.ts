@@ -291,6 +291,10 @@ export const hr: Dictionary = {
       tooltip: "Uredi natpis",
       input_placeholder: "Uredi natpis",
     },
+    file_alt: {
+      tooltip: "Uredi alternativni tekst",
+      input_placeholder: "Uredi alternativni tekst",
+    },
     file_replace: {
       tooltip: {
         image: "Zamijeni sliku",

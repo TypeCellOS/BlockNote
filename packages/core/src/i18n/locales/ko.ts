@@ -291,6 +291,10 @@ export const ko: Dictionary = {
       tooltip: "이미지 캡션 수정",
       input_placeholder: "이미지 캡션 수정",
     },
+    file_alt: {
+      tooltip: "대체 텍스트 수정",
+      input_placeholder: "대체 텍스트 수정",
+    },
     file_replace: {
       tooltip: {
         image: "이미지 교체",

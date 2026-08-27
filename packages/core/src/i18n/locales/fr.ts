@@ -324,6 +324,10 @@ export const fr: Dictionary = {
       tooltip: "Modifier la légende",
       input_placeholder: "Modifier la légende",
     },
+    file_alt: {
+      tooltip: "Modifier le texte alternatif",
+      input_placeholder: "Modifier le texte alternatif",
+    },
     file_replace: {
       tooltip: {
         image: "Remplacer l'image",
