@@ -200,6 +200,8 @@ describe("PDFExporter PDF/UA declaration", () => {
     }
     expect(result.blob.type).toBe("application/pdf");
     expect(result.blob.size).toBe(result.bytes.byteLength);
+    // Lazily created, memoized: repeated access yields the same instance.
+    expect(result.blob).toBe(result.blob);
     expect(result.pdfUA).toEqual({ declared: true });
     // The minimal test font set omits the preamble's code/emoji families,
     // which surfaces as unknown-font-family warnings - nothing else.

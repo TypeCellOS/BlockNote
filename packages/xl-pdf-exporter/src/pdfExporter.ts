@@ -80,8 +80,12 @@ export type PdfExportResult =
       error?: undefined;
       /** The PDF bytes. */
       bytes: Uint8Array;
-      /** The same PDF as a Blob (e.g. for downloads / object URLs). */
-      blob: Blob;
+      /**
+       * The same PDF as a Blob (e.g. for downloads / object URLs).
+       * Created lazily on first access - constructing a Blob copies the
+       * bytes, so results that only use `bytes` never pay for it.
+       */
+      readonly blob: Blob;
       pdfUA: PdfUAResult;
       compileWarnings: TypstDiagnostic[];
     }
@@ -268,13 +272,18 @@ function exported(
   pdfUA: PdfUAResult,
   compileWarnings: TypstDiagnostic[],
 ): PdfExportResult {
+  let blob: Blob | undefined;
   return {
     bytes,
-    // The pipeline always returns a view over a plain (non-shared) buffer;
-    // the cast narrows `ArrayBufferLike` for `BlobPart`.
-    blob: new Blob([bytes as Uint8Array<ArrayBuffer>], {
-      type: "application/pdf",
-    }),
+    // Constructing a Blob copies the bytes, so it's deferred to first
+    // access (and memoized for a stable identity).
+    get blob() {
+      // The pipeline always returns a view over a plain (non-shared)
+      // buffer; the cast narrows `ArrayBufferLike` for `BlobPart`.
+      return (blob ??= new Blob([bytes as Uint8Array<ArrayBuffer>], {
+        type: "application/pdf",
+      }));
+    },
     pdfUA,
     compileWarnings,
   };
