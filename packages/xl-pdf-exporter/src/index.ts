@@ -5,7 +5,6 @@
 export * from "@blocknote/xl-typst-exporter";
 export {
   PDFExporter,
-  type PdfBlobExportResult,
   type PdfExportOptions,
   type PdfExportResult,
   type PdfUAResult,

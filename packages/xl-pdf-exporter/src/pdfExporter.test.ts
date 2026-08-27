@@ -32,7 +32,7 @@ describe("PDFExporter", () => {
     // the same key would be silently shadowed by the merge, so the export
     // must fail loudly instead (before ever reaching the compiler).
     await expect(
-      exporter.toBytes(
+      exporter.toPDF(
         partialBlocksToBlocksForTesting(schema, [
           {
             type: "image",
@@ -94,7 +94,7 @@ describe("PDFExporter PDF/UA declaration", () => {
 
   it("declares PDF/UA-1 for a conforming document", async () => {
     const { bytes, pdfUA } = expectExported(
-      await exporter().toBytes(conforming(), wasmAndFonts(), {
+      await exporter().toPDF(conforming(), wasmAndFonts(), {
         title: "Doc",
         lang: "en",
       }),
@@ -112,7 +112,7 @@ describe("PDFExporter PDF/UA declaration", () => {
       { type: "heading", props: { level: 2 }, content: "Not level one" },
     ]);
     const { bytes, pdfUA } = expectExported(
-      await exporter().toBytes(blocks, wasmAndFonts(), {
+      await exporter().toPDF(blocks, wasmAndFonts(), {
         title: "Doc",
         lang: "en",
       }),
@@ -137,11 +137,11 @@ describe("PDFExporter PDF/UA declaration", () => {
     // decision only the caller can make, so this fails loudly instead of
     // quietly producing forever-unclaimed exports.
     await expect(
-      exporter().toBytes(conforming(), wasmAndFonts(), { title: "Doc" }),
+      exporter().toPDF(conforming(), wasmAndFonts(), { title: "Doc" }),
     ).rejects.toThrow("requires the document's language");
     // Opting out of the claim makes the language optional again.
     const { pdfUA } = expectExported(
-      await exporter().toBytes(
+      await exporter().toPDF(
         conforming(),
         { ...wasmAndFonts(), tryDeclarePdfUA: false },
         { title: "Doc" },
@@ -155,7 +155,7 @@ describe("PDFExporter PDF/UA declaration", () => {
 
   it("skips validation and claim with tryDeclarePdfUA: false", async () => {
     const { bytes, pdfUA } = expectExported(
-      await exporter().toBytes(
+      await exporter().toPDF(
         conforming(),
         { ...wasmAndFonts(), tryDeclarePdfUA: false },
         { title: "Doc", lang: "en" },
@@ -178,7 +178,7 @@ describe("PDFExporter PDF/UA declaration", () => {
       fontFamily: "No Such Family",
     });
     const result = expectExported(
-      await warned.toBytes(conforming(), wasmAndFonts(), {
+      await warned.toPDF(conforming(), wasmAndFonts(), {
         title: "Doc",
         lang: "en",
       }),
@@ -190,8 +190,8 @@ describe("PDFExporter PDF/UA declaration", () => {
     ).toBe(true);
   });
 
-  it("exports a Blob with the same result reporting", async () => {
-    const result = await exporter().toBlob(conforming(), wasmAndFonts(), {
+  it("carries the PDF as a Blob alongside the bytes", async () => {
+    const result = await exporter().toPDF(conforming(), wasmAndFonts(), {
       title: "Doc",
       lang: "en",
     });
@@ -199,7 +199,7 @@ describe("PDFExporter PDF/UA declaration", () => {
       throw new Error(result.compileErrors.map((d) => d.message).join(" | "));
     }
     expect(result.blob.type).toBe("application/pdf");
-    expect(result.blob.size).toBeGreaterThan(1000);
+    expect(result.blob.size).toBe(result.bytes.byteLength);
     expect(result.pdfUA).toEqual({ declared: true });
     // The minimal test font set omits the preamble's code/emoji families,
     // which surfaces as unknown-font-family warnings - nothing else.
@@ -214,7 +214,7 @@ describe("PDFExporter PDF/UA declaration", () => {
     // Broken raw markup (here via the caller-supplied header) is a compile
     // failure - an expected outcome carried in the result, distinct from
     // conformance violations (it must not degrade to an unclaimed export).
-    const result = await exporter().toBytes(conforming(), wasmAndFonts(), {
+    const result = await exporter().toPDF(conforming(), wasmAndFonts(), {
       title: "Doc",
       lang: "en",
       header: "#thisFunctionDoesNotExist()",

@@ -71,7 +71,7 @@ function usePdfUA(
     setStatus("loading");
     void (async () => {
       try {
-        const result = await makeExporter().toBlob(
+        const result = await makeExporter().toPDF(
           blocks,
           { wasm: compilerWasmUrl },
           { title: "BlockNote document", lang: "en" },

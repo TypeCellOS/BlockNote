@@ -37,8 +37,8 @@ import {
 // Create the exporter
 const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings);
 
-// Export the document to a PDF Blob (there's also `toBytes` for a Uint8Array)
-const { blob, pdfUA } = await exporter.toBlob(
+// Export the document - the result carries the PDF as bytes and as a Blob
+const { blob, pdfUA } = await exporter.toPDF(
   editor.document,
   {},
   { title: "My document", lang: "en" },
@@ -66,12 +66,12 @@ with a live PDF preview below:
 
 ### Customizing the PDF
 
-The second parameter of `toBlob` / `toBytes` takes the compile options
+The second parameter of `toPDF` takes the compile options
 (covered in [Fonts & offline use](#fonts--offline-use)); the third takes
 per-document options:
 
 ```typescript
-const { blob } = await exporter.toBlob(editor.document, {}, {
+const { blob } = await exporter.toPDF(editor.document, {}, {
   // Document title - required for PDF/UA (also shown in the viewer's title bar)
   title: "My document",
   // Document author, written to the PDF metadata
@@ -160,14 +160,14 @@ Mono (code), New Computer Modern Math (math blocks) and Noto Color Emoji
 (emoji, [required for PDF/UA](#pdfua-conformance)) — embedded in the package
 and loaded lazily on the first export, and the compiler wasm loads from
 `@blocknote/xl-typst-compiler`'s own package files. Neither touches a CDN.
-The compile options (the second parameter of `toBlob` / `toBytes`) control
+The compile options (the second parameter of `toPDF`) control
 all of it; to take explicit control of where the wasm is served from (e.g.
 self-hosting with caching headers), pass its URL or bytes:
 
 ```typescript
 import compilerWasmUrl from "@blocknote/xl-typst-compiler/wasm?url";
 
-const { blob } = await exporter.toBlob(
+const { blob } = await exporter.toPDF(
   editor.document,
   {
     // The compiler wasm as an explicitly bundled asset (Vite shown here).
@@ -184,7 +184,7 @@ keeps the default emoji font (and vice versa), and an explicit empty array
 disables one entirely:
 
 ```typescript
-const { blob } = await exporter.toBlob(
+const { blob } = await exporter.toPDF(
   editor.document,
   {
     // Font bytes (Uint8Array) to load into the compiler.
@@ -224,7 +224,7 @@ tagged-but-unclaimed instead (an honest output rather than a false claim),
 with the violations reported in the result:
 
 ```typescript
-const { blob, pdfUA } = await exporter.toBlob(editor.document, {}, {
+const { blob, pdfUA } = await exporter.toPDF(editor.document, {}, {
   title: "My document",
   lang: "en",
 });

@@ -8,10 +8,12 @@
 // - Stale/missing: builds with the wasm-pack devDependency. Needs a Rust
 //   toolchain; rustup auto-provisions the pinned version + wasm32 target
 //   from rust/rust-toolchain.toml.
-// - No rustup: on Vercel it is bootstrapped automatically (installed under
-//   node_modules/.cache, which Vercel persists between builds - as are the
-//   cargo registry and target dirs, so warm builds take seconds). On a dev
-//   machine it fails with instructions instead of installing things.
+// - No toolchain: on CI and Vercel, rustup is bootstrapped automatically
+//   (GitHub's ubuntu-24.04 runner images no longer ship Rust). On Vercel it
+//   installs under node_modules/.cache, which Vercel persists between
+//   builds - as are the cargo registry and target dirs, so warm builds take
+//   seconds. On a dev machine it fails with instructions instead of
+//   installing things.
 //
 // `--force` skips the freshness check (the `build:wasm` script).
 import { execFileSync } from "node:child_process";
@@ -23,6 +25,7 @@ import {
   readFileSync,
   writeFileSync,
 } from "node:fs";
+import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -89,7 +92,8 @@ const env = { ...process.env };
 
 // On Vercel, keep every Rust artifact under node_modules/.cache: it is
 // persisted between builds, so only the first build on a fresh cache pays
-// the full compile.
+// the full compile. Elsewhere rustup's default home is fine (and gets on
+// PATH explicitly, since a fresh install can't modify the current shell).
 if (process.env.VERCEL) {
   const cacheDir = join(packageDir, "node_modules", ".cache", "rust");
   mkdirSync(cacheDir, { recursive: true });
@@ -97,27 +101,33 @@ if (process.env.VERCEL) {
   env.RUSTUP_HOME = join(cacheDir, "rustup");
   env.CARGO_TARGET_DIR = join(cacheDir, "target");
   env.PATH = `${join(env.CARGO_HOME, "bin")}:${env.PATH}`;
+} else {
+  env.PATH = `${join(homedir(), ".cargo", "bin")}:${env.PATH}`;
+}
 
-  if (!commandExists("cargo", env)) {
-    console.log("[ensure-wasm] installing rustup (Vercel build container)…");
-    execFileSync(
-      "sh",
-      [
-        "-c",
-        "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none --no-modify-path",
-      ],
-      { stdio: "inherit", env },
+if (!commandExists("cargo", env)) {
+  // CI covers GitHub Actions (whose ubuntu-24.04 images ship no Rust) and
+  // most other build services; only interactive dev machines get the
+  // do-it-yourself error.
+  if (!process.env.VERCEL && !process.env.CI) {
+    console.error(
+      "[ensure-wasm] pkg/ is missing or stale and no Rust toolchain was " +
+        "found. Install rustup (https://rustup.rs) - the pinned toolchain " +
+        "and wasm32 target auto-install from rust/rust-toolchain.toml - " +
+        "then re-run the build (or `npm run build:wasm` in " +
+        "packages/xl-typst-compiler).",
     );
+    process.exit(1);
   }
-} else if (!commandExists("rustup", env)) {
-  console.error(
-    "[ensure-wasm] pkg/ is missing or stale and no Rust toolchain was " +
-      "found. Install rustup (https://rustup.rs) - the pinned toolchain " +
-      "and wasm32 target auto-install from rust/rust-toolchain.toml - " +
-      "then re-run the build (or `npm run build:wasm` in " +
-      "packages/xl-typst-compiler).",
+  console.log("[ensure-wasm] installing rustup (CI/Vercel build)…");
+  execFileSync(
+    "sh",
+    [
+      "-c",
+      "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none --no-modify-path",
+    ],
+    { stdio: "inherit", env },
   );
-  process.exit(1);
 }
 
 console.log("[ensure-wasm] building the Typst compiler wasm (rust/ -> pkg/)…");

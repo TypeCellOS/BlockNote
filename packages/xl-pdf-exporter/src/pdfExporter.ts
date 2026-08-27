@@ -69,7 +69,7 @@ export type PdfUAResult =
     };
 
 /**
- * The outcome of {@link PDFExporter.toBytes}. A document that fails to
+ * The outcome of {@link PDFExporter.toPDF}. A document that fails to
  * compile is an expected outcome (the source is generated from user
  * content: text no supplied font covers, broken caller-supplied
  * header/footer markup, ...), so it's a value carrying the compiler's
@@ -78,20 +78,9 @@ export type PdfUAResult =
 export type PdfExportResult =
   | {
       error?: undefined;
+      /** The PDF bytes. */
       bytes: Uint8Array;
-      pdfUA: PdfUAResult;
-      compileWarnings: TypstDiagnostic[];
-    }
-  | {
-      error: "compile-failed";
-      compileErrors: TypstDiagnostic[];
-      compileWarnings: TypstDiagnostic[];
-    };
-
-/** The outcome of {@link PDFExporter.toBlob}. See {@link PdfExportResult}. */
-export type PdfBlobExportResult =
-  | {
-      error?: undefined;
+      /** The same PDF as a Blob (e.g. for downloads / object URLs). */
       blob: Blob;
       pdfUA: PdfUAResult;
       compileWarnings: TypstDiagnostic[];
@@ -154,14 +143,17 @@ export class PDFExporter<
   }
 
   /**
-   * Export a document to PDF bytes: BlockNote document -> Typst -> tagged
-   * PDF (wasm), declared PDF/UA-1 when the document conforms (see
-   * {@link PdfExportOptions.tryDeclarePdfUA}). The result reports whether the
-   * claim was made and the conformance violations when it wasn't - or, for
-   * a document that fails to compile at all, the compiler's diagnostics
-   * (see {@link PdfExportResult}).
+   * Export a document to PDF: BlockNote document -> Typst -> tagged PDF
+   * (wasm), declared PDF/UA-1 when the document conforms (see
+   * {@link PdfExportOptions.tryDeclarePdfUA}). The counterpart of the
+   * inherited {@link TypstExporter.toTypst}.
+   *
+   * The result carries the PDF as both bytes and a Blob, and reports
+   * whether the conformance claim was made (and the violations when it
+   * wasn't) - or, for a document that fails to compile at all, the
+   * compiler's diagnostics (see {@link PdfExportResult}).
    */
-  public async toBytes(
+  public async toPDF(
     blocks: Block<B, I, S>[],
     options: PdfExportOptions = {},
     documentOptions?: TypstDocumentOptions,
@@ -233,11 +225,11 @@ export class PDFExporter<
       pdfStandard: "ua-1",
     });
     if (!declared.error) {
-      return {
-        bytes: declared.pdf,
-        pdfUA: { declared: true },
-        compileWarnings: declared.compileWarnings,
-      };
+      return exported(
+        declared.pdf,
+        { declared: true },
+        declared.compileWarnings,
+      );
     }
     // Only conformance violations fall back to an unclaimed export; any
     // other failure (broken markup, missing font) would fail the fallback
@@ -259,30 +251,6 @@ export class PDFExporter<
       })),
     });
   }
-
-  /**
-   * Export a document to a PDF Blob (e.g. for downloads / object URLs),
-   * with the same result reporting as {@link toBytes}.
-   */
-  public async toBlob(
-    blocks: Block<B, I, S>[],
-    options: PdfExportOptions = {},
-    documentOptions?: TypstDocumentOptions,
-  ): Promise<PdfBlobExportResult> {
-    const result = await this.toBytes(blocks, options, documentOptions);
-    if (result.error) {
-      return result;
-    }
-    // The pipeline always returns a view over a plain (non-shared) buffer;
-    // the cast narrows `ArrayBufferLike` for `BlobPart`.
-    return {
-      blob: new Blob([result.bytes as Uint8Array<ArrayBuffer>], {
-        type: "application/pdf",
-      }),
-      pdfUA: result.pdfUA,
-      compileWarnings: result.compileWarnings,
-    };
-  }
 }
 
 function withPdfUA(
@@ -292,9 +260,22 @@ function withPdfUA(
   if (compiled.error) {
     return compiled;
   }
+  return exported(compiled.pdf, pdfUA, compiled.compileWarnings);
+}
+
+function exported(
+  bytes: Uint8Array,
+  pdfUA: PdfUAResult,
+  compileWarnings: TypstDiagnostic[],
+): PdfExportResult {
   return {
-    bytes: compiled.pdf,
+    bytes,
+    // The pipeline always returns a view over a plain (non-shared) buffer;
+    // the cast narrows `ArrayBufferLike` for `BlobPart`.
+    blob: new Blob([bytes as Uint8Array<ArrayBuffer>], {
+      type: "application/pdf",
+    }),
     pdfUA,
-    compileWarnings: compiled.compileWarnings,
+    compileWarnings,
   };
 }

@@ -344,7 +344,7 @@ function DemoEditorInner({
         editor.schema,
         typstDefaultSchemaMappings,
       );
-      const result = await exporter.toBlob(
+      const result = await exporter.toPDF(
         editor.document,
         { wasm: compilerWasmUrl },
         { title: "BlockNote demo document", lang: "en" },
