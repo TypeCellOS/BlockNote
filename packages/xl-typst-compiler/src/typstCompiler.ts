@@ -91,7 +91,15 @@ export type TypstCompilerOptions = {
    * the first `create()` call's value is used; the module is loaded once.
    */
   wasm?: string | URL | Uint8Array;
-  /** Font files to load (every face of each TTF/OTF/TTC). */
+  /**
+   * Font files to load (every face of each TTF/OTF/TTC). Typst selects
+   * fonts by the family name embedded in each file's own name table -
+   * array order and file names play no role - so a document must reference
+   * the family exactly as the font declares it. {@link
+   * TypstCompiler.fontFamilies} lists the loaded names for verification,
+   * and a referenced-but-missing family surfaces as an
+   * `unknown font family` entry in the result's `compileWarnings`.
+   */
   fonts?: readonly Uint8Array[];
 };
 

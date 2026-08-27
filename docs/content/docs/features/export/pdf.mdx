@@ -38,11 +38,10 @@ import {
 const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings);
 
 // Export the document - the result carries the PDF as bytes and as a Blob
-const { blob, pdfUA } = await exporter.toPDF(
-  editor.document,
-  {},
-  { title: "My document", lang: "en" },
-);
+const { blob, pdfUA } = await exporter.toPDF(editor.document, {
+  title: "My document",
+  lang: "en",
+});
 ```
 
 This works out of the box, fully offline: the export matches the editor's
@@ -66,12 +65,12 @@ with a live PDF preview below:
 
 ### Customizing the PDF
 
-The second parameter of `toPDF` takes the compile options
-(covered in [Fonts & offline use](#fonts--offline-use)); the third takes
-per-document options:
+The second parameter of `toPDF` is a single per-export options bag: the
+per-document options below, plus `tryDeclarePdfUA`, extra `assets` for
+caller-supplied markup, and a `creationTimestamp`:
 
 ```typescript
-const { blob } = await exporter.toPDF(editor.document, {}, {
+const { blob } = await exporter.toPDF(editor.document, {
   // Document title - required for PDF/UA (also shown in the viewer's title bar)
   title: "My document",
   // Document author, written to the PDF metadata
@@ -160,21 +159,17 @@ Mono (code), New Computer Modern Math (math blocks) and Noto Color Emoji
 (emoji, [required for PDF/UA](#pdfua-conformance)) — embedded in the package
 and loaded lazily on the first export, and the compiler wasm loads from
 `@blocknote/xl-typst-compiler`'s own package files. Neither touches a CDN.
-The compile options (the second parameter of `toPDF`) control
+The exporter's constructor options control
 all of it; to take explicit control of where the wasm is served from (e.g.
 self-hosting with caching headers), pass its URL or bytes:
 
 ```typescript
 import compilerWasmUrl from "@blocknote/xl-typst-compiler/wasm?url";
 
-const { blob } = await exporter.toPDF(
-  editor.document,
-  {
-    // The compiler wasm as an explicitly bundled asset (Vite shown here).
-    wasm: compilerWasmUrl,
-  },
-  { title: "My document", lang: "en" },
-);
+const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings, {
+  // The compiler wasm as an explicitly bundled asset (Vite shown here).
+  wasm: compilerWasmUrl,
+});
 ```
 
 To take full control of fonts (e.g. a different look, or trimming the lazily
@@ -184,17 +179,14 @@ keeps the default emoji font (and vice versa), and an explicit empty array
 disables one entirely:
 
 ```typescript
-const { blob } = await exporter.toPDF(
-  editor.document,
-  {
-    // Font bytes (Uint8Array) to load into the compiler.
-    fonts: [myBodyFont, myMonoFont],
-    // An emoji-capable font. Browsers give the compiler no access to OS
-    // fonts, so without one emoji render as missing glyphs (and fail PDF/UA).
-    emojiFont: myEmojiFont,
-  },
-  { title: "My document", lang: "en" },
-);
+const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings, {
+  // Font bytes (Uint8Array) to load into the compiler - or a promise of
+  // them, so lazy loading fits the sync constructor.
+  fonts: [myBodyFont, myMonoFont],
+  // An emoji-capable font. Browsers give the compiler no access to OS
+  // fonts, so without one emoji render as missing glyphs (and fail PDF/UA).
+  emojiFont: myEmojiFont,
+});
 ```
 
 The compiler ships no fonts of its own and never falls back silently: text
@@ -203,16 +195,42 @@ substituted glyphs. The wasm module is loaded once per page; fonts are
 per-export options, so different exports on the same page can freely use
 different font sets.
 
-When passing custom fonts, set the exporter's font families to match
+When passing custom fonts, set the exporter's font families to match —
+Typst selects fonts by the family name embedded in the font file itself
 (defaults: `"Inter 18pt"` body, `"Geist Mono"` code, `"Noto Color Emoji"`
-emoji). This is also how you cover scripts the primary font doesn't, e.g.
-CJK — load the extra font's bytes and declare a fallback list:
+emoji). A mismatch shows up as an `unknown font family` entry in the
+result's `compileWarnings`, naming exactly what didn't resolve. To cover scripts the default fonts don't (e.g. CJK), extend rather than
+replace: the bundled defaults are exported as loaders, so spreading them
+plus your addition is plain composition, and a `fontFamily` list makes
+Typst fall back per glyph — Latin stays Inter, CJK comes from the added
+font:
 
 ```typescript
+import {
+  loadDefaultBodyFonts,
+  PDFExporter,
+  typstDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter";
+import notoSansSCUrl from "./NotoSansSC-Regular.ttf?url";
+
+// Family names and font bytes side by side - the whole font setup is
+// constructor configuration.
 const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings, {
   fontFamily: ["Inter 18pt", "Noto Sans SC"],
+  fonts: loadDefaultBodyFonts().then(async (fonts) => [
+    ...fonts,
+    new Uint8Array(await (await fetch(notoSansSCUrl)).arrayBuffer()),
+  ]),
+});
+
+const result = await exporter.toPDF(editor.document, {
+  title: "文档",
+  lang: "zh",
 });
 ```
+
+(The family name in `fontFamily` must match what the font file itself
+declares — "Noto Sans SC" here; a mismatch shows up in `compileWarnings`.)
 
 ### PDF/UA conformance
 
@@ -224,7 +242,7 @@ tagged-but-unclaimed instead (an honest output rather than a false claim),
 with the violations reported in the result:
 
 ```typescript
-const { blob, pdfUA } = await exporter.toPDF(editor.document, {}, {
+const { blob, pdfUA } = await exporter.toPDF(editor.document, {
   title: "My document",
   lang: "en",
 });
@@ -249,7 +267,7 @@ What conformance requires of the document:
   dedicated alt field yet, so the caption (or file name) is used — give
   images captions.
 
-Pass `tryDeclarePdfUA: false` in the compile options to skip the validation
+Pass `tryDeclarePdfUA: false` in the export options to skip the validation
 and claim entirely (e.g. for a live preview, where the validation compile
 would be wasted work). Conformance of the claim is enforced at compile
 time by the Typst engine itself — a declared export has also been verified
@@ -257,6 +275,13 @@ against [veraPDF](https://verapdf.org)'s `--flavour ua1` checks (0 failed
 checks) if you need independent validation.
 
 ### Exporter options
+
+The split between the two option surfaces matches the other exporters:
+the **constructor** configures everything the exporter *is* — styling, the
+font family names **and** the font bytes they resolve against, the
+compiler wasm — while `toPDF`'s **options** carry the facts of the
+individual export: the document metadata and page setup, plus the
+conformance policy (`tryDeclarePdfUA`).
 
 The `PDFExporter` constructor takes an optional third `options` parameter:
 

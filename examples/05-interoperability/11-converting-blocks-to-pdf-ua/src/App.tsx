@@ -71,11 +71,10 @@ function usePdfUA(
     setStatus("loading");
     void (async () => {
       try {
-        const result = await makeExporter().toPDF(
-          blocks,
-          { wasm: compilerWasmUrl },
-          { title: "BlockNote document", lang: "en" },
-        );
+        const result = await makeExporter().toPDF(blocks, {
+          title: "BlockNote document",
+          lang: "en",
+        });
         if (stale) {
           return;
         }
@@ -204,20 +203,28 @@ export default function App() {
   // every image/diagram variant it has ever rendered.
   const makeExporter = useCallback(
     () =>
-      new PDFExporter(editor.schema, {
-        ...typstDefaultSchemaMappings,
-        blockMapping: {
-          ...typstDefaultSchemaMappings.blockMapping,
-          // Renders math blocks as native Typst equations, and diagrams as
-          // embedded images - both carrying alt text for PDF/UA.
-          mathBlock: mathBlockMapping,
-          diagram: diagramBlockMapping,
+      new PDFExporter(
+        editor.schema,
+        {
+          ...typstDefaultSchemaMappings,
+          blockMapping: {
+            ...typstDefaultSchemaMappings.blockMapping,
+            // Renders math blocks as native Typst equations, and diagrams as
+            // embedded images - both carrying alt text for PDF/UA.
+            mathBlock: mathBlockMapping,
+            diagram: diagramBlockMapping,
+          },
+          inlineContentMapping: {
+            ...typstDefaultSchemaMappings.inlineContentMapping,
+            math: inlineMathMapping,
+          },
         },
-        inlineContentMapping: {
-          ...typstDefaultSchemaMappings.inlineContentMapping,
-          math: inlineMathMapping,
+        {
+          // The bundled compiler wasm (see the import above) - engine setup
+          // belongs to the exporter, per-document facts go to toPDF.
+          wasm: compilerWasmUrl,
         },
-      }),
+      ),
     [editor],
   );
 

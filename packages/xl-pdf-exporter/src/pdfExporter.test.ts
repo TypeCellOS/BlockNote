@@ -10,8 +10,9 @@ import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vite-plus/test";
 import {
+  loadDefaultBodyFonts,
   PDFExporter,
-  type PdfExportOptions,
+  type PdfExporterOptions,
   type PdfExportResult,
 } from "./index.js";
 
@@ -22,39 +23,18 @@ const schema = BlockNoteSchema.create({
   },
 });
 
-describe("PDFExporter", () => {
-  it("rejects caller assets that collide with exporter-registered ones", async () => {
-    const exporter = new PDFExporter(schema, typstDefaultSchemaMappings, {
-      resolveFileUrl: testResolveFileUrl,
-    });
+function read(p: string) {
+  return new Uint8Array(readFileSync(resolve(process.cwd(), p)));
+}
 
-    // The document's image registers `/assets/asset-0`; a caller asset under
-    // the same key would be silently shadowed by the merge, so the export
-    // must fail loudly instead (before ever reaching the compiler).
-    await expect(
-      exporter.toPDF(
-        partialBlocksToBlocksForTesting(schema, [
-          {
-            type: "image",
-            props: { url: "https://placehold.co/60x60.png", caption: "Cap" },
-          },
-        ]),
-        { assets: new Map([["/assets/asset-0", new Uint8Array([1])]]) },
-      ),
-    ).rejects.toThrow('the caller-supplied asset "/assets/asset-0" collides');
-  });
-});
-
-// Node has no URL-relative wasm loading, so the module bytes and fonts are
-// passed explicitly (the zero-config defaults - bundled fonts, wasm from
-// package files - are browser paths, covered by the browser/e2e suites).
+// Node has no URL-relative wasm loading, so the module bytes are passed
+// explicitly. A minimal font set keeps the compiles fast; tests about the
+// bundled defaults leave `fonts`/`emojiFont` unset instead.
+const fontDir = "../../shared/assets/fonts";
 function wasmAndFonts(): Pick<
-  PdfExportOptions,
+  Partial<PdfExporterOptions>,
   "wasm" | "fonts" | "emojiFont"
 > {
-  const read = (p: string) =>
-    new Uint8Array(readFileSync(resolve(process.cwd(), p)));
-  const fontDir = "../../shared/assets/fonts";
   return {
     wasm: read("../xl-typst-compiler/pkg/blocknote_typst_wasm_bg.wasm"),
     fonts: [
@@ -63,6 +43,14 @@ function wasmAndFonts(): Pick<
     ],
     emojiFont: [],
   };
+}
+
+function exporter(options?: Partial<PdfExporterOptions>) {
+  return new PDFExporter(schema, typstDefaultSchemaMappings, {
+    resolveFileUrl: testResolveFileUrl,
+    ...wasmAndFonts(),
+    ...options,
+  });
 }
 
 const latin1 = (bytes: Uint8Array) => new TextDecoder("latin1").decode(bytes);
@@ -80,12 +68,29 @@ function expectExported(
   return result;
 }
 
+describe("PDFExporter", () => {
+  it("rejects caller assets that collide with exporter-registered ones", async () => {
+    // The document's image registers `/assets/asset-0`; a caller asset under
+    // the same key would be silently shadowed by the merge, so the export
+    // must fail loudly instead (before ever reaching the compiler).
+    await expect(
+      exporter().toPDF(
+        partialBlocksToBlocksForTesting(schema, [
+          {
+            type: "image",
+            props: { url: "https://placehold.co/60x60.png", caption: "Cap" },
+          },
+        ]),
+        {
+          assets: new Map([["/assets/asset-0", new Uint8Array([1])]]),
+          lang: "en",
+        },
+      ),
+    ).rejects.toThrow('the caller-supplied asset "/assets/asset-0" collides');
+  });
+});
+
 describe("PDFExporter PDF/UA declaration", () => {
-  function exporter() {
-    return new PDFExporter(schema, typstDefaultSchemaMappings, {
-      resolveFileUrl: testResolveFileUrl,
-    });
-  }
   const conforming = () =>
     partialBlocksToBlocksForTesting(schema, [
       { type: "heading", props: { level: 1 }, content: "Title" },
@@ -94,10 +99,7 @@ describe("PDFExporter PDF/UA declaration", () => {
 
   it("declares PDF/UA-1 for a conforming document", async () => {
     const { bytes, pdfUA } = expectExported(
-      await exporter().toPDF(conforming(), wasmAndFonts(), {
-        title: "Doc",
-        lang: "en",
-      }),
+      await exporter().toPDF(conforming(), { title: "Doc", lang: "en" }),
     );
     expect(pdfUA).toEqual({ declared: true });
     expect(latin1(bytes)).toContain("pdfuaid");
@@ -112,10 +114,7 @@ describe("PDFExporter PDF/UA declaration", () => {
       { type: "heading", props: { level: 2 }, content: "Not level one" },
     ]);
     const { bytes, pdfUA } = expectExported(
-      await exporter().toPDF(blocks, wasmAndFonts(), {
-        title: "Doc",
-        lang: "en",
-      }),
+      await exporter().toPDF(blocks, { title: "Doc", lang: "en" }),
     );
     expect(pdfUA.declared).toBe(false);
     if (!pdfUA.declared && pdfUA.reason === "nonconforming") {
@@ -137,15 +136,14 @@ describe("PDFExporter PDF/UA declaration", () => {
     // decision only the caller can make, so this fails loudly instead of
     // quietly producing forever-unclaimed exports.
     await expect(
-      exporter().toPDF(conforming(), wasmAndFonts(), { title: "Doc" }),
+      exporter().toPDF(conforming(), { title: "Doc" }),
     ).rejects.toThrow("requires the document's language");
     // Opting out of the claim makes the language optional again.
     const { pdfUA } = expectExported(
-      await exporter().toPDF(
-        conforming(),
-        { ...wasmAndFonts(), tryDeclarePdfUA: false },
-        { title: "Doc" },
-      ),
+      await exporter().toPDF(conforming(), {
+        tryDeclarePdfUA: false,
+        title: "Doc",
+      }),
     );
     expect(pdfUA).toEqual({
       declared: false,
@@ -155,11 +153,11 @@ describe("PDFExporter PDF/UA declaration", () => {
 
   it("skips validation and claim with tryDeclarePdfUA: false", async () => {
     const { bytes, pdfUA } = expectExported(
-      await exporter().toPDF(
-        conforming(),
-        { ...wasmAndFonts(), tryDeclarePdfUA: false },
-        { title: "Doc", lang: "en" },
-      ),
+      await exporter().toPDF(conforming(), {
+        tryDeclarePdfUA: false,
+        title: "Doc",
+        lang: "en",
+      }),
     );
     expect(pdfUA).toEqual({
       declared: false,
@@ -173,15 +171,9 @@ describe("PDFExporter PDF/UA declaration", () => {
     // An unknown font family is a warning, not an error - the export
     // succeeds (Typst falls back across the loaded fonts), and the result
     // surfaces what an integrator would want to know.
-    const warned = new PDFExporter(schema, typstDefaultSchemaMappings, {
-      resolveFileUrl: testResolveFileUrl,
-      fontFamily: "No Such Family",
-    });
+    const warned = exporter({ fontFamily: "No Such Family" });
     const result = expectExported(
-      await warned.toPDF(conforming(), wasmAndFonts(), {
-        title: "Doc",
-        lang: "en",
-      }),
+      await warned.toPDF(conforming(), { title: "Doc", lang: "en" }),
     );
     expect(
       result.compileWarnings.some((w) =>
@@ -190,8 +182,63 @@ describe("PDFExporter PDF/UA declaration", () => {
     ).toBe(true);
   });
 
+  it("keeps the bundled default fonts in sync with the referenced families", async () => {
+    // Two things can drift independently: the family-name defaults
+    // (TypstExporter's fontFamily/monoFontFamily, PDFExporter's
+    // emojiFontFamily) and the bundled font files in defaultFonts.ts.
+    // Either drift - a renamed default or a swapped file - surfaces as an
+    // `unknown font family` compile warning, so a zero-config export of a
+    // document exercising body (regular/bold/italic), code, and emoji must
+    // warn about nothing. (The math pairing is pinned the same way by
+    // math-block's typst-exporter test.)
+    const blocks = partialBlocksToBlocksForTesting(schema, [
+      { type: "heading", props: { level: 1 }, content: "Title" },
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "plain ", styles: {} },
+          { type: "text", text: "bold ", styles: { bold: true } },
+          { type: "text", text: "italic ", styles: { italic: true } },
+          { type: "text", text: "emoji 😀🧑‍💻", styles: {} },
+        ],
+      },
+      { type: "codeBlock", content: "const mono = true;" },
+    ]);
+    // Only the wasm is supplied (node can't URL-load it); fonts and
+    // emojiFont stay unset so the real bundled defaults load.
+    const zeroConfig = new PDFExporter(schema, typstDefaultSchemaMappings, {
+      resolveFileUrl: testResolveFileUrl,
+      wasm: wasmAndFonts().wasm,
+    });
+    const result = expectExported(
+      await zeroConfig.toPDF(blocks, { title: "Doc", lang: "en" }),
+    );
+    expect(result.compileWarnings).toEqual([]);
+    expect(result.pdfUA).toEqual({ declared: true });
+  });
+
+  it("extends the defaults by spreading the exported loaders", async () => {
+    // `fonts` replaces the bundled default set; extension is composition,
+    // not API: spread the exported defaults and append - names and bytes
+    // configured side by side in the constructor. (The appended bytes here
+    // are already part of the defaults, so the compiler's dedup makes this
+    // a pure wiring test.)
+    const extended = exporter({
+      fonts: loadDefaultBodyFonts().then((fonts) => [
+        ...fonts,
+        read(join(fontDir, "inter/Inter_18pt-Regular.ttf")),
+      ]),
+      emojiFont: undefined,
+    });
+    const result = expectExported(
+      await extended.toPDF(conforming(), { title: "Doc", lang: "en" }),
+    );
+    expect(latin1(result.bytes)).toContain("pdfuaid");
+    expect(result.compileWarnings).toEqual([]);
+  });
+
   it("carries the PDF as a Blob alongside the bytes", async () => {
-    const result = await exporter().toPDF(conforming(), wasmAndFonts(), {
+    const result = await exporter().toPDF(conforming(), {
       title: "Doc",
       lang: "en",
     });
@@ -216,7 +263,7 @@ describe("PDFExporter PDF/UA declaration", () => {
     // Broken raw markup (here via the caller-supplied header) is a compile
     // failure - an expected outcome carried in the result, distinct from
     // conformance violations (it must not degrade to an unclaimed export).
-    const result = await exporter().toPDF(conforming(), wasmAndFonts(), {
+    const result = await exporter().toPDF(conforming(), {
       title: "Doc",
       lang: "en",
       header: "#thisFunctionDoesNotExist()",

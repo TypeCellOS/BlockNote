@@ -25,8 +25,67 @@ import {
   loadDefaultEmojiFont,
 } from "./pdfua/defaultFonts.js";
 
-/** Options for {@link PDFExporter}'s export methods. */
-export type PdfExportOptions = TypstCompileOptions & {
+/**
+ * {@link PDFExporter}'s options: everything the *exporter* is (like the
+ * other exporters' option types) - the Typst styling options including the
+ * font *family names*, plus the engine inputs those names resolve against:
+ * the font *bytes* and the compiler wasm. Names and bytes side by side, so
+ * a custom font setup lives in one place.
+ *
+ * Like the other exporters, this is the full options shape; the
+ * constructor takes a `Partial` of it and fills the defaults.
+ */
+export type PdfExporterOptions = TypstExporterOptions & {
+  /**
+   * The compiler wasm module: a URL (string or `URL`) or the module bytes.
+   * Omitted, it loads from `@blocknote/xl-typst-compiler`'s own package
+   * files (no CDN). Loaded once per page; the first exporter's value wins.
+   *
+   * Optional even in this full options shape: absence is not an unfilled
+   * default but a complete configuration - resolution is delegated to the
+   * wasm-bindgen glue's own module-relative URL, the one pattern bundlers
+   * reliably detect and rewrite (a value computed here couldn't be).
+   */
+  wasm?: TypstCompileOptions["wasm"];
+  /**
+   * The body fonts (as bytes, or a promise of them) the exporter's
+   * `fontFamily` / `monoFontFamily` names resolve against. Defaults to the
+   * bundled set matching the editor; to *extend* it, spread the exported
+   * loader: `loadDefaultBodyFonts().then((f) => [...f, myCjkFont])`.
+   * Typst selects fonts by the family name embedded in each file's own
+   * name table; a referenced-but-missing family surfaces as an
+   * `unknown font family` entry in the result's `compileWarnings`.
+   */
+  fonts: Uint8Array[] | Promise<Uint8Array[]>;
+  /**
+   * An emoji-capable font (or fonts) as bytes, or a promise of them -
+   * what {@link TypstExporterOptions.emojiFontFamily} resolves against.
+   * Defaults (independently of {@link fonts}) to the bundled Noto Color
+   * Emoji. Browsers give the compiler no access to OS fonts, so without
+   * one emoji render as missing glyphs (and fail PDF/UA).
+   */
+  emojiFont: Uint8Array | Uint8Array[] | Promise<Uint8Array | Uint8Array[]>;
+};
+
+/**
+ * Per-export options for {@link PDFExporter.toPDF} - one bag, like the
+ * other exporters' export methods: the per-document options (title,
+ * language, page setup - {@link TypstDocumentOptions}) plus the per-export
+ * compile inputs.
+ */
+export type PdfExportOptions = TypstDocumentOptions & {
+  /**
+   * Extra files to map into the compiler's virtual filesystem, keyed by
+   * the Typst path referenced in the source - e.g. an image used by a
+   * caller-supplied {@link TypstDocumentOptions.header}. The exporter's
+   * own collected assets are merged in automatically.
+   */
+  assets?: TypstCompileOptions["assets"];
+  /**
+   * PDF creation timestamp in seconds since the Unix epoch (UTC). Pass a
+   * fixed value for byte-reproducible output; omitted means no timestamp.
+   */
+  creationTimestamp?: number;
   /**
    * Try to produce a *declared* PDF/UA-1 document - the claim is made only
    * when the document earns it. Typst
@@ -41,9 +100,9 @@ export type PdfExportOptions = TypstCompileOptions & {
    * Set `false` to skip the claim and its validation entirely (e.g. for a
    * live preview, where the validation compile would be wasted work).
    *
-   * Attempting the claim requires the document's language
-   * (`documentOptions.lang`) - the one conformance input only the caller
-   * can provide - and throws without it.
+   * Attempting the claim requires the document's language (the export
+   * options' `lang`) - the one conformance input only the caller can
+   * provide - and throws without it.
    *
    * @default true
    */
@@ -108,12 +167,12 @@ export type PdfExportResult =
  * accumulates assets for its lifetime: create a fresh exporter per export
  * when repeatedly exporting changing content (construction is cheap).
  *
- * Zero-config exports match the editor: the compile options' `fonts` and
+ * Zero-config exports match the editor: the constructor's `fonts` and
  * `emojiFont` each default (independently) to the bundled set - Inter,
  * Geist Mono, New Computer Modern Math resp. Noto Color Emoji - loaded
  * lazily from the package, and the compiler wasm loads from its own
  * package's files. Pass a value (or an explicit `[]` for no fonts) to take
- * over either.
+ * over either; see {@link PdfExporterOptions}.
  *
  * (The previous react-pdf based exporter is still available from
  * `@blocknote/xl-pdf-exporter/react-pdf` during its deprecation window.)
@@ -123,6 +182,10 @@ export class PDFExporter<
   S extends StyleSchema,
   I extends InlineContentSchema,
 > extends TypstExporter<B, S, I> {
+  private readonly wasm: TypstCompileOptions["wasm"];
+  private readonly fonts: Promise<Uint8Array[]>;
+  private readonly emojiFont: Promise<Uint8Array | Uint8Array[]>;
+
   public constructor(
     schema: BlockNoteSchema<B, I, S>,
     mappings: Exporter<
@@ -134,16 +197,39 @@ export class PDFExporter<
       (inner: string) => string,
       string
     >["mappings"],
-    options?: Partial<TypstExporterOptions>,
+    options?: Partial<PdfExporterOptions>,
   ) {
+    const { wasm, fonts, emojiFont, ...typstOptions } = options ?? {};
     super(schema, mappings, {
       // The bundled default fonts (see `defaultFonts.ts`) include Noto
       // Color Emoji; declaring the family by default lets multi-codepoint
-      // emoji shape correctly with zero config. Callers supplying their own
-      // fonts can override (or unset) it.
+      // emoji shape correctly with zero config. Spread-defaulting is
+      // deliberate here (unlike the base's per-key defaults): an explicit
+      // `emojiFontFamily: undefined` *unsets* the family - a legitimate
+      // state when supplying custom fonts without an emoji face, where a
+      // dangling default reference would only produce warning noise.
       emojiFontFamily: DEFAULT_EMOJI_FONT_FAMILY,
-      ...options,
+      ...typstOptions,
     });
+    this.wasm = wasm;
+    // Zero-config fonts: each option defaults independently to the bundled
+    // set matching the editor - `undefined` means "use the default", a
+    // supplied value (including an explicit `[]` for none) takes over. The
+    // independence keeps the bytes consistent with the constructor's
+    // independent `emojiFontFamily` default: custom body fonts don't
+    // silently drop emoji support, and vice versa. Values may be promises
+    // (the constructor stays sync); they resolve on first export.
+    this.fonts =
+      fonts === undefined ? loadDefaultBodyFonts() : Promise.resolve(fonts);
+    this.emojiFont =
+      emojiFont === undefined
+        ? loadDefaultEmojiFont()
+        : Promise.resolve(emojiFont);
+    // A caller-supplied promise may reject before the first export awaits
+    // it; these no-op handlers keep that from surfacing as an unhandled
+    // rejection (the export still rejects with the real error).
+    this.fonts.catch(() => {});
+    this.emojiFont.catch(() => {});
   }
 
   /**
@@ -160,9 +246,30 @@ export class PDFExporter<
   public async toPDF(
     blocks: Block<B, I, S>[],
     options: PdfExportOptions = {},
-    documentOptions?: TypstDocumentOptions,
   ): Promise<PdfExportResult> {
-    const { tryDeclarePdfUA = true, ...compileOptions } = options;
+    const {
+      tryDeclarePdfUA = true,
+      assets,
+      creationTimestamp,
+      ...documentOptions
+    } = options;
+    // Attempting the claim without a document language is a caller-args
+    // error (like the asset collision below), not a document
+    // nonconformity: the PDF would otherwise carry Typst's silently
+    // defaulted language (English), and a wrong `/Lang` (e.g. "en" on a
+    // German document) is an accessibility defect no validator can catch.
+    // Unlike heading structure or alt text - content the end user can fix -
+    // the language is an integration-time decision only the caller can
+    // make, so it fails loudly (and first) at development time instead of
+    // quietly producing forever-unclaimed exports.
+    if (tryDeclarePdfUA && !options.lang) {
+      throw new Error(
+        "PDFExporter: declaring PDF/UA-1 (tryDeclarePdfUA, the default) " +
+          "requires the document's language - pass its BCP-47 tag in the " +
+          'export options (e.g. { lang: "en" }), or opt out of the ' +
+          "claim with tryDeclarePdfUA: false.",
+      );
+    }
     const typst = await this.toTypst(blocks, documentOptions);
     // The images collected during the export are mapped into the compiler
     // alongside (not instead of) any assets the caller supplied - e.g. an
@@ -170,7 +277,7 @@ export class PDFExporter<
     // the exporter's own key space would be silently shadowed by the merge,
     // so that's rejected loudly instead (a programmer error, not an
     // expected outcome - hence a throw, unlike compile failures).
-    for (const key of compileOptions.assets?.keys() ?? []) {
+    for (const key of assets?.keys() ?? []) {
       if (this.assetFiles.has(key)) {
         throw new Error(
           `PDFExporter: the caller-supplied asset "${key}" collides with an ` +
@@ -178,25 +285,13 @@ export class PDFExporter<
         );
       }
     }
-    // Zero-config fonts: each option defaults independently to the bundled
-    // set matching the editor - `undefined` means "use the default", a
-    // supplied value (including an explicit `[]` for none) takes over. The
-    // independence keeps the bytes consistent with the constructor's
-    // independent `emojiFontFamily` default: custom body fonts don't
-    // silently drop emoji support, and vice versa.
-    const [fonts, emojiFont] = await Promise.all([
-      compileOptions.fonts === undefined
-        ? loadDefaultBodyFonts()
-        : compileOptions.fonts,
-      compileOptions.emojiFont === undefined
-        ? loadDefaultEmojiFont()
-        : compileOptions.emojiFont,
-    ]);
+    const [fonts, emojiFont] = await Promise.all([this.fonts, this.emojiFont]);
     const resolved: TypstCompileOptions = {
-      ...compileOptions,
+      wasm: this.wasm,
       fonts,
       emojiFont,
-      assets: new Map([...(compileOptions.assets ?? []), ...this.assetFiles]),
+      creationTimestamp,
+      assets: new Map([...(assets ?? []), ...this.assetFiles]),
     };
 
     if (!tryDeclarePdfUA) {
@@ -204,24 +299,6 @@ export class PDFExporter<
         declared: false,
         reason: "tryDeclarePdfUA-disabled",
       });
-    }
-
-    // Attempting the claim without a document language is a caller-args
-    // error (like the asset collision above), not a document
-    // nonconformity: the PDF would otherwise carry Typst's silently
-    // defaulted language (English), and a wrong `/Lang` (e.g. "en" on a
-    // German document) is an accessibility defect no validator can catch.
-    // Unlike heading structure or alt text - content the end user can fix -
-    // the language is an integration-time decision only the caller can
-    // make, so it fails loudly at development time instead of quietly
-    // producing forever-unclaimed exports.
-    if (!documentOptions?.lang) {
-      throw new Error(
-        "PDFExporter: declaring PDF/UA-1 (tryDeclarePdfUA, the default) " +
-          "requires the document's language - pass its BCP-47 tag in the " +
-          'document options (e.g. { lang: "en" }), or opt out of the ' +
-          "claim with tryDeclarePdfUA: false.",
-      );
     }
 
     const declared = await compileTypstToPdf(typst, {

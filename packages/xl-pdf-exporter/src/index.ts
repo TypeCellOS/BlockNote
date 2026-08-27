@@ -5,6 +5,7 @@
 export * from "@blocknote/xl-typst-exporter";
 export {
   PDFExporter,
+  type PdfExporterOptions,
   type PdfExportOptions,
   type PdfExportResult,
   type PdfUAResult,
@@ -14,6 +15,10 @@ export {
   compileTypstToPdf,
   type TypstCompileOptions,
 } from "./pdfua/compileTypst.js";
+export {
+  loadDefaultBodyFonts,
+  loadDefaultEmojiFont,
+} from "./pdfua/defaultFonts.js";
 export {
   isPdfStandardViolation,
   type CompilePdfResult,

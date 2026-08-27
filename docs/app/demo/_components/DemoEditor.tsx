@@ -343,12 +343,12 @@ function DemoEditorInner({
       const exporter = new PDFExporter(
         editor.schema,
         typstDefaultSchemaMappings,
-      );
-      const result = await exporter.toPDF(
-        editor.document,
         { wasm: compilerWasmUrl },
-        { title: "BlockNote demo document", lang: "en" },
       );
+      const result = await exporter.toPDF(editor.document, {
+        title: "BlockNote demo document",
+        lang: "en",
+      });
       if (result.error) {
         throw new Error(
           `PDF export failed: ${result.compileErrors

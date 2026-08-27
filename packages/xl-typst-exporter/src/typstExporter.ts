@@ -161,6 +161,11 @@ export class TypstExporter<
     // `options.colors[name]` whose types promise a value.
     const newOptions = {
       ...options,
+      // These family names must match what the PDF exporter's bundled
+      // default font files declare in their name tables (defaultFonts.ts).
+      // The pairing is pinned by pdfExporter.test.ts's "keeps the bundled
+      // default fonts in sync" test - changing a default here without the
+      // matching font file fails it.
       fontFamily: options?.fontFamily ?? "Inter 18pt",
       monoFontFamily: options?.monoFontFamily ?? "Geist Mono",
       fontSize: options?.fontSize ?? 12,

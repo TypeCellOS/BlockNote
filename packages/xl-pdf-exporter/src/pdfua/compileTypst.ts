@@ -15,10 +15,18 @@ export interface TypstCompileOptions {
   wasm?: TypstCompilerOptions["wasm"];
   /**
    * Fonts (as bytes) to load into the compiler - the body fonts the
-   * exporter references (e.g. Inter, Geist Mono). The compiler ships no
+   * source references (e.g. Inter, Geist Mono). This low-level function
+   * has no defaults (`PDFExporter` adds those); the compiler ships no
    * fonts of its own: text renders only with supplied fonts, and a
    * document needing a missing one fails to compile (loudly, not with
    * substituted glyphs).
+   *
+   * Fonts are selected by the family name embedded in each file's name
+   * table (array order and file names play no role) - the exporter's
+   * `fontFamily` options must match it exactly. A mismatch surfaces as an
+   * `unknown font family` entry in the result's `compileWarnings`;
+   * `TypstCompiler.fontFamilies` (from `@blocknote/xl-typst-compiler`)
+   * lists what a font file actually declares.
    */
   fonts?: Uint8Array[];
   /**

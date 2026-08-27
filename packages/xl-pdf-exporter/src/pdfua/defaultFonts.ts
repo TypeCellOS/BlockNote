@@ -35,13 +35,21 @@ function cached<T>(load: () => Promise<T>): () => Promise<T> {
 
 /**
  * The default body font set for zero-config exports, matching the editor:
+ * these files must declare (in their name tables) exactly the family names
+ * the exporters reference by default - TypstExporter's fontFamily /
+ * monoFontFamily and {@link DEFAULT_EMOJI_FONT_FAMILY}. The pairing is
+ * pinned by pdfExporter.test.ts's "keeps the bundled default fonts in
+ * sync" test: swapping a file (or renaming a default) fails it.
+ *
  * Inter (body, 4 faces), Geist Mono (code), and New Computer Modern Math
  * (Typst's math family - the compiler wasm embeds no fonts, so without it
  * a document with math blocks fails to compile). Embedded in the package
  * as lazily-imported chunks (the same mechanism the react-pdf exporter
  * uses), so nothing loads until a zero-config export runs, and exports
  * work offline. Used when the compile options' `fonts` is undefined - pass
- * your own (or an explicit `[]` for none) to skip it.
+ * your own (or an explicit `[]` for none) to skip it, or spread this
+ * loader's result to *extend* it (e.g. `[...(await loadDefaultBodyFonts()),
+ * myCjkFont]`).
  */
 export const loadDefaultBodyFonts: () => Promise<Uint8Array[]> = cached(() =>
   Promise.all([
