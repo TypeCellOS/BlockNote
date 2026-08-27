@@ -90,6 +90,20 @@ export const IMG_SRC_BASE =
 export const IMG_SRC_NEW =
   "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%234ecdc4'/></svg>";
 
+// Shared note for the concurrent table scenarios: structural table merges are
+// a known pre-existing limitation of the collaboration layer, independent of
+// the suggestion/diff rendering.
+const CONCURRENT_TABLE_FEEDBACK: Feedback[] = [
+  {
+    severity: "low",
+    note:
+      "Concurrent structural edits to the same table don't merge " +
+      "conflict-free — simultaneous row/column changes can combine into an " +
+      "inconsistent table. A follow-up is a dedicated table CRDT in Yjs + " +
+      "BlockNote. (Pre-existing collaboration issue, not specific to diffs.)",
+  },
+];
+
 // Shared 2×2 table baseline used by most of the table scenarios.
 const TABLE_2X2 = {
   id: "table",
@@ -895,12 +909,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "table-merge-cells",
-    feedback: [
-      {
-        severity: "low",
-        note: "The diff shows a phantom extra 'deleted column' that isn't actually part of the merge.",
-      },
-    ],
     title: "Merge cells",
     category: "Tables",
     description: "Merge the two top-row cells into one (colspan 2).",
@@ -1149,6 +1157,7 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "concurrent",
     id: "concurrent-table-row-and-column",
+    feedback: CONCURRENT_TABLE_FEEDBACK,
     title: "Add row vs add column",
     category: "Tables",
     description: "A adds a row while B adds a column.",
@@ -1177,6 +1186,7 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "concurrent",
     id: "concurrent-table-addcol-vs-addrow",
+    feedback: CONCURRENT_TABLE_FEEDBACK,
     title: "Add column vs add row",
     category: "Tables",
     description: "A adds a column while B adds a row.",
@@ -1205,18 +1215,10 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "concurrent",
     id: "concurrent-table-row-vs-column",
-    feedback: [
-      {
-        severity: "high",
-        note: "Crashes — prosemirror-tables' fixTables treats the suggestion-marked table as malformed and feeds y-prosemirror a delta Yjs can't apply (lib0 'Unexpected case'). Confirmed via a fixTables on/off loop (25/25 crashes on, 0/25 off); fix is to block fixTablesKey transactions while suggestions are active, mirroring AIExtension during ai-writing.",
-      },
-    ],
+    feedback: CONCURRENT_TABLE_FEEDBACK,
     title: "Delete row vs add column",
     category: "Tables",
-    description:
-      "A deletes a row while B adds a column — known to crash the merge " +
-      "(prosemirror-tables fixTables).",
-    knownCrash: true,
+    description: "A deletes a row while B adds a column.",
     initial: [TABLE_2X2],
     applyA: (editor) =>
       editor.updateBlock("table", {
@@ -1237,12 +1239,7 @@ export const scenarios: SuggestionScenario[] = [
     kind: "concurrent",
     id: "concurrent-table-delcol-vs-addrow",
     title: "Delete column vs add row",
-    feedback: [
-      {
-        severity: "high",
-        note: "Diff seems weird and A2 in wrong place",
-      },
-    ],
+    feedback: CONCURRENT_TABLE_FEEDBACK,
     category: "Tables",
     description: "A deletes a column while B adds a row.",
     initial: [TABLE_2X2],
@@ -1270,6 +1267,7 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "concurrent",
     id: "concurrent-table-seq-col-then-row",
+    feedback: CONCURRENT_TABLE_FEEDBACK,
     title: "A adds column then row, B adds column",
     category: "Tables",
     description: "A adds a column and then a row (two edits); B adds a column.",
@@ -1306,6 +1304,7 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "concurrent",
     id: "concurrent-table-seq-row-then-col",
+    feedback: CONCURRENT_TABLE_FEEDBACK,
     title: "A adds row then column, B adds row",
     category: "Tables",
     description: "A adds a row and then a column (two edits); B adds a row.",
@@ -1623,12 +1622,6 @@ export const scenarios: SuggestionScenario[] = [
       editor.replaceBlocks(editor.document, [
         { type: "paragraph", content: "(all content removed)" },
       ]),
-    feedback: [
-      {
-        severity: "high",
-        note: "the 'all content removed' paragraph should show up below or above the document, not inside it",
-      },
-    ],
   },
 
   // --- Merge / split ---

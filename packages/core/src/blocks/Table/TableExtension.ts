@@ -1,7 +1,8 @@
 import { callOrReturn, Extension, getExtensionField } from "@tiptap/core";
-import { TextSelection } from "prosemirror-state";
+import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
 import {
   columnResizing,
+  fixTablesKey,
   goToNextCell,
   isInTable,
   moveCellForward,
@@ -17,7 +18,8 @@ export const EMPTY_CELL_HEIGHT = 31;
 export const TableExtension = Extension.create({
   name: "BlockNoteTableExtension",
 
-  addProseMirrorPlugins: () => {
+  addProseMirrorPlugins() {
+    const editor = this.editor;
     return [
       columnResizing({
         cellMinWidth: RESIZE_MIN_WIDTH,
@@ -28,6 +30,18 @@ export const TableExtension = Extension.create({
         View: null,
       }),
       tableEditing(),
+      new Plugin({
+        key: new PluginKey("blocknote-fix-tables-gate"),
+        // `tableEditing()` appends a normalizing `fixTables` transaction
+        // whenever it sees an "inconsistent" table. A rendered diff shows
+        // inconsistent tables *on purpose* (deleted row/column copies next to
+        // their replacements), and the editor is read-only while it does — so
+        // letting the fix run would silently rewrite the very diff being
+        // displayed. A read-only editor shouldn't self-normalize at all:
+        // block `fixTables` transactions while the editor isn't editable.
+        filterTransaction: (tr) =>
+          !(tr.getMeta(fixTablesKey) && !editor.isEditable),
+      }),
     ];
   },
 
