@@ -260,7 +260,9 @@ describe("pdf/ua export through the complete typst pipeline in the browser", () 
   // rasterizer at 3x the suite cost.
   test.skipIf(browserName !== "chromium")(
     "matches the per-page visual snapshot",
-    { timeout: 60000 },
+    // Cold wasm load + compile + rasterizing every page needs more headroom
+    // than the other tests on shared CI runners.
+    { timeout: 120000 },
     async () => {
       const { pdf } = await compileTypstUaPdf();
 

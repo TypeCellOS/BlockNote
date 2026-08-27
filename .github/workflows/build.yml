@@ -56,7 +56,12 @@ jobs:
 
       - name: Soft release
         id: soft-release
-        run: vp dlx pkg-pr-new publish './packages/*' # TODO disabled only for AI branch--compact
+        # xl-typst-compiler is excluded: its wasm makes the package ~25MB,
+        # which pkg.pr.new rejects (413; multipart uploads are whitelisted -
+        # https://github.com/stackblitz-labs/pkg.pr.new/blob/main/.whitelist).
+        # Preview installs of the PDF exporter therefore lack the compiler
+        # until the repo is whitelisted or the wasm ships separately.
+        run: vp dlx pkg-pr-new publish $(ls -d ./packages/* | grep -v xl-typst-compiler) # TODO disabled only for AI branch--compact
 
   build-typst-compiler:
     # The one package the e2e suite consumes through build outputs instead of
