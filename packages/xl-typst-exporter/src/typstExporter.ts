@@ -50,6 +50,16 @@ export type TypstExporterOptions = ExporterOptions & {
 };
 
 /**
+ * The default body font family — what the bundled default fonts declare and
+ * the editor uses. Exported so a custom `fontFamily` fallback list can
+ * reference it without hardcoding, e.g. `[DEFAULT_FONT_FAMILY, "Noto Sans SC"]`.
+ */
+export const DEFAULT_FONT_FAMILY = "Inter 18pt";
+
+/** The default code font family. See {@link DEFAULT_FONT_FAMILY}. */
+export const DEFAULT_MONO_FONT_FAMILY = "Geist Mono";
+
+/**
  * Per-document options applied at export time, passed to `toTypst(blocks, ...)`.
  * Mirrors how the other exporters take title/author/header/footer at the export
  * call rather than in the constructor.
@@ -166,8 +176,8 @@ export class TypstExporter<
       // The pairing is pinned by pdfExporter.test.ts's "keeps the bundled
       // default fonts in sync" test - changing a default here without the
       // matching font file fails it.
-      fontFamily: options?.fontFamily ?? "Inter 18pt",
-      monoFontFamily: options?.monoFontFamily ?? "Geist Mono",
+      fontFamily: options?.fontFamily ?? DEFAULT_FONT_FAMILY,
+      monoFontFamily: options?.monoFontFamily ?? DEFAULT_MONO_FONT_FAMILY,
       fontSize: options?.fontSize ?? 12,
       colors: options?.colors ?? COLORS_DEFAULT,
       // Proxy cross-origin image fetches so any host works in the browser, not

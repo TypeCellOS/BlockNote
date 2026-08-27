@@ -9,9 +9,8 @@ path: /docs/export-to-pdf
 
 It's possible to export BlockNote documents to PDF, completely client-side.
 The exporter is powered by the [Typst](https://typst.app) typesetting engine
-(compiled to WebAssembly) and produces **accessible, tagged PDF/UA-1**
-documents: the PDF carries a logical structure tree (headings, paragraphs,
-lists, tables, figures with alt text, links) that screen readers can navigate.
+(compiled to WebAssembly) and produces accessible, tagged documents; see
+[PDF/UA conformance](#pdfua-conformance).
 
 <Callout type={"info"}>
   This feature is provided by the `@blocknote/xl-pdf-exporter`. `xl-` packages
@@ -37,26 +36,20 @@ import {
 // Create the exporter
 const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings);
 
-// Export the document - the result carries the PDF as bytes and as a Blob
-const { blob, pdfUA } = await exporter.toPDF(editor.document, {
+// Export the document; the result carries the PDF as bytes and as a Blob
+const result = await exporter.toPDF(editor.document, {
   title: "My document",
   lang: "en",
 });
+if (!result.error) {
+  const url = URL.createObjectURL(result.blob);
+  // e.g. open or download `url`
+}
 ```
 
-This works out of the box, fully offline: the export matches the editor's
-look (Inter body text, Geist Mono code) and handles math blocks and emoji —
-the default fonts ship inside the package and load lazily on the first
-export, and the compiler (a ~25MB wasm file from
-`@blocknote/xl-typst-compiler`) loads from the package's own files, emitted
-as an asset by your bundler. Nothing is ever fetched from a CDN.
-
-The result's `pdfUA` field reports whether the document earned the PDF/UA-1
-conformance claim — see [PDF/UA conformance](#pdfua-conformance).
-
-When repeatedly exporting changing content (e.g. a live preview), create a
-fresh exporter per export — construction is cheap, and an exporter instance
-accumulates the image assets it has resolved for as long as it lives.
+This works out of the box, fully offline: exports match the editor's look,
+and everything needed (the default fonts and the compiler itself) ships
+inside the package. Nothing is fetched from a CDN.
 
 See the [full example](/examples/interoperability/converting-blocks-to-pdf-ua)
 with a live PDF preview below:
@@ -65,13 +58,11 @@ with a live PDF preview below:
 
 ### Customizing the PDF
 
-The second parameter of `toPDF` is a single per-export options bag: the
-per-document options below, plus `tryDeclarePdfUA`, extra `assets` for
-caller-supplied markup, and a `creationTimestamp`:
+`toPDF` takes per-export options: the document metadata and page setup.
 
 ```typescript
-const { blob } = await exporter.toPDF(editor.document, {
-  // Document title - required for PDF/UA (also shown in the viewer's title bar)
+const result = await exporter.toPDF(editor.document, {
+  // Document title, shown in the viewer's title bar
   title: "My document",
   // Document author, written to the PDF metadata
   author: "John Doe",
@@ -88,200 +79,130 @@ const { blob } = await exporter.toPDF(editor.document, {
 });
 ```
 
-### Custom mappings / custom schemas
+The remaining export options are
+[`tryDeclarePdfUA`](#pdfua-conformance), `assets` (extra files for
+caller-supplied header/footer markup), and `creationTimestamp` (a fixed
+Unix timestamp for byte-reproducible output).
 
-The `PDFExporter` constructor takes a `schema` and `mappings` parameter. A
-_mapping_ defines how to convert a BlockNote schema element (a Block, Inline
-Content, or Style) — for this exporter, into a **Typst markup string**. The
-same mappings drive the standalone [Typst export](/docs/features/export/typst),
-so one custom-block mapping serves both formats.
-
-If you're using a [custom schema](/docs/features/custom-schemas) in your
-editor, or if you want to overwrite how default BlockNote elements are
-converted, you can pass your own `mappings`:
-
-```typescript
-import {
-  PDFExporter,
-  typstDefaultSchemaMappings,
-  strLit,
-} from "@blocknote/xl-pdf-exporter";
-
-new PDFExporter(schema, {
-  ...typstDefaultSchemaMappings,
-  blockMapping: {
-    ...typstDefaultSchemaMappings.blockMapping,
-    myCustomBlock: (block, exporter) => {
-      // Return Typst markup; `strLit` safely embeds user text as a
-      // Typst string literal.
-      return `#${strLit("My custom block")}`;
-    },
-  },
-});
-```
-
-For a block with inline content, render it the way the default mappings do:
-`exporter.transformInlineContent(block.content).join("")` (inline results are
-markup strings, so plain concatenation composes them).
-
-### Math & diagram blocks
-
-The [math](/docs/features/blocks/math) and
-[diagram](/docs/features/blocks/diagrams) blocks ship Typst mappings — math
-exports as native Typst equations (real text, not images), diagrams as
-embedded vector SVG — both carrying alt text, as PDF/UA requires:
-
-```typescript
-import { diagramBlockMapping } from "@blocknote/diagram-block/typst-exporter";
-import {
-  inlineMathMapping,
-  mathBlockMapping,
-} from "@blocknote/math-block/typst-exporter";
-
-new PDFExporter(editor.schema, {
-  ...typstDefaultSchemaMappings,
-  blockMapping: {
-    ...typstDefaultSchemaMappings.blockMapping,
-    mathBlock: mathBlockMapping,
-    diagram: diagramBlockMapping,
-  },
-  inlineContentMapping: {
-    ...typstDefaultSchemaMappings.inlineContentMapping,
-    math: inlineMathMapping,
-  },
-});
-```
-
-### Fonts & offline use
-
-By default, exports use a font set matching the editor — Inter (body), Geist
-Mono (code), New Computer Modern Math (math blocks) and Noto Color Emoji
-(emoji, [required for PDF/UA](#pdfua-conformance)) — embedded in the package
-and loaded lazily on the first export, and the compiler wasm loads from
-`@blocknote/xl-typst-compiler`'s own package files. Neither touches a CDN.
-The exporter's constructor options control
-all of it; to take explicit control of where the wasm is served from (e.g.
-self-hosting with caching headers), pass its URL or bytes:
-
-```typescript
-import compilerWasmUrl from "@blocknote/xl-typst-compiler/wasm?url";
-
-const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings, {
-  // The compiler wasm as an explicitly bundled asset (Vite shown here).
-  wasm: compilerWasmUrl,
-});
-```
-
-To take full control of fonts (e.g. a different look, or trimming the lazily
-loaded defaults — the emoji font alone is ~5MB), pass your own font bytes.
-Each option independently replaces its bundled default: supplying `fonts`
-keeps the default emoji font (and vice versa), and an explicit empty array
-disables one entirely:
-
-```typescript
-const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings, {
-  // Font bytes (Uint8Array) to load into the compiler - or a promise of
-  // them, so lazy loading fits the sync constructor.
-  fonts: [myBodyFont, myMonoFont],
-  // An emoji-capable font. Browsers give the compiler no access to OS
-  // fonts, so without one emoji render as missing glyphs (and fail PDF/UA).
-  emojiFont: myEmojiFont,
-});
-```
-
-The compiler ships no fonts of its own and never falls back silently: text
-that no supplied font covers fails the export loudly rather than rendering
-substituted glyphs. The wasm module is loaded once per page; fonts are
-per-export options, so different exports on the same page can freely use
-different font sets.
-
-When passing custom fonts, set the exporter's font families to match —
-Typst selects fonts by the family name embedded in the font file itself
-(defaults: `"Inter 18pt"` body, `"Geist Mono"` code, `"Noto Color Emoji"`
-emoji). A mismatch shows up as an `unknown font family` entry in the
-result's `compileWarnings`, naming exactly what didn't resolve. To cover scripts the default fonts don't (e.g. CJK), extend rather than
-replace: the bundled defaults are exported as loaders, so spreading them
-plus your addition is plain composition, and a `fontFamily` list makes
-Typst fall back per glyph — Latin stays Inter, CJK comes from the added
-font:
-
-```typescript
-import {
-  loadDefaultBodyFonts,
-  PDFExporter,
-  typstDefaultSchemaMappings,
-} from "@blocknote/xl-pdf-exporter";
-import notoSansSCUrl from "./NotoSansSC-Regular.ttf?url";
-
-// Family names and font bytes side by side - the whole font setup is
-// constructor configuration.
-const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings, {
-  fontFamily: ["Inter 18pt", "Noto Sans SC"],
-  fonts: loadDefaultBodyFonts().then(async (fonts) => [
-    ...fonts,
-    new Uint8Array(await (await fetch(notoSansSCUrl)).arrayBuffer()),
-  ]),
-});
-
-const result = await exporter.toPDF(editor.document, {
-  title: "文档",
-  lang: "zh",
-});
-```
-
-(The family name in `fontFamily` must match what the font file itself
-declares — "Noto Sans SC" here; a mismatch shows up in `compileWarnings`.)
+A document that fails to compile (e.g. text in a script the loaded fonts
+don't cover) is reported in the result as `{ error: "compile-failed" }`
+with the compiler's diagnostics, rather than thrown.
 
 ### PDF/UA conformance
 
-The produced PDF always carries the tagged (accessible) structure tree. On
-top of that, the exporter **declares PDF/UA-1 conformance when — and only
-when — the document earns it**: Typst validates conformance during the
-compile, and a nonconforming document is automatically exported as
-tagged-but-unclaimed instead (an honest output rather than a false claim),
-with the violations reported in the result:
+The produced PDF is always _tagged_: it carries a logical structure tree
+(headings, paragraphs, lists, tables, figures with alt text, links) that
+screen readers can navigate. On top of that, the exporter **declares
+PDF/UA-1 conformance when, and only when, the document earns it**: Typst
+validates conformance during the compile, and a nonconforming document is
+exported as tagged-but-unclaimed instead, with the violations reported in
+the result:
 
 ```typescript
-const { blob, pdfUA } = await exporter.toPDF(editor.document, {
+const result = await exporter.toPDF(editor.document, {
   title: "My document",
   lang: "en",
 });
-if (!pdfUA.declared && pdfUA.reason === "nonconforming") {
+if (
+  !result.error &&
+  !result.pdfUA.declared &&
+  result.pdfUA.reason === "nonconforming"
+) {
   // e.g. "PDF/UA-1 error: the first heading must be of level 1"
-  console.info(pdfUA.violations.map((v) => v.message));
+  console.info(result.pdfUA.violations.map((v) => v.message));
 }
 ```
 
 What conformance requires of the document:
 
-- **Title and language**: pass `title` and `lang` in the document options.
-  Without a title, Typst's validation withholds the claim. The language is
-  required to attempt the claim at all — exporting without `lang` throws
-  (pass `tryDeclarePdfUA: false` to skip the claim instead), because the
-  PDF would otherwise declare Typst's default language (English), and a
-  wrong language declaration is an accessibility defect no validator can
-  catch.
+- **Title and language**: pass `title` and `lang` in the export options.
+  `lang` is required to attempt the claim at all: a wrong language
+  declaration is an accessibility defect no validator can catch, so
+  exporting without it throws.
 - **Headings**: the first heading must be level 1, and levels must be
   consecutive (no jumping from H1 to H3).
-- **Alt text**: every image needs it. BlockNote's image block has no
-  dedicated alt field yet, so the caption (or file name) is used — give
-  images captions.
+
+Images always get the alt text PDF/UA requires, derived from the caption
+with the file name as fallback. Captions make far better alt text, so
+encourage them.
 
 Pass `tryDeclarePdfUA: false` in the export options to skip the validation
-and claim entirely (e.g. for a live preview, where the validation compile
-would be wasted work). Conformance of the claim is enforced at compile
-time by the Typst engine itself — a declared export has also been verified
-against [veraPDF](https://verapdf.org)'s `--flavour ua1` checks (0 failed
-checks) if you need independent validation.
+and claim entirely, e.g. for a live preview, where the validation compile
+would be wasted work. For live previews, also create a fresh exporter per
+export, since an instance accumulates the image assets it resolves.
+
+### Custom mappings / custom schemas
+
+The `PDFExporter` constructor takes a `schema` and `mappings` parameter. A
+_mapping_ converts a BlockNote schema element into a **Typst markup
+string**, and the mappings are shared with the standalone Typst export. See
+[custom mappings](/docs/features/export/typst#custom-mappings--custom-schemas)
+there; everything on writing them applies to this exporter unchanged.
+
+### Math & diagram blocks
+
+The [math](/docs/features/blocks/math) and
+[diagram](/docs/features/blocks/diagrams) blocks ship their own Typst
+mappings: math exports as native Typst equations (real text, not images),
+diagrams as embedded vector graphics. See
+[exporting math](/docs/features/blocks/math#typst--pdf) and
+[exporting diagrams](/docs/features/blocks/diagrams#exporting) for the setup.
+
+### Fonts
+
+By default, exports use a bundled font set matching the editor: Inter
+(body), Geist Mono (code), New Computer Modern Math (math), and Noto Color
+Emoji. To use your own fonts instead, pass the font bytes and the matching
+family names to the constructor:
+
+```typescript
+const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings, {
+  fontFamily: "My Font",
+  monoFontFamily: "My Mono Font",
+  // Uint8Array[], or a promise of them
+  fonts: [myFontBytes, myMonoFontBytes],
+  // An emoji-capable font; replaces the default independently of `fonts`
+  emojiFont: myEmojiFontBytes,
+});
+```
+
+Typst selects fonts by the family name embedded in the font file itself, so
+the `fontFamily` options must match what your files declare. A mismatch
+shows up as an `unknown font family` entry in the result's
+`compileWarnings`.
+
+To extend the defaults rather than replace them (e.g. adding a CJK font as
+a per-glyph fallback), spread the exported default loaders:
+
+```typescript
+import {
+  DEFAULT_FONT_FAMILY,
+  loadDefaultBodyFonts,
+  PDFExporter,
+  typstDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter";
+
+const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings, {
+  fontFamily: [DEFAULT_FONT_FAMILY, "Noto Sans SC"],
+  fonts: loadDefaultBodyFonts().then((fonts) => [...fonts, notoSansSCBytes]),
+});
+```
+
+### Self-hosting the compiler
+
+The Typst compiler is a ~25MB wasm file from `@blocknote/xl-typst-compiler`,
+by default emitted as an asset by your bundler. To control where it is
+served from (e.g. with caching headers), pass its URL or bytes:
+
+```typescript
+import compilerWasmUrl from "@blocknote/xl-typst-compiler/wasm?url";
+
+const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings, {
+  wasm: compilerWasmUrl,
+});
+```
 
 ### Exporter options
-
-The split between the two option surfaces matches the other exporters:
-the **constructor** configures everything the exporter *is* — styling, the
-font family names **and** the font bytes they resolve against, the
-compiler wasm — while `toPDF`'s **options** carry the facts of the
-individual export: the document metadata and page setup, plus the
-conformance policy (`tryDeclarePdfUA`).
 
 The `PDFExporter` constructor takes an optional third `options` parameter:
 
@@ -296,18 +217,23 @@ const defaultOptions = {
   dictionary: locales.en,
   // the colors used for highlighting, background colors and font colors
   colors: COLORS_DEFAULT, // defaults from @blocknote/core
-  // font families, see "Fonts & offline use" above
+  // font families (DEFAULT_FONT_FAMILY / DEFAULT_MONO_FONT_FAMILY) and the
+  // font bytes they resolve against - see "Fonts" above
   fontFamily: "Inter 18pt",
   monoFontFamily: "Geist Mono",
+  fonts: loadDefaultBodyFonts(),
+  emojiFont: loadDefaultEmojiFont(),
   // base font size in points
   fontSize: 12,
+  // where the compiler wasm loads from - see "Self-hosting the compiler"
+  wasm: undefined, // the packaged wasm
 };
 ```
 
 ### Exporting Typst markup
 
 The underlying Typst source export is available standalone (e.g. to compile
-with your own Typst toolchain, including server-side) — see
+with your own Typst toolchain, including server-side); see
 [Typst export](/docs/features/export/typst).
 
 ### Deprecated: the react-pdf exporter
@@ -325,6 +251,6 @@ import {
 } from "@blocknote/xl-pdf-exporter/react-pdf";
 ```
 
-Note that its mappings are react-pdf mappings — when migrating to the new
+Note that its mappings are react-pdf mappings; when migrating to the new
 exporter, custom blocks need a [Typst mapping](#custom-mappings--custom-schemas)
 instead.
