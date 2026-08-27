@@ -515,8 +515,11 @@ SideMenuController offsets its position to keep it centered on the line. */
   position: fixed;
   top: 0;
   left: 0;
-  width: var(--bn-vv-width, 100vw);
+  width: 100vw;
   z-index: calc(var(--bn-ui-base-z-index) + 40);
+  /* `translate`: Move just below bottom of visual viewport. */
+  /* `translateY`: Move from below under bottom edge of visual viewport to just above it. */
+  /* `scale`: Preserve size on zoom. */
   transform: translate(
       var(--bn-vv-left, 0px),
       calc(var(--bn-vv-top, 0px) + var(--bn-vv-height, 0px))
@@ -524,6 +527,7 @@ SideMenuController offsets its position to keep it centered on the line. */
     translateY(-100%) scale(calc(1 / var(--bn-vv-scale, 1)));
   transform-origin: left bottom;
   will-change: transform;
+  /* Slightly mitigates jitter. */
   transition: transform 0.2s cubic-bezier(0.5, 1, 0.89, 1);
   padding-bottom: env(safe-area-inset-bottom, 0);
 }

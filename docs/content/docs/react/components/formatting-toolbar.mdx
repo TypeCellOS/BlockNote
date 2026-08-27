@@ -43,6 +43,19 @@ Here, we use the `FormattingToolbar` component but keep the default buttons (we 
 
 On touch devices, BlockNote's default UI replaces the floating Formatting Toolbar with a mobile Formatting Toolbar that sits just above the on-screen keyboard. It shows the same items as the regular Formatting Toolbar and is enabled by default - there's nothing to set up. Open any of the examples above on a phone to see it.
 
+### Viewport setup
+
+For the best behavior, add `interactive-widget=resizes-content` to your page's viewport meta tag:
+
+```html
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"
+/>
+```
+
+This is.
+
 The mobile Formatting Toolbar works with two page layouts. Which one you get depends on your app's layout:
 
 - **Scrolling document** (the default): the page scrolls as usual and BlockNote repositions the toolbar as you scroll.
@@ -50,7 +63,7 @@ The mobile Formatting Toolbar works with two page layouts. Which one you get dep
 
 ### Scrolling document
 
-This is what you get without any changes to your app. The toolbar follows the visible area above the keyboard as the page scrolls. Mobile browsers only report visual viewport changes after the fact, so the toolbar can lag or jitter slightly while the page is scrolling. If that matters for your app, switch to a scroll container.
+This is what you get without any changes to your app. The toolbar follows the visible area above the keyboard as the page scrolls. On iOS, mobile browsers only report visual viewport changes after the fact, so the toolbar can lag or jitter slightly while the page is scrolling. If that matters for your app, switch to a scroll container. (On Android, with the viewport meta above, the toolbar is pinned above the keyboard and doesn't move on scroll, so there's no lag to avoid.)
 
 ### Scroll container
 

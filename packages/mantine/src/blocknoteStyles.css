@@ -166,7 +166,6 @@
   padding: 2px;
   width: fit-content;
   overflow-x: auto;
-  max-width: var(--bn-vv-width, 100vw);
 }
 
 .bn-mantine .bn-toolbar:empty {

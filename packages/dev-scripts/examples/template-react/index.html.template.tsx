@@ -9,7 +9,10 @@ const template = (project: Project) => (
         }}
       ></script>
       <meta charSet="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"
+      />
       <title>{project.title}</title>
     </head>
     <body>
