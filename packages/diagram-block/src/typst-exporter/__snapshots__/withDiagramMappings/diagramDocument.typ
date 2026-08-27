@@ -1,5 +1,5 @@
-#set document(title: "Diagram", author: "")
-#set text(font: "Inter 18pt", size: 12pt, lang: "en")
+#set document(title: "Diagram")
+#set text(font: "Inter 18pt", size: 12pt)
 #set page(paper: "a4", margin: 48pt)
 #set par(leading: 0.78em, spacing: 0pt, justify: false)
 #set block(spacing: 0pt)

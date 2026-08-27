@@ -31,14 +31,15 @@ jobs:
       - name: Install Dependencies
         run: vp install
 
+      # `vp run -r build` includes @blocknote/xl-typst-compiler, whose build
+      # task compiles its Rust wasm when missing or stale (rustup is
+      # preinstalled on the runners; the pinned toolchain + wasm32 target
+      # auto-provision from rust/rust-toolchain.toml).
       - name: Build packages
         run: vp run -r build
 
       - name: Lint packages
         run: vp lint
-
-      - name: Install PDF tooling (veraPDF conformance gate + poppler visual snapshots)
-        run: bash tests/scripts/install-pdf-tooling.sh
 
       - name: Run unit tests
         run: vp run test
@@ -88,6 +89,12 @@ jobs:
 
       - name: Install dependencies
         run: vp install
+
+      # The e2e suite consumes xl-typst-compiler through its build outputs
+      # (see tests/vite.config.browser.ts). Its build task also compiles the
+      # Rust wasm when missing (rustup is preinstalled on the runners).
+      - name: Build Typst compiler package
+        run: vp run --filter @blocknote/xl-typst-compiler build
 
       # No preview server: Vitest Browser Mode serves the tests + mounted example
       # apps itself. `--browser` selects this matrix job's browser and

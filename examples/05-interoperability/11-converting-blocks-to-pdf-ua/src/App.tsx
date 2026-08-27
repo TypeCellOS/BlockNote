@@ -36,10 +36,12 @@ import {
   multiColumnDropCursor,
   withMultiColumn,
 } from "@blocknote/xl-multi-column";
-// Bundle the Typst compiler wasm so it resolves locally (no CDN / importer).
+// Bundle the Typst compiler wasm explicitly (it would otherwise load from
+// the package's own files - also CDN-free - but an explicit URL keeps the
+// bundling visible in this example).
 // Fonts need no setup: the exporter's bundled defaults (Inter, Geist Mono,
 // math, emoji - matching the editor) load lazily from the package.
-import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
+import compilerWasmUrl from "@blocknote/xl-typst-compiler/wasm?url";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "./styles.css";
@@ -69,15 +71,35 @@ function usePdfUA(
     setStatus("loading");
     void (async () => {
       try {
-        const blob = await makeExporter().toBlob(
+        const result = await makeExporter().toBlob(
           blocks,
-          { getModule: () => compilerWasmUrl },
+          { wasm: compilerWasmUrl },
           { title: "BlockNote document", lang: "en" },
         );
         if (stale) {
           return;
         }
-        setPdfUrl(URL.createObjectURL(blob));
+        // A document that fails to compile (e.g. text no supplied font
+        // covers) is an expected outcome, reported in the result.
+        if (result.error) {
+          // eslint-disable-next-line no-console
+          console.error(
+            "PDF export failed:",
+            result.compileErrors.map((d) => d.message).join("; "),
+          );
+          setStatus("error");
+          return;
+        }
+        // A nonconforming document (e.g. one not starting with an H1) still
+        // exports - tagged but without the PDF/UA-1 claim; surface why.
+        if (!result.pdfUA.declared && result.pdfUA.reason === "nonconforming") {
+          // eslint-disable-next-line no-console
+          console.info(
+            "Exported without PDF/UA-1 declaration:",
+            result.pdfUA.violations.map((v) => v.message).join("; "),
+          );
+        }
+        setPdfUrl(URL.createObjectURL(result.blob));
         setStatus("ready");
       } catch (e) {
         if (stale) {

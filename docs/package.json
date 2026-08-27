@@ -47,8 +47,6 @@
     "@marsidev/react-turnstile": "^1.4.2",
     "@mui/icons-material": "^5.16.1",
     "@mui/material": "^5.16.1",
-    "@myriaddreamin/typst-ts-web-compiler": "^0.8.0-rc3",
-    "@myriaddreamin/typst.ts": "^0.8.0-rc3",
     "@orama/orama": "^3.1.18",
     "@polar-sh/better-auth": "^1.6.4",
     "@polar-sh/sdk": "^0.42.2",
@@ -115,7 +113,8 @@
     "y-websocket": "^2.1.0",
     "yjs": "^13.6.27",
     "zod": "^4.3.5",
-    "@blocknote/xl-typst-exporter": "workspace:*"
+    "@blocknote/xl-typst-exporter": "workspace:*",
+    "@blocknote/xl-typst-compiler": "workspace:*"
   },
   "devDependencies": {
     "@blocknote/code-block": "workspace:*",

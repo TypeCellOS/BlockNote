@@ -56,18 +56,22 @@ export type TypstExporterOptions = ExporterOptions & {
  */
 export type TypstDocumentOptions = {
   /**
-   * Document title — required for PDF/UA (also sets `DisplayDocTitle`).
-   * @default "Document"
+   * Document title, written to the PDF metadata (and shown in the viewer's
+   * title bar). PDF/UA-1 requires one — without it the PDF exporter
+   * produces a tagged but unclaimed document. No default: absent means no
+   * title is written.
    */
   title?: string;
   /**
-   * Document author, written to PDF metadata.
-   * @default ""
+   * Document author, written to PDF metadata. No default.
    */
   author?: string;
   /**
-   * BCP-47 language tag, e.g. "en". Sets the document's natural language.
-   * @default "en"
+   * BCP-47 language tag of the document's natural language, e.g. "en".
+   * The PDF exporter requires it when declaring PDF/UA-1 (the default) —
+   * a wrong language declaration is an accessibility defect no validator
+   * can catch, so it must be stated rather than defaulted. No default
+   * here: absent means the markup declares no language.
    */
   lang?: string;
   /**
@@ -439,9 +443,21 @@ export class TypstExporter<
       families.length === 1
         ? strLit(families[0])
         : `(${families.map(strLit).join(", ")})`;
-    const title = doc.title ?? "Document";
-    const author = doc.author ?? "";
-    const lang = doc.lang ?? "en";
+    // No fabricated metadata: title, author, and language appear only when
+    // supplied. (PDF/UA requires a title and language - the PDF exporter
+    // gates its conformance claim on Typst's validation resp. the language
+    // check, rather than inventing values here.)
+    const documentArgs: string[] = [];
+    if (doc.title !== undefined) {
+      documentArgs.push(`title: ${strLit(doc.title)}`);
+    }
+    if (doc.author !== undefined) {
+      documentArgs.push(`author: ${strLit(doc.author)}`);
+    }
+    const textArgs = [`font: ${fontArg}`, `size: ${fontSize}pt`];
+    if (doc.lang !== undefined) {
+      textArgs.push(`lang: ${strLit(doc.lang)}`);
+    }
     const { header, footer } = doc;
     // Default margins ≈ the editor's 8% horizontal padding (54px / 670px)
     // applied to A4.
@@ -456,8 +472,10 @@ export class TypstExporter<
       pageArgs.push(`footer: [${footer}]`);
     }
     return [
-      `#set document(title: ${strLit(title)}, author: ${strLit(author)})`,
-      `#set text(font: ${fontArg}, size: ${fontSize}pt, lang: ${strLit(lang)})`,
+      ...(documentArgs.length
+        ? [`#set document(${documentArgs.join(", ")})`]
+        : []),
+      `#set text(${textArgs.join(", ")})`,
       `#set page(${pageArgs.join(", ")})`,
       // Line height ≈ the editor's 1.5 (≈18pt at 12pt). Block spacing is applied
       // as *padding* on each block (see applyBlockProps), not margin — so a

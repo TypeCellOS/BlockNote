@@ -38,19 +38,22 @@ import {
 const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings);
 
 // Export the document to a PDF Blob (there's also `toBytes` for a Uint8Array)
-const blob = await exporter.toBlob(
+const { blob, pdfUA } = await exporter.toBlob(
   editor.document,
   {},
   { title: "My document", lang: "en" },
 );
 ```
 
-This works out of the box: the export matches the editor's look (Inter body
-text, Geist Mono code) and handles math blocks and emoji — the default fonts
-ship inside the package and load lazily on the first export, with no CDN
-involved. The Typst compiler itself (a ~30MB wasm file) is the one thing
-loaded from a CDN by default; for production you'll want to bundle it: see
-[Fonts & offline use](#fonts--offline-use).
+This works out of the box, fully offline: the export matches the editor's
+look (Inter body text, Geist Mono code) and handles math blocks and emoji —
+the default fonts ship inside the package and load lazily on the first
+export, and the compiler (a ~25MB wasm file from
+`@blocknote/xl-typst-compiler`) loads from the package's own files, emitted
+as an asset by your bundler. Nothing is ever fetched from a CDN.
+
+The result's `pdfUA` field reports whether the document earned the PDF/UA-1
+conformance claim — see [PDF/UA conformance](#pdfua-conformance).
 
 When repeatedly exporting changing content (e.g. a live preview), create a
 fresh exporter per export — construction is cheap, and an exporter instance
@@ -68,7 +71,7 @@ The second parameter of `toBlob` / `toBytes` takes the compile options
 per-document options:
 
 ```typescript
-const blob = await exporter.toBlob(editor.document, {}, {
+const { blob } = await exporter.toBlob(editor.document, {}, {
   // Document title - required for PDF/UA (also shown in the viewer's title bar)
   title: "My document",
   // Document author, written to the PDF metadata
@@ -155,20 +158,23 @@ new PDFExporter(editor.schema, {
 By default, exports use a font set matching the editor — Inter (body), Geist
 Mono (code), New Computer Modern Math (math blocks) and Noto Color Emoji
 (emoji, [required for PDF/UA](#pdfua-conformance)) — embedded in the package
-and loaded lazily on the first export. Fonts never touch a CDN; the compiler
-wasm is the only CDN default, and bundling it makes the export fully
-offline. The compile options (the second parameter of `toBlob` / `toBytes`)
-control all of it:
+and loaded lazily on the first export, and the compiler wasm loads from
+`@blocknote/xl-typst-compiler`'s own package files. Neither touches a CDN.
+The compile options (the second parameter of `toBlob` / `toBytes`) control
+all of it; to take explicit control of where the wasm is served from (e.g.
+self-hosting with caching headers), pass its URL or bytes:
 
 ```typescript
-import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
+import compilerWasmUrl from "@blocknote/xl-typst-compiler/wasm?url";
 
-const blob = await exporter.toBlob(editor.document, {
-  // The compiler wasm, bundled by your bundler (Vite shown here) instead
-  // of loaded from a CDN. Install @myriaddreamin/typst-ts-web-compiler to
-  // import it.
-  getModule: () => compilerWasmUrl,
-});
+const { blob } = await exporter.toBlob(
+  editor.document,
+  {
+    // The compiler wasm as an explicitly bundled asset (Vite shown here).
+    wasm: compilerWasmUrl,
+  },
+  { title: "My document", lang: "en" },
+);
 ```
 
 To take full control of fonts (e.g. a different look, or trimming the lazily
@@ -178,22 +184,24 @@ keeps the default emoji font (and vice versa), and an explicit empty array
 disables one entirely:
 
 ```typescript
-const blob = await exporter.toBlob(editor.document, {
-  // Font bytes (Uint8Array) to load into the compiler.
-  fonts: [myBodyFont, myMonoFont],
-  // An emoji-capable font. Browsers give the compiler no access to OS
-  // fonts, so without one emoji render as missing glyphs (and fail PDF/UA).
-  emojiFont: myEmojiFont,
-  // Optionally also preload Typst's stock fonts (from its CDN) as
-  // fallback faces for glyphs your fonts don't cover.
-  preloadDefaultFonts: true,
-});
+const { blob } = await exporter.toBlob(
+  editor.document,
+  {
+    // Font bytes (Uint8Array) to load into the compiler.
+    fonts: [myBodyFont, myMonoFont],
+    // An emoji-capable font. Browsers give the compiler no access to OS
+    // fonts, so without one emoji render as missing glyphs (and fail PDF/UA).
+    emojiFont: myEmojiFont,
+  },
+  { title: "My document", lang: "en" },
+);
 ```
 
-The wasm and fonts are loaded once, on the page's first export, and reused
-afterwards — pass every font the page will need on that first call. The
-[example](/examples/interoperability/converting-blocks-to-pdf-ua) bundles
-everything explicitly and works fully offline.
+The compiler ships no fonts of its own and never falls back silently: text
+that no supplied font covers fails the export loudly rather than rendering
+substituted glyphs. The wasm module is loaded once per page; fonts are
+per-export options, so different exports on the same page can freely use
+different font sets.
 
 When passing custom fonts, set the exporter's font families to match
 (defaults: `"Inter 18pt"` body, `"Geist Mono"` code, `"Noto Color Emoji"`
@@ -208,19 +216,45 @@ const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings, {
 
 ### PDF/UA conformance
 
-The produced PDF is tagged and **declares** PDF/UA-1 conformance. Two things
-to know:
+The produced PDF always carries the tagged (accessible) structure tree. On
+top of that, the exporter **declares PDF/UA-1 conformance when — and only
+when — the document earns it**: Typst validates conformance during the
+compile, and a nonconforming document is automatically exported as
+tagged-but-unclaimed instead (an honest output rather than a false claim),
+with the violations reported in the result:
 
-- **Alt text**: every image needs it. BlockNote's image block has no dedicated
-  alt field yet, so the caption (or file name) is used — give images captions.
-- **Headings**: PDF/UA requires the document's first heading to be level 1 —
-  start documents with an H1.
+```typescript
+const { blob, pdfUA } = await exporter.toBlob(editor.document, {}, {
+  title: "My document",
+  lang: "en",
+});
+if (!pdfUA.declared && pdfUA.reason === "nonconforming") {
+  // e.g. "PDF/UA-1 error: the first heading must be of level 1"
+  console.info(pdfUA.violations.map((v) => v.message));
+}
+```
 
-The declaration doesn't itself guarantee conformance of arbitrary input, so
-validate exports with [veraPDF](https://verapdf.org) (`--flavour ua1`) if
-conformance matters to you. For a document known not to conform, pass
-`declarePdfUA: false` in the compile options to produce an honest
-tagged-but-unclaimed PDF instead of a false claim.
+What conformance requires of the document:
+
+- **Title and language**: pass `title` and `lang` in the document options.
+  Without a title, Typst's validation withholds the claim. The language is
+  required to attempt the claim at all — exporting without `lang` throws
+  (pass `tryDeclarePdfUA: false` to skip the claim instead), because the
+  PDF would otherwise declare Typst's default language (English), and a
+  wrong language declaration is an accessibility defect no validator can
+  catch.
+- **Headings**: the first heading must be level 1, and levels must be
+  consecutive (no jumping from H1 to H3).
+- **Alt text**: every image needs it. BlockNote's image block has no
+  dedicated alt field yet, so the caption (or file name) is used — give
+  images captions.
+
+Pass `tryDeclarePdfUA: false` in the compile options to skip the validation
+and claim entirely (e.g. for a live preview, where the validation compile
+would be wasted work). Conformance of the claim is enforced at compile
+time by the Typst engine itself — a declared export has also been verified
+against [veraPDF](https://verapdf.org)'s `--flavour ua1` checks (0 failed
+checks) if you need independent validation.
 
 ### Exporter options
 

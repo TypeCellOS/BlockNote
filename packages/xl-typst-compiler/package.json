@@ -1,62 +1,67 @@
 {
-  "name": "@blocknote/xl-typst-exporter",
+  "name": "@blocknote/xl-typst-compiler",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/TypeCellOS/BlockNote.git",
-    "directory": "packages/xl-typst-exporter"
+    "directory": "packages/xl-typst-compiler"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
   "version": "0.54.0",
   "files": [
     "dist",
     "types",
-    "src"
+    "src",
+    "pkg",
+    "rust",
+    "README.md",
+    "scripts"
   ],
   "keywords": [
     "typst",
-    "export",
+    "pdf",
+    "wasm",
+    "compiler",
     "javascript",
-    "editor",
-    "typescript",
-    "prosemirror",
-    "block-based"
+    "typescript"
   ],
-  "description": "Typst export for BlockNote documents - the shared foundation of the Typst-powered PDF exporter.",
+  "description": "The Typst compiler (official typst crates) compiled to WebAssembly, with a minimal TypeScript API - the engine behind BlockNote's PDF export.",
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-xl-typst-exporter.cjs",
-  "module": "./dist/blocknote-xl-typst-exporter.js",
+  "main": "./dist/blocknote-xl-typst-compiler.cjs",
+  "module": "./dist/blocknote-xl-typst-compiler.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-xl-typst-exporter.js",
-      "require": "./dist/blocknote-xl-typst-exporter.cjs"
+      "import": "./dist/blocknote-xl-typst-compiler.js",
+      "require": "./dist/blocknote-xl-typst-compiler.cjs"
+    },
+    "./pkg": {
+      "types": "./pkg/blocknote_typst_wasm.d.ts",
+      "default": "./pkg/blocknote_typst_wasm.js"
+    },
+    "./wasm": {
+      "default": "./pkg/blocknote_typst_wasm_bg.wasm"
     }
   },
   "scripts": {
     "dev": "vp dev",
+    "build:wasm": "node scripts/ensure-wasm.mjs --force",
     "lint": "vp lint src",
     "test": "vp test --run",
     "test-watch": "vp test watch",
     "clean": "rimraf dist && rimraf types"
   },
-  "dependencies": {
-    "@blocknote/core": "workspace:^",
-    "@blocknote/xl-multi-column": "workspace:^"
-  },
   "devDependencies": {
-    "@blocknote/shared": "workspace:^",
-    "@types/jsdom": "^21.1.7",
     "@types/node": "22.13.13",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^7.0.2",
     "vite-plus": "catalog:",
-    "@blocknote/xl-typst-compiler": "workspace:^"
+    "wasm-pack": "^0.15.0"
   },
   "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"
 }

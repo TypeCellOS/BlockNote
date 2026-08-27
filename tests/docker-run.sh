@@ -65,6 +65,19 @@ mounts=()
 for src in packages/*/src; do
   mounts+=(-v "$PWD/$src:/work/$src")
 done
+# xl-typst-compiler is consumed through its build outputs (see
+# vite.config.browser.ts): the wasm + glue in pkg/ and the built TS wrapper.
+# Build them first (build:wasm + build) - they are gitignored, so the image
+# cannot contain them.
+for out in pkg dist types; do
+  if [ ! -d "packages/xl-typst-compiler/$out" ]; then
+    echo "packages/xl-typst-compiler/$out is missing - build it first:" >&2
+    echo "  pnpm exec vp run --filter @blocknote/xl-typst-compiler build" >&2
+    echo "(compiles the Rust wasm too when needed - requires rustup)" >&2
+    exit 1
+  fi
+  mounts+=(-v "$PWD/packages/xl-typst-compiler/$out:/work/packages/xl-typst-compiler/$out")
+done
 # The test files and browser config (callers iterate on these too).
 mounts+=(
   -v "$PWD/tests/src:/work/tests/src"

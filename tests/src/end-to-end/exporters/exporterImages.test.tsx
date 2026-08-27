@@ -19,20 +19,21 @@ import {
   reactEmailDefaultSchemaMappings,
 } from "@blocknote/xl-email-exporter";
 import {
-  compileTypstToTaggedPdf,
-  declarePdfUA,
+  compileTypstToPdf,
   TypstExporter,
   typstDefaultSchemaMappings,
 } from "@blocknote/xl-pdf-exporter";
-// Bundled wasm + a body font so the Typst compile below runs fully offline.
+// Bundled wasm + fonts so the Typst compile below runs fully offline.
 // eslint-disable-next-line import/no-unresolved
-import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
+import compilerWasmUrl from "@blocknote/xl-typst-compiler/wasm?url";
 // eslint-disable-next-line import/no-unresolved
 import interRegularUrl from "@shared/assets/fonts/inter/Inter_18pt-Regular.ttf?url";
-// Typst needs a math-capable font for equations; with `preloadDefaultFonts:
-// false` (no CDN fonts) it must be bundled like the body font.
+// Typst needs a math-capable font for equations and an emoji font for the
+// document's emoji (the compiler ships no fonts; missing glyphs would fail
+// PDF/UA-1 validation as `.notdef`).
 import newCMMathBookUrl from "@shared/assets/fonts/newcm/NewCMMath-Book.otf?url";
 import newCMMathRegularUrl from "@shared/assets/fonts/newcm/NewCMMath-Regular.otf?url";
+import notoEmojiUrl from "@shared/assets/fonts/noto/Noto-COLRv1.ttf?url";
 import {
   PDFExporter,
   pdfDefaultSchemaMappings,
@@ -160,37 +161,70 @@ describe("email export through a complete exporter in the browser", () => {
   });
 });
 
+// Builds the exporter, converts the shared document (plus invalid math /
+// diagram placeholders), and compiles it natively as PDF/UA-1 through the
+// real wasm pipeline. Shared by the assertion test and the visual test.
+async function compileTypstUaPdf() {
+  const typstDocument = [
+    ...testDocumentWithSourceBlocks,
+    invalidDiagramBlock,
+    invalidMathBlock,
+  ];
+
+  const exporter = new TypstExporter(
+    schema(),
+    {
+      ...typstDefaultSchemaMappings,
+      blockMapping: {
+        ...typstDefaultSchemaMappings.blockMapping,
+        mathBlock: typstMathBlockMapping,
+        diagram: typstDiagramBlockMapping,
+      },
+      inlineContentMapping: {
+        ...typstDefaultSchemaMappings.inlineContentMapping,
+        math: typstInlineMathMapping,
+      },
+    } as any,
+    { resolveFileUrl: testResolveFileUrl },
+  );
+
+  const typ = await exporter.toTypst(
+    typstDocument as any,
+    {
+      title: "BlockNote Export",
+      lang: "en",
+      // Fixed timestamp: the visual baselines rely on deterministic bytes.
+      creationTimestamp: 1_700_000_000,
+    } as any,
+  );
+
+  const fonts = await Promise.all(
+    [interRegularUrl, newCMMathRegularUrl, newCMMathBookUrl, notoEmojiUrl].map(
+      async (url) => new Uint8Array(await (await fetch(url)).arrayBuffer()),
+    ),
+  );
+  const result = await compileTypstToPdf(typ, {
+    wasm: new URL(compilerWasmUrl, document.baseURI),
+    fonts,
+    assets: exporter.assetFiles,
+    pdfStandard: "ua-1",
+    creationTimestamp: 1_700_000_000,
+  });
+  if (result.error) {
+    throw new Error(result.compileErrors.map((d) => d.message).join(" | "));
+  }
+  return { typ, exporter, pdf: result.pdf };
+}
+
 describe("pdf/ua export through the complete typst pipeline in the browser", () => {
   test(
     "exports the shared document with math and diagrams",
     { timeout: 60000 },
     async () => {
-      const typstDocument = [
-        ...testDocumentWithSourceBlocks,
-        invalidDiagramBlock,
-        invalidMathBlock,
-      ];
-
-      const exporter = new TypstExporter(
-        schema(),
-        {
-          ...typstDefaultSchemaMappings,
-          blockMapping: {
-            ...typstDefaultSchemaMappings.blockMapping,
-            mathBlock: typstMathBlockMapping,
-            diagram: typstDiagramBlockMapping,
-          },
-          inlineContentMapping: {
-            ...typstDefaultSchemaMappings.inlineContentMapping,
-            math: typstInlineMathMapping,
-          },
-        } as any,
-        { resolveFileUrl: testResolveFileUrl },
-      );
-
-      const typ = await exporter.toTypst(typstDocument as any, {
-        title: "BlockNote Export",
-      });
+      // Compiling through the real wasm pipeline is what only the browser
+      // suite covers: bundler-served wasm loading (the node unit suites
+      // drive the same wasm from bytes).
+      const { typ, exporter, pdf } = await compileTypstUaPdf();
 
       // Native equations with the LaTeX source as alt text, the diagram as a
       // figure with the Mermaid source as alt text - and the invalid sources
@@ -211,23 +245,53 @@ describe("pdf/ua export through the complete typst pipeline in the browser", () 
       ).toBe(true);
       expect(assetBytes.some((b) => b[0] === 0xff && b[1] === 0xd8)).toBe(true);
 
-      // Compile through the real wasm pipeline (the node unit suites
-      // substitute the node compiler; only this covers what browsers run),
-      // then declare PDF/UA - the same steps PDFExporter.toBytes composes.
-      const fonts = await Promise.all(
-        [interRegularUrl, newCMMathRegularUrl, newCMMathBookUrl].map(
-          async (url) => new Uint8Array(await (await fetch(url)).arrayBuffer()),
-        ),
+      expect(isPdf(pdf)).toBe(true);
+      expect(pdf.byteLength).toBeGreaterThan(10_000);
+      // Natively declared and validated by the compile itself.
+      expect(new TextDecoder("latin1").decode(pdf).includes("pdfuaid")).toBe(
+        true,
       );
-      const tagged = await compileTypstToTaggedPdf(typ, {
-        getModule: () => compilerWasmUrl,
-        fonts,
-        preloadDefaultFonts: false,
-        assets: exporter.assetFiles,
-      });
-      const ua = await declarePdfUA(tagged);
-      expect(isPdf(ua)).toBe(true);
-      expect(ua.byteLength).toBeGreaterThan(10_000);
+    },
+  );
+
+  // Chromium only, like the react-pdf visual test below: the PDF is the
+  // same bytes everywhere (Typst lays it out from the supplied fonts, not
+  // browser rendering), so per-browser runs would only re-test pdf.js's
+  // rasterizer at 3x the suite cost.
+  test.skipIf(browserName !== "chromium")(
+    "matches the per-page visual snapshot",
+    { timeout: 60000 },
+    async () => {
+      const { pdf } = await compileTypstUaPdf();
+
+      // Render the produced PDF's pages with pdf.js and screenshot each
+      // page as a visual regression of the actual export (the same
+      // approach as the react-pdf test below).
+      const pdfjs = await import("pdfjs-dist");
+      const workerUrl = (
+        await import("pdfjs-dist/build/pdf.worker.min.mjs?url" as string)
+      ).default;
+      pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+
+      const parsed = await pdfjs.getDocument({ data: pdf.slice() }).promise;
+      // The test document contains a page break.
+      expect(parsed.numPages).toBeGreaterThanOrEqual(2);
+
+      const frame = createExportFrame("fit-content");
+      for (let n = 1; n <= parsed.numPages; n++) {
+        const pdfPage = await parsed.getPage(n);
+        const viewport = pdfPage.getViewport({ scale: 1 });
+        const canvas = document.createElement("canvas");
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        canvas.style.display = "block";
+        await pdfPage.render({
+          canvasContext: canvas.getContext("2d")!,
+          viewport,
+        } as any).promise;
+        frame.replaceChildren(canvas);
+        await screenshotFull(frame, `typst-pdf-page-${n}`);
+      }
     },
   );
 });

@@ -113,7 +113,7 @@
     "xml-formatter": "^3.6.7",
     "@blocknote/xl-typst-exporter": "workspace:^",
     "tex2typst": "^0.6.2",
-    "@myriaddreamin/typst-ts-node-compiler": "^0.8.0-rc3"
+    "@blocknote/xl-typst-compiler": "workspace:^"
   },
   "peerDependencies": {
     "@blocknote/xl-docx-exporter": "workspace:^",

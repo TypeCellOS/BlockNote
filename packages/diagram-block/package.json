@@ -104,7 +104,7 @@
     "typescript": "^7.0.2",
     "vite-plus": "catalog:",
     "@blocknote/xl-typst-exporter": "workspace:^",
-    "@myriaddreamin/typst-ts-node-compiler": "^0.8.0-rc3"
+    "@blocknote/xl-typst-compiler": "workspace:^"
   },
   "peerDependencies": {
     "@blocknote/xl-docx-exporter": "workspace:^",
