@@ -135,7 +135,7 @@ execFileSync(
   join(packageDir, "node_modules", ".bin", "wasm-pack"),
   [
     "build",
-    "rust",
+    ".",
     "--target",
     "web",
     "--release",
@@ -144,7 +144,11 @@ execFileSync(
     "--out-name",
     "blocknote_typst_wasm",
   ],
-  { stdio: "inherit", cwd: packageDir, env },
+  // cwd must be the crate directory: rustup resolves rust-toolchain.toml
+  // (the pinned toolchain + wasm32 target, auto-installed on first use) by
+  // walking up from the *working directory* - from packageDir a freshly
+  // bootstrapped rustup with no default toolchain finds nothing to run.
+  { stdio: "inherit", cwd: rustDir, env },
 );
 writeFileSync(hashFile, currentHash);
 console.log("[ensure-wasm] done.");
