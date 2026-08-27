@@ -3,8 +3,44 @@ import {
   type ExtensionOptions,
   createExtension,
 } from "../../editor/BlockNoteExtension.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { blockMatchNodes } from "./blockMatchNodes.js";
 import { CollaborationOptions } from "./index.js";
+
+/**
+ * Observer for internal errors y-prosemirror recovered from. When the Y-side
+ * apply throws mid-sync, y-prosemirror reverts the unappliable part of the
+ * change, logs a console warning and reports the error here — the editor
+ * keeps working, but without observing this, whatever caused the throw is
+ * easy to miss. `errCode` identifies the failure site (`0`: `applyDelta`
+ * failed); `error` is the original thrown error.
+ */
+export type YSyncInternalErrorObserver = (
+  error: Error,
+  errCode: number,
+  editor: BlockNoteEditor<any, any, any>,
+) => void;
+
+const internalErrorObservers = new Set<YSyncInternalErrorObserver>();
+
+/**
+ * Subscribe to internal errors y-prosemirror recovered from, fed by
+ * `YSyncRdt`'s `onInternalError` debugging option (shipped in
+ * `@y/prosemirror` 2.0.0-7 after https://github.com/yjs/y-prosemirror/pull/273;
+ * upstream marks it unstable). Our pnpm patch only threads the option through
+ * `syncPlugin` — see patches/@y__prosemirror@2.0.0-7.patch. Module-scoped
+ * rather than per-editor so diagnostics harnesses (e.g. the e2e console
+ * guard) can observe every editor without threading an option through each
+ * construction. Returns an unsubscribe function.
+ */
+export function onYSyncInternalError(
+  observer: YSyncInternalErrorObserver,
+): () => void {
+  internalErrorObservers.add(observer);
+  return () => {
+    internalErrorObservers.delete(observer);
+  };
+}
 
 /**
  * Maps a Y attribution to BlockNote's `y-attributed-*` mark attrs.
@@ -117,6 +153,14 @@ export const YSyncExtension = createExtension(
           // needed; `blockContainer` already whitelists the `y-attributed-*`
           // marks. See blockMatchNodes.ts.
           customCompare: blockMatchNodes,
+          // Surface errors the sync recovered from (see onYSyncInternalError
+          // above). y-prosemirror logs its own console warning regardless, so
+          // this only fans out to observers.
+          onInternalError: (error: Error, errCode: number) => {
+            for (const observer of internalErrorObservers) {
+              observer(error, errCode, editor);
+            }
+          },
         }),
       ],
       runsBefore: ["default"],

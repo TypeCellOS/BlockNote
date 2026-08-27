@@ -139,6 +139,13 @@ export class PDFExporter<
     this.options = newOptions;
   }
 
+  // Key source for `transformStyledText`. The transform builds the element
+  // tree in a single pass (it is never re-rendered), so keys only need to be
+  // unique among siblings — a counter guarantees that. Keying by the text
+  // itself (as before) collided whenever two sibling runs had the same text,
+  // e.g. two empty runs around an inline node (React's duplicate-key error).
+  private styledTextKey = 0;
+
   /**
    * Mostly for internal use, you probably want to use `toBlob` or `toReactPDFDocument` instead.
    */
@@ -146,7 +153,7 @@ export class PDFExporter<
     const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);
     return (
-      <Text style={styles} key={styledText.text}>
+      <Text style={styles} key={`styledText-${this.styledTextKey++}`}>
         {styledText.text}
       </Text>
     );
@@ -183,7 +190,12 @@ export class PDFExporter<
 
       const style = this.blocknoteDefaultPropsToReactPDFStyle(b.props as any);
       ret.push(
-        <Fragment key={b.id}>
+        // Keyed by position, not `b.id`: the transform builds the tree in a
+        // single pass (never re-rendered), so keys only need to be unique
+        // among siblings — and ids can't be trusted to be (documents built
+        // outside the editor may leave ids empty, which made every sibling
+        // share the key "" and trip React's duplicate-key error).
+        <Fragment key={ret.length}>
           <View
             style={{
               paddingVertical: 3 * PIXELS_PER_POINT,
@@ -199,7 +211,7 @@ export class PDFExporter<
                 marginLeft: FONT_SIZE * 1.5 * PIXELS_PER_POINT,
                 ...this.styles.blockChildren,
               }}
-              key={b.id + nestingLevel + "children"}
+              key={`children-${nestingLevel}`}
             >
               {children}
             </View>

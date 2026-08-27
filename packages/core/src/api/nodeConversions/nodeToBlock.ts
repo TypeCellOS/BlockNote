@@ -22,6 +22,7 @@ import {
   getBlockInfoWithManualOffset,
   getNodeId,
 } from "../getBlockInfoFromPos.js";
+
 import {
   getBlockCache,
   getBlockSchema,
@@ -405,6 +406,12 @@ export function nodeToBlock<
     throw Error("Node should be a bnBlock, but is instead: " + node.type.name);
   }
 
+  // NOTE: the cache (keyed by node object) is not safe for suggested-deletion
+  // blocks: their ids are positional (see `getNodeId`), so an unchanged node
+  // object can change id when the doc around it changes — the cache would then
+  // serve a stale (or aliased) id. Accepted for now: suggestion rendering is
+  // experimental and its fake-id scheme is slated for rework. See the
+  // `it.fails` tests in nodeToBlock.test.ts.
   const cachedBlock = blockCache?.get(node);
 
   if (cachedBlock) {

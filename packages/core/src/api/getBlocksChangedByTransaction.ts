@@ -12,7 +12,7 @@ import type { BlockSchema } from "../schema/index.js";
 import type { InlineContentSchema } from "../schema/inlineContent/types.js";
 import type { StyleSchema } from "../schema/styles/types.js";
 import { getChangedRange } from "./getChangedRange.js";
-import { getNodeId } from "./getBlockInfoFromPos.js";
+import { getNodeId, isSuggestedDeletionNode } from "./getBlockInfoFromPos.js";
 import { nodeToBlock } from "./nodeConversions/nodeToBlock.js";
 import { isNodeBlock } from "./nodeUtil.js";
 
@@ -184,6 +184,16 @@ function collectSnapshot<
   doc.nodesBetween(from, to, (node, pos) => {
     if (!isNodeBlock(node)) {
       return true;
+    }
+    // Suggested-deletion copies are rendering artifacts of suggestion /
+    // version-diff mode, not blocks of the document: they duplicate a live
+    // block's id and are only disambiguated *positionally* (see `getNodeId`),
+    // so diffing them across the before/after docs misreports unchanged
+    // copies as delete+insert pairs whenever their position shifts. Skip the
+    // whole subtree — everything under a deleted copy is part of the same
+    // artifact.
+    if (isSuggestedDeletionNode(node)) {
+      return false;
     }
     const parentId = getParentBlockId(doc, pos);
     const key = parentId ?? ROOT_KEY;

@@ -40,7 +40,7 @@ overrides:
   # to hoist ("problems in resolving the mocks API"). 4.1.10 adds vite-plus/test.
   "@vitest/mocker": "4.1.10"
   "@y/y": "14.0.0-rc.23"
-  "@y/prosemirror": "2.0.0-6"
+  "@y/prosemirror": "2.0.0-7"
   "lib0": "1.0.0-rc.22"
 packageExtensions:
   # `@vitest/ui` is an *optional peer* of vitest, which vite-plus re-exposes as
@@ -69,7 +69,7 @@ allowBuilds:
   leveldown: false
 patchedDependencies:
   {
-    "@y/prosemirror@2.0.0-6": patches/@y__prosemirror@2.0.0-6.patch,
+    "@y/prosemirror@2.0.0-7": patches/@y__prosemirror@2.0.0-7.patch,
     katex@0.16.47: patches/katex@0.16.47.patch,
   }
 catalog:

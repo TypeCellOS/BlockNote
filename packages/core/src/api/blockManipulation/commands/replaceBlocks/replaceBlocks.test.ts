@@ -1,3 +1,5 @@
+import { Schema } from "prosemirror-model";
+import { EditorState } from "prosemirror-state";
 import { describe, expect, it } from "vite-plus/test";
 
 import { setupTestEnv } from "../../setupTestEnv.js";
@@ -5,6 +7,8 @@ import { removeAndInsertBlocks } from "./replaceBlocks.js";
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import { BlockIdentifier } from "../../../../schema/index.js";
+import { docToBlocks } from "../../../nodeConversions/nodeToBlock.js";
+import { YAttributionMarksExtension } from "../../../../y/extensions/YAttributionMarks.js";
 
 const getEditor = setupTestEnv();
 
@@ -231,5 +235,64 @@ describe("Test replaceBlocks", () => {
     );
 
     expect(getEditor().document).toMatchSnapshot();
+  });
+});
+
+/**
+ * Builds a `blockContainer` holding a single paragraph with the given block
+ * `id`. When `suggestedDelete` is true, the container carries a
+ * `y-attributed-delete` mark, simulating a node that a suggestion / version
+ * diff keeps in the document after it has been deleted — it shares its `id`
+ * with the live node it was deleted from.
+ */
+function makeBlockContainer(
+  schema: Schema,
+  id: string,
+  text: string,
+  suggestedDelete: boolean,
+) {
+  const paragraph = schema.nodes["paragraph"].createChecked(
+    {},
+    schema.text(text),
+  );
+  const marks = suggestedDelete
+    ? [schema.marks["y-attributed-delete"].create({ id: 1 })]
+    : undefined;
+
+  return schema.nodes["blockContainer"].createChecked({ id }, paragraph, marks);
+}
+
+describe("removeAndInsertBlocks with suggested deletions", () => {
+  // A rendered diff (e.g. of a moved block) shows the same block `id` twice:
+  // the live node and a suggested-deletion copy, which `docToBlocks` reports
+  // under a disambiguated id ("0-1" = the second node with id "0"). Removing
+  // the blocks `editor.document` reports must resolve that id even though, by
+  // the time the walk reaches the deleted copy, the live node it was counted
+  // against is already gone from the transaction's doc.
+  it("removes a live block and its suggested deletion by the ids docToBlocks reports", () => {
+    const editor = BlockNoteEditor.create({
+      extensions: [YAttributionMarksExtension()],
+    });
+    const schema = editor.pmSchema;
+    const doc = schema.nodes["doc"].createChecked(
+      {},
+      schema.nodes["blockGroup"].createChecked({}, [
+        makeBlockContainer(schema, "0", "Live", false),
+        makeBlockContainer(schema, "1", "Other", false),
+        makeBlockContainer(schema, "0", "Deleted", true),
+      ]),
+    );
+    const blocks = docToBlocks(doc);
+    expect(blocks.map((block) => block.id)).toEqual(["0", "1", "0-1"]);
+
+    const tr = EditorState.create({ doc }).tr;
+    const { removedBlocks } = removeAndInsertBlocks(
+      tr,
+      blocks.filter((block) => block.id !== "1"),
+      [],
+    );
+
+    expect(removedBlocks.map((block) => block.id)).toEqual(["0", "0-1"]);
+    expect(docToBlocks(tr.doc).map((block) => block.id)).toEqual(["1"]);
   });
 });

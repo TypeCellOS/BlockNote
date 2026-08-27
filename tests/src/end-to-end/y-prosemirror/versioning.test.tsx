@@ -4,13 +4,12 @@
  * The other files in this folder exercise the SuggestionsExtension diff overlay.
  * This one exercises the OTHER diff path — `createYjsVersioningAdapter`'s
  * `enterPreview`, which reconfigures the editor through y-prosemirror
- * (`configureYProsemirror`). That path crashes for a few scenarios: moving a
- * block that carries (or dissolves) a nested blockGroup makes y-prosemirror's
- * `applyDelta` throw lib0 "Unexpected case". Each scenario is run through the
- * same shape the gallery's Versioning mode uses — every user applies their
- * change on their own clone of the base, the clones are merged via the Yjs CRDT,
- * and the merge is diffed against the base — so any scenario (single or
- * concurrent) that breaks the versioning diff is caught in CI.
+ * (`configureYProsemirror`). Each scenario is run through the same shape the
+ * gallery's Versioning mode uses — every user applies their change on their
+ * own clone of the base, the clones are merged via the Yjs CRDT, and the merge
+ * is diffed against the base; the preview is then RE-entered after a follow-up
+ * edit (the gallery's live re-diff) — so any scenario (single or concurrent)
+ * that breaks the versioning diff or its re-render is caught in CI.
  */
 import { BlockNoteEditor } from "@blocknote/core";
 import {
@@ -75,22 +74,13 @@ function mountEditor(doc: Y.Doc): {
   };
 }
 
-// Scenarios that currently crash the versioning diff and are skipped until
-// fixed. `large-diff-delete-all` replaceBlocks-traverses a bound
-// `blockContainer` that has no `id` attr, so `getNodeId` throws
-// ("Node blockContainer does not have an ID"). We `test.skip` rather than
-// `test.fails` because as of @y/prosemirror v2.0.0-6 the throw is caught and
-// retried into a runaway warning loop that never lets the suite finish.
-const VERSIONING_CRASHES = new Set<string>(["large-diff-delete-all"]);
-
 for (const scenario of scenarios) {
   const applies =
     scenario.kind === "single"
       ? [scenario.apply]
       : [scenario.applyA, scenario.applyB];
-  const runner = VERSIONING_CRASHES.has(scenario.id) ? test.skip : test;
 
-  runner(`versioning diff: ${scenario.title}`, async () => {
+  test(`versioning diff: ${scenario.title}`, async () => {
     const teardown: Array<() => void> = [];
     try {
       // "Before": the scenario's initial blocks, seeded synchronously.
@@ -104,6 +94,7 @@ for (const scenario of scenarios) {
       const afterDoc = cloneWithId(beforeDoc, 2);
       teardown.push(() => afterDoc.destroy());
 
+      const userEditors: { editor: GalleryEditor; doc: Y.Doc }[] = [];
       for (let i = 0; i < applies.length; i++) {
         const userDoc = cloneWithId(beforeDoc, 3 + i);
         const { editor, teardown: unmount } = mountEditor(userDoc);
@@ -111,6 +102,7 @@ for (const scenario of scenarios) {
           unmount();
           userDoc.destroy();
         });
+        userEditors.push({ editor, doc: userDoc });
 
         applies[i](editor);
         // Wait for the y-prosemirror binding to flush the change into `userDoc`.
@@ -134,6 +126,37 @@ for (const scenario of scenarios) {
 
       // Reached only when enterPreview didn't throw: the diff is now showing.
       expect(diffEditor.prosemirrorState.doc.childCount).toBeGreaterThan(0);
+
+      // Keep editing after the diff is showing — the gallery re-renders the
+      // Diff on every Version 2 edit, and the versioning UI re-enters preview
+      // whenever another version is selected. Re-entering preview must replace
+      // the diff that is already rendered, including the one rendered for a
+      // moved block, which shows the same block id twice (the deleted copy and
+      // the inserted one).
+      const lastUser = userEditors[userEditors.length - 1];
+      const editedStateBefore = Y.encodeStateAsUpdateV2(lastUser.doc);
+      const lastBlock = lastUser.editor.document.at(-1)!;
+      lastUser.editor.insertBlocks(
+        [{ type: "paragraph", content: "follow-up edit" }],
+        lastBlock,
+        "after",
+      );
+      await expect
+        .poll(
+          () =>
+            !bytesEqual(
+              Y.encodeStateAsUpdateV2(lastUser.doc),
+              editedStateBefore,
+            ),
+        )
+        .toBe(true);
+      Y.applyUpdate(afterDoc, Y.encodeStateAsUpdate(lastUser.doc));
+
+      adapter.preview.enterPreview(Y.encodeStateAsUpdateV2(afterDoc), before);
+
+      expect(diffEditor.prosemirrorState.doc.textContent).toContain(
+        "follow-up edit",
+      );
     } finally {
       teardown.reverse().forEach((fn) => fn());
     }
