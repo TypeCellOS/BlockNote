@@ -144,4 +144,49 @@ describe("Performance: transaction processing scales sub-linearly (#2595)", () =
     // Absolute time (~40ms) is comparable to begin (~32ms).
     expect(ratio).toBeLessThan(250);
   });
+
+  // getChanges() is lazy — it only diffs when a subscriber calls it, so the tests
+  // above don't cover getBlocksChangedByTransaction. This locks in that the diff
+  // scopes to the changed range, not the whole document.
+  it(
+    "getChanges() in onChange scales sub-linearly",
+    { timeout: 30_000 },
+    () => {
+      function measureWithGetChanges(
+        editor: BlockNoteEditor<any, any, any>,
+        pos: number,
+      ) {
+        // Run the diff every transaction, like an app reading changed blocks per keystroke.
+        // eslint-disable-next-line @typescript-eslint/unbound-method -- getChanges is destructured from callback parameter, not a class
+        const unsubscribe = editor.onChange((_editor, { getChanges }) => {
+          getChanges();
+        });
+        const avg = measureAvgInsertTime(editor, pos);
+        unsubscribe();
+        return avg;
+      }
+
+      const smallEditor = createEditorWithBlocks(SMALL, "paragraph");
+      const largeEditor = createEditorWithBlocks(LARGE, "paragraph");
+
+      const smallAvg = measureWithGetChanges(
+        smallEditor,
+        smallEditor._tiptapEditor.view.state.doc.content.size - 2,
+      );
+      const largeAvg = measureWithGetChanges(
+        largeEditor,
+        largeEditor._tiptapEditor.view.state.doc.content.size - 2,
+      );
+      const ratio = largeAvg / smallAvg;
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `getChanges (end): ${SMALL}=${smallAvg.toFixed(3)}ms, ${LARGE}=${largeAvg.toFixed(3)}ms, ratio=${ratio.toFixed(2)}x`,
+      );
+
+      // The full-document snapshot made getChanges O(blocks) per keystroke, pushing
+      // this toward the block-count ratio (~50x); the ranged diff stays well below.
+      expect(ratio).toBeLessThan(50);
+    },
+  );
 });

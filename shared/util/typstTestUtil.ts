@@ -66,7 +66,9 @@ export async function compileTypstForTesting(
 ): Promise<Uint8Array> {
   const { TypstCompiler } = await import("@blocknote/xl-typst-compiler");
   let compiler: TypstCompilerInstance;
-  if (options.fontBlobs?.length) {
+  // Truthiness on the array (not its length): an explicit `[]` means "a
+  // font-less compiler", not "the defaults".
+  if (options.fontBlobs) {
     compiler = await TypstCompiler.create({
       wasm: wasmBytes(),
       fonts: options.fontBlobs,

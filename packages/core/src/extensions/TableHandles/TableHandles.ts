@@ -1,3 +1,4 @@
+import type { Node } from "prosemirror-model";
 import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
 import {
   CellSelection,
@@ -27,7 +28,7 @@ import {
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../api/nodeUtil.js";
 import {
-  editorHasBlockWithType,
+  blockHasType,
   isTableCellNode,
   isTableCellSelection,
 } from "../../blocks/defaultBlockTypeGuards.js";
@@ -188,6 +189,17 @@ export class TableHandlesView implements PluginView {
     this.mouseState = "down";
   };
 
+  // Hides the handles if they're currently shown. Used whenever the mouse moves
+  // somewhere that shouldn't have table handles attached to it.
+  hideHandles = () => {
+    if (this.state?.show) {
+      this.state.show = false;
+      this.state.showAddOrRemoveRowsButton = false;
+      this.state.showAddOrRemoveColumnsButton = false;
+      this.emitUpdate();
+    }
+  };
+
   mouseUpHandler = (event: MouseEvent) => {
     this.mouseState = "up";
     this.mouseMoveHandler(event);
@@ -219,22 +231,12 @@ export class TableHandlesView implements PluginView {
       // hide draghandles when selecting text as they could be in the way of the user
       this.mouseState = "selecting";
 
-      if (this.state?.show) {
-        this.state.show = false;
-        this.state.showAddOrRemoveRowsButton = false;
-        this.state.showAddOrRemoveColumnsButton = false;
-        this.emitUpdate();
-      }
+      this.hideHandles();
       return;
     }
 
     if (!target || !this.editor.isEditable) {
-      if (this.state?.show) {
-        this.state.show = false;
-        this.state.showAddOrRemoveRowsButton = false;
-        this.state.showAddOrRemoveColumnsButton = false;
-        this.emitUpdate();
-      }
+      this.hideHandles();
       return;
     }
 
@@ -248,38 +250,40 @@ export class TableHandlesView implements PluginView {
     if (!blockEl) {
       return;
     }
-    this.tableElement = blockEl.node;
-
-    let tableBlock:
-      | BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
-      | undefined;
 
     const { pmNodeInfo, doc } = this.editor.transact((tr) => ({
       pmNodeInfo: getNodeById(blockEl.id, tr.doc),
       doc: tr.doc,
     }));
+
+    // The hovered cell may belong to a document other than this editor's, as a
+    // custom block can embed a nested editor which itself contains a table. The
+    // nested editor's DOM is inside this view's DOM, so its cells still reach
+    // this handler, but its block IDs are unknown here.
     if (!pmNodeInfo) {
-      throw new Error(`Block with ID ${blockEl.id} not found`);
+      this.hideHandles();
+      return;
     }
 
-    const block = nodeToBlock(
-      pmNodeInfo.node,
-      doc,
-    ) as unknown as BlockFromConfigNoChildren<
+    const block = nodeToBlock(pmNodeInfo.node, doc);
+
+    // `domCellAround` matches any `TD`/`TH` in the DOM, so the hovered block may
+    // just as well be a custom block that renders a table of its own. Checking
+    // the block itself (rather than only whether the schema has a table block)
+    // keeps the handles off blocks that have no table content to work with.
+    if (!blockHasType(block, this.editor, "table")) {
+      this.hideHandles();
+      return;
+    }
+
+    const tableBlock = block as unknown as BlockFromConfigNoChildren<
       DefaultBlockSchema["table"],
       any,
       any
     >;
 
-    if (editorHasBlockWithType(this.editor, "table")) {
-      this.tablePos = pmNodeInfo.posBeforeNode + 1;
-      tableBlock = block;
-    }
-
-    if (!tableBlock) {
-      return;
-    }
-
+    this.tablePos = pmNodeInfo.posBeforeNode + 1;
+    this.tableElement = blockEl.node;
     this.tableId = blockEl.id;
     const widgetContainer = target.domNode
       .closest(".tableWrapper")
@@ -527,6 +531,22 @@ export class TableHandlesView implements PluginView {
 
     return true;
   };
+
+  // Resolves the position just inside the hovered table, within `doc`. The
+  // position is looked up by ID on each use rather than read from a cached one,
+  // as anything changing before the table (a collaborator inserting a block
+  // above it, say) shifts it: a stale position resolves into the wrong node, or
+  // past the end of the document entirely.
+  getTablePos(doc: Node): number | undefined {
+    if (this.tableId === undefined) {
+      return undefined;
+    }
+
+    const pmNodeInfo = getNodeById(this.tableId, doc);
+
+    return pmNodeInfo && pmNodeInfo.posBeforeNode + 1;
+  }
+
   // Updates drag handles when the table is modified or removed.
   update() {
     if (!this.state || !this.state.show) {
@@ -544,12 +564,16 @@ export class TableHandlesView implements PluginView {
     ) {
       this.state = undefined;
       this.tableId = undefined;
+      this.tablePos = undefined;
       this.tableElement = undefined;
       this.emitUpdate();
 
       return;
     }
     this.state.block = refreshedBlock as typeof this.state.block;
+
+    // The table may have shifted in this update, so re-resolve its position.
+    this.tablePos = this.getTablePos(this.pmView.state.doc);
 
     const { height: rowCount, width: colCount } = getDimensionsOfTable(
       this.state.block,
@@ -647,9 +671,18 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
             if (
               view === undefined ||
               view.state === undefined ||
-              view.state.draggingState === undefined ||
-              view.tablePos === undefined
+              view.state.draggingState === undefined
             ) {
+              return;
+            }
+
+            // Resolved against the state being rendered rather than read from
+            // `view.tablePos`, as ProseMirror computes decorations for a
+            // transaction before it calls the plugin view's `update` - so the
+            // cached position is still the pre-transaction one here.
+            const tablePos = view.getTablePos(state.doc);
+
+            if (tablePos === undefined) {
               return;
             }
 
@@ -683,7 +716,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
             }
 
             // Gets the table to show the drop cursor in.
-            const tableResolvedPos = state.doc.resolve(view.tablePos + 1);
+            const tableResolvedPos = state.doc.resolve(tablePos + 1);
 
             if (view.state.draggingState.draggedCellOrientation === "row") {
               const cellsInRow = getCellsAtRowHandle(
@@ -916,11 +949,8 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
      * interfering with open submenus.
      */
     hideHandlesIfNotFrozen() {
-      if (!view!.menuFrozen && view!.state?.show) {
-        view!.state.show = false;
-        view!.state.showAddOrRemoveRowsButton = false;
-        view!.state.showAddOrRemoveColumnsButton = false;
-        view!.emitUpdate();
+      if (!view!.menuFrozen) {
+        view!.hideHandles();
       }
     },
 
@@ -954,7 +984,18 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         throw new Error("Table handles view not initialized");
       }
 
-      const tableResolvedPos = state.doc.resolve(view.tablePos! + 1);
+      // Resolved against `state`, which may be several transactions ahead of
+      // the mouse move that attached the handles (a menu can stay open across
+      // edits from elsewhere, e.g. a collaborator).
+      const tablePos = view.getTablePos(state.doc);
+
+      if (tablePos === undefined) {
+        throw new Error(
+          "Attempted to select table cells, but the hovered table is no longer in the document.",
+        );
+      }
+
+      const tableResolvedPos = state.doc.resolve(tablePos + 1);
       const startRowResolvedPos = state.doc.resolve(
         tableResolvedPos.posAtIndex(relativeStartCell.row) + 1,
       );

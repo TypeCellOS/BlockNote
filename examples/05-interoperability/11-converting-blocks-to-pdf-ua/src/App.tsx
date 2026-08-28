@@ -62,9 +62,9 @@ function usePdfUA(
   blocks: Block<any, any, any>[],
 ) {
   const [pdfUrl, setPdfUrl] = useState<string>();
-  const [status, setStatus] = useState<"loading" | "ready" | "error">(
-    "loading",
-  );
+  const [status, setStatus] = useState<
+    "loading" | "ready" | "unclaimed" | "error"
+  >("loading");
 
   useEffect(() => {
     let stale = false;
@@ -90,7 +90,8 @@ function usePdfUA(
           return;
         }
         // A nonconforming document (e.g. one not starting with an H1) still
-        // exports - tagged but without the PDF/UA-1 claim; surface why.
+        // exports - tagged but without the PDF/UA-1 claim; surface why, and
+        // show a distinct status instead of claiming conformance.
         if (!result.pdfUA.declared && result.pdfUA.reason === "nonconforming") {
           // eslint-disable-next-line no-console
           console.info(
@@ -99,7 +100,7 @@ function usePdfUA(
           );
         }
         setPdfUrl(URL.createObjectURL(result.blob));
-        setStatus("ready");
+        setStatus(result.pdfUA.declared ? "ready" : "unclaimed");
       } catch (e) {
         if (stale) {
           return;
@@ -259,7 +260,9 @@ export default function App() {
       ? "Generating…"
       : status === "error"
         ? "Export failed (see console)"
-        : "✓ Tagged PDF/UA-1";
+        : status === "unclaimed"
+          ? "Tagged PDF, no UA-1 claim (see console)"
+          : "✓ Tagged PDF/UA-1";
 
   return (
     <div className="views">
