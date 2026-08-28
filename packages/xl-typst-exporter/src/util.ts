@@ -29,15 +29,20 @@ export function escStr(s: string): string {
  * MIT-licensed `cheq` package.)
  */
 export const CHECKBOX_MARKER_DEFS = [
-  `#let _cb-unchecked = box(baseline: 0.24em, width: 0.9em, height: 0.9em, radius: 2pt, stroke: 0.08em + luma(148), fill: white)`,
-  // The check mark is `place`d (out of flow) so the box keeps the same metrics
-  // as the unchecked box — otherwise typst's baseline-aligned list markers
-  // (PR #7895) drop the checked box below its text. The baseline shift centres
-  // the box on the text's x-height.
-  `#let _cb-checked = box(baseline: 0.24em, width: 0.9em, height: 0.9em, radius: 2pt, stroke: 0.08em + rgb("#3183c8"), fill: rgb("#3183c8"), place(center + horizon, {`,
-  `  box(move(dx: -0.11em, dy: 0.05em, rotate(45deg, line(length: 0.2em, stroke: white + 0.11em))))`,
-  `  box(move(dx: 0.02em, dy: -0.04em, rotate(-45deg, line(length: 0.38em, stroke: white + 0.11em))))`,
-  `}))`,
+  // The tick is `place`d (out of flow) so both boxes keep identical metrics -
+  // otherwise typst's baseline-aligned list markers (PR #7895) drop the
+  // checked box below its text. The 0.13em baseline shift centres the box on
+  // the text's cap height (verified against a 600dpi raster). The tick is a
+  // single round-capped polyline: two separate rotated `line`s (the previous
+  // shape) leave a visible gap at the corner, butt caps making it worse.
+  `#let _cb-box(fill, stroke, tick) = box(baseline: 0.13em, width: 0.9em, height: 0.9em, radius: 2pt, stroke: 0.08em + stroke, fill: fill, tick)`,
+  `#let _cb-unchecked = _cb-box(white, luma(148), none)`,
+  `#let _cb-checked = _cb-box(rgb("#3183c8"), rgb("#3183c8"), place(top + left, curve(`,
+  `  stroke: (paint: white, thickness: 0.11em, cap: "round", join: "round"),`,
+  `  curve.move((0.20em, 0.47em)),`,
+  `  curve.line((0.37em, 0.63em)),`,
+  `  curve.line((0.70em, 0.27em)),`,
+  `)))`,
 ].join("\n");
 
 /** The check-list marker symbol name (defined by {@link CHECKBOX_MARKER_DEFS}). */

@@ -83,7 +83,9 @@ describe("TypstExporter", () => {
     expect(typ).not.toContain("#set document(");
     expect(typ).not.toContain("lang:");
     expect(typ).toContain('#set text(font: "Inter 18pt", size: 12pt)');
-    expect(typ).toContain('#show raw: set text(font: "Geist Mono")');
+    expect(typ).toContain(
+      '#show raw: set text(font: "Geist Mono", ligatures: false)',
+    );
   });
 
   it("propagates font (constructor) and document (export) options into the preamble", async () => {
@@ -113,7 +115,9 @@ describe("TypstExporter", () => {
     expect(typ).toContain(
       '#set text(font: "Times New Roman", size: 14pt, lang: "fr")',
     );
-    expect(typ).toContain('#show raw: set text(font: "Courier New")');
+    expect(typ).toContain(
+      '#show raw: set text(font: "Courier New", ligatures: false)',
+    );
     expect(typ).toContain('#set page(paper: "us-letter", margin: 2cm)');
   });
 
@@ -217,15 +221,15 @@ describe("TypstExporter", () => {
       ]),
     );
 
-    // The parent's own content is aligned...
+    // The parent's own padded block is aligned, and the align scope closes
+    // before the children's `#pad` begins...
     expect(typ).toContain(
-      '#align(right)[#heading(level: 1, outlined: true)[#"Heading right"]]',
+      '#align(right)[#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"Heading right"]]]\n#pad(left: 1.5em)[',
     );
-    // ...while the indented child sits outside that scope, unaligned.
+    // ...so the indented child sits outside that scope, unaligned.
     const child = '#heading(level: 2, outlined: true)[#"Heading 2"]';
     expect(typ).toContain(child);
     expect(typ.indexOf("#pad(left: 1.5em)")).toBeLessThan(typ.indexOf(child));
-    expect(typ).not.toContain(`#align(right)[#block`);
   });
 
   it("fails the export when an image can't be resolved", async () => {
@@ -302,7 +306,12 @@ describe("TypstExporter", () => {
       // ...and both header rows live in ONE table.header - Typst rejects a
       // table with more than one.
       expect(typ.match(/table\.header\(/g)).toHaveLength(1);
-      const pdf = await compileTypstForTesting(typ);
+      // The preamble references the bundled code-theme asset, so compiling
+      // the markup requires mapping `assetFiles` - the exporter's documented
+      // contract for every consumer.
+      const pdf = await compileTypstForTesting(typ, {
+        assets: exporter.assetFiles,
+      });
       expect(pdf.length).toBeGreaterThan(0);
     },
   );
@@ -366,6 +375,12 @@ describe("TypstExporter", () => {
     // carries alt text (PDF/UA requires one on every figure).
     expect(typ).toContain("#figure(rect(");
     expect(typ).toContain('alt: "Later"');
-    expect(exporter.assetFiles.size).toBe(0);
+    // No *image* assets registered (assetFiles always carries the code
+    // highlighting theme).
+    expect(
+      [...exporter.assetFiles.keys()].filter((key) =>
+        key.startsWith("/assets/asset-"),
+      ),
+    ).toHaveLength(0);
   });
 });

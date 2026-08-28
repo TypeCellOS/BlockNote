@@ -173,18 +173,33 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     });
   },
   audio: (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder ("Add file") is an editing
+      // affordance, not document content - it exports as nothing.
+      return [];
+    }
     return [
       file(block.props, exporter.dictionary.open_audio_file, exporter),
       ...caption(block.props, exporter),
     ];
   },
   video: (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder ("Add file") is an editing
+      // affordance, not document content - it exports as nothing.
+      return [];
+    }
     return [
       file(block.props, exporter.dictionary.open_video_file, exporter),
       ...caption(block.props, exporter),
     ];
   },
   file: (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder ("Add file") is an editing
+      // affordance, not document content - it exports as nothing.
+      return [];
+    }
     return [
       file(block.props, exporter.dictionary.open_file, exporter),
       ...caption(block.props, exporter),

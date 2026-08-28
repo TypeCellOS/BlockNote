@@ -49,6 +49,12 @@ function imagePlaceholderFigure(props: MediaProps): string {
  */
 function mediaLink(props: MediaProps, fallback: string): string {
   const { url, caption, name } = props;
+  // A block with neither a URL nor a name is the editor's un-uploaded
+  // placeholder ("Add file"), an editing affordance rather than document
+  // content - it exports as nothing.
+  if (!url && !name) {
+    return "";
+  }
   const label = name || fallback;
   const main = url
     ? `#link(${strLit(url)})[#${strLit(label)}]`
@@ -142,7 +148,9 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
   },
 
   // --- structural -------------------------------------------------------------
-  divider: () => `#line(length: 100%, stroke: 0.5pt + luma(200))`,
+  // Same weight and grey as the editor's divider (Block.css: 1px solid
+  // rgb(125,121,122)).
+  divider: () => `#line(length: 100%, stroke: 1pt + rgb("#7D797A"))`,
   pageBreak: () => `#pagebreak(weak: true)`,
 
   // Multi-column layout is assembled by TypstExporter.transformBlocks (columns

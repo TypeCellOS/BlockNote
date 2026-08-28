@@ -306,8 +306,12 @@ describe("exporter", () => {
         "word/document.xml",
       );
 
-      expect(documentXML).toContain("Datei öffnen");
-      expect(documentXML).not.toContain("Open file");
+      // The document's empty file block exports as nothing (placeholder,
+      // not content), so the dictionary wiring shows through the video /
+      // audio links instead.
+      expect(documentXML).toContain("Video öffnen");
+      expect(documentXML).toContain("Audio öffnen");
+      expect(documentXML).not.toContain("Open video file");
     },
   );
 

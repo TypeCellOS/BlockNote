@@ -579,6 +579,11 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   codeBlock: codeMapping,
 
   file: async (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder ("Add file") is an editing
+      // affordance, not document content - it exports as nothing.
+      return <></>;
+    }
     return (
       <>
         <text:p style:style-name="Standard">
@@ -605,45 +610,59 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     );
   },
 
-  video: (block, exporter) => (
-    <>
-      <text:p style:style-name="Standard">
-        <text:a
-          xlink:type="simple"
-          text:style-name="Internet_20_link"
-          office:target-frame-name="_top"
-          xlink:show="replace"
-          xlink:href={block.props.url}
-        >
-          <text:span text:style-name="Internet_20_link">
-            {exporter.dictionary.open_video_file}
-          </text:span>
-        </text:a>
-      </text:p>
-      {block.props.caption && (
-        <text:p text:style-name="Caption">{block.props.caption}</text:p>
-      )}
-    </>
-  ),
+  video: (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder is an editing affordance, not
+      // document content - it exports as nothing.
+      return <></>;
+    }
+    return (
+      <>
+        <text:p style:style-name="Standard">
+          <text:a
+            xlink:type="simple"
+            text:style-name="Internet_20_link"
+            office:target-frame-name="_top"
+            xlink:show="replace"
+            xlink:href={block.props.url}
+          >
+            <text:span text:style-name="Internet_20_link">
+              {exporter.dictionary.open_video_file}
+            </text:span>
+          </text:a>
+        </text:p>
+        {block.props.caption && (
+          <text:p text:style-name="Caption">{block.props.caption}</text:p>
+        )}
+      </>
+    );
+  },
 
-  audio: (block, exporter) => (
-    <>
-      <text:p style:style-name="Standard">
-        <text:a
-          xlink:type="simple"
-          text:style-name="Internet_20_link"
-          office:target-frame-name="_top"
-          xlink:show="replace"
-          xlink:href={block.props.url}
-        >
-          <text:span text:style-name="Internet_20_link">
-            {exporter.dictionary.open_audio_file}
-          </text:span>
-        </text:a>
-      </text:p>
-      {block.props.caption && (
-        <text:p text:style-name="Caption">{block.props.caption}</text:p>
-      )}
-    </>
-  ),
+  audio: (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder is an editing affordance, not
+      // document content - it exports as nothing.
+      return <></>;
+    }
+    return (
+      <>
+        <text:p style:style-name="Standard">
+          <text:a
+            xlink:type="simple"
+            text:style-name="Internet_20_link"
+            office:target-frame-name="_top"
+            xlink:show="replace"
+            xlink:href={block.props.url}
+          >
+            <text:span text:style-name="Internet_20_link">
+              {exporter.dictionary.open_audio_file}
+            </text:span>
+          </text:a>
+        </text:p>
+        {block.props.caption && (
+          <text:p text:style-name="Caption">{block.props.caption}</text:p>
+        )}
+      </>
+    );
+  },
 };

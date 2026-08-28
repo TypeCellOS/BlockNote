@@ -501,16 +501,6 @@
             </w:tr>
         </w:tbl>
         <w:p>
-            <w:hyperlink w:history="1" r:id="FAKE-ID">
-                <w:r>
-                    <w:rPr>
-                        <w:rStyle w:val="Hyperlink"/>
-                    </w:rPr>
-                    <w:t xml:space="preserve">Open file</w:t>
-                </w:r>
-            </w:hyperlink>
-        </w:p>
-        <w:p>
             <w:r>
                 <w:drawing>
                     <wp:inline distT="0" distB="0" distL="0" distR="0">

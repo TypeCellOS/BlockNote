@@ -55,6 +55,8 @@ describe("typst exporter mappings", () => {
       // equations without alt text, so this proves the mappings' equations
       // stay UA-conformant end-to-end.
       const pdf = await compileTypstForTesting(typst, {
+        // The preamble references the exporter's bundled code-theme asset.
+        assets: exporter.assetFiles,
         pdfStandard: "ua-1",
       });
       expect(pdf.length).toBeGreaterThan(0);

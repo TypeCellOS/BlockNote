@@ -293,6 +293,11 @@ export const createReactEmailBlockMappingForDefaultSchema = (
   codeBlock: (block) =>
     codeMapping(block, block.props.language as PrismLanguage, textStyles),
   audio: (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder ("Add file") is an editing
+      // affordance, not document content - it exports as nothing.
+      return <></>;
+    }
     // Audio icon SVG
     const icon = (
       <svg
@@ -326,6 +331,11 @@ export const createReactEmailBlockMappingForDefaultSchema = (
     );
   },
   video: (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder ("Add file") is an editing
+      // affordance, not document content - it exports as nothing.
+      return <></>;
+    }
     // Video icon SVG
     const icon = (
       <svg
@@ -359,6 +369,11 @@ export const createReactEmailBlockMappingForDefaultSchema = (
     );
   },
   file: (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder ("Add file") is an editing
+      // affordance, not document content - it exports as nothing.
+      return <></>;
+    }
     // File icon SVG
     const icon = (
       <svg
