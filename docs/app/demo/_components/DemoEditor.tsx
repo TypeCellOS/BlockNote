@@ -10,7 +10,7 @@ import {
   CommentsExtension,
   DefaultThreadStoreAuth,
 } from "@blocknote/core/comments";
-import { YjsThreadStore } from "@blocknote/core/yjs";
+import { YjsThreadStore, withCollaboration } from "@blocknote/core/yjs";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import * as locales from "@blocknote/core/locales";
@@ -54,7 +54,7 @@ import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
 import { DefaultChatTransport } from "ai";
 import { useTheme } from "next-themes";
 import { useEffect, useMemo, useState } from "react";
-import YPartyKitProvider from "y-partykit/provider";
+import { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
 import { EditorMenu } from "./EditorMenu";
 import { HARDCODED_USERS, resolveUsers, uploadFile } from "./utils";
@@ -66,6 +66,9 @@ const BASE_URL =
   "https://localhost:3000/ai";
 
 const AI_API_URL = `${BASE_URL}/regular/streamText`;
+
+const YHUB_HOST = "yhub.teleportal.tools";
+const YHUB_ORG = "blocknote";
 
 // Formatting toolbar with AI button
 function FormattingToolbarWithAI() {
@@ -198,14 +201,20 @@ function DemoEditorInner({
 
   const { doc, provider } = useMemo(() => {
     const doc = new Y.Doc();
-    const provider = new YPartyKitProvider(
-      "blocknote-dev.yousefed.partykit.dev",
-      "demo-" + roomId,
+    const provider = new WebsocketProvider(
+      `wss://${YHUB_HOST}/api/ws/v1`,
+      `${YHUB_ORG}/demo-${encodeURIComponent(roomId)}`,
       doc,
     );
     return { doc, provider };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId]);
+
+  useEffect(() => {
+    return () => {
+      provider.destroy();
+    };
+  }, [provider]);
   // Thread Store
   const threadStore = useMemo(() => {
     return new YjsThreadStore(
@@ -216,7 +225,7 @@ function DemoEditorInner({
   }, [activeUser, doc]);
 
   const editor = useCreateBlockNote(
-    {
+    withCollaboration({
       // Schema with MultiColumn & PageBreak
       // schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
       // dropCursor: multiColumnDropCursor,
@@ -251,7 +260,7 @@ function DemoEditorInner({
       ],
 
       uploadFile,
-    },
+    }),
     [activeUser, threadStore, provider, doc],
   );
 

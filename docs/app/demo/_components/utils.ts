@@ -64,17 +64,14 @@ export async function resolveUsers(userIds: string[]) {
   return HARDCODED_USERS.filter((user) => userIds.includes(user.id));
 }
 
-// Uploads a file to tmpfiles.org and returns the URL to the uploaded file.
+// "Uploads" a file by encoding it as a base64 data URL. In a real app you'd
+// replace this with an upload to your own backend that returns a URL to the
+// stored file.
 export async function uploadFile(file: File) {
-  const body = new FormData();
-  body.append("file", file);
-
-  const ret = await fetch("https://tmpfiles.org/api/v1/upload", {
-    method: "POST",
-    body: body,
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
   });
-  return (await ret.json()).data.url.replace(
-    "tmpfiles.org/",
-    "tmpfiles.org/dl/",
-  );
 }
