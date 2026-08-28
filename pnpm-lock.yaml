@@ -2793,9 +2793,15 @@ importers:
       '@blocknote/core':
         specifier: latest
         version: link:../../../packages/core
+      '@blocknote/diagram-block':
+        specifier: latest
+        version: link:../../../packages/diagram-block
       '@blocknote/mantine':
         specifier: latest
         version: link:../../../packages/mantine
+      '@blocknote/math-block':
+        specifier: latest
+        version: link:../../../packages/math-block
       '@blocknote/react':
         specifier: latest
         version: link:../../../packages/react
@@ -2808,15 +2814,15 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: latest
         version: link:../../../packages/xl-pdf-exporter
+      '@blocknote/xl-typst-compiler':
+        specifier: latest
+        version: link:../../../packages/xl-typst-compiler
       '@mantine/core':
         specifier: ^9.0.2
         version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
         specifier: ^9.0.2
         version: 9.1.1(react@19.2.5)
-      '@react-pdf/renderer':
-        specifier: ^4.5.1
-        version: 4.5.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3097,7 +3103,7 @@ importers:
         specifier: ^8.0.0
         version: 8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.9.0)
 
-  examples/05-interoperability/11-converting-blocks-to-pdf-ua:
+  examples/05-interoperability/11-converting-blocks-to-pdf-react-pdf-deprecated:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
@@ -3105,15 +3111,9 @@ importers:
       '@blocknote/core':
         specifier: latest
         version: link:../../../packages/core
-      '@blocknote/diagram-block':
-        specifier: latest
-        version: link:../../../packages/diagram-block
       '@blocknote/mantine':
         specifier: latest
         version: link:../../../packages/mantine
-      '@blocknote/math-block':
-        specifier: latest
-        version: link:../../../packages/math-block
       '@blocknote/react':
         specifier: latest
         version: link:../../../packages/react
@@ -3126,15 +3126,15 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: latest
         version: link:../../../packages/xl-pdf-exporter
-      '@blocknote/xl-typst-compiler':
-        specifier: latest
-        version: link:../../../packages/xl-typst-compiler
       '@mantine/core':
         specifier: ^9.0.2
         version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
         specifier: ^9.0.2
         version: 9.1.1(react@19.2.5)
+      '@react-pdf/renderer':
+        specifier: ^4.5.1
+        version: 4.5.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
