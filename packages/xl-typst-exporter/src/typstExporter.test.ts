@@ -362,19 +362,30 @@ describe("TypstExporter", () => {
     expect(typ).not.toContain("table.header(");
   });
 
-  it("renders a placeholder figure for an image without a URL", async () => {
+  it("renders a placeholder figure only for a *named* image without a URL", async () => {
     const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
 
-    const typ = await exporter.toTypst(
+    // Neither URL nor name: the editor's un-uploaded "Add image"
+    // placeholder - an editing affordance, exported as nothing (the same
+    // rule as the other media blocks).
+    const empty = await exporter.toTypst(
       partialBlocksToBlocksForTesting(schema, [
         { type: "image", props: { caption: "Later" } },
       ]),
     );
+    expect(empty).not.toContain("#figure(");
 
-    // Nothing to embed yet - a placeholder rectangle in a Figure that still
-    // carries alt text (PDF/UA requires one on every figure).
+    const typ = await exporter.toTypst(
+      partialBlocksToBlocksForTesting(schema, [
+        { type: "image", props: { name: "chart.png" } },
+      ]),
+    );
+
+    // A named image with nothing to embed yet - a placeholder rectangle in
+    // a Figure that still carries alt text (PDF/UA requires one on every
+    // figure).
     expect(typ).toContain("#figure(rect(");
-    expect(typ).toContain('alt: "Later"');
+    expect(typ).toContain('alt: "chart.png"');
     // No *image* assets registered (assetFiles always carries the code
     // highlighting theme).
     expect(

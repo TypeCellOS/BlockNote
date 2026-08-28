@@ -78,7 +78,13 @@ async function imageFigure(
   props: MediaProps,
   exporter: TypstExporter<any, any, any>,
 ): Promise<string> {
-  const { url, caption } = props;
+  const { url, caption, name } = props;
+  // Same rule as `mediaLink`: a block with neither a URL nor a name is the
+  // editor's un-uploaded placeholder ("Add image"), an editing affordance
+  // rather than document content - it exports as nothing.
+  if (!url && !name) {
+    return "";
+  }
   if (!url) {
     return imagePlaceholderFigure(props);
   }
