@@ -61,7 +61,15 @@ jobs:
         # https://github.com/stackblitz-labs/pkg.pr.new/blob/main/.whitelist).
         # Preview installs of the PDF exporter therefore lack the compiler
         # until the repo is whitelisted or the wasm ships separately.
-        run: vp dlx pkg-pr-new publish $(ls -d ./packages/* | grep -v xl-typst-compiler) # TODO disabled only for AI branch--compact
+        # TODO disabled only for AI branch--compact
+        run: |
+          packages=()
+          for dir in ./packages/*/; do
+            if [[ "$dir" != *"/xl-typst-compiler/"* ]]; then
+              packages+=("${dir%/}")
+            fi
+          done
+          vp dlx pkg-pr-new publish "${packages[@]}"
 
   build-typst-compiler:
     # The one package the e2e suite consumes through build outputs instead of
