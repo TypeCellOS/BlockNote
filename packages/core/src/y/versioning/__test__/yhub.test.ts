@@ -66,15 +66,12 @@ const SNAPSHOT_2: VersionSnapshot = {
 
 const PATCH_RESPONSE = { success: true, message: "Document updated" };
 
-function makeChangeset(
-  opts: { nextDoc?: boolean; attributions?: boolean } = {},
-) {
+function makeChangeset(opts: { ydoc?: boolean; attributions?: boolean } = {}) {
   const doc = new Y.Doc();
   const frag = doc.get("default", "XmlFragment");
   frag.insert(0, ["hello"]);
   return {
-    prevDoc: Y.encodeStateAsUpdate(new Y.Doc()),
-    ...(opts.nextDoc !== false ? { nextDoc: Y.encodeStateAsUpdate(doc) } : {}),
+    ...(opts.ydoc !== false ? { ydoc: Y.encodeStateAsUpdate(doc) } : {}),
     ...(opts.attributions ? { attributions: new Uint8Array([0]) } : {}),
   };
 }
@@ -83,7 +80,7 @@ function makeChangeset(
 // Helpers
 // ---------------------------------------------------------------------------
 
-const BASE_URL = "https://yhub.test";
+const BASE_URL = "https://yhub.test/api";
 const ORG = "test-org";
 const DOC_ID = "test-doc";
 
@@ -162,13 +159,17 @@ describe("createYHubVersioningEndpoints", () => {
   describe("list", () => {
     it("returns version-tagged entries using the id attribution as snapshot id", async () => {
       fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse([VERSION_ENTRY_2, VERSION_ENTRY_1]),
+        mockFetchResponse({ activity: [VERSION_ENTRY_2, VERSION_ENTRY_1] }),
       );
       // Current-version probe: latest edit of any kind, then latest version
       // marker. Both are VERSION_ENTRY_2, so latest edit == latest marker → no
       // synthetic "current version" entry.
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_2]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_2]));
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [VERSION_ENTRY_2] }),
+      );
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [VERSION_ENTRY_2] }),
+      );
 
       const endpoints = makeEndpoints();
       const snapshots = await endpoints.list();
@@ -188,16 +189,16 @@ describe("createYHubVersioningEndpoints", () => {
     it("fetches the full activity timeline (no type:version filter) with grouping defaults", async () => {
       // 1: full activity timeline. 2: latest edit of any kind. 3: latest
       // version marker (the current-version probe makes both 2 & 3).
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
 
       const endpoints = makeEndpoints();
       await endpoints.list();
 
       expect(fetchSpy).toHaveBeenCalledTimes(3);
       const versionUrl = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(versionUrl.pathname).toBe(`/activity/${ORG}/${DOC_ID}`);
+      expect(versionUrl.pathname).toBe(`/api/activity/v1/${ORG}/${DOC_ID}`);
       // The `type:version` overlay filter is dropped so history entries are
       // returned too.
       expect(versionUrl.searchParams.get("withCustomAttributions")).toBe(null);
@@ -207,14 +208,14 @@ describe("createYHubVersioningEndpoints", () => {
 
       // Probe A: the latest entry of *any* type (no marker filter).
       const latestUrl = new URL(fetchSpy.mock.calls[1][0] as string);
-      expect(latestUrl.pathname).toBe(`/activity/${ORG}/${DOC_ID}`);
+      expect(latestUrl.pathname).toBe(`/api/activity/v1/${ORG}/${DOC_ID}`);
       expect(latestUrl.searchParams.get("limit")).toBe("1");
       expect(latestUrl.searchParams.has("withCustomAttributions")).toBe(false);
 
       // Probe B: the latest *version marker*, server-filtered to `type:version`
       // so grouping/mergeUsers can't conflate it with a later edit.
       const markerUrl = new URL(fetchSpy.mock.calls[2][0] as string);
-      expect(markerUrl.pathname).toBe(`/activity/${ORG}/${DOC_ID}`);
+      expect(markerUrl.pathname).toBe(`/api/activity/v1/${ORG}/${DOC_ID}`);
       expect(markerUrl.searchParams.get("limit")).toBe("1");
       expect(markerUrl.searchParams.get("withCustomAttributions")).toBe(
         "type:version",
@@ -222,9 +223,9 @@ describe("createYHubVersioningEndpoints", () => {
     });
 
     it("forwards group + groupMaxDuration params when configured", async () => {
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
 
       const endpoints = createYHubVersioningEndpoints({
         baseUrl: BASE_URL,
@@ -242,9 +243,9 @@ describe("createYHubVersioningEndpoints", () => {
     });
 
     it("omits group params by default while keeping the groupMaxGap default", async () => {
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
 
       // `makeEndpoints` builds the factory with no group/groupMaxDuration opts.
       const endpoints = makeEndpoints();
@@ -275,12 +276,16 @@ describe("createYHubVersioningEndpoints", () => {
         by: "user-2",
       };
       fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse([namedEntry, historyEntry]),
+        mockFetchResponse({ activity: [namedEntry, historyEntry] }),
       );
       // Current-version probe: latest edit == latest marker == `namedEntry`, so
       // no synthetic current row.
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([namedEntry]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([namedEntry]));
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [namedEntry] }),
+      );
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [namedEntry] }),
+      );
 
       const endpoints = makeEndpoints();
       const snapshots = await endpoints.list();
@@ -297,9 +302,9 @@ describe("createYHubVersioningEndpoints", () => {
     });
 
     it("returns empty array when no versions exist", async () => {
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
 
       const endpoints = makeEndpoints();
       const snapshots = await endpoints.list();
@@ -309,10 +314,14 @@ describe("createYHubVersioningEndpoints", () => {
 
     it("sorts snapshots newest-first", async () => {
       fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse([VERSION_ENTRY_1, VERSION_ENTRY_2]),
+        mockFetchResponse({ activity: [VERSION_ENTRY_1, VERSION_ENTRY_2] }),
       );
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_2]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_2]));
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [VERSION_ENTRY_2] }),
+      );
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [VERSION_ENTRY_2] }),
+      );
 
       const endpoints = makeEndpoints();
       const snapshots = await endpoints.list();
@@ -328,10 +337,14 @@ describe("createYHubVersioningEndpoints", () => {
         customAttributions: [{ k: "type", v: "version" }],
       };
       fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse([VERSION_ENTRY_1, noIdEntry]),
+        mockFetchResponse({ activity: [VERSION_ENTRY_1, noIdEntry] }),
       );
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_1]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_1]));
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [VERSION_ENTRY_1] }),
+      );
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [VERSION_ENTRY_1] }),
+      );
 
       const endpoints = makeEndpoints();
       const snapshots = await endpoints.list();
@@ -361,9 +374,15 @@ describe("createYHubVersioningEndpoints", () => {
       };
       // 1: activity fetch. 2 & 3: current-version probe (latest edit, latest
       // marker) — same entry both times, so no newer edit and no current row.
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([versionEntry]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([versionEntry]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([versionEntry]));
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [versionEntry] }),
+      );
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [versionEntry] }),
+      );
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [versionEntry] }),
+      );
 
       const snapshots = await endpoints.list();
 
@@ -373,9 +392,15 @@ describe("createYHubVersioningEndpoints", () => {
     });
 
     it("falls back to the attribution name when the store has no entry", async () => {
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_1]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_1]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_1]));
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [VERSION_ENTRY_1] }),
+      );
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [VERSION_ENTRY_1] }),
+      );
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [VERSION_ENTRY_1] }),
+      );
 
       const endpoints = makeEndpoints();
       const snapshots = await endpoints.list();
@@ -395,10 +420,14 @@ describe("createYHubVersioningEndpoints", () => {
       // version marker (VERSION_ENTRY_2). Since latestEdit.to > VERSION_ENTRY_2.to
       // a synthetic current-version row is prepended.
       fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse([VERSION_ENTRY_2, VERSION_ENTRY_1]),
+        mockFetchResponse({ activity: [VERSION_ENTRY_2, VERSION_ENTRY_1] }),
       );
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([latestEdit]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_2]));
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [latestEdit] }),
+      );
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [VERSION_ENTRY_2] }),
+      );
 
       const endpoints = makeEndpoints();
       const snapshots = await endpoints.list();
@@ -427,12 +456,18 @@ describe("createYHubVersioningEndpoints", () => {
       };
       // 1: activity list — newest entry is the history edit, not a marker.
       fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse([historyEdit, VERSION_ENTRY_2, VERSION_ENTRY_1]),
+        mockFetchResponse({
+          activity: [historyEdit, VERSION_ENTRY_2, VERSION_ENTRY_1],
+        }),
       );
       // 2: latest edit of any kind → the history edit.
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([historyEdit]));
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [historyEdit] }),
+      );
       // 3: latest version marker → VERSION_ENTRY_2 (older than the edit).
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([VERSION_ENTRY_2]));
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [VERSION_ENTRY_2] }),
+      );
 
       const endpoints = makeEndpoints();
       const snapshots = await endpoints.list();
@@ -443,9 +478,9 @@ describe("createYHubVersioningEndpoints", () => {
     });
 
     it("forwards the mergeUsers param when configured", async () => {
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse([]));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ activity: [] }));
 
       const endpoints = createYHubVersioningEndpoints({
         baseUrl: BASE_URL,
@@ -475,7 +510,7 @@ describe("createYHubVersioningEndpoints", () => {
       // Only one fetch call (PATCH) — no activity fetch
       expect(fetchSpy).toHaveBeenCalledOnce();
       const [patchUrl, patchInit] = fetchSpy.mock.calls[0];
-      expect(patchUrl).toBe(`${BASE_URL}/ydoc/${ORG}/${DOC_ID}`);
+      expect(patchUrl).toBe(`${BASE_URL}/ydoc/v1/${ORG}/${DOC_ID}`);
       expect(patchInit.method).toBe("PATCH");
       expect(patchInit.body).toBeInstanceOf(Uint8Array);
 
@@ -510,9 +545,9 @@ describe("createYHubVersioningEndpoints", () => {
       });
 
       expect(snapshot.by).toBe("user-1");
-      // The PATCH is attributed to the same user.
+      // The PATCH is attributed to the same user via the body, not query params.
       const patchUrl = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(patchUrl.searchParams.get("userid")).toBe("user-1");
+      expect(patchUrl.searchParams.has("userid")).toBe(false);
     });
 
     it("creates a version without a name", async () => {
@@ -587,17 +622,15 @@ describe("createYHubVersioningEndpoints", () => {
 
       // changeset reconstructed by timestamp, NOT by custom attribution
       const url = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(url.pathname).toBe(`/changeset/${ORG}/${DOC_ID}`);
+      expect(url.pathname).toBe(`/api/changeset/v1/${ORG}/${DOC_ID}`);
       expect(url.searchParams.get("ydoc")).toBe("true");
       expect(url.searchParams.get("to")).toBe(String(SNAPSHOT_1.createdAt));
       expect(url.searchParams.has("from")).toBe(false);
       expect(url.searchParams.has("withCustomAttributions")).toBe(false);
     });
 
-    it("throws when changeset has no nextDoc", async () => {
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ prevDoc: new Uint8Array() }),
-      );
+    it("throws when changeset has no ydoc", async () => {
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({}));
 
       const endpoints = makeEndpoints();
       await expect(endpoints.getContent(SNAPSHOT_1)).rejects.toThrow(
@@ -653,7 +686,7 @@ describe("createYHubVersioningEndpoints", () => {
 
       // changeset without attributions
       fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ nextDoc: new Uint8Array() }),
+        mockFetchResponse({ ydoc: new Uint8Array() }),
       );
 
       await expect(endpoints.getAttributions!(SNAPSHOT_1)).rejects.toThrow(
@@ -682,12 +715,12 @@ describe("createYHubVersioningEndpoints", () => {
 
       // 1st call: GET changeset by timestamp
       const csUrl = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(csUrl.pathname).toBe(`/changeset/${ORG}/${DOC_ID}`);
+      expect(csUrl.pathname).toBe(`/api/changeset/v1/${ORG}/${DOC_ID}`);
       expect(csUrl.searchParams.get("to")).toBe(String(SNAPSHOT_1.createdAt));
 
       // 2nd call: POST rollback
       const [rollbackUrl, rollbackInit] = fetchSpy.mock.calls[1];
-      expect(rollbackUrl).toContain(`/rollback/${ORG}/${DOC_ID}`);
+      expect(rollbackUrl).toBe(`${BASE_URL}/rollback/v1/${ORG}/${DOC_ID}`);
       expect(rollbackInit.method).toBe("POST");
 
       expect(content).toBeInstanceOf(Uint8Array);

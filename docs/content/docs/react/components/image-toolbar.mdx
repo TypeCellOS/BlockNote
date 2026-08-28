@@ -29,7 +29,7 @@ type uploadFile = (file: File) => Promise<string>;
 
 `returns:` A `Promise`, which resolves to the URL that the image can be accessed at.
 
-You can use the provided `uploadToTempFilesOrg` function to as a starting point, which uploads files to [tmpfiles.org](https://tmpfiles.org/). However, it's not recommended to use this in a production environment - you should use your own backend:
+The example below encodes files as base64 data URLs as a starting point. However, this is only meant for development - in production you should use your own backend:
 
 <Example name="backend/file-uploading" />
 

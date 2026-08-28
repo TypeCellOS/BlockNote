@@ -105,6 +105,14 @@ export class DOCXExporter<
   }
 
   /**
+   * A document-global counter used to hand every distinct list its own numbering
+   * instance (and therefore its own `w:numId`). Two lists that share a `numId`
+   * are treated by Word as one continued list, so without this all lists in a
+   * document number/bullet as if they were a single list. See issue #2225.
+   */
+  private numberingInstanceCounter = 0;
+
+  /**
    * Mostly for internal use, you probably want to use `toBlob` or `toDocxJsDocument` instead.
    */
   public async transformBlocks(
@@ -113,7 +121,30 @@ export class DOCXExporter<
   ): Promise<Array<Paragraph | Table>> {
     const ret: Array<Paragraph | Table> = [];
 
+    // The top-level call starts a fresh document, so restart instance numbering.
+    if (nestingLevel === 0) {
+      this.numberingInstanceCounter = 0;
+    }
+
+    // A list in Word is a maximal run of consecutive sibling list items of the
+    // same type; a break (any other block) or a switch between bullet/numbered
+    // starts a new list. Each such run gets its own numbering instance so it
+    // renders as a separate list rather than continuing the previous one.
+    let runListType: string | undefined;
+    let runInstance = 0;
+
     for (const b of blocks) {
+      let numberingInstance = 0;
+      if (b.type === "bulletListItem" || b.type === "numberedListItem") {
+        if (b.type !== runListType) {
+          runInstance = ++this.numberingInstanceCounter;
+          runListType = b.type;
+        }
+        numberingInstance = runInstance;
+      } else {
+        runListType = undefined;
+      }
+
       let children = await this.transformBlocks(b.children, nestingLevel + 1);
 
       if (!["columnList", "column"].includes(b.type)) {
@@ -133,10 +164,12 @@ export class DOCXExporter<
         });
       }
 
+      // The `numberedListIndex` slot carries the numbering instance for the docx
+      // block mappings (bullet/numbered list items); other block types ignore it.
       const self = await this.mapBlock(
         b as any,
         nestingLevel,
-        0 /*unused*/,
+        numberingInstance,
         children,
       ); // TODO: any
       if (["columnList", "column"].includes(b.type)) {
