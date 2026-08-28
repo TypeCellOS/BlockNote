@@ -8,8 +8,6 @@ import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { createContext, forwardRef, useContext } from "react";
 
-// Threads the `portalRoot` override from `Popover` (the provider) down to
-// `PopoverContent`, where ariakit's `portalElement` prop actually lives.
 const PortalRootContext = createContext<HTMLElement | null | undefined>(
   undefined,
 );
