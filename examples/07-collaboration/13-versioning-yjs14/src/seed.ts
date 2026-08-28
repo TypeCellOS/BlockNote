@@ -63,7 +63,7 @@ function makeVersionMarkerUpdate(): Uint8Array {
  * Pre-populate a YHub document with content **and** version history from a
  * {@link buildEditHistory} result, without a live editor / sync connection.
  *
- * Each step's captured transactions are PATCHed to `/ydoc/{org}/{docId}` as a
+ * Each step's captured transactions are PATCHed to `/api/ydoc/v1/{org}/{docId}` as a
  * single ordered `patches` bulk request: one content patch per captured
  * transaction (attributed via `by`, **no** version marker), followed by one
  * marker patch carrying a `type:version` custom attribution — the same marker
@@ -98,7 +98,7 @@ export async function seedYHubDocument(
   build: SeedableBuild,
 ): Promise<SeededVersion[]> {
   const { baseUrl, org, docId, headers = {} } = options;
-  const url = `${baseUrl}/ydoc/${org}/${docId}`;
+  const url = `${baseUrl}/ydoc/v1/${org}/${docId}`;
 
   const send = async (body: Record<string, unknown>) => {
     const res = await fetch(url, {

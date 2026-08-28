@@ -25,7 +25,8 @@ const VERSION_NAMES_MAP = "__bn_version_names";
  */
 export interface YHubVersioningOptions {
   /**
-   * Base URL of the YHub API (e.g. `"https://yhub.example.com"`).
+   * Base URL of the YHub API, including the API prefix
+   * (e.g. `"https://yhub.example.com/api"`).
    * Must **not** include a trailing slash.
    */
   baseUrl: string;
@@ -79,7 +80,7 @@ export interface YHubVersioningOptions {
 
 /**
  * Shape of a single activity entry returned by the YHub
- * `GET /activity/{org}/{docId}` endpoint (after `decodeAny`).
+ * `GET /api/activity/v1/{org}/{docId}` endpoint (after `decodeAny`).
  */
 interface YHubActivityEntry {
   /** Start of the change window (unix-ms timestamp). */
@@ -93,20 +94,23 @@ interface YHubActivityEntry {
 }
 
 /**
- * Shape returned by the YHub `GET /changeset/{org}/{docId}` endpoint (after
- * `decodeAny`).
+ * Shape returned by the YHub `GET /api/changeset/v1/{org}/{docId}` endpoint
+ * (after `decodeAny`).
  */
 interface YHubChangeset {
-  /** Full Y.Doc state **before** the changeset window. */
-  prevDoc?: Uint8Array;
-  /** Full Y.Doc state **after** the changeset window. */
-  nextDoc?: Uint8Array;
+  /** Full Y.Doc state at the `to` timestamp. */
+  ydoc?: Uint8Array;
   /**
    * Encoded {@link Y.ContentMap} describing who authored each change in the
    * window and when. Present when the changeset is requested with
    * `attributions=true`.
    */
   attributions?: Uint8Array;
+}
+
+/** Shape returned by the YHub activity endpoint. */
+interface YHubActivityResponse {
+  activity: YHubActivityEntry[];
 }
 
 /**
@@ -228,7 +232,7 @@ async function yhubFetch(
  *       user: { name: "Alice", color: "#ff0" },
  *       provider,
  *       versioningEndpoints: createYHubVersioningEndpoints({
- *         baseUrl: "https://yhub.example.com",
+ *         baseUrl: "https://yhub.example.com/api",
  *         org: "my-org",
  *         docId: "my-doc",
  *       }),
@@ -249,9 +253,10 @@ export function createYHubVersioningEndpoints(
     group,
   } = options;
 
-  const activityUrl = `${baseUrl}/activity/${org}/${docId}`;
-  const changesetUrl = `${baseUrl}/changeset/${org}/${docId}`;
-  const rollbackUrl = `${baseUrl}/rollback/${org}/${docId}`;
+  const activityUrl = `${baseUrl}/activity/v1/${org}/${docId}`;
+  const changesetUrl = `${baseUrl}/changeset/v1/${org}/${docId}`;
+  const rollbackUrl = `${baseUrl}/rollback/v1/${org}/${docId}`;
+  const ydocUrl = `${baseUrl}/ydoc/v1/${org}/${docId}`;
 
   return (editor) => {
     /**
@@ -309,11 +314,11 @@ export function createYHubVersioningEndpoints(
         yhubFetch(`${activityUrl}?${latestVersionParams}`, headers),
       ]);
       const latestEdit = (
-        decodeAny(new Uint8Array(latestBuf)) as YHubActivityEntry[]
-      )[0];
+        decodeAny(new Uint8Array(latestBuf)) as YHubActivityResponse
+      ).activity[0];
       const latestVersion = (
-        decodeAny(new Uint8Array(latestVersionBuf)) as YHubActivityEntry[]
-      )[0];
+        decodeAny(new Uint8Array(latestVersionBuf)) as YHubActivityResponse
+      ).activity[0];
 
       if (!latestEdit || latestEdit.to <= (latestVersion?.to ?? 0)) {
         return undefined;
@@ -370,15 +375,14 @@ export function createYHubVersioningEndpoints(
       const update = Y.encodeStateAsUpdate(markerDoc);
 
       const body: Record<string, unknown> = { update, customAttributions };
+      if (by) {
+        body.by = by;
+      }
 
-      await yhubFetch(
-        `${baseUrl}/ydoc/${org}/${docId}${by ? `?userid=${by}` : ""}`,
-        headers,
-        {
-          method: "PATCH",
-          body: encodeAny(body) as BufferSource,
-        },
-      );
+      await yhubFetch(ydocUrl, headers, {
+        method: "PATCH",
+        body: encodeAny(body) as BufferSource,
+      });
     };
 
     /**
@@ -422,7 +426,7 @@ export function createYHubVersioningEndpoints(
     /**
      * Reconstruct the full document state as it was at a given `to` timestamp.
      *
-     * The changeset endpoint builds `nextDoc` purely from the `to` timestamp
+     * The changeset endpoint builds `ydoc` purely from the `to` timestamp
      * range — it ignores `withCustomAttributions` for doc reconstruction (that
      * filter only scopes the attribution overlay). So historical document state
      * can only be retrieved by timestamp, never by the version's `id`.
@@ -436,11 +440,11 @@ export function createYHubVersioningEndpoints(
       const buf = await yhubFetch(`${changesetUrl}?${params}`, headers);
       const changeset = decodeAny(new Uint8Array(buf)) as YHubChangeset;
 
-      if (!changeset.nextDoc) {
+      if (!changeset.ydoc) {
         throw new Error(`YHub returned no document state at timestamp ${to}.`);
       }
 
-      return Y.convertUpdateFormatV1ToV2(changeset.nextDoc);
+      return Y.convertUpdateFormatV1ToV2(changeset.ydoc);
     };
 
     /**
@@ -504,7 +508,7 @@ export function createYHubVersioningEndpoints(
       const to = snapshot.createdAt;
       const snapshotContent = await getContentAt(to);
 
-      await yhubFetch(`${rollbackUrl}?from=${to}`, headers, {
+      await yhubFetch(rollbackUrl, headers, {
         method: "POST",
         body: encodeAny({ from: to }) as BufferSource,
       });
@@ -587,7 +591,9 @@ export function createYHubVersioningEndpoints(
       }
 
       const buf = await yhubFetch(`${activityUrl}?${params}`, headers);
-      const entries = decodeAny(new Uint8Array(buf)) as YHubActivityEntry[];
+      const { activity: entries } = decodeAny(
+        new Uint8Array(buf),
+      ) as YHubActivityResponse;
 
       const snapshots = sortSnapshotsNewestFirst(
         entries
