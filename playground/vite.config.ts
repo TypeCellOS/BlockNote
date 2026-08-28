@@ -136,15 +136,11 @@ export default defineConfig(((conf: { command: string }) => ({
               "../packages/xl-typst-exporter/src",
             ),
             // math-block's typst entry's optional peer, resolved from the
-            // playground's own dependencies (like @react-pdf/math below).
+            // playground's own dependencies (like katex below).
             tex2typst: resolve(__dirname, "node_modules/tex2typst"),
             // The shared test-utils package the suggestion-gallery example
             // imports; dev mode resolves it via devAliases above.
             "@shared": resolve(__dirname, "../shared"),
-            "@react-pdf/math": resolve(
-              __dirname,
-              "node_modules/@react-pdf/math",
-            ),
             katex: resolve(__dirname, "node_modules/katex"),
           }
         : devAliases,

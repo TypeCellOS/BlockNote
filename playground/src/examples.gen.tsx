@@ -1128,13 +1128,9 @@ export const examples = {
           tags: ["Interoperability"],
           sharedTestDocument: true,
           dependencies: {
-            "@blocknote/diagram-block": "latest",
-            "@blocknote/math-block": "latest",
             "@blocknote/xl-multi-column": "latest",
             "@blocknote/xl-pdf-exporter": "latest",
-            "@react-pdf/math": "^2.0.1",
             "@react-pdf/renderer": "^4.5.1",
-            "mathjax-full": "^3.2.2",
           } as any,
           pro: true,
         },

@@ -61,10 +61,6 @@ export default defineConfig(
                   __dirname,
                   "../xl-odt-exporter/src/",
                 ),
-                "@blocknote/xl-pdf-exporter": path.resolve(
-                  __dirname,
-                  "../xl-pdf-exporter/src/",
-                ),
                 "@blocknote/xl-typst-exporter": path.resolve(
                   __dirname,
                   "../xl-typst-exporter/src/",
@@ -83,10 +79,6 @@ export default defineConfig(
             "odt-exporter": path.resolve(
               __dirname,
               "src/odt-exporter/index.ts",
-            ),
-            "pdf-exporter": path.resolve(
-              __dirname,
-              "src/pdf-exporter/index.tsx",
             ),
             "email-exporter": path.resolve(
               __dirname,

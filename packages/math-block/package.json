@@ -55,11 +55,6 @@
       "import": "./dist/odt-exporter.js",
       "require": "./dist/odt-exporter.cjs"
     },
-    "./pdf-exporter": {
-      "types": "./types/src/pdf-exporter/index.d.ts",
-      "import": "./dist/pdf-exporter.js",
-      "require": "./dist/pdf-exporter.cjs"
-    },
     "./email-exporter": {
       "types": "./types/src/email-exporter/index.d.ts",
       "import": "./dist/email-exporter.js",
@@ -92,10 +87,7 @@
     "@blocknote/xl-docx-exporter": "workspace:^",
     "@blocknote/xl-email-exporter": "workspace:^",
     "@blocknote/xl-odt-exporter": "workspace:^",
-    "@blocknote/xl-pdf-exporter": "workspace:^",
     "@react-email/components": "^1.0.12",
-    "@react-pdf/math": "^2.0.1",
-    "@react-pdf/renderer": "^4.5.1",
     "@types/katex": "^0.16.7",
     "mathml2omml": "^0.5.0",
     "@types/react": "^19.2.3",
@@ -105,7 +97,6 @@
     "mathjax-full": "^3.2.2",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "react-element-to-jsx-string": "^17.0.1",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^7.0.2",
@@ -119,10 +110,7 @@
     "@blocknote/xl-docx-exporter": "workspace:^",
     "@blocknote/xl-email-exporter": "workspace:^",
     "@blocknote/xl-odt-exporter": "workspace:^",
-    "@blocknote/xl-pdf-exporter": "workspace:^",
     "@react-email/components": "^1.0.12",
-    "@react-pdf/math": "^2.0.0",
-    "@react-pdf/renderer": "^4.5.1",
     "docx": "^9.6.1",
     "mathjax-full": "^3.2.2",
     "mathml2omml": "^0.5.0",
@@ -141,16 +129,7 @@
     "@blocknote/xl-odt-exporter": {
       "optional": true
     },
-    "@blocknote/xl-pdf-exporter": {
-      "optional": true
-    },
     "@react-email/components": {
-      "optional": true
-    },
-    "@react-pdf/math": {
-      "optional": true
-    },
-    "@react-pdf/renderer": {
       "optional": true
     },
     "docx": {

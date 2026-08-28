@@ -183,9 +183,6 @@ importers:
       '@react-email/render':
         specifier: ^2.0.4
         version: 2.1.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@react-pdf/math':
-        specifier: ^2.0.1
-        version: 2.0.1(@react-pdf/renderer@4.5.1(react@19.2.5))(react@19.2.5)
       '@react-pdf/renderer':
         specifier: ^4.5.1
         version: 4.5.1(react@19.2.5)
@@ -2796,15 +2793,9 @@ importers:
       '@blocknote/core':
         specifier: latest
         version: link:../../../packages/core
-      '@blocknote/diagram-block':
-        specifier: latest
-        version: link:../../../packages/diagram-block
       '@blocknote/mantine':
         specifier: latest
         version: link:../../../packages/mantine
-      '@blocknote/math-block':
-        specifier: latest
-        version: link:../../../packages/math-block
       '@blocknote/react':
         specifier: latest
         version: link:../../../packages/react
@@ -2823,15 +2814,9 @@ importers:
       '@mantine/hooks':
         specifier: ^9.0.2
         version: 9.1.1(react@19.2.5)
-      '@react-pdf/math':
-        specifier: ^2.0.1
-        version: 2.0.1(@react-pdf/renderer@4.5.1(react@19.2.5))(react@19.2.5)
       '@react-pdf/renderer':
         specifier: ^4.5.1
         version: 4.5.1(react@19.2.5)
-      mathjax-full:
-        specifier: ^3.2.2
-        version: 3.2.2
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -5421,9 +5406,6 @@ importers:
       '@blocknote/xl-odt-exporter':
         specifier: workspace:^
         version: link:../xl-odt-exporter
-      '@blocknote/xl-pdf-exporter':
-        specifier: workspace:^
-        version: link:../xl-pdf-exporter
       '@blocknote/xl-typst-compiler':
         specifier: workspace:^
         version: link:../xl-typst-compiler
@@ -5433,9 +5415,6 @@ importers:
       '@react-email/components':
         specifier: ^1.0.12
         version: 1.0.12(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@react-pdf/renderer':
-        specifier: ^4.5.1
-        version: 4.5.1(react@19.2.5)
       '@types/react':
         specifier: ^19.2.3
         version: 19.2.14
@@ -5454,9 +5433,6 @@ importers:
       react-dom:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
-      react-element-to-jsx-string:
-        specifier: ^17.0.1
-        version: 17.0.1(react-dom@19.2.5(react@19.2.5))(react-is@19.2.4)(react@19.2.5)
       react-icons:
         specifier: ^5.5.0
         version: 5.6.0(react@19.2.5)
@@ -5555,9 +5531,6 @@ importers:
       '@blocknote/xl-odt-exporter':
         specifier: workspace:^
         version: link:../xl-odt-exporter
-      '@blocknote/xl-pdf-exporter':
-        specifier: workspace:^
-        version: link:../xl-pdf-exporter
       '@blocknote/xl-typst-compiler':
         specifier: workspace:^
         version: link:../xl-typst-compiler
@@ -5567,12 +5540,6 @@ importers:
       '@react-email/components':
         specifier: ^1.0.12
         version: 1.0.12(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@react-pdf/math':
-        specifier: ^2.0.1
-        version: 2.0.1(@react-pdf/renderer@4.5.1(react@19.2.5))(react@19.2.5)
-      '@react-pdf/renderer':
-        specifier: ^4.5.1
-        version: 4.5.1(react@19.2.5)
       '@types/katex':
         specifier: ^0.16.7
         version: 0.16.8
@@ -5600,9 +5567,6 @@ importers:
       react-dom:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
-      react-element-to-jsx-string:
-        specifier: ^17.0.1
-        version: 17.0.1(react-dom@19.2.5(react@19.2.5))(react-is@19.2.4)(react@19.2.5)
       react-icons:
         specifier: ^5.5.0
         version: 5.6.0(react@19.2.5)
@@ -6434,9 +6398,6 @@ importers:
       '@mui/material':
         specifier: ^5.18.0
         version: 5.18.0(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@react-pdf/math':
-        specifier: ^2.0.1
-        version: 2.0.1(@react-pdf/renderer@4.5.1(react@19.2.5))(react@19.2.5)
       '@uppy/core':
         specifier: ^3.13.1
         version: 3.13.1
@@ -6611,9 +6572,6 @@ importers:
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
-      '@react-pdf/renderer':
-        specifier: ^4.5.1
-        version: 4.5.1(react@19.2.5)
       '@tailwindcss/vite':
         specifier: ^4.1.14
         version: 4.2.2(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.9.0))
@@ -9884,12 +9842,6 @@ packages:
 
   '@react-pdf/layout@4.6.1':
     resolution: {integrity: sha512-gN6PmWoEffvlIkifLfEhMsVucRywVMyH3rnxdyOVOhGy0nWJKKGpHyPc4plbDdpP6EfZ0r8prHXujDSkIG2nSA==}
-
-  '@react-pdf/math@2.0.1':
-    resolution: {integrity: sha512-o+QQA03iT76RiKe8uhOgof+5X7GzA4SUjjPbffi6IGwcOotuxTKm3uhZAnx18ioylSpJf4BcVgUazzb5Ycv8qw==}
-    peerDependencies:
-      '@react-pdf/renderer': '>=4.5.1'
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   '@react-pdf/pdfkit@5.1.1':
     resolution: {integrity: sha512-wNcdSsNlNYyGHGAgIdt453egBF7fiF9UxpRlklUfVvu8OWCrUppG9xiUrPLVoKiqWet5tMi0w6LmuFUJuYqjEg==}
@@ -20019,13 +19971,6 @@ snapshots:
       emoji-regex-xs: 1.0.0
       queue: 6.0.2
       yoga-layout: 3.2.1
-
-  '@react-pdf/math@2.0.1(@react-pdf/renderer@4.5.1(react@19.2.5))(react@19.2.5)':
-    dependencies:
-      '@react-pdf/renderer': 4.5.1(react@19.2.5)
-      '@react-pdf/svg': 1.1.0
-      mathjax-full: 3.2.2
-      react: 19.2.5
 
   '@react-pdf/pdfkit@5.1.1':
     dependencies:
