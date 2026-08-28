@@ -20,7 +20,6 @@ export * from "./Code/helpers/parse/parsePreCode.js";
 export * from "./Code/helpers/render/createCodeBlock.js";
 export * from "./Code/helpers/toExternalHTML/createPreCode.js";
 export * from "./ToggleWrapper/createToggleWrapper.js";
-export * from "./File/helpers/uploadToTmpFilesDotOrg_DEV_ONLY.js";
 export * from "./PageBreak/getPageBreakSlashMenuItems.js";
 
 export * from "./BlockNoteSchema.js";
