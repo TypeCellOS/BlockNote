@@ -223,6 +223,39 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
       return opts.length ? `table.cell(${opts.join(", ")})${body}` : body;
     }
 
+    // Each cell's start track, for the header-column check: colspans in the
+    // same row shift the cells after them, and a row-spanning cell keeps
+    // covering its tracks in later rows (Typst flows the supplied cells past
+    // them, so cell index != column). `covered[track]` counts the remaining
+    // rows a track stays occupied by a span from an earlier row - header
+    // rows included, since their spans can reach into body rows.
+    const covered: number[] = [];
+    const startCols = rows.map((cells) => {
+      let col = 0;
+      const starts = cells.map((cell) => {
+        while ((covered[col] ?? 0) > 0) {
+          col++;
+        }
+        const start = col;
+        const rowspan = getRowspan(cell);
+        if (rowspan > 1) {
+          for (let i = 0; i < getColspan(cell); i++) {
+            covered[start + i] = rowspan;
+          }
+        }
+        col += getColspan(cell);
+        return start;
+      });
+      // This row consumed one row of every active span (the entries set
+      // above included the current row, so they end at rowspan - 1).
+      for (let i = 0; i < covered.length; i++) {
+        if (covered[i]) {
+          covered[i]--;
+        }
+      }
+      return starts;
+    });
+
     // Typst allows at most ONE table.header, which may span several rows -
     // all header-row cells go into a single call (tagged TH), body rows
     // follow as plain cell lists. Cells in header COLUMNS get the same
@@ -236,15 +269,11 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
       ...(headerCells.length
         ? [`  table.header(${headerCells.join(", ")}),`]
         : []),
-      ...rows.slice(headerRows).map((cells) => {
-        // The header-column check counts spanned tracks, not cell indexes -
-        // a merged cell before a header column must not shift the check.
-        let col = 0;
-        const rendered = cells.map((c) => {
-          const isHeader = col < headerCols;
-          col += getColspan(c);
-          return renderCell(c, isHeader);
-        });
+      ...rows.slice(headerRows).map((cells, r) => {
+        const starts = startCols[r + headerRows];
+        const rendered = cells.map((cell, i) =>
+          renderCell(cell, starts[i] < headerCols),
+        );
         return `  ${rendered.join(", ")},`;
       }),
     ];

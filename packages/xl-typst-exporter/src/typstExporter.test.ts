@@ -247,6 +247,46 @@ describe("TypstExporter", () => {
     ).rejects.toThrow("offline");
   });
 
+  it("keeps header-column styling on the true column across row spans", async () => {
+    const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
+
+    const typ = await exporter.toTypst(
+      partialBlocksToBlocksForTesting(schema, [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            headerCols: 1,
+            columnWidths: [100, 100, 100],
+            rows: [
+              {
+                cells: [
+                  { type: "tableCell", content: "A", props: { rowspan: 2 } },
+                  { type: "tableCell", content: "B1" },
+                  { type: "tableCell", content: "C1" },
+                ],
+              },
+              {
+                // The first *supplied* cell of this row sits in column two:
+                // A still covers column one.
+                cells: [
+                  { type: "tableCell", content: "B2" },
+                  { type: "tableCell", content: "C2" },
+                ],
+              },
+            ],
+          },
+        },
+      ]),
+    );
+
+    // Column one is the header column, so A gets the header styling...
+    expect(typ).toContain('#strong[#"A"]');
+    // ...but B2 - supplied first in its row, yet in column two - must not.
+    expect(typ).toContain('#"B2"');
+    expect(typ).not.toContain('#strong[#"B2"]');
+  });
+
   it(
     "spans merged table cells and emits a single multi-row header",
     { timeout: 20000 },
