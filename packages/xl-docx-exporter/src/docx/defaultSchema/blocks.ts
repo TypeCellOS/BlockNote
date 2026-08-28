@@ -277,6 +277,14 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     });
   },
   image: async (block, exporter) => {
+    if (!block.props.url) {
+      // An image without a URL is the editor's un-uploaded placeholder ("Add
+      // image"), not document content - it exports as nothing. (The typst
+      // exporter renders a labelled placeholder figure when a name is present;
+      // this format has no placeholder rendering, so any url-less image is
+      // omitted.)
+      return [];
+    }
     const blob = await exporter.resolveFile(block.props.url);
     const { width, height } = await getImageDimensions(blob);
 

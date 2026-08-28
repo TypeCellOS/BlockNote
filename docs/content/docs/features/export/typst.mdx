@@ -47,10 +47,11 @@ const typst = await exporter.toTypst(editor.document, {
 
 ### Images & assets
 
-The markup references the document's images by virtual paths like
-`/assets/asset-0`. After `toTypst`, the exporter's `assetFiles` map holds
+The markup references files by virtual paths: the document's images (like
+`/assets/asset-0`) and a bundled code-highlighting theme the preamble
+always references. After `toTypst`, the exporter's `assetFiles` map holds
 the bytes for those paths. Map them into your Typst compiler's filesystem
-before compiling:
+before compiling; every document needs this, not only those with images:
 
 ```typescript
 const assets = exporter.assetFiles; // Map<string, Uint8Array>
