@@ -2,6 +2,7 @@ import {
   autoUpdate,
   FloatingFocusManager,
   FloatingPortal,
+  hide,
   useDismiss,
   useFloating,
   UseFloatingOptions,
@@ -134,16 +135,19 @@ export const GenericPopover = (
   }
   const {
     whileElementsMounted: _whileElementsMounted,
+    middleware,
     ...restFloatingOptions
   } = props.useFloatingOptions ?? {};
 
-  const { refs, floatingStyles, context } = useFloating<HTMLDivElement>({
-    whileElementsMounted: mergeWhileElementsMounted(
-      autoUpdate,
-      props.useFloatingOptions?.whileElementsMounted,
-    ),
-    ...restFloatingOptions,
-  });
+  const { refs, floatingStyles, context, middlewareData } =
+    useFloating<HTMLDivElement>({
+      whileElementsMounted: mergeWhileElementsMounted(
+        autoUpdate,
+        props.useFloatingOptions?.whileElementsMounted,
+      ),
+      middleware: [...(middleware ?? []), hide()],
+      ...restFloatingOptions,
+    });
 
   const { isMounted, styles } = useTransitionStyles(
     context,
@@ -231,6 +235,9 @@ export const GenericPopover = (
       zIndex: `calc(var(--bn-ui-base-z-index, 0) + ${props.elementProps?.style?.zIndex || 0})`,
       ...floatingStyles,
       ...styles,
+      ...(middlewareData.hide?.referenceHidden
+        ? { visibility: "hidden" as const }
+        : {}),
     },
     ...getFloatingProps(),
   };

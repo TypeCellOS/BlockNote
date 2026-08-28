@@ -5,8 +5,8 @@ import {
 } from "@mantine/core";
 
 import { assertEmpty, isSafari, isTouchDevice } from "@blocknote/core";
-import { ComponentProps, PortalContext } from "@blocknote/react";
-import { forwardRef, useContext } from "react";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef } from "react";
 import { HiChevronDown } from "react-icons/hi";
 
 // TODO: Turn into select?
@@ -14,13 +14,9 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, ...rest } = props;
+  const { className, items, isDisabled, portalRoot, ...rest } = props;
 
   assertEmpty(rest);
-
-  // The DOM node the dropdown portals into, e.g. the mobile formatting
-  // toolbar's non-scrolling wrapper. `null` when there's no such target.
-  const portalRoot = useContext(PortalContext);
 
   const selectedItem = items.filter((p) => p.isSelected)[0];
 
@@ -32,18 +28,13 @@ export const ToolbarSelect = forwardRef<
     <MantineMenu
       withinPortal={!!portalRoot}
       portalProps={portalRoot ? { target: portalRoot } : undefined}
-      position={"bottom-start"}
       transitionProps={{
         exitDuration: 0,
       }}
       disabled={isDisabled}
-      // Don't move focus into the dropdown on open: on mobile that blurs the
-      // editor's contentEditable and dismisses the on-screen keyboard.
-      // `withInitialFocusPlaceholder={false}` drops the focusable placeholder
-      // Mantine otherwise autofocuses.
-      trapFocus={false}
-      returnFocus={false}
-      withInitialFocusPlaceholder={false}
+      // Do not move focus to the dropdown on mobile, as it blurs the editor's
+      // contentEditable and dismisses the on-screen keyboard.
+      trapFocus={portalRoot ? false : undefined}
       middlewares={{
         flip: true,
         shift: true,
@@ -53,8 +44,12 @@ export const ToolbarSelect = forwardRef<
     >
       <MantineMenu.Target>
         <MantineButton
-          onPointerDown={(e) => {
-            // Prevents focus shift on mo
+          onMouseDown={(e) => {
+            // On touch, keep focus on the editor (so the on-screen keyboard
+            // stays open) without canceling the tap's click. `mousedown` is the
+            // compat event that moves focus, so preventing it keeps focus here
+            // while the click still fires. Preventing `pointerdown` instead
+            // suppresses the synthesized click on iOS WebKit.
             if (isTouchDevice()) {
               e.preventDefault();
               return;

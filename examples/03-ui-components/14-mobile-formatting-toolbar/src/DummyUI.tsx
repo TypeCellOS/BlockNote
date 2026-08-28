@@ -4,10 +4,10 @@ function HamburgerMenu() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="hamburger">
+    <div className="dummy-hamburger">
       <button
         type="button"
-        className="hamburger-button"
+        className="dummy-hamburger-button"
         aria-label="Menu"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
@@ -17,22 +17,44 @@ function HamburgerMenu() {
         <span />
       </button>
       {open && (
-        <nav className="hamburger-menu">
-          <a href="#">Home</a>
-          <a href="#">Documents</a>
-          <a href="#">Shared with me</a>
-          <a href="#">Settings</a>
+        <nav className="dummy-hamburger-menu">
+          <a href="#">Dummy link 1</a>
+          <a href="#">Dummy link 2</a>
+          <a href="#">Dummy link 3</a>
+          <a href="#">Dummy link 4</a>
         </nav>
       )}
     </div>
   );
 }
 
-export function NavBar() {
+export function NavBar(props: {
+  scrollMode: "scrolling-document" | "scroll-container";
+  onScrollModeChange: (
+    scrollMode: "scrolling-document" | "scroll-container",
+  ) => void;
+}) {
   return (
-    <header className="top-nav">
+    <header className="dummy-top-nav">
       <HamburgerMenu />
-      <span className="top-nav-title">Lorem Ipsum</span>
+      <span className="dummy-top-nav-title">Lorem Ipsum</span>
+      {/* Switches between the default "scrolling document" layout and the
+          "pinned scroll container" layout, to compare the toolbar in both. */}
+      <button
+        type="button"
+        className="dummy-layout-toggle"
+        aria-pressed={props.scrollMode === "scroll-container"}
+        onClick={() =>
+          props.onScrollModeChange(
+            props.scrollMode === "scroll-container"
+              ? "scrolling-document"
+              : "scroll-container",
+          )
+        }
+      >
+        Pinned scroll container
+        <span className="dummy-layout-toggle-track" aria-hidden="true" />
+      </button>
     </header>
   );
 }
@@ -40,7 +62,7 @@ export function NavBar() {
 /** A block of static page text, to sit around the editor. */
 export function StaticText() {
   return (
-    <section className="prose">
+    <section className="dummy-prose">
       <h2>Lorem Ipsum</h2>
       <p>
         Elit ipsum qui deserunt deserunt. Qui labore eu esse veniam excepteur.

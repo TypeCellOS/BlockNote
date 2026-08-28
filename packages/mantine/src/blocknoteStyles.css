@@ -166,7 +166,6 @@
   padding: 2px;
   width: fit-content;
   overflow-x: auto;
-  max-width: 100vw;
 }
 
 .bn-mantine .bn-toolbar:empty {
@@ -182,11 +181,15 @@
   flex-shrink: 0;
 }
 
-.bn-toolbar .mantine-Button-root:hover,
-.bn-toolbar .mantine-ActionIcon-root:hover {
-  background-color: var(--bn-colors-hovered-background);
-  border: none;
-  color: var(--bn-colors-hovered-text);
+/* Hover styles are gated behind `hover: hover` so they don't stick after a tap
+on touch devices (e.g. the mobile formatting toolbar). */
+@media (hover: hover) {
+  .bn-toolbar .mantine-Button-root:hover,
+  .bn-toolbar .mantine-ActionIcon-root:hover {
+    background-color: var(--bn-colors-hovered-background);
+    border: none;
+    color: var(--bn-colors-hovered-text);
+  }
 }
 
 .bn-toolbar .mantine-Button-root[data-selected],

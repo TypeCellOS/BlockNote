@@ -511,11 +511,15 @@ SideMenuController offsets its position to keep it centered on the line. */
 
 .bn-mobile-formatting-toolbar {
   display: flex;
+  justify-content: center;
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
+  width: 100vw;
   z-index: calc(var(--bn-ui-base-z-index) + 40);
+  /* `translate`: Move just below bottom of visual viewport. */
+  /* `translateY`: Move from below under bottom edge of visual viewport to just above it. */
+  /* `scale`: Preserve size on zoom. */
   transform: translate(
       var(--bn-vv-left, 0px),
       calc(var(--bn-vv-top, 0px) + var(--bn-vv-height, 0px))
@@ -523,6 +527,7 @@ SideMenuController offsets its position to keep it centered on the line. */
     translateY(-100%) scale(calc(1 / var(--bn-vv-scale, 1)));
   transform-origin: left bottom;
   will-change: transform;
+  /* Slightly mitigates jitter. */
   transition: transform 0.2s cubic-bezier(0.5, 1, 0.89, 1);
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
@@ -531,6 +536,29 @@ SideMenuController offsets its position to keep it centered on the line. */
   .bn-mobile-formatting-toolbar {
     transition: none;
   }
+}
+
+/* CSS styles for scroll container pinned to virtual viewport. Used to make the mobile formatting
+ toolbar scroll smoother. `bn-vv-*` variables track virtual viewport and are set in
+ `useVirtualKeyboard`. */
+html:has(.bn-scroll-container),
+body:has(.bn-scroll-container) {
+  overflow: hidden;
+}
+
+.bn-scroll-container {
+  position: fixed;
+  top: var(--bn-vv-top, 0px);
+  left: var(--bn-vv-left, 0px);
+  width: var(--bn-vv-width, 100vw);
+  height: var(--bn-vv-height, 100dvh);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Stop overscroll at the boundary from chaining to the document. Without
+     this, dragging past the bottom on iOS rubber-bands the whole page, which
+     shifts the visual viewport (repinning the container mid-bounce → jitter)
+     and surfaces a second, document-level scrollbar. */
+  overscroll-behavior: contain;
 }
 
 /* Emoji Picker styling */

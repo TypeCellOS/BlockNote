@@ -1,4 +1,3 @@
-import { isTouchDevice } from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
 import {
   FilePanelExtension,
@@ -12,7 +11,6 @@ import { lazy, Suspense } from "react";
 
 import { FilePanelController } from "../components/FilePanel/FilePanelController.js";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController.js";
-import { MobileFormattingToolbarController } from "../components/FormattingToolbar/MobileFormattingToolbarController.js";
 import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController.js";
 import { SideMenuController } from "../components/SideMenu/SideMenuController.js";
 import { AttributionTooltipController } from "../components/AttributionTooltip/AttributionTooltipController.js";
@@ -121,14 +119,11 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
   return (
     <>
       {editor.getExtension(FormattingToolbarExtension) &&
-        props.formattingToolbar !== false &&
-        (isTouchDevice() ? (
-          <MobileFormattingToolbarController />
-        ) : (
+        props.formattingToolbar !== false && (
           <FormattingToolbarController
             portalElement={formattingToolbarPortal}
           />
-        ))}
+        )}
       {editor.getExtension(LinkToolbarExtension) &&
         props.linkToolbar !== false && (
           <LinkToolbarController portalElement={linkToolbarPortal} />

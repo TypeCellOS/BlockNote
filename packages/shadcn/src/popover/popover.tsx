@@ -1,13 +1,13 @@
 import { assertEmpty } from "@blocknote/core";
-import {
-  ComponentProps,
-  PortalContext,
-  useBlockNoteEditor,
-} from "@blocknote/react";
-import { forwardRef, ReactElement, useContext } from "react";
+import { ComponentProps, useBlockNoteEditor } from "@blocknote/react";
+import { createContext, forwardRef, ReactElement, useContext } from "react";
 
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
+
+const PortalRootContext = createContext<HTMLElement | null | undefined>(
+  undefined,
+);
 
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
@@ -17,6 +17,7 @@ export const Popover = (
     open,
     onOpenChange,
     position: _position, // unused
+    portalRoot,
     ...rest
   } = props;
 
@@ -26,7 +27,9 @@ export const Popover = (
 
   return (
     <ShadCNComponents.Popover.Popover open={open} onOpenChange={onOpenChange}>
-      {children}
+      <PortalRootContext.Provider value={portalRoot}>
+        {children}
+      </PortalRootContext.Provider>
     </ShadCNComponents.Popover.Popover>
   );
 };
@@ -58,13 +61,10 @@ export const PopoverContent = forwardRef<
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
-  // The DOM node the popover portals into, e.g. the mobile formatting toolbar's
-  // non-scrolling wrapper. `null` when there's no such target.
-  const portalRoot = useContext(PortalContext);
-
-  // Otherwise default to the editor's portal element (which carries the
-  // color-scheme class) so popovers inherit light/dark mode instead of the
-  // document body's.
+  const portalRoot = useContext(PortalRootContext);
+  // Default to the editor's portal element (which carries the color-scheme
+  // class) so popovers inherit light/dark mode instead of the document body's,
+  // and escape the mobile formatting toolbar's horizontal scroll clip.
   const editor = useBlockNoteEditor();
 
   return (

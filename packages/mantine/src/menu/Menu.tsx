@@ -4,7 +4,7 @@ import {
 } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, PortalContext } from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
 import { createContext, forwardRef, useContext } from "react";
 
 const SubMenuContext = createContext<
@@ -16,24 +16,16 @@ const SubMenuContext = createContext<
 >(undefined);
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
-  const { children, onOpenChange, position, sub, ...rest } = props;
+  const { children, onOpenChange, position, portalRoot, sub, ...rest } = props;
 
   assertEmpty(rest);
-
-  // The DOM node menus portal into, e.g. the mobile formatting toolbar's
-  // non-scrolling wrapper. `null` when there's no such target.
-  const portalRoot = useContext(PortalContext);
-
-  // When explicitly positioned to a `top` placement (e.g. the mobile toolbar's
-  // color menu, opening above the keyboard) don't let `flip` send it back down.
-  const flip = !position?.startsWith("top");
 
   if (sub) {
     return (
       <MantineMenu.Sub
         transitionProps={{ duration: 250, exitDelay: 250 }}
         withinPortal={false}
-        middlewares={{ flip, shift: true, inline: false, size: true }}
+        middlewares={{ flip: true, shift: true, inline: false, size: true }}
         onChange={onOpenChange}
         position={position}
       >
@@ -46,18 +38,13 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     <MantineMenu
       withinPortal={!!portalRoot}
       portalProps={portalRoot ? { target: portalRoot } : undefined}
-      middlewares={{ flip, shift: true, inline: false, size: true }}
+      // Do not move focus to dropdown when portaled (mobile), as it blurs the
+      // editor's contentEditable and dismisses the on-screen keyboard.
+      trapFocus={portalRoot ? false : undefined}
+      middlewares={{ flip: true, shift: true, inline: false, size: true }}
       onChange={onOpenChange}
       position={position}
-      // Only when portalling into the mobile toolbar: don't move focus into the
-      // dropdown on open, since on mobile that blurs the editor's
-      // contentEditable and dismisses the on-screen keyboard.
-      // `withInitialFocusPlaceholder={false}` drops the focusable placeholder
-      // Mantine otherwise autofocuses. On desktop we leave Mantine's defaults
-      // (focus trapping/return) intact for accessibility.
-      trapFocus={portalRoot ? false : undefined}
-      returnFocus={portalRoot ? false : undefined}
-      withInitialFocusPlaceholder={portalRoot ? false : undefined}
+      returnFocus={false}
     >
       {children}
     </MantineMenu>

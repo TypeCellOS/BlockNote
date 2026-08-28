@@ -7,6 +7,7 @@ import {
 import { RiImageEditFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -15,6 +16,7 @@ import { FilePanel } from "../../FilePanel/FilePanel.js";
 export const FileReplaceButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
+  const uiMode = useUIMode();
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -56,7 +58,17 @@ export const FileReplaceButton = () => {
   }
 
   return (
-    <Components.Generic.Popover.Root>
+    <Components.Generic.Popover.Root
+      onOpenChange={(open) => {
+        // Return focus to the editor when closing, so on mobile the on-screen
+        // keyboard and formatting toolbar stay up instead of being dismissed as
+        // focus falls back to `<body>`.
+        if (!open) {
+          editor.focus();
+        }
+      }}
+      portalRoot={uiMode === "mobile" ? editor.portalElement : undefined}
+    >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}

@@ -57,8 +57,13 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       <MantineButton
         aria-label={label}
         className={className}
-        onPointerDown={(event) => {
-          // Prevents focus shift on mobile.
+        onMouseDown={(event) => {
+          // On touch, keep focus on the editor (so the on-screen keyboard stays
+          // open) without canceling the tap's click. `mousedown` is the compat
+          // event that moves focus, so preventing it keeps focus here while the
+          // click still fires. Preventing `pointerdown` instead suppresses the
+          // synthesized click on iOS WebKit, so a button that opens a popover
+          // would never toggle it.
           if (isTouchDevice()) {
             event.preventDefault();
             return;
@@ -96,8 +101,13 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       <MantineActionIcon
         className={className}
         aria-label={label}
-        onPointerDown={(event) => {
-          // Prevents focus shift on mobile.
+        onMouseDown={(event) => {
+          // On touch, keep focus on the editor (so the on-screen keyboard stays
+          // open) without canceling the tap's click. `mousedown` is the compat
+          // event that moves focus, so preventing it keeps focus here while the
+          // click still fires. Preventing `pointerdown` instead suppresses the
+          // synthesized click on iOS WebKit, so a button that opens a popover
+          // would never toggle it.
           if (isTouchDevice()) {
             event.preventDefault();
             return;

@@ -1,8 +1,8 @@
 # Mobile Formatting Toolbar
 
-On mobile, BlockNote's default UI automatically shows a formatting toolbar pinned above the virtual keyboard - no setup needed. This example demos the opt-in, CSS-only "non-scrolling document" setup (locking `html`/`body` scroll and sizing a `.scroll-host` to the visual viewport), which keeps the toolbar smoothly pinned while scrolling.
+This example demos the opt-in **scroll container** layout: adding the `bn-scroll-container` class to the element wrapping your page content locks `html`/`body` scrolling and pins that element to the visual viewport (using styles from BlockNote's stylesheet), so the toolbar stays perfectly in place while scrolling and zooming. Use the switch in the nav bar to toggle it off and compare it with the default scrolling document layout.
 
 **Relevant Docs:**
 
-- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)
+- [Mobile Formatting Toolbar](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar)
 - [Editor Setup](/docs/getting-started/editor-setup)

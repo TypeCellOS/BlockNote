@@ -9,6 +9,7 @@ import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 import { RiFontFamily } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -16,6 +17,7 @@ import { useDictionary } from "../../../i18n/dictionary.js";
 export const FileRenameButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
+  const uiMode = useUIMode();
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -53,7 +55,20 @@ export const FileRenameButton = () => {
     },
   });
 
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [popoverOpen, setPopoverOpenState] = useState(false);
+
+  // Return focus to the editor when closing, so on mobile the on-screen
+  // keyboard and formatting toolbar stay up instead of being dismissed as
+  // focus falls back to `<body>`.
+  const setPopoverOpen = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        editor.focus();
+      }
+      setPopoverOpenState(open);
+    },
+    [editor],
+  );
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -73,12 +88,15 @@ export const FileRenameButton = () => {
     [block, editor],
   );
 
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    if (event.key === "Enter" && !event.nativeEvent.isComposing) {
-      event.preventDefault();
-      setPopoverOpen(false);
-    }
-  }, []);
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
+        event.preventDefault();
+        setPopoverOpen(false);
+      }
+    },
+    [setPopoverOpen],
+  );
 
   if (block === undefined) {
     return null;
@@ -88,6 +106,13 @@ export const FileRenameButton = () => {
     <Components.Generic.Popover.Root
       open={popoverOpen}
       onOpenChange={setPopoverOpen}
+      // On mobile the formatting toolbar scrolls horizontally, which clips the
+      // inline popover. Portalling it to `editor.portalElement` escapes that
+      // clip; a set `portalRoot` also stops focus moving into the popover, which
+      // would blur the editor and dismiss the on-screen keyboard. On desktop
+      // there's no such clipping, so we keep the default inline rendering. See
+      // `MobileFormattingToolbarController`.
+      portalRoot={uiMode === "mobile" ? editor.portalElement : undefined}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
@@ -101,7 +126,7 @@ export const FileRenameButton = () => {
             dict.formatting_toolbar.file_rename.tooltip["file"]
           }
           icon={<RiFontFamily />}
-          onClick={() => setPopoverOpen((open) => !open)}
+          onClick={() => setPopoverOpen(!popoverOpen)}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content

@@ -14,6 +14,7 @@ import {
 } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../../hooks/useEditorDomElement.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
@@ -45,6 +46,7 @@ export const CreateLinkButton = () => {
   const editorDOMElement = useEditorDOMElement();
   const Components = useComponentsContext()!;
   const dict = useDictionary();
+  const uiMode = useUIMode();
 
   const formattingToolbar = useExtension(FormattingToolbarExtension);
   // eslint-disable-next-line @typescript-eslint/unbound-method -- showSelection is a plain object method, not a class method
@@ -74,6 +76,8 @@ export const CreateLinkButton = () => {
       if (
         // The editor is read-only.
         !editor.isEditable ||
+        // The selection is empty, i.e. no content is selected.
+        editor.prosemirrorState.selection.empty ||
         // Links are not in the schema.
         !checkLinkInSchema(editor) ||
         // Table cells are selected.
@@ -126,6 +130,13 @@ export const CreateLinkButton = () => {
     <Components.Generic.Popover.Root
       open={showPopover}
       onOpenChange={setPopoverOpen}
+      // On mobile the formatting toolbar scrolls horizontally, which clips the
+      // inline popover. Portalling it to `editor.portalElement` escapes that
+      // clip; a set `portalRoot` also stops focus moving into the popover, which
+      // would blur the editor and dismiss the on-screen keyboard. On desktop
+      // there's no such clipping, so we keep the default inline rendering. See
+      // `MobileFormattingToolbarController`.
+      portalRoot={uiMode === "mobile" ? editor.portalElement : undefined}
     >
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}

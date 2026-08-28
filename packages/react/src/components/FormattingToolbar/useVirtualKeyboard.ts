@@ -15,8 +15,18 @@ let baselineLayoutWidth = 0;
  * URL-bar show/hide (~60-100px) and below any real keyboard (~250px+).
  *
  * The keyboard never changes the viewport width, but an orientation change
- * does — so when the (zoom-invariant) width changes we reset the baseline,
- * otherwise a shorter landscape viewport would be mistaken for an open keyboard.
+ * does — so when the width changes we reset the baseline, otherwise a shorter
+ * landscape viewport would be mistaken for an open keyboard.
+ *
+ * We read the width from `document.documentElement.clientWidth` — the layout
+ * viewport, which pinch-zoom and the keyboard both leave untouched on iOS and
+ * Android alike. (`window.innerWidth` and `visualViewport.width * scale` both
+ * track the *visual* viewport on Android/Chrome, so they wobble by a few
+ * percent as you pinch.) And we only reset on a *large* change: an orientation
+ * flip moves the width by tens of percent, so a 20% threshold clears it while
+ * ignoring any residual sub-pixel jitter — without it, a stray wobble resets
+ * the baseline to the keyboard-open height and the toolbar vanishes until the
+ * keyboard is reopened.
  */
 function isVirtualKeyboardOpen(): boolean {
   if (typeof window === "undefined") {
@@ -26,9 +36,9 @@ function isVirtualKeyboardOpen(): boolean {
   const vp = window.visualViewport;
   const scale = vp?.scale ?? 1;
   const layoutHeight = (vp?.height ?? window.innerHeight) * scale;
-  const layoutWidth = (vp?.width ?? window.innerWidth) * scale;
+  const layoutWidth = document.documentElement.clientWidth;
 
-  if (layoutWidth !== baselineLayoutWidth) {
+  if (Math.abs(layoutWidth - baselineLayoutWidth) > baselineLayoutWidth * 0.2) {
     baselineLayoutWidth = layoutWidth;
     maxLayoutViewportHeight = 0;
   }
@@ -48,10 +58,11 @@ function isVirtualKeyboardOpen(): boolean {
  * opens/closes, not on every viewport change (zoom/pan/scroll) — those keep the
  * CSS properties up to date without a re-render.
  *
- * Does not lock document scroll. For the smoother "non-scrolling document"
- * behavior, the host app opts in with CSS (see
- * {@link MobileFormattingToolbarController}). This is what that controller
- * relies on for positioning and keyboard detection.
+ * For the smoother "pinned scroll container" layout, the host app opts in by
+ * adding the `bn-scroll-container` class to the element wrapping its page
+ * content — the matching styles (and the document scroll lock) live in
+ * `editor/styles.css`, keyed off that class and the `--bn-vv-*` variables this
+ * hook publishes.
  */
 export function useVirtualKeyboard(): boolean {
   const [open, setOpen] = useState(isVirtualKeyboardOpen);
