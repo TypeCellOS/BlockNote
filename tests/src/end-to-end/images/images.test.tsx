@@ -40,7 +40,7 @@ describe("Check Image Block and Toolbar functionality", () => {
       type: "image/png",
     });
     await userEvent.upload(uploadInput, file);
-    await waitForSelector(`img[src^="https://tmpfiles.org/"]`);
+    await waitForSelector(`img[src^="data:"]`);
     await sleep(500);
 
     await userEvent.click(await waitForSelector(`img`));
