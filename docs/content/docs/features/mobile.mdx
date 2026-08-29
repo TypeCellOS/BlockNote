@@ -1,0 +1,63 @@
+---
+title: Mobile Support
+description: What BlockNote does on phones and tablets out of the box, and the one viewport setting your app should set
+---
+
+# Mobile Support
+
+BlockNote works on mobile browsers out of the box. On touch devices the
+editor adapts by itself:
+
+- The floating [Formatting Toolbar](/docs/react/components/formatting-toolbar)
+  is replaced by a
+  [mobile Formatting Toolbar](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar)
+  pinned just above the on-screen keyboard, and the caret is kept scrolled
+  clear of it while typing.
+- Toolbar menus and popovers open without stealing focus from the editor, so
+  the keyboard stays up while you pick a color, create a link, or write a
+  comment.
+- Tapping a link places the caret and opens the link toolbar (which carries
+  an explicit open-link action) instead of navigating — with no hover on
+  touch devices, that's the only way a link stays editable.
+
+## Viewport setup
+
+The one thing your app should do: add
+`interactive-widget=resizes-content` to the page's viewport meta tag.
+
+```html
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"
+/>
+```
+
+Without it, mobile Chrome keeps the page at its full height when the
+keyboard opens and only shrinks the _visual_ viewport, so page content can
+end up stuck behind the keyboard. `resizes-content` makes the browser resize
+the page layout itself, keeping the whole document reachable while typing.
+
+BlockNote's mobile toolbar works in either mode (it positions itself from
+the visual viewport), but the rest of your page will behave better with the
+meta tag in place.
+
+## Page layout
+
+The mobile toolbar supports two page layouts — the default scrolling
+document, and an opt-in pinned scroll container that eliminates
+scroll-driven jitter on iOS. See
+[the layout section of the Formatting Toolbar page](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar)
+for how to choose and set them up.
+
+## Troubleshooting
+
+- **Light menus over a dark page on Android** — Chrome's "Darken websites"
+  setting auto-darkens pages that only ship a light theme, and can skip the
+  layers floating UI renders into. Declare dark-mode support to opt out —
+  see
+  [Android Chrome Auto-Darkening](/docs/react/styling-theming/themes#android-chrome-auto-darkening).
+- **Keyboard closes when tapping toolbar buttons** — usually a custom
+  toolbar component that lets the tap move focus. BlockNote's own buttons
+  prevent the focus change on touch devices (the tap's click still fires);
+  custom buttons should call `event.preventDefault()` in `onMouseDown` when
+  `isTouchDevice()` (exported from `@blocknote/core`) is true.

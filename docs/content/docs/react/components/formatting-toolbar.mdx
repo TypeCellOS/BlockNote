@@ -45,16 +45,7 @@ On touch devices, BlockNote's default UI replaces the floating Formatting Toolba
 
 ### Viewport setup
 
-For the best behavior, add `interactive-widget=resizes-content` to your page's viewport meta tag:
-
-```html
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"
-/>
-```
-
-Without it, mobile Chrome keeps the page at its full height when the keyboard opens and only shrinks the _visual_ viewport, so page content can end up stuck behind the keyboard. `resizes-content` makes the browser resize the page layout itself, keeping the whole document reachable while typing.
+For the best behavior, add `interactive-widget=resizes-content` to your page's viewport meta tag — see [Mobile Support](/docs/features/mobile#viewport-setup) for the tag and what it changes.
 
 The mobile Formatting Toolbar works with two page layouts. Which one you get depends on your app's layout:
 
