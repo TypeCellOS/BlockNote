@@ -26,10 +26,12 @@ export type EditorFocusOptions = {
    * answering "is the user still interacting with this editor?" rather than
    * "does the content area hold DOM focus?".
    *
-   * Events then fire only when that combined state changes, and only once
-   * focus movement has settled, so a handoff from the content area into a
-   * popover's input reports no blur at all. The default reports raw
-   * content-area focus.
+   * Events then fire once focus movement has settled: when that combined
+   * state changes (a handoff from the content area into a popover's input
+   * reports no blur at all), and also when settled focus moves *between*
+   * parts of the editor's UI with the state staying `focused: true` — so
+   * consumers can re-evaluate which part holds focus (say, a nested comment
+   * editor). The default reports raw content-area focus.
    */
   includeEditorUI?: boolean;
 };
@@ -123,12 +125,20 @@ export class EventManager<
       return () => {};
     }
     let wasLastFocused = this.editor.isFocused({ includeEditorUI: true });
+    // The settled `document.activeElement` while focused, so moves *between*
+    // parts of the editor's UI (content area → a popover input → a nested
+    // comment editor) also emit — subscribers like the mobile toolbar need
+    // to re-evaluate which part of the UI holds focus, not just whether
+    // focus stayed inside.
+    let wasLastActiveElement = wasLastFocused ? document.activeElement : null;
     let settleUiFocusedTimeout: ReturnType<typeof setTimeout> | undefined;
 
     const settleUIFocus = (event: FocusEvent) => {
       const focused = this.editor.isFocused({ includeEditorUI: true });
-      if (focused !== wasLastFocused) {
+      const active = focused ? document.activeElement : null;
+      if (focused !== wasLastFocused || active !== wasLastActiveElement) {
         wasLastFocused = focused;
+        wasLastActiveElement = active;
         this.emit("onFocusChangeWithinUI", {
           editor: this.editor,
           focused,

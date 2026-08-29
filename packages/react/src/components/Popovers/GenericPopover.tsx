@@ -146,6 +146,12 @@ export const GenericPopover = (
         props.useFloatingOptions?.whileElementsMounted,
       ),
       middleware: [...(middleware ?? []), hide()],
+      // Position with `top`/`left` instead of `transform`: a transform makes
+      // the popover the containing block for `position: fixed` descendants,
+      // which breaks any nested UI that pins itself to the viewport (e.g. the
+      // comment composer is a full BlockNoteView whose mobile formatting
+      // toolbar is viewport-fixed).
+      transform: false,
       ...restFloatingOptions,
     });
 
