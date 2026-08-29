@@ -538,6 +538,20 @@ SideMenuController offsets its position to keep it centered on the line. */
   }
 }
 
+/* Gesture hardening for the toolbar's horizontal scrolling (the direct child
+   is the component library's scrollable toolbar element — see the UI
+   packages' `overflow-x: auto` rules): a fling settles with buttons cleanly
+   aligned to the edge instead of half-clipped, and swiping the toolbar
+   doesn't chain into scrolling the page behind it. */
+.bn-mobile-formatting-toolbar > * {
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+}
+
+.bn-mobile-formatting-toolbar > * > * {
+  scroll-snap-align: start;
+}
+
 /* While the mobile toolbar overlays the bottom of the viewport, give the
    document scroll room below the content so the last lines can scroll clear
    of it. The class and the measured height variable are managed by
