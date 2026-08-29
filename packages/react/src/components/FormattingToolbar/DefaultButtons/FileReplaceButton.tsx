@@ -4,6 +4,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { useCallback, useEffect, useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
@@ -53,25 +54,44 @@ export const FileReplaceButton = () => {
     },
   });
 
+  const [popoverOpen, setPopoverOpenState] = useState(false);
+
+  // Return focus to the editor when closing, so on mobile the on-screen
+  // keyboard and formatting toolbar stay up instead of being dismissed as
+  // focus falls back to `<body>`.
+  const setPopoverOpen = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        editor.focus();
+      }
+      setPopoverOpenState(open);
+    },
+    [editor],
+  );
+
+  // Close once a file is chosen (the block's url changes on both embed and
+  // upload). The popover must close itself: the desktop toolbar unmounts on
+  // completion-adjacent updates, but the mobile toolbar stays mounted, so an
+  // uncontrolled popover would linger over it.
+  const currentUrl = (block?.props as { url?: string } | undefined)?.url;
+  useEffect(() => {
+    setPopoverOpen(false);
+  }, [currentUrl, setPopoverOpen]);
+
   if (block === undefined) {
     return null;
   }
 
   return (
     <Components.Generic.Popover.Root
-      onOpenChange={(open) => {
-        // Return focus to the editor when closing, so on mobile the on-screen
-        // keyboard and formatting toolbar stay up instead of being dismissed as
-        // focus falls back to `<body>`.
-        if (!open) {
-          editor.focus();
-        }
-      }}
+      open={popoverOpen}
+      onOpenChange={setPopoverOpen}
       portalRoot={uiMode === "mobile" ? editor.portalElement : undefined}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
+          data-test="replaceFile"
           mainTooltip={
             dict.formatting_toolbar.file_replace.tooltip[block.type] ||
             dict.formatting_toolbar.file_replace.tooltip["file"]
@@ -81,6 +101,7 @@ export const FileReplaceButton = () => {
             dict.formatting_toolbar.file_replace.tooltip["file"]
           }
           icon={<RiImageEditFill />}
+          onClick={() => setPopoverOpen(!popoverOpen)}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
