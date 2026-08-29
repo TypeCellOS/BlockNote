@@ -26,7 +26,7 @@ overrides:
   '@y/prosemirror': 2.0.0-6
   lib0: 1.0.0-rc.22
 
-packageExtensionsChecksum: sha256-RBsr8H6XmGjVk3a5IXktWPY+vN2mX4m0Q/uTlfMsVxo=
+packageExtensionsChecksum: sha256-1f4Bko9TcqX+VT/OW9OxubTrJQYZecB7wyM0dyslRjE=
 
 patchedDependencies:
   '@y/prosemirror@2.0.0-6': e49b17b47e301dd138d7e383a779a0e2125bf7f038e10e3c740e26b43d988776
@@ -14624,6 +14624,9 @@ packages:
   pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
 
+  pako@2.2.0:
+    resolution: {integrity: sha512-zJq6RP/5q+TO2OpFV3FHzlPnFjmkb7Nc99a5SNjJE+uu/PkpChs+NIZSSzbBoD+6kjiISXjfYdwj1ZRQ81dz/w==}
+
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
@@ -19783,6 +19786,7 @@ snapshots:
       jay-peg: 1.1.1
       js-md5: 0.8.3
       linebreak: 1.1.0
+      pako: 2.2.0
       png-js: 2.0.0
       vite-compatible-readable-stream: 3.6.1
 
@@ -25167,6 +25171,8 @@ snapshots:
   pako@0.2.9: {}
 
   pako@1.0.11: {}
+
+  pako@2.2.0: {}
 
   parent-module@1.0.1:
     dependencies:

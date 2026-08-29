@@ -55,6 +55,13 @@ packageExtensions:
   vite-plus:
     dependencies:
       "@vitest/ui": "4.1.5"
+  # `@react-pdf/pdfkit`'s browser build imports `pako` (and resolves it in
+  # most setups via hoisting) but doesn't declare it, so under pnpm's strict
+  # isolation the import fails — breaking every docs page that pulls the
+  # example registry (the pdf-conversion example imports @react-pdf/renderer).
+  "@react-pdf/pdfkit":
+    dependencies:
+      pako: "^2.1.0"
 allowBuilds:
   "@parcel/watcher": true
   "@sentry/cli": true
