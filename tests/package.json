@@ -37,7 +37,8 @@
     "react-icons": "^5.5.0",
     "rimraf": "^5.0.10",
     "vite-plus": "catalog:",
-    "vitest-browser-react": "^2.2.0"
+    "vitest-browser-react": "^2.2.0",
+    "yjs": "^13.6.27"
   },
   "dependencies": {
     "get-port-please": "3.2.0"

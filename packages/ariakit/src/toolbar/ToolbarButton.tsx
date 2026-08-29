@@ -5,7 +5,12 @@ import {
   TooltipProvider as AriakitTooltipProvider,
 } from "@ariakit/react";
 
-import { assertEmpty, isSafari, mergeCSSClasses } from "@blocknote/core";
+import {
+  assertEmpty,
+  isSafari,
+  isTouchDevice,
+  mergeCSSClasses,
+} from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef, type MouseEvent } from "react";
 
@@ -44,9 +49,21 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
                 "bn-ak-button bn-ak-secondary",
                 className || "",
               )}
-              // Needed as Safari doesn't focus button elements on mouse down
-              // unlike other browsers.
               onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
+                // On touch, keep focus where it is (so the on-screen keyboard
+                // stays open) without canceling the tap's click. `mousedown`
+                // is the compat event that moves focus, so preventing it keeps
+                // focus in place while the click still fires. It also keeps
+                // the focus-triggered inline tooltip from inserting itself
+                // mid-tap — the layout shift moved the button between
+                // mousedown and mouseup, and the click never completed.
+                if (isTouchDevice()) {
+                  e.preventDefault();
+                  return;
+                }
+
+                // Needed as Safari doesn't focus button elements on mouse
+                // down unlike other browsers.
                 if (isSafari()) {
                   (e.currentTarget as HTMLButtonElement).focus();
                 }

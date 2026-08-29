@@ -1,4 +1,4 @@
-import { assertEmpty } from "@blocknote/core";
+import { assertEmpty, isTouchDevice } from "@blocknote/core";
 import { ComponentProps, useBlockNoteEditor } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -79,6 +79,14 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           variant="ghost"
           size={variant === "compact" ? "sm" : "default"}
           disabled={isDisabled}
+          // On touch, keep focus (and the on-screen keyboard) where it is;
+          // the click still fires. See the Mantine ToolbarButton for the
+          // full story.
+          onMouseDown={(e) => {
+            if (isTouchDevice()) {
+              e.preventDefault();
+            }
+          }}
           onClick={onClick}
           ref={ref}
           aria-label={label}
@@ -96,6 +104,11 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           )}
           size={variant === "compact" ? "sm" : "default"}
           aria-label={label}
+          onMouseDown={(e) => {
+            if (isTouchDevice()) {
+              e.preventDefault();
+            }
+          }}
           onClick={onClick}
           pressed={isSelected}
           disabled={isDisabled}
@@ -158,7 +171,14 @@ export const ToolbarSelect = forwardRef<
       }
       disabled={isDisabled}
     >
-      <ShadCNComponents.Select.SelectTrigger className={"border-none"}>
+      <ShadCNComponents.Select.SelectTrigger
+        className={"border-none"}
+        onMouseDown={(e) => {
+          if (isTouchDevice()) {
+            e.preventDefault();
+          }
+        }}
+      >
         <ShadCNComponents.Select.SelectValue />
       </ShadCNComponents.Select.SelectTrigger>
       <ShadCNComponents.Select.SelectContent

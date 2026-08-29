@@ -8,7 +8,7 @@ import {
   ToolbarItem as AriakitToolbarItem,
 } from "@ariakit/react";
 
-import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
+import { assertEmpty, isTouchDevice, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -32,6 +32,13 @@ export const ToolbarSelect = forwardRef<
         className={"bn-ak-button bn-ak-secondary"}
         disabled={isDisabled}
         aria-label="Text alignment"
+        // On touch, keep focus (and the on-screen keyboard) where it is; the
+        // click still fires and opens the popover. See ToolbarButton.
+        onMouseDown={(e) => {
+          if (isTouchDevice()) {
+            e.preventDefault();
+          }
+        }}
         render={<AriakitToolbarItem />}
       >
         {selectedItem.icon} {selectedItem.text} <AriakitSelectArrow />

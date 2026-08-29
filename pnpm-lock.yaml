@@ -6495,6 +6495,9 @@ importers:
       vitest-browser-react:
         specifier: ^2.2.0
         version: 2.2.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@4.1.10)
+      yjs:
+        specifier: ^13.6.27
+        version: 13.6.30
 
 packages:
 
