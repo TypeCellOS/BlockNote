@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 
 import { UIModeContext } from "../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -82,7 +82,44 @@ export const MobileFormattingToolbarController = (props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
 
-  if (!keyboardOpen || !focused) {
+  const visible = keyboardOpen && focused;
+
+  // While the toolbar overlays the bottom of the viewport, reserve that space
+  // in the editor's scroll behavior: `setScrollInsets` keeps the caret
+  // scrolling clear of the toolbar, and the `bn-mobile-toolbar-open` class
+  // (see styles.css) adds matching bottom padding so the document has the
+  // scroll room for its last lines to clear it. Nested editors (the comment
+  // composer is a BlockNoteView floating above the keyboard) are skipped —
+  // they don't manage the page's scroll space.
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const container = editor.domElement?.closest<HTMLElement>(".bn-container");
+    const toolbar = toolbarRef.current;
+    if (
+      !visible ||
+      !toolbar ||
+      !container ||
+      container.parentElement?.closest(".bn-container")
+    ) {
+      return;
+    }
+    const height = toolbar.getBoundingClientRect().height;
+    container.style.setProperty("--bn-mobile-toolbar-height", `${height}px`);
+    container.classList.add("bn-mobile-toolbar-open");
+    editor.setScrollInsets({ bottom: height + 8 });
+    // The keyboard may have opened with the caret already behind the toolbar.
+    if (editor.isFocused()) {
+      const view = editor.prosemirrorView;
+      view?.dispatch(view.state.tr.scrollIntoView());
+    }
+    return () => {
+      container.classList.remove("bn-mobile-toolbar-open");
+      container.style.removeProperty("--bn-mobile-toolbar-height");
+      editor.setScrollInsets(undefined);
+    };
+  }, [editor, visible]);
+
+  if (!visible) {
     return null;
   }
 
@@ -90,7 +127,7 @@ export const MobileFormattingToolbarController = (props: {
 
   return (
     <UIModeContext.Provider value="mobile">
-      <div className="bn-mobile-formatting-toolbar">
+      <div className="bn-mobile-formatting-toolbar" ref={toolbarRef}>
         <Component />
       </div>
     </UIModeContext.Provider>

@@ -538,6 +538,15 @@ SideMenuController offsets its position to keep it centered on the line. */
   }
 }
 
+/* While the mobile toolbar overlays the bottom of the viewport, give the
+   document scroll room below the content so the last lines can scroll clear
+   of it. The class and the measured height variable are managed by
+   `MobileFormattingToolbarController`, which also reserves the space in the
+   editor's scroll-into-view behavior via `editor.setScrollInsets`. */
+.bn-container.bn-mobile-toolbar-open .bn-editor {
+  padding-bottom: calc(var(--bn-mobile-toolbar-height, 46px) + 12px);
+}
+
 /* CSS styles for scroll container pinned to virtual viewport. Used to make the mobile formatting
  toolbar scroll smoother. `bn-vv-*` variables track virtual viewport and are set in
  `useVirtualKeyboard`. */

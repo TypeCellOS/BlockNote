@@ -345,6 +345,30 @@ const blockNoteTipTapOptions = {
   enableCoreExtensions: false,
 };
 
+/**
+ * Per-edge distances (in px) for the view's scroll-into-view behavior, the
+ * object form of prosemirror-view's `scrollThreshold`/`scrollMargin` props.
+ */
+export type ScrollSides = {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+};
+
+function toScrollSides(
+  value: number | ScrollSides | undefined,
+  fallback: number,
+): ScrollSides {
+  if (value === undefined) {
+    return { top: fallback, right: fallback, bottom: fallback, left: fallback };
+  }
+  if (typeof value === "number") {
+    return { top: value, right: value, bottom: value, left: value };
+  }
+  return value;
+}
+
 export class BlockNoteEditor<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
@@ -773,6 +797,68 @@ export class BlockNoteEditor<
       return undefined;
     }
     return this.prosemirrorView?.dom as HTMLDivElement | undefined;
+  }
+
+  /**
+   * The view's `scrollThreshold`/`scrollMargin` props as they were before
+   * {@link setScrollInsets} first overrode them, so clearing restores them.
+   */
+  private baseScrollProps:
+    | {
+        scrollThreshold: number | ScrollSides | undefined;
+        scrollMargin: number | ScrollSides | undefined;
+      }
+    | undefined;
+
+  /**
+   * Reserves space at the edges of the editor's scroll viewport when scrolling
+   * the selection into view — for UI that overlays the content, like the
+   * mobile formatting toolbar pinned above the on-screen keyboard. While set,
+   * the selection counts as out of view whenever it enters the reserved space,
+   * and scrolling places it clear of that space. Pass `undefined` to restore
+   * the default behavior.
+   *
+   * Note this only affects how far the editor scrolls — the scroll container
+   * still needs enough room below the content (e.g. bottom padding) for the
+   * last line to clear the reserved space.
+   */
+  public setScrollInsets(insets: Partial<ScrollSides> | undefined) {
+    const view = this.prosemirrorView;
+    if (!view) {
+      return;
+    }
+    if (!insets) {
+      if (this.baseScrollProps) {
+        view.setProps(this.baseScrollProps);
+        this.baseScrollProps = undefined;
+      }
+      return;
+    }
+    this.baseScrollProps ??= {
+      scrollThreshold: view.someProp("scrollThreshold"),
+      scrollMargin: view.someProp("scrollMargin"),
+    };
+    const threshold: ScrollSides = {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      ...insets,
+    };
+    // The margin (how far past the edge the selection is placed) must exceed
+    // the threshold (when scrolling triggers) on every side — otherwise each
+    // scroll would land inside the threshold zone and re-trigger on the next
+    // transaction, creeping the viewport.
+    const baseMargin = toScrollSides(this.baseScrollProps.scrollMargin, 5);
+    view.setProps({
+      scrollThreshold: threshold,
+      scrollMargin: {
+        top: Math.max(baseMargin.top, threshold.top + 8),
+        right: Math.max(baseMargin.right, threshold.right + 8),
+        bottom: Math.max(baseMargin.bottom, threshold.bottom + 8),
+        left: Math.max(baseMargin.left, threshold.left + 8),
+      },
+    });
   }
 
   private _portalElement: HTMLElement | undefined;
