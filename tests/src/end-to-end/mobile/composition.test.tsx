@@ -204,6 +204,108 @@ describe.skipIf(browserName !== "chromium")("IME composition", () => {
     expect(editorText()).toBe("plain bold");
   });
 
+  // CJK IMEs are the heaviest composition users: long-lived compositions,
+  // candidate commits that replace the composed string with different text
+  // AND different length, and syllables that recompose as they're typed.
+  // The scenarios mirror real input methods keystroke by keystroke.
+
+  test("Japanese: romaji composition committed as kanji", async () => {
+    await focusOnEditor();
+    // Typing "kanji" via romaji: the composition shows kana as it builds,
+    // then the candidate list commits kanji — different text, different
+    // length than the final composition.
+    await browserCommands.imeComposition([
+      { type: "setComposition", text: "k" },
+      { type: "setComposition", text: "か" },
+      { type: "setComposition", text: "かn" },
+      { type: "setComposition", text: "かんj" },
+      { type: "setComposition", text: "かんじ" },
+      { type: "commit", text: "漢字" },
+    ]);
+
+    await vi.waitFor(() => {
+      if (editorText() !== "漢字") {
+        throw new Error(`unexpected text: ${JSON.stringify(editorText())}`);
+      }
+    });
+    expect(blockCount()).toBe(1);
+
+    // A second word continues cleanly after the commit.
+    await browserCommands.imeComposition([
+      { type: "setComposition", text: "です" },
+      { type: "commit", text: "です" },
+    ]);
+    await vi.waitFor(() => {
+      if (editorText() !== "漢字です") {
+        throw new Error(`unexpected text: ${JSON.stringify(editorText())}`);
+      }
+    });
+  });
+
+  test("Korean: jamo composition recomposing per syllable", async () => {
+    await focusOnEditor();
+    // "한글" typed jamo by jamo: each syllable recomposes in place as jamo
+    // are added (ㅎ → 하 → 한), commits, and the next syllable starts.
+    await browserCommands.imeComposition([
+      { type: "setComposition", text: "ㅎ" },
+      { type: "setComposition", text: "하" },
+      { type: "setComposition", text: "한" },
+      { type: "commit", text: "한" },
+      { type: "setComposition", text: "ㄱ" },
+      { type: "setComposition", text: "그" },
+      { type: "setComposition", text: "글" },
+      { type: "commit", text: "글" },
+    ]);
+
+    await vi.waitFor(() => {
+      if (editorText() !== "한글") {
+        throw new Error(`unexpected text: ${JSON.stringify(editorText())}`);
+      }
+    });
+    expect(blockCount()).toBe(1);
+  });
+
+  test("Chinese: pinyin composition committed as hanzi", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard("Say ");
+    // "nihao" composed as pinyin, committed as two hanzi — the five-char
+    // composition collapses to two characters on commit.
+    await browserCommands.imeComposition([
+      { type: "setComposition", text: "n" },
+      { type: "setComposition", text: "ni" },
+      { type: "setComposition", text: "ni'h" },
+      { type: "setComposition", text: "ni'hao" },
+      { type: "commit", text: "你好" },
+    ]);
+
+    await vi.waitFor(() => {
+      if (editorText() !== "Say 你好") {
+        throw new Error(`unexpected text: ${JSON.stringify(editorText())}`);
+      }
+    });
+    expect(blockCount()).toBe(1);
+  });
+
+  test("CJK composition under an active bold mark stays bold", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard(`{${MOD}>}b{/${MOD}}`);
+    await browserCommands.imeComposition([
+      { type: "setComposition", text: "かんじ" },
+      { type: "commit", text: "漢字" },
+    ]);
+
+    await vi.waitFor(() => {
+      const strong = document.querySelector(`${EDITOR_SELECTOR} strong`);
+      if (strong?.textContent !== "漢字") {
+        throw new Error(
+          `bold mark did not survive CJK composition: ${JSON.stringify(
+            strong?.textContent ?? null,
+          )}`,
+        );
+      }
+    });
+  });
+
   test("retroactive replacement of committed text (autocorrect on space)", async () => {
     await focusOnEditor();
     await userEvent.keyboard("teh");
