@@ -44,38 +44,22 @@ export const MobileFormattingToolbarController = (props: {
   const editor = useBlockNoteEditor();
   const keyboardOpen = useVirtualKeyboard();
 
-  // Whether focus is within this editor's UI, kept in sync via its
-  // `focus`/`blur` events so the toolbar shows/hides as focus enters or leaves
-  // the editor.
-  const [focused, setFocused] = useState(() => editor.isFocused());
+  // Whether the user is still interacting with this editor: content focus or
+  // focus within its floating UI (a toolbar popover's input, portalled into
+  // `editor.portalElement`, must not hide the toolbar — unmounting it would
+  // take the popover down with it). `includeFloatingUI` events are settled and
+  // deduplicated, and the state below only ever holds those settled values —
+  // reading the focus state live during a render could observe the transient
+  // `<body>` focus of a mid-handoff frame.
+  const [focused, setFocused] = useState(() =>
+    editor.isFocused({ includeFloatingUI: true }),
+  );
   useEffect(() => {
-    // Re-sync on mount in case focus changed before the listeners attached.
-    setFocused(editor.isFocused());
-
-    const onFocus = () => setFocused(true);
-    // When the editor's content blurs, focus may still be within the editor's
-    // own floating UI — e.g. a toolbar popover's input autofocusing, which
-    // portals into `editor.portalElement`. Treating that as "focus left the
-    // editor" would unmount this toolbar (and the popover with it), so it would
-    // appear to never open. `relatedTarget` is unreliable on mobile, so we
-    // re-check `document.activeElement` on the next frame and only hide once
-    // focus has truly left the editor and its portal.
-    const onBlur = () => {
-      requestAnimationFrame(() => {
-        const active = document.activeElement;
-        setFocused(
-          editor.isFocused() || (!!active && editor.isWithinEditor(active)),
-        );
-      });
-    };
-
-    editor._tiptapEditor.on("focus", onFocus);
-    editor._tiptapEditor.on("blur", onBlur);
-
-    return () => {
-      editor._tiptapEditor.off("focus", onFocus);
-      editor._tiptapEditor.off("blur", onBlur);
-    };
+    // Re-sync in case focus changed before the subscription attached.
+    setFocused(editor.isFocused({ includeFloatingUI: true }));
+    return editor.onFocusChange((_editor, ctx) => setFocused(ctx.focused), {
+      includeFloatingUI: true,
+    });
   }, [editor]);
 
   if (!keyboardOpen || !focused) {

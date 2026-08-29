@@ -1,5 +1,5 @@
 import type { BlockNoteEditor } from "@blocknote/core";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 
 /**
@@ -20,6 +20,13 @@ export function useEditorChange(
     editor = editorContext?.editor;
   }
 
+  // Latest-ref pattern: the subscription lives as long as the editor does,
+  // while the callback stays current without resubscribing on re-renders.
+  const callbackRef = useRef(callback);
+  useEffect(() => {
+    callbackRef.current = callback;
+  });
+
   useEffect(() => {
     if (!editor) {
       throw new Error(
@@ -27,6 +34,8 @@ export function useEditorChange(
       );
     }
 
-    return editor.onChange(callback);
-  }, [callback, editor]);
+    return editor.onChange((...args: Parameters<typeof callback>) =>
+      callbackRef.current(...args),
+    );
+  }, [editor]);
 }
