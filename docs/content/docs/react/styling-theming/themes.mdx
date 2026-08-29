@@ -137,4 +137,16 @@ type LightAndDarkThemes = {
 
 By passing `"light"` or `"dark"` to the `theme` prop instead of a `Theme` object, you can also force BlockNote to always use the light or dark theme.
 
+## Android Chrome Auto-Darkening
+
+Chrome on Android can auto-darken pages that only ship a light theme (the "Darken websites" accessibility setting). This darkening is applied per rendering layer and can skip the layers BlockNote's floating UI renders into — so an auto-darkened page may show light menus and popovers over dark content. The mismatch comes from the browser's darkening, not from the BlockNote theme.
+
+To keep Chrome from auto-darkening your app, declare real dark-mode support with [`color-scheme`](https://developer.mozilla.org/en-US/docs/Web/CSS/color-scheme):
+
+```html
+<meta name="color-scheme" content="light dark" />
+```
+
+Chrome doesn't auto-darken pages that declare dark support — and BlockNote's default theme already follows the system preference, so declaring it is usually all that's needed.
+
 If you want to set more complex styles on the editor, see [Overriding CSS](/docs/react/styling-theming/overriding-css).
