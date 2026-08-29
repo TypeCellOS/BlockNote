@@ -3,7 +3,7 @@ import TestingApp from "@examples/01-basic/testing/src/App";
 import NonEditableApp from "@examples/06-custom-schema/08-non-editable-block/src/App";
 import { beforeEach, describe, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
-import { browserName, MOD, userEvent } from "../../utils/context.js";
+import { browserName, commands, MOD, userEvent } from "../../utils/context.js";
 import {
   DOC_TRAILING_BLOCK_SELECTOR,
   EDITOR_SELECTOR,
@@ -23,10 +23,22 @@ import {
   waitForSelector,
 } from "../../utils/editor.js";
 import { getRect, mouseSequence } from "../../utils/mouse.js";
+import type { SeedClipboardCommand } from "../../utils/seedClipboard.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
+
+
+const browserCommands = commands as typeof commands & {
+  seedClipboard: SeedClipboardCommand;
+};
 
 describe("Check Copy/Paste Functionality", () => {
   beforeEach(async () => {
+    // The system clipboard is shared state across tests: a copy that silently
+    // fails would paste the *previous* test's payload, producing a confusing
+    // snapshot diff instead of pointing at the broken copy. Seed a sentinel
+    // (through a real, trusted copy — see seedClipboard.ts) so such a failure
+    // surfaces as an obvious artifact instead.
+    await browserCommands.seedClipboard("[clipboard-not-set-by-this-test]");
     await render(<TestingApp />);
     await waitForSelector(EDITOR_SELECTOR);
   });
@@ -127,88 +139,83 @@ describe("Check Copy/Paste Functionality", () => {
       await compareDocToSnapshot("nestedOrderedLists");
     },
   );
+  test.skipIf(browserName === "firefox" || browserName === "webkit")("Images should keep props", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard("paragraph");
 
-  test.skipIf(browserName === "firefox" || browserName === "webkit")(
-    "Images should keep props",
-    async () => {
-      await focusOnEditor();
-      await userEvent.keyboard("paragraph");
+    const IMAGE_EMBED_URL = "https://placehold.co/800x540.png";
+    await executeSlashCommand("image");
 
-      const IMAGE_EMBED_URL = "https://placehold.co/800x540.png";
-      await executeSlashCommand("image");
+    await userEvent.click(await waitForSelector(`[data-test="embed-tab"]`));
+    await userEvent.click(await waitForSelector(`[data-test="embed-input"]`));
+    await userEvent.keyboard(IMAGE_EMBED_URL);
+    await userEvent.click(
+      await waitForSelector(`[data-test="embed-input-button"]`),
+    );
+    await waitForSelector(`img[src="${IMAGE_EMBED_URL}"]`);
 
-      await userEvent.click(await waitForSelector(`[data-test="embed-tab"]`));
-      await userEvent.click(await waitForSelector(`[data-test="embed-input"]`));
-      await userEvent.keyboard(IMAGE_EMBED_URL);
-      await userEvent.click(
-        await waitForSelector(`[data-test="embed-input-button"]`),
-      );
-      await waitForSelector(`img[src="${IMAGE_EMBED_URL}"]`);
+    await userEvent.click(await waitForSelector(`img`));
 
-      await userEvent.click(await waitForSelector(`img`));
+    await waitForSelector(`[class*="bn-resize-handle"][style*="right"]`);
+    const resizeHandleBoundingBox = getRect(
+      `[class*="bn-resize-handle"][style*="right"]`,
+    );
+    await mouseSequence([
+      {
+        type: "move",
+        x: resizeHandleBoundingBox.x + resizeHandleBoundingBox.width / 2,
+        y: resizeHandleBoundingBox.y + resizeHandleBoundingBox.height / 2,
+        steps: 5,
+      },
+      { type: "down" },
+      {
+        type: "move",
+        x: resizeHandleBoundingBox.x + resizeHandleBoundingBox.width / 2 - 50,
+        y: resizeHandleBoundingBox.y + resizeHandleBoundingBox.height / 2,
+        steps: 5,
+      },
+      { type: "up" },
+    ]);
 
-      await waitForSelector(`[class*="bn-resize-handle"][style*="right"]`);
-      const resizeHandleBoundingBox = getRect(
-        `[class*="bn-resize-handle"][style*="right"]`,
-      );
-      await mouseSequence([
-        {
-          type: "move",
-          x: resizeHandleBoundingBox.x + resizeHandleBoundingBox.width / 2,
-          y: resizeHandleBoundingBox.y + resizeHandleBoundingBox.height / 2,
-          steps: 5,
-        },
-        { type: "down" },
-        {
-          type: "move",
-          x: resizeHandleBoundingBox.x + resizeHandleBoundingBox.width / 2 - 50,
-          y: resizeHandleBoundingBox.y + resizeHandleBoundingBox.height / 2,
-          steps: 5,
-        },
-        { type: "up" },
-      ]);
+    await copyPaste();
 
-      await copyPaste();
-
-      await compareDocToSnapshot("images");
-    },
-  );
+    await compareDocToSnapshot("images");
+  });
 });
 
 describe("Check Copy/Paste From Non-Editable Block", () => {
   beforeEach(async () => {
+    // See the fixture note in the describe above.
+    await browserCommands.seedClipboard("[clipboard-not-set-by-this-test]");
     await render(<NonEditableApp />);
     await waitForSelector(EDITOR_SELECTOR);
   });
 
   // Firefox doesn't yet support the async clipboard API. Webkit copy/paste
   // stopped working after updating to Playwright 1.33.
-  test.skipIf(browserName === "firefox" || browserName === "webkit")(
-    "Should be able to copy/paste text from a non-editable block",
-    async () => {
-      // Click and drag across the non-editable block's text to select part of it.
-      const box = getRect('[data-content-type="nonEditable"] p');
-      await mouseSequence([
-        { type: "move", x: box.x + 2, y: box.y + box.height / 2 },
-        { type: "down" },
-        {
-          type: "move",
-          x: box.x + box.width * 0.25,
-          y: box.y + box.height / 2,
-          steps: 5,
-        },
-        { type: "up" },
-      ]);
+  test.skipIf(browserName === "firefox" || browserName === "webkit")("Should be able to copy/paste text from a non-editable block", async () => {
+    // Click and drag across the non-editable block's text to select part of it.
+    const box = getRect('[data-content-type="nonEditable"] p');
+    await mouseSequence([
+      { type: "move", x: box.x + 2, y: box.y + box.height / 2 },
+      { type: "down" },
+      {
+        type: "move",
+        x: box.x + box.width * 0.25,
+        y: box.y + box.height / 2,
+        steps: 5,
+      },
+      { type: "up" },
+    ]);
 
-      await userEvent.keyboard(`{${MOD}>}c{/${MOD}}`);
+    await userEvent.keyboard(`{${MOD}>}c{/${MOD}}`);
 
-      // Click the trailing block to create a new empty paragraph and focus
-      // the editor there.
-      await userEvent.click(await waitForSelector(DOC_TRAILING_BLOCK_SELECTOR));
+    // Click the trailing block to create a new empty paragraph and focus
+    // the editor there.
+    await userEvent.click(await waitForSelector(DOC_TRAILING_BLOCK_SELECTOR));
 
-      await userEvent.keyboard(`{${MOD}>}v{/${MOD}}`);
+    await userEvent.keyboard(`{${MOD}>}v{/${MOD}}`);
 
-      await compareDocToSnapshot("nonEditableBlock");
-    },
-  );
+    await compareDocToSnapshot("nonEditableBlock");
+  });
 });

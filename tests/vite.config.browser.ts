@@ -6,6 +6,7 @@ import { playwright } from "vite-plus/test/browser/providers/playwright";
 import { positionalMouse } from "./src/utils/positionalMouse.js";
 import { imeComposition } from "./src/utils/imeComposition.js";
 import { restoreTouchEmulation } from "./src/utils/restoreTouchEmulation.js";
+import { seedClipboard } from "./src/utils/seedClipboard.js";
 
 // 1280x720 matches the old Playwright defaults so visual baselines have room.
 // Used as the playwright context viewport for every browser instance.
@@ -142,7 +143,12 @@ export default defineConfig(
           // still show in the HTML report (errors + stack traces don't depend
           // on these shots), so disable them. See `e2e:report` to view.
           screenshotFailures: false,
-          commands: { positionalMouse, imeComposition, restoreTouchEmulation },
+          commands: {
+            positionalMouse,
+            imeComposition,
+            restoreTouchEmulation,
+            seedClipboard,
+          },
           instances: [
             {
               browser: "chromium",
