@@ -90,6 +90,7 @@ export * from "./components/SuggestionMenu/types.js";
 export * from "./components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController.js";
 export * from "./components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuWrapper.js";
 export * from "./components/SuggestionMenu/GridSuggestionMenu/getDefaultReactEmojiPickerItems.js";
+export * from "./components/SuggestionMenu/GridSuggestionMenu/getGridSuggestionMenuItemId.js";
 export * from "./components/SuggestionMenu/GridSuggestionMenu/hooks/useGridSuggestionMenuKeyboardNavigation.js";
 export * from "./components/SuggestionMenu/GridSuggestionMenu/types.js";
 

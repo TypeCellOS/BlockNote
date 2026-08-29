@@ -3,7 +3,7 @@ import { FC, useCallback, useEffect } from "react";
 
 import { useBlockNoteContext } from "../../../editor/BlockNoteContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { getSuggestionMenuItemId } from "../getSuggestionMenuItemId.js";
+import { getGridSuggestionMenuItemId } from "./getGridSuggestionMenuItemId.js";
 import { useCloseSuggestionMenuNoItems } from "../hooks/useCloseSuggestionMenuNoItems.js";
 import { useLoadSuggestionMenuItems } from "../hooks/useLoadSuggestionMenuItems.js";
 import { useGridSuggestionMenuKeyboardNavigation } from "./hooks/useGridSuggestionMenuKeyboardNavigation.js";
@@ -80,7 +80,7 @@ export function GridSuggestionMenuWrapper<Item>(props: {
   useEffect(() => {
     setContentEditableProps((p) => ({
       ...p,
-      "aria-activedescendant": getSuggestionMenuItemId(selectedIndex),
+      "aria-activedescendant": getGridSuggestionMenuItemId(selectedIndex),
     }));
     return () => {
       setContentEditableProps((p) => ({

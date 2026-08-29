@@ -116,18 +116,22 @@ function renderWrapper(type: "list" | "grid") {
 describe.each(["list", "grid"] as const)(
   "%s suggestion menu wrapper",
   (type) => {
+    // The two menus render items in different id spaces; the attribute must
+    // reference the element that actually exists (see
+    // getGridSuggestionMenuItemId).
+    const itemId = (i: number) =>
+      type === "grid"
+        ? `bn-grid-suggestion-menu-item-${i}`
+        : `bn-suggestion-menu-item-${i}`;
+
     it("updates and clears aria-activedescendant", async () => {
       mocks.selectedIndex = 0;
       await renderWrapper(type);
-      expect(contentEditableProps["aria-activedescendant"]).toBe(
-        "bn-suggestion-menu-item-0",
-      );
+      expect(contentEditableProps["aria-activedescendant"]).toBe(itemId(0));
 
       mocks.selectedIndex = 2;
       await renderWrapper(type);
-      expect(contentEditableProps["aria-activedescendant"]).toBe(
-        "bn-suggestion-menu-item-2",
-      );
+      expect(contentEditableProps["aria-activedescendant"]).toBe(itemId(2));
 
       mocks.selectedIndex = undefined;
       await renderWrapper(type);

@@ -2,6 +2,7 @@ import { JSX, useMemo } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
+import { getGridSuggestionMenuItemId } from "./getGridSuggestionMenuItemId.js";
 import {
   DefaultReactGridSuggestionItem,
   GridSuggestionMenuProps,
@@ -44,7 +45,7 @@ export function GridSuggestionMenu<T extends DefaultReactGridSuggestionItem>(
         <Components.GridSuggestionMenu.Item
           className={"bn-grid-suggestion-menu-item"}
           item={item}
-          id={`bn-grid-suggestion-menu-item-${i}`}
+          id={getGridSuggestionMenuItemId(i)}
           isSelected={i === selectedIndex}
           key={item.id}
           onClick={() => onItemClick?.(item)}
