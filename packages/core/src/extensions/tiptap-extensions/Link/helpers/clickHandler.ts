@@ -3,6 +3,7 @@ import { getAttributes } from "@tiptap/core";
 import type { MarkType } from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import { isTouchDevice } from "../../../../util/browser.js";
 
 type ClickHandlerOptions = {
   type: MarkType;
@@ -64,6 +65,15 @@ export function clickHandler(options: ClickHandlerOptions): Plugin {
           }
           const result = options.onClick(event, options.editor);
           return result ?? true;
+        }
+
+        // On touch devices a tap is how the caret is placed — navigating on
+        // every tap would make links impossible to edit, since there is no
+        // hover to reach the link toolbar. Let the tap place the caret
+        // instead; the selection landing inside the link opens the
+        // LinkToolbar, which carries an explicit open-link action.
+        if (isTouchDevice()) {
+          return false;
         }
 
         const attrs = getAttributes(view.state, options.type.name);
