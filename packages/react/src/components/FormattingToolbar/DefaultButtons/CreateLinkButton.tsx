@@ -162,7 +162,14 @@ export const CreateLinkButton = () => {
           text={state.text}
           range={state.range}
           showTextField={false}
-          setToolbarOpen={(open) => formattingToolbar.store.setState(open)}
+          // Also close this popover directly: the desktop toolbar unmounts on
+          // the store update (taking the popover with it), but the mobile
+          // toolbar stays mounted, so without this the popover lingers after
+          // submitting the link.
+          setToolbarOpen={(open) => {
+            setPopoverOpen(open);
+            formattingToolbar.store.setState(open);
+          }}
         />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
