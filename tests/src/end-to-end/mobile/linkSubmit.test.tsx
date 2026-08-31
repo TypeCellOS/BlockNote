@@ -85,4 +85,49 @@ describe("Submitting the link popover", () => {
     // Focus must not have escaped into the other editor.
     expect(document.activeElement?.closest(EDITOR_SELECTOR)).not.toBe(second);
   });
+
+  // The path a mobile IME actually takes. When its action key means "submit",
+  // the browser submits the form — it does not necessarily deliver an Enter
+  // keydown, so a popover that only listens for that key has no way to
+  // commit. Driving the form's own submit is how that arrives, and it is the
+  // part of the device-only bug a test can reproduce: without a real <form>
+  // wired to a submit handler, nothing happens at all.
+  test("submitting the form creates the link, without any key event", async () => {
+    await render(<App />);
+    await waitForSelector(EDITOR_SELECTOR);
+    const [first] = document.querySelectorAll<HTMLElement>(EDITOR_SELECTOR);
+
+    await userEvent.click(first.querySelector("p")!);
+    await userEvent.keyboard(
+      "{Home}{Shift>}{ArrowRight}{ArrowRight}{ArrowRight}{/Shift}",
+    );
+    await page.viewport(393, 427);
+    await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
+    await userEvent.click(
+      await waitForSelector(
+        `${MOBILE_TOOLBAR_SELECTOR} ${LINK_BUTTON_SELECTOR}`,
+      ),
+    );
+    const input = (await waitForSelector(
+      'input[name="url"]',
+    )) as HTMLInputElement;
+    await userEvent.click(input);
+    await userEvent.keyboard("example.com");
+
+    const form = input.closest("form");
+    expect(
+      form,
+      "the popover must be a real <form>, or the browser has no way to " +
+        "submit it when a mobile IME's action key asks it to",
+    ).not.toBeNull();
+
+    // No Enter anywhere: this is the browser submitting the form itself.
+    form!.requestSubmit();
+
+    await vi.waitFor(() => {
+      if (!first.querySelector('a[href="https://example.com"]')) {
+        throw new Error("submitting the form did not create the link");
+      }
+    });
+  });
 });

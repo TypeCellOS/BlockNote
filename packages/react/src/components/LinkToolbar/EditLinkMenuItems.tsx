@@ -81,7 +81,7 @@ export const EditLinkMenuItems = (
   }, [editLink, currentUrl, currentText, props]);
 
   return (
-    <Components.Generic.Form.Root>
+    <Components.Generic.Form.Root onSubmit={handleSubmit}>
       {/* // TODO: add labels? */}
       <Components.Generic.Form.TextInput
         className={"bn-text-input"}
@@ -92,7 +92,6 @@ export const EditLinkMenuItems = (
         value={currentUrl}
         onKeyDown={handleEnter}
         onChange={handleUrlChange}
-        onSubmit={handleSubmit}
       />
       {showTextField !== false && (
         <Components.Generic.Form.TextInput
@@ -103,7 +102,6 @@ export const EditLinkMenuItems = (
           value={currentText}
           onKeyDown={handleEnter}
           onChange={handleTextChange}
-          onSubmit={handleSubmit}
         />
       )}
     </Components.Generic.Form.Root>

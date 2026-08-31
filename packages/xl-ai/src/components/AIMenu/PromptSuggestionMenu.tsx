@@ -114,7 +114,9 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
 
   return (
     <div className={"bn-combobox"}>
-      <Components.Generic.Form.Root>
+      <Components.Generic.Form.Root
+        onSubmit={() => onManualPromptSubmit(promptTextToUse)}
+      >
         <Components.Generic.Form.TextInput
           ref={inputRef}
           className={"bn-combobox-input"}

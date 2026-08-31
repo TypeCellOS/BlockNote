@@ -127,7 +127,7 @@ export const FileCaptionButton = () => {
         className={"bn-popover-content bn-form-popover"}
         variant={"form-popover"}
       >
-        <Components.Generic.Form.Root>
+        <Components.Generic.Form.Root onSubmit={() => setPopoverOpen(false)}>
           <Components.Generic.Form.TextInput
             name={"file-caption"}
             icon={<RiInputField />}
