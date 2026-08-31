@@ -1,5 +1,6 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 import { useEffect, useRef } from "react";
+import { useIsomorphicLayoutEffect } from "../util/useIsomorphicLayoutEffect.js";
 import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 
 /**
@@ -29,7 +30,10 @@ export function useEditorFocusChange(
   // Latest-ref pattern: the subscription lives as long as the editor does,
   // while the callback stays current without retriggering the effect.
   const callbackRef = useRef(callback);
-  useEffect(() => {
+  // Layout-effect timing, not passive: a layout effect elsewhere can
+  // trigger an editor event right after commit, and the subscription must
+  // not invoke the previous render's callback then.
+  useIsomorphicLayoutEffect(() => {
     callbackRef.current = callback;
   });
 
