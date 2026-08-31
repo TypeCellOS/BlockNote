@@ -182,6 +182,36 @@ describe("container HTML round-trip", () => {
     ).toEqual([["paragraph", "Inside"]]);
     expect(JSON.stringify(parsed)).not.toContain("UI LABEL");
   });
+
+  // Same regression on the external HTML path, which is what lands on the
+  // clipboard — so it's the one a paste actually goes through. The marker used
+  // to be emitted only by the internal serializer.
+  it("excludes a render's non-content UI text from external HTML too", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "w-1",
+        type: "widget" as const,
+        children: [
+          { id: "w-p-1", type: "paragraph" as const, content: "Inside" },
+        ],
+      },
+    ]);
+
+    const html = editor.blocksToHTMLLossy(editor.document);
+    expect(html).toContain('data-children-of="widget"');
+    expect(html).toContain("UI LABEL");
+
+    const parsed = editor.tryParseHTMLToBlocks(html);
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0].type).toBe("widget");
+    expect(
+      (parsed[0] as any).children.map((child: any) => [
+        child.type,
+        child.content?.[0]?.text,
+      ]),
+    ).toEqual([["paragraph", "Inside"]]);
+    expect(JSON.stringify(parsed)).not.toContain("UI LABEL");
+  });
 });
 
 describe("container fragment root", () => {
