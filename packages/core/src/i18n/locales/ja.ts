@@ -461,5 +461,6 @@ export const ja: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "OK",
   },
 };
