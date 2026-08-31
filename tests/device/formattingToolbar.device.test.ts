@@ -139,10 +139,10 @@ for (const device of activeDevices()) {
           toolbar: true,
         });
 
-        await typeAndSubmit(session, `${LINK_POPOVER} input`, "example.com");
-
-        await session.waitFor(
-          "link created and popover closed",
+        await typeAndSubmit(
+          session,
+          `${LINK_POPOVER} input`,
+          "example.com",
           `return {
             ok: !!document.querySelector('.bn-editor a[href="https://example.com"]')
               && !document.querySelector(${JSON.stringify(LINK_POPOVER)}),

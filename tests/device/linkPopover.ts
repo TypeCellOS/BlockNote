@@ -3,7 +3,7 @@
  * use them, since only the link tests speak these concepts.
  */
 import { MOBILE_TOOLBAR, PARAGRAPH, startEditing } from "./lib/editorPage.js";
-import { tapElement } from "./lib/gestures.js";
+import { pressSoftKeyboardEnter, tapElement } from "./lib/gestures.js";
 import type { DeviceSession } from "./lib/webdriver.js";
 
 export const LINK_BUTTON = `${MOBILE_TOOLBAR} [data-test="createLink"]`;
@@ -71,26 +71,25 @@ export async function openLinkPopover(session: DeviceSession): Promise<void> {
 }
 
 /**
- * Types into a popover field and submits it the way the browser does:
- * `requestSubmit()` on the enclosing form, which runs the popover's real
- * `onSubmit` wiring. A dispatched Enter keydown cannot do this — synthetic
- * events trigger no default action, and the popovers commit through the
- * form's `submit` event rather than key handlers. Tapping the on-screen
- * keyboard's action key isn't an option either: no automation channel
- * reaches it (see the README) — which also means the IME's own choice of
- * action stays a manual release check.
+ * Types into a popover field and submits it by pressing the Enter key.
+ *
+ * On iOS that is a native tap on the on-screen keyboard's actual return key
+ * (the real user gesture — see `pressSoftKeyboardEnter`'s offset ladder). On
+ * Android, where BrowserStack blocks native taps, it is a W3C protocol Enter:
+ * trusted input, so the browser still runs its default action and the real
+ * submission path is exercised (key press -> implicit form submission -> the
+ * popover's `submit` handling). Only Gboard's own choice of *which* action
+ * its key performs stays out of reach, and on the manual release checklist.
+ *
+ * `verify` is a page script returning `{ ok: boolean }` observing the
+ * submission's effect — the iOS tap ladder needs it to know a tap landed.
  */
 export async function typeAndSubmit(
   session: DeviceSession,
   css: string,
   text: string,
+  verify: string,
 ): Promise<void> {
   await session.elementValue(css, text);
-  await session.exec(
-    `const el = document.querySelector(arguments[0]);
-     if (el && el.form) {
-       el.form.requestSubmit();
-     }`,
-    [css],
-  );
+  await pressSoftKeyboardEnter(session, verify);
 }
