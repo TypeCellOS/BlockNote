@@ -59,6 +59,12 @@ export const TextInput = forwardRef<
         className || "",
         variant === "large" ? "bn-mt-input-large" : "",
       )}
+      // Without this, Android's IME picks its own action for the Enter key,
+      // and picks "Next" whenever anything focusable follows the popover —
+      // which advances focus (into the next editor on the page!) instead of
+      // dispatching an Enter key event, so the form's submit handler never
+      // runs. "Done" makes the key report itself as Enter.
+      enterKeyHint="done"
       ref={setRefs}
       name={name}
       label={label}

@@ -90,6 +90,18 @@ describe("Mobile formatting toolbar", () => {
       }
     });
 
+    // Android's IME picks the Enter key's action itself, and picks "Next"
+    // whenever anything focusable follows the popover — advancing focus into
+    // the next editor on the page rather than dispatching Enter, so the
+    // submit handler never runs and no link is created. `enterkeyhint` is
+    // what tells it to report Enter instead.
+    if (activeUrlInput()!.getAttribute("enterkeyhint") !== "done") {
+      throw new Error(
+        "URL input must set enterkeyhint, or Android's IME turns Enter into " +
+          "a focus-advance instead of a submit",
+      );
+    }
+
     // iOS Safari auto-zooms the page when an input with a computed font-size
     // under 16px takes focus, and that zoom perturbs the visual viewport the
     // toolbar positions itself from. Emulation can't reproduce the zoom
