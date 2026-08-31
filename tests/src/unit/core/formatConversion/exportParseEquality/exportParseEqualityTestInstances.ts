@@ -21,10 +21,18 @@ export const exportParseEqualityTestInstancesBlockNoteHTML: TestInstance<
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema
->[] = exportTestInstancesBlockNoteHTML.map(({ testCase }) => ({
-  testCase,
-  executeTest: testExportParseEqualityBlockNoteHTML,
-}));
+>[] = exportTestInstancesBlockNoteHTML
+  // `container/emptyChildren` round-trips asymmetrically by design. Exporting
+  // reads the partial blocks as given, so a container without a `children` key
+  // serialises an empty children holder. Parsing goes through a real document,
+  // where the container's `default` fills that holder. Both halves are correct,
+  // but they aren't each other's inverse. The export snapshot records the
+  // serialised form; asserting equality here would only assert the mismatch.
+  .filter(({ testCase }) => testCase.name !== "container/emptyChildren")
+  .map(({ testCase }) => ({
+    testCase,
+    executeTest: testExportParseEqualityBlockNoteHTML,
+  }));
 
 export const exportParseEqualityTestInstancesHTML: TestInstance<
   ExportParseEqualityTestCase<

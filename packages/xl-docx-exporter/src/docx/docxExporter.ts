@@ -183,12 +183,11 @@ export class DOCXExporter<
         numberingInstance,
         children,
       ); // TODO: any
-      if (this.isContainerBlock(b.type)) {
-        ret.push(self as Table);
-      } else if (Array.isArray(self)) {
-        ret.push(...self, ...children);
-      } else {
-        ret.push(self, ...children);
+      ret.push(...(Array.isArray(self) ? self : [self]));
+      // A container's mapping is handed its children and places them itself,
+      // so they must not be appended after it as well.
+      if (!this.isContainerBlock(b.type)) {
+        ret.push(...children);
       }
     }
     return ret;

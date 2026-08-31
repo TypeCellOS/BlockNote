@@ -243,52 +243,73 @@ export function createReactBlockSpec<
         : extensionsOrCreator
       : undefined;
 
+    // Container-ness is fixed per spec, so every render path can decide once.
+    const isContainer = blockConfig.children !== undefined;
+
+    // Shared by the two paths that render to plain DOM (`toExternalHTML` and
+    // `render` outside a node view). A container block's output is the
+    // block's root element, with no wrapper: the attributes core stamps
+    // afterwards then land on the author's own element, the same element they
+    // land on in the live editor.
+    function renderStatic(args: {
+      BlockContent: FC<any>;
+      block: any;
+      editor: any;
+      domAttributes?: Record<string, string>;
+      isFileBlock?: boolean;
+      context?: any;
+    }) {
+      const { BlockContent, block, editor } = args;
+
+      return renderToDOMSpec((refCB) => {
+        const content = (
+          <BlockContent
+            block={block as any}
+            editor={editor as any}
+            contentRef={(element: HTMLElement | null) => {
+              refCB(element);
+              if (element && !isContainer) {
+                element.className = mergeCSSClasses(
+                  "bn-inline-content",
+                  element.className,
+                );
+              }
+            }}
+            context={args.context}
+          />
+        );
+
+        return isContainer ? (
+          content
+        ) : (
+          <BlockContentWrapper
+            blockType={block.type}
+            blockProps={block.props}
+            propSchema={blockConfig.propSchema}
+            domAttributes={args.domAttributes}
+            isFileBlock={args.isFileBlock}
+          >
+            {content}
+          </BlockContentWrapper>
+        );
+      }, editor);
+    }
+
     return {
       config: blockConfig,
       implementation: {
         ...blockImplementation,
         toExternalHTML(block, editor, context) {
-          const isContainer = blockConfig.children !== undefined;
-          const BlockContent = (blockImplementation.toExternalHTML ||
-            blockImplementation.render) as FC<any>;
-          const output = renderToDOMSpec((refCB) => {
-            const content = (
-              <BlockContent
-                block={block as any}
-                editor={editor as any}
-                contentRef={(element: HTMLElement | null) => {
-                  refCB(element);
-                  if (element && !isContainer) {
-                    element.className = mergeCSSClasses(
-                      "bn-inline-content",
-                      element.className,
-                    );
-                  }
-                }}
-                context={context}
-              />
-            );
-            // A container block's render output is the block's root element,
-            // with no wrapper. The attributes core stamps afterwards then
-            // land on the author's own element, the same element they land
-            // on in the live editor.
-            return isContainer ? (
-              content
-            ) : (
-              <BlockContentWrapper
-                blockType={block.type}
-                blockProps={block.props}
-                propSchema={blockConfig.propSchema}
-                domAttributes={this.blockContentDOMAttributes}
-                isFileBlock={
-                  blockImplementation.meta?.fileBlockAccept !== undefined
-                }
-              >
-                {content}
-              </BlockContentWrapper>
-            );
-          }, editor);
-          return output;
+          return renderStatic({
+            BlockContent: (blockImplementation.toExternalHTML ||
+              blockImplementation.render) as FC<any>,
+            block,
+            editor,
+            domAttributes: this.blockContentDOMAttributes,
+            isFileBlock:
+              blockImplementation.meta?.fileBlockAccept !== undefined,
+            context,
+          });
         },
         render(block, editor) {
           if (this.renderType === "nodeView") {
@@ -296,10 +317,8 @@ export function createReactBlockSpec<
             // constructed (itself guarded, via `getBlockFromNodeView`). Seeds
             // the fallback below so there is always something to render.
             const initialBlock = block;
-            // Container-ness is fixed per spec, so the node-view component
-            // can be chosen once. Each variant uses only the hooks and
-            // wrappers it needs.
-            const isContainer = blockConfig.children !== undefined;
+            // Each node-view variant uses only the hooks and wrappers it
+            // needs, so the component is chosen once from `isContainer`.
             const BlockContent = blockImplementation.render as FC<any>;
             const blockContentDOMAttributes = this.blockContentDOMAttributes;
 
@@ -332,12 +351,12 @@ export function createReactBlockSpec<
                   `Container block "${blockConfig.type}" is missing an id attribute.`,
                 );
               }
-              // The id lookup misses when the node was just removed from the
-              // document (e.g. a suggestion-mode deletion still rendering);
-              // fall back to converting the node the view was handed.
-              const block =
-                editor.getBlock(id) ??
-                nodeToBlock(props.node, props.view.state.doc);
+              // Converted from the node the view was handed rather than
+              // looked up by id: the conversion is cached per node, while a
+              // lookup would scan the whole document on every render, and it
+              // also covers a node that was just removed from the document
+              // (e.g. a suggestion-mode deletion still rendering).
+              const block = nodeToBlock(props.node, props.view.state.doc);
 
               const ref = useReactNodeView().nodeViewContentRef;
               if (!ref) {
@@ -348,8 +367,8 @@ export function createReactBlockSpec<
 
               // Stamped imperatively rather than spread as JSX props: the root
               // element belongs to the block's author, so there is nothing to
-              // spread onto. Runs after every render, since both the block's
-              // props and the author's root element can change.
+              // spread onto. `block` is derived from the node, so a new one
+              // also means the author's root may have been swapped.
               useLayoutEffect(() => {
                 const root = authorRootDOM();
                 if (!root) {
@@ -374,7 +393,7 @@ export function createReactBlockSpec<
                 } else {
                   root.removeAttribute("data-selected");
                 }
-              });
+              }, [block, selected]);
 
               return (
                 <NodeViewWrapper ref={wrapper} style={DISPLAY_CONTENTS}>
@@ -463,40 +482,12 @@ export function createReactBlockSpec<
 
             return nodeView;
           } else {
-            const isContainer = blockConfig.children !== undefined;
-            const BlockContent = blockImplementation.render as FC<any>;
-            const output = renderToDOMSpec((refCB) => {
-              const content = (
-                <BlockContent
-                  block={block as any}
-                  editor={editor as any}
-                  contentRef={(element: HTMLElement | null) => {
-                    refCB(element);
-                    if (element && !isContainer) {
-                      element.className = mergeCSSClasses(
-                        "bn-inline-content",
-                        element.className,
-                      );
-                    }
-                  }}
-                />
-              );
-              // See `toExternalHTML` above: a container block owns its outer
-              // DOM, so its render output is the block's root element.
-              return isContainer ? (
-                content
-              ) : (
-                <BlockContentWrapper
-                  blockType={block.type}
-                  blockProps={block.props}
-                  propSchema={blockConfig.propSchema}
-                  domAttributes={this.blockContentDOMAttributes}
-                >
-                  {content}
-                </BlockContentWrapper>
-              );
-            }, editor);
-            return output;
+            return renderStatic({
+              BlockContent: blockImplementation.render as FC<any>,
+              block,
+              editor,
+              domAttributes: this.blockContentDOMAttributes,
+            });
           }
         },
       },

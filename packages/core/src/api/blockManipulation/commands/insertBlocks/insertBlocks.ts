@@ -52,7 +52,9 @@ export function getInsertionPos(
       placement === "before" ? posBeforeNode : posBeforeNode + node.nodeSize;
     const $pos = doc.resolve(pos);
 
-    return $pos.parent.contentMatchAt($pos.index()).matchType(nodeType)
+    // `canReplaceWith` rather than a bare content match: the nodes already
+    // after the position have to still fit once the new one is spliced in.
+    return $pos.parent.canReplaceWith($pos.index(), $pos.index(), nodeType)
       ? { pos }
       : null;
   }
@@ -60,16 +62,17 @@ export function getInsertionPos(
   const info = getBlockInfoFromNode(node, posBeforeNode);
 
   if (info.children) {
-    // The descent helper can stop at sealed boundaries but this caller lets
-    // it cross: an explicit `insertBlocks` placement is an intentional
+    // The navigation helpers stop at sealed boundaries but this caller lets
+    // them cross: an explicit `insertBlocks` placement is an intentional
     // crossing.
-    const pos = descendToInsertionPos(
+    const { pos } = descendToInsertionPos(
       info,
       nodeType,
       placement === "first-child" ? "first" : "last",
+      { allowCrossingSeals: true },
     );
 
-    return pos === null ? null : { pos };
+    return pos === undefined ? null : { pos };
   }
 
   // No children holder implies a `blockContainer` with no children yet

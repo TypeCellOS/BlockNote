@@ -46,20 +46,19 @@ export function removeEmptyChildren(tr: Transaction, containerPos: number) {
     );
   }
 
-  for (
-    let childIndex = container.childCount - 1;
-    childIndex >= 0;
-    childIndex--
-  ) {
-    const childPos = tr.doc.resolve(containerPos + 1).posAtIndex(childIndex);
-    const child = tr.doc.resolve(childPos).nodeAfter;
-    if (!child) {
-      throw new Error("Invalid childPos: does not point to a child node.");
-    }
-
+  // Collected before deleting anything, so every position is taken from the
+  // same (untouched) container, then applied back to front so the earlier
+  // ones stay valid.
+  const emptyChildren: { from: number; to: number }[] = [];
+  container.forEach((child, offset) => {
     if (isEmptyContainerChild(child)) {
-      tr.delete(childPos, childPos + child.nodeSize);
+      const from = containerPos + 1 + offset;
+      emptyChildren.push({ from, to: from + child.nodeSize });
     }
+  });
+
+  for (let i = emptyChildren.length - 1; i >= 0; i--) {
+    tr.delete(emptyChildren[i].from, emptyChildren[i].to);
   }
 }
 

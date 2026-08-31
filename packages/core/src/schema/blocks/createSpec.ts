@@ -23,7 +23,6 @@ import {
   CHILD_CONTAINER_GROUP,
   childrenContentExpression,
   containerNodePriority,
-  resolveChildren,
 } from "./children.js";
 import { applyContainerAttributes } from "./containerAttributes.js";
 import {
@@ -283,9 +282,14 @@ function buildContainerNode<TName extends string, TProps extends PropSchema>(
       return suggestionMarks(this.editor);
     },
     selectable: blockImplementation.meta?.selectable ?? true,
-    // Derived from `boundary`: an "open" container lets everything cross its
-    // edge; "isolated" and "sealed" both map to PM `isolating: true`.
-    isolating: resolveChildren(children).boundary !== "open",
+    // Deliberately not `isolating`, not even for a sealed container. PM only
+    // honours that flag while no selection spans the edge, and nothing stops
+    // one being made: given a spanning slice, `Fitter` refuses to open into
+    // the container and wraps the content in a spurious `blockGroup` instead,
+    // so a copy-paste across the edge corrupts the document. Seals bind
+    // editing gestures, and those are enforced by BlockNote's own `isSealed`
+    // guards (see `containerNav.ts` and `KeyboardShortcutsExtension.ts`),
+    // which need no help from the schema.
     defining: true,
     priority: containerNodePriority(priority),
     addAttributes() {

@@ -1,4 +1,4 @@
-import type { Schema } from "prosemirror-model";
+import type { Node, Schema } from "prosemirror-model";
 import {
   NodeSelection,
   Selection,
@@ -13,6 +13,7 @@ import { BlockIdentifier } from "../../../../schema/index.js";
 import {
   isBlockGroupInsertable,
   isContainerNode,
+  isSealed,
 } from "../../../../schema/blocks/children.js";
 import {
   getBlockInfoNearPos,
@@ -226,6 +227,21 @@ export function moveSelectedBlocksAndSelection(
   });
 }
 
+// The nearest sealed container a position sits in, or `undefined` if there
+// isn't one.
+function sealedAncestorId(doc: Node, pos: number): string | undefined {
+  const $pos = doc.resolve(pos);
+
+  for (let depth = $pos.depth; depth > 0; depth--) {
+    const ancestor = $pos.node(depth);
+    if (isSealed(ancestor)) {
+      return ancestor.attrs.id;
+    }
+  }
+
+  return undefined;
+}
+
 // Checks if a regular block would be in a valid place after being moved
 // before/after `referenceBlock`. A regular block nests under any non-container
 // block (it goes into that block's `blockGroup`), but a container block (e.g. a
@@ -253,10 +269,23 @@ function checkPlacementIsValid(
 
   return editor.transact((tr) => {
     const posInfo = getNodeById(referenceBlock.id, tr.doc);
-    if (!posInfo) {
+    const movedPosInfo = getNodeById(movedBlock.id, tr.doc);
+    if (!posInfo || !movedPosInfo) {
       return false;
     }
-    return getInsertionPos(tr.doc, posInfo, placement, nodeType) !== null;
+
+    const target = getInsertionPos(tr.doc, posInfo, placement, nodeType);
+    if (!target) {
+      return false;
+    }
+
+    // Moving is a gesture, so it can't take a block across a seal: the block
+    // and its destination have to sit inside the same sealed container (or
+    // outside any of them).
+    return (
+      sealedAncestorId(tr.doc, target.pos) ===
+      sealedAncestorId(tr.doc, movedPosInfo.posBeforeNode)
+    );
   });
 }
 

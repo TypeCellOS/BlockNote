@@ -21,9 +21,19 @@ function buildSelector(types: ReadonlySet<string>): string | null {
   return [...types].map((type) => `[data-node-type="${type}"]`).join(",");
 }
 
+// The schema never changes over an editor's lifetime, so the info is derived
+// once. It's read on every mousemove, which would otherwise walk every block
+// spec each time.
+const cache = new WeakMap<object, ContainerUIInfo>();
+
 export function getContainerUIInfo(
   editor: Pick<BlockNoteEditor<any, any, any>, "schema">,
 ): ContainerUIInfo {
+  const cached = cache.get(editor.schema);
+  if (cached) {
+    return cached;
+  }
+
   const containerTypes = new Set<string>();
   const draggableContainerTypes = new Set<string>();
   const nonDraggableBlockTypes = new Set<string>();
@@ -51,10 +61,12 @@ export function getContainerUIInfo(
     }
   }
 
-  return {
+  const info: ContainerUIInfo = {
     containerTypes,
     draggableContainerTypes,
     nonDraggableBlockTypes,
     containerSelector: buildSelector(containerTypes),
   };
+  cache.set(editor.schema, info);
+  return info;
 }

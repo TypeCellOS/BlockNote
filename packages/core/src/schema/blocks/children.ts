@@ -1,10 +1,6 @@
 import type { Node, NodeType, Schema } from "prosemirror-model";
 
-import type {
-  ChildrenAllow,
-  ChildrenConfig,
-  PartialBlockNoDefaults,
-} from "./types.js";
+import type { ChildDefault, ChildrenAllow, ChildrenConfig } from "./types.js";
 
 /** A {@link ChildrenConfig} with every default filled in. */
 export type ResolvedChildren = {
@@ -13,9 +9,9 @@ export type ResolvedChildren = {
   containers: true | readonly string[];
   /** What `whenEmptied` compares against. */
   min: number;
-  default: readonly PartialBlockNoDefaults<any, any, any>[] | undefined;
+  default: readonly ChildDefault[] | undefined;
   whenEmptied: "refill" | "unwrap";
-  boundary: "open" | "isolated" | "sealed";
+  boundary: "open" | "sealed";
 };
 
 export const CHILD_CONTAINER_GROUP = "childContainer";
@@ -141,13 +137,23 @@ export function resolveChildren(children: ChildrenConfig): ResolvedChildren {
   const resolved: ResolvedChildren = {
     ...resolveAllow(children.allow),
     min: children.min ?? 1,
-    default: children.default,
+    default: children.default && withoutIds(children.default),
     whenEmptied: children.whenEmptied ?? "refill",
-    boundary: children.boundary ?? "isolated",
+    boundary: children.boundary ?? "open",
   };
 
   resolvedCache.set(children, resolved);
   return resolved;
+}
+
+// Clears any id an untyped config wrote into a default, so each copy of the
+// container gets a freshly generated one instead of a shared duplicate.
+function withoutIds(blocks: readonly ChildDefault[]): ChildDefault[] {
+  return blocks.map((block) => ({
+    ...block,
+    id: undefined,
+    ...(block.children ? { children: withoutIds(block.children) } : {}),
+  }));
 }
 
 function resolveAllow(
