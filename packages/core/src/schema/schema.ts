@@ -98,7 +98,10 @@ export class CustomBlockNoteSchema<
       Object.fromEntries(
         Object.entries(this.opts.blockSpecs).map(([key, blockSpec]) => [
           key,
-          blockSpec.config,
+          {
+            ...blockSpec.config,
+            runsBefore: blockSpec.implementation?.runsBefore,
+          },
         ]),
       ),
     );
