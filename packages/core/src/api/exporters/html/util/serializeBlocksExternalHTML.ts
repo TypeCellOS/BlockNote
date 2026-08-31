@@ -295,6 +295,13 @@ function serializeBlock<
         props,
         editor.schema.blockSchema[block.type as any].propSchema,
       );
+
+      // Mark where the children live, mirroring the internal serializer, so
+      // the container's parse rule can scope itself to this element
+      // (`contentElement` in `getParseRules`) when the HTML is pasted back.
+      // Without the marker, non-content UI the render puts elsewhere in its
+      // DOM (button labels, captions, ...) parses back as document content.
+      ret.contentDOM?.setAttribute("data-children-of", block.type!);
     }
     elementFragment.append(ret.dom);
     if (nestingLevel > 0) {
