@@ -3,14 +3,20 @@
  * concepts (blocks, toolbar, popovers) and hides the gesture mechanics.
  *
  * The pages under test are the playground examples, reached through the
- * tunnel origin provided by the global setup (`PROXY_ORIGIN`).
+ * tunnel (`bs-local.com`, resolved on-device by BrowserStackLocal).
  */
 import { tapElement } from "./gestures.js";
 import type { DeviceSession } from "./webdriver.js";
 
-export const PROXY_PORT = 45178;
-/** `bs-local.com` resolves to the test runner through the BrowserStack tunnel. */
-export const PROXY_ORIGIN = `http://bs-local.com:${PROXY_PORT}`;
+/**
+ * Where the *device* loads the app from: the same port the host-side target
+ * serves on, reached through `bs-local.com` — which BrowserStackLocal
+ * resolves on the device back to this machine.
+ */
+function deviceOrigin(): string {
+  const target = process.env.DEVICE_TEST_TARGET ?? "http://127.0.0.1:5173";
+  return `http://bs-local.com:${new URL(target).port || "80"}`;
+}
 
 export const EDITOR = ".bn-editor";
 export const PARAGRAPH = ".bn-editor .bn-inline-content";
@@ -26,7 +32,7 @@ export async function openExample(
   // Cold dev-server transforms through the tunnel can stall a first load;
   // one reload recovers it.
   for (let attempt = 0; attempt < 2; attempt++) {
-    await session.navigate(`${PROXY_ORIGIN}${route}`);
+    await session.navigate(`${deviceOrigin()}${route}`);
     try {
       await session.waitFor(
         "editor rendered",

@@ -1,23 +1,21 @@
 /**
- * Vitest global setup: makes the locally served playground reachable from
- * BrowserStack real devices.
+ * Vitest global setup for the device suite: starts the BrowserStackLocal
+ * tunnel daemon, which resolves `bs-local.com` on the real device back to
+ * this machine — devices then browse the locally served playground directly
+ * (its Vite config allows the `bs-local.com` Host header). The binary is
+ * downloaded on first use into tests/device/.cache (gitignored).
  *
- * Two pieces:
- * 1. A host-rewriting proxy in front of the app server — devices browse
- *    `http://bs-local.com:<PROXY_PORT>`, and Vite's `allowedHosts` check
- *    rejects that Host header, so the proxy forwards with a localhost Host.
- * 2. The BrowserStackLocal tunnel daemon, which resolves `bs-local.com` on
- *    the device back to this machine. The binary is downloaded on first use
- *    into tests/device/.cache (gitignored).
+ * This file runs both locally and in CI — the same self-managed daemon in
+ * both, so a CI failure reproduces identically on a laptop. (BrowserStack
+ * also ships a GitHub Action wrapping the same binary; not using it is a
+ * deliberate parity choice.)
  */
 import { spawnSync } from "node:child_process";
 import { chmodSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
-import http from "node:http";
 import { join } from "node:path";
 
 import { LOCAL_TUNNEL_ID } from "../devices.js";
 import { browserStackCredentials } from "./webdriver.js";
-import { PROXY_PORT } from "./editorPage.js";
 
 const CACHE_DIR = join(import.meta.dirname, "..", ".cache");
 const BINARY = join(CACHE_DIR, "BrowserStackLocal");
@@ -38,54 +36,35 @@ async function ensureAppServer(): Promise<void> {
   }
 }
 
-function startProxy(): http.Server {
-  const server = http.createServer(async (req, res) => {
-    try {
-      // Dev servers occasionally stall on cold transforms; a bounded retry
-      // beats a device-side page load hanging forever mid-progress.
-      let upstream: Response | undefined;
-      for (let attempt = 0; attempt < 2 && !upstream; attempt++) {
-        upstream = await fetch(`${targetOrigin()}${req.url}`, {
-          headers: {
-            accept: req.headers["accept"] ?? "*/*",
-            host: new URL(targetOrigin()).host,
-          },
-          signal: AbortSignal.timeout(20_000),
-        }).catch((error) => {
-          if (attempt === 1) {
-            throw error;
-          }
-          return undefined;
-        });
-      }
-      if (!upstream) {
-        throw new Error("upstream fetch failed");
-      }
-      const body = Buffer.from(await upstream.arrayBuffer());
-      const headers: Record<string, string> = {};
-      for (const name of ["content-type", "cache-control"]) {
-        const value = upstream.headers.get(name);
-        if (value) {
-          headers[name] = value;
-        }
-      }
-      res.writeHead(upstream.status, headers);
-      res.end(body);
-    } catch (error) {
-      res.writeHead(502);
-      res.end(String(error));
-    }
-  });
-  server.listen(PROXY_PORT, "127.0.0.1");
-  return server;
+/**
+ * The archive BrowserStack publishes for this host, or an explanation of why
+ * there is none — checked before downloading so an unsupported platform
+ * fails with guidance instead of a broken binary.
+ */
+function binaryArchive(): string {
+  const key = `${process.platform}-${process.arch}`;
+  switch (key) {
+    // No native arm64 build for macOS; the x64 binary runs under Rosetta 2.
+    case "darwin-arm64":
+    case "darwin-x64":
+      return "BrowserStackLocal-darwin-x64.zip";
+    case "linux-x64":
+      return "BrowserStackLocal-linux-x64.zip";
+    case "linux-arm64":
+      return "BrowserStackLocal-linux-arm64.zip";
+    default:
+      throw new Error(
+        `No BrowserStackLocal binary for ${key}. Run the suite from macOS, ` +
+          `Linux, or CI (see .github/workflows/device-tests.yml).`,
+      );
+  }
 }
 
 async function ensureLocalBinary(): Promise<void> {
   if (existsSync(BINARY)) {
     return;
   }
-  const platform = process.platform === "darwin" ? "darwin-x64" : "linux-x64";
-  const url = `https://www.browserstack.com/browserstack-local/BrowserStackLocal-${platform}.zip`;
+  const url = `https://www.browserstack.com/browserstack-local/${binaryArchive()}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Failed to download BrowserStackLocal: ${res.status}`);
@@ -130,12 +109,10 @@ export default async function setup(): Promise<(() => void) | void> {
   }
 
   await ensureAppServer();
-  const proxy = startProxy();
   await ensureLocalBinary();
   tunnelCommand("start", auth.accessKey);
 
   return () => {
     tunnelCommand("stop", auth.accessKey);
-    proxy.close();
   };
 }

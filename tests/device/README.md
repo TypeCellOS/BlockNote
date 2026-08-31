@@ -41,10 +41,10 @@ the BrowserStack Automate dashboard.
 
 ```
 devices.ts                     device matrix (add devices here)
+lib/tunnel.ts                  global setup: BrowserStackLocal tunnel daemon
 lib/webdriver.ts               dependency-free WebDriver REST client
 lib/gestures.ts                platform input layer — ALL fidelity quirks live here
 lib/editorPage.ts              BlockNote page helpers (blocks, toolbar, popovers)
-lib/tunnel.ts                  global setup: BrowserStackLocal + host-rewriting proxy
 *.device.test.ts               suites (one BrowserStack session per device per file)
 ```
 
