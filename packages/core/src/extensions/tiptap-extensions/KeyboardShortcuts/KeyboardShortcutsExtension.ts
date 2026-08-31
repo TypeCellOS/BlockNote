@@ -1,6 +1,7 @@
 import { Extension } from "@tiptap/core";
 import { Fragment, Node } from "prosemirror-model";
 import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
+import type { EditorView } from "prosemirror-view";
 
 import {
   getBottomNestedBlockInfo,
@@ -26,6 +27,30 @@ import { isAndroid } from "../../../util/browser.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
 
+/**
+ * Runs the keymap chain for an Enter that never reached it (see the
+ * `blockNoteAndroidEnter` plugin below): flushes pending DOM observations
+ * first, then dispatches a synthesized Enter keydown through
+ * `handleKeyDown`.
+ */
+function dispatchSynthesizedEnter(view: EditorView, shiftKey: boolean): void {
+  (
+    view as EditorView & {
+      domObserver: { forceFlush(): void };
+    }
+  ).domObserver.forceFlush();
+  view.someProp("handleKeyDown", (handler) =>
+    handler(
+      view,
+      new KeyboardEvent("keydown", {
+        key: "Enter",
+        code: "Enter",
+        shiftKey,
+      }),
+    ),
+  );
+}
+
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
   tabBehavior: "prefer-navigate-ui" | "prefer-indent";
@@ -46,6 +71,26 @@ export const KeyboardShortcutsExtension = Extension.create<{
       new Plugin({
         key: new PluginKey("blockNoteAndroidEnter"),
         props: {
+          // Runs the keymap chain for an Enter that prosemirror-view's
+          // Android keydown bail skipped, with the parity that bail also
+          // skips: force-flushing pending DOM observations (including
+          // selection changes) before running key handlers — without it the
+          // synthesized Enter can run against a stale selection (e.g. a
+          // just-made cross-block selection that hasn't synced yet).
+          handleKeyPress: (view, event) => {
+            // A keypress for Enter only happens off a hardware/synthetic
+            // keyboard (the IME path is keyCode 229 + `beforeinput`, no
+            // keypress — handled below). prosemirror-view's own keypress
+            // handler would cancel the browser default for cross-block
+            // selections without doing anything (its cross-parent branch
+            // calls preventDefault but skips newline characters), turning
+            // Enter into a silent no-op — so take over before it runs.
+            if (!isAndroid() || view.composing || event.key !== "Enter") {
+              return false;
+            }
+            dispatchSynthesizedEnter(view, event.shiftKey);
+            return true;
+          },
           handleDOMEvents: {
             beforeinput: (view, event) => {
               if (!isAndroid() || view.composing) {
@@ -58,26 +103,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 return false;
               }
               event.preventDefault();
-              // Restore the parity prosemirror-view skips here: for normal
-              // keydowns it force-flushes pending DOM observations (including
-              // selection changes) before running key handlers, but its
-              // Android Enter bail returns before that flush — without it the
-              // synthesized Enter can run against a stale selection (e.g. a
-              // just-made cross-block selection that hasn't synced yet).
-              (
-                view as typeof view & {
-                  domObserver: { forceFlush(): void };
-                }
-              ).domObserver.forceFlush();
-              view.someProp("handleKeyDown", (handler) =>
-                handler(
-                  view,
-                  new KeyboardEvent("keydown", {
-                    key: "Enter",
-                    code: "Enter",
-                    shiftKey: event.inputType === "insertLineBreak",
-                  }),
-                ),
+              dispatchSynthesizedEnter(
+                view,
+                event.inputType === "insertLineBreak",
               );
               return true;
             },
