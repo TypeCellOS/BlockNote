@@ -269,6 +269,28 @@ describe("Focus events", () => {
     expect(events.length).toBe(countWhileSubscribed);
   });
 
+  it("survives an unsubscribe being called twice", async () => {
+    // The count backing the shared document listeners is reference-counted.
+    // A second call to the same unsubscribe used to drive it negative, so it
+    // never reached 1 again and the tracker silently stopped attaching for
+    // every later subscriber — with no error to notice.
+    const stale = editor.onFocusChange(() => {}, { includeEditorUI: true });
+    stale();
+    stale();
+
+    const events: boolean[] = [];
+    const unsubscribe = editor.onFocusChange(
+      (_editor, ctx) => events.push(ctx.focused),
+      { includeEditorUI: true },
+    );
+
+    editor.focus();
+    await settle();
+
+    expect(events).toEqual([true]);
+    unsubscribe();
+  });
+
   it("supports several subscribers independently", async () => {
     const first: boolean[] = [];
     const second: boolean[] = [];

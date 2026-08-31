@@ -49,6 +49,7 @@ import {
 import type { TextCursorPosition } from "./cursorPositionTypes.js";
 import {
   BlockManager,
+  EditorFocusOptions,
   EventManager,
   ExportManager,
   ExtensionManager,
@@ -814,15 +815,7 @@ export class BlockNoteEditor<
     );
   };
 
-  public isFocused(options?: {
-    /**
-     * When true, the editor's own UI (toolbars, menus, popovers —
-     * everything portalled into `editor.portalElement`) also counts as
-     * focused, answering "is the user still interacting with this editor?".
-     * The default reports content-area focus only.
-     */
-    includeEditorUI?: boolean;
-  }) {
+  public isFocused(options?: EditorFocusOptions) {
     if (this.headless) {
       return false;
     }
@@ -1404,16 +1397,7 @@ export class BlockNoteEditor<
       editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
       context: { focused: boolean; event: FocusEvent },
     ) => void,
-    options?: {
-      /**
-       * When true, the editor's own UI (toolbars, menus, popovers —
-       * everything portalled into `editor.portalElement`) counts as focused,
-       * and the callback fires only when that combined focus state actually
-       * changes, after focus movement has settled. The default reports raw
-       * content-area focus/blur events.
-       */
-      includeEditorUI?: boolean;
-    },
+    options?: EditorFocusOptions,
   ) {
     return this._eventManager.onFocusChange(callback, options);
   }

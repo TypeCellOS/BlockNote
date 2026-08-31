@@ -19,6 +19,24 @@ export type Unsubscribe = () => void;
 /**
  * EventManager is a class which manages the events of the editor
  */
+/**
+ * Options shared by the focus APIs (`isFocused`, `onFocusChange`).
+ */
+export type EditorFocusOptions = {
+  /**
+   * When true, the editor's own UI - toolbars, menus and popovers, i.e.
+   * everything portalled into `editor.portalElement` - counts as focused,
+   * answering "is the user still interacting with this editor?" rather than
+   * "does the content area hold DOM focus?".
+   *
+   * Events then fire only when that combined state changes, and only once
+   * focus movement has settled, so a handoff from the content area into a
+   * popover's input reports no blur at all. The default reports raw
+   * content-area focus.
+   */
+  includeEditorUI?: boolean;
+};
+
 export class EventManager<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -238,17 +256,7 @@ export class EventManager<
       editor: BlockNoteEditor<BSchema, I, S>,
       ctx: { focused: boolean; event: FocusEvent },
     ) => void,
-    options?: {
-      /**
-       * When true, the editor's own UI (toolbars, menus, popovers —
-       * everything portalled into `editor.portalElement`) counts as focused,
-       * and events fire only when that combined focus state actually changes,
-       * after focus movement has settled. Use this to know whether the user
-       * is still interacting with the editor; the default reports raw
-       * content-area focus/blur.
-       */
-      includeEditorUI?: boolean;
-    },
+    options?: EditorFocusOptions,
   ): Unsubscribe {
     const cb = ({
       focused,
@@ -266,7 +274,16 @@ export class EventManager<
         this.attachUIFocusTracker();
       }
       this.on("onFocusChangeWithinUI", cb);
+
+      // Unsubscribing twice must not double-decrement: the count would go
+      // negative and never reach 1 again, so the tracker would silently stop
+      // attaching for every later subscriber.
+      let unsubscribed = false;
       return () => {
+        if (unsubscribed) {
+          return;
+        }
+        unsubscribed = true;
         this.off("onFocusChangeWithinUI", cb);
         this.uiFocusSubscriberCount--;
         if (this.uiFocusSubscriberCount === 0) {
