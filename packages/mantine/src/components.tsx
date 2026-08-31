@@ -89,7 +89,16 @@ export const components: Components = {
       Group: BadgeGroup,
     },
     Form: {
-      Root: (props) => <div>{props.children}</div>,
+      Root: (props) => (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            props.onSubmit?.();
+          }}
+        >
+          {props.children}
+        </form>
+      ),
       TextInput: TextInput,
     },
     Menu: {

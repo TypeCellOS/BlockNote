@@ -23,6 +23,12 @@ export const Popover = (
       // Do not move focus to the dropdown on mobile, as it blurs the editor's
       // contentEditable and dismisses the on-screen keyboard.
       trapFocus={portalRoot ? false : undefined}
+      // Keep the dropdown visible through virtual-keyboard viewport resizes on
+      // mobile: hideDetached (default true) reacts to the resize by setting
+      // display:none on the dropdown, which blurs its focused input and
+      // dismisses the on-screen keyboard (the input then unmounts with the
+      // toolbar, so the whole UI collapses).
+      hideDetached={portalRoot ? false : undefined}
       opened={open}
       onChange={onOpenChange}
       position={position}

@@ -29,6 +29,9 @@ export function mergeCSSClasses(...classes: (string | false | undefined)[]) {
 export const isSafari = () =>
   /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
+export const isAndroid = () =>
+  typeof navigator !== "undefined" && /android/i.test(navigator.userAgent);
+
 // Cached lazily on first call in a browser environment. Touch capability
 // doesn't change during a session, so there's no need to re-run `matchMedia` on
 // every call. We only cache once `navigator`/`window` are available, so a

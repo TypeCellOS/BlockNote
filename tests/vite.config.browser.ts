@@ -88,6 +88,7 @@ export default defineConfig(
           "./src/end-to-end/**/*.test.tsx",
           "../packages/*/src/**/*.browser.test.{ts,tsx}",
         ],
+
         setupFiles: ["./vitestSetup.browser.ts"],
         // Running three browsers concurrently inside one Docker container already
         // saturates CPU; layering per-browser file parallelism on top causes
@@ -151,12 +152,58 @@ export default defineConfig(
                   "--disable-dev-shm-usage",
                 ],
               },
+              // end-to-end/mobile runs only in the "android" instance below.
+              exclude: ["**/end-to-end/mobile/**"],
             },
             {
               browser: "firefox",
+              exclude: ["**/end-to-end/mobile/**"],
             },
             {
               browser: "webkit",
+              exclude: ["**/end-to-end/mobile/**"],
+            },
+            {
+              // Android-emulated chromium: mobile-specific end-to-end tests.
+              // The context makes `isTouchDevice()` genuinely true and puts
+              // prosemirror-view on its Android code paths (it samples the
+              // user agent at module load), so the mobile tests need no
+              // platform stubs. See tests/src/end-to-end/mobile/.
+              browser: "chromium",
+              name: "android",
+              launchOptions: {
+                args: [
+                  "--no-sandbox",
+                  "--disable-setuid-sandbox",
+                  "--disable-dev-shm-usage",
+                ],
+              },
+              provider: playwright({
+                contextOptions: {
+                  viewport: { width: 393, height: 727 },
+                  userAgent:
+                    "Mozilla/5.0 (Linux; Android 12; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Mobile Safari/537.36",
+                  isMobile: true,
+                  hasTouch: true,
+                },
+              }),
+              // Mobile-specific tests plus the screenshot-free behavioral
+              // suites where Android genuinely differs (IME key handling,
+              // suggestion menus). Keep iframe-screenshotting suites (the
+              // exporters' `screenshotFull` previews) out: Playwright's
+              // element-screenshot path for iframe elements permanently drops
+              // the context's touch emulation for later files (see
+              // utils/ensureTouchEmulation.ts). Individual tests that
+              // drive selection/resizing with positional mouse drags carry
+              // `skipIf(onAndroid)` guards. Not yet included: indentation
+              // (drives the desktop floating toolbar, which is clipped at
+              // phone width).
+              include: [
+                "./src/end-to-end/mobile/**/*.test.tsx",
+                "./src/end-to-end/keyboardhandlers/**/*.test.tsx",
+                "./src/end-to-end/emojipicker/**/*.test.tsx",
+                "./src/end-to-end/copypaste/**/*.test.tsx",
+              ],
             },
           ],
         },

@@ -797,6 +797,15 @@ export class BlockNoteEditor<
    * Checks whether a DOM element belongs to this editor — either inside the
    * editor's DOM tree or inside its portal container (used for floating UI
    * elements like menus and toolbars).
+   *
+   * The first check starts at the content area's *parent*, so that UI the
+   * host app renders as `BlockNoteView` children counts too — React places
+   * those beside the content (see the "Static Formatting Toolbar" example).
+   *
+   * So the boundary is whatever the element passed to `editor.mount()` has as
+   * its parent. `BlockNoteView` always provides a wrapper; mounting bare into
+   * `<body>`, as the vanilla-JS docs do, makes the whole page count as within
+   * the editor.
    */
   public isWithinEditor = (element: Element): boolean => {
     return !!(
@@ -805,11 +814,25 @@ export class BlockNoteEditor<
     );
   };
 
-  public isFocused() {
+  public isFocused(options?: {
+    /**
+     * When true, the editor's own UI (toolbars, menus, popovers —
+     * everything portalled into `editor.portalElement`) also counts as
+     * focused, answering "is the user still interacting with this editor?".
+     * The default reports content-area focus only.
+     */
+    includeEditorUI?: boolean;
+  }) {
     if (this.headless) {
       return false;
     }
-    return this.prosemirrorView?.hasFocus() || false;
+    const contentFocused = this.prosemirrorView?.hasFocus() || false;
+    if (!options?.includeEditorUI) {
+      return contentFocused;
+    }
+    const active =
+      typeof document !== "undefined" ? document.activeElement : null;
+    return contentFocused || (!!active && this.isWithinEditor(active));
   }
 
   public headless = true;
@@ -1363,6 +1386,36 @@ export class BlockNoteEditor<
       callback,
       includeSelectionChangedByRemote,
     );
+  }
+
+  /**
+   * A callback function that runs whenever the editor's content area gains or
+   * loses DOM focus.
+   *
+   * Note that `focused: false` only means the content area itself blurred —
+   * focus may have moved into the editor's own UI (e.g. a toolbar
+   * popover's input).
+   *
+   * @param callback The callback to execute.
+   * @returns A function to remove the callback.
+   */
+  public onFocusChange(
+    callback: (
+      editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
+      context: { focused: boolean; event: FocusEvent },
+    ) => void,
+    options?: {
+      /**
+       * When true, the editor's own UI (toolbars, menus, popovers —
+       * everything portalled into `editor.portalElement`) counts as focused,
+       * and the callback fires only when that combined focus state actually
+       * changes, after focus movement has settled. The default reports raw
+       * content-area focus/blur events.
+       */
+      includeEditorUI?: boolean;
+    },
+  ) {
+    return this._eventManager.onFocusChange(callback, options);
   }
 
   /**
