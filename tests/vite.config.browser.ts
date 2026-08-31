@@ -204,6 +204,9 @@ export default defineConfig(
               // the desktop floating toolbar, clipped at phone width).
               include: [
                 "./src/end-to-end/mobile/**/*.test.tsx",
+                // The popover form-submission suites are this instance's
+                // reason to exist — the bugs they guard were Android bugs.
+                "./src/end-to-end/form/**/*.test.tsx",
                 "./src/end-to-end/keyboardhandlers/**/*.test.tsx",
                 "./src/end-to-end/emojipicker/**/*.test.tsx",
                 "./src/end-to-end/copypaste/**/*.test.tsx",
