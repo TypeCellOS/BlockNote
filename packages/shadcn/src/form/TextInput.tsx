@@ -1,6 +1,6 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
-import { forwardRef, useCallback, useEffect, useRef } from "react";
+import { ComponentProps, useMergeRefs } from "@blocknote/react";
+import { forwardRef, useEffect, useRef } from "react";
 
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 import { cn } from "../lib/utils.js";
@@ -35,17 +35,7 @@ export const TextInput = forwardRef<
   // pre-positioned spot and yanks the page (on mobile, right out from under
   // the block being edited).
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const setRefs = useCallback(
-    (element: HTMLInputElement | null) => {
-      inputRef.current = element;
-      if (typeof ref === "function") {
-        ref(element);
-      } else if (ref) {
-        ref.current = element;
-      }
-    },
-    [ref],
-  );
+  const setRefs = useMergeRefs([inputRef, ref]);
   useEffect(() => {
     if (autoFocus) {
       inputRef.current?.focus({ preventScroll: true });

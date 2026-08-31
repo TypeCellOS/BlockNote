@@ -55,7 +55,15 @@ export const EmbedTab = <
 
   return (
     <Components.FilePanel.TabPanel className={"bn-tab-panel"}>
-      <Components.Generic.Form.Root onSubmit={embedURL}>
+      {/*
+        The embed button below is this form's submit control, so `Form.Root`
+        must not add its own — a screen reader would announce two separate
+        actions for the one thing this panel does. It stays outside the
+        `<form>` on purpose: the skins disagree on whether their panel button
+        defaults to `type="submit"`, so inside one it would fire `onClick`
+        *and* submit, embedding twice.
+      */}
+      <Components.Generic.Form.Root onSubmit={embedURL} hasOwnSubmitButton>
         <Components.FilePanel.TextInput
           className={"bn-text-input"}
           placeholder={dict.file_panel.embed.url_placeholder}

@@ -316,6 +316,13 @@ export type ComponentProps = {
          * element on the page instead (verified on a device).
          */
         onSubmit?: () => void;
+        /**
+         * Set when the caller renders its own submit control inside the form.
+         * `Form.Root` otherwise adds a hidden one, which is what makes Enter
+         * submit at all once a form has more than one field - but two submit
+         * controls would read as two separate actions to a screen reader.
+         */
+        hasOwnSubmitButton?: boolean;
       };
       TextInput: {
         className?: string;
