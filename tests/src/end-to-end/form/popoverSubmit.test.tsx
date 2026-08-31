@@ -106,6 +106,20 @@ describe("Submitting a toolbar popover with Enter", () => {
     expect((submit as HTMLButtonElement).tabIndex).toBe(-1);
   });
 
+  test("the embed tab exposes exactly one submit control", async () => {
+    // Its own Embed button is the form's submit control, so `Form.Root` must
+    // not add a second hidden one — a screen reader would otherwise announce
+    // two separate actions for the one thing this panel does.
+    await focusOnEditor();
+    await executeSlashCommand("image");
+    await userEvent.click(await waitForSelector(`[data-test="embed-tab"]`));
+    const input = await waitForSelector(`[data-test="embed-input"]`);
+
+    const form = input.closest("form");
+    expect(form, "the embed field must still be in a form").not.toBeNull();
+    expect(form!.querySelectorAll("button").length).toBe(0);
+  });
+
   test("the embed tab's URL field commits", async () => {
     // The embed tab used to be the one input with an Enter handler and no
     // form at all, so its action key did nothing on mobile.

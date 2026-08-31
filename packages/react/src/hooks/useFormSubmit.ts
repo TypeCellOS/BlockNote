@@ -4,6 +4,11 @@ import { FormEvent, useCallback, useMemo, useRef } from "react";
  * Props for the `<form>` element a `Form.Root` implementation renders, wiring
  * up its `onSubmit` contract.
  *
+ * Exported because the UI-library packages implement `Form.Root` themselves
+ * and would otherwise each repeat the composition handling below. It is the
+ * contract between this package and a skin, not something an application is
+ * expected to reach for.
+ *
  * Submission has to be suppressed while an IME composition is in progress.
  * Accepting a candidate with Enter reaches the page as a `keydown` with
  * `isComposing: true`, and the browser performs implicit form submission for
