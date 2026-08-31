@@ -59,11 +59,12 @@ export const TextInput = forwardRef<
         className || "",
         variant === "large" ? "bn-mt-input-large" : "",
       )}
-      // Without this, Android's IME picks its own action for the Enter key,
-      // and picks "Next" whenever anything focusable follows the popover —
-      // which advances focus (into the next editor on the page!) instead of
-      // dispatching an Enter key event, so the form's submit handler never
-      // runs. "Done" makes the key report itself as Enter.
+      // Belt-and-braces alongside the <form> in Form.Root. The form is what
+      // should make the browser treat Enter as a submit; this states it
+      // outright, so the behaviour doesn't rest on how Chromium scopes its
+      // "is there a next field to jump to" lookup. Removable once that's
+      // confirmed on a device — the tell is the keyboard's action key: an
+      // arrow means it still wants to advance focus.
       enterKeyHint="done"
       ref={setRefs}
       name={name}
