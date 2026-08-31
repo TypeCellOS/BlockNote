@@ -307,6 +307,20 @@ export function getExampleProjects(): Project[] {
       const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
       const directory = path.dirname(configPath);
 
+      // `.bnexample.json` is runtime input, so the `uiLib` union in `Project`
+      // doesn't actually constrain it — validate here so a typo fails
+      // generation instead of silently producing a manifest without a UI
+      // package.
+      if (
+        config.uiLib !== undefined &&
+        !["mantine", "ariakit", "shadcn"].includes(config.uiLib)
+      ) {
+        throw new Error(
+          `Invalid uiLib ${JSON.stringify(config.uiLib)} in ${configPath} - ` +
+            `expected "mantine", "ariakit" or "shadcn"`,
+        );
+      }
+
       const readmePath = path.join(directory, "README.md");
       if (!fs.existsSync(readmePath)) {
         throw new Error(`Missing README.md for ${directory}`);

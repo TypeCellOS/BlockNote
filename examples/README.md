@@ -4,7 +4,7 @@ Here, we collect a number of examples using BlockNote. You can run the examples 
 
 Each example directory is a self-contained project — you can open one directly in StackBlitz (`https://stackblitz.com/github/TypeCellOS/BlockNote/tree/main/examples/<group>/<example>`) to try it out or reproduce an issue against the latest release.
 
-### (contributors) Adding examples
+## (contributors) Adding examples
 
 Just create a folder, add an `App.tsx` file (in `src/`), `.bnexample.json` and `README.md` file. Then run `npm run gen` to generate the rest of the template, and `npm install` to install any new dependencies.
 

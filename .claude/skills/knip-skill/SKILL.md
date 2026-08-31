@@ -9,14 +9,14 @@ Knip checks for unused files, dependencies, and exports. Config lives in `knip.j
 
 1. **Always regenerate first**: `vp run --filter @blocknote/dev-scripts gen`. Example `package.json`s, `playground/src/examples.gen.tsx`, and part of `docs/package.json`'s dependencies are generated from `.bnexample.json` manifests. Running Knip against stale generated files produces phantom findings.
 2. Run via the root script: `pnpm knip` (this is `knip --no-config-hints`). Don't run bare `knip` from a subdirectory.
-3. Knip respects `.gitignore` — gitignored files (e.g. `docs/components/example/generated/`) are invisible to it. That is expected, not a coverage bug.
+3. Knip respects `.gitignore` for entry/project file discovery — gitignored files (e.g. `docs/components/example/generated/`) are never picked up as project files, so they don't appear in reports. That is expected, not a coverage bug.
 4. Knip is **not wired into CI**. CI only checks that `gen` output is committed and current (`build.yml` "Check generated files are up to date"). Keeping `pnpm knip` at zero findings is a manual discipline — run it before finishing any branch that touches dependencies or exports.
 
 # Triaging findings — check these before deleting anything
 
 A flagged item is a **false positive** (fix the config, not the code) when it is:
 
-- **Referenced by a string path**, not an import — e.g. `docs/components/typstCompilerWasmUrl.ts` via turbopack aliases in `docs/next.config.ts`. Add to the root `ignore` list.
+- **Referenced by a string path**, not an import — e.g. `docs/components/typstCompilerWasmUrl.ts` via turbopack aliases in `docs/next.config.ts`. Add it as an `entry` if it's real source that should stay analyzed; use the root `ignore` list only when suppressing all issue types for it is acceptable (`ignore` silences everything about a file, not just "unused file" — `ignoreFiles` is the narrower option that only suppresses the unused-file report).
 - **A binary invoked from `node_modules/.bin` in a script** — e.g. `wasm-pack` in `packages/xl-typst-compiler/scripts/ensure-wasm.mjs`. Add to that workspace's `ignoreDependencies`.
 - **A subpath entry of a package's exports map** — packages with entries beyond `"."` need them listed in the workspace `entry` config (see `packages/math-block`, `packages/diagram-block` with `src/*-exporter/index.{ts,tsx}`, and `packages/xl-pdf-exporter` with `src/react-pdf/index.ts`). Check the package.json `exports` field before deleting an "unused file" that is an `index.ts`.
 - **A workspace dep that exists for build ordering, not imports** — e.g. `@blocknote/shared` and `@blocknote/xl-typst-compiler` in root `ignoreDependencies`, and all of playground's `@blocknote/*` deps (see below). Removing them breaks topological build order (locally and on Vercel) even though no source file imports them.
@@ -39,5 +39,5 @@ Only after ruling those out is a finding a **true positive**: delete the file, r
 
 - New package with subpath exports → add an `entry` config for it in `knip.json`.
 - New workspace dep added only for build ordering → add it to root `ignoreDependencies` with the others, don't leave Knip red.
-- New generated or string-referenced file → root `ignore` list.
+- New string-referenced source file → prefer an `entry` for its workspace; fall back to the root `ignore` list (accepting the blind spot: `ignore` suppresses all issue types for that file). Generated files should be gitignored, which keeps them out of analysis entirely.
 - After any of the above, `pnpm knip` must exit 0 before the branch is done.

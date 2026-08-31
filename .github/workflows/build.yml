@@ -35,6 +35,7 @@ jobs:
         run: |
           vp run --filter @blocknote/dev-scripts gen
           git diff --exit-code || (echo "Generated files are out of date. Run 'pnpm run gen' and commit the result." && exit 1)
+          test -z "$(git ls-files --others --exclude-standard)" || (echo "Generated files are missing from the commit. Run 'pnpm run gen' and commit the result." && git ls-files --others --exclude-standard && exit 1)
 
       # `vp run -r build` includes @blocknote/xl-typst-compiler, whose build
       # task compiles its Rust wasm when missing or stale (rustup is
