@@ -36,7 +36,7 @@
     "prestart": "vp run build",
     "start": "vp run --filter @blocknote/example-editor preview",
     "test": "vp run --filter \"@blocknote/*\" --filter \"docs\" test",
-    "test:device": "pnpm --dir tests exec vitest run --config device/vitest.config.mts",
+    "test:device": "vp -C tests exec vitest run --config device/vitest.config.mts",
     "format": "vp fmt",
     "prepare": "vp config"
   },

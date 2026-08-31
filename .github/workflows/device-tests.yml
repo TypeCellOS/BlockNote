@@ -13,26 +13,29 @@ on:
         required: false
         default: ""
 
+permissions:
+  contents: read
+
 jobs:
   device-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: 22
-          cache: "pnpm"
+          persist-credentials: false
+
+      - uses: voidzero-dev/setup-vp@313600b80b104eadebb9111787d37a2e83e014ca # v1.17.0
+        with:
+          node-version-file: ".node-version"
+          cache: true
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: vp install
 
       - name: Start playground dev server
         run: |
-          pnpm run dev &
+          vp run dev &
           for i in $(seq 1 120); do
             if curl -sf http://127.0.0.1:5173/ > /dev/null; then exit 0; fi
             sleep 2
@@ -45,11 +48,11 @@ jobs:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
           DEVICE_FILTER: ${{ inputs.device_filter }}
-        run: pnpm run test:device
+        run: vp run test:device
 
       - name: Upload screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: device-test-screenshots
           path: tests/device/.artifacts/
