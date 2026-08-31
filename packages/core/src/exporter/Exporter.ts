@@ -82,12 +82,31 @@ export abstract class Exporter<
    * `columnList`, `column`, or a custom callout). Container mappings own the
    * placement of their children, so exporters must not append the children
    * after the container's own output.
+   *
+   * A block whose type isn't in the exporter's schema can only be answered
+   * for when it has no children - then there is nothing to place and the
+   * answer is "no" either way. (Block packages commonly supply a mapping
+   * without adding the spec: the mapping just reads the block's JSON.) A
+   * block that *does* have children is ambiguous, and guessing "not a
+   * container" silently exports them in the wrong place - after the block
+   * instead of wherever its mapping puts them - so that throws instead.
    */
-  public isContainerBlock(blockType: string): boolean {
+  public isContainerBlock(block: {
+    type: string;
+    children?: unknown[];
+  }): boolean {
     const spec = (this.blockNoteSchema.blockSpecs as Record<string, any>)[
-      blockType
+      block.type
     ];
-    return !!spec && spec.config.children !== undefined;
+    if (!spec) {
+      if (block.children?.length) {
+        throw new Error(
+          `Exporter has no block spec for block type "${block.type}", and blocks of that type in this document have children. Without the spec the exporter cannot tell whether the type is a container block (whose mapping places its own children) or a regular one (whose children it appends itself), so it would place them by guesswork. Add the block's spec to the schema passed to the exporter, not just its mapping.`,
+        );
+      }
+      return false;
+    }
+    return spec.config.children !== undefined;
   }
 
   /**
@@ -167,7 +186,7 @@ export abstract class Exporter<
     const mapping = this.mappings.blockMapping[block.type];
     if (!mapping) {
       throw new Error(
-        this.isContainerBlock(block.type)
+        this.isContainerBlock(block)
           ? `No mapping found for container block type "${block.type}". Container blocks require an explicit block mapping that places their children.`
           : `Exporter is missing a block mapping for block type "${block.type}". If this block comes from a separate package, spread that package's exporter mappings into your blockMapping.`,
       );

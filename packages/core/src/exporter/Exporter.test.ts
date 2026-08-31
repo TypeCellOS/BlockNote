@@ -184,3 +184,31 @@ describe("Exporter missing mappings", () => {
     ).toThrow('missing a style mapping for style "bold"');
   });
 });
+
+describe("Exporter block types outside its schema", () => {
+  it("treats a childless block of an unknown type as a regular block", () => {
+    // Block packages (math, diagram, ...) commonly supply only a mapping,
+    // which reads the block's JSON - their specs need not be in the schema.
+    expect(
+      new EmptyMappingsExporter().isContainerBlock({
+        type: "mathBlock",
+        children: [],
+      }),
+    ).toBe(false);
+  });
+
+  it("throws when a block of an unknown type has children", () => {
+    // Ambiguous: without the spec there is no way to tell whether the
+    // mapping places these children itself (container) or the exporter
+    // appends them (regular block), and guessing puts them in the wrong
+    // place silently.
+    expect(() =>
+      new EmptyMappingsExporter().isContainerBlock({
+        type: "columnList",
+        children: [{ type: "column" }],
+      }),
+    ).toThrow(
+      'Exporter has no block spec for block type "columnList", and blocks of that type in this document have children',
+    );
+  });
+});
