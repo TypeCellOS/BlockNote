@@ -1,18 +1,23 @@
 import { FormProvider as AriakitFormProvider } from "@ariakit/react";
 
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, useDictionary, useFormSubmit } from "@blocknote/react";
+import { ComponentProps, useDictionary } from "@blocknote/react";
 
 export const Form = (props: ComponentProps["Generic"]["Form"]["Root"]) => {
   const { children, onSubmit, omitSubmitButton, ...rest } = props;
   const dict = useDictionary();
-  const formProps = useFormSubmit(onSubmit);
 
   assertEmpty(rest);
 
   return (
     <AriakitFormProvider>
-      <form {...formProps}>
+      <form
+        onSubmit={(event) => {
+          // These forms have no action — a real submission would navigate.
+          event.preventDefault();
+          onSubmit?.();
+        }}
+      >
         {children}
         {/*
           Gives the form a submit button, which is what makes Enter submit it at
