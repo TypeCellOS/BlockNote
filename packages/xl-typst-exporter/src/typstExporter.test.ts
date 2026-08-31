@@ -1,5 +1,6 @@
 import {
   BlockNoteSchema,
+  createBlockSpec,
   createPageBreakBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
@@ -28,6 +29,42 @@ const fullSchema = BlockNoteSchema.create({
     columnList: ColumnListBlock,
   },
 });
+
+// A minimal custom container, standing in for a callout/card: content-less,
+// holding child blocks. Its mapping is what has to place them.
+const Box = createBlockSpec(
+  {
+    type: "box" as const,
+    propSchema: {},
+    content: "none",
+    children: { allow: "any" },
+  },
+  {
+    render: (block: any) => {
+      const dom = document.createElement("div");
+      dom.setAttribute("data-node-type", "box");
+      dom.setAttribute("data-id", block.id);
+      return { dom, contentDOM: dom };
+    },
+  },
+)();
+
+const boxSchema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    box: Box,
+  },
+});
+
+const boxDocument = partialBlocksToBlocksForTesting(boxSchema, [
+  {
+    type: "box",
+    children: [
+      { type: "paragraph", content: "First" },
+      { type: "paragraph", content: "Second" },
+    ],
+  },
+] as any);
 
 describe("TypstExporter", () => {
   it("exports a real BlockNote document to Typst", async () => {
@@ -433,5 +470,80 @@ describe("TypstExporter", () => {
         key.startsWith("/assets/asset-"),
       ),
     ).toHaveLength(0);
+  });
+});
+
+describe("container blocks", () => {
+  it("lays a columnList out as a grid with proportional tracks", async () => {
+    const exporter = new TypstExporter(fullSchema, typstDefaultSchemaMappings);
+
+    const typ = await exporter.toTypst(
+      partialBlocksToBlocksForTesting(fullSchema, [
+        {
+          type: "columnList",
+          children: [
+            {
+              type: "column",
+              props: { width: 2 },
+              children: [{ type: "paragraph", content: "Left" }],
+            },
+            {
+              type: "column",
+              children: [{ type: "paragraph", content: "Right" }],
+            },
+          ],
+        },
+      ] as any),
+    );
+
+    // Each column contributes its width and body; the grid derives its
+    // fractional tracks from them, so the relative sizes survive.
+    expect(typ).toContain("(width: 2, body: [");
+    expect(typ).toContain("(width: 1, body: [");
+    expect(typ).toContain(
+      "grid(columns: cols.map(c => c.width * 1fr), column-gutter: 1em, ..cols.map(c => c.body))",
+    );
+    // A layout grid, not a `table` - it must not be tagged as a data table.
+    expect(typ).not.toContain("#table(");
+
+    // The assembled markup is real Typst, not just a plausible string.
+    await compileTypstForTesting(typ, { assets: exporter.assetFiles });
+  });
+
+  it("passes its children to a custom container's mapping", async () => {
+    const typ = await new TypstExporter(boxSchema, {
+      ...typstDefaultSchemaMappings,
+      blockMapping: {
+        ...typstDefaultSchemaMappings.blockMapping,
+        box: (
+          _block: any,
+          _exporter: any,
+          _nestingLevel: any,
+          _numberedListIndex: any,
+          children?: string[],
+        ) => `#rect[${(children ?? []).join("\n\n")}]`,
+      },
+    } as any).toTypst(boxDocument);
+
+    // The children sit *inside* the container's own output - the mapping
+    // owns their placement - rather than following it as an indented run.
+    expect(typ).toContain("#rect[");
+    expect(typ.indexOf('#"First"')).toBeGreaterThan(typ.indexOf("#rect["));
+    expect(typ).toContain('#"Second"');
+    expect(typ).not.toContain("#pad(left: 1.5em)");
+  });
+
+  it("throws a clear error for an unmapped container block", async () => {
+    // The missing `box` mapping is the point of the test, and it's exactly
+    // what `BlockMapping` refuses to type - hence the cast (as in the DOCX
+    // exporter's equivalent test).
+    const exporter = new TypstExporter(
+      boxSchema,
+      typstDefaultSchemaMappings as any,
+    );
+
+    await expect(exporter.toTypst(boxDocument)).rejects.toThrow(
+      /container block type "box"/,
+    );
   });
 });
