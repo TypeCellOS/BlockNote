@@ -8,17 +8,20 @@ import {
 } from "vite-plus/test";
 
 import { activeDevices } from "./devices.js";
-import { tapElement, typeAndSubmit } from "./lib/gestures.js";
+import { tapElement } from "./lib/gestures.js";
 import {
   docState,
-  LINK_POPOVER,
   MOBILE_TOOLBAR,
   openExample,
-  openLinkPopover,
-  selectFirstWord,
   startEditing,
   viewportHeight,
 } from "./lib/editorPage.js";
+import {
+  LINK_POPOVER,
+  openLinkPopover,
+  selectFirstWord,
+  typeAndSubmit,
+} from "./linkPopover.js";
 import { browserStackCredentials, DeviceSession } from "./lib/webdriver.js";
 
 const KEYBOARD_MIN_HEIGHT = 150;
