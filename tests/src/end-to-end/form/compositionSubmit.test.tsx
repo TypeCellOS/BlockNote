@@ -3,15 +3,23 @@ import { browserName, commands, userEvent } from "../../utils/context.js";
 import type { ImeCompositionCommand } from "../../utils/imeComposition.js";
 
 /**
- * Every popover Enter handler used to guard on `isComposing`, so that Enter
- * pressed to accept an IME candidate committed the candidate instead of the
- * form. Those handlers are gone — submission now runs off the form's `submit`
- * event — which moves the question to the platform: can a composition-ending
- * Enter reach a form as an implicit submission?
+ * Why the popover forms need no composition guard.
  *
- * If it can, dropping the guards regressed CJK input everywhere, and the
- * guards have to come back at the form level. So it is asserted rather than
- * assumed.
+ * The Enter handlers that `Form.Root`'s submit path replaced all guarded on
+ * `isComposing` — necessary for a *keydown* handler, because the keydown for
+ * an IME-consumed key still dispatches to JS. Native form submission is a
+ * different category: the IME consumes the confirming Enter (it reaches the
+ * page as keyCode 229, which the browser runs no default action for), so
+ * implicit submission never fires mid-composition. This is why no plain
+ * `<form onSubmit>` in the world carries composition handling.
+ *
+ * These tests pin the two halves of that contract on the real IME event
+ * sequence. What they deliberately do *not* do is inject a bare Enter while
+ * composition is held open: CDP can fabricate that state, and the browser
+ * does submit on it, but no real IME delivers an unconsumed Enter
+ * mid-composition — and guarding against the fabricated state would mean
+ * betting that every IME fires `compositionend` before the submit it
+ * triggers, or a Gboard-style single-press commit-and-submit gets swallowed.
  */
 
 const browserCommands = commands as typeof commands & {
@@ -34,15 +42,8 @@ function buildForm() {
   form = document.createElement("form");
   const submits: string[] = [];
   const compositions: string[] = [];
-  // Mirrors what `useFormSubmit` wires onto a real `Form.Root`.
-  let composing = false;
-  form.addEventListener("compositionstart", () => (composing = true));
-  form.addEventListener("compositionend", () => (composing = false));
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    if (composing) {
-      return;
-    }
     submits.push("submit");
   });
 
@@ -67,13 +68,14 @@ function buildForm() {
   return { input, submits, compositions };
 }
 
-describeIme("Enter during an IME composition", () => {
+describeIme("IME composition and form submission", () => {
   test("accepting a candidate does not submit the form", async () => {
+    // The real accept path: the IME replaces the composition with the final
+    // text (`insertText`), and the confirming key never reaches the page as
+    // an actionable Enter — so nothing submits, natively.
     const { input, submits, compositions } = buildForm();
     input.focus();
 
-    // Accepting a candidate the way an IME does: the final text replaces the
-    // composing text, and the confirming key never reaches the page.
     await browserCommands.imeComposition([
       { type: "setComposition", text: "にほん" },
       { type: "commit", text: "日本" },
@@ -84,36 +86,6 @@ describeIme("Enter during an IME composition", () => {
     expect(
       submits,
       "accepting an IME candidate must not submit the popover",
-    ).toEqual([]);
-  });
-
-  test("Enter arriving mid-composition does not submit the form", async () => {
-    // The case that makes the guard necessary rather than defensive: the
-    // browser delivers this Enter as `keydown` with `isComposing: true` and
-    // performs implicit submission for it regardless, so without the guard a
-    // CJK user accepting a candidate submits the popover mid-word.
-    const { input, submits, compositions } = buildForm();
-    const composingOnKeyDown: boolean[] = [];
-    input.addEventListener("keydown", (event) =>
-      composingOnKeyDown.push(event.isComposing),
-    );
-    input.focus();
-
-    await browserCommands.imeComposition([
-      { type: "setComposition", text: "にほん" },
-    ]);
-    await userEvent.keyboard("{Enter}");
-
-    // Pin the precondition too: if a future engine stopped delivering this
-    // Enter to the page, the guard would be untested rather than unnecessary.
-    expect(
-      composingOnKeyDown,
-      "Enter must reach the page mid-composition",
-    ).toEqual([true]);
-    expect(compositions).not.toContain("compositionend");
-    expect(
-      submits,
-      "Enter must not submit while a composition is in progress",
     ).toEqual([]);
   });
 

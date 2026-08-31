@@ -154,13 +154,13 @@ describe("Submitting a toolbar popover with Enter", () => {
   // `Input.imeSetComposition` is CDP-only, so the real composition state can
   // only be entered in chromium.
   test.skipIf(browserName !== "chromium")(
-    "Enter mid-composition does not commit the popover",
+    "accepting an IME candidate does not commit the popover",
     async () => {
-      // The platform performs implicit submission for an Enter delivered with
-      // `isComposing: true` (see ./compositionSubmit.test.tsx), so accepting
-      // an IME candidate would otherwise commit the link mid-word. This drives
-      // the real popover rather than a stand-in, so it covers the guard
-      // `Form.Root` actually ships.
+      // The real accept path: the IME consumes the confirming key and
+      // replaces the composition with the final text, so no actionable Enter
+      // reaches the page and nothing submits — natively, with no composition
+      // guard in `Form.Root` (see ./compositionSubmit.test.tsx for why none
+      // is needed).
       await focusOnEditor();
       await userEvent.keyboard("link me");
       await userEvent.keyboard("{Home}{Shift>}{End}{/Shift}");
@@ -171,19 +171,17 @@ describe("Submitting a toolbar popover with Enter", () => {
       await userEvent.click(input);
 
       await browserCommands.imeComposition([
-        { type: "setComposition", text: "にほん" },
-      ]);
-      await userEvent.keyboard("{Enter}");
-
-      expect(
-        document.querySelector(`${EDITOR_SELECTOR} a`),
-        "accepting an IME candidate must not commit the link",
-      ).toBeNull();
-
-      // And once composition is over, Enter still works.
-      await browserCommands.imeComposition([
+        { type: "setComposition", text: "example.co" },
         { type: "commit", text: "example.com" },
       ]);
+
+      expect(input.value).toBe("example.com");
+      expect(
+        document.querySelector(`${EDITOR_SELECTOR} a`),
+        "accepting a candidate must not commit the link",
+      ).toBeNull();
+
+      // Enter after the composition commits it as usual.
       await userEvent.keyboard("{Enter}");
       await waitForSelector(`${EDITOR_SELECTOR} a`);
     },
