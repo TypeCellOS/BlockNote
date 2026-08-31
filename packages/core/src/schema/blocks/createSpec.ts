@@ -31,6 +31,7 @@ import { applyContainerAttributes } from "./containerAttributes.js";
 import {
   applyDOMAttributes,
   getBlockFromNodeView,
+  isDocumentFragment,
   propsToAttributes,
   wrapInBlockStructure,
 } from "./internal.js";
@@ -325,7 +326,7 @@ export function containerRootDOM(output: {
   if (output.rootDOM !== undefined) {
     return output.rootDOM;
   }
-  if (output.dom instanceof DocumentFragment) {
+  if (isDocumentFragment(output.dom)) {
     // A fragment can't hold attributes, so the round-trip markers
     // (`data-node-type`, prop `data-*`) would be lost with it as the root.
     // When it wraps a single element (the shape a React render produces),

@@ -158,6 +158,19 @@ export function getBlockFromNodeView(
 }
 
 /**
+ * `Node.DOCUMENT_FRAGMENT_NODE`, inlined. Server-side rendering shims only
+ * `document` and `window` onto the global scope, so `Node` and
+ * `DocumentFragment` are undefined there and `instanceof` throws.
+ */
+const DOCUMENT_FRAGMENT_NODE = 11;
+
+export function isDocumentFragment(
+  node: HTMLElement | DocumentFragment,
+): node is DocumentFragment {
+  return node.nodeType === DOCUMENT_FRAGMENT_NODE;
+}
+
+/**
  * Applies custom `blockContent` DOM attributes to an element, merging (rather
  * than overwriting) its class list.
  */
@@ -165,7 +178,7 @@ export function applyDOMAttributes(
   dom: HTMLElement | DocumentFragment,
   domAttributes: Record<string, string> | undefined,
 ) {
-  if (!domAttributes || !(dom instanceof HTMLElement)) {
+  if (!domAttributes || isDocumentFragment(dom)) {
     return;
   }
   for (const [attr, value] of Object.entries(domAttributes)) {
