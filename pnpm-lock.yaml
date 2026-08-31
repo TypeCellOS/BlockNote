@@ -6459,6 +6459,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.14)
+      '@types/selenium-webdriver':
+        specifier: ^4.35.6
+        version: 4.35.6
       '@vitest/browser-playwright':
         specifier: 4.1.10
         version: 4.1.10(msw@2.11.5(@types/node@25.6.0)(typescript@7.0.2))(playwright@1.60.0)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.9.0))(vitest@4.1.10)
@@ -6492,6 +6495,9 @@ importers:
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
+      selenium-webdriver:
+        specifier: ^4.48.0
+        version: 4.48.0
       vite-plus:
         specifier: 'catalog:'
         version: 0.2.9(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/browser-playwright@4.1.10)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.6.0)(typescript@7.0.2))(terser@5.46.2)(tsx@4.21.0)(typescript@7.0.2)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.9.0))(yaml@2.9.0)
@@ -6872,6 +6878,9 @@ packages:
 
   '@base2/pretty-print-object@1.0.2':
     resolution: {integrity: sha512-rBha0UDfV7EmBRjWrGG7Cpwxg8WomPlo0q+R2so47ZFf9wy4YKJzLuHcVa0UGFjdcLZj/4F/1FNC46GIQhe7sA==}
+
+  '@bazel/runfiles@6.5.0':
+    resolution: {integrity: sha512-RzahvqTkfpY2jsDxo8YItPX+/iZ6hbiikw1YhE0bA9EKBR5Og8Pa6FHn9PO9M0zaXRVsr0GFQLKbB/0rzy9SzA==}
 
   '@better-auth/core@1.4.22':
     resolution: {integrity: sha512-l20Ia10lI9iGL+bkjggamQP9lQuiAeB/EYfEx5EQ4AcPrLojG6Doc0UDw5VZM66VXcMGs3bgC8P7WiaJv4Walg==}
@@ -10900,6 +10909,9 @@ packages:
 
   '@types/retry@0.12.2':
     resolution: {integrity: sha512-XISRgDJ2Tc5q4TRqvgJtzsRkFYNJzZrhTdtMoGVBttwzzQJkPnS3WWTFc7kuDRoPtPakl+T+OfdEUjYJj7Jbow==}
+
+  '@types/selenium-webdriver@4.35.6':
+    resolution: {integrity: sha512-8nfyMRi4VvkY9QrQGyY/zkleAhnjnmE8YtdEeoCrWe3izp1P9vo9f5VTNRYF0up+l+kn+VuZah+je+bLddNV+g==}
 
   '@types/statuses@2.0.6':
     resolution: {integrity: sha512-xMAgYwceFhRA2zY+XbEA7mxYbA093wdiW8Vu6gZPGWy9cmOyU9XesH1tNcEWsKFd5Vzrqx5T3D38PWx1FIIXkA==}
@@ -15367,6 +15379,10 @@ packages:
   selderee@0.11.0:
     resolution: {integrity: sha512-5TF+l7p4+OsnP8BCCvSyZiSPc4x4//p5uPwK8TCnVPJYRmU2aYKMpOXvw8zM5a5JvuuCGN1jmsMwuU2W02ukfA==}
 
+  selenium-webdriver@4.48.0:
+    resolution: {integrity: sha512-rKM9uXFRWcF9aThrZQDNQH2/9Et/WvMZbg3/x1rnSYWoXiwJuShYeH0IAli8Cuw+c3lEV0UWPfUz88H+fvW9Hg==}
+    engines: {node: '>= 22.0.0'}
+
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
@@ -15784,6 +15800,10 @@ packages:
   tldts@7.0.27:
     resolution: {integrity: sha512-I4FZcVFcqCRuT0ph6dCDpPuO4Xgzvh+spkcTr1gK7peIvxWauoloVO0vuy1FQnijT63ss6AsHB6+OIM4aXHbPg==}
     hasBin: true
+
+  tmp@0.2.7:
+    resolution: {integrity: sha512-e0votIpp4Uo2AJYSzVHV6xCcawuiez3DzqDAbrTc3YxBkplN6e+dM13ZeIcZnDg/QpSuU2zfZ3rzwY8ukEnaXw==}
+    engines: {node: '>=14.14'}
 
   totalist@3.0.1:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
@@ -16297,6 +16317,18 @@ packages:
 
   ws@8.20.0:
     resolution: {integrity: sha512-sAt8BhgNbzCtgGbt2OxmpuryO63ZoDk/sqaB/znQm94T4fCEsy/yV+7CdC1kJhOU9lboAEU7R3kquuycDoibVA==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
+  ws@8.21.3:
+    resolution: {integrity: sha512-201TZ/kPWxoPr/OKWjquZR1SWKXcvxdH+e1xrx89b3YbmzLMFCLfnaG1HFIgWzJOEWZ7MvpK++odZufgYR50Rw==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -17155,6 +17187,8 @@ snapshots:
       '@types/react': 19.2.14
 
   '@base2/pretty-print-object@1.0.2': {}
+
+  '@bazel/runfiles@6.5.0': {}
 
   '@better-auth/core@1.4.22(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.2.2)(kysely@0.28.15)(nanostores@1.2.0)':
     dependencies:
@@ -21133,6 +21167,11 @@ snapshots:
       csstype: 3.2.3
 
   '@types/retry@0.12.2': {}
+
+  '@types/selenium-webdriver@4.35.6':
+    dependencies:
+      '@types/node': 25.6.0
+      '@types/ws': 8.18.1
 
   '@types/statuses@2.0.6': {}
 
@@ -26093,6 +26132,16 @@ snapshots:
     dependencies:
       parseley: 0.12.1
 
+  selenium-webdriver@4.48.0:
+    dependencies:
+      '@bazel/runfiles': 6.5.0
+      jszip: 3.10.1
+      tmp: 0.2.7
+      ws: 8.21.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   semver@6.3.1: {}
 
   semver@7.7.4: {}
@@ -26567,6 +26616,8 @@ snapshots:
   tldts@7.0.27:
     dependencies:
       tldts-core: 7.0.27
+
+  tmp@0.2.7: {}
 
   totalist@3.0.1: {}
 
@@ -27194,6 +27245,8 @@ snapshots:
   ws@8.18.3: {}
 
   ws@8.20.0: {}
+
+  ws@8.21.3: {}
 
   wsl-utils@0.1.0:
     dependencies:

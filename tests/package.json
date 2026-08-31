@@ -26,6 +26,7 @@
     "@types/node": "^20.19.22",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
+    "@types/selenium-webdriver": "^4.35.6",
     "@vitest/browser-playwright": "4.1.10",
     "@vitest/ui": "4.1.5",
     "@y/protocols": "^1.0.6-rc.1",
@@ -37,6 +38,7 @@
     "react-dom": "^19.2.5",
     "react-icons": "^5.5.0",
     "rimraf": "^5.0.10",
+    "selenium-webdriver": "^4.48.0",
     "vite-plus": "catalog:",
     "vitest-browser-react": "^2.2.0"
   },

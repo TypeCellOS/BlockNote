@@ -1,13 +1,17 @@
 /**
- * Dependency-free WebDriver REST client for BrowserStack real-device sessions.
+ * BrowserStack real-device session, backed by `selenium-webdriver` — the
+ * client BrowserStack's Node.js documentation and samples use for Automate
+ * (https://www.browserstack.com/docs/automate/selenium/getting-started/nodejs).
+ * Auth travels inside the capabilities' `bstack:options`, per those docs;
+ * see devices.ts.
  *
- * Deliberately not WebdriverIO/Appium-client based: the handful of endpoints
- * we need (session, execute, element, actions, screenshot) are stable W3C
- * WebDriver routes, and a plain `fetch` client keeps the device suite free of
- * its own dependency tree.
+ * This file keeps only the domain layer: session lifecycle with retry,
+ * script polling, artifact screenshots, and the dashboard annotation (a
+ * BrowserStack REST API, not a WebDriver route).
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { Builder, By, type WebDriver } from "selenium-webdriver";
 
 export type Platform = "android" | "ios";
 
@@ -24,6 +28,7 @@ export function browserStackCredentials():
 
 export class DeviceSession {
   private constructor(
+    private readonly driver: WebDriver,
     public readonly sessionId: string,
     public readonly platform: Platform,
     private readonly auth: { userName: string; accessKey: string },
@@ -42,51 +47,29 @@ export class DeviceSession {
     }
     // Device allocation occasionally hiccups; one retry absorbs it.
     for (let attempt = 0; ; attempt++) {
-      const res = await fetch(`${HUB}/session`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ capabilities: { alwaysMatch: capabilities } }),
-      });
-      const json = (await res.json()) as {
-        value: { sessionId: string; error?: string; message?: string };
-      };
-      if (res.ok) {
-        return new DeviceSession(json.value.sessionId, platform, auth);
+      try {
+        const driver = await new Builder()
+          .usingServer(HUB)
+          .withCapabilities(capabilities)
+          .build();
+        const sessionId = (await driver.getSession()).getId();
+        return new DeviceSession(driver, sessionId, platform, auth);
+      } catch (error) {
+        if (attempt === 1) {
+          throw error;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 10_000));
       }
-      if (attempt === 1) {
-        throw new Error(
-          `BrowserStack session creation failed: ${JSON.stringify(json).slice(0, 400)}`,
-        );
-      }
-      await new Promise((resolve) => setTimeout(resolve, 10_000));
     }
-  }
-
-  private async request(method: string, path: string, body?: unknown) {
-    const res = await fetch(`${HUB}/session/${this.sessionId}${path}`, {
-      method,
-      headers: { "content-type": "application/json" },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-    const json = (await res.json().catch(() => ({}))) as { value?: unknown };
-    if (!res.ok) {
-      throw new Error(
-        `${method} ${path} -> ${res.status}: ${JSON.stringify(json).slice(0, 300)}`,
-      );
-    }
-    return json.value;
   }
 
   async navigate(url: string): Promise<void> {
-    await this.request("POST", "/url", { url });
+    await this.driver.get(url);
   }
 
   /** Runs a script in the page. The script body may use `arguments`. */
   async exec<T>(script: string, args: unknown[] = []): Promise<T> {
-    return (await this.request("POST", "/execute/sync", {
-      script,
-      args,
-    })) as T;
+    return (await this.driver.executeScript(script, ...args)) as T;
   }
 
   /**
@@ -113,21 +96,13 @@ export class DeviceSession {
     );
   }
 
-  private async findElement(css: string): Promise<string> {
-    const el = (await this.request("POST", "/element", {
-      using: "css selector",
-      value: css,
-    })) as Record<string, string>;
-    return Object.values(el)[0];
-  }
-
   /**
    * WebDriver element click. Sufficient on Android; on iOS Safari the
    * resulting events are synthetic and never move focus or open the keyboard —
    * use `nativeTap` (via the gestures module) there instead.
    */
   async elementClick(css: string): Promise<void> {
-    await this.request("POST", `/element/${await this.findElement(css)}/click`);
+    await this.driver.findElement(By.css(css)).click();
   }
 
   /**
@@ -138,11 +113,7 @@ export class DeviceSession {
    * field's action, on iOS it does not.
    */
   async elementValue(css: string, text: string): Promise<void> {
-    await this.request(
-      "POST",
-      `/element/${await this.findElement(css)}/value`,
-      { text },
-    );
+    await this.driver.findElement(By.css(css)).sendKeys(text);
   }
 
   /**
@@ -161,20 +132,13 @@ export class DeviceSession {
 
   /** Sends W3C key actions (protocol-level key events) to the focused element. */
   async typeKeys(text: string): Promise<void> {
-    const actions: { type: string; value: string }[] = [];
-    for (const character of text) {
-      actions.push({ type: "keyDown", value: character });
-      actions.push({ type: "keyUp", value: character });
-    }
-    await this.request("POST", "/actions", {
-      actions: [{ type: "key", id: "keyboard", actions }],
-    });
-    await this.request("DELETE", "/actions").catch(() => {});
+    await this.driver.actions().sendKeys(text).perform();
+    await this.driver.actions().clear().catch(() => {});
   }
 
   /** Saves a PNG screenshot under tests/device/.artifacts. */
   async screenshot(name: string): Promise<string> {
-    const b64 = (await this.request("GET", "/screenshot")) as string;
+    const b64 = await this.driver.takeScreenshot();
     mkdirSync(ARTIFACTS_DIR, { recursive: true });
     const file = join(ARTIFACTS_DIR, `${this.platform}-${name}.png`);
     writeFileSync(file, Buffer.from(b64, "base64"));
@@ -203,7 +167,7 @@ export class DeviceSession {
   }
 
   async close(): Promise<void> {
-    await this.request("DELETE", "").catch(() => {
+    await this.driver.quit().catch(() => {
       // The session may already have timed out server-side.
     });
   }
