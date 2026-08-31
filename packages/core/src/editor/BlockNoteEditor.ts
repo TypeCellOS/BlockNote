@@ -798,33 +798,14 @@ export class BlockNoteEditor<
    * editor's DOM tree or inside its portal container (used for floating UI
    * elements like menus and toolbars).
    *
-   * The first check deliberately starts one level up, at the content area's
-   * *parent*. BlockNote's own default UI is entirely portalled, so that hop
-   * isn't for its sake — it's for UI the host app renders as `BlockNoteView`
-   * children, which React places as siblings of the content element. The
-   * "Static Formatting Toolbar" example does exactly that: it renders
-   * `<FormattingToolbar />` inline instead of through a controller, putting
-   * a dozen focusable buttons next to the content. Without the hop, focusing
-   * one of them would read as "outside the editor" — dismissing the mobile
-   * toolbar mid-interaction, and tripping the side menu's click-outside
-   * check.
+   * The first check starts at the content area's *parent*, so that UI the
+   * host app renders as `BlockNoteView` children counts too — React places
+   * those beside the content (see the "Static Formatting Toolbar" example).
    *
-   * That makes the result depend on where the editor is mounted, because
-   * `editor.mount(element)` turns `element` itself into the content area —
-   * so the boundary is whatever that element's parent happens to be:
-   *
-   * - With `BlockNoteView` (React) the mount element always sits inside the
-   *   `bn-container` wrapper, so the boundary is that wrapper. Correct.
-   * - Mounting a bare element that is a direct child of `<body>` — which is
-   *   what the vanilla-JS setup in the docs does — makes the boundary
-   *   `<body>`, i.e. the whole page. Everything on the page then counts as
-   *   "within the editor": `isFocused({ includeEditorUI: true })` is always
-   *   true, `onFocusChange` with that option never reports a blur, and the
-   *   side menu's click-outside check (see `SideMenu.ts`) never matches.
-   *
-   * Wrapping the mount element in a container avoids this. Fixing it here
-   * would mean identifying the editor's UI without relying on the parent —
-   * worth doing, but it changes behaviour for every caller.
+   * So the boundary is whatever the element passed to `editor.mount()` has as
+   * its parent. `BlockNoteView` always provides a wrapper; mounting bare into
+   * `<body>`, as the vanilla-JS docs do, makes the whole page count as within
+   * the editor.
    */
   public isWithinEditor = (element: Element): boolean => {
     return !!(
