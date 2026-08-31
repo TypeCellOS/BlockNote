@@ -6,7 +6,8 @@ import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 /**
  * Subscribes to editor content changes. The callback is invoked whenever the
  * editor's document is modified, and the subscription is automatically cleaned
- * up when the component unmounts.
+ * up when the component unmounts. The latest `callback` is always the one
+ * invoked — passing a new callback identity does not resubscribe.
  *
  * @param callback - Function called when the editor content changes.
  * @param editor - The BlockNote editor instance. If omitted, uses the editor
