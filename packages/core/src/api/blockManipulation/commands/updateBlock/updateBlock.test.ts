@@ -3,6 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 import type { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import { getBlockInfoFromNode } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
+import { containerSchema } from "../../containers/containers.fixture.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import { updateBlock } from "./updateBlock.js";
 
@@ -977,5 +978,153 @@ describe("Test updateBlock minimal steps", () => {
     expect(block.content[0].text).toBe("Paragraph");
     expect(block.content[block.content.length - 1].text).toBe("content");
     expect(() => editor._tiptapEditor.state.doc.check()).not.toThrow();
+  });
+});
+
+// Changing a block's type across the content/container divide can't happen in
+// place, so `updateBlock` rebuilds the node and has to decide what to do with
+// the content the old shape held and the new one can't. These tests pin that
+// decision. Assertions are explicit rather than snapshotted because the point
+// is *where* the carried content ends up.
+describe("Test updateBlock content carry-over", () => {
+  const getContainerEditor = setupTestEnv({
+    schema: containerSchema,
+    document: [
+      {
+        id: "paragraph-with-text",
+        type: "paragraph",
+        content: "Paragraph with text",
+      },
+      {
+        id: "empty-paragraph",
+        type: "paragraph",
+      },
+      {
+        id: "paragraph-with-text-and-children",
+        type: "paragraph",
+        content: "Parent text",
+        children: [
+          {
+            id: "existing-child",
+            type: "paragraph",
+            content: "Existing child",
+          },
+        ],
+      },
+      {
+        id: "table-0",
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [{ cells: ["Cell 1", "Cell 2"] }],
+        },
+      },
+      {
+        id: "callout-0",
+        type: "callout",
+        children: [
+          {
+            id: "callout-child",
+            type: "paragraph",
+            content: "Callout child",
+          },
+        ],
+      },
+    ],
+  });
+
+  // A block that changes shape is rebuilt rather than updated in place, and the
+  // rebuilt node is minted a fresh ID. That is long-standing behaviour, not
+  // something the container work introduced, but converting a paragraph into a
+  // container is a far more ordinary action than the paragraph/column
+  // conversions that used to be the only way to reach this path. These tests
+  // therefore address blocks by position, and the first one pins the ID loss so
+  // that fixing it shows up as a deliberate change.
+  it("Moves inline content into a child paragraph when becoming a container", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "paragraph-with-text", { type: "callout" }),
+    );
+
+    const block = editor.document[0] as any;
+    expect(block.type).toBe("callout");
+    expect(block.id).not.toBe("paragraph-with-text");
+    expect(block.children).toHaveLength(1);
+    expect(block.children[0].type).toBe("paragraph");
+    expect(block.children[0].content).toEqual([
+      { type: "text", text: "Paragraph with text", styles: {} },
+    ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Seeds a container's default children when there is no content to carry", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "empty-paragraph", { type: "seededPair" }),
+    );
+
+    // An empty paragraph carries nothing, so the rebuilt node must be passed no
+    // `children` at all: `blockToNode` seeds from the spec's `default` only
+    // when `children` is absent, and pads with empty blocks when it is an
+    // empty array. `seededPair` is used here rather than `callout` because its
+    // `default` and its padding differ — for `callout` both are one empty
+    // paragraph, so the distinction is invisible.
+    const block = editor.document[1] as any;
+    expect(block.type).toBe("seededPair");
+    expect(block.children.map((child: any) => child.content[0]?.text)).toEqual([
+      "Seed A",
+      "Seed B",
+    ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Puts carried content before existing children", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "paragraph-with-text-and-children", { type: "callout" }),
+    );
+
+    // The paragraph holding the carried text takes the place the text used to
+    // occupy, i.e. above the children that were already nested under it.
+    const block = editor.document[2] as any;
+    expect(block.type).toBe("callout");
+    expect(block.children.map((child: any) => child.content[0].text)).toEqual([
+      "Parent text",
+      "Existing child",
+    ]);
+    expect(block.children[1].id).toBe("existing-child");
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Drops table content when becoming a container", () => {
+    const editor = getContainerEditor();
+    // Table content isn't an inline array, so there is no sensible paragraph to
+    // wrap it in. It's dropped, and the container seeds as if the block had
+    // been empty.
+    expect(() =>
+      editor.transact((tr) => updateBlock(tr, "table-0", { type: "callout" })),
+    ).not.toThrow();
+
+    const block = editor.document[3] as any;
+    expect(block.type).toBe("callout");
+    expect(block.content).toBeUndefined();
+    expect(block.children).toHaveLength(1);
+    expect(block.children[0].type).toBe("paragraph");
+    expect(block.children[0].content).toEqual([]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Keeps a container's children and invents no content when becoming a block", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "callout-0", { type: "paragraph" }),
+    );
+
+    const block = editor.document[4] as any;
+    expect(block.type).toBe("paragraph");
+    expect(block.content).toEqual([]);
+    expect(block.children).toHaveLength(1);
+    expect(block.children[0].id).toBe("callout-child");
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 });

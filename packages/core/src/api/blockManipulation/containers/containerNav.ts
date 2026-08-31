@@ -7,41 +7,53 @@ import {
 } from "../../getBlockInfoFromPos.js";
 
 /**
- * Seal handling for the navigation helpers below. By default the helpers
- * ignore seals. The block manipulation API crosses them freely, since an
- * explicit placement is an intentional crossing. Gesture code (keyboard
- * merges and moves) opts in with `respectSealed`, so content never
- * implicitly crosses a sealed boundary.
+ * The outcome of a descent. `blockedBy` says why no position was found: a
+ * sealed container on the path ("seal"), or nothing on that edge accepting
+ * the type ("schema"). Gesture code tells the two apart to select a sealed
+ * container rather than move content into it.
  */
-type SealOpts = { respectSealed?: boolean };
+export type InsertionPos =
+  | { pos: number; blockedBy?: undefined }
+  | { pos?: undefined; blockedBy: "seal" | "schema" };
+
+/**
+ * Seal handling for the navigation helpers below. They respect seals, so
+ * content never implicitly crosses a sealed boundary. The block manipulation
+ * API opts out with `allowCrossingSeals`, since an explicit placement is an
+ * intentional crossing.
+ */
+type SealOpts = { allowCrossingSeals?: boolean };
 
 /**
  * Walks one edge of a block's children, descending through nested containers,
  * to the deepest position where `nodeType` fits. `edge` picks the trailing
- * edge (where a new last child goes) or the leading edge. Returns `null` when
- * the block has no children holder, when nothing on that edge accepts the
- * type, or (with `respectSealed`) when a sealed container sits on the path.
+ * edge (where a new last child goes) or the leading edge.
  */
 export function descendToInsertionPos(
   info: BlockInfo,
   nodeType: NodeType,
   edge: "first" | "last",
   opts?: SealOpts,
-): number | null {
+): InsertionPos {
   const children = info.children;
-  if (!children || (opts?.respectSealed && isSealed(children.node))) {
-    return null;
+  if (!children) {
+    return { blockedBy: "schema" };
+  }
+  if (!opts?.allowCrossingSeals && isSealed(children.node)) {
+    return { blockedBy: "seal" };
   }
 
   const last = edge === "last";
   const index = last ? children.node.childCount : 0;
-  if (children.node.contentMatchAt(index).matchType(nodeType)) {
-    return last ? children.childrenEnd : children.childrenStart;
+  // `canReplaceWith` rather than a bare content match: the children already
+  // after the position have to still fit once the new node is spliced in.
+  if (children.node.canReplaceWith(index, index, nodeType)) {
+    return { pos: last ? children.childrenEnd : children.childrenStart };
   }
 
   const child = last ? children.node.lastChild : children.node.firstChild;
   if (!child || !isContainerNode(child.type)) {
-    return null;
+    return { blockedBy: "schema" };
   }
   return descendToInsertionPos(
     getBlockInfoFromNode(
@@ -57,21 +69,17 @@ export function descendToInsertionPos(
 /**
  * Resolves a block to its first leaf block: the block itself when it is not a
  * container, otherwise the first leaf of its first child. Returns `null` for
- * an empty container, or (with `respectSealed`) when reaching the leaf would
- * cross a sealed container's boundary.
+ * an empty container, or when reaching the leaf would cross a sealed
+ * container's boundary.
  */
-export function getFirstLeafBlock(
-  info: BlockInfo,
-  opts?: SealOpts,
-): BlockInfo | null {
+export function getFirstLeafBlock(info: BlockInfo): BlockInfo | null {
   const children = info.children;
   if (!children || !isContainerNode(info.block.node.type)) {
     // Not a container: the block is its own first leaf.
     return info;
   }
-  // With `respectSealed`, a sealed container's leaf blocks are not reachable
-  // from outside.
-  if (opts?.respectSealed && isSealed(info.block.node)) {
+  // A sealed container's leaf blocks are not reachable from outside.
+  if (isSealed(info.block.node)) {
     return null;
   }
   const firstChild = children.node.firstChild;
@@ -80,7 +88,6 @@ export function getFirstLeafBlock(
   }
   return getFirstLeafBlock(
     getBlockInfoFromNode(firstChild, children.childrenStart),
-    opts,
   );
 }
 
@@ -98,25 +105,24 @@ export function ascendToInsertablePos(
   doc: Node,
   pos: number,
   nodeType: NodeType,
-  opts?: SealOpts,
   side: "before" | "after" = "before",
-): number | null {
+): number | undefined {
   for (;;) {
     const $pos = doc.resolve(pos);
     const parent = $pos.node();
-    if (parent.contentMatchAt($pos.index()).matchType(nodeType)) {
+    if (parent.canReplaceWith($pos.index(), $pos.index(), nodeType)) {
       return pos;
     }
     if ($pos.depth > 0 && isContainerNode(parent.type)) {
-      // With `respectSealed`, climbing out of a sealed container would move
-      // content across its boundary.
-      if (opts?.respectSealed && isSealed(parent)) {
-        return null;
+      // Climbing out of a sealed container would move content across its
+      // boundary.
+      if (isSealed(parent)) {
+        return undefined;
       }
       pos = side === "before" ? $pos.before() : $pos.after();
       continue;
     }
-    return null;
+    return undefined;
   }
 }
 

@@ -1,10 +1,4 @@
-import {
-  Attrs,
-  Fragment,
-  Mark,
-  Node,
-  Schema,
-} from "@tiptap/pm/model";
+import { Attrs, Fragment, Mark, Node, Schema } from "@tiptap/pm/model";
 
 import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type {

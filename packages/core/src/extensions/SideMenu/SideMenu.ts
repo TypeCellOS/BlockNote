@@ -28,6 +28,7 @@ import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js
 import { dragStart, unsetDragImage } from "./dragging.js";
 import {
   getContainerChildAtCursor,
+  getDirectChildBlocks,
   hasHorizontalContainerAncestor,
 } from "./sideMenuContainerGeometry.js";
 
@@ -59,22 +60,22 @@ function getBlockFromCoords(
       adjustForHorizontalContainers &&
       containerUIInfo.containerSelector &&
       // Inside a container with side-by-side children (e.g. a columnList),
-      // the x position must be offset. The hovered coordinates land in the
-      // side menu's own gutter, which belongs to a different child. The
+      // the cursor is in the side menu's own gutter, so it lands on the
+      // container itself rather than on the block it lines up with. The
       // horizontal container can be any ancestor (the element may sit inside
       // a vertical child of it, like a block inside a column).
       hasHorizontalContainerAncestor(element, containerUIInfo)
     ) {
-      return getBlockFromCoords(
-        view,
-        {
-          // TODO can we do better than this?
-          left: coords.left + 50, // bit hacky, but if we're inside a column, offset x position to right to account for the width of sidemenu itself
-          top: coords.top,
-        },
-        containerUIInfo,
-        false,
-      );
+      // Walk down through the containers by their children's measured rects
+      // instead, which finds that block without guessing an x offset.
+      const cursor = { x: coords.left, y: coords.top };
+      let target = element;
+      let child = getContainerChildAtCursor(target, cursor, containerUIInfo);
+      while (child) {
+        target = child;
+        child = getContainerChildAtCursor(target, cursor, containerUIInfo);
+      }
+      return getDraggableBlockFromElement(target, view, containerUIInfo);
     }
     return getDraggableBlockFromElement(element, view, containerUIInfo);
   }
@@ -296,13 +297,13 @@ export class SideMenuView<
         show: true,
         referencePos: new DOMRect(
           container
-            ? // We anchor to the container's first block element (rather
-              // than the container itself, which may have padding or its own
+            ? // We anchor to the container's first child block (rather than
+              // the container itself, which may have padding or its own
               // chrome around the block area). This is a little weird since
               // this element is the first block, but since it's always
               // non-nested and we only take the x coordinate, it's ok.
               (
-                container.querySelector('[data-node-type="blockOuter"]') ??
+                getDirectChildBlocks(container, containerUIInfo)[0] ??
                 container.firstElementChild!
               ).getBoundingClientRect().x
             : (

@@ -1,14 +1,43 @@
 import { afterAll, beforeAll, beforeEach } from "vite-plus/test";
 
-import { PartialBlock } from "../../blocks/defaultBlocks.js";
+import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
+import {
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  PartialBlock,
+} from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
 
-export function setupTestEnv() {
-  let editor: BlockNoteEditor;
+/**
+ * Mounts an editor for a test file and resets its document before each test.
+ *
+ * Called without arguments it uses the default schema and {@link testDocument}.
+ * A custom schema and document have to be passed together, since a document is
+ * only valid against the schema it was written for.
+ */
+export function setupTestEnv<
+  B extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema,
+>(options?: {
+  schema: BlockNoteSchema<B, I, S>;
+  document: PartialBlock<B, I, S>[];
+}): () => BlockNoteEditor<B, I, S> {
+  let editor: BlockNoteEditor<B, I, S>;
   const div = document.createElement("div");
 
   beforeAll(() => {
-    editor = BlockNoteEditor.create();
+    // `B`/`I`/`S` fall back to the default schema's types, but TS can't see
+    // that from inside the body, so the no-options branch needs a cast.
+    editor = options
+      ? BlockNoteEditor.create({ schema: options.schema })
+      : (BlockNoteEditor.create() as unknown as BlockNoteEditor<B, I, S>);
     editor.mount(div);
   });
 
@@ -18,13 +47,16 @@ export function setupTestEnv() {
   });
 
   beforeEach(() => {
-    editor.replaceBlocks(editor.document, testDocument);
+    editor.replaceBlocks(
+      editor.document,
+      options?.document ?? (testDocument as unknown as PartialBlock<B, I, S>[]),
+    );
   });
 
   return () => editor;
 }
 
-const testDocument: PartialBlock[] = [
+export const testDocument: PartialBlock[] = [
   {
     id: "paragraph-0",
     type: "paragraph",

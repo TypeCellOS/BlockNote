@@ -485,19 +485,19 @@ export function getNextBlockInfo(
  * -- D
  *
  * Then the last descendant block returned is D.
+ *
+ * The descent stops at a sealed container, returning the container itself
+ * rather than a block inside it. Every caller is a keyboard gesture, and
+ * seals bind gestures.
  */
 export function getLastDescendantBlockInfo(
   doc: Node,
   blockInfo: BlockInfo,
-  // Callers that move content stop the descent at a sealed container, getting
-  // the container itself rather than a block inside it. Caret-only callers
-  // descend through. Sealed boundaries govern content, not navigation.
-  opts?: { stopAtSealed?: boolean },
 ): BlockInfo {
   // A container that allows zero children can have an empty child container,
   // in which case the block itself is the bottom one.
   while (blockInfo.children && blockInfo.children.node.childCount) {
-    if (opts?.stopAtSealed && isSealed(blockInfo.children.node)) {
+    if (isSealed(blockInfo.children.node)) {
       break;
     }
     const group = blockInfo.children.node;

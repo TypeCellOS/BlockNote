@@ -67,12 +67,12 @@ describe("resolveChildren", () => {
     expect(resolveChildren({ allow })).toMatchObject(expected);
   });
 
-  it("applies the defaults: min 1, unbounded, refill, isolated", () => {
+  it("applies the defaults: min 1, unbounded, refill, open", () => {
     const resolved = resolveChildren({ allow: "any" });
     expect(resolved.min).toBe(1);
     expect(resolved.max).toBeUndefined();
     expect(resolved.whenEmptied).toBe("refill");
-    expect(resolved.boundary).toBe("isolated");
+    expect(resolved.boundary).toBe("open");
   });
 
   it("returns the same object for the same config, without mutating it", () => {
@@ -132,6 +132,14 @@ describe("validateChildrenConfigs", () => {
       "a regular block type in the allow array",
       { allow: ["heading"] },
       /not yet supported/,
+    ],
+    // The wildcard is a group the container itself joins, so requiring a
+    // container child means requiring a copy of itself: the same stack
+    // overflow as a named cycle, just spelled without a second type.
+    [
+      "a container-only wildcard that requires children",
+      { allow: "containers", min: 1 },
+      /nested inside itself/,
     ],
   ])("rejects %s", (_name, children, message) => {
     expect(validate({ box: { children } })).toThrow(message);

@@ -83,7 +83,7 @@ The demo below puts this together: a callout block that can contain any other bl
 | `min` / `max` | `1` / unbounded | How many children are allowed. Compiled into the editor schema. |
 | `default` | none | Partial blocks to create the container with when it's inserted without an explicit `children` array, and the source of `"refill"` top-ups. Validated against the rest of the config when the schema is created. See [Defaults and refilling](#defaults-and-refilling). |
 | `whenEmptied` | `"refill"` | What happens when fewer non-empty children remain than `min`: `"refill"` tops the container back up from `default`; `"unwrap"` replaces the container with its surviving children, or removes it entirely when none are left. Column lists use `"unwrap"` so emptied columns disappear and a one-column list dissolves. |
-| `boundary` | `"isolated"` | What crosses the container's edge: the caret, selections, or nothing. See [Boundaries](#boundaries). |
+| `boundary` | `"open"` | Whether editing gestures cross the container's edge. See [Boundaries](#boundaries). |
 
 `placement` sits next to `children` on the block config rather than inside it, because it's a fact about *this* block rather than about its children:
 
@@ -109,13 +109,14 @@ The same template drives `whenEmptied: "refill"`. When a refill container's non-
 
 ## Boundaries
 
-`boundary` declares what may cross a container's edge. On an open or isolated edge, editing gestures move blocks across it: Backspace at the start of the first child moves that child out, and Enter on an empty last child escapes below the container. A sealed edge blocks all of that, so the container behaves as a single unit.
+`boundary` declares whether editing gestures cross a container's edge. On an open edge they move blocks across it: Backspace at the start of the first child moves that child out, and Enter on an empty last child escapes below the container. A sealed edge blocks all of that, so the container behaves as a single unit.
 
 | Value | Crosses the edge | Use for |
 | --- | --- | --- |
-| `"open"` | Caret, editing gestures, and text selections. A selection can span children and reach outside the container. | Flow regions where a selection should cross child boundaries, like the columns of a `columnList`. |
-| `"isolated"` (default) | Caret and editing gestures, but not a text selection. | Most containers, like a callout. |
+| `"open"` (default) | The caret and editing gestures. | Containers that are part of the surrounding flow of text, like a callout or the columns of a `columnList`. |
 | `"sealed"` | Nothing implicitly. The caret won't wander in, and from outside the container selects and deletes as one unit. | Compartments that should stay put, like a table cell. |
+
+A seal binds gestures only. A text selection may span any edge, so a drag out of a sealed container still selects across it.
 
 ```typescript
 // A cell: holds any blocks, but nothing crosses its edge implicitly.
@@ -183,7 +184,9 @@ Configurations are checked when the schema is created, and fail up front with a 
 - an `allow` array naming an unknown type, or naming a regular block type (per-type filtering of regular blocks is [not yet supported](#restricting-children));
 - `children` combined with any `content` other than `"none"`;
 - a `placement: "containerOnly"` block that no container's `allow` array names, or `placement: "containerOnly"` on a regular block;
-- container cycles: a container that (transitively) requires a child that requires it back could never be created. An `allow` that permits regular blocks breaks the cycle, since they're always satisfiable.
+- container cycles: a container that (transitively) requires a child that requires it back could never be created. An `allow` that permits regular blocks breaks the cycle, since they're always satisfiable. `allow: "containers"` with `min: 1` is the same problem, since the container counts as a container itself.
+
+Documents are checked too. `initialContent` that doesn't fit the schema throws when the editor is created, rather than loading in a broken state. This matters when you change a `children` config on a schema whose documents are already saved somewhere: a stored document that no longer fits, say a `columnList` left with a single column, now fails at load. Migrate those documents before shipping the change.
 
 ## Parsing HTML into a container
 

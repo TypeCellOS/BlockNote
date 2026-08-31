@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { TextSelection } from "prosemirror-state";
 import {
   afterAll,
   beforeAll,
@@ -207,14 +208,58 @@ describe("children insertion & seeding", () => {
 });
 
 describe("boundary", () => {
-  it("derives ProseMirror `isolating` from `boundary`", () => {
+  // No container is `isolating`, whatever its boundary. PM only honours that
+  // flag while no selection spans the edge, and nothing prevents one: given a
+  // spanning slice, `Fitter` refuses to open into the container and wraps the
+  // content in a spurious `blockGroup`, corrupting the document. Seals are
+  // enforced by BlockNote's own `isSealed` guards instead.
+  it("leaves every container non-isolating, seal or no seal", () => {
     const nodes = editor.pmSchema.nodes;
-    expect(nodes["openBox"].spec.isolating).toBe(false);
-    // "isolated" is the default.
-    expect(nodes["callout"].spec.isolating).toBe(true);
-    // "sealed" also isolates.
-    expect(nodes["sealedBox"].spec.isolating).toBe(true);
+    for (const type of ["openBox", "callout", "sealedBox", "gridCell"]) {
+      expect(nodes[type].spec.isolating).toBeFalsy();
+    }
   });
+
+  // The corruption the line above avoids, pinned end to end: copy a selection
+  // running from inside a container to after it, paste it back over itself,
+  // and the document must come back unchanged. Marking the container
+  // `isolating` instead re-nests the whole fragment a level too deep.
+  it.each(["openBox", "callout", "sealedBox"])(
+    "round-trips a paste across a %s's edge",
+    (type) => {
+      editor.replaceBlocks(editor.document, [
+        {
+          id: "c",
+          type,
+          children: [
+            { id: "c1", type: "paragraph", content: "Inner one" },
+            { id: "c2", type: "paragraph", content: "Inner two" },
+          ],
+        },
+        { id: "a", type: "paragraph", content: "After" },
+      ] as PartialBlock[]);
+
+      const before = JSON.stringify(editor.document);
+
+      editor.transact((tr) => {
+        let from = 0;
+        let to = 0;
+        tr.doc.descendants((node, pos) => {
+          if (node.isText && node.text === "Inner two") {
+            from = pos;
+          }
+          if (node.isText && node.text === "After") {
+            to = pos + node.nodeSize;
+          }
+        });
+
+        const selection = TextSelection.create(tr.doc, from, to);
+        tr.setSelection(selection).replace(from, to, selection.content());
+      });
+
+      expect(JSON.stringify(editor.document)).toBe(before);
+    },
+  );
 });
 
 // `initialContent` is the only path that builds a document without validating

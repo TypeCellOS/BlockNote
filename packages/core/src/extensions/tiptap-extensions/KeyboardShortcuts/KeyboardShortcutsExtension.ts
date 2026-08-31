@@ -229,24 +229,17 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const blockContainerType = state.schema.nodes["blockContainer"];
-            const insertionPos = descendToInsertionPos(
+            const insertion = descendToInsertionPos(
               prevBlockInfo,
               blockContainerType,
               "last",
-              { respectSealed: true },
             );
-            if (insertionPos === null) {
-              // When only a sealed boundary blocked the descent (a seal-blind
-              // walk does find a slot), the container can't be entered, so
-              // it's selected instead, and a second Backspace deletes it
-              // explicitly. A container with nowhere a `blockContainer` can
-              // land falls through as before.
+            if (insertion.pos === undefined) {
+              // A sealed container can't be entered, so it's selected instead,
+              // and a second Backspace deletes it explicitly. A container with
+              // nowhere a `blockContainer` can land falls through as before.
               if (
-                descendToInsertionPos(
-                  prevBlockInfo,
-                  blockContainerType,
-                  "last",
-                ) !== null &&
+                insertion.blockedBy === "seal" &&
                 NodeSelection.isSelectable(prevBlockInfo.block.node)
               ) {
                 if (dispatch) {
@@ -260,12 +253,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             if (dispatch) {
-              tr.delete(blockInfo.block.beforePos, blockInfo.block.afterPos);
-              tr.insert(insertionPos, blockInfo.block.node);
-              tr.setSelection(
-                TextSelection.near(tr.doc.resolve(insertionPos + 1)),
-              );
-
+              moveBlockOutAndPlaceCaret(tr, {
+                from: blockInfo.block.beforePos,
+                to: blockInfo.block.afterPos,
+                node: blockInfo.block.node,
+                insertAt: insertion.pos,
+              });
               return true;
             }
 
@@ -322,8 +315,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 ? $containerPos.nodeBefore
                 : null;
 
-            // A gesture move respects seals: a descent blocked by one has
-            // nowhere to land.
             const insertionPos = prevSibling
               ? descendToInsertionPos(
                   getBlockInfoFromNode(
@@ -332,15 +323,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   ),
                   blockContainerType,
                   "last",
-                  { respectSealed: true },
-                )
+                ).pos
               : ascendToInsertablePos(
                   tr.doc,
                   containerBeforePos,
                   blockContainerType,
-                  { respectSealed: true },
                 );
-            if (insertionPos === null) {
+            if (insertionPos === undefined) {
               return false;
             }
 
@@ -448,21 +437,16 @@ export const KeyboardShortcutsExtension = Extension.create<{
             );
 
             if (prevBlockInfo && selectionAtBlockStart && selectionEmpty) {
-              // The sealed-aware descent stops at a sealed container instead
-              // of finding an (empty) block inside it, so the current block
-              // is never cut in across the boundary.
+              // The descent stops at a sealed container instead of finding an
+              // (empty) block inside it, so the current block is never cut in
+              // across the boundary. A container has no content, so the guard
+              // below rejects it.
               const bottomBlock = getLastDescendantBlockInfo(
                 state.doc,
                 prevBlockInfo,
-                { stopAtSealed: true },
               );
 
               if (!bottomBlock.hasContent) {
-                return false;
-              }
-              // A sealed content container also stops the descent; deleting
-              // it here would take its children with it.
-              if (isSealed(bottomBlock.block.node)) {
                 return false;
               }
 
@@ -630,9 +614,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
 
-            const firstLeaf = getFirstLeafBlock(nextBlockInfo, {
-              respectSealed: true,
-            });
+            const firstLeaf = getFirstLeafBlock(nextBlockInfo);
             if (!firstLeaf) {
               return false;
             }
@@ -704,7 +686,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
             // block when it's a container.
             const target = getFirstLeafBlock(
               getBlockInfoFromNode(nextNode, $boundary.pos),
-              { respectSealed: true },
             );
             if (!target) {
               return false;
@@ -1037,10 +1018,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
               tr.doc,
               $pos.after(),
               state.schema.nodes["blockContainer"],
-              { respectSealed: true },
               "after",
             );
-            if (containerAfterPos === null) {
+            if (containerAfterPos === undefined) {
               return false;
             }
 

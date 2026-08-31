@@ -12,7 +12,7 @@ type ValidatableConfig = Pick<BlockConfig, "type" | "content"> & {
  * Deliberately narrow: TypeScript already rejects malformed configs at compile
  * time, and ProseMirror already reports unknown types, unsatisfiable content
  * expressions and unfillable containers with usable messages of its own. Only
- * the three cases below fail silently or catastrophically without help.
+ * the cases below fail silently or catastrophically without help.
  *
  * @param blockConfigs The configs of every block in the schema, keyed by type.
  */
@@ -27,7 +27,7 @@ export function validateChildrenConfigs(
       continue;
     }
 
-    const { min, max, containers } = resolveChildren(config.children);
+    const { blocks, min, max, containers } = resolveChildren(config.children);
 
     // ProseMirror's content-expression parser never compares the two, so an
     // inverted range is silently read as "exactly `min`".
@@ -35,6 +35,20 @@ export function validateChildrenConfigs(
       fail(
         type,
         `maximum child count (${max}) must be greater than or equal to the minimum (${min}).`,
+      );
+    }
+
+    // `allow: "containers"` compiles to a group that the container itself is
+    // in, so "must hold a container" includes "must hold a copy of itself".
+    // ProseMirror fills that by nesting the container inside itself until the
+    // stack overflows, and which type it picks depends on the order block
+    // types were registered in — so this is rejected rather than left to
+    // chance. The cycle check below covers the same shape for named types.
+    if (containers === true && !blocks && min >= 1) {
+      fail(
+        type,
+        'a container that allows only containers (`allow: "containers"`) cannot require any, as it counts as a container itself and would be nested inside itself forever. ' +
+          'Use `min: 0`, allow regular blocks as well (`allow: "any"`), or name the container types it accepts.',
       );
     }
 

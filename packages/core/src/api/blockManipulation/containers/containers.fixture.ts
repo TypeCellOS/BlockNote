@@ -37,8 +37,8 @@ const SealedBox = createBlockSpec(
   { render: renderDiv },
 )();
 
-// An open container, like a column list. Everything crosses its edge
-// (PM `isolating: false`).
+// An open container, like a column list: editing gestures cross its edge.
+// Same as leaving `boundary` out, spelled explicitly.
 const OpenBox = createBlockSpec(
   {
     type: "openBox" as const,
@@ -49,8 +49,8 @@ const OpenBox = createBlockSpec(
   { render: renderDiv },
 )();
 
-// Same shape as tables: an isolated container (the default) that holds only
-// sealed ones, so any descent into it bottoms out at a sealed boundary.
+// Same shape as tables: a container that holds only sealed ones, so any
+// descent into it bottoms out at a sealed boundary.
 const SealedGrid = createBlockSpec(
   {
     type: "sealedGrid" as const,

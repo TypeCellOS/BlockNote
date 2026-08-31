@@ -1119,6 +1119,92 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
     },
     executeTest: testParseHTML,
   },
+  {
+    // The internal (`blocksToFullHTML`) form of a container. The children
+    // holder is marked with `data-children-of`.
+    testCase: {
+      name: "container",
+      content: `<div class="bn-block-group" data-node-type="blockGroup">
+  <div class="callout" data-node-type="callout" data-id="1">
+    <div class="callout-body" data-children-of="callout">
+      <div class="bn-block-outer" data-node-type="blockOuter" data-id="2">
+        <div class="bn-block" data-node-type="blockContainer" data-id="2">
+          <div class="bn-block-content" data-content-type="paragraph">
+            <p class="bn-inline-content">Callout child</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    // A container nested inside another, with a non-default prop on each.
+    testCase: {
+      name: "containerNested",
+      content: `<div class="bn-block-group" data-node-type="blockGroup">
+  <div class="callout" data-flavor="warning" data-node-type="callout" data-id="1">
+    <div class="callout-body" data-children-of="callout">
+      <div class="bn-block-outer" data-node-type="blockOuter" data-id="2">
+        <div class="bn-block" data-node-type="blockContainer" data-id="2">
+          <div class="bn-block-content" data-content-type="heading">
+            <h1 class="bn-inline-content">Nested heading</h1>
+          </div>
+        </div>
+      </div>
+      <div class="callout" data-flavor="info" data-node-type="callout" data-id="3">
+        <div class="callout-body" data-children-of="callout">
+          <div class="bn-block-outer" data-node-type="blockOuter" data-id="4">
+            <div class="bn-block" data-node-type="blockContainer" data-id="4">
+              <div class="bn-block-content" data-content-type="paragraph">
+                <p class="bn-inline-content">Inner callout child</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    // A container whose children holder is serialized empty. Parsing goes
+    // through a real document, so the spec's `default` children fill it back
+    // in. This is why `container/emptyChildren` is excluded from the
+    // export/parse equality matrix.
+    testCase: {
+      name: "containerEmptyChildren",
+      content: `<div class="bn-block-group" data-node-type="blockGroup">
+  <div class="callout" data-node-type="callout" data-id="1">
+    <div class="callout-body" data-children-of="callout"></div>
+  </div>
+</div>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    // The external (`blocksToHTMLLossy`) form, which is what lands on the
+    // clipboard and what another app would paste in. The holder carries no
+    // `data-children-of` marker.
+    testCase: {
+      name: "containerExternalHTML",
+      content: `<div class="callout" data-flavor="warning" data-node-type="callout" data-id="1">
+  <div class="callout-body">
+    <h1 data-nesting-level="1">Nested heading</h1>
+    <div class="callout" data-flavor="info" data-node-type="callout" data-id="3" data-nesting-level="1">
+      <div class="callout-body">
+        <p data-nesting-level="2">Inner callout child</p>
+      </div>
+    </div>
+  </div>
+</div>`,
+    },
+    executeTest: testParseHTML,
+  },
 ];
 
 export const parseTestInstancesMarkdown: TestInstance<

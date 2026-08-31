@@ -107,6 +107,18 @@ export interface BlockConfigMeta<
 export type ChildrenAllow = "any" | "blocks" | "containers" | readonly string[];
 
 /**
+ * One entry of {@link ChildrenConfig.default}: a partial block with no `id`.
+ *
+ * A default describes every copy of the container, but an id names one block
+ * in one document. An id written here would be stamped onto every copy, so
+ * `id` is rejected at the type level and ignored at runtime.
+ */
+export type ChildDefault = Omit<PartialBlockNoDefaults<any, any, any>, "id"> & {
+  id?: never;
+  children?: ChildDefault[];
+};
+
+/**
  * Marks a block as a *container*: a block whose body is other blocks, exposed
  * as `block.children` at runtime.
  *
@@ -130,7 +142,7 @@ export type ChildrenConfig = {
    * Also the seed that `whenEmptied: "refill"` tops up from, when children
    * drop below `min`.
    */
-  default?: readonly PartialBlockNoDefaults<any, any, any>[];
+  default?: readonly ChildDefault[];
   /**
    * What happens as children are emptied out (Backspace merges the last child
    * away, `removeBlocks` deletes children, ...) and fewer than `min` non-empty
@@ -152,24 +164,19 @@ export type ChildrenConfig = {
    */
   whenEmptied?: "refill" | "unwrap";
   /**
-   * What may cross the container's edge.
+   * Whether editing gestures cross the container's edge.
    *
-   * - `"open"`: the caret, editing gestures and text selections all cross
-   *   the edge (ProseMirror `isolating: false`). Right for flow regions like
-   *   column lists, where a selection may span columns.
-   * - `"isolated"` (the default): the caret and editing gestures cross
-   *   exactly as with `"open"`; only a text selection cannot span the edge
-   *   (`isolating: true`).
-   * - `"sealed"`: atomic to gestures, like a table cell. The caret doesn't
-   *   enter via arrows/Backspace, and the block selects as a unit
-   *   (`isolating: true`). Key-agnostic, so compartments need no hand-written
-   *   keyboard handlers.
+   * - `"open"` (the default): they do. Right for a callout or a column list,
+   *   where the container is a region of the same flow of text.
+   * - `"sealed"`: they don't, like a table cell. The caret doesn't enter via
+   *   arrows/Backspace, and the block selects as a unit. Key-agnostic, so
+   *   compartments need no hand-written keyboard handlers.
    *
-   * Seals bind editing gestures only: the block manipulation API
-   * (`insertBlocks` etc.) ignores them.
-   * @default "isolated"
+   * A seal binds gestures only. A text selection may span any edge, and the
+   * block manipulation API (`insertBlocks` etc.) ignores seals entirely.
+   * @default "open"
    */
-  boundary?: "open" | "isolated" | "sealed";
+  boundary?: "open" | "sealed";
 };
 
 // `ResolvedChildren`, the fully-defaulted, desugared shape a `ChildrenConfig`

@@ -73,6 +73,36 @@
       "toExternalHTML": [Function],
     },
   },
+  "callout": {
+    "config": {
+      "children": {
+        "allow": "any",
+        "default": [
+          {
+            "type": "paragraph",
+          },
+        ],
+      },
+      "content": "none",
+      "propSchema": {
+        "flavor": {
+          "default": "tip",
+          "values": [
+            "tip",
+            "info",
+            "warning",
+          ],
+        },
+      },
+      "type": "callout",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "node": null,
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
   "checkListItem": {
     "config": {
       "content": "inline",
