@@ -1,5 +1,5 @@
 import type { BlockNoteEditor } from "@blocknote/core";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 
 /**
@@ -23,12 +23,22 @@ export function useEditorSelectionChange(
     editor = editorContext?.editor;
   }
 
+  // Latest-ref pattern: the subscription lives as long as the editor does,
+  // while the callback stays current without resubscribing on re-renders.
+  const callbackRef = useRef(callback);
+  useEffect(() => {
+    callbackRef.current = callback;
+  });
+
   useEffect(() => {
     if (!editor) {
       throw new Error(
         "'editor' is required, either from BlockNoteContext or as a function argument",
       );
     }
-    return editor.onSelectionChange(callback, includeSelectionChangedByRemote);
-  }, [callback, editor, includeSelectionChangedByRemote]);
+    return editor.onSelectionChange(
+      () => callbackRef.current(),
+      includeSelectionChangedByRemote,
+    );
+  }, [editor, includeSelectionChangedByRemote]);
 }
