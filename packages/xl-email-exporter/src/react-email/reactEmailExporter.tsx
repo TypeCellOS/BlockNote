@@ -246,7 +246,7 @@ export class ReactEmailExporter<
         i = nextIndex;
         continue;
       }
-      if (this.isContainerBlock(b.type)) {
+      if (this.isContainerBlock(b)) {
         // Container blocks (columnList, column, custom containers): the
         // mapping owns the placement of the children, so they are passed in
         // and not rendered as an indented sibling list.

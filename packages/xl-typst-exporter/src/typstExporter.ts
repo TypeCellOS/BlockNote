@@ -257,7 +257,7 @@ export class TypstExporter<
       // makes them grid cells, a callout puts them in its body - so they are
       // passed in, and not appended after the block's own output as the
       // generic indented run below.
-      if (this.isContainerBlock(b.type)) {
+      if (this.isContainerBlock(b)) {
         const containerChildren = await this.transformBlocks(
           b.children,
           nestingLevel + 1,

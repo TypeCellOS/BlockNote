@@ -158,7 +158,7 @@ export class DOCXExporter<
 
       let children = await this.transformBlocks(b.children, nestingLevel + 1);
 
-      if (!this.isContainerBlock(b.type)) {
+      if (!this.isContainerBlock(b)) {
         children = children.map((c, _i) => {
           // NOTE: nested tables not supported (we can't insert the new Tab before a table)
           if (
@@ -186,7 +186,7 @@ export class DOCXExporter<
       ret.push(...(Array.isArray(self) ? self : [self]));
       // A container's mapping is handed its children and places them itself,
       // so they must not be appended after it as well.
-      if (!this.isContainerBlock(b.type)) {
+      if (!this.isContainerBlock(b)) {
         ret.push(...children);
       }
     }

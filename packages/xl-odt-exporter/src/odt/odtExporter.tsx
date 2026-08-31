@@ -155,19 +155,17 @@ export class ODTExporter<
         numberedListIndex = 0;
       }
 
-      if (this.isContainerBlock(block.type)) {
-        // Legacy columns render as an ODT table whose cells reset indentation
-        // to 0. Schema-defined containers are ordinary nested blocks, so they
-        // preserve the current nesting level like every other exporter.
-        const isLegacyColumn =
-          block.type === "columnList" || block.type === "column";
-        const children = await this.transformBlocks(
-          block.children,
-          isLegacyColumn ? 0 : nestingLevel + 1,
-        );
+      if (this.isContainerBlock(block)) {
+        // A container's mapping places its children, so it owns their layout
+        // context too - in ODT the columns become a table, whose cells start
+        // a fresh one. Nesting depth is rendered here as literal `<text:tab>`
+        // indentation (see `getTabs`), which would be wrong inside that
+        // context, so it restarts at 0 rather than accumulating through the
+        // container.
+        const children = await this.transformBlocks(block.children, 0);
         const content = await this.mapBlock(
           block as any,
-          isLegacyColumn ? 0 : nestingLevel,
+          0,
           numberedListIndex,
           children,
         );
