@@ -2,8 +2,8 @@ import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import { expect } from "vite-plus/test";
 import { screenshotFull } from "../../utils/screenshotFull.js";
 
-// The exporter e2e files (emailImages / typstPdfImages / reactPdfImages)
-// run complete exports of the full shared test document with the default
+// The exporter e2e files (emailImages / typstPdfImages) run complete
+// exports of the full shared test document with the default
 // mappings in a real browser, where the mappings' `typeof document` checks
 // select the built-in image implementations. These are the only tests of
 // that composition - the packages' (node) unit suites always take the

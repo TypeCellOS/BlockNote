@@ -32,13 +32,7 @@
   margin-inline: 16px;
 }
 
-/* A real <button> (keyboard-focusable), restyled to match the label text. */
 .view-label-download {
-  background: none;
-  border: none;
-  color: inherit;
-  font: inherit;
-  padding: 0;
   cursor: pointer;
   text-decoration: underline;
 }

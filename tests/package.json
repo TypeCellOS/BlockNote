@@ -15,7 +15,6 @@
     "@blocknote/diagram-block": "workspace:^",
     "@blocknote/xl-email-exporter": "workspace:^",
     "@blocknote/xl-pdf-exporter": "workspace:^",
-    "@react-pdf/renderer": "^4.5.1",
     "pdfjs-dist": "^4.10.38",
     "@blocknote/math-block": "workspace:^",
     "@blocknote/react": "workspace:^",
