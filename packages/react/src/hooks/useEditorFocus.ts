@@ -1,4 +1,4 @@
-import type { BlockNoteEditor } from "@blocknote/core";
+import type { BlockNoteEditor, EditorFocusOptions } from "@blocknote/core";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 
@@ -21,7 +21,7 @@ import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
  * from the nearest `BlockNoteContext`.
  */
 export function useEditorFocus(
-  options?: { includeEditorUI?: boolean },
+  options?: EditorFocusOptions,
   editor?: BlockNoteEditor<any, any, any>,
 ): boolean {
   const editorContext = useBlockNoteContext();

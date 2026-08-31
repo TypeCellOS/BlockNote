@@ -1,29 +1,30 @@
-import {
-  useCreateBlockNote,
-  useEditorFocus,
-  useEditorFocusChange,
-} from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 import { useRef, useState } from "react";
+import { createRoot, Root } from "react-dom/client";
 import { afterEach, describe, expect, test, vi } from "vite-plus/test";
-import { render } from "vitest-browser-react";
 
-import { userEvent } from "../../utils/context.js";
-import { EDITOR_SELECTOR } from "../../utils/const.js";
-import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
+import type { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteViewRaw } from "../editor/BlockNoteView.js";
+import { useCreateBlockNote } from "./useCreateBlockNote.js";
+import { useEditorFocus } from "./useEditorFocus.js";
+import { useEditorFocusChange } from "./useEditorFocusChange.js";
 
 // `useEditorFocus` is the state counterpart to `useEditorFocusChange`. What
 // needs proving is that it reports *settled* focus and doesn't re-render on
 // every focus event in the page — the reasons it exists rather than each
-// consumer wiring up useState + useEffect itself.
+// consumer wiring up useState + useEffect itself. Focus semantics are real
+// DOM behaviour, so this is a browser unit test rather than a jsdom one.
+
+let root: Root | undefined;
+let host: HTMLElement | undefined;
+let editor: BlockNoteEditor<any, any, any> | undefined;
 
 function Probe(props: { includeEditorUI: boolean }) {
-  const editor = useCreateBlockNote();
+  const probeEditor = useCreateBlockNote();
+  editor = probeEditor;
   return (
-    <BlockNoteView editor={editor}>
+    <BlockNoteViewRaw editor={probeEditor}>
       <Readout includeEditorUI={props.includeEditorUI} />
-    </BlockNoteView>
+    </BlockNoteViewRaw>
   );
 }
 
@@ -40,6 +41,18 @@ function Readout(props: { includeEditorUI: boolean }) {
   );
 }
 
+async function mount(element: React.ReactElement) {
+  host = document.createElement("div");
+  document.body.append(host);
+  root = createRoot(host);
+  root.render(element);
+  await vi.waitFor(() => {
+    if (!document.querySelector('[data-test="readout"]')) {
+      throw new Error("probe never rendered");
+    }
+  });
+}
+
 function readout() {
   return document.querySelector<HTMLElement>('[data-test="readout"]')!;
 }
@@ -49,6 +62,11 @@ function focusedValue() {
 }
 
 afterEach(() => {
+  root?.unmount();
+  host?.remove();
+  root = undefined;
+  host = undefined;
+  editor = undefined;
   document.querySelectorAll(".zz-outside").forEach((el) => el.remove());
 });
 
@@ -61,11 +79,10 @@ function addOutsideInput() {
 
 describe("useEditorFocus", () => {
   test("reports content focus and blur", async () => {
-    await render(<Probe includeEditorUI={false} />);
-    await waitForSelector(EDITOR_SELECTOR);
+    await mount(<Probe includeEditorUI={false} />);
     expect(focusedValue()).toBe("false");
 
-    await focusOnEditor();
+    editor!.focus();
     await vi.waitFor(() => expect(focusedValue()).toBe("true"));
 
     addOutsideInput().focus();
@@ -73,20 +90,13 @@ describe("useEditorFocus", () => {
   });
 
   test("with includeEditorUI, stays focused across a handoff into the editor's UI", async () => {
-    await render(<Probe includeEditorUI={true} />);
-    const editorElement = await waitForSelector(EDITOR_SELECTOR);
-    await focusOnEditor();
+    await mount(<Probe includeEditorUI={true} />);
+    editor!.focus();
     await vi.waitFor(() => expect(focusedValue()).toBe("true"));
 
-    // A popover input, portalled outside the content area: the portal is the
-    // container child that isn't an ancestor of the content element.
-    const container = editorElement.closest(".bn-container")!;
-    const portal = Array.from(container.children).find(
-      (child) => !child.contains(editorElement),
-    ) as HTMLElement;
-    expect(portal).toBeDefined();
+    // A popover input, portalled outside the content area.
     const popoverInput = document.createElement("input");
-    portal.append(popoverInput);
+    editor!.portalElement.append(popoverInput);
     popoverInput.focus();
 
     // Give the settle a chance to run, then confirm it never dropped.
@@ -99,9 +109,8 @@ describe("useEditorFocus", () => {
   });
 
   test("does not re-render for focus changes elsewhere on the page", async () => {
-    await render(<Probe includeEditorUI={true} />);
-    await waitForSelector(EDITOR_SELECTOR);
-    await focusOnEditor();
+    await mount(<Probe includeEditorUI={true} />);
+    editor!.focus();
     await vi.waitFor(() => expect(focusedValue()).toBe("true"));
 
     const rendersBefore = Number(readout().dataset.renders);
@@ -121,14 +130,14 @@ describe("useEditorFocus", () => {
     expect(Number(readout().dataset.renders)).toBe(rendersAfterBlur);
   });
 
-  test("typing does not re-render the consumer", async () => {
-    await render(<Probe includeEditorUI={true} />);
-    await waitForSelector(EDITOR_SELECTOR);
-    await focusOnEditor();
+  test("document changes do not re-render the consumer", async () => {
+    await mount(<Probe includeEditorUI={true} />);
+    editor!.focus();
     await vi.waitFor(() => expect(focusedValue()).toBe("true"));
 
     const before = Number(readout().dataset.renders);
-    await userEvent.keyboard("some typing that changes the document");
+    editor!.insertInlineContent("some content that changes the document");
+    await new Promise((resolve) => setTimeout(resolve, 40));
 
     expect(Number(readout().dataset.renders)).toBe(before);
   });
@@ -140,7 +149,7 @@ describe("useEditorFocus", () => {
 // re-runs and the editor is unsubscribed and resubscribed each time. That
 // matters more than it looks: with `includeEditorUI` the subscription is
 // reference-counted, so cycling it tears down and re-attaches the document
-// focus listeners and resets the settled baseline. Measured: naive
+// focus listeners and resets the settled baseline. Measured: a naive
 // implementation resubscribes once per render (6 after 5 re-renders), this
 // one stays at 1.
 describe("useEditorFocusChange", () => {
@@ -148,20 +157,20 @@ describe("useEditorFocusChange", () => {
     let subscribes = 0;
 
     function CountingProbe() {
-      const editor = useCreateBlockNote();
+      const probeEditor = useCreateBlockNote();
       // Patch once, not on every render.
       useState(() => {
-        const original = editor.onFocusChange.bind(editor);
-        (editor as any).onFocusChange = (...args: any[]) => {
+        const original = probeEditor.onFocusChange.bind(probeEditor);
+        (probeEditor as any).onFocusChange = (...args: any[]) => {
           subscribes += 1;
           return (original as any)(...args);
         };
         return null;
       });
       return (
-        <BlockNoteView editor={editor}>
+        <BlockNoteViewRaw editor={probeEditor}>
           <Rerenderer />
-        </BlockNoteView>
+        </BlockNoteViewRaw>
       );
     }
 
@@ -177,14 +186,20 @@ describe("useEditorFocusChange", () => {
       );
     }
 
-    await render(<CountingProbe />);
-    await waitForSelector(EDITOR_SELECTOR);
+    host = document.createElement("div");
+    document.body.append(host);
+    root = createRoot(host);
+    root.render(<CountingProbe />);
+    const button = await vi.waitFor(() => {
+      const el = document.querySelector<HTMLElement>('[data-test="rerender"]');
+      if (!el) {
+        throw new Error("probe never rendered");
+      }
+      return el;
+    });
     const afterMount = subscribes;
     expect(afterMount).toBe(1);
 
-    const button = document.querySelector<HTMLElement>(
-      '[data-test="rerender"]',
-    )!;
     for (let i = 0; i < 5; i++) {
       button.click();
       await new Promise((resolve) => setTimeout(resolve, 20));
