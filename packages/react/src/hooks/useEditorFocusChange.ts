@@ -8,8 +8,8 @@ import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
  * `callback` is always invoked without resubscribing on re-renders.
  *
  * By default this reports raw content-area focus/blur; `focused: false` may
- * mean focus moved into the editor's own floating UI (e.g. a toolbar
- * popover's input). Pass `includeFloatingUI: true` to instead observe "is the
+ * mean focus moved into the editor's own UI (e.g. a toolbar
+ * popover's input). Pass `includeEditorUI: true` to instead observe "is the
  * user still interacting with this editor" — floating UI counts as focused,
  * and the callback fires only on settled changes of that combined state.
  *
@@ -33,7 +33,7 @@ export function useEditorFocusChange(
     callbackRef.current = callback;
   });
 
-  const includeFloatingUI = options?.includeFloatingUI ?? false;
+  const includeEditorUI = options?.includeEditorUI ?? false;
 
   useEffect(() => {
     if (!resolvedEditor) {
@@ -44,7 +44,7 @@ export function useEditorFocusChange(
 
     return resolvedEditor.onFocusChange(
       (editorArg, ctx) => callbackRef.current(editorArg, ctx),
-      { includeFloatingUI },
+      { includeEditorUI },
     );
-  }, [resolvedEditor, includeFloatingUI]);
+  }, [resolvedEditor, includeEditorUI]);
 }

@@ -87,8 +87,8 @@ export class EventManager<
 
   /**
    * Settled focus-within-UI tracking. Document-level listeners (attached only
-   * while someone subscribes with `includeFloatingUI`) cover the case tiptap
-   * events can't: focus moving from the editor's floating UI (which lives in
+   * while someone subscribes with `includeEditorUI`) cover the case tiptap
+   * events can't: focus moving from the editor's own UI (which lives in
    * `editor.portalElement`, outside the content area) to somewhere else
    * entirely. Blur-side changes are re-checked a frame later because
    * `document.activeElement` transiently becomes `<body>` during focus
@@ -98,7 +98,7 @@ export class EventManager<
 
   private uiFocusSubscriberCount = 0;
 
-  private uiFocusSettleHandle: number | undefined;
+  private uiFocusSettleHandle: ReturnType<typeof setTimeout> | undefined;
 
   private detachUIFocusTracker: (() => void) | undefined;
 
@@ -128,27 +128,25 @@ export class EventManager<
       return;
     }
     this.uiFocused = this.computeUIFocused();
-    const cancelSettle = () => {
-      if (this.uiFocusSettleHandle !== undefined) {
-        cancelAnimationFrame(this.uiFocusSettleHandle);
-        this.uiFocusSettleHandle = undefined;
-      }
-    };
-    const onFocusIn = (event: FocusEvent) => {
-      cancelSettle();
-      this.settleUIFocus(event);
-    };
+    // On focusin the new element already holds focus, so the state can be
+    // read immediately.
+    const onFocusIn = (event: FocusEvent) => this.settleUIFocus(event);
+
+    // On focusout it can't: `document.activeElement` is still the outgoing
+    // element (and passes through `<body>` mid-handoff), and some UI
+    // libraries restore focus asynchronously — the ariakit and shadcn link
+    // popovers both do. The check therefore has to wait for the current task
+    // to finish. A microtask is too early (verified: those popover tests go
+    // red), and a frame would work but doesn't run in a background tab.
     const onFocusOut = (event: FocusEvent) => {
-      cancelSettle();
-      this.uiFocusSettleHandle = requestAnimationFrame(() => {
-        this.uiFocusSettleHandle = undefined;
-        this.settleUIFocus(event);
-      });
+      clearTimeout(this.uiFocusSettleHandle);
+      this.uiFocusSettleHandle = setTimeout(() => this.settleUIFocus(event));
     };
+
     document.addEventListener("focusin", onFocusIn, true);
     document.addEventListener("focusout", onFocusOut, true);
     this.detachUIFocusTracker = () => {
-      cancelSettle();
+      clearTimeout(this.uiFocusSettleHandle);
       document.removeEventListener("focusin", onFocusIn, true);
       document.removeEventListener("focusout", onFocusOut, true);
       this.detachUIFocusTracker = undefined;
@@ -231,7 +229,7 @@ export class EventManager<
    * gains or loses DOM focus.
    *
    * Note that `focused: false` only means the content area itself blurred —
-   * focus may have moved into the editor's own floating UI (e.g. a toolbar
+   * focus may have moved into the editor's own UI (e.g. a toolbar
    * popover's input). Consumers that need to distinguish should check where
    * `document.activeElement` ended up.
    */
@@ -242,14 +240,14 @@ export class EventManager<
     ) => void,
     options?: {
       /**
-       * When true, the editor's own floating UI (toolbars, menus, popovers —
+       * When true, the editor's own UI (toolbars, menus, popovers —
        * everything portalled into `editor.portalElement`) counts as focused,
        * and events fire only when that combined focus state actually changes,
        * after focus movement has settled. Use this to know whether the user
        * is still interacting with the editor; the default reports raw
        * content-area focus/blur.
        */
-      includeFloatingUI?: boolean;
+      includeEditorUI?: boolean;
     },
   ): Unsubscribe {
     const cb = ({
@@ -262,7 +260,7 @@ export class EventManager<
       callback(this.editor, { focused, event });
     };
 
-    if (options?.includeFloatingUI) {
+    if (options?.includeEditorUI) {
       this.uiFocusSubscriberCount++;
       if (this.uiFocusSubscriberCount === 1) {
         this.attachUIFocusTracker();

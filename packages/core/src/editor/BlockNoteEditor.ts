@@ -807,18 +807,18 @@ export class BlockNoteEditor<
 
   public isFocused(options?: {
     /**
-     * When true, the editor's own floating UI (toolbars, menus, popovers —
+     * When true, the editor's own UI (toolbars, menus, popovers —
      * everything portalled into `editor.portalElement`) also counts as
      * focused, answering "is the user still interacting with this editor?".
      * The default reports content-area focus only.
      */
-    includeFloatingUI?: boolean;
+    includeEditorUI?: boolean;
   }) {
     if (this.headless) {
       return false;
     }
     const contentFocused = this.prosemirrorView?.hasFocus() || false;
-    if (!options?.includeFloatingUI) {
+    if (!options?.includeEditorUI) {
       return contentFocused;
     }
     const active =
@@ -1384,7 +1384,7 @@ export class BlockNoteEditor<
    * loses DOM focus.
    *
    * Note that `focused: false` only means the content area itself blurred —
-   * focus may have moved into the editor's own floating UI (e.g. a toolbar
+   * focus may have moved into the editor's own UI (e.g. a toolbar
    * popover's input).
    *
    * @param callback The callback to execute.
@@ -1397,13 +1397,13 @@ export class BlockNoteEditor<
     ) => void,
     options?: {
       /**
-       * When true, the editor's own floating UI (toolbars, menus, popovers —
+       * When true, the editor's own UI (toolbars, menus, popovers —
        * everything portalled into `editor.portalElement`) counts as focused,
        * and the callback fires only when that combined focus state actually
        * changes, after focus movement has settled. The default reports raw
        * content-area focus/blur events.
        */
-      includeFloatingUI?: boolean;
+      includeEditorUI?: boolean;
     },
   ) {
     return this._eventManager.onFocusChange(callback, options);

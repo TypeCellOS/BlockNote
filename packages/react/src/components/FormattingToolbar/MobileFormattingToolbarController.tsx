@@ -45,20 +45,20 @@ export const MobileFormattingToolbarController = (props: {
   const keyboardOpen = useVirtualKeyboard();
 
   // Whether the user is still interacting with this editor: content focus or
-  // focus within its floating UI (a toolbar popover's input, portalled into
+  // focus within its UI (a toolbar popover's input, portalled into
   // `editor.portalElement`, must not hide the toolbar — unmounting it would
-  // take the popover down with it). `includeFloatingUI` events are settled and
+  // take the popover down with it). `includeEditorUI` events are settled and
   // deduplicated, and the state below only ever holds those settled values —
   // reading the focus state live during a render could observe the transient
   // `<body>` focus of a mid-handoff frame.
   const [focused, setFocused] = useState(() =>
-    editor.isFocused({ includeFloatingUI: true }),
+    editor.isFocused({ includeEditorUI: true }),
   );
   useEffect(() => {
     // Re-sync in case focus changed before the subscription attached.
-    setFocused(editor.isFocused({ includeFloatingUI: true }));
+    setFocused(editor.isFocused({ includeEditorUI: true }));
     return editor.onFocusChange((_editor, ctx) => setFocused(ctx.focused), {
-      includeFloatingUI: true,
+      includeEditorUI: true,
     });
   }, [editor]);
 
