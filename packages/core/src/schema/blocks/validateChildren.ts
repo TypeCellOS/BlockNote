@@ -4,10 +4,13 @@ import type { BlockConfig, ChildrenConfig } from "./types.js";
 type ValidatableConfig = Pick<BlockConfig, "type" | "content"> & {
   children?: ChildrenConfig;
   placement?: BlockConfig["placement"];
+  /** From the block's implementation rather than its config. */
+  runsBefore?: string[];
 };
 
 /**
- * Validates the parts of a `children` config that nothing else catches.
+ * Validates the parts of a container block's declaration that nothing else
+ * catches.
  *
  * Deliberately narrow: TypeScript already rejects malformed configs at compile
  * time, and ProseMirror already reports unknown types, unsatisfiable content
@@ -66,6 +69,27 @@ export function validateChildrenConfigs(
               'Use `allow: "blocks"` to accept all regular blocks, or name only container block types.',
           );
         }
+      }
+    }
+
+    // ProseMirror never sees `runsBefore`, so an entry it cannot act on is a
+    // silent no-op rather than an error. Container nodes register in a
+    // priority band below every regular block (see `containerNodePriority`),
+    // so ordering a container ahead of one is not something the schema could
+    // ever produce.
+    for (const other of config.runsBefore ?? []) {
+      // "default" is `sortByDependencies`' reference point rather than a block
+      // type. A type that isn't in the schema is not this check's concern.
+      if (other === "default" || !(other in blockConfigs)) {
+        continue;
+      }
+
+      if (!isContainerBlockType(other)) {
+        throw new Error(
+          `Invalid \`runsBefore\` for container block "${type}": it names "${other}", which is a regular block, not a container block. ` +
+            "Container block nodes always register below regular ones, so a container can never be ordered before a regular block. " +
+            "`runsBefore` on a container can only name other container blocks.",
+        );
       }
     }
   }
