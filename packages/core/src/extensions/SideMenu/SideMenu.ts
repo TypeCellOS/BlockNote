@@ -304,7 +304,8 @@ export class SideMenuView<
               // non-nested and we only take the x coordinate, it's ok.
               (
                 getDirectChildBlocks(container, containerUIInfo)[0] ??
-                container.firstElementChild!
+                container.firstElementChild ??
+                container
               ).getBoundingClientRect().x
             : (
                 this.pmView.dom.firstChild as HTMLElement

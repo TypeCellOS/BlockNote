@@ -42,12 +42,17 @@ export const BlockPopover = (
           // stamps with `data-node-type`; vanilla containers render that boxed
           // element directly as the node view's DOM.
           if (dom instanceof Element) {
-            const boxed = dom.matches("[data-node-type]")
+            // Scoped to this block's own type: an unscoped descendant search
+            // would match a nested child container's root when the author's
+            // root hasn't been stamped, anchoring the popover to a child.
+            const selector = `[data-node-type="${nodePosInfo.node.type.name}"]`;
+            const boxed = dom.matches(selector)
               ? dom
-              : dom.querySelector("[data-node-type]");
-            if (boxed) {
-              return { element: boxed };
-            }
+              : dom.querySelector(selector);
+            // No stamped root to anchor to, so fall back to the container's
+            // own node element rather than descending into its contentDOM,
+            // which is the first child's box.
+            return { element: boxed ?? dom };
           }
         }
 
