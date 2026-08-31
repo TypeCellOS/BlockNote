@@ -33,6 +33,23 @@ Environment knobs:
 Screenshots land in `.artifacts/`; each session is annotated passed/failed on
 the BrowserStack Automate dashboard.
 
+## What automation here cannot reach
+
+Android's IME decides for itself which action the Enter key performs — it
+picks "Next" (advance focus, no key event at all) when another focusable
+element follows the field, and "Done" (dispatch Enter) otherwise. No input
+channel available to us can press that key: W3C pointer actions are clamped
+to the viewport, this driver exposes no UiAutomator gestures, and
+`mobile: shell` is blocked. Emulation can't help either, since Playwright
+always dispatches a real Enter.
+
+So before a release, on a physical phone:
+
+- Create a link from an editor that is **not** the last one on the page. The
+  keyboard's action key must submit it, rather than jumping focus to the next
+  editor. (See `end-to-end/mobile/linkSubmit.test.tsx` for the half of this
+  that is testable.)
+
 ## Architecture
 
 ```
