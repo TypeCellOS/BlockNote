@@ -183,13 +183,26 @@ export class StyleManager<
    */
   public getSelectedLinkUrl() {
     return this.editor.transact((tr) => {
-      // `from + 1` for the same boundary reason as `editLink` below: at the
-      // left edge of a link (e.g. when the whole link is selected), the mark
-      // lookup at `from` itself misses the mark and the link's URL would
-      // incorrectly read as absent.
-      return this.getLinkMarkAtPos(
-        Math.min(tr.selection.from + 1, tr.doc.content.size),
-      )?.href;
+      const { from, to, empty } = tr.selection;
+      if (empty) {
+        return this.getLinkMarkAtPos(from)?.href;
+      }
+      // For a non-empty selection, probing a single boundary position is
+      // fragile twice over: `marks()` excludes a link at its left edge, and
+      // browsers disagree by a position on where a selection over a link
+      // starts. Scan the selected range for the first link mark instead.
+      let href: string | undefined;
+      tr.doc.nodesBetween(from, to, (node) => {
+        if (href !== undefined) {
+          return false;
+        }
+        const linkMark = node.marks.find((mark) => mark.type.name === "link");
+        if (linkMark) {
+          href = linkMark.attrs.href;
+        }
+        return href === undefined;
+      });
+      return href;
     });
   }
 

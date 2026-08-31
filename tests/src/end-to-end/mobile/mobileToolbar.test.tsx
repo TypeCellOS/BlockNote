@@ -141,8 +141,10 @@ describe("Mobile formatting toolbar", () => {
     });
 
     // Reopening the popover with the whole link selected must pre-fill its
-    // URL: `getSelectedLinkUrl` reads the mark just inside the selection
-    // start, since a lookup exactly at the link's left boundary misses it.
+    // URL: `getSelectedLinkUrl` scans the selected range for the link mark,
+    // since a probe at a single boundary position misses it — `marks()`
+    // excludes a link at its left edge, and browsers disagree by a position
+    // on where a selection over a link starts.
     await userEvent.keyboard("{Shift>}{Home}{/Shift}");
     await userEvent.click(
       await waitForSelector(
