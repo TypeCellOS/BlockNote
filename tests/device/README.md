@@ -37,6 +37,27 @@ Environment knobs:
 Screenshots land in `.artifacts/`; each session is annotated passed/failed on
 the BrowserStack Automate dashboard.
 
+## Integration shape
+
+Every layer of this rig follows BrowserStack's documented Node.js
+integration for Automate (their real-device product — the only one that
+reaches real iOS Safari; their Playwright product runs iOS only as
+Playwright-WebKit on macOS):
+
+- **Client**: `selenium-webdriver`, per the [Automate Node.js
+  docs](https://www.browserstack.com/docs/automate/selenium/getting-started/nodejs),
+  with auth inside the capabilities' `bstack:options` (see `devices.ts`).
+- **Tunnel**: the official
+  [`browserstack-local`](https://github.com/browserstack/browserstack-local-nodejs)
+  binding, which downloads and manages the right daemon per platform. The
+  same path runs locally and in CI, so a CI failure reproduces on a laptop.
+- **`browserstack-node-sdk` is deliberately not used**: it layers on
+  selenium-webdriver but integrates by wrapping a supported test runner
+  (Jest, Mocha), and this repo standardizes on vitest. What it manages —
+  tunnel, capabilities, platform matrix — is covered by the pieces above
+  and `devices.ts`. Revisit if Test Observability becomes interesting.
+
+
 ## Architecture
 
 ```
@@ -66,7 +87,7 @@ tests.
   offset ladders with verify-and-recover.
 - **Android** is well-behaved: element clicks work, and the WebDriver value
   endpoint types into inputs and contenteditables (its implicit field-commit
-  is nondeterministic — always submit explicitly, see `typeAndSubmit`).
+  is nondeterministic — always follow with an explicit Enter key press).
 - Programmatic DOM selections intermittently collapse on iOS; helpers
   re-apply the range on every poll.
 

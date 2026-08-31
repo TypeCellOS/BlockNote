@@ -150,12 +150,6 @@ export async function pressSoftKeyboardEnter(
 }
 
 /**
- * Types into an input and submits it. Android's value endpoint commits the
- * field's action implicitly; iOS gets a dispatched Enter keydown, which React
- * handlers process. See `DeviceSession.elementValue` for the fidelity caveat;
- * use this for setup steps, not for asserting IME behavior.
- */
-/**
  * Types plain text into the editor's contenteditable. Android's value endpoint
  * handles contenteditables; iOS Safari's does not, but protocol key events do.
  */
