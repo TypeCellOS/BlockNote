@@ -222,7 +222,7 @@ exports[`Test ServerBlockNoteEditor > converts to and from markdown (blocksToMar
       "alt": "Alt text",
       "backgroundColor": "default",
       "caption": "Caption",
-      "name": "Alt text",
+      "name": "",
       "showPreview": true,
       "textAlignment": "left",
       "url": "exampleURL",
