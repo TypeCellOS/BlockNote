@@ -171,21 +171,3 @@ export async function typeText(
   }
 }
 
-export async function typeAndSubmit(
-  session: DeviceSession,
-  css: string,
-  text: string,
-): Promise<void> {
-  await session.elementValue(css, text);
-  // Submit with a dispatched Enter keydown on both platforms: Android's value
-  // endpoint *sometimes* commits the field's action implicitly and iOS never
-  // does, so relying on the implicit commit is nondeterministic. React's
-  // handlers process the dispatched event either way.
-  await session.exec(
-    `const el = document.querySelector(arguments[0]);
-     if (el) {
-       el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
-     }`,
-    [css],
-  );
-}

@@ -25,11 +25,6 @@ import {
 import { getRect, mouseSequence } from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
-// The android browser instance runs this suite too (see
-// vite.config.browser.ts); tests that drive selection or resizing with
-// positional mouse drags don't translate to the touch-emulated context:
-const onAndroid = /android/i.test(navigator.userAgent);
-
 describe("Check Copy/Paste Functionality", () => {
   beforeEach(async () => {
     await render(<TestingApp />);
@@ -133,53 +128,51 @@ describe("Check Copy/Paste Functionality", () => {
     },
   );
 
-  // Skipped on android: sets previewWidth by mouse-dragging the resize
-  // handle, which doesn't operate under touch emulation, so the prop is
-  // legitimately absent from the pasted result.
-  test.skipIf(
-    browserName === "firefox" || browserName === "webkit" || onAndroid,
-  )("Images should keep props", async () => {
-    await focusOnEditor();
-    await userEvent.keyboard("paragraph");
+  test.skipIf(browserName === "firefox" || browserName === "webkit")(
+    "Images should keep props",
+    async () => {
+      await focusOnEditor();
+      await userEvent.keyboard("paragraph");
 
-    const IMAGE_EMBED_URL = "https://placehold.co/800x540.png";
-    await executeSlashCommand("image");
+      const IMAGE_EMBED_URL = "https://placehold.co/800x540.png";
+      await executeSlashCommand("image");
 
-    await userEvent.click(await waitForSelector(`[data-test="embed-tab"]`));
-    await userEvent.click(await waitForSelector(`[data-test="embed-input"]`));
-    await userEvent.keyboard(IMAGE_EMBED_URL);
-    await userEvent.click(
-      await waitForSelector(`[data-test="embed-input-button"]`),
-    );
-    await waitForSelector(`img[src="${IMAGE_EMBED_URL}"]`);
+      await userEvent.click(await waitForSelector(`[data-test="embed-tab"]`));
+      await userEvent.click(await waitForSelector(`[data-test="embed-input"]`));
+      await userEvent.keyboard(IMAGE_EMBED_URL);
+      await userEvent.click(
+        await waitForSelector(`[data-test="embed-input-button"]`),
+      );
+      await waitForSelector(`img[src="${IMAGE_EMBED_URL}"]`);
 
-    await userEvent.click(await waitForSelector(`img`));
+      await userEvent.click(await waitForSelector(`img`));
 
-    await waitForSelector(`[class*="bn-resize-handle"][style*="right"]`);
-    const resizeHandleBoundingBox = getRect(
-      `[class*="bn-resize-handle"][style*="right"]`,
-    );
-    await mouseSequence([
-      {
-        type: "move",
-        x: resizeHandleBoundingBox.x + resizeHandleBoundingBox.width / 2,
-        y: resizeHandleBoundingBox.y + resizeHandleBoundingBox.height / 2,
-        steps: 5,
-      },
-      { type: "down" },
-      {
-        type: "move",
-        x: resizeHandleBoundingBox.x + resizeHandleBoundingBox.width / 2 - 50,
-        y: resizeHandleBoundingBox.y + resizeHandleBoundingBox.height / 2,
-        steps: 5,
-      },
-      { type: "up" },
-    ]);
+      await waitForSelector(`[class*="bn-resize-handle"][style*="right"]`);
+      const resizeHandleBoundingBox = getRect(
+        `[class*="bn-resize-handle"][style*="right"]`,
+      );
+      await mouseSequence([
+        {
+          type: "move",
+          x: resizeHandleBoundingBox.x + resizeHandleBoundingBox.width / 2,
+          y: resizeHandleBoundingBox.y + resizeHandleBoundingBox.height / 2,
+          steps: 5,
+        },
+        { type: "down" },
+        {
+          type: "move",
+          x: resizeHandleBoundingBox.x + resizeHandleBoundingBox.width / 2 - 50,
+          y: resizeHandleBoundingBox.y + resizeHandleBoundingBox.height / 2,
+          steps: 5,
+        },
+        { type: "up" },
+      ]);
 
-    await copyPaste();
+      await copyPaste();
 
-    await compareDocToSnapshot("images");
-  });
+      await compareDocToSnapshot("images");
+    },
+  );
 });
 
 describe("Check Copy/Paste From Non-Editable Block", () => {
@@ -190,34 +183,32 @@ describe("Check Copy/Paste From Non-Editable Block", () => {
 
   // Firefox doesn't yet support the async clipboard API. Webkit copy/paste
   // stopped working after updating to Playwright 1.33.
-  // Skipped on android: selects text with a positional mouse drag, which
-  // doesn't operate under touch emulation — Mod+C then copies nothing and the
-  // paste emits whatever the previous test left on the shared clipboard.
-  test.skipIf(
-    browserName === "firefox" || browserName === "webkit" || onAndroid,
-  )("Should be able to copy/paste text from a non-editable block", async () => {
-    // Click and drag across the non-editable block's text to select part of it.
-    const box = getRect('[data-content-type="nonEditable"] p');
-    await mouseSequence([
-      { type: "move", x: box.x + 2, y: box.y + box.height / 2 },
-      { type: "down" },
-      {
-        type: "move",
-        x: box.x + box.width * 0.25,
-        y: box.y + box.height / 2,
-        steps: 5,
-      },
-      { type: "up" },
-    ]);
+  test.skipIf(browserName === "firefox" || browserName === "webkit")(
+    "Should be able to copy/paste text from a non-editable block",
+    async () => {
+      // Click and drag across the non-editable block's text to select part of it.
+      const box = getRect('[data-content-type="nonEditable"] p');
+      await mouseSequence([
+        { type: "move", x: box.x + 2, y: box.y + box.height / 2 },
+        { type: "down" },
+        {
+          type: "move",
+          x: box.x + box.width * 0.25,
+          y: box.y + box.height / 2,
+          steps: 5,
+        },
+        { type: "up" },
+      ]);
 
-    await userEvent.keyboard(`{${MOD}>}c{/${MOD}}`);
+      await userEvent.keyboard(`{${MOD}>}c{/${MOD}}`);
 
-    // Click the trailing block to create a new empty paragraph and focus
-    // the editor there.
-    await userEvent.click(await waitForSelector(DOC_TRAILING_BLOCK_SELECTOR));
+      // Click the trailing block to create a new empty paragraph and focus
+      // the editor there.
+      await userEvent.click(await waitForSelector(DOC_TRAILING_BLOCK_SELECTOR));
 
-    await userEvent.keyboard(`{${MOD}>}v{/${MOD}}`);
+      await userEvent.keyboard(`{${MOD}>}v{/${MOD}}`);
 
-    await compareDocToSnapshot("nonEditableBlock");
-  });
+      await compareDocToSnapshot("nonEditableBlock");
+    },
+  );
 });
