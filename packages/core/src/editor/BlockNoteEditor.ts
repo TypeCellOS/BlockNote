@@ -797,6 +797,27 @@ export class BlockNoteEditor<
    * Checks whether a DOM element belongs to this editor — either inside the
    * editor's DOM tree or inside its portal container (used for floating UI
    * elements like menus and toolbars).
+   *
+   * The first check deliberately starts one level up, at the content area's
+   * *parent*, so that UI rendered as a sibling of the content (rather than
+   * portalled) also counts as part of the editor.
+   *
+   * That makes the result depend on where the editor is mounted, because
+   * `editor.mount(element)` turns `element` itself into the content area —
+   * so the boundary is whatever that element's parent happens to be:
+   *
+   * - With `BlockNoteView` (React) the mount element always sits inside the
+   *   `bn-container` wrapper, so the boundary is that wrapper. Correct.
+   * - Mounting a bare element that is a direct child of `<body>` — which is
+   *   what the vanilla-JS setup in the docs does — makes the boundary
+   *   `<body>`, i.e. the whole page. Everything on the page then counts as
+   *   "within the editor": `isFocused({ includeEditorUI: true })` is always
+   *   true, `onFocusChange` with that option never reports a blur, and the
+   *   side menu's click-outside check (see `SideMenu.ts`) never matches.
+   *
+   * Wrapping the mount element in a container avoids this. Fixing it here
+   * would mean identifying the editor's UI without relying on the parent —
+   * worth doing, but it changes behaviour for every caller.
    */
   public isWithinEditor = (element: Element): boolean => {
     return !!(
