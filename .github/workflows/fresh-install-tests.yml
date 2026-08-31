@@ -82,9 +82,6 @@ jobs:
         name: Build packages
         run: vp run -r build
 
-      - name: Install PDF tooling (veraPDF conformance gate + poppler visual snapshots)
-        run: bash tests/scripts/install-pdf-tooling.sh
-
       - id: run_unit_tests
         name: Run unit tests
         run: vp run test

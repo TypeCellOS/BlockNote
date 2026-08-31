@@ -50,24 +50,38 @@ export type TypstExporterOptions = ExporterOptions & {
 };
 
 /**
+ * The default body font family — what the bundled default fonts declare and
+ * the editor uses. Exported so a custom `fontFamily` fallback list can
+ * reference it without hardcoding, e.g. `[DEFAULT_FONT_FAMILY, "Noto Sans SC"]`.
+ */
+export const DEFAULT_FONT_FAMILY = "Inter 18pt";
+
+/** The default code font family. See {@link DEFAULT_FONT_FAMILY}. */
+export const DEFAULT_MONO_FONT_FAMILY = "Geist Mono";
+
+/**
  * Per-document options applied at export time, passed to `toTypst(blocks, ...)`.
  * Mirrors how the other exporters take title/author/header/footer at the export
  * call rather than in the constructor.
  */
 export type TypstDocumentOptions = {
   /**
-   * Document title — required for PDF/UA (also sets `DisplayDocTitle`).
-   * @default "Document"
+   * Document title, written to the PDF metadata (and shown in the viewer's
+   * title bar). PDF/UA-1 requires one — without it the PDF exporter
+   * produces a tagged but unclaimed document. No default: absent means no
+   * title is written.
    */
   title?: string;
   /**
-   * Document author, written to PDF metadata.
-   * @default ""
+   * Document author, written to PDF metadata. No default.
    */
   author?: string;
   /**
-   * BCP-47 language tag, e.g. "en". Sets the document's natural language.
-   * @default "en"
+   * BCP-47 language tag of the document's natural language, e.g. "en".
+   * The PDF exporter requires it when declaring PDF/UA-1 (the default) —
+   * a wrong language declaration is an accessibility defect no validator
+   * can catch, so it must be stated rather than defaulted. No default
+   * here: absent means the markup declares no language.
    */
   lang?: string;
   /**
@@ -157,8 +171,13 @@ export class TypstExporter<
     // `options.colors[name]` whose types promise a value.
     const newOptions = {
       ...options,
-      fontFamily: options?.fontFamily ?? "Inter 18pt",
-      monoFontFamily: options?.monoFontFamily ?? "Geist Mono",
+      // These family names must match what the PDF exporter's bundled
+      // default font files declare in their name tables (defaultFonts.ts).
+      // The pairing is pinned by pdfExporter.test.ts's "keeps the bundled
+      // default fonts in sync" test - changing a default here without the
+      // matching font file fails it.
+      fontFamily: options?.fontFamily ?? DEFAULT_FONT_FAMILY,
+      monoFontFamily: options?.monoFontFamily ?? DEFAULT_MONO_FONT_FAMILY,
       fontSize: options?.fontSize ?? 12,
       colors: options?.colors ?? COLORS_DEFAULT,
       // Proxy cross-origin image fetches so any host works in the browser, not
@@ -439,9 +458,21 @@ export class TypstExporter<
       families.length === 1
         ? strLit(families[0])
         : `(${families.map(strLit).join(", ")})`;
-    const title = doc.title ?? "Document";
-    const author = doc.author ?? "";
-    const lang = doc.lang ?? "en";
+    // No fabricated metadata: title, author, and language appear only when
+    // supplied. (PDF/UA requires a title and language - the PDF exporter
+    // gates its conformance claim on Typst's validation resp. the language
+    // check, rather than inventing values here.)
+    const documentArgs: string[] = [];
+    if (doc.title !== undefined) {
+      documentArgs.push(`title: ${strLit(doc.title)}`);
+    }
+    if (doc.author !== undefined) {
+      documentArgs.push(`author: ${strLit(doc.author)}`);
+    }
+    const textArgs = [`font: ${fontArg}`, `size: ${fontSize}pt`];
+    if (doc.lang !== undefined) {
+      textArgs.push(`lang: ${strLit(doc.lang)}`);
+    }
     const { header, footer } = doc;
     // Default margins ≈ the editor's 8% horizontal padding (54px / 670px)
     // applied to A4.
@@ -456,8 +487,10 @@ export class TypstExporter<
       pageArgs.push(`footer: [${footer}]`);
     }
     return [
-      `#set document(title: ${strLit(title)}, author: ${strLit(author)})`,
-      `#set text(font: ${fontArg}, size: ${fontSize}pt, lang: ${strLit(lang)})`,
+      ...(documentArgs.length
+        ? [`#set document(${documentArgs.join(", ")})`]
+        : []),
+      `#set text(${textArgs.join(", ")})`,
       `#set page(${pageArgs.join(", ")})`,
       // Line height ≈ the editor's 1.5 (≈18pt at 12pt). Block spacing is applied
       // as *padding* on each block (see applyBlockProps), not margin — so a

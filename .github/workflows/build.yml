@@ -31,14 +31,15 @@ jobs:
       - name: Install Dependencies
         run: vp install
 
+      # `vp run -r build` includes @blocknote/xl-typst-compiler, whose build
+      # task compiles its Rust wasm when missing or stale (rustup is
+      # preinstalled on the runners; the pinned toolchain + wasm32 target
+      # auto-provision from rust/rust-toolchain.toml).
       - name: Build packages
         run: vp run -r build
 
       - name: Lint packages
         run: vp lint
-
-      - name: Install PDF tooling (veraPDF conformance gate + poppler visual snapshots)
-        run: bash tests/scripts/install-pdf-tooling.sh
 
       - name: Run unit tests
         run: vp run test
@@ -55,7 +56,58 @@ jobs:
 
       - name: Soft release
         id: soft-release
-        run: vp dlx pkg-pr-new publish './packages/*' # TODO disabled only for AI branch--compact
+        # xl-typst-compiler is excluded: its wasm makes the package ~25MB,
+        # which pkg.pr.new rejects (413; multipart uploads are whitelisted -
+        # https://github.com/stackblitz-labs/pkg.pr.new/blob/main/.whitelist).
+        # Preview installs of the PDF exporter therefore lack the compiler
+        # until the repo is whitelisted or the wasm ships separately.
+        # TODO disabled only for AI branch--compact
+        run: |
+          packages=()
+          for dir in ./packages/*/; do
+            if [[ "$dir" != *"/xl-typst-compiler/"* ]]; then
+              packages+=("${dir%/}")
+            fi
+          done
+          vp dlx pkg-pr-new publish "${packages[@]}"
+
+  build-typst-compiler:
+    # The one package the e2e suite consumes through build outputs instead of
+    # src/ aliases: @blocknote/xl-typst-compiler (its /pkg and /wasm subpaths
+    # are wasm build artifacts - see tests/vite.config.browser.ts). Built once
+    # on a bare runner - the Playwright container has no C toolchain for the
+    # Rust build - and shared with the shards as an artifact.
+    name: Build Typst compiler
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 100
+          persist-credentials: false
+
+      - uses: voidzero-dev/setup-vp@313600b80b104eadebb9111787d37a2e83e014ca # v1.17.0
+        with:
+          node-version-file: ".node-version"
+          cache: true
+
+      - name: Install dependencies
+        run: vp install
+
+      # Compiles the Rust wasm when missing/stale (rustup is bootstrapped by
+      # the build task itself) plus the TS wrapper's dist/types.
+      - name: Build Typst compiler package
+        run: vp run --filter @blocknote/xl-typst-compiler build
+
+      - name: Upload compiler build outputs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: typst-compiler-build
+          path: |
+            packages/xl-typst-compiler/pkg
+            packages/xl-typst-compiler/dist
+            packages/xl-typst-compiler/types
+          include-hidden-files: true
 
   e2e:
     # Vitest Browser Mode runs in the Playwright Linux container — the same
@@ -63,10 +115,13 @@ jobs:
     # The suite resolves every `@blocknote/*` import to its `src/` via the
     # aliases in `tests/vite.config.browser.ts` (vite transpiles the package
     # sources on the fly), so the packages do NOT need to be built to `dist`
-    # first — `vp install` + the checked-out sources are enough.
+    # first — `vp install` + the checked-out sources are enough (the one
+    # exception, xl-typst-compiler, arrives prebuilt from the
+    # build-typst-compiler job).
     name: "E2E - ${{ matrix.browser }} (${{ matrix.shardIndex }}/${{ matrix.shardTotal }})"
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    needs: build-typst-compiler
     container:
       image: mcr.microsoft.com/playwright:v1.60.0-noble
     strategy:
@@ -88,6 +143,12 @@ jobs:
 
       - name: Install dependencies
         run: vp install
+
+      - name: Download Typst compiler build outputs
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: typst-compiler-build
+          path: packages/xl-typst-compiler
 
       # No preview server: Vitest Browser Mode serves the tests + mounted example
       # apps itself. `--browser` selects this matrix job's browser and

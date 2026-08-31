@@ -20,13 +20,13 @@
     "typescript": "^7.0.2",
     "vite-plus": "catalog:",
     "xml-formatter": "^3.6.7",
-    "@myriaddreamin/typst-ts-node-compiler": "^0.8.0-rc3"
+    "@blocknote/xl-typst-compiler": "workspace:^"
   },
   "peerDependencies": {
     "@zip.js/zip.js": "^2.8.8",
     "image-meta": "^0.2.1",
     "xml-formatter": "^3.6.7",
-    "@myriaddreamin/typst-ts-node-compiler": "^0.8.0-rc3"
+    "@blocknote/xl-typst-compiler": "workspace:^"
   },
   "peerDependenciesMeta": {
     "@zip.js/zip.js": {
@@ -38,7 +38,7 @@
     "xml-formatter": {
       "optional": true
     },
-    "@myriaddreamin/typst-ts-node-compiler": {
+    "@blocknote/xl-typst-compiler": {
       "optional": true
     }
   }

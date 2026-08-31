@@ -68,7 +68,7 @@ describe("TypstExporter", () => {
     await expect(typ).toMatchFileSnapshot("__snapshots__/testDocument.typ");
   });
 
-  it("applies default document options when none are given", async () => {
+  it("fabricates no document metadata when none is given", async () => {
     const exporter = new TypstExporter(schema, typstDefaultSchemaMappings);
 
     const typ = await exporter.toTypst(
@@ -77,10 +77,12 @@ describe("TypstExporter", () => {
       ]),
     );
 
-    expect(typ).toContain('#set document(title: "Document", author: "")');
-    expect(typ).toContain(
-      '#set text(font: "Inter 18pt", size: 12pt, lang: "en")',
-    );
+    // No invented title/author/language - PDF/UA metadata requirements are
+    // enforced (and reported) by the PDF exporter's conformance gating, not
+    // papered over with defaults.
+    expect(typ).not.toContain("#set document(");
+    expect(typ).not.toContain("lang:");
+    expect(typ).toContain('#set text(font: "Inter 18pt", size: 12pt)');
     expect(typ).toContain('#show raw: set text(font: "Geist Mono")');
   });
 

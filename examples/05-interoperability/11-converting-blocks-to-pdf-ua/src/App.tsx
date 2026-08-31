@@ -36,10 +36,12 @@ import {
   multiColumnDropCursor,
   withMultiColumn,
 } from "@blocknote/xl-multi-column";
-// Bundle the Typst compiler wasm so it resolves locally (no CDN / importer).
+// Bundle the Typst compiler wasm explicitly (it would otherwise load from
+// the package's own files - also CDN-free - but an explicit URL keeps the
+// bundling visible in this example).
 // Fonts need no setup: the exporter's bundled defaults (Inter, Geist Mono,
 // math, emoji - matching the editor) load lazily from the package.
-import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
+import compilerWasmUrl from "@blocknote/xl-typst-compiler/wasm?url";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "./styles.css";
@@ -60,25 +62,45 @@ function usePdfUA(
   blocks: Block<any, any, any>[],
 ) {
   const [pdfUrl, setPdfUrl] = useState<string>();
-  const [status, setStatus] = useState<"loading" | "ready" | "error">(
-    "loading",
-  );
+  const [status, setStatus] = useState<
+    "loading" | "ready" | "unclaimed" | "error"
+  >("loading");
 
   useEffect(() => {
     let stale = false;
     setStatus("loading");
     void (async () => {
       try {
-        const blob = await makeExporter().toBlob(
-          blocks,
-          { getModule: () => compilerWasmUrl },
-          { title: "BlockNote document", lang: "en" },
-        );
+        const result = await makeExporter().toPDF(blocks, {
+          title: "BlockNote document",
+          lang: "en",
+        });
         if (stale) {
           return;
         }
-        setPdfUrl(URL.createObjectURL(blob));
-        setStatus("ready");
+        // A document that fails to compile (e.g. text no supplied font
+        // covers) is an expected outcome, reported in the result.
+        if (result.error) {
+          // eslint-disable-next-line no-console
+          console.error(
+            "PDF export failed:",
+            result.compileErrors.map((d) => d.message).join("; "),
+          );
+          setStatus("error");
+          return;
+        }
+        // A nonconforming document (e.g. one not starting with an H1) still
+        // exports - tagged but without the PDF/UA-1 claim; surface why, and
+        // show a distinct status instead of claiming conformance.
+        if (!result.pdfUA.declared && result.pdfUA.reason === "nonconforming") {
+          // eslint-disable-next-line no-console
+          console.info(
+            "Exported without PDF/UA-1 declaration:",
+            result.pdfUA.violations.map((v) => v.message).join("; "),
+          );
+        }
+        setPdfUrl(URL.createObjectURL(result.blob));
+        setStatus(result.pdfUA.declared ? "ready" : "unclaimed");
       } catch (e) {
         if (stale) {
           return;
@@ -182,20 +204,28 @@ export default function App() {
   // every image/diagram variant it has ever rendered.
   const makeExporter = useCallback(
     () =>
-      new PDFExporter(editor.schema, {
-        ...typstDefaultSchemaMappings,
-        blockMapping: {
-          ...typstDefaultSchemaMappings.blockMapping,
-          // Renders math blocks as native Typst equations, and diagrams as
-          // embedded images - both carrying alt text for PDF/UA.
-          mathBlock: mathBlockMapping,
-          diagram: diagramBlockMapping,
+      new PDFExporter(
+        editor.schema,
+        {
+          ...typstDefaultSchemaMappings,
+          blockMapping: {
+            ...typstDefaultSchemaMappings.blockMapping,
+            // Renders math blocks as native Typst equations, and diagrams as
+            // embedded images - both carrying alt text for PDF/UA.
+            mathBlock: mathBlockMapping,
+            diagram: diagramBlockMapping,
+          },
+          inlineContentMapping: {
+            ...typstDefaultSchemaMappings.inlineContentMapping,
+            math: inlineMathMapping,
+          },
         },
-        inlineContentMapping: {
-          ...typstDefaultSchemaMappings.inlineContentMapping,
-          math: inlineMathMapping,
+        {
+          // The bundled compiler wasm (see the import above) - engine setup
+          // belongs to the exporter, per-document facts go to toPDF.
+          wasm: compilerWasmUrl,
         },
-      }),
+      ),
     [editor],
   );
 
@@ -230,7 +260,9 @@ export default function App() {
       ? "Generating…"
       : status === "error"
         ? "Export failed (see console)"
-        : "✓ Tagged PDF/UA-1";
+        : status === "unclaimed"
+          ? "Tagged PDF, no UA-1 claim (see console)"
+          : "✓ Tagged PDF/UA-1";
 
   return (
     <div className="views">

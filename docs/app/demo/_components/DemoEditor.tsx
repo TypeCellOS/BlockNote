@@ -50,7 +50,7 @@ import {
 } from "@blocknote/xl-pdf-exporter";
 // Bundle the Typst compiler wasm (resolved to a local asset in
 // next.config.ts) instead of loading it from a CDN.
-import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
+import compilerWasmUrl from "@blocknote/xl-typst-compiler/wasm?url";
 import { DefaultChatTransport } from "ai";
 import { useTheme } from "next-themes";
 import { useEffect, useMemo, useState } from "react";
@@ -352,12 +352,20 @@ function DemoEditorInner({
       const exporter = new PDFExporter(
         editor.schema,
         typstDefaultSchemaMappings,
+        { wasm: compilerWasmUrl },
       );
-      blob = await exporter.toBlob(
-        editor.document,
-        { getModule: () => compilerWasmUrl },
-        { title: "BlockNote demo document" },
-      );
+      const result = await exporter.toPDF(editor.document, {
+        title: "BlockNote demo document",
+        lang: "en",
+      });
+      if (result.error) {
+        throw new Error(
+          `PDF export failed: ${result.compileErrors
+            .map((d) => d.message)
+            .join("; ")}`,
+        );
+      }
+      blob = result.blob;
     } else if (format === "docx") {
       const exporter = new DOCXExporter(
         editor.schema,

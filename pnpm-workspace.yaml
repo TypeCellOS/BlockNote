@@ -67,6 +67,8 @@ allowBuilds:
   sharp: false
   workerd: false
   leveldown: false
+  # wasm-pack's binary shim self-installs on first run; no install script.
+  wasm-pack: false
 patchedDependencies:
   {
     "@y/prosemirror@2.0.0-6": patches/@y__prosemirror@2.0.0-6.patch,

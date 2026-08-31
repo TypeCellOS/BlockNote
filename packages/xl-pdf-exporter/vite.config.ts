@@ -20,6 +20,9 @@ export default defineConfig(
             // dist/ leaves consumers without declarations (tsc is skipped).
             // Entries stored before this spec carried types/** replay stale
             // declarations; editing this config invalidates them.
+            // (Invalidated again 2026-08: the Typst-compiler migration
+            // replaced pdfua/compileBrowser with pdfua/compileTypst and the
+            // export surface, and cached pre-migration types resurfaced.)
             output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
           },
         },

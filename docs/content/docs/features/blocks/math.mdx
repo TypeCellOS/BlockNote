@@ -119,12 +119,13 @@ import {
 // Spread into the ODTExporter's mappings exactly as for DOCX above.
 ```
 
-### PDF
+### Typst / PDF
 
-With the [PDF exporter](/docs/features/export/pdf) (or the standalone
-[Typst exporter](/docs/features/export/typst) — they share mappings), math
-blocks and inline math export as **native Typst equations**: real, selectable
-text, no rasterization, so they also work server-side out of the box:
+With the [Typst exporter](/docs/features/export/typst) and the
+[PDF exporter](/docs/features/export/pdf) built on it (they share mappings),
+math blocks and inline math export as **native Typst equations**: real,
+selectable text, no rasterization, so they also work server-side out of the
+box:
 
 ```typescript
 import {

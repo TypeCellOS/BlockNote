@@ -126,6 +126,9 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: workspace:*
         version: link:../packages/xl-pdf-exporter
+      '@blocknote/xl-typst-compiler':
+        specifier: workspace:*
+        version: link:../packages/xl-typst-compiler
       '@blocknote/xl-typst-exporter':
         specifier: workspace:*
         version: link:../packages/xl-typst-exporter
@@ -165,12 +168,6 @@ importers:
       '@mui/material':
         specifier: ^5.16.1
         version: 5.18.0(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@myriaddreamin/typst-ts-web-compiler':
-        specifier: ^0.8.0-rc3
-        version: 0.8.0-rc3
-      '@myriaddreamin/typst.ts':
-        specifier: ^0.8.0-rc3
-        version: 0.8.0-rc3(@myriaddreamin/typst-ts-web-compiler@0.8.0-rc3)
       '@orama/orama':
         specifier: ^3.1.18
         version: 3.1.18
@@ -3144,18 +3141,15 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: latest
         version: link:../../../packages/xl-pdf-exporter
+      '@blocknote/xl-typst-compiler':
+        specifier: latest
+        version: link:../../../packages/xl-typst-compiler
       '@mantine/core':
         specifier: ^9.0.2
         version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
         specifier: ^9.0.2
         version: 9.1.1(react@19.2.5)
-      '@myriaddreamin/typst-ts-web-compiler':
-        specifier: ^0.8.0-rc3
-        version: 0.8.0-rc3
-      '@myriaddreamin/typst.ts':
-        specifier: ^0.8.0-rc3
-        version: 0.8.0-rc3(@myriaddreamin/typst-ts-web-compiler@0.8.0-rc3)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -5430,12 +5424,12 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: workspace:^
         version: link:../xl-pdf-exporter
+      '@blocknote/xl-typst-compiler':
+        specifier: workspace:^
+        version: link:../xl-typst-compiler
       '@blocknote/xl-typst-exporter':
         specifier: workspace:^
         version: link:../xl-typst-exporter
-      '@myriaddreamin/typst-ts-node-compiler':
-        specifier: ^0.8.0-rc3
-        version: 0.8.0-rc3
       '@react-email/components':
         specifier: ^1.0.12
         version: 1.0.12(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -5564,12 +5558,12 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: workspace:^
         version: link:../xl-pdf-exporter
+      '@blocknote/xl-typst-compiler':
+        specifier: workspace:^
+        version: link:../xl-typst-compiler
       '@blocknote/xl-typst-exporter':
         specifier: workspace:^
         version: link:../xl-typst-exporter
-      '@myriaddreamin/typst-ts-node-compiler':
-        specifier: ^0.8.0-rc3
-        version: 0.8.0-rc3
       '@react-email/components':
         specifier: ^1.0.12
         version: 1.0.12(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -6240,25 +6234,19 @@ importers:
       '@blocknote/xl-multi-column':
         specifier: workspace:^
         version: link:../xl-multi-column
+      '@blocknote/xl-typst-compiler':
+        specifier: workspace:^
+        version: link:../xl-typst-compiler
       '@blocknote/xl-typst-exporter':
         specifier: workspace:^
         version: link:../xl-typst-exporter
-      '@cantoo/pdf-lib':
-        specifier: ^2.9.1
-        version: 2.9.1(html-entities@2.6.0)
-      '@myriaddreamin/typst-ts-web-compiler':
-        specifier: ^0.8.0-rc3
-        version: 0.8.0-rc3
-      '@myriaddreamin/typst.ts':
-        specifier: ^0.8.0-rc3
-        version: 0.8.0-rc3(@myriaddreamin/typst-ts-web-compiler@0.8.0-rc3)
     devDependencies:
       '@blocknote/shared':
         specifier: workspace:^
         version: link:../../shared
-      '@myriaddreamin/typst-ts-node-compiler':
-        specifier: ^0.8.0-rc3
-        version: 0.8.0-rc3
+      '@cantoo/pdf-lib':
+        specifier: ^2.9.1
+        version: 2.9.1(html-entities@2.6.0)
       '@react-pdf/renderer':
         specifier: ^4.5.1
         version: 4.5.1(react@19.2.5)
@@ -6296,6 +6284,27 @@ importers:
         specifier: 'catalog:'
         version: 0.2.9(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/browser-playwright@4.1.10)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.6.0)(typescript@7.0.2))(terser@5.46.2)(tsx@4.21.0)(typescript@7.0.2)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.9.0))(yaml@2.9.0)
 
+  packages/xl-typst-compiler:
+    devDependencies:
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.6.0
+      rimraf:
+        specifier: ^5.0.10
+        version: 5.0.10
+      rollup-plugin-webpack-stats:
+        specifier: ^0.2.6
+        version: 0.2.6(rollup@4.60.1)
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.2.9(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/browser-playwright@4.1.10)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.6.0)(typescript@7.0.2))(terser@5.46.2)(tsx@4.21.0)(typescript@7.0.2)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.9.0))(yaml@2.9.0)
+      wasm-pack:
+        specifier: ^0.15.0
+        version: 0.15.0
+
   packages/xl-typst-exporter:
     dependencies:
       '@blocknote/core':
@@ -6308,9 +6317,9 @@ importers:
       '@blocknote/shared':
         specifier: workspace:^
         version: link:../../shared
-      '@myriaddreamin/typst-ts-node-compiler':
-        specifier: ^0.8.0-rc3
-        version: 0.8.0-rc3
+      '@blocknote/xl-typst-compiler':
+        specifier: workspace:^
+        version: link:../xl-typst-compiler
       '@types/jsdom':
         specifier: ^21.1.7
         version: 21.1.7
@@ -6386,6 +6395,9 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: workspace:^
         version: link:../packages/xl-pdf-exporter
+      '@blocknote/xl-typst-compiler':
+        specifier: workspace:^
+        version: link:../packages/xl-typst-compiler
       '@blocknote/xl-typst-exporter':
         specifier: workspace:^
         version: link:../packages/xl-typst-exporter
@@ -6422,9 +6434,6 @@ importers:
       '@mui/material':
         specifier: ^5.18.0
         version: 5.18.0(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@myriaddreamin/typst-ts-web-compiler':
-        specifier: ^0.8.0-rc3
-        version: 0.8.0-rc3
       '@react-pdf/math':
         specifier: ^2.0.1
         version: 2.0.1(@react-pdf/renderer@4.5.1(react@19.2.5))(react@19.2.5)
@@ -6538,9 +6547,9 @@ importers:
         specifier: ^0.2.1
         version: 0.2.2
     devDependencies:
-      '@myriaddreamin/typst-ts-node-compiler':
-        specifier: ^0.8.0-rc3
-        version: 0.8.0-rc3
+      '@blocknote/xl-typst-compiler':
+        specifier: workspace:^
+        version: link:../packages/xl-typst-compiler
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0
@@ -6559,6 +6568,9 @@ importers:
 
   tests:
     dependencies:
+      '@blocknote/xl-typst-compiler':
+        specifier: workspace:^
+        version: link:../packages/xl-typst-compiler
       get-port-please:
         specifier: 3.2.0
         version: 3.2.0
@@ -6596,9 +6608,6 @@ importers:
       '@blocknote/xl-typst-exporter':
         specifier: workspace:^
         version: link:../packages/xl-typst-exporter
-      '@myriaddreamin/typst-ts-web-compiler':
-        specifier: ^0.8.0-rc3
-        version: 0.8.0-rc3
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
@@ -7874,6 +7883,10 @@ packages:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
 
+  '@isaacs/fs-minipass@4.0.1':
+    resolution: {integrity: sha512-wgm9Ehl2jpeqP3zw/7mo3kRHFp5MEDhqAdwy1fTGkHAwnkGOVsgpvQhL8B5n1qlb01jV3n/bI0ZfZp5lWA1k4w==}
+    engines: {node: '>=18.0.0'}
+
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
 
@@ -8086,94 +8099,6 @@ packages:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
       '@types/react':
-        optional: true
-
-  '@myriaddreamin/typst-ts-node-compiler-android-arm-eabi@0.8.0-rc3':
-    resolution: {integrity: sha512-HNqXX1Pyt4BI7WetnrcCX+Yfz+K0L9I/Eklhko22+XSVz+OchPD4To8E2dOkIV1H3lC302OrnAoNcXWZpQc9Pw==}
-    engines: {node: '>= 10'}
-    cpu: [arm]
-    os: [android]
-
-  '@myriaddreamin/typst-ts-node-compiler-android-arm64@0.8.0-rc3':
-    resolution: {integrity: sha512-PS1jRRGWxZ6Fuv8BgppgENdpQX1AfZaBwQq+81onkE53CoDpMTuD41UFjqdKrOos/BnCjrie/jjBWRVCt4NNNg==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [android]
-
-  '@myriaddreamin/typst-ts-node-compiler-darwin-arm64@0.8.0-rc3':
-    resolution: {integrity: sha512-PmJ11x/pYvg2pF8y3wVV92Tk3fjiGdxWk2sXuUXcwsebH4wr3UDb2bsPyVUE6deNJ6SrUafglKm1nnXf4QMe8w==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@myriaddreamin/typst-ts-node-compiler-darwin-x64@0.8.0-rc3':
-    resolution: {integrity: sha512-DoYzkayAnad/x5I5eXW8YTkZVTpthzMKn1HtbwSFP87QCEecFFQFgSKGYpSfWPedNAc8ZMnTzk1XsuuE7s6SUA==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@myriaddreamin/typst-ts-node-compiler-linux-arm-gnueabihf@0.8.0-rc3':
-    resolution: {integrity: sha512-6mNiQ5S+pTAJA6xiHtMMYjJWBa+YnpnawK2To3Y9UpzNkhgIipi1Nd0m+E6lQsqFFwjlYR/0EPlgcpQQOzP+Fg==}
-    engines: {node: '>= 10'}
-    cpu: [arm]
-    os: [linux]
-
-  '@myriaddreamin/typst-ts-node-compiler-linux-arm64-gnu@0.8.0-rc3':
-    resolution: {integrity: sha512-+c8a+W+mcLH6SGFh99HKiiNUEIQB7pZ3CyyFsl94IIuq+MqOAI9uEYPzauKsIsbDc9ZsWC9rie2wSYQHLvmNSg==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-    libc: [glibc]
-
-  '@myriaddreamin/typst-ts-node-compiler-linux-arm64-musl@0.8.0-rc3':
-    resolution: {integrity: sha512-bEYNf4eiyJqOo1AO/WRacRoXiKvJ60KHb3zItETR50GwV9bck+rhSwzLfWO9VsckKMPdWeovSVLcHkl9IHvMJA==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-    libc: [musl]
-
-  '@myriaddreamin/typst-ts-node-compiler-linux-x64-gnu@0.8.0-rc3':
-    resolution: {integrity: sha512-bqqb2NCCytrrI4GD6LST7FIM3jsyBPRqZ9LtPFi7IGLEHPokWN1PkuZtbwJ4mxb3/eD7ovd5G6Qyv2WDqesW2Q==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-    libc: [glibc]
-
-  '@myriaddreamin/typst-ts-node-compiler-linux-x64-musl@0.8.0-rc3':
-    resolution: {integrity: sha512-uqjicMMq+ePQxsmjwQyGXYv7WK6DvGMfCSKzuv1jHLVFxD8BQFJ5UXWgMaOopCdRkFL1SdUzzipGaeo/8GQkpw==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-    libc: [musl]
-
-  '@myriaddreamin/typst-ts-node-compiler-win32-arm64-msvc@0.8.0-rc3':
-    resolution: {integrity: sha512-O2pAiIAKMMV+lRGSE1a+EqCJUWc+Gfi4zyo9OXTXeCnpzICp4P4vIUrjU6R784gJjuG+p4tQP+n3PRw81mkbIA==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@myriaddreamin/typst-ts-node-compiler-win32-x64-msvc@0.8.0-rc3':
-    resolution: {integrity: sha512-G/uP+tlOZLx0OXXO4CEqo2D/ewHc8uBqmGD5p6f+LX3SBbRSqB6CosDS7PCfh2tehfdC7HNXyLtey9s2g4Xg9w==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [win32]
-
-  '@myriaddreamin/typst-ts-node-compiler@0.8.0-rc3':
-    resolution: {integrity: sha512-UV/LynOjsoXvbPigusm7IGusu22cENI5UDGdMFWK6B6E0F74r9S+TnY/TAGN3S6PvJvpgMTo9Y/MvmqDlgzB8w==}
-    engines: {node: '>= 10'}
-
-  '@myriaddreamin/typst-ts-web-compiler@0.8.0-rc3':
-    resolution: {integrity: sha512-akc8TlhBzldlU1DtbDvR/6ufzgJmQrZMqfYY2fCFbH7y/+h3YdmnyF+twtVqwv+g6YuFXm/Oc1wwa6cYQX4/aw==}
-
-  '@myriaddreamin/typst.ts@0.8.0-rc3':
-    resolution: {integrity: sha512-Z5SzwBRNV3a8Zz6BCdUBnAKRQj2khNM90dhwFpGkefIYiFJ5AUj/F02uoyDZmY2TvziDKEsJn0800BeF7J8mAw==}
-    peerDependencies:
-      '@myriaddreamin/typst-ts-renderer': ^0.8.0-rc3
-      '@myriaddreamin/typst-ts-web-compiler': ^0.8.0-rc3
-    peerDependenciesMeta:
-      '@myriaddreamin/typst-ts-renderer':
-        optional: true
-      '@myriaddreamin/typst-ts-web-compiler':
         optional: true
 
   '@napi-rs/wasm-runtime@1.1.4':
@@ -12309,6 +12234,10 @@ packages:
   chownr@1.1.4:
     resolution: {integrity: sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg==}
 
+  chownr@3.0.0:
+    resolution: {integrity: sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g==}
+    engines: {node: '>=18'}
+
   chrome-trace-event@1.0.4:
     resolution: {integrity: sha512-rNjApaLzuwaOTjCiT8lSDdGN1APCiqkChLMJxJPWLunPAt5fy8xgU9/jNOchV84wfIxrA0lRQB7oCT8jrn/wrQ==}
     engines: {node: '>=6.0'}
@@ -13030,6 +12959,7 @@ packages:
   eslint@9.39.4:
     resolution: {integrity: sha512-XoMjdBOwe/esVgEvLmNsD3IRHkm7fbKIUGvrleloJXUZgDHig2IPWNniv+GwjyJXzuNqVjlr5+4yVUZjycJwfQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -13577,9 +13507,6 @@ packages:
   iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
     engines: {node: '>=0.10.0'}
-
-  idb@7.1.1:
-    resolution: {integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==}
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -14544,6 +14471,10 @@ packages:
   minipass@7.1.3:
     resolution: {integrity: sha512-tEBHqDnIoM/1rXME1zgka9g6Q2lcoCkxHLuc7ODJ5BxbP5d4c2Z5cGgtXAku59200Cx7diuHTOYfSBD8n6mm8A==}
     engines: {node: '>=16 || 14 >=14.17'}
+
+  minizlib@3.1.0:
+    resolution: {integrity: sha512-KZxYo1BUkWD2TVFLr0MQoM8vUUigWD3LlD83a/75BqC+4qE0Hb1Vo5v1FgcfaNXvfXzr+5EhQ6ing/CaBijTlw==}
+    engines: {node: '>= 18'}
 
   mj-context-menu@0.6.1:
     resolution: {integrity: sha512-7NO5s6n10TIV96d4g2uDpG7ZDpIhMh0QNfGdJw/W47JswFcosz457wqz/b5sAKvl12sxINGFCn80NZHKwxQEXA==}
@@ -15989,6 +15920,10 @@ packages:
     resolution: {integrity: sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==}
     engines: {node: '>=6'}
 
+  tar@7.5.22:
+    resolution: {integrity: sha512-MFO/QzvtAOmJbkhOaCTvbGcFN9L9b+JunIsDwaKljSOdcLMea3NJ1k9Usz/rjdfSXTq4dfzfeS7W4p4YOAAHeA==}
+    engines: {node: '>=18'}
+
   terser-webpack-plugin@5.5.0:
     resolution: {integrity: sha512-UYhptBwhWvfIjKd/UuFo6D8uq9xpGLDK+z8EDsj/zWhrTaH34cKEbrkMKfV5YWqGBvAYA3tlzZbs2R+qYrbQJA==}
     engines: {node: '>= 10.13.0'}
@@ -16452,6 +16387,11 @@ packages:
     engines: {node: '>=20.0.0'}
     hasBin: true
 
+  wasm-pack@0.15.0:
+    resolution: {integrity: sha512-DdqtGWc3+iFx+7lL7QU5LBWs7qMnwQSWxF0htSfE15sNa3roVwHjAkTm2JXgueU2GGfSwNqbq2EzyC2b/biKDA==}
+    engines: {node: '>=16'}
+    hasBin: true
+
   watchpack@2.5.1:
     resolution: {integrity: sha512-Zn5uXdcFNIA1+1Ei5McRd+iRzfhENPCe7LeABkJtNulSxjma+l7ltNx55BWZkRlwRnpOgHqxnjyaDgJnNXnqzg==}
     engines: {node: '>=10.13.0'}
@@ -16662,6 +16602,10 @@ packages:
 
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
+
+  yallist@5.0.0:
+    resolution: {integrity: sha512-YgvUTfwqyc7UXVMrB+SImsVYSmTS8X/tSrtdNZMImM+n7+QTriRXyXim0mBrTXNeqzVF0KWGgHPeiyViFFrNDw==}
+    engines: {node: '>=18'}
 
   yaml@1.10.3:
     resolution: {integrity: sha512-vIYeF1u3CjlhAFekPPAk2h/Kv4T3mAkMox5OymRiJQB0spDP10LHvt+K7G9Ny6NuuMAb25/6n1qyUjAcGNf/AA==}
@@ -18092,6 +18036,10 @@ snapshots:
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
+  '@isaacs/fs-minipass@4.0.1':
+    dependencies:
+      minipass: 7.1.3
+
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -18384,61 +18332,6 @@ snapshots:
       react-is: 19.2.4
     optionalDependencies:
       '@types/react': 19.2.14
-
-  '@myriaddreamin/typst-ts-node-compiler-android-arm-eabi@0.8.0-rc3':
-    optional: true
-
-  '@myriaddreamin/typst-ts-node-compiler-android-arm64@0.8.0-rc3':
-    optional: true
-
-  '@myriaddreamin/typst-ts-node-compiler-darwin-arm64@0.8.0-rc3':
-    optional: true
-
-  '@myriaddreamin/typst-ts-node-compiler-darwin-x64@0.8.0-rc3':
-    optional: true
-
-  '@myriaddreamin/typst-ts-node-compiler-linux-arm-gnueabihf@0.8.0-rc3':
-    optional: true
-
-  '@myriaddreamin/typst-ts-node-compiler-linux-arm64-gnu@0.8.0-rc3':
-    optional: true
-
-  '@myriaddreamin/typst-ts-node-compiler-linux-arm64-musl@0.8.0-rc3':
-    optional: true
-
-  '@myriaddreamin/typst-ts-node-compiler-linux-x64-gnu@0.8.0-rc3':
-    optional: true
-
-  '@myriaddreamin/typst-ts-node-compiler-linux-x64-musl@0.8.0-rc3':
-    optional: true
-
-  '@myriaddreamin/typst-ts-node-compiler-win32-arm64-msvc@0.8.0-rc3':
-    optional: true
-
-  '@myriaddreamin/typst-ts-node-compiler-win32-x64-msvc@0.8.0-rc3':
-    optional: true
-
-  '@myriaddreamin/typst-ts-node-compiler@0.8.0-rc3':
-    optionalDependencies:
-      '@myriaddreamin/typst-ts-node-compiler-android-arm-eabi': 0.8.0-rc3
-      '@myriaddreamin/typst-ts-node-compiler-android-arm64': 0.8.0-rc3
-      '@myriaddreamin/typst-ts-node-compiler-darwin-arm64': 0.8.0-rc3
-      '@myriaddreamin/typst-ts-node-compiler-darwin-x64': 0.8.0-rc3
-      '@myriaddreamin/typst-ts-node-compiler-linux-arm-gnueabihf': 0.8.0-rc3
-      '@myriaddreamin/typst-ts-node-compiler-linux-arm64-gnu': 0.8.0-rc3
-      '@myriaddreamin/typst-ts-node-compiler-linux-arm64-musl': 0.8.0-rc3
-      '@myriaddreamin/typst-ts-node-compiler-linux-x64-gnu': 0.8.0-rc3
-      '@myriaddreamin/typst-ts-node-compiler-linux-x64-musl': 0.8.0-rc3
-      '@myriaddreamin/typst-ts-node-compiler-win32-arm64-msvc': 0.8.0-rc3
-      '@myriaddreamin/typst-ts-node-compiler-win32-x64-msvc': 0.8.0-rc3
-
-  '@myriaddreamin/typst-ts-web-compiler@0.8.0-rc3': {}
-
-  '@myriaddreamin/typst.ts@0.8.0-rc3(@myriaddreamin/typst-ts-web-compiler@0.8.0-rc3)':
-    dependencies:
-      idb: 7.1.1
-    optionalDependencies:
-      '@myriaddreamin/typst-ts-web-compiler': 0.8.0-rc3
 
   '@napi-rs/wasm-runtime@1.1.4(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)':
     dependencies:
@@ -22559,6 +22452,8 @@ snapshots:
 
   chownr@1.1.4: {}
 
+  chownr@3.0.0: {}
+
   chrome-trace-event@1.0.4: {}
 
   citty@0.1.6:
@@ -24007,8 +23902,6 @@ snapshots:
     dependencies:
       safer-buffer: 2.1.2
 
-  idb@7.1.1: {}
-
   ieee754@1.2.1: {}
 
   ignore@5.3.2: {}
@@ -25151,6 +25044,10 @@ snapshots:
   minimist@1.2.8: {}
 
   minipass@7.1.3: {}
+
+  minizlib@3.1.0:
+    dependencies:
+      minipass: 7.1.3
 
   mj-context-menu@0.6.1: {}
 
@@ -26878,6 +26775,14 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
 
+  tar@7.5.22:
+    dependencies:
+      '@isaacs/fs-minipass': 4.0.1
+      chownr: 3.0.0
+      minipass: 7.1.3
+      minizlib: 3.1.0
+      yallist: 5.0.0
+
   terser-webpack-plugin@5.5.0(esbuild@0.27.5)(webpack@5.105.4(esbuild@0.27.5)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
@@ -27412,6 +27317,10 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
+  wasm-pack@0.15.0:
+    dependencies:
+      tar: 7.5.22
+
   watchpack@2.5.1:
     dependencies:
       glob-to-regexp: 0.4.1
@@ -27640,6 +27549,8 @@ snapshots:
   y18n@5.0.8: {}
 
   yallist@3.1.1: {}
+
+  yallist@5.0.0: {}
 
   yaml@1.10.3: {}
 
