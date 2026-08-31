@@ -192,4 +192,45 @@ describe('insertBlocks "first-child" / "last-child"', () => {
       editor.insertBlocks([{ type: "paragraph" }], "c-0", "after"),
     ).toThrow(/its parent does not accept it/);
   });
+
+  it("throws when only the first of several blocks would fit", () => {
+    editor.replaceBlocks(editor.document, [
+      { id: "p-0", type: "paragraph", content: "Paragraph 0" },
+    ]);
+
+    // Nesting under a childless regular block wraps the batch in a fresh
+    // `blockGroup`, which takes the paragraph but not the `containerOnly`
+    // cell. Validating only the first node used to let the batch through and
+    // fail later with a raw ProseMirror `ReplaceError`.
+    expect(() =>
+      editor.insertBlocks(
+        [{ type: "paragraph" }, { type: "cell" }],
+        "p-0",
+        "last-child",
+      ),
+    ).toThrow(/does not accept them as children/);
+
+    expect(editor.getBlock("p-0")!.children).toEqual([]);
+  });
+
+  it("still inserts a batch that fits in full", () => {
+    editor.replaceBlocks(editor.document, [
+      { id: "b-0", type: "box", children: [] },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.insertBlocks(
+      [
+        { id: "one", type: "paragraph" },
+        { id: "two", type: "paragraph" },
+      ],
+      "b-0",
+      "last-child",
+    );
+
+    expect(editor.getBlock("b-0")!.children.map((child) => child.id)).toEqual([
+      "one",
+      "two",
+    ]);
+  });
 });
