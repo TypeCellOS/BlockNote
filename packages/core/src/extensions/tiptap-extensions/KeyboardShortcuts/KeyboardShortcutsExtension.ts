@@ -1,6 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { Fragment, Node } from "prosemirror-model";
-import { TextSelection } from "prosemirror-state";
+import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
 
 import {
   getBottomNestedBlockInfo,
@@ -22,6 +22,7 @@ import {
   getBlockInfoFromSelection,
 } from "../../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { isAndroid } from "../../../util/browser.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
 
@@ -30,6 +31,61 @@ export const KeyboardShortcutsExtension = Extension.create<{
   tabBehavior: "prefer-navigate-ui" | "prefer-indent";
 }>({
   priority: 50,
+
+  addProseMirrorPlugins() {
+    return [
+      // On Android, Enter never reaches the keymap: the IME delivers it as a
+      // `beforeinput` (the keydown is keyCode 229), and prosemirror-view
+      // additionally ignores Enter keydowns on Android Chrome. ProseMirror's
+      // fallback — parsing the browser's native DOM split and synthesizing an
+      // Enter key event — fails to recognize the split in BlockNote's nested
+      // block DOM and corrupts the document instead (Enter inserting a space,
+      // doing nothing, or breaking tables — TypeCellOS/BlockNote#3001).
+      // Intercepting the `beforeinput` and running the keymap chain directly
+      // bypasses the fragile DOM diffing entirely.
+      new Plugin({
+        key: new PluginKey("blockNoteAndroidEnter"),
+        props: {
+          handleDOMEvents: {
+            beforeinput: (view, event) => {
+              if (!isAndroid() || view.composing) {
+                return false;
+              }
+              if (
+                event.inputType !== "insertParagraph" &&
+                event.inputType !== "insertLineBreak"
+              ) {
+                return false;
+              }
+              event.preventDefault();
+              // Restore the parity prosemirror-view skips here: for normal
+              // keydowns it force-flushes pending DOM observations (including
+              // selection changes) before running key handlers, but its
+              // Android Enter bail returns before that flush — without it the
+              // synthesized Enter can run against a stale selection (e.g. a
+              // just-made cross-block selection that hasn't synced yet).
+              (
+                view as typeof view & {
+                  domObserver: { forceFlush(): void };
+                }
+              ).domObserver.forceFlush();
+              view.someProp("handleKeyDown", (handler) =>
+                handler(
+                  view,
+                  new KeyboardEvent("keydown", {
+                    key: "Enter",
+                    code: "Enter",
+                    shiftKey: event.inputType === "insertLineBreak",
+                  }),
+                ),
+              );
+              return true;
+            },
+          },
+        },
+      }),
+    ];
+  },
 
   // TODO: The shortcuts need a refactor. Do we want to use a command priority
   //  design as there is now, or clump the logic into a single function?

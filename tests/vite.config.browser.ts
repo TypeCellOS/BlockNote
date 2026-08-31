@@ -188,18 +188,26 @@ export default defineConfig(
                   hasTouch: true,
                 },
               }),
-              // Only the mobile-specific tests for now. The behavioural
+              // Mobile-specific tests plus the screenshot-free behavioural
               // suites where Android genuinely differs (IME key handling,
-              // suggestion menus) are added alongside the fix that makes them
-              // pass under this emulation — running them here first would
-              // just be reporting a known editor bug as a test failure.
+              // suggestion menus). Those only pass under this emulation with
+              // the Enter fix in this change — before it, every test that
+              // presses Enter to make a second block failed here.
               //
               // Keep iframe-screenshotting suites (the exporters'
               // `screenshotFull` previews) out permanently: Playwright's
               // element-screenshot path for iframe elements drops the
               // context's touch emulation for later files (see
-              // utils/ensureTouchEmulation.ts).
-              include: ["./src/end-to-end/mobile/**/*.test.tsx"],
+              // utils/ensureTouchEmulation.ts). Individual tests that drive
+              // selection or resizing with positional mouse drags carry
+              // `skipIf(onAndroid)` guards. Not included: indentation (drives
+              // the desktop floating toolbar, clipped at phone width).
+              include: [
+                "./src/end-to-end/mobile/**/*.test.tsx",
+                "./src/end-to-end/keyboardhandlers/**/*.test.tsx",
+                "./src/end-to-end/emojipicker/**/*.test.tsx",
+                "./src/end-to-end/copypaste/**/*.test.tsx",
+              ],
             },
           ],
         },
