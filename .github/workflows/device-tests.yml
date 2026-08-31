@@ -1,17 +1,27 @@
 name: Device tests
 
-# Real-device tests on BrowserStack: nightly, and on demand. Requires the
+# Real-device tests on BrowserStack, as part of normal CI. Requires the
 # BROWSERSTACK_USERNAME / BROWSERSTACK_ACCESS_KEY repository secrets; see
-# tests/device/README.md.
+# tests/device/README.md. Fork PRs have no secrets — the suite self-skips
+# and the job passes as a no-op.
 on:
-  schedule:
-    - cron: "30 3 * * *"
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       device_filter:
         description: "Substring of a device id from tests/device/devices.ts"
         required: false
         default: ""
+
+# Device minutes are metered: a new push to the same PR supersedes the
+# previous run.
+concurrency:
+  group: device-tests-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -36,7 +46,7 @@ jobs:
       - name: Start playground dev server
         run: |
           vp run dev &
-          for i in $(seq 1 120); do
+          for _ in $(seq 1 120); do
             if curl -sf http://127.0.0.1:5173/ > /dev/null; then exit 0; fi
             sleep 2
           done
