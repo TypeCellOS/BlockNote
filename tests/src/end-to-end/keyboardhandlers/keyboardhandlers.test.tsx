@@ -22,7 +22,16 @@ beforeEach(async () => {
   await waitForSelector(EDITOR_SELECTOR);
 });
 
+// The android browser instance runs this suite too (see
+// vite.config.browser.ts); a couple of tests use idioms that don't transfer:
+const onAndroid = /android/i.test(navigator.userAgent);
+
 describe("Check Keyboard Handlers' Behaviour", () => {
+  // Also covers the android instance: with a cross-block selection,
+  // prosemirror-view's Android keydown bail skips Enter handling and its own
+  // keypress handler cancels the browser default without doing anything —
+  // BlockNote's keypress interception (KeyboardShortcutsExtension) closes
+  // that hole. See also the cross-block case in mobile/androidEnter.test.tsx.
   test("Check Enter when selection is not empty", async () => {
     await focusOnEditor();
     await insertHeading(1);
@@ -42,7 +51,10 @@ describe("Check Keyboard Handlers' Behaviour", () => {
 
     await compareDocToSnapshot("enterSelectionNotEmpty");
   });
-  test("Check Enter preserves marks", async () => {
+  // Skipped on the android instance: drives selection with coordinate
+  // double-clicks, a mouse idiom that doesn't translate to touch emulation at
+  // phone width.
+  test.skipIf(onAndroid)("Check Enter preserves marks", async () => {
     await focusOnEditor();
     await insertHeading(1);
 
@@ -313,6 +325,12 @@ describe("Check Keyboard Handlers' Behaviour", () => {
     await insertParagraph();
 
     await userEvent.keyboard("{ArrowUp}");
+    // ArrowUp crosses from an unnested line into an indented one, so its
+    // goal-x lands near the last character's boundary — which side it falls
+    // on varies with subpixel text metrics (flaky on the mobile-emulated
+    // instances). The test is about Delete at the *end* of the block; make
+    // that position explicit.
+    await userEvent.keyboard("{End}");
     await userEvent.keyboard("{Delete}");
 
     await compareDocToSnapshot("deleteShallowerBlock");
