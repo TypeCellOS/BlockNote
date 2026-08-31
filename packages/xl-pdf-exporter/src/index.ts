@@ -16,6 +16,7 @@ export {
   type TypstCompileOptions,
 } from "./pdfua/compileTypst.js";
 export {
+  DEFAULT_EMOJI_FONT_FAMILY,
   loadDefaultBodyFonts,
   loadDefaultEmojiFont,
 } from "./pdfua/defaultFonts.js";

@@ -1,5 +1,6 @@
 import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import {
+  TYPST_CODE_THEME_PATH,
   TypstExporter,
   typstDefaultSchemaMappings,
 } from "@blocknote/xl-typst-exporter";
@@ -50,7 +51,10 @@ describe("typst exporter mappings", () => {
 
       // The rendered image is registered as a compiler asset.
       const assets = exporter.assetFiles;
-      expect([...assets.keys()]).toEqual(["/assets/asset-0"]);
+      expect([...assets.keys()]).toEqual([
+        TYPST_CODE_THEME_PATH,
+        "/assets/asset-0",
+      ]);
 
       // Compile under Typst's own PDF/UA-1 validation - it *errors* on
       // figures without alt text, so this proves the mapping's figures stay
@@ -76,7 +80,10 @@ describe("typst exporter mappings", () => {
       });
 
       const assets = exporter.assetFiles;
-      expect([...assets.keys()]).toEqual(["/assets/asset-0"]);
+      expect([...assets.keys()]).toEqual([
+        TYPST_CODE_THEME_PATH,
+        "/assets/asset-0",
+      ]);
       expect(typst).toContain('image("/assets/asset-0"');
 
       const pdf = await compileTypstForTesting(typst, {
@@ -96,7 +103,13 @@ describe("typst exporter mappings", () => {
     // first line), not the renderer's message - and no figure.
     expect(typst).toContain('Invalid diagram \\"graph TD');
     expect(typst).not.toContain("#figure");
-    expect(exporter.assetFiles.size).toBe(0);
+    // No *image* assets registered (assetFiles always carries the code
+    // highlighting theme).
+    expect(
+      [...exporter.assetFiles.keys()].filter((key) =>
+        key.startsWith("/assets/asset-"),
+      ),
+    ).toHaveLength(0);
   });
 
   it("should require a renderer outside the browser", async () => {

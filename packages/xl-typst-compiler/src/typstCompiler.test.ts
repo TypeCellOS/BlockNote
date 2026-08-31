@@ -239,20 +239,25 @@ describe("the real exporter document", () => {
         font("noto/Noto-COLRv1.ttf"),
       ],
     });
+    const exporterSrc = join(pkgDir, "..", "xl-typst-exporter", "src");
     const source = readFileSync(
-      join(
-        pkgDir,
-        "..",
-        "xl-typst-exporter",
-        "src",
-        "__snapshots__",
-        "testDocument.typ",
-      ),
+      join(exporterSrc, "__snapshots__", "testDocument.typ"),
       "utf8",
+    );
+    // The exporter's markup references its assets: the document's image and
+    // the code-highlighting theme (which the exporter's `assetFiles` always
+    // carries - a consumer maps them all in, and so does this test). The
+    // theme is read from the exporter's source like the snapshot itself; if
+    // the exporter renames the path, this compile fails loudly.
+    const codeTheme = new Uint8Array(
+      readFileSync(join(exporterSrc, "codeTheme.tmTheme")),
     );
     const { pdf } = expectPdf(
       full.compilePdf(source, {
-        assets: new Map([["/assets/asset-0", png]]),
+        assets: new Map([
+          ["/assets/asset-0", png],
+          ["/assets/code-theme.tmTheme", codeTheme],
+        ]),
         pdfStandard: "ua-1",
       }),
     );

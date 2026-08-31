@@ -10,6 +10,7 @@ import {
   StyledText,
 } from "@blocknote/core";
 import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
+import { TYPST_CODE_THEME_BYTES, TYPST_CODE_THEME_PATH } from "./codeTheme.js";
 import {
   CHECKBOX_MARKER_DEFS,
   checkboxMarker,
@@ -288,29 +289,38 @@ export class TypstExporter<
       block.children,
       nestingLevel + 1,
     );
-    let content = body;
-    if (children.length) {
-      // As in `wrapBlock`: the item's alignment wraps its own body only, so
-      // nested children keep their own alignment (matching the editor).
-      content = this.applyOwnAlignment(block.props, content);
-      // Separate the item body from its children with a blank line so a child
-      // *paragraph* becomes its own block (a single "\n" is only a soft break in
-      // Typst markup); nested lists carry their own indentation either way.
-      content += "\n\n" + children.join("\n\n");
+    const checked =
+      block.type === "checkListItem"
+        ? ((block.props as { checked?: boolean }).checked ?? false)
+        : undefined;
+    // The editor strikes a checked item's own text (not its children).
+    const own = checked ? `#strike[${body}]` : body;
+    // Use the checkbox as the item's list marker (so wrapped lines hang under
+    // the text) via a single-item inner list; wrapList groups these under one
+    // outer marker-less list, keeping a proper L > LI structure.
+    if (!children.length) {
+      return this.applyBlockProps(
+        block.props,
+        checked === undefined
+          ? own
+          : `#list(marker: ${checkboxMarker(checked)}, [${own}])`,
+      );
     }
-    if (block.type === "checkListItem") {
-      const checked = (block.props as { checked?: boolean }).checked;
-      // Use the checkbox as the item's list marker (so wrapped lines hang under
-      // the text) via a single-item inner list; wrapList groups these under one
-      // outer marker-less list, keeping a proper L > LI structure. The body and
-      // any nested children are wrapped together so children nest under the item.
-      content = `#list(marker: ${checkboxMarker(checked ?? false)}, [${content}])`;
-    }
-    return this.applyBlockProps(
-      children.length
-        ? { ...block.props, textAlignment: undefined }
-        : block.props,
-      content,
+    // As in `wrapBlock`: the spacing insets and alignment wrap the item's
+    // *own* body only - each child carries its own insets and alignment - so
+    // closing a nested run doesn't stack bottom insets, and a background
+    // covers the children too (both matching the editor). The children are
+    // separated by a blank line so a child *paragraph* becomes its own block
+    // (a single "\n" is only a soft break in Typst markup); nested lists
+    // carry their own indentation either way.
+    const padded = this.applyBlockProps(block.props, own, {
+      skipBackground: true,
+    });
+    return this.wrapBackground(
+      block.props,
+      checked === undefined
+        ? padded + "\n\n" + children.join("\n\n")
+        : `#list(marker: ${checkboxMarker(checked)}, [${padded}\n\n${children.join("\n\n")}])`,
     );
   }
 
@@ -353,7 +363,11 @@ export class TypstExporter<
       return `#enum(\n  ${startArg}${body}\n)`;
     }
     if (kind === "check") {
-      return `#list(marker: none,\n  ${body}\n)`;
+      // The grouping list is invisible, so it must not indent: its default
+      // body-indent (0.5em) would shift check items right of their bullet /
+      // numbered siblings, while the editor keeps every list type in the
+      // same marker column.
+      return `#list(marker: none, body-indent: 0pt,\n  ${body}\n)`;
     }
     return `#list(\n  ${body}\n)`;
   }
@@ -368,42 +382,43 @@ export class TypstExporter<
     if (block.type === "pageBreak") {
       return self;
     }
-    let inner = self;
-    if (children.length) {
-      // Alignment scopes to the block's *own* content: Typst's `align`/`par`
-      // style everything in their scope, but in the editor nested children
-      // keep their own alignment. So with children present the alignment
-      // wraps `self` here, and is withheld from the outer wrapper below.
-      inner = this.applyOwnAlignment(block.props, inner);
-      inner += "\n#pad(left: 1.5em)[\n" + children.join("\n\n") + "\n]";
-    }
     // Headings get extra top padding (the editor's ~18px heading top spacing).
     const extraTop = block.type === "heading" ? "8pt" : undefined;
-    return this.applyBlockProps(
-      children.length
-        ? { ...block.props, textAlignment: undefined }
-        : block.props,
-      inner,
-      { extraTop },
+    if (!children.length) {
+      return this.applyBlockProps(block.props, self, { extraTop });
+    }
+    // The spacing insets and alignment wrap the block's *own* body only -
+    // every child block carries its own - so closing a nested run doesn't
+    // stack bottom insets into an oversized gap, and nested children keep
+    // their own alignment (in the editor the rhythm is uniform: each block
+    // contributes exactly its own padding). A background, by contrast, must
+    // cover the children as well, as the editor's does.
+    const own = this.applyBlockProps(block.props, self, {
+      extraTop,
+      skipBackground: true,
+    });
+    return this.wrapBackground(
+      block.props,
+      own + "\n#pad(left: 1.5em)[\n" + children.join("\n\n") + "\n]",
     );
   }
 
   /**
-   * The alignment part of `applyBlockProps`, for wrapping a parent's own
-   * content when its children must stay outside the alignment scope.
+   * Wraps a parent's spacing-wrapped own body plus its rendered children in
+   * the block's background fill, if any: the editor's background covers
+   * nested children too. Vertical rhythm stays with the own body and the
+   * children themselves (each carries its own insets), so the fill
+   * contributes no spacing of its own - only the same horizontal inset
+   * `applyBlockProps` gives a filled leaf block.
    */
-  private applyOwnAlignment(
-    props: { textAlignment?: string },
+  private wrapBackground(
+    props: { backgroundColor?: string },
     s: string,
   ): string {
-    if (props?.textAlignment === "justify") {
-      return `#par(justify: true)[${s}]`;
-    }
-    const align = props?.textAlignment;
-    if (align === "right" || align === "center") {
-      return `#align(${align})[${s}]`;
-    }
-    return s;
+    const bc = colorHex(this, props?.backgroundColor, "background");
+    return bc
+      ? `#block(width: 100%, fill: rgb("${bc}"), inset: (x: 6pt))[\n${s}\n]`
+      : s;
   }
 
   /**
@@ -420,7 +435,7 @@ export class TypstExporter<
       textAlignment?: string;
     },
     s: string,
-    opts?: { extraTop?: string },
+    opts?: { extraTop?: string; skipBackground?: boolean },
   ): string {
     // A mapping that rendered nothing stays invisible (an empty math or
     // diagram block must not become a stray padded box) - the paragraph
@@ -429,8 +444,12 @@ export class TypstExporter<
       return s;
     }
     // Same color resolution the style mapping uses for inline text/highlight.
+    // `skipBackground` is for parents with children, whose fill must cover
+    // the children too and so lives in `wrapBackground` around both.
     const tc = colorHex(this, props?.textColor, "text");
-    const bc = colorHex(this, props?.backgroundColor, "background");
+    const bc = opts?.skipBackground
+      ? undefined
+      : colorHex(this, props?.backgroundColor, "background");
     if (tc) {
       s = `#text(fill: rgb("${tc}"))[${s}]`;
     }
@@ -500,6 +519,9 @@ export class TypstExporter<
       `#set par(leading: 0.78em, spacing: 0pt, justify: false)`,
       `#set block(spacing: 0pt)`,
       `#set list(spacing: 0pt)`,
+      // Bullet glyphs cycle like the editor's (Block.css: "•", "◦", "▪") -
+      // typst's own cycle ("•", "‣", "–") diverges from level two on.
+      `#set list(marker: ([•], [◦], [▪]))`,
       `#set enum(spacing: 0pt)`,
       `#set heading(numbering: none)`,
       // Heading sizes match the editor (3 / 2 / 1.3 / 1 / 0.9 / 0.8 × 12pt), bold.
@@ -511,9 +533,19 @@ export class TypstExporter<
       `#show heading.where(level: 4): set text(size: 12pt)`,
       `#show heading.where(level: 5): set text(size: 10.8pt)`,
       `#show heading.where(level: 6): set text(size: 9.6pt)`,
-      // Code: monospace, in a light boxed block.
-      `#show raw: set text(font: ${strLit(monoFontFamily)})`,
-      `#show raw.where(block: true): it => block(width: 100%, inset: 12pt, radius: 3pt, fill: luma(248), stroke: 0.5pt + luma(210), it)`,
+      // Code: monospace; code *blocks* use the editor's dark scheme - the
+      // #161616 / 8px-radius / 24px-padding chrome from Block.css and
+      // github-dark token colors (the code-block package's default theme)
+      // via the bundled tmTheme, which assetFiles always carries. Inline
+      // code has no language, so the theme colors nothing there; its text is
+      // pinned back to the body color because the theme's light foreground
+      // is meant for the dark block background only.
+      `#set raw(theme: ${strLit(TYPST_CODE_THEME_PATH)})`,
+      // Ligatures off: Geist Mono renders "=>" (and friends) as arrow
+      // glyphs, which the editor's plain monospace does not.
+      `#show raw: set text(font: ${strLit(monoFontFamily)}, ligatures: false)`,
+      `#show raw.where(block: false): set text(fill: black)`,
+      `#show raw.where(block: true): it => block(width: 100%, inset: 18pt, radius: 6pt, fill: rgb("#161616"), text(fill: rgb("#e1e4e8"), it))`,
       // Quote: grey text with a left rule. Vertical inset makes the rule span
       // the full line height (like the editor), not just the glyph ink.
       `#show quote.where(block: true): it => block(inset: (left: 14pt, y: 4pt), stroke: (left: 2pt + rgb("#7D797A")), text(fill: rgb("#7D797A"), it.body))`,
@@ -580,9 +612,14 @@ export class TypstExporter<
    * `$typst.mapShadow`, node: `compiler.mapShadow`) before compiling.
    */
   public get assetFiles(): Map<string, Uint8Array> {
-    return new Map(
-      [...this.assets.values()].map(({ path, bytes }) => [path, bytes]),
-    );
+    return new Map([
+      // The code-block highlighting theme the preamble references - always
+      // present (not per-image, so it must not shift the asset-N numbering).
+      [TYPST_CODE_THEME_PATH, TYPST_CODE_THEME_BYTES],
+      ...[...this.assets.values()].map(
+        ({ path, bytes }) => [path, bytes] as const,
+      ),
+    ]);
   }
 
   /** Convert a BlockNote document to a full Typst source string. */
