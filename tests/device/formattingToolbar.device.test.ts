@@ -91,6 +91,15 @@ for (const device of activeDevices()) {
       });
 
       test("link popover holds focus through the IME and creates a link", async () => {
+        // Captured before the popover opens: iOS Safari auto-zooms the page
+        // when an input with a computed font-size under 16px takes focus, and
+        // that zoom perturbs the visual viewport the mobile toolbar positions
+        // itself from. The `pointer: coarse` rule in blocknoteStyles.css
+        // prevents it; this pins the behaviour rather than the rule.
+        const scaleBefore = await session.exec<number>(
+          `return window.visualViewport ? window.visualViewport.scale : 1;`,
+        );
+
         await openLinkPopover(session);
 
         // Focusing an input makes the IME reconfigure (on Android this
@@ -110,6 +119,17 @@ for (const device of activeDevices()) {
             toolbar: !!document.querySelector(${JSON.stringify(MOBILE_TOOLBAR)}),
           };`);
         await session.screenshot("link-popover-open");
+
+        // Focusing the URL input must not have zoomed the page.
+        const scaleAfter = await session.exec<number>(
+          `return window.visualViewport ? window.visualViewport.scale : 1;`,
+        );
+        expect(
+          scaleAfter,
+          `focusing the URL input zoomed the page (${scaleBefore} -> ${scaleAfter}); ` +
+            `check the pointer:coarse font-size rule for .bn-form-popover inputs`,
+        ).toBeLessThanOrEqual(scaleBefore + 0.01);
+
         expect(survival).toEqual({
           focused: true,
           popover: true,

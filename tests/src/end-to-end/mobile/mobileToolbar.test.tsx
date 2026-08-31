@@ -90,6 +90,22 @@ describe("Mobile formatting toolbar", () => {
       }
     });
 
+    // iOS Safari auto-zooms the page when an input with a computed font-size
+    // under 16px takes focus, and that zoom perturbs the visual viewport the
+    // toolbar positions itself from. Emulation can't reproduce the zoom
+    // itself (it's device behaviour, not engine behaviour — the real-device
+    // suite asserts visualViewport.scale directly), so this guards the CSS
+    // contract that prevents it.
+    {
+      const fontSize = parseFloat(getComputedStyle(activeUrlInput()!).fontSize);
+      if (fontSize < 16) {
+        throw new Error(
+          `URL input font-size is ${fontSize}px; iOS Safari auto-zooms below ` +
+            `16px (see the pointer:coarse rule in blocknoteStyles.css)`,
+        );
+      }
+    }
+
     // Focusing an input makes the keyboard show its suggestion strip, then
     // settle back. The focused input must survive both resizes.
     await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN_WITH_SUGGESTION_STRIP);
