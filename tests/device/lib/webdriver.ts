@@ -133,7 +133,10 @@ export class DeviceSession {
   /** Sends W3C key actions (protocol-level key events) to the focused element. */
   async typeKeys(text: string): Promise<void> {
     await this.driver.actions().sendKeys(text).perform();
-    await this.driver.actions().clear().catch(() => {});
+    await this.driver
+      .actions()
+      .clear()
+      .catch(() => {});
   }
 
   /** Saves a PNG screenshot under tests/device/.artifacts. */

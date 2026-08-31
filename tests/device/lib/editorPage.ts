@@ -90,4 +90,3 @@ export async function startEditing(session: DeviceSession): Promise<void> {
     verifyTimeoutMs: 15_000,
   });
 }
-

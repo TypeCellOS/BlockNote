@@ -164,4 +164,3 @@ export async function typeText(
     await session.typeKeys(text);
   }
 }
-

@@ -57,7 +57,6 @@ Playwright-WebKit on macOS):
   tunnel, capabilities, platform matrix — is covered by the pieces above
   and `devices.ts`. Revisit if Test Observability becomes interesting.
 
-
 ## Architecture
 
 ```
