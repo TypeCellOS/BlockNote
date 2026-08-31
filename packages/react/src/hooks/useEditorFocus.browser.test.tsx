@@ -32,11 +32,16 @@ function Readout(props: { includeEditorUI: boolean }) {
   const focused = useEditorFocus({ includeEditorUI: props.includeEditorUI });
   const renders = useRef(0);
   renders.current += 1;
+  // Every value ever rendered, so a single wrong frame is caught even when a
+  // later render corrects it.
+  const history = useRef<boolean[]>([]);
+  history.current.push(focused);
   return (
     <div
       data-test="readout"
       data-focused={String(focused)}
       data-renders={String(renders.current)}
+      data-history={history.current.join(",")}
     />
   );
 }
@@ -105,6 +110,49 @@ describe("useEditorFocus", () => {
 
     addOutsideInput().focus();
     await vi.waitFor(() => expect(focusedValue()).toBe("false"));
+    popoverInput.remove();
+  });
+
+  test("changing includeEditorUI re-reads instead of rendering a stale frame", async () => {
+    // The cached snapshot is keyed by its inputs. Without that, flipping the
+    // option while focus sits in the editor's UI renders one frame computed
+    // for the *old* option (false) before the new subscription re-syncs —
+    // the history would read "...,false,true" after the flip.
+    function FlippableProbe() {
+      const probeEditor = useCreateBlockNote();
+      editor = probeEditor;
+      const [includeEditorUI, setIncludeEditorUI] = useState(false);
+      return (
+        <BlockNoteViewRaw editor={probeEditor}>
+          <Readout includeEditorUI={includeEditorUI} />
+          <button data-test="flip" onClick={() => setIncludeEditorUI(true)}>
+            flip
+          </button>
+        </BlockNoteViewRaw>
+      );
+    }
+    await mount(<FlippableProbe />);
+
+    // Focus the editor's UI: raw content focus reads false, UI focus true.
+    const popoverInput = document.createElement("input");
+    editor!.portalElement.append(popoverInput);
+    popoverInput.focus();
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    expect(focusedValue()).toBe("false");
+    const historyBefore = readout().dataset.history!;
+
+    document.querySelector<HTMLElement>('[data-test="flip"]')!.click();
+    await vi.waitFor(() => expect(focusedValue()).toBe("true"));
+
+    const flipped = readout()
+      .dataset.history!.slice(historyBefore.length)
+      .split(",")
+      .filter(Boolean);
+    expect(
+      flipped,
+      "the first frame after the flip must already read the new option",
+    ).not.toContain("false");
+
     popoverInput.remove();
   });
 

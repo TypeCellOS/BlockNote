@@ -43,9 +43,29 @@ export function useEditorFocus(
   // reading focus state during an arbitrary render can catch a mid-handoff
   // frame, where `document.activeElement` is transiently `<body>` and the
   // editor looks unfocused for one frame.
-  const focused = useRef<boolean>(undefined);
-  if (focused.current === undefined) {
-    focused.current = resolvedEditor.isFocused({ includeEditorUI });
+  //
+  // The cache is keyed by its inputs: when the editor or the option changes,
+  // the settled value belongs to the *old* source, and rendering it would
+  // show one wrong frame before the new subscription attaches and re-syncs.
+  // Re-reading then is the same live read the first render does.
+  const focused = useRef<
+    | {
+        editor: BlockNoteEditor<any, any, any>;
+        includeEditorUI: boolean;
+        value: boolean;
+      }
+    | undefined
+  >(undefined);
+  if (
+    focused.current === undefined ||
+    focused.current.editor !== resolvedEditor ||
+    focused.current.includeEditorUI !== includeEditorUI
+  ) {
+    focused.current = {
+      editor: resolvedEditor,
+      includeEditorUI,
+      value: resolvedEditor.isFocused({ includeEditorUI }),
+    };
   }
 
   const subscribe = useCallback(
@@ -56,12 +76,20 @@ export function useEditorFocus(
       // registered before the consistency-check one), so refreshing the
       // cached value here is enough — but notifying explicitly keeps that
       // independent of React's internal effect ordering.
-      focused.current = resolvedEditor.isFocused({ includeEditorUI });
+      focused.current = {
+        editor: resolvedEditor,
+        includeEditorUI,
+        value: resolvedEditor.isFocused({ includeEditorUI }),
+      };
       onStoreChange();
 
       return resolvedEditor.onFocusChange(
         (_editor, ctx) => {
-          focused.current = ctx.focused;
+          focused.current = {
+            editor: resolvedEditor,
+            includeEditorUI,
+            value: ctx.focused,
+          };
           onStoreChange();
         },
         { includeEditorUI },
@@ -70,7 +98,7 @@ export function useEditorFocus(
     [resolvedEditor, includeEditorUI],
   );
 
-  const getSnapshot = useCallback(() => focused.current!, []);
+  const getSnapshot = useCallback(() => focused.current!.value, []);
 
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
