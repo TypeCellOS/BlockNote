@@ -199,4 +199,4 @@ What's specific to a container is its body. By default BlockNote parses the elem
 
 ## Interop behavior
 
-Containers serialize to a `<div data-node-type="...">` with their children nested inside, and round-trip losslessly. For lossy targets you place the children yourself: return a `childrenDOM` from `toExternalHTML` (this is how toggles export as `<details>`), and give container blocks an explicit mapping in the DOCX, PDF, ODT, and email exporters, which throw on a missing one. Markdown flattens containers, exporting their children in order.
+Containers serialize to a `<div data-node-type="...">` with their children nested inside, and round-trip losslessly. For lossy targets you place the children yourself: return a `childrenDOM` from `toExternalHTML` (this is how toggles export as `<details>`), and give container blocks an explicit mapping in the DOCX, ODT, email, Typst, and PDF exporters, which throw on a missing one. That mapping receives the container's rendered children as its last argument and decides where they go — the exporters do not append them after the container's own output. Markdown flattens containers, exporting their children in order.

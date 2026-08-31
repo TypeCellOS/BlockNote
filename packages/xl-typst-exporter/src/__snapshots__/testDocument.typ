@@ -169,19 +169,20 @@
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#strong("Some inline code: ")#raw("var foo = 'bar';")]
 
-#grid(
-  columns: (0.8fr, 1.4fr, 0.8fr),
-  column-gutter: 1em,
-  [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"This paragraph is in a column!"]],
-  [#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"So is this heading!"]]],
-  [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"You can have multiple blocks in a column too"]
+#{
+  let cols = (
+    (width: 0.8, body: [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"This paragraph is in a column!"]]),
+    (width: 1.4, body: [#block(width: 100%, inset: (top: (8pt + 6.9pt), bottom: 6.9pt))[#heading(level: 1, outlined: true)[#"So is this heading!"]]]),
+    (width: 0.8, body: [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"You can have multiple blocks in a column too"]
 
 #list(
   [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Block 1"]],
   [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Block 2"]],
   [#block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#"Block 3"]]
-)]
-)
+)]),
+  )
+  grid(columns: cols.map(c => c.width * 1fr), column-gutter: 1em, ..cols.map(c => c.body))
+}
 
 #block(width: 100%, inset: (top: 6.9pt, bottom: 6.9pt))[#line(length: 100%, stroke: 1pt + rgb("#7D797A"))]
 
