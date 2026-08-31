@@ -1,12 +1,29 @@
 import { FormProvider as AriakitFormProvider } from "@ariakit/react";
 
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, useDictionary, useFormSubmit } from "@blocknote/react";
 
 export const Form = (props: ComponentProps["Generic"]["Form"]["Root"]) => {
-  const { children, ...rest } = props;
+  const { children, onSubmit, ...rest } = props;
+  const dict = useDictionary();
+  const formProps = useFormSubmit(onSubmit);
 
   assertEmpty(rest);
 
-  return <AriakitFormProvider>{children}</AriakitFormProvider>;
+  return (
+    <AriakitFormProvider>
+      <form {...formProps}>
+        {children}
+        {/*
+          Gives the form a submit button, which is what makes Enter submit it at
+          all once a caller renders more than one field (see the `onSubmit`
+          contract in `ComponentsContext`). Visually hidden rather than absent,
+          so assistive technology still has a labelled control to activate.
+        */}
+        <button className={"bn-form-submit"} tabIndex={-1} type={"submit"}>
+          {dict.generic.form_submit}
+        </button>
+      </form>
+    </AriakitFormProvider>
+  );
 };

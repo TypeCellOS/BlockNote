@@ -1,6 +1,6 @@
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
+import { forwardRef, useCallback, useEffect, useRef } from "react";
 
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 import { cn } from "../lib/utils.js";
@@ -21,7 +21,6 @@ export const TextInput = forwardRef<
     disabled,
     onKeyDown,
     onChange,
-    onSubmit,
     autoComplete: _autoComplete,
     "aria-activedescendant": ariaActivedescendant,
     rightSection, // TODO: add rightSection
@@ -29,6 +28,29 @@ export const TextInput = forwardRef<
   } = props;
 
   assertEmpty(rest);
+
+  // Focus with `preventScroll`, rather than the native `autofocus`: these
+  // inputs live in popovers that floating-ui positions *after* mount, so the
+  // browser's scroll-into-view runs while the popover is still at its
+  // pre-positioned spot and yanks the page (on mobile, right out from under
+  // the block being edited).
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const setRefs = useCallback(
+    (element: HTMLInputElement | null) => {
+      inputRef.current = element;
+      if (typeof ref === "function") {
+        ref(element);
+      } else if (ref) {
+        ref.current = element;
+      }
+    },
+    [ref],
+  );
+  useEffect(() => {
+    if (autoFocus) {
+      inputRef.current?.focus({ preventScroll: true });
+    }
+  }, [autoFocus]);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -51,14 +73,12 @@ export const TextInput = forwardRef<
           className={cn(className, "h-auto border-none p-0")}
           id={label}
           name={name}
-          autoFocus={autoFocus}
           placeholder={placeholder}
           disabled={disabled}
           value={value}
           onKeyDown={onKeyDown}
           onChange={onChange}
-          onSubmit={onSubmit}
-          ref={ref}
+          ref={setRefs}
           aria-activedescendant={ariaActivedescendant}
         />
       </div>

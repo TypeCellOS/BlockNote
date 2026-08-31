@@ -3,13 +3,7 @@ import {
   LinkToolbarExtension,
   VALID_LINK_PROTOCOLS,
 } from "@blocknote/core/extensions";
-import {
-  ChangeEvent,
-  KeyboardEvent,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { RiLink, RiText } from "react-icons/ri";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useExtension } from "../../hooks/useExtension.js";
@@ -50,18 +44,6 @@ export const EditLinkMenuItems = (
     setCurrentText(text);
   }, [text, url]);
 
-  const handleEnter = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
-        event.preventDefault();
-        editLink(validateUrl(currentUrl), currentText, props.range.from);
-        props.setToolbarOpen?.(false);
-        props.setToolbarPositionFrozen?.(false);
-      }
-    },
-    [editLink, currentUrl, currentText, props],
-  );
-
   const handleUrlChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) =>
       setCurrentUrl(event.currentTarget.value),
@@ -81,7 +63,7 @@ export const EditLinkMenuItems = (
   }, [editLink, currentUrl, currentText, props]);
 
   return (
-    <Components.Generic.Form.Root>
+    <Components.Generic.Form.Root onSubmit={handleSubmit}>
       {/* // TODO: add labels? */}
       <Components.Generic.Form.TextInput
         className={"bn-text-input"}
@@ -90,9 +72,7 @@ export const EditLinkMenuItems = (
         autoFocus={true}
         placeholder={dict.link_toolbar.form.url_placeholder}
         value={currentUrl}
-        onKeyDown={handleEnter}
         onChange={handleUrlChange}
-        onSubmit={handleSubmit}
       />
       {showTextField !== false && (
         <Components.Generic.Form.TextInput
@@ -101,9 +81,7 @@ export const EditLinkMenuItems = (
           icon={<RiText />}
           placeholder={dict.link_toolbar.form.title_placeholder}
           value={currentText}
-          onKeyDown={handleEnter}
           onChange={handleTextChange}
-          onSubmit={handleSubmit}
         />
       )}
     </Components.Generic.Form.Root>

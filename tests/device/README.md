@@ -57,6 +57,27 @@ Playwright-WebKit on macOS):
   tunnel, capabilities, platform matrix — is covered by the pieces above
   and `devices.ts`. Revisit if Test Observability becomes interesting.
 
+## What automation here cannot reach
+
+Android's IME decides for itself which action its Enter key performs. Being
+inside a real `<form>` is what makes it offer a submitting action rather than
+"Next" — which advances focus and dispatches no key event at all, so a popover
+listening for Enter never hears anything. That was the original create-link
+bug, and it is why `Form.Root` renders a `<form>` with a submit button.
+
+No input channel available to us can press that key: W3C pointer actions are
+clamped to the viewport, this driver exposes no UiAutomator gestures, and
+`mobile: shell` is blocked. Emulation can't substitute either, since Playwright
+always dispatches a real Enter.
+
+So before a release, on a physical phone:
+
+- Create a link from an editor that is **not** the last one on the page. The
+  keyboard's action key must submit it, rather than jumping focus to the next
+  editor. (`end-to-end/form/` and `end-to-end/mobile/linkSubmit.test.tsx` cover
+  the half of this that is testable — that submission works with no key event
+  at all.)
+
 ## Architecture
 
 ```

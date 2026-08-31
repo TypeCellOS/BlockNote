@@ -455,5 +455,6 @@ export const uz: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "Yuborish",
   },
 };

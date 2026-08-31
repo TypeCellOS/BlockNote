@@ -465,5 +465,6 @@ export const ru: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "Отправить",
   },
 };

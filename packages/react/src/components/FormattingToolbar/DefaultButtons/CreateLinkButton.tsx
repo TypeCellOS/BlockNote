@@ -162,6 +162,9 @@ export const CreateLinkButton = () => {
           text={state.text}
           range={state.range}
           showTextField={false}
+          // (No explicit popover close here: any editor-state change — like
+          // submitting the link — already closes it via the setShowPopover
+          // effect above.)
           setToolbarOpen={(open) => formattingToolbar.store.setState(open)}
         />
       </Components.Generic.Popover.Content>

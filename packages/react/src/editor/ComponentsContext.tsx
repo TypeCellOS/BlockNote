@@ -103,7 +103,7 @@ export type ComponentProps = {
       value: string;
       placeholder: string;
       onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-      onKeyDown: (event: KeyboardEvent) => void;
+      onKeyDown?: (event: KeyboardEvent) => void;
     };
   };
   LinkToolbar: {
@@ -304,6 +304,18 @@ export type ComponentProps = {
     Form: {
       Root: {
         children?: ReactNode;
+        /**
+         * Called on the form's `submit` event, which is how the browser
+         * reports Enter-to-submit — including when a mobile IME's action key
+         * triggers it. Implementations must render a real `<form>` and
+         * `preventDefault`, or Enter is left with no submission path at all
+         * on platforms that don't dispatch a key event for it.
+         *
+         * The form context is also what makes Android's IME offer a
+         * submitting action at all: without it, it advances focus to the next
+         * element on the page instead (verified on a device).
+         */
+        onSubmit?: () => void;
       };
       TextInput: {
         className?: string;
@@ -316,9 +328,8 @@ export type ComponentProps = {
         placeholder?: string;
         disabled?: boolean;
         value: string;
-        onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
+        onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
         onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-        onSubmit?: () => void;
         autoComplete?: HTMLInputAutoCompleteAttribute;
         "aria-activedescendant"?: string;
         ref?: ForwardedRef<HTMLInputElement>;

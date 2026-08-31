@@ -440,5 +440,6 @@ export const de: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Strg",
+    form_submit: "Absenden",
   },
 };

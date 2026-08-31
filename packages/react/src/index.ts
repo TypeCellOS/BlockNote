@@ -136,6 +136,7 @@ export * from "./hooks/useCreateBlockNote.js";
 export * from "./hooks/useEditorChange.js";
 export * from "./hooks/useEditorFocus.js";
 export * from "./hooks/useEditorFocusChange.js";
+export * from "./hooks/useFormSubmit.js";
 export * from "./hooks/useEditorDomElement.js";
 export * from "./hooks/useEditorSelectionBoundingBox.js";
 export * from "./hooks/useEditorSelectionChange.js";

@@ -467,5 +467,6 @@ export const fr: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "Envoyer",
   },
 };
