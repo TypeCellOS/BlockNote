@@ -1,7 +1,11 @@
-import { useCreateBlockNote, useEditorFocus } from "@blocknote/react";
+import {
+  useCreateBlockNote,
+  useEditorFocus,
+  useEditorFocusChange,
+} from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 
@@ -127,5 +131,66 @@ describe("useEditorFocus", () => {
     await userEvent.keyboard("some typing that changes the document");
 
     expect(Number(readout().dataset.renders)).toBe(before);
+  });
+});
+
+// `useEditorFocusChange` (the callback counterpart) keeps its subscription
+// alive across re-renders via the latest-ref pattern. Without it, an inline
+// callback — the common case — has a new identity every render, so the effect
+// re-runs and the editor is unsubscribed and resubscribed each time. That
+// matters more than it looks: with `includeEditorUI` the subscription is
+// reference-counted, so cycling it tears down and re-attaches the document
+// focus listeners and resets the settled baseline. Measured: naive
+// implementation resubscribes once per render (6 after 5 re-renders), this
+// one stays at 1.
+describe("useEditorFocusChange", () => {
+  test("does not resubscribe when the callback identity changes", async () => {
+    let subscribes = 0;
+
+    function CountingProbe() {
+      const editor = useCreateBlockNote();
+      // Patch once, not on every render.
+      useState(() => {
+        const original = editor.onFocusChange.bind(editor);
+        (editor as any).onFocusChange = (...args: any[]) => {
+          subscribes += 1;
+          return (original as any)(...args);
+        };
+        return null;
+      });
+      return (
+        <BlockNoteView editor={editor}>
+          <Rerenderer />
+        </BlockNoteView>
+      );
+    }
+
+    function Rerenderer() {
+      const [n, setN] = useState(0);
+      useEditorFocusChange(() => {
+        /* inline: new identity every render */
+      });
+      return (
+        <button data-test="rerender" onClick={() => setN(n + 1)}>
+          {n}
+        </button>
+      );
+    }
+
+    await render(<CountingProbe />);
+    await waitForSelector(EDITOR_SELECTOR);
+    const afterMount = subscribes;
+    expect(afterMount).toBe(1);
+
+    const button = document.querySelector<HTMLElement>(
+      '[data-test="rerender"]',
+    )!;
+    for (let i = 0; i < 5; i++) {
+      button.click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
+
+    expect(Number(button.textContent)).toBe(5);
+    expect(subscribes).toBe(afterMount);
   });
 });

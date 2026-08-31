@@ -51,7 +51,11 @@ export function useEditorFocus(
   const subscribe = useCallback(
     (onStoreChange: () => void) => {
       // Re-sync: focus can have changed between the render that produced the
-      // current snapshot and this subscription attaching.
+      // current snapshot and this subscription attaching. React does compare
+      // the snapshot again after subscribing (its subscribe effect is
+      // registered before the consistency-check one), so refreshing the
+      // cached value here is enough — but notifying explicitly keeps that
+      // independent of React's internal effect ordering.
       focused.current = resolvedEditor.isFocused({ includeEditorUI });
       onStoreChange();
 
