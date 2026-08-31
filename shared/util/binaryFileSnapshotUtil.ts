@@ -49,6 +49,14 @@ function getSnapshotOptions() {
 export async function toMatchBinaryFileSnapshot(
   buffer: Buffer,
   filepath: string,
+  options: {
+    /**
+     * On a mismatch that fails the test, also write the received bytes next
+     * to the baseline (as `<name>.actual.<ext>`) so they can be inspected /
+     * diffed - useful for image snapshots.
+     */
+    writeActualOnMismatch?: boolean;
+  } = {},
 ) {
   const fileBuffer = fs.existsSync(filepath)
     ? fs.readFileSync(filepath)
@@ -63,6 +71,19 @@ export async function toMatchBinaryFileSnapshot(
   }
 
   if (option === "none" || (option === "new" && fileBuffer !== undefined)) {
+    if (options.writeActualOnMismatch) {
+      // `name.ext` -> `name.actual.ext`; an extension-less path gets a plain
+      // `.actual` suffix (the no-match case must never fall through to the
+      // baseline path itself).
+      const actualPath = /\.[^./]+$/.test(filepath)
+        ? filepath.replace(/(\.[^./]+)$/, ".actual$1")
+        : `${filepath}.actual`;
+      // A missing baseline may mean its directory is missing too - the
+      // diagnostic write must not itself throw ENOENT and mask the snapshot
+      // mismatch below.
+      fs.mkdirSync(path.dirname(actualPath), { recursive: true });
+      fs.writeFileSync(actualPath, buffer);
+    }
     throw new Error(`${filepath} not matching `);
   }
 

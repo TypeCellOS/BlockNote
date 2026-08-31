@@ -68,6 +68,12 @@ function errorText(
  * });
  * ```
  */
+/**
+ * @deprecated Mapping for the react-pdf based exporter
+ * (`@blocknote/xl-pdf-exporter/react-pdf`), which is deprecated - use the
+ * Typst mapping from `@blocknote/math-block/typst-exporter` with the
+ * Typst-based `PDFExporter` instead.
+ */
 export function mathBlockMapping(
   block: MathBlock,
   exporter: Exporter<any, any, any, any, any, any, any>,
@@ -170,5 +176,11 @@ export function createInlineMathMapping(options?: {
  * PDF inline content mapping for `@blocknote/math-block` with the default
  * options - see {@link createInlineMathMapping}. Browser-only; when
  * exporting elsewhere, use the factory to pass a `rasterize` function.
+ */
+/**
+ * @deprecated Mappings for the react-pdf based exporter
+ * (`@blocknote/xl-pdf-exporter/react-pdf`), which is deprecated - use the
+ * Typst mappings from `@blocknote/math-block/typst-exporter` with the
+ * Typst-based `PDFExporter` instead.
  */
 export const inlineMathMapping = createInlineMathMapping();

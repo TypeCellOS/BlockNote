@@ -1,0 +1,2 @@
+# Debug output written when a page differs from its baseline.
+*.actual.png

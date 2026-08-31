@@ -17,6 +17,24 @@ const config = {
     useTypeScriptCli: true,
   },
   redirects,
+  // `next build` runs Turbopack; the demo examples are written for Vite, so
+  // give their `?url` asset imports (fonts, the Typst compiler wasm) the
+  // same URL-string semantics here, and stub the compiler's optional
+  // canvas-renderer peer (the pdf-ua demo only compiles, never renders to
+  // canvas, so the peer isn't installed).
+  turbopack: {
+    resolveAlias: {
+      "@myriaddreamin/typst-ts-renderer": "./components/typstRendererStub.ts",
+      // Both key forms on purpose: Turbopack matches the alias key against
+      // the request with its query in some resolution paths and without it
+      // in others, so covering `/wasm` and `/wasm?url` makes the demo's
+      // `?url` import resolve in both.
+      "@myriaddreamin/typst-ts-web-compiler/wasm":
+        "./components/typstCompilerWasmUrl.ts",
+      "@myriaddreamin/typst-ts-web-compiler/wasm?url":
+        "./components/typstCompilerWasmUrl.ts",
+    },
+  },
   images: {
     remotePatterns: [
       {

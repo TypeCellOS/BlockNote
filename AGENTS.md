@@ -22,7 +22,7 @@ All commands below are listed under `package.json` in the project root. See `vit
 - `vp run preview`: Previews the build on port 3000.
 - `vp run test`: Runs unit tests. Append with `-u` to update snapshots. Append with a file name to target only that file.
   - To run individual unit tests, use `vp run test <file>`. For example, `vp run test packages/core/src/extensions/Versioning/inMemoryVersioning.test.ts`.
-- `vp run e2e`: Runs end-to-end tests. Append with a file name to target only that file.
+- `vp run e2e`: Runs end-to-end tests (always in Docker - NEVER run the browser suite natively; it seeds bogus per-platform snapshots). Append with a file name to target only that file.
 - `vp run e2e:updateSnaps`: Runs end-to-end tests & updates snapshots. Append with a file name to target only that file.
 - `vp help`: Prints a list of all available commands.
 

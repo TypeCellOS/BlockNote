@@ -9,6 +9,7 @@ import {
 } from "@blocknote/core";
 import {
   AlignmentType,
+  CarriageReturn,
   Document,
   IRunPropertiesOptions,
   ISectionOptions,
@@ -97,10 +98,20 @@ export class DOCXExporter<
       ...stylesArray,
     );
 
+    // A hard line break (shift+enter) arrives as "\n" inside the text. A raw
+    // LF inside <w:t> is ignored by Word, so the lines are emitted with
+    // explicit break elements (<w:cr/>) between them instead.
+    const lines = styledText.text.split("\n");
     return new TextRun({
       ...styles,
       style: hyperlink ? "Hyperlink" : styles.style,
-      text: styledText.text,
+      ...(lines.length === 1
+        ? { text: styledText.text }
+        : {
+            children: lines.flatMap((line, index) =>
+              index === 0 ? [line] : [new CarriageReturn(), line],
+            ),
+          }),
     });
   }
 

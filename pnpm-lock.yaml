@@ -126,6 +126,9 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: workspace:*
         version: link:../packages/xl-pdf-exporter
+      '@blocknote/xl-typst-exporter':
+        specifier: workspace:*
+        version: link:../packages/xl-typst-exporter
       '@floating-ui/react':
         specifier: ^0.27.18
         version: 0.27.19(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -162,6 +165,12 @@ importers:
       '@mui/material':
         specifier: ^5.16.1
         version: 5.18.0(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@myriaddreamin/typst-ts-web-compiler':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3
+      '@myriaddreamin/typst.ts':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3(@myriaddreamin/typst-ts-web-compiler@0.8.0-rc3)
       '@orama/orama':
         specifier: ^3.1.18
         version: 3.1.18
@@ -2988,6 +2997,9 @@ importers:
       '@blocknote/xl-email-exporter':
         specifier: latest
         version: link:../../../packages/xl-email-exporter
+      '@blocknote/xl-multi-column':
+        specifier: latest
+        version: link:../../../packages/xl-multi-column
       '@mantine/core':
         specifier: ^9.0.2
         version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -3083,6 +3095,67 @@ importers:
       '@mantine/hooks':
         specifier: ^9.0.2
         version: 9.1.1(react@19.2.5)
+      react:
+        specifier: ^19.2.3
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.2.3
+        version: 19.2.5(react@19.2.5)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.3
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.1
+        version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.9.0))
+      vite:
+        specifier: ^8.0.0
+        version: 8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.9.0)
+
+  examples/05-interoperability/11-converting-blocks-to-pdf-ua:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/diagram-block':
+        specifier: latest
+        version: link:../../../packages/diagram-block
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/math-block':
+        specifier: latest
+        version: link:../../../packages/math-block
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      '@blocknote/xl-multi-column':
+        specifier: latest
+        version: link:../../../packages/xl-multi-column
+      '@blocknote/xl-pdf-exporter':
+        specifier: latest
+        version: link:../../../packages/xl-pdf-exporter
+      '@mantine/core':
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@mantine/hooks':
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
+      '@myriaddreamin/typst-ts-web-compiler':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3
+      '@myriaddreamin/typst.ts':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3(@myriaddreamin/typst-ts-web-compiler@0.8.0-rc3)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -5357,6 +5430,12 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: workspace:^
         version: link:../xl-pdf-exporter
+      '@blocknote/xl-typst-exporter':
+        specifier: workspace:^
+        version: link:../xl-typst-exporter
+      '@myriaddreamin/typst-ts-node-compiler':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3
       '@react-email/components':
         specifier: ^1.0.12
         version: 1.0.12(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -5485,6 +5564,12 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: workspace:^
         version: link:../xl-pdf-exporter
+      '@blocknote/xl-typst-exporter':
+        specifier: workspace:^
+        version: link:../xl-typst-exporter
+      '@myriaddreamin/typst-ts-node-compiler':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3
       '@react-email/components':
         specifier: ^1.0.12
         version: 1.0.12(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -5533,6 +5618,9 @@ importers:
       rollup-plugin-webpack-stats:
         specifier: ^0.2.6
         version: 0.2.6(rollup@4.60.1)
+      tex2typst:
+        specifier: ^0.6.2
+        version: 0.6.2
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5990,6 +6078,9 @@ importers:
       '@blocknote/core':
         specifier: workspace:^
         version: link:../core
+      '@blocknote/xl-multi-column':
+        specifier: workspace:^
+        version: link:../xl-multi-column
       '@react-email/components':
         specifier: ^1.0.12
         version: 1.0.12(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -6149,16 +6240,34 @@ importers:
       '@blocknote/xl-multi-column':
         specifier: workspace:^
         version: link:../xl-multi-column
-      '@react-pdf/renderer':
-        specifier: ^4.5.1
-        version: 4.5.1(react@19.2.5)
+      '@blocknote/xl-typst-exporter':
+        specifier: workspace:^
+        version: link:../xl-typst-exporter
+      '@cantoo/pdf-lib':
+        specifier: ^2.9.1
+        version: 2.9.1(html-entities@2.6.0)
+      '@myriaddreamin/typst-ts-web-compiler':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3
+      '@myriaddreamin/typst.ts':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3(@myriaddreamin/typst-ts-web-compiler@0.8.0-rc3)
     devDependencies:
       '@blocknote/shared':
         specifier: workspace:^
         version: link:../../shared
+      '@myriaddreamin/typst-ts-node-compiler':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3
+      '@react-pdf/renderer':
+        specifier: ^4.5.1
+        version: 4.5.1(react@19.2.5)
       '@testing-library/react':
         specifier: ^16.3.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.6.0
       '@types/react':
         specifier: ^19.2.3
         version: 19.2.14
@@ -6174,6 +6283,40 @@ importers:
       react-element-to-jsx-string:
         specifier: ^17.0.1
         version: 17.0.1(react-dom@19.2.5(react@19.2.5))(react-is@19.2.4)(react@19.2.5)
+      rimraf:
+        specifier: ^5.0.10
+        version: 5.0.10
+      rollup-plugin-webpack-stats:
+        specifier: ^0.2.6
+        version: 0.2.6(rollup@4.60.1)
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite-plus:
+        specifier: 'catalog:'
+        version: 0.2.9(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/browser-playwright@4.1.10)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.6.0)(typescript@7.0.2))(terser@5.46.2)(tsx@4.21.0)(typescript@7.0.2)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.9.0))(yaml@2.9.0)
+
+  packages/xl-typst-exporter:
+    dependencies:
+      '@blocknote/core':
+        specifier: workspace:^
+        version: link:../core
+      '@blocknote/xl-multi-column':
+        specifier: workspace:^
+        version: link:../xl-multi-column
+    devDependencies:
+      '@blocknote/shared':
+        specifier: workspace:^
+        version: link:../../shared
+      '@myriaddreamin/typst-ts-node-compiler':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3
+      '@types/jsdom':
+        specifier: ^21.1.7
+        version: 21.1.7
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.6.0
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
@@ -6243,6 +6386,9 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: workspace:^
         version: link:../packages/xl-pdf-exporter
+      '@blocknote/xl-typst-exporter':
+        specifier: workspace:^
+        version: link:../packages/xl-typst-exporter
       '@emotion/react':
         specifier: 11.14.0
         version: 11.14.0(@types/react@19.2.14)(react@19.2.5)
@@ -6276,6 +6422,9 @@ importers:
       '@mui/material':
         specifier: ^5.18.0
         version: 5.18.0(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@myriaddreamin/typst-ts-web-compiler':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3
       '@react-pdf/math':
         specifier: ^2.0.1
         version: 2.0.1(@react-pdf/renderer@4.5.1(react@19.2.5))(react@19.2.5)
@@ -6339,6 +6488,9 @@ importers:
       react-router-dom:
         specifier: ^6.30.1
         version: 6.30.3(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      tex2typst:
+        specifier: ^0.6.2
+        version: 0.6.2
       y-partykit:
         specifier: ^0.0.25
         version: 0.0.25
@@ -6386,6 +6538,9 @@ importers:
         specifier: ^0.2.1
         version: 0.2.2
     devDependencies:
+      '@myriaddreamin/typst-ts-node-compiler':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0
@@ -6438,6 +6593,12 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: workspace:^
         version: link:../packages/xl-pdf-exporter
+      '@blocknote/xl-typst-exporter':
+        specifier: workspace:^
+        version: link:../packages/xl-typst-exporter
+      '@myriaddreamin/typst-ts-web-compiler':
+        specifier: ^0.8.0-rc3
+        version: 0.8.0-rc3
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
@@ -6903,6 +7064,11 @@ packages:
   '@bramus/specificity@2.4.2':
     resolution: {integrity: sha512-ctxtJ/eA+t+6q2++vj5j7FYX3nRu311q1wfYH3xjlLOsczhlhxAg2FWNUXhpGvAw3BWo1xBcvOV6/YLc2r5FJw==}
     hasBin: true
+
+  '@cantoo/pdf-lib@2.9.1':
+    resolution: {integrity: sha512-wAKXXDjp5lO0wS6d+k0FRpmWsULb95WhHKYx2fonTbv4zIfuIdCBz2nyTVVDGJpNDLl6o4w9aSTxQisBvvd60A==}
+    peerDependencies:
+      html-entities: ^2.3.2
 
   '@chevrotain/types@11.1.2':
     resolution: {integrity: sha512-U+HFai5+zmJCkK86QsaJtoITlboZHBqrVketcO2ROv865xfCMSFpELQoz1GkX5GzME8pTa+3kbKrZHQtI0gdbw==}
@@ -7922,6 +8088,94 @@ packages:
       '@types/react':
         optional: true
 
+  '@myriaddreamin/typst-ts-node-compiler-android-arm-eabi@0.8.0-rc3':
+    resolution: {integrity: sha512-HNqXX1Pyt4BI7WetnrcCX+Yfz+K0L9I/Eklhko22+XSVz+OchPD4To8E2dOkIV1H3lC302OrnAoNcXWZpQc9Pw==}
+    engines: {node: '>= 10'}
+    cpu: [arm]
+    os: [android]
+
+  '@myriaddreamin/typst-ts-node-compiler-android-arm64@0.8.0-rc3':
+    resolution: {integrity: sha512-PS1jRRGWxZ6Fuv8BgppgENdpQX1AfZaBwQq+81onkE53CoDpMTuD41UFjqdKrOos/BnCjrie/jjBWRVCt4NNNg==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [android]
+
+  '@myriaddreamin/typst-ts-node-compiler-darwin-arm64@0.8.0-rc3':
+    resolution: {integrity: sha512-PmJ11x/pYvg2pF8y3wVV92Tk3fjiGdxWk2sXuUXcwsebH4wr3UDb2bsPyVUE6deNJ6SrUafglKm1nnXf4QMe8w==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@myriaddreamin/typst-ts-node-compiler-darwin-x64@0.8.0-rc3':
+    resolution: {integrity: sha512-DoYzkayAnad/x5I5eXW8YTkZVTpthzMKn1HtbwSFP87QCEecFFQFgSKGYpSfWPedNAc8ZMnTzk1XsuuE7s6SUA==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-arm-gnueabihf@0.8.0-rc3':
+    resolution: {integrity: sha512-6mNiQ5S+pTAJA6xiHtMMYjJWBa+YnpnawK2To3Y9UpzNkhgIipi1Nd0m+E6lQsqFFwjlYR/0EPlgcpQQOzP+Fg==}
+    engines: {node: '>= 10'}
+    cpu: [arm]
+    os: [linux]
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-arm64-gnu@0.8.0-rc3':
+    resolution: {integrity: sha512-+c8a+W+mcLH6SGFh99HKiiNUEIQB7pZ3CyyFsl94IIuq+MqOAI9uEYPzauKsIsbDc9ZsWC9rie2wSYQHLvmNSg==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-arm64-musl@0.8.0-rc3':
+    resolution: {integrity: sha512-bEYNf4eiyJqOo1AO/WRacRoXiKvJ60KHb3zItETR50GwV9bck+rhSwzLfWO9VsckKMPdWeovSVLcHkl9IHvMJA==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [musl]
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-x64-gnu@0.8.0-rc3':
+    resolution: {integrity: sha512-bqqb2NCCytrrI4GD6LST7FIM3jsyBPRqZ9LtPFi7IGLEHPokWN1PkuZtbwJ4mxb3/eD7ovd5G6Qyv2WDqesW2Q==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-x64-musl@0.8.0-rc3':
+    resolution: {integrity: sha512-uqjicMMq+ePQxsmjwQyGXYv7WK6DvGMfCSKzuv1jHLVFxD8BQFJ5UXWgMaOopCdRkFL1SdUzzipGaeo/8GQkpw==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  '@myriaddreamin/typst-ts-node-compiler-win32-arm64-msvc@0.8.0-rc3':
+    resolution: {integrity: sha512-O2pAiIAKMMV+lRGSE1a+EqCJUWc+Gfi4zyo9OXTXeCnpzICp4P4vIUrjU6R784gJjuG+p4tQP+n3PRw81mkbIA==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@myriaddreamin/typst-ts-node-compiler-win32-x64-msvc@0.8.0-rc3':
+    resolution: {integrity: sha512-G/uP+tlOZLx0OXXO4CEqo2D/ewHc8uBqmGD5p6f+LX3SBbRSqB6CosDS7PCfh2tehfdC7HNXyLtey9s2g4Xg9w==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [win32]
+
+  '@myriaddreamin/typst-ts-node-compiler@0.8.0-rc3':
+    resolution: {integrity: sha512-UV/LynOjsoXvbPigusm7IGusu22cENI5UDGdMFWK6B6E0F74r9S+TnY/TAGN3S6PvJvpgMTo9Y/MvmqDlgzB8w==}
+    engines: {node: '>= 10'}
+
+  '@myriaddreamin/typst-ts-web-compiler@0.8.0-rc3':
+    resolution: {integrity: sha512-akc8TlhBzldlU1DtbDvR/6ufzgJmQrZMqfYY2fCFbH7y/+h3YdmnyF+twtVqwv+g6YuFXm/Oc1wwa6cYQX4/aw==}
+
+  '@myriaddreamin/typst.ts@0.8.0-rc3':
+    resolution: {integrity: sha512-Z5SzwBRNV3a8Zz6BCdUBnAKRQj2khNM90dhwFpGkefIYiFJ5AUj/F02uoyDZmY2TvziDKEsJn0800BeF7J8mAw==}
+    peerDependencies:
+      '@myriaddreamin/typst-ts-renderer': ^0.8.0-rc3
+      '@myriaddreamin/typst-ts-web-compiler': ^0.8.0-rc3
+    peerDependenciesMeta:
+      '@myriaddreamin/typst-ts-renderer':
+        optional: true
+      '@myriaddreamin/typst-ts-web-compiler':
+        optional: true
+
   '@napi-rs/wasm-runtime@1.1.4':
     resolution: {integrity: sha512-3NQNNgA1YSlJb/kMH1ildASP9HW7/7kYnRI2szWJaofaS1hWmbGI4H+d3+22aGzXXN9IJ+n+GiFVcGipJP18ow==}
     peerDependencies:
@@ -8507,6 +8761,12 @@ packages:
   '@oxlint/plugins@1.73.0':
     resolution: {integrity: sha512-OhgMQeMmZA0dcFcX4/priaJZWdFECxiClgq6mRX6aatZEcV9PbKC3P3/v8U1hVjviT1i5U+vR8lAtBV6m4FXAA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@pdf-lib/standard-fonts@1.0.0':
+    resolution: {integrity: sha512-hU30BK9IUN/su0Mn9VdlVKsWBS6GyhVfqjwl1FjZN4TxP6cCw0jP2w7V3Hf5uX7M0AZJ16vey9yE0ny7Sa59ZA==}
+
+  '@pdf-lib/upng@1.0.1':
+    resolution: {integrity: sha512-dQK2FUMQtowVP00mtIksrlZhdFXQZPC+taih1q4CvPZ5vqdxR/LKBaFg0oAfzd1GlHZXXSPdQfzQnt+ViGvEIQ==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -12123,9 +12383,16 @@ packages:
     resolution: {integrity: sha512-1bPaDNFm0axzE4MEAzKPuqKWeRaT43U/hyxKPBdqTfmPF+d6n7FSoTFxLVULUJOmiLp01KjhIPPH+HrXZJN4Rg==}
     engines: {node: '>=12.20'}
 
+  color-string@1.9.1:
+    resolution: {integrity: sha512-shrVawQFojnZv6xM40anx4CkoDP+fZsw/ZerEMsW/pyzsRbElpsL/DBVW7q3ExxwusdNXI3lXpuhEZkzs8p5Eg==}
+
   color-string@2.1.4:
     resolution: {integrity: sha512-Bb6Cq8oq0IjDOe8wJmi4JeNn763Xs9cfrBcaylK1tPypWzyoy2G3l90v9k64kjphl/ZJjPIShFztenRomi8WTg==}
     engines: {node: '>=18'}
+
+  color@4.2.3:
+    resolution: {integrity: sha512-1rXeuUUiGGrykh+CeBdu5Ie7OJwinCgQY0bc7GCRxy5xVHy+moaqkpL/jqQq0MtQOeYcrqEz4abc5f0KtU7W4A==}
+    engines: {node: '>=12.5.0'}
 
   combined-stream@1.0.8:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
@@ -13277,6 +13544,9 @@ packages:
     resolution: {integrity: sha512-CV9TW3Y3f8/wT0BRFc1/KAVQ3TUHiXmaAb6VW9vtiMFf7SLoMd1PdAc4W3KFOFETBJUb90KatHqlsZMWV+R9Gg==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
 
+  html-entities@2.6.0:
+    resolution: {integrity: sha512-kig+rMn/QOVRvr7c86gQ8lWXq+Hkv6CbAH1hLu+RG338StTpE8Z0b44SDVaqVu7HGKf27frdmUYEs9hTUX/cLQ==}
+
   html-to-text@9.0.5:
     resolution: {integrity: sha512-qY60FjREgVZL03vJU6IfMV4GDjGBIoOyvuFdpBDIX9yTlDw0TjxVBQp+P8NvpdIXNJvfWBTNul7fsAQJq2FNpg==}
     engines: {node: '>=14'}
@@ -13307,6 +13577,9 @@ packages:
   iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
     engines: {node: '>=0.10.0'}
+
+  idb@7.1.1:
+    resolution: {integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==}
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -13391,6 +13664,9 @@ packages:
 
   is-arrayish@0.2.1:
     resolution: {integrity: sha512-zz06S8t0ozoDXMG+ube26zeCTNXcKIPJZJi8hBrF4idCLms4CG9QtK7qBl1boi5ODzFpjswb5JPmHCbMpjaYzg==}
+
+  is-arrayish@0.3.4:
+    resolution: {integrity: sha512-m6UrgzFVUYawGBh1dUsWR5M2Clqic9RVXC/9f8ceNlv2IcO9j9J/z8UoCLPqtsPBFNzEpfR3xftohbfqDx8EQA==}
 
   is-async-function@2.1.1:
     resolution: {integrity: sha512-9dgM/cZBnNvjzaMYHVoxxfPj2QXt22Ev7SuuPrs+xav0ukGB0S6d4ydZdEiM48kLx5kDV+QBPrpVnFyefL8kkQ==}
@@ -14439,6 +14715,9 @@ packages:
     resolution: {integrity: sha512-dSq1xmcPDKPZ2EED2S6zw/b9NKsqzXRE6dVr8TVQnI3FJOTteUMuqF3Qqs6LZg+mLGYJWqQzMbIjMtJqTv87nQ==}
     hasBin: true
 
+  node-html-better-parser@1.5.9:
+    resolution: {integrity: sha512-z1I5UINMezJXYL9cH3h0a9KBth2G978gSLlfkpQ+CQzzVHVQy9gpARgm9eDsz1O4gn1HtgUqjdAIYxKFZm6uHQ==}
+
   node-releases@2.0.37:
     resolution: {integrity: sha512-1h5gKZCF+pO/o3Iqt5Jp7wc9rH3eJJ0+nh/CIoiRwjRxde/hAHyLPXYN4V3CqKAbiZPSeJFSWHmJsbkicta0Eg==}
 
@@ -14623,6 +14902,9 @@ packages:
 
   pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
+
+  pako@2.2.0:
+    resolution: {integrity: sha512-zJq6RP/5q+TO2OpFV3FHzlPnFjmkb7Nc99a5SNjJE+uu/PkpChs+NIZSSzbBoD+6kjiISXjfYdwj1ZRQ81dz/w==}
 
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
@@ -15454,6 +15736,9 @@ packages:
   simple-get@4.0.1:
     resolution: {integrity: sha512-brv7p5WgH0jmQJr1ZDDfKDOSeWWg+OVypG99A/5vYGPqJ6pxiaHLy8nxtFjBA7oMa01ebA9gfh1uMCFqOuXxvA==}
 
+  simple-swizzle@0.2.4:
+    resolution: {integrity: sha512-nAu1WFPQSMNr2Zn9PGSZK9AGn4t/y97lEm+MXTtUDwfP0ksAIX4nO+6ruD9Jwut4C49SB1Ws+fbXsm/yScWOHw==}
+
   sirv@3.0.2:
     resolution: {integrity: sha512-2wcC/oGxHis/BoHkkPwldgiPSYcpZK3JU28WoMVv55yHJgcZ8rlXvuG9iZggz+sU1d4bRgIGASwyWqjxu3FM0g==}
     engines: {node: '>=18'}
@@ -15724,6 +16009,9 @@ packages:
     resolution: {integrity: sha512-uxfo9fPcSgLDYob/w1FuL0c99MWiJDnv+5qXSQc5+Ki5NjVNsYi66INnMFBjf6uFz6OnX12piJQPF4IpjJTNTw==}
     engines: {node: '>=10'}
     hasBin: true
+
+  tex2typst@0.6.2:
+    resolution: {integrity: sha512-KQwpKUZ3kWI/cBEChFhVPJJV5/61R2Eb0epL6AGlQTKdto4OZer9wX4F2mbTsThVJPeLP4Ax0CkUk23IdcgnGQ==}
 
   throttleit@2.1.0:
     resolution: {integrity: sha512-nt6AMGKW1p/70DF/hGBdJB57B8Tspmbp5gfJ8ilhLnt7kkr2ye7hzD6NVG8GGErk2HWF34igrL2CXmNIkzKqKw==}
@@ -17177,6 +17465,16 @@ snapshots:
     dependencies:
       css-tree: 3.2.1
 
+  '@cantoo/pdf-lib@2.9.1(html-entities@2.6.0)':
+    dependencies:
+      '@pdf-lib/standard-fonts': 1.0.0
+      '@pdf-lib/upng': 1.0.1
+      color: 4.2.3
+      html-entities: 2.6.0
+      node-html-better-parser: 1.5.9
+      pako: 2.2.0
+      tslib: 2.8.1
+
   '@chevrotain/types@11.1.2': {}
 
   '@csstools/color-helpers@6.0.2': {}
@@ -18087,6 +18385,61 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
 
+  '@myriaddreamin/typst-ts-node-compiler-android-arm-eabi@0.8.0-rc3':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-android-arm64@0.8.0-rc3':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-darwin-arm64@0.8.0-rc3':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-darwin-x64@0.8.0-rc3':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-arm-gnueabihf@0.8.0-rc3':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-arm64-gnu@0.8.0-rc3':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-arm64-musl@0.8.0-rc3':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-x64-gnu@0.8.0-rc3':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-linux-x64-musl@0.8.0-rc3':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-win32-arm64-msvc@0.8.0-rc3':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler-win32-x64-msvc@0.8.0-rc3':
+    optional: true
+
+  '@myriaddreamin/typst-ts-node-compiler@0.8.0-rc3':
+    optionalDependencies:
+      '@myriaddreamin/typst-ts-node-compiler-android-arm-eabi': 0.8.0-rc3
+      '@myriaddreamin/typst-ts-node-compiler-android-arm64': 0.8.0-rc3
+      '@myriaddreamin/typst-ts-node-compiler-darwin-arm64': 0.8.0-rc3
+      '@myriaddreamin/typst-ts-node-compiler-darwin-x64': 0.8.0-rc3
+      '@myriaddreamin/typst-ts-node-compiler-linux-arm-gnueabihf': 0.8.0-rc3
+      '@myriaddreamin/typst-ts-node-compiler-linux-arm64-gnu': 0.8.0-rc3
+      '@myriaddreamin/typst-ts-node-compiler-linux-arm64-musl': 0.8.0-rc3
+      '@myriaddreamin/typst-ts-node-compiler-linux-x64-gnu': 0.8.0-rc3
+      '@myriaddreamin/typst-ts-node-compiler-linux-x64-musl': 0.8.0-rc3
+      '@myriaddreamin/typst-ts-node-compiler-win32-arm64-msvc': 0.8.0-rc3
+      '@myriaddreamin/typst-ts-node-compiler-win32-x64-msvc': 0.8.0-rc3
+
+  '@myriaddreamin/typst-ts-web-compiler@0.8.0-rc3': {}
+
+  '@myriaddreamin/typst.ts@0.8.0-rc3(@myriaddreamin/typst-ts-web-compiler@0.8.0-rc3)':
+    dependencies:
+      idb: 7.1.1
+    optionalDependencies:
+      '@myriaddreamin/typst-ts-web-compiler': 0.8.0-rc3
+
   '@napi-rs/wasm-runtime@1.1.4(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)':
     dependencies:
       '@emnapi/core': 1.9.2
@@ -18543,6 +18896,14 @@ snapshots:
     optional: true
 
   '@oxlint/plugins@1.73.0': {}
+
+  '@pdf-lib/standard-fonts@1.0.0':
+    dependencies:
+      pako: 1.0.11
+
+  '@pdf-lib/upng@1.0.1':
+    dependencies:
+      pako: 1.0.11
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -22264,9 +22625,19 @@ snapshots:
 
   color-name@2.1.0: {}
 
+  color-string@1.9.1:
+    dependencies:
+      color-name: 1.1.4
+      simple-swizzle: 0.2.4
+
   color-string@2.1.4:
     dependencies:
       color-name: 2.1.0
+
+  color@4.2.3:
+    dependencies:
+      color-convert: 2.0.1
+      color-string: 1.9.1
 
   combined-stream@1.0.8:
     dependencies:
@@ -23598,6 +23969,8 @@ snapshots:
     transitivePeerDependencies:
       - '@noble/hashes'
 
+  html-entities@2.6.0: {}
+
   html-to-text@9.0.5:
     dependencies:
       '@selderee/plugin-htmlparser2': 0.11.0
@@ -23633,6 +24006,8 @@ snapshots:
   iconv-lite@0.6.3:
     dependencies:
       safer-buffer: 2.1.2
+
+  idb@7.1.1: {}
 
   ieee754@1.2.1: {}
 
@@ -23709,6 +24084,8 @@ snapshots:
       get-intrinsic: 1.3.0
 
   is-arrayish@0.2.1: {}
+
+  is-arrayish@0.3.4: {}
 
   is-async-function@2.1.1:
     dependencies:
@@ -24930,6 +25307,10 @@ snapshots:
   node-gyp-build@4.1.1:
     optional: true
 
+  node-html-better-parser@1.5.9:
+    dependencies:
+      html-entities: 2.6.0
+
   node-releases@2.0.37: {}
 
   nodemailer@7.0.13: {}
@@ -25167,6 +25548,8 @@ snapshots:
   pako@0.2.9: {}
 
   pako@1.0.11: {}
+
+  pako@2.2.0: {}
 
   parent-module@1.0.1:
     dependencies:
@@ -26225,6 +26608,10 @@ snapshots:
       once: 1.4.0
       simple-concat: 1.0.1
 
+  simple-swizzle@0.2.4:
+    dependencies:
+      is-arrayish: 0.3.4
+
   sirv@3.0.2:
     dependencies:
       '@polka/url': 1.0.0-next.29
@@ -26507,6 +26894,8 @@ snapshots:
       acorn: 8.16.0
       commander: 2.20.3
       source-map-support: 0.5.21
+
+  tex2typst@0.6.2: {}
 
   throttleit@2.1.0: {}
 

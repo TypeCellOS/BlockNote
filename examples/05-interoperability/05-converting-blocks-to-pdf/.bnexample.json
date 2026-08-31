@@ -3,6 +3,7 @@
   "docs": true,
   "author": "yousefed",
   "tags": ["Interoperability"],
+  "sharedTestDocument": true,
   "dependencies": {
     "@blocknote/diagram-block": "latest",
     "@blocknote/math-block": "latest",

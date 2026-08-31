@@ -1,0 +1,65 @@
+---
+title: Typst
+description: Export BlockNote documents to Typst markup.
+imageTitle: Typst Export
+path: /docs/export-to-typst
+---
+
+# Typst Export
+
+It's possible to export BlockNote documents to [Typst](https://typst.app)
+markup — for example to post-process documents in a Typst workflow, or to
+compile them to PDF with your own Typst toolchain (including server-side).
+This exporter is also the foundation of the
+[PDF exporter](/docs/features/export/pdf), which compiles its output to
+accessible, tagged PDF/UA-1 in the browser.
+
+<Callout type={"info"}>
+  This feature is provided by the `@blocknote/xl-typst-exporter`. `xl-`
+  packages are fully open source, but released under a copyleft license. A
+  commercial license for usage in closed source, proprietary products comes as
+  part of the [Business subscription](/pricing).
+</Callout>
+
+First, install the `@blocknote/xl-typst-exporter` package:
+
+```bash
+npm install @blocknote/xl-typst-exporter
+```
+
+Then, create an instance of the `TypstExporter` class:
+
+```typescript
+import {
+  TypstExporter,
+  typstDefaultSchemaMappings,
+} from "@blocknote/xl-typst-exporter";
+
+// Create the exporter
+const exporter = new TypstExporter(editor.schema, typstDefaultSchemaMappings);
+
+// Convert the blocks to a Typst source string
+const typst = await exporter.toTypst(editor.document, {
+  title: "My document",
+  lang: "en",
+});
+
+// The document's images, keyed by the virtual path referenced in the markup -
+// map these into your Typst compiler's filesystem before compiling
+const assets = exporter.assetFiles;
+```
+
+`toTypst` takes the same per-document options as the PDF exporter's export
+methods (title, author, language, paper size, margins, page header/footer) —
+see [customizing the PDF](/docs/features/export/pdf#customizing-the-pdf) —
+and the constructor takes the same
+[exporter options](/docs/features/export/pdf#exporter-options).
+
+### Custom mappings
+
+Mappings convert schema elements into Typst markup strings, and they are
+shared with the PDF exporter — one custom-block mapping serves both formats.
+See [custom mappings](/docs/features/export/pdf#custom-mappings--custom-schemas)
+on the PDF page; the [math](/docs/features/blocks/math#pdf) and
+[diagram](/docs/features/blocks/diagrams) blocks ship ready-made Typst
+mappings from their `typst-exporter` subpaths.

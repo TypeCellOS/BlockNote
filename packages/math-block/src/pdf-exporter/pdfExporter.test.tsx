@@ -7,7 +7,7 @@ import {
 import {
   PDFExporter,
   pdfDefaultSchemaMappings,
-} from "@blocknote/xl-pdf-exporter";
+} from "@blocknote/xl-pdf-exporter/react-pdf";
 import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
 import reactElementToJSXString from "react-element-to-jsx-string";
 import { describe, expect, it } from "vite-plus/test";
@@ -62,9 +62,11 @@ describe("pdf exporter mappings", () => {
 
     // The math block & inline math paragraph from the shared test document.
     const transformed = await exporter.toReactPDFDocument(
+      // `as any`: the filtered subset holds no multi-column blocks, but the
+      // fixture's type still carries them and this schema doesn't.
       testDocumentWithSourceBlocks.filter((block) =>
         ["math-block", "paragraph-with-inline-math"].includes(block.id),
-      ),
+      ) as any,
     );
     const str = reactElementToJSXString(transformed);
 
@@ -133,7 +135,7 @@ describe("pdf exporter mappings", () => {
       exporter.toReactPDFDocument(
         testDocumentWithSourceBlocks.filter(
           (block) => block.id === "paragraph-with-inline-math",
-        ),
+        ) as any,
       ),
     ).rejects.toThrow("pass a `rasterize` function");
   });

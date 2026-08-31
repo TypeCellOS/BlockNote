@@ -13,6 +13,6 @@
     <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" TargetMode="External"/>
     <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="" TargetMode="External"/>
     <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="https://www.blocknotejs.org" TargetMode="External"/>
-    <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/50e4c971936c813eeeacc22f2ae97b4bc2a023f0.gif"/>
+    <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/f80a80178f3fc0ef95622f7c976fa508f4d3f9ab.gif"/>
     <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable" Target="fontTable.xml"/>
 </Relationships>

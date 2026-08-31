@@ -15,7 +15,9 @@ export default defineConfig(
               { auto: true },
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
-            output: ["dist/**", "!dist/*.tsbuildinfo"],
+            // `types/**` must be declared too: a cache replay that restores only
+            // dist/ leaves consumers without declarations (tsc is skipped).
+            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
           },
         },
       },
@@ -63,6 +65,10 @@ export default defineConfig(
                   __dirname,
                   "../xl-pdf-exporter/src/",
                 ),
+                "@blocknote/xl-typst-exporter": path.resolve(
+                  __dirname,
+                  "../xl-typst-exporter/src/",
+                ),
               } as Record<string, string>),
       },
       build: {
@@ -85,6 +91,10 @@ export default defineConfig(
             "email-exporter": path.resolve(
               __dirname,
               "src/email-exporter/index.tsx",
+            ),
+            "typst-exporter": path.resolve(
+              __dirname,
+              "src/typst-exporter/index.ts",
             ),
           },
           name: "blocknote-math-block",

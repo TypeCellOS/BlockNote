@@ -9,17 +9,38 @@ import {
   inlineMathMapping as pdfInlineMathMapping,
   mathBlockMapping as pdfMathBlockMapping,
 } from "@blocknote/math-block/pdf-exporter";
+import { diagramBlockMapping as typstDiagramBlockMapping } from "@blocknote/diagram-block/typst-exporter";
+import {
+  inlineMathMapping as typstInlineMathMapping,
+  mathBlockMapping as typstMathBlockMapping,
+} from "@blocknote/math-block/typst-exporter";
 import {
   ReactEmailExporter,
   reactEmailDefaultSchemaMappings,
 } from "@blocknote/xl-email-exporter";
 import {
+  compileTypstToTaggedPdf,
+  declarePdfUA,
+  TypstExporter,
+  typstDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter";
+// Bundled wasm + a body font so the Typst compile below runs fully offline.
+// eslint-disable-next-line import/no-unresolved
+import compilerWasmUrl from "@myriaddreamin/typst-ts-web-compiler/wasm?url";
+// eslint-disable-next-line import/no-unresolved
+import interRegularUrl from "@shared/assets/fonts/inter/Inter_18pt-Regular.ttf?url";
+// Typst needs a math-capable font for equations; with `preloadDefaultFonts:
+// false` (no CDN fonts) it must be bundled like the body font.
+import newCMMathBookUrl from "@shared/assets/fonts/newcm/NewCMMath-Book.otf?url";
+import newCMMathRegularUrl from "@shared/assets/fonts/newcm/NewCMMath-Regular.otf?url";
+import {
   PDFExporter,
   pdfDefaultSchemaMappings,
-} from "@blocknote/xl-pdf-exporter";
+} from "@blocknote/xl-pdf-exporter/react-pdf";
 import { pdf } from "@react-pdf/renderer";
 import { testDocumentWithSourceBlocks } from "@shared/testDocument.js";
 import { decodeAndSample } from "@shared/util/browserImageTestUtil.js";
+import { isPdf } from "@shared/util/testBytesUtil.js";
 import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
 import { afterEach, describe, expect, test } from "vite-plus/test";
 import { browserName } from "../../utils/context.js";
@@ -139,6 +160,78 @@ describe("email export through a complete exporter in the browser", () => {
   });
 });
 
+describe("pdf/ua export through the complete typst pipeline in the browser", () => {
+  test(
+    "exports the shared document with math and diagrams",
+    { timeout: 60000 },
+    async () => {
+      const typstDocument = [
+        ...testDocumentWithSourceBlocks,
+        invalidDiagramBlock,
+        invalidMathBlock,
+      ];
+
+      const exporter = new TypstExporter(
+        schema(),
+        {
+          ...typstDefaultSchemaMappings,
+          blockMapping: {
+            ...typstDefaultSchemaMappings.blockMapping,
+            mathBlock: typstMathBlockMapping,
+            diagram: typstDiagramBlockMapping,
+          },
+          inlineContentMapping: {
+            ...typstDefaultSchemaMappings.inlineContentMapping,
+            math: typstInlineMathMapping,
+          },
+        } as any,
+        { resolveFileUrl: testResolveFileUrl },
+      );
+
+      const typ = await exporter.toTypst(typstDocument as any, {
+        title: "BlockNote Export",
+      });
+
+      // Native equations with the LaTeX source as alt text, the diagram as a
+      // figure with the Mermaid source as alt text - and the invalid sources
+      // as placeholders, without failing the export.
+      expect(typ).toContain("math.equation(block: true");
+      expect(typ).toContain('alt: "a^2 = \\\\sqrt{b^2 + c^2}"');
+      expect(typ).toContain("Invalid diagram");
+      expect(typ).toContain("Invalid formula");
+
+      // The default browser renderer produced a real Mermaid render as
+      // vector SVG, and the document's images resolved to registered assets.
+      // (Asset paths are extension-less; identify the formats by bytes.)
+      const assetBytes = [...exporter.assetFiles.values()];
+      expect(
+        assetBytes.some((b) =>
+          new TextDecoder().decode(b.slice(0, 5)).startsWith("<svg"),
+        ),
+      ).toBe(true);
+      expect(assetBytes.some((b) => b[0] === 0xff && b[1] === 0xd8)).toBe(true);
+
+      // Compile through the real wasm pipeline (the node unit suites
+      // substitute the node compiler; only this covers what browsers run),
+      // then declare PDF/UA - the same steps PDFExporter.toBytes composes.
+      const fonts = await Promise.all(
+        [interRegularUrl, newCMMathRegularUrl, newCMMathBookUrl].map(
+          async (url) => new Uint8Array(await (await fetch(url)).arrayBuffer()),
+        ),
+      );
+      const tagged = await compileTypstToTaggedPdf(typ, {
+        getModule: () => compilerWasmUrl,
+        fonts,
+        preloadDefaultFonts: false,
+        assets: exporter.assetFiles,
+      });
+      const ua = await declarePdfUA(tagged);
+      expect(isPdf(ua)).toBe(true);
+      expect(ua.byteLength).toBeGreaterThan(10_000);
+    },
+  );
+});
+
 describe("pdf export through a complete exporter in the browser", () => {
   // Chromium only: the produced PDF is the same file everywhere (react-pdf
   // lays it out from bundled fonts, not browser rendering), so per-browser
@@ -199,7 +292,7 @@ describe("pdf export through a complete exporter in the browser", () => {
       // which invokes the inline math's rasterizing src function.
       const blob = await pdf(transformed as any).toBlob();
       const bytes = new Uint8Array(await blob.arrayBuffer());
-      expect(new TextDecoder().decode(bytes.slice(0, 5))).toBe("%PDF-");
+      expect(isPdf(bytes)).toBe(true);
 
       // Render the produced PDF's pages with pdf.js (pure JS - the reason
       // the old Node-side attempt at this failed was native canvas
