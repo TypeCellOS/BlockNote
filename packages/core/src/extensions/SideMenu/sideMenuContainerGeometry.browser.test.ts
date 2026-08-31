@@ -6,101 +6,18 @@ import {
   getDirectChildBlocks,
   hasHorizontalContainerAncestor,
   isHorizontalContainer,
-  rectIndexAtCursor,
-  rectsAreSideBySide,
-  type BlockRect,
 } from "./sideMenuContainerGeometry.js";
 
-// The side-menu container geometry: the pure rect arithmetic, and the
-// `querySelectorAll`/`closest` walks against live layout. A container whose
-// children happen to sit side-by-side must be recognised as horizontal
-// without declaring anything.
+// The side-menu container geometry that reads live layout: the
+// `querySelectorAll`/`closest` walks and the rect measurements behind them. A
+// container whose children happen to sit side-by-side must be recognised as
+// horizontal without declaring anything. (The pure rect arithmetic these
+// build on is unit-tested in `sideMenuContainerGeometry.test.ts`.)
 //
 // The DOM trees are attached to the real document and laid out by the real
 // engine; nothing stubs `getBoundingClientRect`. A column list inside a real
 // editor is covered end-to-end by
 // `tests/src/end-to-end/multicolumn/multicolumn.test.tsx`.
-
-const rect = (
-  top: number,
-  bottom: number,
-  left: number,
-  right: number,
-): BlockRect => ({ top, bottom, left, right });
-
-// Two columns of a column list: same vertical band, adjacent horizontally.
-const SIDE_BY_SIDE = [rect(0, 100, 0, 100), rect(0, 100, 100, 200)];
-// Two blocks of a callout: same horizontal band, stacked vertically.
-const STACKED = [rect(0, 40, 0, 200), rect(50, 90, 0, 200)];
-
-describe("rectsAreSideBySide", () => {
-  it("is true when two rects overlap vertically, false when stacked", () => {
-    expect(rectsAreSideBySide(SIDE_BY_SIDE)).toBe(true);
-    expect(rectsAreSideBySide(STACKED)).toBe(false);
-    // Degenerate inputs are never a row.
-    expect(rectsAreSideBySide([rect(0, 100, 0, 100)])).toBe(false);
-    expect(rectsAreSideBySide([])).toBe(false);
-  });
-
-  it("treats abutting rects as stacked, but counts a one-pixel overlap", () => {
-    // The second rect's top exactly meets the first's bottom. A stack with no
-    // gap must not be misread as a row.
-    expect(
-      rectsAreSideBySide([rect(0, 40, 0, 200), rect(40, 80, 0, 200)]),
-    ).toBe(false);
-    expect(
-      rectsAreSideBySide([rect(0, 41, 0, 100), rect(40, 80, 0, 100)]),
-    ).toBe(true);
-  });
-
-  it("finds an overlapping pair that isn't the first two", () => {
-    // The loop is over every pair, not just neighbours. A column list whose
-    // first two children happen to be stacked is still a row.
-    expect(
-      rectsAreSideBySide([
-        rect(0, 40, 0, 100),
-        rect(40, 80, 0, 100),
-        rect(40, 80, 100, 200),
-      ]),
-    ).toBe(true);
-  });
-});
-
-describe("rectIndexAtCursor", () => {
-  it("returns the rect whose x range contains the cursor (side-by-side)", () => {
-    // Both rects share the y range, so only x distinguishes them. The
-    // vertical-only fallback recorded for the first must not win over an x
-    // match found later in the list; otherwise hovering the second column of
-    // a row would resolve to its neighbour.
-    expect(rectIndexAtCursor(SIDE_BY_SIDE, { x: 150, y: 50 })).toBe(1);
-    expect(rectIndexAtCursor(SIDE_BY_SIDE, { x: 10, y: 50 })).toBe(0);
-  });
-
-  it("falls back to the first vertical match when x is in the gutter", () => {
-    // The cursor's y is in the first block's band but its x is left of it (the
-    // side-menu gutter). The first vertical match wins.
-    expect(rectIndexAtCursor(STACKED, { x: -20, y: 20 })).toBe(0);
-  });
-
-  it("returns undefined when the cursor misses every rect vertically", () => {
-    expect(rectIndexAtCursor(STACKED, { x: 10, y: 999 })).toBeUndefined();
-    expect(rectIndexAtCursor(STACKED, { x: 10, y: -999 })).toBeUndefined();
-    expect(rectIndexAtCursor([], { x: 10, y: 10 })).toBeUndefined();
-  });
-
-  it("includes the rect edges", () => {
-    const single = [rect(0, 40, 0, 200)];
-    expect(rectIndexAtCursor(single, { x: 0, y: 0 })).toBe(0);
-    expect(rectIndexAtCursor(single, { x: 200, y: 40 })).toBe(0);
-  });
-});
-
-let mounted: HTMLElement[] = [];
-
-afterEach(() => {
-  mounted.forEach((el) => el.remove());
-  mounted = [];
-});
 
 /** Attaches a tree to the document so the browser actually lays it out. */
 function mount<T extends HTMLElement>(el: T): T {
@@ -108,6 +25,13 @@ function mount<T extends HTMLElement>(el: T): T {
   mounted.push(el);
   return el;
 }
+
+let mounted: HTMLElement[] = [];
+
+afterEach(() => {
+  mounted.forEach((el) => el.remove());
+  mounted = [];
+});
 
 function el(nodeType: string): HTMLElement {
   const node = document.createElement("div");
