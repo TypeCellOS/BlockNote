@@ -1,7 +1,7 @@
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
 
 import { UIModeContext } from "../../editor/UIModeContext.js";
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useEditorFocus } from "../../hooks/useEditorFocus.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
 import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
@@ -41,26 +41,13 @@ import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
 export const MobileFormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
 }) => {
-  const editor = useBlockNoteEditor();
   const keyboardOpen = useVirtualKeyboard();
 
   // Whether the user is still interacting with this editor: content focus or
   // focus within its UI (a toolbar popover's input, portalled into
   // `editor.portalElement`, must not hide the toolbar — unmounting it would
-  // take the popover down with it). `includeEditorUI` events are settled and
-  // deduplicated, and the state below only ever holds those settled values —
-  // reading the focus state live during a render could observe the transient
-  // `<body>` focus of a mid-handoff frame.
-  const [focused, setFocused] = useState(() =>
-    editor.isFocused({ includeEditorUI: true }),
-  );
-  useEffect(() => {
-    // Re-sync in case focus changed before the subscription attached.
-    setFocused(editor.isFocused({ includeEditorUI: true }));
-    return editor.onFocusChange((_editor, ctx) => setFocused(ctx.focused), {
-      includeEditorUI: true,
-    });
-  }, [editor]);
+  // take the popover down with it).
+  const focused = useEditorFocus({ includeEditorUI: true });
 
   if (!keyboardOpen || !focused) {
     return null;
