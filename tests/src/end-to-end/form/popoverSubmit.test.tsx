@@ -2,10 +2,15 @@ import TestingApp from "@examples/01-basic/testing/src/App";
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 
-import { userEvent } from "../../utils/context.js";
+import { browserName, commands, userEvent } from "../../utils/context.js";
+import type { ImeCompositionCommand } from "../../utils/imeComposition.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
 import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
+
+const browserCommands = commands as typeof commands & {
+  imeComposition: ImeCompositionCommand;
+};
 
 /**
  * The toolbar popovers commit through their form's `submit` event, because a
@@ -106,10 +111,18 @@ describe("Submitting a toolbar popover with Enter", () => {
     expect((submit as HTMLButtonElement).tabIndex).toBe(-1);
   });
 
-  test("the embed tab exposes exactly one submit control", async () => {
-    // Its own Embed button is the form's submit control, so `Form.Root` must
-    // not add a second hidden one — a screen reader would otherwise announce
-    // two separate actions for the one thing this panel does.
+  test("the embed tab keeps its button out of the form", async () => {
+    // Two things ride on the button staying outside the `<form>`, which is why
+    // this asserts the structure rather than an outcome:
+    //
+    // - `Form.Root` must not also add its hidden submit button, or a screen
+    //   reader announces two separate actions for the one thing this panel
+    //   does.
+    // - Inside the form the button would fire `onClick` *and* submit on the
+    //   skins whose panel button defaults to `type="submit"` (ariakit and
+    //   shadcn; mantine's defaults to `type="button"`), embedding twice.
+    //   Only mantine runs in this suite, so a double-commit assertion here
+    //   could never fail — the structural check is what actually guards it.
     await focusOnEditor();
     await executeSlashCommand("image");
     await userEvent.click(await waitForSelector(`[data-test="embed-tab"]`));
@@ -138,26 +151,41 @@ describe("Submitting a toolbar popover with Enter", () => {
     await waitForSelector(`img[src="${url}"]`);
   });
 
-  test("the embed tab commits exactly once", async () => {
-    // The embed button sits outside the form on purpose: the skins disagree on
-    // whether their panel button defaults to `type="submit"`, so inside one it
-    // would fire `onClick` *and* submit, applying the same edit twice.
-    await focusOnEditor();
-    await executeSlashCommand("image");
+  // `Input.imeSetComposition` is CDP-only, so the real composition state can
+  // only be entered in chromium.
+  test.skipIf(browserName !== "chromium")(
+    "Enter mid-composition does not commit the popover",
+    async () => {
+      // The platform performs implicit submission for an Enter delivered with
+      // `isComposing: true` (see ./compositionSubmit.test.tsx), so accepting
+      // an IME candidate would otherwise commit the link mid-word. This drives
+      // the real popover rather than a stand-in, so it covers the guard
+      // `Form.Root` actually ships.
+      await focusOnEditor();
+      await userEvent.keyboard("link me");
+      await userEvent.keyboard("{Home}{Shift>}{End}{/Shift}");
+      await userEvent.click(await waitForSelector(LINK_BUTTON_SELECTOR));
+      const input = (await waitForSelector(
+        'input[name="url"]',
+      )) as HTMLInputElement;
+      await userEvent.click(input);
 
-    await userEvent.click(await waitForSelector(`[data-test="embed-tab"]`));
-    const input = (await waitForSelector(
-      `[data-test="embed-input"]`,
-    )) as HTMLInputElement;
-    await userEvent.click(input);
+      await browserCommands.imeComposition([
+        { type: "setComposition", text: "にほん" },
+      ]);
+      await userEvent.keyboard("{Enter}");
 
-    const url = "https://placehold.co/400x300.png";
-    await userEvent.keyboard(url);
-    await userEvent.click(
-      await waitForSelector(`[data-test="embed-input-button"]`),
-    );
+      expect(
+        document.querySelector(`${EDITOR_SELECTOR} a`),
+        "accepting an IME candidate must not commit the link",
+      ).toBeNull();
 
-    await waitForSelector(`img[src="${url}"]`);
-    expect(document.querySelectorAll(`img[src="${url}"]`).length).toBe(1);
-  });
+      // And once composition is over, Enter still works.
+      await browserCommands.imeComposition([
+        { type: "commit", text: "example.com" },
+      ]);
+      await userEvent.keyboard("{Enter}");
+      await waitForSelector(`${EDITOR_SELECTOR} a`);
+    },
+  );
 });
