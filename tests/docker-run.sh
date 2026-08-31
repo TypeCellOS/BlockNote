@@ -29,7 +29,10 @@ entrypoint_args=("$@")
 # Auto-rebuild the image if its content hash label doesn't match the current
 # repo state. The hash covers every file that affects the image's contents: the
 # Dockerfile itself, plus everything it bakes in — the lockfile, workspace file,
-# all package.json files, patches, and example sources. When they differ the
+# all package.json files, patches, and example sources. Generated output dirs
+# are pruned: `pkg/` is wasm-pack's, and it emits a package.json, so without
+# that prune, building the wasm this script *requires* would itself invalidate
+# the image and force a second full rebuild. When they differ the
 # image is rebuilt in place
 # (Docker's layer cache makes this fast when only a leaf changed).
 _dep_files() {
@@ -42,7 +45,8 @@ _dep_files() {
     find . -name package.json \
       -not -path '*/node_modules/*' \
       -not -path '*/.git/*' \
-      -not -path '*/dist/*'
+      -not -path '*/dist/*' \
+      -not -path '*/pkg/*'
   } | sort -u
 }
 _content_hash() {
