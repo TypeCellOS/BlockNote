@@ -341,6 +341,26 @@ export function containerRootDOM(output: {
   return output.dom;
 }
 
+/**
+ * Marks a container block's rendered root with the attributes its round-trip
+ * parse needs (`data-node-type`, the prop `data-*`s, the id). Pairs the root
+ * resolution with the attribute application, which every render path needs
+ * together.
+ */
+function markContainerRoot(
+  output: { dom: HTMLElement | DocumentFragment; rootDOM?: HTMLElement | null },
+  blockConfig: { type: string; propSchema: PropSchema },
+  block: { props: Record<string, any>; id: string },
+) {
+  applyContainerAttributes(
+    containerRootDOM(output),
+    blockConfig.type,
+    block.props,
+    blockConfig.propSchema,
+    block.id,
+  );
+}
+
 function containerNodeView<TName extends string, TProps extends PropSchema>(
   blockConfig: BlockConfig<TName, TProps, "none">,
   blockImplementation: BlockImplementation<TName, TProps, "none">,
@@ -364,15 +384,7 @@ function containerNodeView<TName extends string, TProps extends PropSchema>(
     context.editor as any,
   );
 
-  const rootDOM = () => containerRootDOM(nodeView);
-
-  applyContainerAttributes(
-    rootDOM(),
-    blockConfig.type,
-    block.props as any,
-    blockConfig.propSchema,
-    block.id,
-  );
+  markContainerRoot(nodeView, blockConfig, block as any);
 
   const typedNodeView = nodeView as unknown as NodeView;
 
@@ -402,13 +414,10 @@ function containerNodeView<TName extends string, TProps extends PropSchema>(
       if (update(node, decorations, innerDecorations) === false) {
         return false;
       }
-      applyContainerAttributes(
-        rootDOM(),
-        blockConfig.type,
-        nodeToBlock(node, props.view.state.doc).props as any,
-        blockConfig.propSchema,
-        node.attrs.id,
-      );
+      markContainerRoot(nodeView, blockConfig, {
+        props: nodeToBlock(node, props.view.state.doc).props as any,
+        id: node.attrs.id,
+      });
       return true;
     };
   }
@@ -606,13 +615,7 @@ export function addNodeAndExtensionsToSpec<
         );
 
         if (isContainer) {
-          applyContainerAttributes(
-            containerRootDOM(output),
-            blockConfig.type,
-            block.props as any,
-            blockConfig.propSchema,
-            block.id,
-          );
+          markContainerRoot(output, blockConfig, block as any);
         }
 
         return output;
@@ -642,13 +645,7 @@ export function addNodeAndExtensionsToSpec<
           );
 
         if (output && isContainer) {
-          applyContainerAttributes(
-            containerRootDOM(output),
-            blockConfig.type,
-            block.props as any,
-            blockConfig.propSchema,
-            block.id,
-          );
+          markContainerRoot(output, blockConfig, block as any);
         }
 
         return output;
