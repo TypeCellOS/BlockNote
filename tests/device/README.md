@@ -21,6 +21,10 @@ pnpm run dev
 BROWSERSTACK_USERNAME=... BROWSERSTACK_ACCESS_KEY=... pnpm run test:device
 ```
 
+Instead of exporting the variables each time, copy the repo root's
+`.env.sample` to `.env` (gitignored) and fill in the BrowserStack entries —
+the config loads it, with real environment variables taking precedence.
+
 Environment knobs:
 
 | Variable                                            | Purpose                                                                                  |

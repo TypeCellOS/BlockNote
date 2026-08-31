@@ -1,4 +1,22 @@
-import { defineConfig } from "vite-plus";
+import path from "node:path";
+import { defineConfig, loadEnv } from "vite-plus";
+
+// The suite reads its configuration from the environment; the repo root's
+// `.env` (copied from `.env.sample`) works too. Loaded here because vitest
+// does not load env files into `process.env` on its own — dotenv parsing
+// accepts the sample's shell-style `export KEY=value` lines. Real environment
+// variables win over the file.
+const fileEnv = loadEnv("", path.resolve(import.meta.dirname, "../.."), "");
+for (const key of [
+  "BROWSERSTACK_USERNAME",
+  "BROWSERSTACK_ACCESS_KEY",
+  "DEVICE_TEST_TARGET",
+  "DEVICE_FILTER",
+]) {
+  if (process.env[key] === undefined && fileEnv[key] !== undefined) {
+    process.env[key] = fileEnv[key];
+  }
+}
 
 /**
  * Real-device suite (BrowserStack). Not part of the workspace projects on

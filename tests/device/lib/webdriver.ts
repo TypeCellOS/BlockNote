@@ -36,7 +36,8 @@ export class DeviceSession {
     const auth = browserStackCredentials();
     if (!auth) {
       throw new Error(
-        "BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY must be set",
+        "BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY must be set " +
+          "(exported, or in the repo root .env — see .env.sample)",
       );
     }
     // Device allocation occasionally hiccups; one retry absorbs it.
