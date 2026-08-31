@@ -734,29 +734,6 @@ export const examples = {
           "In this example, we implement a basic editor interface using components from Material UI. We replace the Formatting Toolbar, Slash Menu, and Block Side Menu while disabling the other default elements. Additionally, the Formatting Toolbar is made static and always visible above the editor.\n\n**Relevant Docs:**\n\n- [Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Manipulating Inline Content](/docs/reference/editor/manipulating-content)\n- [Slash Menu](/docs/react/components/suggestion-menus)\n- [Side Menu](/docs/react/components/side-menu)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
-        projectSlug: "mobile-formatting-toolbar",
-        fullSlug: "ui-components/mobile-formatting-toolbar",
-        pathFromRoot: "examples/03-ui-components/14-mobile-formatting-toolbar",
-        config: {
-          playground: true,
-          docs: false,
-          author: "areknawo",
-          tags: [
-            "Intermediate",
-            "UI Components",
-            "Formatting Toolbar",
-            "Appearance & Styling",
-          ],
-        },
-        title: "Mobile Formatting Toolbar",
-        group: {
-          pathFromRoot: "examples/03-ui-components",
-          slug: "ui-components",
-        },
-        readme:
-          "This example demos the opt-in **scroll container** layout: adding the `bn-scroll-container` class to the element wrapping your page content locks `html`/`body` scrolling and pins that element to the visual viewport (using styles from BlockNote's stylesheet), so the toolbar stays perfectly in place while scrolling and zooming. Use the switch in the nav bar to toggle it off and compare it with the default scrolling document layout.\n\n**Relevant Docs:**\n\n- [Mobile Formatting Toolbar](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar)\n- [Editor Setup](/docs/getting-started/editor-setup)",
-      },
-      {
         projectSlug: "advanced-tables",
         fullSlug: "ui-components/advanced-tables",
         pathFromRoot: "examples/03-ui-components/15-advanced-tables",

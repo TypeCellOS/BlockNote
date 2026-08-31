@@ -60,9 +60,8 @@ function isVirtualKeyboardOpen(): boolean {
  *
  * For the smoother "pinned scroll container" layout, the host app opts in by
  * adding the `bn-scroll-container` class to the element wrapping its page
- * content — the matching styles (and the document scroll lock) live in
- * `editor/styles.css`, keyed off that class and the `--bn-vv-*` variables this
- * hook publishes.
+ * content — the matching styles live in `editor/styles.css`, keyed off that
+ * class and the `--bn-vv-*` variables this hook publishes.
  */
 export function useVirtualKeyboard(): boolean {
   const [open, setOpen] = useState(isVirtualKeyboardOpen);
@@ -87,8 +86,7 @@ export function useVirtualKeyboard(): boolean {
     };
     update();
 
-    // Fire on keyboard open/close, zoom/pan, and (unless the document is locked
-    // via CSS) content scroll.
+    // Fire on keyboard open/close, zoom/pan, and content scroll.
     vp?.addEventListener("resize", update);
     vp?.addEventListener("scroll", update);
     window.addEventListener("resize", update);

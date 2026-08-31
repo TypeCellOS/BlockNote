@@ -10,7 +10,11 @@
     <title>BlockNote Playground</title>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- `bn-scroll-container`: pins the whole app to the visual viewport so the
+      mobile formatting toolbar scrolls smoothly (the page scrolls inside this
+      element instead of the document moving under the toolbar). Styles ship in
+      BlockNote's stylesheet; see the mobile formatting toolbar docs. -->
+    <div id="root" class="bn-scroll-container"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
