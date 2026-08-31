@@ -63,7 +63,7 @@ export const EmbedTab = <
         defaults to `type="submit"`, so inside one it would fire `onClick`
         *and* submit, embedding twice.
       */}
-      <Components.Generic.Form.Root onSubmit={embedURL} hasOwnSubmitButton>
+      <Components.Generic.Form.Root onSubmit={embedURL} omitSubmitButton>
         <Components.FilePanel.TextInput
           className={"bn-text-input"}
           placeholder={dict.file_panel.embed.url_placeholder}

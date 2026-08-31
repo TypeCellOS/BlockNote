@@ -317,12 +317,16 @@ export type ComponentProps = {
          */
         onSubmit?: () => void;
         /**
-         * Set when the caller renders its own submit control inside the form.
-         * `Form.Root` otherwise adds a hidden one, which is what makes Enter
-         * submit at all once a form has more than one field - but two submit
-         * controls would read as two separate actions to a screen reader.
+         * Suppresses the hidden submit button `Form.Root` otherwise renders,
+         * for callers that provide their own submission affordance and would
+         * otherwise expose two submit controls to assistive technology.
+         *
+         * Note what the hidden button is for: it is what makes Enter submit a
+         * form with more than one field at all. A caller that omits it takes
+         * on that constraint - the form must have exactly one field, or Enter
+         * reaches nothing.
          */
-        hasOwnSubmitButton?: boolean;
+        omitSubmitButton?: boolean;
       };
       TextInput: {
         className?: string;
