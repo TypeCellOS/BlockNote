@@ -37,7 +37,11 @@ export function useEditorSelectionChange(
       );
     }
     return editor.onSelectionChange(
-      () => callbackRef.current(),
+      // The declared callback type takes no arguments, but the subscription
+      // has always passed the editor — keep forwarding it so untyped callers
+      // that used it don't break.
+      (editorArg) =>
+        (callbackRef.current as (e?: typeof editorArg) => void)(editorArg),
       includeSelectionChangedByRemote,
     );
   }, [editor, includeSelectionChangedByRemote]);
