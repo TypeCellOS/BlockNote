@@ -114,6 +114,21 @@ export function insertBlocks<
     return [];
   }
 
+  function reject(): never {
+    const what =
+      nodesToInsert.length === 1
+        ? `a block of type "${blocksToInsert[0].type ?? "paragraph"}"`
+        : `${nodesToInsert.length} blocks`;
+    const them = nodesToInsert.length === 1 ? "it" : "them";
+
+    throw new Error(
+      `Cannot insert ${what} ` +
+        (placement === "before" || placement === "after"
+          ? `${placement} block with ID ${id}: its parent does not accept ${them}.`
+          : `as the ${placement} of block with ID ${id}: the block does not accept ${them} as ${nodesToInsert.length === 1 ? "a child" : "children"}.`),
+    );
+  }
+
   const target = getInsertionPos(
     tr.doc,
     posInfo,
@@ -121,17 +136,29 @@ export function insertBlocks<
     nodesToInsert[0].type,
   );
   if (!target) {
-    throw new Error(
-      `Cannot insert a block of type "${blocksToInsert[0].type ?? "paragraph"}" ` +
-        (placement === "before" || placement === "after"
-          ? `${placement} block with ID ${id}: its parent does not accept it.`
-          : `as the ${placement} of block with ID ${id}: the block does not accept it as a child.`),
-    );
+    reject();
+  }
+
+  // `getInsertionPos` can only answer for the first node's type: the fragment
+  // doesn't exist yet when it runs. The whole fragment still has to fit — a
+  // `max: 1` container accepts one paragraph but not three — so it is checked
+  // here, where the nodes are known, rather than left to `tr.step` to reject
+  // with a ProseMirror-level message.
+  if (
+    target.wrapIn &&
+    !target.wrapIn.validContent(Fragment.from(nodesToInsert))
+  ) {
+    reject();
   }
 
   const fragment = target.wrapIn
     ? Fragment.from(target.wrapIn.create(null, nodesToInsert))
     : Fragment.from(nodesToInsert);
+
+  const $target = tr.doc.resolve(target.pos);
+  if (!$target.parent.canReplace($target.index(), $target.index(), fragment)) {
+    reject();
+  }
 
   tr.step(new ReplaceStep(target.pos, target.pos, new Slice(fragment, 0, 0)));
 

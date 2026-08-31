@@ -1114,6 +1114,49 @@ describe("Test updateBlock content carry-over", () => {
     expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 
+  it("Drops carried content for a container that holds only containers", () => {
+    const editor = getContainerEditor();
+    // `grid` holds `gridCell`s, so there is no slot for the paragraph the
+    // content would be carried over in. Handing it one used to build a node
+    // that failed `check()`, aborting the conversion; instead the content is
+    // dropped and the grid seeds as if the block had been empty. Same shape
+    // as a column list, down to `whenEmptied: "unwrap"` and `min: 2`.
+    expect(() =>
+      editor.transact((tr) =>
+        updateBlock(tr, "paragraph-with-text", { type: "grid" }),
+      ),
+    ).not.toThrow();
+
+    const block = editor.document[0] as any;
+    expect(block.type).toBe("grid");
+    expect(block.content).toBeUndefined();
+    expect(block.children.map((child: any) => child.type)).toEqual([
+      "gridCell",
+      "gridCell",
+    ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Keeps existing children when a container-only container drops the content", () => {
+    const editor = getContainerEditor();
+    // The carried content has nowhere to go, but the block's own children are
+    // regular blocks the grid's cells can still hold.
+    expect(() =>
+      editor.transact((tr) =>
+        updateBlock(tr, "paragraph-with-text-and-children", {
+          type: "sealedGrid",
+        }),
+      ),
+    ).not.toThrow();
+
+    const block = editor.document[2] as any;
+    expect(block.type).toBe("sealedGrid");
+    expect(block.children.map((child: any) => child.type)).toEqual([
+      "sealedBox",
+    ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
   it("Keeps a container's children and invents no content when becoming a block", () => {
     const editor = getContainerEditor();
     editor.transact((tr) =>

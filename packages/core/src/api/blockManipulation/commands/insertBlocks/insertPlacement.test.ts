@@ -48,6 +48,12 @@ const schema = BlockNoteSchema.create().extend({
       content: "none",
       children: { allow: "any", max: 1 },
     }),
+    // Same, but legally empty: room for the first of a batch, but not for
+    // the batch.
+    emptySingle: container("emptySingle", {
+      content: "none",
+      children: { allow: "any", min: 0, max: 1 },
+    }),
   } as const,
 });
 
@@ -211,5 +217,46 @@ describe('insertBlocks "first-child" / "last-child"', () => {
     expect(() =>
       editor.insertBlocks([{ type: "paragraph" }], "c-0", "after"),
     ).toThrow(/its parent does not accept it/);
+  });
+
+  it("throws when only the first of several blocks would fit", () => {
+    editor.replaceBlocks(editor.document, [
+      { id: "e-0", type: "emptySingle", children: [] },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    // The container is empty and takes one child, so the first paragraph
+    // fits. Validating only that one used to let the batch through and fail
+    // later with a raw ProseMirror `ReplaceError`.
+    expect(() =>
+      editor.insertBlocks(
+        [{ type: "paragraph" }, { type: "paragraph" }],
+        "e-0",
+        "last-child",
+      ),
+    ).toThrow(/does not accept them as children/);
+
+    expect(editor.getBlock("e-0")!.children).toEqual([]);
+  });
+
+  it("still inserts a batch that fits in full", () => {
+    editor.replaceBlocks(editor.document, [
+      { id: "b-0", type: "box", children: [] },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.insertBlocks(
+      [
+        { id: "one", type: "paragraph" },
+        { id: "two", type: "paragraph" },
+      ],
+      "b-0",
+      "last-child",
+    );
+
+    expect(editor.getBlock("b-0")!.children.map((child) => child.id)).toEqual([
+      "one",
+      "two",
+    ]);
   });
 });

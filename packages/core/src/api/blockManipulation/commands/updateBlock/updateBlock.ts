@@ -29,7 +29,10 @@ import {
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { getBlockSchema, getPmSchema } from "../../../pmUtil.js";
-import { createBlockGroup } from "../../../../schema/blocks/children.js";
+import {
+  createBlockGroup,
+  isContainerNode,
+} from "../../../../schema/blocks/children.js";
 
 // for compatibility with tiptap. TODO: remove as we want to remove dependency on tiptap command interface
 export const updateBlockCommand = <
@@ -128,7 +131,11 @@ export function updateBlockTr<
     // there actually are some. `nodeToBlock` always emits an array, and an
     // empty one would read as "explicitly childless", suppressing the seeding
     // a container needs when converting from a childless block.
-    const children = [...carried.children, ...existingBlock.children];
+    const children = acceptedChildren(
+      [...carried.children, ...existingBlock.children],
+      newNodeType,
+      pmSchema,
+    );
 
     const replacementNode = blockToNode(
       {
@@ -204,12 +211,46 @@ function carryOverContent(
   }
 
   if (targetConfig.children !== undefined) {
+    // Offered as a child rather than as content; whether the container can
+    // actually hold it is decided by `acceptedChildren` in the caller, which
+    // asks the same of the block's pre-existing children.
     return {
       children: [{ type: "paragraph", content: existingContent } as any],
     };
   }
 
   return nothing;
+}
+
+/**
+ * The subset of `children` a block of `newNodeType` can hold.
+ *
+ * A container that takes only other containers (a column list takes columns)
+ * has no slot for a paragraph, so a conversion into one has to drop the
+ * children that don't fit rather than build a node that fails `check()` and
+ * aborts the whole update. Regular blocks nest in a `blockGroup`, which takes
+ * anything, so only containers filter.
+ */
+function acceptedChildren(
+  children: PartialBlock<any, any, any>[],
+  newNodeType: NodeType,
+  pmSchema: Schema,
+): PartialBlock<any, any, any>[] {
+  if (!isContainerNode(newNodeType)) {
+    return children;
+  }
+
+  return children.filter((child) => {
+    // Every regular block is the same ProseMirror node, so a child that isn't
+    // a container type is a `blockContainer`.
+    const childType = child.type ? pmSchema.nodes[child.type] : undefined;
+    const asNodeType =
+      childType && isContainerNode(childType)
+        ? childType
+        : pmSchema.nodes["blockContainer"];
+
+    return !!newNodeType.contentMatch.matchType(asNodeType);
+  });
 }
 
 function updateBlockContentNode<
