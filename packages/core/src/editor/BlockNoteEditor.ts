@@ -799,8 +799,15 @@ export class BlockNoteEditor<
    * elements like menus and toolbars).
    *
    * The first check deliberately starts one level up, at the content area's
-   * *parent*, so that UI rendered as a sibling of the content (rather than
-   * portalled) also counts as part of the editor.
+   * *parent*. BlockNote's own default UI is entirely portalled, so that hop
+   * isn't for its sake — it's for UI the host app renders as `BlockNoteView`
+   * children, which React places as siblings of the content element. The
+   * "Static Formatting Toolbar" example does exactly that: it renders
+   * `<FormattingToolbar />` inline instead of through a controller, putting
+   * a dozen focusable buttons next to the content. Without the hop, focusing
+   * one of them would read as "outside the editor" — dismissing the mobile
+   * toolbar mid-interaction, and tripping the side menu's click-outside
+   * check.
    *
    * That makes the result depend on where the editor is mounted, because
    * `editor.mount(element)` turns `element` itself into the content area —
