@@ -321,6 +321,10 @@ export const ru: Dictionary = {
       tooltip: "Изменить подпись",
       input_placeholder: "Изменить подпись",
     },
+    file_alt: {
+      tooltip: "Изменить альтернативный текст",
+      input_placeholder: "Изменить альтернативный текст",
+    },
     file_replace: {
       tooltip: {
         image: "Заменить изображение",

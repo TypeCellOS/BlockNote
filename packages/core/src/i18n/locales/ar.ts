@@ -263,6 +263,10 @@ export const ar: Dictionary = {
       tooltip: "تحرير التسمية التوضيحية",
       input_placeholder: "تحرير التسمية التوضيحية",
     },
+    file_alt: {
+      tooltip: "تحرير النص البديل",
+      input_placeholder: "تحرير النص البديل",
+    },
     file_replace: {
       tooltip: {
         image: "استبدال الصورة",

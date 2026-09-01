@@ -229,6 +229,7 @@ exports[`Test moveBlocksDown > Basic 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -797,6 +798,7 @@ exports[`Test moveBlocksDown > Explicit block argument moves the given block 1`]
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -1364,6 +1366,7 @@ exports[`Test moveBlocksDown > Explicit block argument with nested block 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -1932,6 +1935,7 @@ exports[`Test moveBlocksDown > Into children 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -2500,6 +2504,7 @@ exports[`Test moveBlocksDown > Last block 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -3068,6 +3073,7 @@ exports[`Test moveBlocksDown > Multiple blocks 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -3636,6 +3642,7 @@ exports[`Test moveBlocksDown > Multiple blocks ending in block with children 1`]
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -4204,6 +4211,7 @@ exports[`Test moveBlocksDown > Multiple blocks ending in nested block 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -4782,6 +4790,7 @@ exports[`Test moveBlocksDown > Multiple blocks starting and ending in nested blo
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -5339,6 +5348,7 @@ exports[`Test moveBlocksDown > Multiple blocks starting in block with children 1
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -5906,6 +5916,7 @@ exports[`Test moveBlocksDown > Multiple blocks starting in nested block 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -6474,6 +6485,7 @@ exports[`Test moveBlocksDown > Out of children 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -7041,6 +7053,7 @@ exports[`Test moveBlocksUp > Basic 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -7609,6 +7622,7 @@ exports[`Test moveBlocksUp > Explicit block argument moves the given block 1`] =
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -8177,6 +8191,7 @@ exports[`Test moveBlocksUp > Explicit block argument with nested block 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -8744,6 +8759,7 @@ exports[`Test moveBlocksUp > First block 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -9312,6 +9328,7 @@ exports[`Test moveBlocksUp > Into children 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -9880,6 +9897,7 @@ exports[`Test moveBlocksUp > Multiple blocks 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -10448,6 +10466,7 @@ exports[`Test moveBlocksUp > Multiple blocks ending in block with children 1`] =
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -11016,6 +11035,7 @@ exports[`Test moveBlocksUp > Multiple blocks ending in nested block 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -11566,6 +11586,7 @@ exports[`Test moveBlocksUp > Multiple blocks starting and ending in nested block
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -12151,6 +12172,7 @@ exports[`Test moveBlocksUp > Multiple blocks starting in block with children 1`]
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -12718,6 +12740,7 @@ exports[`Test moveBlocksUp > Multiple blocks starting in nested block 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -13286,6 +13309,7 @@ exports[`Test moveBlocksUp > Out of children 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",

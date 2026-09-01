@@ -277,6 +277,10 @@ export const vi: Dictionary = {
       tooltip: "Chỉnh sửa chú thích",
       input_placeholder: "Chỉnh sửa chú thích",
     },
+    file_alt: {
+      tooltip: "Chỉnh sửa văn bản thay thế",
+      input_placeholder: "Chỉnh sửa văn bản thay thế",
+    },
     file_replace: {
       tooltip: {
         image: "Thay thế hình ảnh",

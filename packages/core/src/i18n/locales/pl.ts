@@ -269,6 +269,10 @@ export const pl: Dictionary = {
       tooltip: "Zmień podpis",
       input_placeholder: "Zmień podpis",
     },
+    file_alt: {
+      tooltip: "Zmień tekst alternatywny",
+      input_placeholder: "Zmień tekst alternatywny",
+    },
     file_replace: {
       tooltip: {
         image: "Zmień obraz",

@@ -4,6 +4,7 @@ import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton.js";
 import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton.js";
 import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton.js";
+import { FileAltButton } from "./DefaultButtons/FileAltButton.js";
 import { FileCaptionButton } from "./DefaultButtons/FileCaptionButton.js";
 import { FileDeleteButton } from "./DefaultButtons/FileDeleteButton.js";
 import { FileRenameButton } from "./DefaultButtons/FileRenameButton.js";
@@ -31,6 +32,7 @@ export const getFormattingToolbarItems = (
   <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
   <TableCellMergeButton key={"tableCellMergeButton"} />,
   <FileCaptionButton key={"fileCaptionButton"} />,
+  <FileAltButton key={"fileAltButton"} />,
   <FileReplaceButton key={"replaceFileButton"} />,
   <FileRenameButton key={"fileRenameButton"} />,
   <FileDeleteButton key={"fileDeleteButton"} />,
