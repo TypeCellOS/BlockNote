@@ -18,9 +18,30 @@ availability):
 | `browserstack` | Real hardware via BrowserStack Automate | OEM keyboards (the Samsung target ships Samsung Keyboard) and true-device sanity |
 
 The local targets are the per-PR layer (free, no credentials — the
-`emulator-tests` workflow). BrowserStack remains for what only hardware has.
-They complement, not replace, the keyboard-lifecycle emulation tests in
-`tests/src/end-to-end/mobile/`.
+`emulator-tests` workflow). BrowserStack remains for what only hardware has
+(OEM keyboards — nothing else is BrowserStack-only anymore).
+
+## How this relates to the e2e mobile tests
+
+`tests/src/end-to-end/mobile/` (the Playwright-emulated android instance)
+tests **editor behavior under mobile conditions** — form semantics, toolbar
+logic, CDP-emulated IME composition — in seconds, and is where the bulk of
+mobile coverage belongs. This suite tests **the OS integration itself**: the
+things that layer must fake — the real keyboard appearing and resizing the
+viewport, real IME key delivery, the IME action key, real Safari focus and
+chrome behavior.
+
+Decision rules:
+
+- A new mobile test **defaults to `end-to-end/mobile/`**. It goes here only
+  when the behavior depends on something emulation fakes (a keyboard, an
+  IME, OS focus rules).
+- Where a test here can have an emulated counterpart, it should (the device
+  link flow pairs with `linkSubmit.test.tsx`): the fast layer catches
+  regressions, this layer proves the fake matches reality.
+- Tests here assert that *flows work through real input* — never
+  editor-logic details, which stay in the layers below. Keep this suite
+  thin; it costs minutes per target.
 
 ## Running
 
