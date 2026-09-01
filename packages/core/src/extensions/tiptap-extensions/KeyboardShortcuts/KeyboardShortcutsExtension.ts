@@ -379,19 +379,14 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 );
               }
 
-              if (
-                bottomNestedPrevBlockInfo.content.node.type.spec.content ===
-                "tableRow+"
-              ) {
+              if (bottomNestedPrevBlockInfo.contentKind === "table") {
                 chainedCommands = chainedCommands.setTextSelection(
                   tableContentCaretPos(
                     bottomNestedPrevBlockInfo.content,
                     "end",
                   ),
                 );
-              } else if (
-                bottomNestedPrevBlockInfo.content.node.type.spec.content === ""
-              ) {
+              } else if (bottomNestedPrevBlockInfo.contentKind === "none") {
                 chainedCommands = chainedCommands.setNodeSelection(
                   bottomNestedPrevBlockInfo.content.beforePos,
                 );
