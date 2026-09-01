@@ -1,4 +1,4 @@
-import type { Node, Schema } from "prosemirror-model";
+import type { Node, NodeType, Schema } from "prosemirror-model";
 import {
   NodeSelection,
   Selection,
@@ -11,8 +11,8 @@ import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
 import {
-  isBlockGroupInsertable,
   isContainerNode,
+  isContainerOnly,
   isSealed,
 } from "../../../../schema/blocks/children.js";
 import {
@@ -35,17 +35,11 @@ function dissolveContainerOnlyBlocks(
   blocks: Block<any, any, any>[],
   pmSchema: Schema,
 ): Block<any, any, any>[] {
-  return blocks.flatMap((block) => {
-    const nodeType = pmSchema.nodes[block.type];
-    // A container denied the `blockGroupChild` group is one declared
-    // `placement: "containerOnly"`.
-    const isContainerOnly =
-      isContainerNode(nodeType) && !isBlockGroupInsertable(nodeType);
-
-    return isContainerOnly
+  return blocks.flatMap((block) =>
+    isContainerOnly(pmSchema.nodes[block.type])
       ? dissolveContainerOnlyBlocks(block.children, pmSchema)
-      : [block];
-  });
+      : [block],
+  );
 }
 
 type BlockSelectionData = (
@@ -242,6 +236,40 @@ function sealedAncestorId(doc: Node, pos: number): string | undefined {
   return undefined;
 }
 
+/**
+ * All a placement check needs to know about the block being moved: where it
+ * currently sits, and what would land at the destination. Neither changes as a
+ * placement search walks the document, so both are resolved once up front.
+ */
+type MovedBlock = {
+  /** The moved block's ID, to locate it in the doc for the seal check. */
+  id: string;
+  /**
+   * The PM node type that would actually be inserted: the first block
+   * `moveBlocks` inserts, which is the moved block itself unless it dissolves
+   * (see {@link dissolveContainerOnlyBlocks}). A container (e.g. a `callout`)
+   * is inserted as its own node type; anything else goes in as a generic
+   * `blockContainer` wrapper.
+   */
+  nodeType: NodeType;
+};
+
+function toMovedBlock(
+  editor: BlockNoteEditor<any, any, any>,
+  block: Block<any, any, any>,
+): MovedBlock {
+  const first = dissolveContainerOnlyBlocks([block], editor.pmSchema)[0];
+  const firstType = first ? editor.pmSchema.nodes[first.type] : undefined;
+
+  return {
+    id: block.id,
+    nodeType:
+      firstType && isContainerNode(firstType)
+        ? firstType
+        : editor.pmSchema.nodes["blockContainer"],
+  };
+}
+
 // Checks if a regular block would be in a valid place after being moved
 // before/after `referenceBlock`. A regular block nests under any non-container
 // block (it goes into that block's `blockGroup`), but a container block (e.g. a
@@ -254,19 +282,8 @@ function checkPlacementIsValid(
   editor: BlockNoteEditor<any, any, any>,
   referenceBlock: Block<any, any, any>,
   placement: "before" | "after",
-  movedBlock: Block<any, any, any>,
+  movedBlock: MovedBlock,
 ): boolean {
-  // The PM node type to validate the destination against: the first block
-  // `moveBlocks` would actually insert, which is `movedBlock` itself unless it
-  // dissolves. A container (e.g. a `callout`) is inserted as its own node
-  // type; anything else goes in as a generic `blockContainer` wrapper.
-  const first = dissolveContainerOnlyBlocks([movedBlock], editor.pmSchema)[0];
-  const firstType = first ? editor.pmSchema.nodes[first.type] : undefined;
-  const nodeType =
-    firstType && isContainerNode(firstType)
-      ? firstType
-      : editor.pmSchema.nodes["blockContainer"];
-
   return editor.transact((tr) => {
     const posInfo = getNodeById(referenceBlock.id, tr.doc);
     const movedPosInfo = getNodeById(movedBlock.id, tr.doc);
@@ -274,7 +291,12 @@ function checkPlacementIsValid(
       return false;
     }
 
-    const target = getInsertionPos(tr.doc, posInfo, placement, nodeType);
+    const target = getInsertionPos(
+      tr.doc,
+      posInfo,
+      placement,
+      movedBlock.nodeType,
+    );
     if (!target) {
       return false;
     }
@@ -289,19 +311,30 @@ function checkPlacementIsValid(
   });
 }
 
-// Gets the placement for moving a block up. This has 3 cases:
-// 1. If the block has a previous sibling without children, the placement is
-// before it.
-// 2. If the block has a previous sibling with children, the placement is after
-// the last child.
-// 3. If the block has no previous sibling, but is nested, the placement is
-// before its parent.
-// If the placement is invalid, the function is called recursively until a valid
-// placement is found. Returns undefined if no valid placement is found, meaning
-// the block is already at the top of the document.
+/**
+ * Gets the placement for moving a block up. This has 3 cases:
+ * 1. If the block has a previous sibling without children, the placement is
+ * before it.
+ * 2. If the block has a previous sibling with children, the placement is after
+ * the last child.
+ * 3. If the block has no previous sibling, but is nested, the placement is
+ * before its parent.
+ * If the placement is invalid, the function is called recursively until a valid
+ * placement is found. Returns undefined if no valid placement is found, meaning
+ * the block is already at the top of the document.
+ *
+ * @param movedBlock What is being moved (see {@link MovedBlock}). Carried
+ * through the recursion because "is this placement valid?" depends on it: a
+ * candidate destination has to accept the moved node's type, and the move must
+ * not cross a sealed container's boundary. Only read by
+ * `checkPlacementIsValid`.
+ * @param prevBlock The candidate previous sibling, i.e. the block the
+ * placement is measured against. Steps further back on each recursion.
+ * @param parentBlock The parent of `prevBlock`'s level, used for case 3.
+ */
 function getMoveUpPlacement(
   editor: BlockNoteEditor<any, any, any>,
-  movedBlock: Block<any, any, any>,
+  movedBlock: MovedBlock,
   prevBlock?: Block<any, any, any>,
   parentBlock?: Block<any, any, any>,
 ):
@@ -343,19 +376,26 @@ function getMoveUpPlacement(
   return { referenceBlock, placement };
 }
 
-// Gets the placement for moving a block down. This has 3 cases:
-// 1. If the block has a next sibling without children, the placement is  after
-// it.
-// 2. If the block has a next sibling with children, the placement is before the
-// first child.
-// 3. If the block has no next sibling, but is nested, the placement is
-// after its parent.
-// If the placement is invalid, the function is called recursively until a valid
-// placement is found. Returns undefined if no valid placement is found, meaning
-// the block is already at the bottom of the document.
+/**
+ * Gets the placement for moving a block down. This has 3 cases:
+ * 1. If the block has a next sibling without children, the placement is  after
+ * it.
+ * 2. If the block has a next sibling with children, the placement is before the
+ * first child.
+ * 3. If the block has no next sibling, but is nested, the placement is
+ * after its parent.
+ * If the placement is invalid, the function is called recursively until a valid
+ * placement is found. Returns undefined if no valid placement is found, meaning
+ * the block is already at the bottom of the document.
+ *
+ * @param movedBlock What is being moved; see `getMoveUpPlacement`.
+ * @param nextBlock The candidate next sibling, i.e. the block the placement is
+ * measured against. Steps further forward on each recursion.
+ * @param parentBlock The parent of `nextBlock`'s level, used for case 3.
+ */
 function getMoveDownPlacement(
   editor: BlockNoteEditor<any, any, any>,
-  movedBlock: Block<any, any, any>,
+  movedBlock: MovedBlock,
   nextBlock?: Block<any, any, any>,
   parentBlock?: Block<any, any, any>,
 ):
@@ -416,7 +456,7 @@ export function moveBlocksUp(
 
     const moveUpPlacement = getMoveUpPlacement(
       editor,
-      sourceBlock,
+      toMovedBlock(editor, sourceBlock),
       editor.getPrevBlock(sourceBlock),
       editor.getParentBlock(sourceBlock),
     );
@@ -469,7 +509,7 @@ export function moveBlocksDown(
 
     const moveDownPlacement = getMoveDownPlacement(
       editor,
-      firstMovedBlock,
+      toMovedBlock(editor, firstMovedBlock),
       editor.getNextBlock(sourceBlock),
       editor.getParentBlock(sourceBlock),
     );

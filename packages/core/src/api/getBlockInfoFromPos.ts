@@ -12,6 +12,7 @@ import {
   getBlockRegions,
   isSealed,
 } from "../schema/blocks/children.js";
+import type { BlockConfig } from "../schema/blocks/types.js";
 
 /**
  * Producers for {@link BlockInfo}, named by the input you already have:
@@ -26,9 +27,13 @@ import {
  *   current selection anchor.
  */
 
+/** A ProseMirror node making up (part of) a block, and where it sits. */
 type SingleBlockInfo = {
+  /** The node itself. */
   node: Node;
+  /** The position just before the node, i.e. `node`'s own position. */
   beforePos: number;
+  /** The position just after the node: `beforePos + node.nodeSize`. */
   afterPos: number;
 };
 
@@ -44,33 +49,6 @@ export type ChildrenInfo = SingleBlockInfo & {
   /** `afterPos - 1`: the position just after the last child. */
   childrenEnd: number;
 };
-
-/**
- * What a block's content node holds, derived from its ProseMirror content
- * expression.
- */
-export type BlockContentKind = "inline" | "plain" | "none" | "table" | "other";
-
-function getContentKind(contentNode: Node): BlockContentKind {
-  const content = contentNode.type.spec.content;
-  return content === "inline*"
-    ? "inline"
-    : content === "text*"
-      ? "plain"
-      : content === ""
-        ? "none"
-        : content === "tableRow+"
-          ? "table"
-          : "other";
-}
-
-function toChildrenInfo(info: SingleBlockInfo): ChildrenInfo {
-  return {
-    ...info,
-    childrenStart: info.beforePos + 1,
-    childrenEnd: info.afterPos - 1,
-  };
-}
 
 export type BlockInfo = {
   /**
@@ -114,8 +92,13 @@ export type BlockInfo = {
       contentStart: number;
       /** `content.afterPos - 1`: the last position inside the content. */
       contentEnd: number;
-      /** What the content node holds, from its ProseMirror content expression. */
-      contentKind: BlockContentKind;
+      /**
+       * What the content node holds: its block spec's `content`, which is what
+       * the node's ProseMirror content expression was generated from (and what
+       * a hand-written node's expression is checked against when the schema is
+       * built).
+       */
+      contentKind: BlockConfig["content"];
       /** `content.node.childCount === 0`. */
       isContentEmpty: boolean;
       /**
@@ -195,10 +178,24 @@ export function blockEdgeSelection(
   );
 }
 
+/**
+ * Whether `node` is only in the document because suggestion mode keeps deleted
+ * content around: yjs marks such a node `y-attributed-delete` rather than
+ * removing it, so it shares its ID with the node it stands in for.
+ */
 export function isSuggestedDeletionNode(node: Node): boolean {
   return node.marks.some((m) => ["y-attributed-delete"].includes(m.type.name));
 }
 
+/**
+ * The block ID to address `node` by. Normally its `id` attribute, but a node
+ * kept around by suggestion mode (see {@link isSuggestedDeletionNode}) shares
+ * that attribute with the node it duplicates, so it gets an `-${index}` suffix
+ * counting the same-ID nodes before it in `doc`.
+ *
+ * @throws If `node` has no `id` attribute (every block node does), or if it
+ * isn't in `doc`.
+ */
 export function getNodeId(node: Node, doc: Node): string {
   const id = node.attrs.id;
   if (!id) {
@@ -339,20 +336,40 @@ export function getBlockInfoFromNode(node: Node, beforePos: number): BlockInfo {
         beforePos + regions.content.offset + regions.content.node.nodeSize,
     };
     const holder = regions.childrenHolder;
+    let children: ChildrenInfo | undefined;
+    if (holder) {
+      const holderBeforePos = beforePos + holder.offset;
+      children = {
+        node: holder.node,
+        beforePos: holderBeforePos,
+        afterPos: holderBeforePos + holder.node.nodeSize,
+        childrenStart: holderBeforePos + 1,
+        childrenEnd: holderBeforePos + holder.node.nodeSize - 1,
+      };
+    }
+
+    // Only a node built from a block spec can be a block's content, and such a
+    // node carries the spec's config, which states the content kind outright.
+    // A bare node put in the `blockContent` group has no block to speak for
+    // it, so it is rejected rather than guessed at.
+    const blockConfig = content.node.type.spec.blockConfig;
+    if (!blockConfig) {
+      throw new Error(
+        `Block content node "${content.node.type.name}" was not built from a ` +
+          "block spec, so it has no content kind. Register it with " +
+          "`createBlockSpec`/`createBlockSpecFromTiptapNode` instead of " +
+          "joining the `blockContent` group directly.",
+      );
+    }
+
     return {
       hasContent: true,
       block,
       content,
-      children: holder
-        ? toChildrenInfo({
-            node: holder.node,
-            beforePos: beforePos + holder.offset,
-            afterPos: beforePos + holder.offset + holder.node.nodeSize,
-          })
-        : undefined,
+      children,
       contentStart: content.beforePos + 1,
       contentEnd: content.afterPos - 1,
-      contentKind: getContentKind(content.node),
+      contentKind: blockConfig.content,
       isContentEmpty: content.node.childCount === 0,
       // A `blockContainer` is a generic wrapper, so its type comes from the
       // content node inside it.
@@ -365,7 +382,11 @@ export function getBlockInfoFromNode(node: Node, beforePos: number): BlockInfo {
     block,
     // A container holds its children directly, so the holder is the block
     // node itself.
-    children: toChildrenInfo(block),
+    children: {
+      ...block,
+      childrenStart: block.beforePos + 1,
+      childrenEnd: block.afterPos - 1,
+    },
     blockNoteType: node.type.name,
   };
 }

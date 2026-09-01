@@ -3,9 +3,8 @@ export * from "./api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 // The rest of the container machinery is on `@blocknote/core/internal`:
 // repair, navigation, UI info, the node groups and the generated node names.
 // `isContainerNode` stays here: it answers a schema-level question ("is this
-// node type a container?") that integrations legitimately ask. It is defined
-// in `children.ts` and re-exported via `fixContainer.ts`.
-export { isContainerNode } from "./api/blockManipulation/containers/fixContainer.js";
+// node type a container?") that integrations legitimately ask.
+export { isContainerNode } from "./schema/blocks/children.js";
 export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
 export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";

@@ -7,25 +7,10 @@ import {
 } from "../../schema/index.js";
 import {
   isContainerNode,
+  isContainerOnly,
   resolveChildren,
 } from "../../schema/blocks/children.js";
-import { getBlockSchema } from "../pmUtil.js";
 import { nodeToBlock } from "./nodeToBlock.js";
-
-function isSelfContainedContainer(node: Node): boolean {
-  if (!isContainerNode(node.type)) {
-    return false;
-  }
-  const blockConfig = getBlockSchema(node.type.schema)[node.type.name];
-  const childrenConfig = blockConfig?.children;
-  if (!blockConfig || !childrenConfig) {
-    return false;
-  }
-  return (
-    blockConfig.placement !== "containerOnly" &&
-    node.childCount >= resolveChildren(childrenConfig).min
-  );
-}
 
 export function fragmentToBlocks<
   B extends BlockSchema,
@@ -35,9 +20,22 @@ export function fragmentToBlocks<
   const blocks: BlockNoDefaults<B, I, S>[] = [];
 
   const pushFlattened = (node: Node, root: Node) => {
-    if (isContainerNode(node.type) && !isSelfContainedContainer(node)) {
-      node.forEach((child) => pushFlattened(child, root));
-      return;
+    if (isContainerNode(node.type)) {
+      const childrenConfig = node.type.spec.blockConfig?.children;
+
+      // A container survives as a block of its own only if it can stand
+      // outside its own container (a `column` can't) and still holds enough
+      // children to be valid. Anything else is flattened into its children,
+      // which are the blocks the caller actually wants.
+      const isSelfContained =
+        !!childrenConfig &&
+        !isContainerOnly(node.type) &&
+        node.childCount >= resolveChildren(childrenConfig).min;
+
+      if (!isSelfContained) {
+        node.forEach((child) => pushFlattened(child, root));
+        return;
+      }
     }
     blocks.push(nodeToBlock(node, root));
   };

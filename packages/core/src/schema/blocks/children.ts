@@ -104,6 +104,24 @@ export function isBlockGroupInsertable(type: NodeType): boolean {
   return type.isInGroup(BLOCK_GROUP_CHILD_GROUP);
 }
 
+/**
+ * Whether `type` is a container declared `placement: "containerOnly"`: one
+ * defined only in terms of the container that holds it (a `column`), so it can
+ * never stand where a regular block goes.
+ *
+ * The schema encodes this by keeping such types out of the groups
+ * `isBlockGroupInsertable` tests, which is how ProseMirror enforces it while
+ * matching content. This answers the same question from the declaration
+ * itself, for code reasoning about the block rather than about what PM will
+ * match.
+ */
+export function isContainerOnly(type: NodeType): boolean {
+  return (
+    isContainerNode(type) &&
+    type.spec.blockConfig?.placement === "containerOnly"
+  );
+}
+
 // Below `blockContainer`'s priority (50) so PM's `fillBefore` picks
 // `blockContainer` first, avoiding recursion through nested containers.
 export const CONTAINER_NODE_PRIORITY = 40;

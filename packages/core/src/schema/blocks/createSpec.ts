@@ -546,6 +546,65 @@ function buildRegularNode<
   });
 }
 
+// The content expression BlockNote's block model assumes for each `content`
+// kind, and what `buildRegularNode` generates from one.
+const CONTENT_EXPRESSIONS: Record<BlockConfig["content"], string> = {
+  inline: "inline*",
+  plain: "text*",
+  none: "",
+  table: "tableRow+",
+};
+
+/**
+ * Checks a block's node against its config, at the one point where both are in
+ * hand. A generated node derives its content expression and groups from the
+ * config, so this only ever fires for a hand-written one
+ * (`createBlockSpecFromTiptapNode`), which states those facts itself.
+ *
+ * Everything above reads them off the config — `contentKind` in
+ * `getBlockInfoFromPos`, `isContainerNode`, `isContainerOnly`, `isSealed` — so
+ * a node that disagrees with its config is rejected here, once, rather than
+ * quietly behaving like a block it isn't.
+ *
+ * tiptap allows both fields to be functions of the editor, in which case there
+ * is nothing to compare yet and the check is skipped.
+ */
+function checkNodeMatchesConfig(node: Node, blockConfig: BlockConfig) {
+  if (blockConfig.children !== undefined) {
+    // A container's content expression is its `children` config compiled, so
+    // what marks it as a container is its groups: that is what
+    // `isContainerNode` answers from.
+    const group = node.config.group;
+    if (typeof group !== "string") {
+      return;
+    }
+
+    const missing = ["bnBlock", CHILD_CONTAINER_GROUP].filter(
+      (required) => !group.split(" ").includes(required),
+    );
+    if (missing.length > 0) {
+      throw new Error(
+        `Block "${blockConfig.type}" declares \`children\`, so its node must ` +
+          `join the "${missing.join('", "')}" group(s) to be treated as a container.`,
+      );
+    }
+    return;
+  }
+
+  const content = node.config.content;
+  if (content !== undefined && typeof content !== "string") {
+    return;
+  }
+
+  const expected = CONTENT_EXPRESSIONS[blockConfig.content];
+  if ((content ?? "") !== expected) {
+    throw new Error(
+      `Block "${blockConfig.type}" declares \`content: "${blockConfig.content}"\`, ` +
+        `but its node holds "${content ?? ""}" rather than "${expected}".`,
+    );
+  }
+}
+
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function addNodeAndExtensionsToSpec<
@@ -583,6 +642,8 @@ export function addNodeAndExtensionsToSpec<
       "Node name does not match block type. This is a bug in BlockNote.",
     );
   }
+
+  checkNodeMatchesConfig(builtNode, blockConfig as BlockConfig);
 
   // The block's config is stored on its node's PM spec
   // (`NodeSpec.blockConfig`), so code holding a bare `Node` can consult it

@@ -17,11 +17,12 @@ import type { PartialBlock } from "../../../blocks/defaultBlocks.js";
 import { blockToNode } from "../../nodeConversions/blockToNode.js";
 import { getNodeById } from "../../nodeUtil.js";
 
-// Defined in `children.ts` (it answers a schema-level question); re-exported
-// here because the public root export (`index.ts`) imports it from this
-// module.
-export { isContainerNode };
-
+/**
+ * Whether `node` is a container child the user has emptied out, i.e. one the
+ * repair passes below are free to drop: a `blockContainer` holding nothing but
+ * an empty paragraph, or a container whose single child is itself empty by
+ * this same rule (an empty `column`, say).
+ */
 export function isEmptyContainerChild(node: Node): boolean {
   if (node.type.name === "blockContainer") {
     const blockContent = node.firstChild;
@@ -38,6 +39,15 @@ export function isEmptyContainerChild(node: Node): boolean {
   return false;
 }
 
+/**
+ * Deletes every emptied child (see {@link isEmptyContainerChild}) of the
+ * container at `containerPos`, without regard for its `min`: topping the
+ * container back up afterwards is `fixContainer`'s job. Exported for the
+ * container repair tests and for integrations building their own repair.
+ *
+ * @param containerPos The position just before the container node. Throws if
+ * no container starts there.
+ */
 export function removeEmptyChildren(tr: Transaction, containerPos: number) {
   const container = tr.doc.resolve(containerPos).nodeAfter;
   if (!container || !isContainerNode(container.type)) {

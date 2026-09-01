@@ -16,9 +16,6 @@ import {
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
-// `isContainerNode` comes from `children.js` directly (rather than via its
-// `fixContainer.js` re-export) because `fixContainer.js` imports `blockToNode`
-// below; going through it would create an import cycle.
 import {
   createBlockGroup,
   isContainerNode,
@@ -27,11 +24,7 @@ import {
 import { getColspan, isPartialTableCell } from "../../util/table.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
 import { getAbsoluteTableCells } from "../blockManipulation/tables/tables.js";
-import {
-  getBlockSchema,
-  getStyleSchema,
-  isPlainContentNodeType,
-} from "../pmUtil.js";
+import { getStyleSchema, isPlainContentNodeType } from "../pmUtil.js";
 
 /**
  * Convert a StyledText inline element to a
@@ -350,13 +343,6 @@ function blockOrInlineContentToContentNode(
   return contentNode;
 }
 
-const EMPTY_SEEDING: ReadonlySet<string> = new Set();
-
-function unwrapsWhenEmptied(blockType: string, schema: Schema): boolean {
-  const children = getBlockSchema(schema)[blockType]?.children;
-  return !!children && resolveChildren(children).whenEmptied === "unwrap";
-}
-
 // `createAndFill` fills with schema defaults, which leaves `id: null`. Always
 // rebuilds: the only inputs are freshly created nodes, so there is no shared
 // structure worth preserving.
@@ -383,7 +369,7 @@ export function blockToNode(
   block: PartialBlock<any, any, any>,
   schema: Schema,
   styleSchema: StyleSchema = getStyleSchema(schema),
-  seedingTypes: ReadonlySet<string> = EMPTY_SEEDING,
+  seedingTypes: ReadonlySet<string> = new Set(),
 ) {
   let id = block.id;
 
@@ -423,6 +409,7 @@ export function blockToNode(
   } else if (isContainerNode(schema.nodes[block.type])) {
     const type = schema.nodes[block.type];
     const attrs = { id: id, ...block.props };
+    const childrenConfig = type.spec.blockConfig?.children;
 
     // Explicit children are padded up to the container's `min` so that even a
     // `children: []` satisfies the content expression, and so survives the
@@ -431,8 +418,11 @@ export function blockToNode(
     // it would invent content the next repair pass deletes anyway, so it is
     // passed through as given and `node.check()` reports the shortfall.
     if (block.children !== undefined) {
+      const unwrapsWhenEmptied =
+        !!childrenConfig &&
+        resolveChildren(childrenConfig).whenEmptied === "unwrap";
       const padded =
-        children.length === 0 || !unwrapsWhenEmptied(block.type, schema)
+        children.length === 0 || !unwrapsWhenEmptied
           ? type.createAndFill(attrs, children)
           : null;
 
@@ -444,7 +434,6 @@ export function blockToNode(
     // `seedingTypes` tracks the container types currently being seeded so a
     // cyclic `default` (a container whose default children seed it again)
     // fails loudly instead of recursing forever.
-    const childrenConfig = getBlockSchema(schema)[block.type]?.children;
     const defaultChildren = childrenConfig
       ? resolveChildren(childrenConfig).default
       : undefined;

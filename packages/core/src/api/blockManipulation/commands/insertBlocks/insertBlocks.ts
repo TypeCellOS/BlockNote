@@ -114,21 +114,6 @@ export function insertBlocks<
     return [];
   }
 
-  function reject(): never {
-    const what =
-      nodesToInsert.length === 1
-        ? `a block of type "${blocksToInsert[0].type ?? "paragraph"}"`
-        : `${nodesToInsert.length} blocks`;
-    const them = nodesToInsert.length === 1 ? "it" : "them";
-
-    throw new Error(
-      `Cannot insert ${what} ` +
-        (placement === "before" || placement === "after"
-          ? `${placement} block with ID ${id}: its parent does not accept ${them}.`
-          : `as the ${placement} of block with ID ${id}: the block does not accept ${them} as ${nodesToInsert.length === 1 ? "a child" : "children"}.`),
-    );
-  }
-
   const target = getInsertionPos(
     tr.doc,
     posInfo,
@@ -136,7 +121,9 @@ export function insertBlocks<
     nodesToInsert[0].type,
   );
   if (!target) {
-    reject();
+    throw new Error(
+      `Cannot insert blocks at "${placement}" of block "${id}": no valid position for them`,
+    );
   }
 
   // `getInsertionPos` can only answer for the first node's type: the fragment
@@ -148,7 +135,9 @@ export function insertBlocks<
     target.wrapIn &&
     !target.wrapIn.validContent(Fragment.from(nodesToInsert))
   ) {
-    reject();
+    throw new Error(
+      `Cannot insert blocks at "${placement}" of block "${id}": a "${target.wrapIn.name}" doesn't accept them`,
+    );
   }
 
   const fragment = target.wrapIn
@@ -157,7 +146,9 @@ export function insertBlocks<
 
   const $target = tr.doc.resolve(target.pos);
   if (!$target.parent.canReplace($target.index(), $target.index(), fragment)) {
-    reject();
+    throw new Error(
+      `Cannot insert blocks at "${placement}" of block "${id}": a "${$target.parent.type.name}" doesn't accept them`,
+    );
   }
 
   tr.step(new ReplaceStep(target.pos, target.pos, new Slice(fragment, 0, 0)));
