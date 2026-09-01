@@ -6,9 +6,8 @@ import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
  * Whether the editor is focused, as state — re-rendering the component when
  * that changes.
  *
- * Use this when focus decides what to *render*.
- * {@link useEditorFocusChange} is the counterpart for running a side effect on
- * focus changes (the same split as `useEditorState` vs `useEditorChange`).
+ * Use this when focus decides what to *render*; for running a side effect on
+ * focus changes, subscribe directly with `editor.onFocusChange`.
  *
  * By default this reports raw content-area focus, so `false` may just mean
  * focus moved into the editor's own UI — a toolbar popover's input, say. Pass

@@ -6,9 +6,8 @@ import type { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteViewRaw } from "../editor/BlockNoteView.js";
 import { useCreateBlockNote } from "./useCreateBlockNote.js";
 import { useEditorFocus } from "./useEditorFocus.js";
-import { useEditorFocusChange } from "./useEditorFocusChange.js";
 
-// `useEditorFocus` is the state counterpart to `useEditorFocusChange`. What
+// `useEditorFocus` returns focus as state. What
 // needs proving is that it reports *settled* focus and doesn't re-render on
 // every focus event in the page — the reasons it exists rather than each
 // consumer wiring up useState + useEffect itself. Focus semantics are real
@@ -188,72 +187,5 @@ describe("useEditorFocus", () => {
     await new Promise((resolve) => setTimeout(resolve, 40));
 
     expect(Number(readout().dataset.renders)).toBe(before);
-  });
-});
-
-// `useEditorFocusChange` (the callback counterpart) keeps its subscription
-// alive across re-renders via the latest-ref pattern. Without it, an inline
-// callback — the common case — has a new identity every render, so the effect
-// re-runs and the editor is unsubscribed and resubscribed each time. That
-// matters more than it looks: with `includeEditorUI` the subscription is
-// reference-counted, so cycling it tears down and re-attaches the document
-// focus listeners and resets the settled baseline. Measured: a naive
-// implementation resubscribes once per render (6 after 5 re-renders), this
-// one stays at 1.
-describe("useEditorFocusChange", () => {
-  test("does not resubscribe when the callback identity changes", async () => {
-    let subscribes = 0;
-
-    function CountingProbe() {
-      const probeEditor = useCreateBlockNote();
-      // Patch once, not on every render.
-      useState(() => {
-        const original = probeEditor.onFocusChange.bind(probeEditor);
-        (probeEditor as any).onFocusChange = (...args: any[]) => {
-          subscribes += 1;
-          return (original as any)(...args);
-        };
-        return null;
-      });
-      return (
-        <BlockNoteViewRaw editor={probeEditor}>
-          <Rerenderer />
-        </BlockNoteViewRaw>
-      );
-    }
-
-    function Rerenderer() {
-      const [n, setN] = useState(0);
-      useEditorFocusChange(() => {
-        /* inline: new identity every render */
-      });
-      return (
-        <button data-test="rerender" onClick={() => setN(n + 1)}>
-          {n}
-        </button>
-      );
-    }
-
-    host = document.createElement("div");
-    document.body.append(host);
-    root = createRoot(host);
-    root.render(<CountingProbe />);
-    const button = await vi.waitFor(() => {
-      const el = document.querySelector<HTMLElement>('[data-test="rerender"]');
-      if (!el) {
-        throw new Error("probe never rendered");
-      }
-      return el;
-    });
-    const afterMount = subscribes;
-    expect(afterMount).toBe(1);
-
-    for (let i = 0; i < 5; i++) {
-      button.click();
-      await new Promise((resolve) => setTimeout(resolve, 20));
-    }
-
-    expect(Number(button.textContent)).toBe(5);
-    expect(subscribes).toBe(afterMount);
   });
 });
