@@ -1157,6 +1157,59 @@ describe("Test updateBlock content carry-over", () => {
     expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 
+  it("Keeps a container's children when changing between container types", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) => updateBlock(tr, "callout-0", { type: "openBox" }));
+
+    // Neither container holds content of its own, so the children move across
+    // untouched rather than being re-seeded from the new type's `default`.
+    const block = editor.document[4] as any;
+    expect(block.type).toBe("openBox");
+    expect(block.children.map((child: any) => child.id)).toEqual([
+      "callout-child",
+    ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Keeps a container's children alongside the content it gains", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "callout-0", {
+        type: "heading",
+        content: "Now a heading",
+      }),
+    );
+
+    // The container had nowhere to put inline content; the heading does, so
+    // the given content lands there and the children stay nested under it.
+    const block = editor.document[4] as any;
+    expect(block.type).toBe("heading");
+    expect(block.content).toEqual([
+      { type: "text", text: "Now a heading", styles: {} },
+    ]);
+    expect(block.children.map((child: any) => child.id)).toEqual([
+      "callout-child",
+    ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Updates a container's props without rebuilding it", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "callout-0", { props: { flavor: "warning" } }),
+    );
+
+    // No shape change, so this is an in-place attribute update: the container
+    // keeps its ID (unlike the type changes above) and its children.
+    const block = editor.document[4] as any;
+    expect(block.id).toBe("callout-0");
+    expect(block.props.flavor).toBe("warning");
+    expect(block.children.map((child: any) => child.id)).toEqual([
+      "callout-child",
+    ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
   it("Keeps a container's children and invents no content when becoming a block", () => {
     const editor = getContainerEditor();
     editor.transact((tr) =>

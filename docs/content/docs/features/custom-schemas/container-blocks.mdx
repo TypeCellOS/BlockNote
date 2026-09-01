@@ -31,7 +31,7 @@ const createCallout = createReactBlockSpec(
 
 `children: { allow: "any" }` accepts any block, requires at least one, and never throws. When a container is created without children, BlockNote fills it with whatever its schema requires.
 
-A container block always declares `content: "none"`: its body is its children. Combining `children` with any other `content` is a schema-creation error. For an editable title or caption, use a string prop rendered as an `<input>`, as the demo below does.
+A container block always declares `content: "none"`: its body is its children. Any other `content` is ignored — the node is built from `children` alone. For an editable title or caption, use a string prop rendered as an `<input>`, as the demo below does.
 
 At runtime the contained blocks live on `block.children`, the same field used for indented (nested) blocks. In fact, every regular block behaves as if it were declared with `children: { allow: "any", min: 0 }`; declaring `children` yourself is how you take control of the counts, the allowed types, and the rendering of that same field:
 

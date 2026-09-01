@@ -12,6 +12,7 @@ import {
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { getParentBlockInfo } from "../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../nodeUtil.js";
+import { getAncestorContainers } from "./containerNav.js";
 import { containerSchema } from "./containers.fixture.js";
 
 type PartialBlock = (typeof containerSchema)["PartialBlock"];
@@ -526,5 +527,141 @@ describe("moveBlocks placement validation", () => {
       "c-0",
       "box",
     ]);
+  });
+});
+
+// Every mutation that can empty a container records its ancestors with
+// `getAncestorContainers` and hands them to `fixContainersById`, which repairs
+// them deepest-first. Removing a block therefore repairs the whole chain it
+// sat in, not just the container directly holding it.
+describe("ancestor container repair", () => {
+  it("lists the container ancestors of a position, innermost first", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "grid",
+        id: "g-0",
+        children: [
+          {
+            type: "gridCell",
+            id: "cell-a",
+            children: [
+              {
+                type: "callout",
+                id: "c-0",
+                children: [{ id: "deep-p", type: "paragraph", content: "X" }],
+              },
+            ],
+          },
+          {
+            type: "gridCell",
+            id: "cell-b",
+            children: [{ id: "cell-b-p", type: "paragraph", content: "B" }],
+          },
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.transact((tr) => {
+      const deep = getNodeById("deep-p", tr.doc)!;
+      const ancestors = getAncestorContainers(tr.doc, deep.posBeforeNode);
+
+      // Only the container nodes: the `blockGroup`/`blockContainer` levels
+      // between them are not containers and must not be repaired.
+      expect(ancestors.map(({ id }) => id)).toEqual(["c-0", "cell-a", "g-0"]);
+      // Depths shrink outwards, which is what `fixContainersById` sorts on.
+      expect(ancestors.map(({ depth }) => depth)).toEqual(
+        [...ancestors.map(({ depth }) => depth)].sort((a, b) => b - a),
+      );
+
+      // A top-level block has no container ancestors at all.
+      const trailing = getNodeById("trailing", tr.doc)!;
+      expect(getAncestorContainers(tr.doc, trailing.posBeforeNode)).toEqual([]);
+    });
+  });
+
+  it("repairs every container a single removal emptied", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "callout",
+        id: "c-0",
+        children: [{ id: "c-p-0", type: "paragraph", content: "Only child" }],
+      },
+      {
+        type: "seededPair",
+        id: "s-0",
+        children: [
+          { id: "s-p-0", type: "paragraph", content: "Kept" },
+          { id: "s-p-1", type: "paragraph", content: "Removed" },
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    // Blocks from two different containers in one call: each container is
+    // recorded once and repaired on its own terms.
+    editor.removeBlocks(["c-p-0", "s-p-1"]);
+
+    const callout = editor.getBlock("c-0")!;
+    expect(callout.children).toHaveLength(1);
+    expect(callout.children[0].content).toEqual([]);
+
+    const pair = editor.getBlock("s-0")!;
+    expect(pair.children.map((child: any) => child.content?.[0]?.text)).toEqual(
+      ["Kept", "Seed B"],
+    );
+  });
+
+  it("cascades a repair outwards from the deepest container", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "grid",
+        id: "g-outer",
+        children: [
+          {
+            type: "gridCell",
+            id: "outer-cell-a",
+            children: [
+              {
+                type: "grid",
+                id: "g-inner",
+                children: [
+                  {
+                    type: "gridCell",
+                    id: "inner-cell-a",
+                    children: [
+                      { id: "inner-p", type: "paragraph", content: "X" },
+                    ],
+                  },
+                  {
+                    type: "gridCell",
+                    id: "inner-cell-b",
+                    children: [{ type: "paragraph", content: "" }],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: "gridCell",
+            id: "outer-cell-b",
+            children: [{ type: "paragraph", content: "" }],
+          },
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    // The only real content, three containers deep. Removing it empties the
+    // inner cell, and the emptiness has to travel all the way out: the inner
+    // grid loses both its cells, the outer cell loses the inner grid, and the
+    // outer grid loses both of its cells. Recording only the innermost
+    // container would leave a stack of empty grids behind.
+    editor.removeBlocks(["inner-p"]);
+
+    expect(editor.getBlock("g-inner")).toBeUndefined();
+    expect(editor.getBlock("g-outer")).toBeUndefined();
+    expect(editor.document.map((block) => block.id)).toEqual(["trailing"]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 });

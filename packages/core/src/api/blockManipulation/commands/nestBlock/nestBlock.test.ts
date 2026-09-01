@@ -773,6 +773,97 @@ describe("canNestBlock / canUnnestBlock around containers", () => {
   });
 });
 
+// A `grid` holds only `gridCell`s, so a selection spanning two cells has no
+// nestable range inside the grid. The range has to resolve outside it, at the
+// `blockGroup` the grid sits in, so Tab moves the grid as a unit rather than
+// doing nothing. `columnList`/`column` in `@blocknote/xl-multi-column` are the
+// same shape, and the user-facing case this guards.
+describe("Nesting a selection that spans two of a container's children", () => {
+  const withContainerEditor = setupContainerNestTestEnv();
+
+  function gridWith(id: string) {
+    return {
+      id,
+      type: "grid" as const,
+      children: [
+        {
+          id: `${id}-cell-a`,
+          type: "gridCell" as const,
+          children: [
+            { id: `${id}-a`, type: "paragraph" as const, content: "A" },
+          ],
+        },
+        {
+          id: `${id}-cell-b`,
+          type: "gridCell" as const,
+          children: [
+            { id: `${id}-b`, type: "paragraph" as const, content: "B" },
+          ],
+        },
+      ],
+    };
+  }
+
+  it("Nests the whole grid under its previous sibling", () => {
+    const editor = withContainerEditor([
+      { id: "paragraph-0", type: "paragraph", content: "Paragraph 0" },
+      gridWith("grid-0"),
+    ]);
+
+    editor.setSelection("grid-0-a", "grid-0-b");
+
+    expect(editor.canNestBlock()).toBe(true);
+    editor.nestBlock();
+
+    expect(editor.document.map((block) => block.id)).toEqual(["paragraph-0"]);
+    expect(editor.getBlock("paragraph-0")!.children.map((c) => c.id)).toEqual([
+      "grid-0",
+    ]);
+    // The grid itself is untouched — only its position changed.
+    expect(editor.getBlock("grid-0")!.children.map((c) => c.id)).toEqual([
+      "grid-0-cell-a",
+      "grid-0-cell-b",
+    ]);
+  });
+
+  it("Unnests the whole grid out of its parent", () => {
+    const editor = withContainerEditor([
+      {
+        id: "paragraph-0",
+        type: "paragraph",
+        content: "Paragraph 0",
+        children: [gridWith("grid-0")],
+      },
+    ]);
+
+    editor.setSelection("grid-0-a", "grid-0-b");
+
+    expect(editor.canUnnestBlock()).toBe(true);
+    editor.unnestBlock();
+
+    expect(editor.document.map((block) => block.id)).toEqual([
+      "paragraph-0",
+      "grid-0",
+    ]);
+    expect(editor.getBlock("paragraph-0")!.children).toEqual([]);
+    expect(editor.getBlock("grid-0")!.children.map((c) => c.id)).toEqual([
+      "grid-0-cell-a",
+      "grid-0-cell-b",
+    ]);
+  });
+
+  it("Reports no nesting when the grid has no previous sibling", () => {
+    const editor = withContainerEditor([gridWith("grid-0")]);
+
+    editor.setSelection("grid-0-a", "grid-0-b");
+
+    const before = editor.document;
+    expect(editor.canNestBlock()).toBe(false);
+    editor.nestBlock();
+    expect(editor.document).toEqual(before);
+  });
+});
+
 /** Recursively collects all block IDs from a document */
 function flattenBlockIds(blocks: any[]): string[] {
   const ids: string[] = [];

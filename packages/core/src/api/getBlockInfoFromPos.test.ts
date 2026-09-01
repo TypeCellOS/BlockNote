@@ -1,10 +1,7 @@
-import { Node as TiptapNode } from "@tiptap/core";
 import { Node, Schema } from "prosemirror-model";
 import { describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
-import { createBlockSpecFromTiptapNode } from "../schema/blocks/internal.js";
 import { blockToNode } from "./nodeConversions/blockToNode.js";
 import { docToBlocks } from "./nodeConversions/nodeToBlock.js";
 import {
@@ -310,56 +307,6 @@ describe("derived position and content fields", () => {
     expect(() => getBlockInfoFromNode(node, 0)).toThrow(
       /was not built from a block spec/,
     );
-  });
-});
-
-describe("block spec and node agreement", () => {
-  // Both facts a block's node carries — its content expression and its groups
-  // — are also stated by its config, which is what the rest of the codebase
-  // reads. A hand-written node states them itself, so the schema rejects one
-  // that disagrees instead of letting it behave like a block it isn't.
-
-  it("rejects a hand-written node whose content contradicts its config", () => {
-    expect(() =>
-      BlockNoteSchema.create().extend({
-        blockSpecs: {
-          holder: createBlockSpecFromTiptapNode(
-            {
-              node: TiptapNode.create({
-                name: "holder",
-                group: "blockContent",
-                content: "paragraph+",
-              }),
-              type: "holder",
-              content: "none",
-            },
-            {},
-          ),
-        },
-      }),
-    ).toThrow(/declares `content: "none"`, but its node holds "paragraph\+"/);
-  });
-
-  it("rejects a hand-written container node that isn't in the container groups", () => {
-    expect(() =>
-      BlockNoteSchema.create().extend({
-        blockSpecs: {
-          box: createBlockSpecFromTiptapNode(
-            {
-              node: TiptapNode.create({
-                name: "box",
-                group: "blockContent",
-                content: "blockContainer+",
-              }),
-              type: "box",
-              content: "none",
-              children: { allow: "any" },
-            },
-            {},
-          ),
-        },
-      }),
-    ).toThrow(/must join the "bnBlock", "childContainer" group/);
   });
 });
 

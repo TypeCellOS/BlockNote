@@ -1187,9 +1187,10 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
     executeTest: testParseHTML,
   },
   {
-    // The external (`blocksToHTMLLossy`) form, which is what lands on the
-    // clipboard and what another app would paste in. The holder carries no
-    // `data-children-of` marker.
+    // Container HTML without the `data-children-of` marker our own
+    // serializers add: what a container looks like once it has been through
+    // another app, or has come from an older version. The parse rule has to
+    // fall back to reading the whole element as the children region.
     testCase: {
       name: "containerExternalHTML",
       content: `<div class="callout" data-flavor="warning" data-node-type="callout" data-id="1">
