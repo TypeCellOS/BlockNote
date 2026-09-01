@@ -367,8 +367,11 @@ export function createReactBlockSpec<
 
               // Stamped imperatively rather than spread as JSX props: the root
               // element belongs to the block's author, so there is nothing to
-              // spread onto. `block` is derived from the node, so a new one
-              // also means the author's root may have been swapped.
+              // spread onto. Run on every commit rather than on a dependency
+              // list: the author's component may swap its root element on a
+              // re-render of its own (state, context), which no value known
+              // here changes with, and re-stamping attributes is cheap and
+              // idempotent.
               useLayoutEffect(() => {
                 const root = authorRootDOM();
                 if (!root) {
@@ -393,7 +396,7 @@ export function createReactBlockSpec<
                 } else {
                   root.removeAttribute("data-selected");
                 }
-              }, [block, selected]);
+              });
 
               return (
                 <NodeViewWrapper ref={wrapper} style={DISPLAY_CONTENTS}>
