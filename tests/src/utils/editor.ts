@@ -66,19 +66,8 @@ export async function waitForTextInEditor(text: string) {
  * browser, so we read the global the editor exposes directly (no
  * `page.evaluate` round-trip needed).
  */
-export function getDoc() {
+function getDoc() {
   return (window as any).ProseMirror.getJSON();
-}
-
-export function removeAttFromDoc(doc: any, att: string) {
-  if (typeof doc !== "object" || doc === null) {
-    return;
-  }
-  if (Object.keys(doc).includes(att)) {
-    delete doc[att];
-  }
-  Object.keys(doc).forEach((key) => removeAttFromDoc(doc[key], att));
-  return doc;
 }
 
 /**
@@ -122,12 +111,3 @@ type ElementExpect = (
 
 export const expectElement = (expect as unknown as { element: ElementExpect })
   .element;
-
-/**
- * Visual regression snapshot of the whole page (captures the editor plus any
- * portalled menus/toolbars). Vitest names baselines per browser + platform
- * automatically.
- */
-export async function matchPageScreenshot(name: string) {
-  await expectElement(document.body).toMatchScreenshot(name);
-}

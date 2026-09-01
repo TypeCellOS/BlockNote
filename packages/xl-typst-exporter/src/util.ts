@@ -11,7 +11,7 @@ const ESC: Record<string, string> = {
 };
 
 /** Escape a JS string for use inside a Typst string literal "...". */
-export function escStr(s: string): string {
+function escStr(s: string): string {
   // CRLF and lone CR both mean a line break - dropping the CR outright would
   // silently merge lines (e.g. in code blocks from old-Mac clipboards).
   return String(s)

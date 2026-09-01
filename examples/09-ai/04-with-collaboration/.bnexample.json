@@ -7,6 +7,7 @@
     "@blocknote/xl-ai": "latest",
     "@mantine/core": "^9.0.2",
     "ai": "^6.0.5",
+    "prosemirror-view": "^1.42.2",
     "y-partykit": "^0.0.25",
     "yjs": "^13.6.27"
   }

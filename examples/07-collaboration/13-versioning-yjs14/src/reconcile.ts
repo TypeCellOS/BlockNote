@@ -195,7 +195,7 @@ function toPartial(
  * positional diff is correctly recognised here as an in-place update or a move,
  * which is the semantic operation a human actually performed.
  */
-export function applyVersion(
+function applyVersion(
   editor: BlockNoteEditor<any, any, any>,
   target: VersionBlock[],
 ): void {

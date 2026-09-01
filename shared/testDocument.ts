@@ -7,11 +7,6 @@ import {
 import { partialBlockToBlockForTesting } from "./formatConversionTestUtil.js";
 import { testDocumentBlocks } from "./testDocumentBlocks.js";
 
-// Re-exported so existing imports of `testDocumentBlocks` from this module keep
-// working. The data itself lives in the self-contained `testDocumentBlocks.ts`
-// so the example generator can copy it verbatim into the playground examples.
-export { testDocumentBlocks };
-
 const testDocumentSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,

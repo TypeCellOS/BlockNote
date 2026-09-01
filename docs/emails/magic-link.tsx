@@ -10,12 +10,12 @@ import {
   Text,
 } from "@react-email/components";
 
-export interface MagicLinkEmailProps {
+interface MagicLinkEmailProps {
   name?: string;
   url?: string;
 }
 
-export const MagicLinkEmail = ({ name, url }: MagicLinkEmailProps) => {
+const MagicLinkEmail = ({ name, url }: MagicLinkEmailProps) => {
   return (
     <Html>
       <Head />

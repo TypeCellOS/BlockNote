@@ -1,7 +1,7 @@
 import { DOC_TRAILING_BLOCK_SELECTOR } from "./const.js";
 import { MOD, userEvent } from "./context.js";
 
-export function selectAll() {
+function selectAll() {
   return userEvent.keyboard(`{${MOD}>}a{/${MOD}}`);
 }
 

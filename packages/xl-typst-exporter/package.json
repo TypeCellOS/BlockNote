@@ -50,7 +50,6 @@
   },
   "devDependencies": {
     "@blocknote/shared": "workspace:^",
-    "@types/jsdom": "^21.1.7",
     "@types/node": "22.13.13",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",

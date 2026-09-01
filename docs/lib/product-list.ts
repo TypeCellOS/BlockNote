@@ -30,4 +30,4 @@ export const PRODUCTS = {
   } as const,
 } as const;
 
-export type ProductSlug = (typeof PRODUCTS)[keyof typeof PRODUCTS]["slug"];
+type ProductSlug = (typeof PRODUCTS)[keyof typeof PRODUCTS]["slug"];

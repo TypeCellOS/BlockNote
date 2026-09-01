@@ -122,11 +122,11 @@ function reverse(deps: DirectedAcyclicGraph): DependencyGraph {
   return reversedDeps;
 }
 
-export function createDependencyGraph(): DependencyMap {
+function createDependencyGraph(): DependencyMap {
   return new Map();
 }
 
-export function addDependency(
+function addDependency(
   graph: DependencyMap,
   from: NodeId,
   to: NodeId,
@@ -136,27 +136,6 @@ export function addDependency(
   }
   graph.get(from)!.add(to);
   return graph;
-}
-
-export function removeDependency(
-  graph: DependencyMap,
-  from: NodeId,
-  to: NodeId,
-): boolean {
-  const dependents = graph.get(from);
-  if (!dependents) {
-    return false;
-  }
-  return dependents.delete(to);
-}
-
-export function hasDependency(
-  graph: DependencyMap,
-  from: NodeId,
-  to: NodeId,
-): boolean {
-  const dependents = graph.get(from);
-  return dependents ? dependents.has(to) : false;
 }
 
 /**

@@ -68,7 +68,6 @@
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^7.0.2",
-    "vite-plugin-externalize-deps": "^0.10.0",
     "vite-plus": "catalog:"
   },
   "peerDependencies": {

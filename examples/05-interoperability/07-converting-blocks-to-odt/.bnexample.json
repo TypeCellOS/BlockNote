@@ -8,8 +8,7 @@
     "@blocknote/diagram-block": "latest",
     "@blocknote/math-block": "latest",
     "@blocknote/xl-multi-column": "latest",
-    "@blocknote/xl-odt-exporter": "latest",
-    "katex": "^0.16.11"
+    "@blocknote/xl-odt-exporter": "latest"
   },
   "pro": true
 }

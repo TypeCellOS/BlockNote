@@ -44,7 +44,7 @@ const getMentionMenuItems = (
   }));
 };
 
-export function App() {
+function App() {
   const editor = useCreateBlockNote({
     schema,
     initialContent: [

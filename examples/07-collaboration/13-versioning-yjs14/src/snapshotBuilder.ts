@@ -31,7 +31,7 @@ export type EditHistoryStep = {
 };
 
 /** One captured transaction, as a V2 Yjs update plus its attribution and timestamp. */
-export type CapturedPatch = {
+type CapturedPatch = {
   /** V2 Yjs update containing only this transaction's changes. */
   update: Uint8Array;
   /** The author id this transaction was attributed to, if any. */

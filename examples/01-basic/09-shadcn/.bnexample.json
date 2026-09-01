@@ -4,5 +4,6 @@
   "author": "matthewlipski",
   "tags": ["Basic"],
   "tailwind": true,
-  "stackBlitz": false
+  "stackBlitz": false,
+  "uiLib": "shadcn"
 }

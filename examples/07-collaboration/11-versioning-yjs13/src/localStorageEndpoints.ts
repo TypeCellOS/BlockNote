@@ -1,5 +1,5 @@
 import * as Y from "yjs";
-import { toBase64, fromBase64 } from "lib0/buffer";
+import { toBase64, fromBase64 } from "./base64";
 
 import {
   CURRENT_VERSION_ID,
@@ -44,7 +44,7 @@ function writeContents(storageKey: string, contents: Record<string, string>) {
  * Uses `Y.encodeStateAsUpdate` / `Y.applyUpdate` (v1 encoding) instead of the
  * v2 encoding used by the `@y/y` (v14) equivalent.
  */
-export function createLocalStorageVersioningEndpoints(
+function createLocalStorageVersioningEndpoints(
   storageKey = DEFAULT_STORAGE_KEY,
 ): VersioningEndpoints<Y.XmlFragment, Uint8Array> {
   const listSnapshots: VersioningEndpoints<
