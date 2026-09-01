@@ -31,6 +31,8 @@
     "@vitest/ui": "4.1.5",
     "@y/protocols": "^1.0.6-rc.1",
     "@y/y": "^14.0.0-rc.23",
+    "appium": "^3.7.0",
+    "appium-xcuitest-driver": "^12.8.2",
     "browserstack-local": "^1.5.13",
     "htmlfy": "^0.6.7",
     "pdfjs-dist": "^4.10.38",
@@ -41,6 +43,7 @@
     "rimraf": "^5.0.10",
     "selenium-webdriver": "^4.48.0",
     "vite-plus": "catalog:",
+    "vitest": "4.1.10",
     "vitest-browser-react": "^2.2.0"
   },
   "dependencies": {
