@@ -17,6 +17,9 @@ export const Popover = (
   // popovers into its own container — so it doubles as "this popover belongs
   // to the mobile toolbar", which is what the two behaviours below actually
   // depend on. Named here so the reason isn't hidden behind an unrelated prop.
+  // TODO: clean this up once we've settled on a proper portalling solution
+  // (pending discussion) — inferring mobile-ness from `portalRoot` should
+  // become an explicit signal.
   const isMobileToolbarPopover = !!portalRoot;
 
   assertEmpty(rest);

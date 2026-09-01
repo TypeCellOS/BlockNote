@@ -33,6 +33,13 @@ export const TextInput = forwardRef<
   // browser's scroll-into-view runs while the popover is still at its
   // pre-positioned spot and yanks the page (on mobile, right out from under
   // the block being edited).
+  //
+  // No Mantine focus trap competes with this in the form popovers (Popover's
+  // `trapFocus` defaults to false), but trap-active subtrees do exist nearby
+  // (the toolbar's Tab-cycling trap; Menu's default trap on desktop) — the
+  // `data-autofocus` below makes any such trap pick this same element
+  // instead of falling back to "first focusable", so the two mechanisms can
+  // never fight over where focus lands.
   const inputRef = useRef<HTMLInputElement | null>(null);
   const setRefs = useMergeRefs([inputRef, ref]);
   useEffect(() => {
