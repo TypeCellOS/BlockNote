@@ -72,6 +72,11 @@
       "import": "./dist/extensions.js",
       "require": "./dist/extensions.cjs"
     },
+    "./internal": {
+      "types": "./types/src/internal.d.ts",
+      "import": "./dist/internal.js",
+      "require": "./dist/internal.cjs"
+    },
     "./yjs": {
       "types": "./types/src/yjs/index.d.ts",
       "import": "./dist/yjs.js",

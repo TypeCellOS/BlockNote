@@ -1,9 +1,29 @@
-import { Fragment, NodeRange, NodeType, Slice } from "prosemirror-model";
+import { Fragment, Node, NodeRange, NodeType, Slice } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
 import { canJoin, liftTarget, ReplaceAroundStep } from "prosemirror-transform";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
+import { CHILD_CONTAINER_GROUP } from "../../../../schema/blocks/children.js";
+
+/**
+ * Whether `node` is the sibling list that nesting and unnesting operate on: a
+ * node that holds child blocks, and can hold the kind of node being moved.
+ *
+ * `blockRange` stops at the *deepest* ancestor matching this, so the second
+ * condition is load-bearing. A `columnList` holds child blocks, but only
+ * `column`s — matching it would resolve the range at the columns themselves,
+ * where `sinkItem`'s `nodeBefore` is a `column` rather than a `blockContainer`
+ * and `liftItem`'s parent is a `blockGroup` rather than a `blockContainer`, so
+ * both bail. Skipping it lets the walk continue out to the `blockGroup` the
+ * list sits in, and Tab across two columns indents the list as a unit.
+ */
+function holdsItems(node: Node, itemType: NodeType) {
+  return (
+    node.childCount > 0 &&
+    node.type.isInGroup(CHILD_CONTAINER_GROUP) &&
+    node.type.contentMatch.matchType(itemType) !== null
+  );
+}
 
 /**
  * Modified version of prosemirror-schema-list's sinkItem.
@@ -17,12 +37,7 @@ import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
  */
 function sinkItem(tr: Transaction, itemType: NodeType, groupType: NodeType) {
   const { $from, $to } = tr.selection;
-  const range = $from.blockRange(
-    $to,
-    (node) =>
-      node.childCount > 0 &&
-      (node.type.name === "blockGroup" || node.type.name === "column"), // change 1
-  );
+  const range = $from.blockRange($to, (node) => holdsItems(node, itemType)); // change 1
   if (!range) {
     return false;
   }
@@ -64,14 +79,17 @@ function sinkItem(tr: Transaction, itemType: NodeType, groupType: NodeType) {
   return true;
 }
 
-export function nestBlock(editor: BlockNoteEditor<any, any, any>) {
-  return editor.transact((tr) => {
-    return sinkItem(
+function nestCommand(editor: BlockNoteEditor<any, any, any>) {
+  return (tr: Transaction) =>
+    sinkItem(
       tr,
       editor.pmSchema.nodes["blockContainer"],
       editor.pmSchema.nodes["blockGroup"],
     );
-  });
+}
+
+export function nestBlock(editor: BlockNoteEditor<any, any, any>) {
+  return editor.transact(nestCommand(editor));
 }
 
 /**
@@ -161,12 +179,7 @@ export function liftItem(
   groupType: NodeType, // change 2
 ) {
   const { $from, $to } = tr.selection;
-  const range = $from.blockRange(
-    $to,
-    (node) =>
-      node.childCount > 0 &&
-      (node.type.name === "blockGroup" || node.type.name === "column"), // change 1
-  );
+  const range = $from.blockRange($to, (node) => holdsItems(node, itemType)); // change 1
   if (!range) {
     return false;
   }
@@ -181,28 +194,28 @@ export function liftItem(
   return false;
 }
 
-export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
-  return editor.transact((tr) =>
+function unnestCommand(editor: BlockNoteEditor<any, any, any>) {
+  return (tr: Transaction) =>
     liftItem(
       tr,
       editor.pmSchema.nodes["blockContainer"],
       editor.pmSchema.nodes["blockGroup"],
-    ),
-  );
+    );
 }
 
-export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
-  return editor.transact((tr) => {
-    const { bnBlock: blockContainer } = getBlockInfoFromSelection(tr);
+export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
+  return editor.transact(unnestCommand(editor));
+}
 
-    return tr.doc.resolve(blockContainer.beforePos).nodeBefore !== null;
-  });
+// `canExec` hands the command a transaction it never dispatches, so "can I
+// nest?" is answered by nesting and throwing the result away. A second
+// statement of the preconditions would drift from the command it describes —
+// and did: it read a previous sibling's mere existence, so a container block
+// before the cursor enabled the button while `nestBlock` did nothing.
+export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
+  return editor.canExec((state) => nestCommand(editor)(state.tr));
 }
 
 export function canUnnestBlock(editor: BlockNoteEditor<any, any, any>) {
-  return editor.transact((tr) => {
-    const { bnBlock: blockContainer } = getBlockInfoFromSelection(tr);
-
-    return tr.doc.resolve(blockContainer.beforePos).depth > 1;
-  });
+  return editor.canExec((state) => unnestCommand(editor)(state.tr));
 }

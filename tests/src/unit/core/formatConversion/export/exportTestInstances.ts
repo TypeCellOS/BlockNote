@@ -3107,6 +3107,64 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     },
     executeTest: testExportBlockNoteHTML,
   },
+  {
+    testCase: {
+      name: "container/basic",
+      content: [
+        {
+          type: "callout",
+          children: [
+            {
+              type: "paragraph",
+              content: "Callout child",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "container/nested",
+      content: [
+        {
+          type: "callout",
+          props: { flavor: "warning" },
+          children: [
+            {
+              type: "heading",
+              content: "Nested heading",
+            },
+            {
+              type: "callout",
+              props: { flavor: "info" },
+              children: [
+                {
+                  type: "paragraph",
+                  content: "Inner callout child",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    // A container with no `children` key falls back to the spec's `default`,
+    // so this exports as a callout holding one empty paragraph.
+    testCase: {
+      name: "container/emptyChildren",
+      content: [
+        {
+          type: "callout",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
 ];
 
 export const exportTestInstancesHTML: TestInstance<

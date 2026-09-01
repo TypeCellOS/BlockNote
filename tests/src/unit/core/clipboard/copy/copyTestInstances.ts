@@ -722,6 +722,80 @@ export const copyTestInstancesHTML: TestInstance<
     },
     executeTest: testCopyHTML,
   },
+  {
+    // The whole of a container's children, selected from inside it.
+    testCase: {
+      name: "containerChildren",
+      document: [
+        {
+          type: "callout",
+          children: [
+            { type: "paragraph", content: "Callout child 1" },
+            { type: "paragraph", content: "Callout child 2" },
+          ],
+        },
+      ],
+      getCopySelection: (doc) => {
+        const startPos = getPosOfTextNode(doc, "Callout child 1");
+        const endPos = getPosOfTextNode(doc, "Callout child 2", true);
+
+        return TextSelection.create(doc, startPos, endPos);
+      },
+    },
+    executeTest: testCopyHTML,
+  },
+  {
+    // A selection that leaves the container partway through, so the copied
+    // fragment is cut open on one side.
+    testCase: {
+      name: "containerChildToSiblingAfter",
+      document: [
+        {
+          type: "callout",
+          children: [
+            { type: "paragraph", content: "Callout child 1" },
+            { type: "paragraph", content: "Callout child 2" },
+          ],
+        },
+        { type: "paragraph", content: "After callout" },
+      ],
+      getCopySelection: (doc) => {
+        const startPos = getPosOfTextNode(doc, "Callout child 2");
+        const endPos = getPosOfTextNode(doc, "After callout", true);
+
+        return TextSelection.create(doc, startPos, endPos);
+      },
+    },
+    executeTest: testCopyHTML,
+  },
+  {
+    // A single block two containers deep, so the fragment is cut open on both
+    // sides at two different levels.
+    testCase: {
+      name: "containerNestedChild",
+      document: [
+        {
+          type: "callout",
+          props: { flavor: "warning" },
+          children: [
+            { type: "paragraph", content: "Outer child" },
+            {
+              type: "callout",
+              props: { flavor: "info" },
+              children: [{ type: "paragraph", content: "Inner child" }],
+            },
+          ],
+        },
+      ],
+      getCopySelection: (doc) => {
+        const startPos = getPosOfTextNode(doc, "Inner child");
+        const endPos = getPosOfTextNode(doc, "Inner child", true);
+
+        return TextSelection.create(doc, startPos, endPos);
+      },
+    },
+    executeTest: testCopyHTML,
+  },
 ];
 
 // text/plain payloads — exercises the same selections as above but snapshots

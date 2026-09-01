@@ -159,11 +159,36 @@ export const typstBlockMappingForDefaultSchema: BlockMapping<
   divider: () => `#line(length: 100%, stroke: 1pt + rgb("#7D797A"))`,
   pageBreak: () => `#pagebreak(weak: true)`,
 
-  // Multi-column layout is assembled by TypstExporter.transformBlocks (columns
-  // become grid cells). These entries exist only to satisfy the BlockMapping
-  // type — they are never invoked.
-  column: () => "",
-  columnList: () => "",
+  // A column only ever exists as a columnList's child (its config is
+  // `placement: "containerOnly"`), so rather than content it returns the
+  // Typst *value* its parent needs: the width and the cell body. Typst takes
+  // a grid's track sizes on the grid, not on the cell, so the width has to
+  // reach the parent - the same reason the DOCX mapping hands its columnList
+  // a width-carrying table cell.
+  column: (block, _exporter, _nestingLevel, _numberedListIndex, children) =>
+    `(width: ${block.props.width ?? 1}, body: [${(children ?? []).join("\n\n")}])`,
+
+  // Lays the columns out side-by-side as a Typst `grid`, assembled in Typst
+  // code from the columns' (width, body) pairs so the fractional (`fr`)
+  // tracks keep their relative sizes. `grid` is a layout primitive (not a
+  // `table`), so it isn't tagged as a data table in the PDF. The trailing
+  // comma matters: `(x)` in Typst is a parenthesized value, not a one-element
+  // array.
+  columnList: (
+    _block,
+    _exporter,
+    _nestingLevel,
+    _numberedListIndex,
+    children,
+  ) =>
+    [
+      `#{`,
+      `  let cols = (`,
+      ...(children ?? []).map((c) => `    ${c},`),
+      `  )`,
+      `  grid(columns: cols.map(c => c.width * 1fr), column-gutter: 1em, ..cols.map(c => c.body))`,
+      `}`,
+    ].join("\n"),
 
   // --- media -> Figure + Alt --------------------------------------------------
   image: (block, exporter) =>

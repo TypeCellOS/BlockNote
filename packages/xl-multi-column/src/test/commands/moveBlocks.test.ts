@@ -196,3 +196,64 @@ describe("Move past empty sibling within a column", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 });
+
+// A `column` is `placement: "containerOnly"`, so it can't be moved anywhere a
+// regular block goes: moving one dissolves it and moves its children instead.
+// The column list is left at its `min` of 2 by an empty replacement column,
+// rather than unwrapping - see the note on emptied columns below.
+describe("Move a column", () => {
+  it("Move column up", () => {
+    getEditor().moveBlocksUp("column-1");
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Move column down", () => {
+    getEditor().moveBlocksDown("column-0");
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+});
+
+// A move is a rearrangement rather than a deletion, so a column it empties out
+// is deliberately left standing instead of being collapsed (see `moveBlocks`).
+describe("Empty a column by moving out of it", () => {
+  beforeEach(() => {
+    getEditor().replaceBlocks(getEditor().document, [
+      { id: "paragraph-before", type: "paragraph", content: "Before" },
+      {
+        id: "column-list-single",
+        type: "columnList",
+        children: [
+          {
+            id: "column-single-0",
+            type: "column",
+            children: [{ id: "only-0", type: "paragraph", content: "Only 0" }],
+          },
+          {
+            id: "column-single-1",
+            type: "column",
+            children: [{ id: "only-1", type: "paragraph", content: "Only 1" }],
+          },
+        ],
+      },
+      { id: "paragraph-after", type: "paragraph", content: "After" },
+    ]);
+  });
+
+  it("Move the only block out of the first column", () => {
+    getEditor().setTextCursorPosition("only-0");
+
+    getEditor().moveBlocksUp();
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Move the only block out of the last column", () => {
+    getEditor().setTextCursorPosition("only-1");
+
+    getEditor().moveBlocksDown();
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+});

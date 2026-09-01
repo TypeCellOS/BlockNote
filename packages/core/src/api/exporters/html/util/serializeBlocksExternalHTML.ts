@@ -8,6 +8,8 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
+import { applyContainerAttributes } from "../../../../schema/blocks/containerAttributes.js";
+import { containerRootDOM } from "../../../../schema/blocks/createSpec.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   inlineContentToNodes,
@@ -241,10 +243,15 @@ function serializeBlock<
 
   const elementFragment = doc.createDocumentFragment();
 
-  if ((ret.dom as HTMLElement).classList.contains("bn-block-content")) {
+  // A fragment `dom` (the shape a React render produces) can't hold classes
+  // or attributes itself; its resolved root element (the single element it
+  // wraps, if any) stands in for it everywhere below.
+  const rootElement = containerRootDOM(ret);
+
+  if (rootElement?.classList.contains("bn-block-content")) {
     const blockContentDataAttributes = [
       ...attrs,
-      ...Array.from((ret.dom as HTMLElement).attributes),
+      ...Array.from(rootElement.attributes),
     ].filter(
       (attr) =>
         attr.name.startsWith("data") &&
@@ -256,26 +263,57 @@ function serializeBlock<
         attr.name !== "data-editable",
     );
 
-    // ret.dom = ret.dom.firstChild! as any;
     for (const attr of blockContentDataAttributes) {
-      (ret.dom.firstChild! as HTMLElement).setAttribute(attr.name, attr.value);
+      (rootElement.firstChild! as HTMLElement).setAttribute(
+        attr.name,
+        attr.value,
+      );
     }
 
-    addAttributesAndRemoveClasses(ret.dom.firstChild! as HTMLElement);
+    addAttributesAndRemoveClasses(rootElement.firstChild! as HTMLElement);
     if (nestingLevel > 0) {
-      (ret.dom.firstChild! as HTMLElement).setAttribute(
+      (rootElement.firstChild! as HTMLElement).setAttribute(
         "data-nesting-level",
         nestingLevel.toString(),
       );
     }
-    elementFragment.append(...Array.from(ret.dom.childNodes));
+    // Discard the `bn-block-content` wrapper (and, for a fragment `dom`, the
+    // fragment around it) and keep only its children.
+    elementFragment.append(...Array.from(rootElement.childNodes));
   } else {
+    // Asked of the block config rather than of its ProseMirror node. See the
+    // same check in `serializeBlocksInternalHTML`.
+    if (editor.schema.blockSchema[block.type as any].children !== undefined) {
+      // Container blocks own their outer DOM. Make sure the attributes
+      // needed to parse the HTML back (the type marker and non-default
+      // props, in the same `data-*` convention `propsToAttributes` reads)
+      // are present even when the block's render didn't add them.
+      // Author-set attributes win.
+      applyContainerAttributes(
+        rootElement,
+        block.type!,
+        props,
+        editor.schema.blockSchema[block.type as any].propSchema,
+        { mode: "fill" },
+      );
+
+      // A container's `toExternalHTML` writes its block ID onto the root it
+      // owns, the way its node view does. External HTML carries no IDs
+      // though — the `data-id` of a regular block is filtered out above — so
+      // that parsing this HTML back mints fresh ones instead of duplicating
+      // the IDs of the blocks it was copied from.
+      rootElement?.removeAttribute("data-id");
+
+      // Mark where the children live, mirroring the internal serializer, so
+      // the container's parse rule can scope itself to this element
+      // (`contentElement` in `getParseRules`) when the HTML is pasted back.
+      // Without the marker, non-content UI the render puts elsewhere in its
+      // DOM (button labels, captions, ...) parses back as document content.
+      ret.contentDOM?.setAttribute("data-children-of", block.type!);
+    }
     elementFragment.append(ret.dom);
     if (nestingLevel > 0) {
-      (ret.dom as HTMLElement).setAttribute(
-        "data-nesting-level",
-        nestingLevel.toString(),
-      );
+      rootElement?.setAttribute("data-nesting-level", nestingLevel.toString());
     }
   }
 
@@ -301,11 +339,9 @@ function serializeBlock<
     // tables) fill their `contentDOM` with child blocks later on, and code
     // blocks would turn the placeholder into literal content.
     const blockNodeType = editor.pmSchema.nodes[block.type as any];
-    if (
-      blockNodeType?.inlineContent &&
-      !blockNodeType.spec.code &&
-      ret.contentDOM.childNodes.length === 0
-    ) {
+    const needsPlaceholder =
+      !!blockNodeType?.inlineContent && !blockNodeType.spec.code;
+    if (needsPlaceholder && ret.contentDOM.childNodes.length === 0) {
       ret.contentDOM.appendChild(doc.createTextNode(EMPTY_BLOCK_PLACEHOLDER));
     }
   }

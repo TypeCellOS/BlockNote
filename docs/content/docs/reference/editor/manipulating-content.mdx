@@ -141,11 +141,11 @@ editor.forEachBlock((block) => {
 insertBlocks(
   blocksToInsert: PartialBlock[],
   referenceBlock: BlockIdentifier,
-  placement: "before" | "after" = "before"
+  placement: "before" | "after" | "first-child" | "last-child" = "before"
 ): void
 ```
 
-Inserts new blocks relative to an existing block.
+Inserts new blocks relative to an existing block. `"before"` and `"after"` make the new blocks siblings of the reference block; `"first-child"` and `"last-child"` nest them inside it. See [Inserting into a container](/docs/features/custom-schemas/container-blocks#inserting-into-a-container).
 
 ```typescript
 // Insert a paragraph before an existing block
@@ -163,6 +163,13 @@ editor.insertBlocks(
   ],
   "existing-block-id",
   "after",
+);
+
+// Insert a paragraph as the last child of a container block
+editor.insertBlocks(
+  [{ type: "paragraph", content: "Nested paragraph" }],
+  "container-block-id",
+  "last-child",
 );
 ```
 

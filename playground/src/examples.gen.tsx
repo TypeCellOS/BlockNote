@@ -1488,6 +1488,33 @@ export const examples = {
           "In this example, we create a custom block which renders a simple HTML paragraph with placeholder text. The block has no editable content.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
+        projectSlug: "container-block",
+        fullSlug: "custom-schema/container-block",
+        pathFromRoot: "examples/06-custom-schema/09-container-block",
+        config: {
+          playground: true,
+          docs: true,
+          author: "nickthesick",
+          tags: [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu",
+          ],
+          dependencies: {
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Container Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          'In this example, we create a custom `Callout` block that holds other blocks as its body, like a Notion-style callout wrapping a paragraph followed by a code block.\n\nThe block declares the `children` config on `BlockConfig`. `children: { min: 1, default: [{ type: "paragraph" }] }` makes it a container: its child blocks mount into the element the render passes `contentRef` to, and live on `block.children` at runtime.\n\nThe callout\'s **title** demonstrates the complementary "string prop slot" pattern: a field that doesn\'t need rich text, comments, or multiplayer cursors can live in a plain string prop, edited through a regular `<input>` rendered inside the block (in a `contentEditable={false}` wrapper) and committed via `editor.updateBlock`. A field that _is_ prose belongs in the block\'s own `content: "inline"` instead.\n\nWe also wire up a Slash Menu item to insert the callout, and render the document JSON next to the editor so you can inspect the structure of the nested blocks.\n\n**Try it out:**\n\n- Press the "/" key inside the callout\'s body and add a code block, heading, or list.\n- Type a title into the title field. It\'s stored on `block.props.title`, not as document content.\n- Watch the JSON panel on the right update as you edit; the callout\'s children appear in `block.children`.\n- Insert a new callout via the Slash Menu (search "callout").\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+      },
+      {
         projectSlug: "math-block",
         fullSlug: "custom-schema/math-block",
         pathFromRoot: "examples/06-custom-schema/09-math-block",
@@ -1565,6 +1592,33 @@ export const examples = {
         },
         readme:
           'In this example, we build custom blocks on the source-with-preview pattern — the same building blocks behind BlockNote\'s math and diagram blocks. A custom "CSV table" block renders its comma-separated source as a table, and a custom "color" inline content renders a CSS color as a swatch. Both show the rendered preview in place, while the source is edited in a popup.\n\n**Try it out:** Click the table or a color chip to edit its source!\n\n**Relevant Docs:**\n\n- [Source with Preview Blocks](/docs/features/custom-schemas/source-with-preview)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Custom Inline Content](/docs/features/custom-schemas/custom-inline-content)',
+      },
+      {
+        projectSlug: "container-table",
+        fullSlug: "custom-schema/container-table",
+        pathFromRoot: "examples/06-custom-schema/12-container-table",
+        config: {
+          playground: true,
+          docs: true,
+          author: "nickthesick",
+          tags: [
+            "Advanced",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu",
+          ],
+          dependencies: {
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Table Built From Container Blocks",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          'In this example, we rebuild BlockNote\'s table as four container blocks: `table`, `tableRow`, `tableCell`, and `tableHeader`. There is no `prosemirror-tables` and no special `"table"` content type. A table is a container of rows, a row is a container of cells, and a cell is a container of arbitrary blocks, so cells can hold lists, headings, images, or even nested tables. The JSON shape is the same `children` array every other block uses.\n\nCells declare `boundary: "sealed"`, which makes them behave like compartments: Backspace, Delete, and arrow keys never implicitly move content or the caret across a cell\'s edge, and Enter adds another block _inside_ the cell. Header cells are a distinct block type rather than table metadata, so toggling the header row is just `updateBlock` with a new type. All structural operations, from adding and removing rows and columns to Tab-to-next-cell, are plain calls to the public block manipulation API: `insertBlocks`, `removeBlocks`, `updateBlock`, `getParentBlock`, and `setTextCursorPosition`.\n\n**Try it out:**\n\n- Press Tab / Shift-Tab to move between cells. Tab in the last cell adds a new row.\n- Press Enter inside a cell to stack more blocks in it, or "/" to add a list or heading.\n- Hover the table to reveal the row/column controls, and watch the JSON panel update.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Manipulating Blocks](/docs/reference/editor/manipulating-content)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
         projectSlug: "draggable-inline-content",

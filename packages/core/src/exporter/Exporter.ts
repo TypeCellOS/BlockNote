@@ -60,15 +60,54 @@ export abstract class Exporter<
   RS,
   TS,
 > {
+  // Stored with erased generics: a generically-typed property would change
+  // the class's variance in B/I/S and break mapping inference at subclass
+  // construction sites (the schema param was previously inference-only).
+  private readonly blockNoteSchema: BlockNoteSchema<any, any, any>;
+
   public constructor(
-    _schema: BlockNoteSchema<B, I, S>, // only used for type inference
+    schema: BlockNoteSchema<B, I, S>,
     protected readonly mappings: {
       blockMapping: BlockMapping<B, I, S, RB, RI>;
       inlineContentMapping: InlineContentMapping<I, S, RI, TS>;
       styleMapping: StyleMapping<S, RS>;
     },
     public readonly options: ExporterOptions,
-  ) {}
+  ) {
+    this.blockNoteSchema = schema;
+  }
+
+  /**
+   * Whether a block type is a container block (declares `children`, e.g.
+   * `columnList`, `column`, or a custom callout). Container mappings own the
+   * placement of their children, so exporters must not append the children
+   * after the container's own output.
+   *
+   * A block whose type isn't in the exporter's schema can only be answered
+   * for when it has no children - then there is nothing to place and the
+   * answer is "no" either way. (Block packages commonly supply a mapping
+   * without adding the spec: the mapping just reads the block's JSON.) A
+   * block that *does* have children is ambiguous, and guessing "not a
+   * container" silently exports them in the wrong place - after the block
+   * instead of wherever its mapping puts them - so that throws instead.
+   */
+  public isContainerBlock(block: {
+    type: string;
+    children?: unknown[];
+  }): boolean {
+    const spec = (this.blockNoteSchema.blockSpecs as Record<string, any>)[
+      block.type
+    ];
+    if (!spec) {
+      if (block.children?.length) {
+        throw new Error(
+          `Exporter has no block spec for block type "${block.type}", and blocks of that type in this document have children. Without the spec the exporter cannot tell whether the type is a container block (whose mapping places its own children) or a regular one (whose children it appends itself), so it would place them by guesswork. Add the block's spec to the schema passed to the exporter, not just its mapping.`,
+        );
+      }
+      return false;
+    }
+    return spec.config.children !== undefined;
+  }
 
   /**
    * The strings this exporter renders into the produced document - the
@@ -147,7 +186,9 @@ export abstract class Exporter<
     const mapping = this.mappings.blockMapping[block.type];
     if (!mapping) {
       throw new Error(
-        `Exporter is missing a block mapping for block type "${block.type}". If this block comes from a separate package, spread that package's exporter mappings into your blockMapping.`,
+        this.isContainerBlock(block)
+          ? `No mapping found for container block type "${block.type}". Container blocks require an explicit block mapping that places their children.`
+          : `Exporter is missing a block mapping for block type "${block.type}". If this block comes from a separate package, spread that package's exporter mappings into your blockMapping.`,
       );
     }
     return mapping(block, this, nestingLevel, numberedListIndex, children);

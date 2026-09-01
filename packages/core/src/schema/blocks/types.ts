@@ -1,11 +1,7 @@
 /** Define the main block types **/
 // import { Extension, Node } from "@tiptap/core";
 import type { Node, NodeViewRendererProps } from "@tiptap/core";
-import type {
-  Fragment,
-  Node as ProsemirrorNode,
-  Schema,
-} from "prosemirror-model";
+import type { Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type {
@@ -68,6 +64,16 @@ export interface BlockConfigMeta<
   isolating?: boolean;
 
   /**
+   * Whether this block type gets a side menu drag handle (and can be dragged
+   * by it). Applies to any block type, container or not: e.g. a
+   * "locked" block can opt out of dragging entirely. A block that opts out is
+   * skipped when looking for a drag handle, so the handle falls through to the
+   * nearest draggable ancestor.
+   * @default true
+   */
+  draggable?: boolean;
+
+  /**
    * Enables syntax highlighting of the contents of the block with the result of this callback
    */
   highlight?(block: { type: TName; props: Props<TProps> }): string | undefined;
@@ -79,6 +85,103 @@ export interface BlockConfigMeta<
    */
   hasPreview?: boolean;
 }
+
+/**
+ * What may appear as a child of a container block.
+ *
+ * - `"any"`: any regular block, or any container block placeable anywhere.
+ * - `"blocks"`: regular (non-container) blocks only. This cannot be narrowed
+ *   to specific block types: every regular block is the *same* ProseMirror
+ *   node (`blockContainer`), so paragraphs, headings and code blocks are
+ *   indistinguishable at the node level.
+ * - `"containers"`: any container block placeable anywhere, no regular blocks.
+ * - `readonly string[]`: only these types, enforced exactly by the schema.
+ *   Today the array may only name *container* block types (naming a regular
+ *   block type is a startup error); per-type regular-block filtering can be
+ *   added to this same form later, with no API change.
+ *
+ * The wildcards (`"any"`, `"containers"`) never include
+ * `placement: "containerOnly"` types. Those appear only where a parent names
+ * them explicitly in an array.
+ */
+export type ChildrenAllow = "any" | "blocks" | "containers" | readonly string[];
+
+/**
+ * One entry of {@link ChildrenConfig.default}: a partial block with no `id`.
+ *
+ * A default describes every copy of the container, but an id names one block
+ * in one document. An id written here would be stamped onto every copy, so
+ * `id` is rejected at the type level and ignored at runtime.
+ */
+export type ChildDefault = Omit<PartialBlockNoDefaults<any, any, any>, "id"> & {
+  id?: never;
+  children?: ChildDefault[];
+};
+
+/**
+ * Marks a block as a *container*: a block whose body is other blocks, exposed
+ * as `block.children` at runtime.
+ *
+ * The config describes one uniform body, semantically a single implicit
+ * slot. Ordered multi-slot bodies (a `sequence` of slots) can be added later
+ * as a sibling form.
+ */
+export type ChildrenConfig = {
+  /** What may appear as a child. See {@link ChildrenAllow}. */
+  allow: ChildrenAllow;
+  /** @default 1 */
+  min?: number;
+  /**
+   * Children to create the container with when it is inserted without an
+   * explicit `children` array. When omitted, BlockNote fills the container
+   * with whatever its content expression requires (usually one empty
+   * paragraph), so a container can never be created in an invalid state.
+   *
+   * Also the seed that `whenEmptied: "refill"` tops up from, when children
+   * drop below `min`.
+   */
+  default?: readonly ChildDefault[];
+  /**
+   * What happens as children are emptied out (Backspace merges the last child
+   * away, `removeBlocks` deletes children, ...) and fewer than `min` non-empty
+   * children remain:
+   *
+   * - `"refill"` (the default): drop the emptied children and top the
+   *   container back up to `min`, seeding the missing positions from the
+   *   unconsumed tail of `default` (falling back to empty blocks when
+   *   `default` is absent or too short).
+   * - `"unwrap"`: drop the emptied children and replace the container with its
+   *   survivors, or remove it entirely when none remain. Column lists use this
+   *   so emptied columns disappear and a one-column list unwraps.
+   *
+   * Coupled to the child count, so it lives here rather than in `meta`:
+   * ProseMirror's schema fitting always pads a container back up to its
+   * minimum with empty children, so "effectively below the minimum" can only
+   * be detected by discounting those.
+   * @default "refill"
+   */
+  whenEmptied?: "refill" | "unwrap";
+  /**
+   * Whether editing gestures cross the container's edge.
+   *
+   * - `"open"` (the default): they do. Right for a callout or a column list,
+   *   where the container is a region of the same flow of text.
+   * - `"sealed"`: they don't, like a table cell. The caret doesn't enter via
+   *   arrows/Backspace, and the block selects as a unit. Key-agnostic, so
+   *   compartments need no hand-written keyboard handlers.
+   *
+   * A seal binds gestures only. A text selection may span any edge, and the
+   * block manipulation API (`insertBlocks` etc.) ignores seals entirely.
+   * @default "open"
+   */
+  boundary?: "open" | "sealed";
+};
+
+// `ResolvedChildren`, the fully-defaulted, desugared shape a `ChildrenConfig`
+// compiles to, is internal machinery, not part of the consumer-facing config
+// surface. So it lives in `./children.ts` (which is not re-exported wholesale)
+// rather than here, where `export *` would leak it onto `@blocknote/core`'s
+// public types.
 
 /**
  * BlockConfig contains the "schema" info about a Block type
@@ -106,8 +209,44 @@ export interface BlockConfig<
    * The content that the block supports
    */
   content: C;
-  // TODO: how do you represent things that have nested content?
-  // e.g. tables, alerts (with title & content)
+  /**
+   * Makes this a *container* block: a block whose body is other blocks,
+   * exposed on `block.children`. The block's `render` places them via
+   * `contentRef` (React) / `contentDOM` (vanilla), the same way it would place
+   * inline content.
+   *
+   * A container block has no content of its own, so declare it with
+   * `content: "none"`. Any other `content` is ignored: the node is built from
+   * `children` alone. (Content-bearing containers may be supported in a future
+   * version.)
+   *
+   * `children: { allow: "any" }` is the minimal container.
+   */
+  children?: ChildrenConfig;
+  /**
+   * Where this block may be placed.
+   *
+   * - `"anywhere"` (default): anywhere a regular block goes, the document
+   *   root or nested under any other block.
+   * - `"containerOnly"`: only inside a container that names this type in its
+   *   `children.allow` array (e.g. a `column` inside a `columnList`).
+   *
+   * Only meaningful for container blocks; regular blocks are always placeable
+   * anywhere.
+   */
+  placement?: "anywhere" | "containerOnly";
+}
+
+declare module "prosemirror-model" {
+  interface NodeSpec {
+    /**
+     * The config of the BlockNote block this node was built from, so code
+     * holding a bare `Node` can read block-level facts (children config,
+     * placement, ...) without an editor or schema reference. Set on every
+     * node built from a block spec.
+     */
+    blockConfig?: BlockConfig;
+  }
 }
 
 /**
@@ -227,9 +366,11 @@ export type LooseBlockSpec<
     ) => {
       dom: HTMLElement | DocumentFragment;
       contentDOM?: HTMLElement;
+      /** See {@link BlockImplementation.render}'s `rootDOM`. */
+      rootDOM?: HTMLElement | null;
       ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
-      update?: (node: ProsemirrorNode) => boolean;
       destroy?: () => void;
+      update?: (node: PMNode) => boolean | void;
     };
     toExternalHTML?: (
       block: any,
@@ -286,9 +427,11 @@ export type BlockSpecs = {
       ) => {
         dom: HTMLElement | DocumentFragment;
         contentDOM?: HTMLElement;
+        /** See {@link BlockImplementation.render}'s `rootDOM`. */
+        rootDOM?: HTMLElement | null;
         ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
-        update?: (node: ProsemirrorNode) => boolean;
         destroy?: () => void;
+        update?: (node: PMNode) => boolean | void;
       };
       toExternalHTML?: (
         block: any,
@@ -590,19 +733,31 @@ export type BlockImplementation<
   ) => {
     dom: HTMLElement | DocumentFragment;
     contentDOM?: HTMLElement;
-    ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
     /**
-     * Called by ProseMirror when this block's node is updated (e.g. its content
-     * or props change). Return `true` to handle the update in place - keeping
-     * the existing DOM - or `false` to have the node view recreated via
-     * `render`. When omitted, ProseMirror keeps the node view and reconciles its
-     * `contentDOM` in place as long as the node type stays the same.
-     *
-     * Useful for blocks whose `render` builds custom DOM that needs to stay in
-     * sync with the node (e.g. a code block rendering a preview of its content).
+     * The block author's own root element, when it isn't `dom` itself. React
+     * renders a node view through wrapper elements of its own, so the element
+     * ProseMirror is handed is not the one the author wrote. This points at
+     * the author's element, which container attributes (`data-node-type`,
+     * `data-id`, prop `data-*`) are applied to.
+     * @default dom
      */
-    update?: (node: ProsemirrorNode) => boolean;
+    rootDOM?: HTMLElement | null;
+    ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
     destroy?: () => void;
+    /**
+     * Optional NodeView update hook. Called when the underlying ProseMirror
+     * node's attributes change (or its decorations change). Return `false` to
+     * tell ProseMirror to destroy and recreate the NodeView (i.e. re-run
+     * `render` from scratch). Return `true` (or `undefined`) when you have
+     * patched `dom` in-place and PM should keep the existing view.
+     *
+     * Only honored for container blocks (blocks with `children`), where
+     * recreating the node view would remount every child block: e.g. column
+     * resizing patches widths in place through this hook. Non-container
+     * blocks always recreate on attr changes (see
+     * https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464).
+     */
+    update?: (node: PMNode) => boolean | void;
   };
 
   /**

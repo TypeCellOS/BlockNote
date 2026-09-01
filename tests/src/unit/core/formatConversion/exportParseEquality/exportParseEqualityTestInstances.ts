@@ -21,10 +21,18 @@ export const exportParseEqualityTestInstancesBlockNoteHTML: TestInstance<
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema
->[] = exportTestInstancesBlockNoteHTML.map(({ testCase }) => ({
-  testCase,
-  executeTest: testExportParseEqualityBlockNoteHTML,
-}));
+>[] = exportTestInstancesBlockNoteHTML
+  // `container/emptyChildren` round-trips asymmetrically by design. Exporting
+  // reads the partial blocks as given, so a container without a `children` key
+  // serialises an empty children holder. Parsing goes through a real document,
+  // where the container's `default` fills that holder. Both halves are correct,
+  // but they aren't each other's inverse. The export snapshot records the
+  // serialised form; asserting equality here would only assert the mismatch.
+  .filter(({ testCase }) => testCase.name !== "container/emptyChildren")
+  .map(({ testCase }) => ({
+    testCase,
+    executeTest: testExportParseEqualityBlockNoteHTML,
+  }));
 
 export const exportParseEqualityTestInstancesHTML: TestInstance<
   ExportParseEqualityTestCase<
@@ -366,6 +374,39 @@ export const exportParseEqualityTestInstancesHTML: TestInstance<
               },
             ],
           },
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityHTML,
+  },
+  {
+    // Containers survive the lossy HTML the clipboard carries. The serializer
+    // marks the children region (`data-children-of`) and fills in the type and
+    // non-default props, which together are what the container's parse rule
+    // needs to rebuild the block — otherwise the children come back as
+    // top-level blocks and the props are lost.
+    testCase: {
+      name: "containers/nested",
+      content: [
+        {
+          type: "callout",
+          props: { flavor: "warning" },
+          children: [
+            {
+              type: "heading",
+              content: "Nested heading",
+            },
+            {
+              type: "callout",
+              props: { flavor: "info" },
+              children: [
+                {
+                  type: "paragraph",
+                  content: "Inner callout child",
+                },
+              ],
+            },
+          ],
         },
       ],
     },

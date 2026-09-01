@@ -1,28 +1,82 @@
+import { createBlockSpec } from "@blocknote/core";
+
+import { ColumnResizeExtension } from "../../extensions/ColumnResize/ColumnResizeExtension.js";
 import { MultiColumnDropHandlerExtension } from "../../extensions/DropCursor/multiColumnHandleDropPlugin.js";
-import { Column } from "../../pm-nodes/Column.js";
-import { ColumnList } from "../../pm-nodes/ColumnList.js";
 
-import { createBlockSpecFromTiptapNode } from "@blocknote/core";
+const COLUMN_WIDTH_DEFAULT = 1;
 
-export const ColumnBlock = createBlockSpecFromTiptapNode(
+export const ColumnBlock = createBlockSpec(
   {
-    node: Column,
-    type: "column",
+    type: "column" as const,
+    propSchema: {
+      width: {
+        default: COLUMN_WIDTH_DEFAULT,
+      },
+    },
     content: "none",
+    children: { allow: "any" },
+    placement: "containerOnly",
   },
   {
-    width: {
-      default: 1,
+    meta: {
+      draggable: false,
+    },
+    render: (block) => {
+      const dom = document.createElement("div");
+      dom.className = "bn-block-column";
+      dom.style.flexGrow = String(block.props.width ?? COLUMN_WIDTH_DEFAULT);
+
+      return {
+        dom,
+        contentDOM: dom,
+        update: (newNode: {
+          type: { name: string };
+          attrs: { width?: number };
+        }) => {
+          if (newNode.type.name !== "column") {
+            return false;
+          }
+          dom.style.flexGrow = String(
+            newNode.attrs.width ?? COLUMN_WIDTH_DEFAULT,
+          );
+          return true;
+        },
+      };
     },
   },
-  [MultiColumnDropHandlerExtension()],
-);
+  [MultiColumnDropHandlerExtension(), ColumnResizeExtension()],
+)();
 
-export const ColumnListBlock = createBlockSpecFromTiptapNode(
+export const ColumnListBlock = createBlockSpec(
   {
-    node: ColumnList,
-    type: "columnList",
+    type: "columnList" as const,
+    propSchema: {},
     content: "none",
+    children: {
+      allow: ["column"],
+      min: 2,
+      whenEmptied: "unwrap",
+      // Everything crosses the column list's edge, e.g. a text selection
+      // dragged across columns.
+      boundary: "open",
+    },
   },
-  {},
-);
+  {
+    meta: {
+      draggable: false,
+    },
+    render: () => {
+      const dom = document.createElement("div");
+      dom.className = "bn-block-column-list";
+      dom.style.display = "flex";
+
+      return {
+        dom,
+        contentDOM: dom,
+        update: (newNode: { type: { name: string } }) => {
+          return newNode.type.name === "columnList";
+        },
+      };
+    },
+  },
+)();

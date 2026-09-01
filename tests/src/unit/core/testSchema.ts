@@ -99,6 +99,41 @@ const SimpleCustomParagraph = createBlockSpec(
   },
 );
 
+// A container block: it holds no inline content of its own, and its `contentDOM`
+// is where its child blocks go. Covers containers in the format-conversion,
+// clipboard and selection matrices, which otherwise never see one.
+const Callout = createBlockSpec(
+  {
+    type: "callout" as const,
+    propSchema: {
+      flavor: {
+        default: "tip" as const,
+        values: ["tip", "info", "warning"] as const,
+      },
+    },
+    content: "none",
+    children: {
+      allow: "any",
+      default: [{ type: "paragraph" }],
+    },
+  },
+  {
+    render: () => {
+      const callout = document.createElement("div");
+      callout.className = "callout";
+
+      const body = document.createElement("div");
+      body.className = "callout-body";
+      callout.appendChild(body);
+
+      return {
+        dom: callout,
+        contentDOM: body,
+      };
+    },
+  },
+);
+
 // INLINE CONTENT --------------------------------------------------------------
 
 const Mention = createInlineContentSpec(
@@ -222,6 +257,7 @@ export const testSchema = BlockNoteSchema.create().extend({
     customParagraph: CustomParagraph(),
     simpleCustomParagraph: SimpleCustomParagraph(),
     simpleImage: SimpleImage(),
+    callout: Callout(),
   },
   inlineContentSpecs: {
     mention: Mention,

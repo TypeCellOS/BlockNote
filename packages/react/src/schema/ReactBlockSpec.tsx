@@ -1,3 +1,4 @@
+import { applyContainerAttributes } from "@blocknote/core/internal";
 import {
   BlockConfig,
   BlockConfigOrCreator,
@@ -6,11 +7,13 @@ import {
   BlockNoteEditor,
   BlockSpec,
   camelToDataKebab,
+  ChildrenConfig,
   CustomBlockImplementation,
   Extension,
   ExtensionFactoryInstance,
   ExtractBlockConfigFromConfigOrCreator,
   mergeCSSClasses,
+  nodeToBlock,
   Props,
   PropSchema,
 } from "@blocknote/core";
@@ -20,11 +23,16 @@ import {
   ReactNodeViewRenderer,
   useReactNodeView,
 } from "@tiptap/react";
-import { FC, ReactNode } from "react";
+import { CSSProperties, FC, ReactNode, useLayoutEffect } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 import { useNodeViewBlock } from "./useNodeViewBlock.js";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
+
+// A container block's root element is the block's own element, so every
+// wrapper React puts above it has to contribute no box of its own. Module
+// scope so the style object is referentially stable across renders.
+const DISPLAY_CONTENTS: CSSProperties = { display: "contents" };
 
 export type ReactCustomBlockRenderProps<
   B extends BlockConfigOrCreator,
@@ -33,11 +41,15 @@ export type ReactCustomBlockRenderProps<
 > = {
   block: BlockNoDefaults<Record<Config["type"], Config>, any, any>;
   editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
-} & (Config["content"] extends "inline" | "plain"
-  ? {
-      contentRef: (node: HTMLElement | null) => void;
-    }
-  : object);
+  // A block gets a `contentRef` for its `render` to mount its editable region:
+  // its inline content, or, for a container, its child blocks. Only a
+  // `content: "none"` block without `children` (and the table block, whose
+  // content is managed separately) has nothing to place.
+} & (Config extends { children: ChildrenConfig }
+  ? { contentRef: (node: HTMLElement | null) => void }
+  : Config["content"] extends "inline" | "plain"
+    ? { contentRef: (node: HTMLElement | null) => void }
+    : object);
 
 // extend BlockConfig but use a React render function
 export type ReactCustomBlockImplementation<
@@ -131,20 +143,20 @@ export function createReactBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
   const TContent extends "inline" | "none" | "plain",
+  // Inferred from the config object itself rather than widened to
+  // `BlockConfig<...>`, so `children` survives into the render props and
+  // `contentRef` is offered exactly when the block has an editable region.
+  const BlockConf extends BlockConfig<TName, TProps, TContent>,
   const TOptions extends Record<string, any> | undefined = undefined,
 >(
-  blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
+  blockConfigOrCreator: BlockConf,
   blockImplementationOrCreator:
-    | ReactCustomBlockImplementation<BlockConfig<TName, TProps, TContent>>
+    | ReactCustomBlockImplementation<BlockConf>
     | (TOptions extends undefined
-        ? () => ReactCustomBlockImplementation<
-            BlockConfig<TName, TProps, TContent>
-          >
+        ? () => ReactCustomBlockImplementation<BlockConf>
         : (
             options: Partial<TOptions>,
-          ) => ReactCustomBlockImplementation<
-            BlockConfig<TName, TProps, TContent>
-          >),
+          ) => ReactCustomBlockImplementation<BlockConf>),
   extensionsOrCreator?:
     | (ExtensionFactoryInstance | Extension)[]
     | (TOptions extends undefined
@@ -152,7 +164,13 @@ export function createReactBlockSpec<
         : (
             options: Partial<TOptions>,
           ) => (ExtensionFactoryInstance | Extension)[]),
-): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent>;
+): (
+  options?: Partial<TOptions>,
+) => BlockSpec<
+  BlockConf["type"],
+  BlockConf["propSchema"],
+  BlockConf["content"]
+>;
 export function createReactBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
@@ -225,42 +243,73 @@ export function createReactBlockSpec<
         : extensionsOrCreator
       : undefined;
 
+    // Container-ness is fixed per spec, so every render path can decide once.
+    const isContainer = blockConfig.children !== undefined;
+
+    // Shared by the two paths that render to plain DOM (`toExternalHTML` and
+    // `render` outside a node view). A container block's output is the
+    // block's root element, with no wrapper: the attributes core stamps
+    // afterwards then land on the author's own element, the same element they
+    // land on in the live editor.
+    function renderStatic(args: {
+      BlockContent: FC<any>;
+      block: any;
+      editor: any;
+      domAttributes?: Record<string, string>;
+      isFileBlock?: boolean;
+      context?: any;
+    }) {
+      const { BlockContent, block, editor } = args;
+
+      return renderToDOMSpec((refCB) => {
+        const content = (
+          <BlockContent
+            block={block as any}
+            editor={editor as any}
+            contentRef={(element: HTMLElement | null) => {
+              refCB(element);
+              if (element && !isContainer) {
+                element.className = mergeCSSClasses(
+                  "bn-inline-content",
+                  element.className,
+                );
+              }
+            }}
+            context={args.context}
+          />
+        );
+
+        return isContainer ? (
+          content
+        ) : (
+          <BlockContentWrapper
+            blockType={block.type}
+            blockProps={block.props}
+            propSchema={blockConfig.propSchema}
+            domAttributes={args.domAttributes}
+            isFileBlock={args.isFileBlock}
+          >
+            {content}
+          </BlockContentWrapper>
+        );
+      }, editor);
+    }
+
     return {
       config: blockConfig,
       implementation: {
         ...blockImplementation,
         toExternalHTML(block, editor, context) {
-          const BlockContent =
-            blockImplementation.toExternalHTML || blockImplementation.render;
-          const output = renderToDOMSpec((refCB) => {
-            return (
-              <BlockContentWrapper
-                blockType={block.type}
-                blockProps={block.props}
-                propSchema={blockConfig.propSchema}
-                domAttributes={this.blockContentDOMAttributes}
-                isFileBlock={
-                  blockImplementation.meta?.fileBlockAccept !== undefined
-                }
-              >
-                <BlockContent
-                  block={block as any}
-                  editor={editor as any}
-                  contentRef={(element) => {
-                    refCB(element);
-                    if (element) {
-                      element.className = mergeCSSClasses(
-                        "bn-inline-content",
-                        element.className,
-                      );
-                    }
-                  }}
-                  context={context}
-                />
-              </BlockContentWrapper>
-            );
-          }, editor);
-          return output;
+          return renderStatic({
+            BlockContent: (blockImplementation.toExternalHTML ||
+              blockImplementation.render) as FC<any>,
+            block,
+            editor,
+            domAttributes: this.blockContentDOMAttributes,
+            isFileBlock:
+              blockImplementation.meta?.fileBlockAccept !== undefined,
+            context,
+          });
         },
         render(block, editor) {
           if (this.renderType === "nodeView") {
@@ -268,80 +317,180 @@ export function createReactBlockSpec<
             // constructed (itself guarded, via `getBlockFromNodeView`). Seeds
             // the fallback below so there is always something to render.
             const initialBlock = block;
+            // Each node-view variant uses only the hooks and wrappers it
+            // needs, so the component is chosen once from `isContainer`.
+            const BlockContent = blockImplementation.render as FC<any>;
+            const blockContentDOMAttributes = this.blockContentDOMAttributes;
 
-            return ReactNodeViewRenderer(
-              (props: NodeViewProps) => {
-                // Vanilla JS node views are recreated on each update. However,
-                // using `ReactNodeViewRenderer` makes it so the node view is
-                // only created once, so the block we get in the node view will
-                // be outdated. Therefore, we have to get the block in the
-                // `ReactNodeViewRenderer` instead. That position can be stale,
-                // so resolving it is guarded (see `useNodeViewBlock`).
-                const block = useNodeViewBlock(props, initialBlock);
+            // Set by the container node view's `NodeViewWrapper` below. The
+            // author's own root element is that wrapper's first element child;
+            // it's read lazily because React may not have committed yet when
+            // this node view is handed to core, and because the author's
+            // component is free to swap its root element on a re-render.
+            const wrapper: { current: HTMLElement | null } = { current: null };
+            const authorRootDOM = () =>
+              (wrapper.current?.firstElementChild as HTMLElement | null) ??
+              null;
 
-                const ref = useReactNodeView().nodeViewContentRef;
+            // Vanilla JS node views are recreated on each update. However,
+            // using `ReactNodeViewRenderer` makes it so the node view is only
+            // created once, so the block we get in the node view will be
+            // outdated. Therefore, both variants have to (re-)resolve the
+            // block inside the `ReactNodeViewRenderer` component.
 
-                if (!ref) {
-                  throw new Error("nodeViewContentRef is not set");
+            const ContainerNodeView = (props: NodeViewProps) => {
+              // Container blocks are bnBlock nodes (no `blockContainer`
+              // wrapper), so the id lives on the node's own attrs and the
+              // block resolves by id. Position-based resolution
+              // (`useNodeViewBlock`) would walk up to a parent bnBlock,
+              // which is the wrong block here. Ids are also immune to the
+              // stale positions it has to guard against.
+              const id = (props.node.attrs as Record<string, any>).id;
+              if (!id) {
+                throw new Error(
+                  `Container block "${blockConfig.type}" is missing an id attribute.`,
+                );
+              }
+              // Converted from the node the view was handed rather than
+              // looked up by id: the conversion is cached per node, while a
+              // lookup would scan the whole document on every render, and it
+              // also covers a node that was just removed from the document
+              // (e.g. a suggestion-mode deletion still rendering).
+              const block = nodeToBlock(props.node, props.view.state.doc);
+
+              const ref = useReactNodeView().nodeViewContentRef;
+              if (!ref) {
+                throw new Error("nodeViewContentRef is not set");
+              }
+
+              const selected = props.selected;
+
+              // Stamped imperatively rather than spread as JSX props: the root
+              // element belongs to the block's author, so there is nothing to
+              // spread onto. Run on every commit rather than on a dependency
+              // list: the author's component may swap its root element on a
+              // re-render of its own (state, context), which no value known
+              // here changes with, and re-stamping attributes is cheap and
+              // idempotent.
+              useLayoutEffect(() => {
+                const root = authorRootDOM();
+                if (!root) {
+                  return;
                 }
 
-                const BlockContent = blockImplementation.render;
-                return (
-                  <BlockContentWrapper
-                    blockType={block.type}
-                    blockProps={block.props}
-                    propSchema={blockConfig.propSchema}
-                    isFileBlock={!!blockImplementation.meta?.fileBlockAccept}
-                    domAttributes={this.blockContentDOMAttributes}
-                  >
-                    <BlockContent
-                      block={block as any}
-                      editor={editor as any}
-                      contentRef={(element) => {
-                        ref(element);
-                        if (element) {
-                          element.className = mergeCSSClasses(
-                            "bn-inline-content",
-                            element.className,
-                          );
-                          element.dataset.nodeViewContent = "";
-                        }
-                      }}
-                    />
-                  </BlockContentWrapper>
+                applyContainerAttributes(
+                  root,
+                  blockConfig.type,
+                  block.props as any,
+                  blockConfig.propSchema,
+                  { id: block.id, mode: "overwrite" },
                 );
-              },
-              {
-                className: "bn-react-node-view-renderer",
-              },
-            )(this.props!) as ReturnType<BlockImplementation["render"]>;
-          } else {
-            const BlockContent = blockImplementation.render;
-            const output = renderToDOMSpec((refCB) => {
+
+                // ProseMirror marks the outermost element with
+                // `ProseMirror-selectednode`, but for containers that element
+                // has `display: contents`, which suppresses any outline drawn
+                // on it. So the state is mirrored onto the author's root,
+                // which is the block's actual box.
+                if (selected) {
+                  root.setAttribute("data-selected", "");
+                } else {
+                  root.removeAttribute("data-selected");
+                }
+              });
+
+              return (
+                <NodeViewWrapper ref={wrapper} style={DISPLAY_CONTENTS}>
+                  <BlockContent
+                    block={block as any}
+                    editor={editor as any}
+                    contentRef={(element: HTMLElement | null) => {
+                      ref(element);
+                      if (element) {
+                        element.dataset.nodeViewContent = "";
+                        // Mark the children host of a container so the
+                        // round-trip parse rule can scope itself to it (see
+                        // `getParseRules`).
+                        element.setAttribute(
+                          "data-children-of",
+                          blockConfig.type,
+                        );
+                      }
+                    }}
+                  />
+                </NodeViewWrapper>
+              );
+            };
+
+            const RegularNodeView = (props: NodeViewProps) => {
+              // The node view's position can be stale mid-render, so
+              // resolving it is guarded (see `useNodeViewBlock`).
+              const block = useNodeViewBlock(props, initialBlock);
+
+              const ref = useReactNodeView().nodeViewContentRef;
+              if (!ref) {
+                throw new Error("nodeViewContentRef is not set");
+              }
+
               return (
                 <BlockContentWrapper
                   blockType={block.type}
                   blockProps={block.props}
                   propSchema={blockConfig.propSchema}
-                  domAttributes={this.blockContentDOMAttributes}
+                  isFileBlock={!!blockImplementation.meta?.fileBlockAccept}
+                  domAttributes={blockContentDOMAttributes}
                 >
                   <BlockContent
                     block={block as any}
                     editor={editor as any}
-                    contentRef={(element) => {
-                      refCB(element);
+                    contentRef={(element: HTMLElement | null) => {
+                      ref(element);
                       if (element) {
                         element.className = mergeCSSClasses(
                           "bn-inline-content",
                           element.className,
                         );
+                        element.dataset.nodeViewContent = "";
                       }
                     }}
                   />
                 </BlockContentWrapper>
               );
-            }, editor);
-            return output;
+            };
+
+            const nodeView = ReactNodeViewRenderer(
+              isContainer ? ContainerNodeView : RegularNodeView,
+              {
+                // The container class is separate because it removes the
+                // box the regular class relies on (see `Block.css`).
+                className: isContainer
+                  ? "bn-react-node-view-renderer bn-container-node-view"
+                  : "bn-react-node-view-renderer",
+              },
+            )(this.props!) as ReturnType<BlockImplementation["render"]>;
+
+            if (isContainer) {
+              // TipTap appends its content host into whichever element the
+              // block passed `contentRef` to. `display: contents` keeps that
+              // host from contributing a box, so the block's editable region
+              // lays out exactly where the author put the ref.
+              if (nodeView.contentDOM) {
+                nodeView.contentDOM.style.display = "contents";
+              }
+              // Where core stamps the container attributes: the author's own
+              // element, not React's outermost wrapper (`dom`).
+              Object.defineProperty(nodeView, "rootDOM", {
+                get: authorRootDOM,
+              });
+            }
+
+            return nodeView;
+          } else {
+            return renderStatic({
+              BlockContent: blockImplementation.render as FC<any>,
+              block,
+              editor,
+              domAttributes: this.blockContentDOMAttributes,
+            });
           }
         },
       },

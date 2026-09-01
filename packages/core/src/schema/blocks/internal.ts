@@ -6,7 +6,7 @@ import type { ExtensionFactoryInstance } from "../../editor/BlockNoteExtension.j
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
 import { PropSchema, Props } from "../propTypes.js";
-import { LooseBlockSpec } from "./types.js";
+import { BlockConfig, ChildrenConfig, LooseBlockSpec } from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
@@ -157,6 +157,39 @@ export function getBlockFromNodeView(
   }
 }
 
+/**
+ * `Node.DOCUMENT_FRAGMENT_NODE`, inlined. Server-side rendering shims only
+ * `document` and `window` onto the global scope, so `Node` and
+ * `DocumentFragment` are undefined there and `instanceof` throws.
+ */
+const DOCUMENT_FRAGMENT_NODE = 11;
+
+export function isDocumentFragment(
+  node: HTMLElement | DocumentFragment,
+): node is DocumentFragment {
+  return node.nodeType === DOCUMENT_FRAGMENT_NODE;
+}
+
+/**
+ * Applies custom `blockContent` DOM attributes to an element, merging (rather
+ * than overwriting) its class list.
+ */
+export function applyDOMAttributes(
+  dom: HTMLElement | DocumentFragment,
+  domAttributes: Record<string, string> | undefined,
+) {
+  if (!domAttributes || isDocumentFragment(dom)) {
+    return;
+  }
+  for (const [attr, value] of Object.entries(domAttributes)) {
+    if (attr === "class") {
+      dom.className = mergeCSSClasses(dom.className, value);
+    } else {
+      dom.setAttribute(attr, value);
+    }
+  }
+}
+
 // Function that wraps the `dom` element returned from 'blockConfig.render' in a
 // `blockContent` div, which contains the block type and props as HTML
 // attributes. If `blockConfig.render` also returns a `contentDOM`, it also adds
@@ -232,6 +265,12 @@ export function createBlockSpecFromTiptapNode<
     node: Node;
     type: string;
     content: "inline" | "table" | "none" | "plain";
+    // Declares the block's container semantics (child counts/repair etc.)
+    // even though the node itself is hand-written. The node's own content
+    // expression stays authoritative for the PM schema, while BlockNote-level
+    // behavior (repair, seeding, validation) reads this config.
+    children?: ChildrenConfig;
+    placement?: BlockConfig["placement"];
   },
   P extends PropSchema,
 >(
@@ -244,6 +283,10 @@ export function createBlockSpecFromTiptapNode<
       type: config.type as T["type"],
       content: config.content,
       propSchema,
+      ...(config.children !== undefined ? { children: config.children } : {}),
+      ...(config.placement !== undefined
+        ? { placement: config.placement }
+        : {}),
     },
     implementation: {
       node: config.node,
