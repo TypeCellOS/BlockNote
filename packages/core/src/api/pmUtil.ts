@@ -67,9 +67,7 @@ export function isPlainContentNodeType(
   schema: Schema,
   nodeType: NodeType,
 ): boolean {
-  const blockSchema = getBlockSchema(schema);
-
-  if (blockSchema[nodeType.name]?.content === "plain") {
+  if (getBlockSchema(schema)[nodeType.name]?.content === "plain") {
     return true;
   }
 

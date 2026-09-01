@@ -571,30 +571,6 @@ export function prosemirrorSliceToSlicedBlocks<
     let blockCutAtStart: string | undefined;
     let blockCutAtEnd: string | undefined;
 
-    // Descends into a child-holding node the slice boundary is open inside
-    // of: the holder wrapper is skipped and the included children are spliced
-    // in, propagating cut ids from whichever ends are open. Shared by open
-    // container children and the degenerate `blockContainer`-around-
-    // `blockGroup` wrapper — regular nesting's version of the same shape.
-    function descendOpenHolder(
-      holder: Node,
-      openAtStart: boolean,
-      openAtEnd: boolean,
-    ) {
-      const ret = processNode(
-        holder,
-        openAtStart ? Math.max(0, openStart - 1) : 0,
-        openAtEnd ? Math.max(0, openEnd - 1) : 0,
-      );
-      if (openAtStart) {
-        blockCutAtStart = ret.blockCutAtStart;
-      }
-      if (openAtEnd) {
-        blockCutAtEnd = ret.blockCutAtEnd;
-      }
-      blocks.push(...ret.blocks);
-    }
-
     node.forEach((blockContainer, _offset, index) => {
       const isFirstBlock = index === 0;
       const isLastBlock = index === node.childCount - 1;
@@ -607,7 +583,20 @@ export function prosemirrorSliceToSlicedBlocks<
         const openAtEnd = isLastBlock && openEnd > 0;
 
         if (openAtStart || openAtEnd) {
-          descendOpenHolder(blockContainer, openAtStart, openAtEnd);
+          // The container wrapper is skipped and its included children are
+          // spliced in, propagating cut ids from whichever ends are open.
+          const ret = processNode(
+            blockContainer,
+            openAtStart ? Math.max(0, openStart - 1) : 0,
+            openAtEnd ? Math.max(0, openEnd - 1) : 0,
+          );
+          if (openAtStart) {
+            blockCutAtStart = ret.blockCutAtStart;
+          }
+          if (openAtEnd) {
+            blockCutAtEnd = ret.blockCutAtEnd;
+          }
+          blocks.push(...ret.blocks);
           return;
         }
 
@@ -643,11 +632,21 @@ export function prosemirrorSliceToSlicedBlocks<
         if (!isFirstBlock) {
           throw new Error("unexpected");
         }
-        // Open at the start by construction (a `blockContainer` can only lead
-        // with its `blockGroup` when the slice cut its content node away);
-        // open at the end whenever it is also the last block, matching the
-        // pre-refactor cut propagation.
-        descendOpenHolder(blockContainer.firstChild!, true, isLastBlock);
+        // Same splice as for an open container above, on regular nesting's
+        // version of the same shape. Open at the start by construction (a
+        // `blockContainer` can only lead with its `blockGroup` when the slice
+        // cut its content node away); open at the end whenever it is also the
+        // last block, matching the pre-refactor cut propagation.
+        const ret = processNode(
+          blockContainer.firstChild!,
+          Math.max(0, openStart - 1),
+          isLastBlock ? Math.max(0, openEnd - 1) : 0,
+        );
+        blockCutAtStart = ret.blockCutAtStart;
+        if (isLastBlock) {
+          blockCutAtEnd = ret.blockCutAtEnd;
+        }
+        blocks.push(...ret.blocks);
         return;
       }
 

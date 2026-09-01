@@ -1,7 +1,20 @@
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import type { LooseBlockSpec } from "../../../schema/blocks/types.js";
 
+/**
+ * What the side menu and drag handle need to know about a schema's containers,
+ * to map a DOM element back to the block it belongs to.
+ */
 export type ContainerUIInfo = {
+  /**
+   * Every block type declared with a `children` config, i.e. every type whose
+   * node holds block children directly (`columnList`, `column`, `callout`, ...).
+   */
   containerTypes: ReadonlySet<string>;
+  /**
+   * The subset of `containerTypes` that can be dragged, i.e. whose spec doesn't
+   * set `meta.draggable: false`. A `column` opts out; a `callout` doesn't.
+   */
   draggableContainerTypes: ReadonlySet<string>;
   /**
    * Regular (non-container) block types whose spec sets `meta.draggable:
@@ -11,43 +24,32 @@ export type ContainerUIInfo = {
    * and are identified by their content's `data-content-type`.
    */
   nonDraggableBlockTypes: ReadonlySet<string>;
+  /**
+   * A CSS selector matching the root element of any container block, for
+   * `closest()`/`querySelector()` lookups. `null` when the schema has no
+   * container types, since an empty selector matches nothing anyway.
+   */
   containerSelector: string | null;
 };
 
-function buildSelector(types: ReadonlySet<string>): string | null {
-  if (types.size === 0) {
-    return null;
-  }
-  return [...types].map((type) => `[data-node-type="${type}"]`).join(",");
-}
-
-// The schema never changes over an editor's lifetime, so the info is derived
-// once. It's read on every mousemove, which would otherwise walk every block
-// spec each time.
-const cache = new WeakMap<object, ContainerUIInfo>();
-
+/**
+ * Derives {@link ContainerUIInfo} from an editor's schema by walking its block
+ * specs. Cheap enough to call per event: the info is a few set lookups over the
+ * spec list, and `containerSelector` is only built if it's read.
+ */
 export function getContainerUIInfo(
   editor: Pick<BlockNoteEditor<any, any, any>, "schema">,
 ): ContainerUIInfo {
-  const cached = cache.get(editor.schema);
-  if (cached) {
-    return cached;
-  }
-
   const containerTypes = new Set<string>();
   const draggableContainerTypes = new Set<string>();
   const nonDraggableBlockTypes = new Set<string>();
 
-  for (const [type, spec] of Object.entries(
-    editor.schema.blockSpecs as Record<
-      string,
-      {
-        config: any;
-        implementation?: { meta?: { draggable?: boolean } };
-      }
-    >,
-  )) {
-    const draggable = spec.implementation?.meta?.draggable !== false;
+  // The block specs rather than the schema's node types: `children` is on both
+  // (as the `childContainer` group), but `meta.draggable` only exists here.
+  const blockSpecs: Record<string, LooseBlockSpec> = editor.schema.blockSpecs;
+
+  for (const [type, spec] of Object.entries(blockSpecs)) {
+    const draggable = spec.implementation.meta?.draggable !== false;
 
     if (spec.config.children === undefined) {
       if (!draggable) {
@@ -61,12 +63,17 @@ export function getContainerUIInfo(
     }
   }
 
-  const info: ContainerUIInfo = {
+  return {
     containerTypes,
     draggableContainerTypes,
     nonDraggableBlockTypes,
-    containerSelector: buildSelector(containerTypes),
+    get containerSelector() {
+      if (containerTypes.size === 0) {
+        return null;
+      }
+      return [...containerTypes]
+        .map((type) => `[data-node-type="${type}"]`)
+        .join(",");
+    },
   };
-  cache.set(editor.schema, info);
-  return info;
 }

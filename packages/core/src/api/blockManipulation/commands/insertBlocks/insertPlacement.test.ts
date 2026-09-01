@@ -196,7 +196,7 @@ describe('insertBlocks "first-child" / "last-child"', () => {
 
     expect(() =>
       editor.insertBlocks([{ type: "paragraph" }], "s-0", "last-child"),
-    ).toThrow(/does not accept it as a child/);
+    ).toThrow(/at "last-child" of block "s-0": no valid position/);
   });
 
   it("throws when a sibling placement isn't allowed either", () => {
@@ -216,7 +216,7 @@ describe('insertBlocks "first-child" / "last-child"', () => {
     // sibling. Previously this threw a raw ProseMirror `ReplaceError`.
     expect(() =>
       editor.insertBlocks([{ type: "paragraph" }], "c-0", "after"),
-    ).toThrow(/its parent does not accept it/);
+    ).toThrow(/at "after" of block "c-0": no valid position/);
   });
 
   it("throws when only the first of several blocks would fit", () => {
@@ -234,7 +234,7 @@ describe('insertBlocks "first-child" / "last-child"', () => {
         "e-0",
         "last-child",
       ),
-    ).toThrow(/does not accept them as children/);
+    ).toThrow(/at "last-child" of block "e-0": .* doesn't accept them/);
 
     expect(editor.getBlock("e-0")!.children).toEqual([]);
   });

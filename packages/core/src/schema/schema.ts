@@ -216,10 +216,19 @@ export class CustomBlockNoteSchema<
           [K in keyof AdditionalStyleSpecs]: AdditionalStyleSpecs[K]["config"];
         }
   > {
-    // Merge the new specs with existing ones
-    Object.assign(this.opts.blockSpecs, opts.blockSpecs);
-    Object.assign(this.opts.inlineContentSpecs, opts.inlineContentSpecs);
-    Object.assign(this.opts.styleSpecs, opts.styleSpecs);
+    // Merged into a fresh set of options rather than assigned into the
+    // existing one: with no specs passed, `BlockNoteSchema.create()` hands the
+    // shared `defaultBlockSpecs`/`defaultStyleSpecs`/... objects straight to
+    // the constructor, so mutating them here would add this schema's blocks to
+    // every schema built afterwards.
+    this.opts = {
+      blockSpecs: { ...this.opts.blockSpecs, ...opts.blockSpecs },
+      inlineContentSpecs: {
+        ...this.opts.inlineContentSpecs,
+        ...opts.inlineContentSpecs,
+      },
+      styleSpecs: { ...this.opts.styleSpecs, ...opts.styleSpecs },
+    };
 
     // Reinitialize the block specs with the merged specs
     const {

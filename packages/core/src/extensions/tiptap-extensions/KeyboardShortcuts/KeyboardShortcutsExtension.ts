@@ -8,17 +8,14 @@ import {
   nestBlock,
   unnestBlock,
 } from "../../../api/blockManipulation/commands/nestBlock/nestBlock.js";
-import {
-  fixContainersById,
-  isContainerNode,
-} from "../../../api/blockManipulation/containers/fixContainer.js";
+import { fixContainersById } from "../../../api/blockManipulation/containers/fixContainer.js";
 import {
   ascendToInsertablePos,
   descendToInsertionPos,
   getAncestorContainers,
   getFirstLeafBlock,
 } from "../../../api/blockManipulation/containers/containerNav.js";
-import { isSealed } from "../../../schema/blocks/children.js";
+import { isContainerNode, isSealed } from "../../../schema/blocks/children.js";
 import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
