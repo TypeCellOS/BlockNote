@@ -216,11 +216,11 @@ export class CustomBlockNoteSchema<
           [K in keyof AdditionalStyleSpecs]: AdditionalStyleSpecs[K]["config"];
         }
   > {
-    // Merged into a fresh set of options rather than assigned into the
-    // existing one: with no specs passed, `BlockNoteSchema.create()` hands the
-    // shared `defaultBlockSpecs`/`defaultStyleSpecs`/... objects straight to
-    // the constructor, so mutating them here would add this schema's blocks to
-    // every schema built afterwards.
+    // Merge the new specs with the existing ones into fresh objects. The
+    // existing spec objects must not be written to: `BlockNoteSchema.create()`
+    // passes the module-level default specs by reference, so mutating them
+    // would leak the added specs (and the editor extensions they register) into
+    // every default-schema editor created afterwards.
     this.opts = {
       blockSpecs: { ...this.opts.blockSpecs, ...opts.blockSpecs },
       inlineContentSpecs: {
