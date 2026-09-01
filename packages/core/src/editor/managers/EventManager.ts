@@ -96,41 +96,32 @@ export class EventManager<
         this.emit("onUnmount", { editor });
       });
       editor._tiptapEditor.on("destroy", () => {
-        // Subscribers normally detach the tracker when the last one
-        // unsubscribes; this covers subscribers that outlive the editor.
+        // The one place the document-level focus tracker detaches.
         this.detachUIFocusTracker?.();
       });
     });
   }
 
   /**
-   * Settled focus-within-UI tracking. Document-level listeners (attached only
-   * while someone subscribes with `includeEditorUI`) cover the case tiptap
-   * events can't: focus moving from the editor's own UI (which lives in
-   * `editor.portalElement`, outside the content area) to somewhere else
-   * entirely. Blur-side changes are re-checked a frame later because
-   * `document.activeElement` transiently becomes `<body>` during focus
-   * handoffs (and `relatedTarget` is unreliable on mobile).
+   * Settled focus-within-UI tracking. Document-level listeners (attached on
+   * the first `includeEditorUI` subscriber, detached when the editor is
+   * destroyed) cover the case tiptap events can't: focus moving from the
+   * editor's own UI (which lives in `editor.portalElement`, outside the
+   * content area) to somewhere else entirely. Blur-side changes are
+   * re-checked a frame later because `document.activeElement` transiently
+   * becomes `<body>` during focus handoffs (and `relatedTarget` is
+   * unreliable on mobile). No reference counting: a page that never
+   * subscribes pays nothing, and once attached the no-op cost per focus
+   * event is too small to be worth tearing down.
    */
   private uiFocused = false;
-
-  private uiFocusSubscriberCount = 0;
 
   private uiFocusSettleHandle: ReturnType<typeof setTimeout> | undefined;
 
   private detachUIFocusTracker: (() => void) | undefined;
 
-  private computeUIFocused(): boolean {
-    const active =
-      typeof document !== "undefined" ? document.activeElement : null;
-    return (
-      this.editor.isFocused() ||
-      (!!active && this.editor.isWithinEditor(active))
-    );
-  }
-
   private settleUIFocus(event: FocusEvent) {
-    const focused = this.computeUIFocused();
+    const focused = this.editor.isFocused({ includeEditorUI: true });
     if (focused !== this.uiFocused) {
       this.uiFocused = focused;
       this.emit("onFocusChangeWithinUI", {
@@ -145,7 +136,7 @@ export class EventManager<
     if (typeof document === "undefined") {
       return;
     }
-    this.uiFocused = this.computeUIFocused();
+    this.uiFocused = this.editor.isFocused({ includeEditorUI: true });
     // On focusin the new element already holds focus, so the state can be
     // read immediately.
     const onFocusIn = (event: FocusEvent) => this.settleUIFocus(event);
@@ -269,26 +260,12 @@ export class EventManager<
     };
 
     if (options?.includeEditorUI) {
-      this.uiFocusSubscriberCount++;
-      if (this.uiFocusSubscriberCount === 1) {
+      if (!this.detachUIFocusTracker) {
         this.attachUIFocusTracker();
       }
       this.on("onFocusChangeWithinUI", cb);
-
-      // Unsubscribing twice must not double-decrement: the count would go
-      // negative and never reach 1 again, so the tracker would silently stop
-      // attaching for every later subscriber.
-      let unsubscribed = false;
       return () => {
-        if (unsubscribed) {
-          return;
-        }
-        unsubscribed = true;
         this.off("onFocusChangeWithinUI", cb);
-        this.uiFocusSubscriberCount--;
-        if (this.uiFocusSubscriberCount === 0) {
-          this.detachUIFocusTracker?.();
-        }
       };
     }
 
