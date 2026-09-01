@@ -49,9 +49,10 @@ export const BlockPopover = (
             const boxed = dom.matches(selector)
               ? dom
               : dom.querySelector(selector);
-            // No stamped root to anchor to, so fall back to the container's
-            // own node element rather than descending into its contentDOM,
-            // which is the first child's box.
+            // Only degenerate renders leave nothing stamped: one that returns
+            // no element of its own, or a fragment of several. Neither has a
+            // box to anchor to, so this falls back to the node element rather
+            // than to the contentDOM, which is the first child's box.
             return { element: boxed ?? dom };
           }
         }

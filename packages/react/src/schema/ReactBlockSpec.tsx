@@ -380,7 +380,7 @@ export function createReactBlockSpec<
                   blockConfig.type,
                   block.props as any,
                   blockConfig.propSchema,
-                  block.id,
+                  { id: block.id, mode: "overwrite" },
                 );
 
                 // ProseMirror marks the outermost element with

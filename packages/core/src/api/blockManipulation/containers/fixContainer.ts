@@ -8,7 +8,7 @@ import {
 } from "../../getBlockInfoFromPos.js";
 
 import {
-  isBlockGroupInsertable,
+  BLOCK_GROUP_CHILD_GROUP,
   isContainerNode,
   resolveChildren,
 } from "../../../schema/blocks/children.js";
@@ -161,7 +161,10 @@ function unwrapContainer(
     const { child, offset } = nonEmptyChildren[0];
     const childStart = childrenStart + offset;
 
-    const [gapFrom, gapTo] = isBlockGroupInsertable(child.type)
+    // A child that can sit where regular blocks go is kept as it is; a
+    // `containerOnly` one (a `column`) can't, so its own children are what
+    // survives.
+    const [gapFrom, gapTo] = child.type.isInGroup(BLOCK_GROUP_CHILD_GROUP)
       ? [childStart, childStart + child.nodeSize]
       : [childStart + 1, childStart + child.nodeSize - 1];
 
@@ -182,7 +185,7 @@ function unwrapContainer(
   // Several survivors but still below `min`: rebuild replacement content.
   const replacement: Node[] = [];
   for (const { child } of nonEmptyChildren) {
-    if (isBlockGroupInsertable(child.type)) {
+    if (child.type.isInGroup(BLOCK_GROUP_CHILD_GROUP)) {
       replacement.push(child);
     } else {
       child.forEach((grandChild) => replacement.push(grandChild));

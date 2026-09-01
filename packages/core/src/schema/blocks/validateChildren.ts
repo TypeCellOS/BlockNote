@@ -9,15 +9,10 @@ type ValidatableConfig = Pick<BlockConfig, "type" | "content"> & {
 };
 
 /**
- * Validates the parts of a container block's declaration that nothing else
- * catches.
- *
- * Deliberately narrow: TypeScript already rejects malformed configs at compile
- * time, and ProseMirror already reports unknown types, unsatisfiable content
- * expressions and unfillable containers with usable messages of its own. Only
- * the cases below fail silently or catastrophically without help.
- *
- * @param blockConfigs The configs of every block in the schema, keyed by type.
+ * Validates the parts of a container block's declaration that fail silently or
+ * catastrophically otherwise. Everything else is left to TypeScript and to
+ * ProseMirror, which report malformed configs and unsatisfiable content
+ * expressions well enough on their own.
  */
 export function validateChildrenConfigs(
   blockConfigs: Record<string, ValidatableConfig>,
@@ -41,12 +36,9 @@ export function validateChildrenConfigs(
       );
     }
 
-    // `allow: "containers"` compiles to a group that the container itself is
-    // in, so "must hold a container" includes "must hold a copy of itself".
-    // ProseMirror fills that by nesting the container inside itself until the
-    // stack overflows, and which type it picks depends on the order block
-    // types were registered in — so this is rejected rather than left to
-    // chance. The cycle check below covers the same shape for named types.
+    // `allow: "containers"` compiles to a group the container is itself in, so
+    // "must hold a container" includes "must hold a copy of itself", which
+    // ProseMirror fills by nesting until the stack overflows.
     if (containers === true && !blocks && min >= 1) {
       fail(
         type,
@@ -55,10 +47,8 @@ export function validateChildrenConfigs(
       );
     }
 
-    // An `allow` array is exact by construction: each named type is its own
-    // ProseMirror node. Every *regular* block, by contrast, is the same node
-    // (`blockContainer`), so naming one here compiles to a valid schema that
-    // quietly fails to restrict anything.
+    // Every regular block is the same node (`blockContainer`), so naming one
+    // here compiles to a valid schema that restricts nothing.
     if (containers !== true) {
       for (const allowed of containers) {
         if (allowed in blockConfigs && !isContainerBlockType(allowed)) {
@@ -72,14 +62,11 @@ export function validateChildrenConfigs(
       }
     }
 
-    // ProseMirror never sees `runsBefore`, so an entry it cannot act on is a
-    // silent no-op rather than an error. Container nodes register in a
-    // priority band below every regular block (see `containerNodePriority`),
-    // so ordering a container ahead of one is not something the schema could
-    // ever produce.
+    // Container nodes register in a priority band below every regular block
+    // (see `containerNodePriority`), so ordering one ahead of a regular block
+    // is a silent no-op rather than an error.
     for (const other of config.runsBefore ?? []) {
-      // "default" is `sortByDependencies`' reference point rather than a block
-      // type. A type that isn't in the schema is not this check's concern.
+      // "default" is `sortByDependencies`' reference point, not a block type.
       if (other === "default" || !(other in blockConfigs)) {
         continue;
       }
@@ -104,17 +91,16 @@ function fail(type: string, message: string): never {
 }
 
 /**
- * A container that requires a child which in turn requires it back can never
- * be created: ProseMirror's `fillBefore` recurses across node types and
- * overflows the stack rather than returning `null`. So this has to be caught
- * statically, before the schema is built.
+ * A container that requires a child which requires it back can never be
+ * created: ProseMirror's `fillBefore` recurses across node types and overflows
+ * the stack rather than returning `null`, so it has to be caught statically.
  */
 function validateNoCycles(
   blockConfigs: Record<string, ValidatableConfig>,
   isContainerBlockType: (blockType: string) => boolean,
 ) {
   // A container that allows regular blocks can always be filled with a plain
-  // paragraph, so it never forces recursion. Only container-only lists do.
+  // paragraph, so only container-only lists can force recursion.
   const requiredContainers = (type: string): string[] => {
     const children = blockConfigs[type].children;
     if (!children) {

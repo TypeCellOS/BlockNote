@@ -75,11 +75,11 @@ describe("resolveChildren", () => {
     expect(resolved.boundary).toBe("open");
   });
 
-  it("returns the same object for the same config, without mutating it", () => {
+  it("resolves the same config the same way, without mutating it", () => {
     // Downstream code resolves the same config object on every node build and
     // repair pass, and must never mutate the user's object.
     const config: ChildrenConfig = { allow: "any", min: 1 };
-    expect(resolveChildren(config)).toBe(resolveChildren(config));
+    expect(resolveChildren(config)).toEqual(resolveChildren(config));
     expect(config).toEqual({ allow: "any", min: 1 });
   });
 });

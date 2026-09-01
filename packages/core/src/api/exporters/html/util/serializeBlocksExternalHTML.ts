@@ -8,7 +8,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { fillContainerAttributes } from "../../../../schema/blocks/containerAttributes.js";
+import { applyContainerAttributes } from "../../../../schema/blocks/containerAttributes.js";
 import { containerRootDOM } from "../../../../schema/blocks/createSpec.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
@@ -289,11 +289,12 @@ function serializeBlock<
       // props, in the same `data-*` convention `propsToAttributes` reads)
       // are present even when the block's render didn't add them.
       // Author-set attributes win.
-      fillContainerAttributes(
+      applyContainerAttributes(
         rootElement,
         block.type!,
         props,
         editor.schema.blockSchema[block.type as any].propSchema,
+        { mode: "fill" },
       );
 
       // Mark where the children live, mirroring the internal serializer, so
