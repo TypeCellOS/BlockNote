@@ -71,18 +71,13 @@ export async function openLinkPopover(session: DeviceSession): Promise<void> {
 }
 
 /**
- * Types into a popover field and submits it by pressing the Enter key.
- *
- * On iOS that is a native tap on the on-screen keyboard's actual return key
- * (the real user gesture — see `pressSoftKeyboardEnter`'s offset ladder). On
- * Android, where BrowserStack blocks native taps, it is a W3C protocol Enter:
- * trusted input, so the browser still runs its default action and the real
- * submission path is exercised (key press -> implicit form submission -> the
- * popover's `submit` handling). Only Gboard's own choice of *which* action
- * its key performs stays out of reach, and on the manual release checklist.
+ * Types into a popover field and submits it by pressing the on-screen
+ * keyboard's Enter/action key — the real user gesture on both platforms (see
+ * `pressSoftKeyboardEnter`), driving the real submission path: key press ->
+ * implicit form submission -> the popover's `submit` handling.
  *
  * `verify` is a page script returning `{ ok: boolean }` observing the
- * submission's effect — the iOS tap ladder needs it to know a tap landed.
+ * submission's effect — the tap ladders need it to know a tap landed.
  */
 export async function typeAndSubmit(
   session: DeviceSession,

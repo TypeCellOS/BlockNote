@@ -1,11 +1,4 @@
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  describe,
-  expect,
-  test,
-} from "vite-plus/test";
+import { afterAll, beforeAll, describe, expect, test } from "vite-plus/test";
 
 import { activeDevices } from "./devices.js";
 import { tapElement } from "./lib/gestures.js";
@@ -34,7 +27,6 @@ for (const device of await activeDevices()) {
   describe(`mobile formatting toolbar on ${device.id}`, () => {
     let session: DeviceSession;
     let baselineHeight: number;
-    let failed = false;
 
     beforeAll(async () => {
       session = await device.createSession();
@@ -42,21 +34,9 @@ for (const device of await activeDevices()) {
       baselineHeight = await viewportHeight(session);
     });
 
-    afterEach(({ task }) => {
-      if (task.result?.state === "fail") {
-        failed = true;
-      }
-    });
-
     afterAll(async () => {
       if (session) {
         await session.screenshot(`formatting-toolbar-final`);
-        await session.annotate(
-          failed ? "failed" : "passed",
-          failed
-            ? "formatting toolbar suite failed; see run output"
-            : "keyboard/toolbar lifecycle + link popover flow passed",
-        );
         await session.close();
       }
     });
@@ -162,5 +142,44 @@ for (const device of await activeDevices()) {
         ).toBe(true);
       }
     });
+
+    // The flow that used to be a manual release-checklist item: Android's
+    // IME decides what its action key does — with a lone text field outside
+    // a <form> it picks "Next" (advance focus, no key event at all), the
+    // original create-link bug. Only a backend that can press the on-screen
+    // keyboard can test the IME's actual choice.
+    test.skipIf(device.kind !== "local-android")(
+      "the IME action key submits the link popover",
+      async () => {
+        // Fresh document — the earlier tests linked the first word, and a
+        // linked selection opens the *edit* popover (pre-filled URL) instead
+        // of the create popover this flow is about.
+        await openExample(session, "/ui-components/mobile-formatting-toolbar");
+        await startEditing(session);
+        await openLinkPopover(session);
+
+        await session.elementValue(`${LINK_POPOVER} input`, "example.com");
+
+        if (!session.pressImeActionKey) {
+          throw new Error("this target must expose the IME action key");
+        }
+        await session.pressImeActionKey(
+          `return {
+            ok: !!document.querySelector('.bn-editor a[href="https://example.com"]')
+              && !document.querySelector(${JSON.stringify(LINK_POPOVER)}),
+            link: !!document.querySelector('.bn-editor a[href="https://example.com"]'),
+            popoverGone: !document.querySelector(${JSON.stringify(LINK_POPOVER)}),
+          };`,
+        );
+
+        // The action must not have advanced focus out of the editor — that
+        // was the original bug's symptom (focus jumping to the next editor).
+        const state = await session.exec<{ inFirstEditor: boolean }>(
+          `const editors = [...document.querySelectorAll(".bn-editor")];
+           return { inFirstEditor: editors[0].contains(document.activeElement) };`,
+        );
+        expect(state.inFirstEditor).toBe(true);
+      },
+    );
   });
 }

@@ -101,10 +101,8 @@ export default defineConfig(((conf: { command: string }) => ({
     // can reach the host preview server via `host.docker.internal`.
     host: true,
     // Vite 5.1+ blocks unknown Host headers as a DNS-rebinding mitigation;
-    // whitelist the Docker gateway hostname used by the e2e tests, and
-    // BrowserStack's loopback alias — real devices in the device suite reach
-    // this server through the BrowserStackLocal tunnel as `bs-local.com`.
-    allowedHosts: ["host.docker.internal", "bs-local.com"],
+    // whitelist the Docker gateway hostname used by the e2e tests.
+    allowedHosts: ["host.docker.internal"],
   },
   resolve: {
     alias:

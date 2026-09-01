@@ -40,10 +40,10 @@ export async function tapElement(
     verifyTimeoutMs?: number;
   },
 ): Promise<void> {
-  // Android taps reliably through elementClick (real clicks on
-  // BrowserStack, genuine OS taps in the local backend). iOS — every kind —
-  // needs the native-tap chrome-offset ladder: web-layer clicks are
-  // synthetic there and never move focus or open the keyboard.
+  // Android taps reliably through elementClick (a genuine OS tap in the
+  // local backend). iOS needs the native-tap chrome-offset ladder:
+  // web-layer clicks are synthetic there and never move focus or open the
+  // keyboard.
   if (session.platform !== "ios") {
     await session.elementClick(css);
     await session.waitFor(
@@ -54,11 +54,6 @@ export async function tapElement(
     return;
   }
 
-  if (!session.nativeTap) {
-    throw new Error(
-      `tapElement: the ${session.kind} backend has no native tap channel`,
-    );
-  }
   const offsets =
     IOS_CHROME_OFFSETS[
       options.keyboard === "open" ? "keyboardOpen" : "keyboardClosed"
@@ -88,8 +83,8 @@ export async function tapElement(
 /**
  * Position of the iOS keyboard's return key, as fractions of the full screen
  * (measured on iPhone 16e; return stays bottom-right across iPhones). Android
- * doesn't need coordinates — see the key-event convergence note in
- * `pressSoftKeyboardEnter`. Override per-run with SOFT_ENTER_X / SOFT_ENTER_Y
+ * doesn't need coordinates — its backend locates the key itself
+ * (`pressImeActionKey`). Override per-run with SOFT_ENTER_X / SOFT_ENTER_Y
  * when adding an exotic device.
  */
 const RETURN_KEY_RATIOS = {
@@ -116,20 +111,17 @@ export async function pressSoftKeyboardEnter(
   verify: string,
 ): Promise<void> {
   if (session.platform === "android") {
-    if (session.pressImeActionKey) {
-      // The real thing: tap Gboard's on-screen Enter key. In the editor's
-      // contenteditable this takes the true IME route — keydown 229 +
-      // `beforeinput` (insertParagraph) — exactly where #3001-class bugs
-      // live. No key-event channel can produce that sequence.
-      await session.pressImeActionKey(verify);
-      return;
+    if (!session.pressImeActionKey) {
+      throw new Error(
+        `pressSoftKeyboardEnter: the ${session.kind} backend cannot reach the on-screen keyboard`,
+      );
     }
-    // Fallback for backends without an on-screen-keyboard channel: a key
-    // event converges on the same handling — prosemirror-view ignores Enter
-    // keydowns on Android Chrome, so processing still goes through the
-    // `beforeinput` the browser emits for the trusted key.
-    await session.typeKeys("\uE007");
-    await session.waitFor("soft Enter effect", verify, 8_000);
+    // The real thing: tap the IME's on-screen Enter key. In the editor's
+    // contenteditable this is the true IME delivery (keydown 229 followed by
+    // either `beforeinput: insertParagraph` or a real keydown, depending on
+    // the keyboard build) — exactly where #3001-class bugs live. No
+    // key-event channel can produce that sequence.
+    await session.pressImeActionKey(verify);
     return;
   }
   const override =
@@ -143,11 +135,6 @@ export async function pressSoftKeyboardEnter(
       : undefined;
   const candidates = override ?? RETURN_KEY_RATIOS.ios;
 
-  if (!session.nativeTap) {
-    throw new Error(
-      `pressSoftKeyboardEnter: the ${session.kind} backend has no native tap channel`,
-    );
-  }
   // iOS native taps take screen points (CSS px scale).
   const metrics = await session.exec<{ width: number; height: number }>(
     `return { width: screen.width, height: screen.height };`,

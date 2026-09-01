@@ -4,13 +4,8 @@
  *
  * - **All targets** need the app server (the playground dev server, or
  *   whatever DEVICE_TEST_TARGET points at).
- * - **BrowserStack** needs the BrowserStackLocal tunnel — managed by the
- *   official `browserstack-local` package, their documented Node.js
- *   integration; devices resolve `bs-local.com` back to this machine.
- * - **Local iOS** needs a booted simulator with the software keyboard
- *   enabled, and a running safaridriver. "Connect Hardware Keyboard" must be
- *   off — with it on, focusing a field never shows the keyboard, so
- *   keyboard-gated UI (the mobile toolbar) never appears.
+ * - **Local iOS** needs a booted simulator (headless is fine — XCUITest owns
+ *   the HID stack) and a running Appium server.
  * - **Local Android** needs nothing here: the session itself sets up
  *   `adb reverse` when it connects to the already-running emulator.
  *
@@ -18,14 +13,11 @@
  * failure reproduces identically on a laptop.
  */
 import { execFile, spawn, type ChildProcess } from "node:child_process";
-import { promisify } from "node:util";
-import BrowserStackLocal from "browserstack-local";
-
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+import { promisify } from "node:util";
 
-import { activeDevices, LOCAL_TUNNEL_ID } from "../devices.js";
-import { browserStackCredentials } from "./browserstack.js";
+import { activeDevices } from "../devices.js";
 import { APPIUM_PORT, SIM_UDID_FILE } from "./localIos.js";
 
 const execFileAsync = promisify(execFile);
@@ -44,22 +36,6 @@ async function ensureAppServer(): Promise<void> {
         `or point DEVICE_TEST_TARGET at a running server.`,
     );
   }
-}
-
-async function startBrowserStackTunnel(
-  accessKey: string,
-): Promise<() => Promise<void>> {
-  const tunnel = new BrowserStackLocal.Local();
-  await new Promise<void>((resolve, reject) => {
-    tunnel.start(
-      { key: accessKey, localIdentifier: LOCAL_TUNNEL_ID },
-      (error) => (error ? reject(error) : resolve()),
-    );
-  });
-  return () =>
-    new Promise<void>((resolve) => {
-      tunnel.stop(() => resolve());
-    });
 }
 
 async function startLocalIos(): Promise<() => Promise<void>> {
@@ -139,12 +115,6 @@ export default async function setup(): Promise<(() => Promise<void>) | void> {
   await ensureAppServer();
 
   const teardowns: (() => Promise<void>)[] = [];
-  if (targets.some((t) => t.kind === "browserstack")) {
-    const auth = browserStackCredentials();
-    if (auth) {
-      teardowns.push(await startBrowserStackTunnel(auth.accessKey));
-    }
-  }
   if (targets.some((t) => t.kind === "local-ios")) {
     teardowns.push(await startLocalIos());
   }

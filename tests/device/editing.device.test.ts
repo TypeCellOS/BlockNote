@@ -1,11 +1,4 @@
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  describe,
-  expect,
-  test,
-} from "vite-plus/test";
+import { afterAll, beforeAll, describe, expect, test } from "vite-plus/test";
 
 import { activeDevices } from "./devices.js";
 import { pressSoftKeyboardEnter, typeText } from "./lib/gestures.js";
@@ -27,28 +20,15 @@ import type { DeviceSession } from "./lib/session.js";
 for (const device of await activeDevices()) {
   describe(`basic editing on ${device.id}`, () => {
     let session: DeviceSession;
-    let failed = false;
 
     beforeAll(async () => {
       session = await device.createSession();
       await openExample(session, "/ui-components/mobile-formatting-toolbar");
     });
 
-    afterEach(({ task }) => {
-      if (task.result?.state === "fail") {
-        failed = true;
-      }
-    });
-
     afterAll(async () => {
       if (session) {
         await session.screenshot(`editing-final`);
-        await session.annotate(
-          failed ? "failed" : "passed",
-          failed
-            ? "basic editing suite failed; see run output"
-            : "typing + soft-keyboard Enter passed",
-        );
         await session.close();
       }
     });

@@ -1,13 +1,13 @@
 /**
  * The transport-agnostic session contract every device/OS target implements.
  *
- * Three backends exist:
- * - `browserstack.ts` — real hardware via BrowserStack's hub (selenium-webdriver)
- * - `localAndroid.ts` — a local Android emulator via adb + Chrome's DevTools
- *   protocol (real Chrome, real Gboard — including the on-screen IME action
- *   key, which no cloud channel can press)
- * - `localIos.ts` — a local iOS simulator via Apple's safaridriver (real iOS
- *   Safari; element clicks genuinely move focus there, unlike cloud iOS)
+ * Two backends exist:
+ * - `localAndroid.ts` — a local Android emulator via Playwright's `_android`
+ *   (page) + `adb shell input` (genuine OS events — including the on-screen
+ *   keyboard itself, which no cloud channel can press)
+ * - `localIos.ts` — a local iOS simulator via Appium/XCUITest (the actual
+ *   iOS build and Safari; WebDriverAgent owns the HID stack, so it works
+ *   headless)
  *
  * Tests and page helpers speak only this interface; per-target quirks live in
  * the backends and in `gestures.ts`.
@@ -15,7 +15,7 @@
 
 export type Platform = "android" | "ios";
 
-export type TargetKind = "browserstack" | "local-android" | "local-ios";
+export type TargetKind = "local-android" | "local-ios";
 
 export interface DeviceSession {
   readonly platform: Platform;
@@ -40,9 +40,9 @@ export interface DeviceSession {
   ): Promise<T>;
 
   /**
-   * Element click through the backend's input pipeline. Trusted input on
-   * every backend; on BrowserStack iOS the resulting events never move focus
-   * (use the gesture layer's tap ladders there).
+   * Element click through the backend's input pipeline. On iOS the resulting
+   * events are synthetic at the WebKit layer and never move focus or open
+   * the keyboard — the gesture layer's tap ladders apply there.
    */
   elementClick(css: string): Promise<void>;
 
@@ -50,27 +50,24 @@ export interface DeviceSession {
   elementValue(css: string, text: string): Promise<void>;
 
   /**
-   * OS-level tap at screen coordinates, when the backend has one. Reaches
-   * outside the page — the on-screen keyboard included.
+   * OS-level tap at screen coordinates. Reaches outside the page — the
+   * on-screen keyboard included.
    */
-  nativeTap?(x: number, y: number): Promise<void>;
+  nativeTap(x: number, y: number): Promise<void>;
 
-  /** Protocol-level key events to the focused element ("" = Enter). */
+  /** Protocol-level key events to the focused element (U+E007 = Enter). */
   typeKeys(text: string): Promise<void>;
 
   /**
-   * Presses the on-screen keyboard's IME action key (the Gboard arrow /
-   * checkmark), where the backend can reach it. Only the local Android
-   * emulator can today; cloud channels cannot press it at all. `verify` is a
-   * page script returning `{ ok: boolean }` observing the action's effect.
+   * Presses the on-screen keyboard's bottom-right key — the IME action key
+   * in a form field (Gboard's arrow / checkmark), Enter in an editor — where
+   * the backend can reach it. `verify` is a page script returning
+   * `{ ok: boolean }` observing the effect.
    */
   pressImeActionKey?(verify: string): Promise<void>;
 
   /** Saves a PNG screenshot under tests/device/.artifacts; returns the path. */
   screenshot(name: string): Promise<string>;
-
-  /** Marks the session passed/failed where the backend has a dashboard. */
-  annotate(status: "passed" | "failed", reason: string): Promise<void>;
 
   close(): Promise<void>;
 }

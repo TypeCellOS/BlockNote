@@ -1,7 +1,7 @@
 /**
  * A local iOS simulator via Appium's XCUITest driver — the sanctioned
  * full-fidelity automation stack for iOS (WebDriverAgent), driven with
- * `selenium-webdriver` like the BrowserStack backend. The simulator runs the
+ * `selenium-webdriver` as a plain W3C client. The simulator runs the
  * actual iOS build and the actual Safari, headless (XCUITest owns the HID
  * stack, so the software keyboard appears without the Simulator GUI), and
  * shares the host's network — `127.0.0.1` reaches the dev server, no tunnel.
@@ -13,8 +13,8 @@
  *   session?" guardrail.
  * - Appium's web-context element clicks are synthetic too (nativeWebTap
  *   included, on current iOS). Real interaction goes through `mobile: tap` at
- *   screen points — exactly the channel the BrowserStack iOS backend uses, so
- *   the gesture layer's chrome-offset ladders apply here unchanged.
+ *   screen points — which is why the gesture layer keeps chrome-offset
+ *   ladders for iOS.
  */
 import { execFile } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -30,7 +30,12 @@ const execFileAsync = promisify(execFile);
 export const APPIUM_PORT = 47632;
 
 /** Where the suite setup records the booted simulator for the workers. */
-export const SIM_UDID_FILE = join(import.meta.dirname, "..", ".artifacts", ".booted-simulator");
+export const SIM_UDID_FILE = join(
+  import.meta.dirname,
+  "..",
+  ".artifacts",
+  ".booted-simulator",
+);
 
 /** True on macOS with the simulator toolchain present. */
 export async function localIosAvailable(): Promise<boolean> {
@@ -65,7 +70,9 @@ export class LocalIosSession implements DeviceSession {
     } catch {
       throw new Error(
         "No simulator recorded — the device-suite setup should have booted " +
-          "one and written " + SIM_UDID_FILE + " (see lib/tunnel.ts).",
+          "one and written " +
+          SIM_UDID_FILE +
+          " (see lib/tunnel.ts).",
       );
     }
     const driver = await new Builder()
@@ -132,10 +139,6 @@ export class LocalIosSession implements DeviceSession {
       `local-ios-${name}`,
       await this.driver.takeScreenshot(),
     );
-  }
-
-  async annotate(): Promise<void> {
-    // No dashboard locally.
   }
 
   async close(): Promise<void> {

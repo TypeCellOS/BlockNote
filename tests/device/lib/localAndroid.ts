@@ -283,10 +283,6 @@ export class LocalAndroidSession implements DeviceSession {
     );
   }
 
-  async annotate(): Promise<void> {
-    // No dashboard locally.
-  }
-
   async close(): Promise<void> {
     await this.context.close().catch(() => {});
     await this.device.close().catch(() => {});

@@ -6480,9 +6480,6 @@ importers:
       appium-xcuitest-driver:
         specifier: ^12.8.2
         version: 12.8.2(@appium/logger@2.0.11)(@types/node@25.6.0)(appium@3.7.0(@types/node@25.6.0))
-      browserstack-local:
-        specifier: ^1.5.13
-        version: 1.5.13
       htmlfy:
         specifier: ^0.6.7
         version: 0.6.7
@@ -12163,9 +12160,6 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
-  browserstack-local@1.5.13:
-    resolution: {integrity: sha512-7helY+Ms3ss4BtIQZTIyshdAFZSvS9A7ZpEB9stRaobeZ9BM1BkJFTuMakQNTOj78llv0+/qDI5Ak+bkGWV1xg==}
-
   buffer-crc32@1.0.0:
     resolution: {integrity: sha512-Db1SbgBS/fg/392AblrMJk97KggmvYhr4pB5ZIMTWtaivCPMWLkmb7m21cJvpvgK+J3nsU2CmmixNBZx4vFj/w==}
     engines: {node: '>=8.0.0'}
@@ -13948,9 +13942,6 @@ packages:
   is-regex@1.2.1:
     resolution: {integrity: sha512-MjYsKHO5O7mCsmRGxWcLWheFqN9DJ/2TmngvjKXihe6efViPqc274+Fx/4fYj/r03+ESvBdTXK0V6tA3rgez1g==}
     engines: {node: '>= 0.4'}
-
-  is-running@2.1.0:
-    resolution: {integrity: sha512-mjJd3PujZMl7j+D395WTIO5tU5RIDBfVSRtRR4VOJou3H66E38UjbjvDGh3slJzPuolsb+yQFqwHNNdyp5jg3w==}
 
   is-safe-filename@0.1.1:
     resolution: {integrity: sha512-4SrR7AdnY11LHfDKTZY1u6Ga3RuxZdl3YKWWShO5iyuG5h8QS4GD2tOb04peBJ5I7pXbR+CGBNEhTcwK+FzN3g==}
@@ -23344,15 +23335,6 @@ snapshots:
       node-releases: 2.0.37
       update-browserslist-db: 1.2.3(browserslist@4.28.2)
 
-  browserstack-local@1.5.13:
-    dependencies:
-      agent-base: 6.0.2
-      https-proxy-agent: 5.0.1
-      is-running: 2.1.0
-      tree-kill: 1.2.2
-    transitivePeerDependencies:
-      - supports-color
-
   buffer-crc32@1.0.0: {}
 
   buffer-from@1.1.2: {}
@@ -25308,8 +25290,6 @@ snapshots:
       gopd: 1.2.0
       has-tostringtag: 1.0.2
       hasown: 2.0.2
-
-  is-running@2.1.0: {}
 
   is-safe-filename@0.1.1: {}
 

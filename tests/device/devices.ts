@@ -1,8 +1,4 @@
 import {
-  BrowserStackSession,
-  browserStackCredentials,
-} from "./lib/browserstack.js";
-import {
   LocalAndroidSession,
   localAndroidAvailable,
 } from "./lib/localAndroid.js";
@@ -19,40 +15,13 @@ export type DeviceTarget = {
   createSession: () => Promise<DeviceSession>;
 };
 
-/** Identifier tying BrowserStack sessions to the tunnel from the setup. */
-export const LOCAL_TUNNEL_ID = "bn-device-tests";
-
-function browserStackCapabilities(
-  platform: Platform,
-  deviceName: string,
-  osVersion: string,
-): Record<string, unknown> {
-  const auth = browserStackCredentials();
-  return {
-    browserName: platform === "ios" ? "safari" : "chrome",
-    "bstack:options": {
-      userName: auth?.userName,
-      accessKey: auth?.accessKey,
-      deviceName,
-      osVersion,
-      realMobile: "true",
-      local: "true",
-      localIdentifier: LOCAL_TUNNEL_ID,
-      projectName: "BlockNote device tests",
-      idleTimeout: 60,
-    },
-  };
-}
-
-const browserStackAvailable = async () => !!browserStackCredentials();
-
 /**
- * All targets. Local emulator/simulator targets are the per-PR layer — free,
- * deterministic, and with input channels the cloud lacks (the Android IME
- * action key). BrowserStack real hardware remains for what only hardware has:
- * OEM keyboards (the Samsung ships Samsung Keyboard, the second-biggest
- * Android IME family). Every BrowserStack entry costs one real-device session
- * per test file per run.
+ * All targets. Both are the per-PR layer — free, deterministic, and with
+ * input channels no cloud service has (the on-screen keyboard itself).
+ * Real-hardware coverage (OEM keyboards like Samsung Keyboard) is a manual
+ * release-checklist item; a BrowserStack backend existed behind the same
+ * session interface (PR #3034 has it) and can be revived if it ever earns
+ * its keep again.
  */
 export const DEVICE_TARGETS: DeviceTarget[] = [
   {
@@ -69,36 +38,13 @@ export const DEVICE_TARGETS: DeviceTarget[] = [
     available: localIosAvailable,
     createSession: () => LocalIosSession.create(),
   },
-  {
-    id: "bs-android-samsung-galaxy-s22",
-    platform: "android",
-    kind: "browserstack",
-    available: browserStackAvailable,
-    createSession: () =>
-      BrowserStackSession.create(
-        "android",
-        browserStackCapabilities("android", "Samsung Galaxy S22", "12.0"),
-      ),
-  },
-  {
-    id: "bs-ios-iphone-16e",
-    platform: "ios",
-    kind: "browserstack",
-    available: browserStackAvailable,
-    createSession: () =>
-      BrowserStackSession.create(
-        "ios",
-        browserStackCapabilities("ios", "iPhone 16e", "18"),
-      ),
-  },
 ];
 
 /**
  * Targets selected for this run: reachable ones, narrowed by
  * `DEVICE_FILTER=<id substring>`. Unreachable targets are skipped so the
  * suite runs whatever a machine can drive — CI's Android job sees only the
- * emulator, the macOS job only the simulator, a laptop with credentials all
- * four.
+ * emulator, the macOS job only the simulator, a laptop with both both.
  */
 export async function activeDevices(): Promise<DeviceTarget[]> {
   const filter = process.env.DEVICE_FILTER;

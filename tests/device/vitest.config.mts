@@ -1,42 +1,26 @@
-import path from "node:path";
-import { defineConfig, loadEnv } from "vite-plus";
-
-// The suite reads its configuration from the environment; the repo root's
-// `.env` (copied from `.env.sample`) works too. Loaded here because vitest
-// does not load env files into `process.env` on its own — dotenv parsing
-// accepts the sample's shell-style `export KEY=value` lines. Real environment
-// variables win over the file.
-const fileEnv = loadEnv("", path.resolve(import.meta.dirname, "../.."), "");
-for (const key of [
-  "BROWSERSTACK_USERNAME",
-  "BROWSERSTACK_ACCESS_KEY",
-  "DEVICE_TEST_TARGET",
-  "DEVICE_FILTER",
-]) {
-  if (process.env[key] === undefined && fileEnv[key] !== undefined) {
-    process.env[key] = fileEnv[key];
-  }
-}
+import { defineConfig } from "vite-plus";
 
 /**
- * Real-device suite (BrowserStack). Not part of the workspace projects on
- * purpose: it costs device minutes and needs credentials, so it only runs via
- * `pnpm run test:device` (locally or from the device-tests workflow).
+ * Device suite (local Android emulator + iOS simulator). Not part of the
+ * workspace projects on purpose: it needs a booted emulator/simulator, so it
+ * only runs via `pnpm run test:device` (locally or from the emulator-tests
+ * workflow). Configured through plain environment variables (`DEVICE_FILTER`,
+ * `DEVICE_TEST_TARGET`).
  */
 export default defineConfig({
   root: import.meta.dirname,
   test: {
     include: ["**/*.device.test.ts"],
     globalSetup: ["./lib/tunnel.ts"],
-    // Real-device sessions are slow to create and drive.
+    // Device sessions are slow to create and drive.
     testTimeout: 240_000,
     hookTimeout: 180_000,
     teardownTimeout: 60_000,
-    // One retry absorbs genuine device flake (session allocation, tunnel
+    // One retry absorbs genuine device flake (session allocation, emulator
     // hiccups) without hiding real regressions.
     retry: 1,
-    // Serial keeps BrowserStack parallel-session usage predictable; raise via
-    // maxConcurrency/fileParallelism once the matrix outgrows the plan.
+    // Serial: OS taps land on the foreground app, so only one session can
+    // own the device's screen at a time.
     fileParallelism: false,
     passWithNoTests: true,
   },

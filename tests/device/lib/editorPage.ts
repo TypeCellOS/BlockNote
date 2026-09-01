@@ -2,24 +2,21 @@
  * BlockNote page helpers for device tests: everything here speaks in editor
  * concepts (blocks, toolbar, popovers) and hides the gesture mechanics.
  *
- * The pages under test are the playground examples, reached through the
- * tunnel (`bs-local.com`, resolved on-device by BrowserStackLocal).
+ * The pages under test are the playground examples, served by the host-side
+ * app server (see lib/tunnel.ts).
  */
 import { tapElement } from "./gestures.js";
 import type { DeviceSession } from "./session.js";
 
 /**
  * Where the *device* loads the app from: the same port the host-side target
- * serves on. BrowserStack hardware reaches it as `bs-local.com`, which the
- * BrowserStackLocal tunnel resolves back to this machine; the local emulator
- * (via `adb reverse`) and the local simulator (shared host network) both
- * reach it as plain `127.0.0.1`.
+ * serves on. The emulator reaches it via `adb reverse`, the simulator via the
+ * shared host network — both as plain `127.0.0.1`.
  */
-function deviceOrigin(session: DeviceSession): string {
+function deviceOrigin(): string {
   const target = process.env.DEVICE_TEST_TARGET ?? "http://127.0.0.1:5173";
   const port = new URL(target).port || "80";
-  const host = session.kind === "browserstack" ? "bs-local.com" : "127.0.0.1";
-  return `http://${host}:${port}`;
+  return `http://127.0.0.1:${port}`;
 }
 
 export const EDITOR = ".bn-editor";
@@ -31,10 +28,10 @@ export async function openExample(
   session: DeviceSession,
   route: string,
 ): Promise<void> {
-  // Cold dev-server transforms through the tunnel can stall a first load;
-  // one reload recovers it.
+  // Cold dev-server transforms can stall a first load; one reload recovers
+  // it.
   for (let attempt = 0; attempt < 2; attempt++) {
-    await session.navigate(`${deviceOrigin(session)}${route}`);
+    await session.navigate(`${deviceOrigin()}${route}`);
     try {
       await session.waitFor(
         "editor rendered",

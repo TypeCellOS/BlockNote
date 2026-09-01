@@ -33,7 +33,6 @@
     "@y/y": "^14.0.0-rc.23",
     "appium": "^3.7.0",
     "appium-xcuitest-driver": "^12.8.2",
-    "browserstack-local": "^1.5.13",
     "htmlfy": "^0.6.7",
     "pdfjs-dist": "^4.10.38",
     "playwright-core": "^1.62.1",
