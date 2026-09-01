@@ -261,7 +261,7 @@ on touch devices (e.g. the mobile formatting toolbar). */
    URL field). The 16px font-size is load-bearing: iOS Safari auto-zooms the
    page when focusing an input with a smaller computed font-size, and that zoom
    perturbs the visual viewport the mobile toolbar positions itself from. The
-   taller min-height also gives a comfortable tap target. */
+   taller min-height also gives a comfortable tap target. (From #2982.) */
 @media (pointer: coarse) {
   .bn-form-popover .mantine-TextInput-input,
   .bn-form-popover .mantine-FileInput-input {
@@ -818,24 +818,4 @@ empty element (<></>), but even so Mantine leaves extra space for the icon, so
 we just don't display it in CSS instead. */
 .bn-mantine .bn-badge .mantine-Chip-iconWrapper {
   display: none;
-}
-
-/* The submit button `Form.Root` renders so that Enter reaches the form
- * regardless of how many fields a popover has. It carries no visual design of
- * its own - the popovers commit on Enter - but it stays in the accessibility
- * tree with a real label, so screen readers and voice control have a submit
- * control to operate. It is out of the tab order: keeping a control nobody can
- * see as a tab stop would strand sighted keyboard users on invisible focus,
- * and Enter already submits for them.
- */
-.bn-form-submit {
-  border: 0;
-  clip-path: inset(50%);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  white-space: nowrap;
-  width: 1px;
 }

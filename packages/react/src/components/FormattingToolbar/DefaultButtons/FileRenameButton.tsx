@@ -9,6 +9,7 @@ import { ChangeEvent, useCallback, useState } from "react";
 import { RiFontFamily } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { ScreenReaderOnlySubmit } from "../../Form/ScreenReaderOnlySubmit.js";
 import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
@@ -123,7 +124,10 @@ export const FileRenameButton = () => {
         className={"bn-popover-content bn-form-popover"}
         variant={"form-popover"}
       >
-        <Components.Generic.Form.Root onSubmit={() => setPopoverOpen(false)}>
+        <Components.Generic.Form.Root
+          onSubmit={() => setPopoverOpen(false)}
+          submitButton={<ScreenReaderOnlySubmit />}
+        >
           <Components.Generic.Form.TextInput
             name={"file-name"}
             icon={<RiFontFamily />}

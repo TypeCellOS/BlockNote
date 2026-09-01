@@ -565,3 +565,31 @@ body:has(.bn-scroll-container) {
 .bn-root em-emoji-picker {
   max-height: 100%;
 }
+
+/* Form.Root's <form> is a semantic wrapper, never a layout box: the skins'
+ * containers (popover contents, the file panel's tab column) lay out the
+ * fields and the embed tab's submit button as their own flex children, and
+ * two skins rendered no wrapper element at all before the real <form>
+ * arrived. `contents` keeps that geometry in every skin — verified against
+ * each skin's containers (mantine's are block, so this is a no-op there;
+ * ariakit/shadcn have flex+gap containers that need it). Skins must not
+ * style .bn-form as a box. */
+.bn-form {
+  display: contents;
+}
+
+/* The Form.Root default submit control (`ScreenReaderOnlySubmit`): visually
+ * hidden but NOT `display: none` - it must stay in the accessibility tree as
+ * a labelled control, and its presence is what makes Enter submit a form
+ * with more than one field. */
+.bn-screen-reader-only-submit {
+  border: 0;
+  clip-path: inset(50%);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}

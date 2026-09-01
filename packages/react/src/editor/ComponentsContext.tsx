@@ -1,4 +1,5 @@
 import {
+  ReactElement,
   ChangeEvent,
   ComponentType,
   createContext,
@@ -82,7 +83,15 @@ export type ComponentProps = {
     };
     Button: {
       className?: string;
-      onClick: () => void;
+      /**
+       * Explicit, because the skins' underlying buttons disagree on the
+       * default (Mantine's is `type="button"`, shadcn's was `"submit"`) and
+       * a submit button inside a `Form.Root` must reliably submit on every
+       * skin. `"submit"` buttons need no `onClick` - the form's `onSubmit`
+       * is the single commit path, so clicking cannot fire twice.
+       */
+      type: "button" | "submit";
+      onClick?: () => void;
     } & (
       | { children: ReactNode; label?: string }
       | { children?: undefined; label: string }
@@ -317,16 +326,18 @@ export type ComponentProps = {
          */
         onSubmit?: () => void;
         /**
-         * Suppresses the hidden submit button `Form.Root` otherwise renders,
-         * for callers that provide their own submission affordance and would
-         * otherwise expose two submit controls to assistive technology.
+         * The form's submit control, rendered inside the `<form>`. Required,
+         * because it decides how the form can be committed at all: a submit
+         * button is what makes Enter submit a form with more than one field,
+         * and it is the control assistive technology activates.
          *
-         * Note what the hidden button is for: it is what makes Enter submit a
-         * form with more than one field at all. A caller that omits it takes
-         * on that constraint - the form must have exactly one field, or Enter
-         * reaches nothing.
+         * Pass `ScreenReaderOnlySubmit` for the usual case (a visually
+         * hidden, labelled control), a visible `type="submit"` button to make
+         * it double as the form's one submit affordance (the embed tab), or
+         * `"none"` to opt out explicitly - then the form must have exactly
+         * one field, or Enter reaches nothing.
          */
-        omitSubmitButton?: boolean;
+        submitButton: ReactElement | "none";
       };
       TextInput: {
         className?: string;

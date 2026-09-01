@@ -31,6 +31,7 @@ export * from "./components/FormattingToolbar/DefaultButtons/AddTiptapCommentBut
 export * from "./components/FormattingToolbar/DefaultButtons/BasicTextStyleButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/ColorStyleButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/CreateLinkButton.js";
+export * from "./components/Form/ScreenReaderOnlySubmit.js";
 export * from "./components/FormattingToolbar/DefaultButtons/FileCaptionButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/FileDeleteButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/FileDownloadButton.js";

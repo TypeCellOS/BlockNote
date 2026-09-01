@@ -1,6 +1,7 @@
 import { mergeCSSClasses } from "@blocknote/core";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import {
+  ScreenReaderOnlySubmit,
   DefaultReactSuggestionItem,
   useComponentsContext,
   useSuggestionMenuKeyboardHandler,
@@ -121,7 +122,10 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
 
   return (
     <div className={"bn-combobox"}>
-      <Components.Generic.Form.Root onSubmit={submit}>
+      <Components.Generic.Form.Root
+        onSubmit={submit}
+        submitButton={<ScreenReaderOnlySubmit />}
+      >
         <Components.Generic.Form.TextInput
           ref={inputRef}
           className={"bn-combobox-input"}

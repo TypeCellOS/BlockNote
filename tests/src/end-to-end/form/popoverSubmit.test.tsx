@@ -111,26 +111,26 @@ describe("Submitting a toolbar popover with Enter", () => {
     expect((submit as HTMLButtonElement).tabIndex).toBe(-1);
   });
 
-  test("the embed tab keeps its button out of the form", async () => {
-    // Two things ride on the button staying outside the `<form>`, which is why
-    // this asserts the structure rather than an outcome:
-    //
-    // - `Form.Root` must not also add its hidden submit button, or a screen
-    //   reader announces two separate actions for the one thing this panel
-    //   does.
-    // - Inside the form the button would fire `onClick` *and* submit on the
-    //   skins whose panel button defaults to `type="submit"` (ariakit and
-    //   shadcn; mantine's defaults to `type="button"`), embedding twice.
-    //   Only mantine runs in this suite, so a double-commit assertion here
-    //   could never fail — the structural check is what actually guards it.
+  test("the embed tab's visible button is the form's one submit control", async () => {
+    // The embed button lives inside the `<form>` as its `submitButton`, so
+    // clicking it, pressing Enter, and a mobile IME's action key all commit
+    // through the same `submit` event — and assistive technology sees exactly
+    // one labelled action for the one thing this panel does. Exactly one:
+    // a second (hidden) submit control would announce two.
     await focusOnEditor();
     await executeSlashCommand("image");
     await userEvent.click(await waitForSelector(`[data-test="embed-tab"]`));
     const input = await waitForSelector(`[data-test="embed-input"]`);
 
     const form = input.closest("form");
-    expect(form, "the embed field must still be in a form").not.toBeNull();
-    expect(form!.querySelectorAll("button").length).toBe(0);
+    expect(form, "the embed field must be in a form").not.toBeNull();
+    const submits = form!.querySelectorAll("button[type=submit]");
+    expect(submits.length).toBe(1);
+    expect(
+      (submits[0] as HTMLElement).textContent?.trim(),
+      "the submit control is the visible, labelled embed button",
+    ).not.toBe("Submit");
+    expect(form!.querySelectorAll("button").length).toBe(1);
   });
 
   test("the embed tab's URL field commits", async () => {

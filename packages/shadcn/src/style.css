@@ -73,23 +73,3 @@
   color: var(--bn-colors-highlights-red-background);
   font-weight: bold;
 }
-
-/* The submit button `Form.Root` renders so that Enter reaches the form
- * regardless of how many fields a popover has. It carries no visual design of
- * its own - the popovers commit on Enter - but it stays in the accessibility
- * tree with a real label, so screen readers and voice control have a submit
- * control to operate. It is out of the tab order: keeping a control nobody can
- * see as a tab stop would strand sighted keyboard users on invisible focus,
- * and Enter already submits for them.
- */
-.bn-form-submit {
-  border: 0;
-  clip-path: inset(50%);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  white-space: nowrap;
-  width: 1px;
-}

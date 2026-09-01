@@ -56,14 +56,24 @@ export const EmbedTab = <
   return (
     <Components.FilePanel.TabPanel className={"bn-tab-panel"}>
       {/*
-        The embed button below is this form's submit control, so `Form.Root`
-        must not add its own — a screen reader would announce two separate
-        actions for the one thing this panel does. It stays outside the
-        `<form>` on purpose: the skins disagree on whether their panel button
-        defaults to `type="submit"`, so inside one it would fire `onClick`
-        *and* submit, embedding twice.
+        The visible embed button IS the form's submit control: one commit
+        path (the form's `submit` event) whether it is clicked, Enter is
+        pressed, or a mobile IME's action key fires — and one labelled
+        action for assistive technology.
       */}
-      <Components.Generic.Form.Root onSubmit={embedURL} omitSubmitButton>
+      <Components.Generic.Form.Root
+        onSubmit={embedURL}
+        submitButton={
+          <Components.FilePanel.Button
+            className={"bn-button"}
+            type={"submit"}
+            data-test="embed-input-button"
+          >
+            {dict.file_panel.embed.embed_button[block.type] ||
+              dict.file_panel.embed.embed_button["file"]}
+          </Components.FilePanel.Button>
+        }
+      >
         <Components.FilePanel.TextInput
           className={"bn-text-input"}
           placeholder={dict.file_panel.embed.url_placeholder}
@@ -72,14 +82,6 @@ export const EmbedTab = <
           data-test={"embed-input"}
         />
       </Components.Generic.Form.Root>
-      <Components.FilePanel.Button
-        className={"bn-button"}
-        onClick={embedURL}
-        data-test="embed-input-button"
-      >
-        {dict.file_panel.embed.embed_button[block.type] ||
-          dict.file_panel.embed.embed_button["file"]}
-      </Components.FilePanel.Button>
     </Components.FilePanel.TabPanel>
   );
 };

@@ -6,6 +6,7 @@ import {
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { RiLink, RiText } from "react-icons/ri";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { ScreenReaderOnlySubmit } from "../Form/ScreenReaderOnlySubmit.js";
 import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { LinkToolbarProps } from "./LinkToolbarProps.js";
@@ -63,7 +64,10 @@ export const EditLinkMenuItems = (
   }, [editLink, currentUrl, currentText, props]);
 
   return (
-    <Components.Generic.Form.Root onSubmit={handleSubmit}>
+    <Components.Generic.Form.Root
+      onSubmit={handleSubmit}
+      submitButton={<ScreenReaderOnlySubmit />}
+    >
       {/* // TODO: add labels? */}
       <Components.Generic.Form.TextInput
         className={"bn-text-input"}
