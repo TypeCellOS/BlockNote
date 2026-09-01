@@ -1,0 +1,74 @@
+name: Emulator tests
+
+# The OS-emulator layer of the device suite (tests/device/): real Chrome and
+# real Gboard on a local Android emulator, driving flows no browser emulation
+# can — including pressing the on-screen keyboard's IME action key. Free
+# minutes, no credentials, so it runs as normal CI. See tests/device/README.md.
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+concurrency:
+  group: emulator-tests-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  android-emulator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: voidzero-dev/setup-vp@313600b80b104eadebb9111787d37a2e83e014ca # v1.17.0
+        with:
+          node-version-file: ".node-version"
+          cache: true
+
+      - name: Install dependencies
+        run: vp install
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Start playground dev server
+        run: |
+          vp run dev &
+          for _ in $(seq 1 120); do
+            if curl -sf http://127.0.0.1:5173/ > /dev/null; then exit 0; fi
+            sleep 2
+          done
+          echo "playground dev server never came up" >&2
+          exit 1
+
+      - name: Run device suite on the emulator
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -no-audio -no-boot-anim
+          disable-animations: true
+          script: DEVICE_FILTER=local-android vp run test:device
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: emulator-test-screenshots
+          path: tests/device/.artifacts/
+          if-no-files-found: ignore
