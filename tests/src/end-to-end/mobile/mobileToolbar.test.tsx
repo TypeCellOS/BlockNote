@@ -55,7 +55,24 @@ describe("Mobile formatting toolbar", () => {
     await userEvent.keyboard("Mobile toolbar");
 
     await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
-    await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
+    const toolbar = await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
+
+    // Gesture-hardening smoke: the scrollable toolbar element carries the
+    // snap/overscroll rules (styles.css). Fling *behavior* isn't assertable
+    // under emulation — real-device tap reliability covers it — but losing
+    // the rules silently shouldn't be possible either.
+    {
+      const scroller = toolbar.firstElementChild!;
+      const style = getComputedStyle(scroller);
+      if (style.overscrollBehaviorX !== "contain") {
+        throw new Error(
+          `toolbar overscroll containment missing: ${style.overscrollBehaviorX}`,
+        );
+      }
+      if (!style.scrollSnapType.startsWith("x")) {
+        throw new Error(`toolbar scroll-snap missing: ${style.scrollSnapType}`);
+      }
+    }
 
     await page.viewport(VIEWPORT_WIDTH, KEYBOARD_CLOSED);
     await vi.waitFor(() => {

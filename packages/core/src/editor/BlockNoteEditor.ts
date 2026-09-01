@@ -821,6 +821,10 @@ export class BlockNoteEditor<
    * Note this only affects how far the editor scrolls — the scroll container
    * still needs enough room below the content (e.g. bottom padding) for the
    * last line to clear the reserved space.
+   *
+   * Last caller wins: the reservation is a single value, not a stack, so UI
+   * elements should not set insets concurrently (today the mobile formatting
+   * toolbar is the only caller).
    */
   public setScrollInsets(insets: Partial<ScrollSides> | undefined) {
     const view = this.prosemirrorView;
