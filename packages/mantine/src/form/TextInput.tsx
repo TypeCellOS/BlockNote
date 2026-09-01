@@ -1,8 +1,8 @@
 import { TextInput as MantineTextInput } from "@mantine/core";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
-import { ComponentProps, useMergeRefs } from "@blocknote/react";
-import { forwardRef, useEffect, useRef } from "react";
+import { ComponentProps, useMergeRefs, useAutoFocus } from "@blocknote/react";
+import { forwardRef } from "react";
 
 export const TextInput = forwardRef<
   HTMLInputElement,
@@ -28,25 +28,10 @@ export const TextInput = forwardRef<
 
   assertEmpty(rest);
 
-  // Focus with `preventScroll`, rather than the native `autofocus`: these
-  // inputs live in popovers that floating-ui positions *after* mount, so the
-  // browser's scroll-into-view runs while the popover is still at its
-  // pre-positioned spot and yanks the page (on mobile, right out from under
-  // the block being edited).
-  //
-  // No Mantine focus trap competes with this in the form popovers (Popover's
-  // `trapFocus` defaults to false), but trap-active subtrees do exist nearby
-  // (the toolbar's Tab-cycling trap; Menu's default trap on desktop) — the
-  // `data-autofocus` below makes any such trap pick this same element
-  // instead of falling back to "first focusable", so the two mechanisms can
-  // never fight over where focus lands.
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  // Rationale (and the trap contract `data-autofocus` serves) in the hook.
+
+  const inputRef = useAutoFocus<HTMLInputElement>(autoFocus);
   const setRefs = useMergeRefs([inputRef, ref]);
-  useEffect(() => {
-    if (autoFocus) {
-      inputRef.current?.focus({ preventScroll: true });
-    }
-  }, [autoFocus]);
 
   return (
     <MantineTextInput
