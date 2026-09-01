@@ -78,7 +78,7 @@
     "@y/websocket": "^4.0.0-3",
     "@y/y": "^14.0.0-rc.23",
     "ai": "^6.0.5",
-    "better-auth": "~1.4.15",
+    "better-auth": "~1.6.2",
     "better-sqlite3": "^12.6.2",
     "class-variance-authority": "^0.7.1",
     "docx": "^9.6.1",
