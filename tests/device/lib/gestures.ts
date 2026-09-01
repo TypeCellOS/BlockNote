@@ -40,11 +40,11 @@ export async function tapElement(
     verifyTimeoutMs?: number;
   },
 ): Promise<void> {
-  // Everything except BrowserStack iOS taps reliably through elementClick:
-  // Android clicks work there, the local Android backend's elementClick is a
-  // real OS tap, and local iOS is safaridriver, whose clicks genuinely move
-  // focus. Only BrowserStack iOS needs the native-tap chrome-offset ladder.
-  if (!(session.kind === "browserstack" && session.platform === "ios")) {
+  // Android taps reliably through elementClick (real clicks on
+  // BrowserStack, genuine OS taps in the local backend). iOS — every kind —
+  // needs the native-tap chrome-offset ladder: web-layer clicks are
+  // synthetic there and never move focus or open the keyboard.
+  if (session.platform !== "ios") {
     await session.elementClick(css);
     await session.waitFor(
       `tap on ${css}`,
@@ -115,7 +115,7 @@ export async function pressSoftKeyboardEnter(
   session: DeviceSession,
   verify: string,
 ): Promise<void> {
-  if (session.platform === "android" || session.kind === "local-ios") {
+  if (session.platform === "android") {
     // Android: an Enter key event converges on the same production code path
     // as the soft keyboard's Enter — prosemirror-view ignores Enter keydowns
     // on Android Chrome entirely, so handling proceeds through the
@@ -124,7 +124,6 @@ export async function pressSoftKeyboardEnter(
     // it as a genuine OS key press; on BrowserStack it is a W3C key action
     // (their driver blocks the higher-fidelity channels: `mobile: shell`
     // needs an insecure-feature opt-in and `clickGesture` isn't allowlisted).
-    // Local iOS: safaridriver key actions reach the focused element.
     await session.typeKeys("\uE007");
     await session.waitFor("soft Enter effect", verify, 8_000);
     return;

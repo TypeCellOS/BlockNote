@@ -23,7 +23,7 @@ import BrowserStackLocal from "browserstack-local";
 
 import { activeDevices, LOCAL_TUNNEL_ID } from "../devices.js";
 import { browserStackCredentials } from "./browserstack.js";
-import { SAFARIDRIVER_PORT } from "./localIos.js";
+import { APPIUM_PORT } from "./localIos.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -60,27 +60,18 @@ async function startBrowserStackTunnel(
 }
 
 async function startLocalIos(): Promise<() => Promise<void>> {
-  // The hardware-keyboard preference is read when a simulator boots; set it
-  // before booting so the software keyboard actually appears on focus.
-  await execFileAsync("defaults", [
-    "write",
-    "com.apple.iphonesimulator",
-    "ConnectHardwareKeyboard",
-    "-bool",
-    "false",
-  ]).catch(() => {
-    // Best effort: the preference only exists once Simulator.app ran once.
-  });
-
+  // Pick (and if needed boot) an iPhone simulator; sessions attach to it via
+  // BN_IOS_SIMULATOR_UDID. Headless is fine: XCUITest owns the HID stack, so
+  // the software keyboard appears without the Simulator GUI.
   const { stdout } = await execFileAsync("xcrun", [
     "simctl",
     "list",
     "devices",
     "available",
   ]);
-  const booted = stdout.match(/([0-9A-F-]{36}) \(Booted\)/)?.[1];
+  let udid = stdout.match(/([0-9A-F-]{36}) \(Booted\)/)?.[1];
   let bootedByUs: string | undefined;
-  if (!booted) {
+  if (!udid) {
     const device = stdout.match(/iPhone [^(]+\(([0-9A-F-]{36})\) \(Shutdown\)/);
     if (!device) {
       throw new Error(
@@ -88,22 +79,42 @@ async function startLocalIos(): Promise<() => Promise<void>> {
       );
     }
     bootedByUs = device[1];
+    udid = bootedByUs;
     await execFileAsync("xcrun", ["simctl", "boot", bootedByUs]);
     await execFileAsync("xcrun", ["simctl", "bootstatus", bootedByUs], {
       timeout: 180_000,
     });
   }
+  process.env.BN_IOS_SIMULATOR_UDID = udid;
 
-  const driver: ChildProcess = spawn(
-    "safaridriver",
-    ["-p", String(SAFARIDRIVER_PORT)],
-    { stdio: "ignore" },
+  // Appium with the XCUITest driver (an npm devDependency, which Appium
+  // discovers). Note Appium requires an even-numbered Node (see
+  // .node-version); it refuses to start otherwise.
+  const server: ChildProcess = spawn(
+    "npx",
+    ["appium", "server", "-p", String(APPIUM_PORT)],
+    { stdio: "ignore", cwd: import.meta.dirname },
   );
-  // Give it a beat to bind the port.
-  await new Promise((resolve) => setTimeout(resolve, 1_500));
+  const deadline = Date.now() + 60_000;
+  for (;;) {
+    const ok = await fetch(`http://127.0.0.1:${APPIUM_PORT}/status`)
+      .then((res) => res.ok)
+      .catch(() => false);
+    if (ok) {
+      break;
+    }
+    if (Date.now() > deadline) {
+      server.kill();
+      throw new Error(
+        "Appium did not start. It requires an even-numbered Node version " +
+          "(see .node-version) and the appium-xcuitest-driver devDependency.",
+      );
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1_000));
+  }
 
   return async () => {
-    driver.kill();
+    server.kill();
     if (bootedByUs) {
       await execFileAsync("xcrun", ["simctl", "shutdown", bootedByUs]).catch(
         () => {},

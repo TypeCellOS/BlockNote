@@ -1,18 +1,20 @@
 /**
- * A local iOS simulator via Apple's safaridriver — real iOS Safari (the
- * simulator runs the actual OS build), driven over plain W3C WebDriver with
- * `selenium-webdriver`, the same client the BrowserStack backend uses.
+ * A local iOS simulator via Appium's XCUITest driver — the sanctioned
+ * full-fidelity automation stack for iOS (WebDriverAgent), driven with
+ * `selenium-webdriver` like the BrowserStack backend. The simulator runs the
+ * actual iOS build and the actual Safari, headless (XCUITest owns the HID
+ * stack, so the software keyboard appears without the Simulator GUI), and
+ * shares the host's network — `127.0.0.1` reaches the dev server, no tunnel.
  *
- * safaridriver's element clicks genuinely move focus and bring up the
- * software keyboard here, so none of the native-tap offset ladders the
- * BrowserStack iOS backend needs apply. The simulator also shares the host's
- * network — `127.0.0.1` reaches the dev server with no tunnel.
- *
- * Prerequisites (handled by setup.ts): safaridriver running on
- * SAFARIDRIVER_PORT, a booted simulator, and the Simulator's
- * "Connect Hardware Keyboard" setting off — with it on, focusing a field
- * never shows the software keyboard, and keyboard-gated UI (the mobile
- * toolbar) never appears.
+ * Findings that shaped this backend, the hard way:
+ * - Apple's safaridriver cannot do this: its input is synthetic at the WebKit
+ *   layer, which never summons the software keyboard, and injecting real HID
+ *   (idb) during its session trips Safari's "stop the current automated test
+ *   session?" guardrail.
+ * - Appium's web-context element clicks are synthetic too (nativeWebTap
+ *   included, on current iOS). Real interaction goes through `mobile: tap` at
+ *   screen points — exactly the channel the BrowserStack iOS backend uses, so
+ *   the gesture layer's chrome-offset ladders apply here unchanged.
  */
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -23,9 +25,9 @@ import { saveScreenshot } from "./artifacts.js";
 
 const execFileAsync = promisify(execFile);
 
-export const SAFARIDRIVER_PORT = 47632;
+export const APPIUM_PORT = 47632;
 
-/** True on macOS with safaridriver present. */
+/** True on macOS with the simulator toolchain present. */
 export async function localIosAvailable(): Promise<boolean> {
   if (process.platform !== "darwin") {
     return false;
@@ -48,12 +50,22 @@ export class LocalIosSession implements DeviceSession {
   ) {}
 
   static async create(): Promise<LocalIosSession> {
+    const udid = process.env.BN_IOS_SIMULATOR_UDID;
+    if (!udid) {
+      throw new Error(
+        "BN_IOS_SIMULATOR_UDID is not set — the device-suite setup boots the " +
+          "simulator and exports it (see lib/tunnel.ts).",
+      );
+    }
     const driver = await new Builder()
-      .usingServer(`http://127.0.0.1:${SAFARIDRIVER_PORT}`)
+      .usingServer(`http://127.0.0.1:${APPIUM_PORT}`)
       .withCapabilities({
-        browserName: "Safari",
         platformName: "iOS",
-        "safari:useSimulator": true,
+        browserName: "Safari",
+        "appium:automationName": "XCUITest",
+        "appium:udid": udid,
+        // WebDriverAgent's first build on a fresh machine takes minutes.
+        "appium:wdaLaunchTimeout": 240_000,
       })
       .build();
     const sessionId = (await driver.getSession()).getId();
@@ -79,14 +91,21 @@ export class LocalIosSession implements DeviceSession {
     return waitForOk(this, label, script, timeoutMs);
   }
 
+  /**
+   * Synthetic at the WebKit layer — never moves focus or opens the keyboard
+   * on iOS. The gesture layer's ladders use `nativeTap` instead.
+   */
   async elementClick(css: string): Promise<void> {
     await this.driver.findElement(By.css(css)).click();
   }
 
   async elementValue(css: string, text: string): Promise<void> {
-    const element = this.driver.findElement(By.css(css));
-    await element.click();
-    await element.sendKeys(text);
+    await this.driver.findElement(By.css(css)).sendKeys(text);
+  }
+
+  /** Real HID tap through WebDriverAgent. Screen points (CSS px scale). */
+  async nativeTap(x: number, y: number): Promise<void> {
+    await this.exec("mobile: tap", [{ x: Math.round(x), y: Math.round(y) }]);
   }
 
   async typeKeys(text: string): Promise<void> {

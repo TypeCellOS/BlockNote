@@ -63,6 +63,12 @@ allowBuilds:
   esbuild: true
   msw: true
   unrs-resolver: true
+  # Appium (device suite, iOS backend) works with its postinstall skipped —
+  # verified by running the server and XCUITest sessions from an install that
+  # ignored these. tuntap is a native module for real-device tunneling; the
+  # suite only drives simulators.
+  appium: false
+  appium-ios-tuntap: false
   canvas: false
   sharp: false
   workerd: false

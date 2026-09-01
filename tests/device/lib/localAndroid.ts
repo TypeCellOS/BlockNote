@@ -260,7 +260,10 @@ export class LocalAndroidSession implements DeviceSession {
     ];
     let lastError: Error | undefined;
     for (const ratio of candidates) {
-      await this.osTap(Math.round(width * ratio.x), Math.round(height * ratio.y));
+      await this.osTap(
+        Math.round(width * ratio.x),
+        Math.round(height * ratio.y),
+      );
       try {
         await this.waitFor("IME action effect", verify, 5_000);
         return;

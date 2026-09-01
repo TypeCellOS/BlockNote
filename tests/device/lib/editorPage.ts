@@ -18,8 +18,7 @@ import type { DeviceSession } from "./session.js";
 function deviceOrigin(session: DeviceSession): string {
   const target = process.env.DEVICE_TEST_TARGET ?? "http://127.0.0.1:5173";
   const port = new URL(target).port || "80";
-  const host =
-    session.kind === "browserstack" ? "bs-local.com" : "127.0.0.1";
+  const host = session.kind === "browserstack" ? "bs-local.com" : "127.0.0.1";
   return `http://${host}:${port}`;
 }
 
