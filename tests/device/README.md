@@ -65,12 +65,18 @@ inside a real `<form>` is what makes it offer a submitting action rather than
 listening for Enter never hears anything. That was the original create-link
 bug, and it is why `Form.Root` renders a `<form>` with a submit button.
 
-No input channel available to us can press that key: W3C pointer actions are
+No **BrowserStack** channel can press that key: W3C pointer actions are
 clamped to the viewport, this driver exposes no UiAutomator gestures, and
-`mobile: shell` is blocked. Emulation can't substitute either, since Playwright
-always dispatches a real Enter.
+`mobile: shell` is blocked. Playwright emulation can't substitute either,
+since it always dispatches a real Enter.
 
-So before a release, on a physical phone:
+A **local Android emulator** can, though — it runs real Chrome and real
+Gboard, and `adb shell input tap` presses the on-screen action key itself.
+This flow has been verified end to end that way (real Gboard "go" arrow
+tapped, link created in the correct editor, focus retained), so automating it
+in CI on an emulator is the known path off this checklist.
+
+Until that exists, before a release, on a physical phone or emulator:
 
 - Create a link from an editor that is **not** the last one on the page. The
   keyboard's action key must submit it, rather than jumping focus to the next
