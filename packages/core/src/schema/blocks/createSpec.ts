@@ -3,7 +3,6 @@ import {
   DOMParser,
   Fragment,
   Node as PMNode,
-  Schema as PMSchema,
   TagParseRule,
 } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
@@ -58,33 +57,6 @@ export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
   };
 }
 
-// Wraps inline runs from `parseContent` into paragraphs so they fit a
-// container's block content expression.
-function toContainerChildren(fragment: Fragment, schema: PMSchema): Fragment {
-  const out: PMNode[] = [];
-  let inlineRun: PMNode[] = [];
-
-  const flush = () => {
-    if (inlineRun.length === 0) {
-      return;
-    }
-    out.push(schema.nodes["paragraph"].create(null, inlineRun));
-    inlineRun = [];
-  };
-
-  fragment.forEach((child) => {
-    if (child.isInline) {
-      inlineRun.push(child);
-      return;
-    }
-    flush();
-    out.push(child);
-  });
-  flush();
-
-  return Fragment.fromArray(out);
-}
-
 // Finds the element holding a serialized container block's children, marked
 // `data-children-of` by the internal HTML serializer. Returns undefined when
 // no marker belonging to *this* block (rather than a same-typed nested
@@ -110,6 +82,133 @@ function findContainerContentElement(
   }
 
   return undefined;
+}
+
+/**
+ * What a container block's custom `parse` rule reads its children from.
+ * `undefined` when the block has no `parseContent`: without one there is
+ * nothing to say beyond the rule's default child parsing.
+ */
+function containerChildrenParser<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none" | "table" | "plain",
+>(
+  implementation: BlockImplementation<TName, TProps, TContent>,
+): TagParseRule["getContent"] | undefined {
+  const parseContent = implementation.parseContent;
+  if (!parseContent) {
+    return undefined;
+  }
+
+  return (node, schema) => {
+    const parsed =
+      parseContent({ el: node as HTMLElement, schema }) ??
+      DOMParser.fromSchema(schema).parse(node as HTMLElement, {
+        topNode: schema.nodes["blockGroup"].create(),
+        preserveWhitespace: true,
+      }).content;
+
+    // A container holds blocks, so any inline run `parseContent` returned is
+    // wrapped in a paragraph to fit its content expression.
+    const children: PMNode[] = [];
+    let inlineRun: PMNode[] = [];
+    const flushInlineRun = () => {
+      if (inlineRun.length > 0) {
+        children.push(schema.nodes["paragraph"].create(null, inlineRun));
+        inlineRun = [];
+      }
+    };
+
+    parsed.forEach((child) => {
+      if (child.isInline) {
+        inlineRun.push(child);
+        return;
+      }
+      flushInlineRun();
+      children.push(child);
+    });
+    flushInlineRun();
+
+    return Fragment.fromArray(children);
+  };
+}
+
+/**
+ * What a regular block's custom `parse` rule reads its content from:
+ * `parseContent` if the block has one, falling back to parsing the element's
+ * inline content. `undefined` for a `table`, whose content the block's own
+ * parse rules handle.
+ */
+function blockContentParser<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none" | "table" | "plain",
+>(
+  config: BlockConfig<TName, TProps, TContent>,
+  implementation: BlockImplementation<TName, TProps, TContent>,
+): TagParseRule["getContent"] | undefined {
+  if (
+    config.content !== "inline" &&
+    config.content !== "none" &&
+    config.content !== "plain"
+  ) {
+    return undefined;
+  }
+
+  return (node, schema) => {
+    if (implementation.parseContent) {
+      const result = implementation.parseContent({
+        el: node as HTMLElement,
+        schema,
+      });
+      // parseContent may return undefined to fall through to the default
+      // inline content parsing below.
+      if (result !== undefined) {
+        return result;
+      }
+    }
+
+    if (config.content === "none") {
+      return Fragment.empty;
+    }
+
+    // Cloned so merging doesn't modify the element being parsed.
+    const clone = (node as HTMLElement).cloneNode(true) as HTMLElement;
+    // Merge multiple paragraphs into one with line breaks
+    mergeParagraphs(
+      clone,
+      config.content === "plain" || implementation.meta?.code ? "\n" : "<br>",
+    );
+
+    // Parsed as a paragraph, to extract the inline content by itself.
+    const parsed = DOMParser.fromSchema(schema).parse(clone, {
+      topNode: schema.nodes.paragraph.create(),
+      preserveWhitespace: true,
+    });
+
+    if (config.content === "inline") {
+      return parsed.content;
+    }
+
+    // Plain blocks hold text only, so non-text inline nodes are flattened:
+    // line breaks become newline characters and other nodes (e.g. mentions)
+    // are kept as their text.
+    const textNodes: PMNode[] = [];
+    parsed.content.forEach((child) => {
+      if (child.isText) {
+        textNodes.push(child);
+        return;
+      }
+      const text =
+        child.type === schema.linebreakReplacement ? "\n" : child.textContent;
+      if (text) {
+        textNodes.push(schema.text(text, child.marks));
+      }
+    });
+
+    return Fragment.fromArray(textNodes);
+  };
 }
 
 // Creates `parseHTML` rules for clipboard parsing.
@@ -163,101 +262,10 @@ export function getParseRules<
       // Because we do the parsing ourselves, we want to preserve whitespace for content we've parsed
       preserveWhitespace: true,
       getContent: isContainer
-        ? implementation.parseContent
-          ? (node, schema) =>
-              toContainerChildren(
-                implementation.parseContent!({
-                  el: node as HTMLElement,
-                  schema,
-                }) ??
-                  DOMParser.fromSchema(schema).parse(node as HTMLElement, {
-                    topNode: schema.nodes["blockGroup"].create(),
-                    preserveWhitespace: true,
-                  }).content,
-                schema,
-              )
-          : undefined
-        : config.content === "inline" ||
-            config.content === "none" ||
-            config.content === "plain"
-          ? (node, schema) => {
-              if (implementation.parseContent) {
-                const result = implementation.parseContent({
-                  el: node as HTMLElement,
-                  schema,
-                });
-                // parseContent may return undefined to fall through to
-                // the default inline content parsing below.
-                if (result !== undefined) {
-                  return result;
-                }
-              }
-
-              if (config.content === "inline" || config.content === "plain") {
-                // Parse the inline content if it exists
-                const element = node as HTMLElement;
-
-                // Clone to avoid modifying the original
-                const clone = element.cloneNode(true) as HTMLElement;
-
-                // Merge multiple paragraphs into one with line breaks
-                mergeParagraphs(
-                  clone,
-                  config.content === "plain" || implementation.meta?.code
-                    ? "\n"
-                    : "<br>",
-                );
-
-                // Parse the content directly as a paragraph to extract inline content
-                const parser = DOMParser.fromSchema(schema);
-                const parsed = parser.parse(clone, {
-                  topNode: schema.nodes.paragraph.create(),
-                  preserveWhitespace: true,
-                });
-
-                if (config.content === "plain") {
-                  // Plain blocks hold text only, so non-text inline nodes are
-                  // flattened: line breaks become newline characters and other
-                  // nodes (e.g. mentions) are kept as their text.
-                  const textNodes: PMNode[] = [];
-                  parsed.content.forEach((child) => {
-                    if (child.isText) {
-                      textNodes.push(child);
-                    } else {
-                      const text =
-                        child.type === schema.linebreakReplacement
-                          ? "\n"
-                          : child.textContent;
-                      if (text) {
-                        textNodes.push(schema.text(text, child.marks));
-                      }
-                    }
-                  });
-
-                  return Fragment.fromArray(textNodes);
-                }
-                return parsed.content;
-              }
-              return Fragment.empty;
-            }
-          : undefined,
+        ? containerChildrenParser(implementation)
+        : blockContentParser(config, implementation),
     });
   }
-  //     getContent(node, schema) {
-  //       const block = blockConfig.parse?.(node as HTMLElement);
-  //
-  //       if (block !== undefined && block.content !== undefined) {
-  //         return Fragment.from(
-  //           typeof block.content === "string"
-  //             ? schema.text(block.content)
-  //             : inlineContentToNodes(block.content, schema)
-  //         );
-  //       }
-  //
-  //       return Fragment.empty;
-  //     },
-  //   });
-  // }
 
   return rules;
 }
@@ -341,26 +349,6 @@ export function containerRootDOM(output: {
   return output.dom;
 }
 
-/**
- * Marks a container block's rendered root with the attributes its round-trip
- * parse needs (`data-node-type`, the prop `data-*`s, the id). Pairs the root
- * resolution with the attribute application, which every render path needs
- * together.
- */
-function markContainerRoot(
-  output: { dom: HTMLElement | DocumentFragment; rootDOM?: HTMLElement | null },
-  blockConfig: { type: string; propSchema: PropSchema },
-  block: { props: Record<string, any>; id: string },
-) {
-  applyContainerAttributes(
-    containerRootDOM(output),
-    blockConfig.type,
-    block.props,
-    blockConfig.propSchema,
-    block.id,
-  );
-}
-
 function containerNodeView<TName extends string, TProps extends PropSchema>(
   blockConfig: BlockConfig<TName, TProps, "none">,
   blockImplementation: BlockImplementation<TName, TProps, "none">,
@@ -384,7 +372,13 @@ function containerNodeView<TName extends string, TProps extends PropSchema>(
     context.editor as any,
   );
 
-  markContainerRoot(nodeView, blockConfig, block as any);
+  applyContainerAttributes(
+    containerRootDOM(nodeView),
+    blockConfig.type,
+    block.props as any,
+    blockConfig.propSchema,
+    { id: block.id, mode: "overwrite" },
+  );
 
   const typedNodeView = nodeView as unknown as NodeView;
 
@@ -414,10 +408,13 @@ function containerNodeView<TName extends string, TProps extends PropSchema>(
       if (update(node, decorations, innerDecorations) === false) {
         return false;
       }
-      markContainerRoot(nodeView, blockConfig, {
-        props: nodeToBlock(node, props.view.state.doc).props as any,
-        id: node.attrs.id,
-      });
+      applyContainerAttributes(
+        containerRootDOM(nodeView),
+        blockConfig.type,
+        nodeToBlock(node, props.view.state.doc).props as any,
+        blockConfig.propSchema,
+        { id: node.attrs.id, mode: "overwrite" },
+      );
       return true;
     };
   }
@@ -676,7 +673,13 @@ export function addNodeAndExtensionsToSpec<
         );
 
         if (isContainer) {
-          markContainerRoot(output, blockConfig, block as any);
+          applyContainerAttributes(
+            containerRootDOM(output),
+            blockConfig.type,
+            block.props,
+            blockConfig.propSchema,
+            { id: block.id, mode: "overwrite" },
+          );
         }
 
         return output;
@@ -706,7 +709,13 @@ export function addNodeAndExtensionsToSpec<
           );
 
         if (output && isContainer) {
-          markContainerRoot(output, blockConfig, block as any);
+          applyContainerAttributes(
+            containerRootDOM(output),
+            blockConfig.type,
+            block.props,
+            blockConfig.propSchema,
+            { id: block.id, mode: "overwrite" },
+          );
         }
 
         return output;

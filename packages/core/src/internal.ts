@@ -24,10 +24,7 @@ export {
 
 // The attributes a container block's root element carries, and the three ways
 // they get there (node view, HTML serialization, framework render).
-export {
-  applyContainerAttributes,
-  fillContainerAttributes,
-} from "./schema/blocks/containerAttributes.js";
+export { applyContainerAttributes } from "./schema/blocks/containerAttributes.js";
 
 // Repairing a container after its children changed.
 export {

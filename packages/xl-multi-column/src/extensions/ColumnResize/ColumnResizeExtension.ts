@@ -52,39 +52,33 @@ export const columnResizePluginKey = new PluginKey<ColumnState>(
   "ColumnResizePlugin",
 );
 
-// Re-resolves stored column data against a (possibly changed) doc, since the
-// stored node and position may be stale. Returns undefined if the node no
-// longer exists in the doc.
-function refreshColumnData<T extends ColumnData>(
-  data: T,
-  doc: Node,
-): T | undefined {
-  const nodeAndPos = getNodeById(data.id, doc);
-  if (!nodeAndPos) {
-    return undefined;
-  }
-
-  return { ...data, ...nodeAndPos };
-}
-
 // Re-resolves all column data stored in the plugin state against a (possibly
 // changed) doc. Falls back to the default state if any of the referenced
 // nodes no longer exist - e.g. when a backspace removes a hovered column, or
 // unwraps the column list entirely - so decorations are never built from
 // positions that are invalid in the new doc.
 function refreshColumnState(state: ColumnState, doc: Node): ColumnState {
+  // The stored node and position may be stale, while the rest of the entry
+  // (its element, and a resize's start widths) still stands.
+  const refresh = <T extends ColumnData>(data: T): T | undefined => {
+    const nodeAndPos = getNodeById(data.id, doc);
+    return nodeAndPos && { ...data, ...nodeAndPos };
+  };
+
   switch (state.type) {
     case "default":
       return state;
     case "hover-column-list": {
-      const columnList = refreshColumnData(state.columnList, doc);
+      const columnList = refresh(state.columnList);
 
       return columnList ? { ...state, columnList } : { type: "default" };
     }
+    // Kept apart from `resize` below, rather than sharing one case: only the
+    // narrowed `state` carries the widths a resize's columns have.
     case "hover-column": {
-      const columnList = refreshColumnData(state.columnList, doc);
-      const leftColumn = refreshColumnData(state.leftColumn, doc);
-      const rightColumn = refreshColumnData(state.rightColumn, doc);
+      const columnList = refresh(state.columnList);
+      const leftColumn = refresh(state.leftColumn);
+      const rightColumn = refresh(state.rightColumn);
 
       if (!columnList || !leftColumn || !rightColumn) {
         return { type: "default" };
@@ -93,9 +87,9 @@ function refreshColumnState(state: ColumnState, doc: Node): ColumnState {
       return { ...state, columnList, leftColumn, rightColumn };
     }
     case "resize": {
-      const columnList = refreshColumnData(state.columnList, doc);
-      const leftColumn = refreshColumnData(state.leftColumn, doc);
-      const rightColumn = refreshColumnData(state.rightColumn, doc);
+      const columnList = refresh(state.columnList);
+      const leftColumn = refresh(state.leftColumn);
+      const rightColumn = refresh(state.rightColumn);
 
       if (!columnList || !leftColumn || !rightColumn) {
         return { type: "default" };

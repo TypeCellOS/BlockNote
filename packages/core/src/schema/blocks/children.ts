@@ -2,15 +2,38 @@ import type { Node, NodeType, Schema } from "prosemirror-model";
 
 import type { ChildDefault, ChildrenAllow, ChildrenConfig } from "./types.js";
 
-/** A {@link ChildrenConfig} with every default filled in. */
+/**
+ * A {@link ChildrenConfig} with every default filled in and its `allow` sugar
+ * desugared, so the code that builds, fills and repairs containers reads the
+ * answer it needs instead of re-deriving it from the config.
+ */
 export type ResolvedChildren = {
+  /** Whether regular blocks may be children, from `allow`. */
   blocks: boolean;
-  /** `true` for any container type; a (possibly empty) list otherwise. */
+  /**
+   * Which container types may be children, from `allow`: `true` for any of
+   * them, otherwise the named types (possibly none).
+   */
   containers: true | readonly string[];
-  /** What `whenEmptied` compares against. */
+  /**
+   * How few children the container may hold. Compiled into its content
+   * expression, so ProseMirror refills it on the way down; `whenEmptied`
+   * decides what happens when it can't be met.
+   */
   min: number;
+  /** What to seed a fresh or refilled container with, if not a paragraph. */
   default: readonly ChildDefault[] | undefined;
+  /**
+   * What to do with a container that lost its last children: put `default`
+   * back (a `column`, which has to keep existing), or replace the container
+   * with them (a `callout` the user emptied, which should get out of the way).
+   */
   whenEmptied: "refill" | "unwrap";
+  /**
+   * Whether editing gestures may cross the container's edge. A `column` is
+   * `"open"`: backspace at its start merges into the block above. A table
+   * cell is `"sealed"`: nothing implicitly moves in or out of it.
+   */
   boundary: "open" | "sealed";
 };
 
@@ -52,6 +75,11 @@ export type BlockRegions = {
   childrenHolder?: { node: Node; offset: number };
 };
 
+/**
+ * The {@link BlockRegions} of a block node. Throws for anything else: every
+ * caller got here holding a node it already believes is a block, so a miss is
+ * a bug rather than a case to handle.
+ */
 export function getBlockRegions(node: Node): BlockRegions {
   if (isContainerNode(node.type)) {
     return { outer: node, childrenHolder: { node, offset: 0 } };
@@ -95,22 +123,13 @@ export function createBlockGroup(
   return schema.nodes["blockGroup"].createChecked({}, children as Node[]);
 }
 
-// Whether a node of `type` can sit where regular blocks go: as a direct child
-// of a `blockGroup` or of an `allow: "any"` container. `blockContainer` and
-// every anywhere-placeable container qualify; `containerOnly` containers
-// don't, and must be dissolved into their children before landing in such a
-// slot (see `dissolveContainerOnlyBlocks` in `moveBlocks.ts`).
-export function isBlockGroupInsertable(type: NodeType): boolean {
-  return type.isInGroup(BLOCK_GROUP_CHILD_GROUP);
-}
-
 /**
  * Whether `type` is a container declared `placement: "containerOnly"`: one
  * defined only in terms of the container that holds it (a `column`), so it can
  * never stand where a regular block goes.
  *
- * The schema encodes this by keeping such types out of the groups
- * `isBlockGroupInsertable` tests, which is how ProseMirror enforces it while
+ * The schema encodes this by keeping such types out of
+ * `BLOCK_GROUP_CHILD_GROUP`, which is how ProseMirror enforces it while
  * matching content. This answers the same question from the declaration
  * itself, for code reasoning about the block rather than about what PM will
  * match.
@@ -144,24 +163,14 @@ export function containerNodePriority(priority: number | undefined): number {
   );
 }
 
-const resolvedCache = new WeakMap<ChildrenConfig, ResolvedChildren>();
-
 export function resolveChildren(children: ChildrenConfig): ResolvedChildren {
-  const cached = resolvedCache.get(children);
-  if (cached) {
-    return cached;
-  }
-
-  const resolved: ResolvedChildren = {
+  return {
     ...resolveAllow(children.allow),
     min: children.min ?? 1,
     default: children.default && withoutIds(children.default),
     whenEmptied: children.whenEmptied ?? "refill",
     boundary: children.boundary ?? "open",
   };
-
-  resolvedCache.set(children, resolved);
-  return resolved;
 }
 
 // Clears any id an untyped config wrote into a default, so each copy of the
@@ -201,48 +210,44 @@ export function isSealed(node: Node): boolean {
   );
 }
 
+/**
+ * Compiles a container's `children` config into its node's ProseMirror content
+ * expression: which types may be its children (`allow`), followed by how few
+ * of them it takes (`min`).
+ */
 export function childrenContentExpression(children: ChildrenConfig): string {
-  const resolved = resolveChildren(children);
-  return allowTerm(resolved) + quantifier(resolved.min);
-}
+  const { blocks, containers, min } = resolveChildren(children);
 
-function allowTerm(resolved: ResolvedChildren): string {
-  // "Anything" is already a group, so use it rather than spelling out a union
-  // that would need rebuilding whenever the schema gains a container type.
-  if (resolved.blocks && resolved.containers === true) {
-    return BLOCK_GROUP_CHILD_GROUP;
-  }
-
-  const terms: string[] = [];
-  // `blockContainer` FIRST: PM's `fillBefore` picks the first matching type in
-  // a union, and filling with `blockContainer` (rather than another container)
-  // keeps auto-fill from recursing through nested containers.
-  if (resolved.blocks) {
-    terms.push("blockContainer");
-  }
-  // The wildcard is the `anyContainer` group, not `childContainer`. The
-  // latter also contains `blockGroup`, which is not a block.
-  if (resolved.containers === true) {
-    terms.push(ANY_CONTAINER_GROUP);
+  let allowed: string;
+  if (blocks && containers === true) {
+    // "Anything" is already a group, so use it rather than spelling out a
+    // union that would need rebuilding whenever the schema gains a container
+    // type.
+    allowed = BLOCK_GROUP_CHILD_GROUP;
   } else {
-    terms.push(...resolved.containers);
+    const terms: string[] = [];
+    // `blockContainer` FIRST: PM's `fillBefore` picks the first matching type
+    // in a union, and filling with `blockContainer` (rather than another
+    // container) keeps auto-fill from recursing through nested containers.
+    if (blocks) {
+      terms.push("blockContainer");
+    }
+    // The wildcard is the `anyContainer` group, not `childContainer`. The
+    // latter also contains `blockGroup`, which is not a block.
+    if (containers === true) {
+      terms.push(ANY_CONTAINER_GROUP);
+    } else {
+      terms.push(...containers);
+    }
+
+    if (terms.length === 0) {
+      throw new Error(
+        "Container `allow` permits nothing. A container must accept at least one block or container type; drop `children` entirely for a block that holds none.",
+      );
+    }
+
+    allowed = terms.length === 1 ? terms[0] : `(${terms.join(" | ")})`;
   }
 
-  if (terms.length === 0) {
-    throw new Error(
-      "Container `allow` permits nothing. A container must accept at least one block or container type; drop `children` entirely for a block that holds none.",
-    );
-  }
-
-  return terms.length === 1 ? terms[0] : `(${terms.join(" | ")})`;
-}
-
-function quantifier(min: number): string {
-  if (min === 0) {
-    return "*";
-  }
-  if (min === 1) {
-    return "+";
-  }
-  return `{${min},}`;
+  return allowed + (min === 0 ? "*" : min === 1 ? "+" : `{${min},}`);
 }
