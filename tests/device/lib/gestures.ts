@@ -116,14 +116,18 @@ export async function pressSoftKeyboardEnter(
   verify: string,
 ): Promise<void> {
   if (session.platform === "android") {
-    // Android: an Enter key event converges on the same production code path
-    // as the soft keyboard's Enter — prosemirror-view ignores Enter keydowns
-    // on Android Chrome entirely, so handling proceeds through the
-    // `beforeinput` (insertParagraph) the browser emits, the exact path the
-    // IME takes and where #3001-class bugs live. The local backend delivers
-    // it as a genuine OS key press; on BrowserStack it is a W3C key action
-    // (their driver blocks the higher-fidelity channels: `mobile: shell`
-    // needs an insecure-feature opt-in and `clickGesture` isn't allowlisted).
+    if (session.pressImeActionKey) {
+      // The real thing: tap Gboard's on-screen Enter key. In the editor's
+      // contenteditable this takes the true IME route — keydown 229 +
+      // `beforeinput` (insertParagraph) — exactly where #3001-class bugs
+      // live. No key-event channel can produce that sequence.
+      await session.pressImeActionKey(verify);
+      return;
+    }
+    // Fallback for backends without an on-screen-keyboard channel: a key
+    // event converges on the same handling — prosemirror-view ignores Enter
+    // keydowns on Android Chrome, so processing still goes through the
+    // `beforeinput` the browser emits for the trusted key.
     await session.typeKeys("\uE007");
     await session.waitFor("soft Enter effect", verify, 8_000);
     return;

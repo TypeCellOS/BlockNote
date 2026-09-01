@@ -75,6 +75,17 @@ for (const device of await activeDevices()) {
       await startEditing(session);
       const before = await docState(session);
 
+      // Record how the Enter reaches the page, to prove the route as well as
+      // the effect: on Android the on-screen key must arrive as the IME
+      // sequence (keydown 229 + beforeinput insertParagraph), which is the
+      // exact path #3001 broke and no key event can produce.
+      await session.exec(
+        `window.__route = [];
+         const editor = document.querySelector(${JSON.stringify(EDITOR)});
+         editor.addEventListener("keydown", (e) => window.__route.push("keydown:" + e.keyCode), { capture: true });
+         editor.addEventListener("beforeinput", (e) => window.__route.push("beforeinput:" + e.inputType), { capture: true });`,
+      );
+
       // "Any observable document mutation" stops the key-position ladder;
       // what the mutation *was* is classified below.
       await pressSoftKeyboardEnter(
@@ -102,6 +113,23 @@ for (const device of await activeDevices()) {
           ? "soft Enter inserted a space instead of a new block (TypeCellOS/BlockNote#3001)"
           : `soft Enter did not create a block (text before: ${JSON.stringify(before.text.slice(0, 60))}, after: ${JSON.stringify(after.text.slice(0, 60))})`,
       ).toBe(before.blockCount + 1);
+
+      if (device.kind === "local-android") {
+        // The backend taps the IME's actual on-screen key, so the page must
+        // have seen an IME-mediated delivery — a keydown 229 — and not just
+        // a synthesized key event (which would arrive as a bare keydown 13,
+        // exactly what `adb input keyevent` produces). Which variant follows
+        // the 229 differs by keyboard build: phone Gboard emits
+        // `beforeinput: insertParagraph` (the route the beforeinput
+        // interception handles), this emulator's AOSP LatinIME emits a real
+        // keydown 13 (the route the keypress interception handles). Both are
+        // genuine IME routes; both must create the block.
+        const route = await session.exec<string[]>(`return window.__route;`);
+        expect(
+          route.some((entry) => entry === "keydown:229"),
+          `expected an IME-mediated delivery (keydown 229), saw: ${route.join(", ")}`,
+        ).toBe(true);
+      }
     });
   });
 }
