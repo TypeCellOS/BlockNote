@@ -60,8 +60,9 @@ async function startBrowserStackTunnel(
 }
 
 async function startLocalIos(): Promise<() => Promise<void>> {
-  // Pick (and if needed boot) an iPhone simulator; sessions attach to it via
-  // BN_IOS_SIMULATOR_UDID. Headless is fine: XCUITest owns the HID stack, so
+  // Pick (and if needed boot) an iPhone simulator; sessions discover the
+  // booted device themselves (vitest's global setup and its workers don't
+  // share an environment). Headless is fine: XCUITest owns the HID stack, so
   // the software keyboard appears without the Simulator GUI.
   const { stdout } = await execFileAsync("xcrun", [
     "simctl",
@@ -69,23 +70,20 @@ async function startLocalIos(): Promise<() => Promise<void>> {
     "devices",
     "available",
   ]);
-  let udid = stdout.match(/([0-9A-F-]{36}) \(Booted\)/)?.[1];
-  let bootedByUs: string | undefined;
+  // Prefer a device that is already up; otherwise take the first iPhone.
+  // `bootstatus -b` boots if needed and returns promptly when already booted,
+  // so there are no state-string races ("Booted", "Shutting Down", ...) to
+  // pattern-match.
+  const already = stdout.match(/iPhone [^(]+\(([0-9A-F-]{36})\) \(Booted\)/);
+  const any = stdout.match(/iPhone [^(]+\(([0-9A-F-]{36})\)/);
+  const udid = already?.[1] ?? any?.[1];
   if (!udid) {
-    const device = stdout.match(/iPhone [^(]+\(([0-9A-F-]{36})\) \(Shutdown\)/);
-    if (!device) {
-      throw new Error(
-        "No available iPhone simulator found (xcrun simctl list).",
-      );
-    }
-    bootedByUs = device[1];
-    udid = bootedByUs;
-    await execFileAsync("xcrun", ["simctl", "boot", bootedByUs]);
-    await execFileAsync("xcrun", ["simctl", "bootstatus", bootedByUs], {
-      timeout: 180_000,
-    });
+    throw new Error("No available iPhone simulator found (xcrun simctl list).");
   }
-  process.env.BN_IOS_SIMULATOR_UDID = udid;
+  await execFileAsync("xcrun", ["simctl", "bootstatus", udid, "-b"], {
+    timeout: 240_000,
+  });
+  const bootedByUs = already ? undefined : udid;
 
   // Appium with the XCUITest driver (an npm devDependency, which Appium
   // discovers). Note Appium requires an even-numbered Node (see

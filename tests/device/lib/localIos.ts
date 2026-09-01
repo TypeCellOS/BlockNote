@@ -50,12 +50,28 @@ export class LocalIosSession implements DeviceSession {
   ) {}
 
   static async create(): Promise<LocalIosSession> {
-    const udid = process.env.BN_IOS_SIMULATOR_UDID;
-    if (!udid) {
-      throw new Error(
-        "BN_IOS_SIMULATOR_UDID is not set — the device-suite setup boots the " +
-          "simulator and exports it (see lib/tunnel.ts).",
-      );
+    // The suite's setup (lib/tunnel.ts) boots a simulator; discover it here
+    // rather than passing state across processes — vitest's global setup and
+    // its workers don't share an environment.
+    let udid: string | undefined;
+    const deadline = Date.now() + 30_000;
+    while (!udid) {
+      const { stdout } = await execFileAsync("xcrun", [
+        "simctl",
+        "list",
+        "devices",
+        "available",
+      ]);
+      udid = stdout.match(/([0-9A-F-]{36})\) \(Booted\)/)?.[1];
+      if (!udid && Date.now() > deadline) {
+        throw new Error(
+          "No booted iOS simulator found — the device-suite setup should " +
+            "have booted one (see lib/tunnel.ts).",
+        );
+      }
+      if (!udid) {
+        await new Promise((resolve) => setTimeout(resolve, 2_000));
+      }
     }
     const driver = await new Builder()
       .usingServer(`http://127.0.0.1:${APPIUM_PORT}`)
