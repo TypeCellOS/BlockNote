@@ -22,7 +22,7 @@ import {
   selectFirstWord,
   typeAndSubmit,
 } from "./linkPopover.js";
-import { browserStackCredentials, DeviceSession } from "./lib/webdriver.js";
+import type { DeviceSession } from "./lib/session.js";
 
 const KEYBOARD_MIN_HEIGHT = 150;
 
@@ -30,147 +30,137 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-for (const device of activeDevices()) {
-  describe.skipIf(!browserStackCredentials())(
-    `mobile formatting toolbar on ${device.id}`,
-    () => {
-      let session: DeviceSession;
-      let baselineHeight: number;
-      let failed = false;
+for (const device of await activeDevices()) {
+  describe(`mobile formatting toolbar on ${device.id}`, () => {
+    let session: DeviceSession;
+    let baselineHeight: number;
+    let failed = false;
 
-      beforeAll(async () => {
-        const capabilities = structuredClone(device.capabilities) as {
-          "bstack:options": Record<string, unknown>;
-        };
-        capabilities["bstack:options"].sessionName =
-          `formatting toolbar · ${device.id}`;
-        session = await DeviceSession.create(device.platform, capabilities);
-        await openExample(session, "/ui-components/mobile-formatting-toolbar");
-        baselineHeight = await viewportHeight(session);
-      });
+    beforeAll(async () => {
+      session = await device.createSession();
+      await openExample(session, "/ui-components/mobile-formatting-toolbar");
+      baselineHeight = await viewportHeight(session);
+    });
 
-      afterEach(({ task }) => {
-        if (task.result?.state === "fail") {
-          failed = true;
-        }
-      });
+    afterEach(({ task }) => {
+      if (task.result?.state === "fail") {
+        failed = true;
+      }
+    });
 
-      afterAll(async () => {
-        if (session) {
-          await session.screenshot(`formatting-toolbar-final`);
-          await session.annotate(
-            failed ? "failed" : "passed",
-            failed
-              ? "formatting toolbar suite failed; see run output"
-              : "keyboard/toolbar lifecycle + link popover flow passed",
-          );
-          await session.close();
-        }
-      });
-
-      test("tapping the editor opens the keyboard and shows the mobile toolbar", async () => {
-        await startEditing(session);
-
-        // The toolbar only renders while `useVirtualKeyboard` sees the
-        // keyboard, so its presence + the viewport drop prove the real
-        // on-screen keyboard opened.
-        expect(await viewportHeight(session)).toBeLessThan(
-          baselineHeight - KEYBOARD_MIN_HEIGHT,
+    afterAll(async () => {
+      if (session) {
+        await session.screenshot(`formatting-toolbar-final`);
+        await session.annotate(
+          failed ? "failed" : "passed",
+          failed
+            ? "formatting toolbar suite failed; see run output"
+            : "keyboard/toolbar lifecycle + link popover flow passed",
         );
-      });
+        await session.close();
+      }
+    });
 
-      test("toolbar buttons apply reliably", async () => {
-        await startEditing(session);
-        await selectFirstWord(session);
-        // Three bold toggles; every tap must register (covers the reported
-        // "buttons sometimes don't work", which traced back to a lingering
-        // popover overlaying the toolbar).
-        for (const expected of [true, false, true]) {
-          await tapElement(session, `${MOBILE_TOOLBAR} [data-test="bold"]`, {
-            keyboard: "open",
-            verify: `return { ok: ${expected} === !!document.querySelector('.bn-editor strong') };`,
-          });
-        }
-      });
+    test("tapping the editor opens the keyboard and shows the mobile toolbar", async () => {
+      await startEditing(session);
 
-      test("link popover holds focus through the IME and creates a link", async () => {
-        // Captured before the popover opens: iOS Safari auto-zooms the page
-        // when an input with a computed font-size under 16px takes focus, and
-        // that zoom perturbs the visual viewport the mobile toolbar positions
-        // itself from. The `pointer: coarse` rule in blocknoteStyles.css
-        // prevents it; this pins the behaviour rather than the rule.
-        const scaleBefore = await session.exec<number>(
-          `return window.visualViewport ? window.visualViewport.scale : 1;`,
-        );
+      // The toolbar only renders while `useVirtualKeyboard` sees the
+      // keyboard, so its presence + the viewport drop prove the real
+      // on-screen keyboard opened.
+      expect(await viewportHeight(session)).toBeLessThan(
+        baselineHeight - KEYBOARD_MIN_HEIGHT,
+      );
+    });
 
-        await openLinkPopover(session);
+    test("toolbar buttons apply reliably", async () => {
+      await startEditing(session);
+      await selectFirstWord(session);
+      // Three bold toggles; every tap must register (covers the reported
+      // "buttons sometimes don't work", which traced back to a lingering
+      // popover overlaying the toolbar).
+      for (const expected of [true, false, true]) {
+        await tapElement(session, `${MOBILE_TOOLBAR} [data-test="bold"]`, {
+          keyboard: "open",
+          verify: `return { ok: ${expected} === !!document.querySelector('.bn-editor strong') };`,
+        });
+      }
+    });
 
-        // Focusing an input makes the IME reconfigure (on Android this
-        // resizes the viewport), which historically hid the popover and
-        // collapsed the keyboard/toolbar (the Mantine `hideDetached` bug).
-        // The input must still hold focus once that settles.
-        await sleep(2_500);
-        const survival = await session.exec<{
-          focused: boolean;
-          popover: boolean;
-          toolbar: boolean;
-        }>(`
+    test("link popover holds focus through the IME and creates a link", async () => {
+      // Captured before the popover opens: iOS Safari auto-zooms the page
+      // when an input with a computed font-size under 16px takes focus, and
+      // that zoom perturbs the visual viewport the mobile toolbar positions
+      // itself from. The `pointer: coarse` rule in blocknoteStyles.css
+      // prevents it; this pins the behaviour rather than the rule.
+      const scaleBefore = await session.exec<number>(
+        `return window.visualViewport ? window.visualViewport.scale : 1;`,
+      );
+
+      await openLinkPopover(session);
+
+      // Focusing an input makes the IME reconfigure (on Android this
+      // resizes the viewport), which historically hid the popover and
+      // collapsed the keyboard/toolbar (the Mantine `hideDetached` bug).
+      // The input must still hold focus once that settles.
+      await sleep(2_500);
+      const survival = await session.exec<{
+        focused: boolean;
+        popover: boolean;
+        toolbar: boolean;
+      }>(`
           const active = document.activeElement;
           return {
             focused: !!(active && active.tagName === 'INPUT' && active.getAttribute('name') === 'url'),
             popover: !!document.querySelector(${JSON.stringify(LINK_POPOVER)}),
             toolbar: !!document.querySelector(${JSON.stringify(MOBILE_TOOLBAR)}),
           };`);
-        await session.screenshot("link-popover-open");
+      await session.screenshot("link-popover-open");
 
-        // Focusing the URL input must not have zoomed the page.
-        const scaleAfter = await session.exec<number>(
-          `return window.visualViewport ? window.visualViewport.scale : 1;`,
-        );
-        expect(
-          scaleAfter,
-          `focusing the URL input zoomed the page (${scaleBefore} -> ${scaleAfter}); ` +
-            `check the pointer:coarse font-size rule for .bn-form-popover inputs`,
-        ).toBeLessThanOrEqual(scaleBefore + 0.01);
+      // Focusing the URL input must not have zoomed the page.
+      const scaleAfter = await session.exec<number>(
+        `return window.visualViewport ? window.visualViewport.scale : 1;`,
+      );
+      expect(
+        scaleAfter,
+        `focusing the URL input zoomed the page (${scaleBefore} -> ${scaleAfter}); ` +
+          `check the pointer:coarse font-size rule for .bn-form-popover inputs`,
+      ).toBeLessThanOrEqual(scaleBefore + 0.01);
 
-        expect(survival).toEqual({
-          focused: true,
-          popover: true,
-          toolbar: true,
-        });
+      expect(survival).toEqual({
+        focused: true,
+        popover: true,
+        toolbar: true,
+      });
 
-        await typeAndSubmit(
-          session,
-          `${LINK_POPOVER} input`,
-          "example.com",
-          `return {
+      await typeAndSubmit(
+        session,
+        `${LINK_POPOVER} input`,
+        "example.com",
+        `return {
             ok: !!document.querySelector('.bn-editor a[href="https://example.com"]')
               && !document.querySelector(${JSON.stringify(LINK_POPOVER)}),
             link: !!document.querySelector('.bn-editor a[href="https://example.com"]'),
             popoverGone: !document.querySelector(${JSON.stringify(LINK_POPOVER)}),
           };`,
-        );
+      );
 
-        expect((await docState(session)).links).toContain(
-          "https://example.com",
-        );
-        // Submitting must not dismiss the keyboard — but Appium's typing can
-        // itself hide the keyboard as an automation side effect (observed on
-        // Android), which the product can't distinguish from the user closing
-        // it. So only assert the toolbar survived while the keyboard is
-        // actually still up; the emulation suite covers this invariant
-        // deterministically.
-        if (
-          (await viewportHeight(session)) <
-          baselineHeight - KEYBOARD_MIN_HEIGHT
-        ) {
-          expect(
-            await session.exec<boolean>(
-              `return !!document.querySelector(${JSON.stringify(MOBILE_TOOLBAR)});`,
-            ),
-          ).toBe(true);
-        }
-      });
-    },
-  );
+      expect((await docState(session)).links).toContain("https://example.com");
+      // Submitting must not dismiss the keyboard — but Appium's typing can
+      // itself hide the keyboard as an automation side effect (observed on
+      // Android), which the product can't distinguish from the user closing
+      // it. So only assert the toolbar survived while the keyboard is
+      // actually still up; the emulation suite covers this invariant
+      // deterministically.
+      if (
+        (await viewportHeight(session)) <
+        baselineHeight - KEYBOARD_MIN_HEIGHT
+      ) {
+        expect(
+          await session.exec<boolean>(
+            `return !!document.querySelector(${JSON.stringify(MOBILE_TOOLBAR)});`,
+          ),
+        ).toBe(true);
+      }
+    });
+  });
 }

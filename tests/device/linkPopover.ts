@@ -4,7 +4,7 @@
  */
 import { MOBILE_TOOLBAR, PARAGRAPH, startEditing } from "./lib/editorPage.js";
 import { pressSoftKeyboardEnter, tapElement } from "./lib/gestures.js";
-import type { DeviceSession } from "./lib/webdriver.js";
+import type { DeviceSession } from "./lib/session.js";
 
 export const LINK_BUTTON = `${MOBILE_TOOLBAR} [data-test="createLink"]`;
 export const LINK_POPOVER = ".bn-form-popover";

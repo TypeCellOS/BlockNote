@@ -15,7 +15,7 @@ import {
   openExample,
   startEditing,
 } from "./lib/editorPage.js";
-import { browserStackCredentials, DeviceSession } from "./lib/webdriver.js";
+import type { DeviceSession } from "./lib/session.js";
 
 /**
  * Basic text-editing behavior on real devices. These flows go through the
@@ -24,92 +24,84 @@ import { browserStackCredentials, DeviceSession } from "./lib/webdriver.js";
  * exercise and that has broken in the wild (TypeCellOS/BlockNote#3001 — Enter
  * inserting a space or doing nothing instead of creating a block).
  */
-for (const device of activeDevices()) {
-  describe.skipIf(!browserStackCredentials())(
-    `basic editing on ${device.id}`,
-    () => {
-      let session: DeviceSession;
-      let failed = false;
+for (const device of await activeDevices()) {
+  describe(`basic editing on ${device.id}`, () => {
+    let session: DeviceSession;
+    let failed = false;
 
-      beforeAll(async () => {
-        const capabilities = structuredClone(device.capabilities) as {
-          "bstack:options": Record<string, unknown>;
-        };
-        capabilities["bstack:options"].sessionName =
-          `basic editing · ${device.id}`;
-        session = await DeviceSession.create(device.platform, capabilities);
-        await openExample(session, "/ui-components/mobile-formatting-toolbar");
-      });
+    beforeAll(async () => {
+      session = await device.createSession();
+      await openExample(session, "/ui-components/mobile-formatting-toolbar");
+    });
 
-      afterEach(({ task }) => {
-        if (task.result?.state === "fail") {
-          failed = true;
-        }
-      });
+    afterEach(({ task }) => {
+      if (task.result?.state === "fail") {
+        failed = true;
+      }
+    });
 
-      afterAll(async () => {
-        if (session) {
-          await session.screenshot(`editing-final`);
-          await session.annotate(
-            failed ? "failed" : "passed",
-            failed
-              ? "basic editing suite failed; see run output"
-              : "typing + soft-keyboard Enter passed",
-          );
-          await session.close();
-        }
-      });
+    afterAll(async () => {
+      if (session) {
+        await session.screenshot(`editing-final`);
+        await session.annotate(
+          failed ? "failed" : "passed",
+          failed
+            ? "basic editing suite failed; see run output"
+            : "typing + soft-keyboard Enter passed",
+        );
+        await session.close();
+      }
+    });
 
-      test("typing lands in the document", async () => {
-        await startEditing(session);
-        const before = await docState(session);
+    test("typing lands in the document", async () => {
+      await startEditing(session);
+      const before = await docState(session);
 
-        await typeText(session, EDITOR, "bndevicetyping");
+      await typeText(session, EDITOR, "bndevicetyping");
 
-        const after = await session.waitFor<{ ok: boolean; text: string }>(
-          "typed text present",
-          `const editor = document.querySelector(${JSON.stringify(EDITOR)});
+      const after = await session.waitFor<{ ok: boolean; text: string }>(
+        "typed text present",
+        `const editor = document.querySelector(${JSON.stringify(EDITOR)});
            return { ok: editor.textContent.includes("bndevicetyping"), text: editor.textContent.slice(0, 120) };`,
-        );
-        expect(after.ok).toBe(true);
-        // Typing must not have destroyed surrounding content.
-        expect((await docState(session)).blockCount).toBeGreaterThanOrEqual(
-          before.blockCount,
-        );
-      });
+      );
+      expect(after.ok).toBe(true);
+      // Typing must not have destroyed surrounding content.
+      expect((await docState(session)).blockCount).toBeGreaterThanOrEqual(
+        before.blockCount,
+      );
+    });
 
-      test("soft-keyboard Enter creates a new block (#3001)", async () => {
-        await startEditing(session);
-        const before = await docState(session);
+    test("soft-keyboard Enter creates a new block (#3001)", async () => {
+      await startEditing(session);
+      const before = await docState(session);
 
-        // "Any observable document mutation" stops the key-position ladder;
-        // what the mutation *was* is classified below.
-        await pressSoftKeyboardEnter(
-          session,
-          `const editor = document.querySelector(${JSON.stringify(EDITOR)});
+      // "Any observable document mutation" stops the key-position ladder;
+      // what the mutation *was* is classified below.
+      await pressSoftKeyboardEnter(
+        session,
+        `const editor = document.querySelector(${JSON.stringify(EDITOR)});
            const blocks = editor.querySelectorAll('[data-node-type="blockContainer"]').length;
            return { ok: blocks !== ${before.blockCount} || editor.textContent !== ${JSON.stringify(before.text)} };`,
-        );
+      );
 
-        const after = await docState(session);
-        await session.screenshot("after-soft-enter");
+      const after = await docState(session);
+      await session.screenshot("after-soft-enter");
 
-        // Classify the IME's effect so a failure names the bug it found:
-        // - block count +1        -> correct
-        // - text grew by a space  -> the #3001 signature
-        // - text shrank           -> the ladder hit backspace; key ratios need
-        //                            tuning for this device (see gestures.ts)
-        const gainedSpace =
-          after.blockCount === before.blockCount &&
-          after.text.length === before.text.length + 1 &&
-          after.text.includes(" ");
-        expect(
-          after.blockCount,
-          gainedSpace
-            ? "soft Enter inserted a space instead of a new block (TypeCellOS/BlockNote#3001)"
-            : `soft Enter did not create a block (text before: ${JSON.stringify(before.text.slice(0, 60))}, after: ${JSON.stringify(after.text.slice(0, 60))})`,
-        ).toBe(before.blockCount + 1);
-      });
-    },
-  );
+      // Classify the IME's effect so a failure names the bug it found:
+      // - block count +1        -> correct
+      // - text grew by a space  -> the #3001 signature
+      // - text shrank           -> the ladder hit backspace; key ratios need
+      //                            tuning for this device (see gestures.ts)
+      const gainedSpace =
+        after.blockCount === before.blockCount &&
+        after.text.length === before.text.length + 1 &&
+        after.text.includes(" ");
+      expect(
+        after.blockCount,
+        gainedSpace
+          ? "soft Enter inserted a space instead of a new block (TypeCellOS/BlockNote#3001)"
+          : `soft Enter did not create a block (text before: ${JSON.stringify(before.text.slice(0, 60))}, after: ${JSON.stringify(after.text.slice(0, 60))})`,
+      ).toBe(before.blockCount + 1);
+    });
+  });
 }

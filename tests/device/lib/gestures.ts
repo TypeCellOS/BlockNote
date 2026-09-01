@@ -14,7 +14,7 @@
  *   accessory bar (its "Done" button dismisses the keyboard and collapses the
  *   whole editing state), so mis-taps must be assumed and recovered from.
  */
-import type { DeviceSession } from "./webdriver.js";
+import type { DeviceSession } from "./session.js";
 
 /** Candidate Safari top-chrome offsets (screen pt), most likely first. */
 const IOS_CHROME_OFFSETS = {
@@ -40,7 +40,11 @@ export async function tapElement(
     verifyTimeoutMs?: number;
   },
 ): Promise<void> {
-  if (session.platform === "android") {
+  // Everything except BrowserStack iOS taps reliably through elementClick:
+  // Android clicks work there, the local Android backend's elementClick is a
+  // real OS tap, and local iOS is safaridriver, whose clicks genuinely move
+  // focus. Only BrowserStack iOS needs the native-tap chrome-offset ladder.
+  if (!(session.kind === "browserstack" && session.platform === "ios")) {
     await session.elementClick(css);
     await session.waitFor(
       `tap on ${css}`,
@@ -50,6 +54,11 @@ export async function tapElement(
     return;
   }
 
+  if (!session.nativeTap) {
+    throw new Error(
+      `tapElement: the ${session.kind} backend has no native tap channel`,
+    );
+  }
   const offsets =
     IOS_CHROME_OFFSETS[
       options.keyboard === "open" ? "keyboardOpen" : "keyboardClosed"
@@ -106,14 +115,16 @@ export async function pressSoftKeyboardEnter(
   session: DeviceSession,
   verify: string,
 ): Promise<void> {
-  if (session.platform === "android") {
-    // A WebDriver Enter key event converges on the same production code path
-    // as the soft keyboard's Enter here: prosemirror-view ignores Enter
-    // keydowns on Android Chrome entirely, so handling proceeds through the
-    // `beforeinput` (insertParagraph) the browser emits — the exact path the
-    // IME takes and where #3001-class bugs live. (BrowserStack blocks the
-    // higher-fidelity options: `mobile: shell` needs an insecure-feature
-    // opt-in and `clickGesture` isn't allowlisted.)
+  if (session.platform === "android" || session.kind === "local-ios") {
+    // Android: an Enter key event converges on the same production code path
+    // as the soft keyboard's Enter — prosemirror-view ignores Enter keydowns
+    // on Android Chrome entirely, so handling proceeds through the
+    // `beforeinput` (insertParagraph) the browser emits, the exact path the
+    // IME takes and where #3001-class bugs live. The local backend delivers
+    // it as a genuine OS key press; on BrowserStack it is a W3C key action
+    // (their driver blocks the higher-fidelity channels: `mobile: shell`
+    // needs an insecure-feature opt-in and `clickGesture` isn't allowlisted).
+    // Local iOS: safaridriver key actions reach the focused element.
     await session.typeKeys("\uE007");
     await session.waitFor("soft Enter effect", verify, 8_000);
     return;
@@ -129,6 +140,11 @@ export async function pressSoftKeyboardEnter(
       : undefined;
   const candidates = override ?? RETURN_KEY_RATIOS.ios;
 
+  if (!session.nativeTap) {
+    throw new Error(
+      `pressSoftKeyboardEnter: the ${session.kind} backend has no native tap channel`,
+    );
+  }
   // iOS native taps take screen points (CSS px scale).
   const metrics = await session.exec<{ width: number; height: number }>(
     `return { width: screen.width, height: screen.height };`,

@@ -6,16 +6,21 @@
  * tunnel (`bs-local.com`, resolved on-device by BrowserStackLocal).
  */
 import { tapElement } from "./gestures.js";
-import type { DeviceSession } from "./webdriver.js";
+import type { DeviceSession } from "./session.js";
 
 /**
  * Where the *device* loads the app from: the same port the host-side target
- * serves on, reached through `bs-local.com` — which BrowserStackLocal
- * resolves on the device back to this machine.
+ * serves on. BrowserStack hardware reaches it as `bs-local.com`, which the
+ * BrowserStackLocal tunnel resolves back to this machine; the local emulator
+ * (via `adb reverse`) and the local simulator (shared host network) both
+ * reach it as plain `127.0.0.1`.
  */
-function deviceOrigin(): string {
+function deviceOrigin(session: DeviceSession): string {
   const target = process.env.DEVICE_TEST_TARGET ?? "http://127.0.0.1:5173";
-  return `http://bs-local.com:${new URL(target).port || "80"}`;
+  const port = new URL(target).port || "80";
+  const host =
+    session.kind === "browserstack" ? "bs-local.com" : "127.0.0.1";
+  return `http://${host}:${port}`;
 }
 
 export const EDITOR = ".bn-editor";
@@ -30,7 +35,7 @@ export async function openExample(
   // Cold dev-server transforms through the tunnel can stall a first load;
   // one reload recovers it.
   for (let attempt = 0; attempt < 2; attempt++) {
-    await session.navigate(`${deviceOrigin()}${route}`);
+    await session.navigate(`${deviceOrigin(session)}${route}`);
     try {
       await session.waitFor(
         "editor rendered",

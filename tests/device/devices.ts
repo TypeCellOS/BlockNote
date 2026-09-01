@@ -1,16 +1,28 @@
-import { browserStackCredentials, type Platform } from "./lib/webdriver.js";
+import {
+  BrowserStackSession,
+  browserStackCredentials,
+} from "./lib/browserstack.js";
+import {
+  LocalAndroidSession,
+  localAndroidAvailable,
+} from "./lib/localAndroid.js";
+import { LocalIosSession, localIosAvailable } from "./lib/localIos.js";
+import type { DeviceSession, Platform, TargetKind } from "./lib/session.js";
 
 export type DeviceTarget = {
   /** Stable id, used in test names and `DEVICE_FILTER` matching. */
   id: string;
   platform: Platform;
-  capabilities: Record<string, unknown>;
+  kind: TargetKind;
+  /** Whether this machine/environment can drive the target right now. */
+  available: () => Promise<boolean>;
+  createSession: () => Promise<DeviceSession>;
 };
 
-/** Identifier tying sessions to the tunnel started by the global setup. */
+/** Identifier tying BrowserStack sessions to the tunnel from the setup. */
 export const LOCAL_TUNNEL_ID = "bn-device-tests";
 
-function capabilities(
+function browserStackCapabilities(
   platform: Platform,
   deviceName: string,
   osVersion: string,
@@ -32,29 +44,67 @@ function capabilities(
   };
 }
 
+const browserStackAvailable = async () => !!browserStackCredentials();
+
 /**
- * The device matrix. Chosen to cover both platforms and both major Android IME
- * families (this Samsung ships Samsung Keyboard; add a Pixel for Gboard when
- * widening the matrix). Every entry costs one real-device session per test
- * file per run.
+ * All targets. Local emulator/simulator targets are the per-PR layer — free,
+ * deterministic, and with input channels the cloud lacks (the Android IME
+ * action key). BrowserStack real hardware remains for what only hardware has:
+ * OEM keyboards (the Samsung ships Samsung Keyboard, the second-biggest
+ * Android IME family). Every BrowserStack entry costs one real-device session
+ * per test file per run.
  */
 export const DEVICE_TARGETS: DeviceTarget[] = [
   {
-    id: "android-samsung-galaxy-s22",
+    id: "local-android-emulator",
     platform: "android",
-    capabilities: capabilities("android", "Samsung Galaxy S22", "12.0"),
+    kind: "local-android",
+    available: localAndroidAvailable,
+    createSession: () => LocalAndroidSession.create(),
   },
   {
-    id: "ios-iphone-16e",
+    id: "local-ios-simulator",
     platform: "ios",
-    capabilities: capabilities("ios", "iPhone 16e", "18"),
+    kind: "local-ios",
+    available: localIosAvailable,
+    createSession: () => LocalIosSession.create(),
+  },
+  {
+    id: "bs-android-samsung-galaxy-s22",
+    platform: "android",
+    kind: "browserstack",
+    available: browserStackAvailable,
+    createSession: () =>
+      BrowserStackSession.create(
+        "android",
+        browserStackCapabilities("android", "Samsung Galaxy S22", "12.0"),
+      ),
+  },
+  {
+    id: "bs-ios-iphone-16e",
+    platform: "ios",
+    kind: "browserstack",
+    available: browserStackAvailable,
+    createSession: () =>
+      BrowserStackSession.create(
+        "ios",
+        browserStackCapabilities("ios", "iPhone 16e", "18"),
+      ),
   },
 ];
 
-/** Devices selected for this run; narrow with DEVICE_FILTER=<id substring>. */
-export function activeDevices(): DeviceTarget[] {
+/**
+ * Targets selected for this run: reachable ones, narrowed by
+ * `DEVICE_FILTER=<id substring>`. Unreachable targets are skipped so the
+ * suite runs whatever a machine can drive — CI's Android job sees only the
+ * emulator, the macOS job only the simulator, a laptop with credentials all
+ * four.
+ */
+export async function activeDevices(): Promise<DeviceTarget[]> {
   const filter = process.env.DEVICE_FILTER;
-  return filter
+  const candidates = filter
     ? DEVICE_TARGETS.filter((d) => d.id.includes(filter))
     : DEVICE_TARGETS;
+  const flags = await Promise.all(candidates.map((d) => d.available()));
+  return candidates.filter((_, i) => flags[i]);
 }

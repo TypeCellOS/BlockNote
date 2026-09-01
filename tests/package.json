@@ -34,6 +34,7 @@
     "browserstack-local": "^1.5.13",
     "htmlfy": "^0.6.7",
     "pdfjs-dist": "^4.10.38",
+    "playwright-core": "^1.62.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-icons": "^5.5.0",
