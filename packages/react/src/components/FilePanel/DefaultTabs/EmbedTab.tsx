@@ -37,7 +37,7 @@ export const EmbedTab = <
     [],
   );
 
-  const embedURL = useCallback(() => {
+  const handleSubmit = useCallback(() => {
     if (!editor.getBlock(props.blockId)) {
       return;
     }
@@ -62,7 +62,7 @@ export const EmbedTab = <
         action for assistive technology.
       */}
       <Components.Generic.Form.Root
-        onSubmit={embedURL}
+        onSubmit={handleSubmit}
         submitButton={
           <Components.FilePanel.Button
             className={"bn-button"}

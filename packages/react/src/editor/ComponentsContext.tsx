@@ -314,28 +314,17 @@ export type ComponentProps = {
       Root: {
         children?: ReactNode;
         /**
-         * Called on the form's `submit` event, which is how the browser
-         * reports Enter-to-submit — including when a mobile IME's action key
-         * triggers it. Implementations must render a real `<form>` and
-         * `preventDefault`, or Enter is left with no submission path at all
-         * on platforms that don't dispatch a key event for it.
-         *
-         * The form context is also what makes Android's IME offer a
-         * submitting action at all: without it, it advances focus to the next
-         * element on the page instead (verified on a device).
+         * Called on the form's `submit` event. Implementations must render a
+         * real `<form>` and `preventDefault`: native submission is the only
+         * path that works for every input source — mobile IMEs commit
+         * through it without dispatching any key event.
          */
         onSubmit?: () => void;
         /**
-         * The form's submit control, rendered inside the `<form>`. Required,
-         * because it decides how the form can be committed at all: a submit
-         * button is what makes Enter submit a form with more than one field,
-         * and it is the control assistive technology activates.
-         *
-         * Pass `ScreenReaderOnlySubmit` for the usual case (a visually
-         * hidden, labelled control), a visible `type="submit"` button to make
-         * it double as the form's one submit affordance (the embed tab), or
-         * `"none"` to opt out explicitly - then the form must have exactly
-         * one field, or Enter reaches nothing.
+         * The form's submit control, rendered inside the `<form>`. Usually
+         * `ScreenReaderOnlySubmit`; a visible `type="submit"` button to make
+         * it the form's one affordance (the embed tab); or `"none"` — then
+         * the form must have exactly one field, or Enter submits nothing.
          */
         submitButton: ReactElement | "none";
       };

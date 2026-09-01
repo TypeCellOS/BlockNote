@@ -48,7 +48,6 @@ export const TextInput = forwardRef<
             variant === "large" ? "bn-ak-input-large" : "",
           )}
           ref={setRefs}
-          data-autofocus={autoFocus ? "true" : undefined}
           name={name}
           value={value}
           placeholder={placeholder}

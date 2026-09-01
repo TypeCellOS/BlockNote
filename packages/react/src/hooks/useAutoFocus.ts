@@ -10,28 +10,19 @@ import { RefObject, useEffect, useRef } from "react";
  * would run while the popover is still at its pre-positioned spot and yank
  * the page (on mobile, right out from under the block being edited).
  *
- * The shape follows the official implementations for this situation, which
- * all defer and/or prevent scrolling: Mantine's focus-on-open is
- * `setTimeout(() => el.focus({ preventScroll: true }))`; floating-ui's
- * FloatingFocusManager is layout effect → microtask → rAF →
- * `focus({ preventScroll })`. Ours is a plain effect with unconditional
- * `preventScroll` — stronger scroll-safety than floating-ui (which lets a
- * chosen initial element scroll), and deliberately *without* their extra
- * deferral layers: we have no tabIndex setters to wait for, and every added
- * hop erodes the user-gesture window inside which iOS Safari allows a
- * programmatic focus to open the on-screen keyboard (the real-device suite
- * validated the keyboard appears with this timing). `preventScroll` also
- * makes the timing not load-bearing for layout: no ordering relative to
- * floating-ui's positioning can scroll the page.
+ * The shape matches the official popover-autofocus implementations
+ * (Mantine: setTimeout + preventScroll; floating-ui: microtask + rAF +
+ * preventScroll), minus their deferral layers: there is nothing here to
+ * wait for, and added hops erode the user-gesture window in which iOS
+ * Safari lets a programmatic focus open the keyboard (validated on real
+ * iOS). `preventScroll` also makes the timing not load-bearing: no
+ * ordering relative to floating-ui's positioning can scroll the page.
  *
- * Skins whose UI library reads `data-autofocus` should also set it (value
- * "true") on the same element: Mantine's focus trap and Ariakit's dialog
- * initial-focus both select `[data-autofocus]`, so the attribute makes any
- * trap that activates pick this same element instead of falling back to
- * "first focusable" — the two mechanisms can never fight over where focus
- * lands. Skins on libraries without that convention omit it as dead markup:
- * the shadcn skin's Base UI has no attribute-based initial focus at all —
- * its mechanism is the `initialFocus` prop on popups.
+ * A skin sets `data-autofocus` on the same element only when its UI
+ * library both reads the attribute AND focuses safely: Mantine's trap
+ * does (`focus({ preventScroll: true })`). Ariakit reads it but
+ * bare-focuses, so that skin disables its `autoFocusOnShow` instead (see
+ * its Popover); Base UI has no attribute convention.
  *
  * Returns the ref to attach; merge it with a forwarded ref via
  * `useMergeRefs`.
