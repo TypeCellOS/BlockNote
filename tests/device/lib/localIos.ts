@@ -17,6 +17,8 @@
  *   the gesture layer's chrome-offset ladders apply here unchanged.
  */
 import { execFile } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { promisify } from "node:util";
 import { Builder, By, type WebDriver } from "selenium-webdriver";
 
@@ -26,6 +28,9 @@ import { saveScreenshot } from "./artifacts.js";
 const execFileAsync = promisify(execFile);
 
 export const APPIUM_PORT = 47632;
+
+/** Where the suite setup records the booted simulator for the workers. */
+export const SIM_UDID_FILE = join(import.meta.dirname, "..", ".artifacts", ".booted-simulator");
 
 /** True on macOS with the simulator toolchain present. */
 export async function localIosAvailable(): Promise<boolean> {
@@ -53,25 +58,15 @@ export class LocalIosSession implements DeviceSession {
     // The suite's setup (lib/tunnel.ts) boots a simulator; discover it here
     // rather than passing state across processes — vitest's global setup and
     // its workers don't share an environment.
-    let udid: string | undefined;
-    const deadline = Date.now() + 30_000;
-    while (!udid) {
-      const { stdout } = await execFileAsync("xcrun", [
-        "simctl",
-        "list",
-        "devices",
-        "available",
-      ]);
-      udid = stdout.match(/([0-9A-F-]{36})\) \(Booted\)/)?.[1];
-      if (!udid && Date.now() > deadline) {
-        throw new Error(
-          "No booted iOS simulator found — the device-suite setup should " +
-            "have booted one (see lib/tunnel.ts).",
-        );
-      }
-      if (!udid) {
-        await new Promise((resolve) => setTimeout(resolve, 2_000));
-      }
+    // Written by the suite setup (lib/tunnel.ts), which boots the device.
+    let udid: string;
+    try {
+      udid = readFileSync(SIM_UDID_FILE, "utf8").trim();
+    } catch {
+      throw new Error(
+        "No simulator recorded — the device-suite setup should have booted " +
+          "one and written " + SIM_UDID_FILE + " (see lib/tunnel.ts).",
+      );
     }
     const driver = await new Builder()
       .usingServer(`http://127.0.0.1:${APPIUM_PORT}`)

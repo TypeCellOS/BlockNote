@@ -21,9 +21,12 @@ import { execFile, spawn, type ChildProcess } from "node:child_process";
 import { promisify } from "node:util";
 import BrowserStackLocal from "browserstack-local";
 
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
+
 import { activeDevices, LOCAL_TUNNEL_ID } from "../devices.js";
 import { browserStackCredentials } from "./browserstack.js";
-import { APPIUM_PORT } from "./localIos.js";
+import { APPIUM_PORT, SIM_UDID_FILE } from "./localIos.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -84,6 +87,11 @@ async function startLocalIos(): Promise<() => Promise<void>> {
     timeout: 240_000,
   });
   const bootedByUs = already ? undefined : udid;
+  // Hand the chosen device to the test workers through the filesystem —
+  // global setup and workers don't share an environment, and polling
+  // `simctl list` for a Booted device races on slow CI runners.
+  mkdirSync(dirname(SIM_UDID_FILE), { recursive: true });
+  writeFileSync(SIM_UDID_FILE, udid);
 
   // Appium with the XCUITest driver (an npm devDependency, which Appium
   // discovers). Note Appium requires an even-numbered Node (see
