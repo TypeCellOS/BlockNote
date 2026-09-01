@@ -18,13 +18,10 @@ import { dirname } from "node:path";
 import { promisify } from "node:util";
 
 import { activeDevices } from "../devices.js";
+import { targetOrigin } from "./target.js";
 import { APPIUM_PORT, SIM_UDID_FILE } from "./localIos.js";
 
 const execFileAsync = promisify(execFile);
-
-function targetOrigin(): string {
-  return process.env.DEVICE_TEST_TARGET ?? "http://127.0.0.1:5173";
-}
 
 async function ensureAppServer(): Promise<void> {
   const res = await fetch(targetOrigin(), { redirect: "manual" }).catch(
@@ -34,6 +31,22 @@ async function ensureAppServer(): Promise<void> {
     throw new Error(
       `No app server at ${targetOrigin()}. Start the playground (\`pnpm run dev\`) ` +
         `or point DEVICE_TEST_TARGET at a running server.`,
+    );
+  }
+  // Guard against a *wrong-checkout* server on the right port — a burned
+  // lesson: a playground from another clone answered here and a full day of
+  // device runs silently tested the wrong tree. The viewport meta below is
+  // load-bearing for these tests (without `resizes-content` the keyboard
+  // overlays the page and OS taps land far below their targets), so its
+  // absence is both a strong wrong-tree signal and a guaranteed debugging pit.
+  const html = await fetch(targetOrigin(), { redirect: "follow" })
+    .then((r) => r.text())
+    .catch(() => "");
+  if (!html.includes("interactive-widget=resizes-content")) {
+    throw new Error(
+      `The app server at ${targetOrigin()} does not serve the expected ` +
+        `playground shell (missing the interactive-widget=resizes-content ` +
+        `viewport meta). Is it running from this checkout's playground/?`,
     );
   }
 }
@@ -71,13 +84,42 @@ async function startLocalIos(): Promise<() => Promise<void>> {
 
   // Appium with the XCUITest driver (an npm devDependency, which Appium
   // discovers). Note Appium requires an even-numbered Node (see
-  // .node-version); it refuses to start otherwise.
+  // .node-version); it refuses to start otherwise. Its output is captured so
+  // a failure to start can say *why* — with output discarded, a CI-only
+  // startup failure is undebuggable. `detached` puts it in its own process
+  // group, so the kill below can take out the whole npx -> appium tree; a
+  // surviving grandchild otherwise holds the captured pipes open and wedges
+  // this process at exit.
   const server: ChildProcess = spawn(
     "npx",
     ["appium", "server", "-p", String(APPIUM_PORT)],
-    { stdio: "ignore", cwd: import.meta.dirname },
+    {
+      stdio: ["ignore", "pipe", "pipe"],
+      cwd: import.meta.dirname,
+      detached: true,
+    },
   );
-  const deadline = Date.now() + 60_000;
+  let serverOutput = "";
+  for (const stream of [server.stdout, server.stderr]) {
+    stream?.on("data", (chunk: Buffer) => {
+      serverOutput = (serverOutput + chunk.toString()).slice(-4_000);
+    });
+  }
+  function killServerTree() {
+    if (server.pid !== undefined) {
+      try {
+        process.kill(-server.pid, "SIGKILL");
+        return;
+      } catch {
+        // Group already gone, or platform quirk — fall through.
+      }
+    }
+    server.kill("SIGKILL");
+  }
+
+  // Generous: a cold CI runner pays npx resolution and Appium's first-run
+  // driver discovery here.
+  const deadline = Date.now() + 180_000;
   for (;;) {
     const ok = await fetch(`http://127.0.0.1:${APPIUM_PORT}/status`)
       .then((res) => res.ok)
@@ -86,17 +128,21 @@ async function startLocalIos(): Promise<() => Promise<void>> {
       break;
     }
     if (Date.now() > deadline) {
-      server.kill();
+      killServerTree();
       throw new Error(
-        "Appium did not start. It requires an even-numbered Node version " +
-          "(see .node-version) and the appium-xcuitest-driver devDependency.",
+        "Appium did not start (node " +
+          process.version +
+          "; it requires an " +
+          "even-numbered Node version and the appium-xcuitest-driver " +
+          "devDependency). Appium output:\n" +
+          (serverOutput || "(no output)"),
       );
     }
     await new Promise((resolve) => setTimeout(resolve, 1_000));
   }
 
   return async () => {
-    server.kill();
+    killServerTree();
     if (bootedByUs) {
       await execFileAsync("xcrun", ["simctl", "shutdown", bootedByUs]).catch(
         () => {},

@@ -20,8 +20,6 @@ export type TargetKind = "local-android" | "local-ios";
 export interface DeviceSession {
   readonly platform: Platform;
   readonly kind: TargetKind;
-  /** Backend session identifier, for artifacts and dashboards. */
-  readonly sessionId: string;
 
   navigate(url: string): Promise<void>;
 

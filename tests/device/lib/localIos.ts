@@ -16,16 +16,13 @@
  *   screen points — which is why the gesture layer keeps chrome-offset
  *   ladders for iOS.
  */
-import { execFile } from "node:child_process";
+import { spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { promisify } from "node:util";
 import { Builder, By, type WebDriver } from "selenium-webdriver";
 
 import { type DeviceSession, waitForOk } from "./session.js";
 import { saveScreenshot } from "./artifacts.js";
-
-const execFileAsync = promisify(execFile);
 
 export const APPIUM_PORT = 47632;
 
@@ -37,27 +34,41 @@ export const SIM_UDID_FILE = join(
   ".booted-simulator",
 );
 
-/** True on macOS with the simulator toolchain present. */
-export async function localIosAvailable(): Promise<boolean> {
+/**
+ * True on macOS with the simulator toolchain present.
+ *
+ * The probe holds no stdio pipes: a cold `xcrun` on a fresh CI runner can be
+ * slow, and when a piped probe times out, the orphaned child keeps the pipe
+ * open and wedges the whole process at exit (a 45-minute CI hang, learned the
+ * hard way). Exit code is all this needs. The timeout is generous for the
+ * same cold-start reason; the CI workflow also warms `xcrun` beforehand.
+ */
+export function localIosAvailable(): Promise<boolean> {
   if (process.platform !== "darwin") {
-    return false;
+    return Promise.resolve(false);
   }
-  try {
-    await execFileAsync("xcrun", ["simctl", "help"], { timeout: 10_000 });
-    return true;
-  } catch {
-    return false;
-  }
+  return new Promise((resolve) => {
+    const probe = spawn("xcrun", ["simctl", "help"], { stdio: "ignore" });
+    const timer = setTimeout(() => {
+      probe.kill("SIGKILL");
+      resolve(false);
+    }, 60_000);
+    probe.on("error", () => {
+      clearTimeout(timer);
+      resolve(false);
+    });
+    probe.on("exit", (code) => {
+      clearTimeout(timer);
+      resolve(code === 0);
+    });
+  });
 }
 
 export class LocalIosSession implements DeviceSession {
   readonly kind = "local-ios";
   readonly platform = "ios";
 
-  private constructor(
-    private readonly driver: WebDriver,
-    public readonly sessionId: string,
-  ) {}
+  private constructor(private readonly driver: WebDriver) {}
 
   static async create(): Promise<LocalIosSession> {
     // The suite's setup (lib/tunnel.ts) boots a simulator; discover it here
@@ -86,8 +97,7 @@ export class LocalIosSession implements DeviceSession {
         "appium:wdaLaunchTimeout": 240_000,
       })
       .build();
-    const sessionId = (await driver.getSession()).getId();
-    return new LocalIosSession(driver, sessionId);
+    return new LocalIosSession(driver);
   }
 
   async navigate(url: string): Promise<void> {

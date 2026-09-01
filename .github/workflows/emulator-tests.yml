@@ -100,6 +100,12 @@ jobs:
           echo "playground dev server never came up" >&2
           exit 1
 
+      # A cold xcrun on a fresh runner can take long enough to trip the
+      # suite's availability probe; the first invocation pays the
+      # initialization cost here, visibly.
+      - name: Warm the simulator toolchain
+        run: xcrun simctl list devices available
+
       - name: Run device suite on the simulator
         run: DEVICE_FILTER=local-ios vp run test:device
 

@@ -22,7 +22,7 @@ const IOS_CHROME_OFFSETS = {
   keyboardOpen: [50, 45, 55, 100],
 } as const;
 
-export type KeyboardState = "open" | "closed";
+type KeyboardState = "open" | "closed";
 
 /**
  * Taps an element. Android uses a plain element click (reliable there); iOS

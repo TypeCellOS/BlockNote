@@ -6,23 +6,17 @@
  * app server (see lib/tunnel.ts).
  */
 import { tapElement } from "./gestures.js";
+import { targetPort } from "./target.js";
 import type { DeviceSession } from "./session.js";
 
-/**
- * Where the *device* loads the app from: the same port the host-side target
- * serves on. The emulator reaches it via `adb reverse`, the simulator via the
- * shared host network — both as plain `127.0.0.1`.
- */
+/** Where the *device* loads the app from — see lib/target.ts. */
 function deviceOrigin(): string {
-  const target = process.env.DEVICE_TEST_TARGET ?? "http://127.0.0.1:5173";
-  const port = new URL(target).port || "80";
-  return `http://127.0.0.1:${port}`;
+  return `http://127.0.0.1:${targetPort()}`;
 }
 
 export const EDITOR = ".bn-editor";
 export const PARAGRAPH = ".bn-editor .bn-inline-content";
 export const MOBILE_TOOLBAR = ".bn-mobile-formatting-toolbar";
-export const BLOCK = '.bn-editor [data-node-type="blockContainer"]';
 
 export async function openExample(
   session: DeviceSession,

@@ -16,15 +16,10 @@ import type { AndroidDevice, BrowserContext, Page } from "playwright-core";
 import { _android } from "playwright-core";
 
 import { type DeviceSession, waitForOk } from "./session.js";
+import { targetPort } from "./target.js";
 import { saveScreenshot } from "./artifacts.js";
 
 const execFileAsync = promisify(execFile);
-
-/** The dev-server port the emulator reaches via `adb reverse`. */
-function targetPort(): string {
-  const target = process.env.DEVICE_TEST_TARGET ?? "http://127.0.0.1:5173";
-  return new URL(target).port || "80";
-}
 
 /** True when adb can see a running emulator/device. */
 export async function localAndroidAvailable(): Promise<boolean> {
@@ -46,7 +41,6 @@ export class LocalAndroidSession implements DeviceSession {
     private readonly device: AndroidDevice,
     private readonly context: BrowserContext,
     private readonly page: Page,
-    public readonly sessionId: string,
     private readonly screen: { width: number; height: number },
   ) {}
 
@@ -102,10 +96,7 @@ export class LocalAndroidSession implements DeviceSession {
 
     const { width, height } = await sizeOf(device);
 
-    return new LocalAndroidSession(device, context, page, device.serial(), {
-      width,
-      height,
-    });
+    return new LocalAndroidSession(device, context, page, { width, height });
   }
 
   /**

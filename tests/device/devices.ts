@@ -52,5 +52,18 @@ export async function activeDevices(): Promise<DeviceTarget[]> {
     ? DEVICE_TARGETS.filter((d) => d.id.includes(filter))
     : DEVICE_TARGETS;
   const flags = await Promise.all(candidates.map((d) => d.available()));
+  // On CI a filtered-in target is a promise, not a suggestion: its job exists
+  // to run exactly that target, so an availability-probe failure must fail
+  // the job — silently skipping would render 0 tests and a green check.
+  if (process.env.CI && filter) {
+    const missing = candidates.filter((_, i) => !flags[i]);
+    if (missing.length > 0) {
+      throw new Error(
+        `CI selected ${missing.map((d) => d.id).join(", ")} via ` +
+          `DEVICE_FILTER=${filter}, but the availability probe failed — ` +
+          `the target's toolchain is broken on this runner.`,
+      );
+    }
+  }
   return candidates.filter((_, i) => flags[i]);
 }
