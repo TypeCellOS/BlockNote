@@ -217,10 +217,10 @@ export interface BlockConfig<
    * `contentRef` (React) / `contentDOM` (vanilla), the same way it would place
    * inline content.
    *
-   * Only `content: "none"` may be combined with `children`; a container
-   * block has no content of its own. Combining `children` with any other
-   * `content` is a schema-creation error. (Content-bearing containers may be
-   * supported in a future version, at which point this restriction lifts.)
+   * A container block has no content of its own, so declare it with
+   * `content: "none"`. Any other `content` is ignored: the node is built from
+   * `children` alone. (Content-bearing containers may be supported in a future
+   * version.)
    *
    * `children: { allow: "any" }` is the minimal container.
    */

@@ -297,6 +297,13 @@ function serializeBlock<
         { mode: "fill" },
       );
 
+      // A container's `toExternalHTML` writes its block ID onto the root it
+      // owns, the way its node view does. External HTML carries no IDs
+      // though — the `data-id` of a regular block is filtered out above — so
+      // that parsing this HTML back mints fresh ones instead of duplicating
+      // the IDs of the blocks it was copied from.
+      rootElement?.removeAttribute("data-id");
+
       // Mark where the children live, mirroring the internal serializer, so
       // the container's parse rule can scope itself to this element
       // (`contentElement` in `getParseRules`) when the HTML is pasted back.

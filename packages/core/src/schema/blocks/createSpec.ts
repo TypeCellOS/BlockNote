@@ -543,8 +543,7 @@ function buildRegularNode<
   });
 }
 
-// The content expression BlockNote's block model assumes for each `content`
-// kind, and what `buildRegularNode` generates from one.
+// What `buildRegularNode` generates for each `content` kind.
 const CONTENT_EXPRESSIONS: Record<BlockConfig["content"], string> = {
   inline: "inline*",
   plain: "text*",
@@ -553,41 +552,21 @@ const CONTENT_EXPRESSIONS: Record<BlockConfig["content"], string> = {
 };
 
 /**
- * Checks a block's node against its config, at the one point where both are in
- * hand. A generated node derives its content expression and groups from the
- * config, so this only ever fires for a hand-written one
- * (`createBlockSpecFromTiptapNode`), which states those facts itself.
- *
- * Everything above reads them off the config — `contentKind` in
- * `getBlockInfoFromPos`, `isContainerNode`, `isContainerOnly`, `isSealed` — so
- * a node that disagrees with its config is rejected here, once, rather than
- * quietly behaving like a block it isn't.
- *
- * tiptap allows both fields to be functions of the editor, in which case there
- * is nothing to compare yet and the check is skipped.
+ * Checks a hand-written node's content expression against the `content` its
+ * spec declares — the one `getBlockInfoFromPos` reports as the block's
+ * `contentKind`, without looking at the node. A generated node's expression
+ * comes from that same config, so this only bites on a hand-written one
+ * (`createBlockSpecFromTiptapNode`).
  */
 function checkNodeMatchesConfig(node: Node, blockConfig: BlockConfig) {
+  // A container's node holds blocks rather than content, and its expression
+  // comes from `children` instead.
   if (blockConfig.children !== undefined) {
-    // A container's content expression is its `children` config compiled, so
-    // what marks it as a container is its groups: that is what
-    // `isContainerNode` answers from.
-    const group = node.config.group;
-    if (typeof group !== "string") {
-      return;
-    }
-
-    const missing = ["bnBlock", CHILD_CONTAINER_GROUP].filter(
-      (required) => !group.split(" ").includes(required),
-    );
-    if (missing.length > 0) {
-      throw new Error(
-        `Block "${blockConfig.type}" declares \`children\`, so its node must ` +
-          `join the "${missing.join('", "')}" group(s) to be treated as a container.`,
-      );
-    }
     return;
   }
 
+  // tiptap allows the expression to be a function of the editor, in which case
+  // there is nothing to compare yet.
   const content = node.config.content;
   if (content !== undefined && typeof content !== "string") {
     return;
@@ -614,8 +593,6 @@ export function addNodeAndExtensionsToSpec<
   extensions?: (ExtensionFactoryInstance | Extension)[],
   priority?: number,
 ): LooseBlockSpec<TName, TProps, TContent> {
-  // A `children` config combined with any `content` other than `"none"` is
-  // rejected by `validateChildrenConfigs` when the schema is built.
   const childrenConfig = blockConfig.children;
 
   const isContainer = childrenConfig !== undefined;

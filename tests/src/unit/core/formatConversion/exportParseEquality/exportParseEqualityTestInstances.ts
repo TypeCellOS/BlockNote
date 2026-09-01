@@ -379,6 +379,39 @@ export const exportParseEqualityTestInstancesHTML: TestInstance<
     },
     executeTest: testExportParseEqualityHTML,
   },
+  {
+    // Containers survive the lossy HTML the clipboard carries. The serializer
+    // marks the children region (`data-children-of`) and fills in the type and
+    // non-default props, which together are what the container's parse rule
+    // needs to rebuild the block — otherwise the children come back as
+    // top-level blocks and the props are lost.
+    testCase: {
+      name: "containers/nested",
+      content: [
+        {
+          type: "callout",
+          props: { flavor: "warning" },
+          children: [
+            {
+              type: "heading",
+              content: "Nested heading",
+            },
+            {
+              type: "callout",
+              props: { flavor: "info" },
+              children: [
+                {
+                  type: "paragraph",
+                  content: "Inner callout child",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityHTML,
+  },
 ];
 
 // Markdown round-trip tests: blocks → markdown → blocks

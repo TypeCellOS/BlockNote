@@ -1,3 +1,4 @@
+import { Node as TiptapNode } from "@tiptap/core";
 import { describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
@@ -5,6 +6,7 @@ import { defaultBlockSpecs } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { YAttributionMarksExtension } from "../../y/extensions/YAttributionMarks.js";
 import { createBlockConfig, createBlockSpec } from "../index.js";
+import { createBlockSpecFromTiptapNode } from "./internal.js";
 
 // A minimal "plain" content block WITHOUT a custom `parseContent`, so parsing
 // its HTML exercises the generic plain branch in `getParseRules`' `getContent`.
@@ -119,5 +121,28 @@ describe("plain content parsing", () => {
     expect(markNames.has("bold")).toBe(false);
 
     editor._tiptapEditor.destroy();
+  });
+});
+
+describe("block spec and node agreement", () => {
+  it("rejects a hand-written node whose content contradicts its config", () => {
+    expect(() =>
+      BlockNoteSchema.create().extend({
+        blockSpecs: {
+          holder: createBlockSpecFromTiptapNode(
+            {
+              node: TiptapNode.create({
+                name: "holder",
+                group: "blockContent",
+                content: "paragraph+",
+              }),
+              type: "holder",
+              content: "none",
+            },
+            {},
+          ),
+        },
+      }),
+    ).toThrow(/declares `content: "none"`, but its node holds "paragraph\+"/);
   });
 });

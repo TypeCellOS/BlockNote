@@ -1,9 +1,11 @@
 import { resolveChildren } from "./children.js";
 import type { BlockConfig, ChildrenConfig } from "./types.js";
 
-type ValidatableConfig = Pick<BlockConfig, "type" | "content"> & {
+// A block's declaration, reduced to what these checks look at. Regular blocks
+// are in here too: a container's `allow` may name one, and naming one is an
+// error the checks below report.
+type ValidatableConfig = Pick<BlockConfig, "type"> & {
   children?: ChildrenConfig;
-  placement?: BlockConfig["placement"];
   /** From the block's implementation rather than its config. */
   runsBefore?: string[];
 };
