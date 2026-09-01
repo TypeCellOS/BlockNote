@@ -1,6 +1,6 @@
 import {
-  BlockSchema,
   blockHasType,
+  BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -8,11 +8,10 @@ import {
   useBlockNoteEditor,
   useComponentsContext,
   useDictionary,
-  useSelectedBlocks,
+  useEditorState,
   useUIMode,
 } from "@blocknote/react";
 import { useCallback, useEffect, useState } from "react";
-
 import { RiImageEditFill } from "react-icons/ri";
 
 import { UppyFilePanel } from "./UppyFilePanel";
@@ -31,49 +30,72 @@ export const FileReplaceButton = () => {
     StyleSchema
   >();
 
-  const selectedBlocks = useSelectedBlocks(editor);
+  const block = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      if (!editor.isEditable) {
+        return undefined;
+      }
 
-  const [isOpen, setIsOpenState] = useState<boolean>(false);
+      const selectedBlocks = editor.getSelection()?.blocks || [
+        editor.getTextCursorPosition().block,
+      ];
+
+      if (selectedBlocks.length !== 1) {
+        return undefined;
+      }
+
+      const block = selectedBlocks[0];
+
+      if (
+        !blockHasType(block, editor, block.type, {
+          url: "string",
+        })
+      ) {
+        return undefined;
+      }
+
+      return block;
+    },
+  });
+
+  const [popoverOpen, setPopoverOpenState] = useState(false);
 
   // Return focus to the editor when closing, so on mobile the on-screen
   // keyboard and formatting toolbar stay up instead of being dismissed as
   // focus falls back to `<body>`.
-  const setIsOpen = useCallback(
+  const setPopoverOpen = useCallback(
     (open: boolean) => {
       if (!open) {
         editor.focus();
       }
-      setIsOpenState(open);
+      setPopoverOpenState(open);
     },
     [editor],
   );
 
+  // Close once a file is chosen (the block's url changes on both embed and
+  // upload). The popover must close itself: the desktop toolbar unmounts on
+  // completion-adjacent updates, but the mobile toolbar stays mounted, so an
+  // uncontrolled popover would linger over it.
+  const currentUrl = (block?.props as { url?: string } | undefined)?.url;
   useEffect(() => {
-    setIsOpenState(false);
-  }, [selectedBlocks]);
+    setPopoverOpen(false);
+  }, [currentUrl, setPopoverOpen]);
 
-  const block = selectedBlocks.length === 1 ? selectedBlocks[0] : undefined;
-
-  if (
-    block === undefined ||
-    !blockHasType(block, editor, "file", { url: "string" }) ||
-    !editor.isEditable
-  ) {
+  if (block === undefined) {
     return null;
   }
 
   return (
     <Components.Generic.Popover.Root
-      open={isOpen}
-      onOpenChange={setIsOpen}
-      position={"bottom"}
+      open={popoverOpen}
+      onOpenChange={setPopoverOpen}
       portalRoot={uiMode === "mobile" ? editor.portalElement : undefined}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
-          onClick={() => setIsOpen(!isOpen)}
-          isSelected={isOpen}
           mainTooltip={
             dict.formatting_toolbar.file_replace.tooltip[block.type] ||
             dict.formatting_toolbar.file_replace.tooltip["file"]
@@ -83,6 +105,7 @@ export const FileReplaceButton = () => {
             dict.formatting_toolbar.file_replace.tooltip["file"]
           }
           icon={<RiImageEditFill />}
+          onClick={() => setPopoverOpen(!popoverOpen)}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content

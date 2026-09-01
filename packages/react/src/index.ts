@@ -3,7 +3,6 @@ export * from "./editor/BlockNoteContext.js";
 export * from "./editor/BlockNoteDefaultUI.js";
 export * from "./editor/BlockNoteView.js";
 export * from "./editor/ComponentsContext.js";
-export * from "./editor/UIModeContext.js";
 export * from "./i18n/dictionary.js";
 
 export * from "./blocks/Audio/block.js";

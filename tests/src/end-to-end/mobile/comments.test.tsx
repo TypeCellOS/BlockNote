@@ -59,6 +59,57 @@ afterEach(async () => {
   await page.viewport(393, 727);
 });
 
+/**
+ * Selects the first word, opens the composer from the mobile toolbar, types
+ * `text`, and saves — the shared setup for both tests below. Ends with the
+ * thread mark in the document and the main toolbar restored.
+ */
+async function createThread(text: string) {
+  await focusOnEditor();
+  await userEvent.keyboard("Comment target here");
+  await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+
+  // "Keyboard opens": the main editor's mobile toolbar appears.
+  await page.viewport(393, 427);
+  const mainToolbar = await expectSingleToolbarAtViewportBottom();
+
+  const commentButton = Array.from(
+    mainToolbar.querySelectorAll<HTMLElement>("button"),
+  ).find((button) => /comment/i.test(button.getAttribute("aria-label") ?? ""));
+  expect(commentButton).toBeDefined();
+  await userEvent.click(commentButton!);
+
+  await vi.waitFor(() => {
+    if (!document.activeElement?.closest(".bn-comment-editor")) {
+      throw new Error("comment composer did not receive focus");
+    }
+  });
+  await userEvent.keyboard(text);
+  await vi.waitFor(() => {
+    if (
+      !document.querySelector(".bn-comment-editor")?.textContent?.includes(text)
+    ) {
+      throw new Error("typing did not land in the comment composer");
+    }
+  });
+
+  const saveButton = Array.from(
+    document.querySelectorAll<HTMLButtonElement>("button"),
+  ).find((button) =>
+    /save/i.test(
+      (button.getAttribute("aria-label") ?? "") + button.textContent,
+    ),
+  );
+  expect(saveButton).toBeDefined();
+  await userEvent.click(saveButton!);
+  await waitForSelector(`${EDITOR_SELECTOR} .bn-thread-mark`);
+  await vi.waitFor(() => {
+    if (document.querySelector(".bn-comment-editor")) {
+      throw new Error("composer still open after saving");
+    }
+  });
+}
+
 describe("Comments on mobile", () => {
   test("composing a comment hands the toolbar to the composer and back", async () => {
     await focusOnEditor();
@@ -121,5 +172,61 @@ describe("Comments on mobile", () => {
     });
     const restoredToolbar = await expectSingleToolbarAtViewportBottom();
     expect(restoredToolbar.closest(".bn-comment-editor")).toBeNull();
+  });
+
+  test("tapping a thread mark opens the thread; replying works", async () => {
+    await createThread("A mobile comment");
+
+    // A tap on the mark selects the thread and opens the floating card.
+    await userEvent.click(
+      await waitForSelector(`${EDITOR_SELECTOR} .bn-thread-mark`),
+    );
+    await waitForSelector(".bn-thread");
+    await vi.waitFor(() => {
+      if (document.querySelectorAll(".bn-thread-comment").length !== 1) {
+        throw new Error("thread did not show its comment");
+      }
+    });
+
+    // Reply through the thread's own (editable) comment editor.
+    const replyEditor = await waitForSelector(
+      '.bn-thread .bn-comment-editor [contenteditable="true"]',
+    );
+    await userEvent.click(replyEditor);
+    await userEvent.keyboard("A mobile reply");
+    await vi.waitFor(() => {
+      if (
+        !document
+          .querySelector(".bn-thread")!
+          .textContent!.includes("A mobile reply")
+      ) {
+        throw new Error("typing did not land in the reply editor");
+      }
+    });
+
+    // While the reply editor holds focus, its toolbar is the only one on
+    // screen (the nested-editor yield, same as the composer).
+    const replyToolbar = await expectSingleToolbarAtViewportBottom();
+    expect(replyToolbar.closest(".bn-thread")).not.toBeNull();
+
+    const saveButton = Array.from(
+      document.querySelectorAll<HTMLButtonElement>(".bn-thread button"),
+    ).find((button) =>
+      /save/i.test(
+        (button.getAttribute("aria-label") ?? "") + button.textContent,
+      ),
+    );
+    expect(saveButton).toBeDefined();
+    await userEvent.click(saveButton!);
+
+    // The reply lands as a second comment in the thread.
+    await vi.waitFor(() => {
+      if (document.querySelectorAll(".bn-thread-comment").length !== 2) {
+        throw new Error("reply did not appear in the thread");
+      }
+    });
+    expect(document.querySelector(".bn-thread")!.textContent).toContain(
+      "A mobile reply",
+    );
   });
 });
