@@ -44,7 +44,7 @@ export type UseEditorStateOptions<
    * The event to subscribe to.
    * @default "all"
    */
-  on?: "all" | "mount" | "selection" | "change";
+  on?: "all" | "mount" | "selection" | "change" | "focus";
 };
 
 /**
@@ -115,7 +115,7 @@ class EditorStateManager<
    */
   watch(
     nextEditor: BlockNoteEditor<any, any, any> | null,
-    on: "all" | "mount" | "selection" | "change",
+    on: "all" | "mount" | "selection" | "change" | "focus",
   ): undefined | (() => void) {
     this.editor = nextEditor as TEditor;
 
@@ -129,6 +129,10 @@ class EditorStateManager<
         this.transactionNumber += 1;
         this.subscribers.forEach((callback) => callback());
       };
+
+      if (on === "focus") {
+        return this.editor.onFocusChange(fn, { includeEditorUI: true });
+      }
 
       const currentTiptapEditor = this.editor._tiptapEditor;
 
