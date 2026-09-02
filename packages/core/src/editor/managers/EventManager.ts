@@ -17,9 +17,6 @@ import {
 export type Unsubscribe = () => void;
 
 /**
- * EventManager is a class which manages the events of the editor
- */
-/**
  * Options shared by the focus APIs (`isFocused`, `onFocusChange`).
  */
 export type EditorFocusOptions = {
@@ -37,6 +34,9 @@ export type EditorFocusOptions = {
   includeEditorUI?: boolean;
 };
 
+/**
+ * EventManager is a class which manages the events of the editor
+ */
 export class EventManager<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -95,9 +95,15 @@ export class EventManager<
       editor._tiptapEditor.on("unmount", () => {
         this.emit("onUnmount", { editor });
       });
-      editor._tiptapEditor.on("destroy", () => {
-        // The one place the document-level focus tracker detaches.
-        this.detachUIFocusTracker?.();
+
+      let unsubscribeUIFocusTracker: Unsubscribe | undefined;
+      this.onMount(() => {
+        unsubscribeUIFocusTracker = this.attachUIFocusTracker();
+      });
+      this.onUnmount(() => {
+        if (unsubscribeUIFocusTracker) {
+          unsubscribeUIFocusTracker();
+        }
       });
     });
   }
@@ -114,32 +120,27 @@ export class EventManager<
    * subscribes pays nothing, and once attached the no-op cost per focus
    * event is too small to be worth tearing down.
    */
-  private uiFocused = false;
-
-  private uiFocusSettleHandle: ReturnType<typeof setTimeout> | undefined;
-
-  private detachUIFocusTracker: (() => void) | undefined;
-
-  private settleUIFocus(event: FocusEvent) {
-    const focused = this.editor.isFocused({ includeEditorUI: true });
-    if (focused !== this.uiFocused) {
-      this.uiFocused = focused;
-      this.emit("onFocusChangeWithinUI", {
-        editor: this.editor,
-        focused,
-        event,
-      });
-    }
-  }
-
-  private attachUIFocusTracker() {
+  private attachUIFocusTracker(): Unsubscribe {
     if (typeof document === "undefined") {
-      return;
+      return () => {};
     }
-    this.uiFocused = this.editor.isFocused({ includeEditorUI: true });
+    let wasLastFocused = this.editor.isFocused({ includeEditorUI: true });
+    let settleUiFocusedTimeout: ReturnType<typeof setTimeout> | undefined;
+
+    const settleUIFocus = (event: FocusEvent) => {
+      const focused = this.editor.isFocused({ includeEditorUI: true });
+      if (focused !== wasLastFocused) {
+        wasLastFocused = focused;
+        this.emit("onFocusChangeWithinUI", {
+          editor: this.editor,
+          focused,
+          event,
+        });
+      }
+    };
     // On focusin the new element already holds focus, so the state can be
     // read immediately.
-    const onFocusIn = (event: FocusEvent) => this.settleUIFocus(event);
+    const onFocusIn = (event: FocusEvent) => settleUIFocus(event);
 
     // On focusout it can't: `document.activeElement` is still the outgoing
     // element (and passes through `<body>` mid-handoff), and some UI
@@ -148,17 +149,16 @@ export class EventManager<
     // to finish. A microtask is too early (verified: those popover tests go
     // red), and a frame would work but doesn't run in a background tab.
     const onFocusOut = (event: FocusEvent) => {
-      clearTimeout(this.uiFocusSettleHandle);
-      this.uiFocusSettleHandle = setTimeout(() => this.settleUIFocus(event));
+      clearTimeout(settleUiFocusedTimeout);
+      settleUiFocusedTimeout = setTimeout(() => settleUIFocus(event));
     };
 
     document.addEventListener("focusin", onFocusIn, true);
     document.addEventListener("focusout", onFocusOut, true);
-    this.detachUIFocusTracker = () => {
-      clearTimeout(this.uiFocusSettleHandle);
+    return () => {
+      clearTimeout(settleUiFocusedTimeout);
       document.removeEventListener("focusin", onFocusIn, true);
       document.removeEventListener("focusout", onFocusOut, true);
-      this.detachUIFocusTracker = undefined;
     };
   }
 
@@ -178,13 +178,7 @@ export class EventManager<
      */
     includeUpdatesFromRemote = true,
   ): Unsubscribe {
-    const cb = ({
-      transaction,
-      appendedTransactions,
-    }: {
-      transaction: Transaction;
-      appendedTransactions: Transaction[];
-    }) => {
+    return this.on("onChange", ({ transaction, appendedTransactions }) => {
       if (!includeUpdatesFromRemote && isRemoteTransaction(transaction)) {
         // don't trigger the callback if the changes are caused by a remote user
         return;
@@ -197,12 +191,7 @@ export class EventManager<
           );
         },
       });
-    };
-    this.on("onChange", cb);
-
-    return () => {
-      this.off("onChange", cb);
-    };
+    });
   }
 
   /**
@@ -215,22 +204,16 @@ export class EventManager<
      */
     includeSelectionChangedByRemote = false,
   ): Unsubscribe {
-    const cb = (e: { transaction: Transaction }) => {
+    return this.on("onSelectionChange", ({ transaction }) => {
       if (
         !includeSelectionChangedByRemote &&
-        isRemoteTransaction(e.transaction)
+        isRemoteTransaction(transaction)
       ) {
         // don't trigger the callback if the selection changed because of a remote user
         return;
       }
       callback(this.editor);
-    };
-
-    this.on("onSelectionChange", cb);
-
-    return () => {
-      this.off("onSelectionChange", cb);
-    };
+    });
   }
 
   /**
@@ -249,31 +232,10 @@ export class EventManager<
     ) => void,
     options?: EditorFocusOptions,
   ): Unsubscribe {
-    const cb = ({
-      focused,
-      event,
-    }: {
-      focused: boolean;
-      event: FocusEvent;
-    }) => {
-      callback(this.editor, { focused, event });
-    };
-
-    if (options?.includeEditorUI) {
-      if (!this.detachUIFocusTracker) {
-        this.attachUIFocusTracker();
-      }
-      this.on("onFocusChangeWithinUI", cb);
-      return () => {
-        this.off("onFocusChangeWithinUI", cb);
-      };
-    }
-
-    this.on("onFocusChange", cb);
-
-    return () => {
-      this.off("onFocusChange", cb);
-    };
+    return this.on(
+      options?.includeEditorUI ? "onFocusChangeWithinUI" : "onFocusChange",
+      ({ focused, event }) => callback(this.editor, { focused, event }),
+    );
   }
 
   /**
@@ -282,11 +244,7 @@ export class EventManager<
   public onMount(
     callback: (ctx: { editor: BlockNoteEditor<BSchema, I, S> }) => void,
   ): Unsubscribe {
-    this.on("onMount", callback);
-
-    return () => {
-      this.off("onMount", callback);
-    };
+    return this.on("onMount", callback);
   }
 
   /**
@@ -295,11 +253,7 @@ export class EventManager<
   public onUnmount(
     callback: (ctx: { editor: BlockNoteEditor<BSchema, I, S> }) => void,
   ): Unsubscribe {
-    this.on("onUnmount", callback);
-
-    return () => {
-      this.off("onUnmount", callback);
-    };
+    return this.on("onUnmount", callback);
   }
 }
 
