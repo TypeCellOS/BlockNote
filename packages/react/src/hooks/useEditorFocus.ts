@@ -1,6 +1,6 @@
 import type { BlockNoteEditor, EditorFocusOptions } from "@blocknote/core";
+import { useCallback, useRef, useSyncExternalStore } from "react";
 import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
-import { useEditorState } from "./useEditorState.js";
 
 /**
  * Whether the editor is focused, as state — re-rendering the component when
@@ -27,36 +27,74 @@ export function useEditorFocus(
   const resolvedEditor = editor ?? editorContext?.editor;
 
   if (!resolvedEditor) {
-    // Thrown during render rather than from an effect: the return value is
-    // used to render, so a deferred throw would first paint a frame with a
-    // meaningless value.
     throw new Error(
       "'editor' is required, either from BlockNoteContext or as a function argument",
     );
   }
 
-  return useEditorState({
-    editor,
-    selector: options?.includeEditorUI ? selectUIFocus : selectRawFocus,
-    on: options?.includeEditorUI ? "focusWithinUI" : "focus",
-  });
-}
+  const includeEditorUI = options?.includeEditorUI ?? false;
 
-// Module-level so their identity is stable: an inline selector re-creates
-// useSyncExternalStoreWithSelector's memo every render, which re-runs the
-// selector as a live `isFocused()` read on every consumer render — and a
-// live read during a focus handoff sees the transient `<body>` frame,
-// rendering a one-frame `false`. With stable identity the selector runs
-// only when the subscribed event bumps the snapshot, and those moments are
-// settled by construction.
-function selectRawFocus(snapshot: {
-  editor: BlockNoteEditor<any, any, any> | null;
-}): boolean {
-  return snapshot.editor?.isFocused() ?? false;
-}
+  // The snapshot is the last *settled* value, never a live read. With
+  // `includeEditorUI` the editor's own events are already settled, whereas
+  // reading focus state during an arbitrary render can catch a mid-handoff
+  // frame, where `document.activeElement` is transiently `<body>` and the
+  // editor looks unfocused for one frame.
+  //
+  // The cache is keyed by its inputs: when the editor or the option changes,
+  // the settled value belongs to the *old* source, and rendering it would
+  // show one wrong frame before the new subscription attaches and re-syncs.
+  // Re-reading then is the same live read the first render does.
+  const focused = useRef<
+    | {
+        editor: BlockNoteEditor<any, any, any>;
+        includeEditorUI: boolean;
+        value: boolean;
+      }
+    | undefined
+  >(undefined);
+  if (
+    focused.current === undefined ||
+    focused.current.editor !== resolvedEditor ||
+    focused.current.includeEditorUI !== includeEditorUI
+  ) {
+    focused.current = {
+      editor: resolvedEditor,
+      includeEditorUI,
+      value: resolvedEditor.isFocused({ includeEditorUI }),
+    };
+  }
 
-function selectUIFocus(snapshot: {
-  editor: BlockNoteEditor<any, any, any> | null;
-}): boolean {
-  return snapshot.editor?.isFocused({ includeEditorUI: true }) ?? false;
+  const subscribe = useCallback(
+    (onStoreChange: () => void) => {
+      // Re-sync: focus can have changed between the render that produced the
+      // current snapshot and this subscription attaching. React does compare
+      // the snapshot again after subscribing (its subscribe effect is
+      // registered before the consistency-check one), so refreshing the
+      // cached value here is enough — but notifying explicitly keeps that
+      // independent of React's internal effect ordering.
+      focused.current = {
+        editor: resolvedEditor,
+        includeEditorUI,
+        value: resolvedEditor.isFocused({ includeEditorUI }),
+      };
+      onStoreChange();
+
+      return resolvedEditor.onFocusChange(
+        (_editor, ctx) => {
+          focused.current = {
+            editor: resolvedEditor,
+            includeEditorUI,
+            value: ctx.focused,
+          };
+          onStoreChange();
+        },
+        { includeEditorUI },
+      );
+    },
+    [resolvedEditor, includeEditorUI],
+  );
+
+  const getSnapshot = useCallback(() => focused.current!.value, []);
+
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
