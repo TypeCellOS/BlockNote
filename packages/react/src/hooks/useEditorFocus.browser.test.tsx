@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { createRoot, Root } from "react-dom/client";
 import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 
@@ -187,5 +188,72 @@ describe("useEditorFocus", () => {
     await new Promise((resolve) => setTimeout(resolve, 40));
 
     expect(Number(readout().dataset.renders)).toBe(before);
+  });
+});
+
+// Regression guards for the useEditorState-based implementation. Both went
+// red on the refactor that introduced it and pin its two contracts:
+// per-option event channels, and settled-only reads.
+describe("useEditorFocus regressions", () => {
+  test("raw focus follows focus moving into the editor's own UI", async () => {
+    // The raw ("focus") channel must fire on every content focus/blur — a
+    // subscription to the settled combined channel misses this transition
+    // entirely (combined state stays true), leaving the raw hook stale.
+    await mount(<Probe includeEditorUI={false} />);
+    editor!.focus();
+    await vi.waitFor(() => expect(focusedValue()).toBe("true"));
+
+    const uiInput = document.createElement("input");
+    document.querySelector(".bn-container")!.append(uiInput);
+    uiInput.focus();
+    expect(editor!.isFocused()).toBe(false);
+    await vi.waitFor(() => expect(focusedValue()).toBe("false"));
+  });
+
+  test("a re-render during a focus handoff never shows a transient false", async () => {
+    let forceRender: () => void;
+    function HandoffReadout() {
+      const focused = useEditorFocus({ includeEditorUI: true });
+      const [, bump] = useState(0);
+      forceRender = () => flushSync(() => bump((n) => n + 1));
+      const history = useRef<boolean[]>([]);
+      history.current.push(focused);
+      return (
+        <div data-test="readout" data-history={history.current.join(",")} />
+      );
+    }
+    function HandoffProbe() {
+      const probeEditor = useCreateBlockNote();
+      editor = probeEditor;
+      return (
+        <BlockNoteViewRaw editor={probeEditor}>
+          <HandoffReadout />
+        </BlockNoteViewRaw>
+      );
+    }
+    await mount(<HandoffProbe />);
+    const history = () => readout().dataset.history!;
+
+    editor!.focus();
+    await vi.waitFor(() => {
+      if (!history().endsWith("true")) {
+        throw new Error("editor focus not settled");
+      }
+    });
+
+    // The handoff: blur (activeElement passes through <body>), an unrelated
+    // re-render mid-window, then the async-style focus restore the ariakit
+    // and shadcn popovers perform. A live isFocused() read during that
+    // render would see the transient and paint a one-frame false — the
+    // stable module-level selectors only run at (settled) event time.
+    (document.activeElement as HTMLElement).blur();
+    forceRender!();
+    editor!.focus();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    forceRender!();
+
+    const entries = history().split(",");
+    const afterSettled = entries.slice(entries.indexOf("true"));
+    expect(afterSettled).not.toContain("false");
   });
 });

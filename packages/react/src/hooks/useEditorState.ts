@@ -44,7 +44,7 @@ export type UseEditorStateOptions<
    * The event to subscribe to.
    * @default "all"
    */
-  on?: "all" | "mount" | "selection" | "change" | "focus";
+  on?: "all" | "mount" | "selection" | "change" | "focus" | "focusWithinUI";
 };
 
 /**
@@ -115,7 +115,7 @@ class EditorStateManager<
    */
   watch(
     nextEditor: BlockNoteEditor<any, any, any> | null,
-    on: "all" | "mount" | "selection" | "change" | "focus",
+    on: "all" | "mount" | "selection" | "change" | "focus" | "focusWithinUI",
   ): undefined | (() => void) {
     this.editor = nextEditor as TEditor;
 
@@ -130,8 +130,17 @@ class EditorStateManager<
         this.subscribers.forEach((callback) => callback());
       };
 
-      if (on === "focus") {
-        return this.editor.onFocusChange(fn, { includeEditorUI: true });
+      // Two distinct streams, deliberately: "focus" is raw content-area
+      // focus (fires on every focus/blur), "focusWithinUI" is the settled
+      // combined state (fires only once focus movement settles, and not at
+      // all when focus merely moves between the content area and the
+      // editor's own UI). Subscribing one to the other either misses
+      // transitions (raw via settled) or breaks settledness (settled via
+      // raw).
+      if (on === "focus" || on === "focusWithinUI") {
+        return this.editor.onFocusChange(fn, {
+          includeEditorUI: on === "focusWithinUI",
+        });
       }
 
       const currentTiptapEditor = this.editor._tiptapEditor;

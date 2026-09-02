@@ -110,15 +110,13 @@ export class EventManager<
 
   /**
    * Settled focus-within-UI tracking. Document-level listeners (attached on
-   * the first `includeEditorUI` subscriber, detached when the editor is
-   * destroyed) cover the case tiptap events can't: focus moving from the
-   * editor's own UI (which lives in `editor.portalElement`, outside the
-   * content area) to somewhere else entirely. Blur-side changes are
-   * re-checked a frame later because `document.activeElement` transiently
-   * becomes `<body>` during focus handoffs (and `relatedTarget` is
-   * unreliable on mobile). No reference counting: a page that never
-   * subscribes pays nothing, and once attached the no-op cost per focus
-   * event is too small to be worth tearing down.
+   * editor mount, detached on unmount — a no-op per focus event is too
+   * cheap to be worth gating on subscribers) cover the case tiptap events
+   * can't: focus moving from the editor's own UI (which lives in
+   * `editor.portalElement`, outside the content area) to somewhere else
+   * entirely. Blur-side changes are re-checked a frame later because
+   * `document.activeElement` transiently becomes `<body>` during focus
+   * handoffs (and `relatedTarget` is unreliable on mobile).
    */
   private attachUIFocusTracker(): Unsubscribe {
     if (typeof document === "undefined") {

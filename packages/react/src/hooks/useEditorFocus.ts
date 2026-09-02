@@ -37,7 +37,26 @@ export function useEditorFocus(
 
   return useEditorState({
     editor,
-    selector: ({ editor }) => editor.isFocused(options),
-    on: "focus",
+    selector: options?.includeEditorUI ? selectUIFocus : selectRawFocus,
+    on: options?.includeEditorUI ? "focusWithinUI" : "focus",
   });
+}
+
+// Module-level so their identity is stable: an inline selector re-creates
+// useSyncExternalStoreWithSelector's memo every render, which re-runs the
+// selector as a live `isFocused()` read on every consumer render — and a
+// live read during a focus handoff sees the transient `<body>` frame,
+// rendering a one-frame `false`. With stable identity the selector runs
+// only when the subscribed event bumps the snapshot, and those moments are
+// settled by construction.
+function selectRawFocus(snapshot: {
+  editor: BlockNoteEditor<any, any, any> | null;
+}): boolean {
+  return snapshot.editor?.isFocused() ?? false;
+}
+
+function selectUIFocus(snapshot: {
+  editor: BlockNoteEditor<any, any, any> | null;
+}): boolean {
+  return snapshot.editor?.isFocused({ includeEditorUI: true }) ?? false;
 }
