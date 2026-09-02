@@ -14,7 +14,8 @@ import {
 } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
-import { useMobileToolbarPortal } from "../../../editor/MobileToolbarPortalContext.js";
+import { usePortalContext } from "../../../editor/PortalContext.js";
+import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../../hooks/useEditorDomElement.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
@@ -46,7 +47,12 @@ export const CreateLinkButton = () => {
   const editorDOMElement = useEditorDOMElement();
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const mobileToolbarPortal = useMobileToolbarPortal();
+  const uiMode = useUIMode();
+  const portalContext = usePortalContext();
+  // Only portal (and suppress dropdown focus) in the mobile toolbar; desktop
+  // renders inline with default focus behavior.
+  const portalRoot =
+    uiMode === "mobile" ? (portalContext ?? undefined) : undefined;
 
   const formattingToolbar = useExtension(FormattingToolbarExtension);
   // eslint-disable-next-line @typescript-eslint/unbound-method -- showSelection is a plain object method, not a class method
@@ -136,7 +142,7 @@ export const CreateLinkButton = () => {
       // staying styled. A set `portalRoot` also stops focus moving into the
       // popover, which would blur the editor and dismiss the on-screen keyboard.
       // On desktop it's `undefined`, keeping the default inline rendering.
-      portalRoot={mobileToolbarPortal ?? undefined}
+      portalRoot={portalRoot}
     >
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}

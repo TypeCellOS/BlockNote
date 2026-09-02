@@ -7,7 +7,8 @@ import {
 import { useCallback } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
-import { useMobileToolbarPortal } from "../../../editor/MobileToolbarPortalContext.js";
+import { usePortalContext } from "../../../editor/PortalContext.js";
+import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -44,7 +45,12 @@ function checkColorInSchema<Color extends "text" | "background">(
 export const ColorStyleButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const mobileToolbarPortal = useMobileToolbarPortal();
+  const uiMode = useUIMode();
+  const portalContext = usePortalContext();
+  // Only portal (and suppress dropdown focus) in the mobile toolbar; desktop
+  // renders inline with default focus behavior.
+  const portalRoot =
+    uiMode === "mobile" ? (portalContext ?? undefined) : undefined;
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -146,7 +152,7 @@ export const ColorStyleButton = () => {
       // dropdown, which would blur the editor and dismiss the on-screen
       // keyboard. On desktop it's `undefined`, keeping the default inline
       // rendering.
-      portalRoot={mobileToolbarPortal ?? undefined}
+      portalRoot={portalRoot}
     >
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button

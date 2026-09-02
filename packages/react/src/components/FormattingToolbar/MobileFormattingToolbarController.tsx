@@ -1,23 +1,12 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
-import { MobileToolbarPortalContext } from "../../editor/MobileToolbarPortalContext.js";
+import { PortalContext } from "../../editor/PortalContext.js";
+import { UIModeContext } from "../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
 import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
-
-// Theme-carrying attributes copied from `editor.portalElement` onto the mobile
-// toolbar's body-level container: the classes (`bn-root`, the UI-library class
-// like `bn-mantine`, the color-scheme class) that existing CSS keys off, the
-// color-scheme data attributes, and any inline theme CSS variables (set for
-// custom object themes).
-const THEME_ATTRIBUTES = [
-  "class",
-  "style",
-  "data-color-scheme",
-  "data-mantine-color-scheme",
-];
 
 /**
  * Mobile formatting toolbar controller.
@@ -33,17 +22,12 @@ const THEME_ATTRIBUTES = [
  * a scrolling/pinned container (e.g. the `bn-scroll-container` layout), and on
  * iOS that container's `-webkit-overflow-scrolling` stacking context paints the
  * `position: fixed` toolbar behind page content like footers; rendering at the
- * body level avoids that. Its dropdown buttons portal their menus into the same
- * container (via {@link MobileToolbarPortalContext}) so they escape the editor
- * container's overflow instead of being clipped. A set `portalRoot` also tells
- * the UI adapters not to move focus into the dropdown, which would blur the
- * editor and dismiss the keyboard.
- *
- * Because the container lives outside the editor's themed subtree, it mirrors
- * the theme attributes from `editor.portalElement` ({@link THEME_ATTRIBUTES}) so
- * the toolbar and dropdowns stay styled. React context (editor, components,
- * theme provider) still flows through the portal, so only the DOM-inherited
- * styling needs recreating.
+ * body level avoids that. It provides a `"mobile"` {@link UIModeContext} so its
+ * buttons know to portal their dropdowns (into the body-level
+ * {@link PortalContext} target, escaping the editor container's overflow) and to
+ * suppress moving focus into them, which would blur the editor and dismiss the
+ * keyboard. React context (editor, components, theme provider) still flows
+ * through the portal.
  *
  * Shown while the virtual keyboard is open and this editor holds focus. The
  * focus check is essential when multiple editors share a page: the virtual
@@ -104,47 +88,23 @@ export const MobileFormattingToolbarController = (props: {
 };
 
 /**
- * The visible part of the mobile toolbar, split out so it can own the state for
- * its themed body-level container. See the controller docstring.
+ * The visible part of the mobile toolbar, rendered at the body level. Marks its
+ * subtree as a `"mobile"` UI surface and exposes the body-level portal target so
+ * its buttons' dropdowns portal alongside it. See the controller docstring.
  */
 function MobileFormattingToolbar(props: {
   formattingToolbar: FC<FormattingToolbarProps>;
 }) {
-  const editor = useBlockNoteEditor();
-
-  // The themed container the toolbar and its dropdowns render into. Tracked in
-  // state so it can be provided to the dropdown buttons once mounted.
-  const [container, setContainer] = useState<HTMLDivElement | null>(null);
-  const containerRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (node) {
-        // Mirror the editor portal's theme attributes so the container matches
-        // the editor's `.bn-root`/UI-library theming despite living outside its
-        // subtree. Recreating the styling in the DOM, not React context (which
-        // the portal preserves).
-        const portal = editor.portalElement;
-        for (const name of THEME_ATTRIBUTES) {
-          const value = portal.getAttribute(name);
-          if (value !== null) {
-            node.setAttribute(name, value);
-          }
-        }
-      }
-      setContainer(node);
-    },
-    [editor],
-  );
-
   const Component = props.formattingToolbar;
 
   return createPortal(
-    <MobileToolbarPortalContext.Provider value={container}>
-      <div ref={containerRef}>
+    <UIModeContext.Provider value="mobile">
+      <PortalContext.Provider value={document.body}>
         <div className="bn-mobile-formatting-toolbar">
           <Component />
         </div>
-      </div>
-    </MobileToolbarPortalContext.Provider>,
+      </PortalContext.Provider>
+    </UIModeContext.Provider>,
     document.body,
   );
 }

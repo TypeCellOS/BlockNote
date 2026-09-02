@@ -27,6 +27,7 @@ import {
   BlockNoteDefaultUI,
   BlockNoteDefaultUIProps,
 } from "./BlockNoteDefaultUI.js";
+import { PortalContext } from "./PortalContext.js";
 import { resolvePortalTarget } from "./portalElements.js";
 import {
   BlockNoteViewContext,
@@ -140,6 +141,15 @@ function BlockNoteViewComponent<
     [portalElements?.default],
   );
 
+  // The default portal target for all floating UI — the editor's own portal
+  // element. Per-element `portalElements` and the mobile toolbar override this
+  // for their subtrees via `PortalContext`. Guarded for SSR, where accessing
+  // `editor.portalElement` (which needs `document`) would throw.
+  const defaultPortalRoot = useMemo(
+    () => (typeof document !== "undefined" ? editor.portalElement : null),
+    [editor],
+  );
+
   // Used so other components (suggestion menu) can set
   // aria related props to the contenteditable div
   const [contentEditableProps, setContentEditableProps] =
@@ -231,16 +241,18 @@ function BlockNoteViewComponent<
   return (
     <BlockNoteContext.Provider value={blockNoteContext}>
       <BlockNoteViewContext.Provider value={blockNoteViewContextValue}>
-        <ElementRenderer ref={setElementRenderer} />
-        <BlockNoteViewContainer
-          className={className}
-          renderEditor={renderEditor}
-          editorColorScheme={editorColorScheme}
-          ref={ref}
-          {...rest}
-        >
-          {children}
-        </BlockNoteViewContainer>
+        <PortalContext.Provider value={defaultPortalRoot}>
+          <ElementRenderer ref={setElementRenderer} />
+          <BlockNoteViewContainer
+            className={className}
+            renderEditor={renderEditor}
+            editorColorScheme={editorColorScheme}
+            ref={ref}
+            {...rest}
+          >
+            {children}
+          </BlockNoteViewContainer>
+        </PortalContext.Provider>
       </BlockNoteViewContext.Provider>
     </BlockNoteContext.Provider>
   );

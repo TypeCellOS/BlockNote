@@ -14,6 +14,7 @@ import {
 } from "@floating-ui/react";
 import { HTMLAttributes, ReactNode, useEffect, useRef } from "react";
 
+import { PortalContext, usePortalContext } from "../../editor/PortalContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
 
@@ -117,19 +118,23 @@ export const GenericPopover = (
     reference?: GenericPopoverReference;
     children: ReactNode;
     /**
-     * Override the DOM node this popover portals into. If omitted, falls back
-     * to `editor.portalElement`.
+     * Override the DOM node this popover portals into. Falls back to the
+     * ambient `PortalContext` (whose default is `editor.portalElement`) when
+     * omitted; `null` means `document.body`.
      */
     portalElement?: HTMLElement | null;
   },
 ) => {
   const editor = useBlockNoteEditor();
+  const contextPortal = usePortalContext();
+  // An explicit `portalElement` prop overrides the ambient `PortalContext`;
+  // `null` means `document.body`.
   const portalRoot =
     props.portalElement === null
       ? typeof document !== "undefined"
         ? document.body
         : undefined
-      : (props.portalElement ?? editor?.portalElement);
+      : (props.portalElement ?? contextPortal);
   if (!portalRoot) {
     throw new Error("Portal element not found");
   }
@@ -267,7 +272,10 @@ export const GenericPopover = (
       <FloatingPortal root={portalRoot}>
         <FloatingFocusManager {...props.focusManagerProps} context={context}>
           <div ref={mergedRefs} {...mergedProps}>
-            {props.children}
+            {/* Cascade the resolved target so nested floating UI portals here too. */}
+            <PortalContext.Provider value={portalRoot}>
+              {props.children}
+            </PortalContext.Provider>
           </div>
         </FloatingFocusManager>
       </FloatingPortal>
@@ -277,7 +285,10 @@ export const GenericPopover = (
   return (
     <FloatingPortal root={portalRoot}>
       <div ref={mergedRefs} {...mergedProps}>
-        {props.children}
+        {/* Cascade the resolved target so nested floating UI portals here too. */}
+        <PortalContext.Provider value={portalRoot}>
+          {props.children}
+        </PortalContext.Provider>
       </div>
     </FloatingPortal>
   );
