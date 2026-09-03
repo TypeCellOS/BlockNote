@@ -4,6 +4,7 @@ import { FC, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { PortalTarget } from "../../editor/PortalTarget.js";
 import { BlockPopover } from "../Popovers/BlockPopover.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { FilePanel } from "./FilePanel.js";
@@ -60,12 +61,10 @@ export const FilePanelController = (props: {
   const Component = props.filePanel || FilePanel;
 
   return (
-    <BlockPopover
-      blockId={blockId}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {blockId && <Component blockId={blockId} />}
-    </BlockPopover>
+    <PortalTarget target={props.portalElement}>
+      <BlockPopover blockId={blockId} {...floatingUIOptions}>
+        {blockId && <Component blockId={blockId} />}
+      </BlockPopover>
+    </PortalTarget>
   );
 };

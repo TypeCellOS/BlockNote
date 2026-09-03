@@ -45,7 +45,10 @@ export * from "./components/FormattingToolbar/FormattingToolbar.js";
 export * from "./components/FormattingToolbar/DesktopFormattingToolbarController.js";
 export * from "./components/FormattingToolbar/FormattingToolbarController.js";
 export * from "./components/FormattingToolbar/MobileFormattingToolbarController.js";
-export * from "./editor/PortalContext.js";
+// Only the read side of `PortalContext` is public: `PortalTarget` is the sole
+// way to provide a portal target, which guarantees that every provided value
+// is a resolved (themed + registered) root.
+export { PortalTarget, usePortalContext } from "./editor/PortalTarget.js";
 export * from "./editor/UIModeContext.js";
 export * from "./components/FormattingToolbar/useVirtualKeyboard.js";
 export * from "./components/FormattingToolbar/FormattingToolbarProps.js";

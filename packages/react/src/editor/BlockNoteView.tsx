@@ -10,7 +10,6 @@ import React, {
   ReactNode,
   Ref,
   useCallback,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -27,10 +26,11 @@ import {
   BlockNoteDefaultUI,
   BlockNoteDefaultUIProps,
 } from "./BlockNoteDefaultUI.js";
-import { PortalContext } from "./PortalContext.js";
+import { PortalContext, PortalTarget } from "./PortalTarget.js";
 import { resolvePortalTarget } from "./portalElements.js";
 import {
   BlockNoteViewContext,
+  ThemedRootProps,
   useBlockNoteViewContext,
 } from "./BlockNoteViewContext.js";
 import { useComponentsContext } from "./ComponentsContext.js";
@@ -92,12 +92,21 @@ export type BlockNoteViewProps<
    */
   children?: ReactNode;
 
+  /**
+   * Attributes to apply to every themed BlockNote root element — the editor
+   * container, `editor.portalElement`, and any portal roots created by
+   * `PortalTarget`. UI-library wrappers use this to carry their theming
+   * (color-scheme data attributes, theme CSS variables) to floating UI
+   * portalled outside the editor's DOM.
+   */
+  themedRootProps?: ThemedRootProps;
+
   ref?: Ref<HTMLDivElement> | undefined; // only here to get types working with the generics. Regular form doesn't work
 } & BlockNoteDefaultUIProps;
 
 // `portalElements` is part of `BlockNoteDefaultUIProps`, but we re-export the
 // types here for convenience so consumers can import them from `@blocknote/react`.
-export type { PortalElementsMap, PortalTarget } from "./portalElements.js";
+export type { PortalElement, PortalElementsMap } from "./portalElements.js";
 
 function BlockNoteViewComponent<
   BSchema extends BlockSchema,
@@ -128,6 +137,7 @@ function BlockNoteViewComponent<
     tableHandles,
     comments,
     portalElements,
+    themedRootProps,
     autoFocus,
     renderEditor = true,
     ...rest
@@ -141,14 +151,15 @@ function BlockNoteViewComponent<
     [portalElements?.default],
   );
 
-  // The default portal target for all floating UI — the editor's own portal
-  // element. Per-element `portalElements` and the mobile toolbar override this
-  // for their subtrees via `PortalContext`. Guarded for SSR, where accessing
-  // `editor.portalElement` (which needs `document`) would throw.
-  const defaultPortalRoot = useMemo(
-    () => (typeof document !== "undefined" ? editor.portalElement : null),
-    [editor],
-  );
+  // The default portal root for all floating UI: `editor.portalElement`, run
+  // through `PortalTarget` (a childless instance below reports it via
+  // `onResolve`) so that `PortalContext` always holds a resolved, themed,
+  // registered root — consumers use it without further checks. Per-element
+  // `portalElements` and the mobile toolbar override it for their subtrees
+  // with their own `PortalTarget`s. `null` during SSR and for the first
+  // frame, before resolution.
+  const [defaultPortalRoot, setDefaultPortalRoot] =
+    useState<HTMLElement | null>(null);
 
   // Used so other components (suggestion menu) can set
   // aria related props to the contenteditable div
@@ -201,17 +212,23 @@ function BlockNoteViewComponent<
     [editor],
   );
 
-  useEffect(() => {
-    if (!editor.portalElement) {
-      throw new Error("Portal element not found");
-    }
-    editor.portalElement.className = mergeCSSClasses(
-      "bn-root",
-      editorColorScheme,
-      className || "",
-    );
-    editor.portalElement.setAttribute("data-color-scheme", editorColorScheme);
-  }, [editor, editorColorScheme, className]);
+  // Props that turn an element into a themed `.bn-root`. Rendered onto the
+  // container and provided via `BlockNoteViewContext` so `PortalTarget` can
+  // render portal roots with the same theming — all from the same data,
+  // updating in the same commit. UI-library extras come in via the
+  // `themedRootProps` prop, so no library-specific knowledge is needed here.
+  // Note that `editor.portalElement` itself stays bare: it's a location
+  // anchor, and floating UI portalled into it is themed either by a `.bn-root`
+  // ancestor (the default `bn-container` mount) or by a `PortalTarget`-created
+  // root inside it.
+  const portalRootProps = useMemo(
+    () => ({
+      ...themedRootProps,
+      className: mergeCSSClasses("bn-root", editorColorScheme, className || ""),
+      "data-color-scheme": editorColorScheme,
+    }),
+    [themedRootProps, editorColorScheme, className],
+  );
 
   // The BlockNoteContext makes sure the editor and some helper methods
   // are always available to nesteed compoenents
@@ -235,18 +252,33 @@ function BlockNoteViewComponent<
         portalTarget,
       },
       defaultUIProps,
+      portalRootProps,
     };
-  }, [autoFocus, contentEditableProps, editable, defaultUIProps, portalTarget]);
+  }, [
+    autoFocus,
+    contentEditableProps,
+    editable,
+    defaultUIProps,
+    portalTarget,
+    portalRootProps,
+  ]);
 
   return (
     <BlockNoteContext.Provider value={blockNoteContext}>
       <BlockNoteViewContext.Provider value={blockNoteViewContextValue}>
         <PortalContext.Provider value={defaultPortalRoot}>
+          <PortalTarget
+            target={
+              typeof document !== "undefined" ? editor.portalElement : undefined
+            }
+            onResolve={setDefaultPortalRoot}
+          />
           <ElementRenderer ref={setElementRenderer} />
           <BlockNoteViewContainer
             className={className}
             renderEditor={renderEditor}
             editorColorScheme={editorColorScheme}
+            themedRootProps={themedRootProps}
             ref={ref}
             {...rest}
           >
@@ -267,30 +299,46 @@ const BlockNoteViewContainer = React.forwardRef<
   {
     renderEditor: boolean;
     editorColorScheme: "light" | "dark";
+    themedRootProps?: ThemedRootProps;
     children: ReactNode;
   } & Omit<
     HTMLAttributes<HTMLDivElement>,
     "onChange" | "onSelectionChange" | "children"
   >
->(({ className, renderEditor, editorColorScheme, children, ...rest }, ref) => (
-  <div
-    className={mergeCSSClasses(
-      "bn-root",
-      "bn-container",
-      editorColorScheme,
+>(
+  (
+    {
       className,
-    )}
-    data-color-scheme={editorColorScheme}
-    {...rest}
-    ref={ref}
-  >
-    {renderEditor ? (
-      <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
-    ) : (
-      children
-    )}
-  </div>
-));
+      renderEditor,
+      editorColorScheme,
+      themedRootProps,
+      children,
+      style,
+      ...rest
+    },
+    ref,
+  ) => (
+    <div
+      {...themedRootProps}
+      className={mergeCSSClasses(
+        "bn-root",
+        "bn-container",
+        editorColorScheme,
+        className,
+      )}
+      data-color-scheme={editorColorScheme}
+      style={{ ...style, ...themedRootProps?.style }}
+      {...rest}
+      ref={ref}
+    >
+      {renderEditor ? (
+        <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
+      ) : (
+        children
+      )}
+    </div>
+  ),
+);
 
 // https://fettblog.eu/typescript-react-generic-forward-refs/
 export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <

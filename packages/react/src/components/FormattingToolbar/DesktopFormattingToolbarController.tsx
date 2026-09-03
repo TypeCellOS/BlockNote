@@ -13,6 +13,7 @@ import { FC, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { PortalTarget } from "../../editor/PortalTarget.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { PositionPopover } from "../Popovers/PositionPopover.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
@@ -118,12 +119,10 @@ export const DesktopFormattingToolbarController = (props: {
   const Component = props.formattingToolbar || FormattingToolbar;
 
   return (
-    <PositionPopover
-      position={position}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {show && <Component />}
-    </PositionPopover>
+    <PortalTarget target={props.portalElement}>
+      <PositionPopover position={position} {...floatingUIOptions}>
+        {show && <Component />}
+      </PositionPopover>
+    </PortalTarget>
   );
 };

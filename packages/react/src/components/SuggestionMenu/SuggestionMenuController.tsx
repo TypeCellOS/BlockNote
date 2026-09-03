@@ -10,6 +10,7 @@ import { FC, useEffect, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../hooks/useEditorDomElement.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { PortalTarget } from "../../editor/PortalTarget.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -177,23 +178,21 @@ export function SuggestionMenuController<
   }
 
   return (
-    <GenericPopover
-      reference={reference}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {triggerCharacter && (
-        <SuggestionMenuWrapper
-          query={state.query}
-          closeMenu={suggestionMenu.closeMenu}
-          clearQuery={suggestionMenu.clearQuery}
-          getItems={getItemsOrDefault}
-          suggestionMenuComponent={
-            suggestionMenuComponent || SuggestionMenu<ItemType<GetItemsType>>
-          }
-          onItemClick={onItemClickOrDefault}
-        />
-      )}
-    </GenericPopover>
+    <PortalTarget target={props.portalElement}>
+      <GenericPopover reference={reference} {...floatingUIOptions}>
+        {triggerCharacter && (
+          <SuggestionMenuWrapper
+            query={state.query}
+            closeMenu={suggestionMenu.closeMenu}
+            clearQuery={suggestionMenu.clearQuery}
+            getItems={getItemsOrDefault}
+            suggestionMenuComponent={
+              suggestionMenuComponent || SuggestionMenu<ItemType<GetItemsType>>
+            }
+            onItemClick={onItemClickOrDefault}
+          />
+        )}
+      </GenericPopover>
+    </PortalTarget>
   );
 }

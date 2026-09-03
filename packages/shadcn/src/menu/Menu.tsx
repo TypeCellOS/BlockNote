@@ -1,5 +1,5 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, useBlockNoteEditor } from "@blocknote/react";
+import { ComponentProps, usePortalContext } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
 import { createContext, forwardRef, ReactElement, useContext } from "react";
 import { cn } from "../lib/utils.js";
@@ -82,10 +82,10 @@ export const MenuDropdown = forwardRef<
   const ShadCNComponents = useShadCNComponentsContext()!;
 
   const portalRoot = useContext(PortalRootContext);
-  // Default to the editor's portal element (which carries the color-scheme
-  // class) so the menu inherits light/dark mode instead of the document body's.
-  const editor = useBlockNoteEditor();
-  const container = portalRoot ?? editor.portalElement;
+  // Default to the ambient portal target (a themed `.bn-root`) so the menu
+  // inherits light/dark mode instead of the document body's.
+  const contextPortal = usePortalContext();
+  const container = portalRoot ?? contextPortal ?? undefined;
 
   if (sub) {
     return (

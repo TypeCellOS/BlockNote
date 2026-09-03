@@ -5,6 +5,7 @@ import { FC, useCallback, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtensionState } from "../../hooks/useExtension.js";
+import { PortalTarget } from "../../editor/PortalTarget.js";
 import { BlockPopover } from "../Popovers/BlockPopover.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { SideMenu } from "./SideMenu.js";
@@ -149,12 +150,13 @@ export const SideMenuController = (props: {
   const Component = props.sideMenu || SideMenu;
 
   return (
-    <BlockPopover
-      blockId={show ? block?.id : undefined}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {block?.id && <Component />}
-    </BlockPopover>
+    <PortalTarget target={props.portalElement}>
+      <BlockPopover
+        blockId={show ? block?.id : undefined}
+        {...floatingUIOptions}
+      >
+        {block?.id && <Component />}
+      </BlockPopover>
+    </PortalTarget>
   );
 };

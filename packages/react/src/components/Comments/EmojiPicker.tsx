@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react";
 
 import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { usePortalContext } from "../../editor/PortalContext.js";
+import { usePortalContext } from "../../editor/PortalTarget.js";
 import Picker from "./EmojiMartPicker.js";
 
 export const EmojiPicker = (props: {

@@ -1,7 +1,6 @@
 import { FC, useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 
-import { PortalContext } from "../../editor/PortalContext.js";
+import { PortalTarget } from "../../editor/PortalTarget.js";
 import { UIModeContext } from "../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
@@ -89,22 +88,24 @@ export const MobileFormattingToolbarController = (props: {
 
 /**
  * The visible part of the mobile toolbar, rendered at the body level. Marks its
- * subtree as a `"mobile"` UI surface and exposes the body-level portal target so
- * its buttons' dropdowns portal alongside it. See the controller docstring.
+ * subtree as a `"mobile"` UI surface. Because `document.body` is outside the
+ * editor's themed subtree, {@link PortalTarget} renders a themed `.bn-root` div
+ * inside it (registered with the editor) that the toolbar renders into, and
+ * provides it via `PortalContext` so the toolbar's dropdowns portal alongside
+ * it. See the controller docstring.
  */
 function MobileFormattingToolbar(props: {
   formattingToolbar: FC<FormattingToolbarProps>;
 }) {
   const Component = props.formattingToolbar;
 
-  return createPortal(
-    <UIModeContext.Provider value="mobile">
-      <PortalContext.Provider value={document.body}>
+  return (
+    <PortalTarget target={document.body}>
+      <UIModeContext.Provider value="mobile">
         <div className="bn-mobile-formatting-toolbar">
           <Component />
         </div>
-      </PortalContext.Provider>
-    </UIModeContext.Provider>,
-    document.body,
+      </UIModeContext.Provider>
+    </PortalTarget>
   );
 }

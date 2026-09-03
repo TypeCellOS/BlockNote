@@ -12,6 +12,7 @@ import {
   useExtension,
   useExtensionState,
 } from "../../../hooks/useExtension.js";
+import { PortalTarget } from "../../../editor/PortalTarget.js";
 import { FloatingUIOptions } from "../../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -184,25 +185,23 @@ export function GridSuggestionMenuController<
   }
 
   return (
-    <GenericPopover
-      reference={reference}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {triggerCharacter && (
-        <GridSuggestionMenuWrapper
-          query={state.query}
-          closeMenu={suggestionMenu.closeMenu}
-          clearQuery={suggestionMenu.clearQuery}
-          getItems={getItemsOrDefault}
-          columns={columns}
-          gridSuggestionMenuComponent={
-            gridSuggestionMenuComponent ||
-            GridSuggestionMenu<ItemType<GetItemsType>>
-          }
-          onItemClick={onItemClickOrDefault}
-        />
-      )}
-    </GenericPopover>
+    <PortalTarget target={props.portalElement}>
+      <GenericPopover reference={reference} {...floatingUIOptions}>
+        {triggerCharacter && (
+          <GridSuggestionMenuWrapper
+            query={state.query}
+            closeMenu={suggestionMenu.closeMenu}
+            clearQuery={suggestionMenu.clearQuery}
+            getItems={getItemsOrDefault}
+            columns={columns}
+            gridSuggestionMenuComponent={
+              gridSuggestionMenuComponent ||
+              GridSuggestionMenu<ItemType<GetItemsType>>
+            }
+            onItemClick={onItemClickOrDefault}
+          />
+        )}
+      </GenericPopover>
+    </PortalTarget>
   );
 }

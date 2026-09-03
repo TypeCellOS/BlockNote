@@ -7,7 +7,7 @@ import {
 import { useCallback } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
-import { usePortalContext } from "../../../editor/PortalContext.js";
+import { usePortalContext } from "../../../editor/PortalTarget.js";
 import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";

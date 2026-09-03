@@ -12,6 +12,7 @@ import { FC, useCallback, useMemo, useState } from "react";
 import { autoUpdate, offset, ReferenceElement, size } from "@floating-ui/react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtensionState } from "../../hooks/useExtension.js";
+import { PortalTarget } from "../../editor/PortalTarget.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -315,10 +316,9 @@ export const TableHandlesController = <
   const TableCellHandleComponent = props.tableCellHandle || TableCellButton;
 
   return (
-    <>
+    <PortalTarget target={props.portalElement}>
       <GenericPopover
         reference={references?.rowReference}
-        portalElement={props.portalElement}
         {...floatingUIOptions?.rowTableHandle}
       >
         {state.show &&
@@ -334,7 +334,6 @@ export const TableHandlesController = <
       </GenericPopover>
       <GenericPopover
         reference={references?.columnReference}
-        portalElement={props.portalElement}
         {...floatingUIOptions?.columnTableHandle}
       >
         {state.show &&
@@ -350,7 +349,6 @@ export const TableHandlesController = <
       </GenericPopover>
       <GenericPopover
         reference={references?.cellReference}
-        portalElement={props.portalElement}
         {...floatingUIOptions?.tableCellHandle}
       >
         {state.show &&
@@ -366,7 +364,6 @@ export const TableHandlesController = <
       </GenericPopover>
       <GenericPopover
         reference={references?.tableReference}
-        portalElement={props.portalElement}
         {...floatingUIOptions?.extendRowsButton}
       >
         {state.show &&
@@ -382,7 +379,6 @@ export const TableHandlesController = <
       </GenericPopover>
       <GenericPopover
         reference={references?.tableReference}
-        portalElement={props.portalElement}
         {...floatingUIOptions?.extendColumnsButton}
       >
         {state.show &&
@@ -396,6 +392,6 @@ export const TableHandlesController = <
             />
           )}
       </GenericPopover>
-    </>
+    </PortalTarget>
   );
 };

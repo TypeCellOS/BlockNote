@@ -14,7 +14,7 @@ import {
 } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
-import { usePortalContext } from "../../../editor/PortalContext.js";
+import { usePortalContext } from "../../../editor/PortalTarget.js";
 import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../../hooks/useEditorDomElement.js";

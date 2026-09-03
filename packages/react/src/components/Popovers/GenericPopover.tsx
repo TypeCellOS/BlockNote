@@ -14,7 +14,7 @@ import {
 } from "@floating-ui/react";
 import { HTMLAttributes, ReactNode, useEffect, useRef } from "react";
 
-import { PortalContext, usePortalContext } from "../../editor/PortalContext.js";
+import { usePortalContext } from "../../editor/PortalTarget.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
 
@@ -117,27 +117,15 @@ export const GenericPopover = (
   props: FloatingUIOptions & {
     reference?: GenericPopoverReference;
     children: ReactNode;
-    /**
-     * Override the DOM node this popover portals into. Falls back to the
-     * ambient `PortalContext` (whose default is `editor.portalElement`) when
-     * omitted; `null` means `document.body`.
-     */
-    portalElement?: HTMLElement | null;
   },
 ) => {
   const editor = useBlockNoteEditor();
-  const contextPortal = usePortalContext();
-  // An explicit `portalElement` prop overrides the ambient `PortalContext`;
-  // `null` means `document.body`.
-  const portalRoot =
-    props.portalElement === null
-      ? typeof document !== "undefined"
-        ? document.body
-        : undefined
-      : (props.portalElement ?? contextPortal);
-  if (!portalRoot) {
-    throw new Error("Portal element not found");
-  }
+  // The ambient portal root — always a resolved, themed, registered root, as
+  // `PortalContext` is only ever provided by `PortalTarget` (the default from
+  // `BlockNoteView`, or a controller's / the mobile toolbar's override).
+  // `null` during SSR and for the frame before resolution — handled after the
+  // hooks below.
+  const portalRoot = usePortalContext();
   const {
     whileElementsMounted: _whileElementsMounted,
     middleware,
@@ -228,7 +216,7 @@ export const GenericPopover = (
     [status, props.reference, props.children],
   );
 
-  if (!isMounted) {
+  if (!isMounted || !portalRoot) {
     return false;
   }
 
@@ -272,10 +260,7 @@ export const GenericPopover = (
       <FloatingPortal root={portalRoot}>
         <FloatingFocusManager {...props.focusManagerProps} context={context}>
           <div ref={mergedRefs} {...mergedProps}>
-            {/* Cascade the resolved target so nested floating UI portals here too. */}
-            <PortalContext.Provider value={portalRoot}>
-              {props.children}
-            </PortalContext.Provider>
+            {props.children}
           </div>
         </FloatingFocusManager>
       </FloatingPortal>
@@ -285,10 +270,7 @@ export const GenericPopover = (
   return (
     <FloatingPortal root={portalRoot}>
       <div ref={mergedRefs} {...mergedProps}>
-        {/* Cascade the resolved target so nested floating UI portals here too. */}
-        <PortalContext.Provider value={portalRoot}>
-          {props.children}
-        </PortalContext.Provider>
+        {props.children}
       </div>
     </FloatingPortal>
   );

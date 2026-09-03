@@ -5,7 +5,7 @@
  * - `string` — treated as a CSS selector and resolved via `document.querySelector`.
  * - `null` — explicit `document.body` (escape any ancestor stacking context).
  */
-export type PortalTarget = HTMLElement | string | null;
+export type PortalElement = HTMLElement | string | null;
 
 /**
  * Per-element portal targets for BlockNote's floating UI. Keys mirror the
@@ -17,22 +17,22 @@ export type PortalTarget = HTMLElement | string | null;
  * `bn-container` element is used.
  */
 export type PortalElementsMap = {
-  default?: PortalTarget;
-  formattingToolbar?: PortalTarget;
-  linkToolbar?: PortalTarget;
-  slashMenu?: PortalTarget;
-  emojiPicker?: PortalTarget;
-  sideMenu?: PortalTarget;
-  filePanel?: PortalTarget;
-  tableHandles?: PortalTarget;
-  comments?: PortalTarget;
-  attributionTooltip?: PortalTarget;
+  default?: PortalElement;
+  formattingToolbar?: PortalElement;
+  linkToolbar?: PortalElement;
+  slashMenu?: PortalElement;
+  emojiPicker?: PortalElement;
+  sideMenu?: PortalElement;
+  filePanel?: PortalElement;
+  tableHandles?: PortalElement;
+  comments?: PortalElement;
+  attributionTooltip?: PortalElement;
 };
 
 export type PortalElementKey = Exclude<keyof PortalElementsMap, "default">;
 
 export function resolvePortalTarget(
-  target: PortalTarget | undefined,
+  target: PortalElement | undefined,
 ): HTMLElement | undefined {
   if (target === undefined) {
     return undefined;

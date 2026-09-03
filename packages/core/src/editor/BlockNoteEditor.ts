@@ -793,16 +793,59 @@ export class BlockNoteEditor<
     return this._portalElement;
   }
 
+  // Portal roots registered by the view layer, with reference counts so
+  // multiple UI elements can share a root (e.g. several popovers portalling
+  // into the same custom target).
+  private _portalRoots = new Map<HTMLElement, number>();
+
   /**
-   * Checks whether a DOM element belongs to this editor — either inside the
-   * editor's DOM tree or inside its portal container (used for floating UI
-   * elements like menus and toolbars).
+   * Registers an element as a portal root for this editor's floating UI, so
+   * {@link isWithinEditor} treats its contents as part of the editor. The view
+   * layer calls this for each portal target it designates (see
+   * `usePortalTarget` in `@blocknote/react`) — without it, UI portalled to a
+   * custom `portalElements` target would be considered outside the editor.
+   * Returns a function that releases the registration.
+   */
+  public registerPortalRoot = (element: HTMLElement): (() => void) => {
+    this._portalRoots.set(element, (this._portalRoots.get(element) ?? 0) + 1);
+
+    let released = false;
+    return () => {
+      if (released) {
+        return;
+      }
+      released = true;
+
+      const count = this._portalRoots.get(element) ?? 0;
+      if (count <= 1) {
+        this._portalRoots.delete(element);
+      } else {
+        this._portalRoots.set(element, count - 1);
+      }
+    };
+  };
+
+  /**
+   * Checks whether a DOM element belongs to this editor — inside the editor's
+   * DOM tree, its default portal container, or any portal root registered via
+   * {@link registerPortalRoot} (used for floating UI elements like menus and
+   * toolbars, which may portal outside the editor's DOM tree).
    */
   public isWithinEditor = (element: Element): boolean => {
-    return !!(
+    if (
       this.domElement?.parentElement?.contains(element) ||
       this.portalElement?.contains(element)
-    );
+    ) {
+      return true;
+    }
+
+    for (const root of this._portalRoots.keys()) {
+      if (root.contains(element)) {
+        return true;
+      }
+    }
+
+    return false;
   };
 
   public isFocused() {

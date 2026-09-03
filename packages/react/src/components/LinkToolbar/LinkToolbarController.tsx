@@ -6,6 +6,7 @@ import { FC, useEffect, useMemo, useState } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../hooks/useEditorDomElement.js";
 import { useExtension } from "../../hooks/useExtension.js";
+import { PortalTarget } from "../../editor/PortalTarget.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -184,20 +185,18 @@ export const LinkToolbarController = (props: {
   const Component = props.linkToolbar || LinkToolbar;
 
   return (
-    <GenericPopover
-      reference={reference}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {link && (
-        <Component
-          url={link.url}
-          text={link.text}
-          range={link.range}
-          setToolbarOpen={setToolbarOpen}
-          setToolbarPositionFrozen={setToolbarPositionFrozen}
-        />
-      )}
-    </GenericPopover>
+    <PortalTarget target={props.portalElement}>
+      <GenericPopover reference={reference} {...floatingUIOptions}>
+        {link && (
+          <Component
+            url={link.url}
+            text={link.text}
+            range={link.range}
+            setToolbarOpen={setToolbarOpen}
+            setToolbarPositionFrozen={setToolbarPositionFrozen}
+          />
+        )}
+      </GenericPopover>
+    </PortalTarget>
   );
 };

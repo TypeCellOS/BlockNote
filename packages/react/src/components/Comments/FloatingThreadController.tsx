@@ -5,6 +5,7 @@ import { ComponentProps, FC, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { PortalTarget } from "../../editor/PortalTarget.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { PositionPopover } from "../Popovers/PositionPopover.js";
@@ -128,18 +129,19 @@ export default function FloatingThreadController(props: {
   const Component = props.floatingThread || Thread;
 
   return (
-    <PositionPopover
-      position={selectedThread?.position}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {thread && (
-        <Component
-          thread={thread}
-          selected={true}
-          newCommentEditor={newCommentEditor}
-        />
-      )}
-    </PositionPopover>
+    <PortalTarget target={props.portalElement}>
+      <PositionPopover
+        position={selectedThread?.position}
+        {...floatingUIOptions}
+      >
+        {thread && (
+          <Component
+            thread={thread}
+            selected={true}
+            newCommentEditor={newCommentEditor}
+          />
+        )}
+      </PositionPopover>
+    </PortalTarget>
   );
 }
