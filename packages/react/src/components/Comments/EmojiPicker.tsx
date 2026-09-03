@@ -16,12 +16,11 @@ export const EmojiPicker = (props: {
   const blockNoteContext = useBlockNoteContext()!;
   const portalRoot = usePortalContext();
 
-  if (!portalRoot) {
-    throw new Error("Portal root not found");
-  }
-
   return (
-    <Components.Generic.Popover.Root open={open} portalRoot={portalRoot}>
+    <Components.Generic.Popover.Root
+      open={open}
+      portalRoot={portalRoot ?? undefined}
+    >
       <Components.Generic.Popover.Trigger>
         <div
           onClick={(event) => {

@@ -49,10 +49,10 @@ export const BlockNoteView = <
         : "light";
 
   // Mantine's theming for BlockNote's themed root elements (the editor
-  // container, `editor.portalElement`, portal roots): the color-scheme
-  // attribute the stylesheet keys off, plus CSS variables for custom object
-  // themes. `BlockNoteViewRaw` applies these to every root, so they all update
-  // in the same commit.
+  // container and any portal roots): the color-scheme attribute the
+  // stylesheet keys off, plus CSS variables for custom object themes.
+  // `BlockNoteViewRaw` applies these to every root, so they all update in the
+  // same commit.
   const themedRootProps = useMemo(() => {
     const themeCSSVariables =
       typeof theme !== "object"

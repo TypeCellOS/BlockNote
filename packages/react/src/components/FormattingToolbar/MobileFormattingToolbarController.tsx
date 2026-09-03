@@ -1,6 +1,7 @@
 import { FC, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
-import { PortalTarget } from "../../editor/PortalTarget.js";
+import { PortalTarget, usePortalContext } from "../../editor/PortalTarget.js";
 import { UIModeContext } from "../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
@@ -22,11 +23,10 @@ import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
  * iOS that container's `-webkit-overflow-scrolling` stacking context paints the
  * `position: fixed` toolbar behind page content like footers; rendering at the
  * body level avoids that. It provides a `"mobile"` {@link UIModeContext} so its
- * buttons know to portal their dropdowns (into the body-level
- * {@link PortalContext} target, escaping the editor container's overflow) and to
- * suppress moving focus into them, which would blur the editor and dismiss the
- * keyboard. React context (editor, components, theme provider) still flows
- * through the portal.
+ * buttons know to portal their dropdowns (into the body-level portal target,
+ * escaping the editor container's overflow) and to suppress moving focus into
+ * them, which would blur the editor and dismiss the keyboard. React context
+ * (editor, components, theme provider) still flows through the portal.
  *
  * Shown while the virtual keyboard is open and this editor holds focus. The
  * focus check is essential when multiple editors share a page: the virtual
@@ -80,32 +80,30 @@ export const MobileFormattingToolbarController = (props: {
   }
 
   return (
-    <MobileFormattingToolbar
-      formattingToolbar={props.formattingToolbar || FormattingToolbar}
-    />
+    <PortalTarget target={document.body}>
+      <UIModeContext.Provider value="mobile">
+        <MobileFormattingToolbar
+          formattingToolbar={props.formattingToolbar || FormattingToolbar}
+        />
+      </UIModeContext.Provider>
+    </PortalTarget>
   );
 };
 
-/**
- * The visible part of the mobile toolbar, rendered at the body level. Marks its
- * subtree as a `"mobile"` UI surface. Because `document.body` is outside the
- * editor's themed subtree, {@link PortalTarget} renders a themed `.bn-root` div
- * inside it (registered with the editor) that the toolbar renders into, and
- * provides it via `PortalContext` so the toolbar's dropdowns portal alongside
- * it. See the controller docstring.
- */
 function MobileFormattingToolbar(props: {
   formattingToolbar: FC<FormattingToolbarProps>;
 }) {
+  const root = usePortalContext();
   const Component = props.formattingToolbar;
 
-  return (
-    <PortalTarget target={document.body}>
-      <UIModeContext.Provider value="mobile">
-        <div className="bn-mobile-formatting-toolbar">
-          <Component />
-        </div>
-      </UIModeContext.Provider>
-    </PortalTarget>
+  if (!root) {
+    return null;
+  }
+
+  return createPortal(
+    <div className="bn-mobile-formatting-toolbar">
+      <Component />
+    </div>,
+    root,
   );
 }

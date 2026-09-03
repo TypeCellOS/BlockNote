@@ -21,21 +21,14 @@ export type BlockNoteViewContextValue = {
     autoFocus?: boolean;
     contentEditableProps?: Record<string, any>;
     editable?: boolean;
-    /**
-     * Resolved portal target for `editor.portalElement` — passed to
-     * `editor.mount()`. Comes from `portalElements.default` on
-     * `BlockNoteView`. `undefined` lets `mount()` use its default
-     * (`element.parentElement`, i.e. `bn-container`).
-     */
-    portalTarget?: HTMLElement | null;
   };
   defaultUIProps: BlockNoteDefaultUIProps;
   /**
    * Props that turn an element into a themed `.bn-root`: the classes and
    * color-scheme attribute existing CSS keys off, plus the UI-library extras
-   * from {@link ThemedRootProps}. Rendered on the editor container, applied to
-   * `editor.portalElement`, and used by `PortalTarget` to theme the portal
-   * roots it creates — all from the same data.
+   * from {@link ThemedRootProps}. Rendered on the editor container and used
+   * by `PortalTarget` to theme the portal roots it creates — all from the
+   * same data.
    */
   portalRootProps: ThemedRootProps & {
     className: string;

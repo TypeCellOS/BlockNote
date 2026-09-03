@@ -11,10 +11,9 @@ export type PortalElement = HTMLElement | string | null;
  * Per-element portal targets for BlockNote's floating UI. Keys mirror the
  * default UI element flags on `BlockNoteView`.
  *
- * `default` is the fallback used for any element whose key is omitted, and is
- * also where `editor.portalElement` itself is mounted. Elements that omit a
- * specific entry inherit `default`; if `default` is also omitted, the editor's
- * `bn-container` element is used.
+ * `default` is the fallback used for any element whose key is omitted. If
+ * `default` is also omitted, floating UI portals into the editor's
+ * `bn-container` element.
  */
 export type PortalElementsMap = {
   default?: PortalElement;

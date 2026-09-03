@@ -719,26 +719,25 @@ export class BlockNoteEditor<
    * Mount the editor to a DOM element.
    *
    * @param element The DOM element to mount the editor's contenteditable into.
-   * @param options.portalTarget Where to mount `editor.portalElement` — the
-   *   container that floating UI (toolbars, menus, etc) portals into. When
-   *   omitted, defaults to `element.parentElement` (which is the editor's
-   *   `bn-container` in typical React usage), or to `document.body` /
-   *   the surrounding shadow root when no parent is available.
+   * @param options.portalTarget An element to register as a portal root — a
+   *   convenience for {@link registerPortalRoot}, for non-React setups that
+   *   render the editor's floating UI outside the editor's DOM tree, so
+   *   {@link isWithinEditor} recognizes it. An ordinary registration like any
+   *   other: release it with {@link unregisterPortalRoot} if ever needed. Not
+   *   needed for UI rendered next to the contenteditable (the mount element's
+   *   parent already counts as within the editor). Prefer a dedicated
+   *   container over e.g. `document.body`, which would make the whole page
+   *   count.
    *
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
   public mount = (
     element: HTMLElement,
-    options?: { portalTarget?: HTMLElement | null },
+    options?: { portalTarget?: HTMLElement },
   ) => {
-    const root = element.getRootNode();
-    const isInShadowRoot =
-      typeof ShadowRoot !== "undefined" && root instanceof ShadowRoot;
-    const target =
-      options?.portalTarget ??
-      element.parentElement ??
-      (isInShadowRoot ? (root as ShadowRoot) : document.body);
-    target.appendChild(this.portalElement);
+    if (options?.portalTarget) {
+      this.registerPortalRoot(options.portalTarget);
+    }
     this._tiptapEditor.mount({ mount: element });
   };
 
@@ -746,7 +745,6 @@ export class BlockNoteEditor<
    * Unmount the editor from the DOM element it is bound to
    */
   public unmount = () => {
-    this.portalElement?.remove();
     this._tiptapEditor.unmount();
   };
 
@@ -774,25 +772,6 @@ export class BlockNoteEditor<
     return this.prosemirrorView?.dom as HTMLDivElement | undefined;
   }
 
-  private _portalElement: HTMLElement | undefined;
-
-  /**
-   * The portal container element at `document.body` used by floating UI
-   * elements (menus, toolbars) to escape overflow:hidden ancestors.
-   * Set by BlockNoteView; undefined in headless mode.
-   */
-  public get portalElement() {
-    if (typeof document === "undefined") {
-      throw new Error(
-        "Portal element accessed, but not available in headless mode",
-      );
-    }
-    if (!this._portalElement) {
-      this._portalElement = document.createElement("div");
-    }
-    return this._portalElement;
-  }
-
   // Portal roots registered by the view layer, with reference counts so
   // multiple UI elements can share a root (e.g. several popovers portalling
   // into the same custom target).
@@ -802,40 +781,41 @@ export class BlockNoteEditor<
    * Registers an element as a portal root for this editor's floating UI, so
    * {@link isWithinEditor} treats its contents as part of the editor. The view
    * layer calls this for each portal target it designates (see
-   * `usePortalTarget` in `@blocknote/react`) — without it, UI portalled to a
-   * custom `portalElements` target would be considered outside the editor.
-   * Returns a function that releases the registration.
+   * `PortalTarget` in `@blocknote/react`) — without it, UI portalled outside
+   * the editor's DOM tree would be considered outside the editor.
+   * Registrations are reference-counted; release with
+   * {@link unregisterPortalRoot}.
    */
-  public registerPortalRoot = (element: HTMLElement): (() => void) => {
+  public registerPortalRoot = (element: HTMLElement) => {
     this._portalRoots.set(element, (this._portalRoots.get(element) ?? 0) + 1);
+  };
 
-    let released = false;
-    return () => {
-      if (released) {
-        return;
-      }
-      released = true;
+  /**
+   * Releases a registration made with {@link registerPortalRoot}. The element
+   * stops counting as part of the editor once every registration for it has
+   * been released.
+   */
+  public unregisterPortalRoot = (element: HTMLElement) => {
+    const count = this._portalRoots.get(element);
+    if (count === undefined) {
+      return;
+    }
 
-      const count = this._portalRoots.get(element) ?? 0;
-      if (count <= 1) {
-        this._portalRoots.delete(element);
-      } else {
-        this._portalRoots.set(element, count - 1);
-      }
-    };
+    if (count <= 1) {
+      this._portalRoots.delete(element);
+    } else {
+      this._portalRoots.set(element, count - 1);
+    }
   };
 
   /**
    * Checks whether a DOM element belongs to this editor — inside the editor's
-   * DOM tree, its default portal container, or any portal root registered via
+   * DOM tree, or inside any portal root registered via
    * {@link registerPortalRoot} (used for floating UI elements like menus and
    * toolbars, which may portal outside the editor's DOM tree).
    */
   public isWithinEditor = (element: Element): boolean => {
-    if (
-      this.domElement?.parentElement?.contains(element) ||
-      this.portalElement?.contains(element)
-    ) {
+    if (this.domElement?.parentElement?.contains(element)) {
       return true;
     }
 

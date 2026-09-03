@@ -32,7 +32,7 @@ export const AttributionTooltipController = (props: {
   floatingUIOptions?: FloatingUIOptions;
   /**
    * Override the DOM node this floating element portals into. Falls back to
-   * `editor.portalElement` when omitted.
+   * the ambient portal target when omitted.
    */
   portalElement?: HTMLElement | null;
 }) => {

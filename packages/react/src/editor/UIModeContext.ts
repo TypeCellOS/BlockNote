@@ -8,8 +8,8 @@ import { createContext, useContext } from "react";
  * `MobileFormattingToolbarController`, whose toolbar is pinned above the
  * on-screen keyboard and lives outside the editor's DOM subtree. Toolbar
  * buttons read this to decide whether to portal their dropdowns (into the
- * {@link PortalContext} target) and to suppress moving focus into them — which
- * on desktop would break keyboard nav, and on mobile would blur the editor's
+ * ambient portal target) and to suppress moving focus into them — which on
+ * desktop would break keyboard nav, and on mobile would blur the editor's
  * contentEditable and dismiss the keyboard.
  */
 export type UIMode = "desktop" | "mobile";
