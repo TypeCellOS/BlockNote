@@ -167,6 +167,52 @@ export function getParseRules<
   return rules;
 }
 
+// What the generated node's content expression is for each `content` kind.
+const CONTENT_EXPRESSIONS: Record<BlockConfig["content"], string> = {
+  inline: "inline*",
+  plain: "text*",
+  none: "",
+  table: "tableRow+",
+};
+
+/**
+ * Checks a hand-written node against its config: that the node name matches
+ * the block type, and that the node's content expression matches the
+ * `content` the spec declares — the one `getBlockInfoFromPos` reports as the
+ * block's `contentKind`, without looking at the node. A generated node's name
+ * and expression come from that same config, so this only bites on a
+ * hand-written one (`createBlockSpecFromTiptapNode`).
+ */
+function checkNodeMatchesConfig(node: Node, blockConfig: BlockConfig) {
+  if (node.name !== blockConfig.type) {
+    throw new Error(
+      "Node name does not match block type. This is a bug in BlockNote.",
+    );
+  }
+
+  // A wrapper node that holds child blocks directly (e.g. a hand-written
+  // `column`) has no block content expression to compare against.
+  const groups = typeof node.config.group === "string" ? node.config.group : "";
+  if (groups.split(" ").includes("bnBlock")) {
+    return;
+  }
+
+  // tiptap allows the expression to be a function of the editor, in which case
+  // there is nothing to compare yet.
+  const content = node.config.content;
+  if (content !== undefined && typeof content !== "string") {
+    return;
+  }
+
+  const expected = CONTENT_EXPRESSIONS[blockConfig.content];
+  if ((content ?? "") !== expected) {
+    throw new Error(
+      `Block "${blockConfig.type}" declares \`content: "${blockConfig.content}"\`, ` +
+        `but its node holds "${content ?? ""}" rather than "${expected}".`,
+    );
+  }
+}
+
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function addNodeAndExtensionsToSpec<
@@ -179,7 +225,7 @@ export function addNodeAndExtensionsToSpec<
   extensions?: (ExtensionFactoryInstance | Extension)[],
   priority?: number,
 ): LooseBlockSpec<TName, TProps, TContent> {
-  const node =
+  const builtNode =
     ((blockImplementation as any).node as Node) ||
     Node.create({
       name: blockConfig.type,
@@ -292,11 +338,17 @@ export function addNodeAndExtensionsToSpec<
       },
     });
 
-  if (node.name !== blockConfig.type) {
-    throw new Error(
-      "Node name does not match block type. This is a bug in BlockNote.",
-    );
-  }
+  checkNodeMatchesConfig(builtNode, blockConfig as BlockConfig);
+
+  // The block's config is stored on its node's PM spec
+  // (`NodeSpec.blockConfig`), so code holding a bare `Node` can consult it
+  // without an editor or schema reference. (`extendNodeSchema` hooks run
+  // for every node in the schema, hence the name gate.)
+  const node = builtNode.extend({
+    extendNodeSchema(extension) {
+      return extension.name === builtNode.name ? { blockConfig } : {};
+    },
+  });
 
   return {
     config: blockConfig,
