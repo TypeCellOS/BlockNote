@@ -48,6 +48,13 @@ type ToolbarSelectType = {
   }[];
   isDisabled?: boolean;
   portalRoot?: HTMLElement | null;
+  /**
+   * When true, the surface must not move DOM focus onto itself when it opens.
+   * On mobile, stealing focus blurs the editor's `contentEditable` and
+   * dismisses the on-screen keyboard. Adapters map this to their own library's
+   * focus mechanism.
+   */
+  preventFocusOnOpen?: boolean;
 };
 
 type MenuButtonType = {
@@ -335,6 +342,13 @@ export type ComponentProps = {
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
         portalRoot?: HTMLElement | null;
+        /**
+         * When true, the surface must not move DOM focus onto itself when it
+         * opens. On mobile, stealing focus blurs the editor's `contentEditable`
+         * and dismisses the on-screen keyboard. Adapters map this to their own
+         * library's focus mechanism.
+         */
+        preventFocusOnOpen?: boolean;
         children?: ReactNode;
       };
       Divider: {
@@ -375,6 +389,13 @@ export type ComponentProps = {
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
         portalRoot?: HTMLElement | null;
+        /**
+         * When true, the surface must not move DOM focus onto itself when it
+         * opens. On mobile, stealing focus blurs the editor's `contentEditable`
+         * and dismisses the on-screen keyboard. Adapters map this to their own
+         * library's focus mechanism.
+         */
+        preventFocusOnOpen?: boolean;
         children?: ReactNode;
       };
       Content: {

@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import { MdArrowDropDown } from "react-icons/md";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useEditorPortalElement } from "../../editor/EditorPortalProvider.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtension } from "../../hooks/useExtension.js";
 import { TableCellButtonProps } from "./TableCellButtonProps.js";
@@ -16,6 +17,7 @@ export const TableCellButton = (
   props: TableCellButtonProps & { children?: ReactNode },
 ) => {
   const Components = useComponentsContext()!;
+  const editorPortalElement = useEditorPortalElement();
 
   const editor = useBlockNoteEditor<any, any, any>();
 
@@ -45,6 +47,7 @@ export const TableCellButton = (
         }
       }}
       position={"right"}
+      portalRoot={editorPortalElement ?? undefined}
     >
       <Components.Generic.Menu.Trigger>
         <Components.Generic.Menu.Button className={"bn-table-cell-handle"}>

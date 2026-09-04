@@ -1,4 +1,5 @@
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useEditorPortalElement } from "../../../editor/EditorPortalProvider.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { EditLinkMenuItems } from "../EditLinkMenuItems.js";
 import { LinkToolbarProps } from "../LinkToolbarProps.js";
@@ -10,11 +11,13 @@ export const EditLinkButton = (
   >,
 ) => {
   const Components = useComponentsContext()!;
+  const editorPortalElement = useEditorPortalElement();
   const dict = useDictionary();
 
   return (
     <Components.Generic.Popover.Root
       onOpenChange={props.setToolbarPositionFrozen}
+      portalRoot={editorPortalElement ?? undefined}
     >
       <Components.Generic.Popover.Trigger>
         <Components.LinkToolbar.Button

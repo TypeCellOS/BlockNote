@@ -51,7 +51,15 @@ export const PopoverContent = forwardRef<
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
-  const { children, open, onOpenChange, position, portalRoot, ...rest } = props;
+  const {
+    children,
+    open,
+    onOpenChange,
+    position,
+    portalRoot,
+    preventFocusOnOpen: _preventFocusOnOpen, // unused; see Menu.tsx
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 

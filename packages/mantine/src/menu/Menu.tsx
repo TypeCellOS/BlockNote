@@ -16,7 +16,15 @@ const SubMenuContext = createContext<
 >(undefined);
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
-  const { children, onOpenChange, position, portalRoot, sub, ...rest } = props;
+  const {
+    children,
+    onOpenChange,
+    position,
+    portalRoot,
+    preventFocusOnOpen,
+    sub,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
@@ -38,9 +46,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     <MantineMenu
       withinPortal={!!portalRoot}
       portalProps={portalRoot ? { target: portalRoot } : undefined}
-      // Do not move focus to dropdown when portaled (mobile), as it blurs the
-      // editor's contentEditable and dismisses the on-screen keyboard.
-      trapFocus={portalRoot ? false : undefined}
+      // Do not move focus to the dropdown when requested (mobile), as it blurs
+      // the editor's contentEditable and dismisses the on-screen keyboard.
+      trapFocus={preventFocusOnOpen ? false : undefined}
       middlewares={{ flip: true, shift: true, inline: false, size: true }}
       onChange={onOpenChange}
       position={position}

@@ -127,15 +127,20 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, portalRoot, ...rest } = props;
+  const {
+    className,
+    items,
+    isDisabled,
+    portalRoot,
+    // base-ui manages select focus itself; unlike Mantine there is no focus to
+    // suppress, so this is intentionally unused.
+    preventFocusOnOpen: _preventFocusOnOpen,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
-
-  // Default to the ambient portal target (a themed `.bn-root`) so the dropdown
-  // inherits light/dark mode instead of the body's.
-  const editorPortalElement = useEditorPortalElement();
 
   // TODO?
   const SelectItemContent = (props: any) => (
@@ -164,7 +169,7 @@ export const ToolbarSelect = forwardRef<
       </ShadCNComponents.Select.SelectTrigger>
       <ShadCNComponents.Select.SelectContent
         className={className}
-        container={portalRoot ?? editorPortalElement ?? undefined}
+        container={portalRoot ?? undefined}
         // Position the dropdown below the trigger (classic dropdown behavior)
         // instead of aligning the selected item over the trigger (the Base UI
         // default).

@@ -25,6 +25,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     onOpenChange,
     position,
     portalRoot,
+    // ariakit's `virtualFocus` keeps DOM focus on the editor (roving via
+    // `aria-activedescendant`), so there is no focus to suppress here.
+    preventFocusOnOpen: _preventFocusOnOpen,
     sub: _sub, // unused
     ...rest
   } = props;

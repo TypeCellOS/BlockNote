@@ -16,7 +16,14 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, portalRoot, ...rest } = props;
+  const {
+    className,
+    items,
+    isDisabled,
+    portalRoot,
+    preventFocusOnOpen: _preventFocusOnOpen, // unused; see Menu.tsx
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
