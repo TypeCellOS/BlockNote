@@ -24,7 +24,7 @@ export const FileReplaceButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
   // Portal necessary to properly show popover on mobile.
-  const mobileToolbarPortal = useEditorPortalElement();
+  const editorPortalElement = useEditorPortalElement();
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -68,7 +68,7 @@ export const FileReplaceButton = () => {
       open={isOpen}
       onOpenChange={setIsOpen}
       position={"bottom"}
-      portalRoot={mobileToolbarPortal}
+      portalRoot={editorPortalElement}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button

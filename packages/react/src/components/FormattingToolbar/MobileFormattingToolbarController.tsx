@@ -96,10 +96,10 @@ export const MobileFormattingToolbarController = (props: {
 function MobileFormattingToolbar(props: {
   formattingToolbar: FC<FormattingToolbarProps>;
 }) {
-  const root = useEditorPortalElement();
+  const editorPortalElement = useEditorPortalElement();
   const Component = props.formattingToolbar;
 
-  if (!root) {
+  if (!editorPortalElement) {
     return null;
   }
 
@@ -107,6 +107,6 @@ function MobileFormattingToolbar(props: {
     <div className="bn-mobile-formatting-toolbar">
       <Component />
     </div>,
-    root,
+    editorPortalElement,
   );
 }
