@@ -1,11 +1,18 @@
 import { afterEach, beforeEach } from "vite-plus/test";
 
+// This setup file also runs for test files that opt into the plain `node`
+// environment (`@vitest-environment node`), where there is no `window` at
+// all. `__TEST_OPTIONS` (which drives deterministic block IDs) is therefore
+// set on `window` when there is one and on `globalThis` otherwise, matching
+// the resolution `UniqueID`'s `generateID` uses.
+const testHost: any = (globalThis as any).window ?? globalThis;
+
 beforeEach(() => {
-  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
+  testHost.__TEST_OPTIONS = {};
 });
 
 afterEach(() => {
-  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+  delete testHost.__TEST_OPTIONS;
 });
 
 // Mock ClipboardEvent
@@ -19,7 +26,7 @@ class ClipboardEventMock extends Event {
     },
   };
 }
-(global as any).ClipboardEvent = ClipboardEventMock;
+(globalThis as any).ClipboardEvent = ClipboardEventMock;
 
 // Mock DragEvent
 class DragEventMock extends Event {
@@ -32,4 +39,4 @@ class DragEventMock extends Event {
     },
   };
 }
-(global as any).DragEvent = DragEventMock;
+(globalThis as any).DragEvent = DragEventMock;

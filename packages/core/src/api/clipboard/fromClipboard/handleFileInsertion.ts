@@ -5,7 +5,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { getBlockInfoAtNearest, getNodeId } from "../../getBlockInfoFromPos.js";
+import { getBlockInfoNearPos, getNodeId } from "../../getBlockInfoFromPos.js";
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 
 function checkFileExtensionsMatch(
@@ -159,8 +159,8 @@ export async function handleFileInsertion<
         }
 
         insertedBlockId = editor.transact((tr) => {
-          const blockInfo = getBlockInfoAtNearest(tr, pos.pos);
-          const id = getNodeId(blockInfo.bnBlock.node, tr.doc);
+          const blockInfo = getBlockInfoNearPos(tr, pos.pos);
+          const id = getNodeId(blockInfo.block.node, tr.doc);
           // TODO technically data-id will always be the non-rewritten id, so there might be multiple in the document.
           // getNodeId might find the wrong one (aka point to a deleted node when it should be a non-deleted on)
           // This is acceptable right now, given that we don't expect edits on the document content

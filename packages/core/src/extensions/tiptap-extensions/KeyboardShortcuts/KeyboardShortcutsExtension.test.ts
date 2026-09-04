@@ -110,6 +110,352 @@ function getTextContent(editor: BlockNoteEditor<any, any, any>) {
   return text;
 }
 
+/**
+ * Characterization tests for the Backspace/Delete/Enter/Tab handlers: they pin
+ * the current document transformations so the BlockInfo migration inside the
+ * handlers is provably behavior-preserving.
+ */
+function createEditorWithBlocks(
+  initialContent: any[],
+  cursor: { id: string; placement: "start" | "end" },
+) {
+  const editor = BlockNoteEditor.create({ schema, initialContent });
+  editor.mount(document.createElement("div"));
+  editor.setTextCursorPosition(cursor.id, cursor.placement);
+  return editor;
+}
+
+/** Compact structural view of the document for snapshotting. */
+function outline(blocks: any[]): any[] {
+  return blocks.map((b) => ({
+    type: b.type,
+    text: Array.isArray(b.content)
+      ? b.content.map((c: any) => c.text ?? "").join("")
+      : undefined,
+    ...(b.children.length > 0 ? { children: outline(b.children) } : {}),
+  }));
+}
+
+describe("KeyboardShortcutsExtension Backspace", () => {
+  it("merges a block into the previous one at block start", () => {
+    const editor = createEditorWithBlocks(
+      [
+        { id: "a", type: "paragraph", content: "Hello" },
+        { id: "b", type: "paragraph", content: "World" },
+      ],
+      { id: "b", placement: "start" },
+    );
+
+    pressKeys(editor, "Backspace");
+
+    expect(outline(editor.document)).toMatchInlineSnapshot(`
+      [
+        {
+          "text": "HelloWorld",
+          "type": "paragraph",
+        },
+      ]
+    `);
+    editor._tiptapEditor.destroy();
+  });
+
+  it("merges into the previous block's deepest descendant", () => {
+    const editor = createEditorWithBlocks(
+      [
+        {
+          id: "a",
+          type: "paragraph",
+          content: "Parent",
+          children: [{ id: "a1", type: "paragraph", content: "Nested" }],
+        },
+        { id: "b", type: "paragraph", content: "World" },
+      ],
+      { id: "b", placement: "start" },
+    );
+
+    pressKeys(editor, "Backspace");
+
+    expect(outline(editor.document)).toMatchInlineSnapshot(`
+      [
+        {
+          "children": [
+            {
+              "text": "NestedWorld",
+              "type": "paragraph",
+            },
+          ],
+          "text": "Parent",
+          "type": "paragraph",
+        },
+      ]
+    `);
+    editor._tiptapEditor.destroy();
+  });
+
+  it("lifts a nested first child at block start", () => {
+    const editor = createEditorWithBlocks(
+      [
+        {
+          id: "a",
+          type: "paragraph",
+          content: "Parent",
+          children: [{ id: "a1", type: "paragraph", content: "Nested" }],
+        },
+      ],
+      { id: "a1", placement: "start" },
+    );
+
+    pressKeys(editor, "Backspace");
+
+    expect(outline(editor.document)).toMatchInlineSnapshot(`
+      [
+        {
+          "text": "Parent",
+          "type": "paragraph",
+        },
+        {
+          "text": "Nested",
+          "type": "paragraph",
+        },
+      ]
+    `);
+    editor._tiptapEditor.destroy();
+  });
+
+  it("deletes an empty block, moving its children out", () => {
+    const editor = createEditorWithBlocks(
+      [
+        { id: "a", type: "paragraph", content: "Before" },
+        {
+          id: "b",
+          type: "paragraph",
+          content: "",
+          children: [{ id: "b1", type: "paragraph", content: "Child" }],
+        },
+      ],
+      { id: "b", placement: "start" },
+    );
+
+    pressKeys(editor, "Backspace");
+
+    expect(outline(editor.document)).toMatchInlineSnapshot(`
+      [
+        {
+          "text": "Before",
+          "type": "paragraph",
+        },
+        {
+          "text": "Child",
+          "type": "paragraph",
+        },
+      ]
+    `);
+    editor._tiptapEditor.destroy();
+  });
+});
+
+describe("KeyboardShortcutsExtension Delete", () => {
+  it("merges the next block in at block end", () => {
+    const editor = createEditorWithBlocks(
+      [
+        { id: "a", type: "paragraph", content: "Hello" },
+        { id: "b", type: "paragraph", content: "World" },
+      ],
+      { id: "a", placement: "end" },
+    );
+
+    pressKeys(editor, "Delete");
+
+    expect(outline(editor.document)).toMatchInlineSnapshot(`
+      [
+        {
+          "text": "HelloWorld",
+          "type": "paragraph",
+        },
+      ]
+    `);
+    editor._tiptapEditor.destroy();
+  });
+
+  it("merges a next block that has children, un-nesting them", () => {
+    const editor = createEditorWithBlocks(
+      [
+        { id: "a", type: "paragraph", content: "Hello" },
+        {
+          id: "b",
+          type: "paragraph",
+          content: "World",
+          children: [
+            { id: "b1", type: "paragraph", content: "Child 1" },
+            { id: "b2", type: "paragraph", content: "Child 2" },
+          ],
+        },
+      ],
+      { id: "a", placement: "end" },
+    );
+
+    pressKeys(editor, "Delete");
+
+    expect(outline(editor.document)).toMatchInlineSnapshot(`
+      [
+        {
+          "text": "HelloWorld",
+          "type": "paragraph",
+        },
+        {
+          "text": "Child 1",
+          "type": "paragraph",
+        },
+        {
+          "text": "Child 2",
+          "type": "paragraph",
+        },
+      ]
+    `);
+    editor._tiptapEditor.destroy();
+  });
+
+  it("removes an empty next block, adopting its children", () => {
+    const editor = createEditorWithBlocks(
+      [
+        { id: "a", type: "paragraph", content: "Hello" },
+        {
+          id: "b",
+          type: "paragraph",
+          content: "",
+          children: [{ id: "b1", type: "paragraph", content: "Child" }],
+        },
+      ],
+      { id: "a", placement: "end" },
+    );
+
+    pressKeys(editor, "Delete");
+
+    expect(outline(editor.document)).toMatchInlineSnapshot(`
+      [
+        {
+          "text": "Hello",
+          "type": "paragraph",
+        },
+        {
+          "text": "Child",
+          "type": "paragraph",
+        },
+      ]
+    `);
+    editor._tiptapEditor.destroy();
+  });
+
+  it("removes an empty current block on Delete", () => {
+    const editor = createEditorWithBlocks(
+      [
+        { id: "a", type: "paragraph", content: "" },
+        { id: "b", type: "paragraph", content: "After" },
+      ],
+      { id: "a", placement: "start" },
+    );
+
+    pressKeys(editor, "Delete");
+
+    expect(outline(editor.document)).toMatchInlineSnapshot(`
+      [
+        {
+          "text": "After",
+          "type": "paragraph",
+        },
+      ]
+    `);
+    editor._tiptapEditor.destroy();
+  });
+});
+
+describe("KeyboardShortcutsExtension Enter", () => {
+  it("inserts an empty block above when Enter is pressed at the start", () => {
+    const editor = createEditorWithBlocks(
+      [{ id: "a", type: "paragraph", content: "Hello" }],
+      { id: "a", placement: "start" },
+    );
+
+    pressKeys(editor, "Enter");
+
+    expect(outline(editor.document)).toMatchInlineSnapshot(`
+      [
+        {
+          "text": "",
+          "type": "paragraph",
+        },
+        {
+          "text": "Hello",
+          "type": "paragraph",
+        },
+      ]
+    `);
+    editor._tiptapEditor.destroy();
+  });
+
+  it("lifts an empty nested block on Enter", () => {
+    const editor = createEditorWithBlocks(
+      [
+        {
+          id: "a",
+          type: "paragraph",
+          content: "Parent",
+          children: [{ id: "a1", type: "paragraph", content: "" }],
+        },
+      ],
+      { id: "a1", placement: "start" },
+    );
+
+    pressKeys(editor, "Enter");
+
+    expect(outline(editor.document)).toMatchInlineSnapshot(`
+      [
+        {
+          "text": "Parent",
+          "type": "paragraph",
+        },
+        {
+          "text": "",
+          "type": "paragraph",
+        },
+      ]
+    `);
+    editor._tiptapEditor.destroy();
+  });
+});
+
+describe("KeyboardShortcutsExtension Shift-Tab", () => {
+  it("un-nests a nested block", () => {
+    const editor = createEditorWithBlocks(
+      [
+        {
+          id: "a",
+          type: "paragraph",
+          content: "Parent",
+          children: [{ id: "a1", type: "paragraph", content: "Nested" }],
+        },
+      ],
+      { id: "a1", placement: "start" },
+    );
+
+    pressKeys(editor, "Shift-Tab");
+
+    expect(outline(editor.document)).toMatchInlineSnapshot(`
+      [
+        {
+          "text": "Parent",
+          "type": "paragraph",
+        },
+        {
+          "text": "Nested",
+          "type": "paragraph",
+        },
+      ]
+    `);
+    editor._tiptapEditor.destroy();
+  });
+});
+
 describe("KeyboardShortcutsExtension hardBreakShortcut", () => {
   it("inserts a hard break on Shift-Enter by default", () => {
     const editor = createEditor("paragraph");
