@@ -45,7 +45,10 @@ export * from "./components/FormattingToolbar/FormattingToolbar.js";
 export * from "./components/FormattingToolbar/DesktopFormattingToolbarController.js";
 export * from "./components/FormattingToolbar/FormattingToolbarController.js";
 export * from "./components/FormattingToolbar/MobileFormattingToolbarController.js";
-export { PortalTarget, usePortalContext } from "./editor/PortalTarget.js";
+export {
+  EditorPortalProvider,
+  useEditorPortalElement,
+} from "./editor/EditorPortalProvider.js";
 export * from "./editor/UIModeContext.js";
 export * from "./components/FormattingToolbar/useVirtualKeyboard.js";
 export * from "./components/FormattingToolbar/FormattingToolbarProps.js";

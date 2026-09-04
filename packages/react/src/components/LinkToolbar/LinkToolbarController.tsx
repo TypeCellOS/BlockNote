@@ -6,7 +6,7 @@ import { FC, useEffect, useMemo, useState } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../hooks/useEditorDomElement.js";
 import { useExtension } from "../../hooks/useExtension.js";
-import { PortalTarget } from "../../editor/PortalTarget.js";
+import { EditorPortalProvider } from "../../editor/EditorPortalProvider.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -185,7 +185,7 @@ export const LinkToolbarController = (props: {
   const Component = props.linkToolbar || LinkToolbar;
 
   return (
-    <PortalTarget target={props.portalElement}>
+    <EditorPortalProvider target={props.portalElement}>
       <GenericPopover reference={reference} {...floatingUIOptions}>
         {link && (
           <Component
@@ -197,6 +197,6 @@ export const LinkToolbarController = (props: {
           />
         )}
       </GenericPopover>
-    </PortalTarget>
+    </EditorPortalProvider>
   );
 };

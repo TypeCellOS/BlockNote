@@ -27,7 +27,7 @@ export type BlockNoteViewContextValue = {
    * Props that turn an element into a themed `.bn-root`: the classes and
    * color-scheme attribute existing CSS keys off, plus the UI-library extras
    * from {@link ThemedRootProps}. Rendered on the editor container and used
-   * by `PortalTarget` to theme the portal roots it creates — all from the
+   * by `EditorPortalProvider` to theme the portal roots it creates — all from the
    * same data.
    */
   portalRootProps: ThemedRootProps & {

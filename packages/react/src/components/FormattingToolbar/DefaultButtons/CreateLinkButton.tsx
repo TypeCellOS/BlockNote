@@ -14,7 +14,7 @@ import {
 } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
-import { usePortalContext } from "../../../editor/PortalTarget.js";
+import { useEditorPortalElement } from "../../../editor/EditorPortalProvider.js";
 import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../../hooks/useEditorDomElement.js";
@@ -48,11 +48,11 @@ export const CreateLinkButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
   const uiMode = useUIMode();
-  const portalContext = usePortalContext();
+  const editorPortalElement = useEditorPortalElement();
   // Only portal (and suppress dropdown focus) in the mobile toolbar; desktop
   // renders inline with default focus behavior.
   const portalRoot =
-    uiMode === "mobile" ? (portalContext ?? undefined) : undefined;
+    uiMode === "mobile" ? (editorPortalElement ?? undefined) : undefined;
 
   const formattingToolbar = useExtension(FormattingToolbarExtension);
   // eslint-disable-next-line @typescript-eslint/unbound-method -- showSelection is a plain object method, not a class method

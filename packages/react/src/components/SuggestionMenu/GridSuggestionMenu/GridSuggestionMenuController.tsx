@@ -12,7 +12,7 @@ import {
   useExtension,
   useExtensionState,
 } from "../../../hooks/useExtension.js";
-import { PortalTarget } from "../../../editor/PortalTarget.js";
+import { EditorPortalProvider } from "../../../editor/EditorPortalProvider.js";
 import { FloatingUIOptions } from "../../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -185,7 +185,7 @@ export function GridSuggestionMenuController<
   }
 
   return (
-    <PortalTarget target={props.portalElement}>
+    <EditorPortalProvider target={props.portalElement}>
       <GenericPopover reference={reference} {...floatingUIOptions}>
         {triggerCharacter && (
           <GridSuggestionMenuWrapper
@@ -202,6 +202,6 @@ export function GridSuggestionMenuController<
           />
         )}
       </GenericPopover>
-    </PortalTarget>
+    </EditorPortalProvider>
   );
 }

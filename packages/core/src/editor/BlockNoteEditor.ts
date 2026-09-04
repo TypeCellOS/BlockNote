@@ -781,7 +781,7 @@ export class BlockNoteEditor<
    * Registers an element as a portal root for this editor's floating UI, so
    * {@link isWithinEditor} treats its contents as part of the editor. The view
    * layer calls this for each portal target it designates (see
-   * `PortalTarget` in `@blocknote/react`) — without it, UI portalled outside
+   * `EditorPortalProvider` in `@blocknote/react`) — without it, UI portalled outside
    * the editor's DOM tree would be considered outside the editor.
    * Registrations are reference-counted; release with
    * {@link unregisterPortalRoot}.

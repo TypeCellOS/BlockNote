@@ -1,5 +1,5 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, usePortalContext } from "@blocknote/react";
+import { ComponentProps, useEditorPortalElement } from "@blocknote/react";
 import { createContext, forwardRef, ReactElement, useContext } from "react";
 
 import { cn } from "../lib/utils.js";
@@ -65,12 +65,12 @@ export const PopoverContent = forwardRef<
   // Default to the ambient portal target (a themed `.bn-root`) so popovers
   // inherit light/dark mode instead of the document body's, and escape the
   // mobile formatting toolbar's horizontal scroll clip.
-  const contextPortal = usePortalContext();
+  const editorPortalElement = useEditorPortalElement();
 
   return (
     <ShadCNComponents.Popover.PopoverContent
       sideOffset={8}
-      container={portalRoot ?? contextPortal ?? undefined}
+      container={portalRoot ?? editorPortalElement ?? undefined}
       className={cn(
         className,
         "flex flex-col gap-2",

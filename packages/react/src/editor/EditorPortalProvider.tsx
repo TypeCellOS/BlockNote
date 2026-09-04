@@ -10,10 +10,10 @@ import { createPortal } from "react-dom";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
 import { useBlockNoteViewContext } from "./BlockNoteViewContext.js";
 
-const PortalContext = createContext<HTMLElement | null>(null);
+const EditorPortalContext = createContext<HTMLElement | null>(null);
 
-export function usePortalContext(): HTMLElement | null {
-  return useContext(PortalContext);
+export function useEditorPortalElement(): HTMLElement | null {
+  return useContext(EditorPortalContext);
 }
 
 // Registers a portal root on mount and deregisters it on unmount.
@@ -36,7 +36,7 @@ function useRegisterPortalRoot(root: HTMLElement | null) {
 // one is necessary to apply correct theming & styling. If one doesn't exist, creates one and
 // returns it, both as a React node and HTML element. Otherwise, just returns the target element or
 // null if the target is undefined.
-function usePortalRoot(target: HTMLElement | undefined): {
+function useThemedPortalRoot(target: HTMLElement | undefined): {
   root: HTMLElement | null;
   themingContainer: ReactNode;
 } {
@@ -73,10 +73,10 @@ function usePortalRoot(target: HTMLElement | undefined): {
   };
 }
 
-// Exposes a target portal element for consumers of `PortalContext` to consume. If the target
+// Exposes a target portal element for consumers of `EditorPortalContext` to consume. If the target
 // element has no `.bn-root` element in its ancestors, so that styles & theming are properly
 // applied to the element's descendants, one is created.
-export function PortalTarget(props: {
+export function EditorPortalProvider(props: {
   target?: HTMLElement | null;
   children?: ReactNode;
 }) {
@@ -89,7 +89,7 @@ export function PortalTarget(props: {
         : undefined
       : target;
 
-  const { root, themingContainer } = usePortalRoot(resolvedTarget);
+  const { root, themingContainer } = useThemedPortalRoot(resolvedTarget);
 
   useRegisterPortalRoot(root);
 
@@ -99,7 +99,9 @@ export function PortalTarget(props: {
 
   return (
     <>
-      <PortalContext.Provider value={root}>{children}</PortalContext.Provider>
+      <EditorPortalContext.Provider value={root}>
+        {children}
+      </EditorPortalContext.Provider>
       {themingContainer}
     </>
   );

@@ -1,5 +1,5 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, usePortalContext } from "@blocknote/react";
+import { ComponentProps, useEditorPortalElement } from "@blocknote/react";
 import { forwardRef } from "react";
 
 import { cn } from "../lib/utils.js";
@@ -68,7 +68,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     // Portal the tooltip into the ambient portal target (a themed `.bn-root`)
     // so it inherits the editor's light/dark color scheme instead of the
     // document body's.
-    const contextPortal = usePortalContext();
+    const editorPortalElement = useEditorPortalElement();
 
     const trigger =
       isSelected === undefined ? (
@@ -112,7 +112,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       <ShadCNComponents.Tooltip.Tooltip>
         <ShadCNComponents.Tooltip.TooltipTrigger render={trigger} />
         <ShadCNComponents.Tooltip.TooltipContent
-          container={contextPortal ?? undefined}
+          container={editorPortalElement ?? undefined}
           className={"flex flex-col items-center whitespace-pre-wrap"}
         >
           <span>{mainTooltip}</span>
@@ -135,7 +135,7 @@ export const ToolbarSelect = forwardRef<
 
   // Default to the ambient portal target (a themed `.bn-root`) so the dropdown
   // inherits light/dark mode instead of the body's.
-  const contextPortal = usePortalContext();
+  const editorPortalElement = useEditorPortalElement();
 
   // TODO?
   const SelectItemContent = (props: any) => (
@@ -164,7 +164,7 @@ export const ToolbarSelect = forwardRef<
       </ShadCNComponents.Select.SelectTrigger>
       <ShadCNComponents.Select.SelectContent
         className={className}
-        container={portalRoot ?? contextPortal ?? undefined}
+        container={portalRoot ?? editorPortalElement ?? undefined}
         // Position the dropdown below the trigger (classic dropdown behavior)
         // instead of aligning the selected item over the trigger (the Base UI
         // default).

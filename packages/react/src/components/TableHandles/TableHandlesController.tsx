@@ -12,7 +12,7 @@ import { FC, useCallback, useMemo, useState } from "react";
 import { autoUpdate, offset, ReferenceElement, size } from "@floating-ui/react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtensionState } from "../../hooks/useExtension.js";
-import { PortalTarget } from "../../editor/PortalTarget.js";
+import { EditorPortalProvider } from "../../editor/EditorPortalProvider.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -316,7 +316,7 @@ export const TableHandlesController = <
   const TableCellHandleComponent = props.tableCellHandle || TableCellButton;
 
   return (
-    <PortalTarget target={props.portalElement}>
+    <EditorPortalProvider target={props.portalElement}>
       <GenericPopover
         reference={references?.rowReference}
         {...floatingUIOptions?.rowTableHandle}
@@ -392,6 +392,6 @@ export const TableHandlesController = <
             />
           )}
       </GenericPopover>
-    </PortalTarget>
+    </EditorPortalProvider>
   );
 };

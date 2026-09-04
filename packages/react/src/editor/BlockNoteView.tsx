@@ -27,7 +27,7 @@ import {
   BlockNoteDefaultUI,
   BlockNoteDefaultUIProps,
 } from "./BlockNoteDefaultUI.js";
-import { PortalTarget } from "./PortalTarget.js";
+import { EditorPortalProvider } from "./EditorPortalProvider.js";
 import { resolvePortalTarget } from "./portalElements.js";
 import {
   BlockNoteViewContext,
@@ -143,7 +143,7 @@ function BlockNoteViewComponent<
   } = props;
 
   const editorDOMElement = useEditorDOMElement(editor);
-  const portalTarget =
+  const portalElement =
     useMemo(
       () => resolvePortalTarget(portalElements?.default),
       [portalElements?.default],
@@ -251,7 +251,7 @@ function BlockNoteViewComponent<
           renderEditor={renderEditor}
           editorColorScheme={editorColorScheme}
           themedRootProps={themedRootProps}
-          portalTarget={portalTarget}
+          portalElement={portalElement}
           ref={ref}
           {...rest}
         >
@@ -272,7 +272,7 @@ const BlockNoteViewContainer = React.forwardRef<
     renderEditor: boolean;
     editorColorScheme: "light" | "dark";
     themedRootProps?: ThemedRootProps;
-    portalTarget?: HTMLElement;
+    portalElement?: HTMLElement;
     children: ReactNode;
   } & Omit<
     HTMLAttributes<HTMLDivElement>,
@@ -285,7 +285,7 @@ const BlockNoteViewContainer = React.forwardRef<
       renderEditor,
       editorColorScheme,
       themedRootProps,
-      portalTarget,
+      portalElement,
       children,
       style,
       ...rest
@@ -305,13 +305,13 @@ const BlockNoteViewContainer = React.forwardRef<
       {...rest}
       ref={ref}
     >
-      <PortalTarget target={portalTarget}>
+      <EditorPortalProvider target={portalElement}>
         {renderEditor ? (
           <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
         ) : (
           children
         )}
-      </PortalTarget>
+      </EditorPortalProvider>
     </div>
   ),
 );
