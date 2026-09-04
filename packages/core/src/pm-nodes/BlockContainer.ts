@@ -134,15 +134,24 @@ export const BlockContainer = Node.create<{
       return {
         dom,
         contentDOM: frame ? frame.slot : contentDOM,
-        // Whether a block is framed, and by what, follows from the type of its
-        // content node - which this node's own markup says nothing about. So a
-        // node view is rebuilt whenever that type changes, as well as when
-        // ProseMirror would have rebuilt it anyway (a change of markup).
-        // Otherwise the frame is told to update itself.
+        // Whether a block is framed, and by what, follows from the type and
+        // props of its content node - which this node's own markup says
+        // nothing about. So a node view is rebuilt whenever those change, as
+        // well as when ProseMirror would have rebuilt it anyway (a change of
+        // markup). A frame can be decided by props - a heading is only a
+        // toggle when it says so - and that decision is made when the frame is
+        // built, so a framed block rebuilds on a prop change the way an
+        // unframed one already does. Otherwise the frame updates itself.
         update: (node: PMNode) => {
+          const content = node.firstChild;
+          if (!node.sameMarkup(current) || content?.type.name !== contentType) {
+            return false;
+          }
           if (
-            !node.sameMarkup(current) ||
-            node.firstChild?.type.name !== contentType
+            renderFrame &&
+            content &&
+            current.firstChild &&
+            !content.sameMarkup(current.firstChild)
           ) {
             return false;
           }

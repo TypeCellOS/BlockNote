@@ -41,8 +41,39 @@ const Callout = createBlockSpec(
   },
 )();
 
+// A toggle heading: the same block type whether or not it is a toggle, so
+// whether it draws a frame at all depends on its props.
+const Togglable = createBlockSpec(
+  {
+    type: "togglable" as const,
+    propSchema: { isToggleable: { default: false } },
+    content: "inline" as const,
+  },
+  {
+    render: () => {
+      const dom = document.createElement("h2");
+      return { dom, contentDOM: dom };
+    },
+    renderFrame: (block) => {
+      if (!block.props.isToggleable) {
+        return undefined;
+      }
+      const dom = document.createElement("div");
+      dom.className = "toggle";
+      const slot = document.createElement("div");
+      slot.className = "toggle-inner";
+      dom.append(slot);
+      return { dom, slot };
+    },
+  },
+)();
+
 const schema = BlockNoteSchema.create().extend({
-  blockSpecs: { ...defaultBlockSpecs, callout: Callout } as const,
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    callout: Callout,
+    togglable: Togglable,
+  } as const,
 });
 
 function editorWith(initialContent: any[]) {
@@ -160,6 +191,40 @@ describe("renderFrame", () => {
       "paragraph",
       "paragraph",
     ]);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("lets a block decide from its props whether it is framed at all", () => {
+    // A toggle heading is a heading either way: the frame appears and
+    // disappears with the prop, without the block changing type.
+    const editor = BlockNoteEditor.create({
+      schema,
+      initialContent: [
+        {
+          id: "h",
+          type: "togglable",
+          content: "Heading",
+          children: [{ id: "c", type: "paragraph", content: "Under it" }],
+        },
+      ],
+    } as any);
+    editor.mount(document.createElement("div"));
+    const dom = editor.domElement!;
+
+    expect(dom.querySelector(".toggle")).toBeNull();
+
+    editor.updateBlock("h", { props: { isToggleable: true } } as any);
+    expect(dom.querySelector(".toggle")).not.toBeNull();
+    expect(
+      dom.querySelectorAll(
+        ".toggle .toggle-inner .bn-block-group .bn-block-outer",
+      ).length,
+    ).toBe(1);
+
+    editor.updateBlock("h", { props: { isToggleable: false } } as any);
+    expect(dom.querySelector(".toggle")).toBeNull();
+    expect(dom.querySelectorAll(".bn-block-outer[data-id='c']").length).toBe(1);
 
     editor._tiptapEditor.destroy();
   });

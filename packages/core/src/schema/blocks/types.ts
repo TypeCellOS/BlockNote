@@ -286,11 +286,13 @@ export type LooseBlockSpec<
     renderFrame?: (
       block: any,
       editor: BlockNoteEditor<any>,
-    ) => {
-      dom: HTMLElement;
-      slot: HTMLElement;
-      update?: (block: any) => void;
-    };
+    ) =>
+      | {
+          dom: HTMLElement;
+          slot: HTMLElement;
+          update?: (block: any) => void;
+        }
+      | undefined;
 
     node: Node;
   };
@@ -353,11 +355,13 @@ export type BlockSpecs = {
       renderFrame?: (
         block: any,
         editor: BlockNoteEditor<any>,
-      ) => {
-        dom: HTMLElement;
-        slot: HTMLElement;
-        update?: (block: any) => void;
-      };
+      ) =>
+        | {
+            dom: HTMLElement;
+            slot: HTMLElement;
+            update?: (block: any) => void;
+          }
+        | undefined;
     };
     extensions?: BlockSpec<k>["extensions"];
   };
@@ -703,13 +707,21 @@ export type BlockImplementation<
     editor: BlockNoteEditor<
       Record<TName, BlockConfig<TName, TProps, TContent>>
     >,
-  ): {
-    dom: HTMLElement;
-    slot: HTMLElement;
-    update?: (
-      block: BlockFromConfig<BlockConfig<TName, TProps, TContent>, any, any>,
-    ) => void;
-  };
+  ):
+    | {
+        dom: HTMLElement;
+        slot: HTMLElement;
+        update?: (
+          block: BlockFromConfig<
+            BlockConfig<TName, TProps, TContent>,
+            any,
+            any
+          >,
+        ) => void;
+      }
+    // A block type decides from the block itself whether it frames it: a
+    // heading is only a toggle when its props say so.
+    | undefined;
 
   /**
    * Parses an external HTML element into a block of this type when it returns the block props object, otherwise undefined
