@@ -1,6 +1,13 @@
-import { Node } from "@tiptap/core";
+import {
+  Node,
+  type NodeViewRenderer,
+  type NodeViewRendererProps,
+} from "@tiptap/core";
 
+import type { Node as PMNode } from "@tiptap/pm/model";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+
+import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import { BlockNoteDOMAttributes } from "../schema/index.js";
 import { mergeCSSClasses } from "../util/browser.js";
 import { suggestionMarks } from "./suggestionMarks.js";
@@ -87,5 +94,85 @@ export const BlockContainer = Node.create<{
       dom: blockOuter,
       contentDOM: block,
     };
+  },
+
+  addNodeView() {
+    // Cast: this returns a plain ProseMirror node view, which tiptap's
+    // `NodeViewRenderer` type doesn't model.
+    return ((props: NodeViewRendererProps) => {
+      const editor = this.options.editor;
+      const contentType = props.node.firstChild?.type.name;
+      const renderFrame = contentType
+        ? editor?.blockImplementations?.[contentType]?.implementation
+            ?.renderFrame
+        : undefined;
+
+      const { dom, contentDOM } = this.type.spec.toDOM!(props.node) as {
+        dom: HTMLElement;
+        contentDOM: HTMLElement;
+      };
+      // REVIEW: no React version of renderFrame..
+      // A block type can frame its whole block - its content and its nested
+      // children together - with markup of its own. Everything renders into
+      // the frame's slot, so the frame surrounds both.
+      const frame = renderFrame
+        ? renderFrame(
+            // The node view is on the `blockContainer` itself, so the block is
+            // read from its own node rather than resolved through `getPos()`
+            // (which can't be trusted mid-reconciliation anyway).
+            nodeToBlock(props.node, props.view.state.doc) as any,
+            editor as any,
+          )
+        : undefined;
+      if (frame) {
+        // REVIEW: desired, or not use `toDOM` at all for the nodeview path?
+        contentDOM.appendChild(frame.dom);
+      }
+
+      let current = props.node;
+
+      return {
+        dom,
+        contentDOM: frame ? frame.slot : contentDOM,
+        // Whether a block is framed, and by what, follows from the type and
+        // props of its content node - which this node's own markup says
+        // nothing about. So a node view is rebuilt whenever those change, as
+        // well as when ProseMirror would have rebuilt it anyway (a change of
+        // markup). A frame can be decided by props - a heading is only a
+        // toggle when it says so - and that decision is made when the frame is
+        // built, so a framed block rebuilds on a prop change the way an
+        // unframed one already does. Otherwise the frame updates itself.
+        update: (node: PMNode) => {
+          const content = node.firstChild;
+          if (!node.sameMarkup(current) || content?.type.name !== contentType) {
+            return false;
+          }
+          if (
+            renderFrame &&
+            content &&
+            current.firstChild &&
+            !content.sameMarkup(current.firstChild)
+          ) {
+            return false;
+          }
+          current = node;
+          frame?.update?.(nodeToBlock(node, props.view.state.doc) as any);
+          return true;
+        },
+        // The frame's own chrome (a button, a menu) is the author's, not the
+        // editor's: ProseMirror would otherwise treat a click on it as a click
+        // in the document and swallow it. Everything in the slot stays the
+        // editor's.
+        stopEvent: (event: Event) => {
+          const target = event.target as globalThis.Node | null;
+          return (
+            !!frame &&
+            !!target &&
+            frame.dom.contains(target) &&
+            !frame.slot.contains(target)
+          );
+        },
+      };
+    }) as unknown as NodeViewRenderer;
   },
 });

@@ -7,6 +7,8 @@ import {
   getNextBlockInfo,
   getParentBlockInfo,
   getPrevBlockInfo,
+  compartmentOwnerInfo,
+  mergeBlockPairCommand,
   mergeBlocksCommand,
 } from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
 import {
@@ -14,7 +16,17 @@ import {
   nestBlock,
   unnestBlock,
 } from "../../../api/blockManipulation/commands/nestBlock/nestBlock.js";
-import { fixColumnList } from "../../../api/blockManipulation/commands/replaceBlocks/util/fixColumnList.js";
+import {
+  containerAncestorIds,
+  fixContainersById,
+} from "../../../api/blockManipulation/containers/fixContainer.js";
+import {
+  ascendToInsertablePos,
+  compartmentBody,
+  descendToBlockPos,
+  isCompartment,
+  isContainerNode,
+} from "../../../schema/blocks/containers.js";
 import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
@@ -97,10 +109,16 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
             const { bnBlock: blockContainer, blockContent } = blockInfo;
 
-            const prevBlockInfo = getPrevBlockInfo(
+            // The block before this one: its previous sibling, or - for the
+            // first block of a compartment - the block that owns it, so a
+            // callout's first body block merges into its title.
+            const prevSibling = getPrevBlockInfo(
               state.doc,
               blockInfo.bnBlock.beforePos,
             );
+            const prevBlockInfo =
+              prevSibling ??
+              compartmentOwnerInfo(state.doc, blockInfo.bnBlock.beforePos);
             // If the previous block has no inline content, it can't be merged.
             // It's instead deleted, which is done later in the chan, so we
             // return early here.
@@ -108,6 +126,19 @@ export const KeyboardShortcutsExtension = Extension.create<{
               !prevBlockInfo ||
               !prevBlockInfo.isBlockContainer ||
               prevBlockInfo.blockContent.node.type.spec.content !== "inline*"
+            ) {
+              return false;
+            }
+
+            // The sibling before this one owns a compartment, so this block
+            // moves into it whole rather than having its text merged across
+            // the compartment's edge. Handled by the branch below.
+            if (
+              prevSibling &&
+              compartmentBody(
+                prevSibling.bnBlock.node,
+                prevSibling.bnBlock.beforePos,
+              )
             ) {
               return false;
             }
@@ -120,15 +151,20 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             if (selectionAtBlockStart && selectionEmpty) {
               return chain()
-                .command(mergeBlocksCommand(posBetweenBlocks))
+                .command(
+                  prevSibling
+                    ? mergeBlocksCommand(posBetweenBlocks)
+                    : mergeBlockPairCommand(prevBlockInfo, blockInfo),
+                )
                 .scrollIntoView()
                 .run();
             }
 
             return false;
           }),
-        // If the previous block is a columnList, moves the current block to
-        // the end of the last column in it.
+        // If the previous block is a container, moves the current block into
+        // it, at the end of the last of its children that holds blocks (the
+        // last column of a column list).
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -146,21 +182,33 @@ export const KeyboardShortcutsExtension = Extension.create<{
               state.doc,
               blockInfo.bnBlock.beforePos,
             );
-            if (!prevBlockInfo || prevBlockInfo.isBlockContainer) {
+            if (
+              !prevBlockInfo ||
+              !compartmentBody(
+                prevBlockInfo.bnBlock.node,
+                prevBlockInfo.bnBlock.beforePos,
+              )
+            ) {
+              return false;
+            }
+
+            const insertPos = descendToBlockPos(
+              state.doc,
+              prevBlockInfo.bnBlock.beforePos,
+              "end",
+            );
+            if (insertPos === undefined) {
               return false;
             }
 
             if (dispatch) {
-              const columnAfterPos = prevBlockInfo.bnBlock.afterPos - 1;
-              const $blockAfterPos = tr.doc.resolve(columnAfterPos - 1);
-
               tr.delete(
                 blockInfo.bnBlock.beforePos,
                 blockInfo.bnBlock.afterPos,
               );
-              tr.insert($blockAfterPos.pos, blockInfo.bnBlock.node);
+              tr.insert(insertPos, blockInfo.bnBlock.node);
               tr.setSelection(
-                TextSelection.near(tr.doc.resolve($blockAfterPos.pos + 1)),
+                TextSelection.near(tr.doc.resolve(insertPos + 1)),
               );
 
               return true;
@@ -168,9 +216,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // If the block is the first in a column, moves it to the end of the
-        // previous column. If there is no previous column, moves it above the
-        // columnList.
+        // If the block is the first one in a container, moves it out: into the
+        // end of the container's previous sibling (the previous column), or
+        // above the container it sits in when there is none.
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -192,32 +240,50 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const parentBlock = $pos.node();
-            if (parentBlock.type.name !== "column") {
+            if (!isContainerNode(parentBlock.type)) {
               return false;
             }
 
-            const $blockPos = tr.doc.resolve(blockInfo.bnBlock.beforePos);
-            const $columnPos = tr.doc.resolve($blockPos.before());
-            const columnListPos = $columnPos.before();
+            const $parentPos = tr.doc.resolve($pos.before());
+            const grandParent = $parentPos.node();
+            // Where the block lands: the end of the container's previous
+            // sibling if it has one, otherwise just before the outermost
+            // container it is leaving.
+            const outerPos = isContainerNode(grandParent.type)
+              ? $parentPos.before()
+              : undefined;
+            const isFirstChild =
+              outerPos === undefined || $parentPos.pos === outerPos + 1;
+            const repairId = parentBlock.attrs.id;
 
             if (dispatch) {
               tr.delete(
                 blockInfo.bnBlock.beforePos,
                 blockInfo.bnBlock.afterPos,
               );
-              fixColumnList(tr, columnListPos);
-
-              if ($columnPos.pos === columnListPos + 1) {
-                tr.insert(columnListPos, blockInfo.bnBlock.node);
-                tr.setSelection(
-                  TextSelection.near(tr.doc.resolve(columnListPos)),
-                );
-              } else {
-                tr.insert($columnPos.pos - 1, blockInfo.bnBlock.node);
-                tr.setSelection(
-                  TextSelection.near(tr.doc.resolve($columnPos.pos)),
+              if (repairId) {
+                fixContainersById(tr, [repairId]);
+              }
+              if (outerPos !== undefined) {
+                fixContainersById(
+                  tr,
+                  containerAncestorIds(
+                    tr.doc,
+                    Math.min(outerPos + 1, tr.doc.content.size),
+                  ),
                 );
               }
+
+              const insertPos = isFirstChild
+                ? (outerPos ?? $parentPos.pos)
+                : $parentPos.pos - 1;
+
+              tr.insert(insertPos, blockInfo.bnBlock.node);
+              tr.setSelection(
+                TextSelection.near(
+                  tr.doc.resolve(isFirstChild ? insertPos : insertPos + 1),
+                ),
+              );
             }
 
             return true;
@@ -468,8 +534,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // If the next block is a columnList, moves the first block from its
-        // first column to after the current block.
+        // If the next block is a container, moves the first block out of it (the
+        // first block of a column list's first column) to after the current
+        // block.
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -491,18 +558,31 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
 
-            if (dispatch) {
-              const columnBeforePos = nextBlockInfo.bnBlock.beforePos + 1;
-              const $blockBeforePos = tr.doc.resolve(columnBeforePos + 1);
+            const firstBlockPos = descendToBlockPos(
+              state.doc,
+              nextBlockInfo.bnBlock.beforePos,
+              "start",
+            );
+            if (firstBlockPos === undefined) {
+              return false;
+            }
+            const $firstBlockPos = tr.doc.resolve(firstBlockPos);
+            const firstBlock = $firstBlockPos.nodeAfter;
+            if (!firstBlock) {
+              return false;
+            }
 
-              tr.delete(
-                $blockBeforePos.pos,
-                $blockBeforePos.pos + $blockBeforePos.nodeAfter!.nodeSize,
-              );
-              fixColumnList(tr, nextBlockInfo.bnBlock.beforePos);
-              tr.insert(blockInfo.bnBlock.afterPos, $blockBeforePos.nodeAfter!);
+            if (dispatch) {
+              const containerId = nextBlockInfo.bnBlock.node.attrs.id;
+
+              tr.delete(firstBlockPos, firstBlockPos + firstBlock.nodeSize);
+              fixContainersById(tr, [
+                ...containerAncestorIds(tr.doc, firstBlockPos),
+                ...(containerId ? [containerId] : []),
+              ]);
+              tr.insert(blockInfo.bnBlock.afterPos, firstBlock);
               tr.setSelection(
-                TextSelection.near(tr.doc.resolve($blockBeforePos.pos)),
+                TextSelection.near(tr.doc.resolve(blockInfo.bnBlock.afterPos)),
               );
 
               return true;
@@ -510,9 +590,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // If the block is the last in a column, moves it to the start of the
-        // next column. If there is no next column, moves it below the
-        // columnList.
+        // If the block is the last one in a container, pulls in the block that
+        // follows the container: the first block of the next sibling (the next
+        // column), or the block after the container it sits in.
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -534,36 +614,45 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const parentBlock = $pos.node();
-            if (parentBlock.type.name !== "column") {
+            if (!isContainerNode(parentBlock.type)) {
               return false;
             }
 
             const $blockEndPos = tr.doc.resolve(blockInfo.bnBlock.afterPos);
-            const $columnEndPos = tr.doc.resolve($blockEndPos.after());
-            const columnListEndPos = $columnEndPos.after();
+            const $parentEndPos = tr.doc.resolve($blockEndPos.after());
+            const grandParent = $parentEndPos.node();
+            const outerEndPos = isContainerNode(grandParent.type)
+              ? $parentEndPos.after()
+              : undefined;
+            // The block after the container: the start of its next sibling, or
+            // the first block past the outermost container it is in.
+            const isLastChild =
+              outerEndPos === undefined ||
+              $parentEndPos.pos === outerEndPos - 1;
+            const nextBlockBeforePos = isLastChild
+              ? (outerEndPos ?? $parentEndPos.pos)
+              : $parentEndPos.pos + 1;
+            if (nextBlockBeforePos >= tr.doc.content.size) {
+              return false;
+            }
 
             if (dispatch) {
-              // Position before first block in next column, or first block
-              // after columnList if there is no next column.
-              const nextBlockBeforePos =
-                $columnEndPos.pos === columnListEndPos - 1
-                  ? columnListEndPos
-                  : $columnEndPos.pos + 1;
               const nextBlockInfo = getBlockInfoFromResolvedPos(
                 tr.doc.resolve(nextBlockBeforePos),
+              );
+              const repairIds = containerAncestorIds(
+                tr.doc,
+                nextBlockInfo.bnBlock.beforePos,
               );
 
               tr.delete(
                 nextBlockInfo.bnBlock.beforePos,
                 nextBlockInfo.bnBlock.afterPos,
               );
-              fixColumnList(
-                tr,
-                columnListEndPos - $columnEndPos.node().nodeSize,
-              );
+              fixContainersById(tr, repairIds);
               tr.insert($blockEndPos.pos, nextBlockInfo.bnBlock.node);
               tr.setSelection(
-                TextSelection.near(tr.doc.resolve(nextBlockBeforePos)),
+                TextSelection.near(tr.doc.resolve($blockEndPos.pos)),
               );
             }
 
@@ -859,6 +948,64 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
+        // Leaves a compartment: an empty block at the end of a callout's body
+        // (or a column's) moves out below it, so a second Enter gets you out
+        // the way it gets you out of a list. The first block of a body stays
+        // put - it is where the body begins, not a way out of it.
+        () =>
+          commands.command(({ state, dispatch, tr }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { bnBlock, blockContent } = blockInfo;
+
+            if (blockContent.node.childCount !== 0 || !state.selection.empty) {
+              return false;
+            }
+            if (blockInfo.childContainer) {
+              return false;
+            }
+
+            const $pos = state.doc.resolve(bnBlock.beforePos);
+            if ($pos.depth < 1) {
+              return false;
+            }
+            const body = $pos.node();
+            const isLast = $pos.index() === body.childCount - 1;
+            const hasPrevious = $pos.index() > 0;
+            if (!isLast || !hasPrevious) {
+              return false;
+            }
+
+            const ownerDepth = isContainerNode(body.type)
+              ? $pos.depth
+              : $pos.depth - 1;
+            if (ownerDepth < 1 || !isCompartment($pos.node(ownerDepth))) {
+              return false;
+            }
+
+            if (dispatch) {
+              const afterOwner = $pos.after(ownerDepth);
+              tr.delete(bnBlock.beforePos, bnBlock.afterPos);
+
+              const insertPos = ascendToInsertablePos(
+                tr.doc,
+                tr.mapping.map(afterOwner),
+                bnBlock.node.type,
+              );
+              if (insertPos === undefined) {
+                return false;
+              }
+
+              tr.insert(insertPos, bnBlock.node);
+              tr.setSelection(
+                TextSelection.near(tr.doc.resolve(insertPos + 1)),
+              ).scrollIntoView();
+            }
+
+            return true;
+          }),
         // Creates a new block and moves the selection to it if the current one is empty, while the selection is also
         // empty & at the start of the block.
         () =>
@@ -914,6 +1061,71 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             return false;
+          }),
+        // Enter in a compartment's own content (a callout's title) starts its
+        // body rather than splitting the block in two: whatever follows the
+        // cursor becomes the body's first block, and the body the callout
+        // already had stays where it is.
+        () =>
+          commands.command(({ state, dispatch, tr }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { bnBlock, blockContent } = blockInfo;
+
+            if (!isCompartment(bnBlock.node)) {
+              return false;
+            }
+            if (!state.selection.empty) {
+              return false;
+            }
+            const contentEnd = blockContent.afterPos - 1;
+            if (
+              state.selection.from < blockContent.beforePos + 1 ||
+              state.selection.from > contentEnd
+            ) {
+              return false;
+            }
+
+            if (dispatch) {
+              // Everything after the cursor moves into the new block, so
+              // splitting the title mid-way puts its tail at the top of the
+              // body instead of handing the body to a new sibling.
+              const tail = blockContent.node.cut(
+                state.selection.from - (blockContent.beforePos + 1),
+              );
+              const newBlock = state.schema.nodes["blockContainer"].create(
+                undefined,
+                state.schema.nodes["paragraph"].create(undefined, tail.content),
+              );
+
+              tr.delete(state.selection.from, contentEnd);
+
+              const body = compartmentBody(
+                tr.doc.resolve(bnBlock.beforePos).nodeAfter!,
+                bnBlock.beforePos,
+              );
+              // Without a body yet, one is created around the new block.
+              const insertPos = body
+                ? body.beforePos + 1
+                : tr.mapping.map(blockContent.afterPos);
+              tr.insert(
+                insertPos,
+                body
+                  ? newBlock
+                  : state.schema.nodes["blockGroup"].create(
+                      undefined,
+                      newBlock,
+                    ),
+              )
+                .setSelection(
+                  new TextSelection(tr.doc.resolve(insertPos + (body ? 2 : 3))),
+                )
+                .scrollIntoView();
+            }
+
+            return true;
           }),
         // Splits the current block, moving content inside that's after the cursor to a new text block below. Also
         // deletes the selection beforehand, if it's not empty.

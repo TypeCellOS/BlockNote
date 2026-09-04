@@ -7,11 +7,14 @@ import {
 } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
+import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import {
   Extension,
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
+import { camelToDataKebab } from "../../util/string.js";
 import { nonFormattingMarks } from "../markGroups.js";
+import { suggestionMarks } from "../../pm-nodes/suggestionMarks.js";
 import { ignoreNonContentMutations } from "../nodeViewMutations.js";
 import { PropSchema } from "../propTypes.js";
 import {
@@ -19,6 +22,14 @@ import {
   propsToAttributes,
   wrapInBlockStructure,
 } from "./internal.js";
+import {
+  BLOCK_GROUP_CHILD_GROUP,
+  CHILD_CONTAINER_GROUP,
+  COMPARTMENT_GROUP,
+  CONTAINER_NODE_PRIORITY,
+  childrenContentExpression,
+  isContainerConfig,
+} from "./containers.js";
 import {
   BlockConfig,
   BlockConfigOrCreator,
@@ -56,12 +67,17 @@ export function getParseRules<
   config: BlockConfig<TName, TProps, TContent>,
   implementation: BlockImplementation<TName, TProps, TContent>,
 ) {
-  const rules: TagParseRule[] = [
-    {
-      tag: "[data-content-type=" + config.type + "]",
-      contentElement: ".bn-inline-content",
-    },
-  ];
+  // A container block owns its outer element, so its own marker is
+  // `data-node-type` (like every other block node) rather than the
+  // `data-content-type` of a regular block's content element.
+  const rules: TagParseRule[] = isContainerConfig(config)
+    ? [{ tag: `[data-node-type="${config.type}"]` }]
+    : [
+        {
+          tag: "[data-content-type=" + config.type + "]",
+          contentElement: ".bn-inline-content",
+        },
+      ];
 
   if (implementation.parse) {
     rules.push({
@@ -167,6 +183,137 @@ export function getParseRules<
   return rules;
 }
 
+/**
+ * Builds the ProseMirror node for a container block: a `bnBlock` node holding
+ * its children directly, with the content expression compiled from `children`.
+ */
+function buildContainerNode<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none" | "table" | "plain",
+>(
+  blockConfig: BlockConfig<TName, TProps, TContent>,
+  blockImplementation: BlockImplementation<TName, TProps, TContent>,
+): Node {
+  const children = blockConfig.children!;
+
+  const groups = ["bnBlock", CHILD_CONTAINER_GROUP];
+  if (blockConfig.placement !== "containerOnly") {
+    // Placeable where a regular block goes, so `blockGroup` accepts it.
+    groups.push(BLOCK_GROUP_CHILD_GROUP);
+  }
+
+  return Node.create({
+    name: blockConfig.type,
+    group: groups.join(" "),
+    content: childrenContentExpression(children),
+    // Fixed, and below `blockContainer`'s 50: see CONTAINER_NODE_PRIORITY. A
+    // container's place in the schema is decided by this, not by the
+    // dependency order regular blocks are sorted into.
+    priority: CONTAINER_NODE_PRIORITY,
+    defining: true,
+    selectable: blockImplementation.meta?.selectable ?? true,
+    marks() {
+      return suggestionMarks(this.editor);
+    },
+    addAttributes() {
+      return propsToAttributes(blockConfig.propSchema);
+    },
+    parseHTML() {
+      return getParseRules(blockConfig, blockImplementation);
+    },
+    renderHTML({ HTMLAttributes }) {
+      // Like a regular block's `renderHTML`, this is a placeholder: it carries
+      // the attributes the parse rules read, which is all copy & paste needs.
+      // The block's own markup comes from its `render`, in the node view and
+      // in the HTML serializers.
+      const dom = document.createElement("div");
+      applyContainerAttributes(dom, blockConfig.type, HTMLAttributes);
+      return { dom, contentDOM: dom };
+    },
+    addNodeView() {
+      return (props) => {
+        const editor = this.options.editor;
+        // A container block's own node is the block node, so it converts
+        // directly rather than resolving a parent through `getPos()`.
+        const block = nodeToBlock(props.node, props.view.state.doc);
+        const rendered = blockImplementation.render.call(
+          {
+            blockContentDOMAttributes:
+              this.options.domAttributes?.blockContent || {},
+            props,
+            renderType: "nodeView",
+            propSchema: blockConfig.propSchema,
+          },
+          block as any,
+          editor as any,
+        ) as { dom: HTMLElement; contentDOM?: HTMLElement };
+
+        // A container block's node view element *is* the block's element, so
+        // it carries the marker and props itself - there is no `blockContent`
+        // wrapper to put them on. Marking it here also covers renders that
+        // build their own element (React), which BlockNote can't wrap.
+        applyContainerAttributes(
+          rendered.dom,
+          blockConfig.type,
+          containerDOMAttributes(block.props, blockConfig.propSchema, block.id),
+        );
+
+        const nodeView = rendered as unknown as NodeView;
+        ignoreNonContentMutations(nodeView);
+        return nodeView;
+      };
+    },
+  });
+}
+
+/**
+ * Writes the attributes a container block's element carries: the type marker
+ * every block node has, and its non-default props as `data-*`, the same
+ * convention `propsToAttributes` parses back.
+ *
+ * A container block owns its outer element, so unlike a regular block's these
+ * can't be applied by wrapping the render's output - they go on the element
+ * the block's author returned.
+ */
+export function applyContainerAttributes(
+  element: HTMLElement,
+  blockType: string,
+  attributes: Record<string, any>,
+) {
+  for (const [attr, value] of Object.entries(attributes)) {
+    if (value === undefined || value === null) {
+      continue;
+    }
+    element.setAttribute(attr, `${value}`);
+  }
+  // After the props, so a prop can never overwrite the marker.
+  element.setAttribute("data-node-type", blockType);
+}
+
+/**
+ * The DOM attributes for a container block outside a node view (serialization),
+ * where ProseMirror hasn't rendered the node's attributes for us: its id, and
+ * each non-default prop in the same `data-*` form `propsToAttributes` emits.
+ */
+export function containerDOMAttributes(
+  props: Record<string, any> | undefined,
+  propSchema: PropSchema,
+  id: string | undefined,
+): Record<string, any> {
+  const attributes: Record<string, any> = {};
+  for (const [name, spec] of Object.entries(propSchema)) {
+    const value = props?.[name];
+    if (value !== undefined && value !== spec.default) {
+      attributes[camelToDataKebab(name)] = value;
+    }
+  }
+  if (id !== undefined) {
+    attributes["data-id"] = id;
+  }
+  return attributes;
+}
+
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function addNodeAndExtensionsToSpec<
@@ -181,6 +328,12 @@ export function addNodeAndExtensionsToSpec<
 ): LooseBlockSpec<TName, TProps, TContent> {
   const node =
     ((blockImplementation as any).node as Node) ||
+    // `children` on a block with no content of its own makes it a container
+    // block: one node holding the children. On a block that *has* content it
+    // makes the children a compartment, and the block keeps its regular shape.
+    (isContainerConfig(blockConfig)
+      ? buildContainerNode(blockConfig, blockImplementation)
+      : undefined) ||
     Node.create({
       name: blockConfig.type,
       content: (blockConfig.content === "inline"
@@ -205,7 +358,9 @@ export function addNodeAndExtensionsToSpec<
           ? nonFormattingMarks(this.editor)
           : undefined;
       },
-      group: "blockContent",
+      group: blockConfig.children
+        ? `blockContent ${COMPARTMENT_GROUP}`
+        : "blockContent",
       selectable: blockImplementation.meta?.selectable ?? true,
       isolating: blockImplementation.meta?.isolating ?? true,
       code: blockImplementation.meta?.code ?? false,
@@ -470,6 +625,21 @@ export function createBlockSpec<
             return undefined;
           }
 
+          // A container block's element *is* the block's element, so it isn't
+          // wrapped; it carries the attributes itself.
+          if (isContainerConfig(blockConfig)) {
+            applyContainerAttributes(
+              output.dom as HTMLElement,
+              block.type,
+              containerDOMAttributes(
+                block.props,
+                this.propSchema ?? blockConfig.propSchema,
+                undefined,
+              ),
+            );
+            return output;
+          }
+
           return wrapInBlockStructure(
             output,
             block.type,
@@ -488,6 +658,21 @@ export function createBlockSpec<
             block as any,
             editor as any,
           );
+
+          // A container block's element *is* the block's element, so it isn't
+          // wrapped; it carries the attributes itself.
+          if (isContainerConfig(blockConfig)) {
+            applyContainerAttributes(
+              output.dom as HTMLElement,
+              block.type,
+              containerDOMAttributes(
+                block.props,
+                this.propSchema ?? blockConfig.propSchema,
+                block.id,
+              ),
+            );
+            return output;
+          }
 
           const nodeView = wrapInBlockStructure(
             output,

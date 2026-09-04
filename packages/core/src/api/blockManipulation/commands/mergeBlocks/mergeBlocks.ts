@@ -2,6 +2,10 @@ import { Node } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
 
 import {
+  isCompartment,
+  isContainerNode,
+} from "../../../../schema/blocks/containers.js";
+import {
   BlockInfo,
   getBlockInfoFromResolvedPos,
 } from "../../../getBlockInfoFromPos.js";
@@ -164,6 +168,49 @@ const mergeBlocks = (
 
   return true;
 };
+
+/**
+ * The block owning the compartment that the block at `beforePos` is the first
+ * child of - a callout, for the first block of its body. `undefined` when the
+ * block isn't the first child of a compartment.
+ */
+export const compartmentOwnerInfo = (doc: Node, beforePos: number) => {
+  const $pos = doc.resolve(beforePos);
+  if ($pos.index() !== 0 || $pos.depth < 2) {
+    return undefined;
+  }
+  // The body's own node is the compartment (a column), or it is a `blockGroup`
+  // and the compartment is the block holding it.
+  const ownerDepth = isContainerNode($pos.node().type)
+    ? $pos.depth
+    : $pos.depth - 1;
+  const owner = $pos.node(ownerDepth);
+  if (ownerDepth < 1 || !isCompartment(owner)) {
+    return undefined;
+  }
+  return getBlockInfoFromResolvedPos(doc.resolve($pos.before(ownerDepth)));
+};
+
+/**
+ * Merges `nextBlockInfo` into `prevBlockInfo`, when both hold inline content.
+ * Unlike {@link mergeBlocksCommand} the two blocks are given rather than
+ * derived from a position, so blocks that aren't siblings can be merged - a
+ * compartment's first child into the block that owns it.
+ */
+export const mergeBlockPairCommand =
+  (prevBlockInfo: BlockInfo, nextBlockInfo: BlockInfo) =>
+  ({
+    state,
+    dispatch,
+  }: {
+    state: EditorState;
+    dispatch: ((args?: any) => any) | undefined;
+  }) => {
+    if (!canMerge(prevBlockInfo, nextBlockInfo)) {
+      return false;
+    }
+    return mergeBlocks(state, dispatch, prevBlockInfo, nextBlockInfo);
+  };
 
 export const mergeBlocksCommand =
   (posBetweenBlocks: number) =>

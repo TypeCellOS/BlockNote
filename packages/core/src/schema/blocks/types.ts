@@ -81,6 +81,36 @@ export interface BlockConfigMeta<
 }
 
 /**
+ * Declares that a block's body is other blocks.
+ *
+ * On a block with `content: "none"` this makes it a *container block*: one
+ * whose own node holds the children (a column, a column list). `allow` and
+ * `min` become the node's content expression, so the schema enforces them.
+ *
+ * On a block that has content of its own it makes those children a
+ * *compartment*: the block keeps its ordinary shape, its content is its title
+ * and its children are its body, and editing gestures treat the two as one
+ * unit instead of as indentation. `allow` and `min` are not enforced there
+ * yet - every regular block shares one node type, so there is nothing for the
+ * schema to hold them to.
+ */
+export type ChildrenConfig = {
+  /**
+   * What may appear as a child: `"any"` for any block, or the names of the
+   * container block types that may (a `columnList` allows `["column"]`).
+   * Regular blocks can only be allowed as a whole, via `"any"`, since they all
+   * share one ProseMirror node type.
+   */
+  allow: "any" | readonly string[];
+  /**
+   * The fewest children the container may hold. Compiled into the schema, so
+   * ProseMirror keeps the container filled up to it.
+   * @default 1
+   */
+  min?: number;
+};
+
+/**
  * BlockConfig contains the "schema" info about a Block type
  * i.e. what props it supports, what content it supports, etc.
  */
@@ -106,8 +136,17 @@ export interface BlockConfig<
    * The content that the block supports
    */
   content: C;
-  // TODO: how do you represent things that have nested content?
-  // e.g. tables, alerts (with title & content)
+  /**
+   * Makes this a container block. See {@link ChildrenConfig}.
+   */
+  children?: ChildrenConfig;
+  /**
+   * Where a container block may be placed. `"containerOnly"` restricts it to
+   * containers that name it in their `children.allow` (a `column` only ever
+   * lives in a `columnList`). Only meaningful together with `children`.
+   * @default "anywhere"
+   */
+  placement?: "anywhere" | "containerOnly";
 }
 
 /**
@@ -212,7 +251,7 @@ export type LooseBlockSpec<
   config: BlockConfig<T, PS, C>;
   implementation: Omit<
     BlockImplementation<T, PS, C>,
-    "render" | "toExternalHTML"
+    "render" | "toExternalHTML" | "renderFrame"
   > & {
     // purposefully stub the types for render and toExternalHTML since they reference the block
     render: (
@@ -244,6 +283,16 @@ export type LooseBlockSpec<
           childrenDOM?: HTMLElement;
         }
       | undefined;
+    renderFrame?: (
+      block: any,
+      editor: BlockNoteEditor<any>,
+    ) =>
+      | {
+          dom: HTMLElement;
+          slot: HTMLElement;
+          update?: (block: any) => void;
+        }
+      | undefined;
 
     node: Node;
   };
@@ -271,7 +320,7 @@ export type BlockSpecs = {
     config: BlockSpec<k>["config"];
     implementation: Omit<
       BlockSpec<k>["implementation"],
-      "render" | "toExternalHTML"
+      "render" | "toExternalHTML" | "renderFrame"
     > & {
       // purposefully stub the types for render and toExternalHTML since they reference the block
       render: (
@@ -301,6 +350,16 @@ export type BlockSpecs = {
             dom: HTMLElement | DocumentFragment;
             contentDOM?: HTMLElement;
             childrenDOM?: HTMLElement;
+          }
+        | undefined;
+      renderFrame?: (
+        block: any,
+        editor: BlockNoteEditor<any>,
+      ) =>
+        | {
+            dom: HTMLElement;
+            slot: HTMLElement;
+            update?: (block: any) => void;
           }
         | undefined;
     };
@@ -627,6 +686,41 @@ export type BlockImplementation<
         contentDOM?: HTMLElement;
         childrenDOM?: HTMLElement;
       }
+    | undefined;
+
+  /**
+   * Renders the element that frames the whole block: its content (from
+   * `render`) followed by its nested children. Return the frame's `dom` and
+   * the `slot` element inside it where BlockNote places both.
+   *
+   * Without a frame, a block's nested children render below its content in
+   * BlockNote's default nesting element. With one, they render wherever the
+   * slot is, inside markup the block's author owns: a callout can draw its
+   * box around its title and its body.
+   *
+   * Rendered once per node view. When the block changes (e.g. its props), the
+   * returned `update` is called with the new block so the frame can update
+   * itself in place; without one the frame is re-rendered from scratch.
+   */
+  renderFrame?(
+    block: BlockFromConfig<BlockConfig<TName, TProps, TContent>, any, any>,
+    editor: BlockNoteEditor<
+      Record<TName, BlockConfig<TName, TProps, TContent>>
+    >,
+  ):
+    | {
+        dom: HTMLElement;
+        slot: HTMLElement;
+        update?: (
+          block: BlockFromConfig<
+            BlockConfig<TName, TProps, TContent>,
+            any,
+            any
+          >,
+        ) => void;
+      }
+    // A block type decides from the block itself whether it frames it: a
+    // heading is only a toggle when its props say so.
     | undefined;
 
   /**

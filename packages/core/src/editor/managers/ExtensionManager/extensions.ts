@@ -61,8 +61,15 @@ export function getDefaultTiptapExtensions(
     Gapcursor,
 
     UniqueID.configure({
-      // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
-      types: ["blockContainer", "columnList", "column"],
+      // Everything in the `bnBlock` group: the shared node every regular block
+      // is wrapped in, plus each container block's own node, which is the node
+      // that carries its id.
+      types: [
+        "blockContainer",
+        ...Object.entries(options.schema?.blockSpecs ?? {})
+          .filter(([, spec]) => (spec as any)?.config?.children !== undefined)
+          .map(([type]) => type),
+      ],
       setIdAttribute: options.setIdAttribute,
       isWithinEditor: editor.isWithinEditor,
     }),

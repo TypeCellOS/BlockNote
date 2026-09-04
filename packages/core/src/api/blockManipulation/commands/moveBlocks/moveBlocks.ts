@@ -14,6 +14,11 @@ import {
   getNodeId,
 } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
+import {
+  holdsBlocks,
+  isContainerNode,
+  isContainerOnly,
+} from "../../../../schema/blocks/containers.js";
 import { insertBlocks } from "../insertBlocks/insertBlocks.js";
 import { removeAndInsertBlocks } from "../replaceBlocks/replaceBlocks.js";
 
@@ -131,14 +136,17 @@ function updateBlockSelectionFromData(
   tr.setSelection(selection);
 }
 
-// Replaces top-level `column` blocks with their children, as a `column` is not
-// a valid block outside a `columnList`. Other blocks are returned as-is.
-function flattenColumns(
+// Replaces blocks that only exist inside a container (a `column`) with their
+// children, as they aren't valid anywhere else. Other blocks are returned
+// as-is.
+function flattenContainerOnlyBlocks(
+  editor: BlockNoteEditor<any, any, any>,
   blocks: Block<any, any, any>[],
 ): Block<any, any, any>[] {
-  return blocks.flatMap((block) =>
-    block.type === "column" ? block.children : [block],
-  );
+  return blocks.flatMap((block) => {
+    const nodeType = editor.pmSchema.nodes[block.type];
+    return nodeType && isContainerOnly(nodeType) ? block.children : [block];
+  });
 }
 
 /**
@@ -169,10 +177,10 @@ export function moveBlocks(
     // </column>
     // When the non-empty block is moved up, the column is seen as empty and
     // collapsed in the removal step, so the following insertion fails.
-    removeAndInsertBlocks(tr, blocks, [], { fixColumns: false });
+    removeAndInsertBlocks(tr, blocks, [], { fixContainers: false });
     insertBlocks<any, any, any>(
       tr,
-      flattenColumns(blocks),
+      flattenContainerOnlyBlocks(editor, blocks),
       referenceBlock,
       placement,
     );
@@ -207,12 +215,18 @@ export function moveSelectedBlocksAndSelection(
   });
 }
 
-// Checks if a block is in a valid place after being moved. This check is
-// primitive at the moment and only returns false if the block's parent is a
-// `columnList` block. This is because regular blocks cannot be direct children
-// of `columnList` blocks.
-function checkPlacementIsValid(parentBlock?: Block<any, any, any>): boolean {
-  return !parentBlock || parentBlock.type !== "columnList";
+// Checks if a block is in a valid place after being moved: a container that
+// only takes containers as children (a `columnList`, which holds `column`s)
+// can't hold the moved block directly.
+function checkPlacementIsValid(
+  editor: BlockNoteEditor<any, any, any>,
+  parentBlock?: Block<any, any, any>,
+): boolean {
+  if (!parentBlock) {
+    return true;
+  }
+  const nodeType = editor.pmSchema.nodes[parentBlock.type];
+  return !nodeType || !isContainerNode(nodeType) || holdsBlocks(nodeType);
 }
 
 // Gets the placement for moving a block up. This has 3 cases:
@@ -254,7 +268,7 @@ function getMoveUpPlacement(
   }
 
   const referenceBlockParent = editor.getParentBlock(referenceBlock);
-  if (!checkPlacementIsValid(referenceBlockParent)) {
+  if (!checkPlacementIsValid(editor, referenceBlockParent)) {
     return getMoveUpPlacement(
       editor,
       placement === "after"
@@ -306,7 +320,7 @@ function getMoveDownPlacement(
   }
 
   const referenceBlockParent = editor.getParentBlock(referenceBlock);
-  if (!checkPlacementIsValid(referenceBlockParent)) {
+  if (!checkPlacementIsValid(editor, referenceBlockParent)) {
     return getMoveDownPlacement(
       editor,
       placement === "before"

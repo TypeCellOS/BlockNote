@@ -188,7 +188,7 @@ export function getBlockInfoWithManualOffset(
     let blockGroup: SingleBlockInfo | undefined;
 
     bnBlockNode.forEach((node, offset) => {
-      if (node.type.spec.group === "blockContent") {
+      if (node.type.isInGroup("blockContent")) {
         // console.log(beforePos, offset);
         const blockContentNode = node;
         const blockContentBeforePos = bnBlockBeforePos + offset + 1;

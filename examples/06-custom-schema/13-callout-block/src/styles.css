@@ -1,0 +1,52 @@
+.callout {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin: 4px 0;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border-left: 4px solid var(--callout-accent);
+  background: var(--callout-bg);
+}
+
+.callout[data-flavor="info"] {
+  --callout-accent: #3b82f6;
+  --callout-bg: #eff6ff;
+}
+.callout[data-flavor="warning"] {
+  --callout-accent: #f59e0b;
+  --callout-bg: #fffbeb;
+}
+.callout[data-flavor="success"] {
+  --callout-accent: #10b981;
+  --callout-bg: #ecfdf5;
+}
+
+.callout-flavor {
+  flex: none;
+  order: 2;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* The title and the body both render in here. */
+.callout-body {
+  flex: 1;
+  min-width: 0;
+  order: 1;
+}
+
+.callout-title {
+  font-weight: 600;
+}
+
+/* The body's blocks are nested children, so they carry BlockNote's usual
+   nesting indent. Inside the callout the box already sets it off. */
+.callout-body .bn-block-group {
+  padding-left: 0;
+}

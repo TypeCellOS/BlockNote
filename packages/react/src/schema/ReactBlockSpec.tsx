@@ -1,4 +1,10 @@
 import {
+  applyContainerAttributes,
+  type ChildrenConfig,
+  containerDOMAttributes,
+  isContainerConfig,
+} from "@blocknote/core";
+import {
   BlockConfig,
   BlockConfigOrCreator,
   BlockImplementation,
@@ -34,10 +40,16 @@ export type ReactCustomBlockRenderProps<
   block: BlockNoDefaults<Record<Config["type"], Config>, any, any>;
   editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
 } & (Config["content"] extends "inline" | "plain"
-  ? {
-      contentRef: (node: HTMLElement | null) => void;
-    }
-  : object);
+  ? ContentRef
+  : // A container block has no content of its own, but its children still
+    // render somewhere: the ref marks the slot that holds them.
+    undefined extends Config["children"]
+    ? object
+    : ContentRef);
+
+type ContentRef = {
+  contentRef: (node: HTMLElement | null) => void;
+};
 
 // extend BlockConfig but use a React render function
 export type ReactCustomBlockImplementation<
@@ -74,6 +86,43 @@ export type ReactCustomBlockSpec<
 // Function that wraps the React component returned from 'blockConfig.render' in
 // a `NodeViewWrapper` which also acts as a `blockContent` div. It contains the
 // block type and props as HTML attributes.
+// Renders a container block outside a node view (serialization). Its element
+// *is* the block's element, so it isn't wrapped in a `blockContent` div - it
+// carries the marker and props itself.
+function renderContainerToDOM<B extends BlockConfig>(
+  BlockContent: FC<any>,
+  block: any,
+  editor: any,
+  propSchema: B["propSchema"],
+  id: string | undefined,
+  context?: any,
+) {
+  const output = renderToDOMSpec(
+    (refCB) => (
+      <BlockContent
+        block={block}
+        editor={editor}
+        contentRef={refCB}
+        context={context}
+      />
+    ),
+    editor,
+  );
+  applyContainerAttributes(
+    output.dom as HTMLElement,
+    block.type,
+    containerDOMAttributes(block.props, propSchema, id),
+  );
+  return output;
+}
+
+// Wraps a container block's React component. A container block's node holds
+// its children directly, so its element isn't a `blockContent` div: the marker
+// and props go on the node view's own element, which the block core stamps.
+export function ContainerWrapper(props: { children: ReactNode }) {
+  return <NodeViewWrapper>{props.children}</NodeViewWrapper>;
+}
+
 export function BlockContentWrapper<
   BType extends string,
   PSchema extends PropSchema,
@@ -131,19 +180,27 @@ export function createReactBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
   const TContent extends "inline" | "none" | "plain",
+  // Carried alongside the three headline types so that what the config
+  // declares about its children reaches the implementation: a container
+  // block has no content of its own, but its render still places them.
+  const TChildren extends ChildrenConfig | undefined = undefined,
   const TOptions extends Record<string, any> | undefined = undefined,
 >(
-  blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
+  blockConfigOrCreator: BlockConfig<TName, TProps, TContent> & {
+    children?: TChildren;
+  },
   blockImplementationOrCreator:
-    | ReactCustomBlockImplementation<BlockConfig<TName, TProps, TContent>>
+    | ReactCustomBlockImplementation<
+        BlockConfig<TName, TProps, TContent> & { children: TChildren }
+      >
     | (TOptions extends undefined
         ? () => ReactCustomBlockImplementation<
-            BlockConfig<TName, TProps, TContent>
+            BlockConfig<TName, TProps, TContent> & { children: TChildren }
           >
         : (
             options: Partial<TOptions>,
           ) => ReactCustomBlockImplementation<
-            BlockConfig<TName, TProps, TContent>
+            BlockConfig<TName, TProps, TContent> & { children: TChildren }
           >),
   extensionsOrCreator?:
     | (ExtensionFactoryInstance | Extension)[]
@@ -189,17 +246,11 @@ export function createReactBlockSpec<
   const TOptions extends Record<string, any> | undefined = undefined,
 >(
   blockConfigOrCreator: BlockConfigOrCreator<TName, TProps, TContent, TOptions>,
+  // The overloads above carry the precise types; this signature only has to
+  // admit all of them.
   blockImplementationOrCreator:
-    | ReactCustomBlockImplementation<BlockConfig<TName, TProps, TContent>>
-    | (TOptions extends undefined
-        ? () => ReactCustomBlockImplementation<
-            BlockConfig<TName, TProps, TContent>
-          >
-        : (
-            options: Partial<TOptions>,
-          ) => ReactCustomBlockImplementation<
-            BlockConfig<TName, TProps, TContent>
-          >),
+    | ReactCustomBlockImplementation<any>
+    | ((options: Partial<TOptions>) => ReactCustomBlockImplementation<any>),
   extensionsOrCreator?:
     | (ExtensionFactoryInstance | Extension)[]
     | (TOptions extends undefined
@@ -232,6 +283,16 @@ export function createReactBlockSpec<
         toExternalHTML(block, editor, context) {
           const BlockContent =
             blockImplementation.toExternalHTML || blockImplementation.render;
+          if (isContainerConfig(blockConfig)) {
+            return renderContainerToDOM(
+              BlockContent as FC<any>,
+              block,
+              editor,
+              blockConfig.propSchema,
+              undefined,
+              context,
+            );
+          }
           const output = renderToDOMSpec((refCB) => {
             return (
               <BlockContentWrapper
@@ -286,29 +347,43 @@ export function createReactBlockSpec<
                 }
 
                 const BlockContent = blockImplementation.render;
+                const isContainer = isContainerConfig(blockConfig);
+                const Wrapper = isContainer
+                  ? ContainerWrapper
+                  : ({ children }: { children: ReactNode }) => (
+                      <BlockContentWrapper
+                        blockType={block.type}
+                        blockProps={block.props}
+                        propSchema={blockConfig.propSchema}
+                        isFileBlock={
+                          !!blockImplementation.meta?.fileBlockAccept
+                        }
+                        domAttributes={this.blockContentDOMAttributes}
+                      >
+                        {children}
+                      </BlockContentWrapper>
+                    );
                 return (
-                  <BlockContentWrapper
-                    blockType={block.type}
-                    blockProps={block.props}
-                    propSchema={blockConfig.propSchema}
-                    isFileBlock={!!blockImplementation.meta?.fileBlockAccept}
-                    domAttributes={this.blockContentDOMAttributes}
-                  >
+                  <Wrapper>
                     <BlockContent
                       block={block as any}
                       editor={editor as any}
                       contentRef={(element) => {
                         ref(element);
                         if (element) {
-                          element.className = mergeCSSClasses(
-                            "bn-inline-content",
-                            element.className,
-                          );
+                          // A container block's slot holds blocks, not inline
+                          // content, so it isn't marked as the latter.
+                          if (!isContainer) {
+                            element.className = mergeCSSClasses(
+                              "bn-inline-content",
+                              element.className,
+                            );
+                          }
                           element.dataset.nodeViewContent = "";
                         }
                       }}
                     />
-                  </BlockContentWrapper>
+                  </Wrapper>
                 );
               },
               {
@@ -317,6 +392,15 @@ export function createReactBlockSpec<
             )(this.props!) as ReturnType<BlockImplementation["render"]>;
           } else {
             const BlockContent = blockImplementation.render;
+            if (isContainerConfig(blockConfig)) {
+              return renderContainerToDOM(
+                BlockContent as FC<any>,
+                block,
+                editor,
+                blockConfig.propSchema,
+                block.id,
+              );
+            }
             const output = renderToDOMSpec((refCB) => {
               return (
                 <BlockContentWrapper
