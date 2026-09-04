@@ -5,7 +5,7 @@ import { createContext, forwardRef, ReactElement, useContext } from "react";
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
-const PortalElementPropContext = createContext<HTMLElement | null | undefined>(
+const PortalElementContext = createContext<HTMLElement | null | undefined>(
   undefined,
 );
 
@@ -28,9 +28,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       <ShadCNComponents.DropdownMenu.DropdownMenuSub
         onOpenChange={onOpenChange}
       >
-        <PortalElementPropContext.Provider value={portalElement}>
+        <PortalElementContext.Provider value={portalElement}>
           {children}
-        </PortalElementPropContext.Provider>
+        </PortalElementContext.Provider>
       </ShadCNComponents.DropdownMenu.DropdownMenuSub>
     );
   } else {
@@ -39,9 +39,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
         modal={false}
         onOpenChange={onOpenChange}
       >
-        <PortalElementPropContext.Provider value={portalElement}>
+        <PortalElementContext.Provider value={portalElement}>
           {children}
-        </PortalElementPropContext.Provider>
+        </PortalElementContext.Provider>
       </ShadCNComponents.DropdownMenu.DropdownMenu>
     );
   }
@@ -81,11 +81,11 @@ export const MenuDropdown = forwardRef<
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
-  const portalElementProp = useContext(PortalElementPropContext);
+  const portalElement = useContext(PortalElementContext);
   // Default to the ambient portal target (a themed `.bn-root`) so the menu
   // inherits light/dark mode instead of the document body's.
-  const portalElement = usePortalElement();
-  const container = portalElementProp ?? portalElement ?? undefined;
+  const ambientPortalElement = usePortalElement();
+  const container = portalElement ?? ambientPortalElement ?? undefined;
 
   if (sub) {
     return (

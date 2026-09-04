@@ -15,7 +15,7 @@ import { createContext, forwardRef, useContext } from "react";
 
 // Threads the `portalElement` override from `Menu` (the provider) down to
 // `MenuDropdown`, where ariakit's `portalElement` prop actually lives.
-const PortalElementPropContext = createContext<HTMLElement | null | undefined>(
+const PortalElementContext = createContext<HTMLElement | null | undefined>(
   undefined,
 );
 
@@ -37,9 +37,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       setOpen={onOpenChange}
       virtualFocus={true}
     >
-      <PortalElementPropContext.Provider value={portalElement}>
+      <PortalElementContext.Provider value={portalElement}>
         {children}
-      </PortalElementPropContext.Provider>
+      </PortalElementContext.Provider>
     </AriakitMenuProvider>
   );
 };
@@ -57,13 +57,13 @@ export const MenuDropdown = forwardRef<
 
   assertEmpty(rest);
 
-  const portalElementProp = useContext(PortalElementPropContext);
+  const portalElement = useContext(PortalElementContext);
 
   return (
     <AriakitMenu
       unmountOnHide={true}
       className={mergeCSSClasses("bn-ak-menu", className || "")}
-      portalElement={portalElementProp ?? undefined}
+      portalElement={portalElement ?? undefined}
       ref={ref}
     >
       {children}

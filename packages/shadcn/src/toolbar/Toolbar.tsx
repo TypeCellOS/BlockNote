@@ -127,13 +127,7 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const {
-    className,
-    items,
-    isDisabled,
-    portalElement: portalElementProp,
-    ...rest
-  } = props;
+  const { className, items, isDisabled, portalElement, ...rest } = props;
 
   assertEmpty(rest);
 
@@ -141,7 +135,7 @@ export const ToolbarSelect = forwardRef<
 
   // Default to the ambient portal target (a themed `.bn-root`) so the dropdown
   // inherits light/dark mode instead of the body's.
-  const portalElement = usePortalElement();
+  const ambientPortalElement = usePortalElement();
 
   // TODO?
   const SelectItemContent = (props: any) => (
@@ -170,7 +164,7 @@ export const ToolbarSelect = forwardRef<
       </ShadCNComponents.Select.SelectTrigger>
       <ShadCNComponents.Select.SelectContent
         className={className}
-        container={portalElementProp ?? portalElement ?? undefined}
+        container={portalElement ?? ambientPortalElement ?? undefined}
         // Position the dropdown below the trigger (classic dropdown behavior)
         // instead of aligning the selected item over the trigger (the Base UI
         // default).

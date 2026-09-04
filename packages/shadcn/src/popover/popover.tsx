@@ -5,7 +5,7 @@ import { createContext, forwardRef, ReactElement, useContext } from "react";
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
-const PortalElementPropContext = createContext<HTMLElement | null | undefined>(
+const PortalElementContext = createContext<HTMLElement | null | undefined>(
   undefined,
 );
 
@@ -27,9 +27,9 @@ export const Popover = (
 
   return (
     <ShadCNComponents.Popover.Popover open={open} onOpenChange={onOpenChange}>
-      <PortalElementPropContext.Provider value={portalElement}>
+      <PortalElementContext.Provider value={portalElement}>
         {children}
-      </PortalElementPropContext.Provider>
+      </PortalElementContext.Provider>
     </ShadCNComponents.Popover.Popover>
   );
 };
@@ -61,16 +61,16 @@ export const PopoverContent = forwardRef<
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
-  const portalElementProp = useContext(PortalElementPropContext);
+  const portalElement = useContext(PortalElementContext);
   // Default to the ambient portal target (a themed `.bn-root`) so popovers
   // inherit light/dark mode instead of the document body's, and escape the
   // mobile formatting toolbar's horizontal scroll clip.
-  const portalElement = usePortalElement();
+  const ambientPortalElement = usePortalElement();
 
   return (
     <ShadCNComponents.Popover.PopoverContent
       sideOffset={8}
-      container={portalElementProp ?? portalElement ?? undefined}
+      container={portalElement ?? ambientPortalElement ?? undefined}
       className={cn(
         className,
         "flex flex-col gap-2",
