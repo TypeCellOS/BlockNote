@@ -1,11 +1,11 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, useEditorPortalElement } from "@blocknote/react";
+import { ComponentProps, usePortalElement } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
 import { createContext, forwardRef, ReactElement, useContext } from "react";
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
-const PortalRootContext = createContext<HTMLElement | null | undefined>(
+const PortalElementPropContext = createContext<HTMLElement | null | undefined>(
   undefined,
 );
 
@@ -14,7 +14,7 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     children,
     onOpenChange,
     position: _position, // Unused
-    portalRoot,
+    portalElement,
     sub,
     ...rest
   } = props;
@@ -28,9 +28,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       <ShadCNComponents.DropdownMenu.DropdownMenuSub
         onOpenChange={onOpenChange}
       >
-        <PortalRootContext.Provider value={portalRoot}>
+        <PortalElementPropContext.Provider value={portalElement}>
           {children}
-        </PortalRootContext.Provider>
+        </PortalElementPropContext.Provider>
       </ShadCNComponents.DropdownMenu.DropdownMenuSub>
     );
   } else {
@@ -39,9 +39,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
         modal={false}
         onOpenChange={onOpenChange}
       >
-        <PortalRootContext.Provider value={portalRoot}>
+        <PortalElementPropContext.Provider value={portalElement}>
           {children}
-        </PortalRootContext.Provider>
+        </PortalElementPropContext.Provider>
       </ShadCNComponents.DropdownMenu.DropdownMenu>
     );
   }
@@ -81,11 +81,11 @@ export const MenuDropdown = forwardRef<
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
-  const portalRoot = useContext(PortalRootContext);
+  const portalElementProp = useContext(PortalElementPropContext);
   // Default to the ambient portal target (a themed `.bn-root`) so the menu
   // inherits light/dark mode instead of the document body's.
-  const editorPortalElement = useEditorPortalElement();
-  const container = portalRoot ?? editorPortalElement ?? undefined;
+  const portalElement = usePortalElement();
+  const container = portalElementProp ?? portalElement ?? undefined;
 
   if (sub) {
     return (

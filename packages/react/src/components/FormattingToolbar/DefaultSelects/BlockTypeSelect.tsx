@@ -26,7 +26,7 @@ import {
   ComponentProps,
   useComponentsContext,
 } from "../../../editor/ComponentsContext.js";
-import { useEditorPortalElement } from "../../../editor/EditorPortalProvider.js";
+import { usePortalElement } from "../../../editor/PortalElementOverride.js";
 import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
@@ -130,11 +130,11 @@ export const blockTypeSelectItems = (
 export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   const Components = useComponentsContext()!;
   const uiMode = useUIMode();
-  const editorPortalElement = useEditorPortalElement();
+  const portalElement = usePortalElement();
   // Only portal (and suppress dropdown focus) in the mobile toolbar; desktop
   // renders inline with default focus behavior.
-  const portalRoot =
-    uiMode === "mobile" ? (editorPortalElement ?? undefined) : undefined;
+  const dropdownPortalElement =
+    uiMode === "mobile" ? (portalElement ?? undefined) : undefined;
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -220,7 +220,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     <Components.FormattingToolbar.Select
       className={"bn-select"}
       items={selectItems}
-      portalRoot={portalRoot}
+      portalElement={dropdownPortalElement}
     />
   );
 };

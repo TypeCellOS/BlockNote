@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react";
 
 import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { useEditorPortalElement } from "../../editor/EditorPortalProvider.js";
+import { usePortalElement } from "../../editor/PortalElementOverride.js";
 import Picker from "./EmojiMartPicker.js";
 
 export const EmojiPicker = (props: {
@@ -14,12 +14,12 @@ export const EmojiPicker = (props: {
 
   const Components = useComponentsContext()!;
   const blockNoteContext = useBlockNoteContext()!;
-  const editorPortalElement = useEditorPortalElement();
+  const portalElement = usePortalElement();
 
   return (
     <Components.Generic.Popover.Root
       open={open}
-      portalRoot={editorPortalElement ?? undefined}
+      portalElement={portalElement ?? undefined}
     >
       <Components.Generic.Popover.Trigger>
         <div

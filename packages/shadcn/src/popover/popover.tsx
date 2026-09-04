@@ -1,11 +1,11 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, useEditorPortalElement } from "@blocknote/react";
+import { ComponentProps, usePortalElement } from "@blocknote/react";
 import { createContext, forwardRef, ReactElement, useContext } from "react";
 
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
-const PortalRootContext = createContext<HTMLElement | null | undefined>(
+const PortalElementPropContext = createContext<HTMLElement | null | undefined>(
   undefined,
 );
 
@@ -17,7 +17,7 @@ export const Popover = (
     open,
     onOpenChange,
     position: _position, // unused
-    portalRoot,
+    portalElement,
     ...rest
   } = props;
 
@@ -27,9 +27,9 @@ export const Popover = (
 
   return (
     <ShadCNComponents.Popover.Popover open={open} onOpenChange={onOpenChange}>
-      <PortalRootContext.Provider value={portalRoot}>
+      <PortalElementPropContext.Provider value={portalElement}>
         {children}
-      </PortalRootContext.Provider>
+      </PortalElementPropContext.Provider>
     </ShadCNComponents.Popover.Popover>
   );
 };
@@ -61,16 +61,16 @@ export const PopoverContent = forwardRef<
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
-  const portalRoot = useContext(PortalRootContext);
+  const portalElementProp = useContext(PortalElementPropContext);
   // Default to the ambient portal target (a themed `.bn-root`) so popovers
   // inherit light/dark mode instead of the document body's, and escape the
   // mobile formatting toolbar's horizontal scroll clip.
-  const editorPortalElement = useEditorPortalElement();
+  const portalElement = usePortalElement();
 
   return (
     <ShadCNComponents.Popover.PopoverContent
       sideOffset={8}
-      container={portalRoot ?? editorPortalElement ?? undefined}
+      container={portalElementProp ?? portalElement ?? undefined}
       className={cn(
         className,
         "flex flex-col gap-2",

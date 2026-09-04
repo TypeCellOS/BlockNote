@@ -3,7 +3,7 @@ import { flip, offset, shift, inline } from "@floating-ui/react";
 import { FC, useMemo } from "react";
 
 import { useExtensionState } from "../../hooks/useExtension.js";
-import { EditorPortalProvider } from "../../editor/EditorPortalProvider.js";
+import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -115,10 +115,10 @@ export const AttributionTooltipController = (props: {
   );
 
   return (
-    <EditorPortalProvider target={props.portalElement}>
+    <PortalElementOverride target={props.portalElement}>
       <GenericPopover reference={reference} {...floatingUIOptions}>
         {tooltipProps && <Component {...tooltipProps} />}
       </GenericPopover>
-    </EditorPortalProvider>
+    </PortalElementOverride>
   );
 };

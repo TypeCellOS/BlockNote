@@ -14,7 +14,7 @@ import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
-import { EditorPortalProvider } from "../../editor/EditorPortalProvider.js";
+import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { PositionPopover } from "../Popovers/PositionPopover.js";
@@ -132,10 +132,10 @@ export default function FloatingComposerController<
   const Component = props.floatingComposer || FloatingComposer;
 
   return (
-    <EditorPortalProvider target={props.portalElement}>
+    <PortalElementOverride target={props.portalElement}>
       <PositionPopover position={position} {...floatingUIOptions}>
         <Component newCommentEditor={newCommentEditor} />
       </PositionPopover>
-    </EditorPortalProvider>
+    </PortalElementOverride>
   );
 }

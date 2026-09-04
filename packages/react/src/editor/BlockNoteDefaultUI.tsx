@@ -18,7 +18,7 @@ import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridS
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController.js";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController.js";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
-import { PortalElementsMap, resolvePortalTarget } from "./portalElements.js";
+import { PortalElementsMap, resolvePortalElement } from "./portalElements.js";
 
 // Lazily load the comments components to avoid pulling in the comments extensions into the main bundle
 const FloatingComposerController = lazy(
@@ -103,15 +103,17 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
   }
 
   const map = props.portalElements;
-  const formattingToolbarPortal = resolvePortalTarget(map?.formattingToolbar);
-  const linkToolbarPortal = resolvePortalTarget(map?.linkToolbar);
-  const slashMenuPortal = resolvePortalTarget(map?.slashMenu);
-  const emojiPickerPortal = resolvePortalTarget(map?.emojiPicker);
-  const sideMenuPortal = resolvePortalTarget(map?.sideMenu);
-  const filePanelPortal = resolvePortalTarget(map?.filePanel);
-  const tableHandlesPortal = resolvePortalTarget(map?.tableHandles);
-  const commentsPortal = resolvePortalTarget(map?.comments);
-  const attributionTooltipPortal = resolvePortalTarget(map?.attributionTooltip);
+  const formattingToolbarPortal = resolvePortalElement(map?.formattingToolbar);
+  const linkToolbarPortal = resolvePortalElement(map?.linkToolbar);
+  const slashMenuPortal = resolvePortalElement(map?.slashMenu);
+  const emojiPickerPortal = resolvePortalElement(map?.emojiPicker);
+  const sideMenuPortal = resolvePortalElement(map?.sideMenu);
+  const filePanelPortal = resolvePortalElement(map?.filePanel);
+  const tableHandlesPortal = resolvePortalElement(map?.tableHandles);
+  const commentsPortal = resolvePortalElement(map?.comments);
+  const attributionTooltipPortal = resolvePortalElement(
+    map?.attributionTooltip,
+  );
 
   return (
     <>

@@ -30,7 +30,7 @@ export type PortalElementsMap = {
 
 export type PortalElementKey = Exclude<keyof PortalElementsMap, "default">;
 
-export function resolvePortalTarget(
+export function resolvePortalElement(
   target: PortalElement | undefined,
 ): HTMLElement | undefined {
   if (target === undefined) {

@@ -1,5 +1,5 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, useEditorPortalElement } from "@blocknote/react";
+import { ComponentProps, usePortalElement } from "@blocknote/react";
 import { forwardRef } from "react";
 
 import { cn } from "../lib/utils.js";
@@ -28,7 +28,7 @@ export const Badge = forwardRef<
   // Portal the tooltip into the ambient portal target (a themed `.bn-root`)
   // so it inherits the editor's light/dark color scheme instead of the
   // document body's.
-  const editorPortalElement = useEditorPortalElement();
+  const portalElement = usePortalElement();
 
   const badge = (
     <ShadCNComponents.Button.Button
@@ -54,7 +54,7 @@ export const Badge = forwardRef<
     <ShadCNComponents.Tooltip.Tooltip>
       <ShadCNComponents.Tooltip.TooltipTrigger render={badge} />
       <ShadCNComponents.Tooltip.TooltipContent
-        container={editorPortalElement ?? undefined}
+        container={portalElement ?? undefined}
         className={"flex flex-col items-center whitespace-pre-wrap"}
       >
         <span>{mainTooltip}</span>

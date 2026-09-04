@@ -60,7 +60,7 @@ const nestedEditorBlock = createBlockSpec(
           },
         ],
       });
-      nestedEditor.mount(dom, { portalTarget: document.body });
+      nestedEditor.mount(dom, { portalElement: document.body });
 
       return { dom, destroy: () => nestedEditor.unmount() };
     },

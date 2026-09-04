@@ -7,7 +7,7 @@ import {
 import { RiImageEditFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
-import { useEditorPortalElement } from "../../../editor/EditorPortalProvider.js";
+import { usePortalElement } from "../../../editor/PortalElementOverride.js";
 import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
@@ -18,11 +18,11 @@ export const FileReplaceButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
   const uiMode = useUIMode();
-  const editorPortalElement = useEditorPortalElement();
+  const portalElement = usePortalElement();
   // Only portal (and suppress dropdown focus) in the mobile toolbar; desktop
   // renders inline with default focus behavior.
-  const portalRoot =
-    uiMode === "mobile" ? (editorPortalElement ?? undefined) : undefined;
+  const dropdownPortalElement =
+    uiMode === "mobile" ? (portalElement ?? undefined) : undefined;
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -73,7 +73,7 @@ export const FileReplaceButton = () => {
           editor.focus();
         }
       }}
-      portalRoot={portalRoot}
+      portalElement={dropdownPortalElement}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button

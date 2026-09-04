@@ -2,9 +2,9 @@ import { FC, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import {
-  EditorPortalProvider,
-  useEditorPortalElement,
-} from "../../editor/EditorPortalProvider.js";
+  PortalElementOverride,
+  usePortalElement,
+} from "../../editor/PortalElementOverride.js";
 import { UIModeContext } from "../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
@@ -83,23 +83,23 @@ export const MobileFormattingToolbarController = (props: {
   }
 
   return (
-    <EditorPortalProvider target={document.body}>
+    <PortalElementOverride target={document.body}>
       <UIModeContext.Provider value="mobile">
         <MobileFormattingToolbar
           formattingToolbar={props.formattingToolbar || FormattingToolbar}
         />
       </UIModeContext.Provider>
-    </EditorPortalProvider>
+    </PortalElementOverride>
   );
 };
 
 function MobileFormattingToolbar(props: {
   formattingToolbar: FC<FormattingToolbarProps>;
 }) {
-  const editorPortalElement = useEditorPortalElement();
+  const portalElement = usePortalElement();
   const Component = props.formattingToolbar;
 
-  if (!editorPortalElement) {
+  if (!portalElement) {
     return null;
   }
 
@@ -107,6 +107,6 @@ function MobileFormattingToolbar(props: {
     <div className="bn-mobile-formatting-toolbar">
       <Component />
     </div>,
-    editorPortalElement,
+    portalElement,
   );
 }

@@ -10,7 +10,7 @@ import { FC, useEffect, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../hooks/useEditorDomElement.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
-import { EditorPortalProvider } from "../../editor/EditorPortalProvider.js";
+import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -178,7 +178,7 @@ export function SuggestionMenuController<
   }
 
   return (
-    <EditorPortalProvider target={props.portalElement}>
+    <PortalElementOverride target={props.portalElement}>
       <GenericPopover reference={reference} {...floatingUIOptions}>
         {triggerCharacter && (
           <SuggestionMenuWrapper
@@ -193,6 +193,6 @@ export function SuggestionMenuController<
           />
         )}
       </GenericPopover>
-    </EditorPortalProvider>
+    </PortalElementOverride>
   );
 }
