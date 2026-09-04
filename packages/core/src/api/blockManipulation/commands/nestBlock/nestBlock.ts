@@ -4,6 +4,10 @@ import { canJoin, liftTarget, ReplaceAroundStep } from "prosemirror-transform";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
+import {
+  holdsBlocks,
+  isCompartment,
+} from "../../../../schema/blocks/containers.js";
 
 /**
  * Modified version of prosemirror-schema-list's sinkItem.
@@ -19,9 +23,7 @@ function sinkItem(tr: Transaction, itemType: NodeType, groupType: NodeType) {
   const { $from, $to } = tr.selection;
   const range = $from.blockRange(
     $to,
-    (node) =>
-      node.childCount > 0 &&
-      (node.type.name === "blockGroup" || node.type.name === "column"), // change 1
+    (node) => node.childCount > 0 && holdsBlocks(node.type), // change 1
   );
   if (!range) {
     return false;
@@ -163,15 +165,16 @@ export function liftItem(
   const { $from, $to } = tr.selection;
   const range = $from.blockRange(
     $to,
-    (node) =>
-      node.childCount > 0 &&
-      (node.type.name === "blockGroup" || node.type.name === "column"), // change 1
+    (node) => node.childCount > 0 && holdsBlocks(node.type), // change 1
   );
   if (!range) {
     return false;
   }
 
-  if ($from.node(range.depth - 1).type === itemType) {
+  const parent = $from.node(range.depth - 1);
+  // A compartment's body belongs to the block that owns it, so unnesting stops
+  // at its edge rather than lifting the block out of it.
+  if (parent.type === itemType && !isCompartment(parent)) {
     // Inside a parent node
     return liftToOuterList(tr, itemType, groupType, range); // change 2
   }

@@ -50,7 +50,7 @@ function fragmentToExternalHTML<
         (child) =>
           child.type.isInGroup("bnBlock") ||
           child.type.name === "blockGroup" ||
-          child.type.spec.group === "blockContent",
+          child.type.isInGroup("blockContent"),
       ) === undefined;
     if (isWithinBlockContent) {
       selectedFragment = fragmentWithoutParents;
@@ -118,7 +118,7 @@ export function selectedFragmentToHTML<
   // selected, e.g. an image block.
   if (
     "node" in view.state.selection &&
-    (view.state.selection.node as Node).type.spec.group === "blockContent"
+    (view.state.selection.node as Node).type.isInGroup("blockContent")
   ) {
     editor.transact((tr) =>
       tr.setSelection(

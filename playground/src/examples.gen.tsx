@@ -1567,6 +1567,25 @@ export const examples = {
           'In this example, we build custom blocks on the source-with-preview pattern — the same building blocks behind BlockNote\'s math and diagram blocks. A custom "CSV table" block renders its comma-separated source as a table, and a custom "color" inline content renders a CSS color as a swatch. Both show the rendered preview in place, while the source is edited in a popup.\n\n**Try it out:** Click the table or a color chip to edit its source!\n\n**Relevant Docs:**\n\n- [Source with Preview Blocks](/docs/features/custom-schemas/source-with-preview)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Custom Inline Content](/docs/features/custom-schemas/custom-inline-content)',
       },
       {
+        projectSlug: "callout-block",
+        fullSlug: "custom-schema/callout-block",
+        pathFromRoot: "examples/06-custom-schema/13-callout-block",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Intermediate", "Blocks", "Custom Schemas", "Nesting"],
+          dependencies: {} as any,
+        },
+        title: "Callout Block with a Title and a Body",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          "A callout is one block with two editable regions: a **title**, which is the\nblock's own rich text, and a **body**, which is the blocks nested under it.\n\nBoth are ordinary BlockNote content, so everything already works on them:\nEnter splits the title, Tab indents inside the body, blocks can be dragged in\nand out, and the whole thing serializes and pastes like any other block.\n\nWhat makes them look like one box is `renderFrame`: the block returns the\nmarkup that frames it, plus the `slot` element that BlockNote renders the\ntitle and the body into.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+      },
+      {
         projectSlug: "draggable-inline-content",
         fullSlug: "custom-schema/draggable-inline-content",
         pathFromRoot: "examples/06-custom-schema/draggable-inline-content",

@@ -145,7 +145,7 @@ export function transformPasted(slice: Slice, view: EditorView) {
   }
 
   for (let i = 0; i < f.childCount; i++) {
-    if (f.child(i).type.spec.group === "blockContent") {
+    if (f.child(i).type.isInGroup("blockContent")) {
       const content = [f.child(i)];
 
       // when there is a blockGroup with lists, it should be nested in the new blockcontainer

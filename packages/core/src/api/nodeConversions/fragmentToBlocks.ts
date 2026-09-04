@@ -5,6 +5,11 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
+import {
+  containerDissolves,
+  isContainerOnly,
+  minChildren,
+} from "../../schema/blocks/containers.js";
 import { nodeToBlock } from "./nodeToBlock.js";
 
 /**
@@ -44,10 +49,21 @@ export function fragmentToBlocks<
       }
     }
 
-    if (node.type.name === "columnList" && node.childCount === 1) {
-      // column lists with a single column should be flattened (not the entire column list has been selected)
-      node.firstChild?.forEach((child) => {
-        blocks.push(nodeToBlock(child, node));
+    if (
+      containerDissolves(node.type) &&
+      node.childCount < minChildren(node.type)
+    ) {
+      // Only part of the container was selected (a single column of a column
+      // list), so it can't stand on its own: what was selected inside it is
+      // what comes out.
+      node.forEach((child) => {
+        if (isContainerOnly(child.type)) {
+          child.forEach((grandChild) =>
+            blocks.push(nodeToBlock(grandChild, node)),
+          );
+        } else {
+          blocks.push(nodeToBlock(child, node));
+        }
       });
       return false;
     }

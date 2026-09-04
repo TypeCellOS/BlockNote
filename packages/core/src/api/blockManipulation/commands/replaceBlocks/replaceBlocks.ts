@@ -11,7 +11,10 @@ import type {
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getPmSchema } from "../../../pmUtil.js";
-import { fixColumnList } from "./util/fixColumnList.js";
+import {
+  containerAncestorIds,
+  fixContainersById,
+} from "../../containers/fixContainer.js";
 
 export function removeAndInsertBlocks<
   BSchema extends BlockSchema,
@@ -22,7 +25,7 @@ export function removeAndInsertBlocks<
   blocksToRemove: BlockIdentifier[],
   blocksToInsert: PartialBlock<BSchema, I, S>[],
   options: {
-    fixColumns?: boolean;
+    fixContainers?: boolean;
   } = {},
 ): {
   insertedBlocks: Block<BSchema, I, S>[];
@@ -43,7 +46,7 @@ export function removeAndInsertBlocks<
     ),
   );
   const removedBlocks: Block<BSchema, I, S>[] = [];
-  const columnListPositions = new Set<number>();
+  const containerIds = new Set<string>();
 
   const idOfFirstBlock =
     typeof blocksToRemove[0] === "string"
@@ -84,10 +87,12 @@ export function removeAndInsertBlocks<
 
     const $pos = tr.doc.resolve(pos - removedSize);
 
-    if ($pos.node().type.name === "column") {
-      columnListPositions.add($pos.before(-1));
-    } else if ($pos.node().type.name === "columnList") {
-      columnListPositions.add($pos.before());
+    // Every container the removed block sits in may be left needing repair
+    // (an emptied column, a column list down to one column). Collected as ids
+    // because the repair runs once every removal is done, by which time these
+    // positions have moved.
+    for (const id of containerAncestorIds(tr.doc, $pos.pos)) {
+      containerIds.add(id);
     }
 
     if (
@@ -119,11 +124,11 @@ export function removeAndInsertBlocks<
     );
   }
 
-  // Collapses empty columns/columnLists. Callers where the removal isn't a
-  // deletion can opt out - e.g. `moveBlocks` re-inserts the blocks elsewhere
-  // and deliberately leaves emptied columns as-is.
-  if (options.fixColumns !== false) {
-    columnListPositions.forEach((pos) => fixColumnList(tr, pos));
+  // Repairs the containers the removal emptied out. Callers where the removal
+  // isn't a deletion can opt out - e.g. `moveBlocks` re-inserts the blocks
+  // elsewhere and deliberately leaves emptied containers as-is.
+  if (options.fixContainers !== false) {
+    fixContainersById(tr, containerIds);
   }
 
   // Converts the nodes created from `blocksToInsert` into full `Block`s.

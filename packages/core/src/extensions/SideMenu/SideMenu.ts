@@ -1,3 +1,7 @@
+import {
+  containerNodeSelector,
+  holdsBlocks,
+} from "../../schema/blocks/containers.js";
 import { DOMParser, Slice } from "@tiptap/pm/model";
 import {
   EditorState,
@@ -47,7 +51,14 @@ function getBlockFromCoords(
       continue;
     }
     if (adjustForColumns) {
-      const column = element.closest("[data-node-type=columnList]");
+      // A container that holds containers rather than blocks lays its children
+      // out side by side (a column list and its columns), so the coordinates
+      // hit the wrong child without an offset.
+      const selector = containerNodeSelector(
+        view.state.schema,
+        (type) => !holdsBlocks(type),
+      );
+      const column = selector ? element.closest(selector) : null;
       if (column) {
         return getBlockFromCoords(
           view,

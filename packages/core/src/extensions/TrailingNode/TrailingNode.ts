@@ -1,3 +1,7 @@
+import {
+  holdsBlocks,
+  isContainerNode,
+} from "../../schema/blocks/containers.js";
 import type { Node as PMNode } from "prosemirror-model";
 import {
   Plugin,
@@ -31,9 +35,9 @@ function containerNeedsTrailingWidget(container: PMNode): boolean {
 // package. Nested blockGroups (a block's children) are excluded, as they have
 // no empty space below them for a widget to occupy.
 function getTrailingWidgetPositions(doc: PMNode): number[] {
-  // When the schema has no columns, the root blockGroup is the only possible
-  // container, so traversing the doc to find others can be skipped.
-  if (!doc.type.schema.nodes["column"]) {
+  // When the schema has no container blocks, the root blockGroup is the only
+  // possible container, so traversing the doc to find others can be skipped.
+  if (!Object.values(doc.type.schema.nodes).some(isContainerNode)) {
     const rootGroup = doc.lastChild;
     return rootGroup && containerNeedsTrailingWidget(rootGroup)
       ? [doc.content.size - 1]
@@ -48,7 +52,7 @@ function getTrailingWidgetPositions(doc: PMNode): number[] {
     }
 
     const isContainer =
-      node.type.name === "column" ||
+      (isContainerNode(node.type) && holdsBlocks(node.type)) ||
       (node.type.name === "blockGroup" && parent?.type.name === "doc");
 
     if (isContainer && containerNeedsTrailingWidget(node)) {
