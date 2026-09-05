@@ -5,11 +5,12 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import { ChangeEvent, useCallback, useState } from "react";
 import { RiInputField } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { usePortalElement } from "../../../editor/PortalElementOverride.js";
+import { ScreenReaderOnlySubmit } from "../../Form/ScreenReaderOnlySubmit.js";
 import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
@@ -90,16 +91,6 @@ export const FileCaptionButton = () => {
     [block, editor],
   );
 
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
-        event.preventDefault();
-        setPopoverOpen(false);
-      }
-    },
-    [setPopoverOpen],
-  );
-
   if (block === undefined) {
     return null;
   }
@@ -130,14 +121,16 @@ export const FileCaptionButton = () => {
         className={"bn-popover-content bn-form-popover"}
         variant={"form-popover"}
       >
-        <Components.Generic.Form.Root>
+        <Components.Generic.Form.Root
+          onSubmit={() => setPopoverOpen(false)}
+          submitButton={<ScreenReaderOnlySubmit />}
+        >
           <Components.Generic.Form.TextInput
             name={"file-caption"}
             icon={<RiInputField />}
             value={block.props.caption}
             autoFocus={true}
             placeholder={dict.formatting_toolbar.file_caption.input_placeholder}
-            onKeyDown={handleKeyDown}
             onChange={handleChange}
           />
         </Components.Generic.Form.Root>

@@ -28,9 +28,17 @@ export const Popover = (
       middlewares={{ size: { padding: 20 } }}
       withinPortal={!!portalElement}
       portalProps={portalElement ? { target: portalElement } : undefined}
-      // Do not move focus to the dropdown when requested (mobile), as it blurs
-      // the editor's contentEditable and dismisses the on-screen keyboard.
-      trapFocus={preventFocusOnOpen ? false : undefined}
+      // Pins Mantine's default: a trap would move focus into the dropdown,
+      // which on mobile blurs the contentEditable and dismisses the
+      // keyboard. BlockNote owns focus in its popovers (useAutoFocus).
+      trapFocus={false}
+      // Keep the dropdown visible through virtual-keyboard viewport resizes on
+      // mobile: hideDetached (default true) reacts to the resize by setting
+      // display:none on the dropdown, which blurs its focused input and
+      // dismisses the on-screen keyboard (the input then unmounts with the
+      // toolbar, so the whole UI collapses). `preventFocusOnOpen` is set for
+      // exactly the popovers that live in the mobile toolbar.
+      hideDetached={preventFocusOnOpen ? false : undefined}
       opened={open}
       onChange={onOpenChange}
       position={position}

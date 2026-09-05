@@ -40,6 +40,12 @@ export const PopoverContent = forwardRef<
         className || "",
         variant === "panel-popover" ? "bn-ak-panel-popover" : "",
       )}
+      // BlockNote owns focus in its popovers (useAutoFocus, which prevents
+      // scrolling). Ariakit's default would bare-focus the first tabbable —
+      // in form popovers the very input the hook handles, re-introducing
+      // the scroll-yank it exists to avoid. No other skin's library moves
+      // focus to an input on open either.
+      autoFocusOnShow={false}
       // Ariakit falls back to a body-appended div for a missing element, so
       // don't portal at all until there is one (editor not mounted yet).
       portal={portalElement !== null}

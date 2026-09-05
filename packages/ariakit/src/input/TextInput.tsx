@@ -4,7 +4,7 @@ import {
 } from "@ariakit/react";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, useMergeRefs, useAutoFocus } from "@blocknote/react";
 import { forwardRef } from "react";
 
 export const TextInput = forwardRef<
@@ -23,7 +23,6 @@ export const TextInput = forwardRef<
     disabled,
     onKeyDown,
     onChange,
-    onSubmit,
     autoComplete,
     "aria-activedescendant": ariaActivedescendant,
     rightSection,
@@ -31,6 +30,11 @@ export const TextInput = forwardRef<
   } = props;
 
   assertEmpty(rest);
+
+  // Rationale (and the trap contract `data-autofocus` serves) in the hook.
+
+  const inputRef = useAutoFocus<HTMLInputElement>(autoFocus);
+  const setRefs = useMergeRefs([inputRef, ref]);
 
   return (
     <>
@@ -43,15 +47,13 @@ export const TextInput = forwardRef<
             className || "",
             variant === "large" ? "bn-ak-input-large" : "",
           )}
-          ref={ref}
+          ref={setRefs}
           name={name}
           value={value}
-          autoFocus={autoFocus}
           placeholder={placeholder}
           disabled={disabled}
           onKeyDown={onKeyDown}
           onChange={onChange}
-          onSubmit={onSubmit}
           autoComplete={autoComplete}
           aria-activedescendant={ariaActivedescendant}
         />
