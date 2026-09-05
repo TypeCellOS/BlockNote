@@ -2,7 +2,11 @@ import { BlockNoteEditor } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { PortalElementsMap, useCreateBlockNote } from "@blocknote/react";
+import {
+  BlockNoteViewEditor,
+  PortalElementsMap,
+  useCreateBlockNote,
+} from "@blocknote/react";
 import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 import { useEffect } from "react";
 import { render } from "vitest-browser-react";
@@ -26,6 +30,34 @@ function PortalTestEditor(props: {
       portalElements={props.portalElements}
       theme={props.theme}
     />
+  );
+}
+
+/**
+ * A layout that renders the editor itself: a scrolling pane with the editor
+ * next to a sidebar, both inside the `BlockNoteView`, as an app would.
+ */
+function ManualLayoutEditor(props: {
+  onEditor: (editor: BlockNoteEditor) => void;
+}) {
+  const editor = useCreateBlockNote();
+
+  useEffect(() => {
+    props.onEditor(editor);
+  }, [editor, props]);
+
+  return (
+    <BlockNoteView editor={editor} renderEditor={false}>
+      <div style={{ display: "flex" }}>
+        <div
+          data-test="pane"
+          style={{ flex: 1, height: 300, overflow: "auto" }}
+        >
+          <BlockNoteViewEditor />
+        </div>
+        <div data-test="sidebar" style={{ width: 200 }} />
+      </div>
+    </BlockNoteView>
   );
 }
 
@@ -141,5 +173,33 @@ describe("Portal elements", () => {
     expect(root?.getAttribute("data-mantine-color-scheme")).toBe("dark");
     expect(editor.isWithinEditor(menu)).toBe(true);
     expect(editor.isWithinEditor(document.body)).toBe(false);
+  });
+
+  test("portals next to the editor when the layout renders it manually", async () => {
+    let editor: BlockNoteEditor | undefined;
+    await render(
+      <ManualLayoutEditor
+        onEditor={(value) => {
+          editor = value;
+        }}
+      />,
+    );
+    await waitForSelector(".bn-editor");
+    await vi.waitFor(() => {
+      if (!editor) {
+        throw new Error("Editor was not created");
+      }
+    });
+    if (!editor) {
+      throw new Error("Editor was not created");
+    }
+
+    const menu = await openSlashMenu();
+    const pane = document.querySelector<HTMLElement>("[data-test=pane]")!;
+
+    // The menu lives in the editor's pane, so it clips and scrolls with the
+    // editor instead of spilling over the sidebar next to it.
+    expect(pane.contains(menu)).toBe(true);
+    expect(editor.isWithinEditor(menu)).toBe(true);
   });
 });

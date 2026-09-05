@@ -12,7 +12,7 @@ export const FormattingToolbarController = (props: {
   floatingUIOptions?: FloatingUIOptions;
   /**
    * Override the DOM node this floating element portals into. Falls back to
-   * the ambient portal element (the editor's `bn-container` by default)
+   * the ambient portal element (the element wrapping the editor by default)
    * when omitted.
    */
   portalElement?: HTMLElement;
