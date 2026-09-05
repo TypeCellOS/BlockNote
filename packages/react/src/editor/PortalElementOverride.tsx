@@ -24,9 +24,12 @@ const PortalElementContext = createContext<HTMLElement | null>(null);
  * The element the floating UI below should portal into: the nearest
  * {@link PortalElementAnchor} (the wrapper of the toolbar, side menu, … that
  * opens it), else the nearest {@link PortalElementOverride}'s element, else by
- * default the editor's own container. All of these sit inside a themed
- * `.bn-root`, so portalled UI keeps the editor's styling and color scheme
- * wherever in the DOM it lands.
+ * default the element wrapping the editor element. In the default layout that
+ * is the editor's `bn-container`; with `renderEditor={false}` it is whatever
+ * `BlockNoteViewEditor` was rendered into, so the floating UI clips and scrolls
+ * with the editor rather than escaping into the layout around it. All of these
+ * sit inside a themed `.bn-root`, so portalled UI keeps the editor's styling
+ * and color scheme wherever in the DOM it lands.
  *
  * `null` until the editor has mounted, and on the server. Consumers render
  * nothing until it exists.
@@ -39,7 +42,7 @@ export function usePortalElement(): HTMLElement | null {
     return override;
   }
 
-  return editorDOMElement?.closest<HTMLElement>(".bn-container") ?? null;
+  return editorDOMElement?.parentElement ?? null;
 }
 
 /**
