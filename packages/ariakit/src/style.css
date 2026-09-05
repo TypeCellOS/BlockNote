@@ -38,8 +38,14 @@
     inset 0 1px 1px 1px var(--shadow);
 }
 
-.bn-toolbar .bn-ak-popover {
-  gap: 0.5rem;
+/* Menus and popovers are portalled into the editor container, so they are
+   siblings of the positioned UI (side menu, toolbars, …) that opened them
+   instead of descendants, and must stack above it. The UI elements sit at
+   `--bn-ui-base-z-index` + 10…90 (see the React controllers); Ariakit's own
+   stylesheet gives these a fixed 50. */
+.bn-ariakit .bn-ak-menu,
+.bn-ariakit .bn-ak-popover {
+  z-index: calc(var(--bn-ui-base-z-index, 0) + 100);
 }
 
 .bn-ariakit .bn-panel {
