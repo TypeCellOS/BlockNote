@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { usePortalElement } from "../../../editor/PortalElementOverride.js";
 import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
@@ -18,6 +19,7 @@ export const FileReplaceButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
   const uiMode = useUIMode();
+  const portalElement = usePortalElement();
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -86,7 +88,8 @@ export const FileReplaceButton = () => {
     <Components.Generic.Popover.Root
       open={popoverOpen}
       onOpenChange={setPopoverOpen}
-      portalRoot={uiMode === "mobile" ? editor.portalElement : undefined}
+      portalElement={portalElement}
+      preventFocusOnOpen={uiMode === "mobile"}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button

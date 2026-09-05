@@ -9,6 +9,7 @@ import {
   useComponentsContext,
   useDictionary,
   useEditorState,
+  usePortalElement,
   useUIMode,
 } from "@blocknote/react";
 import { useCallback, useEffect, useState } from "react";
@@ -22,7 +23,9 @@ import { UppyFilePanel } from "./UppyFilePanel";
 export const FileReplaceButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
+  // Portal necessary to properly show popover on mobile.
   const uiMode = useUIMode();
+  const editorPortalElement = usePortalElement();
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -91,7 +94,8 @@ export const FileReplaceButton = () => {
     <Components.Generic.Popover.Root
       open={popoverOpen}
       onOpenChange={setPopoverOpen}
-      portalRoot={uiMode === "mobile" ? editor.portalElement : undefined}
+      portalElement={editorPortalElement}
+      preventFocusOnOpen={uiMode === "mobile"}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button

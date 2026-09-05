@@ -5,6 +5,7 @@ import { FC, useCallback, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtensionState } from "../../hooks/useExtension.js";
+import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { BlockPopover } from "../Popovers/BlockPopover.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { SideMenu } from "./SideMenu.js";
@@ -61,10 +62,10 @@ export const SideMenuController = (props: {
   floatingUIOptions?: Partial<FloatingUIOptions>;
   /**
    * Override the DOM node this floating element portals into. Falls back to
-   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * the ambient portal element (the editor's `bn-container` by default)
    * when omitted.
    */
-  portalElement?: HTMLElement | null;
+  portalElement?: HTMLElement;
 }) => {
   const editor = useBlockNoteEditor();
   const state = useExtensionState(SideMenuExtension, {
@@ -149,12 +150,13 @@ export const SideMenuController = (props: {
   const Component = props.sideMenu || SideMenu;
 
   return (
-    <BlockPopover
-      blockId={show ? block?.id : undefined}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {block?.id && <Component />}
-    </BlockPopover>
+    <PortalElementOverride target={props.portalElement}>
+      <BlockPopover
+        blockId={show ? block?.id : undefined}
+        {...floatingUIOptions}
+      >
+        {block?.id && <Component />}
+      </BlockPopover>
+    </PortalElementOverride>
   );
 };

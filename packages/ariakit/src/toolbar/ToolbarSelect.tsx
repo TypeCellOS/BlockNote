@@ -16,7 +16,14 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, portalRoot, ...rest } = props;
+  const {
+    className,
+    items,
+    isDisabled,
+    portalElement,
+    preventFocusOnOpen: _preventFocusOnOpen, // unused; see Menu.tsx
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
@@ -47,7 +54,10 @@ export const ToolbarSelect = forwardRef<
         className={mergeCSSClasses("bn-ak-popover", className || "")}
         ref={ref}
         gutter={4}
-        portalElement={portalRoot ?? undefined}
+        // Ariakit falls back to a body-appended div for a missing element,
+        // so don't portal at all until there is one (editor not mounted yet).
+        portal={portalElement !== null}
+        portalElement={portalElement}
       >
         {items.map((option) => (
           <AriakitSelectItem
