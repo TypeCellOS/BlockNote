@@ -9,6 +9,7 @@ import { ChangeEvent, useCallback, useState } from "react";
 import { RiInputField } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { usePortalElement } from "../../../editor/PortalElementOverride.js";
 import { ScreenReaderOnlySubmit } from "../../Form/ScreenReaderOnlySubmit.js";
 import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
@@ -19,6 +20,7 @@ export const FileCaptionButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
   const uiMode = useUIMode();
+  const portalElement = usePortalElement();
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -97,13 +99,14 @@ export const FileCaptionButton = () => {
     <Components.Generic.Popover.Root
       open={popoverOpen}
       onOpenChange={setPopoverOpen}
-      // On mobile the formatting toolbar scrolls horizontally, which clips the
-      // inline popover. Portalling it to `editor.portalElement` escapes that
-      // clip; a set `portalRoot` also stops focus moving into the popover, which
-      // would blur the editor and dismiss the on-screen keyboard. On desktop
-      // there's no such clipping, so we keep the default inline rendering. See
-      // `MobileFormattingToolbarController`.
-      portalRoot={uiMode === "mobile" ? editor.portalElement : undefined}
+      // Portal the popover into the editor's themed portal target so it
+      // inherits styling and escapes any scroll-container overflow clipping.
+      // On mobile that target is the toolbar's body-level container (see
+      // `MobileFormattingToolbarController`), and `preventFocusOnOpen` stops
+      // focus moving into the popover, which would blur the editor and dismiss
+      // the on-screen keyboard.
+      portalElement={portalElement}
+      preventFocusOnOpen={uiMode === "mobile"}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button

@@ -10,7 +10,6 @@ import React, {
   ReactNode,
   Ref,
   useCallback,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -27,7 +26,8 @@ import {
   BlockNoteDefaultUI,
   BlockNoteDefaultUIProps,
 } from "./BlockNoteDefaultUI.js";
-import { resolvePortalTarget } from "./portalElements.js";
+import { PortalElementOverride } from "./PortalElementOverride.js";
+import { resolvePortalElement } from "./portalElements.js";
 import {
   BlockNoteViewContext,
   useBlockNoteViewContext,
@@ -91,12 +91,20 @@ export type BlockNoteViewProps<
    */
   children?: ReactNode;
 
+  /**
+   * Applies the UI library's theming — its color-scheme attribute, theme CSS
+   * variables — to a themed BlockNote root element. Wrappers pass this so that
+   * floating UI portalled outside the editor's DOM is themed too; they style
+   * the editor container itself through `className` and a `ref`.
+   */
+  applyThemedRoot?: (element: HTMLElement) => void;
+
   ref?: Ref<HTMLDivElement> | undefined; // only here to get types working with the generics. Regular form doesn't work
 } & BlockNoteDefaultUIProps;
 
 // `portalElements` is part of `BlockNoteDefaultUIProps`, but we re-export the
 // types here for convenience so consumers can import them from `@blocknote/react`.
-export type { PortalElementsMap, PortalTarget } from "./portalElements.js";
+export type { PortalElement, PortalElementsMap } from "./portalElements.js";
 
 function BlockNoteViewComponent<
   BSchema extends BlockSchema,
@@ -127,16 +135,16 @@ function BlockNoteViewComponent<
     tableHandles,
     comments,
     portalElements,
+    applyThemedRoot: applyLibraryTheme,
     autoFocus,
     renderEditor = true,
     ...rest
   } = props;
 
-  // Resolved once and handed to `editor.mount()` via context. When omitted,
-  // `mount()` falls back to `element.parentElement` (i.e. `bn-container`).
-  // Changing this prop requires remounting the editor (use a `key`).
-  const portalTarget = useMemo(
-    () => resolvePortalTarget(portalElements?.default) ?? null,
+  // `default` redirects every element without its own entry. When omitted,
+  // the ambient portal element (the editor container) stays in effect.
+  const defaultPortalElement = useMemo(
+    () => resolvePortalElement(portalElements?.default),
     [portalElements?.default],
   );
 
@@ -191,17 +199,21 @@ function BlockNoteViewComponent<
     [editor],
   );
 
-  useEffect(() => {
-    if (!editor.portalElement) {
-      throw new Error("Portal element not found");
-    }
-    editor.portalElement.className = mergeCSSClasses(
-      "bn-root",
-      editorColorScheme,
-      className || "",
-    );
-    editor.portalElement.setAttribute("data-color-scheme", editorColorScheme);
-  }, [editor, editorColorScheme, className]);
+  // Everything that makes an element a themed `.bn-root`: what the container
+  // below renders as props, applied imperatively for the portal roots
+  // `PortalElementOverride` creates outside React's tree.
+  const applyThemedRoot = useCallback(
+    (element: HTMLElement) => {
+      element.className = mergeCSSClasses(
+        "bn-root",
+        editorColorScheme,
+        className || "",
+      );
+      element.setAttribute("data-color-scheme", editorColorScheme);
+      applyLibraryTheme?.(element);
+    },
+    [editorColorScheme, className, applyLibraryTheme],
+  );
 
   // The BlockNoteContext makes sure the editor and some helper methods
   // are always available to nesteed compoenents
@@ -222,11 +234,17 @@ function BlockNoteViewComponent<
         autoFocus,
         contentEditableProps,
         editable,
-        portalTarget,
       },
       defaultUIProps,
+      applyThemedRoot,
     };
-  }, [autoFocus, contentEditableProps, editable, defaultUIProps, portalTarget]);
+  }, [
+    autoFocus,
+    contentEditableProps,
+    editable,
+    defaultUIProps,
+    applyThemedRoot,
+  ]);
 
   return (
     <BlockNoteContext.Provider value={blockNoteContext}>
@@ -236,6 +254,7 @@ function BlockNoteViewComponent<
           className={className}
           renderEditor={renderEditor}
           editorColorScheme={editorColorScheme}
+          defaultPortalElement={defaultPortalElement}
           ref={ref}
           {...rest}
         >
@@ -255,30 +274,45 @@ const BlockNoteViewContainer = React.forwardRef<
   {
     renderEditor: boolean;
     editorColorScheme: "light" | "dark";
+    defaultPortalElement?: HTMLElement;
     children: ReactNode;
   } & Omit<
     HTMLAttributes<HTMLDivElement>,
     "onChange" | "onSelectionChange" | "children"
   >
->(({ className, renderEditor, editorColorScheme, children, ...rest }, ref) => (
-  <div
-    className={mergeCSSClasses(
-      "bn-root",
-      "bn-container",
-      editorColorScheme,
+>(
+  (
+    {
       className,
-    )}
-    data-color-scheme={editorColorScheme}
-    {...rest}
-    ref={ref}
-  >
-    {renderEditor ? (
-      <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
-    ) : (
-      children
-    )}
-  </div>
-));
+      renderEditor,
+      editorColorScheme,
+      defaultPortalElement,
+      children,
+      ...rest
+    },
+    ref,
+  ) => (
+    <div
+      className={mergeCSSClasses(
+        "bn-root",
+        "bn-container",
+        editorColorScheme,
+        className,
+      )}
+      data-color-scheme={editorColorScheme}
+      {...rest}
+      ref={ref}
+    >
+      <PortalElementOverride target={defaultPortalElement}>
+        {renderEditor ? (
+          <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
+        ) : (
+          children
+        )}
+      </PortalElementOverride>
+    </div>
+  ),
+);
 
 // https://fettblog.eu/typescript-react-generic-forward-refs/
 export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
@@ -306,8 +340,6 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
     return getContentComponent();
   }, []);
 
-  const portalTarget = ctx.editorProps.portalTarget;
-
   const mount = useCallback(
     (element: HTMLElement | null) => {
       // Set editable state of the actual editor.
@@ -320,12 +352,12 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
       // This is a simple replacement for the state management that Tiptap does internally
       editor._tiptapEditor.contentComponent = portalManager;
       if (element) {
-        editor.mount(element, { portalTarget });
+        editor.mount(element);
       } else {
         editor.unmount();
       }
     },
-    [ctx.editorProps.editable, editor, portalManager, portalTarget],
+    [ctx.editorProps.editable, editor, portalManager],
   );
 
   return (
@@ -347,7 +379,6 @@ const ContentEditableElement = (props: {
   autoFocus?: boolean;
   mount: (element: HTMLElement | null) => void;
   contentEditableProps?: Record<string, any>;
-  portalTarget?: HTMLElement | null;
 }) => {
   const { autoFocus, mount, contentEditableProps } = props;
   return (
