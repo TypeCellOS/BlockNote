@@ -8,6 +8,17 @@ import { BlockNoteViewRaw } from "../editor/BlockNoteView.js";
 import { useCreateBlockNote } from "./useCreateBlockNote.js";
 import { useEditorFocus } from "./useEditorFocus.js";
 
+function appendToRegisteredPortalElement(
+  editor: { registerPortalElement(element: HTMLElement): void },
+  ...elements: HTMLElement[]
+) {
+  const root = document.createElement("div");
+  document.body.append(root);
+  editor.registerPortalElement(root);
+  root.append(...elements);
+  return root;
+}
+
 // `useEditorFocus` returns focus as state. What
 // needs proving is that it reports *settled* focus and doesn't re-render on
 // every focus event in the page — the reasons it exists rather than each
@@ -101,7 +112,7 @@ describe("useEditorFocus", () => {
 
     // A popover input, portalled outside the content area.
     const popoverInput = document.createElement("input");
-    editor!.portalElement.append(popoverInput);
+    appendToRegisteredPortalElement(editor!, popoverInput);
     popoverInput.focus();
 
     // Give the settle a chance to run, then confirm it never dropped.
@@ -135,7 +146,7 @@ describe("useEditorFocus", () => {
 
     // Focus the editor's UI: raw content focus reads false, UI focus true.
     const popoverInput = document.createElement("input");
-    editor!.portalElement.append(popoverInput);
+    appendToRegisteredPortalElement(editor!, popoverInput);
     popoverInput.focus();
     await new Promise((resolve) => setTimeout(resolve, 60));
     expect(focusedValue()).toBe("false");
