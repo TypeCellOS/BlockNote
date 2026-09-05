@@ -8,9 +8,7 @@ import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { createContext, forwardRef, useContext } from "react";
 
-const PortalRootContext = createContext<HTMLElement | null | undefined>(
-  undefined,
-);
+const PortalElementContext = createContext<HTMLElement | null>(null);
 
 export const PopoverTrigger = forwardRef<
   HTMLButtonElement,
@@ -31,7 +29,7 @@ export const PopoverContent = forwardRef<
 
   assertEmpty(rest);
 
-  const portalRoot = useContext(PortalRootContext);
+  const portalElement = useContext(PortalElementContext);
 
   return (
     <AriakitPopover
@@ -46,7 +44,10 @@ export const PopoverContent = forwardRef<
       // the scroll-yank it exists to avoid. No other skin's library moves
       // focus to an input on open either.
       autoFocusOnShow={false}
-      portalElement={portalRoot ?? undefined}
+      // Ariakit falls back to a body-appended div for a missing element, so
+      // don't portal at all until there is one (editor not mounted yet).
+      portal={portalElement !== null}
+      portalElement={portalElement}
       ref={ref}
     >
       {children}
@@ -57,7 +58,15 @@ export const PopoverContent = forwardRef<
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
-  const { children, open, onOpenChange, position, portalRoot, ...rest } = props;
+  const {
+    children,
+    open,
+    onOpenChange,
+    position,
+    portalElement,
+    preventFocusOnOpen: _preventFocusOnOpen, // unused; see Menu.tsx
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
@@ -67,9 +76,9 @@ export const Popover = (
       setOpen={onOpenChange}
       placement={position}
     >
-      <PortalRootContext.Provider value={portalRoot}>
+      <PortalElementContext.Provider value={portalElement}>
         {children}
-      </PortalRootContext.Provider>
+      </PortalElementContext.Provider>
     </AriakitPopoverProvider>
   );
 };

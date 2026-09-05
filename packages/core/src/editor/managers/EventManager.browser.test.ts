@@ -2,6 +2,17 @@ import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
 
+function appendToRegisteredPortalElement(
+  editor: { registerPortalElement(element: HTMLElement): void },
+  ...elements: HTMLElement[]
+) {
+  const root = document.createElement("div");
+  document.body.append(root);
+  editor.registerPortalElement(root);
+  root.append(...elements);
+  return root;
+}
+
 // Focus tracking is almost entirely DOM semantics — event ordering, what
 // `document.activeElement` reads as at each step, and how focus behaves when
 // it moves into UI that is portalled outside the editor. None of that is
@@ -117,7 +128,7 @@ describe("Focus events", () => {
     // The portal element is where menus, toolbars and popovers render — it
     // lives outside the content area, so plain content focus can't see it.
     const popoverInput = document.createElement("input");
-    editor.portalElement.append(popoverInput);
+    appendToRegisteredPortalElement(editor, popoverInput);
 
     popoverInput.focus();
 
@@ -147,7 +158,7 @@ describe("Focus events", () => {
 
   it("onFocusChange({ includeEditorUI }) stays focused across a handoff into the editor's UI", async () => {
     const popoverInput = document.createElement("input");
-    editor.portalElement.append(popoverInput);
+    appendToRegisteredPortalElement(editor, popoverInput);
 
     const events: boolean[] = [];
     const unsubscribe = editor.onFocusChange(
@@ -178,7 +189,7 @@ describe("Focus events", () => {
   it("does not report a spurious blur while focus moves between UI elements", async () => {
     const first = document.createElement("input");
     const second = document.createElement("input");
-    editor.portalElement.append(first, second);
+    appendToRegisteredPortalElement(editor, first, second);
 
     editor.focus();
     await settle();

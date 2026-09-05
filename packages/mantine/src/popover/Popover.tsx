@@ -11,24 +11,23 @@ import { forwardRef } from "react";
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
-  const { open, onOpenChange, position, portalRoot, children, ...rest } = props;
-
-  // A `portalRoot` is only passed by the mobile toolbar, which renders its
-  // popovers into its own container — so it doubles as "this popover belongs
-  // to the mobile toolbar", which is what the two behaviours below actually
-  // depend on. Named here so the reason isn't hidden behind an unrelated prop.
-  // TODO: clean this up once we've settled on a proper portalling solution
-  // (pending discussion) — inferring mobile-ness from `portalRoot` should
-  // become an explicit signal.
-  const isMobileToolbarPopover = !!portalRoot;
+  const {
+    open,
+    onOpenChange,
+    position,
+    portalElement,
+    preventFocusOnOpen,
+    children,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
   return (
     <MantinePopover
       middlewares={{ size: { padding: 20 } }}
-      withinPortal={!!portalRoot}
-      portalProps={portalRoot ? { target: portalRoot } : undefined}
+      withinPortal={!!portalElement}
+      portalProps={portalElement ? { target: portalElement } : undefined}
       // Pins Mantine's default: a trap would move focus into the dropdown,
       // which on mobile blurs the contentEditable and dismisses the
       // keyboard. BlockNote owns focus in its popovers (useAutoFocus).
@@ -37,8 +36,9 @@ export const Popover = (
       // mobile: hideDetached (default true) reacts to the resize by setting
       // display:none on the dropdown, which blurs its focused input and
       // dismisses the on-screen keyboard (the input then unmounts with the
-      // toolbar, so the whole UI collapses).
-      hideDetached={isMobileToolbarPopover ? false : undefined}
+      // toolbar, so the whole UI collapses). `preventFocusOnOpen` is set for
+      // exactly the popovers that live in the mobile toolbar.
+      hideDetached={preventFocusOnOpen ? false : undefined}
       opened={open}
       onChange={onOpenChange}
       position={position}

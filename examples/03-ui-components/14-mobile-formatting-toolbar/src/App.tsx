@@ -32,12 +32,12 @@ export default function App() {
   // and each editor tracks the shared visual viewport independently.
   const secondEditor = useCreateBlockNote({ initialContent });
 
-  // Which element scrolls the page. The "pinned scroll container" layout is opt-in
-  // via a single class: adding `bn-scroll-container` to the element wrapping the page
-  // content makes BlockNote's stylesheet lock document scroll and pin that
-  // element to the visual viewport. Switching layouts is therefore just
-  // adding/removing the class - a real app would apply it unconditionally, the
-  // switch is only here so you can compare both.
+  // Which element scrolls the page. The pinned scroll container is opt-in via a
+  // single class: adding `bn-scroll-container` to the element wrapping the page
+  // content makes BlockNote's stylesheet pin it to the visual viewport, so the
+  // page content scrolls inside it. Switching is therefore just adding/removing
+  // the class - a real app would apply it unconditionally, the switch is only
+  // here so you can compare both.
   const [scrollMode, setScrollMode] = useState<
     "scrolling-document" | "scroll-container"
   >("scroll-container");

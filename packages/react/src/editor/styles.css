@@ -541,11 +541,6 @@ SideMenuController offsets its position to keep it centered on the line. */
 /* CSS styles for scroll container pinned to virtual viewport. Used to make the mobile formatting
  toolbar scroll smoother. `bn-vv-*` variables track virtual viewport and are set in
  `useVirtualKeyboard`. */
-html:has(.bn-scroll-container),
-body:has(.bn-scroll-container) {
-  overflow: hidden;
-}
-
 .bn-scroll-container {
   position: fixed;
   top: var(--bn-vv-top, 0px);
