@@ -1,11 +1,9 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 import deepEqual from "fast-deep-equal/es6/react.js";
-import { useDebugValue, useEffect, useLayoutEffect, useState } from "react";
+import { useDebugValue, useState } from "react";
 import { useSyncExternalStoreWithSelector } from "use-sync-external-store/shim/with-selector";
 import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
-
-const useIsomorphicLayoutEffect =
-  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+import { useIsomorphicLayoutEffect } from "../util/useIsomorphicLayoutEffect.js";
 
 export type EditorStateSnapshot<
   TEditor extends BlockNoteEditor<any, any, any> | null = BlockNoteEditor<
