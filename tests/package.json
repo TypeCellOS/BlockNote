@@ -15,7 +15,6 @@
     "@blocknote/diagram-block": "workspace:^",
     "@blocknote/xl-email-exporter": "workspace:^",
     "@blocknote/xl-pdf-exporter": "workspace:^",
-    "@react-pdf/renderer": "^4.5.1",
     "pdfjs-dist": "^4.10.38",
     "@blocknote/math-block": "workspace:^",
     "@blocknote/react": "workspace:^",
@@ -39,9 +38,11 @@
     "rimraf": "^5.0.10",
     "vite-plus": "catalog:",
     "vitest-browser-react": "^2.2.0",
-    "yjs": "^13.6.27"
+    "yjs": "^13.6.27",
+    "@blocknote/xl-typst-exporter": "workspace:^"
   },
   "dependencies": {
-    "get-port-please": "3.2.0"
+    "get-port-please": "3.2.0",
+    "@blocknote/xl-typst-compiler": "workspace:^"
   }
 }

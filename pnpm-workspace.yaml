@@ -74,6 +74,8 @@ allowBuilds:
   sharp: false
   workerd: false
   leveldown: false
+  # wasm-pack's binary shim self-installs on first run; no install script.
+  wasm-pack: false
 patchedDependencies:
   {
     "@y/prosemirror@2.0.0-6": patches/@y__prosemirror@2.0.0-6.patch,
@@ -94,6 +96,14 @@ minimumReleaseAgeExclude:
   - "@oxlint-tsgolint/*"
   - oxfmt
   - "@oxfmt/*"
+  # The Typst compiler family is pinned to a fresh rc line; excluded from the
+  # release-age quarantine by exact name (plus the node compiler's
+  # per-platform binaries) rather than waiving the whole scope.
+  - "@myriaddreamin/typst.ts"
+  - "@myriaddreamin/typst-ts-web-compiler"
+  - "@myriaddreamin/typst-ts-renderer"
+  - "@myriaddreamin/typst-ts-node-compiler"
+  - "@myriaddreamin/typst-ts-node-compiler-*"
 
 # pdfjs-dist pulls @napi-rs/canvas (native binaries) for Node-side
 # rendering, which we never do - pdf.js only runs in the browser suite.

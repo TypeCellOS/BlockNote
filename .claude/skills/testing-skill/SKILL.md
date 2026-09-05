@@ -74,11 +74,11 @@ End-to-end tests run in vitest browser mode (chromium, firefox and webkit) insid
 bash tests/docker-run.sh -e CI=1 -- --run [filters]
 ```
 
+**Never run the browser suite natively** (`vp test -c vite.config.browser.ts` outside the container) — not even "just one file". Two failure modes, both silent: the screenshot matcher _seeds_ a new `-darwin`/`-win32` baseline for every screenshot test that has none (passing without comparing anything, and littering the tree with hundreds of unvetted PNGs — these are gitignored as a backstop, and only `-linux` baselines are tracked), and several suites genuinely behave differently outside Linux (e.g. caret placement is font-metric-dependent, so platform-shared JSON snapshots mismatch). If Docker isn't running, notify the user to launch it instead of falling back to a native run.
+
 A specific test file may be targeted by appending (part of) its name as a filter. A single browser may be targeted with `--project "e2e (chromium)"`. Individual tests in a file may be disabled using `skip`, i.e. `test.skip("Test name", ...)` (remember to revert this once all tests pass).
 
-Screenshot baselines can be regenerated with the `-u` argument, which must come **after** the filters (`--run <filters> -u`): written as `--run -u <filter>`, the filter is parsed as the flag's value and the **whole** suite runs in update mode, silently rewriting unrelated baselines. Note that `-u` only rewrites baselines whose comparison **fails** — a small intended change (e.g. a short text edit) that fits inside the suite's 2% pixel tolerance leaves the baseline stale while the test passes. To force a fresh capture, delete the baseline file first. Baselines are per-browser (`<name>-<browser>-linux.png`); after regenerating, always inspect the images before committing them.
-
-If Docker isn't running, notify the user to launch it.
+Screenshot baselines can be regenerated with `--update=true` (as `e2e:updateSnaps` does). Always attach the value: vitest declares the flag as `-u, --update [type]` (it also accepts `new`/`all`/`none`), so a bare `-u` before a filter swallows the filter as its value and silently runs the **whole** suite in update mode. `--update=true` cannot, so filters stay filters in any position. Note that `-u` only rewrites baselines whose comparison **fails** — a small intended change (e.g. a short text edit) that fits inside the suite's 2% pixel tolerance leaves the baseline stale while the test passes. To force a fresh capture, delete the baseline file first. Baselines are per-browser (`<name>-<browser>-linux.png`); after regenerating, always inspect the images before committing them.
 
 When testing a visual change, prefer writing screenshots to verify that the change is working as expected.
 
