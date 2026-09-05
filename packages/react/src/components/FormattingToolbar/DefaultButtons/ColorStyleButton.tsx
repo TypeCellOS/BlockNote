@@ -105,10 +105,7 @@ export const ColorStyleButton = () => {
         editor.addStyles({ textColor: color });
       }
 
-      setTimeout(() => {
-        // timeout needed to ensure compatibility with Mantine Toolbar useFocusTrap
-        editor.focus();
-      });
+      editor.focus();
     },
     [editor, textColorInSchema],
   );
@@ -127,10 +124,7 @@ export const ColorStyleButton = () => {
         editor.addStyles({ backgroundColor: color });
       }
 
-      setTimeout(() => {
-        // timeout needed to ensure compatibility with Mantine Toolbar useFocusTrap
-        editor.focus();
-      });
+      editor.focus();
     },
     [backgroundColorInSchema, editor],
   );

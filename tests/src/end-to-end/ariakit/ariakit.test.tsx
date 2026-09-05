@@ -1,5 +1,5 @@
 import App from "@examples/01-basic/08-ariakit/src/App";
-import { beforeEach, describe, test } from "vite-plus/test";
+import { beforeEach, describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
 import {
@@ -90,6 +90,32 @@ describe("Check Ariakit UI", () => {
     await expectElement(document.body).toMatchScreenshot(
       "ariakit-drag-handle-menu",
     );
+
+    // The colors submenu opens over the side menu. Menus render inside the
+    // side menu's wrapper, so they paint above its buttons; a menu portalled
+    // elsewhere with Ariakit's own z-index would be covered by the drag handle.
+    await moveMouseOverElement(
+      Array.from(document.querySelectorAll("[role=menuitem]")).find((item) =>
+        item.textContent?.includes("Colors"),
+      )!,
+    );
+    const submenu = await waitForSelector(".bn-color-picker-dropdown");
+    const handle = document
+      .querySelector(DRAG_HANDLE_SELECTOR)!
+      .getBoundingClientRect();
+    const onTop = document.elementFromPoint(
+      handle.x + handle.width / 2,
+      handle.y + handle.height / 2,
+    );
+    const submenuRect = submenu.getBoundingClientRect();
+    const overlaps =
+      handle.x < submenuRect.right &&
+      handle.right > submenuRect.x &&
+      handle.y < submenuRect.bottom &&
+      handle.bottom > submenuRect.y;
+    if (overlaps) {
+      expect(submenu.contains(onTop)).toBe(true);
+    }
   });
   test("Check image toolbar", async () => {
     await focusOnEditor();
