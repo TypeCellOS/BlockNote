@@ -28,6 +28,10 @@ export const Badge = forwardRef<
   // Portal the tooltip into the ambient portal target (a themed `.bn-root`)
   // so it inherits the editor's light/dark color scheme instead of the
   // document body's.
+  // NOTE: Only ShadCN Badge / Tooltip depend on usePortalElement.
+  // Alternative would be to pass a portalElement to these components, but they
+  // would be ignored by ariakit / mantine. For now keep these two exceptions
+  // (ideally skin components don't have a dependency on the editor's context)
   const portalElement = usePortalElement();
 
   const badge = (

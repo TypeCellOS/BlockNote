@@ -68,6 +68,11 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     // Portal the tooltip into the ambient portal target (a themed `.bn-root`)
     // so it inherits the editor's light/dark color scheme instead of the
     // document body's.
+    // NOTE: Only ShadCN Badge / Tooltip depend on usePortalElement.
+    // Alternative would be to pass a portalElement to these components, but they
+    // would be ignored by ariakit / mantine. For now keep these two exceptions
+    // (ideally skin components don't have a dependency on the editor's context)
+
     const portalElement = usePortalElement();
 
     const trigger =
@@ -112,7 +117,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       <ShadCNComponents.Tooltip.Tooltip>
         <ShadCNComponents.Tooltip.TooltipTrigger render={trigger} />
         <ShadCNComponents.Tooltip.TooltipContent
-          container={portalElement ?? undefined}
+          container={portalElement}
           className={"flex flex-col items-center whitespace-pre-wrap"}
         >
           <span>{mainTooltip}</span>
@@ -127,15 +132,20 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, portalElement, ...rest } = props;
+  const {
+    className,
+    items,
+    isDisabled,
+    portalElement,
+    // base-ui manages select focus itself; unlike Mantine there is no focus to
+    // suppress, so this is intentionally unused.
+    preventFocusOnOpen: _preventFocusOnOpen,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
-
-  // Default to the ambient portal target (a themed `.bn-root`) so the dropdown
-  // inherits light/dark mode instead of the body's.
-  const ambientPortalElement = usePortalElement();
 
   // TODO?
   const SelectItemContent = (props: any) => (
@@ -164,7 +174,7 @@ export const ToolbarSelect = forwardRef<
       </ShadCNComponents.Select.SelectTrigger>
       <ShadCNComponents.Select.SelectContent
         className={className}
-        container={portalElement ?? ambientPortalElement ?? undefined}
+        container={portalElement}
         // Position the dropdown below the trigger (classic dropdown behavior)
         // instead of aligning the selected item over the trigger (the Base UI
         // default).

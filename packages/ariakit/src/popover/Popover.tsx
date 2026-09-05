@@ -8,9 +8,7 @@ import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { createContext, forwardRef, useContext } from "react";
 
-const PortalElementContext = createContext<HTMLElement | null | undefined>(
-  undefined,
-);
+const PortalElementContext = createContext<HTMLElement | null>(null);
 
 export const PopoverTrigger = forwardRef<
   HTMLButtonElement,
@@ -40,7 +38,10 @@ export const PopoverContent = forwardRef<
         className || "",
         variant === "panel-popover" ? "bn-ak-panel-popover" : "",
       )}
-      portalElement={portalElement ?? undefined}
+      // Ariakit falls back to a body-appended div for a missing element, so
+      // don't portal at all until there is one (editor not mounted yet).
+      portal={portalElement !== null}
+      portalElement={portalElement}
       ref={ref}
     >
       {children}
@@ -51,8 +52,15 @@ export const PopoverContent = forwardRef<
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
-  const { children, open, onOpenChange, position, portalElement, ...rest } =
-    props;
+  const {
+    children,
+    open,
+    onOpenChange,
+    position,
+    portalElement,
+    preventFocusOnOpen: _preventFocusOnOpen, // unused; see Menu.tsx
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 

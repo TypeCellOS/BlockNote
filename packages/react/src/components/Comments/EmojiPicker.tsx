@@ -17,10 +17,7 @@ export const EmojiPicker = (props: {
   const portalElement = usePortalElement();
 
   return (
-    <Components.Generic.Popover.Root
-      open={open}
-      portalElement={portalElement ?? undefined}
-    >
+    <Components.Generic.Popover.Root open={open} portalElement={portalElement}>
       <Components.Generic.Popover.Trigger>
         <div
           onClick={(event) => {

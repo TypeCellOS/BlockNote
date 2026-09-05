@@ -19,10 +19,6 @@ export const FileReplaceButton = () => {
   const Components = useComponentsContext()!;
   const uiMode = useUIMode();
   const portalElement = usePortalElement();
-  // Only portal (and suppress dropdown focus) in the mobile toolbar; desktop
-  // renders inline with default focus behavior.
-  const dropdownPortalElement =
-    uiMode === "mobile" ? (portalElement ?? undefined) : undefined;
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -73,7 +69,14 @@ export const FileReplaceButton = () => {
           editor.focus();
         }
       }}
-      portalElement={dropdownPortalElement}
+      // Portal the popover into the editor's themed portal target so it
+      // inherits styling and escapes any scroll-container overflow clipping.
+      // On mobile that target is the toolbar's body-level container (see
+      // `MobileFormattingToolbarController`), and `preventFocusOnOpen` stops
+      // focus moving into the popover, which would blur the editor and dismiss
+      // the on-screen keyboard.
+      portalElement={portalElement}
+      preventFocusOnOpen={uiMode === "mobile"}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button

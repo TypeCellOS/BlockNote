@@ -15,9 +15,7 @@ import { createContext, forwardRef, useContext } from "react";
 
 // Threads the `portalElement` override from `Menu` (the provider) down to
 // `MenuDropdown`, where ariakit's `portalElement` prop actually lives.
-const PortalElementContext = createContext<HTMLElement | null | undefined>(
-  undefined,
-);
+const PortalElementContext = createContext<HTMLElement | null>(null);
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
@@ -25,6 +23,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     onOpenChange,
     position,
     portalElement,
+    // ariakit's `virtualFocus` keeps DOM focus on the editor (roving via
+    // `aria-activedescendant`), so there is no focus to suppress here.
+    preventFocusOnOpen: _preventFocusOnOpen,
     sub: _sub, // unused
     ...rest
   } = props;
@@ -63,7 +64,10 @@ export const MenuDropdown = forwardRef<
     <AriakitMenu
       unmountOnHide={true}
       className={mergeCSSClasses("bn-ak-menu", className || "")}
-      portalElement={portalElement ?? undefined}
+      // Ariakit falls back to a body-appended div for a missing element, so
+      // don't portal at all until there is one (editor not mounted yet).
+      portal={portalElement !== null}
+      portalElement={portalElement}
       ref={ref}
     >
       {children}

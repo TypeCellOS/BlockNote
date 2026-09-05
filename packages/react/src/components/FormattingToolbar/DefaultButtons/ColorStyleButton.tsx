@@ -47,10 +47,6 @@ export const ColorStyleButton = () => {
   const dict = useDictionary();
   const uiMode = useUIMode();
   const portalElement = usePortalElement();
-  // Only portal (and suppress dropdown focus) in the mobile toolbar; desktop
-  // renders inline with default focus behavior.
-  const dropdownPortalElement =
-    uiMode === "mobile" ? (portalElement ?? undefined) : undefined;
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -145,14 +141,14 @@ export const ColorStyleButton = () => {
 
   return (
     <Components.Generic.Menu.Root
-      // On mobile, portal the dropdown into the toolbar's themed body-level
-      // container (see `MobileFormattingToolbarController`) so it escapes the
-      // editor's scroll container overflow instead of being clipped, while
-      // staying styled. A set `portalElement` also stops focus moving into the
-      // dropdown, which would blur the editor and dismiss the on-screen
-      // keyboard. On desktop it's `undefined`, keeping the default inline
-      // rendering.
-      portalElement={dropdownPortalElement}
+      // Portal the dropdown into the editor's themed portal target so it
+      // inherits styling and escapes any scroll-container overflow clipping.
+      // On mobile that target is the toolbar's body-level container (see
+      // `MobileFormattingToolbarController`), and `preventFocusOnOpen` stops
+      // focus moving into the dropdown, which would blur the editor and dismiss
+      // the on-screen keyboard.
+      portalElement={portalElement}
+      preventFocusOnOpen={uiMode === "mobile"}
     >
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
