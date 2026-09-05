@@ -11,8 +11,8 @@ export type PortalElement = HTMLElement | string;
  * default UI element flags on `BlockNoteView`.
  *
  * `default` is the fallback used for any element whose key is omitted. If
- * `default` is also omitted, floating UI portals into the editor's
- * `bn-container` element.
+ * `default` is also omitted, floating UI portals into the element wrapping the
+ * editor: its `bn-container`, or what `BlockNoteViewEditor` was rendered into.
  */
 export type PortalElementsMap = {
   default?: PortalElement;
