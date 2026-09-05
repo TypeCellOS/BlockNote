@@ -34,7 +34,7 @@ export const AttributionTooltipController = (props: {
    * Override the DOM node this floating element portals into. Falls back to
    * the ambient portal target when omitted.
    */
-  portalElement?: HTMLElement | null;
+  portalElement?: HTMLElement;
 }) => {
   const state = useExtensionState<typeof AttributionExtension>("attribution", {
     selector: (state) => state,

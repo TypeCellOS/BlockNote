@@ -50,7 +50,7 @@ export function GridSuggestionMenuController<
      * the ambient portal target (the editor's `bn-container` by default)
      * when omitted.
      */
-    portalElement?: HTMLElement | null;
+    portalElement?: HTMLElement;
   } & (ItemType<GetItemsType> extends DefaultReactGridSuggestionItem
     ? {
         // can be undefined

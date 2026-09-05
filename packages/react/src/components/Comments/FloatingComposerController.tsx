@@ -31,10 +31,10 @@ export default function FloatingComposerController<
   floatingUIOptions?: FloatingUIOptions;
   /**
    * Override the DOM node this floating element portals into. Falls back to
-   * the ambient portal target (the editor's `bn-container` by default)
+   * the ambient portal element (the editor's `bn-container` by default)
    * when omitted.
    */
-  portalElement?: HTMLElement | null;
+  portalElement?: HTMLElement;
 }) {
   const editor = useBlockNoteEditor<B, I, S>();
   const dict = useDictionary();

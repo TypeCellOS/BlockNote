@@ -3,9 +3,8 @@
  *
  * - `HTMLElement` — used as-is.
  * - `string` — treated as a CSS selector and resolved via `document.querySelector`.
- * - `null` — explicit `document.body` (escape any ancestor stacking context).
  */
-export type PortalElement = HTMLElement | string | null;
+export type PortalElement = HTMLElement | string;
 
 /**
  * Per-element portal targets for BlockNote's floating UI. Keys mirror the
@@ -36,9 +35,7 @@ export function resolvePortalElement(
   if (target === undefined) {
     return undefined;
   }
-  if (target === null) {
-    return typeof document !== "undefined" ? document.body : undefined;
-  }
+
   if (typeof target === "string") {
     if (typeof document === "undefined") {
       return undefined;

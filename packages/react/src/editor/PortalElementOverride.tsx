@@ -55,7 +55,7 @@ export function usePortalElement(): HTMLElement | null {
  * - `null` — `document.body`, escaping every ancestor.
  */
 export function PortalElementOverride(props: {
-  target?: HTMLElement | null;
+  target?: HTMLElement;
   children?: ReactNode;
 }) {
   const { target, children } = props;
@@ -67,43 +67,36 @@ export function PortalElementOverride(props: {
     typeof document === "undefined" ? null : document.createElement("div"),
   );
 
-  const resolvedTarget =
-    target === null
-      ? typeof document === "undefined"
-        ? undefined
-        : document.body
-      : target;
-
   useIsomorphicLayoutEffect(() => {
-    if (!portalElement || !resolvedTarget) {
+    if (!portalElement || !target) {
       return;
     }
 
-    resolvedTarget.appendChild(portalElement);
+    target.appendChild(portalElement);
     return () => portalElement.remove();
-  }, [portalElement, resolvedTarget]);
+  }, [portalElement, target]);
 
   // React does not render this element, so the same theming the editor
   // container gets from its props is applied here by hand.
   useIsomorphicLayoutEffect(() => {
-    if (!portalElement || !resolvedTarget) {
+    if (!portalElement || !target) {
       return;
     }
 
     applyThemedRoot?.(portalElement);
-  }, [portalElement, resolvedTarget, applyThemedRoot]);
+  }, [portalElement, target, applyThemedRoot]);
 
   // Floating UI portalled out of the editor's DOM tree is still the editor's
   // UI: registering the element keeps `editor.isWithinEditor` (and the focus
   // tracking built on it) true for what renders inside.
   useEffect(() => {
-    if (!portalElement || !resolvedTarget) {
+    if (!portalElement || !target) {
       return;
     }
 
     editor.registerPortalElement(portalElement);
     return () => editor.unregisterPortalElement(portalElement);
-  }, [editor, portalElement, resolvedTarget]);
+  }, [editor, portalElement, target]);
 
   if (target === undefined) {
     return children;

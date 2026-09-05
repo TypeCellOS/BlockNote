@@ -44,7 +44,7 @@ export function SuggestionMenuController<
      * the ambient portal target (the editor's `bn-container` by default)
      * when omitted.
      */
-    portalElement?: HTMLElement | null;
+    portalElement?: HTMLElement;
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
