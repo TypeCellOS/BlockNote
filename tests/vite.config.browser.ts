@@ -42,7 +42,12 @@ const blockNoteSrcAliases = Object.fromEntries(
           path.join(dir, "src"),
         ] as const,
     )
-    .filter(([name]) => name?.startsWith("@blocknote/")),
+    .filter(([name]) => name?.startsWith("@blocknote/"))
+    // xl-typst-compiler resolves via its package exports instead: its `/pkg`
+    // and `/wasm` subpaths point at wasm build outputs that live next to
+    // (not under) src/, which the prefix-replace alias would misdirect.
+    // docker-run.sh mounts its dist/types/pkg alongside src for this.
+    .filter(([name]) => name !== "@blocknote/xl-typst-compiler"),
 );
 
 // The e2e suite is designed to run in a fixed Linux environment (the Playwright

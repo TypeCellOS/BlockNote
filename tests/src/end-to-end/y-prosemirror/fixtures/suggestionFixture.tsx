@@ -348,8 +348,8 @@ function opToXml(op: DeltaInsertOp): string {
   // concurrent merge of two marks), which would otherwise make these
   // snapshots flaky. Sorted ascending => the alphabetically-first mark
   // ends up innermost (e.g. `<italic><bold>world</bold></italic>`).
-  for (const [name, value] of Object.entries(op.format ?? {}).sort(([a], [b]) =>
-    a < b ? -1 : a > b ? 1 : 0,
+  for (const [name, value] of Object.entries(op.format ?? {}).sort(
+    ([a], [b]) => (a < b ? -1 : a > b ? 1 : 0),
   )) {
     if (value !== null && typeof value === "object") {
       // Object value: trivial empty `{}` renders as a bare tag, richer
