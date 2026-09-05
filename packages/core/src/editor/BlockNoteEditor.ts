@@ -719,25 +719,14 @@ export class BlockNoteEditor<
    * Mount the editor to a DOM element.
    *
    * @param element The DOM element to mount the editor's contenteditable into.
-   * @param options.portalElement An element to register as a portal element — a
-   *   convenience for {@link registerPortalElement}, for non-React setups that
-   *   render the editor's floating UI outside the editor's DOM tree, so
-   *   {@link isWithinEditor} recognizes it. An ordinary registration like any
-   *   other: release it with {@link unregisterPortalElement} if ever needed. Not
-   *   needed for UI rendered next to the contenteditable (the mount element's
-   *   parent already counts as within the editor). Prefer a dedicated
-   *   container over e.g. `document.body`, which would make the whole page
-   *   count.
+   *
+   * Floating UI rendered next to the contenteditable counts as within the
+   * editor already; UI rendered outside its DOM tree has to be registered with
+   * {@link registerPortalElement} so {@link isWithinEditor} recognizes it.
    *
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
-  public mount = (
-    element: HTMLElement,
-    options?: { portalElement?: HTMLElement },
-  ) => {
-    if (options?.portalElement) {
-      this.registerPortalElement(options.portalElement);
-    }
+  public mount = (element: HTMLElement) => {
     this._tiptapEditor.mount({ mount: element });
   };
 

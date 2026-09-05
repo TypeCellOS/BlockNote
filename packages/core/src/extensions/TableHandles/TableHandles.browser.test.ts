@@ -60,7 +60,9 @@ const nestedEditorBlock = createBlockSpec(
           },
         ],
       });
-      nestedEditor.mount(dom, { portalElement: document.body });
+      nestedEditor.mount(dom);
+      // The nested editor's UI renders at the body, outside its own DOM tree.
+      nestedEditor.registerPortalElement(document.body);
 
       return { dom, destroy: () => nestedEditor.unmount() };
     },
