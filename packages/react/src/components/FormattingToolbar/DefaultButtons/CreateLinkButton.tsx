@@ -14,6 +14,7 @@ import {
 } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { usePortalElement } from "../../../editor/PortalElementOverride.js";
 import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../../hooks/useEditorDomElement.js";
@@ -47,6 +48,7 @@ export const CreateLinkButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
   const uiMode = useUIMode();
+  const portalElement = usePortalElement();
 
   const formattingToolbar = useExtension(FormattingToolbarExtension);
   // eslint-disable-next-line @typescript-eslint/unbound-method -- showSelection is a plain object method, not a class method
@@ -130,13 +132,14 @@ export const CreateLinkButton = () => {
     <Components.Generic.Popover.Root
       open={showPopover}
       onOpenChange={setPopoverOpen}
-      // On mobile the formatting toolbar scrolls horizontally, which clips the
-      // inline popover. Portalling it to `editor.portalElement` escapes that
-      // clip; a set `portalRoot` also stops focus moving into the popover, which
-      // would blur the editor and dismiss the on-screen keyboard. On desktop
-      // there's no such clipping, so we keep the default inline rendering. See
-      // `MobileFormattingToolbarController`.
-      portalRoot={uiMode === "mobile" ? editor.portalElement : undefined}
+      // Portal the popover into the editor's themed portal target so it
+      // inherits styling and escapes any scroll-container overflow clipping.
+      // On mobile that target is the toolbar's body-level container (see
+      // `MobileFormattingToolbarController`), and `preventFocusOnOpen` stops
+      // focus moving into the popover, which would blur the editor and dismiss
+      // the on-screen keyboard.
+      portalElement={portalElement}
+      preventFocusOnOpen={uiMode === "mobile"}
     >
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}

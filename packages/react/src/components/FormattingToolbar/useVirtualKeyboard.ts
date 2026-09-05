@@ -7,6 +7,39 @@ import { useLayoutEffect, useState } from "react";
 let maxLayoutViewportHeight = 0;
 let baselineLayoutWidth = 0;
 
+// Set once we've checked the viewport meta tag, so the warning below fires at
+// most once per page rather than on every editor mount.
+let hasCheckedViewportMeta = false;
+
+/**
+ * Warns (once) if the page's viewport meta tag is missing
+ * `interactive-widget=resizes-content`. Without it, browsers shrink only the
+ * visual viewport when the on-screen keyboard opens, so the mobile Formatting
+ * Toolbar (and other `position: fixed` UI) can end up hidden behind the
+ * keyboard. See https://www.blocknotejs.org/docs/getting-started#mobile-compatibility
+ */
+function warnIfViewportMetaMisconfigured() {
+  if (hasCheckedViewportMeta || typeof document === "undefined") {
+    return;
+  }
+  hasCheckedViewportMeta = true;
+
+  const content =
+    document.querySelector('meta[name="viewport"]')?.getAttribute("content") ??
+    "";
+
+  // Strip whitespace so `initial-scale=1, interactive-widget=resizes-content`
+  // (and any stray spaces) still match.
+  if (
+    !content.replace(/\s/g, "").includes("interactive-widget=resizes-content")
+  ) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[BlockNote] This page's viewport meta tag is missing "interactive-widget=resizes-content" in its content attribute. Add it to ensure proper mobile functionality, e.g. <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">. See https://www.blocknotejs.org/docs/getting-started#mobile-compatibility for more information`,
+    );
+  }
+}
+
 /**
  * Whether the on-screen keyboard is open, from the current visual viewport. We
  * compare `height * scale` — the zoom-invariant layout-equivalent height, so
@@ -60,14 +93,15 @@ function isVirtualKeyboardOpen(): boolean {
  *
  * For the smoother "pinned scroll container" layout, the host app opts in by
  * adding the `bn-scroll-container` class to the element wrapping its page
- * content — the matching styles (and the document scroll lock) live in
- * `editor/styles.css`, keyed off that class and the `--bn-vv-*` variables this
- * hook publishes.
+ * content — the matching styles live in `editor/styles.css`, keyed off that
+ * class and the `--bn-vv-*` variables this hook publishes.
  */
 export function useVirtualKeyboard(): boolean {
   const [open, setOpen] = useState(isVirtualKeyboardOpen);
 
   useLayoutEffect(() => {
+    warnIfViewportMetaMisconfigured();
+
     const html = document.documentElement;
 
     const vp = window.visualViewport;
@@ -87,8 +121,7 @@ export function useVirtualKeyboard(): boolean {
     };
     update();
 
-    // Fire on keyboard open/close, zoom/pan, and (unless the document is locked
-    // via CSS) content scroll.
+    // Fire on keyboard open/close, zoom/pan, and content scroll.
     vp?.addEventListener("resize", update);
     vp?.addEventListener("scroll", update);
     window.addEventListener("resize", update);

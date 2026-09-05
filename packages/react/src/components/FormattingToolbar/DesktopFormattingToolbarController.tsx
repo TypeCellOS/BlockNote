@@ -13,6 +13,7 @@ import { FC, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { PositionPopover } from "../Popovers/PositionPopover.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
@@ -38,10 +39,10 @@ export const DesktopFormattingToolbarController = (props: {
   floatingUIOptions?: FloatingUIOptions;
   /**
    * Override the DOM node this floating element portals into. Falls back to
-   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * the ambient portal element (the editor's `bn-container` by default)
    * when omitted.
    */
-  portalElement?: HTMLElement | null;
+  portalElement?: HTMLElement;
 }) => {
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -118,12 +119,10 @@ export const DesktopFormattingToolbarController = (props: {
   const Component = props.formattingToolbar || FormattingToolbar;
 
   return (
-    <PositionPopover
-      position={position}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {show && <Component />}
-    </PositionPopover>
+    <PortalElementOverride target={props.portalElement}>
+      <PositionPopover position={position} {...floatingUIOptions}>
+        {show && <Component />}
+      </PositionPopover>
+    </PortalElementOverride>
   );
 };
