@@ -7,6 +7,33 @@ description: Instructions for writing, running, and updating unit/end-to-end tes
 
 In most cases, once a feature, bug fix, or other modification has been written, it will need to have tests added, or existing tests updated.
 
+## The test-layer ladder
+
+Six layers, ordered by cost (speed, determinism, machinery). Prefer the highest workable rung:
+
+1. **Unit tests** — node, colocated in `packages/*` (`vp run test`)
+2. **Browser unit tests** — colocated `*.browser.test.{ts,tsx}`: one unit that genuinely needs real DOM/rendering
+3. **Cross-package integration tests** — node, `tests/src/unit`: full documents through real pipelines (parsing, format conversion, export)
+4. **Browser e2e** — `tests/src/end-to-end`: UI flows in real browsers (Docker)
+5. **Mobile-emulated e2e** — `end-to-end/mobile/**` and the suites on the `android` instance: only for behavior that differs under mobile conditions (touch, viewport, UA, emulated IME). One restriction: suites here must not take iframe-element screenshots (`screenshotFull`) — that path permanently drops the context's touch emulation for every later test file (see `utils/ensureTouchEmulation.ts`), so such suites stay out of the android instance's include
+6. **Device suite** — _parked_: a real emulator/simulator suite (one session interface, Android via Playwright `_android` + adb, iOS via Appium/XCUITest) lives on the `mobile/emulator-layer` branch (PR #3034). It left the active stack because every fix it guarded is red-first provable on the emulated instance; revive it only for a bug class that emulation demonstrably cannot observe (the IME's own action-key choice, real-keyboard viewport resize, real iOS Safari focus/zoom) — until then those are the manual checklist below.
+
+**One rule decides placement: red-first.** Every test must fail without the change it guards — a test that passes either way proves nothing, and for regression fixes this means actually running it against the pre-fix code. Red-first also _places_ the test: write it at the highest rung where it goes red. If the failure isn't observable there (the rung's environment fakes away the very thing that breaks), move down one rung and try again. Once it goes red, stop — rungs below add cost, not proof.
+
+Corollaries:
+
+- **No duplicate coverage below.** Behavior proven red at rung N is not re-tested at N+1. One narrow exception: when a rung works by faking something (CDP-emulated IME, touch emulation), a single thin test one rung down may pin that the fake matches reality — it guards the _fake_, not the feature.
+- **Bulk lives high, lower rungs stay thin.** Layers 1–4 hold the breadth; layer 5 holds only mobile-conditional behavior.
+- **When a rung can't observe the OS's half of a bug, say so in the test.** Example: `mobile/linkSubmit.test.tsx` proves submission works with no key event, and its header documents the un-emulatable half (which action the IME chooses) — that half lives on the manual checklist, visible where the coverage stops.
+- Rungs 2 and 3 order by colocation, not machinery cost — a browser unit test needs heavier machinery than a node integration test, but it lives next to the unit it covers, and colocation wins. They are rarely substitutes anyway: if the code needs no browser, use 1 or 3; if one unit needs a browser, use 2.
+
+## Mobile release checklist (manual)
+
+The device-only behaviors above, checked on real hardware before a release:
+
+- **Android phone** (ideally with an OEM keyboard, e.g. Samsung Keyboard): create a link from an editor that is _not_ the last on the page — the keyboard's action key must submit the popover (not jump focus to the next editor), with the keyboard and toolbar staying up. Then type in the editor and press the on-screen Enter: a new block, no stray space or table corruption.
+- **iOS Safari**: open the link popover — focusing the URL input must not zoom the page; submit with the return key.
+
 ## Test File Locations
 
 ### Unit Tests
@@ -27,11 +54,7 @@ In most cases, once a feature, bug fix, or other modification has been written, 
 
 ## When & How to Add Tests
 
-In general, we expect a change in code to result in failing test cases. If this does not happen, tests should be added and checked to ensure they pass with the code changes while failing without them.
-
-However, this may not be true when adding edge case handling or a new feature, where existing tests may all continue to pass. In this case, tests should be added as necessary to cover all of the new functionality. We should still ensure that the new tests pass with the new code changes while failing without them.
-
-We want to avoid adding end-to-end tests where it's possible to use unit tests instead.
+Placement and proof obligations are governed by the ladder above: pick the rung red-first, and verify every new test fails without the code change it covers (for edge cases and new features too — existing tests continuing to pass is exactly the situation that demands new red-first ones).
 
 **Don't use jsdom** (`@vitest-environment jsdom`) in new tests. It's a murky middle ground — `document` exists but rendering doesn't — which makes browser-capability checks pass while the capability itself is broken. Use the default node environment with pluggable seams for logic, and the browser suite (`tests/src/end-to-end`, vitest browser mode in Docker) for anything that needs real rendering.
 
