@@ -13,9 +13,9 @@ import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { createContext, forwardRef, useContext } from "react";
 
-// Threads the `portalElement` override from `Menu` (the provider) down to
-// `MenuDropdown`, where ariakit's `portalElement` prop actually lives.
-const PortalElementContext = createContext<HTMLElement | null>(null);
+// Hands the `portalElement` prop from `Menu` (the root) down to
+// `MenuDropdown`, where Ariakit takes it.
+const MenuPortalElementContext = createContext<HTMLElement | null>(null);
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
@@ -38,9 +38,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       setOpen={onOpenChange}
       virtualFocus={true}
     >
-      <PortalElementContext.Provider value={portalElement}>
+      <MenuPortalElementContext.Provider value={portalElement}>
         {children}
-      </PortalElementContext.Provider>
+      </MenuPortalElementContext.Provider>
     </AriakitMenuProvider>
   );
 };
@@ -58,7 +58,7 @@ export const MenuDropdown = forwardRef<
 
   assertEmpty(rest);
 
-  const portalElement = useContext(PortalElementContext);
+  const portalElement = useContext(MenuPortalElementContext);
 
   return (
     <AriakitMenu

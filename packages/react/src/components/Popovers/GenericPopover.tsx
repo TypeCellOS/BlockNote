@@ -14,7 +14,11 @@ import {
 } from "@floating-ui/react";
 import { HTMLAttributes, ReactNode, useEffect, useRef } from "react";
 
-import { usePortalElement } from "../../editor/PortalElementOverride.js";
+import {
+  hasChildrenBesidesPortalElementAnchor,
+  PortalElementAnchor,
+  usePortalElement,
+} from "../../editor/PortalElementOverride.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
 
@@ -212,7 +216,13 @@ export const GenericPopover = (
   useEffect(
     () => {
       if (status === "initial" || status === "open") {
-        if (ref.current?.innerHTML) {
+        // Only store while the children have rendered something. In the
+        // render where a controller flips `open` to `false`, its children are
+        // typically already gone while `status` is still "open", and that
+        // empty state must not replace the snapshot the closing popover is
+        // about to show. The wrapper is never truly empty though: it always
+        // contains the `PortalElementAnchor` holder.
+        if (ref.current && hasChildrenBesidesPortalElementAnchor(ref.current)) {
           innerHTML.current = ref.current.innerHTML;
         }
       }
@@ -261,12 +271,20 @@ export const GenericPopover = (
     );
   }
 
+  // The children render inside a `PortalElementAnchor`: the menus and popovers
+  // they open portal into this wrapper instead of the editor container, so
+  // they share its stacking context and visibility (they paint above what the
+  // wrapper paints above, and hide when it hides) and move with it when
+  // `portalElements` relocates it. Rendering them inline instead would clip
+  // them to the toolbar, or, on iOS, to a scrolling one. See
+  // `PortalElementAnchor` for the details; behaviour is pinned by
+  // `tests/src/end-to-end/portals/floatingComponentMenus.test.tsx`.
   if (!props.focusManagerProps?.disabled) {
     return (
       <FloatingPortal root={portalElement}>
         <FloatingFocusManager {...props.focusManagerProps} context={context}>
           <div ref={mergedRefs} {...mergedProps}>
-            {props.children}
+            <PortalElementAnchor>{props.children}</PortalElementAnchor>
           </div>
         </FloatingFocusManager>
       </FloatingPortal>
@@ -276,7 +294,7 @@ export const GenericPopover = (
   return (
     <FloatingPortal root={portalElement}>
       <div ref={mergedRefs} {...mergedProps}>
-        {props.children}
+        <PortalElementAnchor>{props.children}</PortalElementAnchor>
       </div>
     </FloatingPortal>
   );

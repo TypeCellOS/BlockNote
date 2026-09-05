@@ -216,13 +216,14 @@ on touch devices (e.g. the mobile formatting toolbar). */
   height: 40px;
 }
 
-.bn-toolbar .mantine-Menu-item {
+/* Menus are portalled into the editor container, so they can't be styled
+   through the toolbar, side menu or table handle that opened them; scope on
+   the dropdowns themselves instead. */
+.bn-mantine .bn-select .mantine-Menu-item,
+.bn-mantine .bn-menu-dropdown .mantine-Menu-item,
+.bn-mantine .bn-table-handle-menu .mantine-Menu-item {
   font-size: 12px;
   height: 30px;
-}
-
-.bn-toolbar .mantine-Menu-item:hover {
-  background-color: var(--bn-colors-hovered-background);
 }
 
 .bn-mantine .bn-form-popover {
@@ -507,12 +508,6 @@ on touch devices (e.g. the mobile formatting toolbar). */
   overflow: visible;
 }
 
-.bn-side-menu .mantine-Menu-item,
-.bn-table-handle-menu .mantine-Menu-item {
-  font-size: 12px;
-  height: 30px;
-}
-
 .bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) {
   background-color: transparent;
 }
@@ -532,10 +527,8 @@ on touch devices (e.g. the mobile formatting toolbar). */
   display: flex;
 }
 
-.bn-side-menu .mantine-Menu-dropdown {
+.bn-mantine .bn-drag-handle-menu {
   min-width: 100px;
-  padding: 2px;
-  position: absolute;
 }
 
 /* Image Panel styling*/
@@ -747,10 +740,6 @@ on touch devices (e.g. the mobile formatting toolbar). */
   background-color: var(--bn-colors-disabled-background);
   border: none;
   color: var(--bn-colors-disabled-text);
-}
-
-.bn-mantine .bn-action-toolbar .mantine-Menu-itemLabel {
-  font-size: 12px;
 }
 
 /* Badge styling */
