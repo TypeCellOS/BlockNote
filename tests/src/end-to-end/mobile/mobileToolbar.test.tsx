@@ -5,7 +5,6 @@ import { render } from "vitest-browser-react";
 import { page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
 import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
-import { ensureTouchEmulation } from "../../utils/ensureTouchEmulation.js";
 
 const MOBILE_TOOLBAR_SELECTOR = ".bn-mobile-formatting-toolbar";
 const LINK_POPOVER_SELECTOR = ".bn-form-popover";
@@ -41,7 +40,6 @@ function activeUrlInput() {
 }
 
 beforeEach(async () => {
-  ensureTouchEmulation();
   await page.viewport(VIEWPORT_WIDTH, KEYBOARD_CLOSED);
   await render(<App />);
   await waitForSelector(EDITOR_SELECTOR);

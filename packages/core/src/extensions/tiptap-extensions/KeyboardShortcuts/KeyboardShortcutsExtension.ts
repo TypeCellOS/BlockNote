@@ -1,6 +1,7 @@
 import { Extension } from "@tiptap/core";
 import { Fragment, Node } from "prosemirror-model";
-import { TextSelection } from "prosemirror-state";
+import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
+import type { EditorView } from "prosemirror-view";
 
 import {
   getBottomNestedBlockInfo,
@@ -22,14 +23,97 @@ import {
   getBlockInfoFromSelection,
 } from "../../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { isAndroid } from "../../../util/browser.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
+
+/**
+ * Runs the keymap chain for an Enter that never reached it (see the
+ * `blockNoteAndroidEnter` plugin below): flushes pending DOM observations
+ * first, then dispatches a synthesized Enter keydown through
+ * `handleKeyDown`.
+ */
+function dispatchSynthesizedEnter(view: EditorView, shiftKey: boolean): void {
+  (
+    view as EditorView & {
+      domObserver: { forceFlush(): void };
+    }
+  ).domObserver.forceFlush();
+  view.someProp("handleKeyDown", (handler) =>
+    handler(
+      view,
+      new KeyboardEvent("keydown", {
+        key: "Enter",
+        code: "Enter",
+        shiftKey,
+      }),
+    ),
+  );
+}
 
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
   tabBehavior: "prefer-navigate-ui" | "prefer-indent";
 }>({
   priority: 50,
+
+  addProseMirrorPlugins() {
+    return [
+      // On Android, Enter never reaches the keymap: the IME delivers it as a
+      // `beforeinput` (the keydown is keyCode 229), and prosemirror-view
+      // additionally ignores Enter keydowns on Android Chrome. ProseMirror's
+      // fallback — parsing the browser's native DOM split and synthesizing an
+      // Enter key event — fails to recognize the split in BlockNote's nested
+      // block DOM and corrupts the document instead (Enter inserting a space,
+      // doing nothing, or breaking tables — TypeCellOS/BlockNote#3001).
+      // Intercepting the `beforeinput` and running the keymap chain directly
+      // bypasses the fragile DOM diffing entirely.
+      new Plugin({
+        key: new PluginKey("blockNoteAndroidEnter"),
+        props: {
+          // Runs the keymap chain for an Enter that prosemirror-view's
+          // Android keydown bail skipped, with the parity that bail also
+          // skips: force-flushing pending DOM observations (including
+          // selection changes) before running key handlers — without it the
+          // synthesized Enter can run against a stale selection (e.g. a
+          // just-made cross-block selection that hasn't synced yet).
+          handleKeyPress: (view, event) => {
+            // A keypress for Enter only happens off a hardware/synthetic
+            // keyboard (the IME path is keyCode 229 + `beforeinput`, no
+            // keypress — handled below). prosemirror-view's own keypress
+            // handler would cancel the browser default for cross-block
+            // selections without doing anything (its cross-parent branch
+            // calls preventDefault but skips newline characters), turning
+            // Enter into a silent no-op — so take over before it runs.
+            if (!isAndroid() || view.composing || event.key !== "Enter") {
+              return false;
+            }
+            dispatchSynthesizedEnter(view, event.shiftKey);
+            return true;
+          },
+          handleDOMEvents: {
+            beforeinput: (view, event) => {
+              if (!isAndroid() || view.composing) {
+                return false;
+              }
+              if (
+                event.inputType !== "insertParagraph" &&
+                event.inputType !== "insertLineBreak"
+              ) {
+                return false;
+              }
+              event.preventDefault();
+              dispatchSynthesizedEnter(
+                view,
+                event.inputType === "insertLineBreak",
+              );
+              return true;
+            },
+          },
+        },
+      }),
+    ];
+  },
 
   // TODO: The shortcuts need a refactor. Do we want to use a command priority
   //  design as there is now, or clump the logic into a single function?

@@ -1,5 +1,7 @@
 import { afterEach, beforeAll, beforeEach } from "vite-plus/test";
-import { page } from "vite-plus/test/browser";
+import { commands, page } from "vite-plus/test/browser";
+
+import { ensureTouchEmulation } from "./src/utils/ensureTouchEmulation.js";
 
 // Browser-mode setup. Unlike the jsdom `vitestSetup.ts`, we don't mock
 // ClipboardEvent/DragEvent/matchMedia here — the real browser provides them.
@@ -14,7 +16,15 @@ import { page } from "vite-plus/test/browser";
 // resizes that iframe. Run before all tests in the file so every test sees the
 // right size from the first render.
 beforeAll(async () => {
-  await page.viewport(1280, 720);
+  // On the android instance the outer window is a 393x727 phone (provider
+  // contextOptions) — the iframe must match it exactly. A larger iframe gets
+  // scaled down by the harness's fit-to-window transform, so captures come
+  // out phone-*sized* but contain a shrunken desktop-width layout.
+  if (/android/i.test(navigator.userAgent)) {
+    await page.viewport(393, 727);
+  } else {
+    await page.viewport(1280, 720);
+  }
 
   // Match the playground's editor framing so screenshots line up with what
   // users see at https://www.blocknotejs.org/examples (max-width 731px,
@@ -23,6 +33,24 @@ beforeAll(async () => {
   const style = document.createElement("style");
   style.textContent = `.bn-container { max-width: 731px; margin: 0 auto; padding-top: 8px; }`;
   document.head.appendChild(style);
+});
+
+// Chromium's beyond-viewport screenshot capture (any `toMatchScreenshot` of
+// an element taller than the viewport — Playwright sends
+// `captureBeyondViewport: true`) can silently drop the context's touch
+// emulation for every later test. Before every test on the android instance:
+// re-arm the emulation, then assert it actually holds — the assert is what
+// catches the deeper failure class where the *mechanism* breaks (provider
+// contextOptions silently ignored, a vitest upgrade rewiring the provider,
+// this very command regressing). No suite needs to call
+// `ensureTouchEmulation` itself.
+beforeEach(async () => {
+  if (/android/i.test(navigator.userAgent)) {
+    await (
+      commands as unknown as { restoreTouchEmulation(): Promise<void> }
+    ).restoreTouchEmulation();
+    ensureTouchEmulation();
+  }
 });
 
 beforeEach(() => {
