@@ -15,7 +15,9 @@ export default defineConfig(
               { auto: true },
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
-            output: ["dist/**", "!dist/*.tsbuildinfo"],
+            // `types/**` must be declared too: a cache replay that restores only
+            // dist/ leaves consumers without declarations (tsc is skipped).
+            output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
           },
         },
       },
@@ -59,9 +61,9 @@ export default defineConfig(
                   __dirname,
                   "../xl-odt-exporter/src/",
                 ),
-                "@blocknote/xl-pdf-exporter": path.resolve(
+                "@blocknote/xl-typst-exporter": path.resolve(
                   __dirname,
-                  "../xl-pdf-exporter/src/",
+                  "../xl-typst-exporter/src/",
                 ),
               } as Record<string, string>),
       },
@@ -78,13 +80,13 @@ export default defineConfig(
               __dirname,
               "src/odt-exporter/index.ts",
             ),
-            "pdf-exporter": path.resolve(
-              __dirname,
-              "src/pdf-exporter/index.tsx",
-            ),
             "email-exporter": path.resolve(
               __dirname,
               "src/email-exporter/index.tsx",
+            ),
+            "typst-exporter": path.resolve(
+              __dirname,
+              "src/typst-exporter/index.ts",
             ),
           },
           name: "blocknote-diagram-block",

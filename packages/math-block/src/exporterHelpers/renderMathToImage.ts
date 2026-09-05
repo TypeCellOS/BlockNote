@@ -49,8 +49,7 @@ const TEX_PACKAGES = [
 // MathJax (rather than KaTeX, which the math block itself renders with) is
 // used for image-based export: its SVG output is self-contained paths, so it
 // rasterizes without needing the KaTeX webfonts. `mathjax-full` is an
-// optional peer dependency - when exporting math to PDF it's already
-// installed transitively via `@react-pdf/math`.
+// optional peer dependency, needed only for these image-based exports.
 let mathDocument: ReturnType<typeof mathjax.document> | undefined;
 let documentAdaptor: ReturnType<typeof liteAdaptor> | undefined;
 

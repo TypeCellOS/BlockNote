@@ -19,12 +19,14 @@
     "@zip.js/zip.js": "^2.8.8",
     "typescript": "^7.0.2",
     "vite-plus": "catalog:",
-    "xml-formatter": "^3.6.7"
+    "xml-formatter": "^3.6.7",
+    "@blocknote/xl-typst-compiler": "workspace:^"
   },
   "peerDependencies": {
     "@zip.js/zip.js": "^2.8.8",
     "image-meta": "^0.2.1",
-    "xml-formatter": "^3.6.7"
+    "xml-formatter": "^3.6.7",
+    "@blocknote/xl-typst-compiler": "workspace:^"
   },
   "peerDependenciesMeta": {
     "@zip.js/zip.js": {
@@ -34,6 +36,9 @@
       "optional": true
     },
     "xml-formatter": {
+      "optional": true
+    },
+    "@blocknote/xl-typst-compiler": {
       "optional": true
     }
   }
