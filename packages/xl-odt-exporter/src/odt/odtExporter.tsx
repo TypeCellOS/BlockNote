@@ -9,6 +9,7 @@ import {
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
+import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
 import { loadFileBuffer } from "@shared/util/fileUtil.js";
 import { getImageDimensions } from "@shared/util/imageUtil.js";
 import { BlobReader, BlobWriter, TextReader, ZipWriter } from "@zip.js/zip.js";
@@ -72,6 +73,9 @@ export class ODTExporter<
   ) {
     const defaults = {
       colors: COLORS_DEFAULT,
+      // Proxy cross-origin image fetches so any host works in the browser, not
+      // only CORS-enabled ones (mirrors the pdf/docx exporters).
+      resolveFileUrl: corsProxyResolveFileUrl,
     } satisfies Partial<ExporterOptions>;
 
     super(schema, mappings, { ...defaults, ...options });
@@ -104,8 +108,17 @@ export class ODTExporter<
     const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);
 
+    // A hard line break (shift+enter) arrives as "\n" inside the text. ODF
+    // collapses raw whitespace, so explicit <text:line-break/> elements are
+    // emitted between the lines instead (same as the code block mapping).
+    const text = styledText.text
+      .split("\n")
+      .flatMap((line, index) =>
+        index === 0 ? [line] : [<text:line-break key={index} />, line],
+      );
+
     if (Object.keys(styles).length === 0) {
-      return styledText.text;
+      return text;
     }
 
     // Like `registerStyle`, identical style combinations are deduplicated -
@@ -125,7 +138,7 @@ export class ODTExporter<
       this.registeredStyleNames.set(key, styleName);
     }
 
-    return <text:span text:style-name={styleName}>{styledText.text}</text:span>;
+    return <text:span text:style-name={styleName}>{text}</text:span>;
   }
 
   public async transformBlocks(
