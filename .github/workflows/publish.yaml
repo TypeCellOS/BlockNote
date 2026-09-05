@@ -42,6 +42,10 @@ jobs:
       - name: Prebuild
         run: cp README.md packages/core/README.md && cp README.md packages/react/README.md
 
+      # `vp run -r build` includes @blocknote/xl-typst-compiler, whose build
+      # task compiles its Rust wasm (published inside the package as pkg/);
+      # rustup auto-provisions the pinned toolchain from
+      # rust/rust-toolchain.toml.
       - name: Build packages
         run: vp run -r build
 

@@ -14,7 +14,11 @@ import {
 } from "@floating-ui/react";
 import { HTMLAttributes, ReactNode, useEffect, useRef } from "react";
 
-import { useEditorPortalElement } from "../../editor/EditorPortalProvider.js";
+import {
+  hasChildrenBesidesPortalElementAnchor,
+  PortalElementAnchor,
+  usePortalElement,
+} from "../../editor/PortalElementOverride.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
 
@@ -120,12 +124,12 @@ export const GenericPopover = (
   },
 ) => {
   const editor = useBlockNoteEditor();
-  // The ambient portal root — always a resolved, themed, registered root, as
-  // `EditorPortalContext` is only ever provided by `EditorPortalProvider` (the default from
+  // The ambient portal element — always a resolved, themed, registered root, as
+  // `EditorPortalContext` is only ever provided by `PortalElementOverride` (the default from
   // `BlockNoteView`, or a controller's / the mobile toolbar's override).
   // `null` during SSR and for the frame before resolution — handled after the
   // hooks below.
-  const editorPortalElement = useEditorPortalElement();
+  const portalElement = usePortalElement();
   const {
     whileElementsMounted: _whileElementsMounted,
     middleware,
@@ -206,7 +210,13 @@ export const GenericPopover = (
   useEffect(
     () => {
       if (status === "initial" || status === "open") {
-        if (ref.current?.innerHTML) {
+        // Only store while the children have rendered something. In the
+        // render where a controller flips `open` to `false`, its children are
+        // typically already gone while `status` is still "open", and that
+        // empty state must not replace the snapshot the closing popover is
+        // about to show. The wrapper is never truly empty though: it always
+        // contains the `PortalElementAnchor` holder.
+        if (ref.current && hasChildrenBesidesPortalElementAnchor(ref.current)) {
           innerHTML.current = ref.current.innerHTML;
         }
       }
@@ -216,7 +226,7 @@ export const GenericPopover = (
     [status, props.reference, props.children],
   );
 
-  if (!isMounted || !editorPortalElement) {
+  if (!isMounted || !portalElement) {
     return false;
   }
 
@@ -245,7 +255,7 @@ export const GenericPopover = (
     // should be open. So without this fix, the popover just won't transition
     // out and will instead appear to hide instantly.
     return (
-      <FloatingPortal root={editorPortalElement}>
+      <FloatingPortal root={portalElement}>
         <div
           ref={mergedRefs}
           {...mergedProps}
@@ -255,12 +265,20 @@ export const GenericPopover = (
     );
   }
 
+  // The children render inside a `PortalElementAnchor`: the menus and popovers
+  // they open portal into this wrapper instead of the editor container, so
+  // they share its stacking context and visibility (they paint above what the
+  // wrapper paints above, and hide when it hides) and move with it when
+  // `portalElements` relocates it. Rendering them inline instead would clip
+  // them to the toolbar, or, on iOS, to a scrolling one. See
+  // `PortalElementAnchor` for the details; behaviour is pinned by
+  // `tests/src/end-to-end/portals/floatingComponentMenus.test.tsx`.
   if (!props.focusManagerProps?.disabled) {
     return (
-      <FloatingPortal root={editorPortalElement}>
+      <FloatingPortal root={portalElement}>
         <FloatingFocusManager {...props.focusManagerProps} context={context}>
           <div ref={mergedRefs} {...mergedProps}>
-            {props.children}
+            <PortalElementAnchor>{props.children}</PortalElementAnchor>
           </div>
         </FloatingFocusManager>
       </FloatingPortal>
@@ -268,9 +286,9 @@ export const GenericPopover = (
   }
 
   return (
-    <FloatingPortal root={editorPortalElement}>
+    <FloatingPortal root={portalElement}>
       <div ref={mergedRefs} {...mergedProps}>
-        {props.children}
+        <PortalElementAnchor>{props.children}</PortalElementAnchor>
       </div>
     </FloatingPortal>
   );
