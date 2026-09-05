@@ -17,15 +17,14 @@ const editors: BlockNoteEditor[] = [];
 // No Yjs/collaboration needed — the extension's load plugin only cares that a
 // transaction adds a `y-attributed-*` mark, which we do directly below.
 function createEditor() {
-  const resolveUsers = vi.fn(
-    async (ids: string[]): Promise<User[]> =>
-      ids.map((id) => ({
-        id,
-        username: `name-${id}`,
-        avatarUrl: "",
-        color: "#123456",
-        colorLight: "#abcdef",
-      })),
+  const resolveUsers = vi.fn(async (ids: string[]): Promise<User[]> =>
+    ids.map((id) => ({
+      id,
+      username: `name-${id}`,
+      avatarUrl: "",
+      color: "#123456",
+      colorLight: "#abcdef",
+    })),
   );
 
   const editor = BlockNoteEditor.create({
