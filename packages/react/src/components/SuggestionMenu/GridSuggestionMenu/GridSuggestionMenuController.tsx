@@ -47,7 +47,7 @@ export function GridSuggestionMenuController<
     floatingUIOptions?: FloatingUIOptions;
     /**
      * Override the DOM node this floating element portals into. Falls back to
-     * the ambient portal target (the editor's `bn-container` by default)
+     * the ambient portal target (the element wrapping the editor by default)
      * when omitted.
      */
     portalElement?: HTMLElement;
