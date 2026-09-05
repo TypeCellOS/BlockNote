@@ -14,6 +14,7 @@ import {
 } from "@floating-ui/react";
 import { HTMLAttributes, ReactNode, useEffect, useRef } from "react";
 
+import { useEditorPortalElement } from "../../editor/EditorPortalProvider.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
 
@@ -116,23 +117,15 @@ export const GenericPopover = (
   props: FloatingUIOptions & {
     reference?: GenericPopoverReference;
     children: ReactNode;
-    /**
-     * Override the DOM node this popover portals into. If omitted, falls back
-     * to `editor.portalElement`.
-     */
-    portalElement?: HTMLElement | null;
   },
 ) => {
   const editor = useBlockNoteEditor();
-  const portalRoot =
-    props.portalElement === null
-      ? typeof document !== "undefined"
-        ? document.body
-        : undefined
-      : (props.portalElement ?? editor?.portalElement);
-  if (!portalRoot) {
-    throw new Error("Portal element not found");
-  }
+  // The ambient portal root — always a resolved, themed, registered root, as
+  // `EditorPortalContext` is only ever provided by `EditorPortalProvider` (the default from
+  // `BlockNoteView`, or a controller's / the mobile toolbar's override).
+  // `null` during SSR and for the frame before resolution — handled after the
+  // hooks below.
+  const editorPortalElement = useEditorPortalElement();
   const {
     whileElementsMounted: _whileElementsMounted,
     middleware,
@@ -223,7 +216,7 @@ export const GenericPopover = (
     [status, props.reference, props.children],
   );
 
-  if (!isMounted) {
+  if (!isMounted || !editorPortalElement) {
     return false;
   }
 
@@ -252,7 +245,7 @@ export const GenericPopover = (
     // should be open. So without this fix, the popover just won't transition
     // out and will instead appear to hide instantly.
     return (
-      <FloatingPortal root={portalRoot}>
+      <FloatingPortal root={editorPortalElement}>
         <div
           ref={mergedRefs}
           {...mergedProps}
@@ -264,7 +257,7 @@ export const GenericPopover = (
 
   if (!props.focusManagerProps?.disabled) {
     return (
-      <FloatingPortal root={portalRoot}>
+      <FloatingPortal root={editorPortalElement}>
         <FloatingFocusManager {...props.focusManagerProps} context={context}>
           <div ref={mergedRefs} {...mergedProps}>
             {props.children}
@@ -275,7 +268,7 @@ export const GenericPopover = (
   }
 
   return (
-    <FloatingPortal root={portalRoot}>
+    <FloatingPortal root={editorPortalElement}>
       <div ref={mergedRefs} {...mergedProps}>
         {props.children}
       </div>

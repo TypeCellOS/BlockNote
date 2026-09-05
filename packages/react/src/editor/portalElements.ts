@@ -5,34 +5,33 @@
  * - `string` — treated as a CSS selector and resolved via `document.querySelector`.
  * - `null` — explicit `document.body` (escape any ancestor stacking context).
  */
-export type PortalTarget = HTMLElement | string | null;
+export type PortalElement = HTMLElement | string | null;
 
 /**
  * Per-element portal targets for BlockNote's floating UI. Keys mirror the
  * default UI element flags on `BlockNoteView`.
  *
- * `default` is the fallback used for any element whose key is omitted, and is
- * also where `editor.portalElement` itself is mounted. Elements that omit a
- * specific entry inherit `default`; if `default` is also omitted, the editor's
- * `bn-container` element is used.
+ * `default` is the fallback used for any element whose key is omitted. If
+ * `default` is also omitted, floating UI portals into the editor's
+ * `bn-container` element.
  */
 export type PortalElementsMap = {
-  default?: PortalTarget;
-  formattingToolbar?: PortalTarget;
-  linkToolbar?: PortalTarget;
-  slashMenu?: PortalTarget;
-  emojiPicker?: PortalTarget;
-  sideMenu?: PortalTarget;
-  filePanel?: PortalTarget;
-  tableHandles?: PortalTarget;
-  comments?: PortalTarget;
-  attributionTooltip?: PortalTarget;
+  default?: PortalElement;
+  formattingToolbar?: PortalElement;
+  linkToolbar?: PortalElement;
+  slashMenu?: PortalElement;
+  emojiPicker?: PortalElement;
+  sideMenu?: PortalElement;
+  filePanel?: PortalElement;
+  tableHandles?: PortalElement;
+  comments?: PortalElement;
+  attributionTooltip?: PortalElement;
 };
 
 export type PortalElementKey = Exclude<keyof PortalElementsMap, "default">;
 
 export function resolvePortalTarget(
-  target: PortalTarget | undefined,
+  target: PortalElement | undefined,
 ): HTMLElement | undefined {
   if (target === undefined) {
     return undefined;

@@ -31,6 +31,6 @@ By default, all floating UI elements (toolbars, menus, table handles, etc.) port
 />
 ```
 
-Keys mirror the default UI flags (`formattingToolbar`, `linkToolbar`, `slashMenu`, `emojiPicker`, `sideMenu`, `filePanel`, `tableHandles`, `comments`). Manually-mounted Controllers also accept a `portalElement` prop that takes precedence over the map. See the [Portal Targets example](/examples/ui-components/portal-elements).
+Keys mirror the default UI flags (`formattingToolbar`, `linkToolbar`, `slashMenu`, `emojiPicker`, `sideMenu`, `filePanel`, `tableHandles`, `comments`). Manually-mounted Controllers also accept a `portalElement` prop that takes precedence over the map. All keys, including `default`, update reactively. See the [Portal Targets example](/examples/ui-components/portal-elements).
 
-Note: changing `portalElements.default` after mount requires remounting the editor (`editor.mount()` consults it once); per-element keys update reactively.
+When a target sits outside the editor's DOM (like `document.body`), BlockNote automatically renders a themed wrapper element inside it, so floating UI keeps the editor's styling and theming wherever it's portalled.
