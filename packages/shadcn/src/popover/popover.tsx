@@ -5,7 +5,9 @@ import { createContext, forwardRef, ReactElement, useContext } from "react";
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
-const PortalElementContext = createContext<HTMLElement | null>(null);
+// Hands the `portalElement` prop from `Popover` (the root) down to
+// `PopoverContent`, where the content's `container` is set.
+const PopoverPortalElementContext = createContext<HTMLElement | null>(null);
 
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
@@ -28,9 +30,9 @@ export const Popover = (
 
   return (
     <ShadCNComponents.Popover.Popover open={open} onOpenChange={onOpenChange}>
-      <PortalElementContext.Provider value={portalElement}>
+      <PopoverPortalElementContext.Provider value={portalElement}>
         {children}
-      </PortalElementContext.Provider>
+      </PopoverPortalElementContext.Provider>
     </ShadCNComponents.Popover.Popover>
   );
 };
@@ -67,7 +69,7 @@ export const PopoverContent = forwardRef<
   // the mobile formatting toolbar's horizontal scroll clip.
   // `null` (editor not mounted yet) makes Base UI wait for a container
   // instead of falling back to the body; nothing is open at that point.
-  const container = useContext(PortalElementContext);
+  const container = useContext(PopoverPortalElementContext);
 
   return (
     <ShadCNComponents.Popover.PopoverContent

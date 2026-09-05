@@ -2,6 +2,7 @@ import { FC, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import {
+  PortalElementAnchor,
   PortalElementOverride,
   usePortalElement,
 } from "../../editor/PortalElementOverride.js";
@@ -103,10 +104,15 @@ function MobileFormattingToolbar(props: {
     return null;
   }
 
+  // The anchor is rendered next to the toolbar, not inside it: the toolbar
+  // scrolls horizontally, and iOS WebKit clips positioned descendants of a
+  // scroll container, so its dropdowns must not be descendants of it.
   return createPortal(
-    <div className="bn-mobile-formatting-toolbar">
-      <Component />
-    </div>,
+    <PortalElementAnchor>
+      <div className="bn-mobile-formatting-toolbar">
+        <Component />
+      </div>
+    </PortalElementAnchor>,
     portalElement,
   );
 }

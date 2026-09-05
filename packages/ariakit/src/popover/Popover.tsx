@@ -8,7 +8,9 @@ import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { createContext, forwardRef, useContext } from "react";
 
-const PortalElementContext = createContext<HTMLElement | null>(null);
+// Hands the `portalElement` prop from `Popover` (the root) down to
+// `PopoverContent`, where Ariakit takes it.
+const PopoverPortalElementContext = createContext<HTMLElement | null>(null);
 
 export const PopoverTrigger = forwardRef<
   HTMLButtonElement,
@@ -29,7 +31,7 @@ export const PopoverContent = forwardRef<
 
   assertEmpty(rest);
 
-  const portalElement = useContext(PortalElementContext);
+  const portalElement = useContext(PopoverPortalElementContext);
 
   return (
     <AriakitPopover
@@ -70,9 +72,9 @@ export const Popover = (
       setOpen={onOpenChange}
       placement={position}
     >
-      <PortalElementContext.Provider value={portalElement}>
+      <PopoverPortalElementContext.Provider value={portalElement}>
         {children}
-      </PortalElementContext.Provider>
+      </PopoverPortalElementContext.Provider>
     </AriakitPopoverProvider>
   );
 };
