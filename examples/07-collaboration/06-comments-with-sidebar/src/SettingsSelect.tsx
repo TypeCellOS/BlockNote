@@ -1,4 +1,8 @@
-import { ComponentProps, useComponentsContext } from "@blocknote/react";
+import {
+  ComponentProps,
+  useComponentsContext,
+  useEditorPortalElement,
+} from "@blocknote/react";
 
 // This component is used to display a selection dropdown with a label. By using
 // the useComponentsContext hook, we can create it out of existing components
@@ -9,6 +13,10 @@ export const SettingsSelect = (props: {
   items: ComponentProps["FormattingToolbar"]["Select"]["items"];
 }) => {
   const Components = useComponentsContext()!;
+  // The select's dropdown portals into the editor's portal element, which keeps
+  // it themed and clear of any overflow clipping. The prop is required, so it
+  // can't be left out by accident.
+  const editorPortalElement = useEditorPortalElement();
 
   return (
     <div className={"settings-select"}>
@@ -17,6 +25,7 @@ export const SettingsSelect = (props: {
         <Components.Generic.Toolbar.Select
           className={"bn-select"}
           items={props.items}
+          portalRoot={editorPortalElement}
         />
       </Components.Generic.Toolbar.Root>
     </div>

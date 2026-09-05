@@ -58,7 +58,7 @@ export const Badge = forwardRef<
     <ShadCNComponents.Tooltip.Tooltip>
       <ShadCNComponents.Tooltip.TooltipTrigger render={badge} />
       <ShadCNComponents.Tooltip.TooltipContent
-        container={editorPortalElement ?? undefined}
+        container={editorPortalElement}
         className={"flex flex-col items-center whitespace-pre-wrap"}
       >
         <span>{mainTooltip}</span>
