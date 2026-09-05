@@ -22,7 +22,7 @@ export type Unsubscribe = () => void;
 export type EditorFocusOptions = {
   /**
    * When true, the editor's own UI - toolbars, menus and popovers, i.e.
-   * everything portalled into `editor.portalElement` - counts as focused,
+   * everything portalled into a registered portal element - counts as focused,
    * answering "is the user still interacting with this editor?" rather than
    * "does the content area hold DOM focus?".
    *
@@ -115,7 +115,7 @@ export class EventManager<
    * editor mount, detached on unmount — a no-op per focus event is too
    * cheap to be worth gating on subscribers) cover the case tiptap events
    * can't: focus moving from the editor's own UI (which lives in
-   * `editor.portalElement`, outside the content area) to somewhere else
+   * a registered portal element, outside the content area) to somewhere else
    * entirely. Blur-side changes are re-checked a frame later because
    * `document.activeElement` transiently becomes `<body>` during focus
    * handoffs (and `relatedTarget` is unreliable on mobile).

@@ -205,9 +205,12 @@ describe("Comments on mobile", () => {
     });
 
     // While the reply editor holds focus, its toolbar is the only one on
-    // screen (the nested-editor yield, same as the composer).
-    const replyToolbar = await expectSingleToolbarAtViewportBottom();
-    expect(replyToolbar.closest(".bn-thread")).not.toBeNull();
+    // screen (the nested-editor yield, same as the composer). Mobile toolbars
+    // portal to body-level roots, so "the reply editor's toolbar" is not a
+    // DOM-ancestry fact: it is "exactly one toolbar, while focus is in the
+    // thread's editor".
+    await expectSingleToolbarAtViewportBottom();
+    expect(document.activeElement?.closest(".bn-thread")).not.toBeNull();
 
     const saveButton = Array.from(
       document.querySelectorAll<HTMLButtonElement>(".bn-thread button"),
