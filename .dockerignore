@@ -13,5 +13,9 @@
 .git
 **/test-results
 **/blob-report
+# The Typst compiler's Rust build tree (GBs) and wasm output: never image
+# content - docker-run.sh bind-mounts pkg/ at run time.
+**/rust/target
+packages/xl-typst-compiler/pkg
 **/playwright-report
 tests/.vitest-attachments
