@@ -70,9 +70,11 @@ describe("docx exporter mappings", () => {
 
     // The math block & inline math paragraph from the shared test document.
     const doc = await exporter.toDocxJsDocument(
+      // `as any`: the filtered subset holds no multi-column blocks, but the
+      // fixture's type still carries them and this schema doesn't.
       testDocumentWithSourceBlocks.filter((block) =>
         ["math-block", "paragraph-with-inline-math"].includes(block.id),
-      ),
+      ) as any,
       { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
     );
 

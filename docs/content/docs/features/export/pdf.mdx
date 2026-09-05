@@ -1,6 +1,6 @@
 ---
 title: PDF
-description: Export BlockNote documents to a PDF.
+description: Export BlockNote documents to an accessible, tagged PDF (PDF/UA).
 imageTitle: PDF Export
 path: /docs/export-to-pdf
 ---
@@ -8,6 +8,9 @@ path: /docs/export-to-pdf
 # PDF Export
 
 It's possible to export BlockNote documents to PDF, completely client-side.
+The exporter is powered by the [Typst](https://typst.app) typesetting engine
+(compiled to WebAssembly) and produces accessible, tagged documents; see
+[PDF/UA conformance](#pdfua-conformance).
 
 <Callout type={"info"}>
   This feature is provided by the `@blocknote/xl-pdf-exporter`. `xl-` packages
@@ -16,98 +19,239 @@ It's possible to export BlockNote documents to PDF, completely client-side.
   [Business subscription](/pricing).
 </Callout>
 
-First, install the `@blocknote/xl-pdf-exporter` and `@react-pdf/renderer` packages:
+First, install the `@blocknote/xl-pdf-exporter` package:
 
 ```bash
-npm install @blocknote/xl-pdf-exporter @react-pdf/renderer
+npm install @blocknote/xl-pdf-exporter
 ```
 
-Then, create an instance of the `PDFExporter` class. This exposes the following methods:
+Then, create an instance of the `PDFExporter` class and export the document:
 
 ```typescript
 import {
   PDFExporter,
-  pdfDefaultSchemaMappings,
+  typstDefaultSchemaMappings,
 } from "@blocknote/xl-pdf-exporter";
-import * as ReactPDF from "@react-pdf/renderer";
 
 // Create the exporter
-const exporter = new PDFExporter(editor.schema, pdfDefaultSchemaMappings);
+const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings);
 
-// Convert the blocks to a react-pdf document
-const pdfDocument = await exporter.toReactPDFDocument(editor.document);
-
-// Use react-pdf to write to file:
-await ReactPDF.render(pdfDocument, `filename.pdf`);
+// Export the document; the result carries the PDF as bytes and as a Blob
+const result = await exporter.toPDF(editor.document, {
+  title: "My document",
+  lang: "en",
+});
+if (!result.error) {
+  const url = URL.createObjectURL(result.blob);
+  // e.g. open or download `url`
+}
 ```
 
-See the [full example](/examples/interoperability/converting-blocks-to-pdf) with live PDF preview below:
+This works out of the box, fully offline: exports match the editor's look,
+and everything needed (the default fonts and the compiler itself) ships
+inside the package. Nothing is fetched from a CDN.
+
+See the [full example](/examples/interoperability/converting-blocks-to-pdf)
+with a live PDF preview below:
 
 <Example name="interoperability/converting-blocks-to-pdf" />
 
 ### Customizing the PDF
 
-`toReactPDFDocument` takes an optional `options` parameter, which allows you to customize the header and footer of the PDF:
-
-Example usage:
+`toPDF` takes per-export options: the document metadata and page setup.
 
 ```typescript
-import { Text } from "@react-pdf/renderer";
-const pdfDocument = await exporter.toReactPDFDocument(editor.document, {
-  header: <Text>Header</Text>,
-  footer: <Text>Footer</Text>,
+const result = await exporter.toPDF(editor.document, {
+  // Document title, shown in the viewer's title bar
+  title: "My document",
+  // Document author, written to the PDF metadata
+  author: "John Doe",
+  // BCP-47 language tag of the document's natural language
+  lang: "en",
+  // Typst paper name, e.g. "a4" (default) or "us-letter"
+  paper: "a4",
+  // Page margin as a Typst length
+  margin: "48pt",
+  // Raw Typst markup for the running page header / footer, e.g. a
+  // page counter: "#context counter(page).display()"
+  header: "My document",
+  footer: "#context counter(page).display()",
 });
 ```
+
+The remaining export options are
+[`tryDeclarePdfUA`](#pdfua-conformance), `assets` (extra files for
+caller-supplied header/footer markup), and `creationTimestamp` (a fixed
+Unix timestamp for byte-reproducible output).
+
+A document that fails to compile (e.g. text in a script the loaded fonts
+don't cover) is reported in the result as `{ error: "compile-failed" }`
+with the compiler's diagnostics, rather than thrown.
+
+### PDF/UA conformance
+
+The produced PDF is always _tagged_: it carries a logical structure tree
+(headings, paragraphs, lists, tables, figures with alt text, links) that
+screen readers can navigate. On top of that, the exporter **declares
+PDF/UA-1 conformance when, and only when, the document earns it**: Typst
+validates conformance during the compile, and a nonconforming document is
+exported as tagged-but-unclaimed instead, with the violations reported in
+the result:
+
+```typescript
+const result = await exporter.toPDF(editor.document, {
+  title: "My document",
+  lang: "en",
+});
+if (
+  !result.error &&
+  !result.pdfUA.declared &&
+  result.pdfUA.reason === "nonconforming"
+) {
+  // e.g. "PDF/UA-1 error: the first heading must be of level 1"
+  console.info(result.pdfUA.violations.map((v) => v.message));
+}
+```
+
+What conformance requires of the document:
+
+- **Title and language**: pass `title` and `lang` in the export options.
+  `lang` is required to attempt the claim at all: a wrong language
+  declaration is an accessibility defect no validator can catch, so
+  exporting without it throws.
+- **Headings**: the first heading must be level 1, and levels must be
+  consecutive (no jumping from H1 to H3).
+
+Images always get the alt text PDF/UA requires, derived from the caption
+with the file name as fallback. Captions make far better alt text, so
+encourage them.
+
+Pass `tryDeclarePdfUA: false` in the export options to skip the validation
+and claim entirely, e.g. for a live preview, where the validation compile
+would be wasted work. For live previews, also create a fresh exporter per
+export, since an instance accumulates the image assets it resolves.
 
 ### Custom mappings / custom schemas
 
-The `PDFExporter` constructor takes a `schema` and `mappings` parameter.
-A _mapping_ defines how to convert a BlockNote schema element (a Block, Inline Content, or Style) to a React-PDF element.
-If you're using a [custom schema](/docs/features/custom-schemas) in your editor, or if you want to overwrite how default BlockNote elements are converted to PDF, you can pass your own `mappings`:
-
-For example, use the following code in case your schema has an `extraBlock` type:
-
-```typescript
-import { PDFExporter, pdfDefaultSchemaMappings } from "@blocknote/xl-pdf-exporter";
-import { Text } from "@react-pdf/renderer";
-
-new PDFExporter(schema, {
-    blockMapping: {
-        ...pdfDefaultSchemaMappings.blockMapping,
-        myCustomBlock: (block, exporter) => {
-            return <Text>My custom block</Text>;
-        },
-    },
-    inlineContentMapping: pdfDefaultSchemaMappings.inlineContentMapping,
-    styleMapping: pdfDefaultSchemaMappings.styleMapping,
-});
-```
+The `PDFExporter` constructor takes a `schema` and `mappings` parameter. A
+_mapping_ converts a BlockNote schema element into a **Typst markup
+string**, and the mappings are shared with the standalone Typst export. See
+[custom mappings](/docs/features/export/typst#custom-mappings--custom-schemas)
+there; everything on writing them applies to this exporter unchanged.
 
 ### Math & diagram blocks
 
-The [math](/docs/features/blocks/math) and [diagram](/docs/features/blocks/diagrams) blocks ship their own PDF mappings — math blocks export as vector formulas, inline math as images flowing with the text, diagrams as embedded images. See [exporting math](/docs/features/blocks/math#pdf) and [exporting diagrams](/docs/features/blocks/diagrams#exporting) for the setup.
+The [math](/docs/features/blocks/math) and
+[diagram](/docs/features/blocks/diagrams) blocks ship their own Typst
+mappings: math exports as native Typst equations (real text, not images),
+diagrams as embedded vector graphics. See
+[exporting math](/docs/features/blocks/math#typst--pdf) and
+[exporting diagrams](/docs/features/blocks/diagrams#exporting) for the setup.
+
+### Fonts
+
+By default, exports use a bundled font set matching the editor: Inter
+(body), Geist Mono (code), New Computer Modern Math (math), and Noto Color
+Emoji. To use your own fonts instead, pass the font bytes and the matching
+family names to the constructor:
+
+```typescript
+const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings, {
+  fontFamily: "My Font",
+  monoFontFamily: "My Mono Font",
+  // Uint8Array[], or a promise of them
+  fonts: [myFontBytes, myMonoFontBytes],
+  // An emoji-capable font; replaces the default independently of `fonts`
+  emojiFont: myEmojiFontBytes,
+});
+```
+
+Typst selects fonts by the family name embedded in the font file itself, so
+the `fontFamily` options must match what your files declare. A mismatch
+shows up as an `unknown font family` entry in the result's
+`compileWarnings`.
+
+To extend the defaults rather than replace them (e.g. adding a CJK font as
+a per-glyph fallback), spread the exported default loaders:
+
+```typescript
+import {
+  DEFAULT_FONT_FAMILY,
+  loadDefaultBodyFonts,
+  PDFExporter,
+  typstDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter";
+
+const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings, {
+  fontFamily: [DEFAULT_FONT_FAMILY, "Noto Sans SC"],
+  fonts: loadDefaultBodyFonts().then((fonts) => [...fonts, notoSansSCBytes]),
+});
+```
+
+### Self-hosting the compiler
+
+The Typst compiler is a ~25MB wasm file from `@blocknote/xl-typst-compiler`,
+by default emitted as an asset by your bundler. To control where it is
+served from (e.g. with caching headers), pass its URL or bytes:
+
+```typescript
+import compilerWasmUrl from "@blocknote/xl-typst-compiler/wasm?url";
+
+const exporter = new PDFExporter(editor.schema, typstDefaultSchemaMappings, {
+  wasm: compilerWasmUrl,
+});
+```
 
 ### Exporter options
 
-The `PDFExporter` constructor takes an optional `options` parameter.
-While conversion happens on the client-side, the default setup uses two server based resources:
+The `PDFExporter` constructor takes an optional third `options` parameter:
 
 ```typescript
 const defaultOptions = {
-  // emoji source, this is passed to the react-pdf library (https://react-pdf.org/fonts#registeremojisource)
-  // these are loaded from cloudflare + twemoji by default
-  emojiSource: {
-    format: "png",
-    url: "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/",
-  },
-  // a function to resolve external resources in order to avoid CORS issues
-  // by default, this calls a BlockNote hosted server-side proxy to resolve files
+  // a function to resolve external resources (e.g. images) in order to avoid
+  // CORS issues; by default, this calls a BlockNote hosted server-side proxy
   resolveFileUrl: corsProxyResolveFileUrl,
   // the strings rendered into the exported document (file link texts, error
   // placeholders); pass a locale from @blocknote/core/locales (or your
   // editor's dictionary) to export in another language
   dictionary: locales.en,
-  // the colors to use in the PDF for things like highlighting, background colors and font colors.
+  // the colors used for highlighting, background colors and font colors
   colors: COLORS_DEFAULT, // defaults from @blocknote/core
+  // font families (DEFAULT_FONT_FAMILY / DEFAULT_MONO_FONT_FAMILY) and the
+  // font bytes they resolve against - see "Fonts" above
+  fontFamily: "Inter 18pt",
+  monoFontFamily: "Geist Mono",
+  fonts: loadDefaultBodyFonts(),
+  emojiFont: loadDefaultEmojiFont(),
+  // base font size in points
+  fontSize: 12,
+  // where the compiler wasm loads from - see "Self-hosting the compiler"
+  wasm: undefined, // the packaged wasm
 };
 ```
+
+### Exporting Typst markup
+
+The underlying Typst source export is available standalone (e.g. to compile
+with your own Typst toolchain, including server-side); see
+[Typst export](/docs/features/export/typst).
+
+### Deprecated: the react-pdf exporter
+
+Previous versions of `@blocknote/xl-pdf-exporter` exported PDFs with
+[react-pdf](https://react-pdf.org), producing untagged (not accessible)
+documents. That exporter is deprecated and will be removed after a few
+releases; until then it remains available unchanged from the
+`@blocknote/xl-pdf-exporter/react-pdf` subpath:
+
+```typescript
+import {
+  PDFExporter,
+  pdfDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter/react-pdf";
+```
+
+Note that its mappings are react-pdf mappings; when migrating to the new
+exporter, custom blocks need a [Typst mapping](#custom-mappings--custom-schemas)
+instead. The old exporter's example lives on at
+[converting-blocks-to-pdf-react-pdf-deprecated](/examples/interoperability/converting-blocks-to-pdf-react-pdf-deprecated).

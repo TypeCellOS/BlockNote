@@ -1101,25 +1101,24 @@ export const examples = {
           playground: true,
           docs: true,
           author: "yousefed",
-          tags: ["Interoperability"],
+          tags: ["Interoperability", "Accessibility"],
+          sharedTestDocument: true,
           dependencies: {
-            "@blocknote/diagram-block": "latest",
-            "@blocknote/math-block": "latest",
-            "@blocknote/xl-multi-column": "latest",
             "@blocknote/xl-pdf-exporter": "latest",
-            "@react-pdf/math": "^2.0.1",
-            "@react-pdf/renderer": "^4.5.1",
-            "mathjax-full": "^3.2.2",
+            "@blocknote/xl-multi-column": "latest",
+            "@blocknote/math-block": "latest",
+            "@blocknote/diagram-block": "latest",
+            "@blocknote/xl-typst-compiler": "latest",
           } as any,
           pro: true,
         },
-        title: "Exporting documents to PDF",
+        title: "Exporting documents to PDF (PDF/UA)",
         group: {
           pathFromRoot: "examples/05-interoperability",
           slug: "interoperability",
         },
         readme:
-          'This example exports the current document (all blocks) as an PDF file and downloads it to your computer.\n\n**Try it out:** Edit the document and click "Download .pdf" at the top to download the PDF file.',
+          'This example exports the current document to an **accessible, tagged PDF/UA-1**\nfile using the Typst-powered `@blocknote/xl-pdf-exporter`. Unlike a plain PDF,\na tagged PDF carries a logical structure tree (headings, paragraphs, lists,\ntables, figures with alt text, links) that screen readers can navigate.\n\n**Try it out:** Edit the document — the PDF preview updates live. Click\n"Download" to save it, then verify it with a tool like\n[veraPDF](https://verapdf.org/) (`--flavour ua1`) or the Acrobat Tags panel.\n\n> The first export downloads the Typst compiler (wasm) and fonts, so it may take\n> a moment. Images render as tagged placeholder figures for now.',
       },
       {
         projectSlug: "converting-blocks-to-docx",
@@ -1131,6 +1130,7 @@ export const examples = {
           docs: true,
           author: "yousefed",
           tags: [""],
+          sharedTestDocument: true,
           dependencies: {
             "@blocknote/diagram-block": "latest",
             "@blocknote/math-block": "latest",
@@ -1158,6 +1158,7 @@ export const examples = {
           docs: true,
           author: "areknawo",
           tags: [""],
+          sharedTestDocument: true,
           dependencies: {
             "@blocknote/diagram-block": "latest",
             "@blocknote/math-block": "latest",
@@ -1185,10 +1186,12 @@ export const examples = {
           docs: true,
           author: "jmarbutt",
           tags: [""],
+          sharedTestDocument: true,
           dependencies: {
             "@blocknote/diagram-block": "latest",
             "@blocknote/math-block": "latest",
             "@blocknote/xl-email-exporter": "latest",
+            "@blocknote/xl-multi-column": "latest",
             "@react-email/render": "^2.0.4",
           } as any,
           pro: true,
@@ -1237,6 +1240,33 @@ export const examples = {
         },
         readme:
           "This example exports the current document (all blocks) as HTML and renders it.\n\n**Relevant Docs:**\n\n- [Converting Blocks to HTML](/docs/features/export/html)",
+      },
+      {
+        projectSlug: "converting-blocks-to-pdf-react-pdf-deprecated",
+        fullSlug:
+          "interoperability/converting-blocks-to-pdf-react-pdf-deprecated",
+        pathFromRoot:
+          "examples/05-interoperability/11-converting-blocks-to-pdf-react-pdf-deprecated",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Interoperability"],
+          sharedTestDocument: true,
+          dependencies: {
+            "@blocknote/xl-multi-column": "latest",
+            "@blocknote/xl-pdf-exporter": "latest",
+            "@react-pdf/renderer": "^4.5.1",
+          } as any,
+          pro: true,
+        },
+        title: "Exporting documents to PDF (react-pdf, deprecated)",
+        group: {
+          pathFromRoot: "examples/05-interoperability",
+          slug: "interoperability",
+        },
+        readme:
+          '> **Deprecated:** this example uses the react-pdf based exporter\n> (`@blocknote/xl-pdf-exporter/react-pdf`), which is deprecated and will be\n> removed after a few releases. Use the Typst-based `PDFExporter` instead -\n> see the "Exporting documents to PDF (PDF/UA)" example - which\n> produces accessible, tagged PDF/UA-1 output.\n\nThis example exports the current document (all blocks) as a PDF file and downloads it to your computer.\n\n**Try it out:** Edit the document and click "Download .pdf" at the top to download the PDF file.',
       },
     ],
   },
