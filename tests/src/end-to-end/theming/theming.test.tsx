@@ -14,7 +14,11 @@ import {
   sleep,
   waitForSelector,
 } from "../../utils/editor.js";
-import { moveMouseOverElement, mouseSequence } from "../../utils/mouse.js";
+import {
+  clickElement,
+  moveMouseOverElement,
+  mouseSequence,
+} from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 // Vitest browser mode has no per-test `colorScheme` knob (the playwright
@@ -67,7 +71,9 @@ describe("Check Dark Theme is Automatically Applied", () => {
     await userEvent.keyboard("Paragraph");
     await userEvent.keyboard("{Shift>}{Home}{/Shift}");
 
-    await userEvent.click(await waitForSelector(LINK_BUTTON_SELECTOR));
+    // A real press, not `userEvent.click`: the popover's input must win the
+    // focus race against the toolbar's focus trap (see `clickElement`).
+    await clickElement(await waitForSelector(LINK_BUTTON_SELECTOR));
 
     await sleep(500);
     await userEvent.keyboard("link");

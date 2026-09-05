@@ -45,9 +45,33 @@ export function mouseSequence(actions: MouseAction[]): Promise<void> {
   return runMouse(actions);
 }
 
-/** Single (or multi-) click at iframe-relative coordinates. */
-export function clickAt(x: number, y: number, clickCount = 1): Promise<void> {
-  return runMouse([{ type: "click", x, y, clickCount }]);
+/**
+ * Single (or multi-) click at iframe-relative coordinates. `delay` is the time
+ * the button is held between mousedown and mouseup (Playwright's default is 0).
+ */
+export function clickAt(
+  x: number,
+  y: number,
+  clickCount = 1,
+  delay?: number,
+): Promise<void> {
+  return runMouse([{ type: "click", x, y, clickCount, delay }]);
+}
+
+/**
+ * Clicks the centre of an element with the real mouse, holding the button for
+ * `delay` ms. Use this instead of `userEvent.click` where an instantaneous
+ * press behaves differently from a human one: a toolbar button that opens a
+ * popover arms the toolbar's focus trap on mousedown, and with a 0 ms press
+ * the trap's deferred focus move lands after the popover's input has taken
+ * focus, stealing it back. Any real press (≥ ~40 ms) lets the input win.
+ */
+export function clickElement(
+  selectorOrElement: string | Element,
+  { delay = 50 }: { delay?: number } = {},
+): Promise<void> {
+  const { x, y } = center(getRect(selectorOrElement));
+  return clickAt(x, y, 1, delay);
 }
 
 /** Moves the mouse to the centre of an element (e.g. to reveal hover UI). */

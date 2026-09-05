@@ -23,7 +23,14 @@ export type MouseAction =
   | { type: "move"; x: number; y: number; steps?: number }
   | { type: "down" }
   | { type: "up" }
-  | { type: "click"; x: number; y: number; clickCount?: number };
+  | {
+      type: "click";
+      x: number;
+      y: number;
+      clickCount?: number;
+      /** Time between mousedown and mouseup, like a real press (default 0). */
+      delay?: number;
+    };
 
 /**
  * Browser-side signature of the {@link positionalMouse} command below, i.e. what
@@ -74,6 +81,7 @@ export const positionalMouse: BrowserCommand<MouseAction[]> = async (
       case "click":
         await page.mouse.click(offsetX + action.x, offsetY + action.y, {
           clickCount: action.clickCount ?? 1,
+          delay: action.delay,
         });
         break;
     }

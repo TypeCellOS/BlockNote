@@ -9,7 +9,12 @@ import {
   sleep,
   waitForSelector,
 } from "../../utils/editor.js";
-import { clickAt, getRect, moveMouseOverElement } from "../../utils/mouse.js";
+import {
+  clickAt,
+  clickElement,
+  getRect,
+  moveMouseOverElement,
+} from "../../utils/mouse.js";
 
 /** Double-clicks the centre of an element via the real Playwright mouse. */
 async function doubleClickElement(element: Element) {
@@ -123,7 +128,9 @@ describe("Check Comments functionality", () => {
     await expectElement(
       await waitForSelector(LINK_BUTTON_SELECTOR),
     ).toBeVisible();
-    await userEvent.click(await waitForSelector(LINK_BUTTON_SELECTOR));
+    // A real press, not `userEvent.click`: the popover's input must win the
+    // focus race against the toolbar's focus trap (see `clickElement`).
+    await clickElement(await waitForSelector(LINK_BUTTON_SELECTOR));
 
     await userEvent.keyboard("https://example.com");
     await userEvent.keyboard("{Enter}");
@@ -154,7 +161,8 @@ describe("Check Comments functionality", () => {
       await expectElement(
         await waitForSelector(LINK_BUTTON_SELECTOR),
       ).toBeVisible();
-      await userEvent.click(await waitForSelector(LINK_BUTTON_SELECTOR));
+      // A real press, not `userEvent.click` (see `clickElement`).
+      await clickElement(await waitForSelector(LINK_BUTTON_SELECTOR));
 
       await userEvent.keyboard("https://example.com");
       await userEvent.keyboard("{Enter}");
