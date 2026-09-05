@@ -5,7 +5,9 @@ import { createContext, forwardRef, ReactElement, useContext } from "react";
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
-const PortalElementContext = createContext<HTMLElement | null>(null);
+// Hands the `portalElement` prop from `Menu` (the root) down to
+// `MenuDropdown`, where the dropdown's `container` is set.
+const MenuPortalElementContext = createContext<HTMLElement | null>(null);
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
@@ -29,9 +31,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       <ShadCNComponents.DropdownMenu.DropdownMenuSub
         onOpenChange={onOpenChange}
       >
-        <PortalElementContext.Provider value={portalElement}>
+        <MenuPortalElementContext.Provider value={portalElement}>
           {children}
-        </PortalElementContext.Provider>
+        </MenuPortalElementContext.Provider>
       </ShadCNComponents.DropdownMenu.DropdownMenuSub>
     );
   } else {
@@ -40,9 +42,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
         modal={false}
         onOpenChange={onOpenChange}
       >
-        <PortalElementContext.Provider value={portalElement}>
+        <MenuPortalElementContext.Provider value={portalElement}>
           {children}
-        </PortalElementContext.Provider>
+        </MenuPortalElementContext.Provider>
       </ShadCNComponents.DropdownMenu.DropdownMenu>
     );
   }
@@ -86,7 +88,7 @@ export const MenuDropdown = forwardRef<
   // menu inherits light/dark mode instead of the document body's.
   // `null` (editor not mounted yet) makes Base UI wait for a container
   // instead of falling back to the body; nothing is open at that point.
-  const container = useContext(PortalElementContext);
+  const container = useContext(MenuPortalElementContext);
 
   if (sub) {
     return (
