@@ -1,6 +1,7 @@
 import {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
@@ -14,16 +15,18 @@ import { useBlockNoteViewContext } from "./BlockNoteViewContext.js";
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-// Set only by `PortalElementOverride`; the default comes from the editor
-// itself, see `usePortalElement`.
+// Set by `PortalElementOverride` (a root to escape to) and by
+// `PortalElementAnchor` (a UI element's own wrapper); the default comes from
+// the editor itself, see `usePortalElement`.
 const PortalElementContext = createContext<HTMLElement | null>(null);
 
 /**
- * The element the editor's floating UI (toolbars, menus, popovers) should
- * portal into: the nearest {@link PortalElementOverride}'s element, or by
- * default the editor's own container. Either way it is a themed `.bn-root`,
- * so portalled UI keeps the editor's styling and color scheme wherever in the
- * DOM it lands.
+ * The element the floating UI below should portal into: the nearest
+ * {@link PortalElementAnchor} (the wrapper of the toolbar, side menu, … that
+ * opens it), else the nearest {@link PortalElementOverride}'s element, else by
+ * default the editor's own container. All of these sit inside a themed
+ * `.bn-root`, so portalled UI keeps the editor's styling and color scheme
+ * wherever in the DOM it lands.
  *
  * `null` until the editor has mounted, and on the server. Consumers render
  * nothing until it exists.
@@ -106,5 +109,109 @@ export function PortalElementOverride(props: {
     <PortalElementContext.Provider value={portalElement}>
       {children}
     </PortalElementContext.Provider>
+  );
+}
+
+/**
+ * An anchor for the floating UI a UI element opens (its menus, popovers and
+ * forms): a zero-size, absolutely positioned element next to that UI element,
+ * inside the wrapper that positions it. What portals into it stays a DOM
+ * descendant of that wrapper, so it shares the wrapper's stacking context and
+ * visibility (it hides when the UI element hides) while taking no part in its
+ * layout.
+ *
+ * The anchor exists from the first render (created up front and attached to
+ * the rendered holder on commit, before any effect runs), so consumers never
+ * see a `null` and nothing re-renders to pick it up. The holder is rendered
+ * by React so that it, and with it the anchor, is re-attached whenever the
+ * wrapper's content is re-rendered.
+ */
+function usePortalElementAnchor(): {
+  anchor: HTMLElement | null;
+  holder: ReactNode;
+} {
+  const [anchor] = useState(() => {
+    if (typeof document === "undefined") {
+      return null;
+    }
+    const element = document.createElement("span");
+    element.className = "bn-portal-anchor";
+    return element;
+  });
+
+  const holderRef = useCallback(
+    (holder: HTMLElement | null) => {
+      if (holder && anchor && anchor.parentElement !== holder) {
+        holder.appendChild(anchor);
+      }
+    },
+    [anchor],
+  );
+
+  const holder = (
+    <span
+      ref={holderRef}
+      className={PORTAL_ELEMENT_ANCHOR_HOLDER_CLASS}
+      style={{ position: "absolute", width: 0, height: 0, overflow: "visible" }}
+    />
+  );
+
+  return { anchor, holder };
+}
+
+const PORTAL_ELEMENT_ANCHOR_HOLDER_CLASS = "bn-portal-anchor-holder";
+
+/**
+ * Whether `element` has rendered children other than a
+ * {@link PortalElementAnchor}'s holder. The holder means a wrapper that renders
+ * an anchor is never empty, so "the UI element rendered nothing" has to be
+ * checked with this instead of the wrapper's `innerHTML`.
+ */
+export function hasChildrenBesidesPortalElementAnchor(
+  element: HTMLElement,
+): boolean {
+  return Array.from(element.childNodes).some(
+    (node) =>
+      !(
+        node instanceof Element &&
+        node.classList.contains(PORTAL_ELEMENT_ANCHOR_HOLDER_CLASS)
+      ),
+  );
+}
+
+/**
+ * Renders a portal anchor inside a UI element's wrapper and makes it the
+ * portal element for everything below (see {@link usePortalElementAnchor}): the
+ * menus and popovers a toolbar, side menu or table handle opens render inside
+ * the wrapper that positions and hides that UI element. Nested menus resolve
+ * to the same anchor, never to their parent dropdown, which may clip.
+ *
+ * The anchor is a sibling of the UI element, not a descendant, so it is never
+ * inside a scrolling part of it (iOS WebKit clips positioned descendants of
+ * scroll containers); and a `portalElements` override that relocates the
+ * wrapper takes the anchor, and so the popups, along with it.
+ *
+ * Pass a function as `children` to receive the portal element for props that
+ * need it explicitly.
+ */
+export function PortalElementAnchor(props: {
+  children?: ReactNode | ((portalElement: HTMLElement | null) => ReactNode);
+}) {
+  const { anchor, holder } = usePortalElementAnchor();
+  const ambient = usePortalElement();
+  const portalElement = anchor ?? ambient;
+
+  const children =
+    typeof props.children === "function"
+      ? props.children(portalElement)
+      : props.children;
+
+  return (
+    <>
+      {holder}
+      <PortalElementContext.Provider value={portalElement}>
+        {children}
+      </PortalElementContext.Provider>
+    </>
   );
 }
