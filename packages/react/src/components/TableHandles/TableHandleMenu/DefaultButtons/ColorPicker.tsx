@@ -10,6 +10,7 @@ import {
 import { TableHandlesExtension } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
+import { useEditorPortalElement } from "../../../../editor/EditorPortalProvider.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
@@ -27,6 +28,7 @@ export const ColorPickerButton = <
   children?: ReactNode;
 }) => {
   const Components = useComponentsContext()!;
+  const editorPortalElement = useEditorPortalElement();
   const dict = useDictionary();
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
@@ -104,7 +106,11 @@ export const ColorPickerButton = <
   const firstCell = mapTableCell(currentCells[0].cell);
 
   return (
-    <Components.Generic.Menu.Root position={"right"} sub={true}>
+    <Components.Generic.Menu.Root
+      position={"right"}
+      sub={true}
+      portalRoot={editorPortalElement}
+    >
       <Components.Generic.Menu.Trigger sub={true}>
         <Components.Generic.Menu.Item
           className={"bn-menu-item"}

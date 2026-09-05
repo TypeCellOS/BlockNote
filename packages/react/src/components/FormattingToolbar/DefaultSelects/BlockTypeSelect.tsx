@@ -131,10 +131,6 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   const Components = useComponentsContext()!;
   const uiMode = useUIMode();
   const editorPortalElement = useEditorPortalElement();
-  // Only portal (and suppress dropdown focus) in the mobile toolbar; desktop
-  // renders inline with default focus behavior.
-  const portalRoot =
-    uiMode === "mobile" ? (editorPortalElement ?? undefined) : undefined;
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -220,7 +216,11 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     <Components.FormattingToolbar.Select
       className={"bn-select"}
       items={selectItems}
-      portalRoot={portalRoot}
+      // Portal the dropdown into the editor's themed portal target so it
+      // inherits styling; on mobile `preventFocusOnOpen` keeps focus in the
+      // editor so the on-screen keyboard stays up.
+      portalRoot={editorPortalElement}
+      preventFocusOnOpen={uiMode === "mobile"}
     />
   );
 };

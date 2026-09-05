@@ -4,6 +4,7 @@ import { ReactNode, useMemo, useState } from "react";
 
 import { MdDragIndicator } from "react-icons/md";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useEditorPortalElement } from "../../editor/EditorPortalProvider.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { TableHandleMenu } from "./TableHandleMenu/TableHandleMenu.js";
@@ -20,6 +21,7 @@ export const TableHandle = (
 ) => {
   const editor = useBlockNoteEditor<any, any, any>();
   const Components = useComponentsContext()!;
+  const editorPortalElement = useEditorPortalElement();
 
   const [isDragging, setIsDragging] = useState(false);
 
@@ -66,6 +68,7 @@ export const TableHandle = (
         }
       }}
       position={"right"}
+      portalRoot={editorPortalElement}
     >
       <Components.Generic.Menu.Trigger>
         <Components.TableHandle.Root
