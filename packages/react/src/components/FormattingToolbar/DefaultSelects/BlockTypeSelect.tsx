@@ -26,6 +26,7 @@ import {
   ComponentProps,
   useComponentsContext,
 } from "../../../editor/ComponentsContext.js";
+import { useMobileToolbarPortal } from "../../../editor/MobileToolbarPortalContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 
@@ -127,6 +128,7 @@ export const blockTypeSelectItems = (
 
 export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   const Components = useComponentsContext()!;
+  const mobileToolbarPortal = useMobileToolbarPortal();
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -212,6 +214,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     <Components.FormattingToolbar.Select
       className={"bn-select"}
       items={selectItems}
+      portalRoot={mobileToolbarPortal ?? undefined}
     />
   );
 };

@@ -6,7 +6,7 @@ import {
   Tooltip as MantineTooltip,
 } from "@mantine/core";
 
-import { assertEmpty, isSafari } from "@blocknote/core";
+import { assertEmpty, isSafari, isTouchDevice } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef, useState } from "react";
 
@@ -57,11 +57,22 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       <MantineButton
         aria-label={label}
         className={className}
-        // Needed as Safari doesn't focus button elements on mouse down
-        // unlike other browsers.
-        onMouseDown={(e) => {
+        onMouseDown={(event) => {
+          // On touch, keep focus on the editor (so the on-screen keyboard stays
+          // open) without canceling the tap's click. `mousedown` is the compat
+          // event that moves focus, so preventing it keeps focus here while the
+          // click still fires. Preventing `pointerdown` instead suppresses the
+          // synthesized click on iOS WebKit, so a button that opens a popover
+          // would never toggle it.
+          if (isTouchDevice()) {
+            event.preventDefault();
+            return;
+          }
+
+          // Needed as Safari doesn't focus button elements on mouse down
+          // unlike other browsers.
           if (isSafari()) {
-            (e.currentTarget as HTMLButtonElement).focus();
+            (event.currentTarget as HTMLButtonElement).focus();
           }
         }}
         onClick={(event) => {
@@ -90,11 +101,22 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       <MantineActionIcon
         className={className}
         aria-label={label}
-        // Needed as Safari doesn't focus button elements on mouse down
-        // unlike other browsers.
-        onMouseDown={(e) => {
+        onMouseDown={(event) => {
+          // On touch, keep focus on the editor (so the on-screen keyboard stays
+          // open) without canceling the tap's click. `mousedown` is the compat
+          // event that moves focus, so preventing it keeps focus here while the
+          // click still fires. Preventing `pointerdown` instead suppresses the
+          // synthesized click on iOS WebKit, so a button that opens a popover
+          // would never toggle it.
+          if (isTouchDevice()) {
+            event.preventDefault();
+            return;
+          }
+
+          // Needed as Safari doesn't focus button elements on mouse down
+          // unlike other browsers.
           if (isSafari()) {
-            (e.currentTarget as HTMLButtonElement).focus();
+            (event.currentTarget as HTMLButtonElement).focus();
           }
         }}
         onClick={(event) => {

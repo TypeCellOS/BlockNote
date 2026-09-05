@@ -126,13 +126,13 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, ...rest } = props;
+  const { className, items, isDisabled, portalRoot, ...rest } = props;
 
   assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
-  // Portal into the editor's portal element (which carries the color-scheme
+  // Default to the editor's portal element (which carries the color-scheme
   // class) so the dropdown inherits light/dark mode instead of the body's.
   const editor = useBlockNoteEditor();
 
@@ -163,7 +163,7 @@ export const ToolbarSelect = forwardRef<
       </ShadCNComponents.Select.SelectTrigger>
       <ShadCNComponents.Select.SelectContent
         className={className}
-        container={editor.portalElement}
+        container={portalRoot ?? editor.portalElement}
         // Position the dropdown below the trigger (classic dropdown behavior)
         // instead of aligning the selected item over the trigger (the Base UI
         // default).

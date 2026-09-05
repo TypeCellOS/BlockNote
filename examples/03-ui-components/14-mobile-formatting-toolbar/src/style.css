@@ -1,0 +1,155 @@
+html,
+body {
+  margin: 0;
+}
+
+/* Fixed-height, internally scrollable editor — a nested scroll container inside
+   the page's `.bn-scroll-container`, to check nested scrolling works. */
+.bn-container {
+  height: 300px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.bn-editor {
+  height: 100%;
+  overflow: auto;
+}
+
+/* --- Dummy app UI (see DummyUI.tsx) --- */
+
+.dummy-top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 48px;
+  padding: 0 12px;
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.dummy-top-nav-title {
+  font: 600 15px/1 sans-serif;
+}
+
+/* Switch for the pinned scroll container layout, pushed to the right edge. */
+.dummy-layout-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  margin-left: auto;
+  padding: 0 4px 0 10px;
+  background: none;
+  border: none;
+  color: inherit;
+  font: 13px/1 sans-serif;
+  cursor: pointer;
+}
+
+.dummy-layout-toggle-track {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: #555;
+  transition: background 0.15s;
+}
+
+.dummy-layout-toggle[aria-pressed="true"] .dummy-layout-toggle-track {
+  background: #4caf50;
+}
+
+.dummy-layout-toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
+}
+
+.dummy-layout-toggle[aria-pressed="true"] .dummy-layout-toggle-track::after {
+  transform: translateX(16px);
+}
+
+.dummy-hamburger {
+  position: relative;
+}
+
+.dummy-hamburger-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  margin: -10px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.dummy-hamburger-button span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  border-radius: 1px;
+  background: #fff;
+}
+
+.dummy-hamburger-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: 8px;
+  background: #fff;
+  color: #111;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.15);
+}
+
+.dummy-hamburger-menu a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 10px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.dummy-hamburger-menu a:hover {
+  background: #f0f0f0;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.dummy-prose h2 {
+  margin: 0 0 8px;
+  font: 600 18px/1.2 sans-serif;
+}
+
+.dummy-prose p {
+  margin: 0 0 8px;
+  font: 14px/1.6 sans-serif;
+  color: #333;
+}

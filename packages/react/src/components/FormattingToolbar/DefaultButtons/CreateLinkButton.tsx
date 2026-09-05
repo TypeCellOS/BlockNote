@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { RiLink } from "react-icons/ri";
 
 import {
@@ -14,6 +14,7 @@ import {
 } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useMobileToolbarPortal } from "../../../editor/MobileToolbarPortalContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../../hooks/useEditorDomElement.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
@@ -45,6 +46,7 @@ export const CreateLinkButton = () => {
   const editorDOMElement = useEditorDOMElement();
   const Components = useComponentsContext()!;
   const dict = useDictionary();
+  const mobileToolbarPortal = useMobileToolbarPortal();
 
   const formattingToolbar = useExtension(FormattingToolbarExtension);
   // eslint-disable-next-line @typescript-eslint/unbound-method -- showSelection is a plain object method, not a class method
@@ -56,6 +58,17 @@ export const CreateLinkButton = () => {
     return () => showSelection(false, "createLinkButton");
   }, [showPopover, showSelection]);
 
+  // Return focus to editor on close.
+  const setPopoverOpen = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        editor.focus();
+      }
+      setShowPopover(open);
+    },
+    [editor],
+  );
+
   const state = useEditorState({
     editor,
     selector: ({ editor }) => {
@@ -63,6 +76,8 @@ export const CreateLinkButton = () => {
       if (
         // The editor is read-only.
         !editor.isEditable ||
+        // The selection is empty, i.e. no content is selected.
+        editor.prosemirrorState.selection.empty ||
         // Links are not in the schema.
         !checkLinkInSchema(editor) ||
         // Table cells are selected.
@@ -114,7 +129,14 @@ export const CreateLinkButton = () => {
   return (
     <Components.Generic.Popover.Root
       open={showPopover}
-      onOpenChange={setShowPopover}
+      onOpenChange={setPopoverOpen}
+      // On mobile, portal the popover into the toolbar's themed body-level
+      // container (see `MobileFormattingToolbarController`) so it escapes the
+      // editor's scroll container overflow instead of being clipped, while
+      // staying styled. A set `portalRoot` also stops focus moving into the
+      // popover, which would blur the editor and dismiss the on-screen keyboard.
+      // On desktop it's `undefined`, keeping the default inline rendering.
+      portalRoot={mobileToolbarPortal ?? undefined}
     >
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}
@@ -128,7 +150,7 @@ export const CreateLinkButton = () => {
             dict.generic.ctrl_shortcut,
           )}
           icon={<RiLink />}
-          onClick={() => setShowPopover((open) => !open)}
+          onClick={() => setPopoverOpen(!showPopover)}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content

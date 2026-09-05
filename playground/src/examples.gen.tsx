@@ -734,30 +734,6 @@ export const examples = {
           "In this example, we implement a basic editor interface using components from Material UI. We replace the Formatting Toolbar, Slash Menu, and Block Side Menu while disabling the other default elements. Additionally, the Formatting Toolbar is made static and always visible above the editor.\n\n**Relevant Docs:**\n\n- [Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Manipulating Inline Content](/docs/reference/editor/manipulating-content)\n- [Slash Menu](/docs/react/components/suggestion-menus)\n- [Side Menu](/docs/react/components/side-menu)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
-        projectSlug: "experimental-mobile-formatting-toolbar",
-        fullSlug: "ui-components/experimental-mobile-formatting-toolbar",
-        pathFromRoot:
-          "examples/03-ui-components/14-experimental-mobile-formatting-toolbar",
-        config: {
-          playground: true,
-          docs: true,
-          author: "areknawo",
-          tags: [
-            "Intermediate",
-            "UI Components",
-            "Formatting Toolbar",
-            "Appearance & Styling",
-          ],
-        },
-        title: "Experimental Mobile Formatting Toolbar",
-        group: {
-          pathFromRoot: "examples/03-ui-components",
-          slug: "ui-components",
-        },
-        readme:
-          "This example shows how to use the experimental mobile formatting toolbar, which uses [Visual Viewport API](https://developer.mozilla.org/en-US/docs/Web/API/Visual_Viewport_API) to position the toolbar right above the virtual keyboard on mobile devices.\n\nController is currently marked **experimental** due to the flickering issue with positioning (caused by delays of the Visual Viewport API)\n\n**Relevant Docs:**\n\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Editor Setup](/docs/getting-started/editor-setup)",
-      },
-      {
         projectSlug: "advanced-tables",
         fullSlug: "ui-components/advanced-tables",
         pathFromRoot: "examples/03-ui-components/15-advanced-tables",

@@ -1990,7 +1990,7 @@ importers:
         specifier: ^8.0.0
         version: 8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.9.0)
 
-  examples/03-ui-components/14-experimental-mobile-formatting-toolbar:
+  examples/03-ui-components/14-mobile-formatting-toolbar:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest

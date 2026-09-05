@@ -8,6 +8,13 @@ const withMDX = createMDX();
 const config = {
   // output: "export",
   reactStrictMode: true,
+  // Next.js 16 blocks cross-origin requests to dev resources (`/_next/*`, HMR)
+  // by default. When testing on a device on the local network - e.g. a phone
+  // checking the mobile toolbar - the browser's origin is the machine's LAN IP,
+  // not `localhost`, so those requests get a 403 and the page breaks. Allow the
+  // common private LAN ranges so network devices can load the dev server. This
+  // only affects `next dev`.
+  allowedDevOrigins: ["192.168.*.*", "10.*.*.*", "172.*.*.*"],
   serverExternalPackages: ["typescript", "twoslash"],
   reactCompiler: true,
   // TypeScript 7 ships only the native `tsc` binary; it no longer exposes the

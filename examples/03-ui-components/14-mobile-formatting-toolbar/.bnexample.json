@@ -1,6 +1,6 @@
 {
-  "playground": true,
-  "docs": true,
+  "playground": false,
+  "docs": false,
   "author": "areknawo",
   "tags": [
     "Intermediate",
