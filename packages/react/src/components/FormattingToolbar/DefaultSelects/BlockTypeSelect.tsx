@@ -219,7 +219,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
       // Portal the dropdown into the editor's themed portal target so it
       // inherits styling; on mobile `preventFocusOnOpen` keeps focus in the
       // editor so the on-screen keyboard stays up.
-      portalRoot={editorPortalElement ?? undefined}
+      portalRoot={editorPortalElement}
       preventFocusOnOpen={uiMode === "mobile"}
     />
   );

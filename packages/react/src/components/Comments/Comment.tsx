@@ -293,7 +293,7 @@ export const Comment = ({
         {(canDeleteComment || canEditComment) && (
           <Components.Generic.Menu.Root
             position={"bottom-start"}
-            portalRoot={editorPortalElement ?? undefined}
+            portalRoot={editorPortalElement}
           >
             <Components.Generic.Menu.Trigger>
               <Components.Generic.Toolbar.Button

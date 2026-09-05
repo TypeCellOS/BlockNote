@@ -47,7 +47,7 @@ type ToolbarSelectType = {
     isDisabled?: boolean;
   }[];
   isDisabled?: boolean;
-  portalRoot?: HTMLElement | null;
+  portalRoot: HTMLElement | null;
   /**
    * When true, the surface must not move DOM focus onto itself when it opens.
    * On mobile, stealing focus blurs the editor's `contentEditable` and
@@ -341,7 +341,7 @@ export type ComponentProps = {
           | "bottom"
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
-        portalRoot?: HTMLElement | null;
+        portalRoot: HTMLElement | null;
         /**
          * When true, the surface must not move DOM focus onto itself when it
          * opens. On mobile, stealing focus blurs the editor's `contentEditable`
@@ -388,7 +388,7 @@ export type ComponentProps = {
           | "bottom"
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
-        portalRoot?: HTMLElement | null;
+        portalRoot: HTMLElement | null;
         /**
          * When true, the surface must not move DOM focus onto itself when it
          * opens. On mobile, stealing focus blurs the editor's `contentEditable`

@@ -15,9 +15,7 @@ import { createContext, forwardRef, useContext } from "react";
 
 // Threads the `portalRoot` override from `Menu` (the provider) down to
 // `MenuDropdown`, where ariakit's `portalElement` prop actually lives.
-const PortalRootContext = createContext<HTMLElement | null | undefined>(
-  undefined,
-);
+const PortalRootContext = createContext<HTMLElement | null>(null);
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
@@ -66,7 +64,10 @@ export const MenuDropdown = forwardRef<
     <AriakitMenu
       unmountOnHide={true}
       className={mergeCSSClasses("bn-ak-menu", className || "")}
-      portalElement={portalRoot ?? undefined}
+      // Ariakit falls back to a body-appended div for a missing element, so
+      // don't portal at all until there is one (editor not mounted yet).
+      portal={portalRoot !== null}
+      portalElement={portalRoot}
       ref={ref}
     >
       {children}

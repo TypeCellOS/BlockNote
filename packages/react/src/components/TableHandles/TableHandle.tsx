@@ -68,7 +68,7 @@ export const TableHandle = (
         }
       }}
       position={"right"}
-      portalRoot={editorPortalElement ?? undefined}
+      portalRoot={editorPortalElement}
     >
       <Components.Generic.Menu.Trigger>
         <Components.TableHandle.Root

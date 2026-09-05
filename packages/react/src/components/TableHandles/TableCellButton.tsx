@@ -47,7 +47,7 @@ export const TableCellButton = (
         }
       }}
       position={"right"}
-      portalRoot={editorPortalElement ?? undefined}
+      portalRoot={editorPortalElement}
     >
       <Components.Generic.Menu.Trigger>
         <Components.Generic.Menu.Button className={"bn-table-cell-handle"}>

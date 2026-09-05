@@ -47,7 +47,10 @@ export const ToolbarSelect = forwardRef<
         className={mergeCSSClasses("bn-ak-popover", className || "")}
         ref={ref}
         gutter={4}
-        portalElement={portalRoot ?? undefined}
+        // Ariakit falls back to a body-appended div for a missing element,
+        // so don't portal at all until there is one (editor not mounted yet).
+        portal={portalRoot !== null}
+        portalElement={portalRoot}
       >
         {items.map((option) => (
           <AriakitSelectItem

@@ -41,7 +41,7 @@ export const DragHandleButton = (
         }
       }}
       position={"left"}
-      portalRoot={editorPortalElement ?? undefined}
+      portalRoot={editorPortalElement}
     >
       <Components.Generic.Menu.Trigger>
         <Components.SideMenu.Button

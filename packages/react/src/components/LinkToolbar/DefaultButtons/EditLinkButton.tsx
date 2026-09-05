@@ -17,7 +17,7 @@ export const EditLinkButton = (
   return (
     <Components.Generic.Popover.Root
       onOpenChange={props.setToolbarPositionFrozen}
-      portalRoot={editorPortalElement ?? undefined}
+      portalRoot={editorPortalElement}
     >
       <Components.Generic.Popover.Trigger>
         <Components.LinkToolbar.Button

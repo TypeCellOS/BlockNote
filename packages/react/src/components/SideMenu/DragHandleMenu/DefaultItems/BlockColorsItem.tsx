@@ -35,7 +35,7 @@ export const BlockColorsItem = (props: { children: ReactNode }) => {
     <Components.Generic.Menu.Root
       position={"right"}
       sub={true}
-      portalRoot={editorPortalElement ?? undefined}
+      portalRoot={editorPortalElement}
     >
       <Components.Generic.Menu.Trigger sub={true}>
         <Components.Generic.Menu.Item

@@ -68,6 +68,11 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     // Portal the tooltip into the ambient portal target (a themed `.bn-root`)
     // so it inherits the editor's light/dark color scheme instead of the
     // document body's.
+    // NOTE: Only ShadCN Badge / Tooltip depend on useEditorPortalElement.
+    // Alternative would be to pass a portalElement to these components, but they
+    // would be ignored by ariakit / mantine. For now keep these two exceptions
+    // (ideally skin components don't have a dependency on the editor's context)
+
     const editorPortalElement = useEditorPortalElement();
 
     const trigger =
@@ -112,7 +117,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       <ShadCNComponents.Tooltip.Tooltip>
         <ShadCNComponents.Tooltip.TooltipTrigger render={trigger} />
         <ShadCNComponents.Tooltip.TooltipContent
-          container={editorPortalElement ?? undefined}
+          container={editorPortalElement}
           className={"flex flex-col items-center whitespace-pre-wrap"}
         >
           <span>{mainTooltip}</span>
@@ -169,7 +174,7 @@ export const ToolbarSelect = forwardRef<
       </ShadCNComponents.Select.SelectTrigger>
       <ShadCNComponents.Select.SelectContent
         className={className}
-        container={portalRoot ?? undefined}
+        container={portalRoot}
         // Position the dropdown below the trigger (classic dropdown behavior)
         // instead of aligning the selected item over the trigger (the Base UI
         // default).

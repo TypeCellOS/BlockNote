@@ -114,7 +114,7 @@ export const FileCaptionButton = () => {
       // `MobileFormattingToolbarController`), and `preventFocusOnOpen` stops
       // focus moving into the popover, which would blur the editor and dismiss
       // the on-screen keyboard.
-      portalRoot={editorPortalElement ?? undefined}
+      portalRoot={editorPortalElement}
       preventFocusOnOpen={uiMode === "mobile"}
     >
       <Components.Generic.Popover.Trigger>
