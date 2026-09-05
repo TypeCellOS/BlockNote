@@ -94,6 +94,26 @@ function Harness(props: { setup: Setup }) {
   );
 }
 
+/**
+ * Waits until no commit has landed for a while. Mounting schedules an update
+ * from an effect that can commit after `act` has returned, and on Linux WebKit
+ * whether it does varies from mount to mount; measuring only once things have
+ * settled makes every mount count the same set of commits.
+ */
+async function settle() {
+  let last = commits;
+  for (let i = 0; i < 20; i++) {
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+    if (commits === last) {
+      return;
+    }
+    last = commits;
+  }
+  throw new Error("commits did not settle");
+}
+
 async function mount(setup: Setup, strict: boolean) {
   editor = BlockNoteEditor.create();
   commits = 0;
@@ -103,6 +123,7 @@ async function mount(setup: Setup, strict: boolean) {
   await act(async () => {
     root!.render(strict ? <StrictMode>{tree}</StrictMode> : tree);
   });
+  await settle();
   if (!container.querySelector(".bn-editor")) {
     throw new Error("editor did not mount");
   }
@@ -152,6 +173,7 @@ describe.each([{ strict: false }, { strict: true }])(
         await act(async () => {
           rerenderParent();
         });
+        await settle();
         const cost = {
           commits: commits - before.commits,
           childRenders: childRenders - before.childRenders,
