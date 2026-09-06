@@ -11,7 +11,15 @@ import { forwardRef } from "react";
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
-  const { open, onOpenChange, position, portalRoot, children, ...rest } = props;
+  const {
+    open,
+    onOpenChange,
+    position,
+    portalRoot,
+    preventFocusOnOpen,
+    children,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
@@ -20,9 +28,9 @@ export const Popover = (
       middlewares={{ size: { padding: 20 } }}
       withinPortal={!!portalRoot}
       portalProps={portalRoot ? { target: portalRoot } : undefined}
-      // Do not move focus to the dropdown on mobile, as it blurs the editor's
-      // contentEditable and dismisses the on-screen keyboard.
-      trapFocus={portalRoot ? false : undefined}
+      // Do not move focus to the dropdown when requested (mobile), as it blurs
+      // the editor's contentEditable and dismisses the on-screen keyboard.
+      trapFocus={preventFocusOnOpen ? false : undefined}
       opened={open}
       onChange={onOpenChange}
       position={position}

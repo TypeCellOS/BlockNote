@@ -6,6 +6,7 @@ import {
 import { RiArrowLeftRightLine, RiMoreFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useEditorPortalElement } from "../../editor/EditorPortalProvider.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { dateToString } from "./dateToString.js";
 import { useSnapshotLabel } from "./useVersionUsers.js";
@@ -31,6 +32,7 @@ export const CurrentSnapshot = ({
   previousSnapshot?: VersionSnapshot;
 }) => {
   const Components = useComponentsContext()!;
+  const editorPortalElement = useEditorPortalElement();
   const { canPreviewCurrent, previewCurrentVersion, exitPreview } =
     useExtension(VersioningExtension);
   const selected = useExtensionState(VersioningExtension, {
@@ -72,7 +74,10 @@ export const CurrentSnapshot = ({
         variant="action-toolbar"
         className="bn-action-toolbar"
       >
-        <Components.Generic.Menu.Root position="bottom-start">
+        <Components.Generic.Menu.Root
+          position="bottom-start"
+          portalRoot={editorPortalElement}
+        >
           <Components.Generic.Menu.Trigger>
             <Components.Generic.Toolbar.Button
               className="bn-snapshot-menu-trigger"
