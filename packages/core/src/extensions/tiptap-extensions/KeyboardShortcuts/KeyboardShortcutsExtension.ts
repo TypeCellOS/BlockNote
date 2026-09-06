@@ -31,23 +31,28 @@ import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingTo
  * Runs the keymap chain for an Enter that never reached it (see the
  * `blockNoteAndroidEnter` plugin below): flushes pending DOM observations
  * first, then dispatches a synthesized Enter keydown through
- * `handleKeyDown`.
+ * `handleKeyDown`. Returns whether a handler took it.
  */
-function dispatchSynthesizedEnter(view: EditorView, shiftKey: boolean): void {
+function dispatchSynthesizedEnter(
+  view: EditorView,
+  shiftKey: boolean,
+): boolean {
   (
     view as EditorView & {
       domObserver: { forceFlush(): void };
     }
   ).domObserver.forceFlush();
-  view.someProp("handleKeyDown", (handler) =>
-    handler(
-      view,
-      new KeyboardEvent("keydown", {
-        key: "Enter",
-        code: "Enter",
-        shiftKey,
-      }),
-    ),
+  return (
+    view.someProp("handleKeyDown", (handler) =>
+      handler(
+        view,
+        new KeyboardEvent("keydown", {
+          key: "Enter",
+          code: "Enter",
+          shiftKey,
+        }),
+      ),
+    ) === true
   );
 }
 
@@ -88,8 +93,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!isAndroid() || view.composing || event.key !== "Enter") {
               return false;
             }
-            dispatchSynthesizedEnter(view, event.shiftKey);
-            return true;
+            // Only claim the keypress when a handler took the Enter; a `true`
+            // for an unhandled one would make prosemirror-view cancel the
+            // browser default and drop the key.
+            return dispatchSynthesizedEnter(view, event.shiftKey);
           },
           handleDOMEvents: {
             beforeinput: (view, event) => {
