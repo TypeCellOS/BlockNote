@@ -26,7 +26,10 @@ import {
   BlockNoteDefaultUI,
   BlockNoteDefaultUIProps,
 } from "./BlockNoteDefaultUI.js";
-import { PortalElementOverride } from "./PortalElementOverride.js";
+import {
+  PortalElementOverride,
+  PortalElementReset,
+} from "./PortalElementOverride.js";
 import { resolvePortalElement } from "./portalElements.js";
 import {
   BlockNoteViewContext,
@@ -303,13 +306,15 @@ const BlockNoteViewContainer = React.forwardRef<
       {...rest}
       ref={ref}
     >
-      <PortalElementOverride target={defaultPortalElement}>
-        {renderEditor ? (
-          <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
-        ) : (
-          children
-        )}
-      </PortalElementOverride>
+      <PortalElementReset>
+        <PortalElementOverride target={defaultPortalElement}>
+          {renderEditor ? (
+            <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
+          ) : (
+            children
+          )}
+        </PortalElementOverride>
+      </PortalElementReset>
     </div>
   ),
 );
