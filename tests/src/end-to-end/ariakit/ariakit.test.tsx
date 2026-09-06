@@ -46,6 +46,12 @@ describe("Check Ariakit UI", () => {
     await userEvent.keyboard("{ArrowLeft}");
     await userEvent.keyboard("{ArrowRight}");
 
+    // The screenshot alone cannot catch link creation breaking: the global
+    // `toMatchScreenshot` tolerance is 2% of pixels and the link toolbar covers
+    // about 1% of the frame, so "no link, no toolbar" compares equal to the
+    // baseline. Assert the UI exists first.
+    await waitForSelector(".bn-link-toolbar");
+
     await sleep(500);
     await expectElement(document.body).toMatchScreenshot(
       "ariakit-link-toolbar",
