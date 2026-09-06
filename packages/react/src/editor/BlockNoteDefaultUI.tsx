@@ -85,11 +85,10 @@ export type BlockNoteDefaultUIProps = {
 
   /**
    * Per-element portal targets for floating UI. Each key corresponds to one
-   * of the default UI elements; values can be an `HTMLElement`, a CSS
-   * selector string, or `null` (= `document.body`). The optional `default`
-   * key sets the target for every element without its own entry; when
-   * omitted, the element wrapping the editor is used (its `bn-container` in
-   * the default layout).
+   * of the default UI elements; values can be an `HTMLElement` or a CSS
+   * selector string. The optional `default` key sets the target for every
+   * element without its own entry; when omitted, the element wrapping the
+   * editor is used (its `bn-container` in the default layout).
    */
   portalElements?: PortalElementsMap;
 };
