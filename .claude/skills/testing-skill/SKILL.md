@@ -9,7 +9,7 @@ In most cases, once a feature, bug fix, or other modification has been written, 
 
 ## The test-layer ladder
 
-Six layers, ordered by cost (speed, determinism, machinery). Prefer the highest workable rung:
+Six layers, ordered by cost (speed, determinism, machinery), cheapest first. Prefer the first rung where the test can go red:
 
 1. **Unit tests** — node, colocated in `packages/*` (`vp run test`)
 2. **Browser unit tests** — colocated `*.browser.test.{ts,tsx}`: one unit that genuinely needs real DOM/rendering
@@ -18,7 +18,7 @@ Six layers, ordered by cost (speed, determinism, machinery). Prefer the highest 
 5. **Mobile-emulated e2e** — `end-to-end/mobile/**` and the suites on the `android` instance: only for behavior that differs under mobile conditions (touch, viewport, UA, emulated IME). One restriction: suites here must not take iframe-element screenshots (`screenshotFull`) — that path permanently drops the context's touch emulation for every later test file (see `utils/ensureTouchEmulation.ts`), so such suites stay out of the android instance's include
 6. **Device suite** — _parked_: a real emulator/simulator suite (one session interface, Android via Playwright `_android` + adb, iOS via Appium/XCUITest) lives on the `mobile/emulator-layer` branch (PR #3034). It left the active stack because every fix it guarded is red-first provable on the emulated instance; revive it only for a bug class that emulation demonstrably cannot observe (the IME's own action-key choice, real-keyboard viewport resize, real iOS Safari focus/zoom) — until then those are the manual checklist below.
 
-**One rule decides placement: red-first.** Every test must fail without the change it guards — a test that passes either way proves nothing, and for regression fixes this means actually running it against the pre-fix code. Red-first also _places_ the test: write it at the highest rung where it goes red. If the failure isn't observable there (the rung's environment fakes away the very thing that breaks), move down one rung and try again. Once it goes red, stop — rungs below add cost, not proof.
+**One rule decides placement: red-first.** Every test must fail without the change it guards — a test that passes either way proves nothing, and for regression fixes this means actually running it against the pre-fix code. Red-first also _places_ the test: write it at the first (cheapest) rung where it goes red. If the failure isn't observable there (the rung's environment fakes away the very thing that breaks), move one rung further down the list and try again. Once it goes red, stop — the rungs after it add cost, not proof.
 
 Corollaries:
 
