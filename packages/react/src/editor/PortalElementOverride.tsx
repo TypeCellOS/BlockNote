@@ -57,8 +57,7 @@ export function usePortalElement(): HTMLElement | null {
  * layout effect, so it is in the DOM before paint. It is also registered with
  * the editor, so focus inside it still counts as focus within the editor.
  *
- * - `undefined` — no redirect; the ambient portal element stays in effect.
- * - `null` — `document.body`, escaping every ancestor.
+ * `undefined` means no redirect: the ambient portal element stays in effect.
  */
 export function PortalElementOverride(props: {
   target?: HTMLElement;
