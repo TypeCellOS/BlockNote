@@ -14,6 +14,7 @@ import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { EditorPortalProvider } from "../../editor/EditorPortalProvider.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { PositionPopover } from "../Popovers/PositionPopover.js";
@@ -30,7 +31,7 @@ export default function FloatingComposerController<
   floatingUIOptions?: FloatingUIOptions;
   /**
    * Override the DOM node this floating element portals into. Falls back to
-   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * the ambient portal target (the editor's `bn-container` by default)
    * when omitted.
    */
   portalElement?: HTMLElement | null;
@@ -131,12 +132,10 @@ export default function FloatingComposerController<
   const Component = props.floatingComposer || FloatingComposer;
 
   return (
-    <PositionPopover
-      position={position}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      <Component newCommentEditor={newCommentEditor} />
-    </PositionPopover>
+    <EditorPortalProvider target={props.portalElement}>
+      <PositionPopover position={position} {...floatingUIOptions}>
+        <Component newCommentEditor={newCommentEditor} />
+      </PositionPopover>
+    </EditorPortalProvider>
   );
 }

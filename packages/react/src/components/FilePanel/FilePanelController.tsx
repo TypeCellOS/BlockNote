@@ -4,6 +4,7 @@ import { FC, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { EditorPortalProvider } from "../../editor/EditorPortalProvider.js";
 import { BlockPopover } from "../Popovers/BlockPopover.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { FilePanel } from "./FilePanel.js";
@@ -14,7 +15,7 @@ export const FilePanelController = (props: {
   floatingUIOptions?: FloatingUIOptions;
   /**
    * Override the DOM node this floating element portals into. Falls back to
-   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * the ambient portal target (the editor's `bn-container` by default)
    * when omitted.
    */
   portalElement?: HTMLElement | null;
@@ -60,12 +61,10 @@ export const FilePanelController = (props: {
   const Component = props.filePanel || FilePanel;
 
   return (
-    <BlockPopover
-      blockId={blockId}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {blockId && <Component blockId={blockId} />}
-    </BlockPopover>
+    <EditorPortalProvider target={props.portalElement}>
+      <BlockPopover blockId={blockId} {...floatingUIOptions}>
+        {blockId && <Component blockId={blockId} />}
+      </BlockPopover>
+    </EditorPortalProvider>
   );
 };

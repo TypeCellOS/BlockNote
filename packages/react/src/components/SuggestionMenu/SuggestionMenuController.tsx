@@ -10,6 +10,7 @@ import { FC, useEffect, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../hooks/useEditorDomElement.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { EditorPortalProvider } from "../../editor/EditorPortalProvider.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -40,7 +41,7 @@ export function SuggestionMenuController<
     floatingUIOptions?: FloatingUIOptions;
     /**
      * Override the DOM node this floating element portals into. Falls back to
-     * `editor.portalElement` (which by default is mounted inside `bn-container`)
+     * the ambient portal target (the editor's `bn-container` by default)
      * when omitted.
      */
     portalElement?: HTMLElement | null;
@@ -177,23 +178,21 @@ export function SuggestionMenuController<
   }
 
   return (
-    <GenericPopover
-      reference={reference}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {triggerCharacter && (
-        <SuggestionMenuWrapper
-          query={state.query}
-          closeMenu={suggestionMenu.closeMenu}
-          clearQuery={suggestionMenu.clearQuery}
-          getItems={getItemsOrDefault}
-          suggestionMenuComponent={
-            suggestionMenuComponent || SuggestionMenu<ItemType<GetItemsType>>
-          }
-          onItemClick={onItemClickOrDefault}
-        />
-      )}
-    </GenericPopover>
+    <EditorPortalProvider target={props.portalElement}>
+      <GenericPopover reference={reference} {...floatingUIOptions}>
+        {triggerCharacter && (
+          <SuggestionMenuWrapper
+            query={state.query}
+            closeMenu={suggestionMenu.closeMenu}
+            clearQuery={suggestionMenu.clearQuery}
+            getItems={getItemsOrDefault}
+            suggestionMenuComponent={
+              suggestionMenuComponent || SuggestionMenu<ItemType<GetItemsType>>
+            }
+            onItemClick={onItemClickOrDefault}
+          />
+        )}
+      </GenericPopover>
+    </EditorPortalProvider>
   );
 }

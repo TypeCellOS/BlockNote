@@ -9,7 +9,8 @@ import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 import { RiInputField } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
-import { useMobileToolbarPortal } from "../../../editor/MobileToolbarPortalContext.js";
+import { useEditorPortalElement } from "../../../editor/EditorPortalProvider.js";
+import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -17,7 +18,12 @@ import { useDictionary } from "../../../i18n/dictionary.js";
 export const FileCaptionButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
-  const mobileToolbarPortal = useMobileToolbarPortal();
+  const uiMode = useUIMode();
+  const editorPortalElement = useEditorPortalElement();
+  // Only portal (and suppress dropdown focus) in the mobile toolbar; desktop
+  // renders inline with default focus behavior.
+  const portalRoot =
+    uiMode === "mobile" ? (editorPortalElement ?? undefined) : undefined;
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -112,7 +118,7 @@ export const FileCaptionButton = () => {
       // staying styled. A set `portalRoot` also stops focus moving into the
       // popover, which would blur the editor and dismiss the on-screen keyboard.
       // On desktop it's `undefined`, keeping the default inline rendering.
-      portalRoot={mobileToolbarPortal ?? undefined}
+      portalRoot={portalRoot}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
