@@ -46,6 +46,23 @@ export function usePortalElement(): HTMLElement | null {
 }
 
 /**
+ * Resets the portal element for the subtree to the editor's own default (see
+ * {@link usePortalElement}). `BlockNoteViewContainer` wraps its content in it:
+ * a `BlockNoteView` nested inside another view's floating UI (the comments
+ * composer, an editor in a custom block's popover) would otherwise inherit the
+ * outer view's anchor or override, an element registered with the outer
+ * editor, so the nested editor's own menus and popovers would count as
+ * outside it for `isWithinEditor` and the focus tracking built on it.
+ */
+export function PortalElementReset(props: { children?: ReactNode }) {
+  return (
+    <PortalElementContext.Provider value={null}>
+      {props.children}
+    </PortalElementContext.Provider>
+  );
+}
+
+/**
  * Redirects the floating UI below it into `target`, for UI that must escape
  * the editor container — an ancestor's `overflow` clipping it, or a stacking
  * context painting it behind the page (see

@@ -4,11 +4,14 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
   BlockNoteViewEditor,
+  PortalElementOverride,
   PortalElementsMap,
   useCreateBlockNote,
+  usePortalElement,
 } from "@blocknote/react";
 import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
 import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
@@ -201,5 +204,54 @@ describe("Portal elements", () => {
     // editor instead of spilling over the sidebar next to it.
     expect(pane.contains(menu)).toBe(true);
     expect(editor.isWithinEditor(menu)).toBe(true);
+  });
+
+  // A view rendered inside another view's portalled UI, as the comments
+  // composer is, must not inherit the outer view's portal element: that one
+  // is registered with the outer editor only, so the nested editor's own menus
+  // and popovers would count as outside it (see `PortalElementReset`).
+  test("resolves its own container inside another view's portalled UI", async () => {
+    const target = createPortalTarget("outer-portal-target");
+    let inner: BlockNoteEditor | undefined;
+
+    function Probe() {
+      const portalElement = usePortalElement();
+      if (!portalElement) {
+        return null;
+      }
+      return createPortal(<div data-test="nested-probe" />, portalElement);
+    }
+
+    function NestedView() {
+      const created = useCreateBlockNote();
+      inner = created;
+      return (
+        <BlockNoteView editor={created}>
+          <Probe />
+        </BlockNoteView>
+      );
+    }
+
+    function App() {
+      const outer = useCreateBlockNote();
+      return (
+        <BlockNoteView editor={outer} renderEditor={false}>
+          <BlockNoteViewEditor />
+          <PortalElementOverride target={target}>
+            <NestedView />
+          </PortalElementOverride>
+        </BlockNoteView>
+      );
+    }
+
+    await render(<App />);
+    const probe = await waitForSelector("[data-test=nested-probe]");
+
+    expect(inner).toBeDefined();
+    expect(inner!.isWithinEditor(probe)).toBe(true);
+    // Into the nested view's own container, not straight into the outer root.
+    expect(probe.closest(".bn-container")?.contains(inner!.domElement!)).toBe(
+      true,
+    );
   });
 });
