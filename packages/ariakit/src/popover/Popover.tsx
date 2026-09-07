@@ -45,6 +45,7 @@ export const PopoverContent = forwardRef<
       // popover content mounted while closed: without `unmountOnHide` it ran
       // once, on the hidden input, and the URL input was never focused.
       autoFocusOnShow={false}
+      // How-to-test: without it, the link form's URL input never gets focus, desktop and mobile alike: Ariakit keeps the closed popover's content mounted, so the input's `useAutoFocus` fired once, hidden, when the toolbar mounted, and never again on open (covered by skinFocus, android, ariakit: "the link button hands focus to the URL input", and linkToolbar, chromium, ariakit: "Create link").
       unmountOnHide={true}
       // Ariakit falls back to a body-appended div for a missing element, so
       // don't portal at all until there is one (editor not mounted yet).
