@@ -2,12 +2,15 @@ import type { BrowserCommand } from "vite-plus/test/node";
 
 /**
  * Re-applies the touch emulation the android instance's Playwright
- * `contextOptions` established. Chromium's beyond-viewport screenshot
- * capture (`Page.captureScreenshot` with `captureBeyondViewport: true`,
- * which Playwright sends for any element taller than the viewport) can
- * silently drop the context's emulation overrides — `maxTouchPoints`
- * becomes 0 for every later test. `vitestSetup.browser.ts` calls this
- * before each file on the android instance.
+ * `contextOptions` established. Chromium drops `Emulation.setTouchEmulationEnabled`
+ * whenever `Page.captureScreenshot` runs with `captureBeyondViewport: true`
+ * (reproduced over raw CDP, Chromium 148: `tests/scripts/touch-emulation-repro.mjs`).
+ * Playwright sends that flag for every capture that does not fit the
+ * viewport, so `fullPage` and tall elements everywhere, and on an `isMobile`
+ * context every element screenshot; it sets touch emulation once per session
+ * and never re-arms it, so `maxTouchPoints` stays 0 for every later test
+ * (microsoft/playwright#42607). `vitestSetup.browser.ts` calls this before
+ * each test on the android instance.
  *
  * The CDP session is deliberately cached and never detached:
  * Emulation-domain overrides revert when the session that set them
