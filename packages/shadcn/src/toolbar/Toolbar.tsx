@@ -4,7 +4,7 @@ import {
   preventFocusOnTap,
   usePortalElement,
 } from "@blocknote/react";
-import { forwardRef, type MouseEvent } from "react";
+import { forwardRef, type HTMLAttributes, type MouseEvent } from "react";
 
 import { preventFocusOnOpenProps } from "../lib/preventFocusOnOpen.js";
 import { cn } from "../lib/utils.js";
@@ -46,7 +46,12 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   },
 );
 
-type ToolbarButtonProps = ComponentProps["Generic"]["Toolbar"]["Button"];
+// Base UI merges its own props into a `render` element (the trigger's HTML
+// attributes, handlers and ref). This button is the render element of the
+// tooltip, menu and popover triggers, so it receives those on top of the
+// generic Button props.
+type ToolbarButtonProps = ComponentProps["Generic"]["Toolbar"]["Button"] &
+  HTMLAttributes<HTMLButtonElement>;
 
 export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   (props, ref) => {
@@ -61,12 +66,17 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       onClick,
       label,
       variant,
+      onMouseDown: triggerMouseDown,
       ...rest
     } = props;
 
-    // false, because rest props can be added by shadcn when button is used as a trigger
-    // assertEmpty in this case is only used at typescript level, not runtime level
-    assertEmpty(rest, false);
+    // Every generic prop is taken above, so only what Base UI injected may
+    // remain: a forgotten generic prop fails to compile here. Type-level only;
+    // at runtime the injected attributes are expected.
+    assertEmpty(
+      rest as Omit<typeof rest, keyof HTMLAttributes<HTMLButtonElement>>,
+      false,
+    );
 
     const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -80,9 +90,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
 
     const portalElement = usePortalElement();
 
-    const triggerMouseDown = (
-      rest as { onMouseDown?: (e: MouseEvent<HTMLButtonElement>) => void }
-    ).onMouseDown;
     const onMouseDown = (e: MouseEvent<HTMLButtonElement>) => {
       preventFocusOnTap(e);
       triggerMouseDown?.(e);
@@ -101,7 +108,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           onClick={onClick}
           ref={ref}
           aria-label={label}
-          // `rest` first, so a library-injected `onMouseDown` does not replace ours.
           {...rest}
           onMouseDown={onMouseDown}
         >
@@ -121,7 +127,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           pressed={isSelected}
           disabled={isDisabled}
           ref={ref}
-          // `rest` first, so a library-injected `onMouseDown` does not replace ours.
           {...rest}
           onMouseDown={onMouseDown}
         >
