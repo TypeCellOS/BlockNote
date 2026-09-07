@@ -108,10 +108,35 @@ export function useVirtualKeyboard(): boolean {
     vp?.addEventListener("scroll", update);
     window.addEventListener("resize", update);
 
+    // A pinned `bn-scroll-container` contains its overscroll only once it has
+    // scrolled (see the rule in `editor/styles.css`): at the top the overscroll
+    // must reach the document for the browser's pull-to-refresh to fire.
+    // Scroll events don't bubble, so listen in the capture phase.
+    const markScrolled = (container: HTMLElement) =>
+      container.toggleAttribute("data-bn-scrolled", container.scrollTop > 0);
+    const onScroll = (event: Event) => {
+      if (
+        event.target instanceof HTMLElement &&
+        event.target.classList.contains("bn-scroll-container")
+      ) {
+        markScrolled(event.target);
+      }
+    };
+    document.addEventListener("scroll", onScroll, {
+      capture: true,
+      passive: true,
+    });
+    for (const container of document.querySelectorAll<HTMLElement>(
+      ".bn-scroll-container",
+    )) {
+      markScrolled(container);
+    }
+
     return () => {
       vp?.removeEventListener("resize", update);
       vp?.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
+      document.removeEventListener("scroll", onScroll, { capture: true });
       viewportPublishers--;
       if (viewportPublishers === 0) {
         for (const property of VIEWPORT_PROPERTIES) {

@@ -572,11 +572,18 @@ SideMenuController offsets its position to keep it centered on the line. */
   height: var(--bn-vv-height, 100dvh);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  /* Stop overscroll at the boundary from chaining to the document. Without
+  /* Stop overscroll at the bottom from chaining to the document. Without
      this, dragging past the bottom on iOS rubber-bands the whole page, which
      shifts the visual viewport (repinning the container mid-bounce → jitter)
-     and surfaces a second, document-level scrollbar. */
-  overscroll-behavior: contain;
+     and surfaces a second, document-level scrollbar. Chaining at the top is
+     what lets the browser's pull-to-refresh fire, so it stays allowed until
+     the container has scrolled: `useVirtualKeyboard` sets `data-bn-scrolled`
+     while `scrollTop > 0`. */
+  overscroll-behavior-x: contain;
+}
+
+.bn-scroll-container[data-bn-scrolled] {
+  overscroll-behavior-y: contain;
 }
 
 /* Emoji Picker styling */
