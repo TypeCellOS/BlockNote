@@ -117,6 +117,10 @@ export function useVirtualKeyboard(): boolean {
         for (const property of VIEWPORT_PROPERTIES) {
           html.style.removeProperty(property);
         }
+        // The keyboard baseline goes with them: a later editor starts from
+        // what it measures itself, not from a maximum seen on another page.
+        maxLayoutViewportHeight = 0;
+        baselineLayoutWidth = 0;
       }
     };
   }, []);
