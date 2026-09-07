@@ -105,13 +105,12 @@ describe("Enter on Android", () => {
     },
   );
 
-  // For reviewer (day review 2026-09-06): the other IME shape. Chromium's
-  // commit path delivers a newline as a TRUSTED `beforeinput: insertText`
-  // with `data: "\n"` and no keypress (a keyboard committing Enter through
-  // `commitText("\n")`); its default action is the paragraph split that
-  // prosemirror-view then misparses. Driven through the real IME pipeline
-  // over CDP, so unlike the synthetic event above this one has the default
-  // action and fails red without the interception.
+  // The other IME shape: Chromium's commit path delivers a newline as a
+  // trusted `beforeinput: insertText` with `data: "\n"` and no keypress (a
+  // keyboard committing Enter through `commitText("\n")`); its default action
+  // is the paragraph split that prosemirror-view then misparses. Driven
+  // through the real IME pipeline over CDP, so unlike the synthetic event
+  // above this one has the default action and fails without the interception.
   test.skipIf(!/android/i.test(navigator.userAgent))(
     "IME-committed newline (insertText) splits the block",
     async () => {
