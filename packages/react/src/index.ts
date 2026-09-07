@@ -164,5 +164,6 @@ export * from "./icons.js";
 
 export * from "./util/elementOverflow.js";
 export * from "./util/mergeRefs.js";
+export * from "./util/mouseDownFocus.js";
 
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardHandler.js";

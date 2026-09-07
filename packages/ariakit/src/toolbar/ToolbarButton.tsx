@@ -5,13 +5,8 @@ import {
   TooltipProvider as AriakitTooltipProvider,
 } from "@ariakit/react";
 
-import {
-  assertEmpty,
-  isSafari,
-  isTouchDevice,
-  mergeCSSClasses,
-} from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
+import { ComponentProps, preventFocusOnTap } from "@blocknote/react";
 import { forwardRef, type MouseEvent } from "react";
 
 type ToolbarButtonProps = ComponentProps["Generic"]["Toolbar"]["Button"];
@@ -39,6 +34,13 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     // assertEmpty in this case is only used at typescript level, not runtime level
     assertEmpty(rest, false);
 
+    // Ariakit injects its own `onMouseDown` into `rest` when this button is a
+    // popover or menu trigger. `rest` is spread first so ours is not replaced,
+    // and ours forwards to it (see `preventFocusOnTap`).
+    const triggerMouseDown = (
+      rest as { onMouseDown?: (e: MouseEvent<HTMLButtonElement>) => void }
+    ).onMouseDown;
+
     return (
       <AriakitTooltipProvider>
         <AriakitTooltipAnchor
@@ -49,31 +51,19 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
                 "bn-ak-button bn-ak-secondary",
                 className || "",
               )}
+              {...rest}
               onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
-                // On touch, keep focus where it is (so the on-screen keyboard
-                // stays open) without canceling the tap's click. `mousedown`
-                // is the compat event that moves focus, so preventing it keeps
-                // focus in place while the click still fires. It also keeps
-                // the focus-triggered inline tooltip from inserting itself
-                // mid-tap — the layout shift moved the button between
-                // mousedown and mouseup, and the click never completed.
-                if (isTouchDevice()) {
-                  e.preventDefault();
-                  return;
-                }
-
-                // Needed as Safari doesn't focus button elements on mouse
-                // down unlike other browsers.
-                if (isSafari()) {
-                  (e.currentTarget as HTMLButtonElement).focus();
-                }
+                // On touch this also keeps the focus-triggered tooltip from
+                // inserting itself mid-tap: the layout shift moved the button
+                // between mousedown and mouseup, and the click never completed.
+                preventFocusOnTap(e);
+                triggerMouseDown?.(e);
               }}
               onClick={onClick}
               aria-pressed={isSelected}
               data-selected={isSelected ? "true" : undefined}
               disabled={isDisabled || false}
               ref={ref}
-              {...rest}
             >
               {icon}
               {children}

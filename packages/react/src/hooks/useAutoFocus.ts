@@ -18,11 +18,11 @@ import { RefObject, useEffect, useRef } from "react";
  * iOS). `preventScroll` also makes the timing not load-bearing: no
  * ordering relative to floating-ui's positioning can scroll the page.
  *
- * A skin sets `data-autofocus` on the same element only when its UI
- * library both reads the attribute AND focuses safely: Mantine's trap
- * does (`focus({ preventScroll: true })`). Ariakit reads it but
- * bare-focuses, so that skin disables its `autoFocusOnShow` instead (see
- * its Popover); Base UI has no attribute convention.
+ * This runs at mount, so the popover content must mount when the popover
+ * opens: Mantine and Base UI do that by default, Ariakit needs
+ * `unmountOnHide` (see the ariakit Popover). The skins keep their
+ * libraries' own autofocus off; Ariakit's is a bare `focus()` plus a Safari
+ * `scrollIntoView`, exactly the scroll this hook avoids.
  *
  * Returns the ref to attach; merge it with a forwarded ref via
  * `useMergeRefs`.

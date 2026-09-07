@@ -50,10 +50,10 @@ type ToolbarSelectType = {
   isDisabled?: boolean;
   portalElement: HTMLElement | null;
   /**
-   * When true, the surface must not move DOM focus onto itself when it opens.
-   * On mobile, stealing focus blurs the editor's `contentEditable` and
-   * dismisses the on-screen keyboard. Adapters map this to their own library's
-   * focus mechanism.
+   * When true, the UI library must not move focus into the surface when it
+   * opens (the mobile toolbar: a focus move blurs the editor and closes the
+   * on-screen keyboard). An input inside that asks for focus itself still
+   * gets it.
    */
   preventFocusOnOpen?: boolean;
 };
@@ -364,12 +364,7 @@ export type ComponentProps = {
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
         portalElement: HTMLElement | null;
-        /**
-         * When true, the surface must not move DOM focus onto itself when it
-         * opens. On mobile, stealing focus blurs the editor's `contentEditable`
-         * and dismisses the on-screen keyboard. Adapters map this to their own
-         * library's focus mechanism.
-         */
+        /** See `ToolbarSelect.preventFocusOnOpen`. */
         preventFocusOnOpen?: boolean;
         children?: ReactNode;
       };
@@ -411,13 +406,6 @@ export type ComponentProps = {
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
         portalElement: HTMLElement | null;
-        /**
-         * When true, the surface must not move DOM focus onto itself when it
-         * opens. On mobile, stealing focus blurs the editor's `contentEditable`
-         * and dismisses the on-screen keyboard. Adapters map this to their own
-         * library's focus mechanism.
-         */
-        preventFocusOnOpen?: boolean;
         children?: ReactNode;
       };
       Content: {

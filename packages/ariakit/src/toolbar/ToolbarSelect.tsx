@@ -8,8 +8,8 @@ import {
   ToolbarItem as AriakitToolbarItem,
 } from "@ariakit/react";
 
-import { assertEmpty, isTouchDevice, mergeCSSClasses } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
+import { ComponentProps, preventFocusOnTap } from "@blocknote/react";
 import { forwardRef } from "react";
 
 export const ToolbarSelect = forwardRef<
@@ -21,7 +21,7 @@ export const ToolbarSelect = forwardRef<
     items,
     isDisabled,
     portalElement,
-    preventFocusOnOpen: _preventFocusOnOpen, // unused; see Menu.tsx
+    preventFocusOnOpen,
     ...rest
   } = props;
 
@@ -38,14 +38,7 @@ export const ToolbarSelect = forwardRef<
       <AriakitSelect
         className={"bn-ak-button bn-ak-secondary"}
         disabled={isDisabled}
-        aria-label="Text alignment"
-        // On touch, keep focus (and the on-screen keyboard) where it is; the
-        // click still fires and opens the popover. See ToolbarButton.
-        onMouseDown={(e) => {
-          if (isTouchDevice()) {
-            e.preventDefault();
-          }
-        }}
+        onMouseDown={preventFocusOnTap}
         render={<AriakitToolbarItem />}
       >
         {selectedItem.icon} {selectedItem.text} <AriakitSelectArrow />
@@ -54,6 +47,11 @@ export const ToolbarSelect = forwardRef<
         className={mergeCSSClasses("bn-ak-popover", className || "")}
         ref={ref}
         gutter={4}
+        // Ariakit's default focuses the listbox on show and hands focus back
+        // to the select button on hide; on the mobile toolbar either blurs
+        // the editor and closes the keyboard.
+        autoFocusOnShow={!preventFocusOnOpen}
+        autoFocusOnHide={!preventFocusOnOpen}
         // Ariakit falls back to a body-appended div for a missing element,
         // so don't portal at all until there is one (editor not mounted yet).
         portal={portalElement !== null}
@@ -64,6 +62,11 @@ export const ToolbarSelect = forwardRef<
             className={"bn-ak-select-item"}
             key={option.text}
             value={option.text}
+            // A tap must not focus the option; under `preventFocusOnOpen`,
+            // hovering one (a tap's compat mousemove included) must not focus
+            // the listbox either.
+            focusOnHover={!preventFocusOnOpen}
+            onMouseDown={preventFocusOnTap}
           >
             {option.icon}
             {option.text}

@@ -11,15 +11,8 @@ import { forwardRef } from "react";
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
-  const {
-    open,
-    onOpenChange,
-    position,
-    portalElement,
-    preventFocusOnOpen,
-    children,
-    ...rest
-  } = props;
+  const { open, onOpenChange, position, portalElement, children, ...rest } =
+    props;
 
   assertEmpty(rest);
 
@@ -32,13 +25,13 @@ export const Popover = (
       // which on mobile blurs the contentEditable and dismisses the
       // keyboard. BlockNote owns focus in its popovers (useAutoFocus).
       trapFocus={false}
-      // Keep the dropdown visible through virtual-keyboard viewport resizes on
-      // mobile: hideDetached (default true) reacts to the resize by setting
-      // display:none on the dropdown, which blurs its focused input and
-      // dismisses the on-screen keyboard (the input then unmounts with the
-      // toolbar, so the whole UI collapses). `preventFocusOnOpen` is set for
-      // exactly the popovers that live in the mobile toolbar.
-      hideDetached={preventFocusOnOpen ? false : undefined}
+      // Mantine would hide the dropdown (`display: none`) whenever it judges
+      // the target out of view. BlockNote's floating UI already hides itself,
+      // dropdowns included, when its reference leaves the viewport, and on
+      // mobile the on-screen keyboard's viewport resize makes Mantine judge
+      // the toolbar button out of view for a moment: the hidden dropdown
+      // blurs its focused input and the keyboard closes.
+      hideDetached={false}
       opened={open}
       onChange={onOpenChange}
       position={position}

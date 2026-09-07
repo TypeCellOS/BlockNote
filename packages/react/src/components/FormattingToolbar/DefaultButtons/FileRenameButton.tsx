@@ -11,7 +11,6 @@ import { RiFontFamily } from "react-icons/ri";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { usePortalElement } from "../../../editor/PortalElementOverride.js";
 import { ScreenReaderOnlySubmit } from "../../Form/ScreenReaderOnlySubmit.js";
-import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -19,7 +18,6 @@ import { useDictionary } from "../../../i18n/dictionary.js";
 export const FileRenameButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
-  const uiMode = useUIMode();
   const portalElement = usePortalElement();
 
   const editor = useBlockNoteEditor<
@@ -101,12 +99,7 @@ export const FileRenameButton = () => {
       onOpenChange={setPopoverOpen}
       // Portal the popover into the editor's themed portal target so it
       // inherits styling and escapes any scroll-container overflow clipping.
-      // On mobile that target is the toolbar's body-level container (see
-      // `MobileFormattingToolbarController`), and `preventFocusOnOpen` stops
-      // focus moving into the popover, which would blur the editor and dismiss
-      // the on-screen keyboard.
       portalElement={portalElement}
-      preventFocusOnOpen={uiMode === "mobile"}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button

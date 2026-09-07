@@ -31,8 +31,7 @@ export const TextInput = forwardRef<
 
   assertEmpty(rest);
 
-  // Rationale (and the trap contract `data-autofocus` serves) in the hook.
-
+  // Rationale in the hook.
   const inputRef = useAutoFocus<HTMLInputElement>(autoFocus);
   const setRefs = useMergeRefs([inputRef, ref]);
 

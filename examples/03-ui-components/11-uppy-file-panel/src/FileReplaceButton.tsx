@@ -10,7 +10,6 @@ import {
   useDictionary,
   useEditorState,
   usePortalElement,
-  useUIMode,
 } from "@blocknote/react";
 import { useCallback, useEffect, useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
@@ -24,7 +23,6 @@ export const FileReplaceButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
   // Portal necessary to properly show popover on mobile.
-  const uiMode = useUIMode();
   const editorPortalElement = usePortalElement();
 
   const editor = useBlockNoteEditor<
@@ -95,7 +93,6 @@ export const FileReplaceButton = () => {
       open={popoverOpen}
       onOpenChange={setPopoverOpen}
       portalElement={editorPortalElement}
-      preventFocusOnOpen={uiMode === "mobile"}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button

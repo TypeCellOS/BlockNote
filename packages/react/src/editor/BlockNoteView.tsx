@@ -10,9 +10,11 @@ import React, {
   ReactNode,
   Ref,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from "react";
+import { warnIfViewportMetaMisconfigured } from "../components/FormattingToolbar/viewportMeta.js";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
 import { useEditorChange } from "../hooks/useEditorChange.js";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange.js";
@@ -26,7 +28,10 @@ import {
   BlockNoteDefaultUI,
   BlockNoteDefaultUIProps,
 } from "./BlockNoteDefaultUI.js";
-import { PortalElementOverride } from "./PortalElementOverride.js";
+import {
+  PortalElementOverride,
+  PortalElementReset,
+} from "./PortalElementOverride.js";
 import { resolvePortalElement } from "./portalElements.js";
 import {
   BlockNoteViewContext,
@@ -303,13 +308,15 @@ const BlockNoteViewContainer = React.forwardRef<
       {...rest}
       ref={ref}
     >
-      <PortalElementOverride target={defaultPortalElement}>
-        {renderEditor ? (
-          <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
-        ) : (
-          children
-        )}
-      </PortalElementOverride>
+      <PortalElementReset>
+        <PortalElementOverride target={defaultPortalElement}>
+          {renderEditor ? (
+            <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
+          ) : (
+            children
+          )}
+        </PortalElementOverride>
+      </PortalElementReset>
     </div>
   ),
 );
@@ -338,6 +345,13 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
 
   const portalManager = useMemo(() => {
     return getContentComponent();
+  }, []);
+
+  // The page-level check for the mobile toolbar's viewport meta tag runs from
+  // here rather than from the toolbar's own hook, so it reaches developers on
+  // desktop and with a custom formatting toolbar alike.
+  useEffect(() => {
+    warnIfViewportMetaMisconfigured();
   }, []);
 
   const mount = useCallback(
