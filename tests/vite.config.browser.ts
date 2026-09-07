@@ -1,10 +1,15 @@
 import tailwindcss from "@tailwindcss/vite";
 import * as fs from "fs";
 import * as path from "path";
-import { defineConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
 import { positionalMouse } from "./src/utils/positionalMouse.js";
 import { imeComposition } from "./src/utils/imeComposition.js";
+
+// For the desktop instances: end-to-end/mobile runs only in the "android"
+// instance. An instance-level `exclude` replaces the resolved base exclude
+// (vitest's defaults, since the project sets none), so keep those in front.
+const DESKTOP_EXCLUDE = [...configDefaults.exclude, "**/end-to-end/mobile/**"];
 import { restoreTouchEmulation } from "./src/utils/restoreTouchEmulation.js";
 
 // 1280x720 matches the old Playwright defaults so visual baselines have room.
@@ -160,15 +165,15 @@ export default defineConfig(
                 ],
               },
               // end-to-end/mobile runs only in the "android" instance below.
-              exclude: ["**/end-to-end/mobile/**"],
+              exclude: DESKTOP_EXCLUDE,
             },
             {
               browser: "firefox",
-              exclude: ["**/end-to-end/mobile/**"],
+              exclude: DESKTOP_EXCLUDE,
             },
             {
               browser: "webkit",
-              exclude: ["**/end-to-end/mobile/**"],
+              exclude: DESKTOP_EXCLUDE,
             },
             {
               // Android-emulated chromium: mobile-specific end-to-end tests.
