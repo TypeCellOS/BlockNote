@@ -12,6 +12,11 @@ import { cleanup, render } from "vitest-browser-react";
 import { page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
 import { focusOnEditor, waitForSelector } from "../../utils/editor.js";
+import {
+  getRect,
+  mouseSequence,
+  moveMouseOverElement,
+} from "../../utils/mouse.js";
 
 const MOBILE_TOOLBAR_SELECTOR = ".bn-mobile-formatting-toolbar";
 const LINK_POPOVER_SELECTOR = ".bn-form-popover";
@@ -110,6 +115,33 @@ describe("Mobile formatting toolbar", () => {
         );
       }
     });
+  });
+
+  // Red before the side menu's guard for pointer events over the editor's own
+  // UI (SideMenu.ts). iOS Safari delivers a tap as a hover first, one mouse
+  // move straight to the tap point, and drops the click when that hover
+  // changes the page: with the toolbar far below the blocks, the move hid a
+  // shown side menu and every toolbar button needed two taps.
+  test("a pointer jumping onto the toolbar leaves a shown side menu alone", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard("Side menu");
+    await moveMouseOverElement(await waitForSelector(".bn-block-content"));
+    await waitForSelector(".bn-side-menu");
+
+    await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
+    const toolbar = await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
+    const button = getRect(toolbar.querySelector("button")!);
+    await mouseSequence([
+      {
+        type: "move",
+        x: button.x + button.width / 2,
+        y: button.y + button.height / 2,
+        steps: 1,
+      },
+    ]);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    expect(document.querySelector(".bn-side-menu")).not.toBeNull();
   });
 
   test("link popover holds focus through keyboard resizes and creates the link", async () => {
