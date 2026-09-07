@@ -78,9 +78,6 @@ export const MenuDropdown = forwardRef<
       // treats a falsy prop as "defer to the store", and its MenuButton sets
       // that store flag on every click, so `false` still focuses the menu.
       autoFocusOnShow={preventFocusOnOpen ? () => false : true}
-      // Same on close: Ariakit's default returns focus to the menu button
-      // when the menu hides, which would blur the editor after picking.
-      autoFocusOnHide={!preventFocusOnOpen}
       // Ariakit falls back to a body-appended div for a missing element, so
       // don't portal at all until there is one (editor not mounted yet).
       portal={portalElement !== null}

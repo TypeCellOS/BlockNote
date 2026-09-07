@@ -47,11 +47,9 @@ export const ToolbarSelect = forwardRef<
         className={mergeCSSClasses("bn-ak-popover", className || "")}
         ref={ref}
         gutter={4}
-        // Ariakit's default focuses the listbox on show and hands focus back
-        // to the select button on hide; on the mobile toolbar either blurs
-        // the editor and closes the keyboard.
+        // Ariakit's default focuses the listbox on show; on the mobile toolbar
+        // that blurs the editor and closes the keyboard.
         autoFocusOnShow={!preventFocusOnOpen}
-        autoFocusOnHide={!preventFocusOnOpen}
         // Ariakit falls back to a body-appended div for a missing element,
         // so don't portal at all until there is one (editor not mounted yet).
         portal={portalElement !== null}
