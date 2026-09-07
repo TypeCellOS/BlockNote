@@ -1,7 +1,12 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, usePortalElement } from "@blocknote/react";
-import { forwardRef } from "react";
+import {
+  ComponentProps,
+  preventFocusOnTap,
+  usePortalElement,
+} from "@blocknote/react";
+import { forwardRef, type MouseEvent } from "react";
 
+import { preventFocusOnOpenProps } from "../lib/preventFocusOnOpen.js";
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
@@ -75,6 +80,18 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
 
     const portalElement = usePortalElement();
 
+    // Base UI injects its own `onMouseDown` into `rest` when this button is a
+    // popover or menu trigger, and its menu trigger opens on that event. `rest`
+    // is spread first so ours is not replaced, and ours always forwards to it
+    // (see `preventFocusOnTap`).
+    const triggerMouseDown = (
+      rest as { onMouseDown?: (e: MouseEvent<HTMLButtonElement>) => void }
+    ).onMouseDown;
+    const onMouseDown = (e: MouseEvent<HTMLButtonElement>) => {
+      preventFocusOnTap(e);
+      triggerMouseDown?.(e);
+    };
+
     const trigger =
       isSelected === undefined ? (
         <ShadCNComponents.Button.Button
@@ -89,6 +106,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           ref={ref}
           aria-label={label}
           {...rest}
+          onMouseDown={onMouseDown}
         >
           {icon}
           {children}
@@ -107,6 +125,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           disabled={isDisabled}
           ref={ref}
           {...rest}
+          onMouseDown={onMouseDown}
         >
           {icon}
           {children}
@@ -137,9 +156,8 @@ export const ToolbarSelect = forwardRef<
     items,
     isDisabled,
     portalElement,
-    // base-ui manages select focus itself; unlike Mantine there is no focus to
-    // suppress, so this is intentionally unused.
-    preventFocusOnOpen: _preventFocusOnOpen,
+    // Base UI has no `initialFocus` on Select; see lib/preventFocusOnOpen.ts.
+    preventFocusOnOpen,
     ...rest
   } = props;
 
@@ -168,8 +186,14 @@ export const ToolbarSelect = forwardRef<
         items.find((item) => item.text === value)!.onClick?.()
       }
       disabled={isDisabled}
+      // Hovering (a touch tap's compat mousemove included) would focus the
+      // hovered option; nothing to highlight on touch anyway.
+      highlightItemOnHover={!preventFocusOnOpen}
     >
-      <ShadCNComponents.Select.SelectTrigger className={"border-none"}>
+      <ShadCNComponents.Select.SelectTrigger
+        className={"border-none"}
+        onMouseDown={preventFocusOnTap}
+      >
         <ShadCNComponents.Select.SelectValue />
       </ShadCNComponents.Select.SelectTrigger>
       <ShadCNComponents.Select.SelectContent
@@ -180,12 +204,14 @@ export const ToolbarSelect = forwardRef<
         // default).
         alignItemWithTrigger={false}
         ref={ref}
+        {...preventFocusOnOpenProps(preventFocusOnOpen ?? false)}
       >
         {items.map((item) => (
           <ShadCNComponents.Select.SelectItem
             disabled={item.isDisabled}
             key={item.text}
             value={item.text}
+            onMouseDown={preventFocusOnTap}
           >
             <SelectItemContent {...item} />
           </ShadCNComponents.Select.SelectItem>
