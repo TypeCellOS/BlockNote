@@ -14,12 +14,13 @@ const browserCommands = commands as typeof commands & {
   imeComposition: ImeCompositionCommand;
 };
 
-// Runs in the "android" browser instance (Android UA + touch emulation at
-// context level, see vite.config.browser.ts), which makes prosemirror-view take
-// its Android code path: Enter keydowns are ignored and the browser's native
-// split is read back from the DOM. Both tests pin that read; they went red
-// while BlockNote's node views filtered the split's mutation out (#2912 /
-// #3001). Known gap, deliberately left alone as a rare pattern: Enter on a
+// Runs in the "android" and "ios" browser instances (mobile UA + touch
+// emulation at context level, see vite.config.browser.ts), which make
+// prosemirror-view take its Android and iOS code paths: Enter keydowns are
+// left to the browser and the native split is read back from the DOM (iOS
+// adds a 200ms fallback). The tests pin that read; they went red while
+// BlockNote's node views filtered the split's mutation out (#2912 / #3001:
+// corrupted documents on Android, a stray paragraph in the block on iOS). Known gap, deliberately left alone as a rare pattern: Enter on a
 // selection across blocks is a no-op on Android, because prosemirror-view's
 // keypress handler cancels the browser default for cross-parent selections
 // without doing anything (seen with Gboard on a Fairphone 5).
@@ -49,6 +50,17 @@ describe("Enter on Android", () => {
     expect(document.querySelector(EDITOR_SELECTOR)!.textContent).toBe(
       textBefore,
     );
+    // The browser's native split lands the new paragraph next to the content
+    // DOM; when ProseMirror does not read it back, its fallback splits the
+    // document but the stray paragraph stays in the old block, rendered next
+    // to the text by the flex block content (#2912 / #3001 on iOS).
+    for (const blockContent of document.querySelectorAll(
+      `${EDITOR_SELECTOR} .bn-block-content`,
+    )) {
+      expect(
+        blockContent.querySelectorAll(":scope > .bn-inline-content").length,
+      ).toBe(1);
+    }
 
     await userEvent.keyboard("Second line");
     await vi.waitFor(() => {

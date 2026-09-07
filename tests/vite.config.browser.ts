@@ -224,6 +224,30 @@ export default defineConfig(
                 "./src/end-to-end/emojipicker/**/*.test.tsx",
               ],
             },
+            {
+              // iOS-emulated: WebKit with an iPhone UA makes prosemirror-view
+              // take its iOS input paths (Enter left to the browser, the
+              // native split read back from the DOM with a 200ms fallback),
+              // which the android instance cannot reach. That path broke
+              // under #2912's node view mutation filter and shipped in 0.53;
+              // androidEnter.test.tsx pins it here. Not emulated: iOS
+              // Safari's tap-as-hover, the soft keyboard, focus and zoom
+              // (release checklist). Playwright's WebKit leaves
+              // `navigator.maxTouchPoints` at 0 for `hasTouch`; the setup
+              // stubs it to 5, the one stub of this instance.
+              browser: "webkit",
+              name: "ios",
+              provider: playwright({
+                contextOptions: {
+                  viewport: { width: 393, height: 727 },
+                  userAgent:
+                    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
+                  isMobile: true,
+                  hasTouch: true,
+                },
+              }),
+              include: ["./src/end-to-end/mobile/**/*.test.tsx"],
+            },
           ],
         },
       },
