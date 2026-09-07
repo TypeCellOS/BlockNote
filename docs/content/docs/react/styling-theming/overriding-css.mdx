@@ -42,3 +42,16 @@ BlockNote uses data attributes to target specific block types and properties:
 
 - `[data-content-type="blockType"]`: Targets blocks of type `blockType`.
 - `[data-propName="propValue"]`: Targets blocks with specific prop values. If the value is the same as the default value, the `data-propName` attribute will not be added.
+
+## Links
+
+Links in the editor use the browser's default link styling. BlockNote sets this with a rule of zero CSS specificity, so any `a` rule in your own stylesheet overrides it.
+
+Tailwind's preflight reset also targets `a`. In Tailwind v4 the reset lives in a cascade layer, so BlockNote's rule still applies. In Tailwind v3 the reset wins and links look like plain text; restore them with:
+
+```css
+.bn-editor a {
+  color: revert;
+  text-decoration: revert;
+}
+```

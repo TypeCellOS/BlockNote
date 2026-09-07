@@ -106,6 +106,20 @@ NESTED BLOCKS
   font-family: monospace;
 }
 
+/* Links keep the browser's default look (#2398). CSS resets such as Tailwind's
+   preflight set `a { color: inherit; text-decoration: inherit }`, which makes
+   links indistinguishable from text; `revert` restores the user-agent values.
+   `:where()` keeps the specificity at zero, so any `a` rule a consumer writes
+   wins regardless of import order, while Tailwind v4's preflight still loses:
+   it lives in a cascade layer, and unlayered rules beat layered ones. Tailwind
+   v3's preflight is unlayered and still wins; the styling docs show the
+   override. The typst exporter mirrors the underline in its `show link` rule
+   (packages/xl-typst-exporter/src/typstExporter.ts). */
+:where(.bn-editor a) {
+  color: revert;
+  text-decoration: revert;
+}
+
 /* NESTED BLOCK ANIMATIONS (change in indent) */
 
 [data-prev-depth-change="1"] {
