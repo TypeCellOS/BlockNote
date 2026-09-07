@@ -34,9 +34,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     // assertEmpty in this case is only used at typescript level, not runtime level
     assertEmpty(rest, false);
 
-    // Ariakit injects its own `onMouseDown` into `rest` when this button is a
-    // popover or menu trigger. `rest` is spread first so ours is not replaced,
-    // and ours forwards to it (see `preventFocusOnTap`).
     const triggerMouseDown = (
       rest as { onMouseDown?: (e: MouseEvent<HTMLButtonElement>) => void }
     ).onMouseDown;
@@ -51,6 +48,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
                 "bn-ak-button bn-ak-secondary",
                 className || "",
               )}
+              // `rest` first, so Ariakit's injected `onMouseDown` does not replace ours.
               {...rest}
               onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
                 // On touch this also keeps the focus-triggered tooltip from

@@ -115,6 +115,7 @@ export const MenuDropdown = forwardRef<
         className={className}
         container={container}
         ref={ref}
+        // How-to-test: without it, opening the colors menu from the mobile toolbar focuses the menu, which closes the keyboard and the toolbar with it (covered by skinFocus, android, shadcn: "opening the colors menu keeps focus in the editor").
         {...preventFocusOnOpenProps(preventFocusOnOpen)}
       >
         {children}
@@ -150,6 +151,7 @@ export const MenuItem = forwardRef<
         ref={ref}
         checked={checked}
         onClick={onClick}
+        // How-to-test: without the tap guard (here and on the plain item below), tapping a color focuses the item and closes the keyboard (covered by skinFocus, android, shadcn: "picking from the colors menu leaves focus in the editor").
         onMouseDown={preventFocusOnTap}
         {...rest}
       >
