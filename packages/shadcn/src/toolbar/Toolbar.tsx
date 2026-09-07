@@ -186,9 +186,6 @@ export const ToolbarSelect = forwardRef<
         items.find((item) => item.text === value)!.onClick?.()
       }
       disabled={isDisabled}
-      // Hovering (a touch tap's compat mousemove included) would focus the
-      // hovered option; nothing to highlight on touch anyway.
-      highlightItemOnHover={!preventFocusOnOpen}
     >
       <ShadCNComponents.Select.SelectTrigger
         className={"border-none"}

@@ -48,9 +48,6 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenu
         modal={false}
-        // Hovering (a touch tap's compat mousemove included) would focus the
-        // hovered item; nothing to highlight on touch anyway.
-        highlightItemOnHover={!rootProps.preventFocusOnOpen}
         onOpenChange={onOpenChange}
       >
         <MenuRootPropsContext.Provider value={rootProps}>
