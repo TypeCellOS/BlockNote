@@ -77,10 +77,8 @@ export const MenuDropdown = forwardRef<
       // and closes the keyboard. A function, not `false`: Ariakit's Menu
       // treats a falsy prop as "defer to the store", and its MenuButton sets
       // that store flag on every click, so `false` still focuses the menu.
+      // How-to-test: without the callback, opening the colors menu from the mobile toolbar moves focus into the menu and closes the keyboard (covered by skinFocus, android, ariakit: "opening the colors menu keeps focus in the editor").
       autoFocusOnShow={preventFocusOnOpen ? () => false : true}
-      // Same on close: Ariakit's default returns focus to the menu button
-      // when the menu hides, which would blur the editor after picking.
-      autoFocusOnHide={!preventFocusOnOpen}
       // Ariakit falls back to a body-appended div for a missing element, so
       // don't portal at all until there is one (editor not mounted yet).
       portal={portalElement !== null}
@@ -130,7 +128,9 @@ export const MenuItem = forwardRef<
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
       ref={ref}
       onClick={onClick}
+      // How-to-test: with hover focus on, tapping a color focuses the menu through the tap's compat mousemove and closes the keyboard (covered by skinFocus, android, ariakit: "picking from the colors menu leaves focus in the editor").
       focusOnHover={!preventFocusOnOpen}
+      // How-to-test: without the tap guard, tapping a color focuses the item and closes the keyboard (covered by the same case).
       onMouseDown={preventFocusOnTap}
     >
       {icon}

@@ -33,9 +33,9 @@ Moving focus into an opened menu is the accessible default that
 keyboard users rely on to navigate it with the arrow keys, so it stays on
 desktop. Inside the mobile toolbar it would close the keyboard and everything
 with it, so there it is switched off (`preventFocusOnOpen` on `Menu.Root` and
-`ToolbarSelect`), together with two things that move focus the same way: item
-hover and returning focus to the trigger on close. Tapping an item never
-focuses it, on any device, like a toolbar button (`preventFocusOnTap`).
+`ToolbarSelect`), together with Ariakit's item hover, which focuses the menu
+the same way. Tapping an item never focuses it, on any device, like a toolbar
+button (`preventFocusOnTap`).
 
 **Toolbar buttons never take focus from a tap.** A tap is a pointer gesture;
 cancelling the browser's focus-on-mousedown keeps the editor focused and the

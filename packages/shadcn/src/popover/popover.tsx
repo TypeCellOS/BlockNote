@@ -75,7 +75,9 @@ export const PopoverContent = forwardRef<
       // Base UI would focus the popup's first tabbable on open. BlockNote owns
       // focus in its popovers (`useAutoFocus` on the input that wants it), as
       // in the Mantine and Ariakit adapters; on the mobile toolbar a focus move
-      // onto anything else blurs the editor and closes the keyboard.
+      // onto anything else blurs the editor and closes the keyboard. Example:
+      // without it, "Replace file" on the mobile toolbar flickers and closes
+      // the keyboard.
       initialFocus={false}
       className={cn(
         className,

@@ -48,9 +48,6 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenu
         modal={false}
-        // Hovering (a touch tap's compat mousemove included) would focus the
-        // hovered item; nothing to highlight on touch anyway.
-        highlightItemOnHover={!rootProps.preventFocusOnOpen}
         onOpenChange={onOpenChange}
       >
         <MenuRootPropsContext.Provider value={rootProps}>
@@ -103,14 +100,11 @@ export const MenuDropdown = forwardRef<
     useContext(MenuRootPropsContext);
 
   if (sub) {
-    // Nested menus do not take focus on open (Base UI's `initialFocus` is off
-    // for them), but their items still can on hover or click.
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenuSubContent
         className={className}
         container={container}
         ref={ref}
-        {...preventFocusOnOpenProps(preventFocusOnOpen)}
       >
         {children}
       </ShadCNComponents.DropdownMenu.DropdownMenuSubContent>
@@ -121,6 +115,7 @@ export const MenuDropdown = forwardRef<
         className={className}
         container={container}
         ref={ref}
+        // How-to-test: without it, opening the colors menu from the mobile toolbar focuses the menu, which closes the keyboard and the toolbar with it (covered by skinFocus, android, shadcn: "opening the colors menu keeps focus in the editor").
         {...preventFocusOnOpenProps(preventFocusOnOpen)}
       >
         {children}
@@ -156,6 +151,7 @@ export const MenuItem = forwardRef<
         ref={ref}
         checked={checked}
         onClick={onClick}
+        // How-to-test: without the tap guard (here and on the plain item below), tapping a color focuses the item and closes the keyboard (covered by skinFocus, android, shadcn: "picking from the colors menu leaves focus in the editor").
         onMouseDown={preventFocusOnTap}
         {...rest}
       >

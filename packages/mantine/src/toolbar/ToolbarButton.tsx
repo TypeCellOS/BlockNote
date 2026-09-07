@@ -57,6 +57,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       <MantineButton
         aria-label={label}
         className={className}
+        // How-to-test: without it (here and below), tapping Bold on the mobile toolbar focuses the button and closes the keyboard (covered by skinFocus, android, mantine: "tapping a toggle button never moves focus onto it").
         onMouseDown={preventFocusOnTap}
         onClick={(event) => {
           setHideTooltip(true);

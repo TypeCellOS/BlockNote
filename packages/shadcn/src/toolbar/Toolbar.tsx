@@ -80,10 +80,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
 
     const portalElement = usePortalElement();
 
-    // Base UI injects its own `onMouseDown` into `rest` when this button is a
-    // popover or menu trigger, and its menu trigger opens on that event. `rest`
-    // is spread first so ours is not replaced, and ours always forwards to it
-    // (see `preventFocusOnTap`).
     const triggerMouseDown = (
       rest as { onMouseDown?: (e: MouseEvent<HTMLButtonElement>) => void }
     ).onMouseDown;
@@ -105,6 +101,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           onClick={onClick}
           ref={ref}
           aria-label={label}
+          // `rest` first, so a library-injected `onMouseDown` does not replace ours.
           {...rest}
           onMouseDown={onMouseDown}
         >
@@ -124,6 +121,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           pressed={isSelected}
           disabled={isDisabled}
           ref={ref}
+          // `rest` first, so a library-injected `onMouseDown` does not replace ours.
           {...rest}
           onMouseDown={onMouseDown}
         >
@@ -186,12 +184,10 @@ export const ToolbarSelect = forwardRef<
         items.find((item) => item.text === value)!.onClick?.()
       }
       disabled={isDisabled}
-      // Hovering (a touch tap's compat mousemove included) would focus the
-      // hovered option; nothing to highlight on touch anyway.
-      highlightItemOnHover={!preventFocusOnOpen}
     >
       <ShadCNComponents.Select.SelectTrigger
         className={"border-none"}
+        // How-to-test: without it, tapping the block type select focuses the button and closes the keyboard (covered by skinFocus, android, shadcn: "opening the block type select keeps focus in the editor").
         onMouseDown={preventFocusOnTap}
       >
         <ShadCNComponents.Select.SelectValue />
@@ -204,6 +200,7 @@ export const ToolbarSelect = forwardRef<
         // default).
         alignItemWithTrigger={false}
         ref={ref}
+        // How-to-test: without it, opening the block type select focuses the listbox and closes the keyboard (covered by skinFocus, android, shadcn: "opening the block type select keeps focus in the editor").
         {...preventFocusOnOpenProps(preventFocusOnOpen ?? false)}
       >
         {items.map((item) => (
@@ -211,6 +208,7 @@ export const ToolbarSelect = forwardRef<
             disabled={item.isDisabled}
             key={item.text}
             value={item.text}
+            // How-to-test: without it, tapping a block type focuses the option and closes the keyboard (covered by skinFocus, android, shadcn: "picking from the block type select leaves focus in the editor").
             onMouseDown={preventFocusOnTap}
           >
             <SelectItemContent {...item} />

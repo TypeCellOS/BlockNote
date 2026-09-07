@@ -198,6 +198,13 @@ for (const skin of SKINS) {
         }
       });
       expect(document.querySelector(MOBILE_TOOLBAR_SELECTOR)).not.toBeNull();
+      // Below 16px iOS Safari zooms the page on focus and the toolbar loses
+      // its place. Mantine has a coarse-pointer rule for it (pinned in
+      // mobileToolbar.test.tsx); the ariakit and shadcn inputs are 16px
+      // already, this pins that too.
+      expect(
+        parseFloat(getComputedStyle(document.activeElement!).fontSize),
+      ).toBeGreaterThanOrEqual(16);
     });
 
     // The ariakit and shadcn ToolbarButton guard their mousedown on touch like

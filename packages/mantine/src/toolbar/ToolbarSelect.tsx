@@ -51,6 +51,7 @@ export const ToolbarSelect = forwardRef<
     >
       <MantineMenu.Target>
         <MantineButton
+          // How-to-test: without it, tapping the block type select focuses the button and closes the keyboard (covered by skinFocus, android, mantine: "opening the block type select keeps focus in the editor").
           onMouseDown={preventFocusOnTap}
           leftSection={selectedItem.icon}
           rightSection={<HiChevronDown />}

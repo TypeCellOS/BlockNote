@@ -98,6 +98,7 @@ export function PortalElementOverride(props: {
   // after its children's, and Ariakit picks the mount point of its eagerly
   // rendered popovers in a layout effect, re-parenting a still-detached
   // element to `document.body`, outside the editor's registered UI.
+  // How-to-test: as a layout effect, Ariakit re-parents the mobile toolbar's anchor to document.body, so focus in the link form counts as outside the editor and the toolbar unmounts (covered by portalElements: "has an override root in the document before its children's layout effects run", and skinFocus, android, ariakit: "the link button hands focus to the URL input").
   useIsomorphicInsertionEffect(() => {
     if (!portalElement || !target) {
       return;

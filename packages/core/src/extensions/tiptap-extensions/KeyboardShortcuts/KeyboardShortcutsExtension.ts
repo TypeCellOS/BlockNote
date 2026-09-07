@@ -103,9 +103,18 @@ export const KeyboardShortcutsExtension = Extension.create<{
               if (!isAndroid() || view.composing) {
                 return false;
               }
+              // Chromium's IME commit path delivers a newline as `insertText`
+              // with `data: "\n"` (cancelable, no keypress), not as
+              // `insertParagraph`: a keyboard committing Enter through
+              // `commitText("\n")` fell through here into the same DOM-diff
+              // corruption. Treated as Enter; the browser's default for it is
+              // a paragraph split.
+              const isNewlineCommit =
+                event.inputType === "insertText" && event.data === "\n";
               if (
                 event.inputType !== "insertParagraph" &&
-                event.inputType !== "insertLineBreak"
+                event.inputType !== "insertLineBreak" &&
+                !isNewlineCommit
               ) {
                 return false;
               }
