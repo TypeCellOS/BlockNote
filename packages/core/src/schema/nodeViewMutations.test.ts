@@ -2,15 +2,20 @@ import { NodeView, ViewMutationRecord } from "@tiptap/pm/view";
 import { describe, expect, it } from "vite-plus/test";
 
 import {
-  ignoreNonContentMutations,
-  isNonContentMutation,
+  ignoreDarkReaderMutations,
+  isDarkReaderMutation,
 } from "./nodeViewMutations.js";
 
-function attributeMutation(target: Node): ViewMutationRecord {
+function attributeMutation(
+  target: Element,
+  attributeName: string,
+  oldValue: string | null = null,
+): ViewMutationRecord {
   return {
     type: "attributes",
     target,
-    attributeName: "style",
+    attributeName,
+    oldValue,
   } as unknown as ViewMutationRecord;
 }
 
@@ -25,97 +30,102 @@ function childListMutation(target: Node): ViewMutationRecord {
 
 const selectionMutation = { type: "selection" } as ViewMutationRecord;
 
-describe("isNonContentMutation", () => {
+describe("isDarkReaderMutation", () => {
   it("never ignores selection mutations", () => {
-    expect(isNonContentMutation(selectionMutation, null)).toBe(false);
-    expect(
-      isNonContentMutation(selectionMutation, document.createElement("div")),
-    ).toBe(false);
+    expect(isDarkReaderMutation(selectionMutation)).toBe(false);
   });
 
-  it("ignores everything for a node view without content", () => {
-    const target = document.createElement("span");
-    expect(isNonContentMutation(attributeMutation(target), null)).toBe(true);
-    expect(isNonContentMutation(childListMutation(target), null)).toBe(true);
-  });
-
-  it("ignores attribute mutations even inside the content DOM", () => {
-    const contentDOM = document.createElement("div");
+  it("ignores the attributes Dark Reader stamps on recoloured elements", () => {
     const span = document.createElement("span");
-    contentDOM.appendChild(span);
-
-    // e.g. Dark Reader rewriting the inline style of a highlight span.
-    expect(isNonContentMutation(attributeMutation(span), contentDOM)).toBe(
-      true,
-    );
+    span.setAttribute("data-darkreader-inline-bgcolor", "");
     expect(
-      isNonContentMutation(attributeMutation(contentDOM), contentDOM),
+      isDarkReaderMutation(
+        attributeMutation(span, "data-darkreader-inline-bgcolor"),
+      ),
     ).toBe(true);
   });
 
-  it("reads content mutations inside the content DOM", () => {
-    const contentDOM = document.createElement("div");
-    const textNode = document.createTextNode("hello");
-    contentDOM.appendChild(textNode);
-
-    // childList directly on the content DOM (e.g. a node inserted while typing).
+  it("ignores inline style writes that add or remove Dark Reader declarations", () => {
+    const span = document.createElement("span");
+    span.setAttribute(
+      "style",
+      "color: #f00; --darkreader-inline-color: #ff8080;",
+    );
+    // Added: the old value had none.
     expect(
-      isNonContentMutation(childListMutation(contentDOM), contentDOM),
-    ).toBe(false);
-    // characterData-style mutation on a text node inside the content DOM.
-    expect(isNonContentMutation(childListMutation(textNode), contentDOM)).toBe(
+      isDarkReaderMutation(attributeMutation(span, "style", "color: #f00;")),
+    ).toBe(true);
+
+    // Removed (the extension toggled off): only the old value had them.
+    span.setAttribute("style", "color: #f00;");
+    expect(
+      isDarkReaderMutation(
+        attributeMutation(
+          span,
+          "style",
+          "color: #f00; --darkreader-inline-color: #ff8080;",
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it("reads every other attribute mutation", () => {
+    const span = document.createElement("span");
+    span.setAttribute("style", "color: #f00;");
+    expect(isDarkReaderMutation(attributeMutation(span, "style", null))).toBe(
+      false,
+    );
+    expect(isDarkReaderMutation(attributeMutation(span, "class", null))).toBe(
+      false,
+    );
+    expect(isDarkReaderMutation(attributeMutation(span, "data-id", null))).toBe(
       false,
     );
   });
 
-  it("ignores content mutations outside the content DOM (node view chrome)", () => {
+  it("reads child list mutations anywhere in the node view", () => {
     const dom = document.createElement("div");
-    const contentDOM = document.createElement("div");
-    const chrome = document.createElement("button"); // e.g. toggle button
-    dom.append(chrome, contentDOM);
+    const contentDOM = document.createElement("p");
+    dom.append(document.createElement("button"), contentDOM);
 
-    expect(isNonContentMutation(childListMutation(dom), contentDOM)).toBe(true);
-    expect(isNonContentMutation(childListMutation(chrome), contentDOM)).toBe(
-      true,
-    );
+    expect(isDarkReaderMutation(childListMutation(contentDOM))).toBe(false);
+    // A browser's native paragraph split on Android and iOS inserts the new
+    // paragraph next to the content DOM, not inside it.
+    expect(isDarkReaderMutation(childListMutation(dom))).toBe(false);
   });
 });
 
-describe("ignoreNonContentMutations", () => {
-  it("ignores non-content mutations while reading content ones", () => {
-    const contentDOM = document.createElement("div");
+describe("ignoreDarkReaderMutations", () => {
+  it("ignores Dark Reader writes while reading everything else", () => {
+    const contentDOM = document.createElement("p");
     const span = document.createElement("span");
+    span.setAttribute("style", "--darkreader-inline-color: #ff8080;");
     contentDOM.appendChild(span);
     const nodeView: NodeView = {
       dom: document.createElement("div"),
       contentDOM,
     };
 
-    ignoreNonContentMutations(nodeView);
+    ignoreDarkReaderMutations(nodeView);
 
-    // Non-content (attribute) mutation is ignored...
-    expect(nodeView.ignoreMutation!(attributeMutation(span))).toBe(true);
-    // ...content mutation is read...
+    expect(nodeView.ignoreMutation!(attributeMutation(span, "style"))).toBe(
+      true,
+    );
     expect(nodeView.ignoreMutation!(childListMutation(contentDOM))).toBe(false);
-    // ...and selection is read.
     expect(nodeView.ignoreMutation!(selectionMutation)).toBe(false);
   });
 
-  it("still defers to an existing ignoreMutation for content mutations", () => {
-    const contentDOM = document.createElement("div");
+  it("still defers to an existing ignoreMutation", () => {
+    const contentDOM = document.createElement("p");
     const nodeView: NodeView = {
       dom: document.createElement("div"),
       contentDOM,
-      // Pretend this node view wants to ignore all of its content mutations.
+      // Pretend this node view wants to ignore all of its mutations.
       ignoreMutation: () => true,
     };
 
-    ignoreNonContentMutations(nodeView);
+    ignoreDarkReaderMutations(nodeView);
 
-    // A content mutation the filter would read is still ignored by the
-    // original `ignoreMutation`.
     expect(nodeView.ignoreMutation!(childListMutation(contentDOM))).toBe(true);
-    // Non-content mutations are ignored by the filter regardless.
-    expect(nodeView.ignoreMutation!(attributeMutation(contentDOM))).toBe(true);
   });
 });
