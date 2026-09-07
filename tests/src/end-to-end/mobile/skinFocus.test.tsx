@@ -21,14 +21,11 @@ const MOBILE_TOOLBAR_SELECTOR = ".bn-mobile-formatting-toolbar";
 // task ends: a blur that lasts flickers the keyboard, a same-task hand-back
 // (the shadcn adapters) does not, see `trackFocusLeavingEditor`.
 //
-// For reviewer: red for ariakit and shadcn before the adapter changes in this
-// layer plus the override-root fix in #3052. Ariakit and Base UI buttons took
-// the tap's focus (Mantine's toolbar buttons had a touch guard, these skins
-// did not); Ariakit focused the menu / listbox on open and the button again
-// on close, and never focused the URL input because it keeps its popover
-// mounted while closed (our mount-time autofocus fired once, invisibly). Base
-// UI (shadcn) focuses its menu and select popups on open with no way to turn
-// that off; the shadcn adapters hand focus back (day review 2026-09-06).
+// Red for ariakit and shadcn without the adapter changes: their buttons took
+// the tap's focus, Ariakit focused the menu / listbox on open and the button
+// on close and never focused the URL input (its popover content stays mounted
+// while closed, so the mount-time autofocus fired once, invisibly), and Base
+// UI focuses its menu and select popups on open with no way to turn that off.
 
 const SKINS = [
   { name: "mantine", App: MantineApp },
@@ -112,12 +109,10 @@ function trackFocusLeavingEditor() {
   function onFocusOut(event: FocusEvent) {
     const to = event.relatedTarget;
     if (!(to instanceof Node) || !editorElement.contains(to)) {
-      // For reviewer (day review 2026-09-06): a departure only counts if focus
-      // is still elsewhere once the current task ends. Base UI moves focus
-      // into its Menu / Select popup on open with no way to turn it off; the
-      // shadcn adapters hand it back inside the same focus dispatch, and the
-      // Android emulator keeps the keyboard up through that (Chrome decides
-      // the keyboard's fate after the task). Mantine and Ariakit never leave.
+      // A departure counts only if focus is still elsewhere once the task
+      // ends: Base UI focuses its popup on open and the shadcn adapters hand
+      // focus back inside the same dispatch, which keeps the keyboard up
+      // (Chrome decides the keyboard's fate after the task).
       const departedTo = describeElement(to);
       queueMicrotask(() => {
         if (!editorElement.contains(document.activeElement)) {
