@@ -100,14 +100,11 @@ export const MenuDropdown = forwardRef<
     useContext(MenuRootPropsContext);
 
   if (sub) {
-    // Nested menus do not take focus on open (Base UI's `initialFocus` is off
-    // for them), but their items still can on hover or click.
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenuSubContent
         className={className}
         container={container}
         ref={ref}
-        {...preventFocusOnOpenProps(preventFocusOnOpen)}
       >
         {children}
       </ShadCNComponents.DropdownMenu.DropdownMenuSubContent>

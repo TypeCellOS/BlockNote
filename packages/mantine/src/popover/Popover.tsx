@@ -30,7 +30,9 @@ export const Popover = (
       // dropdowns included, when its reference leaves the viewport, and on
       // mobile the on-screen keyboard's viewport resize makes Mantine judge
       // the toolbar button out of view for a moment: the hidden dropdown
-      // blurs its focused input and the keyboard closes.
+      // blurs its focused input and the keyboard closes. How to test: without
+      // this line, tapping the link button on the mobile toolbar hides the
+      // keyboard and the toolbar (Android).
       hideDetached={false}
       opened={open}
       onChange={onOpenChange}
