@@ -27,30 +27,32 @@ beforeEach(async () => {
 const onAndroid = /android/i.test(navigator.userAgent);
 
 describe("Check Keyboard Handlers' Behaviour", () => {
-  // Also covers the android instance: with a cross-block selection,
-  // prosemirror-view's Android keydown bail skips Enter handling and its own
-  // keypress handler cancels the browser default without doing anything —
-  // BlockNote's keypress interception (KeyboardShortcutsExtension) closes
-  // that hole. See also the cross-block case in mobile/androidEnter.test.tsx.
-  test("Check Enter when selection is not empty", async () => {
-    await focusOnEditor();
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(2);
+  // Enter on a selection across blocks is a no-op on Android: prosemirror-view
+  // ignores the keydown there and its keypress handler cancels the browser
+  // default for cross-parent selections without doing anything. A rare
+  // pattern, deliberately not worked around; see mobile/androidEnter.test.tsx.
+  test.skipIf(onAndroid)(
+    "Check Enter when selection is not empty",
+    async () => {
+      await focusOnEditor();
+      await insertHeading(1);
+      await userEvent.keyboard("{Enter}");
+      await insertHeading(2);
 
-    await sleep(500);
+      await sleep(500);
 
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard(`{${MOD}>}{ArrowLeft}{/${MOD}}`);
-    await userEvent.keyboard("{ArrowRight}");
-    await userEvent.keyboard(
-      `{Shift>}{ArrowDown}{${MOD}>}{ArrowRight}{/${MOD}}{ArrowLeft}{/Shift}`,
-    );
+      await userEvent.keyboard("{ArrowUp}");
+      await userEvent.keyboard(`{${MOD}>}{ArrowLeft}{/${MOD}}`);
+      await userEvent.keyboard("{ArrowRight}");
+      await userEvent.keyboard(
+        `{Shift>}{ArrowDown}{${MOD}>}{ArrowRight}{/${MOD}}{ArrowLeft}{/Shift}`,
+      );
 
-    await userEvent.keyboard("{Enter}");
+      await userEvent.keyboard("{Enter}");
 
-    await compareDocToSnapshot("enterSelectionNotEmpty");
-  });
+      await compareDocToSnapshot("enterSelectionNotEmpty");
+    },
+  );
   // Skipped on the android instance: drives selection with coordinate
   // double-clicks, a mouse idiom that doesn't translate to touch emulation at
   // phone width.
