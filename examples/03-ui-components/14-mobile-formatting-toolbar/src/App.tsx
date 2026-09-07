@@ -2,7 +2,7 @@ import "@blocknote/core/fonts/inter.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import "./style.css";
 import { StaticText, NavBar } from "./DummyUI";
@@ -41,6 +41,19 @@ export default function App() {
   const [scrollMode, setScrollMode] = useState<
     "scrolling-document" | "scroll-container"
   >("scroll-container");
+
+  // The page this example is embedded in may already provide the scroll
+  // container (BlockNote's playground puts the class on its root element). A
+  // body class marks the "scrolling document" mode so style.css can switch
+  // that outer container off too; a nested one defers to it, also in
+  // style.css.
+  useEffect(() => {
+    document.body.classList.toggle(
+      "app-scrolling-document",
+      scrollMode === "scrolling-document",
+    );
+    return () => document.body.classList.remove("app-scrolling-document");
+  }, [scrollMode]);
 
   return (
     <div
