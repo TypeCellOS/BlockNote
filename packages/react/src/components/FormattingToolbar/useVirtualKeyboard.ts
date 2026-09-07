@@ -63,6 +63,22 @@ function isVirtualKeyboardOpen(): boolean {
  * content — the matching styles live in `editor/styles.css`, keyed off that
  * class and the `--bn-vv-*` variables this hook publishes.
  */
+const VIEWPORT_PROPERTIES = [
+  "--bn-vv-top",
+  "--bn-vv-left",
+  "--bn-vv-width",
+  "--bn-vv-height",
+  "--bn-vv-scale",
+] as const;
+
+// How many mounted hooks publish the `--bn-vv-*` properties. The last one
+// out removes them: left behind, they pin a `bn-scroll-container` to the
+// keyboard-open size after the editor is gone (a client-side navigation to a
+// page without an editor), and a page-level property is shared by every
+// editor on the page, so no single hook may remove it while another still
+// needs it.
+let viewportPublishers = 0;
+
 export function useVirtualKeyboard(): boolean {
   const [open, setOpen] = useState(isVirtualKeyboardOpen);
 
@@ -84,6 +100,7 @@ export function useVirtualKeyboard(): boolean {
       );
       html.style.setProperty("--bn-vv-scale", `${vp?.scale ?? 1}`);
     };
+    viewportPublishers++;
     update();
 
     // Fire on keyboard open/close, zoom/pan, and content scroll.
@@ -95,6 +112,12 @@ export function useVirtualKeyboard(): boolean {
       vp?.removeEventListener("resize", update);
       vp?.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
+      viewportPublishers--;
+      if (viewportPublishers === 0) {
+        for (const property of VIEWPORT_PROPERTIES) {
+          html.style.removeProperty(property);
+        }
+      }
     };
   }, []);
 

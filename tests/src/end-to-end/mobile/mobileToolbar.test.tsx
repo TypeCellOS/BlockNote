@@ -1,6 +1,13 @@
 import App from "@examples/01-basic/testing/src/App";
-import { afterEach, beforeEach, describe, test, vi } from "vite-plus/test";
-import { render } from "vitest-browser-react";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
+import { cleanup, render } from "vitest-browser-react";
 
 import { page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
@@ -50,6 +57,23 @@ afterEach(async () => {
 });
 
 describe("Mobile formatting toolbar", () => {
+  // Without the publisher count in `useVirtualKeyboard`, the `--bn-vv-*`
+  // properties stay on `<html>` after the last editor unmounts, pinning a
+  // `bn-scroll-container` to the keyboard-open height on the next page
+  // (client-side navigation).
+  test("unmounting the last editor removes the viewport properties", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard("Mobile toolbar");
+    await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
+    await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
+    const html = document.documentElement;
+    expect(html.style.getPropertyValue("--bn-vv-height")).not.toBe("");
+    await cleanup();
+    await settleFrames();
+    expect(html.style.getPropertyValue("--bn-vv-height")).toBe("");
+    expect(html.style.getPropertyValue("--bn-vv-scale")).toBe("");
+  });
+
   test("shows while the virtual keyboard is open and hides when it closes", async () => {
     await focusOnEditor();
     await userEvent.keyboard("Mobile toolbar");
