@@ -115,6 +115,21 @@ describe("ignoreDarkReaderMutations", () => {
     expect(nodeView.ignoreMutation!(selectionMutation)).toBe(false);
   });
 
+  it("keeps prosemirror-view's default for a node view without a content DOM", () => {
+    const dom = document.createElement("div");
+    const nodeView: NodeView = { dom };
+
+    ignoreDarkReaderMutations(nodeView);
+
+    // Nothing to read back: every mutation but the selection is ignored, as
+    // prosemirror-view does when a node view defines no `ignoreMutation`.
+    expect(nodeView.ignoreMutation!(attributeMutation(dom, "class"))).toBe(
+      true,
+    );
+    expect(nodeView.ignoreMutation!(childListMutation(dom))).toBe(true);
+    expect(nodeView.ignoreMutation!(selectionMutation)).toBe(false);
+  });
+
   it("still defers to an existing ignoreMutation", () => {
     const contentDOM = document.createElement("p");
     const nodeView: NodeView = {
