@@ -1,0 +1,633 @@
+import {
+  Block,
+  BlockNoteSchema,
+  BlockSchema,
+  COLORS_DEFAULT,
+  Exporter,
+  ExporterOptions,
+  InlineContentSchema,
+  StyleSchema,
+  StyledText,
+} from "@blocknote/core";
+import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
+import { TYPST_CODE_THEME_BYTES, TYPST_CODE_THEME_PATH } from "./codeTheme.js";
+import {
+  CHECKBOX_MARKER_DEFS,
+  checkboxMarker,
+  colorHex,
+  strLit,
+} from "./util.js";
+
+/**
+ * Constructor options: rendering/theme config that's reused across exports
+ * (mirrors how the other exporters scope their constructor options). Per-document
+ * options live in {@link TypstDocumentOptions} and are passed to `toTypst`.
+ */
+export type TypstExporterOptions = ExporterOptions & {
+  /**
+   * Body font family, as Typst sees it (the font's internal family name). The
+   * font must be loaded into the compiler. Defaults to BlockNote's "Inter 18pt".
+   *
+   * Pass an array to declare a fallback list (applied in order) — the way to
+   * support scripts the primary font doesn't cover, e.g. CJK: load the extra
+   * font's bytes via the compile options' `fonts` and list its family here,
+   * `["Inter 18pt", "Noto Sans SC"]`. (Mirrors the react-pdf exporter's
+   * `fonts` + `fontFamily` options for CJK.)
+   */
+  fontFamily: string | string[];
+  /** Monospace font family for code. Defaults to "Geist Mono". */
+  monoFontFamily: string;
+  /** Base font size in points. Defaults to 12 (≈ BlockNote's 16px). */
+  fontSize: number;
+  /**
+   * Emoji font family (the font's internal name), added as a fallback after
+   * {@link fontFamily}. Listing it explicitly makes a run of emoji shape as a
+   * single unit in that font — so multi-codepoint sequences (ZWJ, e.g.
+   * `🚶‍♀️`) form their combined glyph instead of breaking apart under
+   * Typst's per-glyph automatic fallback. The bytes must still be loaded into
+   * the compiler via the `emojiFont` compile option. Optional.
+   */
+  emojiFontFamily?: string;
+};
+
+/**
+ * The default body font family — what the bundled default fonts declare and
+ * the editor uses. Exported so a custom `fontFamily` fallback list can
+ * reference it without hardcoding, e.g. `[DEFAULT_FONT_FAMILY, "Noto Sans SC"]`.
+ */
+export const DEFAULT_FONT_FAMILY = "Inter 18pt";
+
+/** The default code font family. See {@link DEFAULT_FONT_FAMILY}. */
+export const DEFAULT_MONO_FONT_FAMILY = "Geist Mono";
+
+/**
+ * Per-document options applied at export time, passed to `toTypst(blocks, ...)`.
+ * Mirrors how the other exporters take title/author/header/footer at the export
+ * call rather than in the constructor.
+ */
+export type TypstDocumentOptions = {
+  /**
+   * Document title, written to the PDF metadata (and shown in the viewer's
+   * title bar). PDF/UA-1 requires one — without it the PDF exporter
+   * produces a tagged but unclaimed document. No default: absent means no
+   * title is written.
+   */
+  title?: string;
+  /**
+   * Document author, written to PDF metadata. No default.
+   */
+  author?: string;
+  /**
+   * BCP-47 language tag of the document's natural language, e.g. "en".
+   * The PDF exporter requires it when declaring PDF/UA-1 (the default) —
+   * a wrong language declaration is an accessibility defect no validator
+   * can catch, so it must be stated rather than defaulted. No default
+   * here: absent means the markup declares no language.
+   */
+  lang?: string;
+  /**
+   * Typst paper name, e.g. `"a4"`, `"us-letter"`.
+   * @default "a4"
+   */
+  paper?: string;
+  /**
+   * Page margin as a Typst length, e.g. `"48pt"`, `"2cm"`.
+   * @default "48pt" (≈ the editor's horizontal padding applied to A4)
+   */
+  margin?: string;
+  /**
+   * Raw Typst markup placed in the running page header, e.g. `"My Document"` or
+   * `"#context counter(page).display()"`. Typst tags it as a pagination
+   * artifact, so it stays out of the document's reading order. Omitted when
+   * undefined.
+   */
+  header?: string;
+  /** Raw Typst markup placed in the running page footer. Omitted when undefined. */
+  footer?: string;
+};
+
+const LIST_KIND: Record<string, "bullet" | "numbered" | "check"> = {
+  bulletListItem: "bullet",
+  numberedListItem: "numbered",
+  checkListItem: "check",
+};
+
+/**
+ * Exports a BlockNote document to Typst markup. The markup compiles to a
+ * tagged, PDF/UA-1-conformant PDF via the Typst engine (the compile step is
+ * intentionally decoupled: this class only produces the `.typ` source, so it
+ * runs anywhere — browser or node — with no renderer dependency).
+ */
+export class TypstExporter<
+  B extends BlockSchema,
+  S extends StyleSchema,
+  I extends InlineContentSchema,
+> extends Exporter<
+  B,
+  I,
+  S,
+  string, // RB - block  -> Typst markup
+  string, // RI - inline -> Typst expression
+  (inner: string) => string, // RS - style -> wrapper
+  string // TS - styled text -> Typst expression
+> {
+  public readonly options: TypstExporterOptions;
+
+  /**
+   * Image bytes registered so far, keyed by content key (source URL or e.g.
+   * a diagram source). Typst can't inline raster bytes, so each image is
+   * referenced by a virtual path in the markup and its bytes must be mapped
+   * into the compiler's filesystem (see {@link assetFiles}; e.g.
+   * @blocknote/xl-pdf-exporter's `PDFExporter.toBytes` does this).
+   * Append-only for the exporter's lifetime - which keeps
+   * overlapping exports and pre-registered assets safe (paths never dangle
+   * or get reassigned). The flip side: re-exporting *changing* content on
+   * one long-lived exporter accumulates every asset it has ever rendered
+   * (e.g. one SVG per diagram edit), so create a fresh exporter per export
+   * instead - construction is cheap. Mirrors the ODT exporter's picture
+   * collection.
+   */
+  private readonly assets = new Map<
+    string,
+    { path: string; bytes: Uint8Array }
+  >();
+
+  public constructor(
+    schema: BlockNoteSchema<B, I, S>,
+    mappings: Exporter<
+      NoInfer<B>,
+      NoInfer<I>,
+      NoInfer<S>,
+      string,
+      string,
+      (inner: string) => string,
+      string
+    >["mappings"],
+    options?: Partial<TypstExporterOptions>,
+  ) {
+    // Defaulted per key (not a bare spread of `options` over defaults):
+    // `Partial` admits explicitly-undefined entries - typically a caller
+    // forwarding its own optional, e.g. `{ colors: maybeColors }` - and a
+    // spread would let those erase the default, crashing later lookups like
+    // `options.colors[name]` whose types promise a value.
+    const newOptions = {
+      ...options,
+      // These family names must match what the PDF exporter's bundled
+      // default font files declare in their name tables (defaultFonts.ts).
+      // The pairing is pinned by pdfExporter.test.ts's "keeps the bundled
+      // default fonts in sync" test - changing a default here without the
+      // matching font file fails it.
+      fontFamily: options?.fontFamily ?? DEFAULT_FONT_FAMILY,
+      monoFontFamily: options?.monoFontFamily ?? DEFAULT_MONO_FONT_FAMILY,
+      fontSize: options?.fontSize ?? 12,
+      colors: options?.colors ?? COLORS_DEFAULT,
+      // Proxy cross-origin image fetches so any host works in the browser, not
+      // only CORS-enabled ones (mirrors the pdf/docx exporters).
+      resolveFileUrl: options?.resolveFileUrl ?? corsProxyResolveFileUrl,
+    };
+    super(schema, mappings, newOptions);
+    this.options = newOptions;
+  }
+
+  /**
+   * The resolved body font list, in fallback order - `fontFamily` normalized
+   * to an array with `emojiFontFamily` appended last, so emoji runs (incl.
+   * ZWJ sequences) shape as a unit in that font rather than per-glyph
+   * auto-fallback. The single source for font resolution: the preamble and
+   * font-sensitive mappings (e.g. diagram labels) must agree on it.
+   */
+  public get fontFamilies(): string[] {
+    const { fontFamily, emojiFontFamily } = this.options;
+    const families = Array.isArray(fontFamily) ? [...fontFamily] : [fontFamily];
+    if (emojiFontFamily) {
+      families.push(emojiFontFamily);
+    }
+    return families;
+  }
+
+  /** Render a single styled-text run to a Typst expression. */
+  public transformStyledText(styledText: StyledText<S>): string {
+    const styles = styledText.styles;
+    // `code` is applied here (not via the style mapping, whose `code` entry is
+    // a no-op) because `raw()` takes a *string*, so it must wrap the innermost
+    // text literal — `raw("x")` is valid, `raw(strong("x"))` is not. Style-key
+    // iteration order isn't guaranteed, so doing it before the wrapper loop is
+    // the only way to keep `raw()` underneath wrappers like `strong(...)`.
+    let expr = styles.code
+      ? `raw(${strLit(styledText.text)})`
+      : strLit(styledText.text);
+    for (const wrap of this.mapStyles(styledText.styles)) {
+      expr = (wrap as (s: string) => string)(expr);
+    }
+    return expr;
+  }
+
+  /**
+   * Transform a list of sibling blocks to Typst, grouping consecutive list
+   * items into a single list()/enum() so the PDF tag tree is a proper L > LI.
+   */
+  public async transformBlocks(
+    blocks: Block<B, I, S>[],
+    nestingLevel = 0,
+  ): Promise<string[]> {
+    const out: string[] = [];
+    let i = 0;
+    while (i < blocks.length) {
+      const b = blocks[i];
+      const kind = LIST_KIND[b.type];
+
+      if (kind) {
+        // Only the first item's `start` matters (matching the editor's
+        // numbering); the traversal is generic over the schema, so the prop
+        // read is shaped. `wrapList` treats undefined as the default.
+        const start =
+          kind === "numbered"
+            ? (b.props as { start?: number }).start
+            : undefined;
+        const items: string[] = [];
+        while (i < blocks.length && LIST_KIND[blocks[i].type] === kind) {
+          items.push(await this.renderListItem(blocks[i], nestingLevel));
+          i++;
+        }
+        out.push(this.wrapList(kind, items, start));
+        continue;
+      }
+
+      // A columnList lays its column children out side-by-side. transformBlocks
+      // owns this (rather than the block mapping) because the columns must
+      // become grid cells, not the generic indented-children wrapper.
+      if (b.type === "columnList") {
+        out.push(await this.renderColumnList(b, nestingLevel));
+        i++;
+        continue;
+      }
+
+      const children = await this.transformBlocks(b.children, nestingLevel + 1);
+      const self = (await this.mapBlock(
+        b as any,
+        nestingLevel,
+        0,
+        [],
+      )) as string;
+      out.push(this.wrapBlock(b, self, children));
+      i++;
+    }
+    return out;
+  }
+
+  private async renderListItem(
+    block: Block<B, I, S>,
+    nestingLevel: number,
+  ): Promise<string> {
+    const body = (await this.mapBlock(
+      block as any,
+      nestingLevel,
+      0,
+      [],
+    )) as string;
+    const children = await this.transformBlocks(
+      block.children,
+      nestingLevel + 1,
+    );
+    const checked =
+      block.type === "checkListItem"
+        ? ((block.props as { checked?: boolean }).checked ?? false)
+        : undefined;
+    // The editor strikes a checked item's own text (not its children).
+    const own = checked ? `#strike[${body}]` : body;
+    // Use the checkbox as the item's list marker (so wrapped lines hang under
+    // the text) via a single-item inner list; wrapList groups these under one
+    // outer marker-less list, keeping a proper L > LI structure.
+    if (!children.length) {
+      return this.applyBlockProps(
+        block.props,
+        checked === undefined
+          ? own
+          : `#list(marker: ${checkboxMarker(checked)}, [${own}])`,
+      );
+    }
+    // As in `wrapBlock`: the spacing insets and alignment wrap the item's
+    // *own* body only - each child carries its own insets and alignment - so
+    // closing a nested run doesn't stack bottom insets, and a background
+    // covers the children too (both matching the editor). The children are
+    // separated by a blank line so a child *paragraph* becomes its own block
+    // (a single "\n" is only a soft break in Typst markup); nested lists
+    // carry their own indentation either way.
+    const padded = this.applyBlockProps(block.props, own, {
+      skipBackground: true,
+    });
+    return this.wrapBackground(
+      block.props,
+      checked === undefined
+        ? padded + "\n\n" + children.join("\n\n")
+        : `#list(marker: ${checkboxMarker(checked)}, [${padded}\n\n${children.join("\n\n")}])`,
+    );
+  }
+
+  /**
+   * Render a columnList as a Typst `grid`: each child column becomes a grid
+   * cell, its `width` prop mapped to a fractional (`fr`) track so relative
+   * column sizes are preserved. `grid` is a layout primitive (not a `table`),
+   * so it isn't tagged as a data table in the PDF.
+   */
+  private async renderColumnList(
+    block: Block<B, I, S>,
+    nestingLevel: number,
+  ): Promise<string> {
+    const columns = block.children;
+    const tracks = columns
+      .map((c) => `${(c.props as { width?: number }).width ?? 1}fr`)
+      .join(", ");
+    const cells: string[] = [];
+    for (const col of columns) {
+      const inner = (
+        await this.transformBlocks(col.children, nestingLevel)
+      ).join("\n\n");
+      cells.push(`[${inner}]`);
+    }
+    return `#grid(\n  columns: (${tracks}),\n  column-gutter: 1em,\n  ${cells.join(
+      ",\n  ",
+    )}\n)`;
+  }
+
+  private wrapList(
+    kind: "bullet" | "numbered" | "check",
+    items: string[],
+    start?: number,
+  ): string {
+    const body = items.map((it) => `[${it}]`).join(",\n  ");
+    if (kind === "numbered") {
+      // `start: 0` is a valid value (e.g. from pasted <ol start="0">).
+      const startArg =
+        start !== undefined && start !== 1 ? `start: ${start},\n  ` : "";
+      return `#enum(\n  ${startArg}${body}\n)`;
+    }
+    if (kind === "check") {
+      // The grouping list is invisible, so it must not indent: its default
+      // body-indent (0.5em) would shift check items right of their bullet /
+      // numbered siblings, while the editor keeps every list type in the
+      // same marker column.
+      return `#list(marker: none, body-indent: 0pt,\n  ${body}\n)`;
+    }
+    return `#list(\n  ${body}\n)`;
+  }
+
+  private wrapBlock(
+    block: Block<B, I, S>,
+    self: string,
+    children: string[],
+  ): string {
+    // A page break is a control element and can't live inside a block container
+    // (it has no props/children), so emit it bare without the padding wrapper.
+    if (block.type === "pageBreak") {
+      return self;
+    }
+    // Headings get extra top padding (the editor's ~18px heading top spacing).
+    const extraTop = block.type === "heading" ? "8pt" : undefined;
+    if (!children.length) {
+      return this.applyBlockProps(block.props, self, { extraTop });
+    }
+    // The spacing insets and alignment wrap the block's *own* body only -
+    // every child block carries its own - so closing a nested run doesn't
+    // stack bottom insets into an oversized gap, and nested children keep
+    // their own alignment (in the editor the rhythm is uniform: each block
+    // contributes exactly its own padding). A background, by contrast, must
+    // cover the children as well, as the editor's does.
+    const own = this.applyBlockProps(block.props, self, {
+      extraTop,
+      skipBackground: true,
+    });
+    return this.wrapBackground(
+      block.props,
+      own + "\n#pad(left: 1.5em)[\n" + children.join("\n\n") + "\n]",
+    );
+  }
+
+  /**
+   * Wraps a parent's spacing-wrapped own body plus its rendered children in
+   * the block's background fill, if any: the editor's background covers
+   * nested children too. Vertical rhythm stays with the own body and the
+   * children themselves (each carries its own insets), so the fill
+   * contributes no spacing of its own - only the same horizontal inset
+   * `applyBlockProps` gives a filled leaf block.
+   */
+  private wrapBackground(
+    props: { backgroundColor?: string },
+    s: string,
+  ): string {
+    const bc = colorHex(this, props?.backgroundColor, "background");
+    return bc
+      ? `#block(width: 100%, fill: rgb("${bc}"), inset: (x: 6pt))[\n${s}\n]`
+      : s;
+  }
+
+  /**
+   * Apply block-level props (alignment, text/background color) and the block's
+   * vertical spacing. Spacing is rendered as *padding* (inset) on the block, not
+   * margin — so a background fills it and consecutive same-background blocks abut
+   * with no gap (page-level margin spacing is zeroed in the preamble). `VPAD` is
+   * half the block-to-block gap; `extraTop` adds space above headings.
+   */
+  private applyBlockProps(
+    props: {
+      textColor?: string;
+      backgroundColor?: string;
+      textAlignment?: string;
+    },
+    s: string,
+    opts?: { extraTop?: string; skipBackground?: boolean },
+  ): string {
+    // A mapping that rendered nothing stays invisible (an empty math or
+    // diagram block must not become a stray padded box) - the paragraph
+    // mapping itself emits a sentinel for the blank-line case.
+    if (!s) {
+      return s;
+    }
+    // Same color resolution the style mapping uses for inline text/highlight.
+    // `skipBackground` is for parents with children, whose fill must cover
+    // the children too and so lives in `wrapBackground` around both.
+    const tc = colorHex(this, props?.textColor, "text");
+    const bc = opts?.skipBackground
+      ? undefined
+      : colorHex(this, props?.backgroundColor, "background");
+    if (tc) {
+      s = `#text(fill: rgb("${tc}"))[${s}]`;
+    }
+    if (props?.textAlignment === "justify") {
+      s = `#par(justify: true)[${s}]`;
+    }
+    const VPAD = "6.9pt";
+    const top = opts?.extraTop ? `(${opts.extraTop} + ${VPAD})` : VPAD;
+    const inset = bc
+      ? `(x: 6pt, top: ${top}, bottom: ${VPAD})`
+      : `(top: ${top}, bottom: ${VPAD})`;
+    const fill = bc ? `fill: rgb("${bc}"), ` : "";
+    s = `#block(width: 100%, ${fill}inset: ${inset})[${s}]`;
+    const align = props?.textAlignment;
+    if (align === "right" || align === "center") {
+      s = `#align(${align})[${s}]`;
+    }
+    return s;
+  }
+
+  private preamble(doc: TypstDocumentOptions): string {
+    const { monoFontFamily, fontSize } = this.options;
+    const families = this.fontFamilies;
+    const fontArg =
+      families.length === 1
+        ? strLit(families[0])
+        : `(${families.map(strLit).join(", ")})`;
+    // No fabricated metadata: title, author, and language appear only when
+    // supplied. (PDF/UA requires a title and language - the PDF exporter
+    // gates its conformance claim on Typst's validation resp. the language
+    // check, rather than inventing values here.)
+    const documentArgs: string[] = [];
+    if (doc.title !== undefined) {
+      documentArgs.push(`title: ${strLit(doc.title)}`);
+    }
+    if (doc.author !== undefined) {
+      documentArgs.push(`author: ${strLit(doc.author)}`);
+    }
+    const textArgs = [`font: ${fontArg}`, `size: ${fontSize}pt`];
+    if (doc.lang !== undefined) {
+      textArgs.push(`lang: ${strLit(doc.lang)}`);
+    }
+    const { header, footer } = doc;
+    // Default margins ≈ the editor's 8% horizontal padding (54px / 670px)
+    // applied to A4.
+    const pageArgs = [
+      `paper: ${strLit(doc.paper ?? "a4")}`,
+      `margin: ${doc.margin ?? "48pt"}`,
+    ];
+    if (header) {
+      pageArgs.push(`header: [${header}]`);
+    }
+    if (footer) {
+      pageArgs.push(`footer: [${footer}]`);
+    }
+    return [
+      ...(documentArgs.length
+        ? [`#set document(${documentArgs.join(", ")})`]
+        : []),
+      `#set text(${textArgs.join(", ")})`,
+      `#set page(${pageArgs.join(", ")})`,
+      // Line height ≈ the editor's 1.5 (≈18pt at 12pt). Block spacing is applied
+      // as *padding* on each block (see applyBlockProps), not margin — so a
+      // background fills it and consecutive same-bg blocks abut with no gap
+      // (mirroring the editor). All margin-style spacing is therefore zeroed.
+      // (List markers stay baseline-aligned with padded items via typst PR #7895.)
+      `#set par(leading: 0.78em, spacing: 0pt, justify: false)`,
+      `#set block(spacing: 0pt)`,
+      `#set list(spacing: 0pt)`,
+      // Bullet glyphs cycle like the editor's (Block.css: "•", "◦", "▪") -
+      // typst's own cycle ("•", "‣", "–") diverges from level two on.
+      `#set list(marker: ([•], [◦], [▪]))`,
+      `#set enum(spacing: 0pt)`,
+      `#set heading(numbering: none)`,
+      // Heading sizes match the editor (3 / 2 / 1.3 / 1 / 0.9 / 0.8 × 12pt), bold.
+      // Extra top padding for headings is added in applyBlockProps.
+      `#show heading: set text(weight: 700)`,
+      `#show heading.where(level: 1): set text(size: 36pt)`,
+      `#show heading.where(level: 2): set text(size: 24pt)`,
+      `#show heading.where(level: 3): set text(size: 15.6pt)`,
+      `#show heading.where(level: 4): set text(size: 12pt)`,
+      `#show heading.where(level: 5): set text(size: 10.8pt)`,
+      `#show heading.where(level: 6): set text(size: 9.6pt)`,
+      // Code: monospace; code *blocks* use the editor's dark scheme - the
+      // #161616 / 8px-radius / 24px-padding chrome from Block.css and
+      // github-dark token colors (the code-block package's default theme)
+      // via the bundled tmTheme, which assetFiles always carries. Inline
+      // code has no language, so the theme colors nothing there; its text is
+      // pinned back to the body color because the theme's light foreground
+      // is meant for the dark block background only.
+      `#set raw(theme: ${strLit(TYPST_CODE_THEME_PATH)})`,
+      // Ligatures off: Geist Mono renders "=>" (and friends) as arrow
+      // glyphs, which the editor's plain monospace does not.
+      `#show raw: set text(font: ${strLit(monoFontFamily)}, ligatures: false)`,
+      `#show raw.where(block: false): set text(fill: black)`,
+      `#show raw.where(block: true): it => block(width: 100%, inset: 18pt, radius: 6pt, fill: rgb("#161616"), text(fill: rgb("#e1e4e8"), it))`,
+      // Quote: grey text with a left rule. Vertical inset makes the rule span
+      // the full line height (like the editor), not just the glyph ink.
+      `#show quote.where(block: true): it => block(inset: (left: 14pt, y: 4pt), stroke: (left: 2pt + rgb("#7D797A")), text(fill: rgb("#7D797A"), it.body))`,
+      // Figures (images) are not auto-numbered, matching the editor. Alignment
+      // is handled inside the figure body (a full-width box), since Typst
+      // figures ignore outer/scoped `align`.
+      `#set figure(numbering: none)`,
+      // A figure taller than the remaining space moves to the next page whole
+      // instead of being sliced at the page boundary (react-pdf's wrap=false).
+      `#show figure: set block(breakable: false)`,
+      // Figure captions: smaller, muted.
+      `#show figure.caption: set text(size: 9.6pt, fill: luma(110))`,
+      // Links: BlockNote blue.
+      `#show link: set text(fill: rgb("#0b6e99"))`,
+      // Check-list marker symbols (used as per-item list markers).
+      CHECKBOX_MARKER_DEFS,
+    ].join("\n");
+  }
+
+  /**
+   * Resolve an image URL to bytes and register it as a Typst shadow file,
+   * returning the virtual path to reference via `image("...")`. Cached per URL.
+   * The bytes are exposed through {@link assetFiles} and must be mapped into the
+   * compiler before the markup is compiled.
+   */
+  public async registerImage(url: string): Promise<string> {
+    const cached = this.assets.get(url);
+    if (cached) {
+      return cached.path;
+    }
+    const blob = await this.resolveFile(url);
+    return this.registerImageBytes(
+      url,
+      new Uint8Array(await blob.arrayBuffer()),
+    );
+  }
+
+  /**
+   * Register already-resolved image bytes as a Typst shadow file, returning the
+   * virtual path to reference via `image("...")`. Cached per `key` — pass a key
+   * that identifies the rendered content (e.g. the source it was rendered
+   * from). For images that live at a URL, use {@link registerImage} instead.
+   *
+   * The path carries no file extension on purpose: Typst detects the format
+   * from the bytes when the extension doesn't assert one, and a *wrongly
+   * guessed* known extension (a lying content-type, an extensionless URL) is
+   * the only way to make it misdecode good bytes — while genuinely
+   * undecodable bytes fail the compile with Typst's own error (verified
+   * against the engine).
+   */
+  public registerImageBytes(key: string, bytes: Uint8Array): string {
+    const cached = this.assets.get(key);
+    if (cached) {
+      return cached.path;
+    }
+    const path = `/assets/asset-${this.assets.size}`;
+    this.assets.set(key, { path, bytes });
+    return path;
+  }
+
+  /**
+   * Image bytes collected by `toTypst`, keyed by the virtual path referenced in
+   * the markup. Map these into the compiler's filesystem (browser:
+   * `$typst.mapShadow`, node: `compiler.mapShadow`) before compiling.
+   */
+  public get assetFiles(): Map<string, Uint8Array> {
+    return new Map([
+      // The code-block highlighting theme the preamble references - always
+      // present (not per-image, so it must not shift the asset-N numbering).
+      [TYPST_CODE_THEME_PATH, TYPST_CODE_THEME_BYTES],
+      ...[...this.assets.values()].map(
+        ({ path, bytes }) => [path, bytes] as const,
+      ),
+    ]);
+  }
+
+  /** Convert a BlockNote document to a full Typst source string. */
+  public async toTypst(
+    blocks: Block<B, I, S>[],
+    documentOptions: TypstDocumentOptions = {},
+  ): Promise<string> {
+    const body = (await this.transformBlocks(blocks)).join("\n\n");
+    return this.preamble(documentOptions) + "\n\n" + body + "\n";
+  }
+}

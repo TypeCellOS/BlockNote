@@ -4,3 +4,10 @@ src/browser/**/__screenshots__/**/*-1.png
 
 # vitest-browser attachments (debug artifacts saved during test runs).
 .vitest-attachments
+
+# Screenshot baselines are Linux-only: the e2e suite runs exclusively in
+# Docker (see the testing skill), and a native run on macOS/Windows would
+# silently *seed* per-platform baselines for every screenshot test it
+# touches. Ignore them so they can never be committed by accident.
+src/**/__screenshots__/**/*-darwin.png
+src/**/__screenshots__/**/*-win32.png

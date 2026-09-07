@@ -13,18 +13,19 @@ import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { createContext, forwardRef, useContext } from "react";
 
-// Threads the `portalRoot` override from `Menu` (the provider) down to
-// `MenuDropdown`, where ariakit's `portalElement` prop actually lives.
-const PortalRootContext = createContext<HTMLElement | null | undefined>(
-  undefined,
-);
+// Hands the `portalElement` prop from `Menu` (the root) down to
+// `MenuDropdown`, where Ariakit takes it.
+const MenuPortalElementContext = createContext<HTMLElement | null>(null);
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
     children,
     onOpenChange,
     position,
-    portalRoot,
+    portalElement,
+    // ariakit's `virtualFocus` keeps DOM focus on the editor (roving via
+    // `aria-activedescendant`), so there is no focus to suppress here.
+    preventFocusOnOpen: _preventFocusOnOpen,
     sub: _sub, // unused
     ...rest
   } = props;
@@ -37,9 +38,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       setOpen={onOpenChange}
       virtualFocus={true}
     >
-      <PortalRootContext.Provider value={portalRoot}>
+      <MenuPortalElementContext.Provider value={portalElement}>
         {children}
-      </PortalRootContext.Provider>
+      </MenuPortalElementContext.Provider>
     </AriakitMenuProvider>
   );
 };
@@ -57,13 +58,16 @@ export const MenuDropdown = forwardRef<
 
   assertEmpty(rest);
 
-  const portalRoot = useContext(PortalRootContext);
+  const portalElement = useContext(MenuPortalElementContext);
 
   return (
     <AriakitMenu
       unmountOnHide={true}
       className={mergeCSSClasses("bn-ak-menu", className || "")}
-      portalElement={portalRoot ?? undefined}
+      // Ariakit falls back to a body-appended div for a missing element, so
+      // don't portal at all until there is one (editor not mounted yet).
+      portal={portalElement !== null}
+      portalElement={portalElement}
       ref={ref}
     >
       {children}

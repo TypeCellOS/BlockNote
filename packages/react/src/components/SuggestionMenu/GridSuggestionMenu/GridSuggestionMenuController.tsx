@@ -12,7 +12,7 @@ import {
   useExtension,
   useExtensionState,
 } from "../../../hooks/useExtension.js";
-import { EditorPortalProvider } from "../../../editor/EditorPortalProvider.js";
+import { PortalElementOverride } from "../../../editor/PortalElementOverride.js";
 import { FloatingUIOptions } from "../../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -47,10 +47,10 @@ export function GridSuggestionMenuController<
     floatingUIOptions?: FloatingUIOptions;
     /**
      * Override the DOM node this floating element portals into. Falls back to
-     * the ambient portal target (the editor's `bn-container` by default)
+     * the ambient portal target (the element wrapping the editor by default)
      * when omitted.
      */
-    portalElement?: HTMLElement | null;
+    portalElement?: HTMLElement;
   } & (ItemType<GetItemsType> extends DefaultReactGridSuggestionItem
     ? {
         // can be undefined
@@ -185,7 +185,7 @@ export function GridSuggestionMenuController<
   }
 
   return (
-    <EditorPortalProvider target={props.portalElement}>
+    <PortalElementOverride target={props.portalElement}>
       <GenericPopover reference={reference} {...floatingUIOptions}>
         {triggerCharacter && (
           <GridSuggestionMenuWrapper
@@ -202,6 +202,6 @@ export function GridSuggestionMenuController<
           />
         )}
       </GenericPopover>
-    </EditorPortalProvider>
+    </PortalElementOverride>
   );
 }

@@ -14,7 +14,14 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, portalRoot, ...rest } = props;
+  const {
+    className,
+    items,
+    isDisabled,
+    portalElement,
+    preventFocusOnOpen,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
@@ -26,15 +33,15 @@ export const ToolbarSelect = forwardRef<
 
   return (
     <MantineMenu
-      withinPortal={!!portalRoot}
-      portalProps={portalRoot ? { target: portalRoot } : undefined}
+      withinPortal={!!portalElement}
+      portalProps={portalElement ? { target: portalElement } : undefined}
       transitionProps={{
         exitDuration: 0,
       }}
       disabled={isDisabled}
-      // Do not move focus to the dropdown on mobile, as it blurs the editor's
-      // contentEditable and dismisses the on-screen keyboard.
-      trapFocus={portalRoot ? false : undefined}
+      // Do not move focus to the dropdown when requested (mobile), as it blurs
+      // the editor's contentEditable and dismisses the on-screen keyboard.
+      trapFocus={preventFocusOnOpen ? false : undefined}
       middlewares={{
         flip: true,
         shift: true,

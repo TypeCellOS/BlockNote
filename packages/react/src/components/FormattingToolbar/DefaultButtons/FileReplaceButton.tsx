@@ -7,7 +7,7 @@ import {
 import { RiImageEditFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
-import { useEditorPortalElement } from "../../../editor/EditorPortalProvider.js";
+import { usePortalElement } from "../../../editor/PortalElementOverride.js";
 import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
@@ -18,11 +18,7 @@ export const FileReplaceButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
   const uiMode = useUIMode();
-  const editorPortalElement = useEditorPortalElement();
-  // Only portal (and suppress dropdown focus) in the mobile toolbar; desktop
-  // renders inline with default focus behavior.
-  const portalRoot =
-    uiMode === "mobile" ? (editorPortalElement ?? undefined) : undefined;
+  const portalElement = usePortalElement();
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -73,7 +69,14 @@ export const FileReplaceButton = () => {
           editor.focus();
         }
       }}
-      portalRoot={portalRoot}
+      // Portal the popover into the editor's themed portal target so it
+      // inherits styling and escapes any scroll-container overflow clipping.
+      // On mobile that target is the toolbar's body-level container (see
+      // `MobileFormattingToolbarController`), and `preventFocusOnOpen` stops
+      // focus moving into the popover, which would blur the editor and dismiss
+      // the on-screen keyboard.
+      portalElement={portalElement}
+      preventFocusOnOpen={uiMode === "mobile"}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button

@@ -10,12 +10,13 @@ import React, {
   ReactNode,
   Ref,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from "react";
+import { warnIfViewportMetaMisconfigured } from "../components/FormattingToolbar/viewportMeta.js";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
 import { useEditorChange } from "../hooks/useEditorChange.js";
-import { useEditorDOMElement } from "../hooks/useEditorDomElement.js";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange.js";
 import { usePrefersColorScheme } from "../hooks/usePrefersColorScheme.js";
 import {
@@ -27,11 +28,13 @@ import {
   BlockNoteDefaultUI,
   BlockNoteDefaultUIProps,
 } from "./BlockNoteDefaultUI.js";
-import { EditorPortalProvider } from "./EditorPortalProvider.js";
-import { resolvePortalTarget } from "./portalElements.js";
+import {
+  PortalElementOverride,
+  PortalElementReset,
+} from "./PortalElementOverride.js";
+import { resolvePortalElement } from "./portalElements.js";
 import {
   BlockNoteViewContext,
-  ThemedRootProps,
   useBlockNoteViewContext,
 } from "./BlockNoteViewContext.js";
 import { useComponentsContext } from "./ComponentsContext.js";
@@ -94,11 +97,12 @@ export type BlockNoteViewProps<
   children?: ReactNode;
 
   /**
-   * Attributes to apply to every themed BlockNote root element. UI-library
-   * wrappers use this to carry their theming (color-scheme data attributes,
-   * theme CSS variables) to floating UI portalled outside the editor's DOM.
+   * Applies the UI library's theming — its color-scheme attribute, theme CSS
+   * variables — to a themed BlockNote root element. Wrappers pass this so that
+   * floating UI portalled outside the editor's DOM is themed too; they style
+   * the editor container itself through `className` and a `ref`.
    */
-  themedRootProps?: ThemedRootProps;
+  applyThemedRoot?: (element: HTMLElement) => void;
 
   ref?: Ref<HTMLDivElement> | undefined; // only here to get types working with the generics. Regular form doesn't work
 } & BlockNoteDefaultUIProps;
@@ -136,20 +140,18 @@ function BlockNoteViewComponent<
     tableHandles,
     comments,
     portalElements,
-    themedRootProps,
+    applyThemedRoot: applyLibraryTheme,
     autoFocus,
     renderEditor = true,
     ...rest
   } = props;
 
-  const editorDOMElement = useEditorDOMElement(editor);
-  const portalElement =
-    useMemo(
-      () => resolvePortalTarget(portalElements?.default),
-      [portalElements?.default],
-    ) ??
-    editorDOMElement?.parentElement ??
-    undefined;
+  // `default` redirects every element without its own entry. When omitted,
+  // the ambient portal element (the editor container) stays in effect.
+  const defaultPortalElement = useMemo(
+    () => resolvePortalElement(portalElements?.default),
+    [portalElements?.default],
+  );
 
   // Used so other components (suggestion menu) can set
   // aria related props to the contenteditable div
@@ -202,13 +204,20 @@ function BlockNoteViewComponent<
     [editor],
   );
 
-  const portalRootProps = useMemo(
-    () => ({
-      ...themedRootProps,
-      className: mergeCSSClasses("bn-root", editorColorScheme, className || ""),
-      "data-color-scheme": editorColorScheme,
-    }),
-    [themedRootProps, editorColorScheme, className],
+  // Everything that makes an element a themed `.bn-root`: what the container
+  // below renders as props, applied imperatively for the portal roots
+  // `PortalElementOverride` creates outside React's tree.
+  const applyThemedRoot = useCallback(
+    (element: HTMLElement) => {
+      element.className = mergeCSSClasses(
+        "bn-root",
+        editorColorScheme,
+        className || "",
+      );
+      element.setAttribute("data-color-scheme", editorColorScheme);
+      applyLibraryTheme?.(element);
+    },
+    [editorColorScheme, className, applyLibraryTheme],
   );
 
   // The BlockNoteContext makes sure the editor and some helper methods
@@ -232,14 +241,14 @@ function BlockNoteViewComponent<
         editable,
       },
       defaultUIProps,
-      portalRootProps,
+      applyThemedRoot,
     };
   }, [
     autoFocus,
     contentEditableProps,
     editable,
     defaultUIProps,
-    portalRootProps,
+    applyThemedRoot,
   ]);
 
   return (
@@ -250,8 +259,7 @@ function BlockNoteViewComponent<
           className={className}
           renderEditor={renderEditor}
           editorColorScheme={editorColorScheme}
-          themedRootProps={themedRootProps}
-          portalElement={portalElement}
+          defaultPortalElement={defaultPortalElement}
           ref={ref}
           {...rest}
         >
@@ -271,8 +279,7 @@ const BlockNoteViewContainer = React.forwardRef<
   {
     renderEditor: boolean;
     editorColorScheme: "light" | "dark";
-    themedRootProps?: ThemedRootProps;
-    portalElement?: HTMLElement;
+    defaultPortalElement?: HTMLElement;
     children: ReactNode;
   } & Omit<
     HTMLAttributes<HTMLDivElement>,
@@ -284,16 +291,13 @@ const BlockNoteViewContainer = React.forwardRef<
       className,
       renderEditor,
       editorColorScheme,
-      themedRootProps,
-      portalElement,
+      defaultPortalElement,
       children,
-      style,
       ...rest
     },
     ref,
   ) => (
     <div
-      {...themedRootProps}
       className={mergeCSSClasses(
         "bn-root",
         "bn-container",
@@ -301,17 +305,18 @@ const BlockNoteViewContainer = React.forwardRef<
         className,
       )}
       data-color-scheme={editorColorScheme}
-      style={{ ...style, ...themedRootProps?.style }}
       {...rest}
       ref={ref}
     >
-      <EditorPortalProvider target={portalElement}>
-        {renderEditor ? (
-          <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
-        ) : (
-          children
-        )}
-      </EditorPortalProvider>
+      <PortalElementReset>
+        <PortalElementOverride target={defaultPortalElement}>
+          {renderEditor ? (
+            <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
+          ) : (
+            children
+          )}
+        </PortalElementOverride>
+      </PortalElementReset>
     </div>
   ),
 );
@@ -340,6 +345,13 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
 
   const portalManager = useMemo(() => {
     return getContentComponent();
+  }, []);
+
+  // The page-level check for the mobile toolbar's viewport meta tag runs from
+  // here rather than from the toolbar's own hook, so it reaches developers on
+  // desktop and with a custom formatting toolbar alike.
+  useEffect(() => {
+    warnIfViewportMetaMisconfigured();
   }, []);
 
   const mount = useCallback(

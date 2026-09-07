@@ -201,10 +201,19 @@ export class CustomBlockNoteSchema<
           [K in keyof AdditionalStyleSpecs]: AdditionalStyleSpecs[K]["config"];
         }
   > {
-    // Merge the new specs with existing ones
-    Object.assign(this.opts.blockSpecs, opts.blockSpecs);
-    Object.assign(this.opts.inlineContentSpecs, opts.inlineContentSpecs);
-    Object.assign(this.opts.styleSpecs, opts.styleSpecs);
+    // Merge the new specs with the existing ones into fresh objects. The
+    // existing spec objects must not be written to: `BlockNoteSchema.create()`
+    // passes the module-level default specs by reference, so mutating them
+    // would leak the added specs (and the editor extensions they register) into
+    // every default-schema editor created afterwards.
+    this.opts = {
+      blockSpecs: { ...this.opts.blockSpecs, ...opts.blockSpecs },
+      inlineContentSpecs: {
+        ...this.opts.inlineContentSpecs,
+        ...opts.inlineContentSpecs,
+      },
+      styleSpecs: { ...this.opts.styleSpecs, ...opts.styleSpecs },
+    };
 
     // Reinitialize the block specs with the merged specs
     const {

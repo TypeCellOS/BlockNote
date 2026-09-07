@@ -7,7 +7,7 @@ import {
 import { useCallback } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
-import { useEditorPortalElement } from "../../../editor/EditorPortalProvider.js";
+import { usePortalElement } from "../../../editor/PortalElementOverride.js";
 import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
@@ -46,11 +46,7 @@ export const ColorStyleButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
   const uiMode = useUIMode();
-  const editorPortalElement = useEditorPortalElement();
-  // Only portal (and suppress dropdown focus) in the mobile toolbar; desktop
-  // renders inline with default focus behavior.
-  const portalRoot =
-    uiMode === "mobile" ? (editorPortalElement ?? undefined) : undefined;
+  const portalElement = usePortalElement();
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -109,10 +105,7 @@ export const ColorStyleButton = () => {
         editor.addStyles({ textColor: color });
       }
 
-      setTimeout(() => {
-        // timeout needed to ensure compatibility with Mantine Toolbar useFocusTrap
-        editor.focus();
-      });
+      editor.focus();
     },
     [editor, textColorInSchema],
   );
@@ -131,10 +124,7 @@ export const ColorStyleButton = () => {
         editor.addStyles({ backgroundColor: color });
       }
 
-      setTimeout(() => {
-        // timeout needed to ensure compatibility with Mantine Toolbar useFocusTrap
-        editor.focus();
-      });
+      editor.focus();
     },
     [backgroundColorInSchema, editor],
   );
@@ -145,14 +135,14 @@ export const ColorStyleButton = () => {
 
   return (
     <Components.Generic.Menu.Root
-      // On mobile, portal the dropdown into the toolbar's themed body-level
-      // container (see `MobileFormattingToolbarController`) so it escapes the
-      // editor's scroll container overflow instead of being clipped, while
-      // staying styled. A set `portalRoot` also stops focus moving into the
-      // dropdown, which would blur the editor and dismiss the on-screen
-      // keyboard. On desktop it's `undefined`, keeping the default inline
-      // rendering.
-      portalRoot={portalRoot}
+      // Portal the dropdown into the editor's themed portal target so it
+      // inherits styling and escapes any scroll-container overflow clipping.
+      // On mobile that target is the toolbar's body-level container (see
+      // `MobileFormattingToolbarController`), and `preventFocusOnOpen` stops
+      // focus moving into the dropdown, which would blur the editor and dismiss
+      // the on-screen keyboard.
+      portalElement={portalElement}
+      preventFocusOnOpen={uiMode === "mobile"}
     >
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button

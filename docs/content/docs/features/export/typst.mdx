@@ -1,0 +1,155 @@
+---
+title: Typst
+description: Export BlockNote documents to Typst markup.
+imageTitle: Typst Export
+path: /docs/export-to-typst
+---
+
+# Typst Export
+
+It's possible to export BlockNote documents to [Typst](https://typst.app)
+markup, for example to post-process documents in a Typst workflow, or to
+compile them to PDF with your own Typst toolchain (including server-side).
+This exporter is also the foundation of the
+[PDF exporter](/docs/features/export/pdf), which compiles its output to
+accessible, tagged PDF/UA-1 in the browser.
+
+<Callout type={"info"}>
+  This feature is provided by the `@blocknote/xl-typst-exporter`. `xl-`
+  packages are fully open source, but released under a copyleft license. A
+  commercial license for usage in closed source, proprietary products comes as
+  part of the [Business subscription](/pricing).
+</Callout>
+
+First, install the `@blocknote/xl-typst-exporter` package:
+
+```bash
+npm install @blocknote/xl-typst-exporter
+```
+
+Then, create an instance of the `TypstExporter` class:
+
+```typescript
+import {
+  TypstExporter,
+  typstDefaultSchemaMappings,
+} from "@blocknote/xl-typst-exporter";
+
+// Create the exporter
+const exporter = new TypstExporter(editor.schema, typstDefaultSchemaMappings);
+
+// Convert the blocks to a Typst source string
+const typst = await exporter.toTypst(editor.document, {
+  title: "My document",
+  lang: "en",
+});
+```
+
+### Images & assets
+
+The markup references files by virtual paths: the document's images (like
+`/assets/asset-0`) and a bundled code-highlighting theme the preamble
+always references. After `toTypst`, the exporter's `assetFiles` map holds
+the bytes for those paths. Map them into your Typst compiler's filesystem
+before compiling; every document needs this, not only those with images:
+
+```typescript
+const assets = exporter.assetFiles; // Map<string, Uint8Array>
+```
+
+(The [PDF exporter](/docs/features/export/pdf) does this automatically.)
+
+### Customizing the output
+
+`toTypst` takes per-export options: the document metadata and page setup.
+
+```typescript
+const typst = await exporter.toTypst(editor.document, {
+  // Document title, written to the document metadata
+  title: "My document",
+  // Document author
+  author: "John Doe",
+  // BCP-47 language tag of the document's natural language
+  lang: "en",
+  // Typst paper name, e.g. "a4" (default) or "us-letter"
+  paper: "a4",
+  // Page margin as a Typst length
+  margin: "48pt",
+  // Raw Typst markup for the running page header / footer, e.g. a
+  // page counter: "#context counter(page).display()"
+  header: "My document",
+  footer: "#context counter(page).display()",
+});
+```
+
+Only the options you pass are emitted; the markup declares no title,
+author, or language on its own.
+
+### Custom mappings / custom schemas
+
+A _mapping_ defines how to convert a BlockNote schema element (a Block,
+Inline Content, or Style) into a **Typst markup string**. The same mappings
+drive the [PDF exporter](/docs/features/export/pdf), so one custom-block
+mapping serves both formats.
+
+If you're using a [custom schema](/docs/features/custom-schemas) in your
+editor, or if you want to overwrite how default BlockNote elements are
+converted, you can pass your own `mappings`:
+
+```typescript
+import {
+  TypstExporter,
+  typstDefaultSchemaMappings,
+  strLit,
+} from "@blocknote/xl-typst-exporter";
+
+new TypstExporter(schema, {
+  ...typstDefaultSchemaMappings,
+  blockMapping: {
+    ...typstDefaultSchemaMappings.blockMapping,
+    myCustomBlock: (block, exporter) => {
+      // Return Typst markup; `strLit` safely embeds user text as a
+      // Typst string literal.
+      return `#${strLit("My custom block")}`;
+    },
+  },
+});
+```
+
+For a block with inline content, render it the way the default mappings do:
+`exporter.transformInlineContent(block.content).join("")` (inline results are
+markup strings, so plain concatenation composes them).
+
+
+### Math & diagram blocks
+
+The [math](/docs/features/blocks/math) and
+[diagram](/docs/features/blocks/diagrams) blocks ship their own Typst
+mappings. See [exporting math](/docs/features/blocks/math#typst--pdf) and
+[exporting diagrams](/docs/features/blocks/diagrams#exporting) for the
+setup.
+
+### Exporter options
+
+The `TypstExporter` constructor takes an optional third `options` parameter:
+
+```typescript
+const defaultOptions = {
+  // a function to resolve external resources (e.g. images) in order to avoid
+  // CORS issues; by default, this calls a BlockNote hosted server-side proxy
+  resolveFileUrl: corsProxyResolveFileUrl,
+  // the strings rendered into the exported document (file link texts, error
+  // placeholders); pass a locale from @blocknote/core/locales (or your
+  // editor's dictionary) to export in another language
+  dictionary: locales.en,
+  // the colors used for highlighting, background colors and font colors
+  colors: COLORS_DEFAULT, // defaults from @blocknote/core
+  // the font families the markup references - they must match fonts loaded
+  // into whichever Typst compiler you use (exported as DEFAULT_FONT_FAMILY
+  // and DEFAULT_MONO_FONT_FAMILY)
+  fontFamily: "Inter 18pt",
+  monoFontFamily: "Geist Mono",
+  // base font size in points
+  fontSize: 12,
+};
+```

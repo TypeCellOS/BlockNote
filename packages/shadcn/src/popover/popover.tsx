@@ -1,13 +1,13 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, useEditorPortalElement } from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
 import { createContext, forwardRef, ReactElement, useContext } from "react";
 
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
-const PortalRootContext = createContext<HTMLElement | null | undefined>(
-  undefined,
-);
+// Hands the `portalElement` prop from `Popover` (the root) down to
+// `PopoverContent`, where the content's `container` is set.
+const PopoverPortalElementContext = createContext<HTMLElement | null>(null);
 
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
@@ -17,7 +17,10 @@ export const Popover = (
     open,
     onOpenChange,
     position: _position, // unused
-    portalRoot,
+    portalElement,
+    // base-ui manages popover focus itself; unlike Mantine there is no focus to
+    // suppress, so this is intentionally unused.
+    preventFocusOnOpen: _preventFocusOnOpen,
     ...rest
   } = props;
 
@@ -27,9 +30,9 @@ export const Popover = (
 
   return (
     <ShadCNComponents.Popover.Popover open={open} onOpenChange={onOpenChange}>
-      <PortalRootContext.Provider value={portalRoot}>
+      <PopoverPortalElementContext.Provider value={portalElement}>
         {children}
-      </PortalRootContext.Provider>
+      </PopoverPortalElementContext.Provider>
     </ShadCNComponents.Popover.Popover>
   );
 };
@@ -61,16 +64,17 @@ export const PopoverContent = forwardRef<
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
-  const portalRoot = useContext(PortalRootContext);
-  // Default to the ambient portal target (a themed `.bn-root`) so popovers
-  // inherit light/dark mode instead of the document body's, and escape the
-  // mobile formatting toolbar's horizontal scroll clip.
-  const editorPortalElement = useEditorPortalElement();
+  // The `portalElement` supplied at the call site is a themed `.bn-root`, so
+  // popovers inherit light/dark mode instead of the document body's, and escape
+  // the mobile formatting toolbar's horizontal scroll clip.
+  // `null` (editor not mounted yet) makes Base UI wait for a container
+  // instead of falling back to the body; nothing is open at that point.
+  const container = useContext(PopoverPortalElementContext);
 
   return (
     <ShadCNComponents.Popover.PopoverContent
       sideOffset={8}
-      container={portalRoot ?? editorPortalElement ?? undefined}
+      container={container}
       className={cn(
         className,
         "flex flex-col gap-2",

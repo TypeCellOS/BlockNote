@@ -1,3 +1,10 @@
+import type { Project } from "../util.js";
+
+// Only generated for Tailwind-based examples.
+export function shouldGenerate(project: Project) {
+  return project.config.tailwind === true;
+}
+
 const template = () => `@import "tailwindcss";
 @import "tw-animate-css";
 

@@ -1,0 +1,32 @@
+[package]
+name = "blocknote-typst-wasm"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+typst = "0.15.1"
+typst-pdf = "0.15.1"
+comemo = "0.4"
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde-wasm-bindgen = "0.6"
+console_error_panic_hook = "0.1.7"
+typst-layout = "0.15.1"
+
+# Size-focused release profile: the wasm is a shipped web asset.
+[profile.release]
+opt-level = "s"
+lto = true
+strip = true
+codegen-units = 1
+
+# wasm-pack's bundled wasm-opt (an old binaryen) fails validating modern
+# rustc output; ship the direct rustc artifact. A current binaryen pass is
+# a known size optimization to add later (see README).
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false

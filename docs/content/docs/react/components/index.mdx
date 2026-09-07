@@ -17,7 +17,7 @@ BlockNote includes a number of UI Components (like menus and toolbars) that can 
 
 ## Configuring Portal Targets
 
-By default, all floating UI elements (toolbars, menus, table handles, etc.) portal into the editor's `bn-container` so they stay scoped to the editor. If your layout needs them to escape — e.g. an `overflow: hidden` ancestor that would clip large dropdowns, or a host modal with its own stacking context — pass a `portalElements` prop to `BlockNoteView`:
+By default, the floating components (formatting toolbar, side menu, slash menu, table handles, etc.) portal into the element that wraps the editor: the editor's `bn-container`, or, when you render `BlockNoteViewEditor` yourself, the element you render it into. So they stay scoped to the editor and clip with it. The menus and popovers a floating component opens render inside that component's wrapper, so they move and hide with it. If your layout needs the floating components to escape, e.g. an `overflow: hidden` ancestor that would clip large dropdowns, or a host modal with its own stacking context, pass a `portalElements` prop to `BlockNoteView`:
 
 ```tsx
 <BlockNoteView
@@ -25,7 +25,7 @@ By default, all floating UI elements (toolbars, menus, table handles, etc.) port
   portalElements={{
     // Global default for any element not listed below.
     default: document.body,
-    // Per-element overrides. Values can be HTMLElement, a CSS selector, or null (= document.body).
+    // Per-element overrides. Values can be an HTMLElement or a CSS selector.
     tableHandles: ".bn-container",
   }}
 />

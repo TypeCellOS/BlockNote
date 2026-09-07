@@ -23,18 +23,46 @@ import { expectElement } from "./editor.js";
  * baselines' dimension checks - loudly, not silently;
  * screenshotFull.test.tsx isolates that breakage on synthetic content.
  */
-export async function screenshotFull(element: HTMLElement, name: string) {
-  const height = Math.max(
-    720,
-    Math.ceil(element.getBoundingClientRect().bottom) + 40,
-  );
+export async function screenshotFull(
+  element: HTMLElement,
+  name: string,
+  options?: {
+    /**
+     * Fixed capture height instead of measuring the element. Required when
+     * two different renders are compared against one baseline (e.g. the
+     * static-rendering equality test): measured heights differ by a few px
+     * between renders, and a dimension mismatch fails before pixels are even
+     * compared. Pass `document.documentElement` as the element then - its box
+     * is the (grown) iframe viewport, so the dimensions are exact.
+     */
+    height?: number;
+    comparatorOptions?: {
+      allowedMismatchedPixelRatio?: number;
+      allowedMismatchedPixels?: number;
+    };
+    screenshotOptions?: {
+      scale?: "css" | "device";
+      mask?: readonly unknown[];
+    };
+  },
+) {
+  const height =
+    options?.height ??
+    Math.max(720, Math.ceil(element.getBoundingClientRect().bottom) + 40);
   await page.viewport(1280, height);
   (window.frameElement?.parentElement as HTMLElement | null)?.style.setProperty(
     "transform",
     "none",
   );
   try {
-    await expectElement(element).toMatchScreenshot(name);
+    await expectElement(element).toMatchScreenshot(name, {
+      ...(options?.comparatorOptions && {
+        comparatorOptions: options.comparatorOptions,
+      }),
+      ...(options?.screenshotOptions && {
+        screenshotOptions: options.screenshotOptions,
+      }),
+    } as never);
   } finally {
     // Re-lays-out the wrapper, including its transform.
     await page.viewport(1280, 720);

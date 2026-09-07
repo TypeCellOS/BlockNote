@@ -18,6 +18,9 @@ export default defineConfig({
           { pattern: "examples/*/*/README.md", base: "workspace" },
           { pattern: "examples/*/*/src/**", base: "workspace" },
           { pattern: "packages/dev-scripts/examples/**", base: "workspace" },
+          // The testDocumentBlocks template copies this file verbatim into
+          // the examples - edits to it must re-run generation.
+          { pattern: "shared/testDocumentBlocks.ts", base: "workspace" },
         ],
         output: [
           { pattern: "examples/*/*/package.json", base: "workspace" },
@@ -26,6 +29,10 @@ export default defineConfig({
           { pattern: "examples/*/*/index.html", base: "workspace" },
           { pattern: "examples/*/*/main.tsx", base: "workspace" },
           { pattern: "examples/*/*/tailwind.css", base: "workspace" },
+          {
+            pattern: "examples/*/*/src/testDocumentBlocks.ts",
+            base: "workspace",
+          },
           { pattern: "playground/src/examples.gen.tsx", base: "workspace" },
         ],
       },

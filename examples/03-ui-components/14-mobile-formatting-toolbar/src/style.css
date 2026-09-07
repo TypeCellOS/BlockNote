@@ -3,6 +3,21 @@ body {
   margin: 0;
 }
 
+/* A page has one scroll container. Embedded in a page that already provides
+   one (BlockNote's playground puts `bn-scroll-container` on its root), this
+   example's own wrapper is nested inside it and must not pin a second element
+   to the viewport, and the "scrolling document" mode of the switch in the nav
+   bar (a body class, see App.tsx) must switch the page's container off too.
+   Both are plain CSS here, undoing what BlockNote's stylesheet sets. */
+.bn-scroll-container .bn-scroll-container,
+body.app-scrolling-document .bn-scroll-container {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow-y: visible;
+  overscroll-behavior: auto;
+}
+
 /* Fixed-height, internally scrollable editor — a nested scroll container inside
    the page's `.bn-scroll-container`, to check nested scrolling works. */
 .bn-container {

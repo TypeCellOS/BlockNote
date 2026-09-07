@@ -13,8 +13,13 @@ const config = {
   // checking the mobile toolbar - the browser's origin is the machine's LAN IP,
   // not `localhost`, so those requests get a 403 and the page breaks. Allow the
   // common private LAN ranges so network devices can load the dev server. This
-  // only affects `next dev`.
-  allowedDevOrigins: ["192.168.*.*", "10.*.*.*", "172.*.*.*"],
+  // only affects `next dev`. Each `*` matches one address segment, so the
+  // 172.16.0.0/12 range needs its sixteen second segments spelled out.
+  allowedDevOrigins: [
+    "192.168.*.*",
+    "10.*.*.*",
+    ...Array.from({ length: 16 }, (_, i) => `172.${16 + i}.*.*`),
+  ],
   serverExternalPackages: ["typescript", "twoslash"],
   reactCompiler: true,
   // TypeScript 7 ships only the native `tsc` binary; it no longer exposes the
@@ -24,6 +29,21 @@ const config = {
     useTypeScriptCli: true,
   },
   redirects,
+  // `next build` runs Turbopack; the demo examples are written for Vite, so
+  // give their `?url` asset imports (fonts, the Typst compiler wasm) the
+  // same URL-string semantics here.
+  turbopack: {
+    resolveAlias: {
+      // Both key forms on purpose: Turbopack matches the alias key against
+      // the request with its query in some resolution paths and without it
+      // in others, so covering `/wasm` and `/wasm?url` makes the demo's
+      // `?url` import resolve in both.
+      "@blocknote/xl-typst-compiler/wasm":
+        "./components/typstCompilerWasmUrl.ts",
+      "@blocknote/xl-typst-compiler/wasm?url":
+        "./components/typstCompilerWasmUrl.ts",
+    },
+  },
   images: {
     remotePatterns: [
       {
