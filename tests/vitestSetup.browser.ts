@@ -16,11 +16,12 @@ import { ensureTouchEmulation } from "./src/utils/ensureTouchEmulation.js";
 // resizes that iframe. Run before all tests in the file so every test sees the
 // right size from the first render.
 beforeAll(async () => {
-  // On the android instance the outer window is a 393x727 phone (provider
-  // contextOptions) — the iframe must match it exactly. A larger iframe gets
-  // scaled down by the harness's fit-to-window transform, so captures come
-  // out phone-*sized* but contain a shrunken desktop-width layout.
-  if (/android/i.test(navigator.userAgent)) {
+  // On the android and ios instances the outer window is a 393x727 phone
+  // (provider contextOptions) — the iframe must match it exactly. A larger
+  // iframe gets scaled down by the harness's fit-to-window transform, so
+  // captures come out phone-*sized* but contain a shrunken desktop-width
+  // layout.
+  if (/android|iphone/i.test(navigator.userAgent)) {
     await page.viewport(393, 727);
   } else {
     await page.viewport(1280, 720);
@@ -35,20 +36,28 @@ beforeAll(async () => {
   document.head.appendChild(style);
 });
 
-// Chromium's beyond-viewport screenshot capture (any `toMatchScreenshot` of
-// an element taller than the viewport — Playwright sends
-// `captureBeyondViewport: true`) can silently drop the context's touch
-// emulation for every later test. Before every test on the android instance:
-// re-arm the emulation, then assert it actually holds — the assert is what
-// catches the deeper failure class where the *mechanism* breaks (provider
-// contextOptions silently ignored, a vitest upgrade rewiring the provider,
-// this very command regressing). No suite needs to call
-// `ensureTouchEmulation` itself.
+// Chromium drops the context's touch emulation after any screenshot captured
+// beyond the viewport, which on this mobile context is every element
+// screenshot, and Playwright never re-arms it (microsoft/playwright#42607;
+// mechanism and repro in `src/utils/restoreTouchEmulation.ts`). Before every
+// test on the android instance: re-arm the emulation, then assert it actually
+// holds — the assert is what catches the deeper failure class where the
+// *mechanism* breaks (provider contextOptions silently ignored, a vitest
+// upgrade rewiring the provider, this very command regressing). No suite
+// needs to call `ensureTouchEmulation` itself.
 beforeEach(async () => {
   if (/android/i.test(navigator.userAgent)) {
     await (
       commands as unknown as { restoreTouchEmulation(): Promise<void> }
     ).restoreTouchEmulation();
+    ensureTouchEmulation();
+  }
+  // Playwright's WebKit emulation sets `(pointer: coarse)` and `ontouchstart`
+  // for `hasTouch` but leaves `navigator.maxTouchPoints` at 0, which
+  // `isTouchDevice()` requires; real iOS Safari reports 5. The one stub of
+  // the ios instance.
+  if (/iphone/i.test(navigator.userAgent) && navigator.maxTouchPoints === 0) {
+    Object.defineProperty(navigator, "maxTouchPoints", { value: 5 });
     ensureTouchEmulation();
   }
 });

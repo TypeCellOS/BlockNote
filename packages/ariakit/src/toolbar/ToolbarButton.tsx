@@ -7,9 +7,15 @@ import {
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps, preventFocusOnTap } from "@blocknote/react";
-import { forwardRef, type MouseEvent } from "react";
+import { forwardRef, type HTMLAttributes, type MouseEvent } from "react";
 
-type ToolbarButtonProps = ComponentProps["Generic"]["Toolbar"]["Button"];
+// Ariakit merges its own props into a `render` element: its `createElement`
+// clones the element with the trigger's HTML attributes, handlers and ref,
+// the `React.HTMLAttributes` its `RenderProp` type declares. This button is
+// the render element of the menu and popover triggers, so it receives those
+// on top of the generic Button props.
+type ToolbarButtonProps = ComponentProps["Generic"]["Toolbar"]["Button"] &
+  HTMLAttributes<HTMLButtonElement>;
 
 /**
  * Helper for basic buttons that show in the formatting toolbar.
@@ -27,16 +33,17 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       onClick,
       label,
       variant: _variant,
+      onMouseDown: triggerMouseDown,
       ...rest
     } = props;
 
-    // false, because rest props can be added by ariakit when button is used as a trigger
-    // assertEmpty in this case is only used at typescript level, not runtime level
-    assertEmpty(rest, false);
-
-    const triggerMouseDown = (
-      rest as { onMouseDown?: (e: MouseEvent<HTMLButtonElement>) => void }
-    ).onMouseDown;
+    // Every generic prop is taken above, so only what Ariakit injected may
+    // remain: a forgotten generic prop fails to compile here. Type-level only;
+    // at runtime the injected attributes are expected.
+    assertEmpty(
+      rest as Omit<typeof rest, keyof HTMLAttributes<HTMLButtonElement>>,
+      false,
+    );
 
     return (
       <AriakitTooltipProvider>
@@ -48,7 +55,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
                 "bn-ak-button bn-ak-secondary",
                 className || "",
               )}
-              // `rest` first, so Ariakit's injected `onMouseDown` does not replace ours.
               {...rest}
               onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
                 // On touch this also keeps the focus-triggered tooltip from
