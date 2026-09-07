@@ -28,6 +28,7 @@ export function isDarkReaderMutation(mutation: ViewMutationRecord): boolean {
 
 export function ignoreDarkReaderMutations(nodeView: NodeView): void {
   const originalIgnoreMutation = nodeView.ignoreMutation?.bind(nodeView);
+  const contentDOM = nodeView.contentDOM;
 
   nodeView.ignoreMutation = (mutation: ViewMutationRecord) => {
     if (isDarkReaderMutation(mutation)) {
@@ -35,6 +36,14 @@ export function ignoreDarkReaderMutations(nodeView: NodeView): void {
     }
 
     // Defer to the node view's own `ignoreMutation` for additional filtering.
-    return originalIgnoreMutation ? originalIgnoreMutation(mutation) : false;
+    if (originalIgnoreMutation) {
+      return originalIgnoreMutation(mutation);
+    }
+
+    // Defining `ignoreMutation` replaces prosemirror-view's default, so keep
+    // it: a node view without a content DOM (an image block, say) has nothing
+    // to read back, and reading its own DOM changes (the selected-node class,
+    // for one) resets a node selection, which broke copying an image.
+    return !contentDOM && mutation.type !== "selection";
   };
 }
