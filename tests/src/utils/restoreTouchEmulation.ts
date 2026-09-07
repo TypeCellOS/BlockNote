@@ -4,7 +4,7 @@ import type { BrowserCommand } from "vite-plus/test/node";
  * Re-applies the touch emulation the android instance's Playwright
  * `contextOptions` established. Chromium drops `Emulation.setTouchEmulationEnabled`
  * whenever `Page.captureScreenshot` runs with `captureBeyondViewport: true`
- * (reproduced over raw CDP, Chromium 148: `tests/scripts/touch-emulation-repro.mjs`).
+ * (reproduced over raw CDP, Chromium 148; the repro is in the issue below).
  * Playwright sends that flag for every capture that does not fit the
  * viewport, so `fullPage` and tall elements everywhere, and on an `isMobile`
  * context every element screenshot; it sets touch emulation once per session
