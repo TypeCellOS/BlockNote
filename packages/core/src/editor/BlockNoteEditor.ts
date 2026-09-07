@@ -753,14 +753,22 @@ export class BlockNoteEditor<
    */
   public mount = (element: HTMLElement) => {
     this._tiptapEditor.mount({ mount: element });
+    this.mounted = true;
   };
 
   /**
    * Unmount the editor from the DOM element it is bound to
    */
   public unmount = () => {
+    this.mounted = false;
     this._tiptapEditor.unmount();
   };
+
+  // Whether a view is attached. Not derivable from `prosemirrorView`: tiptap
+  // never returns `undefined` there, it hands out a stub that throws on most
+  // property access while unmounted ("[tiptap error]: The editor view is not
+  // available"), and its own `isInitialized` flips a tick after mount.
+  private mounted = false;
 
   /**
    * Get the underlying prosemirror state
@@ -814,10 +822,14 @@ export class BlockNoteEditor<
    * toolbar is the only caller).
    */
   public setScrollInsets(insets: Partial<ScrollSides> | undefined) {
-    const view = this.prosemirrorView;
-    if (!view) {
+    // The mobile toolbar clears the insets from a passive-effect cleanup, and
+    // when the whole view unmounts React runs that after the ref cleanup that
+    // unmounted the editor, so `prosemirrorView` would be tiptap's throwing
+    // stub here (see `mounted`).
+    if (!this.mounted) {
       return;
     }
+    const view = this.prosemirrorView;
     if (!insets) {
       if (this.baseScrollProps) {
         view.setProps(this.baseScrollProps);

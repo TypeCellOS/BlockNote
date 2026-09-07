@@ -129,6 +129,30 @@ describe("Mobile formatting toolbar", () => {
     });
   });
 
+  // Red before the `mounted` guard in `setScrollInsets` (BlockNoteEditor.ts):
+  // unmounting the view runs the toolbar's effect cleanup after the editor
+  // view is gone, tiptap's stand-in view threw from it, and vitest charged
+  // that uncaught error to whichever test ran next (the `retry x1` on most
+  // mobile cases).
+  test("unmounting the view while the toolbar is open does not throw", async () => {
+    const errors: string[] = [];
+    function onError(event: ErrorEvent) {
+      errors.push(event.message);
+    }
+    window.addEventListener("error", onError);
+    try {
+      await focusOnEditor();
+      await userEvent.keyboard("Mobile toolbar");
+      await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
+      await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
+      await cleanup();
+      await settleFrames();
+    } finally {
+      window.removeEventListener("error", onError);
+    }
+    expect(errors).toEqual([]);
+  });
+
   test("link popover holds focus through keyboard resizes and creates the link", async () => {
     await focusOnEditor();
     await userEvent.keyboard("Link target");
