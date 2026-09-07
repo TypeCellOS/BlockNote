@@ -40,14 +40,10 @@ export const PopoverContent = forwardRef<
         className || "",
         variant === "panel-popover" ? "bn-ak-panel-popover" : "",
       )}
-      // For reviewer: BlockNote owns focus (`useAutoFocus` on the input), so
-      // Ariakit's own autofocus stays off. That hook focuses at mount, and
-      // Ariakit keeps popover content mounted while closed (hidden with
-      // `display: none`), so without `unmountOnHide` the hook ran once when
-      // the toolbar mounted, on an invisible input, and never again: the
-      // link form's URL input was never focused, desktop and mobile alike.
-      // Mounting on open, like Mantine and Base UI do, makes the hook work
-      // (the menu adapter already uses `unmountOnHide`).
+      // BlockNote owns focus (`useAutoFocus` on the input), so Ariakit's own
+      // autofocus stays off. That hook runs at mount, and Ariakit keeps
+      // popover content mounted while closed: without `unmountOnHide` it ran
+      // once, on the hidden input, and the URL input was never focused.
       autoFocusOnShow={false}
       unmountOnHide={true}
       // Ariakit falls back to a body-appended div for a missing element, so

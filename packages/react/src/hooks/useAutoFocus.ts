@@ -24,12 +24,6 @@ import { RefObject, useEffect, useRef } from "react";
  * libraries' own autofocus off; Ariakit's is a bare `focus()` plus a Safari
  * `scrollIntoView`, exactly the scroll this hook avoids.
  *
- * For reviewer: the previous paragraph had Mantine's focus trap reading
- * `data-autofocus` (that trap is off in the adapter) and, in an earlier
- * revision today, Ariakit "hidden until positioned" as the reason its
- * input was never focused. The actual reason is above: content mounted
- * while closed, so this hook fired once at toolbar mount.
- *
  * Returns the ref to attach; merge it with a forwarded ref via
  * `useMergeRefs`.
  */
