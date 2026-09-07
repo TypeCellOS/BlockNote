@@ -74,6 +74,27 @@ describe("Mobile formatting toolbar", () => {
     expect(html.style.getPropertyValue("--bn-vv-scale")).toBe("");
   });
 
+  // The extension's `show` state used to survive a blur: tapping the page
+  // away from the editor closed the keyboard, the mobile controller unmounted,
+  // and the desktop controller mounted with the stale `true` and showed the
+  // desktop toolbar over a blurred editor.
+  test("tapping away from the editor with the keyboard open leaves no formatting toolbar", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard("Mobile toolbar");
+    await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+
+    await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
+    await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
+
+    // A tap on the page body blurs the editor, then the keyboard closes.
+    (document.activeElement as HTMLElement).blur();
+    await page.viewport(VIEWPORT_WIDTH, KEYBOARD_CLOSED);
+    await settleFrames();
+
+    expect(document.querySelector(MOBILE_TOOLBAR_SELECTOR)).toBeNull();
+    expect(document.querySelector(".bn-formatting-toolbar")).toBeNull();
+  });
+
   test("shows while the virtual keyboard is open and hides when it closes", async () => {
     await focusOnEditor();
     await userEvent.keyboard("Mobile toolbar");
