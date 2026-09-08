@@ -56,7 +56,7 @@ export class DOCXExporter<
     /**
      * The schema of your editor. The mappings are automatically typed checked against this schema.
      */
-    protected readonly schema: BlockNoteSchema<B, I, S>,
+    schema: BlockNoteSchema<B, I, S>,
     /**
      * The mappings that map the BlockNote schema to the docxjs content.
      * Pass {@link docxDefaultSchemaMappings} for the default schema.
@@ -158,7 +158,7 @@ export class DOCXExporter<
 
       let children = await this.transformBlocks(b.children, nestingLevel + 1);
 
-      if (!["columnList", "column"].includes(b.type)) {
+      if (!this.isContainerBlock(b)) {
         children = children.map((c, _i) => {
           // NOTE: nested tables not supported (we can't insert the new Tab before a table)
           if (
@@ -178,17 +178,16 @@ export class DOCXExporter<
       // The `numberedListIndex` slot carries the numbering instance for the docx
       // block mappings (bullet/numbered list items); other block types ignore it.
       const self = await this.mapBlock(
-        b as any,
+        b,
         nestingLevel,
         numberingInstance,
         children,
-      ); // TODO: any
-      if (["columnList", "column"].includes(b.type)) {
-        ret.push(self as Table);
-      } else if (Array.isArray(self)) {
-        ret.push(...self, ...children);
-      } else {
-        ret.push(self, ...children);
+      );
+      ret.push(...(Array.isArray(self) ? self : [self]));
+      // A container's mapping is handed its children and places them itself,
+      // so they must not be appended after it as well.
+      if (!this.isContainerBlock(b)) {
+        ret.push(...children);
       }
     }
     return ret;

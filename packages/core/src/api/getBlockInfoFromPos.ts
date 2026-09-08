@@ -7,6 +7,11 @@ import {
   Transaction,
 } from "prosemirror-state";
 
+import {
+  CHILD_CONTAINER_GROUP,
+  isContainerNode,
+  hasOwnedChildren,
+} from "../schema/blocks/children.js";
 import type { BlockConfig } from "../schema/blocks/types.js";
 
 /**
@@ -69,6 +74,7 @@ export type BlockInfo = {
       children: ChildrenInfo;
       content?: undefined;
       hasContent: false;
+      hasOwnedChildren: true;
       contentStart?: undefined;
       contentEnd?: undefined;
       contentKind?: undefined;
@@ -105,6 +111,8 @@ export type BlockInfo = {
        * `hasContent: false`.
        */
       hasContent: true;
+      /** Whether children belong to this block, even before a body exists. */
+      hasOwnedChildren: boolean;
     }
 );
 
@@ -319,9 +327,10 @@ export function getBlockInfoFromNode(node: Node, beforePos: number): BlockInfo {
     afterPos: beforePos + node.nodeSize,
   };
 
-  if (node.type.isInGroup("bnBlock") && node.type.isInGroup("childContainer")) {
+  if (isContainerNode(node.type)) {
     return {
       hasContent: false,
+      hasOwnedChildren: true,
       block,
       children: {
         ...block,
@@ -375,6 +384,7 @@ export function getBlockInfoFromNode(node: Node, beforePos: number): BlockInfo {
 
     return {
       hasContent: true,
+      hasOwnedChildren: hasOwnedChildren(node),
       block,
       content,
       children,
@@ -452,7 +462,7 @@ export function getParentBlockInfo(
   }
   // A `blockGroup`: its own parent block is the real parent, unless it's the
   // document root group.
-  if (parent.type.isInGroup("childContainer") && $pos.depth > 1) {
+  if (parent.type.isInGroup(CHILD_CONTAINER_GROUP) && $pos.depth > 1) {
     return getBlockInfoAt(doc, $pos.before($pos.depth - 1));
   }
   return undefined;
@@ -583,13 +593,7 @@ export function getInsertionPos(
     // A restricted container can route insertion into its edge container,
     // e.g. inserting a paragraph into the last column of a column list.
     const child = last ? children.node.lastChild : children.node.firstChild;
-    if (
-      !child ||
-      !(
-        child.type.isInGroup("bnBlock") &&
-        child.type.isInGroup("childContainer")
-      )
-    ) {
+    if (!child || !isContainerNode(child.type)) {
       break;
     }
     info = getBlockInfoFromNode(
@@ -598,4 +602,72 @@ export function getInsertionPos(
     );
   }
   return null;
+}
+
+/**
+ * Resolves a block to its first leaf block: the block itself when it is not a
+ * container, otherwise the first leaf of its first child. Returns `null` for
+ * an empty container.
+ */
+export function getFirstLeafBlock(info: BlockInfo): BlockInfo | null {
+  while (!info.hasContent) {
+    const { node, childrenStart } = info.children;
+    if (!node.firstChild) {
+      return null;
+    }
+    info = getBlockInfoFromNode(node.firstChild, childrenStart);
+  }
+  return info;
+}
+
+/**
+ * Climbs out of containers until it reaches a position where `nodeType` fits.
+ * `side` picks which edge of each climbed container to land on: `"before"` for
+ * moves that put a block above the containers it leaves (Backspace move-out),
+ * `"after"` for moves that put it below them (Enter-exit).
+ *
+ * Position-based rather than `BlockInfo`-based (unlike the descend/leaf
+ * helpers above) because its input is an arbitrary gap position — a point
+ * between blocks, not a block.
+ */
+export function ascendToInsertablePos(
+  doc: Node,
+  pos: number,
+  nodeType: NodeType,
+  side: "before" | "after" = "before",
+): number | undefined {
+  for (;;) {
+    const $pos = doc.resolve(pos);
+    const parent = $pos.node();
+    if (parent.canReplaceWith($pos.index(), $pos.index(), nodeType)) {
+      return pos;
+    }
+    if ($pos.depth > 0 && isContainerNode(parent.type)) {
+      pos = side === "before" ? $pos.before() : $pos.after();
+      continue;
+    }
+    return undefined;
+  }
+}
+
+/**
+ * The container ancestors of a position, outermost last, each with its block
+ * id and resolution depth. Used to re-run container repair (`fixContainersById`)
+ * on every container a mutation may have emptied. Position-based for the same
+ * reason as `ascendToInsertablePos`: selections and mapped positions are the
+ * natural inputs.
+ */
+export function getAncestorContainers(
+  doc: Node,
+  pos: number,
+): { id: string; depth: number }[] {
+  const $pos = doc.resolve(pos);
+  const containers: { id: string; depth: number }[] = [];
+  for (let depth = $pos.depth; depth > 0; depth--) {
+    const ancestor = $pos.node(depth);
+    if (isContainerNode(ancestor.type) && ancestor.attrs.id) {
+      containers.push({ id: ancestor.attrs.id, depth });
+    }
+  }
+  return containers;
 }

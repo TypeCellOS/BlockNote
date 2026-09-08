@@ -56,6 +56,11 @@ type BlockConfig = {
   type: string;
   content: "inline" | "plain" | "none";
   readonly propSchema: PropSchema;
+  children?: {
+    allow: "blocks" | string[];
+    min?: number;
+  };
+  placeable?: "anywhere" | "namedOnly";
 };
 ```
 
@@ -71,6 +76,14 @@ type BlockConfig = {
   _In the alert demo, we want the user to be able to type rich text in our
   alert, so we set `content` to `"inline"`._
 </Callout>
+
+<Callout type="info">
+  _Custom blocks can also contain child blocks by declaring the `children`
+  option, with or without editable content of their own. See [Container
+  Blocks](/docs/features/custom-schemas/container-blocks)._
+</Callout>
+
+`children?:` Defines which child blocks the block can contain. `placeable?:` Controls where a container block can be used. See [Container Blocks](/docs/features/custom-schemas/container-blocks) for the supported configurations.
 
 `propSchema:` The `PropSchema` specifies the props that the block supports. Block props (properties) are data stored with your Block in the document, and can be used to customize its appearance or behavior.
 

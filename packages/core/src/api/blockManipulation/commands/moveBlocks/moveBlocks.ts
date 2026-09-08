@@ -1,4 +1,4 @@
-import type { NodeType } from "prosemirror-model";
+import type { NodeType, Schema } from "prosemirror-model";
 import {
   NodeSelection,
   Selection,
@@ -11,14 +11,37 @@ import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
 import {
-  getBlockInfoNearPos,
-  getBlockInfoAt,
+  isContainerNode,
+  isNamedOnly,
+} from "../../../../schema/blocks/children.js";
+import {
   getInsertionPos,
+  getBlockInfoAt,
+  getBlockInfoNearPos,
   getNodeId,
 } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { insertBlocks } from "../insertBlocks/insertBlocks.js";
 import { removeAndInsertBlocks } from "../replaceBlocks/replaceBlocks.js";
+
+/**
+ * Dissolves `placeable: "namedOnly"` blocks into their children.
+ *
+ * A `namedOnly` block (a `column`, say) is defined only in terms of the
+ * container that holds it, so it can't land anywhere a regular block goes —
+ * moving one out of its container moves its children instead. Every other
+ * block passes through as itself.
+ */
+function dissolveContainerOnlyBlocks(
+  blocks: Block<any, any, any>[],
+  pmSchema: Schema,
+): Block<any, any, any>[] {
+  return blocks.flatMap((block) =>
+    isNamedOnly(pmSchema.nodes[block.type])
+      ? dissolveContainerOnlyBlocks(block.children, pmSchema)
+      : [block],
+  );
+}
 
 type BlockSelectionData = (
   | {
@@ -114,7 +137,11 @@ function updateBlockSelectionFromData(
       anchorBlockPos + data.headCellOffset,
     );
   } else if (data.type === "node") {
-    selection = NodeSelection.create(tr.doc, anchorBlockPos + 1);
+    const blockInfo = getBlockInfoAt(tr.doc, anchorBlockPos);
+    selection = NodeSelection.create(
+      tr.doc,
+      blockInfo.hasContent ? blockInfo.content.beforePos : anchorBlockPos,
+    );
   } else {
     const headBlockPos = getNodeById(data.headBlockId, tr.doc)?.posBeforeNode;
     if (headBlockPos === undefined) {
@@ -131,16 +158,6 @@ function updateBlockSelectionFromData(
   }
 
   tr.setSelection(selection);
-}
-
-// Replaces top-level `column` blocks with their children, as a `column` is not
-// a valid block outside a `columnList`. Other blocks are returned as-is.
-function flattenColumns(
-  blocks: Block<any, any, any>[],
-): Block<any, any, any>[] {
-  return blocks.flatMap((block) =>
-    block.type === "column" ? block.children : [block],
-  );
 }
 
 /**
@@ -171,10 +188,10 @@ export function moveBlocks(
     // </column>
     // When the non-empty block is moved up, the column is seen as empty and
     // collapsed in the removal step, so the following insertion fails.
-    removeAndInsertBlocks(tr, blocks, [], { fixColumns: false });
+    removeAndInsertBlocks(tr, blocks, [], { fixContainers: false });
     insertBlocks<any, any, any>(
       tr,
-      flattenColumns(blocks),
+      dissolveContainerOnlyBlocks(blocks, editor.pmSchema),
       referenceBlock,
       placement,
     );
@@ -209,295 +226,125 @@ export function moveSelectedBlocksAndSelection(
   });
 }
 
-/**
- * All a placement check needs to know about the block being moved: where it
- * currently sits, and what would land at the destination. Neither changes as a
- * placement search walks the document, so both are resolved once up front.
- */
-type MovedBlock = {
-  /** The moved block's ID, to locate it in the doc. */
-  id: string;
-  /**
-   * The PM node type that would actually be inserted: a child-holding wrapper
-   * block (e.g. a `columnList`) goes in as its own node type; anything else
-   * as a generic `blockContainer` wrapper.
-   */
-  nodeType: NodeType;
-};
-
-function toMovedBlock(
+/** The first node type inserted after dissolving container-only blocks. */
+function getMovedNodeType(
   editor: BlockNoteEditor<any, any, any>,
   block: Block<any, any, any>,
-): MovedBlock {
-  const type = editor.pmSchema.nodes[block.type];
-
-  return {
-    id: block.id,
-    nodeType:
-      type && type.isInGroup("bnBlock") && type.isInGroup("childContainer")
-        ? type
-        : editor.pmSchema.nodes["blockContainer"],
-  };
+): NodeType {
+  const first = dissolveContainerOnlyBlocks([block], editor.pmSchema)[0];
+  const type = first && editor.pmSchema.nodes[first.type];
+  return type && isContainerNode(type)
+    ? type
+    : editor.pmSchema.nodes["blockContainer"];
 }
 
-// Checks if a block would be in a valid place after being moved
-// before/after `referenceBlock`. A regular block nests under any block (it
-// goes into that block's `blockGroup`), but a wrapper block (e.g. a
-// `columnList`) only accepts what its content expression allows.
-//
-// Deferred to `getInsertionPos` so that "can a block go here?" has exactly
-// one answer, shared with `insertBlocks`, and comes from the schema rather
-// than from a rule restated here.
-function checkPlacementIsValid(
+/**
+ * Searches in document order for a placement accepted by the moved node's type.
+ * Moving past a sibling with children enters its nearest child; reaching the
+ * end of a sibling list moves outside its parent.
+ */
+function getMovePlacement(
   editor: BlockNoteEditor<any, any, any>,
-  referenceBlock: Block<any, any, any>,
-  placement: "before" | "after",
-  movedBlock: MovedBlock,
-): boolean {
-  return editor.transact((tr) => {
-    const posInfo = getNodeById(referenceBlock.id, tr.doc);
-    const movedPosInfo = getNodeById(movedBlock.id, tr.doc);
-    if (!posInfo || !movedPosInfo) {
-      return false;
+  nodeType: NodeType,
+  direction: "up" | "down",
+  sibling?: Block<any, any, any>,
+  parent?: Block<any, any, any>,
+):
+  | { referenceBlock: BlockIdentifier; placement: "before" | "after" }
+  | undefined {
+  const outside = direction === "up" ? "before" : "after";
+  const inside = direction === "up" ? "after" : "before";
+  while (sibling || parent) {
+    const hasChildren = sibling && sibling.children.length > 0;
+    const referenceBlock = sibling
+      ? hasChildren
+        ? sibling.children[direction === "up" ? sibling.children.length - 1 : 0]
+        : sibling
+      : parent!;
+    const placement = hasChildren ? inside : outside;
+    const valid = editor.transact((tr) => {
+      const target = getNodeById(referenceBlock.id, tr.doc);
+      return (
+        target !== undefined &&
+        getInsertionPos(
+          tr.doc,
+          getBlockInfoAt(tr.doc, target.posBeforeNode),
+          placement,
+          nodeType,
+        ) !== null
+      );
+    });
+    if (valid) {
+      return { referenceBlock, placement };
+    }
+    parent = editor.getParentBlock(referenceBlock);
+    sibling =
+      placement === inside
+        ? referenceBlock
+        : direction === "up"
+          ? editor.getPrevBlock(referenceBlock)
+          : editor.getNextBlock(referenceBlock);
+  }
+  return undefined;
+}
+
+function moveBlocksInDirection(
+  editor: BlockNoteEditor<any, any, any>,
+  direction: "up" | "down",
+  blockIdentifier?: BlockIdentifier,
+) {
+  editor.transact(() => {
+    let blocks: Block<any, any, any>[];
+    if (blockIdentifier) {
+      const block = editor.getBlock(blockIdentifier);
+      if (!block) {
+        return;
+      }
+      blocks = [block];
+    } else {
+      blocks = editor.getSelection()?.blocks || [
+        editor.getTextCursorPosition().block,
+      ];
     }
 
-    const target = getInsertionPos(
-      tr.doc,
-      getBlockInfoAt(tr.doc, posInfo.posBeforeNode),
-      placement,
-      movedBlock.nodeType,
+    // The last selected block anchors a downward move, but insertion always
+    // starts with the first selected block.
+    const sourceBlock = blocks[direction === "up" ? 0 : blocks.length - 1];
+    const target = getMovePlacement(
+      editor,
+      getMovedNodeType(editor, blocks[0]),
+      direction,
+      direction === "up"
+        ? editor.getPrevBlock(sourceBlock)
+        : editor.getNextBlock(sourceBlock),
+      editor.getParentBlock(sourceBlock),
     );
-    return target !== null;
+    if (!target) {
+      return;
+    }
+
+    if (blockIdentifier) {
+      moveBlocks(editor, blocks, target.referenceBlock, target.placement);
+    } else {
+      moveSelectedBlocksAndSelection(
+        editor,
+        target.referenceBlock,
+        target.placement,
+      );
+    }
   });
-}
-
-/**
- * Gets the placement for moving a block up. This has 3 cases:
- * 1. If the block has a previous sibling without children, the placement is
- * before it.
- * 2. If the block has a previous sibling with children, the placement is after
- * the last child.
- * 3. If the block has no previous sibling, but is nested, the placement is
- * before its parent.
- * If the placement is invalid, the function is called recursively until a valid
- * placement is found. Returns undefined if no valid placement is found, meaning
- * the block is already at the top of the document.
- *
- * @param movedBlock What is being moved (see {@link MovedBlock}). Carried
- * through the recursion because "is this placement valid?" depends on it: a
- * candidate destination has to accept the moved node's type. Only read by
- * `checkPlacementIsValid`.
- * @param prevBlock The candidate previous sibling, i.e. the block the
- * placement is measured against. Steps further back on each recursion.
- * @param parentBlock The parent of `prevBlock`'s level, used for case 3.
- */
-function getMoveUpPlacement(
-  editor: BlockNoteEditor<any, any, any>,
-  movedBlock: MovedBlock,
-  prevBlock?: Block<any, any, any>,
-  parentBlock?: Block<any, any, any>,
-):
-  | { referenceBlock: BlockIdentifier; placement: "before" | "after" }
-  | undefined {
-  let referenceBlock: Block<any, any, any> | undefined;
-  let placement: "before" | "after" | undefined;
-
-  if (!prevBlock) {
-    if (parentBlock) {
-      referenceBlock = parentBlock;
-      placement = "before";
-    }
-  } else if (prevBlock.children.length > 0) {
-    referenceBlock = prevBlock.children[prevBlock.children.length - 1];
-    placement = "after";
-  } else {
-    referenceBlock = prevBlock;
-    placement = "before";
-  }
-
-  // Case when the block is already at the top of the document.
-  if (!referenceBlock || !placement) {
-    return undefined;
-  }
-
-  if (!checkPlacementIsValid(editor, referenceBlock, placement, movedBlock)) {
-    const referenceBlockParent = editor.getParentBlock(referenceBlock);
-    return getMoveUpPlacement(
-      editor,
-      movedBlock,
-      placement === "after"
-        ? referenceBlock
-        : editor.getPrevBlock(referenceBlock),
-      referenceBlockParent,
-    );
-  }
-
-  return { referenceBlock, placement };
-}
-
-/**
- * Gets the placement for moving a block down. This has 3 cases:
- * 1. If the block has a next sibling without children, the placement is  after
- * it.
- * 2. If the block has a next sibling with children, the placement is before the
- * first child.
- * 3. If the block has no next sibling, but is nested, the placement is
- * after its parent.
- * If the placement is invalid, the function is called recursively until a valid
- * placement is found. Returns undefined if no valid placement is found, meaning
- * the block is already at the bottom of the document.
- *
- * @param movedBlock What is being moved; see `getMoveUpPlacement`.
- * @param nextBlock The candidate next sibling, i.e. the block the placement is
- * measured against. Steps further forward on each recursion.
- * @param parentBlock The parent of `nextBlock`'s level, used for case 3.
- */
-function getMoveDownPlacement(
-  editor: BlockNoteEditor<any, any, any>,
-  movedBlock: MovedBlock,
-  nextBlock?: Block<any, any, any>,
-  parentBlock?: Block<any, any, any>,
-):
-  | { referenceBlock: BlockIdentifier; placement: "before" | "after" }
-  | undefined {
-  let referenceBlock: Block<any, any, any> | undefined;
-  let placement: "before" | "after" | undefined;
-
-  if (!nextBlock) {
-    if (parentBlock) {
-      referenceBlock = parentBlock;
-      placement = "after";
-    }
-  } else if (nextBlock.children.length > 0) {
-    referenceBlock = nextBlock.children[0];
-    placement = "before";
-  } else {
-    referenceBlock = nextBlock;
-    placement = "after";
-  }
-
-  // Case when the block is already at the bottom of the document.
-  if (!referenceBlock || !placement) {
-    return undefined;
-  }
-
-  if (!checkPlacementIsValid(editor, referenceBlock, placement, movedBlock)) {
-    const referenceBlockParent = editor.getParentBlock(referenceBlock);
-    return getMoveDownPlacement(
-      editor,
-      movedBlock,
-      placement === "before"
-        ? referenceBlock
-        : editor.getNextBlock(referenceBlock),
-      referenceBlockParent,
-    );
-  }
-
-  return { referenceBlock, placement };
 }
 
 export function moveBlocksUp(
   editor: BlockNoteEditor<any, any, any>,
   blockIdentifier?: BlockIdentifier,
 ) {
-  editor.transact(() => {
-    let sourceBlock: Block<any, any, any> | undefined;
-    if (blockIdentifier) {
-      sourceBlock = editor.getBlock(blockIdentifier);
-      if (!sourceBlock) {
-        return;
-      }
-    } else {
-      const selection = editor.getSelection();
-      sourceBlock =
-        selection?.blocks[0] || editor.getTextCursorPosition().block;
-    }
-
-    const moveUpPlacement = getMoveUpPlacement(
-      editor,
-      // `moveBlocks` inserts the flattened selection (a `column` goes in as
-      // its children), so the placement is validated for the block that
-      // actually lands at the destination, not for the raw block.
-      toMovedBlock(editor, flattenColumns([sourceBlock])[0] ?? sourceBlock),
-      editor.getPrevBlock(sourceBlock),
-      editor.getParentBlock(sourceBlock),
-    );
-
-    if (!moveUpPlacement) {
-      return;
-    }
-
-    if (blockIdentifier) {
-      moveBlocks(
-        editor,
-        [sourceBlock],
-        moveUpPlacement.referenceBlock,
-        moveUpPlacement.placement,
-      );
-    } else {
-      moveSelectedBlocksAndSelection(
-        editor,
-        moveUpPlacement.referenceBlock,
-        moveUpPlacement.placement,
-      );
-    }
-  });
+  moveBlocksInDirection(editor, "up", blockIdentifier);
 }
 
 export function moveBlocksDown(
   editor: BlockNoteEditor<any, any, any>,
   blockIdentifier?: BlockIdentifier,
 ) {
-  editor.transact(() => {
-    let sourceBlock: Block<any, any, any> | undefined;
-    // The block whose position anchors the move (the last of a selection when
-    // moving down) vs. the first block that gets inserted, which is what the
-    // placement check must validate against.
-    let firstMovedBlock: Block<any, any, any> | undefined;
-    if (blockIdentifier) {
-      sourceBlock = editor.getBlock(blockIdentifier);
-      if (!sourceBlock) {
-        return;
-      }
-      firstMovedBlock = sourceBlock;
-    } else {
-      const selection = editor.getSelection();
-      sourceBlock =
-        selection?.blocks[selection?.blocks.length - 1] ||
-        editor.getTextCursorPosition().block;
-      firstMovedBlock =
-        selection?.blocks[0] || editor.getTextCursorPosition().block;
-    }
-
-    const moveDownPlacement = getMoveDownPlacement(
-      editor,
-      // See `moveBlocksUp`: validate for the flattened block that actually
-      // lands at the destination.
-      toMovedBlock(
-        editor,
-        flattenColumns([firstMovedBlock])[0] ?? firstMovedBlock,
-      ),
-      editor.getNextBlock(sourceBlock),
-      editor.getParentBlock(sourceBlock),
-    );
-
-    if (!moveDownPlacement) {
-      return;
-    }
-
-    if (blockIdentifier) {
-      moveBlocks(
-        editor,
-        [sourceBlock],
-        moveDownPlacement.referenceBlock,
-        moveDownPlacement.placement,
-      );
-    } else {
-      moveSelectedBlocksAndSelection(
-        editor,
-        moveDownPlacement.referenceBlock,
-        moveDownPlacement.placement,
-      );
-    }
-  });
+  moveBlocksInDirection(editor, "down", blockIdentifier);
 }

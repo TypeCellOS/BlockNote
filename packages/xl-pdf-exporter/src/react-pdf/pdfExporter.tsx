@@ -106,7 +106,7 @@ export class PDFExporter<
     /**
      * The schema of your editor. The mappings are automatically typed checked against this schema.
      */
-    protected readonly schema: BlockNoteSchema<B, I, S>,
+    schema: BlockNoteSchema<B, I, S>,
     /**
      * The mappings that map the BlockNote schema to the react-pdf content.
      *
@@ -178,13 +178,13 @@ export class PDFExporter<
       }
       const children = await this.transformBlocks(b.children, nestingLevel + 1);
       const self = await this.mapBlock(
-        b as any,
+        b,
         nestingLevel,
         numberedListIndex,
         children,
-      ); // TODO: any
+      );
 
-      if (["pageBreak", "columnList", "column"].includes(b.type)) {
+      if (b.type === "pageBreak" || this.isContainerBlock(b)) {
         ret.push(self);
         continue;
       }

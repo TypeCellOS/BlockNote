@@ -27,7 +27,7 @@ const SimpleImage = createBlockSpec(
   ),
   {
     render(block, editor) {
-      return createImageBlockSpec().implementation.render.call(
+      return createImageBlockSpec().implementation.render!.call(
         this,
         block as any,
         editor as any,
@@ -94,6 +94,96 @@ const SimpleCustomParagraph = createBlockSpec(
       return {
         dom: paragraph,
         contentDOM: paragraph,
+      };
+    },
+  },
+);
+
+// A container block: it holds no inline content of its own, and its `contentDOM`
+// is where its child blocks go. Covers containers in the format-conversion,
+// clipboard and selection matrices, which otherwise never see one.
+const Callout = createBlockSpec(
+  {
+    type: "callout" as const,
+    propSchema: {
+      flavor: {
+        default: "tip" as const,
+        values: ["tip", "info", "warning"] as const,
+      },
+    },
+    content: "none",
+    children: {
+      allow: "blocks",
+    },
+  },
+  {
+    render() {
+      const callout = document.createElement("div");
+      callout.className = "callout";
+      // The serializer must overwrite author attributes with the block props.
+      callout.setAttribute("data-flavor", "author-value");
+
+      const body = document.createElement("div");
+      body.className = "callout-body";
+      callout.appendChild(body);
+
+      if (this.renderType === "dom") {
+        // Exercise fragment roots and chrome outside the children region in
+        // the shared HTML snapshots and full-HTML equality matrix.
+        const chrome = document.createElement("button");
+        chrome.contentEditable = "false";
+        chrome.textContent = "UI LABEL";
+        callout.append(chrome);
+        const fragment = document.createDocumentFragment();
+        fragment.append(callout);
+        return { dom: fragment, contentDOM: body };
+      }
+
+      return {
+        dom: callout,
+        contentDOM: body,
+      };
+    },
+  },
+);
+
+// A titled block: an ordinary block with inline content (the title) whose
+// `children` are a body that belongs to it. Covers titled blocks in the
+// format-conversion, clipboard and selection matrices, which otherwise never
+// see one (the `callout` above only covers pure containers).
+const Alert = createBlockSpec(
+  {
+    type: "alert" as const,
+    propSchema: {},
+    content: "inline",
+    children: {
+      allow: "blocks",
+    },
+  },
+  {
+    render: () => {
+      const alert = document.createElement("div");
+      alert.className = "alert";
+
+      return {
+        dom: alert,
+        contentDOM: alert,
+      };
+    },
+    renderFrame: (block) => {
+      if (block.children.length === 0) {
+        return undefined;
+      }
+      const frame = document.createElement("div");
+      frame.className = "alert-frame";
+
+      const slot = document.createElement("div");
+      slot.className = "alert-slot";
+      frame.appendChild(slot);
+
+      return {
+        dom: frame,
+        slot,
       };
     },
   },
@@ -222,6 +312,8 @@ export const testSchema = BlockNoteSchema.create().extend({
     customParagraph: CustomParagraph(),
     simpleCustomParagraph: SimpleCustomParagraph(),
     simpleImage: SimpleImage(),
+    callout: Callout(),
+    alert: Alert(),
   },
   inlineContentSpecs: {
     mention: Mention,

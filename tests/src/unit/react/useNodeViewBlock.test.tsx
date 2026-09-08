@@ -27,8 +27,20 @@ const createReproBlock = createReactBlockSpec(
   { render: (props) => <p ref={props.contentRef} /> },
 );
 
+// A container block, whose node view's node is itself the bnBlock, resolved
+// directly instead of by position.
+const createBoxBlock = createReactBlockSpec(
+  {
+    type: "box",
+    propSchema: {},
+    content: "none",
+    children: { allow: "blocks" },
+  },
+  { render: (props) => <div ref={props.contentRef} /> },
+);
+
 const schema = BlockNoteSchema.create().extend({
-  blockSpecs: { repro: createReproBlock() },
+  blockSpecs: { repro: createReproBlock(), box: createBoxBlock() },
 });
 
 let editor: BlockNoteEditor<any, any, any>;
@@ -43,6 +55,7 @@ beforeEach(() => {
       { type: "paragraph", content: "first" },
       { type: "repro", content: "target block" },
       { type: "paragraph", content: "last" },
+      { type: "box", children: [{ type: "paragraph", content: "inside" }] },
     ],
   }) as BlockNoteEditor<any, any, any>;
 
@@ -78,11 +91,14 @@ function renderHook(
   return resolved;
 }
 
-// Only the two fields `useNodeViewBlock` reads. Built structurally so `tests`
-// doesn't need a dependency on `@tiptap/react` just for its prop types.
-function makeProps(getPos: () => number | undefined) {
+// Only the fields `useNodeViewBlock` reads. Built structurally so `tests`
+// doesn't need a dependency on `@tiptap/react` just for its prop types. The
+// `node` defaults to a regular (non-container) block's node shape; container
+// tests pass the real PM node instead.
+function makeProps(getPos: () => number | undefined, node?: unknown) {
   return {
     getPos,
+    node: node ?? { type: { isInGroup: () => false } },
     view: { state: { doc: editor.prosemirrorState.doc } },
   } as unknown as Parameters<typeof useNodeViewBlock>[0];
 }
@@ -169,5 +185,15 @@ describe("useNodeViewBlock", () => {
 
     expect(resolved.id).toBe(target.id);
     expect(resolved).not.toBe(seed);
+  });
+
+  it("resolves container blocks directly without consulting their position", () => {
+    const box = editor.document.find((block) => block.type === "box")!;
+    const { node } = getNodeById(box.id, editor.prosemirrorState.doc)!;
+    const getPos = vi.fn(() => undefined);
+    const resolved = renderHook(makeProps(getPos, node), editor.document[0]);
+
+    expect(resolved).toEqual(box);
+    expect(getPos).not.toHaveBeenCalled();
   });
 });

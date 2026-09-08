@@ -1,0 +1,58 @@
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested heading",
+            "type": "text",
+          },
+        ],
+        "id": "2",
+        "props": {
+          "backgroundColor": "default",
+          "isToggleable": false,
+          "level": 1,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Inner callout child",
+                "type": "text",
+              },
+            ],
+            "id": "4",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "3",
+        "props": {
+          "flavor": "info",
+        },
+        "type": "callout",
+      },
+    ],
+    "content": undefined,
+    "id": "1",
+    "props": {
+      "flavor": "warning",
+    },
+    "type": "callout",
+  },
+]

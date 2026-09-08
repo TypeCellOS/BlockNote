@@ -3,15 +3,31 @@ import { ReactEmailExporter } from "./reactEmailExporter.jsx";
 import { reactEmailDefaultSchemaMappings } from "./defaultSchema/index.js";
 import {
   BlockNoteSchema,
+  createBlockSpec,
   createPageBreakBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
+import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
+import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 import { testDocument } from "@shared/testDocument.js";
+
+// Schema including the multi-column blocks, matching the shared testDocument.
+// The columns are container blocks, so the exporter only recognizes them as
+// such (and lets their mappings place the children) when they're in the
+// schema it was constructed with.
+const fullSchema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    pageBreak: createPageBreakBlockSpec(),
+    column: ColumnBlock,
+    columnList: ColumnListBlock,
+  },
+});
 
 describe("react email exporter", () => {
   it("should export a document (HTML snapshot)", async () => {
     const exporter = new ReactEmailExporter(
-      BlockNoteSchema.create(),
+      fullSchema,
       reactEmailDefaultSchemaMappings,
     );
 
@@ -21,12 +37,7 @@ describe("react email exporter", () => {
 
   it("should export a document with preview", async () => {
     const exporter = new ReactEmailExporter(
-      BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
-        },
-      }),
+      fullSchema,
       reactEmailDefaultSchemaMappings,
     );
 
@@ -38,12 +49,7 @@ describe("react email exporter", () => {
 
   it("should export a document with multiple preview lines", async () => {
     const exporter = new ReactEmailExporter(
-      BlockNoteSchema.create({
-        blockSpecs: {
-          ...defaultBlockSpecs,
-          pageBreak: createPageBreakBlockSpec(),
-        },
-      }),
+      fullSchema,
       reactEmailDefaultSchemaMappings,
     );
 
@@ -655,7 +661,7 @@ describe("react email exporter", () => {
 
   it("should handle document with custom body styles", async () => {
     const exporter = new ReactEmailExporter(
-      BlockNoteSchema.create(),
+      fullSchema,
       reactEmailDefaultSchemaMappings,
     );
 
@@ -666,5 +672,95 @@ describe("react email exporter", () => {
     expect(html).toMatchSnapshot(
       "__snapshots__/reactEmailExporterCustomBodyStyles",
     );
+  });
+});
+
+describe("titled blocks", () => {
+  // A titled block: inline content (the title) plus children (the body). The
+  // mapping renders the title and places the children inside its own box;
+  // because the block counts as a container, transformBlocks must not render
+  // them after it as an indented sibling list.
+  const Alert = createBlockSpec(
+    {
+      type: "alert" as const,
+      propSchema: {},
+      content: "inline",
+      children: { allow: "blocks" },
+    },
+    {
+      render: (block: any) => {
+        const dom = document.createElement("div");
+        dom.setAttribute("data-node-type", "alert");
+        dom.setAttribute("data-id", block.id);
+        return { dom, contentDOM: dom };
+      },
+      renderFrame: (_block: any) => {
+        const dom = document.createElement("div");
+        dom.className = "alert-box";
+        return { dom, slot: dom };
+      },
+    },
+  )();
+
+  const alertSchema = BlockNoteSchema.create({
+    blockSpecs: {
+      ...defaultBlockSpecs,
+      alert: Alert,
+    },
+  });
+
+  const alertDocument = partialBlocksToBlocksForTesting(alertSchema, [
+    {
+      type: "alert",
+      content: "Heads up",
+      children: [
+        { type: "paragraph", content: "First" },
+        { type: "paragraph", content: "Second" },
+      ],
+    },
+  ] as any);
+
+  it("throws a clear error for an unmapped container block", async () => {
+    const exporter = new ReactEmailExporter(
+      alertSchema,
+      reactEmailDefaultSchemaMappings as any,
+    );
+
+    await expect(
+      exporter.transformBlocks(alertDocument as any),
+    ).rejects.toThrow(/container block type "alert"/);
+  });
+
+  it("renders a titled block's title and places its children inside", async () => {
+    const exporter = new ReactEmailExporter(alertSchema, {
+      ...reactEmailDefaultSchemaMappings,
+      blockMapping: {
+        ...reactEmailDefaultSchemaMappings.blockMapping,
+        alert: (
+          block: any,
+          exporter: any,
+          _nestingLevel: any,
+          _numberedListIndex: any,
+          children: any,
+        ) => (
+          <div data-alert-box={true}>
+            <strong>{exporter.transformInlineContent(block.content)}</strong>
+            {children}
+          </div>
+        ),
+      },
+    } as any);
+
+    const html = await exporter.toReactEmailDocument(alertDocument as any);
+
+    // Title and children all sit inside the mapping's own box - placed by
+    // the mapping, not rendered after it in an indented sibling list.
+    const boxIdx = html.indexOf("data-alert-box");
+    expect(boxIdx).toBeGreaterThan(-1);
+    const titleIdx = html.indexOf("Heads up");
+    expect(titleIdx).toBeGreaterThan(boxIdx);
+    expect(html.indexOf("First")).toBeGreaterThan(titleIdx);
+    expect(html).toContain("Second");
+    expect(html).not.toContain("margin-left:24px");
   });
 });

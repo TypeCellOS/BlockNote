@@ -1,10 +1,44 @@
-import { EditorState } from "prosemirror-state";
+import { Fragment, type Node } from "prosemirror-model";
+import { EditorState, TextSelection } from "prosemirror-state";
 
 import {
+  type BlockInfo,
   getBlockInfoAt,
   getLastDescendantBlockInfo,
   getPrevBlockInfo,
+  getParentBlockInfo,
 } from "../../../getBlockInfoFromPos.js";
+
+/** Returns compatible text to append, or undefined when the blocks cannot merge. */
+export function getMergeContent(
+  current: Extract<BlockInfo, { hasContent: true }>,
+  next: Extract<BlockInfo, { hasContent: true }>,
+): Fragment | undefined {
+  const inline =
+    current.contentKind === "inline" && next.contentKind === "inline";
+  const ownedText =
+    current.hasOwnedChildren &&
+    current.content.node.isTextblock &&
+    next.content.node.isTextblock;
+  if (!inline && !ownedText) {
+    return undefined;
+  }
+  if (current.contentKind === "plain") {
+    const type = current.content.node.type;
+    const children: Node[] = [];
+    next.content.node.forEach((child) => {
+      const text =
+        child.type === type.schema.linebreakReplacement
+          ? "\n"
+          : child.textContent;
+      if (text) {
+        children.push(type.schema.text(text, type.allowedMarks(child.marks)));
+      }
+    });
+    return Fragment.from(children);
+  }
+  return next.content.node.content;
+}
 
 /**
  * Merges the block starting at `posBetweenBlocks` into the block visually
@@ -15,9 +49,9 @@ import {
  * i.e. its `BlockInfo`'s `block.beforePos`. The block above is found by walking
  * back from there.
  * @returns A tiptap command that returns `false` (leaving the doc untouched)
- * when the two blocks can't merge: no block above, either side isn't an
- * inline-content block, or the block above is empty (deleting it is handled
- * elsewhere).
+ * when the two blocks can't merge: no compatible text block above, or the
+ * block above is empty (deleting it is handled elsewhere). An owning block
+ * can also merge plain text, dropping formatting that its schema disallows.
  */
 export const mergeBlocksCommand =
   (posBetweenBlocks: number) =>
@@ -30,42 +64,38 @@ export const mergeBlocksCommand =
   }) => {
     const nextBlockInfo = getBlockInfoAt(state.doc, posBetweenBlocks);
 
-    const prevBlockInfo = getPrevBlockInfo(
+    const prevSibling = getPrevBlockInfo(
       state.doc,
       nextBlockInfo.block.beforePos,
     );
-
+    const parent = prevSibling
+      ? undefined
+      : getParentBlockInfo(state.doc, nextBlockInfo.block.beforePos);
+    // An owned body's first block can merge into its title. Ordinary nested
+    // blocks still need a preceding sibling; lifting handles their boundary.
+    const prevBlockInfo = prevSibling
+      ? getLastDescendantBlockInfo(prevSibling)
+      : parent?.hasOwnedChildren
+        ? parent
+        : undefined;
     if (!prevBlockInfo) {
       return false;
     }
 
-    // The block we merge into is the last descendant of the previous block:
-    // visually, that's the block directly above the boundary.
-    const bottomNestedBlockInfo = getLastDescendantBlockInfo(prevBlockInfo);
-
-    // Only inline-content blocks can merge, and merging into an empty block
-    // is handled elsewhere (by deleting the empty block instead). Merging
-    // into or out of container blocks (columnLists, callouts, ...) is
-    // intentionally unsupported; the container-boundary Backspace/Delete
-    // branches in `KeyboardShortcutsExtension` handle those cases by moving
-    // blocks across the boundary instead of merging their content.
     if (
-      !bottomNestedBlockInfo.hasContent ||
-      bottomNestedBlockInfo.contentKind !== "inline" ||
-      bottomNestedBlockInfo.isContentEmpty ||
-      !nextBlockInfo.hasContent ||
-      nextBlockInfo.contentKind !== "inline"
+      !prevBlockInfo.hasContent ||
+      prevBlockInfo.isContentEmpty ||
+      !nextBlockInfo.hasContent
     ) {
       return false;
     }
+    const content = getMergeContent(prevBlockInfo, nextBlockInfo);
+    if (content === undefined) {
+      return false;
+    }
 
-    // Un-nests the next block's children by one level, so they survive as
-    // siblings of the merged block rather than as children of a block that no
-    // longer exists once the boundary below is deleted.
-    //
-    // Note `state.tr` is tiptap's chainable state, whose getter returns the one
-    // transaction shared by the command chain (not a fresh `Transaction` like
-    // `EditorState.tr`), so this lift carries over into the `dispatch` below.
+    // Lift children before removing their parent. Tiptap's chainable state
+    // returns the shared transaction, so the lift is included in dispatch.
     if (dispatch && nextBlockInfo.children) {
       const childBlocksRange = state.doc
         .resolve(nextBlockInfo.children.childrenStart)
@@ -86,16 +116,21 @@ export const mergeBlocksCommand =
       );
     }
 
-    // Deletes the boundary between the two blocks. Can be thought of as
-    // removing the closing tags of the first block and the opening tags of the
-    // second one to stitch them together.
     if (dispatch) {
-      dispatch(
-        state.tr.delete(
-          bottomNestedBlockInfo.contentEnd,
-          nextBlockInfo.contentStart,
-        ),
-      );
+      if (content !== nextBlockInfo.content.node.content) {
+        state.tr
+          .replaceWith(
+            prevBlockInfo.contentEnd,
+            nextBlockInfo.contentEnd,
+            content,
+          )
+          .setSelection(
+            TextSelection.create(state.tr.doc, prevBlockInfo.contentEnd),
+          );
+      } else {
+        state.tr.delete(prevBlockInfo.contentEnd, nextBlockInfo.contentStart);
+      }
+      dispatch(state.tr);
     }
 
     return true;

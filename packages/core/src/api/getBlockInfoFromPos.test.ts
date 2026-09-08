@@ -1,10 +1,13 @@
+import { containerSchema } from "./blockManipulation/containers/containers.fixture.js";
+import { getNodeById } from "./nodeUtil.js";
 import { Node, Schema } from "prosemirror-model";
-import { describe, expect, it } from "vite-plus/test";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { blockToNode } from "./nodeConversions/blockToNode.js";
 import { docToBlocks } from "./nodeConversions/nodeToBlock.js";
 import {
+  getAncestorContainers,
   getBlockInfoFromNode,
   getLastDescendantBlockInfo,
   getNextBlockInfo,
@@ -281,21 +284,6 @@ describe("derived position and content fields", () => {
     expect(info.contentKind).toBe("plain");
   });
 
-  it("rejects malformed wrapper structure at the block-info boundary", () => {
-    const { blockContainer, paragraph, blockGroup } = getSchema().nodes;
-    const content = paragraph.create();
-    for (const children of [
-      [],
-      [blockGroup.create()],
-      [content, content],
-      [content, blockGroup.create(), blockGroup.create()],
-    ]) {
-      // Deliberately bypass schema checking, as transaction intermediates can.
-      const node = blockContainer.create(null, children);
-      expect(() => getBlockInfoFromNode(node, 0)).toThrow(/blockContainer/);
-    }
-  });
-
   it("rejects a content node that was not built from a block spec", () => {
     // A node dropped straight into the `blockContent` group of a ProseMirror
     // schema, with no block spec behind it: nothing declares what its content
@@ -520,5 +508,142 @@ describe("docToBlocks round trip with suggested deletions", () => {
 
     expect(ids).toEqual(["0", "1", "0-1"]);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+
+describe("block info for containers", () => {
+  let editor: BlockNoteEditor<
+    typeof containerSchema.blockSchema,
+    typeof containerSchema.inlineContentSchema,
+    typeof containerSchema.styleSchema
+  >;
+  beforeEach(() => {
+    editor = BlockNoteEditor.create({ schema: containerSchema });
+  });
+  afterEach(() => {
+    editor._tiptapEditor.destroy();
+  });
+  it.each(["paragraph", "alert", "callout"] as const)(
+    "distinguishes %s ownership from the presence of children",
+    (type) => {
+      for (const children of [
+        [],
+        [{ type: "paragraph" as const, content: "Body" }],
+      ]) {
+        const node = blockToNode({ type, children }, editor.pmSchema);
+        const info = getBlockInfoFromNode(node, 10);
+        expect(info.hasOwnedChildren).toBe(type !== "paragraph");
+        expect(info.hasContent).toBe(type !== "callout");
+        if (children.length) {
+          expect(info.children?.node.childCount).toBe(1);
+        }
+      }
+    },
+  );
+
+  it("rejects malformed wrapper structure at the block-info boundary", () => {
+    const { blockContainer, paragraph, blockGroup } = editor.pmSchema.nodes;
+    const content = paragraph.create();
+    for (const children of [
+      [],
+      [blockGroup.create()],
+      [content, content],
+      [content, blockGroup.create(), blockGroup.create()],
+    ]) {
+      // Deliberately bypass schema checking, as transaction intermediates can.
+      const node = blockContainer.create(null, children);
+      expect(() => getBlockInfoFromNode(node, 0)).toThrow(/blockContainer/);
+    }
+  });
+
+  describe("parent lookups for container children", () => {
+    // Regression: `getParentBlockInfo` used to skip the container level for
+    // container children (returning the grid for a block inside a gridCell).
+    // The parent of a block is the block whose `children` contains it: the
+    // cell.
+    it("returns the container as the parent of its direct children", () => {
+      editor.replaceBlocks(editor.document, [
+        {
+          type: "grid",
+          id: "g-0",
+          children: [
+            {
+              type: "gridCell",
+              id: "cell-a",
+              children: [{ id: "cell-a-p", type: "paragraph", content: "A" }],
+            },
+            {
+              type: "gridCell",
+              id: "cell-b",
+              children: [{ id: "cell-b-p", type: "paragraph", content: "B" }],
+            },
+          ],
+        },
+        { id: "trailing", type: "paragraph", content: "" },
+      ]);
+
+      editor.transact((tr) => {
+        // The block directly containing a cell's paragraph is the cell.
+        const cellChild = getNodeById("cell-a-p", tr.doc)!;
+        expect(
+          getParentBlockInfo(tr.doc, cellChild.posBeforeNode)?.blockNoteType,
+        ).toBe("gridCell");
+
+        // The parent of a cell is the grid; the parent of the grid (a
+        // top-level block) is undefined.
+        const cell = getNodeById("cell-a", tr.doc)!;
+        expect(
+          getParentBlockInfo(tr.doc, cell.posBeforeNode)?.blockNoteType,
+        ).toBe("grid");
+
+        const grid = getNodeById("g-0", tr.doc)!;
+        expect(getParentBlockInfo(tr.doc, grid.posBeforeNode)).toBeUndefined();
+      });
+    });
+  });
+
+  it("lists the container ancestors of a position, innermost first", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "grid",
+        id: "g-0",
+        children: [
+          {
+            type: "gridCell",
+            id: "cell-a",
+            children: [
+              {
+                type: "callout",
+                id: "c-0",
+                children: [{ id: "deep-p", type: "paragraph", content: "X" }],
+              },
+            ],
+          },
+          {
+            type: "gridCell",
+            id: "cell-b",
+            children: [{ id: "cell-b-p", type: "paragraph", content: "B" }],
+          },
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.transact((tr) => {
+      const deep = getNodeById("deep-p", tr.doc)!;
+      const ancestors = getAncestorContainers(tr.doc, deep.posBeforeNode);
+
+      // Only the container nodes: the `blockGroup`/`blockContainer` levels
+      // between them are not containers and must not be repaired.
+      expect(ancestors.map(({ id }) => id)).toEqual(["c-0", "cell-a", "g-0"]);
+      // Depths shrink outwards, which is what `fixContainersById` sorts on.
+      expect(ancestors.map(({ depth }) => depth)).toEqual(
+        [...ancestors.map(({ depth }) => depth)].sort((a, b) => b - a),
+      );
+
+      // A top-level block has no container ancestors at all.
+      const trailing = getNodeById("trailing", tr.doc)!;
+      expect(getAncestorContainers(tr.doc, trailing.posBeforeNode)).toEqual([]);
+    });
   });
 });

@@ -2,13 +2,8 @@ import { describe, expect, it } from "vite-plus/test";
 
 import type { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import { getBlockInfoFromNode } from "../../../getBlockInfoFromPos.js";
-
-// Adapter over the renamed producer: `getNodeById` already returns the
-// `{ node, posBeforeNode }` pair it takes.
-function getBlockInfo(posInfo: { node: any; posBeforeNode: number }) {
-  return getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
-}
 import { getNodeById } from "../../../nodeUtil.js";
+import { containerSchema } from "../../containers/containers.fixture.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import { updateBlock } from "./updateBlock.js";
 
@@ -183,9 +178,11 @@ describe("Test updateBlock", () => {
   });
 
   it("Update partial (offset start)", () => {
-    const info = getBlockInfo(
-      getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
-    );
+    const posInfo = getNodeById(
+      "heading-with-everything",
+      getEditor().prosemirrorState.doc,
+    )!;
+    const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
     if (!info.hasContent) {
       throw new Error("heading-with-everything is not a block container");
@@ -212,9 +209,11 @@ describe("Test updateBlock", () => {
   });
 
   it("Update partial (offset start + end)", () => {
-    const info = getBlockInfo(
-      getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
-    );
+    const posInfo = getNodeById(
+      "heading-with-everything",
+      getEditor().prosemirrorState.doc,
+    )!;
+    const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
     if (!info.hasContent) {
       throw new Error("heading-with-everything is not a block container");
@@ -242,9 +241,11 @@ describe("Test updateBlock", () => {
   });
 
   it("Update partial (props + offset end)", () => {
-    const info = getBlockInfo(
-      getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
-    );
+    const posInfo = getNodeById(
+      "heading-with-everything",
+      getEditor().prosemirrorState.doc,
+    )!;
+    const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
     if (!info.hasContent) {
       throw new Error("heading-with-everything is not a block container");
@@ -275,9 +276,8 @@ describe("Test updateBlock", () => {
   });
 
   it("Update partial (table cell)", () => {
-    const info = getBlockInfo(
-      getNodeById("table-0", getEditor().prosemirrorState.doc)!,
-    );
+    const posInfo = getNodeById("table-0", getEditor().prosemirrorState.doc)!;
+    const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
     if (!info.hasContent) {
       throw new Error("table-0 is not a block container");
@@ -305,9 +305,8 @@ describe("Test updateBlock", () => {
   });
 
   it("Update partial (table row)", () => {
-    const info = getBlockInfo(
-      getNodeById("table-0", getEditor().prosemirrorState.doc)!,
-    );
+    const posInfo = getNodeById("table-0", getEditor().prosemirrorState.doc)!;
+    const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
 
     if (!info.hasContent) {
       throw new Error("table-0 is not a block container");
@@ -940,12 +939,11 @@ describe("Test updateBlock minimal steps", () => {
 
   it("Type change with offset content replace stays minimal and valid", () => {
     const editor = getEditor();
-    const info = getBlockInfo(
-      getNodeById(
-        "paragraph-with-styled-content",
-        editor.prosemirrorState.doc,
-      )!,
-    );
+    const posInfo = getNodeById(
+      "paragraph-with-styled-content",
+      editor.prosemirrorState.doc,
+    )!;
+    const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
     if (!info.hasContent) {
       throw new Error("paragraph-with-styled-content is not a block container");
     }
@@ -980,5 +978,259 @@ describe("Test updateBlock minimal steps", () => {
     expect(block.content[0].text).toBe("Paragraph");
     expect(block.content[block.content.length - 1].text).toBe("content");
     expect(() => editor._tiptapEditor.state.doc.check()).not.toThrow();
+  });
+});
+
+// Changing a block's type across the content/container divide can't happen in
+// place, so `updateBlock` rebuilds the node and has to decide what to do with
+// the content the old shape held and the new one can't. These tests pin that
+// decision. Assertions are explicit rather than snapshotted because the point
+// is *where* the carried content ends up.
+describe("Test updateBlock content carry-over", () => {
+  const getContainerEditor = setupTestEnv({
+    schema: containerSchema,
+    document: [
+      {
+        id: "paragraph-with-text",
+        type: "paragraph",
+        content: "Paragraph with text",
+      },
+      {
+        id: "empty-paragraph",
+        type: "paragraph",
+      },
+      {
+        id: "paragraph-with-text-and-children",
+        type: "paragraph",
+        content: "Parent text",
+        children: [
+          {
+            id: "existing-child",
+            type: "paragraph",
+            content: "Existing child",
+          },
+        ],
+      },
+      {
+        id: "table-0",
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [{ cells: ["Cell 1", "Cell 2"] }],
+        },
+      },
+      {
+        id: "callout-0",
+        type: "callout",
+        children: [
+          {
+            id: "callout-child",
+            type: "paragraph",
+            content: "Callout child",
+          },
+        ],
+      },
+    ],
+  });
+
+  // A block that changes shape is rebuilt rather than updated in place, and the
+  // rebuilt node is minted a fresh ID. That is long-standing behaviour, not
+  // something the container work introduced, but converting a paragraph into a
+  // container is a far more ordinary action than the paragraph/column
+  // conversions that used to be the only way to reach this path. These tests
+  // therefore address blocks by position, and the first one pins the ID loss so
+  // that fixing it shows up as a deliberate change.
+  it("Moves inline content into a child paragraph when becoming a container", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "paragraph-with-text", { type: "callout" }),
+    );
+
+    const block = editor.document[0] as any;
+    expect(block.type).toBe("callout");
+    expect(block.id).not.toBe("paragraph-with-text");
+    expect(block.children).toHaveLength(1);
+    expect(block.children[0].type).toBe("paragraph");
+    expect(block.children[0].content).toEqual([
+      { type: "text", text: "Paragraph with text", styles: {} },
+    ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Fills a container's children when there is no content to carry", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "empty-paragraph", { type: "pair" }),
+    );
+
+    // An empty paragraph carries nothing, so the rebuilt node holds just the
+    // empty fill its content expression requires — two paragraphs for the
+    // pair's `min: 2`.
+    const block = editor.document[1] as any;
+    expect(block.type).toBe("pair");
+    expect(block.children).toHaveLength(2);
+    expect(block.children.map((child: any) => child.content)).toEqual([[], []]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Puts carried content before existing children", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "paragraph-with-text-and-children", { type: "callout" }),
+    );
+
+    // The paragraph holding the carried text takes the place the text used to
+    // occupy, i.e. above the children that were already nested under it.
+    const block = editor.document[2] as any;
+    expect(block.type).toBe("callout");
+    expect(block.children.map((child: any) => child.content[0].text)).toEqual([
+      "Parent text",
+      "Existing child",
+    ]);
+    expect(block.children[1].id).toBe("existing-child");
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Drops table content when becoming a container", () => {
+    const editor = getContainerEditor();
+    // Table content isn't an inline array, so there is no sensible paragraph to
+    // wrap it in. It's dropped, and the container seeds as if the block had
+    // been empty.
+    expect(() =>
+      editor.transact((tr) => updateBlock(tr, "table-0", { type: "callout" })),
+    ).not.toThrow();
+
+    const block = editor.document[3] as any;
+    expect(block.type).toBe("callout");
+    expect(block.content).toBeUndefined();
+    expect(block.children).toHaveLength(1);
+    expect(block.children[0].type).toBe("paragraph");
+    expect(block.children[0].content).toEqual([]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it.each(["paragraph-with-text", "callout-0"])(
+    "Rejects conversion of %s rather than dropping incompatible children",
+    (id) => {
+      const editor = getContainerEditor();
+      const before = editor.prosemirrorState.doc;
+      expect(() =>
+        editor.transact((tr) => updateBlock(tr, id, { type: "grid" })),
+      ).toThrow();
+      expect(editor.prosemirrorState.doc.eq(before)).toBe(true);
+    },
+  );
+
+  it("Allows explicit replacement children when converting to a restricted container", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "callout-0", {
+        type: "grid",
+        children: [
+          {
+            type: "gridCell",
+            children: [{ type: "paragraph", content: "Replacement" }],
+          },
+          { type: "gridCell", children: [{ type: "paragraph" }] },
+        ],
+      }),
+    );
+    expect(editor.document[4].type).toBe("grid");
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Keeps existing children when a container drops the content", () => {
+    const editor = getContainerEditor();
+    // The carried content has nowhere to go, but the block's own children are
+    // regular blocks the pair can still hold.
+    expect(() =>
+      editor.transact((tr) =>
+        updateBlock(tr, "paragraph-with-text-and-children", {
+          type: "pair",
+        }),
+      ),
+    ).not.toThrow();
+
+    const block = editor.document[2] as any;
+    expect(block.type).toBe("pair");
+    // The kept child survives; the pair's `min: 2` is met by an empty fill.
+    expect(block.children.map((child: any) => child.id)).toContain(
+      "existing-child",
+    );
+    expect(block.children).toHaveLength(2);
+    expect(
+      block.children.find((child: any) => child.id === "existing-child")
+        .content,
+    ).toEqual([{ type: "text", text: "Existing child", styles: {} }]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Keeps a container's children when changing between container types", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) => updateBlock(tr, "callout-0", { type: "pair" }));
+
+    // Neither container holds content of its own, so the children move across
+    // untouched rather than being re-seeded; the pair's `min: 2` is met by an
+    // empty fill.
+    const block = editor.document[4] as any;
+    expect(block.type).toBe("pair");
+    expect(block.children.map((child: any) => child.id)).toContain(
+      "callout-child",
+    );
+    expect(block.children).toHaveLength(2);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Keeps a container's children alongside the content it gains", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "callout-0", {
+        type: "heading",
+        content: "Now a heading",
+      }),
+    );
+
+    // The container had nowhere to put inline content; the heading does, so
+    // the given content lands there and the children stay nested under it.
+    const block = editor.document[4] as any;
+    expect(block.type).toBe("heading");
+    expect(block.content).toEqual([
+      { type: "text", text: "Now a heading", styles: {} },
+    ]);
+    expect(block.children.map((child: any) => child.id)).toEqual([
+      "callout-child",
+    ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Updates a container's props without rebuilding it", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "callout-0", { props: { flavor: "warning" } }),
+    );
+
+    // No shape change, so this is an in-place attribute update: the container
+    // keeps its ID (unlike the type changes above) and its children.
+    const block = editor.document[4] as any;
+    expect(block.id).toBe("callout-0");
+    expect(block.props.flavor).toBe("warning");
+    expect(block.children.map((child: any) => child.id)).toEqual([
+      "callout-child",
+    ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
+  it("Keeps a container's children and invents no content when becoming a block", () => {
+    const editor = getContainerEditor();
+    editor.transact((tr) =>
+      updateBlock(tr, "callout-0", { type: "paragraph" }),
+    );
+
+    const block = editor.document[4] as any;
+    expect(block.type).toBe("paragraph");
+    expect(block.content).toEqual([]);
+    expect(block.children).toHaveLength(1);
+    expect(block.children[0].id).toBe("callout-child");
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 });

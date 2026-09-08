@@ -1488,6 +1488,33 @@ export const examples = {
           "In this example, we create a custom block which renders a simple HTML paragraph with placeholder text. The block has no editable content.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
+        projectSlug: "container-block",
+        fullSlug: "custom-schema/container-block",
+        pathFromRoot: "examples/06-custom-schema/09-container-block",
+        config: {
+          playground: true,
+          docs: true,
+          author: "nickthesick",
+          tags: [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu",
+          ],
+          dependencies: {
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Container Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          'In this example, we create a custom `Panel` block that holds other blocks as its body, like a Notion-style callout wrapping a paragraph followed by a code block.\n\nThe block declares the `children` config on `BlockConfig`. `children: { allow: "blocks" }` makes it a container: its child blocks mount into the frame\'s `slot` (attached with `ref={contentRef}`), and live on `block.children` at runtime. A pure container like this draws its box in `renderFrame` alone, which re-renders live when props change — click the icon to cycle the panel\'s flavor and watch the box follow without rebuilding the body.\n\nWe also wire up a Slash Menu item to insert the panel, and render the document JSON next to the editor so you can inspect the structure of the nested blocks.\n\n**Try it out:**\n\n- Press the "/" key inside the panel\'s body and add a code block, heading, or list.\n- Click the panel\'s icon to cycle its flavor. The box re-renders in place; the children are untouched.\n- Watch the JSON panel on the right update as you edit; the panel\'s children appear in `block.children`.\n- Insert a new panel via the Slash Menu (search "panel").\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+      },
+      {
         projectSlug: "math-block",
         fullSlug: "custom-schema/math-block",
         pathFromRoot: "examples/06-custom-schema/09-math-block",
@@ -1565,6 +1592,33 @@ export const examples = {
         },
         readme:
           'In this example, we build custom blocks on the source-with-preview pattern — the same building blocks behind BlockNote\'s math and diagram blocks. A custom "CSV table" block renders its comma-separated source as a table, and a custom "color" inline content renders a CSS color as a swatch. Both show the rendered preview in place, while the source is edited in a popup.\n\n**Try it out:** Click the table or a color chip to edit its source!\n\n**Relevant Docs:**\n\n- [Source with Preview Blocks](/docs/features/custom-schemas/source-with-preview)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Custom Inline Content](/docs/features/custom-schemas/custom-inline-content)',
+      },
+      {
+        projectSlug: "callout-block",
+        fullSlug: "custom-schema/callout-block",
+        pathFromRoot: "examples/06-custom-schema/13-callout-block",
+        config: {
+          playground: true,
+          docs: true,
+          author: "nickthesick",
+          tags: [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu",
+          ],
+          dependencies: {
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Callout Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          'In this example, we create a custom `Callout` block with a real rich-text title and a body of child blocks (a titled block), like a Notion-style callout.\n\nThe block combines `content: "inline"` with the `children` config on `BlockConfig`. The title is ordinary inline content — formatting, links, and multiplayer cursors all work — while `children: { allow: "blocks" }` hosts the body blocks, which live on `block.children` at runtime. `render` draws the title row and `renderFrame` draws the box around the title and body together.\n\nWe also wire up a Slash Menu item to insert the callout, and render the document JSON next to the editor so you can inspect the structure of the titled block and its nested children.\n\n**Try it out:**\n\n- Press Enter at the end of the callout\'s title to jump into its body.\n- Press Backspace at the start of the first body block to merge it back into the title.\n- Press "/" inside the body and add a code block, heading, or list.\n- Watch the JSON panel on the right update as you edit; the title is `content` and the body is `block.children`.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
         projectSlug: "draggable-inline-content",

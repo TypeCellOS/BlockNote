@@ -16,6 +16,10 @@ import {
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
+import {
+  createBlockGroup,
+  isContainerNode,
+} from "../../schema/blocks/children.js";
 import { getColspan, isPartialTableCell } from "../../util/table.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
 import { getAbsoluteTableCells } from "../blockManipulation/tables/tables.js";
@@ -288,13 +292,17 @@ export function tableContentToNodes<
   return rowNodes;
 }
 
+/**
+ * Converts a block's (or custom inline content element's) `content` field to a
+ * `blockContent` (or custom inline content) prosemirror node.
+ */
 function blockOrInlineContentToContentNode(
   block:
     | PartialBlock<any, any, any>
     | PartialCustomInlineContentFromConfig<any, any>,
   schema: Schema,
   styleSchema: StyleSchema,
-) {
+): Node {
   let contentNode: Node;
   let type = block.type;
 
@@ -334,6 +342,25 @@ function blockOrInlineContentToContentNode(
   return contentNode;
 }
 
+// `createAndFill` fills with schema defaults, which leaves `id: null`. Always
+// rebuilds: the only inputs are freshly created nodes, so there is no shared
+// structure worth preserving.
+function withGeneratedIds(node: Node): Node {
+  if (node.isText) {
+    return node;
+  }
+
+  const children: Node[] = [];
+  node.forEach((child) => children.push(withGeneratedIds(child)));
+
+  const needsId = node.type.isInGroup("bnBlock") && node.attrs.id === null;
+  return node.type.create(
+    needsId ? { ...node.attrs, id: UniqueID.options.generateID() } : node.attrs,
+    Fragment.from(children),
+    node.marks,
+  );
+}
+
 /**
  * Converts a BlockNote block to a Prosemirror node.
  */
@@ -361,8 +388,6 @@ export function blockToNode(
     schema.nodes[block.type].isInGroup("blockContent");
 
   if (isBlockContent) {
-    // Blocks with a type that matches "blockContent" group always need to be wrapped in a blockContainer
-
     const contentNode = blockOrInlineContentToContentNode(
       block,
       schema,
@@ -370,9 +395,7 @@ export function blockToNode(
     );
 
     const groupNode =
-      children.length > 0
-        ? schema.nodes["blockGroup"].createChecked({}, children)
-        : undefined;
+      children.length > 0 ? createBlockGroup(schema, children) : undefined;
 
     return schema.nodes["blockContainer"].createChecked(
       {
@@ -381,16 +404,21 @@ export function blockToNode(
       },
       groupNode ? [contentNode, groupNode] : contentNode,
     );
-  } else if (schema.nodes[block.type].isInGroup("bnBlock")) {
-    // `create` (not `createChecked`) so partial container blocks pass through;
-    // callers that mutate the doc validate via `node.check()` before inserting.
-    return schema.nodes[block.type].create(
-      {
-        id: id,
-        ...block.props,
-      },
-      children,
-    );
+  } else if (isContainerNode(schema.nodes[block.type])) {
+    const type = schema.nodes[block.type];
+    const attrs = { id: id, ...block.props };
+
+    // Fill missing children up to the configured minimum, including for an
+    // explicit empty array. Generated descendants need block IDs as well.
+    const node = type.createAndFill(attrs, children);
+    if (!node) {
+      throw new Error(
+        `Cannot create block "${block.type}": its children don't fit its \`children\` config ` +
+          `(it accepts \`${type.spec.content}\`).`,
+      );
+    }
+
+    return withGeneratedIds(node);
   } else {
     throw new Error(
       `block type ${block.type} doesn't match blockContent or bnBlock group`,

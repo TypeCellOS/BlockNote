@@ -1,0 +1,183 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Test fixContainer drops emptied columns > First of two columns empty 1`] = `
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "id": null,
+          },
+          "content": [
+            {
+              "attrs": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "content": [
+                {
+                  "text": "Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}
+`;
+
+exports[`Test fixContainer drops emptied columns > Last of two columns empty 1`] = `
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "id": null,
+          },
+          "content": [
+            {
+              "attrs": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "content": [
+                {
+                  "text": "Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}
+`;
+
+exports[`Test fixContainer drops emptied columns > Start and end columns empty 1`] = `
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "id": null,
+          },
+          "content": [
+            {
+              "attrs": {
+                "id": null,
+                "width": 1,
+              },
+              "content": [
+                {
+                  "attrs": {
+                    "id": null,
+                  },
+                  "content": [
+                    {
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textAlignment": "left",
+                        "textColor": "default",
+                      },
+                      "content": [
+                        {
+                          "text": "Paragraph 1",
+                          "type": "text",
+                        },
+                      ],
+                      "type": "paragraph",
+                    },
+                  ],
+                  "type": "blockContainer",
+                },
+              ],
+              "type": "column",
+            },
+            {
+              "attrs": {
+                "id": null,
+                "width": 1,
+              },
+              "content": [
+                {
+                  "attrs": {
+                    "id": null,
+                  },
+                  "content": [
+                    {
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textAlignment": "left",
+                        "textColor": "default",
+                      },
+                      "content": [
+                        {
+                          "text": "Paragraph 2",
+                          "type": "text",
+                        },
+                      ],
+                      "type": "paragraph",
+                    },
+                  ],
+                  "type": "blockContainer",
+                },
+              ],
+              "type": "column",
+            },
+          ],
+          "type": "columnList",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}
+`;
+
+exports[`Test fixContainer drops emptied columns > Two empty columns 1`] = `
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "id": null,
+          },
+          "content": [
+            {
+              "attrs": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}
+`;

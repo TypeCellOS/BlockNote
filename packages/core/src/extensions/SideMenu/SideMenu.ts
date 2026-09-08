@@ -20,8 +20,16 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
+import {
+  CONTAINER_SELECTOR,
+  getBlockFromElement,
+  getDraggableBlockFromElement,
+} from "../blockDOM.js";
 import { dragStart, unsetDragImage } from "./dragging.js";
+import {
+  getNestedBlockAtCursor,
+  getDirectChildBlocks,
+} from "./sideMenuContainerGeometry.js";
 
 export type SideMenuState<
   BSchema extends BlockSchema,
@@ -37,7 +45,6 @@ const DISTANCE_TO_CONSIDER_EDITOR_BOUNDS = 250;
 function getBlockFromCoords(
   view: EditorView,
   coords: { left: number; top: number },
-  adjustForColumns = true,
 ) {
   const elements = view.root.elementsFromPoint(coords.left, coords.top);
 
@@ -46,21 +53,15 @@ function getBlockFromCoords(
       // probably a ui overlay like formatting toolbar etc
       continue;
     }
-    if (adjustForColumns) {
-      const column = element.closest("[data-node-type=columnList]");
-      if (column) {
-        return getBlockFromCoords(
-          view,
-          {
-            // TODO can we do better than this?
-            left: coords.left + 50, // bit hacky, but if we're inside a column, offset x position to right to account for the width of sidemenu itself
-            top: coords.top,
-          },
-          false,
-        );
-      }
-    }
-    return getDraggableBlockFromElement(element, view);
+    const block = getBlockFromElement(element, view);
+    return block
+      ? {
+          ...block,
+          // Controls in a container's chrome belong to that container, even
+          // when they share a row with one of its child blocks.
+          isControl: !!element.closest('[contenteditable="false"]'),
+        }
+      : undefined;
   }
   return undefined;
 }
@@ -71,6 +72,7 @@ function getBlockFromMousePos(
     y: number;
   },
   view: EditorView,
+  isDraggable: (type: string) => boolean,
 ): { node: HTMLElement; id: string } | undefined {
   // Editor itself may have padding or other styling which affects
   // size/position, so we get the boundingRect of the first child (i.e. the
@@ -101,6 +103,10 @@ function getBlockFromMousePos(
     return undefined;
   }
 
+  if (referenceBlock.isControl) {
+    return getDraggableBlockFromElement(referenceBlock.node, view, isDraggable);
+  }
+
   /**
    * Because blocks may be nested, we need to check the right edge of the parent block:
    * ```
@@ -109,17 +115,26 @@ function getBlockFromMousePos(
    * ```
    * Hovering at position x (left edge of BlockB) would return BlockA.
    * Instead, we check at position y (right edge of BlockA) to correctly identify BlockB.
+   * `elementsFromPoint` returns the deepest element at a point, so this single
+   * probe descends through any depth of regular nesting.
+   *
+   * For a container block, the probe is
+   * aimed at the innermost child under the cursor instead of the container
+   * itself. The container's own padding can exceed the probe inset, which
+   * would keep resolving the container even though the cursor is aligned with
+   * one of its children (making the child's menu jump away as the cursor
+   * moves towards it).
    */
-  const referenceBlocksBoundingBox =
-    referenceBlock.node.getBoundingClientRect();
-  return getBlockFromCoords(
-    view,
-    {
-      left: referenceBlocksBoundingBox.right - 10,
-      top: mousePos.y,
-    },
-    false,
-  );
+  const probeTarget = getNestedBlockAtCursor(referenceBlock.node, mousePos);
+  const target = getBlockFromCoords(view, {
+    left: probeTarget.getBoundingClientRect().right - 10,
+    top: mousePos.y,
+  });
+  // Resolve layout before applying drag policy: columns have no handle, but
+  // their children do, and their gutter still needs to resolve those children.
+  return target
+    ? getDraggableBlockFromElement(target.node, view, isDraggable)
+    : undefined;
 }
 
 /**
@@ -134,8 +149,6 @@ export class SideMenuView<
   public readonly emitUpdate: (state: SideMenuState<BSchema, I, S>) => void;
 
   private mousePos: { x: number; y: number } | undefined;
-
-  private hoveredBlock: HTMLElement | undefined;
 
   public menuFrozen = false;
 
@@ -214,7 +227,11 @@ export class SideMenuView<
       return;
     }
 
-    const block = getBlockFromMousePos(this.mousePos, this.pmView);
+    const blockSpecs = this.editor.schema.blockSpecs;
+    function isDraggable(type: string) {
+      return blockSpecs[type].implementation.meta?.draggable !== false;
+    }
+    const block = getBlockFromMousePos(this.mousePos, this.pmView, isDraggable);
 
     // Closes the menu if the mouse cursor is beyond the editor vertically.
     if (!block || !this.editor.isEditable) {
@@ -227,51 +244,48 @@ export class SideMenuView<
     }
 
     // Doesn't update if the menu is already open and the mouse cursor is still hovering the same block.
-    if (
-      this.state?.show &&
-      this.hoveredBlock?.hasAttribute("data-id") &&
-      this.hoveredBlock?.getAttribute("data-id") === block.id
-    ) {
+    if (this.state?.show && this.state.block.id === block.id) {
       return;
     }
 
-    this.hoveredBlock = block.node;
-
-    // Shows or updates elements.
-    if (this.editor.isEditable) {
-      const blockContentBoundingBox = block.node.getBoundingClientRect();
-      const column = block.node.closest("[data-node-type=column]");
-      const sideMenuBlock = this.editor.getBlock(
-        this.hoveredBlock!.getAttribute("data-id")!,
-      );
-      if (!sideMenuBlock) {
-        if (this.state?.show) {
-          this.state.show = false;
-          this.hoveredBlock = undefined;
-          this.emitUpdate(this.state);
-        }
-        return;
+    const blockContentBoundingBox = block.node.getBoundingClientRect();
+    // The closest container ancestor (a column, callout, ...), excluding
+    // the hovered block itself, which may be a draggable container. Blocks
+    // inside a container anchor the side menu to the container's block
+    // area rather than the editor's left edge, which would put the menu
+    // over unrelated content (or off-screen inside columns).
+    const container = block.node.parentElement?.closest(CONTAINER_SELECTOR);
+    const sideMenuBlock = this.editor.getBlock(block.id);
+    if (!sideMenuBlock) {
+      if (this.state?.show) {
+        this.state.show = false;
+        this.emitUpdate(this.state);
       }
-      this.state = {
-        show: true,
-        referencePos: new DOMRect(
-          column
-            ? // We take the first child as column elements have some default
-              // padding. This is a little weird since this child element will
-              // be the first block, but since it's always non-nested and we
-              // only take the x coordinate, it's ok.
-              column.firstElementChild!.getBoundingClientRect().x
-            : (
-                this.pmView.dom.firstChild as HTMLElement
-              ).getBoundingClientRect().x,
-          blockContentBoundingBox.y,
-          blockContentBoundingBox.width,
-          blockContentBoundingBox.height,
-        ),
-        block: sideMenuBlock,
-      };
-      this.updateState(this.state);
+      return;
     }
+    this.state = {
+      show: true,
+      referencePos: new DOMRect(
+        container
+          ? // We anchor to the container's first child block (rather than
+            // the container itself, which may have padding or its own
+            // chrome around the block area). This is a little weird since
+            // this element is the first block, but since it's always
+            // non-nested and we only take the x coordinate, it's ok.
+            (
+              getDirectChildBlocks(container)[0] ??
+              container.firstElementChild ??
+              container
+            ).getBoundingClientRect().x
+          : (this.pmView.dom.firstChild as HTMLElement).getBoundingClientRect()
+              .x,
+        blockContentBoundingBox.y,
+        blockContentBoundingBox.width,
+        blockContentBoundingBox.height,
+      ),
+      block: sideMenuBlock,
+    };
+    this.updateState(this.state);
   };
 
   /**

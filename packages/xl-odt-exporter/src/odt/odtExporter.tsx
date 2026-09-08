@@ -59,7 +59,7 @@ export class ODTExporter<
   public readonly options: ExporterOptions;
 
   constructor(
-    protected readonly schema: BlockNoteSchema<B, I, S>,
+    schema: BlockNoteSchema<B, I, S>,
     mappings: Exporter<
       NoInfer<B>,
       NoInfer<I>,
@@ -155,32 +155,23 @@ export class ODTExporter<
         numberedListIndex = 0;
       }
 
-      if (["columnList", "column"].includes(block.type)) {
-        const children = await this.transformBlocks(block.children, 0);
-        const content = await this.mapBlock(
-          block as any,
-          0,
+      const isContainer = this.isContainerBlock(block);
+      // Container mappings own the layout: table cells start a fresh
+      // indentation context instead of inheriting literal <text:tab>s.
+      const children = await this.transformBlocks(
+        block.children,
+        isContainer ? 0 : nestingLevel + 1,
+      );
+      ret.push(
+        await this.mapBlock(
+          block,
+          isContainer ? 0 : nestingLevel,
           numberedListIndex,
           children,
-        );
-
-        ret.push(content);
-      } else {
-        const children = await this.transformBlocks(
-          block.children,
-          nestingLevel + 1,
-        );
-        const content = await this.mapBlock(
-          block as any,
-          nestingLevel,
-          numberedListIndex,
-          children,
-        );
-
-        ret.push(content);
-        if (children.length > 0) {
-          ret.push(...children);
-        }
+        ),
+      );
+      if (!isContainer) {
+        ret.push(...children);
       }
     }
 

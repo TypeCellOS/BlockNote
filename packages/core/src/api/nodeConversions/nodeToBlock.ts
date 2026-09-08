@@ -1,5 +1,6 @@
 import { Mark, Node, Slice } from "@tiptap/pm/model";
 import type { Block } from "../../blocks/defaultBlocks.js";
+import { isContainerNode } from "../../schema/blocks/children.js";
 import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type {
   BlockSchema,
@@ -399,7 +400,7 @@ export function nodeToBlock<
   const styleSchema = getStyleSchema(schema) as S;
   const blockCache = getBlockCache(schema);
   if (!node.type.isInGroup("bnBlock")) {
-    throw Error("Node should be a bnBlock, but is instead: " + node.type.name);
+    throw Error("Node should be a block, but is instead: " + node.type.name);
   }
 
   const cachedBlock = blockCache?.get(node);
@@ -418,9 +419,9 @@ export function nodeToBlock<
     id = UniqueID.options.generateID();
   }
 
-  const blockSpec = blockSchema[blockInfo.blockNoteType];
+  const blockConfig = blockSchema[blockInfo.blockNoteType];
 
-  if (!blockSpec) {
+  if (!blockConfig) {
     throw Error("Block is of an unrecognized type: " + blockInfo.blockNoteType);
   }
 
@@ -429,7 +430,7 @@ export function nodeToBlock<
     ...node.attrs,
     ...(blockInfo.hasContent ? blockInfo.content.node.attrs : {}),
   })) {
-    const propSchema = blockSpec.propSchema;
+    const propSchema = blockConfig.propSchema;
 
     if (
       attr in propSchema &&
@@ -438,8 +439,6 @@ export function nodeToBlock<
       props[attr] = value;
     }
   }
-
-  const blockConfig = blockSchema[blockInfo.blockNoteType];
 
   const children: Block<BSchema, I, S>[] = [];
   blockInfo.children?.node.forEach((child) => {
@@ -560,7 +559,9 @@ export function prosemirrorSliceToSlicedBlocks<
     blockCutAtStart: string | undefined;
     blockCutAtEnd: string | undefined;
   } {
-    if (node.type.name !== "blockGroup") {
+    // Both `blockGroup` and container nodes (columnList, column, callout,
+    // ...) hold block children directly, so both can be processed here.
+    if (node.type.name !== "blockGroup" && !isContainerNode(node.type)) {
       throw new Error("unexpected");
     }
     const blocks: Block<BSchema, I, S>[] = [];
@@ -568,41 +569,57 @@ export function prosemirrorSliceToSlicedBlocks<
     let blockCutAtEnd: string | undefined;
 
     node.forEach((blockContainer, _offset, index) => {
-      if (blockContainer.type.name !== "blockContainer") {
-        throw new Error("unexpected");
-      }
-      if (blockContainer.childCount === 0) {
-        return;
-      }
-      if (blockContainer.childCount === 0 || blockContainer.childCount > 2) {
-        throw new Error(
-          "unexpected, blockContainer.childCount: " + blockContainer.childCount,
-        );
-      }
-
       const isFirstBlock = index === 0;
       const isLastBlock = index === node.childCount - 1;
 
-      if (blockContainer.firstChild!.type.name === "blockGroup") {
-        // this is the parent where a selection starts within one of its children,
-        // e.g.:
-        // A
-        // ├── B
-        // selection starts within B, then this blockContainer is A, but we don't care about A
-        // so let's descend into B and continue processing
-        if (!isFirstBlock) {
+      const isContainer = isContainerNode(blockContainer.type);
+      if (!isContainer) {
+        if (blockContainer.type.name !== "blockContainer") {
           throw new Error("unexpected");
         }
+        if (blockContainer.childCount === 0) {
+          return;
+        }
+        if (blockContainer.childCount > 2) {
+          throw new Error(
+            "unexpected, blockContainer.childCount: " +
+              blockContainer.childCount,
+          );
+        }
+      }
+
+      const omittedParent =
+        !isContainer && blockContainer.firstChild!.type.name === "blockGroup";
+      if (omittedParent && !isFirstBlock) {
+        throw new Error("unexpected");
+      }
+
+      // Open containers and regular parents whose content was cut away both
+      // contribute their selected children, without their own wrapper.
+      if (
+        omittedParent ||
+        (isContainer &&
+          ((isFirstBlock && openStart > 0) || (isLastBlock && openEnd > 0)))
+      ) {
         const ret = processNode(
-          blockContainer.firstChild!,
-          Math.max(0, openStart - 1),
+          isContainer ? blockContainer : blockContainer.firstChild!,
+          isFirstBlock ? Math.max(0, openStart - 1) : 0,
           isLastBlock ? Math.max(0, openEnd - 1) : 0,
         );
-        blockCutAtStart = ret.blockCutAtStart;
+        if (isFirstBlock) {
+          blockCutAtStart = ret.blockCutAtStart;
+        }
         if (isLastBlock) {
           blockCutAtEnd = ret.blockCutAtEnd;
         }
         blocks.push(...ret.blocks);
+        return;
+      }
+
+      if (isContainer) {
+        blocks.push(
+          nodeToBlock<BSchema, I, S>(blockContainer, slice.content.firstChild!),
+        );
         return;
       }
 

@@ -1,6 +1,5 @@
-import { BlockNoteEditor, getNodeById } from "@blocknote/core";
+import { BlockNoteEditor, createExtension, getNodeById } from "@blocknote/core";
 import { SideMenuExtension } from "@blocknote/core/extensions";
-import { Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
@@ -41,13 +40,75 @@ type ColumnResizeState = {
   columnList: ColumnData;
 };
 
-type ColumnState =
+// Exported for tests only - not part of the package's public API.
+export type ColumnState =
   | ColumnDefaultState
   | ColumnHoverState
   | ColumnHoverColumnListState
   | ColumnResizeState;
 
-const columnResizePluginKey = new PluginKey<ColumnState>("ColumnResizePlugin");
+// Exported for tests only - not part of the package's public API.
+export const columnResizePluginKey = new PluginKey<ColumnState>(
+  "ColumnResizePlugin",
+);
+
+function isAdjacentColumnPair(
+  doc: Node,
+  columnList: Pick<ColumnData, "node">,
+  leftColumn: Pick<ColumnData, "node" | "posBeforeNode">,
+  rightColumn: Pick<ColumnData, "node" | "posBeforeNode">,
+): boolean {
+  const left = doc.resolve(leftColumn.posBeforeNode);
+  const right = doc.resolve(rightColumn.posBeforeNode);
+  return (
+    columnList.node.type.name === "columnList" &&
+    leftColumn.node.type.name === "column" &&
+    rightColumn.node.type.name === "column" &&
+    left.parent === columnList.node &&
+    right.parent === columnList.node &&
+    left.index() + 1 === right.index()
+  );
+}
+
+// Resolve stored positions after edits; removed or separated columns end the interaction.
+function refreshColumnState(state: ColumnState, doc: Node): ColumnState {
+  if (state.type === "default") {
+    return state;
+  }
+
+  const columnList = getNodeById(state.columnList.id, doc);
+  if (!columnList) {
+    return { type: "default" };
+  }
+  const refreshedList = { ...state.columnList, ...columnList };
+  if (state.type === "hover-column-list") {
+    return { ...state, columnList: refreshedList };
+  }
+
+  const left = getNodeById(state.leftColumn.id, doc);
+  const right = getNodeById(state.rightColumn.id, doc);
+  if (!left || !right || !isAdjacentColumnPair(doc, columnList, left, right)) {
+    return { type: "default" };
+  }
+
+  // Narrow before spreading so resize columns retain their starting widths.
+  switch (state.type) {
+    case "hover-column":
+      return {
+        ...state,
+        columnList: refreshedList,
+        leftColumn: { ...state.leftColumn, ...left },
+        rightColumn: { ...state.rightColumn, ...right },
+      };
+    case "resize":
+      return {
+        ...state,
+        columnList: refreshedList,
+        leftColumn: { ...state.leftColumn, ...left },
+        rightColumn: { ...state.rightColumn, ...right },
+      };
+  }
+}
 
 class ColumnResizePluginView implements PluginView {
   editor: BlockNoteEditor<any, any, any>;
@@ -428,22 +489,26 @@ const createColumnResizePlugin = (editor: BlockNoteEditor<any, any, any>) =>
     state: {
       init: () => ({ type: "default" }) as ColumnState,
       apply: (tr, oldPluginState) => {
-        const newPluginState = tr.getMeta(columnResizePluginKey) as
+        const metaPluginState = tr.getMeta(columnResizePluginKey) as
           | ColumnState
           | undefined;
 
-        return newPluginState === undefined ? oldPluginState : newPluginState;
+        const pluginState =
+          metaPluginState === undefined ? oldPluginState : metaPluginState;
+
+        // The stored column nodes & positions were resolved against an older
+        // doc, so when the doc changes they must be re-resolved against the
+        // new one - a backspace may have removed a hovered column or
+        // unwrapped the column list entirely.
+        return tr.docChanged
+          ? refreshColumnState(pluginState, tr.doc)
+          : pluginState;
       },
     },
     view: (view) => new ColumnResizePluginView(editor, view),
   });
 
-export const createColumnResizeExtension = (
-  editor: BlockNoteEditor<any, any, any>,
-) =>
-  Extension.create({
-    name: "columnResize",
-    addProseMirrorPlugins() {
-      return [createColumnResizePlugin(editor)];
-    },
-  });
+export const ColumnResizeExtension = createExtension(({ editor }) => ({
+  key: "columnResize",
+  prosemirrorPlugins: [createColumnResizePlugin(editor)],
+}));

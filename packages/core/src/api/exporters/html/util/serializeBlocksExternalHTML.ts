@@ -8,6 +8,8 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
+import { isContainerNode } from "../../../../schema/blocks/children.js";
+import { containerRootDOM } from "../../../../schema/blocks/createSpec.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   inlineContentToNodes,
@@ -224,10 +226,11 @@ function serializeBlock<
 
   const blockImplementation = editor.blockImplementations[block.type as any]
     .implementation as BlockImplementation;
+  const blockWithDefaults = { ...block, props, children: block.children ?? [] };
   const ret =
     blockImplementation.toExternalHTML?.call(
       {},
-      { ...block, props } as any,
+      blockWithDefaults as any,
       editor as any,
       {
         nestingLevel,
@@ -235,16 +238,25 @@ function serializeBlock<
     ) ||
     blockImplementation.render.call(
       {},
-      { ...block, props } as any,
+      blockWithDefaults as any,
       editor as any,
     );
 
   const elementFragment = doc.createDocumentFragment();
 
-  if ((ret.dom as HTMLElement).classList.contains("bn-block-content")) {
+  // React renders can return a fragment around the root element.
+  const rootElement = containerRootDOM(ret);
+
+  const blockContentRoot = rootElement?.classList.contains("bn-block-content")
+    ? rootElement
+    : ret.contentDOM?.closest<HTMLElement>(".bn-block-content");
+
+  elementFragment.append(ret.dom);
+
+  if (blockContentRoot) {
     const blockContentDataAttributes = [
       ...attrs,
-      ...Array.from((ret.dom as HTMLElement).attributes),
+      ...Array.from(blockContentRoot.attributes),
     ].filter(
       (attr) =>
         attr.name.startsWith("data") &&
@@ -256,26 +268,32 @@ function serializeBlock<
         attr.name !== "data-editable",
     );
 
-    // ret.dom = ret.dom.firstChild! as any;
     for (const attr of blockContentDataAttributes) {
-      (ret.dom.firstChild! as HTMLElement).setAttribute(attr.name, attr.value);
+      (blockContentRoot.firstChild! as HTMLElement).setAttribute(
+        attr.name,
+        attr.value,
+      );
     }
 
-    addAttributesAndRemoveClasses(ret.dom.firstChild! as HTMLElement);
+    addAttributesAndRemoveClasses(blockContentRoot.firstChild! as HTMLElement);
     if (nestingLevel > 0) {
-      (ret.dom.firstChild! as HTMLElement).setAttribute(
+      (blockContentRoot.firstChild! as HTMLElement).setAttribute(
         "data-nesting-level",
         nestingLevel.toString(),
       );
     }
-    elementFragment.append(...Array.from(ret.dom.childNodes));
+    // Unwrap the content in place, preserving any surrounding frame.
+    blockContentRoot.replaceWith(...Array.from(blockContentRoot.childNodes));
   } else {
-    elementFragment.append(ret.dom);
+    if (isContainerNode(editor.pmSchema.nodes[block.type as any])) {
+      // Pasted external HTML gets fresh IDs; scope parsing to actual children.
+      rootElement?.removeAttribute("data-id");
+      const childrenDOM =
+        ("childrenDOM" in ret && ret.childrenDOM) || ret.contentDOM;
+      childrenDOM?.setAttribute("data-children-of", block.type!);
+    }
     if (nestingLevel > 0) {
-      (ret.dom as HTMLElement).setAttribute(
-        "data-nesting-level",
-        nestingLevel.toString(),
-      );
+      rootElement?.setAttribute("data-nesting-level", nestingLevel.toString());
     }
   }
 
@@ -301,11 +319,9 @@ function serializeBlock<
     // tables) fill their `contentDOM` with child blocks later on, and code
     // blocks would turn the placeholder into literal content.
     const blockNodeType = editor.pmSchema.nodes[block.type as any];
-    if (
-      blockNodeType?.inlineContent &&
-      !blockNodeType.spec.code &&
-      ret.contentDOM.childNodes.length === 0
-    ) {
+    const needsPlaceholder =
+      !!blockNodeType?.inlineContent && !blockNodeType.spec.code;
+    if (needsPlaceholder && ret.contentDOM.childNodes.length === 0) {
       ret.contentDOM.appendChild(doc.createTextNode(EMPTY_BLOCK_PLACEHOLDER));
     }
   }
