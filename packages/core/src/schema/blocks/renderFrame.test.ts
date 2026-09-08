@@ -3,8 +3,12 @@ import { describe, expect, it } from "vite-plus/test";
 import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
 import { defaultBlockSpecs } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { getContainerUIInfo } from "../../api/blockManipulation/containers/containerUI.js";
-import { getDraggableBlockFromElement } from "../../extensions/getDraggableBlockFromElement.js";
+import {
+  CONTAINER_SELECTOR,
+  getBlockFromElement,
+  getDraggableBlockFromElement,
+} from "../../extensions/blockDOM.js";
+import type { LooseBlockSpec } from "./types.js";
 import { createBlockSpec } from "./createSpec.js";
 
 // Behaviour of the vanilla `renderFrame` hook: a block draws the box around
@@ -280,14 +284,20 @@ it("honors a titled block's draggable flag through its regular block wrapper", (
     { id: "locked", type: "contentFrame", content: "Title" },
   ]);
   try {
-    const types = getContainerUIInfo(editor);
+    const blockSpecs: Record<string, LooseBlockSpec> = editor.schema.blockSpecs;
     const title = editor.domElement!.querySelector(
       '[data-content-type="contentFrame"]',
     )!;
     expect(
-      getDraggableBlockFromElement(title, editor._tiptapEditor.view, types),
+      getDraggableBlockFromElement(
+        title,
+        editor._tiptapEditor.view,
+        (type) => blockSpecs[type].implementation.meta?.draggable !== false,
+      ),
     ).toBeUndefined();
-    expect(types.containerTypes.has("contentFrame")).toBe(false);
+    const block = getBlockFromElement(title, editor._tiptapEditor.view);
+    expect(block).toMatchObject({ id: "locked", type: "contentFrame" });
+    expect(block?.node.matches(CONTAINER_SELECTOR)).toBe(false);
   } finally {
     editor._tiptapEditor.destroy();
   }

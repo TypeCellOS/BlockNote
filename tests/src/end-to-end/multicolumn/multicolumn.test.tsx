@@ -143,7 +143,7 @@ describe("Check Multi-Column Behaviour", () => {
 // through a real column list. Hovering a column's left padding hands the
 // lookup coordinates that horizontally overlap the previous column, and
 // `SideMenu.ts` only resolves the right block by re-probing further right
-// once `isHorizontalContainer` recognises the column list. If that
+// once the geometry detects vertically overlapping column rectangles. If that
 // compensation (or the detection) breaks, the menu attaches to a block in
 // the previous column.
 describe("Check side menu placement inside a column list", () => {

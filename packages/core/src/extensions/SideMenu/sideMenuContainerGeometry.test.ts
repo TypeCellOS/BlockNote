@@ -2,7 +2,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import {
   rectIndexAtCursor,
-  rectsAreSideBySide,
+  rectsOverlapVertically,
   type BlockRect,
 } from "./sideMenuContainerGeometry.js";
 
@@ -24,23 +24,23 @@ const SIDE_BY_SIDE = [rect(0, 100, 0, 100), rect(0, 100, 100, 200)];
 // Two blocks of a callout: same horizontal band, stacked vertically.
 const STACKED = [rect(0, 40, 0, 200), rect(50, 90, 0, 200)];
 
-describe("rectsAreSideBySide", () => {
+describe("rectsOverlapVertically", () => {
   it("is true when two rects overlap vertically, false when stacked", () => {
-    expect(rectsAreSideBySide(SIDE_BY_SIDE)).toBe(true);
-    expect(rectsAreSideBySide(STACKED)).toBe(false);
+    expect(rectsOverlapVertically(SIDE_BY_SIDE)).toBe(true);
+    expect(rectsOverlapVertically(STACKED)).toBe(false);
     // Degenerate inputs are never a row.
-    expect(rectsAreSideBySide([rect(0, 100, 0, 100)])).toBe(false);
-    expect(rectsAreSideBySide([])).toBe(false);
+    expect(rectsOverlapVertically([rect(0, 100, 0, 100)])).toBe(false);
+    expect(rectsOverlapVertically([])).toBe(false);
   });
 
   it("treats abutting rects as stacked, but counts a one-pixel overlap", () => {
     // The second rect's top exactly meets the first's bottom. A stack with no
     // gap must not be misread as a row.
     expect(
-      rectsAreSideBySide([rect(0, 40, 0, 200), rect(40, 80, 0, 200)]),
+      rectsOverlapVertically([rect(0, 40, 0, 200), rect(40, 80, 0, 200)]),
     ).toBe(false);
     expect(
-      rectsAreSideBySide([rect(0, 41, 0, 100), rect(40, 80, 0, 100)]),
+      rectsOverlapVertically([rect(0, 41, 0, 100), rect(40, 80, 0, 100)]),
     ).toBe(true);
   });
 
@@ -48,7 +48,7 @@ describe("rectsAreSideBySide", () => {
     // The loop is over every pair, not just neighbours. A column list whose
     // first two children happen to be stacked is still a row.
     expect(
-      rectsAreSideBySide([
+      rectsOverlapVertically([
         rect(0, 40, 0, 100),
         rect(40, 80, 0, 100),
         rect(40, 80, 100, 200),

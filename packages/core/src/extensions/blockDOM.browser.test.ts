@@ -1,10 +1,17 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import { getDraggableBlockFromElement } from "./getDraggableBlockFromElement.js";
+import {
+  getBlockFromElement,
+  getDraggableBlockFromElement,
+} from "./blockDOM.js";
+
+function isDraggable(type: string) {
+  return type !== "lockedBlock" && type !== "column";
+}
 
 // These are pure DOM walks (`closest`/`querySelector` over the block chrome),
 // so we build detached trees rather than booting an editor. Only `view.dom` is
-// read, as the stop condition for the upward walk. No layout is involved, but
+// read, as the boundary for the upward walk. No layout is involved, but
 // the unit under test is the DOM API itself, so it runs against a real
 // browser engine rather than jsdom's re-implementation of it.
 
@@ -47,9 +54,12 @@ describe("getDraggableBlockFromElement", () => {
   it("returns the block container for a regular block", () => {
     const { outer, blockContainer, content } = regularBlock("a", "paragraph");
 
-    expect(getDraggableBlockFromElement(content, viewWith(outer))).toEqual({
+    expect(
+      getDraggableBlockFromElement(content, viewWith(outer), isDraggable),
+    ).toEqual({
       node: blockContainer,
       id: "a",
+      type: "paragraph",
     });
   });
 
@@ -57,9 +67,7 @@ describe("getDraggableBlockFromElement", () => {
     const { outer, content } = regularBlock("a", "lockedBlock");
 
     expect(
-      getDraggableBlockFromElement(content, viewWith(outer), {
-        nonDraggableBlockTypes: new Set(["lockedBlock"]),
-      }),
+      getDraggableBlockFromElement(content, viewWith(outer), isDraggable),
     ).toBeUndefined();
   });
 
@@ -71,10 +79,12 @@ describe("getDraggableBlockFromElement", () => {
     // Dragging from inside the locked child should hand back the parent's
     // handle rather than no handle at all.
     expect(
-      getDraggableBlockFromElement(child.content, viewWith(parent.outer), {
-        nonDraggableBlockTypes: new Set(["lockedBlock"]),
-      }),
-    ).toEqual({ node: parent.blockContainer, id: "parent" });
+      getDraggableBlockFromElement(
+        child.content,
+        viewWith(parent.outer),
+        isDraggable,
+      ),
+    ).toEqual({ node: parent.blockContainer, id: "parent", type: "paragraph" });
   });
 
   it("reads the block's own content type, not a nested block's", () => {
@@ -85,9 +95,11 @@ describe("getDraggableBlockFromElement", () => {
     // `parent`'s own content element precedes the nested `blockGroup`, so the
     // first `[data-content-type]` match inside it must be "lockedBlock".
     expect(
-      getDraggableBlockFromElement(parent.content, viewWith(parent.outer), {
-        nonDraggableBlockTypes: new Set(["lockedBlock"]),
-      }),
+      getDraggableBlockFromElement(
+        parent.content,
+        viewWith(parent.outer),
+        isDraggable,
+      ),
     ).toBeUndefined();
   });
 
@@ -97,15 +109,48 @@ describe("getDraggableBlockFromElement", () => {
     column.setAttribute("data-id", "col");
 
     expect(
-      getDraggableBlockFromElement(column, viewWith(column), {
-        draggableContainerTypes: new Set(["columnList"]),
-      }),
+      getDraggableBlockFromElement(column, viewWith(column), isDraggable),
     ).toBeUndefined();
 
     expect(
-      getDraggableBlockFromElement(column, viewWith(column), {
-        draggableContainerTypes: new Set(["column"]),
-      }),
-    ).toEqual({ node: column, id: "col" });
+      getDraggableBlockFromElement(column, viewWith(column), () => true),
+    ).toEqual({ node: column, id: "col", type: "column" });
   });
+});
+
+it("resolves a locked block's identity without applying drag policy", () => {
+  const { outer, content, blockContainer } = regularBlock(
+    "locked",
+    "lockedBlock",
+  );
+  expect(getBlockFromElement(content, viewWith(outer))).toEqual({
+    node: blockContainer,
+    id: "locked",
+    type: "lockedBlock",
+  });
+});
+
+it("does not resolve blocks outside this editor", () => {
+  const { content } = regularBlock("outside", "paragraph");
+  expect(
+    getBlockFromElement(content, viewWith(document.createElement("div"))),
+  ).toBeUndefined();
+});
+
+it("ignores the duplicate ID on ordinary block chrome", () => {
+  const { outer, content, blockContainer } = regularBlock("a", "paragraph");
+  outer.setAttribute("data-id", "a");
+  expect(getBlockFromElement(content, viewWith(outer))?.node).toBe(
+    blockContainer,
+  );
+});
+
+it("does not resolve a block owned by an embedded editor", () => {
+  const nested = regularBlock("nested", "paragraph");
+  const nestedView = viewWith(nested.outer);
+  nestedView.dom.className = "bn-editor";
+  const outerView = viewWith(nestedView.dom);
+  outerView.dom.className = "bn-editor";
+  expect(getBlockFromElement(nested.content, outerView)).toBeUndefined();
+  expect(getBlockFromElement(nested.content, nestedView)?.id).toBe("nested");
 });

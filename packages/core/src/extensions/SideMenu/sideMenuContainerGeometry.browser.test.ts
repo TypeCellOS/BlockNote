@@ -1,11 +1,10 @@
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
-import type { ContainerUIInfo } from "../../api/blockManipulation/containers/containerUI.js";
 import {
   getContainerChildAtCursor,
   getDirectChildBlocks,
-  hasHorizontalContainerAncestor,
-  isHorizontalContainer,
+  hasAncestorWithOverlappingChildren,
+  hasVerticallyOverlappingChildren,
 } from "./sideMenuContainerGeometry.js";
 
 // The side-menu container geometry that reads live layout: the
@@ -36,6 +35,7 @@ afterEach(() => {
 function el(nodeType: string): HTMLElement {
   const node = document.createElement("div");
   node.setAttribute("data-node-type", nodeType);
+  node.setAttribute("data-id", crypto.randomUUID());
   return node;
 }
 
@@ -52,26 +52,12 @@ function regularChild(text = "block"): {
   return { outer, blockContainer };
 }
 
-function uiInfo(containerTypes: string[]): ContainerUIInfo {
-  const set = new Set(containerTypes);
-  return {
-    containerTypes: set,
-    draggableContainerTypes: set,
-    nonDraggableBlockTypes: new Set<string>(),
-    containerSelector: containerTypes.length
-      ? containerTypes.map((t) => `[data-node-type="${t}"]`).join(",")
-      : null,
-  };
-}
-
 /**
  * A column list laid out the way the real one is: a flex row of two columns,
  * each holding one block. Nothing declares "horizontal". The browser puts the
  * columns side by side and the module has to notice.
  */
 function buildColumnList() {
-  const info = uiInfo(["columnList", "column"]);
-
   const columnList = el("columnList");
   columnList.style.display = "flex";
   columnList.style.width = "400px";
@@ -89,13 +75,11 @@ function buildColumnList() {
   columnList.append(columnA, columnB);
   mount(columnList);
 
-  return { info, columnList, columnA, columnB, childA, childB };
+  return { columnList, columnA, columnB, childA, childB };
 }
 
 /** A callout: an ordinary block-flow container, so its children stack. */
 function buildVerticalContainer() {
-  const info = uiInfo(["callout"]);
-
   const callout = el("callout");
   callout.style.width = "400px";
   const first = regularChild("first");
@@ -103,36 +87,34 @@ function buildVerticalContainer() {
   callout.append(first.outer, second.outer);
   mount(callout);
 
-  return { info, callout, first, second };
+  return { callout, first, second };
 }
 
 describe("getDirectChildBlocks", () => {
   it("returns direct child blocks, skipping nested grandchildren", () => {
-    const { info, columnList, columnA, columnB } = buildColumnList();
+    const { columnList, columnA, columnB } = buildColumnList();
 
     // The blocks inside each column must not come back as the list's own
     // children. The `closest` check stops the walk one level down.
-    expect(getDirectChildBlocks(columnList, info)).toEqual([columnA, columnB]);
+    expect(getDirectChildBlocks(columnList)).toEqual([columnA, columnB]);
   });
 
   it("sees through blockOuter wrappers to the blockContainer child", () => {
-    const { info, columnA, childA } = buildColumnList();
+    const { columnA, childA } = buildColumnList();
 
     // The column's own direct child is the wrapped blockContainer, not the
     // blockOuter chrome (which isn't a block in the selector's sense).
-    expect(getDirectChildBlocks(columnA, info)).toEqual([
-      childA.blockContainer,
-    ]);
+    expect(getDirectChildBlocks(columnA)).toEqual([childA.blockContainer]);
   });
 });
 
-describe("isHorizontalContainer", () => {
+describe("hasVerticallyOverlappingChildren", () => {
   it("recognises a real flex row as horizontal", () => {
-    const { info, columnList, columnA, columnB } = buildColumnList();
+    const { columnList, columnA, columnB } = buildColumnList();
 
     // Nothing declares the column list horizontal and no rect is stubbed;
     // the detection runs against real layout.
-    expect(isHorizontalContainer(columnList, info)).toBe(true);
+    expect(hasVerticallyOverlappingChildren(columnList)).toBe(true);
 
     // Also asserted as raw geometry, so a failure shows whether the layout
     // or the detection broke.
@@ -144,33 +126,33 @@ describe("isHorizontalContainer", () => {
   });
 
   it("is false for a container whose children stack", () => {
-    const { info, callout } = buildVerticalContainer();
+    const { callout } = buildVerticalContainer();
 
-    expect(isHorizontalContainer(callout, info)).toBe(false);
+    expect(hasVerticallyOverlappingChildren(callout)).toBe(false);
   });
 
   it("is false for a column holding a single block", () => {
-    const { info, columnA } = buildColumnList();
+    const { columnA } = buildColumnList();
 
-    expect(isHorizontalContainer(columnA, info)).toBe(false);
+    expect(hasVerticallyOverlappingChildren(columnA)).toBe(false);
   });
 });
 
-describe("hasHorizontalContainerAncestor", () => {
+describe("hasAncestorWithOverlappingChildren", () => {
   it("is true for a block nested inside a column of a column list", () => {
-    const { info, childA } = buildColumnList();
+    const { childA } = buildColumnList();
 
     // The block sits inside a (vertical) column, whose parent column list is
     // the horizontal one, so the walk must climb past the column.
-    expect(hasHorizontalContainerAncestor(childA.blockContainer, info)).toBe(
+    expect(hasAncestorWithOverlappingChildren(childA.blockContainer)).toBe(
       true,
     );
   });
 
   it("is false for a block inside a purely vertical container", () => {
-    const { info, first } = buildVerticalContainer();
+    const { first } = buildVerticalContainer();
 
-    expect(hasHorizontalContainerAncestor(first.blockContainer, info)).toBe(
+    expect(hasAncestorWithOverlappingChildren(first.blockContainer)).toBe(
       false,
     );
   });
@@ -178,32 +160,30 @@ describe("hasHorizontalContainerAncestor", () => {
 
 describe("getContainerChildAtCursor", () => {
   it("returns undefined for a non-container element", () => {
-    const { info, childA } = buildColumnList();
+    const { childA } = buildColumnList();
 
     expect(
-      getContainerChildAtCursor(childA.blockContainer, { x: 10, y: 10 }, info),
+      getContainerChildAtCursor(childA.blockContainer, { x: 10, y: 10 }),
     ).toBeUndefined();
   });
 
   it("resolves the hovered column of a real row", () => {
-    const { info, columnList, columnA, columnB } = buildColumnList();
+    const { columnList, columnA, columnB } = buildColumnList();
     const b = columnB.getBoundingClientRect();
 
     expect(
-      getContainerChildAtCursor(
-        columnList,
-        { x: b.left + b.width / 2, y: b.top + b.height / 2 },
-        info,
-      ),
+      getContainerChildAtCursor(columnList, {
+        x: b.left + b.width / 2,
+        y: b.top + b.height / 2,
+      }),
     ).toBe(columnB);
 
     const a = columnA.getBoundingClientRect();
     expect(
-      getContainerChildAtCursor(
-        columnList,
-        { x: a.left + a.width / 2, y: a.top + a.height / 2 },
-        info,
-      ),
+      getContainerChildAtCursor(columnList, {
+        x: a.left + a.width / 2,
+        y: a.top + a.height / 2,
+      }),
     ).toBe(columnA);
   });
 });

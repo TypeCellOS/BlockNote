@@ -21,15 +21,14 @@ import {
   StyleSchema,
 } from "../../schema/index.js";
 import {
-  ContainerUIInfo,
-  getContainerUIInfo,
-} from "../../api/blockManipulation/containers/containerUI.js";
-import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
+  CONTAINER_SELECTOR,
+  getDraggableBlockFromElement,
+} from "../blockDOM.js";
 import { dragStart, unsetDragImage } from "./dragging.js";
 import {
   getContainerChildAtCursor,
   getDirectChildBlocks,
-  hasHorizontalContainerAncestor,
+  hasAncestorWithOverlappingChildren,
 } from "./sideMenuContainerGeometry.js";
 
 export type SideMenuState<
@@ -46,8 +45,8 @@ const DISTANCE_TO_CONSIDER_EDITOR_BOUNDS = 250;
 function getBlockFromCoords(
   view: EditorView,
   coords: { left: number; top: number },
-  containerUIInfo: ContainerUIInfo,
-  adjustForHorizontalContainers = true,
+  isDraggable: (type: string) => boolean,
+  refineByChildRects = true,
 ) {
   const elements = view.root.elementsFromPoint(coords.left, coords.top);
 
@@ -57,27 +56,26 @@ function getBlockFromCoords(
       continue;
     }
     if (
-      adjustForHorizontalContainers &&
-      containerUIInfo.containerSelector &&
+      refineByChildRects &&
       // Inside a container with side-by-side children (e.g. a columnList),
       // the cursor is in the side menu's own gutter, so it lands on the
       // container itself rather than on the block it lines up with. The
       // horizontal container can be any ancestor (the element may sit inside
       // a vertical child of it, like a block inside a column).
-      hasHorizontalContainerAncestor(element, containerUIInfo)
+      hasAncestorWithOverlappingChildren(element)
     ) {
       // Walk down through the containers by their children's measured rects
       // instead, which finds that block without guessing an x offset.
       const cursor = { x: coords.left, y: coords.top };
       let target = element;
-      let child = getContainerChildAtCursor(target, cursor, containerUIInfo);
+      let child = getContainerChildAtCursor(target, cursor);
       while (child) {
         target = child;
-        child = getContainerChildAtCursor(target, cursor, containerUIInfo);
+        child = getContainerChildAtCursor(target, cursor);
       }
-      return getDraggableBlockFromElement(target, view, containerUIInfo);
+      return getDraggableBlockFromElement(target, view, isDraggable);
     }
-    return getDraggableBlockFromElement(element, view, containerUIInfo);
+    return getDraggableBlockFromElement(element, view, isDraggable);
   }
   return undefined;
 }
@@ -88,7 +86,7 @@ function getBlockFromMousePos(
     y: number;
   },
   view: EditorView,
-  containerUIInfo: ContainerUIInfo,
+  isDraggable: (type: string) => boolean,
 ): { node: HTMLElement; id: string } | undefined {
   // Editor itself may have padding or other styling which affects
   // size/position, so we get the boundingRect of the first child (i.e. the
@@ -112,7 +110,7 @@ function getBlockFromMousePos(
     top: mousePos.y,
   };
 
-  const referenceBlock = getBlockFromCoords(view, coords, containerUIInfo);
+  const referenceBlock = getBlockFromCoords(view, coords, isDraggable);
 
   if (!referenceBlock) {
     // could not find the reference block
@@ -138,7 +136,7 @@ function getBlockFromMousePos(
    * moves towards it).
    */
   const probeTarget =
-    getContainerChildAtCursor(referenceBlock.node, mousePos, containerUIInfo) ??
+    getContainerChildAtCursor(referenceBlock.node, mousePos) ??
     referenceBlock.node;
   return getBlockFromCoords(
     view,
@@ -146,7 +144,7 @@ function getBlockFromMousePos(
       left: probeTarget.getBoundingClientRect().right - 10,
       top: mousePos.y,
     },
-    containerUIInfo,
+    isDraggable,
     false,
   );
 }
@@ -243,12 +241,11 @@ export class SideMenuView<
       return;
     }
 
-    const containerUIInfo = getContainerUIInfo(this.editor);
-    const block = getBlockFromMousePos(
-      this.mousePos,
-      this.pmView,
-      containerUIInfo,
-    );
+    const blockSpecs = this.editor.schema.blockSpecs;
+    function isDraggable(type: string) {
+      return blockSpecs[type].implementation.meta?.draggable !== false;
+    }
+    const block = getBlockFromMousePos(this.mousePos, this.pmView, isDraggable);
 
     // Closes the menu if the mouse cursor is beyond the editor vertically.
     if (!block || !this.editor.isEditable) {
@@ -279,9 +276,7 @@ export class SideMenuView<
       // inside a container anchor the side menu to the container's block
       // area rather than the editor's left edge, which would put the menu
       // over unrelated content (or off-screen inside columns).
-      const container = containerUIInfo.containerSelector
-        ? block.node.parentElement?.closest(containerUIInfo.containerSelector)
-        : undefined;
+      const container = block.node.parentElement?.closest(CONTAINER_SELECTOR);
       const sideMenuBlock = this.editor.getBlock(
         this.hoveredBlock!.getAttribute("data-id")!,
       );
@@ -303,7 +298,7 @@ export class SideMenuView<
               // this element is the first block, but since it's always
               // non-nested and we only take the x coordinate, it's ok.
               (
-                getDirectChildBlocks(container, containerUIInfo)[0] ??
+                getDirectChildBlocks(container)[0] ??
                 container.firstElementChild ??
                 container
               ).getBoundingClientRect().x
