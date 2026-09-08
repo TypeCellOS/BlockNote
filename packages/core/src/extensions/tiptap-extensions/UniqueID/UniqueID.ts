@@ -67,9 +67,12 @@ const UniqueID = Extension.create({
       setIdAttribute: false,
       isWithinEditor: undefined as ((element: Element) => boolean) | undefined,
       generateID: () => {
-        // Use mock ID if tests are running.
-        if (typeof window !== "undefined" && (window as any).__TEST_OPTIONS) {
-          const testOptions = (window as any).__TEST_OPTIONS;
+        // Use mock ID if tests are running. Resolved off `globalThis` rather
+        // than a bare `window` so that tests running in the plain `node`
+        // environment (no `window`) still get deterministic IDs.
+        const testHost: any = (globalThis as any).window ?? globalThis;
+        if (testHost.__TEST_OPTIONS) {
+          const testOptions = testHost.__TEST_OPTIONS;
           if (testOptions.mockID === undefined) {
             testOptions.mockID = 0;
           } else {
