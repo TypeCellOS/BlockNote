@@ -8,19 +8,8 @@ set -eo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-_dep_files() {
-  {
-    echo pnpm-lock.yaml
-    echo pnpm-workspace.yaml
-    find patches examples \( -name node_modules -prune \) -o -type f -print 2>/dev/null
-    find . -name package.json \
-      -not -path '*/node_modules/*' \
-      -not -path '*/.git/*' \
-      -not -path '*/dist/*'
-  } | sort -u
-}
-
-hash=$(_dep_files | xargs shasum -a 256 -- 2>/dev/null | shasum -a 256 | cut -d' ' -f1)
+source tests/docker-image-inputs.sh
+hash=$(_docker_image_hash)
 
 docker build -t blocknote-e2e \
   --label "blocknote.deps-hash=$hash" \
