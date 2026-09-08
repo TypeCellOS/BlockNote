@@ -1,15 +1,11 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { setupTestEnv } from "../../setupTestEnv.js";
-import {
-  fixColumnList,
-  isEmptyColumn,
-  removeEmptyColumns,
-} from "@blocknote/core";
+import { fixContainer, isEmptyContainerChild } from "@blocknote/core";
 
 const getEditor = setupTestEnv();
 
-describe("Test isEmptyColumn", () => {
+describe("Test isEmptyContainerChild", () => {
   it("Empty blocks", () => {
     const schema = getEditor()._tiptapEditor.schema;
 
@@ -19,7 +15,7 @@ describe("Test isEmptyColumn", () => {
       ]),
     ]);
 
-    expect(isEmptyColumn(column)).toBeTruthy();
+    expect(isEmptyContainerChild(column)).toBeTruthy();
   });
 
   it("Multiple blocks", () => {
@@ -34,7 +30,7 @@ describe("Test isEmptyColumn", () => {
       ]),
     ]);
 
-    expect(isEmptyColumn(column)).toBeFalsy();
+    expect(isEmptyContainerChild(column)).toBeFalsy();
   });
 
   it("Block with children", () => {
@@ -51,7 +47,7 @@ describe("Test isEmptyColumn", () => {
       ]),
     ]);
 
-    expect(isEmptyColumn(column)).toBeFalsy();
+    expect(isEmptyContainerChild(column)).toBeFalsy();
   });
 
   it("Block with text", () => {
@@ -65,7 +61,7 @@ describe("Test isEmptyColumn", () => {
       ]),
     ]);
 
-    expect(isEmptyColumn(column)).toBeFalsy();
+    expect(isEmptyContainerChild(column)).toBeFalsy();
   });
 
   it("Non-text block", () => {
@@ -77,11 +73,11 @@ describe("Test isEmptyColumn", () => {
       ]),
     ]);
 
-    expect(isEmptyColumn(column)).toBeFalsy();
+    expect(isEmptyContainerChild(column)).toBeFalsy();
   });
 });
 
-describe("Test removeEmptyColumns", () => {
+describe("Test fixContainer drops emptied columns", () => {
   it("Start and end columns empty", () => {
     const editor = getEditor();
     const schema = editor._tiptapEditor.schema;
@@ -116,7 +112,7 @@ describe("Test removeEmptyColumns", () => {
     const tr = editor.prosemirrorState.tr;
 
     tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    removeEmptyColumns(tr, 1);
+    fixContainer(tr, 1);
 
     expect(tr.doc).toMatchSnapshot();
   });
@@ -143,7 +139,7 @@ describe("Test removeEmptyColumns", () => {
     const tr = editor.prosemirrorState.tr;
 
     tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    removeEmptyColumns(tr, 1);
+    fixContainer(tr, 1);
 
     expect(tr.doc).toMatchSnapshot();
   });
@@ -170,7 +166,7 @@ describe("Test removeEmptyColumns", () => {
     const tr = editor.prosemirrorState.tr;
 
     tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    removeEmptyColumns(tr, 1);
+    fixContainer(tr, 1);
 
     expect(tr.doc).toMatchSnapshot();
   });
@@ -195,13 +191,13 @@ describe("Test removeEmptyColumns", () => {
     const tr = editor.prosemirrorState.tr;
 
     tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    removeEmptyColumns(tr, 1);
+    fixContainer(tr, 1);
 
     expect(tr.doc).toMatchSnapshot();
   });
 });
 
-describe("Test fixColumnList", () => {
+describe("Test fixContainer", () => {
   it("First of two columns empty", () => {
     const editor = getEditor();
     const schema = editor._tiptapEditor.schema;
@@ -224,7 +220,7 @@ describe("Test fixColumnList", () => {
     const tr = editor.prosemirrorState.tr;
 
     tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    fixColumnList(tr, 1);
+    fixContainer(tr, 1);
 
     expect(tr.doc).toMatchSnapshot();
   });
@@ -251,7 +247,7 @@ describe("Test fixColumnList", () => {
     const tr = editor.prosemirrorState.tr;
 
     tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    fixColumnList(tr, 1);
+    fixContainer(tr, 1);
 
     expect(tr.doc).toMatchSnapshot();
   });
@@ -276,7 +272,7 @@ describe("Test fixColumnList", () => {
     const tr = editor.prosemirrorState.tr;
 
     tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    fixColumnList(tr, 1);
+    fixContainer(tr, 1);
 
     expect(tr.doc).toMatchSnapshot();
   });

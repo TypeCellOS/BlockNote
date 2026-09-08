@@ -1,5 +1,6 @@
 import {
   BlockNoteSchema,
+  createBlockSpec,
   defaultBlockSpecs,
   createPageBreakBlockSpec,
   PartialBlock,
@@ -414,6 +415,163 @@ describe("exporter", () => {
       ).toMatchFileSnapshot("__snapshots__/withLocale/styles.xml");
     },
   );
+});
+
+describe("custom container blocks", () => {
+  const Box = createBlockSpec(
+    {
+      type: "box" as const,
+      propSchema: {},
+      content: "none",
+      children: { allow: "blocks" },
+    },
+    {
+      render: (block: any) => {
+        const dom = document.createElement("div");
+        dom.setAttribute("data-node-type", "box");
+        dom.setAttribute("data-id", block.id);
+        return { dom, contentDOM: dom };
+      },
+    },
+  )();
+
+  const boxSchema = BlockNoteSchema.create({
+    blockSpecs: {
+      ...defaultBlockSpecs,
+      box: Box,
+    },
+  });
+
+  const boxDocument = partialBlocksToBlocksForTesting(boxSchema, [
+    {
+      type: "box",
+      children: [
+        { type: "paragraph", content: "First" },
+        { type: "paragraph", content: "Second" },
+      ],
+    },
+  ] as any);
+
+  // A titled block: inline content (the title) plus children (the body). The
+  // mapping renders the title into its own paragraph and places the children
+  // after it; because the block counts as a container, transformBlocks must
+  // not append them a second time.
+  const Alert = createBlockSpec(
+    {
+      type: "alert" as const,
+      propSchema: {},
+      content: "inline",
+      children: { allow: "blocks" },
+    },
+    {
+      render: (block: any) => {
+        const dom = document.createElement("div");
+        dom.setAttribute("data-node-type", "alert");
+        dom.setAttribute("data-id", block.id);
+        return { dom, contentDOM: dom };
+      },
+      renderFrame: (_block: any) => {
+        const dom = document.createElement("div");
+        dom.className = "alert-box";
+        return { dom, slot: dom };
+      },
+    },
+  )();
+
+  const alertSchema = BlockNoteSchema.create({
+    blockSpecs: {
+      ...defaultBlockSpecs,
+      alert: Alert,
+    },
+  });
+
+  const alertDocument = partialBlocksToBlocksForTesting(alertSchema, [
+    {
+      type: "alert",
+      content: "Heads up",
+      children: [
+        { type: "paragraph", content: "First" },
+        { type: "paragraph", content: "Second" },
+      ],
+    },
+  ] as any);
+  it("passes children to a custom container mapping", async () => {
+    const exporter = new DOCXExporter(
+      boxSchema,
+      {
+        ...docxDefaultSchemaMappings,
+        blockMapping: {
+          ...docxDefaultSchemaMappings.blockMapping,
+          box: (
+            _block: any,
+            _exporter: any,
+            _nesting: any,
+            _index: any,
+            children: any,
+          ) =>
+            new Paragraph({
+              children: [new TextRun(`BOX(${children?.length ?? 0})`)],
+            }),
+        },
+      } as any,
+      { resolveFileUrl: testResolveFileUrl },
+    );
+
+    const transformed = await exporter.transformBlocks(boxDocument as any);
+    expect(transformed).toHaveLength(1);
+    const xml = JSON.stringify(transformed[0]);
+    expect(xml).toContain("BOX(2)");
+  });
+
+  it("throws a clear error for an unmapped container block", async () => {
+    const exporter = new DOCXExporter(
+      boxSchema,
+      docxDefaultSchemaMappings as any,
+      { resolveFileUrl: testResolveFileUrl },
+    );
+
+    await expect(exporter.transformBlocks(boxDocument as any)).rejects.toThrow(
+      /container block type "box"/,
+    );
+  });
+
+  it("renders a titled block's title and places its children inside", async () => {
+    const exporter = new DOCXExporter(
+      alertSchema,
+      {
+        ...docxDefaultSchemaMappings,
+        blockMapping: {
+          ...docxDefaultSchemaMappings.blockMapping,
+          alert: (
+            block: any,
+            exporter: any,
+            _nesting: any,
+            _index: any,
+            children: any,
+          ) => [
+            new Paragraph({
+              children: [
+                new TextRun("ALERT:"),
+                ...exporter.transformInlineContent(block.content),
+              ],
+            }),
+            ...(children ?? []),
+          ],
+        },
+      } as any,
+      { resolveFileUrl: testResolveFileUrl },
+    );
+
+    const transformed = await exporter.transformBlocks(alertDocument as any);
+    // Title paragraph plus the two children - handed to the mapping once,
+    // not appended again after it.
+    expect(transformed).toHaveLength(3);
+    const xml = JSON.stringify(transformed);
+    expect(xml).toContain("ALERT:");
+    expect(xml.indexOf("Heads up")).toBeGreaterThan(xml.indexOf("ALERT:"));
+    expect(xml.indexOf("First")).toBeGreaterThan(xml.indexOf("Heads up"));
+    expect(xml).toContain("Second");
+  });
 });
 
 function prettify(sourceXml: string) {

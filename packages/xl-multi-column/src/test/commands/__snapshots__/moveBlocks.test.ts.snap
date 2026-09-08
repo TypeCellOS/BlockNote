@@ -1,5 +1,591 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Empty a column by moving out of it > Move the only block out of the first column 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Before",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-before",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Only 0",
+        "type": "text",
+      },
+    ],
+    "id": "only-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [],
+            "id": "0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-single-0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Only 1",
+                "type": "text",
+              },
+            ],
+            "id": "only-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-single-1",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+    ],
+    "content": undefined,
+    "id": "column-list-single",
+    "props": {},
+    "type": "columnList",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "After",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-after",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Empty a column by moving out of it > Move the only block out of the last column 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Before",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-before",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Only 0",
+                "type": "text",
+              },
+            ],
+            "id": "only-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-single-0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [],
+            "id": "0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-single-1",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+    ],
+    "content": undefined,
+    "id": "column-list-single",
+    "props": {},
+    "type": "columnList",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Only 1",
+        "type": "text",
+      },
+    ],
+    "id": "only-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "After",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-after",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Move a column > Move column down 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [],
+            "id": "1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 0",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 1",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 3",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-3",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-1",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+    ],
+    "content": undefined,
+    "id": "column-list-0",
+    "props": {},
+    "type": "columnList",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Move a column > Move column up 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 0",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 1",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 3",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-3",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [],
+            "id": "1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+    ],
+    "content": undefined,
+    "id": "column-list-0",
+    "props": {},
+    "type": "columnList",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
 exports[`Move past empty sibling within a column > Move down below empty sibling 1`] = `
 [
   {

@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Test fixColumnList > First of two columns empty 1`] = `
+exports[`Test fixContainer > First of two columns empty 1`] = `
 {
   "content": [
     {
@@ -35,7 +35,7 @@ exports[`Test fixColumnList > First of two columns empty 1`] = `
 }
 `;
 
-exports[`Test fixColumnList > Last of two columns empty 1`] = `
+exports[`Test fixContainer > Last of two columns empty 1`] = `
 {
   "content": [
     {
@@ -70,7 +70,7 @@ exports[`Test fixColumnList > Last of two columns empty 1`] = `
 }
 `;
 
-exports[`Test fixColumnList > Two empty columns 1`] = `
+exports[`Test fixContainer > Two empty columns 1`] = `
 {
   "content": [
     {
@@ -99,7 +99,7 @@ exports[`Test fixColumnList > Two empty columns 1`] = `
 }
 `;
 
-exports[`Test removeEmptyColumns > First of two columns empty 1`] = `
+exports[`Test fixContainer drops emptied columns > First of two columns empty 1`] = `
 {
   "content": [
     {
@@ -111,62 +111,20 @@ exports[`Test removeEmptyColumns > First of two columns empty 1`] = `
           "content": [
             {
               "attrs": {
-                "id": null,
-                "width": 1,
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
               },
               "content": [
                 {
-                  "attrs": {
-                    "id": null,
-                  },
-                  "content": [
-                    {
-                      "attrs": {
-                        "backgroundColor": "default",
-                        "textAlignment": "left",
-                        "textColor": "default",
-                      },
-                      "type": "paragraph",
-                    },
-                  ],
-                  "type": "blockContainer",
+                  "text": "Paragraph 1",
+                  "type": "text",
                 },
               ],
-              "type": "column",
-            },
-            {
-              "attrs": {
-                "id": null,
-                "width": 1,
-              },
-              "content": [
-                {
-                  "attrs": {
-                    "id": null,
-                  },
-                  "content": [
-                    {
-                      "attrs": {
-                        "backgroundColor": "default",
-                        "textAlignment": "left",
-                        "textColor": "default",
-                      },
-                      "content": [
-                        {
-                          "text": "Paragraph 1",
-                          "type": "text",
-                        },
-                      ],
-                      "type": "paragraph",
-                    },
-                  ],
-                  "type": "blockContainer",
-                },
-              ],
-              "type": "column",
+              "type": "paragraph",
             },
           ],
-          "type": "columnList",
+          "type": "blockContainer",
         },
       ],
       "type": "blockGroup",
@@ -176,7 +134,7 @@ exports[`Test removeEmptyColumns > First of two columns empty 1`] = `
 }
 `;
 
-exports[`Test removeEmptyColumns > Last of two columns empty 1`] = `
+exports[`Test fixContainer drops emptied columns > Last of two columns empty 1`] = `
 {
   "content": [
     {
@@ -188,62 +146,20 @@ exports[`Test removeEmptyColumns > Last of two columns empty 1`] = `
           "content": [
             {
               "attrs": {
-                "id": null,
-                "width": 1,
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
               },
               "content": [
                 {
-                  "attrs": {
-                    "id": null,
-                  },
-                  "content": [
-                    {
-                      "attrs": {
-                        "backgroundColor": "default",
-                        "textAlignment": "left",
-                        "textColor": "default",
-                      },
-                      "content": [
-                        {
-                          "text": "Paragraph 1",
-                          "type": "text",
-                        },
-                      ],
-                      "type": "paragraph",
-                    },
-                  ],
-                  "type": "blockContainer",
+                  "text": "Paragraph 1",
+                  "type": "text",
                 },
               ],
-              "type": "column",
-            },
-            {
-              "attrs": {
-                "id": null,
-                "width": 1,
-              },
-              "content": [
-                {
-                  "attrs": {
-                    "id": null,
-                  },
-                  "content": [
-                    {
-                      "attrs": {
-                        "backgroundColor": "default",
-                        "textAlignment": "left",
-                        "textColor": "default",
-                      },
-                      "type": "paragraph",
-                    },
-                  ],
-                  "type": "blockContainer",
-                },
-              ],
-              "type": "column",
+              "type": "paragraph",
             },
           ],
-          "type": "columnList",
+          "type": "blockContainer",
         },
       ],
       "type": "blockGroup",
@@ -253,7 +169,7 @@ exports[`Test removeEmptyColumns > Last of two columns empty 1`] = `
 }
 `;
 
-exports[`Test removeEmptyColumns > Start and end columns empty 1`] = `
+exports[`Test fixContainer drops emptied columns > Start and end columns empty 1`] = `
 {
   "content": [
     {
@@ -336,7 +252,7 @@ exports[`Test removeEmptyColumns > Start and end columns empty 1`] = `
 }
 `;
 
-exports[`Test removeEmptyColumns > Two empty columns 1`] = `
+exports[`Test fixContainer drops emptied columns > Two empty columns 1`] = `
 {
   "content": [
     {
@@ -348,56 +264,14 @@ exports[`Test removeEmptyColumns > Two empty columns 1`] = `
           "content": [
             {
               "attrs": {
-                "id": null,
-                "width": 1,
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
               },
-              "content": [
-                {
-                  "attrs": {
-                    "id": null,
-                  },
-                  "content": [
-                    {
-                      "attrs": {
-                        "backgroundColor": "default",
-                        "textAlignment": "left",
-                        "textColor": "default",
-                      },
-                      "type": "paragraph",
-                    },
-                  ],
-                  "type": "blockContainer",
-                },
-              ],
-              "type": "column",
-            },
-            {
-              "attrs": {
-                "id": null,
-                "width": 1,
-              },
-              "content": [
-                {
-                  "attrs": {
-                    "id": null,
-                  },
-                  "content": [
-                    {
-                      "attrs": {
-                        "backgroundColor": "default",
-                        "textAlignment": "left",
-                        "textColor": "default",
-                      },
-                      "type": "paragraph",
-                    },
-                  ],
-                  "type": "blockContainer",
-                },
-              ],
-              "type": "column",
+              "type": "paragraph",
             },
           ],
-          "type": "columnList",
+          "type": "blockContainer",
         },
       ],
       "type": "blockGroup",

@@ -1,0 +1,23 @@
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [],
+        "id": "1",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": undefined,
+    "id": "1",
+    "props": {
+      "flavor": "tip",
+    },
+    "type": "callout",
+  },
+]

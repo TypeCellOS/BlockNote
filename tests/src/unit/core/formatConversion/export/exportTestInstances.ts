@@ -3107,6 +3107,89 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     },
     executeTest: testExportBlockNoteHTML,
   },
+  {
+    testCase: {
+      name: "container/basic",
+      content: [
+        {
+          type: "callout",
+          children: [
+            {
+              type: "paragraph",
+              content: "Callout child",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "container/nested",
+      content: [
+        {
+          type: "callout",
+          props: { flavor: "warning" },
+          children: [
+            {
+              type: "heading",
+              content: "Nested heading",
+            },
+            {
+              type: "callout",
+              props: { flavor: "info" },
+              children: [
+                {
+                  type: "paragraph",
+                  content: "Inner callout child",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    // A container with no `children` key falls back to the spec's `default`,
+    // so this exports as a callout holding one empty paragraph.
+    testCase: {
+      name: "container/emptyChildren",
+      content: [
+        {
+          type: "callout",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    // A titled block: inline content (the title) plus a body of two
+    // paragraphs. The title is rendered once, by the block's own output; the
+    // children follow it inside the frame rather than being duplicated.
+    testCase: {
+      name: "titledBlock/basic",
+      content: [
+        {
+          type: "alert",
+          content: "Heads up",
+          children: [
+            {
+              type: "paragraph",
+              content: "First",
+            },
+            {
+              type: "paragraph",
+              content: "Second",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
 ];
 
 export const exportTestInstancesHTML: TestInstance<

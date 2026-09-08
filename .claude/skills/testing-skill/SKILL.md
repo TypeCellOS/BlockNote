@@ -21,6 +21,21 @@ In most cases, once a feature, bug fix, or other modification has been written, 
 
 `packages/*/src/**/*.browser.test.{ts,tsx}`: Unit tests for browser-only implementations (e.g. canvas or DOM-dependent code) live next to the code they test, with a `.browser.test` suffix. They run as part of the browser suite in Docker (the `tests` package's browser config includes them); the packages' own node-mode vitest configs exclude them. Use this when the unit under test genuinely needs a real browser — everything else should be a plain node unit test.
 
+### Choosing between `/tests/src/unit` and a colocated test
+
+Both are unit tests, so "is this a unit or an integration test" is the wrong question. Pick by harness:
+
+- `/tests/src/unit` exists to fan a **single case** out across many output formats (BlockNote HTML, external HTML, Markdown, PM nodes) and across clipboard and selection behaviour, all against the one shared `testSchema`. You contribute a case by appending to a `*TestInstances.ts` array, not by adding a test file. If the schema needs a new block type to express the case, add it to `tests/src/unit/core/testSchema.ts` (or `react/testSchema.tsx`).
+- A colocated test in `packages/*/src` pins the behaviour of one function or module, and is free to declare its own schema fixture. Use it when the assertion is about internal shape (node structure, transaction steps, return values) rather than about a serialization format.
+
+If a case belongs in both, prefer `/tests/src/unit`: one entry there produces coverage in every format at once.
+
+### Naming a colocated test file
+
+- When the suite covers one source file, mirror its name: `blockToNode.ts` gets `blockToNode.test.ts`.
+- When it covers a behaviour spanning several modules, name it after the behaviour and put it in the directory that owns that behaviour: `containers/containers.test.ts`, `commands/insertBlocks/insertPlacement.test.ts`. This is common and fine; roughly a third of colocated test files have no same-named source file.
+- Don't name a file after a schema or config feature (`contentContainers.test.ts`). Those names go stale when the feature is renamed or dropped, and the file is then stranded under a name that no longer maps to anything. Name it after the code that implements the feature instead.
+
 ### End-to-End Tests
 
 `tests/src/end-to-end`: Tests that need a real browser and span multiple packages go here — chiefly tests which interact with the editor UI or simulate user interaction, but also browser integration tests that exercise complete flows without interaction (e.g. exporting a full document, static rendering). New subdirectories can be added if the functionality being tested is not covered by any of the existing ones. Important note about existing E2E tests - many are written poorly and should only loosely be used as reference. We want to avoid abstraction layers and `waitForTimeout` as much as possible.
