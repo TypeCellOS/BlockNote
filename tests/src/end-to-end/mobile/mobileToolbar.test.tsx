@@ -20,6 +20,12 @@ import {
 
 const MOBILE_TOOLBAR_SELECTOR = ".bn-mobile-formatting-toolbar";
 const LINK_POPOVER_SELECTOR = ".bn-form-popover";
+const LINK_TEXT = "Link";
+// Character steps, not Shift+Home: Home selects to the visual line start, and
+// Playwright's WebKit lays a typed paragraph out narrower than its text and
+// breaks it mid-word (on Linux Home is the line start, on macOS the document
+// start, so only CI saw it).
+const SELECT_LINK_TEXT = `{Shift>}${"{ArrowLeft}".repeat(LINK_TEXT.length)}{/Shift}`;
 
 // Runs in the "android" browser instance (Android UA + touch emulation at
 // context level — see vite.config.browser.ts), so `isTouchDevice()` is
@@ -164,8 +170,8 @@ describe("Mobile formatting toolbar", () => {
 
   test("link popover holds focus through keyboard resizes and creates the link", async () => {
     await focusOnEditor();
-    await userEvent.keyboard("Link target");
-    await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+    await userEvent.keyboard(LINK_TEXT);
+    await userEvent.keyboard(SELECT_LINK_TEXT);
 
     await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
     await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
@@ -236,7 +242,8 @@ describe("Mobile formatting toolbar", () => {
     // Reopening the popover with the whole link selected must pre-fill its
     // URL: `getSelectedLinkUrl` reads the mark just inside the selection
     // start, since a lookup exactly at the link's left boundary misses it.
-    await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+    await userEvent.keyboard("{ArrowRight}");
+    await userEvent.keyboard(SELECT_LINK_TEXT);
     await userEvent.click(
       await waitForSelector(
         `${MOBILE_TOOLBAR_SELECTOR} ${LINK_BUTTON_SELECTOR}`,
@@ -258,8 +265,8 @@ describe("Mobile formatting toolbar", () => {
   // editing session collapses with it.
   test("toggling the link popover closed returns focus to the editor", async () => {
     await focusOnEditor();
-    await userEvent.keyboard("Link target");
-    await userEvent.keyboard("{Shift>}{Home}{/Shift}");
+    await userEvent.keyboard(LINK_TEXT);
+    await userEvent.keyboard(SELECT_LINK_TEXT);
 
     await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
     await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
