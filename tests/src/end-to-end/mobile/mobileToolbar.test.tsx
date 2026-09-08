@@ -144,6 +144,24 @@ describe("Mobile formatting toolbar", () => {
     expect(document.querySelector(".bn-side-menu")).not.toBeNull();
   });
 
+  // The toolbar is portaled to the body, outside the pinned scroll container,
+  // so nothing consumes a vertical drag on it and the gesture reaches the
+  // document: with the keyboard open on iOS that pans the visual viewport or
+  // starts Safari's pull-to-refresh, and the toolbar re-pins under the
+  // finger. `touch-action: pan-x` on the strip stops that (on the strip, not
+  // the wrapper: see `.bn-mobile-formatting-toolbar .bn-toolbar` in
+  // styles.css). The pan is device behaviour; this pins the rule.
+  test("the toolbar strip allows only horizontal touch panning", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard("Mobile toolbar");
+    await page.viewport(VIEWPORT_WIDTH, KEYBOARD_OPEN);
+    const toolbar = await waitForSelector(MOBILE_TOOLBAR_SELECTOR);
+
+    expect(
+      getComputedStyle(toolbar.querySelector(".bn-toolbar")!).touchAction,
+    ).toBe("pan-x");
+  });
+
   test("link popover holds focus through keyboard resizes and creates the link", async () => {
     await focusOnEditor();
     await userEvent.keyboard("Link target");

@@ -532,6 +532,15 @@ SideMenuController offsets its position to keep it centered on the line. */
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
+/* iOS Safari with the keyboard open answers a vertical drag on the toolbar
+   with a viewport pan or pull-to-refresh, and the toolbar pinned to that
+   viewport moves under the finger. On the strip, not the wrapper: WebKit reads
+   `touch-action` only up to the nearest scroll container of the touched
+   element, and the strip is one. */
+.bn-mobile-formatting-toolbar .bn-toolbar {
+  touch-action: pan-x;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bn-mobile-formatting-toolbar {
     transition: none;
@@ -549,18 +558,22 @@ SideMenuController offsets its position to keep it centered on the line. */
   height: var(--bn-vv-height, 100dvh);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  /* Stop overscroll at the bottom from chaining to the document. Without
-     this, dragging past the bottom on iOS rubber-bands the whole page, which
-     shifts the visual viewport (repinning the container mid-bounce → jitter)
-     and surfaces a second, document-level scrollbar. Chaining at the top is
-     what lets the browser's pull-to-refresh fire, so it stays allowed until
-     the container has scrolled: `useVirtualKeyboard` sets `data-bn-scrolled`
-     while `scrollTop > 0`. */
-  overscroll-behavior-x: contain;
+  /* Overscroll stays inside the container. Chained to the document it moves
+     the page behind the pinned container, and the toolbar with it: scrolled
+     to the end and dragging further, the whole page rubber-bands, content and
+     toolbar jump, and a document-level scrollbar appears; at the top with the
+     keyboard up, dragging down starts Safari's pull-to-refresh, the page
+     slides with the finger and the toolbar drifts up from the keyboard and
+     snaps back. */
+  overscroll-behavior: contain;
 }
 
-.bn-scroll-container[data-bn-scrolled] {
-  overscroll-behavior-y: contain;
+/* The one exception: at the top with the keyboard closed, the overscroll must
+   reach the document or the page can no longer be refreshed by pulling.
+   `useVirtualKeyboard` sets the attribute in exactly that state. Not with the
+   keyboard up, where the pull moves the toolbar (see above). */
+.bn-scroll-container[data-bn-allow-pull-to-refresh] {
+  overscroll-behavior-y: auto;
 }
 
 /* Emoji Picker styling */
