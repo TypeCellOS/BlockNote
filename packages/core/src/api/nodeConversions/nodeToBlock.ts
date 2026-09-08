@@ -448,36 +448,36 @@ export function nodeToBlock<
 
   let content: Block<any, any, any>["content"];
 
-  if (blockConfig.content === "inline") {
-    if (!blockInfo.hasContent) {
-      throw new Error("impossible");
+  // BlockInfo has already established whether content exists and its kind.
+  // Conversion only interprets that content; it does not resolve shape again.
+  switch (blockInfo.contentKind) {
+    case "inline":
+      content = contentNodeToInlineContent(
+        blockInfo.content.node,
+        inlineContentSchema,
+        styleSchema,
+      );
+      break;
+    case "table":
+      content = contentNodeToTableContent(
+        blockInfo.content.node,
+        inlineContentSchema,
+        styleSchema,
+      );
+      break;
+    case "plain": {
+      // Plain content is a single unstyled text item; an empty block is an
+      // empty array, matching inline content.
+      const text = blockInfo.content.node.textContent;
+      content = text.length > 0 ? [{ type: "text", text, styles: {} }] : [];
+      break;
     }
-    content = contentNodeToInlineContent(
-      blockInfo.content.node,
-      inlineContentSchema,
-      styleSchema,
-    );
-  } else if (blockConfig.content === "table") {
-    if (!blockInfo.hasContent) {
-      throw new Error("impossible");
-    }
-    content = contentNodeToTableContent(
-      blockInfo.content.node,
-      inlineContentSchema,
-      styleSchema,
-    );
-  } else if (blockConfig.content === "plain") {
-    if (!blockInfo.hasContent) {
-      throw new Error("impossible");
-    }
-    // Plain content is a single unstyled text item; an empty block is an
-    // empty array, matching inline content.
-    const text = blockInfo.content.node.textContent;
-    content = text.length > 0 ? [{ type: "text", text, styles: {} }] : [];
-  } else if (blockConfig.content === "none") {
-    content = undefined;
-  } else {
-    throw new UnreachableCaseError(blockConfig.content);
+    case "none":
+    case undefined:
+      content = undefined;
+      break;
+    default:
+      throw new UnreachableCaseError(blockInfo);
   }
 
   const block = {

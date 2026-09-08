@@ -1,7 +1,5 @@
-import {
-  BlockPlacement,
-  insertBlocks,
-} from "../../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
+import { insertBlocks } from "../../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
+import { BlockPlacement } from "../../api/getBlockInfoFromPos.js";
 import {
   moveBlocksDown,
   moveBlocksUp,

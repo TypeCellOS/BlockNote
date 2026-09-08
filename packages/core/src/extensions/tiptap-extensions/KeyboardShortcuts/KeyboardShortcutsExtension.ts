@@ -236,10 +236,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
               if (!prevBlockInfo) {
                 return false;
               }
-              const bottomNestedPrevBlockInfo = getLastDescendantBlockInfo(
-                state.doc,
-                prevBlockInfo,
-              );
+              const bottomNestedPrevBlockInfo =
+                getLastDescendantBlockInfo(prevBlockInfo);
               if (!bottomNestedPrevBlockInfo.hasContent) {
                 return false;
               }
@@ -311,10 +309,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             );
 
             if (prevBlockInfo && selectionAtBlockStart && selectionEmpty) {
-              const bottomBlock = getLastDescendantBlockInfo(
-                state.doc,
-                prevBlockInfo,
-              );
+              const bottomBlock = getLastDescendantBlockInfo(prevBlockInfo);
 
               if (!bottomBlock.hasContent) {
                 return false;

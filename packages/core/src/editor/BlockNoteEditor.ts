@@ -7,7 +7,7 @@ import {
 } from "@tiptap/core";
 import { type Command, type Transaction } from "@tiptap/pm/state";
 import { Node, Schema } from "prosemirror-model";
-import type { BlockPlacement } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
+import type { BlockPlacement } from "../api/getBlockInfoFromPos.js";
 import type { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import {

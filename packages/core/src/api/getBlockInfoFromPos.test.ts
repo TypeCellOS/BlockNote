@@ -281,6 +281,21 @@ describe("derived position and content fields", () => {
     expect(info.contentKind).toBe("plain");
   });
 
+  it("rejects malformed wrapper structure at the block-info boundary", () => {
+    const { blockContainer, paragraph, blockGroup } = getSchema().nodes;
+    const content = paragraph.create();
+    for (const children of [
+      [],
+      [blockGroup.create()],
+      [content, content],
+      [content, blockGroup.create(), blockGroup.create()],
+    ]) {
+      // Deliberately bypass schema checking, as transaction intermediates can.
+      const node = blockContainer.create(null, children);
+      expect(() => getBlockInfoFromNode(node, 0)).toThrow(/blockContainer/);
+    }
+  });
+
   it("rejects a content node that was not built from a block spec", () => {
     // A node dropped straight into the `blockContent` group of a ProseMirror
     // schema, with no block spec behind it: nothing declares what its content
@@ -410,18 +425,14 @@ describe("navigation helpers on plain nested blocks", () => {
       doc.nodeAt(posOf(doc, "A"))!,
       posOf(doc, "A"),
     );
-    expect(getLastDescendantBlockInfo(doc, infoA).block.node.attrs.id).toBe(
-      "D",
-    );
+    expect(getLastDescendantBlockInfo(infoA).block.node.attrs.id).toBe("D");
 
     const infoE = getBlockInfoFromNode(
       doc.nodeAt(posOf(doc, "E"))!,
       posOf(doc, "E"),
     );
     // No children: the block itself is the bottom one.
-    expect(getLastDescendantBlockInfo(doc, infoE).block.node.attrs.id).toBe(
-      "E",
-    );
+    expect(getLastDescendantBlockInfo(infoE).block.node.attrs.id).toBe("E");
   });
 });
 

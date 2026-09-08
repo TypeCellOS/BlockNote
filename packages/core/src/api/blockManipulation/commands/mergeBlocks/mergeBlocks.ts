@@ -41,10 +41,7 @@ export const mergeBlocksCommand =
 
     // The block we merge into is the last descendant of the previous block:
     // visually, that's the block directly above the boundary.
-    const bottomNestedBlockInfo = getLastDescendantBlockInfo(
-      state.doc,
-      prevBlockInfo,
-    );
+    const bottomNestedBlockInfo = getLastDescendantBlockInfo(prevBlockInfo);
 
     // Only inline-content blocks can merge, and merging into an empty block
     // is handled elsewhere (by deleting the empty block instead). Merging

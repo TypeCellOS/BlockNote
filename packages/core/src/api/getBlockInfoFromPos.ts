@@ -1,4 +1,4 @@
-import { Node } from "prosemirror-model";
+import { Node, type NodeType } from "prosemirror-model";
 import {
   EditorState,
   NodeSelection,
@@ -58,12 +58,12 @@ export type BlockInfo = {
   blockNoteType: string;
 } & (
   | {
-      // A wrapper block (e.g. a Column or ColumnList from `xl-multi-column`):
-      // its own node holds its children directly, and it has no content node
-      // of its own.
+      // A container block (Column, ColumnList, a custom container): its own
+      // node holds its children directly, and it has no content node of
+      // its own.
 
       /**
-       * The Prosemirror node that holds block.children. For such a wrapper,
+       * The Prosemirror node that holds block.children. For a container block,
        * this node is the same as `block`.
        */
       children: ChildrenInfo;
@@ -101,7 +101,7 @@ export type BlockInfo = {
        * ordinary block wrapped for nesting), shaped as a content node
        * followed by an optional child container.
        *
-       * Note this is the opposite of "is a wrapper block": a column has
+       * Note this is the opposite of "is a container block": a column has
        * `hasContent: false`.
        */
       hasContent: true;
@@ -123,7 +123,7 @@ export function tableContentCaretPos(
 
 /**
  * The caret position at an edge of a block's content, or `null` when the block
- * has none there: content that holds no text (an image).
+ * has none there: a container block, or content that holds no text (an image).
  */
 export function blockEdgePos(
   info: BlockInfo,
@@ -140,9 +140,10 @@ export function blockEdgePos(
 }
 
 /**
- * A selection at an edge of a block. Where there is no caret position the
+ * A selection at an edge of a block. A container resolves to the same edge of
+ * its first/last child, recursively. Where there is no caret position the
  * nearest node is selected instead: the content node of a block holding no
- * text.
+ * text, or the block itself for a container holding no children.
  */
 export function blockEdgeSelection(
   doc: Node,
@@ -169,57 +170,6 @@ export function blockEdgeSelection(
       edge === "start" ? childrenStart : childrenEnd - child.nodeSize,
     ),
     edge,
-  );
-}
-
-/**
- * The regions a block node resolves into, answered once for every shape so no
- * other code asks "which shape am I":
- *
- * - a wrapper block (in the `bnBlock` and `childContainer` groups, e.g. a
- *   Column): its own node holds the children (`childrenHolder.node === outer`,
- *   offset 0), no content region;
- * - a `blockContainer`: a content head at offset 1, and a `blockGroup`
- *   children holder only once it has children.
- *
- * `offset` measures from just before `outer` to just before the region's
- * node, so with `beforePos` pointing at `outer`, a region's node starts at
- * `beforePos + offset` and its inside begins at `beforePos + offset + 1` —
- * uniformly across shapes.
- */
-function getBlockRegions(node: Node): {
-  outer: Node;
-  content?: { node: Node; offset: number };
-  childrenHolder?: { node: Node; offset: number };
-} {
-  if (node.type.isInGroup("bnBlock") && node.type.isInGroup("childContainer")) {
-    return { outer: node, childrenHolder: { node, offset: 0 } };
-  }
-
-  if (node.type.name === "blockContainer") {
-    const content = node.firstChild;
-    if (!content) {
-      throw new Error(
-        "blockContainer node has no content node. This is a bug in BlockNote.",
-      );
-    }
-    const lastChild = node.lastChild;
-    const holder =
-      lastChild !== content &&
-      lastChild &&
-      lastChild.type.isInGroup("childContainer")
-        ? { node: lastChild, offset: 1 + content.nodeSize }
-        : undefined;
-
-    return {
-      outer: node,
-      content: { node: content, offset: 1 },
-      ...(holder ? { childrenHolder: holder } : {}),
-    };
-  }
-
-  throw new Error(
-    `Node "${node.type.name}" is not a block node (wrapper or blockContainer).`,
   );
 }
 
@@ -363,33 +313,49 @@ export function getBlockInfoFromNode(node: Node, beforePos: number): BlockInfo {
     );
   }
 
-  // The one place block shape is resolved; everything below is position
-  // annotation over the regions.
-  const regions = getBlockRegions(node);
-
   const block: SingleBlockInfo = {
     node,
     beforePos,
     afterPos: beforePos + node.nodeSize,
   };
 
-  if (regions.content) {
-    const content: SingleBlockInfo = {
-      node: regions.content.node,
-      beforePos: beforePos + regions.content.offset,
-      afterPos:
-        beforePos + regions.content.offset + regions.content.node.nodeSize,
+  if (node.type.isInGroup("bnBlock") && node.type.isInGroup("childContainer")) {
+    return {
+      hasContent: false,
+      block,
+      children: {
+        ...block,
+        childrenStart: block.beforePos + 1,
+        childrenEnd: block.afterPos - 1,
+      },
+      blockNoteType: node.type.name,
     };
-    const holder = regions.childrenHolder;
+  }
+
+  if (node.type.name === "blockContainer") {
+    const contentNode = node.firstChild;
+    if (!contentNode || !contentNode.type.isInGroup("blockContent")) {
+      throw new Error("blockContainer must start with a block content node.");
+    }
+    const content: SingleBlockInfo = {
+      node: contentNode,
+      beforePos: beforePos + 1,
+      afterPos: beforePos + 1 + contentNode.nodeSize,
+    };
     let children: ChildrenInfo | undefined;
-    if (holder) {
-      const holderBeforePos = beforePos + holder.offset;
+    if (node.childCount > 1) {
+      const holder = node.child(1);
+      if (node.childCount !== 2 || holder.type.name !== "blockGroup") {
+        throw new Error(
+          "blockContainer may only have a blockGroup after its content.",
+        );
+      }
       children = {
-        node: holder.node,
-        beforePos: holderBeforePos,
-        afterPos: holderBeforePos + holder.node.nodeSize,
-        childrenStart: holderBeforePos + 1,
-        childrenEnd: holderBeforePos + holder.node.nodeSize - 1,
+        node: holder,
+        beforePos: content.afterPos,
+        afterPos: block.afterPos - 1,
+        childrenStart: content.afterPos + 1,
+        childrenEnd: block.afterPos - 2,
       };
     }
 
@@ -422,18 +388,9 @@ export function getBlockInfoFromNode(node: Node, beforePos: number): BlockInfo {
     };
   }
 
-  return {
-    hasContent: false,
-    block,
-    // A wrapper block holds its children directly, so the holder is the block
-    // node itself.
-    children: {
-      ...block,
-      childrenStart: block.beforePos + 1,
-      childrenEnd: block.afterPos - 1,
-    },
-    blockNoteType: node.type.name,
-  };
+  throw new Error(
+    `Node "${node.type.name}" is not a container or blockContainer.`,
+  );
 }
 
 /**
@@ -478,8 +435,8 @@ export function getBlockInfoFromSelection(source: EditorState | Transaction) {
 
 /**
  * The parent block's info: the block whose `children` contains the block at
- * `posBeforeBlock`, or `undefined` for a top-level block. A wrapper block is
- * the parent of its direct children (a block inside a column → the column, not
+ * `posBeforeBlock`, or `undefined` for a top-level block. A container is the
+ * parent of its direct children (a block inside a column → the column, not
  * the columnList); a regular block's children live in its `blockGroup`, so
  * the parent is the group's own parent.
  */
@@ -552,18 +509,93 @@ export function getNextBlockInfo(
  *
  * Then the last descendant block returned is D.
  */
-export function getLastDescendantBlockInfo(
-  doc: Node,
-  blockInfo: BlockInfo,
-): BlockInfo {
+export function getLastDescendantBlockInfo(blockInfo: BlockInfo): BlockInfo {
+  // A container that allows zero children can have an empty child container,
+  // in which case the block itself is the bottom one.
   while (blockInfo.children && blockInfo.children.node.childCount) {
-    const group = blockInfo.children.node;
-
-    const newPos = doc
-      .resolve(blockInfo.children.beforePos + 1)
-      .posAtIndex(group.childCount - 1);
-    blockInfo = getBlockInfoAt(doc, newPos);
+    const child = blockInfo.children.node.lastChild!;
+    blockInfo = getBlockInfoFromNode(
+      child,
+      blockInfo.children.childrenEnd - child.nodeSize,
+    );
   }
 
   return blockInfo;
+}
+
+/**
+ * Where blocks go relative to a reference block. `"before"`/`"after"` make
+ * them siblings of it; `"first-child"`/`"last-child"` nest them inside it.
+ *
+ * The nested placements also cover blocks that have no children to point at:
+ * a regular block's `blockGroup` is lazy (`blockContent blockGroup?`), so a
+ * block without children has no child block to insert before or after. They
+ * likewise cover containers that have no children to point at: a `min: 0`
+ * container that is currently empty has no child block to insert before or
+ * after.
+ */
+export type BlockPlacement = "before" | "after" | "first-child" | "last-child";
+
+/**
+ * Resolves a `placement` against a reference block into the document position
+ * a node of `nodeType` should be inserted at, or `null` when the reference
+ * block cannot take it there.
+ *
+ * Shared by `insertBlocks` and the move commands, so "does this block fit
+ * here?" is answered in one place. The answer comes from the schema's content
+ * matches rather than from a hand-written rule, so a container's `children`
+ * config decides it.
+ *
+ * `wrapIn` is set when the position only becomes valid once the nodes are
+ * wrapped: a regular block with no children yet has no `blockGroup` for them
+ * to go in, so one is created around them.
+ */
+export function getInsertionPos(
+  doc: Node,
+  info: BlockInfo,
+  placement: BlockPlacement,
+  nodeType: NodeType,
+): { pos: number; wrapIn?: NodeType } | null {
+  if (placement === "before" || placement === "after") {
+    const pos =
+      placement === "before" ? info.block.beforePos : info.block.afterPos;
+    const $pos = doc.resolve(pos);
+    return $pos.parent.canReplaceWith($pos.index(), $pos.index(), nodeType)
+      ? { pos }
+      : null;
+  }
+
+  // Ordinary nesting creates its blockGroup lazily.
+  if (!info.children) {
+    const group = nodeType.schema.nodes["blockGroup"];
+    return info.hasContent && group?.contentMatch.matchType(nodeType)
+      ? { pos: info.content.afterPos, wrapIn: group }
+      : null;
+  }
+
+  const last = placement === "last-child";
+  while (info.children) {
+    const children = info.children;
+    const index = last ? children.node.childCount : 0;
+    if (children.node.canReplaceWith(index, index, nodeType)) {
+      return { pos: last ? children.childrenEnd : children.childrenStart };
+    }
+    // A restricted container can route insertion into its edge container,
+    // e.g. inserting a paragraph into the last column of a column list.
+    const child = last ? children.node.lastChild : children.node.firstChild;
+    if (
+      !child ||
+      !(
+        child.type.isInGroup("bnBlock") &&
+        child.type.isInGroup("childContainer")
+      )
+    ) {
+      break;
+    }
+    info = getBlockInfoFromNode(
+      child,
+      last ? children.childrenEnd - child.nodeSize : children.childrenStart,
+    );
+  }
+  return null;
 }

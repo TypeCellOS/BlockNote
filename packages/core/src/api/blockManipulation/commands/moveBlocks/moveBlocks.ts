@@ -12,10 +12,12 @@ import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
 import {
   getBlockInfoNearPos,
+  getBlockInfoAt,
+  getInsertionPos,
   getNodeId,
 } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
-import { getInsertionPos, insertBlocks } from "../insertBlocks/insertBlocks.js";
+import { insertBlocks } from "../insertBlocks/insertBlocks.js";
 import { removeAndInsertBlocks } from "../replaceBlocks/replaceBlocks.js";
 
 type BlockSelectionData = (
@@ -261,7 +263,7 @@ function checkPlacementIsValid(
 
     const target = getInsertionPos(
       tr.doc,
-      posInfo,
+      getBlockInfoAt(tr.doc, posInfo.posBeforeNode),
       placement,
       movedBlock.nodeType,
     );
