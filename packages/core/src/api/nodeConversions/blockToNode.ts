@@ -408,27 +408,12 @@ export function blockToNode(
     const type = schema.nodes[block.type];
     const attrs = { id: id, ...block.props };
 
-    // Explicit children are padded up to the container's `min` so that even a
-    // `children: []` satisfies the content expression, and so survives the
-    // `node.check()` callers run before touching the doc.
-    if (block.children !== undefined) {
-      const padded = type.createAndFill(attrs, children);
-      if (!padded) {
-        throw new Error(
-          `Cannot create block "${block.type}": its children don't fit its \`children\` config ` +
-            `(it accepts \`${type.spec.content}\`).`,
-        );
-      }
-      return withGeneratedIds(padded);
-    }
-
-    // No explicit `children`: ProseMirror fills the container with whatever
-    // its content expression requires (usually one empty paragraph), so a
-    // container can never be created in an invalid state.
-    const node = type.createAndFill(attrs);
+    // Fill missing children up to the configured minimum, including for an
+    // explicit empty array. Generated descendants need block IDs as well.
+    const node = type.createAndFill(attrs, children);
     if (!node) {
       throw new Error(
-        `Cannot create block "${block.type}": it can't be filled to satisfy its \`children\` config ` +
+        `Cannot create block "${block.type}": its children don't fit its \`children\` config ` +
           `(it accepts \`${type.spec.content}\`).`,
       );
     }

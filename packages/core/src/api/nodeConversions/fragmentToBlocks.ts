@@ -15,39 +15,30 @@ export function fragmentToBlocks<
 >(fragment: Fragment) {
   const blocks: BlockNoDefaults<B, I, S>[] = [];
 
-  const pushFlattened = (node: Node, root: Node) => {
-    if (isContainerNode(node.type)) {
-      const childrenConfig = node.type.spec.blockConfig?.children;
+  function visit(node: Node, root: Node) {
+    const childrenConfig = node.type.spec.blockConfig?.children;
+    const incompleteBlock =
+      node.type.name === "blockContainer" &&
+      node.firstChild?.type.name === "blockGroup";
+    const flattenContainer =
+      isContainerNode(node.type) &&
+      (!childrenConfig ||
+        isNamedOnly(node.type) ||
+        node.childCount < (childrenConfig.min ?? 1));
 
-      // A container survives as a block of its own only if it can stand
-      // outside its own container (a `column` can't) and still holds enough
-      // children to be valid. Anything else is flattened into its children,
-      // which are the blocks the caller actually wants.
-      const isSelfContained =
-        !!childrenConfig &&
-        !isNamedOnly(node.type) &&
-        node.childCount >= (childrenConfig.min ?? 1);
-
-      if (!isSelfContained) {
-        node.forEach((child) => pushFlattened(child, root));
-        return;
-      }
+    // Open selections and containers that cannot stand alone contribute
+    // their children. Complete blocks already include their descendants.
+    if (
+      incompleteBlock ||
+      flattenContainer ||
+      !node.type.isInGroup("bnBlock")
+    ) {
+      node.forEach((child) => visit(child, flattenContainer ? root : child));
+    } else {
+      blocks.push(nodeToBlock(node, root));
     }
-    blocks.push(nodeToBlock(node, root));
-  };
+  }
 
-  fragment.descendants((node) => {
-    if (node.type.name === "blockContainer") {
-      if (node.firstChild?.type.name === "blockGroup") {
-        return true;
-      }
-    }
-
-    if (node.type.isInGroup("bnBlock")) {
-      pushFlattened(node, node);
-      return false;
-    }
-    return true;
-  });
+  fragment.forEach((node) => visit(node, node));
   return blocks;
 }

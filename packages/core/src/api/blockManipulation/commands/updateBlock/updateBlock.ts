@@ -2,7 +2,6 @@ import {
   Fragment,
   type NodeType,
   type Node as PMNode,
-  type Schema,
   Slice,
 } from "prosemirror-model";
 import { TextSelection, Transaction } from "prosemirror-state";
@@ -21,8 +20,8 @@ import {
   type BlockInfo,
   getBlockInfoAt,
 } from "../../../getBlockInfoFromPos.js";
-import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import {
+  blockToNode,
   inlineContentToNodes,
   tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
@@ -137,21 +136,28 @@ export function updateBlockTr<
     // currently, we calculate the new node and replace the entire node with the desired new node.
     // for this, we do a nodeToBlock on the existing block to get the children.
     // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
-    const existingBlock = nodeToBlock(blockInfo.block.node, tr.doc);
-    const carried = carryOverContent(
-      existingBlock.content,
-      newBlockType,
-      pmSchema,
+    const existingBlock: Block<any, any, any> = nodeToBlock(
+      blockInfo.block.node,
+      tr.doc,
     );
-    // If no children are passed in, use the existing block's, but only when
-    // there actually are some. `nodeToBlock` always emits an array, and an
-    // empty one would read as "explicitly childless", suppressing the seeding
-    // a container needs when converting from a childless block.
-    const children = [...carried.children, ...existingBlock.children];
+    const targetConfig = getBlockSchema(pmSchema)[newBlockType];
+    let content: PartialBlock<any, any, any>["content"];
+    const children: PartialBlock<any, any, any>[] = [...existingBlock.children];
+    if (Array.isArray(existingBlock.content) && existingBlock.content.length) {
+      if (
+        targetConfig.content === "inline" ||
+        targetConfig.content === "plain"
+      ) {
+        content = existingBlock.content;
+      } else if (targetConfig.children !== undefined) {
+        children.unshift({ type: "paragraph", content: existingBlock.content });
+      }
+    }
 
     const replacementNode = blockToNode(
       {
-        ...(carried.content ? { content: carried.content } : {}),
+        ...(content ? { content } : {}),
+        // Omit empty children so a new container can seed its required children.
         ...(children.length > 0 ? { children } : {}),
         ...block,
       },
@@ -213,43 +219,6 @@ export function updateBlockTr<
   if (cellAnchor) {
     restoreCellAnchor(tr, blockInfo, cellAnchor, stepsBefore);
   }
-}
-
-function carryOverContent(
-  existingContent: Block<any, any, any>["content"],
-  newBlockType: string,
-  pmSchema: Schema,
-): {
-  content?: PartialBlock<any, any, any>["content"];
-  children: PartialBlock<any, any, any>[];
-} {
-  const nothing = { children: [] };
-
-  if (!existingContent || !Array.isArray(existingContent)) {
-    return nothing;
-  }
-  if (existingContent.length === 0) {
-    return nothing;
-  }
-
-  const targetConfig = getBlockSchema(pmSchema)[newBlockType];
-  if (!targetConfig) {
-    return nothing;
-  }
-
-  if (targetConfig.content === "inline" || targetConfig.content === "plain") {
-    return { content: existingContent, children: [] };
-  }
-
-  if (targetConfig.children !== undefined) {
-    // Offered as a child rather than as content; whether the container can
-    // actually hold it is checked before the caller replaces the block.
-    return {
-      children: [{ type: "paragraph", content: existingContent } as any],
-    };
-  }
-
-  return nothing;
 }
 
 function updateBlockContentNode<

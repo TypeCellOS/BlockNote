@@ -1,19 +1,11 @@
 import { isContainerConfig } from "./children.js";
 import type { BlockConfig, ChildrenConfig } from "./types.js";
 
-// A block's declaration, reduced to what these checks look at. Regular blocks
-// are in here too: a container's `allow` may name one, and naming one is an
-// error the checks below report.
 type ValidatableConfig = Pick<BlockConfig, "type" | "content" | "placeable"> & {
   children?: ChildrenConfig;
 };
 
-/**
- * Validates the parts of a container block's declaration that fail silently or
- * catastrophically otherwise. Everything else is left to TypeScript and to
- * ProseMirror, which report malformed configs and unsatisfiable content
- * expressions well enough on their own.
- */
+/** Reject declarations ProseMirror would accept incorrectly or recurse through. */
 export function validateChildrenConfigs(
   blockConfigs: Record<string, ValidatableConfig>,
 ) {
@@ -47,17 +39,7 @@ export function validateChildrenConfigs(
       );
     }
 
-    // A container's body is its children, so a declared `content` of `"table"`
-    // or `"plain"` alongside `children` can never take effect. Left uncaught
-    // it resurfaces much later as a conversion error (`nodeToBlock` rejects
-    // the node when it renders), with a public `Block` type that doesn't
-    // match the runtime value. `content: "inline"` with `children` is a
-    // titled block: the block keeps its title, and the children are its body.
-    if (
-      config.content !== undefined &&
-      config.content !== "none" &&
-      config.content !== "inline"
-    ) {
+    if (config.content !== "none" && config.content !== "inline") {
       fail(
         type,
         `declares \`content: "${config.content}"\` alongside \`children\`. A block with \`children\` either has no content of its own (\`content: "none"\`, a container) or an inline title with a body (\`content: "inline"\`, a titled block). Set \`content: "none"\` or \`"inline"\`, or drop \`children\`.`,

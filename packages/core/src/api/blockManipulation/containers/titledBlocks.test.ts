@@ -3,7 +3,6 @@ import { describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import {
-  OWNED_CHILDREN_GROUP,
   hasOwnedChildren,
   isContainerNode,
 } from "../../../schema/blocks/children.js";
@@ -69,7 +68,7 @@ const withAlert = (children: any[] = body) => [
 ];
 
 describe("titled-block schema shape", () => {
-  it("marks the title's content node, not a container node", () => {
+  it("recognizes declared ownership on ordinary blocks", () => {
     const editor = editorWith(withAlert());
 
     editor.transact((tr) => {
@@ -78,13 +77,10 @@ describe("titled-block schema shape", () => {
       expect(alert.node.type.name).toBe("blockContainer");
       expect(isContainerNode(alert.node.type)).toBe(false);
       expect(hasOwnedChildren(alert.node)).toBe(true);
+      expect(alert.node.attrs.id).toBe("w");
+      expect(alert.node.firstChild!.attrs).not.toHaveProperty("id");
 
-      const contentType = alert.node.firstChild!.type;
-      expect(contentType.isInGroup(OWNED_CHILDREN_GROUP)).toBe(true);
-      // Regular blocks stay unmarked.
-      expect(
-        editor.pmSchema.nodes["paragraph"].isInGroup(OWNED_CHILDREN_GROUP),
-      ).toBe(false);
+      expect(hasOwnedChildren(getNodeById("pre", tr.doc)!.node)).toBe(false);
 
       // The body is the blockGroup the alert nests, resolved with positions.
       const info = getBlockInfoAt(tr.doc, alert.posBeforeNode);

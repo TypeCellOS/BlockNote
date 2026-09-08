@@ -253,35 +253,15 @@ export class TypstExporter<
         continue;
       }
 
-      // A container block's mapping owns where its children go - a columnList
-      // makes them grid cells, a callout puts them in its body - so they are
-      // passed in, and not appended after the block's own output as the
-      // generic indented run below.
-      if (this.isContainerBlock(b)) {
-        const containerChildren = await this.transformBlocks(
-          b.children,
-          nestingLevel + 1,
-        );
-        out.push(
-          (await this.mapBlock(
-            b as any,
-            nestingLevel,
-            0,
-            containerChildren,
-          )) as string,
-        );
-        i++;
-        continue;
-      }
-
+      const isContainer = this.isContainerBlock(b);
       const children = await this.transformBlocks(b.children, nestingLevel + 1);
-      const self = (await this.mapBlock(
-        b as any,
+      const self = await this.mapBlock(
+        b,
         nestingLevel,
         0,
-        [],
-      )) as string;
-      out.push(this.wrapBlock(b, self, children));
+        isContainer ? children : [],
+      );
+      out.push(isContainer ? self : this.wrapBlock(b, self, children));
       i++;
     }
     return out;
@@ -291,12 +271,7 @@ export class TypstExporter<
     block: Block<B, I, S>,
     nestingLevel: number,
   ): Promise<string> {
-    const body = (await this.mapBlock(
-      block as any,
-      nestingLevel,
-      0,
-      [],
-    )) as string;
+    const body = await this.mapBlock(block, nestingLevel, 0, []);
     const children = await this.transformBlocks(
       block.children,
       nestingLevel + 1,

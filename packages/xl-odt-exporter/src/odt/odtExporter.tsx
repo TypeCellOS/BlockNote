@@ -164,7 +164,7 @@ export class ODTExporter<
         // container.
         const children = await this.transformBlocks(block.children, 0);
         const content = await this.mapBlock(
-          block as any,
+          block,
           0,
           numberedListIndex,
           children,
@@ -177,7 +177,7 @@ export class ODTExporter<
           nestingLevel + 1,
         );
         const content = await this.mapBlock(
-          block as any,
+          block,
           nestingLevel,
           numberedListIndex,
           children,

@@ -7,14 +7,6 @@ export const CHILD_CONTAINER_GROUP = "childContainer";
 export const BLOCK_GROUP_CHILD_GROUP = "blockGroupChild";
 
 /**
- * Joined by the content node of a block whose `children` are owned children:
- * a body that belongs to the block, like a callout's. Editing gestures move
- * blocks in and out of it deliberately instead of treating it as ordinary
- * indentation.
- */
-export const OWNED_CHILDREN_GROUP = "ownedChildren";
-
-/**
  * Whether a block config declares a *container block*: one whose own node
  * holds its children. A block that has content of its own keeps its ordinary
  * shape, and its `children` declare owned children instead.
@@ -37,14 +29,13 @@ export function isContainerNode(type: NodeType): boolean {
 
 /**
  * Whether `node` is a block whose children are owned children: a container
- * block, or a `blockContainer` whose block declares `children` (its content
- * node joined {@link OWNED_CHILDREN_GROUP}).
+ * block, or a `blockContainer` whose content node declares `children`.
  */
 export function hasOwnedChildren(node: Node): boolean {
   return (
     isContainerNode(node.type) ||
     (node.type.name === "blockContainer" &&
-      !!node.firstChild?.type.isInGroup(OWNED_CHILDREN_GROUP))
+      node.firstChild?.type.spec.blockConfig?.children !== undefined)
   );
 }
 

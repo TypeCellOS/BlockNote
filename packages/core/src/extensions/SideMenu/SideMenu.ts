@@ -22,13 +22,13 @@ import {
 } from "../../schema/index.js";
 import {
   CONTAINER_SELECTOR,
+  getBlockFromElement,
   getDraggableBlockFromElement,
 } from "../blockDOM.js";
 import { dragStart, unsetDragImage } from "./dragging.js";
 import {
-  getContainerChildAtCursor,
+  getNestedBlockAtCursor,
   getDirectChildBlocks,
-  hasAncestorWithOverlappingChildren,
 } from "./sideMenuContainerGeometry.js";
 
 export type SideMenuState<
@@ -45,8 +45,6 @@ const DISTANCE_TO_CONSIDER_EDITOR_BOUNDS = 250;
 function getBlockFromCoords(
   view: EditorView,
   coords: { left: number; top: number },
-  isDraggable: (type: string) => boolean,
-  refineByChildRects = true,
 ) {
   const elements = view.root.elementsFromPoint(coords.left, coords.top);
 
@@ -55,27 +53,7 @@ function getBlockFromCoords(
       // probably a ui overlay like formatting toolbar etc
       continue;
     }
-    if (
-      refineByChildRects &&
-      // Inside a container with side-by-side children (e.g. a columnList),
-      // the cursor is in the side menu's own gutter, so it lands on the
-      // container itself rather than on the block it lines up with. The
-      // horizontal container can be any ancestor (the element may sit inside
-      // a vertical child of it, like a block inside a column).
-      hasAncestorWithOverlappingChildren(element)
-    ) {
-      // Walk down through the containers by their children's measured rects
-      // instead, which finds that block without guessing an x offset.
-      const cursor = { x: coords.left, y: coords.top };
-      let target = element;
-      let child = getContainerChildAtCursor(target, cursor);
-      while (child) {
-        target = child;
-        child = getContainerChildAtCursor(target, cursor);
-      }
-      return getDraggableBlockFromElement(target, view, isDraggable);
-    }
-    return getDraggableBlockFromElement(element, view, isDraggable);
+    return getBlockFromElement(element, view);
   }
   return undefined;
 }
@@ -110,7 +88,7 @@ function getBlockFromMousePos(
     top: mousePos.y,
   };
 
-  const referenceBlock = getBlockFromCoords(view, coords, isDraggable);
+  const referenceBlock = getBlockFromCoords(view, coords);
 
   if (!referenceBlock) {
     // could not find the reference block
@@ -128,25 +106,23 @@ function getBlockFromMousePos(
    * `elementsFromPoint` returns the deepest element at a point, so this single
    * probe descends through any depth of regular nesting.
    *
-   * When the reference block is a (draggable) container block, the probe is
-   * aimed at the direct child under the cursor instead of the container
+   * For a container block, the probe is
+   * aimed at the innermost child under the cursor instead of the container
    * itself. The container's own padding can exceed the probe inset, which
    * would keep resolving the container even though the cursor is aligned with
    * one of its children (making the child's menu jump away as the cursor
    * moves towards it).
    */
-  const probeTarget =
-    getContainerChildAtCursor(referenceBlock.node, mousePos) ??
-    referenceBlock.node;
-  return getBlockFromCoords(
-    view,
-    {
-      left: probeTarget.getBoundingClientRect().right - 10,
-      top: mousePos.y,
-    },
-    isDraggable,
-    false,
-  );
+  const probeTarget = getNestedBlockAtCursor(referenceBlock.node, mousePos);
+  const target = getBlockFromCoords(view, {
+    left: probeTarget.getBoundingClientRect().right - 10,
+    top: mousePos.y,
+  });
+  // Resolve layout before applying drag policy: columns have no handle, but
+  // their children do, and their gutter still needs to resolve those children.
+  return target
+    ? getDraggableBlockFromElement(target.node, view, isDraggable)
+    : undefined;
 }
 
 /**

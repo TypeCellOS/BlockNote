@@ -178,11 +178,11 @@ export class PDFExporter<
       }
       const children = await this.transformBlocks(b.children, nestingLevel + 1);
       const self = await this.mapBlock(
-        b as any,
+        b,
         nestingLevel,
         numberedListIndex,
         children,
-      ); // TODO: any
+      );
 
       if (b.type === "pageBreak" || this.isContainerBlock(b)) {
         ret.push(self);

@@ -37,8 +37,8 @@ At runtime the contained blocks live on `block.children`, the same field used fo
 
 ```json
 {
-    "id": "panel-1",
-    "type": "panel",
+  "id": "panel-1",
+  "type": "panel",
   "props": {},
   "children": [
     {
@@ -111,9 +111,7 @@ const createAlert = createBlockSpec(
 );
 ```
 
-Editing gestures treat the title and the body as one unit: Enter at the end of the title starts the body, Enter on an empty last body block leaves it, Backspace at the start of the first body block merges back into the title, and Shift-Tab stops at the body's edge instead of lifting the block out of it. An alert without a title needs no title row — it is just a pure container drawing its box in `render`. The demos below show both side by side in vanilla JS, followed by the same title-and-body idea in React — a callout whose title is real rich text:
-
-<Example name="custom-schema/alert-blocks" />
+Editing gestures treat the title and the body as one unit: Enter at the end of the title starts the body, Enter on an empty last body block leaves it, Backspace at the start of the first body block merges back into the title, and Shift-Tab stops at the body's edge instead of lifting the block out of it. An alert without a title needs no title row — it is just a pure container drawing its box in `render`. The React example below shows a callout whose title is real rich text:
 
 <Example name="custom-schema/callout-block" />
 

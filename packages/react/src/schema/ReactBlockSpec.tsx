@@ -408,53 +408,32 @@ export function createReactBlockSpec<
             // constructed (itself guarded, via `getBlockFromNodeView`). Seeds
             // the fallback below so there is always something to render.
             const initialBlock = block;
-            // Each node-view variant uses only the hooks and wrappers it
-            // needs, so the component is chosen once from `isContainer`.
-            const BlockContent = blockImplementation.render as FC<any>;
+            const BlockContent = blockImplementation.render;
             const blockContentDOMAttributes = this.blockContentDOMAttributes;
 
-            // Vanilla JS node views are recreated on each update. However,
-            // using `ReactNodeViewRenderer` makes it so the node view is only
-            // created once, so the block we get in the node view will be
-            // outdated. Therefore, both variants have to (re-)resolve the
-            // block inside the `ReactNodeViewRenderer` component.
-
-            const ContainerNodeView = (props: NodeViewProps) => {
-              // Container blocks are bnBlock nodes (no `blockContainer`
-              // wrapper), so the id lives on the node's own attrs and the
-              // block resolves by id. Position-based resolution
-              // (`useNodeViewBlock`) would walk up to a parent bnBlock,
-              // which is the wrong block here. Ids are also immune to the
-              // stale positions it has to guard against.
-              const id = (props.node.attrs as Record<string, any>).id;
-              if (!id) {
-                throw new Error(
-                  `Container block "${blockConfig.type}" is missing an id attribute.`,
-                );
-              }
-              // Converted from the node the view was handed rather than
-              // looked up by id: the conversion is cached per node, while a
-              // lookup would scan the whole document on every render, and it
-              // also covers a node that was just removed from the document
-              // (e.g. a suggestion-mode deletion still rendering).
-              const block = nodeToBlock(props.node, props.view.state.doc);
-
+            function BlockNodeView(props: NodeViewProps) {
+              const block = useNodeViewBlock(props, initialBlock);
               const ref = useReactNodeView().nodeViewContentRef;
               if (!ref) {
                 throw new Error("nodeViewContentRef is not set");
               }
 
               const mountContent = ref;
-
-              // A replaced author root also remounts its content slot. Handle
-              // both there, including commits driven by the author's own state.
-              // The containing wrapper is already in the DOM during ref attach.
-              function mountChildren(element: HTMLElement | null) {
+              function contentRef(element: HTMLElement | null) {
                 mountContent(element);
                 if (!element) {
                   return;
                 }
                 element.dataset.nodeViewContent = "";
+                if (!isContainer) {
+                  element.className = mergeCSSClasses(
+                    "bn-inline-content",
+                    element.className,
+                  );
+                  return;
+                }
+
+                // Refs also run when author state replaces the root or slot.
                 element.setAttribute("data-children-of", blockConfig.type);
                 const root = element.closest(
                   "[data-node-view-wrapper]",
@@ -464,7 +443,7 @@ export function createReactBlockSpec<
                     "Container content must be inside its node view wrapper.",
                   );
                 }
-                applyContainerAttributes<PropSchema>(
+                applyContainerAttributes(
                   root,
                   blockConfig.type,
                   block.props,
@@ -474,27 +453,20 @@ export function createReactBlockSpec<
                 root.toggleAttribute("data-selected", props.selected);
               }
 
-              return (
-                <NodeViewWrapper style={DISPLAY_CONTENTS}>
-                  <BlockContent
-                    block={block as any}
-                    editor={editor as any}
-                    contentRef={mountChildren}
-                  />
-                </NodeViewWrapper>
+              const content = (
+                <BlockContent
+                  block={block as any}
+                  editor={editor as any}
+                  contentRef={contentRef}
+                />
               );
-            };
-
-            const RegularNodeView = (props: NodeViewProps) => {
-              // The node view's position can be stale mid-render, so
-              // resolving it is guarded (see `useNodeViewBlock`).
-              const block = useNodeViewBlock(props, initialBlock);
-
-              const ref = useReactNodeView().nodeViewContentRef;
-              if (!ref) {
-                throw new Error("nodeViewContentRef is not set");
+              if (isContainer) {
+                return (
+                  <NodeViewWrapper style={DISPLAY_CONTENTS}>
+                    {content}
+                  </NodeViewWrapper>
+                );
               }
-
               return (
                 <BlockContentWrapper
                   blockType={block.type}
@@ -503,47 +475,24 @@ export function createReactBlockSpec<
                   isFileBlock={!!blockImplementation.meta?.fileBlockAccept}
                   domAttributes={blockContentDOMAttributes}
                 >
-                  <BlockContent
-                    block={block as any}
-                    editor={editor as any}
-                    contentRef={(element: HTMLElement | null) => {
-                      ref(element);
-                      if (element) {
-                        element.className = mergeCSSClasses(
-                          "bn-inline-content",
-                          element.className,
-                        );
-                        element.dataset.nodeViewContent = "";
-                      }
-                    }}
-                  />
+                  {content}
                 </BlockContentWrapper>
               );
-            };
+            }
 
-            const nodeView = ReactNodeViewRenderer(
-              isContainer ? ContainerNodeView : RegularNodeView,
-              {
-                // The container class is separate because it removes the
-                // box the regular class relies on (see `Block.css`).
-                className: isContainer
-                  ? "bn-react-node-view-renderer bn-container-node-view"
-                  : "bn-react-node-view-renderer",
-              },
-            )(this.props!) as ReturnType<
+            const nodeView = ReactNodeViewRenderer(BlockNodeView, {
+              // The container class is separate because it removes the
+              // box the regular class relies on (see `Block.css`).
+              className: isContainer
+                ? "bn-react-node-view-renderer bn-container-node-view"
+                : "bn-react-node-view-renderer",
+            })(this.props!) as ReturnType<
               NonNullable<BlockImplementation["render"]>
             >;
 
-            if (isContainer) {
-              // TipTap appends its content host into whichever element the
-              // block passed `contentRef` to. `display: contents` keeps that
-              // host from contributing a box, so the block's editable region
-              // lays out exactly where the author put the ref.
-              if (nodeView.contentDOM) {
-                nodeView.contentDOM.style.display = "contents";
-              }
-              // The content ref stamps the author's root when it mounts;
-              // core also maintains the stable node-view wrapper attributes.
+            // The container's author slot determines layout, not TipTap's host.
+            if (isContainer && nodeView.contentDOM) {
+              nodeView.contentDOM.style.display = "contents";
             }
 
             return nodeView;

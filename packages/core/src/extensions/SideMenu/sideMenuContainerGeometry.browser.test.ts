@@ -1,22 +1,11 @@
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import {
-  getContainerChildAtCursor,
+  getNestedBlockAtCursor,
   getDirectChildBlocks,
-  hasAncestorWithOverlappingChildren,
-  hasVerticallyOverlappingChildren,
 } from "./sideMenuContainerGeometry.js";
 
-// The side-menu container geometry that reads live layout: the
-// `querySelectorAll`/`closest` walks and the rect measurements behind them. A
-// container whose children happen to sit side-by-side must be recognised as
-// horizontal without declaring anything. (The pure rect arithmetic these
-// build on is unit-tested in `sideMenuContainerGeometry.test.ts`.)
-//
-// The DOM trees are attached to the real document and laid out by the real
-// engine; nothing stubs `getBoundingClientRect`. A column list inside a real
-// editor is covered end-to-end by
-// `tests/src/end-to-end/multicolumn/multicolumn.test.tsx`.
+// Exercise container hit testing with real layout, including nested columns.
 
 /** Attaches a tree to the document so the browser actually lays it out. */
 function mount<T extends HTMLElement>(el: T): T {
@@ -108,82 +97,43 @@ describe("getDirectChildBlocks", () => {
   });
 });
 
-describe("hasVerticallyOverlappingChildren", () => {
-  it("recognises a real flex row as horizontal", () => {
-    const { columnList, columnA, columnB } = buildColumnList();
-
-    // Nothing declares the column list horizontal and no rect is stubbed;
-    // the detection runs against real layout.
-    expect(hasVerticallyOverlappingChildren(columnList)).toBe(true);
-
-    // Also asserted as raw geometry, so a failure shows whether the layout
-    // or the detection broke.
-    const a = columnA.getBoundingClientRect();
-    const b = columnB.getBoundingClientRect();
-    expect(a.width).toBeGreaterThan(0);
-    expect(b.left).toBeGreaterThanOrEqual(a.right - 1);
-    expect(a.top).toBe(b.top);
+describe("getNestedBlockAtCursor", () => {
+  it("keeps a regular block as the probe target", () => {
+    const { childA } = buildColumnList();
+    expect(
+      getNestedBlockAtCursor(childA.blockContainer, { x: 10, y: 10 }),
+    ).toBe(childA.blockContainer);
   });
 
-  it("is false for a container whose children stack", () => {
+  it("descends into the hovered column's block", () => {
+    const { columnList, childA, childB } = buildColumnList();
+    for (const child of [childA, childB]) {
+      const rect = child.blockContainer.getBoundingClientRect();
+      expect(
+        getNestedBlockAtCursor(columnList, {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        }),
+      ).toBe(child.blockContainer);
+    }
+  });
+
+  it("finds a stacked child from the container gutter", () => {
+    const { callout, second } = buildVerticalContainer();
+    const rect = second.blockContainer.getBoundingClientRect();
+    expect(
+      getNestedBlockAtCursor(callout, {
+        x: rect.left - 20,
+        y: rect.top + rect.height / 2,
+      }),
+    ).toBe(second.blockContainer);
+  });
+
+  it("keeps the container when the cursor misses its children", () => {
     const { callout } = buildVerticalContainer();
-
-    expect(hasVerticallyOverlappingChildren(callout)).toBe(false);
-  });
-
-  it("is false for a column holding a single block", () => {
-    const { columnA } = buildColumnList();
-
-    expect(hasVerticallyOverlappingChildren(columnA)).toBe(false);
-  });
-});
-
-describe("hasAncestorWithOverlappingChildren", () => {
-  it("is true for a block nested inside a column of a column list", () => {
-    const { childA } = buildColumnList();
-
-    // The block sits inside a (vertical) column, whose parent column list is
-    // the horizontal one, so the walk must climb past the column.
-    expect(hasAncestorWithOverlappingChildren(childA.blockContainer)).toBe(
-      true,
-    );
-  });
-
-  it("is false for a block inside a purely vertical container", () => {
-    const { first } = buildVerticalContainer();
-
-    expect(hasAncestorWithOverlappingChildren(first.blockContainer)).toBe(
-      false,
-    );
-  });
-});
-
-describe("getContainerChildAtCursor", () => {
-  it("returns undefined for a non-container element", () => {
-    const { childA } = buildColumnList();
-
+    const rect = callout.getBoundingClientRect();
     expect(
-      getContainerChildAtCursor(childA.blockContainer, { x: 10, y: 10 }),
-    ).toBeUndefined();
-  });
-
-  it("resolves the hovered column of a real row", () => {
-    const { columnList, columnA, columnB } = buildColumnList();
-    const b = columnB.getBoundingClientRect();
-
-    expect(
-      getContainerChildAtCursor(columnList, {
-        x: b.left + b.width / 2,
-        y: b.top + b.height / 2,
-      }),
-    ).toBe(columnB);
-
-    const a = columnA.getBoundingClientRect();
-    expect(
-      getContainerChildAtCursor(columnList, {
-        x: a.left + a.width / 2,
-        y: a.top + a.height / 2,
-      }),
-    ).toBe(columnA);
+      getNestedBlockAtCursor(callout, { x: rect.left, y: rect.bottom + 10 }),
+    ).toBe(callout);
   });
 });

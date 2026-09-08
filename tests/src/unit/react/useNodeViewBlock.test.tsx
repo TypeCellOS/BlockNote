@@ -28,7 +28,7 @@ const createReproBlock = createReactBlockSpec(
 );
 
 // A container block, whose node view's node is itself the bnBlock, resolved
-// by id instead of by position.
+// directly instead of by position.
 const createBoxBlock = createReactBlockSpec(
   {
     type: "box",
@@ -187,33 +187,13 @@ describe("useNodeViewBlock", () => {
     expect(resolved).not.toBe(seed);
   });
 
-  it("rejects container blocks loudly instead of resolving the wrong block", () => {
+  it("resolves container blocks directly without consulting their position", () => {
     const box = editor.document.find((block) => block.type === "box")!;
     const { node } = getNodeById(box.id, editor.prosemirrorState.doc)!;
-    const props = makeProps(() => undefined, node);
+    const getPos = vi.fn(() => undefined);
+    const resolved = renderHook(makeProps(getPos, node), editor.document[0]);
 
-    let captured: unknown;
-
-    function Probe() {
-      useNodeViewBlock(props, box);
-      return null;
-    }
-
-    root = createRoot(div, {
-      // React 19 reports uncaught render errors here instead of rethrowing
-      // out of `flushSync`.
-      onUncaughtError: (error: unknown) => {
-        captured = error;
-      },
-    });
-    try {
-      flushSync(() => {
-        root!.render(<Probe />);
-      });
-    } catch (error) {
-      captured = error;
-    }
-
-    expect(String(captured)).toMatch(/cannot resolve container block "box"/);
+    expect(resolved).toEqual(box);
+    expect(getPos).not.toHaveBeenCalled();
   });
 });

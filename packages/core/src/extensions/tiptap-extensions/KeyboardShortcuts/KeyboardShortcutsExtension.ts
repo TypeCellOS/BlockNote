@@ -2,10 +2,7 @@ import { Extension } from "@tiptap/core";
 import { Fragment, Node } from "prosemirror-model";
 import { TextSelection, Transaction } from "prosemirror-state";
 
-import {
-  mergeBlockPairCommand,
-  mergeBlocksCommand,
-} from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
+import { mergeBlocksCommand } from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
 import {
   liftItem,
   nestBlock,
@@ -16,6 +13,7 @@ import { isContainerNode } from "../../../schema/blocks/children.js";
 import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
+  type BlockInfo,
   ascendToInsertablePos,
   getInsertionPos,
   getAncestorContainers,
@@ -33,26 +31,17 @@ import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
 
-// Moves `node` out of its container to `insertAt` (a position in the pre-delete
-// doc): deletes it from `[from, to]`, re-inserts it, repairs the containers it
-// left behind (dissolve-or-pad under their `min`), and places the caret
-// inside the moved block. Every position is mapped through the deletion and the
-// repair, so the caret lands correctly even when the repair rewrites the source
-// container. Shared by the Backspace/Delete/Enter container and owned-children
-// branches.
+// Move a block across a container boundary, repair its former ancestors, and
+// map the caret through any repairs that change the insertion position.
 function moveBlockOutAndPlaceCaret(
   tr: Transaction,
-  {
-    from,
-    to,
-    node,
-    insertAt,
-  }: { from: number; to: number; node: Node; insertAt: number },
+  block: BlockInfo["block"],
+  insertAt: number,
 ) {
-  const containersToFix = getAncestorContainers(tr.doc, from);
-  tr.delete(from, to);
+  const containersToFix = getAncestorContainers(tr.doc, block.beforePos);
+  tr.delete(block.beforePos, block.afterPos);
   const insertionPos = tr.mapping.map(insertAt);
-  tr.insert(insertionPos, node);
+  tr.insert(insertionPos, block.node);
   const stepsBeforeFix = tr.steps.length;
   fixContainersById(tr, containersToFix);
   tr.setSelection(
@@ -133,32 +122,18 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
             const { block: blockContainer } = blockInfo;
 
-            // The block before this one: its previous sibling, or — for the
-            // first body block of a titled block — the block that owns it, so a
-            // callout's first body block merges into its title.
             const prevSibling = getPrevBlockInfo(
               state.doc,
               blockInfo.block.beforePos,
             );
-            const prevBlockInfo =
-              prevSibling ??
-              getParentBlockInfo(state.doc, blockInfo.block.beforePos);
-            // If the previous block has no inline content, it can't be merged.
-            // It's instead deleted, which is done later in the chan, so we
-            // return early here.
+            // A preceding container or owned body takes the move branch below.
+            // With no sibling, mergeBlocksCommand checks for an owning title.
             if (
-              !prevBlockInfo ||
-              (!prevSibling && !prevBlockInfo.hasOwnedChildren) ||
-              !prevBlockInfo.hasContent ||
-              prevBlockInfo.contentKind !== "inline"
+              prevSibling &&
+              (!prevSibling.hasContent ||
+                prevSibling.contentKind !== "inline" ||
+                (prevSibling.children && prevSibling.hasOwnedChildren))
             ) {
-              return false;
-            }
-
-            // The sibling before this one owns a body of children, so this block
-            // moves into it whole rather than having its text merged across
-            // the body's edge. Handled by the branch below.
-            if (prevSibling?.children && prevSibling.hasOwnedChildren) {
               return false;
             }
 
@@ -170,147 +145,75 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             if (selectionAtBlockStart && selectionEmpty) {
               return chain()
-                .command(
-                  prevSibling
-                    ? mergeBlocksCommand(posBetweenBlocks)
-                    : mergeBlockPairCommand(prevBlockInfo, blockInfo),
-                )
+                .command(mergeBlocksCommand(posBetweenBlocks))
                 .scrollIntoView()
                 .run();
             }
 
             return false;
           }),
-        // If the previous block is a container (e.g. a columnList or a
-        // callout), moves the current block to its deepest trailing insertion
-        // slot, descending through nested containers (e.g. to the end of the
-        // last column).
+        // Move into the preceding container's trailing slot, or out of the
+        // current container when this is its first block.
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.hasContent) {
-              return false;
-            }
-
-            const selectionAtBlockStart =
-              state.selection.from === blockInfo.contentStart;
-            if (!selectionAtBlockStart) {
-              return false;
-            }
-
-            const prevBlockInfo = getPrevBlockInfo(
-              state.doc,
-              blockInfo.block.beforePos,
-            );
-            if (!prevBlockInfo) {
-              return false;
-            }
-            // A block with content of its own takes the merge branch above;
-            // only a container — or a titled block, whose body the block joins
-            // whole — takes this one.
             if (
-              prevBlockInfo.hasContent &&
-              !(prevBlockInfo.children && prevBlockInfo.hasOwnedChildren)
+              !blockInfo.hasContent ||
+              state.selection.from !== blockInfo.contentStart
             ) {
               return false;
             }
 
-            const blockContainerType = state.schema.nodes["blockContainer"];
-            const insertion = getInsertionPos(
-              state.doc,
-              prevBlockInfo,
-              "last-child",
-              blockContainerType,
-            )?.pos;
-            if (insertion === undefined) {
-              return false;
-            }
-
-            if (dispatch) {
-              moveBlockOutAndPlaceCaret(tr, {
-                from: blockInfo.block.beforePos,
-                to: blockInfo.block.afterPos,
-                node: blockInfo.block.node,
-                insertAt: insertion,
-              });
-              return true;
-            }
-
-            return false;
-          }),
-        // If the block is the first in a container (e.g. a column or a
-        // callout), moves it out: to the end of the previous sibling
-        // container if there is one (e.g. the previous column), otherwise to
-        // just before the closest enclosing boundary that accepts it (e.g.
-        // above the columnList / callout).
-        () =>
-          commands.command(({ state, tr, dispatch }) => {
-            const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.hasContent) {
-              return false;
-            }
-
-            const selectionAtBlockStart =
-              tr.selection.from === blockInfo.contentStart;
-            if (!selectionAtBlockStart) {
-              return false;
-            }
-
-            const $pos = tr.doc.resolve(blockInfo.block.beforePos);
-
-            const prevBlock = $pos.nodeBefore;
-            if (prevBlock) {
-              return false;
-            }
-
-            const parentBlock = $pos.node();
-            if (!isContainerNode(parentBlock.type)) {
-              return false;
-            }
-
-            const blockContainerType = state.schema.nodes["blockContainer"];
-            const containerBeforePos = $pos.before();
-            const $containerPos = tr.doc.resolve(containerBeforePos);
-
-            // A previous sibling inside an enclosing container (e.g. the
-            // previous column) is a target to descend into. A sibling at a
-            // regular block position is not; there the block moves out to
-            // before the container instead.
-            const prevSibling =
-              isContainerNode($containerPos.node().type) &&
-              $containerPos.nodeBefore &&
-              isContainerNode($containerPos.nodeBefore.type)
-                ? $containerPos.nodeBefore
-                : null;
-
-            const insertionPos = prevSibling
-              ? getInsertionPos(
-                  tr.doc,
-                  getBlockInfoFromNode(
-                    prevSibling,
-                    containerBeforePos - prevSibling.nodeSize,
-                  ),
-                  "last-child",
-                  blockContainerType,
-                )?.pos
-              : ascendToInsertablePos(
-                  tr.doc,
-                  containerBeforePos,
-                  blockContainerType,
+            const blockType = blockInfo.block.node.type;
+            let target = getPrevBlockInfo(tr.doc, blockInfo.block.beforePos);
+            let insertionPos: number | undefined;
+            if (target) {
+              if (
+                target.hasContent &&
+                !(target.children && target.hasOwnedChildren)
+              ) {
+                return false;
+              }
+            } else {
+              const $pos = tr.doc.resolve(blockInfo.block.beforePos);
+              if (!isContainerNode($pos.parent.type)) {
+                return false;
+              }
+              const $containerPos = tr.doc.resolve($pos.before());
+              // Between columns, move into the previous column. Outside a
+              // container, move above the closest boundary that accepts us.
+              const prevSibling = $containerPos.nodeBefore;
+              if (
+                isContainerNode($containerPos.parent.type) &&
+                prevSibling &&
+                isContainerNode(prevSibling.type)
+              ) {
+                target = getBlockInfoFromNode(
+                  prevSibling,
+                  $containerPos.pos - prevSibling.nodeSize,
                 );
+              } else {
+                insertionPos = ascendToInsertablePos(
+                  tr.doc,
+                  $containerPos.pos,
+                  blockType,
+                );
+              }
+            }
+            if (target) {
+              insertionPos = getInsertionPos(
+                tr.doc,
+                target,
+                "last-child",
+                blockType,
+              )?.pos;
+            }
             if (insertionPos === undefined) {
               return false;
             }
-
             if (dispatch) {
-              moveBlockOutAndPlaceCaret(tr, {
-                from: blockInfo.block.beforePos,
-                to: blockInfo.block.afterPos,
-                node: blockInfo.block.node,
-                insertAt: insertionPos,
-              });
+              moveBlockOutAndPlaceCaret(tr, blockInfo.block, insertionPos);
             }
-
             return true;
           }),
         // Deletes the current block if it's an empty block with inline content,
@@ -545,94 +448,35 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // If the next block is a container (e.g. a columnList or a callout),
-        // moves its first leaf block out, to after the current block.
+        // Pull the next leaf across a container boundary. It may be inside
+        // the next sibling container, or follow the containers we're leaving.
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.hasContent) {
+            if (
+              !blockInfo.hasContent ||
+              state.selection.from !== blockInfo.contentEnd
+            ) {
               return false;
             }
 
-            const selectionAtBlockEnd =
-              state.selection.from === blockInfo.contentEnd;
-            if (!selectionAtBlockEnd) {
-              return false;
-            }
-
-            const nextBlockInfo = getNextBlockInfo(
-              state.doc,
-              blockInfo.block.beforePos,
-            );
-            if (!nextBlockInfo || nextBlockInfo.hasContent) {
-              return false;
-            }
-
-            const firstLeaf = getFirstLeafBlock(nextBlockInfo);
-            if (!firstLeaf) {
-              return false;
-            }
-
-            if (dispatch) {
-              moveBlockOutAndPlaceCaret(tr, {
-                from: firstLeaf.block.beforePos,
-                to: firstLeaf.block.afterPos,
-                node: firstLeaf.block.node,
-                insertAt: blockInfo.block.afterPos,
-              });
-
-              return true;
-            }
-
-            return false;
-          }),
-        // If the block is the last in a container (e.g. a column or a
-        // callout), moves the next block to after it. The next block is the
-        // first leaf of the next sibling container, or the block following
-        // the enclosing containers.
-        () =>
-          commands.command(({ state, tr, dispatch }) => {
-            const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.hasContent) {
-              return false;
-            }
-
-            const selectionAtBlockEnd =
-              tr.selection.from === blockInfo.contentEnd;
-            if (!selectionAtBlockEnd) {
-              return false;
-            }
-
-            const $pos = tr.doc.resolve(blockInfo.block.afterPos);
-
-            const nextBlock = $pos.nodeAfter;
-            if (nextBlock) {
-              return false;
-            }
-
-            const parentBlock = $pos.node();
-            if (!isContainerNode(parentBlock.type)) {
-              return false;
-            }
-
-            // Climbs out of the containers the block is the last child of,
-            // to the first position with a following node.
-            let $boundary = $pos;
+            let $boundary = tr.doc.resolve(blockInfo.block.afterPos);
             while (
-              $boundary.nodeAfter === null &&
+              !$boundary.nodeAfter &&
               $boundary.depth > 0 &&
-              isContainerNode($boundary.node().type)
+              isContainerNode($boundary.parent.type)
             ) {
               $boundary = tr.doc.resolve($boundary.after());
             }
-
             const nextNode = $boundary.nodeAfter;
             if (!nextNode) {
               return false;
             }
 
-            // The block to pull in: the next node itself, or its first leaf
-            // block when it's a container.
+            const crossedBoundary = $boundary.pos !== blockInfo.block.afterPos;
+            if (!crossedBoundary && !isContainerNode(nextNode.type)) {
+              return false;
+            }
             const target = getFirstLeafBlock(
               getBlockInfoFromNode(nextNode, $boundary.pos),
             );
@@ -641,14 +485,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             if (dispatch) {
-              moveBlockOutAndPlaceCaret(tr, {
-                from: target.block.beforePos,
-                to: target.block.afterPos,
-                node: target.block.node,
-                insertAt: blockInfo.block.afterPos,
-              });
+              moveBlockOutAndPlaceCaret(
+                tr,
+                target.block,
+                blockInfo.block.afterPos,
+              );
             }
-
             return true;
           }),
         // Deletes the next block at either the same or lower nesting level, if
@@ -869,14 +711,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
             const blockSpec =
               this.options.editor.schema.blockSpecs[blockInfo.blockNoteType];
 
-            // NOTE: This likely doesn't work as intended - `blockSchema[type]`
-            // holds the block *config* (type/propSchema/content), which carries
-            // no `meta`, so `meta?.hardBreakShortcut` is always `undefined` and
-            // this falls back to the default. It should read from the block
-            // spec's implementation instead (i.e.
-            // `editor.schema.blockSpecs[type].implementation.meta`), the way the
-            // syntax-highlighting extension reads `meta.highlight`. Left as-is
-            // for a follow-up pass.
             const blockHardBreakShortcut =
               blockSpec?.implementation?.meta?.hardBreakShortcut ??
               "shift+enter";
@@ -972,12 +806,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             if (dispatch) {
-              moveBlockOutAndPlaceCaret(tr, {
-                from: blockInfo.block.beforePos,
-                to: blockInfo.block.afterPos,
-                node: blockInfo.block.node,
-                insertAt: ownerAfterPos,
-              });
+              moveBlockOutAndPlaceCaret(tr, blockInfo.block, ownerAfterPos);
               tr.scrollIntoView();
             }
 

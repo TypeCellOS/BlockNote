@@ -178,11 +178,11 @@ export class DOCXExporter<
       // The `numberedListIndex` slot carries the numbering instance for the docx
       // block mappings (bullet/numbered list items); other block types ignore it.
       const self = await this.mapBlock(
-        b as any,
+        b,
         nestingLevel,
         numberingInstance,
         children,
-      ); // TODO: any
+      );
       ret.push(...(Array.isArray(self) ? self : [self]));
       // A container's mapping is handed its children and places them itself,
       // so they must not be appended after it as well.

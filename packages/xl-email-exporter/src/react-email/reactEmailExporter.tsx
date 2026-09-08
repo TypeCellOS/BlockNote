@@ -87,11 +87,7 @@ export class ReactEmailExporter<
       j++, itemIndex++
     ) {
       const block = blocks[j];
-      const liContent = (await this.mapBlock(
-        block as any,
-        nestingLevel,
-        itemIndex,
-      )) as any;
+      const liContent = await this.mapBlock(block, nestingLevel, itemIndex);
       let nestedList: React.ReactElement<any>[] = [];
       if (block.children && block.children.length > 0) {
         nestedList = await this.renderNestedLists(
@@ -152,11 +148,11 @@ export class ReactEmailExporter<
           j++, itemIndex++
         ) {
           const listItem = children[j];
-          const liContent = (await this.mapBlock(
-            listItem as any,
+          const liContent = await this.mapBlock(
+            listItem,
             nestingLevel,
             itemIndex,
-          )) as any;
+          );
           const style = this.blocknoteDefaultPropsToReactEmailStyle(
             listItem.props as any,
           );
@@ -246,28 +242,17 @@ export class ReactEmailExporter<
         i = nextIndex;
         continue;
       }
-      if (this.isContainerBlock(b)) {
-        // Container blocks (columnList, column, custom containers): the
-        // mapping owns the placement of the children, so they are passed in
-        // and not rendered as an indented sibling list.
-        const containerChildren = await this.transformBlocks(
-          b.children,
-          nestingLevel + 1,
-        );
-        const containerSelf = (await this.mapBlock(
-          b as any,
-          nestingLevel,
-          0,
-          containerChildren as any,
-        )) as any;
-        ret.push(<React.Fragment key={b.id}>{containerSelf}</React.Fragment>);
-        i++;
-        continue;
-      }
-      // Non-list blocks
+      const isContainer = this.isContainerBlock(b);
       const children = await this.transformBlocks(b.children, nestingLevel + 1);
-      const self = (await this.mapBlock(b as any, nestingLevel, 0)) as any;
-      const style = this.blocknoteDefaultPropsToReactEmailStyle(b.props as any);
+      const self = await this.mapBlock(
+        b,
+        nestingLevel,
+        0,
+        isContainer ? children : undefined,
+      );
+      const style = isContainer
+        ? {}
+        : this.blocknoteDefaultPropsToReactEmailStyle(b.props);
 
       ret.push(
         <React.Fragment key={b.id}>
@@ -276,7 +261,7 @@ export class ReactEmailExporter<
           ) : (
             self
           )}
-          {children.length > 0 && (
+          {!isContainer && children.length > 0 && (
             <div style={{ marginLeft: "24px" }}>{children}</div>
           )}
         </React.Fragment>,

@@ -1594,33 +1594,6 @@ export const examples = {
           'In this example, we build custom blocks on the source-with-preview pattern — the same building blocks behind BlockNote\'s math and diagram blocks. A custom "CSV table" block renders its comma-separated source as a table, and a custom "color" inline content renders a CSS color as a swatch. Both show the rendered preview in place, while the source is edited in a popup.\n\n**Try it out:** Click the table or a color chip to edit its source!\n\n**Relevant Docs:**\n\n- [Source with Preview Blocks](/docs/features/custom-schemas/source-with-preview)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Custom Inline Content](/docs/features/custom-schemas/custom-inline-content)',
       },
       {
-        projectSlug: "alert-blocks",
-        fullSlug: "custom-schema/alert-blocks",
-        pathFromRoot: "examples/06-custom-schema/12-alert-blocks",
-        config: {
-          playground: true,
-          docs: true,
-          author: "nickthesick",
-          tags: [
-            "Intermediate",
-            "Blocks",
-            "Custom Schemas",
-            "Suggestion Menus",
-            "Slash Menu",
-          ],
-          dependencies: {
-            "react-icons": "^5.5.0",
-          } as any,
-        },
-        title: "Alert Blocks",
-        group: {
-          pathFromRoot: "examples/06-custom-schema",
-          slug: "custom-schema",
-        },
-        readme:
-          'In this example, we create two `Alert` variants that hold other blocks as their body. The `alert` block keeps its title as inline content with child blocks as its body (a titled block), while `alertBox` holds only child blocks (a pure container).\n\nBoth variants declare the `children` config on `BlockConfig` with `children: { allow: "blocks" }`. The titled alert additionally uses `render` for its title row and `renderFrame` for the box around the title and body together; the title-less alert uses `renderFrame` alone, with the children mounting straight into its `slot`.\n\nWe also wire up Slash Menu items to insert each variant, and render the document JSON next to the editor so you can inspect the structure of the nested blocks.\n\n**Try it out:**\n\n- Press Enter at the end of the alert\'s title to start its body, keeping the existing body blocks in place.\n- Press Backspace at the start of the first body block to merge it back into the title.\n- Press "/" anywhere to insert a new Alert or Alert box, and watch the JSON panel update as you edit.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
-      },
-      {
         projectSlug: "callout-block",
         fullSlug: "custom-schema/callout-block",
         pathFromRoot: "examples/06-custom-schema/13-callout-block",

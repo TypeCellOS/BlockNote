@@ -140,12 +140,8 @@ describe("Check Multi-Column Behaviour", () => {
 // (`elementsFromPoint` / `posAtCoords`); the geometry pieces below that are
 // unit-tested in `packages/core/src/extensions/SideMenu/
 // sideMenuContainerGeometry.browser.test.ts`. This tests the whole path,
-// through a real column list. Hovering a column's left padding hands the
-// lookup coordinates that horizontally overlap the previous column, and
-// `SideMenu.ts` only resolves the right block by re-probing further right
-// once the geometry detects vertically overlapping column rectangles. If that
-// compensation (or the detection) breaks, the menu attaches to a block in
-// the previous column.
+// through a real column list. Columns have no drag handles themselves, but
+// hovering their gutter must still resolve the child on the hovered row.
 describe("Check side menu placement inside a column list", () => {
   /** Vertical centre of a rect, which the menu lines itself up with. */
   const centerY = (rect: DOMRect) => rect.y + rect.height / 2;

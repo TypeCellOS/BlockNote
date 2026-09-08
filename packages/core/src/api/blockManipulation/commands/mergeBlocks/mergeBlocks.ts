@@ -1,42 +1,11 @@
 import { EditorState } from "prosemirror-state";
 
 import {
-  type BlockInfo,
   getBlockInfoAt,
   getLastDescendantBlockInfo,
   getPrevBlockInfo,
+  getParentBlockInfo,
 } from "../../../getBlockInfoFromPos.js";
-
-// Un-nests the next block's children by one level, so they survive as
-// siblings of the merged block rather than as children of a block that no
-// longer exists once the boundary below is deleted.
-//
-// Note `state.tr` is tiptap's chainable state, whose getter returns the one
-// transaction shared by the command chain (not a fresh `Transaction` like
-// `EditorState.tr`), so this lift carries over into the `dispatch` below.
-function unnestNextChildren(
-  state: EditorState,
-  dispatch: ((args?: any) => any) | undefined,
-  nextBlockInfo: BlockInfo,
-) {
-  if (dispatch && nextBlockInfo.children) {
-    const childBlocksRange = state.doc
-      .resolve(nextBlockInfo.children.childrenStart)
-      .blockRange(state.doc.resolve(nextBlockInfo.children.childrenEnd));
-
-    // A block's children always sit at the same depth in the same parent, so
-    // they form a block range. No range means the doc is malformed, which is
-    // a bug rather than a case to merge around.
-    if (!childBlocksRange) {
-      throw new Error("Children of a block are expected to form a block range");
-    }
-
-    state.tr.lift(
-      childBlocksRange,
-      state.doc.resolve(nextBlockInfo.block.beforePos).depth,
-    );
-  }
-}
 
 /**
  * Merges the block starting at `posBetweenBlocks` into the block visually
@@ -62,43 +31,24 @@ export const mergeBlocksCommand =
   }) => {
     const nextBlockInfo = getBlockInfoAt(state.doc, posBetweenBlocks);
 
-    const prevBlockInfo = getPrevBlockInfo(
+    const prevSibling = getPrevBlockInfo(
       state.doc,
       nextBlockInfo.block.beforePos,
     );
-
+    const parent = prevSibling
+      ? undefined
+      : getParentBlockInfo(state.doc, nextBlockInfo.block.beforePos);
+    // An owned body's first block can merge into its title. Ordinary nested
+    // blocks still need a preceding sibling; lifting handles their boundary.
+    const prevBlockInfo = prevSibling
+      ? getLastDescendantBlockInfo(prevSibling)
+      : parent?.hasOwnedChildren
+        ? parent
+        : undefined;
     if (!prevBlockInfo) {
       return false;
     }
 
-    // The block we merge into is the last descendant of the previous block:
-    // visually, that's the block directly above the boundary.
-    const bottomNestedBlockInfo = getLastDescendantBlockInfo(prevBlockInfo);
-
-    return mergeBlockPairCommand(
-      bottomNestedBlockInfo,
-      nextBlockInfo,
-    )({
-      state,
-      dispatch,
-    });
-  };
-
-/**
- * Merges `nextBlockInfo` into `prevBlockInfo`, when both hold inline content.
- * Unlike {@link mergeBlocksCommand} the two blocks are given rather than
- * derived from a position, so blocks that aren't siblings can be merged — a
- * titled block's first child into the block that owns it.
- */
-export const mergeBlockPairCommand =
-  (prevBlockInfo: BlockInfo, nextBlockInfo: BlockInfo) =>
-  ({
-    state,
-    dispatch,
-  }: {
-    state: EditorState;
-    dispatch: ((args?: any) => any) | undefined;
-  }) => {
     if (
       !prevBlockInfo.hasContent ||
       prevBlockInfo.contentKind !== "inline" ||
@@ -109,7 +59,27 @@ export const mergeBlockPairCommand =
       return false;
     }
 
-    unnestNextChildren(state, dispatch, nextBlockInfo);
+    // Lift children before removing their parent. Tiptap's chainable state
+    // returns the shared transaction, so the lift is included in dispatch.
+    if (dispatch && nextBlockInfo.children) {
+      const childBlocksRange = state.doc
+        .resolve(nextBlockInfo.children.childrenStart)
+        .blockRange(state.doc.resolve(nextBlockInfo.children.childrenEnd));
+
+      // A block's children always sit at the same depth in the same parent, so
+      // they form a block range. No range means the doc is malformed, which is
+      // a bug rather than a case to merge around.
+      if (!childBlocksRange) {
+        throw new Error(
+          "Children of a block are expected to form a block range",
+        );
+      }
+
+      state.tr.lift(
+        childBlocksRange,
+        state.doc.resolve(nextBlockInfo.block.beforePos).depth,
+      );
+    }
 
     if (dispatch) {
       dispatch(

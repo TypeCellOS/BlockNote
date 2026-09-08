@@ -17,17 +17,6 @@ export type BlockRect = {
   right: number;
 };
 
-export function rectsOverlapVertically(rects: BlockRect[]): boolean {
-  for (let i = 0; i < rects.length; i++) {
-    for (let j = i + 1; j < rects.length; j++) {
-      if (rects[i].top < rects[j].bottom && rects[j].top < rects[i].bottom) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
 // X-match wins over y-only match (disambiguates side-by-side children).
 export function rectIndexAtCursor(
   rects: BlockRect[],
@@ -47,37 +36,21 @@ export function rectIndexAtCursor(
   return verticalMatch;
 }
 
-export function hasVerticallyOverlappingChildren(container: Element): boolean {
-  return rectsOverlapVertically(
-    getDirectChildBlocks(container).map((child) =>
-      child.getBoundingClientRect(),
-    ),
-  );
-}
-
-export function hasAncestorWithOverlappingChildren(element: Element): boolean {
-  let container = element.closest(CONTAINER_SELECTOR);
-  while (container) {
-    if (hasVerticallyOverlappingChildren(container)) {
-      return true;
-    }
-    container = container.parentElement?.closest(CONTAINER_SELECTOR) ?? null;
-  }
-  return false;
-}
-
-export function getContainerChildAtCursor(
+// Descend through any container layout before probing regular indentation.
+export function getNestedBlockAtCursor(
   element: Element,
   mousePos: { x: number; y: number },
-): Element | undefined {
-  if (!element.matches(CONTAINER_SELECTOR)) {
-    return undefined;
+): Element {
+  while (element.matches(CONTAINER_SELECTOR)) {
+    const children = getDirectChildBlocks(element);
+    const index = rectIndexAtCursor(
+      children.map((child) => child.getBoundingClientRect()),
+      mousePos,
+    );
+    if (index === undefined) {
+      break;
+    }
+    element = children[index];
   }
-
-  const children = getDirectChildBlocks(element);
-  const index = rectIndexAtCursor(
-    children.map((child) => child.getBoundingClientRect()),
-    mousePos,
-  );
-  return index === undefined ? undefined : children[index];
+  return element;
 }

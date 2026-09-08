@@ -1,4 +1,4 @@
-import { Fragment, type Node, type NodeType } from "prosemirror-model";
+import { Fragment, type Node } from "prosemirror-model";
 import { type Transaction } from "prosemirror-state";
 
 import {
@@ -6,15 +6,6 @@ import {
   isNamedOnly,
 } from "../../../schema/blocks/children.js";
 import { getNodeById } from "../../nodeUtil.js";
-
-/**
- * Default editing policy, separate from schema validity: placeable containers
- * dissolve below their minimum; named-only containers are kept for their
- * parent to repair. Keep the choice here if other behaviors are needed later.
- */
-function containerRepairPolicy(type: NodeType): "preserve" | "dissolve" {
-  return isNamedOnly(type) ? "preserve" : "dissolve";
-}
 
 /**
  * Whether `node` is a container child the user has emptied out: a container
@@ -49,39 +40,6 @@ export function isEmptyContainerChild(node: Node): boolean {
 }
 
 /**
- * Deletes every emptied *container* child of the container at `containerPos`
- * (an emptied column disappears rather than lingering). Regular blocks are
- * left alone: an empty paragraph is content the user typed into, not
- * structure. Dropping below the container's minimum is fine — ProseMirror
- * pads it back and {@link fixContainer} then decides whether the container
- * survives.
- *
- * @param containerPos The position just before the container node.
- */
-function removeEmptyChildren(tr: Transaction, containerPos: number) {
-  const container = tr.doc.resolve(containerPos).nodeAfter;
-  if (!container || !isContainerNode(container.type)) {
-    throw new Error(
-      "Invalid containerPos: does not point to a container node.",
-    );
-  }
-
-  // Collected before deleting anything, then applied back to front so the
-  // earlier positions stay valid.
-  const emptied: { from: number; to: number }[] = [];
-  container.forEach((child, offset) => {
-    if (isContainerNode(child.type) && isEmptyContainerChild(child)) {
-      const from = containerPos + 1 + offset;
-      emptied.push({ from, to: from + child.nodeSize });
-    }
-  });
-
-  for (let i = emptied.length - 1; i >= 0; i--) {
-    tr.delete(emptied[i].from, emptied[i].to);
-  }
-}
-
-/**
  * Repairs the container at `containerPos` after children were (re)moved from
  * it: drops the ones the user emptied, and dissolves the container when too
  * few are left for it to mean anything (a column list with one column is just
@@ -104,39 +62,29 @@ export function fixContainer(tr: Transaction, containerPos: number) {
   // A `namedOnly` container (a column) keeps existing: it is its parent's
   // decision whether the container still belongs, and ProseMirror pads it
   // back up to its minimum when children are removed.
-  if (containerRepairPolicy(container.type) === "preserve") {
+  if (isNamedOnly(container.type)) {
     return;
   }
 
-  removeEmptyChildren(tr, containerPos);
-
-  const fixed = tr.doc.resolve(containerPos).nodeAfter;
-  if (!fixed || fixed.type !== container.type) {
-    return;
-  }
-
-  const childrenConfig = fixed.type.spec.blockConfig?.children;
+  const childrenConfig = container.type.spec.blockConfig?.children;
   const min = childrenConfig ? (childrenConfig.min ?? 1) : 1;
-
-  // Deleting the emptied children can take the container below its minimum, in
-  // which case ProseMirror has already padded it back up with empty ones. So
-  // "still needed" is decided on the children that carry content, not on the
-  // child count.
   const survivors: Node[] = [];
-  fixed.forEach((child) => {
+  const emptied: { from: number; to: number }[] = [];
+  container.forEach((child, offset) => {
     if (!isEmptyContainerChild(child)) {
       survivors.push(child);
+    } else if (isContainerNode(child.type)) {
+      const from = containerPos + 1 + offset;
+      emptied.push({ from, to: from + child.nodeSize });
     }
   });
 
   if (survivors.length >= min) {
-    return;
-  }
-
-  const containerEnd = containerPos + fixed.nodeSize;
-
-  if (survivors.length === 0) {
-    tr.delete(containerPos, containerEnd);
+    // Keep intentional empty paragraphs. Only remove empty structural children,
+    // back to front so positions (and selections in surviving children) stay valid.
+    for (const { from, to } of emptied.reverse()) {
+      tr.delete(from, to);
+    }
     return;
   }
 
@@ -153,7 +101,11 @@ export function fixContainer(tr: Transaction, containerPos: number) {
     }
   }
 
-  tr.replaceWith(containerPos, containerEnd, Fragment.from(replacement));
+  tr.replaceWith(
+    containerPos,
+    containerPos + container.nodeSize,
+    Fragment.from(replacement),
+  );
 }
 
 /**
