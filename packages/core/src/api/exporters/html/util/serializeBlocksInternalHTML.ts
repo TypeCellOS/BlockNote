@@ -206,10 +206,30 @@ function serializeBlock<
     contentDOM?: HTMLElement;
   };
 
-  bc.contentDOM?.appendChild(ret.dom);
+  // Frames wrap the content and its child group in static HTML too. The DOM
+  // render context lets interactive frames export without browser view state.
+  const renderFrame = impl.renderFrame<I, S>;
+  const frame = renderFrame?.call(
+    {
+      renderType: "dom",
+      props: undefined,
+      blockContentDOMAttributes:
+        editor._tiptapEditor.extensionManager.extensions.find(
+          (extension) => extension.name === block.type,
+        )?.options.domAttributes?.blockContent || {},
+      propSchema: editor.schema.blockSchema[block.type!].propSchema,
+    },
+    { ...block, props, children },
+    editor,
+  );
+  if (frame) {
+    bc.contentDOM?.appendChild(frame.dom);
+  }
+  const contentDOM = frame?.slot ?? bc.contentDOM;
+  contentDOM?.appendChild(ret.dom);
 
   if (block.children && block.children.length > 0) {
-    bc.contentDOM?.appendChild(
+    contentDOM?.appendChild(
       serializeBlocksInternalHTML(editor, block.children, serializer, options),
     );
   }

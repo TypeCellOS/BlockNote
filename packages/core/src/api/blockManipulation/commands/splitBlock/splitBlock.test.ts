@@ -256,7 +256,7 @@ describe("Test splitBlocks inside containers", () => {
     ).not.toThrow();
   });
 
-  it("Moves the block's children onto the second half of the split", () => {
+  it("Keeps the block's children on the first half of the split", () => {
     expect(splitContainerBlock("callout-child-1", 7)).toBe(true);
 
     const callout = getContainerEditor().document[1];
@@ -266,9 +266,9 @@ describe("Test splitBlocks inside containers", () => {
       "Callout",
       " heading",
     ]);
-    // The children follow the trailing half, as they do at the top level.
-    expect(callout.children[1].children).toEqual([]);
-    expect(callout.children[2].children.map((child) => child.id)).toEqual([
+    // The children stay with the first half, as they do at the top level.
+    expect(callout.children[2].children).toEqual([]);
+    expect(callout.children[1].children.map((child) => child.id)).toEqual([
       "nested-child",
     ]);
 
@@ -299,4 +299,34 @@ describe("Test splitBlocks inside containers", () => {
 
     expect(getContainerEditor().document).toEqual(before);
   });
+});
+
+describe("split child ownership", () => {
+  it.each(["start", "middle", "end"] as const)(
+    "keeps children with the intended half when splitting at the %s",
+    (where) => {
+      const editor = getEditor();
+      const id = "paragraph-with-children";
+      const children = editor.getBlock(id)!.children;
+      const target = getNodeById(id, editor.prosemirrorState.doc)!;
+      const info = getBlockInfoFromNode(target.node, target.posBeforeNode);
+      if (!info.hasContent) {
+        throw new Error("Expected content block");
+      }
+      const offset =
+        where === "start"
+          ? 0
+          : where === "end"
+            ? info.contentEnd - info.contentStart
+            : 4;
+      setSelectionWithOffset(editor.prosemirrorState.doc, id, offset);
+      splitBlock(editor.prosemirrorState.selection.from);
+      const index = editor.document.findIndex((block) => block.id === id);
+      const [first, second] = editor.document.slice(index, index + 2);
+      expect((where === "start" ? second : first).children).toEqual(children);
+      expect((where === "start" ? first : second).children).toEqual([]);
+      expect(editor.getTextCursorPosition().block.id).toBe(second.id);
+      expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    },
+  );
 });

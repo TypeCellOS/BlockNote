@@ -26,7 +26,10 @@ function createFrameView(
     return implementation.frameNodeView(props);
   }
 
-  const renderFrame = implementation.renderFrame;
+  const renderFrame = implementation.renderFrame<
+    typeof editor.schema.inlineContentSchema,
+    typeof editor.schema.styleSchema
+  >;
   const frame = renderFrame?.call(
     {
       renderType: "nodeView",
@@ -48,10 +51,10 @@ function createFrameView(
   return {
     dom,
     contentDOM: frame?.slot ?? fallback,
+    destroy: frame?.destroy?.bind(frame),
     update(node) {
       if (frame?.update) {
-        frame.update(nodeToBlock(node, props.view.state.doc));
-        return true;
+        return frame.update(nodeToBlock(node, props.view.state.doc)) !== false;
       }
       // Declined frames must also be reconsidered when their block changes.
       return !renderFrame || node.eq(props.node);

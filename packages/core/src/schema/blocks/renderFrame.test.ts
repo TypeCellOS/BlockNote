@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
 import { defaultBlockSpecs } from "../../blocks/defaultBlocks.js";
@@ -312,6 +312,138 @@ it("supplies the node-view context to vanilla frames", () => {
     expect(
       editor.domElement?.querySelector(".contextual-frame")?.textContent,
     ).toBe("Title");
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});
+
+it("rebuilds or declines a frame when update returns false and cleans up each instance", () => {
+  const destroy = vi.fn();
+  const lifecycleFrame = createBlockSpec(
+    {
+      type: "lifecycleFrame",
+      propSchema: {
+        mode: { default: "first", values: ["first", "second", "plain"] },
+      },
+      content: "inline",
+    },
+    {
+      render: renderDiv,
+      renderFrame(block) {
+        if (block.props.mode === "plain") {
+          return undefined;
+        }
+        const dom = document.createElement("section");
+        dom.className = "lifecycle-frame";
+        return {
+          dom,
+          slot: dom,
+          destroy,
+          update(updated) {
+            return updated.props.mode === block.props.mode;
+          },
+        };
+      },
+    },
+  )();
+  const editor = BlockNoteEditor.create({
+    schema: BlockNoteSchema.create({
+      blockSpecs: { ...defaultBlockSpecs, lifecycleFrame },
+    }),
+    initialContent: [
+      {
+        id: "frame",
+        type: "lifecycleFrame",
+        content: "Title",
+        children: [{ id: "child", content: "Body" }],
+      },
+    ],
+  });
+  try {
+    editor.mount(document.createElement("div"));
+    const root = editor.domElement!;
+    const first = root.querySelector(".lifecycle-frame");
+    editor.updateBlock("frame", { content: "Updated" });
+    expect(root.querySelector(".lifecycle-frame")).toBe(first);
+    expect(destroy).not.toHaveBeenCalled();
+    editor.updateBlock("frame", { props: { mode: "second" } });
+    expect(root.querySelector(".lifecycle-frame")).not.toBe(first);
+    expect(destroy).toHaveBeenCalledTimes(1);
+    editor.updateBlock("frame", { props: { mode: "plain" } });
+    expect(root.querySelector(".lifecycle-frame")).toBeNull();
+    expect(destroy).toHaveBeenCalledTimes(2);
+    expect(editor.getBlock("frame")!.children[0].id).toBe("child");
+    expect(root.textContent).toContain("Updated");
+    expect(root.textContent).toContain("Body");
+    editor.updateBlock("frame", { props: { mode: "first" } });
+    expect(root.querySelector(".lifecycle-frame")).not.toBeNull();
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+  expect(destroy).toHaveBeenCalledTimes(3);
+});
+
+it("exports title and children inside the static frame slot with the DOM context", () => {
+  const staticFrame = createBlockSpec(
+    {
+      type: "staticFrame",
+      propSchema: { framed: { default: true } },
+      content: "inline",
+    },
+    {
+      render: renderDiv,
+      renderFrame(block) {
+        expect(this.renderType).toBe("dom");
+        expect(this.props).toBeUndefined();
+        expect(this.blockContentDOMAttributes).toEqual({
+          "data-test": "static",
+        });
+        expect(this.propSchema).toEqual({ framed: { default: true } });
+        if (!block.props.framed) {
+          return undefined;
+        }
+        const dom = document.createElement("section");
+        dom.className = "static-frame";
+        const slot = document.createElement("div");
+        slot.className = "static-slot";
+        dom.append(slot);
+        return { dom, slot };
+      },
+    },
+  )();
+  const editor = BlockNoteEditor.create({
+    schema: BlockNoteSchema.create({
+      blockSpecs: { ...defaultBlockSpecs, staticFrame },
+    }),
+    domAttributes: { blockContent: { "data-test": "static" } },
+    initialContent: [
+      {
+        id: "framed",
+        type: "staticFrame",
+        content: "Title",
+        children: [{ id: "body", content: "Body" }],
+      },
+      {
+        id: "plain",
+        type: "staticFrame",
+        props: { framed: false },
+        content: "Plain",
+      },
+    ],
+  });
+  try {
+    const dom = document.createElement("div");
+    dom.innerHTML = editor.blocksToFullHTML(editor.document);
+    expect(dom.querySelectorAll(".static-frame")).toHaveLength(1);
+    const slot = dom.querySelector(".static-slot")!;
+    expect(slot.querySelector(":scope > .bn-block-content")?.textContent).toBe(
+      "Title",
+    );
+    expect(slot.querySelector(":scope > .bn-block-group")?.textContent).toBe(
+      "Body",
+    );
+    expect(dom.textContent).toContain("Plain");
+    expect(editor.tryParseHTMLToBlocks(dom.innerHTML)).toEqual(editor.document);
   } finally {
     editor._tiptapEditor.destroy();
   }

@@ -313,14 +313,16 @@ export type LooseBlockSpec<
       destroy?: () => void;
       update?: (node: PMNode) => boolean | void;
     };
-    renderFrame?: (
+    renderFrame?: <I extends InlineContentSchema, S extends StyleSchema>(
       block: any,
-      editor: BlockNoteEditor<any>,
+      editor: BlockNoteEditor<any, I, S>,
     ) =>
       | {
           dom: HTMLElement | DocumentFragment;
           slot: HTMLElement;
-          update?: (block: any) => void;
+          /** Releases resources when the live frame is replaced or destroyed. */
+          destroy?: () => void;
+          update?: (block: any) => boolean | void;
         }
       | undefined;
     toExternalHTML?: (
@@ -382,14 +384,16 @@ export type BlockSpecs = {
         destroy?: () => void;
         update?: (node: PMNode) => boolean | void;
       };
-      renderFrame?: (
+      renderFrame?: <I extends InlineContentSchema, S extends StyleSchema>(
         block: any,
-        editor: BlockNoteEditor<any>,
+        editor: BlockNoteEditor<any, I, S>,
       ) =>
         | {
             dom: HTMLElement | DocumentFragment;
             slot: HTMLElement;
-            update?: (block: any) => void;
+            /** Releases resources when the live frame is replaced or destroyed. */
+            destroy?: () => void;
+            update?: (block: any) => boolean | void;
           }
         | undefined;
       toExternalHTML?: (
@@ -726,9 +730,10 @@ export type BlockImplementation<
    *
    * Chrome outside the slot is the author's: ProseMirror leaves its events
    * alone. An `update` hook receives the current block on updates and patches
-   * the frame in place. Without it, block changes rebuild the frame.
+   * the frame in place. Return `false` to rebuild (or decline) the frame.
+   * Without an update hook, block changes rebuild the frame.
    */
-  renderFrame?: (
+  renderFrame?: <I extends InlineContentSchema, S extends StyleSchema>(
     this:
       | Record<string, never>
       | ({
@@ -746,20 +751,24 @@ export type BlockImplementation<
         )),
     block: BlockFromConfig<BlockConfig<TName, TProps, TContent>, any, any>,
     editor: BlockNoteEditor<
-      Record<TName, BlockConfig<TName, TProps, TContent>>
+      Record<TName, BlockConfig<TName, TProps, TContent>>,
+      I,
+      S
     >,
   ) =>
     | {
         dom: HTMLElement | DocumentFragment;
         /** Where BlockNote mounts the block's content and/or children. */
         slot: HTMLElement;
+        /** Releases resources when the live frame is replaced or destroyed. */
+        destroy?: () => void;
         update?: (
           block: BlockFromConfig<
             BlockConfig<TName, TProps, TContent>,
             any,
             any
           >,
-        ) => void;
+        ) => boolean | void;
       }
     | undefined;
 

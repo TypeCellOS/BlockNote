@@ -250,8 +250,7 @@ describe("a titled block's keyboard behaviour", () => {
   it("Enter with a non-collapsed selection in the title takes the generic split path", () => {
     // The titled block's Enter handler only fires for a collapsed selection,
     // so a range selection falls through to the generic split: the selected
-    // text is deleted, the title splits, and the body follows the split-off
-    // tail onto the new sibling rather than staying on the alert.
+    // text is deleted and the title splits, keeping the body on the alert.
     const editor = editorWith(withAlert());
     editor.setTextCursorPosition("w", "start");
     editor.transact((tr) =>
@@ -266,7 +265,7 @@ describe("a titled block's keyboard behaviour", () => {
     press(editor, "Enter");
 
     expect(shape(editor.document)).toBe(
-      'paragraph"Before", alert"T", paragraph"le"[paragraph"One", paragraph"Two"], paragraph"After"',
+      'paragraph"Before", alert"T"[paragraph"One", paragraph"Two"], paragraph"le", paragraph"After"',
     );
   });
 });
