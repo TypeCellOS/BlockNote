@@ -1,4 +1,4 @@
-import type { NodeType } from "prosemirror-model";
+import type { NodeType, Schema } from "prosemirror-model";
 import {
   NodeSelection,
   Selection,
@@ -11,14 +11,37 @@ import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
 import {
-  getBlockInfoNearPos,
-  getBlockInfoAt,
+  isContainerNode,
+  isNamedOnly,
+} from "../../../../schema/blocks/children.js";
+import {
   getInsertionPos,
+  getBlockInfoAt,
+  getBlockInfoNearPos,
   getNodeId,
 } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { insertBlocks } from "../insertBlocks/insertBlocks.js";
 import { removeAndInsertBlocks } from "../replaceBlocks/replaceBlocks.js";
+
+/**
+ * Dissolves `placeable: "namedOnly"` blocks into their children.
+ *
+ * A `namedOnly` block (a `column`, say) is defined only in terms of the
+ * container that holds it, so it can't land anywhere a regular block goes —
+ * moving one out of its container moves its children instead. Every other
+ * block passes through as itself.
+ */
+function dissolveContainerOnlyBlocks(
+  blocks: Block<any, any, any>[],
+  pmSchema: Schema,
+): Block<any, any, any>[] {
+  return blocks.flatMap((block) =>
+    isNamedOnly(pmSchema.nodes[block.type])
+      ? dissolveContainerOnlyBlocks(block.children, pmSchema)
+      : [block],
+  );
+}
 
 type BlockSelectionData = (
   | {
@@ -133,16 +156,6 @@ function updateBlockSelectionFromData(
   tr.setSelection(selection);
 }
 
-// Replaces top-level `column` blocks with their children, as a `column` is not
-// a valid block outside a `columnList`. Other blocks are returned as-is.
-function flattenColumns(
-  blocks: Block<any, any, any>[],
-): Block<any, any, any>[] {
-  return blocks.flatMap((block) =>
-    block.type === "column" ? block.children : [block],
-  );
-}
-
 /**
  * Removes the given blocks from the editor, then inserts them before/after a
  * reference block.
@@ -171,10 +184,10 @@ export function moveBlocks(
     // </column>
     // When the non-empty block is moved up, the column is seen as empty and
     // collapsed in the removal step, so the following insertion fails.
-    removeAndInsertBlocks(tr, blocks, [], { fixColumns: false });
+    removeAndInsertBlocks(tr, blocks, [], { fixContainers: false });
     insertBlocks<any, any, any>(
       tr,
-      flattenColumns(blocks),
+      dissolveContainerOnlyBlocks(blocks, editor.pmSchema),
       referenceBlock,
       placement,
     );
@@ -215,12 +228,14 @@ export function moveSelectedBlocksAndSelection(
  * placement search walks the document, so both are resolved once up front.
  */
 type MovedBlock = {
-  /** The moved block's ID, to locate it in the doc. */
+  /** The moved block's ID, to locate it in the doc for the seal check. */
   id: string;
   /**
-   * The PM node type that would actually be inserted: a child-holding wrapper
-   * block (e.g. a `columnList`) goes in as its own node type; anything else
-   * as a generic `blockContainer` wrapper.
+   * The PM node type that would actually be inserted: the first block
+   * `moveBlocks` inserts, which is the moved block itself unless it dissolves
+   * (see {@link dissolveContainerOnlyBlocks}). A container (e.g. a `callout`)
+   * is inserted as its own node type; anything else goes in as a generic
+   * `blockContainer` wrapper.
    */
   nodeType: NodeType;
 };
@@ -229,20 +244,21 @@ function toMovedBlock(
   editor: BlockNoteEditor<any, any, any>,
   block: Block<any, any, any>,
 ): MovedBlock {
-  const type = editor.pmSchema.nodes[block.type];
+  const first = dissolveContainerOnlyBlocks([block], editor.pmSchema)[0];
+  const firstType = first ? editor.pmSchema.nodes[first.type] : undefined;
 
   return {
     id: block.id,
     nodeType:
-      type && type.isInGroup("bnBlock") && type.isInGroup("childContainer")
-        ? type
+      firstType && isContainerNode(firstType)
+        ? firstType
         : editor.pmSchema.nodes["blockContainer"],
   };
 }
 
-// Checks if a block would be in a valid place after being moved
-// before/after `referenceBlock`. A regular block nests under any block (it
-// goes into that block's `blockGroup`), but a wrapper block (e.g. a
+// Checks if a regular block would be in a valid place after being moved
+// before/after `referenceBlock`. A regular block nests under any non-container
+// block (it goes into that block's `blockGroup`), but a container block (e.g. a
 // `columnList`) only accepts what its content expression allows.
 //
 // Deferred to `getInsertionPos` so that "can a block go here?" has exactly
@@ -415,10 +431,7 @@ export function moveBlocksUp(
 
     const moveUpPlacement = getMoveUpPlacement(
       editor,
-      // `moveBlocks` inserts the flattened selection (a `column` goes in as
-      // its children), so the placement is validated for the block that
-      // actually lands at the destination, not for the raw block.
-      toMovedBlock(editor, flattenColumns([sourceBlock])[0] ?? sourceBlock),
+      toMovedBlock(editor, sourceBlock),
       editor.getPrevBlock(sourceBlock),
       editor.getParentBlock(sourceBlock),
     );
@@ -471,12 +484,7 @@ export function moveBlocksDown(
 
     const moveDownPlacement = getMoveDownPlacement(
       editor,
-      // See `moveBlocksUp`: validate for the flattened block that actually
-      // lands at the destination.
-      toMovedBlock(
-        editor,
-        flattenColumns([firstMovedBlock])[0] ?? firstMovedBlock,
-      ),
+      toMovedBlock(editor, firstMovedBlock),
       editor.getNextBlock(sourceBlock),
       editor.getParentBlock(sourceBlock),
     );

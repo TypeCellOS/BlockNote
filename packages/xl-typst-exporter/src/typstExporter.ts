@@ -253,11 +253,23 @@ export class TypstExporter<
         continue;
       }
 
-      // A columnList lays its column children out side-by-side. transformBlocks
-      // owns this (rather than the block mapping) because the columns must
-      // become grid cells, not the generic indented-children wrapper.
-      if (b.type === "columnList") {
-        out.push(await this.renderColumnList(b, nestingLevel));
+      // A container block's mapping owns where its children go - a columnList
+      // makes them grid cells, a callout puts them in its body - so they are
+      // passed in, and not appended after the block's own output as the
+      // generic indented run below.
+      if (this.isContainerBlock(b)) {
+        const containerChildren = await this.transformBlocks(
+          b.children,
+          nestingLevel + 1,
+        );
+        out.push(
+          (await this.mapBlock(
+            b as any,
+            nestingLevel,
+            0,
+            containerChildren,
+          )) as string,
+        );
         i++;
         continue;
       }
@@ -322,32 +334,6 @@ export class TypstExporter<
         ? padded + "\n\n" + children.join("\n\n")
         : `#list(marker: ${checkboxMarker(checked)}, [${padded}\n\n${children.join("\n\n")}])`,
     );
-  }
-
-  /**
-   * Render a columnList as a Typst `grid`: each child column becomes a grid
-   * cell, its `width` prop mapped to a fractional (`fr`) track so relative
-   * column sizes are preserved. `grid` is a layout primitive (not a `table`),
-   * so it isn't tagged as a data table in the PDF.
-   */
-  private async renderColumnList(
-    block: Block<B, I, S>,
-    nestingLevel: number,
-  ): Promise<string> {
-    const columns = block.children;
-    const tracks = columns
-      .map((c) => `${(c.props as { width?: number }).width ?? 1}fr`)
-      .join(", ");
-    const cells: string[] = [];
-    for (const col of columns) {
-      const inner = (
-        await this.transformBlocks(col.children, nestingLevel)
-      ).join("\n\n");
-      cells.push(`[${inner}]`);
-    }
-    return `#grid(\n  columns: (${tracks}),\n  column-gutter: 1em,\n  ${cells.join(
-      ",\n  ",
-    )}\n)`;
   }
 
   private wrapList(

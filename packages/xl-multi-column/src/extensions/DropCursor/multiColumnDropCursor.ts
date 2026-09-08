@@ -1,4 +1,8 @@
-import { type DropCursorHooks, getNearestBlockPos } from "@blocknote/core";
+import {
+  type DropCursorHooks,
+  getNearestBlockPos,
+  isContainerNode,
+} from "@blocknote/core";
 import type { EditorState } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
 
@@ -31,10 +35,16 @@ export function detectEdgePosition(
 
   const blockPos = getNearestBlockPos(state.doc, eventPos.pos);
 
-  // If we're at a block that's in a column, we want to compare the mouse position to the column, not the block inside it
-  // Why? Because we want to insert a new column in the columnList, instead of a new columnList inside of the column
+  // If we're at a block inside a column of a columnList, we want to compare
+  // the mouse position to the column, not the block inside it.
+  // Why? Because we want to insert a new sibling column in the columnList
+  // instead of a new container inside the column.
   let resolved = state.doc.resolve(blockPos.posBeforeNode);
-  if (resolved.parent.type.name === "column") {
+  if (
+    isContainerNode(resolved.parent.type) &&
+    resolved.depth > 0 &&
+    state.doc.resolve(resolved.before()).parent.type.name === "columnList"
+  ) {
     resolved = state.doc.resolve(resolved.before());
   }
 

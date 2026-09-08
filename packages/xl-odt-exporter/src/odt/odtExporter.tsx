@@ -155,7 +155,13 @@ export class ODTExporter<
         numberedListIndex = 0;
       }
 
-      if (["columnList", "column"].includes(block.type)) {
+      if (this.isContainerBlock(block)) {
+        // A container's mapping places its children, so it owns their layout
+        // context too - in ODT the columns become a table, whose cells start
+        // a fresh one. Nesting depth is rendered here as literal `<text:tab>`
+        // indentation (see `getTabs`), which would be wrong inside that
+        // context, so it restarts at 0 rather than accumulating through the
+        // container.
         const children = await this.transformBlocks(block.children, 0);
         const content = await this.mapBlock(
           block as any,

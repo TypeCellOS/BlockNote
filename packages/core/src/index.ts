@@ -1,6 +1,14 @@
 export * from "./api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 export * from "./api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
-export * from "./api/blockManipulation/commands/replaceBlocks/util/fixColumnList.js";
+export {
+  isContainerNode,
+  isContainerConfig,
+} from "./schema/blocks/children.js";
+export { applyContainerAttributes } from "./schema/blocks/containerAttributes.js";
+export {
+  fixContainer,
+  isEmptyContainerChild,
+} from "./api/blockManipulation/containers/fixContainer.js";
 export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
 export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";

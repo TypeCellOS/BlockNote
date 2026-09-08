@@ -2,6 +2,7 @@ import {
   Fragment,
   type NodeType,
   type Node as PMNode,
+  type Schema,
   Slice,
 } from "prosemirror-model";
 import { TextSelection, Transaction } from "prosemirror-state";
@@ -20,14 +21,15 @@ import {
   type BlockInfo,
   getBlockInfoAt,
 } from "../../../getBlockInfoFromPos.js";
+import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import {
-  blockToNode,
   inlineContentToNodes,
   tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
-import { getPmSchema } from "../../../pmUtil.js";
+import { getBlockSchema, getPmSchema } from "../../../pmUtil.js";
+import { createBlockGroup } from "../../../../schema/blocks/children.js";
 
 // for compatibility with tiptap. TODO: remove as we want to remove dependency on tiptap command interface
 export const updateBlockCommand = <
@@ -111,9 +113,23 @@ export function updateBlockTr<
 
   // `hasContent` is exactly `blockContainer`-ness, and a block type resolves
   // to either a `blockContent` node (a regular block) or a `bnBlock` one (a
-  // wrapper), so the two together say whether the update keeps the block's
+  // container), so the two together say whether the update keeps the block's
   // shape. Only a same-shape update can happen in place.
-  if (blockInfo.hasContent !== newNodeType.isInGroup("blockContent")) {
+  // A container-to-container update can still outgrow the children on hand:
+  // a callout's single child doesn't satisfy a pair's `min: 2`, and
+  // `setNodeMarkup` would silently build invalid content. When the children
+  // don't fit the new type's content expression, take the rebuild path, which
+  // pads them if necessary and validates before changing the document.
+  const containerChildrenFit =
+    blockInfo.hasContent ||
+    newNodeType.isInGroup("blockContent") ||
+    (newNodeType.contentMatch.matchFragment(blockInfo.block.node.content)
+      ?.validEnd ??
+      false);
+  if (
+    blockInfo.hasContent !== newNodeType.isInGroup("blockContent") ||
+    !containerChildrenFit
+  ) {
     // switching from blockContainer to non-blockContainer or v.v.
     // currently breaking for column slash menu items converting empty block
     // to column.
@@ -122,14 +138,45 @@ export function updateBlockTr<
     // for this, we do a nodeToBlock on the existing block to get the children.
     // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
     const existingBlock = nodeToBlock(blockInfo.block.node, tr.doc);
+    const carried = carryOverContent(
+      existingBlock.content,
+      newBlockType,
+      pmSchema,
+    );
+    // If no children are passed in, use the existing block's, but only when
+    // there actually are some. `nodeToBlock` always emits an array, and an
+    // empty one would read as "explicitly childless", suppressing the seeding
+    // a container needs when converting from a childless block.
+    const children = [...carried.children, ...existingBlock.children];
+
     const replacementNode = blockToNode(
       {
-        children: existingBlock.children, // if no children are passed in, use existing children
+        ...(carried.content ? { content: carried.content } : {}),
+        ...(children.length > 0 ? { children } : {}),
         ...block,
       },
       pmSchema,
     );
     replacementNode.check(); // `blockToNode` is lenient; validate before mutating the doc
+
+    // The replacement is internally valid, but it lands where the old block
+    // stood: a `column` rebuilt into a `columnList` still sits inside a
+    // column list, and a column list rebuilt into a `column` still sits at
+    // the document root. Neither parent accepts the new type, and
+    // `replaceWith` would place it anyway, corrupting the document silently.
+    const $oldPos = tr.doc.resolve(blockInfo.block.beforePos);
+    if (
+      !$oldPos.parent.canReplace(
+        $oldPos.index(),
+        $oldPos.index(),
+        Fragment.from(replacementNode),
+      )
+    ) {
+      throw new Error(
+        `Cannot update block to "${newBlockType}": a "${$oldPos.parent.type.name}" doesn't accept it`,
+      );
+    }
+
     tr.replaceWith(
       blockInfo.block.beforePos,
       blockInfo.block.afterPos,
@@ -166,6 +213,43 @@ export function updateBlockTr<
   if (cellAnchor) {
     restoreCellAnchor(tr, blockInfo, cellAnchor, stepsBefore);
   }
+}
+
+function carryOverContent(
+  existingContent: Block<any, any, any>["content"],
+  newBlockType: string,
+  pmSchema: Schema,
+): {
+  content?: PartialBlock<any, any, any>["content"];
+  children: PartialBlock<any, any, any>[];
+} {
+  const nothing = { children: [] };
+
+  if (!existingContent || !Array.isArray(existingContent)) {
+    return nothing;
+  }
+  if (existingContent.length === 0) {
+    return nothing;
+  }
+
+  const targetConfig = getBlockSchema(pmSchema)[newBlockType];
+  if (!targetConfig) {
+    return nothing;
+  }
+
+  if (targetConfig.content === "inline" || targetConfig.content === "plain") {
+    return { content: existingContent, children: [] };
+  }
+
+  if (targetConfig.children !== undefined) {
+    // Offered as a child rather than as content; whether the container can
+    // actually hold it is checked before the caller replaces the block.
+    return {
+      children: [{ type: "paragraph", content: existingContent } as any],
+    };
+  }
+
+  return nothing;
 }
 
 function updateBlockContentNode<
@@ -211,7 +295,7 @@ function updateBlockContentNode<
     // no custom content has been provided, use existing content IF possible
     // Since some block types contain inline content and others don't,
     // we either need to call setNodeMarkup to just update type &
-    // attributes, or replaceWith to replace the whole blockContent.
+    // attributes, or replaceWith to replace the whole content.
     const oldContent = blockInfo.content.node.content;
     if (oldNodeType.spec.content === "") {
       // keep old content, because it's empty anyway and should be compatible with
@@ -235,7 +319,7 @@ function updateBlockContentNode<
     }
   }
 
-  // Now, changes the blockContent node type and adds the provided props
+  // Now, changes the content node type and adds the provided props
   // as attributes. Also preserves all existing attributes that are
   // compatible with the new type.
   //
@@ -520,11 +604,10 @@ function updateChildren<
       return node;
     });
 
-    // Checks if a blockGroup node already exists.
     if (blockInfo.children) {
-      // Replaces the child nodes in the existing blockGroup, only touching the
-      // range that actually changed (keeping unchanged leading/trailing
-      // children untouched).
+      // Replaces the child nodes in the existing children holder, only
+      // touching the range that actually changed (keeping unchanged
+      // leading/trailing children untouched).
       replaceContentMinimal(
         tr,
         blockInfo.children.beforePos,
@@ -532,11 +615,12 @@ function updateChildren<
       );
     } else if (blockInfo.hasContent) {
       // A `blockContainer` with no children yet: its `blockGroup` is lazy
-      // (`blockContent blockGroup?`), so insert a new one after the content
-      // node.
+      // (`blockContent blockGroup?`), so create it around the child nodes and
+      // insert it after the content node. (Containers always have a children
+      // holder, so no holder implies a `blockContainer`.)
       tr.insert(
         blockInfo.content.afterPos,
-        pmSchema.nodes["blockGroup"].createChecked({}, childNodes),
+        createBlockGroup(pmSchema, childNodes),
       );
     }
   }

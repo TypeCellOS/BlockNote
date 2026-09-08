@@ -1,4 +1,4 @@
-import { getNodeById } from "@blocknote/core";
+import { getNodeById, isContainerNode } from "@blocknote/core";
 import { ReactNode, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -27,6 +27,34 @@ export const BlockPopover = (
         const nodePosInfo = getNodeById(blockId, tr.doc);
         if (!nodePosInfo) {
           return undefined;
+        }
+
+        // For container blocks the PM node is the block itself, so a
+        // position inside it resolves to its contentDOM (the child-blocks
+        // area), which would anchor the popover to the first child's rows
+        // instead of the block's own element.
+        if (isContainerNode(nodePosInfo.node.type)) {
+          const dom = editor.prosemirrorView.nodeDOM(nodePosInfo.posBeforeNode);
+          // Frameworks like React wrap the node view in a `display: contents`
+          // element that has no box of its own (a zero-size bounding rect), so
+          // anchoring to it would place the popover at (0, 0). The block's
+          // actual box is the author's root element inside it, which core
+          // stamps with `data-node-type`; vanilla containers render that boxed
+          // element directly as the node view's DOM.
+          if (dom instanceof Element) {
+            // Scoped to this block's own type: an unscoped descendant search
+            // would match a nested child container's root when the author's
+            // root hasn't been stamped, anchoring the popover to a child.
+            const selector = `[data-node-type="${nodePosInfo.node.type.name}"]`;
+            const boxed = dom.matches(selector)
+              ? dom
+              : dom.querySelector(selector);
+            // Only degenerate renders leave nothing stamped: one that returns
+            // no element of its own, or a fragment of several. Neither has a
+            // box to anchor to, so this falls back to the node element rather
+            // than to the contentDOM, which is the first child's box.
+            return { element: boxed ?? dom };
+          }
         }
 
         const { node } = editor.prosemirrorView.domAtPos(

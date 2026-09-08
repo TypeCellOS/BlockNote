@@ -62,7 +62,16 @@ export function getDefaultTiptapExtensions(
 
     UniqueID.configure({
       // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
-      types: ["blockContainer", "columnList", "column"],
+      types: [
+        "blockContainer",
+        // Container block specs whose PM node is itself in the `bnBlock`
+        // group (column, columnList, callout, etc.). The bnBlock node is the
+        // block itself, so the id lives on its attrs rather than on a
+        // wrapping blockContainer.
+        ...Object.entries(editor.schema.blockSpecs)
+          .filter(([, spec]) => (spec as any).config.children !== undefined)
+          .map(([type]) => type),
+      ],
       setIdAttribute: options.setIdAttribute,
       isWithinEditor: editor.isWithinEditor,
     }),

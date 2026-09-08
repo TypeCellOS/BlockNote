@@ -42,6 +42,17 @@ export function useNodeViewBlock(
   const lastBlockRef = useRef(initialBlock);
   const doc = props.view.state.doc;
 
+  // Position-based resolution finds the nearest bnBlock parent of the
+  // position. That is correct for blockContent node views, but wrong for
+  // container blocks, whose node is itself the bnBlock: it would return an
+  // ancestor block. This guard throws so a container node view can't
+  // silently render the wrong block.
+  if (props.node.type.isInGroup("bnBlock")) {
+    throw new Error(
+      `useNodeViewBlock cannot resolve container block "${props.node.type.name}": position-based resolution returns the nearest bnBlock parent, which is the wrong block when the node view's node is the block itself. Resolve container blocks by id instead, e.g. editor.getBlock(props.node.attrs.id).`,
+    );
+  }
+
   try {
     // Deliberate render-phase write: a monotonic "last good value" cache, so a
     // repeated render (e.g. StrictMode's double invoke) recomputes the same

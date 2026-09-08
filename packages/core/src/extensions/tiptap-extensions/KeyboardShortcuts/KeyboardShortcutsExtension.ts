@@ -1,18 +1,27 @@
 import { Extension } from "@tiptap/core";
 import { Fragment, Node } from "prosemirror-model";
-import { TextSelection } from "prosemirror-state";
+import { TextSelection, Transaction } from "prosemirror-state";
 
-import { mergeBlocksCommand } from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
+import {
+  mergeBlockPairCommand,
+  mergeBlocksCommand,
+} from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
 import {
   liftItem,
   nestBlock,
   unnestBlock,
 } from "../../../api/blockManipulation/commands/nestBlock/nestBlock.js";
-import { fixColumnList } from "../../../api/blockManipulation/commands/replaceBlocks/util/fixColumnList.js";
+import { fixContainersById } from "../../../api/blockManipulation/containers/fixContainer.js";
+import { isContainerNode } from "../../../schema/blocks/children.js";
 import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
+  ascendToInsertablePos,
+  getInsertionPos,
+  getAncestorContainers,
+  getFirstLeafBlock,
   getBlockInfoAt,
+  getBlockInfoFromNode,
   getBlockInfoFromSelection,
   getLastDescendantBlockInfo,
   getNextBlockInfo,
@@ -23,6 +32,35 @@ import {
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
+
+// Moves `node` out of its container to `insertAt` (a position in the pre-delete
+// doc): deletes it from `[from, to]`, re-inserts it, repairs the containers it
+// left behind (dissolve-or-pad under their `min`), and places the caret
+// inside the moved block. Every position is mapped through the deletion and the
+// repair, so the caret lands correctly even when the repair rewrites the source
+// container. Shared by the Backspace/Delete/Enter container and owned-children
+// branches.
+function moveBlockOutAndPlaceCaret(
+  tr: Transaction,
+  {
+    from,
+    to,
+    node,
+    insertAt,
+  }: { from: number; to: number; node: Node; insertAt: number },
+) {
+  const containersToFix = getAncestorContainers(tr.doc, from);
+  tr.delete(from, to);
+  const insertionPos = tr.mapping.map(insertAt);
+  tr.insert(insertionPos, node);
+  const stepsBeforeFix = tr.steps.length;
+  fixContainersById(tr, containersToFix);
+  tr.setSelection(
+    TextSelection.near(
+      tr.doc.resolve(tr.mapping.slice(stepsBeforeFix).map(insertionPos) + 1),
+    ),
+  );
+}
 
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
@@ -49,7 +87,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockStart =
-              state.selection.from === blockInfo.content.beforePos + 1;
+              state.selection.from === blockInfo.contentStart;
             const isParagraph =
               blockInfo.content.node.type.name === "paragraph";
 
@@ -71,10 +109,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!blockInfo.hasContent) {
               return false;
             }
-            const { content } = blockInfo;
 
             const selectionAtBlockStart =
-              state.selection.from === content.beforePos + 1;
+              state.selection.from === blockInfo.contentStart;
 
             if (selectionAtBlockStart) {
               return liftItem(
@@ -94,40 +131,60 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!blockInfo.hasContent) {
               return false;
             }
-            const { block, content } = blockInfo;
+            const { block: blockContainer } = blockInfo;
 
-            const prevBlockInfo = getPrevBlockInfo(
+            // The block before this one: its previous sibling, or — for the
+            // first body block of a titled block — the block that owns it, so a
+            // callout's first body block merges into its title.
+            const prevSibling = getPrevBlockInfo(
               state.doc,
               blockInfo.block.beforePos,
             );
+            const prevBlockInfo =
+              prevSibling ??
+              getParentBlockInfo(state.doc, blockInfo.block.beforePos);
             // If the previous block has no inline content, it can't be merged.
             // It's instead deleted, which is done later in the chan, so we
             // return early here.
             if (
               !prevBlockInfo ||
+              (!prevSibling && !prevBlockInfo.hasOwnedChildren) ||
               !prevBlockInfo.hasContent ||
               prevBlockInfo.contentKind !== "inline"
             ) {
               return false;
             }
 
+            // The sibling before this one owns a body of children, so this block
+            // moves into it whole rather than having its text merged across
+            // the body's edge. Handled by the branch below.
+            if (prevSibling?.children && prevSibling.hasOwnedChildren) {
+              return false;
+            }
+
             const selectionAtBlockStart =
-              state.selection.from === content.beforePos + 1;
+              state.selection.from === blockInfo.contentStart;
             const selectionEmpty = state.selection.empty;
 
-            const posBetweenBlocks = block.beforePos;
+            const posBetweenBlocks = blockContainer.beforePos;
 
             if (selectionAtBlockStart && selectionEmpty) {
               return chain()
-                .command(mergeBlocksCommand(posBetweenBlocks))
+                .command(
+                  prevSibling
+                    ? mergeBlocksCommand(posBetweenBlocks)
+                    : mergeBlockPairCommand(prevBlockInfo, blockInfo),
+                )
                 .scrollIntoView()
                 .run();
             }
 
             return false;
           }),
-        // If the previous block is a columnList, moves the current block to
-        // the end of the last column in it.
+        // If the previous block is a container (e.g. a columnList or a
+        // callout), moves the current block to its deepest trailing insertion
+        // slot, descending through nested containers (e.g. to the end of the
+        // last column).
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -136,7 +193,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockStart =
-              state.selection.from === blockInfo.content.beforePos + 1;
+              state.selection.from === blockInfo.contentStart;
             if (!selectionAtBlockStart) {
               return false;
             }
@@ -145,28 +202,47 @@ export const KeyboardShortcutsExtension = Extension.create<{
               state.doc,
               blockInfo.block.beforePos,
             );
-            if (!prevBlockInfo || prevBlockInfo.hasContent) {
+            if (!prevBlockInfo) {
+              return false;
+            }
+            // A block with content of its own takes the merge branch above;
+            // only a container — or a titled block, whose body the block joins
+            // whole — takes this one.
+            if (
+              prevBlockInfo.hasContent &&
+              !(prevBlockInfo.children && prevBlockInfo.hasOwnedChildren)
+            ) {
+              return false;
+            }
+
+            const blockContainerType = state.schema.nodes["blockContainer"];
+            const insertion = getInsertionPos(
+              state.doc,
+              prevBlockInfo,
+              "last-child",
+              blockContainerType,
+            )?.pos;
+            if (insertion === undefined) {
               return false;
             }
 
             if (dispatch) {
-              const columnAfterPos = prevBlockInfo.block.afterPos - 1;
-              const $blockAfterPos = tr.doc.resolve(columnAfterPos - 1);
-
-              tr.delete(blockInfo.block.beforePos, blockInfo.block.afterPos);
-              tr.insert($blockAfterPos.pos, blockInfo.block.node);
-              tr.setSelection(
-                TextSelection.near(tr.doc.resolve($blockAfterPos.pos + 1)),
-              );
-
+              moveBlockOutAndPlaceCaret(tr, {
+                from: blockInfo.block.beforePos,
+                to: blockInfo.block.afterPos,
+                node: blockInfo.block.node,
+                insertAt: insertion,
+              });
               return true;
             }
 
             return false;
           }),
-        // If the block is the first in a column, moves it to the end of the
-        // previous column. If there is no previous column, moves it above the
-        // columnList.
+        // If the block is the first in a container (e.g. a column or a
+        // callout), moves it out: to the end of the previous sibling
+        // container if there is one (e.g. the previous column), otherwise to
+        // just before the closest enclosing boundary that accepts it (e.g.
+        // above the columnList / callout).
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -175,7 +251,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockStart =
-              tr.selection.from === blockInfo.content.beforePos + 1;
+              tr.selection.from === blockInfo.contentStart;
             if (!selectionAtBlockStart) {
               return false;
             }
@@ -188,29 +264,51 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const parentBlock = $pos.node();
-            if (parentBlock.type.name !== "column") {
+            if (!isContainerNode(parentBlock.type)) {
               return false;
             }
 
-            const $blockPos = tr.doc.resolve(blockInfo.block.beforePos);
-            const $columnPos = tr.doc.resolve($blockPos.before());
-            const columnListPos = $columnPos.before();
+            const blockContainerType = state.schema.nodes["blockContainer"];
+            const containerBeforePos = $pos.before();
+            const $containerPos = tr.doc.resolve(containerBeforePos);
+
+            // A previous sibling inside an enclosing container (e.g. the
+            // previous column) is a target to descend into. A sibling at a
+            // regular block position is not; there the block moves out to
+            // before the container instead.
+            const prevSibling =
+              isContainerNode($containerPos.node().type) &&
+              $containerPos.nodeBefore &&
+              isContainerNode($containerPos.nodeBefore.type)
+                ? $containerPos.nodeBefore
+                : null;
+
+            const insertionPos = prevSibling
+              ? getInsertionPos(
+                  tr.doc,
+                  getBlockInfoFromNode(
+                    prevSibling,
+                    containerBeforePos - prevSibling.nodeSize,
+                  ),
+                  "last-child",
+                  blockContainerType,
+                )?.pos
+              : ascendToInsertablePos(
+                  tr.doc,
+                  containerBeforePos,
+                  blockContainerType,
+                );
+            if (insertionPos === undefined) {
+              return false;
+            }
 
             if (dispatch) {
-              tr.delete(blockInfo.block.beforePos, blockInfo.block.afterPos);
-              fixColumnList(tr, columnListPos);
-
-              if ($columnPos.pos === columnListPos + 1) {
-                tr.insert(columnListPos, blockInfo.block.node);
-                tr.setSelection(
-                  TextSelection.near(tr.doc.resolve(columnListPos)),
-                );
-              } else {
-                tr.insert($columnPos.pos - 1, blockInfo.block.node);
-                tr.setSelection(
-                  TextSelection.near(tr.doc.resolve($columnPos.pos)),
-                );
-              }
+              moveBlockOutAndPlaceCaret(tr, {
+                from: blockInfo.block.beforePos,
+                to: blockInfo.block.afterPos,
+                node: blockInfo.block.node,
+                insertAt: insertionPos,
+              });
             }
 
             return true;
@@ -225,8 +323,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const blockEmpty =
-              blockInfo.content.node.childCount === 0 &&
-              blockInfo.contentKind === "inline";
+              blockInfo.isContentEmpty && blockInfo.contentKind === "inline";
 
             if (blockEmpty) {
               const prevBlockInfo = getPrevBlockInfo(
@@ -239,12 +336,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
               const bottomNestedPrevBlockInfo =
                 getLastDescendantBlockInfo(prevBlockInfo);
               if (!bottomNestedPrevBlockInfo.hasContent) {
-                return false;
-              }
-              if (
-                !bottomNestedPrevBlockInfo ||
-                !bottomNestedPrevBlockInfo.hasContent
-              ) {
                 return false;
               }
 
@@ -270,11 +361,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   bottomNestedPrevBlockInfo.content.beforePos,
                 );
               } else {
-                const contentEndPos =
-                  bottomNestedPrevBlockInfo.content.afterPos - 1;
+                const blockContentEndPos = bottomNestedPrevBlockInfo.contentEnd;
 
                 chainedCommands =
-                  chainedCommands.setTextSelection(contentEndPos);
+                  chainedCommands.setTextSelection(blockContentEndPos);
               }
 
               return chainedCommands
@@ -300,7 +390,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockStart =
-              state.selection.from === blockInfo.content.beforePos + 1;
+              state.selection.from === blockInfo.contentStart;
             const selectionEmpty = state.selection.empty;
 
             const prevBlockInfo = getPrevBlockInfo(
@@ -309,6 +399,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
             );
 
             if (prevBlockInfo && selectionAtBlockStart && selectionEmpty) {
+              // An emptied container has no content to merge with, so the
+              // guard below rejects it — the merge branch above only fires
+              // for a previous block with content of its own.
               const bottomBlock = getLastDescendantBlockInfo(prevBlockInfo);
 
               if (!bottomBlock.hasContent) {
@@ -356,15 +449,21 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!blockInfo.hasContent || !blockInfo.children) {
               return false;
             }
-            const { content, children } = blockInfo;
+            const { children } = blockInfo;
+
+            // A container allowed to hold no children still has a child
+            // container node, but no first child to pull anything out of.
+            if (children.node.childCount === 0) {
+              return false;
+            }
 
             const selectionAtBlockEnd =
-              state.selection.from === content.afterPos - 1;
+              state.selection.from === blockInfo.contentEnd;
             const selectionEmpty = state.selection.empty;
 
             const firstChildBlockInfo = getBlockInfoAt(
               state.doc,
-              children.beforePos + 1,
+              children.childrenStart,
             );
             if (!firstChildBlockInfo.hasContent) {
               return false;
@@ -385,7 +484,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
                       Fragment.empty,
                   )
                   .deleteRange(
-                    // Deletes whole child container if there's only one child.
+                    // Deletes whole child container if there's only one
+                    // child.
                     children.node.childCount === 1
                       ? {
                           from: children.beforePos,
@@ -420,7 +520,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!blockInfo.hasContent) {
               return false;
             }
-            const { block, content } = blockInfo;
+            const { block: blockContainer } = blockInfo;
 
             const nextBlockInfo = getNextBlockInfo(
               state.doc,
@@ -431,10 +531,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockEnd =
-              state.selection.from === content.afterPos - 1;
+              state.selection.from === blockInfo.contentEnd;
             const selectionEmpty = state.selection.empty;
 
-            const posBetweenBlocks = block.afterPos;
+            const posBetweenBlocks = blockContainer.afterPos;
 
             if (selectionAtBlockEnd && selectionEmpty) {
               return chain()
@@ -445,8 +545,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // If the next block is a columnList, moves the first block from its
-        // first column to after the current block.
+        // If the next block is a container (e.g. a columnList or a callout),
+        // moves its first leaf block out, to after the current block.
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -455,7 +555,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockEnd =
-              state.selection.from === blockInfo.content.afterPos - 1;
+              state.selection.from === blockInfo.contentEnd;
             if (!selectionAtBlockEnd) {
               return false;
             }
@@ -468,28 +568,28 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
 
-            if (dispatch) {
-              const columnBeforePos = nextBlockInfo.block.beforePos + 1;
-              const $blockBeforePos = tr.doc.resolve(columnBeforePos + 1);
+            const firstLeaf = getFirstLeafBlock(nextBlockInfo);
+            if (!firstLeaf) {
+              return false;
+            }
 
-              tr.delete(
-                $blockBeforePos.pos,
-                $blockBeforePos.pos + $blockBeforePos.nodeAfter!.nodeSize,
-              );
-              fixColumnList(tr, nextBlockInfo.block.beforePos);
-              tr.insert(blockInfo.block.afterPos, $blockBeforePos.nodeAfter!);
-              tr.setSelection(
-                TextSelection.near(tr.doc.resolve($blockBeforePos.pos)),
-              );
+            if (dispatch) {
+              moveBlockOutAndPlaceCaret(tr, {
+                from: firstLeaf.block.beforePos,
+                to: firstLeaf.block.afterPos,
+                node: firstLeaf.block.node,
+                insertAt: blockInfo.block.afterPos,
+              });
 
               return true;
             }
 
             return false;
           }),
-        // If the block is the last in a column, moves it to the start of the
-        // next column. If there is no next column, moves it below the
-        // columnList.
+        // If the block is the last in a container (e.g. a column or a
+        // callout), moves the next block to after it. The next block is the
+        // first leaf of the next sibling container, or the block following
+        // the enclosing containers.
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -498,7 +598,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockEnd =
-              tr.selection.from === blockInfo.content.afterPos - 1;
+              tr.selection.from === blockInfo.contentEnd;
             if (!selectionAtBlockEnd) {
               return false;
             }
@@ -511,35 +611,42 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const parentBlock = $pos.node();
-            if (parentBlock.type.name !== "column") {
+            if (!isContainerNode(parentBlock.type)) {
               return false;
             }
 
-            const $blockEndPos = tr.doc.resolve(blockInfo.block.afterPos);
-            const $columnEndPos = tr.doc.resolve($blockEndPos.after());
-            const columnListEndPos = $columnEndPos.after();
+            // Climbs out of the containers the block is the last child of,
+            // to the first position with a following node.
+            let $boundary = $pos;
+            while (
+              $boundary.nodeAfter === null &&
+              $boundary.depth > 0 &&
+              isContainerNode($boundary.node().type)
+            ) {
+              $boundary = tr.doc.resolve($boundary.after());
+            }
+
+            const nextNode = $boundary.nodeAfter;
+            if (!nextNode) {
+              return false;
+            }
+
+            // The block to pull in: the next node itself, or its first leaf
+            // block when it's a container.
+            const target = getFirstLeafBlock(
+              getBlockInfoFromNode(nextNode, $boundary.pos),
+            );
+            if (!target) {
+              return false;
+            }
 
             if (dispatch) {
-              // Position before first block in next column, or first block
-              // after columnList if there is no next column.
-              const nextBlockBeforePos =
-                $columnEndPos.pos === columnListEndPos - 1
-                  ? columnListEndPos
-                  : $columnEndPos.pos + 1;
-              const nextBlockInfo = getBlockInfoAt(tr.doc, nextBlockBeforePos);
-
-              tr.delete(
-                nextBlockInfo.block.beforePos,
-                nextBlockInfo.block.afterPos,
-              );
-              fixColumnList(
-                tr,
-                columnListEndPos - $columnEndPos.node().nodeSize,
-              );
-              tr.insert($blockEndPos.pos, nextBlockInfo.block.node);
-              tr.setSelection(
-                TextSelection.near(tr.doc.resolve(nextBlockBeforePos)),
-              );
+              moveBlockOutAndPlaceCaret(tr, {
+                from: target.block.beforePos,
+                to: target.block.afterPos,
+                node: target.block.node,
+                insertAt: blockInfo.block.afterPos,
+              });
             }
 
             return true;
@@ -555,10 +662,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!blockInfo.hasContent) {
               return false;
             }
-            const { content } = blockInfo;
 
             const selectionAtBlockEnd =
-              state.selection.from === content.afterPos - 1;
+              state.selection.from === blockInfo.contentEnd;
             const selectionEmpty = state.selection.empty;
 
             if (selectionAtBlockEnd && selectionEmpty) {
@@ -590,6 +696,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 return false;
               }
 
+              const nextBlockContent = nextBlockInfo.content.node;
               const nextBlockHasInlineContent =
                 nextBlockInfo.contentKind === "inline";
               const blockHasInlineContent = blockInfo.contentKind === "inline";
@@ -609,7 +716,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   .insertContentAt(
                     state.selection.from,
                     nextBlockHasInlineContent && blockHasInlineContent
-                      ? nextBlockInfo.content.node.content
+                      ? nextBlockContent.content
                       : null,
                   )
                   .setTextSelection(state.selection.from)
@@ -630,8 +737,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const blockEmpty =
-              blockInfo.content.node.childCount === 0 &&
-              blockInfo.contentKind === "inline";
+              blockInfo.isContentEmpty && blockInfo.contentKind === "inline";
 
             if (blockEmpty) {
               const nextBlockInfo = getNextBlockInfo(
@@ -654,7 +760,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 );
               } else {
                 chainedCommands = chainedCommands.setTextSelection(
-                  nextBlockInfo.content.beforePos + 1,
+                  nextBlockInfo.contentStart,
                 );
               }
 
@@ -681,7 +787,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockEnd =
-              state.selection.from === blockInfo.content.afterPos - 1;
+              state.selection.from === blockInfo.contentEnd;
             const selectionEmpty = state.selection.empty;
 
             const nextBlockInfo = getNextBlockInfo(
@@ -702,7 +808,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   nextBlockInfo.isContentEmpty);
 
               if (nextBlockNotTableAndNoContent) {
-                const childBlocks = nextBlockInfo.block.node.lastChild!.content;
                 return chain()
                   .deleteRange({
                     from: nextBlockInfo.block.beforePos,
@@ -710,9 +815,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   })
                   .insertContentAt(
                     blockInfo.block.afterPos,
-                    nextBlockInfo.block.node.childCount === 2
-                      ? childBlocks
-                      : null,
+                    nextBlockInfo.children?.node.content ?? null,
                   )
                   .run();
               }
@@ -732,15 +835,15 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!blockInfo.hasContent) {
               return false;
             }
-            const { block, content } = blockInfo;
+            const { block: blockContainer } = blockInfo;
 
-            const { depth } = state.doc.resolve(block.beforePos);
+            const { depth } = state.doc.resolve(blockContainer.beforePos);
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
-            const blockEmpty = content.node.childCount === 0;
+            const blockEmpty = blockInfo.isContentEmpty;
             const blockIndented = depth > 1;
 
             if (
@@ -818,6 +921,68 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
+        // If the block is empty and the last child of a container or an
+        // owned-children body, moves the block out (double Enter exits the
+        // container). The block lands at the nearest enclosing position that
+        // accepts it. E.g. out of a column it skips the columnList, which
+        // holds only columns, and lands below it. Without this, Enter only
+        // ever creates new blocks within the container, so the cursor could
+        // never leave a trailing container. Shift+Enter still adds spacing
+        // inside a container. The first block of a body stays put: it is
+        // where the body begins, not a way out of it.
+        () =>
+          commands.command(({ state, tr, dispatch }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.hasContent) {
+              return false;
+            }
+
+            const selectionEmpty =
+              state.selection.anchor === state.selection.head;
+            const blockEmpty = blockInfo.isContentEmpty;
+            if (!selectionEmpty || !blockEmpty) {
+              return false;
+            }
+
+            const $pos = tr.doc.resolve(blockInfo.block.beforePos);
+            // Only fires on the container's last child.
+            if (tr.doc.resolve(blockInfo.block.afterPos).nodeAfter !== null) {
+              return false;
+            }
+
+            const owner = getParentBlockInfo(tr.doc, blockInfo.block.beforePos);
+            if (!owner || !owner.hasOwnedChildren) {
+              return false;
+            }
+            // The first block of a body stays put: it is where the body
+            // begins, not a way out of it. (A container's own first child has
+            // no such role, so it may still leave.)
+            if ($pos.index() === 0 && owner.hasContent) {
+              return false;
+            }
+
+            const ownerAfterPos = ascendToInsertablePos(
+              tr.doc,
+              owner.block.afterPos,
+              state.schema.nodes["blockContainer"],
+              "after",
+            );
+            if (ownerAfterPos === undefined) {
+              return false;
+            }
+
+            if (dispatch) {
+              moveBlockOutAndPlaceCaret(tr, {
+                from: blockInfo.block.beforePos,
+                to: blockInfo.block.afterPos,
+                node: blockInfo.block.node,
+                insertAt: ownerAfterPos,
+              });
+              tr.scrollIntoView();
+            }
+
+            return true;
+          }),
         // Creates a new block and moves the selection to it if the current one is empty, while the selection is also
         // empty & at the start of the block.
         () =>
@@ -826,16 +991,16 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!blockInfo.hasContent) {
               return false;
             }
-            const { block, content } = blockInfo;
+            const { block: blockContainer } = blockInfo;
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
-            const blockEmpty = content.node.childCount === 0;
+            const blockEmpty = blockInfo.isContentEmpty;
 
             if (selectionAtBlockStart && selectionEmpty && blockEmpty) {
-              const newBlockInsertionPos = block.afterPos;
+              const newBlockInsertionPos = blockContainer.afterPos;
               const newBlockContentPos = newBlockInsertionPos + 2;
 
               if (dispatch) {
@@ -874,6 +1039,69 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
+        // Enter in a titled block's own content (a callout's title) starts its
+        // body rather than splitting the block in two: whatever follows the
+        // cursor becomes the body's first block, and the body the callout
+        // already had stays where it is.
+        () =>
+          commands.command(({ state, tr, dispatch }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.hasContent) {
+              return false;
+            }
+
+            if (!blockInfo.hasOwnedChildren) {
+              return false;
+            }
+            if (!state.selection.empty) {
+              return false;
+            }
+            if (
+              state.selection.from < blockInfo.contentStart ||
+              state.selection.from > blockInfo.contentEnd
+            ) {
+              return false;
+            }
+
+            if (dispatch) {
+              // Everything after the cursor moves into the new block, so
+              // splitting the title mid-way puts its tail at the top of the
+              // body instead of handing the body to a new sibling.
+              const tail = blockInfo.content.node.cut(
+                state.selection.from - blockInfo.contentStart,
+              );
+              const newBlock = state.schema.nodes["blockContainer"].create(
+                undefined,
+                state.schema.nodes["paragraph"].create(undefined, tail.content),
+              );
+
+              tr.delete(state.selection.from, blockInfo.contentEnd);
+
+              const body = getBlockInfoAt(
+                tr.doc,
+                blockInfo.block.beforePos,
+              ).children;
+              // Without a body yet, one is created around the new block.
+              const insertPos = body
+                ? body.childrenStart
+                : tr.mapping.map(blockInfo.content.afterPos);
+              tr.insert(
+                insertPos,
+                body
+                  ? newBlock
+                  : state.schema.nodes["blockGroup"].create(
+                      undefined,
+                      newBlock,
+                    ),
+              )
+                .setSelection(
+                  new TextSelection(tr.doc.resolve(insertPos + (body ? 2 : 3))),
+                )
+                .scrollIntoView();
+            }
+
+            return true;
+          }),
         // Splits the current block, moving content inside that's after the cursor to a new text block below. Also
         // deletes the selection beforehand, if it's not empty.
         () =>
@@ -882,11 +1110,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!blockInfo.hasContent) {
               return false;
             }
-            const { content } = blockInfo;
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
-            const blockEmpty = content.node.childCount === 0;
+            const blockEmpty = blockInfo.isContentEmpty;
 
             if (!blockEmpty) {
               chain()

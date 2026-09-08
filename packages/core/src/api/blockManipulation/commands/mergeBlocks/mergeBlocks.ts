@@ -1,10 +1,42 @@
 import { EditorState } from "prosemirror-state";
 
 import {
+  type BlockInfo,
   getBlockInfoAt,
   getLastDescendantBlockInfo,
   getPrevBlockInfo,
 } from "../../../getBlockInfoFromPos.js";
+
+// Un-nests the next block's children by one level, so they survive as
+// siblings of the merged block rather than as children of a block that no
+// longer exists once the boundary below is deleted.
+//
+// Note `state.tr` is tiptap's chainable state, whose getter returns the one
+// transaction shared by the command chain (not a fresh `Transaction` like
+// `EditorState.tr`), so this lift carries over into the `dispatch` below.
+function unnestNextChildren(
+  state: EditorState,
+  dispatch: ((args?: any) => any) | undefined,
+  nextBlockInfo: BlockInfo,
+) {
+  if (dispatch && nextBlockInfo.children) {
+    const childBlocksRange = state.doc
+      .resolve(nextBlockInfo.children.childrenStart)
+      .blockRange(state.doc.resolve(nextBlockInfo.children.childrenEnd));
+
+    // A block's children always sit at the same depth in the same parent, so
+    // they form a block range. No range means the doc is malformed, which is
+    // a bug rather than a case to merge around.
+    if (!childBlocksRange) {
+      throw new Error("Children of a block are expected to form a block range");
+    }
+
+    state.tr.lift(
+      childBlocksRange,
+      state.doc.resolve(nextBlockInfo.block.beforePos).depth,
+    );
+  }
+}
 
 /**
  * Merges the block starting at `posBetweenBlocks` into the block visually
@@ -43,58 +75,45 @@ export const mergeBlocksCommand =
     // visually, that's the block directly above the boundary.
     const bottomNestedBlockInfo = getLastDescendantBlockInfo(prevBlockInfo);
 
-    // Only inline-content blocks can merge, and merging into an empty block
-    // is handled elsewhere (by deleting the empty block instead). Merging
-    // into or out of container blocks (columnLists, callouts, ...) is
-    // intentionally unsupported; the container-boundary Backspace/Delete
-    // branches in `KeyboardShortcutsExtension` handle those cases by moving
-    // blocks across the boundary instead of merging their content.
+    return mergeBlockPairCommand(
+      bottomNestedBlockInfo,
+      nextBlockInfo,
+    )({
+      state,
+      dispatch,
+    });
+  };
+
+/**
+ * Merges `nextBlockInfo` into `prevBlockInfo`, when both hold inline content.
+ * Unlike {@link mergeBlocksCommand} the two blocks are given rather than
+ * derived from a position, so blocks that aren't siblings can be merged — a
+ * titled block's first child into the block that owns it.
+ */
+export const mergeBlockPairCommand =
+  (prevBlockInfo: BlockInfo, nextBlockInfo: BlockInfo) =>
+  ({
+    state,
+    dispatch,
+  }: {
+    state: EditorState;
+    dispatch: ((args?: any) => any) | undefined;
+  }) => {
     if (
-      !bottomNestedBlockInfo.hasContent ||
-      bottomNestedBlockInfo.contentKind !== "inline" ||
-      bottomNestedBlockInfo.isContentEmpty ||
+      !prevBlockInfo.hasContent ||
+      prevBlockInfo.contentKind !== "inline" ||
+      prevBlockInfo.isContentEmpty ||
       !nextBlockInfo.hasContent ||
       nextBlockInfo.contentKind !== "inline"
     ) {
       return false;
     }
 
-    // Un-nests the next block's children by one level, so they survive as
-    // siblings of the merged block rather than as children of a block that no
-    // longer exists once the boundary below is deleted.
-    //
-    // Note `state.tr` is tiptap's chainable state, whose getter returns the one
-    // transaction shared by the command chain (not a fresh `Transaction` like
-    // `EditorState.tr`), so this lift carries over into the `dispatch` below.
-    if (dispatch && nextBlockInfo.children) {
-      const childBlocksRange = state.doc
-        .resolve(nextBlockInfo.children.childrenStart)
-        .blockRange(state.doc.resolve(nextBlockInfo.children.childrenEnd));
+    unnestNextChildren(state, dispatch, nextBlockInfo);
 
-      // A block's children always sit at the same depth in the same parent, so
-      // they form a block range. No range means the doc is malformed, which is
-      // a bug rather than a case to merge around.
-      if (!childBlocksRange) {
-        throw new Error(
-          "Children of a block are expected to form a block range",
-        );
-      }
-
-      state.tr.lift(
-        childBlocksRange,
-        state.doc.resolve(nextBlockInfo.block.beforePos).depth,
-      );
-    }
-
-    // Deletes the boundary between the two blocks. Can be thought of as
-    // removing the closing tags of the first block and the opening tags of the
-    // second one to stitch them together.
     if (dispatch) {
       dispatch(
-        state.tr.delete(
-          bottomNestedBlockInfo.contentEnd,
-          nextBlockInfo.contentStart,
-        ),
+        state.tr.delete(prevBlockInfo.contentEnd, nextBlockInfo.contentStart),
       );
     }
 

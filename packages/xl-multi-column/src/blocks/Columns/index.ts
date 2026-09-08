@@ -1,28 +1,68 @@
+import { createBlockSpec } from "@blocknote/core";
+
+import { ColumnResizeExtension } from "../../extensions/ColumnResize/ColumnResizeExtension.js";
 import { MultiColumnDropHandlerExtension } from "../../extensions/DropCursor/multiColumnHandleDropPlugin.js";
-import { Column } from "../../pm-nodes/Column.js";
-import { ColumnList } from "../../pm-nodes/ColumnList.js";
 
-import { createBlockSpecFromTiptapNode } from "@blocknote/core";
+const COLUMN_WIDTH_DEFAULT = 1;
 
-export const ColumnBlock = createBlockSpecFromTiptapNode(
+export const ColumnBlock = createBlockSpec(
   {
-    node: Column,
-    type: "column",
+    type: "column" as const,
+    propSchema: {
+      width: {
+        default: COLUMN_WIDTH_DEFAULT,
+      },
+    },
     content: "none",
+    children: { allow: "blocks" },
+    placeable: "namedOnly",
   },
   {
-    width: {
-      default: 1,
+    meta: {
+      draggable: false,
+    },
+    render: (block) => {
+      const dom = document.createElement("div");
+      dom.className = "bn-block-column";
+      dom.style.flexGrow = String(block.props.width ?? COLUMN_WIDTH_DEFAULT);
+
+      return {
+        dom,
+        contentDOM: dom,
+        update: (newBlock) => {
+          dom.style.flexGrow = String(
+            newBlock.attrs.width ?? COLUMN_WIDTH_DEFAULT,
+          );
+        },
+      };
     },
   },
-  [MultiColumnDropHandlerExtension()],
-);
+  [MultiColumnDropHandlerExtension(), ColumnResizeExtension()],
+)();
 
-export const ColumnListBlock = createBlockSpecFromTiptapNode(
+export const ColumnListBlock = createBlockSpec(
   {
-    node: ColumnList,
-    type: "columnList",
+    type: "columnList" as const,
+    propSchema: {},
     content: "none",
+    children: {
+      allow: ["column"],
+      min: 2,
+    },
   },
-  {},
-);
+  {
+    meta: {
+      draggable: false,
+    },
+    render: () => {
+      const dom = document.createElement("div");
+      dom.className = "bn-block-column-list";
+      dom.style.display = "flex";
+
+      return {
+        dom,
+        contentDOM: dom,
+      };
+    },
+  },
+)();

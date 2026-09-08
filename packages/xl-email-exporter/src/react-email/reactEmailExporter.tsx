@@ -246,22 +246,24 @@ export class ReactEmailExporter<
         i = nextIndex;
         continue;
       }
-      // Multi-column blocks stack their content vertically in email (their
-      // mappings render nothing themselves). The columns' children are
-      // structural, not nested sub-content, so they render flat - no
-      // indentation wrapper, and at the *same* nesting level (a level bump
-      // per wrapper would report column content as deeply nested to
-      // level-sensitive mappings).
-      if (b.type === "columnList" || b.type === "column") {
-        ret.push(
-          <React.Fragment key={b.id}>
-            {await this.transformBlocks(b.children, nestingLevel)}
-          </React.Fragment>,
+      if (this.isContainerBlock(b)) {
+        // Container blocks (columnList, column, custom containers): the
+        // mapping owns the placement of the children, so they are passed in
+        // and not rendered as an indented sibling list.
+        const containerChildren = await this.transformBlocks(
+          b.children,
+          nestingLevel + 1,
         );
+        const containerSelf = (await this.mapBlock(
+          b as any,
+          nestingLevel,
+          0,
+          containerChildren as any,
+        )) as any;
+        ret.push(<React.Fragment key={b.id}>{containerSelf}</React.Fragment>);
         i++;
         continue;
       }
-
       // Non-list blocks
       const children = await this.transformBlocks(b.children, nestingLevel + 1);
       const self = (await this.mapBlock(b as any, nestingLevel, 0)) as any;
