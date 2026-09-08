@@ -56,7 +56,10 @@ export function createMultiColumnHandleDropPlugin(
               allTargetChildrenDragged = false;
             }
           });
-          if (allTargetChildrenDragged) {
+          if (
+            allTargetChildrenDragged &&
+            draggedBlockIds.size === blockInfo.block.node.childCount
+          ) {
             return true;
           }
 
@@ -121,21 +124,19 @@ export function createMultiColumnHandleDropPlugin(
             // removed).
             .filter((column) => column.children.length > 0);
 
-          // The insertion index is computed on the remaining columns, as
-          // removing an emptied column before the drop target shifts the
-          // target's position in the list.
-          const targetIndex = remainingColumns.findIndex(
+          // Count surviving columns before the original drop boundary. This
+          // also works when the selection empties the target column itself.
+          const originalTargetIndex = columnList.children.findIndex(
             (column) => column.id === targetColumnId,
           );
-          if (targetIndex === -1) {
-            // The target column can only be missing if the drag emptied it,
-            // which is handled as a no-op above.
-            throw new Error(
-              "Drop target column not found in the remaining columns",
-            );
-          }
-          const insertionIndex =
-            edgePos.position === "left" ? targetIndex : targetIndex + 1;
+          const boundary =
+            originalTargetIndex + (edgePos.position === "right" ? 1 : 0);
+          const survivingIds = new Set(
+            remainingColumns.map((column) => column.id),
+          );
+          const insertionIndex = columnList.children
+            .slice(0, boundary)
+            .filter((column) => survivingIds.has(column.id)).length;
 
           // Insert the dragged blocks as a new column in the correct
           // position.
@@ -156,9 +157,13 @@ export function createMultiColumnHandleDropPlugin(
             editor.removeBlocks(blocksToRemove);
           }
 
-          editor.updateBlock(columnList, {
-            children: newChildren,
-          });
+          if (newChildren.length === 1) {
+            editor.replaceBlocks([columnList], draggedBlocks);
+          } else {
+            editor.updateBlock(columnList, {
+              children: newChildren,
+            });
+          }
         } else {
           // Create new columnList with blocks as columns
           const block = nodeToBlock(blockInfo.block.node, view.state.doc);

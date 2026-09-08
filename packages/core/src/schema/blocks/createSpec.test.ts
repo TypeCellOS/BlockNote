@@ -334,3 +334,49 @@ describe("container render contract", () => {
     );
   });
 });
+
+it("scopes external container parsing to childrenDOM", () => {
+  const box = createBlockSpec(
+    {
+      type: "box",
+      propSchema: {},
+      content: "none",
+      children: { allow: "blocks" },
+    },
+    {
+      render() {
+        const dom = document.createElement("div");
+        return { dom, contentDOM: dom };
+      },
+      toExternalHTML() {
+        const dom = document.createElement("div");
+        const label = document.createElement("button");
+        label.textContent = "Control label";
+        const childrenDOM = document.createElement("div");
+        dom.append(label, childrenDOM);
+        return { dom, childrenDOM };
+      },
+    },
+  )();
+  const editor = BlockNoteEditor.create({
+    schema: BlockNoteSchema.create({
+      blockSpecs: { ...defaultBlockSpecs, box },
+    }),
+    initialContent: [
+      { type: "box", children: [{ type: "paragraph", content: "Body" }] },
+    ],
+  });
+  try {
+    const html = editor.blocksToHTMLLossy(editor.document);
+    expect(html).toContain('data-children-of="box"');
+    const parsed = editor.tryParseHTMLToBlocks(html);
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0].type).toBe("box");
+    expect(parsed[0].children).toHaveLength(1);
+    expect(parsed[0].children[0].content).toEqual([
+      { type: "text", text: "Body", styles: {} },
+    ]);
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});

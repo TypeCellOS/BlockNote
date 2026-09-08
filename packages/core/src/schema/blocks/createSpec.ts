@@ -138,7 +138,7 @@ function blockContentParser<
     // Parsed as a paragraph, to extract the inline content by itself.
     const parsed = DOMParser.fromSchema(schema).parse(clone, {
       topNode: schema.nodes.paragraph.create(),
-      preserveWhitespace: true,
+      preserveWhitespace: config.content === "plain" ? "full" : true,
     });
 
     if (config.content === "inline") {
@@ -193,6 +193,7 @@ export function getParseRules<
       : {
           tag: "[data-content-type=" + config.type + "]",
           contentElement: ".bn-inline-content",
+          preserveWhitespace: config.content === "plain" ? "full" : undefined,
         },
   ];
 

@@ -312,7 +312,9 @@ function serializeBlock<
       // (`contentElement` in `getParseRules`) when the HTML is pasted back.
       // Without the marker, non-content UI the render puts elsewhere in its
       // DOM (button labels, captions, ...) parses back as document content.
-      ret.contentDOM?.setAttribute("data-children-of", block.type!);
+      const childrenDOM =
+        ("childrenDOM" in ret && ret.childrenDOM) || ret.contentDOM;
+      childrenDOM?.setAttribute("data-children-of", block.type!);
     }
     elementFragment.append(ret.dom);
     if (nestingLevel > 0) {

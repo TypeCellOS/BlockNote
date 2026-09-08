@@ -1,5 +1,6 @@
 import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import {
+  SideMenuExtension,
   filterSuggestionItems,
   insertOrUpdateBlockForSlashMenu,
 } from "@blocknote/core/extensions";
@@ -7,9 +8,14 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  SideMenu,
+  SideMenuController,
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
+  useBlockNoteEditor,
   useCreateBlockNote,
+  useEditorState,
+  useExtensionState,
 } from "@blocknote/react";
 import { useEffect, useState } from "react";
 import { RiChatQuoteLine } from "react-icons/ri";
@@ -41,6 +47,30 @@ const insertPanel = (editor: typeof schema.BlockNoteEditor) => ({
 
 type AppBlock = (typeof schema.BlockNoteEditor)["document"][number];
 
+function PanelSideMenu() {
+  const editor = useBlockNoteEditor<
+    typeof schema.blockSchema,
+    typeof schema.inlineContentSchema,
+    typeof schema.styleSchema
+  >();
+  const blockId = useExtensionState(SideMenuExtension, {
+    selector: (state) => state?.block.id,
+  });
+  const isFirstPanelChild = useEditorState({
+    editor,
+    selector: () => {
+      if (!blockId || !editor.getBlock(blockId)) {
+        return false;
+      }
+      const parent = editor.getParentBlock(blockId);
+      return parent?.type === "panel" && parent.children[0]?.id === blockId;
+    },
+  });
+
+  // The first child's gutter is occupied by the panel's flavor button.
+  return isFirstPanelChild ? null : <SideMenu />;
+}
+
 export default function App() {
   const [blocks, setBlocks] = useState<AppBlock[]>([]);
 
@@ -55,6 +85,11 @@ export default function App() {
         type: "panel",
         props: { flavor: "tip" },
         children: [
+          {
+            type: "heading",
+            props: { level: 3 },
+            content: "More than paragraphs",
+          },
           {
             type: "paragraph",
             content: "Panels can hold any block as their body.",
@@ -85,10 +120,12 @@ export default function App() {
         <BlockNoteView
           editor={editor}
           slashMenu={false}
+          sideMenu={false}
           onChange={() => {
             setBlocks(editor.document);
           }}
         >
+          <SideMenuController sideMenu={PanelSideMenu} />
           <SuggestionMenuController
             triggerCharacter={"/"}
             getItems={async (query) => {

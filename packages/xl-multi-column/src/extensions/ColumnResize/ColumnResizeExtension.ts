@@ -52,9 +52,28 @@ export const columnResizePluginKey = new PluginKey<ColumnState>(
   "ColumnResizePlugin",
 );
 
+function isAdjacentColumnPair(
+  doc: Node,
+  columnList: ColumnData,
+  leftColumn: ColumnData,
+  rightColumn: ColumnData,
+): boolean {
+  const left = doc.resolve(leftColumn.posBeforeNode);
+  const right = doc.resolve(rightColumn.posBeforeNode);
+  return (
+    columnList.node.type.name === "columnList" &&
+    leftColumn.node.type.name === "column" &&
+    rightColumn.node.type.name === "column" &&
+    left.parent === columnList.node &&
+    right.parent === columnList.node &&
+    left.index() + 1 === right.index()
+  );
+}
+
 // Re-resolves all column data stored in the plugin state against a (possibly
 // changed) doc. Falls back to the default state if any of the referenced
-// nodes no longer exist - e.g. when a backspace removes a hovered column, or
+// nodes no longer exist or the columns are no longer an adjacent pair, e.g.
+// when a backspace removes a hovered column, or
 // unwraps the column list entirely - so decorations are never built from
 // positions that are invalid in the new doc.
 function refreshColumnState(state: ColumnState, doc: Node): ColumnState {
@@ -80,7 +99,12 @@ function refreshColumnState(state: ColumnState, doc: Node): ColumnState {
       const leftColumn = refresh(state.leftColumn);
       const rightColumn = refresh(state.rightColumn);
 
-      if (!columnList || !leftColumn || !rightColumn) {
+      if (
+        !columnList ||
+        !leftColumn ||
+        !rightColumn ||
+        !isAdjacentColumnPair(doc, columnList, leftColumn, rightColumn)
+      ) {
         return { type: "default" };
       }
 
@@ -91,7 +115,12 @@ function refreshColumnState(state: ColumnState, doc: Node): ColumnState {
       const leftColumn = refresh(state.leftColumn);
       const rightColumn = refresh(state.rightColumn);
 
-      if (!columnList || !leftColumn || !rightColumn) {
+      if (
+        !columnList ||
+        !leftColumn ||
+        !rightColumn ||
+        !isAdjacentColumnPair(doc, columnList, leftColumn, rightColumn)
+      ) {
         return { type: "default" };
       }
 

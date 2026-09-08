@@ -281,3 +281,38 @@ it("honors a titled block's draggable flag through its regular block wrapper", (
     editor._tiptapEditor.destroy();
   }
 });
+
+it("supplies the node-view context to vanilla frames", () => {
+  const contextualFrame = createBlockSpec(
+    { type: "contextualFrame", propSchema: {}, content: "inline" },
+    {
+      render: renderDiv,
+      renderFrame() {
+        expect(this.renderType).toBe("nodeView");
+        expect(this.props?.node.firstChild?.type.name).toBe("contextualFrame");
+        expect(this.blockContentDOMAttributes).toEqual({
+          "data-test": "content",
+        });
+        expect(this.propSchema).toEqual({});
+        const dom = document.createElement("div");
+        dom.className = "contextual-frame";
+        return { dom, slot: dom };
+      },
+    },
+  )();
+  const editor = BlockNoteEditor.create({
+    schema: BlockNoteSchema.create({
+      blockSpecs: { ...defaultBlockSpecs, contextualFrame },
+    }),
+    domAttributes: { blockContent: { "data-test": "content" } },
+    initialContent: [{ type: "contextualFrame", content: "Title" }],
+  });
+  try {
+    editor.mount(document.createElement("div"));
+    expect(
+      editor.domElement?.querySelector(".contextual-frame")?.textContent,
+    ).toBe("Title");
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});

@@ -1,4 +1,4 @@
-import { BLOCK_SELECTOR, CONTAINER_SELECTOR } from "../blockDOM.js";
+import { BLOCK_SELECTOR } from "../blockDOM.js";
 
 export function getDirectChildBlocks(container: Element): Element[] {
   const children: Element[] = [];
@@ -36,12 +36,12 @@ export function rectIndexAtCursor(
   return verticalMatch;
 }
 
-// Descend through any container layout before probing regular indentation.
+// Descend through child blocks, including regular blocks with padded frames.
 export function getNestedBlockAtCursor(
   element: Element,
   mousePos: { x: number; y: number },
 ): Element {
-  while (element.matches(CONTAINER_SELECTOR)) {
+  while (element.matches(BLOCK_SELECTOR)) {
     const children = getDirectChildBlocks(element);
     const index = rectIndexAtCursor(
       children.map((child) => child.getBoundingClientRect()),

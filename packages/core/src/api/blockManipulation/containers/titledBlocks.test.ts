@@ -1,5 +1,5 @@
 import { NodeSelection, TextSelection } from "prosemirror-state";
-import { describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import {
@@ -15,9 +15,18 @@ import { containerSchema } from "./containers.fixture.js";
 // fixture block is the specimen; `callout` (a pure container) is the control.
 
 const schema = containerSchema;
+const editors = new Set<ReturnType<typeof editorWith>>();
+
+afterEach(() => {
+  for (const editor of editors) {
+    editor._tiptapEditor.destroy();
+  }
+  editors.clear();
+});
 
 function editorWith(initialContent: any[]) {
   const editor = BlockNoteEditor.create({ schema, initialContent } as any);
+  editors.add(editor);
   editor.mount(document.createElement("div"));
   return editor;
 }
@@ -87,8 +96,6 @@ describe("titled-block schema shape", () => {
       expect(info.children?.node.type.name).toBe("blockGroup");
       expect(info.children?.beforePos).toBe(info.content?.afterPos);
     });
-
-    editor._tiptapEditor.destroy();
   });
 
   it("frames the title and the body together in the live DOM", () => {
@@ -102,12 +109,37 @@ describe("titled-block schema shape", () => {
     expect(slot!.textContent).toContain("Title");
     expect(slot!.textContent).toContain("One");
     expect(slot!.textContent).toContain("Two");
-
-    editor._tiptapEditor.destroy();
   });
 });
 
 describe("a titled block's keyboard behaviour", () => {
+  it.each([{ children: [] }, { children: body }])(
+    "Enter in an empty title preserves its body (%j)",
+    ({ children }) => {
+      const editor = editorWith([
+        before,
+        { id: "w", type: "alert", content: "", children },
+        after,
+      ]);
+      editor.setTextCursorPosition("w", "start");
+      expect(press(editor, "Enter")).toBe(true);
+      expect(editor.document.map((block) => block.id)).toEqual([
+        "pre",
+        "w",
+        "post",
+      ]);
+      expect(shape(editor.document[1].children)).toBe(
+        [
+          'paragraph""',
+          ...children.map((block) => `paragraph"${block.content}"`),
+        ].join(", "),
+      );
+      expect(editor.getTextCursorPosition().block.id).toBe(
+        editor.document[1].children[0].id,
+      );
+    },
+  );
+
   it("Enter at the end of the title starts the body, keeping it", () => {
     const editor = editorWith(withAlert());
     editor.setTextCursorPosition("w", "end");
@@ -118,7 +150,6 @@ describe("a titled block's keyboard behaviour", () => {
     expect(shape(editor.document)).toBe(
       'paragraph"Before", alert"Title"[paragraph"", paragraph"One", paragraph"Two"], paragraph"After"',
     );
-    editor._tiptapEditor.destroy();
   });
 
   it("Enter in the middle of the title keeps the body on the alert", () => {
@@ -135,7 +166,6 @@ describe("a titled block's keyboard behaviour", () => {
     expect(shape(editor.document)).toBe(
       'paragraph"Before", alert"Ti"[paragraph"tle", paragraph"One", paragraph"Two"], paragraph"After"',
     );
-    editor._tiptapEditor.destroy();
   });
 
   it("Enter in an empty last body block leaves the alert", () => {
@@ -148,7 +178,6 @@ describe("a titled block's keyboard behaviour", () => {
     expect(shape(editor.document)).toBe(
       'paragraph"Before", alert"Title"[paragraph"One"], paragraph"", paragraph"After"',
     );
-    editor._tiptapEditor.destroy();
   });
 
   it("Enter in an empty body block that is the only one stays put", () => {
@@ -163,7 +192,6 @@ describe("a titled block's keyboard behaviour", () => {
     expect(shape(editor.document)).toBe(
       'paragraph"Before", alert"Title"[paragraph"", paragraph""], paragraph"After"',
     );
-    editor._tiptapEditor.destroy();
   });
 
   it("Backspace at the start of the first body block merges into the title", () => {
@@ -174,7 +202,6 @@ describe("a titled block's keyboard behaviour", () => {
     expect(shape(editor.document)).toBe(
       'paragraph"Before", alert"TitleOne"[paragraph"Two"], paragraph"After"',
     );
-    editor._tiptapEditor.destroy();
   });
 
   it("Shift-Tab in the body does not escape the alert", () => {
@@ -185,7 +212,6 @@ describe("a titled block's keyboard behaviour", () => {
     expect(shape(editor.document)).toBe(
       'paragraph"Before", alert"Title"[paragraph"One", paragraph"Two"], paragraph"After"',
     );
-    editor._tiptapEditor.destroy();
   });
 
   it("Backspace in the block after moves it into the body, whole", () => {
@@ -197,7 +223,6 @@ describe("a titled block's keyboard behaviour", () => {
     expect(shape(editor.document)).toBe(
       'paragraph"Before", alert"Title"[paragraph"One", paragraph"Two", paragraph"After"]',
     );
-    editor._tiptapEditor.destroy();
   });
 
   it("Tab still nests inside the body", () => {
@@ -208,7 +233,6 @@ describe("a titled block's keyboard behaviour", () => {
     expect(shape(editor.document)).toBe(
       'paragraph"Before", alert"Title"[paragraph"One"[paragraph"Two"]], paragraph"After"',
     );
-    editor._tiptapEditor.destroy();
   });
 
   it("Delete at the end of the title merges the first body block into it", () => {
@@ -221,7 +245,6 @@ describe("a titled block's keyboard behaviour", () => {
     expect(shape(editor.document)).toBe(
       'paragraph"Before", alert"TitleOne"[paragraph"Two"], paragraph"After"',
     );
-    editor._tiptapEditor.destroy();
   });
 
   it("Enter with a non-collapsed selection in the title takes the generic split path", () => {
@@ -245,7 +268,6 @@ describe("a titled block's keyboard behaviour", () => {
     expect(shape(editor.document)).toBe(
       'paragraph"Before", alert"T", paragraph"le"[paragraph"One", paragraph"Two"], paragraph"After"',
     );
-    editor._tiptapEditor.destroy();
   });
 });
 
@@ -260,7 +282,6 @@ describe("converting between a titled block and a pure container", () => {
     expect(shape(editor.document)).toBe(
       'paragraph"Before", callout""[paragraph"Title", paragraph"One", paragraph"Two"], paragraph"After"',
     );
-    editor._tiptapEditor.destroy();
   });
 
   it("invents an empty title when a callout becomes an alert", () => {
@@ -283,7 +304,6 @@ describe("converting between a titled block and a pure container", () => {
     expect(shape(editor.document)).toBe(
       'paragraph"Before", alert""[paragraph"One", paragraph"Two"], paragraph"After"',
     );
-    editor._tiptapEditor.destroy();
   });
 });
 
@@ -301,7 +321,6 @@ describe("blocks that declare no children are untouched", () => {
     expect(shape(editor.document)).toBe(
       'paragraph"Before", paragraph"Title", paragraph"One"[paragraph"Two"], paragraph"After"',
     );
-    editor._tiptapEditor.destroy();
   });
 
   it("survives the clipboard round-trip that copy and drag use", () => {
@@ -327,6 +346,5 @@ describe("blocks that declare no children are untouched", () => {
     expect(shape(editor.tryParseHTMLToBlocks(html))).toBe(
       'alert"Title"[paragraph"One", paragraph"Two"]',
     );
-    editor._tiptapEditor.destroy();
   });
 });

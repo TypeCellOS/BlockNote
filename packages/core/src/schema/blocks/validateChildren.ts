@@ -20,24 +20,20 @@ export function validateChildrenConfigs(
       continue;
     }
 
-    const { allow } = config.children;
+    const { allow, min } = config.children;
+    if (config.content === "table") {
+      fail(type, "`children` is not supported on table blocks.");
+    }
 
-    // Titled bodies use the ordinary optional blockGroup. They can own that
-    // body, but cannot specialize its content expression per title type.
+    // Text blocks share an optional child group, so only pure containers
+    // can restrict their children's types or minimum count.
     if (
-      config.content === "inline" &&
-      (config.children.allow !== "blocks" || config.children.min !== undefined)
+      config.content !== "none" &&
+      (allow !== "blocks" || min !== undefined)
     ) {
       fail(
         type,
-        'titled blocks support `children: { allow: "blocks" }` only. Child-type and minimum-count restrictions require a pure container.',
-      );
-    }
-
-    if (config.content !== "none" && config.content !== "inline") {
-      fail(
-        type,
-        `declares \`content: "${config.content}"\` alongside \`children\`. A block with \`children\` either has no content of its own (\`content: "none"\`, a container) or an inline title with a body (\`content: "inline"\`, a titled block). Set \`content: "none"\` or \`"inline"\`, or drop \`children\`.`,
+        'blocks with inline or plain content support `children: { allow: "blocks" }` only. Child-type and minimum-count restrictions require a pure container.',
       );
     }
 

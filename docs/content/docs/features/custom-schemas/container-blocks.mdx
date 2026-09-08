@@ -1,231 +1,200 @@
 ---
 title: Container Blocks
-description: Learn how to create custom blocks that hold other blocks as their body
+description: Learn how to create custom blocks that contain other blocks
 ---
 
 # Container Blocks
 
-A *container block* is a custom block that holds other blocks as its body, like a Notion-style callout wrapping a paragraph and a code block, or a multi-column layout.
+You can create custom blocks that contain other blocks, such as panels, callouts, and column layouts. Take a look at the demo below, in which we add a custom panel to a BlockNote editor, as well as a custom [Slash Menu item](/docs/react/components/suggestion-menus#changing-slash-menu-items) to insert it. Each panel can contain paragraphs, headings, lists, or any other blocks in the editor.
 
-## Declaring a Container Block
+<Example name="custom-schema/container-block" />
 
-Add the `children` option to your block config (created with [`createBlockSpec` or `createReactBlockSpec`](/docs/features/custom-schemas/custom-blocks)). The only required field is `allow`, so the smallest container is:
+## Creating a Container Block
 
-```typescript
+Use the `createReactBlockSpec` function to create a container block, just like a [Custom Block](/docs/features/custom-schemas/custom-blocks). For the panel below, we set `content` to `"none"` and add the `children` option to let it contain other blocks:
+
+```tsx
 import { createReactBlockSpec } from "@blocknote/react";
 
-const createPanel = createReactBlockSpec(
+export const createPanel = createReactBlockSpec(
   {
     type: "panel",
     propSchema: {},
     content: "none",
-    // Makes this a container: its body is other blocks.
     children: { allow: "blocks" },
   },
   {
-    // Child blocks mount into the element you attach `contentRef` to.
-    render: (props) => <div className="panel" ref={props.contentRef} />,
+    render: (props) => (
+      <div className="panel" ref={props.contentRef} />
+    ),
   },
 );
 ```
 
-For a pure container, `children: { allow: "blocks" }` accepts any block and requires at least one. When a container is created without children, BlockNote fills it with empty blocks its schema accepts.
+### Block Config
 
-A pure container declares `content: "none"`: its body is its children. Combining `children` with `content: "inline"` instead gives the block its own content as a title, with the children as its body (see [Blocks with a title and a body](#blocks-with-a-title-and-a-body)). Combining `children` with any other `content` is a schema-creation error. Fields that aren't prose — a flavor, a label, a toggle state — belong in the prop schema instead of document content.
+The block config defines the content and child blocks your container can hold:
 
-At runtime the contained blocks live on `block.children`, the same field used for indented (nested) blocks. On a pure container, `children` controls allowed types and minimum counts. On an inline block, `children: { allow: "blocks" }` makes its ordinary, optional child group an owned body; restricting its types or setting a minimum is not supported:
+`content:` Works the same as for [Custom Blocks](/docs/features/custom-schemas/custom-blocks#block-config-customblockconfig). When using the `children` option, choose `"none"`, `"inline"`, or `"plain"`.
 
-```json
-{
-  "id": "panel-1",
-  "type": "panel",
-  "props": {},
-  "children": [
-    {
-      "id": "para-1",
-      "type": "paragraph",
-      "content": [{ "type": "text", "text": "Hello", "styles": {} }],
-      "children": []
-    }
-  ]
+`children.allow:` Set to `"blocks"` to accept the editor's block types. You can also restrict a container to specific container types, as explained in [Restricting Children](#restricting-children).
+
+`propSchema:` Defines the container's props, just like for other custom blocks. Use these to customize its appearance or behavior.
+
+<Callout type="info">
+  _In the panel demo, we add a `flavor` prop for the panel style: tip, info,
+  warning, or success. Clicking the icon changes this prop using
+  [`editor.updateBlock`](/docs/reference/editor/manipulating-content#updating-blocks)._
+</Callout>
+
+### Block Implementation
+
+`render:` Your React component defines how the block should look. With `content: "none"`, attach `contentRef` where the child blocks should appear. With `content: "inline"` or `"plain"`, attach it to the block's own editable text. You can add icons, buttons, or other elements around it:
+
+```tsx
+render: (props) => (
+  <div className="panel">
+    <span contentEditable={false}>💡</span>
+    <div ref={props.contentRef} />
+  </div>
+),
+```
+
+You can style the component with CSS, just like any other React component:
+
+```css
+.panel {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-left: 4px solid #507aff;
+  border-radius: 6px;
 }
 ```
 
-### Where children render
+## Adding Container Blocks to the Editor
 
-Vanilla `render` marks the block's editable region with `contentDOM` (React: `contentRef`). `renderFrame` adds a second knob for blocks that draw a box around children: whatever element it returns as `slot` becomes the mount point.
-
-| block | children mount |
-| --- | --- |
-| `content: "inline"`, no `children` | `contentDOM` holds its inline content |
-| `content: "none"` + `children` (pure container) | `render`'s `contentDOM` holds its child blocks |
-| `content: "inline"` + `children` (titled block) | `contentDOM` holds the title; the frame's `slot` holds the rendered title followed by the child blocks |
-
-A `content: "none"` block *without* `children` is the only kind with nothing to place, and it's the only kind that isn't offered a `contentRef` at all.
-
-A pure container owns its entire outer DOM. BlockNote doesn't wrap it in the usual block element: whatever element your `render` returns as `dom` *is* the block's element, and BlockNote stamps the attributes it relies on for parsing and UI positioning onto it (`data-node-type`, `data-id`, and each non-default prop as a `data-*` attribute). A titled block keeps the standard block wrapper; its frame lives inside it, surrounding the title and the body together.
-
-<Callout type="info">
-  _The framework wrappers React puts above your element carry `display:
-  contents`, so they contribute no box and your element lays out exactly as if
-  it were the block's root. Selection is mirrored onto it as a `data-selected`
-  attribute, so `[data-selected]` is what you style for the selected state._
-</Callout>
-
-The demo below puts this together: a panel block that can contain any other blocks, drawing its box in `render` with a flavor switcher:
-
-<Example name="custom-schema/container-block" />
-
-## Blocks with a title and a body
-
-A block with `content: "inline"` plus `children` has both a title and a body. The title is ordinary inline content — formatting, links, and multiplayer cursors all work — and the body is child blocks that belong to it. `render` draws the title row, `renderFrame` draws the box around the title and the body together:
+Add your container to a [BlockNote schema](/docs/features/custom-schemas#creating-your-own-schema):
 
 ```typescript
-const createAlert = createBlockSpec(
-  {
-    type: "alert",
-    propSchema: {
-      flavor: { default: "info", values: ["info", "warning", "success"] },
+import { BlockNoteSchema } from "@blocknote/core";
+import { createPanel } from "./Panel";
+
+const schema = BlockNoteSchema.create().extend({
+  blockSpecs: {
+    panel: createPanel(),
+  },
+});
+```
+
+You can then create an editor with this schema, as explained on the [Custom Schemas](/docs/features/custom-schemas) page. Use `children` to set the blocks inside a panel:
+
+```typescript
+import { useCreateBlockNote } from "@blocknote/react";
+
+const editor = useCreateBlockNote({
+  schema,
+  initialContent: [
+    {
+      type: "panel",
+      children: [
+        { type: "heading", content: "Getting started" },
+        { type: "paragraph", content: "Follow these steps to get set up." },
+        { type: "checkListItem", content: "Create an account" },
+      ],
     },
+  ],
+});
+```
+
+If you create a panel without specifying its children, it starts with an empty paragraph. To let users insert panels themselves, add a [custom Slash Menu item](/docs/react/components/suggestion-menus#changing-slash-menu-items), as shown in the demo.
+
+## Combining Content and Child Blocks
+
+A block can have both its own text and child blocks. Use this for a question followed by hints, a checklist item with detailed instructions, a code sample followed by explanatory blocks, or a callout with a heading. In the demo below, we use the block's text as a callout title:
+
+<Example name="custom-schema/callout-block" />
+
+Set `content` to `"inline"` for rich text or `"plain"` for unstyled text, and add `children: { allow: "blocks" }`. Use `render` for the block's own text and `renderFrame` to style that content and its child blocks together:
+
+```tsx
+import { createReactBlockSpec } from "@blocknote/react";
+
+export const createCallout = createReactBlockSpec(
+  {
+    type: "callout",
+    propSchema: {},
     content: "inline",
     children: { allow: "blocks" },
   },
   {
-    // The title row: the title mounts into `contentDOM`.
-    render: () => {
-      const dom = document.createElement("div");
-      const contentDOM = document.createElement("span");
-      dom.append(contentDOM);
-      return { dom, contentDOM };
-    },
-    // The box: the title row and the body render into `slot` together.
-    // Flavor styling lives here, since the frame rebuilds when props change.
-    renderFrame: (block) => {
-      const dom = document.createElement("div");
-      dom.dataset.flavor = block.props.flavor;
-      const slot = document.createElement("div");
-      dom.append(slot);
-      return { dom, slot };
-    },
+    render: (props) => (
+      <div className="callout-title" ref={props.contentRef} />
+    ),
+    renderFrame: (props) => (
+      <div className="callout">
+        <div ref={props.contentRef} />
+      </div>
+    ),
   },
 );
 ```
 
-Editing gestures treat the title and the body as one unit: Enter at the end of the title starts the body, Enter on an empty last body block leaves it, Backspace at the start of the first body block merges back into the title, and Shift-Tab stops at the body's edge instead of lifting the block out of it. An alert without a title needs no title row — it is just a pure container drawing its box in `render`. The React example below shows a callout whose title is real rich text:
+`render:` Attach `contentRef` to the block's own editable text. With `content: "inline"`, users can format it and add links, just like in a paragraph. In this example, we style it as a callout title.
 
-<Example name="custom-schema/callout-block" />
+For plain text, set `content: "plain"` and use a `<pre>` element to display line breaks and spacing:
 
-<Callout type="info">
-  _In React (`createReactBlockSpec`), `render` and `renderFrame` are live components receiving `{ block, editor, contentRef }`. Attach the frame's slot with `ref={contentRef}`. Frames support hooks, context, and interactive controls through the outer block's React node view. Return `null` to decline framing; the title and children remain in the default wrapper. HTML export renders the same component through the existing static renderer. An explicit `toExternalHTML` owns the export instead._
-</Callout>
-
-## Frames and child ownership
-
-Vanilla frames receive the current block, including its content and children. Without an `update` hook, a block change rebuilds the frame. Supply `update(block)` to patch the existing frame and preserve its DOM. React frames receive updated block props through their node view.
-
-`renderFrame` does not require `children`, and does not change editing behavior. A toggle can declare only `renderFrame` and keep ordinary nesting, including Shift-Tab moving a child out. A callout declares both to frame an owned body. `render` remains required on every block; a pure container already owns its box through `render` and does not use `renderFrame`.
-
-## `children` options
-
-| Option | Default | Description |
-| --- | --- | --- |
-| `allow` | (required) | What may appear as a child: `"blocks"`, or an array of container block types. See [Restricting children](#restricting-children). |
-| `min` | `1` (pure containers) | How few children a pure container may hold. Compiled into the editor schema. Titled bodies are optional and do not accept this option. |
-
-`placeable` sits next to `children` on the block config rather than inside it, because it's a fact about *this* block rather than about its children:
-
-| Option | Default | Description |
-| --- | --- | --- |
-| `placeable` | `"anywhere"` | `"namedOnly"` restricts the block to containers that name it in their `children.allow` array, like a `column`, which only makes sense inside a `columnList`. It also requires the block to be a container itself. `"anywhere"` is valid on any block; on a regular block it simply restates the default. |
-
-`column` and `columnList`, introduced in [Multi-Column Layouts](/docs/foundations/document-structure#column-blocks), are themselves container blocks defined with this API — [Restricting children](#restricting-children) shows their exact config.
-
-Purely behavioral options that apply to *every* block kind stay in the block implementation's `meta`:
-
-| Meta option | Default | Description |
-| --- | --- | --- |
-| `draggable` | `true` | Whether the block gets a side menu drag handle. A block that opts out is skipped when looking for a handle, so the handle falls through to the nearest draggable ancestor. |
-
-When a container's non-empty children drop below `min`, BlockNote repairs it: a container that can live anywhere is replaced by its surviving children (or removed when none are left), so emptied columns disappear and a one-column list dissolves. A `namedOnly` block can never stand outside its parent, so it is padded back up to `min` with empty blocks instead.
-
-<Callout type="warn">
-  _Repair never destroys typed text: only empty children are dropped._
-</Callout>
-
-## Restricting children
-
-`allow` takes one of two forms:
-
-```typescript
-allow: "blocks" | string[]
+```tsx
+render: (props) => <pre ref={props.contentRef} />,
 ```
 
-- `"blocks"`: any regular block, plus any container placeable anywhere.
-- `string[]`: only the named container block types.
+The child blocks can still contain rich text, images, and other block types.
 
-The `"blocks"` form excludes `placeable: "namedOnly"` types: a `column` never shows up inside your panel just because the panel accepts `"blocks"`. A `namedOnly` type appears only where a parent names it in an array.
+`renderFrame:` An optional React component for styling the block and its children together, such as giving the callout a shared border or background. It receives `block`, `editor`, and `contentRef`, just like `render`. Attach `contentRef` where the block's content and children should appear. You can use the block's props to customize the frame, add interactive controls, or return `null` to show the block without a frame.
 
-Only container block types can be named in the array. Naming a regular block type is a startup error, since regular blocks share one node type and can only be allowed as a whole — see [Validation](#validation).
+You can also use `renderFrame` without the `children` option to style a block and its indented children together. For a container with `content: "none"`, like the panel above, add the surrounding styling directly in `render`.
 
-This is exactly how the multi-column blocks are defined:
+Add `callout: createCallout()` to your schema, then use `content` for the title and `children` for the body:
 
 ```typescript
-// The outer container: only columns, at least two of them;
-// dissolves when it drops to one.
-children: {
-  allow: ["column"],
-  min: 2,
+{
+  type: "callout",
+  content: "Before you start",
+  children: [
+    { type: "paragraph", content: "Make sure you have an account." },
+  ],
 }
+```
 
-// The column: holds any blocks, but only lives inside a columnList.
+Pressing Enter at the end of the title starts a paragraph in the body. Moving the callout moves its title and body together.
+
+To add blocks to an existing container, see [Inserting Blocks](/docs/reference/editor/manipulating-content#inserting-blocks).
+
+## Restricting Children
+
+For structured layouts, you can limit a container to specific container types. For example, a column layout should only contain columns, while each column can contain any block.
+
+Use an array of container type names for `children.allow`, and `min` to set the minimum number of children:
+
+```typescript
+// Column layout config:
+children: { allow: ["column"], min: 2 },
+```
+
+On the column itself, set `placeable` to `"namedOnly"` so it can only be used inside a container that explicitly allows it:
+
+```typescript
+// Column config:
 children: { allow: "blocks" },
 placeable: "namedOnly",
 ```
 
-## Inserting into a container
+`children.allow:` Accepts `"blocks"` or an array of container type names. You cannot list regular block types such as `"paragraph"` individually.
 
-[`editor.insertBlocks`](/docs/reference/editor/manipulating-content#inserting-blocks) takes two nested placements alongside the sibling ones:
+`children.min:` The minimum number of children. Defaults to `1`.
 
-```typescript
-// Siblings of the reference block:
-editor.insertBlocks([{ type: "paragraph" }], panelId, "before");
-editor.insertBlocks([{ type: "paragraph" }], panelId, "after");
+`placeable:` Set to `"namedOnly"` to restrict a container to parents that name it in `children.allow`. Defaults to `"anywhere"`.
 
-// Nested inside it, as its first or last child:
-editor.insertBlocks([{ type: "paragraph" }], panelId, "first-child");
-editor.insertBlocks([{ type: "paragraph" }], panelId, "last-child");
-```
+These options apply to containers with `content: "none"`. Blocks with `content: "inline"` or `"plain"` use `children: { allow: "blocks" }` and can have no child blocks.
 
-`first-child` and `last-child` insert inside the referenced block, before or after its existing children. They're also the only way into a container that is currently empty: `before` and `after` need an existing child to anchor to.
-
-## Validation
-
-Configurations are checked when the schema is created, and fail up front with a message naming the block. Beyond unknown block types, this catches:
-
-- an `allow` that permits nothing: an empty array;
-- an `allow` array naming an unknown type, or naming a regular block type (per-type filtering of regular blocks is [not supported](#restricting-children));
-- `children` combined with any `content` other than `"none"` or `"inline"`;
-- `placeable: "namedOnly"` on a regular block;
-- restricted child types or an explicit `min` on a titled block.
-
-Recursive content expressions and automatic child filling are handled by ProseMirror.
-
-Documents are checked too. `initialContent` that doesn't fit the schema throws when the editor is created, rather than loading in a broken state. This matters when you change a `children` config on a schema whose documents are already saved somewhere: a stored document that no longer fits, say a `columnList` left with a single column, now fails at load. Migrate those documents before shipping the change.
-
-## Parsing HTML into a container
-
-A container's `parse` callback and `parseContent` work as described for [custom blocks](/docs/features/custom-schemas/custom-blocks). The default parse rule differs, though: containers match `[data-node-type="<type>"]`, not the `data-content-type` attribute regular blocks use.
-
-What's specific to a container is its body. By default BlockNote parses the element's children with the normal block rules, so `<div class="card"><p>…</p><h1>…</h1></div>` becomes a card with a paragraph and a heading. Supply `parseContent` only when you need to build the body yourself.
-
-<Callout type="warn">
-  _`allow` does not filter what a user pastes. Content your container rejects is
-  placed after the container rather than dropped. `allow` constrains the
-  document model, not the parser._
-</Callout>
-
-## Interop behavior
-
-Containers serialize to a `<div>` with their children nested inside, and round-trip losslessly. For lossy targets you place the children yourself: return a `childrenDOM` from `toExternalHTML` (this is how toggles export as `<details>`), and give container blocks an explicit mapping in the DOCX, ODT, email, Typst, and PDF exporters, which throw on a missing one. That mapping receives the container's rendered children as its last argument and decides where they go — the exporters do not append them after the container's own output. Markdown flattens containers, exporting their children in order.
-
-When changing a block's type with `updateBlock`, existing children must fit the destination container. An incompatible conversion is rejected before the document changes. Supply `children` explicitly to replace them; the generic API does not filter or wrap incompatible children automatically.
+For built-in column blocks, see [Multi-Column Layouts](/docs/foundations/document-structure#column-blocks).

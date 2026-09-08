@@ -382,32 +382,33 @@ describe("repair edge cases", () => {
     },
   )();
 
-  const trayEditor = BlockNoteEditor.create({
-    schema: containerSchema.extend({
-      blockSpecs: { tray: Tray },
-    }),
-  }) as BlockNoteEditor<any, any, any>;
-
   it("keeps a `min: 0` container with zero children", () => {
-    trayEditor.replaceBlocks(trayEditor.document, [
-      {
-        type: "tray",
-        id: "t-0",
-        children: [{ id: "t-p-0", type: "paragraph", content: "" }],
-      },
-      { id: "trailing", type: "paragraph", content: "" },
-    ]);
+    const trayEditor = BlockNoteEditor.create({
+      schema: containerSchema.extend({
+        blockSpecs: { tray: Tray },
+      }),
+    });
+    try {
+      trayEditor.replaceBlocks(trayEditor.document, [
+        {
+          type: "tray",
+          id: "t-0",
+          children: [{ id: "t-p-0", type: "paragraph", content: "" }],
+        },
+        { id: "trailing", type: "paragraph", content: "" },
+      ]);
 
-    // Removing its only (empty) child leaves zero children, which `min: 0`
-    // allows: the tray stays instead of dissolving, and nothing is padded
-    // back.
-    trayEditor.removeBlocks(["t-p-0"]);
+      // Removing its only (empty) child leaves zero children, which `min: 0`
+      // allows: the tray stays instead of dissolving, and nothing is padded
+      // back.
+      trayEditor.removeBlocks(["t-p-0"]);
 
-    expect(trayEditor.getBlock("t-0")).toBeDefined();
-    expect(trayEditor.getBlock("t-0")!.children).toHaveLength(0);
-    expect(() => trayEditor.prosemirrorState.doc.check()).not.toThrow();
-
-    trayEditor._tiptapEditor.destroy();
+      expect(trayEditor.getBlock("t-0")).toBeDefined();
+      expect(trayEditor.getBlock("t-0")!.children).toHaveLength(0);
+      expect(() => trayEditor.prosemirrorState.doc.check()).not.toThrow();
+    } finally {
+      trayEditor._tiptapEditor.destroy();
+    }
   });
 
   it("keeps emptied regular blocks when the container survives", () => {

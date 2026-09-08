@@ -18,6 +18,7 @@ function createFrameView(
   props: NodeViewRendererProps,
   editor: BlockNoteEditor,
   fallback: HTMLElement,
+  blockContentDOMAttributes: Record<string, string>,
 ): NodeView {
   const type = props.node.firstChild!.type.name;
   const implementation = editor.blockImplementations[type].implementation;
@@ -26,7 +27,13 @@ function createFrameView(
   }
 
   const renderFrame = implementation.renderFrame;
-  const frame = renderFrame?.(
+  const frame = renderFrame?.call(
+    {
+      renderType: "nodeView",
+      props,
+      blockContentDOMAttributes,
+      propSchema: editor.blockImplementations[type].config.propSchema,
+    },
     nodeToBlock(props.node, props.view.state.doc),
     editor,
   );
@@ -145,7 +152,12 @@ export const BlockContainer = Node.create<{
         dom: HTMLElement;
         contentDOM: HTMLElement;
       };
-      const frameView = createFrameView(props, editor, contentDOM);
+      const frameView = createFrameView(
+        props,
+        editor,
+        contentDOM,
+        this.options.domAttributes?.blockContent || {},
+      );
       const framed = frameView.dom !== contentDOM;
       if (framed) {
         contentDOM.appendChild(frameView.dom);

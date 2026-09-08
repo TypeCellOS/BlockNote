@@ -2,7 +2,10 @@ import { type ChainedCommands, Extension } from "@tiptap/core";
 import { Fragment } from "prosemirror-model";
 import { TextSelection, Transaction } from "prosemirror-state";
 
-import { mergeBlocksCommand } from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
+import {
+  mergeBlocksCommand,
+  getMergeContent,
+} from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
 import {
   liftItem,
   nestBlock,
@@ -65,12 +68,7 @@ function deleteBlockAndAppendContent(
       next.children?.node.content || Fragment.empty,
     )
     .deleteRange({ from: remove.beforePos, to: remove.afterPos })
-    .insertContentAt(
-      current.contentEnd,
-      current.contentKind === "inline" && next.contentKind === "inline"
-        ? next.content.node.content
-        : null,
-    )
+    .insertContentAt(current.contentEnd, getMergeContent(current, next) ?? null)
     .setTextSelection(current.contentEnd)
     .scrollIntoView()
     .run();
@@ -793,7 +791,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
               state.selection.anchor === state.selection.head;
             const blockEmpty = blockInfo.isContentEmpty;
 
-            if (selectionAtBlockStart && selectionEmpty && blockEmpty) {
+            if (
+              selectionAtBlockStart &&
+              selectionEmpty &&
+              blockEmpty &&
+              !blockInfo.hasOwnedChildren
+            ) {
               const newBlockInsertionPos = blockContainer.afterPos;
               const newBlockContentPos = newBlockInsertionPos + 2;
 

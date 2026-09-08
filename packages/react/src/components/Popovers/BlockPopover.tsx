@@ -46,9 +46,15 @@ export const BlockPopover = (
             // would match a nested child container's root when the author's
             // root hasn't been stamped, anchoring the popover to a child.
             const selector = `[data-node-type="${nodePosInfo.node.type.name}"]`;
-            const boxed = dom.matches(selector)
-              ? dom
-              : dom.querySelector(selector);
+            // Both the React wrapper and the author's root can carry these
+            // markers. Skip `display: contents` wrappers, and use the ID to
+            // avoid picking a nested container of the same type.
+            const boxed = [dom, ...dom.querySelectorAll(selector)].find(
+              (element) =>
+                element.matches(selector) &&
+                element.getAttribute("data-id") === blockId &&
+                element.getClientRects().length > 0,
+            );
             // Only degenerate renders leave nothing stamped: one that returns
             // no element of its own, or a fragment of several. Neither has a
             // box to anchor to, so this falls back to the node element rather

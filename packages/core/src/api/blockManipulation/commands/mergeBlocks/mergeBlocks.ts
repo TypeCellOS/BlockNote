@@ -1,11 +1,44 @@
-import { EditorState } from "prosemirror-state";
+import { Fragment, type Node } from "prosemirror-model";
+import { EditorState, TextSelection } from "prosemirror-state";
 
 import {
+  type BlockInfo,
   getBlockInfoAt,
   getLastDescendantBlockInfo,
   getPrevBlockInfo,
   getParentBlockInfo,
 } from "../../../getBlockInfoFromPos.js";
+
+/** Returns compatible text to append, or undefined when the blocks cannot merge. */
+export function getMergeContent(
+  current: Extract<BlockInfo, { hasContent: true }>,
+  next: Extract<BlockInfo, { hasContent: true }>,
+): Fragment | undefined {
+  const inline =
+    current.contentKind === "inline" && next.contentKind === "inline";
+  const ownedText =
+    current.hasOwnedChildren &&
+    current.content.node.isTextblock &&
+    next.content.node.isTextblock;
+  if (!inline && !ownedText) {
+    return undefined;
+  }
+  if (current.contentKind === "plain") {
+    const type = current.content.node.type;
+    const children: Node[] = [];
+    next.content.node.forEach((child) => {
+      const text =
+        child.type === type.schema.linebreakReplacement
+          ? "\n"
+          : child.textContent;
+      if (text) {
+        children.push(type.schema.text(text, type.allowedMarks(child.marks)));
+      }
+    });
+    return Fragment.from(children);
+  }
+  return next.content.node.content;
+}
 
 /**
  * Merges the block starting at `posBetweenBlocks` into the block visually
@@ -16,9 +49,9 @@ import {
  * i.e. its `BlockInfo`'s `block.beforePos`. The block above is found by walking
  * back from there.
  * @returns A tiptap command that returns `false` (leaving the doc untouched)
- * when the two blocks can't merge: no block above, either side isn't an
- * inline-content block, or the block above is empty (deleting it is handled
- * elsewhere).
+ * when the two blocks can't merge: no compatible text block above, or the
+ * block above is empty (deleting it is handled elsewhere). An owning block
+ * can also merge plain text, dropping formatting that its schema disallows.
  */
 export const mergeBlocksCommand =
   (posBetweenBlocks: number) =>
@@ -51,11 +84,13 @@ export const mergeBlocksCommand =
 
     if (
       !prevBlockInfo.hasContent ||
-      prevBlockInfo.contentKind !== "inline" ||
       prevBlockInfo.isContentEmpty ||
-      !nextBlockInfo.hasContent ||
-      nextBlockInfo.contentKind !== "inline"
+      !nextBlockInfo.hasContent
     ) {
+      return false;
+    }
+    const content = getMergeContent(prevBlockInfo, nextBlockInfo);
+    if (content === undefined) {
       return false;
     }
 
@@ -82,9 +117,20 @@ export const mergeBlocksCommand =
     }
 
     if (dispatch) {
-      dispatch(
-        state.tr.delete(prevBlockInfo.contentEnd, nextBlockInfo.contentStart),
-      );
+      if (content !== nextBlockInfo.content.node.content) {
+        state.tr
+          .replaceWith(
+            prevBlockInfo.contentEnd,
+            nextBlockInfo.contentEnd,
+            content,
+          )
+          .setSelection(
+            TextSelection.create(state.tr.doc, prevBlockInfo.contentEnd),
+          );
+      } else {
+        state.tr.delete(prevBlockInfo.contentEnd, nextBlockInfo.contentStart);
+      }
+      dispatch(state.tr);
     }
 
     return true;

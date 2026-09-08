@@ -145,7 +145,7 @@ insertBlocks(
 ): Block[]
 ```
 
-Inserts new blocks relative to an existing block. `"before"` and `"after"` make the new blocks siblings of the reference block; `"first-child"` and `"last-child"` nest them inside it. Returns the inserted blocks. See [Inserting into a container](/docs/features/custom-schemas/container-blocks#inserting-into-a-container).
+Inserts new blocks relative to an existing block. `"before"` and `"after"` make the new blocks siblings of the reference block; `"first-child"` and `"last-child"` nest them inside it. Returns the inserted blocks.
 
 ```typescript
 // Insert a paragraph before an existing block
@@ -172,6 +172,8 @@ editor.insertBlocks(
   "last-child",
 );
 ```
+
+For [container blocks](/docs/features/custom-schemas/container-blocks), `"first-child"` inserts at the beginning of the container and `"last-child"` inserts at the end. Use `"before"` or `"after"` to insert next to the container instead.
 
 ### Updating Blocks
 

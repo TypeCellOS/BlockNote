@@ -129,6 +129,36 @@ describe("getNestedBlockAtCursor", () => {
     ).toBe(second.blockContainer);
   });
 
+  it("finds a framed block's child when moving into the side-menu gutter", () => {
+    const parent = regularChild("");
+    const frame = document.createElement("div");
+    frame.style.padding = "12px 16px";
+    const title = document.createElement("div");
+    title.textContent = "Callout title";
+    const child = regularChild("Callout body");
+    frame.append(title, child.outer);
+    parent.blockContainer.append(frame);
+    parent.outer.style.width = "400px";
+    mount(parent.outer);
+
+    const rect = child.blockContainer.getBoundingClientRect();
+    for (const x of [rect.left + 20, rect.left - 12, rect.left - 40]) {
+      expect(
+        getNestedBlockAtCursor(parent.blockContainer, {
+          x,
+          y: rect.top + rect.height / 2,
+        }),
+      ).toBe(child.blockContainer);
+    }
+    const titleRect = title.getBoundingClientRect();
+    expect(
+      getNestedBlockAtCursor(parent.blockContainer, {
+        x: titleRect.left,
+        y: titleRect.top + titleRect.height / 2,
+      }),
+    ).toBe(parent.blockContainer);
+  });
+
   it("keeps the container when the cursor misses its children", () => {
     const { callout } = buildVerticalContainer();
     const rect = callout.getBoundingClientRect();

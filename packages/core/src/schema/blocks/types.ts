@@ -160,10 +160,10 @@ export interface BlockConfig<
    * Declares owned child blocks, exposed on `block.children`.
    * With `content: "none"`, the block is a pure container whose `render`
    * mounts children through contentDOM (React: contentRef).
-   * With `content: "inline"`, `children: { allow: "blocks" }` gives the
-   * block an owned body below its title. Titled bodies remain optional;
-   * their child types and minimum count cannot be restricted.
-   * `renderFrame` independently controls the box around title and body.
+   * With `content: "inline"` or `"plain"`, `children: { allow: "blocks" }`
+   * gives the block owned children below its own text. These children remain
+   * optional; their types and minimum count cannot be restricted.
+   * `renderFrame` independently styles the block's content and children.
    */
   children?: ChildrenConfig;
   /**

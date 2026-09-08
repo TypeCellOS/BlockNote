@@ -99,3 +99,78 @@ describe("Column resize plugin state after doc changes", () => {
     expect(pluginState?.type).toBe("hover-column");
   });
 });
+
+describe.each(["hover-column", "resize"] as const)(
+  "%s pair validation",
+  (mode) => {
+    function startPair() {
+      hoverColumnBoundary();
+      if (mode === "resize") {
+        const view = getEditor().prosemirrorView;
+        const state = columnResizePluginKey.getState(view.state);
+        if (state?.type !== "hover-column") {
+          throw new Error("Expected a hovered column pair");
+        }
+        const resize: ColumnState = {
+          ...state,
+          type: "resize",
+          startPos: 0,
+          leftColumn: { ...state.leftColumn, widthPx: 100, widthPercent: 1 },
+          rightColumn: { ...state.rightColumn, widthPx: 100, widthPercent: 1 },
+        };
+        view.dispatch(view.state.tr.setMeta(columnResizePluginKey, resize));
+      }
+    }
+
+    it.each(["reorder", "separate", "reparent"] as const)(
+      "clears the pair after %s",
+      (change) => {
+        const editor = getEditor();
+        startPair();
+        const columns = editor.getBlock("column-list-0")!.children;
+        const extra = {
+          id: "extra-column",
+          type: "column" as const,
+          children: [{ type: "paragraph" as const, content: "Extra" }],
+        };
+        if (change === "reorder") {
+          editor.updateBlock("column-list-0", {
+            children: [columns[1], columns[0]],
+          });
+        } else if (change === "separate") {
+          editor.updateBlock("column-list-0", {
+            children: [columns[0], extra, columns[1]],
+          });
+        } else {
+          editor.replaceBlocks(editor.document, [
+            {
+              type: "columnList",
+              id: "column-list-0",
+              children: [columns[0], extra],
+            },
+            {
+              type: "columnList",
+              id: "other-list",
+              children: [
+                columns[1],
+                { type: "column", children: [{ type: "paragraph" }] },
+              ],
+            },
+          ]);
+        }
+        expect(columnResizePluginKey.getState(editor.prosemirrorState)).toEqual(
+          { type: "default" },
+        );
+      },
+    );
+
+    it("keeps an adjacent pair after an unrelated edit", () => {
+      const editor = getEditor();
+      startPair();
+      editor.updateBlock("paragraph-1", { content: "Changed" });
+      expect(
+        columnResizePluginKey.getState(editor.prosemirrorState)?.type,
+      ).toBe(mode);
+    });
+  },
+);

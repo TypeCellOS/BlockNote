@@ -44,7 +44,7 @@ describe("childrenContentExpression", () => {
 
 type ContainerFixture = {
   children: ChildrenConfig;
-  content?: "none" | "inline";
+  content?: "none" | "inline" | "plain";
   placeable?: "anywhere" | "namedOnly";
 };
 
@@ -77,23 +77,27 @@ describe("validateChildrenConfigs", () => {
         grid: { children: { allow: ["gridCell", "grid"], min: 2 } },
         gridCell: { children: { allow: "blocks" }, placeable: "namedOnly" },
         alert: { children: { allow: "blocks" }, content: "inline" },
+        source: { children: { allow: "blocks" }, content: "plain" },
       }),
     ).not.toThrow();
   });
 
-  it("rejects titled child restrictions the shared blockGroup cannot enforce", () => {
-    for (const children of [
-      { allow: "blocks", min: 2 },
-      { allow: ["cell"] },
-    ] as const) {
-      expect(
-        validate({
-          alert: { content: "inline", children },
-          cell: { children: { allow: "blocks" } },
-        }),
-      ).toThrow(/titled blocks support/);
-    }
-  });
+  it.each(["inline", "plain"] as const)(
+    "rejects %s child restrictions the shared blockGroup cannot enforce",
+    (content) => {
+      for (const children of [
+        { allow: "blocks", min: 2 },
+        { allow: ["cell"] },
+      ] as const) {
+        expect(
+          validate({
+            alert: { content, children },
+            cell: { children: { allow: "blocks" } },
+          }),
+        ).toThrow(/blocks with inline or plain content support/);
+      }
+    },
+  );
 
   it("does not treat a titled block's content node as an allowed container", () => {
     expect(
@@ -116,11 +120,9 @@ describe("validateChildrenConfigs", () => {
     ).toThrow(/requires a container node/);
   });
 
-  // A config declaring table or plain content would build a node the runtime
-  // then throws far from the config for, and the public Block type promises
-  // content it never has.
-  it("rejects children combined with table or plain content", () => {
-    for (const content of ["table", "plain"] as const) {
+  // Tables do not support owned child blocks.
+  it("rejects children combined with table content", () => {
+    for (const content of ["table"] as const) {
       expect(() =>
         validateChildrenConfigs({
           box: {
@@ -129,7 +131,7 @@ describe("validateChildrenConfigs", () => {
             children: { allow: "blocks" },
           },
         }),
-      ).toThrow(/either has no content of its own/);
+      ).toThrow(/not supported on table blocks/);
     }
   });
 
