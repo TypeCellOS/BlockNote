@@ -139,11 +139,15 @@ describe("validateChildrenConfigs", () => {
     }
   });
 
-  // Only what nothing else catches. `allow: ["heading"]` compiles to a
-  // perfectly valid schema that quietly restricts nothing, since every
-  // regular block is the same node. Every other way a `children` config can
-  // be wrong is reported by TypeScript at compile time or by ProseMirror with
-  // a message of its own.
+  it.each(["typo", "blockGroupChild", "toString"])(
+    "rejects an allow entry that is not a configured block: %s",
+    (allowed) => {
+      expect(validate({ box: { children: { allow: [allowed] } } })).toThrow(
+        /not a configured block type/,
+      );
+    },
+  );
+
   it("rejects a regular block type in the allow array", () => {
     expect(validate({ box: { children: { allow: ["heading"] } } })).toThrow(
       /not yet supported/,

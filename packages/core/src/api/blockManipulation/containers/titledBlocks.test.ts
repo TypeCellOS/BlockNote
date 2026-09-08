@@ -134,6 +134,9 @@ describe("a titled block's keyboard behaviour", () => {
           ...children.map((block) => `paragraph"${block.content}"`),
         ].join(", "),
       );
+      expect(
+        editor.document[1].children.slice(1).map((block) => block.id),
+      ).toEqual(children.map((block) => block.id));
       expect(editor.getTextCursorPosition().block.id).toBe(
         editor.document[1].children[0].id,
       );

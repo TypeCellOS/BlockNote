@@ -40,10 +40,13 @@ export function validateChildrenConfigs(
     // here compiles to a valid schema that restricts nothing.
     if (allow !== "blocks") {
       for (const allowed of allow) {
-        if (
-          allowed in blockSpecs &&
-          !isContainerConfig(blockSpecs[allowed].config)
-        ) {
+        if (!Object.prototype.hasOwnProperty.call(blockSpecs, allowed)) {
+          fail(
+            type,
+            `\`allow\` contains "${allowed}", which is not a configured block type.`,
+          );
+        }
+        if (!isContainerConfig(blockSpecs[allowed].config)) {
           fail(
             type,
             `\`allow\` contains "${allowed}", which is a regular block, not a container block. ` +

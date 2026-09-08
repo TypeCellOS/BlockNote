@@ -166,6 +166,7 @@ afterEach(() => {
   }
   editor?._tiptapEditor.destroy();
   editor = undefined;
+  expect(activeFrames).toBe(0);
 });
 
 describe("React renderFrame", () => {
