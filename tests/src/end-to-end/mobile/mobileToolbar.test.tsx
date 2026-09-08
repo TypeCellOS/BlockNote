@@ -21,10 +21,10 @@ import {
 const MOBILE_TOOLBAR_SELECTOR = ".bn-mobile-formatting-toolbar";
 const LINK_POPOVER_SELECTOR = ".bn-form-popover";
 const LINK_TEXT = "Link";
-// Character steps, not Shift+Home: Home selects to the visual line start, and
-// Playwright's WebKit lays a typed paragraph out narrower than its text and
-// breaks it mid-word (on Linux Home is the line start, on macOS the document
-// start, so only CI saw it).
+// Character steps, not Shift+Home: Playwright's WebKit lays a typed paragraph
+// out narrower than its text and breaks it mid-word, and on Linux Shift+Home
+// selects only to the start of that visual line (on macOS it selects to the
+// document start, which hides the break).
 const SELECT_LINK_TEXT = `{Shift>}${"{ArrowLeft}".repeat(LINK_TEXT.length)}{/Shift}`;
 
 // Runs in the "android" browser instance (Android UA + touch emulation at
