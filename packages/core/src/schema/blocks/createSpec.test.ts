@@ -126,7 +126,7 @@ describe("plain content parsing", () => {
 });
 
 describe("block spec and node agreement", () => {
-  it("rejects a hand-written node whose content contradicts its config", () => {
+  it("leaves a hand-written node's content expression authoritative", () => {
     expect(() =>
       BlockNoteSchema.create().extend({
         blockSpecs: {
@@ -144,7 +144,7 @@ describe("block spec and node agreement", () => {
           ),
         },
       }),
-    ).toThrow(/declares `content: "none"`, but its node holds "paragraph\+"/);
+    ).not.toThrow();
   });
 
   it("rejects a hand-written node whose name contradicts its config", () => {

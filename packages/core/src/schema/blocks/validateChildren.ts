@@ -1,15 +1,14 @@
 import { isContainerConfig } from "./children.js";
-import type { BlockConfig, ChildrenConfig } from "./types.js";
-
-type ValidatableConfig = Pick<BlockConfig, "type" | "content" | "placeable"> & {
-  children?: ChildrenConfig;
-};
+import type { BlockConfig } from "./types.js";
 
 /** Reject declarations ProseMirror would accept with different semantics. */
 export function validateChildrenConfigs(
-  blockConfigs: Record<string, ValidatableConfig>,
+  blockSpecs: Record<
+    string,
+    { config: Pick<BlockConfig, "content" | "placeable" | "children"> }
+  >,
 ) {
-  for (const [type, config] of Object.entries(blockConfigs)) {
+  for (const [type, { config }] of Object.entries(blockSpecs)) {
     if (config.placeable === "namedOnly" && !isContainerConfig(config)) {
       fail(
         type,
@@ -42,8 +41,8 @@ export function validateChildrenConfigs(
     if (allow !== "blocks") {
       for (const allowed of allow) {
         if (
-          allowed in blockConfigs &&
-          !isContainerConfig(blockConfigs[allowed])
+          allowed in blockSpecs &&
+          !isContainerConfig(blockSpecs[allowed].config)
         ) {
           fail(
             type,

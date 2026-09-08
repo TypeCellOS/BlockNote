@@ -94,14 +94,7 @@ export class CustomBlockNoteSchema<
 
     // Validation runs before the nodes are built, so the misconfigurations
     // ProseMirror cannot report on its own surface as clear errors.
-    validateChildrenConfigs(
-      Object.fromEntries(
-        Object.entries(this.opts.blockSpecs).map(([key, blockSpec]) => [
-          key,
-          blockSpec.config,
-        ]),
-      ),
-    );
+    validateChildrenConfigs(this.opts.blockSpecs);
 
     const blockSpecs = Object.fromEntries(
       Object.entries(this.opts.blockSpecs).map(([key, blockSpec]) => {

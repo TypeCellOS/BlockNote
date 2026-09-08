@@ -56,7 +56,7 @@ export class DOCXExporter<
     /**
      * The schema of your editor. The mappings are automatically typed checked against this schema.
      */
-    protected readonly schema: BlockNoteSchema<B, I, S>,
+    schema: BlockNoteSchema<B, I, S>,
     /**
      * The mappings that map the BlockNote schema to the docxjs content.
      * Pass {@link docxDefaultSchemaMappings} for the default schema.

@@ -572,78 +572,54 @@ export function prosemirrorSliceToSlicedBlocks<
       const isFirstBlock = index === 0;
       const isLastBlock = index === node.childCount - 1;
 
-      if (isContainerNode(blockContainer.type)) {
-        // A container child. When the slice boundary is open inside it, the
-        // selection covers part of its children; when fully enclosed, convert
-        // it wholesale.
-        const openAtStart = isFirstBlock && openStart > 0;
-        const openAtEnd = isLastBlock && openEnd > 0;
-
-        if (openAtStart || openAtEnd) {
-          // The container wrapper is skipped and its included children are
-          // spliced in, propagating cut ids from whichever ends are open.
-          const ret = processNode(
-            blockContainer,
-            openAtStart ? Math.max(0, openStart - 1) : 0,
-            openAtEnd ? Math.max(0, openEnd - 1) : 0,
-          );
-          if (openAtStart) {
-            blockCutAtStart = ret.blockCutAtStart;
-          }
-          if (openAtEnd) {
-            blockCutAtEnd = ret.blockCutAtEnd;
-          }
-          blocks.push(...ret.blocks);
-          return;
-        }
-
-        blocks.push(
-          nodeToBlock(blockContainer, slice.content.firstChild!) as Block<
-            BSchema,
-            I,
-            S
-          >,
-        );
-        return;
-      }
-
-      if (blockContainer.type.name !== "blockContainer") {
-        throw new Error("unexpected");
-      }
-      if (blockContainer.childCount === 0) {
-        return;
-      }
-      if (blockContainer.childCount === 0 || blockContainer.childCount > 2) {
-        throw new Error(
-          "unexpected, blockContainer.childCount: " + blockContainer.childCount,
-        );
-      }
-
-      if (blockContainer.firstChild!.type.name === "blockGroup") {
-        // this is the parent where a selection starts within one of its children,
-        // e.g.:
-        // A
-        // ├── B
-        // selection starts within B, then this blockContainer is A, but we don't care about A
-        // so let's descend into B and continue processing
-        if (!isFirstBlock) {
+      const isContainer = isContainerNode(blockContainer.type);
+      if (!isContainer) {
+        if (blockContainer.type.name !== "blockContainer") {
           throw new Error("unexpected");
         }
-        // Same splice as for an open container above, on regular nesting's
-        // version of the same shape. Open at the start by construction (a
-        // `blockContainer` can only lead with its `blockGroup` when the slice
-        // cut its content node away); open at the end whenever it is also the
-        // last block, matching the pre-refactor cut propagation.
+        if (blockContainer.childCount === 0) {
+          return;
+        }
+        if (blockContainer.childCount > 2) {
+          throw new Error(
+            "unexpected, blockContainer.childCount: " +
+              blockContainer.childCount,
+          );
+        }
+      }
+
+      const omittedParent =
+        !isContainer && blockContainer.firstChild!.type.name === "blockGroup";
+      if (omittedParent && !isFirstBlock) {
+        throw new Error("unexpected");
+      }
+
+      // Open containers and regular parents whose content was cut away both
+      // contribute their selected children, without their own wrapper.
+      if (
+        omittedParent ||
+        (isContainer &&
+          ((isFirstBlock && openStart > 0) || (isLastBlock && openEnd > 0)))
+      ) {
         const ret = processNode(
-          blockContainer.firstChild!,
-          Math.max(0, openStart - 1),
+          isContainer ? blockContainer : blockContainer.firstChild!,
+          isFirstBlock ? Math.max(0, openStart - 1) : 0,
           isLastBlock ? Math.max(0, openEnd - 1) : 0,
         );
-        blockCutAtStart = ret.blockCutAtStart;
+        if (isFirstBlock) {
+          blockCutAtStart = ret.blockCutAtStart;
+        }
         if (isLastBlock) {
           blockCutAtEnd = ret.blockCutAtEnd;
         }
         blocks.push(...ret.blocks);
+        return;
+      }
+
+      if (isContainer) {
+        blocks.push(
+          nodeToBlock<BSchema, I, S>(blockContainer, slice.content.firstChild!),
+        );
         return;
       }
 

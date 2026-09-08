@@ -222,74 +222,6 @@ export function getParseRules<
   return rules;
 }
 
-// What the generated node's content expression is for each `content` kind.
-const CONTENT_EXPRESSIONS: Record<BlockConfig["content"], string> = {
-  inline: "inline*",
-  plain: "text*",
-  none: "",
-  table: "tableRow+",
-};
-
-/**
- * Content expressions that are spelled differently can still mean the same
- * thing, e.g. `"(text)*"` and `"text*"`. Unwraps a parenthesized single
- * term, with or without a trailing quantifier, so equivalent spellings
- * compare equal. Anything with real structure (sequences, alternation) is
- * left as-is: unwrapping those would change the expression's meaning.
- */
-function normalizeContentExpression(expression: string): string {
-  const trimmed = expression.trim();
-  const match = trimmed.match(/^\(([A-Za-z_][A-Za-z0-9_]*)\)([*+?])?$/);
-  return match ? `${match[1]}${match[2] ?? ""}` : trimmed;
-}
-
-/**
- * Checks a hand-written node against its config: that the node name matches
- * the block type, and that the node's content expression matches the
- * `content` the spec declares — the one `getBlockInfoFromPos` reports as the
- * block's `contentKind`, without looking at the node. A generated node's name
- * and expression come from that same config, so this only bites on a
- * hand-written one (`createBlockSpecFromTiptapNode`).
- */
-function checkNodeMatchesConfig(node: Node, blockConfig: BlockConfig) {
-  if (node.name !== blockConfig.type) {
-    throw new Error(
-      "Node name does not match block type. This is a bug in BlockNote.",
-    );
-  }
-
-  // A container's node holds blocks rather than content, and its expression
-  // comes from `children` instead.
-  if (isContainerConfig(blockConfig)) {
-    return;
-  }
-
-  // A hand-written wrapper node that holds child blocks directly (e.g. a
-  // `column`) likewise has no block content expression to compare against.
-  const groups = typeof node.config.group === "string" ? node.config.group : "";
-  if (groups.split(" ").includes("bnBlock")) {
-    return;
-  }
-
-  // tiptap allows the expression to be a function of the editor, in which case
-  // there is nothing to compare yet.
-  const content = node.config.content;
-  if (content !== undefined && typeof content !== "string") {
-    return;
-  }
-
-  const expected = CONTENT_EXPRESSIONS[blockConfig.content];
-  if (
-    normalizeContentExpression(content ?? "") !==
-    normalizeContentExpression(expected)
-  ) {
-    throw new Error(
-      `Block "${blockConfig.type}" declares \`content: "${blockConfig.content}"\`, ` +
-        `but its node holds "${content ?? ""}" rather than "${expected}".`,
-    );
-  }
-}
-
 export function containerRootDOM(output: {
   dom: HTMLElement | DocumentFragment;
 }): HTMLElement | null {
@@ -314,11 +246,6 @@ function blockNodeView<
   blockConfig: BlockConfig<TName, TProps, TContent>,
   blockImplementation: BlockImplementation<TName, TProps, TContent>,
   props: NodeViewRendererProps,
-  context: {
-    editor: unknown;
-    tiptapEditor: Editor;
-    blockContentDOMAttributes: Record<string, string>;
-  },
 ): NodeView {
   const isContainer = isContainerConfig(blockConfig);
   const block = isContainer
@@ -326,19 +253,20 @@ function blockNodeView<
     : getBlockFromNodeView(props.getPos, props.node, props.view.state.doc);
   const nodeView = blockImplementation.render.call(
     {
-      blockContentDOMAttributes: context.blockContentDOMAttributes,
+      blockContentDOMAttributes:
+        props.extension.options.domAttributes?.blockContent || {},
       props,
       renderType: "nodeView",
       propSchema: blockConfig.propSchema,
     },
     block as any,
-    context.editor as any,
+    props.extension.options.editor,
   );
 
   const typedNodeView = nodeView as unknown as NodeView;
 
   if (blockImplementation.meta?.selectable === false) {
-    applyNonSelectableBlockFix(typedNodeView, context.tiptapEditor);
+    applyNonSelectableBlockFix(typedNodeView, props.editor);
   }
 
   ignoreNonContentMutations(typedNodeView);
@@ -482,13 +410,7 @@ function buildNode<
     },
 
     addNodeView() {
-      return (props) =>
-        blockNodeView(blockConfig, blockImplementation, props, {
-          editor: this.options.editor,
-          tiptapEditor: this.editor,
-          blockContentDOMAttributes:
-            this.options.domAttributes?.blockContent || {},
-        });
+      return (props) => blockNodeView(blockConfig, blockImplementation, props);
     },
   });
 }
@@ -514,7 +436,11 @@ export function addNodeAndExtensionsToSpec<
     (blockImplementation as any).node ??
     buildNode(blockConfig, blockImplementation, priority);
 
-  checkNodeMatchesConfig(builtNode, blockConfig as BlockConfig);
+  if (builtNode.name !== blockConfig.type) {
+    throw new Error(
+      "Node name does not match block type. This is a bug in BlockNote.",
+    );
+  }
 
   if (!blockImplementation.render) {
     throw new Error(`Block "${blockConfig.type}" must declare \`render\`.`);
@@ -552,12 +478,15 @@ export function addNodeAndExtensionsToSpec<
       );
     const output =
       external ??
-      renderBlockToDOM(
-        blockImplementation,
-        blockConfig,
+      blockImplementation.render.call(
+        {
+          blockContentDOMAttributes,
+          props: undefined,
+          renderType: "dom",
+          propSchema: blockConfig.propSchema,
+        },
         block,
-        editor,
-        blockContentDOMAttributes,
+        editor as any,
       );
 
     if (isContainer) {
@@ -594,30 +523,6 @@ export function addNodeAndExtensionsToSpec<
     },
     extensions,
   };
-}
-
-/** Renders a block's own content for serialization. */
-export function renderBlockToDOM<
-  TName extends string,
-  TProps extends PropSchema,
-  TContent extends "inline" | "none" | "table" | "plain",
->(
-  blockImplementation: BlockImplementation<TName, TProps, TContent>,
-  blockConfig: BlockConfig<TName, TProps, TContent>,
-  block: any,
-  editor: any,
-  blockContentDOMAttributes: Record<string, string>,
-) {
-  return blockImplementation.render.call(
-    {
-      blockContentDOMAttributes,
-      props: undefined,
-      renderType: "dom",
-      propSchema: blockConfig.propSchema,
-    },
-    block,
-    editor,
-  );
 }
 
 /**

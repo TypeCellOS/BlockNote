@@ -5,6 +5,7 @@ import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
+import { BlockPopover } from "../components/Popovers/BlockPopover.js";
 import { BlockNoteViewRaw } from "../editor/BlockNoteView.js";
 import { createReactBlockSpec } from "./ReactBlockSpec.js";
 
@@ -122,6 +123,42 @@ async function mountEditor(initialContent: any[]) {
 }
 
 describe("React container block node view", () => {
+  it("anchors a container popover to the author's box", async () => {
+    const { editor, div } = await mountEditor([
+      {
+        id: "outer",
+        type: "callout",
+        children: [{ id: "inner", type: "callout" }],
+      },
+    ]);
+    const box = div.querySelector<HTMLElement>(".callout")!;
+    let anchor: Element | undefined;
+    flushSync(() => {
+      root!.render(
+        <BlockNoteViewRaw editor={editor}>
+          <BlockPopover
+            blockId="outer"
+            focusManagerProps={{ disabled: true }}
+            useFloatingOptions={{
+              open: true,
+              whileElementsMounted(reference) {
+                anchor =
+                  reference instanceof Element
+                    ? reference
+                    : reference.contextElement;
+                return () => {};
+              },
+            }}
+          >
+            Container menu
+          </BlockPopover>
+        </BlockNoteViewRaw>,
+      );
+    });
+    await expect.poll(() => anchor).toBe(box);
+    expect(box.getBoundingClientRect().height).toBeGreaterThan(0);
+  });
+
   it("keeps attributes and native editing after a local state root swap", async () => {
     const { editor, div } = await mountEditor([
       {

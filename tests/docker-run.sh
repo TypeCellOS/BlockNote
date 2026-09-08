@@ -26,15 +26,43 @@ done
 [ "$#" -gt 0 ] && shift
 entrypoint_args=("$@")
 
-# Use the same inputs as an explicit image build. Package source is mounted
-# live; only dependency manifests, patches, examples and build rules invalidate it.
-source tests/docker-image-inputs.sh
-current_hash=$(_docker_image_hash)
+# Auto-rebuild the image if its content hash label doesn't match the current
+# repo state. The hash covers every file that affects the image's contents: the
+# Dockerfile itself, plus everything it bakes in — the lockfile, workspace file,
+# all package.json files, patches, and example sources. Generated output dirs
+# are pruned: `pkg/` is wasm-pack's, and it emits a package.json, so without
+# that prune, building the wasm this script *requires* would itself invalidate
+# the image and force a second full rebuild. When they differ the
+# image is rebuilt in place
+# (Docker's layer cache makes this fast when only a leaf changed).
+_dep_files() {
+  # Print the sorted list of files that are baked into the image.
+  {
+    echo pnpm-lock.yaml
+    echo pnpm-workspace.yaml
+    echo tests/Dockerfile
+    find patches examples \( -name node_modules -prune \) -o -type f -print 2>/dev/null
+    find . -name package.json \
+      -not -path '*/node_modules/*' \
+      -not -path '*/.git/*' \
+      -not -path '*/dist/*' \
+      -not -path '*/pkg/*'
+  } | sort -u
+}
+_content_hash() {
+  # sha256 of the concatenated sorted file contents; shasum is available on
+  # macOS & Linux (util-linux / coreutils).
+  _dep_files | xargs shasum -a 256 -- 2>/dev/null | shasum -a 256 | cut -d' ' -f1
+}
+
+current_hash=$(_content_hash)
 image_hash=$(docker inspect --format '{{index .Config.Labels "blocknote.deps-hash"}}' blocknote-e2e 2>/dev/null || true)
 
 if [ "$current_hash" != "$image_hash" ]; then
   echo "blocknote-e2e image is out of date (deps/examples changed) — rebuilding…" >&2
-  bash tests/docker-build.sh
+  docker build -t blocknote-e2e \
+    --label "blocknote.deps-hash=$current_hash" \
+    -f tests/Dockerfile .
 fi
 
 mounts=()

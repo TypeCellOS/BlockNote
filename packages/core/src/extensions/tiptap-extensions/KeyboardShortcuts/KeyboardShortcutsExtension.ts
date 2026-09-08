@@ -28,7 +28,7 @@ import {
   getNextBlockInfo,
   getParentBlockInfo,
   getPrevBlockInfo,
-  tableContentCaretPos,
+  blockEdgeSelection,
 } from "../../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
@@ -265,7 +265,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 return false;
               }
 
-              let chainedCommands = chain();
+              const chainedCommands = chain();
 
               // Moves the children the current block.
               if (blockInfo.children) {
@@ -275,23 +275,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 );
               }
 
-              if (bottomNestedPrevBlockInfo.contentKind === "table") {
-                chainedCommands = chainedCommands.setTextSelection(
-                  tableContentCaretPos(
-                    bottomNestedPrevBlockInfo.content,
-                    "end",
-                  ),
+              chainedCommands.command(({ tr }) => {
+                tr.setSelection(
+                  blockEdgeSelection(tr.doc, bottomNestedPrevBlockInfo, "end"),
                 );
-              } else if (bottomNestedPrevBlockInfo.contentKind === "none") {
-                chainedCommands = chainedCommands.setNodeSelection(
-                  bottomNestedPrevBlockInfo.content.beforePos,
-                );
-              } else {
-                const blockContentEndPos = bottomNestedPrevBlockInfo.contentEnd;
-
-                chainedCommands =
-                  chainedCommands.setTextSelection(blockContentEndPos);
-              }
+                return true;
+              });
 
               return chainedCommands
                 .deleteRange({
@@ -553,21 +542,14 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 return false;
               }
 
-              let chainedCommands = chain();
+              const chainedCommands = chain();
 
-              if (nextBlockInfo.contentKind === "table") {
-                chainedCommands = chainedCommands.setTextSelection(
-                  tableContentCaretPos(nextBlockInfo.content, "start"),
+              chainedCommands.command(({ tr }) => {
+                tr.setSelection(
+                  blockEdgeSelection(tr.doc, nextBlockInfo, "start"),
                 );
-              } else if (nextBlockInfo.contentKind === "none") {
-                chainedCommands = chainedCommands.setNodeSelection(
-                  nextBlockInfo.content.beforePos,
-                );
-              } else {
-                chainedCommands = chainedCommands.setTextSelection(
-                  nextBlockInfo.contentStart,
-                );
-              }
+                return true;
+              });
 
               return chainedCommands
                 .deleteRange({
@@ -933,42 +915,27 @@ export const KeyboardShortcutsExtension = Extension.create<{
       ]);
     };
 
+    const options = this.options;
+    function handleTab(shift: boolean) {
+      const { editor, tabBehavior } = options;
+      if (
+        tabBehavior !== "prefer-indent" &&
+        (editor.getExtension(FormattingToolbarExtension)?.store.state ||
+          editor.getExtension(FilePanelExtension)?.store.state !== undefined)
+      ) {
+        // Let the browser navigate into and out of an open toolbar.
+        return false;
+      }
+      return shift ? unnestBlock(editor) : nestBlock(editor);
+    }
+
     return {
       Backspace: handleBackspace,
       Delete: handleDelete,
       Enter: () => handleEnter(),
       "Shift-Enter": () => handleEnter(true),
-      // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
-      // editor since the browser will try to use tab for keyboard navigation.
-      Tab: () => {
-        if (
-          this.options.tabBehavior !== "prefer-indent" &&
-          (this.options.editor.getExtension(FormattingToolbarExtension)?.store
-            .state ||
-            this.options.editor.getExtension(FilePanelExtension)?.store
-              .state !== undefined)
-          // TODO need to check if the link toolbar is open or another alternative entirely
-        ) {
-          // don't handle tabs if a toolbar is shown, so we can tab into / out of it
-          return false;
-        }
-        return nestBlock(this.options.editor);
-      },
-      "Shift-Tab": () => {
-        if (
-          this.options.tabBehavior !== "prefer-indent" &&
-          (this.options.editor.getExtension(FormattingToolbarExtension)?.store
-            .state ||
-            this.options.editor.getExtension(FilePanelExtension)?.store
-              .state !== undefined)
-          // TODO need to check if the link toolbar is open or another alternative entirely
-          // other menu types?
-        ) {
-          // don't handle tabs if a toolbar is shown, so we can tab into / out of it
-          return false;
-        }
-        return unnestBlock(this.options.editor);
-      },
+      Tab: () => handleTab(false),
+      "Shift-Tab": () => handleTab(true),
       "Shift-Mod-ArrowUp": () => {
         this.options.editor.moveBlocksUp();
         return true;

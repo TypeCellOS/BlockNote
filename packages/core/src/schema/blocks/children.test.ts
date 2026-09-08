@@ -48,15 +48,21 @@ type ContainerFixture = {
   placeable?: "anywhere" | "namedOnly";
 };
 
-function configsWith(containers: Record<string, ContainerFixture>) {
+function specsWith(containers: Record<string, ContainerFixture>) {
   return {
-    paragraph: { type: "paragraph", content: "inline" as const },
-    heading: { type: "heading", content: "inline" as const },
+    paragraph: { config: { content: "inline" as const } },
+    heading: { config: { content: "inline" as const } },
     ...Object.fromEntries(
       Object.entries(containers).map(
         ([type, { children, content, placeable }]) => [
           type,
-          { type, content: content ?? ("none" as const), children, placeable },
+          {
+            config: {
+              content: content ?? ("none" as const),
+              children,
+              placeable,
+            },
+          },
         ],
       ),
     ),
@@ -64,7 +70,7 @@ function configsWith(containers: Record<string, ContainerFixture>) {
 }
 
 const validate = (containers: Record<string, ContainerFixture>) => () =>
-  validateChildrenConfigs(configsWith(containers));
+  validateChildrenConfigs(specsWith(containers));
 
 describe("validateChildrenConfigs", () => {
   it("accepts recursive containers, named-only children, and titled blocks", () => {
@@ -126,9 +132,7 @@ describe("validateChildrenConfigs", () => {
       expect(() =>
         validateChildrenConfigs({
           box: {
-            type: "box",
-            content,
-            children: { allow: "blocks" },
+            config: { content, children: { allow: "blocks" } },
           },
         }),
       ).toThrow(/not supported on table blocks/);

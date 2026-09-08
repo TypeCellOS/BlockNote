@@ -71,10 +71,10 @@ export function updateBlockTr<
   const stepsBefore = tr.mapping.maps.length;
   const blockInfo = getBlockInfoAt(tr.doc, posBeforeBlock);
 
-  let cellAnchor: CellAnchor | null = null;
-  if (blockInfo.blockNoteType === "table") {
-    cellAnchor = captureCellAnchor(tr);
-  }
+  const cellAnchor =
+    blockInfo.hasContent && blockInfo.blockNoteType === "table"
+      ? captureCellAnchor(tr)
+      : null;
 
   const pmSchema = getPmSchema(tr);
 
@@ -85,8 +85,6 @@ export function updateBlockTr<
   ) {
     throw new Error("Invalid replaceFromPos or replaceToPos");
   }
-
-  // Adds blockGroup node with child blocks if necessary.
 
   const newBlockType = block.type || blockInfo.blockNoteType;
   const newNodeType = pmSchema.nodes[newBlockType];
@@ -110,32 +108,13 @@ export function updateBlockTr<
       ? replaceToPos - blockInfo.contentStart
       : undefined;
 
-  // `hasContent` is exactly `blockContainer`-ness, and a block type resolves
-  // to either a `blockContent` node (a regular block) or a `bnBlock` one (a
-  // container), so the two together say whether the update keeps the block's
-  // shape. Only a same-shape update can happen in place.
-  // A container-to-container update can still outgrow the children on hand:
-  // a callout's single child doesn't satisfy a pair's `min: 2`, and
-  // `setNodeMarkup` would silently build invalid content. When the children
-  // don't fit the new type's content expression, take the rebuild path, which
-  // pads them if necessary and validates before changing the document.
-  const containerChildrenFit =
-    blockInfo.hasContent ||
-    newNodeType.isInGroup("blockContent") ||
-    (newNodeType.contentMatch.matchFragment(blockInfo.block.node.content)
-      ?.validEnd ??
-      false);
+  // Rebuild when the block's shape changes or a container's existing children
+  // cannot satisfy the new type (e.g. changing to a pair requiring two children).
   if (
     blockInfo.hasContent !== newNodeType.isInGroup("blockContent") ||
-    !containerChildrenFit
+    (!blockInfo.hasContent &&
+      !newNodeType.validContent(blockInfo.block.node.content))
   ) {
-    // switching from blockContainer to non-blockContainer or v.v.
-    // currently breaking for column slash menu items converting empty block
-    // to column.
-
-    // currently, we calculate the new node and replace the entire node with the desired new node.
-    // for this, we do a nodeToBlock on the existing block to get the children.
-    // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
     const existingBlock: Block<any, any, any> = nodeToBlock(
       blockInfo.block.node,
       tr.doc,
@@ -165,11 +144,7 @@ export function updateBlockTr<
     );
     replacementNode.check(); // `blockToNode` is lenient; validate before mutating the doc
 
-    // The replacement is internally valid, but it lands where the old block
-    // stood: a `column` rebuilt into a `columnList` still sits inside a
-    // column list, and a column list rebuilt into a `column` still sits at
-    // the document root. Neither parent accepts the new type, and
-    // `replaceWith` would place it anyway, corrupting the document silently.
+    // Validate the parent too: a valid column still cannot replace a root block.
     const $oldPos = tr.doc.resolve(blockInfo.block.beforePos);
     if (
       !$oldPos.parent.canReplace(
@@ -216,8 +191,12 @@ export function updateBlockTr<
     ...block.props,
   });
 
-  if (cellAnchor) {
-    restoreCellAnchor(tr, blockInfo, cellAnchor, stepsBefore);
+  if (cellAnchor && blockInfo.hasContent) {
+    restoreCellAnchor(
+      tr,
+      tr.mapping.slice(stepsBefore).map(blockInfo.content.beforePos),
+      cellAnchor,
+    );
   }
 }
 
@@ -230,12 +209,7 @@ function updateBlockContentNode<
   tr: Transform,
   oldNodeType: NodeType,
   newNodeType: NodeType,
-  blockInfo: {
-    children?:
-      | { node: PMNode; beforePos: number; afterPos: number }
-      | undefined;
-    content: { node: PMNode; beforePos: number; afterPos: number };
-  },
+  blockInfo: Extract<BlockInfo, { hasContent: true }>,
   replaceFromOffset?: number,
   replaceToOffset?: number,
 ) {
@@ -692,34 +666,10 @@ export function captureCellAnchor(tr: Transform): CellAnchor | null {
 
 function restoreCellAnchor(
   tr: Transform | Transaction,
-  blockInfo: BlockInfo,
+  tablePos: number,
   a: CellAnchor,
-  stepsBefore: number,
 ): boolean {
-  if (blockInfo.blockNoteType !== "table") {
-    return false;
-  }
-
-  // 1) Resolve the table node in the current document
-  let tablePos = -1;
-
-  if (blockInfo.hasContent) {
-    // Prefer the content position when available (points directly at the PM table node)
-    tablePos = tr.mapping.slice(stepsBefore).map(blockInfo.content.beforePos);
-  } else {
-    // Fallback: scan within the mapped block range to find the inner table node
-    const start = tr.mapping.slice(stepsBefore).map(blockInfo.block.beforePos);
-    const end = start + (tr.doc.nodeAt(start)?.nodeSize || 0);
-    tr.doc.nodesBetween(start, end, (node, pos) => {
-      if (node.type.name === "table") {
-        tablePos = pos;
-        return false;
-      }
-      return true;
-    });
-  }
-
-  const table = tablePos >= 0 ? tr.doc.nodeAt(tablePos) : null;
+  const table = tr.doc.nodeAt(tablePos);
   if (!table || table.type.name !== "table") {
     return false;
   }

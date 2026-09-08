@@ -60,40 +60,28 @@ export abstract class Exporter<
   RS,
   TS,
 > {
-  private readonly containerBlockTypes: Map<string, boolean>;
-
   public constructor(
-    schema: BlockNoteSchema<B, I, S>,
+    protected readonly schema: BlockNoteSchema<B, I, S>,
     protected readonly mappings: {
       blockMapping: BlockMapping<B, I, S, RB, RI>;
       inlineContentMapping: InlineContentMapping<I, S, RI, TS>;
       styleMapping: StyleMapping<S, RS>;
     },
     public readonly options: ExporterOptions,
-  ) {
-    this.containerBlockTypes = new Map(
-      Object.entries(schema.blockSpecs).map(([type, spec]) => [
-        type,
-        spec.config.children !== undefined,
-      ]),
-    );
-  }
+  ) {}
 
   /** Container mappings place their own children; regular mappings do not. */
   public isContainerBlock(block: {
     type: string;
     children?: unknown[];
   }): boolean {
-    const isContainer = this.containerBlockTypes.get(block.type);
-    if (isContainer === undefined) {
-      if (block.children?.length) {
-        throw new Error(
-          `Exporter has no block spec for block type "${block.type}", and blocks of that type in this document have children. Without the spec the exporter cannot tell whether the type is a container block (whose mapping places its own children) or a regular one (whose children it appends itself), so it would place them by guesswork. Add the block's spec to the schema passed to the exporter, not just its mapping.`,
-        );
-      }
-      return false;
+    const spec = this.schema.blockSpecs[block.type];
+    if (!spec && block.children?.length) {
+      throw new Error(
+        `Exporter has no block spec for block type "${block.type}", and blocks of that type in this document have children. Add its spec to the exporter schema so it can determine who renders the children.`,
+      );
     }
-    return isContainer;
+    return spec?.config.children !== undefined;
   }
 
   /**

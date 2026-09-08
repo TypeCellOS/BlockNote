@@ -9,10 +9,7 @@ import {
   StyleSchema,
 } from "../../../../schema/index.js";
 import { isContainerNode } from "../../../../schema/blocks/children.js";
-import {
-  containerRootDOM,
-  renderBlockToDOM,
-} from "../../../../schema/blocks/createSpec.js";
+import { containerRootDOM } from "../../../../schema/blocks/createSpec.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   inlineContentToNodes,
@@ -239,24 +236,22 @@ function serializeBlock<
         nestingLevel,
       },
     ) ||
-    renderBlockToDOM(
-      blockImplementation,
-      editor.schema.blockSchema[block.type as any] as any,
-      blockWithDefaults,
-      editor,
+    blockImplementation.render.call(
       {},
+      blockWithDefaults as any,
+      editor as any,
     );
 
   const elementFragment = doc.createDocumentFragment();
 
-  // A fragment `dom` (the shape a React render produces) can't hold classes
-  // or attributes itself; its resolved root element (the single element it
-  // wraps, if any) stands in for it everywhere below.
+  // React renders can return a fragment around the root element.
   const rootElement = containerRootDOM(ret);
 
   const blockContentRoot = rootElement?.classList.contains("bn-block-content")
     ? rootElement
     : ret.contentDOM?.closest<HTMLElement>(".bn-block-content");
+
+  elementFragment.append(ret.dom);
 
   if (blockContentRoot) {
     const blockContentDataAttributes = [
@@ -287,36 +282,16 @@ function serializeBlock<
         nestingLevel.toString(),
       );
     }
-    // Discard the `bn-block-content` wrapper (and, for a fragment `dom`, the
-    // fragment around it) and keep only its children.
-    if (blockContentRoot === rootElement) {
-      elementFragment.append(...Array.from(blockContentRoot.childNodes));
-    } else {
-      // A frame surrounds the content wrapper; remove only that internal
-      // wrapper, preserving the frame and its slot for the children below.
-      blockContentRoot.replaceWith(...Array.from(blockContentRoot.childNodes));
-      elementFragment.append(ret.dom);
-    }
+    // Unwrap the content in place, preserving any surrounding frame.
+    blockContentRoot.replaceWith(...Array.from(blockContentRoot.childNodes));
   } else {
-    // See the same check in `serializeBlocksInternalHTML`.
     if (isContainerNode(editor.pmSchema.nodes[block.type as any])) {
-      // A container's `toExternalHTML` writes its block ID onto the root it
-      // owns, the way its node view does. External HTML carries no IDs
-      // though — the `data-id` of a regular block is filtered out above — so
-      // that parsing this HTML back mints fresh ones instead of duplicating
-      // the IDs of the blocks it was copied from.
+      // Pasted external HTML gets fresh IDs; scope parsing to actual children.
       rootElement?.removeAttribute("data-id");
-
-      // Mark where the children live, mirroring the internal serializer, so
-      // the container's parse rule can scope itself to this element
-      // (`contentElement` in `getParseRules`) when the HTML is pasted back.
-      // Without the marker, non-content UI the render puts elsewhere in its
-      // DOM (button labels, captions, ...) parses back as document content.
       const childrenDOM =
         ("childrenDOM" in ret && ret.childrenDOM) || ret.contentDOM;
       childrenDOM?.setAttribute("data-children-of", block.type!);
     }
-    elementFragment.append(ret.dom);
     if (nestingLevel > 0) {
       rootElement?.setAttribute("data-nesting-level", nestingLevel.toString());
     }

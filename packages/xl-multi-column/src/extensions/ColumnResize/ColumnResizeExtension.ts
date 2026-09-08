@@ -54,9 +54,9 @@ export const columnResizePluginKey = new PluginKey<ColumnState>(
 
 function isAdjacentColumnPair(
   doc: Node,
-  columnList: ColumnData,
-  leftColumn: ColumnData,
-  rightColumn: ColumnData,
+  columnList: Pick<ColumnData, "node">,
+  leftColumn: Pick<ColumnData, "node" | "posBeforeNode">,
+  rightColumn: Pick<ColumnData, "node" | "posBeforeNode">,
 ): boolean {
   const left = doc.resolve(leftColumn.posBeforeNode);
   const right = doc.resolve(rightColumn.posBeforeNode);
@@ -70,62 +70,43 @@ function isAdjacentColumnPair(
   );
 }
 
-// Re-resolves all column data stored in the plugin state against a (possibly
-// changed) doc. Falls back to the default state if any of the referenced
-// nodes no longer exist or the columns are no longer an adjacent pair, e.g.
-// when a backspace removes a hovered column, or
-// unwraps the column list entirely - so decorations are never built from
-// positions that are invalid in the new doc.
+// Resolve stored positions after edits; removed or separated columns end the interaction.
 function refreshColumnState(state: ColumnState, doc: Node): ColumnState {
-  // The stored node and position may be stale, while the rest of the entry
-  // (its element, and a resize's start widths) still stands.
-  const refresh = <T extends ColumnData>(data: T): T | undefined => {
-    const nodeAndPos = getNodeById(data.id, doc);
-    return nodeAndPos && { ...data, ...nodeAndPos };
-  };
+  if (state.type === "default") {
+    return state;
+  }
 
+  const columnList = getNodeById(state.columnList.id, doc);
+  if (!columnList) {
+    return { type: "default" };
+  }
+  const refreshedList = { ...state.columnList, ...columnList };
+  if (state.type === "hover-column-list") {
+    return { ...state, columnList: refreshedList };
+  }
+
+  const left = getNodeById(state.leftColumn.id, doc);
+  const right = getNodeById(state.rightColumn.id, doc);
+  if (!left || !right || !isAdjacentColumnPair(doc, columnList, left, right)) {
+    return { type: "default" };
+  }
+
+  // Narrow before spreading so resize columns retain their starting widths.
   switch (state.type) {
-    case "default":
-      return state;
-    case "hover-column-list": {
-      const columnList = refresh(state.columnList);
-
-      return columnList ? { ...state, columnList } : { type: "default" };
-    }
-    // Kept apart from `resize` below, rather than sharing one case: only the
-    // narrowed `state` carries the widths a resize's columns have.
-    case "hover-column": {
-      const columnList = refresh(state.columnList);
-      const leftColumn = refresh(state.leftColumn);
-      const rightColumn = refresh(state.rightColumn);
-
-      if (
-        !columnList ||
-        !leftColumn ||
-        !rightColumn ||
-        !isAdjacentColumnPair(doc, columnList, leftColumn, rightColumn)
-      ) {
-        return { type: "default" };
-      }
-
-      return { ...state, columnList, leftColumn, rightColumn };
-    }
-    case "resize": {
-      const columnList = refresh(state.columnList);
-      const leftColumn = refresh(state.leftColumn);
-      const rightColumn = refresh(state.rightColumn);
-
-      if (
-        !columnList ||
-        !leftColumn ||
-        !rightColumn ||
-        !isAdjacentColumnPair(doc, columnList, leftColumn, rightColumn)
-      ) {
-        return { type: "default" };
-      }
-
-      return { ...state, columnList, leftColumn, rightColumn };
-    }
+    case "hover-column":
+      return {
+        ...state,
+        columnList: refreshedList,
+        leftColumn: { ...state.leftColumn, ...left },
+        rightColumn: { ...state.rightColumn, ...right },
+      };
+    case "resize":
+      return {
+        ...state,
+        columnList: refreshedList,
+        leftColumn: { ...state.leftColumn, ...left },
+        rightColumn: { ...state.rightColumn, ...right },
+      };
   }
 }
 

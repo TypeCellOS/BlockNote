@@ -150,8 +150,6 @@ export class SideMenuView<
 
   private mousePos: { x: number; y: number } | undefined;
 
-  private hoveredBlock: HTMLElement | undefined;
-
   public menuFrozen = false;
 
   public isDragOrigin = false;
@@ -246,61 +244,48 @@ export class SideMenuView<
     }
 
     // Doesn't update if the menu is already open and the mouse cursor is still hovering the same block.
-    if (
-      this.state?.show &&
-      this.hoveredBlock?.hasAttribute("data-id") &&
-      this.hoveredBlock?.getAttribute("data-id") === block.id
-    ) {
+    if (this.state?.show && this.state.block.id === block.id) {
       return;
     }
 
-    this.hoveredBlock = block.node;
-
-    // Shows or updates elements.
-    if (this.editor.isEditable) {
-      const blockContentBoundingBox = block.node.getBoundingClientRect();
-      // The closest container ancestor (a column, callout, ...), excluding
-      // the hovered block itself, which may be a draggable container. Blocks
-      // inside a container anchor the side menu to the container's block
-      // area rather than the editor's left edge, which would put the menu
-      // over unrelated content (or off-screen inside columns).
-      const container = block.node.parentElement?.closest(CONTAINER_SELECTOR);
-      const sideMenuBlock = this.editor.getBlock(
-        this.hoveredBlock!.getAttribute("data-id")!,
-      );
-      if (!sideMenuBlock) {
-        if (this.state?.show) {
-          this.state.show = false;
-          this.hoveredBlock = undefined;
-          this.emitUpdate(this.state);
-        }
-        return;
+    const blockContentBoundingBox = block.node.getBoundingClientRect();
+    // The closest container ancestor (a column, callout, ...), excluding
+    // the hovered block itself, which may be a draggable container. Blocks
+    // inside a container anchor the side menu to the container's block
+    // area rather than the editor's left edge, which would put the menu
+    // over unrelated content (or off-screen inside columns).
+    const container = block.node.parentElement?.closest(CONTAINER_SELECTOR);
+    const sideMenuBlock = this.editor.getBlock(block.id);
+    if (!sideMenuBlock) {
+      if (this.state?.show) {
+        this.state.show = false;
+        this.emitUpdate(this.state);
       }
-      this.state = {
-        show: true,
-        referencePos: new DOMRect(
-          container
-            ? // We anchor to the container's first child block (rather than
-              // the container itself, which may have padding or its own
-              // chrome around the block area). This is a little weird since
-              // this element is the first block, but since it's always
-              // non-nested and we only take the x coordinate, it's ok.
-              (
-                getDirectChildBlocks(container)[0] ??
-                container.firstElementChild ??
-                container
-              ).getBoundingClientRect().x
-            : (
-                this.pmView.dom.firstChild as HTMLElement
-              ).getBoundingClientRect().x,
-          blockContentBoundingBox.y,
-          blockContentBoundingBox.width,
-          blockContentBoundingBox.height,
-        ),
-        block: sideMenuBlock,
-      };
-      this.updateState(this.state);
+      return;
     }
+    this.state = {
+      show: true,
+      referencePos: new DOMRect(
+        container
+          ? // We anchor to the container's first child block (rather than
+            // the container itself, which may have padding or its own
+            // chrome around the block area). This is a little weird since
+            // this element is the first block, but since it's always
+            // non-nested and we only take the x coordinate, it's ok.
+            (
+              getDirectChildBlocks(container)[0] ??
+              container.firstElementChild ??
+              container
+            ).getBoundingClientRect().x
+          : (this.pmView.dom.firstChild as HTMLElement).getBoundingClientRect()
+              .x,
+        blockContentBoundingBox.y,
+        blockContentBoundingBox.width,
+        blockContentBoundingBox.height,
+      ),
+      block: sideMenuBlock,
+    };
+    this.updateState(this.state);
   };
 
   /**

@@ -59,7 +59,7 @@ export class ODTExporter<
   public readonly options: ExporterOptions;
 
   constructor(
-    protected readonly schema: BlockNoteSchema<B, I, S>,
+    schema: BlockNoteSchema<B, I, S>,
     mappings: Exporter<
       NoInfer<B>,
       NoInfer<I>,

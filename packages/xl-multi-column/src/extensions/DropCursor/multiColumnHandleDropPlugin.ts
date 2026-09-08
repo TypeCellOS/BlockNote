@@ -119,10 +119,7 @@ export function createMultiColumnHandleDropPlugin(
                 blocksAlreadyInColumnList.add(block.id);
                 return false;
               }),
-            }))
-            // Remove empty columns (can happen when dragged blocks are
-            // removed).
-            .filter((column) => column.children.length > 0);
+            }));
 
           // Count surviving columns before the original drop boundary. This
           // also works when the selection empties the target column itself.
@@ -131,22 +128,21 @@ export function createMultiColumnHandleDropPlugin(
           );
           const boundary =
             originalTargetIndex + (edgePos.position === "right" ? 1 : 0);
-          const survivingIds = new Set(
-            remainingColumns.map((column) => column.id),
-          );
-          const insertionIndex = columnList.children
+          const insertionIndex = remainingColumns
             .slice(0, boundary)
-            .filter((column) => survivingIds.has(column.id)).length;
+            .filter((column) => column.children.length > 0).length;
 
           // Insert the dragged blocks as a new column in the correct
           // position.
-          const newChildren = remainingColumns.toSpliced(insertionIndex, 0, {
-            type: "column",
-            children: draggedBlocks,
-            props: {},
-            content: undefined,
-            id: UniqueID.options.generateID(),
-          });
+          const newChildren = remainingColumns
+            .filter((column) => column.children.length > 0)
+            .toSpliced(insertionIndex, 0, {
+              type: "column",
+              children: draggedBlocks,
+              props: {},
+              content: undefined,
+              id: UniqueID.options.generateID(),
+            });
 
           const blocksToRemove = draggedBlocks.filter(
             (block) =>

@@ -41,12 +41,6 @@ The block config defines the content and child blocks your container can hold:
 
 `propSchema:` Defines the container's props, just like for other custom blocks. Use these to customize its appearance or behavior.
 
-<Callout type="info">
-  _In the panel demo, we add a `flavor` prop for the panel style: tip, info,
-  warning, or success. Clicking the icon changes this prop using
-  [`editor.updateBlock`](/docs/reference/editor/manipulating-content#updating-blocks)._
-</Callout>
-
 ### Block Implementation
 
 `render:` Your React component defines how the block should look. With `content: "none"`, attach `contentRef` where the child blocks should appear. With `content: "inline"` or `"plain"`, attach it to the block's own editable text. You can add icons, buttons, or other elements around it:
