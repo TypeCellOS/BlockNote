@@ -65,4 +65,21 @@
     ],
     "type": "blockContainer",
   },
+  {
+    "attrs": {
+      "id": "4",
+    },
+    "content": [
+      {
+        "content": [
+          {
+            "text": "Title",
+            "type": "text",
+          },
+        ],
+        "type": "alert",
+      },
+    ],
+    "type": "blockContainer",
+  },
 ]

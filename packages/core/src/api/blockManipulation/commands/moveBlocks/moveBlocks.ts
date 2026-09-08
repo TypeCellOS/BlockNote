@@ -137,7 +137,11 @@ function updateBlockSelectionFromData(
       anchorBlockPos + data.headCellOffset,
     );
   } else if (data.type === "node") {
-    selection = NodeSelection.create(tr.doc, anchorBlockPos + 1);
+    const blockInfo = getBlockInfoAt(tr.doc, anchorBlockPos);
+    selection = NodeSelection.create(
+      tr.doc,
+      blockInfo.hasContent ? blockInfo.content.beforePos : anchorBlockPos,
+    );
   } else {
     const headBlockPos = getNodeById(data.headBlockId, tr.doc)?.posBeforeNode;
     if (headBlockPos === undefined) {

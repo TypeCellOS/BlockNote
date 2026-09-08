@@ -3153,8 +3153,8 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     executeTest: testExportBlockNoteHTML,
   },
   {
-    // A container with no `children` key falls back to the spec's `default`,
-    // so this exports as a callout holding one empty paragraph.
+    // Partial input omits the required child. Export snapshots record this
+    // raw form; full-HTML equality tests normalize it to a valid block first.
     testCase: {
       name: "container/emptyChildren",
       content: [
@@ -3186,6 +3186,8 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
             },
           ],
         },
+        // Omitted children still reach the frame callback as an empty array.
+        { type: "alert", content: "Title" },
       ],
     },
     executeTest: testExportBlockNoteHTML,

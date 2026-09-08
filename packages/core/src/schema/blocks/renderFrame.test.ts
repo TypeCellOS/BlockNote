@@ -256,27 +256,6 @@ describe("renderFrame updates", () => {
       editor._tiptapEditor.destroy();
     }
   });
-
-  it("keeps the frame's box in external HTML", () => {
-    const editor = editorWith([
-      {
-        id: "box-0",
-        type: "frameBox",
-        props: { flavor: "warning" },
-        children: [{ id: "box-child", type: "paragraph", content: "Child" }],
-      },
-    ]);
-    try {
-      const html = editor.blocksToHTMLLossy(editor.document as any);
-
-      // The frame draws the box, so it survives export with the children
-      // inside it — not just the children on their own.
-      expect(html).toContain("frame-box");
-      expect(html.indexOf("frame-box")).toBeLessThan(html.indexOf("Child"));
-    } finally {
-      editor._tiptapEditor.destroy();
-    }
-  });
 });
 
 it("honors a titled block's draggable flag through its regular block wrapper", () => {

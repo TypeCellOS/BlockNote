@@ -117,13 +117,27 @@ const Callout = createBlockSpec(
     },
   },
   {
-    render: () => {
+    render() {
       const callout = document.createElement("div");
       callout.className = "callout";
+      // The serializer must overwrite author attributes with the block props.
+      callout.setAttribute("data-flavor", "author-value");
 
       const body = document.createElement("div");
       body.className = "callout-body";
       callout.appendChild(body);
+
+      if (this.renderType === "dom") {
+        // Exercise fragment roots and chrome outside the children region in
+        // the shared HTML snapshots and full-HTML equality matrix.
+        const chrome = document.createElement("button");
+        chrome.contentEditable = "false";
+        chrome.textContent = "UI LABEL";
+        callout.append(chrome);
+        const fragment = document.createDocumentFragment();
+        fragment.append(callout);
+        return { dom: fragment, contentDOM: body };
+      }
 
       return {
         dom: callout,
@@ -156,7 +170,10 @@ const Alert = createBlockSpec(
         contentDOM: alert,
       };
     },
-    renderFrame: () => {
+    renderFrame: (block) => {
+      if (block.children.length === 0) {
+        return undefined;
+      }
       const frame = document.createElement("div");
       frame.className = "alert-frame";
 

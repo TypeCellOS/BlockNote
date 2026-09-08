@@ -610,18 +610,14 @@ export function getInsertionPos(
  * an empty container.
  */
 export function getFirstLeafBlock(info: BlockInfo): BlockInfo | null {
-  if (info.hasContent) {
-    // Not a container: the block is its own first leaf.
-    return info;
+  while (!info.hasContent) {
+    const { node, childrenStart } = info.children;
+    if (!node.firstChild) {
+      return null;
+    }
+    info = getBlockInfoFromNode(node.firstChild, childrenStart);
   }
-  const children = info.children;
-  const firstChild = children.node.firstChild;
-  if (!firstChild) {
-    return null;
-  }
-  return getFirstLeafBlock(
-    getBlockInfoFromNode(firstChild, children.childrenStart),
-  );
+  return info;
 }
 
 /**

@@ -1,5 +1,5 @@
-import { Extension } from "@tiptap/core";
-import { Fragment, Node } from "prosemirror-model";
+import { type ChainedCommands, Extension } from "@tiptap/core";
+import { Fragment } from "prosemirror-model";
 import { TextSelection, Transaction } from "prosemirror-state";
 
 import { mergeBlocksCommand } from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
@@ -49,6 +49,31 @@ function moveBlockOutAndPlaceCaret(
       tr.doc.resolve(tr.mapping.slice(stepsBeforeFix).map(insertionPos) + 1),
     ),
   );
+}
+
+// Delete a following block, retaining its children and any compatible text.
+// A sole child also removes its child group instead of leaving an empty body.
+function deleteBlockAndAppendContent(
+  chain: ChainedCommands,
+  current: Extract<BlockInfo, { hasContent: true }>,
+  next: Extract<BlockInfo, { hasContent: true }>,
+  remove: Pick<BlockInfo["block"], "beforePos" | "afterPos"> = next.block,
+) {
+  return chain
+    .insertContentAt(
+      next.block.afterPos,
+      next.children?.node.content || Fragment.empty,
+    )
+    .deleteRange({ from: remove.beforePos, to: remove.afterPos })
+    .insertContentAt(
+      current.contentEnd,
+      current.contentKind === "inline" && next.contentKind === "inline"
+        ? next.content.node.content
+        : null,
+    )
+    .setTextSelection(current.contentEnd)
+    .scrollIntoView()
+    .run();
 }
 
 export const KeyboardShortcutsExtension = Extension.create<{
@@ -373,42 +398,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             if (selectionAtBlockEnd && selectionEmpty) {
-              const firstChildBlockContent = firstChildBlockInfo.content.node;
-              const firstChildBlockHasInlineContent =
-                firstChildBlockInfo.contentKind === "inline";
-              const blockHasInlineContent = blockInfo.contentKind === "inline";
-
-              return (
-                chain()
-                  // Un-nests child block's children if necessary.
-                  .insertContentAt(
-                    firstChildBlockInfo.block.afterPos,
-                    firstChildBlockInfo.children?.node.content ||
-                      Fragment.empty,
-                  )
-                  .deleteRange(
-                    // Deletes whole child container if there's only one
-                    // child.
-                    children.node.childCount === 1
-                      ? {
-                          from: children.beforePos,
-                          to: children.afterPos,
-                        }
-                      : {
-                          from: firstChildBlockInfo.block.beforePos,
-                          to: firstChildBlockInfo.block.afterPos,
-                        },
-                  )
-                  // Appends inline content from child block if possible.
-                  .insertContentAt(
-                    state.selection.from,
-                    firstChildBlockHasInlineContent && blockHasInlineContent
-                      ? firstChildBlockContent.content
-                      : null,
-                  )
-                  .setTextSelection(state.selection.from)
-                  .scrollIntoView()
-                  .run()
+              return deleteBlockAndAppendContent(
+                chain(),
+                blockInfo,
+                firstChildBlockInfo,
+                children.node.childCount === 1
+                  ? children
+                  : firstChildBlockInfo.block,
               );
             }
 
@@ -510,60 +506,29 @@ export const KeyboardShortcutsExtension = Extension.create<{
             const selectionEmpty = state.selection.empty;
 
             if (selectionAtBlockEnd && selectionEmpty) {
-              const getNextBlockInfoAtAnyLevel = (
-                doc: Node,
-                beforePos: number,
-              ) => {
-                const nextBlockInfo = getNextBlockInfo(doc, beforePos);
-                if (nextBlockInfo) {
-                  return nextBlockInfo;
-                }
-
-                const parentBlockInfo = getParentBlockInfo(doc, beforePos);
-                if (!parentBlockInfo) {
-                  return undefined;
-                }
-
-                return getNextBlockInfoAtAnyLevel(
-                  doc,
-                  parentBlockInfo.block.beforePos,
+              let nextBlockInfo: BlockInfo | undefined;
+              let ancestor: BlockInfo | undefined = blockInfo;
+              while (ancestor) {
+                nextBlockInfo = getNextBlockInfo(
+                  state.doc,
+                  ancestor.block.beforePos,
                 );
-              };
-
-              const nextBlockInfo = getNextBlockInfoAtAnyLevel(
-                state.doc,
-                blockInfo.block.beforePos,
-              );
+                if (nextBlockInfo) {
+                  break;
+                }
+                ancestor = getParentBlockInfo(
+                  state.doc,
+                  ancestor.block.beforePos,
+                );
+              }
               if (!nextBlockInfo || !nextBlockInfo.hasContent) {
                 return false;
               }
 
-              const nextBlockContent = nextBlockInfo.content.node;
-              const nextBlockHasInlineContent =
-                nextBlockInfo.contentKind === "inline";
-              const blockHasInlineContent = blockInfo.contentKind === "inline";
-
-              return (
-                chain()
-                  // Un-nests next block's children if necessary.
-                  .insertContentAt(
-                    nextBlockInfo.block.afterPos,
-                    nextBlockInfo.children?.node.content || Fragment.empty,
-                  )
-                  .deleteRange({
-                    from: nextBlockInfo.block.beforePos,
-                    to: nextBlockInfo.block.afterPos,
-                  })
-                  // Appends inline content from child block if possible.
-                  .insertContentAt(
-                    state.selection.from,
-                    nextBlockHasInlineContent && blockHasInlineContent
-                      ? nextBlockContent.content
-                      : null,
-                  )
-                  .setTextSelection(state.selection.from)
-                  .scrollIntoView()
-                  .run()
+              return deleteBlockAndAppendContent(
+                chain(),
+                blockInfo,
+                nextBlockInfo,
               );
             }
 

@@ -105,57 +105,6 @@ describe("exporter", () => {
   });
 });
 
-describe("custom container blocks", () => {
-  // A minimal custom container, standing in for a callout/card:
-  // content-less, holding child blocks. Its mapping is what has to place
-  // them (mirrors the typst/docx exporters' `box` fixture).
-  const Box = createBlockSpec(
-    {
-      type: "box" as const,
-      propSchema: {},
-      content: "none",
-      children: { allow: "blocks" },
-    },
-    {
-      render: (block: any) => {
-        const dom = document.createElement("div");
-        dom.setAttribute("data-node-type", "box");
-        dom.setAttribute("data-id", block.id);
-        return { dom, contentDOM: dom };
-      },
-    },
-  )();
-
-  const boxSchema = BlockNoteSchema.create({
-    blockSpecs: {
-      ...defaultBlockSpecs,
-      box: Box,
-    },
-  });
-
-  const boxDocument = partialBlocksToBlocksForTesting(boxSchema, [
-    {
-      type: "box",
-      children: [
-        { type: "paragraph", content: "First" },
-        { type: "paragraph", content: "Second" },
-      ],
-    },
-  ] as any);
-
-  it("throws a clear error for an unmapped container block", async () => {
-    const exporter = new ODTExporter(
-      boxSchema,
-      odtDefaultSchemaMappings as any,
-      { resolveFileUrl: testResolveFileUrl },
-    );
-
-    await expect(exporter.transformBlocks(boxDocument as any)).rejects.toThrow(
-      /container block type "box"/,
-    );
-  });
-});
-
 describe("titled blocks", () => {
   // A titled block: inline content (the title) plus children (the body). The
   // mapping renders the title and places the children inside its own
@@ -200,6 +149,18 @@ describe("titled blocks", () => {
       ],
     },
   ] as any);
+
+  it("throws a clear error for an unmapped container block", async () => {
+    const exporter = new ODTExporter(
+      alertSchema,
+      odtDefaultSchemaMappings as any,
+      { resolveFileUrl: testResolveFileUrl },
+    );
+
+    await expect(
+      exporter.transformBlocks(alertDocument as any),
+    ).rejects.toThrow(/container block type "alert"/);
+  });
 
   it("renders a titled block's title and places its children inside", async () => {
     const exporter = new ODTExporter(

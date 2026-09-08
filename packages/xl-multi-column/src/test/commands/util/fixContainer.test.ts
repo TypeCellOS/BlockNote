@@ -78,202 +78,30 @@ describe("Test isEmptyContainerChild", () => {
 });
 
 describe("Test fixContainer drops emptied columns", () => {
-  it("Start and end columns empty", () => {
+  it.each<[string, string[]]>([
+    ["Start and end columns empty", ["", "Paragraph 1", "Paragraph 2", ""]],
+    ["First of two columns empty", ["", "Paragraph 1"]],
+    ["Last of two columns empty", ["Paragraph 1", ""]],
+    ["Two empty columns", ["", ""]],
+  ])("%s", (_name, texts) => {
     const editor = getEditor();
     const schema = editor._tiptapEditor.schema;
-
-    const columnList = schema.nodes["columnList"].create(undefined, [
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(),
-        ]),
-      ]),
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(undefined, [
-            schema.text("Paragraph 1"),
+    const columnList = schema.nodes["columnList"].create(
+      undefined,
+      texts.map((text) =>
+        schema.nodes["column"].create(undefined, [
+          schema.nodes["blockContainer"].create(undefined, [
+            schema.nodes["paragraph"].create(
+              undefined,
+              text ? schema.text(text) : undefined,
+            ),
           ]),
         ]),
-      ]),
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(undefined, [
-            schema.text("Paragraph 2"),
-          ]),
-        ]),
-      ]),
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(),
-        ]),
-      ]),
-    ]);
-
+      ),
+    );
     const tr = editor.prosemirrorState.tr;
-
     tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
     fixContainer(tr, 1);
-
-    expect(tr.doc).toMatchSnapshot();
-  });
-
-  it("First of two columns empty", () => {
-    const editor = getEditor();
-    const schema = editor._tiptapEditor.schema;
-
-    const columnList = schema.nodes["columnList"].create(undefined, [
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(),
-        ]),
-      ]),
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(undefined, [
-            schema.text("Paragraph 1"),
-          ]),
-        ]),
-      ]),
-    ]);
-
-    const tr = editor.prosemirrorState.tr;
-
-    tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    fixContainer(tr, 1);
-
-    expect(tr.doc).toMatchSnapshot();
-  });
-
-  it("Last of two columns empty", () => {
-    const editor = getEditor();
-    const schema = editor._tiptapEditor.schema;
-
-    const columnList = schema.nodes["columnList"].create(undefined, [
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(undefined, [
-            schema.text("Paragraph 1"),
-          ]),
-        ]),
-      ]),
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(),
-        ]),
-      ]),
-    ]);
-
-    const tr = editor.prosemirrorState.tr;
-
-    tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    fixContainer(tr, 1);
-
-    expect(tr.doc).toMatchSnapshot();
-  });
-
-  it("Two empty columns", () => {
-    const editor = getEditor();
-    const schema = editor._tiptapEditor.schema;
-
-    const columnList = schema.nodes["columnList"].create(undefined, [
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(),
-        ]),
-      ]),
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(),
-        ]),
-      ]),
-    ]);
-
-    const tr = editor.prosemirrorState.tr;
-
-    tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    fixContainer(tr, 1);
-
-    expect(tr.doc).toMatchSnapshot();
-  });
-});
-
-describe("Test fixContainer", () => {
-  it("First of two columns empty", () => {
-    const editor = getEditor();
-    const schema = editor._tiptapEditor.schema;
-
-    const columnList = schema.nodes["columnList"].create(undefined, [
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(),
-        ]),
-      ]),
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(undefined, [
-            schema.text("Paragraph 1"),
-          ]),
-        ]),
-      ]),
-    ]);
-
-    const tr = editor.prosemirrorState.tr;
-
-    tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    fixContainer(tr, 1);
-
-    expect(tr.doc).toMatchSnapshot();
-  });
-
-  it("Last of two columns empty", () => {
-    const editor = getEditor();
-    const schema = editor._tiptapEditor.schema;
-
-    const columnList = schema.nodes["columnList"].create(undefined, [
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(undefined, [
-            schema.text("Paragraph 1"),
-          ]),
-        ]),
-      ]),
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(),
-        ]),
-      ]),
-    ]);
-
-    const tr = editor.prosemirrorState.tr;
-
-    tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    fixContainer(tr, 1);
-
-    expect(tr.doc).toMatchSnapshot();
-  });
-
-  it("Two empty columns", () => {
-    const editor = getEditor();
-    const schema = editor._tiptapEditor.schema;
-
-    const columnList = schema.nodes["columnList"].create(undefined, [
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(),
-        ]),
-      ]),
-      schema.nodes["column"].create(undefined, [
-        schema.nodes["blockContainer"].create(undefined, [
-          schema.nodes["paragraph"].create(),
-        ]),
-      ]),
-    ]);
-
-    const tr = editor.prosemirrorState.tr;
-
-    tr.replaceRangeWith(1, tr.doc.firstChild!.content.size, columnList);
-    fixContainer(tr, 1);
-
     expect(tr.doc).toMatchSnapshot();
   });
 });

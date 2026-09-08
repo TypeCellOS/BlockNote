@@ -48,23 +48,29 @@ beforeEach(() => {
 });
 
 describe("children insertion & filling", () => {
-  // Regression: nothing filled a container inserted without children, so
-  // inserting one threw a raw ProseMirror
-  // `RangeError: Invalid content for node ...`.
-  it("fills a container inserted without children, with real child ids", () => {
-    expect(() =>
-      editor.insertBlocks([{ type: "callout", id: "c-0" }], "p-1", "after"),
-    ).not.toThrow();
-
-    const callout = editor.getBlock("c-0")!;
-    expect(callout.children).toHaveLength(1);
-    expect(callout.children[0].type).toBe("paragraph");
-    // Auto-filled nodes come from the schema with `id: null`, and the
-    // UniqueID plugin never sees them because `insertBlocks` converts back
-    // through `nodeToBlock` before the transaction is dispatched.
-    expect(callout.children[0].id).toBeTruthy();
-    expect(editor.getBlock(callout.children[0].id)).toBeDefined();
-  });
+  it.each([
+    { block: { type: "callout" }, childType: "paragraph", min: 1 },
+    {
+      block: { type: "callout", children: [] },
+      childType: "paragraph",
+      min: 1,
+    },
+    { block: { type: "pair" }, childType: "paragraph", min: 2 },
+    { block: { type: "grid" }, childType: "gridCell", min: 2 },
+  ] satisfies { block: PartialBlock; childType: string; min: number }[])(
+    "fills $block to its minimum with identifiable $childType children",
+    ({ block, childType, min }) => {
+      editor.insertBlocks([{ ...block, id: "container" }], "p-1", "after");
+      const children = editor.getBlock("container")!.children;
+      expect(children.map((child) => child.type)).toEqual(
+        Array(min).fill(childType),
+      );
+      for (const child of children) {
+        expect(child.id).toBeTruthy();
+        expect(editor.getBlock(child.id)).toBeDefined();
+      }
+    },
+  );
 
   it("does not re-fill a container round-tripped through the document", () => {
     editor.insertBlocks([{ type: "callout", id: "c-0" }], "p-1", "after");
@@ -76,34 +82,6 @@ describe("children insertion & filling", () => {
 
     expect(editor.getBlock("c-0")!.children).toHaveLength(
       inserted.children.length,
-    );
-  });
-
-  // Regression: `children: []` was taken at face value, building a node below
-  // `min: 1`, and `insertBlocks` threw a raw
-  // `Invalid content for node callout: <>` from its `node.check()`.
-  it("fills an explicitly empty `children` array up to `min`", () => {
-    expect(() =>
-      editor.insertBlocks(
-        [{ type: "callout", id: "c-0", children: [] }],
-        "p-1",
-        "after",
-      ),
-    ).not.toThrow();
-
-    const callout = editor.getBlock("c-0")!;
-    expect(callout.children).toHaveLength(1);
-    expect(callout.children[0].type).toBe("paragraph");
-    expect(callout.children[0].id).toBeTruthy();
-  });
-
-  it("fills a container with a higher `min` up to it", () => {
-    editor.insertBlocks([{ type: "pair", id: "s-0" }], "p-1", "after");
-
-    const pair = editor.getBlock("s-0")!;
-    expect(pair.children).toHaveLength(2);
-    expect(pair.children.every((child) => child.type === "paragraph")).toBe(
-      true,
     );
   });
 
@@ -339,6 +317,7 @@ describe("children repair", () => {
       "cell-b-p",
       "trailing",
     ]);
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 
   // An emptied child of the container is dropped even when the container
@@ -381,45 +360,6 @@ describe("children repair", () => {
 
     const grid = editor.getBlock("g-0")!;
     expect(grid.children.map((cell) => cell.id)).toEqual(["cell-a", "cell-b"]);
-  });
-
-  it("drops a namedOnly child emptied past its own minimum", () => {
-    editor.replaceBlocks(editor.document, [
-      {
-        type: "grid",
-        id: "g-0",
-        children: [
-          {
-            type: "gridCell",
-            id: "cell-a",
-            children: [
-              { id: "cell-a-p", type: "paragraph", content: "A" },
-              { id: "cell-a-extra", type: "paragraph", content: "A2" },
-            ],
-          },
-          {
-            type: "gridCell",
-            id: "cell-b",
-            children: [{ id: "cell-b-p", type: "paragraph", content: "B" }],
-          },
-        ],
-      },
-      { id: "trailing", type: "paragraph", content: "" },
-    ]);
-
-    // Removing both of cell A's blocks leaves the cell with no children,
-    // which its `min: 1` forbids. The cell only exists inside the grid, so
-    // the grid's repair drops it — and with one cell left, the grid itself
-    // unwraps into that cell's blocks.
-    editor.removeBlocks(["cell-a-extra"]);
-    editor.removeBlocks(["cell-a-p"]);
-
-    expect(editor.getBlock("g-0")).toBeUndefined();
-    expect(editor.document.map((block) => block.id)).toEqual([
-      "cell-b-p",
-      "trailing",
-    ]);
-    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 });
 
@@ -562,22 +502,6 @@ describe("children selection", () => {
     const result = editor.getSelectionCutBlocks();
     expect(result.blocks.length).toBeGreaterThanOrEqual(1);
     expect(result.blocks.map((block) => block.id)).toContain("before");
-  });
-});
-
-describe("empty container insertion", () => {
-  // A container with a `min` above one and a restricted allow list used to
-  // build a schema-invalid node when inserted without children, so
-  // `node.check()` (run before the repair pass) threw a raw RangeError
-  // instead of inserting.
-  it("inserting a container without children does not throw", () => {
-    editor.replaceBlocks(editor.document, [
-      { id: "p-0", type: "paragraph", content: "Paragraph 0" },
-    ]);
-
-    expect(() =>
-      editor.insertBlocks([{ type: "grid" }] as any, "p-0", "after"),
-    ).not.toThrow();
   });
 });
 

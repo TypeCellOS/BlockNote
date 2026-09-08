@@ -67,14 +67,16 @@ const validate = (containers: Record<string, ContainerFixture>) => () =>
   validateChildrenConfigs(configsWith(containers));
 
 describe("validateChildrenConfigs", () => {
-  it("accepts valid shapes: minimal and columnList-style", () => {
+  it("accepts recursive containers, named-only children, and titled blocks", () => {
     expect(
       validate({ callout: { children: { allow: "blocks" } } }),
     ).not.toThrow();
     expect(
       validate({
-        grid: { children: { allow: ["gridCell"], min: 2 } },
+        // gridCell is a terminating alternative to the recursive grid.
+        grid: { children: { allow: ["gridCell", "grid"], min: 2 } },
         gridCell: { children: { allow: "blocks" }, placeable: "namedOnly" },
+        alert: { children: { allow: "blocks" }, content: "inline" },
       }),
     ).not.toThrow();
   });
@@ -114,14 +116,6 @@ describe("validateChildrenConfigs", () => {
     ).toThrow(/requires a container node/);
   });
 
-  it("accepts a titled block: inline content with children", () => {
-    expect(
-      validate({
-        alert: { children: { allow: "blocks" }, content: "inline" },
-      }),
-    ).not.toThrow();
-  });
-
   // A config declaring table or plain content would build a node the runtime
   // then throws far from the config for, and the public Block type promises
   // content it never has.
@@ -148,61 +142,5 @@ describe("validateChildrenConfigs", () => {
     expect(validate({ box: { children: { allow: ["heading"] } } })).toThrow(
       /not yet supported/,
     );
-  });
-
-  // `fillBefore` recurses across node types, so a cycle blows the stack
-  // rather than returning null. It has to be caught before the schema is
-  // built. A mutual reference is fine as soon as one side can be filled with
-  // a paragraph instead.
-  it("rejects a container cycle but accepts a breakable mutual reference", () => {
-    expect(
-      validate({
-        card: { children: { allow: ["cardBody"] } },
-        cardBody: {
-          children: { allow: ["card"] },
-          placeable: "namedOnly",
-        },
-      }),
-    ).toThrow(/requires it back/);
-    expect(
-      validate({
-        card: { children: { allow: ["cardBody"] } },
-        cardBody: {
-          children: { allow: "blocks" },
-          placeable: "namedOnly",
-        },
-      }),
-    ).not.toThrow();
-  });
-
-  // A container that requires itself can never be created either: the
-  // cheapest cycle is a self-loop.
-  it("rejects a container that requires itself", () => {
-    expect(validate({ card: { children: { allow: ["card"] } } })).toThrow(
-      /requires it back/,
-    );
-  });
-
-  // Longer required cycles overflow the stack just like direct ones.
-  it("rejects a three-node required cycle", () => {
-    expect(
-      validate({
-        a: { children: { allow: ["b"] } },
-        b: { children: { allow: ["c"] } },
-        c: { children: { allow: ["a"] } },
-      }),
-    ).toThrow(/requires it back/);
-  });
-
-  // `requiredContainers` only follows edges with `min >= 1`: a container
-  // allowed to hold nothing can always be filled empty, so a cycle through
-  // `min: 0` edges never forces recursion.
-  it("accepts a container-only cycle broken by min: 0", () => {
-    expect(
-      validate({
-        a: { children: { allow: ["b"], min: 0 } },
-        b: { children: { allow: ["a"], min: 0 } },
-      }),
-    ).not.toThrow();
   });
 });

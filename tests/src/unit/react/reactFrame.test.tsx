@@ -113,25 +113,10 @@ const createToggle = createReactBlockSpec(
   },
 );
 
-// A titled block whose frame declines by mounting no slot.
-const createPlainAlert = createReactBlockSpec(
-  {
-    type: "plainAlert",
-    propSchema: {},
-    content: "inline",
-    children: { allow: "blocks" },
-  },
-  {
-    render: (props) => <div className="plain-title" ref={props.contentRef} />,
-    renderFrame: () => null,
-  },
-);
-
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
     frameBox: createFrameBox(),
     frameAlert: createFrameAlert(),
-    plainAlert: createPlainAlert(),
     frameToggle: createToggle(),
   },
 });
@@ -184,7 +169,7 @@ afterEach(() => {
 });
 
 describe("React renderFrame", () => {
-  it("keeps container identity and props when local state replaces the author root", async () => {
+  it("keeps container identity and child DOM through prop and author-root changes", async () => {
     const mounted = mountEditor([
       {
         id: "box-0",
@@ -195,6 +180,15 @@ describe("React renderFrame", () => {
     ]);
     await tick();
     const child = div!.querySelector('[data-id="box-child"]');
+    const slot = div!.querySelector(".frame-slot");
+    expect(slot?.textContent).toBe("Child");
+    mounted.updateBlock("box-0", { props: { flavor: "success" } });
+    await vi.waitFor(() =>
+      expect(
+        div!.querySelector(".frame-box")?.getAttribute("data-flavor"),
+      ).toBe("success"),
+    );
+    expect(div!.querySelector(".frame-slot")).toBe(slot);
     flushSync(() =>
       div!.querySelector<HTMLButtonElement>(".swap-root")!.click(),
     );
@@ -202,7 +196,7 @@ describe("React renderFrame", () => {
     expect(box).not.toBeNull();
     expect(box.getAttribute("data-id")).toBe("box-0");
     expect(box.getAttribute("data-node-type")).toBe("frameBox");
-    expect(box.getAttribute("data-flavor")).toBe("warning");
+    expect(box.getAttribute("data-flavor")).toBe("success");
     expect(box.querySelector('[data-id="box-child"]')).toBe(child);
     expect(mounted.getBlock("box-child")?.content).toEqual([
       { type: "text", text: "Child", styles: {} },
@@ -210,91 +204,12 @@ describe("React renderFrame", () => {
     expect(uncaught).toEqual([]);
   });
 
-  it("keeps pure container rendering live", async () => {
-    const mounted = mountEditor([
-      {
-        id: "box-0",
-        type: "frameBox",
-        props: { flavor: "warning" },
-        children: [{ id: "box-child", type: "paragraph", content: "Child" }],
-      },
-    ]);
-    await tick();
-    await tick();
-
-    const box = div!.querySelector<HTMLElement>(".frame-box")!;
-    expect(box.getAttribute("data-flavor")).toBe("warning");
-    const slot = box.querySelector<HTMLElement>(".frame-slot")!;
-    expect(slot.querySelector('[data-id="box-child"]')).not.toBeNull();
-    expect(slot.textContent).toBe("Child");
-
-    mounted.updateBlock("box-0", { props: { flavor: "success" } } as any);
-    await tick();
-    await tick();
-
-    // The chrome follows the prop change, and the slot element itself is
-    // untouched: the frame re-rendered in place instead of rebuilding.
-    expect(div!.querySelector(".frame-box")!.getAttribute("data-flavor")).toBe(
-      "success",
-    );
-    expect(div!.querySelector(".frame-slot")).toBe(slot);
-    expect(uncaught).toEqual([]);
-  });
-
-  it("wraps a titled block's title and body in its frame", async () => {
-    mountEditor([
-      {
-        id: "alert-0",
-        type: "frameAlert",
-        content: "Heads up",
-        children: [{ id: "alert-child", type: "paragraph", content: "Body" }],
-      },
-    ]);
-    await tick();
-
-    await vi.waitFor(() => {
-      expect(uncaught).toEqual([]);
-      expect(div!.querySelector(".alert-frame")).not.toBeNull();
-    });
-    const frame = div!.querySelector<HTMLElement>(".alert-frame")!;
-    const slot = frame.querySelector<HTMLElement>(".alert-slot")!;
-    // The title the content node renders and the child block both live in
-    // the slot, so the frame surrounds them together.
-    expect(slot.textContent).toContain("Heads up");
-    expect(slot.querySelector('[data-id="alert-child"]')).not.toBeNull();
-    expect(slot.textContent).toContain("Body");
-    expect(uncaught).toEqual([]);
-  });
-
-  it("keeps the frame's box in external HTML", () => {
-    const headless = BlockNoteEditor.create({ schema }) as BlockNoteEditor<
-      any,
-      any,
-      any
-    >;
-
-    const html = headless.blocksToHTMLLossy([
-      {
-        id: "box-0",
-        type: "frameBox",
-        props: { flavor: "warning" },
-        children: [{ id: "box-child", type: "paragraph", content: "Child" }],
-      },
-    ] as any);
-
-    // The static path draws the frame, so the box survives export with the
-    // children inside it — not just the children on their own.
-    expect(html).toContain("frame-box");
-    expect(html.indexOf("frame-box")).toBeLessThan(html.indexOf("Child"));
-
-    headless._tiptapEditor.destroy();
-  });
-
   it("renders plain nesting when the frame mounts no slot", async () => {
     mountEditor([
       {
         id: "alert-0",
-        type: "plainAlert",
+        type: "frameAlert",
+        props: { framed: false },
         content: "Heads up",
         children: [{ id: "alert-child", type: "paragraph", content: "Body" }],
       },
@@ -321,6 +236,7 @@ describe("React renderFrame", () => {
         "inside: 0",
       ),
     );
+    expect(div!.querySelector(".alert-slot")?.textContent).toBe("TitleBody");
     const child = div!.querySelector('[data-id="child"]');
     const title = div!.querySelector(".alert-title");
     div!.querySelector<HTMLButtonElement>(".frame-counter")!.click();

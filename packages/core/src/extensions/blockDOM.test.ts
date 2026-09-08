@@ -9,11 +9,7 @@ function isDraggable(type: string) {
   return type !== "lockedBlock" && type !== "column";
 }
 
-// These are pure DOM walks (`closest`/`querySelector` over the block chrome),
-// so we build detached trees rather than booting an editor. Only `view.dom` is
-// read, as the boundary for the upward walk. No layout is involved, but
-// the unit under test is the DOM API itself, so it runs against a real
-// browser engine rather than jsdom's re-implementation of it.
+// Identity and ownership need detached DOM trees, not browser layout.
 
 /** Builds the `blockOuter > blockContainer > blockContent` chrome BlockNote
  * renders around every regular block. */
@@ -23,6 +19,7 @@ function regularBlock(
 ): { outer: HTMLElement; blockContainer: HTMLElement; content: HTMLElement } {
   const outer = document.createElement("div");
   outer.setAttribute("data-node-type", "blockOuter");
+  outer.setAttribute("data-id", id);
 
   const blockContainer = document.createElement("div");
   blockContainer.setAttribute("data-node-type", "blockContainer");
@@ -63,8 +60,14 @@ describe("getDraggableBlockFromElement", () => {
     });
   });
 
-  it("skips a block whose type opts out of dragging", () => {
-    const { outer, content } = regularBlock("a", "lockedBlock");
+  it("resolves a locked block's identity but gives it no drag handle", () => {
+    const { outer, content, blockContainer } = regularBlock("a", "lockedBlock");
+
+    expect(getBlockFromElement(content, viewWith(outer))).toEqual({
+      node: blockContainer,
+      id: "a",
+      type: "lockedBlock",
+    });
 
     expect(
       getDraggableBlockFromElement(content, viewWith(outer), isDraggable),
@@ -118,31 +121,11 @@ describe("getDraggableBlockFromElement", () => {
   });
 });
 
-it("resolves a locked block's identity without applying drag policy", () => {
-  const { outer, content, blockContainer } = regularBlock(
-    "locked",
-    "lockedBlock",
-  );
-  expect(getBlockFromElement(content, viewWith(outer))).toEqual({
-    node: blockContainer,
-    id: "locked",
-    type: "lockedBlock",
-  });
-});
-
 it("does not resolve blocks outside this editor", () => {
   const { content } = regularBlock("outside", "paragraph");
   expect(
     getBlockFromElement(content, viewWith(document.createElement("div"))),
   ).toBeUndefined();
-});
-
-it("ignores the duplicate ID on ordinary block chrome", () => {
-  const { outer, content, blockContainer } = regularBlock("a", "paragraph");
-  outer.setAttribute("data-id", "a");
-  expect(getBlockFromElement(content, viewWith(outer))?.node).toBe(
-    blockContainer,
-  );
 });
 
 it("does not resolve a block owned by an embedded editor", () => {

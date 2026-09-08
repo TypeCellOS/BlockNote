@@ -1172,10 +1172,8 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
     executeTest: testParseHTML,
   },
   {
-    // A container whose children holder is serialized empty. Parsing goes
-    // through a real document, so the spec's `default` children fill it back
-    // in. This is why `container/emptyChildren` is excluded from the
-    // export/parse equality matrix.
+    // An empty container children holder is filled to its schema minimum
+    // when parsed into a valid document.
     testCase: {
       name: "containerEmptyChildren",
       content: `<div class="bn-block-group" data-node-type="blockGroup">

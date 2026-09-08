@@ -84,44 +84,7 @@ function findContainerContentElement(
   return undefined;
 }
 
-/**
- * What a container block's custom `parse` rule reads its children from.
- * `undefined` when the block has no `parseContent`: without one there is
- * nothing to say beyond the rule's default child parsing.
- */
-function containerChildrenParser<
-  TName extends string,
-  TProps extends PropSchema,
-  TContent extends "inline" | "none" | "table" | "plain",
->(
-  implementation: BlockImplementation<TName, TProps, TContent>,
-): TagParseRule["getContent"] | undefined {
-  const parseContent = implementation.parseContent;
-  if (!parseContent) {
-    return undefined;
-  }
-
-  return (node, schema) => {
-    // Inline runs a `parseContent` returns are left in place: the container's
-    // content expression requires blocks, and ProseMirror's parser wraps them
-    // (`findWrapping`) exactly as it does when a block has no `parseContent`
-    // at all.
-    return (
-      parseContent({ el: node as HTMLElement, schema }) ??
-      DOMParser.fromSchema(schema).parse(node as HTMLElement, {
-        topNode: schema.nodes["blockGroup"].create(),
-        preserveWhitespace: true,
-      }).content
-    );
-  };
-}
-
-/**
- * What a regular block's custom `parse` rule reads its content from:
- * `parseContent` if the block has one, falling back to parsing the element's
- * inline content. `undefined` for a `table`, whose content the block's own
- * parse rules handle.
- */
+// Custom parsing, followed by the default parser for the block's content kind.
 function blockContentParser<
   TName extends string,
   TProps extends PropSchema,
@@ -130,11 +93,13 @@ function blockContentParser<
   config: BlockConfig<TName, TProps, TContent>,
   implementation: BlockImplementation<TName, TProps, TContent>,
 ): TagParseRule["getContent"] | undefined {
+  const isContainer = isContainerConfig(config);
   if (
-    config.content !== "inline" &&
-    config.content !== "none" &&
-    config.content !== "plain"
+    config.content === "table" ||
+    (isContainer && !implementation.parseContent)
   ) {
+    // Tables use their own rules. Containers without parseContent use PM's
+    // normal child parsing, including wrapping inline runs as paragraphs.
     return undefined;
   }
 
@@ -149,6 +114,13 @@ function blockContentParser<
       if (result !== undefined) {
         return result;
       }
+    }
+
+    if (isContainer) {
+      return DOMParser.fromSchema(schema).parse(node as HTMLElement, {
+        topNode: schema.nodes["blockGroup"].create(),
+        preserveWhitespace: true,
+      }).content;
     }
 
     if (config.content === "none") {
@@ -242,9 +214,7 @@ export function getParseRules<
       },
       // Because we do the parsing ourselves, we want to preserve whitespace for content we've parsed
       preserveWhitespace: true,
-      getContent: isContainer
-        ? containerChildrenParser(implementation)
-        : blockContentParser(config, implementation),
+      getContent: blockContentParser(config, implementation),
     });
   }
 
@@ -564,83 +534,62 @@ export function addNodeAndExtensionsToSpec<
     },
   });
 
+  function serialize(
+    block: Parameters<LooseBlockSpec["implementation"]["render"]>[0],
+    editor: Parameters<LooseBlockSpec["implementation"]["render"]>[1],
+    context?: { nestingLevel: number },
+  ) {
+    const blockContentDOMAttributes =
+      node.options.domAttributes?.blockContent || {};
+    const external =
+      context &&
+      blockImplementation.toExternalHTML?.call(
+        { blockContentDOMAttributes, propSchema: blockConfig.propSchema },
+        block,
+        editor as any,
+        context,
+      );
+    const output =
+      external ??
+      renderBlockToDOM(
+        blockImplementation,
+        blockConfig,
+        block,
+        editor,
+        blockContentDOMAttributes,
+      );
+
+    if (isContainer) {
+      applyContainerAttributes(
+        containerRootDOM(output),
+        blockConfig.type,
+        block.props,
+        blockConfig.propSchema,
+        block.id,
+      );
+    } else if (context && !external) {
+      // An explicit external renderer owns the complete export. Otherwise
+      // wrap the default content and children in the editor's frame.
+      const frame = blockImplementation.renderFrame?.call(
+        { renderType: "dom", props: undefined, blockContentDOMAttributes },
+        block,
+        editor as any,
+      );
+      if (frame) {
+        frame.slot.append(output.dom);
+        return { ...output, dom: frame.dom, childrenDOM: frame.slot };
+      }
+    }
+    return output;
+  }
+
   return {
     config: blockConfig,
     implementation: {
       ...blockImplementation,
       node,
-      render(block, editor) {
-        const blockContentDOMAttributes =
-          node.options.domAttributes?.blockContent || {};
-
-        const output = renderBlockToDOM(
-          blockImplementation,
-          blockConfig,
-          block,
-          editor,
-          blockContentDOMAttributes,
-        );
-
-        if (isContainer) {
-          applyContainerAttributes(
-            containerRootDOM(output),
-            blockConfig.type,
-            block.props,
-            blockConfig.propSchema,
-            block.id,
-          );
-        }
-
-        return output;
-      },
-      // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
-      // post-processing in externalHTMLExporter should not be necessary
-      toExternalHTML: (block, editor, context) => {
-        const blockContentDOMAttributes =
-          node.options.domAttributes?.blockContent || {};
-
-        const external = blockImplementation.toExternalHTML?.call(
-          { blockContentDOMAttributes, propSchema: blockConfig.propSchema },
-          block as any,
-          editor as any,
-          context,
-        );
-        const output =
-          external ??
-          renderBlockToDOM(
-            blockImplementation,
-            blockConfig,
-            block,
-            editor,
-            blockContentDOMAttributes,
-          );
-
-        // An explicit external renderer owns the complete export. Otherwise
-        // use the same frame as the editor, with title and children in order.
-        if (!external && !isContainer) {
-          const frame = blockImplementation.renderFrame?.call(
-            { renderType: "dom", props: undefined, blockContentDOMAttributes },
-            block as any,
-            editor as any,
-          );
-          if (frame) {
-            frame.slot.append(output.dom);
-            return { ...output, dom: frame.dom, childrenDOM: frame.slot };
-          }
-        }
-
-        if (isContainer) {
-          applyContainerAttributes(
-            containerRootDOM(output),
-            blockConfig.type,
-            block.props,
-            blockConfig.propSchema,
-            block.id,
-          );
-        }
-
-        return output;
-      },
+      render: serialize,
+      toExternalHTML: serialize,
     },
     extensions,
   };

@@ -5,15 +5,10 @@ type ValidatableConfig = Pick<BlockConfig, "type" | "content" | "placeable"> & {
   children?: ChildrenConfig;
 };
 
-/** Reject declarations ProseMirror would accept incorrectly or recurse through. */
+/** Reject declarations ProseMirror would accept with different semantics. */
 export function validateChildrenConfigs(
   blockConfigs: Record<string, ValidatableConfig>,
 ) {
-  function isContainerBlockType(blockType: string) {
-    const config = blockConfigs[blockType];
-    return !!config && isContainerConfig(config);
-  }
-
   for (const [type, config] of Object.entries(blockConfigs)) {
     if (config.placeable === "namedOnly" && !isContainerConfig(config)) {
       fail(
@@ -50,7 +45,10 @@ export function validateChildrenConfigs(
     // here compiles to a valid schema that restricts nothing.
     if (allow !== "blocks") {
       for (const allowed of allow) {
-        if (allowed in blockConfigs && !isContainerBlockType(allowed)) {
+        if (
+          allowed in blockConfigs &&
+          !isContainerConfig(blockConfigs[allowed])
+        ) {
           fail(
             type,
             `\`allow\` contains "${allowed}", which is a regular block, not a container block. ` +
@@ -61,59 +59,10 @@ export function validateChildrenConfigs(
       }
     }
   }
-
-  validateNoCycles(blockConfigs, isContainerBlockType);
 }
 
 function fail(type: string, message: string): never {
   throw new Error(
     `Invalid \`children\` config for block "${type}": ${message}`,
   );
-}
-
-/**
- * A container that requires a child which requires it back can never be
- * created: ProseMirror's `fillBefore` recurses across node types and overflows
- * the stack rather than returning `null`, so it has to be caught statically.
- */
-function validateNoCycles(
-  blockConfigs: Record<string, ValidatableConfig>,
-  isContainerBlockType: (blockType: string) => boolean,
-) {
-  // A container that allows regular blocks can always be filled with a plain
-  // paragraph, so only container-only lists can force recursion.
-  function requiredContainers(type: string): string[] {
-    const children = blockConfigs[type].children;
-    if (!children) {
-      return [];
-    }
-    return (children.min ?? 1) >= 1 && children.allow !== "blocks"
-      ? children.allow.filter(isContainerBlockType)
-      : [];
-  }
-
-  const state = new Map<string, "visiting" | "done">();
-
-  function visit(type: string, path: string[]) {
-    const seen = state.get(type);
-    if (seen === "done") {
-      return;
-    }
-    if (seen === "visiting") {
-      fail(
-        type,
-        `it requires a child that requires it back (${[...path, type].join(" -> ")}), so it could never be created. Allow regular blocks in one of the containers to break the cycle.`,
-      );
-    }
-
-    state.set(type, "visiting");
-    for (const next of requiredContainers(type)) {
-      visit(next, [...path, type]);
-    }
-    state.set(type, "done");
-  }
-
-  for (const type of Object.keys(blockConfigs)) {
-    visit(type, []);
-  }
 }

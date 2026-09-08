@@ -229,10 +229,11 @@ function serializeBlock<
 
   const blockImplementation = editor.blockImplementations[block.type as any]
     .implementation as BlockImplementation;
+  const blockWithDefaults = { ...block, props, children: block.children ?? [] };
   const ret =
     blockImplementation.toExternalHTML?.call(
       {},
-      { ...block, props } as any,
+      blockWithDefaults as any,
       editor as any,
       {
         nestingLevel,
@@ -241,7 +242,7 @@ function serializeBlock<
     renderBlockToDOM(
       blockImplementation,
       editor.schema.blockSchema[block.type as any] as any,
-      { ...block, props },
+      blockWithDefaults,
       editor,
       {},
     );

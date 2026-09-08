@@ -26,17 +26,24 @@ export const testExportParseEqualityBlockNoteHTML = <
 
   addIdsToBlocks(testCase.content);
 
-  const exported = editor.blocksToFullHTML(testCase.content);
-
   if (testCase.name.startsWith("malformed/")) {
-    // We purposefully are okay with malformed response, we know they won't match
+    const exported = editor.blocksToFullHTML(testCase.content);
+    // Malformed partial input is intentionally not a lossless document.
     expect(editor.tryParseHTMLToBlocks(exported)).not.toStrictEqual(
       partialBlocksToBlocksForTesting(editor.schema, testCase.content),
     );
   } else {
-    expect(editor.tryParseHTMLToBlocks(exported)).toStrictEqual(
-      partialBlocksToBlocksForTesting(editor.schema, testCase.content),
+    // Round-trip valid blocks, including schema-generated required children.
+    // The shorthand helper defaults all children to [], which is invalid for
+    // containers with a minimum child count.
+    const blocks = testCase.content.map((block) =>
+      nodeToBlock(
+        blockToNode(block, editor.pmSchema),
+        editor.prosemirrorState.doc,
+      ),
     );
+    const exported = editor.blocksToFullHTML(blocks);
+    expect(editor.tryParseHTMLToBlocks(exported)).toStrictEqual(blocks);
   }
 };
 

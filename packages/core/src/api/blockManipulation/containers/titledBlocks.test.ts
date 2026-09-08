@@ -304,20 +304,6 @@ describe("blocks that declare no children are untouched", () => {
     editor._tiptapEditor.destroy();
   });
 
-  it("a titled block round-trips through HTML, keeping title and body", () => {
-    // Dragging a block, and copying one, both go through this: a titled block
-    // that serialized like a container would come back as a paragraph.
-    const editor = editorWith(withAlert());
-
-    const html = editor.blocksToFullHTML(editor.document as any);
-    const parsed = editor.tryParseHTMLToBlocks(html);
-
-    expect(shape(parsed)).toBe(
-      'paragraph"Before", alert"Title"[paragraph"One", paragraph"Two"], paragraph"After"',
-    );
-    editor._tiptapEditor.destroy();
-  });
-
   it("survives the clipboard round-trip that copy and drag use", () => {
     // Dragging a block inside the editor re-parses it from the HTML
     // ProseMirror serializes the dragged slice to, so a titled block whose

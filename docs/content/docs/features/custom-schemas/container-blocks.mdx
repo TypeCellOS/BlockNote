@@ -206,8 +206,9 @@ Configurations are checked when the schema is created, and fail up front with a 
 - an `allow` array naming an unknown type, or naming a regular block type (per-type filtering of regular blocks is [not supported](#restricting-children));
 - `children` combined with any `content` other than `"none"` or `"inline"`;
 - `placeable: "namedOnly"` on a regular block;
-- restricted child types or an explicit `min` on a titled block;
-- container cycles: a container that (transitively) requires a child that requires it back could never be created. An `allow` that permits regular blocks breaks the cycle, since they're always satisfiable.
+- restricted child types or an explicit `min` on a titled block.
+
+Recursive content expressions and automatic child filling are handled by ProseMirror.
 
 Documents are checked too. `initialContent` that doesn't fit the schema throws when the editor is created, rather than loading in a broken state. This matters when you change a `children` config on a schema whose documents are already saved somewhere: a stored document that no longer fits, say a `columnList` left with a single column, now fails at load. Migrate those documents before shipping the change.
 
