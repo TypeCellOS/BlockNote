@@ -1,3 +1,5 @@
+import { ToggleExtension } from "../Toggle/Toggle.js";
+import { getBlockInfoAt } from "../../api/getBlockInfoFromPos.js";
 import { dropPoint } from "prosemirror-transform";
 import type { EditorView } from "prosemirror-view";
 import {
@@ -186,6 +188,16 @@ export const DropCursorExtension = createExtension<
         const point = dropPoint(view.state.doc, target, view.dragging.slice);
         if (point != null) {
           target = point;
+        }
+      }
+
+      const toggleTarget = editor
+        .getExtension(ToggleExtension)
+        ?.getDropTargetPos(view, e, view.dragging?.slice);
+      if (toggleTarget !== undefined) {
+        const info = getBlockInfoAt(view.state.doc, toggleTarget);
+        if (info.hasContent) {
+          target = info.content.afterPos;
         }
       }
 

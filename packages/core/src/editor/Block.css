@@ -189,13 +189,23 @@ NESTED BLOCKS
   --prev-level: 0.8em;
 }
 
-.bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content {
+.bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content,
+.bn-block-outer[data-prev-type="heading"]
+  > .bn-block
+  > .bn-toggle-frame
+  > .bn-toggle-slot
+  > .bn-block-content {
   font-size: var(--prev-level);
   font-weight: bold;
 }
 
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="heading"],
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > .bn-toggle-frame
+  > .bn-toggle-slot
   > .bn-block-content[data-content-type="heading"],
 .bn-block-outer:not([data-prev-type])
   > .bn-block
@@ -307,6 +317,59 @@ NESTED BLOCKS
 }
 
 /* Toggle */
+/* The slot owns the title and child group. Its children participate in the
+   frame's grid so the chevron aligns with the title, even over a long body.
+   Child indentation remains the shared 24px block-group indentation above. */
+.bn-toggle-frame {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+}
+
+.bn-toggle-slot {
+  display: contents;
+}
+
+.bn-toggle-slot > :not(.bn-block-group) {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.bn-toggle-slot > .bn-block-group {
+  grid-column: 1 / -1;
+}
+
+.bn-toggle-frame > .bn-toggle-button {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+}
+
+/* Headings have 18px top and 3px bottom padding (see HEADINGS above). */
+.bn-toggle-frame[data-toggle-heading="true"] > .bn-toggle-button {
+  margin-top: 15px;
+}
+
+.bn-toggle-frame[data-show-children="true"] > .bn-toggle-button > svg {
+  transform: rotate(90deg);
+}
+
+.bn-toggle-frame > .bn-toggle-add-block-button {
+  grid-column: 2;
+  margin-left: 0;
+}
+
+.bn-toggle-frame[data-show-children="false"]
+  > .bn-toggle-slot
+  > .bn-block-group,
+.bn-toggle-frame > .bn-toggle-add-block-button[hidden],
+.bn-editor:not([contenteditable="true"])
+  .bn-toggle-frame
+  > .bn-toggle-add-block-button {
+  display: none;
+}
+
+/* Compatibility for custom blocks still using the legacy ToggleWrapper. */
 .bn-block:has(
     > .bn-block-content > div > .bn-toggle-wrapper[data-show-children="false"]
   )
