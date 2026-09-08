@@ -1,3 +1,4 @@
+import { handleToggleEnter } from "../../extensions/Toggle/toggleEnter.js";
 import { splitBlockTr } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
@@ -21,6 +22,10 @@ export const handleEnter = (
 
   if (!(content.node.type.name === listItemType) || !selectionEmpty) {
     return false;
+  }
+
+  if (editor.transact((tr) => handleToggleEnter(editor, tr))) {
+    return true;
   }
 
   if (blockInfo.isContentEmpty) {
