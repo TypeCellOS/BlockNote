@@ -1,0 +1,97 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.item {
+  border-radius: 0.5rem;
+  flex: 1;
+  overflow: auto;
+}
+
+.item.bordered {
+  border: 1px solid gray;
+}
+
+.item pre {
+  border-radius: 0.5rem;
+  height: 100%;
+  overflow: auto;
+  padding-block: 1rem;
+  padding-inline: 54px;
+  width: 100%;
+  white-space: pre-wrap;
+}
+
+/* Both alert variants share the box. `flavor` is the prop's default-aware
+   styling hook: BlockNote only writes a `data-*` attribute for props that
+   differ from their default, so `info` (the default) is styled by absence. */
+.alert {
+  flex-grow: 1;
+  border-radius: 6px;
+  padding: 12px 16px;
+  border-left: 4px solid var(--alert-accent, #888);
+  background-color: var(--alert-bg, #f3f4f6);
+}
+
+.alert:not([data-flavor]),
+.alert[data-flavor="info"] {
+  --alert-accent: #507aff;
+  --alert-bg: #e6ebff;
+}
+
+.alert[data-flavor="warning"] {
+  --alert-accent: #b91c1c;
+  --alert-bg: #fef2f2;
+}
+
+.alert[data-flavor="success"] {
+  --alert-accent: #16a34a;
+  --alert-bg: #ecfdf5;
+}
+
+[data-color-scheme="dark"] .alert:not([data-flavor]),
+[data-color-scheme="dark"] .alert[data-flavor="info"] {
+  --alert-bg: #1e2a5c;
+}
+
+[data-color-scheme="dark"] .alert[data-flavor="warning"] {
+  --alert-bg: #4a1212;
+}
+
+[data-color-scheme="dark"] .alert[data-flavor="success"] {
+  --alert-bg: #0d3b21;
+}
+
+.alert-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alert-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alert-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background-color: var(--alert-accent, #888);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.alert-title {
+  font-weight: 600;
+  flex-grow: 1;
+  min-width: 0;
+}
