@@ -10,9 +10,15 @@ export function useEditorDOMElement(editor?: BlockNoteEditor<any, any, any>) {
     editor = editorContext?.editor;
   }
 
+  if (!editor) {
+    throw new Error(
+      "'editor' is required in `useEditorDOMElement`, either from BlockNoteContext or as a function argument",
+    );
+  }
+
   return useEditorState({
     editor,
-    selector: (ctx) => ctx.editor?.domElement,
+    selector: (ctx) => ctx.editor.domElement,
     equalityFn: (a, b) => a === b,
     on: "mount",
   });
