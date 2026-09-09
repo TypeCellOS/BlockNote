@@ -1,3 +1,13 @@
+## 0.54.2 (2026-09-09)
+
+### 🩹 Fixes
+
+- **xl-typst-compiler:** Package wasm without Rust build artifacts ([220544ffd](https://github.com/TypeCellOS/BlockNote/commit/220544ffd))
+
+### ❤️ Thank You
+
+- Nick The Sick ([@nperez0111](https://github.com/nperez0111))
+
 ## 0.54.1 (2026-09-09)
 
 ### 🚀 Features
