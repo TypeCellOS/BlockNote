@@ -65,6 +65,11 @@ async function clickTableHandleMenuItem(
   await userEvent.click(item);
 }
 
+function centerOf(element: Element) {
+  const box = element.getBoundingClientRect();
+  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+}
+
 beforeEach(async () => {
   await render(<App />);
   await waitForSelector(EDITOR_SELECTOR);
@@ -299,6 +304,205 @@ describe("Check Table interactions", () => {
       await clickTableHandleMenuItem(rowHandle, "Add row below");
 
       await compareDocToSnapshot("addColumnThenRow");
+    },
+  );
+
+  // Visual feedback shown while a row/column drag is in progress: the cells
+  // being dragged are highlighted, and a copy of them is used as the drag
+  // image so it follows the cursor. Playwright doesn't correctly simulate
+  // drag events in Firefox.
+  test.skipIf(browserName === "firefox")(
+    "Row drag should highlight the row and use it as the drag image",
+    async () => {
+      await focusOnEditor();
+      await executeSlashCommand("table");
+      await waitForSelector(TABLE_SELECTOR);
+
+      const rows = document.querySelectorAll(`${TABLE_SELECTOR} tbody tr`);
+      const cellsPerRow = rows[0].querySelectorAll("td").length;
+      const handle = await getTableHandle(
+        rows[0].querySelector("td") as HTMLElement,
+        "row",
+      );
+
+      await mouseSequence([
+        { type: "move", ...centerOf(handle), steps: 5 },
+        { type: "down" },
+        // Onto the second row, so the drop cursor has somewhere to go.
+        {
+          type: "move",
+          ...centerOf(rows[1].querySelector("td") as HTMLElement),
+          steps: 10,
+        },
+      ]);
+
+      await vi.waitFor(() => {
+        expect(
+          document.querySelectorAll(
+            `${TABLE_SELECTOR} tbody tr:first-child .bn-table-drag-source`,
+          ),
+        ).toHaveLength(cellsPerRow);
+        expect(
+          document.querySelectorAll(".bn-table-drop-cursor").length,
+        ).toBeGreaterThan(0);
+        // The drag image holds a copy of the dragged row, and shouldn't
+        // carry the highlight that's on the row it was copied from.
+        expect(
+          document.querySelectorAll(".bn-table-drag-preview tr"),
+        ).toHaveLength(1);
+        expect(
+          document.querySelectorAll(
+            ".bn-table-drag-preview .bn-table-drag-source",
+          ),
+        ).toHaveLength(0);
+      });
+
+      await mouseSequence([{ type: "up" }]);
+
+      // All of it is transient, and is torn down on `dragend` rather than
+      // synchronously with the mouseup.
+      await vi.waitFor(() => {
+        expect(document.querySelectorAll(".bn-table-drag-source")).toHaveLength(
+          0,
+        );
+        expect(document.querySelectorAll(".bn-table-drop-cursor")).toHaveLength(
+          0,
+        );
+        expect(
+          document.querySelectorAll(".bn-table-drag-preview"),
+        ).toHaveLength(0);
+      });
+    },
+  );
+
+  test.skipIf(browserName === "firefox")(
+    "Column drag should highlight every cell in the column",
+    async () => {
+      await focusOnEditor();
+      await executeSlashCommand("table");
+      await waitForSelector(TABLE_SELECTOR);
+
+      const rows = document.querySelectorAll(`${TABLE_SELECTOR} tbody tr`);
+      const firstRowCells = rows[0].querySelectorAll("td");
+      const handle = await getTableHandle(
+        firstRowCells[0] as HTMLElement,
+        "column",
+      );
+
+      await mouseSequence([
+        { type: "move", ...centerOf(handle), steps: 5 },
+        { type: "down" },
+        {
+          type: "move",
+          ...centerOf(firstRowCells[firstRowCells.length - 1] as HTMLElement),
+          steps: 10,
+        },
+      ]);
+
+      await vi.waitFor(() => {
+        // One highlighted cell per row, and a drag image holding a copy of
+        // each of them, stacked one per row.
+        expect(document.querySelectorAll(".bn-table-drag-source")).toHaveLength(
+          rows.length,
+        );
+        expect(
+          document.querySelectorAll(".bn-table-drag-preview tr"),
+        ).toHaveLength(rows.length);
+      });
+
+      await mouseSequence([{ type: "up" }]);
+
+      await vi.waitFor(() => {
+        expect(document.querySelectorAll(".bn-table-drag-source")).toHaveLength(
+          0,
+        );
+      });
+    },
+  );
+
+  test.skipIf(browserName === "firefox")(
+    "Cancelling a drag should clean up the highlight and drag image",
+    async () => {
+      await focusOnEditor();
+      await executeSlashCommand("table");
+      await waitForSelector(TABLE_SELECTOR);
+
+      const rows = document.querySelectorAll(`${TABLE_SELECTOR} tbody tr`);
+      const handle = await getTableHandle(
+        rows[0].querySelector("td") as HTMLElement,
+        "row",
+      );
+
+      await mouseSequence([
+        { type: "move", ...centerOf(handle), steps: 5 },
+        { type: "down" },
+        {
+          type: "move",
+          ...centerOf(rows[1].querySelector("td") as HTMLElement),
+          steps: 10,
+        },
+      ]);
+      await vi.waitFor(() => {
+        expect(
+          document.querySelectorAll(".bn-table-drag-source").length,
+        ).toBeGreaterThan(0);
+      });
+
+      // Escape cancels a native HTML5 drag: the browser fires `dragend`
+      // without a `drop`. Cleanup hangs off the same `dragEnd()` callback
+      // either way, so it should run here too.
+      await userEvent.keyboard("{Escape}");
+      // Release the mouse button so it doesn't leak into the next test.
+      await mouseSequence([{ type: "up" }]);
+
+      await vi.waitFor(() => {
+        expect(document.querySelectorAll(".bn-table-drag-source")).toHaveLength(
+          0,
+        );
+        expect(
+          document.querySelectorAll(".bn-table-drag-preview"),
+        ).toHaveLength(0);
+      });
+    },
+  );
+
+  test.skipIf(browserName === "firefox")(
+    "Drag image should be the same size as the column being dragged",
+    async () => {
+      await focusOnEditor();
+      await executeSlashCommand("table");
+      await waitForSelector(TABLE_SELECTOR);
+
+      const rows = document.querySelectorAll(`${TABLE_SELECTOR} tbody tr`);
+      const columnCell = rows[0].querySelector("td") as HTMLElement;
+      const columnWidth = columnCell.getBoundingClientRect().width;
+
+      const handle = await getTableHandle(columnCell, "column");
+      await mouseSequence([
+        { type: "move", ...centerOf(handle), steps: 5 },
+        { type: "down" },
+        {
+          type: "move",
+          ...centerOf(rows[0].querySelectorAll("td")[1]),
+          steps: 10,
+        },
+      ]);
+
+      await vi.waitFor(() => {
+        const previewCells = document.querySelectorAll(
+          ".bn-table-drag-preview td",
+        );
+        expect(previewCells).toHaveLength(rows.length);
+        previewCells.forEach((previewCell) => {
+          // Sub-pixel tolerance: the collapsed border around the copy shifts
+          // the measured width by about a pixel.
+          expect(
+            Math.abs(previewCell.getBoundingClientRect().width - columnWidth),
+          ).toBeLessThan(2);
+        });
+      });
+
+      await mouseSequence([{ type: "up" }]);
     },
   );
 });
