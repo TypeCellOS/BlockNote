@@ -110,6 +110,18 @@ export interface BlockConfig<
   // e.g. tables, alerts (with title & content)
 }
 
+declare module "prosemirror-model" {
+  interface NodeSpec {
+    /**
+     * The config of the BlockNote block this node was built from, so code
+     * holding a bare `Node` can read block-level facts (like the content
+     * kind) without an editor or schema reference. Set on every node built
+     * from a block spec.
+     */
+    blockConfig?: BlockConfig;
+  }
+}
+
 /**
  * BlockConfigOrCreator is a union type of BlockConfig and a function that returns a BlockConfig.
  * This is used to create block configs that can be passed to the createBlockSpec function.

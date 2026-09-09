@@ -23,6 +23,20 @@ beforeAll(async () => {
   const style = document.createElement("style");
   style.textContent = `.bn-container { max-width: 731px; margin: 0 auto; padding-top: 8px; }`;
   document.head.appendChild(style);
+
+  // Disable CSS transitions & animations for the whole suite. The editor
+  // animates block geometry (e.g. `.bn-block-outer { transition: margin 0.2s }`
+  // driven by the PreviousBlockType depth-change decorations), so for ~200ms
+  // after a Tab/Shift+Tab the blocks' x-positions are mid-flight. Visual caret
+  // movement (ArrowUp/ArrowDown) then lands at a timing-dependent text offset,
+  // which made document snapshots race the animation clock under CPU
+  // contention. With motion disabled, layout is always in its settled state and
+  // caret geometry is deterministic. (No product code listens for
+  // transitionend/animationend, and no keyframes rely on fill-mode, so
+  // suppressing motion only removes the timing dependency.)
+  const noMotion = document.createElement("style");
+  noMotion.textContent = `*, *::before, *::after { transition: none !important; animation: none !important; }`;
+  document.head.appendChild(noMotion);
 });
 
 beforeEach(() => {

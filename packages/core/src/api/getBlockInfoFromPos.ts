@@ -1,10 +1,48 @@
-import { Node, ResolvedPos } from "prosemirror-model";
-import { EditorState, Transaction } from "prosemirror-state";
+import { Node, type NodeType } from "prosemirror-model";
+import {
+  EditorState,
+  NodeSelection,
+  Selection,
+  TextSelection,
+  Transaction,
+} from "prosemirror-state";
 
+import type { BlockConfig } from "../schema/blocks/types.js";
+
+/**
+ * Producers for {@link BlockInfo}, named by the input you already have:
+ *
+ * - `getBlockInfoFromNode(node, beforePos)` — you hold the block's ProseMirror
+ *   node and the position just before it.
+ * - `getBlockInfoAt(doc, posBeforeBlock)` — you know the exact position just
+ *   before a block node (throws if no node starts there).
+ * - `getBlockInfoNearPos(source, pos)` — you have an arbitrary position; walks
+ *   up/over to the nearest block.
+ * - `getBlockInfoFromSelection(source)` — you want the block containing the
+ *   current selection anchor.
+ */
+
+/** A ProseMirror node making up (part of) a block, and where it sits. */
 type SingleBlockInfo = {
+  /** The node itself. */
   node: Node;
+  /** The position just before the node, i.e. `node`'s own position. */
   beforePos: number;
+  /** The position just after the node: `beforePos + node.nodeSize`. */
   afterPos: number;
+};
+
+/**
+ * The node holding a block's children, plus the bounds of the child range.
+ */
+export type ChildrenInfo = SingleBlockInfo & {
+  /**
+   * `beforePos + 1`: the position of the first child; also the insertion
+   * position for a new first child.
+   */
+  childrenStart: number;
+  /** `afterPos - 1`: the position just after the last child. */
+  childrenEnd: number;
 };
 
 export type BlockInfo = {
@@ -12,42 +50,147 @@ export type BlockInfo = {
    * The outer node that represents a BlockNote block. This is the node that has the ID.
    * Most of the time, this will be a blockContainer node, but it could also be a Column or ColumnList
    */
-  bnBlock: SingleBlockInfo;
+  block: SingleBlockInfo;
   /**
    * The type of BlockNote block that this node represents.
-   * When dealing with a blockContainer, this is retrieved from the blockContent node, otherwise it's retrieved from the bnBlock node.
+   * When dealing with a blockContainer, this is retrieved from the content node, otherwise it's retrieved from the block node.
    */
   blockNoteType: string;
 } & (
   | {
-      // In case we're not dealing with a BlockContainer, we're dealing with a "wrapper node" (like a Column or ColumnList), so it will always have children
+      // A container block (Column, ColumnList, a custom container): its own
+      // node holds its children directly, and it has no content node of
+      // its own.
 
       /**
-       * The Prosemirror node that holds block.children. For non-blockContainer, this node will be the same as bnBlock.
+       * The Prosemirror node that holds block.children. For a container block,
+       * this node is the same as `block`.
        */
-      childContainer: SingleBlockInfo;
-      isBlockContainer: false;
+      children: ChildrenInfo;
+      content?: undefined;
+      hasContent: false;
+      contentStart?: undefined;
+      contentEnd?: undefined;
+      contentKind?: undefined;
+      isContentEmpty?: undefined;
     }
   | {
       /**
        * The Prosemirror node that holds block.children. For blockContainers, this is the blockGroup node, if it exists.
        */
-      childContainer?: SingleBlockInfo;
+      children?: ChildrenInfo;
       /**
        * The Prosemirror node that wraps block.content and has most of the props
        */
-      blockContent: SingleBlockInfo;
+      content: SingleBlockInfo;
+      /** `content.beforePos + 1`: the first position inside the content. */
+      contentStart: number;
+      /** `content.afterPos - 1`: the last position inside the content. */
+      contentEnd: number;
       /**
-       * Whether bnBlock is a blockContainer node
+       * What the content node holds: its block spec's `content`, which is what
+       * the node's ProseMirror content expression was generated from (and what
+       * a hand-written node's expression is checked against when the schema is
+       * built).
        */
-      isBlockContainer: true;
+      contentKind: BlockConfig["content"];
+      /** `content.node.childCount === 0`. */
+      isContentEmpty: boolean;
+      /**
+       * Whether the block has a content node: a `blockContainer` (an
+       * ordinary block wrapped for nesting), shaped as a content node
+       * followed by an optional child container.
+       *
+       * Note this is the opposite of "is a container block": a column has
+       * `hasContent: false`.
+       */
+      hasContent: true;
     }
 );
 
+/**
+ * The caret position at an edge of a table content region: 4 levels in
+ * (`table` → `tableRow` → `tableCell` → `tableParagraph`) from the region's
+ * boundary — the first cell's paragraph start, or the last cell's paragraph
+ * end.
+ */
+export function tableContentCaretPos(
+  content: { beforePos: number; afterPos: number },
+  edge: "start" | "end",
+): number {
+  return edge === "start" ? content.beforePos + 4 : content.afterPos - 4;
+}
+
+/**
+ * The caret position at an edge of a block's content, or `null` when the block
+ * has none there: a container block, or content that holds no text (an image).
+ */
+export function blockEdgePos(
+  info: BlockInfo,
+  edge: "start" | "end",
+): number | null {
+  if (!info.hasContent || info.contentKind === "none") {
+    return null;
+  }
+  return info.contentKind === "table"
+    ? tableContentCaretPos(info.content, edge)
+    : edge === "start"
+      ? info.contentStart
+      : info.contentEnd;
+}
+
+/**
+ * A selection at an edge of a block. A container resolves to the same edge of
+ * its first/last child, recursively. Where there is no caret position the
+ * nearest node is selected instead: the content node of a block holding no
+ * text, or the block itself for a container holding no children.
+ */
+export function blockEdgeSelection(
+  doc: Node,
+  info: BlockInfo,
+  edge: "start" | "end",
+): Selection {
+  const pos = blockEdgePos(info, edge);
+  if (pos !== null) {
+    return TextSelection.create(doc, pos);
+  }
+  if (info.hasContent) {
+    return NodeSelection.create(doc, info.content.beforePos);
+  }
+
+  const { node, childrenStart, childrenEnd } = info.children;
+  const child = edge === "start" ? node.firstChild : node.lastChild;
+  if (!child) {
+    return NodeSelection.create(doc, info.block.beforePos);
+  }
+  return blockEdgeSelection(
+    doc,
+    getBlockInfoFromNode(
+      child,
+      edge === "start" ? childrenStart : childrenEnd - child.nodeSize,
+    ),
+    edge,
+  );
+}
+
+/**
+ * Whether `node` is only in the document because suggestion mode keeps deleted
+ * content around: yjs marks such a node `y-attributed-delete` rather than
+ * removing it, so it shares its ID with the node it stands in for.
+ */
 export function isSuggestedDeletionNode(node: Node): boolean {
   return node.marks.some((m) => ["y-attributed-delete"].includes(m.type.name));
 }
 
+/**
+ * The block ID to address `node` by. Normally its `id` attribute, but a node
+ * kept around by suggestion mode (see {@link isSuggestedDeletionNode}) shares
+ * that attribute with the node it duplicates, so it gets an `-${index}` suffix
+ * counting the same-ID nodes before it in `doc`.
+ *
+ * @throws If `node` has no `id` attribute (every block node does), or if it
+ * isn't in `doc`.
+ */
 export function getNodeId(node: Node, doc: Node): string {
   const id = node.attrs.id;
   if (!id) {
@@ -154,138 +297,305 @@ export function getNearestBlockPos(doc: Node, pos: number) {
 
 /**
  * Gets information regarding the ProseMirror nodes that make up a block in a
- * BlockNote document. This includes the main `blockContainer` node, the
- * `blockContent` node with the block's main body, and the optional `blockGroup`
- * node which contains the block's children. As well as the nodes, also returns
- * the ProseMirror positions just before & after each node.
- * @param node The main `blockContainer` node that the block information should
- * be retrieved from,
- * @param bnBlockBeforePosOffset the position just before the
- * `blockContainer` node in the document.
+ * BlockNote document, given the block's outer node and the position just
+ * before it. This includes the outer node with the block's ID, the content
+ * node with the block's main body, and the optional node which contains the
+ * block's children. As well as the nodes, also returns the ProseMirror
+ * positions just before & after each node.
+ * @param node The outer node that the block information should be retrieved
+ * from.
+ * @param beforePos The position just before the outer node in the document.
  */
-export function getBlockInfoWithManualOffset(
-  node: Node,
-  bnBlockBeforePosOffset: number,
-): BlockInfo {
+export function getBlockInfoFromNode(node: Node, beforePos: number): BlockInfo {
   if (!node.type.isInGroup("bnBlock")) {
     throw new Error(
-      `Attempted to get bnBlock node at position but found node of different type ${node.type.name}`,
+      `Attempted to get block node at position but found node of different type ${node.type.name}`,
     );
   }
 
-  const bnBlockNode = node;
-  const bnBlockBeforePos = bnBlockBeforePosOffset;
-  const bnBlockAfterPos = bnBlockBeforePos + bnBlockNode.nodeSize;
-
-  const bnBlock: SingleBlockInfo = {
-    node: bnBlockNode,
-    beforePos: bnBlockBeforePos,
-    afterPos: bnBlockAfterPos,
+  const block: SingleBlockInfo = {
+    node,
+    beforePos,
+    afterPos: beforePos + node.nodeSize,
   };
 
-  if (bnBlockNode.type.name === "blockContainer") {
-    let blockContent: SingleBlockInfo | undefined;
-    let blockGroup: SingleBlockInfo | undefined;
-
-    bnBlockNode.forEach((node, offset) => {
-      if (node.type.spec.group === "blockContent") {
-        // console.log(beforePos, offset);
-        const blockContentNode = node;
-        const blockContentBeforePos = bnBlockBeforePos + offset + 1;
-        const blockContentAfterPos = blockContentBeforePos + node.nodeSize;
-
-        blockContent = {
-          node: blockContentNode,
-          beforePos: blockContentBeforePos,
-          afterPos: blockContentAfterPos,
-        };
-      } else if (node.type.name === "blockGroup") {
-        const blockGroupNode = node;
-        const blockGroupBeforePos = bnBlockBeforePos + offset + 1;
-        const blockGroupAfterPos = blockGroupBeforePos + node.nodeSize;
-
-        blockGroup = {
-          node: blockGroupNode,
-          beforePos: blockGroupBeforePos,
-          afterPos: blockGroupAfterPos,
-        };
-      }
-    });
-
-    if (!blockContent) {
-      throw new Error(
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        `blockContainer node does not contain a blockContent node in its children: ${bnBlockNode}`,
-      );
-    }
-
+  if (node.type.isInGroup("bnBlock") && node.type.isInGroup("childContainer")) {
     return {
-      isBlockContainer: true,
-      bnBlock,
-      blockContent,
-      childContainer: blockGroup,
-      blockNoteType: blockContent.node.type.name,
-    };
-  } else {
-    if (!bnBlock.node.type.isInGroup("childContainer")) {
-      throw new Error(
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        `bnBlock node is not in the childContainer group: ${bnBlock.node}`,
-      );
-    }
-
-    return {
-      isBlockContainer: false,
-      bnBlock: bnBlock,
-      childContainer: bnBlock,
-      blockNoteType: bnBlock.node.type.name,
+      hasContent: false,
+      block,
+      children: {
+        ...block,
+        childrenStart: block.beforePos + 1,
+        childrenEnd: block.afterPos - 1,
+      },
+      blockNoteType: node.type.name,
     };
   }
+
+  if (node.type.name === "blockContainer") {
+    const contentNode = node.firstChild;
+    if (!contentNode || !contentNode.type.isInGroup("blockContent")) {
+      throw new Error("blockContainer must start with a block content node.");
+    }
+    const content: SingleBlockInfo = {
+      node: contentNode,
+      beforePos: beforePos + 1,
+      afterPos: beforePos + 1 + contentNode.nodeSize,
+    };
+    let children: ChildrenInfo | undefined;
+    if (node.childCount > 1) {
+      const holder = node.child(1);
+      if (node.childCount !== 2 || holder.type.name !== "blockGroup") {
+        throw new Error(
+          "blockContainer may only have a blockGroup after its content.",
+        );
+      }
+      children = {
+        node: holder,
+        beforePos: content.afterPos,
+        afterPos: block.afterPos - 1,
+        childrenStart: content.afterPos + 1,
+        childrenEnd: block.afterPos - 2,
+      };
+    }
+
+    // Only a node built from a block spec can be a block's content, and such a
+    // node carries the spec's config, which states the content kind outright.
+    // A bare node put in the `blockContent` group has no block to speak for
+    // it, so it is rejected rather than guessed at.
+    const blockConfig = content.node.type.spec.blockConfig;
+    if (!blockConfig) {
+      throw new Error(
+        `Block content node "${content.node.type.name}" was not built from a ` +
+          "block spec, so it has no content kind. Register it with " +
+          "`createBlockSpec`/`createBlockSpecFromTiptapNode` instead of " +
+          "joining the `blockContent` group directly.",
+      );
+    }
+
+    return {
+      hasContent: true,
+      block,
+      content,
+      children,
+      contentStart: content.beforePos + 1,
+      contentEnd: content.afterPos - 1,
+      contentKind: blockConfig.content,
+      isContentEmpty: content.node.childCount === 0,
+      // A `blockContainer` is a generic wrapper, so its type comes from the
+      // content node inside it.
+      blockNoteType: content.node.type.name,
+    };
+  }
+
+  throw new Error(
+    `Node "${node.type.name}" is not a container or blockContainer.`,
+  );
 }
 
 /**
- * Gets information regarding the ProseMirror nodes that make up a block in a
- * BlockNote document. This includes the main `blockContainer` node, the
- * `blockContent` node with the block's main body, and the optional `blockGroup`
- * node which contains the block's children. As well as the nodes, also returns
- * the ProseMirror positions just before & after each node.
- * @param posInfo An object with the main `blockContainer` node that the block
- * information should be retrieved from, and the position just before it in the
- * document.
+ * Gets information regarding the ProseMirror nodes that make up a block, given
+ * a position known to be just before a block node. Throws if no node starts at
+ * that position.
+ * @param doc The ProseMirror doc.
+ * @param posBeforeBlock The position just before the block's outer node.
  */
-export function getBlockInfo(posInfo: { posBeforeNode: number; node: Node }) {
-  return getBlockInfoWithManualOffset(posInfo.node, posInfo.posBeforeNode);
-}
-
-/**
- * Gets information regarding the ProseMirror nodes that make up a block from a
- * resolved position just before the `blockContainer` node in the document that
- * corresponds to it.
- * @param resolvedPos The resolved position just before the `blockContainer`
- * node.
- */
-export function getBlockInfoFromResolvedPos(resolvedPos: ResolvedPos) {
-  if (!resolvedPos.nodeAfter) {
+export function getBlockInfoAt(doc: Node, posBeforeBlock: number): BlockInfo {
+  const $pos = doc.resolve(posBeforeBlock);
+  if (!$pos.nodeAfter) {
     throw new Error(
-      `Attempted to get blockContainer node at position ${resolvedPos.pos} but a node at this position does not exist`,
+      `Attempted to get block node at position ${posBeforeBlock} but a node at this position does not exist`,
     );
   }
-  return getBlockInfoWithManualOffset(resolvedPos.nodeAfter, resolvedPos.pos);
+  return getBlockInfoFromNode($pos.nodeAfter, $pos.pos);
 }
 
 /**
- * Gets information regarding the ProseMirror nodes that make up a block. The
- * block chosen is the one currently containing the current ProseMirror
- * selection.
- * @param source The ProseMirror editor state.
+ * Gets information regarding the ProseMirror nodes that make up the block
+ * nearest to an arbitrary position (see {@link getNearestBlockPos}).
+ * @param source The ProseMirror editor state or transaction.
+ * @param pos An integer position in the document.
  */
-export function getBlockInfoFromSelection(source: EditorState | Transaction) {
-  return getBlockInfoAtNearest(source, source.selection.anchor);
-}
-
-export function getBlockInfoAtNearest(
+export function getBlockInfoNearPos(
   source: EditorState | Transaction,
   pos: number,
-) {
-  return getBlockInfo(getNearestBlockPos(source.doc, pos));
+): BlockInfo {
+  const posInfo = getNearestBlockPos(source.doc, pos);
+  return getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
+}
+
+/**
+ * Gets information regarding the ProseMirror nodes that make up the block
+ * containing the current ProseMirror selection anchor.
+ * @param source The ProseMirror editor state or transaction.
+ */
+export function getBlockInfoFromSelection(source: EditorState | Transaction) {
+  return getBlockInfoNearPos(source, source.selection.anchor);
+}
+
+/**
+ * The parent block's info: the block whose `children` contains the block at
+ * `posBeforeBlock`, or `undefined` for a top-level block. A container is the
+ * parent of its direct children (a block inside a column → the column, not
+ * the columnList); a regular block's children live in its `blockGroup`, so
+ * the parent is the group's own parent.
+ */
+export function getParentBlockInfo(
+  doc: Node,
+  posBeforeBlock: number,
+): BlockInfo | undefined {
+  const $pos = doc.resolve(posBeforeBlock);
+  const parent = $pos.node();
+
+  if (parent.type.isInGroup("bnBlock")) {
+    return getBlockInfoAt(doc, $pos.before($pos.depth));
+  }
+  // A `blockGroup`: its own parent block is the real parent, unless it's the
+  // document root group.
+  if (parent.type.isInGroup("childContainer") && $pos.depth > 1) {
+    return getBlockInfoAt(doc, $pos.before($pos.depth - 1));
+  }
+  return undefined;
+}
+
+/**
+ * Returns the block info from the sibling block before (above) the given block,
+ * or undefined if the given block is the first sibling.
+ */
+export function getPrevBlockInfo(
+  doc: Node,
+  beforePos: number,
+): BlockInfo | undefined {
+  const $pos = doc.resolve(beforePos);
+
+  const indexInParent = $pos.index();
+
+  if (indexInParent === 0) {
+    return undefined;
+  }
+
+  const prevBlockBeforePos = $pos.posAtIndex(indexInParent - 1);
+
+  return getBlockInfoAt(doc, prevBlockBeforePos);
+}
+
+/**
+ * Returns the block info from the sibling block after (below) the given block,
+ * or undefined if the given block is the last sibling.
+ */
+export function getNextBlockInfo(
+  doc: Node,
+  beforePos: number,
+): BlockInfo | undefined {
+  const $pos = doc.resolve(beforePos);
+
+  const indexInParent = $pos.index();
+
+  if (indexInParent === $pos.node().childCount - 1) {
+    return undefined;
+  }
+
+  const nextBlockBeforePos = $pos.posAtIndex(indexInParent + 1);
+
+  return getBlockInfoAt(doc, nextBlockBeforePos);
+}
+
+/**
+ * If a block has children like this:
+ * A
+ * - B
+ * - C
+ * -- D
+ *
+ * Then the last descendant block returned is D.
+ */
+export function getLastDescendantBlockInfo(blockInfo: BlockInfo): BlockInfo {
+  // A container that allows zero children can have an empty child container,
+  // in which case the block itself is the bottom one.
+  while (blockInfo.children && blockInfo.children.node.childCount) {
+    const child = blockInfo.children.node.lastChild!;
+    blockInfo = getBlockInfoFromNode(
+      child,
+      blockInfo.children.childrenEnd - child.nodeSize,
+    );
+  }
+
+  return blockInfo;
+}
+
+/**
+ * Where blocks go relative to a reference block. `"before"`/`"after"` make
+ * them siblings of it; `"first-child"`/`"last-child"` nest them inside it.
+ *
+ * The nested placements also cover blocks that have no children to point at:
+ * a regular block's `blockGroup` is lazy (`blockContent blockGroup?`), so a
+ * block without children has no child block to insert before or after. They
+ * likewise cover containers that have no children to point at: a `min: 0`
+ * container that is currently empty has no child block to insert before or
+ * after.
+ */
+export type BlockPlacement = "before" | "after" | "first-child" | "last-child";
+
+/**
+ * Resolves a `placement` against a reference block into the document position
+ * a node of `nodeType` should be inserted at, or `null` when the reference
+ * block cannot take it there.
+ *
+ * Shared by `insertBlocks` and the move commands, so "does this block fit
+ * here?" is answered in one place. The answer comes from the schema's content
+ * matches rather than from a hand-written rule, so a container's `children`
+ * config decides it.
+ *
+ * `wrapIn` is set when the position only becomes valid once the nodes are
+ * wrapped: a regular block with no children yet has no `blockGroup` for them
+ * to go in, so one is created around them.
+ */
+export function getInsertionPos(
+  doc: Node,
+  info: BlockInfo,
+  placement: BlockPlacement,
+  nodeType: NodeType,
+): { pos: number; wrapIn?: NodeType } | null {
+  if (placement === "before" || placement === "after") {
+    const pos =
+      placement === "before" ? info.block.beforePos : info.block.afterPos;
+    const $pos = doc.resolve(pos);
+    return $pos.parent.canReplaceWith($pos.index(), $pos.index(), nodeType)
+      ? { pos }
+      : null;
+  }
+
+  // Ordinary nesting creates its blockGroup lazily.
+  if (!info.children) {
+    const group = nodeType.schema.nodes["blockGroup"];
+    return info.hasContent && group?.contentMatch.matchType(nodeType)
+      ? { pos: info.content.afterPos, wrapIn: group }
+      : null;
+  }
+
+  const last = placement === "last-child";
+  while (info.children) {
+    const children = info.children;
+    const index = last ? children.node.childCount : 0;
+    if (children.node.canReplaceWith(index, index, nodeType)) {
+      return { pos: last ? children.childrenEnd : children.childrenStart };
+    }
+    // A restricted container can route insertion into its edge container,
+    // e.g. inserting a paragraph into the last column of a column list.
+    const child = last ? children.node.lastChild : children.node.firstChild;
+    if (
+      !child ||
+      !(
+        child.type.isInGroup("bnBlock") &&
+        child.type.isInGroup("childContainer")
+      )
+    ) {
+      break;
+    }
+    info = getBlockInfoFromNode(
+      child,
+      last ? children.childrenEnd - child.nodeSize : children.childrenStart,
+    );
+  }
+  return null;
 }

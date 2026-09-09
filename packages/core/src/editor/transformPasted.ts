@@ -66,7 +66,7 @@ function removeChild(node: Fragment, n: number) {
  * Wrap adjacent tableRow items in a table.
  *
  * This makes sure the content that we paste is always a table (and not a tableRow)
- * A table works better for the remaing paste handling logic, as it's actually a blockContent node
+ * A table works better for the remaing paste handling logic, as it's actually a content node
  */
 export function wrapTableRows(f: Fragment, schema: Schema) {
   const newItems: any[] = [];
@@ -118,7 +118,11 @@ export function transformPasted(slice: Slice, view: EditorView) {
     return retyped;
   }
 
-  if (isInTableCell(view)) {
+  // `tableParagraph` only exists in schemas with the default table blocks. A
+  // schema with a custom table implementation (e.g. container-block cells,
+  // which hold real blocks and need no inline conversion) skips this branch.
+  const tableParagraph = view.state.schema.nodes.tableParagraph;
+  if (tableParagraph && isInTableCell(view)) {
     let hasTableContent = false;
     f.descendants((node) => {
       if (node.type.isInGroup("tableContent")) {
@@ -128,7 +132,7 @@ export function transformPasted(slice: Slice, view: EditorView) {
     if (
       !hasTableContent &&
       // is the content valid for a table paragraph?
-      !view.state.schema.nodes.tableParagraph.validContent(f)
+      !tableParagraph.validContent(f)
     ) {
       // if not, convert the content to inline content
       return new Slice(
@@ -213,17 +217,15 @@ function retypeLeadingParagraphForEmptyTarget(
   }
 
   const blockInfo = getBlockInfoFromSelection(view.state);
-  const target = blockInfo.isBlockContainer
-    ? blockInfo.blockContent.node
-    : null;
   if (
-    !target ||
-    target.type.name === "paragraph" ||
-    target.type.spec.content !== "inline*" ||
-    target.childCount > 0
+    !blockInfo.hasContent ||
+    blockInfo.content.node.type.name === "paragraph" ||
+    blockInfo.contentKind !== "inline" ||
+    !blockInfo.isContentEmpty
   ) {
     return null;
   }
+  const target = blockInfo.content.node;
 
   const blockGroup = fragment.firstChild;
   const blockContainer = blockGroup?.firstChild;
@@ -275,9 +277,8 @@ function shouldApplyFix(fragment: Fragment, view: EditorView) {
       // for both paste and drop events. Drop events can potentially cause
       // issues as they don't always happen at the current selection.
       const blockInfo = getBlockInfoFromSelection(view.state);
-      if (blockInfo.isBlockContainer) {
-        const selectedBlockHasTableContent =
-          blockInfo.blockContent.node.type.spec.content === "tableRow+";
+      if (blockInfo.hasContent) {
+        const selectedBlockHasTableContent = blockInfo.contentKind === "table";
 
         // Case for when we paste a single node with table content, i.e. a
         // table. Normally, we return true as we want to ensure the table is

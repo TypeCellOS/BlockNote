@@ -313,6 +313,14 @@ describe("Check Keyboard Handlers' Behaviour", () => {
     await insertParagraph();
 
     await userEvent.keyboard("{ArrowUp}");
+    // ArrowUp moves the caret by visual x-position, and the target block above
+    // is nested (indented 24px further right than the block the caret starts
+    // in), so the caret lands mid-text rather than at the block's end.
+    // Normalize to the end of the word/line before deleting, like the "with
+    // children" variant below does, so Delete exercises the merge-with-next
+    // branch this test is about.
+    await userEvent.keyboard(`{${MOD}>}{ArrowLeft}{/${MOD}}`);
+    await userEvent.keyboard(`{${MOD}>}{ArrowRight}{/${MOD}}`);
     await userEvent.keyboard("{Delete}");
 
     await compareDocToSnapshot("deleteShallowerBlock");
