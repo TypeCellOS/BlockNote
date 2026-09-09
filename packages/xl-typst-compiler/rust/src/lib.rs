@@ -50,7 +50,7 @@ impl World for BnWorld {
             self.sources
                 .get(&id)
                 .cloned()
-                .ok_or_else(|| FileError::NotFound(id.vpath().as_rooted_path().into()))
+                .ok_or_else(|| FileError::NotFound(id.vpath().get_with_slash().into()))
         }
     }
 
@@ -58,7 +58,7 @@ impl World for BnWorld {
         self.files
             .get(&id)
             .cloned()
-            .ok_or_else(|| FileError::NotFound(id.vpath().as_rooted_path().into()))
+            .ok_or_else(|| FileError::NotFound(id.vpath().get_with_slash().into()))
     }
 
     fn font(&self, index: usize) -> Option<Font> {
