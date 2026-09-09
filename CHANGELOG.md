@@ -1,3 +1,30 @@
+## 0.54.1 (2026-09-09)
+
+### 🚀 Features
+
+- Typst-powered accessible PDF export (PDF/UA-1) ([#2992](https://github.com/TypeCellOS/BlockNote/pull/2992))
+- **pdf:** base PDF export on self-hosted Typst compiler ([#3020](https://github.com/TypeCellOS/BlockNote/pull/3020))
+
+### 🔥 Performance
+
+- **core:** Resolve block changes from changed range only ([#2981](https://github.com/TypeCellOS/BlockNote/pull/2981))
+
+### 🩹 Fixes
+
+- **xl-docx-exporter:** Use distinct bullet symbols per nesting level ([#2977](https://github.com/TypeCellOS/BlockNote/pull/2977))
+- **core:** Only attach table handles to actual table blocks ([#2972](https://github.com/TypeCellOS/BlockNote/pull/2972))
+- **xl-docx-exporter:** Give each list its own numbering instance ([#2976](https://github.com/TypeCellOS/BlockNote/pull/2976))
+- **exporters:** Editor-parity rendering fixes + shared-document ground truth tests ([#3021](https://github.com/TypeCellOS/BlockNote/pull/3021))
+- **core:** Stop schema.extend() mutating the shared default specs ([#3039](https://github.com/TypeCellOS/BlockNote/pull/3039))
+- **mantine:** Restore compact AI menu items ([#3027](https://github.com/TypeCellOS/BlockNote/pull/3027))
+- Ignore only Dark Reader's writes in node views ([#3062](https://github.com/TypeCellOS/BlockNote/pull/3062))
+
+### ❤️ Thank You
+
+- Yousef <yousefdardiry@gmail.com>
+- Adarshsm <adarshmudugal@gmail.com>
+- Nick Perez <nick@blocknotejs.org>
+
 ## 0.54.0 (2026-08-13)
 
 ### 🚀 Features
