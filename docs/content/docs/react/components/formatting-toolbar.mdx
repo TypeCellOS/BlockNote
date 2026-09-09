@@ -38,3 +38,29 @@ The first element in the default Formatting Toolbar is the Block Type Select, an
 <Example name="ui-components/formatting-toolbar-block-type-items" />
 
 Here, we use the `FormattingToolbar` component but keep the default buttons (we don't pass any children). Instead, we pass our customized Block Type Select items using the `blockTypeSelectItems` prop.
+
+## Adding a Text Align Select
+
+You can replace the default text alignment buttons with a `TextAlignSelect` dropdown, which groups all four alignment options (Left, Center, Right, Justify) into a single compact select.
+
+To use it, pass `<TextAlignSelect>` as a child of `FormattingToolbar` in a custom toolbar:
+
+```tsx
+import {
+  BlockTypeSelect,
+  FormattingToolbar,
+  FormattingToolbarController,
+  TextAlignSelect,
+} from "@blocknote/react";
+
+const CustomFormattingToolbar = () => (
+  <FormattingToolbar>
+    <BlockTypeSelect key="blockTypeSelect" />
+    {/* ... other toolbar items ... */}
+    <TextAlignSelect key="textAlignSelect" />
+    {/* ... other toolbar items ... */}
+  </FormattingToolbar>
+);
+```
+
+The select is only rendered when the cursor or selection is on a block that supports the `textAlignment` prop (e.g. paragraphs and headings). For table blocks, it applies the chosen alignment to the individual cells covered by the current cell selection.
