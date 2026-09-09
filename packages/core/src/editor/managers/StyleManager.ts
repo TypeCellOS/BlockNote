@@ -147,22 +147,26 @@ export class StyleManager<
   }
 
   /**
-   * Find the link mark and its range at the given position.
+   * Find the link mark and its range at the given position, including at
+   * either edge of the link.
    * Returns undefined if there is no link at that position.
    */
   public getLinkMarkAtPos(pos: number) {
     return this.editor.transact((tr) => {
-      const resolvedPos = tr.doc.resolve(pos);
-      const linkMark = resolvedPos
-        .marks()
-        .find((mark) => mark.type.name === "link");
-
-      if (!linkMark) {
+      // The link mark is not inclusive, so `$pos.marks()` leaves it out at
+      // both ends of a link, and callers compensated with `pos + 1`, which
+      // covers the left end only. tiptap's `getMarkRange` looks at the node
+      // after `pos` and then the one before, so it finds the link at both
+      // ends; the mark itself is read off the node the range starts with.
+      const linkType = this.editor.pmSchema.marks["link"];
+      const range = getMarkRange(tr.doc.resolve(pos), linkType);
+      if (!range) {
         return undefined;
       }
-
-      const range = getMarkRange(resolvedPos, linkMark.type);
-      if (!range) {
+      const linkMark = tr.doc
+        .nodeAt(range.from)
+        ?.marks.find((mark) => mark.type === linkType);
+      if (!linkMark) {
         return undefined;
       }
 
@@ -176,11 +180,20 @@ export class StyleManager<
   }
 
   /**
-   * Gets the URL of the last link in the current selection, or `undefined` if there are no links in the selection.
+   * Gets the URL of the link the current selection starts in, or `undefined`
+   * if it does not start in one.
    */
   public getSelectedLinkUrl() {
     return this.editor.transact((tr) => {
-      return this.getLinkMarkAtPos(tr.selection.from)?.href;
+      // The node the selection starts in, on purpose not `getLinkMarkAtPos`
+      // (which also looks at the node before `from`): a selection starting
+      // right after a link must not pre-fill the link form with that link's
+      // URL. A `from + 1` lookup would miss the right end of a link (a
+      // selection of its last character, or a one-character link, reads as
+      // no link).
+      const node = tr.doc.nodeAt(tr.selection.from);
+      const linkMark = node?.marks.find((mark) => mark.type.name === "link");
+      return linkMark?.attrs.href as string | undefined;
     });
   }
 
@@ -222,7 +235,7 @@ export class StyleManager<
     position = this.editor.transact((tr) => tr.selection.anchor),
   ) {
     this.editor.transact((tr) => {
-      const linkData = this.getLinkMarkAtPos(position + 1);
+      const linkData = this.getLinkMarkAtPos(position);
       const { from, to } = linkData || {
         from: tr.selection.from,
         to: tr.selection.to,
@@ -246,7 +259,7 @@ export class StyleManager<
     position = this.editor.transact((tr) => tr.selection.anchor),
   ) {
     this.editor.transact((tr) => {
-      const linkData = this.getLinkMarkAtPos(position + 1);
+      const linkData = this.getLinkMarkAtPos(position);
       const { from, to } = linkData || {
         from: tr.selection.from,
         to: tr.selection.to,
