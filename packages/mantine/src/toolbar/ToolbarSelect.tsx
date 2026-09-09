@@ -4,7 +4,7 @@ import {
   Menu as MantineMenu,
 } from "@mantine/core";
 
-import { assertEmpty, isSafari } from "@blocknote/core";
+import { assertEmpty, isSafari, isTouchDevice } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 import { HiChevronDown } from "react-icons/hi";
@@ -14,7 +14,7 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, ...rest } = props;
+  const { className, items, isDisabled, portalRoot, ...rest } = props;
 
   assertEmpty(rest);
 
@@ -26,18 +26,37 @@ export const ToolbarSelect = forwardRef<
 
   return (
     <MantineMenu
-      withinPortal={false}
+      withinPortal={!!portalRoot}
+      portalProps={portalRoot ? { target: portalRoot } : undefined}
       transitionProps={{
         exitDuration: 0,
       }}
       disabled={isDisabled}
-      middlewares={{ flip: true, shift: true, inline: false, size: true }}
+      // Do not move focus to the dropdown on mobile, as it blurs the editor's
+      // contentEditable and dismisses the on-screen keyboard.
+      trapFocus={portalRoot ? false : undefined}
+      middlewares={{
+        flip: true,
+        shift: true,
+        inline: false,
+        size: true,
+      }}
     >
       <MantineMenu.Target>
         <MantineButton
-          // Needed as Safari doesn't focus button elements on mouse down
-          // unlike other browsers.
           onMouseDown={(e) => {
+            // On touch, keep focus on the editor (so the on-screen keyboard
+            // stays open) without canceling the tap's click. `mousedown` is the
+            // compat event that moves focus, so preventing it keeps focus here
+            // while the click still fires. Preventing `pointerdown` instead
+            // suppresses the synthesized click on iOS WebKit.
+            if (isTouchDevice()) {
+              e.preventDefault();
+              return;
+            }
+
+            // Needed as Safari doesn't focus button elements on mouse down
+            // unlike other browsers.
             if (isSafari()) {
               (e.currentTarget as HTMLButtonElement).focus();
             }

@@ -1,37 +1,11 @@
-import {
-  blockHasType,
-  BlockSchema,
-  defaultProps,
-  DefaultProps,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
-import { FormattingToolbarExtension } from "@blocknote/core/extensions";
-import { flip, offset, shift } from "@floating-ui/react";
-import { FC, useMemo } from "react";
+import { isTouchDevice } from "@blocknote/core";
+import { FC } from "react";
 
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useEditorState } from "../../hooks/useEditorState.js";
-import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
-import { PositionPopover } from "../Popovers/PositionPopover.js";
-import { FormattingToolbar } from "./FormattingToolbar.js";
+import { DesktopFormattingToolbarController } from "./DesktopFormattingToolbarController.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
-
-const textAlignmentToPlacement = (
-  textAlignment: DefaultProps["textAlignment"],
-) => {
-  switch (textAlignment) {
-    case "left":
-      return "top-start";
-    case "center":
-      return "top";
-    case "right":
-      return "top-end";
-    default:
-      return "top-start";
-  }
-};
+import { MobileFormattingToolbarController } from "./MobileFormattingToolbarController.js";
+import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
 
 export const FormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
@@ -43,87 +17,17 @@ export const FormattingToolbarController = (props: {
    */
   portalElement?: HTMLElement | null;
 }) => {
-  const editor = useBlockNoteEditor<
-    BlockSchema,
-    InlineContentSchema,
-    StyleSchema
-  >();
-  const formattingToolbar = useExtension(FormattingToolbarExtension, {
-    editor,
-  });
-  const show = useExtensionState(FormattingToolbarExtension, {
-    editor,
-  });
+  const keyboardOpen = useVirtualKeyboard();
 
-  const position = useEditorState({
-    editor,
-    selector: ({ editor }) =>
-      formattingToolbar.store.state
-        ? {
-            from: editor.prosemirrorState.selection.from,
-            to: editor.prosemirrorState.selection.to,
-          }
-        : undefined,
-  });
+  // Checks both if the device is touch-capable and the virtual keyboard is open, as phones,
+  // tablets, etc. can still use external keyboards and mice.
+  if (isTouchDevice() && keyboardOpen) {
+    return (
+      <MobileFormattingToolbarController
+        formattingToolbar={props.formattingToolbar}
+      />
+    );
+  }
 
-  const placement = useEditorState({
-    editor,
-    selector: ({ editor }) => {
-      const block = editor.getTextCursorPosition().block;
-
-      if (
-        !blockHasType(block, editor, block.type, {
-          textAlignment: defaultProps.textAlignment,
-        })
-      ) {
-        return "top-start";
-      } else {
-        return textAlignmentToPlacement(block.props.textAlignment);
-      }
-    },
-  });
-
-  const floatingUIOptions = useMemo<FloatingUIOptions>(
-    () => ({
-      ...props.floatingUIOptions,
-      useFloatingOptions: {
-        open: show,
-        // Needed as hooks like `useDismiss` call `onOpenChange` to change the
-        // open state.
-        onOpenChange: (open, _event, reason) => {
-          formattingToolbar.store.setState(open);
-
-          if (reason === "escape-key") {
-            editor.focus();
-          }
-        },
-        placement,
-        middleware: [offset(10), shift(), flip()],
-        ...props.floatingUIOptions?.useFloatingOptions,
-      },
-      focusManagerProps: {
-        disabled: true,
-        ...props.floatingUIOptions?.focusManagerProps,
-      },
-      elementProps: {
-        style: {
-          zIndex: 40,
-        },
-        ...props.floatingUIOptions?.elementProps,
-      },
-    }),
-    [show, placement, props.floatingUIOptions, formattingToolbar.store, editor],
-  );
-
-  const Component = props.formattingToolbar || FormattingToolbar;
-
-  return (
-    <PositionPopover
-      position={position}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {show && <Component />}
-    </PositionPopover>
-  );
+  return <DesktopFormattingToolbarController {...props} />;
 };

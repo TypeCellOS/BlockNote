@@ -155,10 +155,6 @@
   overflow: auto;
 }
 
-.bn-mantine .mantine-Button-root[aria-controls*="dropdown"] {
-  min-width: fit-content;
-}
-
 /* Toolbar styling */
 .bn-mantine .bn-toolbar {
   background-color: var(--bn-colors-menu-background);
@@ -170,7 +166,6 @@
   padding: 2px;
   width: fit-content;
   overflow-x: auto;
-  max-width: 100vw;
 }
 
 .bn-mantine .bn-toolbar:empty {
@@ -183,13 +178,18 @@
   border: none;
   border-radius: var(--bn-border-radius-small);
   color: var(--bn-colors-menu-text);
+  flex-shrink: 0;
 }
 
-.bn-toolbar .mantine-Button-root:hover,
-.bn-toolbar .mantine-ActionIcon-root:hover {
-  background-color: var(--bn-colors-hovered-background);
-  border: none;
-  color: var(--bn-colors-hovered-text);
+/* Hover styles are gated behind `hover: hover` so they don't stick after a tap
+on touch devices (e.g. the mobile formatting toolbar). */
+@media (hover: hover) {
+  .bn-toolbar .mantine-Button-root:hover,
+  .bn-toolbar .mantine-ActionIcon-root:hover {
+    background-color: var(--bn-colors-hovered-background);
+    border: none;
+    color: var(--bn-colors-hovered-text);
+  }
 }
 
 .bn-toolbar .mantine-Button-root[data-selected],
@@ -204,6 +204,16 @@
   background-color: var(--bn-colors-disabled-background);
   border: none;
   color: var(--bn-colors-disabled-text);
+}
+
+.bn-mobile-formatting-toolbar .bn-toolbar .mantine-Button-root {
+  height: 40px;
+  padding-inline: 12px;
+}
+
+.bn-mobile-formatting-toolbar .bn-toolbar .mantine-ActionIcon-root {
+  width: 40px;
+  height: 40px;
 }
 
 .bn-toolbar .mantine-Menu-item {

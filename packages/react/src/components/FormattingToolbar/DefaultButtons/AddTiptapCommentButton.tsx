@@ -4,6 +4,7 @@ import { RiChat3Line } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
 /**
@@ -19,6 +20,13 @@ export const AddTiptapCommentButton = () => {
     StyleSchema
   >();
 
+  // Only shown while content is selected, as comments can't be added to an
+  // empty selection.
+  const selectionEmpty = useEditorState({
+    editor,
+    selector: ({ editor }) => editor.prosemirrorState.selection.empty,
+  });
+
   const onClick = useCallback(() => {
     (editor._tiptapEditor as any).chain().focus().addPendingComment().run();
   }, [editor]);
@@ -27,7 +35,9 @@ export const AddTiptapCommentButton = () => {
     // We manually check if a comment extension (like liveblocks) is installed
     // By adding default support for this, the user doesn't need to customize the formatting toolbar
     !(editor._tiptapEditor.commands as any)["addPendingComment"] ||
-    !editor.isEditable
+    !editor.isEditable ||
+    // No content is selected.
+    selectionEmpty
   ) {
     return null;
   }

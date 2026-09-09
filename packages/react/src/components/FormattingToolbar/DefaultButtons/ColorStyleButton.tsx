@@ -7,6 +7,7 @@ import {
 import { useCallback } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useMobileToolbarPortal } from "../../../editor/MobileToolbarPortalContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -43,6 +44,7 @@ function checkColorInSchema<Color extends "text" | "background">(
 export const ColorStyleButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
+  const mobileToolbarPortal = useMobileToolbarPortal();
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -136,7 +138,16 @@ export const ColorStyleButton = () => {
   }
 
   return (
-    <Components.Generic.Menu.Root>
+    <Components.Generic.Menu.Root
+      // On mobile, portal the dropdown into the toolbar's themed body-level
+      // container (see `MobileFormattingToolbarController`) so it escapes the
+      // editor's scroll container overflow instead of being clipped, while
+      // staying styled. A set `portalRoot` also stops focus moving into the
+      // dropdown, which would blur the editor and dismiss the on-screen
+      // keyboard. On desktop it's `undefined`, keeping the default inline
+      // rendering.
+      portalRoot={mobileToolbarPortal ?? undefined}
+    >
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
