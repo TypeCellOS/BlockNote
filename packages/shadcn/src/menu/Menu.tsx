@@ -57,6 +57,11 @@ export const MenuTrigger = (
   } else {
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenuTrigger
+        // Open on click so pressing a draggable trigger can start a drag.
+        // Also skip Base UI's pointer tracking: otherwise it ignores the click
+        // because it expects the preceding mouse-down to have opened the menu.
+        onPointerDown={(event) => event.preventBaseUIHandler()}
+        onMouseDown={(event) => event.preventBaseUIHandler()}
         render={children as ReactElement}
       />
     );
