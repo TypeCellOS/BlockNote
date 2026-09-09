@@ -4,7 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useLayoutEffect,
+  useInsertionEffect,
   useState,
 } from "react";
 
@@ -12,8 +12,9 @@ import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../hooks/useEditorDomElement.js";
 import { useBlockNoteViewContext } from "./BlockNoteViewContext.js";
 
-const useIsomorphicLayoutEffect =
-  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+// Runs in the commit's mutation phase, before any layout effect in the tree.
+const useIsomorphicInsertionEffect =
+  typeof window !== "undefined" ? useInsertionEffect : useEffect;
 
 // Set by `PortalElementOverride` (a root to escape to) and by
 // `PortalElementAnchor` (a UI element's own wrapper); the default comes from
@@ -70,9 +71,13 @@ export function PortalElementReset(props: { children?: ReactNode }) {
  *
  * The portal element is a themed `.bn-root` mounted inside `target`, so
  * portalled UI stays styled wherever it goes. It is created up front rather
- * than rendered, so consumers have it on their first render, and mounted in a
- * layout effect, so it is in the DOM before paint. It is also registered with
- * the editor, so focus inside it still counts as focus within the editor.
+ * than rendered, so consumers have it on their first render, and attached in
+ * an insertion effect, so it is in the document before any layout effect of
+ * the children runs: a UI library that portals eagerly (Ariakit renders its
+ * popovers hidden from the start) picks its mount point in a layout effect,
+ * and given a still-detached element it re-parents it to `document.body`,
+ * outside the editor's registered UI. It is also registered with the editor,
+ * so focus inside it still counts as focus within the editor.
  *
  * `undefined` means no redirect: the ambient portal element stays in effect.
  */
@@ -89,7 +94,12 @@ export function PortalElementOverride(props: {
     typeof document === "undefined" ? null : document.createElement("div"),
   );
 
-  useIsomorphicLayoutEffect(() => {
+  // An insertion effect, not a layout effect: a parent's layout effect runs
+  // after its children's, and Ariakit picks the mount point of its eagerly
+  // rendered popovers in a layout effect, re-parenting a still-detached
+  // element to `document.body`, outside the editor's registered UI.
+  // How-to-test: as a layout effect, Ariakit re-parents the mobile toolbar's anchor to document.body, so focus in the link form counts as outside the editor and the toolbar unmounts (covered by portalElements: "has an override root in the document before its children's layout effects run", and skinFocus, android, ariakit: "the link button hands focus to the URL input").
+  useIsomorphicInsertionEffect(() => {
     if (!portalElement || !target) {
       return;
     }
@@ -99,8 +109,10 @@ export function PortalElementOverride(props: {
   }, [portalElement, target]);
 
   // React does not render this element, so the same theming the editor
-  // container gets from its props is applied here by hand.
-  useIsomorphicLayoutEffect(() => {
+  // container gets from its props is applied here by hand. Same phase as the
+  // attach above, so children measure themed styles from their first layout
+  // effect on.
+  useIsomorphicInsertionEffect(() => {
     if (!portalElement || !target) {
       return;
     }
@@ -110,8 +122,10 @@ export function PortalElementOverride(props: {
 
   // Floating UI portalled out of the editor's DOM tree is still the editor's
   // UI: registering the element keeps `editor.isWithinEditor` (and the focus
-  // tracking built on it) true for what renders inside.
-  useEffect(() => {
+  // tracking built on it) true for what renders inside. Registered in the
+  // same phase too, so nothing a child focuses from its own effects is ever
+  // judged before the root counts as editor UI.
+  useIsomorphicInsertionEffect(() => {
     if (!portalElement || !target) {
       return;
     }

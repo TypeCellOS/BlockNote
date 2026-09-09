@@ -40,6 +40,13 @@ export const PopoverContent = forwardRef<
         className || "",
         variant === "panel-popover" ? "bn-ak-panel-popover" : "",
       )}
+      // BlockNote owns focus (`useAutoFocus` on the input), so Ariakit's own
+      // autofocus stays off. That hook runs at mount, and Ariakit keeps
+      // popover content mounted while closed: without `unmountOnHide` it ran
+      // once, on the hidden input, and the URL input was never focused.
+      autoFocusOnShow={false}
+      // How-to-test: without it, the link form's URL input never gets focus, desktop and mobile alike: Ariakit keeps the closed popover's content mounted, so the input's `useAutoFocus` fired once, hidden, when the toolbar mounted, and never again on open (covered by skinFocus, android, ariakit: "the link button hands focus to the URL input", and linkToolbar, chromium, ariakit: "Create link").
+      unmountOnHide={true}
       // Ariakit falls back to a body-appended div for a missing element, so
       // don't portal at all until there is one (editor not mounted yet).
       portal={portalElement !== null}
@@ -54,15 +61,8 @@ export const PopoverContent = forwardRef<
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
-  const {
-    children,
-    open,
-    onOpenChange,
-    position,
-    portalElement,
-    preventFocusOnOpen: _preventFocusOnOpen, // unused; see Menu.tsx
-    ...rest
-  } = props;
+  const { children, open, onOpenChange, position, portalElement, ...rest } =
+    props;
 
   assertEmpty(rest);
 

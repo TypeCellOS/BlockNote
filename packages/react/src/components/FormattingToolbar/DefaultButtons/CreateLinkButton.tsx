@@ -15,7 +15,6 @@ import {
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { usePortalElement } from "../../../editor/PortalElementOverride.js";
-import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../../hooks/useEditorDomElement.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
@@ -47,7 +46,6 @@ export const CreateLinkButton = () => {
   const editorDOMElement = useEditorDOMElement();
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const uiMode = useUIMode();
   const portalElement = usePortalElement();
 
   const formattingToolbar = useExtension(FormattingToolbarExtension);
@@ -134,12 +132,7 @@ export const CreateLinkButton = () => {
       onOpenChange={setPopoverOpen}
       // Portal the popover into the editor's themed portal target so it
       // inherits styling and escapes any scroll-container overflow clipping.
-      // On mobile that target is the toolbar's body-level container (see
-      // `MobileFormattingToolbarController`), and `preventFocusOnOpen` stops
-      // focus moving into the popover, which would blur the editor and dismiss
-      // the on-screen keyboard.
       portalElement={portalElement}
-      preventFocusOnOpen={uiMode === "mobile"}
     >
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}
@@ -165,6 +158,9 @@ export const CreateLinkButton = () => {
           text={state.text}
           range={state.range}
           showTextField={false}
+          // (No explicit popover close here: any editor-state change — like
+          // submitting the link — already closes it via the setShowPopover
+          // effect above.)
           setToolbarOpen={(open) => formattingToolbar.store.setState(open)}
         />
       </Components.Generic.Popover.Content>

@@ -1,6 +1,7 @@
 import { mergeCSSClasses } from "@blocknote/core";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import {
+  ScreenReaderOnlySubmit,
   DefaultReactSuggestionItem,
   useComponentsContext,
   useSuggestionMenuKeyboardHandler,
@@ -38,16 +39,6 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
   const [internalPromptText, setInternalPromptText] = useState<string>("");
   const promptTextToUse = promptText || internalPromptText;
 
-  const handleEnter = useCallback(
-    async (event: KeyboardEvent) => {
-      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
-        // console.log("ENTER", currentEditingPrompt);
-        onManualPromptSubmit(promptTextToUse);
-      }
-    },
-    [promptTextToUse, onManualPromptSubmit],
-  );
-
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const newValue = event.currentTarget.value;
@@ -75,21 +66,38 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
       ? `bn-suggestion-menu-item-${selectedIndex}`
       : undefined;
 
+  /**
+   * What Enter does here depends on whether the menu is showing anything:
+   * with suggestions it picks the highlighted one, and without it submits
+   * whatever was typed as a prompt.
+   *
+   * Both cases are decided in {@link submit}, so that the form's `submit`
+   * event - which is the only signal a mobile IME's action key produces -
+   * makes the same choice a key press does.
+   */
+  const submit = useCallback(() => {
+    if (items.length > 0) {
+      items[selectedIndex]?.onItemClick();
+    } else {
+      onManualPromptSubmit(promptTextToUse);
+    }
+  }, [items, selectedIndex, onManualPromptSubmit, promptTextToUse]);
+
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       // TODO: handle backspace to close
-      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
-        if (items.length > 0) {
-          handler(event);
-        } else {
-          // TODO: check focus?
-          void handleEnter(event);
-        }
-      } else {
-        handler(event);
+      if (
+        event.key === "Enter" &&
+        !event.nativeEvent.isComposing &&
+        items.length === 0
+      ) {
+        // `handler` swallows Enter unconditionally, so with nothing to pick it
+        // has to be left alone for the event to reach the form.
+        return;
       }
+      handler(event);
     },
-    [handleEnter, handler, items.length],
+    [handler, items.length],
   );
 
   // Resets index when items change
@@ -114,7 +122,10 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
 
   return (
     <div className={"bn-combobox"}>
-      <Components.Generic.Form.Root>
+      <Components.Generic.Form.Root
+        onSubmit={submit}
+        submitButton={<ScreenReaderOnlySubmit />}
+      >
         <Components.Generic.Form.TextInput
           ref={inputRef}
           className={"bn-combobox-input"}

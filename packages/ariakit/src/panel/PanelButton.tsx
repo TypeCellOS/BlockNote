@@ -8,12 +8,13 @@ export const PanelButton = forwardRef<
   HTMLButtonElement,
   ComponentProps["FilePanel"]["Button"]
 >((props, ref) => {
-  const { className, children, onClick, label, ...rest } = props;
+  const { className, children, type, onClick, label, ...rest } = props;
 
   assertEmpty(rest);
 
   return (
     <AriakitButton
+      type={type}
       className={mergeCSSClasses("bn-ak-button", className || "")}
       onClick={onClick}
       aria-label={label}

@@ -462,5 +462,6 @@ export const zhTW: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "確定",
   },
 };
