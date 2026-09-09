@@ -12,7 +12,6 @@ import { render } from "vitest-browser-react";
 import { page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
 import { waitForSelector } from "../../utils/editor.js";
-import { ensureTouchEmulation } from "../../utils/ensureTouchEmulation.js";
 
 const MOBILE_TOOLBAR_SELECTOR = ".bn-mobile-formatting-toolbar";
 
@@ -33,7 +32,6 @@ const MOBILE_TOOLBAR_SELECTOR = ".bn-mobile-formatting-toolbar";
 // test below; the IME's choice itself stays a release-checklist item.
 
 beforeEach(async () => {
-  ensureTouchEmulation();
   await page.viewport(393, 727);
 });
 

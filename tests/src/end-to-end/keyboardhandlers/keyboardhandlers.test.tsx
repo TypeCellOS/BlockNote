@@ -22,27 +22,41 @@ beforeEach(async () => {
   await waitForSelector(EDITOR_SELECTOR);
 });
 
+// The android browser instance runs this suite too (see
+// vite.config.browser.ts); a couple of tests use idioms that don't transfer:
+const onAndroid = /android/i.test(navigator.userAgent);
+
 describe("Check Keyboard Handlers' Behaviour", () => {
-  test("Check Enter when selection is not empty", async () => {
-    await focusOnEditor();
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(2);
+  // Enter on a selection across blocks is a no-op on Android: prosemirror-view
+  // ignores the keydown there and its keypress handler cancels the browser
+  // default for cross-parent selections without doing anything. A rare
+  // pattern, deliberately not worked around; see mobile/androidEnter.test.tsx.
+  test.skipIf(onAndroid)(
+    "Check Enter when selection is not empty",
+    async () => {
+      await focusOnEditor();
+      await insertHeading(1);
+      await userEvent.keyboard("{Enter}");
+      await insertHeading(2);
 
-    await sleep(500);
+      await sleep(500);
 
-    await userEvent.keyboard("{ArrowUp}");
-    await userEvent.keyboard(`{${MOD}>}{ArrowLeft}{/${MOD}}`);
-    await userEvent.keyboard("{ArrowRight}");
-    await userEvent.keyboard(
-      `{Shift>}{ArrowDown}{${MOD}>}{ArrowRight}{/${MOD}}{ArrowLeft}{/Shift}`,
-    );
+      await userEvent.keyboard("{ArrowUp}");
+      await userEvent.keyboard(`{${MOD}>}{ArrowLeft}{/${MOD}}`);
+      await userEvent.keyboard("{ArrowRight}");
+      await userEvent.keyboard(
+        `{Shift>}{ArrowDown}{${MOD}>}{ArrowRight}{/${MOD}}{ArrowLeft}{/Shift}`,
+      );
 
-    await userEvent.keyboard("{Enter}");
+      await userEvent.keyboard("{Enter}");
 
-    await compareDocToSnapshot("enterSelectionNotEmpty");
-  });
-  test("Check Enter preserves marks", async () => {
+      await compareDocToSnapshot("enterSelectionNotEmpty");
+    },
+  );
+  // Skipped on the android instance: drives selection with coordinate
+  // double-clicks, a mouse idiom that doesn't translate to touch emulation at
+  // phone width.
+  test.skipIf(onAndroid)("Check Enter preserves marks", async () => {
     await focusOnEditor();
     await insertHeading(1);
 
@@ -313,6 +327,12 @@ describe("Check Keyboard Handlers' Behaviour", () => {
     await insertParagraph();
 
     await userEvent.keyboard("{ArrowUp}");
+    // ArrowUp crosses from an unnested line into an indented one, so its
+    // goal-x lands near the last character's boundary — which side it falls
+    // on varies with subpixel text metrics (flaky on the mobile-emulated
+    // instances). The test is about Delete at the *end* of the block; make
+    // that position explicit.
+    await userEvent.keyboard("{End}");
     await userEvent.keyboard("{Delete}");
 
     await compareDocToSnapshot("deleteShallowerBlock");

@@ -617,6 +617,21 @@ export class SideMenuView<
       return;
     }
 
+    // Leaves the menu as it is while the pointer is over this editor's own UI
+    // (a toolbar, a menu, the side menu itself) rather than its content: the
+    // block under that UI is not what the pointer is about. It also keeps taps
+    // on the UI working on iOS Safari, which delivers a tap as a hover first
+    // and drops the click when that hover changes the page (WebKit's
+    // ContentChangeObserver); with the mobile toolbar far below the blocks,
+    // the hover would hide a shown side menu and every button needed two taps.
+    if (
+      event.target instanceof Node &&
+      !this.pmView.dom.contains(event.target) &&
+      this.editor.isWithinEditor(event.target as Element)
+    ) {
+      return;
+    }
+
     this.mousePos = { x: event.clientX, y: event.clientY };
 
     // We want the full area of the editor to check if the cursor is hovering

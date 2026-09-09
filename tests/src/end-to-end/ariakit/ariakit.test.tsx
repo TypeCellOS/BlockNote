@@ -119,9 +119,10 @@ describe("Check Ariakit UI", () => {
       handle.right > submenuRect.x &&
       handle.y < submenuRect.bottom &&
       handle.bottom > submenuRect.y;
-    if (overlaps) {
-      expect(submenu.contains(onTop)).toBe(true);
-    }
+    // The pin below is only meaningful while the submenu covers the handle;
+    // without this the test passes vacuously when the layout changes.
+    expect(overlaps).toBe(true);
+    expect(submenu.contains(onTop)).toBe(true);
   });
   test("Check image toolbar", async () => {
     await focusOnEditor();

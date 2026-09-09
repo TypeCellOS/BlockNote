@@ -1,10 +1,16 @@
 import tailwindcss from "@tailwindcss/vite";
 import * as fs from "fs";
 import * as path from "path";
-import { defineConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
 import { positionalMouse } from "./src/utils/positionalMouse.js";
 import { imeComposition } from "./src/utils/imeComposition.js";
+
+// For the desktop instances: end-to-end/mobile runs only in the "android"
+// instance. An instance-level `exclude` replaces the resolved base exclude
+// (vitest's defaults, since the project sets none), so keep those in front.
+const DESKTOP_EXCLUDE = [...configDefaults.exclude, "**/end-to-end/mobile/**"];
+import { restoreTouchEmulation } from "./src/utils/restoreTouchEmulation.js";
 
 // 1280x720 matches the old Playwright defaults so visual baselines have room.
 // Used as the playwright context viewport for every browser instance.
@@ -146,7 +152,7 @@ export default defineConfig(
           // still show in the HTML report (errors + stack traces don't depend
           // on these shots), so disable them. See `e2e:report` to view.
           screenshotFailures: false,
-          commands: { positionalMouse, imeComposition },
+          commands: { positionalMouse, imeComposition, restoreTouchEmulation },
           instances: [
             {
               browser: "chromium",
@@ -159,15 +165,15 @@ export default defineConfig(
                 ],
               },
               // end-to-end/mobile runs only in the "android" instance below.
-              exclude: ["**/end-to-end/mobile/**"],
+              exclude: DESKTOP_EXCLUDE,
             },
             {
               browser: "firefox",
-              exclude: ["**/end-to-end/mobile/**"],
+              exclude: DESKTOP_EXCLUDE,
             },
             {
               browser: "webkit",
-              exclude: ["**/end-to-end/mobile/**"],
+              exclude: DESKTOP_EXCLUDE,
             },
             {
               // Android-emulated chromium: mobile-specific end-to-end tests.
@@ -193,17 +199,53 @@ export default defineConfig(
                   hasTouch: true,
                 },
               }),
-              // Only the mobile-specific tests for now. The behavioural
-              // suites where Android genuinely differs (IME key handling,
-              // suggestion menus) are added alongside the fix that makes them
-              // pass under this emulation — running them here first would
-              // just be reporting a known editor bug as a test failure.
-              //
-              // Keep iframe-screenshotting suites (the exporters'
-              // `screenshotFull` previews) out permanently: Playwright's
-              // element-screenshot path for iframe elements drops the
-              // context's touch emulation for later files (see
-              // utils/ensureTouchEmulation.ts).
+              // One principle decides membership: a suite runs here when it can
+              // go red for a mobile-conditional reason no other suite here
+              // already pins. Tests whose driving idiom doesn't translate to
+              // touch emulation (positional mouse drags) carry
+              // `skipIf(onAndroid)` guards; product behavior is never
+              // skipped. No blanket screenshot suites — android baselines
+              // would double maintenance for viewport-independent artifacts;
+              // mobile visuals get curated tests with their own baselines.
+              // (form/ and copypaste/ were tried and dropped: no distinct
+              // mobile-conditional failure mode — see #3031.)
+              include: [
+                // Mobile-specific product behavior: the toolbar/popover
+                // lifecycle, IME delivery routes, touch link taps.
+                "./src/end-to-end/mobile/**/*.test.tsx",
+                // The browser facts Form.Root rests on (implicit submission,
+                // composition), re-asserted under mobile emulation flags.
+                "./src/end-to-end/platform/**/*.test.tsx",
+                // Synthesized Enter through the keymap chain — the #3001
+                // fix's primary consumer, exercised across every handler.
+                "./src/end-to-end/keyboardhandlers/**/*.test.tsx",
+                // Synthesized Enter through the suggestion menu's own key
+                // handling — a distinct consumer from the keymap chain.
+                "./src/end-to-end/emojipicker/**/*.test.tsx",
+              ],
+            },
+            {
+              // iOS-emulated: WebKit with an iPhone UA makes prosemirror-view
+              // take its iOS input paths (Enter left to the browser, the
+              // native split read back from the DOM with a 200ms fallback),
+              // which the android instance cannot reach. That path broke
+              // under #2912's node view mutation filter and shipped in 0.53;
+              // androidEnter.test.tsx pins it here. Not emulated: iOS
+              // Safari's tap-as-hover, the soft keyboard, focus and zoom
+              // (release checklist). Playwright's WebKit leaves
+              // `navigator.maxTouchPoints` at 0 for `hasTouch`; the setup
+              // stubs it to 5, the one stub of this instance.
+              browser: "webkit",
+              name: "ios",
+              provider: playwright({
+                contextOptions: {
+                  viewport: { width: 393, height: 727 },
+                  userAgent:
+                    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
+                  isMobile: true,
+                  hasTouch: true,
+                },
+              }),
               include: ["./src/end-to-end/mobile/**/*.test.tsx"],
             },
           ],
