@@ -558,8 +558,9 @@ export class TypstExporter<
       `#show figure: set block(breakable: false)`,
       // Figure captions: smaller, muted.
       `#show figure.caption: set text(size: 9.6pt, fill: luma(110))`,
-      // Links: BlockNote blue.
-      `#show link: set text(fill: rgb("#0b6e99"))`,
+      // Links: BlockNote blue, underlined like the editor's browser-default
+      // links (`:where(.bn-editor a)` in packages/core/src/editor/Block.css).
+      `#show link: it => underline(text(fill: rgb("#0b6e99"), it))`,
       // Check-list marker symbols (used as per-item list markers).
       CHECKBOX_MARKER_DEFS,
     ].join("\n");
