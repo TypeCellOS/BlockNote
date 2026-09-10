@@ -176,6 +176,25 @@ export class StyleManager<
   }
 
   /**
+   * Find the link mark touching `position`: inside it, or at its start or end boundary,
+   * where the resolved position's marks alone would miss a non-inclusive link.
+   * Positions outside the document are skipped, so a caret at the very end never throws.
+   */
+  private getLinkMarkAround(position: number) {
+    const size = this.editor.transact((tr) => tr.doc.content.size);
+    for (const pos of [position + 1, position, position - 1]) {
+      if (pos < 0 || pos > size) {
+        continue;
+      }
+      const linkData = this.getLinkMarkAtPos(pos);
+      if (linkData && position >= linkData.from && position <= linkData.to) {
+        return linkData;
+      }
+    }
+    return undefined;
+  }
+
+  /**
    * Gets the URL of the last link in the current selection, or `undefined` if there are no links in the selection.
    */
   public getSelectedLinkUrl() {
@@ -222,7 +241,7 @@ export class StyleManager<
     position = this.editor.transact((tr) => tr.selection.anchor),
   ) {
     this.editor.transact((tr) => {
-      const linkData = this.getLinkMarkAtPos(position + 1);
+      const linkData = this.getLinkMarkAround(position);
       const { from, to } = linkData || {
         from: tr.selection.from,
         to: tr.selection.to,
@@ -246,7 +265,7 @@ export class StyleManager<
     position = this.editor.transact((tr) => tr.selection.anchor),
   ) {
     this.editor.transact((tr) => {
-      const linkData = this.getLinkMarkAtPos(position + 1);
+      const linkData = this.getLinkMarkAround(position);
       const { from, to } = linkData || {
         from: tr.selection.from,
         to: tr.selection.to,
