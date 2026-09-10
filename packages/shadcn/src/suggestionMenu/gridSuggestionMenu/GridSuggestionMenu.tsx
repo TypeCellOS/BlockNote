@@ -16,7 +16,7 @@ export const GridSuggestionMenu = forwardRef<
     <div
       // Styles from ShadCN DropdownMenuContent component
       className={cn(
-        "bg-popover text-popover-foreground z-50 min-w-32 overflow-x-hidden overflow-y-auto rounded-md p-1 shadow-md ring-1 ring-foreground/10",
+        "bg-popover text-popover-foreground z-50 min-w-32 max-w-[inherit] overflow-x-auto overflow-y-auto rounded-md p-1 shadow-md ring-1 ring-foreground/10",
         "grid",
         className,
       )}

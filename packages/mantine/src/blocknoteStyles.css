@@ -441,6 +441,8 @@
   height: fit-content;
   justify-items: center;
   max-height: inherit;
+  max-width: inherit;
+  overflow-x: auto;
   overflow-y: auto;
   padding: 20px;
 }
