@@ -1673,34 +1673,35 @@ exports[`Test mergeBlocks > Second block has children 1`] = `
     "type": "paragraph",
   },
   {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph 1Paragraph with children",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-1",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
     "children": [
       {
-        "children": [],
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 0",
+                "type": "text",
+              },
+            ],
+            "id": "double-nested-paragraph-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
         "content": [
           {
             "styles": {},
-            "text": "Double Nested Paragraph 0",
+            "text": "Nested Paragraph 0",
             "type": "text",
           },
         ],
-        "id": "double-nested-paragraph-0",
+        "id": "nested-paragraph-0",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -1712,11 +1713,11 @@ exports[`Test mergeBlocks > Second block has children 1`] = `
     "content": [
       {
         "styles": {},
-        "text": "Nested Paragraph 0",
+        "text": "Paragraph 1Paragraph with children",
         "type": "text",
       },
     ],
-    "id": "nested-paragraph-0",
+    "id": "paragraph-1",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
