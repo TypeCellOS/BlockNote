@@ -157,6 +157,7 @@
   height: fit-content;
   justify-items: center;
   max-height: inherit;
+  box-sizing: border-box;
   max-width: inherit;
   overflow-x: auto;
   overflow-y: auto;
