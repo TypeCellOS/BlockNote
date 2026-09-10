@@ -264,12 +264,15 @@ describe("Math block source popup keyboard handling", () => {
       expect(isPopupOpen("math")).toBe(false);
 
       // Single-character keys are only blocked when no Ctrl/Cmd is held, so
-      // shortcuts pass through - keeping copy/select-all/find working.
+      // shortcuts pass through - keeping copy/find working.
       // (Cut/paste also pass through; that's a known limitation.)
       expect(pressKey("c", { ctrlKey: true })).toBe(false);
-      expect(pressKey("a", { ctrlKey: true })).toBe(false);
       expect(pressKey("f", { ctrlKey: true })).toBe(false);
       expect(pressKey("v", { metaKey: true })).toBe(false);
+      // Ctrl/Cmd-a is the exception: select-all is handled explicitly by
+      // the global keymap (see KeyboardShortcutsExtension), not deferred to the
+      // browser, so it reports as handled rather than passing through.
+      expect(pressKey("a", { ctrlKey: true })).toBe(true);
     });
 
     it("defers deletion keys to the default while the popup is open", async () => {
