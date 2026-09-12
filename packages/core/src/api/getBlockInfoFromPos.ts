@@ -126,6 +126,31 @@ export function getNearestBlockPos(doc: Node, pos: number) {
     node = $pos.node(depth);
   }
 
+  // The doc's boundary positions (0 and `doc.content.size`) sit around the
+  // `blockGroup` holding the top-level blocks, so they're outside every block.
+  // Unlike the positions handled below, they're expected rather than
+  // exceptional, as they're where an `AllSelection` starts & ends.
+  const atDocStart = pos <= 0;
+  if (atDocStart || pos >= doc.content.size) {
+    // Position 1 is just before the `blockGroup`'s first child, and
+    // `doc.content.size - 1` just after its last.
+    const $insideBlockGroup = doc.resolve(
+      atDocStart ? 1 : doc.content.size - 1,
+    );
+    const boundaryNode = atDocStart
+      ? $insideBlockGroup.nodeAfter
+      : $insideBlockGroup.nodeBefore;
+
+    if (boundaryNode?.type.isInGroup("bnBlock")) {
+      return {
+        posBeforeNode: atDocStart
+          ? $insideBlockGroup.pos
+          : $insideBlockGroup.pos - boundaryNode.nodeSize,
+        node: boundaryNode,
+      };
+    }
+  }
+
   // If the position doesn't lie within a block node, we instead find the
   // position of the next closest one. If the position is beyond the last block,
   // we return the position of the last block. While running `doc.descendants`

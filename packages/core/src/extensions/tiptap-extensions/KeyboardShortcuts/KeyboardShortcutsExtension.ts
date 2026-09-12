@@ -953,6 +953,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
     return {
       Backspace: handleBackspace,
       Delete: handleDelete,
+      // Taken over from TipTap's `Keymap` extension, which BlockNote doesn't
+      // load. Without it, ProseMirror has to derive the selection from the
+      // browser's, which fails for blocks that render non-editable content
+      // first - like a check list item's checkbox.
+      "Mod-a": () => this.editor.commands.selectAll(),
       Enter: () => handleEnter(),
       "Shift-Enter": () => handleEnter(true),
       // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
