@@ -319,6 +319,10 @@ export const zhTW: Dictionary = {
       tooltip: "編輯標題",
       input_placeholder: "編輯標題",
     },
+    file_alt: {
+      tooltip: "編輯替代文字",
+      input_placeholder: "編輯替代文字",
+    },
     file_replace: {
       tooltip: {
         image: "替換圖片",

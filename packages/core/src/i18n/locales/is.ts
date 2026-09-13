@@ -291,6 +291,10 @@ export const is: Dictionary = {
       tooltip: "Breyta myndatexta",
       input_placeholder: "Breyta myndatexta",
     },
+    file_alt: {
+      tooltip: "Breyta alt-texta",
+      input_placeholder: "Breyta alt-texta",
+    },
     file_replace: {
       tooltip: {
         image: "Skipta um mynd",

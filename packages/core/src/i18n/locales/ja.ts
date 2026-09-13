@@ -318,6 +318,10 @@ export const ja: Dictionary = {
       tooltip: "キャプションを編集",
       input_placeholder: "キャプションを編集",
     },
+    file_alt: {
+      tooltip: "代替テキストを編集",
+      input_placeholder: "代替テキストを編集",
+    },
     file_replace: {
       tooltip: {
         image: "画像を置換",

@@ -295,6 +295,10 @@ export const no: Dictionary = {
       tooltip: "Rediger bildetekst",
       input_placeholder: "Rediger bildetekst",
     },
+    file_alt: {
+      tooltip: "Rediger alternativ tekst",
+      input_placeholder: "Rediger alternativ tekst",
+    },
     file_replace: {
       tooltip: {
         image: "Bytt ut bilde",

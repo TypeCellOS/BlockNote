@@ -278,6 +278,10 @@ export const en = {
       tooltip: "Edit caption",
       input_placeholder: "Edit caption",
     },
+    file_alt: {
+      tooltip: "Edit alt text",
+      input_placeholder: "Edit alt text",
+    },
     file_replace: {
       tooltip: {
         image: "Replace image",

@@ -246,6 +246,10 @@ export const fa = {
       tooltip: "ویرایش زیرنویس",
       input_placeholder: "ویرایش زیرنویس",
     },
+    file_alt: {
+      tooltip: "ویرایش متن جایگزین",
+      input_placeholder: "ویرایش متن جایگزین",
+    },
     file_replace: {
       tooltip: {
         image: "جایگزینی تصویر",

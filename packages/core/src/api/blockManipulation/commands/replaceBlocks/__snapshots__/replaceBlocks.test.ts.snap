@@ -142,6 +142,7 @@ exports[`Test replaceBlocks > Remove multiple consecutive blocks 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -693,6 +694,7 @@ exports[`Test replaceBlocks > Remove multiple non-consecutive blocks 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -990,6 +992,7 @@ exports[`Test replaceBlocks > Remove single block 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -1522,6 +1525,7 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with multiple 
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -2014,6 +2018,7 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single ba
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -2564,6 +2569,7 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single co
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -3166,6 +3172,7 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with multi
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -3474,6 +3481,7 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with singl
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -3840,6 +3848,7 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with singl
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -4188,6 +4197,7 @@ exports[`Test replaceBlocks > Replace single block with multiple 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -4750,6 +4760,7 @@ exports[`Test replaceBlocks > Replace single block with single basic 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -5370,6 +5381,7 @@ exports[`Test replaceBlocks > Replace single block with single complex 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",

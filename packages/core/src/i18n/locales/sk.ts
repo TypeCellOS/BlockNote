@@ -276,6 +276,10 @@ export const sk = {
       tooltip: "Upraviť popis",
       input_placeholder: "Upraviť popis",
     },
+    file_alt: {
+      tooltip: "Upraviť alternatívny text",
+      input_placeholder: "Upraviť alternatívny text",
+    },
     file_replace: {
       tooltip: {
         image: "Nahradiť obrázok",

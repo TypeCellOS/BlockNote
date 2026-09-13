@@ -336,6 +336,7 @@ exports[`Test insertBlocks > Insert multiple blocks after 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -1011,6 +1012,7 @@ exports[`Test insertBlocks > Insert multiple blocks before 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -1606,6 +1608,7 @@ exports[`Test insertBlocks > Insert single basic block after 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -2213,6 +2216,7 @@ exports[`Test insertBlocks > Insert single basic block before (without type) 2`]
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -2808,6 +2812,7 @@ exports[`Test insertBlocks > Insert single basic block before 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -3519,6 +3524,7 @@ exports[`Test insertBlocks > Insert single complex block after 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -4230,6 +4236,7 @@ exports[`Test insertBlocks > Insert single complex block before 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",

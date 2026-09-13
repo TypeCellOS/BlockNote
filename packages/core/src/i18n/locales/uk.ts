@@ -302,6 +302,10 @@ export const uk: Dictionary = {
       tooltip: "Редагувати підпис",
       input_placeholder: "Редагувати підпис",
     },
+    file_alt: {
+      tooltip: "Редагувати альтернативний текст",
+      input_placeholder: "Редагувати альтернативний текст",
+    },
     file_replace: {
       tooltip: {
         image: "Замінити зображення",

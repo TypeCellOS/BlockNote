@@ -300,6 +300,10 @@ export const it: Dictionary = {
       tooltip: "Modifica didascalia",
       input_placeholder: "Modifica didascalia",
     },
+    file_alt: {
+      tooltip: "Modifica testo alternativo",
+      input_placeholder: "Modifica testo alternativo",
+    },
     file_replace: {
       tooltip: {
         image: "Sostituisci immagine",

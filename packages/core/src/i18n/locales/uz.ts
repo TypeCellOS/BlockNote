@@ -324,6 +324,10 @@ export const uz: Dictionary = {
       tooltip: "Izohni o‘zgartirish",
       input_placeholder: "Izohni o‘zgartirish",
     },
+    file_alt: {
+      tooltip: "Muqobil matnni o‘zgartirish",
+      input_placeholder: "Muqobil matnni o‘zgartirish",
+    },
 
     file_replace: {
       tooltip: {

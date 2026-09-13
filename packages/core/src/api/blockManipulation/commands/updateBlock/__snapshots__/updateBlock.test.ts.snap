@@ -301,6 +301,7 @@ exports[`Test updateBlock > Revert all props 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -941,6 +942,7 @@ exports[`Test updateBlock > Revert single prop 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -1581,6 +1583,7 @@ exports[`Test updateBlock > Update all props 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -2221,6 +2224,7 @@ exports[`Test updateBlock > Update children 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -2566,6 +2570,7 @@ exports[`Test updateBlock > Update inline content to no content 1`] = `
   "content": undefined,
   "id": "paragraph-0",
   "props": {
+    "alt": "",
     "backgroundColor": "default",
     "caption": "",
     "name": "",
@@ -2584,6 +2589,7 @@ exports[`Test updateBlock > Update inline content to no content 2`] = `
     "content": undefined,
     "id": "paragraph-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -2803,6 +2809,7 @@ exports[`Test updateBlock > Update inline content to no content 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -3387,6 +3394,7 @@ exports[`Test updateBlock > Update inline content to plain content 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -4311,6 +4319,7 @@ exports[`Test updateBlock > Update inline content to table content 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -7559,6 +7568,7 @@ exports[`Test updateBlock > Update partial (offset start + end) 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -8127,6 +8137,7 @@ exports[`Test updateBlock > Update partial (offset start) 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -8688,6 +8699,7 @@ exports[`Test updateBlock > Update partial (props + offset end) 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -9249,6 +9261,7 @@ exports[`Test updateBlock > Update partial (table cell) 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -9817,6 +9830,7 @@ exports[`Test updateBlock > Update partial (table row) 1`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -10405,6 +10419,7 @@ exports[`Test updateBlock > Update plain content to inline content 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -11045,6 +11060,7 @@ exports[`Test updateBlock > Update single prop 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -11615,6 +11631,7 @@ exports[`Test updateBlock > Update styled inline content to plain content 2`] = 
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -12197,6 +12214,7 @@ exports[`Test updateBlock > Update table content to empty inline content 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -12611,6 +12629,7 @@ exports[`Test updateBlock > Update table content to inline content 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -12788,6 +12807,7 @@ exports[`Test updateBlock > Update table content to no content 1`] = `
   "content": undefined,
   "id": "table-0",
   "props": {
+    "alt": "",
     "backgroundColor": "default",
     "caption": "",
     "name": "",
@@ -13028,6 +13048,7 @@ exports[`Test updateBlock > Update table content to no content 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -13059,6 +13080,7 @@ exports[`Test updateBlock > Update table content to no content 2`] = `
     "content": undefined,
     "id": "table-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -13495,6 +13517,7 @@ exports[`Test updateBlock > Update type 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -14119,6 +14142,7 @@ exports[`Test updateBlock > Update with plain content 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",
@@ -14745,6 +14769,7 @@ exports[`Test updateBlock > Update with styled content 2`] = `
     "content": undefined,
     "id": "image-0",
     "props": {
+      "alt": "",
       "backgroundColor": "default",
       "caption": "",
       "name": "",

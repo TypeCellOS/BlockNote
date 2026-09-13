@@ -278,6 +278,10 @@ export const nl: Dictionary = {
       tooltip: "Bewerk onderschrift",
       input_placeholder: "Bewerk onderschrift",
     },
+    file_alt: {
+      tooltip: "Bewerk alt-tekst",
+      input_placeholder: "Bewerk alt-tekst",
+    },
     file_replace: {
       tooltip: {
         image: "Afbeelding vervangen",
