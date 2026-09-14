@@ -191,7 +191,7 @@ function countBlocks(blocks: { children?: unknown[] }[]): number {
  * The binding flushes a whole transaction atomically, so once the block count
  * matches the editor's document the structural content has been written.
  */
-export async function waitForYDocSync(
+async function waitForYDocSync(
   editor: GalleryEditor,
   baseDoc: Y.Doc,
 ): Promise<void> {

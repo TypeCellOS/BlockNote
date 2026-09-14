@@ -46,7 +46,7 @@ import * as Y from "@y/y";
 import { render } from "vitest-browser-react";
 import { page } from "../../../utils/context.js";
 
-export interface ConcurrentSuggestionUser {
+interface ConcurrentSuggestionUser {
   editor: GalleryEditor;
   testId: string;
 }

@@ -68,7 +68,7 @@ function removeChild(node: Fragment, n: number) {
  * This makes sure the content that we paste is always a table (and not a tableRow)
  * A table works better for the remaing paste handling logic, as it's actually a blockContent node
  */
-export function wrapTableRows(f: Fragment, schema: Schema) {
+function wrapTableRows(f: Fragment, schema: Schema) {
   const newItems: any[] = [];
   for (let i = 0; i < f.childCount; i++) {
     if (f.child(i).type.name === "tableRow") {

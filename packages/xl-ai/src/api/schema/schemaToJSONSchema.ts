@@ -119,7 +119,7 @@ function styledTextToJSONSchema() {
   };
 }
 
-export function propSchemaToJSONSchema(
+function propSchemaToJSONSchema(
   propSchema: PropSchema,
 ): SimpleJSONObjectSchema {
   return {

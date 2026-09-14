@@ -62,7 +62,7 @@ const navigation = {
   ],
 };
 
-export function FooterContent() {
+function FooterContent() {
   return (
     <div aria-labelledby="footer-heading" className="w-full">
       <h2 className="sr-only" id="footer-heading">

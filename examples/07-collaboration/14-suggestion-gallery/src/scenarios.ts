@@ -23,7 +23,7 @@ import type { GalleryEditor, GalleryPartialBlock } from "./gallerySchema";
  * notes in sync with the `TODO` / `KNOWN LIMITATION` / `test.skip` / `test.fails`
  * notes in the y-prosemirror e2e tests — that's where each is proven.
  */
-export type Feedback = {
+type Feedback = {
   severity: "info" | "low" | "high";
   note: string;
 };

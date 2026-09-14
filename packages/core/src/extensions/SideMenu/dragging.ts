@@ -8,7 +8,6 @@ import { fragmentToBlocks } from "../../api/nodeConversions/fragmentToBlocks.js"
 import { getNodeById } from "../../api/nodeUtil.js";
 import { Block } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -17,15 +16,6 @@ import {
 import { MultipleNodeSelection } from "./MultipleNodeSelection.js";
 
 let dragImageElement: Element | undefined;
-
-export type SideMenuState<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> = UiElementPosition & {
-  // The block that the side menu is attached to.
-  block: Block<BSchema, I, S>;
-};
 
 function blockPositionsFromSelection(selection: Selection, doc: Node) {
   // Absolute positions just before the first block spanned by the selection, and just after the last block. Having the

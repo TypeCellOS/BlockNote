@@ -6,7 +6,7 @@ import {
 import { createReactBlockSpec } from "@blocknote/react";
 
 // Custom React block shared between API route and editor page
-export const SimpleReactCustomParagraph = createReactBlockSpec(
+const SimpleReactCustomParagraph = createReactBlockSpec(
   {
     type: "simpleReactCustomParagraph" as const,
     propSchema: defaultProps,

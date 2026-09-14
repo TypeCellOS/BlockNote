@@ -58,5 +58,3 @@ export const tools = {
   }),
   delete: deleteBlockTool,
 };
-
-export type Tools = ReturnType<(typeof tools)[keyof typeof tools]>;

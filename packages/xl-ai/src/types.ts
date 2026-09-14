@@ -6,7 +6,7 @@ import { DocumentStateBuilder, StreamToolsProvider } from "./index.js";
  * Extra options (header, body, metadata) that can be passed to LLM requests
  * This is a pattern we take from the Vercel AI SDK
  */
-export type ChatRequestOptions = Parameters<Chat<UIMessage>["sendMessage"]>[1];
+type ChatRequestOptions = Parameters<Chat<UIMessage>["sendMessage"]>[1];
 
 export type AIRequestHelpers = {
   /**

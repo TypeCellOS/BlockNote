@@ -1,0 +1,3 @@
+# Committed output of `pnpm run gen` — collapsed in GitHub diffs and excluded
+# from language stats. CI (build.yml) verifies it stays in sync with examples/.
+playground/src/examples.gen.tsx linguist-generated=true

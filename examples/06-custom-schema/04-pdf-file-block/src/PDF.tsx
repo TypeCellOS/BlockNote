@@ -9,7 +9,7 @@ import { RiFilePdfFill } from "react-icons/ri";
 
 import "./styles.css";
 
-export const PDFPreview = (
+const PDFPreview = (
   props: Omit<ReactCustomBlockRenderProps<FileBlockConfig>, "contentRef">,
 ) => {
   return (

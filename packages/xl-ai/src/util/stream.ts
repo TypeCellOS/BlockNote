@@ -1,7 +1,7 @@
 /**
  * Converts an AsyncIterable to a ReadableStream
  */
-export function asyncIterableToStream<T>(
+function asyncIterableToStream<T>(
   iterable: AsyncIterable<T>,
 ): ReadableStream<T> {
   return new ReadableStream({

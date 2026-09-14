@@ -125,6 +125,11 @@ export type Project = {
      * self-contained.
      */
     sharedTestDocument?: boolean;
+    /**
+     * Which BlockNote UI library the generated package.json depends on
+     * (default: mantine).
+     */
+    uiLib?: "mantine" | "ariakit" | "shadcn";
   };
   readme: string;
 };
@@ -163,7 +168,7 @@ export function getCatalogVersion(name: string): string {
   );
 }
 
-export function groupBy<T>(arr: T[], key: (el: T) => string) {
+function groupBy<T>(arr: T[], key: (el: T) => string) {
   const groups: Record<string, T[]> = {};
   arr.forEach((val) => {
     const k = key(val);
@@ -248,7 +253,7 @@ const BINARY_EXTENSIONS = new Set([
   ".woff2",
 ]);
 
-export type ProjectFile =
+type ProjectFile =
   | { filename: string; kind: "text"; code: string }
   | { filename: string; kind: "binary"; sourcePath: string };
 
@@ -301,6 +306,20 @@ export function getExampleProjects(): Project[] {
     .map((configPath) => {
       const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
       const directory = path.dirname(configPath);
+
+      // `.bnexample.json` is runtime input, so the `uiLib` union in `Project`
+      // doesn't actually constrain it — validate here so a typo fails
+      // generation instead of silently producing a manifest without a UI
+      // package.
+      if (
+        config.uiLib !== undefined &&
+        !["mantine", "ariakit", "shadcn"].includes(config.uiLib)
+      ) {
+        throw new Error(
+          `Invalid uiLib ${JSON.stringify(config.uiLib)} in ${configPath} - ` +
+            `expected "mantine", "ariakit" or "shadcn"`,
+        );
+      }
 
       const readmePath = path.join(directory, "README.md");
       if (!fs.existsSync(readmePath)) {

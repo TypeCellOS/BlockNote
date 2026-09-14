@@ -3,7 +3,7 @@ import { Hono } from "hono";
 const ignoreHeadersRe = /^content-(?:encoding|length|range)$/i;
 
 // REC: we might be able to replace this by https://github.com/honojs/hono/pull/3589
-export const proxyFetch: typeof fetch = async (request, options) => {
+const proxyFetch: typeof fetch = async (request, options) => {
   const req = new Request(request, options);
   req.headers.delete("accept-encoding"); // TBD: there may be cases where you want to explicitly specify
   req.headers.delete("Origin");

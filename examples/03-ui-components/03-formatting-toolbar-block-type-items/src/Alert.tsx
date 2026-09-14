@@ -6,7 +6,7 @@ import { MdCancel, MdCheckCircle, MdError, MdInfo } from "react-icons/md";
 import "./styles.css";
 
 // The types of alerts that users can choose from.
-export const alertTypes = [
+const alertTypes = [
   {
     title: "Warning",
     value: "warning",

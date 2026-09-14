@@ -1,6 +1,6 @@
 import type { User } from "@blocknote/core";
 
-export function getById(id: string): User {
+function getById(id: string): User {
   return (
     USERS.find((u) => u.id === id) ?? {
       id,

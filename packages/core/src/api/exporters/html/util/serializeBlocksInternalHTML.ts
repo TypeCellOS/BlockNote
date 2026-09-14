@@ -14,7 +14,7 @@ import {
 } from "../../../nodeConversions/blockToNode.js";
 
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
-export function serializeInlineContentInternalHTML<
+function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,

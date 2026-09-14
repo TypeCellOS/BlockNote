@@ -58,9 +58,6 @@ export type StreamTool<T extends { type: string }> = {
   };
 };
 
-export type StreamToolCallSingle<T extends StreamTool<any>> =
-  T extends StreamTool<infer U> ? U : never;
-
 /**
  * A ToolCall represents an invocation of a StreamTool.
  *

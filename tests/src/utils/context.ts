@@ -4,7 +4,7 @@ import { commands, page, server, userEvent } from "vite-plus/test/browser";
 // with a generated virtual module while running in Browser Mode. Import it from
 // this single place so the e2e utils + tests share one `userEvent` instance
 // (it preserves keyboard/pointer state across calls) and one command surface.
-export { commands, page, server, userEvent };
+export { commands, page, userEvent };
 
 /** The browser instance the current test is running in. */
 export const browserName = server.browser as "chromium" | "firefox" | "webkit";

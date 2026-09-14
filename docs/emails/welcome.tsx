@@ -10,11 +10,11 @@ import {
   Link,
 } from "@react-email/components";
 
-export interface WelcomeEmailProps {
+interface WelcomeEmailProps {
   name?: string;
 }
 
-export const WelcomeEmail = ({ name }: WelcomeEmailProps) => {
+const WelcomeEmail = ({ name }: WelcomeEmailProps) => {
   return (
     <Html>
       <Head />

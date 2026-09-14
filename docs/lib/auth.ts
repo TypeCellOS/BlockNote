@@ -14,7 +14,7 @@ import { Pool } from "pg";
 import { PRODUCTS } from "./product-list";
 import { sendEmail } from "./send-mail";
 
-export const polarClient = new Polar({
+const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
   // Use 'sandbox' if you're using the Polar Sandbox environment
   // Remember that access tokens, products, etc. are completely separated between environments.

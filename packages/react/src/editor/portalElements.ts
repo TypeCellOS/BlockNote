@@ -29,8 +29,6 @@ export type PortalElementsMap = {
   attributionTooltip?: PortalTarget;
 };
 
-export type PortalElementKey = Exclude<keyof PortalElementsMap, "default">;
-
 export function resolvePortalTarget(
   target: PortalTarget | undefined,
 ): HTMLElement | undefined {

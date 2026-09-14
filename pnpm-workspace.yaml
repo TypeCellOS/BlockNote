@@ -75,6 +75,8 @@ patchedDependencies:
     katex@0.16.47: patches/katex@0.16.47.patch,
   }
 catalog:
+  # `vite` is referenced via getCatalogVersion("vite") in
+  # packages/dev-scripts/examples/template-react/package.json.template.tsx
   vite: ^8.0.0
   vite-plus: ^0.2.9
 minimumReleaseAgeExclude:

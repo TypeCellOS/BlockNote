@@ -55,7 +55,7 @@ type SingleUserCommentReactionData = {
   userId: string;
 };
 
-export function yTypeToReaction(yType: Y.Type): SingleUserCommentReactionData {
+function yTypeToReaction(yType: Y.Type): SingleUserCommentReactionData {
   return {
     emoji: yType.getAttr("emoji"),
     createdAt: new Date(yType.getAttr("createdAt")),

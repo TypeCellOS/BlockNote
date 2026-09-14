@@ -15,7 +15,7 @@ import { detectEdgePosition } from "./multiColumnDropCursor.js";
  * When a block is dropped near the left or right edge of another block, it creates
  * or modifies column layouts.
  */
-export function createMultiColumnHandleDropPlugin(
+function createMultiColumnHandleDropPlugin(
   editor: BlockNoteEditor<any, any, any>,
 ): Plugin {
   return new Plugin({

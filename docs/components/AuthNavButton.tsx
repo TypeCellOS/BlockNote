@@ -17,7 +17,7 @@ interface UserImageProps {
   user: User;
 }
 
-export const UserImage = ({ user }: UserImageProps) => {
+const UserImage = ({ user }: UserImageProps) => {
   if (user.image) {
     return (
       <Image

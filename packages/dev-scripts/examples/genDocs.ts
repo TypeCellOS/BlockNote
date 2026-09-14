@@ -169,9 +169,40 @@ export const exampleGroupsData: ExampleGroupsData = ${JSON.stringify(exampleGrou
   writeGeneratedFile(target, code, written);
 }
 
+// Tracks which docs-embedded example first claimed each dependency range, so
+// two examples declaring incompatible ranges of the same package fail the gen
+// run instead of silently last-write-winning in docs/package.json. The docs
+// site compiles all embedded examples in a single dependency context, so only
+// one range can exist per package (e.g. `yjs`+`lib0@0.2` vs `@y/y`+`lib0@1.0`).
+// `@blocknote/*` is exempt: those are rewritten to `workspace:*` below.
+const dependencyClaims = new Map<string, { range: string; example: string }>();
+
+function checkDependencyConflicts(
+  project: Project,
+  dependencies: Record<string, string>,
+) {
+  for (const [name, range] of Object.entries(dependencies)) {
+    if (name.startsWith("@blocknote/")) {
+      continue;
+    }
+    const claim = dependencyClaims.get(name);
+    if (claim && claim.range !== range) {
+      throw new Error(
+        `Dependency conflict in docs-embedded examples: "${name}" is declared ` +
+          `as "${claim.range}" by ${claim.example} but as "${range}" by ` +
+          `${project.fullSlug}. The docs site installs a single version per ` +
+          `package, so reconcile the ranges in the examples' .bnexample.json ` +
+          `files, or set "docs": false on one of them.`,
+      );
+    }
+    dependencyClaims.set(name, { range, example: project.fullSlug });
+  }
+}
+
 async function addDependenciesToExample(project: Project, written: string[]) {
   const dependencies = project.config.dependencies || {};
   const devDependencies = project.config.devDependencies || {};
+  checkDependencyConflicts(project, { ...dependencies, ...devDependencies });
   if (
     Object.keys(dependencies).length > 0 ||
     Object.keys(devDependencies).length > 0

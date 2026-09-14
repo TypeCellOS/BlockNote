@@ -4,8 +4,8 @@ import { createParser } from "prosemirror-highlight/shiki";
 import type { SyntaxHighlightingOptions } from "./SyntaxHighlighting.js";
 import { CustomBlockNoteSchema } from "../../schema/schema.js";
 
-export const shikiParserSymbol = Symbol.for("blocknote.shikiParser");
-export const shikiHighlighterPromiseSymbol = Symbol.for(
+const shikiParserSymbol = Symbol.for("blocknote.shikiParser");
+const shikiHighlighterPromiseSymbol = Symbol.for(
   "blocknote.shikiHighlighterPromise",
 );
 

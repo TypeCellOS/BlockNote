@@ -55,9 +55,7 @@ type SingleUserCommentReactionData = {
   userId: string;
 };
 
-export function yMapToReaction(
-  yMap: Y.Map<any>,
-): SingleUserCommentReactionData {
+function yMapToReaction(yMap: Y.Map<any>): SingleUserCommentReactionData {
   return {
     emoji: yMap.get("emoji"),
     createdAt: new Date(yMap.get("createdAt")),

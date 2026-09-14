@@ -45,7 +45,7 @@ Contains all of the example's configuration. Here's an annotated example (from `
   "Slash Menu",
   "Appearance & Styling"
 ],
-<!-- NPM dependencies the source files rely on. -->
+<!-- NPM dependencies the source files rely on. Only list packages the example actually imports — the generated `package.json` already includes `@blocknote/core`, `@blocknote/react`, the UI library (see `uiLib`), `react`, and `react-dom`. -->
 "dependencies": {
   "@mui/icons-material": "^5.16.1",
   "@mui/material": "^5.16.1"
@@ -53,6 +53,11 @@ Contains all of the example's configuration. Here's an annotated example (from `
 <!-- Whether to hide the example behind a subscription on the BlockNote website. Default to `false` unless instructed otherwise. -->
 "pro": true
 ```
+
+Two constraints on dependencies:
+
+- `"uiLib"` (optional; `"mantine"` | `"ariakit"` | `"shadcn"`, default `"mantine"`) selects which single BlockNote UI package the generated `package.json` depends on. The mantine variant also carries `@mantine/core`/`@mantine/hooks` (peer dependencies of `@blocknote/mantine`). Do not add UI packages to `"dependencies"` manually; set `uiLib` instead.
+- Examples with `"docs": true` are all compiled into the docs site's single dependency context, so `vp run gen` fails if two docs-embedded examples declare incompatible version ranges of the same package (e.g. `lib0` for yjs 13 vs 14). Reconcile the ranges or set `"docs": false` on one of them.
 
 `README.md`
 

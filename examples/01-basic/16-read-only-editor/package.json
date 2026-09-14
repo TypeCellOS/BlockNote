@@ -3,7 +3,7 @@
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   "type": "module",
   "private": true,
-  "version": "0.12.4",
+  "version": "0.0.0",
   "scripts": {
     "start": "vite",
     "dev": "vite",
@@ -11,11 +11,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@blocknote/ariakit": "latest",
     "@blocknote/core": "latest",
-    "@blocknote/mantine": "latest",
     "@blocknote/react": "latest",
-    "@blocknote/shadcn": "latest",
+    "@blocknote/mantine": "latest",
     "@mantine/core": "^9.0.2",
     "@mantine/hooks": "^9.0.2",
     "react": "^19.2.3",

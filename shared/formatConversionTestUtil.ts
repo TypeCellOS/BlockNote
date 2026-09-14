@@ -225,7 +225,7 @@ export function partialBlockToBlockForTesting<
   } as any;
 }
 
-export function addIdsToBlock(block: PartialBlock<any, any, any>) {
+function addIdsToBlock(block: PartialBlock<any, any, any>) {
   if (!block.id) {
     block.id = UniqueID.options.generateID();
   }
