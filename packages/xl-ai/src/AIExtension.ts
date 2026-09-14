@@ -19,6 +19,7 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { buildAIRequest, sendMessageWithAIRequest } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
+import { createShortcutPlugin } from "./plugins/ShortcutPlugin.js";
 import { AIRequestHelpers, InvokeAIOptions } from "./types.js";
 import { AttributionMarksExtension } from "./prosemirror/AttributionMarks.js";
 
@@ -137,6 +138,7 @@ export const AIExtension = createExtension(
         createAgentCursorPlugin(
           editorOptions?.agentCursor || { name: "AI", color: "#8bc6ff" },
         ),
+        createShortcutPlugin(editor),
       ],
 
       /**
