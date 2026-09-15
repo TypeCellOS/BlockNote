@@ -94,6 +94,11 @@ export const CreateLinkButton = () => {
   // Makes Ctrl+K/Meta+K open link creation popover.
   useEffect(() => {
     const callback = (event: KeyboardEvent) => {
+      // A read-only editor (e.g. while a version preview is open) has no link
+      // creation to offer, so leave the shortcut to the browser.
+      if (!editor.isEditable) {
+        return;
+      }
       if ((event.ctrlKey || event.metaKey) && event.key === "k") {
         setShowPopover(true);
         event.preventDefault();
@@ -105,7 +110,7 @@ export const CreateLinkButton = () => {
     return () => {
       editorDOMElement?.removeEventListener("keydown", callback);
     };
-  }, [editorDOMElement]);
+  }, [editor, editorDOMElement]);
 
   if (state === undefined) {
     return null;
