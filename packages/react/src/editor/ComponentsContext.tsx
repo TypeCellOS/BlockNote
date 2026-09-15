@@ -359,6 +359,7 @@ export type ComponentProps = {
         className?: string;
         children?: ReactNode;
 
+        disabled?: boolean;
         subTrigger?: boolean;
         icon?: ReactNode;
         checked?: boolean;

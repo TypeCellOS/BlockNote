@@ -7,11 +7,7 @@ import {
 import { DiffVersioningExtension } from "@blocknote/core/y";
 import {
   BlockNoteViewEditor,
-  CompareSinceBeginningItem,
-  CompareWithVersionItem,
-  DeleteVersionItem,
-  NameVersionItem,
-  RestoreVersionItem,
+  DefaultVersionMenuItems,
   useCreateBlockNote,
   useVersionSnapshot,
   VersionMenu,
@@ -80,12 +76,8 @@ export default function App() {
                 // an app-specific one. Order is yours to choose.
                 snapshotMenu={
                   <VersionMenu>
-                    <NameVersionItem />
-                    <CompareWithVersionItem />
-                    <CompareSinceBeginningItem />
+                    <DefaultVersionMenuItems />
                     <MakeCopyItem />
-                    <RestoreVersionItem />
-                    <DeleteVersionItem />
                   </VersionMenu>
                 }
               />

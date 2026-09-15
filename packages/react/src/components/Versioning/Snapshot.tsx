@@ -13,7 +13,6 @@ import { useDictionary } from "../../i18n/dictionary.js";
 import { dateToString } from "./dateToString.js";
 import { usePreviewRow } from "./usePreviewRow.js";
 import { useSnapshotLabel } from "./useVersionUsers.js";
-import { VersionMenu } from "./VersionMenu/VersionMenu.js";
 import { VersionName } from "./VersionName.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
 import { VersionSnapshotProvider } from "./VersionSnapshotContext.js";
@@ -169,33 +168,34 @@ export function Snapshot(props: {
     }
   }
 
-  const actions = (
-    <Components.Generic.Toolbar.Root
-      variant="action-toolbar"
-      className="bn-action-toolbar"
-    >
-      <Components.Generic.Menu.Root position="bottom-start">
-        <Components.Generic.Menu.Trigger>
-          <Components.Generic.Toolbar.Button
-            className="bn-snapshot-menu-trigger"
-            label={dict.versioning.more_actions}
-            mainTooltip={dict.versioning.more_actions}
-            variant="compact"
-            onClick={(event) => {
-              // Not `preventDefault`: Ariakit's disclosure bails on a
-              // default-prevented click, so the menu would never open.
-              // Stopping propagation is all the row needs — the click must
-              // not also select the row behind the trigger.
-              event.stopPropagation();
-            }}
-          >
-            <RiMoreFill size={16} />
-          </Components.Generic.Toolbar.Button>
-        </Components.Generic.Menu.Trigger>
-        {snapshotMenu ?? <VersionMenu />}
-      </Components.Generic.Menu.Root>
-    </Components.Generic.Toolbar.Root>
-  );
+  const actions =
+    snapshotMenu != null && snapshotMenu !== false ? (
+      <Components.Generic.Toolbar.Root
+        variant="action-toolbar"
+        className="bn-action-toolbar"
+      >
+        <Components.Generic.Menu.Root position="bottom-start">
+          <Components.Generic.Menu.Trigger>
+            <Components.Generic.Toolbar.Button
+              className="bn-snapshot-menu-trigger"
+              label={dict.versioning.more_actions}
+              mainTooltip={dict.versioning.more_actions}
+              variant="compact"
+              onClick={(event) => {
+                // Not `preventDefault`: Ariakit's disclosure bails on a
+                // default-prevented click, so the menu would never open.
+                // Stopping propagation is all the row needs — the click must
+                // not also select the row behind the trigger.
+                event.stopPropagation();
+              }}
+            >
+              <RiMoreFill size={16} />
+            </Components.Generic.Toolbar.Button>
+          </Components.Generic.Menu.Trigger>
+          {snapshotMenu}
+        </Components.Generic.Menu.Root>
+      </Components.Generic.Toolbar.Root>
+    ) : null;
 
   return (
     <VersionSnapshotProvider

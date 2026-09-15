@@ -6,7 +6,11 @@ import { useExtension } from "../../../../hooks/useExtension.js";
 import { usePreviewRow } from "../../usePreviewRow.js";
 import { useVersioningSidebar } from "../../VersioningSidebarContext.js";
 import { useVersionSnapshot } from "../../VersionSnapshotContext.js";
-import { VersionMenuItem } from "../VersionMenuItem.js";
+import {
+  VersionMenuItem,
+  type DefaultVersionMenuItemProps,
+  type VersionMenuAction,
+} from "../VersionMenuItem.js";
 
 /**
  * "Delete" — removes a *named* stored version.
@@ -20,33 +24,51 @@ import { VersionMenuItem } from "../VersionMenuItem.js";
  * sidebar re-selects the current version: the panel always has a selection,
  * and the editor stays read-only for as long as it's open.
  */
-export function DeleteVersionItem() {
-  const dict = useDictionary();
+export function useDeleteVersionAction(): VersionMenuAction {
   const { remove, store } = useExtension(VersioningExtension);
   const { run } = useVersioningSidebar();
   const previewRow = usePreviewRow();
   const { snapshot, isCurrent } = useVersionSnapshot();
 
   if (isCurrent || !remove || snapshot.name === undefined) {
+    return { available: false };
+  }
+
+  return {
+    available: true,
+    execute: () => {
+      return run(
+        () => remove(snapshot.id),
+        async () => {
+          const { list, view } = store.state;
+          if (view.mode === "live" && list.loaded) {
+            await previewRow(list.current);
+          }
+        },
+      );
+    },
+  };
+}
+
+/** The default item; customize its behavior with {@link useDeleteVersionAction}. */
+export function DeleteVersionItem(props: DefaultVersionMenuItemProps = {}) {
+  const dict = useDictionary();
+  const action = useDeleteVersionAction();
+  if (!action.available) {
     return null;
   }
 
   return (
     <VersionMenuItem
-      icon={<RiDeleteBinLine />}
+      {...props}
+      icon={props.icon === undefined ? <RiDeleteBinLine /> : props.icon}
       onClick={() => {
-        void run(
-          () => remove(snapshot.id),
-          async () => {
-            const { list, view } = store.state;
-            if (view.mode === "live" && list.loaded) {
-              await previewRow(list.current);
-            }
-          },
-        );
+        void action.execute();
       }}
     >
-      {dict.versioning.delete_menuitem}
+      {props.children === undefined
+        ? dict.versioning.delete_menuitem
+        : props.children}
     </VersionMenuItem>
   );
 }
