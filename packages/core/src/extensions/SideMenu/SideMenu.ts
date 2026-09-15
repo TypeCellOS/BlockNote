@@ -324,8 +324,13 @@ export class SideMenuView<
     clientX: number;
     clientY: number;
   }) => {
-    // Get all editor elements in the document
-    const editors = Array.from(this.pmView.root.querySelectorAll(".bn-editor"));
+    // Read-only editors cannot show a side menu or accept a dropped block, so
+    // they must not compete with editable editors that overlap them.
+    const editors = Array.from(
+      this.pmView.root.querySelectorAll(
+        '.bn-editor:not([contenteditable="false"])',
+      ),
+    );
 
     if (editors.length === 0) {
       return null;
