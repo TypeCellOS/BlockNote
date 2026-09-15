@@ -10,7 +10,9 @@ import { RestoreVersionItem } from "./DefaultItems/RestoreVersionItem.js";
 /**
  * The "..." menu of a version row in the history sidebar.
  *
- * By default it renders the default items. Pass children to override them —
+ * By default it renders the default items. Include `DefaultVersionMenuItems`
+ * among your children to keep all defaults and append or prepend custom items.
+ * Pass children to override the defaults —
  * the children you pass should be:
  *
  * - Default items: components found within the `/DefaultItems` directory.
@@ -36,15 +38,24 @@ export function VersionMenu(props: { children?: ReactNode }) {
 
   return (
     <Components.Generic.Menu.Dropdown className="bn-menu-dropdown bn-version-menu">
-      {props.children ?? (
-        <>
-          <NameVersionItem />
-          <CompareWithVersionItem />
-          <CompareSinceBeginningItem />
-          <RestoreVersionItem />
-          <DeleteVersionItem />
-        </>
+      {props.children === undefined ? (
+        <DefaultVersionMenuItems />
+      ) : (
+        props.children
       )}
     </Components.Generic.Menu.Dropdown>
+  );
+}
+
+/** The default actions as a fragment, for composing defaults plus custom items. */
+export function DefaultVersionMenuItems() {
+  return (
+    <>
+      <NameVersionItem />
+      <CompareWithVersionItem />
+      <CompareSinceBeginningItem />
+      <RestoreVersionItem />
+      <DeleteVersionItem />
+    </>
   );
 }

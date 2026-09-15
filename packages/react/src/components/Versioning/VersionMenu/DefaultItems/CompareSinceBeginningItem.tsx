@@ -9,7 +9,11 @@ import {
 import { usePreviewRow } from "../../usePreviewRow.js";
 import { useVersioningSidebar } from "../../VersioningSidebarContext.js";
 import { useVersionSnapshot } from "../../VersionSnapshotContext.js";
-import { VersionMenuItem } from "../VersionMenuItem.js";
+import {
+  VersionMenuItem,
+  type DefaultVersionMenuItemProps,
+  type VersionMenuAction,
+} from "../VersionMenuItem.js";
 
 /**
  * "Compare since beginning" — diffs the current version against the oldest
@@ -18,8 +22,7 @@ import { VersionMenuItem } from "../VersionMenuItem.js";
  * Only on the current row, and only when there's an older version to diff
  * against.
  */
-export function CompareSinceBeginningItem() {
-  const dict = useDictionary();
+export function useCompareSinceBeginningAction(): VersionMenuAction {
   const { canCompare } = useExtension(VersioningExtension);
   const { setComparisonMode, run } = useVersioningSidebar();
   const previewRow = usePreviewRow();
@@ -32,25 +35,44 @@ export function CompareSinceBeginningItem() {
     ? list.snapshots[list.snapshots.length - 1]
     : undefined;
 
-  if (!isCurrent || !canCompare || !oldest) {
+  if (!isCurrent || !canCompare || !list.loaded || !oldest) {
+    return { available: false };
+  }
+
+  return {
+    available: true,
+    execute: () => {
+      setComparisonMode(true);
+      return run(() =>
+        previewRow(list.current, {
+          compareTo: { type: "snapshot", id: oldest.id },
+        }),
+      );
+    },
+  };
+}
+
+/** The default item; customize its behavior with {@link useCompareSinceBeginningAction}. */
+export function CompareSinceBeginningItem(
+  props: DefaultVersionMenuItemProps = {},
+) {
+  const dict = useDictionary();
+  const action = useCompareSinceBeginningAction();
+  if (!action.available) {
     return null;
   }
 
   return (
     <VersionMenuItem
-      icon={<GoHistory />}
+      {...props}
+      icon={props.icon === undefined ? <GoHistory /> : props.icon}
       onClick={() => {
-        setComparisonMode(true);
-        if (list.loaded) {
-          void run(() =>
-            previewRow(list.current, {
-              compareTo: { type: "snapshot", id: oldest.id },
-            }),
-          );
-        }
+        void action.execute();
       }}
     >
-      {dict.versioning.compare_since_beginning_menuitem}
+      {props.children === undefined
+        ? dict.versioning.compare_since_beginning_menuitem
+        : props.children}
     </VersionMenuItem>
   );
 }

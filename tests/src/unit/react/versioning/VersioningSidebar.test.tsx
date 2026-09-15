@@ -1,4 +1,6 @@
-import { StrictMode } from "react";
+import { StrictMode, type ComponentType, type ReactNode } from "react";
+import { BlockNoteView as AriakitBlockNoteView } from "@blocknote/ariakit";
+import { BlockNoteView as ShadcnBlockNoteView } from "@blocknote/shadcn";
 import { BlockNoteEditor } from "@blocknote/core";
 import {
   VersioningExtension,
@@ -8,6 +10,9 @@ import {
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  DefaultVersionMenuItems,
+  RestoreVersionItem,
+  useRestoreVersionAction,
   useVersionSnapshot,
   VersioningSidebar,
   VersionMenu,
@@ -118,12 +123,16 @@ function createEditor(endpoints: VersioningEndpoints) {
 async function setup(
   props: Parameters<typeof VersioningSidebar>[0] = {},
   fake = createFakeEndpoints(),
+  View: ComponentType<{
+    editor: ReturnType<typeof createEditor>;
+    children: ReactNode;
+  }> = BlockNoteView,
 ) {
   const editor = createEditor(fake.endpoints);
   const view = render(
-    <BlockNoteView editor={editor}>
+    <View editor={editor}>
       <VersioningSidebar {...props} />
-    </BlockNoteView>,
+    </View>,
   );
   // Let the mount effect's `list()` + initial preview settle.
   await act(async () => {});
@@ -872,6 +881,156 @@ describe("VersioningSidebar", () => {
   // -------------------------------------------------------------------------
   // Menu composition
   // -------------------------------------------------------------------------
+
+  it.each([null, false])(
+    "hides the menu and trigger for snapshotMenu=%s",
+    async (snapshotMenu) => {
+      await setup({ snapshotMenu });
+      expect(rows()).toHaveLength(3);
+      expect(screen.queryByRole("button", { name: "More actions" })).toBeNull();
+      await click(rows()[1]!);
+      expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
+    },
+  );
+
+  it.each([
+    ["Mantine", BlockNoteView],
+    ["Ariakit", AriakitBlockNoteView],
+    ["Shadcn", ShadcnBlockNoteView],
+  ] as const)("prevents disabled custom actions in %s", async (_name, View) => {
+    const onClick = vi.fn();
+    await setup(
+      {
+        snapshotMenu: (
+          <VersionMenu>
+            <VersionMenuItem disabled onClick={onClick}>
+              Disabled action
+            </VersionMenuItem>
+            <VersionMenuItem disabled checked onClick={onClick}>
+              Disabled checked action
+            </VersionMenuItem>
+          </VersionMenu>
+        ),
+      },
+      createFakeEndpoints(),
+      View,
+    );
+    await click(
+      within(rows()[1]!).getByRole("button", { name: "More actions" }),
+    );
+    for (const label of ["Disabled action", "Disabled checked action"]) {
+      const item = await eventually(() =>
+        screen.getByText(label).closest('[role^="menuitem"]'),
+      );
+      if (!item) {
+        throw new Error("Missing menu item");
+      }
+      expect(
+        item.hasAttribute("disabled") ||
+          item.getAttribute("aria-disabled") === "true",
+      ).toBe(true);
+      await click(item);
+    }
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it("composes the default fragment with extra items", async () => {
+    const onClick = vi.fn();
+    await setup({
+      snapshotMenu: (
+        <VersionMenu>
+          <DefaultVersionMenuItems />
+          <VersionMenuItem onClick={onClick}>Download</VersionMenuItem>
+        </VersionMenu>
+      ),
+    });
+    await click(
+      within(rows()[1]!).getByRole("button", { name: "More actions" }),
+    );
+    const download = await openMenuItem(rows()[1]!, /^Download$/);
+    expect(screen.getByText("Restore")).toBeDefined();
+    expect(screen.getByText("Delete")).toBeDefined();
+    await click(download);
+    expect(onClick).toHaveBeenCalledOnce();
+  });
+
+  it("reuses restore behavior from a custom item and exposes availability", async () => {
+    function CustomRestoreItem() {
+      const action = useRestoreVersionAction();
+      if (!action.available) {
+        return <VersionMenuItem disabled>Cannot restore</VersionMenuItem>;
+      }
+      return (
+        <VersionMenuItem
+          onClick={() => {
+            void action.execute();
+          }}
+        >
+          Roll back
+        </VersionMenuItem>
+      );
+    }
+    const { editor, fake } = await setup({
+      snapshotMenu: (
+        <VersionMenu>
+          <CustomRestoreItem />
+        </VersionMenu>
+      ),
+    });
+    await click(
+      within(rows()[0]!).getByRole("button", { name: "More actions" }),
+    );
+    const unavailable = await openMenuItem(rows()[0]!, /^Cannot restore$/);
+    await click(unavailable);
+    expect(fake.endpoints.restore).not.toHaveBeenCalled();
+    // Close the current menu before opening the stored version's menu.
+    await click(
+      within(rows()[0]!).getByRole("button", { name: "More actions" }),
+    );
+    await click(rows()[1]!);
+    await click(
+      within(rows()[1]!).getByRole("button", { name: "More actions" }),
+    );
+    await click(await openMenuItem(rows()[1]!, /^Roll back$/));
+    expect(fake.endpoints.restore).toHaveBeenCalledWith([], NAMED);
+    expect(
+      editor.getExtension(VersioningExtension)!.store.state.view.mode,
+    ).toBe("current");
+    expect(editor.isEditable).toBe(false);
+  });
+
+  it("customizes a default item's presentation and disables its action", async () => {
+    const { fake } = await setup({
+      snapshotMenu: (
+        <VersionMenu>
+          <RestoreVersionItem
+            disabled
+            className="custom-restore"
+            icon={<span>Custom icon</span>}
+          >
+            Roll back
+          </RestoreVersionItem>
+        </VersionMenu>
+      ),
+    });
+    await click(
+      within(rows()[1]!).getByRole("button", { name: "More actions" }),
+    );
+    const label = await openMenuItem(rows()[1]!, /^Roll back$/);
+    const item = label.closest<HTMLElement>('[role="menuitem"]');
+    if (!item) {
+      throw new Error("Missing restore item");
+    }
+    expect(within(item).getByText("Custom icon")).toBeDefined();
+    expect(item.classList.contains("bn-menu-item")).toBe(true);
+    expect(item.classList.contains("custom-restore")).toBe(true);
+    expect(
+      item.hasAttribute("disabled") ||
+        item.getAttribute("aria-disabled") === "true",
+    ).toBe(true);
+    await click(item);
+    expect(fake.endpoints.restore).not.toHaveBeenCalled();
+  });
 
   it("gives a custom snapshotMenu the row it was rendered in, and drops the defaults", async () => {
     function MakeCopyItem() {
