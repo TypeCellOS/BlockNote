@@ -144,8 +144,9 @@ export function GridSuggestionMenuController<
           }),
           shift(),
           size({
-            apply({ elements, availableHeight }) {
+            apply({ elements, availableHeight, availableWidth }) {
               elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
+              elements.floating.style.maxWidth = `${Math.max(0, availableWidth)}px`;
             },
             padding: 10,
           }),
