@@ -3,6 +3,7 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
   FilePanelController,
+  FileReplaceButton,
   FormattingToolbar,
   FormattingToolbarController,
   FormattingToolbarProps,
@@ -10,7 +11,6 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 
-import { FileReplaceButton } from "./FileReplaceButton";
 import { uploadFile, UppyFilePanel } from "./UppyFilePanel";
 
 const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
@@ -19,7 +19,7 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
   items.splice(
     items.findIndex((c) => c.key === "replaceFileButton"),
     1,
-    <FileReplaceButton key={"fileReplaceButton"} />,
+    <FileReplaceButton key={"replaceFileButton"} filePanel={UppyFilePanel} />,
   );
 
   return <FormattingToolbar {...props}>{items}</FormattingToolbar>;

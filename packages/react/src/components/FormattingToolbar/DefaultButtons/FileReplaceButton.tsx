@@ -5,16 +5,34 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { RiImageEditFill } from "react-icons/ri";
+import type { FC } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { FilePanel } from "../../FilePanel/FilePanel.js";
+import type { FilePanelProps } from "../../FilePanel/FilePanelProps.js";
 
-export const FileReplaceButton = () => {
+export type FileReplaceButtonProps = {
+  /**
+   * The file panel rendered inside the replace-file popover.
+   *
+   * Defaults to {@link FilePanel}.
+   */
+  filePanel?: FC<FilePanelProps>;
+};
+
+/**
+ * By default, the FileReplaceButton component renders a FilePanel in its
+ * popover. However, you can override the file panel by passing the
+ * `filePanel` prop. You can use the default FilePanel with custom tabs or make
+ * your own file panel component.
+ */
+export function FileReplaceButton(props: FileReplaceButtonProps) {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
+  const FilePanelComponent = props.filePanel ?? FilePanel;
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -75,8 +93,8 @@ export const FileReplaceButton = () => {
         className={"bn-popover-content bn-panel-popover"}
         variant={"panel-popover"}
       >
-        <FilePanel blockId={block.id} />
+        <FilePanelComponent blockId={block.id} />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
   );
-};
+}
