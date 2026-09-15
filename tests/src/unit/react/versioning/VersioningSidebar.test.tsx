@@ -1126,6 +1126,105 @@ describe("VersioningSidebar", () => {
     expect(rows()).toHaveLength(3);
   });
 
+  it("keeps the existing rows and selection visible during a refresh", async () => {
+    const { editor, fake } = await setup();
+    await click(rows()[1]!);
+    const selectedRow = rows()[1]!;
+    const release = fake.block();
+    const versioning = editor.getExtension(VersioningExtension)!;
+    let refresh!: ReturnType<typeof versioning.list>;
+    act(() => {
+      refresh = versioning.list();
+    });
+
+    expect(screen.getByRole("list").getAttribute("aria-busy")).toBe("true");
+    expect(screen.queryByRole("status")).toBeNull();
+    expect(rows()).toHaveLength(3);
+    expect(rows()[1]).toBe(selectedRow);
+    expect(selectedRow.getAttribute("aria-current")).toBe("true");
+    expect(editor.isEditable).toBe(false);
+
+    fake.setSnapshots([NAMED]);
+    await act(async () => {
+      release();
+      await refresh;
+    });
+    expect(screen.getByRole("list").getAttribute("aria-busy")).toBeNull();
+    expect(rows()).toHaveLength(2);
+    expect(rows()[1]).toBe(selectedRow);
+    expect(selectedRow.getAttribute("aria-current")).toBe("true");
+  });
+
+  it.each(["close", "unmount"])(
+    "does not enter preview when the initial list finishes after %s",
+    async (exit) => {
+      const fake = createFakeEndpoints();
+      const release = fake.block();
+      const onClose = vi.fn();
+      const { editor, view } = await setup({ onClose }, fake);
+      expect(screen.getByRole("status")).toBeDefined();
+
+      if (exit === "close") {
+        await click(screen.getByRole("button", { name: "Close" }));
+        expect(onClose).toHaveBeenCalledOnce();
+      } else {
+        view.rerender(<BlockNoteView editor={editor} />);
+      }
+      await act(async () => release());
+      expect(
+        editor.getExtension(VersioningExtension)!.store.state.view,
+      ).toEqual({ mode: "live" });
+      expect(editor.isEditable).toBe(true);
+      expect(fake.endpoints.getContent).not.toHaveBeenCalled();
+    },
+  );
+
+  it("moves the busy marker to the latest selection while both previews load", async () => {
+    const { editor, fake } = await setup();
+    const release = fake.block();
+    await click(rows()[1]!);
+    expect(rows()[1]!.getAttribute("aria-busy")).toBe("true");
+    await click(rows()[2]!);
+    expect(rows()[1]!.getAttribute("aria-busy")).toBeNull();
+    expect(rows()[2]!.getAttribute("aria-busy")).toBe("true");
+    expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
+    expect(editor.isEditable).toBe(false);
+
+    await act(async () => release());
+    expect(rows().every((row) => !row.hasAttribute("aria-busy"))).toBe(true);
+    expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("clears a failed row's busy marker, restores selection, and allows retry", async () => {
+    const { fake } = await setup();
+    let rejectContent!: (error: Error) => void;
+    fake.endpoints.getContent.mockImplementationOnce(
+      () =>
+        new Promise((_, reject) => {
+          rejectContent = reject;
+        }),
+    );
+    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      await click(rows()[1]!);
+      expect(rows()[1]!.getAttribute("aria-busy")).toBe("true");
+      await act(async () => rejectContent(new Error("private backend detail")));
+      expect(rows()[1]!.getAttribute("aria-busy")).toBeNull();
+      expect(rows()[0]!.getAttribute("aria-current")).toBe("true");
+      expect(screen.getByRole("alert").textContent).toBe(
+        "Something went wrong. Please try again.",
+      );
+
+      await click(rows()[1]!);
+      expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
+      expect(rows()[1]!.getAttribute("aria-busy")).toBeNull();
+      expect(screen.queryByRole("alert")).toBeNull();
+    } finally {
+      logged.mockRestore();
+    }
+  });
+
   it("marks the row being switched to as busy", async () => {
     const { fake } = await setup();
 
