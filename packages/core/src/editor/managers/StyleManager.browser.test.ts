@@ -76,3 +76,83 @@ describe("editLink", () => {
     ]);
   });
 });
+
+// Regression cases from #3081, exercised against #3058's shared lookup.
+describe.each(["Google", "x"])("link boundaries (%s)", (text) => {
+  let editor: BlockNoteEditor;
+  let container: HTMLElement;
+
+  beforeEach(() => {
+    container = document.createElement("div");
+    document.body.append(container);
+    editor = BlockNoteEditor.create({
+      initialContent: [
+        {
+          id: "block",
+          type: "paragraph",
+          content: [
+            { type: "link", href: "https://google.com", content: text },
+          ],
+        },
+      ],
+    });
+    editor.mount(container);
+  });
+
+  afterEach(() => {
+    editor.unmount();
+    container.remove();
+  });
+
+  it.each(["start", "end"] as const)(
+    "edits the whole link at its %s",
+    (edge) => {
+      editor.setTextCursorPosition("block", edge);
+      editor.editLink("https://changed.example", "Google Search");
+      expect(editor.getBlock("block")?.content).toEqual([
+        {
+          type: "link",
+          href: "https://changed.example",
+          content: [{ type: "text", text: "Google Search", styles: {} }],
+        },
+      ]);
+    },
+  );
+
+  it.each(["start", "end"] as const)(
+    "removes the link at its %s, preserving text",
+    (edge) => {
+      editor.setTextCursorPosition("block", edge);
+      editor.deleteLink();
+      expect(editor.getBlock("block")?.content).toEqual([
+        { type: "text", text, styles: {} },
+      ]);
+    },
+  );
+
+  it("edits at the document end without throwing, using the selection fallback", () => {
+    editor.setTextCursorPosition("block", "start");
+    const end = editor.prosemirrorState.doc.content.size;
+    expect(editor.getLinkMarkAtPos(end)).toBeUndefined();
+    editor.editLink("https://changed.example", "New", end);
+    expect(editor.getBlock("block")?.content).toEqual([
+      {
+        type: "link",
+        href: "https://changed.example",
+        content: [{ type: "text", text: "New", styles: {} }],
+      },
+      {
+        type: "link",
+        href: "https://google.com",
+        content: [{ type: "text", text, styles: {} }],
+      },
+    ]);
+  });
+
+  it("deletes at the document end without throwing or changing an unselected link", () => {
+    editor.setTextCursorPosition("block", "end");
+    const before = editor.document;
+    editor.deleteLink(editor.prosemirrorState.doc.content.size);
+    expect(editor.document).toEqual(before);
+  });
+});
