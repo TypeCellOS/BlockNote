@@ -747,9 +747,9 @@ button {
 .bn-snapshot-name:focus {
   outline: none;
 }
-.bn-snapshot-name::placeholder {
-  color: var(--text-subtle);
-}
+/* No placeholder override: an unnamed row's placeholder ("Current version",
+   or its date) is the row's title, so it keeps the row's text color — white
+   on the selected row. */
 
 .bn-snapshot-date {
   color: var(--text-subtle);

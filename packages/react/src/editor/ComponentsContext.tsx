@@ -246,19 +246,31 @@ export type ComponentProps = {
       children?: ReactNode;
     };
     /**
-     * A single row in the version-history sidebar — the live "current version"
-     * entry or a stored snapshot.
+     * A single row in the version-history sidebar — the current version or a
+     * stored one. Rendered as a `role="option"` inside the sidebar's listbox,
+     * which is why it takes the roving-tabindex and focus props below.
      */
     Snapshot: {
       className?: string;
+      id?: string;
       /** Whether this row is the version currently shown in the editor. */
       selected?: boolean;
       /** Whether this row is the baseline the current diff is compared against. */
       comparing?: boolean;
+      /** `0` for the active row of the roving tabindex, `-1` for the rest. */
+      tabIndex?: number;
+      /** Whether this row's content is still loading. */
+      "aria-busy"?: boolean;
       onClick?: () => void;
+      onKeyDown?: (event: KeyboardEvent) => void;
+      onFocus?: () => void;
       /** Row actions (e.g. the "..." menu), revealed on hover. */
       actions?: ReactNode;
       children?: ReactNode;
+    };
+    /** The spinner shown while versions (or a preview) are loading. */
+    Loader: {
+      className?: string;
     };
   };
   AttributionTooltip: {
@@ -347,6 +359,7 @@ export type ComponentProps = {
         className?: string;
         children?: ReactNode;
 
+        disabled?: boolean;
         subTrigger?: boolean;
         icon?: ReactNode;
         checked?: boolean;

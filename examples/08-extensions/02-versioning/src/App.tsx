@@ -1,4 +1,5 @@
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteEditor } from "@blocknote/core";
 import {
   VersioningExtension,
   createInMemoryVersioningAdapter,
@@ -6,41 +7,41 @@ import {
 import { DiffVersioningExtension } from "@blocknote/core/y";
 import {
   BlockNoteViewEditor,
+  DefaultVersionMenuItems,
   useCreateBlockNote,
-  useExtensionState,
+  useVersionSnapshot,
+  VersionMenu,
+  VersionMenuItem,
   VersioningSidebar,
 } from "@blocknote/react";
+import { RiFileCopyLine } from "react-icons/ri";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useState } from "react";
 
+import { DAY_MS, LIVE_DOCUMENT, SAMPLE_HISTORY } from "./sampleVersions";
 import "./style.css";
 
 export default function App() {
-  // `createInMemoryVersioningAdapter` is passed as a factory function. The
-  // VersioningExtension will call it with the editor instance once it's ready.
+  // The adapter is created per editor, so it's passed as a factory: the
+  // VersioningExtension calls it with the editor instance once that's ready.
+  // The store starts out with a few versions, the way an application would
+  // load the history it persisted.
   const editor = useCreateBlockNote({
-    initialContent: [
-      {
-        type: "heading",
-        content: "In-Memory Versioning Example",
-        props: { level: 2 },
-      },
-      {
-        type: "paragraph",
-        content:
-          "This example demonstrates versioning without any collaboration layer. " +
-          "Snapshots are stored in memory using ProseMirror JSON — no Yjs required.",
-      },
-      {
-        type: "paragraph",
-        content:
-          "Try editing this document, then use the Version History sidebar to " +
-          "save snapshots. You can preview and restore older versions.",
-      },
-    ],
+    initialContent: LIVE_DOCUMENT,
     extensions: [
-      VersioningExtension(createInMemoryVersioningAdapter),
+      VersioningExtension((editor) =>
+        createInMemoryVersioningAdapter(editor, {
+          initialVersions: SAMPLE_HISTORY.map((version) => ({
+            name: version.name,
+            createdAt: Date.now() - version.daysAgo * DAY_MS,
+            // The store keeps `Block[]`; a headless editor fills in the block
+            // defaults the sample leaves out.
+            content: BlockNoteEditor.create({ initialContent: version.blocks })
+              .document,
+          })),
+        }),
+      ),
       // Opt into rendering version diffs: when comparing two versions the
       // sidebar shows insertions/deletions as attributed marks. Without this
       // extension the in-memory versioning falls back to a plain document swap.
@@ -48,19 +49,13 @@ export default function App() {
     ],
   });
 
-  const { previewedSnapshotId } = useExtensionState(VersioningExtension, {
-    editor,
-  });
-
   const [showSidebar, setShowSidebar] = useState(true);
 
   return (
     <div className="wrapper">
-      <BlockNoteView
-        editor={editor}
-        editable={previewedSnapshotId === undefined}
-        renderEditor={false}
-      >
+      {/* No `editable` prop: the sidebar makes the editor read-only for as
+          long as it's open, and restores it on close. */}
+      <BlockNoteView editor={editor} renderEditor={false}>
         <div className="layout">
           <div className="editor-panel">
             <BlockNoteViewEditor />
@@ -76,13 +71,41 @@ export default function App() {
           {showSidebar && (
             <div className={"sidebar-section"}>
               <VersioningSidebar
-                filter={"all"}
                 onClose={() => setShowSidebar(false)}
+                // Extend the row menu by composing it: the default items plus
+                // an app-specific one. Order is yours to choose.
+                snapshotMenu={
+                  <VersionMenu>
+                    <DefaultVersionMenuItems />
+                    <MakeCopyItem />
+                  </VersionMenu>
+                }
               />
             </div>
           )}
         </div>
       </BlockNoteView>
     </div>
+  );
+}
+
+/**
+ * An application-specific row action. `useVersionSnapshot()` hands it the row
+ * it was rendered in, so it needs no props — the sidebar knows nothing about it.
+ */
+function MakeCopyItem() {
+  const { snapshot, isCurrent } = useVersionSnapshot();
+
+  return (
+    <VersionMenuItem
+      icon={<RiFileCopyLine />}
+      onClick={() => {
+        window.alert(
+          `Would copy ${isCurrent ? "the current version" : (snapshot.name ?? new Date(snapshot.createdAt).toLocaleString())} into a new document.`,
+        );
+      }}
+    >
+      Make a copy
+    </VersionMenuItem>
   );
 }

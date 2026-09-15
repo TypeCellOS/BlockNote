@@ -205,8 +205,24 @@ export class StateManager {
       // not relevant on headless
       return;
     }
-    if (this.editor._tiptapEditor.options.editable !== editable) {
-      this.editor._tiptapEditor.setEditable(editable);
+    if (this.editor._tiptapEditor.options.editable === editable) {
+      return;
+    }
+    // Not through tiptap's `update` event: to every `onChange` subscriber that
+    // event means "the document changed", and nothing did. Dispatch an empty
+    // transaction instead, so a selector reading `isEditable` (the link
+    // toolbar's read-only gate, a host's own UI) sees the change through the
+    // same `transaction` event as any other state change — and nothing else
+    // fires.
+    this.editor._tiptapEditor.setEditable(editable, false);
+    this.notifyEditableChanged();
+  }
+
+  /** Recompute plugin editability and notify transaction subscribers. */
+  private notifyEditableChanged() {
+    const view = this.prosemirrorView;
+    if (view && !view.isDestroyed) {
+      this.transact((tr) => tr.setMeta("editable", true));
     }
   }
 

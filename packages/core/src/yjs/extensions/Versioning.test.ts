@@ -77,7 +77,7 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
       ctx.editor,
       ctx.collaborationOptions,
     );
-    adapter.preview.enterPreview(snapshotUpdate);
+    void adapter.preview.enterPreview(snapshotUpdate);
     expect(getEditorText(ctx.editor)).toBe("Version A");
   });
 
@@ -92,7 +92,7 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
       ctx.editor,
       ctx.collaborationOptions,
     );
-    adapter.preview.enterPreview(snapshotUpdate);
+    void adapter.preview.enterPreview(snapshotUpdate);
     expect(getEditorText(ctx.editor)).toBe("Version A");
 
     adapter.preview.exitPreview();
@@ -119,11 +119,11 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
     );
 
     // Preview A
-    adapter.preview.enterPreview(snapshotA);
+    void adapter.preview.enterPreview(snapshotA);
     expect(getEditorText(ctx.editor)).toBe("Snapshot A");
 
     // Switch to preview B without explicitly exiting
-    adapter.preview.enterPreview(snapshotB);
+    void adapter.preview.enterPreview(snapshotB);
     expect(getEditorText(ctx.editor)).toBe("Snapshot B");
 
     // Exit should restore live doc
@@ -161,17 +161,17 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
     expect(getDuplicateKeys()).toEqual([]);
 
     // First preview (fork)
-    adapter.preview.enterPreview(snapA);
+    void adapter.preview.enterPreview(snapA);
     expect(getDuplicateKeys()).toEqual([]);
     expect(getEditorText(ctx.editor)).toBe("Snap A");
 
     // Switch directly to second preview (merge + fork)
-    adapter.preview.enterPreview(snapB);
+    void adapter.preview.enterPreview(snapB);
     expect(getDuplicateKeys()).toEqual([]);
     expect(getEditorText(ctx.editor)).toBe("Snap B");
 
     // Third switch
-    adapter.preview.enterPreview(snapA);
+    void adapter.preview.enterPreview(snapA);
     expect(getDuplicateKeys()).toEqual([]);
     expect(getEditorText(ctx.editor)).toBe("Snap A");
 
@@ -205,7 +205,7 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
     const pluginCountBefore = ctx.editor.prosemirrorState.plugins.length;
 
     // Preview
-    adapter.preview.enterPreview(snapA);
+    void adapter.preview.enterPreview(snapA);
     expect(getDuplicateKeys()).toEqual([]);
 
     // Exit back to live
@@ -215,7 +215,7 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
     expect(ctx.editor.prosemirrorState.plugins.length).toBe(pluginCountBefore);
 
     // Preview again — this is the exact flow that triggers the browser bug
-    adapter.preview.enterPreview(snapA);
+    void adapter.preview.enterPreview(snapA);
     expect(getDuplicateKeys()).toEqual([]);
 
     // Exit again
@@ -224,22 +224,20 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
     expect(ctx.editor.prosemirrorState.plugins.length).toBe(pluginCountBefore);
 
     // One more round trip to be thorough
-    adapter.preview.enterPreview(snapA);
+    void adapter.preview.enterPreview(snapA);
     expect(getDuplicateKeys()).toEqual([]);
     adapter.preview.exitPreview();
     expect(getDuplicateKeys()).toEqual([]);
     expect(ctx.editor.prosemirrorState.plugins.length).toBe(pluginCountBefore);
   });
 
-  it("applyRestore throws not-yet-implemented error", () => {
+  it("omits applyRestore when restore is unavailable", () => {
     ctx = createCollabEditor();
     const adapter = createYjsVersioningAdapter(
       ctx.editor,
       ctx.collaborationOptions,
     );
-    expect(() => adapter.preview.applyRestore(new Uint8Array())).toThrow(
-      /not yet implemented/i,
-    );
+    expect(adapter.preview.applyRestore).toBeUndefined();
   });
 
   it("exitPreview is a no-op when not previewing", () => {
@@ -298,8 +296,7 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<
       id: string;
       name?: string;
       createdAt: number;
-      updatedAt: number;
-      restoredFromSnapshotId?: string;
+      restoredFrom?: { id: string; createdAt: number };
     }
   >();
   const contents = new Map<string, Uint8Array>();
@@ -315,27 +312,29 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<
   }
 
   return {
-    list: async () =>
-      [...snapshots.values()].sort((a, b) => b.createdAt - a.createdAt),
+    list: async () => ({
+      // The live document is the current version; the endpoints only store the
+      // named ones.
+      current: { id: "current", createdAt: nextTimestamp() },
+      snapshots: [...snapshots.values()].sort(
+        (a, b) => b.createdAt - a.createdAt,
+      ),
+    }),
     create: async (fragment, options) => {
       const now = nextTimestamp();
       const snapshot = {
         id: crypto.randomUUID(),
-        name: options?.name,
+        name: options.name,
         createdAt: now,
-        updatedAt: now,
-        restoredFromSnapshotId: options?.restoredFromSnapshot?.id
-          ? String(options.restoredFromSnapshot.id)
-          : undefined,
       };
       contents.set(snapshot.id, Y.encodeStateAsUpdate(fragment.doc!));
       snapshots.set(snapshot.id, snapshot);
       return snapshot;
     },
     getContent: async (snapshot) => {
-      const data = contents.get(String(snapshot.id));
+      const data = contents.get(snapshot.id);
       if (!data) {
-        throw new Error(`Snapshot ${String(snapshot.id)} not found`);
+        throw new Error(`Snapshot ${snapshot.id} not found`);
       }
       return data;
     },
@@ -345,21 +344,19 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<
         id: crypto.randomUUID(),
         name: "Backup",
         createdAt: backupTimestamp,
-        updatedAt: backupTimestamp,
       };
       contents.set(backup.id, Y.encodeStateAsUpdate(fragment.doc!));
       snapshots.set(backup.id, backup);
 
-      const snapshotContent = contents.get(String(snapshot.id))!;
+      const snapshotContent = contents.get(snapshot.id)!;
       return snapshotContent;
     },
     rename: async (snapshot, name) => {
-      const s = snapshots.get(String(snapshot.id));
+      const s = snapshots.get(snapshot.id);
       if (!s) {
-        throw new Error(`Snapshot ${String(snapshot.id)} not found`);
+        throw new Error(`Snapshot ${snapshot.id} not found`);
       }
       s.name = name;
-      s.updatedAt = nextTimestamp();
     },
   };
 }
@@ -416,8 +413,32 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
     setEditorText(ctx2.editor, "Current content");
 
     await versioning.previewSnapshot(snap.id);
-    expect(versioning.store.state.previewedSnapshotId).toBe(snap.id);
+    expect(versioning.store.state.view).toEqual({
+      mode: "snapshot",
+      snapshotId: snap.id,
+      compareToId: undefined,
+    });
     expect(getEditorText(ctx2.editor)).toBe("Snapshot content");
+  });
+
+  it("previews the current version, showing the live document", async () => {
+    ctx2 = createCollabEditorWithVersioning();
+    const versioning = ctx2.editor.getExtension(VersioningExtension)!;
+
+    setEditorText(ctx2.editor, "Snapshot content");
+    await versioning.create!({ name: "v1" });
+    setEditorText(ctx2.editor, "Current content");
+
+    // The live document is serialised and applied to the fork, so the update
+    // encoding has to match what the fork extension decodes.
+    await versioning.list();
+    await versioning.previewCurrentVersion!();
+    expect(versioning.store.state.view).toEqual({ mode: "current" });
+    expect(getEditorText(ctx2.editor)).toBe("Current content");
+
+    versioning.exitPreview();
+    expect(versioning.store.state.view).toEqual({ mode: "live" });
+    expect(getEditorText(ctx2.editor)).toBe("Current content");
   });
 
   it("exits preview and returns to live document", async () => {
@@ -433,7 +454,7 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
     versioning.exitPreview();
 
     expect(getEditorText(ctx2.editor)).toBe("Live state");
-    expect(versioning.store.state.previewedSnapshotId).toBeUndefined();
+    expect(versioning.store.state.view).toEqual({ mode: "live" });
   });
 
   it("full workflow: create multiple versions, preview, switch, exit", async () => {
@@ -451,7 +472,7 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
 
     // List
     const list = await versioning.list();
-    expect(list).toHaveLength(2);
+    expect(list.snapshots).toHaveLength(2);
 
     // Preview older, then switch to newer
     await versioning.previewSnapshot(v1.id);
@@ -557,5 +578,20 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
     // Clean exit
     versioning.exitPreview();
     expect(getDuplicateKeys()).toEqual([]);
+  });
+
+  it("locks the editor while previewing and unlocks on exit", async () => {
+    ctx2 = createCollabEditorWithVersioning();
+    const versioning = ctx2.editor.getExtension(VersioningExtension)!;
+
+    setEditorText(ctx2.editor, "Saved state");
+    const snap = await versioning.create!({ name: "v1" });
+    expect(ctx2.editor.isEditable).toBe(true);
+
+    await versioning.previewSnapshot(snap.id);
+    expect(ctx2.editor.isEditable).toBe(false);
+
+    versioning.exitPreview();
+    expect(ctx2.editor.isEditable).toBe(true);
   });
 });

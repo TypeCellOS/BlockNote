@@ -295,7 +295,8 @@ function makeAwareness(
  * transaction's inserts/deletes into a mutable `Y.Attributions`. A
  * `DiffRenderer` re-reads that same `attrs` object on each transaction
  * (via its own `beforeObserverCalls` handler), so the suggestion marks pick up
- * the author and render in their color (`colorsForUserIds` in YSync.ts).
+ * the author and render in their color (`colorsForUserIds` /
+ * `userMarkColors` in `user/userColors.ts`).
  *
  * Crucially this store's handler must run BEFORE the manager's, so it is
  * registered here and the caller creates the manager immediately afterwards

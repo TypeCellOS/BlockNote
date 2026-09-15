@@ -300,7 +300,8 @@ SideMenuController offsets its position to keep it centered on the line. */
  *
  * Resembles `.bn-threads-sidebar` above, but shares almost nothing with it
  * concretely: the shells have only `overflow: auto` in common (this one is a
- * flex *item* whose rows self-space via `margin-bottom`, not a flex column),
+ * flex *item* holding a header and a `role="listbox"` whose rows self-space via
+ * `margin-bottom`, not a flex column),
  * and the two selected states are deliberately different designs — a filled
  * accent with inverted text here, a pale tint with a saturated border there.
  * The row boxes look closer, but only against `.bn-mantine .bn-thread`:
@@ -317,6 +318,10 @@ SideMenuController offsets its position to keep it centered on the line. */
 }
 
 .bn-versioning-sidebar-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: var(--bn-colors-editor-background);
   align-items: center;
   display: flex;
   justify-content: space-between;
@@ -342,33 +347,49 @@ SideMenuController offsets its position to keep it centered on the line. */
   gap: 4px;
 }
 
-.bn-versioning-sidebar-tabs {
-  border-bottom: 1px solid var(--bn-colors-border);
+.bn-versioning-sidebar-list {
   display: flex;
-  gap: 4px;
-  margin-bottom: 8px;
+  flex-direction: column;
 }
 
-.bn-versioning-sidebar-tab {
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--bn-colors-menu-text);
-  cursor: pointer;
+.bn-versioning-sidebar-loading {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  padding-block: 24px;
+}
+
+.bn-versioning-sidebar-empty {
+  color: #6b7280;
   font-size: 13px;
-  font-weight: 500;
-  margin-bottom: -1px;
-  opacity: 0.6;
-  padding: 8px 4px;
+  padding-block: 12px;
+  text-align: center;
 }
 
-.bn-versioning-sidebar-tab:hover {
-  opacity: 0.85;
+.dark .bn-versioning-sidebar-empty {
+  color: #9ca3af;
 }
 
-.bn-versioning-sidebar-tab[aria-selected="true"] {
-  border-bottom-color: var(--bn-colors-menu-text);
-  opacity: 1;
+/* The generic "something failed" notice, shown until the next action succeeds. */
+.bn-versioning-sidebar-error {
+  color: #b42318;
+  font-size: 13px;
+  padding-block: 8px;
+}
+
+.dark .bn-versioning-sidebar-error {
+  color: #f97066;
+}
+
+/* Screen-reader-only text (the loading announcement). */
+.bn-visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
 
 .bn-snapshot {
@@ -394,18 +415,100 @@ SideMenuController offsets its position to keep it centered on the line. */
   background-color: var(--bn-colors-hovered-background);
 }
 
+/* The row's title: text on every row, a field on the selected one. */
 .bn-snapshot-name {
-  background: transparent;
-  border: none;
   color: inherit;
   font-size: 14px;
   font-weight: 700;
-  padding: 0;
+  line-height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Rows are listbox options reached with the arrow keys, so the focus ring is
+   the only thing telling a keyboard user where they are. */
+.bn-snapshot:focus-visible {
+  outline: 2px solid #3e5de7;
+  outline-offset: 2px;
+}
+
+/* The selected row is already filled with that indigo, so the ring goes inside
+   it in white instead of disappearing into the background. */
+.bn-versioning-sidebar .bn-snapshot.selected:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -4px;
+}
+
+/* Padded on the right so neither the title nor its field runs under the "..."
+   trigger, which sits in the row's top-right corner. */
+.bn-snapshot-title-row {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+  min-height: 20px;
+  min-width: 0;
+  padding-right: 20px;
+}
+
+/* Sizes the field to its text: the hidden mirror of the draft sets the width,
+   and the field fills it. Capped at the row, so a long name truncates rather
+   than pushing out. The negative margin is the field's own padding and border,
+   so its text lines up with the rest of the row. */
+.bn-snapshot-name-sizer {
+  display: inline-grid;
+  grid-template-columns: minmax(0, max-content);
+  margin: -2px -5px;
+  max-width: calc(100% + 10px);
+  min-width: 0;
+}
+
+.bn-snapshot-name-sizer::after {
+  border: 1px solid transparent;
+  content: attr(data-value) " ";
+  font-size: 14px;
+  font-weight: 700;
+  grid-area: 1 / 1;
+  line-height: 20px;
+  padding: 1px 4px;
+  visibility: hidden;
+  white-space: pre;
+}
+
+.bn-snapshot-name-sizer > .bn-snapshot-name {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  grid-area: 1 / 1;
+  margin: 0;
+  min-width: 0;
+  padding: 1px 4px;
   width: 100%;
 }
 
-.bn-snapshot-name:focus {
+/* An unnamed version shows its date (or "Current version") here, so the
+   placeholder has to read as the row's title, not as a hint. */
+.bn-snapshot-name::placeholder {
+  color: inherit;
+  opacity: 1;
+}
+
+/* Reads as plain text until you click it — the dotted underline and the caret
+   are what say it can be renamed at all. */
+.bn-snapshot-name-sizer > .bn-snapshot-name:hover {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.bn-snapshot-name-sizer > .bn-snapshot-name:focus {
+  border-color: #3e5de7;
   outline: none;
+  text-decoration: none;
+}
+
+.bn-versioning-sidebar .bn-snapshot.selected .bn-snapshot-name:focus {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .bn-snapshot-body {
@@ -445,6 +548,7 @@ SideMenuController offsets its position to keep it centered on the line. */
 }
 
 .bn-snapshot:hover .bn-snapshot-menu,
+.bn-snapshot:focus-visible .bn-snapshot-menu,
 .bn-snapshot:focus-within .bn-snapshot-menu {
   opacity: 1;
 }
@@ -491,6 +595,14 @@ SideMenuController offsets its position to keep it centered on the line. */
   color: #fff;
 }
 
+/* Both ends of a comparison share a colored border. A shadow thickens it
+   without changing the row's dimensions or replacing its keyboard focus ring. */
+.bn-versioning-sidebar .bn-snapshot-comparison-source,
+.bn-versioning-sidebar .bn-snapshot.comparing {
+  border-color: #3e5de7;
+  box-shadow: 0 0 0 1px #3e5de7;
+}
+
 /* Comparing-to (the diff baseline) — a subtle tint of the selected indigo. */
 .bn-versioning-sidebar .bn-snapshot.comparing {
   background-color: color-mix(
@@ -507,6 +619,10 @@ SideMenuController offsets its position to keep it centered on the line. */
   font-size: 13px;
   font-weight: 600;
   gap: 4px;
+}
+
+.bn-root[data-color-scheme="dark"] .bn-snapshot-comparing-to {
+  color: #9baeff;
 }
 
 /* Mobile formatting toolbar positioning */

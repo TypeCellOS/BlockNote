@@ -8,6 +8,7 @@ import {
 import {
   colorsForUserIds,
   userColorVarNames,
+  userMarkColors,
   normalizeToUserStore,
   type UserStoreOrResolver,
 } from "../../user/index.js";
@@ -213,9 +214,10 @@ export const AttributionExtension = createExtension(
         const syncRootVars = () => {
           for (const [id, user] of userStore.store.state) {
             const { light, dark } = userColorVarNames(id);
-            if (user.color && user.colorLight) {
-              dom.style.setProperty(light, user.colorLight);
-              dom.style.setProperty(dark, user.color);
+            const colors = userMarkColors(user);
+            if (colors) {
+              dom.style.setProperty(light, colors.light);
+              dom.style.setProperty(dark, colors.dark);
             } else {
               dom.style.removeProperty(light);
               dom.style.removeProperty(dark);

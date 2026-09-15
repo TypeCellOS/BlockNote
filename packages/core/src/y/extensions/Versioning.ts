@@ -40,18 +40,22 @@ export function createYjsVersioningAdapter(
   serializeCurrentContent: () => Uint8Array;
 } {
   return {
-    getCurrentDocument: () => fragment,
+    getCurrentDocument() {
+      return fragment;
+    },
     // Serialise the live document as a V2 update — the same format that
     // `getContent` returns (via `convertUpdateFormatV1ToV2`) and that
     // `enterPreview` consumes (`applyUpdateV2`). Used to render a read-only
     // diff of the live document against a snapshot.
-    serializeCurrentContent: () => Y.encodeStateAsUpdateV2(fragment.doc!),
+    serializeCurrentContent() {
+      return Y.encodeStateAsUpdateV2(fragment.doc!);
+    },
     preview: {
-      enterPreview: (
+      enterPreview(
         snapshotContent: Uint8Array,
         compareToContent?: Uint8Array,
         attributions?: Y.ContentMap,
-      ) => {
+      ) {
         let prevSnapshot: { fragment: Y.Type } | undefined;
         if (compareToContent) {
           const compareToDoc = new Y.Doc({ isSuggestionDoc: true });
@@ -90,14 +94,14 @@ export function createYjsVersioningAdapter(
           return true;
         });
       },
-      exitPreview: () => {
+      exitPreview() {
         // Empty the document before reconfiguring so ProseMirror rebuilds node
         // views from scratch instead of reusing stale-positioned ones. See
         // clearDocumentForConfigure.
         clearDocumentForConfigure(editor);
         editor.exec(configureYProsemirror({ ytype: fragment }));
       },
-      applyRestore: (_snapshotContent: Uint8Array) => {
+      applyRestore(_snapshotContent: Uint8Array) {
         // For Yjs-backed versioning, restoration happens on the server (e.g.
         // YHub's `/rollback` endpoint) which publishes a reverting update to
         // the document's room. That update propagates back to this client over

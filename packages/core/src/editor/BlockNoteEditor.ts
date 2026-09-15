@@ -1040,6 +1040,8 @@ export class BlockNoteEditor<
 
   /**
    * Makes the editor editable or locks it, depending on the argument passed.
+   * Plugins can temporarily prevent editing without changing this setting.
+   * The getter reports whether editing is currently allowed by both.
    * @param editable True to make the editor editable, or false to lock it.
    */
   public set isEditable(editable: boolean) {
