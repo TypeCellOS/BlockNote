@@ -9,6 +9,12 @@ import { generateRandomId } from "./utils.js";
 import { LoginScreen } from "./LoginScreen.js";
 import { DocumentList } from "./DocumentList.js";
 import { DocumentEditor } from "./DocumentEditor.js";
+import { SAMPLE_DOCUMENT_TITLE, seedSampleDocument } from "./sampleDocument.js";
+import { YHUB_API_URL } from "./yhub.js";
+
+// Set once the sample document has been created, so deleting every document
+// leaves the workspace empty rather than bringing the sample back.
+const SEEDED_KEY = "bn-multi-doc-seeded";
 
 export default function App() {
   const user = useCurrentUser();
@@ -53,6 +59,39 @@ function Workspace({
   const index = useDocIndex();
   const activeDoc = docId ? index.docs.find((d) => d.id === docId) : null;
   const [copied, setCopied] = useState(false);
+
+  // A first visit gets a sample document with a few versions in its history,
+  // so the history sidebar has something to show before anyone has edited.
+  const [seeding, setSeeding] = useState(false);
+  const seedStartedRef = useRef(false);
+  useEffect(() => {
+    if (
+      docId ||
+      index.docs.length > 0 ||
+      localStorage.getItem(SEEDED_KEY) ||
+      seedStartedRef.current
+    ) {
+      return;
+    }
+    seedStartedRef.current = true;
+    setSeeding(true);
+    const id = index.create(SAMPLE_DOCUMENT_TITLE);
+    void seedSampleDocument({
+      baseUrl: YHUB_API_URL,
+      org: workspaceId,
+      docId: id,
+    })
+      .then(() => {
+        localStorage.setItem(SEEDED_KEY, "1");
+        navigate(`/w/${workspaceId}/${id}`);
+      })
+      .catch((error: unknown) => {
+        // The document still exists, just without history. Say so in the
+        // console; the demo carries on with an empty document.
+        console.error("Could not seed the sample document", error);
+      })
+      .finally(() => setSeeding(false));
+  }, [docId, index, workspaceId]);
 
   // A shared doc URL can reference a doc this browser has never seen (the
   // index is localStorage-only). Register it so the editor mounts and syncs
@@ -134,7 +173,9 @@ function Workspace({
           workspaceId={workspaceId}
           activeDocId={docId}
         />
-        {activeDoc ? (
+        {seeding ? (
+          <div className="page-loading">Preparing a sample document…</div>
+        ) : activeDoc ? (
           <DocumentEditor
             key={activeDoc.id + user.id}
             workspaceId={workspaceId}

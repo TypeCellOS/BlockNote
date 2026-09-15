@@ -1,33 +1,11 @@
 import { VersioningSidebar } from "@blocknote/react";
-import { useState } from "react";
 
-import { SettingsSelect } from "./SettingsSelect";
-
-export const VersionHistorySidebar = () => {
-  const [filter, setFilter] = useState<"named" | "all">("all");
-
+export const VersionHistorySidebar = ({ onClose }: { onClose: () => void }) => {
   return (
     <div className={"sidebar-section"}>
-      <div className={"settings"}>
-        <SettingsSelect
-          label={"Filter"}
-          items={[
-            {
-              text: "All",
-              icon: null,
-              onClick: () => setFilter("all"),
-              isSelected: filter === "all",
-            },
-            {
-              text: "Named",
-              icon: null,
-              onClick: () => setFilter("named"),
-              isSelected: filter === "named",
-            },
-          ]}
-        />
-      </div>
-      <VersioningSidebar filter={filter} />
+      {/* Filtering to named versions is built in — the sidebar's own header
+          toggle drives it. The header's close button calls `onClose`. */}
+      <VersioningSidebar onClose={onClose} />
     </div>
   );
 };

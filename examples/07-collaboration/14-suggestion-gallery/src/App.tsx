@@ -35,8 +35,8 @@ function makeAwareness(doc: Y.Doc, name: string, color: string): Awareness {
 // Hardcoded to match the attribution-mark palette (the colors BlockNote derives
 // per author id "A" / "B"), so a user's pane chrome matches their color in the
 // Diff / Merged panes.
-const USER_A = { name: "User A", color: "#8a6d1a" };
-const USER_B = { name: "User B", color: "#8a2e24" };
+const USER_A = { name: "User A", color: "#46525f" };
+const USER_B = { name: "User B", color: "#8a6d1a" };
 
 type Renderer = ReturnType<typeof Y.createDiffRenderer>;
 
