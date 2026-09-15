@@ -435,5 +435,6 @@ export const is: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "Í lagi",
   },
 };

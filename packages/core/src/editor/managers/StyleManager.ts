@@ -183,7 +183,13 @@ export class StyleManager<
    */
   public getSelectedLinkUrl() {
     return this.editor.transact((tr) => {
-      return this.getLinkMarkAtPos(tr.selection.from)?.href;
+      // `from + 1` for the same boundary reason as `editLink` below: at the
+      // left edge of a link (e.g. when the whole link is selected), the mark
+      // lookup at `from` itself misses the mark and the link's URL would
+      // incorrectly read as absent.
+      return this.getLinkMarkAtPos(
+        Math.min(tr.selection.from + 1, tr.doc.content.size),
+      )?.href;
     });
   }
 

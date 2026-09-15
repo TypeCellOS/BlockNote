@@ -10,7 +10,7 @@ import {
   usePortalElement,
 } from "@blocknote/react";
 import { afterEach, describe, expect, test, vi } from "vite-plus/test";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
@@ -204,6 +204,53 @@ describe("Portal elements", () => {
     // editor instead of spilling over the sidebar next to it.
     expect(pane.contains(menu)).toBe(true);
     expect(editor.isWithinEditor(menu)).toBe(true);
+  });
+
+  // A parent's layout effect runs after its children's: a child that portals
+  // into the override root and checks its DOM in its own layout effect must
+  // not find it detached (Ariakit does that when choosing where to mount a
+  // popover, and moves a detached element to `document.body`).
+  test("has an override root in the document before its children's layout effects run", async () => {
+    const target = createPortalTarget("portal-target");
+    const seen: { connected: boolean; registered: boolean }[] = [];
+    let editor: BlockNoteEditor | undefined;
+
+    function Probe() {
+      const portalElement = usePortalElement();
+      const ref = useRef<HTMLDivElement>(null);
+      useLayoutEffect(() => {
+        seen.push({
+          connected: ref.current?.isConnected ?? false,
+          registered: editor?.isWithinEditor(ref.current!) ?? false,
+        });
+      }, []);
+      if (!portalElement) {
+        return null;
+      }
+      return createPortal(<div ref={ref} data-test="probe" />, portalElement);
+    }
+
+    function App() {
+      const created = useCreateBlockNote();
+      editor = created;
+      return (
+        <BlockNoteView editor={created} renderEditor={false}>
+          <BlockNoteViewEditor />
+          <PortalElementOverride target={target}>
+            <Probe />
+          </PortalElementOverride>
+        </BlockNoteView>
+      );
+    }
+
+    await render(<App />);
+    await waitForSelector("[data-test=probe]");
+
+    expect(seen.length).toBeGreaterThan(0);
+    expect(seen[0]).toEqual({ connected: true, registered: true });
+    expect(target.contains(document.querySelector("[data-test=probe]"))).toBe(
+      true,
+    );
   });
 
   // A view rendered inside another view's portalled UI, as the comments

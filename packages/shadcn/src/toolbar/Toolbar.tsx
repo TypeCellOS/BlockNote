@@ -1,7 +1,12 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, usePortalElement } from "@blocknote/react";
-import { forwardRef } from "react";
+import {
+  ComponentProps,
+  preventFocusOnTap,
+  usePortalElement,
+} from "@blocknote/react";
+import { forwardRef, type HTMLAttributes, type MouseEvent } from "react";
 
+import { preventFocusOnOpenProps } from "../lib/preventFocusOnOpen.js";
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
@@ -41,7 +46,12 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   },
 );
 
-type ToolbarButtonProps = ComponentProps["Generic"]["Toolbar"]["Button"];
+// Base UI merges its own props into a `render` element (the trigger's HTML
+// attributes, handlers and ref). This button is the render element of the
+// tooltip, menu and popover triggers, so it receives those on top of the
+// generic Button props.
+type ToolbarButtonProps = ComponentProps["Generic"]["Toolbar"]["Button"] &
+  HTMLAttributes<HTMLButtonElement>;
 
 export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   (props, ref) => {
@@ -56,12 +66,17 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       onClick,
       label,
       variant,
+      onMouseDown: triggerMouseDown,
       ...rest
     } = props;
 
-    // false, because rest props can be added by shadcn when button is used as a trigger
-    // assertEmpty in this case is only used at typescript level, not runtime level
-    assertEmpty(rest, false);
+    // Every generic prop is taken above, so only what Base UI injected may
+    // remain: a forgotten generic prop fails to compile here. Type-level only;
+    // at runtime the injected attributes are expected.
+    assertEmpty(
+      rest as Omit<typeof rest, keyof HTMLAttributes<HTMLButtonElement>>,
+      false,
+    );
 
     const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -74,6 +89,11 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     // (ideally skin components don't have a dependency on the editor's context)
 
     const portalElement = usePortalElement();
+
+    const onMouseDown = (e: MouseEvent<HTMLButtonElement>) => {
+      preventFocusOnTap(e);
+      triggerMouseDown?.(e);
+    };
 
     const trigger =
       isSelected === undefined ? (
@@ -89,6 +109,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           ref={ref}
           aria-label={label}
           {...rest}
+          onMouseDown={onMouseDown}
         >
           {icon}
           {children}
@@ -107,6 +128,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           disabled={isDisabled}
           ref={ref}
           {...rest}
+          onMouseDown={onMouseDown}
         >
           {icon}
           {children}
@@ -137,9 +159,8 @@ export const ToolbarSelect = forwardRef<
     items,
     isDisabled,
     portalElement,
-    // base-ui manages select focus itself; unlike Mantine there is no focus to
-    // suppress, so this is intentionally unused.
-    preventFocusOnOpen: _preventFocusOnOpen,
+    // Base UI has no `initialFocus` on Select; see lib/preventFocusOnOpen.ts.
+    preventFocusOnOpen,
     ...rest
   } = props;
 
@@ -169,7 +190,11 @@ export const ToolbarSelect = forwardRef<
       }
       disabled={isDisabled}
     >
-      <ShadCNComponents.Select.SelectTrigger className={"border-none"}>
+      <ShadCNComponents.Select.SelectTrigger
+        className={"border-none"}
+        // How-to-test: without it, tapping the block type select focuses the button and closes the keyboard (covered by skinFocus, android, shadcn: "opening the block type select keeps focus in the editor").
+        onMouseDown={preventFocusOnTap}
+      >
         <ShadCNComponents.Select.SelectValue />
       </ShadCNComponents.Select.SelectTrigger>
       <ShadCNComponents.Select.SelectContent
@@ -180,12 +205,16 @@ export const ToolbarSelect = forwardRef<
         // default).
         alignItemWithTrigger={false}
         ref={ref}
+        // How-to-test: without it, opening the block type select focuses the listbox and closes the keyboard (covered by skinFocus, android, shadcn: "opening the block type select keeps focus in the editor").
+        {...preventFocusOnOpenProps(preventFocusOnOpen ?? false)}
       >
         {items.map((item) => (
           <ShadCNComponents.Select.SelectItem
             disabled={item.isDisabled}
             key={item.text}
             value={item.text}
+            // How-to-test: without it, tapping a block type focuses the option and closes the keyboard (covered by skinFocus, android, shadcn: "picking from the block type select leaves focus in the editor").
+            onMouseDown={preventFocusOnTap}
           >
             <SelectItemContent {...item} />
           </ShadCNComponents.Select.SelectItem>

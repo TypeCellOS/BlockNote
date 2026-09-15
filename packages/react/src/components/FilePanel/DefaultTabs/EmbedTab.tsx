@@ -7,7 +7,7 @@ import {
   StyleSchema,
   filenameFromURL,
 } from "@blocknote/core";
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import { ChangeEvent, useCallback, useState } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
@@ -37,25 +37,7 @@ export const EmbedTab = <
     [],
   );
 
-  const handleURLEnter = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
-        event.preventDefault();
-        if (!editor.getBlock(props.blockId)) {
-          return;
-        }
-        editor.updateBlock(props.blockId, {
-          props: {
-            name: filenameFromURL(currentURL),
-            url: currentURL,
-          } as any,
-        });
-      }
-    },
-    [editor, props.blockId, currentURL],
-  );
-
-  const handleURLClick = useCallback(() => {
+  const handleSubmit = useCallback(() => {
     if (!editor.getBlock(props.blockId)) {
       return;
     }
@@ -73,22 +55,33 @@ export const EmbedTab = <
 
   return (
     <Components.FilePanel.TabPanel className={"bn-tab-panel"}>
-      <Components.FilePanel.TextInput
-        className={"bn-text-input"}
-        placeholder={dict.file_panel.embed.url_placeholder}
-        value={currentURL}
-        onChange={handleURLChange}
-        onKeyDown={handleURLEnter}
-        data-test={"embed-input"}
-      />
-      <Components.FilePanel.Button
-        className={"bn-button"}
-        onClick={handleURLClick}
-        data-test="embed-input-button"
+      {/*
+        The visible embed button IS the form's submit control: one commit
+        path (the form's `submit` event) whether it is clicked, Enter is
+        pressed, or a mobile IME's action key fires — and one labelled
+        action for assistive technology.
+      */}
+      <Components.Generic.Form.Root
+        onSubmit={handleSubmit}
+        submitButton={
+          <Components.FilePanel.Button
+            className={"bn-button"}
+            type={"submit"}
+            data-test="embed-input-button"
+          >
+            {dict.file_panel.embed.embed_button[block.type] ||
+              dict.file_panel.embed.embed_button["file"]}
+          </Components.FilePanel.Button>
+        }
       >
-        {dict.file_panel.embed.embed_button[block.type] ||
-          dict.file_panel.embed.embed_button["file"]}
-      </Components.FilePanel.Button>
+        <Components.FilePanel.TextInput
+          className={"bn-text-input"}
+          placeholder={dict.file_panel.embed.url_placeholder}
+          value={currentURL}
+          onChange={handleURLChange}
+          data-test={"embed-input"}
+        />
+      </Components.Generic.Form.Root>
     </Components.FilePanel.TabPanel>
   );
 };

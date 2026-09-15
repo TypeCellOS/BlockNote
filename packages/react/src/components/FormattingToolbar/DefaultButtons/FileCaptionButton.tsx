@@ -5,12 +5,12 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import { ChangeEvent, useCallback, useState } from "react";
 import { RiInputField } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { usePortalElement } from "../../../editor/PortalElementOverride.js";
-import { useUIMode } from "../../../editor/UIModeContext.js";
+import { ScreenReaderOnlySubmit } from "../../Form/ScreenReaderOnlySubmit.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -18,7 +18,6 @@ import { useDictionary } from "../../../i18n/dictionary.js";
 export const FileCaptionButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
-  const uiMode = useUIMode();
   const portalElement = usePortalElement();
 
   const editor = useBlockNoteEditor<
@@ -90,16 +89,6 @@ export const FileCaptionButton = () => {
     [block, editor],
   );
 
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
-        event.preventDefault();
-        setPopoverOpen(false);
-      }
-    },
-    [setPopoverOpen],
-  );
-
   if (block === undefined) {
     return null;
   }
@@ -110,12 +99,7 @@ export const FileCaptionButton = () => {
       onOpenChange={setPopoverOpen}
       // Portal the popover into the editor's themed portal target so it
       // inherits styling and escapes any scroll-container overflow clipping.
-      // On mobile that target is the toolbar's body-level container (see
-      // `MobileFormattingToolbarController`), and `preventFocusOnOpen` stops
-      // focus moving into the popover, which would blur the editor and dismiss
-      // the on-screen keyboard.
       portalElement={portalElement}
-      preventFocusOnOpen={uiMode === "mobile"}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
@@ -130,14 +114,16 @@ export const FileCaptionButton = () => {
         className={"bn-popover-content bn-form-popover"}
         variant={"form-popover"}
       >
-        <Components.Generic.Form.Root>
+        <Components.Generic.Form.Root
+          onSubmit={() => setPopoverOpen(false)}
+          submitButton={<ScreenReaderOnlySubmit />}
+        >
           <Components.Generic.Form.TextInput
             name={"file-caption"}
             icon={<RiInputField />}
             value={block.props.caption}
             autoFocus={true}
             placeholder={dict.formatting_toolbar.file_caption.input_placeholder}
-            onKeyDown={handleKeyDown}
             onChange={handleChange}
           />
         </Components.Generic.Form.Root>
