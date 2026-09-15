@@ -18,6 +18,10 @@ import { fixColumnList } from "../../../api/blockManipulation/commands/replaceBl
 import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
+  getBlockContentRange,
+  getWholeDocTextSelection,
+} from "../../../api/blockManipulation/selections/selection.js";
+import {
   getBlockInfoFromResolvedPos,
   getBlockInfoFromSelection,
 } from "../../../api/getBlockInfoFromPos.js";
@@ -997,6 +1001,41 @@ export const KeyboardShortcutsExtension = Extension.create<{
       "Mod-z": () => this.options.editor.undo(),
       "Mod-y": () => this.options.editor.redo(),
       "Shift-Mod-z": () => this.options.editor.redo(),
+      "Mod-a": () => {
+        const view = this.editor.view;
+        const { doc, selection, tr } = view.state;
+
+        // Follows Notion: the first Mod-a selects the current block's
+        // content, and any subsequent Mod-a expands to the whole document.
+        // TextSelection (not AllSelection) so from/to stay inside blocks —
+        // getBlock etc. keep working.
+        //
+        // Table ranges use the first/last cell text positions; a naive
+        // beforePos+1/afterPos-1 on the table node is not a valid text
+        // range. Whole-doc selection uses TextSelection.create so it
+        // survives tableEditing's normalizeSelection.
+        const blockInfo = getBlockInfoFromSelection(view.state);
+        const blockContentRange = getBlockContentRange(doc, blockInfo);
+
+        const selectWholeDoc =
+          blockContentRange === undefined ||
+          selection.from < blockContentRange.from ||
+          selection.to > blockContentRange.to ||
+          (selection.from === blockContentRange.from &&
+            selection.to === blockContentRange.to);
+
+        const nextSelection = selectWholeDoc
+          ? getWholeDocTextSelection(doc)
+          : TextSelection.create(
+              doc,
+              blockContentRange.from,
+              blockContentRange.to,
+            );
+
+        view.dispatch(tr.setSelection(nextSelection));
+
+        return true;
+      },
     };
   },
 });

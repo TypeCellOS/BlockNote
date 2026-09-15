@@ -7,8 +7,8 @@ import {
   moveCellForward,
   nextCell,
   selectionCell,
-  tableEditing,
 } from "prosemirror-tables";
+import { tableEditingWithCrossBlockSelection } from "./tableEditingWithCrossBlockSelection.js";
 
 export const RESIZE_MIN_WIDTH = 35;
 export const EMPTY_CELL_WIDTH = 120;
@@ -27,7 +27,7 @@ export const TableExtension = Extension.create({
         // but is wrapped in a `blockContent` HTML element.
         View: null,
       }),
-      tableEditing(),
+      tableEditingWithCrossBlockSelection(),
     ];
   },
 
