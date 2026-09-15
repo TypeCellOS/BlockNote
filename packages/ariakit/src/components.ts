@@ -95,6 +95,9 @@ export const components: Components = {
   Versioning: {
     Sidebar: VersioningSidebar,
     Snapshot: VersioningSnapshot,
+    // The sidebar's loader is the same dots/spinner as the suggestion menu's —
+    // one spinner per UI package, not one per feature.
+    Loader: SuggestionMenuLoader,
   },
   Generic: {
     Badge: {
