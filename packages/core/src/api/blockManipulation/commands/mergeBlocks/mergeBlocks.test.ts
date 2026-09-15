@@ -18,6 +18,13 @@ function getPosBeforeSelectedBlock() {
   );
 }
 
+type Document = ReturnType<typeof getEditor>["document"];
+
+// Block ids with their nesting, e.g. [["a", [["b", []]]]].
+function outline(blocks: Document): unknown[] {
+  return blocks.map((block) => [block.id, outline(block.children)]);
+}
+
 describe("Test mergeBlocks", () => {
   it("Basic", () => {
     getEditor().setTextCursorPosition("paragraph-1");
@@ -41,6 +48,79 @@ describe("Test mergeBlocks", () => {
     mergeBlocks(getPosBeforeSelectedBlock());
 
     expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Second block has children, first block is nested", () => {
+    getEditor().replaceBlocks(getEditor().document, [
+      {
+        id: "a",
+        type: "bulletListItem",
+        content: "A",
+        children: [{ id: "b", type: "bulletListItem", content: "B" }],
+      },
+      {
+        id: "c",
+        type: "paragraph",
+        content: "C",
+        children: [{ id: "d", type: "bulletListItem", content: "D" }],
+      },
+    ]);
+    getEditor().setTextCursorPosition("c");
+
+    mergeBlocks(getPosBeforeSelectedBlock());
+
+    expect(outline(getEditor().document)).toEqual([
+      [
+        "a",
+        [
+          ["b", []],
+          ["d", []],
+        ],
+      ],
+    ]);
+    expect(getEditor().getBlock("b")?.content).toEqual([
+      { type: "text", text: "BC", styles: {} },
+    ]);
+  });
+
+  it("Second block has children, first block is nested twice", () => {
+    getEditor().replaceBlocks(getEditor().document, [
+      {
+        id: "a",
+        type: "bulletListItem",
+        content: "A",
+        children: [
+          {
+            id: "b",
+            type: "bulletListItem",
+            content: "B",
+            children: [{ id: "e", type: "bulletListItem", content: "E" }],
+          },
+        ],
+      },
+      {
+        id: "c",
+        type: "paragraph",
+        content: "C",
+        children: [{ id: "d", type: "bulletListItem", content: "D" }],
+      },
+    ]);
+    getEditor().setTextCursorPosition("c");
+
+    mergeBlocks(getPosBeforeSelectedBlock());
+
+    expect(outline(getEditor().document)).toEqual([
+      [
+        "a",
+        [
+          ["b", [["e", []]]],
+          ["d", []],
+        ],
+      ],
+    ]);
+    expect(getEditor().getBlock("e")?.content).toEqual([
+      { type: "text", text: "EC", styles: {} },
+    ]);
   });
 
   it("Second block is empty", () => {
