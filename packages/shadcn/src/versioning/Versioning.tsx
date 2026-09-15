@@ -26,9 +26,14 @@ export const Snapshot = forwardRef<
 >((props, ref) => {
   const {
     className,
+    id,
     selected,
     comparing,
+    tabIndex,
+    "aria-busy": ariaBusy,
     onClick,
+    onKeyDown,
+    onFocus,
     actions,
     children,
     ...rest
@@ -51,17 +56,26 @@ export const Snapshot = forwardRef<
         comparing ? "comparing" : "",
         "gap-0 rounded-lg py-0 shadow-none",
       )}
+      id={id}
+      role="listitem"
+      aria-current={selected ? "true" : undefined}
+      aria-busy={ariaBusy}
+      tabIndex={tabIndex}
       onClick={onClick}
+      onKeyDown={onKeyDown}
+      onFocus={onFocus}
       ref={ref}
     >
       {children}
       {actions && (
         // Isolate the actions area so clicks on the menu (trigger and items,
         // which render inline rather than in a portal) don't bubble to the
-        // row's select handler.
+        // row's select handler, and so its own keyboard handling isn't eaten
+        // by the list's arrow-key navigation.
         <div
           className={"bn-snapshot-menu"}
           onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
         >
           {actions}
         </div>
