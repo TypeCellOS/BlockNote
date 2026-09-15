@@ -141,9 +141,11 @@ export async function seedSampleDocument(options: {
       .prosemirrorState.doc;
     const at = Math.floor(Date.now() - version.daysAgo * DAY_MS);
     ydoc.transact(() => {
-      fragment.applyDelta(
-        (previous ? docDiffToDelta(previous, pmDoc) : docToDelta(pmDoc)) as any,
-      );
+      if (previous) {
+        fragment.applyDelta(docDiffToDelta(previous, pmDoc));
+      } else {
+        fragment.applyDelta(docToDelta(pmDoc));
+      }
       if (version.name !== undefined) {
         versions.push([{ id: at, name: version.name }] as never);
       }
