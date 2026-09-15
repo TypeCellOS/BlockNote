@@ -169,7 +169,7 @@ export function getDefaultExtensions(
     LinkToolbarExtension(options),
     NodeSelectionKeyboardExtension(),
     PlaceholderExtension(options),
-    ReadOnlyExtension(),
+    ReadOnlyExtension({ editable: options._tiptapOptions?.editable }),
     ShowSelectionExtension(options),
     SideMenuExtension(options),
     SourceBlockWithPreviewExtension(),

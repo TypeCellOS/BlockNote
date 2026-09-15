@@ -1,4 +1,5 @@
 import { Command, Transaction } from "prosemirror-state";
+import { ReadOnlyExtension } from "../../extensions/ReadOnly/ReadOnly.js";
 import type { HistoryExtension } from "../../extensions/History/History.js";
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
 
@@ -188,13 +189,11 @@ export class StateManager {
       }
       return false;
     }
-    return this.editor._tiptapEditor.isEditable === undefined
-      ? true
-      : this.editor._tiptapEditor.isEditable;
+    return this.editor._tiptapEditor.isEditable;
   }
 
   /**
-   * Makes the editor editable or locks it, depending on the argument passed.
+   * Sets the application's editable preference without releasing feature restrictions.
    * @param editable True to make the editor editable, or false to lock it.
    */
   public set isEditable(editable: boolean) {
@@ -205,25 +204,9 @@ export class StateManager {
       // not relevant on headless
       return;
     }
-    if (this.editor._tiptapEditor.options.editable === editable) {
-      return;
-    }
-    // Not through tiptap's `update` event: to every `onChange` subscriber that
-    // event means "the document changed", and nothing did. Dispatch an empty
-    // transaction instead, so a selector reading `isEditable` (the link
-    // toolbar's read-only gate, a host's own UI) sees the change through the
-    // same `transaction` event as any other state change — and nothing else
-    // fires.
-    this.editor._tiptapEditor.setEditable(editable, false);
-    this.notifyEditableChanged();
-  }
-
-  /** Recompute plugin editability and notify transaction subscribers. */
-  private notifyEditableChanged() {
-    const view = this.prosemirrorView;
-    if (view && !view.isDestroyed) {
-      this.transact((tr) => tr.setMeta("editable", true));
-    }
+    this.editor
+      .getExtension(ReadOnlyExtension)!
+      .setApplicationEditable(editable);
   }
 
   /**

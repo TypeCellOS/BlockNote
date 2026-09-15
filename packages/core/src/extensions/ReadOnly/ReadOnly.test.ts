@@ -70,6 +70,45 @@ describe("ReadOnlyExtension", () => {
     expect(changes).not.toHaveBeenCalled();
   });
 
+  it("uses editable metadata for both inputs and skips changes that keep editing locked", () => {
+    const metadata: unknown[] = [];
+    const changes = vi.fn();
+    editor.onChange(changes);
+    editor._tiptapEditor.on("transaction", ({ transaction }) => {
+      metadata.push(transaction.getMeta("editable"));
+    });
+
+    editor.isEditable = false;
+    expect(metadata.filter((value) => value !== undefined)).toEqual([true]);
+    metadata.length = 0;
+    readOnly.setReadOnly(true, "preview");
+    editor.isEditable = true;
+    readOnly.setReadOnly(true, "upload");
+    readOnly.setReadOnly(false, "preview");
+    expect(metadata).toEqual([]);
+    expect(editor.isEditable).toBe(false);
+
+    readOnly.setReadOnly(false, "upload");
+    expect(metadata.filter((value) => value !== undefined)).toEqual([true]);
+    expect(editor.isEditable).toBe(true);
+    expect(changes).not.toHaveBeenCalled();
+  });
+
+  it("applies initial editability and preserves it across remounts", () => {
+    editor.unmount();
+    editor = BlockNoteEditor.create({ _tiptapOptions: { editable: false } });
+    editor.mount(document.createElement("div"));
+    expect(editor.isEditable).toBe(false);
+    expect(editor.prosemirrorView.editable).toBe(false);
+
+    editor.isEditable = true;
+    expect(editor.isEditable).toBe(true);
+    editor.isEditable = false;
+    editor.unmount();
+    editor.mount(document.createElement("div"));
+    expect(editor.prosemirrorView.editable).toBe(false);
+  });
+
   it("groups application editability changes into the pending transaction", () => {
     const transactions = vi.fn();
     const changes = vi.fn();
