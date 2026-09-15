@@ -13,6 +13,7 @@ import {
   DefaultVersionMenuItems,
   RestoreVersionItem,
   useRestoreVersionAction,
+  usePreviewRow,
   useVersionSnapshot,
   VersioningSidebar,
   VersionMenu,
@@ -369,6 +370,40 @@ describe("VersioningSidebar", () => {
     expect(versioning.store.state.view).toEqual({
       mode: "current",
       compareToId: NAMED.id,
+    });
+  });
+
+  it("does not compare a row excluded from the requested filter against the newest snapshot", async () => {
+    function PreviewNamedHistoryItem() {
+      const { snapshot } = useVersionSnapshot();
+      const previewRow = usePreviewRow();
+      return (
+        <VersionMenuItem
+          onClick={() =>
+            previewRow(snapshot, {
+              namedOnly: true,
+              compareTo: { type: "previous" },
+            })
+          }
+        >
+          Preview named history
+        </VersionMenuItem>
+      );
+    }
+    const { editor } = await setup({
+      snapshotMenu: (
+        <VersionMenu>
+          <PreviewNamedHistoryItem />
+        </VersionMenu>
+      ),
+    });
+    await click(await openMenuItem(rows()[2]!, /^Preview named history$/));
+    expect(
+      editor.getExtension(VersioningExtension)!.store.state.view,
+    ).toMatchObject({
+      mode: "snapshot",
+      snapshotId: AUTOMATIC.id,
+      compareToId: undefined,
     });
   });
 

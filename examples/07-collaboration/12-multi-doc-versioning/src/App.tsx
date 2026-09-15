@@ -9,7 +9,11 @@ import { generateRandomId } from "./utils.js";
 import { LoginScreen } from "./LoginScreen.js";
 import { DocumentList } from "./DocumentList.js";
 import { DocumentEditor } from "./DocumentEditor.js";
-import { SAMPLE_DOCUMENT_TITLE, seedSampleDocument } from "./sampleDocument.js";
+import {
+  SAMPLE_DOCUMENT_TITLE,
+  seedSampleDocument,
+  hasPendingSampleDocument,
+} from "./sampleDocument.js";
 import { YHUB_API_URL } from "./yhub.js";
 
 // Set once the sample document has been created, so deleting every document
@@ -62,36 +66,41 @@ function Workspace({
 
   // A first visit gets a sample document with a few versions in its history,
   // so the history sidebar has something to show before anyone has edited.
-  const [seeding, setSeeding] = useState(false);
+  const [seedStatus, setSeedStatus] = useState<"idle" | "seeding" | "failed">(
+    "idle",
+  );
+  const [seedAttempt, setSeedAttempt] = useState(0);
   const seedStartedRef = useRef(false);
   useEffect(() => {
     if (
       docId ||
-      index.docs.length > 0 ||
+      (index.docs.length > 0 &&
+        !hasPendingSampleDocument({
+          baseUrl: YHUB_API_URL,
+          org: workspaceId,
+        })) ||
       localStorage.getItem(SEEDED_KEY) ||
       seedStartedRef.current
     ) {
       return;
     }
     seedStartedRef.current = true;
-    setSeeding(true);
-    const id = index.create(SAMPLE_DOCUMENT_TITLE);
+    setSeedStatus("seeding");
     void seedSampleDocument({
       baseUrl: YHUB_API_URL,
       org: workspaceId,
-      docId: id,
     })
-      .then(() => {
+      .then((id) => {
+        index.ensure(id, SAMPLE_DOCUMENT_TITLE);
         localStorage.setItem(SEEDED_KEY, "1");
+        setSeedStatus("idle");
         navigate(`/w/${workspaceId}/${id}`);
       })
       .catch((error: unknown) => {
-        // The document still exists, just without history. Say so in the
-        // console; the demo carries on with an empty document.
         console.error("Could not seed the sample document", error);
-      })
-      .finally(() => setSeeding(false));
-  }, [docId, index, workspaceId]);
+        setSeedStatus("failed");
+      });
+  }, [docId, index, workspaceId, seedAttempt]);
 
   // A shared doc URL can reference a doc this browser has never seen (the
   // index is localStorage-only). Register it so the editor mounts and syncs
@@ -173,8 +182,21 @@ function Workspace({
           workspaceId={workspaceId}
           activeDocId={docId}
         />
-        {seeding ? (
+        {seedStatus === "seeding" ? (
           <div className="page-loading">Preparing a sample document…</div>
+        ) : seedStatus === "failed" ? (
+          <div className="page-loading">
+            <p>Could not prepare the sample document.</p>
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                seedStartedRef.current = false;
+                setSeedAttempt((attempt) => attempt + 1);
+              }}
+            >
+              Retry
+            </button>
+          </div>
         ) : activeDoc ? (
           <DocumentEditor
             key={activeDoc.id + user.id}
