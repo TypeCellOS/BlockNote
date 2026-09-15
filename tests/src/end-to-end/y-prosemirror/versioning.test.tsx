@@ -130,7 +130,7 @@ for (const scenario of scenarios) {
         diffEditor,
         afterDoc.get("doc"),
       );
-      adapter.preview.enterPreview(after, before);
+      void adapter.preview.enterPreview(after, before);
 
       // Reached only when enterPreview didn't throw: the diff is now showing.
       expect(diffEditor.prosemirrorState.doc.childCount).toBeGreaterThan(0);
