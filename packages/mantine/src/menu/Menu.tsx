@@ -24,7 +24,6 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     return (
       <MantineMenu.Sub
         transitionProps={{ duration: 250, exitDelay: 250 }}
-        withinPortal={false}
         middlewares={{ flip: true, shift: true, inline: false, size: true }}
         onChange={onOpenChange}
         position={position}
