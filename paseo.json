@@ -1,0 +1,10 @@
+{
+  "worktree": {
+    "setup": "vp i"
+  },
+  "metadataGeneration": {
+    "commitMessage": {
+      "instructions": "Use conventional commits with scope"
+    }
+  }
+}

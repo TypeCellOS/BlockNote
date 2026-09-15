@@ -20,6 +20,7 @@ import { fromBase64 } from "lib0/buffer";
 import { WebsocketProvider } from "@y/websocket";
 
 import { resolveUsers } from "./userdata.js";
+import { YHUB_API_URL, YHUB_WS_URL } from "./yhub.js";
 
 import { HistorySidebar } from "./HistorySidebar.js";
 
@@ -64,20 +65,14 @@ export function DocumentEditor({
     }
 
     const suggestionDoc = new Y.Doc({ isSuggestionDoc: true });
-    const yhubHost = "yhub.teleportal.tools";
 
-    const provider = new WebsocketProvider(
-      `wss://${yhubHost}/ws`,
-      roomName,
-      doc,
-      {
-        params: {
-          userid: user.id,
-        },
+    const provider = new WebsocketProvider(YHUB_WS_URL, roomName, doc, {
+      params: {
+        userid: user.id,
       },
-    );
+    });
     const suggestionProvider = new WebsocketProvider(
-      `wss://${yhubHost}/ws`,
+      YHUB_WS_URL,
       roomName + "-suggestions",
       suggestionDoc,
       {
@@ -89,7 +84,7 @@ export function DocumentEditor({
     const renderer = Y.createDiffRenderer(doc, suggestionDoc);
 
     const versioningEndpoints = createYHubVersioningEndpoints({
-      baseUrl: `https://${yhubHost}`,
+      baseUrl: YHUB_API_URL,
       org: workspaceId,
       docId,
     });
@@ -165,6 +160,22 @@ export function DocumentEditor({
     };
   }, [provider]);
 
+  // Version names live on the document itself (see
+  // `createYHubVersioningEndpoints`), and the sidebar reads them once, when it
+  // opens. So it waits for the first sync: opened earlier, it would list the
+  // versions without their names.
+  const [synced, setSynced] = useState(provider.synced);
+  useEffect(() => {
+    const onSync = (isSynced: boolean) => setSynced(isSynced);
+    provider.on("sync", onSync);
+    if (provider.synced) {
+      setSynced(true);
+    }
+    return () => {
+      provider.off("sync", onSync);
+    };
+  }, [provider]);
+
   const editor = useCreateBlockNote(
     withCollaboration({
       collaboration: {
@@ -185,23 +196,13 @@ export function DocumentEditor({
     }),
   );
 
-  // The version history is derived entirely from YHub's activity timeline.
-  // Fetch it once on mount so the sidebar reflects the server's history rather
-  // than only changes made during this session.
-  const versioning = useExtension(VersioningExtension, { editor });
-  useEffect(() => {
-    versioning.list();
-    const interval = setInterval(() => {
-      versioning.list();
-    }, 10000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, [versioning]);
-
-  const { previewedSnapshotId } = useExtensionState(VersioningExtension, {
+  // The version history is derived entirely from YHub's activity timeline; the
+  // sidebar fetches it once when it opens.
+  const versioningView = useExtensionState(VersioningExtension, {
     editor,
+    selector: (state) => state.view,
   });
+  const previewing = versioningView.mode !== "live";
 
   const { enableSuggestions, disableSuggestions, viewSuggestions } =
     useExtension(SuggestionsExtension, { editor });
@@ -212,11 +213,11 @@ export function DocumentEditor({
 
   // Exit suggestion modes when entering version preview
   useEffect(() => {
-    if (previewedSnapshotId !== undefined && editingMode !== "editing") {
+    if (previewing && editingMode !== "editing") {
       disableSuggestions();
       setEditingMode("editing");
     }
-  }, [previewedSnapshotId]);
+  }, [previewing]);
 
   const modeOptions = useMemo(
     () => [
@@ -244,11 +245,9 @@ export function DocumentEditor({
   };
 
   return (
-    <BlockNoteView
-      editor={editor}
-      editable={previewedSnapshotId === undefined}
-      renderEditor={false}
-    >
+    // No `editable` prop: the versioning sidebar owns editability while it's
+    // open, and restores it on close.
+    <BlockNoteView editor={editor} renderEditor={false}>
       <div
         className={
           "doc-workspace" + (showSidebar ? "" : " doc-workspace-no-sidebar")
@@ -259,7 +258,7 @@ export function DocumentEditor({
             <div className="doc-main-title-row">
               <h2 className="doc-main-title">{docTitle || "Untitled"}</h2>
               <div className="doc-main-controls">
-                {previewedSnapshotId === undefined && (
+                {!previewing && (
                   <select
                     className="mode-select"
                     value={editingMode}
@@ -295,7 +294,7 @@ export function DocumentEditor({
             <BlockNoteViewEditor />
           </div>
         </section>
-        {showSidebar && (
+        {showSidebar && synced && (
           <HistorySidebar onClose={() => setShowSidebar(false)} />
         )}
       </div>

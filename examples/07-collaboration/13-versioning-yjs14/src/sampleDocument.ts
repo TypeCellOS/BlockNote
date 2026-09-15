@@ -3,6 +3,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { buildEditHistory } from "./snapshotBuilder";
 import type { EditHistoryStep } from "./snapshotBuilder";
 import { seedYHubDocument } from "./seed";
+import type { SeededVersion } from "./seed";
 import { VERSIONS } from "./versions";
 
 /**
@@ -26,8 +27,8 @@ import { VERSIONS } from "./versions";
  *
  * Each emitted op becomes its own captured transaction, attributed to one of
  * the version's authors at random, and `seedYHubDocument` lands them as
- * separate authored content before committing a single version marker — so the
- * one version is attributed to several authors.
+ * separate authored content — so grouping merges them back into one version
+ * attributed to several authors.
  */
 
 /** Each version's target tree plus the 2–3 users who collaborate on it. */
@@ -61,19 +62,22 @@ const VERSION_PLAN: EditHistoryStep[] = [
 /**
  * Build the sample document's history offline and seed it to YHub under the
  * given coordinates, so the live editor syncs the content and the version
- * sidebar shows one snapshot per step.
+ * sidebar shows one version per step.
  *
  * The `fragment` must match the key the live editor reads (`doc.get(fragment)`).
+ *
+ * @returns each version's name and the server timestamp it should be named
+ * against — the caller writes those into the live doc's `__bn_versions` array.
  */
 export async function seedSampleVersions(opts: {
   baseUrl: string;
   org: string;
   docId: string;
   fragment: string;
-}): Promise<void> {
+}): Promise<SeededVersion[]> {
   const editor = BlockNoteEditor.create();
   const build = await buildEditHistory(editor, VERSION_PLAN, {
     fragment: opts.fragment,
   });
-  await seedYHubDocument(opts, build);
+  return seedYHubDocument(opts, build);
 }
