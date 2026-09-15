@@ -29,8 +29,9 @@ const diffAuthorId = (label: string) => DIFF_AUTHOR_ID_PREFIX + label;
 /** Fallback label used when a diff is rendered without a version name. */
 const DEFAULT_DIFF_LABEL = "This version";
 
-/** Color used for the version diff marks. */
-const DIFF_AUTHOR_COLOR = "#4363d8";
+/** Colors used for the version diff marks — the palette's blue. */
+const DIFF_AUTHOR_COLOR = "#1e4fb0";
+const DIFF_AUTHOR_COLOR_LIGHT = "#c9dcff";
 
 export type DiffVersioningExtensionOptions = {
   /**
@@ -112,6 +113,10 @@ export const DiffVersioningExtension = createExtension(
     editor: BlockNoteEditor<any, any, any>;
   }) => {
     const color = options?.color ?? DIFF_AUTHOR_COLOR;
+    // Only the default pairs with a hand-tuned light tint; a caller-supplied
+    // colour gets the derived one (see `userMarkColors`).
+    const colorLight =
+      options?.color === undefined ? DIFF_AUTHOR_COLOR_LIGHT : undefined;
 
     // Resolve a synthetic author id back to its version label. The id encodes
     // the label (`version:<label>`), so this is a pure decode — no shared mutable
@@ -125,6 +130,7 @@ export const DiffVersioningExtension = createExtension(
           username: id.slice(DIFF_AUTHOR_ID_PREFIX.length),
           avatarUrl: "",
           color,
+          colorLight,
         }));
 
     /**
