@@ -3,6 +3,7 @@ import { docDiffToDelta } from "@blocknote/core/y";
 import { docToDelta } from "@y/prosemirror";
 import * as Y from "@y/y";
 import { encodeAny } from "lib0/buffer";
+import { generateRandomId } from "./utils.js";
 
 export const SAMPLE_DOCUMENT_TITLE = "Launch plan";
 
@@ -116,17 +117,75 @@ const SAMPLE_VERSIONS: Array<{
   { daysAgo: 0.1, by: "4", blocks: liveDocument },
 ];
 
-/**
- * Seed history as back-dated edits, each with its author and version name.
- * Names use the same timestamp keys as createYHubVersioningEndpoints.
- */
-export async function seedSampleDocument(options: {
-  baseUrl: string;
-  org: string;
-  docId: string;
-}): Promise<void> {
-  const url = `${options.baseUrl}/ydoc/v1/${options.org}/${options.docId}`;
+type SeedOptions = { baseUrl: string; org: string };
+type SeedPlan = { docId: string; patches: number[][] };
 
+function seedKey(options: SeedOptions) {
+  return `bn-multi-doc-seed:${options.baseUrl}/${options.org}`;
+}
+
+export function hasPendingSampleDocument(options: SeedOptions) {
+  return localStorage.getItem(seedKey(options)) !== null;
+}
+
+function readSeedPlan(raw: string): SeedPlan {
+  const plan: unknown = JSON.parse(raw);
+  if (
+    typeof plan !== "object" ||
+    plan === null ||
+    !("docId" in plan) ||
+    typeof plan.docId !== "string" ||
+    !("patches" in plan) ||
+    !Array.isArray(plan.patches) ||
+    !plan.patches.every(
+      (patch: unknown): patch is number[] =>
+        Array.isArray(patch) &&
+        patch.every(
+          (byte: unknown) =>
+            typeof byte === "number" &&
+            Number.isInteger(byte) &&
+            byte >= 0 &&
+            byte <= 255,
+        ),
+    )
+  ) {
+    throw new Error("Invalid saved sample seed plan");
+  }
+  return { docId: plan.docId, patches: plan.patches };
+}
+
+/**
+ * Replay the same back-dated Yjs updates on every attempt. Replaying the prefix
+ * reconciles partial remote success (including a lost PATCH response) before
+ * sending the remaining updates: Yjs update identities make this idempotent.
+ * Persist before the first request, independently of the local document index.
+ */
+export async function seedSampleDocument(
+  options: SeedOptions,
+): Promise<string> {
+  const key = seedKey(options);
+  const saved = localStorage.getItem(key);
+  const plan = saved ? readSeedPlan(saved) : createSeedPlan();
+  if (!saved) {
+    localStorage.setItem(key, JSON.stringify(plan));
+  }
+  const url = `${options.baseUrl}/ydoc/v1/${options.org}/${plan.docId}`;
+  for (const patch of plan.patches) {
+    const res = await fetch(url, {
+      method: "PATCH",
+      body: new Uint8Array(patch),
+    });
+    if (!res.ok) {
+      throw new Error(
+        `YHub seed request failed: ${res.status} ${res.statusText} (${url})`,
+      );
+    }
+  }
+  return plan.docId;
+}
+
+function createSeedPlan(): SeedPlan {
+  const patches: number[][] = [];
   const ydoc = new Y.Doc({ gc: false });
   // The same root type the editor syncs (`doc.get()` in `DocumentEditor`).
   const fragment = ydoc.get();
@@ -158,19 +217,17 @@ export async function seedSampleDocument(options: {
     );
     sent = Y.encodeStateVector(ydoc);
 
-    const res = await fetch(url, {
-      method: "PATCH",
-      body: encodeAny({
-        update,
-        by: version.by,
-        at,
-        customAttributions: [],
-      }) as BufferSource,
-    });
-    if (!res.ok) {
-      throw new Error(
-        `YHub seed request failed: ${res.status} ${res.statusText} (${url})`,
-      );
-    }
+    patches.push(
+      Array.from(
+        encodeAny({
+          update,
+          by: version.by,
+          at,
+          customAttributions: [],
+        }),
+      ),
+    );
   }
+  ydoc.destroy();
+  return { docId: generateRandomId(6), patches };
 }

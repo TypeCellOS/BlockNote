@@ -54,9 +54,12 @@ export function usePreviewRow(): (
             (snapshot) =>
               !(options?.namedOnly ?? namedOnly) || snapshot.name !== undefined,
           );
+          const rowIndex = snapshots.findIndex((s) => s.id === row.id);
           compareToId = isCurrent
             ? snapshots[0]?.id
-            : snapshots[snapshots.findIndex((s) => s.id === row.id) + 1]?.id;
+            : rowIndex === -1
+              ? undefined
+              : snapshots[rowIndex + 1]?.id;
           break;
         }
         case "snapshot":

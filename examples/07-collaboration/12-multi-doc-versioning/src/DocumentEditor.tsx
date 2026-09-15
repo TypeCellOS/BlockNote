@@ -166,7 +166,11 @@ export function DocumentEditor({
   // versions without their names.
   const [synced, setSynced] = useState(provider.synced);
   useEffect(() => {
-    const onSync = (isSynced: boolean) => setSynced(isSynced);
+    const onSync = (isSynced: boolean) => {
+      if (isSynced) {
+        setSynced(true);
+      }
+    };
     provider.on("sync", onSync);
     if (provider.synced) {
       setSynced(true);
