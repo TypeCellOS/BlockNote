@@ -20,6 +20,9 @@ export const Popover = (
       middlewares={{ size: { padding: 20 } }}
       withinPortal={!!portalRoot}
       portalProps={portalRoot ? { target: portalRoot } : undefined}
+      // Do not move focus to the dropdown on mobile, as it blurs the editor's
+      // contentEditable and dismisses the on-screen keyboard.
+      trapFocus={portalRoot ? false : undefined}
       opened={open}
       onChange={onOpenChange}
       position={position}

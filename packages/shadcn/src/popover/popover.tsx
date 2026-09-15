@@ -60,11 +60,11 @@ export const PopoverContent = forwardRef<
   assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
-  const portalRoot = useContext(PortalRootContext);
 
+  const portalRoot = useContext(PortalRootContext);
   // Default to the editor's portal element (which carries the color-scheme
   // class) so popovers inherit light/dark mode instead of the document body's,
-  // even when the caller doesn't pass an explicit portalRoot.
+  // and escape the mobile formatting toolbar's horizontal scroll clip.
   const editor = useBlockNoteEditor();
 
   return (

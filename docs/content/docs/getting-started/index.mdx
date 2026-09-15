@@ -67,6 +67,19 @@ For more information about the `useCreateBlockNote` hook and the `BlockNoteView`
   guide on setting up Next.js + BlockNote](/docs/getting-started/nextjs)
 </Callout>
 
+## Mobile compatibility
+
+If your app is used on touch devices, it's good practice to add `interactive-widget=resizes-content` to your page's viewport meta tag:
+
+```html
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"
+/>
+```
+
+This isn't specific to BlockNote - it mitigates undesired behaviour that some browsers have when the virtual keyboard is open. For more on BlockNote's mobile UX, see the [mobile Formatting Toolbar](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar).
+
 ## Next steps
 
 You now know how to integrate BlockNote into your React app! However, this is just scratching the surface of what you can do with BlockNote.
