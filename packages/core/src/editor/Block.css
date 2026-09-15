@@ -1149,11 +1149,12 @@ that wrap blocks get a per-block badge below instead.
   display: inline-block;
   margin-right: 6px;
   padding: 0 4px;
+  /* Matches the block-level badge below, so the two read as one label style. */
   font-size: 11px;
-  font-weight: bold;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  line-height: 1.4;
+  line-height: 16px;
   vertical-align: middle;
   /* Use the editor's text color (themed for light/dark) rather than inheriting,
      which would pick up the deleted content's user color. */
@@ -1228,9 +1229,17 @@ only non-collapsing properties — background / radius / padding never depend on
 content's intrinsic size, so no block can break.
 */
 .bn-suggestion-node .bn-block-content:not(:has(.bn-inline-content)) {
+  /* The card bleeds this far into the gutters on both sides, so tinting a block
+     never shifts its content sideways. */
+  --bn-suggestion-card-inset: 6px;
   background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
-  border-radius: 16px;
-  padding: 12px;
+  border-radius: 6px;
+  /* A hairline in the author's color, so a pale tint still reads as a card. */
+  box-shadow: 0 0 0 1px
+    color-mix(in srgb, var(--user-color-dark) 25%, transparent);
+  padding: 3px var(--bn-suggestion-card-inset);
+  margin-left: calc(-1 * var(--bn-suggestion-card-inset));
+  width: calc(100% + 2 * var(--bn-suggestion-card-inset));
 }
 
 .dark.bn-root
@@ -1256,11 +1265,12 @@ gated on a wrapper that only width-bearing blocks have.
 
 /*
 A deletion additionally flags the block with the localized "Deleted" label, placed
-above the content (out of flow) with extra top padding reserving its row.
+above the content (out of flow) with extra top padding reserving its row: the
+card's own 3px, the label's 16px line box, and 2px of breathing room under it.
 */
 .bn-suggestion-node--delete .bn-block-content:not(:has(.bn-inline-content)) {
   position: relative;
-  padding: 48px 24px 24px;
+  padding-top: calc(3px + 16px + 2px);
 }
 
 .bn-suggestion-node--delete
@@ -1269,11 +1279,13 @@ above the content (out of flow) with extra top padding reserving its row.
   /* Sits in the reserved top padding, above the content. Out of flow so it never
      becomes a flex item beside the block. */
   position: absolute;
-  top: 16px;
-  left: 24px;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1.2;
+  top: 3px;
+  left: var(--bn-suggestion-card-inset);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   /* Use the editor's text color (themed for light/dark) rather than inheriting,
      which would pick up the suggestion's user color. */
   color: var(--bn-colors-editor-text);

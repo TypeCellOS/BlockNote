@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { User } from "../../user/index.js";
+import { cssVarUserId } from "../../user/index.js";
 import { AttributionExtension } from "./AttributionExtension.js";
 
 // Editors created during a test, destroyed in afterEach: an undestroyed
@@ -16,7 +17,7 @@ const editors: BlockNoteEditor[] = [];
 // A `resolveUsers` spy plus an editor with the AttributionExtension registered.
 // No Yjs/collaboration needed — the extension's load plugin only cares that a
 // transaction adds a `y-attributed-*` mark, which we do directly below.
-function createEditor() {
+function createEditor(user?: Partial<User>) {
   const resolveUsers = vi.fn(async (ids: string[]): Promise<User[]> =>
     ids.map((id) => ({
       id,
@@ -24,6 +25,7 @@ function createEditor() {
       avatarUrl: "",
       color: "#123456",
       colorLight: "#abcdef",
+      ...user,
     })),
   );
 
@@ -34,6 +36,16 @@ function createEditor() {
   editors.push(editor);
 
   return { editor, resolveUsers };
+}
+
+/** The `--user-color-<key>-{light,dark}` values on the editor root. */
+function rootColorVars(editor: BlockNoteEditor, userId: string) {
+  const root = editor.prosemirrorView!.dom as HTMLElement;
+  const key = cssVarUserId(userId);
+  return {
+    light: root.style.getPropertyValue(`--user-color-${key}-light`),
+    dark: root.style.getPropertyValue(`--user-color-${key}-dark`),
+  };
 }
 
 // Add a `y-attributed-insert` mark carrying `userIds` over the first block's
@@ -91,5 +103,35 @@ describe("AttributionExtension user loading", () => {
 
     // The user store dedupes already-cached ids, so `alice` is fetched once.
     expect(resolveUsers).toHaveBeenCalledTimes(1);
+  });
+
+  it("writes both of a resolved author's colors to the editor root", async () => {
+    const { editor } = createEditor();
+    editor.replaceBlocks(editor.document, [{ content: "hello" }]);
+
+    addInsertMark(editor, ["alice"]);
+    await vi.waitFor(() =>
+      expect(rootColorVars(editor, "alice").dark).not.toBe(""),
+    );
+
+    expect(rootColorVars(editor, "alice")).toEqual({
+      light: "#abcdef",
+      dark: "#123456",
+    });
+  });
+
+  it("derives the light tint for an author that only has a `color`", async () => {
+    const { editor } = createEditor({ colorLight: undefined });
+    editor.replaceBlocks(editor.document, [{ content: "hello" }]);
+
+    addInsertMark(editor, ["alice"]);
+    await vi.waitFor(() =>
+      expect(rootColorVars(editor, "alice").dark).not.toBe(""),
+    );
+
+    expect(rootColorVars(editor, "alice")).toEqual({
+      light: "color-mix(in srgb, #123456 30%, white)",
+      dark: "#123456",
+    });
   });
 });
