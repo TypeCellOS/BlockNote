@@ -81,13 +81,15 @@ NESTED BLOCKS
   margin-left: 24px;
 }
 
-.bn-block-group .bn-block-group > .bn-block-outer {
+/* Attribution wrappers use display: contents; descendant selectors also reach
+   nested blocks inside those wrappers. */
+.bn-block-group .bn-block-group .bn-block-outer {
   position: relative;
 }
 
 .bn-block-group
   .bn-block-group
-  > .bn-block-outer:not([data-prev-depth-changed])::before {
+  .bn-block-outer:not([data-prev-depth-changed])::before {
   content: " ";
   display: inline;
   position: absolute;
@@ -98,7 +100,7 @@ NESTED BLOCKS
 
 .bn-block-group
   .bn-block-group
-  > .bn-block-outer[data-prev-depth-change="-2"]::before {
+  .bn-block-outer[data-prev-depth-change="-2"]::before {
   height: 0;
 }
 
@@ -364,13 +366,27 @@ NESTED BLOCKS
   background-color: var(--bn-colors-hovered-background);
 }
 
-/* No list nesting */
-.bn-block-outer[data-prev-type="bulletListItem"]
-  > .bn-block
-  > .bn-block-content::before {
-  content: "•";
+/* Keep the marker on the group so it inherits through attribution wrappers
+   between the group and its blocks. Each group resets it, so a list nested
+   under a paragraph starts with a disc again. */
+.bn-block-group {
+  --bn-bullet-marker: "•";
 }
 
+[data-content-type="bulletListItem"] ~ .bn-block-group {
+  --bn-bullet-marker: "◦";
+}
+
+[data-content-type="bulletListItem"]
+  ~ .bn-block-group
+  [data-content-type="bulletListItem"]
+  ~ .bn-block-group {
+  --bn-bullet-marker: "▪\FE0E";
+}
+
+.bn-block-outer[data-prev-type="bulletListItem"]
+  > .bn-block
+  > .bn-block-content::before,
 .bn-block-outer:not([data-prev-type])
   > .bn-block
   > .bn-block-content[data-content-type="bulletListItem"]::before,
@@ -383,59 +399,7 @@ NESTED BLOCKS
   > :is(ins, del)
   > .bn-suggestion-node
   .bn-block-content[data-content-type="bulletListItem"]::before {
-  content: "•";
-}
-
-/* 1 level of list nesting */
-[data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  > .bn-block-outer[data-prev-type="bulletListItem"]
-  > .bn-block
-  > .bn-block-content::before {
-  content: "◦";
-}
-
-[data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  > .bn-block-outer:not([data-prev-type])
-  > .bn-block
-  > .bn-block-content[data-content-type="bulletListItem"]::before,
-[data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  > .bn-block-outer:not([data-prev-type])
-  > .bn-block
-  > div[data-type="modification"]
-  > .bn-block-content[data-content-type="bulletListItem"]::before {
-  content: "◦";
-}
-
-/* 2 levels of list nesting */
-[data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  [data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  > .bn-block-outer[data-prev-type="bulletListItem"]
-  > .bn-block
-  > .bn-block-content::before {
-  content: "▪\FE0E";
-}
-
-[data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  [data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  > .bn-block-outer:not([data-prev-type])
-  > .bn-block
-  > .bn-block-content[data-content-type="bulletListItem"]::before,
-[data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  [data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  > .bn-block-outer:not([data-prev-type])
-  > .bn-block
-  > div[data-type="modification"]
-  > .bn-block-content[data-content-type="bulletListItem"]::before {
-  content: "▪\FE0E";
+  content: var(--bn-bullet-marker);
 }
 
 /* CODE BLOCKS */
@@ -1090,9 +1054,15 @@ div[data-type="modification"] {
   border-radius: 4px;
 }
 
+/* Lift attribution fills above the dark editor surface. Mixing the already
+   dark author color with black made short insertions nearly invisible. */
 .dark.bn-root ins,
 .dark.bn-root del {
-  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 25%,
+    var(--bn-colors-editor-background)
+  );
   color: var(--user-color-light);
 }
 
@@ -1111,7 +1081,11 @@ serialized/static output, where the wrapper is a real, painted box.
 }
 
 .dark.bn-root .bn-suggestion-mark {
-  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 25%,
+    var(--bn-colors-editor-background)
+  );
   color: white;
 }
 
@@ -1132,7 +1106,11 @@ row/cell). Block deletions that *do* wrap blocks are restyled per-block below.
 }
 
 .dark.bn-root .bn-suggestion-node > * {
-  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 25%,
+    var(--bn-colors-editor-background)
+  );
 }
 
 /*
@@ -1203,8 +1181,8 @@ hence the descendant match.
 Deleted table cells are a special case: a <tr>/<td> has no `.bn-block-content` and
 its text sits in a bare <p> (not `.bn-inline-content`), so neither the
 strikethrough above nor the block card reaches it — and a table row/cell can't
-host the "Deleted" card anyway. Treat them like inline deletions instead: strike
-the cell text through in the author's color, and suppress the fallback badge.
+host the "Deleted" card anyway. Strike the cell text through in the author's
+color and suppress badges inside cells, including nested paragraph badges.
 */
 .bn-suggestion-node--delete :is(td, th) p {
   color: var(--user-color-dark);
@@ -1215,7 +1193,8 @@ the cell text through in the author's color, and suppress the fallback badge.
   color: var(--user-color-light);
 }
 
-.bn-suggestion-node--delete > :is(table, tr, td, th):first-child::before {
+.bn-suggestion-node--delete > :is(table, tr, td, th):first-child::before,
+:is(td, th) .bn-suggestion-node--delete > :first-child::before {
   content: none;
 }
 
@@ -1245,7 +1224,11 @@ content's intrinsic size, so no block can break.
 .dark.bn-root
   .bn-suggestion-node
   .bn-block-content:not(:has(.bn-inline-content)) {
-  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 25%,
+    var(--bn-colors-editor-background)
+  );
 }
 
 /*
@@ -1323,7 +1306,11 @@ left untouched so only the dotted underline carries the color. Both the inline
 
 .dark.bn-root [data-type="modification"] .bn-suggestion-mark:hover,
 .dark.bn-root [data-type="modification"] .bn-suggestion-node:hover > * {
-  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 25%,
+    var(--bn-colors-editor-background)
+  );
 }
 
 /*

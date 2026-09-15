@@ -113,14 +113,8 @@ function SuggestionsView({ scenario }: { scenario: SuggestionScenario }) {
   }, []);
 
   const authors = suggestionAuthors(scenario);
-  const paneCount = 1 + authors.length + (authors.length > 1 ? 1 : 0);
   return (
-    <div
-      className={
-        "bn-gallery-editors" +
-        (paneCount >= 4 ? " bn-gallery-editors--four" : "")
-      }
-    >
+    <div className="bn-gallery-editors">
       <div className="bn-gallery-pane">
         <div className="bn-gallery-pane-label">Base (editable)</div>
         <BlockNoteView editor={baseEditor} />
@@ -236,9 +230,7 @@ function UserSuggestion({
       className="bn-gallery-pane"
       style={{ borderTopColor: user.color, borderTopWidth: 3 }}
     >
-      <div className="bn-gallery-pane-label" style={{ color: user.color }}>
-        {label}
-      </div>
+      <div className="bn-gallery-pane-label">{label}</div>
       <BlockNoteView editor={editor} />
     </div>
   );
@@ -373,14 +365,7 @@ function VersioningView({ scenario }: { scenario: SuggestionScenario }) {
   }, []);
 
   return (
-    <div
-      className={
-        "bn-gallery-editors " +
-        (setup.users.length > 1
-          ? "bn-gallery-editors--four"
-          : "bn-gallery-editors--three")
-      }
-    >
+    <div className="bn-gallery-editors">
       <div className="bn-gallery-pane">
         <div className="bn-gallery-pane-label">Version 1 (editable)</div>
         <BlockNoteView editor={beforeEditor} />
@@ -535,9 +520,7 @@ function UserVersion({
       className="bn-gallery-pane"
       style={{ borderTopColor: user.color, borderTopWidth: 3 }}
     >
-      <div className="bn-gallery-pane-label" style={{ color: user.color }}>
-        {label}
-      </div>
+      <div className="bn-gallery-pane-label">{label}</div>
       <BlockNoteView editor={editor} />
     </div>
   );

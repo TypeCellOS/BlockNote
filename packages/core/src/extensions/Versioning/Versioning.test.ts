@@ -60,6 +60,17 @@ function setEditorText(editor: BlockNoteEditor<any, any, any>, text: string) {
   editor.replaceBlocks(editor.document, [{ type: "paragraph", content: text }]);
 }
 
+/** Resolve or reject a request at an explicit point in a loading transition. */
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (error: Error) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
+
 /** Minimal version factory for versioning tests. */
 function snap(
   id: string,
@@ -390,6 +401,214 @@ describe("VersioningExtension", () => {
   // -------------------------------------------------------------------------
 
   describe("status", () => {
+    it.each([false, true])(
+      "clears a failed list request and allows retry (already loaded: %s)",
+      async (alreadyLoaded) => {
+        if (alreadyLoaded) {
+          await ctx.seed("stored content");
+        }
+        const previousList = ctx.ext.store.state.list;
+        const request =
+          deferred<Awaited<ReturnType<typeof ctx.endpoints.list>>>();
+        const list = vi
+          .spyOn(ctx.endpoints, "list")
+          .mockReturnValueOnce(request.promise);
+
+        const pending = ctx.ext.list();
+        const joined = ctx.ext.list();
+        expect(joined).toBe(pending);
+        expect(list).toHaveBeenCalledOnce();
+        expect(ctx.ext.store.state.status).toEqual({ type: "listing" });
+        expect(ctx.ext.store.state.list).toBe(previousList);
+
+        const failure = expect(pending).rejects.toThrow("offline");
+        request.reject(new Error("offline"));
+        await failure;
+        expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
+        expect(ctx.ext.store.state.list).toBe(previousList);
+
+        await ctx.ext.list();
+        expect(list).toHaveBeenCalledTimes(2);
+        expect(ctx.ext.store.state.list.loaded).toBe(true);
+        expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
+      },
+    );
+
+    it.each(["resolve", "reject"] as const)(
+      "keeps the latest preview busy when an older request completes via %s",
+      async (outcome) => {
+        const first = await ctx.seed("first content");
+        const second = await ctx.seed("second content");
+        const firstRequest = deferred<Block[]>();
+        const secondRequest = deferred<Block[]>();
+        vi.spyOn(ctx.endpoints, "getContent")
+          .mockReturnValueOnce(firstRequest.promise)
+          .mockReturnValueOnce(secondRequest.promise);
+
+        vi.useFakeTimers();
+        try {
+          const older = ctx.ext.previewSnapshot(first.id);
+          vi.advanceTimersByTime(LOADING_PREVIEW_DELAY_MS);
+          const newer = ctx.ext.previewSnapshot(second.id);
+          const latestView = {
+            mode: "snapshot",
+            snapshotId: second.id,
+            compareToId: undefined,
+          };
+          expect(
+            ctx.editor.domElement!.classList.contains(LOADING_PREVIEW_CLASS),
+          ).toBe(true);
+
+          if (outcome === "reject") {
+            const failure = expect(older).rejects.toThrow("old request failed");
+            firstRequest.reject(new Error("old request failed"));
+            await failure;
+          } else {
+            firstRequest.resolve(ctx.editor.document);
+            await older;
+          }
+          expect(ctx.ext.store.state.view).toEqual(latestView);
+          expect(ctx.ext.store.state.status).toEqual({
+            type: "loading-preview",
+            view: latestView,
+          });
+          expect(
+            ctx.editor.domElement!.classList.contains(LOADING_PREVIEW_CLASS),
+          ).toBe(true);
+          expect(ctx.editor.isEditable).toBe(false);
+          expect(getEditorText(ctx.editor)).toBe("initial doc");
+
+          secondRequest.resolve([]);
+          await newer;
+          expect(ctx.ext.store.state.view).toEqual(latestView);
+          expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
+          expect(
+            ctx.editor.domElement!.classList.contains(LOADING_PREVIEW_CLASS),
+          ).toBe(false);
+          expect(getEditorText(ctx.editor)).toBe("");
+        } finally {
+          vi.useRealTimers();
+        }
+      },
+    );
+
+    it("clears the delayed loader after a failed switch and can retry", async () => {
+      const shown = await ctx.seed("shown content");
+      const next = await ctx.seed("next content");
+      await ctx.ext.previewSnapshot(shown.id);
+      const request = deferred<Block[]>();
+      vi.spyOn(ctx.endpoints, "getContent").mockReturnValueOnce(
+        request.promise,
+      );
+
+      vi.useFakeTimers();
+      try {
+        const pending = ctx.ext.previewSnapshot(next.id);
+        vi.advanceTimersByTime(LOADING_PREVIEW_DELAY_MS);
+        expect(
+          ctx.editor.domElement!.classList.contains(LOADING_PREVIEW_CLASS),
+        ).toBe(true);
+        const failure = expect(pending).rejects.toThrow("offline");
+        request.reject(new Error("offline"));
+        await failure;
+
+        expect(ctx.ext.store.state.view).toMatchObject({
+          mode: "snapshot",
+          snapshotId: shown.id,
+        });
+        expect(getEditorText(ctx.editor)).toBe("shown content");
+        expect(ctx.editor.isEditable).toBe(false);
+        expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
+        expect(
+          ctx.editor.domElement!.classList.contains(LOADING_PREVIEW_CLASS),
+        ).toBe(false);
+
+        await ctx.ext.previewSnapshot(next.id);
+        vi.advanceTimersByTime(LOADING_PREVIEW_DELAY_MS);
+        expect(getEditorText(ctx.editor)).toBe("next content");
+        expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
+        expect(
+          ctx.editor.domElement!.classList.contains(LOADING_PREVIEW_CLASS),
+        ).toBe(false);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it.each(["content", "baseline", "attributions", "render"] as const)(
+      "stays busy until comparison %s finishes",
+      async (stage) => {
+        const gate = deferred<void>();
+        const entered = deferred<void>();
+        const current = snap("current", 30);
+        const shown = snap("shown", 20);
+        const baseline = snap("baseline", 10);
+        const enterPreview = vi.fn(async () => {
+          entered.resolve();
+          if (stage === "render") {
+            await gate.promise;
+          }
+        });
+        const { editor, ext } = setupWith((editor) => ({
+          endpoints: {
+            list: async () => ({ current, snapshots: [shown, baseline] }),
+            getContent: async (snapshot) => {
+              if (
+                (stage === "content" && snapshot.id === shown.id) ||
+                (stage === "baseline" && snapshot.id === baseline.id)
+              ) {
+                await gate.promise;
+              }
+              return [];
+            },
+            getAttributions: async () => {
+              if (stage === "attributions") {
+                await gate.promise;
+              }
+              return undefined;
+            },
+          },
+          preview: { enterPreview, exitPreview: () => {} },
+          getCurrentDocument: () => editor.document,
+        }));
+        try {
+          await ext.list();
+          const pending = ext.previewSnapshot(shown.id, {
+            compareTo: baseline.id,
+          });
+          if (stage === "render") {
+            await entered.promise;
+          }
+          expect(ext.store.state.status).toEqual({
+            type: "loading-preview",
+            view: {
+              mode: "snapshot",
+              snapshotId: shown.id,
+              compareToId: baseline.id,
+            },
+          });
+          expect(editor.isEditable).toBe(false);
+          if (stage !== "render") {
+            expect(enterPreview).not.toHaveBeenCalled();
+          }
+
+          gate.resolve();
+          await pending;
+          expect(enterPreview).toHaveBeenCalledOnce();
+          expect(ext.store.state.status).toEqual({ type: "idle" });
+          expect(ext.store.state.view).toEqual({
+            mode: "snapshot",
+            snapshotId: shown.id,
+            compareToId: baseline.id,
+          });
+          expect(editor.isEditable).toBe(false);
+        } finally {
+          gate.resolve();
+          editor.unmount();
+        }
+      },
+    );
+
     it("reports listing while a list is in flight and idles after", async () => {
       let release!: () => void;
       const gate = new Promise<void>((resolve) => {
