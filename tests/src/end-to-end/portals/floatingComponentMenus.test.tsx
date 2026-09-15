@@ -160,10 +160,14 @@ describe.each(skins)(
       scroller.scrollTop = scroller.scrollHeight;
       scroller.dispatchEvent(new Event("scroll"));
 
+      // The browser then drops focus from the hidden menu, which the
+      // formatting toolbar reads as the user leaving and unmounts on; either
+      // way the menu is not visible.
       await vi.waitFor(() => {
-        expect(getComputedStyle(toolbar.parentElement!).visibility).toBe(
-          "hidden",
-        );
+        const wrapper = toolbar.parentElement;
+        expect(
+          wrapper === null || getComputedStyle(wrapper).visibility === "hidden",
+        ).toBe(true);
       });
       expect(isVisible(menu)).toBe(false);
     });
