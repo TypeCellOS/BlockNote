@@ -70,6 +70,44 @@ export function findTypeInOtherYdoc<T extends Y.Type<any>>(
 }
 
 /**
+ * Collect all stored Yjs ID ranges belonging to a fragment, including deleted
+ * descendants. Items belonging to other shared types are excluded.
+ *
+ * Resolves the fragment in the supplied document and scans its stored items:
+ * walking visible content would miss deleted subtrees. To include all deleted
+ * descendants, the document or update must retain them; content already
+ * garbage-collected cannot be recovered here.
+ *
+ * Updates are loaded into a temporary document with `gc: false`, which is
+ * destroyed after collection. Caller-provided documents are never destroyed.
+ */
+export function collectFragmentIds(
+  fragment: Y.Type,
+  docOrUpdate: Uint8Array | Y.Doc,
+): Y.IdSet {
+  if (docOrUpdate instanceof Uint8Array) {
+    const doc = new Y.Doc({ gc: false });
+    try {
+      Y.applyUpdate(doc, docOrUpdate);
+      return collectFragmentIds(fragment, doc);
+    } finally {
+      doc.destroy();
+    }
+  }
+
+  const targetFragment = findTypeInOtherYdoc(fragment, docOrUpdate);
+  const contentIds = Y.createIdSet();
+  for (const structs of docOrUpdate.store.clients.values()) {
+    for (const item of structs) {
+      if (item instanceof Y.Item && Y.isParentOf(targetFragment, item)) {
+        contentIds.add(item.id.client, item.id.clock, item.length);
+      }
+    }
+  }
+  return contentIds;
+}
+
+/**
  * Turn Prosemirror JSON to BlockNote style JSON
  * @param editor BlockNote editor
  * @param json Prosemirror JSON

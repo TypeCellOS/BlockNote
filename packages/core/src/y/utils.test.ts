@@ -6,9 +6,48 @@ import {
   _blocksToProsemirrorNode,
   blocksToYDoc,
   blocksToYType,
+  collectFragmentIds,
   yDocToBlocks,
   yfragmentToBlocks,
 } from "./utils.js";
+
+describe("collectFragmentIds", () => {
+  it.each(["document", "update"] as const)(
+    "collects deleted descendants from a %s without including other roots",
+    (input) => {
+      const doc = new Y.Doc({ gc: false });
+      const client = new Y.Doc();
+      try {
+        const fragment = doc.get("test");
+        const nested = new Y.Type();
+        fragment.push([nested]);
+        nested.push(["Deleted content"]);
+        const expected = Y.createContentIdsFromUpdate(
+          Y.encodeStateAsUpdate(doc),
+        ).inserts;
+        fragment.delete(0, 1);
+        doc.get("other").push(["Unrelated content"]);
+        const update = Y.encodeStateAsUpdate(doc);
+        Y.applyUpdate(client, update);
+
+        let destroyed = false;
+        doc.on("destroy", () => {
+          destroyed = true;
+        });
+        const ids = collectFragmentIds(
+          client.get("test"),
+          input === "document" ? doc : update,
+        );
+
+        expect(ids).toEqual(expected);
+        expect(destroyed).toBe(false);
+      } finally {
+        client.destroy();
+        doc.destroy();
+      }
+    },
+  );
+});
 
 describe("Test y (v14) utils", () => {
   const editor = BlockNoteEditor.create();

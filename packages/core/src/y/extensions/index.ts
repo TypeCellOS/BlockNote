@@ -78,6 +78,14 @@ export type CollaborationOptions = {
   versioningEndpoints?:
     | VersioningEndpoints<Y.Type, Uint8Array>
     | VersioningEndpointsFactory<Y.Type, Uint8Array>;
+
+  /**
+   * Whether entering a version preview scrolls the first change of the diff
+   * into view. Forwarded to the {@link VersioningExtension}.
+   *
+   * @default true
+   */
+  scrollToFirstChange?: boolean;
 };
 
 export const CollaborationExtension = createExtension(
@@ -105,6 +113,7 @@ export const CollaborationExtension = createExtension(
               ...createYjsVersioningAdapter(editor, options.fragment),
               endpoints: options.versioningEndpoints,
               resolveUsers: userStore,
+              scrollToFirstChange: options.scrollToFirstChange,
             })
           : null,
         AttributionExtension({
