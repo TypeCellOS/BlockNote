@@ -184,9 +184,10 @@ describe("scrollToFirstChange", () => {
     });
 
     const animation = animate.mock.results[0]!.value;
-    animation.onfinish?.();
     scrollToFirstChange(root);
-    expect(animation.cancel).not.toHaveBeenCalled();
+    // Fire-and-forget highlight: the finished animation is cancelled by the
+    // next scroll instead of released via `onfinish`.
+    expect(animation.cancel).toHaveBeenCalledOnce();
   });
 
   it("highlights the scrolled-to element when it is in no block", () => {
@@ -256,30 +257,20 @@ describe("scrollToFirstChange", () => {
     expect(scrollIntoView).not.toHaveBeenCalled();
   });
 
-  it("prefers the first insertion over an earlier deletion", () => {
+  it("scrolls to the first change in document order, regardless of kind", () => {
     const root = makeRoot();
     root.appendChild(makeMark("del", withBox(document.createElement("span"))));
-    const inserted = withBox(document.createElement("span"));
-    root.appendChild(makeMark("ins", inserted));
-
-    scrollToFirstChange(root);
-
-    expect(scrollIntoView.mock.instances[0]).toBe(inserted);
-  });
-
-  it("falls back to a format change, then a deletion", () => {
-    const root = makeRoot();
-    const deleted = withBox(document.createElement("span"));
-    root.appendChild(makeMark("del", deleted));
     const formatted = withBox(document.createElement("span"));
     root.appendChild(makeMark("span", formatted));
 
     scrollToFirstChange(root);
-    expect(scrollIntoView.mock.instances[0]).toBe(formatted);
+    expect(scrollIntoView.mock.instances[0]).toBe(
+      root.firstElementChild!.firstElementChild,
+    );
 
-    root.removeChild(root.lastElementChild!);
+    root.removeChild(root.firstElementChild!);
     scrollToFirstChange(root);
-    expect(scrollIntoView.mock.instances[1]).toBe(deleted);
+    expect(scrollIntoView.mock.instances[1]).toBe(formatted);
   });
 
   it("scrolls to and highlights the block's own content for a block-level mark", () => {
