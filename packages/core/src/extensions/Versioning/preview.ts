@@ -1,3 +1,4 @@
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { Store } from "../../util/Store.js";
 import {
   SCROLL_TO_FIRST_CHANGE_DELAY_MS,
@@ -20,23 +21,24 @@ export const LOADING_PREVIEW_CLASS = "bn-loading";
 /** Delay the loading indicator so fast previews do not flash. */
 export const LOADING_PREVIEW_DELAY_MS = 400;
 
-/** Keeps the delayed editor loader visible across preview switches. */
-function createLoadingIndicator(getEditorDOM: () => HTMLElement | undefined) {
+/** Delayed editor loading class, so fast previews never flash. */
+function createLoadingIndicator(editor: Pick<BlockNoteEditor, "domElement">) {
   let timeout: ReturnType<typeof setTimeout> | undefined;
 
-  return function syncLoadingIndicator(loading: boolean) {
-    if (loading) {
+  return {
+    show() {
       if (timeout === undefined) {
         timeout = setTimeout(() => {
           timeout = undefined;
-          getEditorDOM()?.classList.add(LOADING_PREVIEW_CLASS);
+          editor.domElement?.classList.add(LOADING_PREVIEW_CLASS);
         }, LOADING_PREVIEW_DELAY_MS);
       }
-      return;
-    }
-    clearTimeout(timeout);
-    timeout = undefined;
-    getEditorDOM()?.classList.remove(LOADING_PREVIEW_CLASS);
+    },
+    hide() {
+      clearTimeout(timeout);
+      timeout = undefined;
+      editor.domElement?.classList.remove(LOADING_PREVIEW_CLASS);
+    },
   };
 }
 
@@ -47,10 +49,9 @@ export function createVersioningPreview<Output, Attributions>({
   preview,
   serializeCurrentContent,
   getSnapshot,
-  requireSnapshot,
   setView,
-  onStatusChange,
-  getEditorDOM,
+  syncStatus,
+  editor,
   scrollToFirstChangeEnabled,
 }: {
   store: Store<VersioningState>;
@@ -63,13 +64,12 @@ export function createVersioningPreview<Output, Attributions>({
   getSnapshot: (
     id: VersionSnapshotIdentifier | undefined,
   ) => VersionSnapshot | undefined;
-  requireSnapshot: (id: VersionSnapshotIdentifier) => VersionSnapshot;
   setView: (view: VersioningView) => void;
-  onStatusChange: () => void;
-  getEditorDOM: () => HTMLElement | undefined;
+  syncStatus: () => void;
+  editor: Pick<BlockNoteEditor, "domElement">;
   scrollToFirstChangeEnabled: boolean;
 }) {
-  const syncLoadingIndicator = createLoadingIndicator(getEditorDOM);
+  const loadingIndicator = createLoadingIndicator(editor);
   let loadingPreview: VersioningPreviewView | undefined;
   /** Invalidates pending fetches and scheduled scrolling on entry or exit. */
   let previewToken = 0;
@@ -80,6 +80,27 @@ export function createVersioningPreview<Output, Attributions>({
    */
   let renderedView: VersioningView = { mode: "live" };
 
+  /** Publish a loading view, keeping one loader delay across fast switches. */
+  function setLoadingPreview(view: VersioningPreviewView | undefined) {
+    loadingPreview = view;
+    if (view) {
+      loadingIndicator.show();
+    } else {
+      loadingIndicator.hide();
+    }
+    syncStatus();
+  }
+
+  function requireSnapshot(id: VersionSnapshotIdentifier): VersionSnapshot {
+    const snapshot = getSnapshot(id);
+    if (!snapshot) {
+      throw new Error(
+        `Snapshot not found: ${typeof id === "object" ? id.id : id}`,
+      );
+    }
+    return snapshot;
+  }
+
   function scheduleScrollToFirstChange(token: number) {
     if (!scrollToFirstChangeEnabled) {
       return;
@@ -89,7 +110,7 @@ export function createVersioningPreview<Output, Attributions>({
       if (token !== previewToken) {
         return;
       }
-      scrollToFirstChangeIn(getEditorDOM());
+      scrollToFirstChangeIn(editor.domElement);
     }, SCROLL_TO_FIRST_CHANGE_DELAY_MS);
   }
 
@@ -98,16 +119,30 @@ export function createVersioningPreview<Output, Attributions>({
    * view; controller failures keep it read-only until the controller exits.
    */
   async function enterPreview(
-    view: VersioningPreviewView,
     target: PreviewTarget,
     compareToSnapshot: VersionSnapshot | undefined,
-    getPrimaryContent: () => Output | Promise<Output>,
   ) {
+    const getPrimaryContent =
+      target.kind === "snapshot"
+        ? () => endpoints.getContent(target.snapshot)
+        : serializeCurrentContent;
+    if (!getPrimaryContent) {
+      throw new Error(
+        "previewCurrentVersion requires `serializeCurrentContent` to be " +
+          "provided to the VersioningExtension options.",
+      );
+    }
+    const view: VersioningPreviewView =
+      target.kind === "snapshot"
+        ? {
+            mode: "snapshot",
+            snapshotId: target.snapshot.id,
+            compareToId: compareToSnapshot?.id,
+          }
+        : { mode: "current", compareToId: compareToSnapshot?.id };
     const token = ++previewToken;
     setView(view);
-    loadingPreview = view;
-    onStatusChange();
-    syncLoadingIndicator(loadingPreview !== undefined);
+    setLoadingPreview(view);
 
     try {
       // Capture current content first; fetch the baseline and authors in parallel.
@@ -138,11 +173,11 @@ export function createVersioningPreview<Output, Attributions>({
       }
       throw error;
     } finally {
-      if (loadingPreview === view) {
-        loadingPreview = undefined;
+      // Only the latest request owns the loader; a superseded one must not
+      // clear the spinner of the preview that replaced it.
+      if (token === previewToken) {
+        setLoadingPreview(undefined);
       }
-      onStatusChange();
-      syncLoadingIndicator(loadingPreview !== undefined);
     }
   }
 
@@ -160,16 +195,7 @@ export function createVersioningPreview<Output, Attributions>({
       const snapshot = requireSnapshot(id);
       const compareToSnapshot = getSnapshot(previewOptions?.compareTo);
 
-      await enterPreview(
-        {
-          mode: "snapshot",
-          snapshotId: snapshot.id,
-          compareToId: compareToSnapshot?.id,
-        },
-        { kind: "snapshot", snapshot },
-        compareToSnapshot,
-        () => endpoints.getContent(snapshot),
-      );
+      await enterPreview({ kind: "snapshot", snapshot }, compareToSnapshot);
     },
 
     /**
@@ -183,12 +209,6 @@ export function createVersioningPreview<Output, Attributions>({
        */
       compareTo?: VersionSnapshotIdentifier;
     }) {
-      if (!serializeCurrentContent) {
-        throw new Error(
-          "previewCurrentVersion requires `serializeCurrentContent` to be " +
-            "provided to the VersioningExtension options.",
-        );
-      }
       const { list: versions } = store.state;
       if (!versions.loaded) {
         throw new Error(
@@ -200,10 +220,8 @@ export function createVersioningPreview<Output, Attributions>({
       const compareToSnapshot = getSnapshot(previewOptions?.compareTo);
 
       await enterPreview(
-        { mode: "current", compareToId: compareToSnapshot?.id },
         { kind: "current", snapshot: versions.current },
         compareToSnapshot,
-        serializeCurrentContent,
       );
     },
 
@@ -216,9 +234,7 @@ export function createVersioningPreview<Output, Attributions>({
       // Supersede any in-flight preview so it doesn't render on top of the
       // live document once its fetches resolve.
       previewToken++;
-      loadingPreview = undefined;
-      onStatusChange();
-      syncLoadingIndicator(loadingPreview !== undefined);
+      setLoadingPreview(undefined);
       setView({ mode: "live" });
       // The controller is only asked to leave what it was asked to render. A
       // preview still fetching never replaced the document, and the controller

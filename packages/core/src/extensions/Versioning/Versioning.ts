@@ -15,10 +15,10 @@ import type {
   VersioningState,
   VersioningView,
 } from "./types.js";
-import { createVersioningPreview } from "./helpers.js";
+import { createVersioningPreview } from "./preview.js";
 
 export type * from "./types.js";
-export { LOADING_PREVIEW_CLASS, LOADING_PREVIEW_DELAY_MS } from "./helpers.js";
+export { LOADING_PREVIEW_CLASS, LOADING_PREVIEW_DELAY_MS } from "./preview.js";
 
 /** Previewing and restoring both hold the editor read-only. */
 function isReadOnly(state: VersioningState): boolean {
@@ -196,10 +196,9 @@ export const VersioningExtension = createExtension(
       preview,
       serializeCurrentContent,
       getSnapshot: findSnapshot,
-      requireSnapshot,
       setView,
-      onStatusChange: syncStatus,
-      getEditorDOM: () => editor.domElement,
+      syncStatus,
+      editor,
       scrollToFirstChangeEnabled,
     });
 
