@@ -299,9 +299,8 @@ SideMenuController offsets its position to keep it centered on the line. */
  * `.bn-threads-sidebar` override for the pattern).
  *
  * Resembles `.bn-threads-sidebar` above, but shares almost nothing with it
- * concretely: the shells have only `overflow: auto` in common (this one is a
- * flex *item* holding a header and a `role="listbox"` whose rows self-space via
- * `margin-bottom`, not a flex column),
+ * concretely: this one is a fixed header over a scrolling `role="list"`
+ * whose rows self-space via `margin-bottom`, not a single scrolling column,
  * and the two selected states are deliberately different designs — a filled
  * accent with inverted text here, a pale tint with a saturated border there.
  * The row boxes look closer, but only against `.bn-mantine .bn-thread`:
@@ -312,18 +311,18 @@ SideMenuController offsets its position to keep it centered on the line. */
  */
 
 .bn-versioning-sidebar {
+  display: flex;
+  flex-direction: column;
   flex: 1;
-  overflow: auto;
+  min-height: 0;
+  overflow: hidden;
   padding-inline: 16px;
 }
 
 .bn-versioning-sidebar-header {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background-color: var(--bn-colors-editor-background);
   align-items: center;
   display: flex;
+  flex-shrink: 0;
   justify-content: space-between;
   padding-block: 16px 8px;
 }
@@ -349,18 +348,28 @@ SideMenuController offsets its position to keep it centered on the line. */
 
 .bn-versioning-sidebar-list {
   display: flex;
+  flex: 1;
   flex-direction: column;
+  margin: -4px -4px 0;
+  min-height: 0;
+  overflow-y: auto;
+  /* 4px of ring room on every side without shifting the rows out of line
+     with the header; the extra bottom padding keeps the last row off the
+     panel's edge. */
+  padding: 4px 4px 16px;
 }
 
 .bn-versioning-sidebar-loading {
   align-items: center;
   display: flex;
+  flex-shrink: 0;
   justify-content: center;
   padding-block: 24px;
 }
 
 .bn-versioning-sidebar-empty {
   color: #6b7280;
+  flex-shrink: 0;
   font-size: 13px;
   padding-block: 12px;
   text-align: center;
@@ -373,6 +382,7 @@ SideMenuController offsets its position to keep it centered on the line. */
 /* The generic "something failed" notice, shown until the next action succeeds. */
 .bn-versioning-sidebar-error {
   color: #b42318;
+  flex-shrink: 0;
   font-size: 13px;
   padding-block: 8px;
 }

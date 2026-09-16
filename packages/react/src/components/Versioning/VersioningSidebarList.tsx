@@ -49,22 +49,9 @@ export function VersioningSidebarList() {
     }
     const clamped = Math.max(0, Math.min(index, items.length - 1));
     setActiveIndex(clamped);
-    const row = items[clamped]!;
-    row.focus();
-
-    // Native focus scrolling doesn't account for the sticky header. Reveal
-    // the whole row beneath its actual height, including the focus ring.
-    const sidebar = row.closest<HTMLElement>(".bn-versioning-sidebar");
-    const header = sidebar?.querySelector(".bn-versioning-sidebar-header");
-    if (sidebar && header) {
-      const hiddenHeight =
-        header.getBoundingClientRect().bottom +
-        4 -
-        row.getBoundingClientRect().top;
-      if (hiddenHeight > 0) {
-        sidebar.scrollTop -= hiddenHeight;
-      }
-    }
+    // The header sits outside the list's scroll container, so native focus
+    // scrolling reveals the whole row on its own.
+    items[clamped]!.focus();
   }, []);
 
   // Current stays pinned even when unnamed versions are filtered out.

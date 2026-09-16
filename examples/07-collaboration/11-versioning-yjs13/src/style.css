@@ -47,12 +47,6 @@
   padding: 8px;
 }
 
-.bn-versioning-sidebar {
-  flex: 1;
-  overflow: auto;
-  padding-inline: 16px;
-}
-
 .show-history-button {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
