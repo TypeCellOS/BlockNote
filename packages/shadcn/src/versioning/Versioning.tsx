@@ -9,12 +9,17 @@ export const Sidebar = forwardRef<
   HTMLDivElement,
   ComponentProps["Versioning"]["Sidebar"]
 >((props, ref) => {
-  const { className, children, ...rest } = props;
+  const { className, children, "aria-label": ariaLabel, ...rest } = props;
 
   assertEmpty(rest, false);
 
   return (
-    <div className={cn(className)} ref={ref}>
+    <div
+      className={cn(className)}
+      ref={ref}
+      role="region"
+      aria-label={ariaLabel}
+    >
       {children}
     </div>
   );
@@ -27,6 +32,7 @@ export const Snapshot = forwardRef<
   const {
     className,
     id,
+    "aria-label": ariaLabel,
     selected,
     comparing,
     tabIndex,
@@ -58,6 +64,7 @@ export const Snapshot = forwardRef<
       )}
       id={id}
       role="listitem"
+      aria-label={ariaLabel}
       aria-current={selected ? "true" : undefined}
       aria-busy={ariaBusy}
       tabIndex={tabIndex}

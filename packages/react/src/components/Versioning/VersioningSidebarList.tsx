@@ -2,7 +2,14 @@ import {
   VersioningExtension,
   type VersionSnapshot,
 } from "@blocknote/core/extensions";
-import { useCallback, useRef, useState, type KeyboardEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useExtensionState } from "../../hooks/useExtension.js";
@@ -31,6 +38,8 @@ export function VersioningSidebarList() {
     selector: (state) => state.status.type === "listing",
   });
 
+  const listId = useId();
+  const focusedRowId = useRef<string | undefined>(undefined);
   const listRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -59,6 +68,26 @@ export function VersioningSidebarList() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (!list.loaded || !focusedRowId.current) {
+      return;
+    }
+    const visibleIds = [
+      list.current.id,
+      ...list.snapshots
+        .filter((snapshot) => !namedOnly || snapshot.name !== undefined)
+        .map((snapshot) => snapshot.id),
+    ];
+    // Removing the focused DOM node drops focus onto body. Return it to the
+    // nearest remaining row without stealing focus from another control.
+    if (
+      !visibleIds.includes(focusedRowId.current) &&
+      document.activeElement === document.body
+    ) {
+      focusRow(activeIndex);
+    }
+  }, [list, namedOnly, activeIndex, focusRow]);
 
   if (!list.loaded) {
     return (
@@ -123,11 +152,16 @@ export function VersioningSidebarList() {
         aria-label={dict.versioning.versions_list}
         aria-busy={listing || undefined}
         ref={listRef}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) {
+            focusedRowId.current = undefined;
+          }
+        }}
       >
         {rows.map((row, index) => (
           <Snapshot
             key={row.snapshot.id}
-            id={`bn-snapshot-${row.snapshot.id}`}
+            id={`${listId}-snapshot-${row.snapshot.id}`}
             snapshot={row.snapshot}
             previousSnapshot={rows[index + 1]?.snapshot}
             isCurrent={row.isCurrent}
@@ -141,7 +175,10 @@ export function VersioningSidebarList() {
                 : -1
             }
             onKeyDown={(event) => handleKeyDown(event, index)}
-            onFocus={() => setActiveIndex(index)}
+            onFocus={() => {
+              focusedRowId.current = row.snapshot.id;
+              setActiveIndex(index);
+            }}
           />
         ))}
       </div>

@@ -47,7 +47,7 @@ export type VersioningSidebarContextValue = {
   failed: boolean;
   /**
    * The version whose name field should take focus as soon as its row renders.
-   * Set by "Save version", so naming what you just saved is one keystroke away;
+   * Set by the row's rename action so naming is one keystroke away;
    * cleared by the row that takes it.
    */
   focusNameFor: string | undefined;

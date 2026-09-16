@@ -113,6 +113,17 @@ export function Snapshot(props: {
   // automatic version identifies itself — except the current row, which is a
   // place in the list rather than a moment.
   const placeholder = isCurrent ? dict.versioning.current_version : dateString;
+  const accessibleLabel = [
+    snapshot.name ?? placeholder,
+    isCurrent && snapshot.name !== undefined
+      ? dict.versioning.current_version
+      : undefined,
+    isCurrent || snapshot.name !== undefined ? dateString : undefined,
+    comparing ? dict.versioning.comparing_to : undefined,
+    secondaryLabel,
+  ]
+    .filter(Boolean)
+    .join(", ");
   // Naming the current version goes through `create`; every other rename is a
   // `rename`. Both are gated on the backend actually supporting them.
   const commitsViaCreate = isCurrent && snapshot.name === undefined;
@@ -121,7 +132,7 @@ export function Snapshot(props: {
   // and the first click on the row selects it rather than starting a rename.
   const editable = selected && canEditName === true;
 
-  // Save/Rename requests focus before selecting the row and mounting its input.
+  // Rename requests focus before selecting the row and mounting its input.
   useEffect(() => {
     if (focusNameFor !== snapshot.id) {
       return;
@@ -149,7 +160,7 @@ export function Snapshot(props: {
   /**
    * "Rename" from the row's menu. The field only exists on the selected row,
    * so on any other row this selects it first and lets the row take the focus
-   * once the field is there (the same hand-off "Save version" uses).
+   * once the field is there.
    */
   function startRename() {
     if (editable && nameInput.current) {
@@ -172,6 +183,8 @@ export function Snapshot(props: {
     snapshotMenu != null && snapshotMenu !== false ? (
       <Components.Generic.Toolbar.Root
         variant="action-toolbar"
+        trapFocus={false}
+        aria-label={`${dict.versioning.more_actions}: ${accessibleLabel}`}
         className="bn-action-toolbar"
       >
         <Components.Generic.Menu.Root position="bottom-start">
@@ -215,6 +228,7 @@ export function Snapshot(props: {
             : "bn-snapshot"
         }
         id={props.id}
+        aria-label={accessibleLabel}
         selected={selected}
         comparing={comparing}
         aria-busy={loading || undefined}

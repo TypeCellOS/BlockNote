@@ -79,7 +79,10 @@ function VersioningSidebarContent(props: { onClose?: () => void }) {
   }, [versioning]);
 
   return (
-    <Components.Versioning.Sidebar className="bn-versioning-sidebar">
+    <Components.Versioning.Sidebar
+      className="bn-versioning-sidebar"
+      aria-label={dict.versioning.title}
+    >
       <VersioningSidebarHeader onClose={props.onClose} />
       {failed && (
         <div className="bn-versioning-sidebar-error" role="alert">

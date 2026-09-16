@@ -51,9 +51,6 @@ function VersionNameInput(props: {
         ref={props.inputRef}
         className="bn-snapshot-name"
         type="text"
-        // Reachable by clicking it or from the row's menu only: the list has a
-        // roving tabindex, so Tab moves between rows, not into one.
-        tabIndex={-1}
         value={draft}
         placeholder={props.placeholder}
         aria-label={dict.versioning.version_name_input}

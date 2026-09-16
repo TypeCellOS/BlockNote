@@ -16,6 +16,9 @@ import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/Gri
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types.js";
 
 type ToolbarRootType = {
+  "aria-label"?: string;
+  /** Keep Tab within floating toolbars. Disable for toolbars embedded in a panel. */
+  trapFocus?: boolean;
   className?: string;
   children?: ReactNode;
   onMouseEnter?: () => void;
@@ -242,15 +245,17 @@ export type ComponentProps = {
      * snapshot rows).
      */
     Sidebar: {
+      "aria-label"?: string;
       className?: string;
       children?: ReactNode;
     };
     /**
      * A single row in the version-history sidebar — the current version or a
-     * stored one. Rendered as a `role="option"` inside the sidebar's listbox,
+     * stored one. Rendered as a `role="listitem"` inside the sidebar's list,
      * which is why it takes the roving-tabindex and focus props below.
      */
     Snapshot: {
+      "aria-label"?: string;
       className?: string;
       id?: string;
       /** Whether this row is the version currently shown in the editor. */

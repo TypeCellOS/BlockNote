@@ -426,7 +426,7 @@ SideMenuController offsets its position to keep it centered on the line. */
   white-space: nowrap;
 }
 
-/* Rows are listbox options reached with the arrow keys, so the focus ring is
+/* Rows are reached with the arrow keys, so the focus ring is
    the only thing telling a keyboard user where they are. */
 .bn-snapshot:focus-visible {
   outline: 2px solid #3e5de7;
@@ -588,7 +588,7 @@ SideMenuController offsets its position to keep it centered on the line. */
 .bn-versioning-sidebar .bn-snapshot.selected .bn-snapshot-date,
 .bn-versioning-sidebar .bn-snapshot.selected .bn-snapshot-original-date,
 .bn-versioning-sidebar .bn-snapshot.selected .bn-snapshot-secondary-label {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .bn-versioning-sidebar .bn-snapshot.selected .bn-snapshot-menu-trigger {

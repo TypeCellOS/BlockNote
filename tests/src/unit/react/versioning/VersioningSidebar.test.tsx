@@ -757,163 +757,6 @@ describe("VersioningSidebar", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Saving
-  // -------------------------------------------------------------------------
-
-  describe("saving", () => {
-    it("saves a new version from the header and starts naming it", async () => {
-      const fake = createFakeEndpoints();
-      fake.endpoints.create.mockImplementation(async (_doc, options) => {
-        const created = { id: "new", createdAt: 2500, name: options.name };
-        fake.setSnapshots([created, NAMED, AUTOMATIC]);
-        return created;
-      });
-      await setup({}, fake);
-
-      await click(screen.getByRole("button", { name: "Save version" }));
-
-      // Saved unnamed, and the live document was what got saved.
-      expect(fake.endpoints.create).toHaveBeenCalledWith([], {
-        name: undefined,
-      });
-      expect(rows()).toHaveLength(4);
-      // The new row is selected and ready to be named: a name is a keystroke
-      // away, and leaving the field as it is keeps the version unnamed.
-      const created = rows()[1]!;
-      expect(created.getAttribute("aria-current")).toBe("true");
-      expect(nameInput(created).value).toBe("");
-      expect(document.activeElement).toBe(nameInput(created));
-
-      await commit(nameInput(created), "Milestone", "Enter");
-      expect(fake.endpoints.rename).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "new" }),
-        "Milestone",
-      );
-    });
-
-    it("reveals a saved version and compares it to its unfiltered predecessor", async () => {
-      const fake = createFakeEndpoints();
-      fake.endpoints.create.mockImplementation(async (_doc, options) => {
-        const created = { id: "new", createdAt: 2500, name: options.name };
-        fake.setSnapshots([created, { ...AUTOMATIC, createdAt: 2200 }, NAMED]);
-        return created;
-      });
-      const { editor } = await setup(
-        { defaultNamedOnly: true, defaultComparisonMode: true },
-        fake,
-      );
-
-      await click(screen.getByRole("button", { name: "Save version" }));
-
-      // Saved unnamed: with the filter still on it would stay hidden, and
-      // its name field could never receive the focus.
-      expect(rows()).toHaveLength(4);
-      expect(document.activeElement).toBe(nameInput(rows()[1]!));
-      expect(
-        editor.getExtension(VersioningExtension)!.store.state.view,
-      ).toEqual({
-        mode: "snapshot",
-        snapshotId: "new",
-        compareToId: AUTOMATIC.id,
-      });
-    });
-
-    it.each(["close", "unmount"])(
-      "does not reopen a preview when saving finishes after %s",
-      async (action) => {
-        const { editor, fake, view } = await setup({ onClose: vi.fn() });
-        const release = fake.block();
-        await click(screen.getByRole("button", { name: "Save version" }));
-
-        if (action === "close") {
-          await click(screen.getByRole("button", { name: "Close" }));
-        } else {
-          view.rerender(<BlockNoteView editor={editor} />);
-        }
-        await act(async () => release());
-
-        expect(
-          editor.getExtension(VersioningExtension)!.store.state.view,
-        ).toEqual({
-          mode: "live",
-        });
-        expect(editor.isEditable).toBe(true);
-      },
-    );
-
-    it("keeps a newer selection when a pending save finishes", async () => {
-      const { editor, fake } = await setup();
-      let finishSave!: () => void;
-      fake.endpoints.create.mockImplementationOnce(async () => {
-        await new Promise<void>((resolve) => {
-          finishSave = resolve;
-        });
-        return CURRENT;
-      });
-      await click(screen.getByRole("button", { name: "Save version" }));
-      await click(rows()[1]!);
-      await act(async () => finishSave());
-
-      expect(
-        editor.getExtension(VersioningExtension)!.store.state.view,
-      ).toMatchObject({
-        mode: "snapshot",
-        snapshotId: NAMED.id,
-      });
-      expect(document.activeElement).not.toBe(nameInput(rows()[1]!));
-    });
-
-    it("hides the save button when the backend can't create versions", async () => {
-      const fake = createFakeEndpoints();
-      const { create: _create, ...endpoints } = fake.endpoints;
-      const editor = createEditor(endpoints);
-      render(
-        <BlockNoteView editor={editor}>
-          <VersioningSidebar />
-        </BlockNoteView>,
-      );
-      await act(async () => {});
-
-      expect(screen.queryByRole("button", { name: "Save version" })).toBeNull();
-    });
-
-    it("reports a failed preview after saving and clears it on retry", async () => {
-      const fake = createFakeEndpoints();
-      fake.endpoints.create.mockImplementation(async (_doc, options) => {
-        const created = { id: "new", createdAt: 2500, name: options.name };
-        fake.setSnapshots([created, NAMED, AUTOMATIC]);
-        return created;
-      });
-      await setup({}, fake);
-      fake.endpoints.getContent.mockRejectedValueOnce(
-        new Error("preview offline"),
-      );
-
-      await click(screen.getByRole("button", { name: "Save version" }));
-
-      expect(fake.endpoints.create).toHaveBeenCalledOnce();
-      expect(screen.getByRole("alert").textContent).toBe(
-        "Something went wrong. Please try again.",
-      );
-
-      await click(rows()[1]!);
-      expect(screen.queryByRole("alert")).toBeNull();
-    });
-
-    it("reports a failed save", async () => {
-      const fake = createFakeEndpoints();
-      fake.endpoints.create.mockRejectedValue(new Error("offline"));
-      await setup({}, fake);
-
-      await click(screen.getByRole("button", { name: "Save version" }));
-
-      expect(screen.getByRole("alert").textContent).toBe(
-        "Something went wrong. Please try again.",
-      );
-    });
-  });
-
-  // -------------------------------------------------------------------------
   // Menu composition
   // -------------------------------------------------------------------------
 
@@ -1378,26 +1221,78 @@ describe("VersioningSidebar", () => {
   // Accessibility baseline
   // -------------------------------------------------------------------------
 
-  it("ignores a superseded action's failure notice", async () => {
+  it("ignores a superseded naming action's failure notice", async () => {
     const { fake } = await setup();
-    let rejectSave!: (error: Error) => void;
+    let rejectName!: (error: Error) => void;
     fake.endpoints.create.mockImplementationOnce(
       () =>
         new Promise((_, reject) => {
-          rejectSave = reject;
+          rejectName = reject;
         }),
     );
-    await click(screen.getByRole("button", { name: "Save version" }));
+    await commit(nameInput(rows()[0]!), "Draft", "Enter");
     await click(rows()[1]!);
-    await act(async () => rejectSave(new Error("old save failed")));
+    await act(async () => rejectName(new Error("old naming failed")));
     expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it.each([BlockNoteView, AriakitBlockNoteView, ShadcnBlockNoteView])(
+    "names the panel, toolbars and focused rows across skins",
+    async (View) => {
+      await setup({}, createFakeEndpoints(), View);
+      expect(screen.getByRole("region", { name: "History" })).toBeDefined();
+      expect(screen.getByRole("toolbar", { name: "History" })).toBeDefined();
+      expect(rows()[0]!.getAttribute("aria-label")).toContain(
+        "Current version",
+      );
+      expect(rows()[1]!.getAttribute("aria-label")).toContain("Draft");
+    },
+  );
+
+  it("keeps naming in the tab order when row menus are hidden", async () => {
+    await setup({ snapshotMenu: null });
+    expect(nameInput(rows()[0]!).tabIndex).toBe(0);
+  });
+
+  it("gives multiple sidebars unique row IDs", async () => {
+    await setup();
+    await setup();
+    const ids = rows().map((row) => row.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("returns keyboard focus to the editor when closing", async () => {
+    const { editor } = await setup({ onClose: () => {} });
+    await click(screen.getByRole("button", { name: "Close" }));
+    expect(editor.domElement!.contains(document.activeElement)).toBe(true);
+  });
+
+  it("focuses a remaining row when the focused version is removed", async () => {
+    const { editor } = await setup();
+    act(() => rows()[1]!.focus());
+    await act(async () => {
+      await editor.getExtension(VersioningExtension)!.remove!(NAMED.id);
+    });
+    expect(document.activeElement).toBe(rows()[1]);
+  });
+
+  it("does not steal focus after a removed version has been left", async () => {
+    const { editor } = await setup({ onClose: () => {} });
+    const control = screen.getByRole("button", { name: "Turn on comparison" });
+    act(() => {
+      rows()[1]!.focus();
+      control.focus();
+    });
+    await act(async () => {
+      await editor.getExtension(VersioningExtension)!.remove!(NAMED.id);
+    });
+    expect(document.activeElement).toBe(control);
   });
 
   it("gives every header control an accessible name", async () => {
     await setup({ onClose: () => {} });
 
     for (const name of [
-      "Save version",
       "Show named versions only",
       "Turn on comparison",
       "Close",
