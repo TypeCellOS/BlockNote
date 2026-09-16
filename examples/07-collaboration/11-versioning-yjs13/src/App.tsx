@@ -16,7 +16,7 @@ import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { toBase64, fromBase64 } from "lib0/buffer";
 
-import { VersionHistorySidebar } from "./VersionHistorySidebar";
+import { VersioningSidebar } from "@blocknote/react/versioning";
 import {
   blocksToUpdate,
   DAY_MS,
@@ -105,7 +105,9 @@ export default function App() {
             )}
           </div>
           {showSidebar && (
-            <VersionHistorySidebar onClose={() => setShowSidebar(false)} />
+            <div className={"sidebar-section"}>
+              <VersioningSidebar onClose={() => setShowSidebar(false)} />
+            </div>
           )}
         </div>
       </BlockNoteView>

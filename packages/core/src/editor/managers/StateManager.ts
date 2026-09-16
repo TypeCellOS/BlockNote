@@ -189,7 +189,9 @@ export class StateManager {
       }
       return false;
     }
-    return this.editor._tiptapEditor.isEditable;
+    return this.editor._tiptapEditor.isEditable === undefined
+      ? true
+      : this.editor._tiptapEditor.isEditable;
   }
 
   /**

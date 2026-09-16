@@ -26,8 +26,7 @@ export const ReadOnlyExtension = createExtension(
           ) {
             return;
           }
-          const view = editor.prosemirrorView;
-          if (view && !view.isDestroyed) {
+          if (!editor.headless) {
             // Recompute plugin editability and notify UI subscribers without a
             // document change. Reuse any transaction already in progress.
             editor.transact((tr) => tr.setMeta("editable", true));
