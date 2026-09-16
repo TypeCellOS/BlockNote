@@ -77,9 +77,9 @@ export function VersioningSidebarProvider(props: {
   const [failed, setFailed] = useState(false);
   const [focusNameFor, setFocusNameFor] = useState<string>();
 
-  const pendingAction = useRef<AbortController | undefined>(undefined);
+  const actionGeneration = useRef(0);
   const close = useCallback(() => {
-    pendingAction.current?.abort();
+    actionGeneration.current++;
     setFocusNameFor(undefined);
     versioning.exitPreview();
   }, [versioning]);
@@ -89,15 +89,13 @@ export function VersioningSidebarProvider(props: {
     action: () => Promise<T>,
     onSuccess?: (result: T) => void | Promise<unknown>,
   ) {
-    pendingAction.current?.abort();
-    const controller = new AbortController();
-    pendingAction.current = controller;
+    const generation = ++actionGeneration.current;
     try {
       const result = await action();
-      if (!controller.signal.aborted) {
+      if (generation === actionGeneration.current) {
         await onSuccess?.(result);
       }
-      if (!controller.signal.aborted) {
+      if (generation === actionGeneration.current) {
         setFailed(false);
       }
     } catch (error) {
@@ -105,12 +103,8 @@ export function VersioningSidebarProvider(props: {
       // messages in the sidebar or let an older action overwrite its notice.
       // eslint-disable-next-line no-console
       console.error(error);
-      if (!controller.signal.aborted) {
+      if (generation === actionGeneration.current) {
         setFailed(true);
-      }
-    } finally {
-      if (pendingAction.current === controller) {
-        pendingAction.current = undefined;
       }
     }
   }, []);

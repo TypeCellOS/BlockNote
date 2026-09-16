@@ -6,22 +6,16 @@ import { useExtension } from "../../../../hooks/useExtension.js";
 import { usePreviewRow } from "../../usePreviewRow.js";
 import { useVersioningSidebar } from "../../VersioningSidebarContext.js";
 import { useVersionSnapshot } from "../../VersionSnapshotContext.js";
-import {
-  VersionMenuItem,
-  type DefaultVersionMenuItemProps,
-  type VersionMenuAction,
+import type {
+  DefaultVersionMenuItemProps,
+  VersionMenuAction,
 } from "../VersionMenuItem.js";
+import { DefaultVersionMenuItem } from "../DefaultVersionMenuItem.js";
 
 /**
- * "Restore" — rolls the document back to this version. Only on stored rows;
- * restoring the current version would be a no-op.
- *
- * Afterwards the sidebar re-selects the current row, so the user sees the
- * restored document as the new head rather than being left in a stale preview.
- *
- * Check `action.available` before calling `action.execute()`. Custom items can
- * request confirmation first, then execute the same restore and preview flow.
- * The hook must be called inside a snapshot row (for example, in `snapshotMenu`).
+ * Restore this stored version and reselect current.
+ * Call inside a snapshot row; check `available` before `execute`. Custom items
+ * can request confirmation before executing the same restore/preview flow.
  */
 export function useRestoreVersionAction(): VersionMenuAction {
   const { restore, store } = useExtension(VersioningExtension);
@@ -53,21 +47,13 @@ export function useRestoreVersionAction(): VersionMenuAction {
 export function RestoreVersionItem(props: DefaultVersionMenuItemProps = {}) {
   const dict = useDictionary();
   const action = useRestoreVersionAction();
-  if (!action.available) {
-    return null;
-  }
 
   return (
-    <VersionMenuItem
+    <DefaultVersionMenuItem
       {...props}
-      icon={props.icon === undefined ? <RiArrowGoBackFill /> : props.icon}
-      onClick={() => {
-        void action.execute();
-      }}
-    >
-      {props.children === undefined
-        ? dict.versioning.restore_menuitem
-        : props.children}
-    </VersionMenuItem>
+      action={action}
+      defaultIcon={<RiArrowGoBackFill />}
+      defaultLabel={dict.versioning.restore_menuitem}
+    />
   );
 }

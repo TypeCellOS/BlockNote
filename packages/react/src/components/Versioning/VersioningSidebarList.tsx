@@ -1,11 +1,9 @@
-import {
-  VersioningExtension,
-  type VersionSnapshot,
-} from "@blocknote/core/extensions";
+import { VersioningExtension } from "@blocknote/core/extensions";
 import {
   useCallback,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   type KeyboardEvent,
@@ -69,25 +67,33 @@ export function VersioningSidebarList() {
     }
   }, []);
 
+  // Current stays pinned even when unnamed versions are filtered out.
+  const rows = useMemo(
+    () =>
+      list.loaded
+        ? [
+            list.current,
+            ...list.snapshots.filter(
+              (snapshot) => !namedOnly || snapshot.name !== undefined,
+            ),
+          ]
+        : [],
+    [list, namedOnly],
+  );
+
   useEffect(() => {
-    if (!list.loaded || !focusedRowId.current) {
+    if (!focusedRowId.current) {
       return;
     }
-    const visibleIds = [
-      list.current.id,
-      ...list.snapshots
-        .filter((snapshot) => !namedOnly || snapshot.name !== undefined)
-        .map((snapshot) => snapshot.id),
-    ];
     // Removing the focused DOM node drops focus onto body. Return it to the
     // nearest remaining row without stealing focus from another control.
     if (
-      !visibleIds.includes(focusedRowId.current) &&
+      !rows.some((row) => row.id === focusedRowId.current) &&
       document.activeElement === document.body
     ) {
       focusRow(activeIndex);
     }
-  }, [list, namedOnly, activeIndex, focusRow]);
+  }, [rows, activeIndex, focusRow]);
 
   if (!list.loaded) {
     return (
@@ -99,16 +105,6 @@ export function VersioningSidebarList() {
       </div>
     );
   }
-
-  // The current row is always first and always shown: it's the document as it
-  // is now, which the named-only filter has no business hiding.
-  const rows: Array<{ snapshot: VersionSnapshot; isCurrent: boolean }> = [
-    { snapshot: list.current, isCurrent: true },
-    ...list.snapshots
-      // A version is "named" exactly when a user typed a name for it.
-      .filter((snapshot) => !namedOnly || snapshot.name !== undefined)
-      .map((snapshot) => ({ snapshot, isCurrent: false })),
-  ];
 
   function handleKeyDown(event: KeyboardEvent, index: number) {
     // Text inputs (the inline rename) and the row menu handle their own keys.
@@ -137,7 +133,7 @@ export function VersioningSidebarList() {
       case "Enter":
       case " ":
         event.preventDefault();
-        void run(() => previewRow(rows[index]!.snapshot));
+        void run(() => previewRow(rows[index]!));
         break;
       default:
         break;
@@ -160,14 +156,12 @@ export function VersioningSidebarList() {
       >
         {rows.map((row, index) => (
           <Snapshot
-            key={row.snapshot.id}
-            id={`${listId}-snapshot-${row.snapshot.id}`}
-            snapshot={row.snapshot}
-            previousSnapshot={rows[index + 1]?.snapshot}
-            isCurrent={row.isCurrent}
-            // Roving tabindex: one stop for the whole list, arrows move within
-            // it. Falls back to the selected row so tabbing in lands somewhere
-            // meaningful.
+            key={row.id}
+            id={`${listId}-snapshot-${row.id}`}
+            snapshot={row}
+            previousSnapshot={rows[index + 1]}
+            isCurrent={index === 0}
+            // One tab stop; fall back to Current if the active index disappears.
             tabIndex={
               index === activeIndex ||
               (activeIndex >= rows.length && index === 0)
@@ -176,7 +170,7 @@ export function VersioningSidebarList() {
             }
             onKeyDown={(event) => handleKeyDown(event, index)}
             onFocus={() => {
-              focusedRowId.current = row.snapshot.id;
+              focusedRowId.current = row.id;
               setActiveIndex(index);
             }}
           />

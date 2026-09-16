@@ -6,19 +6,15 @@ import { useExtension } from "../../../../hooks/useExtension.js";
 import { usePreviewRow } from "../../usePreviewRow.js";
 import { useVersioningSidebar } from "../../VersioningSidebarContext.js";
 import { useVersionSnapshot } from "../../VersionSnapshotContext.js";
-import {
-  VersionMenuItem,
-  type DefaultVersionMenuItemProps,
-  type VersionMenuAction,
+import type {
+  DefaultVersionMenuItemProps,
+  VersionMenuAction,
 } from "../VersionMenuItem.js";
+import { DefaultVersionMenuItem } from "../DefaultVersionMenuItem.js";
 
 /**
- * "Compare with this version" — moves the diff baseline to this row, keeping
- * whatever is currently being shown (the current version when nothing, or this
- * same version, was being shown).
- *
- * Hidden on the current row (a version is never diffed against itself) and when
- * the backend can't diff at all.
+ * Use this stored row as the baseline, keeping the shown version.
+ * Falls back to current when nothing or this same row was shown.
  */
 export function useCompareWithVersionAction(): VersionMenuAction {
   const versioning = useExtension(VersioningExtension);
@@ -59,21 +55,13 @@ export function CompareWithVersionItem(
 ) {
   const dict = useDictionary();
   const action = useCompareWithVersionAction();
-  if (!action.available) {
-    return null;
-  }
 
   return (
-    <VersionMenuItem
+    <DefaultVersionMenuItem
       {...props}
-      icon={props.icon === undefined ? <GoDiff /> : props.icon}
-      onClick={() => {
-        void action.execute();
-      }}
-    >
-      {props.children === undefined
-        ? dict.versioning.compare_with_menuitem
-        : props.children}
-    </VersionMenuItem>
+      action={action}
+      defaultIcon={<GoDiff />}
+      defaultLabel={dict.versioning.compare_with_menuitem}
+    />
   );
 }

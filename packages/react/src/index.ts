@@ -129,6 +129,7 @@ export * from "./components/Versioning/usePreviewRow.js";
 export * from "./components/Versioning/VersioningSidebar.js";
 export * from "./components/Versioning/VersioningSidebarContext.js";
 export * from "./components/Versioning/VersionName.js";
+export * from "./components/Versioning/VersioningPrimitives.js";
 export * from "./components/Versioning/VersionSnapshotContext.js";
 export * from "./components/Versioning/VersionMenu/VersionMenu.js";
 export * from "./components/Versioning/VersionMenu/VersionMenuItem.js";

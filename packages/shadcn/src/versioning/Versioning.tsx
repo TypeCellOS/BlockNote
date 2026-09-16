@@ -1,5 +1,8 @@
-import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import {
+  type ComponentProps,
+  VersioningSidebarRoot,
+  VersioningSnapshotRow,
+} from "@blocknote/react";
 import { forwardRef } from "react";
 
 import { cn } from "../lib/utils.js";
@@ -8,85 +11,22 @@ import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 export const Sidebar = forwardRef<
   HTMLDivElement,
   ComponentProps["Versioning"]["Sidebar"]
->((props, ref) => {
-  const { className, children, "aria-label": ariaLabel, ...rest } = props;
-
-  assertEmpty(rest, false);
-
-  return (
-    <div
-      className={cn(className)}
-      ref={ref}
-      role="region"
-      aria-label={ariaLabel}
-    >
-      {children}
-    </div>
-  );
-});
+>((props, ref) => (
+  <VersioningSidebarRoot {...props} className={cn(props.className)} ref={ref} />
+));
 
 export const Snapshot = forwardRef<
   HTMLDivElement,
   ComponentProps["Versioning"]["Snapshot"]
 >((props, ref) => {
-  const {
-    className,
-    id,
-    "aria-label": ariaLabel,
-    selected,
-    comparing,
-    tabIndex,
-    "aria-busy": ariaBusy,
-    onClick,
-    onKeyDown,
-    onFocus,
-    actions,
-    children,
-    ...rest
-  } = props;
-
-  assertEmpty(rest, false);
-
   const ShadCNComponents = useShadCNComponentsContext()!;
-
   return (
-    <ShadCNComponents.Card.Card
-      // `bn-snapshot` (and the `selected`/`comparing` state classes) carry the
-      // shared sidebar CSS, which also styles this row's children — so they're
-      // kept and Tailwind is merged alongside, as in `Comments/Card`. The
-      // utilities below only neutralize `Card`'s own defaults (`gap-6`,
-      // `rounded-xl`, `py-6`, `shadow-sm`) where they'd fight that CSS.
-      className={cn(
-        className,
-        selected ? "selected" : "",
-        comparing ? "comparing" : "",
-        "gap-0 rounded-lg py-0 shadow-none",
-      )}
-      id={id}
-      role="listitem"
-      aria-label={ariaLabel}
-      aria-current={selected ? "true" : undefined}
-      aria-busy={ariaBusy}
-      tabIndex={tabIndex}
-      onClick={onClick}
-      onKeyDown={onKeyDown}
-      onFocus={onFocus}
+    <VersioningSnapshotRow
+      {...props}
+      as={ShadCNComponents.Card.Card}
+      // Neutralize Card defaults that conflict with the shared sidebar CSS.
+      className={cn(props.className, "gap-0 rounded-lg py-0 shadow-none")}
       ref={ref}
-    >
-      {children}
-      {actions && (
-        // Isolate the actions area so clicks on the menu (trigger and items,
-        // which render inline rather than in a portal) don't bubble to the
-        // row's select handler, and so its own keyboard handling isn't eaten
-        // by the list's arrow-key navigation.
-        <div
-          className={"bn-snapshot-menu"}
-          onClick={(event) => event.stopPropagation()}
-          onKeyDown={(event) => event.stopPropagation()}
-        >
-          {actions}
-        </div>
-      )}
-    </ShadCNComponents.Card.Card>
+    />
   );
 });

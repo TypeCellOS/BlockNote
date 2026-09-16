@@ -9,19 +9,13 @@ import {
 import { usePreviewRow } from "../../usePreviewRow.js";
 import { useVersioningSidebar } from "../../VersioningSidebarContext.js";
 import { useVersionSnapshot } from "../../VersionSnapshotContext.js";
-import {
-  VersionMenuItem,
-  type DefaultVersionMenuItemProps,
-  type VersionMenuAction,
+import type {
+  DefaultVersionMenuItemProps,
+  VersionMenuAction,
 } from "../VersionMenuItem.js";
+import { DefaultVersionMenuItem } from "../DefaultVersionMenuItem.js";
 
-/**
- * "Compare since beginning" — diffs the current version against the oldest
- * version in the list, i.e. shows everything that ever changed.
- *
- * Only on the current row, and only when there's an older version to diff
- * against.
- */
+/** Compare current against the oldest stored version, when comparisons are supported. */
 export function useCompareSinceBeginningAction(): VersionMenuAction {
   const { canCompare } = useExtension(VersioningExtension);
   const { setComparisonMode, run } = useVersioningSidebar();
@@ -58,21 +52,13 @@ export function CompareSinceBeginningItem(
 ) {
   const dict = useDictionary();
   const action = useCompareSinceBeginningAction();
-  if (!action.available) {
-    return null;
-  }
 
   return (
-    <VersionMenuItem
+    <DefaultVersionMenuItem
       {...props}
-      icon={props.icon === undefined ? <GoHistory /> : props.icon}
-      onClick={() => {
-        void action.execute();
-      }}
-    >
-      {props.children === undefined
-        ? dict.versioning.compare_since_beginning_menuitem
-        : props.children}
-    </VersionMenuItem>
+      action={action}
+      defaultIcon={<GoHistory />}
+      defaultLabel={dict.versioning.compare_since_beginning_menuitem}
+    />
   );
 }

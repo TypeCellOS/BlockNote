@@ -66,15 +66,7 @@ function focusAndReclaim(input: HTMLInputElement) {
   document.addEventListener("keydown", stop, true);
 }
 
-/**
- * A single row of the version-history sidebar.
- *
- * The current version and stored versions are the same row: both show a name, a
- * date and their authors, both are selectable, and both carry the "..." menu —
- * they only differ in where their content comes from, which is the extension's
- * concern, not this component's. `isCurrent` is what the few genuine
- * differences (the "Current" badge, the default name) key off.
- */
+/** Shared current/stored version row; `isCurrent` controls naming and labels. */
 export function Snapshot(props: {
   snapshot: VersionSnapshot;
   /** The previous visible version in the filtered list. */
@@ -157,11 +149,7 @@ export function Snapshot(props: {
     void run(() => previewRow(snapshot));
   }
 
-  /**
-   * "Rename" from the row's menu. The field only exists on the selected row,
-   * so on any other row this selects it first and lets the row take the focus
-   * once the field is there.
-   */
+  /** Select the row to mount its name field, then focus it. */
   function startRename() {
     if (editable && nameInput.current) {
       focusAndReclaim(nameInput.current);

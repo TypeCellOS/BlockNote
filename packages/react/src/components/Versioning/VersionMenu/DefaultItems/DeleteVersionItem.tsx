@@ -6,23 +6,15 @@ import { useExtension } from "../../../../hooks/useExtension.js";
 import { usePreviewRow } from "../../usePreviewRow.js";
 import { useVersioningSidebar } from "../../VersioningSidebarContext.js";
 import { useVersionSnapshot } from "../../VersionSnapshotContext.js";
-import {
-  VersionMenuItem,
-  type DefaultVersionMenuItemProps,
-  type VersionMenuAction,
+import type {
+  DefaultVersionMenuItemProps,
+  VersionMenuAction,
 } from "../VersionMenuItem.js";
+import { DefaultVersionMenuItem } from "../DefaultVersionMenuItem.js";
 
 /**
- * "Delete" — removes a *named* stored version.
- *
- * Only named stored rows can be deleted: an automatic version is a point in the
- * document's history, not something a user created, so there's nothing to
- * delete. On backends with continuous history, deleting only drops the name and
- * the row stays as an automatic version.
- *
- * If the deleted version was the one on screen (or its diff baseline), the
- * sidebar re-selects the current version: the panel always has a selection,
- * and the editor stays read-only for as long as it's open.
+ * Delete a named stored version (only its name on continuous-history backends).
+ * Return to current if the shown version or baseline is removed or filtered out.
  */
 export function useDeleteVersionAction(): VersionMenuAction {
   const { remove, store } = useExtension(VersioningExtension);
@@ -66,21 +58,13 @@ export function useDeleteVersionAction(): VersionMenuAction {
 export function DeleteVersionItem(props: DefaultVersionMenuItemProps = {}) {
   const dict = useDictionary();
   const action = useDeleteVersionAction();
-  if (!action.available) {
-    return null;
-  }
 
   return (
-    <VersionMenuItem
+    <DefaultVersionMenuItem
       {...props}
-      icon={props.icon === undefined ? <RiDeleteBinLine /> : props.icon}
-      onClick={() => {
-        void action.execute();
-      }}
-    >
-      {props.children === undefined
-        ? dict.versioning.delete_menuitem
-        : props.children}
-    </VersionMenuItem>
+      action={action}
+      defaultIcon={<RiDeleteBinLine />}
+      defaultLabel={dict.versioning.delete_menuitem}
+    />
   );
 }
