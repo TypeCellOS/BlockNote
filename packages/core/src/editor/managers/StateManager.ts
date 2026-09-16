@@ -204,9 +204,7 @@ export class StateManager {
       // not relevant on headless
       return;
     }
-    this.editor
-      .getExtension(ReadOnlyExtension)!
-      .setApplicationEditable(editable);
+    this.editor.getExtension(ReadOnlyExtension)!.setEditable(editable);
   }
 
   /**

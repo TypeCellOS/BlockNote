@@ -15,14 +15,14 @@ export const ReadOnlyExtension = createExtension(
   }: ExtensionOptions<{ editable?: boolean } | undefined>) => {
     const store = createStore(
       {
-        applicationEditable: options?.editable ?? true,
+        isEditable: options?.editable ?? true,
         enabledSet: new Set<string>(),
       },
       {
         onUpdate(state, prevState) {
           if (
-            (state.applicationEditable && state.enabledSet.size === 0) ===
-            (prevState.applicationEditable && prevState.enabledSet.size === 0)
+            (state.isEditable && state.enabledSet.size === 0) ===
+            (prevState.isEditable && prevState.enabledSet.size === 0)
           ) {
             return;
           }
@@ -44,17 +44,16 @@ export const ReadOnlyExtension = createExtension(
           key: PLUGIN_KEY,
           props: {
             editable: () =>
-              store.state.applicationEditable &&
-              store.state.enabledSet.size === 0,
+              store.state.isEditable && store.state.enabledSet.size === 0,
           },
         }),
       ],
       /** Set the application's preference without releasing feature restrictions. */
-      setApplicationEditable(editable: boolean) {
-        if (store.state.applicationEditable === editable) {
+      setEditable(editable: boolean) {
+        if (store.state.isEditable === editable) {
           return;
         }
-        store.setState({ ...store.state, applicationEditable: editable });
+        store.setState({ ...store.state, isEditable: editable });
       },
       /**
        * Enable or disable read-only mode for a feature identified by key.
