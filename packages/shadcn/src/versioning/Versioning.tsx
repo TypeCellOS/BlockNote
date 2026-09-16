@@ -1,8 +1,8 @@
+import { type ComponentProps } from "@blocknote/react";
 import {
-  type ComponentProps,
   VersioningSidebarRoot,
   VersioningSnapshotRow,
-} from "@blocknote/react";
+} from "@blocknote/react/versioning";
 import { forwardRef } from "react";
 
 import { cn } from "../lib/utils.js";

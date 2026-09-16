@@ -124,21 +124,6 @@ export * from "./components/Comments/Thread.js";
 export * from "./components/Comments/ThreadsSidebar.js";
 export * from "./components/Comments/useThreads.js";
 
-export * from "./components/Versioning/useVersionUsers.js";
-export * from "./components/Versioning/usePreviewRow.js";
-export * from "./components/Versioning/VersioningSidebar.js";
-export * from "./components/Versioning/VersioningSidebarContext.js";
-export * from "./components/Versioning/VersionName.js";
-export * from "./components/Versioning/VersioningPrimitives.js";
-export * from "./components/Versioning/VersionSnapshotContext.js";
-export * from "./components/Versioning/VersionMenu/VersionMenu.js";
-export * from "./components/Versioning/VersionMenu/VersionMenuItem.js";
-export * from "./components/Versioning/VersionMenu/DefaultItems/CompareSinceBeginningItem.js";
-export * from "./components/Versioning/VersionMenu/DefaultItems/CompareWithVersionItem.js";
-export * from "./components/Versioning/VersionMenu/DefaultItems/DeleteVersionItem.js";
-export * from "./components/Versioning/VersionMenu/DefaultItems/NameVersionItem.js";
-export * from "./components/Versioning/VersionMenu/DefaultItems/RestoreVersionItem.js";
-
 export * from "./hooks/useActiveStyles.js";
 export * from "./hooks/useBlockNoteEditor.js";
 export * from "./hooks/useCreateBlockNote.js";

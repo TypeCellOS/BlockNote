@@ -1,4 +1,4 @@
-import { VersioningSidebar } from "@blocknote/react";
+import { VersioningSidebar } from "@blocknote/react/versioning";
 
 export const VersionHistorySidebar = ({ onClose }: { onClose: () => void }) => {
   return (

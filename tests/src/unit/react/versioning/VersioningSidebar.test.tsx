@@ -18,7 +18,7 @@ import {
   VersioningSidebar,
   VersionMenu,
   VersionMenuItem,
-} from "@blocknote/react";
+} from "@blocknote/react/versioning";
 import {
   act,
   cleanup,

@@ -1,3 +1,4 @@
+import { BlockNoteViewEditor, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteEditor } from "@blocknote/core";
 import {
@@ -6,14 +7,12 @@ import {
 } from "@blocknote/core/extensions";
 import { DiffVersioningExtension } from "@blocknote/core/y";
 import {
-  BlockNoteViewEditor,
   DefaultVersionMenuItems,
-  useCreateBlockNote,
   useVersionSnapshot,
   VersionMenu,
   VersionMenuItem,
   VersioningSidebar,
-} from "@blocknote/react";
+} from "@blocknote/react/versioning";
 import { RiFileCopyLine } from "react-icons/ri";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";

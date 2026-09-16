@@ -1,13 +1,10 @@
+import { VersioningSidebar } from "@blocknote/react/versioning";
 import "@blocknote/core/fonts/inter.css";
 import {
   createYHubVersioningEndpoints,
   withCollaboration,
 } from "@blocknote/core/y";
-import {
-  BlockNoteViewEditor,
-  useCreateBlockNote,
-  VersioningSidebar,
-} from "@blocknote/react";
+import { BlockNoteViewEditor, useCreateBlockNote } from "@blocknote/react";
 import { useEffect, useState } from "react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
