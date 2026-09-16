@@ -1,14 +1,11 @@
 // Attribution wrappers carry `data-user-ids` but may be `display: contents`.
 // Resolve their layout boxes locally to avoid a dependency on the `@y/*` stack.
 
-/** Must match the `bn-scrolled-to-change` animation duration in editor.css. */
+/** Duration of the transient block highlight. */
 const HIGHLIGHT_MS = 1500;
 
 /** Allow the preview layout to settle; animation frames pause in background tabs. */
 export const SCROLL_TO_FIRST_CHANGE_DELAY_MS = 200;
-
-/** Class the changed block carries while it's pulsing. */
-export const SCROLL_HIGHLIGHT_CLASS = "bn-scrolled-to-change";
 
 /** Descend through `display: contents`; collapsed content has no layout box. */
 function findLaidOutElement(wrapper: Element): Element | undefined {
@@ -65,26 +62,41 @@ function findScrollTarget(root: Element): Element | undefined {
   return firstHidden && findLaidOutAncestor(firstHidden, root);
 }
 
-/** The block currently pulsing, so a new scroll can restart it cleanly. */
-let activeHighlight:
-  | { block: Element; timer: ReturnType<typeof setTimeout> }
-  | undefined;
+/** Cancel the previous highlight when another change is revealed. */
+let activeHighlight: Animation | undefined;
 
-function highlight(block: Element) {
-  if (activeHighlight) {
-    clearTimeout(activeHighlight.timer);
-    activeHighlight.block.classList.remove(SCROLL_HIGHLIGHT_CLASS);
-    // Removing and re-adding the class in the same frame doesn't restart a CSS
-    // animation; forcing a style flush in between does.
-    void (activeHighlight.block as HTMLElement).offsetWidth;
+function highlight(block: Element, reducedMotion: boolean) {
+  activeHighlight?.cancel();
+  activeHighlight = undefined;
+
+  // Scrolling still works in environments without the Web Animations API.
+  if (!block.animate) {
+    return;
   }
-  block.classList.add(SCROLL_HIGHLIGHT_CLASS);
-  activeHighlight = {
-    block,
-    timer: setTimeout(() => {
-      block.classList.remove(SCROLL_HIGHLIGHT_CLASS);
+
+  const peak: Keyframe = {
+    backgroundColor: "color-mix(in srgb, #3e5de7 14%, transparent)",
+    boxShadow: "0 0 0 1px color-mix(in srgb, #3e5de7 45%, transparent)",
+    borderRadius: "4px",
+    easing: "ease-out",
+  };
+  const rest: Keyframe = {
+    ...peak,
+    backgroundColor: "transparent",
+    boxShadow: "0 0 0 1px transparent",
+  };
+
+  // Fade without DOM mutations that ProseMirror would observe.
+  // Reduced motion holds the highlight steady until it is removed.
+  const animation = block.animate([peak, reducedMotion ? peak : rest], {
+    duration: HIGHLIGHT_MS,
+    fill: "none",
+  });
+  activeHighlight = animation;
+  animation.onfinish = () => {
+    if (activeHighlight === animation) {
       activeHighlight = undefined;
-    }, HIGHLIGHT_MS),
+    }
   };
 }
 
@@ -120,7 +132,7 @@ export function scrollToFirstChange(root: Element | undefined): boolean {
     block: "center",
     behavior: reducedMotion ? "auto" : "smooth",
   });
-  highlight(block);
+  highlight(block, reducedMotion);
 
   return true;
 }

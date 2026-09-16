@@ -10,14 +10,23 @@ import {
   vi,
 } from "vite-plus/test";
 
-import {
-  SCROLL_HIGHLIGHT_CLASS,
-  scrollToFirstChange,
-} from "./scrollToFirstChange.js";
+import { scrollToFirstChange } from "./scrollToFirstChange.js";
 
 // jsdom implements neither `scrollIntoView` nor layout, so both are installed
 // here: `scrollIntoView` to observe the call, `getBoundingClientRect` per
 // element to model which nodes have a box.
+const originalAnimate = Object.getOwnPropertyDescriptor(
+  Element.prototype,
+  "animate",
+);
+const animate = vi.fn(
+  (
+    _frames: Keyframe[] | PropertyIndexedKeyframes | null,
+    _options?: number | KeyframeAnimationOptions,
+  ): { cancel: ReturnType<typeof vi.fn>; onfinish?: () => void } => ({
+    cancel: vi.fn(),
+  }),
+);
 const hadScrollIntoView = "scrollIntoView" in Element.prototype;
 let scrollIntoView: ReturnType<typeof vi.fn<Element["scrollIntoView"]>>;
 
@@ -40,12 +49,22 @@ function makeRoot(): HTMLElement {
 }
 
 beforeEach(() => {
+  animate.mockClear();
+  Object.defineProperty(Element.prototype, "animate", {
+    configurable: true,
+    value: animate,
+  });
   scrollIntoView = vi.fn<Element["scrollIntoView"]>();
   Element.prototype.scrollIntoView = scrollIntoView;
 });
 
 afterEach(() => {
   document.body.innerHTML = "";
+  if (originalAnimate) {
+    Object.defineProperty(Element.prototype, "animate", originalAnimate);
+  } else {
+    Reflect.deleteProperty(Element.prototype, "animate");
+  }
   if (!hadScrollIntoView) {
     Reflect.deleteProperty(Element.prototype, "scrollIntoView");
   }
@@ -127,11 +146,16 @@ describe("scrollToFirstChange", () => {
       behavior: "auto",
     });
 
+    const frames = animate.mock.calls.at(-1)?.[0];
+    expect(frames).toEqual([
+      expect.not.objectContaining({ transform: expect.anything() }),
+      expect.not.objectContaining({ transform: expect.anything() }),
+    ]);
+
     Reflect.deleteProperty(window, "matchMedia");
   });
 
-  it("highlights the changed block, then stops", () => {
-    vi.useFakeTimers();
+  it("highlights without DOM mutations and releases the finished animation", () => {
     const root = makeRoot();
     const block = document.createElement("div");
     block.className = "bn-block-content";
@@ -141,17 +165,31 @@ describe("scrollToFirstChange", () => {
     block.appendChild(wrapper);
     root.appendChild(block);
 
+    const observer = new MutationObserver(() => {});
+    observer.observe(root, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
     scrollToFirstChange(root);
+    expect(observer.takeRecords()).toEqual([]);
+    observer.disconnect();
     // The whole block, not the mark that was scrolled to.
-    expect(block.classList.contains(SCROLL_HIGHLIGHT_CLASS)).toBe(true);
+    expect(animate.mock.instances[0]).toBe(block);
+    expect(block.className).toBe("bn-block-content");
+    expect(block.hasAttribute("style")).toBe(false);
+    expect(animate).toHaveBeenCalledWith(expect.any(Array), {
+      duration: 1500,
+      fill: "none",
+    });
 
-    vi.advanceTimersByTime(1500);
-    expect(block.classList.contains(SCROLL_HIGHLIGHT_CLASS)).toBe(false);
-    vi.useRealTimers();
+    const animation = animate.mock.results[0]!.value;
+    animation.onfinish?.();
+    scrollToFirstChange(root);
+    expect(animation.cancel).not.toHaveBeenCalled();
   });
 
   it("highlights the scrolled-to element when it is in no block", () => {
-    vi.useFakeTimers();
     const root = makeRoot();
     const wrapper = document.createElement("span");
     wrapper.dataset["userIds"] = '["u1"]';
@@ -160,8 +198,7 @@ describe("scrollToFirstChange", () => {
     root.appendChild(wrapper);
 
     scrollToFirstChange(root);
-    expect(content.classList.contains(SCROLL_HIGHLIGHT_CLASS)).toBe(true);
-    vi.useRealTimers();
+    expect(animate.mock.instances.at(-1)).toBe(content);
   });
 
   /** A mark wrapper of the given element type around a content span. */
@@ -206,7 +243,7 @@ describe("scrollToFirstChange", () => {
 
     expect(scrollToFirstChange(root)).toBe(true);
     expect(scrollIntoView.mock.instances[0]).toBe(toggleContent);
-    expect(toggleContent.classList.contains(SCROLL_HIGHLIGHT_CLASS)).toBe(true);
+    expect(animate.mock.instances.at(-1)).toBe(toggleContent);
   });
 
   it("returns false when a hidden mark has no laid-out ancestor below the root", () => {
@@ -266,31 +303,27 @@ describe("scrollToFirstChange", () => {
     scrollToFirstChange(root);
 
     expect(scrollIntoView.mock.instances[0]).toBe(blockContent);
-    expect(blockContent.classList.contains(SCROLL_HIGHLIGHT_CLASS)).toBe(true);
-    expect(outer.classList.contains(SCROLL_HIGHLIGHT_CLASS)).toBe(false);
-    expect(childContent.classList.contains(SCROLL_HIGHLIGHT_CLASS)).toBe(false);
+    expect(animate.mock.instances.at(-1)).toBe(blockContent);
+    expect(animate).toHaveBeenCalledTimes(1);
   });
 
   it("moves the highlight when a new preview scrolls elsewhere", () => {
-    vi.useFakeTimers();
     const root = makeRoot();
     const first = withBox(document.createElement("span"));
     root.appendChild(makeMark("ins", first));
     scrollToFirstChange(root);
-    expect(first.classList.contains(SCROLL_HIGHLIGHT_CLASS)).toBe(true);
+    expect(animate.mock.instances.at(-1)).toBe(first);
 
     root.replaceChildren();
     const second = withBox(document.createElement("span"));
     root.appendChild(makeMark("ins", second));
     scrollToFirstChange(root);
 
-    expect(first.classList.contains(SCROLL_HIGHLIGHT_CLASS)).toBe(false);
-    expect(second.classList.contains(SCROLL_HIGHLIGHT_CLASS)).toBe(true);
-    // The earlier highlight's timer must not cut the new one short.
-    vi.advanceTimersByTime(1400);
-    expect(second.classList.contains(SCROLL_HIGHLIGHT_CLASS)).toBe(true);
-    vi.advanceTimersByTime(100);
-    expect(second.classList.contains(SCROLL_HIGHLIGHT_CLASS)).toBe(false);
-    vi.useRealTimers();
+    expect(animate.mock.results[0]!.value.cancel).toHaveBeenCalledOnce();
+    expect(animate.mock.instances.at(-1)).toBe(second);
+    // A late finish event from the cancelled pulse must not clear its successor.
+    animate.mock.results[0]!.value.onfinish?.();
+    scrollToFirstChange(root);
+    expect(animate.mock.results[1]!.value.cancel).toHaveBeenCalledOnce();
   });
 });
