@@ -185,30 +185,16 @@ describe("Test y (v14) utils", () => {
       expect(blockOutput).toEqual([]);
     });
 
-    // An empty block array round-trips through yjs to the canonical empty
-    // BlockNote document: a single empty paragraph. (The id is generated, so we
-    // normalize it before comparing.)
-    const emptyDocument: Block[] = [
-      {
-        id: "0",
-        type: "paragraph",
-        props: {
-          backgroundColor: "default",
-          textColor: "default",
-          textAlignment: "left",
-        },
-        content: [],
-        children: [],
-      },
-    ];
-    const normalizeIds = (blocks: Block[]) =>
-      blocks.map((block) => ({ ...block, id: "0" }));
-
+    // An empty block array round-trips stably through yjs to an empty block
+    // array. (No phantom paragraph is materialized: the single empty
+    // paragraph that a mounted editor shows for an empty Y fragment comes
+    // from the schema's createAndFill initialBlockId stamp at mount time,
+    // which is deterministic across clients.)
     it("empty document - converts to and from yjs (doc)", () => {
       const blocks: Block[] = [];
       const ydoc = blocksToYDoc(editor, blocks);
       const blockOutput = yDocToBlocks(editor, ydoc);
-      expect(normalizeIds(blockOutput)).toEqual(emptyDocument);
+      expect(blockOutput).toEqual([]);
     });
 
     it("empty document - converts to and from yjs (fragment)", () => {
@@ -218,7 +204,7 @@ describe("Test y (v14) utils", () => {
       blocksToYType(editor, blocks, fragment);
 
       const blockOutput = yfragmentToBlocks(editor, fragment);
-      expect(normalizeIds(blockOutput)).toEqual(emptyDocument);
+      expect(blockOutput).toEqual([]);
     });
   });
 

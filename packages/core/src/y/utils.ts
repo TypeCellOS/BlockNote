@@ -151,6 +151,46 @@ export function _blocksToProsemirrorNode<
 /** YJS / BLOCKNOTE conversions */
 
 /**
+ * Whether a `toDeltaDeep()` tree contains a `blockContainer` node.
+ *
+ * The delta is an untyped tree from an external library whose child
+ * collections may be plain arrays or lib0 `List`s, so this walks it
+ * structurally (via the iteration protocol) instead of relying on its types.
+ */
+function deltaHasBlockContainer(node: unknown): boolean {
+  if (typeof node !== "object" || node === null) {
+    return false;
+  }
+  const record = node as Record<string, unknown>;
+  if (record["name"] === "blockContainer") {
+    return true;
+  }
+  return (
+    deltaChildrenContainBlock(record["children"]) ||
+    deltaChildrenContainBlock(record["insert"])
+  );
+}
+
+function deltaChildrenContainBlock(value: unknown): boolean {
+  // Arrays and lib0 `List`s both satisfy the iteration protocol, and
+  // everything else (strings are excluded by the typeof check, plain
+  // attribute values, null) is skipped.
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    !(Symbol.iterator in value)
+  ) {
+    return false;
+  }
+  for (const child of value as Iterable<unknown>) {
+    if (deltaHasBlockContainer(child)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Turn a Y.Node collaborative doc into a BlockNote document (BlockNote style JSON of all blocks)
  * @param editor BlockNote editor
  * @param fragment Y.Node
@@ -161,7 +201,23 @@ export function yfragmentToBlocks<
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, ISchema, SSchema>, fragment: Y.Node) {
-  const pmNode = deltaToPNode(fragment.toDeltaDeep(), editor.pmSchema, null);
+  // Docs seeded by the current `blocksToYDoc([])` are pristine-empty: no Y
+  // children at all. This covers the common case without allocating a delta;
+  // the structural check below only remains for pre-existing fragments (see
+  // below).
+  if (fragment.length === 0) {
+    return [];
+  }
+  const delta = fragment.toDeltaDeep();
+  // A fragment without block containers holds no blocks — e.g. one written
+  // by an older `blocksToYDoc([])` (which used to write a childless block
+  // group). Returning early avoids materializing the schema filler paragraph
+  // in `deltaToPNode` below, whose id would be freshly minted on every
+  // read — making empty docs unstable.
+  if (!deltaHasBlockContainer(delta)) {
+    return [];
+  }
+  const pmNode = deltaToPNode(delta, editor.pmSchema, null);
   return docToBlocks<BSchema, ISchema, SSchema>(pmNode);
 }
 
@@ -188,6 +244,15 @@ export function blocksToYType<
 ) {
   if (!fragment) {
     fragment = new Y.Doc().get("prosemirror");
+  }
+  // An empty block array writes nothing: the fragment stays pristine-empty
+  // (no childless block group). This matters for the sync layer — the
+  // @y/prosemirror initial-content gate only engages when the ytype has no
+  // children (`ytype.length === 0`), keeping each mount's schema-default
+  // skeleton local instead of committing a competing paragraph item per
+  // client (the init race). See `EmptyDocBinding.test.ts`.
+  if (blocks.length === 0) {
+    return fragment;
   }
   return pmToFragment(_blocksToProsemirrorNode(editor, blocks), fragment);
 }
@@ -229,8 +294,14 @@ export function blocksToYDoc<
   blocks: PartialBlock<BSchema, ISchema, SSchema>[],
   fragment = "prosemirror",
 ) {
-  const delta = docToDelta(_blocksToProsemirrorNode(editor, blocks));
   const doc = new Y.Doc();
+  // An empty block array seeds a pristine-empty fragment (see
+  // `blocksToYType` above for why writing nothing matters).
+  if (blocks.length === 0) {
+    doc.get(fragment);
+    return doc;
+  }
+  const delta = docToDelta(_blocksToProsemirrorNode(editor, blocks));
   doc.get(fragment).applyDelta(delta);
   return doc;
 }
