@@ -412,6 +412,7 @@ export const ar: Dictionary = {
     empty: "لا توجد إصدارات بعد",
     empty_named_only: "لا توجد إصدارات مسماة",
     current_version: "الإصدار الحالي",
+    unnamed_version: "Unnamed version",
     comparing_to: "مقارنة بـ",
     restored_from: (date: string) => `تمت الاستعادة من ${date}`,
     more_actions: "إجراءات أخرى",

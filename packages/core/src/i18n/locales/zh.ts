@@ -468,6 +468,7 @@ export const zh: Dictionary = {
     empty: "暂无版本",
     empty_named_only: "暂无命名版本",
     current_version: "当前版本",
+    unnamed_version: "Unnamed version",
     comparing_to: "对比对象",
     restored_from: (date: string) => `恢复自 ${date}`,
     more_actions: "更多操作",

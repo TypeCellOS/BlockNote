@@ -427,6 +427,7 @@ export const en = {
     empty: "No versions yet",
     empty_named_only: "No named versions",
     current_version: "Current version",
+    unnamed_version: "Unnamed version",
     comparing_to: "Comparing to",
     restored_from: (date: string) => `Restored from ${date}`,
     more_actions: "More actions",

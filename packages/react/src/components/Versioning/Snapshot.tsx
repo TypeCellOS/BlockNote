@@ -139,8 +139,8 @@ export function Snapshot(props: {
 
   // Only the selected row is loading: `status` carries the view being switched
   // to, which is exactly the row the user clicked. Announced on the row only;
-  // what the eye gets is the editor, which the extension marks once a load has
-  // taken a while (see LOADING_PREVIEW_CLASS).
+  // what the eye gets is the editor, which the extension marks for every load
+  // (see LOADING_PREVIEW_CLASS).
   const loading =
     status.type === "loading-preview" &&
     isSelectedRow(status.view, snapshot, isCurrent);

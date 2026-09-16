@@ -467,6 +467,7 @@ export const ja: Dictionary = {
     empty: "バージョンはまだありません",
     empty_named_only: "名前付きのバージョンはありません",
     current_version: "現在のバージョン",
+    unnamed_version: "Unnamed version",
     comparing_to: "比較対象",
     restored_from: (date: string) => `${date} から復元`,
     more_actions: "その他の操作",

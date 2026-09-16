@@ -425,6 +425,7 @@ export const es: Dictionary = {
     empty: "Aún no hay versiones",
     empty_named_only: "No hay versiones con nombre",
     current_version: "Versión actual",
+    unnamed_version: "Unnamed version",
     comparing_to: "Comparando con",
     restored_from: (date: string) => `Restaurado desde ${date}`,
     more_actions: "Más acciones",

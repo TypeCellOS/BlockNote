@@ -441,6 +441,7 @@ export const is: Dictionary = {
     empty: "Engar útgáfur enn",
     empty_named_only: "Engar nefndar útgáfur",
     current_version: "Núverandi útgáfa",
+    unnamed_version: "Unnamed version",
     comparing_to: "Borið saman við",
     restored_from: (date: string) => `Endurheimt frá ${date}`,
     more_actions: "Fleiri aðgerðir",

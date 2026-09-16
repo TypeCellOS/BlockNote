@@ -420,6 +420,7 @@ export const pt: Dictionary = {
     empty: "Ainda não há versões",
     empty_named_only: "Não há versões nomeadas",
     current_version: "Versão atual",
+    unnamed_version: "Unnamed version",
     comparing_to: "Comparando com",
     restored_from: (date: string) => `Restaurado de ${date}`,
     more_actions: "Mais ações",

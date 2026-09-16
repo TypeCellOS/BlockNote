@@ -451,6 +451,7 @@ export const uk: Dictionary = {
     empty: "Версій ще немає",
     empty_named_only: "Немає іменованих версій",
     current_version: "Поточна версія",
+    unnamed_version: "Unnamed version",
     comparing_to: "Порівняння з",
     restored_from: (date: string) => `Відновлено з ${date}`,
     more_actions: "Інші дії",

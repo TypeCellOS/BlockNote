@@ -426,6 +426,7 @@ export const vi: Dictionary = {
     empty: "Chưa có phiên bản nào",
     empty_named_only: "Không có phiên bản nào được đặt tên",
     current_version: "Phiên bản hiện tại",
+    unnamed_version: "Unnamed version",
     comparing_to: "Đang so sánh với",
     restored_from: (date: string) => `Khôi phục từ ${date}`,
     more_actions: "Thao tác khác",

@@ -428,6 +428,7 @@ export const nl: Dictionary = {
     empty: "Nog geen versies",
     empty_named_only: "Geen benoemde versies",
     current_version: "Huidige versie",
+    unnamed_version: "Unnamed version",
     comparing_to: "Vergeleken met",
     restored_from: (date: string) => `Hersteld vanaf ${date}`,
     more_actions: "Meer acties",

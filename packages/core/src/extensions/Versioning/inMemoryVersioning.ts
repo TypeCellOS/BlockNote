@@ -1,5 +1,6 @@
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { Block } from "../../blocks/defaultBlocks.js";
+import type { Dictionary } from "../../i18n/dictionary.js";
 import type { DiffVersioningExtension } from "../../y/extensions/DiffVersioningExtension.js";
 import type {
   PreviewController,
@@ -13,12 +14,12 @@ import type {
 export const IN_MEMORY_CURRENT_VERSION_ID = "current";
 
 /** Label for the version introducing the diff's changes. */
-function versionLabel(target: PreviewTarget): string {
+function versionLabel(target: PreviewTarget, dictionary: Dictionary): string {
   switch (target.kind) {
     case "current":
-      return target.snapshot.name ?? "Current version";
+      return target.snapshot.name ?? dictionary.versioning.current_version;
     case "snapshot":
-      return target.snapshot.name ?? "Unnamed version";
+      return target.snapshot.name ?? dictionary.versioning.unnamed_version;
   }
 }
 
@@ -92,7 +93,7 @@ export function createInMemoryPreviewController(
         diff.renderDiff(
           snapshotContent,
           compareToContent,
-          context && versionLabel(context.target),
+          context && versionLabel(context.target, editor.dictionary),
         );
         showingDiff = true;
         return;

@@ -446,6 +446,7 @@ export const de: Dictionary = {
     empty: "Noch keine Versionen",
     empty_named_only: "Keine benannten Versionen",
     current_version: "Aktuelle Version",
+    unnamed_version: "Unnamed version",
     comparing_to: "Verglichen mit",
     restored_from: (date: string) => `Wiederhergestellt aus ${date}`,
     more_actions: "Weitere Aktionen",

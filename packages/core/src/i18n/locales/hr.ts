@@ -441,6 +441,7 @@ export const hr: Dictionary = {
     empty: "Još nema verzija",
     empty_named_only: "Nema imenovanih verzija",
     current_version: "Trenutna verzija",
+    unnamed_version: "Unnamed version",
     comparing_to: "Uspoređuje se s",
     restored_from: (date: string) => `Vraćeno s ${date}`,
     more_actions: "Više radnji",

@@ -427,6 +427,7 @@ export const he: Dictionary = {
     empty: "אין עדיין גרסאות",
     empty_named_only: "אין גרסאות עם שם",
     current_version: "גרסה נוכחית",
+    unnamed_version: "Unnamed version",
     comparing_to: "משווה מול",
     restored_from: (date: string) => `שוחזר מ-${date}`,
     more_actions: "פעולות נוספות",

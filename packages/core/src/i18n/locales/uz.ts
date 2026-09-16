@@ -461,6 +461,7 @@ export const uz: Dictionary = {
     empty: "Hozircha versiyalar yo'q",
     empty_named_only: "Nomlangan versiyalar yo'q",
     current_version: "Joriy versiya",
+    unnamed_version: "Unnamed version",
     comparing_to: "Taqqoslanmoqda",
     restored_from: (date: string) => `${date} dan tiklangan`,
     more_actions: "Boshqa amallar",

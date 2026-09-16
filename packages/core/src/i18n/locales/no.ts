@@ -445,6 +445,7 @@ export const no: Dictionary = {
     empty: "Ingen versjoner ennå",
     empty_named_only: "Ingen navngitte versjoner",
     current_version: "Gjeldende versjon",
+    unnamed_version: "Unnamed version",
     comparing_to: "Sammenligner med",
     restored_from: (date: string) => `Gjenopprettet fra ${date}`,
     more_actions: "Flere handlinger",

@@ -396,6 +396,7 @@ export const fa = {
     empty: "هنوز نسخه‌ای وجود ندارد",
     empty_named_only: "نسخه‌ای با نام وجود ندارد",
     current_version: "نسخه فعلی",
+    unnamed_version: "Unnamed version",
     comparing_to: "مقایسه با",
     restored_from: (date: string) => `بازیابی‌شده از ${date}`,
     more_actions: "اقدامات بیشتر",

@@ -440,6 +440,7 @@ export const ko: Dictionary = {
     empty: "아직 버전이 없습니다",
     empty_named_only: "이름이 지정된 버전이 없습니다",
     current_version: "현재 버전",
+    unnamed_version: "Unnamed version",
     comparing_to: "비교 대상",
     restored_from: (date: string) => `${date}에서 복원됨`,
     more_actions: "추가 작업",

@@ -471,6 +471,7 @@ export const ru: Dictionary = {
     empty: "Пока нет версий",
     empty_named_only: "Нет именованных версий",
     current_version: "Текущая версия",
+    unnamed_version: "Unnamed version",
     comparing_to: "Сравнение с",
     restored_from: (date: string) => `Восстановлено из ${date}`,
     more_actions: "Другие действия",

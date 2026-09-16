@@ -468,6 +468,7 @@ export const zhTW: Dictionary = {
     empty: "尚無版本",
     empty_named_only: "尚無命名版本",
     current_version: "目前版本",
+    unnamed_version: "Unnamed version",
     comparing_to: "比較對象",
     restored_from: (date: string) => `已從 ${date} 還原`,
     more_actions: "更多操作",

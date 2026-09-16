@@ -449,6 +449,7 @@ export const it: Dictionary = {
     empty: "Nessuna versione",
     empty_named_only: "Nessuna versione con nome",
     current_version: "Versione corrente",
+    unnamed_version: "Unnamed version",
     comparing_to: "Confronto con",
     restored_from: (date: string) => `Ripristinato dal ${date}`,
     more_actions: "Altre azioni",

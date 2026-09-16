@@ -425,6 +425,7 @@ export const sk = {
     empty: "Zatiaľ žiadne verzie",
     empty_named_only: "Žiadne pomenované verzie",
     current_version: "Aktuálna verzia",
+    unnamed_version: "Unnamed version",
     comparing_to: "Porovnáva sa s",
     restored_from: (date: string) => `Obnovené z ${date}`,
     more_actions: "Ďalšie akcie",
