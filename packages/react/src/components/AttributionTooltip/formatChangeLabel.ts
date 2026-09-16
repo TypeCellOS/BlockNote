@@ -42,7 +42,10 @@ export const defaultFormatChangeLabel: FormatChangeLabel = ({
   const names: string[] = [];
   for (const key of format) {
     // A link attribute may have been changed or removed, so the toolbar's
-    // "Create link" action is not a description of this change.
+    // "Create link" action is not a description of this change. Fall back to
+    // the generic localized string — `AttributionTooltip` lists it once
+    // instead of rendering "Formatting change (Formatting Change) by: ...".
+    // (No hardcoded "Link" here so all locales stay translated.)
     if (key === "link") {
       return fallback;
     }

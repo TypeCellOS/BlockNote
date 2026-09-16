@@ -45,6 +45,14 @@ export const AttributionTooltip = (props: AttributionTooltipProps) => {
     const formatLabel = props.format
       ? formatChangeLabel({ format: props.format, dictionary })
       : "";
+    // When the label falls back to the generic string (unknown/empty formats),
+    // rendering it inside `formatting_change_by` would duplicate it as
+    // "Formatting change (Formatting Change) by: ...", so list it once instead.
+    if (!formatLabel || formatLabel === changes.formatting_change) {
+      return users
+        ? `${changes.formatting_change}: ${users}`
+        : changes.formatting_change;
+    }
     return changes.formatting_change_by(formatLabel, users);
   }, [dictionary, props]);
   return (
