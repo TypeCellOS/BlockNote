@@ -152,6 +152,8 @@ describe("createYHubVersioningEndpoints", () => {
       expect(url.pathname).toBe(`/api/activity/v1/${ORG}/${DOC_ID}`);
       expect(url.searchParams.get("order")).toBe("desc");
       expect(url.searchParams.get("limit")).toBe("50");
+      // Client clock skew must not hide server activity.
+      expect(url.searchParams.has("to")).toBe(false);
     });
 
     it("applies the product grouping defaults", async () => {
@@ -481,7 +483,7 @@ describe("createYHubVersioningEndpoints", () => {
       const endpoints = makeEndpoints();
       await expect(
         endpoints.create!(makeFragment(), { name: "fail" }),
-      ).rejects.toThrow("no live collaboration document");
+      ).rejects.toThrow("Assert failed");
       // It fails before making any request.
       expect(fetchSpy).not.toHaveBeenCalled();
     });
@@ -615,6 +617,17 @@ describe("createYHubVersioningEndpoints", () => {
   // restore
   // -------------------------------------------------------------------------
   describe("restore", () => {
+    it("requests one delayed history refresh with a configurable delay", () => {
+      expect(makeEndpoints().refreshAfterRestoreMs).toBe(6000);
+      const endpoints = createYHubVersioningEndpoints({
+        baseUrl: BASE_URL,
+        org: ORG,
+        docId: DOC_ID,
+        refreshAfterRestoreMs: 10000,
+      })(BlockNoteEditor.create());
+      expect(endpoints.refreshAfterRestoreMs).toBe(10000);
+    });
+
     it("restores the exact boundary and deleted subtrees without reverting metadata or other roots", async () => {
       const server = new Y.Doc({ gc: false });
       const fragmentOnServer = server.get("default", "XmlFragment");
@@ -694,13 +707,12 @@ describe("createYHubVersioningEndpoints", () => {
       expect(versionEntries(doc)).toEqual([
         { id: boundary, name: "Original version" },
         { id: boundary + 1000, name: "Before restore" },
-        { id: boundary + 2000, restoredFrom: boundary },
       ]);
       server.destroy();
       doc.destroy();
     });
 
-    it("fetches content, rolls back and marks the new head as restored", async () => {
+    it("fetches content, rolls back and preserves the last observed head", async () => {
       const doc = new Y.Doc();
       const { endpoints, fragment } = makeCollabEndpoints(doc);
       const cs = makeChangeset();
@@ -716,14 +728,10 @@ describe("createYHubVersioningEndpoints", () => {
         mockFetchResponse({ doc: Y.encodeStateAsUpdate(doc) }),
       );
       fetchSpy.mockResolvedValueOnce(mockFetchResponse({ success: true }));
-      // 5: the newest activity entry after the rollback
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [{ from: 9000, to: 9000 }] }),
-      );
 
       const content = await endpoints.restore!(fragment, SNAPSHOT_1);
 
-      expect(fetchSpy).toHaveBeenCalledTimes(5);
+      expect(fetchSpy).toHaveBeenCalledTimes(4);
 
       const csUrl = new URL(fetchSpy.mock.calls[0][0] as string);
       expect(csUrl.pathname).toBe(`/api/changeset/v1/${ORG}/${DOC_ID}`);
@@ -738,17 +746,15 @@ describe("createYHubVersioningEndpoints", () => {
       // being left behind.
       expect(versionEntries(doc)).toEqual([
         { id: 8000, name: "Before restore" },
-        { id: 9000, restoredFrom: SNAPSHOT_1.createdAt },
       ]);
       expect(content).toBeInstanceOf(Uint8Array);
     });
 
-    it("waits for the rollback to be indexed before labelling the head", async () => {
-      vi.useFakeTimers();
-      try {
+    it.each([8000, 9000])(
+      "accepts refreshed activity at %s without inferring a restore label",
+      async (head) => {
         const doc = new Y.Doc();
         const { endpoints, fragment } = makeCollabEndpoints(doc);
-
         fetchSpy.mockResolvedValueOnce(mockFetchResponse(makeChangeset()));
         fetchSpy.mockResolvedValueOnce(
           mockFetchResponse({ activity: [{ from: 8000, to: 8000 }] }),
@@ -757,67 +763,24 @@ describe("createYHubVersioningEndpoints", () => {
           mockFetchResponse({ doc: Y.encodeStateAsUpdate(doc) }),
         );
         fetchSpy.mockResolvedValueOnce(mockFetchResponse({ success: true }));
-        // The timeline still reports the pre-restore head on the first poll…
-        fetchSpy.mockResolvedValueOnce(
-          mockFetchResponse({ activity: [{ from: 8000, to: 8000 }] }),
-        );
-        // …and the rollback edit on the second.
-        fetchSpy.mockResolvedValueOnce(
-          mockFetchResponse({ activity: [{ from: 9000, to: 9000 }] }),
-        );
 
-        const restoring = endpoints.restore!(fragment, SNAPSHOT_1);
-        await vi.advanceTimersByTimeAsync(1000);
-        await restoring;
+        await endpoints.restore!(fragment, SNAPSHOT_1);
+        expect(fetchSpy).toHaveBeenCalledTimes(4);
 
-        expect(fetchSpy).toHaveBeenCalledTimes(6);
-        // Retrying an identical window would keep returning YHub's cached
-        // pre-restore activity even after the rollback was indexed.
-        const firstPoll = new URL(fetchSpy.mock.calls[4][0] as string);
-        const secondPoll = new URL(fetchSpy.mock.calls[5][0] as string);
-        expect(Number(secondPoll.searchParams.get("to"))).toBeGreaterThan(
-          Number(firstPoll.searchParams.get("to")),
+        // The controller refreshes once: the result can be stale or contain
+        // someone else's concurrent edit. Neither proves this is our rollback.
+        fetchSpy.mockResolvedValueOnce(
+          mockFetchResponse({ activity: [{ from: head, to: head }] }),
         );
-        // The label went on the restored head, not the stale one, and the
-        // pre-restore head was pinned as its own row.
+        const { current } = await endpoints.list();
+        expect(fetchSpy).toHaveBeenCalledTimes(5);
+        expect(current.createdAt).toBe(head);
+        expect(current.restoredFrom).toBeUndefined();
         expect(versionEntries(doc)).toEqual([
           { id: 8000, name: "Before restore" },
-          { id: 9000, restoredFrom: SNAPSHOT_1.createdAt },
         ]);
-      } finally {
-        vi.useRealTimers();
-      }
-    });
-
-    it("leaves the head unlabelled when the rollback never shows up", async () => {
-      vi.useFakeTimers();
-      try {
-        const doc = new Y.Doc();
-        const { endpoints, fragment } = makeCollabEndpoints(doc);
-
-        fetchSpy.mockResolvedValueOnce(mockFetchResponse(makeChangeset()));
-        fetchSpy.mockResolvedValueOnce(
-          mockFetchResponse({ activity: [{ from: 8000, to: 8000 }] }),
-        );
-        fetchSpy.mockResolvedValueOnce(
-          mockFetchResponse({ doc: Y.encodeStateAsUpdate(doc) }),
-        );
-        fetchSpy.mockResolvedValueOnce(mockFetchResponse({ success: true }));
-        // A fresh response per poll: a body can only be read once.
-        fetchSpy.mockImplementation(async () =>
-          mockFetchResponse({ activity: [{ from: 8000, to: 8000 }] }),
-        );
-
-        const restoring = endpoints.restore!(fragment, SNAPSHOT_1);
-        await vi.advanceTimersByTimeAsync(5000);
-        await restoring;
-
-        // Better no label than a label on the wrong row.
-        expect(versionEntries(doc)).toEqual([]);
-      } finally {
-        vi.useRealTimers();
-      }
-    });
+      },
+    );
 
     it("doesn't re-pin the pre-restore head when it's already addressable", async () => {
       const doc = new Y.Doc();
@@ -835,16 +798,10 @@ describe("createYHubVersioningEndpoints", () => {
         mockFetchResponse({ doc: Y.encodeStateAsUpdate(doc) }),
       );
       fetchSpy.mockResolvedValueOnce(mockFetchResponse({ success: true }));
-      fetchSpy.mockResolvedValueOnce(
-        mockFetchResponse({ activity: [{ from: 9000, to: 9000 }] }),
-      );
 
       await endpoints.restore!(fragment, SNAPSHOT_1);
 
-      expect(versionEntries(doc)).toEqual([
-        { id: 8000, name: "Pre-restore" },
-        { id: 9000, restoredFrom: SNAPSHOT_1.createdAt },
-      ]);
+      expect(versionEntries(doc)).toEqual([{ id: 8000, name: "Pre-restore" }]);
     });
   });
 
@@ -919,7 +876,7 @@ describe("createYHubVersioningEndpoints", () => {
     it("throws when there is no live collaboration document", async () => {
       const endpoints = makeEndpoints();
       await expect(endpoints.rename!(SNAPSHOT_1, "x")).rejects.toThrow(
-        "no live collaboration document",
+        "Assert failed",
       );
     });
   });

@@ -207,6 +207,11 @@ export interface VersioningEndpoints<
     snapshot: VersionSnapshot,
   ) => Promise<Output>;
   /**
+   * Schedule one additional list refresh after restore, in milliseconds.
+   * For backends with cached history. Omit to disable.
+   */
+  refreshAfterRestoreMs?: number;
+  /**
    * Fetch a version's content ({@link Output}) for preview — same format as
    * {@link VersioningExtensionOptions.serializeCurrentContent}. Sibling of
    * {@link getAttributions}; both are the storage-side fetch that

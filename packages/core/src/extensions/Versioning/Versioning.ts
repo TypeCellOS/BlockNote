@@ -80,12 +80,47 @@ export const VersioningExtension = createExtension(
     /** Bumped per request, so a superseded one doesn't clear a newer marker. */
     let listGeneration = 0;
 
+    let mountSignal: AbortSignal | undefined;
+    let historySession: AbortController | undefined;
+    let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+
+    function cancelRefresh() {
+      clearTimeout(refreshTimer);
+      refreshTimer = undefined;
+    }
+
+    function closeHistory() {
+      cancelRefresh();
+      historySession?.abort();
+      historySession = undefined;
+      listing = undefined;
+      listGeneration++;
+    }
+
+    /** Best-effort refresh of an open history view; repeated requests coalesce. */
+    function refresh(delayMs = 0): void {
+      cancelRefresh();
+      if (!historySession || mountSignal?.aborted) {
+        return;
+      }
+      refreshTimer = setTimeout(() => {
+        refreshTimer = undefined;
+        void (listing ?? refreshList()).catch((error: unknown) => {
+          // Keep the existing list and surface unexpected failures to developers.
+          // eslint-disable-next-line no-console
+          console.error("Failed to refresh version history", error);
+        });
+      }, delayMs);
+    }
+
     /**
      * Fetch the list, replacing any request already in flight as the one
      * callers of {@link list} will join.
      */
     function refreshList(): Promise<LoadedVersioningList> {
       const generation = ++listGeneration;
+      const signal = mountSignal;
+      const session = historySession?.signal;
       const request = (async () => {
         try {
           const { current, snapshots } = await endpoints.list();
@@ -94,6 +129,9 @@ export const VersioningExtension = createExtension(
             current,
             snapshots: [...snapshots].sort((a, b) => b.createdAt - a.createdAt),
           };
+          if (signal?.aborted || session?.aborted) {
+            return loaded;
+          }
           if (listGeneration !== generation) {
             // A mutation started a newer request; return its result instead.
             if (listing) {
@@ -112,7 +150,9 @@ export const VersioningExtension = createExtension(
           // Clear before callers resume, so they cannot join a finished request.
           if (listGeneration === generation) {
             listing = undefined;
-            syncStatus();
+            if (!signal?.aborted) {
+              syncStatus();
+            }
           }
         }
       })();
@@ -178,12 +218,23 @@ export const VersioningExtension = createExtension(
 
     return {
       key: "versioning",
+      mount({ signal }: { signal: AbortSignal }) {
+        mountSignal = signal;
+        return closeHistory;
+      },
       store,
       userStore,
-      /** Join an in-flight listing. Mutations use {@link refreshList} for fresh data. */
+      /** Open history and fetch its list, joining an in-flight request if present. */
       list(): Promise<LoadedVersioningList> {
+        historySession ??= new AbortController();
         return listing ?? refreshList();
       },
+      /**
+       * Request a best-effort refresh, optionally delayed in milliseconds.
+       * Does nothing until list() opens history, or after exitPreview()/unmount.
+       * Replaces a pending refresh and joins any list request already in flight.
+       */
+      refresh,
 
       getSnapshot(id: VersionSnapshotIdentifier | undefined) {
         return findSnapshot(id);
@@ -220,6 +271,7 @@ export const VersioningExtension = createExtension(
         endpoints.restore && applyRestore
           ? async (id: VersionSnapshotIdentifier) => {
               const snapshot = requireSnapshot(id);
+              cancelRefresh();
               // Prevent edits while the live document is about to be replaced.
               setStateSyncingReadOnly((state) => ({
                 ...state,
@@ -234,7 +286,13 @@ export const VersioningExtension = createExtension(
                 applyRestore(snapshotContent);
                 // The restore has succeeded. Apply it even if refreshing the
                 // sidebar fails, keeping the read-only hold until both finish.
-                await refreshList();
+                try {
+                  await refreshList();
+                } finally {
+                  if (endpoints.refreshAfterRestoreMs !== undefined) {
+                    refresh(endpoints.refreshAfterRestoreMs);
+                  }
+                }
                 return snapshotContent;
               } finally {
                 setStateSyncingReadOnly((state) => ({
@@ -304,6 +362,7 @@ export const VersioningExtension = createExtension(
             versionPreview.previewCurrentVersion(...args)
         : undefined,
       exitPreview() {
+        closeHistory();
         versionPreview.exitPreview();
       },
       /**

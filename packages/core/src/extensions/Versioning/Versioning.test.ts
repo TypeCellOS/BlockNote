@@ -290,6 +290,105 @@ describe("VersioningExtension", () => {
     });
   });
 
+  describe("best-effort refresh", () => {
+    it("skips unopened, closed and unmounted history views", async () => {
+      vi.useFakeTimers();
+      try {
+        const list = vi.spyOn(ctx.endpoints, "list");
+        ctx.ext.refresh();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(list).not.toHaveBeenCalled();
+
+        await ctx.ext.list();
+        ctx.ext.exitPreview();
+        ctx.ext.refresh();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(list).toHaveBeenCalledTimes(1);
+
+        await ctx.ext.list();
+        ctx.editor.unmount();
+        ctx.ext.refresh();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(list).toHaveBeenCalledTimes(2);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it("coalesces delayed requests and preserves the current preview", async () => {
+      vi.useFakeTimers();
+      try {
+        const seeded = await ctx.seed("old content");
+        await ctx.ext.previewSnapshot(seeded.id);
+        const view = ctx.ext.store.state.view;
+        const list = vi.spyOn(ctx.endpoints, "list");
+        ctx.ext.refresh(1000);
+        ctx.ext.refresh(2000);
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(list).not.toHaveBeenCalled();
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(list).toHaveBeenCalledOnce();
+        expect(ctx.ext.store.state.view).toBe(view);
+        expect(getEditorText(ctx.editor)).toBe("old content");
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it("joins an in-flight list request", async () => {
+      vi.useFakeTimers();
+      try {
+        const result =
+          deferred<Awaited<ReturnType<typeof ctx.endpoints.list>>>();
+        const list = vi
+          .spyOn(ctx.endpoints, "list")
+          .mockReturnValue(result.promise);
+        const listing = ctx.ext.list();
+        ctx.ext.refresh();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(list).toHaveBeenCalledOnce();
+        result.resolve({ current: snap("fresh", 2), snapshots: [] });
+        await listing;
+        expect(loadedList(ctx.ext).current.id).toBe("fresh");
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it("discards a refresh response after closing and reopening history", async () => {
+      vi.useFakeTimers();
+      try {
+        await ctx.ext.list();
+        const previous = loadedList(ctx.ext);
+        const stale =
+          deferred<Awaited<ReturnType<typeof ctx.endpoints.list>>>();
+        const fresh =
+          deferred<Awaited<ReturnType<typeof ctx.endpoints.list>>>();
+        const list = vi
+          .spyOn(ctx.endpoints, "list")
+          .mockReturnValueOnce(stale.promise)
+          .mockReturnValueOnce(fresh.promise);
+        ctx.ext.refresh();
+        await vi.advanceTimersByTimeAsync(0);
+        ctx.ext.exitPreview();
+        const reopening = ctx.ext.list();
+        expect(list).toHaveBeenCalledTimes(2);
+
+        stale.resolve({ current: snap("stale", 1), snapshots: [] });
+        await vi.advanceTimersByTimeAsync(0);
+        expect(loadedList(ctx.ext)).toBe(previous);
+        expect(ctx.ext.store.state.status).toEqual({ type: "listing" });
+
+        fresh.resolve({ current: snap("fresh", 2), snapshots: [] });
+        await reopening;
+        expect(loadedList(ctx.ext).current.id).toBe("fresh");
+        expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+  });
+
   // -------------------------------------------------------------------------
   // Editability
   // -------------------------------------------------------------------------
@@ -1247,6 +1346,101 @@ describe("VersioningExtension", () => {
   // -------------------------------------------------------------------------
 
   describe("restoring versions", () => {
+    it("refreshes once after the configured delay without blocking editing", async () => {
+      vi.useFakeTimers();
+      try {
+        const seeded = await ctx.seed("old content");
+        ctx.endpoints.refreshAfterRestoreMs = 6000;
+        const list = vi.spyOn(ctx.endpoints, "list");
+        await ctx.ext.restore!(seeded.id);
+        expect(list).toHaveBeenCalledTimes(1);
+        expect(ctx.editor.isEditable).toBe(true);
+        expect(getEditorText(ctx.editor)).toBe("old content");
+
+        list.mockResolvedValue({
+          current: snap("fresh", 9999),
+          snapshots: [seeded],
+        });
+        await vi.advanceTimersByTimeAsync(5999);
+        expect(list).toHaveBeenCalledTimes(1);
+        await vi.advanceTimersByTimeAsync(1);
+        expect(list).toHaveBeenCalledTimes(2);
+        expect(loadedList(ctx.ext).current.id).toBe("fresh");
+        await vi.advanceTimersByTimeAsync(60000);
+        expect(list).toHaveBeenCalledTimes(2);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it.each(["close", "unmount"])(
+      "cancels the delayed refresh on %s",
+      async (action) => {
+        vi.useFakeTimers();
+        try {
+          const seeded = await ctx.seed("old content");
+          ctx.endpoints.refreshAfterRestoreMs = 6000;
+          const list = vi.spyOn(ctx.endpoints, "list");
+          await ctx.ext.restore!(seeded.id);
+          if (action === "close") {
+            ctx.ext.exitPreview();
+          } else {
+            ctx.editor.unmount();
+          }
+          await vi.advanceTimersByTimeAsync(6000);
+          expect(list).toHaveBeenCalledTimes(1);
+        } finally {
+          vi.useRealTimers();
+        }
+      },
+    );
+
+    it("replaces the scheduled refresh when another restore starts", async () => {
+      vi.useFakeTimers();
+      try {
+        const seeded = await ctx.seed("old content");
+        ctx.endpoints.refreshAfterRestoreMs = 6000;
+        const list = vi.spyOn(ctx.endpoints, "list");
+        await ctx.ext.restore!(seeded.id);
+        await vi.advanceTimersByTimeAsync(3000);
+        await ctx.ext.restore!(seeded.id);
+        expect(list).toHaveBeenCalledTimes(2);
+        await vi.advanceTimersByTimeAsync(3000);
+        expect(list).toHaveBeenCalledTimes(2);
+        await vi.advanceTimersByTimeAsync(3000);
+        expect(list).toHaveBeenCalledTimes(3);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it("keeps restored content and the previous list when the delayed refresh fails", async () => {
+      vi.useFakeTimers();
+      const report = vi.spyOn(console, "error").mockImplementation(() => {});
+      try {
+        const seeded = await ctx.seed("old content");
+        ctx.endpoints.refreshAfterRestoreMs = 6000;
+        await ctx.ext.restore!(seeded.id);
+        const previous = loadedList(ctx.ext);
+        const error = new Error("network");
+        const list = vi.spyOn(ctx.endpoints, "list").mockRejectedValue(error);
+        await vi.advanceTimersByTimeAsync(6000);
+        expect(report).toHaveBeenCalledWith(
+          "Failed to refresh version history",
+          error,
+        );
+        expect(loadedList(ctx.ext)).toBe(previous);
+        expect(getEditorText(ctx.editor)).toBe("old content");
+        expect(ctx.editor.isEditable).toBe(true);
+        expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
+        await vi.advanceTimersByTimeAsync(60000);
+        expect(list).toHaveBeenCalledOnce();
+      } finally {
+        report.mockRestore();
+        vi.useRealTimers();
+      }
+    });
+
     it("applies the version content and exits any active preview", async () => {
       setEditorText(ctx.editor, "current doc");
       const seeded = await ctx.seed("old content");
