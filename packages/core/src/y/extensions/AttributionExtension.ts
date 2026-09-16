@@ -1,3 +1,4 @@
+import { AddNodeMarkStep } from "prosemirror-transform";
 import { getChangedRanges } from "@tiptap/core";
 import { Plugin, PluginKey, type Transaction } from "prosemirror-state";
 import {
@@ -14,6 +15,7 @@ import {
 } from "../../user/index.js";
 import {
   resolveAttributionMarkClassName,
+  getAttributionUserIds,
   YAttributionMarksExtension,
   type GetAttributionMarkClassName,
 } from "./YAttributionMarks.js";
@@ -23,6 +25,7 @@ const ATTRIBUTION_MARK_TYPES = {
   "y-attributed-insert": "insert",
   "y-attributed-delete": "delete",
   "y-attributed-format": "format",
+  "y-attributed-attrs": "attrs",
 } as const;
 
 const ATTRIBUTION_LOAD_PLUGIN_KEY = new PluginKey("attributionLoadUsers");
@@ -102,23 +105,24 @@ export const getReferenceClientRects = (wrapper: Element): DOMRectList =>
  * none). The extension computes it; a React controller renders + positions it
  * (see `AttributionTooltipController`).
  */
-export type AttributionTooltipState = {
+export type AttributionChange =
+  | {
+      modificationType: "insert" | "delete";
+      format?: never;
+      attributes?: never;
+    }
+  | { modificationType: "format"; format?: string[]; attributes?: never }
+  | { modificationType: "attrs"; attributes: string[]; format?: never };
+
+export type AttributionTooltipState = AttributionChange & {
   /** The wrapper element the tooltip anchors to (floating-ui reference). */
   anchor: HTMLElement;
   /** Per-user background color, resolved from the user store (default path). */
   color: string;
-  /** The kind of change — `format` is the modification mark. */
-  modificationType: "insert" | "delete" | "format";
   /** Whether the mark wraps inline content or a whole block. */
   contentType: "inline-content" | "block";
   /** Resolved usernames (falls back to raw ids), for custom renderers. */
   users: string[];
-  /**
-   * The changed format keys (e.g. `["bold", "italic"]`), present only for
-   * `format` marks. This is the raw change context — the view layer turns it
-   * into a localized label via its `formatChangeLabel`.
-   */
-  format?: string[];
   /**
    * Class name from the `getAttributionMarkClassName` callback (override path).
    * When present, the tooltip applies this and skips the inline `color`.
@@ -155,9 +159,6 @@ export const AttributionExtension = createExtension(
     // over existing text and `tr.changedRange()` would miss.
     const loadChangedUsers = (tr: Transaction) => {
       const ranges = getChangedRanges(tr);
-      if (ranges.length === 0) {
-        return;
-      }
       // Most changes are local (often several steps in one small span), so scan a
       // single range spanning all of them rather than each range individually.
       let from = Infinity;
@@ -168,19 +169,31 @@ export const AttributionExtension = createExtension(
       }
 
       const ids = new Set<string>();
-      tr.doc.nodesBetween(from, to, (node) => {
-        for (const mark of node.marks) {
-          if (
-            ATTRIBUTION_MARK_TYPES[
-              mark.type.name as keyof typeof ATTRIBUTION_MARK_TYPES
-            ]
-          ) {
-            const userIds = mark.attrs["userIds"] as string[] | null;
-            userIds?.forEach((id) => ids.add(id));
-          }
+      // AddNodeMarkStep has an empty position map, so getChangedRanges cannot
+      // locate its node. Load its authors directly from the added mark.
+      for (const step of tr.steps) {
+        if (
+          step instanceof AddNodeMarkStep &&
+          step.mark.type.name in ATTRIBUTION_MARK_TYPES
+        ) {
+          getAttributionUserIds(step.mark).forEach((id) => ids.add(id));
         }
-        return true;
-      });
+      }
+      if (ranges.length > 0) {
+        tr.doc.nodesBetween(from, to, (node) => {
+          for (const mark of node.marks) {
+            if (
+              ATTRIBUTION_MARK_TYPES[
+                mark.type.name as keyof typeof ATTRIBUTION_MARK_TYPES
+              ]
+            ) {
+              const userIds = getAttributionUserIds(mark);
+              userIds?.forEach((id) => ids.add(id));
+            }
+          }
+          return true;
+        });
+      }
       if (ids.size > 0) {
         void userStore.loadUsers(Array.from(ids));
       }
@@ -244,22 +257,31 @@ export const AttributionExtension = createExtension(
         // and stays free of i18n/username resolution.
         const attributionIdentity = (wrapper: HTMLElement) => {
           const ids = parseUserIds(wrapper.dataset["userIds"]);
-          if (ids.length === 0) {
+          if (ids.length === 0 && wrapper.dataset["attributes"] === undefined) {
             return "";
           }
           const format = parseFormatKeys(wrapper.dataset["format"]);
-          return `${format.join(",")}:${ids.join(",")}`;
+          return `${wrapper.dataset["attributes"] ?? ""}:${format.join(",")}:${ids.join(",")}`;
         };
 
         // Build the tooltip state from a wrapper's `data-*` attributes.
         const buildState = (anchor: HTMLElement): AttributionTooltipState => {
-          const isModification = anchor.dataset["format"] !== undefined;
-          const modificationType: AttributionTooltipState["modificationType"] =
-            isModification
-              ? "format"
-              : anchor.tagName === "INS"
-                ? "insert"
-                : "delete";
+          const change: AttributionChange =
+            anchor.dataset["attributes"] !== undefined
+              ? {
+                  modificationType: "attrs",
+                  attributes: parseFormatKeys(anchor.dataset["attributes"]),
+                }
+              : anchor.dataset["format"] !== undefined
+                ? {
+                    modificationType: "format",
+                    format: parseFormatKeys(anchor.dataset["format"]),
+                  }
+                : {
+                    modificationType:
+                      anchor.tagName === "INS" ? "insert" : "delete",
+                  };
+          const { modificationType } = change;
           const contentType: AttributionTooltipState["contentType"] =
             anchor.dataset["inline"] === "false" ? "block" : "inline-content";
 
@@ -271,12 +293,9 @@ export const AttributionExtension = createExtension(
               userStore,
               parseUserIds(anchor.dataset["userIds"]),
             ).dark,
-            modificationType,
+            ...change,
             contentType,
             users: usersLabelArray(anchor.dataset["userIds"]),
-            format: isModification
-              ? parseFormatKeys(anchor.dataset["format"])
-              : undefined,
             className: resolveAttributionMarkClassName(
               getAttributionMarkClassName?.({ contentType, modificationType }),
               "tooltip",
@@ -312,7 +331,10 @@ export const AttributionExtension = createExtension(
 
         const onPointerOver = (event: Event) => {
           const target = event.target instanceof Element ? event.target : null;
-          const innermost = innermostAttributed(target);
+          const innermost =
+            target && dom.contains(target)
+              ? innermostAttributed(target)
+              : undefined;
           if (!innermost) {
             // Not over an attributed mark — drop the current tooltip.
             hideTooltip();

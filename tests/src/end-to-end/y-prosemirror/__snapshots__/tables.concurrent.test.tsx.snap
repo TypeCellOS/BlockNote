@@ -331,19 +331,23 @@ exports[`concurrent: A adds a column, B adds a row 5`] = `
             <tableParagraph>B1</tableParagraph>
           </tableCell>
           <y-attributed-insert userIds="A">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-insert userIds="A">
-                <tableParagraph>
-                  <y-attributed-insert userIds="A">C1</y-attributed-insert>
-                </tableParagraph>
-              </y-attributed-insert>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="A">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="A">C1</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-insert>
         </tableRow>
         <tableRow>
@@ -366,65 +370,81 @@ exports[`concurrent: A adds a column, B adds a row 5`] = `
             <tableParagraph>B2</tableParagraph>
           </tableCell>
           <y-attributed-insert userIds="A">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-insert userIds="A">
-                <tableParagraph>
-                  <y-attributed-insert userIds="A">C2</y-attributed-insert>
-                </tableParagraph>
-              </y-attributed-insert>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="A">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="A">C2</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-insert>
         </tableRow>
         <y-attributed-insert userIds="B">
           <tableRow>
             <y-attributed-insert userIds="B">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="B">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="B">A3</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="B">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="B">A3</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
             <y-attributed-insert userIds="B">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="B">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="B">B3</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="B">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="B">B3</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
             <y-attributed-insert userIds="">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="">
-                  <tableParagraph></tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="">
+                    <tableParagraph></tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
           </tableRow>
         </y-attributed-insert>
@@ -765,19 +785,23 @@ exports[`concurrent: A adds a row, B adds a column 5`] = `
             <tableParagraph>B1</tableParagraph>
           </tableCell>
           <y-attributed-insert userIds="B">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-insert userIds="B">
-                <tableParagraph>
-                  <y-attributed-insert userIds="B">C1</y-attributed-insert>
-                </tableParagraph>
-              </y-attributed-insert>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="B">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="B">C1</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-insert>
         </tableRow>
         <tableRow>
@@ -800,65 +824,81 @@ exports[`concurrent: A adds a row, B adds a column 5`] = `
             <tableParagraph>B2</tableParagraph>
           </tableCell>
           <y-attributed-insert userIds="B">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-insert userIds="B">
-                <tableParagraph>
-                  <y-attributed-insert userIds="B">C2</y-attributed-insert>
-                </tableParagraph>
-              </y-attributed-insert>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="B">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="B">C2</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-insert>
         </tableRow>
         <y-attributed-insert userIds="A">
           <tableRow>
             <y-attributed-insert userIds="A">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="A">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="A">A3</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="A">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="A">A3</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
             <y-attributed-insert userIds="A">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="A">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="A">B3</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="A">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="A">B3</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
             <y-attributed-insert userIds="">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="">
-                  <tableParagraph></tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="">
+                    <tableParagraph></tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
           </tableRow>
         </y-attributed-insert>
@@ -1100,19 +1140,23 @@ exports[`concurrent: A deletes a column, B adds a row 5`] = `
             <tableParagraph>A1</tableParagraph>
           </tableCell>
           <y-attributed-delete userIds="A">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-delete userIds="A">
-                <tableParagraph>
-                  <y-attributed-delete userIds="A">B1</y-attributed-delete>
-                </tableParagraph>
-              </y-attributed-delete>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-delete userIds="A">
+                  <tableParagraph>
+                    <y-attributed-delete userIds="A">B1</y-attributed-delete>
+                  </tableParagraph>
+                </y-attributed-delete>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-delete>
         </tableRow>
         <tableRow>
@@ -1126,52 +1170,64 @@ exports[`concurrent: A deletes a column, B adds a row 5`] = `
             <tableParagraph>A2</tableParagraph>
           </tableCell>
           <y-attributed-delete userIds="A">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-delete userIds="A">
-                <tableParagraph>
-                  <y-attributed-delete userIds="A">B2</y-attributed-delete>
-                </tableParagraph>
-              </y-attributed-delete>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-delete userIds="A">
+                  <tableParagraph>
+                    <y-attributed-delete userIds="A">B2</y-attributed-delete>
+                  </tableParagraph>
+                </y-attributed-delete>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-delete>
         </tableRow>
         <y-attributed-insert userIds="B">
           <tableRow>
             <y-attributed-insert userIds="B">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="B">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="B">A3</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="B">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="B">A3</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
             <y-attributed-insert userIds="B">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="B">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="B">B3</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="B">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="B">B3</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
           </tableRow>
         </y-attributed-insert>
@@ -1572,34 +1628,42 @@ exports[`sequential: A adds a column then a row, B adds a column 5`] = `
             <tableParagraph>B1</tableParagraph>
           </tableCell>
           <y-attributed-insert userIds="A">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-insert userIds="A">
-                <tableParagraph>
-                  <y-attributed-insert userIds="A">C1</y-attributed-insert>
-                </tableParagraph>
-              </y-attributed-insert>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="A">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="A">C1</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-insert>
           <y-attributed-insert userIds="B">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-insert userIds="B">
-                <tableParagraph>
-                  <y-attributed-insert userIds="B">D1</y-attributed-insert>
-                </tableParagraph>
-              </y-attributed-insert>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="B">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="B">D1</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-insert>
         </tableRow>
         <tableRow>
@@ -1622,95 +1686,119 @@ exports[`sequential: A adds a column then a row, B adds a column 5`] = `
             <tableParagraph>B2</tableParagraph>
           </tableCell>
           <y-attributed-insert userIds="A">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-insert userIds="A">
-                <tableParagraph>
-                  <y-attributed-insert userIds="A">C2</y-attributed-insert>
-                </tableParagraph>
-              </y-attributed-insert>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="A">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="A">C2</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-insert>
           <y-attributed-insert userIds="B">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-insert userIds="B">
-                <tableParagraph>
-                  <y-attributed-insert userIds="B">D2</y-attributed-insert>
-                </tableParagraph>
-              </y-attributed-insert>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="B">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="B">D2</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-insert>
         </tableRow>
         <y-attributed-insert userIds="A">
           <tableRow>
             <y-attributed-insert userIds="A">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="A">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="A">A3</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="A">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="A">A3</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
             <y-attributed-insert userIds="A">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="A">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="A">B3</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="A">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="A">B3</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
             <y-attributed-insert userIds="A">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="A">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="A">C3</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="A">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="A">C3</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
             <y-attributed-insert userIds="">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="">
-                  <tableParagraph></tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="">
+                    <tableParagraph></tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
           </tableRow>
         </y-attributed-insert>
@@ -2115,19 +2203,23 @@ exports[`sequential: A adds a row then a column, B adds a row 5`] = `
             <tableParagraph>B1</tableParagraph>
           </tableCell>
           <y-attributed-insert userIds="A">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-insert userIds="A">
-                <tableParagraph>
-                  <y-attributed-insert userIds="A">C1</y-attributed-insert>
-                </tableParagraph>
-              </y-attributed-insert>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="A">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="A">C1</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-insert>
         </tableRow>
         <tableRow>
@@ -2150,114 +2242,142 @@ exports[`sequential: A adds a row then a column, B adds a row 5`] = `
             <tableParagraph>B2</tableParagraph>
           </tableCell>
           <y-attributed-insert userIds="A">
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
+            <y-attributed-attrs
+              changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
             >
-              <y-attributed-insert userIds="A">
-                <tableParagraph>
-                  <y-attributed-insert userIds="A">C2</y-attributed-insert>
-                </tableParagraph>
-              </y-attributed-insert>
-            </tableCell>
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="A">
+                  <tableParagraph>
+                    <y-attributed-insert userIds="A">C2</y-attributed-insert>
+                  </tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-attrs>
           </y-attributed-insert>
         </tableRow>
         <y-attributed-insert userIds="A">
           <tableRow>
             <y-attributed-insert userIds="A">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="A">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="A">A3</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="A">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="A">A3</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
             <y-attributed-insert userIds="A">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="A">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="A">B3</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="A">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="A">B3</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
             <y-attributed-insert userIds="A">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="A">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="A">C3</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="A">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="A">C3</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
           </tableRow>
         </y-attributed-insert>
         <y-attributed-insert userIds="B">
           <tableRow>
             <y-attributed-insert userIds="B">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="B">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="B">D1</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="B">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="B">D1</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
             <y-attributed-insert userIds="B">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="B">
-                  <tableParagraph>
-                    <y-attributed-insert userIds="B">D2</y-attributed-insert>
-                  </tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="B">
+                    <tableParagraph>
+                      <y-attributed-insert userIds="B">D2</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
             <y-attributed-insert userIds="">
-              <tableCell
-                backgroundColor="default"
-                colspan="1"
-                rowspan="1"
-                textAlignment="left"
-                textColor="default"
+              <y-attributed-attrs
+                changes="{&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;rowspan&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;colwidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
               >
-                <y-attributed-insert userIds="">
-                  <tableParagraph></tableParagraph>
-                </y-attributed-insert>
-              </tableCell>
+                <tableCell
+                  backgroundColor="default"
+                  colspan="1"
+                  rowspan="1"
+                  textAlignment="left"
+                  textColor="default"
+                >
+                  <y-attributed-insert userIds="">
+                    <tableParagraph></tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-attrs>
             </y-attributed-insert>
           </tableRow>
         </y-attributed-insert>

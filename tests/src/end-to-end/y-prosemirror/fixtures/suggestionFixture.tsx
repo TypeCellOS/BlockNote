@@ -443,7 +443,10 @@ function formatAttrs(attrs: Record<string, unknown>): string {
   return Object.entries(attrs)
     .filter(([, v]) => v !== null && v !== undefined)
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-    .map(([k, v]) => ` ${k}="${escapeXml(String(v))}"`)
+    .map(
+      ([k, v]) =>
+        ` ${k}="${escapeXml(k === "changes" ? JSON.stringify(v) : String(v))}"`,
+    )
     .join("");
 }
 

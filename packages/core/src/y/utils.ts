@@ -1,5 +1,6 @@
 import {
   deltaAttributionToFormat,
+  defaultMapAttrAttribution,
   deltaToPNode,
   deltaToPSteps,
   docToDelta,
@@ -265,6 +266,9 @@ export function getProseMirrorTrFromYFragment({
   const ycontent = deltaAttributionToFormat(
     fragment.toDeltaDeep({ renderer }),
     mapAttributionToMark,
+    tr.doc.type.schema.marks["y-attributed-attrs"]
+      ? defaultMapAttrAttribution
+      : null,
   );
   // @todo it is preferred to apply the minimal diff - at least for debugging purposes. the
   // document replacal is more reliable though

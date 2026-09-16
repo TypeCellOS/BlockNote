@@ -1,3 +1,4 @@
+import type { AttributionChange } from "@blocknote/core/y";
 import { FormatChangeLabel } from "./formatChangeLabel.js";
 
 /**
@@ -9,22 +10,15 @@ import { FormatChangeLabel } from "./formatChangeLabel.js";
  * from it, so a custom tooltip can categorize or phrase changes differently
  * rather than parsing a pre-built string.
  */
-export type AttributionTooltipProps = {
+export type AttributionTooltipProps = AttributionChange & {
   /** Per-user author color; ignored by the default component when `className` is set. */
   color: string;
   /** App-supplied class from `getAttributionMarkClassName`, when configured. */
   className?: string;
-  /** The kind of change — `format` is the modification mark. */
-  modificationType: "insert" | "delete" | "format";
   /** Whether the mark wraps inline content or a whole block. */
   contentType: "inline-content" | "block";
   /** Resolved usernames (falls back to raw ids). */
   users: string[];
-  /**
-   * The changed format keys (e.g. `["bold", "italic"]`), present only for
-   * `format` marks — the raw change context, for custom categorization.
-   */
-  format?: string[];
   /**
    * Turns a modification mark's changed formats into its label (e.g.
    * `"Bold, Italic"`). Defaults to {@link defaultFormatChangeLabel} when the

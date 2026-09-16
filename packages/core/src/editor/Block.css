@@ -201,8 +201,20 @@ NESTED BLOCKS
   > .bn-block-content[data-content-type="heading"],
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > :is(ins, del, [data-type="attributes"])
+  > span
+  > :is(ins, del, [data-type="attributes"])
+  > span
+  > .bn-block-content[data-content-type="heading"],
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
   > div[data-type="modification"]
   > div[data-type="modification"]
+  > .bn-block-content[data-content-type="heading"],
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > [data-type="attributes"]
+  > span
   > .bn-block-content[data-content-type="heading"],
 .bn-block-outer:not([data-prev-type])
   > .bn-block
@@ -260,6 +272,18 @@ NESTED BLOCKS
 
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="numberedListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > :is(ins, del, [data-type="attributes"])
+  > span
+  > :is(ins, del, [data-type="attributes"])
+  > span
+  > .bn-block-content[data-content-type="numberedListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > [data-type="attributes"]
+  > span
   > .bn-block-content[data-content-type="numberedListItem"]::before,
 .bn-block-outer:not([data-prev-type])
   > .bn-block
@@ -389,6 +413,18 @@ NESTED BLOCKS
   > .bn-block-content::before,
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="bulletListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > :is(ins, del, [data-type="attributes"])
+  > span
+  > :is(ins, del, [data-type="attributes"])
+  > span
+  > .bn-block-content[data-content-type="bulletListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > [data-type="attributes"]
+  > span
   > .bn-block-content[data-content-type="bulletListItem"]::before,
 .bn-block-outer:not([data-prev-type])
   > .bn-block
@@ -1207,6 +1243,8 @@ spans the whole subtree; the media wrapper exists only for files), but it sets
 only non-collapsing properties — background / radius / padding never depend on the
 content's intrinsic size, so no block can break.
 */
+/* Attribute changes use the same card for text blocks as for media blocks. */
+[data-type="attributes"] > .bn-suggestion-node > .bn-block-content,
 .bn-suggestion-node .bn-block-content:not(:has(.bn-inline-content)) {
   /* The card bleeds this far into the gutters on both sides, so tinting a block
      never shifts its content sideways. */
@@ -1221,6 +1259,10 @@ content's intrinsic size, so no block can break.
   width: calc(100% + 2 * var(--bn-suggestion-card-inset));
 }
 
+.dark.bn-root
+  [data-type="attributes"]
+  > .bn-suggestion-node
+  > .bn-block-content,
 .dark.bn-root
   .bn-suggestion-node
   .bn-block-content:not(:has(.bn-inline-content)) {

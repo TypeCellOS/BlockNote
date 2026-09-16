@@ -101,12 +101,7 @@ export const AttributionTooltipController = (props: {
     () =>
       state
         ? {
-            color: state.color,
-            className: state.className,
-            modificationType: state.modificationType,
-            contentType: state.contentType,
-            users: state.users,
-            format: state.format,
+            ...state,
             formatChangeLabel: props.formatChangeLabel,
           }
         : undefined,
