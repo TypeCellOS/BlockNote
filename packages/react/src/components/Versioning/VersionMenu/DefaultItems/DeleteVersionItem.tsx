@@ -41,11 +41,15 @@ export function useDeleteVersionAction(): VersionMenuAction {
             list.snapshots.some(
               (row) => row.id === snapshot.id && row.name === undefined,
             );
+          const deleted = !list.snapshots.some((row) => row.id === snapshot.id);
           const usesDeletedVersion =
             view.mode !== "live" &&
             (view.compareToId === snapshot.id ||
               (view.mode === "snapshot" && view.snapshotId === snapshot.id));
-          if (view.mode === "live" || (hidden && usesDeletedVersion)) {
+          if (
+            view.mode === "live" ||
+            ((hidden || deleted) && usesDeletedVersion)
+          ) {
             await previewRow(list.current);
           }
         },
