@@ -26,7 +26,7 @@ import {
  */
 export function useDeleteVersionAction(): VersionMenuAction {
   const { remove, store } = useExtension(VersioningExtension);
-  const { run } = useVersioningSidebar();
+  const { run, namedOnly } = useVersioningSidebar();
   const previewRow = usePreviewRow();
   const { snapshot, isCurrent } = useVersionSnapshot();
 
@@ -41,7 +41,19 @@ export function useDeleteVersionAction(): VersionMenuAction {
         () => remove(snapshot.id),
         async () => {
           const { list, view } = store.state;
-          if (view.mode === "live" && list.loaded) {
+          if (!list.loaded) {
+            return;
+          }
+          const hidden =
+            namedOnly &&
+            list.snapshots.some(
+              (row) => row.id === snapshot.id && row.name === undefined,
+            );
+          const usesDeletedVersion =
+            view.mode !== "live" &&
+            (view.compareToId === snapshot.id ||
+              (view.mode === "snapshot" && view.snapshotId === snapshot.id));
+          if (view.mode === "live" || (hidden && usesDeletedVersion)) {
             await previewRow(list.current);
           }
         },

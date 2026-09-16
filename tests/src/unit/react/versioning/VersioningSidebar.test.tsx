@@ -1125,6 +1125,55 @@ describe("VersioningSidebar", () => {
   // -------------------------------------------------------------------------
 
   describe("row actions", () => {
+    it.each([
+      { namedOnly: true, selection: "deleted" },
+      { namedOnly: true, selection: "baseline" },
+      { namedOnly: true, selection: "unrelated" },
+      { namedOnly: false, selection: "deleted" },
+    ] as const)(
+      "keeps a visible selection when deletion only clears a name ($namedOnly, $selection)",
+      async ({ namedOnly, selection }) => {
+        const fake = createFakeEndpoints();
+        const older = { id: "older", createdAt: 500, name: "First draft" };
+        fake.setSnapshots([NAMED, older]);
+        fake.endpoints.remove.mockImplementation(async (snapshot) => {
+          await fake.endpoints.rename(snapshot, undefined);
+        });
+        const { editor } = await setup(
+          {
+            defaultNamedOnly: namedOnly,
+            defaultComparisonMode: selection === "baseline",
+          },
+          fake,
+        );
+        const ext = editor.getExtension(VersioningExtension)!;
+        if (selection === "deleted") {
+          await click(rows()[1]!);
+        }
+        fake.endpoints.getContent.mockClear();
+
+        await click(await openMenuItem(rows()[1]!, /^Delete$/));
+
+        expect(ext.getSnapshot(NAMED.id)?.name).toBeUndefined();
+        expect(rows()).toHaveLength(namedOnly ? 2 : 3);
+        expect(ext.store.state.view).toEqual(
+          !namedOnly && selection === "deleted"
+            ? { mode: "snapshot", snapshotId: NAMED.id, compareToId: undefined }
+            : {
+                mode: "current",
+                compareToId: selection === "baseline" ? older.id : undefined,
+              },
+        );
+        expect(
+          rows().filter((row) => row.hasAttribute("aria-current")),
+        ).toHaveLength(1);
+        expect(editor.isEditable).toBe(false);
+        if (selection === "unrelated" || !namedOnly) {
+          expect(fake.endpoints.getContent).not.toHaveBeenCalled();
+        }
+      },
+    );
+
     it("re-selects the current version after deleting the one on screen", async () => {
       const { editor } = await setup();
       const ext = editor.getExtension(VersioningExtension)!;
