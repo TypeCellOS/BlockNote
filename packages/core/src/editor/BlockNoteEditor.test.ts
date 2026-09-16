@@ -2,7 +2,7 @@ import { afterEach, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
 import {
-  getBlockInfo,
+  getBlockInfoFromNode,
   getNearestBlockPos,
 } from "../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
@@ -26,7 +26,7 @@ it("creates an editor", () => {
   const editor = BlockNoteEditor.create();
   editorsToCleanup.push(editor);
   const posInfo = editor.transact((tr) => getNearestBlockPos(tr.doc, 2));
-  const info = getBlockInfo(posInfo);
+  const info = getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
   expect(info.blockNoteType).toEqual("paragraph");
 });
 
