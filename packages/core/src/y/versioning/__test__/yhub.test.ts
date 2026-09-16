@@ -559,23 +559,46 @@ describe("createYHubVersioningEndpoints", () => {
       expect(url.searchParams.get("attributions")).toBe("true");
     });
 
-    it("uses the current version's server timestamp for the current kind", async () => {
+    it("includes current-document attributions newer than the last listed version", async () => {
       const endpoints = makeEndpoints();
+      const editTime = SNAPSHOT_2.createdAt + 1000;
+      const changes = Y.createIdSet();
+      changes.add(7, 0, 1);
+      const latestAttributions = Y.createContentMap();
+      Y.insertIntoIdMap(
+        latestAttributions.inserts,
+        Y.createIdMapFromIdSet(changes, [
+          Y.createContentAttribute("insert", "new-peer"),
+        ]),
+      );
 
-      const cs = makeChangeset({ attributions: true });
-      fetchSpy.mockResolvedValueOnce(mockFetchResponse(cs));
+      fetchSpy.mockImplementation(
+        async (input: Parameters<typeof fetch>[0]) => {
+          const url = new URL(input instanceof Request ? input.url : input);
+          const to = url.searchParams.get("to");
+          // Model a server-side edit after the sidebar loaded its current row.
+          const attributions =
+            to === null || Number(to) >= editTime
+              ? latestAttributions
+              : Y.createContentMap();
+          return mockFetchResponse({
+            attributions: Y.encodeContentMap(attributions),
+          });
+        },
+      );
 
-      try {
-        await endpoints.getAttributions!(
-          { kind: "current", snapshot: SNAPSHOT_2 },
-          SNAPSHOT_1,
-        );
-      } catch {
-        // Expected
-      }
+      const attributions = await endpoints.getAttributions!(
+        { kind: "current", snapshot: SNAPSHOT_2 },
+        SNAPSHOT_1,
+      );
 
+      expect(Y.encodeContentMap(attributions)).toEqual(
+        Y.encodeContentMap(latestAttributions),
+      );
+      expect(fetchSpy).toHaveBeenCalledOnce();
       const url = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(url.searchParams.get("to")).toBe(String(SNAPSHOT_2.createdAt));
+      expect(url.searchParams.get("from")).toBe(String(SNAPSHOT_1.createdAt));
+      expect(url.searchParams.has("to")).toBe(false);
     });
 
     it("uses from=0 when compareTo is omitted", async () => {

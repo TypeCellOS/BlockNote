@@ -182,10 +182,11 @@ export function createYHubVersioningEndpoints(
       },
 
       async getAttributions(target, compareTo) {
+        // Current previews include live edits beyond the last list response.
         return Y.decodeContentMap(
           await client.getAttributions(
             compareTo?.createdAt ?? 0,
-            target.snapshot.createdAt,
+            target.kind === "snapshot" ? target.snapshot.createdAt : undefined,
           ),
         );
       },
