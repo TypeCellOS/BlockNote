@@ -189,6 +189,17 @@ export class StateManager {
       }
       return false;
     }
+    if (this.editor.headless) {
+      // No live view while unmounted, so tiptap can't consult plugin props
+      // (its unmounted view stub reports editable: true). Mirror the
+      // ReadOnly plugin's `editable` prop directly so the application
+      // preference and feature restrictions still read back correctly,
+      // e.g. for static/server-side rendering via block render functions.
+      const state = this.editor.getExtension(ReadOnlyExtension)?.store.state;
+      if (state) {
+        return state.isEditable && state.enabledSet.size === 0;
+      }
+    }
     return this.editor._tiptapEditor.isEditable === undefined
       ? true
       : this.editor._tiptapEditor.isEditable;

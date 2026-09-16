@@ -109,6 +109,40 @@ describe("ReadOnlyExtension", () => {
     expect(editor.prosemirrorView.editable).toBe(false);
   });
 
+  it("reports application and feature editability while unmounted", () => {
+    editor.unmount();
+    editor = BlockNoteEditor.create();
+    readOnly = editor.getExtension(ReadOnlyExtension)!;
+
+    expect(editor.isEditable).toBe(true);
+
+    editor.isEditable = false;
+    expect(editor.isEditable).toBe(false);
+
+    editor.isEditable = true;
+    expect(editor.isEditable).toBe(true);
+
+    readOnly.setReadOnly(true, "preview");
+    expect(editor.isEditable).toBe(false);
+
+    editor.isEditable = false;
+    readOnly.setReadOnly(false, "preview");
+    expect(editor.isEditable).toBe(false);
+
+    editor.isEditable = true;
+    expect(editor.isEditable).toBe(true);
+  });
+
+  it("honours editability set before mount", () => {
+    editor.unmount();
+    editor = BlockNoteEditor.create();
+    editor.isEditable = false;
+    expect(editor.isEditable).toBe(false);
+    editor.mount(document.createElement("div"));
+    expect(editor.isEditable).toBe(false);
+    expect(editor.prosemirrorView.editable).toBe(false);
+  });
+
   it("groups application editability changes into the pending transaction", () => {
     const transactions = vi.fn();
     const changes = vi.fn();
