@@ -6,7 +6,7 @@ import type {
 } from "../../comments/types.js";
 
 export function commentToYType(comment: CommentData) {
-  const yType = new Y.Type();
+  const yType = new Y.Node();
   yType.setAttr("id", comment.id);
   yType.setAttr("userId", comment.userId);
   yType.setAttr("createdAt", comment.createdAt.getTime());
@@ -26,18 +26,18 @@ export function commentToYType(comment: CommentData) {
    * this makes it easy to add / remove reactions and in a way that works local-first.
    * The cost is that "reading" the reactions is a bit more complex (see yTypeToReactions).
    */
-  yType.setAttr("reactionsByUser", new Y.Type());
+  yType.setAttr("reactionsByUser", new Y.Node());
   yType.setAttr("metadata", comment.metadata);
 
   return yType;
 }
 
 export function threadToYType(thread: ThreadData) {
-  const yType = new Y.Type();
+  const yType = new Y.Node();
   yType.setAttr("id", thread.id);
   yType.setAttr("createdAt", thread.createdAt.getTime());
   yType.setAttr("updatedAt", thread.updatedAt.getTime());
-  const commentsType = new Y.Type();
+  const commentsType = new Y.Node();
 
   commentsType.push(thread.comments.map((comment) => commentToYType(comment)));
 
@@ -55,7 +55,7 @@ type SingleUserCommentReactionData = {
   userId: string;
 };
 
-export function yTypeToReaction(yType: Y.Type): SingleUserCommentReactionData {
+export function yTypeToReaction(yType: Y.Node): SingleUserCommentReactionData {
   return {
     emoji: yType.getAttr("emoji"),
     createdAt: new Date(yType.getAttr("createdAt")),
@@ -63,8 +63,8 @@ export function yTypeToReaction(yType: Y.Type): SingleUserCommentReactionData {
   };
 }
 
-function yTypeToReactions(yType: Y.Type): CommentReactionData[] {
-  const flatReactions = [...yType.attrValues()].map((reaction: Y.Type) =>
+function yTypeToReactions(yType: Y.Node): CommentReactionData[] {
+  const flatReactions = [...yType.attrValues()].map((reaction: Y.Node) =>
     yTypeToReaction(reaction),
   );
   // combine reactions by the same emoji
@@ -92,7 +92,7 @@ function yTypeToReactions(yType: Y.Type): CommentReactionData[] {
   );
 }
 
-export function yTypeToComment(yType: Y.Type): CommentData {
+export function yTypeToComment(yType: Y.Node): CommentData {
   return {
     type: "comment",
     id: yType.getAttr("id"),
@@ -108,14 +108,14 @@ export function yTypeToComment(yType: Y.Type): CommentData {
   };
 }
 
-export function yTypeToThread(yType: Y.Type): ThreadData {
+export function yTypeToThread(yType: Y.Node): ThreadData {
   return {
     type: "thread",
     id: yType.getAttr("id"),
     createdAt: new Date(yType.getAttr("createdAt")),
     updatedAt: new Date(yType.getAttr("updatedAt")),
-    comments: ((yType.getAttr("comments") as Y.Type)?.toArray() || []).map(
-      (comment) => yTypeToComment(comment as Y.Type),
+    comments: ((yType.getAttr("comments") as Y.Node)?.toArray() || []).map(
+      (comment) => yTypeToComment(comment as Y.Node),
     ),
     resolved: yType.getAttr("resolved"),
     resolvedUpdatedAt: new Date(yType.getAttr("resolvedUpdatedAt")),

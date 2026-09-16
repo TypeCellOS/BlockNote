@@ -158,7 +158,7 @@ export type VersioningState = {
  *
  * Type params trace the data flow:
  * @typeParam Input - Live document handle passed to {@link create} / {@link restore},
- *   from {@link VersioningExtensionOptions.getCurrentDocument} (e.g. `Y.Type`, `Block[]`).
+ *   from {@link VersioningExtensionOptions.getCurrentDocument} (e.g. `Y.Node`, `Block[]`).
  * @typeParam Output - Serialised version content from {@link getContent} /
  *   {@link restore}, rendered by {@link PreviewController.enterPreview} (e.g. `Uint8Array`).
  * @typeParam Attributions - Optional diff-authorship data from {@link getAttributions},
@@ -343,7 +343,7 @@ export type VersioningExtensionOptions<
    * {@link VersioningEndpoints.create} and {@link VersioningEndpoints.restore}.
    * Cf. {@link serializeCurrentContent} (a detached copy); the two coincide for
    * some backends (in-memory: `Input === Output === Block[]`) and differ for
-   * others (Yjs: `Y.Type` vs `Uint8Array`).
+   * others (Yjs: `Y.Node` vs `Uint8Array`).
    */
   getCurrentDocument: () => Input;
   /**

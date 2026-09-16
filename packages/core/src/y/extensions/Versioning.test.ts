@@ -18,7 +18,7 @@ import { createYjsVersioningAdapter } from "./Versioning.js";
  * Simple in-memory Yjs versioning endpoints for tests.
  * Stores snapshots and their binary content in plain Maps.
  */
-function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
+function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Node, Uint8Array> {
   const snapshots = new Map<
     string,
     {

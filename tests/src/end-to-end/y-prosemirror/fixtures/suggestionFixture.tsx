@@ -91,7 +91,7 @@ export async function setupSuggestionTest({
   const suggestionDoc = new Y.Doc({ isSuggestionDoc: true });
   suggestionDoc.clientID = 2;
   const renderer = Y.createDiffRenderer(baseDoc, suggestionDoc, {
-    attrs: new Y.Attributions(),
+    attributions: Y.createContentMap(),
   });
   renderer.suggestionMode = true;
 
@@ -275,17 +275,17 @@ export async function waitForSuggestion(editor: GalleryEditor): Promise<void> {
  * nested tags (`<bold>world</bold>`) and attribution as an
  * `attribution="..."` attribute so the snapshots actually differ.
  *
- * We pass an explicit, stable `renderer` (`Y.baseRenderer`) rather than
+ * We pass an explicit, stable `renderer` (`null`) rather than
  * relying on `toDeltaDeep()`'s default. As of @y/prosemirror v2.0.0-6 the
  * default renderer is ambient/mutable, so a no-arg call serialises the
  * *same* Y.Doc differently from run to run (attribution-rich vs. plain),
  * which makes these inline snapshots flip-flop and never converge. Passing
- * `Y.baseRenderer` renders each doc's own intrinsic content + stored
+ * `null` renders each doc's own intrinsic content + stored
  * attribution deterministically, independent of any live DiffRenderer.
  */
 export function ydocXml(
   doc: Y.Doc,
-  renderer: Y.AbstractRenderer | null = Y.baseRenderer,
+  renderer: Y.AbstractRenderer | null = null,
 ): string {
   const delta = (doc.get("doc") as any).toDeltaDeep({ renderer }).toJSON();
   return prettify(deltaToXml(delta), { tag_wrap: true });

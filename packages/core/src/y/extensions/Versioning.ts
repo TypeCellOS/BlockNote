@@ -18,7 +18,8 @@ import {
  */
 function clearDocumentForConfigure(editor: BlockNoteEditor<any, any, any>) {
   // Pause sync (ytype -> null) so the deletion below stays local.
-  editor.exec(pauseSync);
+  // Upstream types dispatch as required and nullable; Command makes it optional.
+  editor.exec((state, dispatch) => pauseSync(state, dispatch ?? null));
   editor.removeBlocks(editor.document);
 }
 
@@ -33,10 +34,10 @@ function clearDocumentForConfigure(editor: BlockNoteEditor<any, any, any>) {
  */
 export function createYjsVersioningAdapter(
   editor: BlockNoteEditor<any, any, any>,
-  fragment: Y.Type,
+  fragment: Y.Node,
 ): {
   preview: PreviewController<Uint8Array, Y.ContentMap>;
-  getCurrentDocument: () => Y.Type;
+  getCurrentDocument: () => Y.Node;
   serializeCurrentContent: () => Uint8Array;
 } {
   return {
@@ -56,7 +57,7 @@ export function createYjsVersioningAdapter(
         compareToContent?: Uint8Array,
         attributions?: Y.ContentMap,
       ) {
-        let prevSnapshot: { fragment: Y.Type } | undefined;
+        let prevSnapshot: { fragment: Y.Node } | undefined;
         if (compareToContent) {
           const compareToDoc = new Y.Doc({ isSuggestionDoc: true });
           Y.applyUpdateV2(compareToDoc, compareToContent);
@@ -84,7 +85,7 @@ export function createYjsVersioningAdapter(
               ? Y.createDiffRenderer(
                   prevSnapshot.fragment.doc!,
                   doc,
-                  attributions ? { attrs: attributions } : undefined,
+                  attributions ? { attributions } : undefined,
                 )
               : undefined,
           });

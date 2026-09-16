@@ -10,7 +10,7 @@ import { YSyncExtension } from "../extensions/YSync.js";
 import { collectFragmentIds } from "../utils.js";
 
 /**
- * Name of the root {@link Y.Type} **array** on the live collaboration doc that
+ * Name of the root {@link Y.Node} **array** on the live collaboration doc that
  * stores the document's named versions.
  *
  * An array rather than a map because Yjs map keys are never truly deleted —
@@ -253,7 +253,7 @@ async function yhubFetch(
  */
 export function createYHubVersioningEndpoints(
   options: YHubVersioningOptions,
-): VersioningEndpointsFactory<Y.Type, Uint8Array, Y.ContentMap> {
+): VersioningEndpointsFactory<Y.Node, Uint8Array, Y.ContentMap> {
   const { baseUrl, org, docId, headers = {} } = options;
 
   const activityUrl = `${baseUrl}/activity/v1/${org}/${docId}`;
@@ -267,13 +267,13 @@ export function createYHubVersioningEndpoints(
      * when there is no live doc yet (no `ySync` extension attached). Reads
      * tolerate that; writes go through {@link requireVersionsArray}.
      */
-    function getVersionsArray(): Y.Type | undefined {
+    function getVersionsArray(): Y.Node | undefined {
       const doc =
         editor.getExtension<typeof YSyncExtension>("ySync")?.fragment.doc;
       return doc?.get(VERSIONS_ARRAY);
     }
 
-    function requireVersionsArray(): Y.Type {
+    function requireVersionsArray(): Y.Node {
       const array = getVersionsArray();
       if (!array) {
         throw new Error(
@@ -309,7 +309,7 @@ export function createYHubVersioningEndpoints(
     }
 
     /** Drop every element with this id. Returns the number removed. */
-    function deleteEntryElements(array: Y.Type, id: number): number {
+    function deleteEntryElements(array: Y.Node, id: number): number {
       const elements = array.toArray() as unknown[];
       let removed = 0;
       // Back to front so the indices of the not-yet-visited elements hold.
@@ -690,6 +690,6 @@ export function createYHubVersioningEndpoints(
           setVersionName(snapshot, undefined);
         }
       },
-    } satisfies VersioningEndpoints<Y.Type, Uint8Array, Y.ContentMap>;
+    } satisfies VersioningEndpoints<Y.Node, Uint8Array, Y.ContentMap>;
   };
 }

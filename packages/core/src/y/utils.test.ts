@@ -19,7 +19,7 @@ describe("collectFragmentIds", () => {
       const client = new Y.Doc();
       try {
         const fragment = doc.get("test");
-        const nested = new Y.Type();
+        const nested = new Y.Node();
         fragment.push([nested]);
         nested.push(["Deleted content"]);
         const expected = Y.createContentIdsFromUpdate(

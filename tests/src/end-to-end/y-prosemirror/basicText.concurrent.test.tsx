@@ -8,7 +8,7 @@
  *
  * TODO: BlockNote's `mapAttributionToMark` (YSync.ts) hashes user IDs
  * from the attribution data to pick a color from a fixed palette, but
- * `Y.Attributions()` ships empty and nothing in the editor pipeline
+ * `Y.ContentMap()` ships empty and nothing in the editor pipeline
  * populates it from the editor's `user` / awareness. Result: every
  * mark in every test renders as `userColorPalette[0]` (the amber entry
  * in `userColors.ts`), regardless of which user actually made the edit. In the merged

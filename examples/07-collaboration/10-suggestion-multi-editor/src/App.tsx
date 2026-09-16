@@ -25,7 +25,7 @@ provider2.awareness.setLocalStateField("user", {
   color: "#6eeb83",
 });
 
-const attrs = new Y.Attributions();
+const attrs = Y.createContentMap();
 
 // Batch timestamps: reuse the same timestamp for edits from the same user
 // within a 10-second window of inactivity.
@@ -62,7 +62,7 @@ function getBatchedTimestamp(userName: string): number {
 function trackAttributions(
   trackedDoc: Y.Doc,
   userName: string,
-  attributions: Y.Attributions,
+  attributions: Y.ContentMap,
 ) {
   trackedDoc.on(
     "update",
@@ -105,7 +105,9 @@ suggestingProvider.awareness.setLocalStateField("user", {
   name: "Charlie",
   color: "#ffbc42",
 });
-const suggestingRenderer = Y.createDiffRenderer(doc, suggestingDoc, { attrs });
+const suggestingRenderer = Y.createDiffRenderer(doc, suggestingDoc, {
+  attributions: attrs,
+});
 suggestingRenderer.suggestionMode = false;
 
 const suggestionModeDoc = new Y.Doc({ isSuggestionDoc: true });
@@ -117,7 +119,7 @@ suggestionModeProvider.awareness.setLocalStateField("user", {
   color: "#ee6352",
 });
 const suggestionModeRenderer = Y.createDiffRenderer(doc, suggestionModeDoc, {
-  attrs,
+  attributions: attrs,
 });
 suggestionModeRenderer.suggestionMode = true;
 
@@ -155,7 +157,7 @@ function Editor({
   userName,
   userColor,
 }: {
-  fragment: Y.Type;
+  fragment: Y.Node;
   provider: { awareness?: Awareness };
   renderer?: Y.DiffRenderer;
   userName: string;

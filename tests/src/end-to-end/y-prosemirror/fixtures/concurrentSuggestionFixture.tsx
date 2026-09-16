@@ -114,7 +114,7 @@ export async function setupConcurrentSuggestionTest({
   // reliable to snapshot.
 
   // Each editor's attribution manager reads its `attrs` (a mutable
-  // `Y.Attributions`) on every transaction. We back each `attrs` with an
+  // `Y.ContentMap`) on every transaction. We back each `attrs` with an
   // in-memory store that records the author of each change (see
   // `createInMemoryAttributionStore` below) so suggestions render in their
   // author's color instead of all sharing the default. A and B are single-user
@@ -125,7 +125,7 @@ export async function setupConcurrentSuggestionTest({
     tr.local ? "A" : null,
   );
   const managerA = Y.createDiffRenderer(baseDoc, suggestionDocA, {
-    attrs: attrsA,
+    attributions: attrsA,
   });
   managerA.suggestionMode = true;
 
@@ -133,7 +133,7 @@ export async function setupConcurrentSuggestionTest({
     tr.local ? "B" : null,
   );
   const managerB = Y.createDiffRenderer(baseDoc, suggestionDocB, {
-    attrs: attrsB,
+    attributions: attrsB,
   });
   managerB.suggestionMode = true;
 
@@ -144,7 +144,7 @@ export async function setupConcurrentSuggestionTest({
     (tr) => (tr.origin === "A" || tr.origin === "B" ? tr.origin : null),
   );
   const managerMerged = Y.createDiffRenderer(baseDoc, suggestionDocMerged, {
-    attrs: attrsMerged,
+    attributions: attrsMerged,
   });
   managerMerged.suggestionMode = false;
 
@@ -292,7 +292,7 @@ function makeAwareness(
  * attribution store (YHub) that real deployments use.
  *
  * It observes the doc and, for every transaction, records the author of that
- * transaction's inserts/deletes into a mutable `Y.Attributions`. A
+ * transaction's inserts/deletes into a mutable `Y.ContentMap`. A
  * `DiffRenderer` re-reads that same `attrs` object on each transaction
  * (via its own `beforeObserverCalls` handler), so the suggestion marks pick up
  * the author and render in their color (`colorsForUserIds` /
@@ -310,8 +310,8 @@ function makeAwareness(
 function createInMemoryAttributionStore(
   doc: Y.Doc,
   resolveUserId: (tr: any) => string | null,
-): Y.Attributions {
-  const attrs = new Y.Attributions();
+): Y.ContentMap {
+  const attrs = Y.createContentMap();
   doc.on("beforeObserverCalls", (tr: any) => {
     const userId = resolveUserId(tr);
     if (userId == null) {

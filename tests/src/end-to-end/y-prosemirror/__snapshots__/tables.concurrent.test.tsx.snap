@@ -413,15 +413,19 @@ exports[`concurrent: A adds a column, B adds a row 5`] = `
                 </y-attributed-insert>
               </tableCell>
             </y-attributed-insert>
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
-            >
-              <tableParagraph></tableParagraph>
-            </tableCell>
+            <y-attributed-insert userIds="">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="">
+                  <tableParagraph></tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
           </tableRow>
         </y-attributed-insert>
       </table>
@@ -843,15 +847,19 @@ exports[`concurrent: A adds a row, B adds a column 5`] = `
                 </y-attributed-insert>
               </tableCell>
             </y-attributed-insert>
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
-            >
-              <tableParagraph></tableParagraph>
-            </tableCell>
+            <y-attributed-insert userIds="">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="">
+                  <tableParagraph></tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
           </tableRow>
         </y-attributed-insert>
       </table>
@@ -1691,15 +1699,19 @@ exports[`sequential: A adds a column then a row, B adds a column 5`] = `
                 </y-attributed-insert>
               </tableCell>
             </y-attributed-insert>
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
-            >
-              <tableParagraph></tableParagraph>
-            </tableCell>
+            <y-attributed-insert userIds="">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="">
+                  <tableParagraph></tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
           </tableRow>
         </y-attributed-insert>
       </table>
@@ -2234,15 +2246,19 @@ exports[`sequential: A adds a row then a column, B adds a row 5`] = `
                 </y-attributed-insert>
               </tableCell>
             </y-attributed-insert>
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
-            >
-              <tableParagraph></tableParagraph>
-            </tableCell>
+            <y-attributed-insert userIds="">
+              <tableCell
+                backgroundColor="default"
+                colspan="1"
+                rowspan="1"
+                textAlignment="left"
+                textColor="default"
+              >
+                <y-attributed-insert userIds="">
+                  <tableParagraph></tableParagraph>
+                </y-attributed-insert>
+              </tableCell>
+            </y-attributed-insert>
           </tableRow>
         </y-attributed-insert>
       </table>

@@ -12,7 +12,7 @@ import { applyVersionUnbatched, type VersionBlock } from "./reconcile";
  * reconciles the *same* editor instance towards a target document, producing a
  * burst of ProseMirror transactions. We capture every content-changing
  * transaction, diff its before/after ProseMirror docs (`docDiffToDelta`), apply
- * that delta to a plain Y.Type in its own Yjs transaction (tagged with a random
+ * that delta to a plain Y.Node in its own Yjs transaction (tagged with a random
  * author as origin), and record the resulting V2 update. The captured updates
  * can later be PATCHed to a server (see seed.ts) to rebuild the history: each
  * step's edits are separated from the next step's by a large gap, which is what
@@ -138,8 +138,8 @@ export async function buildEditHistory(
   const ydoc = new Y.Doc({ gc: false });
   const yType = ydoc.get(options.fragment);
 
-  // Seed the Y.Type with the editor's starting doc so that every subsequent
-  // diff is relative to a Y.Type that actually mirrors the editor. Capture the
+  // Seed the Y.Node with the editor's starting doc so that every subsequent
+  // diff is relative to a Y.Node that actually mirrors the editor. Capture the
   // empty state vector first so we can expose the seed as `baseUpdate`.
   const emptyStateVector = Y.encodeStateVector(ydoc);
   ydoc.transact(() => {

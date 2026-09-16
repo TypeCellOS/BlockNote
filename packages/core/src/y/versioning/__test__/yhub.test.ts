@@ -81,13 +81,13 @@ function makeEndpoints() {
 // `editor.getExtension("ySync")?.fragment.doc`, so a stub that just exposes the
 // fragment is enough to exercise the `__bn_versions` store without wiring up
 // the full collaboration/prosemirror sync machinery.
-const ySyncStub = (fragment: Y.Type) =>
+const ySyncStub = (fragment: Y.Node) =>
   createExtension({ key: "ySync", fragment } as any);
 
 // Build endpoints against an editor that has a `ySync` extension whose fragment
 // belongs to `doc`, so the named-version array on `doc` is reachable.
 function makeCollabEndpoints(doc: Y.Doc) {
-  const fragment = doc.get("default", "XmlFragment") as unknown as Y.Type;
+  const fragment = doc.get("default", "XmlFragment") as unknown as Y.Node;
   (fragment as any).insert(0, ["hello"]);
   const editor = BlockNoteEditor.create({
     extensions: [ySyncStub(fragment)],
@@ -113,7 +113,7 @@ function mockFetchResponse(body: unknown, status = 200) {
   });
 }
 
-function makeFragment(): Y.Type {
+function makeFragment(): Y.Node {
   const doc = new Y.Doc();
   const frag = doc.get("default", "XmlFragment");
   frag.insert(0, ["test content"]);
@@ -452,7 +452,7 @@ describe("createYHubVersioningEndpoints", () => {
 
     it("labels the newest entry even when activity order is configured asc", async () => {
       const doc = new Y.Doc();
-      const fragment = doc.get("default", "XmlFragment") as unknown as Y.Type;
+      const fragment = doc.get("default", "XmlFragment") as unknown as Y.Node;
       (fragment as any).insert(0, ["hello"]);
       const editor = BlockNoteEditor.create({
         extensions: [ySyncStub(fragment)],
@@ -618,7 +618,7 @@ describe("createYHubVersioningEndpoints", () => {
     it("restores the exact boundary and deleted subtrees without reverting metadata or other roots", async () => {
       const server = new Y.Doc({ gc: false });
       const fragmentOnServer = server.get("default", "XmlFragment");
-      const nested = new Y.Type();
+      const nested = new Y.Node();
       fragmentOnServer.push([nested]);
       nested.push(["Original nested content"]);
       const original = fragmentOnServer.toJSON();

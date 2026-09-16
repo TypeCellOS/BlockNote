@@ -47,13 +47,13 @@ export type DiffVersioningExtensionOptions = {
 
 /**
  * Records the author of each transaction on `doc` into a mutable
- * {@link Y.Attributions}, so the resulting attribution marks carry a non-empty
+ * {@link Y.ContentMap}, so the resulting attribution marks carry a non-empty
  * `userIds` (and therefore resolve to a color/name). The listener must be
  * attached *before* the attributed transaction runs. Mirrors the store used by
  * the suggestion gallery example (`createAttributionStore`).
  */
-function attributeTransactionsTo(doc: Y.Doc, userId: string): Y.Attributions {
-  const attrs = new Y.Attributions();
+function attributeTransactionsTo(doc: Y.Doc, userId: string): Y.ContentMap {
+  const attrs = Y.createContentMap();
   doc.on("beforeObserverCalls", (tr) => {
     if (!tr.insertSet.isEmpty()) {
       Y.insertIntoIdMap(
@@ -193,7 +193,9 @@ export const DiffVersioningExtension = createExtension(
           nextType.applyDelta(delta as any);
         }, authorId);
 
-        const renderer = Y.createDiffRenderer(prevDoc, nextDoc, { attrs });
+        const renderer = Y.createDiffRenderer(prevDoc, nextDoc, {
+          attributions: attrs,
+        });
 
         // Clear the live doc first so ProseMirror rebuilds node views from
         // scratch (BlockNote node views resolve their block eagerly via getPos()

@@ -13,8 +13,8 @@ export const ForkYDocExtension = createExtension(
   ({ editor, options }: ExtensionOptions<CollaborationOptions>) => {
     let forkedState:
       | {
-          originalFragment: Y.Type;
-          forkedFragment: Y.Type;
+          originalFragment: Y.Node;
+          forkedFragment: Y.Node;
         }
       | undefined = undefined;
 

@@ -25,12 +25,12 @@ import { mapAttributionToMark } from "./extensions/YSync.js";
 import * as Y from "@y/y";
 
 /**
- * Find the equivalent of a Y.Type in another Y.Doc.
+ * Find the equivalent of a Y.Node in another Y.Doc.
  *
  * For root types this looks up the matching shared key; for sub-types it
  * locates the item by its client/clock ID in the target doc's store.
  */
-export function findTypeInOtherYdoc<T extends Y.Type<any>>(
+export function findTypeInOtherYdoc<T extends Y.Node<any>>(
   ytype: T,
   otherYdoc: Y.Doc,
 ): T {
@@ -46,10 +46,10 @@ export function findTypeInOtherYdoc<T extends Y.Type<any>>(
     const rootKey = Array.from(ydoc.share.keys()).find(
       (key) => ydoc.share.get(key) === ytype,
     );
-    if (rootKey == null) {
+    if (typeof rootKey !== "string") {
       throw new Error("type does not exist in other ydoc");
     }
-    return otherYdoc.get(rootKey as string, ytype.constructor as any) as T;
+    return otherYdoc.get(rootKey, ytype.name) as T;
   } else {
     /**
      * If it is a sub type, we use the item id to find the history type.
@@ -82,7 +82,7 @@ export function findTypeInOtherYdoc<T extends Y.Type<any>>(
  * destroyed after collection. Caller-provided documents are never destroyed.
  */
 export function collectFragmentIds(
-  fragment: Y.Type,
+  fragment: Y.Node,
   docOrUpdate: Uint8Array | Y.Doc,
 ): Y.IdSet {
   if (docOrUpdate instanceof Uint8Array) {
@@ -150,25 +150,22 @@ export function _blocksToProsemirrorNode<
 /** YJS / BLOCKNOTE conversions */
 
 /**
- * Turn a Y.Type collaborative doc into a BlockNote document (BlockNote style JSON of all blocks)
+ * Turn a Y.Node collaborative doc into a BlockNote document (BlockNote style JSON of all blocks)
  * @param editor BlockNote editor
- * @param fragment Y.Type
+ * @param fragment Y.Node
  * @returns BlockNote document (BlockNote style JSON of all blocks)
  */
 export function yfragmentToBlocks<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
->(editor: BlockNoteEditor<BSchema, ISchema, SSchema>, fragment: Y.Type) {
+>(editor: BlockNoteEditor<BSchema, ISchema, SSchema>, fragment: Y.Node) {
   const pmNode = deltaToPNode(fragment.toDeltaDeep(), editor.pmSchema, null);
-  if (pmNode === null) {
-    return [];
-  }
   return docToBlocks<BSchema, ISchema, SSchema>(pmNode);
 }
 
 /**
- * Convert blocks to a Y.Type
+ * Convert blocks to a Y.Node
  *
  * This can be used when importing existing content to Y.Doc for the first time,
  * note that this should not be used to rehydrate a Y.Doc from a database once
@@ -177,7 +174,7 @@ export function yfragmentToBlocks<
  * @param editor BlockNote editor
  * @param blocks the blocks to convert
  * @param fragment XML fragment name
- * @returns Y.Type
+ * @returns Y.Node
  */
 export function blocksToYType<
   BSchema extends BlockSchema,
@@ -186,7 +183,7 @@ export function blocksToYType<
 >(
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
   blocks: Block<BSchema, ISchema, SSchema>[],
-  fragment?: Y.Type,
+  fragment?: Y.Node,
 ) {
   if (!fragment) {
     fragment = new Y.Doc().get("prosemirror");
@@ -252,7 +249,7 @@ export function docDiffToDelta(previousDoc: Node, newDoc: Node) {
 
 /**
  * Build a ProseMirror transaction that turns `tr.doc` into the content of a
- * Y.Type `fragment`, applying the `renderer`'s authorship as
+ * Y.Node `fragment`, applying the `renderer`'s authorship as
  * `y-attributed-*` marks. Used to render a (read-only) diff of a snapshot / a
  * version comparison into the editor.
  */
@@ -262,7 +259,7 @@ export function getProseMirrorTrFromYFragment({
   renderer,
 }: {
   tr: Transaction;
-  fragment: Y.Type;
+  fragment: Y.Node;
   renderer?: Y.AbstractRenderer | null;
 }): Transaction {
   const ycontent = deltaAttributionToFormat(

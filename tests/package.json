@@ -31,7 +31,7 @@
     "@vitest/browser-playwright": "4.1.10",
     "@vitest/ui": "4.1.5",
     "@y/protocols": "^1.0.6-rc.1",
-    "@y/y": "^14.0.0-rc.23",
+    "@y/y": "^14.0.0-rc.26",
     "htmlfy": "^0.6.7",
     "pdfjs-dist": "^4.10.38",
     "react": "^19.2.5",
