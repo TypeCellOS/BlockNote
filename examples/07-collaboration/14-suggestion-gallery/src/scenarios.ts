@@ -998,14 +998,9 @@ export const scenarios: SuggestionScenario[] = [
     title: "Text color vs background color",
     category: "Prop changes",
     description:
-      "A sets text color red while B sets background yellow; both apply.",
+      "A sets text color red while B sets background yellow; both prop changes " +
+      "merge, each highlighted in its author's color.",
     initial: [{ id: "block-hello", type: "paragraph", content: "hello world" }],
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     applyA: (editor) => {
       const [block] = editor.document;
       editor.updateBlock(block, {
