@@ -71,18 +71,12 @@ export function createVersioningPreview<Output, Attributions>({
 }) {
   const syncLoadingIndicator = createLoadingIndicator(getEditorDOM);
   let loadingPreview: VersioningPreviewView | undefined;
-  /**
-   * Bumped on every preview entry and on `exitPreview`, so an in-flight
-   * preview whose fetches resolve after the user moved on can tell that it
-   * was superseded and skip rendering.
-   */
+  /** Invalidates pending fetches and scheduled scrolling on entry or exit. */
   let previewToken = 0;
 
   /**
-   * The view the preview controller last rendered (or `live` after an
-   * exit). What a failed preview rolls back to: the store must describe what
-   * is actually on screen, and a superseded preview that never rendered
-   * isn't.
+   * Last requested controller render; fetch failures roll back here, never to
+   * a superseded preview that was not rendered.
    */
   let renderedView: VersioningView = { mode: "live" };
 
@@ -130,7 +124,7 @@ export function createVersioningPreview<Output, Attributions>({
       // Before the call, not after: once the controller has been asked to
       // render, leaving must go through it — even if it throws halfway.
       renderedView = view;
-      await preview.enterPreview(content, compareToContent, attributions, {
+      preview.enterPreview(content, compareToContent, attributions, {
         target,
         compareTo: compareToSnapshot,
       });
@@ -179,12 +173,8 @@ export function createVersioningPreview<Output, Attributions>({
     },
 
     /**
-     * Preview the **current version**: the live document, frozen at the moment
-     * this is called, optionally diffed against a stored version. Unlike
-     * {@link previewSnapshot}, the "new" side is serialised from the live
-     * document rather than fetched; its `createdAt` (the newest recorded edit's
-     * server timestamp) is what timestamp-addressed backends resolve the
-     * attribution window from.
+     * Freeze the live document, optionally diffed against a stored version.
+     * The target carries list metadata; see {@link PreviewTarget} for attribution bounds.
      */
     async previewCurrentVersion(previewOptions?: {
       /**

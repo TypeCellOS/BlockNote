@@ -9,17 +9,10 @@ import type {
   VersionSnapshot,
 } from "./Versioning.js";
 
-/**
- * The id of the in-memory backend's current-version row. Stored versions get
- * numeric ids, so this can never collide with one.
- */
+/** Reserved current-row id; stored versions use numeric ids. */
 export const IN_MEMORY_CURRENT_VERSION_ID = "current";
 
-/**
- * Label shown on a diff's marks for the version that introduced the changes.
- * The previewed version is the "new" side of the diff; the current version
- * (previewing the live doc) has no name of its own unless the user gave it one.
- */
+/** Label for the version introducing the diff's changes. */
 function versionLabel(target: PreviewTarget): string {
   switch (target.kind) {
     case "current":
@@ -33,32 +26,20 @@ function versionLabel(target: PreviewTarget): string {
 // Preview Controller
 // ---------------------------------------------------------------------------
 
-/**
- * The in-memory {@link PreviewController}, plus what the adapter needs to know
- * about the live document while a preview has replaced it on screen.
- */
+/** Preview controller exposing the live document while a preview replaces it. */
 export type InMemoryPreviewController = PreviewController<
   Block<any, any, any>[]
 > & {
   applyRestore: (snapshotContent: Block<any, any, any>[]) => void;
-  /**
-   * The live document: the one the preview saved on entering, or the editor's
-   * own when nothing is previewed. This is what a version is created from and
-   * what the current version is previewed as — never the previewed content
-   * that happens to be in the editor.
-   */
+  /** Saved live content while previewing, otherwise the editor document. */
   getLiveDocument: () => Block<any, any, any>[];
   /** Whether a preview has replaced the live document on screen. */
   readonly isPreviewing: boolean;
 };
 
 /**
- * Create a {@link PreviewController} that swaps the BlockNote document in and
- * out using `editor.replaceBlocks`.
- *
- * When entering preview mode the current document is saved so it can be
- * restored on exit. Successive `enterPreview` calls without an intervening
- * `exitPreview` preserve the original saved document.
+ * Swap preview content through `replaceBlocks`, preserving the live document
+ * across successive previews until exit.
  */
 export function createInMemoryPreviewController(
   editor: BlockNoteEditor<any, any, any>,
@@ -171,21 +152,11 @@ export type InMemoryVersion = {
 };
 
 export type InMemoryVersioningOptions = {
-  /**
-   * Versions the store starts out with — history the application loaded from
-   * wherever it keeps it. They're listed like any other version, newest
-   * first, and versions created afterwards always sort above them.
-   */
+  /** Preloaded history. New versions always sort above these, even with future dates. */
   initialVersions?: InMemoryVersion[];
 };
 
-/**
- * Create a {@link VersioningEndpoints} that stores snapshots entirely in
- * memory.  Useful for local-only / non-collaborative editors where you want
- * versioning without any persistence layer.
- *
- * Snapshots are stored as BlockNote document JSON (`Block[]`).
- */
+/** In-memory snapshot storage using BlockNote document JSON (`Block[]`). */
 export function createInMemoryVersioningEndpoints(
   options: InMemoryVersioningOptions = {},
 ): VersioningEndpoints<Block<any, any, any>[], Block<any, any, any>[]> {

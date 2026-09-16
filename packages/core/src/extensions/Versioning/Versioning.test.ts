@@ -6,6 +6,7 @@ import {
   beforeEach,
   describe,
   expect,
+  expectTypeOf,
   it,
   vi,
 } from "vite-plus/test";
@@ -21,8 +22,11 @@ import {
   VersioningExtension,
 } from "./Versioning.js";
 import type {
+  PreviewController,
   PreviewTarget,
   VersioningEndpoints,
+  VersioningExtensionOptions,
+  VersioningState,
   VersionSnapshot,
 } from "./Versioning.js";
 import {
@@ -43,10 +47,18 @@ import {
 function setupWith(
   build: (
     editor: BlockNoteEditor<any, any, any>,
-  ) => Parameters<typeof VersioningExtension>[0],
+  ) => Pick<VersioningExtensionOptions, "endpoints"> &
+    Partial<Omit<VersioningExtensionOptions, "endpoints">>,
 ) {
   const editor = BlockNoteEditor.create({
-    extensions: [(ctx) => VersioningExtension(build(ctx.editor))(ctx)],
+    extensions: [
+      (ctx) =>
+        VersioningExtension({
+          preview: createInMemoryPreviewController(ctx.editor),
+          getCurrentDocument: () => ctx.editor.document,
+          ...build(ctx.editor),
+        })(ctx),
+    ],
   });
   editor.mount(document.createElement("div"));
   return { editor, ext: editor.getExtension(VersioningExtension)! };
@@ -81,16 +93,12 @@ function snap(
 }
 
 /** The loaded list, or a failure — every test that reads it has listed first. */
-function loadedList(ext: { store: { state: { list: any } } }) {
+function loadedList(ext: { store: { state: VersioningState } }) {
   const { list } = ext.store.state;
   if (!list.loaded) {
     throw new Error("expected the version list to be loaded");
   }
-  return list as {
-    loaded: true;
-    current: VersionSnapshot;
-    snapshots: VersionSnapshot[];
-  };
+  return list;
 }
 
 /**
@@ -108,10 +116,10 @@ function setup(opts?: {
 }) {
   const endpoints = createInMemoryVersioningEndpoints();
   if (opts?.withoutRestore) {
-    (endpoints as any).restore = undefined;
+    endpoints.restore = undefined;
   }
   if (opts?.withoutUpdateName) {
-    (endpoints as any).rename = undefined;
+    endpoints.rename = undefined;
   }
 
   // Registered on the editor rather than built beside it, so the extension's
@@ -163,6 +171,12 @@ function setup(opts?: {
 // ---------------------------------------------------------------------------
 
 describe("VersioningExtension", () => {
+  it("requires preview controllers to render synchronously", () => {
+    expectTypeOf<() => Promise<void>>().not.toExtend<
+      PreviewController["enterPreview"]
+    >();
+  });
+
   let ctx: ReturnType<typeof setup>;
 
   beforeEach(() => {
@@ -242,7 +256,7 @@ describe("VersioningExtension", () => {
     it("a superseded list never overwrites a newer one", async () => {
       type Listed = { current: VersionSnapshot; snapshots: VersionSnapshot[] };
       const gates: Array<(list: Listed) => void> = [];
-      const { editor, ext } = setupWith((editor) => ({
+      const { editor, ext } = setupWith(() => ({
         endpoints: {
           list: () =>
             new Promise<Listed>((resolve) => {
@@ -256,7 +270,6 @@ describe("VersioningExtension", () => {
           exitPreview: () => {},
           applyRestore: () => {},
         },
-        getCurrentDocument: () => editor.document,
       }));
 
       // A slow mount-time list, then a name — which re-lists.
@@ -634,21 +647,15 @@ describe("VersioningExtension", () => {
       }
     });
 
-    it.each(["content", "baseline", "attributions", "render"] as const)(
+    it.each(["content", "baseline", "attributions"] as const)(
       "stays busy until comparison %s finishes",
       async (stage) => {
         const gate = deferred<void>();
-        const entered = deferred<void>();
         const current = snap("current", 30);
         const shown = snap("shown", 20);
         const baseline = snap("baseline", 10);
-        const enterPreview = vi.fn(async () => {
-          entered.resolve();
-          if (stage === "render") {
-            await gate.promise;
-          }
-        });
-        const { editor, ext } = setupWith((editor) => ({
+        const enterPreview = vi.fn(() => undefined);
+        const { editor, ext } = setupWith(() => ({
           endpoints: {
             list: async () => ({ current, snapshots: [shown, baseline] }),
             getContent: async (snapshot) => {
@@ -668,16 +675,12 @@ describe("VersioningExtension", () => {
             },
           },
           preview: { enterPreview, exitPreview: () => {} },
-          getCurrentDocument: () => editor.document,
         }));
         try {
           await ext.list();
           const pending = ext.previewSnapshot(shown.id, {
             compareTo: baseline.id,
           });
-          if (stage === "render") {
-            await entered.promise;
-          }
           expect(ext.store.state.status).toEqual({
             type: "loading-preview",
             view: {
@@ -687,9 +690,7 @@ describe("VersioningExtension", () => {
             },
           });
           expect(editor.isEditable).toBe(false);
-          if (stage !== "render") {
-            expect(enterPreview).not.toHaveBeenCalled();
-          }
+          expect(enterPreview).not.toHaveBeenCalled();
 
           gate.resolve();
           await pending;
@@ -709,11 +710,8 @@ describe("VersioningExtension", () => {
     );
 
     it("reports listing while a list is in flight and idles after", async () => {
-      let release!: () => void;
-      const gate = new Promise<void>((resolve) => {
-        release = resolve;
-      });
-      const { editor, ext } = setupWith((editor) => ({
+      const { promise: gate, resolve: release } = deferred<void>();
+      const { editor, ext } = setupWith(() => ({
         endpoints: {
           list: async () => {
             await gate;
@@ -721,8 +719,6 @@ describe("VersioningExtension", () => {
           },
           getContent: async () => [],
         } satisfies VersioningEndpoints,
-        preview: createInMemoryPreviewController(editor),
-        getCurrentDocument: () => editor.document,
       }));
 
       const listing = ext.list();
@@ -735,16 +731,11 @@ describe("VersioningExtension", () => {
     });
 
     it("prefers a pending preview over a pending list", async () => {
-      let releaseList!: () => void;
-      const listGate = new Promise<void>((resolve) => {
-        releaseList = resolve;
-      });
-      let releaseContent!: () => void;
-      const contentGate = new Promise<void>((resolve) => {
-        releaseContent = resolve;
-      });
+      const { promise: listGate, resolve: releaseList } = deferred<void>();
+      const { promise: contentGate, resolve: releaseContent } =
+        deferred<void>();
       let listCalls = 0;
-      const { editor, ext } = setupWith((editor) => ({
+      const { editor, ext } = setupWith(() => ({
         endpoints: {
           list: async () => {
             // Only the second list (the one raced against the preview) blocks.
@@ -758,8 +749,6 @@ describe("VersioningExtension", () => {
             return [];
           },
         } satisfies VersioningEndpoints,
-        preview: createInMemoryPreviewController(editor),
-        getCurrentDocument: () => editor.document,
       }));
 
       await ext.list();
@@ -786,10 +775,7 @@ describe("VersioningExtension", () => {
       "clears pending preview loading on exit after %i ms",
       async (elapsed) => {
         const seeded = await ctx.seed("old content");
-        let release!: () => void;
-        const gate = new Promise<void>((resolve) => {
-          release = resolve;
-        });
+        const { promise: gate, resolve: release } = deferred<void>();
         const getContent = ctx.endpoints.getContent;
         ctx.endpoints.getContent = async (snapshot) => {
           await gate;
@@ -827,11 +813,9 @@ describe("VersioningExtension", () => {
     it("marks the editor as loading only once a preview has taken a while", async () => {
       vi.useFakeTimers();
       try {
-        let releaseContent!: () => void;
-        const contentGate = new Promise<void>((resolve) => {
-          releaseContent = resolve;
-        });
-        const { editor, ext } = setupWith((editor) => ({
+        const { promise: contentGate, resolve: releaseContent } =
+          deferred<void>();
+        const { editor, ext } = setupWith(() => ({
           endpoints: {
             list: async () => ({
               current: snap("current", 10),
@@ -842,8 +826,6 @@ describe("VersioningExtension", () => {
               return [];
             },
           } satisfies VersioningEndpoints,
-          preview: createInMemoryPreviewController(editor),
-          getCurrentDocument: () => editor.document,
         }));
         await ext.list();
         const dom = editor.domElement!;
@@ -958,7 +940,7 @@ describe("VersioningExtension", () => {
     it("a superseded preview never renders", async () => {
       const gates = new Map<string, () => void>();
       const entered: string[] = [];
-      const { editor, ext } = setupWith((editor) => ({
+      const { editor, ext } = setupWith(() => ({
         endpoints: {
           list: async () => ({
             current: snap("current", 30),
@@ -976,7 +958,6 @@ describe("VersioningExtension", () => {
           exitPreview: () => {},
           applyRestore: () => {},
         },
-        getCurrentDocument: () => editor.document,
       }));
 
       await ext.list();
@@ -1000,7 +981,7 @@ describe("VersioningExtension", () => {
     });
 
     it("rolls the view back and unlocks when a fetch throws", async () => {
-      const { editor, ext } = setupWith((editor) => ({
+      const { editor, ext } = setupWith(() => ({
         endpoints: {
           list: async () => ({
             current: snap("current", 30),
@@ -1010,8 +991,6 @@ describe("VersioningExtension", () => {
             throw new Error("boom");
           },
         } satisfies VersioningEndpoints,
-        preview: createInMemoryPreviewController(editor),
-        getCurrentDocument: () => editor.document,
       }));
 
       await ext.list();
@@ -1029,14 +1008,13 @@ describe("VersioningExtension", () => {
       const a = await ctx.seed("content a");
       const b = await ctx.seed("content b");
 
-      let resolveA!: () => void;
+      const gate = deferred<void>();
       const backendGetContent = ctx.endpoints.getContent;
       ctx.endpoints.getContent = vi.fn(
         async (snapshot: VersionSnapshot): Promise<Block<any, any, any>[]> => {
           if (snapshot.id === a.id) {
-            return new Promise((resolve) => {
-              resolveA = () => resolve(backendGetContent(snapshot));
-            });
+            await gate.promise;
+            return backendGetContent(snapshot);
           }
           throw new Error("network");
         },
@@ -1050,7 +1028,7 @@ describe("VersioningExtension", () => {
       expect(ctx.ext.store.state.view).toEqual({ mode: "live" });
       expect(ctx.editor.isEditable).toBe(true);
 
-      resolveA();
+      gate.resolve();
       await previewingA;
       expect(getEditorText(ctx.editor)).toBe("live content");
     });
@@ -1067,8 +1045,6 @@ describe("VersioningExtension", () => {
             return undefined;
           },
         } satisfies VersioningEndpoints,
-        preview: createInMemoryPreviewController(editor),
-        getCurrentDocument: () => editor.document,
         serializeCurrentContent: () => editor.document,
       }));
 
@@ -1129,7 +1105,6 @@ describe("VersioningExtension", () => {
           exitPreview: () => {},
           applyRestore: () => {},
         },
-        getCurrentDocument: () => editor.document,
         scrollToFirstChange: opts?.scroll,
       }));
       return { editor, ext };
@@ -1215,14 +1190,13 @@ describe("VersioningExtension", () => {
 
     it("leaves the controller alone when nothing is previewed", async () => {
       const exitPreview = vi.fn();
-      const { editor, ext } = setupWith((editor) => ({
+      const { editor, ext } = setupWith(() => ({
         endpoints: createInMemoryVersioningEndpoints(),
         preview: {
           enterPreview: () => {},
           exitPreview,
           applyRestore: () => {},
         },
-        getCurrentDocument: () => editor.document,
       }));
       let changes = 0;
       editor.onChange(() => changes++);
@@ -1238,22 +1212,18 @@ describe("VersioningExtension", () => {
     });
 
     it("leaves the controller alone while the preview is still fetching", async () => {
-      let release!: () => void;
+      const content = deferred<string>();
       const enterPreview = vi.fn();
       const exitPreview = vi.fn();
-      const { editor, ext } = setupWith((editor) => ({
+      const { editor, ext } = setupWith(() => ({
         endpoints: {
           list: async () => ({
             current: snap("current", 30),
             snapshots: [snap("a", 10)],
           }),
-          getContent: () =>
-            new Promise((resolve) => {
-              release = () => resolve("a");
-            }),
+          getContent: () => content.promise,
         } satisfies VersioningEndpoints,
         preview: { enterPreview, exitPreview, applyRestore: () => {} },
-        getCurrentDocument: () => editor.document,
       }));
       await ext.list();
 
@@ -1268,7 +1238,7 @@ describe("VersioningExtension", () => {
       expect(ext.store.state.view).toEqual({ mode: "live" });
       expect(editor.isEditable).toBe(true);
 
-      release();
+      content.resolve("a");
       await previewing;
       expect(enterPreview).not.toHaveBeenCalled();
       editor.unmount();
@@ -1276,7 +1246,7 @@ describe("VersioningExtension", () => {
 
     it("exits through a controller that threw while rendering", async () => {
       const exitPreview = vi.fn();
-      const { editor, ext } = setupWith((editor) => ({
+      const { editor, ext } = setupWith(() => ({
         endpoints: {
           list: async () => ({
             current: snap("current", 30),
@@ -1291,7 +1261,6 @@ describe("VersioningExtension", () => {
           exitPreview,
           applyRestore: () => {},
         },
-        getCurrentDocument: () => editor.document,
       }));
       await ext.list();
 
@@ -1456,13 +1425,13 @@ describe("VersioningExtension", () => {
       const seeded = await ctx.seed("old content");
       await ctx.ext.previewSnapshot(seeded.id);
 
-      let resolveRestore!: () => void;
+      const gate = deferred<void>();
       const backendRestore = ctx.endpoints.restore!;
       ctx.endpoints.restore = vi.fn(
-        (doc: Block<any, any, any>[], snapshot: VersionSnapshot) =>
-          new Promise<Block<any, any, any>[]>((resolve) => {
-            resolveRestore = () => resolve(backendRestore(doc, snapshot));
-          }),
+        async (doc: Block<any, any, any>[], snapshot: VersionSnapshot) => {
+          await gate.promise;
+          return backendRestore(doc, snapshot);
+        },
       );
 
       const restoring = ctx.ext.restore!(seeded.id);
@@ -1470,7 +1439,7 @@ describe("VersioningExtension", () => {
       expect(ctx.editor.isEditable).toBe(false);
       expect(ctx.ext.store.state.view.mode).toBe("snapshot");
 
-      resolveRestore();
+      gate.resolve();
       await restoring;
       expect(ctx.editor.isEditable).toBe(true);
       expect(getEditorText(ctx.editor)).toBe("old content");
@@ -1480,22 +1449,22 @@ describe("VersioningExtension", () => {
       const seeded = await ctx.seed("old content");
       await ctx.ext.previewSnapshot(seeded.id);
 
-      let releaseList!: () => void;
+      const gate = deferred<void>();
       const backendList = ctx.endpoints.list;
-      ctx.endpoints.list = () =>
-        new Promise((resolve) => {
-          releaseList = () => resolve(backendList());
-        });
+      ctx.endpoints.list = vi.fn(async () => {
+        await gate.promise;
+        return backendList();
+      });
 
       const restoring = ctx.ext.restore!(seeded.id);
-      await vi.waitFor(() => expect(releaseList).toBeDefined());
+      await vi.waitFor(() => expect(ctx.endpoints.list).toHaveBeenCalled());
       // The restored content is already live, but remains read-only while
       // the sidebar's list catches up.
       expect(ctx.editor.isEditable).toBe(false);
       expect(ctx.ext.store.state.view.mode).toBe("live");
       expect(getEditorText(ctx.editor)).toBe("old content");
 
-      releaseList();
+      gate.resolve();
       await restoring;
       expect(ctx.editor.isEditable).toBe(true);
       expect(ctx.ext.store.state.view).toEqual({ mode: "live" });
@@ -1717,7 +1686,7 @@ describe("VersioningExtension", () => {
     });
 
     it("passes `by` author ids through list() untouched", async () => {
-      const { editor, ext } = setupWith((editor) => ({
+      const { editor, ext } = setupWith(() => ({
         endpoints: {
           list: async () => ({
             current: snap("current", 200),
@@ -1725,8 +1694,6 @@ describe("VersioningExtension", () => {
           }),
           getContent: async () => [],
         } satisfies VersioningEndpoints,
-        preview: createInMemoryPreviewController(editor),
-        getCurrentDocument: () => editor.document,
       }));
 
       const result = await ext.list();

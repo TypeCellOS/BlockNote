@@ -175,7 +175,7 @@ describe("createYjsVersioningAdapter", () => {
     ]);
 
     const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment);
-    void adapter.preview.enterPreview(snapshotData);
+    adapter.preview.enterPreview(snapshotData);
 
     expect(getEditorText(ctx.editor)).toContain("Original content");
     expect(getEditorText(ctx.editor)).not.toContain("Modified");
@@ -194,7 +194,7 @@ describe("createYjsVersioningAdapter", () => {
     ]);
 
     const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment);
-    void adapter.preview.enterPreview(snapshotData);
+    adapter.preview.enterPreview(snapshotData);
     expect(getEditorText(ctx.editor)).toContain("Snapshot state");
 
     adapter.preview.exitPreview();
@@ -224,11 +224,11 @@ describe("createYjsVersioningAdapter", () => {
     const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment);
 
     // Preview A
-    void adapter.preview.enterPreview(snapshotA);
+    adapter.preview.enterPreview(snapshotA);
     expect(getEditorText(ctx.editor)).toContain("Snapshot A");
 
     // Switch to B without exiting first
-    void adapter.preview.enterPreview(snapshotB);
+    adapter.preview.enterPreview(snapshotB);
     expect(getEditorText(ctx.editor)).toContain("Snapshot B");
 
     // Exit should restore the live doc

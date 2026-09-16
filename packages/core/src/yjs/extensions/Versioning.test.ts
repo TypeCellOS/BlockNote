@@ -77,7 +77,7 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
       ctx.editor,
       ctx.collaborationOptions,
     );
-    void adapter.preview.enterPreview(snapshotUpdate);
+    adapter.preview.enterPreview(snapshotUpdate);
     expect(getEditorText(ctx.editor)).toBe("Version A");
   });
 
@@ -92,7 +92,7 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
       ctx.editor,
       ctx.collaborationOptions,
     );
-    void adapter.preview.enterPreview(snapshotUpdate);
+    adapter.preview.enterPreview(snapshotUpdate);
     expect(getEditorText(ctx.editor)).toBe("Version A");
 
     adapter.preview.exitPreview();
@@ -119,11 +119,11 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
     );
 
     // Preview A
-    void adapter.preview.enterPreview(snapshotA);
+    adapter.preview.enterPreview(snapshotA);
     expect(getEditorText(ctx.editor)).toBe("Snapshot A");
 
     // Switch to preview B without explicitly exiting
-    void adapter.preview.enterPreview(snapshotB);
+    adapter.preview.enterPreview(snapshotB);
     expect(getEditorText(ctx.editor)).toBe("Snapshot B");
 
     // Exit should restore live doc
@@ -161,17 +161,17 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
     expect(getDuplicateKeys()).toEqual([]);
 
     // First preview (fork)
-    void adapter.preview.enterPreview(snapA);
+    adapter.preview.enterPreview(snapA);
     expect(getDuplicateKeys()).toEqual([]);
     expect(getEditorText(ctx.editor)).toBe("Snap A");
 
     // Switch directly to second preview (merge + fork)
-    void adapter.preview.enterPreview(snapB);
+    adapter.preview.enterPreview(snapB);
     expect(getDuplicateKeys()).toEqual([]);
     expect(getEditorText(ctx.editor)).toBe("Snap B");
 
     // Third switch
-    void adapter.preview.enterPreview(snapA);
+    adapter.preview.enterPreview(snapA);
     expect(getDuplicateKeys()).toEqual([]);
     expect(getEditorText(ctx.editor)).toBe("Snap A");
 
@@ -205,7 +205,7 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
     const pluginCountBefore = ctx.editor.prosemirrorState.plugins.length;
 
     // Preview
-    void adapter.preview.enterPreview(snapA);
+    adapter.preview.enterPreview(snapA);
     expect(getDuplicateKeys()).toEqual([]);
 
     // Exit back to live
@@ -215,7 +215,7 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
     expect(ctx.editor.prosemirrorState.plugins.length).toBe(pluginCountBefore);
 
     // Preview again — this is the exact flow that triggers the browser bug
-    void adapter.preview.enterPreview(snapA);
+    adapter.preview.enterPreview(snapA);
     expect(getDuplicateKeys()).toEqual([]);
 
     // Exit again
@@ -224,7 +224,7 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
     expect(ctx.editor.prosemirrorState.plugins.length).toBe(pluginCountBefore);
 
     // One more round trip to be thorough
-    void adapter.preview.enterPreview(snapA);
+    adapter.preview.enterPreview(snapA);
     expect(getDuplicateKeys()).toEqual([]);
     adapter.preview.exitPreview();
     expect(getDuplicateKeys()).toEqual([]);

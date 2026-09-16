@@ -261,7 +261,7 @@ describe("createInMemoryPreviewController", () => {
     const snapshotBlocks = previewEditor.document;
     previewEditor.unmount();
 
-    void preview.enterPreview(snapshotBlocks);
+    preview.enterPreview(snapshotBlocks);
     expect(getEditorText(editor)).toBe("snapshot content");
 
     preview.exitPreview();
@@ -279,10 +279,10 @@ describe("createInMemoryPreviewController", () => {
       return blocks;
     };
 
-    void preview.enterPreview(mkSnap("snap A"));
+    preview.enterPreview(mkSnap("snap A"));
     expect(getEditorText(editor)).toBe("snap A");
 
-    void preview.enterPreview(mkSnap("snap B"));
+    preview.enterPreview(mkSnap("snap B"));
     expect(getEditorText(editor)).toBe("snap B");
 
     // Exit restores the original live doc, not snap A.
@@ -302,7 +302,7 @@ describe("createInMemoryPreviewController", () => {
     };
 
     // Enter preview first
-    void preview.enterPreview(mkSnap("previewed"));
+    preview.enterPreview(mkSnap("previewed"));
     expect(getEditorText(editor)).toBe("previewed");
 
     // Now restore — this is the "apply" step after endpoints.restore returns

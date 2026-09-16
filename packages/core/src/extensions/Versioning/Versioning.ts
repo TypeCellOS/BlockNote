@@ -353,6 +353,7 @@ export const VersioningExtension = createExtension(
           }
         : undefined,
       previewSnapshot(
+        this: void,
         ...args: Parameters<typeof versionPreview.previewSnapshot>
       ) {
         return versionPreview.previewSnapshot(...args);
@@ -361,7 +362,7 @@ export const VersioningExtension = createExtension(
         ? (...args: Parameters<typeof versionPreview.previewCurrentVersion>) =>
             versionPreview.previewCurrentVersion(...args)
         : undefined,
-      exitPreview() {
+      exitPreview(this: void) {
         closeHistory();
         versionPreview.exitPreview();
       },
