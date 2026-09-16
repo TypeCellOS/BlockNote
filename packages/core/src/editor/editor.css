@@ -134,6 +134,52 @@
   transition: all 0.2s;
 }
 
+/* Default collaboration labels live in editor.portalElement, outside the
+   contenteditable and its table/column clipping ancestors. */
+.bn-collaboration-cursor__label[data-portal] {
+  position: fixed;
+  width: max-content;
+  max-width: 20rem;
+  box-sizing: border-box;
+  padding: 0.1rem 0.3rem;
+  font-family: inherit;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  user-select: none;
+  z-index: 20;
+  border-radius: 3px 3px 3px 0;
+}
+
+.bn-collaboration-cursor__label[data-portal][data-placement="top-end"] {
+  border-radius: 3px 3px 0 3px;
+}
+
+.bn-collaboration-cursor__label[data-portal][data-placement="bottom-start"] {
+  border-radius: 0 3px 3px 3px;
+}
+
+.bn-collaboration-cursor__label[data-portal][data-placement="bottom-end"] {
+  border-radius: 3px 0 3px 3px;
+}
+
+.bn-editor
+  .bn-collaboration-cursor__base[data-default]:not([data-active])
+  .bn-collaboration-cursor__caret::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  width: 4px;
+  height: 5px;
+  background-color: inherit;
+  border-radius: 0 1.5px 1.5px 0;
+}
+
 .bn-editor [data-content-type="table"] .tableWrapper {
   /* Size of + buttons to add rows/columns. */
   --bn-table-widget-size: 22px;
