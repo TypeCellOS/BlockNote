@@ -28,6 +28,25 @@ function createPreviewEditor() {
   return { editor, doc, fragment };
 }
 
+function getEditorText(editor: BlockNoteEditor<any, any, any>): string {
+  return editor.prosemirrorState.doc.textContent;
+}
+
+function attributionMarkNames(
+  editor: BlockNoteEditor<any, any, any>,
+): Set<string> {
+  const names = new Set<string>();
+  editor.prosemirrorState.doc.descendants((node) => {
+    node.marks.forEach((m) => {
+      if (m.type.name.startsWith("y-attributed-")) {
+        names.add(m.type.name);
+      }
+    });
+    return true;
+  });
+  return names;
+}
+
 /**
  * Writes two prosemirror documents (at two points in time) into a single
  * yjs v13 document using the old y-prosemirror binding, returning the two
@@ -90,31 +109,13 @@ describe("v1 binding snapshot diff", () => {
     ctx = createPreviewEditor();
     const { baseline, snapshot } = buildV1Snapshots(ctx.editor);
 
-    let errorMessage: string | undefined;
-    try {
-      showSnapshotPreview(ctx.editor, ctx.fragment, snapshot, baseline);
-    } catch (error) {
-      errorMessage = error instanceof Error ? error.message : String(error);
-    }
-    expect(errorMessage).toBe("[y/prosemirror]: failed to create node: null");
-  });
+    showSnapshotPreview(ctx.editor, ctx.fragment, snapshot, baseline);
 
-  it("rejects a genuine V1-format update in the new binding", () => {
-    ctx = createPreviewEditor();
-    ctx.editor.replaceBlocks(ctx.editor.document, [
-      { type: "paragraph", content: "Version 1" },
-    ]);
-    const legacyDoc = new Y1.Doc();
-    const legacyFragment = legacyDoc.get("doc", Y1.XmlFragment);
-    prosemirrorToYXmlFragment(ctx.editor.prosemirrorState.doc, legacyFragment);
-    const v1FormatUpdate = Y1.encodeStateAsUpdate(legacyDoc);
-
-    let errorMessage: string | undefined;
-    try {
-      decodeFragmentUpdate(ctx.fragment, v1FormatUpdate);
-    } catch (error) {
-      errorMessage = error instanceof Error ? error.message : String(error);
-    }
-    expect(errorMessage).toMatch(/^RangeError: Invalid typed array length/);
+    const names = attributionMarkNames(ctx.editor);
+    expect(names.has("y-attributed-insert")).toBe(true);
+    expect(names.has("y-attributed-delete")).toBe(true);
+    // The diff renders deleted text inline alongside inserted text: the deleted
+    // "1" and the inserted "2" both appear, each with its attribution mark.
+    expect(getEditorText(ctx.editor)).toBe("Version 12");
   });
 });

@@ -8,6 +8,7 @@ import {
   pmToFragment,
 } from "@y/prosemirror";
 import * as d from "lib0/delta";
+import * as dt from "lib0/delta/transformer";
 import { Node } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
 import {
@@ -320,6 +321,26 @@ export function docDiffToDelta(previousDoc: Node, newDoc: Node) {
 }
 
 /**
+ * Old y-prosemirror documents nest inline text in anonymous containers
+ * (`paragraph > <name:null>"text"</>`; a legacy `YXmlText` decodes to a
+ * `Y.Node` with `name === null`). The new binding assumes the flat model — text
+ * as string inserts directly in the block's delta children. This recursive
+ * template splices every anonymous node's children into its parent, at every
+ * depth, mirroring the compat stage the `@y/prosemirror` binding runs at initial
+ * sync (`transformers/inline-anonymous-nodes.js`, which is not part of its
+ * public surface).
+ */
+function inlineAnonymousNodes<IN extends dt.DeltaConf>(
+  $d: dt.DSchema<IN>,
+): dt.Template<IN, any> {
+  return dt.pipe(
+    $d,
+    ($d1) => dt.inline($d1, [null]),
+    ($d2) => dt.children($d2, (_child, $c) => inlineAnonymousNodes($c)),
+  );
+}
+
+/**
  * Build a ProseMirror transaction that turns `tr.doc` into the content of a
  * Y.Node `fragment`, applying the `renderer`'s authorship as
  * `y-attributed-*` marks. Used to render a (read-only) diff of a snapshot / a
@@ -334,8 +355,14 @@ export function getProseMirrorTrFromYFragment({
   fragment: Y.Node;
   renderer?: Y.AbstractRenderer | null;
 }): Transaction {
+  const rendered = fragment.toDeltaDeep({ renderer });
+  // A transformer consumes its input, so hand it a privately-owned deep clone
+  // (mirrors the binding, which clones before routing a change through it).
+  const flattened =
+    inlineAnonymousNodes(d.$deltaAny).init().applyA(d.cloneDeep(rendered)).b ??
+    d.create();
   const ycontent = deltaAttributionToFormat(
-    fragment.toDeltaDeep({ renderer }),
+    flattened,
     mapAttributionToMark,
     tr.doc.type.schema.marks["y-attributed-attrs"]
       ? defaultMapAttrAttribution
