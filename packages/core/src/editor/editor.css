@@ -99,24 +99,52 @@
   left: -1px;
 }
 
-.bn-editor .bn-collaboration-cursor__base .bn-collaboration-cursor__label {
+/* Labels default to floating outside the contenteditable's clipping ancestors. */
+.bn-collaboration-cursor__label {
+  position: fixed;
+  width: max-content;
+  max-width: 20rem;
+  box-sizing: border-box;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px 3px 3px 0;
   pointer-events: none;
-  border-radius: 0 1.5px 1.5px 0;
   font-size: 12px;
   font-style: normal;
   font-weight: 600;
   line-height: normal;
-  left: 0;
   overflow: hidden;
-  position: absolute;
+  text-overflow: ellipsis;
   white-space: nowrap;
   user-select: none;
+  z-index: 20;
+}
 
+.bn-collaboration-cursor__label[data-placement="top-end"] {
+  border-radius: 3px 3px 0 3px;
+}
+
+.bn-collaboration-cursor__label[data-placement="bottom-start"] {
+  border-radius: 0 3px 3px 3px;
+}
+
+.bn-collaboration-cursor__label[data-placement="bottom-end"] {
+  border-radius: 3px 0 3px 3px;
+}
+
+/* Inline labels are also used by custom renderers and the AI agent cursor. */
+.bn-editor .bn-collaboration-cursor__base .bn-collaboration-cursor__label {
+  position: absolute;
+  width: auto;
+  box-sizing: content-box;
+  text-overflow: clip;
+  z-index: auto;
+  left: 0;
+  top: -1px;
+  border-radius: 0 1.5px 1.5px 0;
   color: transparent;
   max-height: 5px;
   max-width: 4px;
   padding: 0;
-  top: -1px;
   transition: all 0.2s;
 }
 
@@ -127,45 +155,8 @@
   max-height: 1.1rem;
   max-width: 20rem;
   padding: 0.1rem 0.3rem;
+  border-radius: 3px 3px 3px 0;
   top: -17px;
-  left: 0;
-  border-radius: 3px 3px 3px 0;
-
-  transition: all 0.2s;
-}
-
-/* Default collaboration labels live in editor.portalElement, outside the
-   contenteditable and its table/column clipping ancestors. */
-.bn-collaboration-cursor__label[data-portal] {
-  position: fixed;
-  width: max-content;
-  max-width: 20rem;
-  box-sizing: border-box;
-  padding: 0.1rem 0.3rem;
-  font-family: inherit;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  pointer-events: none;
-  user-select: none;
-  z-index: 20;
-  border-radius: 3px 3px 3px 0;
-}
-
-.bn-collaboration-cursor__label[data-portal][data-placement="top-end"] {
-  border-radius: 3px 3px 0 3px;
-}
-
-.bn-collaboration-cursor__label[data-portal][data-placement="bottom-start"] {
-  border-radius: 0 3px 3px 3px;
-}
-
-.bn-collaboration-cursor__label[data-portal][data-placement="bottom-end"] {
-  border-radius: 3px 0 3px 3px;
 }
 
 .bn-editor

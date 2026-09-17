@@ -43,31 +43,22 @@ function defaultCursorRender(user: CollaborationUser) {
   cursorElement.classList.add("bn-collaboration-cursor__base");
 
   const caretElement = document.createElement("span");
-  caretElement.setAttribute("contenteditable", "false");
+  caretElement.contentEditable = "false";
   caretElement.classList.add("bn-collaboration-cursor__caret");
-  caretElement.setAttribute(
-    "style",
-    `background-color: ${user.color}; color: ${
-      isDarkColor(user.color) ? "white" : "black"
-    }`,
-  );
 
   const labelElement = document.createElement("span");
-
   labelElement.classList.add("bn-collaboration-cursor__label");
-  labelElement.setAttribute(
-    "style",
-    `background-color: ${user.color}; color: ${
-      isDarkColor(user.color) ? "white" : "black"
-    }`,
-  );
-  labelElement.insertBefore(document.createTextNode(user.name), null);
+  labelElement.textContent = user.name;
+
+  const textColor = isDarkColor(user.color) ? "white" : "black";
+  for (const element of [caretElement, labelElement]) {
+    element.style.backgroundColor = user.color;
+    element.style.color = textColor;
+  }
 
   cursorElement.setAttribute("data-default", "");
-
-  cursorElement.insertBefore(document.createTextNode("\u2060"), null); // Non-breaking space
-  cursorElement.insertBefore(caretElement, null);
-  cursorElement.insertBefore(document.createTextNode("\u2060"), null); // Non-breaking space
+  // Word joiners anchor the widget in the text without adding visible spacing.
+  cursorElement.append("\u2060", caretElement, "\u2060");
 
   return {
     element: cursorElement,
@@ -133,7 +124,6 @@ export function createCollaborationCursorManager(options: {
     }
 
     const portal = options.getPortalElement();
-    label.element.setAttribute("data-portal", "");
     label.element.style.visibility = "hidden";
     portal.append(label.element);
     // Table ancestors constrain the caret's visibility, but not its label's
@@ -178,7 +168,7 @@ export function createCollaborationCursorManager(options: {
       });
       element.dataset.placement = result.placement;
     }
-    const cleanup = autoUpdate(label.caret, label.element, update);
+    const cleanup = autoUpdate(caret, element, update);
     label.positioning = {
       ancestors,
       update,
@@ -190,6 +180,7 @@ export function createCollaborationCursorManager(options: {
   }
 
   function hideCursor(cursor: Cursor) {
+    clearTimeout(cursor.hideTimeout);
     cursor.element.removeAttribute("data-active");
     if (cursor.label) {
       stopPositioning(cursor.label);
@@ -207,18 +198,11 @@ export function createCollaborationCursorManager(options: {
     cursor.hideTimeout = setTimeout(() => hideCursor(cursor), 2000);
   }
 
-  function destroyCursor(cursor: Cursor) {
-    clearTimeout(cursor.hideTimeout);
-    if (cursor.label) {
-      stopPositioning(cursor.label);
-    }
-  }
-
   function sync(nextView: EditorView) {
     view = nextView;
     for (const [clientID, cursor] of cursors) {
       if (!view.dom.contains(cursor.element)) {
-        destroyCursor(cursor);
+        hideCursor(cursor);
         cursors.delete(clientID);
       } else {
         positionLabel(cursor);
@@ -226,40 +210,41 @@ export function createCollaborationCursorManager(options: {
     }
   }
 
+  function cursorBuilder(user: CollaborationUser, clientID: number) {
+    const existing = cursors.get(clientID);
+    if (existing) {
+      return existing.element;
+    }
+
+    const cursor: Cursor = options.renderCursor
+      ? { element: options.renderCursor(user) }
+      : defaultCursorRender(user);
+    cursors.set(clientID, cursor);
+    if (options.showCursorLabels !== "always") {
+      cursor.element.addEventListener("mouseenter", () => showCursor(cursor));
+      cursor.element.addEventListener("mouseleave", () => scheduleHide(cursor));
+      scheduleHide(cursor);
+    }
+    cursor.element.setAttribute("data-active", "");
+    return cursor.element;
+  }
+
+  function onAwarenessChange({ updated }: { updated: number[] }) {
+    if (options.showCursorLabels === "always") {
+      return;
+    }
+    for (const clientID of updated) {
+      const cursor = cursors.get(clientID);
+      if (cursor) {
+        showCursor(cursor);
+        scheduleHide(cursor);
+      }
+    }
+  }
+
   return {
-    cursorBuilder(this: void, user: CollaborationUser, clientID: number) {
-      let cursor = cursors.get(clientID);
-      if (!cursor) {
-        const created: Cursor = options.renderCursor
-          ? { element: options.renderCursor(user) }
-          : defaultCursorRender(user);
-        cursor = created;
-        cursors.set(clientID, created);
-        if (options.showCursorLabels !== "always") {
-          created.element.addEventListener("mouseenter", () =>
-            showCursor(created),
-          );
-          created.element.addEventListener("mouseleave", () =>
-            scheduleHide(created),
-          );
-          scheduleHide(created);
-        }
-        created.element.setAttribute("data-active", "");
-      }
-      return cursor.element;
-    },
-    onAwarenessChange(this: void, { updated }: { updated: number[] }) {
-      if (options.showCursorLabels === "always") {
-        return;
-      }
-      for (const clientID of updated) {
-        const cursor = cursors.get(clientID);
-        if (cursor) {
-          showCursor(cursor);
-          scheduleHide(cursor);
-        }
-      }
-    },
+    cursorBuilder,
+    onAwarenessChange,
     plugin: new Plugin({
       view(initialView) {
         sync(initialView);
@@ -267,7 +252,7 @@ export function createCollaborationCursorManager(options: {
           update: sync,
           destroy() {
             for (const cursor of cursors.values()) {
-              destroyCursor(cursor);
+              hideCursor(cursor);
             }
             cursors.clear();
             view = undefined;

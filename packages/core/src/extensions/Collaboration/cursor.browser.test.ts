@@ -156,15 +156,12 @@ for (const [name, create] of [
         session.destroy();
         container.remove();
       });
-      function moveTo(selector: string, atEnd = false, labelName?: string) {
+      function moveTo(selector: string, labelName?: string) {
         const element = mount.querySelector<HTMLElement>(selector);
         if (!element) {
           throw new Error("Missing cursor target: " + selector);
         }
-        const position = session.editor.prosemirrorView.posAtDOM(
-          element,
-          atEnd ? element.childNodes.length : 0,
-        );
+        const position = session.editor.prosemirrorView.posAtDOM(element, 0);
         session.move(position, labelName);
       }
       async function label() {
@@ -195,10 +192,9 @@ for (const [name, create] of [
       );
       expect(caret).not.toBeNull();
       expect(session.mount.contains(label)).toBe(false);
-      const table = session.mount.querySelector(".tableWrapper")!;
       expect(label.dataset.placement).toBe("top-start");
       expect(label.getBoundingClientRect().top).toBeLessThan(
-        table.getBoundingClientRect().top,
+        wrapper.getBoundingClientRect().top,
       );
       session.remove();
       await expect
@@ -208,7 +204,7 @@ for (const [name, create] of [
 
     it("flips below the editor top and keeps capped long labels inside the editor", async () => {
       const session = setup();
-      session.moveTo(".bn-inline-content", false, "Remote User ".repeat(20));
+      session.moveTo(".bn-inline-content", "Remote User ".repeat(20));
       const label = await session.label();
       expect(label.dataset.placement).toBe("bottom-start");
       const editorRect = session.mount.getBoundingClientRect();
