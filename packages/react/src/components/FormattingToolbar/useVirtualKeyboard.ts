@@ -115,35 +115,12 @@ export function useVirtualKeyboard(): boolean {
         !keyboardOpen && container.scrollTop <= 0,
       );
 
-    // iOS Safari lets the document scroll past its layout maximum while the
-    // keyboard is open (by its accessory bar, 98px measured) and clips the
-    // visual viewport there, so the toolbar pinned to that edge floats above
-    // the keyboard. Holding the document at the maximum keeps the end
-    // reachable through the viewport pan. A no-op with a pinned scroll
-    // container, or where the keyboard resizes the layout viewport.
-    // How-to-test: without it, iOS Safari, pinned scroll container off, focus
-    // the editor and drag the page past its end: the toolbar sits about 100px
-    // above the keyboard with an empty band below it (no emulated instance
-    // reproduces the range; on the release checklist).
-    const clampDocumentScroll = () => {
-      const max = html.scrollHeight - html.clientHeight;
-      // Safari went past the layout maximum: pull the document back to it.
-      if (window.scrollY > max + 1) {
-        window.scrollTo(0, max);
-      }
-    };
-
     const update = () => {
       const keyboardOpen = isVirtualKeyboardOpen();
       setOpen(keyboardOpen);
       publishViewport();
       for (const container of scrollContainers()) {
         markPullToRefresh(container, keyboardOpen);
-      }
-      if (keyboardOpen) {
-        // The keyboard resized or panned the viewport: keep the document within
-        // its layout maximum (see `clampDocumentScroll`).
-        clampDocumentScroll();
       }
     };
     viewportPublishers++;
@@ -154,24 +131,13 @@ export function useVirtualKeyboard(): boolean {
     vp?.addEventListener("scroll", update);
     window.addEventListener("resize", update);
 
-    // Scroll events don't bubble, so one capture-phase listener on the
-    // document sees both the document's own scrolls and a container's.
+    // Scroll events don't bubble; capture them to track the pinned containers.
     const onScroll = (event: Event) => {
-      const keyboardOpen = isVirtualKeyboardOpen();
-      if (event.target === document) {
-        // The document scrolled. Only with the keyboard open can it rest past
-        // its layout maximum; otherwise a scroll past the end is the
-        // rubber-band, left alone.
-        if (keyboardOpen) {
-          clampDocumentScroll();
-        }
-      } else if (
-        // A pinned scroll container scrolled: its containment follows its
-        // scroll position.
+      if (
         event.target instanceof HTMLElement &&
         event.target.classList.contains("bn-scroll-container")
       ) {
-        markPullToRefresh(event.target, keyboardOpen);
+        markPullToRefresh(event.target, isVirtualKeyboardOpen());
       }
     };
     document.addEventListener("scroll", onScroll, {
