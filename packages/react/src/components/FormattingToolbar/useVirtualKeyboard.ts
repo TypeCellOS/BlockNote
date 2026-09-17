@@ -6,6 +6,10 @@ import { useLayoutEffect, useState } from "react";
 // refreshing it from a render pass is safe.
 let maxLayoutViewportHeight = 0;
 let baselineLayoutWidth = 0;
+// The last keyboard-open height measured away from the document's bottom,
+// multiplied by the zoom scale. Safari clips its reported viewport to the
+// document there, even though the keyboard hasn't moved.
+let unclippedKeyboardHeight: number | undefined;
 
 /**
  * Whether the on-screen keyboard is open, from the current visual viewport. We
@@ -44,6 +48,7 @@ function isVirtualKeyboardOpen(): boolean {
   if (Math.abs(layoutWidth - baselineLayoutWidth) > baselineLayoutWidth * 0.2) {
     baselineLayoutWidth = layoutWidth;
     maxLayoutViewportHeight = 0;
+    unclippedKeyboardHeight = undefined;
   }
 
   maxLayoutViewportHeight = Math.max(maxLayoutViewportHeight, layoutHeight);
@@ -115,23 +120,43 @@ export function useVirtualKeyboard(): boolean {
         !keyboardOpen && container.scrollTop <= 0,
       );
 
-    // iOS Safari lets the document scroll past its layout maximum while the
-    // keyboard is open (by its accessory bar, 98px measured) and clips the
-    // visual viewport there, so the toolbar pinned to that edge floats above
-    // the keyboard. Holding the document at the maximum keeps the end
-    // reachable through the viewport pan. A no-op with a pinned scroll
-    // container, or where the keyboard resizes the layout viewport.
-    // How-to-test: without it, iOS Safari, pinned scroll container off, focus
-    // the editor and drag the page past its end: the toolbar sits about 100px
-    // above the keyboard with an empty band below it (no emulated instance
-    // reproduces the range; on the release checklist).
-    const clampDocumentScroll = () => {
-      const max = html.scrollHeight - html.clientHeight;
-      // Safari went past the layout maximum: pull the document back to it.
-      if (window.scrollY > max + 1) {
-        window.scrollTo(0, max);
+    // Safari adds its accessory-bar inset to the native scroll range while
+    // the keyboard is open: https://bugs.webkit.org/show_bug.cgi?id=292603.
+    // Limit only that blank region. The visual viewport, not the unchanged
+    // layout viewport, determines how far the user must scroll to reach the
+    // document's end. Using clientHeight snaps back before the end is visible.
+    function clampDocumentScroll() {
+      const height = vp?.height ?? window.innerHeight;
+      const scale = vp?.scale ?? 1;
+      const previousHeight =
+        (unclippedKeyboardHeight ?? height * scale) / scale;
+
+      // At the bottom Safari also clips visualViewport.height to the remaining
+      // document. Retain the last unclipped measurement there; otherwise each
+      // smaller height would admit more of the blank region. Account for the
+      // document scroll event arriving before the visual viewport catches up.
+      // innerHeight is clipped too, including briefly after scrollTo. A real
+      // taller keyboard leaves room below the visual viewport in innerHeight.
+      // When the keyboard resizes the layout viewport (Android), use the new
+      // height directly instead of retaining the previous keyboard's size.
+      if (
+        unclippedKeyboardHeight === undefined ||
+        html.clientHeight <= height * scale + 1 ||
+        height >= previousHeight ||
+        (window.innerHeight > height + 1 &&
+          Math.max(window.scrollY, vp?.pageTop ?? 0) + height <
+            html.scrollHeight - 1)
+      ) {
+        unclippedKeyboardHeight = height * scale;
       }
-    };
+      const max = Math.max(
+        0,
+        html.scrollHeight - unclippedKeyboardHeight / scale,
+      );
+      if (window.scrollY > max + 1) {
+        window.scrollTo(window.scrollX, max);
+      }
+    }
 
     const update = () => {
       const keyboardOpen = isVirtualKeyboardOpen();
@@ -141,9 +166,9 @@ export function useVirtualKeyboard(): boolean {
         markPullToRefresh(container, keyboardOpen);
       }
       if (keyboardOpen) {
-        // The keyboard resized or panned the viewport: keep the document within
-        // its layout maximum (see `clampDocumentScroll`).
         clampDocumentScroll();
+      } else {
+        unclippedKeyboardHeight = undefined;
       }
     };
     viewportPublishers++;
@@ -198,6 +223,7 @@ export function useVirtualKeyboard(): boolean {
         // what it measures itself, not from a maximum seen on another page.
         maxLayoutViewportHeight = 0;
         baselineLayoutWidth = 0;
+        unclippedKeyboardHeight = undefined;
       }
     };
   }, []);
