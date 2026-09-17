@@ -1,12 +1,3 @@
-import {
-  autoUpdate,
-  computePosition,
-  flip,
-  getOverflowAncestors,
-  hide,
-  shift,
-  size,
-} from "@floating-ui/dom";
 import { Plugin } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
 
@@ -66,19 +57,14 @@ function defaultCursorRender(user: CollaborationUser) {
   };
 }
 
-type FloatingLabel = {
+type CursorLabel = {
   element: HTMLElement;
   caret: HTMLElement;
-  positioning?: {
-    ancestors: ReturnType<typeof getOverflowAncestors>;
-    update: () => void;
-    destroy: () => void;
-  };
 };
 
 type Cursor = {
   element: HTMLElement;
-  label?: FloatingLabel;
+  label?: CursorLabel;
   hideTimeout?: ReturnType<typeof setTimeout>;
 };
 
@@ -91,100 +77,35 @@ export function createCollaborationCursorManager(options: {
   const cursors = new Map<number, Cursor>();
   let view: EditorView | undefined;
 
-  function stopPositioning(label: FloatingLabel) {
-    label.positioning?.destroy();
-    label.positioning = undefined;
-    label.element.remove();
-  }
-
   function positionLabel(cursor: Cursor) {
     const label = cursor.label;
     if (!label || !view || !view.dom.contains(cursor.element)) {
       return;
     }
     if (!cursor.element.hasAttribute("data-active")) {
-      stopPositioning(label);
+      label.element.remove();
       return;
     }
-    // A reused widget can move into a different table/scroll container. Refresh
-    // autoUpdate's listeners when its clipping ancestors change.
-    const ancestors = getOverflowAncestors(label.caret);
-    const positioning = label.positioning;
-    if (positioning) {
-      if (
-        ancestors.length === positioning.ancestors.length &&
-        ancestors.every(
-          (ancestor, index) => ancestor === positioning.ancestors[index],
-        )
-      ) {
-        positioning.update();
-        return;
-      }
-      stopPositioning(label);
+    const portal = options.getPortalElement();
+    if (label.element.parentElement !== portal) {
+      portal.append(label.element);
     }
 
-    const portal = options.getPortalElement();
-    label.element.style.visibility = "hidden";
-    portal.append(label.element);
-    // Table ancestors constrain the caret's visibility, but not its label's
-    // placement. Use the editor and its outer scroll containers as the boundary.
-    const boundary = [
-      view.dom,
-      ...getOverflowAncestors(view.dom).filter(
-        (ancestor): ancestor is Element => ancestor instanceof Element,
-      ),
-    ];
-    const { element, caret } = label;
-    let revision = 0;
-    async function update() {
-      const currentRevision = ++revision;
-      const result = await computePosition(caret, element, {
-        placement: "top-start",
-        strategy: "fixed",
-        middleware: [
-          flip({
-            boundary,
-            fallbackPlacements: ["top-end", "bottom-start", "bottom-end"],
-          }),
-          shift({ boundary }),
-          size({
-            boundary,
-            apply({ availableWidth, elements }) {
-              elements.floating.style.maxWidth = `min(20rem, ${Math.max(0, availableWidth)}px)`;
-            },
-          }),
-          hide({ strategy: "referenceHidden" }),
-        ],
-      });
-      if (currentRevision !== revision || !element.isConnected) {
-        return;
-      }
-      Object.assign(element.style, {
-        left: `${result.x}px`,
-        top: `${result.y}px`,
-        visibility: result.middlewareData.hide?.referenceHidden
-          ? "hidden"
-          : "visible",
-      });
-      element.dataset.placement = result.placement;
+    const rect = label.caret.getBoundingClientRect();
+    label.element.style.left = `${rect.left}px`;
+    label.element.style.top = `${rect.top}px`;
+  }
+
+  function updatePositions() {
+    for (const cursor of cursors.values()) {
+      positionLabel(cursor);
     }
-    const cleanup = autoUpdate(caret, element, update);
-    label.positioning = {
-      ancestors,
-      update,
-      destroy() {
-        revision++;
-        cleanup();
-      },
-    };
   }
 
   function hideCursor(cursor: Cursor) {
     clearTimeout(cursor.hideTimeout);
     cursor.element.removeAttribute("data-active");
-    if (cursor.label) {
-      stopPositioning(cursor.label);
-    }
+    cursor.label?.element.remove();
   }
 
   function showCursor(cursor: Cursor) {
@@ -247,10 +168,27 @@ export function createCollaborationCursorManager(options: {
     onAwarenessChange,
     plugin: new Plugin({
       view(initialView) {
+        const root = initialView.dom.getRootNode();
+        const document = initialView.dom.ownerDocument;
+        const window = document.defaultView!;
+        // Capture scroll events from nested tables as well as outer scrollers.
+        root.addEventListener("scroll", updatePositions, true);
+        if (root !== document) {
+          document.addEventListener("scroll", updatePositions, true);
+        }
+        window.addEventListener("resize", updatePositions);
+        root.addEventListener("load", updatePositions, true);
+        const resizeObserver = new ResizeObserver(updatePositions);
+        resizeObserver.observe(initialView.dom);
         sync(initialView);
         return {
           update: sync,
           destroy() {
+            root.removeEventListener("scroll", updatePositions, true);
+            document.removeEventListener("scroll", updatePositions, true);
+            window.removeEventListener("resize", updatePositions);
+            root.removeEventListener("load", updatePositions, true);
+            resizeObserver.disconnect();
             for (const cursor of cursors.values()) {
               hideCursor(cursor);
             }

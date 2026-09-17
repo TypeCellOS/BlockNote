@@ -5255,9 +5255,6 @@ importers:
       '@emoji-mart/data':
         specifier: ^1.2.1
         version: 1.2.1
-      '@floating-ui/dom':
-        specifier: ^1.8.0
-        version: 1.8.0
       '@handlewithcare/prosemirror-inputrules':
         specifier: ^0.1.4
         version: 0.1.4(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.2)
@@ -17954,6 +17951,7 @@ snapshots:
     dependencies:
       '@floating-ui/core': 1.8.0
       '@floating-ui/utils': 0.2.12
+    optional: true
 
   '@floating-ui/react-dom@2.1.8(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:

@@ -102,6 +102,7 @@
 /* Labels default to floating outside the contenteditable's clipping ancestors. */
 .bn-collaboration-cursor__label {
   position: fixed;
+  transform: translateY(-100%);
   width: max-content;
   max-width: 20rem;
   box-sizing: border-box;
@@ -119,21 +120,10 @@
   z-index: 20;
 }
 
-.bn-collaboration-cursor__label[data-placement="top-end"] {
-  border-radius: 3px 3px 0 3px;
-}
-
-.bn-collaboration-cursor__label[data-placement="bottom-start"] {
-  border-radius: 0 3px 3px 3px;
-}
-
-.bn-collaboration-cursor__label[data-placement="bottom-end"] {
-  border-radius: 3px 0 3px 3px;
-}
-
 /* Inline labels are also used by custom renderers and the AI agent cursor. */
 .bn-editor .bn-collaboration-cursor__base .bn-collaboration-cursor__label {
   position: absolute;
+  transform: none;
   width: auto;
   box-sizing: content-box;
   text-overflow: clip;

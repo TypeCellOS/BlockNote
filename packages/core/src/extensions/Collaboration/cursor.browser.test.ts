@@ -166,13 +166,12 @@ for (const [name, create] of [
       }
       async function label() {
         await expect
-          .poll(
-            () =>
-              session.editor.portalElement.querySelector<HTMLElement>(
-                ".bn-collaboration-cursor__label",
-              )?.style.visibility,
+          .poll(() =>
+            session.editor.portalElement.querySelector<HTMLElement>(
+              ".bn-collaboration-cursor__label",
+            ),
           )
-          .toBe("visible");
+          .not.toBeNull();
         return session.editor.portalElement.querySelector<HTMLElement>(
           ".bn-collaboration-cursor__label",
         )!;
@@ -192,7 +191,10 @@ for (const [name, create] of [
       );
       expect(caret).not.toBeNull();
       expect(session.mount.contains(label)).toBe(false);
-      expect(label.dataset.placement).toBe("top-start");
+      expect(label.getBoundingClientRect().bottom).toBeCloseTo(
+        caret!.getBoundingClientRect().top,
+        0,
+      );
       expect(label.getBoundingClientRect().top).toBeLessThan(
         wrapper.getBoundingClientRect().top,
       );
@@ -202,21 +204,27 @@ for (const [name, create] of [
         .toBe(0);
     });
 
-    it("flips below the editor top and keeps capped long labels inside the editor", async () => {
+    it("keeps labels above the caret at the top edge", async () => {
       const session = setup();
       session.moveTo(".bn-inline-content", "Remote User ".repeat(20));
       const label = await session.label();
-      expect(label.dataset.placement).toBe("bottom-start");
-      const editorRect = session.mount.getBoundingClientRect();
-      expect(label.getBoundingClientRect().left).toBeGreaterThanOrEqual(
-        editorRect.left - 1,
+      const caret = session.mount.querySelector(
+        ".bn-collaboration-cursor__caret",
+      )!;
+      expect(label.getBoundingClientRect().bottom).toBeCloseTo(
+        caret.getBoundingClientRect().top,
+        0,
       );
-      expect(label.getBoundingClientRect().right).toBeLessThanOrEqual(
-        editorRect.right + 1,
+      expect(label.getBoundingClientRect().left).toBeCloseTo(
+        caret.getBoundingClientRect().left,
+        0,
+      );
+      expect(label.getBoundingClientRect().top).toBeLessThan(
+        session.mount.getBoundingClientRect().top,
       );
     });
 
-    it("tracks scrolling and hides labels whose caret is clipped", async () => {
+    it("tracks scrolling without hiding labels whose caret is clipped", async () => {
       const session = setup({ showCursorLabels: "always" }, document.body);
       session.moveTo("td p");
       const label = await session.label();
@@ -227,16 +235,38 @@ for (const [name, create] of [
         caret.getBoundingClientRect().top -
         session.container.getBoundingClientRect().top -
         8;
-      await expect.poll(() => label.dataset.placement).toBe("bottom-start");
+      await expect
+        .poll(() =>
+          Math.abs(
+            label.getBoundingClientRect().bottom -
+              caret.getBoundingClientRect().top,
+          ),
+        )
+        .toBeLessThan(1);
       session.container.scrollTop = 140;
-      await expect.poll(() => label.style.visibility).toBe("hidden");
+      await expect
+        .poll(() =>
+          Math.abs(
+            label.getBoundingClientRect().bottom -
+              caret.getBoundingClientRect().top,
+          ),
+        )
+        .toBeLessThan(1);
+      expect(getComputedStyle(label).visibility).toBe("visible");
       session.container.scrollTop = 0;
-      await expect.poll(() => label.style.visibility).toBe("visible");
+      await expect
+        .poll(() =>
+          Math.abs(
+            label.getBoundingClientRect().bottom -
+              caret.getBoundingClientRect().top,
+          ),
+        )
+        .toBeLessThan(1);
       session.editor.unmount();
       expect(label.isConnected).toBe(false);
     });
 
-    it("flips left at the right edge and resizes labels with the editor", async () => {
+    it("keeps labels to the right of the caret at the right edge", async () => {
       const session = setup();
       session.editor.updateBlock(session.editor.document.at(-1)!, {
         props: { textAlignment: "right" },
@@ -248,15 +278,16 @@ for (const [name, create] of [
         session.editor.prosemirrorView.posAtDOM(last, last.childNodes.length),
       );
       const label = await session.label();
-      expect(label.dataset.placement).toBe("top-end");
-      session.container.style.width = "65px";
-      await expect
-        .poll(() => label.getBoundingClientRect().width)
-        .toBeLessThanOrEqual(65);
-      session.container.style.width = "500px";
-      await expect
-        .poll(() => label.getBoundingClientRect().width)
-        .toBeGreaterThan(65);
+      const caret = session.mount.querySelector(
+        ".bn-collaboration-cursor__caret",
+      )!;
+      expect(label.getBoundingClientRect().left).toBeCloseTo(
+        caret.getBoundingClientRect().left,
+        0,
+      );
+      expect(label.getBoundingClientRect().right).toBeGreaterThan(
+        session.mount.getBoundingClientRect().right,
+      );
     });
 
     it("tracks a table's scroll after a visible cursor moves into it", async () => {
@@ -273,10 +304,28 @@ for (const [name, create] of [
       const label = await session.label();
       const wrapper =
         session.mount.querySelector<HTMLElement>(".tableWrapper")!;
+      const caret = session.mount.querySelector(
+        "td .bn-collaboration-cursor__caret",
+      )!;
       wrapper.scrollLeft = wrapper.scrollWidth;
-      await expect.poll(() => label.style.visibility).toBe("hidden");
+      await expect
+        .poll(() =>
+          Math.abs(
+            label.getBoundingClientRect().left -
+              caret.getBoundingClientRect().left,
+          ),
+        )
+        .toBeLessThan(1);
+      expect(getComputedStyle(label).visibility).toBe("visible");
       wrapper.scrollLeft = 0;
-      await expect.poll(() => label.style.visibility).toBe("visible");
+      await expect
+        .poll(() =>
+          Math.abs(
+            label.getBoundingClientRect().left -
+              caret.getBoundingClientRect().left,
+          ),
+        )
+        .toBeLessThan(1);
     });
 
     it("preserves custom cursor DOM and does not portal it", async () => {
