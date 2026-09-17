@@ -640,17 +640,6 @@ describe("createYHubVersioningEndpoints", () => {
   // restore
   // -------------------------------------------------------------------------
   describe("restore", () => {
-    it("requests one delayed history refresh with a configurable delay", () => {
-      expect(makeEndpoints().refreshAfterRestoreMs).toBe(6000);
-      const endpoints = createYHubVersioningEndpoints({
-        baseUrl: BASE_URL,
-        org: ORG,
-        docId: DOC_ID,
-        refreshAfterRestoreMs: 10000,
-      })(BlockNoteEditor.create());
-      expect(endpoints.refreshAfterRestoreMs).toBe(10000);
-    });
-
     it("restores the exact boundary and deleted subtrees without reverting metadata or other roots", async () => {
       const server = new Y.Doc({ gc: false });
       const fragmentOnServer = server.get("default", "XmlFragment");

@@ -110,7 +110,11 @@ export class YHubClient {
 
   async getDocument(params?: YHubQueryParams): Promise<Uint8Array> {
     const buffer = await this.request("ydoc", params);
-    return (decodeAny(new Uint8Array(buffer)) as YHubDocument).doc;
+    const { doc } = decodeAny(new Uint8Array(buffer)) as Partial<YHubDocument>;
+    if (!doc) {
+      throw new Error("YHub returned no document state.");
+    }
+    return doc;
   }
 
   async getContent(to: number): Promise<Uint8Array> {

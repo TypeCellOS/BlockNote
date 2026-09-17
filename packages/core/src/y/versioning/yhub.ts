@@ -24,11 +24,6 @@ import {
 export interface YHubVersioningOptions extends YHubClientOptions {
   /** Activity query overrides, read fresh on each request. */
   activityParams?: YHubQueryParams;
-  /**
-   * One best-effort history refresh after restore. Defaults to 6000ms, just
-   * beyond YHub's default cache lifetime; increase for longer server caches.
-   */
-  refreshAfterRestoreMs?: number;
 }
 
 const ACTIVITY_PARAM_DEFAULTS: YHubQueryParams = {
@@ -36,7 +31,10 @@ const ACTIVITY_PARAM_DEFAULTS: YHubQueryParams = {
   limit: 50,
   groupMaxGap: 60 * 60 * 1000, // Start a version after an hour of inactivity.
   groupMaxDuration: 12 * 60 * 60 * 1000, // Cap a version at twelve hours.
-  mergeUsers: true, // Supported by our YHub fork.
+  // Fork-only params (not upstream YHub): `mergeUsers` coalesces co-authors
+  // within a window, `customAttributions` returns name metadata. Coordinate
+  // with Kevin before relying on these in production / upstreaming.
+  mergeUsers: true,
   customAttributions: true,
 };
 
@@ -105,7 +103,6 @@ export function createYHubVersioningEndpoints(
     }
 
     return {
-      refreshAfterRestoreMs: options.refreshAfterRestoreMs ?? 6000,
       async list() {
         const activity = await fetchActivity();
 
@@ -201,6 +198,10 @@ export function createYHubVersioningEndpoints(
         ]);
 
         // Restore only this editor's fragment, preserving other editors and metadata.
+        // A plain timestamp rollback would also roll back the stored version
+        // names (they live in the same doc), so scope the rollback to this
+        // fragment's Yjs ID ranges instead. This stays until YHub exposes a
+        // native versioning API.
         const contentIds = collectFragmentIds(fragment, document);
 
         await client.rollback({
