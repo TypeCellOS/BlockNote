@@ -22,7 +22,7 @@
 #set figure(numbering: none)
 #show figure: set block(breakable: false)
 #show figure.caption: set text(size: 9.6pt, fill: luma(110))
-#show link: set text(fill: rgb("#0b6e99"))
+#show link: it => underline(text(fill: rgb("#0b6e99"), it))
 #let _cb-box(fill, stroke, tick) = box(baseline: 0.13em, width: 0.9em, height: 0.9em, radius: 2pt, stroke: 0.08em + stroke, fill: fill, tick)
 #let _cb-unchecked = _cb-box(white, luma(148), none)
 #let _cb-checked = _cb-box(rgb("#3183c8"), rgb("#3183c8"), place(top + left, curve(
