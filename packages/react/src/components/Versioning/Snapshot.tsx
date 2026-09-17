@@ -81,7 +81,7 @@ export function Snapshot(props: {
   const { snapshot, isCurrent } = props;
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const { create, rename } = useExtension(VersioningExtension);
+  const { create, rename, getLoadingState } = useExtension(VersioningExtension);
   const { snapshotMenu, run, focusNameFor, setFocusNameFor } =
     useVersioningSidebar();
   const previewRow = usePreviewRow();
@@ -90,7 +90,7 @@ export function Snapshot(props: {
     selector: (state) => state.view,
   });
   const status = useExtensionState(VersioningExtension, {
-    selector: (state) => state.status,
+    selector: getLoadingState,
   });
 
   const nameInput = useRef<HTMLInputElement>(null);

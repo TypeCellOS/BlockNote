@@ -2,9 +2,7 @@ import type {
   VersionSnapshot,
   VersionSnapshotIdentifier,
   VersioningList,
-  VersioningPreviewView,
   VersioningState,
-  VersioningStatus,
 } from "./types.js";
 
 /** Previewing and restoring both hold the editor read-only. */
@@ -41,20 +39,4 @@ export function resolveCompareTo(
     );
   }
   return snapshot;
-}
-
-/**
- * The busy indicator the sidebar shows, derived from the two in-flight
- * operations. Preview loading outranks listing: a fetch is the more urgent
- * thing to communicate, and reverting to `listing` when it settles keeps a
- * slow list request visible.
- */
-export function deriveStatus(
-  listing: boolean,
-  loadingPreview: VersioningPreviewView | undefined,
-): VersioningStatus {
-  if (loadingPreview) {
-    return { type: "loading-preview", view: loadingPreview };
-  }
-  return listing ? { type: "listing" } : { type: "idle" };
 }

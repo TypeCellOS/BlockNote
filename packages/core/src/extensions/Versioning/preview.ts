@@ -25,8 +25,8 @@ export const LOADING_PREVIEW_DELAY_MS = 400;
 /**
  * The preview loading indicator. Owns the loading class on the editor, shown
  * after {@link LOADING_PREVIEW_DELAY_MS} while a preview is fetching and
- * hidden when it settles. Nothing else — the caller tracks the loading view
- * and notifies status.
+ * hidden when it settles. Nothing else — the caller publishes the loading
+ * view to the store.
  */
 function createLoadingIndicator(editor: BlockNoteEditor<any, any, any>) {
   let loaderTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -56,8 +56,8 @@ function createLoadingIndicator(editor: BlockNoteEditor<any, any, any>) {
 }
 
 /**
- * The preview half of the versioning store. Owns the `view` field, the
- * loading indicator, and which preview is currently on screen.
+ * The preview half of the versioning store. Owns the `view` and `loadingView`
+ * fields, the loading indicator, and which preview is currently on screen.
  *
  * The controller renders synchronously, so the only async step is fetching
  * content. A single token (bumped for every request and on exit) guarantees
@@ -71,7 +71,6 @@ export function createPreviewSession({
   serializeCurrentContent,
   editor,
   scrollToFirstChangeEnabled,
-  onStatusChange,
 }: {
   store: Store<VersioningState>;
   endpoints: VersioningEndpoints;
@@ -79,7 +78,6 @@ export function createPreviewSession({
   serializeCurrentContent?: () => any;
   editor: BlockNoteEditor<any, any, any>;
   scrollToFirstChangeEnabled: boolean;
-  onStatusChange: () => void;
 }) {
   // Newest request wins: only the call holding this token may render.
   let latestPreview = 0;
@@ -88,13 +86,13 @@ export function createPreviewSession({
   // (see the catch below). Set before `enterPreview` so a controller that
   // throws mid-render still owns the screen until `exitPreview`.
   let renderedView: VersioningView = { mode: "live" };
-  let loadingView: VersioningPreviewView | undefined;
   const loadingIndicator = createLoadingIndicator(editor);
 
   function setLoading(view: VersioningPreviewView | undefined) {
     loadingIndicator.setLoading(view !== undefined);
-    loadingView = view;
-    onStatusChange();
+    if (store.state.loadingView !== view) {
+      store.setState((state) => ({ ...state, loadingView: view }));
+    }
   }
 
   async function showPreview(
@@ -208,8 +206,5 @@ export function createPreviewSession({
       }
     },
     scrollToFirstChange: () => scrollToFirstChange(editor.domElement),
-    get loadingView() {
-      return loadingView;
-    },
   };
 }

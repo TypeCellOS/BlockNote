@@ -9,9 +9,10 @@ import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
 import { createVersioningCommands } from "./commands.js";
 import { createListSession } from "./list.js";
 import { createPreviewSession } from "./preview.js";
-import { deriveStatus, findSnapshot, isReadOnly } from "./state.js";
+import { findSnapshot, isReadOnly } from "./state.js";
 import type {
   VersioningExtensionOptions,
+  VersioningLoadingState,
   VersioningState,
   VersionSnapshotIdentifier,
 } from "./types.js";
@@ -22,9 +23,9 @@ export type * from "./types.js";
 /**
  * The composition root: resolves options, creates the store, wires the three
  * sessions (list, preview, commands) together, and exposes the extension
- * facade. Each store field has exactly one writer — `list` the list session,
- * `view` the preview session, `restoring` the commands — and `status` is
- * derived here from the sessions' in-flight state.
+ * facade. Each store field has exactly one writer — `list`/`listing` the list
+ * session, `view`/`loadingView` the preview session, `restoring` the commands
+ * — and the busy status is read through from those flags by `getLoadingState`.
  */
 export const VersioningExtension = createExtension(
   ({
@@ -56,7 +57,7 @@ export const VersioningExtension = createExtension(
       {
         list: { loaded: false },
         view: { mode: "live" },
-        status: { type: "idle" },
+        listing: false,
         restoring: false,
       },
       {
@@ -72,11 +73,7 @@ export const VersioningExtension = createExtension(
       },
     );
 
-    const listSession = createListSession({
-      store,
-      endpoints,
-      onStatusChange: () => syncStatus(),
-    });
+    const listSession = createListSession({ store, endpoints });
     const previewSession = createPreviewSession({
       store,
       endpoints,
@@ -84,7 +81,6 @@ export const VersioningExtension = createExtension(
       serializeCurrentContent,
       editor,
       scrollToFirstChangeEnabled,
-      onStatusChange: () => syncStatus(),
     });
     const commands = createVersioningCommands({
       store,
@@ -95,18 +91,6 @@ export const VersioningExtension = createExtension(
       exitPreview: previewSession.exitPreview,
     });
 
-    /**
-     * The single writer of the busy `status`: both sessions report their
-     * in-flight state here, so a preview settling mid-list never clobbers a
-     * visible listing.
-     */
-    function syncStatus() {
-      store.setState((state) => ({
-        ...state,
-        status: deriveStatus(listSession.isListing, previewSession.loadingView),
-      }));
-    }
-
     return {
       key: "versioning",
       store,
@@ -115,6 +99,23 @@ export const VersioningExtension = createExtension(
       list: listSession.refresh,
       getSnapshot: (id: VersionSnapshotIdentifier) =>
         findSnapshot(store.state.list, id),
+      /**
+       * The busy status the sidebar shows, read through from the two in-flight
+       * flags the sessions publish. Preview loading outranks listing: a fetch
+       * is the more urgent thing to communicate, and reverting to `listing`
+       * when it settles keeps a slow list request visible.
+       *
+       * Defaults to this store's state, so it doubles as a store selector when
+       * the caller passes the selected state.
+       */
+      getLoadingState: (
+        state: VersioningState = store.state,
+      ): VersioningLoadingState => {
+        if (state.loadingView) {
+          return { type: "loading-preview", view: state.loadingView };
+        }
+        return state.listing ? { type: "listing" } : { type: "idle" };
+      },
       // Comparison is only offered when the preview controller can actually
       // render a diff (see PreviewController.supportsComparison). A getter so a
       // controller whose `supportsComparison` is itself dynamic (e.g. gated on

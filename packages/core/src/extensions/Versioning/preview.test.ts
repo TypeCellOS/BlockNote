@@ -51,7 +51,7 @@ function makeSession(opts?: {
   const store = new Store<VersioningState>({
     list: opts?.list ?? { loaded: false },
     view: { mode: "live" },
-    status: { type: "idle" },
+    listing: false,
     restoring: false,
   });
   const preview = {
@@ -71,7 +71,6 @@ function makeSession(opts?: {
     getContent,
     getAttributions,
   };
-  const onStatusChange = vi.fn();
   const session = createPreviewSession({
     store,
     endpoints,
@@ -79,7 +78,6 @@ function makeSession(opts?: {
     serializeCurrentContent: opts?.serializeCurrentContent,
     editor,
     scrollToFirstChangeEnabled: false,
-    onStatusChange,
   });
   return {
     store,
@@ -88,7 +86,6 @@ function makeSession(opts?: {
     editor,
     getContent,
     getAttributions,
-    onStatusChange,
     session,
   };
 }
@@ -96,11 +93,9 @@ function makeSession(opts?: {
 describe("createPreviewSession", () => {
   it("previews a snapshot: renders it, tracks the view, and reports loading", async () => {
     const stored = snap("a", 10);
-    const { store, preview, getContent, session, onStatusChange } = makeSession(
-      {
-        list: loadedList([stored]),
-      },
-    );
+    const { store, preview, getContent, session } = makeSession({
+      list: loadedList([stored]),
+    });
     getContent.mockResolvedValue("content a");
 
     const pending = session.previewSnapshot("a");
@@ -111,12 +106,11 @@ describe("createPreviewSession", () => {
       snapshotId: "a",
       compareToId: undefined,
     });
-    expect(session.loadingView).toEqual({
+    expect(store.state.loadingView).toEqual({
       mode: "snapshot",
       snapshotId: "a",
       compareToId: undefined,
     });
-    expect(onStatusChange).toHaveBeenCalledTimes(1);
 
     await pending;
     expect(preview.enterPreview).toHaveBeenCalledTimes(1);
@@ -126,8 +120,7 @@ describe("createPreviewSession", () => {
       undefined,
       { target: { kind: "snapshot", snapshot: stored }, compareTo: undefined },
     );
-    expect(session.loadingView).toBeUndefined();
-    expect(onStatusChange).toHaveBeenCalledTimes(2);
+    expect(store.state.loadingView).toBeUndefined();
   });
 
   it("rejects when the snapshot id is unknown", async () => {
@@ -201,19 +194,16 @@ describe("createPreviewSession", () => {
   });
 
   it("rolls the view back to live and clears loading when the latest fetch throws", async () => {
-    const { store, preview, getContent, session, onStatusChange } = makeSession(
-      {
-        list: loadedList([snap("a", 10)]),
-      },
-    );
+    const { store, preview, getContent, session } = makeSession({
+      list: loadedList([snap("a", 10)]),
+    });
     getContent.mockRejectedValue(new Error("boom"));
 
     await expect(session.previewSnapshot("a")).rejects.toThrow("boom");
 
     expect(store.state.view).toEqual({ mode: "live" });
-    expect(session.loadingView).toBeUndefined();
+    expect(store.state.loadingView).toBeUndefined();
     expect(preview.enterPreview).not.toHaveBeenCalled();
-    expect(onStatusChange).toHaveBeenCalledTimes(2);
   });
 
   it("rolls back to what was actually rendered when a switch fails", async () => {
@@ -238,7 +228,7 @@ describe("createPreviewSession", () => {
       snapshotId: "shown",
       compareToId: undefined,
     });
-    expect(session.loadingView).toBeUndefined();
+    expect(store.state.loadingView).toBeUndefined();
     expect(preview.enterPreview).toHaveBeenCalledTimes(1);
   });
 
@@ -254,7 +244,7 @@ describe("createPreviewSession", () => {
 
     expect(store.state.view).toEqual({ mode: "live" });
     expect(preview.exitPreview).toHaveBeenCalledTimes(1);
-    expect(session.loadingView).toBeUndefined();
+    expect(store.state.loadingView).toBeUndefined();
   });
 
   it("leaves the controller alone while the preview is still fetching", async () => {
@@ -271,7 +261,7 @@ describe("createPreviewSession", () => {
     // put back.
     expect(preview.exitPreview).not.toHaveBeenCalled();
     expect(store.state.view).toEqual({ mode: "live" });
-    expect(session.loadingView).toBeUndefined();
+    expect(store.state.loadingView).toBeUndefined();
 
     // Exiting bumped the token: the in-flight fetch bails without rendering.
     request.resolve("content a");
@@ -306,7 +296,7 @@ describe("createPreviewSession", () => {
       snapshotId: "a",
       compareToId: undefined,
     });
-    expect(session.loadingView).toBeUndefined();
+    expect(store.state.loadingView).toBeUndefined();
 
     session.exitPreview();
     expect(preview.exitPreview).toHaveBeenCalledTimes(1);
@@ -405,7 +395,7 @@ describe("createPreviewSession", () => {
         snapshotId: "shown",
         compareToId: undefined,
       });
-      expect(session.loadingView).toBeUndefined();
+      expect(store.state.loadingView).toBeUndefined();
       expect(classList.remove).toHaveBeenCalledWith(LOADING_PREVIEW_CLASS);
 
       // A retry succeeds.

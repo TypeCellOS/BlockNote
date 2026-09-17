@@ -5,7 +5,6 @@ import { describe, expect, it, vi } from "vite-plus/test";
 
 import { Store } from "../../util/Store.js";
 import { createListSession } from "./list.js";
-import { deriveStatus } from "./state.js";
 import type {
   VersioningEndpoints,
   VersioningState,
@@ -34,7 +33,7 @@ function setup(initialState?: VersioningState) {
     initialState ?? {
       list: { loaded: false },
       view: { mode: "live" },
-      status: { type: "idle" },
+      listing: false,
       restoring: false,
     },
   );
@@ -45,19 +44,14 @@ function setup(initialState?: VersioningState) {
     // satisfy the interface.
     getContent: async () => undefined,
   };
-  const onStatusChange = vi.fn();
-  const session = createListSession({ store, endpoints, onStatusChange });
-  return { store, list, endpoints, onStatusChange, session };
-}
-
-function listingStatus(session: ReturnType<typeof createListSession>) {
-  return deriveStatus(session.isListing, undefined);
+  const session = createListSession({ store, endpoints });
+  return { store, list, endpoints, session };
 }
 
 describe("createListSession", () => {
-  it("starts with isListing false and an unloaded store", () => {
-    const { session, store } = setup();
-    expect(session.isListing).toBe(false);
+  it("starts idle and unloaded", () => {
+    const { store } = setup();
+    expect(store.state.listing).toBe(false);
     expect(store.state.list).toEqual({ loaded: false });
     expect(store.state.view).toEqual({ mode: "live" });
   });
@@ -84,50 +78,62 @@ describe("createListSession", () => {
     });
   });
 
-  it("fires onStatusChange on the idle→busy and busy→idle transitions", async () => {
+  it("publishes listing on the idle→busy and busy→idle transitions", async () => {
     const request = deferred<ListResult>();
-    const { list, onStatusChange, session } = setup();
+    const { list, store, session } = setup();
     list.mockReturnValue(request.promise);
+    let listingTransitions = 0;
+    store.subscribe(({ prevVal, currentVal }) => {
+      if (prevVal.listing !== currentVal.listing) {
+        listingTransitions++;
+      }
+    });
 
     const pending = session.refresh();
-    expect(onStatusChange).toHaveBeenCalledTimes(1);
+    expect(store.state.listing).toBe(true);
+    expect(listingTransitions).toBe(1);
 
     request.resolve({ current: snap("current", 10), snapshots: [] });
     await pending;
-    expect(onStatusChange).toHaveBeenCalledTimes(2);
+    expect(store.state.listing).toBe(false);
+    expect(listingTransitions).toBe(2);
   });
 
   it("is listing while pending and idle once settled", async () => {
     const request = deferred<ListResult>();
-    const { list, session } = setup();
+    const { list, store, session } = setup();
     list.mockReturnValue(request.promise);
 
     const pending = session.refresh();
-    expect(session.isListing).toBe(true);
-    expect(listingStatus(session)).toEqual({ type: "listing" });
+    expect(store.state.listing).toBe(true);
 
     request.resolve({ current: snap("current", 10), snapshots: [] });
     await pending;
-    expect(session.isListing).toBe(false);
-    expect(listingStatus(session)).toEqual({ type: "idle" });
+    expect(store.state.listing).toBe(false);
   });
 
   it("joins an in-flight fetch instead of re-listing", async () => {
     const request = deferred<ListResult>();
-    const { list, onStatusChange, session } = setup();
+    const { list, store, session } = setup();
     list.mockReturnValue(request.promise);
+    let listingTransitions = 0;
+    store.subscribe(({ prevVal, currentVal }) => {
+      if (prevVal.listing !== currentVal.listing) {
+        listingTransitions++;
+      }
+    });
 
     const first = session.refresh();
     const second = session.refresh();
     expect(second).toBe(first);
     expect(list).toHaveBeenCalledTimes(1);
     // Only one busy transition despite two callers.
-    expect(onStatusChange).toHaveBeenCalledTimes(1);
+    expect(listingTransitions).toBe(1);
 
     request.resolve({ current: snap("current", 10), snapshots: [] });
     await Promise.all([first, second]);
     // Busy→idle fires once too.
-    expect(onStatusChange).toHaveBeenCalledTimes(2);
+    expect(listingTransitions).toBe(2);
 
     // Once settled, a new refresh fetches again.
     const third = session.refresh();
@@ -142,10 +148,10 @@ describe("createListSession", () => {
       current: snap("current", 30),
       snapshots: [snap("a", 10)],
     };
-    const { store, list, onStatusChange, session } = setup({
+    const { store, list, session } = setup({
       list: previousList,
       view: { mode: "live" },
-      status: { type: "idle" },
+      listing: false,
       restoring: false,
     });
 
@@ -153,17 +159,15 @@ describe("createListSession", () => {
     list.mockReturnValue(request.promise);
 
     const pending = session.refresh();
-    expect(session.isListing).toBe(true);
+    expect(store.state.listing).toBe(true);
 
     const failure = expect(pending).rejects.toThrow("offline");
     request.reject(new Error("offline"));
     await failure;
 
-    // The store keeps its previous list; status is back to idle.
+    // The store keeps its previous list; the fetch is no longer in flight.
     expect(store.state.list).toBe(previousList);
-    expect(session.isListing).toBe(false);
-    expect(listingStatus(session)).toEqual({ type: "idle" });
-    expect(onStatusChange).toHaveBeenCalledTimes(2);
+    expect(store.state.listing).toBe(false);
 
     // A later refresh retries and succeeds.
     list.mockResolvedValue({
@@ -174,6 +178,6 @@ describe("createListSession", () => {
     expect(list).toHaveBeenCalledTimes(2);
     expect(retried.snapshots.map((s) => s.id)).toEqual(["b"]);
     expect(store.state.list).toEqual(retried);
-    expect(listingStatus(session)).toEqual({ type: "idle" });
+    expect(store.state.listing).toBe(false);
   });
 });

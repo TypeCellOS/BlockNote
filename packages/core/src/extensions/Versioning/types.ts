@@ -61,8 +61,8 @@ export type VersioningView =
 /** The {@link VersioningView} members that put the editor in preview mode. */
 export type VersioningPreviewView = Exclude<VersioningView, { mode: "live" }>;
 
-/** Pending operation: a list fetch or a preview whose content is loading. */
-export type VersioningStatus =
+/** What the extension is currently loading: a list fetch or a preview. */
+export type VersioningLoadingState =
   | { type: "idle" }
   | { type: "listing" }
   | { type: "loading-preview"; view: VersioningPreviewView };
@@ -85,8 +85,10 @@ export type LoadedVersioningList = Extract<VersioningList, { loaded: true }>;
 export type VersioningState = {
   list: VersioningList;
   view: VersioningView;
-  /** Derived from the preview's loading view on every store write. */
-  status: VersioningStatus;
+  /** A list fetch is in flight; `getLoadingState` derives from this. */
+  listing: boolean;
+  /** The view whose content is still loading, if any; `getLoadingState` derives from this. */
+  loadingView?: VersioningPreviewView;
   /** Holds the editor read-only during restore, including while the view is live. */
   restoring: boolean;
 };

@@ -91,6 +91,17 @@ function snap(
   return { id, createdAt, ...extra };
 }
 
+/** A rest state, with the in-flight flags clear. */
+function state(overrides?: Partial<VersioningState>): VersioningState {
+  return {
+    list: { loaded: false },
+    view: { mode: "live" },
+    listing: false,
+    restoring: false,
+    ...overrides,
+  };
+}
+
 /** The loaded list, or a failure — every test that reads it has listed first. */
 function loadedList(ext: { store: { state: VersioningState } }) {
   const { list } = ext.store.state;
@@ -187,6 +198,33 @@ describe("VersioningExtension", () => {
   });
 
   // -------------------------------------------------------------------------
+  // Loading state
+  // -------------------------------------------------------------------------
+
+  describe("getLoadingState", () => {
+    it("is idle when neither operation is in flight", () => {
+      expect(ctx.ext.getLoadingState(state())).toEqual({ type: "idle" });
+    });
+
+    it("reports listing when only the list is fetching", () => {
+      expect(ctx.ext.getLoadingState(state({ listing: true }))).toEqual({
+        type: "listing",
+      });
+    });
+
+    it("reports loading-preview while a preview loads, outranking listing", () => {
+      const view = { mode: "snapshot", snapshotId: "a" } as const;
+      const previewing = { type: "loading-preview", view } as const;
+      expect(ctx.ext.getLoadingState(state({ loadingView: view }))).toEqual(
+        previewing,
+      );
+      expect(
+        ctx.ext.getLoadingState(state({ listing: true, loadingView: view })),
+      ).toEqual(previewing);
+    });
+  });
+
+  // -------------------------------------------------------------------------
   // Listing versions
   // -------------------------------------------------------------------------
 
@@ -194,7 +232,7 @@ describe("VersioningExtension", () => {
     it("starts unloaded and live", () => {
       expect(ctx.ext.store.state.list).toEqual({ loaded: false });
       expect(ctx.ext.store.state.view).toEqual({ mode: "live" });
-      expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
+      expect(ctx.ext.getLoadingState()).toEqual({ type: "idle" });
     });
 
     it("populates the store from the backend, sorted newest-first", async () => {
@@ -393,7 +431,7 @@ describe("VersioningExtension", () => {
             await older;
           }
           expect(ctx.ext.store.state.view).toEqual(latestView);
-          expect(ctx.ext.store.state.status).toEqual({
+          expect(ctx.ext.getLoadingState()).toEqual({
             type: "loading-preview",
             view: latestView,
           });
@@ -406,7 +444,9 @@ describe("VersioningExtension", () => {
           secondRequest.resolve([]);
           await newer;
           expect(ctx.ext.store.state.view).toEqual(latestView);
-          expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
+          expect(ctx.ext.getLoadingState()).toEqual({
+            type: "idle",
+          });
           expect(
             ctx.editor.domElement!.classList.contains(LOADING_PREVIEW_CLASS),
           ).toBe(false);
@@ -451,7 +491,7 @@ describe("VersioningExtension", () => {
           const pending = ext.previewSnapshot(shown.id, {
             compareTo: baseline.id,
           });
-          expect(ext.store.state.status).toEqual({
+          expect(ext.getLoadingState()).toEqual({
             type: "loading-preview",
             view: {
               mode: "snapshot",
@@ -465,7 +505,7 @@ describe("VersioningExtension", () => {
           gate.resolve();
           await pending;
           expect(enterPreview).toHaveBeenCalledOnce();
-          expect(ext.store.state.status).toEqual({ type: "idle" });
+          expect(ext.getLoadingState()).toEqual({ type: "idle" });
           expect(ext.store.state.view).toEqual({
             mode: "snapshot",
             snapshotId: shown.id,
@@ -496,7 +536,9 @@ describe("VersioningExtension", () => {
           vi.advanceTimersByTime(elapsed);
           ctx.ext.exitPreview();
 
-          expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
+          expect(ctx.ext.getLoadingState()).toEqual({
+            type: "idle",
+          });
           expect(ctx.editor.isEditable).toBe(true);
           expect(
             ctx.editor.domElement!.classList.contains(LOADING_PREVIEW_CLASS),

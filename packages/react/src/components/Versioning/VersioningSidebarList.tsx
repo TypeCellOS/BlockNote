@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -10,11 +11,14 @@ import {
 } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { useExtensionState } from "../../hooks/useExtension.js";
+import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { Snapshot } from "./Snapshot.js";
 import { usePreviewRow } from "./usePreviewRow.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
+
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 /**
  * The sidebar's list of versions: a list whose items are {@link Snapshot} rows,
@@ -28,12 +32,13 @@ export function VersioningSidebarList() {
   const dict = useDictionary();
   const { namedOnly, loadingIndicator, run } = useVersioningSidebar();
   const previewRow = usePreviewRow();
+  const { getLoadingState } = useExtension(VersioningExtension);
 
   const list = useExtensionState(VersioningExtension, {
     selector: (state) => state.list,
   });
   const listing = useExtensionState(VersioningExtension, {
-    selector: (state) => state.status.type === "listing",
+    selector: (state) => getLoadingState(state).type === "listing",
   });
 
   const listId = useId();
@@ -68,7 +73,7 @@ export function VersioningSidebarList() {
     [list, namedOnly],
   );
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!focusedRowId.current) {
       return;
     }

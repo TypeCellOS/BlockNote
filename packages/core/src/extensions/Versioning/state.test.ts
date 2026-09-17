@@ -3,12 +3,7 @@
  */
 import { describe, expect, it } from "vite-plus/test";
 
-import {
-  deriveStatus,
-  findSnapshot,
-  isReadOnly,
-  resolveCompareTo,
-} from "./state.js";
+import { findSnapshot, isReadOnly, resolveCompareTo } from "./state.js";
 import type {
   LoadedVersioningList,
   VersioningState,
@@ -30,7 +25,7 @@ function state(overrides?: Partial<VersioningState>): VersioningState {
   return {
     list: { loaded: false },
     view: { mode: "live" },
-    status: { type: "idle" },
+    listing: false,
     restoring: false,
     ...overrides,
   };
@@ -131,27 +126,5 @@ describe("resolveCompareTo", () => {
     expect(() =>
       resolveCompareTo(loadedList([snap("a", 10)]), { id: "nope" }),
     ).toThrow("Snapshot not found: nope");
-  });
-});
-
-describe("deriveStatus", () => {
-  it("is idle when neither operation is in flight", () => {
-    expect(deriveStatus(false, undefined)).toEqual({ type: "idle" });
-  });
-
-  it("reports listing when only the list is fetching", () => {
-    expect(deriveStatus(true, undefined)).toEqual({ type: "listing" });
-  });
-
-  it("reports loading-preview while a preview loads, outranking listing", () => {
-    const view = { mode: "snapshot", snapshotId: "a" } as const;
-    expect(deriveStatus(false, view)).toEqual({
-      type: "loading-preview",
-      view,
-    });
-    expect(deriveStatus(true, view)).toEqual({
-      type: "loading-preview",
-      view,
-    });
   });
 });
