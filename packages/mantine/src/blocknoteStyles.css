@@ -442,7 +442,7 @@
   justify-items: center;
   max-height: inherit;
   box-sizing: border-box;
-  max-width: inherit;
+  max-width: 100vw;
   overflow-x: auto;
   overflow-y: auto;
   padding: 20px;
