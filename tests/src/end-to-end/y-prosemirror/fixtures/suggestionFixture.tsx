@@ -164,6 +164,33 @@ export async function setupSuggestionTest({
 }
 
 /**
+ * Whether `editor` is showing the pristine-empty schema skeleton: the single
+ * empty paragraph stamped with the stable `initialBlockId` (see
+ * `packages/core/src/y/extensions/FixUpSchema.ts`).
+ *
+ * The empty-doc binding keeps that skeleton local instead of committing it to
+ * Y — `blocksToYDoc([])` seeds a fragment with no children — so a pristine-empty
+ * editor corresponds to a base fragment with zero block nodes. Waiting for the
+ * skeleton to show up in `baseDoc` would never succeed.
+ */
+function isPristineEmptyEditor(editor: GalleryEditor): boolean {
+  const blocks = editor.document as {
+    id?: string;
+    content?: { length?: number };
+    children?: unknown[];
+  }[];
+  if (blocks.length !== 1) {
+    return false;
+  }
+  const [block] = blocks;
+  return (
+    block.id === "initialBlockId" &&
+    (block.content?.length ?? 0) === 0 &&
+    (block.children?.length ?? 0) === 0
+  );
+}
+
+/**
  * Count every block in a (possibly nested) BlockNote document tree.
  */
 function countBlocks(blocks: { children?: unknown[] }[]): number {
@@ -189,13 +216,19 @@ function countBlocks(blocks: { children?: unknown[] }[]): number {
  * multi-column `columnList` / `column` nodes, which serialise as their own
  * elements rather than `blockContainer`s (the `<column` prefix matches both).
  * The binding flushes a whole transaction atomically, so once the block count
- * matches the editor's document the structural content has been written.
+ * matches the editor's document the structural content has been written. The
+ * pristine-empty skeleton is not counted, as it is never committed to Y.
  */
 export async function waitForYDocSync(
   editor: GalleryEditor,
   baseDoc: Y.Doc,
 ): Promise<void> {
-  const expected = countBlocks(editor.document as { children?: unknown[] }[]);
+  // The pristine-empty skeleton never reaches Y (see `isPristineEmptyEditor`),
+  // so it is excluded from the expected block count: an empty editor document
+  // maps to a fragment with zero block nodes.
+  const expected =
+    countBlocks(editor.document as { children?: unknown[] }[]) -
+    (isPristineEmptyEditor(editor) ? 1 : 0);
   await expect
     .poll(() => {
       // `XmlFragment` isn't exported from `@y/y` v14's types, so cast to
