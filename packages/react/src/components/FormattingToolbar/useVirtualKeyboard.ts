@@ -128,27 +128,20 @@ export function useVirtualKeyboard(): boolean {
     function clampDocumentScroll() {
       const height = vp?.height ?? window.innerHeight;
       const scale = vp?.scale ?? 1;
-      const previousHeight =
-        (unclippedKeyboardHeight ?? height * scale) / scale;
+      const scaledHeight = height * scale;
 
-      // At the bottom Safari also clips visualViewport.height to the remaining
-      // document. Retain the last unclipped measurement there; otherwise each
-      // smaller height would admit more of the blank region. Account for the
-      // document scroll event arriving before the visual viewport catches up.
-      // innerHeight is clipped too, including briefly after scrollTo. A real
-      // taller keyboard leaves room below the visual viewport in innerHeight.
-      // When the keyboard resizes the layout viewport (Android), use the new
-      // height directly instead of retaining the previous keyboard's size.
-      if (
-        unclippedKeyboardHeight === undefined ||
-        html.clientHeight <= height * scale + 1 ||
-        height >= previousHeight ||
+      // Accept a smaller height when the keyboard resizes the layout (Android),
+      // or leaves space below the visual viewport before the document's end.
+      // Safari's clipped measurements at the bottom satisfy neither condition.
+      const keyboardResized =
+        html.clientHeight <= scaledHeight + 1 ||
         (window.innerHeight > height + 1 &&
           Math.max(window.scrollY, vp?.pageTop ?? 0) + height <
-            html.scrollHeight - 1)
-      ) {
-        unclippedKeyboardHeight = height * scale;
-      }
+            html.scrollHeight - 1);
+
+      unclippedKeyboardHeight = keyboardResized
+        ? scaledHeight
+        : Math.max(unclippedKeyboardHeight ?? 0, scaledHeight);
       const max = Math.max(
         0,
         html.scrollHeight - unclippedKeyboardHeight / scale,
