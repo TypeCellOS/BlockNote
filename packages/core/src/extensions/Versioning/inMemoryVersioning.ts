@@ -46,9 +46,6 @@ export function createInMemoryPreviewController(
   editor: BlockNoteEditor<any, any, any>,
 ): InMemoryPreviewController {
   let savedDoc: Block<any, any, any>[] | undefined;
-  // True while a diff (attribution marks) is on screen, so exit/restore knows to
-  // route the cleanup through the diff extension's node-view rebuild.
-  let showingDiff = false;
 
   const replaceDoc = (blocks: Block<any, any, any>[]) => {
     editor.replaceBlocks(editor.document, blocks);
@@ -95,42 +92,28 @@ export function createInMemoryPreviewController(
           compareToContent,
           context && versionLabel(context.target, editor.dictionary),
         );
-        showingDiff = true;
         return;
       }
 
       // No comparison requested, or no diff extension registered: just show the
       // snapshot content statically.
-      showingDiff = false;
       replaceDoc(snapshotContent);
     },
 
     exitPreview() {
       if (savedDoc !== undefined) {
-        const diff = getDiff();
-        if (showingDiff && diff) {
-          diff.clearDiff(savedDoc);
-        } else {
-          replaceDoc(savedDoc);
-        }
+        // Replacing the blocks also drops the attribution marks a diff leaves.
+        replaceDoc(savedDoc);
         savedDoc = undefined;
-        showingDiff = false;
       }
     },
 
     applyRestore(snapshotContent: Block<any, any, any>[]) {
-      const diff = getDiff();
-      const wasShowingDiff = showingDiff;
       // The restored content is the live document from here on, so leave
-      // preview state *before* rendering it: the replace below is an edit, not
+      // preview state *before* replacing it: the replace below is an edit, not
       // a preview transition.
       savedDoc = undefined;
-      showingDiff = false;
-      if (wasShowingDiff && diff) {
-        diff.clearDiff(snapshotContent);
-      } else {
-        replaceDoc(snapshotContent);
-      }
+      replaceDoc(snapshotContent);
     },
   };
 }

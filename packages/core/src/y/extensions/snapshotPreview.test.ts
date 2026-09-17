@@ -2,16 +2,12 @@
  * @vitest-environment jsdom
  */
 import { afterEach, describe, expect, it } from "vite-plus/test";
+import { configureYProsemirror } from "@y/prosemirror";
 import * as Y from "@y/y";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { withCollaboration } from "./index.js";
-import { decodeFragmentUpdate } from "./snapshotCodec.js";
-import {
-  rebindLiveFragment,
-  renderFragmentToEditor,
-  showSnapshotPreview,
-} from "./snapshotPreview.js";
+import { showSnapshotPreview } from "./snapshotPreview.js";
 
 /** Collaborative editor without versioning — the preview modules under test. */
 function createPreviewEditor() {
@@ -49,7 +45,12 @@ function attributionMarkNames(
   return names;
 }
 
-describe("prosemirrorPreviewSwapper", () => {
+/** Rebind the live fragment, as the versioning adapter does when leaving a preview. */
+function rebindLive(editor: BlockNoteEditor<any, any, any>, fragment: Y.Node) {
+  editor.exec(configureYProsemirror({ ytype: fragment }));
+}
+
+describe("snapshot preview switching", () => {
   let ctx: ReturnType<typeof createPreviewEditor>;
 
   afterEach(() => {
@@ -59,87 +60,46 @@ describe("prosemirrorPreviewSwapper", () => {
     }
   });
 
-  it("renderFragmentToEditor shows decoded snapshot content", () => {
-    ctx = createPreviewEditor();
-    ctx.editor.replaceBlocks(ctx.editor.document, [
-      { type: "paragraph", content: "Snapshot state" },
-    ]);
-    const snapshot = decodeFragmentUpdate(
-      ctx.fragment,
-      Y.encodeStateAsUpdateV2(ctx.doc),
-    );
-    ctx.editor.replaceBlocks(ctx.editor.document, [
-      { type: "paragraph", content: "Current state" },
-    ]);
-
-    try {
-      renderFragmentToEditor(ctx.editor, snapshot.fragment);
-      expect(getEditorText(ctx.editor)).toContain("Snapshot state");
-      expect(getEditorText(ctx.editor)).not.toContain("Current");
-    } finally {
-      snapshot.doc.destroy();
-    }
-  });
-
-  it("rebindLiveFragment restores the live document after a render", () => {
+  it("rebinding live restores the document shown before a preview", () => {
     ctx = createPreviewEditor();
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Live state" },
     ]);
-    const snapshot = decodeFragmentUpdate(
-      ctx.fragment,
-      Y.encodeStateAsUpdateV2(ctx.doc),
-    );
+    const snapshot = Y.encodeStateAsUpdateV2(ctx.doc);
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Other state" },
     ]);
 
-    try {
-      // Previewing the older snapshot swaps the screen away from live.
-      renderFragmentToEditor(ctx.editor, snapshot.fragment);
-      expect(getEditorText(ctx.editor)).toContain("Live state");
+    // Previewing the older snapshot swaps the screen away from live.
+    showSnapshotPreview(ctx.editor, ctx.fragment, snapshot);
+    expect(getEditorText(ctx.editor)).toContain("Live state");
 
-      // The live Y.Doc still holds "Other state" (preview never writes to
-      // it); rebinding re-syncs the editor back to it.
-      rebindLiveFragment(ctx.editor, ctx.fragment);
-      expect(getEditorText(ctx.editor)).toContain("Other state");
-    } finally {
-      snapshot.doc.destroy();
-    }
+    // The live Y.Doc still holds "Other state" (the preview renders a decoded
+    // copy); rebinding re-syncs the editor back to it.
+    rebindLive(ctx.editor, ctx.fragment);
+    expect(getEditorText(ctx.editor)).toContain("Other state");
   });
 
-  it("successive renders switch content without touching the live doc", () => {
+  it("successive previews switch content without touching the live doc", () => {
     ctx = createPreviewEditor();
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Version 1" },
     ]);
-    const v1 = decodeFragmentUpdate(
-      ctx.fragment,
-      Y.encodeStateAsUpdateV2(ctx.doc),
-    );
+    const v1 = Y.encodeStateAsUpdateV2(ctx.doc);
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Version 2" },
     ]);
-    const v2 = decodeFragmentUpdate(
-      ctx.fragment,
-      Y.encodeStateAsUpdateV2(ctx.doc),
-    );
+    const v2 = Y.encodeStateAsUpdateV2(ctx.doc);
 
-    try {
-      renderFragmentToEditor(ctx.editor, v1.fragment);
-      expect(getEditorText(ctx.editor)).toContain("Version 1");
+    showSnapshotPreview(ctx.editor, ctx.fragment, v1);
+    expect(getEditorText(ctx.editor)).toContain("Version 1");
 
-      renderFragmentToEditor(ctx.editor, v2.fragment);
-      expect(getEditorText(ctx.editor)).toContain("Version 2");
+    showSnapshotPreview(ctx.editor, ctx.fragment, v2);
+    expect(getEditorText(ctx.editor)).toContain("Version 2");
 
-      // Live sync was paused during rendering: the Y.Doc kept the last live
-      // state ("Version 2"), so rebinding shows it.
-      rebindLiveFragment(ctx.editor, ctx.fragment);
-      expect(getEditorText(ctx.editor)).toContain("Version 2");
-    } finally {
-      v1.doc.destroy();
-      v2.doc.destroy();
-    }
+    // The Y.Doc kept the last live state ("Version 2"), so rebinding shows it.
+    rebindLive(ctx.editor, ctx.fragment);
+    expect(getEditorText(ctx.editor)).toContain("Version 2");
   });
 });
 

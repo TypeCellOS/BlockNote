@@ -1,9 +1,10 @@
+import { configureYProsemirror } from "@y/prosemirror";
 import * as Y from "@y/y";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { PreviewController } from "../../extensions/Versioning/index.js";
 import { serializeFragment } from "./snapshotCodec.js";
-import { rebindLiveFragment, showSnapshotPreview } from "./snapshotPreview.js";
+import { showSnapshotPreview } from "./snapshotPreview.js";
 
 /**
  * No-op: the server applies the restore and publishes a reverting update that
@@ -42,7 +43,7 @@ export function createYjsVersioningAdapter(
         );
       },
       exitPreview() {
-        rebindLiveFragment(editor, fragment);
+        editor.exec(configureYProsemirror({ ytype: fragment }));
       },
       applyRestore: applyServerSideRestore,
     },

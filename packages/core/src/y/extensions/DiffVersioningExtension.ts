@@ -84,7 +84,7 @@ function attributeTransactionsTo(doc: Y.Doc, userId: string): Y.ContentMap {
  *
  * It composes {@link AttributionExtension} (which registers the attribution
  * marks and drives their colors + hover tooltips from a user store), and adds
- * the {@link renderDiff} / {@link clearDiff} capability.
+ * the {@link renderDiff} capability.
  *
  * Registering this extension is what makes non-collaborative versioning
  * (`inMemoryVersioning`) capable of showing diffs: the in-memory preview
@@ -197,12 +197,10 @@ export const DiffVersioningExtension = createExtension(
           attributions: attrs,
         });
 
-        // Clear the live doc first so ProseMirror rebuilds node views from
-        // scratch (BlockNote node views resolve their block eagerly via getPos()
-        // and throw on a moved node). The diff then inserts the attributed content
-        // against an empty doc.
-        editor.replaceBlocks(editor.document, []);
-
+        // The diff is applied on top of whatever is currently on screen: the
+        // attributed content comes entirely from the baseline -> snapshot Y
+        // diff above, not from the ProseMirror before-state, so emptying the
+        // document first would only churn node views for no gain.
         editor.exec((state, dispatch) => {
           const tr = getProseMirrorTrFromYFragment({
             tr: state.tr,
@@ -217,16 +215,6 @@ export const DiffVersioningExtension = createExtension(
 
         prevDoc.destroy();
         nextDoc.destroy();
-      },
-
-      /**
-       * Leave diff view: clear the (mark-carrying) document and restore the given
-       * blocks. Clears first so stale node views for block-level marks are torn
-       * down instead of reused.
-       */
-      clearDiff(restore: Block<any, any, any>[]) {
-        editor.replaceBlocks(editor.document, []);
-        editor.replaceBlocks(editor.document, restore);
       },
     };
   },

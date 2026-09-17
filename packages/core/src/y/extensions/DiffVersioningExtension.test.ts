@@ -197,7 +197,7 @@ describe("DiffVersioningExtension", () => {
     );
   });
 
-  it("clearDiff restores plain content with no attribution marks", () => {
+  it("replacing the rendered blocks drops the attribution marks", () => {
     const baseline = blocksFromText("first version");
     const target = blocksFromText("second version");
     const restore = blocksFromText("live document");
@@ -206,7 +206,7 @@ describe("DiffVersioningExtension", () => {
     diff.renderDiff(target, baseline);
     expect(attributionMarkNames(editor).size).toBeGreaterThan(0);
 
-    diff.clearDiff(restore);
+    editor.replaceBlocks(editor.document, restore);
     expect(attributionMarkNames(editor).size).toBe(0);
     expect(editor.prosemirrorState.doc.textContent).toBe("live document");
   });
