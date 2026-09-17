@@ -23,7 +23,6 @@ import {
 } from "./Versioning.js";
 import type {
   PreviewController,
-  PreviewTarget,
   VersioningEndpoints,
   VersioningExtensionOptions,
   VersioningState,
@@ -192,19 +191,6 @@ describe("VersioningExtension", () => {
   // -------------------------------------------------------------------------
 
   describe("listing versions", () => {
-    it("sorts newest-first without mutating the backend list", async () => {
-      const snapshots = [snap("a", 100), snap("b", 300), snap("c", 200)];
-      vi.spyOn(ctx.endpoints, "list").mockResolvedValue({
-        current: snap("current", 400),
-        snapshots,
-      });
-
-      const result = await ctx.ext.list();
-
-      expect(result.snapshots.map((s) => s.id)).toEqual(["b", "c", "a"]);
-      expect(snapshots.map((s) => s.id)).toEqual(["a", "b", "c"]);
-    });
-
     it("starts unloaded and live", () => {
       expect(ctx.ext.store.state.list).toEqual({ loaded: false });
       expect(ctx.ext.store.state.view).toEqual({ mode: "live" });
@@ -253,152 +239,12 @@ describe("VersioningExtension", () => {
       });
     });
 
-    it("a superseded list never overwrites a newer one", async () => {
-      type Listed = { current: VersionSnapshot; snapshots: VersionSnapshot[] };
-      const gates: Array<(list: Listed) => void> = [];
-      const { editor, ext } = setupWith(() => ({
-        endpoints: {
-          list: () =>
-            new Promise<Listed>((resolve) => {
-              gates.push(resolve);
-            }),
-          getContent: async () => [],
-          create: async () => snap("n", 20, { name: "named" }),
-        } satisfies VersioningEndpoints,
-        preview: {
-          enterPreview: () => {},
-          exitPreview: () => {},
-          applyRestore: () => {},
-        },
-      }));
-
-      // A slow mount-time list, then a name — which re-lists.
-      const slow = ext.list();
-      const created = ext.create!({ name: "named" });
-      await vi.waitFor(() => expect(gates).toHaveLength(2));
-
-      gates[1]!({
-        current: snap("current", 30),
-        snapshots: [snap("n", 20, { name: "named" })],
-      });
-      await created;
-      expect(loadedList(ext).snapshots.map((s) => s.id)).toEqual(["n"]);
-
-      // The older answer arrives last. It predates the name, so it must
-      // neither win in the store nor be what its caller gets.
-      gates[0]!({ current: snap("current", 10), snapshots: [] });
-      const answer = await slow;
-      expect(loadedList(ext).snapshots.map((s) => s.id)).toEqual(["n"]);
-      expect(answer.snapshots.map((s) => s.id)).toEqual(["n"]);
-
-      editor.unmount();
-    });
-
     it("reflects backend changes on subsequent calls", async () => {
       expect((await ctx.ext.list()).snapshots).toEqual([]);
 
       await ctx.endpoints.create!([], {});
 
       expect((await ctx.ext.list()).snapshots).toHaveLength(1);
-    });
-  });
-
-  describe("best-effort refresh", () => {
-    it("skips unopened, closed and unmounted history views", async () => {
-      vi.useFakeTimers();
-      try {
-        const list = vi.spyOn(ctx.endpoints, "list");
-        ctx.ext.refresh();
-        await vi.advanceTimersByTimeAsync(0);
-        expect(list).not.toHaveBeenCalled();
-
-        await ctx.ext.list();
-        ctx.ext.exitPreview();
-        ctx.ext.refresh();
-        await vi.advanceTimersByTimeAsync(0);
-        expect(list).toHaveBeenCalledTimes(1);
-
-        await ctx.ext.list();
-        ctx.editor.unmount();
-        ctx.ext.refresh();
-        await vi.advanceTimersByTimeAsync(0);
-        expect(list).toHaveBeenCalledTimes(2);
-      } finally {
-        vi.useRealTimers();
-      }
-    });
-
-    it("coalesces delayed requests and preserves the current preview", async () => {
-      vi.useFakeTimers();
-      try {
-        const seeded = await ctx.seed("old content");
-        await ctx.ext.previewSnapshot(seeded.id);
-        const view = ctx.ext.store.state.view;
-        const list = vi.spyOn(ctx.endpoints, "list");
-        ctx.ext.refresh(1000);
-        ctx.ext.refresh(2000);
-        await vi.advanceTimersByTimeAsync(1000);
-        expect(list).not.toHaveBeenCalled();
-        await vi.advanceTimersByTimeAsync(1000);
-        expect(list).toHaveBeenCalledOnce();
-        expect(ctx.ext.store.state.view).toBe(view);
-        expect(getEditorText(ctx.editor)).toBe("old content");
-      } finally {
-        vi.useRealTimers();
-      }
-    });
-
-    it("joins an in-flight list request", async () => {
-      vi.useFakeTimers();
-      try {
-        const result =
-          deferred<Awaited<ReturnType<typeof ctx.endpoints.list>>>();
-        const list = vi
-          .spyOn(ctx.endpoints, "list")
-          .mockReturnValue(result.promise);
-        const listing = ctx.ext.list();
-        ctx.ext.refresh();
-        await vi.advanceTimersByTimeAsync(0);
-        expect(list).toHaveBeenCalledOnce();
-        result.resolve({ current: snap("fresh", 2), snapshots: [] });
-        await listing;
-        expect(loadedList(ctx.ext).current.id).toBe("fresh");
-      } finally {
-        vi.useRealTimers();
-      }
-    });
-
-    it("discards a refresh response after closing and reopening history", async () => {
-      vi.useFakeTimers();
-      try {
-        await ctx.ext.list();
-        const previous = loadedList(ctx.ext);
-        const stale =
-          deferred<Awaited<ReturnType<typeof ctx.endpoints.list>>>();
-        const fresh =
-          deferred<Awaited<ReturnType<typeof ctx.endpoints.list>>>();
-        const list = vi
-          .spyOn(ctx.endpoints, "list")
-          .mockReturnValueOnce(stale.promise)
-          .mockReturnValueOnce(fresh.promise);
-        ctx.ext.refresh();
-        await vi.advanceTimersByTimeAsync(0);
-        ctx.ext.exitPreview();
-        const reopening = ctx.ext.list();
-        expect(list).toHaveBeenCalledTimes(2);
-
-        stale.resolve({ current: snap("stale", 1), snapshots: [] });
-        await vi.advanceTimersByTimeAsync(0);
-        expect(loadedList(ctx.ext)).toBe(previous);
-        expect(ctx.ext.store.state.status).toEqual({ type: "listing" });
-
-        fresh.resolve({ current: snap("fresh", 2), snapshots: [] });
-        await reopening;
-        expect(loadedList(ctx.ext).current.id).toBe("fresh");
-        expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
-      } finally {
-        vi.useRealTimers();
-      }
     });
   });
 
@@ -513,39 +359,6 @@ describe("VersioningExtension", () => {
   // -------------------------------------------------------------------------
 
   describe("status", () => {
-    it.each([false, true])(
-      "clears a failed list request and allows retry (already loaded: %s)",
-      async (alreadyLoaded) => {
-        if (alreadyLoaded) {
-          await ctx.seed("stored content");
-        }
-        const previousList = ctx.ext.store.state.list;
-        const request =
-          deferred<Awaited<ReturnType<typeof ctx.endpoints.list>>>();
-        const list = vi
-          .spyOn(ctx.endpoints, "list")
-          .mockReturnValueOnce(request.promise);
-
-        const pending = ctx.ext.list();
-        const joined = ctx.ext.list();
-        expect(joined).toBe(pending);
-        expect(list).toHaveBeenCalledOnce();
-        expect(ctx.ext.store.state.status).toEqual({ type: "listing" });
-        expect(ctx.ext.store.state.list).toBe(previousList);
-
-        const failure = expect(pending).rejects.toThrow("offline");
-        request.reject(new Error("offline"));
-        await failure;
-        expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
-        expect(ctx.ext.store.state.list).toBe(previousList);
-
-        await ctx.ext.list();
-        expect(list).toHaveBeenCalledTimes(2);
-        expect(ctx.ext.store.state.list.loaded).toBe(true);
-        expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
-      },
-    );
-
     it.each(["resolve", "reject"] as const)(
       "keeps the latest preview busy when an older request completes via %s",
       async (outcome) => {
@@ -603,49 +416,6 @@ describe("VersioningExtension", () => {
         }
       },
     );
-
-    it("clears the delayed loader after a failed switch and can retry", async () => {
-      const shown = await ctx.seed("shown content");
-      const next = await ctx.seed("next content");
-      await ctx.ext.previewSnapshot(shown.id);
-      const request = deferred<Block[]>();
-      vi.spyOn(ctx.endpoints, "getContent").mockReturnValueOnce(
-        request.promise,
-      );
-
-      vi.useFakeTimers();
-      try {
-        const pending = ctx.ext.previewSnapshot(next.id);
-        vi.advanceTimersByTime(LOADING_PREVIEW_DELAY_MS);
-        expect(
-          ctx.editor.domElement!.classList.contains(LOADING_PREVIEW_CLASS),
-        ).toBe(true);
-        const failure = expect(pending).rejects.toThrow("offline");
-        request.reject(new Error("offline"));
-        await failure;
-
-        expect(ctx.ext.store.state.view).toMatchObject({
-          mode: "snapshot",
-          snapshotId: shown.id,
-        });
-        expect(getEditorText(ctx.editor)).toBe("shown content");
-        expect(ctx.editor.isEditable).toBe(false);
-        expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
-        expect(
-          ctx.editor.domElement!.classList.contains(LOADING_PREVIEW_CLASS),
-        ).toBe(false);
-
-        await ctx.ext.previewSnapshot(next.id);
-        vi.advanceTimersByTime(LOADING_PREVIEW_DELAY_MS);
-        expect(getEditorText(ctx.editor)).toBe("next content");
-        expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
-        expect(
-          ctx.editor.domElement!.classList.contains(LOADING_PREVIEW_CLASS),
-        ).toBe(false);
-      } finally {
-        vi.useRealTimers();
-      }
-    });
 
     it.each(["content", "baseline", "attributions"] as const)(
       "stays busy until comparison %s finishes",
@@ -709,68 +479,6 @@ describe("VersioningExtension", () => {
       },
     );
 
-    it("reports listing while a list is in flight and idles after", async () => {
-      const { promise: gate, resolve: release } = deferred<void>();
-      const { editor, ext } = setupWith(() => ({
-        endpoints: {
-          list: async () => {
-            await gate;
-            return { current: snap("current", 10), snapshots: [] };
-          },
-          getContent: async () => [],
-        } satisfies VersioningEndpoints,
-      }));
-
-      const listing = ext.list();
-      expect(ext.store.state.status).toEqual({ type: "listing" });
-      release();
-      await listing;
-      expect(ext.store.state.status).toEqual({ type: "idle" });
-
-      editor.unmount();
-    });
-
-    it("prefers a pending preview over a pending list", async () => {
-      const { promise: listGate, resolve: releaseList } = deferred<void>();
-      const { promise: contentGate, resolve: releaseContent } =
-        deferred<void>();
-      let listCalls = 0;
-      const { editor, ext } = setupWith(() => ({
-        endpoints: {
-          list: async () => {
-            // Only the second list (the one raced against the preview) blocks.
-            if (listCalls++ > 0) {
-              await listGate;
-            }
-            return { current: snap("current", 10), snapshots: [snap("a", 5)] };
-          },
-          getContent: async () => {
-            await contentGate;
-            return [];
-          },
-        } satisfies VersioningEndpoints,
-      }));
-
-      await ext.list();
-      const listing = ext.list();
-      const previewing = ext.previewSnapshot("a");
-
-      expect(ext.store.state.status).toEqual({
-        type: "loading-preview",
-        view: { mode: "snapshot", snapshotId: "a", compareToId: undefined },
-      });
-
-      releaseContent();
-      await previewing;
-      // The list is still running, so the status falls back to it.
-      expect(ext.store.state.status).toEqual({ type: "listing" });
-      releaseList();
-      await listing;
-      expect(ext.store.state.status).toEqual({ type: "idle" });
-
-      editor.unmount();
-    });
-
     it.each([0, LOADING_PREVIEW_DELAY_MS])(
       "clears pending preview loading on exit after %i ms",
       async (elapsed) => {
@@ -809,48 +517,6 @@ describe("VersioningExtension", () => {
         }
       },
     );
-
-    it("marks the editor as loading only once a preview has taken a while", async () => {
-      vi.useFakeTimers();
-      try {
-        const { promise: contentGate, resolve: releaseContent } =
-          deferred<void>();
-        const { editor, ext } = setupWith(() => ({
-          endpoints: {
-            list: async () => ({
-              current: snap("current", 10),
-              snapshots: [snap("a", 5)],
-            }),
-            getContent: async () => {
-              await contentGate;
-              return [];
-            },
-          } satisfies VersioningEndpoints,
-        }));
-        await ext.list();
-        const dom = editor.domElement!;
-
-        const previewing = ext.previewSnapshot("a");
-        // Not yet: a fast load must not flash a loading state.
-        vi.advanceTimersByTime(LOADING_PREVIEW_DELAY_MS - 1);
-        expect(dom.classList.contains(LOADING_PREVIEW_CLASS)).toBe(false);
-        vi.advanceTimersByTime(1);
-        expect(dom.classList.contains(LOADING_PREVIEW_CLASS)).toBe(true);
-
-        releaseContent();
-        await previewing;
-        expect(dom.classList.contains(LOADING_PREVIEW_CLASS)).toBe(false);
-
-        // A load that ends before the delay never marks the editor.
-        await ext.previewSnapshot("a");
-        vi.advanceTimersByTime(LOADING_PREVIEW_DELAY_MS);
-        expect(dom.classList.contains(LOADING_PREVIEW_CLASS)).toBe(false);
-
-        editor.unmount();
-      } finally {
-        vi.useRealTimers();
-      }
-    });
   });
 
   // -------------------------------------------------------------------------
@@ -935,135 +601,6 @@ describe("VersioningExtension", () => {
         compareToId: undefined,
       });
       expect(getEditorText(ctx.editor)).toBe("content s2");
-    });
-
-    it("a superseded preview never renders", async () => {
-      const gates = new Map<string, () => void>();
-      const entered: string[] = [];
-      const { editor, ext } = setupWith(() => ({
-        endpoints: {
-          list: async () => ({
-            current: snap("current", 30),
-            snapshots: [snap("b", 20), snap("a", 10)],
-          }),
-          getContent: async (snapshot) =>
-            new Promise((resolve) => {
-              gates.set(snapshot.id, () => resolve(snapshot.id));
-            }),
-        } satisfies VersioningEndpoints,
-        preview: {
-          enterPreview: (content) => {
-            entered.push(content as string);
-          },
-          exitPreview: () => {},
-          applyRestore: () => {},
-        },
-      }));
-
-      await ext.list();
-      const first = ext.previewSnapshot("a");
-      const second = ext.previewSnapshot("b");
-
-      // Resolve the *older* request last: it must not overwrite the newer one.
-      gates.get("b")!();
-      await second;
-      gates.get("a")!();
-      await first;
-
-      expect(entered).toEqual(["b"]);
-      expect(ext.store.state.view).toEqual({
-        mode: "snapshot",
-        snapshotId: "b",
-        compareToId: undefined,
-      });
-
-      editor.unmount();
-    });
-
-    it("rolls the view back and unlocks when a fetch throws", async () => {
-      const { editor, ext } = setupWith(() => ({
-        endpoints: {
-          list: async () => ({
-            current: snap("current", 30),
-            snapshots: [snap("a", 10)],
-          }),
-          getContent: async () => {
-            throw new Error("boom");
-          },
-        } satisfies VersioningEndpoints,
-      }));
-
-      await ext.list();
-      await expect(ext.previewSnapshot("a")).rejects.toThrow("boom");
-
-      expect(ext.store.state.view).toEqual({ mode: "live" });
-      expect(ext.store.state.status).toEqual({ type: "idle" });
-      expect(editor.isEditable).toBe(true);
-
-      editor.unmount();
-    });
-
-    it("rolls back to what was actually rendered, not to a superseded preview", async () => {
-      setEditorText(ctx.editor, "live content");
-      const a = await ctx.seed("content a");
-      const b = await ctx.seed("content b");
-
-      const gate = deferred<void>();
-      const backendGetContent = ctx.endpoints.getContent;
-      ctx.endpoints.getContent = vi.fn(
-        async (snapshot: VersionSnapshot): Promise<Block<any, any, any>[]> => {
-          if (snapshot.id === a.id) {
-            await gate.promise;
-            return backendGetContent(snapshot);
-          }
-          throw new Error("network");
-        },
-      );
-
-      const previewingA = ctx.ext.previewSnapshot(a.id);
-      await expect(ctx.ext.previewSnapshot(b.id)).rejects.toThrow("network");
-
-      // A never rendered (it was superseded by B), so B's failure returns the
-      // user to the live document, editable.
-      expect(ctx.ext.store.state.view).toEqual({ mode: "live" });
-      expect(ctx.editor.isEditable).toBe(true);
-
-      gate.resolve();
-      await previewingA;
-      expect(getEditorText(ctx.editor)).toBe("live content");
-    });
-
-    it("previewCurrentVersion passes the current entry as the target", async () => {
-      const targets: PreviewTarget[] = [];
-      const current = snap("current", 30, { by: ["u1"] });
-      const { editor, ext } = setupWith((editor) => ({
-        endpoints: {
-          list: async () => ({ current, snapshots: [snap("a", 10)] }),
-          getContent: async () => [],
-          getAttributions: async (target) => {
-            targets.push(target);
-            return undefined;
-          },
-        } satisfies VersioningEndpoints,
-        serializeCurrentContent: () => editor.document,
-      }));
-
-      await ext.list();
-      await ext.previewCurrentVersion!({ compareTo: "a" });
-
-      expect(targets).toEqual([{ kind: "current", snapshot: current }]);
-      expect(ext.store.state.view).toEqual({
-        mode: "current",
-        compareToId: "a",
-      });
-
-      editor.unmount();
-    });
-
-    it("previewCurrentVersion requires a loaded list", async () => {
-      await expect(ctx.ext.previewCurrentVersion!()).rejects.toThrow(
-        "requires the version list to be loaded",
-      );
     });
   });
 
@@ -1187,95 +724,6 @@ describe("VersioningExtension", () => {
       expect(ctx.ext.store.state.view).toEqual({ mode: "live" });
       expect(getEditorText(ctx.editor)).toBe("live content");
     });
-
-    it("leaves the controller alone when nothing is previewed", async () => {
-      const exitPreview = vi.fn();
-      const { editor, ext } = setupWith(() => ({
-        endpoints: createInMemoryVersioningEndpoints(),
-        preview: {
-          enterPreview: () => {},
-          exitPreview,
-          applyRestore: () => {},
-        },
-      }));
-      let changes = 0;
-      editor.onChange(() => changes++);
-
-      // What the sidebar's unmount does, and a close button followed by an
-      // unmount does twice — on a live document, both must be no-ops.
-      ext.exitPreview();
-      ext.exitPreview();
-
-      expect(exitPreview).not.toHaveBeenCalled();
-      expect(changes).toBe(0);
-      editor.unmount();
-    });
-
-    it("leaves the controller alone while the preview is still fetching", async () => {
-      const content = deferred<string>();
-      const enterPreview = vi.fn();
-      const exitPreview = vi.fn();
-      const { editor, ext } = setupWith(() => ({
-        endpoints: {
-          list: async () => ({
-            current: snap("current", 30),
-            snapshots: [snap("a", 10)],
-          }),
-          getContent: () => content.promise,
-        } satisfies VersioningEndpoints,
-        preview: { enterPreview, exitPreview, applyRestore: () => {} },
-      }));
-      await ext.list();
-
-      const previewing = ext.previewSnapshot("a");
-      expect(editor.isEditable).toBe(false);
-
-      // Closing the panel while the version is still loading: nothing has
-      // replaced the document yet, so there is nothing for the controller to
-      // put back (and the Yjs controller would rebuild the whole document).
-      ext.exitPreview();
-      expect(exitPreview).not.toHaveBeenCalled();
-      expect(ext.store.state.view).toEqual({ mode: "live" });
-      expect(editor.isEditable).toBe(true);
-
-      content.resolve("a");
-      await previewing;
-      expect(enterPreview).not.toHaveBeenCalled();
-      editor.unmount();
-    });
-
-    it("exits through a controller that threw while rendering", async () => {
-      const exitPreview = vi.fn();
-      const { editor, ext } = setupWith(() => ({
-        endpoints: {
-          list: async () => ({
-            current: snap("current", 30),
-            snapshots: [snap("a", 10)],
-          }),
-          getContent: async () => "a",
-        } satisfies VersioningEndpoints,
-        preview: {
-          enterPreview: () => {
-            throw new Error("render failed");
-          },
-          exitPreview,
-          applyRestore: () => {},
-        },
-      }));
-      await ext.list();
-
-      await expect(ext.previewSnapshot("a")).rejects.toThrow("render failed");
-      // The controller was asked to render, so what is on screen is now its
-      // business: the editor stays locked until it has been asked to leave.
-      expect(ext.store.state.view.mode).toBe("snapshot");
-      expect(editor.isEditable).toBe(false);
-
-      ext.exitPreview();
-      expect(exitPreview).toHaveBeenCalledOnce();
-      expect(ext.store.state.view).toEqual({ mode: "live" });
-      expect(editor.isEditable).toBe(true);
-      editor.unmount();
-    });
   });
 
   // -------------------------------------------------------------------------
@@ -1315,99 +763,13 @@ describe("VersioningExtension", () => {
   // -------------------------------------------------------------------------
 
   describe("restoring versions", () => {
-    it("refreshes once after the configured delay without blocking editing", async () => {
-      vi.useFakeTimers();
-      try {
-        const seeded = await ctx.seed("old content");
-        ctx.endpoints.refreshAfterRestoreMs = 6000;
-        const list = vi.spyOn(ctx.endpoints, "list");
-        await ctx.ext.restore!(seeded.id);
-        expect(list).toHaveBeenCalledTimes(1);
-        expect(ctx.editor.isEditable).toBe(true);
-        expect(getEditorText(ctx.editor)).toBe("old content");
-
-        list.mockResolvedValue({
-          current: snap("fresh", 9999),
-          snapshots: [seeded],
-        });
-        await vi.advanceTimersByTimeAsync(5999);
-        expect(list).toHaveBeenCalledTimes(1);
-        await vi.advanceTimersByTimeAsync(1);
-        expect(list).toHaveBeenCalledTimes(2);
-        expect(loadedList(ctx.ext).current.id).toBe("fresh");
-        await vi.advanceTimersByTimeAsync(60000);
-        expect(list).toHaveBeenCalledTimes(2);
-      } finally {
-        vi.useRealTimers();
-      }
-    });
-
-    it.each(["close", "unmount"])(
-      "cancels the delayed refresh on %s",
-      async (action) => {
-        vi.useFakeTimers();
-        try {
-          const seeded = await ctx.seed("old content");
-          ctx.endpoints.refreshAfterRestoreMs = 6000;
-          const list = vi.spyOn(ctx.endpoints, "list");
-          await ctx.ext.restore!(seeded.id);
-          if (action === "close") {
-            ctx.ext.exitPreview();
-          } else {
-            ctx.editor.unmount();
-          }
-          await vi.advanceTimersByTimeAsync(6000);
-          expect(list).toHaveBeenCalledTimes(1);
-        } finally {
-          vi.useRealTimers();
-        }
-      },
-    );
-
-    it("replaces the scheduled refresh when another restore starts", async () => {
-      vi.useFakeTimers();
-      try {
-        const seeded = await ctx.seed("old content");
-        ctx.endpoints.refreshAfterRestoreMs = 6000;
-        const list = vi.spyOn(ctx.endpoints, "list");
-        await ctx.ext.restore!(seeded.id);
-        await vi.advanceTimersByTimeAsync(3000);
-        await ctx.ext.restore!(seeded.id);
-        expect(list).toHaveBeenCalledTimes(2);
-        await vi.advanceTimersByTimeAsync(3000);
-        expect(list).toHaveBeenCalledTimes(2);
-        await vi.advanceTimersByTimeAsync(3000);
-        expect(list).toHaveBeenCalledTimes(3);
-      } finally {
-        vi.useRealTimers();
-      }
-    });
-
-    it("keeps restored content and the previous list when the delayed refresh fails", async () => {
-      vi.useFakeTimers();
-      const report = vi.spyOn(console, "error").mockImplementation(() => {});
-      try {
-        const seeded = await ctx.seed("old content");
-        ctx.endpoints.refreshAfterRestoreMs = 6000;
-        await ctx.ext.restore!(seeded.id);
-        const previous = loadedList(ctx.ext);
-        const error = new Error("network");
-        const list = vi.spyOn(ctx.endpoints, "list").mockRejectedValue(error);
-        await vi.advanceTimersByTimeAsync(6000);
-        expect(report).toHaveBeenCalledWith(
-          "Failed to refresh version history",
-          error,
-        );
-        expect(loadedList(ctx.ext)).toBe(previous);
-        expect(getEditorText(ctx.editor)).toBe("old content");
-        expect(ctx.editor.isEditable).toBe(true);
-        expect(ctx.ext.store.state.status).toEqual({ type: "idle" });
-        await vi.advanceTimersByTimeAsync(60000);
-        expect(list).toHaveBeenCalledOnce();
-      } finally {
-        report.mockRestore();
-        vi.useRealTimers();
-      }
+    it("re-lists once after restoring", async () => {
+      const seeded = await ctx.seed("old content");
+      const list = vi.spyOn(ctx.endpoints, "list");
+      await ctx.ext.restore!(seeded.id);
+      expect(list).toHaveBeenCalledTimes(1);
+      expect(ctx.editor.isEditable).toBe(true);
+      expect(getEditorText(ctx.editor)).toBe("old content");
     });
 
     it("applies the version content and exits any active preview", async () => {

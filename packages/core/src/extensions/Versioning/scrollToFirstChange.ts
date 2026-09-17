@@ -80,6 +80,26 @@ function prefersReducedMotion(): boolean {
 }
 
 /**
+ * Scroll to the first change after preview layout settles. No-ops when
+ * disabled or when `isCurrent` reports the preview as superseded.
+ */
+export function scheduleScrollToFirstChange(
+  getRoot: () => Element | undefined,
+  options?: { enabled?: boolean; isCurrent?: () => boolean },
+): void {
+  if (options?.enabled === false) {
+    return;
+  }
+  // Let preview layout settle; timers also run in background tabs.
+  setTimeout(() => {
+    if (options?.isCurrent && !options.isCurrent()) {
+      return;
+    }
+    scrollToFirstChange(getRoot());
+  }, SCROLL_TO_FIRST_CHANGE_DELAY_MS);
+}
+
+/**
  * Centre the first change in document order and highlight its block,
  * respecting reduced motion. Changes hidden inside collapsed content fall
  * back to their toggle block.

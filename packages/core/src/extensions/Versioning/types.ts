@@ -61,7 +61,7 @@ export type VersioningView =
 /** The {@link VersioningView} members that put the editor in preview mode. */
 export type VersioningPreviewView = Exclude<VersioningView, { mode: "live" }>;
 
-/** Pending operation. Preview loading takes precedence over concurrent listing. */
+/** Pending operation: a list fetch or a preview whose content is loading. */
 export type VersioningStatus =
   | { type: "idle" }
   | { type: "listing" }
@@ -85,6 +85,7 @@ export type LoadedVersioningList = Extract<VersioningList, { loaded: true }>;
 export type VersioningState = {
   list: VersioningList;
   view: VersioningView;
+  /** Derived from the preview's loading view on every store write. */
   status: VersioningStatus;
   /** Holds the editor read-only during restore, including while the view is live. */
   restoring: boolean;
@@ -131,11 +132,6 @@ export interface VersioningEndpoints<
     /** The version to restore. */
     snapshot: VersionSnapshot,
   ) => Promise<Output>;
-  /**
-   * Schedule one additional list refresh after restore, in milliseconds.
-   * For backends with cached history. Omit to disable.
-   */
-  refreshAfterRestoreMs?: number;
   /** Fetch serialized content for {@link PreviewController.enterPreview}. */
   getContent: (snapshot: VersionSnapshot) => Promise<Output>;
   /**
