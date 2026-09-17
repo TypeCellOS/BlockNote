@@ -1,3 +1,4 @@
+import { uuidv4 } from "lib0/random";
 import { Plugin } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
 
@@ -41,30 +42,29 @@ function defaultCursorRender(user: CollaborationUser) {
   labelElement.classList.add("bn-collaboration-cursor__label");
   labelElement.textContent = user.name;
 
+  // Names must be unique across editors sharing the same document/portal root.
+  const anchorName = `--bn-cursor-${uuidv4()}`;
+  caretElement.style.setProperty("anchor-name", anchorName);
+  labelElement.style.setProperty("position-anchor", anchorName);
+
   const textColor = isDarkColor(user.color) ? "white" : "black";
   for (const element of [caretElement, labelElement]) {
     element.style.backgroundColor = user.color;
-    element.style.color = textColor;
   }
 
-  cursorElement.setAttribute("data-default", "");
+  labelElement.style.setProperty("--bn-cursor-label-color", textColor);
   // Word joiners anchor the widget in the text without adding visible spacing.
   cursorElement.append("\u2060", caretElement, "\u2060");
 
   return {
     element: cursorElement,
-    label: { element: labelElement, caret: caretElement },
+    label: labelElement,
   };
 }
 
-type CursorLabel = {
-  element: HTMLElement;
-  caret: HTMLElement;
-};
-
 type Cursor = {
   element: HTMLElement;
-  label?: CursorLabel;
+  label?: HTMLElement;
   hideTimeout?: ReturnType<typeof setTimeout>;
 };
 
@@ -77,41 +77,31 @@ export function createCollaborationCursorManager(options: {
   const cursors = new Map<number, Cursor>();
   let view: EditorView | undefined;
 
-  function positionLabel(cursor: Cursor) {
+  function syncLabel(cursor: Cursor) {
     const label = cursor.label;
     if (!label || !view || !view.dom.contains(cursor.element)) {
       return;
     }
-    if (!cursor.element.hasAttribute("data-active")) {
-      label.element.remove();
-      return;
-    }
+    label.toggleAttribute(
+      "data-active",
+      cursor.element.hasAttribute("data-active"),
+    );
     const portal = options.getPortalElement();
-    if (label.element.parentElement !== portal) {
-      portal.append(label.element);
-    }
-
-    const rect = label.caret.getBoundingClientRect();
-    label.element.style.left = `${rect.left}px`;
-    label.element.style.top = `${rect.top}px`;
-  }
-
-  function updatePositions() {
-    for (const cursor of cursors.values()) {
-      positionLabel(cursor);
+    if (label.parentElement !== portal) {
+      portal.append(label);
     }
   }
 
   function hideCursor(cursor: Cursor) {
     clearTimeout(cursor.hideTimeout);
     cursor.element.removeAttribute("data-active");
-    cursor.label?.element.remove();
+    cursor.label?.removeAttribute("data-active");
   }
 
   function showCursor(cursor: Cursor) {
     clearTimeout(cursor.hideTimeout);
     cursor.element.setAttribute("data-active", "");
-    positionLabel(cursor);
+    syncLabel(cursor);
   }
 
   function scheduleHide(cursor: Cursor) {
@@ -124,9 +114,10 @@ export function createCollaborationCursorManager(options: {
     for (const [clientID, cursor] of cursors) {
       if (!view.dom.contains(cursor.element)) {
         hideCursor(cursor);
+        cursor.label?.remove();
         cursors.delete(clientID);
       } else {
-        positionLabel(cursor);
+        syncLabel(cursor);
       }
     }
   }
@@ -168,29 +159,13 @@ export function createCollaborationCursorManager(options: {
     onAwarenessChange,
     plugin: new Plugin({
       view(initialView) {
-        const root = initialView.dom.getRootNode();
-        const document = initialView.dom.ownerDocument;
-        const window = document.defaultView!;
-        // Capture scroll events from nested tables as well as outer scrollers.
-        root.addEventListener("scroll", updatePositions, true);
-        if (root !== document) {
-          document.addEventListener("scroll", updatePositions, true);
-        }
-        window.addEventListener("resize", updatePositions);
-        root.addEventListener("load", updatePositions, true);
-        const resizeObserver = new ResizeObserver(updatePositions);
-        resizeObserver.observe(initialView.dom);
         sync(initialView);
         return {
           update: sync,
           destroy() {
-            root.removeEventListener("scroll", updatePositions, true);
-            document.removeEventListener("scroll", updatePositions, true);
-            window.removeEventListener("resize", updatePositions);
-            root.removeEventListener("load", updatePositions, true);
-            resizeObserver.disconnect();
             for (const cursor of cursors.values()) {
               hideCursor(cursor);
+              cursor.label?.remove();
             }
             cursors.clear();
             view = undefined;

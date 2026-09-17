@@ -102,12 +102,23 @@
 /* Labels default to floating outside the contenteditable's clipping ancestors. */
 .bn-collaboration-cursor__label {
   position: fixed;
-  transform: translateY(-100%);
+  top: anchor(top);
+  left: anchor(left);
+  /* Match the original vertical offsets while aligning with the caret. */
+  transform: translateY(-2px);
   width: max-content;
-  max-width: 20rem;
-  box-sizing: border-box;
-  padding: 0.1rem 0.3rem;
-  border-radius: 3px 3px 3px 0;
+  color: transparent;
+  max-height: 5px;
+  max-width: 4px;
+  padding: 0;
+  border-radius: 0 1.5px 1.5px 0;
+  transition:
+    color 0.2s,
+    max-height 0.2s,
+    max-width 0.2s,
+    padding 0.2s,
+    border-radius 0.2s,
+    transform 0.2s;
   pointer-events: none;
   font-size: 12px;
   font-style: normal;
@@ -120,45 +131,37 @@
   z-index: 20;
 }
 
+.bn-collaboration-cursor__label[data-active],
+.bn-editor
+  .bn-collaboration-cursor__base[data-active]
+  .bn-collaboration-cursor__label {
+  color: var(--bn-cursor-label-color, #0d0d0d);
+  max-height: 1.1rem;
+  max-width: 20rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px 3px 3px 0;
+}
+
+.bn-collaboration-cursor__label[data-active] {
+  transform: translateY(-18px);
+}
+
 /* Inline labels are also used by custom renderers and the AI agent cursor. */
 .bn-editor .bn-collaboration-cursor__base .bn-collaboration-cursor__label {
   position: absolute;
   transform: none;
   width: auto;
-  box-sizing: content-box;
   text-overflow: clip;
   z-index: auto;
   left: 0;
   top: -1px;
-  border-radius: 0 1.5px 1.5px 0;
-  color: transparent;
-  max-height: 5px;
-  max-width: 4px;
-  padding: 0;
   transition: all 0.2s;
 }
 
 .bn-editor
   .bn-collaboration-cursor__base[data-active]
   .bn-collaboration-cursor__label {
-  color: #0d0d0d;
-  max-height: 1.1rem;
-  max-width: 20rem;
-  padding: 0.1rem 0.3rem;
-  border-radius: 3px 3px 3px 0;
   top: -17px;
-}
-
-.bn-editor
-  .bn-collaboration-cursor__base[data-default]:not([data-active])
-  .bn-collaboration-cursor__caret::before {
-  content: "";
-  position: absolute;
-  top: -1px;
-  width: 4px;
-  height: 5px;
-  background-color: inherit;
-  border-radius: 0 1.5px 1.5px 0;
 }
 
 .bn-editor [data-content-type="table"] .tableWrapper {

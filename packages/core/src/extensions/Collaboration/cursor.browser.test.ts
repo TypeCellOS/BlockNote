@@ -172,9 +172,13 @@ for (const [name, create] of [
             ),
           )
           .not.toBeNull();
-        return session.editor.portalElement.querySelector<HTMLElement>(
+        const element = session.editor.portalElement.querySelector<HTMLElement>(
           ".bn-collaboration-cursor__label",
         )!;
+        await expect
+          .poll(() => getComputedStyle(element).maxWidth)
+          .toBe("320px");
+        return element;
       }
       return { ...session, container, mount, moveTo, label };
     }
@@ -191,8 +195,8 @@ for (const [name, create] of [
       );
       expect(caret).not.toBeNull();
       expect(session.mount.contains(label)).toBe(false);
-      expect(label.getBoundingClientRect().bottom).toBeCloseTo(
-        caret!.getBoundingClientRect().top,
+      expect(label.getBoundingClientRect().top).toBeCloseTo(
+        caret!.getBoundingClientRect().top - 18,
         0,
       );
       expect(label.getBoundingClientRect().top).toBeLessThan(
@@ -204,6 +208,33 @@ for (const [name, create] of [
         .toBe(0);
     });
 
+    it("uses distinct anchors for the same collaborator in multiple editors", async () => {
+      const first = setup({ showCursorLabels: "always" }, document.body);
+      const second = setup({ showCursorLabels: "always" }, document.body);
+      first.moveTo(".bn-inline-content");
+      second.moveTo("td p");
+      const firstLabel = await first.label();
+      const secondLabel = await second.label();
+      expect(firstLabel.style.getPropertyValue("position-anchor")).not.toBe(
+        secondLabel.style.getPropertyValue("position-anchor"),
+      );
+      for (const [session, label] of [
+        [first, firstLabel],
+        [second, secondLabel],
+      ] as const) {
+        const caret = session.mount.querySelector<HTMLElement>(
+          ".bn-collaboration-cursor__caret",
+        )!;
+        expect(label.style.getPropertyValue("position-anchor")).toBe(
+          caret.style.getPropertyValue("anchor-name"),
+        );
+        expect(label.getBoundingClientRect().top).toBeCloseTo(
+          caret.getBoundingClientRect().top - 18,
+          0,
+        );
+      }
+    });
+
     it("keeps labels above the caret at the top edge", async () => {
       const session = setup();
       session.moveTo(".bn-inline-content", "Remote User ".repeat(20));
@@ -211,8 +242,8 @@ for (const [name, create] of [
       const caret = session.mount.querySelector(
         ".bn-collaboration-cursor__caret",
       )!;
-      expect(label.getBoundingClientRect().bottom).toBeCloseTo(
-        caret.getBoundingClientRect().top,
+      expect(label.getBoundingClientRect().top).toBeCloseTo(
+        caret.getBoundingClientRect().top - 18,
         0,
       );
       expect(label.getBoundingClientRect().left).toBeCloseTo(
@@ -238,8 +269,9 @@ for (const [name, create] of [
       await expect
         .poll(() =>
           Math.abs(
-            label.getBoundingClientRect().bottom -
-              caret.getBoundingClientRect().top,
+            label.getBoundingClientRect().top -
+              caret.getBoundingClientRect().top +
+              18,
           ),
         )
         .toBeLessThan(1);
@@ -247,8 +279,9 @@ for (const [name, create] of [
       await expect
         .poll(() =>
           Math.abs(
-            label.getBoundingClientRect().bottom -
-              caret.getBoundingClientRect().top,
+            label.getBoundingClientRect().top -
+              caret.getBoundingClientRect().top +
+              18,
           ),
         )
         .toBeLessThan(1);
@@ -257,8 +290,9 @@ for (const [name, create] of [
       await expect
         .poll(() =>
           Math.abs(
-            label.getBoundingClientRect().bottom -
-              caret.getBoundingClientRect().top,
+            label.getBoundingClientRect().top -
+              caret.getBoundingClientRect().top +
+              18,
           ),
         )
         .toBeLessThan(1);
@@ -287,6 +321,32 @@ for (const [name, create] of [
       );
       expect(label.getBoundingClientRect().right).toBeGreaterThan(
         session.mount.getBoundingClientRect().right,
+      );
+    });
+
+    it("follows layout changes without an editor transaction", async () => {
+      const session = setup();
+      session.editor.updateBlock(session.editor.document.at(-1)!, {
+        props: { textAlignment: "right" },
+      });
+      const paragraphs =
+        session.mount.querySelectorAll<HTMLElement>(".bn-inline-content");
+      const last = paragraphs[paragraphs.length - 1];
+      session.move(
+        session.editor.prosemirrorView.posAtDOM(last, last.childNodes.length),
+      );
+      const label = await session.label();
+      const caret = session.mount.querySelector(
+        ".bn-collaboration-cursor__caret",
+      )!;
+      const originalLeft = label.getBoundingClientRect().left;
+      session.container.style.width = "300px";
+      await expect
+        .poll(() => label.getBoundingClientRect().left)
+        .toBeLessThan(originalLeft);
+      expect(label.getBoundingClientRect().left).toBeCloseTo(
+        caret.getBoundingClientRect().left,
+        0,
       );
     });
 
@@ -340,26 +400,23 @@ for (const [name, create] of [
       expect(session.editor.portalElement.childElementCount).toBe(0);
     });
 
-    it("shows activity labels on hover and removes them after inactivity", async () => {
+    it("shows activity labels on hover and hides them after inactivity", async () => {
       const session = setup({ showCursorLabels: "activity" });
       session.moveTo("td p");
-      await session.label();
+      const label = await session.label();
       await expect
-        .poll(() => session.editor.portalElement.childElementCount, {
-          timeout: 4000,
-        })
-        .toBe(0);
+        .poll(() => getComputedStyle(label).maxWidth, { timeout: 4000 })
+        .toBe("4px");
+      expect(label.isConnected).toBe(true);
       const cursor = session.mount.querySelector(
         ".bn-collaboration-cursor__base",
       )!;
       cursor.dispatchEvent(new MouseEvent("mouseenter"));
-      await session.label();
+      await expect.poll(() => getComputedStyle(label).maxWidth).toBe("320px");
       cursor.dispatchEvent(new MouseEvent("mouseleave"));
       await expect
-        .poll(() => session.editor.portalElement.childElementCount, {
-          timeout: 4000,
-        })
-        .toBe(0);
+        .poll(() => getComputedStyle(label).maxWidth, { timeout: 4000 })
+        .toBe("4px");
     });
   });
 }
