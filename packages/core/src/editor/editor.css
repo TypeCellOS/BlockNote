@@ -99,23 +99,61 @@
   left: -1px;
 }
 
-.bn-editor .bn-collaboration-cursor__base .bn-collaboration-cursor__label {
-  pointer-events: none;
-  border-radius: 0 1.5px 1.5px 0;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  left: 0;
-  overflow: hidden;
-  position: absolute;
-  white-space: nowrap;
-  user-select: none;
-
+/* Labels default to floating outside the contenteditable's clipping ancestors. */
+.bn-collaboration-cursor__label {
+  position: fixed;
+  top: anchor(top);
+  left: anchor(left);
+  /* Match the original vertical offsets while aligning with the caret. */
+  transform: translateY(-2px);
+  width: max-content;
   color: transparent;
   max-height: 5px;
   max-width: 4px;
   padding: 0;
+  border-radius: 0 1.5px 1.5px 0;
+  transition:
+    color 0.2s,
+    max-height 0.2s,
+    max-width 0.2s,
+    padding 0.2s,
+    border-radius 0.2s,
+    transform 0.2s;
+  pointer-events: none;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  user-select: none;
+  z-index: 20;
+}
+
+.bn-collaboration-cursor__label[data-active],
+.bn-editor
+  .bn-collaboration-cursor__base[data-active]
+  .bn-collaboration-cursor__label {
+  color: var(--bn-cursor-label-color, #0d0d0d);
+  max-height: 1.1rem;
+  max-width: 20rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px 3px 3px 0;
+}
+
+.bn-collaboration-cursor__label[data-active] {
+  transform: translateY(-18px);
+}
+
+/* Inline labels are also used by custom renderers and the AI agent cursor. */
+.bn-editor .bn-collaboration-cursor__base .bn-collaboration-cursor__label {
+  position: absolute;
+  transform: none;
+  width: auto;
+  text-overflow: clip;
+  z-index: auto;
+  left: 0;
   top: -1px;
   transition: all 0.2s;
 }
@@ -123,15 +161,7 @@
 .bn-editor
   .bn-collaboration-cursor__base[data-active]
   .bn-collaboration-cursor__label {
-  color: #0d0d0d;
-  max-height: 1.1rem;
-  max-width: 20rem;
-  padding: 0.1rem 0.3rem;
   top: -17px;
-  left: 0;
-  border-radius: 3px 3px 3px 0;
-
-  transition: all 0.2s;
 }
 
 .bn-editor [data-content-type="table"] .tableWrapper {
