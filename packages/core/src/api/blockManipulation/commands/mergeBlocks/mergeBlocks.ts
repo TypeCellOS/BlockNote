@@ -119,28 +119,10 @@ const mergeBlocks = (
   prevBlockInfo: BlockInfo,
   nextBlockInfo: BlockInfo,
 ) => {
-  // Un-nests all children of the next block.
   if (!nextBlockInfo.isBlockContainer) {
     throw new Error(
       `Attempted to merge block at position ${nextBlockInfo.bnBlock.beforePos} into previous block at position ${prevBlockInfo.bnBlock.beforePos}, but next block is not a block container`,
     );
-  }
-
-  // Removes a level of nesting all children of the next block by 1 level, if it contains both content and block
-  // group nodes.
-  if (nextBlockInfo.childContainer) {
-    const childBlocksStart = state.doc.resolve(
-      nextBlockInfo.childContainer.beforePos + 1,
-    );
-    const childBlocksEnd = state.doc.resolve(
-      nextBlockInfo.childContainer.afterPos - 1,
-    );
-    const childBlocksRange = childBlocksStart.blockRange(childBlocksEnd);
-
-    if (dispatch) {
-      const pos = state.doc.resolve(nextBlockInfo.bnBlock.beforePos);
-      state.tr.lift(childBlocksRange!, pos.depth);
-    }
   }
 
   // Deletes the boundary between the two blocks. Can be thought of as
@@ -153,13 +135,46 @@ const mergeBlocks = (
       );
     }
 
+    const tr = state.tr;
+    const childGroup = nextBlockInfo.childContainer;
+
+    // Takes the next block's children out first, so the merge leaves no empty
+    // shell of the next block behind.
+    if (childGroup) {
+      tr.delete(childGroup.beforePos, childGroup.afterPos);
+    }
+
     // TODO: test merging between a columnList and paragraph, between two columnLists, and v.v.
-    dispatch(
-      state.tr.delete(
-        prevBlockInfo.blockContent.afterPos - 1,
-        nextBlockInfo.blockContent.beforePos + 1,
-      ),
+    tr.delete(
+      tr.mapping.map(prevBlockInfo.blockContent.afterPos - 1),
+      tr.mapping.map(nextBlockInfo.blockContent.beforePos + 1),
     );
+
+    // Puts the children back at the depth they had: appended to the merged
+    // block's ancestor at that depth when there is one, otherwise nested under
+    // the merged block.
+    if (childGroup) {
+      const childDepth = state.doc.resolve(childGroup.beforePos + 1).depth;
+      const $merged = tr.doc.resolve(
+        tr.mapping.map(prevBlockInfo.blockContent.beforePos) + 1,
+      );
+      const ancestor =
+        childDepth < $merged.depth - 1 ? $merged.node(childDepth) : undefined;
+
+      if (
+        ancestor?.canReplace(
+          ancestor.childCount,
+          ancestor.childCount,
+          childGroup.node.content,
+        )
+      ) {
+        tr.insert($merged.end(childDepth), childGroup.node.content);
+      } else {
+        tr.insert($merged.after($merged.depth), childGroup.node);
+      }
+    }
+
+    dispatch(tr);
   }
 
   return true;
