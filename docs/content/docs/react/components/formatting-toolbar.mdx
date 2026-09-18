@@ -1,6 +1,6 @@
 ---
 title: Formatting Toolbar
-description: Format selected text or use the mobile toolbar above the on-screen keyboard.
+description: The Formatting Toolbar appears whenever you select content in the editor on desktop, or above the virtual keyboard while the editor is focused on touch devices.
 ---
 
 # Formatting Toolbar
@@ -58,7 +58,7 @@ The workaround is to wrap all of your app's content in a single element with the
 This element must be a direct child of `<body>` and cover its full area. BlockNote will keep its size in sync with the [visual viewport](https://developer.mozilla.org/en-US/docs/Web/API/VisualViewport) and render the Formatting Toolbar outside of it, eliminating any jitter/lag.
 
 <Callout type="warning">
-  Your app should only ever have a single `bn-scroll-container` element. It's pinned to the visual viewport with `position: fixed`, so multiple containers would overlap each other. Wrap all your scrollable page content in one.
+  Your app should only ever have a single `bn-scroll-container` element. Wrap all your scrollable page content in one.
 </Callout>
 
 The standalone [Mobile Formatting Toolbar example](https://playground.blocknotejs.org/ui-components/mobile-formatting-toolbar?hideMenu=true) lets you switch between document scrolling and the pinned scroll container to compare their behavior.
