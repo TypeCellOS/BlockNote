@@ -29,6 +29,7 @@ let baselineLayoutWidth = 0;
  * keyboard is reopened.
  */
 function isVirtualKeyboardOpen(): boolean {
+  // Server render: no viewport to measure, so no keyboard.
   if (typeof window === "undefined") {
     return false;
   }
@@ -38,6 +39,8 @@ function isVirtualKeyboardOpen(): boolean {
   const layoutHeight = (vp?.height ?? window.innerHeight) * scale;
   const layoutWidth = document.documentElement.clientWidth;
 
+  // Orientation changed: the tallest height seen so far belongs to the other
+  // orientation, start measuring afresh.
   if (Math.abs(layoutWidth - baselineLayoutWidth) > baselineLayoutWidth * 0.2) {
     baselineLayoutWidth = layoutWidth;
     maxLayoutViewportHeight = 0;
@@ -63,15 +66,32 @@ function isVirtualKeyboardOpen(): boolean {
  * content — the matching styles live in `editor/styles.css`, keyed off that
  * class and the `--bn-vv-*` variables this hook publishes.
  */
+const VIEWPORT_PROPERTIES = [
+  "--bn-vv-top",
+  "--bn-vv-left",
+  "--bn-vv-width",
+  "--bn-vv-height",
+  "--bn-vv-scale",
+] as const;
+
+// How many mounted hooks publish the `--bn-vv-*` properties. The last one
+// out removes them: left behind, they pin a `bn-scroll-container` to the
+// keyboard-open size after the editor is gone (a client-side navigation to a
+// page without an editor), and a page-level property is shared by every
+// editor on the page, so no single hook may remove it while another still
+// needs it.
+let viewportPublishers = 0;
+
 export function useVirtualKeyboard(): boolean {
   const [open, setOpen] = useState(isVirtualKeyboardOpen);
 
   useLayoutEffect(() => {
     const html = document.documentElement;
-
     const vp = window.visualViewport;
-    const update = () => {
-      setOpen(isVirtualKeyboardOpen());
+    const scrollContainers = () =>
+      document.querySelectorAll<HTMLElement>(".bn-scroll-container");
+
+    const publishViewport = () => {
       html.style.setProperty("--bn-vv-top", `${vp?.offsetTop ?? 0}px`);
       html.style.setProperty("--bn-vv-left", `${vp?.offsetLeft ?? 0}px`);
       html.style.setProperty(
@@ -84,6 +104,26 @@ export function useVirtualKeyboard(): boolean {
       );
       html.style.setProperty("--bn-vv-scale", `${vp?.scale ?? 1}`);
     };
+
+    // A pinned `bn-scroll-container` contains its overscroll, except at its
+    // top with the keyboard closed, where the overscroll must reach the
+    // document for the browser's pull-to-refresh to fire (see the rules in
+    // `editor/styles.css`).
+    const markPullToRefresh = (container: HTMLElement, keyboardOpen: boolean) =>
+      container.toggleAttribute(
+        "data-bn-allow-pull-to-refresh",
+        !keyboardOpen && container.scrollTop <= 0,
+      );
+
+    const update = () => {
+      const keyboardOpen = isVirtualKeyboardOpen();
+      setOpen(keyboardOpen);
+      publishViewport();
+      for (const container of scrollContainers()) {
+        markPullToRefresh(container, keyboardOpen);
+      }
+    };
+    viewportPublishers++;
     update();
 
     // Fire on keyboard open/close, zoom/pan, and content scroll.
@@ -91,10 +131,40 @@ export function useVirtualKeyboard(): boolean {
     vp?.addEventListener("scroll", update);
     window.addEventListener("resize", update);
 
+    // Scroll events don't bubble; capture them to track the pinned containers.
+    const onScroll = (event: Event) => {
+      if (
+        event.target instanceof HTMLElement &&
+        event.target.classList.contains("bn-scroll-container")
+      ) {
+        markPullToRefresh(event.target, isVirtualKeyboardOpen());
+      }
+    };
+    document.addEventListener("scroll", onScroll, {
+      capture: true,
+      passive: true,
+    });
+
     return () => {
       vp?.removeEventListener("resize", update);
       vp?.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
+      document.removeEventListener("scroll", onScroll, { capture: true });
+      viewportPublishers--;
+      if (viewportPublishers === 0) {
+        // Last publisher gone: nothing on the page positions itself from the
+        // properties any more, so take them and the keyboard baseline down.
+        for (const property of VIEWPORT_PROPERTIES) {
+          html.style.removeProperty(property);
+        }
+        for (const container of scrollContainers()) {
+          container.removeAttribute("data-bn-allow-pull-to-refresh");
+        }
+        // The keyboard baseline goes with them: a later editor starts from
+        // what it measures itself, not from a maximum seen on another page.
+        maxLayoutViewportHeight = 0;
+        baselineLayoutWidth = 0;
+      }
     };
   }, []);
 

@@ -12,7 +12,6 @@ import { render } from "vitest-browser-react";
 import { page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
 import { waitForSelector } from "../../utils/editor.js";
-import { ensureTouchEmulation } from "../../utils/ensureTouchEmulation.js";
 
 const MOBILE_TOOLBAR_SELECTOR = ".bn-mobile-formatting-toolbar";
 
@@ -24,7 +23,6 @@ const MOBILE_TOOLBAR_SELECTOR = ".bn-mobile-formatting-toolbar";
 // scroll-into-view chased it to its pre-positioned spot.
 
 beforeEach(async () => {
-  ensureTouchEmulation();
   await page.viewport(393, 727);
 });
 
