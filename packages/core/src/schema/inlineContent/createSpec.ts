@@ -10,7 +10,7 @@ import {
 import { inlineContentToNodes } from "../../api/nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeToBlock.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { ignoreNonContentMutations } from "../nodeViewMutations.js";
+import { ignoreDarkReaderMutations } from "../nodeViewMutations.js";
 import { propsToAttributes } from "../blocks/internal.js";
 import { nonFormattingMarks } from "../markGroups.js";
 import { Props } from "../propTypes.js";
@@ -366,10 +366,9 @@ export function createInlineContentSpec<
           inlineContentConfig.propSchema,
         );
 
-        // Ignores DOM mutations that don't affect the inline content, so that
-        // browser extensions which rewrite the DOM (e.g. Dark Reader) can't
-        // trigger an infinite re-render loop that freezes the tab.
-        ignoreNonContentMutations(nodeView);
+        // Ignores Dark Reader's rewrites of the inline content's DOM, which
+        // would otherwise trigger an infinite re-render loop that freezes the tab.
+        ignoreDarkReaderMutations(nodeView);
 
         return nodeView;
       };
