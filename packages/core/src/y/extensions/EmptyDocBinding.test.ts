@@ -129,6 +129,35 @@ describe("empty-doc collaborative binding", () => {
     ).toEqual(["h0"]);
   });
 
+  it("deleting all blocks keeps the re-minted skeleton out of Y", async () => {
+    // Deleting every block makes BlockNote mint a fresh empty paragraph
+    // with a NEW random id. That skeleton is still initial content: it must
+    // not seed the empty fragment, and the next real edit must converge to
+    // just the new block. Regression for the e2e `addRemoveBlocks`
+    // "to empty doc" failures, where the re-minted skeleton was committed
+    // as a phantom paragraph (the id-sensitive pull divergence check
+    // treated it as real content).
+    const doc = new Y.Doc();
+    cleanups.push(() => doc.destroy());
+    const editor = mountCollab(doc.get("doc"));
+    await tick();
+    editor.replaceBlocks(editor.document, []);
+    await tick();
+    expect(doc.get("doc").length).toBe(0);
+
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "h0",
+        type: "heading",
+        props: { level: 1 },
+        content: "New heading",
+      },
+    ]);
+    await tick();
+    expect(sortedIds(doc)).toEqual(["h0"]);
+    expect(editor.document.map((b) => b.id)).toEqual(["h0"]);
+  });
+
   it("mounting on an empty fragment does not write the skeleton to Y", async () => {
     // The @y/prosemirror initial-content gate must engage: the local
     // schema-default skeleton stays invisible to the sync layer until real
