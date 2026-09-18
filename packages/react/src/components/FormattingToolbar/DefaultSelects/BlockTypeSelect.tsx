@@ -220,6 +220,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
       // inherits styling; on mobile `preventFocusOnOpen` keeps focus in the
       // editor so the on-screen keyboard stays up.
       portalElement={portalElement}
+      // How-to-test: without it, opening the block type select from the mobile toolbar moves focus into it and closes the keyboard, in every skin (covered by skinFocus, android, all skins: "opening the block type select keeps focus in the editor").
       preventFocusOnOpen={uiMode === "mobile"}
     />
   );
