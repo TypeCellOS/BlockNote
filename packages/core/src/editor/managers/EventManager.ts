@@ -21,8 +21,8 @@ export type Unsubscribe = () => void;
  */
 export type EditorFocusOptions = {
   /**
-   * When true, the editor's own UI - toolbars, menus and popovers, i.e.
-   * everything portalled into `editor.portalElement` - counts as focused,
+   * When true, the editor's own UI - toolbars, menus and popovers inside
+   * its DOM boundary or registered portal elements - counts as focused,
    * answering "is the user still interacting with this editor?" rather than
    * "does the content area hold DOM focus?".
    *
@@ -112,9 +112,9 @@ export class EventManager<
    * Settled focus-within-UI tracking. Document-level listeners (attached on
    * editor mount, detached on unmount — a no-op per focus event is too
    * cheap to be worth gating on subscribers) cover the case tiptap events
-   * can't: focus moving from the editor's own UI (which lives in
-   * `editor.portalElement`, outside the content area) to somewhere else
-   * entirely. Blur-side changes are re-checked a frame later because
+   * can't: focus moving from the editor's own UI outside the content area
+   * (including registered portal elements) to somewhere else entirely.
+   * Blur-side changes are re-checked after the current task because
    * `document.activeElement` transiently becomes `<body>` during focus
    * handoffs (and `relatedTarget` is unreliable on mobile).
    */
@@ -215,13 +215,13 @@ export class EventManager<
   }
 
   /**
-   * Register a callback that will be called when the editor's content area
-   * gains or loses DOM focus.
+   * Register a callback for focus changes. By default, this reports when the
+   * editor's content area gains or loses DOM focus.
    *
    * Note that `focused: false` only means the content area itself blurred —
    * focus may have moved into the editor's own UI (e.g. a toolbar
-   * popover's input). Consumers that need to distinguish should check where
-   * `document.activeElement` ended up.
+   * popover's input). Pass `includeEditorUI: true` to report changes to
+   * combined content and UI focus, allowing focus handoffs to settle.
    */
   public onFocusChange(
     callback: (
