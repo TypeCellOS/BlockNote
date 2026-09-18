@@ -1197,7 +1197,8 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Gets the URL of the last link in the current selection, or `undefined` if there are no links in the selection.
+   * Gets the URL of the link the current selection starts in, or `undefined`
+   * if it does not start in one.
    */
   public getSelectedLinkUrl() {
     return this._styleManager.getSelectedLinkUrl();
