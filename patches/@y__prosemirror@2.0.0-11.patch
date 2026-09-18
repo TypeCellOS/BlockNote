@@ -1,3 +1,9 @@
+# Includes https://github.com/yjs/y-prosemirror/pull/277 (`initialContentCompare`:
+# integrator-overridable initial-content gate in ProsemirrorRdt/syncPlugin).
+# Also carries BlockNote-side additions: dist type declarations for the new
+# option (incl. the InitialContentCompare typedef in global.d.ts), needed
+# because consumers type against dist while upstream regenerates it via
+# `npm run dist`. Drop those hunks once the PR lands upstream.
 diff --git a/dist/src/commands.d.ts b/dist/src/commands.d.ts
 index 88b7e6cfc784787991ae62fdea084d24cc5c778a..10295afff66e55a2c3cfa4f4f8862c5e02edb075 100644
 --- a/dist/src/commands.d.ts
@@ -106,3 +112,193 @@ index 40ebaec7ae1a4fa51f30af5eeca43228bf6579fb..b6f25b11d74821393cb4c4e3d145b1d2
  }
  
  /**
+diff --git a/src/rdt/prosemirror.js b/src/rdt/prosemirror.js
+index 69c7007..d54dd09 100644
+--- a/src/rdt/prosemirror.js
++++ b/src/rdt/prosemirror.js
+@@ -147,8 +147,9 @@ const touchesAttributionSpace = format => {
+  * always materialized. Binding that default to an *empty* ytype must not write
+  * it into Y — every fresh client would seed its own copy and merging two such
+  * docs duplicates the content (the init race). When the sync plugin signals
+- * that the ytype has no children and the document fingerprints equal to the
+- * schema default, `_state` starts as the **empty** delta instead of a document
++ * that the ytype has no children and the document is the integrator's
++ * initial state (by default: the document fingerprint equals the schema
++ * default; overridable via `initialContentCompare`), `_state` starts as the **empty** delta instead of a document
+  * snapshot, with {@link ProsemirrorRdt#_defaultFingerprint} set. The
+  * binding's initial sync then diffs empty against empty — nothing is rendered
+  * or written — while the schema-default skeleton stays visible in the editor,
+@@ -182,12 +183,17 @@ export class ProsemirrorRdt extends ObservableV2 {
+    * @param {boolean} [opts.gateInitialContent] the counterpart ytype has no
+    *   children — gate the schema-default document instead of treating it as
+    *   content (see "Initial-content gate" in the class doc)
++   * @param {InitialContentCompare?} [opts.initialContentCompare] Optional
++   *   predicate `(doc) => boolean` deciding whether the current document is
++   *   the integrator's initial (empty) state that must not be written into
++   *   the empty ytype. `null` keeps the default check (the document's
++   *   fingerprint equals the schema's `createAndFill()` default).
+    * @param {null|((err:Error,errCode:number)=>any)} [opts.onInternalError]
+    *   Listen to internal errors for debugging purposes. This API is unstable
+    *   and can be changed/removed at any time! (errCode 2: the `applyDelta`
+    *   reconcile diff failed — see the fail-safe there)
+    */
+-  constructor ({ view, attributedNodes = defaultAttributedNodes, compare = null, getMeta, gateInitialContent = false, onInternalError = null }) {
++  constructor ({ view, attributedNodes = defaultAttributedNodes, compare = null, getMeta, gateInitialContent = false, initialContentCompare = null, onInternalError = null }) {
+     super()
+     this.view = view
+     this.attributedNodes = attributedNodes
+@@ -196,16 +202,18 @@ export class ProsemirrorRdt extends ObservableV2 {
+     this._onInternalError = onInternalError
+     this.$delta = $prosemirrorDelta
+     const snapshot = nodeToDeltaCached(view.state.doc)
+-    const dflt = gateInitialContent ? view.state.doc.type.createAndFill() : null
++    const dflt = gateInitialContent && initialContentCompare == null ? view.state.doc.type.createAndFill() : null
+     const dfltFingerprint = dflt != null ? nodeToDeltaCached(dflt).fingerprint : null
++    const isDefaultDoc = dfltFingerprint != null && snapshot.fingerprint === dfltFingerprint
++    const isInitial = gateInitialContent && (initialContentCompare != null ? initialContentCompare(view.state.doc) : isDefaultDoc)
+     /**
+      * Non-null while the initial content is gated (see class doc): the
+-     * fingerprint of the schema-default document, which `pull` must not emit.
++     * fingerprint of the gated initial document, which `pull` must not emit.
+      * The first render in either direction resets this to `null`.
+      *
+      * @type {string?}
+      */
+-    this._defaultFingerprint = dfltFingerprint != null && snapshot.fingerprint === dfltFingerprint ? dfltFingerprint : null
++    this._defaultFingerprint = isInitial ? snapshot.fingerprint : null
+     /**
+      * @type {ProsemirrorDelta}
+      */
+diff --git a/src/sync-plugin.js b/src/sync-plugin.js
+index bf5043c..0e51ae5 100644
+--- a/src/sync-plugin.js
++++ b/src/sync-plugin.js
+@@ -39,6 +39,12 @@ export const $syncPluginState = s.$object({
+    * default. See {@link NodeCompare} and {@link syncPlugin}.
+    */
+   customCompare: /** @type {s.Schema<NodeCompare>} */ (s.$function).nullable,
++  /**
++   * Predicate deciding whether the current ProseMirror document is the
++   * integrator's initial (empty) state. `null` keeps the schema-default
++   * fingerprint check. See {@link InitialContentCompare} and {@link syncPlugin}.
++   */
++  initialContentCompare: /** @type {s.Schema<InitialContentCompare>} */ (s.$function).nullable,
+   /**
+    * The live RDT binding (null while paused / before the first setup). `binding.t` is the
+    * data(Y render)⇄view(PM doc) transformer that cursor positions are mapped through.
+@@ -52,6 +58,7 @@ export const $syncPluginStateUpdate = s.$object({
+   attributionMapper: /** @type {s.Schema<AttributionMapper>} */ (s.$function).nullable.optional,
+   attributedNodes: /** @type {s.Schema<AttributedNodesPredicate>} */ (s.$function).nullable.optional,
+   customCompare: /** @type {s.Schema<NodeCompare>} */ (s.$function).nullable.optional,
++  initialContentCompare: /** @type {s.Schema<InitialContentCompare>} */ (s.$function).nullable.optional,
+   binding: /** @type {s.Schema<import('lib0/delta/rdt').Binding<any, any>>} */ (s.$instanceOf(Binding)).nullable.optional,
+   change: /** @type {s.Schema<Y.YEvent<any>>} */ (s.$any).nullable.optional
+ })
+@@ -182,7 +189,8 @@ const warnUnsupportedAttributionMarks = (schema) => {
+  * @param {Y.Doc} [opts.suggestionDoc] A {@link Y.Doc} to use for suggestion tracking
+  * @param {AttributionMapper} [opts.mapAttributionToMark] A function to map the {@link Y.ContentAttribute} to a {@link import('prosemirror-model').Mark} - the mark names *must* be one of: `y-attributed-insert`, `y-attributed-delete`, `y-attributed-format`, `y-attributed-attrs`. No other mark names are permitted. `y-attributed-attrs` is the node-level mark for *attribute* changes (e.g. a suggested heading-level change): it is materialized automatically when the schema declares it (declare `attrs: { changes: { default: null } }` and — unlike the other three — keep the DEFAULT `excludes`, so a re-render *replaces* the mark instead of stacking instances). Its payload is not routed through the mapper by default; a mapper may take control by emitting the `y-attributed-attrs` key.
+  * @param {AttributedNodesPredicate} [opts.attributedNodes] Optional predicate `(nodeName, kinds) => boolean`. When it returns `true` for an attributed node *and* a `{nodeName}--attributed` type exists in the schema, that node is rendered under the variant type (the `y-attributed-*` marks are still applied). `kinds` is `{ insert?, delete?, format? }`. The variant is a pure rendering concern - the canonical name is what is stored in the Y document. The predicate must be deterministic in `(nodeName, kinds)`.
+- * @param {NodeCompare} [opts.customCompare] Optional predicate `(a, b) => boolean` that shifts the *diffing boundary*. To sync, y-prosemirror diffs the ProseMirror doc against the Y document as `lib0/delta` trees; lib0's `diff` decides for each candidate node pair whether to pair them (diff *in place* via a `modify` op) or to **replace the old subtree wholesale** (delete + insert). By default a pair is matched purely on node name (`a.name === b.name`). Supply this to move the boundary - e.g. make a `blockContainer` only pair when its first child type also matches (`(a, b) => a.name === b.name && (a.name !== 'blockContainer' || firstChildName(a) === firstChildName(b))`), so changing the first child replaces the whole container instead of editing it in place. Receives the raw `lib0/delta` nodes `(fromNode, toNode)` (each exposing `.name`, `.attrs`, `.children`) and is forwarded to `lib0/delta.diff` as its `compare` option, applied recursively down the tree. Generally keep the `a.name === b.name` check; omit the option to keep lib0's name-only default.
++  * @param {NodeCompare} [opts.customCompare] Optional predicate `(a, b) => boolean` that shifts the *diffing boundary*. To sync, y-prosemirror diffs the ProseMirror doc against the Y document as `lib0/delta` trees; lib0's `diff` decides for each candidate node pair whether to pair them (diff *in place* via a `modify` op) or to **replace the old subtree wholesale** (delete + insert). By default a pair is matched purely on node name (`a.name === b.name`). Supply this to move the boundary - e.g. make a `blockContainer` only pair when its first child type also matches (`(a, b) => a.name === b.name && (a.name !== 'blockContainer' || firstChildName(a) === firstChildName(b))`), so changing the first child replaces the whole container instead of editing it in place. Receives the raw `lib0/delta` nodes `(fromNode, toNode)` (each exposing `.name`, `.attrs`, `.children`) and is forwarded to `lib0/delta.diff` as its `compare` option, applied recursively down the tree. Generally keep the `a.name === b.name` check; omit the option to keep lib0's name-only default.
++  * @param {InitialContentCompare} [opts.initialContentCompare] Optional predicate `(doc) => boolean` deciding whether the current ProseMirror document is the integrator's initial (empty) state that must not be written into an empty ytype at bind time (see "Initial-content gate" in {@link ProsemirrorRdt}'s doc). Return `true` to arm the gate for this document, `false` to sync it immediately. Omit the option to keep the default check (document fingerprint equals the schema's `createAndFill()` default). Only consulted when the ytype has no children.
+  * @param {Array<(($d: s.Schema<any>) => dt.Template<any, any>)>} [opts.transformers] Optional custom transformer stages, slotted into the pipeline **between** the built-in compat flattening stage ({@link inlineAnonymousNodes}) and `attributionToFormat`, in data→view (`applyA`) order (i.e. before the closing `attributionToFormat` / {@link swallowFormats} pair). Each is a `$d => Template` factory (see `lib0/delta/transformer`); the input schema is threaded left to right. Custom transformers see changes in the flattened document space (old-representation anonymous text containers already spliced into their parents), with the complete accumulated attribution on every attribution-bearing op.
+  * @param {null|((err:Error,errCode:number)=>any)} [opts.onInternalError] Listen to internal
+  * errors for debugging purposes. This API is unstable and can be changed/removed at any time!
+@@ -214,6 +222,7 @@ export const syncPlugin = (opts = {}) => {
+           attributionMapper: opts.mapAttributionToMark || defaultMapAttributionToMark,
+           attributedNodes: opts.attributedNodes || defaultAttributedNodes,
+           customCompare: opts.customCompare || null,
++          initialContentCompare: opts.initialContentCompare || null,
+           binding: null
+         })
+       },
+@@ -296,6 +305,7 @@ export const syncPlugin = (opts = {}) => {
+           // an empty ytype must not receive the editor's schema-default
+           // content — see "Initial-content gate" in ProsemirrorRdt's doc
+           gateInitialContent: ytype.length === 0,
++          initialContentCompare: pluginState.initialContentCompare,
+           getMeta: () => $syncPluginStateUpdate.expect({
+             change: null,
+             renderer: pluginState.renderer,
+@@ -351,7 +361,8 @@ export const syncPlugin = (opts = {}) => {
+             prevPluginState?.renderer !== pluginState.renderer ||
+             prevPluginState?.attributionMapper !== pluginState.attributionMapper ||
+             prevPluginState?.attributedNodes !== pluginState.attributedNodes ||
+-            prevPluginState?.customCompare !== pluginState.customCompare
++            prevPluginState?.customCompare !== pluginState.customCompare ||
++            prevPluginState?.initialContentCompare !== pluginState.initialContentCompare
+           ) {
+             setup(view, pluginState)
+           }
+diff --git a/global.d.ts b/global.d.ts
+--- a/global.d.ts
++++ b/global.d.ts
+@@ -34,8 +34,15 @@
+  * tree). Return `true` to pair, `false` to replace wholesale. The predicate should
+  * generally still include the `a.name === b.name` check; omit the option entirely to
+  * keep lib0's name-only default.
+  */
+ declare type NodeCompare = (a: import('lib0/delta').DeltaAny, b: import('lib0/delta').DeltaAny) => boolean
++/**
++ * Decides whether a ProseMirror document is the integrator's initial (empty)
++ * state that must not be written into an empty ytype at bind time (see
++ * "Initial-content gate" in `ProsemirrorRdt`'s doc). Return `true` to arm the
++ * gate for the document, `false` to sync it immediately.
++ */
++declare type InitialContentCompare = (doc: import('prosemirror-model').Node) => boolean
+ declare type SyncPluginState = import('lib0/schema').Unwrap<typeof import('@y/prosemirror').$syncPluginState>
+ declare type SyncPluginStateUpdate = import('lib0/schema').Unwrap<typeof import('@y/prosemirror').$syncPluginStateUpdate>
+ declare type ProsemirrorDelta = import('lib0/schema').Unwrap<typeof import('@y/prosemirror').$prosemirrorDelta>
+diff --git a/dist/src/sync-plugin.d.ts b/dist/src/sync-plugin.d.ts
+--- a/dist/src/sync-plugin.d.ts
++++ b/dist/src/sync-plugin.d.ts
+@@ -8,6 +8,7 @@
+     attributionMapper: AttributionMapper;
+     attributedNodes: AttributedNodesPredicate;
+     customCompare: NodeCompare | null;
++    initialContentCompare: InitialContentCompare | null;
+     binding: Binding<any, any> | null;
+ }>;
+ export const $syncPluginStateUpdate: s.Schema<{
+@@ -17,6 +17,7 @@
+     attributionMapper?: AttributionMapper | null | undefined;
+     attributedNodes?: AttributedNodesPredicate | null | undefined;
+     customCompare?: NodeCompare | null | undefined;
++    initialContentCompare?: InitialContentCompare | null | undefined;
+     binding?: Binding<any, any> | null | undefined;
+     change?: Y.YEvent<any> | null | undefined;
+ }>;
+@@ -29,6 +29,7 @@
+     mapAttributionToMark?: AttributionMapper | undefined;
+     attributedNodes?: AttributedNodesPredicate | undefined;
+     customCompare?: NodeCompare | undefined;
++    initialContentCompare?: InitialContentCompare | undefined;
+     transformers?: (($d: s.Schema<any>) => dt.Template<any, any>)[] | undefined;
+     onInternalError?: ((err: Error, errCode: number) => any) | null | undefined;
+ }): Plugin;
+diff --git a/dist/src/rdt/prosemirror.d.ts b/dist/src/rdt/prosemirror.d.ts
+--- a/dist/src/rdt/prosemirror.d.ts
++++ b/dist/src/rdt/prosemirror.d.ts
+@@ -87,6 +87,11 @@
+      * @param {boolean} [opts.gateInitialContent] the counterpart ytype has no
+      *   children — gate the schema-default document instead of treating it as
+      *   content (see "Initial-content gate" in the class doc)
++     * @param {InitialContentCompare?} [opts.initialContentCompare] Optional
++     *   predicate `(doc) => boolean` deciding whether the current document is
++     *   the integrator's initial (empty) state that must not be written into
++     *   the empty ytype. `null` keeps the default check (the document's
++     *   fingerprint equals the schema's `createAndFill()` default).
+      * @param {null|((err:Error,errCode:number)=>any)} [opts.onInternalError]
+      *   Listen to internal errors for debugging purposes. This API is unstable
+      *   and can be changed/removed at any time! (errCode 2: the `applyDelta`
+@@ -95,8 +101,9 @@
+-    constructor({ view, attributedNodes, compare, getMeta, gateInitialContent, onInternalError }: {
++    constructor({ view, attributedNodes, compare, getMeta, gateInitialContent, initialContentCompare, onInternalError }: {
+         view: import("prosemirror-view").EditorView;
+         attributedNodes?: AttributedNodesPredicate | undefined;
+         compare?: NodeCompare | null | undefined;
+         getMeta: () => any;
+         gateInitialContent?: boolean | undefined;
++        initialContentCompare?: InitialContentCompare | null | undefined;
+         onInternalError?: ((err: Error, errCode: number) => any) | null | undefined;
+     });
