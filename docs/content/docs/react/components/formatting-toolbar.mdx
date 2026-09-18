@@ -1,11 +1,11 @@
 ---
 title: Formatting Toolbar
-description: The Formatting Toolbar appears whenever you highlight text in the editor.
+description: Format selected text or use the mobile toolbar above the on-screen keyboard.
 ---
 
 # Formatting Toolbar
 
-The Formatting Toolbar appears whenever you highlight text in the editor.
+The Formatting Toolbar appears above or below highlighted text on desktop. On touch devices with the on-screen keyboard open, it appears above the keyboard instead.
 
 <ThemedImage
   src={{
@@ -27,7 +27,7 @@ We first define our custom `BlueButton`. The `useComponentsContext` hook gets al
 
 We use the `FormattingToolbar` component to create a custom Formatting Toolbar. By specifying its children, we can replace the default buttons in the toolbar with our own.
 
-This custom Formatting Toolbar is passed to a `FormattingToolbarController`, which controls its position and visibility (above or below the highlighted text).
+This custom Formatting Toolbar is passed to a `FormattingToolbarController`, which controls its position and visibility and automatically switches between desktop and mobile layouts. The custom toolbar is used in both layouts.
 
 Setting `formattingToolbar={false}` on `BlockNoteView` tells BlockNote not to show the default Formatting Toolbar.
 
@@ -41,7 +41,7 @@ Here, we use the `FormattingToolbar` component but keep the default buttons (we 
 
 ## Mobile Formatting Toolbar
 
-On touch devices, BlockNote's default UI replaces the floating Formatting Toolbar with a mobile Formatting Toolbar that sits just above the on-screen keyboard. It shows the same items as the regular Formatting Toolbar and is enabled by default - there's nothing to set up. Open any of the examples above on a phone to see it.
+On touch devices, BlockNote shows the mobile Formatting Toolbar above the on-screen keyboard while it's open and the editor is focussed, rather than floating around the selected content. Open any of the examples above on a phone to see it.
 
 ### Browser limitations
 
@@ -60,3 +60,5 @@ This element must be a direct child of `<body>` and cover its full area. BlockNo
 <Callout type="warning">
   Your app should only ever have a single `bn-scroll-container` element. It's pinned to the visual viewport with `position: fixed`, so multiple containers would overlap each other. Wrap all your scrollable page content in one.
 </Callout>
+
+The standalone [Mobile Formatting Toolbar example](https://playground.blocknotejs.org/ui-components/mobile-formatting-toolbar?hideMenu=true) lets you switch between document scrolling and the pinned scroll container to compare their behavior.

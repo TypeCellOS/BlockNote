@@ -1397,12 +1397,13 @@ export class BlockNoteEditor<
   }
 
   /**
-   * A callback function that runs whenever the editor's content area gains or
-   * loses DOM focus.
+   * A callback function that runs when focus changes. By default, this reports
+   * when the editor's content area gains or loses DOM focus.
    *
    * Note that `focused: false` only means the content area itself blurred —
    * focus may have moved into the editor's own UI (e.g. a toolbar
-   * popover's input).
+   * popover's input). Pass `includeEditorUI: true` to report changes to
+   * combined content and UI focus, allowing focus handoffs to settle.
    *
    * @param callback The callback to execute.
    * @returns A function to remove the callback.

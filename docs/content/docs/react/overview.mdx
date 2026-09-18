@@ -133,6 +133,33 @@ declare function useEditorSelectionChange(
 ): BlockNoteEditor;
 ```
 
+### useEditorFocus
+
+The `useEditorFocus` hook returns a boolean and re-renders your component when the editor gains or loses focus. By default, it tracks the content area. Pass `includeEditorUI: true` to keep it `true` while focus moves into the editor's toolbars, menus, or popovers.
+
+```tsx twoslash
+/**
+ * See the [Editor API reference](/docs/reference/editor/overview) for more details
+ */
+type BlockNoteEditor = object;
+/**
+ * This hook tracks whether the editor is focused.
+ */
+// ---cut---
+declare function useEditorFocus(
+  options?: {
+    /**
+     * Include focus within the editor's toolbars, menus, and popovers.
+     * Defaults to false.
+     */
+    includeEditorUI?: boolean;
+  },
+  editor?: BlockNoteEditor,
+): boolean;
+```
+
+The options and editor arguments are optional. When called inside `BlockNoteView`, the hook can use the editor from context. To run a side effect on focus changes, subscribe to [`editor.onFocusChange`](/docs/reference/editor/events#onfocuschange).
+
 ## Next Steps
 
 The editor is now ready to use! Start typing and explore the various block types and formatting options available in the toolbar.
