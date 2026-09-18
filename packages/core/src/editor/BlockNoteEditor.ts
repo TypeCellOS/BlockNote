@@ -719,26 +719,14 @@ export class BlockNoteEditor<
    * Mount the editor to a DOM element.
    *
    * @param element The DOM element to mount the editor's contenteditable into.
-   * @param options.portalTarget Where to mount `editor.portalElement` — the
-   *   container that floating UI (toolbars, menus, etc) portals into. When
-   *   omitted, defaults to `element.parentElement` (which is the editor's
-   *   `bn-container` in typical React usage), or to `document.body` /
-   *   the surrounding shadow root when no parent is available.
+   *
+   * Floating UI rendered next to the contenteditable counts as within the
+   * editor already; UI rendered outside its DOM tree has to be registered with
+   * {@link registerPortalElement} so {@link isWithinEditor} recognizes it.
    *
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
-  public mount = (
-    element: HTMLElement,
-    options?: { portalTarget?: HTMLElement | null },
-  ) => {
-    const root = element.getRootNode();
-    const isInShadowRoot =
-      typeof ShadowRoot !== "undefined" && root instanceof ShadowRoot;
-    const target =
-      options?.portalTarget ??
-      element.parentElement ??
-      (isInShadowRoot ? (root as ShadowRoot) : document.body);
-    target.appendChild(this.portalElement);
+  public mount = (element: HTMLElement) => {
     this._tiptapEditor.mount({ mount: element });
   };
 
@@ -746,7 +734,6 @@ export class BlockNoteEditor<
    * Unmount the editor from the DOM element it is bound to
    */
   public unmount = () => {
-    this.portalElement?.remove();
     this._tiptapEditor.unmount();
   };
 
@@ -774,35 +761,63 @@ export class BlockNoteEditor<
     return this.prosemirrorView?.dom as HTMLDivElement | undefined;
   }
 
-  private _portalElement: HTMLElement | undefined;
+  // Portal elements registered by the view layer, with reference counts so
+  // several UI elements can share one (e.g. multiple popovers portalling into
+  // the same custom element).
+  private _portalElements = new Map<HTMLElement, number>();
 
   /**
-   * The portal container element at `document.body` used by floating UI
-   * elements (menus, toolbars) to escape overflow:hidden ancestors.
-   * Set by BlockNoteView; undefined in headless mode.
+   * Registers an element as a portal element for this editor's floating UI, so
+   * {@link isWithinEditor} treats its contents as part of the editor. The view
+   * layer calls this for each portal element it designates (see
+   * `PortalElementOverride` in `@blocknote/react`) — without it, UI portalled outside
+   * the editor's DOM tree would be considered outside the editor.
+   * Registrations are reference-counted; release with
+   * {@link unregisterPortalElement}.
    */
-  public get portalElement() {
-    if (typeof document === "undefined") {
-      throw new Error(
-        "Portal element accessed, but not available in headless mode",
-      );
-    }
-    if (!this._portalElement) {
-      this._portalElement = document.createElement("div");
-    }
-    return this._portalElement;
-  }
+  public registerPortalElement = (element: HTMLElement) => {
+    this._portalElements.set(
+      element,
+      (this._portalElements.get(element) ?? 0) + 1,
+    );
+  };
 
   /**
-   * Checks whether a DOM element belongs to this editor — either inside the
-   * editor's DOM tree or inside its portal container (used for floating UI
-   * elements like menus and toolbars).
+   * Releases a registration made with {@link registerPortalElement}. The element
+   * stops counting as part of the editor once every registration for it has
+   * been released.
+   */
+  public unregisterPortalElement = (element: HTMLElement) => {
+    const count = this._portalElements.get(element);
+    if (count === undefined) {
+      return;
+    }
+
+    if (count <= 1) {
+      this._portalElements.delete(element);
+    } else {
+      this._portalElements.set(element, count - 1);
+    }
+  };
+
+  /**
+   * Checks whether a DOM element belongs to this editor — inside the editor's
+   * DOM tree, or inside any portal element registered via
+   * {@link registerPortalElement} (used for floating UI elements like menus and
+   * toolbars, which may portal outside the editor's DOM tree).
    */
   public isWithinEditor = (element: Element): boolean => {
-    return !!(
-      this.domElement?.parentElement?.contains(element) ||
-      this.portalElement?.contains(element)
-    );
+    if (this.domElement?.parentElement?.contains(element)) {
+      return true;
+    }
+
+    for (const portalElement of this._portalElements.keys()) {
+      if (portalElement.contains(element)) {
+        return true;
+      }
+    }
+
+    return false;
   };
 
   public isFocused() {

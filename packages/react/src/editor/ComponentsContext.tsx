@@ -47,7 +47,14 @@ type ToolbarSelectType = {
     isDisabled?: boolean;
   }[];
   isDisabled?: boolean;
-  portalRoot?: HTMLElement | null;
+  portalElement: HTMLElement | null;
+  /**
+   * When true, the UI library must not move focus into the surface when it
+   * opens (the mobile toolbar: a focus move blurs the editor and closes the
+   * on-screen keyboard). An input inside that asks for focus itself still
+   * gets it.
+   */
+  preventFocusOnOpen?: boolean;
 };
 
 type MenuButtonType = {
@@ -334,7 +341,9 @@ export type ComponentProps = {
           | "bottom"
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
-        portalRoot?: HTMLElement | null;
+        portalElement: HTMLElement | null;
+        /** See `ToolbarSelect.preventFocusOnOpen`. */
+        preventFocusOnOpen?: boolean;
         children?: ReactNode;
       };
       Divider: {
@@ -374,7 +383,9 @@ export type ComponentProps = {
           | "bottom"
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
-        portalRoot?: HTMLElement | null;
+        portalElement: HTMLElement | null;
+        /** See `ToolbarSelect.preventFocusOnOpen`. */
+        preventFocusOnOpen?: boolean;
         children?: ReactNode;
       };
       Content: {

@@ -8,7 +8,7 @@ import {
   useBlockNoteEditor,
   useComponentsContext,
   useDictionary,
-  useMobileToolbarPortal,
+  usePortalElement,
   useSelectedBlocks,
 } from "@blocknote/react";
 import { useCallback, useEffect, useState } from "react";
@@ -24,7 +24,7 @@ export const FileReplaceButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
   // Portal necessary to properly show popover on mobile.
-  const mobileToolbarPortal = useMobileToolbarPortal();
+  const editorPortalElement = usePortalElement();
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -68,7 +68,7 @@ export const FileReplaceButton = () => {
       open={isOpen}
       onOpenChange={setIsOpen}
       position={"bottom"}
-      portalRoot={mobileToolbarPortal ?? undefined}
+      portalElement={editorPortalElement}
     >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
