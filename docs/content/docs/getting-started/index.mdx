@@ -69,7 +69,10 @@ For more information about the `useCreateBlockNote` hook and the `BlockNoteView`
 
 ## Mobile compatibility
 
-If your app is used on touch devices, we recommend adding `interactive-widget=resizes-content` to your page's viewport meta tag:
+On touch devices, BlockNote's UI adapts on its own: specifically, the [Formatting Toolbar](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar) moves above the on-screen keyboard.
+Two things are still worth doing in your app to ensure smooth positioning of the toolbar in relation to the on-screen keyboard:
+
+First, we recommend adding `interactive-widget=resizes-content` to your page's viewport meta tag:
 
 ```html
 <meta
@@ -78,7 +81,9 @@ If your app is used on touch devices, we recommend adding `interactive-widget=re
 />
 ```
 
-This isn't specific to BlockNote - it mitigates undesired behaviour that some browsers have when the virtual keyboard is open. For more on BlockNote's mobile UX, see the [mobile Formatting Toolbar](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar).
+This isn't specific to BlockNote: it tells the browser to lay out the page in the space above the keyboard, instead of leaving part of it behind the keyboard. That lets BlockNote position the toolbar there reliably and without jitter.
+
+Second, iOS doesn't support that tag, so scrolling can still feel choppy there. We recommend the [scroll container](/docs/react/components/formatting-toolbar#browser-limitations) layout to fix this.
 
 ## Next steps
 

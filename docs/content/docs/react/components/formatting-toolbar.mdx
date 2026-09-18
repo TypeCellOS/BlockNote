@@ -41,13 +41,13 @@ Here, we use the `FormattingToolbar` component but keep the default buttons (we 
 
 ## Mobile Formatting Toolbar
 
-On touch devices, BlockNote shows the mobile Formatting Toolbar above the on-screen keyboard while it's open and the editor is focussed, rather than floating around the selected content. Open any of the examples above on a phone to see it.
+On touch devices, BlockNote shows the mobile Formatting Toolbar above the on-screen keyboard while it's open and the editor is focused, rather than floating around the selected content. It has the same items as the regular Formatting Toolbar and is enabled by default - there's nothing to set up. Open any of the examples above on a phone to see it.
 
 ### Browser limitations
 
-Mobile browsers vary in how they handle the on-screen keyboard, which can affect the toolbar. Before anything else, make sure your page has the viewport meta tag from the [mobile compatibility guide](/docs/getting-started#mobile-compatibility).
+Mobile browsers vary in how they handle the on-screen keyboard, which can affect the toolbar. This assumes your page already has the viewport meta tag from the [mobile compatibility guide](/docs/getting-started#mobile-compatibility) - add it first if you haven't.
 
-Most notably, iOS doesn't support the aforementioned viewport meta tag, which can result in jitter/lag when scrolling. There is however a workaround for this, which is why you won't see any choppiness in any of the examples here.
+Most notably, iOS doesn't support the aforementioned viewport meta tag, which can result in jitter/lag when scrolling.
 
 The workaround is to wrap all of your app's content in a single element with the `bn-scroll-container` class:
 
@@ -55,7 +55,7 @@ The workaround is to wrap all of your app's content in a single element with the
 <div className="bn-scroll-container">{/* nav, editor, page content... */}</div>
 ```
 
-This element must be a direct child of `<body>` and cover its full area. BlockNote will keep its size in sync with the [visual viewport](https://developer.mozilla.org/en-US/docs/Web/API/VisualViewport) and render the Formatting Toolbar outside of it, eliminating any jitter/lag.
+We recommend placing this element directly inside `<body>`, wrapping all of your page content. BlockNote will keep its size in sync with the [visual viewport](https://developer.mozilla.org/en-US/docs/Web/API/VisualViewport) and render the Formatting Toolbar outside of it, eliminating any jitter/lag.
 
 <Callout type="warning">
   Your app should only ever have a single `bn-scroll-container` element. Wrap all your scrollable page content in one.
