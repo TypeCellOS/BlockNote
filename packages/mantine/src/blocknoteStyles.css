@@ -257,6 +257,19 @@ on touch devices (e.g. the mobile formatting toolbar). */
   font-size: 12px;
 }
 
+/* On touch devices, enlarge the form-popover inputs (e.g. the link popover's
+   URL field). The 16px font-size is load-bearing: iOS Safari auto-zooms the
+   page when focusing an input with a smaller computed font-size, and that zoom
+   perturbs the visual viewport the mobile toolbar positions itself from. The
+   taller min-height also gives a comfortable tap target. */
+@media (pointer: coarse) {
+  .bn-form-popover .mantine-TextInput-input,
+  .bn-form-popover .mantine-FileInput-input {
+    font-size: 16px;
+    min-height: 40px;
+  }
+}
+
 .bn-form-popover .mantine-FileInput-input:hover {
   background-color: var(--bn-colors-hovered-background);
 }

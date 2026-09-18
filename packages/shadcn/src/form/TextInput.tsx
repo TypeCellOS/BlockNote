@@ -21,6 +21,7 @@ export const TextInput = forwardRef<
     disabled,
     onKeyDown,
     onChange,
+    onClickCapture,
     onSubmit,
     autoComplete: _autoComplete,
     "aria-activedescendant": ariaActivedescendant,
@@ -57,6 +58,7 @@ export const TextInput = forwardRef<
           value={value}
           onKeyDown={onKeyDown}
           onChange={onChange}
+          onClickCapture={onClickCapture}
           onSubmit={onSubmit}
           ref={ref}
           aria-activedescendant={ariaActivedescendant}
