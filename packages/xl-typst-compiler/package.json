@@ -9,13 +9,19 @@
     "directory": "packages/xl-typst-compiler"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.54.0",
+  "version": "0.54.2",
   "files": [
     "dist",
     "types",
     "src",
-    "pkg",
-    "rust",
+    "pkg/blocknote_typst_wasm.js",
+    "pkg/blocknote_typst_wasm.d.ts",
+    "pkg/blocknote_typst_wasm_bg.wasm",
+    "pkg/blocknote_typst_wasm_bg.wasm.d.ts",
+    "rust/src",
+    "rust/Cargo.toml",
+    "rust/Cargo.lock",
+    "rust/rust-toolchain.toml",
     "README.md",
     "scripts"
   ],
