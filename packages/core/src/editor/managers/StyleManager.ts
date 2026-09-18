@@ -188,7 +188,15 @@ export class StyleManager<
    */
   public getSelectedLinkUrl() {
     return this.editor.transact((tr) => {
-      return this.getLinkMarkAtPos(tr.selection.from)?.href;
+      // The node the selection starts in, on purpose not `getLinkMarkAtPos`
+      // (which also looks at the node before `from`): a selection starting
+      // right after a link must not pre-fill the link form with that link's
+      // URL. A `from + 1` lookup would miss the right end of a link (a
+      // selection of its last character, or a one-character link, reads as
+      // no link).
+      const node = tr.doc.nodeAt(tr.selection.from);
+      const linkMark = node?.marks.find((mark) => mark.type.name === "link");
+      return linkMark?.attrs.href as string | undefined;
     });
   }
 
