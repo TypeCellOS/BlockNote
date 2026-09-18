@@ -12,7 +12,7 @@ import {
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
 import { nonFormattingMarks } from "../markGroups.js";
-import { ignoreNonContentMutations } from "../nodeViewMutations.js";
+import { ignoreDarkReaderMutations } from "../nodeViewMutations.js";
 import { PropSchema } from "../propTypes.js";
 import {
   getBlockFromNodeView,
@@ -279,10 +279,9 @@ export function addNodeAndExtensionsToSpec<
             applyNonSelectableBlockFix(typedNodeView, this.editor);
           }
 
-          // Ignores DOM mutations that don't affect the block's content, so
-          // that browser extensions which rewrite the DOM (e.g. Dark Reader)
-          // can't trigger an infinite re-render loop that freezes the tab.
-          ignoreNonContentMutations(typedNodeView);
+          // Ignores Dark Reader's rewrites of the block's DOM, which would
+          // otherwise trigger an infinite re-render loop that freezes the tab.
+          ignoreDarkReaderMutations(typedNodeView);
 
           // See explanation for why `update` is not implemented for NodeViews
           // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464
