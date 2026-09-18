@@ -31,7 +31,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: voidzero-dev/setup-vp@313600b80b104eadebb9111787d37a2e83e014ca # v1.17.0
+      - uses: voidzero-dev/setup-vp@49c3e4e92c52e7f8392712a9267bbe71c5ab30e5 # v1.19.0
         with:
           node-version-file: ".node-version"
           cache: true
@@ -42,6 +42,10 @@ jobs:
       - name: Prebuild
         run: cp README.md packages/core/README.md && cp README.md packages/react/README.md
 
+      # `vp run -r build` includes @blocknote/xl-typst-compiler, whose build
+      # task compiles its Rust wasm (published inside the package as pkg/);
+      # rustup auto-provisions the pinned toolchain from
+      # rust/rust-toolchain.toml.
       - name: Build packages
         run: vp run -r build
 

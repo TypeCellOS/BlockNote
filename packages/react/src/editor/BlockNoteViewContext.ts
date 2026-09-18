@@ -1,20 +1,5 @@
-import { createContext, CSSProperties, useContext } from "react";
+import { createContext, useContext } from "react";
 import { BlockNoteDefaultUIProps } from "./BlockNoteDefaultUI.js";
-
-/**
- * Attributes a UI-library wrapper needs on every themed BlockNote root
- * element, beyond what the base layer applies: its color-scheme data
- * attributes and any theme CSS variables. Passed to `BlockNoteViewRaw` via the
- * `themedRootProps` prop; the base layer merges them into
- * {@link BlockNoteViewContextValue.portalRootProps} without knowing which
- * attributes each library uses.
- */
-export type ThemedRootProps = {
-  /** Intended for theme CSS variables (custom properties). */
-  style?: CSSProperties;
-} & {
-  [attribute: `data-${string}`]: string | undefined;
-};
 
 export type BlockNoteViewContextValue = {
   editorProps: {
@@ -24,16 +9,16 @@ export type BlockNoteViewContextValue = {
   };
   defaultUIProps: BlockNoteDefaultUIProps;
   /**
-   * Props that turn an element into a themed `.bn-root`: the classes and
-   * color-scheme attribute existing CSS keys off, plus the UI-library extras
-   * from {@link ThemedRootProps}. Rendered on the editor container and used
-   * by `EditorPortalProvider` to theme the portal roots it creates — all from the
-   * same data.
+   * Makes `element` a themed BlockNote root: the classes and color-scheme
+   * attribute the stylesheet keys off, plus whatever the UI library adds (its
+   * own color-scheme attribute, theme CSS variables).
+   *
+   * Applied imperatively because it is used for the portal roots BlockNote
+   * mounts outside React's DOM tree, which cannot be themed with props (see
+   * `PortalElementOverride`). The editor container is themed by rendering the
+   * same values as props instead.
    */
-  portalRootProps: ThemedRootProps & {
-    className: string;
-    "data-color-scheme": "light" | "dark";
-  };
+  applyThemedRoot: (element: HTMLElement) => void;
 };
 
 export const BlockNoteViewContext = createContext<

@@ -216,13 +216,14 @@ on touch devices (e.g. the mobile formatting toolbar). */
   height: 40px;
 }
 
-.bn-toolbar .mantine-Menu-item {
+/* Menus are portalled into the editor container, so they can't be styled
+   through the toolbar, side menu or table handle that opened them; scope on
+   the dropdowns themselves instead. */
+.bn-mantine .bn-select .mantine-Menu-item,
+.bn-mantine .bn-menu-dropdown .mantine-Menu-item,
+.bn-mantine .bn-table-handle-menu .mantine-Menu-item {
   font-size: 12px;
   height: 30px;
-}
-
-.bn-toolbar .mantine-Menu-item:hover {
-  background-color: var(--bn-colors-hovered-background);
 }
 
 .bn-mantine .bn-form-popover {
@@ -345,12 +346,21 @@ on touch devices (e.g. the mobile formatting toolbar). */
 
 .bn-mantine .bn-suggestion-menu-item {
   cursor: pointer;
-  min-height: 52px;
+  /* The menu scrolls rather than squashing its items. Load-bearing once an
+  explicit `min-height` is set below: that replaces the flex default
+  `min-height: auto`, whose automatic minimum size otherwise does this. */
   flex-shrink: 0;
 }
 
+/* A uniform row height for full-size items - on their own they are 49px with a
+  subtext and 47px without one. Scoped away from small items, which are
+  content-sized: set on the rule above, the floor clamped those to the full row
+  height too, and no `height` can undo a `min-height`. */
+.bn-mantine .bn-suggestion-menu-item:not(.bn-suggestion-menu-item-small) {
+  min-height: 52px;
+}
+
 .bn-mantine .bn-suggestion-menu-item-small {
-  height: fit-content;
   /* Made to match with labels */
   padding: calc(var(--mantine-spacing-xs) / 2) var(--mantine-spacing-sm);
 }
@@ -485,12 +495,6 @@ on touch devices (e.g. the mobile formatting toolbar). */
   overflow: visible;
 }
 
-.bn-side-menu .mantine-Menu-item,
-.bn-table-handle-menu .mantine-Menu-item {
-  font-size: 12px;
-  height: 30px;
-}
-
 .bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) {
   background-color: transparent;
 }
@@ -510,10 +514,8 @@ on touch devices (e.g. the mobile formatting toolbar). */
   display: flex;
 }
 
-.bn-side-menu .mantine-Menu-dropdown {
+.bn-mantine .bn-drag-handle-menu {
   min-width: 100px;
-  padding: 2px;
-  position: absolute;
 }
 
 /* Image Panel styling*/
@@ -725,10 +727,6 @@ on touch devices (e.g. the mobile formatting toolbar). */
   background-color: var(--bn-colors-disabled-background);
   border: none;
   color: var(--bn-colors-disabled-text);
-}
-
-.bn-mantine .bn-action-toolbar .mantine-Menu-itemLabel {
-  font-size: 12px;
 }
 
 /* Badge styling */

@@ -11,8 +11,12 @@ import {
   usePrefersColorScheme,
 } from "@blocknote/react";
 import { MantineContext, MantineProvider } from "@mantine/core";
-import React, { useContext, useMemo } from "react";
-import { Theme, themeToCSSVariables } from "./BlockNoteTheme.js";
+import React, { useCallback, useContext } from "react";
+import {
+  applyBlockNoteCSSVariablesFromTheme,
+  removeBlockNoteCSSVariables,
+  Theme,
+} from "./BlockNoteTheme.js";
 import { components } from "./components.js";
 
 export const BlockNoteView = <
@@ -48,37 +52,53 @@ export const BlockNoteView = <
         ? defaultColorScheme
         : "light";
 
-  // Mantine's theming for BlockNote's themed root elements (the editor
-  // container and any portal roots): the color-scheme attribute the
-  // stylesheet keys off, plus CSS variables for custom object themes.
-  // `BlockNoteViewRaw` applies these to every root, so they all update in the
-  // same commit.
-  const themedRootProps = useMemo(() => {
-    const themeCSSVariables =
-      typeof theme !== "object"
-        ? undefined
-        : "light" in theme && "dark" in theme
-          ? themeToCSSVariables(
-              theme[defaultColorScheme === "dark" ? "dark" : "light"],
-            )
-          : themeToCSSVariables(theme);
+  const applyThemeVariables = useCallback(
+    (node: HTMLElement | null) => {
+      if (!node) {
+        return;
+      }
 
-    return {
-      "data-mantine-color-scheme": finalTheme,
-      style: themeCSSVariables,
-    };
-  }, [defaultColorScheme, theme, finalTheme]);
+      removeBlockNoteCSSVariables(node);
+
+      if (typeof theme === "object") {
+        if ("light" in theme && "dark" in theme) {
+          applyBlockNoteCSSVariablesFromTheme(
+            theme[defaultColorScheme === "dark" ? "dark" : "light"],
+            node,
+          );
+          return;
+        }
+
+        applyBlockNoteCSSVariablesFromTheme(theme, node);
+        return;
+      }
+    },
+    [defaultColorScheme, theme],
+  );
+
+  // Themes an element BlockNote creates outside React's tree — the portal
+  // roots its floating UI mounts (see `PortalElementOverride`). The editor
+  // container gets the same treatment from the props and `ref` below.
+  const applyThemedRoot = useCallback(
+    (element: HTMLElement) => {
+      element.setAttribute("data-mantine-color-scheme", finalTheme);
+      applyThemeVariables(element);
+    },
+    [applyThemeVariables, finalTheme],
+  );
 
   const mantineContext = useContext(MantineContext);
 
   const view = (
     <ComponentsContext.Provider value={components}>
       <BlockNoteViewRaw
+        data-mantine-color-scheme={finalTheme}
         className={mergeCSSClasses("bn-mantine", className || "")}
-        themedRootProps={themedRootProps}
+        applyThemedRoot={applyThemedRoot}
         theme={typeof theme === "object" ? undefined : theme}
         editor={editor}
         {...rest}
+        ref={applyThemeVariables}
       />
     </ComponentsContext.Provider>
   );

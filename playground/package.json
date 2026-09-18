@@ -29,7 +29,6 @@
     "@blocknote/xl-multi-column": "workspace:^",
     "@blocknote/xl-odt-exporter": "workspace:^",
     "@blocknote/xl-pdf-exporter": "workspace:^",
-    "@react-pdf/math": "^2.0.1",
     "katex": "^0.16.11",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
@@ -61,7 +60,10 @@
     "react-dom": "^19.2.5",
     "react-icons": "^5.5.0",
     "react-router-dom": "^6.30.1",
-    "y-partykit": "^0.0.25"
+    "y-partykit": "^0.0.25",
+    "@blocknote/xl-typst-exporter": "workspace:^",
+    "tex2typst": "^0.6.2",
+    "@blocknote/xl-typst-compiler": "workspace:^"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.14",

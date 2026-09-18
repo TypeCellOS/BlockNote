@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>name</key><string>BlockNote GitHub Dark</string>
+  <key>settings</key>
+  <array>
+    <dict>
+      <key>settings</key><dict>
+        <key>background</key><string>#161616</string>
+        <key>foreground</key><string>#e1e4e8</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>comment, punctuation.definition.comment</string>
+      <key>settings</key><dict><key>foreground</key><string>#6a737d</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>string, punctuation.definition.string</string>
+      <key>settings</key><dict><key>foreground</key><string>#9ecbff</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>constant, constant.numeric, support.constant, constant.language</string>
+      <key>settings</key><dict><key>foreground</key><string>#79b8ff</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>keyword, storage, storage.type, keyword.operator</string>
+      <key>settings</key><dict><key>foreground</key><string>#f97583</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>entity.name.function, support.function, meta.function-call</string>
+      <key>settings</key><dict><key>foreground</key><string>#b392f0</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>variable.parameter, variable.other.member, meta.definition.variable</string>
+      <key>settings</key><dict><key>foreground</key><string>#ffab70</string></dict>
+    </dict>
+    <dict>
+      <key>scope</key><string>entity.name.tag, entity.name.type, support.type, support.class</string>
+      <key>settings</key><dict><key>foreground</key><string>#85e89d</string></dict>
+    </dict>
+  </array>
+</dict>
+</plist>

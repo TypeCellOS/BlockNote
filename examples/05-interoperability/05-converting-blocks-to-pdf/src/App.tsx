@@ -1,4 +1,6 @@
+import { testDocumentBlocks } from "./testDocumentBlocks";
 import {
+  Block,
   BlockNoteSchema,
   combineByGroup,
   withPageBreak,
@@ -9,10 +11,15 @@ import * as locales from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
+import { diagramBlockMapping } from "@blocknote/diagram-block/typst-exporter";
 import {
   createReactInlineMathSpec,
   createReactMathBlockSpec,
 } from "@blocknote/math-block";
+import {
+  inlineMathMapping,
+  mathBlockMapping,
+} from "@blocknote/math-block/typst-exporter";
 import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
@@ -20,34 +27,110 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
+  PDFExporter,
+  typstDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter";
+import {
   getMultiColumnSlashMenuItems,
-  multiColumnDropCursor,
   locales as multiColumnLocales,
+  multiColumnDropCursor,
   withMultiColumn,
 } from "@blocknote/xl-multi-column";
-import {
-  PDFExporter,
-  pdfDefaultSchemaMappings,
-} from "@blocknote/xl-pdf-exporter";
-import { diagramBlockMapping } from "@blocknote/diagram-block/pdf-exporter";
-import {
-  inlineMathMapping,
-  mathBlockMapping,
-} from "@blocknote/math-block/pdf-exporter";
-import { pdf, PDFViewer } from "@react-pdf/renderer";
-import { JSX, useEffect, useMemo, useReducer, useState } from "react";
+// Bundle the Typst compiler wasm explicitly (it would otherwise load from
+// the package's own files - also CDN-free - but an explicit URL keeps the
+// bundling visible in this example).
+// Fonts need no setup: the exporter's bundled defaults (Inter, Geist Mono,
+// math, emoji - matching the editor) load lazily from the package.
+import compilerWasmUrl from "@blocknote/xl-typst-compiler/wasm?url";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "./styles.css";
 
-export default function App() {
-  // Stores the editor's contents as JSX for download and displaying the PDF
-  // using ReactPDF's `PDFViewer` component.
-  const [pdfDocument, setPDFDocument] = useState<JSX.Element>();
-  const [renders, forceRerender] = useReducer((s) => s + 1, 0);
+/**
+ * Exports the given document to a PDF/UA object URL, re-exporting whenever
+ * `blocks` changes.
+ *
+ * The effect-with-cleanup idiom keeps only the newest result: when a newer
+ * version (or unmount) invalidates the effect, the cleanup marks the running
+ * export stale and its result is dropped. Overlapping exports are *safe* -
+ * the exporter serializes its shared compile stage internally - but like any
+ * async calls they may complete out of call order, and which result to
+ * display is this component's concern, not the exporter's.
+ */
+function usePdfUA(
+  makeExporter: () => PDFExporter<any, any, any>,
+  blocks: Block<any, any, any>[],
+) {
+  const [pdfUrl, setPdfUrl] = useState<string>();
+  const [status, setStatus] = useState<
+    "loading" | "ready" | "unclaimed" | "error"
+  >("loading");
 
-  // Creates a new editor instance.
+  useEffect(() => {
+    let stale = false;
+    setStatus("loading");
+    void (async () => {
+      try {
+        const result = await makeExporter().toPDF(blocks, {
+          title: "BlockNote document",
+          lang: "en",
+        });
+        if (stale) {
+          return;
+        }
+        // A document that fails to compile (e.g. text no supplied font
+        // covers) is an expected outcome, reported in the result.
+        if (result.error) {
+          // eslint-disable-next-line no-console
+          console.error(
+            "PDF export failed:",
+            result.compileErrors.map((d) => d.message).join("; "),
+          );
+          setStatus("error");
+          return;
+        }
+        // A nonconforming document (e.g. one not starting with an H1) still
+        // exports - tagged but without the PDF/UA-1 claim; surface why, and
+        // show a distinct status instead of claiming conformance.
+        if (!result.pdfUA.declared && result.pdfUA.reason === "nonconforming") {
+          // eslint-disable-next-line no-console
+          console.info(
+            "Exported without PDF/UA-1 declaration:",
+            result.pdfUA.violations.map((v) => v.message).join("; "),
+          );
+        }
+        setPdfUrl(URL.createObjectURL(result.blob));
+        setStatus(result.pdfUA.declared ? "ready" : "unclaimed");
+      } catch (e) {
+        if (stale) {
+          return;
+        }
+        // eslint-disable-next-line no-console
+        console.error(e);
+        setStatus("error");
+      }
+    })();
+    return () => {
+      stale = true;
+    };
+  }, [makeExporter, blocks]);
+
+  // Each object URL is revoked when replaced by the next one (and the last
+  // one on unmount).
+  useEffect(() => {
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [pdfUrl]);
+
+  return { pdfUrl, status };
+}
+
+export default function App() {
+  // Creates a new editor instance with support for page breaks.
   const editor = useCreateBlockNote({
-    // Adds support for page breaks & multi-column blocks.
     // Adds support for math & diagram blocks.
     schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())).extend({
       blockSpecs: {
@@ -63,292 +146,17 @@ export default function App() {
       ...locales.en,
       multi_column: multiColumnLocales.en,
     },
-    // Adds support for advanced table features.
     tables: {
       splitCells: true,
       cellBackgroundColor: true,
       cellTextColor: true,
       headers: true,
     },
-    // Sets initial editor content.
     initialContent: [
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Welcome to this ",
-            styles: {
-              italic: true,
-            },
-          },
-          {
-            type: "text",
-            text: "demo!",
-            styles: {
-              italic: true,
-              bold: true,
-            },
-          },
-        ],
-        children: [
-          {
-            type: "paragraph",
-            content: "Hello World nested",
-            children: [
-              {
-                type: "paragraph",
-                content: "Hello World double nested",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "This paragraph has a background color",
-            styles: { bold: true },
-          },
-        ],
-        props: {
-          backgroundColor: "red",
-        },
-      },
-      { type: "divider" },
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "This one too, but it's blue",
-            styles: { italic: true },
-          },
-        ],
-        props: {
-          backgroundColor: "blue",
-        },
-      },
-      {
-        type: "paragraph",
-        content: "Paragraph",
-      },
-      {
-        type: "heading",
-        content: "Heading",
-      },
-      {
-        type: "heading",
-        content: "Heading right",
-        props: {
-          textAlignment: "right",
-        },
-      },
-      {
-        type: "paragraph",
-        content:
-          "justified paragraph. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-
-        props: {
-          textAlignment: "justify",
-        },
-      },
-      {
-        type: "bulletListItem",
-        content:
-          "Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-        children: [
-          {
-            type: "bulletListItem",
-            content:
-              "Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-          },
-          {
-            type: "bulletListItem",
-            content:
-              "Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-            props: {
-              textAlignment: "right",
-            },
-          },
-          {
-            type: "numberedListItem",
-            content: "Numbered List Item 1",
-          },
-          {
-            type: "numberedListItem",
-            content: "Numbered List Item 2",
-            children: [
-              {
-                type: "numberedListItem",
-                content: "Numbered List Item Nested 1",
-              },
-              {
-                type: "numberedListItem",
-                content: "Numbered List Item Nested 2",
-              },
-              {
-                type: "numberedListItem",
-                content: "Numbered List Item Nested funky right",
-                props: {
-                  textAlignment: "right",
-                  backgroundColor: "red",
-                  textColor: "blue",
-                },
-              },
-              {
-                type: "numberedListItem",
-                content: "Numbered List Item Nested funky center",
-                props: {
-                  textAlignment: "center",
-                  backgroundColor: "red",
-                  textColor: "blue",
-                },
-              },
-            ],
-          },
-        ],
-      },
-      {
-        type: "numberedListItem",
-        content: "Numbered List Item",
-      },
-      {
-        type: "checkListItem",
-        content: "Check List Item",
-      },
-      {
-        type: "table",
-        content: {
-          type: "tableContent",
-          rows: [
-            {
-              cells: ["Table Cell", "Table Cell", "Table Cell"],
-            },
-            {
-              cells: ["Table Cell", "Table Cell", "Table Cell"],
-            },
-            {
-              cells: ["Table Cell", "Table Cell", "Table Cell"],
-            },
-          ],
-        },
-      },
-      {
-        type: "pageBreak",
-      },
-      {
-        type: "file",
-      },
-      {
-        type: "image",
-        props: {
-          url: "https://placehold.co/332x322.jpg",
-          caption: "From https://placehold.co/332x322.jpg",
-        },
-      },
-      {
-        type: "image",
-        props: {
-          previewWidth: 200,
-          url: "https://placehold.co/332x322.jpg",
-          textAlignment: "right",
-        },
-      },
-      {
-        type: "video",
-        props: {
-          url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
-          caption:
-            "From https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
-        },
-      },
-      {
-        type: "audio",
-        props: {
-          url: "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3",
-          caption:
-            "From https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3",
-        },
-      },
-      {
-        type: "paragraph",
-      },
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Inline Content:",
-            styles: { bold: true },
-          },
-        ],
-      },
-      {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Styled Text",
-            styles: {
-              bold: true,
-              italic: true,
-              textColor: "red",
-              backgroundColor: "blue",
-            },
-          },
-          {
-            type: "text",
-            text: " ",
-            styles: {},
-          },
-          {
-            type: "link",
-            content: "Link",
-            href: "https://www.blocknotejs.org",
-          },
-        ],
-      },
-      {
-        type: "table",
-        content: {
-          type: "tableContent",
-          rows: [
-            {
-              cells: ["Table Cell 1", "Table Cell 2", "Table Cell 3"],
-            },
-            {
-              cells: [
-                "Table Cell 4",
-                [
-                  {
-                    type: "text",
-                    text: "Table Cell Bold 5",
-                    styles: {
-                      bold: true,
-                    },
-                  },
-                ],
-                "Table Cell 6",
-              ],
-            },
-            {
-              cells: ["Table Cell 7", "Table Cell 8", "Table Cell 9"],
-            },
-          ],
-        },
-      },
-      {
-        type: "codeBlock",
-        props: {
-          language: "javascript",
-        },
-        content: `const helloWorld = (message) => {
-  console.log("Hello World", message);
-};`,
-      },
+      ...testDocumentBlocks,
+      // The math & diagram blocks aren't part of the shared test document,
+      // since the exporter unit tests' schemas don't register them, so they're
+      // appended here instead.
       {
         type: "mathBlock",
         content: "a^2 = \\sqrt{b^2 + c^2}",
@@ -374,63 +182,10 @@ export default function App() {
           },
         ],
       },
-      {
-        type: "columnList",
-        children: [
-          {
-            type: "column",
-            props: {
-              width: 0.8,
-            },
-            children: [
-              {
-                type: "paragraph",
-                content: "This paragraph is in a column!",
-              },
-            ],
-          },
-          {
-            type: "column",
-            props: {
-              width: 1.4,
-            },
-            children: [
-              {
-                type: "heading",
-                content: "So is this heading!",
-              },
-            ],
-          },
-          {
-            type: "column",
-            props: {
-              width: 0.8,
-            },
-            children: [
-              {
-                type: "paragraph",
-                content: "You can have multiple blocks in a column too",
-              },
-              {
-                type: "bulletListItem",
-                content: "Block 1",
-              },
-              {
-                type: "bulletListItem",
-                content: "Block 2",
-              },
-              {
-                type: "bulletListItem",
-                content: "Block 3",
-              },
-            ],
-          },
-        ],
-      },
     ],
   });
 
-  // Additional Slash Menu items for page breaks and multi-column blocks.
+  // Additional Slash Menu items for page breaks.
   const getSlashMenuItems = useMemo(
     () => async (query: string) =>
       filterSuggestionItems(
@@ -444,54 +199,71 @@ export default function App() {
     [editor],
   );
 
-  // Exports the editor document to PDF whenever it changes.
-  const onChange = async () => {
-    const exporter = new PDFExporter(editor.schema, {
-      ...pdfDefaultSchemaMappings,
-      blockMapping: {
-        ...pdfDefaultSchemaMappings.blockMapping,
-        // Embeds diagrams as images instead of their Mermaid source.
-        diagram: diagramBlockMapping,
-        // Renders math blocks as formulas instead of their LaTeX source.
-        mathBlock: mathBlockMapping,
-      },
-      inlineContentMapping: {
-        ...pdfDefaultSchemaMappings.inlineContentMapping,
-        // Renders inline math as formula images instead of its LaTeX source.
-        math: inlineMathMapping,
-      },
-    });
-    const pdfDocument = await exporter.toReactPDFDocument(editor.document);
-    setPDFDocument(pdfDocument);
-    forceRerender();
+  // A fresh exporter per export: its asset registry is append-only for the
+  // exporter's lifetime, so reusing one across re-exports would accumulate
+  // every image/diagram variant it has ever rendered.
+  const makeExporter = useCallback(
+    () =>
+      new PDFExporter(
+        editor.schema,
+        {
+          ...typstDefaultSchemaMappings,
+          blockMapping: {
+            ...typstDefaultSchemaMappings.blockMapping,
+            // Renders math blocks as native Typst equations, and diagrams as
+            // embedded images - both carrying alt text for PDF/UA.
+            mathBlock: mathBlockMapping,
+            diagram: diagramBlockMapping,
+          },
+          inlineContentMapping: {
+            ...typstDefaultSchemaMappings.inlineContentMapping,
+            math: inlineMathMapping,
+          },
+        },
+        {
+          // The bundled compiler wasm (see the import above) - engine setup
+          // belongs to the exporter, per-document facts go to toPDF.
+          wasm: compilerWasmUrl,
+        },
+      ),
+    [editor],
+  );
+
+  // The document snapshot driving the export - the export effect depends on
+  // the data it exports. Updated debounced: reading `editor.document`
+  // converts the whole document to blocks, so it shouldn't run (and the
+  // export shouldn't restart) on every keystroke.
+  const [blocks, setBlocks] = useState(() => editor.document);
+  const { pdfUrl, status } = usePdfUA(makeExporter, blocks);
+
+  const debounceTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(debounceTimer.current), []);
+  const onChange = () => {
+    clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => setBlocks(editor.document), 600);
   };
 
-  // Exports the inital editor document to PDF.
-  useEffect(() => {
-    void onChange();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Downloads the PDF.
-  const onDownloadClick = async () => {
-    const blob = await pdf(pdfDocument).toBlob();
-
+  const onDownloadClick = () => {
+    if (!pdfUrl) {
+      return;
+    }
     const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
-    link.download = "My Document (blocknote export).pdf";
+    link.href = pdfUrl;
+    link.download = "blocknote (pdf-ua).pdf";
     document.body.appendChild(link);
-    link.dispatchEvent(
-      new MouseEvent("click", {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-      }),
-    );
+    link.click();
     link.remove();
-    window.URL.revokeObjectURL(link.href);
   };
 
-  // Renders the editor instance and PDF view.
+  const label =
+    status === "loading"
+      ? "Generating…"
+      : status === "error"
+        ? "Export failed (see console)"
+        : status === "unclaimed"
+          ? "Tagged PDF, no UA-1 claim (see console)"
+          : "✓ Tagged PDF/UA-1";
+
   return (
     <div className="views">
       <div className="view-wrapper">
@@ -507,15 +279,24 @@ export default function App() {
       </div>
       <div className="view-wrapper">
         <div className="view-label">
-          PDF Output
-          <span className="view-label-download" onClick={onDownloadClick}>
+          {label}
+          <button
+            type="button"
+            className="view-label-download"
+            onClick={onDownloadClick}
+          >
             Download
-          </span>
+          </button>
         </div>
         <div className="view">
-          <PDFViewer key={renders} height={"100%"} width={"100%"}>
-            {pdfDocument}
-          </PDFViewer>
+          {pdfUrl ? (
+            <iframe
+              title="PDF/UA output"
+              height="100%"
+              width="100%"
+              src={pdfUrl}
+            />
+          ) : null}
         </div>
       </div>
     </div>

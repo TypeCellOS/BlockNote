@@ -6,6 +6,7 @@ import {
   mapTableCell,
   PlainContent,
 } from "@blocknote/core";
+import { multiColumnSchema } from "@blocknote/xl-multi-column";
 import {
   CodeBlock,
   dracula,
@@ -150,7 +151,7 @@ const codeMapping = (
 export const createReactEmailBlockMappingForDefaultSchema = (
   textStyles: ReactEmailTextStyles = defaultReactEmailTextStyles,
 ): BlockMapping<
-  BSchema,
+  BSchema & typeof multiColumnSchema.blockSchema,
   any,
   any,
   React.ReactElement<any>,
@@ -292,6 +293,11 @@ export const createReactEmailBlockMappingForDefaultSchema = (
   codeBlock: (block) =>
     codeMapping(block, block.props.language as PrismLanguage, textStyles),
   audio: (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder ("Add file") is an editing
+      // affordance, not document content - it exports as nothing.
+      return <></>;
+    }
     // Audio icon SVG
     const icon = (
       <svg
@@ -325,6 +331,11 @@ export const createReactEmailBlockMappingForDefaultSchema = (
     );
   },
   video: (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder ("Add file") is an editing
+      // affordance, not document content - it exports as nothing.
+      return <></>;
+    }
     // Video icon SVG
     const icon = (
       <svg
@@ -358,6 +369,11 @@ export const createReactEmailBlockMappingForDefaultSchema = (
     );
   },
   file: (block, exporter) => {
+    if (!block.props.url && !block.props.name) {
+      // An un-uploaded media placeholder ("Add file") is an editing
+      // affordance, not document content - it exports as nothing.
+      return <></>;
+    }
     // File icon SVG
     const icon = (
       <svg
@@ -391,6 +407,14 @@ export const createReactEmailBlockMappingForDefaultSchema = (
     );
   },
   image: (block) => {
+    if (!block.props.url) {
+      // An image without a URL is the editor's un-uploaded placeholder ("Add
+      // image"), not document content - it exports as nothing. (The typst
+      // exporter renders a labelled placeholder figure when a name is present;
+      // this format has no placeholder rendering, so any url-less image is
+      // omitted.)
+      return <></>;
+    }
     return (
       <Img
         src={block.props.url}
@@ -517,6 +541,11 @@ export const createReactEmailBlockMappingForDefaultSchema = (
       />
     );
   },
+  // Email clients handle side-by-side layout poorly, so columns are stacked:
+  // these wrappers render nothing themselves and the exporter's generic child
+  // rendering stacks the column contents vertically.
+  column: () => <></>,
+  columnList: () => <></>,
 });
 
 // Export the original mapping for backward compatibility

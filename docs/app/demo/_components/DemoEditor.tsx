@@ -46,9 +46,11 @@ import {
 } from "@blocknote/xl-odt-exporter";
 import {
   PDFExporter,
-  pdfDefaultSchemaMappings,
+  typstDefaultSchemaMappings,
 } from "@blocknote/xl-pdf-exporter";
-import { pdf } from "@react-pdf/renderer";
+// Bundle the Typst compiler wasm (resolved to a local asset in
+// next.config.ts) instead of loading it from a CDN.
+import compilerWasmUrl from "@blocknote/xl-typst-compiler/wasm?url";
 import { DefaultChatTransport } from "ai";
 import { useTheme } from "next-themes";
 import { useEffect, useMemo, useState } from "react";
@@ -345,9 +347,25 @@ function DemoEditorInner({
     let filename = `blocknote-export.${format}`;
 
     if (format === "pdf") {
-      const exporter = new PDFExporter(editor.schema, pdfDefaultSchemaMappings);
-      const pdfDocs = await exporter.toReactPDFDocument(editor.document);
-      blob = await pdf(pdfDocs).toBlob();
+      // Tagged PDF/UA-1 via the Typst-based exporter; the default fonts
+      // (matching the editor) load lazily from the package.
+      const exporter = new PDFExporter(
+        editor.schema,
+        typstDefaultSchemaMappings,
+        { wasm: compilerWasmUrl },
+      );
+      const result = await exporter.toPDF(editor.document, {
+        title: "BlockNote demo document",
+        lang: "en",
+      });
+      if (result.error) {
+        throw new Error(
+          `PDF export failed: ${result.compileErrors
+            .map((d) => d.message)
+            .join("; ")}`,
+        );
+      }
+      blob = result.blob;
     } else if (format === "docx") {
       const exporter = new DOCXExporter(
         editor.schema,

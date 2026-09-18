@@ -10,7 +10,7 @@ import { FC, useEffect, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../hooks/useEditorDomElement.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
-import { EditorPortalProvider } from "../../editor/EditorPortalProvider.js";
+import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -41,10 +41,10 @@ export function SuggestionMenuController<
     floatingUIOptions?: FloatingUIOptions;
     /**
      * Override the DOM node this floating element portals into. Falls back to
-     * the ambient portal target (the editor's `bn-container` by default)
+     * the ambient portal target (the element wrapping the editor by default)
      * when omitted.
      */
-    portalElement?: HTMLElement | null;
+    portalElement?: HTMLElement;
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
@@ -178,7 +178,7 @@ export function SuggestionMenuController<
   }
 
   return (
-    <EditorPortalProvider target={props.portalElement}>
+    <PortalElementOverride target={props.portalElement}>
       <GenericPopover reference={reference} {...floatingUIOptions}>
         {triggerCharacter && (
           <SuggestionMenuWrapper
@@ -193,6 +193,6 @@ export function SuggestionMenuController<
           />
         )}
       </GenericPopover>
-    </EditorPortalProvider>
+    </PortalElementOverride>
   );
 }

@@ -41,7 +41,23 @@ COPY patches ./patches
 # enough — pnpm still runs the docs `postinstall` lifecycle script, which fails
 # in fumadocs-mdx. SKIP_DOCS_POSTINSTALL makes that script a no-op (see
 # docs/package.json) without disabling the native build scripts other deps need.
-RUN SKIP_DOCS_POSTINSTALL=1 pnpm install --frozen-lockfile --filter '!docs'
+# BuildKit cache mounts persist the pnpm store (package tarballs) and cache
+# (registry metadata, which the supply-chain policy checks hit per package)
+# across image rebuilds: after a dependency change, the reinstall only
+# fetches what actually changed instead of the whole workspace store. The
+# store lives on a separate mount, so pnpm copies instead of hardlinking -
+# still far cheaper than downloading. The first build after adding this
+# seeds the caches at full cost.
+# minimumReleaseAge is disabled here: the policy re-verifies every package
+# against live registry metadata (2000+ requests), which is both the slow
+# part of this step and flaky under Docker Desktop's NAT - and the frozen
+# lockfile being installed was already verified against the policy by the
+# local install that produced it (and by CI). A throwaway test image
+# re-checking it buys nothing.
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store \
+    --mount=type=cache,id=pnpm-cache,target=/root/.cache/pnpm \
+    SKIP_DOCS_POSTINSTALL=1 pnpm install --frozen-lockfile --filter '!docs' \
+    --store-dir /pnpm-store --config.minimumReleaseAge=0
 
 # Bake in the example apps: the tests import them and vite transpiles them from
 # source at run time. They sit after the install layer, so editing an example

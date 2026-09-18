@@ -22,7 +22,7 @@ All commands below are listed under `package.json` in the project root. See `vit
 - `vp run preview`: Previews the build on port 3000.
 - `vp run test`: Runs unit tests. Append with `-u` to update snapshots. Append with a file name to target only that file.
   - To run individual unit tests, use `vp run test <file>`. For example, `vp run test packages/core/src/extensions/Versioning/inMemoryVersioning.test.ts`.
-- `vp run e2e`: Runs end-to-end tests. Append with a file name to target only that file.
+- `vp run e2e`: Runs end-to-end tests (always in Docker - NEVER run the browser suite natively; it seeds bogus per-platform snapshots). Append with a file name to target only that file.
 - `vp run e2e:updateSnaps`: Runs end-to-end tests & updates snapshots. Append with a file name to target only that file.
 - `vp help`: Prints a list of all available commands.
 
@@ -40,3 +40,4 @@ When writing a new feature, bug fix, or other modification, it may not be immedi
 # Additional Notes
 
 - Do not create git commits, unless asked for directly, and do not add Co-Authored-By lines to commits.
+- **The exporters mirror the editor's look, and that parity is guarded by review, not types.** The exporter packages (`xl-typst-exporter`/`xl-pdf-exporter`, `xl-docx-exporter`, `xl-odt-exporter`, `xl-email-exporter`) hardcode editor-derived styling constants (heading scale, spacing, list markers, code-block chrome, ...), each annotated with the `packages/core/src/editor/Block.css` rule it mirrors — keep those comments when touching either side. When changing visual rules in `Block.css` (or adding a block type), regenerate the exporter visual baselines and review them against the editor ground truth: the static-equality baseline (`tests/src/end-to-end/static`) renders the _same shared test document_ as the typst PDF baselines (`tests/src/end-to-end/exporters`), so fidelity drift shows up as a side-by-side diff in the same PR.

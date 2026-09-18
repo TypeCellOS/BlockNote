@@ -6,6 +6,7 @@
     "lib": ["ESNext", "DOM"],
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
+    "types": ["node"],
     "strict": true,
     "sourceMap": true,
     "resolveJsonModule": true,
@@ -34,6 +35,9 @@
     },
     {
       "path": "../xl-multi-column"
+    },
+    {
+      "path": "../xl-typst-exporter"
     },
     {
       "path": "../../shared"

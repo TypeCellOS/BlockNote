@@ -27,7 +27,7 @@
     "install-playwright": "cd tests && vp exec playwright install --with-deps",
     "e2e:image": "bash tests/docker-build.sh",
     "e2e": "bash tests/docker-run.sh -e CI=1 -- --run",
-    "e2e:updateSnaps": "bash tests/docker-run.sh -e CI=1 -- --run -u",
+    "e2e:updateSnaps": "bash tests/docker-run.sh -e CI=1 -- --run --update=true",
     "e2e:report": "serve -l 4173 tests/playwright-report",
     "lint": "vp lint --type-aware",
     "typecheck": "tsc --noEmit -p tsconfig.json",
