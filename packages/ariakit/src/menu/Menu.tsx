@@ -63,8 +63,16 @@ export const MenuItem = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Item"]
 >((props, ref) => {
-  const { className, children, icon, checked, subTrigger, onClick, ...rest } =
-    props;
+  const {
+    className,
+    children,
+    icon,
+    checked,
+    disabled,
+    subTrigger,
+    onClick,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
@@ -75,6 +83,7 @@ export const MenuItem = forwardRef<
         className={mergeCSSClasses("bn-ak-menu-item", className || "")}
         ref={ref}
         onClick={onClick}
+        disabled={disabled}
       >
         {icon}
         {children}
@@ -88,6 +97,7 @@ export const MenuItem = forwardRef<
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
       ref={ref}
       onClick={onClick}
+      disabled={disabled}
     >
       {icon}
       {children}

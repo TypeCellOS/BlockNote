@@ -2,4 +2,4 @@
 
 This example shows how to use the `VersioningExtension` without any collaboration layer (no Yjs required). Snapshots are stored in memory using ProseMirror JSON.
 
-**Try it out:** Edit the document, then use the Version History sidebar to save snapshots, preview older versions, rename them, and restore them. You can hide the sidebar with the close button and reopen it with the "History" button.
+The sidebar opens on a document with a few versions already in its history, so you can preview them, compare them, rename them, and restore them right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button and press "Save version" to add a version of your own.

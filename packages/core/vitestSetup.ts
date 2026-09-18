@@ -1,11 +1,17 @@
 import { afterEach, beforeEach } from "vite-plus/test";
 
+// Only jsdom environments have a `window`; node-env tests skip the reset. The
+// one consumer (`UniqueID.ts`) already guards on `typeof window`.
 beforeEach(() => {
-  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
+  if (typeof window !== "undefined") {
+    (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
+  }
 });
 
 afterEach(() => {
-  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+  if (typeof window !== "undefined") {
+    delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+  }
 });
 
 // Mock ClipboardEvent
@@ -19,7 +25,7 @@ class ClipboardEventMock extends Event {
     },
   };
 }
-(global as any).ClipboardEvent = ClipboardEventMock;
+(globalThis as any).ClipboardEvent = ClipboardEventMock;
 
 // Mock DragEvent
 class DragEventMock extends Event {
@@ -32,4 +38,4 @@ class DragEventMock extends Event {
     },
   };
 }
-(global as any).DragEvent = DragEventMock;
+(globalThis as any).DragEvent = DragEventMock;

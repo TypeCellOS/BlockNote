@@ -101,7 +101,7 @@ export interface BlockNoteEditorOptions<
   dictionary?: Dictionary & Record<string, any>;
 
   /**
-   * Disable internal extensions (based on keys / extension name)
+   * Disable internal extensions (based on keys / extension name).
    *
    * @note Advanced
    */
@@ -498,6 +498,8 @@ export class BlockNoteEditor<
     const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
+      // ReadOnlyExtension owns editability, including the initial application preference.
+      editable: true,
       element: null,
       autofocus: newOptions.autofocus ?? false,
       extensions: tiptapExtensions,
@@ -1039,7 +1041,10 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Makes the editor editable or locks it, depending on the argument passed.
+   * Sets the application's editable preference. Feature read-only restrictions
+   * still apply when set to true.
+   * Plugins can temporarily prevent editing without changing this setting.
+   * The getter reports whether editing is currently allowed by both.
    * @param editable True to make the editor editable, or false to lock it.
    */
   public set isEditable(editable: boolean) {

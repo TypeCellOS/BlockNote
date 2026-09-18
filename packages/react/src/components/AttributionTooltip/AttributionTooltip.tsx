@@ -36,18 +36,25 @@ export const AttributionTooltip = (props: AttributionTooltipProps) => {
       return changes.deleted_by(users);
     }
 
+    if (props.modificationType === "attrs") {
+      return users
+        ? `${changes.formatting_change}: ${users}`
+        : changes.formatting_change;
+    }
+
     const formatLabel = props.format
       ? formatChangeLabel({ format: props.format, dictionary })
       : "";
+    // When the label falls back to the generic string (unknown/empty formats),
+    // rendering it inside `formatting_change_by` would duplicate it as
+    // "Formatting change (Formatting Change) by: ...", so list it once instead.
+    if (!formatLabel || formatLabel === changes.formatting_change) {
+      return users
+        ? `${changes.formatting_change}: ${users}`
+        : changes.formatting_change;
+    }
     return changes.formatting_change_by(formatLabel, users);
-  }, [
-    dictionary,
-    props.formatChangeLabel,
-    props.users,
-    props.modificationType,
-    props.format,
-  ]);
-
+  }, [dictionary, props]);
   return (
     <Components.AttributionTooltip.Root
       className={"bn-suggestion-tooltip"}

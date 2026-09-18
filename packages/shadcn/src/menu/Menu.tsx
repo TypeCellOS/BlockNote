@@ -105,8 +105,16 @@ export const MenuItem = forwardRef<
   HTMLDivElement,
   ComponentProps["Generic"]["Menu"]["Item"]
 >((props, ref) => {
-  const { className, children, icon, checked, subTrigger, onClick, ...rest } =
-    props;
+  const {
+    className,
+    children,
+    icon,
+    checked,
+    disabled,
+    subTrigger,
+    onClick,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
@@ -128,6 +136,7 @@ export const MenuItem = forwardRef<
         ref={ref}
         checked={checked}
         onClick={onClick}
+        disabled={disabled}
         {...rest}
       >
         {icon}
@@ -141,6 +150,7 @@ export const MenuItem = forwardRef<
       className={className}
       ref={ref}
       onClick={onClick}
+      disabled={disabled}
       {...rest}
     >
       {icon}

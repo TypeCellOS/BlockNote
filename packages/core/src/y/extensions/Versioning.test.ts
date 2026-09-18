@@ -18,15 +18,14 @@ import { createYjsVersioningAdapter } from "./Versioning.js";
  * Simple in-memory Yjs versioning endpoints for tests.
  * Stores snapshots and their binary content in plain Maps.
  */
-function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
+function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Node, Uint8Array> {
   const snapshots = new Map<
     string,
     {
       id: string;
       name?: string;
       createdAt: number;
-      updatedAt: number;
-      restoredFromSnapshotId?: string;
+      restoredFrom?: { id: string; createdAt: number };
     }
   >();
   const contents = new Map<string, Uint8Array>();
@@ -42,27 +41,29 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
   }
 
   return {
-    list: async () =>
-      [...snapshots.values()].sort((a, b) => b.createdAt - a.createdAt),
+    list: async () => ({
+      // The live document is the current version; the endpoints only store the
+      // named ones.
+      current: { id: "current", createdAt: nextTimestamp() },
+      snapshots: [...snapshots.values()].sort(
+        (a, b) => b.createdAt - a.createdAt,
+      ),
+    }),
     create: async (fragment, options) => {
       const now = nextTimestamp();
       const snapshot = {
         id: crypto.randomUUID(),
-        name: options?.name,
+        name: options.name,
         createdAt: now,
-        updatedAt: now,
-        restoredFromSnapshotId: options?.restoredFromSnapshot?.id
-          ? String(options.restoredFromSnapshot.id)
-          : undefined,
       };
       contents.set(snapshot.id, Y.encodeStateAsUpdateV2(fragment.doc!));
       snapshots.set(snapshot.id, snapshot);
       return snapshot;
     },
     getContent: async (snapshot) => {
-      const data = contents.get(String(snapshot.id));
+      const data = contents.get(snapshot.id);
       if (!data) {
-        throw new Error(`Snapshot ${String(snapshot.id)} not found`);
+        throw new Error(`Snapshot ${snapshot.id} not found`);
       }
       return data;
     },
@@ -73,12 +74,11 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
         id: crypto.randomUUID(),
         name: "Backup",
         createdAt: backupTimestamp,
-        updatedAt: backupTimestamp,
       };
       contents.set(backup.id, Y.encodeStateAsUpdateV2(fragment.doc!));
       snapshots.set(backup.id, backup);
 
-      const snapshotContent = contents.get(String(snapshot.id))!;
+      const snapshotContent = contents.get(snapshot.id)!;
       const tempDoc = new Y.Doc();
       Y.applyUpdateV2(tempDoc, snapshotContent);
 
@@ -87,8 +87,7 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
         id: crypto.randomUUID(),
         name: "Restored Snapshot",
         createdAt: restoredTimestamp,
-        updatedAt: restoredTimestamp,
-        restoredFromSnapshotId: String(snapshot.id),
+        restoredFrom: { id: snapshot.id, createdAt: snapshot.createdAt },
       };
       contents.set(restored.id, Y.encodeStateAsUpdateV2(tempDoc));
       snapshots.set(restored.id, restored);
@@ -97,12 +96,11 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
       return snapshotContent;
     },
     rename: async (snapshot, name) => {
-      const s = snapshots.get(String(snapshot.id));
+      const s = snapshots.get(snapshot.id);
       if (!s) {
-        throw new Error(`Snapshot ${String(snapshot.id)} not found`);
+        throw new Error(`Snapshot ${snapshot.id} not found`);
       }
       s.name = name;
-      s.updatedAt = nextTimestamp();
     },
   };
 }
@@ -260,7 +258,7 @@ describe("createYjsVersioningAdapter", () => {
     const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment);
 
     // Should not throw and should leave the live document untouched.
-    expect(() => adapter.preview.applyRestore(new Uint8Array())).not.toThrow();
+    expect(() => adapter.preview.applyRestore!(new Uint8Array())).not.toThrow();
     expect(getEditorText(ctx.editor)).toContain("Content");
   });
 });
@@ -293,7 +291,11 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
 
     await versioning.previewSnapshot(snapshot.id);
 
-    expect(versioning.store.state.previewedSnapshotId).toBe(snapshot.id);
+    expect(versioning.store.state.view).toEqual({
+      mode: "snapshot",
+      snapshotId: snapshot.id,
+      compareToId: undefined,
+    });
     expect(getEditorText(ctx.editor)).toContain("Snapshot content");
     expect(getEditorText(ctx.editor)).not.toContain("Current");
   });
@@ -338,8 +340,8 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
 
     // List and verify ordering
     const list = await versioning.list();
-    expect(list).toHaveLength(2);
-    expect(list[0]!.id).toBe(v2.id);
+    expect(list.snapshots).toHaveLength(2);
+    expect(list.snapshots[0]!.id).toBe(v2.id);
 
     // Browse previews
     await versioning.previewSnapshot(v1.id);
@@ -399,10 +401,31 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
 
     await versioning.previewSnapshot(v2.id);
     expect(getEditorText(ctx.editor)).toContain("Version 2");
-    expect(versioning.store.state.previewedSnapshotId).toBe(v2.id);
+    expect(versioning.store.state.view).toEqual({
+      mode: "snapshot",
+      snapshotId: v2.id,
+      compareToId: undefined,
+    });
 
     // Exit back to live
     versioning.exitPreview();
     expect(getEditorText(ctx.editor)).toContain("Current live");
+  });
+
+  it("locks the editor while previewing and unlocks on exit", async () => {
+    ctx = createCollabEditor();
+    const versioning = ctx.editor.getExtension(VersioningExtension)!;
+
+    ctx.editor.replaceBlocks(ctx.editor.document, [
+      { type: "paragraph", content: "Saved state" },
+    ]);
+    const snapshot = await versioning.create!({ name: "v1" });
+    expect(ctx.editor.isEditable).toBe(true);
+
+    await versioning.previewSnapshot(snapshot.id);
+    expect(ctx.editor.isEditable).toBe(false);
+
+    versioning.exitPreview();
+    expect(ctx.editor.isEditable).toBe(true);
   });
 });

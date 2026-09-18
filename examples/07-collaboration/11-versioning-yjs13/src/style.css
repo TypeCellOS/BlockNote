@@ -19,6 +19,7 @@
   height: calc(100vh - 20px);
   min-width: 0;
   overflow: auto;
+  position: relative;
 }
 
 .editor-panel .bn-container {
@@ -46,10 +47,19 @@
   padding: 8px;
 }
 
-.bn-versioning-sidebar {
-  flex: 1;
-  overflow: auto;
-  padding-inline: 16px;
+.show-history-button {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  position: absolute;
+  right: 16px;
+  top: 16px;
 }
 
 .settings-select {

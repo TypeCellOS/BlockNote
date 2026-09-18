@@ -1,4 +1,4 @@
-import { docToDelta } from "@y/prosemirror";
+import { docToDelta, fragmentToTr } from "@y/prosemirror";
 import * as Y from "@y/y";
 
 import type { Block } from "../../blocks/defaultBlocks.js";
@@ -9,10 +9,10 @@ import {
   _blocksToProsemirrorNode,
   docDiffToDelta,
   findTypeInOtherYdoc,
-  getProseMirrorTrFromYFragment,
 } from "../utils.js";
 import { AttributionExtension } from "./AttributionExtension.js";
 import type { GetAttributionMarkClassName } from "./YAttributionMarks.js";
+import { mapAttributionToMark } from "./YSync.js";
 
 /**
  * A version diff has a single "author" — the version that introduced the changes
@@ -29,8 +29,9 @@ const diffAuthorId = (label: string) => DIFF_AUTHOR_ID_PREFIX + label;
 /** Fallback label used when a diff is rendered without a version name. */
 const DEFAULT_DIFF_LABEL = "This version";
 
-/** Color used for the version diff marks. */
-const DIFF_AUTHOR_COLOR = "#4363d8";
+/** Colors used for the version diff marks — the palette's blue. */
+const DIFF_AUTHOR_COLOR = "#1e4fb0";
+const DIFF_AUTHOR_COLOR_LIGHT = "#c9dcff";
 
 export type DiffVersioningExtensionOptions = {
   /**
@@ -46,13 +47,13 @@ export type DiffVersioningExtensionOptions = {
 
 /**
  * Records the author of each transaction on `doc` into a mutable
- * {@link Y.Attributions}, so the resulting attribution marks carry a non-empty
+ * {@link Y.ContentMap}, so the resulting attribution marks carry a non-empty
  * `userIds` (and therefore resolve to a color/name). The listener must be
  * attached *before* the attributed transaction runs. Mirrors the store used by
  * the suggestion gallery example (`createAttributionStore`).
  */
-function attributeTransactionsTo(doc: Y.Doc, userId: string): Y.Attributions {
-  const attrs = new Y.Attributions();
+function attributeTransactionsTo(doc: Y.Doc, userId: string): Y.ContentMap {
+  const attrs = Y.createContentMap();
   doc.on("beforeObserverCalls", (tr) => {
     if (!tr.insertSet.isEmpty()) {
       Y.insertIntoIdMap(
@@ -83,7 +84,7 @@ function attributeTransactionsTo(doc: Y.Doc, userId: string): Y.Attributions {
  *
  * It composes {@link AttributionExtension} (which registers the attribution
  * marks and drives their colors + hover tooltips from a user store), and adds
- * the {@link renderDiff} / {@link clearDiff} capability.
+ * the {@link renderDiff} capability.
  *
  * Registering this extension is what makes non-collaborative versioning
  * (`inMemoryVersioning`) capable of showing diffs: the in-memory preview
@@ -112,6 +113,10 @@ export const DiffVersioningExtension = createExtension(
     editor: BlockNoteEditor<any, any, any>;
   }) => {
     const color = options?.color ?? DIFF_AUTHOR_COLOR;
+    // Only the default pairs with a hand-tuned light tint; a caller-supplied
+    // colour gets the derived one (see `userMarkColors`).
+    const colorLight =
+      options?.color === undefined ? DIFF_AUTHOR_COLOR_LIGHT : undefined;
 
     // Resolve a synthetic author id back to its version label. The id encodes
     // the label (`version:<label>`), so this is a pure decode — no shared mutable
@@ -125,91 +130,8 @@ export const DiffVersioningExtension = createExtension(
           username: id.slice(DIFF_AUTHOR_ID_PREFIX.length),
           avatarUrl: "",
           color,
+          colorLight,
         }));
-
-    /**
-     * Render a read-only diff of `baselineBlocks` → `snapshotBlocks` into the
-     * editor. The changes are attributed to the version that introduced them:
-     * pass `versionLabel` to label the diff marks (shown in their hover tooltip,
-     * e.g. "Edited by: {versionLabel}"). Uses the "two-doc fork" recipe so the
-     * two Y.Docs share history — a hard requirement for
-     * `createDiffRenderer`, which diffs by Yjs client/clock ids.
-     */
-    const renderDiff = (
-      snapshotBlocks: Block<any, any, any>[],
-      baselineBlocks: Block<any, any, any>[],
-      versionLabel: string = DEFAULT_DIFF_LABEL,
-    ) => {
-      const authorId = diffAuthorId(versionLabel);
-
-      if (!editor.pmSchema.marks["y-attributed-insert"]) {
-        throw new Error(
-          "DiffVersioningExtension: the y-attributed-* marks are missing from " +
-            "the schema. This should not happen — the extension registers them " +
-            "via AttributionExtension.",
-        );
-      }
-
-      const baselineNode = _blocksToProsemirrorNode(editor, baselineBlocks);
-      const snapshotNode = _blocksToProsemirrorNode(editor, snapshotBlocks);
-
-      // gc must stay off so the attribution manager can read the full struct
-      // store (including deleted items) when diffing.
-      const prevDoc = new Y.Doc({ gc: false });
-      const prevType = prevDoc.get("prosemirror");
-      prevDoc.transact(() => {
-        prevType.applyDelta(docToDelta(baselineNode) as any);
-      });
-
-      // Fork prevDoc into nextDoc so they share client/clock ids, then apply the
-      // baseline → snapshot delta as a new transaction. New content gets ids
-      // that prevDoc lacks (→ inserts); items retained-away become deletes.
-      const nextDoc = new Y.Doc({ gc: false });
-      Y.applyUpdateV2(nextDoc, Y.encodeStateAsUpdateV2(prevDoc));
-      const nextType = findTypeInOtherYdoc(prevType, nextDoc);
-
-      // Attach the author store BEFORE applying the delta so the diff
-      // transaction's inserts/deletes are attributed.
-      const attrs = attributeTransactionsTo(nextDoc, authorId);
-
-      const delta = docDiffToDelta(baselineNode, snapshotNode);
-      nextDoc.transact(() => {
-        nextType.applyDelta(delta as any);
-      }, authorId);
-
-      const renderer = Y.createDiffRenderer(prevDoc, nextDoc, { attrs });
-
-      // Clear the live doc first so ProseMirror rebuilds node views from
-      // scratch (BlockNote node views resolve their block eagerly via getPos()
-      // and throw on a moved node). The diff then inserts the attributed content
-      // against an empty doc.
-      editor.replaceBlocks(editor.document, []);
-
-      editor.exec((state, dispatch) => {
-        const tr = getProseMirrorTrFromYFragment({
-          tr: state.tr,
-          fragment: nextType,
-          renderer,
-        });
-        if (dispatch) {
-          dispatch(tr);
-        }
-        return true;
-      });
-
-      prevDoc.destroy();
-      nextDoc.destroy();
-    };
-
-    /**
-     * Leave diff view: clear the (mark-carrying) document and restore the given
-     * blocks. Clears first so stale node views for block-level marks are torn
-     * down instead of reused.
-     */
-    const clearDiff = (restore: Block<any, any, any>[]) => {
-      editor.replaceBlocks(editor.document, []);
-      editor.replaceBlocks(editor.document, restore);
-    };
 
     return {
       key: "diffVersioning",
@@ -221,8 +143,78 @@ export const DiffVersioningExtension = createExtension(
           getAttributionMarkClassName: options?.getAttributionMarkClassName,
         }),
       ],
-      renderDiff,
-      clearDiff,
+      /**
+       * Render a read-only diff of `baselineBlocks` → `snapshotBlocks` into the
+       * editor. The changes are attributed to the version that introduced them:
+       * pass `versionLabel` to label the diff marks (shown in their hover tooltip,
+       * e.g. "Edited by: {versionLabel}"). Uses the "two-doc fork" recipe so the
+       * two Y.Docs share history — a hard requirement for
+       * `createDiffRenderer`, which diffs by Yjs client/clock ids.
+       */
+      renderDiff(
+        snapshotBlocks: Block<any, any, any>[],
+        baselineBlocks: Block<any, any, any>[],
+        versionLabel: string = DEFAULT_DIFF_LABEL,
+      ) {
+        const authorId = diffAuthorId(versionLabel);
+
+        if (!editor.pmSchema.marks["y-attributed-insert"]) {
+          throw new Error(
+            "DiffVersioningExtension: the y-attributed-* marks are missing from " +
+              "the schema. This should not happen — the extension registers them " +
+              "via AttributionExtension.",
+          );
+        }
+
+        const baselineNode = _blocksToProsemirrorNode(editor, baselineBlocks);
+        const snapshotNode = _blocksToProsemirrorNode(editor, snapshotBlocks);
+
+        // gc must stay off so the attribution manager can read the full struct
+        // store (including deleted items) when diffing.
+        const prevDoc = new Y.Doc({ gc: false });
+        const prevType = prevDoc.get("prosemirror");
+        prevDoc.transact(() => {
+          prevType.applyDelta(docToDelta(baselineNode) as any);
+        });
+
+        // Fork prevDoc into nextDoc so they share client/clock ids, then apply the
+        // baseline → snapshot delta as a new transaction. New content gets ids
+        // that prevDoc lacks (→ inserts); items retained-away become deletes.
+        const nextDoc = new Y.Doc({ gc: false });
+        Y.applyUpdateV2(nextDoc, Y.encodeStateAsUpdateV2(prevDoc));
+        const nextType = findTypeInOtherYdoc(prevType, nextDoc);
+
+        // Attach the author store BEFORE applying the delta so the diff
+        // transaction's inserts/deletes are attributed.
+        const attrs = attributeTransactionsTo(nextDoc, authorId);
+
+        const delta = docDiffToDelta(baselineNode, snapshotNode);
+        nextDoc.transact(() => {
+          nextType.applyDelta(delta as any);
+        }, authorId);
+
+        const renderer = Y.createDiffRenderer(prevDoc, nextDoc, {
+          attributions: attrs,
+        });
+
+        // The diff is applied on top of whatever is currently on screen: the
+        // attributed content comes entirely from the baseline -> snapshot Y
+        // diff above, not from the ProseMirror before-state, so emptying the
+        // document first would only churn node views for no gain.
+        editor.exec((state, dispatch) => {
+          const tr = fragmentToTr(nextType, state.tr, {
+            renderer,
+            mapAttributionToMark,
+          });
+          if (dispatch) {
+            dispatch(tr);
+          }
+          return true;
+        });
+
+        prevDoc.destroy();
+        nextDoc.destroy();
+      },
     };
   },
 );

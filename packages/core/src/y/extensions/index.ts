@@ -23,7 +23,7 @@ export type CollaborationOptions = {
   /**
    * The Yjs Type that's used for collaboration.
    */
-  fragment: Y.Type;
+  fragment: Y.Node;
   /**
    * The user info for the current user that's shown to other collaborators.
    */
@@ -76,8 +76,16 @@ export type CollaborationOptions = {
    * The endpoints for the versioning functionality.
    */
   versioningEndpoints?:
-    | VersioningEndpoints<Y.Type, Uint8Array>
-    | VersioningEndpointsFactory<Y.Type, Uint8Array>;
+    | VersioningEndpoints<Y.Node, Uint8Array>
+    | VersioningEndpointsFactory<Y.Node, Uint8Array>;
+
+  /**
+   * Whether entering a version preview scrolls the first change of the diff
+   * into view. Forwarded to the {@link VersioningExtension}.
+   *
+   * @default true
+   */
+  scrollToFirstChange?: boolean;
 };
 
 export const CollaborationExtension = createExtension(
@@ -105,6 +113,7 @@ export const CollaborationExtension = createExtension(
               ...createYjsVersioningAdapter(editor, options.fragment),
               endpoints: options.versioningEndpoints,
               resolveUsers: userStore,
+              scrollToFirstChange: options.scrollToFirstChange,
             })
           : null,
         AttributionExtension({

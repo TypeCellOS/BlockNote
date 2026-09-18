@@ -18,9 +18,13 @@ export interface SeedYHubDocumentOptions {
   headers?: Record<string, string>;
 }
 
-/** A version marker created on the server while seeding. */
+/** A named version produced by seeding. */
 export interface SeededVersion {
-  id: string;
+  /**
+   * The version's server timestamp — the `to` of its last seeded edit, and so
+   * the key its name is stored under in the live doc's `__bn_versions` array.
+   */
+  to: number;
   name: string;
 }
 
@@ -42,45 +46,32 @@ type YHubPatch = {
   by?: string;
   /** Timestamp override (unix ms), so backfilled history stays ordered. */
   at?: number;
-  /** Custom attributions riding this patch's content (e.g. version markers). */
+  /** Custom attributions riding this patch's content. */
   customAttributions?: Array<{ k: string; v: string }>;
 };
-
-/** Build the throwaway novel content a version marker rides on (see yhub.ts `patchDoc`). */
-function makeVersionMarkerUpdate(): Uint8Array {
-  // YHub only records custom attributions when they attach to NEW content that
-  // survives its server-side diff. The version's real content was already
-  // PATCHed (attributed to individual users), so the marker needs its own scrap
-  // of novel content: a single insert into a dedicated `__bn_version_markers`
-  // fragment the editor never renders. A fresh Y.Doc guarantees a clientID the
-  // server has never seen, so the diff is non-empty and the marker lands.
-  const markerDoc = new Y.Doc();
-  markerDoc.get("__bn_version_markers", "XmlFragment").insert(0, ["v"]);
-  return Y.encodeStateAsUpdate(markerDoc);
-}
 
 /**
  * Pre-populate a YHub document with content **and** version history from a
  * {@link buildEditHistory} result, without a live editor / sync connection.
  *
- * Each step's captured transactions are PATCHed to `/api/ydoc/v1/{org}/{docId}` as a
- * single ordered `patches` bulk request: one content patch per captured
- * transaction (attributed via `by`, **no** version marker), followed by one
- * marker patch carrying a `type:version` custom attribution — the same marker
- * {@link createYHubVersioningEndpoints}'s `create` uses. Because the version's
- * attribution window spans all of its content patches, **multiple users are
- * attributed within the one version**. The starting document state
- * ({@link BuildEditHistoryResult.baseUpdate}) is PATCHed first, without a
- * marker, so the step patches have their baseline to merge onto.
+ * Each step's captured transactions are PATCHed to `/api/ydoc/v1/{org}/{docId}`
+ * as a single ordered `patches` bulk request: one content patch per captured
+ * transaction, attributed via `by`. Nothing marks a version on the server —
+ * YHub's history *is* the version list — so a version is simply a run of edits
+ * separated from the next by a large gap, which is why **multiple users end up
+ * attributed within one version**. The starting document state
+ * ({@link BuildEditHistoryResult.baseUpdate}) is PATCHed first so the step
+ * patches have their baseline to merge onto.
  *
  * Every patch carries the explicit `at` timestamp captured by
  * {@link buildEditHistory}, so the backfilled history stays deterministically
- * ordered (content before its marker, each version after the previous one).
+ * ordered (each version after the previous one).
  *
  * YHub speaks the V1 update format, so the V2 updates `buildEditHistory`
- * produces are converted; the synthetic marker update is already V1.
+ * produces are converted.
  *
- * @returns the version markers created, in order.
+ * @returns each version's name and its last edit's timestamp, in order — the
+ * caller writes those into the live doc's `__bn_versions` array to name them.
  *
  * @example
  * ```ts
@@ -113,17 +104,18 @@ export async function seedYHubDocument(
     }
   };
 
-  // 1. Starting document state — content only, no version marker. Timestamp it
-  //    just before the first captured transaction so it sorts first.
+  // 1. Starting document state. Timestamp it just before the first captured
+  //    transaction so it sorts first.
   await send({
     update: Y.convertUpdateFormatV2ToV1(build.baseUpdate),
     at: build.steps[0]?.patches[0]?.at ?? Date.now(),
     customAttributions: [],
   });
 
-  // 2. Each step: one content patch per captured transaction, then a single
-  //    `type:version` marker patch so it appears as one snapshot attributed to
-  //    every author.
+  // 2. Each step: one content patch per captured transaction. The step's last
+  //    edit ends its group (the next version is days away, well past the
+  //    example's `groupMaxGap`), so `step.at` is the timestamp the version's
+  //    name attaches to.
   const versions: SeededVersion[] = [];
   for (const step of build.steps) {
     const patches: YHubPatch[] = step.patches.map((p) => ({
@@ -132,22 +124,9 @@ export async function seedYHubDocument(
       at: p.at,
       customAttributions: [],
     }));
-    // The marker patch carries the version itself. YHub attributes an entry to a
-    // single user, so credit the version to its last contributor (the per-content
-    // attribution still records who authored each part).
-    patches.push({
-      update: makeVersionMarkerUpdate(),
-      by: step.by,
-      at: step.at,
-      customAttributions: [
-        { k: "type", v: "version" },
-        { k: "id", v: step.id },
-        { k: "name", v: step.name },
-      ],
-    });
 
     await send({ patches });
-    versions.push({ id: step.id, name: step.name });
+    versions.push({ to: step.at, name: step.name });
   }
 
   return versions;

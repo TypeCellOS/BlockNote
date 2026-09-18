@@ -113,7 +113,8 @@
     "yjs": "^13.6.27",
     "zod": "^4.3.5",
     "@blocknote/xl-typst-exporter": "workspace:*",
-    "@blocknote/xl-typst-compiler": "workspace:*"
+    "@blocknote/xl-typst-compiler": "workspace:*",
+    "y-prosemirror": "^1.3.7"
   },
   "devDependencies": {
     "@blocknote/code-block": "workspace:*",

@@ -15,7 +15,7 @@ LOCAL_YPM="${1:-$(cd "$BLOCKNOTE_ROOT/../y-prosemirror" && pwd)}"
 
 # Version of @y/prosemirror to patch. Must match the version pinned in
 # pnpm-workspace.yaml (overrides + patchedDependencies) and package.json files.
-YPM_VERSION="2.0.0-6"
+YPM_VERSION="2.0.0-11"
 
 if [[ ! -d "$LOCAL_YPM/src" ]]; then
   echo "ERROR: Cannot find y-prosemirror at $LOCAL_YPM"
@@ -27,8 +27,8 @@ echo "==> Using local y-prosemirror at: $LOCAL_YPM"
 echo "==> BlockNote root: $BLOCKNOTE_ROOT"
 
 # 0. Build y-prosemirror so dist/ is up to date
-echo "==> Building y-prosemirror (npm run dist) ..."
-(cd "$LOCAL_YPM" && npm run dist)
+echo "==> Building y-prosemirror (pnpm run dist) ..."
+(cd "$LOCAL_YPM" && pnpm run dist)
 
 # Best-effort cleanup of any leftover patch dir (case-insensitive FS resolves this fine).
 STALE_PATCH_DIR="$BLOCKNOTE_ROOT/node_modules/.pnpm_patches/@y/prosemirror@$YPM_VERSION"
@@ -63,9 +63,9 @@ echo "==> Replacing src/ ..."
 rm -rf "$PATCH_DIR/src"
 cp -R "$LOCAL_YPM/src" "$PATCH_DIR/src"
 
-# 3. Replace dist/ with local build (only dist/src/ with .d.ts files)
+# 3. Replace library declarations, preserving unrelated published artifacts.
 echo "==> Replacing dist/ ..."
-rm -rf "$PATCH_DIR/dist"
+rm -rf "$PATCH_DIR/dist/src"
 mkdir -p "$PATCH_DIR/dist/src"
 cp -R "$LOCAL_YPM/dist/src/" "$PATCH_DIR/dist/src/"
 

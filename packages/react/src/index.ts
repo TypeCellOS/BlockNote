@@ -124,9 +124,6 @@ export * from "./components/Comments/Thread.js";
 export * from "./components/Comments/ThreadsSidebar.js";
 export * from "./components/Comments/useThreads.js";
 
-export * from "./components/Versioning/useVersionUsers.js";
-export * from "./components/Versioning/VersioningSidebar.js";
-
 export * from "./hooks/useActiveStyles.js";
 export * from "./hooks/useBlockNoteEditor.js";
 export * from "./hooks/useCreateBlockNote.js";

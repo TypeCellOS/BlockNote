@@ -15,8 +15,7 @@ import { ForkYDocExtension } from "./ForkYDoc.js";
  *   switch the editor to a temporary doc built from the snapshot.
  * - **exitPreview**: calls `merge({ keepChanges: false })` to discard the
  *   preview and restore the live document.
- * - **applyRestore**: calls `merge({ keepChanges: true })` to apply the
- *   snapshot content back to the live document.
+ * - Restore is unavailable: merging older CRDT state cannot undo live edits.
  */
 export function createYjsVersioningAdapter(
   /** The BlockNote editor instance (must have ForkYDocExtension). */
@@ -42,12 +41,20 @@ export function createYjsVersioningAdapter(
   }
 
   return {
-    getCurrentDocument: () => fragment,
-    serializeCurrentContent: () => Y.encodeStateAsUpdateV2(fragment.doc!),
+    getCurrentDocument() {
+      return fragment;
+    },
+    // V1 encoding, like every other update the v13 stack handles: the fork
+    // extension applies this with `Y.applyUpdate`, and a V2 payload fails to
+    // decode as soon as the document has any content.
+    serializeCurrentContent() {
+      return Y.encodeStateAsUpdate(fragment.doc!);
+    },
     preview: {
       // Yjs v13 can only fork the document to a single snapshot; it has no way
       // to diff two versions, so comparison is unsupported.
       supportsComparison: false,
+      // No applyRestore: merging an older CRDT state cannot undo live edits.
       enterPreview(
         snapshotContent: Uint8Array,
         _compareToContent?: Uint8Array,
@@ -67,16 +74,6 @@ export function createYjsVersioningAdapter(
         if (forkYDoc.store.state.isForked) {
           forkYDoc.merge({ keepChanges: false });
         }
-      },
-
-      applyRestore(_snapshotContent: Uint8Array) {
-        // Restoring to an older Yjs state cannot be done by merging a fork
-        // because the original doc already contains all CRDT state vectors
-        // from the snapshot. Restore must be handled at the endpoint/server
-        // level (e.g., the server creates a new Y.Doc and syncs it).
-        throw new Error(
-          "Restore is not yet implemented for Yjs v13 versioning adapter.",
-        );
       },
     },
   };

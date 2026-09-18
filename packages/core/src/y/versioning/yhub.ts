@@ -1,637 +1,241 @@
 import * as Y from "@y/y";
-import { decodeAny, encodeAny } from "lib0/buffer";
 
 import {
-  CURRENT_VERSION_ID,
-  sortSnapshotsNewestFirst,
   VersioningEndpointsFactory,
   type VersioningEndpoints,
   type VersionSnapshot,
 } from "../../extensions/Versioning/index.js";
-import { uint32 } from "lib0/random";
-import { YCursorExtension } from "../extensions/YCursorPlugin.js";
 import { YSyncExtension } from "../extensions/YSync.js";
-
-/**
- * Name of the root {@link Y.Type} map on the live collaboration doc that stores
- * a mutable `versionId -> name` mapping. Because YHub attributions are
- * immutable, version names that need to be editable (renamed) live here on the
- * Y.Doc instead of (or in addition to) the immutable `name` attribution.
- */
-const VERSION_NAMES_MAP = "__bn_version_names";
+import { collectFragmentIds } from "../utils.js";
+import { YHubVersionStore } from "./YHubVersionStore.js";
+import {
+  YHubClient,
+  type YHubActivityEntry,
+  type YHubClientOptions,
+  type YHubQueryParams,
+} from "./yhubClient.js";
 
 /**
  * Options for creating a YHub versioning endpoints instance.
+ * Restoration requires full-history read access (`GET /ydoc?gc=false`) and
+ * rollback permission. Naming uses the latest activity returned by YHub; it
+ * does not flush pending collaboration updates or bypass YHub's response cache.
  */
-export interface YHubVersioningOptions {
-  /**
-   * Base URL of the YHub API, including the API prefix
-   * (e.g. `"https://yhub.example.com/api"`).
-   * Must **not** include a trailing slash.
-   */
-  baseUrl: string;
-
-  /** YHub organisation identifier. */
-  org: string;
-
-  /** Document identifier within the organisation. */
-  docId: string;
-
-  /**
-   * Optional headers to include in every request (e.g. authentication tokens).
-   */
-  headers?: Record<string, string>;
-
-  /**
-   * Maximum number of activity entries to fetch when listing versions.
-   * @default 50
-   */
-  activityLimit?: number;
-
-  /**
-   * When set, forwarded as the `group` query param to the YHub activity API,
-   * controlling whether adjacent edits are grouped into single entries.
-   */
-  group?: boolean;
-
-  /**
-   * Maximum gap (in ms) between edits for them to be grouped together.
-   * Forwarded as the `groupMaxGap` query param.
-   * @default 10000
-   */
-  groupMaxGap?: number;
-
-  /**
-   * Maximum total duration (in ms) a single group of edits may span.
-   * When set, forwarded as the `groupMaxDuration` query param.
-   */
-  groupMaxDuration?: number;
-
-  // TODO mergeUsers is not in standard yhub, but it exists in our fork.
-  /**
-   * When `true`, adjacent edits are grouped together even when made by
-   * *different* users (their ids accumulate in the grouped entry's `by`).
-   * When `false` (the default), only same-user adjacent edits are merged.
-   * Forwarded as the `mergeUsers` query param.
-   * @default false
-   */
-  mergeUsers?: boolean;
+export interface YHubVersioningOptions extends YHubClientOptions {
+  /** Activity query overrides, read fresh on each request. */
+  activityParams?: YHubQueryParams;
 }
 
-/**
- * Shape of a single activity entry returned by the YHub
- * `GET /api/activity/v1/{org}/{docId}` endpoint (after `decodeAny`).
- */
-interface YHubActivityEntry {
-  /** Start of the change window (unix-ms timestamp). */
-  from: number;
-  /** End of the change window (unix-ms timestamp). */
-  to: number;
-  /** Comma separated list of user-ids that matches the attribution */
-  by?: string;
-  /** Custom attribution key-value pairs (when `customAttributions=true`). */
-  customAttributions?: Array<{ k: string; v: string }>;
+const ACTIVITY_PARAM_DEFAULTS: YHubQueryParams = {
+  order: "desc",
+  limit: 50,
+  groupMaxGap: 60 * 60 * 1000, // Start a version after an hour of inactivity.
+  groupMaxDuration: 12 * 60 * 60 * 1000, // Cap a version at twelve hours.
+  // Fork-only params (not upstream YHub): `mergeUsers` coalesces co-authors
+  // within a window, `customAttributions` returns name metadata. Coordinate
+  // with Kevin before relying on these in production / upstreaming.
+  mergeUsers: true,
+  customAttributions: true,
+};
+
+/** Merge two metadata records, dropping the result when it's empty. */
+function mergeMetadata(
+  ...records: Array<Record<string, unknown> | undefined>
+): Record<string, unknown> | undefined {
+  const merged = Object.assign({}, ...records) as Record<string, unknown>;
+  return Object.keys(merged).length > 0 ? merged : undefined;
 }
 
-/**
- * Shape returned by the YHub `GET /api/changeset/v1/{org}/{docId}` endpoint
- * (after `decodeAny`).
- */
-interface YHubChangeset {
-  /** Full Y.Doc state at the `to` timestamp. */
-  ydoc?: Uint8Array;
-  /**
-   * Encoded {@link Y.ContentMap} describing who authored each change in the
-   * window and when. Present when the changeset is requested with
-   * `attributions=true`.
-   */
-  attributions?: Uint8Array;
-}
+// YHub always produces an array of author IDs.
+type YHubSnapshot = Omit<VersionSnapshot, "by"> & { by?: string[] };
 
-/** Shape returned by the YHub activity endpoint. */
-interface YHubActivityResponse {
-  activity: YHubActivityEntry[];
-}
-
-/**
- * Whether an activity entry is a version marker (created with a `type:version`
- * custom attribution) as opposed to a plain edit.
- */
-function isVersionEntry(entry: YHubActivityEntry): boolean {
-  return (
-    entry.customAttributions?.some(
-      (a) => a.k === "type" && a.v === "version",
-    ) ?? false
-  );
-}
-
-/**
- * Convert a YHub activity entry into a {@link VersionSnapshot}.
- *
- * Version markers (entries with a `type:version` custom attribution) map to
- * named snapshots: the `id` attribution becomes the snapshot identifier and the
- * `name` attribution its name. Any other (plain edit) entry maps to a
- * history-only snapshot with a synthetic `history-<to>-<index>` id and no name.
- * In both cases the entry's `by` user-ids are passed through raw on
- * {@link VersionSnapshot.by} — resolving them to user info is the view layer's
- * job.
- *
- * The history id embeds the entry's `index` within the activity response
- * because YHub can emit multiple activity entries sharing the same `to`
- * timestamp (e.g. distinct same-`insertAt` patches that grouping did not merge),
- * and `to` alone would then produce colliding `history-<to>` ids — duplicate
- * React keys in the sidebar. The `index` disambiguates them. The changeset
- * lookups (`getContent`/`getAttributions`/`restore`) key off
- * {@link VersionSnapshot.createdAt} (= `entry.to`), never the id, so embedding
- * the index in the id is safe.
- */
-function activityToSnapshot(
-  entry: YHubActivityEntry,
-  index: number,
-): VersionSnapshot | undefined {
-  const by = entry.by
-    ?.split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const byField = by && by.length > 0 ? by : undefined;
-
-  if (isVersionEntry(entry)) {
-    const id = entry.customAttributions?.find((a) => a.k === "id")?.v;
-    if (id === undefined) {
-      return undefined;
-    }
-    const attributionName = entry.customAttributions?.find(
-      (a) => a.k === "name",
-    )?.v;
-    return {
-      id,
-      name: attributionName,
-      createdAt: entry.to,
-      updatedAt: entry.to,
-      by: byField,
-    };
-  }
-
+/** An activity window is identified by its end timestamp. */
+function activityToSnapshot(entry: YHubActivityEntry): YHubSnapshot {
   return {
-    id: `history-${entry.to}-${index}`,
+    id: String(entry.to),
     createdAt: entry.to,
-    updatedAt: entry.to,
-    by: byField,
+    by: entry.by.length ? entry.by : undefined,
+    metadata: mergeMetadata(entry.customAttributions),
   };
 }
 
-async function yhubFetch(
-  url: string,
-  headers: Record<string, string>,
-  init?: RequestInit,
-): Promise<ArrayBuffer> {
-  const res = await fetch(url, {
-    ...init,
-    headers: {
-      ...headers,
-      ...(init?.headers instanceof Headers
-        ? Object.fromEntries(init.headers.entries())
-        : Array.isArray(init?.headers)
-          ? Object.fromEntries(init.headers)
-          : init?.headers),
-    },
-  });
-  if (!res.ok) {
+function timestampId(snapshot: VersionSnapshot): number {
+  const id = Number(snapshot.id);
+  if (!Number.isFinite(id)) {
     throw new Error(
-      `YHub request failed: ${res.status} ${res.statusText} (${url})`,
+      `Version id "${snapshot.id}" is not a YHub server timestamp.`,
     );
   }
-  return res.arrayBuffer();
+  return id;
 }
 
 /**
- * Create a {@link VersioningEndpoints} implementation backed by the
- * [YHub](https://github.com/yjs/yhub) HTTP API.
- *
- * Versions are created by PATCHing the document with custom attributions
- * (`type:version` + an optional `name`). The `list` endpoint returns the full
- * activity timeline, mapping `type:version` markers to named versions and every
- * other entry to a history-only snapshot, so the sidebar can show both the
- * named versions and the complete edit history.
- *
- * A version's id lives in immutable YHub attributions (`type:version` + `id`),
- * so it is fixed at creation time. Version *names*, however, are stored in a
- * mutable `__bn_version_names` map on the live collaboration doc (see
- * {@link VERSION_NAMES_MAP}), so `rename` is supported and simply updates that
- * store.
- *
- * @example
- * ```ts
- * import { withCollaboration } from "@blocknote/core/y";
- * import { createYHubVersioningEndpoints } from "@blocknote/core/y";
- *
- * const editor = BlockNoteEditor.create(
- *   withCollaboration({
- *     collaboration: {
- *       fragment,
- *       user: { name: "Alice", color: "#ff0" },
- *       provider,
- *       versioningEndpoints: createYHubVersioningEndpoints({
- *         baseUrl: "https://yhub.example.com/api",
- *         org: "my-org",
- *         docId: "my-doc",
- *       }),
- *     },
- *   }),
- * );
- * ```
+ * Adapts YHub's activity timeline to versions. The newest activity is current;
+ * names and restore labels are stored separately in the collaboration document.
  */
 export function createYHubVersioningEndpoints(
   options: YHubVersioningOptions,
-): VersioningEndpointsFactory<Y.Type, Uint8Array, Y.ContentMap> {
-  const {
-    baseUrl,
-    org,
-    docId,
-    headers = {},
-    activityLimit = 50,
-    group,
-  } = options;
-
-  const activityUrl = `${baseUrl}/activity/v1/${org}/${docId}`;
-  const changesetUrl = `${baseUrl}/changeset/v1/${org}/${docId}`;
-  const rollbackUrl = `${baseUrl}/rollback/v1/${org}/${docId}`;
-  const ydocUrl = `${baseUrl}/ydoc/v1/${org}/${docId}`;
+): VersioningEndpointsFactory<Y.Node, Uint8Array, Y.ContentMap> {
+  const client = new YHubClient(options);
 
   return (editor) => {
-    /**
-     * The mutable per-id version-name store on the live collaboration doc.
-     *
-     * Returns the root {@link VERSION_NAMES_MAP} map-typed {@link Y.Type}, which
-     * uses `setAttr`/`getAttr` for keyed access (this Yjs fork has a single
-     * unified `Y.Type` rather than a distinct `Y.Map`). `undefined` until the
-     * live doc has been captured from a `create` call.
-     */
-    const getVersionNamesMap = (): Y.Type | undefined => {
-      const fragment =
-        editor.getExtension<typeof YSyncExtension>("ySync")?.fragment.doc;
-      // `fragment` is undefined until the live doc has been captured (e.g. no
-      // ySync extension attached yet); return undefined rather than throwing so
-      // callers can gracefully fall back to the immutable name attribution.
-      return fragment?.get(VERSION_NAMES_MAP);
-    };
+    const versions = new YHubVersionStore(
+      () =>
+        editor.getExtension<typeof YSyncExtension>("ySync")?.fragment.doc as
+          | Y.Doc
+          | undefined,
+    );
 
-    /**
-     * Build the synthetic "current version" snapshot, or `undefined` when the
-     * live document matches the latest saved version (no edits since).
-     *
-     * Both lookups are made here, independently of the grouped `list()` request:
-     *
-     *  - the newest activity entry of *any* kind (ungrouped, so its `to` is the
-     *    true last-edit time), and
-     *  - the newest **version marker** (via the `withCustomAttributions`
-     *    server-side filter).
-     *
-     * Deriving the marker time from `list()`'s grouped entries would be wrong:
-     * with grouping (especially `mergeUsers`) the newest marker's group absorbs
-     * the later unsaved edit, so the group's `to` equals the edit's `to` and the
-     * comparison below can never fire. Fetching the marker unmerged avoids that.
-     */
-    const getCurrentVersionEntry = async (): Promise<
-      VersionSnapshot | undefined
-    > => {
-      const latestParams = new URLSearchParams({
-        order: "desc",
-        limit: "1",
-        customAttributions: "true",
+    function fetchActivity(overrides?: YHubQueryParams) {
+      return client.getActivity({
+        ...ACTIVITY_PARAM_DEFAULTS,
+        ...options.activityParams,
+        ...overrides,
       });
-      const latestVersionParams = new URLSearchParams({
-        order: "desc",
-        limit: "1",
-        customAttributions: "true",
-        // Server-side filter to `type:version` markers only, so this ignores the
-        // plain edits that would otherwise be the newest entries.
-        withCustomAttributions: "type:version",
-      });
+    }
 
-      const [latestBuf, latestVersionBuf] = await Promise.all([
-        yhubFetch(`${activityUrl}?${latestParams}`, headers),
-        yhubFetch(`${activityUrl}?${latestVersionParams}`, headers),
-      ]);
-      const latestEdit = (
-        decodeAny(new Uint8Array(latestBuf)) as YHubActivityResponse
-      ).activity[0];
-      const latestVersion = (
-        decodeAny(new Uint8Array(latestVersionBuf)) as YHubActivityResponse
-      ).activity[0];
+    async function fetchNewestEntry() {
+      return (await fetchActivity({ limit: 1, order: "desc" }))[0];
+    }
 
-      if (!latestEdit || latestEdit.to <= (latestVersion?.to ?? 0)) {
-        return undefined;
-      }
-
-      // Build the synthetic entry directly rather than via `activityToSnapshot`,
-      // whose `id` comes from a string-typed wire attribution — the current
-      // entry's id is the `CURRENT_VERSION_ID` symbol, not a real version id.
-      const by =
-        latestEdit.by
-          ?.split(",")
-          .map((t) => t.trim())
-          .filter(Boolean) ?? [];
-      return {
-        id: CURRENT_VERSION_ID,
-        createdAt: latestEdit.to,
-        updatedAt: latestEdit.to,
-        by: by.length > 0 ? by : undefined,
-      };
-    };
-
-    /**
-     * PATCH the current document state to YHub, optionally with custom
-     * attributions. Used both for creating named version markers and for
-     * backing up the document before a restore.
-     */
-    const patchDoc = async (
-      fragment: Y.Type,
-      customAttributions: Array<{ k: string; v: any }>,
-      by?: string,
-    ) => {
-      const doc = fragment.doc;
-      if (!doc) {
-        throw new Error(
-          "Cannot patch document: the Y.Type is not attached to a Y.Doc.",
-        );
-      }
-
-      // YHub only records custom attributions when they attach to NEW content
-      // that survives its server-side diff. An update-less PATCH is rejected
-      // (400 — "at least one of update or awareness must be present"), and even
-      // if it weren't, there'd be no content for the attributions to ride on, so
-      // no activity entry is created. YHub has no metadata-only marker path.
-      //
-      // So we introduce a tiny piece of novel content for the marker to attach
-      // to: a single insert into a dedicated `__bn_version_markers` fragment that
-      // the editor never renders. A fresh Y.Doc guarantees a clientID/content the
-      // server has never seen, so the diff is non-empty and the attributions land
-      // on it. The reconstructed document at this version's timestamp still
-      // contains the full editor content — this marker only ever lives in the
-      // throwaway fragment.
-      const markerDoc = new Y.Doc();
-      markerDoc.get("__bn_version_markers", "XmlFragment").insert(0, ["v"]);
-      const update = Y.encodeStateAsUpdate(markerDoc);
-
-      const body: Record<string, unknown> = { update, customAttributions };
-      if (by) {
-        body.by = by;
-      }
-
-      await yhubFetch(ydocUrl, headers, {
-        method: "PATCH",
-        body: encodeAny(body) as BufferSource,
-      });
-    };
-
-    /**
-     * Create a named version marker for the current document state by PATCHing
-     * it with `type:version` custom attributions.
-     */
-    const create: VersioningEndpoints<
-      Y.Type,
-      Uint8Array,
-      Y.ContentMap
-    >["create"] = async (fragment, options) => {
-      const id = String(uint32());
-      const now = Date.now();
-
-      if (options?.name) {
-        getVersionNamesMap()?.setAttr(id, options.name);
-      }
-
-      const customAttributions: Array<{ k: string; v: string }> = [
-        { k: "type", v: "version" },
-        { k: "id", v: id },
-      ];
-      if (options?.name) {
-        customAttributions.push({ k: "name", v: options.name });
-      }
-
-      const user = editor
-        .getExtension<typeof YCursorExtension>("yCursor")
-        ?.getUser();
-      await patchDoc(fragment, customAttributions, user?.id);
-
-      return {
-        id,
-        name: options?.name,
-        createdAt: now,
-        updatedAt: now,
-        by: user?.id,
-      };
-    };
-
-    /**
-     * Reconstruct the full document state as it was at a given `to` timestamp.
-     *
-     * The changeset endpoint builds `ydoc` purely from the `to` timestamp
-     * range — it ignores `withCustomAttributions` for doc reconstruction (that
-     * filter only scopes the attribution overlay). So historical document state
-     * can only be retrieved by timestamp, never by the version's `id`.
-     */
-    const getContentAt = async (to: number): Promise<Uint8Array> => {
-      const params = new URLSearchParams({
-        ydoc: "true",
-        to: String(to),
-      });
-
-      const buf = await yhubFetch(`${changesetUrl}?${params}`, headers);
-      const changeset = decodeAny(new Uint8Array(buf)) as YHubChangeset;
-
-      if (!changeset.ydoc) {
-        throw new Error(`YHub returned no document state at timestamp ${to}.`);
-      }
-
-      return Y.convertUpdateFormatV1ToV2(changeset.ydoc);
-    };
-
-    /**
-     * Fetch the full document content for a saved version snapshot.
-     *
-     * The snapshot's `createdAt` is the activity entry's `to` timestamp (see
-     * {@link activityToSnapshot}), which is exactly what the changeset API needs.
-     */
-    const getContent: VersioningEndpoints<
-      Y.Type,
-      Uint8Array,
-      Y.ContentMap
-    >["getContent"] = async (snapshot) => {
-      return getContentAt(snapshot.createdAt);
-    };
-
-    /**
-     * Fetch the authorship attributions for the changes between two snapshots
-     * (or from the start of the document when `compareTo` is omitted).
-     *
-     * Snapshots carry their `to` timestamp directly in `createdAt`, so no
-     * activity lookup is needed to resolve the changeset window.
-     */
-    const getAttributions: VersioningEndpoints<
-      Y.Type,
-      Uint8Array,
-      Y.ContentMap
-    >["getAttributions"] = async (snapshot, compareTo) => {
-      const to = snapshot.createdAt;
-      const from = compareTo !== undefined ? compareTo.createdAt : 0;
-
-      const params = new URLSearchParams({
-        from: String(from),
-        to: String(to),
-        attributions: "true",
-      });
-
-      const buf = await yhubFetch(`${changesetUrl}?${params}`, headers);
-      const changeset = decodeAny(new Uint8Array(buf)) as YHubChangeset;
-
-      if (!changeset.attributions) {
-        throw new Error(
-          `YHub returned no attributions for snapshot ${String(snapshot.id)}.`,
-        );
-      }
-
-      return Y.decodeContentMap(changeset.attributions);
-    };
-
-    /**
-     * Restore the document to a saved version: fetch the target version's
-     * content and roll back everything after it.
-     *
-     * The snapshot's `createdAt` is the activity entry's `to` timestamp.
-     */
-    const restore: VersioningEndpoints<
-      Y.Type,
-      Uint8Array,
-      Y.ContentMap
-    >["restore"] = async (_fragment, snapshot) => {
-      const to = snapshot.createdAt;
-      const snapshotContent = await getContentAt(to);
-
-      await yhubFetch(rollbackUrl, headers, {
-        method: "POST",
-        body: encodeAny({ from: to }) as BufferSource,
-      });
-
-      return snapshotContent;
-    };
-
-    /**
-     * Rename a saved version by updating its entry in the mutable
-     * {@link VERSION_NAMES_MAP} store on the live collaboration doc.
-     *
-     * The version's `id` remains fixed in its immutable YHub attributions —
-     * only the editable name in the map is changed. Passing an empty or
-     * `undefined` name clears the entry (falling back to the immutable `name`
-     * attribution captured at creation time).
-     */
-    const rename: VersioningEndpoints<
-      Y.Type,
-      Uint8Array,
-      Y.ContentMap
-    >["rename"] = async (snapshot, name) => {
-      if (typeof snapshot.id !== "string") {
-        // CURRENT_VERSION_ID (symbol) is not renameable.
-        return;
-      }
-      const map = getVersionNamesMap();
-      if (!map) {
-        throw new Error(
-          "Cannot rename version: no live collaboration document is available.",
-        );
-      }
-      if (name === undefined || name === "") {
-        map.deleteAttr(snapshot.id);
-      } else {
-        map.setAttr(snapshot.id, name);
-      }
-    };
-
-    /**
-     * List the full version timeline (newest first), plus a synthetic
-     * "current version" entry when the live document has unsaved edits.
-     *
-     * Returns the entire activity timeline: `type:version` markers are mapped
-     * to named snapshots and every other entry to a history-only snapshot (see
-     * {@link activityToSnapshot}), so the sidebar can offer both a "named
-     * versions" and a full "history" view. Author user-ids are passed through
-     * raw on {@link VersionSnapshot.by} — the view layer resolves them to user
-     * info via the versioning extension's user store.
-     */
-    const list: VersioningEndpoints<
-      Y.Type,
-      Uint8Array,
-      Y.ContentMap
-    >["list"] = async () => {
-      // Read the grouping knobs fresh from `options` so a caller mutating the
-      // object it passed in reconfigures grouping on the next refresh (see the
-      // note where these are deliberately left out of the destructure above).
-      const groupMaxGap = options.groupMaxGap ?? 10000;
-      const groupMaxDuration = options.groupMaxDuration;
-      const mergeUsers = options.mergeUsers;
-
-      const params = new URLSearchParams({
-        order: "desc",
-        limit: String(activityLimit),
-        customAttributions: "true",
-      });
-      // Always send a concrete `groupMaxGap`. Sending
-      // `String(undefined)` here would make the server `parseInt("undefined")`
-      // to NaN, silently disabling grouping — which surfaces every same-`to`
-      // attribution as its own history entry and produces duplicate React keys.
-      params.set("groupMaxGap", String(groupMaxGap));
-      if (group !== undefined) {
-        params.set("group", String(group));
-      }
-      if (groupMaxDuration !== undefined) {
-        params.set("groupMaxDuration", String(groupMaxDuration));
-      }
-      if (mergeUsers !== undefined) {
-        params.set("mergeUsers", String(mergeUsers));
-      }
-
-      const buf = await yhubFetch(`${activityUrl}?${params}`, headers);
-      const { activity: entries } = decodeAny(
-        new Uint8Array(buf),
-      ) as YHubActivityResponse;
-
-      const snapshots = sortSnapshotsNewestFirst(
-        entries
-          .map((entry, i) => activityToSnapshot(entry, i))
-          .filter((s): s is VersionSnapshot => s !== undefined)
-          // Prefer the mutable per-id name from the live doc's
-          // `__bn_version_names` store over the immutable `name` attribution,
-          // so renames (which only mutate that store) are reflected here.
-          .map((snapshot) => {
-            const attributionName = snapshot.name;
-            const mappedName =
-              (typeof snapshot.id === "string"
-                ? (getVersionNamesMap()?.getAttr(snapshot.id) as
-                    | string
-                    | undefined)
-                : undefined) ?? attributionName;
-            return { ...snapshot, name: mappedName };
-          }),
-      );
-
-      // Surface a "current version" entry when the live document has edits
-      // beyond the most recent saved version marker. `getCurrentVersionEntry`
-      // makes its own unmerged lookups (see there), so it is unaffected by the
-      // grouping/mergeUsers params used for the list above.
-      //
-      // This only re-evaluates when `list()` runs (sidebar open / refresh),
-      // which matches how YHub versions load today.
-      const currentEntry = await getCurrentVersionEntry();
-      return currentEntry ? [currentEntry, ...snapshots] : snapshots;
-    };
+    async function getContentAt(to: number) {
+      return Y.convertUpdateFormatV1ToV2(await client.getContent(to));
+    }
 
     return {
-      list,
-      create,
-      getContent,
-      getAttributions,
-      restore,
-      rename,
-    };
+      async list() {
+        const activity = await fetchActivity();
+
+        const rows = new Map<number, YHubSnapshot>();
+        for (const entry of activity) {
+          const existing = rows.get(entry.to);
+          const by = [...new Set([...(existing?.by ?? []), ...entry.by])];
+          rows.set(entry.to, {
+            ...activityToSnapshot(entry),
+            by: by.length ? by : undefined,
+            metadata: mergeMetadata(
+              existing?.metadata,
+              entry.customAttributions,
+            ),
+          });
+        }
+
+        // Stored labels can have newer timestamps, but only activity defines current.
+        const newestActivityTo = Math.max(...rows.keys());
+
+        for (const [id, entry] of versions.readEntries()) {
+          const { id: _id, name, restoredFrom, ...metadata } = entry;
+          const row = rows.get(id) ?? { id: String(id), createdAt: id };
+          rows.set(id, {
+            ...row,
+            name,
+            // The stored `to` is the restored version's whole identity here.
+            restoredFrom:
+              restoredFrom === undefined
+                ? undefined
+                : { id: String(restoredFrom), createdAt: restoredFrom },
+            metadata: mergeMetadata(row.metadata, metadata),
+          });
+        }
+
+        const now = Date.now();
+        const current = rows.get(newestActivityTo) ?? {
+          id: String(now),
+          createdAt: now,
+        };
+        rows.delete(Number(current.id));
+        return {
+          current,
+          snapshots: [...rows.values()].sort(
+            (a, b) => b.createdAt - a.createdAt,
+          ),
+        };
+      },
+
+      async create(_fragment, createOptions) {
+        // Fail before the fetch when there's nothing to write the name into.
+        versions.getArray();
+
+        const newest = await fetchNewestEntry();
+        if (!newest) {
+          throw new Error(
+            "Cannot name the current version: YHub has recorded no activity " +
+              "for this document yet.",
+          );
+        }
+
+        // Saving unnamed preserves any existing name on the newest edit.
+        if (createOptions.name) {
+          versions.setName(newest.to, createOptions.name);
+        }
+        return {
+          ...activityToSnapshot(newest),
+          name: versions.readEntries().get(newest.to)?.name,
+        };
+      },
+
+      async getContent(snapshot) {
+        return getContentAt(snapshot.createdAt);
+      },
+
+      async getAttributions(target, compareTo) {
+        // Current previews include live edits beyond the last list response.
+        return Y.decodeContentMap(
+          await client.getAttributions(
+            compareTo?.createdAt ?? 0,
+            target.kind === "snapshot" ? target.snapshot.createdAt : undefined,
+          ),
+        );
+      },
+
+      async restore(fragment, snapshot) {
+        const to = snapshot.createdAt;
+        const [snapshotContent, before, document] = await Promise.all([
+          getContentAt(to),
+          fetchNewestEntry(),
+          // Retained history includes deleted subtrees missing from the live doc.
+          client.getDocument({ gc: false }),
+        ]);
+
+        // Restore only this editor's fragment, preserving other editors and metadata.
+        // A plain timestamp rollback would also roll back the stored version
+        // names (they live in the same doc), so scope the rollback to this
+        // fragment's Yjs ID ranges instead. This stays until YHub exposes a
+        // native versioning API.
+        const contentIds = collectFragmentIds(fragment, document);
+
+        await client.rollback({
+          // YHub includes the `from` millisecond. Keep the selected version's
+          // final edit, reverting only edits strictly after its timestamp.
+          from: to + 1,
+          contentIds: Y.encodeContentIds({
+            inserts: contentIds,
+            deletes: contentIds,
+          }),
+        });
+
+        // Keep the last observed head reachable even if grouping absorbs the rollback.
+        if (before && !versions.readEntries().has(before.to)) {
+          versions.upsertEntry({ id: before.to, name: "Before restore" });
+        }
+        // A newer activity entry could be
+        // another user's edit, so it cannot reliably identify this rollback.
+
+        return snapshotContent;
+      },
+
+      async rename(snapshot, name) {
+        versions.setName(timestampId(snapshot), name);
+      },
+
+      async remove(snapshot) {
+        // Deleting a stored version clears its name, preserving restore and
+        // application metadata. Automatic versions have nothing to remove.
+        const id = timestampId(snapshot);
+        if (versions.readEntries().has(id)) {
+          versions.setName(id, undefined);
+        }
+      },
+    } satisfies VersioningEndpoints<Y.Node, Uint8Array, Y.ContentMap>;
   };
 }

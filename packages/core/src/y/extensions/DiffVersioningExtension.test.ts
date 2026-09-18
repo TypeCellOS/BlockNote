@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { Block } from "../../blocks/defaultBlocks.js";
+import { colorsForUserIds } from "../../user/index.js";
 import { AttributionExtension } from "./AttributionExtension.js";
 import { DiffVersioningExtension } from "./DiffVersioningExtension.js";
 
@@ -165,6 +166,25 @@ describe("DiffVersioningExtension", () => {
     expect(attribution.userStore.getUser(authorId)?.username).toBe("Draft 3");
   });
 
+  it("colors the diff author with the palette's blue, tint included", async () => {
+    const baseline = blocksFromText("hello world");
+    const target = blocksFromText("hello brave new world");
+
+    const diff = editor.getExtension(DiffVersioningExtension)!;
+    diff.renderDiff(target, baseline, "Draft 3");
+
+    const attribution = editor.getExtension(AttributionExtension)!;
+    const authorId = "version:Draft 3";
+    await attribution.userStore.loadUsers([authorId]);
+
+    // Both halves are set, so the marks and their tooltip use the tuned pair
+    // rather than a tint derived from the saturated colour.
+    expect(colorsForUserIds(attribution.userStore, [authorId])).toEqual({
+      light: "#c9dcff",
+      dark: "#1e4fb0",
+    });
+  });
+
   it("produces no attribution marks when the docs are identical", () => {
     const same = blocksFromText("nothing changes here");
 
@@ -177,7 +197,7 @@ describe("DiffVersioningExtension", () => {
     );
   });
 
-  it("clearDiff restores plain content with no attribution marks", () => {
+  it("replacing the rendered blocks drops the attribution marks", () => {
     const baseline = blocksFromText("first version");
     const target = blocksFromText("second version");
     const restore = blocksFromText("live document");
@@ -186,7 +206,7 @@ describe("DiffVersioningExtension", () => {
     diff.renderDiff(target, baseline);
     expect(attributionMarkNames(editor).size).toBeGreaterThan(0);
 
-    diff.clearDiff(restore);
+    editor.replaceBlocks(editor.document, restore);
     expect(attributionMarkNames(editor).size).toBe(0);
     expect(editor.prosemirrorState.doc.textContent).toBe("live document");
   });

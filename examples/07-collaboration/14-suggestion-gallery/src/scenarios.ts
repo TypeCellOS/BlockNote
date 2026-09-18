@@ -178,12 +178,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "add-nested-bullets",
-    feedback: [
-      {
-        severity: "low",
-        note: "Nested bullets all render as • instead of •/◦/▪ — the suggestion-mark wrappers (display: contents) break the depth-detecting CSS chains. Fix: compute each bullet's nesting level in JS and expose it as data-bullet-level, then pick the glyph with a wrapper-independent attribute selector (as numbered lists do with data-index).",
-      },
-    ],
     title: "Add nested bullets",
     category: "Add / remove blocks",
     description:
@@ -237,16 +231,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "nest-bullet-existing",
-    feedback: [
-      {
-        severity: "low",
-        note: "Nested bullets all render as • instead of •/◦/▪ — the suggestion-mark wrappers (display: contents) break the depth-detecting CSS chains. Fix: compute each bullet's nesting level in JS and expose it as data-bullet-level, then pick the glyph with a wrapper-independent attribute selector (as numbered lists do with data-index).",
-      },
-      {
-        severity: "low",
-        note: "Going from 0 to 1+ children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
-      },
-    ],
     title: "Nest a bullet under another",
     category: "Add / remove blocks",
     description: "Nest the second bullet under the first.",
@@ -300,12 +284,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "delete-nested",
-    feedback: [
-      {
-        severity: "low",
-        note: "Going from 1+ to 0 children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
-      },
-    ],
     title: "Delete a nested block",
     category: "Add / remove blocks",
     description: "Delete the nested child of a parent block.",
@@ -577,12 +555,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "nesting-indent",
-    feedback: [
-      {
-        severity: "low",
-        note: "Going from 0 to 1+ children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
-      },
-    ],
     title: "Indent a block",
     category: "Nesting",
     description:
@@ -601,12 +573,6 @@ export const scenarios: SuggestionScenario[] = [
     kind: "single",
     id: "nesting-unindent",
     title: "Unindent a block",
-    feedback: [
-      {
-        severity: "low",
-        note: "Going from 1+ to 0 children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
-      },
-    ],
     category: "Nesting",
     description: "Un-nest N1 out of N0 (outdent) back to a top-level sibling.",
     initial: [
@@ -625,12 +591,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "nesting-change-parent-type",
-    feedback: [
-      {
-        severity: "low",
-        note: "Changing a parent's type deletes the old block and creates a new one — so concurrent edits to the original block can be lost, and the entire new block is attributed to whoever changed the type. A consequence of the schema fix.",
-      },
-    ],
     title: "Change type of a parent block",
     category: "Nesting",
     description:
@@ -654,17 +614,11 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "prop-text-alignment",
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     title: "Center-align",
     category: "Prop changes",
     description:
       "Change a paragraph's text alignment from left to center — a block-level " +
-      "prop change (no insert/delete marks are generated).",
+      "prop change highlighted as a formatting change.",
     initial: [{ id: "block-hello", type: "paragraph", content: "hello world" }],
     apply: (editor) => {
       const [block] = editor.document;
@@ -677,12 +631,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "prop-heading-level",
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     title: "Demote heading",
     category: "Prop changes",
     description: "Change a heading from level 1 to level 2.",
@@ -702,12 +650,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "prop-image-width",
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     title: "Resize image",
     category: "Prop changes",
     description: "Change an image's previewWidth (200 → 400).",
@@ -729,12 +671,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "prop-image-source",
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     title: "Change image source",
     category: "Prop changes",
     description: "Swap an image's url for a different source.",
@@ -1062,14 +998,9 @@ export const scenarios: SuggestionScenario[] = [
     title: "Text color vs background color",
     category: "Prop changes",
     description:
-      "A sets text color red while B sets background yellow; both apply.",
+      "A sets text color red while B sets background yellow; both prop changes " +
+      "merge, each highlighted in its author's color.",
     initial: [{ id: "block-hello", type: "paragraph", content: "hello world" }],
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     applyA: (editor) => {
       const [block] = editor.document;
       editor.updateBlock(block, {

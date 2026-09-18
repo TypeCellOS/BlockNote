@@ -42,6 +42,11 @@
       "import": "./dist/blocknote-react.js",
       "require": "./dist/blocknote-react.cjs"
     },
+    "./versioning": {
+      "types": "./types/src/versioning.d.ts",
+      "import": "./dist/versioning.js",
+      "require": "./dist/versioning.cjs"
+    },
     "./style.css": {
       "import": "./dist/style.css",
       "require": "./dist/style.css",

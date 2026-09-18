@@ -36,7 +36,11 @@ exports[`concurrent: A changes textColor, B changes backgroundColor 5`] = `
 "<doc>
   <blockGroup>
     <blockContainer id="block-hello">
-      <paragraph backgroundColor="yellow" textAlignment="left" textColor="red">hello world</paragraph>
+      <y-attributed-attrs
+        changes="{&quot;backgroundColor&quot;:{&quot;userIds&quot;:[&quot;B&quot;],&quot;timestamp&quot;:null},&quot;textColor&quot;:{&quot;userIds&quot;:[&quot;A&quot;],&quot;timestamp&quot;:null}}"
+      >
+        <paragraph backgroundColor="yellow" textAlignment="left" textColor="red">hello world</paragraph>
+      </y-attributed-attrs>
     </blockContainer>
   </blockGroup>
 </doc>"

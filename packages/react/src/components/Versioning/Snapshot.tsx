@@ -1,225 +1,269 @@
 import {
-  CURRENT_VERSION_ID,
   VersioningExtension,
-  VersionSnapshot,
+  type VersioningView,
+  type VersionSnapshot,
 } from "@blocknote/core/extensions";
-import { useState } from "react";
-import {
-  RiArrowGoBackFill,
-  RiArrowLeftRightLine,
-  RiDeleteBinLine,
-  RiMoreFill,
-} from "react-icons/ri";
+import { useEffect, useRef, type KeyboardEvent } from "react";
+import { GoDiff } from "react-icons/go";
+import { RiMoreFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { useDictionary } from "../../i18n/dictionary.js";
 import { dateToString } from "./dateToString.js";
+import { usePreviewRow } from "./usePreviewRow.js";
 import { useSnapshotLabel } from "./useVersionUsers.js";
+import { VersionName } from "./VersionName.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
+import { VersionSnapshotProvider } from "./VersionSnapshotContext.js";
 
-export const Snapshot = ({
-  snapshot,
-  previousSnapshot,
-}: {
-  snapshot: VersionSnapshot;
-  previousSnapshot?: VersionSnapshot;
-}) => {
-  const Components = useComponentsContext()!;
-  const {
-    canRestore,
-    restore,
-    canRename,
-    rename,
-    canRemove,
-    remove,
-    previewSnapshot,
-    previewCurrentVersion,
-  } = useExtension(VersioningExtension);
-  const selected = useExtensionState(VersioningExtension, {
-    selector: (state) => state.previewedSnapshotId === snapshot.id,
-  });
-  const previewedSnapshotId = useExtensionState(VersioningExtension, {
-    selector: (state) => state.previewedSnapshotId,
-  });
-  const compareToSnapshotId = useExtensionState(VersioningExtension, {
-    selector: (state) => state.compareToSnapshotId,
-  });
-  const revertedSnapshot = useExtensionState(VersioningExtension, {
-    selector: (state) =>
-      snapshot?.restoredFromSnapshotId !== undefined
-        ? state.snapshots.find(
-            (snap) => snap.id === snapshot.restoredFromSnapshotId,
-          )
-        : undefined,
-  });
-
-  const { comparisonEnabled, comparisonMode, setComparisonMode } =
-    useVersioningSidebar();
-
-  const secondaryLabel = useSnapshotLabel(snapshot);
-
-  const dateString = dateToString(new Date(snapshot?.createdAt || 0));
-  const [snapshotName, setSnapshotName] = useState(
-    snapshot?.name || dateString,
-  );
-
-  if (snapshot === undefined) {
-    return null;
+/** Whether `view` is showing this row's version. */
+function isSelectedRow(
+  view: VersioningView,
+  row: VersionSnapshot,
+  isCurrent: boolean,
+): boolean {
+  switch (view.mode) {
+    case "live":
+      return false;
+    case "current":
+      return isCurrent;
+    case "snapshot":
+      return view.snapshotId === row.id;
   }
+}
 
-  // The "Comparing to" badge tracks the actual diff baseline (the store's
-  // `compareToSnapshotId`), so it always shows which version is being compared
-  // against. It's hidden on the row currently being viewed (a version is never
-  // diffed against itself).
-  const isBaseline = compareToSnapshotId === snapshot.id && !selected;
+/**
+ * Focus the name field and reclaim focus restored by a closing menu.
+ * Stop after a second or as soon as the user moves focus themselves.
+ */
+function focusAndReclaim(input: HTMLInputElement) {
+  input.focus();
+  input.select();
 
-  // Clicking a version previews it. In comparison mode it's diffed against its
-  // chronological predecessor — i.e. the baseline always resets to the previous
-  // version. Otherwise the version is shown on its own with no diff.
-  const handleSelect = () => {
-    if (!comparisonMode) {
-      void previewSnapshot(snapshot.id);
+  const row = input.closest('[role="listitem"]');
+  if (!row) {
+    return;
+  }
+  let timeout: ReturnType<typeof setTimeout>;
+  const stop = () => {
+    clearTimeout(timeout);
+    row.removeEventListener("focusin", reclaim);
+    document.removeEventListener("pointerdown", stop, true);
+    document.removeEventListener("keydown", stop, true);
+  };
+  const reclaim = (event: Event) => {
+    if (event.target === input) {
       return;
     }
-    void previewSnapshot(snapshot.id, { compareTo: previousSnapshot?.id });
+    input.focus();
+    input.select();
   };
 
-  // "Compare with this version" moves the diff baseline to this version,
-  // keeping whatever is currently being viewed (the live document when nothing
-  // — or this same version — was being viewed).
-  const handleCompareWith = () => {
-    setComparisonMode(true);
+  timeout = setTimeout(stop, 1000);
+  row.addEventListener("focusin", reclaim);
+  document.addEventListener("pointerdown", stop, true);
+  document.addEventListener("keydown", stop, true);
+}
 
-    const viewingOtherSnapshot =
-      previewedSnapshotId !== undefined &&
-      previewedSnapshotId !== CURRENT_VERSION_ID &&
-      previewedSnapshotId !== snapshot.id;
-    if (viewingOtherSnapshot) {
-      void previewSnapshot(previewedSnapshotId, { compareTo: snapshot.id });
-    } else if (previewCurrentVersion) {
-      void previewCurrentVersion({ compareTo: snapshot.id });
+/** Shared current/stored version row; `isCurrent` controls naming and labels. */
+export function Snapshot(props: {
+  snapshot: VersionSnapshot;
+  /** The previous visible version in the filtered list. */
+  previousSnapshot?: VersionSnapshot;
+  isCurrent: boolean;
+  /** DOM id for this row. */
+  id: string;
+  tabIndex: number;
+  onKeyDown: (event: KeyboardEvent) => void;
+  onFocus: () => void;
+}) {
+  const { snapshot, isCurrent } = props;
+  const Components = useComponentsContext()!;
+  const dict = useDictionary();
+  const { create, rename, getLoadingState } = useExtension(VersioningExtension);
+  const { snapshotMenu, run, focusNameFor, setFocusNameFor } =
+    useVersioningSidebar();
+  const previewRow = usePreviewRow();
+
+  const view = useExtensionState(VersioningExtension, {
+    selector: (state) => state.view,
+  });
+  const status = useExtensionState(VersioningExtension, {
+    selector: getLoadingState,
+  });
+
+  const nameInput = useRef<HTMLInputElement>(null);
+
+  const selected = isSelectedRow(view, snapshot, isCurrent);
+  const comparing =
+    view.mode !== "live" && view.compareToId === snapshot.id && !selected;
+  const secondaryLabel = useSnapshotLabel(snapshot);
+  const dateString = dateToString(new Date(snapshot.createdAt));
+
+  // An unnamed version shows its date instead — a bare timestamp is how an
+  // automatic version identifies itself — except the current row, which is a
+  // place in the list rather than a moment.
+  const placeholder = isCurrent ? dict.versioning.current_version : dateString;
+  const accessibleLabel = [
+    snapshot.name ?? placeholder,
+    isCurrent && snapshot.name !== undefined
+      ? dict.versioning.current_version
+      : undefined,
+    isCurrent || snapshot.name !== undefined ? dateString : undefined,
+    comparing ? dict.versioning.comparing_to : undefined,
+    secondaryLabel,
+  ]
+    .filter(Boolean)
+    .join(", ");
+  // Naming the current version goes through `create`; every other rename is a
+  // `rename`. Both are gated on the backend actually supporting them.
+  const commitsViaCreate = isCurrent && snapshot.name === undefined;
+  const canEditName = (commitsViaCreate ? create : rename) !== undefined;
+  // The name is a field on the selected row only; everywhere else it's text,
+  // and the first click on the row selects it rather than starting a rename.
+  const editable = selected && canEditName === true;
+
+  // Rename requests focus before selecting the row and mounting its input.
+  useEffect(() => {
+    if (focusNameFor !== snapshot.id) {
+      return;
     }
-  };
+    if (editable && nameInput.current) {
+      setFocusNameFor(undefined);
+      focusAndReclaim(nameInput.current);
+    } else if (selected) {
+      setFocusNameFor(undefined);
+    }
+  }, [focusNameFor, setFocusNameFor, snapshot.id, editable, selected]);
 
-  // The menu only appears when at least one of its items is available:
-  // "Compare with this version" (comparison), "Restore", or "Delete". When none
-  // apply, there's nothing to show, so drop the menu entirely.
+  // Only the selected row is loading: `status` carries the view being switched
+  // to, which is exactly the row the user clicked. Announced on the row only;
+  // what the eye gets is the editor, which the extension marks for every load
+  // (see LOADING_PREVIEW_CLASS).
+  const loading =
+    status.type === "loading-preview" &&
+    isSelectedRow(status.view, snapshot, isCurrent);
+
+  function handleSelect() {
+    void run(() => previewRow(snapshot));
+  }
+
+  /** Select the row to mount its name field, then focus it. */
+  function startRename() {
+    if (editable && nameInput.current) {
+      focusAndReclaim(nameInput.current);
+      return;
+    }
+    setFocusNameFor(snapshot.id);
+    handleSelect();
+  }
+
+  function commitName(name: string | undefined) {
+    if (commitsViaCreate && create) {
+      void run(() => create({ name }));
+    } else if (!commitsViaCreate && rename) {
+      void run(() => rename(snapshot.id, name));
+    }
+  }
+
   const actions =
-    comparisonEnabled || canRestore || canRemove ? (
+    snapshotMenu != null && snapshotMenu !== false ? (
       <Components.Generic.Toolbar.Root
         variant="action-toolbar"
+        trapFocus={false}
+        aria-label={`${dict.versioning.more_actions}: ${accessibleLabel}`}
         className="bn-action-toolbar"
       >
         <Components.Generic.Menu.Root position="bottom-start">
           <Components.Generic.Menu.Trigger>
             <Components.Generic.Toolbar.Button
               className="bn-snapshot-menu-trigger"
-              mainTooltip="More"
+              label={dict.versioning.more_actions}
+              mainTooltip={dict.versioning.more_actions}
               variant="compact"
               onClick={(event) => {
-                event.preventDefault();
+                // Not `preventDefault`: Ariakit's disclosure bails on a
+                // default-prevented click, so the menu would never open.
+                // Stopping propagation is all the row needs — the click must
+                // not also select the row behind the trigger.
                 event.stopPropagation();
               }}
             >
               <RiMoreFill size={16} />
             </Components.Generic.Toolbar.Button>
           </Components.Generic.Menu.Trigger>
-          <Components.Generic.Menu.Dropdown className="bn-menu-dropdown">
-            {comparisonEnabled && (
-              <Components.Generic.Menu.Item
-                icon={<RiArrowLeftRightLine />}
-                onClick={handleCompareWith}
-              >
-                Compare with this version
-              </Components.Generic.Menu.Item>
-            )}
-            {canRestore && (
-              <Components.Generic.Menu.Item
-                icon={<RiArrowGoBackFill />}
-                onClick={() => {
-                  void restore?.(snapshot.id);
-                }}
-              >
-                Restore
-              </Components.Generic.Menu.Item>
-            )}
-            {canRemove && (
-              <Components.Generic.Menu.Item
-                icon={<RiDeleteBinLine />}
-                onClick={() => {
-                  void remove?.(snapshot.id);
-                }}
-              >
-                Delete
-              </Components.Generic.Menu.Item>
-            )}
-          </Components.Generic.Menu.Dropdown>
+          {snapshotMenu}
         </Components.Generic.Menu.Root>
       </Components.Generic.Toolbar.Root>
-    ) : undefined;
+    ) : null;
 
   return (
-    <Components.Versioning.Snapshot
-      className="bn-snapshot"
-      selected={selected}
-      comparing={isBaseline}
-      onClick={handleSelect}
-      actions={actions}
+    <VersionSnapshotProvider
+      value={{
+        snapshot,
+        previousSnapshot: props.previousSnapshot,
+        isCurrent,
+        selected,
+        comparing,
+        startRename,
+      }}
     >
-      {isBaseline && (
-        <div className="bn-snapshot-comparing-to">
-          <RiArrowLeftRightLine size={14} />
-          <span>Comparing to</span>
+      <Components.Versioning.Snapshot
+        className={
+          selected && view.mode !== "live" && view.compareToId !== undefined
+            ? "bn-snapshot bn-snapshot-comparison-source"
+            : "bn-snapshot"
+        }
+        id={props.id}
+        aria-label={accessibleLabel}
+        selected={selected}
+        comparing={comparing}
+        aria-busy={loading || undefined}
+        tabIndex={props.tabIndex}
+        onClick={handleSelect}
+        onKeyDown={props.onKeyDown}
+        onFocus={props.onFocus}
+        actions={actions}
+      >
+        {comparing && (
+          <div className="bn-snapshot-comparing-to">
+            <GoDiff size={14} />
+            <span>{dict.versioning.comparing_to}</span>
+          </div>
+        )}
+        <div className="bn-snapshot-body">
+          <div className="bn-snapshot-title-row">
+            <VersionName
+              name={snapshot.name}
+              placeholder={placeholder}
+              editable={editable}
+              inputRef={nameInput}
+              onCommit={commitName}
+            />
+          </div>
+          {/* What the row is, once a name has taken that slot: the date for a
+              stored version, and "Current version" for the current row — the
+              row that would otherwise read as just another named version. */}
+          {isCurrent && snapshot.name !== undefined ? (
+            <div className="bn-snapshot-date">
+              {dict.versioning.current_version}
+            </div>
+          ) : isCurrent || snapshot.name !== undefined ? (
+            <div className="bn-snapshot-date">{dateString}</div>
+          ) : null}
+          {snapshot.restoredFrom !== undefined && (
+            <div className="bn-snapshot-original-date">
+              {dict.versioning.restored_from(
+                dateToString(new Date(snapshot.restoredFrom.createdAt)),
+              )}
+            </div>
+          )}
+          {secondaryLabel !== undefined && (
+            <div className="bn-snapshot-secondary-label">{secondaryLabel}</div>
+          )}
         </div>
-      )}
-      <div className="bn-snapshot-body">
-        {canRename ? (
-          <input
-            className="bn-snapshot-name"
-            type="text"
-            value={snapshotName}
-            // Editing the title is only allowed once this version is the one
-            // being viewed. Otherwise the first click just selects the version.
-            readOnly={!selected}
-            // Signal the interaction: a pointer (button-like) when the click
-            // will only select this version, a text caret once it's editable.
-            style={{ cursor: selected ? "text" : "pointer" }}
-            onChange={(e) => setSnapshotName(e.target.value)}
-            onMouseDown={(e) => {
-              // When this version isn't selected, keep the input from grabbing
-              // focus so the click falls through to the row and only selects
-              // the version — a second click (now selected) starts editing.
-              if (!selected) {
-                e.preventDefault();
-              }
-            }}
-            onClick={(e) => {
-              // Only swallow the click once editable; otherwise let it bubble
-              // to the row's handler so this version gets selected.
-              if (selected) {
-                e.stopPropagation();
-              }
-            }}
-            onBlur={() =>
-              rename?.(
-                snapshot.id,
-                snapshotName === dateString ? undefined : snapshotName,
-              )
-            }
-          />
-        ) : (
-          <div className="bn-snapshot-name">{snapshotName}</div>
-        )}
-        {snapshot.name && snapshot.name !== dateString && (
-          <div className="bn-snapshot-date">{dateString}</div>
-        )}
-        {revertedSnapshot && (
-          <div className="bn-snapshot-original-date">{`Restored from ${dateToString(new Date(revertedSnapshot.createdAt))}`}</div>
-        )}
-        {secondaryLabel !== undefined && (
-          <div className="bn-snapshot-secondary-label">{secondaryLabel}</div>
-        )}
-      </div>
-    </Components.Versioning.Snapshot>
+      </Components.Versioning.Snapshot>
+    </VersionSnapshotProvider>
   );
-};
+}
