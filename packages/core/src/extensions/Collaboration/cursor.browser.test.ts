@@ -29,6 +29,82 @@ afterEach(() => {
   }
 });
 
+function expectLabelTransition(
+  label: HTMLElement,
+  caret: Element,
+  from: DOMRect,
+  to: DOMRect,
+) {
+  const animations = label.getAnimations();
+  expect(animations.length).toBeGreaterThan(0);
+  for (const animation of animations) {
+    animation.pause();
+    animation.currentTime = 0;
+  }
+  const start = label.getBoundingClientRect();
+  for (const property of ["top", "left", "width", "height"] as const) {
+    expect(start[property]).toBeCloseTo(from[property], 1);
+  }
+  for (const animation of animations) {
+    animation.currentTime = 100;
+  }
+  const middle = label.getBoundingClientRect();
+  for (const property of ["top", "left", "width", "height"] as const) {
+    if (Math.abs(from[property] - to[property]) > 1) {
+      expect(middle[property]).toBeGreaterThan(
+        Math.min(from[property], to[property]),
+      );
+      expect(middle[property]).toBeLessThan(
+        Math.max(from[property], to[property]),
+      );
+    }
+  }
+  // Moving the anchor must move the whole in-progress animation immediately,
+  // rather than starting another transition from its old viewport coordinates.
+  const caretStyle = caret.getAttribute("style");
+  const dx =
+    caret.getBoundingClientRect().right >
+    document.documentElement.clientWidth - 20
+      ? -10
+      : 10;
+  caret.setAttribute("style", `${caretStyle ?? ""};translate:${dx}px 1px;`);
+  const moved = label.getBoundingClientRect();
+  expect(moved.left - middle.left).toBeCloseTo(dx, 1);
+  expect(moved.top - middle.top).toBeCloseTo(1, 1);
+  if (caretStyle === null) {
+    caret.removeAttribute("style");
+  } else {
+    caret.setAttribute("style", caretStyle);
+  }
+
+  // Sampling just before completion catches a delayed placement reset that
+  // would otherwise snap to the endpoint when the animation finishes.
+  for (const animation of animations) {
+    animation.currentTime = 199;
+  }
+  const almostFinished = label.getBoundingClientRect();
+  for (const property of ["top", "left", "width", "height"] as const) {
+    expect(Math.abs(almostFinished[property] - to[property])).toBeLessThan(1);
+  }
+  for (const animation of animations) {
+    animation.finish();
+  }
+  const finished = label.getBoundingClientRect();
+  for (const property of ["top", "left", "width", "height"] as const) {
+    expect(finished[property]).toBeCloseTo(to[property], 1);
+  }
+}
+
+function expectOpeningAndClosing(label: HTMLElement, caret: Element) {
+  const open = label.getBoundingClientRect();
+  const anchor = caret.getBoundingClientRect();
+  const closed = new DOMRect(anchor.left, anchor.top - 2, 4, 5);
+  label.removeAttribute("data-active");
+  expectLabelTransition(label, caret, open, closed);
+  label.setAttribute("data-active", "");
+  expectLabelTransition(label, caret, closed, open);
+}
+
 function create13(options: Options) {
   const doc = new Y13.Doc();
   const awareness = new Awareness13(doc);
@@ -176,8 +252,12 @@ for (const [name, create] of [
           ".bn-collaboration-cursor__label",
         )!;
         await expect
-          .poll(() => getComputedStyle(element).maxWidth)
-          .toBe("320px");
+          .poll(() =>
+            getComputedStyle(element)
+              .getPropertyValue("--bn-cursor-label-open")
+              .trim(),
+          )
+          .toBe("1");
         return element;
       }
       return { ...session, container, mount, moveTo, label };
@@ -195,13 +275,20 @@ for (const [name, create] of [
       );
       expect(caret).not.toBeNull();
       expect(session.mount.contains(label)).toBe(false);
-      expect(label.getBoundingClientRect().top).toBeCloseTo(
-        caret!.getBoundingClientRect().top - 18,
+      await expect
+        .poll(() => getComputedStyle(label).borderBottomLeftRadius)
+        .toBe("0px");
+      expect(getComputedStyle(label).borderTopLeftRadius).toBe("3px");
+      expect(getComputedStyle(label).borderTopRightRadius).toBe("3px");
+      expect(getComputedStyle(label).borderBottomRightRadius).toBe("3px");
+      expect(label.getBoundingClientRect().bottom).toBeCloseTo(
+        caret!.getBoundingClientRect().top,
         0,
       );
       expect(label.getBoundingClientRect().top).toBeLessThan(
         wrapper.getBoundingClientRect().top,
       );
+      expectOpeningAndClosing(label, caret!);
       session.remove();
       await expect
         .poll(() => session.editor.portalElement.childElementCount)
@@ -228,22 +315,22 @@ for (const [name, create] of [
         expect(label.style.getPropertyValue("position-anchor")).toBe(
           caret.style.getPropertyValue("anchor-name"),
         );
-        expect(label.getBoundingClientRect().top).toBeCloseTo(
-          caret.getBoundingClientRect().top - 18,
+        expect(label.getBoundingClientRect().bottom).toBeCloseTo(
+          caret.getBoundingClientRect().top,
           0,
         );
       }
     });
 
-    it("keeps labels above the caret at the top edge", async () => {
+    it("keeps labels above the caret at the editor top edge", async () => {
       const session = setup();
       session.moveTo(".bn-inline-content", "Remote User ".repeat(20));
       const label = await session.label();
       const caret = session.mount.querySelector(
         ".bn-collaboration-cursor__caret",
       )!;
-      expect(label.getBoundingClientRect().top).toBeCloseTo(
-        caret.getBoundingClientRect().top - 18,
+      expect(label.getBoundingClientRect().bottom).toBeCloseTo(
+        caret.getBoundingClientRect().top,
         0,
       );
       expect(label.getBoundingClientRect().left).toBeCloseTo(
@@ -254,6 +341,78 @@ for (const [name, create] of [
         session.mount.getBoundingClientRect().top,
       );
     });
+
+    for (const edge of ["top", "right", "top-right"] as const) {
+      it(`keeps labels inside the viewport at the ${edge} edge`, async () => {
+        const session = setup();
+        const atTop = edge !== "right";
+        const atRight = edge !== "top";
+        session.container.style.cssText = `position:fixed;top:${atTop ? 0 : 80}px;left:${atRight ? "auto" : "40px"};right:${atRight ? "4px" : "auto"};width:500px;height:180px;overflow:auto;margin:0;`;
+        if (atRight) {
+          session.editor.updateBlock(session.editor.document[0], {
+            props: { textAlignment: "right" },
+          });
+        }
+        const paragraph =
+          session.mount.querySelector<HTMLElement>(".bn-inline-content")!;
+        session.move(
+          session.editor.prosemirrorView.posAtDOM(
+            paragraph,
+            atRight ? paragraph.childNodes.length : 0,
+          ),
+        );
+        const label = await session.label();
+        const caret = session.mount.querySelector<HTMLElement>(
+          ".bn-collaboration-cursor__caret",
+        )!;
+        await expect
+          .poll(() => {
+            const rect = label.getBoundingClientRect();
+            return (
+              rect.top >= 0 &&
+              rect.left >= 0 &&
+              rect.right <= document.documentElement.clientWidth &&
+              rect.bottom <= document.documentElement.clientHeight
+            );
+          })
+          .toBe(true);
+        await expect
+          .poll(() => {
+            const style = getComputedStyle(label);
+            return [
+              style.borderTopLeftRadius,
+              style.borderTopRightRadius,
+              style.borderBottomRightRadius,
+              style.borderBottomLeftRadius,
+            ];
+          })
+          .toEqual(
+            edge === "top"
+              ? ["0px", "3px", "3px", "3px"]
+              : edge === "right"
+                ? ["3px", "3px", "0px", "3px"]
+                : ["3px", "0px", "3px", "3px"],
+          );
+        if (atTop) {
+          expect(label.getBoundingClientRect().top).toBeCloseTo(
+            caret.getBoundingClientRect().bottom,
+            0,
+          );
+        } else {
+          expect(label.getBoundingClientRect().bottom).toBeCloseTo(
+            caret.getBoundingClientRect().top,
+            0,
+          );
+        }
+        if (atRight) {
+          expect(label.getBoundingClientRect().right).toBeCloseTo(
+            caret.getBoundingClientRect().right,
+            0,
+          );
+        }
+        expectOpeningAndClosing(label, caret!);
+      });
+    }
 
     it("tracks scrolling without hiding labels whose caret is clipped", async () => {
       const session = setup({ showCursorLabels: "always" }, document.body);
@@ -269,19 +428,17 @@ for (const [name, create] of [
       await expect
         .poll(() =>
           Math.abs(
-            label.getBoundingClientRect().top -
-              caret.getBoundingClientRect().top +
-              18,
+            label.getBoundingClientRect().bottom -
+              caret.getBoundingClientRect().top,
           ),
         )
         .toBeLessThan(1);
-      session.container.scrollTop = 140;
+      session.container.scrollTop += 16;
       await expect
         .poll(() =>
           Math.abs(
-            label.getBoundingClientRect().top -
-              caret.getBoundingClientRect().top +
-              18,
+            label.getBoundingClientRect().bottom -
+              caret.getBoundingClientRect().top,
           ),
         )
         .toBeLessThan(1);
@@ -290,9 +447,8 @@ for (const [name, create] of [
       await expect
         .poll(() =>
           Math.abs(
-            label.getBoundingClientRect().top -
-              caret.getBoundingClientRect().top +
-              18,
+            label.getBoundingClientRect().bottom -
+              caret.getBoundingClientRect().top,
           ),
         )
         .toBeLessThan(1);
@@ -300,7 +456,7 @@ for (const [name, create] of [
       expect(label.isConnected).toBe(false);
     });
 
-    it("keeps labels to the right of the caret at the right edge", async () => {
+    it("keeps labels to the right of the caret at the editor right edge", async () => {
       const session = setup();
       session.editor.updateBlock(session.editor.document.at(-1)!, {
         props: { textAlignment: "right" },
@@ -400,23 +556,68 @@ for (const [name, create] of [
       expect(session.editor.portalElement.childElementCount).toBe(0);
     });
 
+    it("opens at the new caret location when a hidden cursor moves", async () => {
+      const session = setup({ showCursorLabels: "activity" });
+      session.moveTo(".bn-inline-content");
+      const label = await session.label();
+      label.removeAttribute("data-active");
+      for (const animation of label.getAnimations()) {
+        animation.finish();
+      }
+      const oldPosition = label.getBoundingClientRect();
+      session.moveTo("td p");
+      const animations = label.getAnimations();
+      for (const animation of animations) {
+        animation.pause();
+        animation.currentTime = 0;
+      }
+      const caret = session.mount.querySelector<HTMLElement>(
+        "td .bn-collaboration-cursor__caret",
+      )!;
+      const start = label.getBoundingClientRect();
+      expect(start.top).not.toBeCloseTo(oldPosition.top, 1);
+      expect(start.top).toBeCloseTo(caret.getBoundingClientRect().top - 2, 1);
+      expect(start.left).toBeCloseTo(caret.getBoundingClientRect().left, 1);
+      for (const animation of animations) {
+        animation.finish();
+      }
+    });
+
     it("shows activity labels on hover and hides them after inactivity", async () => {
       const session = setup({ showCursorLabels: "activity" });
       session.moveTo("td p");
       const label = await session.label();
       await expect
-        .poll(() => getComputedStyle(label).maxWidth, { timeout: 4000 })
-        .toBe("4px");
+        .poll(
+          () =>
+            getComputedStyle(label)
+              .getPropertyValue("--bn-cursor-label-open")
+              .trim(),
+          { timeout: 4000 },
+        )
+        .toBe("0");
       expect(label.isConnected).toBe(true);
       const cursor = session.mount.querySelector(
         ".bn-collaboration-cursor__base",
       )!;
       cursor.dispatchEvent(new MouseEvent("mouseenter"));
-      await expect.poll(() => getComputedStyle(label).maxWidth).toBe("320px");
+      await expect
+        .poll(() =>
+          getComputedStyle(label)
+            .getPropertyValue("--bn-cursor-label-open")
+            .trim(),
+        )
+        .toBe("1");
       cursor.dispatchEvent(new MouseEvent("mouseleave"));
       await expect
-        .poll(() => getComputedStyle(label).maxWidth, { timeout: 4000 })
-        .toBe("4px");
+        .poll(
+          () =>
+            getComputedStyle(label)
+              .getPropertyValue("--bn-cursor-label-open")
+              .trim(),
+          { timeout: 4000 },
+        )
+        .toBe("0");
     });
   });
 }

@@ -42,15 +42,28 @@ function defaultCursorRender(user: CollaborationUser) {
   labelElement.classList.add("bn-collaboration-cursor__label");
   labelElement.textContent = user.name;
 
+  // Reserves the open label's size to flip the orientation at the viewport edges before opening.
+  const collisionRect = document.createElement("span");
+  collisionRect.classList.add("bn-collaboration-cursor__label-collision-rect");
+  const measurement = document.createElement("span");
+  measurement.textContent = user.name;
+  measurement.setAttribute("aria-hidden", "true");
+  collisionRect.append(measurement, labelElement);
+
   // Names must be unique across editors sharing the same document/portal root.
   const anchorName = `--bn-cursor-${uuidv4()}`;
   caretElement.style.setProperty("anchor-name", anchorName);
   labelElement.style.setProperty("position-anchor", anchorName);
+  collisionRect.style.setProperty("position-anchor", anchorName);
+  collisionRect.style.setProperty("anchor-name", `${anchorName}-label`);
+  labelElement.style.setProperty(
+    "--bn-cursor-label-anchor",
+    `${anchorName}-label`,
+  );
 
   const textColor = isDarkColor(user.color) ? "white" : "black";
-  for (const element of [caretElement, labelElement]) {
-    element.style.backgroundColor = user.color;
-  }
+  caretElement.style.backgroundColor = user.color;
+  labelElement.style.backgroundColor = user.color;
 
   labelElement.style.setProperty("--bn-cursor-label-color", textColor);
   // Word joiners anchor the widget in the text without adding visible spacing.
@@ -58,13 +71,13 @@ function defaultCursorRender(user: CollaborationUser) {
 
   return {
     element: cursorElement,
-    label: labelElement,
+    label: { element: labelElement, collisionRect },
   };
 }
 
 type Cursor = {
   element: HTMLElement;
-  label?: HTMLElement;
+  label?: { element: HTMLElement; collisionRect: HTMLElement };
   hideTimeout?: ReturnType<typeof setTimeout>;
 };
 
@@ -82,20 +95,20 @@ export function createCollaborationCursorManager(options: {
     if (!label || !view || !view.dom.contains(cursor.element)) {
       return;
     }
-    label.toggleAttribute(
+    label.element.toggleAttribute(
       "data-active",
       cursor.element.hasAttribute("data-active"),
     );
     const portal = options.getPortalElement();
-    if (label.parentElement !== portal) {
-      portal.append(label);
+    if (label.collisionRect.parentElement !== portal) {
+      portal.append(label.collisionRect);
     }
   }
 
   function hideCursor(cursor: Cursor) {
     clearTimeout(cursor.hideTimeout);
     cursor.element.removeAttribute("data-active");
-    cursor.label?.removeAttribute("data-active");
+    cursor.label?.element.removeAttribute("data-active");
   }
 
   function showCursor(cursor: Cursor) {
@@ -114,7 +127,7 @@ export function createCollaborationCursorManager(options: {
     for (const [clientID, cursor] of cursors) {
       if (!view.dom.contains(cursor.element)) {
         hideCursor(cursor);
-        cursor.label?.remove();
+        cursor.label?.collisionRect.remove();
         cursors.delete(clientID);
       } else {
         syncLabel(cursor);
@@ -165,7 +178,7 @@ export function createCollaborationCursorManager(options: {
           destroy() {
             for (const cursor of cursors.values()) {
               hideCursor(cursor);
-              cursor.label?.remove();
+              cursor.label?.collisionRect.remove();
             }
             cursors.clear();
             view = undefined;
