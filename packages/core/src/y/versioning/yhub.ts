@@ -84,6 +84,7 @@ export function createYHubVersioningEndpoints(
           | Y.Doc
           | undefined,
     );
+    let listedCurrent: YHubSnapshot | undefined;
 
     function fetchActivity(overrides?: YHubQueryParams) {
       return client.getActivity({
@@ -143,6 +144,7 @@ export function createYHubVersioningEndpoints(
           createdAt: now,
         };
         rows.delete(Number(current.id));
+        listedCurrent = current;
         return {
           current,
           snapshots: [...rows.values()].sort(
@@ -155,21 +157,25 @@ export function createYHubVersioningEndpoints(
         // Fail before the fetch when there's nothing to write the name into.
         versions.getArray();
 
-        const newest = await fetchNewestEntry();
-        if (!newest) {
-          throw new Error(
-            "Cannot name the current version: YHub has recorded no activity " +
-              "for this document yet.",
-          );
+        let current = listedCurrent;
+        if (!current) {
+          const newest = await fetchNewestEntry();
+          if (!newest) {
+            throw new Error(
+              "Cannot name the current version: YHub has recorded no activity " +
+                "for this document yet.",
+            );
+          }
+          current = activityToSnapshot(newest);
         }
 
-        // Saving unnamed preserves any existing name on the newest edit.
+        // Saving unnamed preserves any existing name on the listed edit.
         if (createOptions.name) {
-          versions.setName(newest.to, createOptions.name);
+          versions.setName(timestampId(current), createOptions.name);
         }
         return {
-          ...activityToSnapshot(newest),
-          name: versions.readEntries().get(newest.to)?.name,
+          ...current,
+          name: versions.readEntries().get(timestampId(current))?.name,
         };
       },
 

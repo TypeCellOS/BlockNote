@@ -9,6 +9,7 @@ import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { usePreviewRow } from "./usePreviewRow.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
+import { getShownVersionRow, getVisibleVersionRows } from "./visibleHistory.js";
 
 /** A header button, whose tooltip and accessible name are the same string. */
 function HeaderButton(props: {
@@ -56,13 +57,12 @@ export function VersioningSidebarHeader(props: { onClose?: () => void }) {
     if (view.mode === "live" || !list.loaded) {
       return;
     }
-    const shown =
-      view.mode === "current"
-        ? list.current
-        : list.snapshots.find((s) => s.id === view.snapshotId);
+    const shown = getShownVersionRow(list, view);
     if (shown) {
       void run(() =>
-        previewRow(shown, { compareTo: { type: next ? "previous" : "none" } }),
+        previewRow(shown.snapshot, {
+          compareTo: { type: next ? "previous" : "none" },
+        }),
       );
     }
   }
@@ -78,24 +78,23 @@ export function VersioningSidebarHeader(props: { onClose?: () => void }) {
     if (view.mode === "live" || !list.loaded) {
       return;
     }
-    const shown =
-      view.mode === "snapshot"
-        ? list.snapshots.find((snapshot) => snapshot.id === view.snapshotId)
-        : list.current;
+    const shown = getShownVersionRow(list, view);
+    const visibleRows = getVisibleVersionRows(list, next);
+    const visibleShown = visibleRows.find(
+      (row) => row.snapshot.id === shown?.snapshot.id,
+    );
     void run(() =>
-      previewRow(
-        shown && (!next || shown.name !== undefined) ? shown : list.current,
-        {
-          compareTo: { type: "none" },
-        },
-      ),
+      previewRow(visibleShown?.snapshot ?? list.current, {
+        compareTo: { type: "none" },
+      }),
     );
   }
 
   return (
-    <div className="bn-versioning-sidebar-header">
-      <div className="bn-versioning-sidebar-header-title">
-        <h2 className="bn-versioning-sidebar-title">{dict.versioning.title}</h2>
+    <Components.Versioning.Header
+      className="bn-versioning-sidebar-header"
+      title={dict.versioning.title}
+      actions={
         <Components.Generic.Toolbar.Root
           variant="action-toolbar"
           trapFocus={false}
@@ -127,26 +126,28 @@ export function VersioningSidebarHeader(props: { onClose?: () => void }) {
             </HeaderButton>
           )}
         </Components.Generic.Toolbar.Root>
-      </div>
-      {props.onClose && (
-        <Components.Generic.Toolbar.Root
-          variant="action-toolbar"
-          trapFocus={false}
-          aria-label={dict.versioning.close}
-          className="bn-action-toolbar bn-versioning-sidebar-header-actions"
-        >
-          <HeaderButton
-            label={dict.versioning.close}
-            onClick={() => {
-              close();
-              editor.focus();
-              props.onClose?.();
-            }}
+      }
+      closeAction={
+        props.onClose ? (
+          <Components.Generic.Toolbar.Root
+            variant="action-toolbar"
+            trapFocus={false}
+            aria-label={dict.versioning.close}
+            className="bn-action-toolbar bn-versioning-sidebar-header-actions"
           >
-            <RiCloseLine size={16} />
-          </HeaderButton>
-        </Components.Generic.Toolbar.Root>
-      )}
-    </div>
+            <HeaderButton
+              label={dict.versioning.close}
+              onClick={() => {
+                close();
+                editor.focus();
+                props.onClose?.();
+              }}
+            >
+              <RiCloseLine size={16} />
+            </HeaderButton>
+          </Components.Generic.Toolbar.Root>
+        ) : undefined
+      }
+    />
   );
 }

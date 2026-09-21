@@ -1,5 +1,6 @@
 import type { VersionSnapshot } from "@blocknote/core/extensions";
 import { createContext, useContext, type ReactNode } from "react";
+import type { VersioningSnapshotState } from "../../editor/ComponentsContext.js";
 
 /**
  * Everything a version row's menu items need to know about the row they were
@@ -12,10 +13,8 @@ export type VersionSnapshotContextValue = {
   snapshot: VersionSnapshot;
   /** Whether this row is the current version (the live document). */
   isCurrent: boolean;
-  /** Whether this row is the version the editor is showing. */
-  selected: boolean;
-  /** Whether this row is the baseline the rendered diff is compared against. */
-  comparing: boolean;
+  /** The row's mutually exclusive selection and comparison state. */
+  state: VersioningSnapshotState;
   /**
    * Focus this row's name field. Naming an unnamed current version and renaming
    * a stored one both go through here; the row picks the right verb on commit.

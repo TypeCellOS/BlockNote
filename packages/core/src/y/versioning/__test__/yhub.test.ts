@@ -396,6 +396,36 @@ describe("createYHubVersioningEndpoints", () => {
   // create (name the current version)
   // -------------------------------------------------------------------------
   describe("create", () => {
+    it("names the listed Current, then accepts newer backend activity", async () => {
+      const doc = new Y.Doc();
+      const { endpoints, fragment } = makeCollabEndpoints(doc);
+      const newerActivity = {
+        from: ENTRY_2.to + 1000,
+        to: ENTRY_2.to + 1000,
+      };
+
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [ENTRY_2, ENTRY_1] }),
+      );
+      await endpoints.list();
+
+      const named = await endpoints.create!(fragment, { name: "Milestone" });
+      expect(fetchSpy).toHaveBeenCalledOnce();
+      expect(named).toEqual({ ...SNAPSHOT_2, name: "Milestone" });
+
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({
+          activity: [newerActivity, ENTRY_2, ENTRY_1],
+        }),
+      );
+      const { current, snapshots } = await endpoints.list();
+      expect(current).toEqual({
+        id: String(newerActivity.to),
+        createdAt: newerActivity.to,
+      });
+      expect(snapshots).toEqual([named, SNAPSHOT_1]);
+    });
+
     it("names the newest activity entry via a limit-1 fetch", async () => {
       const doc = new Y.Doc();
       const { endpoints, fragment } = makeCollabEndpoints(doc);
@@ -657,6 +687,42 @@ describe("createYHubVersioningEndpoints", () => {
   // restore
   // -------------------------------------------------------------------------
   describe("restore", () => {
+    it("does not keep a named pre-restore Current pinned", async () => {
+      const doc = new Y.Doc();
+      const { endpoints, fragment } = makeCollabEndpoints(doc);
+
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [ENTRY_2, ENTRY_1] }),
+      );
+      await endpoints.list();
+      const named = await endpoints.create!(fragment, { name: "Milestone" });
+
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse(makeChangeset()));
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ activity: [ENTRY_2] }),
+      );
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({ doc: Y.encodeStateAsUpdate(doc) }),
+      );
+      fetchSpy.mockResolvedValueOnce(mockFetchResponse({ success: true }));
+      await endpoints.restore!(fragment, SNAPSHOT_1);
+
+      const restoredHead = ENTRY_2.to + 2000;
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({
+          activity: [
+            { from: restoredHead, to: restoredHead },
+            ENTRY_2,
+            ENTRY_1,
+          ],
+        }),
+      );
+      const { current, snapshots } = await endpoints.list();
+
+      expect(current.createdAt).toBe(restoredHead);
+      expect(snapshots).toContainEqual(named);
+    });
+
     it("restores the exact boundary and deleted subtrees without reverting metadata or other roots", async () => {
       const server = new Y.Doc({ gc: false });
       const fragmentOnServer = server.get("default", "XmlFragment");

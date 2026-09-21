@@ -3,17 +3,25 @@ import {
   ComponentType,
   createContext,
   CSSProperties,
+  FocusEvent,
   ForwardedRef,
   HTMLInputAutoCompleteAttribute,
   KeyboardEvent,
   MouseEvent,
   ReactNode,
+  RefObject,
   useContext,
 } from "react";
 
 import { BlockNoteEditor, User } from "@blocknote/core";
 import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types.js";
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types.js";
+
+export type VersioningSnapshotState =
+  | "default"
+  | "selected"
+  | "comparison-source"
+  | "comparison-baseline";
 
 type ToolbarRootType = {
   "aria-label"?: string;
@@ -249,6 +257,30 @@ export type ComponentProps = {
       className?: string;
       children?: ReactNode;
     };
+    /** The sidebar heading and its filter, comparison, and close actions. */
+    Header: {
+      className?: string;
+      title: string;
+      actions: ReactNode;
+      closeAction?: ReactNode;
+    };
+    /** A version name, rendered as text or as an inline controlled field. */
+    Name:
+      | {
+          mode: "display";
+          value: string;
+        }
+      | {
+          mode: "editing";
+          value: string;
+          placeholder: string;
+          "aria-label": string;
+          inputRef: RefObject<HTMLInputElement | null>;
+          onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+          onClick: (event: MouseEvent<HTMLInputElement>) => void;
+          onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
+          onBlur: (event: FocusEvent<HTMLInputElement>) => void;
+        };
     /**
      * A single row in the version-history sidebar — the current version or a
      * stored one. Rendered as a `role="listitem"` inside the sidebar's list,
@@ -258,10 +290,8 @@ export type ComponentProps = {
       "aria-label"?: string;
       className?: string;
       id?: string;
-      /** Whether this row is the version currently shown in the editor. */
-      selected?: boolean;
-      /** Whether this row is the baseline the current diff is compared against. */
-      comparing?: boolean;
+      /** The row's mutually exclusive selection and comparison state. */
+      state: VersioningSnapshotState;
       /** `0` for the active row of the roving tabindex, `-1` for the rest. */
       tabIndex?: number;
       /** Whether this row's content is still loading. */
@@ -271,7 +301,12 @@ export type ComponentProps = {
       onFocus?: () => void;
       /** Row actions (e.g. the "..." menu), revealed on hover. */
       actions?: ReactNode;
-      children?: ReactNode;
+      name: ReactNode;
+      date?: string;
+      restoredFrom?: string;
+      secondaryLabel?: string;
+      comparingLabel?: string;
+      comparingIcon?: ReactNode;
     };
     /** The spinner shown while versions (or a preview) are loading. */
     Loader: {

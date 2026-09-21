@@ -8,6 +8,7 @@ import { GoDiff } from "react-icons/go";
 import { RiMoreFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import type { VersioningSnapshotState } from "../../editor/ComponentsContext.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { dateToString } from "./dateToString.js";
@@ -18,19 +19,36 @@ import { useVersioningSidebar } from "./VersioningSidebarContext.js";
 import { VersionSnapshotProvider } from "./VersionSnapshotContext.js";
 
 /** Whether `view` is showing this row's version. */
-function isSelectedRow(
+function getSnapshotState(
   view: VersioningView,
   row: VersionSnapshot,
   isCurrent: boolean,
-): boolean {
+): VersioningSnapshotState {
   switch (view.mode) {
     case "live":
-      return false;
-    case "current":
-      return isCurrent;
-    case "snapshot":
-      return view.snapshotId === row.id;
+      return "default";
+    case "current": {
+      if (view.compareToId === row.id && !isCurrent) {
+        return "comparison-baseline";
+      }
+      if (!isCurrent) {
+        return "default";
+      }
+      return view.compareToId === undefined ? "selected" : "comparison-source";
+    }
+    case "snapshot": {
+      if (view.snapshotId === row.id) {
+        return view.compareToId === undefined
+          ? "selected"
+          : "comparison-source";
+      }
+      return view.compareToId === row.id ? "comparison-baseline" : "default";
+    }
   }
+}
+
+function isSelectedState(state: VersioningSnapshotState): boolean {
+  return state === "selected" || state === "comparison-source";
 }
 
 /**
@@ -93,11 +111,23 @@ export function Snapshot(props: {
 
   const nameInput = useRef<HTMLInputElement>(null);
 
-  const selected = isSelectedRow(view, snapshot, isCurrent);
-  const comparing =
-    view.mode !== "live" && view.compareToId === snapshot.id && !selected;
+  const state = getSnapshotState(view, snapshot, isCurrent);
+  const selected = isSelectedState(state);
+  const comparing = state === "comparison-baseline";
   const secondaryLabel = useSnapshotLabel(snapshot);
   const dateString = dateToString(new Date(snapshot.createdAt));
+  const rowDate =
+    isCurrent && snapshot.name !== undefined
+      ? dict.versioning.current_version
+      : isCurrent || snapshot.name !== undefined
+        ? dateString
+        : undefined;
+  const restoredFrom =
+    snapshot.restoredFrom !== undefined
+      ? dict.versioning.restored_from(
+          dateToString(new Date(snapshot.restoredFrom.createdAt)),
+        )
+      : undefined;
 
   // An unnamed version shows its date instead — a bare timestamp is how an
   // automatic version identifies itself — except the current row, which is a
@@ -141,7 +171,7 @@ export function Snapshot(props: {
   // (see LOADING_PREVIEW_CLASS).
   const loading =
     status.type === "loading-preview" &&
-    isSelectedRow(status.view, snapshot, isCurrent);
+    isSelectedState(getSnapshotState(status.view, snapshot, isCurrent));
 
   function handleSelect() {
     void run(() => previewRow(snapshot));
@@ -201,66 +231,36 @@ export function Snapshot(props: {
       value={{
         snapshot,
         isCurrent,
-        selected,
-        comparing,
+        state,
         startRename,
       }}
     >
       <Components.Versioning.Snapshot
-        className={
-          selected && view.mode !== "live" && view.compareToId !== undefined
-            ? "bn-snapshot bn-snapshot-comparison-source"
-            : "bn-snapshot"
-        }
+        className="bn-snapshot"
         id={props.id}
         aria-label={accessibleLabel}
-        selected={selected}
-        comparing={comparing}
+        state={state}
         aria-busy={loading || undefined}
         tabIndex={props.tabIndex}
         onClick={handleSelect}
         onKeyDown={props.onKeyDown}
         onFocus={props.onFocus}
         actions={actions}
-      >
-        {comparing && (
-          <div className="bn-snapshot-comparing-to">
-            <GoDiff size={14} />
-            <span>{dict.versioning.comparing_to}</span>
-          </div>
-        )}
-        <div className="bn-snapshot-body">
-          <div className="bn-snapshot-title-row">
-            <VersionName
-              name={snapshot.name}
-              placeholder={placeholder}
-              editable={editable}
-              inputRef={nameInput}
-              onCommit={commitName}
-            />
-          </div>
-          {/* What the row is, once a name has taken that slot: the date for a
-              stored version, and "Current version" for the current row — the
-              row that would otherwise read as just another named version. */}
-          {isCurrent && snapshot.name !== undefined ? (
-            <div className="bn-snapshot-date">
-              {dict.versioning.current_version}
-            </div>
-          ) : isCurrent || snapshot.name !== undefined ? (
-            <div className="bn-snapshot-date">{dateString}</div>
-          ) : null}
-          {snapshot.restoredFrom !== undefined && (
-            <div className="bn-snapshot-original-date">
-              {dict.versioning.restored_from(
-                dateToString(new Date(snapshot.restoredFrom.createdAt)),
-              )}
-            </div>
-          )}
-          {secondaryLabel !== undefined && (
-            <div className="bn-snapshot-secondary-label">{secondaryLabel}</div>
-          )}
-        </div>
-      </Components.Versioning.Snapshot>
+        name={
+          <VersionName
+            name={snapshot.name}
+            placeholder={placeholder}
+            editable={editable}
+            inputRef={nameInput}
+            onCommit={commitName}
+          />
+        }
+        date={rowDate}
+        restoredFrom={restoredFrom}
+        secondaryLabel={secondaryLabel}
+        comparingLabel={comparing ? dict.versioning.comparing_to : undefined}
+        comparingIcon={comparing ? <GoDiff size={14} /> : undefined}
+      />
     </VersionSnapshotProvider>
   );
 }

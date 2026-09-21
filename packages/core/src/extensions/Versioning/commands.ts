@@ -34,10 +34,26 @@ export function createVersioningCommands({
           const snapshot = await endpoints.create!(getCurrentDocument(), {
             name: options?.name,
           });
-          // Re-list rather than patching optimistically: naming the current
-          // version can turn it into a stored row (and shift what "current"
-          // is), which only the backend can resolve.
-          await refreshList();
+          // Naming does not advance the frozen history shown by the sidebar.
+          // Reopening the sidebar lists again and replaces this session-local
+          // view with the backend's authoritative rows.
+          if (!store.state.list.loaded) {
+            await refreshList();
+          }
+          store.setState((state) =>
+            state.list.loaded
+              ? {
+                  ...state,
+                  list: {
+                    loaded: true,
+                    current: snapshot,
+                    snapshots: state.list.snapshots.filter(
+                      (stored) => stored.id !== snapshot.id,
+                    ),
+                  },
+                }
+              : state,
+          );
           return snapshot;
         }
       : undefined,

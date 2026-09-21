@@ -6,6 +6,7 @@ import { useExtension } from "../../../../hooks/useExtension.js";
 import { usePreviewRow } from "../../usePreviewRow.js";
 import { useVersioningSidebar } from "../../VersioningSidebarContext.js";
 import { useVersionSnapshot } from "../../VersionSnapshotContext.js";
+import { getShownVersionRow } from "../../visibleHistory.js";
 import type {
   DefaultVersionMenuItemProps,
   VersionMenuAction,
@@ -17,13 +18,15 @@ import { DefaultVersionMenuItem } from "../DefaultVersionMenuItem.js";
  * Falls back to current when nothing or this same row was shown.
  */
 export function useCompareWithVersionAction(): VersionMenuAction {
-  const versioning = useExtension(VersioningExtension);
-  const { store, canCompare } = versioning;
+  const { store, canCompare } = useExtension(VersioningExtension);
   const { setComparisonMode, run } = useVersioningSidebar();
   const previewRow = usePreviewRow();
   const { snapshot, isCurrent } = useVersionSnapshot();
 
-  if (isCurrent || !canCompare) {
+  const { view } = store.state;
+  const isShown = view.mode === "snapshot" && view.snapshotId === snapshot.id;
+
+  if (isCurrent || isShown || !canCompare) {
     return { available: false };
   }
 
@@ -36,14 +39,16 @@ export function useCompareWithVersionAction(): VersionMenuAction {
       if (!list.loaded) {
         return;
       }
-      const shown =
-        view.mode === "snapshot" && view.snapshotId !== snapshot.id
-          ? versioning.getSnapshot(view.snapshotId)
-          : undefined;
+      const shown = getShownVersionRow(list, view);
       return run(() =>
-        previewRow(shown ?? list.current, {
-          compareTo: { type: "snapshot", id: snapshot.id },
-        }),
+        previewRow(
+          shown && shown.snapshot.id !== snapshot.id
+            ? shown.snapshot
+            : list.current,
+          {
+            compareTo: { type: "snapshot", id: snapshot.id },
+          },
+        ),
       );
     },
   };

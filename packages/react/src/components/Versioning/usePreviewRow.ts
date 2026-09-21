@@ -5,6 +5,7 @@ import {
 import { useCallback } from "react";
 
 import { useExtension } from "../../hooks/useExtension.js";
+import { getPreviousVisibleVersion } from "./visibleHistory.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
 
 /**
@@ -50,16 +51,11 @@ export function usePreviewRow(): (
       let compareToId: string | undefined;
       switch (compareTo.type) {
         case "previous": {
-          const snapshots = list.snapshots.filter(
-            (snapshot) =>
-              !(options?.namedOnly ?? namedOnly) || snapshot.name !== undefined,
-          );
-          const rowIndex = snapshots.findIndex((s) => s.id === row.id);
-          compareToId = isCurrent
-            ? snapshots[0]?.id
-            : rowIndex === -1
-              ? undefined
-              : snapshots[rowIndex + 1]?.id;
+          compareToId = getPreviousVisibleVersion(
+            list,
+            row,
+            options?.namedOnly ?? namedOnly,
+          )?.id;
           break;
         }
         case "snapshot":

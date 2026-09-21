@@ -566,18 +566,31 @@ describe("VersioningExtension", () => {
   // -------------------------------------------------------------------------
 
   describe("naming the current version", () => {
-    it("captures the current state and re-lists", async () => {
+    it("captures the current state as the current row", async () => {
       setEditorText(ctx.editor, "my document content");
 
       const snapshot = await ctx.ext.create!({ name: "Draft 1" });
 
       expect(snapshot.name).toBe("Draft 1");
-      expect(loadedList(ctx.ext).snapshots).toHaveLength(1);
-      expect(loadedList(ctx.ext).snapshots[0]!.name).toBe("Draft 1");
+      expect(loadedList(ctx.ext).current).toEqual(snapshot);
+      expect(loadedList(ctx.ext).snapshots).toHaveLength(0);
+
+      // A new history session lists again and accepts the backend's shape.
+      const reopened = await ctx.ext.list();
+      expect(reopened.current.id).not.toBe(snapshot.id);
+      expect(reopened.snapshots).toContainEqual(snapshot);
 
       // The version content should round-trip — verify by previewing.
       await ctx.ext.previewSnapshot(snapshot.id);
       expect(getEditorText(ctx.editor)).toBe("my document content");
+    });
+
+    it("does not invent history when Current is named twice in one session", async () => {
+      const first = await ctx.ext.create!({ name: "First" });
+      const second = await ctx.ext.create!({ name: "Second" });
+
+      expect(loadedList(ctx.ext).current).toEqual(second);
+      expect(loadedList(ctx.ext).snapshots).not.toContainEqual(first);
     });
 
     it("maintains newest-first order", async () => {
@@ -588,8 +601,8 @@ describe("VersioningExtension", () => {
 
       const newer = await ctx.ext.create!({ name: "Newer" });
 
-      expect(loadedList(ctx.ext).snapshots[0]!.id).toBe(newer.id);
-      expect(loadedList(ctx.ext).snapshots[1]!.id).toBe(old.id);
+      expect(loadedList(ctx.ext).current.id).toBe(newer.id);
+      expect(loadedList(ctx.ext).snapshots[0]!.id).toBe(old.id);
 
       vi.useRealTimers();
     });
@@ -1128,8 +1141,11 @@ describe("VersioningExtension", () => {
 
       // 2. Modify and name version 2.
       setEditorText(ctx.editor, "doc v2");
+      // Reopening history makes the backend-confirmed v1 row available.
+      await ctx.ext.list();
       const v2 = await ctx.ext.create!({ name: "Version 2" });
-      expect(loadedList(ctx.ext).snapshots[0]!.id).toBe(v2.id);
+      expect(loadedList(ctx.ext).current.id).toBe(v2.id);
+      expect(loadedList(ctx.ext).snapshots[0]!.id).toBe(v1.id);
 
       // 3. Preview v1 with diff comparison against v2.
       await ctx.ext.previewSnapshot(v1.id, { compareTo: v2.id });

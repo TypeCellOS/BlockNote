@@ -328,6 +328,24 @@ describe("VersioningSidebar", () => {
     expect(rows()).toHaveLength(3);
   });
 
+  it("excludes empty names but keeps whitespace names", async () => {
+    const fake = createFakeEndpoints();
+    fake.setSnapshots([
+      { id: "empty", createdAt: 2500, name: "" },
+      { id: "whitespace", createdAt: 2000, name: " " },
+      AUTOMATIC,
+    ]);
+    await setup({}, fake);
+
+    await click(
+      screen.getByRole("button", { name: "Show named versions only" }),
+    );
+
+    expect(rows()).toHaveLength(2);
+    expect(rows()[0]!.getAttribute("aria-current")).toBe("true");
+    expect(nameText(rows()[1]!)).toBe(" ");
+  });
+
   it("starts filtered when asked to", async () => {
     await setup({ defaultNamedOnly: true });
 
@@ -627,6 +645,24 @@ describe("VersioningSidebar", () => {
     });
   });
 
+  it("hides self-comparison only on the version currently being previewed", async () => {
+    await setup();
+    await click(rows()[1]!);
+
+    const selectedRow = rows()[1]!;
+    await click(
+      within(selectedRow).getByRole("button", { name: "More actions" }),
+    );
+    await eventually(() => within(selectedRow).getByText("Restore"));
+    expect(
+      within(selectedRow).queryByText("Compare with this version"),
+    ).toBeNull();
+
+    expect(
+      await openMenuItem(rows()[2]!, /^Compare with this version$/),
+    ).toBeDefined();
+  });
+
   // -------------------------------------------------------------------------
   // Renaming
   // -------------------------------------------------------------------------
@@ -689,21 +725,18 @@ describe("VersioningSidebar", () => {
       expect(within(row).queryByText(/2026|1970/)).toBeNull();
     });
 
-    it("clears the field when the name lands on a new version", async () => {
+    it("keeps a newly persisted version in the current row", async () => {
       const fake = createFakeEndpoints();
-      // What the in-memory backend does: naming the current version stores a
-      // *new* named version and leaves the current row itself unnamed.
       fake.endpoints.create.mockImplementation(async (_doc, options) => {
-        const created = { id: "new", createdAt: 2500, name: options.name };
-        fake.setSnapshots([created, NAMED, AUTOMATIC]);
-        return created;
+        return { id: "new", createdAt: 2500, name: options.name };
       });
 
       await setup({}, fake);
       await commit(nameInput(rows()[0]!), "Milestone", "Enter");
 
-      expect(nameInput(rows()[0]!).value).toBe("");
-      expect(nameText(rows()[1]!)).toBe("Milestone");
+      expect(nameInput(rows()[0]!).value).toBe("Milestone");
+      expect(rows()).toHaveLength(3);
+      expect(fake.endpoints.list).toHaveBeenCalledOnce();
     });
 
     it("renames a stored version through `rename`", async () => {

@@ -345,8 +345,9 @@ describe("VersioningExtension + in-memory adapter", () => {
     // 3. Create another snapshot
     await ext.create!({ name: "v2" });
 
-    // 4. List — both stored versions are present, alongside the current entry.
-    const { snapshots } = await ext.list();
+    // 4. Reopen history — the backend owns the new list shape.
+    const { current, snapshots } = await ext.list();
+    expect(current.name).toBeUndefined();
     expect(snapshots).toHaveLength(2);
     expect(snapshots.map((s) => s.name)).toContain("v1");
     expect(snapshots.map((s) => s.name)).toContain("v2");
@@ -418,6 +419,7 @@ describe("VersioningExtension + in-memory adapter", () => {
     const snap1 = await ext.create!({ name: "baseline" });
     setEditorText(editor, "changed doc");
     const snap2 = await ext.create!({ name: "current" });
+    await ext.list();
 
     // Preview snap2 compared to snap1. Without the (opt-in) DiffVersioningExtension
     // registered, the in-memory preview controller falls back to a static swap:
@@ -478,15 +480,45 @@ describe("VersioningExtension + in-memory adapter", () => {
     // Store was patched in place
     const listed = ext.store.state.list;
     expect(listed.loaded).toBe(true);
-    expect(
-      listed.loaded
-        ? listed.snapshots.find((s) => s.id === snap.id)!.name
-        : undefined,
-    ).toBe("final");
+    expect(listed.loaded ? listed.current.name : undefined).toBe("final");
 
-    // Backend also updated (verified via list which calls endpoints.list)
-    const { snapshots } = await ext.list();
-    expect(snapshots.find((s) => s.id === snap.id)!.name).toBe("final");
+    // Backend also updated. A fresh list is authoritative, so the saved row is
+    // historical rather than being forced to remain Current.
+    const { current, snapshots } = await ext.list();
+    expect(current.id).not.toBe(snap.id);
+    expect(snapshots).toContainEqual(
+      expect.objectContaining({ id: snap.id, name: "final" }),
+    );
+  });
+
+  it("keeps a named version durable through reopen, restore, and delete", async () => {
+    const adapter = createInMemoryVersioningAdapter(editor);
+    const ext = VersioningExtension(adapter)({ editor });
+
+    const named = await ext.create!({ name: "Milestone" });
+    expect(ext.store.state.list).toMatchObject({
+      loaded: true,
+      current: { id: named.id, name: "Milestone" },
+      snapshots: [],
+    });
+
+    await ext.rename!(named.id, "Final");
+    const reopened = await ext.list();
+    expect(reopened.current.id).not.toBe(named.id);
+    expect(reopened.snapshots).toContainEqual(
+      expect.objectContaining({ id: named.id, name: "Final" }),
+    );
+
+    await ext.restore!(named.id);
+    expect(getEditorText(editor)).toBe("initial doc");
+    expect((await ext.list()).current.restoredFrom).toMatchObject({
+      id: named.id,
+    });
+
+    await ext.remove!(named.id);
+    expect((await ext.list()).snapshots.some((s) => s.id === named.id)).toBe(
+      false,
+    );
   });
 });
 
@@ -527,6 +559,7 @@ describe("in-memory versioning + DiffVersioningExtension", () => {
     const snap1 = await ext.create!({ name: "baseline" });
     setEditorText(editor, "changed doc");
     const snap2 = await ext.create!({ name: "current" });
+    await ext.list();
 
     await ext.previewSnapshot(snap2.id, { compareTo: snap1.id });
 

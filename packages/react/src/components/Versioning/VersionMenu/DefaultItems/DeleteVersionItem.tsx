@@ -6,6 +6,10 @@ import { useExtension } from "../../../../hooks/useExtension.js";
 import { usePreviewRow } from "../../usePreviewRow.js";
 import { useVersioningSidebar } from "../../VersioningSidebarContext.js";
 import { useVersionSnapshot } from "../../VersionSnapshotContext.js";
+import {
+  getVisibleVersionRows,
+  viewReferencesVersion,
+} from "../../visibleHistory.js";
 import type {
   DefaultVersionMenuItemProps,
   VersionMenuAction,
@@ -36,20 +40,11 @@ export function useDeleteVersionAction(): VersionMenuAction {
           if (!list.loaded) {
             return;
           }
-          const hidden =
-            namedOnly &&
-            list.snapshots.some(
-              (row) => row.id === snapshot.id && row.name === undefined,
-            );
-          const deleted = !list.snapshots.some((row) => row.id === snapshot.id);
-          const usesDeletedVersion =
-            view.mode !== "live" &&
-            (view.compareToId === snapshot.id ||
-              (view.mode === "snapshot" && view.snapshotId === snapshot.id));
-          if (
-            view.mode === "live" ||
-            ((hidden || deleted) && usesDeletedVersion)
-          ) {
+          const visible = getVisibleVersionRows(list, namedOnly).some(
+            (row) => row.snapshot.id === snapshot.id,
+          );
+          const usesDeletedVersion = viewReferencesVersion(view, snapshot.id);
+          if (view.mode === "live" || (!visible && usesDeletedVersion)) {
             await previewRow(list.current);
           }
         },

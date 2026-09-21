@@ -1,5 +1,6 @@
 import { useRef, useState, type RefObject } from "react";
 
+import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 
 /**
@@ -19,11 +20,14 @@ export function VersionName(props: {
   /** `undefined` when the field was left empty, which clears the name. */
   onCommit: (name: string | undefined) => void;
 }) {
+  const Components = useComponentsContext()!;
+
   if (!props.editable) {
     return (
-      <span className="bn-snapshot-name">
-        {props.name ?? props.placeholder}
-      </span>
+      <Components.Versioning.Name
+        mode="display"
+        value={props.name ?? props.placeholder}
+      />
     );
   }
   return <VersionNameInput key={props.name} {...props} />;
@@ -35,6 +39,7 @@ function VersionNameInput(props: {
   inputRef: RefObject<HTMLInputElement | null>;
   onCommit: (name: string | undefined) => void;
 }) {
+  const Components = useComponentsContext()!;
   const dict = useDictionary();
   // Mirrored into the sizer, so the field is as wide as what's typed in it.
   const [draft, setDraft] = useState(props.name ?? "");
@@ -43,49 +48,43 @@ function VersionNameInput(props: {
   const cancelled = useRef(false);
 
   return (
-    <span
-      className="bn-snapshot-name-sizer"
-      data-value={draft === "" ? props.placeholder : draft}
-    >
-      <input
-        ref={props.inputRef}
-        className="bn-snapshot-name"
-        type="text"
-        value={draft}
-        placeholder={props.placeholder}
-        aria-label={dict.versioning.version_name_input}
-        onChange={(event) => setDraft(event.currentTarget.value)}
-        // The row this sits in is already selected — clicking its name is a
-        // rename, not a request to show it again.
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => {
-          // An un-stopped key would reach the row's list-navigation handler.
-          event.stopPropagation();
-          if (event.key === "Enter" || event.key === "Escape") {
-            if (event.key === "Escape") {
-              cancelled.current = true;
-            }
-            // Focusing the row (not blurring to the body) commits or cancels —
-            // the blur handler runs on the focus change — and keeps keyboard
-            // navigation in the list afterwards.
-            event.currentTarget
-              .closest<HTMLElement>('[role="listitem"]')
-              ?.focus();
+    <Components.Versioning.Name
+      mode="editing"
+      value={draft}
+      placeholder={props.placeholder}
+      aria-label={dict.versioning.version_name_input}
+      inputRef={props.inputRef}
+      onChange={(event) => setDraft(event.currentTarget.value)}
+      // The row this sits in is already selected — clicking its name is a
+      // rename, not a request to show it again.
+      onClick={(event) => event.stopPropagation()}
+      onKeyDown={(event) => {
+        // An un-stopped key would reach the row's list-navigation handler.
+        event.stopPropagation();
+        if (event.key === "Enter" || event.key === "Escape") {
+          if (event.key === "Escape") {
+            cancelled.current = true;
           }
-        }}
-        onBlur={(event) => {
-          const name = cancelled.current
-            ? (props.name ?? "")
-            : event.currentTarget.value.trim();
-          cancelled.current = false;
-          // Show the stored name until the backend confirms the change.
-          // Naming Current may create a different row instead of renaming it.
-          setDraft(props.name ?? "");
-          if (name !== (props.name ?? "")) {
-            props.onCommit(name === "" ? undefined : name);
-          }
-        }}
-      />
-    </span>
+          // Focusing the row (not blurring to the body) commits or cancels —
+          // the blur handler runs on the focus change — and keeps keyboard
+          // navigation in the list afterwards.
+          event.currentTarget
+            .closest<HTMLElement>('[role="listitem"]')
+            ?.focus();
+        }
+      }}
+      onBlur={(event) => {
+        const name = cancelled.current
+          ? (props.name ?? "")
+          : event.currentTarget.value.trim();
+        cancelled.current = false;
+        // Show the stored name until the backend confirms the change.
+        // Naming Current may create a different row instead of renaming it.
+        setDraft(props.name ?? "");
+        if (name !== (props.name ?? "")) {
+          props.onCommit(name === "" ? undefined : name);
+        }
+      }}
+    />
   );
 }

@@ -16,6 +16,7 @@ import { useDictionary } from "../../i18n/dictionary.js";
 import { Snapshot } from "./Snapshot.js";
 import { usePreviewRow } from "./usePreviewRow.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
+import { getVisibleVersionRows } from "./visibleHistory.js";
 
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -61,15 +62,7 @@ export function VersioningSidebarList() {
 
   // Current stays pinned even when unnamed versions are filtered out.
   const rows = useMemo(
-    () =>
-      list.loaded
-        ? [
-            list.current,
-            ...list.snapshots.filter(
-              (snapshot) => !namedOnly || snapshot.name !== undefined,
-            ),
-          ]
-        : [],
+    () => (list.loaded ? getVisibleVersionRows(list, namedOnly) : []),
     [list, namedOnly],
   );
 
@@ -80,7 +73,7 @@ export function VersioningSidebarList() {
     // Removing the focused DOM node drops focus onto body. Return it to the
     // nearest remaining row without stealing focus from another control.
     if (
-      !rows.some((row) => row.id === focusedRowId.current) &&
+      !rows.some((row) => row.snapshot.id === focusedRowId.current) &&
       document.activeElement === document.body
     ) {
       focusRow(activeIndex);
@@ -125,7 +118,7 @@ export function VersioningSidebarList() {
       case "Enter":
       case " ":
         event.preventDefault();
-        void run(() => previewRow(rows[index]!));
+        void run(() => previewRow(rows[index]!.snapshot));
         break;
       default:
         break;
@@ -146,12 +139,12 @@ export function VersioningSidebarList() {
           }
         }}
       >
-        {rows.map((row, index) => (
+        {rows.map(({ snapshot, isCurrent }, index) => (
           <Snapshot
-            key={row.id}
-            id={`${listId}-snapshot-${row.id}`}
-            snapshot={row}
-            isCurrent={index === 0}
+            key={snapshot.id}
+            id={`${listId}-snapshot-${snapshot.id}`}
+            snapshot={snapshot}
+            isCurrent={isCurrent}
             // One tab stop; fall back to Current if the active index disappears.
             tabIndex={
               index === activeIndex ||
@@ -161,7 +154,7 @@ export function VersioningSidebarList() {
             }
             onKeyDown={(event) => handleKeyDown(event, index)}
             onFocus={() => {
-              focusedRowId.current = row.id;
+              focusedRowId.current = snapshot.id;
               setActiveIndex(index);
             }}
           />
