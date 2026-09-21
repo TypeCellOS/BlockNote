@@ -1,6 +1,7 @@
 import type { Dictionary } from "../dictionary.js";
 
 export const vi: Dictionary = {
+  locale: "vi",
   slash_menu: {
     heading: {
       title: "Tiêu đề H1",

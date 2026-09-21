@@ -1,4 +1,5 @@
 export const en = {
+  locale: "en",
   slash_menu: {
     heading: {
       title: "Heading 1",

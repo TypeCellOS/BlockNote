@@ -1,6 +1,7 @@
 import { Dictionary } from "../dictionary.js";
 
 export const ja: Dictionary = {
+  locale: "ja",
   slash_menu: {
     heading: {
       title: "見出し１",
