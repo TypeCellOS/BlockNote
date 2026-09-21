@@ -31,10 +31,9 @@ const ACTIVITY_PARAM_DEFAULTS: YHubQueryParams = {
   limit: 50,
   groupMaxGap: 60 * 60 * 1000, // Start a version after an hour of inactivity.
   groupMaxDuration: 12 * 60 * 60 * 1000, // Cap a version at twelve hours.
-  // Fork-only params (not upstream YHub): `mergeUsers` coalesces co-authors
-  // within a window, `customAttributions` returns name metadata. Coordinate
-  // with Kevin before relying on these in production / upstreaming.
-  mergeUsers: true,
+  // Group a session across authors; YHub's default keeps each author separate.
+  groupByUser: false,
+  // Include custom attribution pairs as version metadata.
   customAttributions: true,
 };
 

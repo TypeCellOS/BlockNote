@@ -16,8 +16,8 @@ interface YHubActivityWireEntry {
   from: number;
   /** End of the change window, in Unix milliseconds. */
   to: number;
-  /** Comma-separated user identifiers. */
-  by?: string;
+  /** Scalar when grouping by user; an author list when grouping across users. */
+  by?: string | Array<string | null> | null;
   customAttributions?: Array<{ k: string; v: string }>;
 }
 
@@ -92,11 +92,10 @@ export class YHubClient {
     };
     return activity.map((entry) => ({
       ...entry,
-      by:
-        entry.by
-          ?.split(",")
-          .map((id) => id.trim())
-          .filter(Boolean) ?? [],
+      by: (Array.isArray(entry.by) ? entry.by : (entry.by?.split(",") ?? []))
+        .filter((id): id is string => id !== null)
+        .map((id) => id.trim())
+        .filter(Boolean),
       customAttributions: Object.fromEntries(
         entry.customAttributions?.map(({ k, v }) => [k, v]) ?? [],
       ),

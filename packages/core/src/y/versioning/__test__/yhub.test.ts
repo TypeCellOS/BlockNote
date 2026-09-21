@@ -21,18 +21,18 @@ import { createExtension } from "../../../editor/BlockNoteExtension.js";
 const ENTRY_1 = {
   from: 1782218082853,
   to: 1782218082853,
-  by: "user-1",
+  by: ["user-1"],
 };
 
 const ENTRY_2 = {
   from: 1782218211312,
   to: 1782218211312,
-  by: "user-2, user-3",
+  by: ["user-2", "user-3"],
 };
 
 // Snapshots as produced by `list()` (see `activityToSnapshot`): `id` is the
-// stringified `to`, which is also `createdAt`. The entry's comma-separated `by`
-// user-ids are split into the version's raw `by` array.
+// stringified `to`, which is also `createdAt`. Cross-user grouping makes `by`
+// an array, which becomes the version's raw `by` array.
 const SNAPSHOT_1: VersionSnapshot = {
   id: String(ENTRY_1.to),
   createdAt: ENTRY_1.to,
@@ -165,7 +165,7 @@ describe("createYHubVersioningEndpoints", () => {
       const url = new URL(fetchSpy.mock.calls[0][0] as string);
       expect(url.searchParams.get("groupMaxGap")).toBe("3600000");
       expect(url.searchParams.get("groupMaxDuration")).toBe("43200000");
-      expect(url.searchParams.get("mergeUsers")).toBe("true");
+      expect(url.searchParams.get("groupByUser")).toBe("false");
       expect(url.searchParams.get("customAttributions")).toBe("true");
       // `group` is only forwarded when explicitly configured.
       expect(url.searchParams.get("group")).toBe(null);
@@ -182,7 +182,7 @@ describe("createYHubVersioningEndpoints", () => {
           group: "true",
           groupMaxGap: "1000",
           groupMaxDuration: "5000",
-          mergeUsers: "false",
+          groupByUser: "true",
         },
       })(BlockNoteEditor.create());
       await endpoints.list();
@@ -191,7 +191,7 @@ describe("createYHubVersioningEndpoints", () => {
       expect(url.searchParams.get("group")).toBe("true");
       expect(url.searchParams.get("groupMaxGap")).toBe("1000");
       expect(url.searchParams.get("groupMaxDuration")).toBe("5000");
-      expect(url.searchParams.get("mergeUsers")).toBe("false");
+      expect(url.searchParams.get("groupByUser")).toBe("true");
     });
 
     it("makes the newest activity entry the current version", async () => {
@@ -210,9 +210,9 @@ describe("createYHubVersioningEndpoints", () => {
       fetchSpy.mockResolvedValueOnce(
         mockFetchResponse({
           activity: [
-            { from: 2000, to: 2000, by: "user-1" },
-            { from: 2000, to: 2000, by: "user-2, user-1" },
-            { from: 1000, to: 1000, by: "user-3" },
+            { from: 2000, to: 2000, by: ["user-1"] },
+            { from: 2000, to: 2000, by: ["user-2", "user-1"] },
+            { from: 1000, to: 1000, by: ["user-3"] },
           ],
         }),
       );
@@ -227,6 +227,23 @@ describe("createYHubVersioningEndpoints", () => {
       });
       expect(snapshots).toHaveLength(1);
       expect(snapshots[0]!.id).toBe("1000");
+    });
+
+    it("normalizes scalar and unattributed activity authors", async () => {
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse({
+          activity: [
+            { from: 2000, to: 2000, by: "user-1, user-2" },
+            { from: 1000, to: 1000, by: [null, "user-3"] },
+          ],
+        }),
+      );
+
+      const endpoints = makeEndpoints();
+      const { current, snapshots } = await endpoints.list();
+
+      expect(current.by).toEqual(["user-1", "user-2"]);
+      expect(snapshots[0]!.by).toEqual(["user-3"]);
     });
 
     it("surfaces an entry's custom attributions as metadata", async () => {
