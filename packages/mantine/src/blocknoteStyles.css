@@ -444,6 +444,7 @@
   box-sizing: border-box;
   max-width: 100vw;
   overflow-x: auto;
+  overscroll-behavior-x: none;
   overflow-y: auto;
   padding: 20px;
 }
