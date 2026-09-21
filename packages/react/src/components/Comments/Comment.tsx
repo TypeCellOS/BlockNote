@@ -4,7 +4,7 @@ import { Dictionary, mergeCSSClasses } from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
 import type { CommentData, ThreadData } from "@blocknote/core/comments";
 import { ThreadStore } from "@blocknote/core/comments";
-import { MouseEvent, ReactNode, memo, useCallback, useState } from "react";
+import { ReactNode, memo, useCallback, useState } from "react";
 import {
   RiArrowGoBackFill,
   RiCheckFill,
@@ -34,7 +34,7 @@ type CommentEditorActionsProps = {
   isEditing: boolean;
   threadStore: ThreadStore;
   onReactionSelect: (emoji: string) => Promise<void>;
-  onEditSubmit: (event: MouseEvent) => Promise<void>;
+  onEditSubmit: () => Promise<void>;
   onEditCancel: () => void;
   onEmojiPickerOpenChange: (open: boolean) => void;
   Components: Components;
@@ -176,20 +176,17 @@ export const Comment = ({
     setEditing(false);
   }, [commentEditor, comment.body]);
 
-  const onEditSubmit = useCallback(
-    async (_event: MouseEvent) => {
-      await threadStore.updateComment({
-        commentId: comment.id,
-        comment: {
-          body: commentEditor.document,
-        },
-        threadId: thread.id,
-      });
+  const onEditSubmit = useCallback(async () => {
+    await threadStore.updateComment({
+      commentId: comment.id,
+      comment: {
+        body: commentEditor.document,
+      },
+      threadId: thread.id,
+    });
 
-      setEditing(false);
-    },
-    [comment, thread.id, commentEditor, threadStore],
-  );
+    setEditing(false);
+  }, [comment, thread.id, commentEditor, threadStore]);
 
   const onDelete = useCallback(async () => {
     await threadStore.deleteComment({
@@ -348,6 +345,7 @@ export const Comment = ({
         autoFocus={isEditing}
         editor={commentEditor}
         editable={isEditing}
+        onSubmit={onEditSubmit}
         actions={
           comment.reactions.length > 0 || isEditing
             ? ({ isFocused, isEmpty }) => (

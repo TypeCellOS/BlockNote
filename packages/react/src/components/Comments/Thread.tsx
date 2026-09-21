@@ -169,6 +169,7 @@ export const Thread = ({
             autoFocus={false}
             editable={true}
             editor={newCommentEditor}
+            onSubmit={onNewCommentSave}
             actions={({ isFocused, isEmpty }) => (
               <ReplyActionsComponent
                 isFocused={isFocused}

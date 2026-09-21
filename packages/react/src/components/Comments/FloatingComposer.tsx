@@ -93,6 +93,7 @@ export function FloatingComposer<
         autoFocus={true}
         editable={true}
         editor={newCommentEditor}
+        onSubmit={onSave}
         actions={({ isFocused, isEmpty }) => (
           <FloatingComposerActionsComponent
             isFocused={isFocused}
