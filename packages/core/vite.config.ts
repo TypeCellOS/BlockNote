@@ -25,8 +25,7 @@ const frimousseFiles = readdirSync(
     f.endsWith(".ts") &&
     f !== "index.ts" &&
     f !== "types.ts" &&
-    f !== "loadFrimousseData.ts" &&
-    f !== "seed.ts",
+    f !== "loadFrimousseData.ts",
 );
 
 const perFrimousseEntries = Object.fromEntries(
@@ -86,10 +85,6 @@ export default defineConfig({
         "emoji-data/frimousse/loadFrimousseData": path.resolve(
           __dirname,
           "src/emoji-data/frimousse/loadFrimousseData.ts",
-        ),
-        "emoji-data/frimousse/seed": path.resolve(
-          __dirname,
-          "src/emoji-data/frimousse/seed.ts",
         ),
         ...perFrimousseEntries,
         "emoji-data/locales": path.resolve(

@@ -6,8 +6,8 @@ import { useEditorDOMElement } from "../../../hooks/useEditorDomElement.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import {
   ActiveEmojiDisplay,
+  resolveBlockNoteEmojiData,
   useEmojiI18n,
-  useResolvedLocale,
 } from "../../Comments/FrimoussePicker.js";
 
 const COLUMNS = 9;
@@ -76,6 +76,7 @@ export function InlineEmojiPicker(props: {
   closeMenu: () => void;
   clearQuery: () => void;
 }) {
+  const { query, closeMenu, clearQuery } = props;
   const editor = useBlockNoteEditor();
   const editorDOMElement = useEditorDOMElement(editor);
   const dict = useDictionary();
@@ -83,13 +84,12 @@ export function InlineEmojiPicker(props: {
   const i18n = useEmojiI18n(locale);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  const resolvedLocale = useResolvedLocale(locale);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedEmoji, setSelectedEmoji] = useState({ emoji: "", label: "" });
 
   useEffect(() => {
     setSelectedIndex(0);
-  }, [props.query]);
+  }, [query, locale]);
 
   // Resolve the emoji character at selectedIndex. When the button is already
   // in the DOM (common case: arrow keys within the visible viewport), the
@@ -117,7 +117,7 @@ export function InlineEmojiPicker(props: {
         return { emoji, label };
       });
     }
-  }, [selectedIndex, props.query, resolvedLocale]);
+  }, [selectedIndex, query, locale]);
 
   // Fallback for when the target button isn't in the DOM during the layout
   // effect — either because frimousse is still loading emoji data on first
@@ -164,7 +164,7 @@ export function InlineEmojiPicker(props: {
       cancelled = true;
       cancelAnimationFrame(frameId);
     };
-  }, [selectedIndex, props.query, resolvedLocale]);
+  }, [selectedIndex, query, locale]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -197,8 +197,8 @@ export function InlineEmojiPicker(props: {
         if (btn) {
           const char = btn.textContent ?? "";
           if (char) {
-            props.clearQuery();
-            props.closeMenu();
+            clearQuery();
+            closeMenu();
             editor.insertInlineContent(char + " ");
           }
         }
@@ -209,17 +209,8 @@ export function InlineEmojiPicker(props: {
     return () => {
       editorDOMElement?.removeEventListener("keydown", handleKeyDown, true);
     };
-  }, [editorDOMElement, selectedIndex]);
+  }, [clearQuery, closeMenu, editor, editorDOMElement, selectedIndex]);
 
-  if (!resolvedLocale) {
-    return (
-      <div className="bn-frimousse-picker">
-        <div className="bn-frimousse-loading">Loading…</div>
-      </div>
-    );
-  }
-
-  const frimousseLocale = resolvedLocale as any;
   const placeholder = `${i18n?.search ?? "Search"}…`;
   const selectedChar = selectedEmoji.emoji;
 
@@ -227,17 +218,18 @@ export function InlineEmojiPicker(props: {
     <EmojiPicker.Root
       ref={rootRef}
       className="bn-frimousse-picker"
-      locale={frimousseLocale}
+      locale={locale}
       columns={COLUMNS}
+      resolveEmojiData={resolveBlockNoteEmojiData}
       onEmojiSelect={(emoji) => {
-        props.clearQuery();
-        props.closeMenu();
+        clearQuery();
+        closeMenu();
         editor.insertInlineContent(emoji.emoji + " ");
       }}
     >
       <EmojiPicker.Search
         className="bn-frimousse-search-hidden"
-        value={props.query}
+        value={query}
         readOnly
         tabIndex={-1}
       />

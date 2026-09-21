@@ -4,4 +4,3 @@ export type {
   FrimousseCategory,
 } from "./types.js";
 export { loadFrimousseData } from "./loadFrimousseData.js";
-export { seedFrimousseCache } from "./seed.js";

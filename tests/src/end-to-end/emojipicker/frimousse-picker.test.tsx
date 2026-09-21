@@ -222,3 +222,25 @@ describe("FrimoussePicker — isolated component", () => {
     expect(footerLabel).toBe(expectedLabel);
   });
 });
+
+describe("FrimoussePicker — localized data", () => {
+  test("searches localized emoji data without fetching from a CDN", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+    await render(<FrimoussePicker locale="fr" onEmojiSelect={() => {}} />);
+    await waitForEmojiButtons();
+
+    const search =
+      document.querySelector<HTMLInputElement>("[frimousse-search]");
+    expect(search).toBeTruthy();
+    await userEvent.fill(search!, "soleil");
+
+    await vi.waitFor(() => {
+      const sun = document.querySelector<HTMLButtonElement>(
+        '[frimousse-emoji][aria-label="Soleil"]',
+      );
+      expect(sun?.textContent).toBe("☀️");
+    });
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+});

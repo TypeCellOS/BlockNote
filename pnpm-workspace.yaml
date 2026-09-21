@@ -82,6 +82,7 @@ catalog:
   vite: ^8.0.0
   vite-plus: ^0.2.9
 minimumReleaseAgeExclude:
+  - frimousse
   - vite-plus
   - lib0
   - "@y/y"

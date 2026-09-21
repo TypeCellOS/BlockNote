@@ -417,10 +417,10 @@ export interface FrimousseEmojiData {
 `,
   );
 
-  // Write frimousse/index.ts (barrel export for types only — data loaded dynamically)
+  // Write frimousse/index.ts (locale data remains dynamically loaded)
   writeFileSync(
     resolve(frimousseDir, "index.ts"),
-    `export type { FrimousseEmojiData, FrimousseEmoji, FrimousseCategory } from "./types.js";\n`,
+    `export type { FrimousseEmojiData, FrimousseEmoji, FrimousseCategory } from "./types.js";\nexport { loadFrimousseData } from "./loadFrimousseData.js";\n`,
   );
 
   console.log(

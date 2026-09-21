@@ -1,6 +1,13 @@
 import type { EmojiI18n } from "@blocknote/core/emoji-data";
-import { EmojiPicker } from "frimousse";
+import { EmojiPicker, type EmojiData } from "frimousse";
 import { useEffect, useState } from "react";
+
+export async function resolveBlockNoteEmojiData(
+  locale: string,
+): Promise<EmojiData> {
+  const { loadFrimousseData } = await import("@blocknote/core/emoji-data");
+  return loadFrimousseData(locale);
+}
 
 export function useEmojiI18n(locale: string): EmojiI18n | undefined {
   const [i18n, setI18n] = useState<EmojiI18n | undefined>(undefined);
@@ -20,35 +27,6 @@ export function useEmojiI18n(locale: string): EmojiI18n | undefined {
   }, [locale]);
 
   return i18n;
-}
-
-export function useResolvedLocale(
-  locale: string,
-  emojibaseUrl?: string,
-): string | undefined {
-  const [resolvedLocale, setResolvedLocale] = useState<string | undefined>(
-    emojibaseUrl ? locale : undefined,
-  );
-
-  useEffect(() => {
-    if (emojibaseUrl) {
-      setResolvedLocale(locale);
-      return;
-    }
-    let cancelled = false;
-    void import("@blocknote/core/emoji-data").then(({ seedFrimousseCache }) =>
-      seedFrimousseCache(locale).then((seededLocale) => {
-        if (!cancelled) {
-          setResolvedLocale(seededLocale);
-        }
-      }),
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [locale, emojibaseUrl]);
-
-  return resolvedLocale;
 }
 
 export function ActiveEmojiDisplay({
@@ -89,27 +67,15 @@ export default function FrimoussePicker({
   i18n,
   emojibaseUrl,
 }: Props) {
-  const resolvedLocale = useResolvedLocale(locale, emojibaseUrl);
-
-  if (!resolvedLocale) {
-    return null;
-  }
-
-  // Frimousse looks up its cache by the `locale` prop, so we must pass the
-  // locale the data was actually seeded under (from `seedFrimousseCache`). For
-  // aliased locales like `no`/`zh-tw` this is the resolved emojibase code
-  // (`nb`/`zh-hant`); passing the raw locale would miss the seeded entry and
-  // trigger a CDN fetch. Frimousse's Locale type only covers the emojibase
-  // locales, so we cast.
-  const frimousseLocale = resolvedLocale as any;
   const placeholder = `${i18n?.search ?? "Search"}…`;
 
   return (
     <EmojiPicker.Root
       className="bn-frimousse-picker"
-      locale={frimousseLocale}
+      locale={locale}
       columns={columns}
       emojibaseUrl={emojibaseUrl}
+      resolveEmojiData={emojibaseUrl ? undefined : resolveBlockNoteEmojiData}
       onEmojiSelect={(emoji) => onEmojiSelect({ native: emoji.emoji })}
     >
       <EmojiPicker.Search placeholder={i18n?.search ?? "Search"} autoFocus />

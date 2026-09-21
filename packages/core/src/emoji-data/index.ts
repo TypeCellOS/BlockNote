@@ -8,4 +8,3 @@ export type {
   FrimousseCategory,
 } from "./frimousse/index.js";
 export { loadFrimousseData } from "./frimousse/index.js";
-export { seedFrimousseCache } from "./frimousse/index.js";

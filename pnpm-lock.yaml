@@ -5608,8 +5608,8 @@ importers:
         specifier: ^3.1.3
         version: 3.1.3
       frimousse:
-        specifier: ^0.3.0
-        version: 0.3.0(react@19.2.5)(typescript@7.0.2)
+        specifier: ^0.4.0
+        version: 0.4.0(react@19.2.5)(typescript@7.0.2)
       use-sync-external-store:
         specifier: 1.6.0
         version: 1.6.0(react@19.2.5)
@@ -13213,8 +13213,8 @@ packages:
     peerDependencies:
       react: ^18 || ^19
 
-  frimousse@0.3.0:
-    resolution: {integrity: sha512-kO6LMoKY/cLAYEhXXtqLRaLIE6L/DagpFPrUZaLv3LsUa1/8Iza3HhwZcgN8eZ+weXnhv69eoclNUPohcCa/IQ==}
+  frimousse@0.4.0:
+    resolution: {integrity: sha512-wA/1Xt9UTk51wYNpy+EvHKPUA4jdm4NuEFzSNNZxqT0Nxrj4RFwYByjRMuaq4qSLOco/ikDCpLKesB8W1w2q+Q==}
     peerDependencies:
       react: ^18 || ^19
       typescript: '>=5.1.0'
@@ -23745,7 +23745,7 @@ snapshots:
     dependencies:
       react: 19.2.5
 
-  frimousse@0.3.0(react@19.2.5)(typescript@7.0.2):
+  frimousse@0.4.0(react@19.2.5)(typescript@7.0.2):
     dependencies:
       react: 19.2.5
     optionalDependencies:
