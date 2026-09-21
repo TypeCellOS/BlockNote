@@ -114,7 +114,7 @@ export type BlockInfo = {
  * boundary — the first cell's paragraph start, or the last cell's paragraph
  * end.
  */
-export function tableContentCaretPos(
+function tableContentCaretPos(
   content: { beforePos: number; afterPos: number },
   edge: "start" | "end",
 ): number {
@@ -565,7 +565,10 @@ export function getInsertionPos(
       : null;
   }
 
-  // Ordinary nesting creates its blockGroup lazily.
+  // Only a regular block reaches here: every container has a `children`
+  // holder, even when it holds nothing, so ordinary nesting is what is left -
+  // and its `blockGroup` is created lazily. `hasContent` narrows the union so
+  // `content` can be read; it cannot be false at this point.
   if (!info.children) {
     const group = nodeType.schema.nodes["blockGroup"];
     return info.hasContent && group?.contentMatch.matchType(nodeType)
