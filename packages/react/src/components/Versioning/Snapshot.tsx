@@ -69,8 +69,6 @@ function focusAndReclaim(input: HTMLInputElement) {
 /** Shared current/stored version row; `isCurrent` controls naming and labels. */
 export function Snapshot(props: {
   snapshot: VersionSnapshot;
-  /** The previous visible version in the filtered list. */
-  previousSnapshot?: VersionSnapshot;
   isCurrent: boolean;
   /** DOM id for this row. */
   id: string;
@@ -202,7 +200,6 @@ export function Snapshot(props: {
     <VersionSnapshotProvider
       value={{
         snapshot,
-        previousSnapshot: props.previousSnapshot,
         isCurrent,
         selected,
         comparing,

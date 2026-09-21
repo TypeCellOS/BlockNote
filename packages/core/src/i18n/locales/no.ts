@@ -435,7 +435,6 @@ export const no: Dictionary = {
   versioning: {
     title: "Historikk",
     close: "Lukk",
-    save_version: "Lagre versjon",
     show_named_only: "Vis bare navngitte versjoner",
     show_all: "Vis alle versjoner",
     comparison_on: "Slå på sammenligning",

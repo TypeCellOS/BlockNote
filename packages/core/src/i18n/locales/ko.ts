@@ -430,7 +430,6 @@ export const ko: Dictionary = {
   versioning: {
     title: "기록",
     close: "닫기",
-    save_version: "버전 저장",
     show_named_only: "이름이 지정된 버전만 표시",
     show_all: "모든 버전 표시",
     comparison_on: "비교 켜기",

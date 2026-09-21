@@ -10,12 +10,6 @@ import { createContext, useContext, type ReactNode } from "react";
 export type VersionSnapshotContextValue = {
   /** The version this row shows. */
   snapshot: VersionSnapshot;
-  /**
-   * The previous visible version in the filtered list, i.e. what a
-   * diff of this row is taken against by default. `undefined` for the oldest
-   * row.
-   */
-  previousSnapshot?: VersionSnapshot;
   /** Whether this row is the current version (the live document). */
   isCurrent: boolean;
   /** Whether this row is the version the editor is showing. */

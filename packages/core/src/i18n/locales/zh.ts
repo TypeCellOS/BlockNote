@@ -458,7 +458,6 @@ export const zh: Dictionary = {
   versioning: {
     title: "历史记录",
     close: "关闭",
-    save_version: "保存版本",
     show_named_only: "仅显示已命名的版本",
     show_all: "显示所有版本",
     comparison_on: "开启对比",

@@ -410,7 +410,6 @@ export const pt: Dictionary = {
   versioning: {
     title: "Histórico",
     close: "Fechar",
-    save_version: "Salvar versão",
     show_named_only: "Mostrar apenas versões nomeadas",
     show_all: "Mostrar todas as versões",
     comparison_on: "Ativar comparação",

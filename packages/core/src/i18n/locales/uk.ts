@@ -441,7 +441,6 @@ export const uk: Dictionary = {
   versioning: {
     title: "Історія",
     close: "Закрити",
-    save_version: "Зберегти версію",
     show_named_only: "Показувати лише названі версії",
     show_all: "Показувати всі версії",
     comparison_on: "Увімкнути порівняння",

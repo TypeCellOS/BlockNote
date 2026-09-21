@@ -431,7 +431,6 @@ export const is: Dictionary = {
   versioning: {
     title: "Ferill",
     close: "Loka",
-    save_version: "Vista útgáfu",
     show_named_only: "Sýna aðeins nefndar útgáfur",
     show_all: "Sýna allar útgáfur",
     comparison_on: "Kveikja á samanburði",

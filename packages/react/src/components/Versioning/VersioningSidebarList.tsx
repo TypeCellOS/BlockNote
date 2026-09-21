@@ -151,7 +151,6 @@ export function VersioningSidebarList() {
             key={row.id}
             id={`${listId}-snapshot-${row.id}`}
             snapshot={row}
-            previousSnapshot={rows[index + 1]}
             isCurrent={index === 0}
             // One tab stop; fall back to Current if the active index disappears.
             tabIndex={

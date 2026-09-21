@@ -71,36 +71,6 @@ const parseFormatKeys = (formatJSON: string | undefined): string[] => {
 };
 
 /**
- * The element with a real box to anchor the tooltip to. The wrapper is
- * `display: contents` (no box of its own), so use its content span child,
- * falling back further for block marks.
- */
-const getReferenceElement = (wrapper: Element): Element => {
-  const content = wrapper.firstElementChild ?? wrapper;
-  const rect = content.getBoundingClientRect();
-  if (rect.width || rect.height) {
-    return content;
-  }
-  return content.firstElementChild ?? content;
-};
-
-/**
- * The box the tooltip anchors to. The wrapper is `display: contents` (no box of
- * its own), so use its content span child, falling back further for block marks.
- * Exported for the React controller's floating-ui `getBoundingClientRect`.
- */
-export const getReferenceRect = (wrapper: Element): DOMRect =>
-  getReferenceElement(wrapper).getBoundingClientRect();
-
-/**
- * The per-line client rects of the reference element, for floating-ui's
- * `inline()` middleware — it needs one rect per line to position off a
- * multi-line mark, and virtual elements don't get a default `getClientRects`.
- */
-export const getReferenceClientRects = (wrapper: Element): DOMRectList =>
-  getReferenceElement(wrapper).getClientRects();
-
-/**
  * State for the currently-hovered suggestion mark's tooltip (`undefined` when
  * none). The extension computes it; a React controller renders + positions it
  * (see `AttributionTooltipController`).

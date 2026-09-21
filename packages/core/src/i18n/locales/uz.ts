@@ -451,7 +451,6 @@ export const uz: Dictionary = {
   versioning: {
     title: "Tarix",
     close: "Yopish",
-    save_version: "Versiyani saqlash",
     show_named_only: "Faqat nomlangan versiyalarni ko'rsatish",
     show_all: "Barcha versiyalarni ko'rsatish",
     comparison_on: "Taqqoslashni yoqish",

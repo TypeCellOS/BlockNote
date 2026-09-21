@@ -463,7 +463,6 @@ export const fr: Dictionary = {
   versioning: {
     title: "Historique",
     close: "Fermer",
-    save_version: "Enregistrer la version",
     show_named_only: "Afficher uniquement les versions nommées",
     show_all: "Afficher toutes les versions",
     comparison_on: "Activer la comparaison",

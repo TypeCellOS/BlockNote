@@ -458,7 +458,6 @@ export const zhTW: Dictionary = {
   versioning: {
     title: "版本紀錄",
     close: "關閉",
-    save_version: "儲存版本",
     show_named_only: "僅顯示已命名的版本",
     show_all: "顯示所有版本",
     comparison_on: "開啟比較",

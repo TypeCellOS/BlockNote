@@ -58,25 +58,25 @@ function VersioningSidebarContent(props: { onClose?: () => void }) {
   const { run, failed } = useVersioningSidebar();
   const previewRow = usePreviewRow();
 
-  // Read at mount only: the initial selection uses whatever comparison mode the
-  // panel opened with, and must not re-run when the user toggles it (the header
-  // re-previews for that).
-  const latest = useRef({ previewRow, run });
-  latest.current = { previewRow, run };
+  // `previewRow` changes with comparison/filter state, but those changes must
+  // not relist history. Keep the async completion fresh without making it an
+  // effect dependency (the header re-previews already-loaded history itself).
+  const previewRowRef = useRef(previewRow);
+  previewRowRef.current = previewRow;
 
   // Open the panel on the current version, read-only. One `list()` per mount:
   // the history is a snapshot of the moment the panel was opened, and closing
   // and reopening is what refreshes it.
   useEffect(() => {
-    void latest.current.run(
+    void run(
       () => versioning.list(),
       async (loaded) => {
         if (versioning.store.state.view.mode === "live") {
-          await latest.current.previewRow(loaded.current);
+          await previewRowRef.current(loaded.current);
         }
       },
     );
-  }, [versioning]);
+  }, [run, versioning]);
 
   return (
     <Components.Versioning.Sidebar

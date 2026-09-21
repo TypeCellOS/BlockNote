@@ -408,7 +408,6 @@ export const pl: Dictionary = {
   versioning: {
     title: "Historia",
     close: "Zamknij",
-    save_version: "Zapisz wersję",
     show_named_only: "Pokaż tylko nazwane wersje",
     show_all: "Pokaż wszystkie wersje",
     comparison_on: "Włącz porównywanie",

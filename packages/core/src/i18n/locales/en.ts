@@ -417,7 +417,6 @@ export const en = {
   versioning: {
     title: "History",
     close: "Close",
-    save_version: "Save version",
     show_named_only: "Show named versions only",
     show_all: "Show all versions",
     comparison_on: "Turn on comparison",

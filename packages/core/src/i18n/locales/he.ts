@@ -417,7 +417,6 @@ export const he: Dictionary = {
   versioning: {
     title: "היסטוריה",
     close: "סגירה",
-    save_version: "שמור גרסה",
     show_named_only: "הצג גרסאות בעלות שם בלבד",
     show_all: "הצג את כל הגרסאות",
     comparison_on: "הפעלת השוואה",

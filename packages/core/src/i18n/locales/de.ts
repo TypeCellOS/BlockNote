@@ -436,7 +436,6 @@ export const de: Dictionary = {
   versioning: {
     title: "Verlauf",
     close: "Schließen",
-    save_version: "Version speichern",
     show_named_only: "Nur benannte Versionen anzeigen",
     show_all: "Alle Versionen anzeigen",
     comparison_on: "Vergleich einschalten",

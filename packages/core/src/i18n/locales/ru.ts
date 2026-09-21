@@ -461,7 +461,6 @@ export const ru: Dictionary = {
   versioning: {
     title: "История",
     close: "Закрыть",
-    save_version: "Сохранить версию",
     show_named_only: "Показывать только именованные версии",
     show_all: "Показывать все версии",
     comparison_on: "Включить сравнение",

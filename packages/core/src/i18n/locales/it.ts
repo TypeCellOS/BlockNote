@@ -439,7 +439,6 @@ export const it: Dictionary = {
   versioning: {
     title: "Cronologia",
     close: "Chiudi",
-    save_version: "Salva versione",
     show_named_only: "Mostra solo le versioni con nome",
     show_all: "Mostra tutte le versioni",
     comparison_on: "Attiva il confronto",

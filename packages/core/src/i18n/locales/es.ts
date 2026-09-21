@@ -415,7 +415,6 @@ export const es: Dictionary = {
   versioning: {
     title: "Historial",
     close: "Cerrar",
-    save_version: "Guardar versión",
     show_named_only: "Mostrar solo versiones con nombre",
     show_all: "Mostrar todas las versiones",
     comparison_on: "Activar comparación",

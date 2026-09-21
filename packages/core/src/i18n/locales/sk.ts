@@ -415,7 +415,6 @@ export const sk = {
   versioning: {
     title: "História",
     close: "Zavrieť",
-    save_version: "Uložiť verziu",
     show_named_only: "Zobraziť iba pomenované verzie",
     show_all: "Zobraziť všetky verzie",
     comparison_on: "Zapnúť porovnávanie",

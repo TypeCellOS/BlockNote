@@ -386,7 +386,6 @@ export const fa = {
   versioning: {
     title: "تاریخچه",
     close: "بستن",
-    save_version: "ذخیره نسخه",
     show_named_only: "فقط نسخه‌های نام‌گذاری‌شده نمایش داده شود",
     show_all: "نمایش همه نسخه‌ها",
     comparison_on: "روشن کردن مقایسه",

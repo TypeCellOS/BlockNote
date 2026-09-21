@@ -12,6 +12,14 @@ import { AttributionTooltip } from "./AttributionTooltip.js";
 import { AttributionTooltipProps } from "./AttributionTooltipProps.js";
 import { FormatChangeLabel } from "./formatChangeLabel.js";
 
+function getReferenceElement(wrapper: Element): Element {
+  const content = wrapper.firstElementChild ?? wrapper;
+  const rect = content.getBoundingClientRect();
+  return rect.width || rect.height
+    ? content
+    : (content.firstElementChild ?? content);
+}
+
 /**
  * Renders the attribution tooltip for suggestion marks. The core
  * `AttributionExtension` owns the mark logic (which mark is hovered, nested-mark
@@ -43,25 +51,15 @@ export const AttributionTooltipController = (props: {
     () =>
       state
         ? {
+            // Keep the wrapper as the real reference for lifecycle/caching, but
+            // measure its rendered child: attribution wrappers use
+            // `display: contents` and have no box. `inline()` also needs the
+            // child's per-line rects to place multi-line tooltips correctly.
             element: state.anchor,
-            getBoundingClientRect: () => {
-              const content = state.anchor.firstElementChild ?? state.anchor;
-              const rect = content.getBoundingClientRect();
-              const el =
-                rect.width || rect.height
-                  ? content
-                  : (content.firstElementChild ?? content);
-              return el.getBoundingClientRect();
-            },
-            getClientRects: () => {
-              const content = state.anchor.firstElementChild ?? state.anchor;
-              const rect = content.getBoundingClientRect();
-              const el =
-                rect.width || rect.height
-                  ? content
-                  : (content.firstElementChild ?? content);
-              return el.getClientRects();
-            },
+            getBoundingClientRect: () =>
+              getReferenceElement(state.anchor).getBoundingClientRect(),
+            getClientRects: () =>
+              getReferenceElement(state.anchor).getClientRects(),
           }
         : undefined,
     [state],

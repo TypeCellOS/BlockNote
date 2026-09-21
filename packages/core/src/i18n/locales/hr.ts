@@ -431,7 +431,6 @@ export const hr: Dictionary = {
   versioning: {
     title: "Povijest",
     close: "Zatvori",
-    save_version: "Spremi verziju",
     show_named_only: "Prikaži samo imenovane verzije",
     show_all: "Prikaži sve verzije",
     comparison_on: "Uključi usporedbu",

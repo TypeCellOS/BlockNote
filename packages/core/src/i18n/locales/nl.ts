@@ -418,7 +418,6 @@ export const nl: Dictionary = {
   versioning: {
     title: "Geschiedenis",
     close: "Sluiten",
-    save_version: "Versie opslaan",
     show_named_only: "Alleen benoemde versies tonen",
     show_all: "Alle versies tonen",
     comparison_on: "Vergelijking inschakelen",

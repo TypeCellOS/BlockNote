@@ -402,7 +402,6 @@ export const ar: Dictionary = {
   versioning: {
     title: "السجل",
     close: "إغلاق",
-    save_version: "حفظ الإصدار",
     show_named_only: "إظهار الإصدارات المسماة فقط",
     show_all: "إظهار جميع الإصدارات",
     comparison_on: "تفعيل المقارنة",

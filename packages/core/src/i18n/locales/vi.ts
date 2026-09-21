@@ -416,7 +416,6 @@ export const vi: Dictionary = {
   versioning: {
     title: "Lịch sử",
     close: "Đóng",
-    save_version: "Lưu phiên bản",
     show_named_only: "Chỉ hiển thị các phiên bản đã đặt tên",
     show_all: "Hiển thị tất cả phiên bản",
     comparison_on: "Bật so sánh",

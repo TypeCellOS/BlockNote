@@ -457,7 +457,6 @@ export const ja: Dictionary = {
   versioning: {
     title: "履歴",
     close: "閉じる",
-    save_version: "バージョンを保存",
     show_named_only: "名前付きバージョンのみ表示",
     show_all: "すべてのバージョンを表示",
     comparison_on: "比較を有効にする",
