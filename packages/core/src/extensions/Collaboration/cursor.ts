@@ -1,6 +1,4 @@
 import { uuidv4 } from "lib0/random";
-import { Plugin } from "prosemirror-state";
-import type { EditorView } from "prosemirror-view";
 
 export type CollaborationUser = {
   id?: string;
@@ -29,7 +27,16 @@ function isDarkColor(bgColor: string): boolean {
   return L <= 0.179;
 }
 
-function defaultCursorRender(user: CollaborationUser) {
+type CursorLabel = {
+  element: HTMLElement;
+  collisionRect: HTMLElement;
+  anchorName: string;
+};
+
+function defaultCursorRender(
+  user: CollaborationUser,
+  existingLabel?: CursorLabel,
+) {
   const cursorElement = document.createElement("span");
 
   cursorElement.classList.add("bn-collaboration-cursor__base");
@@ -38,20 +45,22 @@ function defaultCursorRender(user: CollaborationUser) {
   caretElement.contentEditable = "false";
   caretElement.classList.add("bn-collaboration-cursor__caret");
 
-  const labelElement = document.createElement("span");
+  const labelElement = existingLabel?.element ?? document.createElement("span");
   labelElement.classList.add("bn-collaboration-cursor__label");
   labelElement.textContent = user.name;
 
   // Reserves the open label's size to flip the orientation at the viewport edges before opening.
-  const collisionRect = document.createElement("span");
+  const collisionRect =
+    existingLabel?.collisionRect ?? document.createElement("span");
   collisionRect.classList.add("bn-collaboration-cursor__label-collision-rect");
-  const measurement = document.createElement("span");
-  measurement.textContent = user.name;
-  measurement.setAttribute("aria-hidden", "true");
-  collisionRect.append(measurement, labelElement);
+  if (collisionRect.firstChild) {
+    collisionRect.firstChild.nodeValue = user.name;
+  } else {
+    collisionRect.append(user.name, labelElement);
+  }
 
   // Names must be unique across editors sharing the same document/portal root.
-  const anchorName = `--bn-cursor-${uuidv4()}`;
+  const anchorName = existingLabel?.anchorName ?? `--bn-cursor-${uuidv4()}`;
   caretElement.style.setProperty("anchor-name", anchorName);
   labelElement.style.setProperty("position-anchor", anchorName);
   collisionRect.style.setProperty("position-anchor", anchorName);
@@ -71,13 +80,17 @@ function defaultCursorRender(user: CollaborationUser) {
 
   return {
     element: cursorElement,
-    label: { element: labelElement, collisionRect },
+    label: {
+      element: labelElement,
+      collisionRect,
+      anchorName,
+    },
   };
 }
 
 type Cursor = {
   element: HTMLElement;
-  label?: { element: HTMLElement; collisionRect: HTMLElement };
+  label?: CursorLabel;
   hideTimeout?: ReturnType<typeof setTimeout>;
 };
 
@@ -86,25 +99,9 @@ export function createCollaborationCursorManager(options: {
   renderCursor?: (user: CollaborationUser) => HTMLElement;
   showCursorLabels?: "always" | "activity";
   getPortalElement: () => HTMLElement;
+  hasCursor: (clientID: number) => boolean;
 }) {
   const cursors = new Map<number, Cursor>();
-  let view: EditorView | undefined;
-
-  function syncLabel(cursor: Cursor) {
-    const label = cursor.label;
-    if (!label || !view || !view.dom.contains(cursor.element)) {
-      return;
-    }
-    label.element.toggleAttribute(
-      "data-active",
-      cursor.element.hasAttribute("data-active"),
-    );
-    const portal = options.getPortalElement();
-    if (label.collisionRect.parentElement !== portal) {
-      portal.append(label.collisionRect);
-    }
-  }
-
   function hideCursor(cursor: Cursor) {
     clearTimeout(cursor.hideTimeout);
     cursor.element.removeAttribute("data-active");
@@ -114,7 +111,7 @@ export function createCollaborationCursorManager(options: {
   function showCursor(cursor: Cursor) {
     clearTimeout(cursor.hideTimeout);
     cursor.element.setAttribute("data-active", "");
-    syncLabel(cursor);
+    cursor.label?.element.setAttribute("data-active", "");
   }
 
   function scheduleHide(cursor: Cursor) {
@@ -122,69 +119,65 @@ export function createCollaborationCursorManager(options: {
     cursor.hideTimeout = setTimeout(() => hideCursor(cursor), 2000);
   }
 
-  function sync(nextView: EditorView) {
-    view = nextView;
-    for (const [clientID, cursor] of cursors) {
-      if (!view.dom.contains(cursor.element)) {
-        hideCursor(cursor);
-        cursor.label?.collisionRect.remove();
-        cursors.delete(clientID);
-      } else {
-        syncLabel(cursor);
-      }
+  function removeCursor(clientID: number) {
+    const cursor = cursors.get(clientID);
+    if (cursor) {
+      hideCursor(cursor);
+      cursor.label?.collisionRect.remove();
+      cursors.delete(clientID);
     }
   }
 
   function cursorBuilder(user: CollaborationUser, clientID: number) {
     const existing = cursors.get(clientID);
-    if (existing) {
-      return existing.element;
-    }
+    clearTimeout(existing?.hideTimeout);
 
     const cursor: Cursor = options.renderCursor
       ? { element: options.renderCursor(user) }
-      : defaultCursorRender(user);
+      : defaultCursorRender(user, existing?.label);
     cursors.set(clientID, cursor);
+    if (cursor.label && !existing?.label) {
+      options.getPortalElement().append(cursor.label.collisionRect);
+    }
     if (options.showCursorLabels !== "always") {
       cursor.element.addEventListener("mouseenter", () => showCursor(cursor));
       cursor.element.addEventListener("mouseleave", () => scheduleHide(cursor));
+    }
+    showCursor(cursor);
+    if (options.showCursorLabels !== "always") {
       scheduleHide(cursor);
     }
-    cursor.element.setAttribute("data-active", "");
     return cursor.element;
   }
 
-  function onAwarenessChange({ updated }: { updated: number[] }) {
-    if (options.showCursorLabels === "always") {
-      return;
+  function onAwarenessChange({
+    updated,
+    removed,
+  }: {
+    updated: number[];
+    removed: number[];
+  }) {
+    for (const clientID of removed) {
+      removeCursor(clientID);
     }
     for (const clientID of updated) {
+      if (!options.hasCursor(clientID)) {
+        removeCursor(clientID);
+        continue;
+      }
       const cursor = cursors.get(clientID);
-      if (cursor) {
+      if (cursor && options.showCursorLabels !== "always") {
         showCursor(cursor);
         scheduleHide(cursor);
       }
     }
   }
 
-  return {
-    cursorBuilder,
-    onAwarenessChange,
-    plugin: new Plugin({
-      view(initialView) {
-        sync(initialView);
-        return {
-          update: sync,
-          destroy() {
-            for (const cursor of cursors.values()) {
-              hideCursor(cursor);
-              cursor.label?.collisionRect.remove();
-            }
-            cursors.clear();
-            view = undefined;
-          },
-        };
-      },
-    }),
-  };
+  function destroy() {
+    for (const clientID of cursors.keys()) {
+      removeCursor(clientID);
+    }
+  }
+
+  return { cursorBuilder, onAwarenessChange, destroy };
 }

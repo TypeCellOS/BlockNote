@@ -135,6 +135,13 @@ function create13(options: Options) {
         "test",
       ]);
     },
+    clearCursor() {
+      awareness.getStates().set(123, { user: remoteUser, cursor: null });
+      awareness.emit("change", [
+        { added: [], updated: [123], removed: [] },
+        "test",
+      ]);
+    },
     remove() {
       awareness.getStates().delete(123);
       awareness.emit("change", [
@@ -178,6 +185,13 @@ function create14(options: Options) {
         user: { ...remoteUser, name },
         cursor: { anchor: relative, head: relative },
       });
+      awareness.emit("change", [
+        { added: [], updated: [123], removed: [] },
+        "test",
+      ]);
+    },
+    clearCursor() {
+      awareness.getStates().set(123, { user: remoteUser, cursor: null });
       awareness.emit("change", [
         { added: [], updated: [123], removed: [] },
         "test",
@@ -542,6 +556,36 @@ for (const [name, create] of [
           ),
         )
         .toBeLessThan(1);
+    });
+
+    for (const showCursorLabels of ["always", "activity"] as const) {
+      it(`cleans up a cleared cursor and renders its return (${showCursorLabels})`, async () => {
+        const session = setup({ showCursorLabels });
+        session.moveTo("td p");
+        const original = await session.label();
+        session.clearCursor();
+        expect(original.isConnected).toBe(false);
+        expect(session.editor.portalElement.childElementCount).toBe(0);
+        session.moveTo(".bn-inline-content");
+        const returned = await session.label();
+        expect(returned).not.toBe(original);
+        expect(session.editor.portalElement.childElementCount).toBe(1);
+        session.remove();
+        expect(session.editor.portalElement.childElementCount).toBe(0);
+      });
+    }
+
+    it("reuses the label when rebuilding a cursor and updates its user", async () => {
+      const session = setup();
+      session.moveTo(".bn-inline-content");
+      const original = await session.label();
+      session.moveTo("td p", "Updated User");
+      const updated = await session.label();
+      expect(updated).toBe(original);
+      expect(updated.textContent).toBe("Updated User");
+      expect(session.editor.portalElement.childElementCount).toBe(1);
+      session.editor.unmount();
+      expect(session.editor.portalElement.childElementCount).toBe(0);
     });
 
     it("preserves custom cursor DOM and does not portal it", async () => {

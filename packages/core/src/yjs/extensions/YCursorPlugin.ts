@@ -19,12 +19,17 @@ export const YCursorExtension = createExtension(
       renderCursor: options.renderCursor,
       showCursorLabels: options.showCursorLabels,
       getPortalElement: () => editor.portalElement,
+      hasCursor: (clientID) =>
+        awareness?.getStates().get(clientID)?.cursor != null,
     });
     return {
       key: "yCursor",
       mount() {
         awareness?.on("change", cursors.onAwarenessChange);
-        return () => awareness?.off("change", cursors.onAwarenessChange);
+        return () => {
+          awareness?.off("change", cursors.onAwarenessChange);
+          cursors.destroy();
+        };
       },
       prosemirrorPlugins: awareness
         ? [
@@ -32,7 +37,6 @@ export const YCursorExtension = createExtension(
               selectionBuilder: defaultSelectionBuilder,
               cursorBuilder: cursors.cursorBuilder,
             }),
-            cursors.plugin,
           ]
         : [],
       dependsOn: ["ySync"],
