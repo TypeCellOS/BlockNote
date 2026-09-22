@@ -78,7 +78,7 @@
     "@blocknote/react": "workspace:^",
     "@handlewithcare/prosemirror-inputrules": "^0.1.4",
     "katex": "^0.16.11",
-    "prosemirror-model": "^1.25.4",
+    "prosemirror-model": "^1.25.11",
     "prosemirror-state": "^1.4.4"
   },
   "devDependencies": {

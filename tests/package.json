@@ -22,7 +22,7 @@
     "@blocknote/xl-multi-column": "workspace:^",
     "@playwright/test": "1.60.0",
     "@tailwindcss/vite": "^4.1.14",
-    "@tiptap/pm": "^3.29.2",
+    "@tiptap/pm": "^3.31.3",
     "@types/node": "^20.19.22",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
