@@ -142,6 +142,7 @@ export const ColorStyleButton = () => {
       // focus moving into the dropdown, which would blur the editor and dismiss
       // the on-screen keyboard.
       portalElement={portalElement}
+      // How-to-test: without it, opening the colors menu from the mobile toolbar moves focus into the menu and closes the keyboard, in every skin (covered by skinFocus, android, all skins: "opening the colors menu keeps focus in the editor").
       preventFocusOnOpen={uiMode === "mobile"}
     >
       <Components.Generic.Menu.Trigger>

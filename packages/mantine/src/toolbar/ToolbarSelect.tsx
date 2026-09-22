@@ -4,8 +4,8 @@ import {
   Menu as MantineMenu,
 } from "@mantine/core";
 
-import { assertEmpty, isSafari, isTouchDevice } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { assertEmpty } from "@blocknote/core";
+import { ComponentProps, preventFocusOnTap } from "@blocknote/react";
 import { forwardRef } from "react";
 import { HiChevronDown } from "react-icons/hi";
 
@@ -51,23 +51,8 @@ export const ToolbarSelect = forwardRef<
     >
       <MantineMenu.Target>
         <MantineButton
-          onMouseDown={(e) => {
-            // On touch, keep focus on the editor (so the on-screen keyboard
-            // stays open) without canceling the tap's click. `mousedown` is the
-            // compat event that moves focus, so preventing it keeps focus here
-            // while the click still fires. Preventing `pointerdown` instead
-            // suppresses the synthesized click on iOS WebKit.
-            if (isTouchDevice()) {
-              e.preventDefault();
-              return;
-            }
-
-            // Needed as Safari doesn't focus button elements on mouse down
-            // unlike other browsers.
-            if (isSafari()) {
-              (e.currentTarget as HTMLButtonElement).focus();
-            }
-          }}
+          // How-to-test: without it, tapping the block type select focuses the button and closes the keyboard (covered by skinFocus, android, mantine: "opening the block type select keeps focus in the editor").
+          onMouseDown={preventFocusOnTap}
           leftSection={selectedItem.icon}
           rightSection={<HiChevronDown />}
           size={"xs"}

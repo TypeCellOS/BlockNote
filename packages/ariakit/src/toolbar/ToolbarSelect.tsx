@@ -9,7 +9,7 @@ import {
 } from "@ariakit/react";
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, preventFocusOnTap } from "@blocknote/react";
 import { forwardRef } from "react";
 
 export const ToolbarSelect = forwardRef<
@@ -21,7 +21,7 @@ export const ToolbarSelect = forwardRef<
     items,
     isDisabled,
     portalElement,
-    preventFocusOnOpen: _preventFocusOnOpen, // unused; see Menu.tsx
+    preventFocusOnOpen,
     ...rest
   } = props;
 
@@ -38,7 +38,8 @@ export const ToolbarSelect = forwardRef<
       <AriakitSelect
         className={"bn-ak-button bn-ak-secondary"}
         disabled={isDisabled}
-        aria-label="Text alignment"
+        // How-to-test: without it, tapping the block type select focuses the button and closes the keyboard (covered by skinFocus, android, ariakit: "opening the block type select keeps focus in the editor").
+        onMouseDown={preventFocusOnTap}
         render={<AriakitToolbarItem />}
       >
         {selectedItem.icon} {selectedItem.text} <AriakitSelectArrow />
@@ -47,6 +48,10 @@ export const ToolbarSelect = forwardRef<
         className={mergeCSSClasses("bn-ak-popover", className || "")}
         ref={ref}
         gutter={4}
+        // Ariakit's default focuses the listbox on show; on the mobile toolbar
+        // that blurs the editor and closes the keyboard.
+        // How-to-test: without it, opening the block type select focuses the listbox and closes the keyboard (covered by skinFocus, android, ariakit: "opening the block type select keeps focus in the editor").
+        autoFocusOnShow={!preventFocusOnOpen}
         // Ariakit falls back to a body-appended div for a missing element,
         // so don't portal at all until there is one (editor not mounted yet).
         portal={portalElement !== null}
@@ -57,6 +62,13 @@ export const ToolbarSelect = forwardRef<
             className={"bn-ak-select-item"}
             key={option.text}
             value={option.text}
+            // A tap must not focus the option; under `preventFocusOnOpen`,
+            // hovering one (a tap's compat mousemove included) must not focus
+            // the listbox either.
+            // How-to-test: with hover focus on, tapping a block type focuses the listbox through the tap's compat mousemove and closes the keyboard (covered by skinFocus, android, ariakit: "picking from the block type select leaves focus in the editor").
+            focusOnHover={!preventFocusOnOpen}
+            // How-to-test: without the tap guard, tapping a block type focuses the option and closes the keyboard (covered by the same case).
+            onMouseDown={preventFocusOnTap}
           >
             {option.icon}
             {option.text}

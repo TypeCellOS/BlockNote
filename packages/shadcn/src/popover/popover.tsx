@@ -18,9 +18,6 @@ export const Popover = (
     onOpenChange,
     position: _position, // unused
     portalElement,
-    // base-ui manages popover focus itself; unlike Mantine there is no focus to
-    // suppress, so this is intentionally unused.
-    preventFocusOnOpen: _preventFocusOnOpen,
     ...rest
   } = props;
 
@@ -75,6 +72,13 @@ export const PopoverContent = forwardRef<
     <ShadCNComponents.Popover.PopoverContent
       sideOffset={8}
       container={container}
+      // Base UI would focus the popup's first tabbable on open. BlockNote owns
+      // focus in its popovers (`useAutoFocus` on the input that wants it), as
+      // in the Mantine and Ariakit adapters; on the mobile toolbar a focus move
+      // onto anything else blurs the editor and closes the keyboard. Example:
+      // without it, "Replace file" on the mobile toolbar flickers and closes
+      // the keyboard.
+      initialFocus={false}
       className={cn(
         className,
         "flex flex-col gap-2",
