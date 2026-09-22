@@ -104,11 +104,16 @@ describe("Check Comments functionality", () => {
     await moveMouseOverElement(await waitForSelector(".bn-thread-comment"));
     await userEvent.click(await waitForSelector('[data-test="moreactions"]'));
     await userEvent.click(page.getByRole("menuitem", { name: "Edit comment" }));
+    await userEvent.click(
+      await waitForSelector('.bn-thread-comment [contenteditable="true"]'),
+    );
     await userEvent.keyboard("{End} edited{Enter}");
     await expectSelectorCount('.bn-thread-comment [contenteditable="true"]', 0);
-    expect(document.querySelector(".bn-thread-comment")?.textContent).toContain(
-      "edited",
-    );
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector(".bn-thread-comment")?.textContent,
+      ).toContain("edited");
+    });
   });
 
   test("Should be able to add reactions", async () => {
