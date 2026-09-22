@@ -26,6 +26,8 @@ import {
   ComponentProps,
   useComponentsContext,
 } from "../../../editor/ComponentsContext.js";
+import { usePortalElement } from "../../../editor/PortalElementOverride.js";
+import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 
@@ -127,6 +129,8 @@ export const blockTypeSelectItems = (
 
 export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   const Components = useComponentsContext()!;
+  const uiMode = useUIMode();
+  const portalElement = usePortalElement();
 
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -212,6 +216,12 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     <Components.FormattingToolbar.Select
       className={"bn-select"}
       items={selectItems}
+      // Portal the dropdown into the editor's themed portal target so it
+      // inherits styling; on mobile `preventFocusOnOpen` keeps focus in the
+      // editor so the on-screen keyboard stays up.
+      portalElement={portalElement}
+      // How-to-test: without it, opening the block type select from the mobile toolbar moves focus into it and closes the keyboard, in every skin (covered by skinFocus, android, all skins: "opening the block type select keeps focus in the editor").
+      preventFocusOnOpen={uiMode === "mobile"}
     />
   );
 };

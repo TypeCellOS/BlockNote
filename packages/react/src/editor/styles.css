@@ -509,18 +509,26 @@ SideMenuController offsets its position to keep it centered on the line. */
   gap: 4px;
 }
 
-/* Mobile formatting toolbar positioning */
 .bn-mobile-formatting-toolbar {
   display: flex;
+  justify-content: center;
   position: fixed;
-  bottom: var(--bn-mobile-keyboard-offset, 0px);
+  top: 0;
   left: 0;
-  right: 0;
+  width: 100vw;
   z-index: calc(var(--bn-ui-base-z-index) + 40);
-  transition: bottom 0.15s ease-out;
-  touch-action: pan-x;
-  -webkit-overflow-scrolling: touch;
-  overflow-x: auto;
+  /* `translate`: Move just below bottom of visual viewport. */
+  /* `translateY`: Move from below under bottom edge of visual viewport to just above it. */
+  /* `scale`: Preserve size on zoom. */
+  transform: translate(
+      var(--bn-vv-left, 0px),
+      calc(var(--bn-vv-top, 0px) + var(--bn-vv-height, 0px))
+    )
+    translateY(-100%) scale(calc(1 / var(--bn-vv-scale, 1)));
+  transform-origin: left bottom;
+  will-change: transform;
+  /* Slightly mitigates jitter. */
+  transition: transform 0.2s cubic-bezier(0.5, 1, 0.89, 1);
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
@@ -668,4 +676,76 @@ SideMenuController offsets its position to keep it centered on the line. */
 
 .bn-frimousse-skin-tone:hover {
   background-color: var(--bn-colors-hovered-background);
+}
+
+/* iOS Safari with the keyboard open answers a vertical drag on the toolbar
+   with a viewport pan or pull-to-refresh, and the toolbar pinned to that
+   viewport moves under the finger. On the strip, not the wrapper: WebKit reads
+   `touch-action` only up to the nearest scroll container of the touched
+   element, and the strip is one. */
+.bn-mobile-formatting-toolbar .bn-toolbar {
+  touch-action: pan-x;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bn-mobile-formatting-toolbar {
+    transition: none;
+  }
+}
+
+/* CSS styles for scroll container pinned to virtual viewport. Used to make the mobile formatting
+ toolbar scroll smoother. `bn-vv-*` variables track virtual viewport and are set in
+ `useVirtualKeyboard`. */
+.bn-scroll-container {
+  position: fixed;
+  top: var(--bn-vv-top, 0px);
+  left: var(--bn-vv-left, 0px);
+  width: var(--bn-vv-width, 100vw);
+  height: var(--bn-vv-height, 100dvh);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Overscroll stays inside the container. Chained to the document it moves
+     the page behind the pinned container, and the toolbar with it: scrolled
+     to the end and dragging further, the whole page rubber-bands, content and
+     toolbar jump, and a document-level scrollbar appears; at the top with the
+     keyboard up, dragging down starts Safari's pull-to-refresh, the page
+     slides with the finger and the toolbar drifts up from the keyboard and
+     snaps back. */
+  overscroll-behavior: contain;
+}
+
+/* The one exception: at the top with the keyboard closed, the overscroll must
+   reach the document or the page can no longer be refreshed by pulling.
+   `useVirtualKeyboard` sets the attribute in exactly that state. Not with the
+   keyboard up, where the pull moves the toolbar (see above). */
+.bn-scroll-container[data-bn-allow-pull-to-refresh] {
+  overscroll-behavior-y: auto;
+}
+
+/* Form.Root's <form> is a semantic wrapper, never a layout box: the skins'
+ * containers (popover contents, the file panel's tab column) lay out the
+ * fields and the embed tab's submit button as their own flex children, and
+ * two skins rendered no wrapper element at all before the real <form>
+ * arrived. `contents` keeps that geometry in every skin — verified against
+ * each skin's containers (mantine's are block, so this is a no-op there;
+ * ariakit/shadcn have flex+gap containers that need it). Skins must not
+ * style .bn-form as a box. */
+.bn-form {
+  display: contents;
+}
+
+/* The Form.Root default submit control (`ScreenReaderOnlySubmit`): visually
+ * hidden but NOT `display: none` - it must stay in the accessibility tree as
+ * a labelled control, and its presence is what makes Enter submit a form
+ * with more than one field. */
+.bn-screen-reader-only-submit {
+  border: 0;
+  clip-path: inset(50%);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }

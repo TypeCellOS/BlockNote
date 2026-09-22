@@ -407,5 +407,6 @@ export const ar: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "موافق",
   },
 };

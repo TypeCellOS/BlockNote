@@ -446,5 +446,6 @@ export const uk: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "ОК",
   },
 };

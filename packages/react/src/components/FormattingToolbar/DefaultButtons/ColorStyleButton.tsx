@@ -7,6 +7,8 @@ import {
 import { useCallback } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { usePortalElement } from "../../../editor/PortalElementOverride.js";
+import { useUIMode } from "../../../editor/UIModeContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -43,6 +45,8 @@ function checkColorInSchema<Color extends "text" | "background">(
 export const ColorStyleButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
+  const uiMode = useUIMode();
+  const portalElement = usePortalElement();
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -101,10 +105,7 @@ export const ColorStyleButton = () => {
         editor.addStyles({ textColor: color });
       }
 
-      setTimeout(() => {
-        // timeout needed to ensure compatibility with Mantine Toolbar useFocusTrap
-        editor.focus();
-      });
+      editor.focus();
     },
     [editor, textColorInSchema],
   );
@@ -123,10 +124,7 @@ export const ColorStyleButton = () => {
         editor.addStyles({ backgroundColor: color });
       }
 
-      setTimeout(() => {
-        // timeout needed to ensure compatibility with Mantine Toolbar useFocusTrap
-        editor.focus();
-      });
+      editor.focus();
     },
     [backgroundColorInSchema, editor],
   );
@@ -136,7 +134,17 @@ export const ColorStyleButton = () => {
   }
 
   return (
-    <Components.Generic.Menu.Root>
+    <Components.Generic.Menu.Root
+      // Portal the dropdown into the editor's themed portal target so it
+      // inherits styling and escapes any scroll-container overflow clipping.
+      // On mobile that target is the toolbar's body-level container (see
+      // `MobileFormattingToolbarController`), and `preventFocusOnOpen` stops
+      // focus moving into the dropdown, which would blur the editor and dismiss
+      // the on-screen keyboard.
+      portalElement={portalElement}
+      // How-to-test: without it, opening the colors menu from the mobile toolbar moves focus into the menu and closes the keyboard, in every skin (covered by skinFocus, android, all skins: "opening the colors menu keeps focus in the editor").
+      preventFocusOnOpen={uiMode === "mobile"}
+    >
       <Components.Generic.Menu.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}

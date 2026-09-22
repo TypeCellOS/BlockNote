@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 
-import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { usePortalElement } from "../../editor/PortalElementOverride.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import FrimoussePicker, { useEmojiI18n } from "./FrimoussePicker.js";
 
@@ -13,18 +13,13 @@ export const EmojiPicker = (props: {
   const [open, setOpen] = useState(false);
 
   const Components = useComponentsContext()!;
-  const blockNoteContext = useBlockNoteContext()!;
-  const portalRoot = blockNoteContext.editor?.portalElement;
+  const portalElement = usePortalElement();
   const dict = useDictionary();
   const locale = dict.locale ?? "en";
   const emojiI18n = useEmojiI18n(locale);
 
-  if (!portalRoot) {
-    throw new Error("Portal root not found");
-  }
-
   return (
-    <Components.Generic.Popover.Root open={open} portalRoot={portalRoot}>
+    <Components.Generic.Popover.Root open={open} portalElement={portalElement}>
       <Components.Generic.Popover.Trigger>
         <div
           onClick={(event) => {

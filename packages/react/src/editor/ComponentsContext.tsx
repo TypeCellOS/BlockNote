@@ -1,4 +1,5 @@
 import {
+  ReactElement,
   ChangeEvent,
   ComponentType,
   createContext,
@@ -47,6 +48,14 @@ type ToolbarSelectType = {
     isDisabled?: boolean;
   }[];
   isDisabled?: boolean;
+  portalElement: HTMLElement | null;
+  /**
+   * When true, the UI library must not move focus into the surface when it
+   * opens (the mobile toolbar: a focus move blurs the editor and closes the
+   * on-screen keyboard). An input inside that asks for focus itself still
+   * gets it.
+   */
+  preventFocusOnOpen?: boolean;
 };
 
 type MenuButtonType = {
@@ -81,7 +90,15 @@ export type ComponentProps = {
     };
     Button: {
       className?: string;
-      onClick: () => void;
+      /**
+       * Explicit, because the skins' underlying buttons disagree on the
+       * default (Mantine's is `type="button"`, shadcn's was `"submit"`) and
+       * a submit button inside a `Form.Root` must reliably submit on every
+       * skin. `"submit"` buttons need no `onClick` - the form's `onSubmit`
+       * is the single commit path, so clicking cannot fire twice.
+       */
+      type: "button" | "submit";
+      onClick?: () => void;
     } & (
       | { children: ReactNode; label?: string }
       | { children?: undefined; label: string }
@@ -102,7 +119,7 @@ export type ComponentProps = {
       value: string;
       placeholder: string;
       onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-      onKeyDown: (event: KeyboardEvent) => void;
+      onKeyDown?: (event: KeyboardEvent) => void;
     };
   };
   LinkToolbar: {
@@ -299,6 +316,20 @@ export type ComponentProps = {
     Form: {
       Root: {
         children?: ReactNode;
+        /**
+         * Called on the form's `submit` event. Implementations must render a
+         * real `<form>` and `preventDefault`: native submission is the only
+         * path that works for every input source — mobile IMEs commit
+         * through it without dispatching any key event.
+         */
+        onSubmit?: () => void;
+        /**
+         * The form's submit control, rendered inside the `<form>`. Usually
+         * `ScreenReaderOnlySubmit`; a visible `type="submit"` button to make
+         * it the form's one affordance (the embed tab); or `"none"` — then
+         * the form must have exactly one field, or Enter submits nothing.
+         */
+        submitButton: ReactElement | "none";
       };
       TextInput: {
         className?: string;
@@ -311,9 +342,8 @@ export type ComponentProps = {
         placeholder?: string;
         disabled?: boolean;
         value: string;
-        onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
+        onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
         onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-        onSubmit?: () => void;
         autoComplete?: HTMLInputAutoCompleteAttribute;
         "aria-activedescendant"?: string;
         ref?: ForwardedRef<HTMLInputElement>;
@@ -329,6 +359,9 @@ export type ComponentProps = {
           | "bottom"
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
+        portalElement: HTMLElement | null;
+        /** See `ToolbarSelect.preventFocusOnOpen`. */
+        preventFocusOnOpen?: boolean;
         children?: ReactNode;
       };
       Divider: {
@@ -368,7 +401,7 @@ export type ComponentProps = {
           | "bottom"
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
-        portalRoot?: HTMLElement | null;
+        portalElement: HTMLElement | null;
         children?: ReactNode;
       };
       Content: {
