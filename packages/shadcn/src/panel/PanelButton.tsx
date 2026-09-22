@@ -8,7 +8,7 @@ export const PanelButton = forwardRef<
   HTMLButtonElement,
   ComponentProps["FilePanel"]["Button"]
 >((props, ref) => {
-  const { className, children, onClick, label, ...rest } = props;
+  const { className, children, type, onClick, label, ...rest } = props;
 
   assertEmpty(rest);
 
@@ -16,7 +16,7 @@ export const PanelButton = forwardRef<
 
   return (
     <ShadCNComponents.Button.Button
-      type={"submit"}
+      type={type}
       className={className}
       aria-label={label}
       ref={ref}

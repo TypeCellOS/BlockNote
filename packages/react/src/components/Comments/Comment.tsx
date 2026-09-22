@@ -21,6 +21,7 @@ import {
   Components,
   useComponentsContext,
 } from "../../editor/ComponentsContext.js";
+import { usePortalElement } from "../../editor/PortalElementOverride.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
@@ -179,6 +180,7 @@ export const Comment = ({
   });
 
   const Components = useComponentsContext()!;
+  const portalElement = usePortalElement();
 
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [moreActionsOpen, setMoreActionsOpen] = useState(false);
@@ -299,6 +301,7 @@ export const Comment = ({
           <Components.Generic.Menu.Root
             position={"bottom-start"}
             onOpenChange={setMoreActionsOpen}
+            portalElement={portalElement}
           >
             <Components.Generic.Menu.Trigger>
               <Components.Generic.Toolbar.Button

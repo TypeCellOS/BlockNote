@@ -3,6 +3,7 @@ import { Badge, BadgeGroup } from "./badge/Badge.js";
 import { Card, CardSection, ExpandSectionsPrompt } from "./comments/Card.js";
 import { Comment } from "./comments/Comment.js";
 import { Editor } from "./comments/Editor.js";
+import { Form } from "./form/Form.js";
 import { TextInput } from "./form/TextInput.js";
 import {
   Menu,
@@ -89,7 +90,7 @@ export const components: Components = {
       Group: BadgeGroup,
     },
     Form: {
-      Root: (props) => <div>{props.children}</div>,
+      Root: Form,
       TextInput: TextInput,
     },
     Menu: {
