@@ -395,6 +395,8 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
       { type: "paragraph", content: "Current live" },
     ]);
 
+    await versioning.list();
+
     // Preview older, then newer
     await versioning.previewSnapshot(v1.id);
     expect(getEditorText(ctx.editor)).toContain("Version 1");

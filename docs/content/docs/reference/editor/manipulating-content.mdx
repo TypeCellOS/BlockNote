@@ -390,7 +390,7 @@ if (selectedText) {
 getActiveStyles(): Styles
 ```
 
-Returns the active text styles at the current cursor position or at the end of the current selection.
+Returns the active text styles at the current cursor position or at the end of the current selection. With an empty selection, this includes styles enabled for upcoming text: for example, turning on bold before typing makes `activeStyles.bold` true even when the surrounding text is not bold.
 
 ```typescript
 const activeStyles = editor.getActiveStyles();
@@ -413,7 +413,7 @@ if (activeStyles.textColor) {
 getSelectedLinkUrl(): string | undefined
 ```
 
-Returns the URL of the last link in the current selection, or `undefined` if no links are selected.
+Returns the URL of the link the current selection starts in, or `undefined` if it does not start in a link.
 
 ```typescript
 const linkUrl = editor.getSelectedLinkUrl();

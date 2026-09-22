@@ -18,7 +18,9 @@ export const TABLE_SELECTOR = `[data-content-type="table"]`;
 export const DRAG_HANDLE_SELECTOR = `[data-test="dragHandle"]`;
 export const DRAG_HANDLE_ADD_SELECTOR = `[data-test="dragHandleAdd"]`;
 
-export const DRAG_HANDLE_MENU_SELECTOR = `.bn-side-menu > .bn-menu-dropdown`;
+// The menu is portalled into the editor container, so it is not a descendant
+// of the side menu that opens it; match it by its own class.
+export const DRAG_HANDLE_MENU_SELECTOR = `.bn-drag-handle-menu`;
 export const SLASH_MENU_SELECTOR = `.bn-suggestion-menu`;
 export const EMOJI_PICKER_SELECTOR = `.bn-grid-suggestion-menu`;
 

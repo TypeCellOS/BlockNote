@@ -7,6 +7,7 @@ import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../hooks/useEditorDomElement.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
 import { useExtension } from "../../hooks/useExtension.js";
+import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
@@ -20,10 +21,10 @@ export const LinkToolbarController = (props: {
   floatingUIOptions?: FloatingUIOptions;
   /**
    * Override the DOM node this floating element portals into. Falls back to
-   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * the ambient portal element (the element wrapping the editor by default)
    * when omitted.
    */
-  portalElement?: HTMLElement | null;
+  portalElement?: HTMLElement;
 }) => {
   const editor = useBlockNoteEditor<any, any, any>();
 
@@ -208,20 +209,18 @@ export const LinkToolbarController = (props: {
   const Component = props.linkToolbar || LinkToolbar;
 
   return (
-    <GenericPopover
-      reference={reference}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      {link && (
-        <Component
-          url={link.url}
-          text={link.text}
-          range={link.range}
-          setToolbarOpen={setToolbarOpen}
-          setToolbarPositionFrozen={setToolbarPositionFrozen}
-        />
-      )}
-    </GenericPopover>
+    <PortalElementOverride target={props.portalElement}>
+      <GenericPopover reference={reference} {...floatingUIOptions}>
+        {link && (
+          <Component
+            url={link.url}
+            text={link.text}
+            range={link.range}
+            setToolbarOpen={setToolbarOpen}
+            setToolbarPositionFrozen={setToolbarPositionFrozen}
+          />
+        )}
+      </GenericPopover>
+    </PortalElementOverride>
   );
 };

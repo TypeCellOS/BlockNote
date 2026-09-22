@@ -9,6 +9,7 @@ import { RiMoreFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import type { VersioningSnapshotState } from "../../editor/ComponentsContext.js";
+import { usePortalElement } from "../../editor/PortalElementOverride.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { dateToString } from "./dateToString.js";
@@ -96,6 +97,7 @@ export function Snapshot(props: {
 }) {
   const { snapshot, isCurrent } = props;
   const Components = useComponentsContext()!;
+  const portalElement = usePortalElement();
   const dict = useDictionary();
   const { create, rename, getLoadingState } = useExtension(VersioningExtension);
   const { snapshotMenu, run, focusNameFor, setFocusNameFor } =
@@ -203,7 +205,10 @@ export function Snapshot(props: {
         aria-label={`${dict.versioning.more_actions}: ${accessibleLabel}`}
         className="bn-action-toolbar"
       >
-        <Components.Generic.Menu.Root position="bottom-start">
+        <Components.Generic.Menu.Root
+          position="bottom-start"
+          portalElement={portalElement}
+        >
           <Components.Generic.Menu.Trigger>
             <Components.Generic.Toolbar.Button
               className="bn-snapshot-menu-trigger"

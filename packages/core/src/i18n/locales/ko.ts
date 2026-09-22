@@ -459,5 +459,6 @@ export const ko: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "확인",
   },
 };

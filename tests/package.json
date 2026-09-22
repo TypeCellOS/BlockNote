@@ -24,7 +24,7 @@
     "@tailwindcss/vite": "^4.1.14",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.3.0",
-    "@tiptap/pm": "^3.29.2",
+    "@tiptap/pm": "^3.31.3",
     "@types/node": "^20.19.22",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",

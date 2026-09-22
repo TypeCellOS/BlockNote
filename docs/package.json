@@ -59,7 +59,7 @@
     "@shikijs/langs-precompiled": "^4.4.3",
     "@shikijs/themes": "^4.4.3",
     "@shikijs/types": "^4.4.3",
-    "@tiptap/core": "^3.29.2",
+    "@tiptap/core": "^3.31.3",
     "@uppy/core": "^3.13.1",
     "@uppy/dashboard": "^3.9.1",
     "@uppy/drag-drop": "^3.1.1",

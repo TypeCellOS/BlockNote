@@ -507,6 +507,7 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
     const v2 = await versioning.create!({ name: "v2" });
 
     setEditorText(ctx2.editor, "Current state");
+    await versioning.list();
 
     const pluginCountBefore = ctx2.editor.prosemirrorState.plugins.length;
 
