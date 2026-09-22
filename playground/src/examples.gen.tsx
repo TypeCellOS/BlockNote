@@ -1866,7 +1866,7 @@ export const examples = {
         pathFromRoot: "examples/07-collaboration/11-versioning-yjs13",
         config: {
           playground: true,
-          docs: true,
+          docs: false,
           author: "yousefed",
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
@@ -1876,13 +1876,13 @@ export const examples = {
             "y-prosemirror": "^1.3.7",
           } as any,
         },
-        title: "Local Storage Versioning (yjs v13)",
+        title: "Local Storage Versioning (Yjs v13, Experimental)",
         group: {
           pathFromRoot: "examples/07-collaboration",
           slug: "collaboration",
         },
         readme:
-          'This example shows how to use the `VersioningExtension` with collaborative editing using `yjs` (v13). Snapshots are stored in localStorage using Yjs state updates.\n\nThe sidebar opens on a document with a few versions already in its history, so you can preview them, rename them, and restore them right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button and press "Save version" to add a version of your own.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+          'This experimental playground example shows how to use the `VersioningExtension` with collaborative editing using Yjs v13. Snapshots are stored in localStorage using Yjs state updates.\n\nThe sidebar opens on a document with a few versions already in its history, so you can preview and rename them. Comparison and restore are not supported. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button and press "Save version" to add a version of your own.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
       },
       {
         projectSlug: "multi-doc-versioning",

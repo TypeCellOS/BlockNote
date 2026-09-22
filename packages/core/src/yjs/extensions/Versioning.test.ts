@@ -266,8 +266,6 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
 
     const adapter = createYjsVersioningAdapter(editor, {
       fragment,
-      user: { name: "Test", color: "#000" },
-      provider: undefined,
     });
 
     expect(() =>

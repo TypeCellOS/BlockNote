@@ -965,6 +965,23 @@ we just don't display it in CSS instead. */
   width: 100%;
 }
 
+.bn-mantine
+  .bn-snapshot-name-sizer
+  > .bn-snapshot-name
+  > input.bn-snapshot-name {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  height: 20px;
+  margin: 0;
+  min-width: 0;
+  outline: none;
+  padding: 0;
+  width: 100%;
+}
+
 .bn-mantine .bn-snapshot-name::placeholder {
   color: inherit;
   opacity: 1;
@@ -981,7 +998,10 @@ we just don't display it in CSS instead. */
   text-decoration: none;
 }
 
-.bn-mantine .bn-snapshot.selected .bn-snapshot-name:focus-within {
+.bn-mantine
+  .bn-snapshot.selected
+  .bn-snapshot-name-sizer
+  > .bn-snapshot-name:focus-within {
   background-color: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.6);
 }

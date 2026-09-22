@@ -198,14 +198,18 @@ async function eventually<T>(get: () => T): Promise<T> {
  * land while the menu is still opening and do nothing at all.
  */
 async function openMenuItem(row: HTMLElement, label: RegExp) {
-  // Scoped to this row: the dropdown isn't portaled, and a document-wide
-  // query could pick up another row's menu if one were still open.
-  const item = () => within(row).queryAllByText(label)[0];
+  const trigger = within(row).getByRole("button", {
+    name: "More actions",
+  });
+  // Mantine portals the dropdown outside the row. Resolve the menu owned by
+  // this trigger so another row's open menu cannot satisfy the lookup.
+  const item = () => {
+    const menuId = trigger.getAttribute("aria-controls");
+    const menu = menuId ? document.getElementById(menuId) : null;
+    return menu ? within(menu).queryAllByText(label)[0] : undefined;
+  };
 
   for (let attempt = 0; attempt < 10 && !item(); attempt++) {
-    const trigger = within(row).getByRole("button", {
-      name: "More actions",
-    });
     if (trigger.getAttribute("aria-expanded") !== "true") {
       await click(trigger);
     } else {
@@ -650,13 +654,12 @@ describe("VersioningSidebar", () => {
     await click(rows()[1]!);
 
     const selectedRow = rows()[1]!;
-    await click(
-      within(selectedRow).getByRole("button", { name: "More actions" }),
-    );
-    await eventually(() => within(selectedRow).getByText("Restore"));
-    expect(
-      within(selectedRow).queryByText("Compare with this version"),
-    ).toBeNull();
+    const restoreItem = await openMenuItem(selectedRow, /^Restore$/);
+    const menu = restoreItem?.closest('[role="menu"]');
+    if (!(menu instanceof HTMLElement)) {
+      throw new Error("Expected the snapshot menu to be open");
+    }
+    expect(within(menu).queryByText("Compare with this version")).toBeNull();
 
     expect(
       await openMenuItem(rows()[2]!, /^Compare with this version$/),

@@ -78,7 +78,7 @@ export default function App() {
         // automatically, so we add VersioningExtension manually and use
         // createYjsVersioningAdapter to bridge the Yjs v13 preview logic.
         VersioningExtension((editor) => ({
-          ...createYjsVersioningAdapter(editor, { fragment } as any),
+          ...createYjsVersioningAdapter(editor, { fragment }),
           endpoints: localStorageEndpoints,
         })),
       ],

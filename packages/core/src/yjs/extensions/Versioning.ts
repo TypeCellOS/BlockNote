@@ -20,8 +20,8 @@ import { ForkYDocExtension } from "./ForkYDoc.js";
 export function createYjsVersioningAdapter(
   /** The BlockNote editor instance (must have ForkYDocExtension). */
   editor: BlockNoteEditor<any, any, any>,
-  /** The full collaboration options (used for `fragment` access). */
-  options: CollaborationOptions,
+  /** The collaboration document fragment. */
+  options: Pick<CollaborationOptions, "fragment">,
 ): {
   preview: PreviewController<Uint8Array>;
   getCurrentDocument: () => Y.XmlFragment;
