@@ -14,6 +14,7 @@ The editor emits events for:
 - **Editor lifecycle** - When the editor is created, mounted, unmounted, etc.
 - **Content changes** - When blocks are inserted, updated, or deleted
 - **Selection changes** - When the cursor position or selection changes
+- **Focus changes** - When focus enters or leaves the editor
 
 ## `onMount`
 
@@ -51,6 +52,26 @@ editor.onSelectionChange((editor) => {
   console.log("Text cursor position:", textCursorPosition);
 });
 ```
+
+## `onFocusChange`
+
+The `onFocusChange` callback receives the editor and a context containing `focused` (a boolean) and `event` (the triggering DOM `FocusEvent`). By default, it reports focus entering or leaving the content area.
+
+Pass `includeEditorUI: true` to count focus within the editor's toolbars, menus, and popovers too. In this mode, the callback runs only when that combined state changes, allowing focus to settle so moving from the content area into a popover input does not report a blur.
+
+```typescript
+const unsubscribe = editor.onFocusChange(
+  (editor, { focused }) => {
+    console.log("Interacting with editor:", focused);
+  },
+  { includeEditorUI: true },
+);
+
+// When you no longer need the listener:
+unsubscribe();
+```
+
+For the current focus state, use [`editor.isFocused()`](/docs/reference/editor/overview#focus). In React, use [`useEditorFocus`](/docs/react/overview#useeditorfocus) when focus determines what to render.
 
 ## `onChange`
 

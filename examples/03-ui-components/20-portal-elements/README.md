@@ -11,3 +11,4 @@ This example renders two editors side-by-side, both wrapped in a small `overflow
 **Relevant Docs:**
 
 - [UI Components](/docs/react/components)
+- [Mobile Formatting Toolbar](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar)
