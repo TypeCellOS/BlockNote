@@ -74,16 +74,16 @@
     "@blocknote/react": "workspace:^",
     "@floating-ui/react": "^0.27.18",
     "@handlewithcare/prosemirror-suggest-changes": "^0.1.8",
-    "@tiptap/core": "^3.29.2",
+    "@tiptap/core": "^3.31.3",
     "ai": "^6.0.5",
     "lodash.isequal": "^4.5.0",
     "lodash.merge": "^4.6.2",
-    "prosemirror-changeset": "^2.4.1",
+    "prosemirror-changeset": "^2.4.2",
     "prosemirror-model": "^1.25.11",
     "prosemirror-state": "^1.4.4",
     "prosemirror-tables": "^1.8.5",
-    "prosemirror-transform": "^1.12.0",
-    "prosemirror-view": "^1.42.2"
+    "prosemirror-transform": "^1.12.1",
+    "prosemirror-view": "^1.42.4"
   },
   "devDependencies": {
     "react-icons": "^5.5.0",
