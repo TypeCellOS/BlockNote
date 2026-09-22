@@ -1,4 +1,4 @@
-import { docToDelta, fragmentToTr } from "@y/prosemirror";
+import { docToDelta } from "@y/prosemirror";
 import * as Y from "@y/y";
 
 import type { Block } from "../../blocks/defaultBlocks.js";
@@ -9,10 +9,10 @@ import {
   _blocksToProsemirrorNode,
   docDiffToDelta,
   findTypeInOtherYdoc,
+  yNodeToTransaction,
 } from "../utils.js";
 import { AttributionExtension } from "./AttributionExtension.js";
 import type { GetAttributionMarkClassName } from "./YAttributionMarks.js";
-import { mapAttributionToMark } from "./YSync.js";
 
 /**
  * A version diff has a single "author" — the version that introduced the changes
@@ -202,10 +202,7 @@ export const DiffVersioningExtension = createExtension(
         // diff above, not from the ProseMirror before-state, so emptying the
         // document first would only churn node views for no gain.
         editor.exec((state, dispatch) => {
-          const tr = fragmentToTr(nextType, state.tr, {
-            renderer,
-            mapAttributionToMark,
-          });
+          const tr = yNodeToTransaction(state.tr, nextType, { renderer });
           if (dispatch) {
             dispatch(tr);
           }

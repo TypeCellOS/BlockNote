@@ -90,6 +90,51 @@ describe("AttributionExtension user loading", () => {
     expect(resolveUsers).toHaveBeenCalledWith(["alice"], expect.anything());
   });
 
+  it("replaces attribution authors while allowing different attribution kinds to coexist", () => {
+    const { editor } = createEditor();
+    editor.replaceBlocks(editor.document, [{ content: "hello" }]);
+    const names = [
+      "y-attributed-insert",
+      "y-attributed-delete",
+      "y-attributed-format",
+    ];
+    for (const author of ["alice", "bob"]) {
+      editor.transact((tr) => {
+        tr.doc.descendants((node, pos) => {
+          if (node.isText) {
+            for (const name of names) {
+              tr.addMark(
+                pos,
+                pos + node.nodeSize,
+                editor.pmSchema.marks[name].create({
+                  userIds: [author],
+                  ...(name === "y-attributed-format"
+                    ? { format: { bold: [author] } }
+                    : {}),
+                }),
+              );
+            }
+          }
+        });
+      });
+    }
+    editor.prosemirrorState.doc.descendants((node) => {
+      if (node.isText) {
+        expect(node.marks).toHaveLength(3);
+        expect(node.marks.map((mark) => mark.type.name).sort()).toEqual(
+          [...names].sort(),
+        );
+        for (const mark of node.marks) {
+          expect(mark.attrs.userIds).toEqual(["bob"]);
+        }
+        expect(
+          node.marks.find((mark) => mark.type.name === "y-attributed-format")!
+            .attrs.format,
+        ).toEqual({ bold: ["bob"] });
+      }
+    });
+  });
+
   it("does not load users for changes without attribution marks", () => {
     const { editor, resolveUsers } = createEditor();
     editor.replaceBlocks(editor.document, [{ content: "hello" }]);

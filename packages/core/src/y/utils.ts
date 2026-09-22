@@ -1,11 +1,15 @@
 import {
+  defaultTransformer,
   deltaToPNode,
+  deltaToPSteps,
   docToDelta,
   nodeToDelta,
-  pmToFragment,
+  pmnodeToDelta,
+  ynodeToPmnode,
 } from "@y/prosemirror";
 import * as d from "lib0/delta";
 import { Node } from "prosemirror-model";
+import type { Transaction } from "prosemirror-state";
 import {
   type Block,
   type BlockNoteEditor,
@@ -17,6 +21,7 @@ import {
   docToBlocks,
 } from "../index.js";
 import { blockMatchNodes } from "./extensions/blockMatchNodes.js";
+import { mapAttributionToMark } from "./extensions/YSync.js";
 
 import * as Y from "@y/y";
 
@@ -249,7 +254,8 @@ export function blocksToYType<
   if (blocks.length === 0) {
     return fragment;
   }
-  return pmToFragment(_blocksToProsemirrorNode(editor, blocks), fragment);
+  fragment.applyDelta(pmnodeToDelta(_blocksToProsemirrorNode(editor, blocks)));
+  return fragment;
 }
 
 /**
@@ -311,5 +317,27 @@ export function docDiffToDelta(previousDoc: Node, newDoc: Node) {
   const finalDelta = nodeToDelta(newDoc);
   return d.diff(initialDelta.done(), finalDelta.done(), {
     compare: blockMatchNodes,
+  });
+}
+
+/**
+ * Append steps that render a Y node into the transaction's current document.
+ * Supports both plain and already-attributed documents, replacing old preview
+ * marks with the renderer's attributions using BlockNote's node-pairing policy.
+ * Defaults to BlockNote's attribution transformer. Does not dispatch or write
+ * to the Y node; the caller controls sync configuration and dispatch.
+ */
+export function yNodeToTransaction(
+  tr: Transaction,
+  node: Y.Node,
+  options: NonNullable<Parameters<typeof ynodeToPmnode>[2]> = {},
+): Transaction {
+  const renderedDoc = ynodeToPmnode(node, tr.doc.type.schema, {
+    transformer: defaultTransformer({ mapAttributionToMark }),
+    ...options,
+  });
+  const renderedDelta = docDiffToDelta(tr.doc, renderedDoc);
+  return deltaToPSteps(tr, renderedDelta).setMeta("y-sync-hydration", {
+    delta: renderedDelta,
   });
 }

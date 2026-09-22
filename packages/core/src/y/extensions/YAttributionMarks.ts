@@ -234,7 +234,8 @@ export const YAttributedInsertion = Mark.create<{
 }>({
   name: "y-attributed-insert",
   inclusive: false,
-  excludes: "",
+  // Keep default self-exclusion: an updated author list replaces this mark,
+  // while insertion, deletion, and formatting marks can still coexist.
   // Two groups: `BLOCK_LEVEL_SUGGESTION_GROUP` lets the mark sit on block nodes
   // (see `suggestionMarks`), so a whole block can be marked as inserted in
   // suggestion mode; `NON_FORMATTING_MARK_GROUP` lets it annotate text inside
@@ -266,7 +267,6 @@ export const YAttributedDeletion = Mark.create<{
 }>({
   name: "y-attributed-delete",
   inclusive: false,
-  excludes: "",
   group: `${BLOCK_LEVEL_SUGGESTION_GROUP} ${NON_FORMATTING_MARK_GROUP}`,
   addAttributes() {
     return {
@@ -294,7 +294,6 @@ export const YAttributedFormat = Mark.create<{
 }>({
   name: "y-attributed-format",
   inclusive: false,
-  excludes: "",
   group: `${BLOCK_LEVEL_SUGGESTION_GROUP} ${NON_FORMATTING_MARK_GROUP}`,
   addAttributes() {
     return {
