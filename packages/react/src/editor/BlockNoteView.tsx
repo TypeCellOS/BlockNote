@@ -14,6 +14,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { warnIfViewportMetaMisconfigured } from "../components/FormattingToolbar/viewportMeta.js";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
 import { useEditorChange } from "../hooks/useEditorChange.js";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange.js";
@@ -304,6 +305,13 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
 
   const portalManager = useMemo(() => {
     return getContentComponent();
+  }, []);
+
+  // The page-level check for the mobile toolbar's viewport meta tag runs from
+  // here rather than from the toolbar's own hook, so it reaches developers on
+  // desktop and with a custom formatting toolbar alike.
+  useEffect(() => {
+    warnIfViewportMetaMisconfigured();
   }, []);
 
   const portalTarget = ctx.editorProps.portalTarget;

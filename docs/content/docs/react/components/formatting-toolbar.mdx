@@ -38,3 +38,25 @@ The first element in the default Formatting Toolbar is the Block Type Select, an
 <Example name="ui-components/formatting-toolbar-block-type-items" />
 
 Here, we use the `FormattingToolbar` component but keep the default buttons (we don't pass any children). Instead, we pass our customized Block Type Select items using the `blockTypeSelectItems` prop.
+
+## Mobile Formatting Toolbar
+
+On touch devices, BlockNote's default UI replaces the floating Formatting Toolbar with a mobile Formatting Toolbar that sits just above the on-screen keyboard. It shows the same items as the regular Formatting Toolbar and is enabled by default - there's nothing to set up. Open any of the examples above on a phone to see it.
+
+### Browser limitations
+
+Mobile browsers vary in how they handle the on-screen keyboard, which can affect the toolbar. Before anything else, make sure your page has the viewport meta tag from the [mobile compatibility guide](/docs/getting-started#mobile-compatibility).
+
+Most notably, iOS doesn't support the aforementioned viewport meta tag, which can result in jitter/lag when scrolling. There is however a workaround for this, which is why you won't see any choppiness in any of the examples here.
+
+The workaround is to wrap all of your app's content in a single element with the `bn-scroll-container` class:
+
+```tsx
+<div className="bn-scroll-container">{/* nav, editor, page content... */}</div>
+```
+
+This element must be a direct child of `<body>` and cover its full area. BlockNote will keep its size in sync with the [visual viewport](https://developer.mozilla.org/en-US/docs/Web/API/VisualViewport) and render the Formatting Toolbar outside of it, eliminating any jitter/lag.
+
+<Callout type="warning">
+  Your app should only ever have a single `bn-scroll-container` element. It's pinned to the visual viewport with `position: fixed`, so multiple containers would overlap each other. Wrap all your scrollable page content in one.
+</Callout>
