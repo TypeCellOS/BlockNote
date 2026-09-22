@@ -3,7 +3,7 @@ import {
   UniqueID,
   createExtension,
   fragmentToBlocks,
-  getBlockInfo,
+  getBlockInfoFromNode,
   nodeToBlock,
 } from "@blocknote/core";
 import { Plugin } from "prosemirror-state";
@@ -26,7 +26,10 @@ export function createMultiColumnHandleDropPlugin(
           return false; // Let ProseMirror handle the drop (e.g. outside editor bounds)
         }
 
-        const blockInfo = getBlockInfo(edgePos);
+        const blockInfo = getBlockInfoFromNode(
+          edgePos.node,
+          edgePos.posBeforeNode,
+        );
 
         // Only handle edge drops (left/right)
         if (edgePos.position === "regular") {
@@ -48,7 +51,7 @@ export function createMultiColumnHandleDropPlugin(
           // emptied target in the same position, so do nothing. This also
           // keeps the column's ID and width instead of resetting them.
           let allTargetChildrenDragged = true;
-          blockInfo.bnBlock.node.forEach((child) => {
+          blockInfo.block.node.forEach((child: any) => {
             if (!draggedBlockIds.has(child.attrs.id)) {
               allTargetChildrenDragged = false;
             }
@@ -59,7 +62,7 @@ export function createMultiColumnHandleDropPlugin(
 
           // Insert new column in existing columnList
           const parentBlock = view.state.doc
-            .resolve(blockInfo.bnBlock.beforePos)
+            .resolve(blockInfo.block.beforePos)
             .node();
 
           const columnList = nodeToBlock<any, any, any>(
@@ -94,7 +97,7 @@ export function createMultiColumnHandleDropPlugin(
             });
           }
 
-          const targetColumnId = blockInfo.bnBlock.node.attrs.id;
+          const targetColumnId = blockInfo.block.node.attrs.id;
 
           // Tracks which of the dragged blocks were already in the column
           // list - removing those from their old position is handled by
@@ -158,7 +161,7 @@ export function createMultiColumnHandleDropPlugin(
           });
         } else {
           // Create new columnList with blocks as columns
-          const block = nodeToBlock(blockInfo.bnBlock.node, view.state.doc);
+          const block = nodeToBlock(blockInfo.block.node, view.state.doc);
 
           // The user is dropping next to one of the blocks being dragged - do
           // nothing.

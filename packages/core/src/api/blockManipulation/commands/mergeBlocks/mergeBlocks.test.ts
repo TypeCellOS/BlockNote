@@ -2,7 +2,8 @@ import { describe, expect, it } from "vite-plus/test";
 
 import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
-import { getParentBlockInfo, mergeBlocksCommand } from "./mergeBlocks.js";
+import { getParentBlockInfo } from "../../../getBlockInfoFromPos.js";
+import { mergeBlocksCommand } from "./mergeBlocks.js";
 
 const getEditor = setupTestEnv();
 
@@ -14,7 +15,7 @@ function mergeBlocks(posBetweenBlocks: number) {
 
 function getPosBeforeSelectedBlock() {
   return getEditor().transact(
-    (tr) => getBlockInfoFromSelection(tr).bnBlock.beforePos,
+    (tr) => getBlockInfoFromSelection(tr).block.beforePos,
   );
 }
 

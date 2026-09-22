@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import type { PartialBlock } from "../../../../blocks/defaultBlocks.js";
-import { getBlockInfo } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromNode } from "../../../getBlockInfoFromPos.js";
+
+// Adapter over the renamed producer: `getNodeById` already returns the
+// `{ node, posBeforeNode }` pair it takes.
+function getBlockInfo(posInfo: { node: any; posBeforeNode: number }) {
+  return getBlockInfoFromNode(posInfo.node, posInfo.posBeforeNode);
+}
 import { getNodeById } from "../../../nodeUtil.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import { updateBlock } from "./updateBlock.js";
@@ -181,7 +187,7 @@ describe("Test updateBlock", () => {
       getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
     );
 
-    if (!info.isBlockContainer) {
+    if (!info.hasContent) {
       throw new Error("heading-with-everything is not a block container");
     }
 
@@ -198,7 +204,7 @@ describe("Test updateBlock", () => {
             },
           ],
         },
-        info.blockContent.beforePos + 9,
+        info.content.beforePos + 9,
       ),
     );
 
@@ -210,7 +216,7 @@ describe("Test updateBlock", () => {
       getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
     );
 
-    if (!info.isBlockContainer) {
+    if (!info.hasContent) {
       throw new Error("heading-with-everything is not a block container");
     }
 
@@ -227,8 +233,8 @@ describe("Test updateBlock", () => {
             },
           ],
         },
-        info.blockContent.beforePos + 9,
-        info.blockContent.beforePos + 9,
+        info.content.beforePos + 9,
+        info.content.beforePos + 9,
       ),
     );
 
@@ -240,7 +246,7 @@ describe("Test updateBlock", () => {
       getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
     );
 
-    if (!info.isBlockContainer) {
+    if (!info.hasContent) {
       throw new Error("heading-with-everything is not a block container");
     }
 
@@ -261,7 +267,7 @@ describe("Test updateBlock", () => {
           ],
         },
         undefined,
-        info.blockContent.beforePos + 8,
+        info.content.beforePos + 8,
       );
     });
 
@@ -273,11 +279,11 @@ describe("Test updateBlock", () => {
       getNodeById("table-0", getEditor().prosemirrorState.doc)!,
     );
 
-    if (!info.isBlockContainer) {
+    if (!info.hasContent) {
       throw new Error("table-0 is not a block container");
     }
 
-    const cell = info.blockContent.node.resolve(2);
+    const cell = info.content.node.resolve(2);
 
     getEditor().transact((tr) =>
       updateBlock(
@@ -290,8 +296,8 @@ describe("Test updateBlock", () => {
             rows: [{ cells: ["updated cell 1"] }],
           },
         },
-        info.blockContent.beforePos + 2,
-        info.blockContent.beforePos + 2 + cell.node().nodeSize,
+        info.content.beforePos + 2,
+        info.content.beforePos + 2 + cell.node().nodeSize,
       ),
     );
 
@@ -303,11 +309,11 @@ describe("Test updateBlock", () => {
       getNodeById("table-0", getEditor().prosemirrorState.doc)!,
     );
 
-    if (!info.isBlockContainer) {
+    if (!info.hasContent) {
       throw new Error("table-0 is not a block container");
     }
 
-    const cell = info.blockContent.node.resolve(1);
+    const cell = info.content.node.resolve(1);
 
     getEditor().transact((tr) =>
       updateBlock(
@@ -324,8 +330,8 @@ describe("Test updateBlock", () => {
             ],
           },
         },
-        info.blockContent.beforePos + 1,
-        info.blockContent.beforePos + 1 + cell.node().nodeSize,
+        info.content.beforePos + 1,
+        info.content.beforePos + 1 + cell.node().nodeSize,
       ),
     );
 
@@ -940,7 +946,7 @@ describe("Test updateBlock minimal steps", () => {
         editor.prosemirrorState.doc,
       )!,
     );
-    if (!info.isBlockContainer) {
+    if (!info.hasContent) {
       throw new Error("paragraph-with-styled-content is not a block container");
     }
 
@@ -959,8 +965,8 @@ describe("Test updateBlock minimal steps", () => {
           props: { level: 3 },
           content: [{ type: "text", text: " with NEW ", styles: {} }],
         },
-        info.blockContent.beforePos + 1 + "Paragraph".length,
-        info.blockContent.beforePos + 1 + "Paragraph with styled ".length,
+        info.content.beforePos + 1 + "Paragraph".length,
+        info.content.beforePos + 1 + "Paragraph with styled ".length,
       );
       steps = tr.steps.map((s) => s.toJSON());
     });
