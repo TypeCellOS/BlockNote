@@ -592,20 +592,35 @@ export class ExtensionManager {
     }
 
     if (Object.keys(extension.keyboardShortcuts || {}).length) {
+      let currentEvent: KeyboardEvent | undefined;
+      const handleKeyDown = keydownHandler(
+        Object.fromEntries(
+          Object.entries(extension.keyboardShortcuts!).map(
+            ([key, callback]) => [
+              key,
+              () => {
+                if (!currentEvent) {
+                  throw new Error(
+                    "Keyboard shortcut called outside handleKeyDown",
+                  );
+                }
+                return callback({ editor: this.editor, event: currentEvent });
+              },
+            ],
+          ),
+        ),
+      );
       plugins.push(
         new Plugin({
           props: {
             handleKeyDown: (view, event) => {
-              const bindings = Object.fromEntries(
-                Object.entries(extension.keyboardShortcuts!).map(
-                  ([key, callback]) => [
-                    key,
-                    () => callback({ editor: this.editor, event }),
-                  ],
-                ),
-              );
-
-              return keydownHandler(bindings)(view, event);
+              const previousEvent = currentEvent;
+              currentEvent = event;
+              try {
+                return handleKeyDown(view, event);
+              } finally {
+                currentEvent = previousEvent;
+              }
             },
           },
         }),
