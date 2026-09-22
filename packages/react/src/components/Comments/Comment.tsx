@@ -181,6 +181,7 @@ export const Comment = ({
   const Components = useComponentsContext()!;
 
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [moreActionsOpen, setMoreActionsOpen] = useState(false);
 
   const threadStore = comments.threadStore;
 
@@ -295,7 +296,10 @@ export const Comment = ({
             </Components.Generic.Toolbar.Button>
           ))}
         {(canDeleteComment || canEditComment) && (
-          <Components.Generic.Menu.Root position={"bottom-start"}>
+          <Components.Generic.Menu.Root
+            position={"bottom-start"}
+            onOpenChange={setMoreActionsOpen}
+          >
             <Components.Generic.Menu.Trigger>
               <Components.Generic.Toolbar.Button
                 key={"more-actions"}
@@ -345,7 +349,7 @@ export const Comment = ({
       authorInfo={user ?? "loading"}
       timeString={timeString}
       edited={comment.updatedAt.getTime() !== comment.createdAt.getTime()}
-      showActions={"hover"}
+      showActions={moreActionsOpen || "hover"}
       actions={actions}
       className={"bn-thread-comment"}
       emojiPickerOpen={emojiPickerOpen}
