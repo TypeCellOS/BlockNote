@@ -4,7 +4,7 @@ import {
   CommentsExtension,
 } from "@blocknote/core/comments";
 import { ThreadData } from "@blocknote/core/comments";
-import { FocusEvent, memo } from "react";
+import { FocusEvent, memo, useRef } from "react";
 
 import {
   Components,
@@ -121,6 +121,8 @@ export const Thread = ({
   const dict = useDictionary();
 
   const comments = useExtension(CommentsExtension);
+  const threadIdRef = useRef(thread.id);
+  threadIdRef.current = thread.id;
 
   const ownNewCommentEditor = useCreateBlockNote({
     trailingBlock: false,
@@ -137,7 +139,7 @@ export const Thread = ({
         onSubmit: async (editor) => {
           await comments.threadStore.addComment({
             comment: { body: editor.document },
-            threadId: thread.id,
+            threadId: threadIdRef.current,
           });
           editor.removeBlocks(editor.document);
         },
