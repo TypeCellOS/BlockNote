@@ -175,3 +175,9 @@ The only requirement for `ThreadsSidebar` is that it should be placed somewhere 
 **`maxCommentsBeforeCollapse`**: The maximum number of comments that can be in a thread before the replies get collapsed. Defaults to 5.
 
 See [here](https://playground.blocknotejs.org/collaboration/comments-with-sidebar?hideMenu=true) for a standalone example of the `ThreadsSidebar` component.
+
+## Keyboard submission
+
+By default, Enter submits a comment, reply, or edit. Set `submitOnEnter: false` in your `CommentsExtension` options to let Enter insert a new paragraph instead.
+
+With either setting, Shift+Enter inserts a line break, and Cmd+Enter (Mac) or Ctrl+Enter (Windows/Linux) submits.

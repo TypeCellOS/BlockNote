@@ -59,6 +59,63 @@ beforeEach(async () => {
 });
 
 describe("Check Comments functionality", () => {
+  test("Enter submits comments, replies and edits; Shift+Enter inserts a line break", async () => {
+    await focusOnEditor();
+    await userEvent.keyboard("hello");
+    await doubleClickElement(page.getByText("hello").element());
+    await userEvent.click(await waitForSelector('[data-test="addcomment"]'));
+    const composer = await waitForSelector(
+      '.bn-comment-editor [contenteditable="true"]',
+    );
+
+    // Empty comments cannot be submitted, and Enter must not add a block.
+    await userEvent.keyboard("{Enter}");
+    expect(composer.querySelectorAll(".bn-block-content")).toHaveLength(1);
+    await expectSelectorCount(".bn-thread", 1);
+
+    await userEvent.keyboard("first line{Shift>}{Enter}{/Shift}second line");
+    expect(composer.querySelectorAll(".bn-block-content")).toHaveLength(1);
+    expect(composer.querySelector("br")).not.toBeNull();
+
+    // Enter used to confirm IME composition must not submit the comment.
+    composer.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Enter",
+        isComposing: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await expectSelectorCount(".bn-thread", 1);
+
+    await userEvent.keyboard("{Enter}");
+    await expectSelectorCount(".bn-thread", 0);
+    await userEvent.click(await waitForSelector("span.bn-thread-mark"));
+    await expectSelectorCount(".bn-thread-comment", 1);
+    expect(document.querySelector(".bn-thread-comment")?.textContent).toContain(
+      "second line",
+    );
+
+    await userEvent.click(
+      await waitForSelector('.bn-thread-composer [contenteditable="true"]'),
+    );
+    await userEvent.keyboard("reply{Enter}");
+    await expectSelectorCount(".bn-thread-comment", 2);
+    await moveMouseOverElement(await waitForSelector(".bn-thread-comment"));
+    await userEvent.click(await waitForSelector('[data-test="moreactions"]'));
+    await userEvent.click(page.getByRole("menuitem", { name: "Edit comment" }));
+    await userEvent.click(
+      await waitForSelector('.bn-thread-comment [contenteditable="true"]'),
+    );
+    await userEvent.keyboard("{End} edited{Enter}");
+    await expectSelectorCount('.bn-thread-comment [contenteditable="true"]', 0);
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector(".bn-thread-comment")?.textContent,
+      ).toContain("edited");
+    });
+  });
+
   test("Should be able to add reactions", async () => {
     await focusOnEditor();
 
