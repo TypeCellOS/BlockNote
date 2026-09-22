@@ -102,7 +102,7 @@ describe("Check Comments functionality", () => {
     await userEvent.keyboard("reply{Enter}");
     await expectSelectorCount(".bn-thread-comment", 2);
     await moveMouseOverElement(await waitForSelector(".bn-thread-comment"));
-    await userEvent.click(await waitForSelector('[data-test="moreActions"]'));
+    await userEvent.click(await waitForSelector('[data-test="moreactions"]'));
     await userEvent.click(page.getByRole("menuitem", { name: "Edit comment" }));
     await userEvent.keyboard("{End} edited{Enter}");
     await expectSelectorCount('.bn-thread-comment [contenteditable="true"]', 0);
