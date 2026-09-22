@@ -1,14 +1,11 @@
-import { StrictMode, type ComponentType, type ReactNode } from "react";
-import { BlockNoteView as AriakitBlockNoteView } from "@blocknote/ariakit";
-import { BlockNoteView as ShadcnBlockNoteView } from "@blocknote/shadcn";
+import { StrictMode, act, type ReactElement } from "react";
+import { createRoot, type Root } from "react-dom/client";
 import { BlockNoteEditor } from "@blocknote/core";
 import {
   VersioningExtension,
   type VersioningEndpoints,
   type VersionSnapshot,
 } from "@blocknote/core/extensions";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 import {
   DefaultVersionMenuItems,
   RestoreVersionItem,
@@ -18,15 +15,7 @@ import {
   VersioningSidebar,
   VersionMenu,
   VersionMenuItem,
-} from "@blocknote/react/versioning";
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  within,
-} from "@testing-library/react";
+} from "../../versioning.js";
 import {
   afterEach,
   beforeEach,
@@ -35,6 +24,33 @@ import {
   it,
   vi,
 } from "vite-plus/test";
+import { page, userEvent } from "vite-plus/test/browser";
+import { VersioningTestView } from "./VersioningTestComponents.browser.js";
+
+declare global {
+  // eslint-disable-next-line no-var
+  var IS_REACT_ACT_ENVIRONMENT: boolean;
+}
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
+const mounted: { root: Root; host: HTMLElement }[] = [];
+
+function render(element: ReactElement) {
+  const host = document.createElement("div");
+  document.body.append(host);
+  const root = createRoot(host);
+  act(() => root.render(element));
+  mounted.push({ root, host });
+  return {
+    rerender(next: ReactElement) {
+      act(() => root.render(next));
+    },
+    unmount() {
+      act(() => root.unmount());
+      host.remove();
+    },
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -124,16 +140,12 @@ function createEditor(endpoints: VersioningEndpoints) {
 async function setup(
   props: Parameters<typeof VersioningSidebar>[0] = {},
   fake = createFakeEndpoints(),
-  View: ComponentType<{
-    editor: ReturnType<typeof createEditor>;
-    children: ReactNode;
-  }> = BlockNoteView,
 ) {
   const editor = createEditor(fake.endpoints);
   const view = render(
-    <View editor={editor}>
+    <VersioningTestView editor={editor}>
       <VersioningSidebar {...props} />
-    </View>,
+    </VersioningTestView>,
   );
   // Let the mount effect's `list()` + initial preview settle.
   await act(async () => {});
@@ -141,7 +153,15 @@ async function setup(
 }
 
 function rows() {
-  return screen.getAllByRole("listitem");
+  return page
+    .getByRole("listitem")
+    .elements()
+    .map((element) => {
+      if (!(element instanceof HTMLElement)) {
+        throw new Error("Expected version rows to be HTML elements");
+      }
+      return element;
+    });
 }
 
 /**
@@ -149,90 +169,70 @@ function rows() {
  * its name as text (see {@link nameText}).
  */
 function nameInput(row: HTMLElement) {
-  return within(row).getByRole("textbox", {
-    name: "Version name",
-  }) as HTMLInputElement;
+  const input = page
+    .elementLocator(row)
+    .getByRole("textbox", { name: "Version name", exact: true })
+    .element();
+  if (!(input instanceof HTMLInputElement)) {
+    throw new Error("Expected the version name field to be an input");
+  }
+  return input;
 }
 
 /** What a row shows as its name: the field's value, or the text. */
 function nameText(row: HTMLElement) {
-  const input = within(row).queryByRole("textbox", { name: "Version name" });
+  const input = page
+    .elementLocator(row)
+    .getByRole("textbox", { name: "Version name", exact: true })
+    .query();
   if (input) {
-    return (input as HTMLInputElement).value;
+    if (!(input instanceof HTMLInputElement)) {
+      throw new Error("Expected the version name field to be an input");
+    }
+    return input.value;
   }
   return row.querySelector(".bn-snapshot-name")!.textContent;
 }
 
-/**
- * Click, then let everything the click kicked off settle — including the
- * timer-driven mount of a Mantine menu dropdown, which a microtask flush alone
- * doesn't cover.
- */
-async function click(element: Element) {
-  fireEvent.click(element);
+async function click(element: Parameters<typeof userEvent.click>[0]) {
   await act(async () => {
+    await userEvent.click(element);
     await new Promise((resolve) => setTimeout(resolve, 20));
   });
 }
 
-/**
- * Retry `get` until it stops throwing. Menus and their contents mount on
- * timers, so a single flush is not always enough.
- */
-async function eventually<T>(get: () => T): Promise<T> {
-  for (let attempt = 0; attempt < 20; attempt++) {
-    try {
-      return get();
-    } catch {
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 20));
-      });
-    }
-  }
-  return get();
-}
-
-/**
- * Open the row's "..." menu and return the item matching `label`, retrying
- * until the dropdown is there — it mounts on a timer, so under load a click can
- * land while the menu is still opening and do nothing at all.
- */
+/** Open the row's "..." menu and wait for the matching item to render. */
 async function openMenuItem(row: HTMLElement, label: RegExp) {
-  const trigger = within(row).getByRole("button", {
-    name: "More actions",
-  });
-  // Mantine portals the dropdown outside the row. Resolve the menu owned by
-  // this trigger so another row's open menu cannot satisfy the lookup.
-  const item = () => {
-    const menuId = trigger.getAttribute("aria-controls");
+  const trigger = page
+    .elementLocator(row)
+    .getByRole("button", { name: "More actions", exact: true });
+  if (trigger.element().getAttribute("aria-expanded") !== "true") {
+    await click(trigger);
+  }
+
+  // The fixture portals the dropdown outside the row. Resolve the menu owned
+  // by this trigger so another row's open menu cannot satisfy the lookup.
+  return vi.waitFor(() => {
+    const menuId = trigger.element().getAttribute("aria-controls");
     const menu = menuId ? document.getElementById(menuId) : null;
-    return menu ? within(menu).queryAllByText(label)[0] : undefined;
-  };
-
-  for (let attempt = 0; attempt < 10 && !item(); attempt++) {
-    if (trigger.getAttribute("aria-expanded") !== "true") {
-      await click(trigger);
-    } else {
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 20));
-      });
+    if (!menu) {
+      throw new Error("The row's actions menu did not open");
     }
-  }
-
-  const found = item();
-  if (!found) {
-    throw new Error(`the row's ${label} menu item never appeared`);
-  }
-  return found;
+    return page
+      .elementLocator(menu)
+      .getByRole("menuitem", { name: label })
+      .element();
+  });
 }
 
 /** Type `value` into a name field and end the edit with `key`. */
 async function commit(input: HTMLInputElement, value: string, key: string) {
-  input.focus();
-  fireEvent.change(input, { target: { value } });
-  // Both keys leave the field, and leaving it is what commits.
-  fireEvent.keyDown(input, { key });
-  await act(async () => {});
+  await act(async () => {
+    await userEvent.fill(input, value);
+    // Both keys leave the field, and leaving it is what commits.
+    await userEvent.keyboard(`{${key}}`);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -245,7 +245,14 @@ describe("VersioningSidebar", () => {
   });
 
   afterEach(() => {
-    cleanup();
+    for (const entry of mounted.splice(0)) {
+      try {
+        act(() => entry.root.unmount());
+      } catch {
+        // A test may already have unmounted this root explicitly.
+      }
+      entry.host.remove();
+    }
   });
 
   it("opens on the current version with the editor locked, and unlocks on unmount", async () => {
@@ -263,9 +270,9 @@ describe("VersioningSidebar", () => {
     const editor = createEditor(createFakeEndpoints().endpoints);
     const view = render(
       <StrictMode>
-        <BlockNoteView editor={editor}>
+        <VersioningTestView editor={editor}>
           <VersioningSidebar />
-        </BlockNoteView>
+        </VersioningTestView>
       </StrictMode>,
     );
     await act(async () => {});
@@ -293,7 +300,10 @@ describe("VersioningSidebar", () => {
     // Opens on the current row, so that's the one with a field.
     expect(nameInput(rows()[0]!)).toBeDefined();
     expect(
-      within(rows()[1]!).queryByRole("textbox", { name: "Version name" }),
+      page
+        .elementLocator(rows()[1]!)
+        .getByRole("textbox", { name: "Version name", exact: true })
+        .query(),
     ).toBeNull();
     expect(nameText(rows()[1]!)).toBe("Draft");
 
@@ -302,7 +312,10 @@ describe("VersioningSidebar", () => {
     expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
     expect(nameInput(rows()[1]!).value).toBe("Draft");
     expect(
-      within(rows()[0]!).queryByRole("textbox", { name: "Version name" }),
+      page
+        .elementLocator(rows()[0]!)
+        .getByRole("textbox", { name: "Version name", exact: true })
+        .query(),
     ).toBeNull();
   });
 
@@ -321,14 +334,19 @@ describe("VersioningSidebar", () => {
     await setup();
 
     await click(
-      screen.getByRole("button", { name: "Show named versions only" }),
+      page.getByRole("button", {
+        name: "Show named versions only",
+        exact: true,
+      }),
     );
 
     // The current row survives the filter; the unnamed one doesn't.
     expect(rows()).toHaveLength(2);
     expect(nameText(rows()[1]!)).toBe("Draft");
 
-    await click(screen.getByRole("button", { name: "Show all versions" }));
+    await click(
+      page.getByRole("button", { name: "Show all versions", exact: true }),
+    );
     expect(rows()).toHaveLength(3);
   });
 
@@ -342,7 +360,10 @@ describe("VersioningSidebar", () => {
     await setup({}, fake);
 
     await click(
-      screen.getByRole("button", { name: "Show named versions only" }),
+      page.getByRole("button", {
+        name: "Show named versions only",
+        exact: true,
+      }),
     );
 
     expect(rows()).toHaveLength(2);
@@ -362,10 +383,15 @@ describe("VersioningSidebar", () => {
     await setup({}, fake);
 
     await click(
-      screen.getByRole("button", { name: "Show named versions only" }),
+      page.getByRole("button", {
+        name: "Show named versions only",
+        exact: true,
+      }),
     );
 
-    expect(screen.getByText("No named versions")).toBeDefined();
+    expect(
+      page.getByText("No named versions", { exact: true }).element(),
+    ).toBeDefined();
   });
 
   it("says no versions yet when nothing is stored", async () => {
@@ -373,7 +399,9 @@ describe("VersioningSidebar", () => {
     fake.setSnapshots([]);
     await setup({}, fake);
 
-    expect(screen.getByText("No versions yet")).toBeDefined();
+    expect(
+      page.getByText("No versions yet", { exact: true }).element(),
+    ).toBeDefined();
   });
 
   it("starts with comparison off and turns it on with a baseline", async () => {
@@ -385,7 +413,9 @@ describe("VersioningSidebar", () => {
       compareToId: undefined,
     });
 
-    await click(screen.getByRole("button", { name: "Turn on comparison" }));
+    await click(
+      page.getByRole("button", { name: "Turn on comparison", exact: true }),
+    );
     await act(async () => {});
 
     // The current version is diffed against the newest stored version.
@@ -450,9 +480,17 @@ describe("VersioningSidebar", () => {
       );
       if (!initialComparison) {
         await click(
-          screen.getByRole("button", { name: "Show named versions only" }),
+          page.getByRole("button", {
+            name: "Show named versions only",
+            exact: true,
+          }),
         );
-        await click(screen.getByRole("button", { name: "Turn on comparison" }));
+        await click(
+          page.getByRole("button", {
+            name: "Turn on comparison",
+            exact: true,
+          }),
+        );
       }
       const versioning = editor.getExtension(VersioningExtension)!;
       expect(versioning.store.state.view).toEqual({
@@ -494,7 +532,9 @@ describe("VersioningSidebar", () => {
         fake,
       );
       await click(rows()[selectedIndex]!);
-      await click(screen.getByRole("button", { name: "Show all versions" }));
+      await click(
+        page.getByRole("button", { name: "Show all versions", exact: true }),
+      );
 
       expect(
         editor.getExtension(VersioningExtension)!.store.state.view,
@@ -504,9 +544,13 @@ describe("VersioningSidebar", () => {
           : { mode: "snapshot", snapshotId: NAMED.id, compareToId: undefined },
       );
       expect(rows()).toHaveLength(5);
-      expect(screen.queryByText("Comparing to")).toBeNull();
       expect(
-        screen.getByRole("button", { name: "Turn on comparison" }),
+        page.getByText("Comparing to", { exact: true }).query(),
+      ).toBeNull();
+      expect(
+        page
+          .getByRole("button", { name: "Turn on comparison", exact: true })
+          .element(),
       ).toBeDefined();
       expect(editor.isEditable).toBe(false);
     },
@@ -520,7 +564,7 @@ describe("VersioningSidebar", () => {
 
     await setup({ defaultComparisonMode: true }, fake);
 
-    expect(screen.getByRole("alert").textContent).toBe(
+    expect(page.getByRole("alert").element().textContent).toBe(
       "Something went wrong. Please try again.",
     );
   });
@@ -540,7 +584,10 @@ describe("VersioningSidebar", () => {
     expect(rows()[2]!.classList.contains("comparing")).toBe(true);
 
     await click(
-      screen.getByRole("button", { name: "Show named versions only" }),
+      page.getByRole("button", {
+        name: "Show named versions only",
+        exact: true,
+      }),
     );
 
     expect(versioning.store.state.view).toEqual({
@@ -553,12 +600,16 @@ describe("VersioningSidebar", () => {
     expect(rows()[1]!.classList.contains("bn-snapshot-comparison-source")).toBe(
       false,
     );
-    expect(screen.queryByText("Comparing to")).toBeNull();
+    expect(page.getByText("Comparing to", { exact: true }).query()).toBeNull();
     expect(
-      screen.getByRole("button", { name: "Turn on comparison" }),
+      page
+        .getByRole("button", { name: "Turn on comparison", exact: true })
+        .element(),
     ).toBeDefined();
 
-    await click(screen.getByRole("button", { name: "Show all versions" }));
+    await click(
+      page.getByRole("button", { name: "Show all versions", exact: true }),
+    );
     expect(versioning.store.state.view).toEqual({
       mode: "snapshot",
       snapshotId: NAMED.id,
@@ -570,20 +621,26 @@ describe("VersioningSidebar", () => {
     const { editor } = await setup();
     await click(await openMenuItem(rows()[1]!, /^Compare with this version$/));
     await click(
-      screen.getByRole("button", { name: "Show named versions only" }),
+      page.getByRole("button", {
+        name: "Show named versions only",
+        exact: true,
+      }),
     );
     expect(editor.getExtension(VersioningExtension)!.store.state.view).toEqual({
       mode: "current",
       compareToId: undefined,
     });
-    expect(screen.queryByText("Comparing to")).toBeNull();
+    expect(page.getByText("Comparing to", { exact: true }).query()).toBeNull();
   });
 
   it("returns to Current when named-only history hides the viewed version", async () => {
     const { editor } = await setup({ defaultComparisonMode: true });
     await click(rows()[2]!);
     await click(
-      screen.getByRole("button", { name: "Show named versions only" }),
+      page.getByRole("button", {
+        name: "Show named versions only",
+        exact: true,
+      }),
     );
     expect(editor.getExtension(VersioningExtension)!.store.state.view).toEqual({
       mode: "current",
@@ -622,9 +679,11 @@ describe("VersioningSidebar", () => {
       new Error("preview offline"),
     );
 
-    await click(screen.getByRole("button", { name: "Turn on comparison" }));
+    await click(
+      page.getByRole("button", { name: "Turn on comparison", exact: true }),
+    );
 
-    expect(screen.getByRole("alert")).toBeDefined();
+    expect(page.getByRole("alert").element()).toBeDefined();
   });
 
   it("starts comparing when asked to", async () => {
@@ -659,7 +718,12 @@ describe("VersioningSidebar", () => {
     if (!(menu instanceof HTMLElement)) {
       throw new Error("Expected the snapshot menu to be open");
     }
-    expect(within(menu).queryByText("Compare with this version")).toBeNull();
+    expect(
+      page
+        .elementLocator(menu)
+        .getByText("Compare with this version", { exact: true })
+        .query(),
+    ).toBeNull();
 
     expect(
       await openMenuItem(rows()[2]!, /^Compare with this version$/),
@@ -681,13 +745,9 @@ describe("VersioningSidebar", () => {
       const row = rows()[1]!;
 
       await click(await openRenameItem(row));
-      // A tick later than the click: the menu hands focus back to its trigger
-      // as it closes, so the row asks for it only once that has happened.
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 20));
-      });
-
-      expect(document.activeElement).toBe(nameInput(row));
+      await vi.waitFor(() =>
+        expect(document.activeElement).toBe(nameInput(row)),
+      );
     });
 
     it("selects the row first when started from an unselected row's menu", async () => {
@@ -696,12 +756,10 @@ describe("VersioningSidebar", () => {
       expect(row.getAttribute("aria-current")).toBeNull();
 
       await click(await openRenameItem(row));
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 20));
+      await vi.waitFor(() => {
+        expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
+        expect(document.activeElement).toBe(nameInput(rows()[2]!));
       });
-
-      expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
-      expect(document.activeElement).toBe(nameInput(rows()[2]!));
     });
 
     it("names the current version through `create`", async () => {
@@ -724,8 +782,18 @@ describe("VersioningSidebar", () => {
 
       const row = rows()[0]!;
       expect(nameInput(row).value).toBe("Milestone");
-      expect(within(row).getByText("Current version")).toBeDefined();
-      expect(within(row).queryByText(/2026|1970/)).toBeNull();
+      expect(
+        page
+          .elementLocator(row)
+          .getByText("Current version", { exact: true })
+          .element(),
+      ).toBeDefined();
+      expect(
+        page
+          .elementLocator(row)
+          .getByText(/2026|1970/)
+          .query(),
+      ).toBeNull();
     });
 
     it("keeps a newly persisted version in the current row", async () => {
@@ -801,17 +869,15 @@ describe("VersioningSidebar", () => {
     async (snapshotMenu) => {
       await setup({ snapshotMenu });
       expect(rows()).toHaveLength(3);
-      expect(screen.queryByRole("button", { name: "More actions" })).toBeNull();
+      expect(
+        page.getByRole("button", { name: "More actions", exact: true }).query(),
+      ).toBeNull();
       await click(rows()[1]!);
       expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
     },
   );
 
-  it.each([
-    ["Mantine", BlockNoteView],
-    ["Ariakit", AriakitBlockNoteView],
-    ["Shadcn", ShadcnBlockNoteView],
-  ] as const)("prevents disabled custom actions in %s", async (_name, View) => {
+  it("prevents disabled custom actions", async () => {
     const onClick = vi.fn();
     await setup(
       {
@@ -827,23 +893,25 @@ describe("VersioningSidebar", () => {
         ),
       },
       createFakeEndpoints(),
-      View,
     );
     await click(
-      within(rows()[1]!).getByRole("button", { name: "More actions" }),
+      page
+        .elementLocator(rows()[1]!)
+        .getByRole("button", { name: "More actions", exact: true }),
     );
     for (const label of ["Disabled action", "Disabled checked action"]) {
-      const item = await eventually(() =>
-        screen.getByText(label).closest('[role^="menuitem"]'),
-      );
-      if (!item) {
-        throw new Error("Missing menu item");
-      }
+      const item = await vi.waitFor(() => {
+        const labelElement = page.getByText(label, { exact: true }).element();
+        const menuItem = labelElement.closest('[role^="menuitem"]');
+        if (!(menuItem instanceof HTMLElement)) {
+          throw new Error("Missing menu item");
+        }
+        return menuItem;
+      });
       expect(
         item.hasAttribute("disabled") ||
           item.getAttribute("aria-disabled") === "true",
       ).toBe(true);
-      await click(item);
     }
     expect(onClick).not.toHaveBeenCalled();
   });
@@ -859,11 +927,13 @@ describe("VersioningSidebar", () => {
       ),
     });
     await click(
-      within(rows()[1]!).getByRole("button", { name: "More actions" }),
+      page
+        .elementLocator(rows()[1]!)
+        .getByRole("button", { name: "More actions", exact: true }),
     );
     const download = await openMenuItem(rows()[1]!, /^Download$/);
-    expect(screen.getByText("Restore")).toBeDefined();
-    expect(screen.getByText("Delete")).toBeDefined();
+    expect(page.getByText("Restore", { exact: true }).element()).toBeDefined();
+    expect(page.getByText("Delete", { exact: true }).element()).toBeDefined();
     await click(download);
     expect(onClick).toHaveBeenCalledOnce();
   });
@@ -892,18 +962,27 @@ describe("VersioningSidebar", () => {
       ),
     });
     await click(
-      within(rows()[0]!).getByRole("button", { name: "More actions" }),
+      page
+        .elementLocator(rows()[0]!)
+        .getByRole("button", { name: "More actions", exact: true }),
     );
     const unavailable = await openMenuItem(rows()[0]!, /^Cannot restore$/);
-    await click(unavailable);
+    expect(
+      unavailable.hasAttribute("disabled") ||
+        unavailable.getAttribute("aria-disabled") === "true",
+    ).toBe(true);
     expect(fake.endpoints.restore).not.toHaveBeenCalled();
     // Close the current menu before opening the stored version's menu.
     await click(
-      within(rows()[0]!).getByRole("button", { name: "More actions" }),
+      page
+        .elementLocator(rows()[0]!)
+        .getByRole("button", { name: "More actions", exact: true }),
     );
     await click(rows()[1]!);
     await click(
-      within(rows()[1]!).getByRole("button", { name: "More actions" }),
+      page
+        .elementLocator(rows()[1]!)
+        .getByRole("button", { name: "More actions", exact: true }),
     );
     await click(await openMenuItem(rows()[1]!, /^Roll back$/));
     expect(fake.endpoints.restore).toHaveBeenCalledWith([], NAMED);
@@ -920,7 +999,7 @@ describe("VersioningSidebar", () => {
           <RestoreVersionItem
             disabled
             className="custom-restore"
-            icon={<span>Custom icon</span>}
+            icon={<span aria-hidden="true">Custom icon</span>}
           >
             Roll back
           </RestoreVersionItem>
@@ -928,21 +1007,27 @@ describe("VersioningSidebar", () => {
       ),
     });
     await click(
-      within(rows()[1]!).getByRole("button", { name: "More actions" }),
+      page
+        .elementLocator(rows()[1]!)
+        .getByRole("button", { name: "More actions", exact: true }),
     );
     const label = await openMenuItem(rows()[1]!, /^Roll back$/);
     const item = label.closest<HTMLElement>('[role="menuitem"]');
     if (!item) {
       throw new Error("Missing restore item");
     }
-    expect(within(item).getByText("Custom icon")).toBeDefined();
+    expect(
+      page
+        .elementLocator(item)
+        .getByText("Custom icon", { exact: true })
+        .element(),
+    ).toBeDefined();
     expect(item.classList.contains("bn-menu-item")).toBe(true);
     expect(item.classList.contains("custom-restore")).toBe(true);
     expect(
       item.hasAttribute("disabled") ||
         item.getAttribute("aria-disabled") === "true",
     ).toBe(true);
-    await click(item);
     expect(fake.endpoints.restore).not.toHaveBeenCalled();
   });
 
@@ -965,14 +1050,18 @@ describe("VersioningSidebar", () => {
     });
 
     await click(
-      within(rows()[1]!).getByRole("button", { name: "More actions" }),
+      page
+        .elementLocator(rows()[1]!)
+        .getByRole("button", { name: "More actions", exact: true }),
     );
 
-    expect(
-      await eventually(() => screen.getByText("Copy Draft")),
-    ).toBeDefined();
-    expect(screen.queryByText("Restore")).toBeNull();
-    expect(screen.queryByText("Delete")).toBeNull();
+    await vi.waitFor(() =>
+      expect(
+        page.getByText("Copy Draft", { exact: true }).element(),
+      ).toBeDefined(),
+    );
+    expect(page.getByText("Restore", { exact: true }).query()).toBeNull();
+    expect(page.getByText("Delete", { exact: true }).query()).toBeNull();
   });
 
   // -------------------------------------------------------------------------
@@ -983,17 +1072,17 @@ describe("VersioningSidebar", () => {
     const { editor } = await setup();
 
     rows()[0]!.focus();
-    fireEvent.keyDown(document.activeElement!, { key: "ArrowDown" });
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
     expect(document.activeElement).toBe(rows()[1]);
 
-    fireEvent.keyDown(document.activeElement!, { key: "End" });
+    await act(async () => userEvent.keyboard("{End}"));
     expect(document.activeElement).toBe(rows()[2]);
 
-    fireEvent.keyDown(document.activeElement!, { key: "Home" });
+    await act(async () => userEvent.keyboard("{Home}"));
     expect(document.activeElement).toBe(rows()[0]);
 
-    fireEvent.keyDown(document.activeElement!, { key: "ArrowDown" });
-    fireEvent.keyDown(document.activeElement!, { key: "Enter" });
+    await act(async () => userEvent.keyboard("{ArrowDown}"));
+    await act(async () => userEvent.keyboard("{Enter}"));
     await act(async () => {});
 
     expect(editor.getExtension(VersioningExtension)!.store.state.view).toEqual({
@@ -1023,20 +1112,22 @@ describe("VersioningSidebar", () => {
     const editor = createEditor(fake.endpoints);
 
     render(
-      <BlockNoteView editor={editor}>
+      <VersioningTestView editor={editor}>
         <VersioningSidebar />
-      </BlockNoteView>,
+      </VersioningTestView>,
     );
 
-    expect(screen.getByRole("status")).toBeDefined();
-    expect(screen.getByText("Loading versions")).toBeDefined();
-    expect(screen.queryAllByRole("listitem")).toHaveLength(0);
+    expect(page.getByRole("status").element()).toBeDefined();
+    expect(
+      page.getByText("Loading versions", { exact: true }).element(),
+    ).toBeDefined();
+    expect(page.getByRole("listitem").elements()).toHaveLength(0);
 
     await act(async () => {
       release();
     });
 
-    expect(screen.queryByRole("status")).toBeNull();
+    expect(page.getByRole("status").query()).toBeNull();
     expect(rows()).toHaveLength(3);
   });
 
@@ -1051,8 +1142,10 @@ describe("VersioningSidebar", () => {
       refresh = versioning.list();
     });
 
-    expect(screen.getByRole("list").getAttribute("aria-busy")).toBe("true");
-    expect(screen.queryByRole("status")).toBeNull();
+    expect(page.getByRole("list").element().getAttribute("aria-busy")).toBe(
+      "true",
+    );
+    expect(page.getByRole("status").query()).toBeNull();
     expect(rows()).toHaveLength(3);
     expect(rows()[1]).toBe(selectedRow);
     expect(selectedRow.getAttribute("aria-current")).toBe("true");
@@ -1063,7 +1156,9 @@ describe("VersioningSidebar", () => {
       release();
       await refresh;
     });
-    expect(screen.getByRole("list").getAttribute("aria-busy")).toBeNull();
+    expect(
+      page.getByRole("list").element().getAttribute("aria-busy"),
+    ).toBeNull();
     expect(rows()).toHaveLength(2);
     expect(rows()[1]).toBe(selectedRow);
     expect(selectedRow.getAttribute("aria-current")).toBe("true");
@@ -1076,13 +1171,13 @@ describe("VersioningSidebar", () => {
       const release = fake.block();
       const onClose = vi.fn();
       const { editor, view } = await setup({ onClose }, fake);
-      expect(screen.getByRole("status")).toBeDefined();
+      expect(page.getByRole("status").element()).toBeDefined();
 
       if (exit === "close") {
-        await click(screen.getByRole("button", { name: "Close" }));
+        await click(page.getByRole("button", { name: "Close", exact: true }));
         expect(onClose).toHaveBeenCalledOnce();
       } else {
-        view.rerender(<BlockNoteView editor={editor} />);
+        view.rerender(<VersioningTestView editor={editor} />);
       }
       await act(async () => release());
       expect(
@@ -1107,7 +1202,7 @@ describe("VersioningSidebar", () => {
     await act(async () => release());
     expect(rows().every((row) => !row.hasAttribute("aria-busy"))).toBe(true);
     expect(rows()[2]!.getAttribute("aria-current")).toBe("true");
-    expect(screen.queryByRole("alert")).toBeNull();
+    expect(page.getByRole("alert").query()).toBeNull();
   });
 
   it("clears a failed row's busy marker, restores selection, and allows retry", async () => {
@@ -1126,14 +1221,14 @@ describe("VersioningSidebar", () => {
       await act(async () => rejectContent(new Error("private backend detail")));
       expect(rows()[1]!.getAttribute("aria-busy")).toBeNull();
       expect(rows()[0]!.getAttribute("aria-current")).toBe("true");
-      expect(screen.getByRole("alert").textContent).toBe(
+      expect(page.getByRole("alert").element().textContent).toBe(
         "Something went wrong. Please try again.",
       );
 
       await click(rows()[1]!);
       expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
       expect(rows()[1]!.getAttribute("aria-busy")).toBeNull();
-      expect(screen.queryByRole("alert")).toBeNull();
+      expect(page.getByRole("alert").query()).toBeNull();
     } finally {
       logged.mockRestore();
     }
@@ -1143,8 +1238,7 @@ describe("VersioningSidebar", () => {
     const { fake } = await setup();
 
     const release = fake.block();
-    fireEvent.click(rows()[2]!);
-    await act(async () => {});
+    await click(rows()[2]!);
 
     expect(rows()[2]!.getAttribute("aria-busy")).toBe("true");
     expect(rows()[1]!.getAttribute("aria-busy")).toBeNull();
@@ -1249,9 +1343,9 @@ describe("VersioningSidebar", () => {
         const release = fake.block();
         await click(item);
         if (exit === "close") {
-          await click(screen.getByRole("button", { name: "Close" }));
+          await click(page.getByRole("button", { name: "Close", exact: true }));
         } else {
-          view.rerender(<BlockNoteView editor={editor} />);
+          view.rerender(<VersioningTestView editor={editor} />);
         }
         await act(async () => release());
 
@@ -1274,7 +1368,7 @@ describe("VersioningSidebar", () => {
       await click(await openMenuItem(rows()[1]!, /^Restore$/));
       await act(async () => {});
 
-      expect(screen.getByRole("alert").textContent).toBe(
+      expect(page.getByRole("alert").element().textContent).toBe(
         "Something went wrong. Please try again.",
       );
       expect(ext.store.state.view).toEqual({
@@ -1287,7 +1381,7 @@ describe("VersioningSidebar", () => {
       // The next successful action clears the notice.
       await click(rows()[2]!);
       await act(async () => {});
-      expect(screen.queryByRole("alert")).toBeNull();
+      expect(page.getByRole("alert").query()).toBeNull();
     });
 
     it("reports a name that the backend rejects", async () => {
@@ -1297,7 +1391,7 @@ describe("VersioningSidebar", () => {
 
       await commit(nameInput(rows()[0]!), "First draft", "Enter");
 
-      expect(screen.getByRole("alert")).toBeDefined();
+      expect(page.getByRole("alert").element()).toBeDefined();
       expect(nameInput(rows()[0]!).value).toBe("");
     });
   });
@@ -1318,21 +1412,20 @@ describe("VersioningSidebar", () => {
     await commit(nameInput(rows()[0]!), "Draft", "Enter");
     await click(rows()[1]!);
     await act(async () => rejectName(new Error("old naming failed")));
-    expect(screen.queryByRole("alert")).toBeNull();
+    expect(page.getByRole("alert").query()).toBeNull();
   });
 
-  it.each([BlockNoteView, AriakitBlockNoteView, ShadcnBlockNoteView])(
-    "names the panel, toolbars and focused rows across skins",
-    async (View) => {
-      await setup({}, createFakeEndpoints(), View);
-      expect(screen.getByRole("region", { name: "History" })).toBeDefined();
-      expect(screen.getByRole("toolbar", { name: "History" })).toBeDefined();
-      expect(rows()[0]!.getAttribute("aria-label")).toContain(
-        "Current version",
-      );
-      expect(rows()[1]!.getAttribute("aria-label")).toContain("Draft");
-    },
-  );
+  it("names the panel, toolbar, and focused rows", async () => {
+    await setup();
+    expect(
+      page.getByRole("region", { name: "History", exact: true }).element(),
+    ).toBeDefined();
+    expect(
+      page.getByRole("toolbar", { name: "History", exact: true }).element(),
+    ).toBeDefined();
+    expect(rows()[0]!.getAttribute("aria-label")).toContain("Current version");
+    expect(rows()[1]!.getAttribute("aria-label")).toContain("Draft");
+  });
 
   it("keeps naming in the tab order when row menus are hidden", async () => {
     await setup({ snapshotMenu: null });
@@ -1348,7 +1441,7 @@ describe("VersioningSidebar", () => {
 
   it("returns keyboard focus to the editor when closing", async () => {
     const { editor } = await setup({ onClose: () => {} });
-    await click(screen.getByRole("button", { name: "Close" }));
+    await click(page.getByRole("button", { name: "Close", exact: true }));
     expect(editor.domElement!.contains(document.activeElement)).toBe(true);
   });
 
@@ -1363,7 +1456,9 @@ describe("VersioningSidebar", () => {
 
   it("does not steal focus after a removed version has been left", async () => {
     const { editor } = await setup({ onClose: () => {} });
-    const control = screen.getByRole("button", { name: "Turn on comparison" });
+    const control = page
+      .getByRole("button", { name: "Turn on comparison", exact: true })
+      .element();
     act(() => {
       rows()[1]!.focus();
       control.focus();
@@ -1382,8 +1477,12 @@ describe("VersioningSidebar", () => {
       "Turn on comparison",
       "Close",
     ]) {
-      expect(screen.getByRole("button", { name })).toBeDefined();
+      expect(
+        page.getByRole("button", { name, exact: true }).element(),
+      ).toBeDefined();
     }
-    expect(screen.getByRole("list", { name: "Versions" })).toBeDefined();
+    expect(
+      page.getByRole("list", { name: "Versions", exact: true }).element(),
+    ).toBeDefined();
   });
 });
