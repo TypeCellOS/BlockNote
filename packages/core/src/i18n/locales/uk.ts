@@ -435,6 +435,8 @@ export const uk: Dictionary = {
     deleted: "Видалено",
     inserted_by: (users: string) => `Вставлено користувачем: ${users}`,
     deleted_by: (users: string) => `Видалено користувачем: ${users}`,
+    inserted_in: (version: string) => `Вставлено у версії: ${version}`,
+    deleted_in: (version: string) => `Видалено у версії: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `Зміна форматування (${formats}) користувачем: ${users}`,
   },
@@ -451,6 +453,8 @@ export const uk: Dictionary = {
     empty_named_only: "Немає іменованих версій",
     current_version: "Поточна версія",
     unnamed_version: "Unnamed version",
+    this_version: "Ця версія",
+    before_restore: "До відновлення",
     comparing_to: "Порівняння з",
     restored_from: (date: string) => `Відновлено з ${date}`,
     more_actions: "Інші дії",

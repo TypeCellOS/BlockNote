@@ -11,6 +11,7 @@ import {
 } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { en } from "../../i18n/locales/en.js";
 import { DiffVersioningExtension } from "../../y/extensions/DiffVersioningExtension.js";
 import { VersioningExtension } from "./Versioning.js";
 import {
@@ -139,8 +140,11 @@ describe("createInMemoryVersioningEndpoints", () => {
     }
   });
 
-  it("restore creates a backup and returns snapshot content", async () => {
-    const endpoints = createInMemoryVersioningEndpoints();
+  it("restore creates a localized backup and returns snapshot content", async () => {
+    const endpoints = createInMemoryVersioningEndpoints(undefined, {
+      ...en.versioning,
+      before_restore: "Vor Wiederherstellung",
+    });
 
     const original = [
       {
@@ -174,7 +178,7 @@ describe("createInMemoryVersioningEndpoints", () => {
       id: snap.id,
       createdAt: snap.createdAt,
     });
-    const backup = snapshots.find((s) => s.name === "Before restore");
+    const backup = snapshots.find((s) => s.name === "Vor Wiederherstellung");
     expect(backup).toBeDefined();
 
     // The backup contains the current (pre-restore) doc

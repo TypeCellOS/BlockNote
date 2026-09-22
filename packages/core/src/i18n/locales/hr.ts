@@ -425,6 +425,8 @@ export const hr: Dictionary = {
     deleted: "Izbrisano",
     inserted_by: (users: string) => `Umetnuo/la: ${users}`,
     deleted_by: (users: string) => `Izbrisao/la: ${users}`,
+    inserted_in: (version: string) => `Umetnuto u: ${version}`,
+    deleted_in: (version: string) => `Izbrisano u: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `Promjena oblikovanja (${formats}) od: ${users}`,
   },
@@ -441,6 +443,8 @@ export const hr: Dictionary = {
     empty_named_only: "Nema imenovanih verzija",
     current_version: "Trenutna verzija",
     unnamed_version: "Unnamed version",
+    this_version: "Ova verzija",
+    before_restore: "Prije vraćanja",
     comparing_to: "Uspoređuje se s",
     restored_from: (date: string) => `Vraćeno s ${date}`,
     more_actions: "Više radnji",

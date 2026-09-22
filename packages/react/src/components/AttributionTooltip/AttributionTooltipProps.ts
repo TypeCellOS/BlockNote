@@ -1,4 +1,7 @@
-import type { AttributionChange } from "@blocknote/core/y";
+import type {
+  AttributionChange,
+  AttributionProvenance,
+} from "@blocknote/core/y";
 import { FormatChangeLabel } from "./formatChangeLabel.js";
 
 /**
@@ -19,6 +22,8 @@ export type AttributionTooltipProps = AttributionChange & {
   contentType: "inline-content" | "block";
   /** Resolved usernames (falls back to raw ids). */
   users: string[];
+  /** Whether labels identify authors or a version. Defaults to `"author"`. */
+  provenance?: AttributionProvenance;
   /**
    * Turns a modification mark's changed formats into its label (e.g.
    * `"Bold, Italic"`). Defaults to {@link defaultFormatChangeLabel} when the

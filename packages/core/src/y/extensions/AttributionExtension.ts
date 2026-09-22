@@ -84,6 +84,8 @@ export type AttributionChange =
   | { modificationType: "format"; format?: string[]; attributes?: never }
   | { modificationType: "attrs"; attributes: string[]; format?: never };
 
+export type AttributionProvenance = "author" | "version";
+
 export type AttributionTooltipState = AttributionChange & {
   /** The wrapper element the tooltip anchors to (floating-ui reference). */
   anchor: HTMLElement;
@@ -93,6 +95,8 @@ export type AttributionTooltipState = AttributionChange & {
   contentType: "inline-content" | "block";
   /** Resolved usernames (falls back to raw ids), for custom renderers. */
   users: string[];
+  /** Whether the labels identify document authors or a synthetic version. */
+  provenance: AttributionProvenance;
   /**
    * Class name from the `getAttributionMarkClassName` callback (override path).
    * When present, the tooltip applies this and skips the inline `color`.
@@ -115,6 +119,8 @@ export const AttributionExtension = createExtension(
         resolveUsers?: UserStoreOrResolver;
         /** See {@link GetAttributionMarkClassName}. */
         getAttributionMarkClassName?: GetAttributionMarkClassName;
+        /** Meaning of the identities carried by this extension's marks. */
+        provenance?: AttributionProvenance;
       }
     | undefined
   >) => {
@@ -266,6 +272,7 @@ export const AttributionExtension = createExtension(
             ...change,
             contentType,
             users: usersLabelArray(anchor.dataset["userIds"]),
+            provenance: options?.provenance ?? "author",
             className: resolveAttributionMarkClassName(
               getAttributionMarkClassName?.({ contentType, modificationType }),
               "tooltip",

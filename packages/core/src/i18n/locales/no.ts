@@ -429,6 +429,8 @@ export const no: Dictionary = {
     deleted: "Slettet",
     inserted_by: (users: string) => `Satt inn av: ${users}`,
     deleted_by: (users: string) => `Slettet av: ${users}`,
+    inserted_in: (version: string) => `Satt inn i: ${version}`,
+    deleted_in: (version: string) => `Slettet i: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `Formateringsendring (${formats}) av: ${users}`,
   },
@@ -445,6 +447,8 @@ export const no: Dictionary = {
     empty_named_only: "Ingen navngitte versjoner",
     current_version: "Gjeldende versjon",
     unnamed_version: "Unnamed version",
+    this_version: "Denne versjonen",
+    before_restore: "Før gjenoppretting",
     comparing_to: "Sammenligner med",
     restored_from: (date: string) => `Gjenopprettet fra ${date}`,
     more_actions: "Flere handlinger",

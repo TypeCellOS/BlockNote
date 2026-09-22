@@ -396,6 +396,8 @@ export const ar: Dictionary = {
     deleted: "محذوف",
     inserted_by: (users: string) => `أُدرج بواسطة: ${users}`,
     deleted_by: (users: string) => `حُذف بواسطة: ${users}`,
+    inserted_in: (version: string) => `أُدرج في: ${version}`,
+    deleted_in: (version: string) => `حُذف في: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `تغيير التنسيق (${formats}) بواسطة: ${users}`,
   },
@@ -412,6 +414,8 @@ export const ar: Dictionary = {
     empty_named_only: "لا توجد إصدارات مسماة",
     current_version: "الإصدار الحالي",
     unnamed_version: "Unnamed version",
+    this_version: "هذا الإصدار",
+    before_restore: "قبل الاستعادة",
     comparing_to: "مقارنة بـ",
     restored_from: (date: string) => `تمت الاستعادة من ${date}`,
     more_actions: "إجراءات أخرى",

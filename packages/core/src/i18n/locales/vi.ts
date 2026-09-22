@@ -410,6 +410,8 @@ export const vi: Dictionary = {
     deleted: "Đã xóa",
     inserted_by: (users: string) => `Được chèn bởi: ${users}`,
     deleted_by: (users: string) => `Được xóa bởi: ${users}`,
+    inserted_in: (version: string) => `Được chèn trong: ${version}`,
+    deleted_in: (version: string) => `Được xóa trong: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `Thay đổi định dạng (${formats}) bởi: ${users}`,
   },
@@ -426,6 +428,8 @@ export const vi: Dictionary = {
     empty_named_only: "Không có phiên bản nào được đặt tên",
     current_version: "Phiên bản hiện tại",
     unnamed_version: "Unnamed version",
+    this_version: "Phiên bản này",
+    before_restore: "Trước khi khôi phục",
     comparing_to: "Đang so sánh với",
     restored_from: (date: string) => `Khôi phục từ ${date}`,
     more_actions: "Thao tác khác",

@@ -19,7 +19,7 @@ export const AttributionTooltip = (props: AttributionTooltipProps) => {
   const dictionary = useDictionary();
 
   // Compose the fully-localized text from the raw change context — e.g.
-  // `"Inserted by: Alice"`, `"Deleted by: Alice"`, or
+  // `"Inserted by: Alice"`, `"Inserted in: Draft 3"`, or
   // `"Formatting change (Bold, Italic) by: Alice"`. The outer sentence comes
   // from the `suggestion_changes` dictionary (translated per locale) and the
   // inner format list from the configurable `formatChangeLabel`.
@@ -30,10 +30,14 @@ export const AttributionTooltip = (props: AttributionTooltipProps) => {
     const users = props.users.join(", ");
 
     if (props.modificationType === "insert") {
-      return changes.inserted_by(users);
+      return props.provenance === "version"
+        ? changes.inserted_in(users)
+        : changes.inserted_by(users);
     }
     if (props.modificationType === "delete") {
-      return changes.deleted_by(users);
+      return props.provenance === "version"
+        ? changes.deleted_in(users)
+        : changes.deleted_by(users);
     }
 
     if (props.modificationType === "attrs") {

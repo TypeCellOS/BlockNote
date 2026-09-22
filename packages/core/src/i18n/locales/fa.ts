@@ -380,6 +380,8 @@ export const fa = {
     deleted: "حذف\u200cشده",
     inserted_by: (users: string) => `درج‌شده توسط: ${users}`,
     deleted_by: (users: string) => `حذف‌شده توسط: ${users}`,
+    inserted_in: (version: string) => `درج‌شده در: ${version}`,
+    deleted_in: (version: string) => `حذف‌شده در: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `تغییر قالب‌بندی (${formats}) توسط: ${users}`,
   },
@@ -396,6 +398,8 @@ export const fa = {
     empty_named_only: "نسخه‌ای با نام وجود ندارد",
     current_version: "نسخه فعلی",
     unnamed_version: "Unnamed version",
+    this_version: "این نسخه",
+    before_restore: "پیش از بازیابی",
     comparing_to: "مقایسه با",
     restored_from: (date: string) => `بازیابی‌شده از ${date}`,
     more_actions: "اقدامات بیشتر",

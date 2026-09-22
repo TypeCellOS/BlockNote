@@ -452,6 +452,8 @@ export const zh: Dictionary = {
     deleted: "已删除",
     inserted_by: (users: string) => `插入者：${users}`,
     deleted_by: (users: string) => `删除者：${users}`,
+    inserted_in: (version: string) => `插入于：${version}`,
+    deleted_in: (version: string) => `删除于：${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `格式更改（${formats}），更改者：${users}`,
   },
@@ -468,6 +470,8 @@ export const zh: Dictionary = {
     empty_named_only: "暂无命名版本",
     current_version: "当前版本",
     unnamed_version: "Unnamed version",
+    this_version: "此版本",
+    before_restore: "恢复前",
     comparing_to: "对比对象",
     restored_from: (date: string) => `恢复自 ${date}`,
     more_actions: "更多操作",

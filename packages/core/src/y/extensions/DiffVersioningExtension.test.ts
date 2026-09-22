@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { Block } from "../../blocks/defaultBlocks.js";
+import { en } from "../../i18n/locales/en.js";
 import { colorsForUserIds } from "../../user/index.js";
 import { AttributionExtension } from "./AttributionExtension.js";
 import { DiffVersioningExtension } from "./DiffVersioningExtension.js";
@@ -13,11 +14,17 @@ import { DiffVersioningExtension } from "./DiffVersioningExtension.js";
 // Helpers
 // ---------------------------------------------------------------------------
 
-function createDiffEditor() {
+const mounts: HTMLElement[] = [];
+
+function createDiffEditor(dictionary = en) {
   const editor = BlockNoteEditor.create({
+    dictionary,
     extensions: [DiffVersioningExtension()],
   });
-  editor.mount(document.createElement("div"));
+  const mount = document.createElement("div");
+  document.body.appendChild(mount);
+  mounts.push(mount);
+  editor.mount(mount);
   return editor;
 }
 
@@ -87,6 +94,9 @@ describe("DiffVersioningExtension", () => {
 
   afterEach(() => {
     editor.unmount();
+    for (const mount of mounts.splice(0)) {
+      mount.remove();
+    }
   });
 
   it("registers the y-attributed-* marks into the schema", () => {
@@ -159,11 +169,42 @@ describe("DiffVersioningExtension", () => {
 
     // The version name is surfaced by resolving the marks' author id through the
     // composed AttributionExtension's user store — this is what the hover tooltip
-    // shows ("…by {name}").
+    // shows ("…in: {name}").
     const attribution = editor.getExtension(AttributionExtension)!;
     const authorId = "version:Draft 3";
     await attribution.userStore.loadUsers([authorId]);
     expect(attribution.userStore.getUser(authorId)?.username).toBe("Draft 3");
+  });
+
+  it("uses the localized fallback label and version provenance", async () => {
+    editor.unmount();
+    editor = createDiffEditor({
+      ...en,
+      versioning: {
+        ...en.versioning,
+        this_version: "Diese Version",
+      },
+    });
+    const baseline = blocksFromText("hello world");
+    const target = blocksFromText("hello new world");
+
+    editor.getExtension(DiffVersioningExtension)!.renderDiff(target, baseline);
+
+    const attribution = editor.getExtension(AttributionExtension)!;
+    const authorId = "version:Diese Version";
+    await attribution.userStore.loadUsers([authorId]);
+    expect(attribution.userStore.getUser(authorId)?.username).toBe(
+      "Diese Version",
+    );
+
+    editor.prosemirrorView.dom
+      .querySelector("ins[data-user-ids]")!
+      .dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    expect(attribution.store.state).toMatchObject({
+      modificationType: "insert",
+      users: ["Diese Version"],
+      provenance: "version",
+    });
   });
 
   it("colors the diff author with the palette's blue, tint included", async () => {

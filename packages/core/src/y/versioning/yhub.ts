@@ -221,7 +221,10 @@ export function createYHubVersioningEndpoints(
 
         // Keep the last observed head reachable even if grouping absorbs the rollback.
         if (before && !versions.readEntries().has(before.to)) {
-          versions.upsertEntry({ id: before.to, name: "Before restore" });
+          versions.upsertEntry({
+            id: before.to,
+            name: editor.dictionary.versioning.before_restore,
+          });
         }
         // A newer activity entry could be
         // another user's edit, so it cannot reliably identify this rollback.

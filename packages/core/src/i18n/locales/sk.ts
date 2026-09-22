@@ -409,6 +409,8 @@ export const sk = {
     deleted: "Odstránené",
     inserted_by: (users: string) => `Vložil: ${users}`,
     deleted_by: (users: string) => `Odstránil: ${users}`,
+    inserted_in: (version: string) => `Vložené vo verzii: ${version}`,
+    deleted_in: (version: string) => `Odstránené vo verzii: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `Zmena formátovania (${formats}) od: ${users}`,
   },
@@ -425,6 +427,8 @@ export const sk = {
     empty_named_only: "Žiadne pomenované verzie",
     current_version: "Aktuálna verzia",
     unnamed_version: "Unnamed version",
+    this_version: "Táto verzia",
+    before_restore: "Pred obnovením",
     comparing_to: "Porovnáva sa s",
     restored_from: (date: string) => `Obnovené z ${date}`,
     more_actions: "Ďalšie akcie",

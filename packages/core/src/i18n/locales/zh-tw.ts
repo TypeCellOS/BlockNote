@@ -452,6 +452,8 @@ export const zhTW: Dictionary = {
     deleted: "已刪除",
     inserted_by: (users: string) => `插入者：${users}`,
     deleted_by: (users: string) => `刪除者：${users}`,
+    inserted_in: (version: string) => `插入於：${version}`,
+    deleted_in: (version: string) => `刪除於：${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `格式變更（${formats}），變更者：${users}`,
   },
@@ -468,6 +470,8 @@ export const zhTW: Dictionary = {
     empty_named_only: "尚無命名版本",
     current_version: "目前版本",
     unnamed_version: "Unnamed version",
+    this_version: "此版本",
+    before_restore: "還原前",
     comparing_to: "比較對象",
     restored_from: (date: string) => `已從 ${date} 還原`,
     more_actions: "更多操作",

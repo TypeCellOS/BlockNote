@@ -26,9 +26,6 @@ const DIFF_AUTHOR_ID_PREFIX = "version:";
 /** The synthetic author id for a given version label. */
 const diffAuthorId = (label: string) => DIFF_AUTHOR_ID_PREFIX + label;
 
-/** Fallback label used when a diff is rendered without a version name. */
-const DEFAULT_DIFF_LABEL = "This version";
-
 /** Colors used for the version diff marks — the palette's blue. */
 const DIFF_AUTHOR_COLOR = "#1e4fb0";
 const DIFF_AUTHOR_COLOR_LIGHT = "#c9dcff";
@@ -141,20 +138,21 @@ export const DiffVersioningExtension = createExtension(
         AttributionExtension({
           resolveUsers,
           getAttributionMarkClassName: options?.getAttributionMarkClassName,
+          provenance: "version",
         }),
       ],
       /**
        * Render a read-only diff of `baselineBlocks` → `snapshotBlocks` into the
        * editor. The changes are attributed to the version that introduced them:
        * pass `versionLabel` to label the diff marks (shown in their hover tooltip,
-       * e.g. "Edited by: {versionLabel}"). Uses the "two-doc fork" recipe so the
+       * e.g. "Inserted in: {versionLabel}"). Uses the "two-doc fork" recipe so the
        * two Y.Docs share history — a hard requirement for
        * `createDiffRenderer`, which diffs by Yjs client/clock ids.
        */
       renderDiff(
         snapshotBlocks: Block<any, any, any>[],
         baselineBlocks: Block<any, any, any>[],
-        versionLabel: string = DEFAULT_DIFF_LABEL,
+        versionLabel: string = editor.dictionary.versioning.this_version,
       ) {
         const authorId = diffAuthorId(versionLabel);
 

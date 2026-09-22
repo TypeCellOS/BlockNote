@@ -1,6 +1,7 @@
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { Block } from "../../blocks/defaultBlocks.js";
 import type { Dictionary } from "../../i18n/dictionary.js";
+import { en } from "../../i18n/locales/en.js";
 import type { DiffVersioningExtension } from "../../y/extensions/DiffVersioningExtension.js";
 import type {
   PreviewController,
@@ -143,6 +144,7 @@ export type InMemoryVersioningOptions = {
 /** In-memory snapshot storage using BlockNote document JSON (`Block[]`). */
 export function createInMemoryVersioningEndpoints(
   options: InMemoryVersioningOptions = {},
+  versioningDictionary: Dictionary["versioning"] = en.versioning,
 ): VersioningEndpoints<Block<any, any, any>[], Block<any, any, any>[]> {
   const snapshots: VersionSnapshot[] = [];
   const contents = new Map<string, Block<any, any, any>[]>();
@@ -215,7 +217,7 @@ export function createInMemoryVersioningEndpoints(
       const backupId = String(nextId++);
       snapshots.push({
         id: backupId,
-        name: "Before restore",
+        name: versioningDictionary.before_restore,
         createdAt: now,
       });
       contents.set(backupId, structuredClone(currentDoc));
@@ -280,7 +282,10 @@ export function createInMemoryVersioningAdapter(
   editor: BlockNoteEditor<any, any, any>,
   options?: InMemoryVersioningOptions,
 ): VersioningExtensionOptions<Block<any, any, any>[], Block<any, any, any>[]> {
-  const endpoints = createInMemoryVersioningEndpoints(options);
+  const endpoints = createInMemoryVersioningEndpoints(
+    options,
+    editor.dictionary.versioning,
+  );
   const preview = createInMemoryPreviewController(editor);
 
   // With no server there is no authoritative "last edit" timestamp, so the

@@ -445,6 +445,8 @@ export const uz: Dictionary = {
     deleted: "O'chirildi",
     inserted_by: (users: string) => `Qo'shgan: ${users}`,
     deleted_by: (users: string) => `O'chirgan: ${users}`,
+    inserted_in: (version: string) => `Qo'shilgan versiya: ${version}`,
+    deleted_in: (version: string) => `O'chirilgan versiya: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `Formatlash o'zgarishi (${formats}), o'zgartirgan: ${users}`,
   },
@@ -461,6 +463,8 @@ export const uz: Dictionary = {
     empty_named_only: "Nomlangan versiyalar yo'q",
     current_version: "Joriy versiya",
     unnamed_version: "Unnamed version",
+    this_version: "Ushbu versiya",
+    before_restore: "Tiklashdan oldin",
     comparing_to: "Taqqoslanmoqda",
     restored_from: (date: string) => `${date} dan tiklangan`,
     more_actions: "Boshqa amallar",

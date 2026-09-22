@@ -3,7 +3,7 @@ import type { PartialBlock } from "@blocknote/core";
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
 export type SampleVersion = {
-  name: string;
+  name?: string;
   /** How long ago the version was saved. */
   daysAgo: number;
   blocks: PartialBlock[];
@@ -86,7 +86,7 @@ const marketingReview: SampleBlock[] = [
 /** Saved versions, oldest first. */
 export const SAMPLE_HISTORY: SampleVersion[] = [
   { name: "First draft", daysAgo: 9, blocks: firstDraft },
-  { name: "Added dates", daysAgo: 6, blocks: addedDates },
+  { daysAgo: 6, blocks: addedDates },
   { name: "Marketing review", daysAgo: 2, blocks: marketingReview },
 ];
 

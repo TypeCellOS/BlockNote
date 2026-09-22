@@ -402,6 +402,8 @@ export const pl: Dictionary = {
     deleted: "Usunięto",
     inserted_by: (users: string) => `Wstawione przez: ${users}`,
     deleted_by: (users: string) => `Usunięte przez: ${users}`,
+    inserted_in: (version: string) => `Wstawione w: ${version}`,
+    deleted_in: (version: string) => `Usunięte w: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `Zmiana formatowania (${formats}) przez: ${users}`,
   },
@@ -418,6 +420,8 @@ export const pl: Dictionary = {
     empty_named_only: "Brak nazwanych wersji",
     current_version: "Bieżąca wersja",
     unnamed_version: "Unnamed version",
+    this_version: "Ta wersja",
+    before_restore: "Przed przywróceniem",
     comparing_to: "Porównanie z",
     restored_from: (date: string) => `Przywrócono z ${date}`,
     more_actions: "Więcej działań",

@@ -411,6 +411,8 @@ export const en = {
     deleted: "Deleted",
     inserted_by: (users: string) => `Inserted by: ${users}`,
     deleted_by: (users: string) => `Deleted by: ${users}`,
+    inserted_in: (version: string) => `Inserted in: ${version}`,
+    deleted_in: (version: string) => `Deleted in: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `Formatting change (${formats}) by: ${users}`,
   },
@@ -427,6 +429,8 @@ export const en = {
     empty_named_only: "No named versions",
     current_version: "Current version",
     unnamed_version: "Unnamed version",
+    this_version: "This version",
+    before_restore: "Before restore",
     comparing_to: "Comparing to",
     restored_from: (date: string) => `Restored from ${date}`,
     more_actions: "More actions",

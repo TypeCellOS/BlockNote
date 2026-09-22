@@ -424,6 +424,8 @@ export const ko: Dictionary = {
     deleted: "삭제됨",
     inserted_by: (users: string) => `삽입한 사람: ${users}`,
     deleted_by: (users: string) => `삭제한 사람: ${users}`,
+    inserted_in: (version: string) => `삽입된 버전: ${version}`,
+    deleted_in: (version: string) => `삭제된 버전: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `서식 변경 (${formats}) 변경한 사람: ${users}`,
   },
@@ -440,6 +442,8 @@ export const ko: Dictionary = {
     empty_named_only: "이름이 지정된 버전이 없습니다",
     current_version: "현재 버전",
     unnamed_version: "Unnamed version",
+    this_version: "이 버전",
+    before_restore: "복원 전",
     comparing_to: "비교 대상",
     restored_from: (date: string) => `${date}에서 복원됨`,
     more_actions: "추가 작업",

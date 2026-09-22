@@ -425,6 +425,8 @@ export const is: Dictionary = {
     deleted: "Eytt",
     inserted_by: (users: string) => `Sett inn af: ${users}`,
     deleted_by: (users: string) => `Eytt af: ${users}`,
+    inserted_in: (version: string) => `Sett inn í: ${version}`,
+    deleted_in: (version: string) => `Eytt í: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `Sniðbreyting (${formats}) af: ${users}`,
   },
@@ -441,6 +443,8 @@ export const is: Dictionary = {
     empty_named_only: "Engar nefndar útgáfur",
     current_version: "Núverandi útgáfa",
     unnamed_version: "Unnamed version",
+    this_version: "Þessi útgáfa",
+    before_restore: "Fyrir endurheimt",
     comparing_to: "Borið saman við",
     restored_from: (date: string) => `Endurheimt frá ${date}`,
     more_actions: "Fleiri aðgerðir",

@@ -13,6 +13,7 @@ import type { VersionSnapshot } from "../../../extensions/Versioning/index.js";
 import { createYHubVersioningEndpoints } from "../yhub.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { createExtension } from "../../../editor/BlockNoteExtension.js";
+import { en } from "../../../i18n/locales/en.js";
 
 // ---------------------------------------------------------------------------
 // Fixture data — an activity entry's `to` is the version's identity.
@@ -86,10 +87,11 @@ const ySyncStub = (fragment: Y.Node) =>
 
 // Build endpoints against an editor that has a `ySync` extension whose fragment
 // belongs to `doc`, so the named-version array on `doc` is reachable.
-function makeCollabEndpoints(doc: Y.Doc) {
+function makeCollabEndpoints(doc: Y.Doc, dictionary = en) {
   const fragment = doc.get("default", "XmlFragment") as unknown as Y.Node;
   (fragment as any).insert(0, ["hello"]);
   const editor = BlockNoteEditor.create({
+    dictionary,
     extensions: [ySyncStub(fragment)],
   });
   const endpoints = createYHubVersioningEndpoints({
@@ -809,7 +811,13 @@ describe("createYHubVersioningEndpoints", () => {
 
     it("fetches content, rolls back and preserves the last observed head", async () => {
       const doc = new Y.Doc();
-      const { endpoints, fragment } = makeCollabEndpoints(doc);
+      const { endpoints, fragment } = makeCollabEndpoints(doc, {
+        ...en,
+        versioning: {
+          ...en.versioning,
+          before_restore: "Vor Wiederherstellung",
+        },
+      });
       const cs = makeChangeset();
 
       // 1: GET /changeset (getContentAt via to=<snapshot.createdAt>)
@@ -840,7 +848,7 @@ describe("createYHubVersioningEndpoints", () => {
       // rollback can merge into the same row, which would swallow the state
       // being left behind.
       expect(versionEntries(doc)).toEqual([
-        { id: 8000, name: "Before restore" },
+        { id: 8000, name: "Vor Wiederherstellung" },
       ]);
       expect(content).toBeInstanceOf(Uint8Array);
     });
