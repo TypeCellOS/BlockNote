@@ -4,8 +4,9 @@ import "@blocknote/mantine/style.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
 import { Awareness } from "@y/protocols/awareness";
-import { withCollaboration } from "@blocknote/core/y";
+import { SuggestionsExtension, withCollaboration } from "@blocknote/core/y";
 import * as Y from "@y/y";
+import { useEffect } from "react";
 
 const doc = new Y.Doc();
 const provider = {
@@ -153,13 +154,17 @@ setupTwoWaySync(suggestingDoc, suggestionModeDoc);
 function Editor({
   fragment,
   provider,
-  renderer,
+  suggestions,
   userName,
   userColor,
 }: {
   fragment: Y.Node;
   provider: { awareness?: Awareness };
-  renderer?: Y.DiffRenderer;
+  suggestions?: {
+    doc: Y.Doc;
+    renderer: Y.DiffRenderer;
+    mode: "view" | "edit";
+  };
   userName: string;
   userColor: string;
 }) {
@@ -168,11 +173,25 @@ function Editor({
       collaboration: {
         fragment,
         provider,
-        renderer,
+        suggestionDoc: suggestions?.doc,
+        renderer: suggestions?.renderer,
         user: { name: userName, color: userColor },
       },
     }),
   );
+
+  useEffect(() => {
+    if (!suggestions) {
+      return;
+    }
+
+    const extension = editor.getExtension(SuggestionsExtension)!;
+    if (suggestions.mode === "edit") {
+      extension.enableSuggestions();
+    } else {
+      extension.viewSuggestions();
+    }
+  }, [editor, suggestions]);
 
   return <BlockNoteView editor={editor} />;
 }
@@ -219,9 +238,13 @@ export default function App() {
         <div style={{ flex: 1 }}>
           View Suggestions (Charlie)
           <Editor
-            fragment={suggestingDoc.get("doc")}
+            fragment={doc.get("doc")}
             provider={suggestingProvider}
-            renderer={suggestingRenderer}
+            suggestions={{
+              doc: suggestingDoc,
+              renderer: suggestingRenderer,
+              mode: "view",
+            }}
             userName="Charlie"
             userColor="#ffbc42"
           />
@@ -229,9 +252,13 @@ export default function App() {
         <div style={{ flex: 1 }}>
           Suggestion Mode (Debbie)
           <Editor
-            fragment={suggestionModeDoc.get("doc")}
+            fragment={doc.get("doc")}
             provider={suggestionModeProvider}
-            renderer={suggestionModeRenderer}
+            suggestions={{
+              doc: suggestionModeDoc,
+              renderer: suggestionModeRenderer,
+              mode: "edit",
+            }}
             userName="Debbie"
             userColor="#ee6352"
           />
