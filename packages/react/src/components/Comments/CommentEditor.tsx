@@ -1,7 +1,6 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { useEditorDOMElement } from "../../hooks/useEditorDomElement.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
 
 /**
@@ -19,10 +18,7 @@ export const CommentEditor = (props: {
   editable: boolean;
   actions?: (args: { isFocused: boolean; isEmpty: boolean }) => ReactNode;
   editor: BlockNoteEditor<any, any, any>;
-  onSubmit?: () => void | Promise<void>;
 }) => {
-  const { editor, editable, onSubmit } = props;
-  const editorElement = useEditorDOMElement(editor);
   const [isFocused, setIsFocused] = useState(false);
   const isEmpty = useEditorState({
     editor: props.editor,
@@ -30,37 +26,6 @@ export const CommentEditor = (props: {
   });
 
   const components = useComponentsContext()!;
-
-  useEffect(() => {
-    if (!editorElement || !editable || !onSubmit) {
-      return;
-    }
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (
-        event.key !== "Enter" ||
-        event.shiftKey ||
-        event.ctrlKey ||
-        event.metaKey ||
-        event.altKey ||
-        event.isComposing
-      ) {
-        return;
-      }
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (!editor.isEmpty && !event.repeat) {
-        onSubmit?.();
-      }
-    }
-
-    editorElement.addEventListener("keydown", onKeyDown, true);
-    return () => {
-      editorElement.removeEventListener("keydown", onKeyDown, true);
-    };
-  }, [editorElement, editor, editable, onSubmit]);
 
   const onFocus = useCallback(() => {
     setIsFocused(true);

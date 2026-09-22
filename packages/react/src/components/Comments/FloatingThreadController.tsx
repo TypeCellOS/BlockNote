@@ -1,4 +1,7 @@
-import { CommentsExtension } from "@blocknote/core/comments";
+import {
+  CommentEditorSubmitExtension,
+  CommentsExtension,
+} from "@blocknote/core/comments";
 import { flip, offset, shift } from "@floating-ui/react";
 import { ComponentProps, FC, useMemo } from "react";
 
@@ -57,6 +60,21 @@ export default function FloatingThreadController(props: {
         },
       },
       schema: comments.commentEditorSchema || defaultCommentEditorSchema,
+      extensions: [
+        CommentEditorSubmitExtension({
+          submitOnEnter: comments.submitOnEnter,
+          onSubmit: async (editor) => {
+            if (!selectedThread) {
+              return;
+            }
+            await comments.threadStore.addComment({
+              comment: { body: editor.document },
+              threadId: selectedThread.id,
+            });
+            editor.removeBlocks(editor.document);
+          },
+        }),
+      ],
     },
     [selectedThread?.id],
   );

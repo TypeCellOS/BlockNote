@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { Plugin, PluginKey } from "prosemirror-state";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 import { createExtension } from "../../BlockNoteExtension.js";
 import { BlockNoteEditor } from "../../BlockNoteEditor.js";
@@ -14,6 +14,93 @@ function createMountedEditor(
   editor.mount(document.createElement("div"));
   return editor;
 }
+
+describe("Extension keyboard shortcuts", () => {
+  it("validates shortcut names at initialization", () => {
+    expect(() =>
+      createMountedEditor([
+        createExtension({
+          key: "invalid-shortcut",
+          keyboardShortcuts: { "InvalidModifier-k": () => true },
+        }),
+      ]),
+    ).toThrow("Unrecognized modifier name: InvalidModifier");
+  });
+
+  it("restores the outer event for fallback matching after a nested key event", () => {
+    const nestedEvent = new KeyboardEvent("keydown", {
+      key: "x",
+      bubbles: true,
+    });
+    const nested = vi.fn(() => true);
+    const fallback = vi.fn(() => true);
+    const editor = createMountedEditor([
+      createExtension({
+        key: "nested-shortcuts",
+        keyboardShortcuts: {
+          "Shift-K": ({ editor }) => {
+            editor.prosemirrorView.dom.dispatchEvent(nestedEvent);
+            return false;
+          },
+          K: fallback,
+          x: nested,
+        },
+      }),
+    ]);
+    const outerEvent = new KeyboardEvent("keydown", {
+      key: "K",
+      keyCode: 75,
+      shiftKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    editor.prosemirrorView.dom.dispatchEvent(outerEvent);
+    expect(nested).toHaveBeenCalledExactlyOnceWith({
+      editor,
+      event: nestedEvent,
+    });
+    expect(fallback).toHaveBeenCalledExactlyOnceWith({
+      editor,
+      event: outerEvent,
+    });
+    expect(outerEvent.defaultPrevented).toBe(true);
+    editor.unmount();
+  });
+
+  it("forwards the original event and preserves modifier matching and fallthrough", () => {
+    const first = vi.fn(() => false);
+    const second = vi.fn(() => true);
+    const editor = createMountedEditor([
+      createExtension({
+        key: "first-shortcut",
+        runsBefore: ["second-shortcut"],
+        keyboardShortcuts: { "Ctrl-Shift-k": first },
+      }),
+      createExtension({
+        key: "second-shortcut",
+        keyboardShortcuts: { "Ctrl-Shift-k": second },
+      }),
+    ]);
+    const event = new KeyboardEvent("keydown", {
+      key: "K",
+      keyCode: 75,
+      ctrlKey: true,
+      shiftKey: true,
+      repeat: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    editor.prosemirrorView.dom.dispatchEvent(event);
+    expect(first).toHaveBeenCalledExactlyOnceWith({ editor, event });
+    expect(second).toHaveBeenCalledExactlyOnceWith({ editor, event });
+    expect(event.defaultPrevented).toBe(true);
+    editor.prosemirrorView.dom.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "k", bubbles: true }),
+    );
+    expect(first).toHaveBeenCalledOnce();
+    editor.unmount();
+  });
+});
 
 /**
  * Returns the index of the plugin identified by `key` within the editor's

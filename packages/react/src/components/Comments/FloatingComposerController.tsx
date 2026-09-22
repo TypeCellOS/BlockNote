@@ -6,8 +6,12 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { CommentsExtension } from "@blocknote/core/comments";
+import {
+  CommentEditorSubmitExtension,
+  CommentsExtension,
+} from "@blocknote/core/comments";
 import { flip, offset, shift } from "@floating-ui/react";
+import { TextSelection } from "@tiptap/pm/state";
 import { ComponentProps, FC, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -59,6 +63,21 @@ export default function FloatingComposerController<
         },
       },
       schema: comments.commentEditorSchema || defaultCommentEditorSchema,
+      extensions: [
+        CommentEditorSubmitExtension({
+          submitOnEnter: comments.submitOnEnter,
+          onSubmit: async (commentEditor) => {
+            await comments.createThread({
+              initialComment: { body: commentEditor.document },
+            });
+            comments.stopPendingComment();
+            editor.transact((tr) => {
+              tr.setSelection(TextSelection.create(tr.doc, tr.selection.to));
+            });
+            editor.focus();
+          },
+        }),
+      ],
     },
     [pendingComment],
   );

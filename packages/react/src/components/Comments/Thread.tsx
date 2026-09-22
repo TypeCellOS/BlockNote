@@ -1,7 +1,10 @@
 import { BlockNoteEditor, Dictionary, mergeCSSClasses } from "@blocknote/core";
-import { CommentsExtension } from "@blocknote/core/comments";
+import {
+  CommentEditorSubmitExtension,
+  CommentsExtension,
+} from "@blocknote/core/comments";
 import { ThreadData } from "@blocknote/core/comments";
-import { FocusEvent, memo, useCallback } from "react";
+import { FocusEvent, memo } from "react";
 
 import {
   Components,
@@ -90,6 +93,7 @@ export type ThreadProps = {
    * The editor used to compose a reply. Provided by `FloatingThreadController`
    * so it can check for unsaved text before discarding the floating card. When
    * omitted (e.g. in the sidebar), the thread creates its own.
+   * Must include `CommentEditorSubmitExtension` configured with the reply's save callback.
    */
   newCommentEditor?: BlockNoteEditor<any, any, any>;
 };
@@ -127,6 +131,18 @@ export const Thread = ({
       },
     },
     schema: comments.commentEditorSchema || defaultCommentEditorSchema,
+    extensions: [
+      CommentEditorSubmitExtension({
+        submitOnEnter: comments.submitOnEnter,
+        onSubmit: async (editor) => {
+          await comments.threadStore.addComment({
+            comment: { body: editor.document },
+            threadId: thread.id,
+          });
+          editor.removeBlocks(editor.document);
+        },
+      }),
+    ],
   });
 
   // Use the editor provided by the controller (which owns the dismiss
@@ -134,17 +150,9 @@ export const Thread = ({
   // our own when the thread is rendered standalone (e.g. in the sidebar).
   const newCommentEditor = providedNewCommentEditor ?? ownNewCommentEditor;
 
-  const onNewCommentSave = useCallback(async () => {
-    await comments.threadStore.addComment({
-      comment: {
-        body: newCommentEditor.document,
-      },
-      threadId: thread.id,
-    });
-
-    // reset editor
-    newCommentEditor.removeBlocks(newCommentEditor.document);
-  }, [comments, newCommentEditor, thread.id]);
+  const onNewCommentSave = newCommentEditor.getExtension(
+    CommentEditorSubmitExtension,
+  )!.submit;
 
   return (
     <Components.Comments.Card
@@ -169,7 +177,6 @@ export const Thread = ({
             autoFocus={false}
             editable={true}
             editor={newCommentEditor}
-            onSubmit={onNewCommentSave}
             actions={({ isFocused, isEmpty }) => (
               <ReplyActionsComponent
                 isFocused={isFocused}

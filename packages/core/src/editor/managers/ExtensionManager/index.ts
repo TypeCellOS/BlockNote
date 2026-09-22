@@ -6,7 +6,7 @@ import {
   AnyExtension as AnyTiptapExtension,
   Extension as TiptapExtension,
 } from "@tiptap/core";
-import { keymap } from "@tiptap/pm/keymap";
+import { keydownHandler } from "@tiptap/pm/keymap";
 import { Plugin, TextSelection } from "prosemirror-state";
 import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { setTextCursorPosition } from "../../../api/blockManipulation/selections/textCursorPosition.js";
@@ -592,15 +592,40 @@ export class ExtensionManager {
     }
 
     if (Object.keys(extension.keyboardShortcuts || {}).length) {
-      plugins.push(
-        keymap(
-          Object.fromEntries(
-            Object.entries(extension.keyboardShortcuts!).map(([key, value]) => [
-              key,
-              () => value({ editor: this.editor }),
-            ]),
-          ),
+      let currentEvent: KeyboardEvent | undefined;
+      // Normalize bindings once, as keymap does. Commands don't receive the
+      // keyboard event, so expose it only for the duration of handleKeyDown.
+      const handleKeyDown = keydownHandler(
+        Object.fromEntries(
+          Object.entries(extension.keyboardShortcuts!).map(([key, value]) => [
+            key,
+            () => {
+              if (!currentEvent) {
+                throw new Error(
+                  "Keyboard shortcut called outside handleKeyDown",
+                );
+              }
+              return value({ editor: this.editor, event: currentEvent });
+            },
+          ]),
         ),
+      );
+      plugins.push(
+        new Plugin({
+          props: {
+            handleKeyDown: (view, event) => {
+              const previousEvent = currentEvent;
+              currentEvent = event;
+              try {
+                return handleKeyDown(view, event);
+              } finally {
+                // Restore the outer event when a shortcut dispatches another
+                // key event synchronously, including when a command throws.
+                currentEvent = previousEvent;
+              }
+            },
+          },
+        }),
       );
     }
 

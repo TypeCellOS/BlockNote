@@ -1,7 +1,10 @@
 "use client";
 
 import { Dictionary, mergeCSSClasses } from "@blocknote/core";
-import { CommentsExtension } from "@blocknote/core/comments";
+import {
+  CommentEditorSubmitExtension,
+  CommentsExtension,
+} from "@blocknote/core/comments";
 import type { CommentData, ThreadData } from "@blocknote/core/comments";
 import { ThreadStore } from "@blocknote/core/comments";
 import { ReactNode, memo, useCallback, useState } from "react";
@@ -148,6 +151,8 @@ export const Comment = ({
 
   const dict = useDictionary();
 
+  const [isEditing, setEditing] = useState(false);
+
   const commentEditor = useCreateBlockNote({
     initialContent: comment.body,
     trailingBlock: false,
@@ -158,11 +163,23 @@ export const Comment = ({
       },
     },
     schema: comments.commentEditorSchema || defaultCommentEditorSchema,
+    extensions: [
+      CommentEditorSubmitExtension({
+        submitOnEnter: comments.submitOnEnter,
+        onSubmit: async (editor) => {
+          await comments.threadStore.updateComment({
+            commentId: comment.id,
+            comment: { body: editor.document },
+            threadId: thread.id,
+          });
+          setEditing(false);
+        },
+      }),
+    ],
   });
 
   const Components = useComponentsContext()!;
 
-  const [isEditing, setEditing] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
   const threadStore = comments.threadStore;
@@ -176,17 +193,9 @@ export const Comment = ({
     setEditing(false);
   }, [commentEditor, comment.body]);
 
-  const onEditSubmit = useCallback(async () => {
-    await threadStore.updateComment({
-      commentId: comment.id,
-      comment: {
-        body: commentEditor.document,
-      },
-      threadId: thread.id,
-    });
-
-    setEditing(false);
-  }, [comment, thread.id, commentEditor, threadStore]);
+  const onEditSubmit = commentEditor.getExtension(
+    CommentEditorSubmitExtension,
+  )!.submit;
 
   const onDelete = useCallback(async () => {
     await threadStore.deleteComment({
@@ -345,7 +354,6 @@ export const Comment = ({
         autoFocus={isEditing}
         editor={commentEditor}
         editable={isEditing}
-        onSubmit={onEditSubmit}
         actions={
           comment.reactions.length > 0 || isEditing
             ? ({ isFocused, isEmpty }) => (
