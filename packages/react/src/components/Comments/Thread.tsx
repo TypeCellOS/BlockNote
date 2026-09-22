@@ -150,9 +150,15 @@ export const Thread = ({
   // our own when the thread is rendered standalone (e.g. in the sidebar).
   const newCommentEditor = providedNewCommentEditor ?? ownNewCommentEditor;
 
-  const onNewCommentSave = newCommentEditor.getExtension(
+  const submitExtension = newCommentEditor.getExtension(
     CommentEditorSubmitExtension,
-  )!.submit;
+  );
+  if (!submitExtension) {
+    throw new Error(
+      "Thread's newCommentEditor must include CommentEditorSubmitExtension.",
+    );
+  }
+  const onNewCommentSave = submitExtension.submit;
 
   return (
     <Components.Comments.Card

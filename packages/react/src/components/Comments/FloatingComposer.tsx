@@ -54,9 +54,15 @@ export function FloatingComposer(props: {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const onSave = newCommentEditor.getExtension(
+  const submitExtension = newCommentEditor.getExtension(
     CommentEditorSubmitExtension,
-  )!.submit;
+  );
+  if (!submitExtension) {
+    throw new Error(
+      "FloatingComposer's newCommentEditor must include CommentEditorSubmitExtension.",
+    );
+  }
+  const onSave = submitExtension.submit;
 
   return (
     <Components.Comments.Card className={"bn-thread"}>

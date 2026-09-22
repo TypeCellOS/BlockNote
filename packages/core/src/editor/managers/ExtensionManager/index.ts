@@ -592,37 +592,20 @@ export class ExtensionManager {
     }
 
     if (Object.keys(extension.keyboardShortcuts || {}).length) {
-      let currentEvent: KeyboardEvent | undefined;
-      // Normalize bindings once, as keymap does. Commands don't receive the
-      // keyboard event, so expose it only for the duration of handleKeyDown.
-      const handleKeyDown = keydownHandler(
-        Object.fromEntries(
-          Object.entries(extension.keyboardShortcuts!).map(([key, value]) => [
-            key,
-            () => {
-              if (!currentEvent) {
-                throw new Error(
-                  "Keyboard shortcut called outside handleKeyDown",
-                );
-              }
-              return value({ editor: this.editor, event: currentEvent });
-            },
-          ]),
-        ),
-      );
       plugins.push(
         new Plugin({
           props: {
             handleKeyDown: (view, event) => {
-              const previousEvent = currentEvent;
-              currentEvent = event;
-              try {
-                return handleKeyDown(view, event);
-              } finally {
-                // Restore the outer event when a shortcut dispatches another
-                // key event synchronously, including when a command throws.
-                currentEvent = previousEvent;
-              }
+              const bindings = Object.fromEntries(
+                Object.entries(extension.keyboardShortcuts!).map(
+                  ([key, callback]) => [
+                    key,
+                    () => callback({ editor: this.editor, event }),
+                  ],
+                ),
+              );
+
+              return keydownHandler(bindings)(view, event);
             },
           },
         }),

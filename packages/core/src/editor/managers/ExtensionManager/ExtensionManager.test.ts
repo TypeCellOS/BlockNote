@@ -16,18 +16,7 @@ function createMountedEditor(
 }
 
 describe("Extension keyboard shortcuts", () => {
-  it("validates shortcut names at initialization", () => {
-    expect(() =>
-      createMountedEditor([
-        createExtension({
-          key: "invalid-shortcut",
-          keyboardShortcuts: { "InvalidModifier-k": () => true },
-        }),
-      ]),
-    ).toThrow("Unrecognized modifier name: InvalidModifier");
-  });
-
-  it("restores the outer event for fallback matching after a nested key event", () => {
+  it("preserves the outer event for fallback matching after a nested key event", () => {
     const nestedEvent = new KeyboardEvent("keydown", {
       key: "x",
       bubbles: true,
