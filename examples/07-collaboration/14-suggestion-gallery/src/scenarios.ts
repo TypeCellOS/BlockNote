@@ -178,6 +178,12 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "add-nested-bullets",
+    feedback: [
+      {
+        severity: "low",
+        note: "Nested bullets all render as • instead of •/◦/▪ — the suggestion-mark wrappers (display: contents) break the depth-detecting CSS chains. Fix: compute each bullet's nesting level in JS and expose it as data-bullet-level, then pick the glyph with a wrapper-independent attribute selector (as numbered lists do with data-index).",
+      },
+    ],
     title: "Add nested bullets",
     category: "Add / remove blocks",
     description:
@@ -231,6 +237,16 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "nest-bullet-existing",
+    feedback: [
+      {
+        severity: "low",
+        note: "Nested bullets all render as • instead of •/◦/▪ — the suggestion-mark wrappers (display: contents) break the depth-detecting CSS chains. Fix: compute each bullet's nesting level in JS and expose it as data-bullet-level, then pick the glyph with a wrapper-independent attribute selector (as numbered lists do with data-index).",
+      },
+      {
+        severity: "low",
+        note: "Going from 0 to 1+ children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
+      },
+    ],
     title: "Nest a bullet under another",
     category: "Add / remove blocks",
     description: "Nest the second bullet under the first.",
@@ -284,6 +300,12 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "delete-nested",
+    feedback: [
+      {
+        severity: "low",
+        note: "Going from 1+ to 0 children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
+      },
+    ],
     title: "Delete a nested block",
     category: "Add / remove blocks",
     description: "Delete the nested child of a parent block.",
@@ -555,6 +577,12 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "nesting-indent",
+    feedback: [
+      {
+        severity: "low",
+        note: "Going from 0 to 1+ children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
+      },
+    ],
     title: "Indent a block",
     category: "Nesting",
     description:
@@ -572,6 +600,12 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "nesting-unindent",
+    feedback: [
+      {
+        severity: "low",
+        note: "Going from 1+ to 0 children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
+      },
+    ],
     title: "Unindent a block",
     category: "Nesting",
     description: "Un-nest N1 out of N0 (outdent) back to a top-level sibling.",
@@ -591,6 +625,12 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "nesting-change-parent-type",
+    feedback: [
+      {
+        severity: "low",
+        note: "Changing a parent's type deletes the old block and creates a new one — so concurrent edits to the original block can be lost, and the entire new block is attributed to whoever changed the type. A consequence of the schema fix.",
+      },
+    ],
     title: "Change type of a parent block",
     category: "Nesting",
     description:
