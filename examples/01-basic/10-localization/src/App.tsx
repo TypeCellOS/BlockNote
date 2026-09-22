@@ -1,3 +1,4 @@
+import type { Dictionary } from "@blocknote/core";
 import * as locales from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -7,7 +8,7 @@ import { useState } from "react";
 
 // Every dictionary exported by `@blocknote/core/locales`, keyed by its
 // language code (the same key used in the export, e.g. `zhTW`).
-const dictionaries = locales as Record<string, (typeof locales)["en"]>;
+const dictionaries: Record<string, Dictionary> = locales;
 
 // Human-readable names shown in the language picker.
 const languageNames: Record<string, string> = {
@@ -44,7 +45,7 @@ const languageKeys = Object.keys(dictionaries).sort((a, b) =>
 // Creates the editor with the given dictionary. This is a separate component so
 // that changing its `key` (see below) re-mounts it, re-creating the editor
 // instance with the newly selected language.
-function LocalizedEditor(props: { dictionary: (typeof locales)["en"] }) {
+function LocalizedEditor(props: { dictionary: Dictionary }) {
   const editor = useCreateBlockNote({ dictionary: props.dictionary });
 
   return <BlockNoteView editor={editor} />;

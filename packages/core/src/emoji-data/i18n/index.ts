@@ -1,2 +1,2 @@
-export * from "./locales/index.js";
+export * from "./locales.js";
 export * from "./dictionary.js";

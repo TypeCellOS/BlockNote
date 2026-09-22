@@ -4,20 +4,6 @@ import { webpackStats } from "rollup-plugin-webpack-stats";
 import { configDefaults, defineConfig } from "vite-plus";
 import pkg from "./package.json";
 
-const emojiLocaleFiles = readdirSync(
-  path.resolve(__dirname, "src/emoji-data/i18n/locales"),
-).filter((f) => f.endsWith(".ts") && f !== "index.ts");
-
-const perEmojiLocaleEntries = Object.fromEntries(
-  emojiLocaleFiles.map((f) => {
-    const name = f.replace(".ts", "");
-    return [
-      `emoji-data/locales/${name}`,
-      path.resolve(__dirname, `src/emoji-data/i18n/locales/${f}`),
-    ];
-  }),
-);
-
 const frimousseFiles = readdirSync(
   path.resolve(__dirname, "src/emoji-data/frimousse"),
 ).filter(
@@ -91,7 +77,6 @@ export default defineConfig({
           __dirname,
           "src/emoji-data/i18n/index.ts",
         ),
-        ...perEmojiLocaleEntries,
       },
       name: "blocknote",
       cssFileName: "style",

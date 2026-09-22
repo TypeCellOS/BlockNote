@@ -51,12 +51,13 @@ const cache = new Map<string, FrimousseEmojiData>();
 export async function loadFrimousseData(
   locale: string,
 ): Promise<FrimousseEmojiData> {
-  const cached = cache.get(locale);
+  const normalizedLocale = locale.toLowerCase();
+  const cached = cache.get(normalizedLocale);
   if (cached) {
     return cached;
   }
 
-  const resolved = LOCALE_ALIASES[locale] ?? locale;
+  const resolved = LOCALE_ALIASES[normalizedLocale] ?? normalizedLocale;
   const loader = loaders[resolved] ?? loaders[resolved.split("-")[0]];
   if (!loader) {
     // Fall back to English
@@ -67,6 +68,6 @@ export async function loadFrimousseData(
 
   const mod = await loader();
   const data = Object.values(mod)[0];
-  cache.set(locale, data);
+  cache.set(normalizedLocale, data);
   return data;
 }

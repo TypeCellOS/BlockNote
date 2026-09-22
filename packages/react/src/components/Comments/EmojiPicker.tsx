@@ -18,15 +18,23 @@ export const EmojiPicker = (props: {
   const locale = dict.locale ?? "en";
   const emojiI18n = useEmojiI18n(locale);
 
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+    props.onOpenChange?.(nextOpen);
+  }
+
   return (
-    <Components.Generic.Popover.Root open={open} portalElement={portalElement}>
+    <Components.Generic.Popover.Root
+      open={open}
+      onOpenChange={handleOpenChange}
+      portalElement={portalElement}
+    >
       <Components.Generic.Popover.Trigger>
         <div
           onClick={(event) => {
             event.preventDefault();
             event.stopPropagation();
-            setOpen(!open);
-            props.onOpenChange?.(!open);
+            handleOpenChange(!open);
           }}
           style={{
             display: "flex",
@@ -45,9 +53,9 @@ export const EmojiPicker = (props: {
           <FrimoussePicker
             onEmojiSelect={(emoji) => {
               props.onEmojiSelect(emoji);
-              setOpen(false);
-              props.onOpenChange?.(false);
+              handleOpenChange(false);
             }}
+            onEscape={() => handleOpenChange(false)}
             locale={locale}
             i18n={emojiI18n}
           />

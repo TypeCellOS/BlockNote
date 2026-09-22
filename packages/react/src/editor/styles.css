@@ -537,7 +537,8 @@ SideMenuController offsets its position to keep it centered on the line. */
   display: flex;
   flex-direction: column;
   width: fit-content;
-  height: 352px;
+  height: min(352px, calc(100dvh - 20px));
+  max-height: inherit;
   background-color: var(--bn-colors-menu-background);
   border: 1px solid var(--bn-colors-hovered-background);
   border-radius: 8px;
@@ -624,6 +625,17 @@ SideMenuController offsets its position to keep it centered on the line. */
 .bn-frimousse-emoji[data-active],
 .bn-frimousse-emoji[data-selected] {
   background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-frimousse-emoji:focus-visible {
+  outline: 2px solid var(--bn-colors-editor-text);
+  outline-offset: -2px;
+}
+
+.bn-frimousse-picker [frimousse-search]:focus-visible,
+.bn-frimousse-skin-tone:focus-visible {
+  outline: 2px solid var(--bn-colors-editor-text);
+  outline-offset: -2px;
 }
 
 .bn-frimousse-footer {

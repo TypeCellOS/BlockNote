@@ -80,8 +80,17 @@ describe("Check Comments functionality", () => {
 
     // Add a reaction via the action toolbar's add-reaction button.
     await userEvent.click(await waitForSelector('[data-test="addreaction"]'));
-    const firstPickerButtons = await waitForEmojiButtons();
-    await userEvent.click(firstPickerButtons[0]);
+    await waitForEmojiButtons();
+    await userEvent.click(await waitForSelector("[frimousse-search]"));
+    await userEvent.keyboard("{Escape}");
+    await expectSelectorCount("[frimousse-root]", 0);
+
+    // Reopening after dismissing verifies that controlled popovers update their
+    // owner state when the UI library handles Escape.
+    await userEvent.click(await waitForSelector('[data-test="addreaction"]'));
+    await waitForEmojiButtons();
+    await userEvent.click(await waitForSelector("[frimousse-search]"));
+    await userEvent.keyboard("{ArrowDown}{Enter}");
     await expectSelectorCount("[frimousse-root]", 0);
     await expectSelectorCount(".bn-comment-reaction", 1);
 

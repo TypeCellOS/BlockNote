@@ -1,3 +1,5 @@
+import type { Dictionary } from "../dictionary.js";
+
 export const tr = {
   locale: "tr",
   slash_menu: {
@@ -204,6 +206,10 @@ export const tr = {
   },
   toggle_blocks: {
     add_block_button: "Boş açılır blok. Blok eklemek için tıklayın.",
+  },
+  code_block: {
+    add_source_button_text: "Kaynak kodu ekle",
+    ok_button_text: "Tamam",
   },
   side_menu: {
     add_block_label: "Blok ekle",
@@ -413,7 +419,13 @@ export const tr = {
     formatting_change_by: (formats: string, users: string) =>
       `Biçimlendirme değişikliği (${formats}): ${users}`,
   },
+  exporter: {
+    open_file: "Dosyayı aç",
+    open_video_file: "Videoyu aç",
+    open_audio_file: "Ses dosyasını aç",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "Tamam",
   },
-};
+} satisfies Dictionary;

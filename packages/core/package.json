@@ -16,7 +16,8 @@
     "dist",
     "types",
     "src",
-    "static"
+    "static",
+    "NOTICE.txt"
   ],
   "keywords": [
     "react",
@@ -102,11 +103,6 @@
       "types": "./types/src/emoji-data/i18n/index.d.ts",
       "import": "./dist/emoji-data/locales.js",
       "require": "./dist/emoji-data/locales.cjs"
-    },
-    "./emoji-data/locales/*": {
-      "types": "./types/src/emoji-data/i18n/locales/*.d.ts",
-      "import": "./dist/emoji-data/locales/*.js",
-      "require": "./dist/emoji-data/locales/*.cjs"
     }
   },
   "scripts": {
@@ -142,6 +138,8 @@
     "prosemirror-view": "^1.42.4"
   },
   "devDependencies": {
+    "cldr-annotations-derived-full": "48.2.0",
+    "cldr-annotations-full": "48.2.0",
     "emojibase-data": "^16.0.1",
     "jsdom": "^29.0.2",
     "rimraf": "^5.0.10",

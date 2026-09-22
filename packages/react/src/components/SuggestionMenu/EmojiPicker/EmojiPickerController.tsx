@@ -1,3 +1,4 @@
+import { defaultInlineContentSchema } from "@blocknote/core";
 import {
   SuggestionMenu,
   SuggestionMenuOptions,
@@ -5,6 +6,8 @@ import {
 import { autoPlacement, offset, shift, size } from "@floating-ui/react";
 import { useEffect, useMemo } from "react";
 
+import { PortalElementOverride } from "../../../editor/PortalElementOverride.js";
+import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../../../hooks/useEditorDomElement.js";
 import {
   useExtension,
@@ -23,15 +26,22 @@ export function EmojiPickerController(props: {
   floatingUIOptions?: FloatingUIOptions;
   portalElement?: HTMLElement | null;
 }) {
+  const editor = useBlockNoteEditor();
   const editorDOMElement = useEditorDOMElement();
 
   const { triggerCharacter, shouldOpen } = props;
 
   const suggestionMenu = useExtension(SuggestionMenu);
+  const hasTextInlineContent =
+    "text" in editor.schema.inlineContentSchema &&
+    editor.schema.inlineContentSchema.text === defaultInlineContentSchema.text;
 
   useEffect(() => {
+    if (!hasTextInlineContent) {
+      return;
+    }
     suggestionMenu.addSuggestionMenu({ triggerCharacter, shouldOpen });
-  }, [suggestionMenu, triggerCharacter, shouldOpen]);
+  }, [hasTextInlineContent, suggestionMenu, triggerCharacter, shouldOpen]);
 
   const state = useExtensionState(SuggestionMenu);
   const reference = useExtensionState(SuggestionMenu, {
@@ -92,21 +102,19 @@ export function EmojiPickerController(props: {
     ],
   );
 
-  if (!state) {
+  if (!hasTextInlineContent || !state) {
     return null;
   }
 
   return (
-    <GenericPopover
-      reference={reference}
-      portalElement={props.portalElement}
-      {...floatingUIOptions}
-    >
-      <InlineEmojiPicker
-        query={state.query}
-        closeMenu={suggestionMenu.closeMenu}
-        clearQuery={suggestionMenu.clearQuery}
-      />
-    </GenericPopover>
+    <PortalElementOverride target={props.portalElement ?? undefined}>
+      <GenericPopover reference={reference} {...floatingUIOptions}>
+        <InlineEmojiPicker
+          query={state.query}
+          closeMenu={suggestionMenu.closeMenu}
+          clearQuery={suggestionMenu.clearQuery}
+        />
+      </GenericPopover>
+    </PortalElementOverride>
   );
 }
