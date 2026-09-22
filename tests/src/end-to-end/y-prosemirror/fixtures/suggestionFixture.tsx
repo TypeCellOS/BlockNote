@@ -164,18 +164,23 @@ export async function setupSuggestionTest({
 }
 
 /**
- * Whether `editor` is showing the pristine-empty schema skeleton: the single
- * empty paragraph stamped with the stable `initialBlockId` (see
- * `packages/core/src/y/extensions/FixUpSchema.ts`).
+ * Whether `editor` is showing the pristine-empty skeleton: a single empty
+ * paragraph with no children.
  *
  * The empty-doc binding keeps that skeleton local instead of committing it to
  * Y — `blocksToYDoc([])` seeds a fragment with no children — so a pristine-empty
  * editor corresponds to a base fragment with zero block nodes. Waiting for the
  * skeleton to show up in `baseDoc` would never succeed.
+ *
+ * Ids are deliberately ignored: the skeleton carries whatever id the editor
+ * minted (`initialBlockId` at mount, a fresh random id after deleting all
+ * blocks). The sync layer's initial-content gate (`isInitialBlockNoteDoc` in
+ * `packages/core/src/y/extensions/YSync.ts`) treats any single empty
+ * paragraph as initial content, so the id never reaches Y either way.
  */
 function isPristineEmptyEditor(editor: GalleryEditor): boolean {
   const blocks = editor.document as {
-    id?: string;
+    type?: string;
     content?: { length?: number };
     children?: unknown[];
   }[];
@@ -184,7 +189,7 @@ function isPristineEmptyEditor(editor: GalleryEditor): boolean {
   }
   const [block] = blocks;
   return (
-    block.id === "initialBlockId" &&
+    block.type === "paragraph" &&
     (block.content?.length ?? 0) === 0 &&
     (block.children?.length ?? 0) === 0
   );

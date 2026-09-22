@@ -12,7 +12,6 @@ import {
 } from "../../extensions/Versioning/index.js";
 import { normalizeToUserStore, UserStoreOrResolver } from "../../user/index.js";
 import { AttributionExtension } from "./AttributionExtension.js";
-import { FixUpSchemaExtension } from "./FixUpSchema.js";
 import { RelativePositionMappingExtension } from "./RelativePositionMapping.js";
 import { SuggestionsExtension } from "./Suggestions.js";
 import { createYjsVersioningAdapter } from "./Versioning.js";
@@ -103,7 +102,6 @@ export const CollaborationExtension = createExtension(
       key: "collaboration",
       userStore,
       blockNoteExtensions: [
-        FixUpSchemaExtension(),
         options.suggestionDoc
           ? SuggestionsExtension(optionsWithUserStore)
           : null,

@@ -12,6 +12,12 @@
  * clientID tiebreak.
  *
  * Desired behavior is asserted below; failures demonstrate the bug.
+ *
+ * Also covers the multi-peer shape: several clients mounting on one shared,
+ * initially EMPTY Y.Doc must keep their skeletons out of Y until real content
+ * appears, so the first edit seeds the single shared root instead of racing
+ * competing roots — and late joiners render whatever is shared without
+ * leaving phantoms.
  */
 import { afterEach, describe, expect, it } from "vite-plus/test";
 import * as Y from "@y/y";
@@ -44,6 +50,12 @@ function cloneDoc(source: Y.Doc): Y.Doc {
   Y.applyUpdate(doc, Y.encodeStateAsUpdate(source));
   cleanups.push(() => doc.destroy());
   return doc;
+}
+
+function sortedIds(doc: Y.Doc): string[] {
+  return yDocToBlocks(getSchemaEditor(), doc, "doc")
+    .map((b) => b.id)
+    .sort();
 }
 
 function mountCollab(fragment: Y.Node): BlockNoteEditor {
@@ -117,6 +129,35 @@ describe("empty-doc collaborative binding", () => {
     ).toEqual(["h0"]);
   });
 
+  it("deleting all blocks keeps the re-minted skeleton out of Y", async () => {
+    // Deleting every block makes BlockNote mint a fresh empty paragraph
+    // with a NEW random id. That skeleton is still initial content: it must
+    // not seed the empty fragment, and the next real edit must converge to
+    // just the new block. Regression for the e2e `addRemoveBlocks`
+    // "to empty doc" failures, where the re-minted skeleton was committed
+    // as a phantom paragraph (the id-sensitive pull divergence check
+    // treated it as real content).
+    const doc = new Y.Doc();
+    cleanups.push(() => doc.destroy());
+    const editor = mountCollab(doc.get("doc"));
+    await tick();
+    editor.replaceBlocks(editor.document, []);
+    await tick();
+    expect(doc.get("doc").length).toBe(0);
+
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "h0",
+        type: "heading",
+        props: { level: 1 },
+        content: "New heading",
+      },
+    ]);
+    await tick();
+    expect(sortedIds(doc)).toEqual(["h0"]);
+    expect(editor.document.map((b) => b.id)).toEqual(["h0"]);
+  });
+
   it("mounting on an empty fragment does not write the skeleton to Y", async () => {
     // The @y/prosemirror initial-content gate must engage: the local
     // schema-default skeleton stays invisible to the sync layer until real
@@ -159,5 +200,83 @@ describe("empty-doc collaborative binding", () => {
     expect(
       yDocToBlocks(getSchemaEditor(), afterDoc, "doc").map((b) => b.id),
     ).toEqual(["h0"]);
+  });
+});
+
+describe("multi-peer empty-doc initialization", () => {
+  // Deliberately NOT covered: fully independent docs that each receive a
+  // concurrent root insert and are merged after the fact. That merge yields
+  // two sibling `blockGroup`s under a `doc` whose content expression allows
+  // exactly one (`pm-nodes/Doc.ts`), which ProseMirror cannot represent in
+  // any implementation — `deltaToPNode` throws `failed to create node: doc`.
+  // That shape conflict predates the gate work (offline concurrent seeding)
+  // and is a different problem from the init race.
+  it("two peers on one shared empty doc converge through sequential edits", async () => {
+    const doc = new Y.Doc();
+    cleanups.push(() => doc.destroy());
+    const editorA = mountCollab(doc.get("doc"));
+    const editorB = mountCollab(doc.get("doc"));
+    await tick();
+
+    // Both skeletons stay local: the shared fragment is still empty.
+    expect(doc.get("doc").length).toBe(0);
+
+    // Peer's first edit seeds the single shared root …
+    editorA.replaceBlocks(editorA.document, [
+      { id: "block-a", type: "paragraph", content: "Alpha" },
+    ]);
+    await tick();
+
+    expect(sortedIds(doc)).toEqual(["block-a"]);
+    expect(editorB.document.map((b) => b.id)).toEqual(["block-a"]);
+
+    // … the other peer builds on it causally, no competing root appears.
+    editorB.replaceBlocks(editorB.document, [
+      { id: "block-a", type: "paragraph", content: "Alpha" },
+      { id: "block-b", type: "paragraph", content: "Beta" },
+    ]);
+    await tick();
+
+    expect(sortedIds(doc)).toEqual(["block-a", "block-b"]);
+    // Exactly one top-level blockGroup: no duplicate root content.
+    expect(doc.get("doc").length).toBe(1);
+    expect(JSON.stringify(editorA.document)).toBe(
+      JSON.stringify(editorB.document),
+    );
+  });
+
+  it("a late joiner mounting on the shared doc renders content with no phantom", async () => {
+    const doc = new Y.Doc();
+    cleanups.push(() => doc.destroy());
+    const editorA = mountCollab(doc.get("doc"));
+    await tick();
+
+    editorA.replaceBlocks(editorA.document, [
+      { id: "block-a", type: "paragraph", content: "Alpha" },
+    ]);
+    await tick();
+
+    // Late joiner mounts after content exists: the gate never arms
+    // (ytype is non-empty at bind) and the shared content renders as-is.
+    const editorB = mountCollab(doc.get("doc"));
+    await tick();
+
+    expect(editorB.document.map((b) => b.id)).toEqual(["block-a"]);
+    // Joining wrote nothing extra into the shared fragment.
+    expect(sortedIds(doc)).toEqual(["block-a"]);
+    expect(doc.get("doc").length).toBe(1);
+
+    // The joiner's edit flows back to the first peer, converging both views.
+    editorB.replaceBlocks(editorB.document, [
+      { id: "block-a", type: "paragraph", content: "Alpha" },
+      { id: "block-b", type: "paragraph", content: "Beta" },
+    ]);
+    await tick();
+
+    expect(sortedIds(doc)).toEqual(["block-a", "block-b"]);
+    expect(doc.get("doc").length).toBe(1);
+    expect(JSON.stringify(editorA.document)).toBe(
+      JSON.stringify(editorB.document),
+    );
   });
 });
