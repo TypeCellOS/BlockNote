@@ -9,7 +9,14 @@
  * The generated package data is covered by packages/core/NOTICE.txt.
  */
 
-import { writeFileSync, readFileSync, mkdirSync, existsSync } from "node:fs";
+import {
+  writeFileSync,
+  readFileSync,
+  mkdirSync,
+  existsSync,
+  readdirSync,
+  rmSync,
+} from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
@@ -293,6 +300,10 @@ function getSkinToneVariations(emoji) {
   return Object.keys(variations).length === 5 ? variations : undefined;
 }
 
+function normalizeSearchText(value) {
+  return value.replace(/\s+/g, " ").trim();
+}
+
 function buildFrimousseData(emojis, messages, locale) {
   const countryFlagSubgroups = new Set(
     messages.subgroups
@@ -327,8 +338,8 @@ function buildFrimousseData(emojis, messages, locale) {
       emoji: emoji.emoji,
       category: emoji.group,
       version: emoji.version,
-      label: capitalize(emoji.label),
-      tags: emoji.tags ?? [],
+      label: capitalize(normalizeSearchText(emoji.label)),
+      tags: (emoji.tags ?? []).map(normalizeSearchText),
     };
     if (countryFlagSubgroups.has(emoji.subgroup)) {
       entry.countryFlag = true;
@@ -421,16 +432,107 @@ function readSearchDataFile(filePath) {
   return null;
 }
 
-function writeFrimousseData(frimousseDir, locale, data) {
-  // JSON avoids TS2590 ("union type too complex") on huge inline objects.
+const FIELD_SEPARATOR = "\t";
+const LIST_SEPARATOR = "|";
+
+function assertEncodable(value, context) {
+  if (
+    value.includes(FIELD_SEPARATOR) ||
+    value.includes(LIST_SEPARATOR) ||
+    value.includes("\n") ||
+    value.includes("\r")
+  ) {
+    throw new Error(`Cannot encode ${context}: ${JSON.stringify(value)}`);
+  }
+}
+
+function encodeList(values, context) {
+  return values
+    .map((value) => {
+      value = normalizeSearchText(value);
+      assertEncodable(value, context);
+      return value;
+    })
+    .join(LIST_SEPARATOR);
+}
+
+function compactSearchTags(label, tags) {
+  const normalizedLabel = normalizeSearchText(label).toLocaleLowerCase();
+  const seen = new Set();
+
+  return tags.filter((tag) => {
+    const normalizedTag = normalizeSearchText(tag).toLocaleLowerCase();
+    if (
+      !normalizedTag ||
+      seen.has(normalizedTag) ||
+      normalizedLabel.includes(normalizedTag)
+    ) {
+      return false;
+    }
+    seen.add(normalizedTag);
+    return true;
+  });
+}
+
+function writeFrimousseCommonData(frimousseDir, data) {
+  const categoryIndices = data.categories.map(({ index }) => index).join(",");
+  const emojis = data.emojis
+    .map((emoji) => {
+      assertEncodable(emoji.emoji, `emoji ${emoji.emoji}`);
+      const skins = emoji.skins
+        ? encodeList(Object.values(emoji.skins), `skins for ${emoji.emoji}`)
+        : "";
+      return [
+        emoji.emoji,
+        emoji.category,
+        emoji.version,
+        emoji.countryFlag ? "1" : "",
+        skins,
+      ].join(FIELD_SEPARATOR);
+    })
+    .join("\n");
+
   writeFileSync(
-    resolve(frimousseDir, `${locale}.json`),
-    JSON.stringify(data) + "\n",
+    resolve(frimousseDir, "common.ts"),
+    `// THIS FILE IS AUTO-GENERATED. DO NOT EDIT DIRECTLY.\n// Regenerate with: pnpm --filter @blocknote/core generate-emoji-data\n\nexport const frimousseCategoryIndices = ${JSON.stringify(categoryIndices)};\nexport const frimousseCommonData = ${JSON.stringify(emojis)};\n`,
   );
+}
+
+function writeFrimousseData(
+  frimousseDir,
+  locale,
+  data,
+  expectedCategoryIndices,
+) {
+  const categoryIndices = data.categories.map(({ index }) => index).join(",");
+  if (categoryIndices !== expectedCategoryIndices) {
+    throw new Error(`Category indices differ for locale ${locale}`);
+  }
+  const categoryLabels = encodeList(
+    data.categories.map(({ label }) => label),
+    `category labels for ${locale}`,
+  );
+  const skinTones = encodeList(
+    Object.values(data.skinTones),
+    `skin tones for ${locale}`,
+  );
+  const emojis = data.emojis
+    .map((emoji) => {
+      assertEncodable(emoji.label, `label for ${emoji.emoji} in ${locale}`);
+      return [
+        emoji.label,
+        encodeList(
+          compactSearchTags(emoji.label, emoji.tags),
+          `tags for ${emoji.emoji} in ${locale}`,
+        ),
+      ].join(FIELD_SEPARATOR);
+    })
+    .join("\n");
+  const encoded = [locale, categoryLabels, skinTones, emojis].join("\n");
   const varName = toVarName(locale) + "FrimousseData";
   writeFileSync(
     resolve(frimousseDir, `${locale}.ts`),
-    `import type { FrimousseEmojiData } from "./types.js";\nimport _data from "./${locale}.json" with { type: "json" };\n\nexport const ${varName} = _data as unknown as FrimousseEmojiData;\n`,
+    `// THIS FILE IS AUTO-GENERATED. DO NOT EDIT DIRECTLY.\n// Regenerate with: pnpm --filter @blocknote/core generate-emoji-data\n\nexport const ${varName} = ${JSON.stringify(encoded)};\n`,
   );
 }
 
@@ -439,10 +541,20 @@ function generateFrimousseData() {
 
   const frimousseDir = resolve(SRC_DIR, "frimousse");
   mkdirSync(frimousseDir, { recursive: true });
+  for (const file of readdirSync(frimousseDir)) {
+    if (file.endsWith(".json")) {
+      rmSync(resolve(frimousseDir, file));
+    }
+  }
 
   // Load English base data (needed for extra locales)
   const enEmojis = require("emojibase-data/en/data.json");
   const enMessages = require("emojibase-data/en/messages.json");
+  const commonData = buildFrimousseData(enEmojis, enMessages, "en");
+  const commonCategoryIndices = commonData.categories
+    .map(({ index }) => index)
+    .join(",");
+  writeFrimousseCommonData(frimousseDir, commonData);
 
   // Build an index mapping for the English emojis (for extra locale overlay)
   const enFilteredEmojis = enEmojis.filter(
@@ -502,7 +614,7 @@ function generateFrimousseData() {
     const messages = require(`emojibase-data/${locale}/messages.json`);
     const data = buildFrimousseData(emojis, messages, locale);
 
-    writeFrimousseData(frimousseDir, locale, data);
+    writeFrimousseData(frimousseDir, locale, data, commonCategoryIndices);
   }
 
   // Generate for extra locales using English base + search overlays
@@ -555,7 +667,7 @@ function generateFrimousseData() {
       }
     }
 
-    writeFrimousseData(frimousseDir, locale, data);
+    writeFrimousseData(frimousseDir, locale, data, commonCategoryIndices);
   }
 
   // Write types
@@ -592,7 +704,7 @@ export interface FrimousseEmojiData {
   );
 
   console.log(
-    `  Generated ${EMOJIBASE_LOCALES.length + EXTRA_LOCALES.length} Frimousse data files + types`,
+    `  Generated ${EMOJIBASE_LOCALES.length + EXTRA_LOCALES.length} locale files + shared data + types`,
   );
 }
 

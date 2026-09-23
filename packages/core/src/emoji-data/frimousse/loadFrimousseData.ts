@@ -1,6 +1,7 @@
 import type { FrimousseEmojiData } from "./types.js";
+import { frimousseCategoryIndices, frimousseCommonData } from "./common.js";
 
-type DataModule = Record<string, FrimousseEmojiData>;
+type DataModule = Record<string, string>;
 
 const loaders: Record<string, () => Promise<DataModule>> = {
   ar: () => import("./ar.js"),
@@ -36,6 +37,61 @@ const LOCALE_ALIASES: Record<string, string> = {
 
 const cache = new Map<string, FrimousseEmojiData>();
 
+const skinToneKeys = [
+  "light",
+  "medium-light",
+  "medium",
+  "medium-dark",
+  "dark",
+] as const;
+
+function decodeFrimousseData(encoded: string): FrimousseEmojiData {
+  const [locale, categoryLabels, skinToneLabels, ...localizedEmojis] =
+    encoded.split("\n");
+  const categoryIndices = frimousseCategoryIndices.split(",").map(Number);
+  const commonEmojis = frimousseCommonData.split("\n");
+
+  if (localizedEmojis.length !== commonEmojis.length) {
+    throw new Error(`Invalid Frimousse data for locale ${locale}`);
+  }
+
+  const skinTones = Object.fromEntries(
+    skinToneKeys.map((key, index) => [key, skinToneLabels.split("|")[index]]),
+  ) as FrimousseEmojiData["skinTones"];
+
+  return {
+    locale,
+    categories: categoryLabels.split("|").map((label, index) => ({
+      index: categoryIndices[index],
+      label,
+    })),
+    skinTones,
+    emojis: commonEmojis.map((common, index) => {
+      const [emoji, category, version, countryFlag, encodedSkins] =
+        common.split("\t");
+      const [label, encodedTags] = localizedEmojis[index].split("\t");
+      const skins = encodedSkins
+        ? (Object.fromEntries(
+            skinToneKeys.map((key, skinIndex) => [
+              key,
+              encodedSkins.split("|")[skinIndex],
+            ]),
+          ) as NonNullable<FrimousseEmojiData["emojis"][number]["skins"]>)
+        : undefined;
+
+      return {
+        emoji,
+        category: Number(category),
+        version: Number(version),
+        label,
+        tags: encodedTags ? encodedTags.split("|") : [],
+        ...(countryFlag ? { countryFlag: true as const } : {}),
+        ...(skins ? { skins } : {}),
+      };
+    }),
+  };
+}
+
 export async function loadFrimousseData(
   locale: string,
 ): Promise<FrimousseEmojiData> {
@@ -50,12 +106,12 @@ export async function loadFrimousseData(
   if (!loader) {
     // Fall back to English
     const enMod = await loaders["en"]();
-    const enData = Object.values(enMod)[0];
+    const enData = decodeFrimousseData(Object.values(enMod)[0]);
     return enData;
   }
 
   const mod = await loader();
-  const data = Object.values(mod)[0];
+  const data = decodeFrimousseData(Object.values(mod)[0]);
   cache.set(normalizedLocale, data);
   return data;
 }
