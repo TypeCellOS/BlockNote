@@ -274,12 +274,22 @@ function toVarName(locale) {
 }
 
 function decodeHtmlEntities(str) {
-  return str
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
+  return str.replace(/&(?:amp|lt|gt|quot|#39);/g, (entity) => {
+    switch (entity) {
+      case "&amp;":
+        return "&";
+      case "&lt;":
+        return "<";
+      case "&gt;":
+        return ">";
+      case "&quot;":
+        return '"';
+      case "&#39;":
+        return "'";
+      default:
+        throw new Error(`Unexpected HTML entity: ${entity}`);
+    }
+  });
 }
 
 function getSkinToneVariations(emoji) {
