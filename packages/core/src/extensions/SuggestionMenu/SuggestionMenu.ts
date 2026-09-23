@@ -84,10 +84,15 @@ class SuggestionMenuView {
     this.pluginState = stopped ? prev : next;
 
     if (stopped || !this.editor.isEditable) {
+      // If the menu was never actually shown (`state` is still undefined - e.g.
+      // it was opened while the editor was not editable, which happens when the
+      // editable prop is toggled right before the menu opens), there is nothing
+      // to hide, and calling `emitUpdate` here would throw "Attempting to update
+      // uninitialized suggestions menu" (#2701).
       if (this.state) {
         this.state.show = false;
+        this.emitUpdate(this.pluginState!.triggerCharacter);
       }
-      this.emitUpdate(this.pluginState!.triggerCharacter);
 
       return;
     }
