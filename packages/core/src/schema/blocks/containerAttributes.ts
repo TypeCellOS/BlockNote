@@ -7,6 +7,12 @@ import { PropSchema, Props } from "../propTypes.js";
  * `data-*` (the convention `propsToAttributes` and the generated parse rules
  * use), and its id where there is one.
  * Existing attributes follow the block props, including removing defaults.
+ *
+ * The container-side counterpart of the marking `wrapInBlockStructure` does
+ * inline for a regular block, shared by every path that produces container
+ * DOM: the live node view (`markContainerStructure`), static export
+ * (`serialize`), and the React adapter, which marks the author's element once
+ * React has rendered it.
  * @internal
  */
 export function applyContainerAttributes<PSchema extends PropSchema>(

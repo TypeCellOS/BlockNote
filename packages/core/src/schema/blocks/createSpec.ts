@@ -248,6 +248,10 @@ function blockNodeView<
   props: NodeViewRendererProps,
 ): NodeView {
   const isContainer = isContainerConfig(blockConfig);
+  // A container's node is the block node and carries its id, so it converts
+  // straight from the node. Any other block's view sits on its `blockContent`,
+  // which holds no id, so the block has to be found by position - and that
+  // lookup needs guarding (see `getBlockFromNodeView`).
   const block = isContainer
     ? nodeToBlock(props.node, props.view.state.doc)
     : getBlockFromNodeView(props.getPos, props.node, props.view.state.doc);
@@ -271,50 +275,64 @@ function blockNodeView<
 
   ignoreNonContentMutations(typedNodeView);
 
-  if (!isContainer) {
-    return typedNodeView;
-  }
+  return typedNodeView;
+}
 
-  applyContainerAttributes(
-    containerRootDOM(nodeView),
-    blockConfig.type,
-    block.props as any,
-    blockConfig.propSchema,
-    block.id,
-  );
-
-  // Mark the children host in the live DOM, mirroring what the internal HTML
-  // serializer emits, so the container's round-trip parse rule can scope
-  // itself to it (`contentElement` in `getParseRules`) when ProseMirror
-  // re-reads editor DOM.
-  if (typedNodeView.contentDOM) {
-    (typedNodeView.contentDOM as HTMLElement).setAttribute(
-      "data-children-of",
+/**
+ * Marks a container's live DOM the way the HTML serializers mark its exported
+ * DOM: the block's root carries its type, id and props, and the children host
+ * says whose children it holds. Keeping the two in step is what lets the
+ * container's round-trip parse rule find the same shape when ProseMirror
+ * re-reads editor DOM.
+ *
+ * The counterpart to `wrapInBlockStructure`, which does the same job for a
+ * regular block. The verbs differ because the DOM does: a regular block has a
+ * `blockContent` wrapper created for it, while a container's root is the
+ * author's own element and is marked in place.
+ *
+ * Only a vanilla `render` reaches this, because only then does BlockNote hold
+ * the author's own elements. A framework render returns its own host instead -
+ * an element no serializer produces - so its adapter marks the author's
+ * elements itself, once they exist (see `ReactBlockSpec`).
+ */
+function markContainerStructure<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none" | "table" | "plain",
+>(
+  nodeView: { dom: HTMLElement | DocumentFragment; contentDOM?: HTMLElement },
+  blockConfig: BlockConfig<TName, TProps, TContent>,
+  block: { props: unknown; id: string },
+  doc: PMNode,
+) {
+  const mark = (props: unknown, id: string) =>
+    applyContainerAttributes(
+      containerRootDOM(nodeView),
       blockConfig.type,
+      props as any,
+      blockConfig.propSchema,
+      id,
     );
-  }
 
-  const update = typedNodeView.update?.bind(typedNodeView);
+  mark(block.props, block.id);
+  nodeView.contentDOM?.setAttribute("data-children-of", blockConfig.type);
+
+  const view = nodeView as NodeView;
+  const update = view.update?.bind(view);
   if (update) {
-    typedNodeView.update = (node, decorations, innerDecorations) => {
-      if (node.type.name !== blockConfig.type) {
+    // ProseMirror calls `update` even when attributes changed, so whatever the
+    // author patched in place is re-marked from the new node.
+    view.update = (node, decorations, innerDecorations) => {
+      if (
+        node.type.name !== blockConfig.type ||
+        update(node, decorations, innerDecorations) === false
+      ) {
         return false;
       }
-      if (update(node, decorations, innerDecorations) === false) {
-        return false;
-      }
-      applyContainerAttributes(
-        containerRootDOM(nodeView),
-        blockConfig.type,
-        nodeToBlock(node, props.view.state.doc).props as any,
-        blockConfig.propSchema,
-        node.attrs.id,
-      );
+      mark(nodeToBlock(node, doc).props, node.attrs.id);
       return true;
     };
   }
-
-  return typedNodeView;
 }
 
 function buildNode<
@@ -683,6 +701,14 @@ export function createBlockSpec<
 
           if (isContainer) {
             applyDOMAttributes(output.dom, this.blockContentDOMAttributes);
+            if (this.renderType === "nodeView") {
+              markContainerStructure(
+                output,
+                blockConfig,
+                block,
+                this.props.view.state.doc,
+              );
+            }
             return output;
           }
 
