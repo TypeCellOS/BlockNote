@@ -1,7 +1,7 @@
 import App from "@examples/07-collaboration/09-comments-testing/src/App";
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
-import { browserName, page, userEvent } from "../../utils/context.js";
+import { browserName, MOD, page, userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
 import {
   expectElement,
@@ -206,7 +206,7 @@ describe("Check Comments functionality", () => {
     await doubleClickElement(
       document.querySelectorAll("span.bn-thread-mark")[0] as HTMLElement,
     );
-    await userEvent.keyboard("{ControlOrMeta>}e{/ControlOrMeta}");
+    await userEvent.keyboard(`{${MOD}>}e{/${MOD}}`);
 
     // The comment must be preserved, and the text must now also be inline code,
     // i.e. the comment and code marks coexist on the same text.

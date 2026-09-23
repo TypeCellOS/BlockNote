@@ -1,5 +1,4 @@
-import { InputRule, markInputRule } from "@tiptap/core";
-import type { MarkType } from "@tiptap/pm/model";
+import { flattenExtensions, InputRule, markInputRule } from "@tiptap/core";
 import Bold from "@tiptap/extension-bold";
 import Code from "@tiptap/extension-code";
 import Italic from "@tiptap/extension-italic";
@@ -140,22 +139,20 @@ export const defaultStyleSpecs = {
   strike: createStyleSpecFromTipTapMark(Strike, "boolean"),
   code: createStyleSpecFromTipTapMark(
     Code.extend({
-      onBeforeCreate() {
-        // By default, code marks are configured to not overlap with any other
-        // marks with `exclude: "_"`. However, comment marks should still be
-        // allowed to overlap code marks. There is unfortunately no way to make
-        // the `exclude` option contain all possible marks except comments, so
-        // we instead remove the comment mark from it in `onBeforeCreate`.
-        const commentType = this.editor.schema.marks.comment;
-        const codeType = this.type as MarkType & {
-          excluded?: readonly MarkType[];
-        };
-
-        if (commentType && codeType.excluded?.includes(commentType)) {
-          codeType.excluded = codeType.excluded.filter(
-            (markType) => markType !== commentType,
-          );
+      excludes() {
+        // Exclude all enabled marks except comments when building the schema.
+        // The extension manager is not available yet during schema creation.
+        if (!this.editor) {
+          return "_";
         }
+
+        return flattenExtensions(this.editor.options.extensions)
+          .filter(
+            (extension) =>
+              extension.type === "mark" && extension.name !== "comment",
+          )
+          .map((extension) => extension.name)
+          .join(" ");
       },
       addInputRules() {
         return [
