@@ -92,6 +92,75 @@ function tryLink(
   return parseLink(text, i);
 }
 
+function tryAutolink(
+  text: string,
+  i: number,
+): { html: string; end: number } | null {
+  const rest = text.substring(i);
+
+  // CommonMark autolinks: <scheme:destination> and <email@example.com>.
+  if (text[i] === "<") {
+    const urlMatch = rest.match(/^<([a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]*)>/);
+    if (urlMatch) {
+      const url = urlMatch[1];
+      return {
+        html: `<a href="${escapeHtml(url)}">${escapeHtml(url)}</a>`,
+        end: i + urlMatch[0].length,
+      };
+    }
+
+    const emailMatch = rest.match(
+      /^<([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?)>/,
+    );
+    if (emailMatch) {
+      const email = emailMatch[1];
+      return {
+        html: `<a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>`,
+        end: i + emailMatch[0].length,
+      };
+    }
+
+    return null;
+  }
+
+  // GFM autolink literals. Only start at a word boundary, so URL-like text
+  // embedded in a larger word remains plain text.
+  if (i > 0 && /[a-zA-Z0-9_]/.test(text[i - 1])) {
+    return null;
+  }
+
+  const literalMatch = rest.match(/^(https?:\/\/|www\.)[^\s<>]+/i);
+  if (!literalMatch) {
+    return null;
+  }
+
+  const value = trimAutolinkLiteral(literalMatch[0]);
+  if (!value) {
+    return null;
+  }
+
+  const href = /^www\./i.test(value) ? `http://${value}` : value;
+  return {
+    html: `<a href="${escapeHtml(href)}">${escapeHtml(value)}</a>`,
+    end: i + value.length,
+  };
+}
+
+function trimAutolinkLiteral(value: string): string {
+  let trimmed = value.replace(/[?!.,:*_~]+$/, "");
+
+  while (trimmed.endsWith(")")) {
+    const openingCount = trimmed.split("(").length - 1;
+    const closingCount = trimmed.split(")").length - 1;
+    if (closingCount <= openingCount) {
+      break;
+    }
+    trimmed = trimmed.slice(0, -1);
+  }
+
+  return trimmed;
+}
+
 function tryStrikethrough(
   text: string,
   i: number,
@@ -188,7 +257,7 @@ function tryInlineHtml(
 }
 
 /** Characters that can start an inline syntax token. */
-const SPECIAL_CHARS = new Set("\\`![~*_\n<");
+const SPECIAL_CHARS = new Set("\\`![~*_\n<hHwW");
 
 /**
  * Ordered array of inline tokenizers, tried in priority order.
@@ -199,6 +268,7 @@ const inlineTokenizers: InlineTokenizer[] = [
   tryInlineCode,
   tryImage,
   tryLink,
+  tryAutolink,
   tryStrikethrough,
   tryBoldItalic, // *** / ___
   tryBold, // ** / __

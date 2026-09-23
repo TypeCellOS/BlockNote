@@ -1497,6 +1497,20 @@ Paragraph below`,
     },
     executeTest: testParseMarkdown,
   },
+  {
+    testCase: {
+      name: "linkCommonMarkAutolink",
+      content: `Visit <https://example.com/path?q=1>`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "linkGfmAutolinkLiterals",
+      content: `Visit https://example.com/path?q=1 or www.example.com.`,
+    },
+    executeTest: testParseMarkdown,
+  },
   // Tables
   {
     testCase: {

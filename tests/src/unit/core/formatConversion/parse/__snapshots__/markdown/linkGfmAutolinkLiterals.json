@@ -1,0 +1,51 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Visit ",
+        "type": "text",
+      },
+      {
+        "content": [
+          {
+            "styles": {},
+            "text": "https://example.com/path?q=1",
+            "type": "text",
+          },
+        ],
+        "href": "https://example.com/path?q=1",
+        "type": "link",
+      },
+      {
+        "styles": {},
+        "text": " or ",
+        "type": "text",
+      },
+      {
+        "content": [
+          {
+            "styles": {},
+            "text": "www.example.com",
+            "type": "text",
+          },
+        ],
+        "href": "http://www.example.com",
+        "type": "link",
+      },
+      {
+        "styles": {},
+        "text": ".",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
