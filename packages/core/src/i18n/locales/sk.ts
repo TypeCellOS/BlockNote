@@ -1,5 +1,10 @@
 export const sk = {
   locale: "sk",
+  emoji_picker: {
+    search: "Hľadať",
+    search_no_results: "Nenašli sa žiadne emoji",
+    loading: "Načítava sa…",
+  },
   slash_menu: {
     heading: {
       title: "Nadpis 1",

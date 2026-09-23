@@ -2,6 +2,11 @@ import type { Dictionary } from "../dictionary.js";
 
 export const pl: Dictionary = {
   locale: "pl",
+  emoji_picker: {
+    search: "Szukaj",
+    search_no_results: "Nie znaleziono emoji",
+    loading: "Ładowanie…",
+  },
   slash_menu: {
     heading: {
       title: "Nagłówek 1",

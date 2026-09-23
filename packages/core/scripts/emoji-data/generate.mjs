@@ -603,109 +603,13 @@ export interface FrimousseEmojiData {
 `,
   );
 
-  // Write frimousse/index.ts (locale data remains dynamically loaded)
-  writeFileSync(
-    resolve(frimousseDir, "index.ts"),
-    `export type {
-  FrimousseEmojiData,
-  FrimousseEmoji,
-  FrimousseCategory,
-} from "./types.js";
-export { loadFrimousseData } from "./loadFrimousseData.js";
-`,
-  );
-
   console.log(
     `  Generated ${EMOJIBASE_LOCALES.length + EXTRA_LOCALES.length} Frimousse data files + types`,
   );
 }
 
-const LOCALE_UI = {
-  bn: { search: "অনুসন্ধান", searchNoResults: "কোনো ইমোজি পাওয়া যায়নি" },
-  da: { search: "Søg", searchNoResults: "Ingen emoji fundet" },
-  de: { search: "Suchen", searchNoResults: "Kein Emoji gefunden" },
-  en: { search: "Search", searchNoResults: "No emoji found" },
-  "en-gb": { search: "Search", searchNoResults: "No emoji found" },
-  es: { search: "Buscar", searchNoResults: "No se encontró ningún emoji" },
-  "es-mx": {
-    search: "Buscar",
-    searchNoResults: "No se encontró ningún emoji",
-  },
-  et: { search: "Otsi", searchNoResults: "Emotikat ei leitud" },
-  fi: { search: "Hae", searchNoResults: "Emojia ei löytynyt" },
-  fr: { search: "Rechercher", searchNoResults: "Aucun emoji trouvé" },
-  hi: { search: "खोजें", searchNoResults: "कोई इमोजी नहीं मिला" },
-  hu: { search: "Keresés", searchNoResults: "Nem található emoji" },
-  it: { search: "Cerca", searchNoResults: "Nessuna emoji trovata" },
-  ja: { search: "検索", searchNoResults: "絵文字が見つかりません" },
-  ko: { search: "검색", searchNoResults: "이모지를 찾을 수 없습니다" },
-  lt: { search: "Ieškoti", searchNoResults: "Jaustukų nerasta" },
-  ms: { search: "Cari", searchNoResults: "Emoji tidak ditemui" },
-  nb: { search: "Søk", searchNoResults: "Ingen emoji funnet" },
-  nl: { search: "Zoeken", searchNoResults: "Geen emoji gevonden" },
-  pl: { search: "Szukaj", searchNoResults: "Nie znaleziono emoji" },
-  pt: { search: "Procurar", searchNoResults: "Nenhum emoji encontrado" },
-  ru: { search: "Поиск", searchNoResults: "Эмодзи не найден" },
-  sv: { search: "Sök", searchNoResults: "Ingen emoji hittades" },
-  th: { search: "ค้นหา", searchNoResults: "ไม่พบอีโมจิ" },
-  uk: { search: "Пошук", searchNoResults: "Емодзі не знайдено" },
-  vi: {
-    search: "Tìm kiếm",
-    searchNoResults: "Không tìm thấy biểu tượng cảm xúc",
-  },
-  zh: { search: "搜索", searchNoResults: "未找到表情符号" },
-  "zh-hant": { search: "搜尋", searchNoResults: "找不到表情符號" },
-  ar: {
-    search: "البحث",
-    searchNoResults: "لم يتم العثور على رموز تعبيرية",
-  },
-  fa: { search: "جستجو", searchNoResults: "ایموجی‌ای پیدا نشد" },
-  he: { search: "חיפוש", searchNoResults: "לא נמצא אימוג'י" },
-  hr: { search: "Pretraži", searchNoResults: "Emoji nije pronađen" },
-  is: { search: "Leita", searchNoResults: "Engin tjákn fundust" },
-  sk: { search: "Hľadať", searchNoResults: "Nenašli sa žiadne emoji" },
-  tr: { search: "Arama", searchNoResults: "Emoji bulunamadı" },
-  uz: { search: "Qidirish", searchNoResults: "Emoji topilmadi" },
-};
-
-function generateI18n() {
-  console.log("Generating i18n locales...");
-
-  const generatedLocales = [...EMOJIBASE_LOCALES, ...EXTRA_LOCALES].map(
-    (locale) => ({
-      locale,
-      varName: toVarName(locale),
-      i18n: LOCALE_UI[locale],
-    }),
-  );
-
-  const localeExports = generatedLocales.map(
-    ({ varName, i18n }) =>
-      `export const ${varName}: EmojiI18n = {
-  search: ${JSON.stringify(i18n.search)},
-  searchNoResults: ${JSON.stringify(i18n.searchNoResults)},
-};`,
-  );
-  const localeMap = generatedLocales.map(
-    ({ locale, varName }) =>
-      `  ${locale.includes("-") ? JSON.stringify(locale) : locale}: ${varName},`,
-  );
-  writeFileSync(
-    resolve(SRC_DIR, "i18n/locales.ts"),
-    `import type { EmojiI18n } from "./dictionary.js";\n\n${localeExports.join("\n")}\n\nexport const emojiLocales = {\n${localeMap.join("\n")}\n} satisfies Record<string, EmojiI18n>;\n`,
-  );
-
-  writeFileSync(
-    resolve(SRC_DIR, "i18n/index.ts"),
-    `export * from "./locales.js";\nexport * from "./dictionary.js";\n`,
-  );
-
-  console.log(`  Generated ${generatedLocales.length} locale dictionaries`);
-}
-
 function main() {
   generateFrimousseData();
-  generateI18n();
   console.log("Done!");
 }
 

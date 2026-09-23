@@ -2,6 +2,11 @@ import type { Dictionary } from "../dictionary.js";
 
 export const ar: Dictionary = {
   locale: "ar",
+  emoji_picker: {
+    search: "البحث",
+    search_no_results: "لم يتم العثور على رموز تعبيرية",
+    loading: "جار التحميل…",
+  },
   slash_menu: {
     heading: {
       title: "عنوان 1",

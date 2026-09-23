@@ -13,7 +13,6 @@ import { useDictionary } from "../../../i18n/dictionary.js";
 import {
   ActiveEmojiDisplay,
   resolveBlockNoteEmojiData,
-  useEmojiI18n,
 } from "../../Comments/FrimoussePicker.js";
 import { getSuggestionMenuItemId } from "../getSuggestionMenuItemId.js";
 
@@ -204,7 +203,6 @@ export function InlineEmojiPicker(props: {
     useBlockNoteContext()!.setContentEditableProps!;
   const dict = useDictionary();
   const locale = dict.locale ?? "en";
-  const i18n = useEmojiI18n(locale);
   const rootRef = useRef<HTMLDivElement>(null);
 
   const [resolvedData, setResolvedData] = useState<ResolvedEmojiData>();
@@ -413,7 +411,7 @@ export function InlineEmojiPicker(props: {
     selectedEmoji,
   ]);
 
-  const placeholder = `${i18n?.search ?? "Search"}…`;
+  const placeholder = `${dict.emoji_picker.search}…`;
   const selectedChar = selectedEmoji?.emoji;
 
   return (
@@ -438,10 +436,10 @@ export function InlineEmojiPicker(props: {
       />
       <EmojiPicker.Viewport>
         <EmojiPicker.Loading className="bn-frimousse-loading">
-          Loading…
+          {dict.emoji_picker.loading}
         </EmojiPicker.Loading>
         <EmojiPicker.Empty className="bn-frimousse-empty">
-          {i18n?.searchNoResults ?? "No emoji found."}
+          {dict.emoji_picker.search_no_results}
         </EmojiPicker.Empty>
         <EmojiPicker.List
           components={{

@@ -1,6 +1,5 @@
-import type { EmojiI18n } from "@blocknote/core/emoji-data";
+import type { Dictionary } from "@blocknote/core";
 import { EmojiPicker, type EmojiData, type EmojiDataResolver } from "frimousse";
-import { useEffect, useState } from "react";
 
 type EmojiSupport = {
   emojiVersion: number;
@@ -125,26 +124,6 @@ export async function resolveBlockNoteEmojiData(
   return filterEmojiDataForPlatform(data, getEmojiSupport(data), emojiVersion);
 }
 
-export function useEmojiI18n(locale: string): EmojiI18n | undefined {
-  const [i18n, setI18n] = useState<EmojiI18n | undefined>(undefined);
-
-  useEffect(() => {
-    let cancelled = false;
-    void import("@blocknote/core/emoji-data").then(({ loadEmojiLocale }) =>
-      loadEmojiLocale(locale).then((data) => {
-        if (!cancelled) {
-          setI18n(data);
-        }
-      }),
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [locale]);
-
-  return i18n;
-}
-
 export function ActiveEmojiDisplay({
   emoji,
   label,
@@ -173,7 +152,7 @@ type Props = {
   onEmojiSelect: (emoji: { native: string }) => void;
   onEscape?: () => void;
   locale: string;
-  i18n?: EmojiI18n;
+  dictionary?: Dictionary["emoji_picker"];
   emojibaseUrl?: string;
 };
 
@@ -182,10 +161,10 @@ export default function FrimoussePicker({
   onEmojiSelect,
   onEscape,
   locale,
-  i18n,
+  dictionary,
   emojibaseUrl,
 }: Props) {
-  const placeholder = `${i18n?.search ?? "Search"}…`;
+  const placeholder = `${dictionary?.search ?? "Search"}…`;
 
   return (
     <EmojiPicker.Root
@@ -202,13 +181,16 @@ export default function FrimoussePicker({
         }
       }}
     >
-      <EmojiPicker.Search placeholder={i18n?.search ?? "Search"} autoFocus />
+      <EmojiPicker.Search
+        placeholder={dictionary?.search ?? "Search"}
+        autoFocus
+      />
       <EmojiPicker.Viewport>
         <EmojiPicker.Loading className="bn-frimousse-loading">
-          Loading…
+          {dictionary?.loading ?? "Loading…"}
         </EmojiPicker.Loading>
         <EmojiPicker.Empty className="bn-frimousse-empty">
-          {i18n?.searchNoResults ?? "No emoji found."}
+          {dictionary?.search_no_results ?? "No emoji found."}
         </EmojiPicker.Empty>
         <EmojiPicker.List
           components={{

@@ -2,6 +2,11 @@ import type { Dictionary } from "../dictionary.js";
 
 export const tr = {
   locale: "tr",
+  emoji_picker: {
+    search: "Arama",
+    search_no_results: "Emoji bulunamadı",
+    loading: "Yükleniyor…",
+  },
   slash_menu: {
     heading: {
       title: "Başlık 1",

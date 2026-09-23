@@ -1,28 +1,7 @@
-import { readdirSync } from "fs";
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { configDefaults, defineConfig } from "vite-plus";
 import pkg from "./package.json";
-
-const frimousseFiles = readdirSync(
-  path.resolve(__dirname, "src/emoji-data/frimousse"),
-).filter(
-  (f) =>
-    f.endsWith(".ts") &&
-    f !== "index.ts" &&
-    f !== "types.ts" &&
-    f !== "loadFrimousseData.ts",
-);
-
-const perFrimousseEntries = Object.fromEntries(
-  frimousseFiles.map((f) => {
-    const name = f.replace(".ts", "");
-    return [
-      `emoji-data/frimousse/${name}`,
-      path.resolve(__dirname, `src/emoji-data/frimousse/${f}`),
-    ];
-  }),
-);
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -60,23 +39,6 @@ export default defineConfig({
         yjs: path.resolve(__dirname, "src/yjs/index.ts"),
         y: path.resolve(__dirname, "src/y/index.ts"),
         "emoji-data": path.resolve(__dirname, "src/emoji-data/index.ts"),
-        "emoji-data/frimousse": path.resolve(
-          __dirname,
-          "src/emoji-data/frimousse/index.ts",
-        ),
-        "emoji-data/frimousse/types": path.resolve(
-          __dirname,
-          "src/emoji-data/frimousse/types.ts",
-        ),
-        "emoji-data/frimousse/loadFrimousseData": path.resolve(
-          __dirname,
-          "src/emoji-data/frimousse/loadFrimousseData.ts",
-        ),
-        ...perFrimousseEntries,
-        "emoji-data/locales": path.resolve(
-          __dirname,
-          "src/emoji-data/i18n/index.ts",
-        ),
       },
       name: "blocknote",
       cssFileName: "style",

@@ -2,6 +2,11 @@ import type { Dictionary } from "../dictionary.js";
 
 export const vi: Dictionary = {
   locale: "vi",
+  emoji_picker: {
+    search: "Tìm kiếm",
+    search_no_results: "Không tìm thấy biểu tượng cảm xúc",
+    loading: "Đang tải…",
+  },
   slash_menu: {
     heading: {
       title: "Tiêu đề H1",

@@ -2,6 +2,11 @@ import { Dictionary } from "../dictionary.js";
 
 export const ja: Dictionary = {
   locale: "ja",
+  emoji_picker: {
+    search: "検索",
+    search_no_results: "絵文字が見つかりません",
+    loading: "読み込み中…",
+  },
   slash_menu: {
     heading: {
       title: "見出し１",

@@ -2,6 +2,11 @@ import { Dictionary } from "../dictionary.js";
 
 export const uk: Dictionary = {
   locale: "uk",
+  emoji_picker: {
+    search: "Пошук",
+    search_no_results: "Емодзі не знайдено",
+    loading: "Завантаження…",
+  },
   slash_menu: {
     heading: {
       title: "Заголовок 1",

@@ -3,7 +3,7 @@ import { ReactNode, useState } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { usePortalElement } from "../../editor/PortalElementOverride.js";
 import { useDictionary } from "../../i18n/dictionary.js";
-import FrimoussePicker, { useEmojiI18n } from "./FrimoussePicker.js";
+import FrimoussePicker from "./FrimoussePicker.js";
 
 export const EmojiPicker = (props: {
   onEmojiSelect: (emoji: { native: string }) => void;
@@ -16,7 +16,6 @@ export const EmojiPicker = (props: {
   const portalElement = usePortalElement();
   const dict = useDictionary();
   const locale = dict.locale ?? "en";
-  const emojiI18n = useEmojiI18n(locale);
 
   function handleOpenChange(nextOpen: boolean) {
     setOpen(nextOpen);
@@ -57,7 +56,7 @@ export const EmojiPicker = (props: {
             }}
             onEscape={() => handleOpenChange(false)}
             locale={locale}
-            i18n={emojiI18n}
+            dictionary={dict.emoji_picker}
           />
         )}
       </Components.Generic.Popover.Content>

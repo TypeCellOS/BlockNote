@@ -16,7 +16,6 @@
     "dist",
     "types",
     "src",
-    "static",
     "NOTICE.txt"
   ],
   "keywords": [
@@ -88,21 +87,6 @@
       "types": "./types/src/emoji-data/index.d.ts",
       "import": "./dist/emoji-data.js",
       "require": "./dist/emoji-data.cjs"
-    },
-    "./emoji-data/frimousse": {
-      "types": "./types/src/emoji-data/frimousse/index.d.ts",
-      "import": "./dist/emoji-data/frimousse.js",
-      "require": "./dist/emoji-data/frimousse.cjs"
-    },
-    "./emoji-data/frimousse/*": {
-      "types": "./types/src/emoji-data/frimousse/*.d.ts",
-      "import": "./dist/emoji-data/frimousse/*.js",
-      "require": "./dist/emoji-data/frimousse/*.cjs"
-    },
-    "./emoji-data/locales": {
-      "types": "./types/src/emoji-data/i18n/index.d.ts",
-      "import": "./dist/emoji-data/locales.js",
-      "require": "./dist/emoji-data/locales.cjs"
     }
   },
   "scripts": {

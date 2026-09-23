@@ -2,6 +2,11 @@ import { Dictionary } from "../dictionary.js";
 
 export const uz: Dictionary = {
   locale: "uz",
+  emoji_picker: {
+    search: "Qidirish",
+    search_no_results: "Emoji topilmadi",
+    loading: "Yuklanmoqda…",
+  },
   slash_menu: {
     heading: {
       title: "1-darajali sarlavha",

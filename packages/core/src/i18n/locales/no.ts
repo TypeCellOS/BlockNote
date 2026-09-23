@@ -2,6 +2,11 @@ import { Dictionary } from "../dictionary.js";
 
 export const no: Dictionary = {
   locale: "no",
+  emoji_picker: {
+    search: "Søk",
+    search_no_results: "Ingen emoji funnet",
+    loading: "Laster inn…",
+  },
   slash_menu: {
     heading: {
       title: "Overskrift 1",

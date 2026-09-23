@@ -1,5 +1,10 @@
 export const fa = {
   locale: "fa",
+  emoji_picker: {
+    search: "جستجو",
+    search_no_results: "ایموجی‌ای پیدا نشد",
+    loading: "در حال بارگذاری…",
+  },
   slash_menu: {
     heading: {
       title: "عنوان ۱",

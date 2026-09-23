@@ -2,6 +2,11 @@ import type { Dictionary } from "../dictionary.js";
 
 export const zh: Dictionary = {
   locale: "zh",
+  emoji_picker: {
+    search: "搜索",
+    search_no_results: "未找到表情符号",
+    loading: "加载中…",
+  },
   slash_menu: {
     heading: {
       title: "一级标题",
