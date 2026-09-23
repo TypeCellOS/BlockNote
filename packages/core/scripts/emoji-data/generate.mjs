@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Generates Frimousse-compatible emoji data and locale UI strings from
- * emojibase-data and Unicode CLDR. Run with:
+ * Generates Frimousse-compatible emoji data from emojibase-data and Unicode
+ * CLDR. Run with:
  *   pnpm --filter @blocknote/core generate-emoji-data
  *
  * Build-time only. These packages are devDependencies and do NOT ship at runtime.
@@ -41,30 +41,18 @@ const EXCLUDED_GROUPS = new Set([2]); // component
 
 // Locales with full emojibase data
 const EMOJIBASE_LOCALES = [
-  "bn",
-  "da",
   "de",
   "en",
-  "en-gb",
   "es",
-  "es-mx",
-  "et",
-  "fi",
   "fr",
-  "hi",
-  "hu",
   "it",
   "ja",
   "ko",
-  "lt",
-  "ms",
   "nb",
   "nl",
   "pl",
   "pt",
   "ru",
-  "sv",
-  "th",
   "uk",
   "vi",
   "zh",
