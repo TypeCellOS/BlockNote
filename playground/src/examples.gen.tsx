@@ -891,6 +891,32 @@ export const examples = {
         readme:
           "By default, BlockNote's floating components (formatting toolbar, slash menu, table handles, etc.) mount next to the editor, inside its `bn-container` (or inside whatever you render `BlockNoteViewEditor` into). The `portalElements` prop on `BlockNoteView` lets you change that: globally via `default`, or per component by key. The menus and popovers a floating component opens follow it wherever it mounts.\n\nThis example renders two editors side-by-side, both wrapped in a small `overflow: hidden` container. The left editor uses the default, so the slash menu is clipped by the editor's bounds. The right editor passes `portalElements={{ default: document.body }}` so the floating components escape the wrapper and render fully.\n\n```tsx\n<BlockNoteView editor={editor} portalElements={{ default: document.body }} />\n```\n\n**Relevant Docs:**\n\n- [UI Components](/docs/react/components)\n- [Mobile Formatting Toolbar](/docs/react/components/formatting-toolbar#mobile-formatting-toolbar)",
       },
+      {
+        projectSlug: "keyboard-block-actions",
+        fullSlug: "ui-components/keyboard-block-actions",
+        pathFromRoot: "examples/03-ui-components/21-keyboard-block-actions",
+        config: {
+          playground: true,
+          docs: false,
+          author: "minwookshin",
+          tags: [
+            "Intermediate",
+            "Accessibility",
+            "UI Components",
+            "Block Side Menu",
+          ],
+          dependencies: {
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Keyboard Block Actions",
+        group: {
+          pathFromRoot: "examples/03-ui-components",
+          slug: "ui-components",
+        },
+        readme:
+          "A runnable interaction proposal for [#2854](https://github.com/TypeCellOS/BlockNote/issues/2854). Place the caret in a block and press **Shift+F10** (or the Context Menu key) to open its actions. Arrow keys move between actions. Escape or Tab closes the menu and returns to the same editor selection; Tab keeps its existing indentation behavior while editing.\n\nThis example uses BlockNote's public editor APIs, `BlockPopover`, and the same Mantine menu primitives and `bn-menu-*` classes as the default adapter. It does not change library shortcuts or the hover side menu. The explicit “Block actions” button makes the interaction discoverable without requiring the shortcut.\n\nIt reuses an existing Mantine provider when embedded in the playground and supplies one when run independently.\n\nThe proposal covers one current block, including a nested block and its children. Multi-block selections, IME composition, and read-only editors do not intercept the shortcut. Selecting multiple blocks disables the visible action button and explains that the actions support one block at a time. Dismissing by clicking elsewhere preserves the newly clicked focus target. Deleting a block moves the caret to a surviving neighbor; duplication regenerates IDs for every descendant. Opening or cancelling the menu does not create an undo entry.\n\nThe menu intentionally demonstrates three structural actions rather than claiming full parity with the existing drag-handle menu. Color submenus, all three UI adapters, shortcut documentation/localization, and the final library API need maintainer agreement before promoting this example into a default behavior.\n\n**Try it out:**\n\n1. Put the caret in the middle of a sentence. Open the menu and press Escape, then type: the caret should be unchanged.\n2. Open again, use the arrow keys, and duplicate a nested block. Its content and children are copied with fresh IDs.\n3. Delete a block and use the editor's Undo shortcut.\n4. Toggle read-only mode. The action button is disabled and Shift+F10 is left to the browser.\n5. Select text across multiple blocks. The disabled button explains the unsupported selection; collapse the selection to use the actions again.\n\nThe browser regressions import this example directly and exercise keyboard focus, exact caret restoration, indentation, nested identities, Undo, unsupported selections, and narrow layout. Run them with the repository's Docker runner: `pnpm e2e keyboard-block-actions --retry=0 --maxWorkers=1`.\n\n**Relevant Docs:**\n\n- [Side Menu](/docs/react/components/side-menu)\n- [Manipulating Content](/docs/reference/editor/manipulating-content)",
+      },
     ],
   },
   theming: {
