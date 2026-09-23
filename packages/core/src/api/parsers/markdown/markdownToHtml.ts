@@ -1,4 +1,5 @@
 import { isVideoUrl } from "../../../util/string.js";
+import { isGfmAutolinkLiteral, trimGfmAutolinkLiteral } from "./autolink.js";
 
 /**
  * Custom markdown-to-HTML converter for BlockNote.
@@ -134,8 +135,8 @@ function tryAutolink(
     return null;
   }
 
-  const value = trimAutolinkLiteral(literalMatch[0]);
-  if (!value) {
+  const value = trimGfmAutolinkLiteral(literalMatch[0]);
+  if (!isGfmAutolinkLiteral(value)) {
     return null;
   }
 
@@ -144,21 +145,6 @@ function tryAutolink(
     html: `<a href="${escapeHtml(href)}">${escapeHtml(value)}</a>`,
     end: i + value.length,
   };
-}
-
-function trimAutolinkLiteral(value: string): string {
-  let trimmed = value.replace(/[?!.,:*_~]+$/, "");
-
-  while (trimmed.endsWith(")")) {
-    const openingCount = trimmed.split("(").length - 1;
-    const closingCount = trimmed.split(")").length - 1;
-    if (closingCount <= openingCount) {
-      break;
-    }
-    trimmed = trimmed.slice(0, -1);
-  }
-
-  return trimmed;
 }
 
 function tryStrikethrough(
@@ -277,14 +263,19 @@ const inlineTokenizers: InlineTokenizer[] = [
   trySoftBreak,
 ];
 
+const linkTextTokenizers = inlineTokenizers.filter(
+  (tokenizer) => tokenizer !== tryLink && tokenizer !== tryAutolink,
+);
+
 /**
  * Parse inline markdown syntax and return HTML.
  * Handles: bold, italic, bold+italic, strikethrough, inline code,
  * links, images (with video detection), hard line breaks, backslash escapes.
  */
-function parseInline(text: string): string {
+function parseInline(text: string, allowLinks = true): string {
   let result = "";
   let i = 0;
+  const tokenizers = allowLinks ? inlineTokenizers : linkTextTokenizers;
 
   while (i < text.length) {
     // Hard line break: 2+ trailing spaces immediately before a newline.
@@ -306,7 +297,7 @@ function parseInline(text: string): string {
     // Try each tokenizer in priority order
     let matched = false;
     if (SPECIAL_CHARS.has(text[i])) {
-      for (const tokenizer of inlineTokenizers) {
+      for (const tokenizer of tokenizers) {
         const r = tokenizer(text, i);
         if (r) {
           result += r.html;
@@ -454,7 +445,7 @@ function parseLink(
 
   const titleAttr = title !== undefined ? ` title="${escapeHtml(title)}"` : "";
   return {
-    html: `<a href="${escapeHtml(url)}"${titleAttr}>${parseInline(linkText)}</a>`,
+    html: `<a href="${escapeHtml(url)}"${titleAttr}>${parseInline(linkText, false)}</a>`,
     end: parenEnd + 1,
   };
 }

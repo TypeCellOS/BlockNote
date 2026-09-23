@@ -680,6 +680,24 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
   },
   {
     testCase: {
+      name: "markdown/plainUrlLinkWithTerminalPunctuation",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "link",
+              content: "https://example.com/path.",
+              href: "https://example.com/path.",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
       name: "markdown/image",
       content: [
         {

@@ -1,3 +1,8 @@
+import {
+  isGfmAutolinkLiteral,
+  trimGfmAutolinkLiteral,
+} from "../../parsers/markdown/autolink.js";
+
 /**
  * Custom HTML-to-Markdown serializer for BlockNote.
  * Replaces the unified/rehype-remark pipeline with a direct DOM-based implementation.
@@ -702,8 +707,17 @@ function serializeBlockLink(el: HTMLElement, ctx: SerializeContext): string {
  * a `)` inside the URL does not prematurely close the destination.
  */
 function formatLink(text: string, href: string): string {
-  if (!text || text === href) {
+  if (!text) {
     return href;
+  }
+  if (text === href) {
+    const isAutolinkLiteral = /^(https?:\/\/|www\.)/i.test(href);
+    if (
+      !isAutolinkLiteral ||
+      (isGfmAutolinkLiteral(href) && trimGfmAutolinkLiteral(href) === href)
+    ) {
+      return href;
+    }
   }
   return `[${text}](${escapeLinkDestination(href)})`;
 }

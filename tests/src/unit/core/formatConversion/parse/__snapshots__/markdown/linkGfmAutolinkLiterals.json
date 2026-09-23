@@ -48,4 +48,54 @@
     },
     "type": "paragraph",
   },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Balanced parentheses stay linked: ",
+        "type": "text",
+      },
+      {
+        "content": [
+          {
+            "styles": {},
+            "text": "https://example.com/a(b)",
+            "type": "text",
+          },
+        ],
+        "href": "https://example.com/a(b)",
+        "type": "link",
+      },
+      {
+        "styles": {},
+        "text": "))",
+        "type": "text",
+      },
+    ],
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Invalid domains stay plain: https://invalid and www.invalid_domain.com",
+        "type": "text",
+      },
+    ],
+    "id": "3",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
 ]

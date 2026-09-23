@@ -1507,7 +1507,11 @@ Paragraph below`,
   {
     testCase: {
       name: "linkGfmAutolinkLiterals",
-      content: `Visit https://example.com/path?q=1 or www.example.com.`,
+      content: `Visit https://example.com/path?q=1 or www.example.com.
+
+Balanced parentheses stay linked: https://example.com/a(b)))
+
+Invalid domains stay plain: https://invalid and www.invalid_domain.com`,
     },
     executeTest: testParseMarkdown,
   },
