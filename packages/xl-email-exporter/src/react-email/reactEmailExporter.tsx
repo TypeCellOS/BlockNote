@@ -63,12 +63,14 @@ export class ReactEmailExporter<
     const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);
     return (
-      <span
-        style={styles}
-        dangerouslySetInnerHTML={{
-          __html: styledText.text.replace(/\n/g, "<br />"),
-        }}
-      />
+      <span style={styles}>
+        {styledText.text.split("\n").map((line, index) => (
+          <React.Fragment key={index}>
+            {index > 0 && <br />}
+            {line}
+          </React.Fragment>
+        ))}
+      </span>
     );
   }
 

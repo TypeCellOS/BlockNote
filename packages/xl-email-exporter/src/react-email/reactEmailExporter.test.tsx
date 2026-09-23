@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { describe, it, expect } from "vite-plus/test";
 import { ReactEmailExporter } from "./reactEmailExporter.jsx";
 import { reactEmailDefaultSchemaMappings } from "./defaultSchema/index.js";
@@ -9,6 +11,61 @@ import {
 import { testDocument } from "@shared/testDocument.js";
 
 describe("react email exporter", () => {
+  it.each([
+    "Condition check: x < 10 & y > 20, or <script>alert(1)</script>",
+    '<img src=x onerror="alert(1)"><a href="https://example.com">click</a>',
+    "array[i < 5] <CustomComponent> \"quoted\" 'text'",
+    "&amp; &lt; &#60; &#x3C;",
+    "\nfirst <line>\n\nlast & line\n",
+    "",
+  ])("should preserve literal text and line breaks: %j", async (text) => {
+    const exporter = new ReactEmailExporter(
+      BlockNoteSchema.create(),
+      reactEmailDefaultSchemaMappings,
+    );
+    const styledText = {
+      type: "text",
+      text,
+      styles: { bold: true, italic: true },
+    } as const;
+    const html = await exporter.toReactEmailDocument([
+      {
+        id: "literal-text",
+        type: "paragraph",
+        props: {
+          backgroundColor: "default",
+          textColor: "default",
+          textAlignment: "left",
+        },
+        content: [
+          styledText,
+          { type: "link", href: "https://example.com", content: [styledText] },
+        ],
+        children: [],
+      },
+    ]);
+    const document = new DOMParser().parseFromString(html, "text/html");
+    const spans = document.querySelectorAll("p span");
+    expect(spans).toHaveLength(2);
+    for (const span of spans) {
+      expect(span.querySelectorAll(":scope > :not(br)")).toHaveLength(0);
+      expect(span.querySelectorAll("br")).toHaveLength(
+        text.split("\n").length - 1,
+      );
+      for (const br of span.querySelectorAll("br")) {
+        br.replaceWith("\n");
+      }
+      expect(span.textContent).toBe(text);
+      expect(span.getAttribute("style")).toContain("font-weight:bold");
+      expect(span.getAttribute("style")).toContain("font-style:italic");
+    }
+    expect(document.querySelectorAll("script, img")).toHaveLength(0);
+    expect(document.querySelectorAll("a")).toHaveLength(1);
+    expect(document.querySelector("a")?.getAttribute("href")).toBe(
+      "https://example.com",
+    );
+  });
+
   it("should export a document (HTML snapshot)", async () => {
     const exporter = new ReactEmailExporter(
       BlockNoteSchema.create(),
