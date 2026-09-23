@@ -1,4 +1,4 @@
-import { flattenExtensions, InputRule, markInputRule } from "@tiptap/core";
+import { InputRule, markInputRule } from "@tiptap/core";
 import Bold from "@tiptap/extension-bold";
 import Code from "@tiptap/extension-code";
 import Italic from "@tiptap/extension-italic";
@@ -18,6 +18,7 @@ import {
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "../schema/index.js";
+import { marksExcludingNonFormattingMarks } from "../schema/markGroups.js";
 import {
   createAudioBlockSpec,
   createBulletListItemBlockSpec,
@@ -140,19 +141,7 @@ export const defaultStyleSpecs = {
   code: createStyleSpecFromTipTapMark(
     Code.extend({
       excludes() {
-        // Exclude all enabled marks except comments when building the schema.
-        // The extension manager is not available yet during schema creation.
-        if (!this.editor) {
-          return "_";
-        }
-
-        return flattenExtensions(this.editor.options.extensions)
-          .filter(
-            (extension) =>
-              extension.type === "mark" && extension.name !== "comment",
-          )
-          .map((extension) => extension.name)
-          .join(" ");
+        return marksExcludingNonFormattingMarks(this.editor);
       },
       addInputRules() {
         return [

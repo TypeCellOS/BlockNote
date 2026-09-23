@@ -1,6 +1,7 @@
 import { Editor, Extension, getSchema, Mark, Node } from "@tiptap/core";
 import { describe, expect, it } from "vite-plus/test";
 import { CommentMark } from "../comments/mark.js";
+import { NON_FORMATTING_MARK_GROUP } from "../schema/markGroups.js";
 import { defaultStyleSpecs } from "./defaultBlocks.js";
 
 const extensions = [
@@ -22,7 +23,15 @@ describe("inline code mark exclusions", () => {
             addExtensions() {
               return [
                 Mark.create({ name: "customStyle" }),
-                ...(withComments ? [CommentMark] : []),
+                ...(withComments
+                  ? [
+                      CommentMark,
+                      Mark.create({
+                        name: "customAnnotation",
+                        group: NON_FORMATTING_MARK_GROUP,
+                      }),
+                    ]
+                  : []),
               ];
             },
           }),
@@ -34,7 +43,9 @@ describe("inline code mark exclusions", () => {
         const code = marks.code;
         expect(code.spec.excludes).not.toBe("_");
         for (const mark of Object.values(marks)) {
-          expect(code.excludes(mark)).toBe(mark.name !== "comment");
+          expect(code.excludes(mark)).toBe(
+            !mark.spec.group?.split(" ").includes(NON_FORMATTING_MARK_GROUP),
+          );
         }
 
         if (withComments) {
