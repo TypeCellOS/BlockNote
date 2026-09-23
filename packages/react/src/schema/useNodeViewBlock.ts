@@ -42,7 +42,10 @@ export function useNodeViewBlock(
   const lastBlockRef = useRef(initialBlock);
   const doc = props.view.state.doc;
 
-  // Container node views already receive the complete block node.
+  // None of the above applies to a view mounted on the block node itself: a
+  // container, or the frame view on `blockContainer` (hence `bnBlock`, which
+  // is both). That node carries the block's id, so it converts straight from
+  // the node — there is no position involved, and so none to go stale.
   if (props.node.type.isInGroup("bnBlock")) {
     return nodeToBlock(props.node, doc);
   }
