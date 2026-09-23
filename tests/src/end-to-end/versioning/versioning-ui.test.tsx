@@ -7,7 +7,7 @@ import {
 } from "@blocknote/core/extensions";
 import { BlockNoteView as MantineBlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteViewEditor, useCreateBlockNote } from "@blocknote/react";
 import { VersioningSidebar } from "@blocknote/react/versioning";
 import { BlockNoteView as ShadcnBlockNoteView } from "@blocknote/shadcn";
 import "@blocknote/shadcn/style.css";
@@ -43,7 +43,11 @@ function createEndpoints(): VersioningEndpoints {
   };
 }
 
-function SkinPanel(props: { skin: Skin; theme: Theme }) {
+function SkinPanel(props: {
+  skin: Skin;
+  theme: Theme;
+  clippingEditorPanel?: boolean;
+}) {
   const editor = useCreateBlockNote({
     extensions: [
       VersioningExtension({
@@ -58,7 +62,20 @@ function SkinPanel(props: { skin: Skin; theme: Theme }) {
       }),
     ],
   });
-  const content = <VersioningSidebar onClose={() => {}} />;
+  const sidebar = <VersioningSidebar onClose={() => {}} />;
+  const content = props.clippingEditorPanel ? (
+    <div style={{ display: "flex", height: "100%", width: 620 }}>
+      <div
+        data-test="clipping-editor-panel"
+        style={{ flex: 1, minWidth: 0, overflow: "auto", position: "relative" }}
+      >
+        <BlockNoteViewEditor />
+      </div>
+      <div style={{ flex: "0 0 300px", minWidth: 0 }}>{sidebar}</div>
+    </div>
+  ) : (
+    sidebar
+  );
   const panelStyle = {
     background: props.theme === "dark" ? "#18181b" : "#ffffff",
     border: "1px solid #a1a1aa",
@@ -71,6 +88,7 @@ function SkinPanel(props: { skin: Skin; theme: Theme }) {
       <MantineBlockNoteView
         className="versioning-test-view"
         editor={editor}
+        renderEditor={!props.clippingEditorPanel}
         theme={props.theme}
       >
         {content}
@@ -79,6 +97,7 @@ function SkinPanel(props: { skin: Skin; theme: Theme }) {
       <AriakitBlockNoteView
         className="versioning-test-view"
         editor={editor}
+        renderEditor={!props.clippingEditorPanel}
         theme={props.theme}
       >
         {content}
@@ -87,6 +106,7 @@ function SkinPanel(props: { skin: Skin; theme: Theme }) {
       <ShadcnBlockNoteView
         className="versioning-test-view"
         editor={editor}
+        renderEditor={!props.clippingEditorPanel}
         theme={props.theme}
       >
         {content}
@@ -157,6 +177,56 @@ test("renders every versioning skin in light and dark themes", async () => {
   )!;
   await expectElement(matrix).toMatchScreenshot("versioning-skins-light-dark");
 });
+
+test.each(
+  (["mantine", "ariakit", "shadcn"] as const).flatMap((skin) =>
+    (["light", "dark"] as const).map((theme) => ({ skin, theme })),
+  ),
+)(
+  "renders the $skin $theme row menu outside the clipping editor panel",
+  async ({ skin, theme }) => {
+    await render(
+      <SkinPanel skin={skin} theme={theme} clippingEditorPanel={true} />,
+    );
+    const panel = document.querySelector<HTMLElement>(
+      `[aria-label="${skin} ${theme}"]`,
+    )!;
+    const rows = await waitForRows(panel);
+
+    await userEvent.hover(rows[2]!);
+    const menuButton = rows[2]!.querySelector<HTMLButtonElement>(
+      'button[aria-label="More actions"]',
+    )!;
+    await clickElement(menuButton);
+    const menu = await vi.waitFor(() => {
+      const element = document.querySelector<HTMLElement>('[role="menu"]');
+      if (!element) {
+        throw new Error("Expected the version menu to open");
+      }
+      return element;
+    });
+
+    const clippingEditorPanel = panel.querySelector<HTMLElement>(
+      '[data-test="clipping-editor-panel"]',
+    )!;
+    expect(clippingEditorPanel.contains(menu)).toBe(false);
+    // Ariakit's generated portal IDs contain a slash, which the browser test
+    // element locator cannot turn back into a valid CSS selector.
+    menu.id = "versioning-menu-screenshot";
+    for (
+      let ancestor = menu.parentElement;
+      ancestor;
+      ancestor = ancestor.parentElement
+    ) {
+      if (ancestor.id.includes("/")) {
+        ancestor.removeAttribute("id");
+      }
+    }
+    await expectElement(menu).toMatchScreenshot(
+      `versioning-${skin}-${theme}-menu-open`,
+    );
+  },
+);
 
 test.each(["mantine", "ariakit", "shadcn"] as const)(
   "%s keeps keyboard navigation and row menus working",

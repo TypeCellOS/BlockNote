@@ -2,6 +2,7 @@ import { VersioningExtension } from "@blocknote/core/extensions";
 import { useEffect, useRef, type ReactNode } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { PortalElementAnchor } from "../../editor/PortalElementOverride.js";
 import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { usePreviewRow } from "./usePreviewRow.js";
@@ -103,15 +104,21 @@ function VersioningSidebarContent(props: { onClose?: () => void }) {
  */
 export function VersioningSidebar(props: VersioningSidebarProps) {
   return (
-    <VersioningSidebarProvider
-      defaultNamedOnly={props.defaultNamedOnly}
-      defaultComparisonMode={props.defaultComparisonMode}
-      snapshotMenu={
-        props.snapshotMenu === undefined ? <VersionMenu /> : props.snapshotMenu
-      }
-      loadingIndicator={props.loadingIndicator}
-    >
-      <VersioningSidebarContent onClose={props.onClose} />
-    </VersioningSidebarProvider>
+    <PortalElementAnchor>
+      <VersioningSidebarProvider
+        defaultNamedOnly={props.defaultNamedOnly}
+        defaultComparisonMode={props.defaultComparisonMode}
+        snapshotMenu={
+          props.snapshotMenu === undefined ? (
+            <VersionMenu />
+          ) : (
+            props.snapshotMenu
+          )
+        }
+        loadingIndicator={props.loadingIndicator}
+      >
+        <VersioningSidebarContent onClose={props.onClose} />
+      </VersioningSidebarProvider>
+    </PortalElementAnchor>
   );
 }
