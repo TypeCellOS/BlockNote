@@ -55,6 +55,8 @@ export interface Extension<State = any, Key extends string = string> {
 
   /**
    * A mapping of a keyboard shortcut to a function that will be called when the shortcut is pressed
+   * The callback receives the editor and the original keyboard event. Return
+   * true to consume the shortcut, or false to let other handlers run.
    *
    * The keys are in the format:
    * - Key names may be strings like `Shift-Ctrl-Enter`—a key identifier prefixed with zero or more modifiers
@@ -77,7 +79,10 @@ export interface Extension<State = any, Key extends string = string> {
    */
   readonly keyboardShortcuts?: Record<
     string,
-    (ctx: { editor: BlockNoteEditor<any, any, any> }) => boolean
+    (ctx: {
+      editor: BlockNoteEditor<any, any, any>;
+      event: KeyboardEvent;
+    }) => boolean
   >;
 
   /**

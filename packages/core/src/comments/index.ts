@@ -1,3 +1,4 @@
+export * from "./CommentEditorSubmitExtension.js";
 export * from "./extension.js";
 export * from "./mark.js";
 export * from "./threadstore/DefaultThreadStoreAuth.js";

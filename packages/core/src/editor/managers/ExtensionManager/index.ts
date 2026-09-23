@@ -6,7 +6,7 @@ import {
   AnyExtension as AnyTiptapExtension,
   Extension as TiptapExtension,
 } from "@tiptap/core";
-import { keymap } from "@tiptap/pm/keymap";
+import { keydownHandler } from "@tiptap/pm/keymap";
 import { Plugin, TextSelection } from "prosemirror-state";
 import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { setTextCursorPosition } from "../../../api/blockManipulation/selections/textCursorPosition.js";
@@ -592,15 +592,38 @@ export class ExtensionManager {
     }
 
     if (Object.keys(extension.keyboardShortcuts || {}).length) {
-      plugins.push(
-        keymap(
-          Object.fromEntries(
-            Object.entries(extension.keyboardShortcuts!).map(([key, value]) => [
+      let currentEvent: KeyboardEvent | undefined;
+      const handleKeyDown = keydownHandler(
+        Object.fromEntries(
+          Object.entries(extension.keyboardShortcuts!).map(
+            ([key, callback]) => [
               key,
-              () => value({ editor: this.editor }),
-            ]),
+              () => {
+                if (!currentEvent) {
+                  throw new Error(
+                    "Keyboard shortcut called outside handleKeyDown",
+                  );
+                }
+                return callback({ editor: this.editor, event: currentEvent });
+              },
+            ],
           ),
         ),
+      );
+      plugins.push(
+        new Plugin({
+          props: {
+            handleKeyDown: (view, event) => {
+              const previousEvent = currentEvent;
+              currentEvent = event;
+              try {
+                return handleKeyDown(view, event);
+              } finally {
+                currentEvent = previousEvent;
+              }
+            },
+          },
+        }),
       );
     }
 

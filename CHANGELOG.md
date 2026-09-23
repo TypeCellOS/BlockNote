@@ -1,3 +1,26 @@
+## 0.55.0 (2026-09-22)
+
+This release, we have promoted the mobile formatting toolbar from experimental to supported. We recommend you to check our [Mobile compatibility getting started guide for more information](https://www.blocknotejs.org/docs/getting-started#mobile-compatibility).
+
+We now have a formattting toolbar that tries to show above the virtual keyboard of your mobile device (ios & android), allowing you to access formating options like changing the block type, bold, italics and more.
+
+### 🚀 Features
+
+- Mobile formatting toolbar (BLO-1292) ([#2939](https://github.com/TypeCellOS/BlockNote/pull/2939))
+- Enter saves comment in comment editor ([#3103](https://github.com/TypeCellOS/BlockNote/pull/3103))
+
+### 🩹 Fixes
+
+- **core:** Link lookups at the edges of a link ([#3058](https://github.com/TypeCellOS/BlockNote/pull/3058))
+- **a11y:** Commit popover forms through submit, not a key handler ([#3030](https://github.com/TypeCellOS/BlockNote/pull/3030))
+- **core:** Enter on Android and iOS, toolbar and side menu fixes on phones ([#3031](https://github.com/TypeCellOS/BlockNote/pull/3031))
+
+### ❤️ Thank You
+
+- Matthew Lipski ([@matthewlipski](https://github.com/matthewlipski))
+- Yousef <yousefdardiry@gmail.com>
+- Nick The Sick ([@nperez0111](https://github.com/nperez0111))
+
 ## 0.54.2 (2026-09-09)
 
 ### 🩹 Fixes

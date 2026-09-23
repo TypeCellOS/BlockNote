@@ -1,10 +1,13 @@
 "use client";
 
 import { Dictionary, mergeCSSClasses } from "@blocknote/core";
-import { CommentsExtension } from "@blocknote/core/comments";
+import {
+  CommentEditorSubmitExtension,
+  CommentsExtension,
+} from "@blocknote/core/comments";
 import type { CommentData, ThreadData } from "@blocknote/core/comments";
 import { ThreadStore } from "@blocknote/core/comments";
-import { MouseEvent, ReactNode, memo, useCallback, useState } from "react";
+import { ReactNode, memo, useCallback, useState } from "react";
 import {
   RiArrowGoBackFill,
   RiCheckFill,
@@ -35,7 +38,7 @@ type CommentEditorActionsProps = {
   isEditing: boolean;
   threadStore: ThreadStore;
   onReactionSelect: (emoji: string) => Promise<void>;
-  onEditSubmit: (event: MouseEvent) => Promise<void>;
+  onEditSubmit: () => Promise<void>;
   onEditCancel: () => void;
   onEmojiPickerOpenChange: (open: boolean) => void;
   Components: Components;
@@ -149,6 +152,8 @@ export const Comment = ({
 
   const dict = useDictionary();
 
+  const [isEditing, setEditing] = useState(false);
+
   const commentEditor = useCreateBlockNote({
     initialContent: comment.body,
     trailingBlock: false,
@@ -159,13 +164,26 @@ export const Comment = ({
       },
     },
     schema: comments.commentEditorSchema || defaultCommentEditorSchema,
+    extensions: [
+      CommentEditorSubmitExtension({
+        submitOnEnter: comments.submitOnEnter,
+        onSubmit: async (editor) => {
+          await comments.threadStore.updateComment({
+            commentId: comment.id,
+            comment: { body: editor.document },
+            threadId: thread.id,
+          });
+          setEditing(false);
+        },
+      }),
+    ],
   });
 
   const Components = useComponentsContext()!;
   const portalElement = usePortalElement();
 
-  const [isEditing, setEditing] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [moreActionsOpen, setMoreActionsOpen] = useState(false);
 
   const threadStore = comments.threadStore;
 
@@ -178,20 +196,9 @@ export const Comment = ({
     setEditing(false);
   }, [commentEditor, comment.body]);
 
-  const onEditSubmit = useCallback(
-    async (_event: MouseEvent) => {
-      await threadStore.updateComment({
-        commentId: comment.id,
-        comment: {
-          body: commentEditor.document,
-        },
-        threadId: thread.id,
-      });
-
-      setEditing(false);
-    },
-    [comment, thread.id, commentEditor, threadStore],
-  );
+  const onEditSubmit = commentEditor.getExtension(
+    CommentEditorSubmitExtension,
+  )!.submit;
 
   const onDelete = useCallback(async () => {
     await threadStore.deleteComment({
@@ -293,6 +300,7 @@ export const Comment = ({
         {(canDeleteComment || canEditComment) && (
           <Components.Generic.Menu.Root
             position={"bottom-start"}
+            onOpenChange={setMoreActionsOpen}
             portalElement={portalElement}
           >
             <Components.Generic.Menu.Trigger>
@@ -344,7 +352,7 @@ export const Comment = ({
       authorInfo={user ?? "loading"}
       timeString={timeString}
       edited={comment.updatedAt.getTime() !== comment.createdAt.getTime()}
-      showActions={"hover"}
+      showActions={moreActionsOpen || "hover"}
       actions={actions}
       className={"bn-thread-comment"}
       emojiPickerOpen={emojiPickerOpen}
