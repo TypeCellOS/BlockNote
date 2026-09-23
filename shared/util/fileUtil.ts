@@ -32,7 +32,8 @@ export async function loadFileBuffer(requireUrl: {
     // in vitest, this is the url we need to load with readfilesync
     // eslint-disable-next-line
     const fs = require("fs");
-    let url = requireUrl.default;
+    // Vite percent-encodes asset URLs, including spaces and non-ASCII paths.
+    let url = decodeURIComponent(requireUrl.default);
 
     if (url.startsWith("/@fs/")) {
       url = url.substring("/@fs".length);
