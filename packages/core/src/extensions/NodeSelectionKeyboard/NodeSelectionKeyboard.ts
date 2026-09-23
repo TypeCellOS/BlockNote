@@ -1,5 +1,14 @@
-import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
-import { createExtension } from "../../editor/BlockNoteExtension.js";
+import {
+  NodeSelection,
+  Plugin,
+  PluginKey,
+  Selection,
+  TextSelection,
+} from "prosemirror-state";
+import {
+  createExtension,
+  type ExtensionOptions,
+} from "../../editor/BlockNoteExtension.js";
 
 const PLUGIN_KEY = new PluginKey("node-selection-keyboard");
 // By default, typing with a node selection active will cause ProseMirror to
@@ -17,7 +26,7 @@ const PLUGIN_KEY = new PluginKey("node-selection-keyboard");
 // keystrokes, this brings us most of the way to Notion's UX without much added
 // complexity.
 export const NodeSelectionKeyboardExtension = createExtension(
-  () =>
+  ({ options = {} }: ExtensionOptions<{ gapCursor?: boolean } | undefined>) =>
     ({
       key: "nodeSelectionKeyboard",
       prosemirrorPlugins: [
@@ -26,10 +35,35 @@ export const NodeSelectionKeyboardExtension = createExtension(
           props: {
             handleKeyDown: (view, event) => {
               // Checks for node selection
-              if ("node" in view.state.selection) {
+              const { selection } = view.state;
+              if (selection instanceof NodeSelection) {
                 // Checks if key press uses ctrl/meta modifier
                 if (event.ctrlKey || event.metaKey) {
                   return false;
+                }
+                // Explicitly cancels arrow up/down presses when a whole block
+                // is selected at the start/end of the document and the gap
+                // cursor is disabled.
+                if (
+                  options.gapCursor === false &&
+                  !selection.node.isInline &&
+                  !event.shiftKey &&
+                  !event.altKey &&
+                  (event.key === "ArrowUp" || event.key === "ArrowDown")
+                ) {
+                  const direction = event.key === "ArrowUp" ? -1 : 1;
+                  const nextSelection = Selection.findFrom(
+                    direction === -1 ? selection.$from : selection.$to,
+                    direction,
+                  );
+                  if (nextSelection) {
+                    // Let ProseMirror's built-in arrow handling move the selection.
+                    return false;
+                  }
+                  // Consume the key at document boundaries so the browser
+                  // cannot move the selection into the trailing block widget.
+                  event.preventDefault();
+                  return true;
                 }
                 // Checks if key press is alphanumeric
                 if (event.key.length === 1) {

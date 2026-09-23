@@ -58,7 +58,7 @@ export function getDefaultTiptapExtensions(
     extensions.Editable,
     extensions.FocusEvents,
     extensions.Tabindex,
-    Gapcursor,
+    ...(options.gapCursor !== false ? [Gapcursor] : []),
 
     UniqueID.configure({
       // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
@@ -166,7 +166,7 @@ export function getDefaultExtensions(
         : {}),
     }),
     LinkToolbarExtension(options),
-    NodeSelectionKeyboardExtension(),
+    NodeSelectionKeyboardExtension(options),
     PlaceholderExtension(options),
     ShowSelectionExtension(options),
     SideMenuExtension(options),
