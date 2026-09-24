@@ -40,6 +40,16 @@ describe("Vite asset file loading", () => {
     expect(await loadFileBuffer({ default: file })).toEqual(contents);
   });
 
+  it.each(["font%20.ttf", "font%foo.ttf"])(
+    "preserves a direct filesystem path containing %s",
+    async (name) => {
+      const file = join(directory, name);
+      writeFileSync(file, contents);
+
+      expect(await loadFileBuffer({ default: file })).toEqual(contents);
+    },
+  );
+
   it("creates a font data URL from an encoded asset path", async () => {
     const file = join(directory, "한글 font.ttf");
     writeFileSync(file, contents);
