@@ -1508,8 +1508,16 @@ Invalid email domains stay plain: <a@b..c>`,
   },
   {
     testCase: {
-      name: "linkBareUrlsRemainText",
-      content: `Bare URLs remain text: https://example.com and www.example.com`,
+      name: "linkGfmAutolinkLiterals",
+      content: `Visit https://example.com/path?q=1 or www.example.com.
+
+Balanced parentheses stay linked: https://example.com/a(b)))
+
+Entity suffix stays plain: https://example.com&copy;
+
+Editor-compatible detection: https://invalid
+
+Invalid schemeless domains stay plain: www.invalid_domain.com`,
     },
     executeTest: testParseMarkdown,
   },

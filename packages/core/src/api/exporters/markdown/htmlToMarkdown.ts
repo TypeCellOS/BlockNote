@@ -1,3 +1,5 @@
+import { parseAutolinkLiteral } from "../../parsers/markdown/autolink.js";
+
 /**
  * Custom HTML-to-Markdown serializer for BlockNote.
  * Replaces the unified/rehype-remark pipeline with a direct DOM-based implementation.
@@ -694,15 +696,27 @@ function serializeBlockLink(el: HTMLElement, ctx: SerializeContext): string {
 }
 
 /**
- * Render URL-only links as CommonMark autolinks. Use explicit link syntax for
- * other links, escaping the destination so a `)` inside the URL does not
- * prematurely close it.
+ * Render a link, mirroring the remark-stringify behavior from
+ * TypeCellOS/BlockNote#2661: when the link label equals the URL (or is
+ * empty), emit the bare URL so that pasting the link into another input
+ * produces a valid href instead of `<url>`-autolink brackets or redundant
+ * `[url](url)` markup. Otherwise emit `[text](url)` with the URL escaped so
+ * a `)` inside the URL does not prematurely close the destination.
  */
 function formatLink(text: string, href: string): string {
-  if (text === href && /^[a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]*$/.test(href)) {
-    return `<${href}>`;
+  if (!text) {
+    return href;
   }
-  return `[${text || href}](${escapeLinkDestination(href)})`;
+  if (text === href) {
+    const autolink = parseAutolinkLiteral(href);
+    if (
+      !/^(https?:\/\/|www\.)/i.test(href) ||
+      (autolink?.href === href && autolink.value === href)
+    ) {
+      return href;
+    }
+  }
+  return `[${text}](${escapeLinkDestination(href)})`;
 }
 
 function escapeLinkDestination(url: string): string {
