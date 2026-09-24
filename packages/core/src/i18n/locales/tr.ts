@@ -402,7 +402,7 @@ export const tr = {
     discard_pending_comment: "Bu yorumu silmek istediğinizden emin misiniz?",
     actions: {
       add_reaction: "Tepki ekle",
-      resolve: "Çözüldü",
+      resolve: "Çöz",
       reopen: "Yeniden aç",
       edit_comment: "Yorumu düzenle",
       delete_comment: "Yorumu sil",

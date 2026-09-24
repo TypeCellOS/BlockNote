@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
+import { searchEmojis } from "../searchEmojis.js";
 import { loadFrimousseData } from "./loadFrimousseData.js";
 
 describe("localized emoji data", () => {
@@ -74,5 +75,35 @@ describe("localized emoji data", () => {
       "Salya akıtan yüz",
       "So‘lagi oqayotgan",
     ]);
+  });
+
+  it("preserves order for blank searches and matches Turkish dotted I", async () => {
+    const turkish = await loadFrimousseData("tr");
+    expect(searchEmojis(turkish.emojis, "  ")).toBe(turkish.emojis);
+    expect(searchEmojis(turkish.emojis, "isviçre")).toEqual(
+      expect.arrayContaining([expect.objectContaining({ emoji: "🇨🇭" })]),
+    );
+    expect(searchEmojis(turkish.emojis, "ısvıçre")).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ emoji: "🇨🇭" })]),
+    );
+  });
+
+  it("corrects upstream category and skin-tone translations", async () => {
+    const [dutch, japanese, german] = await Promise.all(
+      ["nl", "ja", "de"].map(loadFrimousseData),
+    );
+    expect(dutch.categories.find(({ index }) => index === 1)?.label).toBe(
+      "Mensen en lichaam",
+    );
+    expect(dutch.categories.find(({ index }) => index === 9)?.label).toBe(
+      "Vlaggen",
+    );
+    expect(japanese.categories.find(({ index }) => index === 3)?.label).toBe(
+      "動物と自然",
+    );
+    expect(japanese.categories.find(({ index }) => index === 6)?.label).toBe(
+      "アクティビティ",
+    );
+    expect(german.skinTones["medium-dark"]).toBe("Mitteldunkler Hautton");
   });
 });
