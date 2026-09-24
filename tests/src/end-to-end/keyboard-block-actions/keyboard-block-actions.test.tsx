@@ -35,6 +35,29 @@ beforeEach(async () => {
 });
 
 describe("Keyboard block actions example", () => {
+  test("the visible button exposes the menu state and relationship", async () => {
+    const trigger = page.getByRole("button", {
+      name: "Block actions",
+      exact: true,
+    });
+    await expect.element(trigger).toHaveAttribute("aria-haspopup", "menu");
+    await expect.element(trigger).toHaveAttribute("aria-expanded", "false");
+    await expect.element(trigger).not.toHaveAttribute("aria-controls");
+
+    await userEvent.click(trigger);
+    await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
+    await expect
+      .element(trigger)
+      .toHaveAttribute("aria-controls", "keyboard-block-actions-menu");
+    await expect
+      .element(page.getByRole("menu"))
+      .toHaveAttribute("id", "keyboard-block-actions-menu");
+
+    await userEvent.keyboard("{Escape}");
+    await expect.element(trigger).toHaveAttribute("aria-expanded", "false");
+    await expect.element(trigger).not.toHaveAttribute("aria-controls");
+  });
+
   test("opens on the first action and restores the exact caret after Escape or Tab", async () => {
     await focusBlock("paragraph");
     const selection = window.getSelection();

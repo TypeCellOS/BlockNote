@@ -130,6 +130,7 @@ function KeyboardBlockMenu({
           </ActionIcon>
         </Menu.Target>
         <Menu.Dropdown
+          id="keyboard-block-actions-menu"
           ref={menuRef}
           aria-label="Block actions"
           className="bn-menu-dropdown bn-drag-handle-menu"
@@ -267,6 +268,9 @@ function KeyboardBlockActions() {
       </Group>
       <Group>
         <Button
+          aria-haspopup="menu"
+          aria-expanded={Boolean(blockId)}
+          aria-controls={blockId ? "keyboard-block-actions-menu" : undefined}
           variant="default"
           size="compact-sm"
           disabled={isReadOnly || hasMultipleBlocks}
