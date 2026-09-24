@@ -320,6 +320,70 @@ describe("children repair", () => {
     expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
   });
 
+  // Dissolving is an unwrap, not a rewrite: the survivor's content is the same
+  // content, in place, so a caret sitting in it stays where the user put it
+  // (and a collaborator's concurrent edit still maps onto it). Replacing the
+  // container with freshly built copies of its children would collapse the
+  // selection onto the edge of the replaced range instead.
+  it("keeps the caret in the survivor a container unwraps to", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "pair",
+        id: "pair-0",
+        children: [
+          { id: "pair-a", type: "paragraph", content: "A" },
+          { id: "pair-b", type: "paragraph", content: "Survivor" },
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.setTextCursorPosition("pair-b", "end");
+    const offsetBefore = editor.prosemirrorState.selection.$from.parentOffset;
+
+    editor.removeBlocks(["pair-a"]);
+
+    expect(editor.getBlock("pair-0")).toBeUndefined();
+    expect(editor.getTextCursorPosition().block.id).toBe("pair-b");
+    expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(
+      offsetBefore,
+    );
+  });
+
+  // The same, for a survivor that is lifted out of two wrappers at once.
+  it("keeps the caret in a named-only survivor's content", () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "grid",
+        id: "g-0",
+        children: [
+          {
+            type: "gridCell",
+            id: "cell-a",
+            children: [{ id: "cell-a-p", type: "paragraph", content: "A" }],
+          },
+          {
+            type: "gridCell",
+            id: "cell-b",
+            children: [{ id: "cell-b-p", type: "paragraph", content: "B" }],
+          },
+        ],
+      },
+      { id: "trailing", type: "paragraph", content: "" },
+    ]);
+
+    editor.setTextCursorPosition("cell-b-p", "end");
+    const offsetBefore = editor.prosemirrorState.selection.$from.parentOffset;
+
+    editor.removeBlocks(["cell-a-p"]);
+
+    expect(editor.getBlock("g-0")).toBeUndefined();
+    expect(editor.getTextCursorPosition().block.id).toBe("cell-b-p");
+    expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(
+      offsetBefore,
+    );
+  });
+
   // An emptied child of the container is dropped even when the container
   // stays at or above `min`: an emptied column disappears rather than
   // lingering. The multicolumn e2e snapshots pin the same behavior from the

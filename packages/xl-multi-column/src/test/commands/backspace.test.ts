@@ -83,6 +83,115 @@ const threeColumnsWithParagraphAbove = [
   },
 ];
 
+const columnsOnly = [
+  {
+    type: "columnList" as const,
+    children: [
+      {
+        type: "column" as const,
+        children: [
+          { id: "col1-para", type: "paragraph" as const, content: "col1" },
+        ],
+      },
+      {
+        type: "column" as const,
+        children: [
+          { id: "col2-para", type: "paragraph" as const, content: "col2" },
+        ],
+      },
+    ],
+  },
+];
+
+const columnsWithEmptyFirst = [
+  {
+    type: "columnList" as const,
+    children: [
+      {
+        type: "column" as const,
+        children: [
+          { id: "empty-para", type: "paragraph" as const, content: "" },
+        ],
+      },
+      {
+        type: "column" as const,
+        children: [
+          { id: "col2-para", type: "paragraph" as const, content: "col2" },
+          { id: "col2-trailing", type: "paragraph" as const, content: "" },
+        ],
+      },
+    ],
+  },
+];
+
+/** Every bit of text in the document, so a fix can't quietly drop content. */
+function texts(editor: BlockNoteEditor<any, any, any>): string[] {
+  const out: string[] = [];
+  const walk = (blocks: any[]) => {
+    for (const block of blocks) {
+      if (Array.isArray(block.content)) {
+        const text = block.content.map((c: any) => c.text ?? "").join("");
+        if (text) {
+          out.push(text);
+        }
+      }
+      walk(block.children ?? []);
+    }
+  };
+  walk(editor.document);
+  return out.sort();
+}
+
+// A column layout with nothing after it, and one whose first column is empty,
+// both used to throw out of the keydown handler: there is no following block
+// to pull in, and no non-empty first column to merge with. The document is
+// left alone (or repaired) instead.
+describe("Delete and Backspace at a column layout's edges", () => {
+  it("Delete at the end of the last column, with the layout ending the document", () => {
+    const editor = getEditor();
+    editor.replaceBlocks(editor.document, columnsOnly);
+
+    editor.setTextCursorPosition("col2-para", "end");
+
+    expect(() => pressDelete(editor)).not.toThrow();
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(texts(editor)).toEqual(["col1", "col2"]);
+  });
+
+  it("Delete at the start of an empty first column", () => {
+    const editor = getEditor();
+    editor.replaceBlocks(editor.document, columnsWithEmptyFirst);
+
+    editor.setTextCursorPosition("empty-para", "start");
+
+    expect(() => pressDelete(editor)).not.toThrow();
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(texts(editor)).toEqual(["col2"]);
+  });
+
+  it("Delete at the end of a trailing empty block in the last column", () => {
+    const editor = getEditor();
+    editor.replaceBlocks(editor.document, columnsWithEmptyFirst);
+
+    editor.setTextCursorPosition("col2-trailing", "end");
+
+    expect(() => pressDelete(editor)).not.toThrow();
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(texts(editor)).toEqual(["col2"]);
+  });
+
+  it("Backspace at the start of a column following an empty column", () => {
+    const editor = getEditor();
+    editor.replaceBlocks(editor.document, columnsWithEmptyFirst);
+
+    editor.setTextCursorPosition("col2-para", "start");
+
+    expect(() => pressBackspace(editor)).not.toThrow();
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+    expect(texts(editor)).toEqual(["col2"]);
+  });
+});
+
 describe("Backspace with multi-column", () => {
   // TODO: When migrating to vitest browser mode, replace this test with
   // a version that presses Backspace 5 times from offset 5 in "hello world"
