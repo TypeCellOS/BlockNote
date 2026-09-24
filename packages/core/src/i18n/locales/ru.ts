@@ -1,6 +1,12 @@
 import { Dictionary } from "../dictionary.js";
 
 export const ru: Dictionary = {
+  locale: "ru",
+  emoji_picker: {
+    search: "Поиск",
+    search_no_results: "Эмодзи не найден",
+    loading: "Загрузка…",
+  },
   slash_menu: {
     heading: {
       title: "Заголовок 1 уровня",

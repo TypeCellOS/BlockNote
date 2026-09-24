@@ -14,4 +14,7 @@ import type { en } from "./locales/index.js";
 //   return newDict;
 // }
 
-export type Dictionary = typeof en;
+export type Dictionary = Omit<typeof en, "locale"> & {
+  /** Locale used for emoji data and labels. Defaults to English. */
+  locale?: string;
+};

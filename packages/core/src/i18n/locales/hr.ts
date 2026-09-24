@@ -1,6 +1,12 @@
 import { Dictionary } from "../dictionary.js";
 
 export const hr: Dictionary = {
+  locale: "hr",
+  emoji_picker: {
+    search: "Pretraži",
+    search_no_results: "Emoji nije pronađen",
+    loading: "Učitavanje…",
+  },
   slash_menu: {
     heading: {
       title: "Naslov 1",

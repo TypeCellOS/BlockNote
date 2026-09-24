@@ -1,6 +1,12 @@
 import { Dictionary } from "../dictionary.js";
 
 export const he: Dictionary = {
+  locale: "he",
+  emoji_picker: {
+    search: "חיפוש",
+    search_no_results: "לא נמצא אימוג'י",
+    loading: "טוען…",
+  },
   slash_menu: {
     heading: {
       title: "כותרת 1",
