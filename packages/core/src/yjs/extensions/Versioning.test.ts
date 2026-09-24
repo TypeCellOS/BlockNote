@@ -231,13 +231,45 @@ describe("createYjsVersioningAdapter (Yjs v13, delegates to ForkYDocExtension)",
     expect(ctx.editor.prosemirrorState.plugins.length).toBe(pluginCountBefore);
   });
 
-  it("omits applyRestore when restore is unavailable", () => {
+  it("restores only the document fragment and propagates removed content to a peer", () => {
     ctx = createCollabEditor();
+    const peer = new Y.Doc();
+    const unrelated = ctx.doc.getMap("presence");
+    unrelated.set("status", "online");
+    setEditorText(ctx.editor, "Version A");
+    const snapshot = Y.encodeStateAsUpdate(ctx.doc);
+    Y.applyUpdate(peer, Y.encodeStateAsUpdate(ctx.doc));
+
+    setEditorText(ctx.editor, "Version B");
+    ctx.editor.insertBlocks(
+      [{ type: "paragraph", content: "Newer block" }],
+      ctx.editor.document[0],
+      "after",
+    );
+    Y.applyUpdate(peer, Y.encodeStateAsUpdate(ctx.doc));
+    const oldDoc = ctx.doc;
+    const oldFragment = ctx.fragment;
+    const updates: Uint8Array[] = [];
+    ctx.doc.on("update", (update: Uint8Array) => {
+      updates.push(update);
+      Y.applyUpdate(peer, update);
+    });
+
     const adapter = createYjsVersioningAdapter(
       ctx.editor,
       ctx.collaborationOptions,
     );
-    expect(adapter.preview.applyRestore).toBeUndefined();
+    adapter.preview.applyRestore!(snapshot);
+
+    expect(ctx.fragment.doc).toBe(oldDoc);
+    expect(adapter.getCurrentDocument()).toBe(oldFragment);
+    expect(ctx.editor.document).toHaveLength(1);
+    expect(getEditorText(ctx.editor)).toBe("Version A");
+    expect(peer.getXmlFragment("doc").toJSON()).toBe(ctx.fragment.toJSON());
+    expect(updates).toHaveLength(1);
+    expect(unrelated.get("status")).toBe("online");
+    expect(peer.getMap("presence").get("status")).toBe("online");
+    peer.destroy();
   });
 
   it("exitPreview is a no-op when not previewing", () => {
@@ -592,5 +624,40 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
 
     versioning.exitPreview();
     expect(ctx2.editor.isEditable).toBe(true);
+  });
+
+  it("restores an older snapshot from preview and retains an immutable backup", async () => {
+    ctx2 = createCollabEditorWithVersioning();
+    const versioning = ctx2.editor.getExtension(VersioningExtension)!;
+
+    setEditorText(ctx2.editor, "Original");
+    const original = await versioning.create!({ name: "Original" });
+    setEditorText(ctx2.editor, "Newer text");
+    ctx2.editor.insertBlocks(
+      [{ type: "paragraph", content: "Newer block" }],
+      ctx2.editor.document[0],
+      "after",
+    );
+    const beforeRestore = Y.encodeStateAsUpdate(ctx2.doc);
+    await versioning.list();
+    await versioning.previewSnapshot(original.id);
+    expect(ctx2.editor.isEditable).toBe(false);
+
+    await versioning.restore!(original.id);
+    expect(versioning.store.state.view).toEqual({ mode: "live" });
+    expect(ctx2.editor.isEditable).toBe(true);
+    expect(ctx2.editor.document).toHaveLength(1);
+    expect(getEditorText(ctx2.editor)).toBe("Original");
+
+    const list = await versioning.list();
+    const backup = list.snapshots.find((s) => s.name === "Backup");
+    expect(backup).toBeDefined();
+    expect(await ctx2.endpoints.getContent(backup!)).toEqual(beforeRestore);
+
+    await versioning.previewSnapshot(backup!.id);
+    expect(getEditorText(ctx2.editor)).toContain("Newer text");
+    expect(getEditorText(ctx2.editor)).toContain("Newer block");
+    versioning.exitPreview();
+    expect(getEditorText(ctx2.editor)).toBe("Original");
   });
 });

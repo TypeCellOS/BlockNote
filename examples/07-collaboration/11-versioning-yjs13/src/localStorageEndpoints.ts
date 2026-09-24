@@ -93,16 +93,8 @@ export function createLocalStorageVersioningEndpoints(
     Y.XmlFragment,
     Uint8Array
   >["restore"] = async (fragment, snapshot) => {
-    await createSnapshot(fragment, { name: "Backup" });
-
     const snapshotContent = await fetchSnapshotContent(snapshot);
-    const yDoc = new Y.Doc();
-    Y.applyUpdate(yDoc, snapshotContent);
-
-    await createSnapshot(yDoc.getXmlFragment("document-store"), {
-      name: "Restored Snapshot",
-    });
-
+    await createSnapshot(fragment, { name: "Backup" });
     return snapshotContent;
   };
 

@@ -4,6 +4,7 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { PreviewController } from "../../extensions/Versioning/index.js";
 import type { CollaborationOptions } from "./index.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
+import { findTypeInOtherYdoc } from "../utils.js";
 
 /**
  * Creates a Yjs v13 adapter that provides the {@link PreviewController}
@@ -15,7 +16,8 @@ import { ForkYDocExtension } from "./ForkYDoc.js";
  *   switch the editor to a temporary doc built from the snapshot.
  * - **exitPreview**: calls `merge({ keepChanges: false })` to discard the
  *   preview and restore the live document.
- * - Restore is unavailable: merging older CRDT state cannot undo live edits.
+ * - **applyRestore**: replaces the live fragment's children with copies from
+ *   the snapshot, so newer edits are removed and the live Y.Doc stays connected.
  */
 export function createYjsVersioningAdapter(
   /** The BlockNote editor instance (must have ForkYDocExtension). */
@@ -54,7 +56,6 @@ export function createYjsVersioningAdapter(
       // Yjs v13 can only fork the document to a single snapshot; it has no way
       // to diff two versions, so comparison is unsupported.
       supportsComparison: false,
-      // No applyRestore: merging an older CRDT state cannot undo live edits.
       enterPreview(
         snapshotContent: Uint8Array,
         _compareToContent?: Uint8Array,
@@ -74,6 +75,26 @@ export function createYjsVersioningAdapter(
         if (forkYDoc.store.state.isForked) {
           forkYDoc.merge({ keepChanges: false });
         }
+      },
+
+      applyRestore(snapshotContent: Uint8Array) {
+        // Applying an old update to the live doc would merge CRDT histories,
+        // leaving newer edits in place. Copy the snapshot's document children
+        // instead, and publish their replacement as one live transaction.
+        const snapshotDoc = new Y.Doc();
+        let children: Array<Y.XmlElement | Y.XmlText>;
+        try {
+          Y.applyUpdate(snapshotDoc, snapshotContent);
+          const snapshotFragment = findTypeInOtherYdoc(fragment, snapshotDoc);
+          children = snapshotFragment.slice().map((child) => child.clone());
+        } finally {
+          snapshotDoc.destroy();
+        }
+
+        fragment.doc!.transact(() => {
+          fragment.delete(0, fragment.length);
+          fragment.insert(0, children);
+        });
       },
     },
   };
