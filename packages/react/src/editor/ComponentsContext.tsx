@@ -188,10 +188,6 @@ export type ComponentProps = {
       onClick: () => void;
       item: DefaultReactGridSuggestionItem;
     };
-    // Label: {
-    //   className?: string;
-    //   children?: ReactNode;
-    // };
     Loader: {
       columns: number;
       className?: string;

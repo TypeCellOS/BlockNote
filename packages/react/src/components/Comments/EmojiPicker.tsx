@@ -1,9 +1,9 @@
 import { ReactNode, useState } from "react";
 
-import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { usePortalElement } from "../../editor/PortalElementOverride.js";
-import Picker from "./EmojiMartPicker.js";
+import { useDictionary } from "../../i18n/dictionary.js";
+import FrimoussePicker from "./FrimoussePicker.js";
 
 export const EmojiPicker = (props: {
   onEmojiSelect: (emoji: { native: string }) => void;
@@ -13,21 +13,27 @@ export const EmojiPicker = (props: {
   const [open, setOpen] = useState(false);
 
   const Components = useComponentsContext()!;
-  const blockNoteContext = useBlockNoteContext()!;
   const portalElement = usePortalElement();
+  const dict = useDictionary();
+  const locale = dict.locale ?? "en";
+
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+    props.onOpenChange?.(nextOpen);
+  }
 
   return (
-    <Components.Generic.Popover.Root open={open} portalElement={portalElement}>
+    <Components.Generic.Popover.Root
+      open={open}
+      onOpenChange={handleOpenChange}
+      portalElement={portalElement}
+    >
       <Components.Generic.Popover.Trigger>
         <div
           onClick={(event) => {
-            // Needed as the Picker component's onClickOutside handler
-            // fires immediately after otherwise, preventing the popover
-            // from opening.
             event.preventDefault();
             event.stopPropagation();
-            setOpen(!open);
-            props.onOpenChange?.(!open);
+            handleOpenChange(!open);
           }}
           style={{
             display: "flex",
@@ -42,19 +48,17 @@ export const EmojiPicker = (props: {
         className={"bn-emoji-picker-popover"}
         variant={"panel-popover"}
       >
-        <Picker
-          perLine={7}
-          onClickOutside={() => {
-            setOpen(false);
-            props.onOpenChange?.(false);
-          }}
-          onEmojiSelect={(emoji: { native: string }) => {
-            props.onEmojiSelect(emoji);
-            setOpen(false);
-            props.onOpenChange?.(false);
-          }}
-          theme={blockNoteContext?.colorSchemePreference}
-        />
+        {open && (
+          <FrimoussePicker
+            onEmojiSelect={(emoji) => {
+              props.onEmojiSelect(emoji);
+              handleOpenChange(false);
+            }}
+            onEscape={() => handleOpenChange(false)}
+            locale={locale}
+            dictionary={dict.emoji_picker}
+          />
+        )}
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
   );
