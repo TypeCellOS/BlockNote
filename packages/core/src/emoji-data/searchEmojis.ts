@@ -1,26 +1,30 @@
 import type { FrimousseEmoji } from "./frimousse/types.js";
 
+function foldSearchText(value: string): string {
+  return value.toLowerCase().replace(/\u0307/g, "");
+}
+
 export function searchEmojis(
   emojis: FrimousseEmoji[],
   query: string,
 ): FrimousseEmoji[] {
-  if (!query) {
+  const searchText = foldSearchText(query).trim();
+  if (!searchText) {
     return emojis;
   }
 
-  const searchText = query.toLowerCase().trim();
   const scores = new WeakMap<FrimousseEmoji, number>();
 
   return emojis
     .filter((emoji) => {
       let score = 0;
 
-      if (emoji.label.toLowerCase().includes(searchText)) {
+      if (foldSearchText(emoji.label).includes(searchText)) {
         score += 10;
       }
 
       for (const tag of emoji.tags) {
-        if (tag.toLowerCase().includes(searchText)) {
+        if (foldSearchText(tag).includes(searchText)) {
           score += 1;
         }
       }

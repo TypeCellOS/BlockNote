@@ -260,8 +260,15 @@ const EXTRA_LOCALE_METADATA = {
   },
 };
 
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+// Correct labels in the upstream message files that are untranslated or wrong.
+const EMOJIBASE_LABEL_OVERRIDES = {
+  de: { skinTones: { "medium-dark": "Mitteldunkler Hautton" } },
+  ja: { categories: { 3: "動物と自然", 6: "アクティビティ" } },
+  nl: { categories: { 1: "Mensen en lichaam", 9: "Vlaggen" } },
+};
+
+function capitalize(str, locale) {
+  return str.charAt(0).toLocaleUpperCase(locale) + str.slice(1);
 }
 
 function toVarName(locale) {
@@ -305,6 +312,7 @@ function normalizeSearchText(value) {
 }
 
 function buildFrimousseData(emojis, messages, locale) {
+  const labelOverrides = EMOJIBASE_LABEL_OVERRIDES[locale];
   const countryFlagSubgroups = new Set(
     messages.subgroups
       .filter(
@@ -322,14 +330,17 @@ function buildFrimousseData(emojis, messages, locale) {
 
   const categories = filteredGroups.map((g) => ({
     index: g.order,
-    label: capitalize(decodeHtmlEntities(g.message)),
+    label:
+      labelOverrides?.categories?.[g.order] ??
+      capitalize(decodeHtmlEntities(g.message), locale),
   }));
 
   const skinTones = {};
   for (const key of Object.values(TONE_MAP)) {
     const found = messages.skinTones.find((skinTone) => skinTone.key === key);
     if (found) {
-      skinTones[key] = capitalize(found.message);
+      skinTones[key] =
+        labelOverrides?.skinTones?.[key] ?? capitalize(found.message, locale);
     }
   }
 
@@ -338,7 +349,7 @@ function buildFrimousseData(emojis, messages, locale) {
       emoji: emoji.emoji,
       category: emoji.group,
       version: emoji.version,
-      label: capitalize(normalizeSearchText(emoji.label)),
+      label: capitalize(normalizeSearchText(emoji.label), locale),
       tags: (emoji.tags ?? []).map(normalizeSearchText),
     };
     if (countryFlagSubgroups.has(emoji.subgroup)) {
@@ -658,7 +669,7 @@ function generateFrimousseData() {
       if (canonicalIdx !== undefined && overlay[canonicalIdx]) {
         const loc = overlay[canonicalIdx];
         if (loc.name) {
-          emoji.label = capitalize(loc.name);
+          emoji.label = capitalize(loc.name, locale);
         }
         if (loc.keywords.length > 0) {
           emoji.tags = [
@@ -669,7 +680,7 @@ function generateFrimousseData() {
 
       const annotation = getCldrAnnotation(emoji.emoji);
       if (annotation?.tts?.[0]) {
-        emoji.label = capitalize(annotation.tts[0]);
+        emoji.label = capitalize(annotation.tts[0], locale);
       }
       if (annotation?.default) {
         emoji.tags = [
