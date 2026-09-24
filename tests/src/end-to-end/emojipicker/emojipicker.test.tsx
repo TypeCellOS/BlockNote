@@ -44,10 +44,61 @@ describe("Check Emoji Picker Functionality", () => {
     await userEvent.keyboard("sm");
     await waitForSelector(EMOJI_PICKER_SELECTOR);
   });
+  test("should leave Enter to the editor for a bare colon", async () => {
+    await focusOnEditor();
+    await openEmojiPicker();
+    await waitForSelector(EMOJI_PICKER_SELECTOR);
+
+    await userEvent.keyboard("{Enter}");
+
+    await vi.waitFor(() => {
+      const editor = document.querySelector(EDITOR_SELECTOR);
+      expect(editor?.querySelectorAll(".bn-block-content").length).toBe(2);
+      expect(editor?.textContent).toContain(":");
+    });
+  });
   test("Should be able to insert emoji", async () => {
     await focusOnEditor();
     await executeEmojiCommand("frog");
     await waitForTextInEditor("🐸 ");
+  });
+  test("should insert the selected skin tone with Enter", async () => {
+    await focusOnEditor();
+    await openEmojiPicker();
+    await userEvent.keyboard("waving hand");
+    await waitForSelector(".bn-frimousse-emoji[data-selected]");
+
+    await userEvent.click(
+      await waitForSelector("[frimousse-skin-tone-selector]"),
+    );
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector(".bn-frimousse-emoji[data-selected]")
+          ?.textContent,
+      ).toBe("👋🏻");
+    });
+
+    document.querySelector<HTMLElement>(EDITOR_SELECTOR)?.focus();
+    await userEvent.keyboard("{Enter}");
+    await waitForTextInEditor("👋🏻 ");
+  });
+  test("should insert the selected skin tone when clicked", async () => {
+    await focusOnEditor();
+    await openEmojiPicker();
+    await userEvent.keyboard("waving hand");
+    await waitForSelector(".bn-frimousse-emoji[data-selected]");
+
+    await userEvent.click(
+      await waitForSelector("[frimousse-skin-tone-selector]"),
+    );
+    await userEvent.click(
+      await waitForSelector(".bn-frimousse-emoji[data-selected]"),
+    );
+
+    await waitForTextInEditor("👋🏻 ");
+    expect(document.querySelector(EDITOR_SELECTOR)?.textContent).not.toContain(
+      "👋🏻 👋🏻",
+    );
   });
   test("should not submit an enclosing form when an emoji is clicked", async () => {
     await focusOnEditor();
@@ -145,6 +196,7 @@ describe("Check Emoji Picker Functionality", () => {
   test("should keep keyboard selection visible while scrolling", async () => {
     await focusOnEditor();
     await openEmojiPicker();
+    await userEvent.keyboard("a");
     const viewport = await waitForSelector("[frimousse-viewport]");
 
     for (let index = 0; index < 20; index++) {

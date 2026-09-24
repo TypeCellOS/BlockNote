@@ -3,8 +3,13 @@ import {
   type FrimousseEmoji,
   type FrimousseEmojiData,
 } from "@blocknote/core/emoji-data";
-import { EmojiPicker, type EmojiDataResolver } from "frimousse";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  EmojiPicker,
+  type EmojiDataResolver,
+  type SkinTone,
+  useSkinTone,
+} from "frimousse";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { useBlockNoteContext } from "../../../editor/BlockNoteContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
@@ -191,21 +196,36 @@ function scrollViewportTo(
   }
 }
 
-export function InlineEmojiPicker(props: {
+function emojiGlyph(
+  emoji: Pick<FrimousseEmoji, "emoji" | "skins">,
+  skinTone: SkinTone,
+): string {
+  return skinTone === "none"
+    ? emoji.emoji
+    : (emoji.skins?.[skinTone] ?? emoji.emoji);
+}
+
+function InlineEmojiPickerContent(props: {
   query: string;
   closeMenu: () => void;
   clearQuery: () => void;
+  rootRef: React.RefObject<HTMLDivElement | null>;
+  resolvedData?: ResolvedEmojiData;
 }) {
-  const { query, closeMenu, clearQuery } = props;
+  const { query, closeMenu, clearQuery, rootRef, resolvedData } = props;
   const editor = useBlockNoteEditor();
   const editorDOMElement = useEditorDOMElement(editor);
   const setContentEditableProps =
     useBlockNoteContext()!.setContentEditableProps!;
   const dict = useDictionary();
   const locale = dict.locale ?? "en";
-  const rootRef = useRef<HTMLDivElement>(null);
+  const [skinTone] = useSkinTone();
+  const emojiByGlyph = useMemo(
+    () =>
+      new Map(resolvedData?.data.emojis.map((emoji) => [emoji.emoji, emoji])),
+    [resolvedData],
+  );
 
-  const [resolvedData, setResolvedData] = useState<ResolvedEmojiData>();
   const [results, setResults] = useState<EmojiPickerResults>();
   const [selectedPosition, setSelectedPosition] = useState<EmojiPosition>({
     row: 0,
@@ -217,17 +237,6 @@ export function InlineEmojiPicker(props: {
     setSelectedPosition({ row: 0, column: 0 });
     setSelectedButtonVisible(false);
   }, [query, locale]);
-
-  const [resolveEmojiData] = useState(() => {
-    const resolver: EmojiDataResolver = async (resolvedLocale, options) => {
-      const data = await blockNoteEmojiDataResolver(resolvedLocale, options);
-      if (!options.signal?.aborted) {
-        setResolvedData({ locale: resolvedLocale, data });
-      }
-      return data;
-    };
-    return resolver;
-  });
 
   useEffect(() => {
     if (resolvedData?.locale === locale) {
@@ -243,6 +252,7 @@ export function InlineEmojiPicker(props: {
     results?.locale === locale && results.query === query ? results : undefined;
   const selectedRow = currentResults?.rows[selectedPosition.row];
   const selectedEmoji = selectedRow?.emojis[selectedPosition.column];
+  const selectedChar = selectedEmoji && emojiGlyph(selectedEmoji, skinTone);
   const selectedIndex = currentResults
     ? currentResults.rows
         .slice(0, selectedPosition.row)
@@ -294,18 +304,14 @@ export function InlineEmojiPicker(props: {
       return;
     }
 
-    if (!selectedEmoji || !selectedRow || selectedIndex === undefined) {
+    if (!selectedChar || !selectedRow || selectedIndex === undefined) {
       setSelectedButtonVisible(false);
       return;
     }
     // Scroll first so frimousse can virtualise the target row.
     scrollViewportTo(root, selectedPosition, selectedRow.categoryIndex);
 
-    const btn = findButtonAtPosition(
-      root,
-      selectedPosition,
-      selectedEmoji.emoji,
-    );
+    const btn = findButtonAtPosition(root, selectedPosition, selectedChar);
     if (btn) {
       btn.scrollIntoView({ block: "nearest" });
       markButtonSelected(root, btn, selectedIndex);
@@ -313,7 +319,7 @@ export function InlineEmojiPicker(props: {
     } else {
       setSelectedButtonVisible(false);
     }
-  }, [selectedEmoji, selectedIndex, selectedPosition, selectedRow]);
+  }, [rootRef, selectedChar, selectedIndex, selectedPosition, selectedRow]);
 
   // Frimousse loads and virtualizes rows asynchronously. Observe those DOM
   // changes instead of polling every animation frame while no row is present.
@@ -324,11 +330,11 @@ export function InlineEmojiPicker(props: {
     }
     const pickerRoot: HTMLDivElement = root;
 
-    if (!selectedEmoji || !selectedRow || selectedIndex === undefined) {
+    if (!selectedChar || !selectedRow || selectedIndex === undefined) {
       setSelectedButtonVisible(false);
       return;
     }
-    const selectedEmojiValue = selectedEmoji;
+    const selectedCharValue = selectedChar;
     const selectedIndexValue = selectedIndex;
 
     // Ensure viewport is scrolled to the target area.
@@ -338,7 +344,7 @@ export function InlineEmojiPicker(props: {
       const btn = findButtonAtPosition(
         pickerRoot,
         selectedPosition,
-        selectedEmojiValue.emoji,
+        selectedCharValue,
       );
       if (!btn) {
         setSelectedButtonVisible(false);
@@ -364,11 +370,17 @@ export function InlineEmojiPicker(props: {
     });
     updateSelectedButton();
     return () => observer.disconnect();
-  }, [selectedEmoji, selectedIndex, selectedPosition, selectedRow]);
+  }, [rootRef, selectedChar, selectedIndex, selectedPosition, selectedRow]);
+
+  function insertEmoji(emoji: Pick<FrimousseEmoji, "emoji" | "skins">) {
+    clearQuery();
+    closeMenu();
+    editor.insertInlineContent(emojiGlyph(emoji, skinTone) + " ");
+  }
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!currentResults) {
+      if (!currentResults || !query.trim()) {
         return;
       }
 
@@ -393,7 +405,7 @@ export function InlineEmojiPicker(props: {
           event.stopPropagation();
           clearQuery();
           closeMenu();
-          editor.insertInlineContent(selectedEmoji.emoji + " ");
+          editor.insertInlineContent(emojiGlyph(selectedEmoji, skinTone) + " ");
         }
       }
     };
@@ -408,26 +420,15 @@ export function InlineEmojiPicker(props: {
     currentResults,
     editor,
     editorDOMElement,
+    query,
     selectedEmoji,
+    skinTone,
   ]);
 
   const placeholder = `${dict.emoji_picker.search}…`;
-  const selectedChar = selectedEmoji?.emoji;
 
   return (
-    <EmojiPicker.Root
-      ref={rootRef}
-      id="bn-suggestion-menu"
-      className="bn-frimousse-picker"
-      locale={locale}
-      columns={COLUMNS}
-      resolveEmojiData={resolveEmojiData}
-      onEmojiSelect={(emoji) => {
-        clearQuery();
-        closeMenu();
-        editor.insertInlineContent(emoji.emoji + " ");
-      }}
-    >
+    <>
       <EmojiPicker.Search
         className="bn-frimousse-search-hidden"
         value={query}
@@ -457,10 +458,21 @@ export function InlineEmojiPicker(props: {
               <button
                 type="button"
                 className="bn-frimousse-emoji"
-                data-selected={emoji.emoji === selectedChar ? "" : undefined}
                 {...emojiProps}
+                data-selected={
+                  emojiGlyph(
+                    emojiByGlyph.get(emoji.emoji) ?? emoji,
+                    skinTone,
+                  ) === selectedChar
+                    ? ""
+                    : undefined
+                }
+                onClick={(event) => {
+                  emojiProps.onClick?.(event);
+                  insertEmoji(emojiByGlyph.get(emoji.emoji) ?? emoji);
+                }}
               >
-                {emoji.emoji}
+                {emojiGlyph(emojiByGlyph.get(emoji.emoji) ?? emoji, skinTone)}
               </button>
             ),
           }}
@@ -468,12 +480,49 @@ export function InlineEmojiPicker(props: {
       </EmojiPicker.Viewport>
       <div className="bn-frimousse-footer">
         <ActiveEmojiDisplay
-          emoji={selectedEmoji?.emoji}
+          emoji={selectedChar}
           label={selectedEmoji?.label}
           placeholder={placeholder}
         />
         <EmojiPicker.SkinToneSelector className="bn-frimousse-skin-tone" />
       </div>
+    </>
+  );
+}
+
+export function InlineEmojiPicker(props: {
+  query: string;
+  closeMenu: () => void;
+  clearQuery: () => void;
+}) {
+  const locale = useDictionary().locale ?? "en";
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [resolvedData, setResolvedData] = useState<ResolvedEmojiData>();
+  const [resolveEmojiData] = useState(() => {
+    const resolver: EmojiDataResolver = async (resolvedLocale, options) => {
+      const data = await blockNoteEmojiDataResolver(resolvedLocale, options);
+      if (!options.signal?.aborted) {
+        setResolvedData({ locale: resolvedLocale, data });
+      }
+      return data;
+    };
+    return resolver;
+  });
+
+  return (
+    <EmojiPicker.Root
+      ref={rootRef}
+      id="bn-suggestion-menu"
+      className="bn-frimousse-picker"
+      locale={locale}
+      columns={COLUMNS}
+      resolveEmojiData={resolveEmojiData}
+    >
+      <InlineEmojiPickerContent
+        {...props}
+        rootRef={rootRef}
+        resolvedData={resolvedData}
+      />
     </EmojiPicker.Root>
   );
 }
