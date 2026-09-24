@@ -1,6 +1,7 @@
 // TODO: review directories
 export * from "./editor/BlockNoteContext.js";
 export * from "./editor/BlockNoteDefaultUI.js";
+export * from "./editor/BlockNotePortal.js";
 export * from "./editor/BlockNoteView.js";
 export * from "./editor/ComponentsContext.js";
 export * from "./i18n/dictionary.js";

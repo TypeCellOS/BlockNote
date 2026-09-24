@@ -5,15 +5,23 @@ import {
   type VersioningEndpoints,
   type VersionSnapshot,
 } from "@blocknote/core/extensions";
-import { BlockNoteView as MantineBlockNoteView } from "@blocknote/mantine";
+import {
+  BlockNoteView as MantineBlockNoteView,
+  type Theme as MantineTheme,
+} from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { BlockNoteViewEditor, useCreateBlockNote } from "@blocknote/react";
+import {
+  BlockNotePortal,
+  BlockNoteViewEditor,
+  useCreateBlockNote,
+} from "@blocknote/react";
 import { VersioningSidebar } from "@blocknote/react/versioning";
 import { BlockNoteView as ShadcnBlockNoteView } from "@blocknote/shadcn";
 import "@blocknote/shadcn/style.css";
 import "@examples/01-basic/09-shadcn/tailwind.css";
 import { expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
+import { useState } from "react";
 
 import { userEvent } from "../../utils/context.js";
 import { expectElement } from "../../utils/editor.js";
@@ -269,3 +277,183 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     );
   },
 );
+
+const customTheme: MantineTheme = {
+  colors: {
+    editor: { background: "#faeacd" },
+    tooltip: { background: "#345678", text: "#ffffff" },
+  },
+};
+
+test.each([
+  {
+    name: "light",
+    theme: "light" as const,
+    body: "rgb(255, 255, 255)",
+    selected: "rgb(34, 139, 230)",
+  },
+  {
+    name: "dark",
+    theme: "dark" as const,
+    body: "rgb(36, 36, 36)",
+    selected: "rgb(25, 113, 194)",
+  },
+  {
+    name: "custom",
+    theme: customTheme,
+    body: "rgb(255, 255, 255)",
+    selected: "rgb(34, 139, 230)",
+  },
+])(
+  "themes a sidebar in an application-owned portal ($name)",
+  async ({ theme, body, selected: selectedColor }) => {
+    const target = document.createElement("div");
+    target.style.backgroundColor = "#ddd";
+    document.body.append(target);
+
+    function PortaledSidebar() {
+      const editor = useCreateBlockNote({
+        extensions: [
+          VersioningExtension({
+            endpoints: createEndpoints(),
+            preview: {
+              enterPreview: () => {},
+              exitPreview: () => {},
+              applyRestore: () => {},
+            },
+            getCurrentDocument: () => [],
+            serializeCurrentContent: () => [],
+          }),
+        ],
+      });
+
+      return (
+        <MantineBlockNoteView editor={editor} theme={theme}>
+          <BlockNotePortal target={target}>
+            <VersioningSidebar />
+          </BlockNotePortal>
+        </MantineBlockNoteView>
+      );
+    }
+
+    try {
+      await render(<PortaledSidebar />);
+      const rows = await waitForRows(target);
+      const root = target.querySelector<HTMLElement>(".bn-root")!;
+      const selected = rows[0]!;
+      const ordinary = rows[1]!;
+
+      await vi.waitFor(() =>
+        expect(selected).toHaveAttribute("aria-current", "true"),
+      );
+
+      expect(root.closest(".bn-container")).toBeNull();
+      expect(root.classList.contains("bn-mantine")).toBe(true);
+      await vi.waitFor(() =>
+        expect(getComputedStyle(ordinary).backgroundColor).toBe(body),
+      );
+      await vi.waitFor(() =>
+        expect(getComputedStyle(selected).backgroundColor).toBe(selectedColor),
+      );
+      expect(getComputedStyle(selected).color).toBe("rgb(255, 255, 255)");
+
+      if (typeof theme === "object") {
+        expect(
+          getComputedStyle(root)
+            .getPropertyValue("--bn-colors-editor-background")
+            .trim(),
+        ).toBe("#faeacd");
+      }
+
+      await userEvent.hover(ordinary);
+      const menuButton = ordinary.querySelector<HTMLButtonElement>(
+        'button[aria-label="More actions"]',
+      )!;
+      await userEvent.hover(menuButton);
+      const tooltip = await vi.waitFor(() => {
+        const element = target.querySelector<HTMLElement>(
+          ".mantine-Tooltip-tooltip .bn-tooltip",
+        );
+        if (!element) {
+          throw new Error("Expected tooltip inside the portaled sidebar");
+        }
+        return element;
+      });
+      expect(getComputedStyle(tooltip).backgroundColor).not.toBe(
+        "rgba(0, 0, 0, 0)",
+      );
+      if (typeof theme === "object") {
+        expect(getComputedStyle(tooltip).backgroundColor).toBe(
+          "rgb(52, 86, 120)",
+        );
+      }
+      await clickElement(menuButton);
+      const menu = await vi.waitFor(() => {
+        const element = target.querySelector<HTMLElement>('[role="menu"]');
+        if (!element) {
+          throw new Error("Expected menu inside the portaled sidebar");
+        }
+        return element;
+      });
+      expect(getComputedStyle(menu).backgroundColor).not.toBe(
+        "rgba(0, 0, 0, 0)",
+      );
+    } finally {
+      target.remove();
+    }
+  },
+);
+
+test("updates a portaled sidebar when the view theme changes", async () => {
+  const target = document.createElement("div");
+  document.body.append(target);
+
+  function App() {
+    const [dark, setDark] = useState(false);
+    const editor = useCreateBlockNote({
+      extensions: [
+        VersioningExtension({
+          endpoints: createEndpoints(),
+          preview: {
+            enterPreview: () => {},
+            exitPreview: () => {},
+            applyRestore: () => {},
+          },
+          getCurrentDocument: () => [],
+          serializeCurrentContent: () => [],
+        }),
+      ],
+    });
+
+    return (
+      <MantineBlockNoteView editor={editor} theme={dark ? "dark" : "light"}>
+        <button
+          data-test="toggle-theme"
+          onClick={() => setDark((value) => !value)}
+        >
+          Toggle theme
+        </button>
+        <BlockNotePortal target={target}>
+          <VersioningSidebar />
+        </BlockNotePortal>
+      </MantineBlockNoteView>
+    );
+  }
+
+  try {
+    await render(<App />);
+    const rows = await waitForRows(target);
+    const root = target.querySelector<HTMLElement>(".bn-root")!;
+    expect(root.getAttribute("data-mantine-color-scheme")).toBe("light");
+    await clickElement(document.querySelector('[data-test="toggle-theme"]')!);
+    await vi.waitFor(() => {
+      expect(root.getAttribute("data-color-scheme")).toBe("dark");
+      expect(root.getAttribute("data-mantine-color-scheme")).toBe("dark");
+      expect(getComputedStyle(rows[1]!).backgroundColor).toBe(
+        "rgb(36, 36, 36)",
+      );
+    });
+  } finally {
+    target.remove();
+  }
+});

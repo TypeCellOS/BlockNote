@@ -1,4 +1,8 @@
-import { BlockNoteViewEditor, useCreateBlockNote } from "@blocknote/react";
+import {
+  BlockNotePortal,
+  BlockNoteViewEditor,
+  useCreateBlockNote,
+} from "@blocknote/react";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteEditor } from "@blocknote/core";
 import {
@@ -49,41 +53,43 @@ export default function App() {
   });
 
   const [showSidebar, setShowSidebar] = useState(true);
+  const [sidebarPanel, setSidebarPanel] = useState<HTMLDivElement | null>(null);
 
   return (
-    <div className="wrapper">
+    <div className="wrapper layout">
       {/* No `editable` prop: the sidebar makes the editor read-only for as
           long as it's open, and restores it on close. */}
-      <BlockNoteView editor={editor} renderEditor={false}>
-        <div className="layout">
-          <div className="editor-panel">
-            <BlockNoteViewEditor />
-            {!showSidebar && (
-              <button
-                className="show-history-button"
-                onClick={() => setShowSidebar(true)}
-              >
-                History
-              </button>
-            )}
-          </div>
-          {showSidebar && (
-            <div className={"sidebar-section"}>
-              <VersioningSidebar
-                onClose={() => setShowSidebar(false)}
-                // Extend the row menu by composing it: the default items plus
-                // an app-specific one. Order is yours to choose.
-                snapshotMenu={
-                  <VersionMenu>
-                    <DefaultVersionMenuItems />
-                    <MakeCopyItem />
-                  </VersionMenu>
-                }
-              />
-            </div>
-          )}
-        </div>
+      <BlockNoteView
+        editor={editor}
+        renderEditor={false}
+        className="editor-panel"
+      >
+        <BlockNoteViewEditor />
+        {!showSidebar && (
+          <button
+            className="show-history-button"
+            onClick={() => setShowSidebar(true)}
+          >
+            History
+          </button>
+        )}
+        {showSidebar && sidebarPanel && (
+          <BlockNotePortal target={sidebarPanel}>
+            <VersioningSidebar
+              onClose={() => setShowSidebar(false)}
+              // Extend the row menu by composing it: the default items plus
+              // an app-specific one. Order is yours to choose.
+              snapshotMenu={
+                <VersionMenu>
+                  <DefaultVersionMenuItems />
+                  <MakeCopyItem />
+                </VersionMenu>
+              }
+            />
+          </BlockNotePortal>
+        )}
       </BlockNoteView>
+      {showSidebar && <div className="sidebar-section" ref={setSidebarPanel} />}
     </div>
   );
 }
