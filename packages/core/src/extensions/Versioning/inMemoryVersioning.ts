@@ -295,9 +295,12 @@ export function createInMemoryVersioningAdapter(
   // versions on screen is not editing.
   const loadedAt = Date.now();
   let lastEditedAt: number | undefined;
+  let editRevision = 0;
+  let currentCheckpoint: { id: string; revision: number } | undefined;
   editor.onChange(() => {
     if (!preview.isPreviewing) {
       lastEditedAt = Date.now();
+      editRevision++;
     }
   });
 
@@ -309,10 +312,54 @@ export function createInMemoryVersioningAdapter(
       ...endpoints,
       async list() {
         const { current, snapshots } = await endpoints.list();
+        // A checkpoint still represents the live document until it changes.
+        // Keep its identity in the Current slot across sidebar sessions rather
+        // than showing a second, synthetic row with the same content.
+        const activeCheckpoint = currentCheckpoint;
+        const checkpoint =
+          activeCheckpoint?.revision === editRevision
+            ? snapshots.find((s) => s.id === activeCheckpoint.id)
+            : undefined;
         return {
-          current: { ...current, createdAt: lastEditedAt ?? loadedAt },
-          snapshots,
+          current: checkpoint ?? {
+            ...current,
+            createdAt: lastEditedAt ?? loadedAt,
+          },
+          snapshots: checkpoint
+            ? snapshots.filter((s) => s.id !== checkpoint.id)
+            : snapshots,
         };
+      },
+      async create(currentDoc, options) {
+        // An explicit second name before an edit renames the same checkpoint.
+        const activeCheckpoint = currentCheckpoint;
+        if (
+          options.name !== undefined &&
+          activeCheckpoint?.revision === editRevision
+        ) {
+          const { snapshots } = await endpoints.list();
+          const checkpoint = snapshots.find(
+            (s) => s.id === activeCheckpoint.id,
+          );
+          if (checkpoint) {
+            await endpoints.rename!(checkpoint, options.name);
+            return checkpoint;
+          }
+        }
+        const snapshot = await endpoints.create!(currentDoc, options);
+        currentCheckpoint = { id: snapshot.id, revision: editRevision };
+        return snapshot;
+      },
+      async restore(currentDoc, snapshot) {
+        const restored = await endpoints.restore!(currentDoc, snapshot);
+        currentCheckpoint = undefined;
+        return restored;
+      },
+      async remove(snapshot) {
+        await endpoints.remove!(snapshot);
+        if (currentCheckpoint?.id === snapshot.id) {
+          currentCheckpoint = undefined;
+        }
       },
     },
     preview,
