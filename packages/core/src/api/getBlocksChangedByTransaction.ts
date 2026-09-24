@@ -270,7 +270,7 @@ function detectReorderedChildren(
   }
 
   const lisIndexSet = new Set<number>();
-  let k = tailsEndsAtIndex[tailsEndsAtIndex.length - 1] ?? -1;
+  let k = tailsEndsAtIndex.at(-1) ?? -1;
   while (k !== -1) {
     lisIndexSet.add(k);
     k = previousIndexInLis[k];

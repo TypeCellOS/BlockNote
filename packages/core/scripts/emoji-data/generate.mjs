@@ -479,9 +479,20 @@ function writeFrimousseCommonData(frimousseDir, data) {
   const emojis = data.emojis
     .map((emoji) => {
       assertEncodable(emoji.emoji, `emoji ${emoji.emoji}`);
-      const skins = emoji.skins
-        ? encodeList(Object.values(emoji.skins), `skins for ${emoji.emoji}`)
-        : "";
+      // Store one template instead of all five nearly identical variants.
+      // Verify every upstream variation so a future exception fails generation
+      // rather than silently changing the emoji rendered by the picker.
+      const skins = emoji.skins?.light.replaceAll("🏻", "|") ?? "";
+      if (emoji.skins) {
+        Object.values(emoji.skins).forEach((skin, index) => {
+          if (
+            skins.replaceAll("|", String.fromCodePoint(0x1f3fb + index)) !==
+            skin
+          ) {
+            throw new Error(`Cannot encode skin tones for ${emoji.emoji}`);
+          }
+        });
+      }
       return [
         emoji.emoji,
         emoji.category,
@@ -494,7 +505,7 @@ function writeFrimousseCommonData(frimousseDir, data) {
 
   writeFileSync(
     resolve(frimousseDir, "common.ts"),
-    `// THIS FILE IS AUTO-GENERATED. DO NOT EDIT DIRECTLY.\n// Regenerate with: pnpm --filter @blocknote/core generate-emoji-data\n\nexport const frimousseCategoryIndices = ${JSON.stringify(categoryIndices)};\nexport const frimousseCommonData = ${JSON.stringify(emojis)};\n`,
+    `// THIS FILE IS AUTO-GENERATED. DO NOT EDIT DIRECTLY.\n// Regenerate with: pnpm --filter @blocknote/core generate-emoji-data\n\nexport const frimousseCategoryIndices: string = ${JSON.stringify(categoryIndices)};\nexport const frimousseCommonData: string = ${JSON.stringify(emojis)};\n`,
   );
 }
 
@@ -519,20 +530,20 @@ function writeFrimousseData(
   const emojis = data.emojis
     .map((emoji) => {
       assertEncodable(emoji.label, `label for ${emoji.emoji} in ${locale}`);
-      return [
-        emoji.label,
-        encodeList(
-          compactSearchTags(emoji.label, emoji.tags),
-          `tags for ${emoji.emoji} in ${locale}`,
-        ),
-      ].join(FIELD_SEPARATOR);
+      const tags = encodeList(
+        compactSearchTags(emoji.label, emoji.tags),
+        `tags for ${emoji.emoji} in ${locale}`,
+      );
+      return tags ? `${emoji.label}${FIELD_SEPARATOR}${tags}` : emoji.label;
     })
     .join("\n");
   const encoded = [locale, categoryLabels, skinTones, emojis].join("\n");
   const varName = toVarName(locale) + "FrimousseData";
+  // A type annotation prevents declaration emit from copying the entire corpus
+  // into a string literal type in each .d.ts file.
   writeFileSync(
     resolve(frimousseDir, `${locale}.ts`),
-    `// THIS FILE IS AUTO-GENERATED. DO NOT EDIT DIRECTLY.\n// Regenerate with: pnpm --filter @blocknote/core generate-emoji-data\n\nexport const ${varName} = ${JSON.stringify(encoded)};\n`,
+    `// THIS FILE IS AUTO-GENERATED. DO NOT EDIT DIRECTLY.\n// Regenerate with: pnpm --filter @blocknote/core generate-emoji-data\n\nexport const ${varName}: string = ${JSON.stringify(encoded)};\n`,
   );
 }
 

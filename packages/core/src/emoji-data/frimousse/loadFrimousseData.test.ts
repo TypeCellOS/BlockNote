@@ -3,6 +3,40 @@ import { describe, expect, it } from "vite-plus/test";
 import { loadFrimousseData } from "./loadFrimousseData.js";
 
 describe("localized emoji data", () => {
+  it("reuses decoded data for concurrent loads, aliases, and fallbacks", async () => {
+    const [english, concurrent, regional, fallback, anotherFallback] =
+      await Promise.all(
+        ["en", "en", "en-US", "unknown", "unsupported"].map(loadFrimousseData),
+      );
+    for (const data of [concurrent, regional, fallback, anotherFallback]) {
+      expect(data).toBe(english);
+    }
+    expect(await loadFrimousseData("NO")).toBe(await loadFrimousseData("nb"));
+    expect(await loadFrimousseData("zh-TW")).toBe(
+      await loadFrimousseData("zh-hant"),
+    );
+  });
+
+  it("reconstructs skin tones, including sequences with multiple modifiers", async () => {
+    const { emojis } = await loadFrimousseData("en");
+    expect(emojis.filter((emoji) => emoji.skins)).toHaveLength(323);
+    expect(emojis.find((emoji) => emoji.emoji === "👋")?.skins).toEqual({
+      light: "👋🏻",
+      "medium-light": "👋🏼",
+      medium: "👋🏽",
+      "medium-dark": "👋🏾",
+      dark: "👋🏿",
+    });
+    expect(emojis.find((emoji) => emoji.emoji === "🧑‍🤝‍🧑")?.skins).toEqual({
+      light: "🧑🏻‍🤝‍🧑🏻",
+      "medium-light": "🧑🏼‍🤝‍🧑🏼",
+      medium: "🧑🏽‍🤝‍🧑🏽",
+      "medium-dark": "🧑🏾‍🤝‍🧑🏾",
+      dark: "🧑🏿‍🤝‍🧑🏿",
+    });
+    expect(emojis.find((emoji) => emoji.emoji === "😀")?.skins).toBeUndefined();
+  });
+
   it("keeps localized emoji labels and useful search aliases", async () => {
     const turkish = await loadFrimousseData("tr");
     const meltingFace = turkish.emojis.find((emoji) => emoji.emoji === "🫠");

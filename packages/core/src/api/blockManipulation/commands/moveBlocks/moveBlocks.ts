@@ -241,7 +241,7 @@ function getMoveUpPlacement(
       placement = "before";
     }
   } else if (prevBlock.children.length > 0) {
-    referenceBlock = prevBlock.children[prevBlock.children.length - 1];
+    referenceBlock = prevBlock.children.at(-1);
     placement = "after";
   } else {
     referenceBlock = prevBlock;
@@ -377,8 +377,7 @@ export function moveBlocksDown(
     } else {
       const selection = editor.getSelection();
       sourceBlock =
-        selection?.blocks[selection?.blocks.length - 1] ||
-        editor.getTextCursorPosition().block;
+        selection?.blocks.at(-1) || editor.getTextCursorPosition().block;
     }
 
     const moveDownPlacement = getMoveDownPlacement(

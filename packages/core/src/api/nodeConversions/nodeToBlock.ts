@@ -58,9 +58,7 @@ export function contentNodeToTableContent<
     if (rowIndex === 0) {
       rowNode.content.forEach((cellNode) => {
         let colWidth = cellNode.attrs.colwidth as null | undefined | number[];
-        if (colWidth === undefined || colWidth === null) {
-          colWidth = new Array(cellNode.attrs.colspan ?? 1).fill(undefined);
-        }
+        colWidth ??= new Array(cellNode.attrs.colspan ?? 1).fill(undefined);
         ret.columnWidths.push(...colWidth);
       });
     }
@@ -81,11 +79,10 @@ export function contentNodeToTableContent<
         // If the schema only allowed a single tableParagraph node, then the merging would not work and cause prosemirror to fit the content into a new cell
         .reduce(
           (acc, contentPartial) => {
-            if (!acc.length) {
+            const last = acc.at(-1);
+            if (!last) {
               return contentPartial;
             }
-
-            const last = acc[acc.length - 1];
             const first = contentPartial[0];
 
             // Only merge if the last and first content are both styled text nodes and have the same styles
@@ -160,8 +157,11 @@ export function contentNodeToInlineContent<
           currentContent.text += "\n";
         } else if (isLinkInlineContent(currentContent)) {
           // Current content is a link.
-          currentContent.content[currentContent.content.length - 1].text +=
-            "\n";
+          const lastContent = currentContent.content.at(-1);
+          if (!lastContent) {
+            throw new Error("Link content is unexpectedly empty");
+          }
+          lastContent.text += "\n";
         } else {
           throw new Error("unexpected");
         }
@@ -263,15 +263,13 @@ export function contentNodeToInlineContent<
           // Node is a link (same type as current content).
           // Link URLs are the same.
           if (currentContent.href === linkMark.attrs.href) {
+            const lastContent = currentContent.content.at(-1);
+            if (!lastContent) {
+              throw new Error("Link content is unexpectedly empty");
+            }
             // Styles are the same.
-            if (
-              JSON.stringify(
-                currentContent.content[currentContent.content.length - 1]
-                  .styles,
-              ) === JSON.stringify(styles)
-            ) {
-              currentContent.content[currentContent.content.length - 1].text +=
-                node.textContent;
+            if (JSON.stringify(lastContent.styles) === JSON.stringify(styles)) {
+              lastContent.text += node.textContent;
             } else {
               // Styles are different.
               currentContent.content.push({

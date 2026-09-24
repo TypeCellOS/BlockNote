@@ -354,9 +354,7 @@ export class SideMenuView<
             ? coords.clientY - rect.bottom
             : 0;
 
-      const distance = Math.sqrt(
-        Math.pow(distanceX, 2) + Math.pow(distanceY, 2),
-      );
+      const distance = Math.sqrt(distanceX ** 2 + distanceY ** 2);
 
       if (distance < minDistance) {
         minDistance = distance;

@@ -64,7 +64,7 @@ export const CurrentSnapshot = ({
   // "Compare since beginning" diffs the live document against the oldest
   // snapshot. Shown only when current-version diffing is supported and there's
   // at least one snapshot to compare against.
-  const oldestSnapshot = snapshots[snapshots.length - 1];
+  const oldestSnapshot = snapshots.at(-1);
   const actions =
     comparisonEnabled &&
     canPreviewCurrent &&

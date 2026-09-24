@@ -15,7 +15,23 @@
   "files": [
     "dist",
     "types",
-    "src"
+    "src",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
   ],
   "keywords": [
     "ai",
@@ -40,23 +56,19 @@
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-xl-ai.js",
-      "require": "./dist/blocknote-xl-ai.cjs"
+      "import": "./dist/blocknote-xl-ai.js"
     },
     "./style.css": {
       "import": "./dist/style.css",
-      "require": "./dist/style.css",
       "style": "./dist/style.css"
     },
     "./locales": {
       "types": "./types/src/i18n/locales/index.d.ts",
-      "import": "./dist/locales.js",
-      "require": "./dist/locales.cjs"
+      "import": "./dist/locales.js"
     },
     "./server": {
       "types": "./types/src/server.d.ts",
-      "import": "./dist/server.js",
-      "require": "./dist/server.cjs"
+      "import": "./dist/server.js"
     }
   },
   "scripts": {
@@ -76,8 +88,6 @@
     "@handlewithcare/prosemirror-suggest-changes": "^0.1.8",
     "@tiptap/core": "^3.31.3",
     "ai": "^6.0.5",
-    "lodash.isequal": "^4.5.0",
-    "lodash.merge": "^4.6.2",
     "prosemirror-changeset": "^2.4.2",
     "prosemirror-model": "^1.25.11",
     "prosemirror-state": "^1.4.4",
@@ -98,8 +108,6 @@
     "@types/diff": "^6.0.0",
     "@types/json-diff": "^1.0.3",
     "@types/json-schema": "^7.0.15",
-    "@types/lodash.isequal": "^4.5.8",
-    "@types/lodash.merge": "^4.6.9",
     "@types/node": "22.13.13",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",

@@ -32,7 +32,10 @@ function setSelectionToNextContentEditableBlock<
       // No content editable block exists after the current one, so we append
       // an empty paragraph to the end of the document and move the cursor to
       // it.
-      const lastBlock = editor.document[editor.document.length - 1];
+      const lastBlock = editor.document.at(-1);
+      if (!lastBlock) {
+        throw new Error("Editor document is unexpectedly empty");
+      }
       const newBlock = editor.insertBlocks(
         [{ type: "paragraph" }],
         lastBlock,

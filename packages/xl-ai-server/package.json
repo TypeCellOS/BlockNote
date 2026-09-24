@@ -2,12 +2,29 @@
   "name": "@blocknote/xl-ai-server",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": true,
+  "sideEffects": true,
   "license": "GPL-3.0 OR PROPRIETARY",
   "version": "0.54.2",
   "files": [
     "dist",
     "types",
-    "src"
+    "src",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
   ],
   "keywords": [
     "react",
@@ -26,13 +43,12 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-xl-ai-server.umd.cjs",
+  "main": "./dist/blocknote-xl-ai-server.js",
   "module": "./dist/blocknote-xl-ai-server.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-xl-ai-server.js",
-      "require": "./dist/blocknote-xl-ai-server.umd.cjs"
+      "import": "./dist/blocknote-xl-ai-server.js"
     }
   },
   "scripts": {

@@ -13,10 +13,27 @@
   "license": "MPL-2.0",
   "version": "0.54.2",
   "files": [
-    "dist",
-    "types",
-    "src",
-    "NOTICE.txt"
+    "dist/*.js",
+    "dist/*.css",
+    "types/**/*.d.ts",
+    "src/fonts",
+    "NOTICE.txt",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
   ],
   "keywords": [
     "react",
@@ -33,60 +50,49 @@
   ],
   "description": "A \"Notion-style\" block-based extensible text editor built on top of Prosemirror and Tiptap.",
   "type": "module",
-  "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote.cjs",
+  "main": "./dist/blocknote.js",
   "module": "./dist/blocknote.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote.js",
-      "require": "./dist/blocknote.cjs"
+      "import": "./dist/blocknote.js"
     },
     "./style.css": {
       "import": "./dist/style.css",
-      "require": "./dist/style.css",
       "style": "./dist/style.css"
     },
     "./fonts/inter.css": {
       "import": "./src/fonts/inter.css",
-      "require": "./src/fonts/inter.css",
       "style": "./src/fonts/inter.css"
     },
     "./comments": {
       "types": "./types/src/comments/index.d.ts",
-      "import": "./dist/comments.js",
-      "require": "./dist/comments.cjs"
+      "import": "./dist/comments.js"
     },
     "./blocks": {
       "types": "./types/src/blocks/index.d.ts",
-      "import": "./dist/blocks.js",
-      "require": "./dist/blocks.cjs"
+      "import": "./dist/blocks.js"
     },
     "./locales": {
       "types": "./types/src/i18n/index.d.ts",
-      "import": "./dist/locales.js",
-      "require": "./dist/locales.cjs"
+      "import": "./dist/locales.js"
     },
     "./extensions": {
       "types": "./types/src/extensions/index.d.ts",
-      "import": "./dist/extensions.js",
-      "require": "./dist/extensions.cjs"
+      "import": "./dist/extensions.js"
     },
     "./yjs": {
       "types": "./types/src/yjs/index.d.ts",
-      "import": "./dist/yjs.js",
-      "require": "./dist/yjs.cjs"
+      "import": "./dist/yjs.js"
     },
     "./y": {
       "types": "./types/src/y/index.d.ts",
-      "import": "./dist/y.js",
-      "require": "./dist/y.cjs"
+      "import": "./dist/y.js"
     },
     "./emoji-data": {
       "types": "./types/src/emoji-data/index.d.ts",
-      "import": "./dist/emoji-data.js",
-      "require": "./dist/emoji-data.cjs"
+      "import": "./dist/emoji-data.js"
     }
   },
   "scripts": {

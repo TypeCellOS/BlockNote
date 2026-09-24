@@ -35,7 +35,7 @@ const LOCALE_ALIASES: Record<string, string> = {
   "zh-tw": "zh-hant",
 };
 
-const cache = new Map<string, FrimousseEmojiData>();
+const cache = new Map<string, Promise<FrimousseEmojiData>>();
 
 const skinToneKeys = [
   "light",
@@ -74,7 +74,10 @@ function decodeFrimousseData(encoded: string): FrimousseEmojiData {
         ? (Object.fromEntries(
             skinToneKeys.map((key, skinIndex) => [
               key,
-              encodedSkins.split("|")[skinIndex],
+              encodedSkins.replaceAll(
+                "|",
+                String.fromCodePoint(0x1f3fb + skinIndex),
+              ),
             ]),
           ) as NonNullable<FrimousseEmojiData["emojis"][number]["skins"]>)
         : undefined;
@@ -96,22 +99,27 @@ export async function loadFrimousseData(
   locale: string,
 ): Promise<FrimousseEmojiData> {
   const normalizedLocale = locale.toLowerCase();
-  const cached = cache.get(normalizedLocale);
+  const resolved = LOCALE_ALIASES[normalizedLocale] ?? normalizedLocale;
+  const baseLocale = resolved.split("-")[0];
+  const canonicalLocale = loaders[resolved]
+    ? resolved
+    : loaders[baseLocale]
+      ? baseLocale
+      : "en";
+  const cached = cache.get(canonicalLocale);
   if (cached) {
     return cached;
   }
 
-  const resolved = LOCALE_ALIASES[normalizedLocale] ?? normalizedLocale;
-  const loader = loaders[resolved] ?? loaders[resolved.split("-")[0]];
-  if (!loader) {
-    // Fall back to English
-    const enMod = await loaders["en"]();
-    const enData = decodeFrimousseData(Object.values(enMod)[0]);
-    return enData;
-  }
-
-  const mod = await loader();
-  const data = decodeFrimousseData(Object.values(mod)[0]);
-  cache.set(normalizedLocale, data);
+  // Cache the in-flight load too: aliases, fallback locales, and concurrent
+  // callers all reuse one decoded corpus.
+  const data = loaders[canonicalLocale]()
+    .then((mod) => decodeFrimousseData(Object.values(mod)[0]))
+    .catch((error: unknown) => {
+      // Allow retries after an unexpected chunk-loading failure.
+      cache.delete(canonicalLocale);
+      throw error;
+    });
+  cache.set(canonicalLocale, data);
   return data;
 }

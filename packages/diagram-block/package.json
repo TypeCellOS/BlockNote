@@ -15,7 +15,23 @@
   "files": [
     "dist",
     "types",
-    "src"
+    "src",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
   ],
   "keywords": [
     "react",
@@ -37,33 +53,28 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-diagram-block.cjs",
+  "main": "./dist/blocknote-diagram-block.js",
   "module": "./dist/blocknote-diagram-block.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-diagram-block.js",
-      "require": "./dist/blocknote-diagram-block.cjs"
+      "import": "./dist/blocknote-diagram-block.js"
     },
     "./docx-exporter": {
       "types": "./types/src/docx-exporter/index.d.ts",
-      "import": "./dist/docx-exporter.js",
-      "require": "./dist/docx-exporter.cjs"
+      "import": "./dist/docx-exporter.js"
     },
     "./odt-exporter": {
       "types": "./types/src/odt-exporter/index.d.ts",
-      "import": "./dist/odt-exporter.js",
-      "require": "./dist/odt-exporter.cjs"
+      "import": "./dist/odt-exporter.js"
     },
     "./email-exporter": {
       "types": "./types/src/email-exporter/index.d.ts",
-      "import": "./dist/email-exporter.js",
-      "require": "./dist/email-exporter.cjs"
+      "import": "./dist/email-exporter.js"
     },
     "./typst-exporter": {
       "types": "./types/src/typst-exporter/index.d.ts",
-      "import": "./dist/typst-exporter.js",
-      "require": "./dist/typst-exporter.cjs"
+      "import": "./dist/typst-exporter.js"
     }
   },
   "scripts": {

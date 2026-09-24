@@ -322,9 +322,9 @@ export class ExtensionManager {
     }
 
     // ---- Add phase (no updatePlugins call) ----
-    const newExtensions = ([] as (Extension | ExtensionFactoryInstance)[])
-      .concat(toRegister)
-      .filter(Boolean) as (Extension | ExtensionFactoryInstance)[];
+    const newExtensions = (
+      Array.isArray(toRegister) ? toRegister : [toRegister]
+    ).filter(Boolean) as (Extension | ExtensionFactoryInstance)[];
 
     const registeredExtensions = newExtensions
       .map((ext) => this.addExtension(ext))

@@ -25,9 +25,7 @@ function removeDuplicates(array: any, by = JSON.stringify) {
   const seen: any = {};
   return array.filter((item: any) => {
     const key = by(item);
-    return Object.prototype.hasOwnProperty.call(seen, key)
-      ? false
-      : (seen[key] = true);
+    return Object.hasOwn(seen, key) ? false : (seen[key] = true);
   });
 }
 
