@@ -1,6 +1,5 @@
 import { isVideoUrl } from "../../../util/string.js";
 import { findLinks } from "../../../extensions/tiptap-extensions/Link/helpers/linkDetector.js";
-import { parseAutolinkLiteral } from "./autolink.js";
 
 /**
  * Custom markdown-to-HTML converter for BlockNote.
@@ -99,59 +98,39 @@ function tryAutolink(
   text: string,
   i: number,
 ): { html: string; end: number } | null {
+  if (text[i] !== "<") {
+    return null;
+  }
   const rest = text.substring(i);
 
   // CommonMark autolinks: <scheme:destination> and <email@example.com>.
-  if (text[i] === "<") {
-    const urlMatch = rest.match(/^<([a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]*)>/);
-    if (urlMatch) {
-      const url = urlMatch[1];
-      return {
-        html: `<a href="${escapeHtml(url)}">${escapeHtml(url)}</a>`,
-        end: i + urlMatch[0].length,
-      };
-    }
-
-    const emailMatch = rest.match(/^<([^\s<>]+)>/);
-    const email = emailMatch?.[1];
-    const detectedEmail = email
-      ? findLinks(email).find(
-          (match) =>
-            match.type === "email" &&
-            match.start === 0 &&
-            match.end === email.length,
-        )
-      : undefined;
-    if (emailMatch && email && detectedEmail) {
-      return {
-        html: `<a href="${escapeHtml(detectedEmail.href)}">${escapeHtml(email)}</a>`,
-        end: i + emailMatch[0].length,
-      };
-    }
-
-    return null;
+  const urlMatch = rest.match(/^<([a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]*)>/);
+  if (urlMatch) {
+    const url = urlMatch[1];
+    return {
+      html: `<a href="${escapeHtml(url)}">${escapeHtml(url)}</a>`,
+      end: i + urlMatch[0].length,
+    };
   }
 
-  // GFM autolink literals. Only start at a word boundary, so URL-like text
-  // embedded in a larger word remains plain text.
-  if (i > 0 && /[a-zA-Z0-9_]/.test(text[i - 1])) {
-    return null;
+  const emailMatch = rest.match(/^<([^\s<>]+)>/);
+  const email = emailMatch?.[1];
+  const detectedEmail = email
+    ? findLinks(email).find(
+        (match) =>
+          match.type === "email" &&
+          match.start === 0 &&
+          match.end === email.length,
+      )
+    : undefined;
+  if (emailMatch && email && detectedEmail) {
+    return {
+      html: `<a href="${escapeHtml(detectedEmail.href)}">${escapeHtml(email)}</a>`,
+      end: i + emailMatch[0].length,
+    };
   }
 
-  const literalMatch = rest.match(/^(https?:\/\/|www\.)[^\s<>]+/i);
-  if (!literalMatch) {
-    return null;
-  }
-
-  const autolink = parseAutolinkLiteral(literalMatch[0]);
-  if (!autolink) {
-    return null;
-  }
-
-  return {
-    html: `<a href="${escapeHtml(autolink.href)}">${escapeHtml(autolink.value)}</a>`,
-    end: i + autolink.value.length,
-  };
+  return null;
 }
 
 function tryStrikethrough(
@@ -268,7 +247,7 @@ function tryInlineHtml(
 }
 
 /** Characters that can start an inline syntax token. */
-const SPECIAL_CHARS = new Set("\\`![~*_\n<hHwW");
+const SPECIAL_CHARS = new Set("\\`![~*_\n<");
 
 /**
  * Ordered array of inline tokenizers, tried in priority order.

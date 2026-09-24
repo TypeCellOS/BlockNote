@@ -680,7 +680,7 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
   },
   {
     testCase: {
-      name: "markdown/editorDetectedUrlLink",
+      name: "markdown/autolinkWithoutDomain",
       content: [
         {
           type: "paragraph",
