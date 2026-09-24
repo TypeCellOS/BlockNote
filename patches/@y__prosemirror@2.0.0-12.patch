@@ -1,0 +1,24 @@
+diff --git a/src/sync-plugin.js b/src/sync-plugin.js
+index 648e95c4d1302106dc4d71c98adbc2daa7c44efa..80ddc9f86298710a43103a029cf38614064cb93a 100644
+--- a/src/sync-plugin.js
++++ b/src/sync-plugin.js
+@@ -237,7 +237,7 @@ export const syncPlugin = (opts = {}) => {
+     },
+     appendTransaction: (trs, oldState, newState) =>
+       caretBias === -1 ? biasCaretLeft(trs, oldState, newState) : null,
+-    view () {
++    view (initialView) {
+       /**
+        * @type {{ yRdt: YSyncRdt, pmRdt: ProsemirrorRdt, binding: import('lib0/delta/rdt').Binding<any, any> } | null}
+        */
+@@ -333,6 +333,10 @@ export const syncPlugin = (opts = {}) => {
+           renderer: pluginState.renderer
+         })).setMeta('addToHistory', false))
+       }
++      // The plugin state may already be configured when a new EditorView reuses
++      // an existing EditorState. Recreate its view-owned binding immediately;
++      // setup's initial sync also catches up changes made while unmounted.
++      setup(initialView, $syncPluginState.cast(ySyncPluginKey.getState(initialView.state)))
+       return {
+         update (view, prevState) {
+           const pluginState = $syncPluginState.cast(ySyncPluginKey.getState(view.state))

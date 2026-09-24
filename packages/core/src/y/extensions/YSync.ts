@@ -1,4 +1,8 @@
-import { configureYProsemirror, syncPlugin } from "@y/prosemirror";
+import {
+  configureYProsemirror,
+  syncPlugin,
+  ySyncPluginKey,
+} from "@y/prosemirror";
 import type { Node } from "prosemirror-model";
 import {
   type ExtensionOptions,
@@ -101,6 +105,13 @@ export const YSyncExtension = createExtension(
       key: "ySync",
       fragment: options.fragment,
       mount: () => {
+        // The sync plugin reconnects an existing configuration when its view is
+        // recreated. Do not switch an active suggestion editor back to the
+        // base fragment on remount.
+        if (ySyncPluginKey.getState(editor.prosemirrorState)?.ytype) {
+          return;
+        }
+
         const configure = () => {
           editor.exec(
             configureYProsemirror({

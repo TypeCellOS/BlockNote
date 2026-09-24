@@ -3,19 +3,27 @@
 # Regenerates the pnpm patch for @y/prosemirror from a local build.
 #
 # Usage:
-#   ./scripts/patch-y-prosemirror.sh [path-to-y-prosemirror]
+#   ./scripts/patch-y-prosemirror.sh [path-to-y-prosemirror] [--source-fix-only]
 #
 # Defaults to ../y-prosemirror relative to this repo root.
+# --source-fix-only applies just the source change from the local HEAD commit
+# to the published package, without replacing its other sources or declarations.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BLOCKNOTE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 LOCAL_YPM="${1:-$(cd "$BLOCKNOTE_ROOT/../y-prosemirror" && pwd)}"
+SOURCE_FIX_ONLY="${2:-}"
+
+if [[ -n "$SOURCE_FIX_ONLY" && "$SOURCE_FIX_ONLY" != "--source-fix-only" ]]; then
+  echo "ERROR: Unknown option: $SOURCE_FIX_ONLY"
+  exit 1
+fi
 
 # Version of @y/prosemirror to patch. Must match the version pinned in
 # pnpm-workspace.yaml (overrides + patchedDependencies) and package.json files.
-YPM_VERSION="2.0.0-11"
+YPM_VERSION="2.0.0-12"
 
 if [[ ! -d "$LOCAL_YPM/src" ]]; then
   echo "ERROR: Cannot find y-prosemirror at $LOCAL_YPM"
@@ -27,8 +35,10 @@ echo "==> Using local y-prosemirror at: $LOCAL_YPM"
 echo "==> BlockNote root: $BLOCKNOTE_ROOT"
 
 # 0. Build y-prosemirror so dist/ is up to date
-echo "==> Building y-prosemirror (pnpm run dist) ..."
-(cd "$LOCAL_YPM" && pnpm run dist)
+if [[ -z "$SOURCE_FIX_ONLY" ]]; then
+  echo "==> Building y-prosemirror (pnpm run dist) ..."
+  (cd "$LOCAL_YPM" && pnpm run dist)
+fi
 
 # Best-effort cleanup of any leftover patch dir (case-insensitive FS resolves this fine).
 STALE_PATCH_DIR="$BLOCKNOTE_ROOT/node_modules/.pnpm_patches/@y/prosemirror@$YPM_VERSION"
@@ -58,26 +68,30 @@ fi
 
 echo "==> Patch temp dir: $PATCH_DIR"
 
-# 2. Replace src/ with local build
-echo "==> Replacing src/ ..."
-rm -rf "$PATCH_DIR/src"
-cp -R "$LOCAL_YPM/src" "$PATCH_DIR/src"
+if [[ "$SOURCE_FIX_ONLY" == "--source-fix-only" ]]; then
+  echo "==> Applying source fix from local HEAD commit ..."
+  git -C "$LOCAL_YPM" show --format= HEAD -- src/sync-plugin.js | patch -d "$PATCH_DIR" -p1
+else
+  # 2. Replace src/ with local build
+  echo "==> Replacing src/ ..."
+  rm -rf "$PATCH_DIR/src"
+  cp -R "$LOCAL_YPM/src" "$PATCH_DIR/src"
 
-# 3. Replace library declarations, preserving unrelated published artifacts.
-echo "==> Replacing dist/ ..."
-rm -rf "$PATCH_DIR/dist/src"
-mkdir -p "$PATCH_DIR/dist/src"
-cp -R "$LOCAL_YPM/dist/src/" "$PATCH_DIR/dist/src/"
+  # 3. Replace library declarations, preserving unrelated published artifacts.
+  echo "==> Replacing dist/ ..."
+  rm -rf "$PATCH_DIR/dist/src"
+  mkdir -p "$PATCH_DIR/dist/src"
+  cp -R "$LOCAL_YPM/dist/src/" "$PATCH_DIR/dist/src/"
 
-# 4. Copy global.d.ts if it exists
-if [[ -f "$LOCAL_YPM/global.d.ts" ]]; then
-  echo "==> Copying global.d.ts ..."
-  cp "$LOCAL_YPM/global.d.ts" "$PATCH_DIR/global.d.ts"
-fi
+  # 4. Copy global.d.ts if it exists
+  if [[ -f "$LOCAL_YPM/global.d.ts" ]]; then
+    echo "==> Copying global.d.ts ..."
+    cp "$LOCAL_YPM/global.d.ts" "$PATCH_DIR/global.d.ts"
+  fi
 
-# 5. Update package.json in the patch dir
-echo "==> Updating package.json ..."
-node -e "
+  # 5. Update package.json in the patch dir
+  echo "==> Updating package.json ..."
+  node -e "
 const fs = require('fs');
 const orig = JSON.parse(fs.readFileSync('$PATCH_DIR/package.json', 'utf8'));
 const local = JSON.parse(fs.readFileSync('$LOCAL_YPM/package.json', 'utf8'));
@@ -105,6 +119,7 @@ if ('sideEffects' in local) orig.sideEffects = local.sideEffects;
 fs.writeFileSync('$PATCH_DIR/package.json', JSON.stringify(orig, null, 2) + '\n');
 console.log('   package.json updated');
 "
+fi
 
 # 6. Commit the patch
 echo ""

@@ -193,7 +193,9 @@ function Editor({
     }
   }, [editor, suggestions]);
 
-  return <BlockNoteView editor={editor} />;
+  return (
+    <BlockNoteView editor={editor} editable={suggestions?.mode !== "view"} />
+  );
 }
 
 export default function App() {

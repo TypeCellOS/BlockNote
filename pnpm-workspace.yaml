@@ -73,7 +73,11 @@ allowBuilds:
   leveldown: false
   # wasm-pack's binary shim self-installs on first run; no install script.
   wasm-pack: false
-patchedDependencies: { katex@0.16.47: patches/katex@0.16.47.patch }
+patchedDependencies:
+  {
+    "@y/prosemirror@2.0.0-12": patches/@y__prosemirror@2.0.0-12.patch,
+    katex@0.16.47: patches/katex@0.16.47.patch,
+  }
 catalog:
   vite: ^8.0.0
   vite-plus: ^0.2.9
