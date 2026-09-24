@@ -1,8 +1,6 @@
 import { isVideoUrl } from "../../../util/string.js";
-import {
-  getGfmAutolinkLiteralHref,
-  trimGfmAutolinkLiteral,
-} from "./autolink.js";
+import { findLinks } from "../../../extensions/tiptap-extensions/Link/helpers/linkDetector.js";
+import { parseAutolinkLiteral } from "./autolink.js";
 
 /**
  * Custom markdown-to-HTML converter for BlockNote.
@@ -114,13 +112,19 @@ function tryAutolink(
       };
     }
 
-    const emailMatch = rest.match(
-      /^<([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)>/,
-    );
-    if (emailMatch) {
-      const email = emailMatch[1];
+    const emailMatch = rest.match(/^<([^\s<>]+)>/);
+    const email = emailMatch?.[1];
+    const detectedEmail = email
+      ? findLinks(email).find(
+          (match) =>
+            match.type === "email" &&
+            match.start === 0 &&
+            match.end === email.length,
+        )
+      : undefined;
+    if (emailMatch && email && detectedEmail) {
       return {
-        html: `<a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>`,
+        html: `<a href="${escapeHtml(detectedEmail.href)}">${escapeHtml(email)}</a>`,
         end: i + emailMatch[0].length,
       };
     }
@@ -139,15 +143,14 @@ function tryAutolink(
     return null;
   }
 
-  const value = trimGfmAutolinkLiteral(literalMatch[0]);
-  const href = getGfmAutolinkLiteralHref(value);
-  if (!href) {
+  const autolink = parseAutolinkLiteral(literalMatch[0]);
+  if (!autolink) {
     return null;
   }
 
   return {
-    html: `<a href="${escapeHtml(href)}">${escapeHtml(value)}</a>`,
-    end: i + value.length,
+    html: `<a href="${escapeHtml(autolink.href)}">${escapeHtml(autolink.value)}</a>`,
+    end: i + autolink.value.length,
   };
 }
 

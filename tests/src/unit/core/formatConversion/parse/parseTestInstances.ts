@@ -1515,7 +1515,9 @@ Balanced parentheses stay linked: https://example.com/a(b)))
 
 Entity suffix stays plain: https://example.com&copy;
 
-Invalid domains stay plain: https://invalid and www.invalid_domain.com`,
+Editor-compatible detection: https://invalid
+
+Invalid schemeless domains stay plain: www.invalid_domain.com`,
     },
     executeTest: testParseMarkdown,
   },

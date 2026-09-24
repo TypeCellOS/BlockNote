@@ -119,11 +119,39 @@
     "content": [
       {
         "styles": {},
-        "text": "Invalid domains stay plain: https://invalid and www.invalid_domain.com",
+        "text": "Editor-compatible detection: ",
         "type": "text",
+      },
+      {
+        "content": [
+          {
+            "styles": {},
+            "text": "https://invalid",
+            "type": "text",
+          },
+        ],
+        "href": "https://invalid",
+        "type": "link",
       },
     ],
     "id": "4",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Invalid schemeless domains stay plain: www.invalid_domain.com",
+        "type": "text",
+      },
+    ],
+    "id": "5",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

@@ -1,7 +1,4 @@
-import {
-  getGfmAutolinkLiteralHref,
-  trimGfmAutolinkLiteral,
-} from "../../parsers/markdown/autolink.js";
+import { parseAutolinkLiteral } from "../../parsers/markdown/autolink.js";
 
 /**
  * Custom HTML-to-Markdown serializer for BlockNote.
@@ -711,11 +708,10 @@ function formatLink(text: string, href: string): string {
     return href;
   }
   if (text === href) {
-    const isAutolinkLiteral = /^(https?:\/\/|www\.)/i.test(href);
+    const autolink = parseAutolinkLiteral(href);
     if (
-      !isAutolinkLiteral ||
-      (getGfmAutolinkLiteralHref(href) === href &&
-        trimGfmAutolinkLiteral(href) === href)
+      !/^(https?:\/\/|www\.)/i.test(href) ||
+      (autolink?.href === href && autolink.value === href)
     ) {
       return href;
     }
