@@ -268,7 +268,24 @@ function tryInlineHtml(
 }
 
 /** Characters that can start an inline syntax token. */
-const SPECIAL_CHARS = new Set("\\`![~*_\n<hHwW");
+const SPECIAL_CHARS = new Set("\\`![~*_\n<");
+
+function canStartInlineToken(text: string, position: number): boolean {
+  const char = text[position];
+  if (SPECIAL_CHARS.has(char)) {
+    return true;
+  }
+  if (char === "h") {
+    return (
+      text.startsWith("http://", position) ||
+      text.startsWith("https://", position)
+    );
+  }
+  if (char === "w") {
+    return text.startsWith("www.", position);
+  }
+  return false;
+}
 
 /**
  * Ordered array of inline tokenizers, tried in priority order.
@@ -321,7 +338,7 @@ function parseInline(text: string, allowLinks = true): string {
 
     // Try each tokenizer in priority order
     let matched = false;
-    if (SPECIAL_CHARS.has(text[i])) {
+    if (canStartInlineToken(text, i)) {
       for (const tokenizer of tokenizers) {
         const r = tokenizer(text, i, allowLinks);
         if (r) {
@@ -337,7 +354,7 @@ function parseInline(text: string, allowLinks = true): string {
       // Batch consecutive plain-text characters and escape once
       const runStart = i;
       i++;
-      while (i < text.length && !SPECIAL_CHARS.has(text[i])) {
+      while (i < text.length && !canStartInlineToken(text, i)) {
         i++;
       }
       result += escapeHtml(text.substring(runStart, i));
