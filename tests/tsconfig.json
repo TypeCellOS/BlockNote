@@ -27,6 +27,9 @@
   "include": ["src"],
   "references": [
     {
+      "path": "../packages/mantine"
+    },
+    {
       "path": "../packages/core"
     },
     {

@@ -27,3 +27,6 @@ export * from "./defaultBlockHelpers.js";
 export * from "./defaultBlocks.js";
 export * from "./defaultBlockTypeGuards.js";
 export * from "./defaultProps.js";
+
+export * from "./ToggleFrame/createToggleFrame.js";
+export type { ToggledState } from "./ToggleFrame/toggledState.js";

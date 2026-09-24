@@ -1,3 +1,4 @@
+import { handleToggleEnter } from "../../Toggle/toggleEnter.js";
 import { type ChainedCommands, Extension } from "@tiptap/core";
 import { Fragment } from "prosemirror-model";
 import { TextSelection, Transaction } from "prosemirror-state";
@@ -881,6 +882,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return true;
           }),
+        () =>
+          !withShift &&
+          commands.command(({ tr }) =>
+            handleToggleEnter(this.options.editor, tr),
+          ),
         // Splits the current block, moving content inside that's after the cursor to a new text block below. Also
         // deletes the selection beforehand, if it's not empty.
         () =>

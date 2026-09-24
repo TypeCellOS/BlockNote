@@ -2,33 +2,44 @@
   <div class="bn-block-outer" data-node-type="blockOuter" data-id="1">
     <div class="bn-block" data-node-type="blockContainer" data-id="1">
       <div
-        class="bn-block-content"
-        data-content-type="heading"
-        data-level="2"
-        data-is-toggleable="true"
+        class="bn-toggle-frame"
+        data-toggle-heading="true"
+        data-show-children="true"
       >
-        <div>
-          <div class="bn-toggle-wrapper" data-show-children="true">
-            <button class="bn-toggle-button" type="button">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="24px"
-                viewBox="0 -960 960 960"
-                width="24px"
-                fill="CURRENTCOLOR"
-              >
-                <path d="M320-200v-560l440 280-440 280Z"></path>
-              </svg>
-            </button>
+        <button
+          class="bn-toggle-button"
+          type="button"
+          aria-label="Toggle List"
+          aria-expanded="true"
+          disabled=""
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24px"
+            viewBox="0 -960 960 960"
+            width="24px"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path d="M320-200v-560l440 280-440 280Z"></path>
+          </svg>
+        </button>
+        <div class="bn-toggle-slot">
+          <div
+            class="bn-block-content"
+            data-content-type="heading"
+            data-level="2"
+            data-is-toggleable="true"
+          >
             <h2 class="bn-inline-content">Toggle Heading</h2>
           </div>
-        </div>
-      </div>
-      <div class="bn-block-group" data-node-type="blockGroup">
-        <div class="bn-block-outer" data-node-type="blockOuter" data-id="2">
-          <div class="bn-block" data-node-type="blockContainer" data-id="2">
-            <div class="bn-block-content" data-content-type="paragraph">
-              <p class="bn-inline-content">Child content</p>
+          <div class="bn-block-group" data-node-type="blockGroup">
+            <div class="bn-block-outer" data-node-type="blockOuter" data-id="2">
+              <div class="bn-block" data-node-type="blockContainer" data-id="2">
+                <div class="bn-block-content" data-content-type="paragraph">
+                  <p class="bn-inline-content">Child content</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
