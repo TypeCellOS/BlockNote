@@ -6,12 +6,12 @@ export function filenameFromURL(url: string): string {
   const parts = url.split("/");
   if (
     !parts.length || // invalid?
-    parts[parts.length - 1] === "" // for example, URL ends in a directory-like trailing slash
+    parts.at(-1) === "" // for example, URL ends in a directory-like trailing slash
   ) {
     // in this case just return the original url
     return url;
   }
-  return parts[parts.length - 1];
+  return parts.at(-1) ?? url;
 }
 
 export function isVideoUrl(url: string) {

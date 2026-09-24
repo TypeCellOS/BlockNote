@@ -72,12 +72,9 @@ export function wrapTableRows(f: Fragment, schema: Schema) {
   const newItems: any[] = [];
   for (let i = 0; i < f.childCount; i++) {
     if (f.child(i).type.name === "tableRow") {
-      if (
-        newItems.length > 0 &&
-        newItems[newItems.length - 1].type.name === "table"
-      ) {
+      const prevTable = newItems.at(-1);
+      if (prevTable?.type.name === "table") {
         // append to existing table
-        const prevTable = newItems[newItems.length - 1];
         const newTable = prevTable.copy(prevTable.content.addToEnd(f.child(i)));
         newItems[newItems.length - 1] = newTable;
       } else {

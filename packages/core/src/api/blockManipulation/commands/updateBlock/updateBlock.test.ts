@@ -972,7 +972,7 @@ describe("Test updateBlock minimal steps", () => {
     expect(block.props.level).toBe(3);
     // The styled text on either side of the replaced range is preserved.
     expect(block.content[0].text).toBe("Paragraph");
-    expect(block.content[block.content.length - 1].text).toBe("content");
+    expect(block.content.at(-1)?.text).toBe("content");
     expect(() => editor._tiptapEditor.state.doc.check()).not.toThrow();
   });
 });
