@@ -107,6 +107,7 @@ export function getDefaultTiptapExtensions(
     KeyboardShortcutsExtension.configure({
       editor: editor,
       tabBehavior: options.tabBehavior,
+      backspaceBehavior: options.backspaceBehavior ?? "unindent",
     }),
     BlockGroup.configure({
       domAttributes: options.domAttributes,

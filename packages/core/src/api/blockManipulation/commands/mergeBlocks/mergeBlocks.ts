@@ -1,5 +1,6 @@
-import { Node } from "prosemirror-model";
-import { EditorState } from "prosemirror-state";
+import { Fragment, Node } from "prosemirror-model";
+import { Command } from "@tiptap/core";
+import { EditorState, Selection, Transaction } from "prosemirror-state";
 
 import {
   BlockInfo,
@@ -107,7 +108,6 @@ const canMerge = (prevBlockInfo: BlockInfo, nextBlockInfo: BlockInfo) => {
   return (
     prevBlockInfo.isBlockContainer &&
     prevBlockInfo.blockContent.node.type.spec.content === "inline*" &&
-    prevBlockInfo.blockContent.node.childCount > 0 &&
     nextBlockInfo.isBlockContainer &&
     nextBlockInfo.blockContent.node.type.spec.content === "inline*"
   );
@@ -115,7 +115,7 @@ const canMerge = (prevBlockInfo: BlockInfo, nextBlockInfo: BlockInfo) => {
 
 const mergeBlocks = (
   state: EditorState,
-  dispatch: ((args?: any) => any) | undefined,
+  dispatch: ((tr: Transaction) => void) | undefined,
   prevBlockInfo: BlockInfo,
   nextBlockInfo: BlockInfo,
 ) => {
@@ -165,14 +165,65 @@ const mergeBlocks = (
   return true;
 };
 
-export const mergeBlocksCommand =
-  (posBetweenBlocks: number) =>
-  ({
+type ContentBlockInfo = Extract<BlockInfo, { isBlockContainer: true }>;
+
+/** Merge a first child into its parent, promoting descendants into its place. */
+function mergeIntoParent(
+  state: EditorState,
+  dispatch: ((tr: Transaction) => void) | undefined,
+  parent: ContentBlockInfo,
+  child: ContentBlockInfo,
+): boolean {
+  if (!parent.childContainer || !canMerge(parent, child)) {
+    return false;
+  }
+  const content = child.blockContent.node.content;
+  if (
+    content.size > 0 &&
+    (parent.blockContent.node.type.spec.content !== "inline*" ||
+      !parent.blockContent.node.type.validContent(
+        parent.blockContent.node.content.append(content),
+      ))
+  ) {
+    return false;
+  }
+
+  if (dispatch) {
+    const tr = state.tr;
+    if (parent.childContainer.node.childCount === 1 && !child.childContainer) {
+      tr.delete(
+        parent.childContainer.beforePos,
+        parent.childContainer.afterPos,
+      );
+    } else {
+      tr.replaceWith(
+        child.bnBlock.beforePos,
+        child.bnBlock.afterPos,
+        child.childContainer?.node.content ?? Fragment.empty,
+      );
+    }
+    const cursorPos = parent.blockContent.afterPos - 1;
+    if (content.size > 0) {
+      tr.insert(cursorPos, content);
+    }
+    tr.setSelection(Selection.near(tr.doc.resolve(cursorPos), -1));
+    dispatch(tr.scrollIntoView());
+  }
+  return true;
+}
+
+/**
+ * Merges into the previous sibling's deepest descendant, or into the parent
+ * when the position is before its first child. Both blocks must support inline
+ * content; incompatible blocks return false for the caller to handle.
+ */
+export function mergeBlocksCommand(posBetweenBlocks: number): Command {
+  return ({
     state,
     dispatch,
   }: {
     state: EditorState;
-    dispatch: ((args?: any) => any) | undefined;
+    dispatch: ((tr: Transaction) => void) | undefined;
   }) => {
     const $pos = state.doc.resolve(posBetweenBlocks);
     const nextBlockInfo = getBlockInfoFromResolvedPos($pos);
@@ -183,6 +234,18 @@ export const mergeBlocksCommand =
     );
 
     if (!prevBlockInfo) {
+      if (
+        nextBlockInfo.isBlockContainer &&
+        nextBlockInfo.blockContent.node.type.spec.content === "inline*"
+      ) {
+        const parent = getParentBlockInfo(
+          state.doc,
+          nextBlockInfo.bnBlock.beforePos,
+        );
+        if (parent?.isBlockContainer) {
+          return mergeIntoParent(state, dispatch, parent, nextBlockInfo);
+        }
+      }
       return false;
     }
 
@@ -197,3 +260,4 @@ export const mergeBlocksCommand =
 
     return mergeBlocks(state, dispatch, bottomNestedBlockInfo, nextBlockInfo);
   };
+}
