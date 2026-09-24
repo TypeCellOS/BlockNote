@@ -2,7 +2,10 @@
   "name": "@blocknote/xl-ai-server",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": true,
-  "sideEffects": true,
+  "sideEffects": [
+    "./src/index.ts",
+    "./dist/blocknote-xl-ai-server.js"
+  ],
   "license": "GPL-3.0 OR PROPRIETARY",
   "version": "0.55.0",
   "files": [

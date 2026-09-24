@@ -29,9 +29,6 @@ See our homepage @ [https://www.blocknotejs.org](https://www.blocknotejs.org/) o
 
 [![npm version](https://badge.fury.io/js/%40blocknote%2Freact.svg)](https://badge.fury.io/js/%40blocknote%2Freact)
 
-BlockNote packages are ESM-only. Use `import` (or dynamic `import()`) to load them;
-CommonJS `require()` entry points are no longer provided.
-
 ```typescript
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
