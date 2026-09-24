@@ -2,7 +2,6 @@ import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { configDefaults, defineConfig } from "vite-plus";
 import pkg from "./package.json";
-// import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -29,7 +28,7 @@ export default defineConfig({
   },
   plugins: [webpackStats()],
   build: {
-    sourcemap: true,
+    sourcemap: false,
     lib: {
       entry: {
         blocknote: path.resolve(__dirname, "src/index.ts"),
@@ -42,9 +41,8 @@ export default defineConfig({
       },
       name: "blocknote",
       cssFileName: "style",
-      formats: ["es", "cjs"],
-      fileName: (format, entryName) =>
-        format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
+      formats: ["es"],
+      fileName: (_format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
@@ -68,11 +66,6 @@ export default defineConfig({
           source.startsWith("@shikijs/") ||
           source.startsWith("node:")
         );
-      },
-      output: {
-        // Provide global variables to use in the UMD build
-        // for externalized deps
-        globals: {},
       },
     },
   },

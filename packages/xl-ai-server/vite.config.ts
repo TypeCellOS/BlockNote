@@ -39,8 +39,9 @@ export default defineConfig(
               } as Record<string, string>),
       },
       build: {
-        sourcemap: true,
+        sourcemap: false,
         lib: {
+          formats: ["es"],
           entry: path.resolve(__dirname, "src/index.ts"),
           name: "blocknote-xl-ai-server",
           fileName: "blocknote-xl-ai-server",
@@ -67,14 +68,6 @@ export default defineConfig(
               source.startsWith("@shikijs/") ||
               source.startsWith("node:")
             );
-          },
-          output: {
-            // Provide global variables to use in the UMD build
-            // for externalized deps
-            globals: {
-              react: "React",
-              "react-dom": "ReactDOM",
-            },
           },
         },
       },

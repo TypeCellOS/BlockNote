@@ -34,7 +34,7 @@ export default defineConfig(
       },
       plugins: [webpackStats() as any],
       build: {
-        sourcemap: true,
+        sourcemap: false,
         lib: {
           entry: {
             "blocknote-xl-typst-compiler": path.resolve(
@@ -43,9 +43,8 @@ export default defineConfig(
             ),
           },
           name: "blocknote-xl-typst-compiler",
-          formats: ["es", "cjs"],
-          fileName: (format, entryName) =>
-            format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
+          formats: ["es"],
+          fileName: (_format, entryName) => `${entryName}.js`,
         },
         rollupOptions: {
           // The wasm-bindgen glue (self-referenced as .../pkg) ships as
