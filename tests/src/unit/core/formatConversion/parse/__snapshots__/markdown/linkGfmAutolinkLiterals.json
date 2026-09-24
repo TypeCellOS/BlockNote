@@ -86,11 +86,44 @@
     "content": [
       {
         "styles": {},
-        "text": "Invalid domains stay plain: https://invalid and www.invalid_domain.com",
+        "text": "Entity suffix stays plain: ",
+        "type": "text",
+      },
+      {
+        "content": [
+          {
+            "styles": {},
+            "text": "https://example.com",
+            "type": "text",
+          },
+        ],
+        "href": "https://example.com",
+        "type": "link",
+      },
+      {
+        "styles": {},
+        "text": "&copy;",
         "type": "text",
       },
     ],
     "id": "3",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Invalid domains stay plain: https://invalid and www.invalid_domain.com",
+        "type": "text",
+      },
+    ],
+    "id": "4",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

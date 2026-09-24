@@ -1,5 +1,5 @@
 import {
-  isGfmAutolinkLiteral,
+  getGfmAutolinkLiteralHref,
   trimGfmAutolinkLiteral,
 } from "../../parsers/markdown/autolink.js";
 
@@ -714,7 +714,8 @@ function formatLink(text: string, href: string): string {
     const isAutolinkLiteral = /^(https?:\/\/|www\.)/i.test(href);
     if (
       !isAutolinkLiteral ||
-      (isGfmAutolinkLiteral(href) && trimGfmAutolinkLiteral(href) === href)
+      (getGfmAutolinkLiteralHref(href) === href &&
+        trimGfmAutolinkLiteral(href) === href)
     ) {
       return href;
     }

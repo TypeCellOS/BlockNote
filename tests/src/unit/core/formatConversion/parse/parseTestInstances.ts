@@ -1500,7 +1500,9 @@ Paragraph below`,
   {
     testCase: {
       name: "linkCommonMarkAutolink",
-      content: `Visit <https://example.com/path?q=1>`,
+      content: `Visit <https://example.com/path?q=1>
+
+Invalid email domains stay plain: <a@b..c>`,
     },
     executeTest: testParseMarkdown,
   },
@@ -1511,7 +1513,16 @@ Paragraph below`,
 
 Balanced parentheses stay linked: https://example.com/a(b)))
 
+Entity suffix stays plain: https://example.com&copy;
+
 Invalid domains stay plain: https://invalid and www.invalid_domain.com`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "linkWithFormattedAutolinkText",
+      content: `[**https://example.com**](https://destination.com)`,
     },
     executeTest: testParseMarkdown,
   },

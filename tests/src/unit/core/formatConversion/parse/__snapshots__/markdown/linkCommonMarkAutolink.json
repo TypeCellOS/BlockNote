@@ -27,4 +27,21 @@
     },
     "type": "paragraph",
   },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Invalid email domains stay plain: <a@b..c>",
+        "type": "text",
+      },
+    ],
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
 ]

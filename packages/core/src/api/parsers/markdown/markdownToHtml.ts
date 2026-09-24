@@ -1,5 +1,8 @@
 import { isVideoUrl } from "../../../util/string.js";
-import { isGfmAutolinkLiteral, trimGfmAutolinkLiteral } from "./autolink.js";
+import {
+  getGfmAutolinkLiteralHref,
+  trimGfmAutolinkLiteral,
+} from "./autolink.js";
 
 /**
  * Custom markdown-to-HTML converter for BlockNote.
@@ -42,6 +45,7 @@ function isIntraword(text: string, i: number, delimLen: number): boolean {
 type InlineTokenizer = (
   text: string,
   i: number,
+  allowLinks: boolean,
 ) => { html: string; end: number } | null;
 
 function tryBackslashEscape(
@@ -111,7 +115,7 @@ function tryAutolink(
     }
 
     const emailMatch = rest.match(
-      /^<([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?)>/,
+      /^<([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)>/,
     );
     if (emailMatch) {
       const email = emailMatch[1];
@@ -136,11 +140,11 @@ function tryAutolink(
   }
 
   const value = trimGfmAutolinkLiteral(literalMatch[0]);
-  if (!isGfmAutolinkLiteral(value)) {
+  const href = getGfmAutolinkLiteralHref(value);
+  if (!href) {
     return null;
   }
 
-  const href = /^www\./i.test(value) ? `http://${value}` : value;
   return {
     html: `<a href="${escapeHtml(href)}">${escapeHtml(value)}</a>`,
     end: i + value.length,
@@ -150,16 +154,18 @@ function tryAutolink(
 function tryStrikethrough(
   text: string,
   i: number,
+  allowLinks: boolean,
 ): { html: string; end: number } | null {
   if (text[i] !== "~" || text[i + 1] !== "~") {
     return null;
   }
-  return parseDelimited(text, i, "~~", "<del>", "</del>");
+  return parseDelimited(text, i, "~~", "<del>", "</del>", allowLinks);
 }
 
 function tryBoldItalic(
   text: string,
   i: number,
+  allowLinks: boolean,
 ): { html: string; end: number } | null {
   if (
     (text[i] === "*" && text[i + 1] === "*" && text[i + 2] === "*") ||
@@ -169,7 +175,14 @@ function tryBoldItalic(
       !isIntraword(text, i, 3))
   ) {
     const delimiter = text.substring(i, i + 3);
-    return parseDelimited(text, i, delimiter, "<strong><em>", "</em></strong>");
+    return parseDelimited(
+      text,
+      i,
+      delimiter,
+      "<strong><em>",
+      "</em></strong>",
+      allowLinks,
+    );
   }
   return null;
 }
@@ -177,13 +190,21 @@ function tryBoldItalic(
 function tryBold(
   text: string,
   i: number,
+  allowLinks: boolean,
 ): { html: string; end: number } | null {
   if (
     (text[i] === "*" && text[i + 1] === "*") ||
     (text[i] === "_" && text[i + 1] === "_" && !isIntraword(text, i, 2))
   ) {
     const delimiter = text.substring(i, i + 2);
-    return parseDelimited(text, i, delimiter, "<strong>", "</strong>");
+    return parseDelimited(
+      text,
+      i,
+      delimiter,
+      "<strong>",
+      "</strong>",
+      allowLinks,
+    );
   }
   return null;
 }
@@ -191,9 +212,10 @@ function tryBold(
 function tryItalic(
   text: string,
   i: number,
+  allowLinks: boolean,
 ): { html: string; end: number } | null {
   if (text[i] === "*" || (text[i] === "_" && !isIntraword(text, i, 1))) {
-    return parseDelimited(text, i, text[i], "<em>", "</em>");
+    return parseDelimited(text, i, text[i], "<em>", "</em>", allowLinks);
   }
   return null;
 }
@@ -298,7 +320,7 @@ function parseInline(text: string, allowLinks = true): string {
     let matched = false;
     if (SPECIAL_CHARS.has(text[i])) {
       for (const tokenizer of tokenizers) {
-        const r = tokenizer(text, i);
+        const r = tokenizer(text, i, allowLinks);
         if (r) {
           result += r.html;
           i = r.end;
@@ -549,6 +571,7 @@ function parseDelimited(
   delimiter: string,
   openTag: string,
   closeTag: string,
+  allowLinks: boolean,
 ): { html: string; end: number } | null {
   const len = delimiter.length;
   const afterOpen = start + len;
@@ -598,7 +621,7 @@ function parseDelimited(
       }
 
       return {
-        html: openTag + parseInline(inner) + closeTag,
+        html: openTag + parseInline(inner, allowLinks) + closeTag,
         end: j + len,
       };
     }

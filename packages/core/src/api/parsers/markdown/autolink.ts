@@ -18,8 +18,16 @@ export function isGfmAutolinkLiteral(value: string): boolean {
   return segments.slice(-2).every((segment) => !segment.includes("_"));
 }
 
+export function getGfmAutolinkLiteralHref(value: string): string | undefined {
+  if (!isGfmAutolinkLiteral(value)) {
+    return undefined;
+  }
+  return /^www\./i.test(value) ? `http://${value}` : value;
+}
+
 export function trimGfmAutolinkLiteral(value: string): string {
-  const trimmed = value.replace(/[?!.,:*_~]+$/, "");
+  let trimmed = value.replace(/[?!.,:*_~]+$/, "");
+  trimmed = trimmed.replace(/&[a-zA-Z0-9]+;$/, "");
   if (!trimmed.endsWith(")")) {
     return trimmed;
   }

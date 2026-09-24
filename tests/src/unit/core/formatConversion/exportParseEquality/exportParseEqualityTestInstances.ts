@@ -698,6 +698,24 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
   },
   {
     testCase: {
+      name: "markdown/plainWwwLink",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "link",
+              content: "www.example.com",
+              href: "www.example.com",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
       name: "markdown/image",
       content: [
         {
