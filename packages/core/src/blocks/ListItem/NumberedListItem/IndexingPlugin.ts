@@ -75,7 +75,7 @@ function calculateListItemIndex(
   let isFirst: boolean;
 
   // Determine starting index from the block just before the chain
-  const lastInChain = chain[chain.length - 1];
+  const lastInChain = chain.at(-1) ?? { node, pos };
   const lastInfo = getBlockInfoFromNode(lastInChain.node, lastInChain.pos);
   if (!lastInfo.hasContent) {
     throw new Error("impossible");

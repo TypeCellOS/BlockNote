@@ -80,13 +80,11 @@ export function shallow<T>(objA: T, objB: T): boolean {
 
   return keysA.every(
     (key) =>
-      Object.prototype.hasOwnProperty.call(objB, key) &&
+      Object.hasOwn(objB, key) &&
       Object.is(objA[key as keyof T], objB[key as keyof T]),
   );
 }
 
 function getOwnKeys<T extends object>(obj: T): Array<string | symbol> {
-  return (Object.keys(obj) as Array<string | symbol>).concat(
-    Object.getOwnPropertySymbols(obj),
-  );
+  return [...Object.keys(obj), ...Object.getOwnPropertySymbols(obj)];
 }
