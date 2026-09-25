@@ -91,18 +91,27 @@ describe("Test mergeBlocks", () => {
     expect(result).toBeUndefined();
   });
 
-  // We expect a no-op for each of the remaining tests as merging should only
-  // happen for blocks which both have inline content. We also expect
-  // `mergeBlocks` to return false as TipTap commands should do that instead of
-  // throwing an error, when the command cannot be executed.
   it("First block is empty", () => {
     getEditor().setTextCursorPosition("paragraph-8");
 
     const originalDocument = getEditor().document;
     const ret = mergeBlocks(getPosBeforeSelectedBlock());
 
-    expect(getEditor().document).toEqual(originalDocument);
-    expect(ret).toBeFalsy();
+    expect(getEditor().document).toEqual(
+      originalDocument
+        .filter((block) => block.id !== "paragraph-8")
+        .map((block) =>
+          block.id === "empty-paragraph"
+            ? {
+                ...block,
+                content: originalDocument.find(
+                  (source) => source.id === "paragraph-8",
+                )!.content,
+              }
+            : block,
+        ),
+    );
+    expect(ret).toBe(true);
   });
 
   it("Inline content & no content", () => {
@@ -132,7 +141,7 @@ describe("Test mergeBlocks", () => {
     const ret = mergeBlocks(getPosBeforeSelectedBlock());
 
     expect(getEditor().document).toEqual(originalDocument);
-    expect(ret).toBeFalsy();
+    expect(ret).toBe(false);
   });
 
   it("Table content & inline content", () => {
