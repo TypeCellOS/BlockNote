@@ -21,7 +21,7 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "@y/y": "^14.0.0-rc.26",
-    "@y/prosemirror": "^2.0.0-12",
+    "@y/prosemirror": "^2.0.0-13",
     "react-icons": "^5.5.0"
   },
   "devDependencies": {

@@ -24,7 +24,7 @@
     "@y/websocket": "^4.0.0-3",
     "@y/y": "^14.0.0-rc.26",
     "lib0": "1.0.0-rc.32",
-    "@y/prosemirror": "^2.0.0-12"
+    "@y/prosemirror": "^2.0.0-13"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",
