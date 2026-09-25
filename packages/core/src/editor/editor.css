@@ -65,6 +65,34 @@
   pointer-events: none;
 }
 
+/* Cells of the row/column currently being dragged. An inset shadow is used
+ rather than a background so the tint layers on top of any background colour
+ the cell already has, instead of replacing it. */
+.bn-table-drag-source {
+  box-shadow: inset 0 0 0 100vmax rgb(170 221 255 / 40%);
+}
+
+/* Drag image shown under the cursor while dragging a table row/column, holding
+ a copy of the cells being dragged (see `setTableDragImage`). It sits next to
+ the editor rather than inside it, so the table styles below match it through
+ its own class instead of `.bn-editor`. */
+.bn-table-drag-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: fit-content;
+  background-color: var(--bn-colors-editor-background, #fff);
+  color: var(--bn-colors-editor-text, inherit);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 25%);
+  overflow: hidden;
+  /* Same trick as `.bn-drag-preview` below: an extremely low opacity leaves the
+   element invisible in the editor without hiding the drag image itself, which
+   setting it to 0 would. */
+  opacity: 0.001;
+  pointer-events: none;
+}
+
 .bn-drag-preview {
   position: absolute;
   top: 0;
@@ -147,23 +175,30 @@
 }
 
 /* table related: */
-.bn-editor [data-content-type="table"] table {
+/* `.bn-table-drag-preview` holds a copy of the cells being dragged, and is
+ matched alongside the editor so that the copy is styled like the real table.
+ `:is()` takes the specificity of its most specific argument, so these stay
+ exactly as specific as `.bn-editor ...` was on its own. */
+:is(.bn-editor, .bn-table-drag-preview) [data-content-type="table"] table {
   width: auto !important;
-  word-break: break-word;
+  /* `word-break: break-word` is deprecated; it is defined as exactly this pair,
+   including the effect on min-content size that the table layout depends on. */
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
-.bn-editor [data-content-type="table"] th,
-.bn-editor [data-content-type="table"] td {
+:is(.bn-editor, .bn-table-drag-preview) [data-content-type="table"] th,
+:is(.bn-editor, .bn-table-drag-preview) [data-content-type="table"] td {
   border: 1px solid #ddd;
   padding: 5px 10px;
 }
 
-.bn-editor [data-content-type="table"] th {
+:is(.bn-editor, .bn-table-drag-preview) [data-content-type="table"] th {
   font-weight: bold;
   text-align: left;
 }
 
-.bn-editor [data-content-type="table"] th > p,
-.bn-editor [data-content-type="table"] td > p {
+:is(.bn-editor, .bn-table-drag-preview) [data-content-type="table"] th > p,
+:is(.bn-editor, .bn-table-drag-preview) [data-content-type="table"] td > p {
   min-height: 1.5rem;
 }
 
