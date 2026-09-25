@@ -1,11 +1,12 @@
 {
   "playground": true,
-  "docs": true,
+  "docs": false,
   "author": "yousefed",
   "tags": ["Advanced", "Development", "Collaboration"],
   "dependencies": {
     "y-websocket": "^2.1.0",
     "yjs": "^13.6.27",
-    "lib0": "^0.2.99"
+    "lib0": "^0.2.99",
+    "y-prosemirror": "^1.3.7"
   }
 }

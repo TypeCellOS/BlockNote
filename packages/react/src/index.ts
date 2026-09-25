@@ -1,6 +1,7 @@
 // TODO: review directories
 export * from "./editor/BlockNoteContext.js";
 export * from "./editor/BlockNoteDefaultUI.js";
+export * from "./editor/BlockNotePortal.js";
 export * from "./editor/BlockNoteView.js";
 export * from "./editor/ComponentsContext.js";
 export * from "./i18n/dictionary.js";
@@ -131,9 +132,6 @@ export { default as FloatingThreadController } from "./components/Comments/Float
 export * from "./components/Comments/Thread.js";
 export * from "./components/Comments/ThreadsSidebar.js";
 export * from "./components/Comments/useThreads.js";
-
-export * from "./components/Versioning/useVersionUsers.js";
-export * from "./components/Versioning/VersioningSidebar.js";
 
 export * from "./hooks/useActiveStyles.js";
 export * from "./hooks/useBlockNoteEditor.js";

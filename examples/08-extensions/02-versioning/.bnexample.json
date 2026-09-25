@@ -5,6 +5,7 @@
   "tags": ["Extension"],
   "dependencies": {
     "@y/y": "^14.0.0-rc.23",
-    "@y/prosemirror": "^2.0.0-6"
+    "@y/prosemirror": "^2.0.0-13",
+    "react-icons": "^5.5.0"
   }
 }

@@ -1,0 +1,459 @@
+import { BlockNoteView as AriakitBlockNoteView } from "@blocknote/ariakit";
+import "@blocknote/ariakit/style.css";
+import {
+  VersioningExtension,
+  type VersioningEndpoints,
+  type VersionSnapshot,
+} from "@blocknote/core/extensions";
+import {
+  BlockNoteView as MantineBlockNoteView,
+  type Theme as MantineTheme,
+} from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
+import {
+  BlockNotePortal,
+  BlockNoteViewEditor,
+  useCreateBlockNote,
+} from "@blocknote/react";
+import { VersioningSidebar } from "@blocknote/react/versioning";
+import { BlockNoteView as ShadcnBlockNoteView } from "@blocknote/shadcn";
+import "@blocknote/shadcn/style.css";
+import "@examples/01-basic/09-shadcn/tailwind.css";
+import { expect, test, vi } from "vite-plus/test";
+import { render } from "vitest-browser-react";
+import { useState } from "react";
+
+import { userEvent } from "../../utils/context.js";
+import { expectElement } from "../../utils/editor.js";
+import { clickAt, getRect } from "../../utils/mouse.js";
+
+const CURRENT: VersionSnapshot = {
+  id: "current",
+  createdAt: Date.UTC(2024, 0, 4),
+};
+const SNAPSHOTS: VersionSnapshot[] = [
+  { id: "named", createdAt: Date.UTC(2024, 0, 3), name: "Draft" },
+  { id: "automatic", createdAt: Date.UTC(2024, 0, 2) },
+];
+
+type Skin = "mantine" | "ariakit" | "shadcn";
+type Theme = "light" | "dark";
+
+function createEndpoints(): VersioningEndpoints {
+  return {
+    list: async () => ({ current: CURRENT, snapshots: SNAPSHOTS }),
+    getContent: async () => [],
+    getAttributions: async () => undefined,
+    create: async (_document, options) => ({ ...CURRENT, ...options }),
+    rename: async () => {},
+    remove: async () => {},
+    restore: async () => [],
+  };
+}
+
+function SkinPanel(props: {
+  skin: Skin;
+  theme: Theme;
+  clippingEditorPanel?: boolean;
+}) {
+  const editor = useCreateBlockNote({
+    extensions: [
+      VersioningExtension({
+        endpoints: createEndpoints(),
+        preview: {
+          enterPreview: () => {},
+          exitPreview: () => {},
+          applyRestore: () => {},
+        },
+        getCurrentDocument: () => [],
+        serializeCurrentContent: () => [],
+      }),
+    ],
+  });
+  const sidebar = <VersioningSidebar onClose={() => {}} />;
+  const content = props.clippingEditorPanel ? (
+    <div style={{ display: "flex", height: "100%", width: 620 }}>
+      <div
+        data-test="clipping-editor-panel"
+        style={{ flex: 1, minWidth: 0, overflow: "auto", position: "relative" }}
+      >
+        <BlockNoteViewEditor />
+      </div>
+      <div style={{ flex: "0 0 300px", minWidth: 0 }}>{sidebar}</div>
+    </div>
+  ) : (
+    sidebar
+  );
+  const panelStyle = {
+    background: props.theme === "dark" ? "#18181b" : "#ffffff",
+    border: "1px solid #a1a1aa",
+    borderRadius: 8,
+    height: 350,
+    overflow: "hidden",
+  };
+  const view =
+    props.skin === "mantine" ? (
+      <MantineBlockNoteView
+        className="versioning-test-view"
+        editor={editor}
+        renderEditor={!props.clippingEditorPanel}
+        theme={props.theme}
+      >
+        {content}
+      </MantineBlockNoteView>
+    ) : props.skin === "ariakit" ? (
+      <AriakitBlockNoteView
+        className="versioning-test-view"
+        editor={editor}
+        renderEditor={!props.clippingEditorPanel}
+        theme={props.theme}
+      >
+        {content}
+      </AriakitBlockNoteView>
+    ) : (
+      <ShadcnBlockNoteView
+        className="versioning-test-view"
+        editor={editor}
+        renderEditor={!props.clippingEditorPanel}
+        theme={props.theme}
+      >
+        {content}
+      </ShadcnBlockNoteView>
+    );
+
+  return (
+    <section
+      aria-label={`${props.skin} ${props.theme}`}
+      className={
+        props.skin !== "mantine" && props.theme === "dark" ? "dark" : undefined
+      }
+      style={panelStyle}
+    >
+      <style>{`.versioning-test-view .bn-editor { display: none; }`}</style>
+      {view}
+    </section>
+  );
+}
+
+function VersioningSkinMatrix() {
+  return (
+    <main
+      data-test="versioning-skin-matrix"
+      style={{
+        background: "#d4d4d8",
+        display: "grid",
+        gap: 12,
+        gridTemplateColumns: "repeat(3, 300px)",
+        padding: 12,
+        width: "fit-content",
+      }}
+    >
+      {(["mantine", "ariakit", "shadcn"] as const).flatMap((skin) =>
+        (["light", "dark"] as const).map((theme) => (
+          <SkinPanel key={`${skin}-${theme}`} skin={skin} theme={theme} />
+        )),
+      )}
+    </main>
+  );
+}
+
+async function waitForRows(root: ParentNode) {
+  return vi.waitFor(() => {
+    const rows = root.querySelectorAll<HTMLElement>('[role="listitem"]');
+    if (rows.length !== 3) {
+      throw new Error(`Expected 3 version rows, found ${rows.length}`);
+    }
+    return Array.from(rows);
+  });
+}
+
+async function clickElement(element: Element) {
+  const { x, y, width, height } = getRect(element);
+  await clickAt(x + width / 2, y + height / 2);
+}
+
+test("renders every versioning skin in light and dark themes", async () => {
+  await render(<VersioningSkinMatrix />);
+  await vi.waitFor(() => {
+    expect(
+      document.querySelectorAll('[role="region"][aria-label="History"]'),
+    ).toHaveLength(6);
+  });
+
+  const matrix = document.querySelector<HTMLElement>(
+    '[data-test="versioning-skin-matrix"]',
+  )!;
+  await expectElement(matrix).toMatchScreenshot("versioning-skins-light-dark");
+});
+
+test.each(
+  (["mantine", "ariakit", "shadcn"] as const).flatMap((skin) =>
+    (["light", "dark"] as const).map((theme) => ({ skin, theme })),
+  ),
+)(
+  "renders the $skin $theme row menu outside the clipping editor panel",
+  async ({ skin, theme }) => {
+    await render(
+      <SkinPanel skin={skin} theme={theme} clippingEditorPanel={true} />,
+    );
+    const panel = document.querySelector<HTMLElement>(
+      `[aria-label="${skin} ${theme}"]`,
+    )!;
+    const rows = await waitForRows(panel);
+
+    await userEvent.hover(rows[2]!);
+    const menuButton = rows[2]!.querySelector<HTMLButtonElement>(
+      'button[aria-label="More actions"]',
+    )!;
+    await clickElement(menuButton);
+    const menu = await vi.waitFor(() => {
+      const element = document.querySelector<HTMLElement>('[role="menu"]');
+      if (!element) {
+        throw new Error("Expected the version menu to open");
+      }
+      return element;
+    });
+
+    const clippingEditorPanel = panel.querySelector<HTMLElement>(
+      '[data-test="clipping-editor-panel"]',
+    )!;
+    expect(clippingEditorPanel.contains(menu)).toBe(false);
+    // Ariakit's generated portal IDs contain a slash, which the browser test
+    // element locator cannot turn back into a valid CSS selector.
+    menu.id = "versioning-menu-screenshot";
+    for (
+      let ancestor = menu.parentElement;
+      ancestor;
+      ancestor = ancestor.parentElement
+    ) {
+      if (ancestor.id.includes("/")) {
+        ancestor.removeAttribute("id");
+      }
+    }
+    await expectElement(menu).toMatchScreenshot(
+      `versioning-${skin}-${theme}-menu-open`,
+    );
+  },
+);
+
+test.each(["mantine", "ariakit", "shadcn"] as const)(
+  "%s keeps keyboard navigation and row menus working",
+  async (skin) => {
+    await render(<SkinPanel skin={skin} theme="light" />);
+    const region = document.querySelector<HTMLElement>(
+      '[role="region"][aria-label="History"]',
+    )!;
+    const rows = await waitForRows(region);
+
+    rows[0]!.focus();
+    await userEvent.keyboard("{ArrowDown}{Enter}");
+    await vi.waitFor(() =>
+      expect(rows[1]).toHaveAttribute("aria-current", "true"),
+    );
+
+    await userEvent.hover(rows[1]!);
+    const selectedMenuButton = rows[1]!.querySelector<HTMLButtonElement>(
+      'button[aria-label="More actions"]',
+    )!;
+    await clickElement(selectedMenuButton);
+    await vi.waitFor(() =>
+      expect(document.body.textContent).toContain("Restore"),
+    );
+    expect(document.body.textContent).not.toContain(
+      "Compare with this version",
+    );
+
+    await userEvent.keyboard("{Escape}");
+    await vi.waitFor(() =>
+      expect(document.body.textContent).not.toContain("Restore"),
+    );
+    await userEvent.hover(rows[2]!);
+    const otherMenuButton = rows[2]!.querySelector<HTMLButtonElement>(
+      'button[aria-label="More actions"]',
+    )!;
+    await clickElement(otherMenuButton);
+    await vi.waitFor(() =>
+      expect(document.body.textContent).toContain("Compare with this version"),
+    );
+  },
+);
+
+const customTheme: MantineTheme = {
+  colors: {
+    editor: { background: "#faeacd" },
+    tooltip: { background: "#345678", text: "#ffffff" },
+  },
+};
+
+test.each([
+  {
+    name: "light",
+    theme: "light" as const,
+    body: "rgb(255, 255, 255)",
+    selected: "rgb(34, 139, 230)",
+  },
+  {
+    name: "dark",
+    theme: "dark" as const,
+    body: "rgb(36, 36, 36)",
+    selected: "rgb(25, 113, 194)",
+  },
+  {
+    name: "custom",
+    theme: customTheme,
+    body: "rgb(255, 255, 255)",
+    selected: "rgb(34, 139, 230)",
+  },
+])(
+  "themes a sidebar in an application-owned portal ($name)",
+  async ({ theme, body, selected: selectedColor }) => {
+    const target = document.createElement("div");
+    target.style.backgroundColor = "#ddd";
+    document.body.append(target);
+
+    function PortaledSidebar() {
+      const editor = useCreateBlockNote({
+        extensions: [
+          VersioningExtension({
+            endpoints: createEndpoints(),
+            preview: {
+              enterPreview: () => {},
+              exitPreview: () => {},
+              applyRestore: () => {},
+            },
+            getCurrentDocument: () => [],
+            serializeCurrentContent: () => [],
+          }),
+        ],
+      });
+
+      return (
+        <MantineBlockNoteView editor={editor} theme={theme}>
+          <BlockNotePortal target={target}>
+            <VersioningSidebar />
+          </BlockNotePortal>
+        </MantineBlockNoteView>
+      );
+    }
+
+    try {
+      await render(<PortaledSidebar />);
+      const rows = await waitForRows(target);
+      const root = target.querySelector<HTMLElement>(".bn-root")!;
+      const selected = rows[0]!;
+      const ordinary = rows[1]!;
+
+      await vi.waitFor(() =>
+        expect(selected).toHaveAttribute("aria-current", "true"),
+      );
+
+      expect(root.closest(".bn-container")).toBeNull();
+      expect(root.classList.contains("bn-mantine")).toBe(true);
+      await vi.waitFor(() =>
+        expect(getComputedStyle(ordinary).backgroundColor).toBe(body),
+      );
+      await vi.waitFor(() =>
+        expect(getComputedStyle(selected).backgroundColor).toBe(selectedColor),
+      );
+      expect(getComputedStyle(selected).color).toBe("rgb(255, 255, 255)");
+
+      if (typeof theme === "object") {
+        expect(
+          getComputedStyle(root)
+            .getPropertyValue("--bn-colors-editor-background")
+            .trim(),
+        ).toBe("#faeacd");
+      }
+
+      await userEvent.hover(ordinary);
+      const menuButton = ordinary.querySelector<HTMLButtonElement>(
+        'button[aria-label="More actions"]',
+      )!;
+      await userEvent.hover(menuButton);
+      const tooltip = await vi.waitFor(() => {
+        const element = target.querySelector<HTMLElement>(
+          ".mantine-Tooltip-tooltip .bn-tooltip",
+        );
+        if (!element) {
+          throw new Error("Expected tooltip inside the portaled sidebar");
+        }
+        return element;
+      });
+      expect(getComputedStyle(tooltip).backgroundColor).not.toBe(
+        "rgba(0, 0, 0, 0)",
+      );
+      if (typeof theme === "object") {
+        expect(getComputedStyle(tooltip).backgroundColor).toBe(
+          "rgb(52, 86, 120)",
+        );
+      }
+      await clickElement(menuButton);
+      const menu = await vi.waitFor(() => {
+        const element = target.querySelector<HTMLElement>('[role="menu"]');
+        if (!element) {
+          throw new Error("Expected menu inside the portaled sidebar");
+        }
+        return element;
+      });
+      expect(getComputedStyle(menu).backgroundColor).not.toBe(
+        "rgba(0, 0, 0, 0)",
+      );
+    } finally {
+      target.remove();
+    }
+  },
+);
+
+test("updates a portaled sidebar when the view theme changes", async () => {
+  const target = document.createElement("div");
+  document.body.append(target);
+
+  function App() {
+    const [dark, setDark] = useState(false);
+    const editor = useCreateBlockNote({
+      extensions: [
+        VersioningExtension({
+          endpoints: createEndpoints(),
+          preview: {
+            enterPreview: () => {},
+            exitPreview: () => {},
+            applyRestore: () => {},
+          },
+          getCurrentDocument: () => [],
+          serializeCurrentContent: () => [],
+        }),
+      ],
+    });
+
+    return (
+      <MantineBlockNoteView editor={editor} theme={dark ? "dark" : "light"}>
+        <button
+          data-test="toggle-theme"
+          onClick={() => setDark((value) => !value)}
+        >
+          Toggle theme
+        </button>
+        <BlockNotePortal target={target}>
+          <VersioningSidebar />
+        </BlockNotePortal>
+      </MantineBlockNoteView>
+    );
+  }
+
+  try {
+    await render(<App />);
+    const rows = await waitForRows(target);
+    const root = target.querySelector<HTMLElement>(".bn-root")!;
+    expect(root.getAttribute("data-mantine-color-scheme")).toBe("light");
+    await clickElement(document.querySelector('[data-test="toggle-theme"]')!);
+    await vi.waitFor(() => {
+      expect(root.getAttribute("data-color-scheme")).toBe("dark");
+      expect(root.getAttribute("data-mantine-color-scheme")).toBe("dark");
+      expect(getComputedStyle(rows[1]!).backgroundColor).toBe(
+        "rgb(36, 36, 36)",
+      );
+    });
+  } finally {
+    target.remove();
+  }
+});

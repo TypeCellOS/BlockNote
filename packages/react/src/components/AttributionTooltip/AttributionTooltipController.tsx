@@ -1,17 +1,33 @@
-import type { AttributionExtension } from "@blocknote/core/y";
+import type {
+  AttributionExtension,
+  AttributionTooltipState,
+} from "@blocknote/core/y";
 import { flip, offset, shift, inline } from "@floating-ui/react";
 import { FC, useMemo } from "react";
 
 import { useExtensionState } from "../../hooks/useExtension.js";
 import { PortalElementOverride } from "../../editor/PortalElementOverride.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
-import {
-  GenericPopover,
-  GenericPopoverReference,
-} from "../Popovers/GenericPopover.js";
+import { GenericPopover } from "../Popovers/GenericPopover.js";
 import { AttributionTooltip } from "./AttributionTooltip.js";
 import { AttributionTooltipProps } from "./AttributionTooltipProps.js";
 import { FormatChangeLabel } from "./formatChangeLabel.js";
+
+function getReferenceElement(wrapper: Element): Element {
+  const content = wrapper.firstElementChild ?? wrapper;
+  const rect = content.getBoundingClientRect();
+  return rect.width || rect.height
+    ? content
+    : (content.firstElementChild ?? content);
+}
+
+function getTooltipProps(
+  state: AttributionTooltipState,
+  formatChangeLabel: FormatChangeLabel | undefined,
+): AttributionTooltipProps {
+  const { anchor: _anchor, ...tooltipState } = state;
+  return { ...tooltipState, formatChangeLabel };
+}
 
 /**
  * Renders the attribution tooltip for suggestion marks. The core
@@ -40,31 +56,12 @@ export const AttributionTooltipController = (props: {
     selector: (state) => state,
   });
 
-  const reference = useMemo<GenericPopoverReference | undefined>(
-    () =>
-      state
-        ? {
-            element: state.anchor,
-            getBoundingClientRect: () => {
-              const content = state.anchor.firstElementChild ?? state.anchor;
-              const rect = content.getBoundingClientRect();
-              const el =
-                rect.width || rect.height
-                  ? content
-                  : (content.firstElementChild ?? content);
-              return el.getBoundingClientRect();
-            },
-            getClientRects: () => {
-              const content = state.anchor.firstElementChild ?? state.anchor;
-              const rect = content.getBoundingClientRect();
-              const el =
-                rect.width || rect.height
-                  ? content
-                  : (content.firstElementChild ?? content);
-              return el.getClientRects();
-            },
-          }
-        : undefined,
+  // Attribution wrappers use `display: contents` and have no box, so anchor
+  // the popover to their painted descendant instead. Using a regular element
+  // reference lets GenericPopover own geometry, lifecycle caching, and the
+  // per-line client rects consumed by `inline()`.
+  const reference = useMemo(
+    () => (state ? { element: getReferenceElement(state.anchor) } : undefined),
     [state],
   );
 
@@ -98,21 +95,9 @@ export const AttributionTooltipController = (props: {
 
   // The raw change context is handed to the component as-is; composing it into
   // display text (and localizing it) is the component's job.
-  const tooltipProps = useMemo<AttributionTooltipProps | undefined>(
-    () =>
-      state
-        ? {
-            color: state.color,
-            className: state.className,
-            modificationType: state.modificationType,
-            contentType: state.contentType,
-            users: state.users,
-            format: state.format,
-            formatChangeLabel: props.formatChangeLabel,
-          }
-        : undefined,
-    [state, props.formatChangeLabel],
-  );
+  const tooltipProps: AttributionTooltipProps | undefined = state
+    ? getTooltipProps(state, props.formatChangeLabel)
+    : undefined;
 
   return (
     <PortalElementOverride target={props.portalElement}>

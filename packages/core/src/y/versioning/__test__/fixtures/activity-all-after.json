@@ -2,7 +2,7 @@
   {
     "from": 1782218211312,
     "to": 1782218211312,
-    "by": "Dilbert Adams",
+    "by": ["Dilbert Adams"],
     "customAttributions": [
       {
         "k": "type",
@@ -17,7 +17,7 @@
   {
     "from": 1782218082853,
     "to": 1782218082853,
-    "by": "Charlie Brown",
+    "by": ["Charlie Brown"],
     "customAttributions": [
       {
         "k": "type",
@@ -32,19 +32,19 @@
   {
     "from": 1782217704391,
     "to": 1782217705077,
-    "by": "Charlie Brown",
+    "by": ["Charlie Brown"],
     "customAttributions": []
   },
   {
     "from": 1782217702869,
     "to": 1782217703318,
-    "by": "Charlie Brown",
+    "by": ["Charlie Brown"],
     "customAttributions": []
   },
   {
     "from": 1782217700507,
     "to": 1782217700507,
-    "by": "Charlie Brown",
+    "by": ["Charlie Brown"],
     "customAttributions": []
   }
 ]

@@ -4,6 +4,7 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { PreviewController } from "../../extensions/Versioning/index.js";
 import type { CollaborationOptions } from "./index.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
+import { findTypeInOtherYdoc } from "../utils.js";
 
 /**
  * Creates a Yjs v13 adapter that provides the {@link PreviewController}
@@ -15,14 +16,14 @@ import { ForkYDocExtension } from "./ForkYDoc.js";
  *   switch the editor to a temporary doc built from the snapshot.
  * - **exitPreview**: calls `merge({ keepChanges: false })` to discard the
  *   preview and restore the live document.
- * - **applyRestore**: calls `merge({ keepChanges: true })` to apply the
- *   snapshot content back to the live document.
+ * - **applyRestore**: replaces the live fragment's children with copies from
+ *   the snapshot, so newer edits are removed and the live Y.Doc stays connected.
  */
 export function createYjsVersioningAdapter(
   /** The BlockNote editor instance (must have ForkYDocExtension). */
   editor: BlockNoteEditor<any, any, any>,
-  /** The full collaboration options (used for `fragment` access). */
-  options: CollaborationOptions,
+  /** The collaboration document fragment. */
+  options: Pick<CollaborationOptions, "fragment">,
 ): {
   preview: PreviewController<Uint8Array>;
   getCurrentDocument: () => Y.XmlFragment;
@@ -42,8 +43,15 @@ export function createYjsVersioningAdapter(
   }
 
   return {
-    getCurrentDocument: () => fragment,
-    serializeCurrentContent: () => Y.encodeStateAsUpdateV2(fragment.doc!),
+    getCurrentDocument() {
+      return fragment;
+    },
+    // V1 encoding, like every other update the v13 stack handles: the fork
+    // extension applies this with `Y.applyUpdate`, and a V2 payload fails to
+    // decode as soon as the document has any content.
+    serializeCurrentContent() {
+      return Y.encodeStateAsUpdate(fragment.doc!);
+    },
     preview: {
       // Yjs v13 can only fork the document to a single snapshot; it has no way
       // to diff two versions, so comparison is unsupported.
@@ -69,14 +77,24 @@ export function createYjsVersioningAdapter(
         }
       },
 
-      applyRestore(_snapshotContent: Uint8Array) {
-        // Restoring to an older Yjs state cannot be done by merging a fork
-        // because the original doc already contains all CRDT state vectors
-        // from the snapshot. Restore must be handled at the endpoint/server
-        // level (e.g., the server creates a new Y.Doc and syncs it).
-        throw new Error(
-          "Restore is not yet implemented for Yjs v13 versioning adapter.",
-        );
+      applyRestore(snapshotContent: Uint8Array) {
+        // Applying an old update to the live doc would merge CRDT histories,
+        // leaving newer edits in place. Copy the snapshot's document children
+        // instead, and publish their replacement as one live transaction.
+        const snapshotDoc = new Y.Doc();
+        let children: Array<Y.XmlElement | Y.XmlText>;
+        try {
+          Y.applyUpdate(snapshotDoc, snapshotContent);
+          const snapshotFragment = findTypeInOtherYdoc(fragment, snapshotDoc);
+          children = snapshotFragment.slice().map((child) => child.clone());
+        } finally {
+          snapshotDoc.destroy();
+        }
+
+        fragment.doc!.transact(() => {
+          fragment.delete(0, fragment.length);
+          fragment.insert(0, children);
+        });
       },
     },
   };

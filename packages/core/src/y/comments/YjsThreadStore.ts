@@ -29,7 +29,7 @@ import {
 export class YjsThreadStore extends YjsThreadStoreBase {
   constructor(
     private readonly userId: string,
-    threadsYType: Y.Type,
+    threadsYType: Y.Node,
     auth: ThreadStoreAuth,
   ) {
     super(threadsYType, auth);
@@ -98,7 +98,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
       threadId: string;
     }) => {
       const yThread = this.threadsYType.getAttr(options.threadId) as
-        | Y.Type
+        | Y.Node
         | undefined;
       if (!yThread) {
         throw new Error("Thread not found");
@@ -121,7 +121,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
         body: options.comment.body,
       };
 
-      (yThread.getAttr("comments") as Y.Type).push([commentToYType(comment)]);
+      (yThread.getAttr("comments") as Y.Node).push([commentToYType(comment)]);
 
       yThread.setAttr("updatedAt", new Date().getTime());
       return comment;
@@ -138,23 +138,23 @@ export class YjsThreadStore extends YjsThreadStoreBase {
       commentId: string;
     }) => {
       const yThread = this.threadsYType.getAttr(options.threadId) as
-        | Y.Type
+        | Y.Node
         | undefined;
       if (!yThread) {
         throw new Error("Thread not found");
       }
 
-      const commentsType = yThread.getAttr("comments") as Y.Type;
+      const commentsType = yThread.getAttr("comments") as Y.Node;
       const yCommentIndex = yTypeFindIndex(
         commentsType,
-        (comment) => (comment as Y.Type).getAttr("id") === options.commentId,
+        (comment) => (comment as Y.Node).getAttr("id") === options.commentId,
       );
 
       if (yCommentIndex === -1) {
         throw new Error("Comment not found");
       }
 
-      const yComment = commentsType.get(yCommentIndex) as Y.Type;
+      const yComment = commentsType.get(yCommentIndex) as Y.Node;
 
       if (!this.auth.canUpdateComment(yTypeToComment(yComment))) {
         throw new Error("Not authorized");
@@ -173,23 +173,23 @@ export class YjsThreadStore extends YjsThreadStoreBase {
       softDelete?: boolean;
     }) => {
       const yThread = this.threadsYType.getAttr(options.threadId) as
-        | Y.Type
+        | Y.Node
         | undefined;
       if (!yThread) {
         throw new Error("Thread not found");
       }
 
-      const commentsType = yThread.getAttr("comments") as Y.Type;
+      const commentsType = yThread.getAttr("comments") as Y.Node;
       const yCommentIndex = yTypeFindIndex(
         commentsType,
-        (comment) => (comment as Y.Type).getAttr("id") === options.commentId,
+        (comment) => (comment as Y.Node).getAttr("id") === options.commentId,
       );
 
       if (yCommentIndex === -1) {
         throw new Error("Comment not found");
       }
 
-      const yComment = commentsType.get(yCommentIndex) as Y.Type;
+      const yComment = commentsType.get(yCommentIndex) as Y.Node;
 
       if (!this.auth.canDeleteComment(yTypeToComment(yComment))) {
         throw new Error("Not authorized");
@@ -209,7 +209,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
       if (
         commentsType
           .toArray()
-          .every((comment) => (comment as Y.Type).getAttr("deletedAt"))
+          .every((comment) => (comment as Y.Node).getAttr("deletedAt"))
       ) {
         // all comments deleted
         if (options.softDelete) {
@@ -226,7 +226,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
   public deleteThread = this.transact((options: { threadId: string }) => {
     if (
       !this.auth.canDeleteThread(
-        yTypeToThread(this.threadsYType.getAttr(options.threadId) as Y.Type),
+        yTypeToThread(this.threadsYType.getAttr(options.threadId) as Y.Node),
       )
     ) {
       throw new Error("Not authorized");
@@ -237,7 +237,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
 
   public resolveThread = this.transact((options: { threadId: string }) => {
     const yThread = this.threadsYType.getAttr(options.threadId) as
-      | Y.Type
+      | Y.Node
       | undefined;
     if (!yThread) {
       throw new Error("Thread not found");
@@ -254,7 +254,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
 
   public unresolveThread = this.transact((options: { threadId: string }) => {
     const yThread = this.threadsYType.getAttr(options.threadId) as
-      | Y.Type
+      | Y.Node
       | undefined;
     if (!yThread) {
       throw new Error("Thread not found");
@@ -271,23 +271,23 @@ export class YjsThreadStore extends YjsThreadStoreBase {
   public addReaction = this.transact(
     (options: { threadId: string; commentId: string; emoji: string }) => {
       const yThread = this.threadsYType.getAttr(options.threadId) as
-        | Y.Type
+        | Y.Node
         | undefined;
       if (!yThread) {
         throw new Error("Thread not found");
       }
 
-      const commentsType = yThread.getAttr("comments") as Y.Type;
+      const commentsType = yThread.getAttr("comments") as Y.Node;
       const yCommentIndex = yTypeFindIndex(
         commentsType,
-        (comment) => (comment as Y.Type).getAttr("id") === options.commentId,
+        (comment) => (comment as Y.Node).getAttr("id") === options.commentId,
       );
 
       if (yCommentIndex === -1) {
         throw new Error("Comment not found");
       }
 
-      const yComment = commentsType.get(yCommentIndex) as Y.Type;
+      const yComment = commentsType.get(yCommentIndex) as Y.Node;
 
       if (!this.auth.canAddReaction(yTypeToComment(yComment), options.emoji)) {
         throw new Error("Not authorized");
@@ -297,13 +297,13 @@ export class YjsThreadStore extends YjsThreadStoreBase {
 
       const key = `${this.userId}-${options.emoji}`;
 
-      const reactionsByUser = yComment.getAttr("reactionsByUser") as Y.Type;
+      const reactionsByUser = yComment.getAttr("reactionsByUser") as Y.Node;
 
       if (reactionsByUser.hasAttr(key)) {
         // already exists
         return;
       } else {
-        const reaction = new Y.Type();
+        const reaction = new Y.Node();
         reaction.setAttr("emoji", options.emoji);
         reaction.setAttr("createdAt", date.getTime());
         reaction.setAttr("userId", this.userId);
@@ -315,23 +315,23 @@ export class YjsThreadStore extends YjsThreadStoreBase {
   public deleteReaction = this.transact(
     (options: { threadId: string; commentId: string; emoji: string }) => {
       const yThread = this.threadsYType.getAttr(options.threadId) as
-        | Y.Type
+        | Y.Node
         | undefined;
       if (!yThread) {
         throw new Error("Thread not found");
       }
 
-      const commentsType = yThread.getAttr("comments") as Y.Type;
+      const commentsType = yThread.getAttr("comments") as Y.Node;
       const yCommentIndex = yTypeFindIndex(
         commentsType,
-        (comment) => (comment as Y.Type).getAttr("id") === options.commentId,
+        (comment) => (comment as Y.Node).getAttr("id") === options.commentId,
       );
 
       if (yCommentIndex === -1) {
         throw new Error("Comment not found");
       }
 
-      const yComment = commentsType.get(yCommentIndex) as Y.Type;
+      const yComment = commentsType.get(yCommentIndex) as Y.Node;
 
       if (
         !this.auth.canDeleteReaction(yTypeToComment(yComment), options.emoji)
@@ -341,14 +341,14 @@ export class YjsThreadStore extends YjsThreadStoreBase {
 
       const key = `${this.userId}-${options.emoji}`;
 
-      const reactionsByUser = yComment.getAttr("reactionsByUser") as Y.Type;
+      const reactionsByUser = yComment.getAttr("reactionsByUser") as Y.Node;
 
       reactionsByUser.deleteAttr(key);
     },
   );
 }
 
-function yTypeFindIndex(yType: Y.Type, predicate: (item: any) => boolean) {
+function yTypeFindIndex(yType: Y.Node, predicate: (item: any) => boolean) {
   for (let i = 0; i < yType.length; i++) {
     if (predicate(yType.get(i))) {
       return i;

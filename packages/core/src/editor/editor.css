@@ -195,3 +195,62 @@ For the ShowSelectionPlugin
   background-color: highlight;
   padding: 2px 0;
 }
+
+/* Preview loading indicator. Override the color and size on the editor. */
+.bn-editor.bn-loading::before {
+  animation:
+    bn-loader-rotate 1s linear infinite,
+    bn-loader-clip 2s linear infinite;
+  border: calc(5 * var(--bn-loader-size, 1px)) solid
+    var(--bn-loader-color, currentColor);
+  border-radius: 50%;
+  box-sizing: border-box;
+  display: block;
+  height: calc(48 * var(--bn-loader-size, 1px));
+  width: calc(48 * var(--bn-loader-size, 1px));
+}
+
+/* Keep the editor's loader visible while scrolling without moving content. */
+.bn-editor.bn-loading > .bn-block-group {
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+}
+
+.bn-editor.bn-loading::before {
+  content: "";
+  margin: 0 auto calc(-48 * var(--bn-loader-size, 1px));
+  position: sticky;
+  top: 16px;
+  z-index: 1;
+}
+
+@keyframes bn-loader-rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bn-loader-clip {
+  0% {
+    clip-path: polygon(50% 50%, 0 0, 0 0, 0 0, 0 0, 0 0);
+  }
+  25% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 0, 100% 0, 100% 0);
+  }
+  50% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%);
+  }
+  75% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%);
+  }
+  100% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bn-editor.bn-loading::before {
+    animation: none;
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%);
+  }
+}

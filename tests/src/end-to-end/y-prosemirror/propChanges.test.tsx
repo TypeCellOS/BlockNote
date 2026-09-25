@@ -6,7 +6,7 @@
  * shape as `basicText.test.tsx`: seed, enable suggestions, edit, then
  * screenshot + inline snapshots of base/suggestion docs + PM doc.
  */
-import { SuggestionsExtension } from "@blocknote/core/y";
+import { AttributionExtension, SuggestionsExtension } from "@blocknote/core/y";
 import { expect, test } from "vite-plus/test";
 import { expectScreenshot, expectVisible } from "./fixtures/browserExpect.js";
 
@@ -14,6 +14,7 @@ import {
   editorHtml,
   setupSuggestionTest,
   ydocXml,
+  waitForSuggestion,
 } from "./fixtures/suggestionFixture.js";
 
 // Scenario data (the `initial` seed + the `apply` change) is shared with the
@@ -40,10 +41,6 @@ const imageSource = scenarios.find(
   (s) => s.id === "prop-image-source",
 ) as SingleScenario;
 
-// Known issue — tracked in the suggestion gallery (the "Prop changes" scenarios,
-// e.g. "prop-text-alignment"): block-level prop changes generate no
-// `y-attributed-*` mark, so the pending change is invisible in the diff.
-//
 // Block-level prop change: paragraph's `textAlignment` flips from
 // "left" to "center". Text content is unchanged.
 test("suggestion mode: change text alignment to center", async () => {
@@ -58,9 +55,6 @@ test("suggestion mode: change text alignment to center", async () => {
 
   textAlignment.apply(editor);
 
-  // Prop changes don't generate `y-attributed-*` marks, so the
-  // `waitForSuggestion` helper used elsewhere is too narrow here.
-  // Poll on the editor's view of the prop instead.
   await expect
     .poll(
       () =>
@@ -69,9 +63,38 @@ test("suggestion mode: change text alignment to center", async () => {
     )
     .toBe("center");
 
+  await waitForSuggestion(editor);
+  const attributeMarks =
+    editor.prosemirrorView.dom.querySelectorAll<HTMLElement>(
+      "[data-attributes]",
+    );
+  expect(attributeMarks.length).toBe(1);
+  expect(JSON.parse(attributeMarks[0].dataset["attributes"]!)).toEqual({
+    textAlignment: { userIds: [], timestamp: null },
+  });
   await expectScreenshot(
     screen.getByTestId("editor-root"),
     "prop-change-text-alignment",
+  );
+
+  attributeMarks[0].dispatchEvent(
+    new MouseEvent("mouseover", { bubbles: true }),
+  );
+  expect(editor.getExtension(AttributionExtension)!.store.state).toMatchObject({
+    modificationType: "attrs",
+    attributes: ["textAlignment"],
+  });
+  await expectVisible(
+    screen.getByText(editor.dictionary.suggestion_changes.formatting_change, {
+      exact: true,
+    }),
+  );
+  expect(
+    getComputedStyle(attributeMarks[0].firstElementChild!.firstElementChild!)
+      .backgroundColor,
+  ).not.toBe("rgba(0, 0, 0, 0)");
+  editor.prosemirrorView.dom.dispatchEvent(
+    new MouseEvent("mouseover", { bubbles: true }),
   );
 
   expect(ydocXml(baseDoc)).toMatchSnapshot();
@@ -80,7 +103,7 @@ test("suggestion mode: change text alignment to center", async () => {
 });
 
 // Block-level prop change on a heading: bump `level` from 1 to 2.
-// Same lack of attribution as the alignment case.
+// The changed block is highlighted as a formatting change.
 test("suggestion mode: change heading level from 1 to 2", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "demote heading" });
@@ -97,9 +120,38 @@ test("suggestion mode: change heading level from 1 to 2", async () => {
     .poll(() => (editor.document[0]?.props as { level?: number })?.level)
     .toBe(2);
 
+  await waitForSuggestion(editor);
+  const attributeMarks =
+    editor.prosemirrorView.dom.querySelectorAll<HTMLElement>(
+      "[data-attributes]",
+    );
+  expect(attributeMarks.length).toBe(1);
+  expect(JSON.parse(attributeMarks[0].dataset["attributes"]!)).toEqual({
+    level: { userIds: [], timestamp: null },
+  });
   await expectScreenshot(
     screen.getByTestId("editor-root"),
     "prop-change-heading-level",
+  );
+
+  attributeMarks[0].dispatchEvent(
+    new MouseEvent("mouseover", { bubbles: true }),
+  );
+  expect(editor.getExtension(AttributionExtension)!.store.state).toMatchObject({
+    modificationType: "attrs",
+    attributes: ["level"],
+  });
+  await expectVisible(
+    screen.getByText(editor.dictionary.suggestion_changes.formatting_change, {
+      exact: true,
+    }),
+  );
+  expect(
+    getComputedStyle(attributeMarks[0].firstElementChild!.firstElementChild!)
+      .backgroundColor,
+  ).not.toBe("rgba(0, 0, 0, 0)");
+  editor.prosemirrorView.dom.dispatchEvent(
+    new MouseEvent("mouseover", { bubbles: true }),
   );
 
   expect(ydocXml(baseDoc)).toMatchSnapshot();
@@ -133,9 +185,38 @@ test("suggestion mode: resize image (previewWidth)", async () => {
     )
     .toBe(400);
 
+  await waitForSuggestion(editor);
+  const attributeMarks =
+    editor.prosemirrorView.dom.querySelectorAll<HTMLElement>(
+      "[data-attributes]",
+    );
+  expect(attributeMarks.length).toBe(1);
+  expect(JSON.parse(attributeMarks[0].dataset["attributes"]!)).toEqual({
+    previewWidth: { userIds: [], timestamp: null },
+  });
   await expectScreenshot(
     screen.getByTestId("editor-root"),
     "prop-change-image-width",
+  );
+
+  attributeMarks[0].dispatchEvent(
+    new MouseEvent("mouseover", { bubbles: true }),
+  );
+  expect(editor.getExtension(AttributionExtension)!.store.state).toMatchObject({
+    modificationType: "attrs",
+    attributes: ["previewWidth"],
+  });
+  await expectVisible(
+    screen.getByText(editor.dictionary.suggestion_changes.formatting_change, {
+      exact: true,
+    }),
+  );
+  expect(
+    getComputedStyle(attributeMarks[0].firstElementChild!.firstElementChild!)
+      .backgroundColor,
+  ).not.toBe("rgba(0, 0, 0, 0)");
+  editor.prosemirrorView.dom.dispatchEvent(
+    new MouseEvent("mouseover", { bubbles: true }),
   );
 
   expect(ydocXml(baseDoc)).toMatchSnapshot();
@@ -165,9 +246,38 @@ test("suggestion mode: change image source", async () => {
     .poll(() => (editor.document[0]?.props as { url?: string })?.url)
     .toBe(IMG_SRC_NEW);
 
+  await waitForSuggestion(editor);
+  const attributeMarks =
+    editor.prosemirrorView.dom.querySelectorAll<HTMLElement>(
+      "[data-attributes]",
+    );
+  expect(attributeMarks.length).toBe(1);
+  expect(JSON.parse(attributeMarks[0].dataset["attributes"]!)).toEqual({
+    url: { userIds: [], timestamp: null },
+  });
   await expectScreenshot(
     screen.getByTestId("editor-root"),
     "prop-change-image-source",
+  );
+
+  attributeMarks[0].dispatchEvent(
+    new MouseEvent("mouseover", { bubbles: true }),
+  );
+  expect(editor.getExtension(AttributionExtension)!.store.state).toMatchObject({
+    modificationType: "attrs",
+    attributes: ["url"],
+  });
+  await expectVisible(
+    screen.getByText(editor.dictionary.suggestion_changes.formatting_change, {
+      exact: true,
+    }),
+  );
+  expect(
+    getComputedStyle(attributeMarks[0].firstElementChild!.firstElementChild!)
+      .backgroundColor,
+  ).not.toBe("rgba(0, 0, 0, 0)");
+  editor.prosemirrorView.dom.dispatchEvent(
+    new MouseEvent("mouseover", { bubbles: true }),
   );
 
   expect(ydocXml(baseDoc)).toMatchSnapshot();

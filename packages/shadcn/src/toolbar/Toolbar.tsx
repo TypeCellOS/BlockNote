@@ -16,9 +16,11 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {
     const {
       className,
+      "aria-label": ariaLabel,
       children,
       onMouseEnter,
       onMouseLeave,
+      trapFocus: _trapFocus,
       variant,
       ...rest
     } = props;
@@ -35,6 +37,8 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
             "bg-popover text-popover-foreground flex h-fit gap-1 rounded-lg border p-1 shadow-md",
             variant === "action-toolbar" ? "w-fit" : "",
           )}
+          role="toolbar"
+          aria-label={ariaLabel}
           ref={ref}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}

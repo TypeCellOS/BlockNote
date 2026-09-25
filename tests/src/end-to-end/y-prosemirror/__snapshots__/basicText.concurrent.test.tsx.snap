@@ -50,11 +50,9 @@ exports[`concurrent: A bolds the word, B italicises the word 5`] = `
       <paragraph backgroundColor="default" textAlignment="left" textColor="default">
         hello
         <y-attributed-format format="[object Object]" userIds="A,B">
-          <y-attributed-format format="[object Object]" userIds="A">
-            <italic>
-              <bold>world</bold>
-            </italic>
-          </y-attributed-format>
+          <italic>
+            <bold>world</bold>
+          </italic>
         </y-attributed-format>
       </paragraph>
     </blockContainer>

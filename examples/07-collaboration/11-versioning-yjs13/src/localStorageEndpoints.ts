@@ -1,11 +1,9 @@
 import * as Y from "yjs";
 import { toBase64, fromBase64 } from "lib0/buffer";
 
-import {
-  CURRENT_VERSION_ID,
-  sortSnapshotsNewestFirst,
-  type VersioningEndpoints,
-  type VersionSnapshot,
+import type {
+  VersioningEndpoints,
+  VersionSnapshot,
 } from "@blocknote/core/extensions";
 
 const DEFAULT_STORAGE_KEY = "blocknote-versioning-yjs-snapshots";
@@ -15,15 +13,16 @@ function getContentsKey(storageKey: string) {
 }
 
 function readSnapshots(storageKey: string): VersionSnapshot[] {
-  return sortSnapshotsNewestFirst(
-    JSON.parse(localStorage.getItem(storageKey) ?? "[]") as VersionSnapshot[],
-  );
+  const snapshots = JSON.parse(
+    localStorage.getItem(storageKey) ?? "[]",
+  ) as VersionSnapshot[];
+  return snapshots.sort((a, b) => b.createdAt - a.createdAt);
 }
 
 function writeSnapshots(storageKey: string, snapshots: VersionSnapshot[]) {
   localStorage.setItem(
     storageKey,
-    JSON.stringify(sortSnapshotsNewestFirst(snapshots)),
+    JSON.stringify([...snapshots].sort((a, b) => b.createdAt - a.createdAt)),
   );
 }
 
@@ -51,32 +50,23 @@ export function createLocalStorageVersioningEndpoints(
     Y.XmlFragment,
     Uint8Array
   >["list"] = async () => {
-    // Surface the live document as a "current version" entry at the top — it's
-    // how the user returns to live editing and compares against saved
-    // snapshots. It isn't a stored snapshot, so it's never passed to
-    // `getContent` (the sidebar previews it live via `previewCurrentVersion`).
-    const current: VersionSnapshot = {
-      id: CURRENT_VERSION_ID,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+    // The current version is the live document. There's no server clock here,
+    // so it's simply stamped "now"; it isn't a stored snapshot, so it's never
+    // passed to `getContent` (the sidebar previews it live via
+    // `previewCurrentVersion`).
+    return {
+      current: { id: "current", createdAt: Date.now() },
+      snapshots: readSnapshots(storageKey),
     };
-    return [current, ...readSnapshots(storageKey)];
   };
 
-  // Stored snapshots always have string ids (only the synthetic current
-  // entry carries the CURRENT_VERSION_ID symbol, and it never reaches these
-  // endpoints), so coercing ids to strings below is safe.
   const createSnapshot: NonNullable<
     VersioningEndpoints<Y.XmlFragment, Uint8Array>["create"]
   > = async (fragment, options) => {
     const snapshot = {
       id: crypto.randomUUID(),
-      name: options?.name,
+      name: options.name,
       createdAt: Date.now(),
-      updatedAt: Date.now(),
-      restoredFromSnapshotId: options?.restoredFromSnapshot
-        ? String(options.restoredFromSnapshot.id)
-        : undefined,
     } satisfies VersionSnapshot;
 
     const contents = readContents(storageKey);
@@ -92,10 +82,9 @@ export function createLocalStorageVersioningEndpoints(
     Y.XmlFragment,
     Uint8Array
   >["getContent"] = async (snapshot) => {
-    const id = String(snapshot.id);
-    const encoded = readContents(storageKey)[id];
+    const encoded = readContents(storageKey)[snapshot.id];
     if (encoded === undefined) {
-      throw new Error(`Document snapshot ${id} could not be found.`);
+      throw new Error(`Document snapshot ${snapshot.id} could not be found.`);
     }
     return fromBase64(encoded);
   };
@@ -104,17 +93,8 @@ export function createLocalStorageVersioningEndpoints(
     Y.XmlFragment,
     Uint8Array
   >["restore"] = async (fragment, snapshot) => {
-    await createSnapshot(fragment, { name: "Backup" });
-
     const snapshotContent = await fetchSnapshotContent(snapshot);
-    const yDoc = new Y.Doc();
-    Y.applyUpdate(yDoc, snapshotContent);
-
-    await createSnapshot(yDoc.getXmlFragment("document-store"), {
-      name: "Restored Snapshot",
-      restoredFromSnapshot: snapshot,
-    });
-
+    await createSnapshot(fragment, { name: "Backup" });
     return snapshotContent;
   };
 
@@ -125,13 +105,10 @@ export function createLocalStorageVersioningEndpoints(
     const snapshots = readSnapshots(storageKey);
     const stored = snapshots.find((s) => s.id === snapshot.id);
     if (stored === undefined) {
-      throw new Error(
-        `Document snapshot ${String(snapshot.id)} could not be found.`,
-      );
+      throw new Error(`Document snapshot ${snapshot.id} could not be found.`);
     }
 
     stored.name = name;
-    stored.updatedAt = Date.now();
     writeSnapshots(storageKey, snapshots);
   };
 
@@ -141,9 +118,7 @@ export function createLocalStorageVersioningEndpoints(
   >["remove"] = async (snapshot) => {
     const snapshots = readSnapshots(storageKey);
     if (!snapshots.some((s) => s.id === snapshot.id)) {
-      throw new Error(
-        `Document snapshot ${String(snapshot.id)} could not be found.`,
-      );
+      throw new Error(`Document snapshot ${snapshot.id} could not be found.`);
     }
 
     // Drop the snapshot metadata and its stored content.
@@ -153,7 +128,7 @@ export function createLocalStorageVersioningEndpoints(
     );
 
     const contents = readContents(storageKey);
-    delete contents[String(snapshot.id)];
+    delete contents[snapshot.id];
     writeContents(storageKey, contents);
   };
 
@@ -169,3 +144,27 @@ export function createLocalStorageVersioningEndpoints(
 
 /** Default localStorage-backed endpoints using {@link DEFAULT_STORAGE_KEY}. */
 export const localStorageEndpoints = createLocalStorageVersioningEndpoints();
+
+/** Whether any versions have been stored under `storageKey` yet. */
+export function hasStoredVersions(storageKey = DEFAULT_STORAGE_KEY): boolean {
+  return localStorage.getItem(storageKey) !== null;
+}
+
+/**
+ * Store versions directly, bypassing `create`: the demo seeds sample history
+ * with back-dated timestamps, which `create` (which stamps "now") can't do.
+ */
+export function storeVersions(
+  versions: Array<{ name?: string; createdAt: number; content: Uint8Array }>,
+  storageKey = DEFAULT_STORAGE_KEY,
+) {
+  const snapshots = readSnapshots(storageKey);
+  const contents = readContents(storageKey);
+  for (const version of versions) {
+    const id = crypto.randomUUID();
+    snapshots.push({ id, name: version.name, createdAt: version.createdAt });
+    contents[id] = toBase64(version.content);
+  }
+  writeContents(storageKey, contents);
+  writeSnapshots(storageKey, snapshots);
+}

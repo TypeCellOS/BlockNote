@@ -22,8 +22,9 @@
     "react-dom": "^19.2.3",
     "@y/protocols": "^1.0.6-rc.1",
     "@y/websocket": "^4.0.0-3",
-    "@y/y": "^14.0.0-rc.23",
-    "lib0": "1.0.0-rc.22"
+    "@y/y": "^14.0.0-rc.26",
+    "lib0": "1.0.0-rc.33",
+    "@y/prosemirror": "^2.0.0-13"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",

@@ -22,7 +22,8 @@
     "react-dom": "^19.2.3",
     "y-websocket": "^2.1.0",
     "yjs": "^13.6.27",
-    "lib0": "^0.2.99"
+    "lib0": "^0.2.99",
+    "y-prosemirror": "^1.3.7"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",
