@@ -91,8 +91,7 @@ export default defineConfig(((conf: { command: string }) => ({
     tailwindcss(),
   ],
   optimizeDeps: {
-    // Keep y-prosemirror's DecorationSet identity aligned with @tiptap/pm.
-    exclude: ["y-prosemirror"],
+    // link: ['vite-react-ts-components'],
   },
   build: {
     // Skipped on Vercel for the same reason as `webpackStats` above: emitting
