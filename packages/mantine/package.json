@@ -15,7 +15,23 @@
   "files": [
     "dist",
     "types",
-    "src"
+    "src",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
   ],
   "keywords": [
     "react",
@@ -34,22 +50,19 @@
   "type": "module",
   "source": "src/index.tsx",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-mantine.cjs",
+  "main": "./dist/blocknote-mantine.js",
   "module": "./dist/blocknote-mantine.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-mantine.js",
-      "require": "./dist/blocknote-mantine.cjs"
+      "import": "./dist/blocknote-mantine.js"
     },
     "./style.css": {
       "import": "./src/style.css",
-      "require": "./src/style.css",
       "style": "./src/style.css"
     },
     "./blocknoteStyles.css": {
       "import": "./src/blocknoteStyles.css",
-      "require": "./src/blocknoteStyles.css",
       "style": "./src/blocknoteStyles.css"
     }
   },

@@ -53,8 +53,9 @@ export default defineConfig(
       },
       build: {
         // assetsInclude: ["**/*.woff", "**/*.woff2", "**/*.ttf", "**/*.otf"], // Add other font extensions if needed
-        sourcemap: true,
+        sourcemap: false,
         lib: {
+          formats: ["es"],
           entry: path.resolve(__dirname, "src/index.ts"),
           name: "blocknote-xl-email-exporter",
           fileName: "blocknote-xl-email-exporter",
@@ -81,11 +82,6 @@ export default defineConfig(
               source.startsWith("@shikijs/") ||
               source.startsWith("node:")
             );
-          },
-          output: {
-            // Provide global variables to use in the UMD build
-            // for externalized deps
-            globals: {},
           },
         },
       },

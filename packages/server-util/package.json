@@ -15,7 +15,23 @@
   "files": [
     "dist",
     "types",
-    "src"
+    "src",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
   ],
   "keywords": [
     "react",
@@ -34,18 +50,12 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-server-util.cjs",
+  "main": "./dist/blocknote-server-util.js",
   "module": "./dist/blocknote-server-util.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-server-util.js",
-      "require": "./dist/blocknote-server-util.cjs"
-    },
-    "./style.css": {
-      "import": "./dist/style.css",
-      "require": "./dist/style.css",
-      "style": "./dist/style.css"
+      "import": "./dist/blocknote-server-util.js"
     }
   },
   "scripts": {
