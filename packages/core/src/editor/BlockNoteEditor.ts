@@ -126,13 +126,6 @@ export interface BlockNoteEditorOptions<
   dropCursor?: DropCursorOptions;
 
   /**
-   * Whether to enable the gap cursor around blocks without editable content.
-   * Defaults to true. When false, arrow up/down moves directly from a selected
-   * block to the adjacent block, staying put at the document boundaries.
-   */
-  gapCursor?: boolean;
-
-  /**
    * The content that should be in the editor when it's created, represented as an array of {@link PartialBlock} objects.
    *
    * See [Partial Blocks](https://www.blocknotejs.org/docs/editor-api/manipulating-blocks#partial-blocks) for more info.

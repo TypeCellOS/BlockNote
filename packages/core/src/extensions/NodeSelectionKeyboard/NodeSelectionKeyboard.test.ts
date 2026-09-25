@@ -2,6 +2,7 @@ import { GapCursor } from "@tiptap/pm/gapcursor";
 import { NodeSelection, TextSelection } from "prosemirror-state";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
+import type { PartialBlock } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 const editors: BlockNoteEditor[] = [];
@@ -13,111 +14,177 @@ afterEach(() => {
   editors.length = 0;
 });
 
-function createEditor(gapCursor?: boolean, trailingBlock = true) {
-  const editor = BlockNoteEditor.create({
-    gapCursor,
-    trailingBlock,
-    initialContent: [
-      { id: "first", type: "image" },
-      { id: "second", type: "file" },
-      { id: "text", type: "paragraph", content: "hello" },
-      { id: "last", type: "image" },
-    ],
-  });
+function createEditor(initialContent: PartialBlock[], trailingBlock = true) {
+  const editor = BlockNoteEditor.create({ initialContent, trailingBlock });
   editor.mount(document.createElement("div"));
   editors.push(editor);
   return editor;
 }
 
-function pressKey(editor: BlockNoteEditor, key: "ArrowUp" | "ArrowDown") {
-  const view = editor.prosemirrorView;
+function pressKey(
+  editor: BlockNoteEditor,
+  key: "ArrowUp" | "ArrowDown" | "ArrowRight",
+  modifiers: KeyboardEventInit = {},
+) {
   const event = new KeyboardEvent("keydown", {
     key,
-    keyCode: key === "ArrowUp" ? 38 : 40,
+    keyCode: { ArrowUp: 38, ArrowDown: 40, ArrowRight: 39 }[key],
     bubbles: true,
     cancelable: true,
+    ...modifiers,
   });
-  // Dispatch through the DOM so ProseMirror's built-in keyboard handling runs
-  // after plugin handlers, just as it does for a real key press.
-  view.dom.dispatchEvent(event);
+  // Include ProseMirror's built-in handling as well as the plugin handlers.
+  editor.prosemirrorView.dom.dispatchEvent(event);
   return event.defaultPrevented;
 }
 
-describe("gap cursor configuration", () => {
-  it.each([undefined, true])(
-    "preserves gap navigation when gapCursor is %s",
-    (gapCursor) => {
-      const editor = createEditor(gapCursor);
-      editor.setTextCursorPosition("first");
+describe("ArrowDown after a selected contentless block", () => {
+  it.each(["image", "file", "video", "audio"] as const)(
+    "creates and selects a paragraph after a final %s",
+    (type) => {
+      const editor = createEditor([{ id: "last", type }]);
+      editor.setTextCursorPosition("last");
+      const original = editor.document[0];
+
+      expect(pressKey(editor, "ArrowDown")).toBe(true);
+
+      expect(editor.document).toHaveLength(2);
+      expect(editor.document[0]).toEqual(original);
+      expect(editor.document[1]).toMatchObject({
+        type: "paragraph",
+        content: [],
+      });
+      expect(editor.getTextCursorPosition().block.id).toBe(
+        editor.document[1].id,
+      );
+      expect(editor.prosemirrorState.selection).toBeInstanceOf(TextSelection);
+      expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(0);
+      expect(editor.prosemirrorState.selection.empty).toBe(true);
+
       pressKey(editor, "ArrowDown");
-      expect(editor.prosemirrorState.selection).toBeInstanceOf(GapCursor);
+      expect(editor.document).toHaveLength(2);
     },
   );
 
-  it.each([
-    ["first", "ArrowDown", "second"],
-    ["second", "ArrowUp", "first"],
-  ] as const)("moves directly from %s with %s", (from, key, to) => {
-    const editor = createEditor(false);
-    const doc = editor.prosemirrorState.doc;
-    editor.setTextCursorPosition(from);
-    expect(pressKey(editor, key)).toBe(true);
-    expect(editor.prosemirrorState.selection).toBeInstanceOf(NodeSelection);
-    expect(editor.getTextCursorPosition().block.id).toBe(to);
-    expect(editor.prosemirrorState.doc.eq(doc)).toBe(true);
-    expect(
-      editor.prosemirrorView.dom.querySelector(".ProseMirror-gapcursor"),
-    ).toBeNull();
+  it("works with the trailing block decoration disabled", () => {
+    const editor = createEditor([{ id: "last", type: "image" }], false);
+    editor.setTextCursorPosition("last");
+    pressKey(editor, "ArrowDown");
+    expect(editor.document).toHaveLength(2);
+    expect(editor.getTextCursorPosition().block.type).toBe("paragraph");
+  });
+
+  it("inserts after a final nested block at the same nesting level", () => {
+    const editor = createEditor([
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "parent",
+        children: [{ id: "last", type: "image" }],
+      },
+    ]);
+    editor.setTextCursorPosition("last");
+    pressKey(editor, "ArrowDown");
+    expect(editor.document).toHaveLength(1);
+    const children = editor.document[0].children;
+    expect(children).toHaveLength(2);
+    expect(children[1]).toMatchObject({ type: "paragraph", content: [] });
+    expect(editor.getTextCursorPosition().block.id).toBe(children[1].id);
+  });
+
+  it.each(["image", "paragraph"] as const)(
+    "does not insert when a %s follows",
+    (type) => {
+      const editor = createEditor([
+        { id: "first", type: "image" },
+        { id: "next", type },
+      ]);
+      editor.setTextCursorPosition("first");
+      const doc = editor.document;
+      pressKey(editor, "ArrowDown");
+      expect(editor.document).toEqual(doc);
+    },
+  );
+
+  it("does not insert when the selected block has children", () => {
+    const editor = createEditor([
+      {
+        id: "parent",
+        type: "image",
+        children: [{ id: "child", type: "image" }],
+      },
+    ]);
+    editor.setTextCursorPosition("parent");
+    const doc = editor.document;
+    pressKey(editor, "ArrowDown");
+    expect(editor.document).toEqual(doc);
+  });
+
+  it.each(["", "hello"])(
+    "does not append after a text cursor in a paragraph containing %j",
+    (content) => {
+      const editor = createEditor([{ id: "last", type: "paragraph", content }]);
+      editor.setTextCursorPosition("last", "end");
+      const doc = editor.document;
+      pressKey(editor, "ArrowDown");
+      expect(editor.document).toEqual(doc);
+    },
+  );
+
+  it("does not append after a node-selected block with inline content", () => {
+    const editor = createEditor([
+      { id: "last", type: "paragraph", content: "hello" },
+    ]);
+    editor.setTextCursorPosition("last");
+    editor.transact((tr) =>
+      tr.setSelection(
+        NodeSelection.create(tr.doc, tr.selection.$from.before()),
+      ),
+    );
+    const doc = editor.document;
+    pressKey(editor, "ArrowDown");
+    expect(editor.document).toEqual(doc);
   });
 
   it.each([
-    ["second", "ArrowDown", "start"],
-    ["last", "ArrowUp", "end"],
-  ] as const)("moves from %s into adjacent text", (from, key, placement) => {
-    const editor = createEditor(false);
-    editor.setTextCursorPosition("text", placement);
-    const expected = editor.prosemirrorState.selection;
-    editor.setTextCursorPosition(from);
-    pressKey(editor, key);
-    expect(editor.prosemirrorState.selection).toBeInstanceOf(TextSelection);
-    expect(editor.prosemirrorState.selection.eq(expected)).toBe(true);
-  });
+    { shiftKey: true },
+    { altKey: true },
+    { ctrlKey: true },
+    { metaKey: true },
+    { isComposing: true },
+  ])(
+    "does not insert for modified or composing key presses: %j",
+    (modifiers) => {
+      const editor = createEditor([{ id: "last", type: "image" }]);
+      editor.setTextCursorPosition("last");
+      const doc = editor.document;
+      pressKey(editor, "ArrowDown", modifiers);
+      expect(editor.document).toEqual(doc);
+    },
+  );
 
-  it.each([true, false])(
-    "stays at document boundaries with trailingBlock=%s",
-    (trailingBlock) => {
-      const editor = createEditor(false, trailingBlock);
-      const doc = editor.prosemirrorState.doc;
-      for (const [id, key] of [
-        ["first", "ArrowUp"],
-        ["last", "ArrowDown"],
-      ] as const) {
-        editor.setTextCursorPosition(id);
-        const selection = editor.prosemirrorState.selection;
-        // Repeated presses must neither move the selection nor add a block.
-        expect(pressKey(editor, key)).toBe(true);
-        expect(pressKey(editor, key)).toBe(true);
-        expect(editor.prosemirrorState.selection.eq(selection)).toBe(true);
-        expect(editor.prosemirrorState.doc.eq(doc)).toBe(true);
+  it.each(["ArrowUp", "ArrowRight"] as const)(
+    "does not insert a paragraph for %s",
+    (key) => {
+      const editor = createEditor([{ id: "last", type: "image" }]);
+      editor.setTextCursorPosition("last");
+      const doc = editor.document;
+      pressKey(editor, key);
+      if (key === "ArrowUp") {
+        expect(editor.prosemirrorState.selection).toBeInstanceOf(GapCursor);
       }
+      expect(editor.document).toEqual(doc);
     },
   );
 
-  it("navigates into and out of nested blocks", () => {
-    const editor = createEditor(false);
-    editor.updateBlock("first", { children: [{ id: "child", type: "image" }] });
+  it("preserves gap cursors between contentless blocks", () => {
+    const editor = createEditor([
+      { id: "first", type: "image" },
+      { id: "last", type: "file" },
+    ]);
     editor.setTextCursorPosition("first");
-    const doc = editor.prosemirrorState.doc;
-    for (const [key, id] of [
-      ["ArrowDown", "child"],
-      ["ArrowDown", "second"],
-      ["ArrowUp", "child"],
-      ["ArrowUp", "first"],
-    ] as const) {
-      expect(pressKey(editor, key)).toBe(true);
-      expect(editor.getTextCursorPosition().block.id).toBe(id);
-      expect(editor.prosemirrorState.selection).toBeInstanceOf(NodeSelection);
-    }
-    expect(editor.prosemirrorState.doc.eq(doc)).toBe(true);
+    pressKey(editor, "ArrowDown");
+    expect(editor.prosemirrorState.selection).toBeInstanceOf(GapCursor);
+    expect(editor.document).toHaveLength(2);
   });
 });

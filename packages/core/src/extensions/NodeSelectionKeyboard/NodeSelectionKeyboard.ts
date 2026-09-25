@@ -26,7 +26,7 @@ const PLUGIN_KEY = new PluginKey("node-selection-keyboard");
 // keystrokes, this brings us most of the way to Notion's UX without much added
 // complexity.
 export const NodeSelectionKeyboardExtension = createExtension(
-  ({ options = {} }: ExtensionOptions<{ gapCursor?: boolean } | undefined>) =>
+  ({ editor }: ExtensionOptions) =>
     ({
       key: "nodeSelectionKeyboard",
       prosemirrorPlugins: [
@@ -41,29 +41,32 @@ export const NodeSelectionKeyboardExtension = createExtension(
                 if (event.ctrlKey || event.metaKey) {
                   return false;
                 }
-                // Explicitly cancels arrow up/down presses when a whole block
-                // is selected at the start/end of the document and the gap
-                // cursor is disabled.
+                // Make room to type below a contentless block at the document
+                // end, while preserving gap cursors everywhere else.
                 if (
-                  options.gapCursor === false &&
-                  !selection.node.isInline &&
+                  event.key === "ArrowDown" &&
                   !event.shiftKey &&
                   !event.altKey &&
-                  (event.key === "ArrowUp" || event.key === "ArrowDown")
+                  !event.isComposing &&
+                  !selection.node.isInline &&
+                  selection.eq(Selection.atEnd(view.state.doc))
                 ) {
-                  const direction = event.key === "ArrowUp" ? -1 : 1;
-                  const nextSelection = Selection.findFrom(
-                    direction === -1 ? selection.$from : selection.$to,
-                    direction,
-                  );
-                  if (nextSelection) {
-                    // Let ProseMirror's built-in arrow handling move the selection.
-                    return false;
+                  const { block } = editor.getTextCursorPosition();
+                  if (
+                    editor.schema.blockSchema[block.type].content === "none"
+                  ) {
+                    editor.transact((tr) => {
+                      const [paragraph] = editor.insertBlocks(
+                        [{ type: "paragraph" }],
+                        block,
+                        "after",
+                      );
+                      editor.setTextCursorPosition(paragraph, "start");
+                      tr.scrollIntoView();
+                    });
+                    event.preventDefault();
+                    return true;
                   }
-                  // Consume the key at document boundaries so the browser
-                  // cannot move the selection into the trailing block widget.
-                  event.preventDefault();
-                  return true;
                 }
                 // Checks if key press is alphanumeric
                 if (event.key.length === 1) {
