@@ -37,12 +37,12 @@ overrides:
   # Pin both so the whole workspace shares one instance.
   "@types/node": "25.9.5"
   "jsdom": "^29.0.2"
-  "vitest": "4.1.10"
-  "@vitest/runner": "4.1.10"
+  "vitest": "4.1.11"
+  "@vitest/runner": "4.1.11"
   # @vitest/mocker must stay >=4.1.10: earlier builds only recognize `vitest`
   # as the mocks-API source, so `vi.mock` imported from `vite-plus/test` fails
   # to hoist ("problems in resolving the mocks API"). 4.1.10 adds vite-plus/test.
-  "@vitest/mocker": "4.1.10"
+  "@vitest/mocker": "4.1.11"
   "@y/y": "14.0.0-rc.23"
   "@y/prosemirror": "2.0.0-6"
   "lib0": "1.0.0-rc.22"
@@ -74,13 +74,10 @@ allowBuilds:
   # wasm-pack's binary shim self-installs on first run; no install script.
   wasm-pack: false
 patchedDependencies:
-  {
-    "@y/prosemirror@2.0.0-6": patches/@y__prosemirror@2.0.0-6.patch,
-    katex@0.16.47: patches/katex@0.16.47.patch,
-  }
+  { "@y/prosemirror@2.0.0-6": patches/@y__prosemirror@2.0.0-6.patch }
 catalog:
   vite: ^8.0.0
-  vite-plus: ^0.2.9
+  vite-plus: ^0.3.3
 minimumReleaseAgeExclude:
   - vite-plus
   - lib0
