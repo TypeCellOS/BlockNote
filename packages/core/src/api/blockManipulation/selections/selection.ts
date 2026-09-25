@@ -1,5 +1,10 @@
-import { TextSelection, type Transaction } from "prosemirror-state";
-import { TableMap } from "prosemirror-tables";
+import type { Node } from "prosemirror-model";
+import {
+  Selection as PMSelection,
+  TextSelection,
+  type Transaction,
+} from "prosemirror-state";
+import { cellAround, TableMap } from "prosemirror-tables";
 import { Block } from "../../../blocks/defaultBlocks.js";
 import { Selection } from "../../../editor/selectionTypes.js";
 import {
@@ -9,7 +14,11 @@ import {
   StyleSchema,
 } from "../../../schema/index.js";
 import { expandPMRangeToWords } from "../../../util/expandToWords.js";
-import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
+import {
+  type BlockInfo,
+  getBlockInfo,
+  getNearestBlockPos,
+} from "../../getBlockInfoFromPos.js";
 import {
   nodeToBlock,
   prosemirrorSliceToSlicedBlocks,
@@ -132,6 +141,79 @@ export function getSelection<
   };
 }
 
+/**
+ * Positions of the first and last selectable text inside a table block.
+ * Matches the endpoints `setSelection` has always used for table anchors/heads.
+ */
+export function getTableContentRange(
+  doc: Node,
+  tableContent: { node: Node; beforePos: number },
+): { from: number; to: number } {
+  const tableMap = TableMap.get(tableContent.node);
+  const firstCellPos =
+    tableContent.beforePos + tableMap.positionAt(0, 0, tableContent.node) + 1;
+  const lastCellPos =
+    tableContent.beforePos +
+    tableMap.positionAt(
+      tableMap.height - 1,
+      tableMap.width - 1,
+      tableContent.node,
+    ) +
+    1;
+  const lastCellNodeSize = doc.resolve(lastCellPos).nodeAfter!.nodeSize;
+  return {
+    from: firstCellPos + 2,
+    to: lastCellPos + lastCellNodeSize - 2,
+  };
+}
+
+/**
+ * Selectable content range of the current block, if it has any. Tables use the
+ * first/last cell text positions so a `TextSelection` can cover the whole
+ * table; inline/plain blocks use the content node's interior.
+ */
+export function getBlockContentRange(
+  doc: Node,
+  blockInfo: BlockInfo,
+): { from: number; to: number } | undefined {
+  if (!blockInfo.isBlockContainer) {
+    return undefined;
+  }
+
+  if (blockInfo.blockContent.node.type.spec.tableRole === "table") {
+    return getTableContentRange(doc, blockInfo.blockContent);
+  }
+
+  if (
+    blockInfo.blockContent.node.isTextblock ||
+    blockInfo.blockContent.node.inlineContent
+  ) {
+    return {
+      from: blockInfo.blockContent.beforePos + 1,
+      to: blockInfo.blockContent.afterPos - 1,
+    };
+  }
+
+  return undefined;
+}
+
+/**
+ * Whole-document `TextSelection`. Endpoints that fall inside a table are
+ * expanded to the table node's boundaries so Backspace/Delete can remove the
+ * isolating table instead of only emptying its cells.
+ */
+export function getWholeDocTextSelection(doc: Node): TextSelection {
+  const atStart = PMSelection.atStart(doc);
+  const atEnd = PMSelection.atEnd(doc);
+  const startCell = cellAround(atStart.$from);
+  const endCell = cellAround(atEnd.$to);
+
+  const from = startCell ? startCell.start(-1) - 1 : atStart.from;
+  const to = endCell ? endCell.start(-1) + endCell.node(-1).nodeSize : atEnd.to;
+
+  return TextSelection.create(doc, from, to);
+}
+
 export function setSelection(
   tr: Transaction,
   startBlock: BlockIdentifier,
@@ -183,35 +265,14 @@ export function setSelection(
     );
   }
 
-  let startPos: number;
-  let endPos: number;
-
-  if (anchorBlockConfig.content === "table") {
-    const tableMap = TableMap.get(anchorBlockInfo.blockContent.node);
-    const firstCellPos =
-      anchorBlockInfo.blockContent.beforePos +
-      tableMap.positionAt(0, 0, anchorBlockInfo.blockContent.node) +
-      1;
-    startPos = firstCellPos + 2;
-  } else {
-    startPos = anchorBlockInfo.blockContent.beforePos + 1;
-  }
-
-  if (headBlockConfig.content === "table") {
-    const tableMap = TableMap.get(headBlockInfo.blockContent.node);
-    const lastCellPos =
-      headBlockInfo.blockContent.beforePos +
-      tableMap.positionAt(
-        tableMap.height - 1,
-        tableMap.width - 1,
-        headBlockInfo.blockContent.node,
-      ) +
-      1;
-    const lastCellNodeSize = tr.doc.resolve(lastCellPos).nodeAfter!.nodeSize;
-    endPos = lastCellPos + lastCellNodeSize - 2;
-  } else {
-    endPos = headBlockInfo.blockContent.afterPos - 1;
-  }
+  const startPos =
+    anchorBlockConfig.content === "table"
+      ? getTableContentRange(tr.doc, anchorBlockInfo.blockContent).from
+      : anchorBlockInfo.blockContent.beforePos + 1;
+  const endPos =
+    headBlockConfig.content === "table"
+      ? getTableContentRange(tr.doc, headBlockInfo.blockContent).to
+      : headBlockInfo.blockContent.afterPos - 1;
 
   // TODO: We should polish up the `MultipleNodeSelection` and use that instead.
   //  Right now it's missing a few things like a jsonID and styling to show
