@@ -752,6 +752,16 @@ export const SideMenuExtension = createExtension(({ editor }) => {
     prosemirrorPlugins: [
       new Plugin({
         key: sideMenuPluginKey,
+        appendTransaction: (transactions, _oldState, newState) => {
+          if (transactions.some((tr) => tr.getMeta("uiEvent") === "drop")) {
+            // Forces a `scrollIntoView` immediately after a drop. Fixes WebKit
+            // specific behavior where focusing scrolls the selection into
+            // view. This happens on drop before ProseMirror updates the
+            // document/selection, which is incorrect.
+            return newState.tr.scrollIntoView();
+          }
+          return null;
+        },
         view: (editorView) => {
           view = new SideMenuView(editor, editorView, (state) => {
             // TODO: Without spreading the state, in some cases like toggling
