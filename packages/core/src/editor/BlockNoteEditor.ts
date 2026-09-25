@@ -359,6 +359,7 @@ export class BlockNoteEditor<
 
   public readonly _tiptapEditor: TiptapEditor & {
     contentComponent: any;
+    isEditorContentInitialized?: boolean;
   };
 
   /**
@@ -729,12 +730,17 @@ export class BlockNoteEditor<
    */
   public mount = (element: HTMLElement) => {
     this._tiptapEditor.mount({ mount: element });
+    // TipTap's ReactRenderer uses this flag to render new node/mark views
+    // synchronously. Otherwise, inserting React-styled text can place the
+    // caret before it because its contentDOM is not attached yet.
+    this._tiptapEditor.isEditorContentInitialized = true;
   };
 
   /**
    * Unmount the editor from the DOM element it is bound to
    */
   public unmount = () => {
+    this._tiptapEditor.isEditorContentInitialized = false;
     this._tiptapEditor.unmount();
   };
 
