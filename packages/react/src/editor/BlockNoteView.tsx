@@ -5,7 +5,6 @@ import {
   StyleSchema,
   mergeCSSClasses,
 } from "@blocknote/core";
-import type { ReactRenderer } from "@tiptap/react";
 import React, {
   HTMLAttributes,
   ReactNode,
@@ -365,15 +364,10 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
       editor.isEditable = ctx.editorProps.editable !== false;
       // Since we are not using TipTap's React Components, we need to set up the contentComponent it expects
       // This is a simple replacement for the state management that Tiptap does internally
-      const tiptapEditor: ReactRenderer["editor"] = editor._tiptapEditor;
-      tiptapEditor.contentComponent = portalManager;
+      editor._tiptapEditor.contentComponent = portalManager;
       if (element) {
         editor.mount(element);
-        // Render subsequent React node/mark views synchronously so their
-        // contentDOM is attached when ProseMirror places the selection.
-        tiptapEditor.isEditorContentInitialized = true;
       } else {
-        tiptapEditor.isEditorContentInitialized = false;
         editor.unmount();
       }
     },

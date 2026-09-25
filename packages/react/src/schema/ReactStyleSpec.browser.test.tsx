@@ -19,7 +19,7 @@ const schema = BlockNoteSchema.create({
   styleSpecs: { ...defaultStyleSpecs, highlight },
 });
 
-it.each(["initial mount", "remount"])(
+it.each(["initial mount", "remount", "API remount"])(
   "keeps typing after text inserted with a React style (%s)",
   async (mountMode) => {
     const editor = BlockNoteEditor.create({
@@ -65,6 +65,12 @@ it.each(["initial mount", "remount"])(
       if (mountMode === "remount") {
         flushSync(() => root.render(null));
         mount();
+      }
+      if (mountMode === "API remount") {
+        const element = editor.prosemirrorView.dom.parentElement!;
+        editor.unmount();
+        expect(editor._tiptapEditor.isEditorContentInitialized).toBe(false);
+        editor.mount(element);
       }
 
       await userEvent.click(host.querySelector("button")!);
