@@ -108,7 +108,8 @@ export function createPreviewSession({
       const [content, compareToContent, attributions] = await Promise.all([
         getPrimaryContent(),
         compareTo && endpoints.getContent(compareTo),
-        compareTo && endpoints.getAttributions?.(target, compareTo),
+        compareTo &&
+          endpoints.getAttributions?.(target, compareTo).catch(() => undefined),
       ]);
       // A restore is replacing the document: don't draw a preview over it.
       if (request !== latestPreview || store.state.restoring) {

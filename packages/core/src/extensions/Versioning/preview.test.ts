@@ -158,6 +158,27 @@ describe("createPreviewSession", () => {
     });
   });
 
+  it("renders the preview without attributions when loading them fails", async () => {
+    const baseline = snap("baseline", 5);
+    const shown = snap("shown", 10);
+    const { preview, getContent, getAttributions, session } = makeSession({
+      list: loadedList([shown, baseline]),
+    });
+    const error = new Error("attribution request failed");
+    getContent.mockImplementation(async (snapshot) => `${snapshot.id} content`);
+    getAttributions.mockRejectedValue(error);
+
+    await expect(
+      session.previewSnapshot("shown", { compareTo: "baseline" }),
+    ).resolves.toBeUndefined();
+    expect(preview.enterPreview).toHaveBeenCalledWith(
+      "shown content",
+      "baseline content",
+      undefined,
+      { target: { kind: "snapshot", snapshot: shown }, compareTo: baseline },
+    );
+  });
+
   it("a superseded preview never renders", async () => {
     const { store, preview, getContent, session } = makeSession({
       list: loadedList([snap("b", 20), snap("a", 10)]),
