@@ -205,11 +205,11 @@ export function createAddBlocksTool<T>(config: {
               return true;
             }
 
+            const lastBlock = jsonToolCall.blocks.at(-1);
             if (
               chunk.isPossiblyPartial &&
-              isEmptyParagraph(
-                jsonToolCall.blocks[jsonToolCall.blocks.length - 1],
-              )
+              lastBlock &&
+              isEmptyParagraph(lastBlock)
             ) {
               // for example, a parsing just "<ul>" would first result in an empty paragraph,
               // wait for more content before adding the block
@@ -283,9 +283,12 @@ export function createAddBlocksTool<T>(config: {
             }
 
             if (!chunk.isPossiblyPartial) {
-              if (operation.position === "after") {
-                referenceIdMap[operation.referenceId] =
-                  addedBlockIds[addedBlockIds.length - 1];
+              const lastAddedBlockId = addedBlockIds.at(-1);
+              if (
+                operation.position === "after" &&
+                lastAddedBlockId !== undefined
+              ) {
+                referenceIdMap[operation.referenceId] = lastAddedBlockId;
               }
             }
 

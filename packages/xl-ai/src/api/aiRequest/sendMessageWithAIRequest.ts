@@ -1,6 +1,5 @@
 import { Chat } from "@ai-sdk/react";
 import { UIMessage } from "ai";
-import merge from "lodash.merge";
 import {
   setupToolCallStreaming,
   streamToolsToToolSet,
@@ -38,9 +37,14 @@ export async function sendMessageWithAIRequest(
     throw new Error("No message to send");
   }
 
-  sendingMessage.metadata = merge(sendingMessage.metadata, {
+  // Replace the document snapshot as a whole: merging arrays by index can
+  // retain deleted blocks or a selection from the previous request.
+  sendingMessage.metadata = {
+    ...(typeof sendingMessage.metadata === "object"
+      ? sendingMessage.metadata
+      : undefined),
     documentState: aiRequest.documentState,
-  });
+  };
 
   const toolCallProcessing = setupToolCallStreaming(
     aiRequest.streamTools,
@@ -48,16 +52,19 @@ export async function sendMessageWithAIRequest(
     aiRequest.onStart,
     abortSignal,
   );
-  options = merge(options, {
+  options = {
+    ...options,
     metadata: {
+      ...(typeof options?.metadata === "object" ? options.metadata : undefined),
       source: "blocknote-ai",
     },
     body: {
+      ...options?.body,
       toolDefinitions: await toolSetToToolDefinitions(
         streamToolsToToolSet(aiRequest.streamTools),
       ),
     },
-  });
+  };
 
   await chat.sendMessage(message, options);
 

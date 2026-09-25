@@ -247,7 +247,7 @@ export interface PreviewController<Output = any, Attributions = any> {
 export function sortSnapshotsNewestFirst(
   snapshots: VersionSnapshot[],
 ): VersionSnapshot[] {
-  return [...snapshots].sort((a, b) => b.createdAt - a.createdAt);
+  return snapshots.toSorted((a, b) => b.createdAt - a.createdAt);
 }
 
 /**

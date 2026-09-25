@@ -293,7 +293,7 @@ function parseInlineCode(
         if (
           code.length >= 2 &&
           code[0] === " " &&
-          code[code.length - 1] === " " &&
+          code.at(-1) === " " &&
           /[^ ]/.test(code)
         ) {
           code = code.substring(1, code.length - 1);
@@ -762,7 +762,7 @@ function tokenize(markdown: string): Token[] {
     // Horizontal rule: ---, ***, ___ (3+ chars, optionally with spaces)
     if (/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(line)) {
       // Setext H2: --- immediately after a paragraph (no blank line between)
-      const prevToken = tokens[tokens.length - 1];
+      const prevToken = tokens.at(-1);
       if (
         !prevLineWasBlank &&
         line.trim().match(/^-+$/) &&

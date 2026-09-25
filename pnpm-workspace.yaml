@@ -58,7 +58,7 @@ packageExtensions:
   # and every importer shares one instance.
   vite-plus:
     dependencies:
-      "@vitest/ui": "4.1.5"
+      "@vitest/ui": "4.1.10"
 allowBuilds:
   "@parcel/watcher": true
   "@sentry/cli": true

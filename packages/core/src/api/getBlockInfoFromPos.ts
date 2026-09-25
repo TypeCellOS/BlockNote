@@ -142,10 +142,13 @@ export function getNearestBlockPos(doc: Node, pos: number) {
   // eslint-disable-next-line no-console
   console.warn(`Position ${pos} is not within a blockContainer node.`);
 
-  const resolvedPos = doc.resolve(
-    allBlockContainerPositions.find((position) => position >= pos) ||
-      allBlockContainerPositions[allBlockContainerPositions.length - 1],
-  );
+  const blockPosition =
+    allBlockContainerPositions.find((position) => position >= pos) ??
+    allBlockContainerPositions.at(-1);
+  if (blockPosition === undefined) {
+    throw new Error("Document has no block containers");
+  }
+  const resolvedPos = doc.resolve(blockPosition);
   return {
     posBeforeNode: resolvedPos.pos,
     node: resolvedPos.nodeAfter!,

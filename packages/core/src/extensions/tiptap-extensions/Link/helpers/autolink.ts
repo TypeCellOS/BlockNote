@@ -109,8 +109,7 @@ export function autolink(options: AutolinkOptions): Plugin {
             return;
           }
 
-          const lastWordBeforeSpace =
-            wordsBeforeWhitespace[wordsBeforeWhitespace.length - 1];
+          const lastWordBeforeSpace = wordsBeforeWhitespace.at(-1) ?? "";
           const lastWordAndBlockOffset =
             textBlock.pos +
             textBeforeWhitespace.lastIndexOf(lastWordBeforeSpace);
