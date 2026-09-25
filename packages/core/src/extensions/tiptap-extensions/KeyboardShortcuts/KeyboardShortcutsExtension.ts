@@ -75,6 +75,16 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
             const { bnBlock: blockContainer, blockContent } = blockInfo;
 
+            // Crossing a column-list boundary moves the block into the last
+            // column first; the following handler owns that operation.
+            const prevBlockInfo = getPrevBlockInfo(
+              state.doc,
+              blockContainer.beforePos,
+            );
+            if (prevBlockInfo && !prevBlockInfo.isBlockContainer) {
+              return false;
+            }
+
             const selectionAtBlockStart =
               state.selection.from === blockContent.beforePos + 1;
             const selectionEmpty = state.selection.empty;
