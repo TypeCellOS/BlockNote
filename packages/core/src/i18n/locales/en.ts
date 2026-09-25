@@ -1,4 +1,10 @@
 export const en = {
+  locale: "en",
+  emoji_picker: {
+    search: "Search",
+    search_no_results: "No emoji found",
+    loading: "Loading…",
+  },
   slash_menu: {
     heading: {
       title: "Heading 1",

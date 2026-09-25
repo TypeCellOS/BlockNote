@@ -1,6 +1,12 @@
 import type { Dictionary } from "../dictionary.js";
 
 export const nl: Dictionary = {
+  locale: "nl",
+  emoji_picker: {
+    search: "Zoeken",
+    search_no_results: "Geen emoji gevonden",
+    loading: "Laden…",
+  },
   slash_menu: {
     heading: {
       title: "Kop 1",

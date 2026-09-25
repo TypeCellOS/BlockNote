@@ -1,6 +1,12 @@
 import { Dictionary } from "../dictionary.js";
 
 export const fr: Dictionary = {
+  locale: "fr",
+  emoji_picker: {
+    search: "Rechercher",
+    search_no_results: "Aucun emoji trouvé",
+    loading: "Chargement…",
+  },
   slash_menu: {
     heading: {
       title: "Titre 1",
