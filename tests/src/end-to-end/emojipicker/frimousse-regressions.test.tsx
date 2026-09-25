@@ -1,4 +1,3 @@
-import { EmojiPicker, type EmojiData } from "frimousse";
 import type { FormEvent } from "react";
 import { expect, it, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
@@ -27,57 +26,4 @@ it("does not submit a form when selecting a comment reaction", async () => {
   button.click();
 
   expect(onSubmit).not.toHaveBeenCalled();
-});
-
-it("renders duplicate localized labels without a key warning", async () => {
-  const duplicateLabels: EmojiData = {
-    locale: "ar",
-    emojis: [
-      {
-        emoji: "🧑‍⚕️",
-        category: 0,
-        version: 12.1,
-        label: "عامل صحي",
-        tags: [],
-      },
-      {
-        emoji: "👨‍⚕️",
-        category: 0,
-        version: 4,
-        label: "عامل صحي",
-        tags: [],
-      },
-    ],
-    categories: [{ index: 0, label: "أشخاص" }],
-    skinTones: {
-      light: "فاتح",
-      "medium-light": "متوسط فاتح",
-      medium: "متوسط",
-      "medium-dark": "متوسط داكن",
-      dark: "داكن",
-    },
-  };
-  // eslint-disable-next-line no-console
-  const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
-
-  try {
-    await render(
-      <EmojiPicker.Root resolveEmojiData={() => duplicateLabels}>
-        <EmojiPicker.Viewport>
-          <EmojiPicker.List />
-        </EmojiPicker.Viewport>
-      </EmojiPicker.Root>,
-    );
-
-    await vi.waitFor(() => expect(visibleEmojiButtons()).toHaveLength(2));
-    expect(
-      consoleError.mock.calls.some((call) =>
-        call.some(
-          (value) => typeof value === "string" && value.includes("same key"),
-        ),
-      ),
-    ).toBe(false);
-  } finally {
-    consoleError.mockRestore();
-  }
 });

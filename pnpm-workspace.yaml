@@ -75,7 +75,6 @@ allowBuilds:
   wasm-pack: false
 patchedDependencies:
   "@y/prosemirror@2.0.0-6": patches/@y__prosemirror@2.0.0-6.patch
-  frimousse@0.4.0: patches/frimousse@0.4.0.patch
   katex@0.16.47: patches/katex@0.16.47.patch
 catalog:
   vite: ^8.0.0

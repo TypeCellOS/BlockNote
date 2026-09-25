@@ -31,7 +31,6 @@ packageExtensionsChecksum: sha256-gac8/SrXWOgi01m6opHoF1/sfLGHeKOZ8VG+KDskMwM=
 
 patchedDependencies:
   '@y/prosemirror@2.0.0-6': e49b17b47e301dd138d7e383a779a0e2125bf7f038e10e3c740e26b43d988776
-  frimousse@0.4.0: 9533e2429eb4404bee52d8be53da9c4f0196d29d1a124c37e20d6305bbc760d3
   katex@0.16.47: cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7
 
 importers:
@@ -5616,7 +5615,7 @@ importers:
         version: 3.1.3
       frimousse:
         specifier: ^0.4.0
-        version: 0.4.0(patch_hash=9533e2429eb4404bee52d8be53da9c4f0196d29d1a124c37e20d6305bbc760d3)(react@19.2.5)(typescript@7.0.2)
+        version: 0.4.0(react@19.2.5)(typescript@7.0.2)
       use-sync-external-store:
         specifier: 1.6.0
         version: 1.6.0(react@19.2.5)
@@ -6591,7 +6590,7 @@ importers:
         version: 14.0.0-rc.23
       frimousse:
         specifier: ^0.4.0
-        version: 0.4.0(patch_hash=9533e2429eb4404bee52d8be53da9c4f0196d29d1a124c37e20d6305bbc760d3)(react@19.2.5)(typescript@7.0.2)
+        version: 0.4.0(react@19.2.5)(typescript@7.0.2)
       htmlfy:
         specifier: ^0.6.7
         version: 0.6.7
@@ -23707,7 +23706,7 @@ snapshots:
     dependencies:
       react: 19.2.5
 
-  frimousse@0.4.0(patch_hash=9533e2429eb4404bee52d8be53da9c4f0196d29d1a124c37e20d6305bbc760d3)(react@19.2.5)(typescript@7.0.2):
+  frimousse@0.4.0(react@19.2.5)(typescript@7.0.2):
     dependencies:
       react: 19.2.5
     optionalDependencies:
