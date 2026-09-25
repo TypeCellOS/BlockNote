@@ -99,39 +99,118 @@
   left: -1px;
 }
 
-.bn-editor .bn-collaboration-cursor__base .bn-collaboration-cursor__label {
-  pointer-events: none;
-  border-radius: 0 1.5px 1.5px 0;
+@property --bn-cursor-label-open {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+.bn-collaboration-cursor__label-collision-rect,
+.bn-collaboration-cursor__label {
   font-size: 12px;
   font-style: normal;
   font-weight: 600;
   line-height: normal;
-  left: 0;
-  overflow: hidden;
-  position: absolute;
   white-space: nowrap;
   user-select: none;
+  pointer-events: none;
+}
 
+/* Inline labels are also used by custom renderers and the AI agent cursor. */
+.bn-collaboration-cursor__label {
+  position: absolute;
+  left: 0;
+  top: -1px;
   color: transparent;
   max-height: 5px;
   max-width: 4px;
   padding: 0;
-  top: -1px;
+  border-radius: 0 1.5px 1.5px 0;
+  overflow: hidden;
   transition: all 0.2s;
 }
 
+.bn-collaboration-cursor__label[data-active],
 .bn-editor
   .bn-collaboration-cursor__base[data-active]
   .bn-collaboration-cursor__label {
-  color: #0d0d0d;
+  top: -17px;
+  color: var(--bn-cursor-label-color, #0d0d0d);
   max-height: 1.1rem;
   max-width: 20rem;
   padding: 0.1rem 0.3rem;
-  top: -17px;
-  left: 0;
   border-radius: 3px 3px 3px 0;
+}
 
-  transition: all 0.2s;
+/* Reserve the full open size for collision detection. The visible label uses
+   one progress value to expand from the caret to this resolved rectangle. */
+.bn-collaboration-cursor__label-collision-rect {
+  position: fixed;
+  bottom: anchor(top);
+  left: anchor(left);
+  width: max-content;
+  max-width: 20rem;
+  max-height: 1.1rem;
+  padding: 0.1rem 0.3rem;
+  visibility: hidden;
+  container-type: anchored;
+  position-try-fallbacks:
+    flip-block,
+    flip-inline,
+    flip-block flip-inline;
+
+  > .bn-collaboration-cursor__label {
+    position: fixed;
+    visibility: visible;
+    box-sizing: border-box;
+    max-width: none;
+    max-height: none;
+    text-overflow: ellipsis;
+    z-index: 20;
+    /* Interpolate relative to live anchors, so caret movement never trails
+       behind an opening or closing animation. */
+    top: calc(
+      anchor(top) - 2px +
+        (anchor(var(--bn-cursor-label-anchor) top) - anchor(top) + 2px) *
+        var(--bn-cursor-label-open)
+    );
+    left: calc(
+      anchor(left) +
+        (anchor(var(--bn-cursor-label-anchor) left) - anchor(left)) *
+        var(--bn-cursor-label-open)
+    );
+    /* The collapsed label is a 4px × 5px marker at the top of the caret, hence
+       the need to add these values to the overall width/height. */
+    width: calc(
+      4px + (anchor-size(var(--bn-cursor-label-anchor) width) - 4px) *
+        var(--bn-cursor-label-open)
+    );
+    height: calc(
+      5px + (anchor-size(var(--bn-cursor-label-anchor) height) - 5px) *
+        var(--bn-cursor-label-open)
+    );
+    padding: calc(0.1rem * var(--bn-cursor-label-open))
+      calc(0.3rem * var(--bn-cursor-label-open));
+    transition:
+      --bn-cursor-label-open 0.2s,
+      color 0.2s,
+      border-radius 0.2s;
+    /* One corner of the label is left un-rounded so it connects flush with the
+       caret. When the label flips, this corner changes change. */
+    &[data-active] {
+      --bn-cursor-label-open: 1;
+
+      @container anchored(fallback: flip-block) {
+        border-radius: 0 3px 3px 3px;
+      }
+      @container anchored(fallback: flip-inline) {
+        border-radius: 3px 3px 0 3px;
+      }
+      @container anchored(fallback: flip-block flip-inline) {
+        border-radius: 3px 0 3px 3px;
+      }
+    }
+  }
 }
 
 .bn-editor [data-content-type="table"] .tableWrapper {
