@@ -18,6 +18,7 @@ import {
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "../schema/index.js";
+import { marksExcludingNonFormattingMarks } from "../schema/markGroups.js";
 import {
   createAudioBlockSpec,
   createBulletListItemBlockSpec,
@@ -139,6 +140,9 @@ export const defaultStyleSpecs = {
   strike: createStyleSpecFromTipTapMark(Strike, "boolean"),
   code: createStyleSpecFromTipTapMark(
     Code.extend({
+      excludes() {
+        return marksExcludingNonFormattingMarks(this.editor);
+      },
       addInputRules() {
         return [
           // Matches any string that starts with a backtick, ends with a
