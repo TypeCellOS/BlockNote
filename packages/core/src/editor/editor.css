@@ -196,8 +196,7 @@ For the ShowSelectionPlugin
   padding: 2px 0;
 }
 
-/* Shared loading indicator. Override the color and size on the host element. */
-.bn-loader,
+/* Preview loading indicator. Override the color and size on the editor. */
 .bn-editor.bn-loading::before {
   animation:
     bn-loader-rotate 1s linear infinite,
@@ -250,7 +249,6 @@ For the ShowSelectionPlugin
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bn-loader,
   .bn-editor.bn-loading::before {
     animation: none;
     clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%);
