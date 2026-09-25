@@ -29,7 +29,7 @@
     "@blocknote/xl-multi-column": "workspace:^",
     "@blocknote/xl-odt-exporter": "workspace:^",
     "@blocknote/xl-pdf-exporter": "workspace:^",
-    "katex": "^0.16.11",
+    "katex": "^0.18.9",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@liveblocks/client": "^3.17.0",
