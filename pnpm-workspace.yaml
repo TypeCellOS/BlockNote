@@ -24,6 +24,8 @@ overrides:
   "@shikijs/types": "^4.4.3"
   "@tiptap/core": "^3.31.3"
   "@tiptap/pm": "^3.31.3"
+  # ProseMirror nodes must share one model instance across the editor and Y bindings.
+  "prosemirror-model": "1.25.12"
   # Mapping has private fields, so separate prosemirror-transform versions are
   # incompatible types. Keep direct imports and prosemirror-state/@tiptap/pm
   # on one resolution (1.12.0 vs 1.12.1 breaks the core build).
@@ -45,7 +47,7 @@ overrides:
   "@vitest/mocker": "4.1.10"
   "@y/y": "14.0.0-rc.26"
   "@y/prosemirror": "2.0.0-13"
-  "lib0": "1.0.0-rc.32"
+  "lib0": "1.0.0-rc.33"
 packageExtensions:
   # `@vitest/ui` is an *optional peer* of vitest, which vite-plus re-exposes as
   # an optional peer of its own. Only `tests` declares it (its browser config

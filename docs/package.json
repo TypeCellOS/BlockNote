@@ -89,7 +89,7 @@
     "fumadocs-typescript": "^5.1.1",
     "fumadocs-ui": "npm:@fumadocs/base-ui@16.5.0",
     "katex": "^0.16.11",
-    "lib0": "1.0.0-rc.22",
+    "lib0": "1.0.0-rc.33",
     "lucide-react": "^0.562.0",
     "mathjax-full": "^3.2.2",
     "mermaid": "^11.0.0",

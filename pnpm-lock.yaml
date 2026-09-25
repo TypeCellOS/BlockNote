@@ -17,6 +17,7 @@ overrides:
   '@shikijs/types': ^4.4.3
   '@tiptap/core': ^3.31.3
   '@tiptap/pm': ^3.31.3
+  prosemirror-model: 1.25.12
   prosemirror-transform: ^1.12.1
   '@types/node': 25.9.5
   jsdom: 29.0.2
@@ -25,7 +26,7 @@ overrides:
   '@vitest/mocker': 4.1.10
   '@y/y': 14.0.0-rc.26
   '@y/prosemirror': 2.0.0-13
-  lib0: 1.0.0-rc.32
+  lib0: 1.0.0-rc.33
 
 packageExtensionsChecksum: sha256-RBsr8H6XmGjVk3a5IXktWPY+vN2mX4m0Q/uTlfMsVxo=
 
@@ -248,7 +249,7 @@ importers:
         version: 0.6.4(react@19.2.5)(yjs@13.6.30)
       '@y/prosemirror':
         specifier: 2.0.0-13
-        version: 2.0.0-13(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
+        version: 2.0.0-13(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
         version: 1.0.6-rc.1(@y/y@14.0.0-rc.26)
@@ -295,8 +296,8 @@ importers:
         specifier: ^0.16.11
         version: 0.16.47(patch_hash=cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7)
       lib0:
-        specifier: 1.0.0-rc.32
-        version: 1.0.0-rc.32
+        specifier: 1.0.0-rc.33
+        version: 1.0.0-rc.33
       lucide-react:
         specifier: ^0.562.0
         version: 0.562.0(react@19.2.5)
@@ -356,7 +357,7 @@ importers:
         version: 0.0.25
       y-prosemirror:
         specifier: ^1.3.7
-        version: 1.3.7(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
+        version: 1.3.7(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
       y-websocket:
         specifier: ^2.1.0
         version: 2.1.0(yjs@13.6.30)
@@ -4299,7 +4300,7 @@ importers:
         version: 9.1.1(react@19.2.5)
       '@y/prosemirror':
         specifier: 2.0.0-13
-        version: 2.0.0-13(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
+        version: 2.0.0-13(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
         version: 1.0.6-rc.1(@y/y@14.0.0-rc.26)
@@ -4353,8 +4354,8 @@ importers:
         specifier: ^9.0.2
         version: 9.1.1(react@19.2.5)
       lib0:
-        specifier: 1.0.0-rc.32
-        version: 1.0.0-rc.32
+        specifier: 1.0.0-rc.33
+        version: 1.0.0-rc.33
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4363,7 +4364,7 @@ importers:
         version: 19.2.5(react@19.2.5)
       y-prosemirror:
         specifier: ^1.3.7
-        version: 1.3.7(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
+        version: 1.3.7(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
       y-websocket:
         specifier: ^2.1.0
         version: 2.1.0(yjs@13.6.30)
@@ -4409,7 +4410,7 @@ importers:
         version: 9.1.1(react@19.2.5)
       '@y/prosemirror':
         specifier: 2.0.0-13
-        version: 2.0.0-13(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
+        version: 2.0.0-13(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
         version: 1.0.6-rc.1(@y/y@14.0.0-rc.26)
@@ -4420,8 +4421,8 @@ importers:
         specifier: 14.0.0-rc.26
         version: 14.0.0-rc.26
       lib0:
-        specifier: 1.0.0-rc.32
-        version: 1.0.0-rc.32
+        specifier: 1.0.0-rc.33
+        version: 1.0.0-rc.33
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4467,7 +4468,7 @@ importers:
         version: 9.1.1(react@19.2.5)
       '@y/prosemirror':
         specifier: 2.0.0-13
-        version: 2.0.0-13(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
+        version: 2.0.0-13(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
         version: 1.0.6-rc.1(@y/y@14.0.0-rc.26)
@@ -4478,8 +4479,8 @@ importers:
         specifier: 14.0.0-rc.26
         version: 14.0.0-rc.26
       lib0:
-        specifier: 1.0.0-rc.32
-        version: 1.0.0-rc.32
+        specifier: 1.0.0-rc.33
+        version: 1.0.0-rc.33
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4623,7 +4624,7 @@ importers:
         version: 9.1.1(react@19.2.5)
       '@y/prosemirror':
         specifier: 2.0.0-13
-        version: 2.0.0-13(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
+        version: 2.0.0-13(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
       '@y/y':
         specifier: 14.0.0-rc.26
         version: 14.0.0-rc.26
@@ -5268,7 +5269,7 @@ importers:
         version: 1.2.1
       '@handlewithcare/prosemirror-inputrules':
         specifier: ^0.1.4
-        version: 0.1.4(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)
+        version: 0.1.4(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)
       '@shikijs/types':
         specifier: ^4.4.3
         version: 4.4.3
@@ -5301,7 +5302,7 @@ importers:
         version: 3.31.3
       '@y/prosemirror':
         specifier: 2.0.0-13
-        version: 2.0.0-13(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
+        version: 2.0.0-13(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
         version: 1.0.6-rc.1(@y/y@14.0.0-rc.26)
@@ -5315,14 +5316,14 @@ importers:
         specifier: ^3.1.3
         version: 3.1.3
       lib0:
-        specifier: 1.0.0-rc.32
-        version: 1.0.0-rc.32
+        specifier: 1.0.0-rc.33
+        version: 1.0.0-rc.33
       prosemirror-highlight:
         specifier: ^0.15.3
-        version: 0.15.3(@shikijs/types@4.4.3)(@types/hast@3.0.5)(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
+        version: 0.15.3(@shikijs/types@4.4.3)(@types/hast@3.0.5)(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
       prosemirror-model:
-        specifier: ^1.25.11
-        version: 1.25.11
+        specifier: 1.25.12
+        version: 1.25.12
       prosemirror-state:
         specifier: ^1.4.4
         version: 1.4.4
@@ -5353,7 +5354,7 @@ importers:
         version: 0.2.9(@opentelemetry/api@1.9.1)(@types/node@25.9.5)(@vitest/browser-playwright@4.1.10)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.9.5)(typescript@7.0.2))(terser@5.51.2)(tsx@4.21.0)(typescript@7.0.2)(vite@8.0.8(@types/node@25.9.5)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.51.2)(tsx@4.21.0)(yaml@2.9.0))(yaml@2.9.0)
       y-prosemirror:
         specifier: ^1.3.7
-        version: 1.3.7(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
+        version: 1.3.7(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
       y-protocols:
         specifier: ^1.0.6
         version: 1.0.7(yjs@13.6.30)
@@ -5520,13 +5521,13 @@ importers:
         version: link:../react
       '@handlewithcare/prosemirror-inputrules':
         specifier: ^0.1.4
-        version: 0.1.4(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)
+        version: 0.1.4(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)
       katex:
         specifier: ^0.16.11
         version: 0.16.47(patch_hash=cbfb6fe178282ddb73b753dcb27f891295e4f9ed85f63bc1466b4e4b1e4ef6e7)
       prosemirror-model:
-        specifier: ^1.25.11
-        version: 1.25.11
+        specifier: 1.25.12
+        version: 1.25.12
       prosemirror-state:
         specifier: ^1.4.4
         version: 1.4.4
@@ -5722,7 +5723,7 @@ importers:
         version: 0.2.9(@opentelemetry/api@1.9.1)(@types/node@25.9.5)(@vitest/browser-playwright@4.1.10)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.9.5)(typescript@7.0.2))(terser@5.51.2)(tsx@4.21.0)(typescript@7.0.2)(vite@8.0.8(@types/node@25.9.5)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.51.2)(tsx@4.21.0)(yaml@2.9.0))(yaml@2.9.0)
       y-prosemirror:
         specifier: ^1.3.7
-        version: 1.3.7(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
+        version: 1.3.7(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
       y-protocols:
         specifier: ^1.0.6
         version: 1.0.7(yjs@13.6.30)
@@ -5807,7 +5808,7 @@ importers:
         version: 0.27.19(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@handlewithcare/prosemirror-suggest-changes':
         specifier: ^0.1.8
-        version: 0.1.8(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
+        version: 0.1.8(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
       '@tiptap/core':
         specifier: ^3.31.3
         version: 3.31.3(@tiptap/pm@3.31.3)
@@ -5824,8 +5825,8 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
       prosemirror-model:
-        specifier: ^1.25.11
-        version: 1.25.11
+        specifier: 1.25.12
+        version: 1.25.12
       prosemirror-state:
         specifier: ^1.4.4
         version: 1.4.4
@@ -6107,8 +6108,8 @@ importers:
         specifier: ^3.31.3
         version: 3.31.3(@tiptap/pm@3.31.3)
       prosemirror-model:
-        specifier: ^1.25.11
-        version: 1.25.11
+        specifier: 1.25.12
+        version: 1.25.12
       prosemirror-state:
         specifier: ^1.4.4
         version: 1.4.4
@@ -7645,14 +7646,14 @@ packages:
   '@handlewithcare/prosemirror-inputrules@0.1.4':
     resolution: {integrity: sha512-GMqlBeG2MKM+tXEFd2N+wIv5z4VvJTg8JtfJUrdjvFq2W6v+AW8oTgiWyFw8L3iEQwvtQcVJxU873iB0LXUNNw==}
     peerDependencies:
-      prosemirror-model: ^1.0.0
+      prosemirror-model: 1.25.12
       prosemirror-state: ^1.0.0
       prosemirror-view: ^1.0.0
 
   '@handlewithcare/prosemirror-suggest-changes@0.1.8':
     resolution: {integrity: sha512-ewrJl4a8dTpPJNhqYySE2ZCjTRpXulWlUmFy3sbyJgPnGtN/zx7+8tbQ1OhHfMzZWfdmA8VjP9ecy+KO4HdOpA==}
     peerDependencies:
-      prosemirror-model: ^1.0.0
+      prosemirror-model: 1.25.12
       prosemirror-state: ^1.0.0
       prosemirror-transform: ^1.12.1
       prosemirror-view: ^1.0.0
@@ -11663,7 +11664,7 @@ packages:
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     peerDependencies:
       '@y/protocols': ^1.0.6-rc.1
-      prosemirror-model: ^1.7.1
+      prosemirror-model: 1.25.12
       prosemirror-state: ^1.2.3
       prosemirror-transform: ^1.12.1
       prosemirror-view: ^1.9.10
@@ -14035,8 +14036,8 @@ packages:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
 
-  lib0@1.0.0-rc.32:
-    resolution: {integrity: sha512-AaFxUR1ta0Zf3LmryubLTfYWmZCDfPjy5kAkDjURszy1RYJ7Rtt07xums81FLfj9Oa/6XLx7dOypiWXcSWJWyQ==}
+  lib0@1.0.0-rc.33:
+    resolution: {integrity: sha512-sGDqVqpIhaLK8fm8C4uZz858kBo0/Uk1OlVN8na2tlqi0CAUWmeo8IN7jN/P7lX68XaQA9BwHepj+s7Y7zTA5w==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -15173,7 +15174,7 @@ packages:
       '@types/hast': ^3.0.0
       highlight.js: ^11.9.0
       lowlight: ^3.1.0
-      prosemirror-model: ^1.19.3
+      prosemirror-model: 1.25.12
       prosemirror-state: ^1.4.3
       prosemirror-transform: ^1.12.1
       prosemirror-view: ^1.32.4
@@ -15214,9 +15215,6 @@ packages:
   prosemirror-keymap@1.2.3:
     resolution: {integrity: sha512-4HucRlpiLd1IPQQXNqeo81BGtkY8Ai5smHhKW9jjPKRc2wQIxksg7Hl1tTI2IfT2B/LgX6bfYvXxEpJl7aKYKw==}
 
-  prosemirror-model@1.25.11:
-    resolution: {integrity: sha512-QWg9RhnpLlogAmp3p96uEFrE5txQpFynd4vhBAELkwgOCWQs/X0yCzB3/hrHqiPwf91RG5KyWq6553zs9JqIOQ==}
-
   prosemirror-model@1.25.12:
     resolution: {integrity: sha512-Ue2gTmXMa7EhpLNhC7J+h4+ykD8ha12K6rrZFFKKJHBForfIStw5gJ6Zrf1mqqAa9NmpmEB4wp9bKmA4eUVjWg==}
 
@@ -15231,9 +15229,6 @@ packages:
 
   prosemirror-transform@1.12.1:
     resolution: {integrity: sha512-t4F5615FycnCqsX7ShTUs8+jfnwcf46kuFRvSl/3qFx2QTZ4DjgowesLHQXcFP7G//TjesqZG3WtgL7vdyVJyA==}
-
-  prosemirror-view@1.42.4:
-    resolution: {integrity: sha512-H/LErnE8Vms1GYkvhfj6G3K9rc2p+o5EHGmTwvPOl0f21wPPxlMVRB8ICOseH+COb2oPKFEoufbgY6yet/dR4w==}
 
   prosemirror-view@1.42.5:
     resolution: {integrity: sha512-7qcRaCWM48NC4utNQnx5Obvvs48/jMHXXvOXHH6WlBojmiK15eyxoHYlv5aJARHJHiFccSuWZ7ULW2SPrFAS/g==}
@@ -16703,7 +16698,7 @@ packages:
     resolution: {integrity: sha512-NpM99WSdD4Fx4if5xOMDpPtU3oAmTSjlzh5U4353ABbRHl1HtAFUx6HlebLZfyFxXN9jzKMDkVbcRjqOZVkYQg==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     peerDependencies:
-      prosemirror-model: ^1.7.1
+      prosemirror-model: 1.25.12
       prosemirror-state: ^1.2.3
       prosemirror-view: ^1.9.10
       y-protocols: ^1.0.1
@@ -18027,17 +18022,17 @@ snapshots:
       next: 16.3.0(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       tailwindcss: 4.2.2
 
-  '@handlewithcare/prosemirror-inputrules@0.1.4(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)':
+  '@handlewithcare/prosemirror-inputrules@0.1.4(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)':
     dependencies:
       prosemirror-history: 1.5.0
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
       prosemirror-transform: 1.12.1
       prosemirror-view: 1.42.5
 
-  '@handlewithcare/prosemirror-suggest-changes@0.1.8(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)':
+  '@handlewithcare/prosemirror-suggest-changes@0.1.8(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)':
     dependencies:
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
       prosemirror-transform: 1.12.1
       prosemirror-view: 1.42.5
@@ -18363,7 +18358,7 @@ snapshots:
       '@liveblocks/core': 3.19.5(@types/json-schema@7.0.15)
       '@noble/hashes': 1.8.0
       js-base64: 3.7.8
-      lib0: 1.0.0-rc.32
+      lib0: 1.0.0-rc.33
       y-indexeddb: 9.0.12(yjs@13.6.30)
       yjs: 13.6.30
     transitivePeerDependencies:
@@ -21273,12 +21268,12 @@ snapshots:
       prosemirror-history: 1.5.0
       prosemirror-inputrules: 1.5.1
       prosemirror-keymap: 1.2.3
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-schema-list: 1.5.1
       prosemirror-state: 1.4.4
       prosemirror-tables: 1.8.5
       prosemirror-transform: 1.12.1
-      prosemirror-view: 1.42.4
+      prosemirror-view: 1.42.5
 
   '@tiptap/react@3.31.3(@floating-ui/dom@1.8.0)(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
@@ -22085,12 +22080,12 @@ snapshots:
     dependencies:
       '@types/node': 25.9.5
 
-  '@y/prosemirror@2.0.0-13(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)':
+  '@y/prosemirror@2.0.0-13(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26))(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)':
     dependencies:
       '@y/protocols': 1.0.6-rc.1(@y/y@14.0.0-rc.26)
       '@y/y': 14.0.0-rc.26
-      lib0: 1.0.0-rc.32
-      prosemirror-model: 1.25.11
+      lib0: 1.0.0-rc.33
+      prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
       prosemirror-transform: 1.12.1
       prosemirror-view: 1.42.5
@@ -22098,17 +22093,17 @@ snapshots:
   '@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26)':
     dependencies:
       '@y/y': 14.0.0-rc.26
-      lib0: 1.0.0-rc.32
+      lib0: 1.0.0-rc.33
 
   '@y/websocket@4.0.0-rc.2(@y/y@14.0.0-rc.26)':
     dependencies:
       '@y/protocols': 1.0.6-rc.1(@y/y@14.0.0-rc.26)
       '@y/y': 14.0.0-rc.26
-      lib0: 1.0.0-rc.32
+      lib0: 1.0.0-rc.33
 
   '@y/y@14.0.0-rc.26':
     dependencies:
-      lib0: 1.0.0-rc.32
+      lib0: 1.0.0-rc.33
 
   '@yuku-codegen/binding-darwin-arm64@0.5.48':
     optional: true
@@ -24572,7 +24567,7 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  lib0@1.0.0-rc.32: {}
+  lib0@1.0.0-rc.33: {}
 
   lie@3.3.0:
     dependencies:
@@ -25918,7 +25913,7 @@ snapshots:
 
   prosemirror-commands@1.7.2:
     dependencies:
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
       prosemirror-transform: 1.12.1
 
@@ -25926,20 +25921,20 @@ snapshots:
     dependencies:
       prosemirror-state: 1.4.4
       prosemirror-transform: 1.12.1
-      prosemirror-view: 1.42.4
+      prosemirror-view: 1.42.5
 
   prosemirror-gapcursor@1.4.1:
     dependencies:
       prosemirror-keymap: 1.2.3
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
-      prosemirror-view: 1.42.4
+      prosemirror-view: 1.42.5
 
-  prosemirror-highlight@0.15.3(@shikijs/types@4.4.3)(@types/hast@3.0.5)(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5):
+  prosemirror-highlight@0.15.3(@shikijs/types@4.4.3)(@types/hast@3.0.5)(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5):
     optionalDependencies:
       '@shikijs/types': 4.4.3
       '@types/hast': 3.0.5
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
       prosemirror-transform: 1.12.1
       prosemirror-view: 1.42.5
@@ -25948,7 +25943,7 @@ snapshots:
     dependencies:
       prosemirror-state: 1.4.4
       prosemirror-transform: 1.12.1
-      prosemirror-view: 1.42.4
+      prosemirror-view: 1.42.5
       rope-sequence: 1.3.4
 
   prosemirror-inputrules@1.5.1:
@@ -25961,43 +25956,33 @@ snapshots:
       prosemirror-state: 1.4.4
       w3c-keyname: 2.2.8
 
-  prosemirror-model@1.25.11:
-    dependencies:
-      orderedmap: 2.1.1
-
   prosemirror-model@1.25.12:
     dependencies:
       orderedmap: 2.1.1
 
   prosemirror-schema-list@1.5.1:
     dependencies:
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
       prosemirror-transform: 1.12.1
 
   prosemirror-state@1.4.4:
     dependencies:
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-transform: 1.12.1
-      prosemirror-view: 1.42.4
+      prosemirror-view: 1.42.5
 
   prosemirror-tables@1.8.5:
     dependencies:
       prosemirror-keymap: 1.2.3
-      prosemirror-model: 1.25.11
+      prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
       prosemirror-transform: 1.12.1
       prosemirror-view: 1.42.5
 
   prosemirror-transform@1.12.1:
     dependencies:
-      prosemirror-model: 1.25.11
-
-  prosemirror-view@1.42.4:
-    dependencies:
-      prosemirror-model: 1.25.11
-      prosemirror-state: 1.4.4
-      prosemirror-transform: 1.12.1
+      prosemirror-model: 1.25.12
 
   prosemirror-view@1.42.5:
     dependencies:
@@ -27767,36 +27752,27 @@ snapshots:
 
   y-indexeddb@9.0.12(yjs@13.6.30):
     dependencies:
-      lib0: 1.0.0-rc.32
+      lib0: 1.0.0-rc.33
       yjs: 13.6.30
 
   y-leveldb@0.1.2(yjs@13.6.30):
     dependencies:
       level: 6.0.1
-      lib0: 1.0.0-rc.32
+      lib0: 1.0.0-rc.33
       yjs: 13.6.30
     optional: true
 
   y-partykit@0.0.25:
     dependencies:
-      lib0: 1.0.0-rc.32
+      lib0: 1.0.0-rc.33
       lodash.debounce: 4.0.8
       react: 18.3.1
       y-protocols: 1.0.7(yjs@13.6.30)
       yjs: 13.6.30
 
-  y-prosemirror@1.3.7(prosemirror-model@1.25.11)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30):
-    dependencies:
-      lib0: 1.0.0-rc.32
-      prosemirror-model: 1.25.11
-      prosemirror-state: 1.4.4
-      prosemirror-view: 1.42.5
-      y-protocols: 1.0.7(yjs@13.6.30)
-      yjs: 13.6.30
-
   y-prosemirror@1.3.7(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30):
     dependencies:
-      lib0: 1.0.0-rc.32
+      lib0: 1.0.0-rc.33
       prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
       prosemirror-view: 1.42.5
@@ -27805,12 +27781,12 @@ snapshots:
 
   y-protocols@1.0.7(yjs@13.6.30):
     dependencies:
-      lib0: 1.0.0-rc.32
+      lib0: 1.0.0-rc.33
       yjs: 13.6.30
 
   y-websocket@2.1.0(yjs@13.6.30):
     dependencies:
-      lib0: 1.0.0-rc.32
+      lib0: 1.0.0-rc.33
       lodash.debounce: 4.0.8
       y-protocols: 1.0.7(yjs@13.6.30)
       yjs: 13.6.30
@@ -27855,7 +27831,7 @@ snapshots:
 
   yjs@13.6.30:
     dependencies:
-      lib0: 1.0.0-rc.32
+      lib0: 1.0.0-rc.33
 
   yocto-queue@0.1.0: {}
 
