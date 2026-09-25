@@ -28,7 +28,6 @@ import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingTo
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
   tabBehavior: "prefer-navigate-ui" | "prefer-indent";
-  backspaceBehavior: "unindent" | "merge";
 }>({
   priority: 50,
 
@@ -66,35 +65,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // Removes a level of nesting if the block is indented if the selection is at the start of the block.
-        () =>
-          commands.command(({ state, tr }) => {
-            if (this.options.backspaceBehavior === "merge") {
-              return false;
-            }
-
-            const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.isBlockContainer) {
-              return false;
-            }
-            const { blockContent } = blockInfo;
-
-            const selectionAtBlockStart =
-              state.selection.from === blockContent.beforePos + 1;
-
-            if (selectionAtBlockStart) {
-              return liftItem(
-                tr,
-                tr.doc.type.schema.nodes["blockContainer"],
-                tr.doc.type.schema.nodes["blockGroup"],
-              );
-            }
-
-            return false;
-          }),
-        // Merges with the previous block at the start of the block. Nested blocks
-        // reach this step when backspaceBehavior is "merge". The target must
-        // contain inline content.
+        // Merges at the start of the block, into the preceding sibling
+        // (or its deepest descendant) or parent. Both must have inline content.
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -102,19 +74,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
             const { bnBlock: blockContainer, blockContent } = blockInfo;
-
-            if (this.options.backspaceBehavior !== "merge") {
-              const prevBlockInfo = getPrevBlockInfo(
-                state.doc,
-                blockContainer.beforePos,
-              );
-              if (
-                !prevBlockInfo?.isBlockContainer ||
-                prevBlockInfo.blockContent.node.type.spec.content !== "inline*"
-              ) {
-                return false;
-              }
-            }
 
             const selectionAtBlockStart =
               state.selection.from === blockContent.beforePos + 1;
@@ -243,10 +202,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
               state.doc,
               blockInfo.bnBlock.beforePos,
             );
-            const parent =
-              !prevBlockInfo && this.options.backspaceBehavior === "merge"
-                ? getParentBlockInfo(state.doc, blockInfo.bnBlock.beforePos)
-                : undefined;
+            const parent = !prevBlockInfo
+              ? getParentBlockInfo(state.doc, blockInfo.bnBlock.beforePos)
+              : undefined;
             const target = prevBlockInfo
               ? getBottomNestedBlockInfo(state.doc, prevBlockInfo)
               : parent;
@@ -347,7 +305,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state, tr }) => {
             const blockInfo = getBlockInfoFromSelection(state);
             if (
-              this.options.backspaceBehavior !== "merge" ||
               !blockInfo.isBlockContainer ||
               !state.selection.empty ||
               state.selection.from !== blockInfo.blockContent.beforePos + 1

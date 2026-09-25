@@ -210,7 +210,7 @@ describe("KeyboardShortcutsExtension hardBreakShortcut", () => {
   });
 });
 
-describe("KeyboardShortcutsExtension backspaceBehavior", () => {
+describe("KeyboardShortcutsExtension Backspace", () => {
   let editor: BlockNoteEditor | undefined;
 
   afterEach(() => {
@@ -219,7 +219,6 @@ describe("KeyboardShortcutsExtension backspaceBehavior", () => {
   });
 
   function createEditor(
-    backspaceBehavior: "unindent" | "merge" | undefined,
     content: string,
     type:
       | "paragraph"
@@ -228,7 +227,6 @@ describe("KeyboardShortcutsExtension backspaceBehavior", () => {
       | "checkListItem" = "paragraph",
   ) {
     const instance = BlockNoteEditor.create({
-      backspaceBehavior,
       trailingBlock: false,
       initialContent: [
         {
@@ -276,20 +274,8 @@ describe("KeyboardShortcutsExtension backspaceBehavior", () => {
   }
 
   describe.each(["", "Current"])("Backspace with content %j", (content) => {
-    it.each([undefined, "unindent"] as const)(
-      "unindents with backspaceBehavior=%s",
-      (behavior) => {
-        const instance = createEditor(behavior, content);
-        pressKey(instance, "Backspace");
-        expectUnindented(instance);
-        expect(instance.getBlock("current")?.content).toEqual(
-          content ? [{ type: "text", text: content, styles: {} }] : [],
-        );
-      },
-    );
-
     it("merges without changing following siblings' nesting", () => {
-      const instance = createEditor("merge", content);
+      const instance = createEditor(content);
       pressKey(instance, "Backspace");
 
       expect(instance.document.map((block) => block.id)).toEqual(["parent"]);
@@ -304,8 +290,8 @@ describe("KeyboardShortcutsExtension backspaceBehavior", () => {
     });
   });
 
-  it("still unindents with Shift-Tab in merge mode", () => {
-    const instance = createEditor("merge", "Current");
+  it("still unindents with Shift-Tab", () => {
+    const instance = createEditor("Current");
     pressKey(instance, "Shift-Tab");
     expectUnindented(instance);
   });
@@ -313,7 +299,7 @@ describe("KeyboardShortcutsExtension backspaceBehavior", () => {
   it.each(["bulletListItem", "numberedListItem", "checkListItem"] as const)(
     "converts %s to a paragraph before merging",
     (type) => {
-      const instance = createEditor("merge", "Current", type);
+      const instance = createEditor("Current", type);
       pressKey(instance, "Backspace");
       expect(instance.getBlock("current")?.type).toBe("paragraph");
       expect(
@@ -328,7 +314,7 @@ describe("KeyboardShortcutsExtension backspaceBehavior", () => {
   );
 
   it("does not merge when the cursor is inside the block", () => {
-    const instance = createEditor("merge", "Current");
+    const instance = createEditor("Current");
     instance.setTextCursorPosition("current", "end");
     // The shortcut must leave normal character deletion to the browser.
     pressKey(instance, "Backspace");
@@ -341,7 +327,7 @@ describe("KeyboardShortcutsExtension backspaceBehavior", () => {
   });
 
   function createScenario(initialContent: PartialBlock[]) {
-    const instance = createEditor("merge", "");
+    const instance = createEditor("");
     instance.replaceBlocks(instance.document, initialContent);
     instance.setTextCursorPosition("current", "start");
     return instance;
@@ -750,7 +736,7 @@ describe("KeyboardShortcutsExtension backspaceBehavior", () => {
   });
 
   it("deletes selected text before attempting to merge or unindent", () => {
-    const instance = createEditor("merge", "Current");
+    const instance = createEditor("Current");
     const start = instance.prosemirrorView.state.selection.from;
     instance.prosemirrorView.dispatch(
       instance.prosemirrorView.state.tr.setSelection(
@@ -770,21 +756,18 @@ describe("KeyboardShortcutsExtension backspaceBehavior", () => {
     ).toEqual(["before", "current", "after"]);
   });
 
-  it.each(["unindent", "merge"] as const)(
-    "Delete still merges forward with backspaceBehavior=%s",
-    (behavior) => {
-      const instance = createEditor(behavior, "Current");
-      instance.setTextCursorPosition("before", "end");
-      pressKey(instance, "Delete");
-      expect(instance.getBlock("current")).toBeUndefined();
-      expect(instance.getBlock("before")?.content).toEqual([
-        { type: "text", text: "BeforeCurrent", styles: {} },
-      ]);
-      expect(
-        instance.getBlock("parent")?.children.map((block) => block.id),
-      ).toEqual(["before", "after"]);
-    },
-  );
+  it("Delete still merges forward", () => {
+    const instance = createEditor("Current");
+    instance.setTextCursorPosition("before", "end");
+    pressKey(instance, "Delete");
+    expect(instance.getBlock("current")).toBeUndefined();
+    expect(instance.getBlock("before")?.content).toEqual([
+      { type: "text", text: "BeforeCurrent", styles: {} },
+    ]);
+    expect(
+      instance.getBlock("parent")?.children.map((block) => block.id),
+    ).toEqual(["before", "after"]);
+  });
 
   it.each(["image", "table"] as const)(
     "promotes descendants of an empty only child under %s and supports undo",
@@ -893,5 +876,104 @@ describe("KeyboardShortcutsExtension backspaceBehavior", () => {
       { type: "text", text: "Child", styles: { italic: true } },
     ]);
     expect(instance.getBlock("current")).toBeUndefined();
+  });
+
+  it.each([false, true])(
+    "matches PR examples 2 and 4 (previous block has children: %s)",
+    (nestedTarget) => {
+      const instance = createScenario([
+        {
+          id: "parent",
+          content: "Parent",
+          children: nestedTarget ? [{ id: "target", content: "Target" }] : [],
+        },
+        {
+          id: "current",
+          content: "Current",
+          children: [{ id: "child", content: "Child" }],
+        },
+      ]);
+      pressKey(instance, "Backspace");
+      expect(instance.document.map((block) => block.id)).toEqual([
+        "parent",
+        "child",
+      ]);
+      const target = nestedTarget ? "target" : "parent";
+      expect(instance.getBlock(target)?.content).toEqual([
+        {
+          type: "text",
+          text: `${nestedTarget ? "Target" : "Parent"}Current`,
+          styles: {},
+        },
+      ]);
+      expect(instance.getTextCursorPosition().block.id).toBe(target);
+      expect(instance.prosemirrorView.state.selection.$from.parentOffset).toBe(
+        6,
+      );
+      expect(instance.getBlock("child")?.content).toEqual([
+        { type: "text", text: "Child", styles: {} },
+      ]);
+    },
+  );
+
+  it("deletes a selected nested image", () => {
+    const instance = createScenario([
+      {
+        id: "parent",
+        content: "Parent",
+        children: [
+          { id: "current", type: "image" },
+          { id: "after", content: "After" },
+        ],
+      },
+    ]);
+    const info = getBlockInfoFromSelection(instance.prosemirrorView.state);
+    if (!info.isBlockContainer) {
+      throw new Error("Expected image block");
+    }
+    instance.prosemirrorView.dispatch(
+      instance.prosemirrorView.state.tr.setSelection(
+        NodeSelection.create(
+          instance.prosemirrorView.state.doc,
+          info.blockContent.beforePos,
+        ),
+      ),
+    );
+    pressKey(instance, "Backspace");
+    expect(instance.getBlock("current")).toBeUndefined();
+    expect(
+      instance.getBlock("parent")?.children.map((block) => block.id),
+    ).toEqual(["after"]);
+  });
+
+  it("does nothing at the start of a nested table cell", () => {
+    const instance = createScenario([
+      {
+        id: "parent",
+        content: "Parent",
+        children: [
+          { id: "current", ...parentSpec("table") },
+          { id: "after", content: "After" },
+        ],
+      },
+    ]);
+    let pos: number | undefined;
+    instance.prosemirrorView.state.doc.descendants((node, nodePos) => {
+      if (node.isText && node.text === "First") {
+        pos = nodePos;
+      }
+    });
+    if (pos === undefined) {
+      throw new Error("Expected table cell text");
+    }
+    instance.prosemirrorView.dispatch(
+      instance.prosemirrorView.state.tr.setSelection(
+        TextSelection.create(instance.prosemirrorView.state.doc, pos),
+      ),
+    );
+    const before = instance.document;
+    pressKey(instance, "Backspace");
+    expect(instance.document).toEqual(before);
+    expect(instance.prosemirrorView.state.selection.from).toBe(pos);
   });
 });

@@ -267,18 +267,6 @@ export interface BlockNoteEditorOptions<
   tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
 
   /**
-   * Determines behavior when pressing Backspace at the start of a nested paragraph.
-   * - `"unindent"`: Unindents the block before allowing it to merge backward.
-   * - `"merge"`: Skips unindenting and uses the normal backward merge behavior.
-   *   First children merge into their parent; empty first children are removed.
-   *   Falls back to unindenting if neither merging nor deletion is possible.
-   * Applies to both empty and nonempty blocks. Other block types are still
-   * converted to paragraphs first, and Shift-Tab always unindents.
-   * @default "unindent"
-   */
-  backspaceBehavior?: "unindent" | "merge";
-
-  /**
    * Allows enabling / disabling features of tables.
    *
    * See [Tables](https://www.blocknotejs.org/docs/editor-basics/document-structure#tables) for more info.
