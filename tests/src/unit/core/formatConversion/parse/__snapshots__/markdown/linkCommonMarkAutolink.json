@@ -1,0 +1,47 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Visit ",
+        "type": "text",
+      },
+      {
+        "content": [
+          {
+            "styles": {},
+            "text": "https://example.com/path?q=1",
+            "type": "text",
+          },
+        ],
+        "href": "https://example.com/path?q=1",
+        "type": "link",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Invalid email domains stay plain: <a@b..c>",
+        "type": "text",
+      },
+    ],
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "content": [
+          {
+            "styles": {
+              "bold": true,
+            },
+            "text": "https://example.com",
+            "type": "text",
+          },
+        ],
+        "href": "https://destination.com",
+        "type": "link",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]

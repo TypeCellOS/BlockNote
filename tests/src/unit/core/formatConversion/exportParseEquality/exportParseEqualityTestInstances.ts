@@ -662,6 +662,78 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
   },
   {
     testCase: {
+      name: "markdown/plainUrlLink",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "link",
+              content: "https://example.com",
+              href: "https://example.com",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
+      name: "markdown/editorDetectedUrlLink",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "link",
+              content: "https://invalid",
+              href: "https://invalid",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
+      name: "markdown/plainUrlLinkWithTerminalPunctuation",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "link",
+              content: "https://example.com/path.",
+              href: "https://example.com/path.",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
+      name: "markdown/plainWwwLink",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "link",
+              content: "www.example.com",
+              href: "www.example.com",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
       name: "markdown/image",
       content: [
         {
