@@ -114,7 +114,7 @@
     "prosemirror-state": "^1.4.4",
     "prosemirror-tables": "^1.8.5",
     "prosemirror-transform": "^1.12.1",
-    "prosemirror-view": "^1.42.4"
+    "prosemirror-view": "^1.42.5"
   },
   "devDependencies": {
     "jsdom": "^29.0.2",

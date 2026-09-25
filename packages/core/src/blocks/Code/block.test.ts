@@ -82,12 +82,12 @@ describe("Code block input rule", () => {
     expect((block.props as any).language).toBe("ts");
   });
 
-  it("converts ``` + space into a codeBlock with empty language", () => {
+  it("converts ``` + space into a codeBlock with the default language", () => {
     typeString(editor, "``` ");
 
     const block = editor.document[0];
     expect(block.type).toBe("codeBlock");
-    expect((block.props as any).language).toBe("");
+    expect((block.props as any).language).toBe("text");
   });
 
   it("converts ```javascript + space into a codeBlock", () => {
@@ -138,13 +138,13 @@ describe("Code block input rule", () => {
     expect(block.content).toEqual([]);
   });
 
-  it("converts ``` + Enter into a codeBlock with empty language", () => {
+  it("converts ``` + Enter into a codeBlock with the default language", () => {
     typeString(editor, "```");
     pressKey(editor, "Enter");
 
     const block = editor.document[0];
     expect(block.type).toBe("codeBlock");
-    expect((block.props as any).language).toBe("");
+    expect((block.props as any).language).toBe("text");
   });
 
   it("converts ```javascript + Enter into a codeBlock", () => {
