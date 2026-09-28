@@ -26,7 +26,8 @@ export default defineConfig(
       test: {
         environment: "jsdom",
         setupFiles: ["./vitestSetup.ts"],
-        exclude: [...configDefaults.exclude, "**/*.browser.test.{ts,tsx}"],
+        // Browser tests run in the tests package's Docker browser suite.
+        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
       },
       plugins: [react(), webpackStats()],
       // used so that vitest resolves the core package from the sources instead of the built version
