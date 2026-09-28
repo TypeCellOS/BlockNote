@@ -29,7 +29,7 @@ overrides:
   '@vitest/mocker': 4.1.11
   '@y/y': 14.0.0-rc.26
   '@y/prosemirror': 2.0.0-13
-  lib0: 1.0.0-rc.33
+  lib0: ^1.0.0-rc.34
 
 packageExtensionsChecksum: sha256-RBsr8H6XmGjVk3a5IXktWPY+vN2mX4m0Q/uTlfMsVxo=
 
@@ -296,8 +296,8 @@ importers:
         specifier: ^0.18.9
         version: 0.18.9
       lib0:
-        specifier: 1.0.0-rc.33
-        version: 1.0.0-rc.33
+        specifier: ^1.0.0-rc.34
+        version: 1.0.0-rc.34
       lucide-react:
         specifier: ^0.562.0
         version: 0.562.0(react@19.2.5)
@@ -4354,8 +4354,8 @@ importers:
         specifier: ^9.0.2
         version: 9.1.1(react@19.2.5)
       lib0:
-        specifier: 1.0.0-rc.33
-        version: 1.0.0-rc.33
+        specifier: ^1.0.0-rc.34
+        version: 1.0.0-rc.34
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4421,8 +4421,8 @@ importers:
         specifier: 14.0.0-rc.26
         version: 14.0.0-rc.26
       lib0:
-        specifier: 1.0.0-rc.33
-        version: 1.0.0-rc.33
+        specifier: ^1.0.0-rc.34
+        version: 1.0.0-rc.34
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4479,8 +4479,8 @@ importers:
         specifier: 14.0.0-rc.26
         version: 14.0.0-rc.26
       lib0:
-        specifier: 1.0.0-rc.33
-        version: 1.0.0-rc.33
+        specifier: ^1.0.0-rc.34
+        version: 1.0.0-rc.34
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -5316,8 +5316,8 @@ importers:
         specifier: ^3.1.3
         version: 3.1.3
       lib0:
-        specifier: 1.0.0-rc.33
-        version: 1.0.0-rc.33
+        specifier: ^1.0.0-rc.34
+        version: 1.0.0-rc.34
       prosemirror-highlight:
         specifier: ^0.15.3
         version: 0.15.3(@shikijs/types@4.4.3)(@types/hast@3.0.5)(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.1)(prosemirror-view@1.42.5)
@@ -14050,8 +14050,8 @@ packages:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
 
-  lib0@1.0.0-rc.33:
-    resolution: {integrity: sha512-sGDqVqpIhaLK8fm8C4uZz858kBo0/Uk1OlVN8na2tlqi0CAUWmeo8IN7jN/P7lX68XaQA9BwHepj+s7Y7zTA5w==}
+  lib0@1.0.0-rc.34:
+    resolution: {integrity: sha512-v1AjTAtXQoYNOBt/B8sFGRi8U9HVGi4UoVY/7kYnsipduoIjn/6gUCXbSm6y/ztC8WHO8zp2QSVj2cXjoaraDA==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -18369,7 +18369,7 @@ snapshots:
       '@liveblocks/core': 3.19.5(@types/json-schema@7.0.15)
       '@noble/hashes': 1.8.0
       js-base64: 3.7.8
-      lib0: 1.0.0-rc.33
+      lib0: 1.0.0-rc.34
       y-indexeddb: 9.0.12(yjs@13.6.30)
       yjs: 13.6.30
     transitivePeerDependencies:
@@ -22148,7 +22148,7 @@ snapshots:
     dependencies:
       '@y/protocols': 1.0.6-rc.1(@y/y@14.0.0-rc.26)
       '@y/y': 14.0.0-rc.26
-      lib0: 1.0.0-rc.33
+      lib0: 1.0.0-rc.34
       prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
       prosemirror-transform: 1.12.1
@@ -22157,17 +22157,17 @@ snapshots:
   '@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.26)':
     dependencies:
       '@y/y': 14.0.0-rc.26
-      lib0: 1.0.0-rc.33
+      lib0: 1.0.0-rc.34
 
   '@y/websocket@4.0.0-rc.2(@y/y@14.0.0-rc.26)':
     dependencies:
       '@y/protocols': 1.0.6-rc.1(@y/y@14.0.0-rc.26)
       '@y/y': 14.0.0-rc.26
-      lib0: 1.0.0-rc.33
+      lib0: 1.0.0-rc.34
 
   '@y/y@14.0.0-rc.26':
     dependencies:
-      lib0: 1.0.0-rc.33
+      lib0: 1.0.0-rc.34
 
   '@yuku-codegen/binding-android-arm64@0.9.5':
     optional: true
@@ -24643,7 +24643,7 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  lib0@1.0.0-rc.33: {}
+  lib0@1.0.0-rc.34: {}
 
   lie@3.3.0:
     dependencies:
@@ -27891,19 +27891,19 @@ snapshots:
 
   y-indexeddb@9.0.12(yjs@13.6.30):
     dependencies:
-      lib0: 1.0.0-rc.33
+      lib0: 1.0.0-rc.34
       yjs: 13.6.30
 
   y-leveldb@0.1.2(yjs@13.6.30):
     dependencies:
       level: 6.0.1
-      lib0: 1.0.0-rc.33
+      lib0: 1.0.0-rc.34
       yjs: 13.6.30
     optional: true
 
   y-partykit@0.0.25:
     dependencies:
-      lib0: 1.0.0-rc.33
+      lib0: 1.0.0-rc.34
       lodash.debounce: 4.0.8
       react: 18.3.1
       y-protocols: 1.0.7(yjs@13.6.30)
@@ -27911,7 +27911,7 @@ snapshots:
 
   y-prosemirror@1.3.7(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30):
     dependencies:
-      lib0: 1.0.0-rc.33
+      lib0: 1.0.0-rc.34
       prosemirror-model: 1.25.12
       prosemirror-state: 1.4.4
       prosemirror-view: 1.42.5
@@ -27920,12 +27920,12 @@ snapshots:
 
   y-protocols@1.0.7(yjs@13.6.30):
     dependencies:
-      lib0: 1.0.0-rc.33
+      lib0: 1.0.0-rc.34
       yjs: 13.6.30
 
   y-websocket@2.1.0(yjs@13.6.30):
     dependencies:
-      lib0: 1.0.0-rc.33
+      lib0: 1.0.0-rc.34
       lodash.debounce: 4.0.8
       y-protocols: 1.0.7(yjs@13.6.30)
       yjs: 13.6.30
@@ -27970,7 +27970,7 @@ snapshots:
 
   yjs@13.6.30:
     dependencies:
-      lib0: 1.0.0-rc.33
+      lib0: 1.0.0-rc.34
 
   yocto-queue@0.1.0: {}
 
