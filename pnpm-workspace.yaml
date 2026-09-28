@@ -51,7 +51,7 @@ overrides:
   "@vitest/mocker": "4.1.11"
   "@y/y": "14.0.0-rc.23"
   "@y/prosemirror": "2.0.0-6"
-  "lib0": "1.0.0-rc.22"
+  "lib0": "^1.0.0-rc.34"
 packageExtensions:
   # `@vitest/ui` is an *optional peer* of vitest, which vite-plus re-exposes as
   # an optional peer of its own. Only `tests` declares it (its browser config
