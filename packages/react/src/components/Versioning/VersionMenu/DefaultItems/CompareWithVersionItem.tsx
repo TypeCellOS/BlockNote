@@ -14,8 +14,8 @@ import type {
 import { DefaultVersionMenuItem } from "../DefaultVersionMenuItem.js";
 
 /**
- * Use this stored row as the baseline, keeping the shown version.
- * Falls back to current when nothing or this same row was shown.
+ * Compare this stored row with the shown version, always previewing the newer
+ * one against the older one. Falls back to current when nothing is shown.
  */
 export function useCompareWithVersionAction(): VersionMenuAction {
   const { store, canCompare } = useExtension(VersioningExtension);
@@ -40,15 +40,19 @@ export function useCompareWithVersionAction(): VersionMenuAction {
         return;
       }
       const shown = getShownVersionRow(list, view);
+      const other =
+        shown && shown.snapshot.id !== snapshot.id
+          ? shown.snapshot
+          : list.current;
+      const target =
+        other.id === list.current.id || other.createdAt >= snapshot.createdAt
+          ? other
+          : snapshot;
+      const baseline = target === snapshot ? other : snapshot;
       return run(() =>
-        previewRow(
-          shown && shown.snapshot.id !== snapshot.id
-            ? shown.snapshot
-            : list.current,
-          {
-            compareTo: { type: "snapshot", id: snapshot.id },
-          },
-        ),
+        previewRow(target, {
+          compareTo: { type: "snapshot", id: baseline.id },
+        }),
       );
     },
   };

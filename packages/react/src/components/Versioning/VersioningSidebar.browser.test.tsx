@@ -673,6 +673,35 @@ describe("VersioningSidebar", () => {
     },
   );
 
+  it.each([
+    { shownIndex: 1, selectedIndex: 2 },
+    { shownIndex: 2, selectedIndex: 1 },
+  ])(
+    "compares versions in chronological order with row $shownIndex shown and row $selectedIndex selected",
+    async ({ shownIndex, selectedIndex }) => {
+      const { editor, fake } = await setup();
+      await click(rows()[shownIndex]!);
+      await click(
+        await openMenuItem(
+          rows()[selectedIndex]!,
+          /^Compare with this version$/,
+        ),
+      );
+
+      expect(
+        editor.getExtension(VersioningExtension)!.store.state.view,
+      ).toEqual({
+        mode: "snapshot",
+        snapshotId: NAMED.id,
+        compareToId: AUTOMATIC.id,
+      });
+      expect(fake.endpoints.getAttributions).toHaveBeenLastCalledWith(
+        { kind: "snapshot", snapshot: NAMED },
+        AUTOMATIC,
+      );
+    },
+  );
+
   it("reports a failed comparison toggle", async () => {
     const { fake } = await setup();
     fake.endpoints.getContent.mockRejectedValueOnce(
