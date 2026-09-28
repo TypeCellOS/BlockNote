@@ -1,3 +1,5 @@
+import { parseAutolinkLiteral } from "../../parsers/markdown/autolink.js";
+
 /**
  * Custom HTML-to-Markdown serializer for BlockNote.
  * Replaces the unified/rehype-remark pipeline with a direct DOM-based implementation.
@@ -702,8 +704,17 @@ function serializeBlockLink(el: HTMLElement, ctx: SerializeContext): string {
  * a `)` inside the URL does not prematurely close the destination.
  */
 function formatLink(text: string, href: string): string {
-  if (!text || text === href) {
+  if (!text) {
     return href;
+  }
+  if (text === href) {
+    const autolink = parseAutolinkLiteral(href);
+    if (
+      !/^(https?:\/\/|www\.)/i.test(href) ||
+      (autolink?.href === href && autolink.value === href)
+    ) {
+      return href;
+    }
   }
   return `[${text}](${escapeLinkDestination(href)})`;
 }

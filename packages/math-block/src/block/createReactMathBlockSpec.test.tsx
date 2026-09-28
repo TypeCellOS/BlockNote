@@ -317,6 +317,34 @@ describe("Math block source popup keyboard handling", () => {
       editor.setTextCursorPosition("before", "start");
     });
 
+    it("opens on the first click when selecting the math block rerenders its preview", async () => {
+      const formula = previewRoot("math").querySelector<HTMLElement>(
+        ".bn-preview-container .katex",
+      );
+      if (!formula) {
+        throw new Error("Math preview did not render");
+      }
+
+      formula.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
+      );
+      editor.setTextCursorPosition("math", "start");
+      await flush();
+
+      // A native click can be lost if selection rerenders the element that
+      // received mousedown before the browser dispatches click.
+      expect(previewRoot("math").querySelector(".katex")).toBe(formula);
+      formula.dispatchEvent(
+        new MouseEvent("mouseup", { bubbles: true, cancelable: true }),
+      );
+      formula.dispatchEvent(
+        new MouseEvent("click", { bubbles: true, cancelable: true }),
+      );
+      await flush();
+
+      expect(isPopupOpen("math")).toBe(true);
+    });
+
     it("opens the popup and places the cursor at the source end", async () => {
       const preview = div.querySelector(
         `.bn-block[data-id="math"] .bn-preview-container`,

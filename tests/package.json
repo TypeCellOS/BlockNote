@@ -28,7 +28,7 @@
     "@types/node": "^20.19.22",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
-    "@vitest/browser-playwright": "4.1.10",
+    "@vitest/browser-playwright": "4.1.11",
     "@vitest/ui": "4.1.5",
     "@y/protocols": "^1.0.6-rc.1",
     "@y/y": "^14.0.0-rc.26",
