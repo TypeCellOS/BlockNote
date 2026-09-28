@@ -5,6 +5,7 @@
   font-family: "Inter";
   font-style: normal;
   font-weight: 100;
+  font-display: swap;
   src:
     local(""),
     url("./inter-v12-latin/inter-v12-latin-100.woff2") format("woff2"),
@@ -16,6 +17,7 @@
   font-family: "Inter";
   font-style: normal;
   font-weight: 200;
+  font-display: swap;
   src:
     local(""),
     url("./inter-v12-latin/inter-v12-latin-200.woff2") format("woff2"),
@@ -27,6 +29,7 @@
   font-family: "Inter";
   font-style: normal;
   font-weight: 300;
+  font-display: swap;
   src:
     local(""),
     url("./inter-v12-latin/inter-v12-latin-300.woff2") format("woff2"),
@@ -38,6 +41,7 @@
   font-family: "Inter";
   font-style: normal;
   font-weight: 400;
+  font-display: swap;
   src:
     local(""),
     url("./inter-v12-latin/inter-v12-latin-regular.woff2") format("woff2"),
@@ -49,6 +53,7 @@
   font-family: "Inter";
   font-style: normal;
   font-weight: 500;
+  font-display: swap;
   src:
     local(""),
     url("./inter-v12-latin/inter-v12-latin-500.woff2") format("woff2"),
@@ -60,6 +65,7 @@
   font-family: "Inter";
   font-style: normal;
   font-weight: 600;
+  font-display: swap;
   src:
     local(""),
     url("./inter-v12-latin/inter-v12-latin-600.woff2") format("woff2"),
@@ -71,6 +77,7 @@
   font-family: "Inter";
   font-style: normal;
   font-weight: 700;
+  font-display: swap;
   src:
     local(""),
     url("./inter-v12-latin/inter-v12-latin-700.woff2") format("woff2"),
@@ -82,6 +89,7 @@
   font-family: "Inter";
   font-style: normal;
   font-weight: 800;
+  font-display: swap;
   src:
     local(""),
     url("./inter-v12-latin/inter-v12-latin-800.woff2") format("woff2"),
@@ -93,9 +101,112 @@
   font-family: "Inter";
   font-style: normal;
   font-weight: 900;
+  font-display: swap;
   src:
     local(""),
     url("./inter-v12-latin/inter-v12-latin-900.woff2") format("woff2"),
     /* Chrome 26+, Opera 23+, Firefox 39+ */
     url("./inter-v12-latin/inter-v12-latin-900.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+/* Generated with Fontaine 1.0.0 from the WOFF2 files above and its Arial
+   metrics. Recalculate when changing the bundled Inter files. Arimo and
+   Liberation Sans share Arial's metrics on systems without Arial. */
+@font-face {
+  font-family: "Inter fallback";
+  src: local("Arial"), local("Arimo"), local("Liberation Sans");
+  size-adjust: 102.9175%;
+  ascent-override: 94.1288%;
+  descent-override: 23.4632%;
+  line-gap-override: 0%;
+  font-weight: 100;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Inter fallback";
+  src: local("Arial"), local("Arimo"), local("Liberation Sans");
+  size-adjust: 104.2716%;
+  ascent-override: 92.9064%;
+  descent-override: 23.1585%;
+  line-gap-override: 0%;
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Inter fallback";
+  src: local("Arial"), local("Arimo"), local("Liberation Sans");
+  size-adjust: 105.7055%;
+  ascent-override: 91.6462%;
+  descent-override: 22.8444%;
+  line-gap-override: 0%;
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Inter fallback";
+  src: local("Arial"), local("Arimo"), local("Liberation Sans");
+  size-adjust: 107.0596%;
+  ascent-override: 90.4869%;
+  descent-override: 22.5554%;
+  line-gap-override: 0%;
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Inter fallback";
+  src: local("Arial"), local("Arimo"), local("Liberation Sans");
+  size-adjust: 108.1748%;
+  ascent-override: 89.5541%;
+  descent-override: 22.3229%;
+  line-gap-override: 0%;
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Inter fallback";
+  src: local("Arial"), local("Arimo"), local("Liberation Sans");
+  size-adjust: 109.3697%;
+  ascent-override: 88.5757%;
+  descent-override: 22.079%;
+  line-gap-override: 0%;
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Inter fallback";
+  src: local("Arial"), local("Arimo"), local("Liberation Sans");
+  size-adjust: 110.4849%;
+  ascent-override: 87.6817%;
+  descent-override: 21.8561%;
+  line-gap-override: 0%;
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Inter fallback";
+  src: local("Arial"), local("Arimo"), local("Liberation Sans");
+  size-adjust: 111.6798%;
+  ascent-override: 86.7435%;
+  descent-override: 21.6223%;
+  line-gap-override: 0%;
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Inter fallback";
+  src: local("Arial"), local("Arimo"), local("Liberation Sans");
+  size-adjust: 112.795%;
+  ascent-override: 85.8859%;
+  descent-override: 21.4085%;
+  line-gap-override: 0%;
+  font-weight: 900;
+  font-style: normal;
 }
