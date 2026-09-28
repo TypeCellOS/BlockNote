@@ -7,7 +7,7 @@ import {
   Extension as TiptapExtension,
 } from "@tiptap/core";
 import { keydownHandler } from "@tiptap/pm/keymap";
-import { Plugin, TextSelection } from "prosemirror-state";
+import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
 import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { setTextCursorPosition } from "../../../api/blockManipulation/selections/textCursorPosition.js";
 import {
@@ -260,6 +260,7 @@ export class ExtensionManager {
    * Atomically replace extension instances in the editor.
    * @param toUnregister - The extensions to unregister, can be a string key, an extension instance, an extension factory, or an array of any of those
    * @param toRegister - The extensions to register, can be an extension instance, an extension factory, or an array of any of those
+   * @param options.resetPluginStateFor - Plugin keys whose state must be initialized afresh instead of carried across the replacement
    * @returns void
    */
   public replaceExtension(
@@ -273,6 +274,7 @@ export class ExtensionManager {
       | Extension
       | ExtensionFactoryInstance
       | (Extension | ExtensionFactoryInstance)[],
+    options?: { resetPluginStateFor: readonly PluginKey[] },
   ): void {
     // ---- Remove phase (no updatePlugins call) ----
     const extensionsToRemove = this.resolveExtensions(toUnregister);
@@ -365,25 +367,28 @@ export class ExtensionManager {
     }
 
     // ---- Single atomic plugin update ----
-    this.updatePlugins((plugins) => [
-      ...plugins.filter((plugin) => {
-        // Fast path: exact reference match
-        if (pluginRefsToRemove.has(plugin)) {
-          return false;
-        }
-        // Fallback: match by key string (handles cases where plugin instances
-        // in the state differ from the ones we tracked)
-        if (pluginKeysToRemove.size) {
-          const key = (plugin as any).spec?.key;
-          const keyStr = typeof key === "object" && key ? key.key : key;
-          if (typeof keyStr === "string" && pluginKeysToRemove.has(keyStr)) {
+    this.updatePlugins(
+      (plugins) => [
+        ...plugins.filter((plugin) => {
+          // Fast path: exact reference match
+          if (pluginRefsToRemove.has(plugin)) {
             return false;
           }
-        }
-        return true;
-      }),
-      ...pluginsToAdd,
-    ]);
+          // Fallback: match by key string (handles cases where plugin instances
+          // in the state differ from the ones we tracked)
+          if (pluginKeysToRemove.size) {
+            const key = (plugin as any).spec?.key;
+            const keyStr = typeof key === "object" && key ? key.key : key;
+            if (typeof keyStr === "string" && pluginKeysToRemove.has(keyStr)) {
+              return false;
+            }
+          }
+          return true;
+        }),
+        ...pluginsToAdd,
+      ],
+      options?.resetPluginStateFor,
+    );
   }
 
   /**
@@ -391,10 +396,24 @@ export class ExtensionManager {
    * @param update - A function that takes the current plugins and returns the new plugins
    * @returns void
    */
-  private updatePlugins(update: (plugins: Plugin[]) => Plugin[]): void {
+  private updatePlugins(
+    update: (plugins: Plugin[]) => Plugin[],
+    resetPluginStateFor?: readonly PluginKey[],
+  ): void {
     const currentState = this.editor.prosemirrorState;
-
-    const state = currentState.reconfigure({
+    // ProseMirror preserves plugin state by key on reconfigure, even when the
+    // replacement plugin belongs to a different document. Drop selected keys
+    // from an intermediate *state* (not the view), then install the new plugins
+    // in one view update so their state.init runs before their view hooks.
+    const resetKeys = new Set(resetPluginStateFor);
+    const baseState = resetKeys.size
+      ? currentState.reconfigure({
+          plugins: currentState.plugins.filter(
+            (plugin) => !plugin.spec.key || !resetKeys.has(plugin.spec.key),
+          ),
+        })
+      : currentState;
+    const state = baseState.reconfigure({
       plugins: update(currentState.plugins.slice()),
     });
 

@@ -1,6 +1,5 @@
 import { ySyncPluginKey, yUndoPluginKey } from "y-prosemirror";
 import * as Y from "yjs";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   createExtension,
   createStore,
@@ -12,32 +11,13 @@ import { YSyncExtension } from "./YSync.js";
 import { YUndoExtension } from "./YUndo.js";
 import { findTypeInOtherYdoc } from "../utils.js";
 
-/**
- * Point the `ySync` plugin state at `fragment`.
- *
- * Swapping the `ySync` plugin reconfigures the ProseMirror state, and
- * ProseMirror carries over the state of plugins that share a key instead of
- * re-initializing them. So the new plugin's `binding` (which is set from its
- * view, via a transaction) ends up on the new fragment, while `type` and `doc`
- * still point at the fragment the editor was bound to before. Anything reading
- * those (e.g. `RelativePositionMappingExtension`) would then mix up the two
- * Y.Docs, so we set them explicitly here.
- */
-function bindYSyncPluginStateTo(
-  editor: BlockNoteEditor<any, any, any>,
-  fragment: Y.XmlFragment,
-) {
-  editor.transact((tr) =>
-    tr.setMeta(ySyncPluginKey, { type: fragment, doc: fragment.doc }),
-  );
-}
-
 export const ForkYDocExtension = createExtension(
   ({ editor, options }: ExtensionOptions<CollaborationOptions>) => {
     let forkedState:
       | {
           originalFragment: Y.XmlFragment;
           undoStack: Y.UndoManager["undoStack"];
+          redoStack: Y.UndoManager["redoStack"];
           forkedFragment: Y.XmlFragment;
         }
       | undefined = undefined;
@@ -81,9 +61,12 @@ export const ForkYDocExtension = createExtension(
         // Find the forked fragment in the new Yjs document
         const forkedFragment = findTypeInOtherYdoc(originalFragment, doc);
 
+        const originalUndoManager = yUndoPluginKey.getState(
+          editor.prosemirrorState,
+        )!.undoManager;
         forkedState = {
-          undoStack: yUndoPluginKey.getState(editor.prosemirrorState)!
-            .undoManager.undoStack,
+          undoStack: originalUndoManager.undoStack,
+          redoStack: originalUndoManager.redoStack,
           originalFragment,
           forkedFragment,
         };
@@ -103,9 +86,8 @@ export const ForkYDocExtension = createExtension(
             // No need to register the cursor plugin again, it's a local fork
             YUndoExtension(),
           ],
+          { resetPluginStateFor: [ySyncPluginKey, yUndoPluginKey] },
         );
-
-        bindYSyncPluginStateTo(editor, forkedFragment);
 
         // Tell the store that the editor is now forked
         store.setState({ isForked: true });
@@ -121,7 +103,8 @@ export const ForkYDocExtension = createExtension(
           return;
         }
 
-        const { originalFragment, forkedFragment, undoStack } = forkedState;
+        const { originalFragment, forkedFragment, undoStack, redoStack } =
+          forkedState;
 
         // Atomically swap the forked plugins back to the original ones
         editor.replaceExtension(
@@ -131,14 +114,15 @@ export const ForkYDocExtension = createExtension(
             YCursorExtension(options),
             YUndoExtension(),
           ],
+          { resetPluginStateFor: [ySyncPluginKey, yUndoPluginKey] },
         );
 
-        bindYSyncPluginStateTo(editor, originalFragment);
-
-        // Reset the undo stack to the original undo stack
-        yUndoPluginKey.getState(
+        // Restore history saved before forking onto the new original-doc manager.
+        const undoManager = yUndoPluginKey.getState(
           editor.prosemirrorState,
-        )!.undoManager.undoStack = undoStack;
+        )!.undoManager;
+        undoManager.undoStack = undoStack;
+        undoManager.redoStack = redoStack;
 
         if (keepChanges) {
           // Apply any changes that have been made to the fork, onto the original doc
@@ -146,7 +130,7 @@ export const ForkYDocExtension = createExtension(
             forkedFragment.doc!,
             Y.encodeStateVector(originalFragment.doc!),
           );
-          // Applying this change will add to the undo stack, allowing it to be undone normally
+          // Keep the existing editor origin for the merged update.
           Y.applyUpdate(originalFragment.doc!, update, editor);
         }
         // Reset the forked state
