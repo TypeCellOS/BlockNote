@@ -191,6 +191,7 @@ export const pt: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "Toggle vazio. Clique para adicionar um bloco.",
+    toggle_button_label: "Expandir ou recolher",
   },
   code_block: {
     add_source_button_text: "Adicionar código-fonte",

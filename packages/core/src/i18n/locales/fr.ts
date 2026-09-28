@@ -245,6 +245,7 @@ export const fr: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "Liste repliable vide. Cliquez pour ajouter un bloc.",
+    toggle_button_label: "Déplier ou replier",
   },
   code_block: {
     add_source_button_text: "Ajouter le code source",
