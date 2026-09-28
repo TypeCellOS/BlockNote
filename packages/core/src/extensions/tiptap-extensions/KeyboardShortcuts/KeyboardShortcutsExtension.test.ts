@@ -4,7 +4,10 @@ import { describe, expect, it } from "vite-plus/test";
 import { getBlockInfo } from "../../../api/getBlockInfoFromPos.js";
 import { getNodeById } from "../../../api/nodeUtil.js";
 import { BlockNoteSchema } from "../../../blocks/BlockNoteSchema.js";
-import { defaultBlockSpecs } from "../../../blocks/defaultBlocks.js";
+import {
+  defaultBlockSpecs,
+  type PartialBlock,
+} from "../../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { createBlockSpec } from "../../../schema/index.js";
 
@@ -120,9 +123,7 @@ describe("KeyboardShortcutsExtension Mod-a (select all)", () => {
   // non-editable - e.g. the checkbox `<div>` of a check list item as the first
   // block - so `Mod-a` is now handled explicitly. These tests exercise the
   // keymap path (not native selection) and would collapse before the fix.
-  function createSelectAllEditor(
-    blocks: { type: "paragraph" | "checkListItem"; content: string }[],
-  ) {
+  function createSelectAllEditor(blocks: PartialBlock<any, any, any>[]) {
     const editor = BlockNoteEditor.create({
       schema,
       initialContent: blocks.map((block, index) => ({
@@ -180,6 +181,30 @@ describe("KeyboardShortcutsExtension Mod-a (select all)", () => {
     expect(selection).toBeInstanceOf(TextSelection);
     expect(selection.from).toBe(blockInfo.blockContent.beforePos + 1);
     expect(selection.to).toBe(blockInfo.blockContent.afterPos - 1);
+  }
+
+  // Like `expectBlockContentSelected`, but for blocks whose content isn't
+  // directly inline (e.g. tables), where the selection snaps inward to the
+  // nearest inline positions rather than sitting exactly on the content bounds.
+  function expectSelectionWithinBlock(
+    editor: BlockNoteEditor<any, any, any>,
+    blockId: string,
+  ) {
+    const { selection, doc } = editor._tiptapEditor.state;
+    const blockInfo = getBlockInfo(getNodeById(blockId, doc)!);
+    if (!blockInfo.isBlockContainer) {
+      throw new Error(`Block ${blockId} is not a block container`);
+    }
+    expect(selection).toBeInstanceOf(TextSelection);
+    expect(selection.empty).toBe(false);
+    // The selection stays inside the block's content, without reaching into
+    // neighbouring blocks.
+    expect(selection.from).toBeGreaterThanOrEqual(
+      blockInfo.blockContent.beforePos + 1,
+    );
+    expect(selection.to).toBeLessThanOrEqual(
+      blockInfo.blockContent.afterPos - 1,
+    );
   }
 
   // Each test walks the full Notion-style flow: the first `Mod-a` selects the
@@ -289,6 +314,36 @@ describe("KeyboardShortcutsExtension Mod-a (select all)", () => {
     pressBackspace(editor);
     expect(editor.document).toEqual([
       expect.objectContaining({ type: "checkListItem", content: [] }),
+    ]);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("escalates the selection and clears a document containing a table", () => {
+    const editor = createSelectAllEditor([
+      { type: "paragraph", content: "Before" },
+      {
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [{ cells: ["A1", "B1"] }, { cells: ["A2", "B2"] }],
+        },
+      },
+      { type: "paragraph", content: "After" },
+    ]);
+    editor.setTextCursorPosition("block-1", "start");
+
+    // A table's content node isn't directly inline, so the first `Mod-a` selects
+    // across its cells rather than producing an invalid whole-block selection.
+    pressSelectAll(editor);
+    expectSelectionWithinBlock(editor, "block-1");
+
+    pressSelectAll(editor);
+    expectWholeDocSelected(editor);
+
+    pressBackspace(editor);
+    expect(editor.document).toEqual([
+      expect.objectContaining({ type: "paragraph", content: [] }),
     ]);
 
     editor._tiptapEditor.destroy();

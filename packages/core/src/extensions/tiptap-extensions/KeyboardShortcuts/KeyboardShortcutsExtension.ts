@@ -1006,36 +1006,55 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // document. We use `TextSelection`s rather than an `AllSelection` for the
         // whole-document case as the latter creates from/to positions outside a
         // block, causing errors when calling e.g. `getBlock`.
+        const wholeDocSelection = TextSelection.between(
+          Selection.atStart(doc).$from,
+          Selection.atEnd(doc).$to,
+        );
+
+        // Selection covering just the current block's content. `between` snaps
+        // to the nearest inline positions inside the block, so it also handles
+        // blocks whose content isn't directly inline - e.g. table blocks, where
+        // it spans from the first cell to the last. Blocks without any inline
+        // content (e.g. images) are ignored, as `between` would then spill
+        // outside the block, and select-all falls through to the whole document.
+        let blockSelection: Selection | undefined;
         const blockInfo = getBlockInfoFromSelection(view.state);
-        const blockContentRange = blockInfo.isBlockContainer
-          ? {
-              from: blockInfo.blockContent.beforePos + 1,
-              to: blockInfo.blockContent.afterPos - 1,
-            }
-          : undefined;
+        if (blockInfo.isBlockContainer) {
+          const contentFrom = blockInfo.blockContent.beforePos + 1;
+          const contentTo = blockInfo.blockContent.afterPos - 1;
+          const candidate = TextSelection.between(
+            doc.resolve(contentFrom),
+            doc.resolve(contentTo),
+          );
+
+          if (
+            !candidate.empty &&
+            candidate.from >= contentFrom &&
+            candidate.to <= contentTo
+          ) {
+            blockSelection = candidate;
+          }
+        }
 
         // Expands to the whole document when there's no selectable block content
         // to select first, when the selection already extends beyond the current
         // block, or when the current block's content is already fully selected.
         const selectWholeDoc =
-          blockContentRange === undefined ||
-          selection.from < blockContentRange.from ||
-          selection.to > blockContentRange.to ||
-          (selection.from === blockContentRange.from &&
-            selection.to === blockContentRange.to);
+          !blockSelection ||
+          selection.from < blockSelection.from ||
+          selection.to > blockSelection.to ||
+          (selection.from === blockSelection.from &&
+            selection.to === blockSelection.to);
 
-        const nextSelection = selectWholeDoc
-          ? TextSelection.between(
-              Selection.atStart(doc).$from,
-              Selection.atEnd(doc).$to,
+        view.dispatch(
+          tr
+            .setSelection(
+              blockSelection && !selectWholeDoc
+                ? blockSelection
+                : wholeDocSelection,
             )
-          : TextSelection.create(
-              doc,
-              blockContentRange.from,
-              blockContentRange.to,
-            );
-
-        view.dispatch(tr.setSelection(nextSelection).scrollIntoView());
+            .scrollIntoView(),
+        );
 
         return true;
       },
