@@ -45,6 +45,11 @@ BASIC STYLES
   pointer-events: none;
 }
 
+.bn-inline-content .ProseMirror-selectednode::after {
+  background-color: rgba(100, 160, 255, 0.3);
+  box-shadow: none;
+}
+
 .bn-block-content::before {
   content: "";
   margin-right: 0;
