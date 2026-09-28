@@ -24,6 +24,8 @@ overrides:
   "@shikijs/types": "^4.4.3"
   "@tiptap/core": "^3.31.3"
   "@tiptap/pm": "^3.31.3"
+  # Keep ProseMirror's model identity shared with @tiptap/pm and Yjs plugins.
+  "prosemirror-model": "1.25.12"
   # Mapping has private fields, so separate prosemirror-transform versions are
   # incompatible types. Keep direct imports and prosemirror-state/@tiptap/pm
   # on one resolution (1.12.0 vs 1.12.1 breaks the core build).
@@ -38,6 +40,10 @@ overrides:
   "@types/node": "25.9.5"
   "jsdom": "^29.0.2"
   "vitest": "4.1.11"
+  # Keep the browser runner and its adapters on the same version as Vitest.
+  "@vitest/browser": "4.1.11"
+  "@vitest/browser-playwright": "4.1.11"
+  "@vitest/browser-preview": "4.1.11"
   "@vitest/runner": "4.1.11"
   # @vitest/mocker must stay >=4.1.10: earlier builds only recognize `vitest`
   # as the mocks-API source, so `vi.mock` imported from `vite-plus/test` fails
