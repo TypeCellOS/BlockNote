@@ -8,7 +8,10 @@ import {
   defaultBlockSpecs,
   type PartialBlock,
 } from "../../../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import {
+  BlockNoteEditor,
+  type BlockNoteEditorOptions,
+} from "../../../editor/BlockNoteEditor.js";
 import { createBlockSpec } from "../../../schema/index.js";
 
 /**
@@ -123,9 +126,17 @@ describe("KeyboardShortcutsExtension Mod-a (select all)", () => {
   // non-editable - e.g. the checkbox `<div>` of a check list item as the first
   // block - so `Mod-a` is now handled explicitly. These tests exercise the
   // keymap path (not native selection) and would collapse before the fix.
-  function createSelectAllEditor(blocks: PartialBlock<any, any, any>[]) {
+  function createSelectAllEditor(
+    blocks: PartialBlock<any, any, any>[],
+    selectAllBehavior?: BlockNoteEditorOptions<
+      typeof schema.blockSchema,
+      typeof schema.inlineContentSchema,
+      typeof schema.styleSchema
+    >["selectAllBehavior"],
+  ) {
     const editor = BlockNoteEditor.create({
       schema,
+      selectAllBehavior,
       initialContent: blocks.map((block, index) => ({
         id: `block-${index}`,
         ...block,
@@ -206,6 +217,49 @@ describe("KeyboardShortcutsExtension Mod-a (select all)", () => {
       blockInfo.blockContent.afterPos - 1,
     );
   }
+
+  it("selects the block first when explicitly configured", () => {
+    const editor = createSelectAllEditor(
+      [
+        { type: "paragraph", content: "First" },
+        { type: "paragraph", content: "Second" },
+      ],
+      "block-first",
+    );
+    editor.setTextCursorPosition("block-0", "end");
+
+    pressSelectAll(editor);
+    expectBlockContentSelected(editor, "block-0");
+
+    pressSelectAll(editor);
+    expectWholeDocSelected(editor);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("selects the whole document immediately when configured", () => {
+    const editor = createSelectAllEditor(
+      [
+        { type: "checkListItem", content: "First" },
+        { type: "paragraph", content: "Second" },
+      ],
+      "document",
+    );
+    editor.setTextCursorPosition("block-1", "end");
+
+    pressSelectAll(editor);
+    expectWholeDocSelected(editor);
+
+    pressSelectAll(editor);
+    expectWholeDocSelected(editor);
+
+    pressBackspace(editor);
+    expect(editor.document).toEqual([
+      expect.objectContaining({ type: "paragraph", content: [] }),
+    ]);
+
+    editor._tiptapEditor.destroy();
+  });
 
   // Each test walks the full Notion-style flow: the first `Mod-a` selects the
   // current block, the second expands to the whole document, and Backspace

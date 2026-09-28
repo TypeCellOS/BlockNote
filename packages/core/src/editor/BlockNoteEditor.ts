@@ -258,6 +258,15 @@ export interface BlockNoteEditorOptions<
   setIdAttribute?: boolean;
 
   /**
+   * Determines behavior when pressing Cmd+A (Mac) or Ctrl+A (Windows/Linux).
+   * - `"block-first"`: Selects the current block's content first, then the whole document on a subsequent press.
+   * - `"document"`: Selects the whole document immediately.
+   * Selecting the current block scrolls it into view; selecting the whole document preserves the scroll position.
+   * @default "block-first"
+   */
+  selectAllBehavior?: "block-first" | "document";
+
+  /**
    * Determines behavior when pressing Tab (or Shift-Tab) while multiple blocks are selected and a toolbar is open.
    * - `"prefer-navigate-ui"`: Changes focus to the toolbar. User must press Escape to close toolbar before indenting blocks. Better for keyboard accessibility.
    * - `"prefer-indent"`: Always indents selected blocks, regardless of toolbar state. Keyboard navigation of toolbars not possible.

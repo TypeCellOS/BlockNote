@@ -107,6 +107,7 @@ export function getDefaultTiptapExtensions(
     KeyboardShortcutsExtension.configure({
       editor: editor,
       tabBehavior: options.tabBehavior,
+      selectAllBehavior: options.selectAllBehavior ?? "block-first",
     }),
     BlockGroup.configure({
       domAttributes: options.domAttributes,

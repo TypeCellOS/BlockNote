@@ -28,6 +28,7 @@ import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingTo
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
   tabBehavior: "prefer-navigate-ui" | "prefer-indent";
+  selectAllBehavior: "block-first" | "document";
 }>({
   priority: 50,
 
@@ -1001,7 +1002,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         const view = this.editor.view;
         const { doc, selection, tr } = view.state;
 
-        // Follows Notion: the first `Mod-a` selects the current block's content,
+        // By default, the first `Mod-a` selects the current block's content,
         // and any subsequent `Mod-a` expands the selection to the whole
         // document. We use `TextSelection`s rather than an `AllSelection` for the
         // whole-document case as the latter creates from/to positions outside a
@@ -1010,6 +1011,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
           Selection.atStart(doc).$from,
           Selection.atEnd(doc).$to,
         );
+
+        if (this.options.selectAllBehavior === "document") {
+          view.dispatch(tr.setSelection(wholeDocSelection));
+          return true;
+        }
 
         // Selection covering just the current block's content. `between` snaps
         // to the nearest inline positions inside the block, so it also handles
@@ -1046,15 +1052,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
           (selection.from === blockSelection.from &&
             selection.to === blockSelection.to);
 
-        view.dispatch(
-          tr
-            .setSelection(
-              blockSelection && !selectWholeDoc
-                ? blockSelection
-                : wholeDocSelection,
-            )
-            .scrollIntoView(),
-        );
+        if (blockSelection && !selectWholeDoc) {
+          tr.setSelection(blockSelection).scrollIntoView();
+        } else {
+          tr.setSelection(wholeDocSelection);
+        }
+
+        view.dispatch(tr);
 
         return true;
       },
