@@ -89,6 +89,8 @@ export type AttributionProvenance = "author" | "version";
 export type AttributionTooltipState = AttributionChange & {
   /** The wrapper element the tooltip anchors to (floating-ui reference). */
   anchor: HTMLElement;
+  /** Visible surface when its attribution mark covers separately rendered source. */
+  reference?: Element;
   /** Per-user background color, resolved from the user store (default path). */
   color: string;
   /** Whether the mark wraps inline content or a whole block. */
@@ -112,6 +114,7 @@ export type AttributionTooltipState = AttributionChange & {
  */
 export const AttributionExtension = createExtension(
   ({
+    editor,
     options,
   }: ExtensionOptions<
     | {
@@ -306,12 +309,38 @@ export const AttributionExtension = createExtension(
           return undefined;
         };
 
+        const nodeAttribution = (
+          target: Element,
+        ): { mark: HTMLElement; reference: Element } | undefined => {
+          if (!dom.contains(target)) {
+            return undefined;
+          }
+          const view = editor.prosemirrorView;
+          const $pos = view.state.doc.resolve(view.posAtDOM(target, 0));
+          if ($pos.depth === 0) {
+            return undefined;
+          }
+          const owner = view.nodeDOM($pos.before($pos.depth));
+          if (!(owner instanceof Element) || !owner.contains(target)) {
+            return undefined;
+          }
+          // The node may render its source elsewhere. Hovering that surface
+          // represents a change within the node, not a particular character.
+          const mark = Array.from(
+            owner.querySelectorAll<HTMLElement>(ATTRIBUTION_MARK_SELECTOR),
+          ).find(attributionIdentity);
+          return mark ? { mark, reference: owner } : undefined;
+        };
+
         const onPointerOver = (event: Event) => {
           const target = event.target instanceof Element ? event.target : null;
-          const innermost =
+          const hoveredMark =
             target && dom.contains(target)
               ? innermostAttributed(target)
               : undefined;
+          const fallback =
+            target && !hoveredMark ? nodeAttribution(target) : undefined;
+          const innermost = hoveredMark ?? fallback?.mark;
           if (!innermost) {
             // Not over an attributed mark — drop the current tooltip.
             hideTooltip();
@@ -338,22 +367,34 @@ export const AttributionExtension = createExtension(
             el = ancestor.parentElement;
           }
 
-          if (activeAnchor === anchor) {
+          if (
+            activeAnchor === anchor &&
+            store.state?.reference === fallback?.reference
+          ) {
             return;
           }
 
           activeAnchor = anchor;
-          store.setState(buildState(anchor));
+          store.setState({
+            ...buildState(anchor),
+            ...(fallback ? { reference: fallback.reference } : {}),
+          });
 
           // First hover renders raw ids (cache-only); load the authors and refresh
           // the resolved usernames once loaded, if this mark is still active.
           const ids = parseUserIds(anchor.dataset["userIds"]);
           if (ids.length > 0) {
             void userStore.loadUsers(ids).then(() => {
-              if (activeAnchor !== anchor) {
+              if (
+                activeAnchor !== anchor ||
+                store.state?.reference !== fallback?.reference
+              ) {
                 return;
               }
-              store.setState(buildState(anchor));
+              store.setState({
+                ...buildState(anchor),
+                ...(fallback ? { reference: fallback.reference } : {}),
+              });
             });
           }
         };

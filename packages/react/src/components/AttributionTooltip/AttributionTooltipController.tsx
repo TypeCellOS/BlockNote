@@ -25,7 +25,7 @@ function getTooltipProps(
   state: AttributionTooltipState,
   formatChangeLabel: FormatChangeLabel | undefined,
 ): AttributionTooltipProps {
-  const { anchor: _anchor, ...tooltipState } = state;
+  const { anchor: _anchor, reference: _reference, ...tooltipState } = state;
   return { ...tooltipState, formatChangeLabel };
 }
 
@@ -61,7 +61,10 @@ export const AttributionTooltipController = (props: {
   // reference lets GenericPopover own geometry, lifecycle caching, and the
   // per-line client rects consumed by `inline()`.
   const reference = useMemo(
-    () => (state ? { element: getReferenceElement(state.anchor) } : undefined),
+    () =>
+      state
+        ? { element: state.reference ?? getReferenceElement(state.anchor) }
+        : undefined,
     [state],
   );
 

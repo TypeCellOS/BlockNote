@@ -1272,6 +1272,28 @@ content's intrinsic size, so no block can break.
   );
 }
 
+/* Source-backed blocks can carry attribution inside a clipped popup while
+   their visible preview has no mark. Frame the preview with a subtle diff
+   color rather than the entire block column. */
+.bn-block-content
+  .bn-preview-with-source-popup:has(.bn-source-block-popup .bn-suggestion-mark)
+  .bn-preview-container {
+  background-color: color-mix(in srgb, #c9efe9 50%, white);
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, #0f6e62 25%, transparent);
+}
+
+.dark.bn-root
+  .bn-block-content
+  .bn-preview-with-source-popup:has(.bn-source-block-popup .bn-suggestion-mark)
+  .bn-preview-container {
+  background-color: color-mix(
+    in srgb,
+    #c9efe9 25%,
+    var(--bn-colors-editor-background)
+  );
+}
+
 /*
 Media (image/video/audio/file) has an intrinsic width via its
 `.bn-file-block-content-wrapper`, so the card hugs it instead of spanning the
