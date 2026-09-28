@@ -452,7 +452,6 @@ export const is: Dictionary = {
     name_version_menuitem: "Nefna þessa útgáfu",
     rename_menuitem: "Endurnefna",
     compare_with_menuitem: "Bera saman við þessa útgáfu",
-    compare_since_beginning_menuitem: "Bera saman frá upphafi",
     restore_menuitem: "Endurheimta",
     delete_menuitem: "Eyða",
     action_failed: "Eitthvað fór úrskeiðis. Reyndu aftur.",

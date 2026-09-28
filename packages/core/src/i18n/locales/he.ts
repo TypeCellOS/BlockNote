@@ -438,7 +438,6 @@ export const he: Dictionary = {
     name_version_menuitem: "מתן שם לגרסה זו",
     rename_menuitem: "שינוי שם",
     compare_with_menuitem: "השוואה לגרסה זו",
-    compare_since_beginning_menuitem: "השוואה מההתחלה",
     restore_menuitem: "שחזור",
     delete_menuitem: "מחיקה",
     action_failed: "משהו השתבש. נסו שוב.",

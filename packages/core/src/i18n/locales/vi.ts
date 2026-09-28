@@ -437,7 +437,6 @@ export const vi: Dictionary = {
     name_version_menuitem: "Đặt tên cho phiên bản này",
     rename_menuitem: "Đổi tên",
     compare_with_menuitem: "So sánh với phiên bản này",
-    compare_since_beginning_menuitem: "So sánh từ đầu",
     restore_menuitem: "Khôi phục",
     delete_menuitem: "Xóa",
     action_failed: "Đã xảy ra lỗi. Vui lòng thử lại.",

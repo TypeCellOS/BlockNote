@@ -439,7 +439,6 @@ export const nl: Dictionary = {
     name_version_menuitem: "Deze versie een naam geven",
     rename_menuitem: "Naam wijzigen",
     compare_with_menuitem: "Vergelijken met deze versie",
-    compare_since_beginning_menuitem: "Vergelijken vanaf het begin",
     restore_menuitem: "Herstellen",
     delete_menuitem: "Verwijderen",
     action_failed: "Er is iets misgegaan. Probeer het opnieuw.",

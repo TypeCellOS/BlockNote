@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
-import { CompareSinceBeginningItem } from "./DefaultItems/CompareSinceBeginningItem.js";
 import { CompareWithVersionItem } from "./DefaultItems/CompareWithVersionItem.js";
 import { DeleteVersionItem } from "./DefaultItems/DeleteVersionItem.js";
 import { NameVersionItem } from "./DefaultItems/NameVersionItem.js";
@@ -53,7 +52,6 @@ export function DefaultVersionMenuItems() {
     <>
       <NameVersionItem />
       <CompareWithVersionItem />
-      <CompareSinceBeginningItem />
       <RestoreVersionItem />
       <DeleteVersionItem />
     </>

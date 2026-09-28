@@ -479,7 +479,6 @@ export const zh: Dictionary = {
     name_version_menuitem: "命名此版本",
     rename_menuitem: "重命名",
     compare_with_menuitem: "与此版本对比",
-    compare_since_beginning_menuitem: "从开头开始对比",
     restore_menuitem: "恢复",
     delete_menuitem: "删除",
     action_failed: "出错了，请重试。",

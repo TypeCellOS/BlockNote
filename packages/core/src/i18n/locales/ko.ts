@@ -451,7 +451,6 @@ export const ko: Dictionary = {
     name_version_menuitem: "이 버전의 이름 지정",
     rename_menuitem: "이름 바꾸기",
     compare_with_menuitem: "이 버전과 비교",
-    compare_since_beginning_menuitem: "처음부터 비교",
     restore_menuitem: "복원",
     delete_menuitem: "삭제",
     action_failed: "문제가 발생했습니다. 다시 시도해 주세요.",

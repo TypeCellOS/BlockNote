@@ -438,7 +438,6 @@ export const en = {
     name_version_menuitem: "Name this version",
     rename_menuitem: "Rename",
     compare_with_menuitem: "Compare with this version",
-    compare_since_beginning_menuitem: "Compare since beginning",
     restore_menuitem: "Restore",
     delete_menuitem: "Delete",
     action_failed: "Something went wrong. Please try again.",

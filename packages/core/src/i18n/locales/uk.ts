@@ -462,7 +462,6 @@ export const uk: Dictionary = {
     name_version_menuitem: "Назвати цю версію",
     rename_menuitem: "Перейменувати",
     compare_with_menuitem: "Порівняти з цією версією",
-    compare_since_beginning_menuitem: "Порівняти від початку",
     restore_menuitem: "Відновити",
     delete_menuitem: "Видалити",
     action_failed: "Щось пішло не так. Спробуйте ще раз.",

@@ -407,7 +407,6 @@ export const fa = {
     name_version_menuitem: "نام‌گذاری این نسخه",
     rename_menuitem: "تغییر نام",
     compare_with_menuitem: "مقایسه با این نسخه",
-    compare_since_beginning_menuitem: "مقایسه از ابتدا",
     restore_menuitem: "بازیابی",
     delete_menuitem: "حذف",
     action_failed: "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",

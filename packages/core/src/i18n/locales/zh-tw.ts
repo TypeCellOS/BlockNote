@@ -479,7 +479,6 @@ export const zhTW: Dictionary = {
     name_version_menuitem: "為此版本命名",
     rename_menuitem: "重新命名",
     compare_with_menuitem: "與此版本比較",
-    compare_since_beginning_menuitem: "從開頭開始比較",
     restore_menuitem: "還原",
     delete_menuitem: "刪除",
     action_failed: "發生錯誤，請再試一次。",

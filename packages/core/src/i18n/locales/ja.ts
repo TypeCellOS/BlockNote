@@ -478,7 +478,6 @@ export const ja: Dictionary = {
     name_version_menuitem: "このバージョンに名前を付ける",
     rename_menuitem: "名前を変更",
     compare_with_menuitem: "このバージョンと比較",
-    compare_since_beginning_menuitem: "最初から比較",
     restore_menuitem: "復元",
     delete_menuitem: "削除",
     action_failed: "問題が発生しました。もう一度お試しください。",

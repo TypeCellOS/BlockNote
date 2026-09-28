@@ -472,7 +472,6 @@ export const uz: Dictionary = {
     name_version_menuitem: "Bu versiyaga nom berish",
     rename_menuitem: "Nomini o'zgartirish",
     compare_with_menuitem: "Shu versiya bilan taqqoslash",
-    compare_since_beginning_menuitem: "Boshidan taqqoslash",
     restore_menuitem: "Tiklash",
     delete_menuitem: "O'chirish",
     action_failed: "Xatolik yuz berdi. Qayta urinib ko‘ring.",

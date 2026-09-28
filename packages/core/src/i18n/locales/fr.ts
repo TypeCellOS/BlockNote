@@ -484,7 +484,6 @@ export const fr: Dictionary = {
     name_version_menuitem: "Nommer cette version",
     rename_menuitem: "Renommer",
     compare_with_menuitem: "Comparer avec cette version",
-    compare_since_beginning_menuitem: "Comparer depuis le début",
     restore_menuitem: "Restaurer",
     delete_menuitem: "Supprimer",
     action_failed: "Une erreur s'est produite. Veuillez réessayer.",

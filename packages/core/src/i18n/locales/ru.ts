@@ -482,7 +482,6 @@ export const ru: Dictionary = {
     name_version_menuitem: "Назвать эту версию",
     rename_menuitem: "Переименовать",
     compare_with_menuitem: "Сравнить с этой версией",
-    compare_since_beginning_menuitem: "Сравнить с начала",
     restore_menuitem: "Восстановить",
     delete_menuitem: "Удалить",
     action_failed: "Что-то пошло не так. Попробуйте ещё раз.",

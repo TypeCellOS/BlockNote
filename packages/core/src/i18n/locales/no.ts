@@ -456,7 +456,6 @@ export const no: Dictionary = {
     name_version_menuitem: "Gi denne versjonen et navn",
     rename_menuitem: "Gi nytt navn",
     compare_with_menuitem: "Sammenlign med denne versjonen",
-    compare_since_beginning_menuitem: "Sammenlign fra begynnelsen",
     restore_menuitem: "Gjenopprett",
     delete_menuitem: "Slett",
     action_failed: "Noe gikk galt. Prøv igjen.",

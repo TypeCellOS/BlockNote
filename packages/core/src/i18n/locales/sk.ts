@@ -436,7 +436,6 @@ export const sk = {
     name_version_menuitem: "Pomenovať túto verziu",
     rename_menuitem: "Premenovať",
     compare_with_menuitem: "Porovnať s touto verziou",
-    compare_since_beginning_menuitem: "Porovnať od začiatku",
     restore_menuitem: "Obnoviť",
     delete_menuitem: "Odstrániť",
     action_failed: "Niečo sa pokazilo. Skúste to znova.",

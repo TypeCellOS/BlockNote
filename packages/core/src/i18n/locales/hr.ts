@@ -452,7 +452,6 @@ export const hr: Dictionary = {
     name_version_menuitem: "Imenuj ovu verziju",
     rename_menuitem: "Preimenuj",
     compare_with_menuitem: "Usporedi s ovom verzijom",
-    compare_since_beginning_menuitem: "Usporedi od početka",
     restore_menuitem: "Vrati",
     delete_menuitem: "Izbriši",
     action_failed: "Nešto je pošlo po zlu. Pokušajte ponovno.",

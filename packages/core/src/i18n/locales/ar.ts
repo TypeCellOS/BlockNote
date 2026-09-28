@@ -423,7 +423,6 @@ export const ar: Dictionary = {
     name_version_menuitem: "تسمية هذا الإصدار",
     rename_menuitem: "إعادة تسمية",
     compare_with_menuitem: "المقارنة بهذا الإصدار",
-    compare_since_beginning_menuitem: "المقارنة منذ البداية",
     restore_menuitem: "استعادة",
     delete_menuitem: "حذف",
     action_failed: "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
