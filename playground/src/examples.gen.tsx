@@ -1512,7 +1512,7 @@ export const examples = {
           slug: "custom-schema",
         },
         readme:
-          'In this example, we create a custom `Panel` block that holds other blocks as its body, like a Notion-style callout wrapping a paragraph followed by a code block.\n\nThe block declares the `children` config on `BlockConfig`. `children: { allow: "blocks" }` makes it a container: its child blocks mount into the frame\'s `slot` (attached with `ref={contentRef}`), and live on `block.children` at runtime. A pure container like this draws its box in `renderFrame` alone, which re-renders live when props change — click the icon to cycle the panel\'s flavor and watch the box follow without rebuilding the body.\n\nWe also wire up a Slash Menu item to insert the panel, and render the document JSON next to the editor so you can inspect the structure of the nested blocks.\n\n**Try it out:**\n\n- Press the "/" key inside the panel\'s body and add a code block, heading, or list.\n- Click the panel\'s icon to cycle its flavor. The box re-renders in place; the children are untouched.\n- Watch the JSON panel on the right update as you edit; the panel\'s children appear in `block.children`.\n- Insert a new panel via the Slash Menu (search "panel").\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+          'In this example, we create a custom `Panel` block that holds other blocks as its body, such as a panel containing headings and paragraphs.\n\nThe block declares the `children` config on `BlockConfig`. `children: { allow: "blocks" }` makes it a container: its child blocks mount into the rendered content region (attached with `ref={contentRef}`), and live on `block.children` at runtime. A pure container like this draws its box in `render`, which re-renders live when props change.\n\nWe also wire up a Slash Menu item to insert the panel.\n\n**Try it out:**\n\n- Press the "/" key inside the panel\'s body and add a code block, heading, or list.\n- Insert a new panel via the Slash Menu (search "panel").\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
         projectSlug: "math-block",
@@ -1618,7 +1618,31 @@ export const examples = {
           slug: "custom-schema",
         },
         readme:
-          'In this example, we create a custom `Callout` block with a real rich-text title and a body of child blocks (a titled block), like a Notion-style callout.\n\nThe block combines `content: "inline"` with the `children` config on `BlockConfig`. The title is ordinary inline content — formatting, links, and multiplayer cursors all work — while `children: { allow: "blocks" }` hosts the body blocks, which live on `block.children` at runtime. `render` draws the title row and `renderFrame` draws the box around the title and body together.\n\nWe also wire up a Slash Menu item to insert the callout, and render the document JSON next to the editor so you can inspect the structure of the titled block and its nested children.\n\n**Try it out:**\n\n- Press Enter at the end of the callout\'s title to jump into its body.\n- Press Backspace at the start of the first body block to merge it back into the title.\n- Press "/" inside the body and add a code block, heading, or list.\n- Watch the JSON panel on the right update as you edit; the title is `content` and the body is `block.children`.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+          'In this example, we create a custom `Callout` block with a real rich-text title and a body of child blocks (a titled block), like a Notion-style callout.\n\nThe block combines `content: "inline"` with the `children` config on `BlockConfig`. The title is ordinary inline content — formatting, links, and multiplayer cursors all work — while `children: { allow: "blocks" }` hosts the body blocks, which live on `block.children` at runtime. `render` draws the title row and `renderFrame` draws the box around the title and body together.\n\nWe also wire up a Slash Menu item to insert the callout.\n\n**Try it out:**\n\n- Press Enter at the end of the callout\'s title to jump into its body.\n- Press Backspace at the start of the first body block to merge it back into the title.\n- Press "/" inside the body and add a code block, heading, or list.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+      },
+      {
+        projectSlug: "tabs-block",
+        fullSlug: "custom-schema/tabs-block",
+        pathFromRoot: "examples/06-custom-schema/14-tabs-block",
+        config: {
+          playground: true,
+          docs: false,
+          author: "claude",
+          tags: ["Intermediate", "Blocks", "Custom Schemas"],
+          dependencies: {
+            "react-icons": "^5.5.0",
+            "@dnd-kit/core": "^6.3.1",
+            "@dnd-kit/sortable": "^10.0.0",
+            "@dnd-kit/utilities": "^3.2.2",
+          } as any,
+        },
+        title: "Tabs Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          "A tab set built on the container block API. `tabs` is a container whose\n`children` are restricted to `tab` panels, and `tab` is a `placeable:\n\"namedOnly\"` container, so a panel can only ever exist inside a tab set —\nthe schema enforces both.\n\nEach panel holds any block. A panel's label is document content and lives in\nits props. Which panel is open is not: it belongs to each reader, so it is kept\noutside the document, in `localStorage` keyed by the tab set's id. Switching\ntabs is therefore not an undo step and is not sent to collaborators.\n\n**Try it out:** Click a tab to open it, click the open tab for its menu, and\ndrag a tab to reorder it.\n\n## What a tab set needs beyond the container API\n\n**Revealing the panel the caret lands in.** A hidden panel is still part of the\ndocument, so the editor will move content into it: Backspace at the start of\nthe block after a tab set pulls that block into the last panel, which may not\nbe the open one. `useRevealCaretPanel` opens whichever panel the caret ends up\nin, using `editor.onSelectionChange`, so every route in (Backspace, Delete,\narrow keys, drag and drop, paste) is covered at once.\n\n**Moving the caret when a tab is clicked.** An explicit switch takes the caret\nwith it when the caret was inside the set. Otherwise the reveal above would\nimmediately reopen the panel it was left in.\n\n**A menu instead of buttons.** Clicking the open tab opens a menu to rename,\nmove or delete it. It is built from `useComponentsContext()`, so it matches\nwhichever UI library the editor uses.\n\n**Drag to reorder.** Tabs are sortable with dnd-kit. A tab keeps its block id\nwhen it moves, so the reader's open tab follows it.\n\n## Known limitation\n\nEmptying a panel removes it, label included, because the container repair\ntreats a panel holding only an empty paragraph as empty. Removing the last\nnon-empty panel can therefore dissolve the whole tab set. The container API\nhas no way for a block to opt out of this yet.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)",
       },
       {
         projectSlug: "draggable-inline-content",
