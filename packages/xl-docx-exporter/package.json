@@ -60,7 +60,7 @@
     "@blocknote/core": "workspace:^",
     "@blocknote/xl-multi-column": "workspace:^",
     "buffer": "^6.0.3",
-    "docx": "^9.6.1",
+    "docx": "^9.8.0",
     "image-meta": "^0.2.2"
   },
   "devDependencies": {
