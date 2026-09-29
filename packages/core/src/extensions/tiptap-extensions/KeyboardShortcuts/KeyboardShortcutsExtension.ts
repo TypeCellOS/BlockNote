@@ -1,6 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { Fragment, Node } from "prosemirror-model";
-import { TextSelection } from "prosemirror-state";
+import { Selection, TextSelection } from "prosemirror-state";
 
 import {
   getBottomNestedBlockInfo,
@@ -28,6 +28,7 @@ import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingTo
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
   tabBehavior: "prefer-navigate-ui" | "prefer-indent";
+  selectAllBehavior: "block-first" | "document";
 }>({
   priority: 50,
 
@@ -997,6 +998,70 @@ export const KeyboardShortcutsExtension = Extension.create<{
       "Mod-z": () => this.options.editor.undo(),
       "Mod-y": () => this.options.editor.redo(),
       "Shift-Mod-z": () => this.options.editor.redo(),
+      "Mod-a": () => {
+        const view = this.editor.view;
+        const { doc, selection, tr } = view.state;
+
+        // By default, the first `Mod-a` selects the current block's content,
+        // and any subsequent `Mod-a` expands the selection to the whole
+        // document. We use `TextSelection`s rather than an `AllSelection` for the
+        // whole-document case as the latter creates from/to positions outside a
+        // block, causing errors when calling e.g. `getBlock`.
+        const wholeDocSelection = TextSelection.between(
+          Selection.atStart(doc).$from,
+          Selection.atEnd(doc).$to,
+        );
+
+        if (this.options.selectAllBehavior === "document") {
+          view.dispatch(tr.setSelection(wholeDocSelection));
+          return true;
+        }
+
+        // Selection covering just the current block's content. `between` snaps
+        // to the nearest inline positions inside the block, so it also handles
+        // blocks whose content isn't directly inline - e.g. table blocks, where
+        // it spans from the first cell to the last. Blocks without any inline
+        // content (e.g. images) are ignored, as `between` would then spill
+        // outside the block, and select-all falls through to the whole document.
+        let blockSelection: Selection | undefined;
+        const blockInfo = getBlockInfoFromSelection(view.state);
+        if (blockInfo.isBlockContainer) {
+          const contentFrom = blockInfo.blockContent.beforePos + 1;
+          const contentTo = blockInfo.blockContent.afterPos - 1;
+          const candidate = TextSelection.between(
+            doc.resolve(contentFrom),
+            doc.resolve(contentTo),
+          );
+
+          if (
+            !candidate.empty &&
+            candidate.from >= contentFrom &&
+            candidate.to <= contentTo
+          ) {
+            blockSelection = candidate;
+          }
+        }
+
+        // Expands to the whole document when there's no selectable block content
+        // to select first, when the selection already extends beyond the current
+        // block, or when the current block's content is already fully selected.
+        const selectWholeDoc =
+          !blockSelection ||
+          selection.from < blockSelection.from ||
+          selection.to > blockSelection.to ||
+          (selection.from === blockSelection.from &&
+            selection.to === blockSelection.to);
+
+        if (blockSelection && !selectWholeDoc) {
+          tr.setSelection(blockSelection).scrollIntoView();
+        } else {
+          tr.setSelection(wholeDocSelection);
+        }
+
+        view.dispatch(tr);
+
+        return true;
+      },
     };
   },
 });
