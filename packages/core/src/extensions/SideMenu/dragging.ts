@@ -72,21 +72,33 @@ function setDragImage(view: EditorView, from: number, to = from) {
   }
 
   // Parent element is cloned to remove all unselected children without affecting the editor content.
-  const parentClone = view.domAtPos(from).node.cloneNode(true) as Element;
+  const parentClone = view.domAtPos(from).node.cloneNode(true) as HTMLElement;
+  // A container block's children sit in a `display: contents` wrapper, which
+  // has no box for the browser to take an image of.
+  if (parentClone.style.display === "contents") {
+    parentClone.style.display = "";
+  }
   const parent = view.domAtPos(from).node as Element;
 
-  const getElementIndex = (parentElement: Element, targetElement: Element) =>
-    Array.prototype.indexOf.call(parentElement.children, targetElement);
+  // The index of the child of `parent` that holds `node`. A node view (e.g. a
+  // React container block) can wrap a block in more than one element.
+  const getElementIndex = (parentElement: Element, node: globalThis.Node) => {
+    let element = node instanceof Element ? node : node.parentElement;
+    while (element && element.parentElement !== parentElement) {
+      element = element.parentElement;
+    }
+    return Array.prototype.indexOf.call(parentElement.children, element);
+  };
 
   const firstSelectedBlockIndex = getElementIndex(
     parent,
     // Expects from position to be just before the first selected block.
-    view.domAtPos(from + 1).node.parentElement!,
+    view.domAtPos(from + 1).node,
   );
   const lastSelectedBlockIndex = getElementIndex(
     parent,
     // Expects to position to be just after the last selected block.
-    view.domAtPos(to - 1).node.parentElement!,
+    view.domAtPos(to - 1).node,
   );
 
   for (let i = parent.childElementCount - 1; i >= 0; i--) {
@@ -192,6 +204,12 @@ export function dragStart<
 
     const selectedSlice = view.state.selection.content();
     const schema = editor.pmSchema;
+
+    // Hand ProseMirror the dragged nodes as they are. Otherwise the side menu's
+    // `dragstart` handler re-parses them from `blocknote/html` into a
+    // `blockGroup`, which wraps a block that can't stand alone (e.g. a column
+    // or a tab) in a new parent, so the drop inserts a copy of that parent.
+    view.dragging = { slice: selectedSlice, move: true };
 
     const clipboardHTML =
       view.serializeForClipboard(selectedSlice).dom.innerHTML;

@@ -1,0 +1,97 @@
+.stepper {
+  /* The rail runs behind the step numbers, from the first one down to the
+     "+" of "Add step". It is drawn once here rather than per step, so it
+     needs no "is this the last step" logic. */
+  position: relative;
+  margin: 8px 0;
+}
+
+.stepper::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 18px;
+  bottom: 12px;
+  width: 1px;
+  background: var(--bn-colors-border);
+}
+
+/* Numbering is a CSS counter, so it stays correct as steps are added,
+   removed, dragged or undone - nothing to keep in sync in the document. */
+.stepper-steps {
+  counter-reset: step;
+}
+
+.step {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+
+.step-rail {
+  flex: none;
+  width: 25px;
+  /* Centres the number on the first line of a step's title. */
+  padding-top: 6px;
+}
+
+/* Every circle gets the editor's background so the rail passes behind it. */
+.step-number,
+.stepper-add-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  box-sizing: border-box;
+  border: 1px solid var(--bn-colors-border);
+  border-radius: 999px;
+  background: var(--bn-colors-editor-background);
+  color: var(--bn-colors-side-menu);
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0;
+  user-select: none;
+}
+
+.step-number {
+  counter-increment: step;
+  color: var(--bn-colors-editor-text);
+}
+
+.step-number::before {
+  content: counter(step);
+}
+
+.stepper-add:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+}
+
+.step-body {
+  flex: 1;
+  min-width: 0;
+}
+
+/* A heading's top spacing separates it from the block above; the step's
+   title has none above it, and would sit below its number. */
+.step-body > div > .bn-block-outer:first-child > .bn-block > .bn-block-content {
+  padding-top: 3px;
+}
+
+.stepper-add {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: var(--bn-colors-side-menu);
+}
+
+.stepper-add:hover {
+  color: var(--bn-colors-hovered-text);
+}
