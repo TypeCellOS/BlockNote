@@ -39,9 +39,9 @@ block without content), and `children.allow` can only name containers.
 **A step with an empty paragraph as title is removed.** BlockNote treats a
 container child that holds only an empty paragraph as emptied out. It deletes
 that child the next time it repairs the stepper, for example when any other
-step is removed. New steps therefore start with an empty heading, which does
-not count as empty. A step whose title the user turns back into an empty
-paragraph is still removed.
+step is removed. New steps start with an empty heading, because a heading is
+the right block for a title, and an empty heading does not count as empty. But
+a step whose title the user turns into an empty paragraph is removed.
 
 ## What the container API gives you for free
 

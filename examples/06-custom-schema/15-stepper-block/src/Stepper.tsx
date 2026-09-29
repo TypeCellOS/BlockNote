@@ -7,10 +7,10 @@ import "./styles.css";
 /**
  * A new, untitled step.
  *
- * It starts with an empty heading rather than an empty paragraph: BlockNote
- * treats a container child holding only an empty paragraph as emptied out
- * and deletes it the next time it repairs the stepper (for example when any
- * other step is removed). An empty heading does not count as empty.
+ * Its title is an empty heading, the right block for a title. This also keeps
+ * the step alive: BlockNote treats a container child holding only an empty
+ * paragraph as emptied out and deletes it the next time it repairs the
+ * stepper, but an empty heading does not count as empty.
  */
 function newStep() {
   return {
