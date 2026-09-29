@@ -7,7 +7,7 @@ import {
   parseDefaultProps,
 } from "../defaultProps.js";
 import { getDetailsContent } from "../getDetailsContent.js";
-import { createToggleWrapper } from "../ToggleWrapper/createToggleWrapper.js";
+import { createToggleFrame } from "../ToggleWrapper/createToggleFrame.js";
 
 const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
 
@@ -126,17 +126,23 @@ export const createHeadingBlockSpec = createBlockSpec(
         }
       : {}),
     runsBefore: ["toggleListItem"],
-    render(block, editor) {
+    render(block) {
       const dom = document.createElement(`h${block.props.level}`);
-
-      if (allowToggleHeadings) {
-        const toggleWrapper = createToggleWrapper(block, editor, dom);
-        return { ...toggleWrapper, contentDOM: dom };
-      }
-
       return {
         dom,
         contentDOM: dom,
+      };
+    },
+    renderFrame(block, editor) {
+      if (!allowToggleHeadings || !block.props.isToggleable) {
+        return undefined;
+      }
+      const frame = createToggleFrame(block, editor);
+      return {
+        ...frame,
+        // A heading that is no longer toggleable gets no frame.
+        update: (updated) =>
+          !!updated.props.isToggleable && frame.update(updated),
       };
     },
     toExternalHTML(block) {

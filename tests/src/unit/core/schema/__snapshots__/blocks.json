@@ -314,6 +314,7 @@
       "parse": [Function],
       "parseContent": [Function],
       "render": [Function],
+      "renderFrame": [Function],
       "runsBefore": [
         "toggleListItem",
       ],
@@ -614,6 +615,7 @@
       "parse": [Function],
       "parseContent": [Function],
       "render": [Function],
+      "renderFrame": [Function],
       "runsBefore": [
         "bulletListItem",
       ],

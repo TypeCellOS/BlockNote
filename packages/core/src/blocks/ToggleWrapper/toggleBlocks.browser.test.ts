@@ -342,7 +342,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
 
     // BLO-956 (comment): in an open, empty toggle, the caret could not move
     // down out of the title.
-    it.fails("ArrowDown moves the caret to the next block (BLO-956)", async () => {
+    it("ArrowDown moves the caret to the next block (BLO-956)", async () => {
       mount([
         toggle("t", "Title"),
         { id: "after", type: "paragraph", content: "After" },
