@@ -60,7 +60,7 @@
     "@blocknote/react": "workspace:^",
     "@tiptap/pm": "^3.31.3",
     "jsdom": "^29.0.2",
-    "yjs": "^13.6.27"
+    "yjs": "^13.6.33"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
