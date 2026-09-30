@@ -3,10 +3,8 @@ import { Transaction } from "prosemirror-state";
 import { canJoin, liftTarget, ReplaceAroundStep } from "prosemirror-transform";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import {
-  CHILD_CONTAINER_GROUP,
-  hasOwnedChildren,
-} from "../../../../schema/blocks/children.js";
+import { CHILD_CONTAINER_GROUP } from "../../../../schema/blocks/children.js";
+import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 
 /**
  * Whether `node` is the sibling list that nesting and unnesting operate on: a
@@ -180,6 +178,9 @@ export function liftItem(
   tr: Transaction,
   itemType: NodeType,
   groupType: NodeType, // change 2
+  // Whether a block may be outdented out of `parent` (its
+  // `keyboard.childrenCanOutdent` setting).
+  canOutdentFrom: (parent: Node) => boolean,
 ) {
   const { $from, $to } = tr.selection;
   const range = $from.blockRange($to, (node) => holdsItems(node, itemType)); // change 1
@@ -188,9 +189,9 @@ export function liftItem(
   }
 
   const parent = $from.node(range.depth - 1);
-  // A titled block's body belongs to the block that owns it, so unnesting
-  // stops at its edge rather than lifting the block out of it.
-  if (parent.type === itemType && hasOwnedChildren(parent)) {
+  // A block whose children can't be outdented keeps them: unnesting stops at
+  // its edge rather than lifting the block out of it.
+  if (parent.type === itemType && !canOutdentFrom(parent)) {
     return false;
   }
 
@@ -210,6 +211,12 @@ function unnestCommand(editor: BlockNoteEditor<any, any, any>) {
       tr,
       editor.pmSchema.nodes["blockContainer"],
       editor.pmSchema.nodes["blockGroup"],
+      (parent) => {
+        const block = nodeToBlock(parent, tr.doc);
+        return editor.schema.blockSpecs[block.type].implementation.keyboard(
+          block,
+        ).childrenCanOutdent;
+      },
     );
 }
 

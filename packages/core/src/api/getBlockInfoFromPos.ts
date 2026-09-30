@@ -10,7 +10,6 @@ import {
 import {
   CHILD_CONTAINER_GROUP,
   isContainerNode,
-  hasOwnedChildren,
 } from "../schema/blocks/children.js";
 import type { BlockConfig } from "../schema/blocks/types.js";
 
@@ -74,7 +73,6 @@ export type BlockInfo = {
       children: ChildrenInfo;
       content?: undefined;
       hasContent: false;
-      hasOwnedChildren: true;
       contentStart?: undefined;
       contentEnd?: undefined;
       contentKind?: undefined;
@@ -111,8 +109,6 @@ export type BlockInfo = {
        * `hasContent: false`.
        */
       hasContent: true;
-      /** Whether children belong to this block, even before a body exists. */
-      hasOwnedChildren: boolean;
     }
 );
 
@@ -330,7 +326,6 @@ export function getBlockInfoFromNode(node: Node, beforePos: number): BlockInfo {
   if (isContainerNode(node.type)) {
     return {
       hasContent: false,
-      hasOwnedChildren: true,
       block,
       children: {
         ...block,
@@ -384,7 +379,6 @@ export function getBlockInfoFromNode(node: Node, beforePos: number): BlockInfo {
 
     return {
       hasContent: true,
-      hasOwnedChildren: hasOwnedChildren(node),
       block,
       content,
       children,

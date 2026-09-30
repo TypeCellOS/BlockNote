@@ -6,8 +6,10 @@ import {
   parseDefaultProps,
 } from "../../defaultProps.js";
 import { getDetailsContent } from "../../getDetailsContent.js";
-import { createToggleFrame } from "../../ToggleWrapper/createToggleFrame.js";
-import { handleEnter } from "../../utils/listItemEnterHandler.js";
+import {
+  createToggleFrame,
+  isToggleOpen,
+} from "../../ToggleWrapper/createToggleFrame.js";
 
 export type ToggleListItemBlockConfig = ReturnType<
   typeof createToggleListItemBlockConfig
@@ -27,6 +29,18 @@ export const createToggleListItemBlockConfig = createBlockConfig(
 export const createToggleListItemBlockSpec = createBlockSpec(
   createToggleListItemBlockConfig,
   {
+    // Enter continues the list, and Enter in an empty item ends it: the item
+    // turns into a paragraph. While the toggle is open, Enter in its text
+    // starts its children, and Enter in an empty child adds another child.
+    keyboard: (block) => {
+      const open = isToggleOpen(block);
+      return {
+        splitKeepsType: true,
+        emptyEnterResets: true,
+        enter: open ? "into-children" : "split",
+        emptyChildEnter: open ? "stay" : "outdent",
+      };
+    },
     meta: {
       isolating: false,
     },
@@ -99,9 +113,6 @@ export const createToggleListItemBlockSpec = createBlockSpec(
     createExtension({
       key: "toggle-list-item-shortcuts",
       keyboardShortcuts: {
-        Enter: ({ editor }) => {
-          return handleEnter(editor, "toggleListItem");
-        },
         "Mod-Shift-6": ({ editor }) => {
           const cursorPosition = editor.getTextCursorPosition();
 

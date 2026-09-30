@@ -160,7 +160,7 @@ describe("block spec and node agreement", () => {
               }),
               type: "holder",
               content: "none",
-              children: { allow: "blocks" },
+              container: true,
             },
             {},
           ),
@@ -210,7 +210,7 @@ describe("container children parsing", () => {
       type: "mixedBox" as const,
       propSchema: {},
       content: "none",
-      children: { allow: "blocks" },
+      container: true,
     },
     { render: renderDiv },
   )();
@@ -267,7 +267,7 @@ describe("container render contract", () => {
           type: "probed" as const,
           propSchema: {},
           content: "none" as const,
-          children: { allow: "blocks" },
+          container: true,
         },
         {},
       )(),
@@ -301,7 +301,7 @@ describe("container render contract", () => {
           type: "probed" as const,
           propSchema: {},
           content: "inline" as const,
-          children: { allow: "blocks" },
+          container: true,
         },
         {
           renderFrame: () => {
@@ -319,7 +319,7 @@ describe("container render contract", () => {
         type: "probed",
         propSchema: {},
         content: "none",
-        children: { allow: "blocks" },
+        container: true,
       },
       {
         render: renderDiv,
@@ -341,7 +341,7 @@ it("scopes external container parsing to childrenDOM", () => {
       type: "box",
       propSchema: {},
       content: "none",
-      children: { allow: "blocks" },
+      container: true,
     },
     {
       render() {

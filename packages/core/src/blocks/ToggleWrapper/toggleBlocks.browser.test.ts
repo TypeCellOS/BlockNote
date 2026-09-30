@@ -1,6 +1,6 @@
 import { TextSelection } from "prosemirror-state";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
-import { userEvent } from "vite-plus/test/browser";
+import { page, userEvent } from "vite-plus/test/browser";
 
 import "../../style.css";
 import { getNodeById } from "../../api/nodeUtil.js";
@@ -123,13 +123,13 @@ function addBlockButton(id: string) {
   return own(id, ".bn-toggle-add-block-button");
 }
 
-/** Whether the toggle is open, as the toggle wrapper records it. */
+/** Whether the toggle is open, as its chevron announces it. */
 function isOpen(id: string) {
-  const wrapper = own(id, ".bn-toggle-wrapper");
-  if (!wrapper) {
+  const button = toggleButton(id);
+  if (!button) {
     throw new Error(`Block "${id}" is not a toggle`);
   }
-  return wrapper.dataset.showChildren === "true";
+  return button.getAttribute("aria-expanded") === "true";
 }
 
 function childrenAreVisible(id: string) {
@@ -195,6 +195,27 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
       await open("t");
       expect(childrenAreVisible("t")).toBe(false);
       expect(JSON.stringify(editor.document)).toBe(document);
+    });
+
+    // #2811: a screen reader must find the chevron and hear its state.
+    it("names the chevron and exposes the open state to assistive technology", async () => {
+      mount(withChildren());
+      const button = page.getByRole("button", {
+        name: "Expand or collapse",
+        expanded: false,
+      });
+      await expect.element(button).toBeInTheDocument();
+      expect(toggleButton("t")!.querySelector("svg")!.ariaHidden).toBe("true");
+
+      await open("t");
+      await expect
+        .element(
+          page.getByRole("button", {
+            name: "Expand or collapse",
+            expanded: true,
+          }),
+        )
+        .toBeInTheDocument();
     });
 
     it("keeps the open state for the block when the editor is recreated", async () => {
@@ -358,7 +379,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
   describe("Enter", () => {
     // BLO-929: Enter at the end of an open toggle's title should start the
     // toggle's body, as in Notion, not a new block after the toggle.
-    it.fails("at the end of an open toggle's title adds a first child (BLO-929)", async () => {
+    it("at the end of an open toggle's title adds a first child (BLO-929)", async () => {
       mount(withChildren());
       await open("t");
 
@@ -389,7 +410,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
 
     // BLO-949: Enter in the title must not break the children apart. As in
     // Notion, the text after the caret becomes the toggle's first child.
-    it.fails("in the middle of an open toggle's title moves the rest of the title into a first child (BLO-949)", async () => {
+    it("in the middle of an open toggle's title moves the rest of the title into a first child (BLO-949)", async () => {
       mount(withChildren());
       await open("t");
 
@@ -404,8 +425,25 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
       );
     });
 
+    // On a closed toggle, Enter splits the title as for any block: the rest
+    // goes into a new block after the toggle, which continues the list for a
+    // toggle list item, and the children stay with the toggle.
+    it("in the middle of a closed toggle's title moves the rest into a new block after it", async () => {
+      mount(withChildren());
+
+      setCaretAt("t", 2);
+      await userEvent.keyboard("{Enter}");
+
+      const [first, second] = editor.document;
+      expect(shape([first])).toMatch(
+        /^\w+"Ti"\[paragraph"One", paragraph"Two"\]$/,
+      );
+      expect(second.type).toBe(newBlockTypeAfterClosedToggle);
+      expect(shape([second])).toMatch(/"tle"$/);
+    });
+
     // As in Notion, Enter on an empty last child stays inside the toggle.
-    it.fails("on an empty last child adds another child", async () => {
+    it("on an empty last child adds another child", async () => {
       mount([
         toggle("t", "Title", [
           { id: "c1", type: "paragraph", content: "One" },
@@ -451,7 +489,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
   describe("Backspace", () => {
     // As in Notion, Backspace at the start of the first child merges it into
     // the title.
-    it.fails("at the start of the first child merges it into the title", async () => {
+    it("at the start of the first child merges it into the title", async () => {
       mount(withChildren());
       await open("t");
 
@@ -574,7 +612,100 @@ describe("Enter in an empty toggle title", () => {
     expect(editor.document).toHaveLength(2);
   });
 
-  it.fails("turns a toggle heading into a regular heading", async () => {
+  // The same when the toggle is open: an empty title never starts the
+  // toggle's children.
+  it("turns an open toggle list item into a paragraph", async () => {
+    mount([
+      { id: "t", type: "paragraph", content: "Before" },
+      { id: "empty", type: "toggleListItem" },
+    ]);
+    await userEvent.click(toggleButton("empty")!);
+
+    await press("{Enter}", { block: "empty", placement: "start" });
+
+    expect(editor.getBlock("empty")!.type).toBe("paragraph");
+    expect(editor.getBlock("empty")!.children).toHaveLength(0);
+    expect(editor.document).toHaveLength(2);
+  });
+
+  it("turns an open toggle heading into a regular heading", async () => {
+    mount([
+      { id: "t", type: "paragraph", content: "Before" },
+      { id: "empty", type: "heading", props: { level: 2, isToggleable: true } },
+    ]);
+    await userEvent.click(toggleButton("empty")!);
+
+    await press("{Enter}", { block: "empty", placement: "start" });
+
+    expect(editor.getBlock("empty")!.props).toMatchObject({
+      level: 2,
+      isToggleable: false,
+    });
+    expect(editor.getBlock("empty")!.children).toHaveLength(0);
+    expect(editor.document).toHaveLength(2);
+  });
+
+  // As in Notion, the children stay nested under the reset block.
+  for (const state of ["closed", "open"] as const) {
+    it(`turns a toggle list item with children into a paragraph, keeping the children (${state})`, async () => {
+      mount([
+        { id: "t", type: "paragraph", content: "Before" },
+        {
+          id: "empty",
+          type: "toggleListItem",
+          children: [{ id: "c1", type: "paragraph", content: "One" }],
+        },
+      ]);
+      if (state === "open") {
+        await userEvent.click(toggleButton("empty")!);
+      }
+
+      await press("{Enter}", { block: "empty", placement: "start" });
+
+      expect(shape()).toBe('paragraph"Before", paragraph""[paragraph"One"]');
+    });
+
+    it(`turns a toggle heading with children into a regular heading, keeping the children (${state})`, async () => {
+      mount([
+        { id: "t", type: "paragraph", content: "Before" },
+        {
+          id: "empty",
+          type: "heading",
+          props: { level: 2, isToggleable: true },
+          children: [{ id: "c1", type: "paragraph", content: "One" }],
+        },
+      ]);
+      if (state === "open") {
+        await userEvent.click(toggleButton("empty")!);
+      }
+
+      await press("{Enter}", { block: "empty", placement: "start" });
+
+      expect(editor.getBlock("empty")!.props).toMatchObject({
+        level: 2,
+        isToggleable: false,
+      });
+      expect(shape()).toBe('paragraph"Before", heading""[paragraph"One"]');
+    });
+  }
+
+  it("turns a nested toggle list item into a paragraph, which stays nested", async () => {
+    mount([
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "empty", type: "toggleListItem" }],
+      },
+    ]);
+
+    await press("{Enter}", { block: "empty", placement: "start" });
+
+    expect(editor.getBlock("empty")!.type).toBe("paragraph");
+    expect(editor.getParentBlock("empty")!.id).toBe("parent");
+  });
+
+  it("turns a toggle heading into a regular heading", async () => {
     mount([
       { id: "t", type: "paragraph", content: "Before" },
       { id: "empty", type: "heading", props: { level: 2, isToggleable: true } },
@@ -589,6 +720,77 @@ describe("Enter in an empty toggle title", () => {
     expect(editor.document).toHaveLength(2);
     expect(toggleButton("empty")).toBeNull();
   });
+});
+
+// As in Notion, Backspace at the start of a non-empty toggle heading turns it
+// into a regular heading. The text and (unlike Notion) the children stay.
+describe("Backspace at the start of a non-empty toggle title", () => {
+  it("turns a toggle heading into a regular heading", async () => {
+    mount([
+      {
+        id: "t",
+        type: "heading",
+        props: { level: 2, isToggleable: true },
+        content: "Title",
+        children: [{ id: "c1", type: "paragraph", content: "One" }],
+      },
+    ]);
+
+    await press("{Backspace}", { block: "t", placement: "start" });
+
+    const block = editor.getBlock("t")!;
+    expect(block.type).toBe("heading");
+    expect(block.props).toMatchObject({ level: 2, isToggleable: false });
+    expect(shape([block])).toBe('heading"Title"[paragraph"One"]');
+  });
+
+  // Not compared with Notion: current behaviour, as for the other lists.
+  it("turns a toggle list item into a paragraph", async () => {
+    mount([
+      {
+        id: "t",
+        type: "toggleListItem",
+        content: "Title",
+        children: [{ id: "c1", type: "paragraph", content: "One" }],
+      },
+    ]);
+
+    await press("{Backspace}", { block: "t", placement: "start" });
+
+    expect(shape([editor.getBlock("t")!])).toBe(
+      'paragraph"Title"[paragraph"One"]',
+    );
+  });
+});
+
+// As in Notion, Enter at the start of a non-empty toggle list item inserts an
+// empty toggle list item above it. The item keeps its text and children, open
+// or closed, and the caret stays at its start.
+describe("Enter at the start of a non-empty toggle list item", () => {
+  for (const state of ["closed", "open"] as const) {
+    it(`inserts an empty toggle list item above it (${state})`, async () => {
+      mount([
+        {
+          id: "t",
+          type: "toggleListItem",
+          content: "Title",
+          children: [{ id: "c1", type: "paragraph", content: "One" }],
+        },
+      ]);
+      if (state === "open") {
+        await userEvent.click(toggleButton("t")!);
+      }
+
+      await press("{Enter}", { block: "t", placement: "start" });
+
+      expect(shape()).toBe(
+        'toggleListItem"", toggleListItem"Title"[paragraph"One"]',
+      );
+      const item = editor.document[1];
+      expect(editor.getTextCursorPosition().block.id).toBe(item.id);
+      expect(isOpen(item.id)).toBe(state === "open");
+    });
+  }
 });
 
 // BLO-959: turning a toggle heading into a regular heading must remove the
@@ -631,7 +833,7 @@ describe("toggle heading turned into a regular heading (BLO-959)", () => {
   });
 
   // Not compared with Notion: its Cmd-Option-2 could not be automated there.
-  it.fails("with the heading keyboard shortcut", async () => {
+  it("with the heading keyboard shortcut", async () => {
     mount(toggleHeading());
 
     await press(`{${MOD}>}{Alt>}2{/Alt}{/${MOD}}`, {
@@ -642,14 +844,27 @@ describe("toggle heading turned into a regular heading (BLO-959)", () => {
     expectRegularHeading();
   });
 
-  // In Notion, the slash menu's "Heading 2" in an empty toggle heading keeps
-  // the toggle heading and inserts a regular heading after it.
-  it.fails("with the slash menu's heading item, which inserts a new heading instead", () => {
+  it("with the markdown shortcut", async () => {
+    mount(toggleHeading());
+
+    await press("## ", { block: "t", placement: "start" });
+
+    expectRegularHeading();
+    expect(editor.getBlock("t")!.content).toEqual([
+      { type: "text", text: "Title", styles: {} },
+    ]);
+  });
+
+  // The slash menu updates an empty block in place, as the block type menu
+  // does. Notion differs here: its "Heading 2" in an empty toggle heading
+  // keeps the toggle heading and inserts a regular heading after it.
+  it("with the slash menu's heading item in an empty toggle heading", () => {
     mount([
       {
         id: "t",
         type: "heading",
         props: { level: 1, isToggleable: true },
+        children: [{ id: "c1", type: "paragraph", content: "One" }],
       },
     ]);
     editor.setTextCursorPosition("t", "end");
@@ -658,11 +873,7 @@ describe("toggle heading turned into a regular heading (BLO-959)", () => {
       .find((item) => item.key === "heading_2")!
       .onItemClick();
 
-    const [toggleHeading, inserted] = editor.document;
-    expect(toggleHeading.id).toBe("t");
-    expect(toggleHeading.props).toMatchObject({ level: 1, isToggleable: true });
-    expect(inserted.type).toBe("heading");
-    expect(inserted.props).toMatchObject({ level: 2, isToggleable: false });
-    expect(editor.getTextCursorPosition().block.id).toBe(inserted.id);
+    expectRegularHeading();
+    expect(editor.getTextCursorPosition().block.id).toBe("t");
   });
 });

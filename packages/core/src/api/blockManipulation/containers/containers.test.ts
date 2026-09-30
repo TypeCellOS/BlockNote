@@ -174,6 +174,33 @@ describe("children insertion & filling", () => {
   });
 });
 
+describe("container keyboard defaults", () => {
+  // A container's children can't be outdented, so its defaults say so: an
+  // empty last child leaves the container instead.
+  it("defaults to leaving the container instead of outdenting", () => {
+    editor.replaceBlocks(editor.document, [
+      { id: "callout", type: "callout", children: [{ type: "paragraph" }] },
+    ]);
+    const keyboard = editor.schema.blockSpecs.callout.implementation.keyboard(
+      editor.getBlock("callout")!,
+    );
+    expect(keyboard).toMatchObject({
+      emptyChildEnter: "exit-at-end",
+      childrenCanOutdent: false,
+    });
+  });
+
+  it("keeps outdenting for other blocks", () => {
+    const keyboard = editor.schema.blockSpecs.paragraph.implementation.keyboard(
+      editor.getBlock("p-0")!,
+    );
+    expect(keyboard).toMatchObject({
+      emptyChildEnter: "outdent",
+      childrenCanOutdent: true,
+    });
+  });
+});
+
 describe("container nodes", () => {
   // No container is `isolating`. PM only honours that flag while no selection
   // spans the edge, and nothing prevents one: given a spanning slice, `Fitter`
@@ -436,6 +463,7 @@ describe("repair edge cases", () => {
       type: "tray" as const,
       propSchema: {},
       content: "none" as const,
+      container: true,
       children: { allow: "blocks", min: 0 },
     },
     {

@@ -21,7 +21,7 @@ const createFrameBox = createReactBlockSpec(
     type: "frameBox",
     propSchema: { flavor: { default: "tip" } },
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
   {
     render: function Container(props) {
@@ -49,7 +49,6 @@ const alertConfig = {
   type: "frameAlert",
   propSchema: { flavor: { default: "tip" }, framed: { default: true } },
   content: "inline",
-  children: { allow: "blocks" },
 } as const;
 
 function FrameChrome(props: { children: ReactNode; flavor: string }) {

@@ -212,6 +212,7 @@ export const hr: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "Prazan sklopivi blok. Klikni da dodaš sadržaj.",
+    toggle_button: "Proširi ili sažmi",
   },
   code_block: {
     add_source_button_text: "Dodaj izvorni kôd",

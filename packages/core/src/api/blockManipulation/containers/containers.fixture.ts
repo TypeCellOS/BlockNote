@@ -17,7 +17,7 @@ const Callout = createBlockSpec(
       },
     },
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
   { render: renderDiv },
 )();
@@ -27,6 +27,7 @@ const Grid = createBlockSpec(
     type: "grid" as const,
     propSchema: {},
     content: "none",
+    container: true,
     children: {
       allow: ["gridCell"],
       min: 2,
@@ -40,7 +41,7 @@ const GridCell = createBlockSpec(
     type: "gridCell" as const,
     propSchema: {},
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
     placeable: "namedOnly",
   },
   { render: renderDiv },
@@ -53,25 +54,29 @@ const Pair = createBlockSpec(
     type: "pair" as const,
     propSchema: {},
     content: "none",
-    children: {
-      allow: "blocks",
-      min: 2,
-    },
+    container: true,
+    children: { min: 2 },
   },
   { render: renderDiv },
 )();
 
 // A titled block: an ordinary block with inline content (the title) whose
-// `children` are a body that belongs to it. The frame draws the box around
-// title and body together.
+// child blocks are a body that belongs to it. Its `keyboard` settings keep
+// the body together: Enter in the title starts it, its blocks can't be
+// outdented, and an empty last block leaves it. The frame draws the box
+// around title and body together.
 const Alert = createBlockSpec(
   {
     type: "alert" as const,
     propSchema: {},
     content: "inline",
-    children: { allow: "blocks" },
   },
   {
+    keyboard: {
+      enter: "into-children",
+      childrenCanOutdent: false,
+      emptyChildEnter: "exit-at-end",
+    },
     render: renderDiv,
     renderFrame: () => {
       const dom = document.createElement("div");

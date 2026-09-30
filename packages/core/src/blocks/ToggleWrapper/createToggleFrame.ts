@@ -1,10 +1,33 @@
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { Block } from "../defaultBlocks.js";
-import { defaultToggledState } from "./createToggleWrapper.js";
+
+// Only the block's id is used, so anything with an id will do.
+type ToggledState = {
+  set: (block: Pick<Block<any, any, any>, "id">, isToggled: boolean) => void;
+  get: (block: Pick<Block<any, any, any>, "id">) => boolean;
+};
+
+export const defaultToggledState: ToggledState = {
+  set: (block, isToggled: boolean) =>
+    window.localStorage.setItem(
+      `toggle-${block.id}`,
+      isToggled ? "true" : "false",
+    ),
+  get: (block) => window.localStorage.getItem(`toggle-${block.id}`) === "true",
+};
 
 // https://fonts.google.com/icons?selected=Material+Symbols+Rounded:chevron_right:FILL@0;wght@700;GRAD@0;opsz@24&icon.query=chevron&icon.style=Rounded&icon.size=24&icon.color=%23e8eaed
+// `aria-hidden`: the icon is decorative, and the button has its own name.
 const chevronIcon =
-  '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="CURRENTCOLOR"><path d="M320-200v-560l440 280-440 280Z"/></svg>';
+  '<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="CURRENTCOLOR"><path d="M320-200v-560l440 280-440 280Z"/></svg>';
+
+/**
+ * Whether the toggle block is open, as its frame shows it. For keyboard
+ * settings that differ between an open and a closed toggle.
+ */
+export function isToggleOpen(block: { id: string }) {
+  return defaultToggledState.get(block);
+}
 
 /**
  * The frame of a toggle block, for `renderFrame`: a chevron that shows or
@@ -28,6 +51,13 @@ export function createToggleFrame(
   const toggleButton = document.createElement("button");
   toggleButton.className = "bn-toggle-button";
   toggleButton.type = "button";
+  // A fixed name, with the state in `aria-expanded`, so a screen reader
+  // announces e.g. "Expand or collapse, button, collapsed" (#2811). The CSS
+  // reads the open state from `aria-expanded` too.
+  toggleButton.setAttribute(
+    "aria-label",
+    editor.dictionary.toggle_blocks.toggle_button,
+  );
   toggleButton.innerHTML = chevronIcon;
   toggleButton.addEventListener("mousedown", (event) => event.preventDefault());
 
@@ -53,9 +83,10 @@ export function createToggleFrame(
   dom.append(toggleButton, slot);
 
   let childCount = block.children.length;
+  let open = toggledState.get(block);
 
-  function show(open: boolean) {
-    dom.dataset.showChildren = String(open);
+  function show() {
+    toggleButton.setAttribute("aria-expanded", String(open));
     const showAddBlock = open && childCount === 0 && editor.isEditable;
     if (showAddBlock && !addBlockButton.isConnected) {
       dom.append(addBlockButton);
@@ -65,12 +96,12 @@ export function createToggleFrame(
   }
 
   toggleButton.addEventListener("click", () => {
-    const open = dom.dataset.showChildren !== "true";
+    open = !open;
     toggledState.set(block, open);
-    show(open);
+    show();
   });
 
-  show(toggledState.get(block));
+  show();
 
   return {
     dom,
@@ -79,17 +110,17 @@ export function createToggleFrame(
     // a child opens the toggle, and removing the last one closes it.
     update(updated: Block<any, any, any>) {
       const newChildCount = updated.children.length;
-      let open = dom.dataset.showChildren === "true";
+      const wasOpen = open;
       if (newChildCount > childCount) {
         open = true;
       } else if (newChildCount === 0 && childCount > 0) {
         open = false;
       }
-      if (open !== (dom.dataset.showChildren === "true")) {
+      if (open !== wasOpen) {
         toggledState.set(updated, open);
       }
       childCount = newChildCount;
-      show(open);
+      show();
       return true;
     },
   };

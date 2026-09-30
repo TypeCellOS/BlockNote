@@ -5,24 +5,34 @@ import {
   type BlockInfo,
   getBlockInfoAt,
   getLastDescendantBlockInfo,
-  getPrevBlockInfo,
   getParentBlockInfo,
+  getPrevBlockInfo,
 } from "../../../getBlockInfoFromPos.js";
 
-/** Returns compatible text to append, or undefined when the blocks cannot merge. */
+/**
+ * Returns compatible text to append, or undefined when the blocks cannot merge.
+ * TODO: remove with #3124. A block that is its children's title
+ * (`currentIsTitle`) also takes plain text, dropping formatting its schema
+ * disallows.
+ */
 export function getMergeContent(
   current: Extract<BlockInfo, { hasContent: true }>,
   next: Extract<BlockInfo, { hasContent: true }>,
+  // TODO: remove with #3124, which makes merging into a parent general.
+  currentIsTitle = false,
 ): Fragment | undefined {
   const inline =
     current.contentKind === "inline" && next.contentKind === "inline";
-  const ownedText =
-    current.hasOwnedChildren &&
+  // TODO: remove with #3124.
+  const titleText =
+    currentIsTitle &&
     current.content.node.isTextblock &&
     next.content.node.isTextblock;
-  if (!inline && !ownedText) {
+  // TODO: remove `titleText` with #3124.
+  if (!inline && !titleText) {
     return undefined;
   }
+  // TODO: remove with #3124 (only a title reaches here with plain content).
   if (current.contentKind === "plain") {
     const type = current.content.node.type;
     const children: Node[] = [];
@@ -50,11 +60,18 @@ export function getMergeContent(
  * back from there.
  * @returns A tiptap command that returns `false` (leaving the doc untouched)
  * when the two blocks can't merge: no compatible text block above, or the
- * block above is empty (deleting it is handled elsewhere). An owning block
- * can also merge plain text, dropping formatting that its schema disallows.
+ * block above is empty (deleting it is handled elsewhere).
+ * @param isTitle TODO: remove with #3124. Whether a block is its children's
+ * title (its Enter goes into its children), so that its first child can merge
+ * into it.
  */
 export const mergeBlocksCommand =
-  (posBetweenBlocks: number) =>
+  (
+    posBetweenBlocks: number,
+    // TODO: remove with #3124, which lets every first child merge into its
+    // parent.
+    isTitle: (node: Node) => boolean = () => false,
+  ) =>
   ({
     state,
     dispatch,
@@ -71,11 +88,12 @@ export const mergeBlocksCommand =
     const parent = prevSibling
       ? undefined
       : getParentBlockInfo(state.doc, nextBlockInfo.block.beforePos);
-    // An owned body's first block can merge into its title. Ordinary nested
-    // blocks still need a preceding sibling; lifting handles their boundary.
+    // TODO: remove the `isTitle` branch with #3124. A title's first child can
+    // merge into the title. Other first children have no block above to merge
+    // into; lifting handles their boundary.
     const prevBlockInfo = prevSibling
       ? getLastDescendantBlockInfo(prevSibling)
-      : parent?.hasOwnedChildren
+      : parent && isTitle(parent.block.node)
         ? parent
         : undefined;
     if (!prevBlockInfo) {
@@ -89,7 +107,12 @@ export const mergeBlocksCommand =
     ) {
       return false;
     }
-    const content = getMergeContent(prevBlockInfo, nextBlockInfo);
+    const content = getMergeContent(
+      prevBlockInfo,
+      nextBlockInfo,
+      // TODO: remove with #3124.
+      isTitle(prevBlockInfo.block.node),
+    );
     if (content === undefined) {
       return false;
     }

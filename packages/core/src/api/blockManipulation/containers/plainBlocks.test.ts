@@ -10,9 +10,15 @@ const plainNote = createBlockSpec(
     type: "plainNote",
     propSchema: {},
     content: "plain",
-    children: { allow: "blocks" },
   },
   {
+    // A titled block: Enter in its text starts its body, and the body's
+    // blocks can't be outdented out of it.
+    keyboard: {
+      enter: "into-children",
+      childrenCanOutdent: false,
+      emptyChildEnter: "exit-at-end",
+    },
     render() {
       const dom = document.createElement("pre");
       return { dom, contentDOM: dom };
@@ -82,7 +88,7 @@ function text(editor: ReturnType<typeof editorWith>, id: string) {
     .join("");
 }
 
-describe("plain blocks with owned children", () => {
+describe("plain blocks whose Enter goes into their children", () => {
   it.each(["", "Source"])(
     "Enter starts the body and preserves children for %j",
     (content) => {
@@ -160,6 +166,17 @@ describe("plain blocks with owned children", () => {
       editor.prosemirrorState.doc.check();
     },
   );
+
+  it("Backspace in the block after merges it into the body's last block", () => {
+    const editor = editorWith();
+    editor.setTextCursorPosition("after", "start");
+    press(editor, "Backspace");
+
+    // As after any block with children: the text is appended to the last
+    // block above it.
+    expect(text(editor, "body")).toBe("ExplanationAfter");
+    expect(editor.document.map((block) => block.id)).toEqual(["note"]);
+  });
 
   it("keeps owned children when Shift-Tab is pressed", () => {
     const editor = editorWith();

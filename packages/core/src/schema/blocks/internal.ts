@@ -6,6 +6,7 @@ import type { ExtensionFactoryInstance } from "../../editor/BlockNoteExtension.j
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
 import { PropSchema, Props } from "../propTypes.js";
+import { createBlockKeyboard } from "./keyboard.js";
 import { BlockConfig, ChildrenConfig, LooseBlockSpec } from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
@@ -269,6 +270,7 @@ export function createBlockSpecFromTiptapNode<
     // even though the node itself is hand-written. The node's own content
     // expression stays authoritative for the PM schema, while BlockNote-level
     // behavior (repair, seeding, validation) reads this config.
+    container?: true;
     children?: ChildrenConfig;
     placeable?: BlockConfig["placeable"];
   },
@@ -283,13 +285,25 @@ export function createBlockSpecFromTiptapNode<
       type: config.type as T["type"],
       content: config.content,
       propSchema,
-      ...(config.children !== undefined ? { children: config.children } : {}),
+      // `BlockConfig` only allows `container` and restricted `children` with
+      // `content: "none"`, which a generic `T["content"]` can't show; the
+      // hand-written node's config is validated when the schema is created.
+      ...(config.container !== undefined
+        ? { container: config.container as any }
+        : {}),
+      ...(config.children !== undefined
+        ? { children: config.children as any }
+        : {}),
       ...(config.placeable !== undefined
         ? { placeable: config.placeable }
         : {}),
     },
     implementation: {
       node: config.node,
+      keyboard: createBlockKeyboard(undefined, {
+        isContainer: config.container === true,
+        hardBreakShortcut: undefined,
+      }),
       render: defaultBlockToHTML,
       toExternalHTML: defaultBlockToHTML,
     },

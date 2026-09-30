@@ -6,7 +6,6 @@ import {
   defaultProps,
   parseDefaultProps,
 } from "../../defaultProps.js";
-import { handleEnter } from "../../utils/listItemEnterHandler.js";
 import { getListItemContent } from "../getListItemContent.js";
 import { NumberedListIndexingDecorationPlugin } from "./IndexingPlugin.js";
 
@@ -29,6 +28,12 @@ export const createNumberedListItemBlockConfig = createBlockConfig(
 export const createNumberedListItemBlockSpec = createBlockSpec(
   createNumberedListItemBlockConfig,
   {
+    // Enter continues the list, and Enter in an empty item ends it: the item
+    // turns into a paragraph.
+    keyboard: {
+      splitKeepsType: true,
+      emptyEnterResets: true,
+    },
     meta: {
       isolating: false,
     },
@@ -115,9 +120,6 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
         },
       ],
       keyboardShortcuts: {
-        Enter: ({ editor }) => {
-          return handleEnter(editor, "numberedListItem");
-        },
         "Mod-Shift-7": ({ editor }) => {
           const cursorPosition = editor.getTextCursorPosition();
 

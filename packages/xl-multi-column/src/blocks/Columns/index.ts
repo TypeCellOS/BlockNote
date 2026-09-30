@@ -14,7 +14,7 @@ export const ColumnBlock = createBlockSpec(
       },
     },
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
     placeable: "namedOnly",
   },
   {
@@ -45,6 +45,7 @@ export const ColumnListBlock = createBlockSpec(
     type: "columnList" as const,
     propSchema: {},
     content: "none",
+    container: true,
     children: {
       allow: ["column"],
       min: 2,

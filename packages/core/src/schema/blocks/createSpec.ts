@@ -24,6 +24,7 @@ import {
   isContainerConfig,
 } from "./children.js";
 import { applyContainerAttributes } from "./containerAttributes.js";
+import { createBlockKeyboard } from "./keyboard.js";
 import {
   applyDOMAttributes,
   getBlockFromNodeView,
@@ -330,7 +331,7 @@ function buildNode<
   return Node.create({
     name: blockConfig.type,
     content: isContainer
-      ? childrenContentExpression(blockConfig.children!)
+      ? childrenContentExpression(blockConfig.children)
       : blockConfig.content === "inline"
         ? "inline*"
         : blockConfig.content === "plain"
@@ -517,6 +518,10 @@ export function addNodeAndExtensionsToSpec<
     config: blockConfig,
     implementation: {
       ...blockImplementation,
+      keyboard: createBlockKeyboard(blockImplementation.keyboard, {
+        isContainer,
+        hardBreakShortcut: blockImplementation.meta?.hardBreakShortcut,
+      }),
       node,
       render: serialize,
       toExternalHTML: serialize,
