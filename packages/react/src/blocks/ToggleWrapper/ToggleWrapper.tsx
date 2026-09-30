@@ -38,6 +38,7 @@ const showChildrenReducer = (
   throw new UnreachableCaseError(action);
 };
 
+/** @deprecated Render disclosure UI around the children with `renderFrame`. */
 export const ToggleWrapper = (
   props: Omit<
     ReactCustomBlockRenderProps<BlockConfig<any, any, any>>,

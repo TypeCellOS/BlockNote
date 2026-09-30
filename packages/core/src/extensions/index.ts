@@ -23,3 +23,5 @@ export * from "./SuggestionMenu/SuggestionMenu.js";
 export * from "./TableHandles/TableHandles.js";
 export * from "./TrailingNode/TrailingNode.js";
 export * from "./Versioning/index.js";
+
+export * from "./Toggle/Toggle.js";

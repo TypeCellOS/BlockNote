@@ -12,6 +12,7 @@ import { createCopyToClipboardExtension } from "../../../api/clipboard/toClipboa
 import {
   BlockChangeExtension,
   DropCursorExtension,
+  ToggleExtension,
   FilePanelExtension,
   FormattingToolbarExtension,
   HistoryExtension,
@@ -163,6 +164,7 @@ export function getDefaultExtensions(
   const extensions = [
     BlockChangeExtension(),
     DropCursorExtension(options),
+    ToggleExtension(),
     FilePanelExtension(options),
     FormattingToolbarExtension(options),
     LinkExtension({

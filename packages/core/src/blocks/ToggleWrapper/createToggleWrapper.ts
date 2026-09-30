@@ -3,25 +3,19 @@ import { ViewMutationRecord } from "@tiptap/pm/view";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { Block } from "../defaultBlocks.js";
 
-type ToggledState = {
-  set: (block: Block<any, any, any>, isToggled: boolean) => void;
-  get: (block: Block<any, any, any>) => boolean;
-};
+import {
+  defaultToggledState,
+  type ToggledState,
+} from "../ToggleFrame/toggledState.js";
 
-export const defaultToggledState: ToggledState = {
-  set: (block, isToggled: boolean) =>
-    window.localStorage.setItem(
-      `toggle-${block.id}`,
-      isToggled ? "true" : "false",
-    ),
-  get: (block) => window.localStorage.getItem(`toggle-${block.id}`) === "true",
-};
+export { defaultToggledState } from "../ToggleFrame/toggledState.js";
 
+/** @deprecated Use `createToggleFrame` in the block's `renderFrame` instead. */
 export const createToggleWrapper = (
   block: Block<any, any, any>,
   editor: BlockNoteEditor<any, any, any>,
   renderedElement: HTMLElement,
-  toggledState: ToggledState = defaultToggledState,
+  toggledState: ToggledState<Block<any, any, any>> = defaultToggledState,
 ): {
   dom: HTMLElement;
   contentDOM?: HTMLElement;
