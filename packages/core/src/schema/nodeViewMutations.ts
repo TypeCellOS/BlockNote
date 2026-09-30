@@ -51,7 +51,10 @@ export function ignoreDarkReaderMutations(nodeView: NodeView): void {
 // TODO(review): added while merging #3051 (with main's #3062) into #3059.
 // #3062 replaced `ignoreNonContentMutations` with the Dark Reader-only rule
 // for block content node views; frames still needed their chrome ignored, so
-// this keeps that for frames only. Needs a proper review.
+// this keeps that for frames only. Needs a proper review. No test covers it:
+// with it disabled, all frame and container tests still pass. If it turns out
+// to be needed, add tests (e.g. a frame whose chrome changes by itself);
+// otherwise remove it.
 /**
  * For a frame's node view (`renderFrame`): ignores mutations to the frame's
  * own chrome, which is the author's DOM outside the node view's content DOM
