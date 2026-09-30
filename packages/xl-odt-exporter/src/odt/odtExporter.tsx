@@ -155,7 +155,7 @@ export class ODTExporter<
         numberedListIndex = 0;
       }
 
-      const isContainer = this.isContainerBlock(block);
+      const isContainer = this.placesChildren(block);
       // Container mappings own the layout: table cells start a fresh
       // indentation context instead of inheriting literal <text:tab>s.
       const children = await this.transformBlocks(

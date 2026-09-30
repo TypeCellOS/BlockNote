@@ -120,18 +120,22 @@ For a block with inline content, render it the way the default mappings do:
 `exporter.transformInlineContent(block.content).join("")` (inline results are
 markup strings, so plain concatenation composes them).
 
-### Container blocks
+### Blocks that place their children
 
-A [container block](/docs/features/custom-schemas/container-blocks) holds
-child blocks, and its mapping decides where they go: the exporter renders the
-children first and passes them in as the mapping's last argument, rather than
-appending them after the container's own output. A container without a
-mapping is an error rather than a silent omission, since dropping it would
-drop its children too.
+By default, a mapping renders only its block, and the exporter places the
+block's children after it, indented. A block whose children are part of it -
+a [container block](/docs/features/custom-schemas/container-blocks), or a
+callout with a body - uses a `{ withChildren }` mapping instead: the exporter renders
+the children first and passes them in as its last argument, and the mapping
+decides where they go. Container blocks must use a `{ withChildren }` mapping, and a
+container without one is an error rather than a silent omission, since
+dropping it would drop its children too.
 
 ```typescript
-myContainer: (block, exporter, nestingLevel, numberedListIndex, children) =>
-  `#rect(width: 100%)[${children.join("\n\n")}]`,
+myContainer: {
+  withChildren: (block, exporter, nestingLevel, numberedListIndex, children) =>
+    `#rect(width: 100%)[${children.join("\n\n")}]`,
+},
 ```
 
 Separate the children with a blank line, as above, if each should stay its own

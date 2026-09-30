@@ -423,7 +423,7 @@ describe("custom container blocks", () => {
       type: "box" as const,
       propSchema: {},
       content: "none",
-      children: { allow: "blocks" },
+      container: true,
     },
     {
       render: (block: any) => {
@@ -461,7 +461,6 @@ describe("custom container blocks", () => {
       type: "alert" as const,
       propSchema: {},
       content: "inline",
-      children: { allow: "blocks" },
     },
     {
       render: (block: any) => {
@@ -502,16 +501,18 @@ describe("custom container blocks", () => {
         ...docxDefaultSchemaMappings,
         blockMapping: {
           ...docxDefaultSchemaMappings.blockMapping,
-          box: (
-            _block: any,
-            _exporter: any,
-            _nesting: any,
-            _index: any,
-            children: any,
-          ) =>
-            new Paragraph({
-              children: [new TextRun(`BOX(${children?.length ?? 0})`)],
-            }),
+          box: {
+            withChildren: (
+              _block: any,
+              _exporter: any,
+              _nesting: any,
+              _index: any,
+              children: any,
+            ) =>
+              new Paragraph({
+                children: [new TextRun(`BOX(${children?.length ?? 0})`)],
+              }),
+          },
         },
       } as any,
       { resolveFileUrl: testResolveFileUrl },
@@ -531,7 +532,7 @@ describe("custom container blocks", () => {
     );
 
     await expect(exporter.transformBlocks(boxDocument as any)).rejects.toThrow(
-      /container block type "box"/,
+      /missing a block mapping for block type "box"/,
     );
   });
 
@@ -542,21 +543,23 @@ describe("custom container blocks", () => {
         ...docxDefaultSchemaMappings,
         blockMapping: {
           ...docxDefaultSchemaMappings.blockMapping,
-          alert: (
-            block: any,
-            exporter: any,
-            _nesting: any,
-            _index: any,
-            children: any,
-          ) => [
-            new Paragraph({
-              children: [
-                new TextRun("ALERT:"),
-                ...exporter.transformInlineContent(block.content),
-              ],
-            }),
-            ...(children ?? []),
-          ],
+          alert: {
+            withChildren: (
+              block: any,
+              exporter: any,
+              _nesting: any,
+              _index: any,
+              children: any,
+            ) => [
+              new Paragraph({
+                children: [
+                  new TextRun("ALERT:"),
+                  ...exporter.transformInlineContent(block.content),
+                ],
+              }),
+              ...(children ?? []),
+            ],
+          },
         },
       } as any,
       { resolveFileUrl: testResolveFileUrl },

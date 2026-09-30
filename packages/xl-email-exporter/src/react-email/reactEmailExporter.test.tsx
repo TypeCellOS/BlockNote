@@ -685,7 +685,6 @@ describe("titled blocks", () => {
       type: "alert" as const,
       propSchema: {},
       content: "inline",
-      children: { allow: "blocks" },
     },
     {
       render: (block: any) => {
@@ -720,7 +719,7 @@ describe("titled blocks", () => {
     },
   ] as any);
 
-  it("throws a clear error for an unmapped container block", async () => {
+  it("throws a clear error for an unmapped titled block", async () => {
     const exporter = new ReactEmailExporter(
       alertSchema,
       reactEmailDefaultSchemaMappings as any,
@@ -728,7 +727,7 @@ describe("titled blocks", () => {
 
     await expect(
       exporter.transformBlocks(alertDocument as any),
-    ).rejects.toThrow(/container block type "alert"/);
+    ).rejects.toThrow(/missing a block mapping for block type "alert"/);
   });
 
   it("renders a titled block's title and places its children inside", async () => {
@@ -736,18 +735,20 @@ describe("titled blocks", () => {
       ...reactEmailDefaultSchemaMappings,
       blockMapping: {
         ...reactEmailDefaultSchemaMappings.blockMapping,
-        alert: (
-          block: any,
-          exporter: any,
-          _nestingLevel: any,
-          _numberedListIndex: any,
-          children: any,
-        ) => (
-          <div data-alert-box={true}>
-            <strong>{exporter.transformInlineContent(block.content)}</strong>
-            {children}
-          </div>
-        ),
+        alert: {
+          withChildren: (
+            block: any,
+            exporter: any,
+            _nestingLevel: any,
+            _numberedListIndex: any,
+            children: any,
+          ) => (
+            <div data-alert-box={true}>
+              <strong>{exporter.transformInlineContent(block.content)}</strong>
+              {children}
+            </div>
+          ),
+        },
       },
     } as any);
 

@@ -37,7 +37,7 @@ const Box = createBlockSpec(
     type: "box" as const,
     propSchema: {},
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
   {
     render: (block: any) => {
@@ -75,7 +75,6 @@ const Alert = createBlockSpec(
     type: "alert" as const,
     propSchema: {},
     content: "inline",
-    children: { allow: "blocks" },
   },
   {
     render: (block: any) => {
@@ -114,14 +113,16 @@ const alertMappings = {
   ...typstDefaultSchemaMappings,
   blockMapping: {
     ...typstDefaultSchemaMappings.blockMapping,
-    alert: (
-      block: any,
-      exporter: any,
-      _nestingLevel: any,
-      _numberedListIndex: any,
-      children?: string[],
-    ) =>
-      `#rect[#strong[${exporter.transformInlineContent(block.content).join("")}]\n\n${(children ?? []).join("\n\n")}]`,
+    alert: {
+      withChildren: (
+        block: any,
+        exporter: any,
+        _nestingLevel: any,
+        _numberedListIndex: any,
+        children?: string[],
+      ) =>
+        `#rect[#strong[${exporter.transformInlineContent(block.content).join("")}]\n\n${(children ?? []).join("\n\n")}]`,
+    },
   },
 } as any;
 
@@ -574,13 +575,15 @@ describe("container blocks", () => {
       ...typstDefaultSchemaMappings,
       blockMapping: {
         ...typstDefaultSchemaMappings.blockMapping,
-        box: (
-          _block: any,
-          _exporter: any,
-          _nestingLevel: any,
-          _numberedListIndex: any,
-          children?: string[],
-        ) => `#rect[${(children ?? []).join("\n\n")}]`,
+        box: {
+          withChildren: (
+            _block: any,
+            _exporter: any,
+            _nestingLevel: any,
+            _numberedListIndex: any,
+            children?: string[],
+          ) => `#rect[${(children ?? []).join("\n\n")}]`,
+        },
       },
     } as any).toTypst(boxDocument);
 
@@ -602,7 +605,7 @@ describe("container blocks", () => {
     );
 
     await expect(exporter.toTypst(boxDocument)).rejects.toThrow(
-      /container block type "box"/,
+      /missing a block mapping for block type "box"/,
     );
   });
 

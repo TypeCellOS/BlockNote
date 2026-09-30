@@ -73,7 +73,6 @@ describe("titled blocks", () => {
       type: "alert" as const,
       propSchema: {},
       content: "inline",
-      children: { allow: "blocks" },
     },
     {
       render: (block: any) => {
@@ -108,7 +107,7 @@ describe("titled blocks", () => {
     },
   ] as any);
 
-  it("throws a clear error for an unmapped container block", async () => {
+  it("throws a clear error for an unmapped titled block", async () => {
     const exporter = new PDFExporter(
       alertSchema,
       pdfDefaultSchemaMappings as any,
@@ -116,7 +115,7 @@ describe("titled blocks", () => {
 
     await expect(
       exporter.transformBlocks(alertDocument as any),
-    ).rejects.toThrow(/container block type "alert"/);
+    ).rejects.toThrow(/missing a block mapping for block type "alert"/);
   });
 
   it("renders a titled block's title and places its children inside", async () => {
@@ -124,18 +123,22 @@ describe("titled blocks", () => {
       ...pdfDefaultSchemaMappings,
       blockMapping: {
         ...pdfDefaultSchemaMappings.blockMapping,
-        alert: (
-          block: any,
-          exporter: any,
-          _nestingLevel: any,
-          _numberedListIndex: any,
-          children: any,
-        ) => (
-          <View>
-            <Text>ALERT:{exporter.transformInlineContent(block.content)}</Text>
-            {children}
-          </View>
-        ),
+        alert: {
+          withChildren: (
+            block: any,
+            exporter: any,
+            _nestingLevel: any,
+            _numberedListIndex: any,
+            children: any,
+          ) => (
+            <View>
+              <Text>
+                ALERT:{exporter.transformInlineContent(block.content)}
+              </Text>
+              {children}
+            </View>
+          ),
+        },
       },
     } as any);
 
