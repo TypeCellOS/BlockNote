@@ -15,6 +15,7 @@ import {
 } from "../../../nodeConversions/blockToNode.js";
 
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
+import { setBlockColorAttributes } from "../../../../pm-nodes/BlockContainer.js";
 export function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -205,6 +206,9 @@ function serializeBlock<
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   };
+  if (bc.contentDOM) {
+    setBlockColorAttributes(bc.contentDOM, props);
+  }
 
   // Frames wrap the content and its child group in static HTML too. The DOM
   // render context lets interactive frames export without browser view state.
