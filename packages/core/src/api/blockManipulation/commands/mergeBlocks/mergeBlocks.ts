@@ -1,5 +1,10 @@
 import { Fragment } from "prosemirror-model";
-import { EditorState, Selection, Transaction } from "prosemirror-state";
+import {
+  EditorState,
+  Selection,
+  TextSelection,
+  Transaction,
+} from "prosemirror-state";
 
 import {
   type BlockInfo,
@@ -78,7 +83,9 @@ function mergeIntoParent(
  * when the block is its first child.
  * @returns A tiptap command that returns `false` (leaving the doc untouched)
  * when the two blocks can't merge: no compatible text block above. The block
- * above may be empty: the text then takes its type and props, as in Notion.
+ * above may be empty. With the same type and props, the block moves up into
+ * its place. Otherwise the text takes the empty block's type and props (and
+ * id), as in Notion.
  */
 export const mergeBlocksCommand =
   (posBetweenBlocks: number) =>
@@ -117,6 +124,28 @@ export const mergeBlocksCommand =
     }
     if (getMergeContent(prevBlockInfo, nextBlockInfo) === undefined) {
       return false;
+    }
+
+    // An empty block above with the same type and props adds nothing: the
+    // block moves up into its place, keeping its id and children (#550).
+    if (
+      prevBlockInfo.isContentEmpty &&
+      prevBlockInfo.content.node.sameMarkup(nextBlockInfo.content.node)
+    ) {
+      if (dispatch) {
+        const tr = state.tr
+          .delete(nextBlockInfo.block.beforePos, nextBlockInfo.block.afterPos)
+          .replaceWith(
+            prevBlockInfo.block.beforePos,
+            prevBlockInfo.block.afterPos,
+            nextBlockInfo.block.node,
+          );
+        tr.setSelection(
+          TextSelection.create(tr.doc, prevBlockInfo.contentStart),
+        );
+        dispatch(tr.scrollIntoView());
+      }
+      return true;
     }
 
     // Lift children before removing their parent. Tiptap's chainable state
