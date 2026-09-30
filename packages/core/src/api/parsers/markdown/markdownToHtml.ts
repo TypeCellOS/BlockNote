@@ -1,4 +1,6 @@
 import { isVideoUrl } from "../../../util/string.js";
+import { findLinks } from "../../../extensions/tiptap-extensions/Link/helpers/linkDetector.js";
+import { parseAutolinkLiteral } from "./autolink.js";
 
 /**
  * Custom markdown-to-HTML converter for BlockNote.
@@ -41,6 +43,7 @@ function isIntraword(text: string, i: number, delimLen: number): boolean {
 type InlineTokenizer = (
   text: string,
   i: number,
+  allowLinks: boolean,
 ) => { html: string; end: number } | null;
 
 function tryBackslashEscape(
@@ -92,19 +95,80 @@ function tryLink(
   return parseLink(text, i);
 }
 
+function tryAutolink(
+  text: string,
+  i: number,
+): { html: string; end: number } | null {
+  const rest = text.substring(i);
+
+  // CommonMark autolinks: <scheme:destination> and <email@example.com>.
+  if (text[i] === "<") {
+    const urlMatch = rest.match(/^<([a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]*)>/);
+    if (urlMatch) {
+      const url = urlMatch[1];
+      return {
+        html: `<a href="${escapeHtml(url)}">${escapeHtml(url)}</a>`,
+        end: i + urlMatch[0].length,
+      };
+    }
+
+    const emailMatch = rest.match(/^<([^\s<>]+)>/);
+    const email = emailMatch?.[1];
+    const detectedEmail = email
+      ? findLinks(email).find(
+          (match) =>
+            match.type === "email" &&
+            match.start === 0 &&
+            match.end === email.length,
+        )
+      : undefined;
+    if (emailMatch && email && detectedEmail) {
+      return {
+        html: `<a href="${escapeHtml(detectedEmail.href)}">${escapeHtml(email)}</a>`,
+        end: i + emailMatch[0].length,
+      };
+    }
+
+    return null;
+  }
+
+  // GFM autolink literals. Only start at a word boundary, so URL-like text
+  // embedded in a larger word remains plain text.
+  if (i > 0 && /[a-zA-Z0-9_]/.test(text[i - 1])) {
+    return null;
+  }
+
+  const literalMatch = rest.match(/^(https?:\/\/|www\.)[^\s<>]+/i);
+  if (!literalMatch) {
+    return null;
+  }
+
+  const autolink = parseAutolinkLiteral(literalMatch[0]);
+  if (!autolink) {
+    return null;
+  }
+
+  return {
+    html: `<a href="${escapeHtml(autolink.href)}">${escapeHtml(autolink.value)}</a>`,
+    end: i + autolink.value.length,
+  };
+}
+
 function tryStrikethrough(
   text: string,
   i: number,
+  allowLinks: boolean,
 ): { html: string; end: number } | null {
   if (text[i] !== "~" || text[i + 1] !== "~") {
     return null;
   }
-  return parseDelimited(text, i, "~~", "<del>", "</del>");
+  return parseDelimited(text, i, "~~", "<del>", "</del>", allowLinks);
 }
 
 function tryBoldItalic(
   text: string,
   i: number,
+  allowLinks: boolean,
 ): { html: string; end: number } | null {
   if (
     (text[i] === "*" && text[i + 1] === "*" && text[i + 2] === "*") ||
@@ -114,7 +178,14 @@ function tryBoldItalic(
       !isIntraword(text, i, 3))
   ) {
     const delimiter = text.substring(i, i + 3);
-    return parseDelimited(text, i, delimiter, "<strong><em>", "</em></strong>");
+    return parseDelimited(
+      text,
+      i,
+      delimiter,
+      "<strong><em>",
+      "</em></strong>",
+      allowLinks,
+    );
   }
   return null;
 }
@@ -122,13 +193,21 @@ function tryBoldItalic(
 function tryBold(
   text: string,
   i: number,
+  allowLinks: boolean,
 ): { html: string; end: number } | null {
   if (
     (text[i] === "*" && text[i + 1] === "*") ||
     (text[i] === "_" && text[i + 1] === "_" && !isIntraword(text, i, 2))
   ) {
     const delimiter = text.substring(i, i + 2);
-    return parseDelimited(text, i, delimiter, "<strong>", "</strong>");
+    return parseDelimited(
+      text,
+      i,
+      delimiter,
+      "<strong>",
+      "</strong>",
+      allowLinks,
+    );
   }
   return null;
 }
@@ -136,9 +215,10 @@ function tryBold(
 function tryItalic(
   text: string,
   i: number,
+  allowLinks: boolean,
 ): { html: string; end: number } | null {
   if (text[i] === "*" || (text[i] === "_" && !isIntraword(text, i, 1))) {
-    return parseDelimited(text, i, text[i], "<em>", "</em>");
+    return parseDelimited(text, i, text[i], "<em>", "</em>", allowLinks);
   }
   return null;
 }
@@ -190,6 +270,23 @@ function tryInlineHtml(
 /** Characters that can start an inline syntax token. */
 const SPECIAL_CHARS = new Set("\\`![~*_\n<");
 
+function canStartInlineToken(text: string, position: number): boolean {
+  const char = text[position];
+  if (SPECIAL_CHARS.has(char)) {
+    return true;
+  }
+  if (char === "h") {
+    return (
+      text.startsWith("http://", position) ||
+      text.startsWith("https://", position)
+    );
+  }
+  if (char === "w") {
+    return text.startsWith("www.", position);
+  }
+  return false;
+}
+
 /**
  * Ordered array of inline tokenizers, tried in priority order.
  * The first match wins.
@@ -199,6 +296,7 @@ const inlineTokenizers: InlineTokenizer[] = [
   tryInlineCode,
   tryImage,
   tryLink,
+  tryAutolink,
   tryStrikethrough,
   tryBoldItalic, // *** / ___
   tryBold, // ** / __
@@ -207,14 +305,19 @@ const inlineTokenizers: InlineTokenizer[] = [
   trySoftBreak,
 ];
 
+const linkTextTokenizers = inlineTokenizers.filter(
+  (tokenizer) => tokenizer !== tryLink && tokenizer !== tryAutolink,
+);
+
 /**
  * Parse inline markdown syntax and return HTML.
  * Handles: bold, italic, bold+italic, strikethrough, inline code,
  * links, images (with video detection), hard line breaks, backslash escapes.
  */
-function parseInline(text: string): string {
+function parseInline(text: string, allowLinks = true): string {
   let result = "";
   let i = 0;
+  const tokenizers = allowLinks ? inlineTokenizers : linkTextTokenizers;
 
   while (i < text.length) {
     // Hard line break: 2+ trailing spaces immediately before a newline.
@@ -235,9 +338,9 @@ function parseInline(text: string): string {
 
     // Try each tokenizer in priority order
     let matched = false;
-    if (SPECIAL_CHARS.has(text[i])) {
-      for (const tokenizer of inlineTokenizers) {
-        const r = tokenizer(text, i);
+    if (canStartInlineToken(text, i)) {
+      for (const tokenizer of tokenizers) {
+        const r = tokenizer(text, i, allowLinks);
         if (r) {
           result += r.html;
           i = r.end;
@@ -251,7 +354,7 @@ function parseInline(text: string): string {
       // Batch consecutive plain-text characters and escape once
       const runStart = i;
       i++;
-      while (i < text.length && !SPECIAL_CHARS.has(text[i])) {
+      while (i < text.length && !canStartInlineToken(text, i)) {
         i++;
       }
       result += escapeHtml(text.substring(runStart, i));
@@ -384,7 +487,7 @@ function parseLink(
 
   const titleAttr = title !== undefined ? ` title="${escapeHtml(title)}"` : "";
   return {
-    html: `<a href="${escapeHtml(url)}"${titleAttr}>${parseInline(linkText)}</a>`,
+    html: `<a href="${escapeHtml(url)}"${titleAttr}>${parseInline(linkText, false)}</a>`,
     end: parenEnd + 1,
   };
 }
@@ -488,6 +591,7 @@ function parseDelimited(
   delimiter: string,
   openTag: string,
   closeTag: string,
+  allowLinks: boolean,
 ): { html: string; end: number } | null {
   const len = delimiter.length;
   const afterOpen = start + len;
@@ -537,7 +641,7 @@ function parseDelimited(
       }
 
       return {
-        html: openTag + parseInline(inner) + closeTag,
+        html: openTag + parseInline(inner, allowLinks) + closeTag,
         end: j + len,
       };
     }

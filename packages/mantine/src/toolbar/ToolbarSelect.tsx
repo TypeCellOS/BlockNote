@@ -4,8 +4,8 @@ import {
   Menu as MantineMenu,
 } from "@mantine/core";
 
-import { assertEmpty, isSafari } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { assertEmpty } from "@blocknote/core";
+import { ComponentProps, preventFocusOnTap } from "@blocknote/react";
 import { forwardRef } from "react";
 import { HiChevronDown } from "react-icons/hi";
 
@@ -14,7 +14,14 @@ export const ToolbarSelect = forwardRef<
   HTMLDivElement,
   ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
-  const { className, items, isDisabled, ...rest } = props;
+  const {
+    className,
+    items,
+    isDisabled,
+    portalElement,
+    preventFocusOnOpen,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
@@ -26,22 +33,26 @@ export const ToolbarSelect = forwardRef<
 
   return (
     <MantineMenu
-      withinPortal={false}
+      withinPortal={!!portalElement}
+      portalProps={portalElement ? { target: portalElement } : undefined}
       transitionProps={{
         exitDuration: 0,
       }}
       disabled={isDisabled}
-      middlewares={{ flip: true, shift: true, inline: false, size: true }}
+      // Do not move focus to the dropdown when requested (mobile), as it blurs
+      // the editor's contentEditable and dismisses the on-screen keyboard.
+      trapFocus={preventFocusOnOpen ? false : undefined}
+      middlewares={{
+        flip: true,
+        shift: true,
+        inline: false,
+        size: true,
+      }}
     >
       <MantineMenu.Target>
         <MantineButton
-          // Needed as Safari doesn't focus button elements on mouse down
-          // unlike other browsers.
-          onMouseDown={(e) => {
-            if (isSafari()) {
-              (e.currentTarget as HTMLButtonElement).focus();
-            }
-          }}
+          // How-to-test: without it, tapping the block type select focuses the button and closes the keyboard (covered by skinFocus, android, mantine: "opening the block type select keeps focus in the editor").
+          onMouseDown={preventFocusOnTap}
           leftSection={selectedItem.icon}
           rightSection={<HiChevronDown />}
           size={"xs"}

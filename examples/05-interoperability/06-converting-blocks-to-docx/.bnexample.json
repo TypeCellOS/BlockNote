@@ -9,7 +9,7 @@
     "@blocknote/math-block": "latest",
     "@blocknote/xl-docx-exporter": "latest",
     "@blocknote/xl-multi-column": "latest",
-    "katex": "^0.16.11"
+    "katex": "^0.18.9"
   },
   "pro": true
 }

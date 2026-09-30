@@ -13,7 +13,7 @@ import {
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
 import { nonFormattingMarks } from "../markGroups.js";
-import { ignoreNonContentMutations } from "../nodeViewMutations.js";
+import { ignoreDarkReaderMutations } from "../nodeViewMutations.js";
 import { suggestionMarks } from "../../pm-nodes/suggestionMarks.js";
 import { PropSchema } from "../propTypes.js";
 import {
@@ -269,7 +269,9 @@ function blockNodeView<
     applyNonSelectableBlockFix(typedNodeView, props.editor);
   }
 
-  ignoreNonContentMutations(typedNodeView);
+  // Ignores Dark Reader's rewrites of the block's DOM, which would otherwise
+  // trigger an infinite re-render loop that freezes the tab.
+  ignoreDarkReaderMutations(typedNodeView);
 
   if (!isContainer) {
     return typedNodeView;
