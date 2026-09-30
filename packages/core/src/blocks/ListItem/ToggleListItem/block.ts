@@ -43,6 +43,8 @@ export const createToggleListItemBlockSpec = createBlockSpec(
     },
     meta: {
       isolating: false,
+      // A block dragged onto the toggle becomes its first child.
+      dropsIntoChildren: () => true,
     },
     parse(element) {
       if (element.tagName === "DETAILS") {

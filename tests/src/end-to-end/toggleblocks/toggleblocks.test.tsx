@@ -15,12 +15,12 @@ import { beforeEach, describe, expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
 import {
   DRAG_HANDLE_ADD_SELECTOR,
+  DRAG_HANDLE_SELECTOR,
   EDITOR_SELECTOR,
 } from "../../utils/const.js";
 import { browserName, page, userEvent } from "../../utils/context.js";
-import { waitForSelector } from "../../utils/editor.js";
+import { sleep, waitForSelector } from "../../utils/editor.js";
 import {
-  dragAndDropBlock,
   getRect,
   mouseSequence,
   moveMouseOverElement,
@@ -94,38 +94,94 @@ async function openToggle() {
   await userEvent.click(button);
 }
 
+const DROP_CURSOR_SELECTOR = '[class*="prosemirror-dropcursor"]';
+
+/** An element of the toggle itself, not of a toggle nested in it. */
+async function ownElement(selector: string) {
+  const block = await waitForSelector(`.bn-block[data-id="t"]`);
+  const element = [...block.querySelectorAll(selector)].find(
+    (candidate) => candidate.closest(".bn-block") === block,
+  );
+  if (!element) {
+    throw new Error(`The toggle has no ${selector}`);
+  }
+  return element;
+}
+
+/**
+ * Drags block `drag` by its handle to the center of `target`, and holds it
+ * there. `mouseSequence([{ type: "up" }])` drops it.
+ */
+async function dragOnto(target: Element) {
+  // Not `getByText`: a previous drag leaves its drag image, a copy of the
+  // dragged block, in the document.
+  await moveMouseOverElement(
+    await waitForSelector(`.bn-block[data-id="drag"] .bn-inline-content`),
+  );
+  const handle = getRect(await waitForSelector(DRAG_HANDLE_SELECTOR));
+  const rect = getRect(target);
+  // The pauses let the browser start the drag, as in `dragAndDropBlock`.
+  await mouseSequence([
+    {
+      type: "move",
+      x: handle.x + handle.width / 2,
+      y: handle.y + handle.height / 2,
+      steps: 5,
+    },
+  ]);
+  await sleep(100);
+  await mouseSequence([{ type: "down" }]);
+  await sleep(100);
+  await mouseSequence([
+    {
+      type: "move",
+      x: rect.x + rect.width / 2,
+      y: rect.y + rect.height / 2,
+      steps: 5,
+    },
+  ]);
+}
+
+async function dropCursorTop() {
+  return getRect(await waitForSelector(DROP_CURSOR_SELECTOR)).top;
+}
+
 describe.each(kinds)("$name", ({ toggle }) => {
-  // BLO-956: an empty toggle has no place to drop a block into. The only way
-  // to fill it is to click "Add block" first.
-  test
-    .skipIf(browserName === "firefox")
-    .fails(
-      "accepts a block dropped into it while it is open and empty (BLO-956)",
-      async () => {
-        await render(
-          <ToggleApp
-            content={[
-              toggle(),
-              { id: "drag", type: "paragraph", content: "Drag me" },
-            ]}
-          />,
-        );
-        await waitForSelector(EDITOR_SELECTOR);
-        await openToggle();
+  // BLO-956: the only way to drop a block into an empty toggle is onto the
+  // toggle itself, e.g. its "Add block" button. This test uses a real mouse
+  // drag, which Playwright only emulates reliably in Chromium. All drop
+  // targets are tested in every browser in `toggleBlocks.browser.test.ts`,
+  // with synthetic drag events.
+  describe.skipIf(browserName !== "chromium")("drop onto the toggle", () => {
+    test("onto 'Add block', into the empty toggle (BLO-956)", async () => {
+      await render(
+        <ToggleApp
+          content={[
+            toggle(),
+            { id: "drag", type: "paragraph", content: "Drag me" },
+          ]}
+        />,
+      );
+      await waitForSelector(EDITOR_SELECTOR);
+      await openToggle();
 
-        await dragAndDropBlock(
-          page.getByText("Drag me").element(),
-          await waitForSelector(
-            `.bn-block[data-id="t"] .bn-toggle-add-block-button`,
-          ),
-          true,
-        );
+      await dragOnto(await ownElement(".bn-toggle-add-block-button"));
+      // The drop cursor shows the place of the children: below the title.
+      const title = getRect(await ownElement(".bn-block-content"));
+      await expect.poll(dropCursorTop).toBeGreaterThan(title.bottom - 6);
+      expect(await dropCursorTop()).toBeLessThan(title.bottom + 6);
 
-        expect(editor.getBlock("t")!.children.map((child) => child.id)).toEqual(
-          ["drag"],
-        );
-      },
-    );
+      await mouseSequence([{ type: "up" }]);
+
+      // The drop cursor does not stay after the drop.
+      await expect
+        .poll(() => document.querySelector(DROP_CURSOR_SELECTOR))
+        .toBeNull();
+      expect(editor.getBlock("t")!.children.map((child) => child.id)).toEqual([
+        "drag",
+      ]);
+    });
+  });
 
   // BLO-1030: the side menu of a block in the left column of a column list
   // inside a toggle was reported to disappear when the mouse moves onto it.

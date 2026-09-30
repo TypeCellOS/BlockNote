@@ -25,7 +25,9 @@ BASIC STYLES
 .ProseMirror-selectednode > .bn-block-content > *,
 /* Case for blocks/inline content where class is set manually */
 .bn-block-content .ProseMirror-selectednode,
-.bn-inline-content .ProseMirror-selectednode {
+.bn-inline-content .ProseMirror-selectednode,
+/* The block a dragged block drops into (set by the drop cursor) */
+.bn-block-outer[data-drop-target="true"] {
   /* Anchor for the `::after` highlight overlay below. */
   position: relative;
 }
@@ -35,7 +37,8 @@ BASIC STYLES
 .bn-block-content.ProseMirror-selectednode > *::after,
 .ProseMirror-selectednode > .bn-block-content > *::after,
 .bn-block-content .ProseMirror-selectednode::after,
-.bn-inline-content .ProseMirror-selectednode::after {
+.bn-inline-content .ProseMirror-selectednode::after,
+.bn-block-outer[data-drop-target="true"]::after {
   content: "";
   position: absolute;
   inset: 0;

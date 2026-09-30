@@ -1,3 +1,4 @@
+import { Fragment, Slice } from "prosemirror-model";
 import { TextSelection } from "prosemirror-state";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { page, userEvent } from "vite-plus/test/browser";
@@ -144,6 +145,48 @@ async function open(id: string) {
   await userEvent.click(toggleButton(id)!);
 }
 
+/**
+ * Drags block `id` over the center of `target`, as the side menu starts a
+ * block drag. The events are synthetic: an emulated mouse drag does not reach
+ * every target reliably. `drop()` drops the block there.
+ */
+function dragBlockOver(id: string, target: Element) {
+  const view = editor.prosemirrorView;
+  const { node } = getNodeById(id, view.state.doc)!;
+  view.dragging = { slice: new Slice(Fragment.from(node), 0, 0), move: true };
+  // The side menu also puts the blocks in the drag data, which marks the drop
+  // as a block drop for the editor's drop handlers.
+  const dataTransfer = new DataTransfer();
+  dataTransfer.setData("blocknote/html", "");
+  const rect = target.getBoundingClientRect();
+  const init: DragEventInit = {
+    bubbles: true,
+    cancelable: true,
+    clientX: rect.x + rect.width / 2,
+    clientY: rect.y + rect.height / 2,
+    dataTransfer,
+  };
+  const element = document.elementFromPoint(init.clientX!, init.clientY!)!;
+  element.dispatchEvent(new DragEvent("dragenter", init));
+  element.dispatchEvent(new DragEvent("dragover", init));
+  return {
+    drop: () => element.dispatchEvent(new DragEvent("drop", init)),
+  };
+}
+
+function dropCursor() {
+  return document.querySelector('[class*="prosemirror-dropcursor"]');
+}
+
+/** The id of the block highlighted as the one a drop goes into. */
+function highlightedDropTarget() {
+  return (
+    root
+      .querySelector('[data-drop-target="true"] > .bn-block')
+      ?.getAttribute("data-id") ?? null
+  );
+}
+
 /** Puts the caret in the block and presses the keys. */
 async function press(
   keys: string,
@@ -271,7 +314,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
     });
 
     // Notion keeps the toggle open, showing its empty-toggle placeholder.
-    it.fails("stays open, as an empty toggle, when its last child is removed", async () => {
+    it("stays open, as an empty toggle, when its last child is removed", async () => {
       mount([toggle("t", "Title", [{ id: "c1", type: "paragraph" }])]);
       await open("t");
 
@@ -290,6 +333,23 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
 
       expect(isOpen("t")).toBe(true);
       expect(childrenAreVisible("t")).toBe(true);
+    });
+  });
+
+  describe("layout", () => {
+    // The children span the frame below the title. When they fell into the
+    // chevron's grid column instead, they widened it and pushed the title far
+    // to the right.
+    it("keeps the title next to the chevron and the children below it", async () => {
+      mount(withChildren());
+      await open("t");
+
+      const frame = own("t", ".bn-toggle-frame")!.getBoundingClientRect();
+      const title = own("t", ".bn-inline-content")!.getBoundingClientRect();
+      const group = own("t", ".bn-block-group")!.getBoundingClientRect();
+      expect(title.left - frame.left).toBeLessThan(40);
+      expect(group.top).toBeGreaterThanOrEqual(title.bottom - 1);
+      expect(group.left).toBeLessThanOrEqual(title.left);
     });
   });
 
@@ -521,7 +581,7 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
       expect(childrenAreVisible("t")).toBe(true);
     });
 
-    it.fails("keeps a toggle open when its last child is moved out", async () => {
+    it("keeps a toggle open when its last child is moved out", async () => {
       mount([
         toggle("t", "Title", [{ id: "c1", type: "paragraph", content: "One" }]),
       ]);
@@ -575,6 +635,80 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
       ]);
       expect(isOpen("t")).toBe(false);
       expect(childrenAreVisible("t")).toBe(false);
+    });
+  });
+
+  // A block dragged onto a toggle becomes its first child, as in Notion. For
+  // an empty toggle, this is the only way to drop a block into it (BLO-956).
+  describe("drop onto the toggle", () => {
+    it("onto the title: shows the place above the first child, and drops it there", async () => {
+      mount(withChildren());
+      await open("t");
+
+      const drag = dragBlockOver("after", own("t", ".bn-inline-content")!);
+
+      const cursor = dropCursor()!.getBoundingClientRect();
+      expect(
+        Math.abs(cursor.top - blockElement("c1").getBoundingClientRect().top),
+      ).toBeLessThan(6);
+      expect(highlightedDropTarget()).toBe("t");
+
+      drag.drop();
+
+      expect(editor.getBlock("t")!.children.map((child) => child.id)).toEqual([
+        "after",
+        "c1",
+        "c2",
+      ]);
+      await expect.poll(dropCursor).toBeNull();
+      expect(highlightedDropTarget()).toBeNull();
+    });
+
+    it("onto the chevron of a closed toggle: drops it as the first child, and opens the toggle", async () => {
+      mount(withChildren());
+
+      dragBlockOver("after", toggleButton("t")!).drop();
+
+      expect(editor.getBlock("t")!.children.map((child) => child.id)).toEqual([
+        "after",
+        "c1",
+        "c2",
+      ]);
+      expect(isOpen("t")).toBe(true);
+    });
+
+    it("onto 'Add block' of an empty toggle: shows the place below the title, and drops it there (BLO-956)", async () => {
+      mount([
+        toggle("t", "Title"),
+        { id: "after", type: "paragraph", content: "After" },
+      ]);
+      await open("t");
+
+      const drag = dragBlockOver("after", addBlockButton("t")!);
+
+      const cursor = dropCursor()!.getBoundingClientRect();
+      const title = own("t", ".bn-block-content")!.getBoundingClientRect();
+      expect(Math.abs(cursor.top - title.bottom)).toBeLessThan(6);
+      expect(highlightedDropTarget()).toBe("t");
+
+      drag.drop();
+
+      expect(editor.getBlock("t")!.children.map((child) => child.id)).toEqual([
+        "after",
+      ]);
+    });
+
+    it("onto a child: drops it between the children, as usual", async () => {
+      mount(withChildren());
+      await open("t");
+
+      const drag = dragBlockOver("after", own("c2", ".bn-inline-content")!);
+      expect(highlightedDropTarget()).toBeNull();
+      drag.drop();
+
+      const children = editor.getBlock("t")!.children.map((child) => child.id);
+      expect(children).toHaveLength(3);
+      expect(children[0]).toBe("c1");
     });
   });
 

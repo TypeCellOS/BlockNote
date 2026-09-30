@@ -73,6 +73,9 @@ export const createHeadingBlockSpec = createBlockSpec(
   ({ allowToggleHeadings = true }: HeadingOptions = {}) => ({
     meta: {
       isolating: false,
+      // A block dragged onto a toggle heading becomes its first child.
+      dropsIntoChildren: (block) =>
+        allowToggleHeadings && block.props.isToggleable === true,
     },
     // A toggle heading resets to a regular heading, which in turn resets to a
     // paragraph. While a toggle heading is open, Enter in its text starts its
