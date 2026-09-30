@@ -1,3 +1,63 @@
+## 0.55.0 (2026-09-22)
+
+This release, we have promoted the mobile formatting toolbar from experimental to supported. We recommend you to check our [Mobile compatibility getting started guide for more information](https://www.blocknotejs.org/docs/getting-started#mobile-compatibility).
+
+We now have a formattting toolbar that tries to show above the virtual keyboard of your mobile device (ios & android), allowing you to access formating options like changing the block type, bold, italics and more.
+
+### 🚀 Features
+
+- Mobile formatting toolbar (BLO-1292) ([#2939](https://github.com/TypeCellOS/BlockNote/pull/2939))
+- Enter saves comment in comment editor ([#3103](https://github.com/TypeCellOS/BlockNote/pull/3103))
+
+### 🩹 Fixes
+
+- **core:** Link lookups at the edges of a link ([#3058](https://github.com/TypeCellOS/BlockNote/pull/3058))
+- **a11y:** Commit popover forms through submit, not a key handler ([#3030](https://github.com/TypeCellOS/BlockNote/pull/3030))
+- **core:** Enter on Android and iOS, toolbar and side menu fixes on phones ([#3031](https://github.com/TypeCellOS/BlockNote/pull/3031))
+
+### ❤️ Thank You
+
+- Matthew Lipski ([@matthewlipski](https://github.com/matthewlipski))
+- Yousef <yousefdardiry@gmail.com>
+- Nick The Sick ([@nperez0111](https://github.com/nperez0111))
+
+## 0.54.2 (2026-09-09)
+
+### 🩹 Fixes
+
+- **xl-typst-compiler:** Package wasm without Rust build artifacts ([220544ffd](https://github.com/TypeCellOS/BlockNote/commit/220544ffd))
+
+### ❤️ Thank You
+
+- Nick The Sick ([@nperez0111](https://github.com/nperez0111))
+
+## 0.54.1 (2026-09-09)
+
+### 🚀 Features
+
+- Typst-powered accessible PDF export (PDF/UA-1) ([#2992](https://github.com/TypeCellOS/BlockNote/pull/2992))
+- **pdf:** base PDF export on self-hosted Typst compiler ([#3020](https://github.com/TypeCellOS/BlockNote/pull/3020))
+
+### 🔥 Performance
+
+- **core:** Resolve block changes from changed range only ([#2981](https://github.com/TypeCellOS/BlockNote/pull/2981))
+
+### 🩹 Fixes
+
+- **xl-docx-exporter:** Use distinct bullet symbols per nesting level ([#2977](https://github.com/TypeCellOS/BlockNote/pull/2977))
+- **core:** Only attach table handles to actual table blocks ([#2972](https://github.com/TypeCellOS/BlockNote/pull/2972))
+- **xl-docx-exporter:** Give each list its own numbering instance ([#2976](https://github.com/TypeCellOS/BlockNote/pull/2976))
+- **exporters:** Editor-parity rendering fixes + shared-document ground truth tests ([#3021](https://github.com/TypeCellOS/BlockNote/pull/3021))
+- **core:** Stop schema.extend() mutating the shared default specs ([#3039](https://github.com/TypeCellOS/BlockNote/pull/3039))
+- **mantine:** Restore compact AI menu items ([#3027](https://github.com/TypeCellOS/BlockNote/pull/3027))
+- Ignore only Dark Reader's writes in node views ([#3062](https://github.com/TypeCellOS/BlockNote/pull/3062))
+
+### ❤️ Thank You
+
+- Yousef <yousefdardiry@gmail.com>
+- Adarshsm <adarshmudugal@gmail.com>
+- Nick Perez <nick@blocknotejs.org>
+
 ## 0.54.0 (2026-08-13)
 
 ### 🚀 Features

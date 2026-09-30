@@ -1,6 +1,6 @@
 import { type ChainedCommands, Extension } from "@tiptap/core";
 import { Fragment, type Node } from "prosemirror-model";
-import { TextSelection, Transaction } from "prosemirror-state";
+import { NodeSelection, TextSelection, Transaction } from "prosemirror-state";
 
 import {
   mergeBlocksCommand,
@@ -62,8 +62,6 @@ function deleteBlockAndAppendContent(
   current: Extract<BlockInfo, { hasContent: true }>,
   next: Extract<BlockInfo, { hasContent: true }>,
   remove: Pick<BlockInfo["block"], "beforePos" | "afterPos"> = next.block,
-  // Whether `current` is its children's title (see `getMergeContent`).
-  currentIsTitle = false,
 ) {
   return chain
     .insertContentAt(
@@ -71,10 +69,7 @@ function deleteBlockAndAppendContent(
       next.children?.node.content || Fragment.empty,
     )
     .deleteRange({ from: remove.beforePos, to: remove.afterPos })
-    .insertContentAt(
-      current.contentEnd,
-      getMergeContent(current, next, currentIsTitle) ?? null,
-    )
+    .insertContentAt(current.contentEnd, getMergeContent(current, next) ?? null)
     .setTextSelection(current.contentEnd)
     .scrollIntoView()
     .run();
@@ -100,12 +95,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
     function canOutdentFrom(doc: Node) {
       return (parent: Node) => keyboardOf(parent, doc).childrenCanOutdent;
     }
-    // A block whose Enter goes into its children is their title: its first
-    // child merges into it on Backspace.
-    // TODO: remove with #3124, which lets every first child merge into its
-    // parent.
-    const isTitle = (node: Node, doc: Node) =>
-      keyboardOf(node, doc).enter === "into-children";
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
       this.editor.commands.first(({ chain, commands }) => [
@@ -147,44 +136,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
               updateBlockCommand(blockInfo.block.beforePos, resetsTo as any),
             );
           }),
-        // Removes a level of nesting if the block is indented if the selection is at the start of the block.
-        () =>
-          commands.command(({ state, tr }) => {
-            const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.hasContent) {
-              return false;
-            }
-
-            const selectionAtBlockStart =
-              state.selection.from === blockInfo.contentStart;
-
-            if (selectionAtBlockStart) {
-              // A title's first child merges into the title instead (further
-              // down). TODO: remove with #3124.
-              const $block = state.doc.resolve(blockInfo.block.beforePos);
-              const parent = getParentBlockInfo(
-                state.doc,
-                blockInfo.block.beforePos,
-              );
-              if (
-                $block.index() === 0 &&
-                parent &&
-                isTitle(parent.block.node, state.doc)
-              ) {
-                return false;
-              }
-              return liftItem(
-                tr,
-                tr.doc.type.schema.nodes["blockContainer"],
-                tr.doc.type.schema.nodes["blockGroup"],
-                canOutdentFrom(tr.doc),
-              );
-            }
-
-            return false;
-          }),
-        // Merges block with the previous one if it isn't indented, and the selection is at the start of the
-        // block. The target block for merging must contain inline content.
+        // Merges at the start of the block, into the preceding sibling
+        // (or its deepest descendant) or parent. Both must have inline content.
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -197,22 +150,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
               state.doc,
               blockInfo.block.beforePos,
             );
-            // A preceding container takes the move branch below. A preceding
-            // block with content merges, into its last descendant when it has
-            // children, which must hold inline content: a code block's own
-            // text never takes the merge, but its last child can. With no
-            // sibling, mergeBlocksCommand checks for an owning title.
-            if (prevSibling) {
-              if (!prevSibling.hasContent) {
-                return false;
-              }
-              const mergeTarget = getLastDescendantBlockInfo(prevSibling);
-              if (
-                !mergeTarget.hasContent ||
-                mergeTarget.contentKind !== "inline"
-              ) {
-                return false;
-              }
+            // A preceding container takes the move branch below. Otherwise
+            // the block merges into the block above (its last descendant), or
+            // into its parent when it has no previous sibling;
+            // mergeBlocksCommand decides whether their contents are
+            // compatible.
+            if (prevSibling && !prevSibling.hasContent) {
+              return false;
             }
 
             const selectionAtBlockStart =
@@ -223,7 +167,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             if (selectionAtBlockStart && selectionEmpty) {
               return chain()
-                .command(mergeBlocksCommand(posBetweenBlocks, isTitle))
+                .command(mergeBlocksCommand(posBetweenBlocks))
                 .scrollIntoView()
                 .run();
             }
@@ -291,65 +235,59 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
             return true;
           }),
-        // Deletes the current block if it's an empty block with inline content,
-        // and moves the selection to the previous block.
+        // Removes an empty inline block when merging is impossible. Its
+        // children take its place; the cursor moves to the preceding block.
         () =>
-          commands.command(({ state }) => {
+          commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (!blockInfo.hasContent) {
+            if (
+              !blockInfo.hasContent ||
+              !state.selection.empty ||
+              blockInfo.contentKind !== "inline" ||
+              !blockInfo.isContentEmpty
+            ) {
               return false;
             }
-
-            const blockEmpty =
-              blockInfo.isContentEmpty && blockInfo.contentKind === "inline";
-
-            if (blockEmpty) {
-              const prevBlockInfo = getPrevBlockInfo(
-                state.doc,
-                blockInfo.block.beforePos,
-              );
-              if (!prevBlockInfo) {
-                return false;
-              }
-              const bottomNestedPrevBlockInfo =
-                getLastDescendantBlockInfo(prevBlockInfo);
-              if (!bottomNestedPrevBlockInfo.hasContent) {
-                return false;
-              }
-
-              const chainedCommands = chain();
-
-              // Moves the children the current block.
-              if (blockInfo.children) {
-                chainedCommands.insertContentAt(
-                  blockInfo.block.afterPos,
-                  blockInfo.children?.node.content,
-                );
-              }
-
-              chainedCommands.command(({ tr }) => {
-                tr.setSelection(
-                  blockEdgeSelection(tr.doc, bottomNestedPrevBlockInfo, "end"),
-                );
-                return true;
-              });
-
-              return chainedCommands
-                .deleteRange({
-                  from: blockInfo.block.beforePos,
-                  to: blockInfo.block.afterPos,
-                })
-                .scrollIntoView()
-                .run();
+            const prevBlockInfo = getPrevBlockInfo(
+              state.doc,
+              blockInfo.block.beforePos,
+            );
+            const parent = !prevBlockInfo
+              ? getParentBlockInfo(state.doc, blockInfo.block.beforePos)
+              : undefined;
+            const target = prevBlockInfo
+              ? getLastDescendantBlockInfo(prevBlockInfo)
+              : parent;
+            if (!target?.hasContent) {
+              return false;
             }
-
-            return false;
+            if (dispatch) {
+              if (
+                parent?.children?.node.childCount === 1 &&
+                !blockInfo.children
+              ) {
+                tr.delete(parent.children.beforePos, parent.children.afterPos);
+              } else {
+                tr.replaceWith(
+                  blockInfo.block.beforePos,
+                  blockInfo.block.afterPos,
+                  blockInfo.children?.node.content ?? Fragment.empty,
+                );
+              }
+              tr.setSelection(
+                target.contentKind === "none"
+                  ? NodeSelection.create(tr.doc, target.content.beforePos)
+                  : TextSelection.near(tr.doc.resolve(target.contentEnd), -1),
+              );
+              tr.scrollIntoView();
+            }
+            return true;
           }),
         // Deletes previous block if it contains no content and isn't a table,
         // when the selection is empty and at the start of the block. Moves the
         // current block into the deleted block's place.
         () =>
-          commands.command(({ state }) => {
+          commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
 
             if (!blockInfo.hasContent) {
@@ -381,23 +319,47 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   bottomBlock.isContentEmpty);
 
               if (prevBlockNotTableAndNoContent) {
-                return chain()
-                  .cut(
-                    {
-                      from: blockInfo.block.beforePos,
-                      to: blockInfo.block.afterPos,
-                    },
+                if (dispatch) {
+                  tr.delete(
+                    blockInfo.block.beforePos,
+                    blockInfo.block.afterPos,
+                  );
+                  tr.replaceWith(
+                    bottomBlock.block.beforePos,
                     bottomBlock.block.afterPos,
-                  )
-                  .deleteRange({
-                    from: bottomBlock.block.beforePos,
-                    to: bottomBlock.block.afterPos,
-                  })
-                  .run();
+                    blockInfo.block.node,
+                  );
+                  tr.setSelection(
+                    TextSelection.near(
+                      tr.doc.resolve(bottomBlock.block.beforePos + 2),
+                    ),
+                  );
+                  tr.scrollIntoView();
+                }
+                return true;
               }
             }
 
             return false;
+          }),
+        // If no merge/deletion is possible (for example beside a table or
+        // under an image), unindent instead of trapping the cursor or losing text.
+        () =>
+          commands.command(({ state, tr }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (
+              !blockInfo.hasContent ||
+              !state.selection.empty ||
+              state.selection.from !== blockInfo.contentStart
+            ) {
+              return false;
+            }
+            return liftItem(
+              tr,
+              tr.doc.type.schema.nodes["blockContainer"],
+              tr.doc.type.schema.nodes["blockGroup"],
+              canOutdentFrom(tr.doc),
+            );
           }),
       ]);
 
@@ -444,7 +406,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 children.node.childCount === 1
                   ? children
                   : firstChildBlockInfo.block,
-                isTitle(blockInfo.block.node, state.doc),
               );
             }
 
@@ -477,7 +438,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             if (selectionAtBlockEnd && selectionEmpty) {
               return chain()
-                .command(mergeBlocksCommand(posBetweenBlocks, isTitle))
+                .command(mergeBlocksCommand(posBetweenBlocks))
                 .scrollIntoView()
                 .run();
             }
@@ -570,7 +531,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 blockInfo,
                 nextBlockInfo,
                 nextBlockInfo.block,
-                isTitle(blockInfo.block.node, state.doc),
               );
             }
 

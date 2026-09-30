@@ -6,8 +6,8 @@ import {
   Tooltip as MantineTooltip,
 } from "@mantine/core";
 
-import { assertEmpty, isSafari } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { assertEmpty } from "@blocknote/core";
+import { ComponentProps, preventFocusOnTap } from "@blocknote/react";
 import { forwardRef, useState } from "react";
 
 export const TooltipContent = (props: {
@@ -57,13 +57,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       <MantineButton
         aria-label={label}
         className={className}
-        // Needed as Safari doesn't focus button elements on mouse down
-        // unlike other browsers.
-        onMouseDown={(e) => {
-          if (isSafari()) {
-            (e.currentTarget as HTMLButtonElement).focus();
-          }
-        }}
+        // How-to-test: without it (here and below), tapping Bold on the mobile toolbar focuses the button and closes the keyboard (covered by skinFocus, android, mantine: "tapping a toggle button never moves focus onto it").
+        onMouseDown={preventFocusOnTap}
         onClick={(event) => {
           setHideTooltip(true);
           onClick?.(event);
@@ -90,13 +85,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       <MantineActionIcon
         className={className}
         aria-label={label}
-        // Needed as Safari doesn't focus button elements on mouse down
-        // unlike other browsers.
-        onMouseDown={(e) => {
-          if (isSafari()) {
-            (e.currentTarget as HTMLButtonElement).focus();
-          }
-        }}
+        onMouseDown={preventFocusOnTap}
         onClick={(event) => {
           // We manually hide the tooltip onclick, because the click event
           // might open a popover which would then show both the tooltip and the popover

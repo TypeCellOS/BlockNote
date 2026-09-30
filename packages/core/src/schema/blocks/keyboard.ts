@@ -18,6 +18,10 @@ export type BlockKeyboard = {
    * - `"split"`: splits the block. The text after the caret goes into a new
    *   block after it.
    * - `"into-children"`: the text after the caret goes into a new first child.
+   *   Backspace at the start of the first child merges it back into the block
+   *   if both have inline content. A block with plain-text content never takes
+   *   merged text, so there, Backspace un-nests the child instead (or does
+   *   nothing when `childrenCanOutdent` is `false`).
    * - `"line-break"`: inserts a line break (a `"\n"` in `content: "plain"`
    *   blocks). Shift-Enter then does the same.
    * @default "split"

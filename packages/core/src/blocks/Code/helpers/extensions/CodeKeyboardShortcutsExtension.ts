@@ -103,8 +103,13 @@ export const CodeKeyboardShortcutsExtension =
           find: /^```(.*?)\s$/,
           replace: ({ match }) => {
             const languageName = match[1].trim();
+            // Without a language suffix there is nothing to resolve, so fall
+            // back to the default rather than storing an empty language that
+            // no highlighter can render.
             const attributes = {
-              language: getLanguageId(options, languageName) ?? languageName,
+              language:
+                getLanguageId(options, languageName) ??
+                (languageName || options.defaultLanguage || "text"),
             };
 
             return {

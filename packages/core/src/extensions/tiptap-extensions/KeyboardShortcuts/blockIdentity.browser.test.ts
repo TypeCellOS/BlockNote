@@ -4,9 +4,10 @@ import { userEvent } from "vite-plus/test/browser";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import type { PartialBlock } from "../../../blocks/defaultBlocks.js";
 
-// Enter and Backspace at the start of a block keep the block's identity: its
-// id, and props such as a checklist item's checked state, stay with its text
-// (#550).
+// Enter at the start of a block keeps the block's identity: its id, and props
+// such as a checklist item's checked state, stay with its text (#550).
+// Backspace below an empty block follows Notion instead: the text merges into
+// the empty block, which keeps its own id, type and props (#3124).
 
 let editor: BlockNoteEditor;
 let root: HTMLElement;
@@ -94,15 +95,19 @@ describe("Enter at the start of a non-empty block", () => {
 });
 
 describe("Backspace at the start of a block after an empty block", () => {
-  it("removes the empty block, and the block keeps its id", async () => {
+  it("merges the text into the empty block, which keeps its id and type", async () => {
     mount([
-      { id: "empty", type: "paragraph" },
+      { id: "empty", type: "heading", props: { level: 2 } },
       { id: "p", type: "paragraph", content: "Text" },
     ]);
 
     await press("Backspace", { block: "p" });
 
-    expect(editor.document.map((block) => block.id)).toEqual(["p"]);
-    expect(editor.getTextCursorPosition().block.id).toBe("p");
+    const [block] = editor.document;
+    expect(editor.document).toHaveLength(1);
+    expect(block.id).toBe("empty");
+    expect(block.type).toBe("heading");
+    expect(block.content).toEqual([{ type: "text", text: "Text", styles: {} }]);
+    expect(editor.getTextCursorPosition().block.id).toBe("empty");
   });
 });

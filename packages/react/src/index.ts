@@ -30,6 +30,7 @@ export * from "./components/FormattingToolbar/DefaultButtons/AddTiptapCommentBut
 export * from "./components/FormattingToolbar/DefaultButtons/BasicTextStyleButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/ColorStyleButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/CreateLinkButton.js";
+export * from "./components/Form/ScreenReaderOnlySubmit.js";
 export * from "./components/FormattingToolbar/DefaultButtons/FileCaptionButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/FileDeleteButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/FileDownloadButton.js";
@@ -41,8 +42,15 @@ export * from "./components/FormattingToolbar/DefaultButtons/TableCellMergeButto
 export * from "./components/FormattingToolbar/DefaultButtons/TextAlignButton.js";
 export * from "./components/FormattingToolbar/DefaultSelects/BlockTypeSelect.js";
 export * from "./components/FormattingToolbar/FormattingToolbar.js";
+export * from "./components/FormattingToolbar/DesktopFormattingToolbarController.js";
 export * from "./components/FormattingToolbar/FormattingToolbarController.js";
-export * from "./components/FormattingToolbar/ExperimentalMobileFormattingToolbarController.js";
+export * from "./components/FormattingToolbar/MobileFormattingToolbarController.js";
+export {
+  PortalElementOverride,
+  usePortalElement,
+} from "./editor/PortalElementOverride.js";
+export * from "./editor/UIModeContext.js";
+export * from "./components/FormattingToolbar/useVirtualKeyboard.js";
 export * from "./components/FormattingToolbar/FormattingToolbarProps.js";
 
 export * from "./components/LinkToolbar/DefaultButtons/DeleteLinkButton.js";
@@ -130,6 +138,8 @@ export * from "./hooks/useActiveStyles.js";
 export * from "./hooks/useBlockNoteEditor.js";
 export * from "./hooks/useCreateBlockNote.js";
 export * from "./hooks/useEditorChange.js";
+export * from "./hooks/useAutoFocus.js";
+export * from "./hooks/useEditorFocus.js";
 export * from "./hooks/useEditorDomElement.js";
 export * from "./hooks/useEditorSelectionBoundingBox.js";
 export * from "./hooks/useEditorSelectionChange.js";
@@ -152,5 +162,6 @@ export * from "./icons.js";
 
 export * from "./util/elementOverflow.js";
 export * from "./util/mergeRefs.js";
+export * from "./util/mouseDownFocus.js";
 
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardHandler.js";

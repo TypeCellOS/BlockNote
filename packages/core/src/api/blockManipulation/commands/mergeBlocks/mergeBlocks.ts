@@ -1,5 +1,5 @@
-import { Fragment, type Node } from "prosemirror-model";
-import { EditorState, TextSelection } from "prosemirror-state";
+import { Fragment } from "prosemirror-model";
+import { EditorState, Selection, Transaction } from "prosemirror-state";
 
 import {
   type BlockInfo,
@@ -9,45 +9,62 @@ import {
   getPrevBlockInfo,
 } from "../../../getBlockInfoFromPos.js";
 
+type ContentBlockInfo = Extract<BlockInfo, { hasContent: true }>;
+
 /**
- * Returns compatible text to append, or undefined when the blocks cannot merge.
- * TODO: remove with #3124. A block that is its children's title
- * (`currentIsTitle`) also takes plain text, dropping formatting its schema
- * disallows.
+ * Returns the content to append, or undefined when the blocks cannot merge.
+ * Only inline content merges, into inline content: a block with plain-text
+ * content (e.g. a code block) never takes merged text.
  */
 export function getMergeContent(
-  current: Extract<BlockInfo, { hasContent: true }>,
-  next: Extract<BlockInfo, { hasContent: true }>,
-  // TODO: remove with #3124, which makes merging into a parent general.
-  currentIsTitle = false,
+  current: ContentBlockInfo,
+  next: ContentBlockInfo,
 ): Fragment | undefined {
-  const inline =
-    current.contentKind === "inline" && next.contentKind === "inline";
-  // TODO: remove with #3124.
-  const titleText =
-    currentIsTitle &&
-    current.content.node.isTextblock &&
-    next.content.node.isTextblock;
-  // TODO: remove `titleText` with #3124.
-  if (!inline && !titleText) {
-    return undefined;
+  return current.contentKind === "inline" && next.contentKind === "inline"
+    ? next.content.node.content
+    : undefined;
+}
+
+/** Merge a first child into its parent, promoting descendants into its place. */
+function mergeIntoParent(
+  state: EditorState,
+  dispatch: ((tr: Transaction) => void) | undefined,
+  parent: ContentBlockInfo,
+  child: ContentBlockInfo,
+): boolean {
+  if (!parent.children) {
+    return false;
   }
-  // TODO: remove with #3124 (only a title reaches here with plain content).
-  if (current.contentKind === "plain") {
-    const type = current.content.node.type;
-    const children: Node[] = [];
-    next.content.node.forEach((child) => {
-      const text =
-        child.type === type.schema.linebreakReplacement
-          ? "\n"
-          : child.textContent;
-      if (text) {
-        children.push(type.schema.text(text, type.allowedMarks(child.marks)));
-      }
-    });
-    return Fragment.from(children);
+  const content = getMergeContent(parent, child);
+  if (
+    content === undefined ||
+    (content.size > 0 &&
+      !parent.content.node.type.validContent(
+        parent.content.node.content.append(content),
+      ))
+  ) {
+    return false;
   }
-  return next.content.node.content;
+
+  if (dispatch) {
+    const tr = state.tr;
+    if (parent.children.node.childCount === 1 && !child.children) {
+      tr.delete(parent.children.beforePos, parent.children.afterPos);
+    } else {
+      tr.replaceWith(
+        child.block.beforePos,
+        child.block.afterPos,
+        child.children?.node.content ?? Fragment.empty,
+      );
+    }
+    const cursorPos = parent.contentEnd;
+    if (content.size > 0) {
+      tr.insert(cursorPos, content);
+    }
+    tr.setSelection(Selection.near(tr.doc.resolve(cursorPos), -1));
+    dispatch(tr.scrollIntoView());
+  }
+  return true;
 }
 
 /**
@@ -57,63 +74,48 @@ export function getMergeContent(
  * @param posBetweenBlocks The position of the boundary between the two blocks:
  * the position just before the outer node of the block being merged upwards,
  * i.e. its `BlockInfo`'s `block.beforePos`. The block above is found by walking
- * back from there.
+ * back from there: the previous sibling's deepest descendant, or the parent
+ * when the block is its first child.
  * @returns A tiptap command that returns `false` (leaving the doc untouched)
- * when the two blocks can't merge: no compatible text block above, or the
- * block above is empty (deleting it is handled elsewhere).
- * @param isTitle TODO: remove with #3124. Whether a block is its children's
- * title (its Enter goes into its children), so that its first child can merge
- * into it.
+ * when the two blocks can't merge: no compatible text block above. The block
+ * above may be empty: the text then takes its type and props, as in Notion.
  */
 export const mergeBlocksCommand =
-  (
-    posBetweenBlocks: number,
-    // TODO: remove with #3124, which lets every first child merge into its
-    // parent.
-    isTitle: (node: Node, doc: Node) => boolean = () => false,
-  ) =>
+  (posBetweenBlocks: number) =>
   ({
     state,
     dispatch,
   }: {
     state: EditorState;
-    dispatch: ((args?: any) => any) | undefined;
+    dispatch: ((tr: Transaction) => void) | undefined;
   }) => {
     const nextBlockInfo = getBlockInfoAt(state.doc, posBetweenBlocks);
+    if (!nextBlockInfo.hasContent) {
+      return false;
+    }
 
     const prevSibling = getPrevBlockInfo(
       state.doc,
       nextBlockInfo.block.beforePos,
     );
-    const parent = prevSibling
-      ? undefined
-      : getParentBlockInfo(state.doc, nextBlockInfo.block.beforePos);
-    // TODO: remove the `isTitle` branch with #3124. A title's first child can
-    // merge into the title. Other first children have no block above to merge
-    // into; lifting handles their boundary.
-    const prevBlockInfo = prevSibling
-      ? getLastDescendantBlockInfo(prevSibling)
-      : parent && isTitle(parent.block.node, state.doc)
-        ? parent
-        : undefined;
-    if (!prevBlockInfo) {
-      return false;
+    if (!prevSibling) {
+      const parent = getParentBlockInfo(
+        state.doc,
+        nextBlockInfo.block.beforePos,
+      );
+      if (!parent?.hasContent) {
+        return false;
+      }
+      return mergeIntoParent(state, dispatch, parent, nextBlockInfo);
     }
 
-    if (
-      !prevBlockInfo.hasContent ||
-      prevBlockInfo.isContentEmpty ||
-      !nextBlockInfo.hasContent
-    ) {
+    // The block we merge into is the last descendant of the previous block:
+    // visually, that's the block directly above the boundary.
+    const prevBlockInfo = getLastDescendantBlockInfo(prevSibling);
+    if (!prevBlockInfo.hasContent) {
       return false;
     }
-    const content = getMergeContent(
-      prevBlockInfo,
-      nextBlockInfo,
-      // TODO: remove with #3124.
-      isTitle(prevBlockInfo.block.node, state.doc),
-    );
-    if (content === undefined) {
+    if (getMergeContent(prevBlockInfo, nextBlockInfo) === undefined) {
       return false;
     }
 
@@ -139,21 +141,13 @@ export const mergeBlocksCommand =
       );
     }
 
+    // Deletes the boundary between the two blocks. Can be thought of as
+    // removing the closing tags of the first block and the opening tags of the
+    // second one to stitch them together.
     if (dispatch) {
-      if (content !== nextBlockInfo.content.node.content) {
-        state.tr
-          .replaceWith(
-            prevBlockInfo.contentEnd,
-            nextBlockInfo.contentEnd,
-            content,
-          )
-          .setSelection(
-            TextSelection.create(state.tr.doc, prevBlockInfo.contentEnd),
-          );
-      } else {
-        state.tr.delete(prevBlockInfo.contentEnd, nextBlockInfo.contentStart);
-      }
-      dispatch(state.tr);
+      dispatch(
+        state.tr.delete(prevBlockInfo.contentEnd, nextBlockInfo.contentStart),
+      );
     }
 
     return true;

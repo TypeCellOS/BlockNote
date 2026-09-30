@@ -8,6 +8,7 @@ import { TbMathFunction } from "react-icons/tb";
 import { MathBlockConfig } from "../../createReactMathBlockSpec.js";
 import { plainContentToString } from "@blocknote/core";
 import { useLatexToMathMLString } from "../../../helpers/render/useLatexToMathML.js";
+import { MathPreview } from "../../../helpers/render/MathPreview.js";
 import { getMathDictionary } from "../../../i18n/dictionary.js";
 
 export const MathBlockPreviewWithPopup = (
@@ -25,11 +26,7 @@ export const MathBlockPreviewWithPopup = (
       source={source}
       // `undefined` while nothing has rendered successfully, so an error
       // shows the error state instead of an empty preview.
-      preview={
-        mathMLString ? (
-          <span dangerouslySetInnerHTML={{ __html: mathMLString }} />
-        ) : undefined
-      }
+      preview={mathMLString ? <MathPreview html={mathMLString} /> : undefined}
       error={error}
       errorPreview={
         <PreviewPlaceholder

@@ -423,5 +423,6 @@ export const nl: Dictionary = {
   },
   generic: {
     ctrl_shortcut: "Ctrl",
+    form_submit: "OK",
   },
 };

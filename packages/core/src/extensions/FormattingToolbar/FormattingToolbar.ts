@@ -70,6 +70,28 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
         // re-evaluate whether the toolbar should be shown
         store.setState(shouldShow());
       });
+      // The selection survives a blur, so without this the state would too:
+      // on a phone, tapping the page away from the editor closes the
+      // keyboard, and a controller mounting after that showed the toolbar over
+      // a blurred editor. Focus within the editor's own UI (a toolbar button,
+      // a popover's input) still counts as focused, and the event only fires
+      // once a focus handoff has settled. Known edge: with focus inside the
+      // toolbar (a menu open), scrolling the selection out of view hides the
+      // toolbar and the browser drops that focus, so the toolbar is gone until
+      // the next selection change.
+      const unsubscribeOnFocusChange = editor.onFocusChange(
+        (_editor, { focused }) => {
+          if (!focused) {
+            store.setState(false);
+            return;
+          }
+          if (preventShowWhileMouseDown || preventShowWhileDragging) {
+            return;
+          }
+          store.setState(shouldShow());
+        },
+        { includeEditorUI: true },
+      );
 
       // To mimic Notion's behavior, we listen to the mouse down event to set the `preventShowWhileMouseDown` flag
       dom.addEventListener(
@@ -122,6 +144,7 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
       signal.addEventListener("abort", () => {
         unsubscribeOnChange();
         unsubscribeOnSelectionChange();
+        unsubscribeOnFocusChange();
       });
     },
   } as const;

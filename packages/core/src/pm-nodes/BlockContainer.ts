@@ -9,7 +9,7 @@ import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import { isDocumentFragment } from "../schema/blocks/internal.js";
 import { BlockNoteDOMAttributes } from "../schema/index.js";
-import { ignoreNonContentMutations } from "../schema/nodeViewMutations.js";
+import { ignoreFrameChromeMutations } from "../schema/nodeViewMutations.js";
 import { mergeCSSClasses } from "../util/browser.js";
 import { suggestionMarks } from "./suggestionMarks.js";
 
@@ -220,7 +220,7 @@ export const BlockContainer = Node.create<{
         ignoreMutation: frameView.ignoreMutation?.bind(frameView),
       };
       if (framed) {
-        ignoreNonContentMutations(nodeView);
+        ignoreFrameChromeMutations(nodeView);
       }
       return nodeView;
     }) as unknown as NodeViewRenderer;

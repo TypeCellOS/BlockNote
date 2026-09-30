@@ -133,40 +133,6 @@ describe("plain blocks whose Enter goes into their children", () => {
     editor.prosemirrorState.doc.check();
   });
 
-  it.each(["Backspace", "Delete"] as const)(
-    "%s preserves child text when merging into plain content",
-    (key) => {
-      const editor = editorWith("Source", [
-        {
-          id: "body",
-          type: "paragraph",
-          content: [
-            { type: "text", text: "Bold", styles: { bold: true } },
-            "\nNext",
-          ],
-          children: [{ id: "nested", type: "paragraph", content: "Nested" }],
-        },
-      ]);
-      editor.setTextCursorPosition("note", "end");
-      const joinPosition = editor.prosemirrorState.selection.from;
-      editor.setTextCursorPosition(
-        key === "Backspace" ? "body" : "note",
-        key === "Backspace" ? "start" : "end",
-      );
-      press(editor, key);
-      expect(editor.prosemirrorState.selection.from).toBe(joinPosition);
-      expect(text(editor, "note")).toBe("SourceBold\nNext");
-      expect(editor.getBlock("note")!.content).toEqual([
-        { type: "text", text: "SourceBold\nNext", styles: {} },
-      ]);
-      expect(
-        editor.getBlock("note")!.children.map((block) => block.id),
-      ).toEqual(["nested"]);
-      expect(editor.getBlock("body")).toBeUndefined();
-      editor.prosemirrorState.doc.check();
-    },
-  );
-
   it("Backspace in the block after merges it into the body's last block", () => {
     const editor = editorWith();
     editor.setTextCursorPosition("after", "start");
