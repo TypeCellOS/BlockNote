@@ -283,10 +283,15 @@ export const DropCursorExtension = createExtension<
   const dropIntoChildrenPlugin = new Plugin({
     props: {
       handleDrop(_view, _event, _slice, moved) {
-        if (!dropInto) {
+        const into = dropInto;
+        // The drop ends the drag, and with it the highlight.
+        setDropInto(undefined);
+        // The block may be gone since the last `dragover`, e.g. removed by a
+        // collaborator. ProseMirror then drops the blocks as usual.
+        if (!into || !editor.getBlock(into.blockId)) {
           return false;
         }
-        const { blockId, draggedBlocks } = dropInto;
+        const { blockId, draggedBlocks } = into;
         editor.transact(() => {
           if (moved) {
             // A drag from another editor leaves its blocks there.
@@ -294,7 +299,14 @@ export const DropCursorExtension = createExtension<
               draggedBlocks.filter((block) => editor.getBlock(block.id)),
             );
           }
-          const target = editor.getBlock(blockId)!;
+          // The dragged blocks never contain the target (see
+          // `getDropIntoChildren`), so removing them keeps it.
+          const target = editor.getBlock(blockId);
+          if (!target) {
+            throw new Error(
+              "The drop target was removed with the dragged blocks",
+            );
+          }
           if (target.children.length > 0) {
             editor.insertBlocks(draggedBlocks, target.children[0], "before");
           } else {

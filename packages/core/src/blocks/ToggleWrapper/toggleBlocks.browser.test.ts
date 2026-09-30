@@ -170,7 +170,11 @@ function dragBlockOver(id: string, target: Element) {
   element.dispatchEvent(new DragEvent("dragenter", init));
   element.dispatchEvent(new DragEvent("dragover", init));
   return {
-    drop: () => element.dispatchEvent(new DragEvent("drop", init)),
+    // At the element under the point at drop time, as the browser does.
+    drop: () =>
+      document
+        .elementFromPoint(init.clientX!, init.clientY!)!
+        .dispatchEvent(new DragEvent("drop", init)),
   };
 }
 
@@ -696,6 +700,21 @@ describe.each(kinds)("$name", ({ toggle, newBlockTypeAfterClosedToggle }) => {
       expect(editor.getBlock("t")!.children.map((child) => child.id)).toEqual([
         "after",
       ]);
+    });
+
+    it("drops it as usual when the toggle is removed during the drag", async () => {
+      mount(withChildren());
+      await open("t");
+
+      const drag = dragBlockOver("after", own("t", ".bn-inline-content")!);
+      expect(highlightedDropTarget()).toBe("t");
+      // E.g. a collaborator removes the toggle.
+      editor.removeBlocks(["t"]);
+      drag.drop();
+
+      expect(editor.getBlock("t")).toBeUndefined();
+      expect(editor.getBlock("after")).toBeDefined();
+      expect(highlightedDropTarget()).toBeNull();
     });
 
     it("onto a child: drops it between the children, as usual", async () => {
