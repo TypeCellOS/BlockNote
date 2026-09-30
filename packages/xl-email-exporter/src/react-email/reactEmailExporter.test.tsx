@@ -120,6 +120,37 @@ describe("react email exporter", () => {
     expect(html).toMatchSnapshot("__snapshots__/reactEmailExporterStyledText");
   });
 
+  it("should escape HTML characters in text content", async () => {
+    const exporter = new ReactEmailExporter(
+      BlockNoteSchema.create(),
+      reactEmailDefaultSchemaMappings,
+    );
+
+    const untrustedDocument = [
+      {
+        id: "1",
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "x < 10 & y > 20\n<script>alert(1)</script>",
+            styles: {},
+          },
+        ],
+        children: [],
+        props: {},
+      },
+    ];
+
+    const html = await exporter.toReactEmailDocument(untrustedDocument as any);
+
+    expect(html).not.toContain("<script>");
+    expect(html).toContain("x &lt; 10 &amp; y &gt; 20");
+    expect(html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+    // Newlines still become line breaks.
+    expect(html).toContain("<br");
+  });
+
   it("should handle document with links", async () => {
     const exporter = new ReactEmailExporter(
       BlockNoteSchema.create(),

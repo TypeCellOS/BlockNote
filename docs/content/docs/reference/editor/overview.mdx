@@ -24,11 +24,19 @@ To focus the editor, you can use the `focus` method.
 editor.focus();
 ```
 
-Check if the editor has focus.
+Check if the editor's content area has focus:
 
 ```ts
 const isFocused = editor.isFocused();
 ```
+
+By default, `isFocused()` returns `false` when focus moves into a toolbar, menu, or popover. Pass `includeEditorUI: true` to include the editor's UI:
+
+```ts
+const isInteractingWithEditor = editor.isFocused({ includeEditorUI: true });
+```
+
+These methods read the current focus state. To respond to focus changes, use [`onFocusChange`](/docs/reference/editor/events#onfocuschange), or [`useEditorFocus`](/docs/react/overview#useeditorfocus) to render React UI based on focus.
 
 ## Undo/Redo
 

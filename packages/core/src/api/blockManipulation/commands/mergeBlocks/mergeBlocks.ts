@@ -1,10 +1,74 @@
-import { EditorState } from "prosemirror-state";
+import { Fragment } from "prosemirror-model";
+import { EditorState, Selection, Transaction } from "prosemirror-state";
 
 import {
+  type BlockInfo,
   getBlockInfoAt,
   getLastDescendantBlockInfo,
+  getParentBlockInfo,
   getPrevBlockInfo,
 } from "../../../getBlockInfoFromPos.js";
+
+type ContentBlockInfo = Extract<BlockInfo, { hasContent: true }>;
+
+/**
+ * Whether two blocks can merge: both must hold inline content. Merging into
+ * or out of container blocks (columnLists, callouts, ...) is intentionally
+ * unsupported; the container-boundary Backspace/Delete branches in
+ * `KeyboardShortcutsExtension` move blocks across the boundary instead.
+ */
+function canMerge(
+  prevBlockInfo: BlockInfo,
+  nextBlockInfo: BlockInfo,
+): prevBlockInfo is ContentBlockInfo {
+  return (
+    prevBlockInfo.hasContent &&
+    prevBlockInfo.contentKind === "inline" &&
+    nextBlockInfo.hasContent &&
+    nextBlockInfo.contentKind === "inline"
+  );
+}
+
+/** Merge a first child into its parent, promoting descendants into its place. */
+function mergeIntoParent(
+  state: EditorState,
+  dispatch: ((tr: Transaction) => void) | undefined,
+  parent: ContentBlockInfo,
+  child: ContentBlockInfo,
+): boolean {
+  if (!parent.children || !canMerge(parent, child)) {
+    return false;
+  }
+  const content = child.content.node.content;
+  if (
+    content.size > 0 &&
+    !parent.content.node.type.validContent(
+      parent.content.node.content.append(content),
+    )
+  ) {
+    return false;
+  }
+
+  if (dispatch) {
+    const tr = state.tr;
+    if (parent.children.node.childCount === 1 && !child.children) {
+      tr.delete(parent.children.beforePos, parent.children.afterPos);
+    } else {
+      tr.replaceWith(
+        child.block.beforePos,
+        child.block.afterPos,
+        child.children?.node.content ?? Fragment.empty,
+      );
+    }
+    const cursorPos = parent.contentEnd;
+    if (content.size > 0) {
+      tr.insert(cursorPos, content);
+    }
+    tr.setSelection(Selection.near(tr.doc.resolve(cursorPos), -1));
+    dispatch(tr.scrollIntoView());
+  }
+  return true;
+}
 
 /**
  * Merges the block starting at `posBetweenBlocks` into the block visually
@@ -13,11 +77,11 @@ import {
  * @param posBetweenBlocks The position of the boundary between the two blocks:
  * the position just before the outer node of the block being merged upwards,
  * i.e. its `BlockInfo`'s `block.beforePos`. The block above is found by walking
- * back from there.
+ * back from there: the previous sibling's deepest descendant, or the parent
+ * when the block is its first child.
  * @returns A tiptap command that returns `false` (leaving the doc untouched)
- * when the two blocks can't merge: no block above, either side isn't an
- * inline-content block, or the block above is empty (deleting it is handled
- * elsewhere).
+ * when the two blocks can't merge: no block above, or either side isn't an
+ * inline-content block.
  */
 export const mergeBlocksCommand =
   (posBetweenBlocks: number) =>
@@ -26,7 +90,7 @@ export const mergeBlocksCommand =
     dispatch,
   }: {
     state: EditorState;
-    dispatch: ((args?: any) => any) | undefined;
+    dispatch: ((tr: Transaction) => void) | undefined;
   }) => {
     const nextBlockInfo = getBlockInfoAt(state.doc, posBetweenBlocks);
 
@@ -36,25 +100,26 @@ export const mergeBlocksCommand =
     );
 
     if (!prevBlockInfo) {
-      return false;
+      if (!nextBlockInfo.hasContent || nextBlockInfo.contentKind !== "inline") {
+        return false;
+      }
+      const parent = getParentBlockInfo(
+        state.doc,
+        nextBlockInfo.block.beforePos,
+      );
+      if (!parent?.hasContent) {
+        return false;
+      }
+      return mergeIntoParent(state, dispatch, parent, nextBlockInfo);
     }
 
     // The block we merge into is the last descendant of the previous block:
-    // visually, that's the block directly above the boundary.
+    // visually, that's the block directly above the boundary. It may be empty:
+    // the text then takes its type and props, as in Notion.
     const bottomNestedBlockInfo = getLastDescendantBlockInfo(prevBlockInfo);
-
-    // Only inline-content blocks can merge, and merging into an empty block
-    // is handled elsewhere (by deleting the empty block instead). Merging
-    // into or out of container blocks (columnLists, callouts, ...) is
-    // intentionally unsupported; the container-boundary Backspace/Delete
-    // branches in `KeyboardShortcutsExtension` handle those cases by moving
-    // blocks across the boundary instead of merging their content.
     if (
-      !bottomNestedBlockInfo.hasContent ||
-      bottomNestedBlockInfo.contentKind !== "inline" ||
-      bottomNestedBlockInfo.isContentEmpty ||
-      !nextBlockInfo.hasContent ||
-      nextBlockInfo.contentKind !== "inline"
+      !canMerge(bottomNestedBlockInfo, nextBlockInfo) ||
+      !nextBlockInfo.hasContent
     ) {
       return false;
     }

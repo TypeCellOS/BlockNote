@@ -41,6 +41,7 @@
   font-weight: normal;
   font-family:
     "Inter",
+    "Inter fallback",
     "SF Pro Display",
     -apple-system,
     BlinkMacSystemFont,

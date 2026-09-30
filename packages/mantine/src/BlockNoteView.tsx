@@ -11,7 +11,7 @@ import {
   usePrefersColorScheme,
 } from "@blocknote/react";
 import { MantineContext, MantineProvider } from "@mantine/core";
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useCallback, useContext } from "react";
 import {
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
@@ -76,13 +76,16 @@ export const BlockNoteView = <
     [defaultColorScheme, theme],
   );
 
-  useEffect(() => {
-    if (!editor.portalElement) {
-      throw new Error("Portal element not found");
-    }
-    editor.portalElement.setAttribute("data-mantine-color-scheme", finalTheme);
-    applyThemeVariables(editor.portalElement);
-  }, [editor, applyThemeVariables, finalTheme]);
+  // Themes an element BlockNote creates outside React's tree — the portal
+  // roots its floating UI mounts (see `PortalElementOverride`). The editor
+  // container gets the same treatment from the props and `ref` below.
+  const applyThemedRoot = useCallback(
+    (element: HTMLElement) => {
+      element.setAttribute("data-mantine-color-scheme", finalTheme);
+      applyThemeVariables(element);
+    },
+    [applyThemeVariables, finalTheme],
+  );
 
   const mantineContext = useContext(MantineContext);
 
@@ -91,6 +94,7 @@ export const BlockNoteView = <
       <BlockNoteViewRaw
         data-mantine-color-scheme={finalTheme}
         className={mergeCSSClasses("bn-mantine", className || "")}
+        applyThemedRoot={applyThemedRoot}
         theme={typeof theme === "object" ? undefined : theme}
         editor={editor}
         {...rest}

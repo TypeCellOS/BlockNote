@@ -1497,6 +1497,37 @@ Paragraph below`,
     },
     executeTest: testParseMarkdown,
   },
+  {
+    testCase: {
+      name: "linkCommonMarkAutolink",
+      content: `Visit <https://example.com/path?q=1>
+
+Invalid email domains stay plain: <a@b..c>`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "linkGfmAutolinkLiterals",
+      content: `Visit https://example.com/path?q=1 or www.example.com.
+
+Balanced parentheses stay linked: https://example.com/a(b)))
+
+Entity suffix stays plain: https://example.com&copy;
+
+Editor-compatible detection: https://invalid
+
+Invalid schemeless domains stay plain: www.invalid_domain.com`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "linkWithFormattedAutolinkText",
+      content: `[**https://example.com**](https://destination.com)`,
+    },
+    executeTest: testParseMarkdown,
+  },
   // Tables
   {
     testCase: {

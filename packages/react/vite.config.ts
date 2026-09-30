@@ -1,7 +1,7 @@
 import react from "@vitejs/plugin-react";
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
@@ -26,6 +26,8 @@ export default defineConfig(
       test: {
         environment: "jsdom",
         setupFiles: ["./vitestSetup.ts"],
+        // Browser tests run in the tests package's Docker browser suite.
+        exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
       },
       plugins: [react(), webpackStats()],
       // used so that vitest resolves the core package from the sources instead of the built version

@@ -57,6 +57,10 @@ describe("Check ShadCN UI", () => {
     await userEvent.keyboard("{ArrowLeft}");
     await userEvent.keyboard("{ArrowRight}");
 
+    // A missing link toolbar stays within the 2% screenshot tolerance, so
+    // assert it exists before comparing (see the ariakit test).
+    await waitForSelector(".bn-link-toolbar");
+
     await sleep(700);
     await expectElement(document.body).toMatchScreenshot("shadcn-link-toolbar");
   });

@@ -1,5 +1,5 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, useMergeRefs, useAutoFocus } from "@blocknote/react";
 import { forwardRef } from "react";
 
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
@@ -21,7 +21,6 @@ export const TextInput = forwardRef<
     disabled,
     onKeyDown,
     onChange,
-    onSubmit,
     autoComplete: _autoComplete,
     "aria-activedescendant": ariaActivedescendant,
     rightSection, // TODO: add rightSection
@@ -29,6 +28,11 @@ export const TextInput = forwardRef<
   } = props;
 
   assertEmpty(rest);
+
+  // Rationale (and the trap contract `data-autofocus` serves) in the hook.
+
+  const inputRef = useAutoFocus<HTMLInputElement>(autoFocus);
+  const setRefs = useMergeRefs([inputRef, ref]);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
@@ -51,14 +55,12 @@ export const TextInput = forwardRef<
           className={cn(className, "h-auto border-none p-0")}
           id={label}
           name={name}
-          autoFocus={autoFocus}
           placeholder={placeholder}
           disabled={disabled}
           value={value}
           onKeyDown={onKeyDown}
           onChange={onChange}
-          onSubmit={onSubmit}
-          ref={ref}
+          ref={setRefs}
           aria-activedescendant={ariaActivedescendant}
         />
       </div>
