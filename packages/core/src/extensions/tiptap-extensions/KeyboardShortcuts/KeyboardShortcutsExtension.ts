@@ -90,21 +90,22 @@ export const KeyboardShortcutsExtension = Extension.create<{
   //  design as there is now, or clump the logic into a single function?
   addKeyboardShortcuts() {
     const bnEditor = this.options.editor;
-    // The `keyboard` settings of the block that `node` holds.
-    function keyboardOf(node: Node) {
-      const block = nodeToBlock(node, bnEditor.prosemirrorState.doc);
+    // The `keyboard` settings of the block that `node` holds, in `doc`.
+    function keyboardOf(node: Node, doc: Node) {
+      const block = nodeToBlock(node, doc);
       return bnEditor.schema.blockSpecs[block.type].implementation.keyboard(
         block,
       );
     }
-    function canOutdentFrom(parent: Node) {
-      return keyboardOf(parent).childrenCanOutdent;
+    function canOutdentFrom(doc: Node) {
+      return (parent: Node) => keyboardOf(parent, doc).childrenCanOutdent;
     }
     // A block whose Enter goes into its children is their title: its first
     // child merges into it on Backspace.
     // TODO: remove with #3124, which lets every first child merge into its
     // parent.
-    const isTitle = (node: Node) => keyboardOf(node).enter === "into-children";
+    const isTitle = (node: Node, doc: Node) =>
+      keyboardOf(node, doc).enter === "into-children";
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
       this.editor.commands.first(({ chain, commands }) => [
@@ -128,7 +129,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
 
-            const resetsTo = keyboardOf(blockInfo.block.node).resetsTo;
+            const resetsTo = keyboardOf(
+              blockInfo.block.node,
+              state.doc,
+            ).resetsTo;
             const content = blockInfo.content.node;
             const alreadyReset =
               content.type.name === resetsTo.type &&
@@ -165,7 +169,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               if (
                 $block.index() === 0 &&
                 parent &&
-                isTitle(parent.block.node)
+                isTitle(parent.block.node, state.doc)
               ) {
                 return false;
               }
@@ -173,7 +177,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 tr,
                 tr.doc.type.schema.nodes["blockContainer"],
                 tr.doc.type.schema.nodes["blockGroup"],
-                canOutdentFrom,
+                canOutdentFrom(tr.doc),
               );
             }
 
@@ -440,7 +444,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 children.node.childCount === 1
                   ? children
                   : firstChildBlockInfo.block,
-                isTitle(blockInfo.block.node),
+                isTitle(blockInfo.block.node, state.doc),
               );
             }
 
@@ -566,7 +570,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 blockInfo,
                 nextBlockInfo,
                 nextBlockInfo.block,
-                isTitle(blockInfo.block.node),
+                isTitle(blockInfo.block.node, state.doc),
               );
             }
 
@@ -678,7 +682,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             ) {
               return false;
             }
-            const keyboard = keyboardOf(blockInfo.block.node);
+            const keyboard = keyboardOf(blockInfo.block.node, state.doc);
             if (!keyboard.emptyEnterResets) {
               return false;
             }
@@ -723,7 +727,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
               );
               if (
                 parent &&
-                keyboardOf(parent.block.node).emptyChildEnter !== "outdent"
+                keyboardOf(parent.block.node, state.doc).emptyChildEnter !==
+                  "outdent"
               ) {
                 return false;
               }
@@ -731,7 +736,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 tr,
                 tr.doc.type.schema.nodes["blockContainer"],
                 tr.doc.type.schema.nodes["blockGroup"],
-                canOutdentFrom,
+                canOutdentFrom(tr.doc),
               );
             }
 
@@ -746,7 +751,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             const blockSpec =
               this.options.editor.schema.blockSpecs[blockInfo.blockNoteType];
 
-            const keyboard = keyboardOf(blockInfo.block.node);
+            const keyboard = keyboardOf(blockInfo.block.node, state.doc);
 
             if (
               // Enter as a line break makes Shift-Enter one too.
@@ -816,7 +821,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
             if (
-              keyboardOf(owner.block.node).emptyChildEnter !== "exit-at-end"
+              keyboardOf(owner.block.node, tr.doc).emptyChildEnter !==
+              "exit-at-end"
             ) {
               return false;
             }
@@ -864,7 +870,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
               selectionAtBlockStart &&
               selectionEmpty &&
               blockEmpty &&
-              keyboardOf(blockInfo.block.node).enter !== "into-children"
+              keyboardOf(blockInfo.block.node, state.doc).enter !==
+                "into-children"
             ) {
               const newBlockInsertionPos = blockContainer.afterPos;
               const newBlockContentPos = newBlockInsertionPos + 2;
@@ -924,7 +931,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             if (dispatch) {
-              const contentType = keyboardOf(blockInfo.block.node)
+              const contentType = keyboardOf(blockInfo.block.node, state.doc)
                 .splitKeepsType
                 ? blockInfo.content.node.type
                 : state.schema.nodes["paragraph"];
@@ -949,7 +956,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
 
-            if (keyboardOf(blockInfo.block.node).enter !== "into-children") {
+            if (
+              keyboardOf(blockInfo.block.node, state.doc).enter !==
+              "into-children"
+            ) {
               return false;
             }
             if (!state.selection.empty) {
@@ -1017,7 +1027,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!blockEmpty) {
               const keepType =
                 selectionAtBlockStart ||
-                keyboardOf(blockInfo.block.node).splitKeepsType;
+                keyboardOf(blockInfo.block.node, state.doc).splitKeepsType;
               chain()
                 .deleteSelection()
                 .command(

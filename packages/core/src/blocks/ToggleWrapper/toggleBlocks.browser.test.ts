@@ -793,6 +793,30 @@ describe("Enter at the start of a non-empty toggle list item", () => {
   }
 });
 
+// A toggle heading's frame puts its content one level deeper, so the heading
+// rules in Block.css need their own selector for it.
+describe("toggle heading appearance", () => {
+  it.each([1, 2, 3] as const)(
+    "has the size and weight of a regular heading at level %d",
+    (level) => {
+      mount([
+        { id: "h", type: "heading", props: { level }, content: "Heading" },
+        {
+          id: "t",
+          type: "heading",
+          props: { level, isToggleable: true },
+          content: "Toggle",
+        },
+      ]);
+
+      const style = (id: string) =>
+        getComputedStyle(own(id, ".bn-block-content")!);
+      expect(style("t").fontSize).toBe(style("h").fontSize);
+      expect(style("t").fontWeight).toBe(style("h").fontWeight);
+    },
+  );
+});
+
 // BLO-959: turning a toggle heading into a regular heading must remove the
 // toggle behaviour. Each way of turning a block into a heading is covered.
 // Unlike Notion, which moves the children out (its headings can't have

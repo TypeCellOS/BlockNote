@@ -101,7 +101,7 @@ const createFrameAlert = createReactBlockSpec(alertConfig, {
   renderFrame: AlertFrame,
 });
 
-// Framing alone must not turn ordinary nesting into an owned body.
+// Framing alone must not change how the block's children nest.
 const createToggle = createReactBlockSpec(
   { type: "frameToggle", propSchema: {}, content: "inline" },
   {

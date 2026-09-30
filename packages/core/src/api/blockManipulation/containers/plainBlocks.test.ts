@@ -178,7 +178,7 @@ describe("plain blocks whose Enter goes into their children", () => {
     expect(editor.document.map((block) => block.id)).toEqual(["note"]);
   });
 
-  it("keeps owned children when Shift-Tab is pressed", () => {
+  it("keeps its children inside when Shift-Tab is pressed", () => {
     const editor = editorWith();
     editor.setTextCursorPosition("body", "start");
     press(editor, "Tab", true);

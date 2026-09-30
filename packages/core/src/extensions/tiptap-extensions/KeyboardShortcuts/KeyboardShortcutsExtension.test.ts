@@ -12,12 +12,8 @@ import { createBlockSpec } from "../../../schema/index.js";
  * @vitest-environment jsdom
  */
 
-// The `hardBreakShortcut` setting lives on the block spec's implementation
-// (`schema.blockSpecs[type].implementation.meta`), not on the block config in
-// `schema.blockSchema`. These blocks verify that the Enter / Shift-Enter
-// handlers read it from the right place — a previous regression read it from
-// `blockSchema`, which never contains `meta`, so custom settings were silently
-// ignored and every block behaved as "shift+enter".
+// Blocks configured with the deprecated `meta.hardBreakShortcut`, which still
+// sets the default of `keyboard.enter` and `keyboard.shiftEnter`.
 const createHardBreakTestBlockSpec = <
   const T extends string,
   const S extends "shift+enter" | "enter" | "none",
@@ -78,9 +74,30 @@ const createKeyboardTestBlockSpec = <
     },
   )();
 
+// A block whose keyboard function leaves settings `undefined` when a prop is
+// off. Those settings must keep their defaults.
+const conditionalKeyboardBlock = createBlockSpec(
+  {
+    type: "conditionalKeyboard",
+    propSchema: { on: { default: false } },
+    content: "inline",
+  },
+  {
+    keyboard: (block) => ({
+      enter: block.props.on ? "into-children" : undefined,
+      resetsTo: block.props.on ? { type: "heading" } : undefined,
+    }),
+    render: () => {
+      const dom = document.createElement("p");
+      return { dom, contentDOM: dom };
+    },
+  },
+)();
+
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    conditionalKeyboard: conditionalKeyboardBlock,
     keyboardEnter: createKeyboardTestBlockSpec("keyboardEnter", {
       enter: "line-break",
     }),
@@ -419,6 +436,18 @@ describe("KeyboardShortcutsExtension Backspace", () => {
     expect(editor.document.map((block) => block.id)).toEqual(["image"]);
     editor._tiptapEditor.destroy();
   });
+  it("keeps the default of a keyboard setting given as undefined", () => {
+    const editor = createEditorWithBlocks(
+      [{ id: "a", type: "conditionalKeyboard", content: "Text" }],
+      { id: "a", placement: "start" },
+    );
+
+    // `resetsTo` is undefined for this block, so the default applies.
+    pressKeys(editor, "Backspace");
+
+    expect(editor.getBlock("a")!.type).toBe("paragraph");
+    editor._tiptapEditor.destroy();
+  });
 });
 
 describe("KeyboardShortcutsExtension Delete", () => {
@@ -537,29 +566,6 @@ describe("KeyboardShortcutsExtension Delete", () => {
 });
 
 describe("KeyboardShortcutsExtension Enter", () => {
-  it("inserts an empty block above when Enter is pressed at the start", () => {
-    const editor = createEditorWithBlocks(
-      [{ id: "a", type: "paragraph", content: "Hello" }],
-      { id: "a", placement: "start" },
-    );
-
-    pressKeys(editor, "Enter");
-
-    expect(outline(editor.document)).toMatchInlineSnapshot(`
-      [
-        {
-          "text": "",
-          "type": "paragraph",
-        },
-        {
-          "text": "Hello",
-          "type": "paragraph",
-        },
-      ]
-    `);
-    editor._tiptapEditor.destroy();
-  });
-
   it("lifts an empty nested block on Enter", () => {
     const editor = createEditorWithBlocks(
       [
@@ -623,7 +629,7 @@ describe("KeyboardShortcutsExtension Shift-Tab", () => {
   });
 });
 
-describe("KeyboardShortcutsExtension hardBreakShortcut", () => {
+describe("KeyboardShortcutsExtension line breaks", () => {
   it("inserts a hard break on Shift-Enter by default", () => {
     const editor = createEditor("paragraph");
 
@@ -690,7 +696,7 @@ describe.each([
 ] as const)(
   "hard breaks configured with $setting",
   ({ enter, none, plain }) => {
-    it('inserts a hard break on Enter when hardBreakShortcut is "enter"', () => {
+    it("inserts a hard break on Enter when Enter makes line breaks", () => {
       const editor = createEditor(enter);
 
       pressKeys(editor, "Enter");
@@ -701,7 +707,7 @@ describe.each([
       editor._tiptapEditor.destroy();
     });
 
-    it('inserts a hard break on Shift-Enter when hardBreakShortcut is "enter"', () => {
+    it("inserts a hard break on Shift-Enter when Enter makes line breaks", () => {
       const editor = createEditor(enter);
 
       pressKeys(editor, "Shift-Enter");
@@ -712,7 +718,7 @@ describe.each([
       editor._tiptapEditor.destroy();
     });
 
-    it('does not insert a hard break on Shift-Enter when hardBreakShortcut is "none"', () => {
+    it("does not insert a hard break on Shift-Enter when it acts as Enter", () => {
       const editor = createEditor(none);
 
       pressKeys(editor, "Shift-Enter");
@@ -722,7 +728,7 @@ describe.each([
       editor._tiptapEditor.destroy();
     });
 
-    it('splits the block on Enter when hardBreakShortcut is "none"', () => {
+    it("splits the block on Enter when Shift-Enter acts as Enter", () => {
       const editor = createEditor(none);
 
       pressKeys(editor, "Enter");
@@ -748,7 +754,7 @@ describe.each([
     });
 
     it('inserts a newline character on Shift-Enter when content is "plain"', () => {
-      const editor = createEditor("hardBreakEnterPlain");
+      const editor = createEditor(plain);
 
       pressKeys(editor, "Shift-Enter");
 

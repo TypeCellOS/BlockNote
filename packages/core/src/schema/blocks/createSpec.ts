@@ -428,9 +428,8 @@ export function addNodeAndExtensionsToSpec<
   extensions?: (ExtensionFactoryInstance | Extension)[],
   priority?: number,
 ): LooseBlockSpec<TName, TProps, TContent> {
-  // Only a contentless block builds a container node. A block with content of
-  // its own keeps its ordinary shape, and its `children` are owned children
-  // instead.
+  // Only a block declared `container: true` builds a container node, which
+  // holds its children. Every other block keeps its ordinary shape.
   const isContainer = isContainerConfig(blockConfig);
 
   const builtNode: Node =
@@ -634,9 +633,8 @@ export function createBlockSpec<
         : extensionsOrCreator
       : undefined;
 
-    // Only a contentless block is a container here. A block with content of
-    // its own keeps its ordinary shape, and its `children` are owned children
-    // instead.
+    // Only a block declared `container: true` is a container here. Every
+    // other block keeps its ordinary shape.
     const isContainer = isContainerConfig(blockConfig);
 
     // Keep the existing render contract, including for JS callers.

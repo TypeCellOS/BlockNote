@@ -109,8 +109,23 @@ export function createBlockKeyboard<TBlock>(
     childrenCanOutdent: !isContainer,
   };
   if (typeof option === "function") {
-    return (block) => ({ ...defaults, ...option(block) });
+    return (block) => withDefaults(defaults, option(block));
   }
-  const keyboard = { ...defaults, ...option };
+  const keyboard = withDefaults(defaults, option);
   return () => keyboard;
+}
+
+// A setting given as `undefined` (e.g. `open ? "into-children" : undefined`)
+// keeps its default, rather than replacing it with `undefined`.
+function withDefaults(
+  defaults: BlockKeyboard,
+  settings: Partial<BlockKeyboard> | undefined,
+): BlockKeyboard {
+  const keyboard = { ...defaults };
+  for (const [key, value] of Object.entries(settings ?? {})) {
+    if (value !== undefined) {
+      Object.assign(keyboard, { [key]: value });
+    }
+  }
+  return keyboard;
 }

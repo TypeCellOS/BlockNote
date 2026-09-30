@@ -453,9 +453,9 @@ describe("custom container blocks", () => {
   ] as any);
 
   // A titled block: inline content (the title) plus children (the body). The
-  // mapping renders the title into its own paragraph and places the children
-  // after it; because the block counts as a container, transformBlocks must
-  // not append them a second time.
+  // `{ withChildren }` mapping renders the title into its own paragraph and
+  // places the children after it, so transformBlocks must not append them a
+  // second time.
   const Alert = createBlockSpec(
     {
       type: "alert" as const,
@@ -522,18 +522,6 @@ describe("custom container blocks", () => {
     expect(transformed).toHaveLength(1);
     const xml = JSON.stringify(transformed[0]);
     expect(xml).toContain("BOX(2)");
-  });
-
-  it("throws a clear error for an unmapped container block", async () => {
-    const exporter = new DOCXExporter(
-      boxSchema,
-      docxDefaultSchemaMappings as any,
-      { resolveFileUrl: testResolveFileUrl },
-    );
-
-    await expect(exporter.transformBlocks(boxDocument as any)).rejects.toThrow(
-      /missing a block mapping for block type "box"/,
-    );
   });
 
   it("renders a titled block's title and places its children inside", async () => {

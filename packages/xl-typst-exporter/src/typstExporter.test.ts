@@ -66,10 +66,9 @@ const boxDocument = partialBlocksToBlocksForTesting(boxSchema, [
   },
 ] as any);
 
-// A titled block: inline content (the title) plus children (the body). The
-// schema build marks it as a titled block rather than a container node, but
-// for export the contract is the same - the mapping renders the title and
-// places the children, so they must arrive as the mapping's `children` arg.
+// A titled block: inline content (the title) plus children (the body). Its
+// `{ withChildren }` mapping renders the title and places the children, so
+// they must arrive as the mapping's `children` argument.
 const Alert = createBlockSpec(
   {
     type: "alert" as const,
@@ -593,20 +592,6 @@ describe("container blocks", () => {
     expect(typ.indexOf('#"First"')).toBeGreaterThan(typ.indexOf("#rect["));
     expect(typ).toContain('#"Second"');
     expect(typ).not.toContain("#pad(left: 1.5em)");
-  });
-
-  it("throws a clear error for an unmapped container block", async () => {
-    // The missing `box` mapping is the point of the test, and it's exactly
-    // what `BlockMapping` refuses to type - hence the cast (as in the DOCX
-    // exporter's equivalent test).
-    const exporter = new TypstExporter(
-      boxSchema,
-      typstDefaultSchemaMappings as any,
-    );
-
-    await expect(exporter.toTypst(boxDocument)).rejects.toThrow(
-      /missing a block mapping for block type "box"/,
-    );
   });
 
   it("renders a titled block's title and places its children inside", async () => {

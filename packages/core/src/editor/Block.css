@@ -189,13 +189,24 @@ NESTED BLOCKS
   --prev-level: 0.8em;
 }
 
-.bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content {
+.bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content,
+.bn-block-outer[data-prev-type="heading"]
+  > .bn-block
+  > .bn-toggle-frame
+  > .bn-toggle-slot
+  > .bn-block-content {
   font-size: var(--prev-level);
   font-weight: bold;
 }
 
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="heading"],
+/* A toggle heading, inside its toggle frame. */
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > .bn-toggle-frame
+  > .bn-toggle-slot
   > .bn-block-content[data-content-type="heading"],
 .bn-block-outer:not([data-prev-type])
   > .bn-block

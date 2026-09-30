@@ -70,7 +70,7 @@ export const mergeBlocksCommand =
     posBetweenBlocks: number,
     // TODO: remove with #3124, which lets every first child merge into its
     // parent.
-    isTitle: (node: Node) => boolean = () => false,
+    isTitle: (node: Node, doc: Node) => boolean = () => false,
   ) =>
   ({
     state,
@@ -93,7 +93,7 @@ export const mergeBlocksCommand =
     // into; lifting handles their boundary.
     const prevBlockInfo = prevSibling
       ? getLastDescendantBlockInfo(prevSibling)
-      : parent && isTitle(parent.block.node)
+      : parent && isTitle(parent.block.node, state.doc)
         ? parent
         : undefined;
     if (!prevBlockInfo) {
@@ -111,7 +111,7 @@ export const mergeBlocksCommand =
       prevBlockInfo,
       nextBlockInfo,
       // TODO: remove with #3124.
-      isTitle(prevBlockInfo.block.node),
+      isTitle(prevBlockInfo.block.node, state.doc),
     );
     if (content === undefined) {
       return false;
