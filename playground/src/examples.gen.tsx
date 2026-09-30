@@ -1511,7 +1511,7 @@ export const examples = {
           slug: "custom-schema",
         },
         readme:
-          'In this example, we create a custom `Panel` block that holds other blocks as its body, like a Notion-style callout wrapping a paragraph followed by a code block.\n\nThe block declares the `children` config on `BlockConfig`. `children: { allow: "blocks" }` makes it a container: its child blocks mount into the frame\'s `slot` (attached with `ref={contentRef}`), and live on `block.children` at runtime. A pure container like this draws its box in `renderFrame` alone, which re-renders live when props change — click the icon to cycle the panel\'s flavor and watch the box follow without rebuilding the body.\n\nWe also wire up a Slash Menu item to insert the panel, and render the document JSON next to the editor so you can inspect the structure of the nested blocks.\n\n**Try it out:**\n\n- Press the "/" key inside the panel\'s body and add a code block, heading, or list.\n- Click the panel\'s icon to cycle its flavor. The box re-renders in place; the children are untouched.\n- Watch the JSON panel on the right update as you edit; the panel\'s children appear in `block.children`.\n- Insert a new panel via the Slash Menu (search "panel").\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+          'In this example, we create a custom `Panel` block that holds other blocks as its body, such as a panel containing headings and paragraphs.\n\nThe block declares the `children` config on `BlockConfig`. `children: { allow: "blocks" }` makes it a container: its child blocks mount into the rendered content region (attached with `ref={contentRef}`), and live on `block.children` at runtime. A pure container like this draws its box in `render`, which re-renders live when props change.\n\nWe also wire up a Slash Menu item to insert the panel.\n\n**Try it out:**\n\n- Press the "/" key inside the panel\'s body and add a code block, heading, or list.\n- Insert a new panel via the Slash Menu (search "panel").\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
         projectSlug: "math-block",
@@ -1617,7 +1617,52 @@ export const examples = {
           slug: "custom-schema",
         },
         readme:
-          'In this example, we create a custom `Callout` block with a real rich-text title and a body of child blocks (a titled block), like a Notion-style callout.\n\nThe block combines `content: "inline"` with the `children` config on `BlockConfig`. The title is ordinary inline content — formatting, links, and multiplayer cursors all work — while `children: { allow: "blocks" }` hosts the body blocks, which live on `block.children` at runtime. `render` draws the title row and `renderFrame` draws the box around the title and body together.\n\nWe also wire up a Slash Menu item to insert the callout, and render the document JSON next to the editor so you can inspect the structure of the titled block and its nested children.\n\n**Try it out:**\n\n- Press Enter at the end of the callout\'s title to jump into its body.\n- Press Backspace at the start of the first body block to merge it back into the title.\n- Press "/" inside the body and add a code block, heading, or list.\n- Watch the JSON panel on the right update as you edit; the title is `content` and the body is `block.children`.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+          'In this example, we create a custom `Callout` block with a real rich-text title and a body of child blocks (a titled block), like a Notion-style callout.\n\nThe block combines `content: "inline"` with the `children` config on `BlockConfig`. The title is ordinary inline content — formatting, links, and multiplayer cursors all work — while `children: { allow: "blocks" }` hosts the body blocks, which live on `block.children` at runtime. `render` draws the title row and `renderFrame` draws the box around the title and body together.\n\nWe also wire up a Slash Menu item to insert the callout.\n\n**Try it out:**\n\n- Press Enter at the end of the callout\'s title to jump into its body.\n- Press Backspace at the start of the first body block to merge it back into the title.\n- Press "/" inside the body and add a code block, heading, or list.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+      },
+      {
+        projectSlug: "tabs-block",
+        fullSlug: "custom-schema/tabs-block",
+        pathFromRoot: "examples/06-custom-schema/14-tabs-block",
+        config: {
+          playground: true,
+          docs: false,
+          author: "claude",
+          tags: ["Intermediate", "Blocks", "Custom Schemas"],
+          dependencies: {
+            "react-icons": "^5.5.0",
+            "@dnd-kit/core": "^6.3.1",
+            "@dnd-kit/sortable": "^10.0.0",
+            "@dnd-kit/utilities": "^3.2.2",
+          } as any,
+        },
+        title: "Tabs Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          "A tab set built on the container block API. `tabs` is a container whose\n`children` are restricted to `tab` panels, and `tab` is a `placeable:\n\"namedOnly\"` container, so a panel can only ever exist inside a tab set —\nthe schema enforces both.\n\nEach panel holds any block. A panel's label is document content and lives in\nits props. Which panel is open is not: it belongs to each reader, so it is kept\noutside the document, in `localStorage` keyed by the tab set's id. Switching\ntabs is therefore not an undo step and is not sent to collaborators.\n\n**Try it out:** Click a tab to open it, click the open tab for its menu, and\ndrag a tab to reorder it.\n\n## What a tab set needs beyond the container API\n\n**Revealing the panel the caret lands in.** A hidden panel is still part of the\ndocument, so the editor will move content into it: Backspace at the start of\nthe block after a tab set pulls that block into the last panel, which may not\nbe the open one. `useRevealCaretPanel` opens whichever panel the caret ends up\nin, using `editor.onSelectionChange`, so every route in (Backspace, Delete,\narrow keys, drag and drop, paste) is covered at once.\n\n**Moving the caret when a tab is clicked.** An explicit switch takes the caret\nwith it when the caret was inside the set. Otherwise the reveal above would\nimmediately reopen the panel it was left in.\n\n**A menu instead of buttons.** Clicking the open tab opens a menu to rename,\nmove or delete it. It is built from `useComponentsContext()`, so it matches\nwhichever UI library the editor uses.\n\n**Drag to reorder.** Tabs are sortable with dnd-kit. A tab keeps its block id\nwhen it moves, so the reader's open tab follows it.\n\n## Known limitation\n\nEmptying a panel removes it, label included, because the container repair\ntreats a panel holding only an empty paragraph as empty. Removing the last\nnon-empty panel can therefore dissolve the whole tab set. The container API\nhas no way for a block to opt out of this yet.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)",
+      },
+      {
+        projectSlug: "stepper-block",
+        fullSlug: "custom-schema/stepper-block",
+        pathFromRoot: "examples/06-custom-schema/15-stepper-block",
+        config: {
+          playground: true,
+          docs: false,
+          author: "claude",
+          tags: ["Intermediate", "Blocks", "Custom Schemas"],
+          dependencies: {
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Stepper Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          'Numbered steps built on the container block API. `stepper` is a container\nrestricted to `step` children, and `step` is a `placeable: "namedOnly"`\ncontainer, so a step can only exist inside a stepper.\n\nEach step holds any blocks: headings, lists, code. The numbers are a CSS\ncounter, so they stay correct as steps are added, removed, reordered or\nundone. Nothing in the document has to be kept in sync.\n\n**Add step** below the last step adds an untitled one.\n\n## Things worth knowing\n\n**Enter starts the next step.** By default, Enter on an empty block at the end\nof a step moves that block out below the whole stepper, so the keyboard alone\ncannot start a new step. `enterStartsNextStep` makes Enter work the way it does\nin a list:\n\n1. Enter at the end of a step adds a block to that step.\n2. Enter again, on the empty block, starts the next step and puts the caret\n   in its title.\n3. Enter again, on the empty title, leaves the stepper. It leaves a paragraph\n   behind, not the empty heading the step was created with.\n\nKeyboard shortcuts are the one thing the editor API cannot provide, so this\nis written as an extension, passed as the third argument of\n`createReactBlockSpec`.\n\n## Known limitations\n\n**The title is not enforced.** A step has no text of its own: its title is\nsimply its first child, a heading. The user can turn that heading into any\nother block, delete it, or put blocks above it. A real title needs a block\nwith its own text that may only appear inside a stepper, and the container API\ncannot express that yet: `placeable: "namedOnly"` requires a container (a\nblock without content), and `children.allow` can only name containers.\n\n**A step with an empty paragraph as title is removed.** BlockNote treats a\ncontainer child that holds only an empty paragraph as emptied out. It deletes\nthat child the next time it repairs the stepper, for example when any other\nstep is removed. New steps start with an empty heading, because a heading is\nthe right block for a title, and an empty heading does not count as empty. But\na step whose title the user turns into an empty paragraph is removed.\n\n## What the container API gives you for free\n\n- Backspace at the start of a step\'s title first turns it into a paragraph.\n  A second Backspace moves it to the end of the previous step, or above the\n  stepper if it is in the first step.\n- Emptying a step drops it. Deleting the last step removes the stepper.\n- Shift-Tab unnests inside a step and stops at the step\'s edge.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)',
       },
       {
         projectSlug: "draggable-inline-content",

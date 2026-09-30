@@ -1,0 +1,81 @@
+.tabs {
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+  margin: 8px 0;
+  padding: 10px 14px 14px;
+}
+
+.tabs-strip {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  user-select: none;
+}
+
+.tabs-tab {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+}
+
+.tabs-tab[data-active="true"] {
+  background: #f1f2f4;
+}
+
+/* Scoped to the tab's own label: the tab menu's dropdown renders inside the
+   tab, and a plain `button` selector would restyle its items too. */
+.tabs-label,
+.tabs-add {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: #8a8f98;
+  padding: 5px 14px;
+  border-radius: 999px;
+}
+
+.tabs-tab[data-active="true"] .tabs-label {
+  color: #1f2024;
+  font-weight: 600;
+}
+
+.tabs-label:focus-visible,
+.tabs-add:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: -2px;
+}
+
+/* Editing chrome stays out of the way until the reader means to use it. The
+   space is reserved either way, so revealing it does not shift the strip. */
+.tabs-add {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.tabs-strip:hover .tabs-add,
+.tabs-strip:focus-within .tabs-add {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tabs-body {
+  /* An empty panel still needs to be clickable. */
+  min-height: 1.5rem;
+}
+
+/* Only the open panel is shown; the others stay in the document. The panel
+   sets this attribute itself from per-reader state, so it is always present
+   and `[data-active="false"]` would match too - `:not(...)` keeps it working
+   either way. */
+.tab-panel:not([data-active="true"]) {
+  display: none;
+}
+
+/* The title while it is being renamed: the same pill, now a text field. */
+input.tabs-label {
+  cursor: text;
+  outline: none;
+  width: 10ch;
+}
