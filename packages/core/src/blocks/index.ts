@@ -26,4 +26,5 @@ export * from "./BlockNoteSchema.js";
 export * from "./defaultBlockHelpers.js";
 export * from "./defaultBlocks.js";
 export * from "./defaultBlockTypeGuards.js";
+export * from "./defaultBlockTypeItems.js";
 export * from "./defaultProps.js";
