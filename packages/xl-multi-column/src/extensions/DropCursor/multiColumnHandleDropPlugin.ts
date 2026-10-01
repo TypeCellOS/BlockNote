@@ -126,6 +126,13 @@ export function createMultiColumnHandleDropPlugin(
           const originalTargetIndex = columnList.children.findIndex(
             (column) => column.id === targetColumnId,
           );
+          if (originalTargetIndex === -1) {
+            // The drop target was resolved from this very column list, so it
+            // is one of its children. Missing means the two were read from
+            // different documents, which would silently place the new column
+            // at the wrong index.
+            throw new Error("Drop target column is not a child of its list");
+          }
           const boundary =
             originalTargetIndex + (edgePos.position === "right" ? 1 : 0);
           const insertionIndex = remainingColumns

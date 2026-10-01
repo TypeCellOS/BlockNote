@@ -194,6 +194,9 @@ export function applyDOMAttributes(
 // `blockContent` div, which contains the block type and props as HTML
 // attributes. If `blockConfig.render` also returns a `contentDOM`, it also adds
 // an `inlineContent` class to it.
+//
+// A container block has no such wrapper - its root is the author's own element
+// - so it is marked in place by `applyContainerAttributes` instead.
 export function wrapInBlockStructure<
   BType extends string,
   PSchema extends PropSchema,
