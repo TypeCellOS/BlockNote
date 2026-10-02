@@ -39,7 +39,7 @@ This will start the development server on port 3000.
 To test logging in, you can set the following environment variables:
 
 ```bash
-AUTH_SECRET=test
+BETTER_AUTH_SECRET=replace-with-at-least-32-random-characters
 # Github OAuth optionally
 AUTH_GITHUB_ID=test
 AUTH_GITHUB_SECRET=test
@@ -71,6 +71,92 @@ https://0000-00-00-000-00.ngrok-free.app/api/auth/polar/webhooks
 ```
 
 With this webhook pointing to your local server, you should be able to test payments.
+
+### Auth and billing upgrade deployment
+
+The docs site uses Better Auth 1.7.7 (and the matching `auth` CLI),
+`@polar-sh/better-auth` 2.0.0, and Polar SDK 1.0.1. SDK 1.0.2 was excluded from
+this upgrade because it had not passed the workspace's 24-hour release-age policy.
+Use Node.js **22.12 or newer**, including in the deployment environment.
+
+The Polar integration and `lib/auth.ts` both target **API `2026-10`**. The
+versioned SDK imports set the `Polar-Version` header automatically. SDK package
+versions and API versions are independent; do not change the API import without
+also reviewing the integration and webhook contract.
+
+Before deploying:
+
+1. Back up the auth database and test the upgrade against a copy. Check for
+   duplicate provider account keys and resolve any results before upgrading:
+
+   ```sql
+   SELECT "providerId", "accountId", count(*)
+   FROM account GROUP BY 1, 2 HAVING count(*) > 1;
+   ```
+
+2. From `docs/`, with the target environment variables available to the CLI,
+   generate and review the SQL, then apply the built-in SQLite/Postgres adapter
+   migrations:
+
+   ```bash
+   pnpm exec auth generate --config ./lib/auth.ts --output ./auth-migration.sql
+   pnpm exec auth migrate --config ./lib/auth.ts
+   ```
+
+   `POSTGRES_URL` selects Postgres; otherwise development uses `./sqlite.db`.
+   Do not accidentally migrate the local SQLite file instead of production.
+   A direct upgrade to 1.7.7 does **not** need the temporary `account.issuer`
+   column introduced in 1.7.0–1.7.2. If that intermediate version was previously
+   deployed, follow the [1.7 upgrade guide](https://better-auth.com/docs/guides/1-7-upgrade-guide)
+   to remove its constraint/index first.
+
+3. Test the webhook cutover in **Polar sandbox**. Set the endpoint serving
+   `/api/auth/polar/webhooks` to **`api_version: "2026-10"`**, and coordinate
+   that change with deployment of the new handler. Updating the SDK does not
+   update an existing webhook endpoint. Endpoint changes affect only future
+   events: queued events and redeliveries retain their original contract.
+   Drain outstanding old-version deliveries using the old handler before the
+   cutover; do not assume replaying them converts their payloads. Verify the
+   `webhook-api-version` delivery header is `2026-10`.
+
+4. Verify email/password sign-up and verification, existing-account GitHub login
+   (including sponsor plans), and magic-link login. Better Auth 1.7 removes
+   unproven passwords/linked accounts and revokes sessions when a magic link
+   first verifies an unverified account; affected password users must reset
+   their password.
+
+5. Test authenticated checkout and **logged-out pay-first checkout**, both for
+   a new email and an existing account. Confirm the customer is linked through
+   `external_id`, a new buyer receives a sign-in link, the subscription updates
+   `planType`, and the customer portal opens. Check scheduled cancellation
+   retains access until the paid period ends, immediate revocation clears the
+   plan, and repeat webhook delivery does not create another user.
+   Keep production and sandbox tokens, products, and webhook secrets separate.
+
+6. Apply the reviewed database changes and coordinate the production webhook
+   cutover and deployment. Monitor auth/webhook errors and plan provisioning.
+   A rollback must account for both database changes and webhook versions;
+   reverting packages alone does not revert either external state.
+
+Local upgrade rehearsal: the Better Auth 1.7.7 CLI reported **no migrations
+needed** against an isolated restore of the production `public` schema. All six
+tables' row counts and data hashes were unchanged, and no duplicate provider
+account keys were found. The CLI warned that `verification.createdAt` and
+`verification.updatedAt` remain nullable despite being required by the auth
+schema; neither column contained nulls. The CLI does not tighten those existing
+constraints automatically. Review that drift separately rather than assuming
+the migration fixes it.
+
+Sandbox testing verified logged-out monthly Business checkout, account
+provisioning and customer linking, magic-link sign-in, repeated signed webhook
+payloads, scheduled cancellation retaining access, and immediate revocation
+returning the session to Free. These checks do not replace the production
+cutover checklist above.
+
+References: [Polar Better Auth integration](https://polar.sh/docs/integrate/sdk/adapters/better-auth),
+[Polar API versioning](https://polar.sh/docs/api-reference/2026-10/versioning),
+[Better Auth 1.5 changes](https://better-auth.com/blog/1-5), and
+[Better Auth 1.7 upgrade guide](https://better-auth.com/docs/guides/1-7-upgrade-guide).
 
 ### Email sending
 
