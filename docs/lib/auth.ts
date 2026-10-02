@@ -11,7 +11,7 @@ import { Pool } from "pg";
 import { PRODUCTS } from "./product-list";
 import { sendEmail } from "./send-mail";
 
-// Keep the Polar webhook endpoint on the same API version (see docs/README.md).
+// Keep the Polar webhook endpoint on the same API version.
 export const polarClient = createPolarCore({
   accessToken: process.env.POLAR_ACCESS_TOKEN!,
   // Use 'sandbox' if you're using the Polar Sandbox environment
