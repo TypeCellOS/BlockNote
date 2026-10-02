@@ -32,10 +32,18 @@ export async function loadFileBuffer(requireUrl: {
     // in vitest, this is the url we need to load with readfilesync
     // eslint-disable-next-line
     const fs = require("fs");
-    let url = requireUrl.default;
-
-    if (url.startsWith("/@fs/")) {
-      url = url.substring("/@fs".length);
+    // Direct paths can contain literal percent sequences. Prefer an existing
+    // path, then decode Vite's /@fs and encoded absolute asset URLs.
+    const assetPath = requireUrl.default;
+    let url = assetPath;
+    if (assetPath.startsWith("/@fs/")) {
+      url = decodeURIComponent(assetPath.substring("/@fs".length));
+    } else if (!fs.existsSync(assetPath)) {
+      try {
+        url = decodeURIComponent(assetPath);
+      } catch {
+        // Preserve a malformed percent sequence as a literal filesystem path.
+      }
     }
     // On Windows, vite/vitest may yield paths like "/C:/..." after removing /@fs
     // Node on Windows treats paths starting with "/" as relative to current drive,
