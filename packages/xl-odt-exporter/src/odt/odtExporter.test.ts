@@ -107,15 +107,14 @@ describe("exporter", () => {
 
 describe("titled blocks", () => {
   // A titled block: inline content (the title) plus children (the body). The
-  // mapping renders the title and places the children inside its own
-  // section; because the block counts as a container, transformBlocks must
-  // not append them after it as tab-indented siblings.
+  // `{ withChildren }` mapping renders the title and places the children
+  // inside its own section, so transformBlocks must not append them after it
+  // as tab-indented siblings.
   const Alert = createBlockSpec(
     {
       type: "alert" as const,
       propSchema: {},
       content: "inline",
-      children: { allow: "blocks" },
     },
     {
       render: (block: any) => {
@@ -150,18 +149,6 @@ describe("titled blocks", () => {
     },
   ] as any);
 
-  it("throws a clear error for an unmapped container block", async () => {
-    const exporter = new ODTExporter(
-      alertSchema,
-      odtDefaultSchemaMappings as any,
-      { resolveFileUrl: testResolveFileUrl },
-    );
-
-    await expect(
-      exporter.transformBlocks(alertDocument as any),
-    ).rejects.toThrow(/container block type "alert"/);
-  });
-
   it("renders a titled block's title and places its children inside", async () => {
     const exporter = new ODTExporter(
       alertSchema,
@@ -169,24 +156,26 @@ describe("titled blocks", () => {
         ...odtDefaultSchemaMappings,
         blockMapping: {
           ...odtDefaultSchemaMappings.blockMapping,
-          alert: (
-            block: any,
-            exporter: any,
-            _nesting: any,
-            _index: any,
-            children: any,
-          ) =>
-            createElement(
-              "text:section",
-              { "text:name": "alert-body" },
+          alert: {
+            withChildren: (
+              block: any,
+              exporter: any,
+              _nesting: any,
+              _index: any,
+              children: any,
+            ) =>
               createElement(
-                "text:p",
-                null,
-                "ALERT:",
-                ...exporter.transformInlineContent(block.content),
+                "text:section",
+                { "text:name": "alert-body" },
+                createElement(
+                  "text:p",
+                  null,
+                  "ALERT:",
+                  ...exporter.transformInlineContent(block.content),
+                ),
+                ...((children ?? []) as any[]),
               ),
-              ...((children ?? []) as any[]),
-            ),
+          },
         },
       } as any,
       { resolveFileUrl: testResolveFileUrl },

@@ -1,14 +1,25 @@
 import { isContainerConfig } from "./children.js";
-import type { BlockConfig } from "./types.js";
+import type { BlockConfig, ChildrenConfig } from "./types.js";
 
 /** Reject declarations ProseMirror would accept with different semantics. */
 export function validateChildrenConfigs(
   blockSpecs: Record<
     string,
-    { config: Pick<BlockConfig, "content" | "placeable" | "children"> }
+    {
+      config: Pick<
+        BlockConfig,
+        "content" | "placeable" | "container" | "children"
+      >;
+    }
   >,
 ) {
   for (const [type, { config }] of Object.entries(blockSpecs)) {
+    if (config.container !== undefined && config.content !== "none") {
+      fail(
+        type,
+        '`container: true` is only for blocks without content (`content: "none"`): a container\'s own node holds nothing but its child blocks.',
+      );
+    }
     if (config.placeable === "namedOnly" && !isContainerConfig(config)) {
       fail(
         type,
@@ -19,21 +30,19 @@ export function validateChildrenConfigs(
       continue;
     }
 
-    const { allow, min } = config.children;
-    if (config.content === "table") {
-      fail(type, "`children` is not supported on table blocks.");
-    }
+    // Typed loosely: a JS caller can put anything here.
+    const { allow = "blocks", min } = config.children as ChildrenConfig;
 
-    // Text blocks share an optional child group, so only pure containers
-    // can restrict their children's types or minimum count.
-    if (
-      config.content !== "none" &&
-      (allow !== "blocks" || min !== undefined)
-    ) {
-      fail(
-        type,
-        'blocks with inline or plain content support `children: { allow: "blocks" }` only. Child-type and minimum-count restrictions require a pure container.',
-      );
+    // The child blocks of a block that isn't a container share one untyped
+    // group, which can't enforce types or counts.
+    if (!isContainerConfig(config)) {
+      if (allow !== "blocks" || min !== undefined) {
+        fail(
+          type,
+          'restricting child types or a minimum count requires `container: true`. Other blocks can always have any child blocks (`{ allow: "blocks" }`).',
+        );
+      }
+      continue;
     }
 
     // Every regular block is the same node (`blockContainer`), so naming one

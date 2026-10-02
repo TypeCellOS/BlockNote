@@ -172,27 +172,37 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
       />
     );
   },
-  column: (block, _exporter, _nestingLevel, _numberedListIndex, children) => {
-    return <View style={{ flex: block.props.width }}>{children}</View>;
+  column: {
+    withChildren: (
+      block,
+      _exporter,
+      _nestingLevel,
+      _numberedListIndex,
+      children,
+    ) => {
+      return <View style={{ flex: block.props.width }}>{children}</View>;
+    },
   },
-  columnList: (
-    _block,
-    _exporter,
-    _nestingLevel,
-    _numberedListIndex,
-    children,
-  ) => {
-    return (
-      <View
-        style={{
-          display: "flex",
-          gap: 8 * PIXELS_PER_POINT,
-          flexDirection: "row",
-        }}
-      >
-        {children}
-      </View>
-    );
+  columnList: {
+    withChildren: (
+      _block,
+      _exporter,
+      _nestingLevel,
+      _numberedListIndex,
+      children,
+    ) => {
+      return (
+        <View
+          style={{
+            display: "flex",
+            gap: 8 * PIXELS_PER_POINT,
+            flexDirection: "row",
+          }}
+        >
+          {children}
+        </View>
+      );
+    },
   },
   audio: (block, exporter) => {
     return (

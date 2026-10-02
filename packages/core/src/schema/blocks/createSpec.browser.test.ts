@@ -32,7 +32,7 @@ const Card = createBlockSpec(
     type: "card" as const,
     propSchema: { tone: { default: "neutral" } },
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
   {
     render: renderDiv,
@@ -49,7 +49,7 @@ const Quote = createBlockSpec(
     type: "quote" as const,
     propSchema: {},
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
   {
     render: renderDiv,
@@ -133,7 +133,7 @@ describe("container `runsBefore`", () => {
         type,
         propSchema: {},
         content: "none",
-        children: { allow: "blocks" },
+        container: true,
       } as any,
       {
         render: renderDiv,

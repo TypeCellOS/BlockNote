@@ -34,7 +34,7 @@ const createBoxBlock = createReactBlockSpec(
     type: "box",
     propSchema: {},
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
   { render: (props) => <div ref={props.contentRef} /> },
 );

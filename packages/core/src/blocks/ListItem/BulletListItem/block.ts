@@ -6,7 +6,6 @@ import {
   defaultProps,
   parseDefaultProps,
 } from "../../defaultProps.js";
-import { handleEnter } from "../../utils/listItemEnterHandler.js";
 import { getListItemContent } from "../getListItemContent.js";
 
 export type BulletListItemBlockConfig = ReturnType<
@@ -27,6 +26,12 @@ export const createBulletListItemBlockConfig = createBlockConfig(
 export const createBulletListItemBlockSpec = createBlockSpec(
   createBulletListItemBlockConfig,
   {
+    // Enter continues the list, and Enter in an empty item ends it: the item
+    // turns into a paragraph.
+    keyboard: {
+      splitKeepsType: true,
+      emptyEnterResets: true,
+    },
     meta: {
       isolating: false,
     },
@@ -84,9 +89,6 @@ export const createBulletListItemBlockSpec = createBlockSpec(
     createExtension({
       key: "bullet-list-item-shortcuts",
       keyboardShortcuts: {
-        Enter: ({ editor }) => {
-          return handleEnter(editor, "bulletListItem");
-        },
         "Mod-Shift-8": ({ editor }) => {
           const cursorPosition = editor.getTextCursorPosition();
 

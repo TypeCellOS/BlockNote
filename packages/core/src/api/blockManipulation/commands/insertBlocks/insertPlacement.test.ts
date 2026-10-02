@@ -30,17 +30,19 @@ const schema = BlockNoteSchema.create().extend({
     // cannot reach inside it.
     box: container("box", {
       content: "none",
+      container: true,
       children: { allow: "blocks", min: 0 },
     }),
     // A container that only accepts other containers, so an insertion has to
     // descend a level to find a place for a regular block.
     grid: container("grid", {
       content: "none",
+      container: true,
       children: { allow: ["cell"], min: 2 },
     }),
     cell: container("cell", {
       content: "none",
-      children: { allow: "blocks" },
+      container: true,
       placeable: "namedOnly",
     }),
   } as const,

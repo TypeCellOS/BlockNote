@@ -10,9 +10,15 @@ const plainNote = createBlockSpec(
     type: "plainNote",
     propSchema: {},
     content: "plain",
-    children: { allow: "blocks" },
   },
   {
+    // A titled block: Enter in its text starts its body, and the body's
+    // blocks can't be outdented out of it.
+    keyboard: {
+      enter: "into-children",
+      childrenCanOutdent: false,
+      emptyChildEnter: "exit-at-end",
+    },
     render() {
       const dom = document.createElement("pre");
       return { dom, contentDOM: dom };
@@ -82,7 +88,7 @@ function text(editor: ReturnType<typeof editorWith>, id: string) {
     .join("");
 }
 
-describe("plain blocks with owned children", () => {
+describe("plain blocks whose Enter goes into their children", () => {
   it.each(["", "Source"])(
     "Enter starts the body and preserves children for %j",
     (content) => {
@@ -127,41 +133,18 @@ describe("plain blocks with owned children", () => {
     editor.prosemirrorState.doc.check();
   });
 
-  it.each(["Backspace", "Delete"] as const)(
-    "%s preserves child text when merging into plain content",
-    (key) => {
-      const editor = editorWith("Source", [
-        {
-          id: "body",
-          type: "paragraph",
-          content: [
-            { type: "text", text: "Bold", styles: { bold: true } },
-            "\nNext",
-          ],
-          children: [{ id: "nested", type: "paragraph", content: "Nested" }],
-        },
-      ]);
-      editor.setTextCursorPosition("note", "end");
-      const joinPosition = editor.prosemirrorState.selection.from;
-      editor.setTextCursorPosition(
-        key === "Backspace" ? "body" : "note",
-        key === "Backspace" ? "start" : "end",
-      );
-      press(editor, key);
-      expect(editor.prosemirrorState.selection.from).toBe(joinPosition);
-      expect(text(editor, "note")).toBe("SourceBold\nNext");
-      expect(editor.getBlock("note")!.content).toEqual([
-        { type: "text", text: "SourceBold\nNext", styles: {} },
-      ]);
-      expect(
-        editor.getBlock("note")!.children.map((block) => block.id),
-      ).toEqual(["nested"]);
-      expect(editor.getBlock("body")).toBeUndefined();
-      editor.prosemirrorState.doc.check();
-    },
-  );
+  it("Backspace in the block after merges it into the body's last block", () => {
+    const editor = editorWith();
+    editor.setTextCursorPosition("after", "start");
+    press(editor, "Backspace");
 
-  it("keeps owned children when Shift-Tab is pressed", () => {
+    // As after any block with children: the text is appended to the last
+    // block above it.
+    expect(text(editor, "body")).toBe("ExplanationAfter");
+    expect(editor.document.map((block) => block.id)).toEqual(["note"]);
+  });
+
+  it("keeps its children inside when Shift-Tab is pressed", () => {
     const editor = editorWith();
     editor.setTextCursorPosition("body", "start");
     press(editor, "Tab", true);

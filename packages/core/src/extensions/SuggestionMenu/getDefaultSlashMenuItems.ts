@@ -92,6 +92,21 @@ export function insertOrUpdateBlockForSlashMenu<
   return newBlock;
 }
 
+// A regular heading's props. With toggle headings in the schema, this sets
+// `isToggleable: false`, so that updating a toggle heading turns it into a
+// regular heading (BLO-959).
+function regularHeadingProps(
+  editor: BlockNoteEditor<any, any, any>,
+  level: number,
+) {
+  return editorHasBlockWithType(editor, "heading", {
+    level: "number",
+    isToggleable: "boolean",
+  })
+    ? { level, isToggleable: false }
+    : { level };
+}
+
 export function getDefaultSlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -107,7 +122,7 @@ export function getDefaultSlashMenuItems<
           onItemClick: () => {
             insertOrUpdateBlockForSlashMenu(editor, {
               type: "heading",
-              props: { level: level },
+              props: regularHeadingProps(editor, level),
             });
           },
           badge: formatKeyboardShortcut(`Mod-Alt-${level}`),
@@ -361,7 +376,7 @@ export function getDefaultSlashMenuItems<
           onItemClick: () => {
             insertOrUpdateBlockForSlashMenu(editor, {
               type: "heading",
-              props: { level: level },
+              props: regularHeadingProps(editor, level),
             });
           },
           badge: formatKeyboardShortcut(`Mod-Alt-${level}`),

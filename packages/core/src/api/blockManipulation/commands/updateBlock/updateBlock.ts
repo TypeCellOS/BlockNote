@@ -28,7 +28,10 @@ import {
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { getBlockSchema, getPmSchema } from "../../../pmUtil.js";
-import { createBlockGroup } from "../../../../schema/blocks/children.js";
+import {
+  createBlockGroup,
+  isContainerNode,
+} from "../../../../schema/blocks/children.js";
 
 // for compatibility with tiptap. TODO: remove as we want to remove dependency on tiptap command interface
 export const updateBlockCommand = <
@@ -128,7 +131,7 @@ export function updateBlockTr<
         targetConfig.content === "plain"
       ) {
         content = existingBlock.content;
-      } else if (targetConfig.children !== undefined) {
+      } else if (isContainerNode(newNodeType)) {
         children.unshift({ type: "paragraph", content: existingBlock.content });
       }
     }

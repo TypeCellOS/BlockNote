@@ -100,19 +100,10 @@ describe("Test mergeBlocks", () => {
     const originalDocument = getEditor().document;
     const ret = mergeBlocks(getPosBeforeSelectedBlock());
 
+    // The empty paragraph above has the same type and props, so the block
+    // moves up into its place, keeping its id (#550).
     expect(getEditor().document).toEqual(
-      originalDocument
-        .filter((block) => block.id !== "paragraph-8")
-        .map((block) =>
-          block.id === "empty-paragraph"
-            ? {
-                ...block,
-                content: originalDocument.find(
-                  (source) => source.id === "paragraph-8",
-                )!.content,
-              }
-            : block,
-        ),
+      originalDocument.filter((block) => block.id !== "empty-paragraph"),
     );
     expect(ret).toBe(true);
   });

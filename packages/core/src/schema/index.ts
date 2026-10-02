@@ -1,6 +1,7 @@
 export * from "./blocks/createSpec.js";
 export * from "./blocks/internal.js";
 export * from "./blocks/types.js";
+export type { BlockKeyboard, BlockKeyboardOption } from "./blocks/keyboard.js";
 export * from "./inlineContent/createSpec.js";
 export * from "./inlineContent/internal.js";
 export * from "./inlineContent/types.js";

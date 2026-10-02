@@ -7,16 +7,12 @@ export const CHILD_CONTAINER_GROUP = "childContainer";
 export const BLOCK_GROUP_CHILD_GROUP = "blockGroupChild";
 
 /**
- * Whether a block config declares a *container block*: one whose own node
- * holds its children. A block that has content of its own keeps its ordinary
- * shape, and its `children` declare owned children instead.
+ * Whether a block config declares a *container block* (`container: true`):
+ * one whose own node holds its children.
  * @internal
  */
-export function isContainerConfig(config: {
-  content: string;
-  children?: unknown;
-}): boolean {
-  return config.children !== undefined && config.content === "none";
+export function isContainerConfig(config: { container?: true }): boolean {
+  return config.container === true;
 }
 
 // Whether `type` is a node that holds child blocks directly: a container
@@ -25,18 +21,6 @@ export function isContainerConfig(config: {
 // blocks' nesting machinery), so the `bnBlock` check excludes it.
 export function isContainerNode(type: NodeType): boolean {
   return type.isInGroup(CHILD_CONTAINER_GROUP) && type.isInGroup("bnBlock");
-}
-
-/**
- * Whether `node` is a block whose children are owned children: a container
- * block, or a `blockContainer` whose content node declares `children`.
- */
-export function hasOwnedChildren(node: Node): boolean {
-  return (
-    isContainerNode(node.type) ||
-    (node.type.name === "blockContainer" &&
-      node.firstChild?.type.spec.blockConfig?.children !== undefined)
-  );
 }
 
 // Builds the `blockGroup` node that holds a block's children when converting
@@ -94,8 +78,10 @@ export function containerNodePriority(priority: number | undefined): number {
  * expression: which types may be its children (`allow`), followed by how few
  * of them it takes (`min`).
  */
-export function childrenContentExpression(children: ChildrenConfig): string {
-  const { allow, min = 1 } = children;
+export function childrenContentExpression(
+  children: ChildrenConfig = {},
+): string {
+  const { allow = "blocks", min = 1 } = children;
 
   let allowed: string;
   if (allow === "blocks") {

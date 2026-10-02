@@ -26,7 +26,7 @@ const createCallout = createReactBlockSpec(
     type: "callout",
     propSchema: { flavor: { default: "tip" } },
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
   {
     render: function Callout(props) {

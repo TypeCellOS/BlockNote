@@ -194,13 +194,24 @@ NESTED BLOCKS
   --prev-level: 0.8em;
 }
 
-.bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content {
+.bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content,
+.bn-block-outer[data-prev-type="heading"]
+  > .bn-block
+  > .bn-toggle-frame
+  > .bn-toggle-slot
+  > .bn-block-content {
   font-size: var(--prev-level);
   font-weight: bold;
 }
 
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="heading"],
+/* A toggle heading, inside its toggle frame. */
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > .bn-toggle-frame
+  > .bn-toggle-slot
   > .bn-block-content[data-content-type="heading"],
 .bn-block-outer:not([data-prev-type])
   > .bn-block
@@ -312,25 +323,6 @@ NESTED BLOCKS
 }
 
 /* Toggle */
-.bn-block:has(
-    > .bn-block-content > div > .bn-toggle-wrapper[data-show-children="false"]
-  )
-  > .bn-block-group,
-.bn-block:has(
-    > .react-renderer
-      > .bn-block-content
-      > div
-      > .bn-toggle-wrapper[data-show-children="false"]
-  )
-  > .bn-block-group {
-  display: none;
-}
-
-.bn-toggle-wrapper {
-  display: flex;
-  align-items: center;
-}
-
 .bn-toggle-button {
   color: var(--bn-colors-editor-text);
   padding: 3px;
@@ -341,8 +333,45 @@ NESTED BLOCKS
   height: 18px;
 }
 
-.bn-toggle-wrapper[data-show-children="true"] .bn-toggle-button {
+.bn-toggle-button[aria-expanded="true"] {
   transform: rotate(90deg);
+}
+
+/* The frame of the built-in toggle blocks (see `createToggleFrame`): the
+   chevron, then the block's content, and the children below, across both
+   columns. The slot is `display: contents`, so the content and the child
+   group BlockNote mounts in it are items of this grid. */
+.bn-toggle-frame {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.bn-toggle-slot {
+  display: contents;
+}
+
+.bn-toggle-slot > .bn-block-group,
+.bn-toggle-frame > .bn-toggle-add-block-button {
+  grid-column: 1 / -1;
+}
+
+.bn-toggle-frame:has(> .bn-toggle-button[aria-expanded="false"])
+  > .bn-toggle-slot
+  > .bn-block-group {
+  display: none;
+}
+
+/* A heading's top spacing goes on the frame, so the chevron stays centred on
+   the heading text. */
+.bn-toggle-frame:has(
+  > .bn-toggle-slot > .bn-block-content[data-content-type="heading"]
+) {
+  padding-top: 18px;
+}
+
+.bn-toggle-slot > .bn-block-content[data-content-type="heading"] {
+  padding-top: 0;
 }
 
 .bn-toggle-add-block-button {
@@ -875,112 +904,98 @@ NESTED BLOCKS
 }
 
 /* TEXT COLORS */
+/* A block's color also applies to its children: the block's element carries
+   its colors too (see `BlockContainer`), and they inherit or paint from there.
+   Its content can sit inside a frame at any depth, so no selector here walks
+   down to it. */
 [data-style-type="textColor"][data-value="gray"],
-[data-text-color="gray"],
-.bn-block:has(> .bn-block-content[data-text-color="gray"]) {
+[data-text-color="gray"] {
   color: #9b9a97;
 }
 
 [data-style-type="textColor"][data-value="brown"],
-[data-text-color="brown"],
-.bn-block:has(> .bn-block-content[data-text-color="brown"]) {
+[data-text-color="brown"] {
   color: #64473a;
 }
 
 [data-style-type="textColor"][data-value="red"],
-[data-text-color="red"],
-.bn-block:has(> .bn-block-content[data-text-color="red"]) {
+[data-text-color="red"] {
   color: #e03e3e;
 }
 
 [data-style-type="textColor"][data-value="orange"],
-[data-text-color="orange"],
-.bn-block:has(> .bn-block-content[data-text-color="orange"]) {
+[data-text-color="orange"] {
   color: #d9730d;
 }
 
 [data-style-type="textColor"][data-value="yellow"],
-[data-text-color="yellow"],
-.bn-block:has(> .bn-block-content[data-text-color="yellow"]) {
+[data-text-color="yellow"] {
   color: #dfab01;
 }
 
 [data-style-type="textColor"][data-value="green"],
-[data-text-color="green"],
-.bn-block:has(> .bn-block-content[data-text-color="green"]) {
+[data-text-color="green"] {
   color: #4d6461;
 }
 
 [data-style-type="textColor"][data-value="blue"],
-[data-text-color="blue"],
-.bn-block:has(> .bn-block-content[data-text-color="blue"]) {
+[data-text-color="blue"] {
   color: #0b6e99;
 }
 
 [data-style-type="textColor"][data-value="purple"],
-[data-text-color="purple"],
-.bn-block:has(> .bn-block-content[data-text-color="purple"]) {
+[data-text-color="purple"] {
   color: #6940a5;
 }
 
 [data-style-type="textColor"][data-value="pink"],
-[data-text-color="pink"],
-.bn-block:has(> .bn-block-content[data-text-color="pink"]) {
+[data-text-color="pink"] {
   color: #ad1a72;
 }
 
 /* BACKGROUND COLORS */
 [data-style-type="backgroundColor"][data-value="gray"],
-[data-background-color="gray"],
-.bn-block:has(> .bn-block-content[data-background-color="gray"]) {
+[data-background-color="gray"] {
   background-color: #ebeced;
 }
 
 [data-style-type="backgroundColor"][data-value="brown"],
-[data-background-color="brown"],
-.bn-block:has(> .bn-block-content[data-background-color="brown"]) {
+[data-background-color="brown"] {
   background-color: #e9e5e3;
 }
 
 [data-style-type="backgroundColor"][data-value="red"],
-[data-background-color="red"],
-.bn-block:has(> .bn-block-content[data-background-color="red"]) {
+[data-background-color="red"] {
   background-color: #fbe4e4;
 }
 
 [data-style-type="backgroundColor"][data-value="orange"],
-[data-background-color="orange"],
-.bn-block:has(> .bn-block-content[data-background-color="orange"]) {
+[data-background-color="orange"] {
   background-color: #f6e9d9;
 }
 
 [data-style-type="backgroundColor"][data-value="yellow"],
-[data-background-color="yellow"],
-.bn-block:has(> .bn-block-content[data-background-color="yellow"]) {
+[data-background-color="yellow"] {
   background-color: #fbf3db;
 }
 
 [data-style-type="backgroundColor"][data-value="green"],
-[data-background-color="green"],
-.bn-block:has(> .bn-block-content[data-background-color="green"]) {
+[data-background-color="green"] {
   background-color: #ddedea;
 }
 
 [data-style-type="backgroundColor"][data-value="blue"],
-[data-background-color="blue"],
-.bn-block:has(> .bn-block-content[data-background-color="blue"]) {
+[data-background-color="blue"] {
   background-color: #ddebf1;
 }
 
 [data-style-type="backgroundColor"][data-value="purple"],
-[data-background-color="purple"],
-.bn-block:has(> .bn-block-content[data-background-color="purple"]) {
+[data-background-color="purple"] {
   background-color: #eae4f2;
 }
 
 [data-style-type="backgroundColor"][data-value="pink"],
-[data-background-color="pink"],
-.bn-block:has(> .bn-block-content[data-background-color="pink"]) {
+[data-background-color="pink"] {
   background-color: #f4dfeb;
 }
 

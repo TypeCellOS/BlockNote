@@ -1,4 +1,4 @@
-import { Fragment, type Node } from "prosemirror-model";
+import { Fragment } from "prosemirror-model";
 import {
   EditorState,
   Selection,
@@ -16,35 +16,18 @@ import {
 
 type ContentBlockInfo = Extract<BlockInfo, { hasContent: true }>;
 
-/** Returns compatible text to append, or undefined when the blocks cannot merge. */
+/**
+ * Returns the content to append, or undefined when the blocks cannot merge.
+ * Only inline content merges, into inline content: a block with plain-text
+ * content (e.g. a code block) never takes merged text.
+ */
 export function getMergeContent(
   current: ContentBlockInfo,
   next: ContentBlockInfo,
 ): Fragment | undefined {
-  const inline =
-    current.contentKind === "inline" && next.contentKind === "inline";
-  const ownedText =
-    current.hasOwnedChildren &&
-    current.content.node.isTextblock &&
-    next.content.node.isTextblock;
-  if (!inline && !ownedText) {
-    return undefined;
-  }
-  if (current.contentKind === "plain") {
-    const type = current.content.node.type;
-    const children: Node[] = [];
-    next.content.node.forEach((child) => {
-      const text =
-        child.type === type.schema.linebreakReplacement
-          ? "\n"
-          : child.textContent;
-      if (text) {
-        children.push(type.schema.text(text, type.allowedMarks(child.marks)));
-      }
-    });
-    return Fragment.from(children);
-  }
-  return next.content.node.content;
+  return current.contentKind === "inline" && next.contentKind === "inline"
+    ? next.content.node.content
+    : undefined;
 }
 
 /** Merge a first child into its parent, promoting descendants into its place. */
@@ -100,9 +83,9 @@ function mergeIntoParent(
  * when the block is its first child.
  * @returns A tiptap command that returns `false` (leaving the doc untouched)
  * when the two blocks can't merge: no compatible text block above. The block
- * above may be empty: the text then takes its type and props, as in Notion.
- * An owning block can also merge plain text, dropping formatting that its
- * schema disallows.
+ * above may be empty. With the same type and props, the block moves up into
+ * its place. Otherwise the text takes the empty block's type and props (and
+ * id), as in Notion.
  */
 export const mergeBlocksCommand =
   (posBetweenBlocks: number) =>
@@ -139,9 +122,30 @@ export const mergeBlocksCommand =
     if (!prevBlockInfo.hasContent) {
       return false;
     }
-    const content = getMergeContent(prevBlockInfo, nextBlockInfo);
-    if (content === undefined) {
+    if (getMergeContent(prevBlockInfo, nextBlockInfo) === undefined) {
       return false;
+    }
+
+    // An empty block above with the same type and props adds nothing: the
+    // block moves up into its place, keeping its id and children (#550).
+    if (
+      prevBlockInfo.isContentEmpty &&
+      prevBlockInfo.content.node.sameMarkup(nextBlockInfo.content.node)
+    ) {
+      if (dispatch) {
+        const tr = state.tr
+          .delete(nextBlockInfo.block.beforePos, nextBlockInfo.block.afterPos)
+          .replaceWith(
+            prevBlockInfo.block.beforePos,
+            prevBlockInfo.block.afterPos,
+            nextBlockInfo.block.node,
+          );
+        tr.setSelection(
+          TextSelection.create(tr.doc, prevBlockInfo.contentStart),
+        );
+        dispatch(tr.scrollIntoView());
+      }
+      return true;
     }
 
     // Lift children before removing their parent. Tiptap's chainable state
@@ -166,21 +170,13 @@ export const mergeBlocksCommand =
       );
     }
 
+    // Deletes the boundary between the two blocks. Can be thought of as
+    // removing the closing tags of the first block and the opening tags of the
+    // second one to stitch them together.
     if (dispatch) {
-      if (content !== nextBlockInfo.content.node.content) {
-        state.tr
-          .replaceWith(
-            prevBlockInfo.contentEnd,
-            nextBlockInfo.contentEnd,
-            content,
-          )
-          .setSelection(
-            TextSelection.create(state.tr.doc, prevBlockInfo.contentEnd),
-          );
-      } else {
-        state.tr.delete(prevBlockInfo.contentEnd, nextBlockInfo.contentStart);
-      }
-      dispatch(state.tr);
+      dispatch(
+        state.tr.delete(prevBlockInfo.contentEnd, nextBlockInfo.contentStart),
+      );
     }
 
     return true;

@@ -32,8 +32,7 @@ export function isEmptyContainerChild(node: Node): boolean {
     // and no fill happened on the way. A `min: 0` container in this state is
     // valid and stays; any other is broken structure.
     if (node.childCount === 0) {
-      const children = node.type.spec.blockConfig?.children;
-      return !!children && (children.min ?? 1) >= 1;
+      return (node.type.spec.blockConfig?.children?.min ?? 1) >= 1;
     }
     return false;
   }
@@ -67,8 +66,7 @@ export function fixContainer(tr: Transaction, containerPos: number) {
     return;
   }
 
-  const childrenConfig = container.type.spec.blockConfig?.children;
-  const min = childrenConfig ? (childrenConfig.min ?? 1) : 1;
+  const min = container.type.spec.blockConfig?.children?.min ?? 1;
   const survivors: { node: Node; offset: number }[] = [];
   const emptied: { from: number; to: number }[] = [];
   container.forEach((child, offset) => {

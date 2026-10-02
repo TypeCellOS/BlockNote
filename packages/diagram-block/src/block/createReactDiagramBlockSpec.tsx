@@ -39,7 +39,10 @@ export const createReactDiagramBlockSpec = createReactBlockSpec(
       // upstream, highlighting should start working with no change here.
       highlight: () => "mermaid",
       hasPreview: true,
-      hardBreakShortcut: "enter",
+    },
+    // Multi-line source: Enter inserts a line break.
+    keyboard: {
+      enter: "line-break",
     },
     parse: parseDiagramCodeElement,
     parseContent: parseDiagramCodeContent,
