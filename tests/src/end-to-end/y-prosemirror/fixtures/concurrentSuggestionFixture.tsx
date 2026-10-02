@@ -45,6 +45,7 @@ import { Awareness } from "@y/protocols/awareness";
 import * as Y from "@y/y";
 import { render } from "vitest-browser-react";
 import { page } from "../../../utils/context.js";
+import { mouseSequence } from "../../../utils/mouse.js";
 
 export interface ConcurrentSuggestionUser {
   editor: GalleryEditor;
@@ -238,6 +239,10 @@ export async function setupConcurrentSuggestionTest({
   // Four columns at 1fr each need a wider viewport so the rightmost
   // column doesn't clip BlockNote content.
   await page.viewport(1800, 800);
+
+  // The browser reuses its pointer position between tests. Park it outside
+  // the editors before mounting so suggestion marks cannot inherit a hover.
+  await mouseSequence([{ type: "move", x: 0, y: 0 }]);
 
   await render(<Editors />);
 
