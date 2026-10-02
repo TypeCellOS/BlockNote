@@ -8,7 +8,7 @@
     "jsx": "react-jsx",
     "types": ["node"],
     "strict": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "noEmit": false,

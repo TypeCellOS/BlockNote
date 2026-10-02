@@ -13,7 +13,23 @@
   "files": [
     "dist",
     "types",
-    "src"
+    "src",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
   ],
   "keywords": [
     "react",
@@ -32,13 +48,12 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-code-block.cjs",
+  "main": "./dist/blocknote-code-block.js",
   "module": "./dist/blocknote-code-block.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-code-block.js",
-      "require": "./dist/blocknote-code-block.cjs"
+      "import": "./dist/blocknote-code-block.js"
     }
   },
   "scripts": {

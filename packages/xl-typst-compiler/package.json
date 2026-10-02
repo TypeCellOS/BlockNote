@@ -23,7 +23,23 @@
     "rust/Cargo.lock",
     "rust/rust-toolchain.toml",
     "README.md",
-    "scripts"
+    "scripts",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
   ],
   "keywords": [
     "typst",
@@ -37,13 +53,12 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-xl-typst-compiler.cjs",
+  "main": "./dist/blocknote-xl-typst-compiler.js",
   "module": "./dist/blocknote-xl-typst-compiler.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-xl-typst-compiler.js",
-      "require": "./dist/blocknote-xl-typst-compiler.cjs"
+      "import": "./dist/blocknote-xl-typst-compiler.js"
     },
     "./pkg": {
       "types": "./pkg/blocknote_typst_wasm.d.ts",

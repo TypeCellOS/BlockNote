@@ -71,7 +71,7 @@ export default defineConfig(
       },
       build: {
         // assetsInclude: ["**/*.woff", "**/*.woff2", "**/*.ttf", "**/*.otf"], // Add other font extensions if needed
-        sourcemap: true,
+        sourcemap: false,
         lib: {
           entry: {
             "blocknote-xl-pdf-exporter": path.resolve(
@@ -81,9 +81,8 @@ export default defineConfig(
             "react-pdf": path.resolve(__dirname, "src/react-pdf/index.ts"),
           },
           name: "blocknote-xl-pdf-exporter",
-          formats: ["es", "cjs"],
-          fileName: (format, entryName) =>
-            format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
+          formats: ["es"],
+          fileName: (_format, entryName) => `${entryName}.js`,
         },
         rollupOptions: {
           // make sure to externalize deps that shouldn't be bundled
@@ -107,11 +106,6 @@ export default defineConfig(
               source.startsWith("@shikijs/") ||
               source.startsWith("node:")
             );
-          },
-          output: {
-            // Provide global variables to use in the UMD build
-            // for externalized deps
-            globals: {},
           },
         },
       },

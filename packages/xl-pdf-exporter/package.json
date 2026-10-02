@@ -13,7 +13,23 @@
   "files": [
     "dist",
     "types",
-    "src"
+    "src",
+    "!**/*.cjs",
+    "!**/*.map",
+    "!**/*.test.*",
+    "!**/*.spec.*",
+    "!**/*.snap",
+    "!**/__test__/**",
+    "!**/__tests__/**",
+    "!**/tests/**",
+    "!**/__snapshots__/**",
+    "!**/__msw_snapshots__/**",
+    "!**/fixtures/**",
+    "!**/testUtil/**",
+    "!**/testUtils/**",
+    "!**/test-utils/**",
+    "!**/*.tsbuildinfo",
+    "!dist/webpack-stats.json"
   ],
   "keywords": [
     "pdf",
@@ -31,18 +47,16 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-xl-pdf-exporter.cjs",
+  "main": "./dist/blocknote-xl-pdf-exporter.js",
   "module": "./dist/blocknote-xl-pdf-exporter.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-xl-pdf-exporter.js",
-      "require": "./dist/blocknote-xl-pdf-exporter.cjs"
+      "import": "./dist/blocknote-xl-pdf-exporter.js"
     },
     "./react-pdf": {
       "types": "./types/src/react-pdf/index.d.ts",
-      "import": "./dist/react-pdf.js",
-      "require": "./dist/react-pdf.cjs"
+      "import": "./dist/react-pdf.js"
     }
   },
   "scripts": {
