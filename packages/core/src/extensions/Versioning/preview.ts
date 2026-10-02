@@ -1,5 +1,6 @@
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { Store } from "../../util/Store.js";
+import { HistoryExtension } from "../History/History.js";
 import {
   scheduleScrollToFirstChange,
   scrollToFirstChange,
@@ -87,6 +88,19 @@ export function createPreviewSession({
   // throws mid-render still owns the screen until `exitPreview`.
   let renderedView: VersioningView = { mode: "live" };
   const loadingIndicator = createLoadingIndicator(editor);
+  let restoreHistory: () => void = () => {};
+
+  function detachHistory(): void {
+    if (editor.headless || !editor.getExtension(HistoryExtension)) {
+      restoreHistory = () => {};
+      return;
+    }
+    editor.unregisterExtension(HistoryExtension);
+    restoreHistory = () => {
+      editor.registerExtension(HistoryExtension());
+      restoreHistory = () => {};
+    };
+  }
 
   function setLoading(view: VersioningPreviewView | undefined) {
     loadingIndicator.setLoading(view !== undefined);
@@ -114,6 +128,10 @@ export function createPreviewSession({
       // A restore is replacing the document: don't draw a preview over it.
       if (request !== latestPreview || store.state.restoring) {
         return;
+      }
+      // ignore changes into pm-history
+      if (renderedView.mode === "live") {
+        detachHistory();
       }
       renderedView = view;
       preview.enterPreview(content, compareToContent, attributions, {
@@ -202,8 +220,9 @@ export function createPreviewSession({
       // Only leave what was rendered; a still-fetching preview never touched
       // the document.
       if (renderedView.mode !== "live") {
-        renderedView = { mode: "live" };
         preview.exitPreview();
+        restoreHistory();
+        renderedView = { mode: "live" };
       }
     },
     scrollToFirstChange: () => scrollToFirstChange(editor.domElement),

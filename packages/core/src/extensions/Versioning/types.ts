@@ -189,6 +189,9 @@ export interface PreviewController<Output = any, Attributions = any> {
   /**
    * Render fetched content synchronously so superseded requests cannot render
    * after exit. Put asynchronous work in the endpoints.
+   * The extension unregisters local undo history during preview and registers
+   * fresh history after restoring the live document, clearing undo/redo stacks.
+   * Collaborative controllers must isolate their own undo manager.
    */
   enterPreview: (
     /** Content to preview ({@link Output}). */
@@ -200,7 +203,7 @@ export interface PreviewController<Output = any, Attributions = any> {
     /** Preview metadata for labels, separate from content and authorship. */
     context?: { target: PreviewTarget; compareTo?: VersionSnapshot },
   ) => undefined;
-  /** Exit preview mode and resume normal editing. */
+  /** Restore the live document without preview changes, then resume editing. */
   exitPreview: () => void;
   /** Apply the restore endpoint's content after exiting preview. Omit if unsupported. */
   applyRestore?: (snapshotContent: Output) => void;

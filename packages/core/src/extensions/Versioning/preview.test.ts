@@ -62,6 +62,7 @@ function makeSession(opts?: {
   const classList = { add: vi.fn(), remove: vi.fn() };
   const editor = {
     domElement: { classList },
+    headless: true,
   } as unknown as BlockNoteEditor<any, any, any>;
   const getContent = vi.fn<VersioningEndpoints["getContent"]>();
   const getAttributions =
