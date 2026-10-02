@@ -1,3 +1,7 @@
+import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
+import { createRef } from "react";
 import TestingApp from "@examples/01-basic/testing/src/App";
 import PdfFileApp from "@examples/06-custom-schema/04-pdf-file-block/src/App";
 import { describe, expect, test } from "vite-plus/test";
@@ -146,6 +150,67 @@ describe("Check Block Dragging Functionality", () => {
       await dragAndDropBlock(PDF_SELECTOR, firstParagraph, false);
 
       await compareDocToSnapshot("dragPdf");
+    },
+  );
+
+  test.skipIf(browserName === "firefox")(
+    "keeps the dropped block visible when the previous selection is offscreen",
+    async () => {
+      const editor = BlockNoteEditor.create({
+        initialContent: Array.from({ length: 70 }, (_, index) => ({
+          id: `paragraph-${index}`,
+          type: "paragraph",
+          content: `Paragraph ${index}`,
+        })),
+      });
+      const scrollRef = createRef<HTMLDivElement>();
+      await render(
+        <div
+          ref={scrollRef}
+          style={{ height: 300, width: 600, overflowY: "auto" }}
+        >
+          <BlockNoteView editor={editor} />
+        </div>,
+      );
+      const scroller = scrollRef.current!;
+      const selectedBlock = await waitForSelector('[data-id="paragraph-0"]');
+      const source = await waitForSelector('[data-id="paragraph-60"]');
+      const destination = await waitForSelector('[data-id="paragraph-62"]');
+      editor.setTextCursorPosition("paragraph-0", "start");
+      editor.focus();
+
+      // Keep the native selection near the start while scrolling to later blocks.
+      // Refocusing on drop must not scroll back to that old selection.
+      scroller.scrollTop +=
+        source.getBoundingClientRect().top -
+        scroller.getBoundingClientRect().top -
+        80;
+      expect(selectedBlock.getBoundingClientRect().bottom).toBeLessThan(
+        scroller.getBoundingClientRect().top,
+      );
+      expect(editor.getTextCursorPosition().block.id).toBe("paragraph-0");
+
+      await dragAndDropBlock(source, destination, false);
+
+      await expect
+        .poll(() => {
+          const ids = editor.document.map((block) => block.id);
+          return ids[ids.indexOf("paragraph-62") + 1];
+        })
+        .toBe("paragraph-60");
+      await expect
+        .poll(() => {
+          const moved = scroller.querySelector('[data-id="paragraph-60"]');
+          if (!moved) {
+            return false;
+          }
+          const blockRect = moved.getBoundingClientRect();
+          const viewport = scroller.getBoundingClientRect();
+          return (
+            blockRect.top >= viewport.top && blockRect.bottom <= viewport.bottom
+          );
+        })
+        .toBe(true);
     },
   );
 });
