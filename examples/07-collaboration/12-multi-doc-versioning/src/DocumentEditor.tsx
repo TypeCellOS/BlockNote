@@ -12,7 +12,7 @@ import {
   useExtension,
   useExtensionState,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
+import { BlockNoteView, type Theme } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as Y from "@y/y";
@@ -23,6 +23,20 @@ import { resolveUsers } from "./userdata.js";
 import { YHUB_API_URL, YHUB_WS_URL } from "./yhub.js";
 
 import { HistorySidebar } from "./HistorySidebar.js";
+
+const documentTheme: Theme = {
+  colors: {
+    editor: { text: "var(--text)", background: "var(--bg)" },
+    menu: { text: "var(--text)", background: "var(--bg-elevated)" },
+    tooltip: { text: "var(--text)", background: "var(--bg-inset)" },
+    hovered: { text: "var(--text)", background: "var(--bg-hover)" },
+    selected: { text: "var(--text)", background: "var(--bg-active)" },
+    disabled: { text: "var(--text-subtle)", background: "var(--bg-inset)" },
+    shadow: "var(--border-strong)",
+    border: "var(--border)",
+    sideMenu: "var(--text-muted)",
+  },
+};
 
 /**
  * DocumentEditor mounts one collaborative editor at a time, keyed by docId.
@@ -251,7 +265,7 @@ export function DocumentEditor({
   return (
     // No `editable` prop: the versioning sidebar owns editability while it's
     // open, and restores it on close.
-    <BlockNoteView editor={editor} renderEditor={false}>
+    <BlockNoteView editor={editor} theme={documentTheme} renderEditor={false}>
       <div
         className={
           "doc-workspace" + (showSidebar ? "" : " doc-workspace-no-sidebar")
