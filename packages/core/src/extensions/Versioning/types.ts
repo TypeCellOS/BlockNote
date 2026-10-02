@@ -2,7 +2,7 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { User, UserStoreOrResolver } from "../../user/index.js";
 
 /** Metadata for a point in document history, managed by {@link VersioningEndpoints}. */
-export interface VersionSnapshot {
+export interface VersionSnapshot<Metadata = unknown> {
   /** Backend-defined identifier (e.g. a YHub server timestamp or an in-memory id). */
   id: string;
 
@@ -35,8 +35,19 @@ export interface VersionSnapshot {
     createdAt: number;
   };
 
-  /** Application metadata for custom actions; BlockNote does not interpret it. */
-  metadata?: Record<string, unknown>;
+  /** Application-defined version data; never merged with edit attribution data. */
+  metadata?: Metadata | null;
+
+  /** Custom attribution pairs belonging to edits, not to the named version. */
+  customAttributions?: Record<string, string>;
+}
+
+/** Options for saving the current version. Metadata must be backend-serializable. */
+export interface VersionCreateOptions<Metadata = unknown> {
+  /** The name to give the current version. */
+  name?: string;
+  /** Omit to preserve existing data; provide to replace it, or null to clear it. */
+  metadata?: Metadata | null;
 }
 
 /** A version id or an object carrying it. */
@@ -68,18 +79,21 @@ export type VersioningLoadingState =
   | { type: "loading-preview"; view: VersioningPreviewView };
 
 /** Unknown until the first listing; once loaded, always contains a current row. */
-export type VersioningList =
+export type VersioningList<Metadata = unknown> =
   | { loaded: false }
   | {
       loaded: true;
       /** The live document's row — always the top row of the sidebar. */
-      current: VersionSnapshot;
+      current: VersionSnapshot<Metadata>;
       /** Stored versions, newest first. Never contains {@link current}. */
-      snapshots: VersionSnapshot[];
+      snapshots: VersionSnapshot<Metadata>[];
     };
 
 /** The {@link VersioningList} once {@link VersioningExtension.list} has run. */
-export type LoadedVersioningList = Extract<VersioningList, { loaded: true }>;
+export type LoadedVersioningList<Metadata = unknown> = Extract<
+  VersioningList<Metadata>,
+  { loaded: true }
+>;
 
 /** The {@link VersioningExtension}'s store state. */
 export type VersioningState = {
@@ -98,32 +112,32 @@ export type VersioningState = {
  * @typeParam Input - Live document handle supplied by `getCurrentDocument`.
  * @typeParam Output - Serialized content fetched/restored and passed to the controller.
  * @typeParam Attributions - Diff authorship data passed to the controller.
+ * @typeParam Metadata - Application-defined data stored with each version.
  */
 export interface VersioningEndpoints<
   Input = any,
   Output = any,
   Attributions = any,
+  Metadata = unknown,
 > {
   /**
    * Current metadata and stored versions (excluding current). The extension
    * sorts stored versions newest-first.
    */
   list: () => Promise<{
-    current: VersionSnapshot;
-    snapshots: VersionSnapshot[];
+    current: VersionSnapshot<Metadata>;
+    snapshots: VersionSnapshot<Metadata>[];
   }>;
   /**
-   * Name the current version: capture content for snapshot backends, or label
-   * the newest edit for continuous-history backends. Omit to disable naming.
+   * Save the current version's name and metadata: capture content for snapshot
+   * backends, or label the newest edit for continuous-history backends.
+   * Omit to disable saving.
    */
   create?: (
     /** Live document, from {@link VersioningExtensionOptions.getCurrentDocument}. */
     content: Input,
-    options: {
-      /** The name to give the current version. */
-      name?: string;
-    },
-  ) => Promise<VersionSnapshot>;
+    options: VersionCreateOptions<Metadata>,
+  ) => Promise<VersionSnapshot<Metadata>>;
   /**
    * Restore a version and return content for {@link PreviewController.applyRestore}.
    * Omit to disable restore.
@@ -160,9 +174,10 @@ export type VersioningEndpointsFactory<
   Input = any,
   Output = any,
   Attributions = any,
+  Metadata = unknown,
 > = (
   editor: BlockNoteEditor<any, any, any>,
-) => VersioningEndpoints<Input, Output, Attributions>;
+) => VersioningEndpoints<Input, Output, Attributions, Metadata>;
 
 /**
  * Renders content fetched by {@link VersioningEndpoints}.
@@ -193,7 +208,7 @@ export interface PreviewController<Output = any, Attributions = any> {
 
 /**
  * Bridges live editor data to version storage and rendering.
- * Type parameters match {@link VersioningEndpoints}.
+ * Type parameters describe the document content and attribution data.
  */
 export type VersioningExtensionOptions<
   Input = any,

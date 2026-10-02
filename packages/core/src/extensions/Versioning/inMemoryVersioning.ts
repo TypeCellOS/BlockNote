@@ -9,6 +9,7 @@ import type {
   VersioningEndpoints,
   VersioningExtensionOptions,
   VersionSnapshot,
+  VersionCreateOptions,
 } from "./Versioning.js";
 
 /** Reserved current-row id; stored versions use numeric ids. */
@@ -127,26 +128,41 @@ export function createInMemoryPreviewController(
  * A version to start an in-memory store with
  * (see {@link InMemoryVersioningOptions.initialVersions}).
  */
-export type InMemoryVersion = {
+export type InMemoryVersion<Metadata = unknown> = {
   /** The version's name. Leave unset for an automatic (unnamed) version. */
   name?: string;
   /** When the version was created (unix ms). */
   createdAt: number;
   /** The document as of this version. */
   content: Block<any, any, any>[];
+  /** Application-defined data stored with the version. */
+  metadata?: Metadata | null;
 };
 
-export type InMemoryVersioningOptions = {
+export type InMemoryVersioningOptions<Metadata = unknown> = {
   /** Preloaded history. New versions always sort above these, even with future dates. */
-  initialVersions?: InMemoryVersion[];
+  initialVersions?: InMemoryVersion<Metadata>[];
 };
 
 /** In-memory snapshot storage using BlockNote document JSON (`Block[]`). */
-export function createInMemoryVersioningEndpoints(
-  options: InMemoryVersioningOptions = {},
+export function createInMemoryVersioningEndpoints<Metadata = unknown>(
+  options: InMemoryVersioningOptions<Metadata> = {},
   versioningDictionary: Dictionary["versioning"] = en.versioning,
-): VersioningEndpoints<Block<any, any, any>[], Block<any, any, any>[]> {
-  const snapshots: VersionSnapshot[] = [];
+): VersioningEndpoints<
+  Block<any, any, any>[],
+  Block<any, any, any>[],
+  unknown,
+  Metadata
+> {
+  return createInMemoryVersionStore(options, versioningDictionary).endpoints;
+}
+
+/** Keep all mutations inside the store; public snapshots are detached copies. */
+function createInMemoryVersionStore<Metadata>(
+  options: InMemoryVersioningOptions<Metadata> | undefined,
+  versioningDictionary: Dictionary["versioning"],
+) {
+  const snapshots: VersionSnapshot<Metadata>[] = [];
   const contents = new Map<string, Block<any, any, any>[]>();
   let nextId = 1;
   // Set by `restore`, so the current row can show "Restored from <date>" until
@@ -163,44 +179,72 @@ export function createInMemoryVersioningEndpoints(
     return lastTimestamp;
   }
 
-  for (const version of options.initialVersions ?? []) {
+  for (const version of options?.initialVersions ?? []) {
     const id = String(nextId++);
-    snapshots.push({ id, name: version.name, createdAt: version.createdAt });
+    snapshots.push({
+      id,
+      name: version.name,
+      createdAt: version.createdAt,
+      metadata: structuredClone(version.metadata),
+    });
     contents.set(id, structuredClone(version.content));
     // Whatever is created from here on must sort above the loaded history,
     // even when that history carries timestamps from the future.
     lastTimestamp = Math.max(lastTimestamp, version.createdAt);
   }
 
-  return {
+  function updateCheckpoint(
+    id: string,
+    options: VersionCreateOptions<Metadata>,
+  ) {
+    const stored = snapshots.find((snapshot) => snapshot.id === id);
+    if (!stored) {
+      return undefined;
+    }
+    if (options.name !== undefined) {
+      stored.name = options.name;
+    }
+    if (options.metadata !== undefined) {
+      stored.metadata = structuredClone(options.metadata);
+    }
+    return structuredClone(stored);
+  }
+
+  const endpoints: VersioningEndpoints<
+    Block<any, any, any>[],
+    Block<any, any, any>[],
+    unknown,
+    Metadata
+  > = {
     async list() {
       // The current row is the live document. It has no stored content (it *is*
       // the editor's content), so it only carries display metadata; the adapter
       // overrides `createdAt` with the real last-edit time it tracks.
-      return {
+      return structuredClone({
         current: {
           id: IN_MEMORY_CURRENT_VERSION_ID,
           createdAt: nextTimestamp(),
           restoredFrom: currentRestoredFrom,
         },
         snapshots: [...snapshots].sort((a, b) => b.createdAt - a.createdAt),
-      };
+      });
     },
 
     async create(currentDoc, options) {
       const now = nextTimestamp();
       const id = String(nextId++);
-      const snapshot: VersionSnapshot = {
+      const snapshot: VersionSnapshot<Metadata> = {
         id,
         name: options.name,
         createdAt: now,
+        metadata: structuredClone(options.metadata),
       };
       snapshots.push(snapshot);
       contents.set(id, structuredClone(currentDoc));
       // The named version now covers everything up to now, so the current row
       // starts fresh.
       currentRestoredFrom = undefined;
-      return snapshot;
+      return structuredClone(snapshot);
     },
 
     async restore(currentDoc, snapshot) {
@@ -251,6 +295,7 @@ export function createInMemoryVersioningEndpoints(
       contents.delete(snapshot.id);
     },
   };
+  return { endpoints, updateCheckpoint };
 }
 
 // ---------------------------------------------------------------------------
@@ -281,8 +326,12 @@ export function createInMemoryVersioningEndpoints(
 export function createInMemoryVersioningAdapter(
   editor: BlockNoteEditor<any, any, any>,
   options?: InMemoryVersioningOptions,
-): VersioningExtensionOptions<Block<any, any, any>[], Block<any, any, any>[]> {
-  const endpoints = createInMemoryVersioningEndpoints(
+): VersioningExtensionOptions<
+  Block<any, any, any>[],
+  Block<any, any, any>[],
+  unknown
+> {
+  const { endpoints, updateCheckpoint } = createInMemoryVersionStore(
     options,
     editor.dictionary.versioning,
   );
@@ -331,18 +380,14 @@ export function createInMemoryVersioningAdapter(
         };
       },
       async create(currentDoc, options) {
-        // An explicit second name before an edit renames the same checkpoint.
+        // Saving a name or metadata before an edit updates the same checkpoint.
         const activeCheckpoint = currentCheckpoint;
         if (
-          options.name !== undefined &&
+          (options.name !== undefined || options.metadata !== undefined) &&
           activeCheckpoint?.revision === editRevision
         ) {
-          const { snapshots } = await endpoints.list();
-          const checkpoint = snapshots.find(
-            (s) => s.id === activeCheckpoint.id,
-          );
+          const checkpoint = updateCheckpoint(activeCheckpoint.id, options);
           if (checkpoint) {
-            await endpoints.rename!(checkpoint, options.name);
             return checkpoint;
           }
         }

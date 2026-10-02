@@ -6,43 +6,30 @@
   height: calc(100vh - 20px);
 }
 
-.wrapper > .bn-container {
-  margin: 0;
-  max-width: none;
-  padding: 0;
-}
-
 .layout {
   display: flex;
   gap: 0;
   height: calc(100vh - 20px);
 }
 
-.editor-panel {
+.layout > .bn-container {
   flex: 1;
-  height: calc(100vh - 20px);
-  min-width: 0;
-  overflow: auto;
-  position: relative;
-}
-
-.editor-panel .bn-container {
   height: calc(100vh - 20px);
   margin: 0;
   max-width: none;
+  min-width: 0;
+  overflow: auto;
   padding: 0;
+  position: relative;
 }
 
-.editor-panel .bn-editor {
+.layout > .bn-container .bn-editor {
   height: calc(100vh - 20px);
   overflow: auto;
 }
 
 /* The history panel sits flush against the editor with a subtle divider. */
 .sidebar-section {
-  background-color: #f4f4f4;
-  border-left: 1px solid #e5e5e5;
-  box-shadow: -6px 0 16px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   height: calc(100vh - 20px);
@@ -50,10 +37,19 @@
   width: 350px;
 }
 
-.sidebar-section > div {
+/* BlockNotePortal creates a themed root *inside* the application-owned slot.
+   Theme variables live on that root, not on its parent. */
+.sidebar-section > .bn-root {
+  background-color: var(--bn-colors-editor-background);
+  border-left: 1px solid var(--bn-colors-border);
+  box-shadow: -6px 0 16px rgba(0, 0, 0, 0.05);
   display: flex;
   flex: 1;
   min-height: 0;
+}
+
+.sidebar-section > .bn-root.dark {
+  box-shadow: -6px 0 16px rgba(0, 0, 0, 0.3);
 }
 
 .show-history-button {

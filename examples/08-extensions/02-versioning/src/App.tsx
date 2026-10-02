@@ -59,11 +59,7 @@ export default function App() {
     <div className="wrapper layout">
       {/* No `editable` prop: the sidebar makes the editor read-only for as
           long as it's open, and restores it on close. */}
-      <BlockNoteView
-        editor={editor}
-        renderEditor={false}
-        className="editor-panel"
-      >
+      <BlockNoteView editor={editor} renderEditor={false}>
         <BlockNoteViewEditor />
         {!showSidebar && (
           <button

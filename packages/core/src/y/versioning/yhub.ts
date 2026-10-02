@@ -5,9 +5,7 @@ import {
   type VersioningEndpoints,
   type VersionSnapshot,
 } from "../../extensions/Versioning/index.js";
-import { YSyncExtension } from "../extensions/YSync.js";
 import { collectFragmentIds } from "../utils.js";
-import { YHubVersionStore } from "./YHubVersionStore.js";
 import {
   YHubClient,
   type YHubActivityEntry,
@@ -18,7 +16,8 @@ import {
 /**
  * Options for creating a YHub versioning endpoints instance.
  * Restoration requires full-history read access (`GET /ydoc?gc=false`) and
- * rollback permission. Naming uses the latest activity returned by YHub; it
+ * rollback permission. Naming requires YHub history.version access and uses
+ * the latest activity returned by YHub; it
  * does not flush pending collaboration updates or bypass YHub's response cache.
  */
 export interface YHubVersioningOptions extends YHubClientOptions {
@@ -33,28 +32,44 @@ const ACTIVITY_PARAM_DEFAULTS: YHubQueryParams = {
   groupMaxDuration: 12 * 60 * 60 * 1000, // Cap a version at twelve hours.
   // Group a session across authors; YHub's default keeps each author separate.
   groupByUser: false,
-  // Include custom attribution pairs as version metadata.
+  // Include edit attribution pairs separately from native version custom data.
   customAttributions: true,
+  versions: true,
 };
 
-/** Merge two metadata records, dropping the result when it's empty. */
-function mergeMetadata(
-  ...records: Array<Record<string, unknown> | undefined>
-): Record<string, unknown> | undefined {
-  const merged = Object.assign({}, ...records) as Record<string, unknown>;
+/** Merge edit attribution pairs, dropping the result when it's empty. */
+function mergeCustomAttributions(
+  ...records: Array<Record<string, string> | undefined>
+): Record<string, string> | undefined {
+  const merged: Record<string, string> = Object.assign({}, ...records);
   return Object.keys(merged).length > 0 ? merged : undefined;
 }
 
 // YHub always produces an array of author IDs.
-type YHubSnapshot = Omit<VersionSnapshot, "by"> & { by?: string[] };
+type YHubSnapshot<Metadata> = Omit<VersionSnapshot<Metadata>, "by"> & {
+  by?: string[];
+};
 
 /** An activity window is identified by its end timestamp. */
-function activityToSnapshot(entry: YHubActivityEntry): YHubSnapshot {
+function activityToSnapshot<Metadata>(
+  entry: YHubActivityEntry<Metadata>,
+): YHubSnapshot<Metadata> {
+  const custom = entry.version?.custom;
+  const restoredFrom =
+    custom !== null && typeof custom === "object" && "restoredFrom" in custom
+      ? custom.restoredFrom
+      : undefined;
   return {
     id: String(entry.to),
     createdAt: entry.to,
     by: entry.by.length ? entry.by : undefined,
-    metadata: mergeMetadata(entry.customAttributions),
+    name: entry.version?.name || undefined,
+    restoredFrom:
+      typeof restoredFrom === "number" && Number.isFinite(restoredFrom)
+        ? { id: String(restoredFrom), createdAt: restoredFrom }
+        : undefined,
+    metadata: custom,
+    customAttributions: mergeCustomAttributions(entry.customAttributions),
   };
 }
 
@@ -69,28 +84,23 @@ function timestampId(snapshot: VersionSnapshot): number {
 }
 
 /**
- * Adapts YHub's activity timeline to versions. The newest activity is current;
- * names and restore labels are stored separately in the collaboration document.
+ * Adapts YHub's activity timeline (including native named versions) to versions.
+ * The newest activity is current; version metadata lives in YHub, not the doc.
  */
-export function createYHubVersioningEndpoints(
+export function createYHubVersioningEndpoints<Metadata = unknown>(
   options: YHubVersioningOptions,
-): VersioningEndpointsFactory<Y.Node, Uint8Array, Y.ContentMap> {
-  const client = new YHubClient(options);
+): VersioningEndpointsFactory<Y.Node, Uint8Array, Y.ContentMap, Metadata> {
+  const client = new YHubClient<Metadata>(options);
 
   return (editor) => {
-    const versions = new YHubVersionStore(
-      () =>
-        editor.getExtension<typeof YSyncExtension>("ySync")?.fragment.doc as
-          | Y.Doc
-          | undefined,
-    );
-    let listedCurrent: YHubSnapshot | undefined;
+    let listedCurrent: YHubSnapshot<Metadata> | undefined;
 
     function fetchActivity(overrides?: YHubQueryParams) {
       return client.getActivity({
         ...ACTIVITY_PARAM_DEFAULTS,
         ...options.activityParams,
         ...overrides,
+        versions: true,
       });
     }
 
@@ -102,41 +112,40 @@ export function createYHubVersioningEndpoints(
       return Y.convertUpdateFormatV1ToV2(await client.getContent(to));
     }
 
+    async function setName(t: number, name: string) {
+      const existing = await client.getVersion(t);
+      return existing
+        ? client.updateVersion(existing, name)
+        : client.createVersion(t, name);
+    }
+
     return {
       async list() {
         const activity = await fetchActivity();
 
-        const rows = new Map<number, YHubSnapshot>();
+        const rows = new Map<number, YHubSnapshot<Metadata>>();
         for (const entry of activity) {
           const existing = rows.get(entry.to);
           const by = [...new Set([...(existing?.by ?? []), ...entry.by])];
+          const row = activityToSnapshot(entry);
           rows.set(entry.to, {
-            ...activityToSnapshot(entry),
+            ...row,
             by: by.length ? by : undefined,
-            metadata: mergeMetadata(
-              existing?.metadata,
-              entry.customAttributions,
+            name: entry.version
+              ? entry.version.name || undefined
+              : existing?.name,
+            restoredFrom: entry.version
+              ? row.restoredFrom
+              : existing?.restoredFrom,
+            metadata: entry.version ? row.metadata : existing?.metadata,
+            customAttributions: mergeCustomAttributions(
+              existing?.customAttributions,
+              row.customAttributions,
             ),
           });
         }
 
-        // Stored labels can have newer timestamps, but only activity defines current.
         const newestActivityTo = Math.max(...rows.keys());
-
-        for (const [id, entry] of versions.readEntries()) {
-          const { id: _id, name, restoredFrom, ...metadata } = entry;
-          const row = rows.get(id) ?? { id: String(id), createdAt: id };
-          rows.set(id, {
-            ...row,
-            name,
-            // The stored `to` is the restored version's whole identity here.
-            restoredFrom:
-              restoredFrom === undefined
-                ? undefined
-                : { id: String(restoredFrom), createdAt: restoredFrom },
-            metadata: mergeMetadata(row.metadata, metadata),
-          });
-        }
 
         const now = Date.now();
         const current = rows.get(newestActivityTo) ?? {
@@ -154,9 +163,6 @@ export function createYHubVersioningEndpoints(
       },
 
       async create(_fragment, createOptions) {
-        // Fail before the fetch when there's nothing to write the name into.
-        versions.getArray();
-
         let current = listedCurrent;
         if (!current) {
           const newest = await fetchNewestEntry();
@@ -169,14 +175,24 @@ export function createYHubVersioningEndpoints(
           current = activityToSnapshot(newest);
         }
 
-        // Saving unnamed preserves any existing name on the listed edit.
-        if (createOptions.name) {
-          versions.setName(timestampId(current), createOptions.name);
+        // An omitted metadata value leaves native custom data untouched.
+        if (createOptions.name || createOptions.metadata !== undefined) {
+          const t = timestampId(current);
+          const existing = await client.getVersion(t);
+          const name = createOptions.name || existing?.name || "";
+          const version = existing
+            ? await client.updateVersion(existing, name, createOptions.metadata)
+            : await client.createVersion(t, name, createOptions.metadata);
+          current = activityToSnapshot({
+            from: t,
+            to: t,
+            by: current.by ?? [],
+            customAttributions: current.customAttributions ?? {},
+            version,
+          });
         }
-        return {
-          ...current,
-          name: versions.readEntries().get(timestampId(current))?.name,
-        };
+        listedCurrent = current;
+        return current;
       },
 
       async getContent(snapshot) {
@@ -202,12 +218,17 @@ export function createYHubVersioningEndpoints(
           client.getDocument({ gc: false }),
         ]);
 
-        // Restore only this editor's fragment, preserving other editors and metadata.
-        // A plain timestamp rollback would also roll back the stored version
-        // names (they live in the same doc), so scope the rollback to this
-        // fragment's Yjs ID ranges instead. This stays until YHub exposes a
-        // native versioning API.
+        // Restore only this editor's fragment, preserving other editors.
         const contentIds = collectFragmentIds(fragment, document);
+
+        // Pin the old head before rollback so YHub's activity grouping cannot
+        // absorb it. An existing named version already cuts the activity there.
+        if (before && !(await client.getVersion(before.to))) {
+          await client.createVersion(
+            before.to,
+            editor.dictionary.versioning.before_restore,
+          );
+        }
 
         await client.rollback({
           // YHub includes the `from` millisecond. Keep the selected version's
@@ -219,31 +240,33 @@ export function createYHubVersioningEndpoints(
           }),
         });
 
-        // Keep the last observed head reachable even if grouping absorbs the rollback.
-        if (before && !versions.readEntries().has(before.to)) {
-          versions.upsertEntry({
-            id: before.to,
-            name: editor.dictionary.versioning.before_restore,
-          });
-        }
-        // A newer activity entry could be
-        // another user's edit, so it cannot reliably identify this rollback.
-
         return snapshotContent;
       },
 
       async rename(snapshot, name) {
-        versions.setName(timestampId(snapshot), name);
+        const t = timestampId(snapshot);
+        if (name) {
+          await setName(t, name);
+        } else {
+          const existing = await client.getVersion(t);
+          if (existing) {
+            await client.updateVersion(existing, "");
+          }
+        }
       },
 
       async remove(snapshot) {
-        // Deleting a stored version clears its name, preserving restore and
-        // application metadata. Automatic versions have nothing to remove.
-        const id = timestampId(snapshot);
-        if (versions.readEntries().has(id)) {
-          versions.setName(id, undefined);
+        const existing = await client.getVersion(timestampId(snapshot));
+        if (existing) {
+          // Preserve custom metadata on a named version; otherwise drop it so
+          // the automatic activity entry remains without a named version.
+          if (existing.custom !== null && existing.custom !== undefined) {
+            await client.updateVersion(existing, "");
+          } else {
+            await client.deleteVersion(existing);
+          }
         }
       },
-    } satisfies VersioningEndpoints<Y.Node, Uint8Array, Y.ContentMap>;
+    } satisfies VersioningEndpoints<Y.Node, Uint8Array, Y.ContentMap, Metadata>;
   };
 }

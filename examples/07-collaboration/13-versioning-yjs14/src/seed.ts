@@ -22,7 +22,7 @@ export interface SeedYHubDocumentOptions {
 export interface SeededVersion {
   /**
    * The version's server timestamp — the `to` of its last seeded edit, and so
-   * the key its name is stored under in the live doc's `__bn_versions` array.
+   * the timestamp of its native YHub named version.
    */
   to: number;
   name: string;
@@ -56,10 +56,8 @@ type YHubPatch = {
  *
  * Each step's captured transactions are PATCHed to `/api/ydoc/v1/{org}/{docId}`
  * as a single ordered `patches` bulk request: one content patch per captured
- * transaction, attributed via `by`. Nothing marks a version on the server —
- * YHub's history *is* the version list — so a version is simply a run of edits
- * separated from the next by a large gap, which is why **multiple users end up
- * attributed within one version**. The starting document state
+ * transaction, attributed via `by`. Each step is named through YHub's native
+ * version API at its last edit's timestamp. The starting document state
  * ({@link BuildEditHistoryResult.baseUpdate}) is PATCHed first so the step
  * patches have their baseline to merge onto.
  *
@@ -70,8 +68,7 @@ type YHubPatch = {
  * YHub speaks the V1 update format, so the V2 updates `buildEditHistory`
  * produces are converted.
  *
- * @returns each version's name and its last edit's timestamp, in order — the
- * caller writes those into the live doc's `__bn_versions` array to name them.
+ * @returns each named version and its last edit's timestamp, in order.
  *
  * @example
  * ```ts
@@ -90,6 +87,7 @@ export async function seedYHubDocument(
 ): Promise<SeededVersion[]> {
   const { baseUrl, org, docId, headers = {} } = options;
   const url = `${baseUrl}/ydoc/v1/${org}/${docId}`;
+  const versionUrl = `${baseUrl}/version/v1/${org}/${docId}`;
 
   const send = async (body: Record<string, unknown>) => {
     const res = await fetch(url, {
@@ -126,6 +124,20 @@ export async function seedYHubDocument(
     }));
 
     await send({ patches });
+    const res = await fetch(versionUrl, {
+      method: "POST",
+      headers,
+      body: encodeAny({
+        type: "version:v1",
+        t: step.at,
+        name: step.name,
+      }) as BufferSource,
+    });
+    if (!res.ok) {
+      throw new Error(
+        `YHub version request failed: ${res.status} ${res.statusText} (${versionUrl})`,
+      );
+    }
     versions.push({ to: step.at, name: step.name });
   }
 

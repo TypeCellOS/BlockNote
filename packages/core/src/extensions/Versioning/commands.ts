@@ -5,6 +5,7 @@ import type {
   VersionSnapshotIdentifier,
   VersioningState,
   VersionSnapshot,
+  VersionCreateOptions,
 } from "./types.js";
 
 /**
@@ -30,10 +31,13 @@ export function createVersioningCommands({
 }) {
   return {
     create: endpoints.create
-      ? async (options?: { name?: string }): Promise<VersionSnapshot> => {
-          const snapshot = await endpoints.create!(getCurrentDocument(), {
-            name: options?.name,
-          });
+      ? async <Metadata = unknown>(
+          options?: VersionCreateOptions<Metadata>,
+        ): Promise<VersionSnapshot<Metadata>> => {
+          const snapshot = await endpoints.create!(
+            getCurrentDocument(),
+            options ?? {},
+          );
           // Naming does not advance the frozen history shown by the sidebar.
           // Reopening the sidebar lists again and replaces this session-local
           // view with the backend's authoritative rows.
@@ -54,7 +58,8 @@ export function createVersioningCommands({
                 }
               : state,
           );
-          return snapshot;
+          // The caller chooses the metadata type; the backend does not validate it.
+          return snapshot as VersionSnapshot<Metadata>;
         }
       : undefined,
     restore:

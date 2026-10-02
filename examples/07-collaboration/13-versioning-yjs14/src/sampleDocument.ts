@@ -66,8 +66,7 @@ const VERSION_PLAN: EditHistoryStep[] = [
  *
  * The `fragment` must match the key the live editor reads (`doc.get(fragment)`).
  *
- * @returns each version's name and the server timestamp it should be named
- * against — the caller writes those into the live doc's `__bn_versions` array.
+ * @returns versions named on YHub at their last edit's timestamp.
  */
 export async function seedSampleVersions(opts: {
   baseUrl: string;

@@ -70,7 +70,7 @@ const preparePromise: Promise<void> = (async () => {
   // Seed only when the synced document is genuinely empty.
   if (!(doc.get("bn").length > 0)) {
     provider.disconnect();
-    const versions = await seedSampleVersions({
+    await seedSampleVersions({
       baseUrl: `https://${yhubHost}/api`,
       org,
       docId,
@@ -90,17 +90,6 @@ const preparePromise: Promise<void> = (async () => {
         provider.on("sync", onSync);
       });
     }
-
-    // Version *names* aren't part of YHub's history: they live in a
-    // `__bn_versions` array on the live document, keyed by the server timestamp
-    // they label (see `createYHubVersioningEndpoints`). The seeder returns each
-    // version's last-edit timestamp, which is exactly that key.
-    doc.get("__bn_versions").push(
-      versions.map((version) => ({
-        id: version.to,
-        name: version.name,
-      })) as never,
-    );
   }
 })();
 

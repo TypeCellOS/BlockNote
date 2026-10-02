@@ -11,7 +11,7 @@ export interface YHubClientOptions {
   headers?: Record<string, string>;
 }
 
-interface YHubActivityWireEntry {
+interface YHubActivityWireEntry<Metadata> {
   /** Start of the change window, in Unix milliseconds. */
   from: number;
   /** End of the change window, in Unix milliseconds. */
@@ -19,14 +19,36 @@ interface YHubActivityWireEntry {
   /** Scalar when grouping by user; an author list when grouping across users. */
   by?: string | Array<string | null> | null;
   customAttributions?: Array<{ k: string; v: string }>;
+  version?: YHubVersion<Metadata>;
 }
 
+export interface YHubVersion<Metadata = unknown> {
+  type: "version:v1";
+  t: number;
+  name: string;
+  custom: Metadata | null | undefined;
+  updatedAt: number;
+}
+
+type YHubVersionCreate<Metadata> = Pick<
+  YHubVersion<Metadata>,
+  "type" | "t" | "name"
+> & {
+  custom?: Metadata | null;
+};
+
+type YHubVersionUpdate<Metadata> = Pick<
+  YHubVersion<Metadata>,
+  "type" | "t" | "name" | "custom" | "updatedAt"
+>;
+
 /** Activity with wire-format authors and attribution pairs normalized. */
-export interface YHubActivityEntry {
+export interface YHubActivityEntry<Metadata = unknown> {
   from: number;
   to: number;
   by: string[];
   customAttributions: Record<string, string>;
+  version?: YHubVersion<Metadata>;
 }
 
 export interface YHubChangeset {
@@ -54,7 +76,7 @@ export interface YHubRollbackParams {
 }
 
 /** Document-scoped REST operations; binary Yjs payloads remain encoded. */
-export class YHubClient {
+export class YHubClient<Metadata = unknown> {
   private readonly baseUrl: string;
   private readonly documentPath: string;
   private readonly headers: Record<string, string>;
@@ -85,10 +107,73 @@ export class YHubClient {
     return response.arrayBuffer();
   }
 
-  async getActivity(params?: YHubQueryParams): Promise<YHubActivityEntry[]> {
+  async getVersion(t: number): Promise<YHubVersion<Metadata> | undefined> {
+    const response = decodeAny(
+      new Uint8Array(await this.request("version", { from: t, to: t })),
+    ) as { versions: YHubVersion<Metadata>[] };
+    return response.versions[0];
+  }
+
+  async createVersion(
+    t: number,
+    name: string,
+    custom?: Metadata | null,
+  ): Promise<YHubVersion<Metadata>> {
+    const body = {
+      type: "version:v1",
+      t,
+      name,
+      ...(custom === undefined ? {} : { custom }),
+    } satisfies YHubVersionCreate<Metadata>;
+    return decodeAny(
+      new Uint8Array(
+        await this.request("version", undefined, {
+          method: "POST",
+          body: encodeAny(body) as BufferSource,
+        }),
+      ),
+    ) as YHubVersion<Metadata>;
+  }
+
+  async updateVersion(
+    version: YHubVersion<Metadata>,
+    name: string,
+    custom: Metadata | null | undefined = version.custom,
+  ): Promise<YHubVersion<Metadata>> {
+    const body = {
+      type: "version:v1",
+      t: version.t,
+      updatedAt: version.updatedAt,
+      name,
+      custom,
+    } satisfies YHubVersionUpdate<Metadata>;
+    return decodeAny(
+      new Uint8Array(
+        await this.request("version", undefined, {
+          method: "PATCH",
+          body: encodeAny(body) as BufferSource,
+        }),
+      ),
+    ) as YHubVersion<Metadata>;
+  }
+
+  async deleteVersion(version: YHubVersion<Metadata>): Promise<void> {
+    await this.request(
+      "version",
+      {
+        t: version.t,
+        updatedAt: version.updatedAt,
+      },
+      { method: "DELETE" },
+    );
+  }
+
+  async getActivity(
+    params?: YHubQueryParams,
+  ): Promise<YHubActivityEntry<Metadata>[]> {
     const buffer = await this.request("activity", params);
     const { activity } = decodeAny(new Uint8Array(buffer)) as {
-      activity: YHubActivityWireEntry[];
+      activity: YHubActivityWireEntry<Metadata>[];
     };
     return activity.map((entry) => ({
       ...entry,

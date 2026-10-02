@@ -21,7 +21,7 @@ import "@blocknote/shadcn/style.css";
 import "@examples/01-basic/09-shadcn/tailwind.css";
 import { expect, test, vi } from "vite-plus/test";
 import { render } from "vitest-browser-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { userEvent } from "../../utils/context.js";
 import { expectElement } from "../../utils/editor.js";
@@ -310,6 +310,7 @@ test.each([
     const target = document.createElement("div");
     target.style.backgroundColor = "#ddd";
     document.body.append(target);
+    let isWithinEditor: ((element: Element) => boolean) | undefined;
 
     function PortaledSidebar() {
       const editor = useCreateBlockNote({
@@ -326,6 +327,12 @@ test.each([
           }),
         ],
       });
+      useEffect(() => {
+        isWithinEditor = editor.isWithinEditor;
+        return () => {
+          isWithinEditor = undefined;
+        };
+      }, [editor]);
 
       return (
         <MantineBlockNoteView editor={editor} theme={theme}>
@@ -349,6 +356,8 @@ test.each([
 
       expect(root.closest(".bn-container")).toBeNull();
       expect(root.classList.contains("bn-mantine")).toBe(true);
+      expect(isWithinEditor?.(selected)).toBe(true);
+      expect(isWithinEditor?.(target)).toBe(false);
       await vi.waitFor(() =>
         expect(getComputedStyle(ordinary).backgroundColor).toBe(body),
       );
@@ -398,6 +407,7 @@ test.each([
       expect(getComputedStyle(menu).backgroundColor).not.toBe(
         "rgba(0, 0, 0, 0)",
       );
+      expect(isWithinEditor?.(menu)).toBe(true);
     } finally {
       target.remove();
     }

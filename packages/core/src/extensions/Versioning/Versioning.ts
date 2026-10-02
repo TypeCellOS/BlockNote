@@ -15,17 +15,16 @@ import type {
   VersioningLoadingState,
   VersioningState,
   VersionSnapshotIdentifier,
+  VersionSnapshot,
+  LoadedVersioningList,
 } from "./types.js";
 
 export { LOADING_PREVIEW_CLASS, LOADING_PREVIEW_DELAY_MS } from "./preview.js";
 export type * from "./types.js";
 
 /**
- * The composition root: resolves options, creates the store, wires the three
- * sessions (list, preview, commands) together, and exposes the extension
- * facade. Each store field has exactly one writer — `list`/`listing` the list
- * session, `view`/`loadingView` the preview session, `restoring` the commands
- * — and the busy status is read through from those flags by `getLoadingState`.
+ * Resolve options and wire list, preview, and command sessions to one store.
+ * Metadata types are selected on individual read and write methods.
  */
 export const VersioningExtension = createExtension(
   ({
@@ -95,10 +94,16 @@ export const VersioningExtension = createExtension(
       key: "versioning",
       store,
       userStore,
-      /** Open history: fetch its list from the backend. */
-      list: listSession.refresh,
-      getSnapshot: (id: VersionSnapshotIdentifier) =>
-        findSnapshot(store.state.list, id),
+      /** Fetch history. The metadata type is caller-asserted, not validated. */
+      list<Metadata = unknown>() {
+        return listSession.refresh() as Promise<LoadedVersioningList<Metadata>>;
+      },
+      /** Metadata is caller-asserted, not validated. Omit the type to read unknown. */
+      getSnapshot<Metadata = unknown>(id: VersionSnapshotIdentifier) {
+        return findSnapshot(store.state.list, id) as
+          | VersionSnapshot<Metadata>
+          | undefined;
+      },
       /**
        * The busy status the sidebar shows, read through from the two in-flight
        * flags the sessions publish. Preview loading outranks listing: a fetch
