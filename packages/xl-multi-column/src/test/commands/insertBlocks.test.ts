@@ -6,60 +6,69 @@ const getEditor = setupTestEnv();
 
 describe("Test insertBlocks", () => {
   it("Insert empty column list", () => {
-    // should throw an error as we don't allow empty column lists
-    expect(() => {
-      getEditor().insertBlocks(
-        [{ type: "columnList" }],
-        "paragraph-0",
-        "after",
-      );
-    }).toThrow();
+    // An empty column list is filled to a valid two-column list (each with an
+    // empty paragraph) instead of throwing.
+    getEditor().insertBlocks([{ type: "columnList" }], "paragraph-0", "after");
+
+    expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Insert column list with empty column", () => {
-    // should throw an error as we don't allow empty columns
-    expect(() => {
-      getEditor().insertBlocks(
-        [
-          {
-            type: "columnList",
-            children: [
-              {
-                type: "column",
-              },
-            ],
-          },
-        ],
-        "paragraph-0",
-        "after",
-      );
-    }).toThrow();
+    // The empty column is padded with a paragraph, and the list is padded to
+    // its `min: 2` with a second column, instead of throwing.
+    getEditor().insertBlocks(
+      [
+        {
+          type: "columnList",
+          children: [
+            {
+              type: "column",
+            },
+          ],
+        },
+      ],
+      "paragraph-0",
+      "after",
+    );
+
+    const list = getEditor().document[1] as any;
+    expect(list.type).toBe("columnList");
+    expect(list.children).toHaveLength(2);
+    expect(list.children[0].children).toHaveLength(1);
+    expect(list.children[1].children).toHaveLength(1);
   });
 
   it("Insert column list with single column", () => {
-    // should throw an error as we don't allow column list with single column
-    expect(() => {
-      getEditor().insertBlocks(
-        [
-          {
-            type: "columnList",
-            children: [
-              {
-                type: "column",
-                children: [
-                  {
-                    type: "paragraph",
-                    content: "Inserted Column Paragraph",
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-        "paragraph-0",
-        "after",
-      );
-    }).toThrow();
+    // A one-column list is padded up to `min: 2` with a second column,
+    // instead of throwing.
+    getEditor().insertBlocks(
+      [
+        {
+          type: "columnList",
+          children: [
+            {
+              type: "column",
+              children: [
+                {
+                  type: "paragraph",
+                  content: "Inserted Column Paragraph",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      "paragraph-0",
+      "after",
+    );
+
+    const list = getEditor().document[1] as any;
+    expect(list.type).toBe("columnList");
+    expect(list.children).toHaveLength(2);
+    expect(list.children[0].children[0].content[0].text).toBe(
+      "Inserted Column Paragraph",
+    );
+    expect(list.children[1].children[0].content).toEqual([]);
   });
 
   it("Insert valid column list with two columns", () => {

@@ -7,6 +7,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
+import { CHILD_CONTAINER_GROUP } from "../../../schema/blocks/children.js";
 import { expandPMRangeToWords } from "../../../util/expandToWords.js";
 import {
   blockEdgePos,
@@ -100,7 +101,7 @@ export function getSelection<
     for (let depth = $startBlockBeforePos.depth; depth > sharedDepth; depth--) {
       const parentNode = $startBlockBeforePos.node(depth);
 
-      if (parentNode.type.isInGroup("childContainer")) {
+      if (parentNode.type.isInGroup(CHILD_CONTAINER_GROUP)) {
         const startIndexAtDepth = $startBlockBeforePos.index(depth) + 1;
         const childCountAtDepth = $startBlockBeforePos.node(depth).childCount;
 

@@ -47,3 +47,35 @@ export function ignoreDarkReaderMutations(nodeView: NodeView): void {
     return !contentDOM && mutation.type !== "selection";
   };
 }
+
+// TODO(review): added while merging #3051 (with main's #3062) into #3059.
+// #3062 replaced `ignoreNonContentMutations` with the Dark Reader-only rule
+// for block content node views; frames still needed their chrome ignored, so
+// this keeps that for frames only. Needs a proper review. No test covers it:
+// with it disabled, all frame and container tests still pass. If it turns out
+// to be needed, add tests (e.g. a frame whose chrome changes by itself);
+// otherwise remove it.
+/**
+ * For a frame's node view (`renderFrame`): ignores mutations to the frame's
+ * own chrome, which is the author's DOM outside the node view's content DOM
+ * (the slot), and Dark Reader's writes. Everything inside the slot (the
+ * block's content and its children) still reaches ProseMirror, so a native
+ * paragraph split there is read (#3001).
+ */
+export function ignoreFrameChromeMutations(nodeView: NodeView): void {
+  const originalIgnoreMutation = nodeView.ignoreMutation?.bind(nodeView);
+  const contentDOM = nodeView.contentDOM;
+
+  nodeView.ignoreMutation = (mutation: ViewMutationRecord) => {
+    if (
+      mutation.type !== "selection" &&
+      (isDarkReaderMutation(mutation) ||
+        (contentDOM && !contentDOM.contains(mutation.target)))
+    ) {
+      return true;
+    }
+
+    // Defer to the node view's own `ignoreMutation` for additional filtering.
+    return originalIgnoreMutation ? originalIgnoreMutation(mutation) : false;
+  };
+}

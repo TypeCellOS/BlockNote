@@ -1,11 +1,11 @@
 /** Define the main block types **/
 // import { Extension, Node } from "@tiptap/core";
-import type { Node, NodeViewRendererProps } from "@tiptap/core";
 import type {
-  Fragment,
-  Node as ProsemirrorNode,
-  Schema,
-} from "prosemirror-model";
+  Node,
+  NodeViewRenderer,
+  NodeViewRendererProps,
+} from "@tiptap/core";
+import type { Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type {
@@ -68,6 +68,16 @@ export interface BlockConfigMeta<
   isolating?: boolean;
 
   /**
+   * Whether this block type gets a side menu drag handle (and can be dragged
+   * by it). Applies to any block type, container or not: e.g. a
+   * "locked" block can opt out of dragging entirely. A block that opts out is
+   * skipped when looking for a drag handle, so the handle falls through to the
+   * nearest draggable ancestor.
+   * @default true
+   */
+  draggable?: boolean;
+
+  /**
    * Enables syntax highlighting of the contents of the block with the result of this callback
    */
   highlight?(block: { type: TName; props: Props<TProps> }): string | undefined;
@@ -81,9 +91,49 @@ export interface BlockConfigMeta<
 }
 
 /**
- * BlockConfig contains the "schema" info about a Block type
- * i.e. what props it supports, what content it supports, etc.
+ * The type name of a container block, as used in {@link ChildrenConfig.allow}.
  */
+export type AllowedChildType = string;
+
+/**
+ * What may appear as a child of a container block.
+ *
+ * - `"blocks"`: any regular block, or any container block placeable anywhere.
+ *   This cannot be narrowed to specific regular block types: every regular
+ *   block is the *same* ProseMirror node (`blockContainer`), so paragraphs,
+ *   headings and code blocks are indistinguishable at the node level.
+ * - `readonly AllowedChildType[]`: only these container types, enforced exactly
+ *   by the schema. Naming a regular block type is a startup error; per-type
+ *   regular-block filtering can be added to this same form later, with no API
+ *   change.
+ *
+ * Neither form includes `placeable: "namedOnly"` types. Those appear only
+ * where a parent names them explicitly in an array.
+ */
+export type ChildrenAllow = "blocks" | readonly AllowedChildType[];
+
+/**
+ * Marks a block as a *container*: a block whose body is other blocks, exposed
+ * as `block.children` at runtime.
+ *
+ * The config describes one uniform body, semantically a single implicit
+ * slot. Ordered multi-slot bodies (a `sequence` of slots) can be added later
+ * as a sibling form.
+ */
+export type ChildrenConfig = {
+  /** What may appear as a child. See {@link ChildrenAllow}. */
+  allow: ChildrenAllow;
+  /**
+   * How few children the container may hold. When children drop below the
+   * minimum, a container that can stand anywhere dissolves into its
+   * surviving children (a one-column column list is just those blocks), and
+   * one that only exists inside another container is topped back up with
+   * empty children (a column keeps existing).
+   * @default 1
+   */
+  min?: number;
+};
+
 export interface BlockConfig<
   T extends string = string,
   PS extends PropSchema = PropSchema,
@@ -106,8 +156,28 @@ export interface BlockConfig<
    * The content that the block supports
    */
   content: C;
-  // TODO: how do you represent things that have nested content?
-  // e.g. tables, alerts (with title & content)
+  /**
+   * Declares owned child blocks, exposed on `block.children`.
+   * With `content: "none"`, the block is a pure container whose `render`
+   * mounts children through contentDOM (React: contentRef).
+   * With `content: "inline"` or `"plain"`, `children: { allow: "blocks" }`
+   * gives the block owned children below its own text. These children remain
+   * optional; their types and minimum count cannot be restricted.
+   * `renderFrame` independently styles the block's content and children.
+   */
+  children?: ChildrenConfig;
+  /**
+   * Where this block may be placed.
+   *
+   * - `"anywhere"` (default): anywhere a regular block goes, the document
+   *   root or nested under any other block.
+   * - `"namedOnly"`: only inside a container that names this type in its
+   *   `children.allow` array (e.g. a `column` inside a `columnList`).
+   *
+   * Only meaningful for container blocks; regular blocks are always placeable
+   * anywhere.
+   */
+  placeable?: "anywhere" | "namedOnly";
 }
 
 declare module "prosemirror-model" {
@@ -224,7 +294,7 @@ export type LooseBlockSpec<
   config: BlockConfig<T, PS, C>;
   implementation: Omit<
     BlockImplementation<T, PS, C>,
-    "render" | "toExternalHTML"
+    "render" | "renderFrame" | "toExternalHTML"
   > & {
     // purposefully stub the types for render and toExternalHTML since they reference the block
     render: (
@@ -240,9 +310,21 @@ export type LooseBlockSpec<
       dom: HTMLElement | DocumentFragment;
       contentDOM?: HTMLElement;
       ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
-      update?: (node: ProsemirrorNode) => boolean;
       destroy?: () => void;
+      update?: (node: PMNode) => boolean | void;
     };
+    renderFrame?: <I extends InlineContentSchema, S extends StyleSchema>(
+      block: any,
+      editor: BlockNoteEditor<any, I, S>,
+    ) =>
+      | {
+          dom: HTMLElement | DocumentFragment;
+          slot: HTMLElement;
+          /** Releases resources when the live frame is replaced or destroyed. */
+          destroy?: () => void;
+          update?: (block: any) => boolean | void;
+        }
+      | undefined;
     toExternalHTML?: (
       block: any,
       editor: BlockNoteEditor<any>,
@@ -283,7 +365,7 @@ export type BlockSpecs = {
     config: BlockSpec<k>["config"];
     implementation: Omit<
       BlockSpec<k>["implementation"],
-      "render" | "toExternalHTML"
+      "render" | "renderFrame" | "toExternalHTML"
     > & {
       // purposefully stub the types for render and toExternalHTML since they reference the block
       render: (
@@ -299,9 +381,21 @@ export type BlockSpecs = {
         dom: HTMLElement | DocumentFragment;
         contentDOM?: HTMLElement;
         ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
-        update?: (node: ProsemirrorNode) => boolean;
         destroy?: () => void;
+        update?: (node: PMNode) => boolean | void;
       };
+      renderFrame?: <I extends InlineContentSchema, S extends StyleSchema>(
+        block: any,
+        editor: BlockNoteEditor<any, I, S>,
+      ) =>
+        | {
+            dom: HTMLElement | DocumentFragment;
+            slot: HTMLElement;
+            /** Releases resources when the live frame is replaced or destroyed. */
+            destroy?: () => void;
+            update?: (block: any) => boolean | void;
+          }
+        | undefined;
       toExternalHTML?: (
         block: any,
         editor: BlockNoteEditor<any>,
@@ -566,12 +660,14 @@ export type BlockImplementation<
     | "table"
     | "plain",
 > = {
+  /** @internal Framework adapter for the outer blockContainer node view. */
+  frameNodeView?: NodeViewRenderer;
   /**
    * Metadata
    */
   meta?: BlockConfigMeta<TName, TProps>;
   /**
-   * A function that converts the block into a DOM element
+   * A function that converts the block into a DOM element.
    */
   render: (
     this:
@@ -603,19 +699,78 @@ export type BlockImplementation<
     dom: HTMLElement | DocumentFragment;
     contentDOM?: HTMLElement;
     ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
-    /**
-     * Called by ProseMirror when this block's node is updated (e.g. its content
-     * or props change). Return `true` to handle the update in place - keeping
-     * the existing DOM - or `false` to have the node view recreated via
-     * `render`. When omitted, ProseMirror keeps the node view and reconciles its
-     * `contentDOM` in place as long as the node type stays the same.
-     *
-     * Useful for blocks whose `render` builds custom DOM that needs to stay in
-     * sync with the node (e.g. a code block rendering a preview of its content).
-     */
-    update?: (node: ProsemirrorNode) => boolean;
     destroy?: () => void;
+    /**
+     * Optional NodeView update hook. Called when the underlying ProseMirror
+     * node's attributes change (or its decorations change). Return `false` to
+     * tell ProseMirror to destroy and recreate the NodeView (i.e. re-run
+     * `render` from scratch). Return `true` (or `undefined`) when you have
+     * patched `dom` in-place and PM should keep the existing view.
+     *
+     * Only honored for container blocks (blocks with `children`), where
+     * recreating the node view would remount every child block: e.g. column
+     * resizing patches widths in place through this hook. Non-container
+     * blocks always recreate on attr changes (see
+     * https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464).
+     */
+    update?: (node: PMNode) => boolean | void;
   };
+
+  /**
+   * Draws the chrome *around* a block's content and children: the author's
+   * markup wraps both, and the `slot` is where BlockNote mounts them.
+   *
+   * The slot holds the content first and the children after it. A pure
+   * container already owns its outer DOM through `render`.
+   *
+   * `render` stays the knob for the block's own content. A block may use
+   * both: `render` draws the title, `renderFrame` draws the box around title
+   * and body. Returning `undefined` declines — the block renders plain — so
+   * a block can decide from its props, content, or children whether it is framed.
+   *
+   * Chrome outside the slot is the author's: ProseMirror leaves its events
+   * alone. An `update` hook receives the current block on updates and patches
+   * the frame in place. Return `false` to rebuild (or decline) the frame.
+   * Without an update hook, block changes rebuild the frame.
+   */
+  renderFrame?: <I extends InlineContentSchema, S extends StyleSchema>(
+    this:
+      | Record<string, never>
+      | ({
+          blockContentDOMAttributes: Record<string, string>;
+          propSchema?: TProps;
+        } & (
+          | {
+              renderType: "nodeView";
+              props: NodeViewRendererProps;
+            }
+          | {
+              renderType: "dom";
+              props: undefined;
+            }
+        )),
+    block: BlockFromConfig<BlockConfig<TName, TProps, TContent>, any, any>,
+    editor: BlockNoteEditor<
+      Record<TName, BlockConfig<TName, TProps, TContent>>,
+      I,
+      S
+    >,
+  ) =>
+    | {
+        dom: HTMLElement | DocumentFragment;
+        /** Where BlockNote mounts the block's content and/or children. */
+        slot: HTMLElement;
+        /** Releases resources when the live frame is replaced or destroyed. */
+        destroy?: () => void;
+        update?: (
+          block: BlockFromConfig<
+            BlockConfig<TName, TProps, TContent>,
+            any,
+            any
+          >,
+        ) => boolean | void;
+      }
+    | undefined;
 
   /**
    * Exports block to external HTML. If not defined, the output will be the same
@@ -711,4 +866,4 @@ export type CustomBlockImplementation<
   T extends string = string,
   PS extends PropSchema = PropSchema,
   C extends "inline" | "none" | "plain" = "inline" | "none" | "plain",
-> = BlockImplementation<T, PS, C>;
+> = Omit<BlockImplementation<T, PS, C>, "frameNodeView">;

@@ -1,5 +1,10 @@
-import { Fragment } from "prosemirror-model";
-import { EditorState, Selection, Transaction } from "prosemirror-state";
+import { Fragment, type Node } from "prosemirror-model";
+import {
+  EditorState,
+  Selection,
+  TextSelection,
+  Transaction,
+} from "prosemirror-state";
 
 import {
   type BlockInfo,
@@ -11,22 +16,35 @@ import {
 
 type ContentBlockInfo = Extract<BlockInfo, { hasContent: true }>;
 
-/**
- * Whether two blocks can merge: both must hold inline content. Merging into
- * or out of container blocks (columnLists, callouts, ...) is intentionally
- * unsupported; the container-boundary Backspace/Delete branches in
- * `KeyboardShortcutsExtension` move blocks across the boundary instead.
- */
-function canMerge(
-  prevBlockInfo: BlockInfo,
-  nextBlockInfo: BlockInfo,
-): prevBlockInfo is ContentBlockInfo {
-  return (
-    prevBlockInfo.hasContent &&
-    prevBlockInfo.contentKind === "inline" &&
-    nextBlockInfo.hasContent &&
-    nextBlockInfo.contentKind === "inline"
-  );
+/** Returns compatible text to append, or undefined when the blocks cannot merge. */
+export function getMergeContent(
+  current: ContentBlockInfo,
+  next: ContentBlockInfo,
+): Fragment | undefined {
+  const inline =
+    current.contentKind === "inline" && next.contentKind === "inline";
+  const ownedText =
+    current.hasOwnedChildren &&
+    current.content.node.isTextblock &&
+    next.content.node.isTextblock;
+  if (!inline && !ownedText) {
+    return undefined;
+  }
+  if (current.contentKind === "plain") {
+    const type = current.content.node.type;
+    const children: Node[] = [];
+    next.content.node.forEach((child) => {
+      const text =
+        child.type === type.schema.linebreakReplacement
+          ? "\n"
+          : child.textContent;
+      if (text) {
+        children.push(type.schema.text(text, type.allowedMarks(child.marks)));
+      }
+    });
+    return Fragment.from(children);
+  }
+  return next.content.node.content;
 }
 
 /** Merge a first child into its parent, promoting descendants into its place. */
@@ -36,15 +54,16 @@ function mergeIntoParent(
   parent: ContentBlockInfo,
   child: ContentBlockInfo,
 ): boolean {
-  if (!parent.children || !canMerge(parent, child)) {
+  if (!parent.children) {
     return false;
   }
-  const content = child.content.node.content;
+  const content = getMergeContent(parent, child);
   if (
-    content.size > 0 &&
-    !parent.content.node.type.validContent(
-      parent.content.node.content.append(content),
-    )
+    content === undefined ||
+    (content.size > 0 &&
+      !parent.content.node.type.validContent(
+        parent.content.node.content.append(content),
+      ))
   ) {
     return false;
   }
@@ -80,8 +99,10 @@ function mergeIntoParent(
  * back from there: the previous sibling's deepest descendant, or the parent
  * when the block is its first child.
  * @returns A tiptap command that returns `false` (leaving the doc untouched)
- * when the two blocks can't merge: no block above, or either side isn't an
- * inline-content block.
+ * when the two blocks can't merge: no compatible text block above. The block
+ * above may be empty: the text then takes its type and props, as in Notion.
+ * An owning block can also merge plain text, dropping formatting that its
+ * schema disallows.
  */
 export const mergeBlocksCommand =
   (posBetweenBlocks: number) =>
@@ -93,16 +114,15 @@ export const mergeBlocksCommand =
     dispatch: ((tr: Transaction) => void) | undefined;
   }) => {
     const nextBlockInfo = getBlockInfoAt(state.doc, posBetweenBlocks);
+    if (!nextBlockInfo.hasContent) {
+      return false;
+    }
 
-    const prevBlockInfo = getPrevBlockInfo(
+    const prevSibling = getPrevBlockInfo(
       state.doc,
       nextBlockInfo.block.beforePos,
     );
-
-    if (!prevBlockInfo) {
-      if (!nextBlockInfo.hasContent || nextBlockInfo.contentKind !== "inline") {
-        return false;
-      }
+    if (!prevSibling) {
       const parent = getParentBlockInfo(
         state.doc,
         nextBlockInfo.block.beforePos,
@@ -114,23 +134,18 @@ export const mergeBlocksCommand =
     }
 
     // The block we merge into is the last descendant of the previous block:
-    // visually, that's the block directly above the boundary. It may be empty:
-    // the text then takes its type and props, as in Notion.
-    const bottomNestedBlockInfo = getLastDescendantBlockInfo(prevBlockInfo);
-    if (
-      !canMerge(bottomNestedBlockInfo, nextBlockInfo) ||
-      !nextBlockInfo.hasContent
-    ) {
+    // visually, that's the block directly above the boundary.
+    const prevBlockInfo = getLastDescendantBlockInfo(prevSibling);
+    if (!prevBlockInfo.hasContent) {
+      return false;
+    }
+    const content = getMergeContent(prevBlockInfo, nextBlockInfo);
+    if (content === undefined) {
       return false;
     }
 
-    // Un-nests the next block's children by one level, so they survive as
-    // siblings of the merged block rather than as children of a block that no
-    // longer exists once the boundary below is deleted.
-    //
-    // Note `state.tr` is tiptap's chainable state, whose getter returns the one
-    // transaction shared by the command chain (not a fresh `Transaction` like
-    // `EditorState.tr`), so this lift carries over into the `dispatch` below.
+    // Lift children before removing their parent. Tiptap's chainable state
+    // returns the shared transaction, so the lift is included in dispatch.
     if (dispatch && nextBlockInfo.children) {
       const childBlocksRange = state.doc
         .resolve(nextBlockInfo.children.childrenStart)
@@ -151,16 +166,21 @@ export const mergeBlocksCommand =
       );
     }
 
-    // Deletes the boundary between the two blocks. Can be thought of as
-    // removing the closing tags of the first block and the opening tags of the
-    // second one to stitch them together.
     if (dispatch) {
-      dispatch(
-        state.tr.delete(
-          bottomNestedBlockInfo.contentEnd,
-          nextBlockInfo.contentStart,
-        ),
-      );
+      if (content !== nextBlockInfo.content.node.content) {
+        state.tr
+          .replaceWith(
+            prevBlockInfo.contentEnd,
+            nextBlockInfo.contentEnd,
+            content,
+          )
+          .setSelection(
+            TextSelection.create(state.tr.doc, prevBlockInfo.contentEnd),
+          );
+      } else {
+        state.tr.delete(prevBlockInfo.contentEnd, nextBlockInfo.contentStart);
+      }
+      dispatch(state.tr);
     }
 
     return true;

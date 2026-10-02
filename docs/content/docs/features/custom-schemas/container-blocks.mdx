@@ -1,0 +1,194 @@
+---
+title: Container Blocks
+description: Learn how to create custom blocks that contain other blocks
+---
+
+# Container Blocks
+
+You can create custom blocks that contain other blocks, such as panels, callouts, and column layouts. Take a look at the demo below, in which we add a custom panel to a BlockNote editor, as well as a custom [Slash Menu item](/docs/react/components/suggestion-menus#changing-slash-menu-items) to insert it. Each panel can contain paragraphs, headings, lists, or any other blocks in the editor.
+
+<Example name="custom-schema/container-block" />
+
+## Creating a Container Block
+
+Use the `createReactBlockSpec` function to create a container block, just like a [Custom Block](/docs/features/custom-schemas/custom-blocks). For the panel below, we set `content` to `"none"` and add the `children` option to let it contain other blocks:
+
+```tsx
+import { createReactBlockSpec } from "@blocknote/react";
+
+export const createPanel = createReactBlockSpec(
+  {
+    type: "panel",
+    propSchema: {},
+    content: "none",
+    children: { allow: "blocks" },
+  },
+  {
+    render: (props) => (
+      <div className="panel" ref={props.contentRef} />
+    ),
+  },
+);
+```
+
+### Block Config
+
+The block config defines the content and child blocks your container can hold:
+
+`content:` Works the same as for [Custom Blocks](/docs/features/custom-schemas/custom-blocks#block-config-customblockconfig). When using the `children` option, choose `"none"`, `"inline"`, or `"plain"`.
+
+`children.allow:` Set to `"blocks"` to accept the editor's block types. You can also restrict a container to specific container types, as explained in [Restricting Children](#restricting-children).
+
+`propSchema:` Defines the container's props, just like for other custom blocks. Use these to customize its appearance or behavior.
+
+### Block Implementation
+
+`render:` Your React component defines how the block should look. With `content: "none"`, attach `contentRef` where the child blocks should appear. With `content: "inline"` or `"plain"`, attach it to the block's own editable text. You can add icons, buttons, or other elements around it:
+
+```tsx
+render: (props) => (
+  <div className="panel">
+    <span contentEditable={false}>💡</span>
+    <div ref={props.contentRef} />
+  </div>
+),
+```
+
+You can style the component with CSS, just like any other React component:
+
+```css
+.panel {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-left: 4px solid #507aff;
+  border-radius: 6px;
+}
+```
+
+## Adding Container Blocks to the Editor
+
+Add your container to a [BlockNote schema](/docs/features/custom-schemas#creating-your-own-schema):
+
+```typescript
+import { BlockNoteSchema } from "@blocknote/core";
+import { createPanel } from "./Panel";
+
+const schema = BlockNoteSchema.create().extend({
+  blockSpecs: {
+    panel: createPanel(),
+  },
+});
+```
+
+You can then create an editor with this schema, as explained on the [Custom Schemas](/docs/features/custom-schemas) page. Use `children` to set the blocks inside a panel:
+
+```typescript
+import { useCreateBlockNote } from "@blocknote/react";
+
+const editor = useCreateBlockNote({
+  schema,
+  initialContent: [
+    {
+      type: "panel",
+      children: [
+        { type: "heading", content: "Getting started" },
+        { type: "paragraph", content: "Follow these steps to get set up." },
+        { type: "checkListItem", content: "Create an account" },
+      ],
+    },
+  ],
+});
+```
+
+If you create a panel without specifying its children, it starts with an empty paragraph. To let users insert panels themselves, add a [custom Slash Menu item](/docs/react/components/suggestion-menus#changing-slash-menu-items), as shown in the demo.
+
+## Combining Content and Child Blocks
+
+A block can have both its own text and child blocks. Use this for a question followed by hints, a checklist item with detailed instructions, a code sample followed by explanatory blocks, or a callout with a heading. In the demo below, we use the block's text as a callout title:
+
+<Example name="custom-schema/callout-block" />
+
+Set `content` to `"inline"` for rich text or `"plain"` for unstyled text, and add `children: { allow: "blocks" }`. Use `render` for the block's own text and `renderFrame` to style that content and its child blocks together:
+
+```tsx
+import { createReactBlockSpec } from "@blocknote/react";
+
+export const createCallout = createReactBlockSpec(
+  {
+    type: "callout",
+    propSchema: {},
+    content: "inline",
+    children: { allow: "blocks" },
+  },
+  {
+    render: (props) => (
+      <div className="callout-title" ref={props.contentRef} />
+    ),
+    renderFrame: (props) => (
+      <div className="callout">
+        <div ref={props.contentRef} />
+      </div>
+    ),
+  },
+);
+```
+
+`render:` Attach `contentRef` to the block's own editable text. With `content: "inline"`, users can format it and add links, just like in a paragraph. In this example, we style it as a callout title.
+
+For plain text, set `content: "plain"` and use a `<pre>` element to display line breaks and spacing:
+
+```tsx
+render: (props) => <pre ref={props.contentRef} />,
+```
+
+The child blocks can still contain rich text, images, and other block types.
+
+`renderFrame:` An optional React component for styling the block and its children together, such as giving the callout a shared border or background. It receives `block`, `editor`, and `contentRef`, just like `render`. Attach `contentRef` where the block's content and children should appear. You can use the block's props to customize the frame, add interactive controls, or return `null` to show the block without a frame.
+
+You can also use `renderFrame` without the `children` option to style a block and its indented children together. For a container with `content: "none"`, like the panel above, add the surrounding styling directly in `render`.
+
+Add `callout: createCallout()` to your schema, then use `content` for the title and `children` for the body:
+
+```typescript
+{
+  type: "callout",
+  content: "Before you start",
+  children: [
+    { type: "paragraph", content: "Make sure you have an account." },
+  ],
+}
+```
+
+Pressing Enter at the end of the title starts a paragraph in the body. Moving the callout moves its title and body together.
+
+To add blocks to an existing container, see [Inserting Blocks](/docs/reference/editor/manipulating-content#inserting-blocks).
+
+## Restricting Children
+
+For structured layouts, you can limit a container to specific container types. For example, a column layout should only contain columns, while each column can contain any block.
+
+Use an array of container type names for `children.allow`, and `min` to set the minimum number of children:
+
+```typescript
+// Column layout config:
+children: { allow: ["column"], min: 2 },
+```
+
+On the column itself, set `placeable` to `"namedOnly"` so it can only be used inside a container that explicitly allows it:
+
+```typescript
+// Column config:
+children: { allow: "blocks" },
+placeable: "namedOnly",
+```
+
+`children.allow:` Accepts `"blocks"` or an array of container type names. You cannot list regular block types such as `"paragraph"` individually.
+
+`children.min:` The minimum number of children. Defaults to `1`.
+
+`placeable:` Set to `"namedOnly"` to restrict a container to parents that name it in `children.allow`. Defaults to `"anywhere"`.
+
+These options apply to containers with `content: "none"`. Blocks with `content: "inline"` or `"plain"` use `children: { allow: "blocks" }` and can have no child blocks.
+
+For built-in column blocks, see [Multi-Column Layouts](/docs/foundations/document-structure#column-blocks).

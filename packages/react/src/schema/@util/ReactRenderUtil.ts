@@ -36,9 +36,9 @@ export function renderToDOMSpec(
   }
 
   if (!div.childElementCount) {
-    // TODO
-    // eslint-disable-next-line no-console
-    console.warn("ReactInlineContentSpec: renderHTML() failed");
+    // A conditional frame may render null. Dispose its effects even when
+    // there is no DOM to clone, just as on the non-empty path below.
+    root?.unmount();
     return {
       dom: document.createElement("span"),
     };

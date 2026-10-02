@@ -552,6 +552,45 @@ describe("KeyboardShortcutsExtension hardBreakShortcut", () => {
   });
 });
 
+describe("Delete preserves the caret before appended text", () => {
+  function paragraph(id: string, children: PartialBlock[] = []): PartialBlock {
+    return { id, type: "paragraph", content: id, children };
+  }
+
+  it.each([
+    {
+      name: "sole child",
+      initialContent: [paragraph("selected", [paragraph("removed")])],
+    },
+    {
+      name: "following shallower block",
+      initialContent: [
+        paragraph("parent", [paragraph("selected")]),
+        paragraph("removed"),
+      ],
+    },
+  ])("$name", ({ initialContent }) => {
+    const editor = BlockNoteEditor.create({ initialContent });
+    editor.mount(document.createElement("div"));
+    editor.setTextCursorPosition("selected", "end");
+
+    const view = editor.prosemirrorView;
+    const event = new KeyboardEvent("keydown", {
+      key: "Delete",
+      code: "Delete",
+      keyCode: 46,
+    });
+    view.someProp("handleKeyDown", (handler) => handler(view, event));
+
+    expect(editor.getBlock("removed")).toBeUndefined();
+    expect(editor.getTextCursorPosition().block.id).toBe("selected");
+    expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(
+      "selected".length,
+    );
+    editor._tiptapEditor.destroy();
+  });
+});
+
 describe("KeyboardShortcutsExtension Backspace", () => {
   let editor: BlockNoteEditor | undefined;
 

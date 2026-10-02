@@ -253,23 +253,15 @@ export class TypstExporter<
         continue;
       }
 
-      // A columnList lays its column children out side-by-side. transformBlocks
-      // owns this (rather than the block mapping) because the columns must
-      // become grid cells, not the generic indented-children wrapper.
-      if (b.type === "columnList") {
-        out.push(await this.renderColumnList(b, nestingLevel));
-        i++;
-        continue;
-      }
-
+      const isContainer = this.isContainerBlock(b);
       const children = await this.transformBlocks(b.children, nestingLevel + 1);
-      const self = (await this.mapBlock(
-        b as any,
+      const self = await this.mapBlock(
+        b,
         nestingLevel,
         0,
-        [],
-      )) as string;
-      out.push(this.wrapBlock(b, self, children));
+        isContainer ? children : [],
+      );
+      out.push(isContainer ? self : this.wrapBlock(b, self, children));
       i++;
     }
     return out;
@@ -279,12 +271,7 @@ export class TypstExporter<
     block: Block<B, I, S>,
     nestingLevel: number,
   ): Promise<string> {
-    const body = (await this.mapBlock(
-      block as any,
-      nestingLevel,
-      0,
-      [],
-    )) as string;
+    const body = await this.mapBlock(block, nestingLevel, 0, []);
     const children = await this.transformBlocks(
       block.children,
       nestingLevel + 1,
@@ -322,32 +309,6 @@ export class TypstExporter<
         ? padded + "\n\n" + children.join("\n\n")
         : `#list(marker: ${checkboxMarker(checked)}, [${padded}\n\n${children.join("\n\n")}])`,
     );
-  }
-
-  /**
-   * Render a columnList as a Typst `grid`: each child column becomes a grid
-   * cell, its `width` prop mapped to a fractional (`fr`) track so relative
-   * column sizes are preserved. `grid` is a layout primitive (not a `table`),
-   * so it isn't tagged as a data table in the PDF.
-   */
-  private async renderColumnList(
-    block: Block<B, I, S>,
-    nestingLevel: number,
-  ): Promise<string> {
-    const columns = block.children;
-    const tracks = columns
-      .map((c) => `${(c.props as { width?: number }).width ?? 1}fr`)
-      .join(", ");
-    const cells: string[] = [];
-    for (const col of columns) {
-      const inner = (
-        await this.transformBlocks(col.children, nestingLevel)
-      ).join("\n\n");
-      cells.push(`[${inner}]`);
-    }
-    return `#grid(\n  columns: (${tracks}),\n  column-gutter: 1em,\n  ${cells.join(
-      ",\n  ",
-    )}\n)`;
   }
 
   private wrapList(

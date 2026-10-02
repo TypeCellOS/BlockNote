@@ -7,6 +7,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
+import { isContainerNode } from "../../../../schema/blocks/children.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   inlineContentToNodes,
@@ -159,6 +160,8 @@ function serializeBlock<
     editor as any,
   );
 
+  const isContainer = isContainerNode(editor.pmSchema.nodes[block.type as any]);
+
   if (ret.contentDOM && block.content) {
     const ic = serializeInlineContentInternalHTML(
       editor,
@@ -170,9 +173,15 @@ function serializeBlock<
     ret.contentDOM.appendChild(ic);
   }
 
-  const pmType = editor.pmSchema.nodes[block.type as any];
-
-  if (pmType.isInGroup("bnBlock")) {
+  if (isContainer) {
+    // Mark where the children live so the container's round-trip parse rule
+    // can scope itself to this element (`contentElement` in `getParseRules`).
+    // A render is free to put non-content UI text elsewhere in its DOM
+    // (button labels, captions, ...), and without the marker that text would
+    // parse back as document content.
+    if (ret.contentDOM) {
+      ret.contentDOM.setAttribute("data-children-of", block.type!);
+    }
     if (block.children && block.children.length > 0) {
       const fragment = serializeBlocks(
         editor,
@@ -197,10 +206,30 @@ function serializeBlock<
     contentDOM?: HTMLElement;
   };
 
-  bc.contentDOM?.appendChild(ret.dom);
+  // Frames wrap the content and its child group in static HTML too. The DOM
+  // render context lets interactive frames export without browser view state.
+  const renderFrame = impl.renderFrame<I, S>;
+  const frame = renderFrame?.call(
+    {
+      renderType: "dom",
+      props: undefined,
+      blockContentDOMAttributes:
+        editor._tiptapEditor.extensionManager.extensions.find(
+          (extension) => extension.name === block.type,
+        )?.options.domAttributes?.blockContent || {},
+      propSchema: editor.schema.blockSchema[block.type!].propSchema,
+    },
+    { ...block, props, children },
+    editor,
+  );
+  if (frame) {
+    bc.contentDOM?.appendChild(frame.dom);
+  }
+  const contentDOM = frame?.slot ?? bc.contentDOM;
+  contentDOM?.appendChild(ret.dom);
 
   if (block.children && block.children.length > 0) {
-    bc.contentDOM?.appendChild(
+    contentDOM?.appendChild(
       serializeBlocksInternalHTML(editor, block.children, serializer, options),
     );
   }

@@ -120,6 +120,22 @@ For a block with inline content, render it the way the default mappings do:
 `exporter.transformInlineContent(block.content).join("")` (inline results are
 markup strings, so plain concatenation composes them).
 
+### Container blocks
+
+A [container block](/docs/features/custom-schemas/container-blocks) holds
+child blocks, and its mapping decides where they go: the exporter renders the
+children first and passes them in as the mapping's last argument, rather than
+appending them after the container's own output. A container without a
+mapping is an error rather than a silent omission, since dropping it would
+drop its children too.
+
+```typescript
+myContainer: (block, exporter, nestingLevel, numberedListIndex, children) =>
+  `#rect(width: 100%)[${children.join("\n\n")}]`,
+```
+
+Separate the children with a blank line, as above, if each should stay its own
+block — a single `\n` is only a soft break in Typst markup.
 
 ### Math & diagram blocks
 

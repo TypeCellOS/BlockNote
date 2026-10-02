@@ -1,4 +1,21 @@
 {
+  "alert": {
+    "config": {
+      "children": {
+        "allow": "blocks",
+      },
+      "content": "inline",
+      "propSchema": {},
+      "type": "alert",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "node": null,
+      "render": [Function],
+      "renderFrame": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
   "audio": {
     "config": {
       "content": "none",
@@ -69,6 +86,31 @@
       "node": null,
       "parse": [Function],
       "parseContent": [Function],
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "callout": {
+    "config": {
+      "children": {
+        "allow": "blocks",
+      },
+      "content": "none",
+      "propSchema": {
+        "flavor": {
+          "default": "tip",
+          "values": [
+            "tip",
+            "info",
+            "warning",
+          ],
+        },
+      },
+      "type": "callout",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "node": null,
       "render": [Function],
       "toExternalHTML": [Function],
     },
