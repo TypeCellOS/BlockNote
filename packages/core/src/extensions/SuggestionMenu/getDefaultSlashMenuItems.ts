@@ -1,5 +1,9 @@
 import { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
 import { editorHasBlockWithType } from "../../blocks/defaultBlockTypeGuards.js";
+import {
+  type DefaultBlockTypeItem,
+  getDefaultBlockTypeItems,
+} from "../../blocks/defaultBlockTypeItems.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
@@ -92,21 +96,6 @@ export function insertOrUpdateBlockForSlashMenu<
   return newBlock;
 }
 
-// A regular heading's props. With toggle headings in the schema, this sets
-// `isToggleable: false`, so that updating a toggle heading turns it into a
-// regular heading (BLO-959).
-function regularHeadingProps(
-  editor: BlockNoteEditor<any, any, any>,
-  level: number,
-) {
-  return editorHasBlockWithType(editor, "heading", {
-    level: "number",
-    isToggleable: "boolean",
-  })
-    ? { level, isToggleable: false }
-    : { level };
-}
-
 export function getDefaultSlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -114,103 +103,39 @@ export function getDefaultSlashMenuItems<
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: DefaultSuggestionItem[] = [];
 
-  if (editorHasBlockWithType(editor, "heading", { level: "number" })) {
-    (editor.schema.blockSchema.heading.propSchema.level.values || [])
-      .filter((level): level is 1 | 2 | 3 => level <= 3)
-      .forEach((level) => {
-        items.push({
-          onItemClick: () => {
-            insertOrUpdateBlockForSlashMenu(editor, {
-              type: "heading",
-              props: regularHeadingProps(editor, level),
-            });
-          },
-          badge: formatKeyboardShortcut(`Mod-Alt-${level}`),
-          key:
-            level === 1 ? ("heading" as const) : (`heading_${level}` as const),
-          ...editor.dictionary.slash_menu[
-            level === 1 ? ("heading" as const) : (`heading_${level}` as const)
-          ],
-        });
-      });
-  }
-
-  if (editorHasBlockWithType(editor, "quote")) {
+  // The block types come from `getDefaultBlockTypeItems`, which the block
+  // type select also uses. The slash menu places them in its own order.
+  const blockTypes = new Map(
+    getDefaultBlockTypeItems(editor).map((item) => [item.key, item]),
+  );
+  function pushBlockType(key: DefaultBlockTypeItem["key"], badge?: string) {
+    const blockType = blockTypes.get(key);
+    if (!blockType) {
+      return;
+    }
     items.push({
       onItemClick: () => {
+        // The schema supports the block type (see `getDefaultBlockTypeItems`).
         insertOrUpdateBlockForSlashMenu(editor, {
-          type: "quote",
-        });
+          type: blockType.type,
+          props: blockType.props,
+        } as PartialBlock<BSchema, I, S>);
       },
-      key: "quote",
-      ...editor.dictionary.slash_menu.quote,
+      badge,
+      key,
+      ...editor.dictionary.slash_menu[key],
     });
   }
 
-  if (editorHasBlockWithType(editor, "toggleListItem")) {
-    items.push({
-      onItemClick: () => {
-        insertOrUpdateBlockForSlashMenu(editor, {
-          type: "toggleListItem",
-        });
-      },
-      badge: formatKeyboardShortcut("Mod-Shift-6"),
-      key: "toggle_list",
-      ...editor.dictionary.slash_menu.toggle_list,
-    });
-  }
-
-  if (editorHasBlockWithType(editor, "numberedListItem")) {
-    items.push({
-      onItemClick: () => {
-        insertOrUpdateBlockForSlashMenu(editor, {
-          type: "numberedListItem",
-        });
-      },
-      badge: formatKeyboardShortcut("Mod-Shift-7"),
-      key: "numbered_list",
-      ...editor.dictionary.slash_menu.numbered_list,
-    });
-  }
-
-  if (editorHasBlockWithType(editor, "bulletListItem")) {
-    items.push({
-      onItemClick: () => {
-        insertOrUpdateBlockForSlashMenu(editor, {
-          type: "bulletListItem",
-        });
-      },
-      badge: formatKeyboardShortcut("Mod-Shift-8"),
-      key: "bullet_list",
-      ...editor.dictionary.slash_menu.bullet_list,
-    });
-  }
-
-  if (editorHasBlockWithType(editor, "checkListItem")) {
-    items.push({
-      onItemClick: () => {
-        insertOrUpdateBlockForSlashMenu(editor, {
-          type: "checkListItem",
-        });
-      },
-      badge: formatKeyboardShortcut("Mod-Shift-9"),
-      key: "check_list",
-      ...editor.dictionary.slash_menu.check_list,
-    });
-  }
-
-  if (editorHasBlockWithType(editor, "paragraph")) {
-    items.push({
-      onItemClick: () => {
-        insertOrUpdateBlockForSlashMenu(editor, {
-          type: "paragraph",
-        });
-      },
-      badge: formatKeyboardShortcut("Mod-Alt-0"),
-      key: "paragraph",
-      ...editor.dictionary.slash_menu.paragraph,
-    });
-  }
+  pushBlockType("heading", formatKeyboardShortcut("Mod-Alt-1"));
+  pushBlockType("heading_2", formatKeyboardShortcut("Mod-Alt-2"));
+  pushBlockType("heading_3", formatKeyboardShortcut("Mod-Alt-3"));
+  pushBlockType("quote");
+  pushBlockType("toggle_list", formatKeyboardShortcut("Mod-Shift-6"));
+  pushBlockType("numbered_list", formatKeyboardShortcut("Mod-Shift-7"));
+  pushBlockType("bullet_list", formatKeyboardShortcut("Mod-Shift-8"));
+  pushBlockType("check_list", formatKeyboardShortcut("Mod-Shift-9"));
+  pushBlockType("paragraph", formatKeyboardShortcut("Mod-Alt-0"));
 
   if (editorHasBlockWithType(editor, "codeBlock")) {
     items.push({
@@ -339,52 +264,12 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (
-    editorHasBlockWithType(editor, "heading", {
-      level: "number",
-      isToggleable: "boolean",
-    })
-  ) {
-    (editor.schema.blockSchema.heading.propSchema.level.values || [])
-      .filter((level): level is 1 | 2 | 3 => level <= 3)
-      .forEach((level) => {
-        items.push({
-          onItemClick: () => {
-            insertOrUpdateBlockForSlashMenu(editor, {
-              type: "heading",
-              props: { level: level, isToggleable: true },
-            });
-          },
-          key:
-            level === 1
-              ? ("toggle_heading" as const)
-              : (`toggle_heading_${level}` as const),
-          ...editor.dictionary.slash_menu[
-            level === 1
-              ? ("toggle_heading" as const)
-              : (`toggle_heading_${level}` as const)
-          ],
-        });
-      });
-  }
-
-  if (editorHasBlockWithType(editor, "heading", { level: "number" })) {
-    (editor.schema.blockSchema.heading.propSchema.level.values || [])
-      .filter((level): level is 4 | 5 | 6 => level > 3)
-      .forEach((level) => {
-        items.push({
-          onItemClick: () => {
-            insertOrUpdateBlockForSlashMenu(editor, {
-              type: "heading",
-              props: regularHeadingProps(editor, level),
-            });
-          },
-          badge: formatKeyboardShortcut(`Mod-Alt-${level}`),
-          key: `heading_${level}`,
-          ...editor.dictionary.slash_menu[`heading_${level}`],
-        });
-      });
-  }
+  pushBlockType("toggle_heading");
+  pushBlockType("toggle_heading_2");
+  pushBlockType("toggle_heading_3");
+  pushBlockType("heading_4", formatKeyboardShortcut("Mod-Alt-4"));
+  pushBlockType("heading_5", formatKeyboardShortcut("Mod-Alt-5"));
+  pushBlockType("heading_6", formatKeyboardShortcut("Mod-Alt-6"));
 
   items.push({
     onItemClick: () => {

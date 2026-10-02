@@ -107,14 +107,13 @@ export function createToggleFrame(
     dom,
     slot,
     // Keeps the frame, and so its open state, when the block changes. Adding
-    // a child opens the toggle, and removing the last one closes it.
+    // a child opens the toggle. Removing the last child keeps it open, showing
+    // the "Add block" button, as in Notion.
     update(updated: Block<any, any, any>) {
       const newChildCount = updated.children.length;
       const wasOpen = open;
       if (newChildCount > childCount) {
         open = true;
-      } else if (newChildCount === 0 && childCount > 0) {
-        open = false;
       }
       if (open !== wasOpen) {
         toggledState.set(updated, open);

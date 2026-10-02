@@ -82,6 +82,14 @@ export interface BlockConfigMeta<
   draggable?: boolean;
 
   /**
+   * Whether a block dragged onto this block's content or frame chrome becomes
+   * its first child (as in Notion's toggles), instead of going before or after
+   * it. A block dragged onto its children still goes between them.
+   * @default false
+   */
+  dropsIntoChildren?(block: { type: TName; props: Props<TProps> }): boolean;
+
+  /**
    * Enables syntax highlighting of the contents of the block with the result of this callback
    */
   highlight?(block: { type: TName; props: Props<TProps> }): string | undefined;

@@ -316,6 +316,7 @@
     "implementation": {
       "keyboard": [Function],
       "meta": {
+        "dropsIntoChildren": [Function],
         "isolating": false,
       },
       "node": null,
@@ -626,6 +627,7 @@
     "implementation": {
       "keyboard": [Function],
       "meta": {
+        "dropsIntoChildren": [Function],
         "isolating": false,
       },
       "node": null,

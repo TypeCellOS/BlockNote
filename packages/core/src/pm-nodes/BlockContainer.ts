@@ -13,6 +13,8 @@ import { ignoreFrameChromeMutations } from "../schema/nodeViewMutations.js";
 import { mergeCSSClasses } from "../util/browser.js";
 import { suggestionMarks } from "./suggestionMarks.js";
 
+const dropEvents = new Set(["dragenter", "dragover", "dragleave", "drop"]);
+
 /** Adapts vanilla frames to the same lifecycle as framework node views. */
 function createFrameView(
   props: NodeViewRendererProps,
@@ -206,11 +208,14 @@ export const BlockContainer = Node.create<{
         },
         stopEvent(event) {
           // Author chrome handles its own events; the slot remains editable.
+          // Drag-and-drop events still go to ProseMirror, so a block dropped
+          // on the chrome drops where the drop cursor shows it.
           const target = event.target;
           return (
             (target instanceof globalThis.Node &&
               frameView.dom.contains(target) &&
-              !nodeView.contentDOM?.contains(target)) ||
+              !nodeView.contentDOM?.contains(target) &&
+              !dropEvents.has(event.type)) ||
             (frameView.stopEvent?.(event) ?? false)
           );
         },
