@@ -4,12 +4,15 @@ import type { User, UserStore } from "@blocknote/core";
 // version sidebar / diff tooltips would show a bare number (e.g. "1") instead
 // of a name. The seed (`sampleDocument.ts`) attributes each contribution to one
 // of these ids via `attribution.by`.
+// Colors are the `dark` values of BlockNote's own attribution palette
+// (`userColorPalette`). Only `color` is set, so the pale mark background is
+// derived from it (see `userMarkColors`).
 export const USERS: User[] = [
-  { id: "1", username: "Alice", avatarUrl: "", color: "#e6194b" },
-  { id: "2", username: "Bob", avatarUrl: "", color: "#3cb44b" },
-  { id: "3", username: "Carol", avatarUrl: "", color: "#f58231" },
-  { id: "4", username: "Dave", avatarUrl: "", color: "#4363d8" },
-  { id: "5", username: "Erin", avatarUrl: "", color: "#911eb4" },
+  { id: "1", username: "Alice", avatarUrl: "", color: "#3b3f9c" },
+  { id: "2", username: "Bob", avatarUrl: "", color: "#0f6e62" },
+  { id: "3", username: "Carol", avatarUrl: "", color: "#1e4fb0" },
+  { id: "4", username: "Dave", avatarUrl: "", color: "#6b2fa3" },
+  { id: "5", username: "Erin", avatarUrl: "", color: "#46525f" },
 ];
 
 /**

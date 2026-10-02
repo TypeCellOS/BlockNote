@@ -30,7 +30,11 @@ export default defineConfig(
       test: {
         environment: "jsdom",
         setupFiles: ["./vitestSetup.ts"],
-        include: ["./src/unit/**/*.test.ts", "./src/unit/**/*.test.tsx"],
+        include: [
+          "./src/unit/**/*.test.ts",
+          "./src/unit/**/*.test.tsx",
+          "../examples/07-collaboration/12-multi-doc-versioning/src/*.test.ts",
+        ],
       },
       resolve: {
         alias:
@@ -48,6 +52,14 @@ export default defineConfig(
                 "@blocknote/react": path.resolve(
                   __dirname,
                   "../packages/react/src/",
+                ),
+                "@blocknote/ariakit": path.resolve(
+                  __dirname,
+                  "../packages/ariakit/src/",
+                ),
+                "@blocknote/shadcn": path.resolve(
+                  __dirname,
+                  "../packages/shadcn/src/",
                 ),
                 "@blocknote/mantine": path.resolve(
                   __dirname,

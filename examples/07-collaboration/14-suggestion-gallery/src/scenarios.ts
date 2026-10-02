@@ -600,13 +600,13 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "nesting-unindent",
-    title: "Unindent a block",
     feedback: [
       {
         severity: "low",
         note: "Going from 1+ to 0 children re-creates the block as a new one — so concurrent edits to the original block can be lost, the whole new block is attributed to whoever made the change, and the diff takes more space than needed. A consequence of the schema fix.",
       },
     ],
+    title: "Unindent a block",
     category: "Nesting",
     description: "Un-nest N1 out of N0 (outdent) back to a top-level sibling.",
     initial: [
@@ -654,17 +654,11 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "prop-text-alignment",
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     title: "Center-align",
     category: "Prop changes",
     description:
       "Change a paragraph's text alignment from left to center — a block-level " +
-      "prop change (no insert/delete marks are generated).",
+      "prop change highlighted as a formatting change.",
     initial: [{ id: "block-hello", type: "paragraph", content: "hello world" }],
     apply: (editor) => {
       const [block] = editor.document;
@@ -677,12 +671,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "prop-heading-level",
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     title: "Demote heading",
     category: "Prop changes",
     description: "Change a heading from level 1 to level 2.",
@@ -702,12 +690,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "prop-image-width",
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     title: "Resize image",
     category: "Prop changes",
     description: "Change an image's previewWidth (200 → 400).",
@@ -729,12 +711,6 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "single",
     id: "prop-image-source",
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     title: "Change image source",
     category: "Prop changes",
     description: "Swap an image's url for a different source.",
@@ -1062,14 +1038,9 @@ export const scenarios: SuggestionScenario[] = [
     title: "Text color vs background color",
     category: "Prop changes",
     description:
-      "A sets text color red while B sets background yellow; both apply.",
+      "A sets text color red while B sets background yellow; both prop changes " +
+      "merge, each highlighted in its author's color.",
     initial: [{ id: "block-hello", type: "paragraph", content: "hello world" }],
-    feedback: [
-      {
-        severity: "low",
-        note: "Block-level prop changes produce no y-attributed-* mark, so the pending change renders as if already accepted — it's invisible in the diff.",
-      },
-    ],
     applyA: (editor) => {
       const [block] = editor.document;
       editor.updateBlock(block, {

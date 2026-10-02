@@ -9,7 +9,7 @@ exports[`suggestion mode: add a block to a column 1`] = `
       </blockContainer>
     </column>
     <column id="col-right" width="1">
-      <blockContainer id="1">
+      <blockContainer id="0">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Right column</paragraph>
       </blockContainer>
     </column>
@@ -24,12 +24,12 @@ exports[`suggestion mode: add a block to a column 2`] = `
       <blockContainer id="left-p">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
       </blockContainer>
-      <blockContainer id="2">
+      <blockContainer id="1">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Added to the left column</paragraph>
       </blockContainer>
     </column>
     <column id="col-right" width="1">
-      <blockContainer id="1">
+      <blockContainer id="0">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Right column</paragraph>
       </blockContainer>
     </column>
@@ -46,17 +46,25 @@ exports[`suggestion mode: add a block to a column 3`] = `
           <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
         </blockContainer>
         <y-attributed-insert userIds="">
-          <blockContainer id="2">
-            <y-attributed-insert userIds="">
-              <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-                <y-attributed-insert userIds="">Added to the left column</y-attributed-insert>
-              </paragraph>
-            </y-attributed-insert>
-          </blockContainer>
+          <y-attributed-attrs
+            changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+          >
+            <blockContainer id="1">
+              <y-attributed-insert userIds="">
+                <y-attributed-attrs
+                  changes="{&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+                >
+                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                    <y-attributed-insert userIds="">Added to the left column</y-attributed-insert>
+                  </paragraph>
+                </y-attributed-attrs>
+              </y-attributed-insert>
+            </blockContainer>
+          </y-attributed-attrs>
         </y-attributed-insert>
       </column>
       <column id="col-right" width="1">
-        <blockContainer id="1">
+        <blockContainer id="0">
           <paragraph backgroundColor="default" textAlignment="left" textColor="default">Right column</paragraph>
         </blockContainer>
       </column>
@@ -78,14 +86,14 @@ exports[`suggestion mode: create two columns 2`] = `
   <blockContainer id="intro">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">Intro paragraph</paragraph>
   </blockContainer>
-  <columnList id="1">
-    <column id="2" width="1">
-      <blockContainer id="3">
+  <columnList id="0">
+    <column id="1" width="1">
+      <blockContainer id="2">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
       </blockContainer>
     </column>
-    <column id="4" width="1">
-      <blockContainer id="5">
+    <column id="3" width="1">
+      <blockContainer id="4">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Right column</paragraph>
       </blockContainer>
     </column>
@@ -100,34 +108,62 @@ exports[`suggestion mode: create two columns 3`] = `
       <paragraph backgroundColor="default" textAlignment="left" textColor="default">Intro paragraph</paragraph>
     </blockContainer>
     <y-attributed-insert userIds="">
-      <columnList id="1">
-        <y-attributed-insert userIds="">
-          <column id="2" width="1">
-            <y-attributed-insert userIds="">
-              <blockContainer id="3">
+      <y-attributed-attrs
+        changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+      >
+        <columnList id="0">
+          <y-attributed-insert userIds="">
+            <y-attributed-attrs
+              changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;width&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+            >
+              <column id="1" width="1">
                 <y-attributed-insert userIds="">
-                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-                    <y-attributed-insert userIds="">Left column</y-attributed-insert>
-                  </paragraph>
+                  <y-attributed-attrs
+                    changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+                  >
+                    <blockContainer id="2">
+                      <y-attributed-insert userIds="">
+                        <y-attributed-attrs
+                          changes="{&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+                        >
+                          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                            <y-attributed-insert userIds="">Left column</y-attributed-insert>
+                          </paragraph>
+                        </y-attributed-attrs>
+                      </y-attributed-insert>
+                    </blockContainer>
+                  </y-attributed-attrs>
                 </y-attributed-insert>
-              </blockContainer>
-            </y-attributed-insert>
-          </column>
-        </y-attributed-insert>
-        <y-attributed-insert userIds="">
-          <column id="4" width="1">
-            <y-attributed-insert userIds="">
-              <blockContainer id="5">
+              </column>
+            </y-attributed-attrs>
+          </y-attributed-insert>
+          <y-attributed-insert userIds="">
+            <y-attributed-attrs
+              changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;width&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+            >
+              <column id="3" width="1">
                 <y-attributed-insert userIds="">
-                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-                    <y-attributed-insert userIds="">Right column</y-attributed-insert>
-                  </paragraph>
+                  <y-attributed-attrs
+                    changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+                  >
+                    <blockContainer id="4">
+                      <y-attributed-insert userIds="">
+                        <y-attributed-attrs
+                          changes="{&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+                        >
+                          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                            <y-attributed-insert userIds="">Right column</y-attributed-insert>
+                          </paragraph>
+                        </y-attributed-attrs>
+                      </y-attributed-insert>
+                    </blockContainer>
+                  </y-attributed-attrs>
                 </y-attributed-insert>
-              </blockContainer>
-            </y-attributed-insert>
-          </column>
-        </y-attributed-insert>
-      </columnList>
+              </column>
+            </y-attributed-attrs>
+          </y-attributed-insert>
+        </columnList>
+      </y-attributed-attrs>
     </y-attributed-insert>
   </blockGroup>
 </doc>"
@@ -137,12 +173,12 @@ exports[`suggestion mode: remove a column 1`] = `
 "<blockGroup>
   <columnList id="cols">
     <column id="col-left" width="1">
-      <blockContainer id="1">
+      <blockContainer id="0">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
       </blockContainer>
     </column>
     <column id="col-right" width="1">
-      <blockContainer id="2">
+      <blockContainer id="1">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Right column</paragraph>
       </blockContainer>
     </column>
@@ -152,7 +188,7 @@ exports[`suggestion mode: remove a column 1`] = `
 
 exports[`suggestion mode: remove a column 2`] = `
 "<blockGroup>
-  <blockContainer id="1">
+  <blockContainer id="0">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
   </blockContainer>
 </blockGroup>"
@@ -162,43 +198,79 @@ exports[`suggestion mode: remove a column 3`] = `
 "<doc>
   <blockGroup>
     <y-attributed-delete userIds="">
-      <columnList id="cols">
-        <y-attributed-delete userIds="">
-          <column id="col-left" width="1">
-            <y-attributed-delete userIds="">
-              <blockContainer id="1">
+      <y-attributed-attrs
+        changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+      >
+        <columnList id="cols">
+          <y-attributed-delete userIds="">
+            <y-attributed-attrs
+              changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;width&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+            >
+              <column id="col-left" width="1">
                 <y-attributed-delete userIds="">
-                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-                    <y-attributed-delete userIds="">Left column</y-attributed-delete>
-                  </paragraph>
+                  <y-attributed-attrs
+                    changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+                  >
+                    <blockContainer id="0">
+                      <y-attributed-delete userIds="">
+                        <y-attributed-attrs
+                          changes="{&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+                        >
+                          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                            <y-attributed-delete userIds="">Left column</y-attributed-delete>
+                          </paragraph>
+                        </y-attributed-attrs>
+                      </y-attributed-delete>
+                    </blockContainer>
+                  </y-attributed-attrs>
                 </y-attributed-delete>
-              </blockContainer>
-            </y-attributed-delete>
-          </column>
-        </y-attributed-delete>
-        <y-attributed-delete userIds="">
-          <column id="col-right" width="1">
-            <y-attributed-delete userIds="">
-              <blockContainer id="2">
+              </column>
+            </y-attributed-attrs>
+          </y-attributed-delete>
+          <y-attributed-delete userIds="">
+            <y-attributed-attrs
+              changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;width&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+            >
+              <column id="col-right" width="1">
                 <y-attributed-delete userIds="">
-                  <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-                    <y-attributed-delete userIds="">Right column</y-attributed-delete>
-                  </paragraph>
+                  <y-attributed-attrs
+                    changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+                  >
+                    <blockContainer id="1">
+                      <y-attributed-delete userIds="">
+                        <y-attributed-attrs
+                          changes="{&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+                        >
+                          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                            <y-attributed-delete userIds="">Right column</y-attributed-delete>
+                          </paragraph>
+                        </y-attributed-attrs>
+                      </y-attributed-delete>
+                    </blockContainer>
+                  </y-attributed-attrs>
                 </y-attributed-delete>
-              </blockContainer>
-            </y-attributed-delete>
-          </column>
-        </y-attributed-delete>
-      </columnList>
+              </column>
+            </y-attributed-attrs>
+          </y-attributed-delete>
+        </columnList>
+      </y-attributed-attrs>
     </y-attributed-delete>
     <y-attributed-insert userIds="">
-      <blockContainer id="1">
-        <y-attributed-insert userIds="">
-          <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-            <y-attributed-insert userIds="">Left column</y-attributed-insert>
-          </paragraph>
-        </y-attributed-insert>
-      </blockContainer>
+      <y-attributed-attrs
+        changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+      >
+        <blockContainer id="0">
+          <y-attributed-insert userIds="">
+            <y-attributed-attrs
+              changes="{&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+            >
+              <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                <y-attributed-insert userIds="">Left column</y-attributed-insert>
+              </paragraph>
+            </y-attributed-attrs>
+          </y-attributed-insert>
+        </blockContainer>
+      </y-attributed-attrs>
     </y-attributed-insert>
   </blockGroup>
 </doc>"
@@ -208,17 +280,17 @@ exports[`suggestion mode: remove a column from three 1`] = `
 "<blockGroup>
   <columnList id="cols">
     <column id="col-left" width="1">
-      <blockContainer id="1">
+      <blockContainer id="0">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
       </blockContainer>
     </column>
     <column id="col-middle" width="1">
-      <blockContainer id="2">
+      <blockContainer id="1">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Middle column</paragraph>
       </blockContainer>
     </column>
     <column id="col-right" width="1">
-      <blockContainer id="3">
+      <blockContainer id="2">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Right column</paragraph>
       </blockContainer>
     </column>
@@ -230,12 +302,12 @@ exports[`suggestion mode: remove a column from three 2`] = `
 "<blockGroup>
   <columnList id="cols">
     <column id="col-left" width="1">
-      <blockContainer id="1">
+      <blockContainer id="0">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
       </blockContainer>
     </column>
     <column id="col-middle" width="1">
-      <blockContainer id="2">
+      <blockContainer id="1">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Middle column</paragraph>
       </blockContainer>
     </column>
@@ -248,27 +320,39 @@ exports[`suggestion mode: remove a column from three 3`] = `
   <blockGroup>
     <columnList id="cols">
       <column id="col-left" width="1">
-        <blockContainer id="1">
+        <blockContainer id="0">
           <paragraph backgroundColor="default" textAlignment="left" textColor="default">Left column</paragraph>
         </blockContainer>
       </column>
       <column id="col-middle" width="1">
-        <blockContainer id="2">
+        <blockContainer id="1">
           <paragraph backgroundColor="default" textAlignment="left" textColor="default">Middle column</paragraph>
         </blockContainer>
       </column>
       <y-attributed-delete userIds="">
-        <column id="col-right" width="1">
-          <y-attributed-delete userIds="">
-            <blockContainer id="3">
-              <y-attributed-delete userIds="">
-                <paragraph backgroundColor="default" textAlignment="left" textColor="default">
-                  <y-attributed-delete userIds="">Right column</y-attributed-delete>
-                </paragraph>
-              </y-attributed-delete>
-            </blockContainer>
-          </y-attributed-delete>
-        </column>
+        <y-attributed-attrs
+          changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;width&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+        >
+          <column id="col-right" width="1">
+            <y-attributed-delete userIds="">
+              <y-attributed-attrs
+                changes="{&quot;id&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+              >
+                <blockContainer id="2">
+                  <y-attributed-delete userIds="">
+                    <y-attributed-attrs
+                      changes="{&quot;backgroundColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textColor&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null},&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+                    >
+                      <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+                        <y-attributed-delete userIds="">Right column</y-attributed-delete>
+                      </paragraph>
+                    </y-attributed-attrs>
+                  </y-attributed-delete>
+                </blockContainer>
+              </y-attributed-attrs>
+            </y-attributed-delete>
+          </column>
+        </y-attributed-attrs>
       </y-attributed-delete>
     </columnList>
   </blockGroup>

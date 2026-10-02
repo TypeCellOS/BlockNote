@@ -4,8 +4,9 @@ import "@blocknote/mantine/style.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
 import { Awareness } from "@y/protocols/awareness";
-import { withCollaboration } from "@blocknote/core/y";
+import { SuggestionsExtension, withCollaboration } from "@blocknote/core/y";
 import * as Y from "@y/y";
+import { useEffect } from "react";
 
 const doc = new Y.Doc();
 const provider = {
@@ -25,7 +26,7 @@ provider2.awareness.setLocalStateField("user", {
   color: "#6eeb83",
 });
 
-const attrs = new Y.Attributions();
+const attrs = Y.createContentMap();
 
 // Batch timestamps: reuse the same timestamp for edits from the same user
 // within a 10-second window of inactivity.
@@ -62,7 +63,7 @@ function getBatchedTimestamp(userName: string): number {
 function trackAttributions(
   trackedDoc: Y.Doc,
   userName: string,
-  attributions: Y.Attributions,
+  attributions: Y.ContentMap,
 ) {
   trackedDoc.on(
     "update",
@@ -105,7 +106,9 @@ suggestingProvider.awareness.setLocalStateField("user", {
   name: "Charlie",
   color: "#ffbc42",
 });
-const suggestingRenderer = Y.createDiffRenderer(doc, suggestingDoc, { attrs });
+const suggestingRenderer = Y.createDiffRenderer(doc, suggestingDoc, {
+  attributions: attrs,
+});
 suggestingRenderer.suggestionMode = false;
 
 const suggestionModeDoc = new Y.Doc({ isSuggestionDoc: true });
@@ -117,7 +120,7 @@ suggestionModeProvider.awareness.setLocalStateField("user", {
   color: "#ee6352",
 });
 const suggestionModeRenderer = Y.createDiffRenderer(doc, suggestionModeDoc, {
-  attrs,
+  attributions: attrs,
 });
 suggestionModeRenderer.suggestionMode = true;
 
@@ -151,13 +154,17 @@ setupTwoWaySync(suggestingDoc, suggestionModeDoc);
 function Editor({
   fragment,
   provider,
-  renderer,
+  suggestions,
   userName,
   userColor,
 }: {
-  fragment: Y.Type;
+  fragment: Y.Node;
   provider: { awareness?: Awareness };
-  renderer?: Y.DiffRenderer;
+  suggestions?: {
+    doc: Y.Doc;
+    renderer: Y.DiffRenderer;
+    mode: "view" | "edit";
+  };
   userName: string;
   userColor: string;
 }) {
@@ -166,13 +173,29 @@ function Editor({
       collaboration: {
         fragment,
         provider,
-        renderer,
+        suggestionDoc: suggestions?.doc,
+        renderer: suggestions?.renderer,
         user: { name: userName, color: userColor },
       },
     }),
   );
 
-  return <BlockNoteView editor={editor} />;
+  useEffect(() => {
+    if (!suggestions) {
+      return;
+    }
+
+    const extension = editor.getExtension(SuggestionsExtension)!;
+    if (suggestions.mode === "edit") {
+      extension.enableSuggestions();
+    } else {
+      extension.viewSuggestions();
+    }
+  }, [editor, suggestions]);
+
+  return (
+    <BlockNoteView editor={editor} editable={suggestions?.mode !== "view"} />
+  );
 }
 
 export default function App() {
@@ -217,9 +240,13 @@ export default function App() {
         <div style={{ flex: 1 }}>
           View Suggestions (Charlie)
           <Editor
-            fragment={suggestingDoc.get("doc")}
+            fragment={doc.get("doc")}
             provider={suggestingProvider}
-            renderer={suggestingRenderer}
+            suggestions={{
+              doc: suggestingDoc,
+              renderer: suggestingRenderer,
+              mode: "view",
+            }}
             userName="Charlie"
             userColor="#ffbc42"
           />
@@ -227,9 +254,13 @@ export default function App() {
         <div style={{ flex: 1 }}>
           Suggestion Mode (Debbie)
           <Editor
-            fragment={suggestionModeDoc.get("doc")}
+            fragment={doc.get("doc")}
             provider={suggestionModeProvider}
-            renderer={suggestionModeRenderer}
+            suggestions={{
+              doc: suggestionModeDoc,
+              renderer: suggestionModeRenderer,
+              mode: "edit",
+            }}
             userName="Debbie"
             userColor="#ee6352"
           />

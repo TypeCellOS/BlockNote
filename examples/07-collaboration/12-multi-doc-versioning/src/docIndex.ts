@@ -77,7 +77,7 @@ export function useDocIndex() {
   // browser's index yet. The index is local-only, while doc contents live on
   // the collaboration server — so a placeholder entry is enough to open it.
   const ensure = useCallback(
-    (id: string) => {
+    (id: string, title = "Shared document") => {
       const current = readDocs();
       if (current.some((d) => d.id === id)) {
         return;
@@ -85,7 +85,7 @@ export function useDocIndex() {
       const now = Date.now();
       current.push({
         id,
-        title: "Shared document",
+        title,
         createdAt: now,
         updatedAt: now,
       });

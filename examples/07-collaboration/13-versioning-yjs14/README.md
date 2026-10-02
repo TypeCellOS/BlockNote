@@ -1,8 +1,8 @@
 # YHub Versioning (@y/y v14)
 
-This example shows how to use the `VersioningExtension` with collaborative editing using `@y/y` (v14). Snapshots are stored in localStorage using Yjs v2 state updates.
+This example shows how to use the `VersioningExtension` with collaborative editing using `@y/y` (v14). Version history comes from [YHub](https://github.com/yjs/yhub), which records every edit and groups them into versions.
 
-**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.
+The sidebar opens on a document seeded with several versions by several users, so you can preview them, compare them, rename them, and restore them right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.
 
 **Relevant Docs:**
 

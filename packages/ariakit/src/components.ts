@@ -39,6 +39,8 @@ import { Comment } from "./comments/Comment.js";
 import { Editor } from "./comments/Editor.js";
 import { Badge, BadgeGroup } from "./badge/Badge.js";
 import {
+  Header as VersioningHeader,
+  Name as VersioningName,
   Sidebar as VersioningSidebar,
   Snapshot as VersioningSnapshot,
 } from "./versioning/Versioning.js";
@@ -94,7 +96,12 @@ export const components: Components = {
   },
   Versioning: {
     Sidebar: VersioningSidebar,
+    Header: VersioningHeader,
+    Name: VersioningName,
     Snapshot: VersioningSnapshot,
+    // The sidebar's loader is the same dots/spinner as the suggestion menu's —
+    // one spinner per UI package, not one per feature.
+    Loader: SuggestionMenuLoader,
   },
   Generic: {
     Badge: {

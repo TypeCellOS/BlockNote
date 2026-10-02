@@ -91,7 +91,7 @@ export async function setupSuggestionTest({
   const suggestionDoc = new Y.Doc({ isSuggestionDoc: true });
   suggestionDoc.clientID = 2;
   const renderer = Y.createDiffRenderer(baseDoc, suggestionDoc, {
-    attrs: new Y.Attributions(),
+    attributions: Y.createContentMap(),
   });
   renderer.suggestionMode = true;
 
@@ -164,6 +164,38 @@ export async function setupSuggestionTest({
 }
 
 /**
+ * Whether `editor` is showing the pristine-empty skeleton: a single empty
+ * paragraph with no children.
+ *
+ * The empty-doc binding keeps that skeleton local instead of committing it to
+ * Y — `blocksToYDoc([])` seeds a fragment with no children — so a pristine-empty
+ * editor corresponds to a base fragment with zero block nodes. Waiting for the
+ * skeleton to show up in `baseDoc` would never succeed.
+ *
+ * Ids are deliberately ignored: the skeleton carries whatever id the editor
+ * minted (`initialBlockId` at mount, a fresh random id after deleting all
+ * blocks). The sync layer's initial-content gate (`isInitialBlockNoteDoc` in
+ * `packages/core/src/y/extensions/YSync.ts`) treats any single empty
+ * paragraph as initial content, so the id never reaches Y either way.
+ */
+function isPristineEmptyEditor(editor: GalleryEditor): boolean {
+  const blocks = editor.document as {
+    type?: string;
+    content?: { length?: number };
+    children?: unknown[];
+  }[];
+  if (blocks.length !== 1) {
+    return false;
+  }
+  const [block] = blocks;
+  return (
+    block.type === "paragraph" &&
+    (block.content?.length ?? 0) === 0 &&
+    (block.children?.length ?? 0) === 0
+  );
+}
+
+/**
  * Count every block in a (possibly nested) BlockNote document tree.
  */
 function countBlocks(blocks: { children?: unknown[] }[]): number {
@@ -189,13 +221,19 @@ function countBlocks(blocks: { children?: unknown[] }[]): number {
  * multi-column `columnList` / `column` nodes, which serialise as their own
  * elements rather than `blockContainer`s (the `<column` prefix matches both).
  * The binding flushes a whole transaction atomically, so once the block count
- * matches the editor's document the structural content has been written.
+ * matches the editor's document the structural content has been written. The
+ * pristine-empty skeleton is not counted, as it is never committed to Y.
  */
 export async function waitForYDocSync(
   editor: GalleryEditor,
   baseDoc: Y.Doc,
 ): Promise<void> {
-  const expected = countBlocks(editor.document as { children?: unknown[] }[]);
+  // The pristine-empty skeleton never reaches Y (see `isPristineEmptyEditor`),
+  // so it is excluded from the expected block count: an empty editor document
+  // maps to a fragment with zero block nodes.
+  const expected =
+    countBlocks(editor.document as { children?: unknown[] }[]) -
+    (isPristineEmptyEditor(editor) ? 1 : 0);
   await expect
     .poll(() => {
       // `XmlFragment` isn't exported from `@y/y` v14's types, so cast to
@@ -275,17 +313,17 @@ export async function waitForSuggestion(editor: GalleryEditor): Promise<void> {
  * nested tags (`<bold>world</bold>`) and attribution as an
  * `attribution="..."` attribute so the snapshots actually differ.
  *
- * We pass an explicit, stable `renderer` (`Y.baseRenderer`) rather than
+ * We pass an explicit, stable `renderer` (`null`) rather than
  * relying on `toDeltaDeep()`'s default. As of @y/prosemirror v2.0.0-6 the
  * default renderer is ambient/mutable, so a no-arg call serialises the
  * *same* Y.Doc differently from run to run (attribution-rich vs. plain),
  * which makes these inline snapshots flip-flop and never converge. Passing
- * `Y.baseRenderer` renders each doc's own intrinsic content + stored
+ * `null` renders each doc's own intrinsic content + stored
  * attribution deterministically, independent of any live DiffRenderer.
  */
 export function ydocXml(
   doc: Y.Doc,
-  renderer: Y.AbstractRenderer | null = Y.baseRenderer,
+  renderer: Y.AbstractRenderer | null = null,
 ): string {
   const delta = (doc.get("doc") as any).toDeltaDeep({ renderer }).toJSON();
   return prettify(deltaToXml(delta), { tag_wrap: true });
@@ -443,7 +481,10 @@ function formatAttrs(attrs: Record<string, unknown>): string {
   return Object.entries(attrs)
     .filter(([, v]) => v !== null && v !== undefined)
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-    .map(([k, v]) => ` ${k}="${escapeXml(String(v))}"`)
+    .map(
+      ([k, v]) =>
+        ` ${k}="${escapeXml(k === "changes" ? JSON.stringify(v) : String(v))}"`,
+    )
     .join("");
 }
 

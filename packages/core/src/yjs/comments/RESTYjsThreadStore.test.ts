@@ -12,8 +12,11 @@ import { DefaultThreadStoreAuth } from "../../comments/threadstore/DefaultThread
 import { withCollaboration } from "../extensions/index.js";
 import { RESTYjsThreadStore } from "./RESTYjsThreadStore.js";
 
+const cleanups: Array<() => void> = [];
+
 function createCollabEditor() {
   const doc = new Y.Doc();
+  cleanups.push(() => doc.destroy());
   const fragment = doc.getXmlFragment("doc");
   const editor = BlockNoteEditor.create(
     withCollaboration({
@@ -26,6 +29,7 @@ function createCollabEditor() {
     }),
   );
   editor.mount(document.createElement("div"));
+  cleanups.push(() => editor.unmount());
   editor.replaceBlocks(editor.document, [
     { type: "paragraph", content: "Hello World" },
   ]);
@@ -33,6 +37,9 @@ function createCollabEditor() {
 }
 
 afterEach(() => {
+  while (cleanups.length) {
+    cleanups.pop()!();
+  }
   vi.restoreAllMocks();
 });
 

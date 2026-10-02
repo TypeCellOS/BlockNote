@@ -14,7 +14,7 @@ vi.mock("lib0/random", async (importOriginal) => ({
 describe("YjsThreadStore (@y/y v14)", () => {
   let store: YjsThreadStore;
   let doc: Y.Doc;
-  let threadsYType: Y.Type;
+  let threadsYType: Y.Node;
 
   beforeEach(() => {
     // Reset mocks and create fresh instances

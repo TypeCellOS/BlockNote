@@ -64,7 +64,7 @@ export function buildSuggestionScenarioDocs(
     const suggestionDoc = cloneDoc(baseDoc, { isSuggestionDoc: true });
     suggestionDoc.clientID = i + 2;
     const manager = Y.createDiffRenderer(baseDoc, suggestionDoc, {
-      attrs: createAttributionStore(suggestionDoc, (tr) =>
+      attributions: createAttributionStore(suggestionDoc, (tr) =>
         tr.local ? id : null,
       ),
     });
@@ -78,7 +78,7 @@ export function buildSuggestionScenarioDocs(
           const doc = cloneDoc(baseDoc, { isSuggestionDoc: true });
           doc.clientID = authorIds.length + 2;
           const manager = Y.createDiffRenderer(baseDoc, doc, {
-            attrs: createAttributionStore(doc, (tr) =>
+            attributions: createAttributionStore(doc, (tr) =>
               authorIds.includes(String(tr.origin)) ? String(tr.origin) : null,
             ),
           });
@@ -92,7 +92,7 @@ export function buildSuggestionScenarioDocs(
 
 /**
  * In-memory attribution store — records the author of each transaction into a
- * mutable `Y.Attributions` so suggestion marks render in their author's color.
+ * mutable `Y.ContentMap` so suggestion marks render in their author's color.
  * `resolveUserId` returns the author id, or null to leave a change unattributed
  * (the base seed and the manager's own base→suggestion flow carry no author).
  * Mirrors the store in `concurrentSuggestionFixture.tsx`.
@@ -100,8 +100,8 @@ export function buildSuggestionScenarioDocs(
 export function createAttributionStore(
   doc: Y.Doc,
   resolveUserId: (tr: any) => string | null,
-): Y.Attributions {
-  const attrs = new Y.Attributions();
+): Y.ContentMap {
+  const attrs = Y.createContentMap();
   doc.on("beforeObserverCalls", (tr: any) => {
     const userId = resolveUserId(tr);
     if (userId == null) {

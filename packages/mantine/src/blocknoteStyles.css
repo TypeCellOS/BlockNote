@@ -817,3 +817,280 @@ we just don't display it in CSS instead. */
 .bn-mantine .bn-badge .mantine-Chip-iconWrapper {
   display: none;
 }
+
+/* Version history */
+.bn-mantine .bn-versioning-sidebar {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding-inline: 16px;
+}
+
+.bn-mantine .bn-versioning-sidebar-header {
+  flex-shrink: 0;
+  padding-block: 16px 8px;
+}
+
+.bn-mantine .bn-versioning-sidebar-title {
+  color: var(--mantine-color-text);
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.bn-mantine .bn-versioning-sidebar-header-actions {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+}
+
+.bn-mantine .bn-versioning-sidebar-list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin: -4px -4px 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 4px 16px;
+}
+
+.bn-mantine .bn-versioning-sidebar-loading {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  padding-block: 24px;
+}
+
+.bn-mantine .bn-versioning-sidebar-empty,
+.bn-mantine .bn-versioning-sidebar-error {
+  flex-shrink: 0;
+  font-size: 13px;
+  padding-block: 12px;
+  text-align: center;
+}
+
+.bn-mantine .bn-versioning-sidebar-empty {
+  color: var(--mantine-color-dimmed);
+}
+
+.bn-mantine .bn-versioning-sidebar-error {
+  color: var(--mantine-color-red-7);
+  padding-block: 8px;
+  text-align: start;
+}
+
+.bn-mantine[data-mantine-color-scheme="dark"] .bn-versioning-sidebar-error {
+  color: var(--mantine-color-red-4);
+}
+
+.bn-mantine .bn-snapshot {
+  background-color: var(--mantine-color-body);
+  border: 1px solid transparent;
+  border-radius: var(--mantine-radius-md);
+  color: var(--mantine-color-text);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 4px;
+  overflow: visible;
+  padding: 12px 14px;
+  position: relative;
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease;
+  width: 100%;
+}
+
+.bn-mantine .bn-snapshot:hover {
+  background-color: var(--mantine-color-default-hover);
+}
+
+.bn-mantine .bn-snapshot:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}
+
+.bn-mantine .bn-snapshot.selected:focus-visible {
+  outline-color: var(--mantine-color-white);
+  outline-offset: -4px;
+}
+
+.bn-mantine .bn-snapshot-title-row {
+  min-height: 20px;
+  min-width: 0;
+  padding-right: 20px;
+}
+
+.bn-mantine .bn-snapshot-name {
+  color: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bn-mantine .bn-snapshot-name-sizer {
+  display: inline-grid;
+  grid-template-columns: minmax(0, max-content);
+  margin: -2px -5px;
+  max-width: calc(100% + 10px);
+  min-width: 0;
+}
+
+.bn-mantine .bn-snapshot-name-sizer::after {
+  border: 1px solid transparent;
+  content: attr(data-value) " ";
+  font-size: 14px;
+  font-weight: 700;
+  grid-area: 1 / 1;
+  line-height: 20px;
+  padding: 1px 4px;
+  visibility: hidden;
+  white-space: pre;
+}
+
+.bn-mantine .bn-snapshot-name-sizer > .bn-snapshot-name {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--mantine-radius-sm);
+  grid-area: 1 / 1;
+  margin: 0;
+  min-width: 0;
+  padding: 1px 4px;
+  width: 100%;
+}
+
+.bn-mantine
+  .bn-snapshot-name-sizer
+  > .bn-snapshot-name
+  > input.bn-snapshot-name {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  height: 20px;
+  margin: 0;
+  min-width: 0;
+  outline: none;
+  padding: 0;
+  width: 100%;
+}
+
+.bn-mantine .bn-snapshot-name::placeholder {
+  color: inherit;
+  opacity: 1;
+}
+
+.bn-mantine .bn-snapshot-name-sizer > .bn-snapshot-name:hover {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.bn-mantine .bn-snapshot-name-sizer > .bn-snapshot-name:focus-within {
+  border-color: var(--mantine-primary-color-filled);
+  outline: none;
+  text-decoration: none;
+}
+
+.bn-mantine
+  .bn-snapshot.selected
+  .bn-snapshot-name-sizer
+  > .bn-snapshot-name:focus-within {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.bn-mantine .bn-snapshot-body,
+.bn-mantine .bn-snapshot-date,
+.bn-mantine .bn-snapshot-original-date,
+.bn-mantine .bn-snapshot-secondary-label {
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.bn-mantine .bn-snapshot-original-date,
+.bn-mantine .bn-snapshot-secondary-label {
+  color: var(--mantine-color-dimmed);
+}
+
+.bn-mantine .bn-snapshot-menu {
+  opacity: 0;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  transition: opacity 0.12s ease;
+}
+
+.bn-mantine .bn-snapshot:hover .bn-snapshot-menu,
+.bn-mantine .bn-snapshot:focus-visible .bn-snapshot-menu,
+.bn-mantine .bn-snapshot:focus-within .bn-snapshot-menu {
+  opacity: 1;
+}
+
+.bn-mantine .bn-snapshot-menu .bn-action-toolbar {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+}
+
+.bn-mantine .bn-snapshot .bn-snapshot-menu-trigger,
+.bn-mantine .bn-snapshot .bn-snapshot-menu-trigger:hover,
+.bn-mantine .bn-snapshot .bn-snapshot-menu-trigger[data-selected] {
+  background-color: transparent;
+  border: none;
+  height: auto;
+  min-width: 0;
+  padding: 2px;
+}
+
+.bn-mantine .bn-snapshot .bn-snapshot-menu-trigger:hover {
+  opacity: 0.6;
+}
+
+.bn-mantine .bn-snapshot.selected {
+  background-color: var(--mantine-primary-color-filled);
+  color: var(--mantine-color-white);
+}
+
+.bn-mantine .bn-snapshot.selected .bn-snapshot-name,
+.bn-mantine .bn-snapshot.selected .bn-snapshot-name::placeholder {
+  color: var(--mantine-color-white);
+}
+
+.bn-mantine .bn-snapshot.selected .bn-snapshot-date,
+.bn-mantine .bn-snapshot.selected .bn-snapshot-original-date,
+.bn-mantine .bn-snapshot.selected .bn-snapshot-secondary-label,
+.bn-mantine .bn-snapshot.selected .bn-snapshot-menu-trigger {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.bn-mantine .bn-snapshot-comparison-source,
+.bn-mantine .bn-snapshot.comparing {
+  border-color: var(--mantine-primary-color-filled);
+  box-shadow: 0 0 0 1px var(--mantine-primary-color-filled);
+}
+
+.bn-mantine .bn-snapshot.comparing {
+  background-color: color-mix(
+    in srgb,
+    var(--mantine-primary-color-filled) 8%,
+    var(--mantine-color-body)
+  );
+}
+
+.bn-mantine .bn-snapshot-comparing-to {
+  color: var(--mantine-primary-color-filled);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bn-mantine[data-mantine-color-scheme="dark"] .bn-snapshot-comparing-to {
+  color: var(--mantine-primary-color-3);
+}

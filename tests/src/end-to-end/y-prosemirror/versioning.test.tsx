@@ -15,6 +15,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import {
   blocksToYDoc,
+  getAttributeChanges,
   createYjsVersioningAdapter,
   withCollaboration,
 } from "@blocknote/core/y";
@@ -83,6 +84,13 @@ function mountEditor(doc: Y.Doc): {
 // retried into a runaway warning loop that never lets the suite finish.
 const VERSIONING_CRASHES = new Set<string>(["large-diff-delete-all"]);
 
+const propertyChanges = new Map([
+  ["prop-text-alignment", "textAlignment"],
+  ["prop-heading-level", "level"],
+  ["prop-image-width", "previewWidth"],
+  ["prop-image-source", "url"],
+]);
+
 for (const scenario of scenarios) {
   const applies =
     scenario.kind === "single"
@@ -134,6 +142,22 @@ for (const scenario of scenarios) {
 
       // Reached only when enterPreview didn't throw: the diff is now showing.
       expect(diffEditor.prosemirrorState.doc.childCount).toBeGreaterThan(0);
+      const property = propertyChanges.get(scenario.id);
+      if (property) {
+        const changedProperties: string[] = [];
+        diffEditor.prosemirrorState.doc.descendants((node) => {
+          for (const mark of node.marks) {
+            if (mark.type.name === "y-attributed-attrs") {
+              changedProperties.push(...Object.keys(getAttributeChanges(mark)));
+            }
+          }
+        });
+        expect(changedProperties).toEqual([property]);
+        adapter.preview.exitPreview();
+        expect(
+          diffEditor.prosemirrorView.dom.querySelector("[data-attributes]"),
+        ).toBeNull();
+      }
     } finally {
       teardown.reverse().forEach((fn) => fn());
     }

@@ -51,6 +51,7 @@ export default defineConfig(
         lib: {
           entry: {
             "blocknote-react": path.resolve(__dirname, "src/index.ts"),
+            versioning: path.resolve(__dirname, "src/versioning.ts"),
           },
           name: "blocknote-react",
           cssFileName: "style",

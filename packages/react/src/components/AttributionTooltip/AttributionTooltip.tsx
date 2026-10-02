@@ -19,7 +19,7 @@ export const AttributionTooltip = (props: AttributionTooltipProps) => {
   const dictionary = useDictionary();
 
   // Compose the fully-localized text from the raw change context — e.g.
-  // `"Inserted by: Alice"`, `"Deleted by: Alice"`, or
+  // `"Inserted by: Alice"`, `"Inserted in: Draft 3"`, or
   // `"Formatting change (Bold, Italic) by: Alice"`. The outer sentence comes
   // from the `suggestion_changes` dictionary (translated per locale) and the
   // inner format list from the configurable `formatChangeLabel`.
@@ -30,24 +30,35 @@ export const AttributionTooltip = (props: AttributionTooltipProps) => {
     const users = props.users.join(", ");
 
     if (props.modificationType === "insert") {
-      return changes.inserted_by(users);
+      return props.provenance === "version"
+        ? changes.inserted_in(users)
+        : changes.inserted_by(users);
     }
     if (props.modificationType === "delete") {
-      return changes.deleted_by(users);
+      return props.provenance === "version"
+        ? changes.deleted_in(users)
+        : changes.deleted_by(users);
+    }
+
+    if (props.modificationType === "attrs") {
+      return users
+        ? `${changes.formatting_change}: ${users}`
+        : changes.formatting_change;
     }
 
     const formatLabel = props.format
       ? formatChangeLabel({ format: props.format, dictionary })
       : "";
+    // When the label falls back to the generic string (unknown/empty formats),
+    // rendering it inside `formatting_change_by` would duplicate it as
+    // "Formatting change (Formatting Change) by: ...", so list it once instead.
+    if (!formatLabel || formatLabel === changes.formatting_change) {
+      return users
+        ? `${changes.formatting_change}: ${users}`
+        : changes.formatting_change;
+    }
     return changes.formatting_change_by(formatLabel, users);
-  }, [
-    dictionary,
-    props.formatChangeLabel,
-    props.users,
-    props.modificationType,
-    props.format,
-  ]);
-
+  }, [dictionary, props]);
   return (
     <Components.AttributionTooltip.Root
       className={"bn-suggestion-tooltip"}

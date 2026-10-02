@@ -1,1 +1,4 @@
-export * from "./yhub.js";
+export {
+  createYHubVersioningEndpoints,
+  type YHubVersioningOptions,
+} from "./yhub.js";

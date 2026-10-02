@@ -73,3 +73,132 @@
   color: var(--bn-colors-highlights-red-background);
   font-weight: bold;
 }
+
+/* Version history. Row and header chrome use shadcn utility classes in the
+   components; these rules cover shared behavioral nodes and the inline name. */
+.bn-shadcn .bn-versioning-sidebar-header-actions {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+}
+
+.bn-shadcn .bn-versioning-sidebar-list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin: -4px -4px 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 4px 16px;
+}
+
+.bn-shadcn .bn-versioning-sidebar-loading {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  padding-block: 24px;
+}
+
+.bn-shadcn .bn-versioning-sidebar-empty,
+.bn-shadcn .bn-versioning-sidebar-error {
+  flex-shrink: 0;
+  font-size: 13px;
+  padding-block: 12px;
+  text-align: center;
+}
+
+.bn-shadcn .bn-versioning-sidebar-empty {
+  color: var(--muted-foreground);
+}
+
+.bn-shadcn .bn-versioning-sidebar-error {
+  color: var(--destructive);
+  padding-block: 8px;
+  text-align: start;
+}
+
+.bn-shadcn .bn-snapshot-name {
+  color: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bn-shadcn .bn-snapshot-name-sizer {
+  display: inline-grid;
+  grid-template-columns: minmax(0, max-content);
+  margin: -2px -5px;
+  max-width: calc(100% + 10px);
+  min-width: 0;
+}
+
+.bn-shadcn .bn-snapshot-name-sizer::after {
+  border: 1px solid transparent;
+  content: attr(data-value) " ";
+  font-size: 14px;
+  font-weight: 700;
+  grid-area: 1 / 1;
+  line-height: 20px;
+  padding: 1px 4px;
+  visibility: hidden;
+  white-space: pre;
+}
+
+.bn-shadcn .bn-snapshot-name-sizer > .bn-snapshot-name {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius) - 4px);
+  grid-area: 1 / 1;
+  margin: 0;
+  min-width: 0;
+  padding: 1px 4px;
+  width: 100%;
+}
+
+.bn-shadcn .bn-snapshot-name::placeholder {
+  color: inherit;
+  opacity: 1;
+}
+
+.bn-shadcn .bn-snapshot-name-sizer > .bn-snapshot-name:hover {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.bn-shadcn .bn-snapshot-name-sizer > .bn-snapshot-name:focus {
+  border-color: var(--primary);
+  outline: none;
+  text-decoration: none;
+}
+
+.bn-shadcn .bn-snapshot.selected .bn-snapshot-name:focus {
+  background-color: rgb(255 255 255 / 0.15);
+  border-color: rgb(255 255 255 / 0.6);
+}
+
+.bn-shadcn .bn-snapshot.selected .bn-snapshot-original-date,
+.bn-shadcn .bn-snapshot.selected .bn-snapshot-secondary-label,
+.bn-shadcn .bn-snapshot.selected .bn-snapshot-menu-trigger {
+  color: color-mix(in srgb, var(--primary-foreground) 90%, transparent);
+}
+
+.bn-shadcn .bn-snapshot-menu .bn-action-toolbar {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+}
+
+.bn-shadcn .bn-snapshot .bn-snapshot-menu-trigger,
+.bn-shadcn .bn-snapshot .bn-snapshot-menu-trigger:hover,
+.bn-shadcn .bn-snapshot .bn-snapshot-menu-trigger[data-selected] {
+  background-color: transparent;
+  border: none;
+  height: auto;
+  min-width: 0;
+  padding: 2px;
+}
