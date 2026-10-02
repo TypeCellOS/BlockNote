@@ -65,6 +65,9 @@ const forceToggleBlocksShow = (element: HTMLElement) => {
   );
   hiddenToggleWrappers.forEach((toggleWrapper) => {
     toggleWrapper.setAttribute("data-show-children", "true");
+    toggleWrapper
+      .querySelector(":scope > .bn-toggle-button")
+      ?.setAttribute("aria-expanded", "true");
   });
 
   return element;

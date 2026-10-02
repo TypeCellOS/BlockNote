@@ -200,6 +200,7 @@ export const nl: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "Lege uitklapper. Klik om een blok toe te voegen.",
+    toggle_button_label: "Uitklappen of inklappen",
   },
   code_block: {
     add_source_button_text: "Broncode toevoegen",

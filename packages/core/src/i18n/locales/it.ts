@@ -221,6 +221,7 @@ export const it: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "Toggle vuoto. Clicca per aggiungere un blocco.",
+    toggle_button_label: "Espandi o comprimi",
   },
   code_block: {
     add_source_button_text: "Aggiungi codice sorgente",
