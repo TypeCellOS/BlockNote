@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vite-plus/test";
 import { trackPosition } from "../../api/positionMapping.js";
 import * as Y from "yjs";
 import { Awareness } from "y-protocols/awareness";
+import { ySyncPluginKey, yUndoPluginKey } from "y-prosemirror";
 import { BlockNoteEditor } from "../../index.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
 import { withCollaboration } from "./index.js";
@@ -13,18 +14,19 @@ import { withCollaboration } from "./index.js";
 function createCollabEditor() {
   const doc = new Y.Doc();
   const fragment = doc.getXmlFragment("doc");
+  const awareness = new Awareness(doc);
   const editor = BlockNoteEditor.create(
     withCollaboration({
       collaboration: {
         fragment,
         user: { name: "Test User", color: "#FF0000" },
-        provider: { awareness: new Awareness(doc) },
+        provider: { awareness },
       },
     }),
   );
   const div = document.createElement("div");
   editor.mount(div);
-  return { editor, doc, fragment };
+  return { editor, doc, fragment, awareness };
 }
 
 function getEditorText(editor: BlockNoteEditor) {
@@ -44,6 +46,7 @@ let ctx: ReturnType<typeof createCollabEditor>;
 
 afterEach(() => {
   ctx?.editor.unmount();
+  ctx?.awareness.destroy();
   ctx?.doc.destroy();
 });
 
@@ -88,6 +91,68 @@ describe("ForkYDocExtension", () => {
 
     // The editor and original fragment should both reflect the forked edit
     expect(getEditorText(ctx.editor)).toContain("Forked edit");
+  });
+
+  // https://github.com/TypeCellOS/BlockNote/issues/3135
+  it.each([false, true])(
+    "merge({ keepChanges: %s }) restores remote cursors without splitting the sync binding",
+    (keepChanges) => {
+      ctx = createCollabEditor();
+      ctx.editor.replaceBlocks(ctx.editor.document, [
+        { type: "paragraph", content: "one" },
+        { type: "paragraph", content: "two" },
+      ]);
+
+      const cursor = Y.relativePositionToJSON(
+        Y.createRelativePositionFromTypeIndex(
+          ctx.fragment,
+          ctx.fragment.length,
+        ),
+      );
+      // The provider's awareness map can receive a remote state without a network connection.
+      ctx.awareness.getStates().set(424242, {
+        user: { name: "Remote", color: "#00FF00" },
+        cursor: { anchor: cursor, head: cursor },
+      });
+
+      const forkYDoc = ctx.editor.getExtension(ForkYDocExtension)!;
+      forkYDoc.fork();
+      setEditorText(ctx.editor, "Forked edit");
+      expect(() => forkYDoc.merge({ keepChanges })).not.toThrow();
+      expect(forkYDoc.store.state.isForked).toBe(false);
+      expect(getEditorText(ctx.editor)).toBe(
+        keepChanges ? "Forked edit" : "onetwo",
+      );
+      const sync = ySyncPluginKey.getState(ctx.editor.prosemirrorState);
+      expect(sync.type).toBe(ctx.fragment);
+      expect(sync.doc).toBe(ctx.doc);
+      expect(sync.binding.type).toBe(ctx.fragment);
+      expect(
+        ctx.editor.domElement?.querySelector(".bn-collaboration-cursor__base"),
+      ).not.toBeNull();
+    },
+  );
+
+  it("keeps fork undo separate from the original undo and redo history", () => {
+    ctx = createCollabEditor();
+    setEditorText(ctx.editor, "First");
+    yUndoPluginKey
+      .getState(ctx.editor.prosemirrorState)!
+      .undoManager.stopCapturing();
+    setEditorText(ctx.editor, "Second");
+    expect(ctx.editor.undo()).toBe(true);
+    expect(getEditorText(ctx.editor)).toBe("First");
+
+    const forkYDoc = ctx.editor.getExtension(ForkYDocExtension)!;
+    forkYDoc.fork();
+    setEditorText(ctx.editor, "Forked");
+    expect(ctx.editor.undo()).toBe(true);
+    expect(getEditorText(ctx.editor)).toBe("First");
+    expect(ctx.fragment.toJSON()).toContain("First");
+    forkYDoc.merge({ keepChanges: false });
+
+    expect(ctx.editor.redo()).toBe(true);
+    expect(getEditorText(ctx.editor)).toBe("Second");
   });
 
   it("fork({ initialUpdate }) uses the provided update instead of the live doc", () => {
