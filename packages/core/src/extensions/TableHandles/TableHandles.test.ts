@@ -1,15 +1,23 @@
 import { describe, expect, it } from "vite-plus/test";
 
+import type { DefaultInlineContentSchema } from "../../blocks/defaultBlocks.js";
 import { CommentMark } from "../../comments/mark.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
+import type { PartialTableContent } from "../../schema/index.js";
 import { TableHandlesView } from "./TableHandles.js";
 
 /**
  * @vitest-environment jsdom
  */
 
-function createEditor() {
+function createEditor(
+  content: PartialTableContent<DefaultInlineContentSchema> = {
+    type: "tableContent",
+    columnWidths: [100, 200],
+    rows: [{ cells: ["a", "b"] }, { cells: ["c", "d"] }],
+  },
+) {
   const editor = BlockNoteEditor.create({
     extensions: [
       createExtension({ key: "commentMark", tiptapExtensions: [CommentMark] }),
@@ -17,15 +25,7 @@ function createEditor() {
   });
   editor.mount(document.body.appendChild(document.createElement("div")));
   editor.replaceBlocks(editor.document, [
-    {
-      id: "table",
-      type: "table",
-      content: {
-        type: "tableContent",
-        columnWidths: [100, 200],
-        rows: [{ cells: ["a", "b"] }, { cells: ["c", "d"] }],
-      },
-    },
+    { id: "table", type: "table", content },
   ]);
 
   // Comment on the "a" cell.
@@ -77,20 +77,26 @@ function drop(
     },
     widgetContainer: undefined,
   };
-  expect(view.dropHandler(new Event("drop") as DragEvent)).toBe(true);
+  return view.dropHandler(new Event("drop") as DragEvent);
 }
 
-// Text of each cell, with the thread ID of any comment on it.
+// Text of each cell, with the thread ID of any comment on it and the cell's
+// span if it's a merged cell.
 function cells(editor: BlockNoteEditor<any, any, any>) {
   const rows: string[][] = [];
+  let span = "";
   editor.prosemirrorState.doc.descendants((node) => {
     if (node.type.name === "tableRow") {
       rows.push([]);
     }
+    if (node.type.name === "tableCell") {
+      const { colspan, rowspan } = node.attrs;
+      span = colspan > 1 || rowspan > 1 ? `[${colspan}x${rowspan}]` : "";
+    }
     if (node.isText) {
       const comment = node.marks.find((m) => m.type.name === "comment");
       rows[rows.length - 1].push(
-        node.text! + (comment ? `@${comment.attrs.threadId}` : ""),
+        node.text! + (comment ? `@${comment.attrs.threadId}` : "") + span,
       );
     }
   });
@@ -101,7 +107,7 @@ describe("Table handles drag & drop", () => {
   it("keeps comments when moving a row", () => {
     const editor = createEditor();
 
-    drop(editor, "row", 0, 1);
+    expect(drop(editor, "row", 0, 1)).toBe(true);
 
     expect(cells(editor)).toEqual([
       ["c", "d"],
@@ -113,7 +119,7 @@ describe("Table handles drag & drop", () => {
   it("keeps comments and column widths when moving a column", () => {
     const editor = createEditor();
 
-    drop(editor, "col", 0, 1);
+    expect(drop(editor, "col", 0, 1)).toBe(true);
 
     expect(cells(editor)).toEqual([
       ["b", "a@thread"],
@@ -123,5 +129,81 @@ describe("Table handles drag & drop", () => {
       200, 100,
     ]);
     editor._tiptapEditor.destroy();
+  });
+
+  describe("with merged cells", () => {
+    it("moves a column past a cell spanning two columns", () => {
+      const editor = createEditor({
+        type: "tableContent",
+        rows: [
+          {
+            cells: [
+              { type: "tableCell", content: "a", props: { colspan: 2 } },
+              { type: "tableCell", content: "b" },
+            ],
+          },
+          { cells: ["c", "d", "e"] },
+        ],
+      });
+
+      // The handle indices count cells, so column 1 is the one holding "b".
+      expect(drop(editor, "col", 1, 0)).toBe(true);
+
+      expect(cells(editor)).toEqual([
+        ["b", "a@thread[2x1]"],
+        ["e", "c", "d"],
+      ]);
+      editor._tiptapEditor.destroy();
+    });
+
+    it("moves a row past a cell spanning two rows", () => {
+      const editor = createEditor({
+        type: "tableContent",
+        rows: [
+          {
+            cells: [
+              { type: "tableCell", content: "a", props: { rowspan: 2 } },
+              { type: "tableCell", content: "b" },
+            ],
+          },
+          { cells: ["c"] },
+          { cells: ["d", "e"] },
+        ],
+      });
+
+      expect(drop(editor, "row", 2, 0)).toBe(true);
+
+      expect(cells(editor)).toEqual([
+        ["d", "e"],
+        ["a@thread[1x2]", "b"],
+        ["c"],
+      ]);
+      editor._tiptapEditor.destroy();
+    });
+
+    it("doesn't drop a row into the middle of a cell spanning two rows", () => {
+      const editor = createEditor({
+        type: "tableContent",
+        rows: [
+          { cells: ["a", "b"] },
+          {
+            cells: [
+              { type: "tableCell", content: "c", props: { rowspan: 2 } },
+              { type: "tableCell", content: "d" },
+            ],
+          },
+          { cells: ["e"] },
+        ],
+      });
+
+      expect(drop(editor, "row", 0, 1)).toBe(false);
+
+      expect(cells(editor)).toEqual([
+        ["a@thread", "b"],
+        ["c[1x2]", "d"],
+        ["e"],
+      ]);
+      editor._tiptapEditor.destroy();
+    });
   });
 });
