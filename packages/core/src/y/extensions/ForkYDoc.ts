@@ -64,10 +64,8 @@ export const ForkYDocExtension = createExtension(
         };
 
         options.provider?.awareness?.setLocalStateField("cursor", null);
-        editor.exec(configureYProsemirror({ ytype: forkedFragment }));
-
-        // Tell the store that the editor is now forked
         store.setState({ isForked: true });
+        editor.exec(configureYProsemirror({ ytype: forkedFragment }));
       },
 
       /**
@@ -75,7 +73,13 @@ export const ForkYDocExtension = createExtension(
        * If `keepChanges` is true, any changes that have been made to the forked document will be applied to the original document.
        * Otherwise, the original document will be restored and the changes will be discarded.
        */
-      merge({ keepChanges }: { keepChanges: boolean }) {
+      merge({
+        keepChanges,
+        renderer = options.renderer,
+      }: {
+        keepChanges: boolean;
+        renderer?: Y.DiffRenderer | null;
+      }) {
         if (!forkedState) {
           return;
         }
@@ -85,7 +89,7 @@ export const ForkYDocExtension = createExtension(
         editor.exec(
           configureYProsemirror({
             ytype: originalFragment,
-            renderer: options.renderer,
+            renderer,
           }),
         );
         if (cursor) {

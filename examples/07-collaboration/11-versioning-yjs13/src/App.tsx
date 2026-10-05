@@ -1,10 +1,9 @@
 import "@blocknote/core/fonts/inter.css";
-import { withCollaboration } from "@blocknote/core/yjs";
-import { VersioningExtension } from "@blocknote/core/extensions";
-import { createYjsVersioningAdapter } from "@blocknote/core/yjs";
+import { withCollaboration, VersioningExtension } from "@blocknote/core/yjs";
+import type { VersioningController } from "@blocknote/core/extensions";
 import {
   hasStoredVersions,
-  localStorageEndpoints,
+  createLocalStorageVersioningEndpoints,
   storeVersions,
 } from "./localStorageEndpoints";
 import { RenderInPortalElement, useCreateBlockNote } from "@blocknote/react";
@@ -74,19 +73,14 @@ export default function App() {
         user: { color: "#ff0000", name: "User", id: "user" },
       },
       extensions: [
-        // The v13 CollaborationExtension does not wire up versioning
-        // automatically, so we add VersioningExtension manually and use
-        // createYjsVersioningAdapter to bridge the Yjs v13 preview logic.
-        VersioningExtension((editor) => ({
-          ...createYjsVersioningAdapter(editor, { fragment }),
-          endpoints: localStorageEndpoints,
-        })),
+        VersioningExtension({
+          storage: createLocalStorageVersioningEndpoints(fragment),
+        }),
       ],
     }),
   );
 
   const [showSidebar, setShowSidebar] = useState(true);
-  // The element in the layout that the history sidebar is rendered into.
   const [sidebarPanel, setSidebarPanel] = useState<HTMLDivElement | null>(null);
 
   return (
@@ -97,7 +91,10 @@ export default function App() {
         {!showSidebar && (
           <button
             className="show-history-button"
-            onClick={() => setShowSidebar(true)}
+            onClick={() => {
+              editor.getExtension<VersioningController>("versioning")!.open();
+              setShowSidebar(true);
+            }}
           >
             History
           </button>

@@ -1,18 +1,14 @@
-import {
-  VersioningExtension,
-  type VersionSnapshot,
-} from "@blocknote/core/extensions";
+import type { VersionSnapshot } from "@blocknote/core/extensions";
 import { useCallback } from "react";
 
-import { useExtension } from "../../hooks/useExtension.js";
-import { getPreviousVisibleVersion } from "./visibleHistory.js";
+import { useVersioning } from "./useVersioning.js";
+import { getPreviousVisibleVersion, getVersionList } from "./visibleHistory.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
 
 /**
  * What showing a row should diff against:
  *
- * - `previous` — the previous visible version (the row below this one
- *   after applying the named-only filter).
+ * - `previous` — the next older visible version, respecting the named-only filter.
  * - `none` — show the version on its own, no diff.
  * - `snapshot` — a specific baseline ("Compare with this version").
  */
@@ -22,16 +18,15 @@ export type CompareTarget =
   | { type: "snapshot"; id: string };
 
 /**
- * Preview a row using the sidebar's comparison and filter settings, unless
- * overridden. Current falls back to the live view if it cannot be previewed.
+ * Preview a row using the sidebar's comparison setting, unless
+ * overridden. Current always refers to the frozen capture from opening.
  * Rejects on failure; wrap the complete user action in the sidebar's `run`.
  */
 export function usePreviewRow(): (
   row: VersionSnapshot,
   options?: { compareTo?: CompareTarget; namedOnly?: boolean },
 ) => Promise<void> {
-  const { previewSnapshot, previewCurrentVersion, exitPreview, store } =
-    useExtension(VersioningExtension);
+  const { select, store } = useVersioning();
   const { comparisonMode, namedOnly } = useVersioningSidebar();
 
   return useCallback(
@@ -39,7 +34,7 @@ export function usePreviewRow(): (
       row: VersionSnapshot,
       options?: { compareTo?: CompareTarget; namedOnly?: boolean },
     ) => {
-      const { list } = store.state;
+      const list = getVersionList(store.state);
       if (!list.loaded) {
         return;
       }
@@ -68,21 +63,11 @@ export function usePreviewRow(): (
           compareTo satisfies never;
       }
 
-      if (!isCurrent) {
-        await previewSnapshot(row.id, { compareTo: compareToId });
-      } else if (previewCurrentVersion) {
-        await previewCurrentVersion({ compareTo: compareToId });
-      } else {
-        exitPreview();
-      }
+      await select(
+        isCurrent ? { type: "current" } : { type: "snapshot", id: row.id },
+        { compareTo: compareToId },
+      );
     },
-    [
-      store,
-      comparisonMode,
-      namedOnly,
-      previewCurrentVersion,
-      previewSnapshot,
-      exitPreview,
-    ],
+    [store, comparisonMode, namedOnly, select],
   );
 }

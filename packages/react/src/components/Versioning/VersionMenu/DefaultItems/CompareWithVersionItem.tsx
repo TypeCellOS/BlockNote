@@ -1,12 +1,11 @@
-import { VersioningExtension } from "@blocknote/core/extensions";
 import { GoDiff } from "react-icons/go";
 
 import { useDictionary } from "../../../../i18n/dictionary.js";
-import { useExtension } from "../../../../hooks/useExtension.js";
+import { useVersioning } from "../../useVersioning.js";
 import { usePreviewRow } from "../../usePreviewRow.js";
 import { useVersioningSidebar } from "../../VersioningSidebarContext.js";
 import { useVersionSnapshot } from "../../VersionSnapshotContext.js";
-import { getShownVersionRow } from "../../visibleHistory.js";
+import { getShownVersionRow, getVersionList } from "../../visibleHistory.js";
 import type {
   DefaultVersionMenuItemProps,
   VersionMenuAction,
@@ -18,13 +17,16 @@ import { DefaultVersionMenuItem } from "../DefaultVersionMenuItem.js";
  * one against the older one. Falls back to current when nothing is shown.
  */
 export function useCompareWithVersionAction(): VersionMenuAction {
-  const { store, canCompare } = useExtension(VersioningExtension);
+  const { store, canCompare } = useVersioning();
   const { setComparisonMode, run } = useVersioningSidebar();
   const previewRow = usePreviewRow();
   const { snapshot, isCurrent } = useVersionSnapshot();
 
-  const { view } = store.state;
-  const isShown = view.mode === "snapshot" && view.snapshotId === snapshot.id;
+  const view = store.state;
+  const isShown =
+    view.mode === "versions" &&
+    view.displayed.type === "snapshot" &&
+    view.displayed.id === snapshot.id;
 
   if (isCurrent || isShown || !canCompare) {
     return { available: false };
@@ -35,7 +37,8 @@ export function useCompareWithVersionAction(): VersionMenuAction {
     execute: () => {
       setComparisonMode(true);
 
-      const { view, list } = store.state;
+      const view = store.state;
+      const list = getVersionList(view);
       if (!list.loaded) {
         return;
       }

@@ -1,265 +1,170 @@
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import type { User, UserStoreOrResolver } from "../../user/index.js";
-
-/** Expected failures are returned; unexpected failures still reject. */
-export type VersioningResult<Value, Err> =
-  | { value: Value; error?: undefined }
-  | { value?: undefined; error: Err };
-
-/** A rejected history endpoint. Never display the underlying cause in the UI. */
-export type VersionHistoryFetchError = {
-  type: "fetch-failed";
-  cause: unknown;
-};
-
-/** Metadata for a point in document history, managed by {@link VersioningEndpoints}. */
-export interface VersionSnapshot<Metadata = unknown> {
-  /** Backend-defined identifier (e.g. a YHub server timestamp or an in-memory id). */
+/**
+ * Metadata for a stored document version returned by {@link VersionStorage.list}.
+ * Its content is loaded separately through {@link VersionStorage.getContent}.
+ * The frozen current document belongs to {@link VersionView.current}, not this list.
+ */
+export interface VersionSnapshot {
+  /** Storage identifier used by {@link VersionSelection} and {@link VersionStorage}. */
   id: string;
-
-  /** A version is named exactly when this is defined; used by the named-only filter. */
-  name?: string;
-
-  /**
-   * Last included edit, in Unix milliseconds. Timestamp-addressed backends use
-   * this to resolve content and attribution windows.
-   */
+  /** Version timestamp in milliseconds since the Unix epoch. */
   createdAt: number;
-
-  /**
-   * Raw author ids, resolved reactively through the extension's user store.
-   * Only displayed when {@link secondaryLabel} is unset.
-   */
-  by?: User["id"] | User["id"][];
-
-  /** Custom display label, taking precedence over author labels from {@link by}. */
+  /** Optional user-assigned name, changed through {@link VersionStorage.rename}. */
+  name?: string;
+  /** Author identifier or identifiers, resolved to users by the sidebar's user store. */
+  by?: string | string[];
+  /** Optional additional text displayed beneath the version's name or timestamp. */
   secondaryLabel?: string;
-
-  /**
-   * Source of a restore. Carried explicitly because the source may no longer
-   * be listed (e.g. merged into another activity window).
-   */
-  restoredFrom?: {
-    /** The restored version's {@link VersionSnapshot.id}. */
-    id: string;
-    /** Source timestamp, displayed in the "Restored from" label. */
-    createdAt: number;
-  };
-
-  /** Application-defined version data; never merged with edit attribution data. */
-  metadata?: Metadata | null;
-
-  /** Custom attribution pairs belonging to edits, not to the named version. */
+  /** Original version whose content produced this version through a restore. */
+  restoredFrom?: { id: string; createdAt: number };
+  /** Backend-specific metadata, opaque to the versioning controller. */
+  metadata?: unknown;
+  /** Backend-provided attribution labels associated with this version. */
   customAttributions?: Record<string, string>;
 }
 
-/** Options for saving the current version. Metadata must be backend-serializable. */
-export interface VersionCreateOptions<Metadata = unknown> {
-  /** The name to give the current version. */
-  name?: string;
-  /** Omit to preserve existing data; provide to replace it, or null to clear it. */
-  metadata?: Metadata | null;
+/**
+ * Document to display in an open {@link VersionView}.
+ * `current` selects the capture made at opening, not the latest live document.
+ * `snapshot` selects a stored {@link VersionSnapshot} by its identifier.
+ */
+export type VersionSelection =
+  | { type: "current" }
+  | { type: "snapshot"; id: string };
+
+/**
+ * Resolved input to {@link VersionView.show}; all asynchronous loading has finished.
+ * Content and attribution formats are defined by the matching {@link VersionStorage}
+ * and {@link VersionViewAdapter}.
+ */
+export interface VersionDisplay<Content, Attributions> {
+  /** Target document content to render. */
+  content: Content;
+  /** Older baseline and optional change attributions for a comparison preview. */
+  comparison?: { content: Content; attributions?: Attributions };
+  /** Selection represented by `content`, used for rendering labels and context. */
+  target: VersionSelection;
 }
 
-/** A version id or an object carrying it. */
-export type VersionSnapshotIdentifier = string | Pick<VersionSnapshot, "id">;
+/**
+ * One temporary document view acquired through {@link VersionViewAdapter.open}.
+ * Owns document binding, cursor suppression, and undo isolation while the live
+ * collaborative document continues synchronizing separately.
+ */
+export interface VersionView<Content, Attributions> {
+  /**
+   * Detached content captured at opening, stable until {@link VersionView.close}.
+   * `capturedAt` is Unix time in milliseconds, also used as the current-document
+   * attribution cutoff by {@link VersionStorage.getAttributions}.
+   */
+  readonly current: { content: Content; capturedAt: number };
+  /**
+   * Synchronously render a resolved {@link VersionDisplay} without reconnecting
+   * live synchronization or publishing preview cursors. Never called after close.
+   */
+  show(display: VersionDisplay<Content, Attributions>): void;
+  /**
+   * Discard the temporary view and restore live bindings and undo state.
+   * Safe to call repeatedly. Does not apply a {@link VersionStorage.restore}.
+   */
+  close(): void;
+}
 
 /**
- * Preview content source:
- * - `current`: serialize the live document. Snapshot metadata comes from the last
- *   listing and must not cap attribution windows for newer live edits.
- * - `snapshot`: fetch stored content via {@link VersioningEndpoints.getContent}.
+ * Backend-specific owner of isolated {@link VersionView} instances.
+ * Paired with a {@link VersionStorage} using the same content and attribution formats.
  */
-export type PreviewTarget =
-  | { kind: "current"; snapshot: VersionSnapshot }
-  | { kind: "snapshot"; snapshot: VersionSnapshot };
-
-/** The editable live document, or a read-only preview with an optional baseline. */
-export type VersioningView =
-  | { mode: "live" }
-  | { mode: "current"; compareToId?: string }
-  | { mode: "snapshot"; snapshotId: string; compareToId?: string };
-
-/** The {@link VersioningView} members that put the editor in preview mode. */
-export type VersioningPreviewView = Exclude<VersioningView, { mode: "live" }>;
-
-/** What the extension is currently loading: a list fetch or a preview. */
-export type VersioningLoadingState =
-  | { type: "idle" }
-  | { type: "listing" }
-  | { type: "loading-preview"; view: VersioningPreviewView };
-
-/** Unknown until the first listing; once loaded, always contains a current row. */
-export type VersioningList<Metadata = unknown> =
-  | { loaded: false }
-  | {
-      loaded: true;
-      /** The live document's row — always the top row of the sidebar. */
-      current: VersionSnapshot<Metadata>;
-      /** Stored versions, newest first. Never contains {@link current}. */
-      snapshots: VersionSnapshot<Metadata>[];
-    };
-
-/** The {@link VersioningList} once {@link VersioningExtension.list} has run. */
-export type LoadedVersioningList<Metadata = unknown> = Extract<
-  VersioningList<Metadata>,
-  { loaded: true }
->;
-
-/** The {@link VersioningExtension}'s store state. */
-export type VersioningState = {
-  list: VersioningList;
-  /** The latest history fetch failed; a successful listing clears it. */
-  listError?: VersionHistoryFetchError;
-  view: VersioningView;
-  /** A list fetch is in flight; `getLoadingState` derives from this. */
-  listing: boolean;
-  /** The view whose content is still loading, if any; `getLoadingState` derives from this. */
-  loadingView?: VersioningPreviewView;
-  /** Holds the editor read-only during restore, including while the view is live. */
-  restoring: boolean;
-};
+export interface VersionViewAdapter<Content, Attributions = never> {
+  /** Whether {@link VersionView.show} supports {@link VersionDisplay.comparison}. */
+  readonly supportsComparison: boolean;
+  /**
+   * Immediately freeze the displayed document and acquire its isolated view.
+   * If acquisition throws, the adapter must undo any partially acquired bindings.
+   */
+  open(): VersionView<Content, Attributions>;
+}
 
 /**
- * Version storage, paired with a {@link PreviewController} for rendering.
- * @typeParam Input - Live document handle supplied by `getCurrentDocument`.
- * @typeParam Output - Serialized content fetched/restored and passed to the controller.
- * @typeParam Attributions - Diff authorship data passed to the controller.
- * @typeParam Metadata - Application-defined data stored with each version.
+ * Backend operations for stored {@link VersionSnapshot} metadata and content.
+ * Operations never read the editor's displayed preview as the live document.
+ * Optional methods determine which actions the controller and sidebar offer.
+ * Read signals belong to the current view/request; mutations are not cancelled
+ * by closing the view and must complete their backend operation independently.
  */
-export interface VersioningEndpoints<
-  Input = any,
-  Output = any,
-  Attributions = any,
-  Metadata = unknown,
-> {
+export interface VersionStorage<Content, Attributions = never> {
+  /** Load history metadata. The controller sorts it by descending creation time. */
+  list(signal: AbortSignal): Promise<VersionSnapshot[]>;
+  /** Load a stored version's content for {@link VersionView.show}. */
+  getContent(id: string, signal: AbortSignal): Promise<Content>;
   /**
-   * Current metadata and stored versions (excluding current). The extension
-   * sorts stored versions newest-first.
-   */
-  list: () => Promise<{
-    current: VersionSnapshot<Metadata>;
-    snapshots: VersionSnapshot<Metadata>[];
-  }>;
-  /**
-   * Save the current version's name and metadata: capture content for snapshot
-   * backends, or label the newest edit for continuous-history backends.
-   * Omit to disable saving.
-   */
-  create?: (
-    /** Live document, from {@link VersioningExtensionOptions.getCurrentDocument}. */
-    content: Input,
-    options: VersionCreateOptions<Metadata>,
-  ) => Promise<VersionSnapshot<Metadata>>;
-  /**
-   * Restore a version and return content for {@link PreviewController.applyRestore}.
-   * Omit to disable restore.
-   */
-  restore?: (
-    /** Live document, from {@link VersioningExtensionOptions.getCurrentDocument}. */
-    doc: Input,
-    /** The version to restore. */
-    snapshot: VersionSnapshot,
-  ) => Promise<Output>;
-  /** Fetch serialized content for {@link PreviewController.enterPreview}. */
-  getContent: (snapshot: VersionSnapshot) => Promise<Output>;
-  /**
-   * Fetch authorship for `compareTo → target`, passed to the preview controller.
-   * Omit for content comparisons without authorship.
+   * Load change attribution data between `baselineId` and `target` for
+   * {@link VersionDisplay.comparison}. For a current target, `capturedAt` is the
+   * capture timestamp from {@link VersionView.current}, not a history-row timestamp.
    */
   getAttributions?: (
-    /** What's being previewed (the "new" side of the diff). */
-    target: PreviewTarget,
-    /** The baseline it's diffed against (the "old" side). */
-    compareTo?: VersionSnapshot,
+    target: VersionSelection,
+    baselineId: string,
+    capturedAt: number,
+    signal: AbortSignal,
   ) => Promise<Attributions>;
-  /** Rename a version; undefined or empty clears its name. Omit to disable rename. */
-  rename?: (snapshot: VersionSnapshot, name?: string) => Promise<void>;
   /**
-   * Remove a stored version, or just its name on continuous-history backends.
-   * Omit to disable removal.
+   * Name current. Snapshot stores save `content` from {@link VersionView.current};
+   * continuous-history stores name their latest checkpoint instead.
+   * Returns its metadata, or `undefined` when there is no checkpoint to name.
    */
-  remove?: (snapshot: VersionSnapshot) => Promise<void>;
-}
-
-/** Editor-aware endpoint factory. Type parameters match {@link VersioningEndpoints}. */
-export type VersioningEndpointsFactory<
-  Input = any,
-  Output = any,
-  Attributions = any,
-  Metadata = unknown,
-> = (
-  editor: BlockNoteEditor<any, any, any>,
-) => VersioningEndpoints<Input, Output, Attributions, Metadata>;
-
-/**
- * Renders content fetched by {@link VersioningEndpoints}.
- * Type parameters match the endpoints' serialized content and authorship data.
- */
-export interface PreviewController<Output = any, Attributions = any> {
-  /** Whether comparisons are supported; defaults to true. Exposed as `canCompare`. */
-  supportsComparison?: boolean;
+  create?: (
+    content: Content,
+    name?: string,
+  ) => Promise<VersionSnapshot | undefined>;
   /**
-   * Render fetched content synchronously so superseded requests cannot render
-   * after exit. Put asynchronous work in the endpoints.
-   * The extension unregisters local undo history during preview and registers
-   * fresh history after restoring the live document, clearing undo/redo stacks.
-   * Collaborative controllers must isolate their own undo manager.
+   * Restore a stored version to the live document, including backend-specific
+   * application. The controller closes its original {@link VersionView} on success.
    */
-  enterPreview: (
-    /** Content to preview ({@link Output}). */
-    snapshotContent: Output,
-    /** When set, diff `compareToContent` (baseline) against `snapshotContent`. */
-    compareToContent?: Output,
-    /** Diff authorship; only meaningful with `compareToContent`. */
-    attributions?: Attributions,
-    /** Preview metadata for labels, separate from content and authorship. */
-    context?: { target: PreviewTarget; compareTo?: VersionSnapshot },
-  ) => undefined;
-  /** Restore the live document without preview changes, then resume editing. */
-  exitPreview: () => void;
-  /** Apply the restore endpoint's content after exiting preview. Omit if unsupported. */
-  applyRestore?: (snapshotContent: Output) => void;
+  restore?: (id: string) => Promise<void>;
+  /** Change a stored version's name; `undefined` clears it. Refresh {@link VersionStorage.list} afterward. */
+  rename?: (id: string, name?: string) => Promise<void>;
+  /**
+   * Remove a stored version, or only its name on continuous-history backends.
+   * The controller refreshes {@link VersionStorage.list} and reconciles selection.
+   */
+  remove?: (id: string) => Promise<void>;
 }
 
 /**
- * Bridges live editor data to version storage and rendering.
- * Type parameters describe the document content and attribution data.
+ * Published state of versioning, distinct from the independently syncing live document.
+ * `live` means no temporary {@link VersionView} is owned; `versions` describes
+ * the frozen preview and its asynchronous reads.
  */
-export type VersioningExtensionOptions<
-  Input = any,
-  Output = any,
-  Attributions = any,
-> = {
-  /**
-   * Backend storage for versions.
-   */
-  endpoints:
-    | VersioningEndpoints<Input, Output, Attributions>
-    | VersioningEndpointsFactory<Input, Output, Attributions>;
-  /**
-   * Controls how version previews and restores are rendered in the editor.
-   */
-  preview: PreviewController<Output, Attributions>;
-  /**
-   * Live handle passed to create/restore (e.g. `Y.Node` or `Block[]`).
-   * Unlike `serializeCurrentContent`, this need not be detached or serialized.
-   */
-  getCurrentDocument: () => Input;
-  /**
-   * Serialize live content to the endpoint's output format for current previews.
-   * Omit to disable the extension's `previewCurrentVersion` method.
-   */
-  serializeCurrentContent?: () => Output | Promise<Output>;
-  /**
-   * Resolve {@link VersionSnapshot.by} for author labels; unresolved ids display raw.
-   * Accepts a resolver or a shared store to deduplicate loading across features.
-   */
-  resolveUsers?: UserStoreOrResolver;
-  /**
-   * Scroll to and highlight the first change after preview. Prefers insertions,
-   * then formatting, then deletions; collapsed changes use a visible ancestor.
-   * @default true
-   */
-  scrollToFirstChange?: boolean;
-};
+export type VersioningState =
+  | { mode: "live" }
+  | {
+      mode: "versions";
+      /** Capture time from {@link VersionView.current}, in Unix milliseconds. */
+      capturedAt: number;
+      /** Last successfully rendered {@link VersionSelection}. */
+      displayed: VersionSelection;
+      /** Stored baseline identifier used by the displayed comparison, if any. */
+      compareTo?: string;
+      /** Requested selection still loading; {@link VersioningState.displayed} remains visible. */
+      pending?: VersionSelection;
+      /**
+       * History loading status. Previously loaded {@link VersionSnapshot} rows
+       * remain available during refresh or failure; `failed` carries no raw error.
+       */
+      history:
+        | { status: "loading"; versions?: VersionSnapshot[] }
+        | { status: "ready"; versions: VersionSnapshot[] }
+        | { status: "failed"; versions?: VersionSnapshot[] };
+      /** A live restore is in progress; editing and new selections remain blocked. */
+      restoring: boolean;
+    };
+
+/**
+ * Outcome of a controller read, selection, restore, or removal operation.
+ * `done` means it completed; `cancelled` means its request/view was superseded;
+ * `unavailable` means the action cannot run in the current state or is unsupported
+ * by {@link VersionStorage}. Unexpected failures reject rather than returning this type.
+ */
+export type VersionOperationResult =
+  | { status: "done" }
+  | { status: "cancelled" }
+  | { status: "unavailable" };

@@ -1,671 +1,117 @@
-/**
- * @vitest-environment jsdom
- */
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vite-plus/test";
-
+// @vitest-environment node
+import { expect, it } from "vite-plus/test";
+import { undoDepth } from "@tiptap/pm/history";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { en } from "../../i18n/locales/en.js";
-import { DiffVersioningExtension } from "../../y/extensions/DiffVersioningExtension.js";
-import { VersioningExtension } from "./Versioning.js";
 import {
-  createInMemoryPreviewController,
-  createInMemoryVersioningAdapter,
-  createInMemoryVersioningEndpoints,
+  createVersioningExtension,
+  type VersioningController,
+} from "./Versioning.js";
+import {
+  createLocalVersioning,
+  VersioningExtension,
 } from "./inMemoryVersioning.js";
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function createEditor() {
-  const editor = BlockNoteEditor.create();
-  const div = document.createElement("div");
-  editor.mount(div);
-  return editor;
-}
-
-function getEditorText(editor: BlockNoteEditor<any, any, any>): string {
-  return editor.prosemirrorState.doc.textContent;
-}
-
-function setEditorText(editor: BlockNoteEditor<any, any, any>, text: string) {
-  editor.replaceBlocks(editor.document, [{ type: "paragraph", content: text }]);
-}
-
-// ---------------------------------------------------------------------------
-// Tests — createInMemoryVersioningEndpoints
-// ---------------------------------------------------------------------------
-
-describe("createInMemoryVersioningEndpoints", () => {
-  it("creates and retrieves snapshots", async () => {
-    const endpoints = createInMemoryVersioningEndpoints();
-    const blocks = [
-      {
-        id: "1",
-        type: "paragraph" as const,
-        content: [] as any,
-        props: {} as any,
-        children: [],
-      },
-    ];
-
-    const snap = await endpoints.create!(blocks, { name: "v1" });
-    expect(snap.name).toBe("v1");
-    expect(snap.id).toBeDefined();
-
-    const content = await endpoints.getContent(snap);
-    expect(content).toEqual(blocks);
-    // Content is a deep clone, not a reference
-    expect(content).not.toBe(blocks);
+it("previews and restores documents created with another editor's schema", async () => {
+  const source = BlockNoteEditor.create({
+    initialContent: [
+      { id: "paragraph", type: "paragraph", content: "Old text" },
+    ],
   });
-
-  it("starts with the given initial versions, newest-first", async () => {
-    const older = [{ type: "paragraph", content: "older" }] as any;
-    const newer = [{ type: "paragraph", content: "newer" }] as any;
-    const endpoints = createInMemoryVersioningEndpoints({
-      initialVersions: [
-        { name: "Older", createdAt: 1000, content: older },
-        { createdAt: 2000, content: newer },
-      ],
-    });
-
-    const { snapshots } = await endpoints.list();
-    expect(
-      snapshots.map((s) => ({ name: s.name, createdAt: s.createdAt })),
-    ).toEqual([
-      { name: undefined, createdAt: 2000 },
-      { name: "Older", createdAt: 1000 },
-    ]);
-    expect(await endpoints.getContent(snapshots[1]!)).toEqual(older);
-    // Stored as a copy: mutating what was passed in doesn't change history.
-    older[0].content = "changed";
-    expect(await endpoints.getContent(snapshots[1]!)).not.toEqual(older);
-  });
-
-  it("sorts versions created later above the initial ones", async () => {
-    const future = Date.now() + 60_000;
-    const endpoints = createInMemoryVersioningEndpoints({
-      initialVersions: [{ name: "Loaded", createdAt: future, content: [] }],
-    });
-
-    const created = await endpoints.create!([], { name: "New" });
-    expect(created.createdAt).toBeGreaterThan(future);
-    const { snapshots } = await endpoints.list();
-    expect(snapshots.map((s) => s.name)).toEqual(["New", "Loaded"]);
-  });
-
-  it("lists snapshots newest-first", async () => {
-    vi.useFakeTimers();
-    try {
-      const endpoints = createInMemoryVersioningEndpoints();
-
-      const s1 = await endpoints.create!(
-        [
-          {
-            id: "1",
-            type: "paragraph" as const,
-            content: "v1" as any,
-            props: {} as any,
-            children: [],
-          },
+  const before = source.prosemirrorState.doc;
+  source.updateBlock("paragraph", { content: "Changed text" });
+  const after = source.prosemirrorState.doc;
+  source._tiptapEditor.destroy();
+  const editor = BlockNoteEditor.create({
+    extensions: [
+      VersioningExtension({
+        initialVersions: [
+          { content: before, createdAt: 1 },
+          { content: after, createdAt: 2 },
         ],
-        {},
-      );
-      vi.advanceTimersByTime(1000);
-      const s2 = await endpoints.create!(
-        [
-          {
-            id: "2",
-            type: "paragraph" as const,
-            content: "v2" as any,
-            props: {} as any,
-            children: [],
-          },
-        ],
-        {},
-      );
-
-      const { snapshots } = await endpoints.list();
-      expect(snapshots[0].id).toBe(s2.id);
-      expect(snapshots[1].id).toBe(s1.id);
-    } finally {
-      vi.useRealTimers();
-    }
+      }),
+    ],
   });
-
-  it("restore creates a localized backup and returns snapshot content", async () => {
-    const endpoints = createInMemoryVersioningEndpoints(undefined, {
-      ...en.versioning,
-      before_restore: "Vor Wiederherstellung",
-    });
-
-    const original = [
-      {
-        id: "1",
-        type: "paragraph" as const,
-        content: "original" as any,
-        props: {} as any,
-        children: [],
-      },
-    ];
-    const snap = await endpoints.create!(original, {});
-
-    const currentDoc = [
-      {
-        id: "2",
-        type: "paragraph" as const,
-        content: "modified" as any,
-        props: {} as any,
-        children: [],
-      },
-    ];
-    const restored = await endpoints.restore!(currentDoc, snap);
-
-    expect(restored).toEqual(original);
-
-    // A backup version was created, and the current row records what the
-    // document was restored from.
-    const { current, snapshots } = await endpoints.list();
-    expect(snapshots.length).toBe(2);
-    expect(current.restoredFrom).toEqual({
-      id: snap.id,
-      createdAt: snap.createdAt,
-    });
-    const backup = snapshots.find((s) => s.name === "Vor Wiederherstellung");
-    expect(backup).toBeDefined();
-
-    // The backup contains the current (pre-restore) doc
-    const backupContent = await endpoints.getContent(backup!);
-    expect(backupContent).toEqual(currentDoc);
-  });
-
-  it("updates snapshot name", async () => {
-    const endpoints = createInMemoryVersioningEndpoints();
-    const snap = await endpoints.create!(
-      [
-        {
-          id: "1",
-          type: "paragraph" as const,
-          content: "v1" as any,
-          props: {} as any,
-          children: [],
-        },
-      ],
-      { name: "old" },
-    );
-
-    await endpoints.rename!(snap, "new");
-
-    const { snapshots } = await endpoints.list();
-    expect(snapshots.find((s) => s.id === snap.id)!.name).toBe("new");
-  });
-
-  it("deletes a snapshot and its content", async () => {
-    const endpoints = createInMemoryVersioningEndpoints();
-    const snap = await endpoints.create!(
-      [
-        {
-          id: "1",
-          type: "paragraph" as const,
-          content: "v1" as any,
-          props: {} as any,
-          children: [],
-        },
-      ],
-      {},
-    );
-
-    await endpoints.remove!(snap);
-
-    // No longer listed
-    expect((await endpoints.list()).snapshots).toHaveLength(0);
-    // Its content is gone too
-    await expect(endpoints.getContent(snap)).rejects.toThrow(/not found/i);
-  });
-
-  it("throws for unknown snapshot ID", async () => {
-    const endpoints = createInMemoryVersioningEndpoints();
-    const missing = { id: "nope", createdAt: 0 };
-    await expect(endpoints.getContent(missing)).rejects.toThrow(/not found/i);
-    await expect(endpoints.restore!([], missing)).rejects.toThrow(/not found/i);
-    await expect(endpoints.rename!(missing, "x")).rejects.toThrow(/not found/i);
-    await expect(endpoints.remove!(missing)).rejects.toThrow(/not found/i);
-  });
+  const mode = editor.getExtension(VersioningExtension)!;
+  try {
+    expect(mode).toBeDefined();
+    expect(editor.pmSchema).not.toBe(before.type.schema);
+    mode.open();
+    await mode.select({ type: "snapshot", id: "2" });
+    expect(editor.prosemirrorState.doc.textContent).toBe("Changed text");
+    await mode.select({ type: "snapshot", id: "1" });
+    expect(editor.prosemirrorState.doc.textContent).toBe("Old text");
+    await mode.restore("2");
+    expect(editor.prosemirrorState.doc.textContent).toBe("Changed text");
+    expect(editor.isEditable).toBe(true);
+  } finally {
+    mode?.dispose();
+    editor._tiptapEditor.destroy();
+  }
 });
 
-// ---------------------------------------------------------------------------
-// Tests — createInMemoryPreviewController
-// ---------------------------------------------------------------------------
-
-describe("createInMemoryPreviewController", () => {
-  let editor: BlockNoteEditor<any, any, any>;
-
-  beforeEach(() => {
-    editor = createEditor();
-    setEditorText(editor, "live content");
+it("finds the built-in extension by its factory with default options", () => {
+  const editor = BlockNoteEditor.create({
+    extensions: [VersioningExtension()],
   });
-
-  afterEach(() => {
-    editor.unmount();
-  });
-
-  it("enterPreview replaces doc and exitPreview restores it", () => {
-    const preview = createInMemoryPreviewController(editor);
-
-    // Grab the snapshot content we want to preview — a doc with different text.
-    const previewEditor = createEditor();
-    setEditorText(previewEditor, "snapshot content");
-    const snapshotBlocks = previewEditor.document;
-    previewEditor.unmount();
-
-    preview.enterPreview(snapshotBlocks);
-    expect(getEditorText(editor)).toBe("snapshot content");
-
-    preview.exitPreview();
-    expect(getEditorText(editor)).toBe("live content");
-  });
-
-  it("successive enterPreview calls preserve original doc", () => {
-    const preview = createInMemoryPreviewController(editor);
-
-    const mkSnap = (text: string) => {
-      const e = createEditor();
-      setEditorText(e, text);
-      const blocks = e.document;
-      e.unmount();
-      return blocks;
-    };
-
-    preview.enterPreview(mkSnap("snap A"));
-    expect(getEditorText(editor)).toBe("snap A");
-
-    preview.enterPreview(mkSnap("snap B"));
-    expect(getEditorText(editor)).toBe("snap B");
-
-    // Exit restores the original live doc, not snap A.
-    preview.exitPreview();
-    expect(getEditorText(editor)).toBe("live content");
-  });
-
-  it("applyRestore replaces doc and clears saved state", () => {
-    const preview = createInMemoryPreviewController(editor);
-
-    const mkSnap = (text: string) => {
-      const e = createEditor();
-      setEditorText(e, text);
-      const blocks = e.document;
-      e.unmount();
-      return blocks;
-    };
-
-    // Enter preview first
-    preview.enterPreview(mkSnap("previewed"));
-    expect(getEditorText(editor)).toBe("previewed");
-
-    // Now restore — this is the "apply" step after endpoints.restore returns
-    preview.applyRestore(mkSnap("restored"));
-    expect(getEditorText(editor)).toBe("restored");
-
-    // exitPreview should be a no-op since savedDoc was cleared
-    preview.exitPreview();
-    expect(getEditorText(editor)).toBe("restored");
-  });
+  try {
+    const mode = editor.getExtension(VersioningExtension);
+    expect(mode).toBeDefined();
+    expect(mode).toBe(editor.getExtension<VersioningController>("versioning"));
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
 });
 
-// ---------------------------------------------------------------------------
-// Tests — Full integration with VersioningExtension
-// ---------------------------------------------------------------------------
-
-describe("VersioningExtension + in-memory adapter", () => {
-  let editor: BlockNoteEditor<any, any, any>;
-
-  beforeEach(() => {
-    editor = createEditor();
-    setEditorText(editor, "initial doc");
-  });
-
-  afterEach(() => {
-    editor.unmount();
-  });
-
-  it("create, preview, exit, restore full workflow", async () => {
-    const adapter = createInMemoryVersioningAdapter(editor);
-    const ext = VersioningExtension(adapter)({ editor });
-
-    // 1. Create a snapshot of "initial doc"
-    const snap1 = await ext.create!({ name: "v1" });
-    expect(snap1.name).toBe("v1");
-
-    // 2. Modify the document
-    setEditorText(editor, "modified doc");
-
-    // 3. Create another snapshot
-    await ext.create!({ name: "v2" });
-
-    // 4. Reopen history — the backend owns the new list shape.
-    const result = await ext.list();
-    if (result.error) {
-      throw new Error("expected history to load");
-    }
-    const { current, snapshots } = result.value;
-    expect(current.name).toBe("v2");
-    expect(snapshots).toHaveLength(1);
-    expect(snapshots.map((s) => s.name)).toContain("v1");
-
-    // 5. Preview the first version
-    await ext.previewSnapshot(snap1.id);
-    expect(getEditorText(editor)).toBe("initial doc");
-    expect(ext.store.state.view).toEqual({
-      mode: "snapshot",
-      snapshotId: snap1.id,
-      compareToId: undefined,
-    });
-
-    // 6. Exit preview — back to modified doc
-    ext.exitPreview();
-    expect(getEditorText(editor)).toBe("modified doc");
-    expect(ext.store.state.view).toEqual({ mode: "live" });
-
-    // 7. Restore the first version
-    const restored = await ext.restore!(snap1.id);
-    expect(restored).toBeDefined();
-    expect(getEditorText(editor)).toBe("initial doc");
-
-    // 8. A backup version was created by the endpoints, and the current row
-    // records where the restore came from.
-    const afterRestore = await ext.list();
-    expect(afterRestore.value?.snapshots.length).toBe(3);
-    expect(afterRestore.value?.current.restoredFrom).toEqual({
-      id: snap1.id,
-      createdAt: snap1.createdAt,
-    });
-  });
-
-  it("stamps the current row with the last edit time", async () => {
-    const adapter = createInMemoryVersioningAdapter(editor);
-    const ext = VersioningExtension(adapter)({ editor });
-
-    const before = Date.now();
-    setEditorText(editor, "edited doc");
-
-    const result = await ext.list();
-    expect(result.value?.current.createdAt).toBeGreaterThanOrEqual(before);
-  });
-
-  it("stamps a restore before refreshing the current row", async () => {
-    const adapter = createInMemoryVersioningAdapter(editor);
-    const ext = VersioningExtension(adapter)({ editor });
-    const snapshot = await ext.create!();
-    setEditorText(editor, "new content");
-    await ext.previewSnapshot(snapshot.id);
-
-    const restoredAt = Date.now() + 1000;
-    const clock = vi.spyOn(Date, "now").mockReturnValue(restoredAt);
-    try {
-      await ext.restore!(snapshot.id);
-      expect(ext.store.state.list).toMatchObject({
-        loaded: true,
-        current: { createdAt: restoredAt },
-      });
-    } finally {
-      clock.mockRestore();
-    }
-  });
-
-  it("preview with compareTo fetches both contents", async () => {
-    const adapter = createInMemoryVersioningAdapter(editor);
-    const ext = VersioningExtension(adapter)({ editor });
-
-    const snap1 = await ext.create!({ name: "baseline" });
-    setEditorText(editor, "changed doc");
-    const snap2 = await ext.create!({ name: "current" });
-    await ext.list();
-
-    // Preview snap2 compared to snap1. Without the (opt-in) DiffVersioningExtension
-    // registered, the in-memory preview controller falls back to a static swap:
-    // it shows the snapshot content and renders no diff marks.
-    await ext.previewSnapshot(snap2.id, { compareTo: snap1.id });
-    expect(getEditorText(editor)).toBe("changed doc");
-
-    ext.exitPreview();
-    expect(getEditorText(editor)).toBe("changed doc");
-  });
-
-  it("delete removes the snapshot from the store and backend", async () => {
-    const adapter = createInMemoryVersioningAdapter(editor);
-    const ext = VersioningExtension(adapter)({ editor });
-
-    const snap1 = await ext.create!({ name: "keep" });
-    setEditorText(editor, "changed doc");
-    const snap2 = await ext.create!({ name: "remove" });
-    await ext.list();
-
-    expect(ext.remove).toBeDefined();
-    await ext.remove!(snap2.id);
-
-    // Gone from the backend's authoritative list.
-    const result = await ext.list();
-    expect(result.value?.snapshots.map((s) => s.id)).toEqual([snap1.id]);
-  });
-
-  it("deleting the previewed snapshot exits preview", async () => {
-    const adapter = createInMemoryVersioningAdapter(editor);
-    const ext = VersioningExtension(adapter)({ editor });
-
-    const snap = await ext.create!({ name: "v1" });
-    setEditorText(editor, "modified doc");
-
-    // Preview the version, then delete the one being previewed.
-    await ext.previewSnapshot(snap.id);
-    expect(ext.store.state.view).toEqual({
-      mode: "snapshot",
-      snapshotId: snap.id,
-      compareToId: undefined,
-    });
-
-    await ext.remove!(snap.id);
-
-    // Preview was exited and the live document restored.
-    expect(ext.store.state.view).toEqual({ mode: "live" });
-    expect(getEditorText(editor)).toBe("modified doc");
-  });
-
-  it("rename persists through list refresh", async () => {
-    const adapter = createInMemoryVersioningAdapter(editor);
-    const ext = VersioningExtension(adapter)({ editor });
-
-    const snap = await ext.create!({ name: "draft" });
-    await ext.rename!(snap.id, "final");
-
-    // Store was patched in place
-    const listed = ext.store.state.list;
-    expect(listed.loaded).toBe(true);
-    expect(listed.loaded ? listed.current.name : undefined).toBe("final");
-
-    // A fresh list keeps the named checkpoint in the Current slot until an edit.
-    const result = await ext.list();
-    expect(result.value?.current).toMatchObject({ id: snap.id, name: "final" });
-    expect(result.value?.snapshots).toHaveLength(0);
-  });
-
-  it("keeps a named current checkpoint across refreshes without an edit", async () => {
-    const ext = VersioningExtension(createInMemoryVersioningAdapter(editor))({
-      editor,
-    });
-    await ext.list();
-
-    const named = await ext.create!({ name: "Checkpoint" });
-    const reopened = await ext.list();
-    if (reopened.error) {
-      throw new Error("expected history to load");
-    }
-    expect(reopened.value.current).toMatchObject({
-      id: named.id,
-      name: "Checkpoint",
-      createdAt: named.createdAt,
-    });
-    expect(reopened.value.snapshots).toHaveLength(0);
-
-    // Naming this same row again is a rename, not another content checkpoint.
-    await ext.rename!(reopened.value.current.id, "Renamed checkpoint");
-    const renamed = await ext.list();
-    expect(renamed.value?.current).toMatchObject({
-      id: named.id,
-      name: "Renamed checkpoint",
-    });
-    expect(renamed.value?.snapshots).toHaveLength(0);
-
-    const namedAgain = await ext.create!({ name: "One more name" });
-    expect(namedAgain.id).toBe(named.id);
-    expect((await ext.list()).value?.snapshots).toHaveLength(0);
-  });
-
-  it("moves the immutable named checkpoint into history after an edit", async () => {
-    const ext = VersioningExtension(createInMemoryVersioningAdapter(editor))({
-      editor,
-    });
-    await ext.list();
-    const named = await ext.create!({ name: "Before edit" });
-    await ext.list();
-
-    setEditorText(editor, "edited doc");
-    const reopened = await ext.list();
-    expect(reopened.value?.current.id).not.toBe(named.id);
-    expect(reopened.value?.current.name).toBeUndefined();
-    expect(reopened.value?.snapshots).toEqual([
-      expect.objectContaining({ id: named.id, name: "Before edit" }),
+it("isolates displayed content and preserves live undo across open/show/close", async () => {
+  const extension = createVersioningExtension(createLocalVersioning);
+  const editor = BlockNoteEditor.create({ extensions: [extension()] });
+  const mode = editor.getExtension(extension)!;
+  try {
+    editor.replaceBlocks(editor.document, [
+      { type: "paragraph", content: "Live" },
     ]);
-    await ext.previewSnapshot(named.id);
-    expect(getEditorText(editor)).toBe("initial doc");
-    ext.exitPreview();
-    expect(await ext.create!({ name: "After edit" })).not.toMatchObject({
-      id: named.id,
-    });
-    const afterSecondName = await ext.list();
-    expect(afterSecondName.value?.snapshots).toEqual([
-      expect.objectContaining({ id: named.id }),
-    ]);
-  });
-
-  it("keeps a named version durable through reopen, restore, and delete", async () => {
-    const adapter = createInMemoryVersioningAdapter(editor);
-    const ext = VersioningExtension(adapter)({ editor });
-
-    const named = await ext.create!({ name: "Milestone" });
-    expect(ext.store.state.list).toMatchObject({
-      loaded: true,
-      current: { id: named.id, name: "Milestone" },
-      snapshots: [],
-    });
-
-    await ext.rename!(named.id, "Final");
-    const reopened = await ext.list();
-    expect(reopened.value?.current).toMatchObject({
-      id: named.id,
-      name: "Final",
-    });
-    expect(reopened.value?.snapshots).toHaveLength(0);
-
-    await ext.restore!(named.id);
-    expect(getEditorText(editor)).toBe("initial doc");
-    expect((await ext.list()).value?.current.restoredFrom).toMatchObject({
-      id: named.id,
-    });
-
-    await ext.remove!(named.id);
-    expect(
-      (await ext.list()).value?.snapshots.some((s) => s.id === named.id),
-    ).toBe(false);
-  });
-
-  it("keeps the undo backup when restoring a named current checkpoint", async () => {
-    const ext = VersioningExtension(createInMemoryVersioningAdapter(editor))({
-      editor,
-    });
-    const named = await ext.create!({ name: "Checkpoint" });
-    await ext.list();
-
-    await ext.restore!(named.id);
-    const listed = await ext.list();
-    expect(listed.value?.current.id).not.toBe(named.id);
-    expect(listed.value?.current.restoredFrom).toEqual({
-      id: named.id,
-      createdAt: named.createdAt,
-    });
-    expect(listed.value?.snapshots.map((s) => s.name)).toEqual([
-      en.versioning.before_restore,
-      "Checkpoint",
-    ]);
-  });
+    const before = editor.prosemirrorState;
+    mode.open();
+    expect(editor.isEditable).toBe(false);
+    const saved = await mode.create("Captured");
+    expect(saved).toBeDefined();
+    await mode.select({ type: "snapshot", id: saved!.id });
+    mode.close();
+    expect(editor.prosemirrorState.doc).toBe(before.doc);
+    expect(undoDepth(editor.prosemirrorState)).toBe(undoDepth(before));
+    expect(editor.isEditable).toBe(true);
+  } finally {
+    mode.dispose();
+    editor._tiptapEditor.destroy();
+  }
 });
 
-// ---------------------------------------------------------------------------
-// Tests — diff delegation to the opt-in DiffVersioningExtension
-// ---------------------------------------------------------------------------
-
-describe("in-memory versioning + DiffVersioningExtension", () => {
-  let editor: BlockNoteEditor<any, any, any>;
-
-  beforeEach(() => {
-    editor = BlockNoteEditor.create({
-      extensions: [DiffVersioningExtension()],
-    });
-    editor.mount(document.createElement("div"));
-    setEditorText(editor, "initial doc");
-  });
-
-  afterEach(() => {
-    editor.unmount();
-  });
-
-  const attributionMarkCount = () => {
-    let count = 0;
-    editor.prosemirrorState.doc.descendants((node) => {
-      count += node.marks.filter((m) =>
-        m.type.name.startsWith("y-attributed-"),
-      ).length;
-      return true;
-    });
-    return count;
-  };
-
-  it("previewing with compareTo renders an attributed diff", async () => {
-    const adapter = createInMemoryVersioningAdapter(editor);
-    const ext = VersioningExtension(adapter)({ editor });
-
-    const snap1 = await ext.create!({ name: "baseline" });
-    setEditorText(editor, "changed doc");
-    const snap2 = await ext.create!({ name: "current" });
-    await ext.list();
-
-    await ext.previewSnapshot(snap2.id, { compareTo: snap1.id });
-
-    // The diff extension rendered attribution marks (initial vs changed doc).
-    expect(attributionMarkCount()).toBeGreaterThan(0);
-
-    // Exiting the preview clears the marks and restores the live document.
-    ext.exitPreview();
-    expect(attributionMarkCount()).toBe(0);
-    expect(getEditorText(editor)).toBe("changed doc");
-  });
-
-  it("previewing without compareTo shows content with no diff marks", async () => {
-    const adapter = createInMemoryVersioningAdapter(editor);
-    const ext = VersioningExtension(adapter)({ editor });
-
-    const snap1 = await ext.create!({ name: "baseline" });
-    setEditorText(editor, "changed doc");
-
-    await ext.previewSnapshot(snap1.id);
-
-    expect(getEditorText(editor)).toBe("initial doc");
-    expect(attributionMarkCount()).toBe(0);
-  });
+it("restores into the saved live state, then closes the isolated view", async () => {
+  const extension = createVersioningExtension(createLocalVersioning);
+  const editor = BlockNoteEditor.create({ extensions: [extension()] });
+  const mode = editor.getExtension(extension)!;
+  try {
+    editor.replaceBlocks(editor.document, [
+      { type: "paragraph", content: "Original" },
+    ]);
+    mode.open();
+    const saved = await mode.create();
+    if (!saved) {
+      throw new Error("Expected a created version");
+    }
+    mode.close();
+    editor.replaceBlocks(editor.document, [
+      { type: "paragraph", content: "Latest" },
+    ]);
+    mode.open();
+    await mode.select({ type: "snapshot", id: saved.id });
+    await mode.select({ type: "current" });
+    expect(editor.prosemirrorState.doc.textContent).toBe("Latest");
+    await mode.restore(saved.id);
+    expect(editor.prosemirrorState.doc.textContent).toBe("Original");
+    expect(editor.isEditable).toBe(true);
+  } finally {
+    mode.dispose();
+    editor._tiptapEditor.destroy();
+  }
 });

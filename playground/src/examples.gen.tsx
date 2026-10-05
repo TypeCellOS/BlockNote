@@ -1882,7 +1882,7 @@ export const examples = {
           slug: "collaboration",
         },
         readme:
-          'This experimental playground example shows how to use the `VersioningExtension` with collaborative editing using Yjs v13. Snapshots are stored in localStorage using Yjs state updates.\n\nThe sidebar opens on a document with a few versions already in its history. You can preview, rename, and restore a version. Restoring replaces the live document content and saves the previous content as a "Backup" version. Comparison is not supported. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button and name the current version to save it.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+          'This experimental playground example shows how to use `VersioningExtension` with collaborative editing using Yjs v13. Snapshots are stored in localStorage using Yjs state updates.\n\nThe sidebar opens on a document with a few versions already in its history. You can preview, rename, and restore a version. Restoring replaces the live document content and saves the previous content as a "Backup" version. Comparison is not supported. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button and name the current version to save it.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
       },
       {
         projectSlug: "multi-doc-versioning",
@@ -1932,7 +1932,7 @@ export const examples = {
           slug: "collaboration",
         },
         readme:
-          'This example shows how to use the `VersioningExtension` with collaborative editing using `@y/y` (v14). Version history comes from [YHub](https://github.com/yjs/yhub), which records every edit and groups them into versions.\n\nThe sidebar opens on a document seeded with several versions by several users, so you can preview them, compare them, rename them, and restore them right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+          'This example shows how to use `VersioningExtension` with collaborative editing using `@y/y` (v14). Version history comes from [YHub](https://github.com/yjs/yhub), which records every edit and groups them into versions.\n\nThe sidebar opens on a document seeded with several versions by several users, so you can preview them, compare them, rename them, and restore them right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
       },
       {
         projectSlug: "suggestion-gallery",
@@ -2006,7 +2006,7 @@ export const examples = {
           slug: "extensions",
         },
         readme:
-          'This example shows how to use the `VersioningExtension` without any collaboration layer (no Yjs required). Snapshots are stored in memory using ProseMirror JSON.\n\nThe sidebar opens on a document with a few versions already in its history, including an automatic unnamed version, so you can preview them, compare them, rename them, restore them, and try the named-only filter right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.',
+          'This example shows how to use `VersioningExtension` without a collaboration layer. Snapshots are stored in memory as immutable ProseMirror documents.\n\nThe sidebar opens on a document with a few versions already in its history, including an automatic unnamed version, so you can preview them, compare them, rename them, restore them, and try the named-only filter right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.',
       },
     ],
   },

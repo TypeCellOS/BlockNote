@@ -2,9 +2,27 @@ import * as Y from "yjs";
 import { toBase64, fromBase64 } from "lib0/buffer";
 
 import type {
-  VersioningEndpoints,
+  VersionStorage,
   VersionSnapshot,
 } from "@blocknote/core/extensions";
+import { findTypeInOtherYdoc } from "@blocknote/core/yjs";
+
+/** Restore into the live fragment, never the fork currently displayed. */
+function restoreYjsVersion(fragment: Y.XmlFragment, content: Uint8Array) {
+  const doc = new Y.Doc();
+  try {
+    Y.applyUpdate(doc, content);
+    const children = findTypeInOtherYdoc(fragment, doc)
+      .slice()
+      .map((child) => child.clone());
+    fragment.doc!.transact(() => {
+      fragment.delete(0, fragment.length);
+      fragment.insert(0, children);
+    });
+  } finally {
+    doc.destroy();
+  }
+}
 
 const DEFAULT_STORAGE_KEY = "blocknote-versioning-yjs-snapshots";
 
@@ -44,33 +62,28 @@ function writeContents(storageKey: string, contents: Record<string, string>) {
  * v2 encoding used by the `@y/y` (v14) equivalent.
  */
 export function createLocalStorageVersioningEndpoints(
+  fragment: Y.XmlFragment,
   storageKey = DEFAULT_STORAGE_KEY,
-): VersioningEndpoints<Y.XmlFragment, Uint8Array> {
-  const listSnapshots: VersioningEndpoints<
-    Y.XmlFragment,
-    Uint8Array
-  >["list"] = async () => {
+): VersionStorage<Uint8Array> {
+  const listSnapshots: VersionStorage<Uint8Array>["list"] = async () => {
     // The current version is the live document. There's no server clock here,
     // so it's simply stamped "now"; it isn't a stored snapshot, so it's never
     // passed to `getContent` (the sidebar previews it live via
     // `previewCurrentVersion`).
-    return {
-      current: { id: "current", createdAt: Date.now() },
-      snapshots: readSnapshots(storageKey),
-    };
+    return readSnapshots(storageKey);
   };
 
   const createSnapshot: NonNullable<
-    VersioningEndpoints<Y.XmlFragment, Uint8Array>["create"]
-  > = async (fragment, options) => {
+    VersionStorage<Uint8Array>["create"]
+  > = async (content, name) => {
     const snapshot = {
       id: crypto.randomUUID(),
-      name: options.name,
+      name,
       createdAt: Date.now(),
     } satisfies VersionSnapshot;
 
     const contents = readContents(storageKey);
-    contents[snapshot.id] = toBase64(Y.encodeStateAsUpdate(fragment.doc!));
+    contents[snapshot.id] = toBase64(content);
     writeContents(storageKey, contents);
 
     writeSnapshots(storageKey, [snapshot, ...readSnapshots(storageKey)]);
@@ -78,57 +91,52 @@ export function createLocalStorageVersioningEndpoints(
     return snapshot;
   };
 
-  const fetchSnapshotContent: VersioningEndpoints<
-    Y.XmlFragment,
-    Uint8Array
-  >["getContent"] = async (snapshot) => {
-    const encoded = readContents(storageKey)[snapshot.id];
+  const fetchSnapshotContent: VersionStorage<Uint8Array>["getContent"] = async (
+    id,
+    signal,
+  ) => {
+    signal.throwIfAborted();
+    const encoded = readContents(storageKey)[id];
     if (encoded === undefined) {
-      throw new Error(`Document snapshot ${snapshot.id} could not be found.`);
+      throw new Error(`Document snapshot ${id} could not be found.`);
     }
     return fromBase64(encoded);
   };
 
-  const restoreSnapshot: VersioningEndpoints<
-    Y.XmlFragment,
-    Uint8Array
-  >["restore"] = async (fragment, snapshot) => {
-    const snapshotContent = await fetchSnapshotContent(snapshot);
-    await createSnapshot(fragment, { name: "Backup" });
-    return snapshotContent;
+  const restoreSnapshot: VersionStorage<Uint8Array>["restore"] = async (id) => {
+    const snapshotContent = await fetchSnapshotContent(
+      id,
+      new AbortController().signal,
+    );
+    await createSnapshot(Y.encodeStateAsUpdate(fragment.doc!), "Backup");
+    restoreYjsVersion(fragment, snapshotContent);
   };
 
-  const rename: VersioningEndpoints<
-    Y.XmlFragment,
-    Uint8Array
-  >["rename"] = async (snapshot, name) => {
+  const rename: VersionStorage<Uint8Array>["rename"] = async (id, name) => {
     const snapshots = readSnapshots(storageKey);
-    const stored = snapshots.find((s) => s.id === snapshot.id);
+    const stored = snapshots.find((s) => s.id === id);
     if (stored === undefined) {
-      throw new Error(`Document snapshot ${snapshot.id} could not be found.`);
+      throw new Error(`Document snapshot ${id} could not be found.`);
     }
 
     stored.name = name;
     writeSnapshots(storageKey, snapshots);
   };
 
-  const remove: VersioningEndpoints<
-    Y.XmlFragment,
-    Uint8Array
-  >["remove"] = async (snapshot) => {
+  const remove: VersionStorage<Uint8Array>["remove"] = async (id) => {
     const snapshots = readSnapshots(storageKey);
-    if (!snapshots.some((s) => s.id === snapshot.id)) {
-      throw new Error(`Document snapshot ${snapshot.id} could not be found.`);
+    if (!snapshots.some((s) => s.id === id)) {
+      throw new Error(`Document snapshot ${id} could not be found.`);
     }
 
     // Drop the snapshot metadata and its stored content.
     writeSnapshots(
       storageKey,
-      snapshots.filter((s) => s.id !== snapshot.id),
+      snapshots.filter((s) => s.id !== id),
     );
 
     const contents = readContents(storageKey);
-    delete contents[snapshot.id];
+    delete contents[id];
     writeContents(storageKey, contents);
   };
 
@@ -143,7 +151,6 @@ export function createLocalStorageVersioningEndpoints(
 }
 
 /** Default localStorage-backed endpoints using {@link DEFAULT_STORAGE_KEY}. */
-export const localStorageEndpoints = createLocalStorageVersioningEndpoints();
 
 /** Whether any versions have been stored under `storageKey` yet. */
 export function hasStoredVersions(storageKey = DEFAULT_STORAGE_KEY): boolean {

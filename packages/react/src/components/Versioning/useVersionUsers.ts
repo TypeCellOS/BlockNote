@@ -1,11 +1,8 @@
 import { User } from "@blocknote/core";
-import {
-  VersioningExtension,
-  VersionSnapshot,
-} from "@blocknote/core/extensions";
+import type { VersionSnapshot } from "@blocknote/core/extensions";
 import { useEffect } from "react";
 
-import { useExtension } from "../../hooks/useExtension.js";
+import { useVersioning } from "./useVersioning.js";
 import { useStore } from "../../hooks/useStore.js";
 
 /**
@@ -20,7 +17,7 @@ import { useStore } from "../../hooks/useStore.js";
 export function useVersionUsers<U extends User = User>(
   userIds: string[],
 ): Map<string, U> {
-  const { userStore } = useExtension(VersioningExtension);
+  const { userStore } = useVersioning();
 
   // `userIds` is often a fresh array each render, so key the effect on its
   // contents rather than its identity to avoid re-loading on every render.

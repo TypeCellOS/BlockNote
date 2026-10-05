@@ -1,8 +1,7 @@
-import { VersioningExtension } from "@blocknote/core/extensions";
 import { RiPriceTag3Line } from "react-icons/ri";
 
 import { useDictionary } from "../../../../i18n/dictionary.js";
-import { useExtension } from "../../../../hooks/useExtension.js";
+import { useVersioning } from "../../useVersioning.js";
 import { useVersionSnapshot } from "../../VersionSnapshotContext.js";
 import type {
   DefaultVersionMenuItemProps,
@@ -12,11 +11,11 @@ import { DefaultVersionMenuItem } from "../DefaultVersionMenuItem.js";
 
 /** Start inline naming: create an unnamed current version, otherwise rename. */
 export function useNameVersionAction(): VersionMenuAction {
-  const { create, rename } = useExtension(VersioningExtension);
+  const { canCreate, rename } = useVersioning();
   const { snapshot, isCurrent, startRename } = useVersionSnapshot();
 
   const named = snapshot.name !== undefined;
-  const available = isCurrent && !named ? create : rename;
+  const available = isCurrent && !named ? canCreate : rename !== undefined;
   if (!available) {
     return { available: false };
   }

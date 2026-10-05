@@ -16,6 +16,7 @@ import type {
   StyleSchema,
 } from "../../schema/index.js";
 import { CollaborationOptions } from "./index.js";
+import { ForkYDocExtension } from "./ForkYDoc.js";
 
 /**
  * Maps a Y attribution to BlockNote's `y-attributed-*` mark attrs.
@@ -104,15 +105,24 @@ export const YSyncExtension = createExtension(
     return {
       key: "ySync",
       fragment: options.fragment,
-      mount: () => {
+      mount: ({ signal }: { signal: AbortSignal }) => {
         // The sync plugin reconnects an existing configuration when its view is
         // recreated. Do not switch an active suggestion editor back to the
         // base fragment on remount.
-        if (ySyncPluginKey.getState(editor.prosemirrorState)?.ytype) {
+        if (
+          ySyncPluginKey.getState(editor.prosemirrorState)?.ytype ||
+          editor.getExtension(ForkYDocExtension)?.store.state.isForked
+        ) {
           return;
         }
 
         const configure = () => {
+          if (
+            signal.aborted ||
+            editor.getExtension(ForkYDocExtension)?.store.state.isForked
+          ) {
+            return;
+          }
           editor.exec(
             configureYProsemirror({
               ytype: options.fragment,
@@ -134,11 +144,18 @@ export const YSyncExtension = createExtension(
             "on" in options.provider &&
             typeof options.provider.on === "function"
           ) {
-            options.provider.on("synced", (synced: boolean) => {
+            const provider = options.provider;
+            const onSynced = (synced: boolean) => {
               if (synced) {
                 configure();
               }
-            });
+            };
+            options.provider.on("synced", onSynced);
+            return () => {
+              if ("off" in provider && typeof provider.off === "function") {
+                provider.off("synced", onSynced);
+              }
+            };
           } else {
             throw new Error(
               "YSyncExtension: provider must have a 'synced' boolean or an 'on' method to listen for 'sync'",
@@ -147,6 +164,7 @@ export const YSyncExtension = createExtension(
         } else {
           configure();
         }
+        return;
       },
       prosemirrorPlugins: [
         syncPlugin({

@@ -1,4 +1,3 @@
-import { VersioningExtension } from "@blocknote/core/extensions";
 import {
   useCallback,
   useEffect,
@@ -11,12 +10,12 @@ import {
 } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { useVersioningState } from "./useVersioning.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { Snapshot } from "./Snapshot.js";
 import { usePreviewRow } from "./usePreviewRow.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
-import { getVisibleVersionRows } from "./visibleHistory.js";
+import { getVisibleVersionRows, getVersionList } from "./visibleHistory.js";
 
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -33,17 +32,12 @@ export function VersioningSidebarList() {
   const dict = useDictionary();
   const { namedOnly, loadingIndicator, run } = useVersioningSidebar();
   const previewRow = usePreviewRow();
-  const { getLoadingState } = useExtension(VersioningExtension);
-
-  const list = useExtensionState(VersioningExtension, {
-    selector: (state) => state.list,
-  });
-  const listError = useExtensionState(VersioningExtension, {
-    selector: (state) => state.listError,
-  });
-  const listing = useExtensionState(VersioningExtension, {
-    selector: (state) => getLoadingState(state).type === "listing",
-  });
+  const state = useVersioningState();
+  const list = useMemo(() => getVersionList(state), [state]);
+  const listError =
+    state.mode === "versions" && state.history.status === "failed";
+  const listing =
+    state.mode === "versions" && state.history.status === "loading";
 
   const listId = useId();
   const focusedRowId = useRef<string | undefined>(undefined);

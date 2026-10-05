@@ -1,15 +1,14 @@
-import { VersioningExtension } from "@blocknote/core/extensions";
 import { type ReactNode } from "react";
 import { GoDiff } from "react-icons/go";
 import { RiBookmarkLine, RiCloseLine } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { useExtension } from "../../hooks/useExtension.js";
+import { useVersioning } from "./useVersioning.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { usePreviewRow } from "./usePreviewRow.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
-import { getShownVersionRow, getVisibleVersionRows } from "./visibleHistory.js";
+import { getShownVersionRow, getVersionList } from "./visibleHistory.js";
 
 /** A header button, whose tooltip and accessible name are the same string. */
 function HeaderButton(props: {
@@ -36,7 +35,7 @@ export function VersioningSidebarHeader(props: { onClose?: () => void }) {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const { store, canCompare } = useExtension(VersioningExtension);
+  const { store, canCompare } = useVersioning();
   const {
     comparisonMode,
     setComparisonMode,
@@ -53,7 +52,8 @@ export function VersioningSidebarHeader(props: { onClose?: () => void }) {
     const next = !comparisonMode;
     setComparisonMode(next);
 
-    const { view, list } = store.state;
+    const view = store.state;
+    const list = getVersionList(view);
     if (view.mode === "live" || !list.loaded) {
       return;
     }
@@ -70,24 +70,19 @@ export function VersioningSidebarHeader(props: { onClose?: () => void }) {
   function toggleNamedOnly() {
     const next = !namedOnly;
     setNamedOnly(next);
-    // A filter change ends the comparison instead of leaving a potentially
-    // hidden baseline active. Keep the viewed version if it survives the
-    // filter; otherwise return to Current so the list retains a selection.
-    setComparisonMode(false);
-    const { view, list } = store.state;
+    if (!comparisonMode) {
+      return;
+    }
+    const view = store.state;
+    const list = getVersionList(view);
     if (view.mode === "live" || !list.loaded) {
       return;
     }
     const shown = getShownVersionRow(list, view);
-    const visibleRows = getVisibleVersionRows(list, next);
-    const visibleShown = visibleRows.find(
-      (row) => row.snapshot.id === shown?.snapshot.id,
-    );
-    void run(() =>
-      previewRow(visibleShown?.snapshot ?? list.current, {
-        compareTo: { type: "none" },
-      }),
-    );
+    // Reset the baseline for the new filter, keeping the displayed source.
+    if (shown) {
+      void run(() => previewRow(shown.snapshot, { namedOnly: next }));
+    }
   }
 
   return (

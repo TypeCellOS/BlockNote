@@ -3,7 +3,7 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteEditor } from "@blocknote/core";
 import {
   VersioningExtension,
-  createInMemoryVersioningAdapter,
+  type VersioningController,
 } from "@blocknote/core/extensions";
 import { DiffVersioningExtension } from "@blocknote/core/y";
 import {
@@ -21,26 +21,27 @@ import { useState } from "react";
 import { DAY_MS, LIVE_DOCUMENT, SAMPLE_HISTORY } from "./sampleVersions";
 import "./style.css";
 
+const historyOptions = {
+  initialVersions: SAMPLE_HISTORY.map((version) => {
+    const source = BlockNoteEditor.create({ initialContent: version.blocks });
+    try {
+      return {
+        name: version.name,
+        createdAt: Date.now() - version.daysAgo * DAY_MS,
+        content: source.prosemirrorState.doc,
+      };
+    } finally {
+      source._tiptapEditor.destroy();
+    }
+  }),
+};
+
 export default function App() {
-  // The adapter is created per editor, so it's passed as a factory: the
-  // VersioningExtension calls it with the editor instance once that's ready.
-  // The store starts out with a few versions, the way an application would
-  // load the history it persisted.
+  // Each editor owns its history, seeded here with a few saved documents.
   const editor = useCreateBlockNote({
     initialContent: LIVE_DOCUMENT,
     extensions: [
-      VersioningExtension((editor) =>
-        createInMemoryVersioningAdapter(editor, {
-          initialVersions: SAMPLE_HISTORY.map((version) => ({
-            name: version.name,
-            createdAt: Date.now() - version.daysAgo * DAY_MS,
-            // The store keeps `Block[]`; a headless editor fills in the block
-            // defaults the sample leaves out.
-            content: BlockNoteEditor.create({ initialContent: version.blocks })
-              .document,
-          })),
-        }),
-      ),
+      VersioningExtension(historyOptions),
       // Opt into rendering version diffs: when comparing two versions the
       // sidebar shows insertions/deletions as attributed marks. Without this
       // extension the in-memory versioning falls back to a plain document swap.
@@ -59,7 +60,10 @@ export default function App() {
         {!showSidebar && (
           <button
             className="show-history-button"
-            onClick={() => setShowSidebar(true)}
+            onClick={() => {
+              editor.getExtension<VersioningController>("versioning")!.open();
+              setShowSidebar(true);
+            }}
           >
             History
           </button>

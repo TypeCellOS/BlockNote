@@ -1,14 +1,14 @@
-import { VersioningExtension } from "@blocknote/core/extensions";
 import { RiDeleteBinLine } from "react-icons/ri";
 
 import { useDictionary } from "../../../../i18n/dictionary.js";
-import { useExtension } from "../../../../hooks/useExtension.js";
-import { usePreviewRow } from "../../usePreviewRow.js";
+import { useVersioning } from "../../useVersioning.js";
 import { useVersioningSidebar } from "../../VersioningSidebarContext.js";
 import { useVersionSnapshot } from "../../VersionSnapshotContext.js";
+import { usePreviewRow } from "../../usePreviewRow.js";
 import {
-  getVisibleVersionRows,
-  viewReferencesVersion,
+  getPreviousVisibleVersion,
+  getShownVersionRow,
+  getVersionList,
 } from "../../visibleHistory.js";
 import type {
   DefaultVersionMenuItemProps,
@@ -18,34 +18,44 @@ import { DefaultVersionMenuItem } from "../DefaultVersionMenuItem.js";
 
 /**
  * Delete a named stored version (only its name on continuous-history backends).
- * Return to current if the shown version or baseline is removed or filtered out.
+ * Reconcile comparison against the remaining visible rows.
  */
 export function useDeleteVersionAction(): VersionMenuAction {
-  const { remove, store } = useExtension(VersioningExtension);
-  const { run, namedOnly } = useVersioningSidebar();
+  const { remove, canRemove, store } = useVersioning();
+  const { run, comparisonMode, namedOnly } = useVersioningSidebar();
   const previewRow = usePreviewRow();
   const { snapshot, isCurrent } = useVersionSnapshot();
 
-  if (isCurrent || !remove || snapshot.name === undefined) {
+  if (isCurrent || !canRemove || snapshot.name === undefined) {
     return { available: false };
   }
 
   return {
     available: true,
     execute: () => {
+      const before = store.state;
       return run(
         () => remove(snapshot.id),
-        async () => {
-          const { list, view } = store.state;
-          if (!list.loaded) {
+        async (result) => {
+          if (result.status !== "done" || before.mode !== "versions") {
             return;
           }
-          const visible = getVisibleVersionRows(list, namedOnly).some(
-            (row) => row.snapshot.id === snapshot.id,
-          );
-          const usesDeletedVersion = viewReferencesVersion(view, snapshot.id);
-          if (view.mode === "live" || (!visible && usesDeletedVersion)) {
-            await previewRow(list.current);
+          const state = store.state;
+          const list = getVersionList(state);
+          if (!list.loaded || state.mode !== "versions") {
+            return;
+          }
+          const shown = getShownVersionRow(list, state);
+          if (!shown) {
+            return;
+          }
+          if (
+            comparisonMode &&
+            before.compareTo === snapshot.id &&
+            state.compareTo !==
+              getPreviousVisibleVersion(list, shown.snapshot, namedOnly)?.id
+          ) {
+            await previewRow(shown.snapshot);
           }
         },
       );

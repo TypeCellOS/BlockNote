@@ -1,51 +1,65 @@
-import { configureYProsemirror } from "@y/prosemirror";
+import { pauseSync, ySyncPluginKey } from "@y/prosemirror";
 import * as Y from "@y/y";
-
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import type { PreviewController } from "../../extensions/Versioning/index.js";
+import type { VersionViewAdapter } from "../../extensions/Versioning/types.js";
+import { ForkYDocExtension } from "./ForkYDoc.js";
 import { serializeFragment } from "./snapshotCodec.js";
 import { showSnapshotPreview } from "./snapshotPreview.js";
 
-/**
- * No-op: the server applies the restore and publishes a reverting update that
- * propagates over live sync; exitPreview already ran before this.
- */
-export function applyServerSideRestore(_snapshotContent: Uint8Array): void {}
-
-/** Wire a Yjs fragment into the versioning adapter's preview/serialize hooks. */
-export function createYjsVersioningAdapter(
-  editor: BlockNoteEditor<any, any, any>,
+/** Uses the existing fork primitive, but exposes only an owned view. */
+export function createYVersionView(
+  editor: BlockNoteEditor,
   fragment: Y.Node,
-): {
-  preview: PreviewController<Uint8Array, Y.ContentMap>;
-  getCurrentDocument: () => Y.Node;
-  serializeCurrentContent: () => Uint8Array;
-} {
+): VersionViewAdapter<Uint8Array, Y.ContentMap> {
   return {
-    getCurrentDocument() {
-      return fragment;
-    },
-    serializeCurrentContent() {
-      return serializeFragment(fragment);
-    },
-    preview: {
-      enterPreview(
-        snapshotContent: Uint8Array,
-        compareToContent?: Uint8Array,
-        attributions?: Y.ContentMap,
+    supportsComparison: true,
+    open() {
+      const fork = editor.getExtension(ForkYDocExtension);
+      const binding = ySyncPluginKey.getState(editor.prosemirrorState);
+      if (
+        !fork ||
+        fork.store.state.isForked ||
+        binding?.renderer ||
+        binding?.ytype !== fragment
       ) {
-        showSnapshotPreview(
-          editor,
-          fragment,
-          snapshotContent,
-          compareToContent,
-          attributions,
+        throw new Error(
+          "Versioning requires an active plain live binding and an available fork",
         );
-      },
-      exitPreview() {
-        editor.exec(configureYProsemirror({ ytype: fragment }));
-      },
-      applyRestore: applyServerSideRestore,
+      }
+      const current = {
+        content: serializeFragment(fragment),
+        capturedAt: Date.now(),
+      };
+      try {
+        fork.fork();
+        editor.exec((state, dispatch) => pauseSync(state, dispatch ?? null));
+      } catch (error) {
+        fork.merge({ keepChanges: false });
+        throw error;
+      }
+      let closed = false;
+      return {
+        current,
+        show({ content, comparison }) {
+          if (closed) {
+            throw new Error("Version view is closed");
+          }
+          showSnapshotPreview(
+            editor,
+            fragment,
+            content,
+            comparison?.content,
+            comparison?.attributions,
+          );
+        },
+        close() {
+          if (closed) {
+            return;
+          }
+          fork.merge({ keepChanges: false });
+          closed = true;
+        },
+      };
     },
   };
 }

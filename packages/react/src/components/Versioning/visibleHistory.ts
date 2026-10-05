@@ -1,8 +1,28 @@
 import type {
-  LoadedVersioningList,
-  VersioningView,
   VersionSnapshot,
+  VersioningState,
 } from "@blocknote/core/extensions";
+
+export type { VersionSnapshot } from "@blocknote/core/extensions";
+export type LoadedVersioningList = {
+  loaded: true;
+  current: VersionSnapshot;
+  snapshots: VersionSnapshot[];
+};
+export const CURRENT_VERSION_ID = "blocknote:frozen-current";
+
+export function getVersionList(
+  state: VersioningState,
+): LoadedVersioningList | { loaded: false } {
+  if (state.mode === "live" || state.history.versions === undefined) {
+    return { loaded: false };
+  }
+  return {
+    loaded: true,
+    current: { id: CURRENT_VERSION_ID, createdAt: state.capturedAt },
+    snapshots: state.history.versions,
+  };
+}
 
 export type VisibleVersionRow = {
   snapshot: VersionSnapshot;
@@ -25,17 +45,17 @@ export function getVisibleVersionRows(
 /** The row currently shown in the editor, if the editor is in preview mode. */
 export function getShownVersionRow(
   list: LoadedVersioningList,
-  view: VersioningView,
+  view: VersioningState,
 ): VisibleVersionRow | undefined {
   switch (view.mode) {
     case "live":
       return undefined;
-    case "current":
-      return { snapshot: list.current, isCurrent: true };
-    case "snapshot": {
-      const snapshot = list.snapshots.find(
-        (candidate) => candidate.id === view.snapshotId,
-      );
+    case "versions": {
+      if (view.displayed.type === "current") {
+        return { snapshot: list.current, isCurrent: true };
+      }
+      const id = view.displayed.id;
+      const snapshot = list.snapshots.find((candidate) => candidate.id === id);
       return snapshot ? { snapshot, isCurrent: false } : undefined;
     }
   }
@@ -56,12 +76,12 @@ export function getPreviousVisibleVersion(
 
 /** Whether a preview shows or compares against the given stored version. */
 export function viewReferencesVersion(
-  view: VersioningView,
+  view: VersioningState,
   versionId: string,
 ): boolean {
   return (
     view.mode !== "live" &&
-    (view.compareToId === versionId ||
-      (view.mode === "snapshot" && view.snapshotId === versionId))
+    (view.compareTo === versionId ||
+      (view.displayed.type === "snapshot" && view.displayed.id === versionId))
   );
 }

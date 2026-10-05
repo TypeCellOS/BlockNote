@@ -43,6 +43,7 @@ export const CollaborationExtension = createExtension(
   ({ options }: ExtensionOptions<CollaborationOptions>) => {
     return {
       key: "collaboration",
+      fragment: options.fragment,
       blockNoteExtensions: [
         FixUpSchemaExtension(),
         ForkYDocExtension(options),
@@ -83,7 +84,6 @@ export function withCollaboration<
 export * from "./ForkYDoc.js";
 export * from "./RelativePositionMapping.js";
 export * from "./schemaMigration/SchemaMigration.js";
-export * from "./Versioning.js";
 export * from "./YCursorPlugin.js";
 export * from "./YSync.js";
 export * from "./YUndo.js";

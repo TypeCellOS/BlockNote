@@ -1,10 +1,12 @@
 import { VersioningSidebar } from "@blocknote/react/versioning";
 import "@blocknote/core/fonts/inter.css";
 import {
-  createYHubVersioningEndpoints,
+  VersioningExtension,
+  createYHubVersionStorage,
   withCollaboration,
 } from "@blocknote/core/y";
 import { RenderInPortalElement, useCreateBlockNote } from "@blocknote/react";
+import type { VersioningController } from "@blocknote/core/extensions";
 import { useEffect, useState } from "react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -47,7 +49,6 @@ const versioningOptions = {
     groupMaxGap: String(1 * DAY_MS),
   },
 };
-const versioningEndpoints = createYHubVersioningEndpoints(versioningOptions);
 
 const doc = new Y.Doc();
 const provider = new WebsocketProvider(
@@ -137,18 +138,19 @@ function VersionedEditor() {
           color: currentUser.color ?? "#ff0000",
           name: currentUser.username,
         },
-        // Pass versioningEndpoints to the v14 CollaborationExtension which
-        // automatically wires up the VersioningExtension with the Yjs adapter.
-        versioningEndpoints,
         // Resolves version-author ids (the seed's `attribution.by`) to usernames
         // in the history sidebar and diff tooltips.
         resolveUsers,
       },
+      extensions: [
+        VersioningExtension({
+          storage: createYHubVersionStorage(versioningOptions),
+        }),
+      ],
     }),
   );
 
   const [showSidebar, setShowSidebar] = useState(true);
-  // The element in the layout that the history sidebar is rendered into.
   const [sidebarPanel, setSidebarPanel] = useState<HTMLDivElement | null>(null);
 
   return (
@@ -160,7 +162,10 @@ function VersionedEditor() {
         {!showSidebar && (
           <button
             className="show-history-button"
-            onClick={() => setShowSidebar(true)}
+            onClick={() => {
+              editor.getExtension<VersioningController>("versioning")!.open();
+              setShowSidebar(true);
+            }}
           >
             History
           </button>

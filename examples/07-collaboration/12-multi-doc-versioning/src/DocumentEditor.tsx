@@ -2,15 +2,16 @@ import "@blocknote/core/fonts/inter.css";
 import {
   withCollaboration,
   SuggestionsExtension,
-  createYHubVersioningEndpoints,
+  VersioningExtension,
+  createYHubVersionStorage,
 } from "@blocknote/core/y";
 import { type User } from "@blocknote/core";
-import { VersioningExtension } from "@blocknote/core/extensions";
+import type { VersioningController } from "@blocknote/core/extensions";
 import {
   BlockNoteViewEditor,
   useCreateBlockNote,
   useExtension,
-  useExtensionState,
+  useStore,
 } from "@blocknote/react";
 import { BlockNoteView, type Theme } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -64,7 +65,6 @@ export function DocumentEditor({
     provider: WebsocketProvider;
     suggestionProvider: WebsocketProvider;
     renderer: ReturnType<typeof Y.createDiffRenderer>;
-    versioningEndpoints: ReturnType<typeof createYHubVersioningEndpoints>;
   } | null>(null);
 
   if (!resourcesRef.current) {
@@ -97,30 +97,17 @@ export function DocumentEditor({
     );
     const renderer = Y.createDiffRenderer(doc, suggestionDoc);
 
-    const versioningEndpoints = createYHubVersioningEndpoints({
-      baseUrl: YHUB_API_URL,
-      org: workspaceId,
-      docId,
-    });
-
     resourcesRef.current = {
       doc,
       suggestionDoc,
       provider,
       suggestionProvider,
       renderer,
-      versioningEndpoints,
     };
   }
 
-  const {
-    doc,
-    suggestionDoc,
-    provider,
-    suggestionProvider,
-    renderer,
-    versioningEndpoints,
-  } = resourcesRef.current;
+  const { doc, suggestionDoc, provider, suggestionProvider, renderer } =
+    resourcesRef.current;
 
   // Clean up on unmount
   useEffect(() => {
@@ -174,10 +161,8 @@ export function DocumentEditor({
     };
   }, [provider]);
 
-  // Version names live on the document itself (see
-  // `createYHubVersioningEndpoints`), and the sidebar reads them once, when it
-  // opens. So it waits for the first sync: opened earlier, it would list the
-  // versions without their names.
+  // Wait for initial sync before capturing Current, so history does not open
+  // on an empty local document while the provider is still connecting.
   const [synced, setSynced] = useState(provider.synced);
   useEffect(() => {
     const onSync = (isSynced: boolean) => {
@@ -206,20 +191,27 @@ export function DocumentEditor({
           name: user.username,
           id: user.id,
         },
-        versioningEndpoints,
         // Resolves version-author ids (YHub's `by`) to usernames in the history
         // sidebar and diff tooltips.
         resolveUsers,
       },
+      extensions: [
+        VersioningExtension({
+          storage: createYHubVersionStorage({
+            baseUrl: YHUB_API_URL,
+            org: workspaceId,
+            docId,
+          }),
+        }),
+      ],
     }),
   );
 
   // The version history is derived entirely from YHub's activity timeline; the
   // sidebar fetches it once when it opens.
-  const versioningView = useExtensionState(VersioningExtension, {
-    editor,
-    selector: (state) => state.view,
-  });
+  const versioningView = useStore(
+    editor.getExtension<VersioningController>("versioning")!.store,
+  );
   const previewing = versioningView.mode !== "live";
 
   const { enableSuggestions, disableSuggestions, viewSuggestions } =
@@ -298,7 +290,14 @@ export function DocumentEditor({
                 {!showSidebar && (
                   <button
                     className="show-history-button"
-                    onClick={() => setShowSidebar(true)}
+                    onClick={() => {
+                      disableSuggestions();
+                      setEditingMode("editing");
+                      editor
+                        .getExtension<VersioningController>("versioning")!
+                        .open();
+                      setShowSidebar(true);
+                    }}
                     title="Show version history"
                     aria-label="Show version history"
                   >

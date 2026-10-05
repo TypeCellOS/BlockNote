@@ -1,154 +1,102 @@
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import {
-  createExtension,
-  createStore,
-  type ExtensionOptions,
-} from "../../editor/BlockNoteExtension.js";
-import { normalizeToUserStore } from "../../user/index.js";
 import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
-import { createVersioningCommands } from "./commands.js";
-import { createListSession } from "./list.js";
-import { createPreviewSession } from "./preview.js";
-import { findSnapshot, isReadOnly } from "./state.js";
-import type {
-  VersioningExtensionOptions,
-  VersioningLoadingState,
-  VersioningState,
-  VersionSnapshotIdentifier,
-  VersionSnapshot,
-  LoadedVersioningList,
-  VersioningResult,
-  VersionHistoryFetchError,
-} from "./types.js";
+import { createVersioning } from "./createVersioning.js";
+import type { VersionStorage, VersionViewAdapter } from "./types.js";
+import { scheduleScrollToFirstChange } from "./scrollToFirstChange.js";
+import {
+  normalizeToUserStore,
+  type UserStoreOrResolver,
+} from "../../user/index.js";
 
-export { LOADING_PREVIEW_CLASS, LOADING_PREVIEW_DELAY_MS } from "./preview.js";
-export type * from "./types.js";
-
-/**
- * Resolve options and wire list, preview, and command sessions to one store.
- * Metadata types are selected on individual read and write methods.
- */
-export const VersioningExtension = createExtension(
-  ({
-    options: optionsOrFactory,
-    editor,
-  }: ExtensionOptions<
-    | VersioningExtensionOptions
-    | ((editor: BlockNoteEditor<any, any, any>) => VersioningExtensionOptions)
-  >) => {
-    const {
-      endpoints: endpointsRaw,
-      preview,
-      getCurrentDocument,
-      serializeCurrentContent,
-      resolveUsers,
-      scrollToFirstChange: scrollToFirstChangeEnabled = true,
-    } = typeof optionsOrFactory === "function"
-      ? optionsOrFactory(editor)
-      : optionsOrFactory;
-
-    const endpoints =
-      typeof endpointsRaw === "function" ? endpointsRaw(editor) : endpointsRaw;
-    // Capture the controller method so the restore branch has a callable type.
-    const applyRestore = preview.applyRestore?.bind(preview);
-    // With no resolver this is an empty store: `getUser` always misses, so the
-    // view layer falls back to showing the raw ids from `VersionSnapshot.by`.
-    const userStore = normalizeToUserStore(resolveUsers);
-    const store = createStore<VersioningState>(
-      {
-        list: { loaded: false },
-        view: { mode: "live" },
-        listing: false,
-        restoring: false,
+/** Configure storage and a view once; the sidebar only opens, selects, and closes. */
+export function createVersioningExtension<Content, Attributions = never>(
+  configure: (editor: BlockNoteEditor) => {
+    adapter: VersionViewAdapter<Content, Attributions>;
+    storage: VersionStorage<Content, Attributions>;
+    resolveUsers?: UserStoreOrResolver;
+    scrollToFirstChange?: boolean;
+  },
+) {
+  return createExtension(({ editor }: { editor: BlockNoteEditor }) => {
+    let configuration: ReturnType<typeof configure> | undefined;
+    const mode = createVersioning({
+      get storage() {
+        return (configuration ??= configure(editor)).storage;
       },
-      {
-        // Sync the ReadOnly gate with the new state. Writing through the
-        // store keeps this in one place, including for external `setState`.
-        onUpdate(state, prevState) {
-          if (isReadOnly(state) !== isReadOnly(prevState)) {
-            editor
-              .getExtension(ReadOnlyExtension)!
-              .setReadOnly(isReadOnly(state), "versioning");
-          }
+      adapter: {
+        get supportsComparison() {
+          return (configuration ??= configure(editor)).adapter
+            .supportsComparison;
+        },
+        open() {
+          const configured = (configuration ??= configure(editor));
+          const view = configured.adapter.open();
+          let cancelScroll: (() => void) | undefined;
+          let closed = false;
+          return {
+            current: view.current,
+            show(display) {
+              cancelScroll?.();
+              cancelScroll = undefined;
+              view.show(display);
+              if (display.comparison && !closed) {
+                cancelScroll = scheduleScrollToFirstChange(
+                  () => editor.domElement,
+                  {
+                    enabled: configured.scrollToFirstChange,
+                    isCurrent: () =>
+                      mode.store.state.mode === "versions" &&
+                      mode.store.state.pending === undefined &&
+                      !mode.store.state.restoring,
+                  },
+                );
+              }
+            },
+            close() {
+              closed = true;
+              cancelScroll?.();
+              cancelScroll = undefined;
+              view.close();
+            },
+          };
         },
       },
-    );
-
-    const listSession = createListSession({ store, endpoints });
-    const previewSession = createPreviewSession({
-      store,
-      endpoints,
-      preview,
-      serializeCurrentContent,
-      editor,
-      scrollToFirstChangeEnabled,
+      setReadOnly(enabled) {
+        editor
+          .getExtension(ReadOnlyExtension)!
+          .setReadOnly(enabled, "versioning");
+      },
     });
-    const commands = createVersioningCommands({
-      store,
-      endpoints,
-      getCurrentDocument,
-      applyRestore,
-      refreshList: listSession.refresh,
-      exitPreview: previewSession.exitPreview,
+    const key = "versioning";
+    let userStore: ReturnType<typeof normalizeToUserStore> | undefined;
+    return assignWithDescriptors(mode, {
+      key,
+      get userStore() {
+        return (userStore ??= normalizeToUserStore(
+          (configuration ??= configure(editor)).resolveUsers,
+        ));
+      },
+      mount() {
+        return () => mode.close();
+      },
     });
+  });
+}
 
-    return {
-      key: "versioning",
-      store,
-      userStore,
-      /** Fetch history as a result. The metadata type is caller-asserted, not validated. */
-      list<Metadata = unknown>() {
-        return listSession.refresh() as Promise<
-          VersioningResult<
-            LoadedVersioningList<Metadata>,
-            VersionHistoryFetchError
-          >
-        >;
-      },
-      /** Metadata is caller-asserted, not validated. Omit the type to read unknown. */
-      getSnapshot<Metadata = unknown>(id: VersionSnapshotIdentifier) {
-        return findSnapshot(store.state.list, id) as
-          | VersionSnapshot<Metadata>
-          | undefined;
-      },
-      /**
-       * The busy status the sidebar shows, read through from the two in-flight
-       * flags the sessions publish. Preview loading outranks listing: a fetch
-       * is the more urgent thing to communicate, and reverting to `listing`
-       * when it settles keeps a slow list request visible.
-       *
-       * Defaults to this store's state, so it doubles as a store selector when
-       * the caller passes the selected state.
-       */
-      getLoadingState: (
-        state: VersioningState = store.state,
-      ): VersioningLoadingState => {
-        if (state.loadingView) {
-          return { type: "loading-preview", view: state.loadingView };
-        }
-        return state.listing ? { type: "listing" } : { type: "idle" };
-      },
-      // Comparison is only offered when the preview controller can actually
-      // render a diff (see PreviewController.supportsComparison). A getter so a
-      // controller whose `supportsComparison` is itself dynamic (e.g. gated on
-      // an opt-in diff extension that may be registered after this one) is read
-      // lazily, not captured at init time.
-      get canCompare() {
-        return preview.supportsComparison !== false;
-      },
-      create: commands.create,
-      restore: commands.restore,
-      rename: commands.rename,
-      remove: commands.remove,
-      previewSnapshot: previewSession.previewSnapshot,
-      previewCurrentVersion: previewSession.previewCurrentVersion,
-      exitPreview: previewSession.exitPreview,
-      /**
-       * Scroll the first change of the rendered diff into view. Runs
-       * automatically after preview unless disabled; exposed for hosts.
-       * @returns whether a change was found.
-       */
-      scrollToFirstChange: previewSession.scrollToFirstChange,
-    } as const;
-  },
-);
+/** Attach extension properties without evaluating their getters. */
+function assignWithDescriptors<T extends object, const U extends object>(
+  target: T,
+  source: U,
+): T & U;
+function assignWithDescriptors(target: object, source: object) {
+  return Object.defineProperties(
+    target,
+    Object.getOwnPropertyDescriptors(source),
+  );
+}
+
+/** Content-independent controls shared by every versioning integration. */
+export type VersioningController = ReturnType<
+  typeof createVersioning<unknown, unknown>
+> & { key: "versioning"; userStore: ReturnType<typeof normalizeToUserStore> };

@@ -2,10 +2,10 @@
  * Versioning-mode coverage for every scenario — single- AND multi-user.
  *
  * The other files in this folder exercise the SuggestionsExtension diff overlay.
- * This one exercises the OTHER diff path — `createYjsVersioningAdapter`'s
- * `enterPreview`, which reconfigures the editor through y-prosemirror
- * (`configureYProsemirror`). That path crashes for a few scenarios: moving a
- * block that carries (or dissolves) a nested blockGroup makes y-prosemirror's
+ * This one exercises the collaborative diff path through `createYVersionView`.
+ * Its owned view renders a static document while synchronization is
+ * paused. The old binding-based renderer crashed for a few scenarios: moving
+ * a block that carries (or dissolves) a nested blockGroup made y-prosemirror's
  * `applyDelta` throw lib0 "Unexpected case". Each scenario is run through the
  * same shape the gallery's Versioning mode uses — every user applies their
  * change on their own clone of the base, the clones are merged via the Yjs CRDT,
@@ -16,7 +16,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import {
   blocksToYDoc,
   getAttributeChanges,
-  createYjsVersioningAdapter,
+  createYVersionView,
   withCollaboration,
 } from "@blocknote/core/y";
 import * as Y from "@y/y";
@@ -134,13 +134,15 @@ for (const scenario of scenarios) {
       // nested-move / table-merge crashers.
       const { editor: diffEditor, teardown: unmount } = mountEditor(afterDoc);
       teardown.push(unmount);
-      const adapter = createYjsVersioningAdapter(
-        diffEditor,
-        afterDoc.get("doc"),
-      );
-      adapter.preview.enterPreview(after, before);
+      const view = createYVersionView(diffEditor, afterDoc.get("doc")).open();
+      teardown.push(() => view.close());
+      view.show({
+        content: after,
+        comparison: { content: before },
+        target: { type: "current" },
+      });
 
-      // Reached only when enterPreview didn't throw: the diff is now showing.
+      // Reached only when show didn't throw: the diff is now showing.
       expect(diffEditor.prosemirrorState.doc.childCount).toBeGreaterThan(0);
       const property = propertyChanges.get(scenario.id);
       if (property) {
@@ -153,7 +155,7 @@ for (const scenario of scenarios) {
           }
         });
         expect(changedProperties).toEqual([property]);
-        adapter.preview.exitPreview();
+        view.close();
         expect(
           diffEditor.prosemirrorView.dom.querySelector("[data-attributes]"),
         ).toBeNull();

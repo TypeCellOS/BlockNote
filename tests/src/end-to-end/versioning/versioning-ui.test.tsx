@@ -1,8 +1,8 @@
 import { BlockNoteView as AriakitBlockNoteView } from "@blocknote/ariakit";
 import "@blocknote/ariakit/style.css";
 import {
-  VersioningExtension,
-  type VersioningEndpoints,
+  createVersioningExtension,
+  type VersionStorage,
   type VersionSnapshot,
 } from "@blocknote/core/extensions";
 import {
@@ -11,8 +11,8 @@ import {
 } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
-  BlockNoteViewEditor,
   RenderInPortalElement,
+  BlockNoteViewEditor,
   useCreateBlockNote,
 } from "@blocknote/react";
 import { VersioningSidebar } from "@blocknote/react/versioning";
@@ -39,17 +39,31 @@ const SNAPSHOTS: VersionSnapshot[] = [
 type Skin = "mantine" | "ariakit" | "shadcn";
 type Theme = "light" | "dark";
 
-function createEndpoints(): VersioningEndpoints {
+function createEndpoints(): VersionStorage<unknown[], unknown> {
   return {
-    list: async () => ({ current: CURRENT, snapshots: SNAPSHOTS }),
+    list: async () => SNAPSHOTS,
     getContent: async () => [],
     getAttributions: async () => undefined,
-    create: async (_document, options) => ({ ...CURRENT, ...options }),
+    create: async (_document, name) => ({ ...CURRENT, name }),
     rename: async () => {},
     remove: async () => {},
-    restore: async () => [],
+    restore: async () => {},
   };
 }
+
+const Versions = createVersioningExtension(() => ({
+  storage: createEndpoints(),
+  adapter: {
+    supportsComparison: true,
+    open() {
+      return {
+        current: { content: [], capturedAt: CURRENT.createdAt },
+        show() {},
+        close() {},
+      };
+    },
+  },
+}));
 
 function SkinPanel(props: {
   skin: Skin;
@@ -57,18 +71,7 @@ function SkinPanel(props: {
   clippingEditorPanel?: boolean;
 }) {
   const editor = useCreateBlockNote({
-    extensions: [
-      VersioningExtension({
-        endpoints: createEndpoints(),
-        preview: {
-          enterPreview: () => {},
-          exitPreview: () => {},
-          applyRestore: () => {},
-        },
-        getCurrentDocument: () => [],
-        serializeCurrentContent: () => [],
-      }),
-    ],
+    extensions: [Versions()],
   });
   const sidebar = <VersioningSidebar onClose={() => {}} />;
   const content = props.clippingEditorPanel ? (
@@ -314,18 +317,7 @@ test.each([
 
     function PortaledSidebar() {
       const editor = useCreateBlockNote({
-        extensions: [
-          VersioningExtension({
-            endpoints: createEndpoints(),
-            preview: {
-              enterPreview: () => {},
-              exitPreview: () => {},
-              applyRestore: () => {},
-            },
-            getCurrentDocument: () => [],
-            serializeCurrentContent: () => [],
-          }),
-        ],
+        extensions: [Versions()],
       });
       useEffect(() => {
         isWithinEditor = editor.isWithinEditor;
@@ -421,18 +413,7 @@ test("updates a portaled sidebar when the view theme changes", async () => {
   function App() {
     const [dark, setDark] = useState(false);
     const editor = useCreateBlockNote({
-      extensions: [
-        VersioningExtension({
-          endpoints: createEndpoints(),
-          preview: {
-            enterPreview: () => {},
-            exitPreview: () => {},
-            applyRestore: () => {},
-          },
-          getCurrentDocument: () => [],
-          serializeCurrentContent: () => [],
-        }),
-      ],
+      extensions: [Versions()],
     });
 
     return (

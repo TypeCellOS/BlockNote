@@ -9,12 +9,61 @@ import { blocksToYXmlFragment } from "../utils.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
 import { withCollaboration } from "./index.js";
 import { YCursorExtension } from "./YCursorPlugin.js";
+import { createYjsVersionView } from "./Versioning.js";
 
 const cleanups: Array<() => void> = [];
 afterEach(() => {
   for (const cleanup of cleanups.splice(0).reverse()) {
     cleanup();
   }
+});
+
+it("switches version snapshots without reconnecting live sync or cursors", () => {
+  const doc = new Y.Doc();
+  const options = {
+    fragment: doc.getXmlFragment("doc"),
+    user: { name: "Test", color: "red" },
+  };
+  const editor = BlockNoteEditor.create(
+    withCollaboration({ collaboration: options }),
+  );
+  cleanups.push(() => doc.destroy());
+  cleanups.push(() => editor._tiptapEditor.destroy());
+  editor.replaceBlocks(editor.document, [
+    { type: "paragraph", content: "Saved" },
+  ]);
+  blocksToYXmlFragment(editor, editor.document, options.fragment);
+  editor.prosemirrorView.updateState(
+    editor.prosemirrorState.reconfigure({
+      plugins: editor._tiptapEditor.extensionManager.plugins,
+    }),
+  );
+  const view = createYjsVersionView(editor, options.fragment).open();
+  cleanups.push(() => view.close());
+  const content = view.current.content;
+  view.show({ content, target: { type: "current" } });
+  const firstFork: Y.Doc = ySyncPluginKey.getState(editor.prosemirrorState).type
+    .doc;
+  const fork = editor.getExtension(ForkYDocExtension)!;
+  let reconnects = 0;
+  const unsubscribe = fork.store.subscribe(() => {
+    if (!fork.store.state.isForked) {
+      reconnects++;
+    }
+  });
+  cleanups.push(unsubscribe);
+  view.show({ content, target: { type: "current" } });
+  expect(reconnects).toBe(0);
+  expect(editor.getExtension(YCursorExtension)).toBeUndefined();
+  expect(firstFork.isDestroyed).toBe(true);
+  expect(ySyncPluginKey.getState(editor.prosemirrorState).type).not.toBe(
+    options.fragment,
+  );
+  view.close();
+  expect(reconnects).toBe(1);
+  expect(ySyncPluginKey.getState(editor.prosemirrorState).type).toBe(
+    options.fragment,
+  );
 });
 
 function findText(fragment: Y.XmlFragment): Y.XmlText | undefined {

@@ -1,272 +1,192 @@
 import * as Y from "@y/y";
-
-import {
-  VersioningEndpointsFactory,
-  type VersioningEndpoints,
-  type VersionSnapshot,
-} from "../../extensions/Versioning/index.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type {
+  VersionSnapshot,
+  VersionStorage,
+} from "../../extensions/Versioning/types.js";
 import { collectFragmentIds } from "../utils.js";
+import { CollaborationExtension } from "../extensions/index.js";
+import { createYVersionView } from "../extensions/Versioning.js";
+import { createVersioningExtension } from "../../extensions/Versioning/Versioning.js";
 import {
   YHubClient,
-  type YHubActivityEntry,
   type YHubClientOptions,
   type YHubQueryParams,
 } from "./yhubClient.js";
 
-/**
- * Options for creating a YHub versioning endpoints instance.
- * Restoration requires full-history read access (`GET /ydoc?gc=false`) and
- * rollback permission. Naming requires YHub history.version access and uses
- * the latest activity returned by YHub; it
- * does not flush pending collaboration updates or bypass YHub's response cache.
- */
-export interface YHubVersioningOptions extends YHubClientOptions {
-  /** Activity query overrides, read fresh on each request. */
+export interface YHubVersionStorageOptions extends YHubClientOptions {
   activityParams?: YHubQueryParams;
 }
 
-const ACTIVITY_PARAM_DEFAULTS: YHubQueryParams = {
-  order: "desc",
-  limit: 50,
-  groupMaxGap: 60 * 60 * 1000, // Start a version after an hour of inactivity.
-  groupMaxDuration: 12 * 60 * 60 * 1000, // Cap a version at twelve hours.
-  // Group a session across authors; YHub's default keeps each author separate.
-  groupByUser: false,
-  // Include edit attribution pairs separately from native version custom data.
-  customAttributions: true,
-  versions: true,
-};
-
-/** Merge edit attribution pairs, dropping the result when it's empty. */
-function mergeCustomAttributions(
-  ...records: Array<Record<string, string> | undefined>
-): Record<string, string> | undefined {
-  const merged: Record<string, string> = Object.assign({}, ...records);
-  return Object.keys(merged).length > 0 ? merged : undefined;
+export interface YVersionStorageBinding {
+  bind(context: {
+    editor: BlockNoteEditor;
+    fragment: Y.Node;
+  }): VersionStorage<Uint8Array, Y.ContentMap>;
 }
 
-// YHub always produces an array of author IDs.
-type YHubSnapshot<Metadata> = Omit<VersionSnapshot<Metadata>, "by"> & {
-  by?: string[];
-};
+type YHubStorage = VersionStorage<Uint8Array, Y.ContentMap> &
+  Required<
+    Pick<
+      VersionStorage<Uint8Array, Y.ContentMap>,
+      "getAttributions" | "create" | "restore" | "rename" | "remove"
+    >
+  >;
 
-/** An activity window is identified by its end timestamp. */
-function activityToSnapshot<Metadata>(
-  entry: YHubActivityEntry<Metadata>,
-): YHubSnapshot<Metadata> {
-  const custom = entry.version?.custom;
-  const restoredFrom =
-    custom !== null && typeof custom === "object" && "restoredFrom" in custom
-      ? custom.restoredFrom
-      : undefined;
+/** Configure Y14 history independently of collaboration installation. */
+export function VersioningExtension(options: {
+  storage: VersionStorage<Uint8Array, Y.ContentMap> | YVersionStorageBinding;
+  scrollToFirstChange?: boolean;
+}) {
+  return createVersioningExtension((editor) => {
+    const collaboration = editor.getExtension(CollaborationExtension);
+    if (!collaboration) {
+      throw new Error("Y14 versioning requires Y14 collaboration");
+    }
+    return {
+      adapter: createYVersionView(editor, collaboration.fragment),
+      storage:
+        "bind" in options.storage
+          ? options.storage.bind({ editor, fragment: collaboration.fragment })
+          : options.storage,
+      resolveUsers: collaboration.userStore,
+      scrollToFirstChange: options.scrollToFirstChange,
+    };
+  })();
+}
+
+/** Continuous history stores server checkpoints, including the newest recorded edit. */
+export function createYHubVersionStorage(
+  options: YHubVersionStorageOptions,
+): YVersionStorageBinding {
   return {
-    id: String(entry.to),
-    createdAt: entry.to,
-    by: entry.by.length ? entry.by : undefined,
-    name: entry.version?.name || undefined,
-    restoredFrom:
-      typeof restoredFrom === "number" && Number.isFinite(restoredFrom)
-        ? { id: String(restoredFrom), createdAt: restoredFrom }
-        : undefined,
-    metadata: custom,
-    customAttributions: mergeCustomAttributions(entry.customAttributions),
+    bind({ editor, fragment }) {
+      return bindYHubVersionStorage(editor, fragment, options);
+    },
   };
 }
 
-function timestampId(snapshot: VersionSnapshot): number {
-  const id = Number(snapshot.id);
-  if (!Number.isFinite(id)) {
-    throw new Error(
-      `Version id "${snapshot.id}" is not a YHub server timestamp.`,
-    );
+function bindYHubVersionStorage(
+  editor: BlockNoteEditor,
+  fragment: Y.Node,
+  options: YHubVersionStorageOptions,
+): YHubStorage {
+  const client = new YHubClient(options);
+  function timestamp(id: string) {
+    const value = Number(id);
+    if (!Number.isFinite(value)) {
+      throw new Error("Invalid YHub checkpoint identifier");
+    }
+    return value;
   }
-  return id;
-}
-
-/**
- * Adapts YHub's activity timeline (including native named versions) to versions.
- * The newest activity is current; version metadata lives in YHub, not the doc.
- */
-export function createYHubVersioningEndpoints<Metadata = unknown>(
-  options: YHubVersioningOptions,
-): VersioningEndpointsFactory<Y.Node, Uint8Array, Y.ContentMap, Metadata> {
-  const client = new YHubClient<Metadata>(options);
-
-  return (editor) => {
-    let listedCurrent: YHubSnapshot<Metadata> | undefined;
-
-    function fetchActivity(overrides?: YHubQueryParams) {
-      return client.getActivity({
-        ...ACTIVITY_PARAM_DEFAULTS,
+  function activity(signal?: AbortSignal, overrides?: YHubQueryParams) {
+    return client.getActivity(
+      {
+        order: "desc",
+        limit: 50,
+        groupMaxGap: 60 * 60 * 1000,
+        groupMaxDuration: 12 * 60 * 60 * 1000,
+        groupByUser: false,
+        customAttributions: true,
         ...options.activityParams,
         ...overrides,
         versions: true,
-      });
-    }
-
-    async function fetchNewestEntry() {
-      return (await fetchActivity({ limit: 1, order: "desc" }))[0];
-    }
-
-    async function getContentAt(to: number) {
-      return Y.convertUpdateFormatV1ToV2(await client.getContent(to));
-    }
-
-    async function setName(t: number, name: string) {
-      const existing = await client.getVersion(t);
-      return existing
-        ? client.updateVersion(existing, name)
-        : client.createVersion(t, name);
-    }
-
-    return {
-      async list() {
-        const activity = await fetchActivity();
-
-        const rows = new Map<number, YHubSnapshot<Metadata>>();
-        for (const entry of activity) {
-          const existing = rows.get(entry.to);
-          const by = [...new Set([...(existing?.by ?? []), ...entry.by])];
-          const row = activityToSnapshot(entry);
-          rows.set(entry.to, {
-            ...row,
-            by: by.length ? by : undefined,
-            name: entry.version
-              ? entry.version.name || undefined
-              : existing?.name,
-            restoredFrom: entry.version
-              ? row.restoredFrom
-              : existing?.restoredFrom,
-            metadata: entry.version ? row.metadata : existing?.metadata,
-            customAttributions: mergeCustomAttributions(
-              existing?.customAttributions,
-              row.customAttributions,
-            ),
-          });
-        }
-
-        const newestActivityTo = Math.max(...rows.keys());
-
-        const now = Date.now();
-        const current = rows.get(newestActivityTo) ?? {
-          id: String(now),
-          createdAt: now,
-        };
-        rows.delete(Number(current.id));
-        listedCurrent = current;
+      },
+      signal,
+    );
+  }
+  return {
+    async list(signal) {
+      return (await activity(signal)).map((entry): VersionSnapshot => {
+        const custom = entry.version?.custom;
+        const restoredFrom =
+          custom !== null &&
+          typeof custom === "object" &&
+          "restoredFrom" in custom
+            ? custom.restoredFrom
+            : undefined;
         return {
-          current,
-          snapshots: [...rows.values()].sort(
-            (a, b) => b.createdAt - a.createdAt,
-          ),
+          id: String(entry.to),
+          createdAt: entry.to,
+          by: entry.by,
+          name: entry.version?.name || undefined,
+          metadata: custom,
+          customAttributions: entry.customAttributions,
+          restoredFrom:
+            typeof restoredFrom === "number" && Number.isFinite(restoredFrom)
+              ? { id: String(restoredFrom), createdAt: restoredFrom }
+              : undefined,
         };
-      },
-
-      async create(_fragment, createOptions) {
-        let current = listedCurrent;
-        if (!current) {
-          const newest = await fetchNewestEntry();
-          if (!newest) {
-            throw new Error(
-              "Cannot name the current version: YHub has recorded no activity " +
-                "for this document yet.",
-            );
-          }
-          current = activityToSnapshot(newest);
-        }
-
-        // An omitted metadata value leaves native custom data untouched.
-        if (createOptions.name || createOptions.metadata !== undefined) {
-          const t = timestampId(current);
-          const existing = await client.getVersion(t);
-          const name = createOptions.name || existing?.name || "";
-          const version = existing
-            ? await client.updateVersion(existing, name, createOptions.metadata)
-            : await client.createVersion(t, name, createOptions.metadata);
-          current = activityToSnapshot({
-            from: t,
-            to: t,
-            by: current.by ?? [],
-            customAttributions: current.customAttributions ?? {},
-            version,
-          });
-        }
-        listedCurrent = current;
-        return current;
-      },
-
-      async getContent(snapshot) {
-        return getContentAt(snapshot.createdAt);
-      },
-
-      async getAttributions(target, compareTo) {
-        // Current previews include live edits beyond the last list response.
-        return Y.decodeContentMap(
-          await client.getAttributions(
-            compareTo?.createdAt ?? 0,
-            target.kind === "snapshot" ? target.snapshot.createdAt : undefined,
-          ),
+      });
+    },
+    async getContent(id, signal) {
+      return Y.convertUpdateFormatV1ToV2(
+        await client.getContent(timestamp(id), signal),
+      );
+    },
+    async getAttributions(target, baselineId, capturedAt, signal) {
+      return Y.decodeContentMap(
+        await client.getAttributions(
+          timestamp(baselineId),
+          target.type === "current" ? capturedAt : timestamp(target.id),
+          signal,
+        ),
+      );
+    },
+    async create(_content, name) {
+      const latest = (await activity(undefined, { limit: 1 }))[0];
+      if (!latest) {
+        return undefined;
+      }
+      const existing = await client.getVersion(latest.to);
+      const version = existing
+        ? await client.updateVersion(existing, name ?? "")
+        : await client.createVersion(latest.to, name ?? "");
+      return {
+        id: String(version.t),
+        createdAt: version.t,
+        name: version.name || undefined,
+        metadata: version.custom,
+        by: latest.by,
+      };
+    },
+    async restore(id) {
+      const to = timestamp(id);
+      const [before, document] = await Promise.all([
+        activity(undefined, { limit: 1 }),
+        client.getDocument({ gc: false }),
+      ]);
+      const ids = collectFragmentIds(fragment, document);
+      if (before[0] && !(await client.getVersion(before[0].to))) {
+        await client.createVersion(
+          before[0].to,
+          editor.dictionary.versioning.before_restore,
         );
-      },
-
-      async restore(fragment, snapshot) {
-        const to = snapshot.createdAt;
-        const [snapshotContent, before, document] = await Promise.all([
-          getContentAt(to),
-          fetchNewestEntry(),
-          // Retained history includes deleted subtrees missing from the live doc.
-          client.getDocument({ gc: false }),
-        ]);
-
-        // Restore only this editor's fragment, preserving other editors.
-        const contentIds = collectFragmentIds(fragment, document);
-
-        // Pin the old head before rollback so YHub's activity grouping cannot
-        // absorb it. An existing named version already cuts the activity there.
-        if (before && !(await client.getVersion(before.to))) {
-          await client.createVersion(
-            before.to,
-            editor.dictionary.versioning.before_restore,
-          );
-        }
-
-        await client.rollback({
-          // YHub includes the `from` millisecond. Keep the selected version's
-          // final edit, reverting only edits strictly after its timestamp.
-          from: to + 1,
-          contentIds: Y.encodeContentIds({
-            inserts: contentIds,
-            deletes: contentIds,
-          }),
-        });
-
-        return snapshotContent;
-      },
-
-      async rename(snapshot, name) {
-        const t = timestampId(snapshot);
-        if (name) {
-          await setName(t, name);
-        } else {
-          const existing = await client.getVersion(t);
-          if (existing) {
-            await client.updateVersion(existing, "");
-          }
-        }
-      },
-
-      async remove(snapshot) {
-        const existing = await client.getVersion(timestampId(snapshot));
-        if (existing) {
-          // Preserve custom metadata on a named version; otherwise drop it so
-          // the automatic activity entry remains without a named version.
-          if (existing.custom !== null && existing.custom !== undefined) {
-            await client.updateVersion(existing, "");
-          } else {
-            await client.deleteVersion(existing);
-          }
-        }
-      },
-    } satisfies VersioningEndpoints<Y.Node, Uint8Array, Y.ContentMap, Metadata>;
+      }
+      await client.rollback({
+        from: to + 1,
+        contentIds: Y.encodeContentIds({ inserts: ids, deletes: ids }),
+      });
+    },
+    async rename(id, name) {
+      const to = timestamp(id);
+      const existing = await client.getVersion(to);
+      if (existing) {
+        await client.updateVersion(existing, name ?? "");
+      } else if (name) {
+        await client.createVersion(to, name);
+      }
+    },
+    async remove(id) {
+      const existing = await client.getVersion(timestamp(id));
+      if (!existing) {
+        return;
+      }
+      if (existing.custom !== null && existing.custom !== undefined) {
+        await client.updateVersion(existing, "");
+      } else {
+        await client.deleteVersion(existing);
+      }
+    },
   };
 }

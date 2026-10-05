@@ -2,8 +2,9 @@ import { StrictMode, act, useEffect, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { BlockNoteEditor } from "@blocknote/core";
 import {
-  VersioningExtension,
-  type VersioningEndpoints,
+  createVersioningExtension,
+  type createVersioning,
+  type VersionStorage,
   type VersionSnapshot,
 } from "@blocknote/core/extensions";
 import {
@@ -77,30 +78,33 @@ function createFakeEndpoints() {
   const endpoints = {
     list: vi.fn(async () => {
       await gate?.promise;
-      return { current, snapshots };
+      return snapshots;
     }),
-    getContent: vi.fn(async () => {
+    getContent: vi.fn(async (_id: string, _signal: AbortSignal) => {
       await gate?.promise;
       return [];
     }),
-    getAttributions: vi.fn(async () => undefined),
-    create: vi.fn(async (_doc: unknown, options: { name?: string }) => {
-      current = { ...current, name: options.name };
-      return current;
+    getAttributions: vi.fn(
+      async (_target, _baselineId, _capturedAt, _signal) => undefined,
+    ),
+    create: vi.fn(async (_doc: unknown[], name?: string) => {
+      const version = { id: "created", createdAt: 3000, name };
+      snapshots = [version, ...snapshots];
+      return version;
     }),
-    rename: vi.fn(async (snapshot: VersionSnapshot, name?: string) => {
-      snapshots = snapshots.map((s) =>
-        s.id === snapshot.id ? { ...s, name } : s,
-      );
-      if (snapshot.id === current.id) {
+    rename: vi.fn(async (id: string, name?: string) => {
+      snapshots = snapshots.map((s) => (s.id === id ? { ...s, name } : s));
+      if (id === current.id) {
         current = { ...current, name };
       }
     }),
-    remove: vi.fn(async (snapshot: VersionSnapshot) => {
-      snapshots = snapshots.filter((s) => s.id !== snapshot.id);
+    remove: vi.fn(async (id: string) => {
+      snapshots = snapshots.filter((s) => s.id !== id);
     }),
-    restore: vi.fn(async () => []),
-  } satisfies VersioningEndpoints;
+    restore: vi.fn(async (_id: string) => {
+      await gate?.promise;
+    }),
+  } satisfies VersionStorage<unknown[], unknown>;
 
   return {
     endpoints,
@@ -123,21 +127,44 @@ function createFakeEndpoints() {
   };
 }
 
-function createEditor(endpoints: VersioningEndpoints) {
+function createEditor(endpoints: VersionStorage<unknown[], unknown>) {
+  const Versions = createVersioningExtension(() => ({
+    storage: endpoints,
+    adapter: {
+      supportsComparison: true,
+      open() {
+        return {
+          current: { content: [], capturedAt: 3000 },
+          show() {},
+          close() {},
+        };
+      },
+    },
+  }));
   return BlockNoteEditor.create({
-    extensions: [
-      VersioningExtension({
-        endpoints,
-        preview: {
-          enterPreview: () => {},
-          exitPreview: () => {},
-          applyRestore: () => {},
-        },
-        getCurrentDocument: () => [],
-        serializeCurrentContent: () => [],
-      }),
-    ],
+    extensions: [Versions()],
   });
+}
+
+function mode(editor: BlockNoteEditor) {
+  return editor.getExtension<
+    ReturnType<typeof createVersioning<unknown[], unknown>> & { key: string }
+  >("versioning")!;
+}
+
+// Assert only the displayed selection, separately from history and pending work.
+function viewState(versioning: ReturnType<typeof mode>) {
+  const state = versioning.store.state;
+  if (state.mode === "live") {
+    return { mode: "live" };
+  }
+  return state.displayed.type === "current"
+    ? { mode: "current", compareToId: state.compareTo }
+    : {
+        mode: "snapshot",
+        snapshotId: state.displayed.id,
+        compareToId: state.compareTo,
+      };
 }
 
 /** Render the sidebar inside a real editor and wait for its initial list. */
@@ -293,14 +320,10 @@ describe("VersioningSidebar", () => {
       </StrictMode>,
     );
     await act(async () => {});
-    expect(
-      editor.getExtension(VersioningExtension)!.store.state.view.mode,
-    ).toBe("current");
+    expect(viewState(mode(editor)).mode).toBe("current");
     expect(editor.isEditable).toBe(false);
     view.unmount();
-    expect(
-      editor.getExtension(VersioningExtension)!.store.state.view.mode,
-    ).toBe("live");
+    expect(viewState(mode(editor)).mode).toBe("live");
     expect(editor.isEditable).toBe(true);
   });
 
@@ -424,8 +447,8 @@ describe("VersioningSidebar", () => {
   it("starts with comparison off and turns it on with a baseline", async () => {
     const { editor } = await setup();
 
-    const versioning = editor.getExtension(VersioningExtension)!;
-    expect(versioning.store.state.view).toEqual({
+    const versioning = mode(editor);
+    expect(viewState(versioning)).toEqual({
       mode: "current",
       compareToId: undefined,
     });
@@ -436,13 +459,13 @@ describe("VersioningSidebar", () => {
     await act(async () => {});
 
     // The current version is diffed against the newest stored version.
-    expect(versioning.store.state.view).toEqual({
+    expect(viewState(versioning)).toEqual({
       mode: "current",
       compareToId: NAMED.id,
     });
   });
 
-  it("does not compare a row excluded from the requested filter against the newest snapshot", async () => {
+  it("does not compare a hidden source against an unrelated visible version", async () => {
     function PreviewNamedHistoryItem() {
       const { snapshot } = useVersionSnapshot();
       const previewRow = usePreviewRow();
@@ -467,9 +490,7 @@ describe("VersioningSidebar", () => {
       ),
     });
     await click(await openMenuItem(rows()[2]!, /^Preview named history$/));
-    expect(
-      editor.getExtension(VersioningExtension)!.store.state.view,
-    ).toMatchObject({
+    expect(viewState(mode(editor))).toMatchObject({
       mode: "snapshot",
       snapshotId: AUTOMATIC.id,
       compareToId: undefined,
@@ -477,7 +498,7 @@ describe("VersioningSidebar", () => {
   });
 
   it.each([false, true])(
-    "compares visible named versions (initial comparison: %s)",
+    "compares the next named version in a named-only list (initial comparison: %s)",
     async (initialComparison) => {
       const fake = createFakeEndpoints();
       const olderNamed = { id: "older", createdAt: 500, name: "First draft" };
@@ -509,22 +530,22 @@ describe("VersioningSidebar", () => {
           }),
         );
       }
-      const versioning = editor.getExtension(VersioningExtension)!;
-      expect(versioning.store.state.view).toEqual({
+      const versioning = mode(editor);
+      expect(viewState(versioning)).toEqual({
         mode: "current",
         compareToId: NAMED.id,
       });
       expect(rows()).toHaveLength(3);
       expect(rows()[1]!.classList.contains("comparing")).toBe(true);
       await click(rows()[1]!);
-      expect(versioning.store.state.view).toMatchObject({
+      expect(viewState(versioning)).toMatchObject({
         mode: "snapshot",
         snapshotId: NAMED.id,
         compareToId: olderNamed.id,
       });
       expect(rows()[2]!.classList.contains("comparing")).toBe(true);
       await click(rows()[2]!);
-      expect(versioning.store.state.view).toMatchObject({
+      expect(viewState(versioning)).toMatchObject({
         mode: "snapshot",
         snapshotId: olderNamed.id,
         compareToId: undefined,
@@ -534,7 +555,7 @@ describe("VersioningSidebar", () => {
   );
 
   it.each([0, 1])(
-    "clears comparison when showing all versions and keeps selection %s",
+    "preserves comparison when showing all versions and keeps selection %s",
     async (selectedIndex) => {
       const fake = createFakeEndpoints();
       const olderNamed = { id: "older", createdAt: 500, name: "First draft" };
@@ -553,20 +574,22 @@ describe("VersioningSidebar", () => {
         page.getByRole("button", { name: "Show all versions", exact: true }),
       );
 
-      expect(
-        editor.getExtension(VersioningExtension)!.store.state.view,
-      ).toEqual(
+      expect(viewState(mode(editor))).toEqual(
         selectedIndex === 0
-          ? { mode: "current", compareToId: undefined }
-          : { mode: "snapshot", snapshotId: NAMED.id, compareToId: undefined },
+          ? { mode: "current", compareToId: "recent-auto" }
+          : {
+              mode: "snapshot",
+              snapshotId: NAMED.id,
+              compareToId: AUTOMATIC.id,
+            },
       );
       expect(rows()).toHaveLength(5);
       expect(
-        page.getByText("Comparing to", { exact: true }).query(),
-      ).toBeNull();
+        page.getByText("Comparing to", { exact: true }).element(),
+      ).toBeDefined();
       expect(
         page
-          .getByRole("button", { name: "Turn on comparison", exact: true })
+          .getByRole("button", { name: "Turn off comparison", exact: true })
           .element(),
       ).toBeDefined();
       expect(editor.isEditable).toBe(false);
@@ -575,31 +598,31 @@ describe("VersioningSidebar", () => {
 
   it("replaces the loader with a history error when the initial fetch fails", async () => {
     const fake = createFakeEndpoints();
-    fake.endpoints.list.mockRejectedValueOnce(
-      new Error("private backend details"),
-    );
-    const { editor } = await setup({}, fake);
+    const cause = new Error("private backend details");
+    const onError = vi.fn();
+    fake.endpoints.list.mockRejectedValueOnce(cause);
+    const { editor } = await setup({ onError }, fake);
 
     expect(page.getByRole("alert").element().textContent).toBe(
       "Failed to load version history",
     );
     expect(page.getByRole("status").query()).toBeNull();
     expect(rows()).toHaveLength(0);
-    expect(editor.getExtension(VersioningExtension)!.getLoadingState()).toEqual(
-      {
-        type: "idle",
-      },
-    );
-    expect(editor.isEditable).toBe(true);
+    expect(mode(editor).store.state).toMatchObject({
+      mode: "versions",
+      history: { status: "failed" },
+    });
+    expect(editor.isEditable).toBe(false);
+    expect(onError).toHaveBeenCalledWith(cause);
   });
 
   it("keeps loaded history visible on fetch failure and clears the error on success", async () => {
     const { editor, fake } = await setup();
-    const versioning = editor.getExtension(VersioningExtension)!;
+    const versioning = mode(editor);
     await click(rows()[1]!);
     fake.endpoints.list.mockRejectedValueOnce(new Error("offline"));
     await act(async () => {
-      await versioning.list();
+      await expect(versioning.list()).rejects.toThrow("offline");
     });
 
     expect(page.getByRole("alert").element().textContent).toBe(
@@ -627,11 +650,14 @@ describe("VersioningSidebar", () => {
     expect(page.getByRole("alert").query()).toBeNull();
   });
 
-  it("clears comparison when filtering to named versions and keeps a named selection", async () => {
-    const { editor } = await setup({ defaultComparisonMode: true });
+  it("keeps comparison enabled and chooses the next visible named baseline", async () => {
+    const fake = createFakeEndpoints();
+    const olderNamed = { id: "older", createdAt: 500, name: "First draft" };
+    fake.setSnapshots([NAMED, AUTOMATIC, olderNamed]);
+    const { editor } = await setup({ defaultComparisonMode: true }, fake);
     await click(rows()[1]!);
-    const versioning = editor.getExtension(VersioningExtension)!;
-    expect(versioning.store.state.view).toEqual({
+    const versioning = mode(editor);
+    expect(viewState(versioning)).toEqual({
       mode: "snapshot",
       snapshotId: NAMED.id,
       compareToId: AUTOMATIC.id,
@@ -648,34 +674,36 @@ describe("VersioningSidebar", () => {
       }),
     );
 
-    expect(versioning.store.state.view).toEqual({
+    expect(viewState(versioning)).toEqual({
       mode: "snapshot",
       snapshotId: NAMED.id,
-      compareToId: undefined,
+      compareToId: olderNamed.id,
     });
-    expect(rows()).toHaveLength(2);
+    expect(rows()).toHaveLength(3);
     expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
     expect(rows()[1]!.classList.contains("bn-snapshot-comparison-source")).toBe(
-      false,
+      true,
     );
-    expect(page.getByText("Comparing to", { exact: true }).query()).toBeNull();
+    expect(
+      page.getByText("Comparing to", { exact: true }).element(),
+    ).toBeDefined();
     expect(
       page
-        .getByRole("button", { name: "Turn on comparison", exact: true })
+        .getByRole("button", { name: "Turn off comparison", exact: true })
         .element(),
     ).toBeDefined();
 
     await click(
       page.getByRole("button", { name: "Show all versions", exact: true }),
     );
-    expect(versioning.store.state.view).toEqual({
+    expect(viewState(versioning)).toEqual({
       mode: "snapshot",
       snapshotId: NAMED.id,
-      compareToId: undefined,
+      compareToId: AUTOMATIC.id,
     });
   });
 
-  it("clears an explicit named baseline when entering named-only history", async () => {
+  it("resets comparison to the next named version when entering named-only history", async () => {
     const { editor } = await setup();
     await click(await openMenuItem(rows()[1]!, /^Compare with this version$/));
     await click(
@@ -684,14 +712,54 @@ describe("VersioningSidebar", () => {
         exact: true,
       }),
     );
-    expect(editor.getExtension(VersioningExtension)!.store.state.view).toEqual({
+    expect(viewState(mode(editor))).toEqual({
       mode: "current",
-      compareToId: undefined,
+      compareToId: NAMED.id,
     });
-    expect(page.getByText("Comparing to", { exact: true }).query()).toBeNull();
+    expect(
+      page.getByText("Comparing to", { exact: true }).element(),
+    ).toBeDefined();
   });
 
-  it("returns to Current when named-only history hides the viewed version", async () => {
+  it("resets an explicit baseline when showing all versions", async () => {
+    const fake = createFakeEndpoints();
+    const olderNamed = { id: "older", createdAt: 500, name: "First draft" };
+    fake.setSnapshots([NAMED, AUTOMATIC, olderNamed]);
+    const { editor } = await setup({ defaultComparisonMode: true }, fake);
+    await click(rows()[1]!);
+    await click(
+      page.getByRole("button", {
+        name: "Show named versions only",
+        exact: true,
+      }),
+    );
+    await click(await openMenuItem(rows()[2]!, /^Compare with this version$/));
+    fake.endpoints.getContent.mockClear();
+    await click(
+      page.getByRole("button", { name: "Show all versions", exact: true }),
+    );
+    expect(viewState(mode(editor))).toEqual({
+      mode: "snapshot",
+      snapshotId: NAMED.id,
+      compareToId: AUTOMATIC.id,
+    });
+    expect(fake.endpoints.getContent).toHaveBeenCalled();
+    expect(
+      page
+        .getByRole("button", { name: "Turn off comparison", exact: true })
+        .element(),
+    ).toBeDefined();
+
+    // Selecting the source again keeps the chronological comparison.
+    await click(rows()[1]!);
+    expect(viewState(mode(editor))).toEqual({
+      mode: "snapshot",
+      snapshotId: NAMED.id,
+      compareToId: AUTOMATIC.id,
+    });
+  });
+
+  it("keeps the displayed version when named-only history hides its row", async () => {
     const { editor } = await setup({ defaultComparisonMode: true });
     await click(rows()[2]!);
     await click(
@@ -700,13 +768,45 @@ describe("VersioningSidebar", () => {
         exact: true,
       }),
     );
-    expect(editor.getExtension(VersioningExtension)!.store.state.view).toEqual({
-      mode: "current",
+    expect(viewState(mode(editor))).toEqual({
+      mode: "snapshot",
+      snapshotId: AUTOMATIC.id,
       compareToId: undefined,
     });
-    expect(rows()[0]!.getAttribute("aria-current")).toBe("true");
+    expect(
+      rows().some((row) => row.getAttribute("aria-current") === "true"),
+    ).toBe(false);
     expect(editor.isEditable).toBe(false);
   });
+
+  it.each([false, true])(
+    "offers Current naming and preserves custom actions: %s",
+    async (custom) => {
+      const fake = createFakeEndpoints();
+      const editor = createEditor(fake.endpoints);
+      render(
+        <VersioningTestView editor={editor}>
+          <VersioningSidebar
+            snapshotMenu={
+              custom ? (
+                <VersionMenu>
+                  <VersionMenuItem onClick={() => {}}>Download</VersionMenuItem>
+                </VersionMenu>
+              ) : undefined
+            }
+          />
+        </VersioningTestView>,
+      );
+      await act(async () => {});
+      if (custom) {
+        expect(await openMenuItem(rows()[0]!, /^Download$/)).toBeDefined();
+      } else {
+        expect(
+          await openMenuItem(rows()[0]!, /^Name this version$/),
+        ).toBeDefined();
+      }
+    },
+  );
 
   it.each(["none", "previous"])(
     "compares against a snapshot whose id is %s",
@@ -719,14 +819,13 @@ describe("VersioningSidebar", () => {
         await openMenuItem(rows()[2]!, /^Compare with this version$/),
       );
 
-      expect(
-        editor.getExtension(VersioningExtension)!.store.state.view,
-      ).toEqual({
+      expect(viewState(mode(editor))).toEqual({
         mode: "current",
         compareToId: id,
       });
       expect(fake.endpoints.getContent).toHaveBeenCalledWith(
-        expect.objectContaining({ id }),
+        id,
+        expect.any(AbortSignal),
       );
     },
   );
@@ -746,16 +845,16 @@ describe("VersioningSidebar", () => {
         ),
       );
 
-      expect(
-        editor.getExtension(VersioningExtension)!.store.state.view,
-      ).toEqual({
+      expect(viewState(mode(editor))).toEqual({
         mode: "snapshot",
         snapshotId: NAMED.id,
         compareToId: AUTOMATIC.id,
       });
       expect(fake.endpoints.getAttributions).toHaveBeenLastCalledWith(
-        { kind: "snapshot", snapshot: NAMED },
-        AUTOMATIC,
+        { type: "snapshot", id: NAMED.id },
+        AUTOMATIC.id,
+        3000,
+        expect.any(AbortSignal),
       );
     },
   );
@@ -777,7 +876,7 @@ describe("VersioningSidebar", () => {
   it("starts comparing when asked to", async () => {
     const { editor } = await setup({ defaultComparisonMode: true });
 
-    expect(editor.getExtension(VersioningExtension)!.store.state.view).toEqual({
+    expect(viewState(mode(editor))).toEqual({
       mode: "current",
       compareToId: NAMED.id,
     });
@@ -789,7 +888,7 @@ describe("VersioningSidebar", () => {
     await click(rows()[2]!);
     await act(async () => {});
 
-    expect(editor.getExtension(VersioningExtension)!.store.state.view).toEqual({
+    expect(viewState(mode(editor))).toEqual({
       mode: "snapshot",
       snapshotId: AUTOMATIC.id,
       compareToId: undefined,
@@ -855,47 +954,34 @@ describe("VersioningSidebar", () => {
 
       await commit(nameInput(rows()[0]!), "Milestone", "Enter");
 
-      expect(fake.endpoints.create).toHaveBeenCalledWith([], {
-        name: "Milestone",
-      });
+      expect(fake.endpoints.create).toHaveBeenCalledWith([], "Milestone");
       expect(fake.endpoints.rename).not.toHaveBeenCalled();
     });
 
-    it("labels a named current row as the current version", async () => {
+    it("keeps frozen Current separate from a newly named checkpoint", async () => {
       await setup();
 
-      // This backend names the current row in place, so the name takes the
-      // title slot and "Current version" moves to where the date was.
       await commit(nameInput(rows()[0]!), "Milestone", "Enter");
 
       const row = rows()[0]!;
-      expect(nameInput(row).value).toBe("Milestone");
-      expect(
-        page
-          .elementLocator(row)
-          .getByText("Current version", { exact: true })
-          .element(),
-      ).toBeDefined();
-      expect(
-        page
-          .elementLocator(row)
-          .getByText(/2026|1970/)
-          .query(),
-      ).toBeNull();
+      expect(nameInput(row).value).toBe("");
+      expect(nameText(rows()[1]!)).toBe("Milestone");
+      expect(nameInput(row).placeholder).toBe("Current version");
+      expect(rows()).toHaveLength(4);
     });
 
-    it("keeps a newly persisted version in the current row", async () => {
+    it("refreshes history after creating a checkpoint", async () => {
       const fake = createFakeEndpoints();
-      fake.endpoints.create.mockImplementation(async (_doc, options) => {
-        return { id: "new", createdAt: 2500, name: options.name };
+      fake.endpoints.create.mockImplementation(async (_doc, name) => {
+        return { id: "new", createdAt: 2500, name };
       });
 
       await setup({}, fake);
       await commit(nameInput(rows()[0]!), "Milestone", "Enter");
 
-      expect(nameInput(rows()[0]!).value).toBe("Milestone");
+      expect(nameInput(rows()[0]!).value).toBe("");
       expect(rows()).toHaveLength(3);
-      expect(fake.endpoints.list).toHaveBeenCalledOnce();
+      expect(fake.endpoints.list).toHaveBeenCalledTimes(2);
     });
 
     it("renames a stored version through `rename`", async () => {
@@ -904,10 +990,7 @@ describe("VersioningSidebar", () => {
       await click(rows()[1]!);
       await commit(nameInput(rows()[1]!), "Final", "Enter");
 
-      expect(fake.endpoints.rename).toHaveBeenCalledWith(
-        expect.objectContaining({ id: NAMED.id }),
-        "Final",
-      );
+      expect(fake.endpoints.rename).toHaveBeenCalledWith(NAMED.id, "Final");
       expect(fake.endpoints.create).not.toHaveBeenCalled();
       // Enter commits by moving focus to the row, keeping keyboard
       // navigation in the list rather than dropping focus to the body.
@@ -930,18 +1013,16 @@ describe("VersioningSidebar", () => {
       await click(rows()[1]!);
       await commit(nameInput(rows()[1]!), "  ", "Enter");
 
-      expect(fake.endpoints.rename).toHaveBeenCalledWith(
-        expect.objectContaining({ id: NAMED.id }),
-        undefined,
-      );
+      expect(fake.endpoints.rename).toHaveBeenCalledWith(NAMED.id, undefined);
     });
 
     it("re-renders when a version is renamed from outside the row", async () => {
       const { editor } = await setup();
-      const versioning = editor.getExtension(VersioningExtension)!;
+      const versioning = mode(editor);
 
       await act(async () => {
         await versioning.rename!(NAMED.id, "Renamed elsewhere");
+        await versioning.list();
       });
 
       expect(nameText(rows()[1]!)).toBe("Renamed elsewhere");
@@ -1073,10 +1154,8 @@ describe("VersioningSidebar", () => {
         .getByRole("button", { name: "More actions", exact: true }),
     );
     await click(await openMenuItem(rows()[1]!, /^Roll back$/));
-    expect(fake.endpoints.restore).toHaveBeenCalledWith([], NAMED);
-    expect(
-      editor.getExtension(VersioningExtension)!.store.state.view.mode,
-    ).toBe("current");
+    expect(fake.endpoints.restore).toHaveBeenCalledWith(NAMED.id);
+    expect(viewState(mode(editor)).mode).toBe("current");
     expect(editor.isEditable).toBe(false);
   });
 
@@ -1173,7 +1252,7 @@ describe("VersioningSidebar", () => {
     await act(async () => userEvent.keyboard("{Enter}"));
     await act(async () => {});
 
-    expect(editor.getExtension(VersioningExtension)!.store.state.view).toEqual({
+    expect(viewState(mode(editor))).toEqual({
       mode: "snapshot",
       snapshotId: NAMED.id,
       compareToId: undefined,
@@ -1224,7 +1303,7 @@ describe("VersioningSidebar", () => {
     await click(rows()[1]!);
     const selectedRow = rows()[1]!;
     const release = fake.block();
-    const versioning = editor.getExtension(VersioningExtension)!;
+    const versioning = mode(editor);
     let refresh!: ReturnType<typeof versioning.list>;
     act(() => {
       refresh = versioning.list();
@@ -1268,9 +1347,7 @@ describe("VersioningSidebar", () => {
         view.rerender(<VersioningTestView editor={editor} />);
       }
       await act(async () => release());
-      expect(
-        editor.getExtension(VersioningExtension)!.store.state.view,
-      ).toEqual({ mode: "live" });
+      expect(viewState(mode(editor))).toEqual({ mode: "live" });
       expect(editor.isEditable).toBe(true);
       expect(fake.endpoints.getContent).not.toHaveBeenCalled();
     },
@@ -1303,10 +1380,10 @@ describe("VersioningSidebar", () => {
         }),
     );
     const cause = new Error("private backend detail");
-    const ext = editor.getExtension(VersioningExtension)!;
-    let pending!: Promise<void>;
+    const ext = mode(editor);
+    let pending!: Promise<unknown>;
     await act(async () => {
-      pending = run(() => ext.previewSnapshot(NAMED.id));
+      pending = run(() => ext.select({ type: "snapshot", id: NAMED.id }));
     });
     expect(rows()[1]!.getAttribute("aria-busy")).toBe("true");
     await act(async () => {
@@ -1351,7 +1428,7 @@ describe("VersioningSidebar", () => {
       { namedOnly: true, selection: "unrelated" },
       { namedOnly: false, selection: "deleted" },
     ] as const)(
-      "keeps a visible selection when deletion only clears a name ($namedOnly, $selection)",
+      "keeps selection and comparison when deletion only clears a name ($namedOnly, $selection)",
       async ({ namedOnly, selection }) => {
         const fake = createFakeEndpoints();
         const older = { id: "older", createdAt: 500, name: "First draft" };
@@ -1366,7 +1443,7 @@ describe("VersioningSidebar", () => {
           },
           fake,
         );
-        const ext = editor.getExtension(VersioningExtension)!;
+        const ext = mode(editor);
         if (selection === "deleted") {
           await click(rows()[1]!);
         }
@@ -1374,10 +1451,16 @@ describe("VersioningSidebar", () => {
 
         await click(await openMenuItem(rows()[1]!, /^Delete$/));
 
-        expect(ext.getSnapshot(NAMED.id)?.name).toBeUndefined();
+        expect(
+          ext.store.state.mode === "versions"
+            ? ext.store.state.history.versions?.find(
+                (version) => version.id === NAMED.id,
+              )?.name
+            : undefined,
+        ).toBeUndefined();
         expect(rows()).toHaveLength(namedOnly ? 2 : 3);
-        expect(ext.store.state.view).toEqual(
-          !namedOnly && selection === "deleted"
+        expect(viewState(ext)).toEqual(
+          selection === "deleted"
             ? { mode: "snapshot", snapshotId: NAMED.id, compareToId: undefined }
             : {
                 mode: "current",
@@ -1386,9 +1469,9 @@ describe("VersioningSidebar", () => {
         );
         expect(
           rows().filter((row) => row.hasAttribute("aria-current")),
-        ).toHaveLength(1);
+        ).toHaveLength(namedOnly && selection === "deleted" ? 0 : 1);
         expect(editor.isEditable).toBe(false);
-        if (selection === "unrelated" || !namedOnly) {
+        if (selection !== "baseline") {
           expect(fake.endpoints.getContent).not.toHaveBeenCalled();
         }
       },
@@ -1396,10 +1479,10 @@ describe("VersioningSidebar", () => {
 
     it("re-selects the current version after deleting the one on screen", async () => {
       const { editor } = await setup();
-      const ext = editor.getExtension(VersioningExtension)!;
+      const ext = mode(editor);
 
       await click(rows()[1]!);
-      expect(ext.store.state.view).toEqual({
+      expect(viewState(ext)).toEqual({
         mode: "snapshot",
         snapshotId: NAMED.id,
         compareToId: undefined,
@@ -1410,7 +1493,7 @@ describe("VersioningSidebar", () => {
 
       // The panel always has a selection, and the editor stays read-only for
       // as long as it is open.
-      expect(ext.store.state.view).toEqual({
+      expect(viewState(ext)).toEqual({
         mode: "current",
         compareToId: undefined,
       });
@@ -1439,9 +1522,7 @@ describe("VersioningSidebar", () => {
         }
         await act(async () => release());
 
-        expect(
-          editor.getExtension(VersioningExtension)!.store.state.view,
-        ).toEqual({
+        expect(viewState(mode(editor))).toEqual({
           mode: "live",
         });
         expect(editor.isEditable).toBe(true);
@@ -1453,14 +1534,14 @@ describe("VersioningSidebar", () => {
       const cause = new Error("network");
       fake.endpoints.restore.mockRejectedValueOnce(cause);
       const { editor, run } = await setupWithRun(fake);
-      const ext = editor.getExtension(VersioningExtension)!;
+      const ext = mode(editor);
 
       await click(rows()[1]!);
       await act(async () => {
         await expect(run(() => ext.restore!(NAMED.id))).rejects.toBe(cause);
       });
       expect(page.getByRole("alert").query()).toBeNull();
-      expect(ext.store.state.view).toEqual({
+      expect(viewState(ext)).toEqual({
         mode: "snapshot",
         snapshotId: NAMED.id,
         compareToId: undefined,
@@ -1478,11 +1559,9 @@ describe("VersioningSidebar", () => {
       const cause = new Error("no activity");
       fake.endpoints.create.mockRejectedValueOnce(cause);
       const { editor, run } = await setupWithRun(fake);
-      const ext = editor.getExtension(VersioningExtension)!;
+      const ext = mode(editor);
       await act(async () => {
-        await expect(
-          run(() => ext.create!({ name: "First draft" })),
-        ).rejects.toBe(cause);
+        await expect(run(() => ext.create("First draft"))).rejects.toBe(cause);
       });
       expect(page.getByRole("alert").query()).toBeNull();
       expect(nameInput(rows()[0]!).value).toBe("");
@@ -1502,11 +1581,9 @@ describe("VersioningSidebar", () => {
           rejectName = reject;
         }),
     );
-    const ext = editor.getExtension(VersioningExtension)!;
+    const ext = mode(editor);
     const cause = new Error("old naming failed");
-    const rejected = expect(
-      run(() => ext.create!({ name: "Draft" })),
-    ).rejects.toBe(cause);
+    const rejected = expect(run(() => ext.create("Draft"))).rejects.toBe(cause);
     await click(rows()[1]!);
     await act(async () => {
       rejectName(cause);
@@ -1549,7 +1626,7 @@ describe("VersioningSidebar", () => {
     const { editor } = await setup();
     act(() => rows()[1]!.focus());
     await act(async () => {
-      await editor.getExtension(VersioningExtension)!.remove!(NAMED.id);
+      await mode(editor).remove(NAMED.id);
     });
     expect(document.activeElement).toBe(rows()[1]);
   });
@@ -1564,7 +1641,7 @@ describe("VersioningSidebar", () => {
       control.focus();
     });
     await act(async () => {
-      await editor.getExtension(VersioningExtension)!.remove!(NAMED.id);
+      await mode(editor).remove(NAMED.id);
     });
     expect(document.activeElement).toBe(control);
   });

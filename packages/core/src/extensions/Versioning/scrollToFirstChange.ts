@@ -1,5 +1,5 @@
 // Attribution wrappers carry `data-user-ids` but may be `display: contents`.
-// Their layout boxes are resolved locally to avoid depending on the `@y/*` stack.
+// Resolve their layout boxes locally without importing the `@y/*` stack.
 
 /** Duration of the transient block highlight. */
 const HIGHLIGHT_MS = 1500;
@@ -82,21 +82,23 @@ function prefersReducedMotion(): boolean {
 /**
  * Scroll to the first change after preview layout settles. No-ops when
  * disabled or when `isCurrent` reports the preview as superseded.
+ * Returns a cancellation callback when a timer is scheduled.
  */
 export function scheduleScrollToFirstChange(
   getRoot: () => Element | undefined,
   options?: { enabled?: boolean; isCurrent?: () => boolean },
-): void {
+): (() => void) | undefined {
   if (options?.enabled === false) {
     return;
   }
   // Let preview layout settle; timers also run in background tabs.
-  setTimeout(() => {
+  const timeout = setTimeout(() => {
     if (options?.isCurrent && !options.isCurrent()) {
       return;
     }
     scrollToFirstChange(getRoot());
   }, SCROLL_TO_FIRST_CHANGE_DELAY_MS);
+  return () => clearTimeout(timeout);
 }
 
 /**

@@ -1,7 +1,7 @@
 import {
   BlockNoteEditor,
   BlockNoteSchema,
-  createInMemoryPreviewController,
+  createLocalVersioning,
   type PartialBlock,
 } from "@blocknote/core";
 import {
@@ -47,6 +47,7 @@ test("only attributes the edited text and labels an unnamed version with its tim
   const editor = BlockNoteEditor.create({
     extensions: [DiffVersioningExtension()],
   });
+  let closePreview: (() => void) | undefined;
   try {
     await render(<MantineBlockNoteView editor={editor} />);
     editor.replaceBlocks(editor.document, [
@@ -56,7 +57,7 @@ test("only attributes the edited text and labels an unnamed version with its tim
         content: "Beta with five design partners (June)",
       },
     ]);
-    const snapshot = editor.document;
+    const snapshot = editor.prosemirrorState.doc;
     editor.replaceBlocks(editor.document, [
       {
         id: "milestone",
@@ -65,9 +66,14 @@ test("only attributes the edited text and labels an unnamed version with its tim
       },
     ]);
     const createdAt = new Date(2026, 8, 29, 13, 21).getTime();
-    const preview = createInMemoryPreviewController(editor);
-    preview.enterPreview(snapshot, editor.document, undefined, {
-      target: { kind: "snapshot", snapshot: { id: "unnamed", createdAt } },
+    const preview = createLocalVersioning(editor, {
+      initialVersions: [{ content: snapshot, createdAt }],
+    }).adapter.open();
+    closePreview = () => preview.close();
+    preview.show({
+      content: snapshot,
+      comparison: { content: preview.current.content },
+      target: { type: "snapshot", id: "1" },
     });
     const paragraph = editor.domElement!.querySelector<HTMLElement>(
       '.bn-block[data-id="milestone"] .bn-inline-content',
@@ -101,6 +107,7 @@ test("only attributes the edited text and labels an unnamed version with its tim
       expect(document.querySelector(".bn-suggestion-tooltip")).toBeNull(),
     );
   } finally {
+    closePreview?.();
     editor._tiptapEditor.destroy();
   }
 });

@@ -170,8 +170,9 @@ export class YHubClient<Metadata = unknown> {
 
   async getActivity(
     params?: YHubQueryParams,
+    signal?: AbortSignal,
   ): Promise<YHubActivityEntry<Metadata>[]> {
-    const buffer = await this.request("activity", params);
+    const buffer = await this.request("activity", params, { signal });
     const { activity } = decodeAny(new Uint8Array(buffer)) as {
       activity: YHubActivityWireEntry<Metadata>[];
     };
@@ -187,8 +188,11 @@ export class YHubClient<Metadata = unknown> {
     }));
   }
 
-  async getChangeset(params?: YHubQueryParams): Promise<YHubChangeset> {
-    const buffer = await this.request("changeset", params);
+  async getChangeset(
+    params?: YHubQueryParams,
+    signal?: AbortSignal,
+  ): Promise<YHubChangeset> {
+    const buffer = await this.request("changeset", params, { signal });
     return decodeAny(new Uint8Array(buffer)) as YHubChangeset;
   }
 
@@ -201,20 +205,27 @@ export class YHubClient<Metadata = unknown> {
     return doc;
   }
 
-  async getContent(to: number): Promise<Uint8Array> {
-    const { ydoc } = await this.getChangeset({ ydoc: true, to });
+  async getContent(to: number, signal?: AbortSignal): Promise<Uint8Array> {
+    const { ydoc } = await this.getChangeset({ ydoc: true, to }, signal);
     if (!ydoc) {
       throw new Error(`YHub returned no document state at timestamp ${to}.`);
     }
     return ydoc;
   }
 
-  async getAttributions(from: number, to?: number): Promise<Uint8Array> {
-    const { attributions } = await this.getChangeset({
-      from,
-      to,
-      attributions: true,
-    });
+  async getAttributions(
+    from: number,
+    to?: number,
+    signal?: AbortSignal,
+  ): Promise<Uint8Array> {
+    const { attributions } = await this.getChangeset(
+      {
+        from,
+        to,
+        attributions: true,
+      },
+      signal,
+    );
     if (!attributions) {
       throw new Error("YHub returned no attributions.");
     }

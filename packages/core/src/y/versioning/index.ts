@@ -1,4 +1,6 @@
 export {
-  createYHubVersioningEndpoints,
-  type YHubVersioningOptions,
+  createYHubVersionStorage,
+  VersioningExtension,
+  type YHubVersionStorageOptions,
+  type YVersionStorageBinding,
 } from "./yhub.js";

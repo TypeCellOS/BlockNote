@@ -1,9 +1,7 @@
-import { VersioningExtension } from "@blocknote/core/extensions";
 import { RiArrowGoBackFill } from "react-icons/ri";
 
 import { useDictionary } from "../../../../i18n/dictionary.js";
-import { useExtension } from "../../../../hooks/useExtension.js";
-import { usePreviewRow } from "../../usePreviewRow.js";
+import { useVersioning } from "../../useVersioning.js";
 import { useVersioningSidebar } from "../../VersioningSidebarContext.js";
 import { useVersionSnapshot } from "../../VersionSnapshotContext.js";
 import type {
@@ -18,12 +16,11 @@ import { DefaultVersionMenuItem } from "../DefaultVersionMenuItem.js";
  * can request confirmation before executing the same restore/preview flow.
  */
 export function useRestoreVersionAction(): VersionMenuAction {
-  const { restore, store } = useExtension(VersioningExtension);
-  const { run } = useVersioningSidebar();
-  const previewRow = usePreviewRow();
+  const { restore, canRestore } = useVersioning();
+  const { run, dismiss } = useVersioningSidebar();
   const { snapshot, isCurrent } = useVersionSnapshot();
 
-  if (isCurrent || !restore) {
+  if (isCurrent || !canRestore) {
     return { available: false };
   }
 
@@ -32,10 +29,9 @@ export function useRestoreVersionAction(): VersionMenuAction {
     execute: () => {
       return run(
         () => restore(snapshot.id),
-        async () => {
-          const { list } = store.state;
-          if (list.loaded) {
-            await previewRow(list.current);
+        (result) => {
+          if (result.status === "done") {
+            dismiss();
           }
         },
       );

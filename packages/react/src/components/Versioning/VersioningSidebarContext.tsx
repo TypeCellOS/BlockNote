@@ -1,4 +1,3 @@
-import { VersioningExtension } from "@blocknote/core/extensions";
 import {
   createContext,
   useCallback,
@@ -10,13 +9,13 @@ import {
   type ReactNode,
 } from "react";
 
-import { useExtension } from "../../hooks/useExtension.js";
+import { useVersioning } from "./useVersioning.js";
 
 /**
  * The versioning sidebar's own state, shared between its header and its rows.
  *
  * Owns UI state and the lifetime of pending actions. The preview and its diff
- * baseline live in the editor's `VersioningExtension` store as `view`.
+ * baseline live in the editor's `VersioningExtension` store.
  */
 export type VersioningSidebarContextValue = {
   /**
@@ -43,6 +42,7 @@ export type VersioningSidebarContextValue = {
   ) => Promise<void>;
   /** Cancel pending UI follow-ups and return the editor to the live document. */
   close: () => void;
+  dismiss: () => void;
   /**
    * The version whose name field should take focus as soon as its row renders.
    * Set by the row's rename action so naming is one keystroke away;
@@ -62,10 +62,12 @@ export function VersioningSidebarProvider(props: {
   snapshotMenu: ReactNode;
   loadingIndicator: ReactNode;
   children: ReactNode;
+  onClose?: () => void;
+  onError?: (error: unknown) => void;
 }) {
   // Comparison availability is driven by the extension/adapter, not the host —
   // backends that can't diff documents report `canCompare: false`.
-  const versioning = useExtension(VersioningExtension);
+  const versioning = useVersioning();
   const { canCompare } = versioning;
 
   const [namedOnly, setNamedOnly] = useState(props.defaultNamedOnly ?? false);
@@ -75,10 +77,12 @@ export function VersioningSidebarProvider(props: {
   const [focusNameFor, setFocusNameFor] = useState<string>();
 
   const actionGeneration = useRef(0);
+  const onClose = props.onClose;
+  const onError = props.onError;
   const close = useCallback(() => {
     actionGeneration.current++;
     setFocusNameFor(undefined);
-    versioning.exitPreview();
+    versioning.close();
   }, [versioning]);
   useEffect(() => close, [close]);
 
@@ -104,6 +108,18 @@ export function VersioningSidebarProvider(props: {
       loadingIndicator: props.loadingIndicator,
       run,
       close,
+      dismiss: () => {
+        close();
+        if (onClose) {
+          onClose();
+        } else {
+          versioning.open();
+          const loading = run(() => versioning.list());
+          if (onError) {
+            void loading.catch(onError);
+          }
+        }
+      },
       focusNameFor,
       setFocusNameFor,
     }),
@@ -115,6 +131,9 @@ export function VersioningSidebarProvider(props: {
       props.loadingIndicator,
       run,
       close,
+      onClose,
+      onError,
+      versioning,
       focusNameFor,
     ],
   );

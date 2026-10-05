@@ -4,7 +4,7 @@ import "./style.css";
 
 import type { GalleryEditor } from "./gallerySchema";
 import {
-  createYjsVersioningAdapter,
+  createYVersionView,
   SuggestionsExtension,
   withCollaboration,
 } from "@blocknote/core/y";
@@ -440,22 +440,26 @@ function VersionMerge({
       Y.applyUpdate(setup.afterDoc, Y.encodeStateAsUpdate(doc), users[i].id),
     );
 
-    const adapter = createYjsVersioningAdapter(
+    const view = createYVersionView(
       diffEditor,
       setup.afterDoc.get("doc"),
-    );
+    ).open();
     const renderDiff = () =>
-      adapter.preview.enterPreview(
-        Y.encodeStateAsUpdateV2(setup.afterDoc),
-        Y.encodeStateAsUpdateV2(beforeDoc),
-        setup.attrs,
-      );
+      view.show({
+        content: Y.encodeStateAsUpdateV2(setup.afterDoc),
+        comparison: {
+          content: Y.encodeStateAsUpdateV2(beforeDoc),
+          attributions: setup.attrs,
+        },
+        target: { type: "current" },
+      });
     renderDiff();
     setup.afterDoc.on("update", renderDiff);
 
     return () => {
       offs.forEach((off) => off());
       setup.afterDoc.off("update", renderDiff);
+      view.close();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

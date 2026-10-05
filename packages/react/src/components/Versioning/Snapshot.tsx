@@ -1,6 +1,5 @@
 import {
-  VersioningExtension,
-  type VersioningView,
+  type VersioningState,
   type VersionSnapshot,
 } from "@blocknote/core/extensions";
 import { useEffect, useRef, type KeyboardEvent } from "react";
@@ -10,7 +9,7 @@ import { RiMoreFill } from "react-icons/ri";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import type { VersioningSnapshotState } from "../../editor/ComponentsContext.js";
 import { usePortalElement } from "../../editor/PortalElementOverride.js";
-import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { useVersioning, useVersioningState } from "./useVersioning.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { dateToString } from "./dateToString.js";
 import { usePreviewRow } from "./usePreviewRow.js";
@@ -21,29 +20,19 @@ import { VersionSnapshotProvider } from "./VersionSnapshotContext.js";
 
 /** Whether `view` is showing this row's version. */
 function getSnapshotState(
-  view: VersioningView,
+  view: VersioningState,
   row: VersionSnapshot,
   isCurrent: boolean,
 ): VersioningSnapshotState {
   switch (view.mode) {
     case "live":
       return "default";
-    case "current": {
-      if (view.compareToId === row.id && !isCurrent) {
-        return "comparison-baseline";
+    case "versions": {
+      const selection = view.pending ?? view.displayed;
+      if (selection.type === "current" ? isCurrent : selection.id === row.id) {
+        return view.compareTo === undefined ? "selected" : "comparison-source";
       }
-      if (!isCurrent) {
-        return "default";
-      }
-      return view.compareToId === undefined ? "selected" : "comparison-source";
-    }
-    case "snapshot": {
-      if (view.snapshotId === row.id) {
-        return view.compareToId === undefined
-          ? "selected"
-          : "comparison-source";
-      }
-      return view.compareToId === row.id ? "comparison-baseline" : "default";
+      return view.compareTo === row.id ? "comparison-baseline" : "default";
     }
   }
 }
@@ -99,17 +88,12 @@ export function Snapshot(props: {
   const Components = useComponentsContext()!;
   const portalElement = usePortalElement();
   const dict = useDictionary();
-  const { create, rename, getLoadingState } = useExtension(VersioningExtension);
+  const { create, rename, list, canCreate } = useVersioning();
   const { snapshotMenu, run, focusNameFor, setFocusNameFor } =
     useVersioningSidebar();
   const previewRow = usePreviewRow();
 
-  const view = useExtensionState(VersioningExtension, {
-    selector: (state) => state.view,
-  });
-  const status = useExtensionState(VersioningExtension, {
-    selector: getLoadingState,
-  });
+  const view = useVersioningState();
 
   const nameInput = useRef<HTMLInputElement>(null);
 
@@ -149,7 +133,7 @@ export function Snapshot(props: {
   // Naming the current version goes through `create`; every other rename is a
   // `rename`. Both are gated on the backend actually supporting them.
   const commitsViaCreate = isCurrent && snapshot.name === undefined;
-  const canEditName = (commitsViaCreate ? create : rename) !== undefined;
+  const canEditName = commitsViaCreate ? canCreate : rename !== undefined;
   // The name is a field on the selected row only; everywhere else it's text,
   // and the first click on the row selects it rather than starting a rename.
   const editable = selected && canEditName === true;
@@ -172,8 +156,11 @@ export function Snapshot(props: {
   // what the eye gets is the editor, which the extension marks for every load
   // (see LOADING_PREVIEW_CLASS).
   const loading =
-    status.type === "loading-preview" &&
-    isSelectedState(getSnapshotState(status.view, snapshot, isCurrent));
+    view.mode === "versions" &&
+    view.pending !== undefined &&
+    (view.pending.type === "current"
+      ? isCurrent
+      : view.pending.id === snapshot.id);
 
   function handleSelect() {
     void run(() => previewRow(snapshot));
@@ -191,9 +178,15 @@ export function Snapshot(props: {
 
   function commitName(name: string | undefined) {
     if (commitsViaCreate && create) {
-      void run(() => create({ name }));
+      void run(
+        () => create(name),
+        () => list(),
+      );
     } else if (!commitsViaCreate && rename) {
-      void run(() => rename(snapshot.id, name));
+      void run(
+        () => rename(snapshot.id, name),
+        () => list(),
+      );
     }
   }
 

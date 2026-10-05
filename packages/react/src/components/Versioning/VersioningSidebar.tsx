@@ -1,11 +1,11 @@
-import { VersioningExtension } from "@blocknote/core/extensions";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { PortalElementAnchor } from "../../editor/PortalElementOverride.js";
-import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { useVersioning, useVersioningState } from "./useVersioning.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { usePreviewRow } from "./usePreviewRow.js";
+import { getPreviousVisibleVersion, getVersionList } from "./visibleHistory.js";
 import { VersionMenu } from "./VersionMenu/VersionMenu.js";
 import {
   useVersioningSidebar,
@@ -25,6 +25,8 @@ export type VersioningSidebarProps = {
    * close button is not rendered.
    */
   onClose?: () => void;
+  /** Handle failures from automatic history loading. Explicit actions still reject. */
+  onError?: (error: unknown) => void;
   /**
    * Initial state of the toggles. Both are the user's from then on — pass a
    * changing `key` to reset them.
@@ -52,34 +54,57 @@ export type VersioningSidebarProps = {
   loadingIndicator?: ReactNode;
 };
 
-function VersioningSidebarContent(props: { onClose?: () => void }) {
+function VersioningSidebarContent(props: {
+  onClose?: () => void;
+  onError?: (error: unknown) => void;
+}) {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const versioning = useExtension(VersioningExtension);
-  const { run } = useVersioningSidebar();
-  const listError = useExtensionState(VersioningExtension, {
-    selector: (state) => state.listError,
-  });
+  const versioning = useVersioning();
+  const { run, comparisonMode, namedOnly } = useVersioningSidebar();
+  const state = useVersioningState();
+  const listError =
+    state.mode === "versions" && state.history.status === "failed";
   const previewRow = usePreviewRow();
-
-  // `previewRow` changes with comparison/filter state, but those changes must
-  // not relist history. Keep the async completion fresh without making it an
-  // effect dependency (the header re-previews already-loaded history itself).
-  const previewRowRef = useRef(previewRow);
-  previewRowRef.current = previewRow;
+  const latestRef = useRef({
+    previewRow,
+    comparisonMode,
+    namedOnly,
+    onError: props.onError,
+  });
+  latestRef.current = {
+    previewRow,
+    comparisonMode,
+    namedOnly,
+    onError: props.onError,
+  };
 
   // Open the panel on the current version, read-only. One `list()` per mount:
   // the history is a snapshot of the moment the panel was opened, and closing
   // and reopening is what refreshes it.
-  useEffect(() => {
-    void run(
+  useLayoutEffect(() => {
+    versioning.open();
+    const loading = run(
       () => versioning.list(),
       async (result) => {
-        if (!result.error && versioning.store.state.view.mode === "live") {
-          await previewRowRef.current(result.value.current);
+        const list = getVersionList(versioning.store.state);
+        const preview = latestRef.current;
+        // Opening already displays frozen current. Only render again for a diff.
+        if (
+          result.status === "done" &&
+          list.loaded &&
+          preview.comparisonMode &&
+          getPreviousVisibleVersion(list, list.current, preview.namedOnly)
+        ) {
+          await preview.previewRow(list.current);
         }
       },
     );
+    const onError = latestRef.current.onError;
+    if (onError) {
+      void loading.catch(onError);
+    }
+    return () => versioning.close();
   }, [run, versioning]);
 
   return (
@@ -103,12 +128,14 @@ function VersioningSidebarContent(props: { onClose?: () => void }) {
  * with the current version at the top.
  *
  * While it is open the editor is read-only and shows the selected version —
- * the panel always has a selection, starting on the current version.
+ * starting on the current version. Filtering rows does not change the preview.
  */
 export function VersioningSidebar(props: VersioningSidebarProps) {
   return (
     <PortalElementAnchor>
       <VersioningSidebarProvider
+        onClose={props.onClose}
+        onError={props.onError}
         defaultNamedOnly={props.defaultNamedOnly}
         defaultComparisonMode={props.defaultComparisonMode}
         snapshotMenu={
@@ -120,7 +147,10 @@ export function VersioningSidebar(props: VersioningSidebarProps) {
         }
         loadingIndicator={props.loadingIndicator}
       >
-        <VersioningSidebarContent onClose={props.onClose} />
+        <VersioningSidebarContent
+          onClose={props.onClose}
+          onError={props.onError}
+        />
       </VersioningSidebarProvider>
     </PortalElementAnchor>
   );

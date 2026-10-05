@@ -96,6 +96,24 @@ export const ForkYDocExtension = createExtension(
         store.setState({ isForked: true });
       },
 
+      /** Replace only the local fork, retaining live restoration state. */
+      replaceSnapshot(initialUpdate: Uint8Array) {
+        if (!forkedState) {
+          throw new Error("Replacing a snapshot requires a forked document");
+        }
+        const doc = new Y.Doc();
+        Y.applyUpdate(doc, initialUpdate);
+        const fragment = findTypeInOtherYdoc(forkedState.originalFragment, doc);
+        const oldDoc = forkedState.forkedFragment.doc;
+        editor.replaceExtension(
+          ["ySync", "yUndo"],
+          [YSyncExtension({ ...options, fragment }), YUndoExtension()],
+          { resetPluginStateFor: [ySyncPluginKey, yUndoPluginKey] },
+        );
+        forkedState.forkedFragment = fragment;
+        oldDoc?.destroy();
+      },
+
       /**
        * Resume syncing the Y.js document to the remote
        * If `keepChanges` is true, any changes that have been made to the forked document will be applied to the original document.
