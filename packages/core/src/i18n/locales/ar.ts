@@ -426,6 +426,7 @@ export const ar: Dictionary = {
     restore_menuitem: "استعادة",
     delete_menuitem: "حذف",
     action_failed: "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    history_load_failed: "تعذر تحميل سجل الإصدارات",
   },
   exporter: {
     open_file: "فتح الملف",

@@ -340,8 +340,8 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
 
     // List and verify ordering
     const list = await versioning.list();
-    expect(list.snapshots).toHaveLength(2);
-    expect(list.snapshots[0]!.id).toBe(v2.id);
+    expect(list.value?.snapshots).toHaveLength(2);
+    expect(list.value?.snapshots[0]!.id).toBe(v2.id);
 
     // Browse previews
     await versioning.previewSnapshot(v1.id);

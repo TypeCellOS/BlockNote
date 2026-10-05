@@ -485,6 +485,7 @@ export const ru: Dictionary = {
     restore_menuitem: "Восстановить",
     delete_menuitem: "Удалить",
     action_failed: "Что-то пошло не так. Попробуйте ещё раз.",
+    history_load_failed: "Не удалось загрузить историю версий",
   },
   exporter: {
     open_file: "Открыть файл",

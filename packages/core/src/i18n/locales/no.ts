@@ -459,6 +459,7 @@ export const no: Dictionary = {
     restore_menuitem: "Gjenopprett",
     delete_menuitem: "Slett",
     action_failed: "Noe gikk galt. Prøv igjen.",
+    history_load_failed: "Kunne ikke laste versjonshistorikken",
   },
   exporter: {
     open_file: "Åpne fil",

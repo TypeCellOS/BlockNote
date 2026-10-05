@@ -3,7 +3,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { PortalElementAnchor } from "../../editor/PortalElementOverride.js";
-import { useExtension } from "../../hooks/useExtension.js";
+import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { usePreviewRow } from "./usePreviewRow.js";
 import { VersionMenu } from "./VersionMenu/VersionMenu.js";
@@ -56,7 +56,10 @@ function VersioningSidebarContent(props: { onClose?: () => void }) {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
   const versioning = useExtension(VersioningExtension);
-  const { run, failed } = useVersioningSidebar();
+  const { run } = useVersioningSidebar();
+  const listError = useExtensionState(VersioningExtension, {
+    selector: (state) => state.listError,
+  });
   const previewRow = usePreviewRow();
 
   // `previewRow` changes with comparison/filter state, but those changes must
@@ -71,9 +74,9 @@ function VersioningSidebarContent(props: { onClose?: () => void }) {
   useEffect(() => {
     void run(
       () => versioning.list(),
-      async (loaded) => {
-        if (versioning.store.state.view.mode === "live") {
-          await previewRowRef.current(loaded.current);
+      async (result) => {
+        if (!result.error && versioning.store.state.view.mode === "live") {
+          await previewRowRef.current(result.value.current);
         }
       },
     );
@@ -85,9 +88,9 @@ function VersioningSidebarContent(props: { onClose?: () => void }) {
       aria-label={dict.versioning.title}
     >
       <VersioningSidebarHeader onClose={props.onClose} />
-      {failed && (
+      {listError && (
         <div className="bn-versioning-sidebar-error" role="alert">
-          {dict.versioning.action_failed}
+          {dict.versioning.history_load_failed}
         </div>
       )}
       <VersioningSidebarList />

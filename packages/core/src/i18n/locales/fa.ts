@@ -410,6 +410,7 @@ export const fa = {
     restore_menuitem: "بازیابی",
     delete_menuitem: "حذف",
     action_failed: "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
+    history_load_failed: "بارگیری تاریخچه نسخه‌ها ناموفق بود",
   },
   exporter: {
     open_file: "باز کردن فایل",

@@ -434,6 +434,7 @@ export const pt: Dictionary = {
     restore_menuitem: "Restaurar",
     delete_menuitem: "Excluir",
     action_failed: "Algo deu errado. Tente novamente.",
+    history_load_failed: "Falha ao carregar o histórico de versões",
   },
   exporter: {
     open_file: "Abrir arquivo",

@@ -87,7 +87,11 @@ describe("version metadata", () => {
       ],
     });
     const extension = editor.getExtension(VersioningExtension)!;
-    const { snapshots } = await extension.list<ReviewMetadata>();
+    const result = await extension.list<ReviewMetadata>();
+    if (result.error) {
+      throw new Error("expected history to load");
+    }
+    const { snapshots } = result.value;
     expect(snapshots[0].metadata?.ticket).toBe("BN-1");
   });
 
@@ -109,12 +113,18 @@ describe("version metadata", () => {
     // Choosing a type does not convert or validate stored data.
     expect(asserted?.metadata?.ticket).toBe("BN-1");
     const listed = await extension.list();
-    expectTypeOf(listed.current.metadata).toEqualTypeOf<unknown>();
+    if (listed.error) {
+      throw new Error("expected history to load");
+    }
+    expectTypeOf(listed.value.current.metadata).toEqualTypeOf<unknown>();
     const typedList = await extension.list<ReviewMetadata>();
-    expectTypeOf(typedList.current.metadata).toEqualTypeOf<
+    if (typedList.error) {
+      throw new Error("expected history to load");
+    }
+    expectTypeOf(typedList.value.current.metadata).toEqualTypeOf<
       ReviewMetadata | null | undefined
     >();
-    expect(typedList.current.metadata?.ticket).toBe("BN-1");
+    expect(typedList.value.current.metadata?.ticket).toBe("BN-1");
     expectTypeOf(extension.store.state.list).toEqualTypeOf<
       import("./types.js").VersioningList
     >();
@@ -185,7 +195,7 @@ describe("version metadata", () => {
     });
     saved.metadata!.ticket = "Unsaved";
     expect(
-      (await extension.list<ReviewMetadata>()).current.metadata?.ticket,
+      (await extension.list<ReviewMetadata>()).value?.current.metadata?.ticket,
     ).toBe("BN-1");
     const updated = await extension.create!<ReviewMetadata>({
       name: "Updated",
@@ -195,17 +205,20 @@ describe("version metadata", () => {
     expect(updated.name).toBe("Updated");
     updated.metadata!.ticket = "Unsaved again";
     const listed = await extension.list<ReviewMetadata>();
-    expect(listed.current.metadata?.ticket).toBe("BN-2");
-    listed.current.metadata!.ticket = "Unsaved current";
+    if (listed.error) {
+      throw new Error("expected history to load");
+    }
+    expect(listed.value.current.metadata?.ticket).toBe("BN-2");
+    listed.value.current.metadata!.ticket = "Unsaved current";
     expect(
-      (await extension.list<ReviewMetadata>()).current.metadata?.ticket,
+      (await extension.list<ReviewMetadata>()).value?.current.metadata?.ticket,
     ).toBe("BN-2");
     const renamed = await extension.create!<ReviewMetadata>({
       name: "Renamed",
     });
     expect(renamed.id).toBe(saved.id);
     expect(renamed.metadata?.ticket).toBe("BN-2");
-    expect((await extension.list()).current.name).toBe("Renamed");
+    expect((await extension.list()).value?.current.name).toBe("Renamed");
   });
 
   it("keeps detached metadata for initial and newly created in-memory versions", async () => {

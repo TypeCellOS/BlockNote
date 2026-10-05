@@ -350,7 +350,11 @@ describe("VersioningExtension + in-memory adapter", () => {
     await ext.create!({ name: "v2" });
 
     // 4. Reopen history — the backend owns the new list shape.
-    const { current, snapshots } = await ext.list();
+    const result = await ext.list();
+    if (result.error) {
+      throw new Error("expected history to load");
+    }
+    const { current, snapshots } = result.value;
     expect(current.name).toBe("v2");
     expect(snapshots).toHaveLength(1);
     expect(snapshots.map((s) => s.name)).toContain("v1");
@@ -377,8 +381,8 @@ describe("VersioningExtension + in-memory adapter", () => {
     // 8. A backup version was created by the endpoints, and the current row
     // records where the restore came from.
     const afterRestore = await ext.list();
-    expect(afterRestore.snapshots.length).toBe(3);
-    expect(afterRestore.current.restoredFrom).toEqual({
+    expect(afterRestore.value?.snapshots.length).toBe(3);
+    expect(afterRestore.value?.current.restoredFrom).toEqual({
       id: snap1.id,
       createdAt: snap1.createdAt,
     });
@@ -391,8 +395,8 @@ describe("VersioningExtension + in-memory adapter", () => {
     const before = Date.now();
     setEditorText(editor, "edited doc");
 
-    const { current } = await ext.list();
-    expect(current.createdAt).toBeGreaterThanOrEqual(before);
+    const result = await ext.list();
+    expect(result.value?.current.createdAt).toBeGreaterThanOrEqual(before);
   });
 
   it("stamps a restore before refreshing the current row", async () => {
@@ -447,8 +451,8 @@ describe("VersioningExtension + in-memory adapter", () => {
     await ext.remove!(snap2.id);
 
     // Gone from the backend's authoritative list.
-    const { snapshots } = await ext.list();
-    expect(snapshots.map((s) => s.id)).toEqual([snap1.id]);
+    const result = await ext.list();
+    expect(result.value?.snapshots.map((s) => s.id)).toEqual([snap1.id]);
   });
 
   it("deleting the previewed snapshot exits preview", async () => {
@@ -486,9 +490,9 @@ describe("VersioningExtension + in-memory adapter", () => {
     expect(listed.loaded ? listed.current.name : undefined).toBe("final");
 
     // A fresh list keeps the named checkpoint in the Current slot until an edit.
-    const { current, snapshots } = await ext.list();
-    expect(current).toMatchObject({ id: snap.id, name: "final" });
-    expect(snapshots).toHaveLength(0);
+    const result = await ext.list();
+    expect(result.value?.current).toMatchObject({ id: snap.id, name: "final" });
+    expect(result.value?.snapshots).toHaveLength(0);
   });
 
   it("keeps a named current checkpoint across refreshes without an edit", async () => {
@@ -499,25 +503,28 @@ describe("VersioningExtension + in-memory adapter", () => {
 
     const named = await ext.create!({ name: "Checkpoint" });
     const reopened = await ext.list();
-    expect(reopened.current).toMatchObject({
+    if (reopened.error) {
+      throw new Error("expected history to load");
+    }
+    expect(reopened.value.current).toMatchObject({
       id: named.id,
       name: "Checkpoint",
       createdAt: named.createdAt,
     });
-    expect(reopened.snapshots).toHaveLength(0);
+    expect(reopened.value.snapshots).toHaveLength(0);
 
     // Naming this same row again is a rename, not another content checkpoint.
-    await ext.rename!(reopened.current.id, "Renamed checkpoint");
+    await ext.rename!(reopened.value.current.id, "Renamed checkpoint");
     const renamed = await ext.list();
-    expect(renamed.current).toMatchObject({
+    expect(renamed.value?.current).toMatchObject({
       id: named.id,
       name: "Renamed checkpoint",
     });
-    expect(renamed.snapshots).toHaveLength(0);
+    expect(renamed.value?.snapshots).toHaveLength(0);
 
     const namedAgain = await ext.create!({ name: "One more name" });
     expect(namedAgain.id).toBe(named.id);
-    expect((await ext.list()).snapshots).toHaveLength(0);
+    expect((await ext.list()).value?.snapshots).toHaveLength(0);
   });
 
   it("moves the immutable named checkpoint into history after an edit", async () => {
@@ -530,9 +537,9 @@ describe("VersioningExtension + in-memory adapter", () => {
 
     setEditorText(editor, "edited doc");
     const reopened = await ext.list();
-    expect(reopened.current.id).not.toBe(named.id);
-    expect(reopened.current.name).toBeUndefined();
-    expect(reopened.snapshots).toEqual([
+    expect(reopened.value?.current.id).not.toBe(named.id);
+    expect(reopened.value?.current.name).toBeUndefined();
+    expect(reopened.value?.snapshots).toEqual([
       expect.objectContaining({ id: named.id, name: "Before edit" }),
     ]);
     await ext.previewSnapshot(named.id);
@@ -542,7 +549,7 @@ describe("VersioningExtension + in-memory adapter", () => {
       id: named.id,
     });
     const afterSecondName = await ext.list();
-    expect(afterSecondName.snapshots).toEqual([
+    expect(afterSecondName.value?.snapshots).toEqual([
       expect.objectContaining({ id: named.id }),
     ]);
   });
@@ -560,19 +567,22 @@ describe("VersioningExtension + in-memory adapter", () => {
 
     await ext.rename!(named.id, "Final");
     const reopened = await ext.list();
-    expect(reopened.current).toMatchObject({ id: named.id, name: "Final" });
-    expect(reopened.snapshots).toHaveLength(0);
+    expect(reopened.value?.current).toMatchObject({
+      id: named.id,
+      name: "Final",
+    });
+    expect(reopened.value?.snapshots).toHaveLength(0);
 
     await ext.restore!(named.id);
     expect(getEditorText(editor)).toBe("initial doc");
-    expect((await ext.list()).current.restoredFrom).toMatchObject({
+    expect((await ext.list()).value?.current.restoredFrom).toMatchObject({
       id: named.id,
     });
 
     await ext.remove!(named.id);
-    expect((await ext.list()).snapshots.some((s) => s.id === named.id)).toBe(
-      false,
-    );
+    expect(
+      (await ext.list()).value?.snapshots.some((s) => s.id === named.id),
+    ).toBe(false);
   });
 
   it("keeps the undo backup when restoring a named current checkpoint", async () => {
@@ -584,12 +594,12 @@ describe("VersioningExtension + in-memory adapter", () => {
 
     await ext.restore!(named.id);
     const listed = await ext.list();
-    expect(listed.current.id).not.toBe(named.id);
-    expect(listed.current.restoredFrom).toEqual({
+    expect(listed.value?.current.id).not.toBe(named.id);
+    expect(listed.value?.current.restoredFrom).toEqual({
       id: named.id,
       createdAt: named.createdAt,
     });
-    expect(listed.snapshots.map((s) => s.name)).toEqual([
+    expect(listed.value?.snapshots.map((s) => s.name)).toEqual([
       en.versioning.before_restore,
       "Checkpoint",
     ]);

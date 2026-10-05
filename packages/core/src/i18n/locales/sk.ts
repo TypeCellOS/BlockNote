@@ -439,6 +439,7 @@ export const sk = {
     restore_menuitem: "Obnoviť",
     delete_menuitem: "Odstrániť",
     action_failed: "Niečo sa pokazilo. Skúste to znova.",
+    history_load_failed: "Nepodarilo sa načítať históriu verzií",
   },
   exporter: {
     open_file: "Otvoriť súbor",

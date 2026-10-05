@@ -66,11 +66,11 @@ describe("createListSession", () => {
 
     expect(list).toHaveBeenCalledTimes(1);
     // The returned list is sorted newest-first...
-    expect(result.snapshots.map((s) => s.id)).toEqual(["b", "c", "a"]);
+    expect(result.value?.snapshots.map((s) => s.id)).toEqual(["b", "c", "a"]);
     // ...without mutating the backend array...
     expect(snapshots.map((s) => s.id)).toEqual(["a", "b", "c"]);
     // ...and is what landed in the store.
-    expect(store.state.list).toBe(result);
+    expect(store.state.list).toBe(result.value);
     expect(store.state.list).toEqual({
       loaded: true,
       current,
@@ -161,9 +161,11 @@ describe("createListSession", () => {
     const pending = session.refresh();
     expect(store.state.listing).toBe(true);
 
-    const failure = expect(pending).rejects.toThrow("offline");
-    request.reject(new Error("offline"));
-    await failure;
+    const cause = new Error("offline");
+    request.reject(cause);
+    await expect(pending).resolves.toEqual({
+      error: { type: "fetch-failed", cause },
+    });
 
     // The store keeps its previous list; the fetch is no longer in flight.
     expect(store.state.list).toBe(previousList);
@@ -176,8 +178,8 @@ describe("createListSession", () => {
     });
     const retried = await session.refresh();
     expect(list).toHaveBeenCalledTimes(2);
-    expect(retried.snapshots.map((s) => s.id)).toEqual(["b"]);
-    expect(store.state.list).toEqual(retried);
+    expect(retried.value?.snapshots.map((s) => s.id)).toEqual(["b"]);
+    expect(store.state.list).toEqual(retried.value);
     expect(store.state.listing).toBe(false);
   });
 });

@@ -482,6 +482,7 @@ export const zhTW: Dictionary = {
     restore_menuitem: "還原",
     delete_menuitem: "刪除",
     action_failed: "發生錯誤，請再試一次。",
+    history_load_failed: "無法載入版本歷史記錄",
   },
   exporter: {
     open_file: "開啟檔案",

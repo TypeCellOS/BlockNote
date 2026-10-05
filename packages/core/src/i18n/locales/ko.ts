@@ -454,6 +454,7 @@ export const ko: Dictionary = {
     restore_menuitem: "복원",
     delete_menuitem: "삭제",
     action_failed: "문제가 발생했습니다. 다시 시도해 주세요.",
+    history_load_failed: "버전 기록을 불러오지 못했습니다",
   },
   exporter: {
     open_file: "파일 열기",

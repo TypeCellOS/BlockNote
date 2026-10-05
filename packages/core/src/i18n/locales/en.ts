@@ -441,6 +441,7 @@ export const en = {
     restore_menuitem: "Restore",
     delete_menuitem: "Delete",
     action_failed: "Something went wrong. Please try again.",
+    history_load_failed: "Failed to load version history",
   },
   exporter: {
     open_file: "Open file",

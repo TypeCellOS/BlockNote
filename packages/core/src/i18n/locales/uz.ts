@@ -475,6 +475,7 @@ export const uz: Dictionary = {
     restore_menuitem: "Tiklash",
     delete_menuitem: "O'chirish",
     action_failed: "Xatolik yuz berdi. Qayta urinib ko‘ring.",
+    history_load_failed: "Versiyalar tarixini yuklab bo‘lmadi",
   },
   exporter: {
     open_file: "Faylni ochish",

@@ -502,7 +502,7 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
 
     // List
     const list = await versioning.list();
-    expect(list.snapshots).toHaveLength(2);
+    expect(list.value?.snapshots).toHaveLength(2);
 
     // Preview older, then switch to newer
     await versioning.previewSnapshot(v1.id);
@@ -650,7 +650,7 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
     expect(getEditorText(ctx2.editor)).toBe("Original");
 
     const list = await versioning.list();
-    const backup = list.snapshots.find((s) => s.name === "Backup");
+    const backup = list.value?.snapshots.find((s) => s.name === "Backup");
     expect(backup).toBeDefined();
     expect(await ctx2.endpoints.getContent(backup!)).toEqual(beforeRestore);
 

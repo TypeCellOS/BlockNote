@@ -463,6 +463,7 @@ export const it: Dictionary = {
     restore_menuitem: "Ripristina",
     delete_menuitem: "Elimina",
     action_failed: "Qualcosa è andato storto. Riprova.",
+    history_load_failed: "Impossibile caricare la cronologia delle versioni",
   },
   exporter: {
     open_file: "Apri file",

@@ -481,6 +481,7 @@ export const ja: Dictionary = {
     restore_menuitem: "復元",
     delete_menuitem: "削除",
     action_failed: "問題が発生しました。もう一度お試しください。",
+    history_load_failed: "バージョン履歴を読み込めませんでした",
   },
   exporter: {
     open_file: "ファイルを開く",

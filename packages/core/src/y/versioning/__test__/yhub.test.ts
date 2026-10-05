@@ -218,13 +218,16 @@ describe("YHub versioning", () => {
       response({ activity: [{ ...latest, version: saved }, first] }),
     );
     const listed = await extension.list<ReviewMetadata>();
-    expectTypeOf(listed.current.metadata).toEqualTypeOf<
+    if (listed.error) {
+      throw new Error("expected history to load");
+    }
+    expectTypeOf(listed.value.current.metadata).toEqualTypeOf<
       ReviewMetadata | null | undefined
     >();
-    expectTypeOf(listed.snapshots[0].metadata).toEqualTypeOf<
+    expectTypeOf(listed.value.snapshots[0].metadata).toEqualTypeOf<
       ReviewMetadata | null | undefined
     >();
-    expect(listed.current.metadata).toEqual(metadata);
+    expect(listed.value.current.metadata).toEqual(metadata);
     expect(
       extension.getSnapshot<ReviewMetadata>("2000")?.metadata?.ticket,
     ).toBe("BN-2");

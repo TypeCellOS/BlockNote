@@ -244,7 +244,12 @@ describe("VersioningExtension", () => {
       vi.advanceTimersByTime(1000);
       await ctx.endpoints.create!([], {});
 
-      const result = await ctx.ext.list();
+      const fetched = await ctx.ext.list();
+      expect(fetched.error).toBeUndefined();
+      if (fetched.error) {
+        throw new Error("expected history to load");
+      }
+      const result = fetched.value;
 
       expect(result.snapshots).toHaveLength(3);
       expect(result.snapshots[0]!.createdAt).toBeGreaterThan(
@@ -278,11 +283,11 @@ describe("VersioningExtension", () => {
     });
 
     it("reflects backend changes on subsequent calls", async () => {
-      expect((await ctx.ext.list()).snapshots).toEqual([]);
+      expect((await ctx.ext.list()).value?.snapshots).toEqual([]);
 
       await ctx.endpoints.create!([], {});
 
-      expect((await ctx.ext.list()).snapshots).toHaveLength(1);
+      expect((await ctx.ext.list()).value?.snapshots).toHaveLength(1);
     });
   });
 
@@ -577,8 +582,8 @@ describe("VersioningExtension", () => {
 
       // A new history session lists again and accepts the backend's shape.
       const reopened = await ctx.ext.list();
-      expect(reopened.current.id).not.toBe(snapshot.id);
-      expect(reopened.snapshots).toContainEqual(snapshot);
+      expect(reopened.value?.current.id).not.toBe(snapshot.id);
+      expect(reopened.value?.snapshots).toContainEqual(snapshot);
 
       // The version content should round-trip — verify by previewing.
       await ctx.ext.previewSnapshot(snapshot.id);
@@ -900,9 +905,8 @@ describe("VersioningExtension", () => {
           throw new Error("list offline");
         };
 
-        await expect(ctx.ext.restore!(seeded.id)).rejects.toThrow(
-          "list offline",
-        );
+        await ctx.ext.restore!(seeded.id);
+        expect(ctx.ext.store.state.listError?.type).toBe("fetch-failed");
 
         expect(ctx.ext.store.state.view).toEqual({ mode: "live" });
         expect(ctx.ext.store.state.restoring).toBe(false);
@@ -1054,7 +1058,7 @@ describe("VersioningExtension", () => {
 
       // Backend was also updated (verified via list).
       const list = await ctx.ext.list();
-      expect(list.snapshots.find((s) => s.id === seeded.id)!.name).toBe(
+      expect(list.value?.snapshots.find((s) => s.id === seeded.id)!.name).toBe(
         "Renamed",
       );
     });
@@ -1117,9 +1121,9 @@ describe("VersioningExtension", () => {
 
       // Raw ids are preserved — resolving them to user info is the view
       // layer's job (via `ext.userStore`), never the extension's.
-      expect(result.snapshots[0]!.by).toEqual(["u1", "u2"]);
-      expect(result.snapshots[0]!.secondaryLabel).toBeUndefined();
-      expect(ext.store.state.list).toEqual(result);
+      expect(result.value?.snapshots[0]!.by).toEqual(["u1", "u2"]);
+      expect(result.value?.snapshots[0]!.secondaryLabel).toBeUndefined();
+      expect(ext.store.state.list).toEqual(result.value);
 
       editor.unmount();
     });

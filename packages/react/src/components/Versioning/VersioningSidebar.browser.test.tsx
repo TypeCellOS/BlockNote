@@ -1,4 +1,4 @@
-import { StrictMode, act, type ReactElement } from "react";
+import { StrictMode, act, useEffect, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { BlockNoteEditor } from "@blocknote/core";
 import {
@@ -26,6 +26,10 @@ import {
 } from "vite-plus/test";
 import { page, userEvent } from "vite-plus/test/browser";
 import { VersioningTestView } from "./VersioningTestComponents.browser.js";
+import {
+  useVersioningSidebar,
+  type VersioningSidebarContextValue,
+} from "./VersioningSidebarContext.js";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -162,6 +166,19 @@ function rows() {
       }
       return element;
     });
+}
+
+/** Capture the action runner so rejected promises can be asserted by the test. */
+async function setupWithRun(fake = createFakeEndpoints()) {
+  let run!: VersioningSidebarContextValue["run"];
+  function CaptureRun() {
+    const context = useVersioningSidebar();
+    useEffect(() => {
+      run = context.run;
+    }, [context.run]);
+    return null;
+  }
+  return { ...(await setup({ loadingIndicator: <CaptureRun /> }, fake)), run };
 }
 
 /**
@@ -556,17 +573,58 @@ describe("VersioningSidebar", () => {
     },
   );
 
-  it("reports a failed initial preview", async () => {
+  it("replaces the loader with a history error when the initial fetch fails", async () => {
     const fake = createFakeEndpoints();
-    fake.endpoints.getContent.mockRejectedValueOnce(
-      new Error("preview offline"),
+    fake.endpoints.list.mockRejectedValueOnce(
+      new Error("private backend details"),
     );
-
-    await setup({ defaultComparisonMode: true }, fake);
+    const { editor } = await setup({}, fake);
 
     expect(page.getByRole("alert").element().textContent).toBe(
-      "Something went wrong. Please try again.",
+      "Failed to load version history",
     );
+    expect(page.getByRole("status").query()).toBeNull();
+    expect(rows()).toHaveLength(0);
+    expect(editor.getExtension(VersioningExtension)!.getLoadingState()).toEqual(
+      {
+        type: "idle",
+      },
+    );
+    expect(editor.isEditable).toBe(true);
+  });
+
+  it("keeps loaded history visible on fetch failure and clears the error on success", async () => {
+    const { editor, fake } = await setup();
+    const versioning = editor.getExtension(VersioningExtension)!;
+    await click(rows()[1]!);
+    fake.endpoints.list.mockRejectedValueOnce(new Error("offline"));
+    await act(async () => {
+      await versioning.list();
+    });
+
+    expect(page.getByRole("alert").element().textContent).toBe(
+      "Failed to load version history",
+    );
+    expect(rows()).toHaveLength(3);
+    expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
+    expect(page.getByRole("status").query()).toBeNull();
+    await act(async () => {
+      await versioning.list();
+    });
+    expect(page.getByRole("alert").query()).toBeNull();
+  });
+
+  it("propagates an action failure without showing a fetch error", async () => {
+    const { run } = await setupWithRun();
+    const cause = new Error("code bug");
+    const onSuccess = vi.fn();
+    await expect(
+      run(async () => {
+        throw cause;
+      }, onSuccess),
+    ).rejects.toBe(cause);
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(page.getByRole("alert").query()).toBeNull();
   });
 
   it("clears comparison when filtering to named versions and keeps a named selection", async () => {
@@ -702,17 +760,18 @@ describe("VersioningSidebar", () => {
     },
   );
 
-  it("reports a failed comparison toggle", async () => {
-    const { fake } = await setup();
-    fake.endpoints.getContent.mockRejectedValueOnce(
-      new Error("preview offline"),
-    );
-
-    await click(
-      page.getByRole("button", { name: "Turn on comparison", exact: true }),
-    );
-
-    expect(page.getByRole("alert").element()).toBeDefined();
+  it("propagates a follow-up failure without showing a fetch error", async () => {
+    const { run } = await setupWithRun();
+    const cause = new Error("follow-up bug");
+    await expect(
+      run(
+        async () => undefined,
+        async () => {
+          throw cause;
+        },
+      ),
+    ).rejects.toBe(cause);
+    expect(page.getByRole("alert").query()).toBeNull();
   });
 
   it("starts comparing when asked to", async () => {
@@ -1235,7 +1294,7 @@ describe("VersioningSidebar", () => {
   });
 
   it("clears a failed row's busy marker, restores selection, and allows retry", async () => {
-    const { fake } = await setup();
+    const { editor, fake, run } = await setupWithRun();
     let rejectContent!: (error: Error) => void;
     fake.endpoints.getContent.mockImplementationOnce(
       () =>
@@ -1243,24 +1302,26 @@ describe("VersioningSidebar", () => {
           rejectContent = reject;
         }),
     );
-    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
-    try {
-      await click(rows()[1]!);
-      expect(rows()[1]!.getAttribute("aria-busy")).toBe("true");
-      await act(async () => rejectContent(new Error("private backend detail")));
-      expect(rows()[1]!.getAttribute("aria-busy")).toBeNull();
-      expect(rows()[0]!.getAttribute("aria-current")).toBe("true");
-      expect(page.getByRole("alert").element().textContent).toBe(
-        "Something went wrong. Please try again.",
-      );
+    const cause = new Error("private backend detail");
+    const ext = editor.getExtension(VersioningExtension)!;
+    let pending!: Promise<void>;
+    await act(async () => {
+      pending = run(() => ext.previewSnapshot(NAMED.id));
+    });
+    expect(rows()[1]!.getAttribute("aria-busy")).toBe("true");
+    await act(async () => {
+      const rejected = expect(pending).rejects.toBe(cause);
+      rejectContent(cause);
+      await rejected;
+    });
+    expect(rows()[1]!.getAttribute("aria-busy")).toBeNull();
+    expect(rows()[0]!.getAttribute("aria-current")).toBe("true");
+    expect(page.getByRole("alert").query()).toBeNull();
 
-      await click(rows()[1]!);
-      expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
-      expect(rows()[1]!.getAttribute("aria-busy")).toBeNull();
-      expect(page.getByRole("alert").query()).toBeNull();
-    } finally {
-      logged.mockRestore();
-    }
+    await click(rows()[1]!);
+    expect(rows()[1]!.getAttribute("aria-current")).toBe("true");
+    expect(rows()[1]!.getAttribute("aria-busy")).toBeNull();
+    expect(page.getByRole("alert").query()).toBeNull();
   });
 
   it("marks the row being switched to as busy", async () => {
@@ -1387,19 +1448,18 @@ describe("VersioningSidebar", () => {
       },
     );
 
-    it("keeps the selection and reports it when a restore fails", async () => {
+    it("keeps the selection when a restore failure propagates", async () => {
       const fake = createFakeEndpoints();
-      fake.endpoints.restore.mockRejectedValueOnce(new Error("network"));
-      const { editor } = await setup({}, fake);
+      const cause = new Error("network");
+      fake.endpoints.restore.mockRejectedValueOnce(cause);
+      const { editor, run } = await setupWithRun(fake);
       const ext = editor.getExtension(VersioningExtension)!;
 
       await click(rows()[1]!);
-      await click(await openMenuItem(rows()[1]!, /^Restore$/));
-      await act(async () => {});
-
-      expect(page.getByRole("alert").element().textContent).toBe(
-        "Something went wrong. Please try again.",
-      );
+      await act(async () => {
+        await expect(run(() => ext.restore!(NAMED.id))).rejects.toBe(cause);
+      });
+      expect(page.getByRole("alert").query()).toBeNull();
       expect(ext.store.state.view).toEqual({
         mode: "snapshot",
         snapshotId: NAMED.id,
@@ -1407,20 +1467,24 @@ describe("VersioningSidebar", () => {
       });
       expect(editor.isEditable).toBe(false);
 
-      // The next successful action clears the notice.
+      // Another version can still be selected after the failure.
       await click(rows()[2]!);
       await act(async () => {});
       expect(page.getByRole("alert").query()).toBeNull();
     });
 
-    it("reports a name that the backend rejects", async () => {
+    it("propagates a name that the backend rejects", async () => {
       const fake = createFakeEndpoints();
-      fake.endpoints.create.mockRejectedValueOnce(new Error("no activity"));
-      await setup({}, fake);
-
-      await commit(nameInput(rows()[0]!), "First draft", "Enter");
-
-      expect(page.getByRole("alert").element()).toBeDefined();
+      const cause = new Error("no activity");
+      fake.endpoints.create.mockRejectedValueOnce(cause);
+      const { editor, run } = await setupWithRun(fake);
+      const ext = editor.getExtension(VersioningExtension)!;
+      await act(async () => {
+        await expect(
+          run(() => ext.create!({ name: "First draft" })),
+        ).rejects.toBe(cause);
+      });
+      expect(page.getByRole("alert").query()).toBeNull();
       expect(nameInput(rows()[0]!).value).toBe("");
     });
   });
@@ -1429,8 +1493,8 @@ describe("VersioningSidebar", () => {
   // Accessibility baseline
   // -------------------------------------------------------------------------
 
-  it("ignores a superseded naming action's failure notice", async () => {
-    const { fake } = await setup();
+  it("propagates a superseded naming action's failure", async () => {
+    const { editor, fake, run } = await setupWithRun();
     let rejectName!: (error: Error) => void;
     fake.endpoints.create.mockImplementationOnce(
       () =>
@@ -1438,9 +1502,16 @@ describe("VersioningSidebar", () => {
           rejectName = reject;
         }),
     );
-    await commit(nameInput(rows()[0]!), "Draft", "Enter");
+    const ext = editor.getExtension(VersioningExtension)!;
+    const cause = new Error("old naming failed");
+    const rejected = expect(
+      run(() => ext.create!({ name: "Draft" })),
+    ).rejects.toBe(cause);
     await click(rows()[1]!);
-    await act(async () => rejectName(new Error("old naming failed")));
+    await act(async () => {
+      rejectName(cause);
+      await rejected;
+    });
     expect(page.getByRole("alert").query()).toBeNull();
   });
 

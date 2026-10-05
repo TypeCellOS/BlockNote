@@ -6,6 +6,9 @@ import type {
   VersioningState,
   VersionSnapshot,
   VersionCreateOptions,
+  LoadedVersioningList,
+  VersioningResult,
+  VersionHistoryFetchError,
 } from "./types.js";
 
 /**
@@ -26,7 +29,9 @@ export function createVersioningCommands({
   endpoints: VersioningEndpoints;
   getCurrentDocument: () => any;
   applyRestore?: (content: any) => void;
-  refreshList: () => Promise<any>;
+  refreshList: () => Promise<
+    VersioningResult<LoadedVersioningList, VersionHistoryFetchError>
+  >;
   exitPreview: () => void;
 }) {
   return {
@@ -42,6 +47,8 @@ export function createVersioningCommands({
           // Reopening the sidebar lists again and replaces this session-local
           // view with the backend's authoritative rows.
           if (!store.state.list.loaded) {
+            // The mutation succeeded even if history cannot be refreshed. The
+            // list session publishes that fetch failure separately in the store.
             await refreshList();
           }
           store.setState((state) =>
@@ -127,7 +134,10 @@ export function createVersioningCommands({
             );
           }
           await endpoints.remove!(snapshot);
-          await refreshList();
+          const refreshed = await refreshList();
+          if (refreshed.error) {
+            return;
+          }
           // The removed row may survive as unnamed history; leave only if
           // what is on screen (or what it is diffed against) is really gone
           // (`exitPreview` no-ops when live).

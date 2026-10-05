@@ -440,6 +440,7 @@ export const vi: Dictionary = {
     restore_menuitem: "Khôi phục",
     delete_menuitem: "Xóa",
     action_failed: "Đã xảy ra lỗi. Vui lòng thử lại.",
+    history_load_failed: "Không thể tải lịch sử phiên bản",
   },
   exporter: {
     open_file: "Mở tệp",

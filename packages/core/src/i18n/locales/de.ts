@@ -460,6 +460,7 @@ export const de: Dictionary = {
     restore_menuitem: "Wiederherstellen",
     delete_menuitem: "Löschen",
     action_failed: "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+    history_load_failed: "Versionsverlauf konnte nicht geladen werden",
   },
   exporter: {
     open_file: "Datei öffnen",

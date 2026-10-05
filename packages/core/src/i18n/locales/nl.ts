@@ -442,6 +442,7 @@ export const nl: Dictionary = {
     restore_menuitem: "Herstellen",
     delete_menuitem: "Verwijderen",
     action_failed: "Er is iets misgegaan. Probeer het opnieuw.",
+    history_load_failed: "Versiegeschiedenis kon niet worden geladen",
   },
   exporter: {
     open_file: "Bestand openen",

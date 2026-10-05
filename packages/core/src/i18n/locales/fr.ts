@@ -487,6 +487,7 @@ export const fr: Dictionary = {
     restore_menuitem: "Restaurer",
     delete_menuitem: "Supprimer",
     action_failed: "Une erreur s'est produite. Veuillez réessayer.",
+    history_load_failed: "Impossible de charger l'historique des versions",
   },
   exporter: {
     open_file: "Ouvrir le fichier",

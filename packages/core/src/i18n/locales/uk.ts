@@ -465,6 +465,7 @@ export const uk: Dictionary = {
     restore_menuitem: "Відновити",
     delete_menuitem: "Видалити",
     action_failed: "Щось пішло не так. Спробуйте ще раз.",
+    history_load_failed: "Не вдалося завантажити історію версій",
   },
   exporter: {
     open_file: "Відкрити файл",

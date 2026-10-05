@@ -482,6 +482,7 @@ export const zh: Dictionary = {
     restore_menuitem: "恢复",
     delete_menuitem: "删除",
     action_failed: "出错了，请重试。",
+    history_load_failed: "无法加载版本历史记录",
   },
   exporter: {
     open_file: "打开文件",

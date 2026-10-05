@@ -455,6 +455,7 @@ export const hr: Dictionary = {
     restore_menuitem: "Vrati",
     delete_menuitem: "Izbriši",
     action_failed: "Nešto je pošlo po zlu. Pokušajte ponovno.",
+    history_load_failed: "Učitavanje povijesti verzija nije uspjelo",
   },
   exporter: {
     open_file: "Otvori datoteku",

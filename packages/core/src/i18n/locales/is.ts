@@ -455,6 +455,7 @@ export const is: Dictionary = {
     restore_menuitem: "Endurheimta",
     delete_menuitem: "Eyða",
     action_failed: "Eitthvað fór úrskeiðis. Reyndu aftur.",
+    history_load_failed: "Ekki tókst að hlaða útgáfusögu",
   },
   exporter: {
     open_file: "Opna skrá",

@@ -34,8 +34,8 @@ export type VersioningSidebarContextValue = {
   loadingIndicator: ReactNode;
   /**
    * Run an action and, if it is still the latest action, apply its UI follow-up.
-   * A newer action or closing the sidebar skips stale follow-ups and notices;
-   * the mutation itself still completes. Both steps must succeed to clear errors.
+   * A newer action or closing the sidebar skips stale follow-ups;
+   * the mutation itself still completes. Thrown errors propagate to the caller.
    */
   run: <T>(
     action: () => Promise<T>,
@@ -43,8 +43,6 @@ export type VersioningSidebarContextValue = {
   ) => Promise<void>;
   /** Cancel pending UI follow-ups and return the editor to the live document. */
   close: () => void;
-  /** Whether the last action failed. */
-  failed: boolean;
   /**
    * The version whose name field should take focus as soon as its row renders.
    * Set by the row's rename action so naming is one keystroke away;
@@ -74,7 +72,6 @@ export function VersioningSidebarProvider(props: {
   const [comparisonMode, setComparisonMode] = useState(
     props.defaultComparisonMode ?? false,
   );
-  const [failed, setFailed] = useState(false);
   const [focusNameFor, setFocusNameFor] = useState<string>();
 
   const actionGeneration = useRef(0);
@@ -90,22 +87,9 @@ export function VersioningSidebarProvider(props: {
     onSuccess?: (result: T) => void | Promise<unknown>,
   ) {
     const generation = ++actionGeneration.current;
-    try {
-      const result = await action();
-      if (generation === actionGeneration.current) {
-        await onSuccess?.(result);
-      }
-      if (generation === actionGeneration.current) {
-        setFailed(false);
-      }
-    } catch (error) {
-      // Unexpected failures remain visible to developers; never display their
-      // messages in the sidebar or let an older action overwrite its notice.
-      // eslint-disable-next-line no-console
-      console.error(error);
-      if (generation === actionGeneration.current) {
-        setFailed(true);
-      }
+    const result = await action();
+    if (generation === actionGeneration.current) {
+      await onSuccess?.(result);
     }
   }, []);
 
@@ -120,7 +104,6 @@ export function VersioningSidebarProvider(props: {
       loadingIndicator: props.loadingIndicator,
       run,
       close,
-      failed,
       focusNameFor,
       setFocusNameFor,
     }),
@@ -132,7 +115,6 @@ export function VersioningSidebarProvider(props: {
       props.loadingIndicator,
       run,
       close,
-      failed,
       focusNameFor,
     ],
   );

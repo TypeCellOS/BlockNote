@@ -1,6 +1,17 @@
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { User, UserStoreOrResolver } from "../../user/index.js";
 
+/** Expected failures are returned; unexpected failures still reject. */
+export type VersioningResult<Value, Err> =
+  | { value: Value; error?: undefined }
+  | { value?: undefined; error: Err };
+
+/** A rejected history endpoint. Never display the underlying cause in the UI. */
+export type VersionHistoryFetchError = {
+  type: "fetch-failed";
+  cause: unknown;
+};
+
 /** Metadata for a point in document history, managed by {@link VersioningEndpoints}. */
 export interface VersionSnapshot<Metadata = unknown> {
   /** Backend-defined identifier (e.g. a YHub server timestamp or an in-memory id). */
@@ -98,6 +109,8 @@ export type LoadedVersioningList<Metadata = unknown> = Extract<
 /** The {@link VersioningExtension}'s store state. */
 export type VersioningState = {
   list: VersioningList;
+  /** The latest history fetch failed; a successful listing clears it. */
+  listError?: VersionHistoryFetchError;
   view: VersioningView;
   /** A list fetch is in flight; `getLoadingState` derives from this. */
   listing: boolean;

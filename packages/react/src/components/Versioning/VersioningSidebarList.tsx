@@ -38,6 +38,9 @@ export function VersioningSidebarList() {
   const list = useExtensionState(VersioningExtension, {
     selector: (state) => state.list,
   });
+  const listError = useExtensionState(VersioningExtension, {
+    selector: (state) => state.listError,
+  });
   const listing = useExtensionState(VersioningExtension, {
     selector: (state) => getLoadingState(state).type === "listing",
   });
@@ -81,6 +84,9 @@ export function VersioningSidebarList() {
   }, [rows, activeIndex, focusRow]);
 
   if (!list.loaded) {
+    if (listError && !listing) {
+      return null;
+    }
     return (
       <div className="bn-versioning-sidebar-loading" role="status">
         {loadingIndicator ?? (

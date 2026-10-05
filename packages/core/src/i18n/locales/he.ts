@@ -441,6 +441,7 @@ export const he: Dictionary = {
     restore_menuitem: "שחזור",
     delete_menuitem: "מחיקה",
     action_failed: "משהו השתבש. נסו שוב.",
+    history_load_failed: "טעינת היסטוריית הגרסאות נכשלה",
   },
   exporter: {
     open_file: "פתח קובץ",

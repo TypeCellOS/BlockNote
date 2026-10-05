@@ -17,6 +17,8 @@ import type {
   VersionSnapshotIdentifier,
   VersionSnapshot,
   LoadedVersioningList,
+  VersioningResult,
+  VersionHistoryFetchError,
 } from "./types.js";
 
 export { LOADING_PREVIEW_CLASS, LOADING_PREVIEW_DELAY_MS } from "./preview.js";
@@ -94,9 +96,14 @@ export const VersioningExtension = createExtension(
       key: "versioning",
       store,
       userStore,
-      /** Fetch history. The metadata type is caller-asserted, not validated. */
+      /** Fetch history as a result. The metadata type is caller-asserted, not validated. */
       list<Metadata = unknown>() {
-        return listSession.refresh() as Promise<LoadedVersioningList<Metadata>>;
+        return listSession.refresh() as Promise<
+          VersioningResult<
+            LoadedVersioningList<Metadata>,
+            VersionHistoryFetchError
+          >
+        >;
       },
       /** Metadata is caller-asserted, not validated. Omit the type to read unknown. */
       getSnapshot<Metadata = unknown>(id: VersionSnapshotIdentifier) {
