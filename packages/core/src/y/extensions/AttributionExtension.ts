@@ -324,8 +324,14 @@ export const AttributionExtension = createExtension(
           if (!(owner instanceof Element) || !owner.contains(target)) {
             return undefined;
           }
-          // The node may render its source elsewhere. Hovering that surface
-          // represents a change within the node, not a particular character.
+          const contentDOM = view.domAtPos($pos.start()).node;
+          if (contentDOM.contains(target) || target.contains(contentDOM)) {
+            // Editable content already shows inline attribution. Unchanged text
+            // and the containing block must not inherit a sibling's change.
+            return undefined;
+          }
+          // A separate rendered preview may hide its attributed source. Only
+          // hovering that surface represents a change within the whole node.
           const mark = Array.from(
             owner.querySelectorAll<HTMLElement>(ATTRIBUTION_MARK_SELECTOR),
           ).find(attributionIdentity);

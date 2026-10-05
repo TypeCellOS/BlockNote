@@ -20,8 +20,20 @@ function versionLabel(target: PreviewTarget, dictionary: Dictionary): string {
   switch (target.kind) {
     case "current":
       return target.snapshot.name ?? dictionary.versioning.current_version;
-    case "snapshot":
-      return target.snapshot.name ?? dictionary.versioning.unnamed_version;
+    case "snapshot": {
+      const date = new Date(target.snapshot.createdAt);
+      return (
+        target.snapshot.name ??
+        `${date.toLocaleDateString(undefined, {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })}, ${date.toLocaleTimeString(undefined, {
+          hour: "numeric",
+          minute: "2-digit",
+        })}`
+      );
+    }
   }
 }
 

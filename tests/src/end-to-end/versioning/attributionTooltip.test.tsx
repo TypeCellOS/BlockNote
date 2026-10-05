@@ -1,9 +1,13 @@
 import {
   BlockNoteEditor,
   BlockNoteSchema,
+  createInMemoryPreviewController,
   type PartialBlock,
 } from "@blocknote/core";
-import { DiffVersioningExtension } from "@blocknote/core/y";
+import {
+  AttributionExtension,
+  DiffVersioningExtension,
+} from "@blocknote/core/y";
 import { createReactDiagramBlockSpec } from "@blocknote/diagram-block";
 import {
   createReactInlineMathSpec,
@@ -37,6 +41,68 @@ const schema = BlockNoteSchema.create().extend({
     customPreview: customPreview(),
   },
   inlineContentSpecs: { math: createReactInlineMathSpec() },
+});
+
+test("only attributes the edited text and labels an unnamed version with its timestamp", async () => {
+  const editor = BlockNoteEditor.create({
+    extensions: [DiffVersioningExtension()],
+  });
+  try {
+    await render(<MantineBlockNoteView editor={editor} />);
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "milestone",
+        type: "bulletListItem",
+        content: "Beta with five design partners (June)",
+      },
+    ]);
+    const snapshot = editor.document;
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "milestone",
+        type: "bulletListItem",
+        content: "Beta with five design partners",
+      },
+    ]);
+    const createdAt = new Date(2026, 8, 29, 13, 21).getTime();
+    const preview = createInMemoryPreviewController(editor);
+    preview.enterPreview(snapshot, editor.document, undefined, {
+      target: { kind: "snapshot", snapshot: { id: "unnamed", createdAt } },
+    });
+    const paragraph = editor.domElement!.querySelector<HTMLElement>(
+      '.bn-block[data-id="milestone"] .bn-inline-content',
+    )!;
+    // Hover the unchanged prefix, then the block's padding, not the insertion.
+    paragraph.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    expect(
+      editor.getExtension(AttributionExtension)!.store.state,
+    ).toBeUndefined();
+    expect(document.querySelector(".bn-suggestion-tooltip")).toBeNull();
+    paragraph.parentElement!.dispatchEvent(
+      new MouseEvent("mouseover", { bubbles: true }),
+    );
+    expect(
+      editor.getExtension(AttributionExtension)!.store.state,
+    ).toBeUndefined();
+    expect(document.querySelector(".bn-suggestion-tooltip")).toBeNull();
+
+    await userEvent.hover(
+      paragraph.querySelector<HTMLElement>("ins .bn-suggestion-mark")!,
+    );
+    const date = new Date(createdAt);
+    const label = `${date.toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}, ${date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}`;
+    await vi.waitFor(() =>
+      expect(
+        document.querySelector(".bn-suggestion-tooltip")?.textContent,
+      ).toBe(`Inserted in: ${label}`),
+    );
+    paragraph.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    await vi.waitFor(() =>
+      expect(document.querySelector(".bn-suggestion-tooltip")).toBeNull(),
+    );
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
 });
 
 test("anchors an inline math change tooltip to the formula, not the paragraph", async () => {
