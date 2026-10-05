@@ -15,6 +15,7 @@ export const ForkYDocExtension = createExtension(
       | {
           originalFragment: Y.Node;
           forkedFragment: Y.Node;
+          cursor: ReturnType<ReturnType<typeof YCursorExtension>> | undefined;
         }
       | undefined = undefined;
 
@@ -59,10 +60,10 @@ export const ForkYDocExtension = createExtension(
         forkedState = {
           originalFragment,
           forkedFragment,
+          cursor: editor.unregisterExtension(YCursorExtension),
         };
 
-        // Need to reset all the yjs plugins
-        editor.unregisterExtension([YCursorExtension]);
+        options.provider?.awareness?.setLocalStateField("cursor", null);
         editor.exec(configureYProsemirror({ ytype: forkedFragment }));
 
         // Tell the store that the editor is now forked
@@ -79,15 +80,17 @@ export const ForkYDocExtension = createExtension(
           return;
         }
 
-        const { originalFragment, forkedFragment } = forkedState;
-        // Register the plugins again, based on the original fragment (which is still in the original options)
-        editor.registerExtension([YCursorExtension(options)]);
+        const { originalFragment, forkedFragment, cursor } = forkedState;
+        // Restore the live binding before a cursor plugin view can use it.
         editor.exec(
           configureYProsemirror({
             ytype: originalFragment,
             renderer: options.renderer,
           }),
         );
+        if (cursor) {
+          editor.registerExtension(cursor);
+        }
 
         if (keepChanges) {
           // Apply any changes that have been made to the fork, onto the original doc
@@ -100,6 +103,7 @@ export const ForkYDocExtension = createExtension(
         }
         // Reset the forked state
         forkedState = undefined;
+        forkedFragment.doc!.destroy();
         // Tell the store that the editor is no longer forked
         store.setState({ isForked: false });
       },

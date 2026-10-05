@@ -58,6 +58,10 @@ import {
   StyleManager,
 } from "./managers/index.js";
 import type { Selection } from "./selectionTypes.js";
+import type {
+  ExtensionSelection,
+  ExtensionSelector,
+} from "./managers/ExtensionManager/index.js";
 import { transformPasted } from "./transformPasted.js";
 
 export type BlockCache<
@@ -674,11 +678,27 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Remove extension(s) from the editor
+   * Remove extension(s) and return the removed instance(s) for later registration.
+   * Removed ProseMirror plugin state is not retained.
    */
-  public unregisterExtension: ExtensionManager["unregisterExtension"] = (
-    ...args: Parameters<ExtensionManager["unregisterExtension"]>
-  ) => this._extensionManager.unregisterExtension(...args);
+  public unregisterExtension<const T extends ExtensionFactory>(
+    extension: T,
+  ): ReturnType<ReturnType<T>> | undefined;
+  public unregisterExtension<const T extends Extension>(
+    extension: T,
+  ): T | undefined;
+  public unregisterExtension(extensions: ExtensionSelector[]): Extension[];
+  public unregisterExtension(
+    extension: ExtensionSelector,
+  ): Extension | undefined;
+  public unregisterExtension(
+    extension: ExtensionSelection,
+  ): Extension | Extension[] | undefined;
+  public unregisterExtension(
+    extension: ExtensionSelection,
+  ): Extension | Extension[] | undefined {
+    return this._extensionManager.unregisterExtension(extension);
+  }
 
   /**
    * Register extension(s) to the editor
