@@ -7,7 +7,7 @@ import {
   localStorageEndpoints,
   storeVersions,
 } from "./localStorageEndpoints";
-import { BlockNoteViewEditor, useCreateBlockNote } from "@blocknote/react";
+import { RenderInPortalElement, useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useState } from "react";
@@ -86,31 +86,29 @@ export default function App() {
   );
 
   const [showSidebar, setShowSidebar] = useState(true);
+  // The element in the layout that the history sidebar is rendered into.
+  const [sidebarPanel, setSidebarPanel] = useState<HTMLDivElement | null>(null);
 
   return (
-    <div className="wrapper">
+    <div className="wrapper layout">
       {/* No `editable` prop: the sidebar makes the editor read-only for as long
           as it's open, and restores it on close. */}
-      <BlockNoteView editor={editor} renderEditor={false}>
-        <div className="layout">
-          <div className="editor-panel">
-            <BlockNoteViewEditor />
-            {!showSidebar && (
-              <button
-                className="show-history-button"
-                onClick={() => setShowSidebar(true)}
-              >
-                History
-              </button>
-            )}
-          </div>
-          {showSidebar && (
-            <div className={"sidebar-section"}>
-              <VersioningSidebar onClose={() => setShowSidebar(false)} />
-            </div>
-          )}
-        </div>
+      <BlockNoteView editor={editor}>
+        {!showSidebar && (
+          <button
+            className="show-history-button"
+            onClick={() => setShowSidebar(true)}
+          >
+            History
+          </button>
+        )}
+        {showSidebar && sidebarPanel && (
+          <RenderInPortalElement target={sidebarPanel}>
+            <VersioningSidebar onClose={() => setShowSidebar(false)} />
+          </RenderInPortalElement>
+        )}
       </BlockNoteView>
+      {showSidebar && <div className="sidebar-section" ref={setSidebarPanel} />}
     </div>
   );
 }

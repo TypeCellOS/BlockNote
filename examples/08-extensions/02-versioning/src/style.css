@@ -37,8 +37,8 @@
   width: 350px;
 }
 
-/* BlockNotePortal creates a themed root *inside* the application-owned slot.
-   Theme variables live on that root, not on its parent. */
+/* `RenderInPortalElement` creates a themed root *inside* the application-owned
+   slot. Theme variables live on that root, not on its parent. */
 .sidebar-section > .bn-root {
   background-color: var(--bn-colors-editor-background);
   border-left: 1px solid var(--bn-colors-border);

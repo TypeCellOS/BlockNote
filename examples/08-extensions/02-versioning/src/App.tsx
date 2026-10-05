@@ -1,8 +1,4 @@
-import {
-  BlockNotePortal,
-  BlockNoteViewEditor,
-  useCreateBlockNote,
-} from "@blocknote/react";
+import { RenderInPortalElement, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteEditor } from "@blocknote/core";
 import {
@@ -59,8 +55,7 @@ export default function App() {
     <div className="wrapper layout">
       {/* No `editable` prop: the sidebar makes the editor read-only for as
           long as it's open, and restores it on close. */}
-      <BlockNoteView editor={editor} renderEditor={false}>
-        <BlockNoteViewEditor />
+      <BlockNoteView editor={editor}>
         {!showSidebar && (
           <button
             className="show-history-button"
@@ -70,7 +65,7 @@ export default function App() {
           </button>
         )}
         {showSidebar && sidebarPanel && (
-          <BlockNotePortal target={sidebarPanel}>
+          <RenderInPortalElement target={sidebarPanel}>
             <VersioningSidebar
               onClose={() => setShowSidebar(false)}
               // Extend the row menu by composing it: the default items plus
@@ -82,7 +77,7 @@ export default function App() {
                 </VersionMenu>
               }
             />
-          </BlockNotePortal>
+          </RenderInPortalElement>
         )}
       </BlockNoteView>
       {showSidebar && <div className="sidebar-section" ref={setSidebarPanel} />}

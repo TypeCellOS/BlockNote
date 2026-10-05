@@ -2,45 +2,44 @@
   height: calc(100vh - 20px);
 }
 
-.wrapper > .bn-container {
-  margin: 0;
-  max-width: none;
-  padding: 0;
-}
-
 .layout {
   display: flex;
   gap: 8px;
   height: calc(100vh - 20px);
 }
 
-.editor-panel {
+.layout > .bn-container {
   flex: 1;
-  height: calc(100vh - 20px);
-  min-width: 0;
-  overflow: auto;
-  position: relative;
-}
-
-.editor-panel .bn-container {
   height: calc(100vh - 20px);
   margin: 0;
   max-width: none;
+  min-width: 0;
+  overflow: auto;
   padding: 0;
+  position: relative;
 }
 
-.editor-panel .bn-editor {
+.layout > .bn-container .bn-editor {
   height: calc(100vh - 20px);
   overflow: auto;
 }
 
+/* The history panel is a slot in the app's layout; the sidebar is rendered
+   into it through `RenderInPortalElement`. */
 .sidebar-section {
-  background-color: var(--bn-colors-disabled-background);
   display: flex;
   flex-direction: column;
   height: calc(100vh - 20px);
-  overflow: auto;
   width: 350px;
+}
+
+/* The themed root `RenderInPortalElement` creates in the slot. Only inside it
+   do the `--bn-*` variables follow the editor's (light or dark) theme. */
+.sidebar-section > .bn-root {
+  background-color: var(--bn-colors-disabled-background);
+  display: flex;
+  flex: 1;
+  min-height: 0;
 }
 
 .sidebar-section .settings {

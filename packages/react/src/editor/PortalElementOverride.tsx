@@ -7,6 +7,7 @@ import {
   useInsertionEffect,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
 import { useEditorDOMElement } from "../hooks/useEditorDomElement.js";
@@ -143,6 +144,30 @@ export function PortalElementOverride(props: {
       {children}
     </PortalElementContext.Provider>
   );
+}
+
+/**
+ * Renders its children into `target`, inside the same themed and registered
+ * root a {@link PortalElementOverride} creates there. Where the override only
+ * redirects the floating UI below it, this moves the children themselves: use
+ * it for BlockNote UI (e.g. `ThreadsSidebar`) that should sit in an element of
+ * your own layout outside the editor. Render it inside the `BlockNoteView`, so
+ * the children keep the editor's context.
+ */
+export function RenderInPortalElement(props: {
+  target: HTMLElement;
+  children?: ReactNode;
+}) {
+  return (
+    <PortalElementOverride target={props.target}>
+      <PortalContent>{props.children}</PortalContent>
+    </PortalElementOverride>
+  );
+}
+
+function PortalContent(props: { children?: ReactNode }) {
+  const portalElement = usePortalElement();
+  return portalElement ? createPortal(props.children, portalElement) : null;
 }
 
 /**
