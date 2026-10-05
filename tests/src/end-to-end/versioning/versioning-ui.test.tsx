@@ -11,8 +11,8 @@ import {
 } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
-  BlockNotePortal,
   BlockNoteViewEditor,
+  RenderInPortalElement,
   useCreateBlockNote,
 } from "@blocknote/react";
 import { VersioningSidebar } from "@blocknote/react/versioning";
@@ -336,9 +336,9 @@ test.each([
 
       return (
         <MantineBlockNoteView editor={editor} theme={theme}>
-          <BlockNotePortal target={target}>
+          <RenderInPortalElement target={target}>
             <VersioningSidebar />
-          </BlockNotePortal>
+          </RenderInPortalElement>
         </MantineBlockNoteView>
       );
     }
@@ -443,9 +443,9 @@ test("updates a portaled sidebar when the view theme changes", async () => {
         >
           Toggle theme
         </button>
-        <BlockNotePortal target={target}>
+        <RenderInPortalElement target={target}>
           <VersioningSidebar />
-        </BlockNotePortal>
+        </RenderInPortalElement>
       </MantineBlockNoteView>
     );
   }

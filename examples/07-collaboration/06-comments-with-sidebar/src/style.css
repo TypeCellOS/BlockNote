@@ -1,11 +1,21 @@
+/* The application's own layout and styling. BlockNote's `--bn-*` variables
+   only exist inside BlockNote's (themed) elements, so the app chrome uses its
+   own colors. */
 .sidebar-comments-main-container {
-  background-color: var(--bn-colors-disabled-background);
+  background-color: #f0f0f0;
+  color: #3f3f3f;
   display: flex;
   gap: 10px;
   height: 100%;
-  max-width: none;
   padding: 10px;
   width: 100%;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sidebar-comments-main-container {
+    background-color: #121212;
+    color: #cfcfcf;
+  }
 }
 
 .sidebar-comments-main-container .editor-layout-wrapper {
@@ -15,11 +25,14 @@
   width: 0;
 }
 
-.sidebar-comments-main-container .editor-section,
-.threads-sidebar-section {
-  border-radius: var(--bn-border-radius-large);
-  display: flex;
+.sidebar-comments-main-container .editor-section {
   flex: 1;
+  max-width: 700px;
+}
+
+.sidebar-comments-main-container .editor-section,
+.sidebar-comments-main-container .threads-sidebar-section {
+  display: flex;
   flex-direction: column;
   gap: 10px;
   max-height: 100%;
@@ -27,25 +40,15 @@
   width: 0;
 }
 
-.sidebar-comments-main-container .editor-section h1,
-.threads-sidebar-section h1 {
-  color: var(--bn-colors-menu-text);
-  margin: 0;
+/* A fixed-width column; the editor column takes the remaining space. */
+.sidebar-comments-main-container .threads-sidebar-section {
+  flex: none;
+  width: 360px;
+}
+
+.sidebar-comments-main-container h1 {
   font-size: 32px;
-}
-
-.sidebar-comments-main-container .bn-editor,
-.bn-threads-sidebar {
-  border-radius: var(--bn-border-radius-medium);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  height: 100%;
-  overflow: auto;
-}
-
-.sidebar-comments-main-container .editor-section {
-  max-width: 700px;
+  margin: 0;
 }
 
 .sidebar-comments-main-container .settings {
@@ -55,19 +58,61 @@
 }
 
 .sidebar-comments-main-container .settings-select {
-  display: flex;
-  gap: 10px;
-}
-
-.sidebar-comments-main-container .settings-select .bn-toolbar {
   align-items: center;
-  box-shadow: none;
+  display: flex;
+  font-size: 12px;
+  font-weight: 600;
+  gap: 8px;
 }
 
-.sidebar-comments-main-container .settings-select h2 {
-  color: var(--bn-colors-menu-text);
+.sidebar-comments-main-container .settings-select select {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  color: inherit;
+  font: inherit;
+  font-weight: 500;
+  padding: 6px 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sidebar-comments-main-container .settings-select select {
+    background-color: #1f1f1f;
+    border-color: #333333;
+  }
+}
+
+/* The editor fills the rest of its section and scrolls on its own. */
+.sidebar-comments-main-container .editor-section .bn-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   margin: 0;
-  font-size: 12px;
-  line-height: 12px;
-  padding-left: 14px;
+  max-width: none;
+  min-height: 0;
+  padding: 0;
+}
+
+.sidebar-comments-main-container .editor-section .bn-editor {
+  border-radius: 8px;
+  flex: 1;
+  overflow: auto;
+}
+
+/* The slot the sidebar is rendered into, and the themed root BlockNote creates
+   inside it. */
+.sidebar-comments-main-container .threads-sidebar-slot,
+.sidebar-comments-main-container .threads-sidebar-slot > .bn-root {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.bn-threads-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  overflow: auto;
 }

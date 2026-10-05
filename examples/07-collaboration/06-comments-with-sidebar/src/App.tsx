@@ -9,8 +9,8 @@ import { withCollaboration, YjsThreadStore } from "@blocknote/core/yjs";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
-  BlockNoteViewEditor,
   FloatingComposerController,
+  RenderInPortalElement,
   ThreadsSidebar,
   useCreateBlockNote,
 } from "@blocknote/react";
@@ -94,107 +94,82 @@ export default function App() {
     [activeUser, threadStore],
   );
 
+  // The element in your layout that the comments sidebar is rendered into.
+  const [sidebarElement, setSidebarElement] = useState<HTMLDivElement | null>(
+    null,
+  );
+
+  // The page layout is your application's own. BlockNote only renders the
+  // editor (`BlockNoteView`) and, via `RenderInPortalElement`, the sidebar.
   return (
-    <BlockNoteView
-      className={"sidebar-comments-main-container"}
-      editor={editor}
-      editable={activeUser.role === "editor"}
-      // In other examples, `BlockNoteView` renders both editor element itself,
-      // and the container element which contains the necessary context for
-      // BlockNote UI components. However, in this example, we want more control
-      // over the rendering of the editor, so we set `renderEditor` to `false`.
-      // Now, `BlockNoteView` will only render the container element, and we can
-      // render the editor element anywhere we want using `BlockNoteEditorView`.
-      renderEditor={false}
-      // We also disable the default rendering of comments in the editor, as we
-      // want to render them in the `ThreadsSidebar` component instead.
-      comments={false}
-    >
-      {/* We place the editor, the sidebar, and any settings selects within
-      `BlockNoteView` as they use BlockNote UI components and need the context
-      for them. */}
+    <div className={"sidebar-comments-main-container"}>
       <div className={"editor-layout-wrapper"}>
-        <div className={"editor-section"}>
+        <section className={"editor-section"}>
           <h1>Editor</h1>
           <div className={"settings"}>
             <SettingsSelect
               label={"User"}
-              items={HARDCODED_USERS.map((user) => ({
-                text: `${user.username} (${
+              value={activeUser.id}
+              options={HARDCODED_USERS.map((user) => ({
+                value: user.id,
+                label: `${user.username} (${
                   user.role === "editor" ? "Editor" : "Commenter"
                 })`,
-                icon: null,
-                onClick: () => {
-                  setActiveUser(user);
-                },
-                isSelected: user.id === activeUser.id,
               }))}
+              onChange={(id) => {
+                const user = HARDCODED_USERS.find((user) => user.id === id);
+                if (user) {
+                  setActiveUser(user);
+                }
+              }}
             />
           </div>
-          {/* Because we set `renderEditor` to false, we can now manually place
-          `BlockNoteViewEditor` (the actual editor component) in its own
-          section below the user settings select. */}
-          <BlockNoteViewEditor />
-          {/* Since we disabled rendering of comments with `comments={false}`,
-          we need to re-add the floating composer, which is the UI element that
-          appears when creating new threads. */}
-          <FloatingComposerController />
-        </div>
+          <BlockNoteView
+            editor={editor}
+            editable={activeUser.role === "editor"}
+            // Comments are shown in the sidebar instead of floating in the editor.
+            comments={false}
+          >
+            {/* `comments={false}` also removes the floating composer, which
+          creates new threads, so we add it back. */}
+            <FloatingComposerController />
+            {/* `ThreadsSidebar` needs the editor's context, so it's rendered
+          inside `BlockNoteView`, but `RenderInPortalElement` places it in the
+          sidebar element of the layout below. */}
+            {sidebarElement && (
+              <RenderInPortalElement target={sidebarElement}>
+                <ThreadsSidebar filter={commentFilter} sort={commentSort} />
+              </RenderInPortalElement>
+            )}
+          </BlockNoteView>
+        </section>
       </div>
-      {/* We also place the `ThreadsSidebar` component in its own section,
-      along with settings for filtering and sorting. */}
-      <div className={"threads-sidebar-section"}>
+      <aside className={"threads-sidebar-section"}>
         <h1>Comments</h1>
         <div className={"settings"}>
           <SettingsSelect
             label={"Filter"}
-            items={[
-              {
-                text: "All",
-                icon: null,
-                onClick: () => setCommentFilter("all"),
-                isSelected: commentFilter === "all",
-              },
-              {
-                text: "Open",
-                icon: null,
-                onClick: () => setCommentFilter("open"),
-                isSelected: commentFilter === "open",
-              },
-              {
-                text: "Resolved",
-                icon: null,
-                onClick: () => setCommentFilter("resolved"),
-                isSelected: commentFilter === "resolved",
-              },
+            value={commentFilter}
+            options={[
+              { value: "all", label: "All" },
+              { value: "open", label: "Open" },
+              { value: "resolved", label: "Resolved" },
             ]}
+            onChange={setCommentFilter}
           />
           <SettingsSelect
             label={"Sort"}
-            items={[
-              {
-                text: "Position",
-                icon: null,
-                onClick: () => setCommentSort("position"),
-                isSelected: commentSort === "position",
-              },
-              {
-                text: "Recent activity",
-                icon: null,
-                onClick: () => setCommentSort("recent-activity"),
-                isSelected: commentSort === "recent-activity",
-              },
-              {
-                text: "Oldest",
-                icon: null,
-                onClick: () => setCommentSort("oldest"),
-                isSelected: commentSort === "oldest",
-              },
+            value={commentSort}
+            options={[
+              { value: "position", label: "Position" },
+              { value: "recent-activity", label: "Recent activity" },
+              { value: "oldest", label: "Oldest" },
             ]}
+            onChange={setCommentSort}
           />
         </div>
-        <ThreadsSidebar filter={commentFilter} sort={commentSort} />
-      </div>
-    </BlockNoteView>
+        <div className={"threads-sidebar-slot"} ref={setSidebarElement} />
+      </aside>
+    </div>
   );
 }

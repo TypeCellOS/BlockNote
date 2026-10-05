@@ -1,7 +1,6 @@
 // TODO: review directories
 export * from "./editor/BlockNoteContext.js";
 export * from "./editor/BlockNoteDefaultUI.js";
-export * from "./editor/BlockNotePortal.js";
 export * from "./editor/BlockNoteView.js";
 export * from "./editor/ComponentsContext.js";
 export * from "./i18n/dictionary.js";
@@ -49,6 +48,7 @@ export * from "./components/FormattingToolbar/FormattingToolbarController.js";
 export * from "./components/FormattingToolbar/MobileFormattingToolbarController.js";
 export {
   PortalElementOverride,
+  RenderInPortalElement,
   usePortalElement,
 } from "./editor/PortalElementOverride.js";
 export * from "./editor/UIModeContext.js";
