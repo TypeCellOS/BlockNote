@@ -1,4 +1,4 @@
-import { testDocument } from "@shared/testDocument.js";
+import { testDocumentBlocks } from "@shared/testDocumentBlocks.js";
 
 import type { GalleryEditor, GalleryPartialBlock } from "./gallerySchema";
 
@@ -1551,7 +1551,9 @@ export const scenarios: SuggestionScenario[] = [
       ),
   },
 
-  // --- Large diffs (the shared testDocument — every block type at once) ---
+  // Use partial blocks so the editor generates IDs instead of preserving the
+  // empty IDs in the fully populated exporter test fixture.
+  // --- Large diffs (the shared test document — every block type at once) ---
   {
     kind: "single",
     id: "large-diff-add-all",
@@ -1562,7 +1564,7 @@ export const scenarios: SuggestionScenario[] = [
     initial: [{ id: "anchor", type: "paragraph", content: "Document start" }],
     apply: (editor) =>
       editor.insertBlocks(
-        testDocument as unknown as GalleryPartialBlock[],
+        testDocumentBlocks as unknown as GalleryPartialBlock[],
         "anchor",
         "after",
       ),
@@ -1580,7 +1582,7 @@ export const scenarios: SuggestionScenario[] = [
     category: "Large diffs",
     description:
       "Remove every block of the shared test document, leaving a single paragraph — a stress test for large diffs.",
-    initial: testDocument as unknown as GalleryPartialBlock[],
+    initial: testDocumentBlocks as unknown as GalleryPartialBlock[],
     apply: (editor) =>
       editor.replaceBlocks(editor.document, [
         { type: "paragraph", content: "(all content removed)" },
