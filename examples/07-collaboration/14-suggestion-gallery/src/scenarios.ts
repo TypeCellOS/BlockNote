@@ -1163,18 +1163,9 @@ export const scenarios: SuggestionScenario[] = [
   {
     kind: "concurrent",
     id: "concurrent-table-row-vs-column",
-    feedback: [
-      {
-        severity: "high",
-        note: "Crashes — prosemirror-tables' fixTables treats the suggestion-marked table as malformed and feeds y-prosemirror a delta Yjs can't apply (lib0 'Unexpected case'). Confirmed via a fixTables on/off loop (25/25 crashes on, 0/25 off); fix is to block fixTablesKey transactions while suggestions are active, mirroring AIExtension during ai-writing.",
-      },
-    ],
     title: "Delete row vs add column",
     category: "Tables",
-    description:
-      "A deletes a row while B adds a column — known to crash the merge " +
-      "(prosemirror-tables fixTables).",
-    knownCrash: true,
+    description: "A deletes a row while B adds a column.",
     initial: [TABLE_2X2],
     applyA: (editor) =>
       editor.updateBlock("table", {
@@ -1197,7 +1188,7 @@ export const scenarios: SuggestionScenario[] = [
     title: "Delete column vs add row",
     feedback: [
       {
-        severity: "high",
+        severity: "low",
         note: "Diff seems weird and A2 in wrong place",
       },
     ],
