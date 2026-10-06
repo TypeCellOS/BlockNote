@@ -13,6 +13,7 @@ import { SuggestionsExtension } from "./Suggestions.js";
 import { CollaborationUser, YCursorExtension } from "./YCursorPlugin.js";
 import type { GetAttributionMarkClassName } from "./YAttributionMarks.js";
 import { YSyncExtension } from "./YSync.js";
+import { YUndoExtension } from "./YUndo.js";
 
 export type CollaborationOptions = {
   /**
@@ -89,6 +90,7 @@ export const CollaborationExtension = createExtension(
         RelativePositionMappingExtension(),
         ForkYDocExtension(options),
         YSyncExtension(optionsWithUserStore),
+        YUndoExtension(options),
         YCursorExtension(options),
         AttributionExtension({
           resolveUsers: userStore,
@@ -137,3 +139,4 @@ export * from "./Suggestions.js";
 export * from "./YAttributionMarks.js";
 export * from "./YCursorPlugin.js";
 export * from "./YSync.js";
+export * from "./YUndo.js";
