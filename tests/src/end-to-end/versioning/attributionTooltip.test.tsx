@@ -3,7 +3,10 @@ import {
   BlockNoteSchema,
   type PartialBlock,
 } from "@blocknote/core";
-import { createLocalVersioning } from "@blocknote/core/extensions";
+import {
+  createLocalVersioning,
+  formatVersionDate,
+} from "@blocknote/core/extensions";
 import {
   AttributionExtension,
   DiffVersioningExtension,
@@ -95,8 +98,7 @@ test("only attributes the edited text and labels an unnamed version with its tim
     await userEvent.hover(
       paragraph.querySelector<HTMLElement>("ins .bn-suggestion-mark")!,
     );
-    const date = new Date(createdAt);
-    const label = `${date.toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}, ${date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}`;
+    const label = formatVersionDate(createdAt);
     await vi.waitFor(() =>
       expect(
         document.querySelector(".bn-suggestion-tooltip")?.textContent,

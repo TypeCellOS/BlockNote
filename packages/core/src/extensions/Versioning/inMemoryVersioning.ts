@@ -22,6 +22,7 @@ import type {
   VersionViewAdapter,
 } from "./types.js";
 import { createVersioningExtension } from "./Versioning.js";
+import { formatVersionDate } from "./formatVersionDate.js";
 import type { UserStoreOrResolver } from "../../user/index.js";
 
 /** ProseMirror JSON uses schema-defined node/mark names and attribute values. */
@@ -190,11 +191,10 @@ export function createLocalVersioning<
               let label = editor.dictionary.versioning.current_version;
               if (target.type === "snapshot") {
                 const version = snapshots.get(target.id)?.version;
-                const date = version && new Date(version.createdAt);
                 label =
                   version?.name ??
-                  (date
-                    ? `${date.toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}, ${date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}`
+                  (version
+                    ? formatVersionDate(version.createdAt)
                     : editor.dictionary.versioning.this_version);
               }
               diff.renderDiff(

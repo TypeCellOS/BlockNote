@@ -1,4 +1,5 @@
 import {
+  formatVersionDate,
   type VersioningState,
   type VersionSnapshot,
 } from "@blocknote/core/extensions";
@@ -11,7 +12,6 @@ import type { VersioningSnapshotState } from "../../editor/ComponentsContext.js"
 import { usePortalElement } from "../../editor/PortalElementOverride.js";
 import { useVersioning, useVersioningState } from "./useVersioning.js";
 import { useDictionary } from "../../i18n/dictionary.js";
-import { dateToString } from "./dateToString.js";
 import { usePreviewRow } from "./usePreviewRow.js";
 import { useSnapshotLabel } from "./useVersionUsers.js";
 import { VersionName } from "./VersionName.js";
@@ -101,7 +101,7 @@ export function Snapshot(props: {
   const selected = isSelectedState(state);
   const comparing = state === "comparison-baseline";
   const secondaryLabel = useSnapshotLabel(snapshot);
-  const dateString = dateToString(new Date(snapshot.createdAt));
+  const dateString = formatVersionDate(snapshot.createdAt);
   const rowDate =
     isCurrent && snapshot.name !== undefined
       ? dict.versioning.current_version
@@ -111,7 +111,7 @@ export function Snapshot(props: {
   const restoredFrom =
     snapshot.restoredFrom !== undefined
       ? dict.versioning.restored_from(
-          dateToString(new Date(snapshot.restoredFrom.createdAt)),
+          formatVersionDate(snapshot.restoredFrom.createdAt),
         )
       : undefined;
 
