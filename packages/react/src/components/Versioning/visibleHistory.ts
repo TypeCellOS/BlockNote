@@ -14,13 +14,13 @@ export const CURRENT_VERSION_ID = "blocknote:frozen-current";
 export function getVersionList(
   state: VersioningState,
 ): LoadedVersioningList | { loaded: false } {
-  if (state.mode === "live" || state.history.versions === undefined) {
+  if (state.mode === "live" || state.history.data === undefined) {
     return { loaded: false };
   }
   return {
     loaded: true,
     current: { id: CURRENT_VERSION_ID, createdAt: state.capturedAt },
-    snapshots: state.history.versions,
+    snapshots: state.history.data,
   };
 }
 

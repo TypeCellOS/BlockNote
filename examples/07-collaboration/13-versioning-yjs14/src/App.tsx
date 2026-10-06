@@ -1,10 +1,6 @@
 import { VersioningSidebar } from "@blocknote/react/versioning";
 import "@blocknote/core/fonts/inter.css";
-import {
-  YVersioningExtension,
-  createYHubVersionStorage,
-  withCollaboration,
-} from "@blocknote/core/y";
+import { YHubVersioningExtension, withCollaboration } from "@blocknote/core/y";
 import { RenderInPortalElement, useCreateBlockNote } from "@blocknote/react";
 import type { VersioningController } from "@blocknote/core/extensions";
 import { useEffect, useState } from "react";
@@ -142,11 +138,7 @@ function VersionedEditor() {
         // in the history sidebar and diff tooltips.
         resolveUsers,
       },
-      extensions: [
-        YVersioningExtension({
-          storage: createYHubVersionStorage(versioningOptions),
-        }),
-      ],
+      extensions: [YHubVersioningExtension(versioningOptions)],
     }),
   );
 

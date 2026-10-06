@@ -129,14 +129,6 @@ export function createLocalVersioning<
     snapshots.set(version.id, { version, content: document });
   }
 
-  function snapshot(id: string) {
-    const value = snapshots.get(id);
-    if (!value) {
-      throw new Error(`Unknown version: ${id}`);
-    }
-    return value;
-  }
-
   function inEditorSchema(content: Node): Node {
     // ProseMirror matches node types by identity, not name. Seeded or loaded
     // documents can come from another editor with a different schema instance.
@@ -220,19 +212,29 @@ export function createLocalVersioning<
     storage: {
       async list(signal) {
         signal.throwIfAborted();
-        return [...snapshots.values()].map(({ version }) => ({ ...version }));
+        return {
+          ok: true,
+          value: [...snapshots.values()].map(({ version }) => ({ ...version })),
+        };
       },
       async getContent(id, signal) {
         signal.throwIfAborted();
-        return snapshot(id).content;
+        const stored = snapshots.get(id);
+        return stored
+          ? { ok: true, value: stored.content }
+          : { ok: false, error: { type: "not-found" } };
       },
       async create(content, name) {
         const version = { id: String(++nextId), createdAt: Date.now(), name };
         snapshots.set(version.id, { version, content });
-        return { ...version };
+        return { ok: true, value: { ...version } };
       },
       async restore(id) {
-        const content = inEditorSchema(snapshot(id).content);
+        const stored = snapshots.get(id);
+        if (!stored) {
+          return { ok: false, error: { type: "not-found" } };
+        }
+        const content = inEditorSchema(stored.content);
         if (live) {
           live = live.apply(
             live.tr.replaceWith(0, live.doc.content.size, content.content),
@@ -242,12 +244,19 @@ export function createLocalVersioning<
             tr.replaceWith(0, tr.doc.content.size, content.content),
           );
         }
+        return { ok: true, value: undefined };
       },
       async rename(id, name) {
-        snapshot(id).version.name = name;
+        const stored = snapshots.get(id);
+        if (!stored) {
+          return { ok: false, error: { type: "not-found" } };
+        }
+        stored.version.name = name;
+        return { ok: true, value: undefined };
       },
       async remove(id) {
         snapshots.delete(id);
+        return { ok: true, value: undefined };
       },
     },
   };

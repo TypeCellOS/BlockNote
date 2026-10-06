@@ -23,8 +23,8 @@ test("a mounted preview ignores remote edits and cannot publish live cursors", a
   const Versions = createVersioningExtension((editor) => ({
     adapter: createYVersionView(editor, doc.get("doc")),
     storage: {
-      list: async () => [{ id: "saved", createdAt: 1 }],
-      getContent: async () => saved,
+      list: async () => ({ ok: true, value: [{ id: "saved", createdAt: 1 }] }),
+      getContent: async () => ({ ok: true, value: saved }),
     },
   }));
   const div = document.createElement("div");
@@ -60,6 +60,10 @@ test("a mounted preview ignores remote edits and cannot publish live cursors", a
       .toBe(true);
     // The listing stage has no rendered snapshot yet. Real focus listeners
     // must already be detached, including after the view is remounted.
+    // Exercise the setup/cleanup/setup sequence used by StrictMode effects
+    // against a real mounted collaboration binding, not only a fake adapter.
+    versioning.open();
+    versioning.close();
     versioning.open();
     editor.focus();
     editor.setTextCursorPosition("paragraph", "start");

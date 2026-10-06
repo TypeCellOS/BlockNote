@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { resultValue } from "./__test__/result.js";
 import { expect, expectTypeOf, it } from "vite-plus/test";
 import { closeHistory, history, undo, undoDepth } from "@tiptap/pm/history";
 import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
@@ -83,10 +84,10 @@ it("converts partial-block seeds without changing live content, selection, or un
     });
     expect(editor.prosemirrorState).toBe(before);
     const signal = new AbortController().signal;
-    expect(await storage.list(signal)).toEqual([
+    expect(resultValue(await storage.list(signal))).toEqual([
       { id: "1", name: "Draft", createdAt: 123 },
     ]);
-    const content = await storage.getContent("1", signal);
+    const content = resultValue(await storage.getContent("1", signal));
     expect(content.type.schema).toBe(editor.pmSchema);
     expect(content.textContent).toBe("Saved textNested text");
     const preview = adapter.open();
@@ -150,9 +151,8 @@ it("loads table content and attributes from ProseMirror JSON seeds", async () =>
     const { storage } = createLocalVersioning(editor, {
       initialVersions: [{ content, createdAt: 1 }],
     });
-    const document = await storage.getContent(
-      "1",
-      new AbortController().signal,
+    const document = resultValue(
+      await storage.getContent("1", new AbortController().signal),
     );
     expect(document.type.schema).toBe(editor.pmSchema);
     expect(document.textContent).toBe("Cell text");
@@ -235,8 +235,9 @@ it("uses custom block, inline-content, and style schemas for partial-block seeds
       initialVersions: [{ content: blocks, createdAt: 1 }],
     });
     expect(
-      (await local.storage.getContent("1", new AbortController().signal)).type
-        .schema,
+      resultValue(
+        await local.storage.getContent("1", new AbortController().signal),
+      ).type.schema,
     ).toBe(editor.pmSchema);
     mode.open();
     await mode.select({ type: "snapshot", id: "1" });
@@ -278,25 +279,22 @@ it.each(
   },
 );
 
-it("reads seeds at history initialization and gives each editor its own history", async () => {
-  const blocks: PartialBlock[] = [{ id: "saved", content: "Captured text" }];
+it("reads seeds at editor construction and gives each editor its own history", async () => {
+  const blocks: PartialBlock[] = [{ id: "saved", content: "First history" }];
   const extension = InMemoryVersioningExtension({
     initialVersions: [{ content: blocks, name: "Draft", createdAt: 123 }],
   });
   const first = BlockNoteEditor.create({ extensions: [extension] });
+  blocks[0].content = "Second history";
   const second = BlockNoteEditor.create({ extensions: [extension] });
+  blocks[0].content = "Later edit";
   const firstMode = first.getExtension(InMemoryVersioningExtension)!;
   const secondMode = second.getExtension(InMemoryVersioningExtension)!;
   try {
-    blocks[0].content = "First history";
     firstMode.open();
     await firstMode.select({ type: "snapshot", id: "1" });
     expect(first.prosemirrorState.doc.textContent).toBe("First history");
-    if (!firstMode.rename) {
-      throw new Error("Expected local versioning to support renaming");
-    }
     await firstMode.rename("1", "Renamed");
-    blocks[0].content = "Second history";
     secondMode.open();
     await secondMode.list();
     await secondMode.select({ type: "snapshot", id: "1" });
@@ -306,8 +304,8 @@ it("reads seeds at history initialization and gives each editor its own history"
     expect(state.mode).toBe("versions");
     if (state.mode === "versions") {
       expect(state.history).toEqual({
-        status: "ready",
-        versions: [{ id: "1", name: "Draft", createdAt: 123 }],
+        status: "success",
+        data: [{ id: "1", name: "Draft", createdAt: 123 }],
       });
     }
   } finally {
@@ -342,9 +340,13 @@ it("isolates displayed content and preserves live undo across open/show/close", 
     const before = editor.prosemirrorState;
     mode.open();
     expect(editor.isEditable).toBe(false);
-    const saved = await mode.create("Captured");
-    expect(saved).toBeDefined();
-    await mode.select({ type: "snapshot", id: saved!.id });
+    expect(await mode.create("Captured")).toEqual({ status: "done" });
+    const state = mode.store.state;
+    if (state.mode !== "versions" || !state.history.data?.[0]) {
+      throw new Error("Expected a created version");
+    }
+    const saved = state.history.data[0];
+    await mode.select({ type: "snapshot", id: saved.id });
     mode.close();
     expect(editor.prosemirrorState.doc).toBe(before.doc);
     expect(undoDepth(editor.prosemirrorState)).toBe(undoDepth(before));
@@ -364,10 +366,12 @@ it("restores into the saved live state, then closes the isolated view", async ()
       { type: "paragraph", content: "Original" },
     ]);
     mode.open();
-    const saved = await mode.create();
-    if (!saved) {
+    expect(await mode.create()).toEqual({ status: "done" });
+    const state = mode.store.state;
+    if (state.mode !== "versions" || !state.history.data?.[0]) {
       throw new Error("Expected a created version");
     }
+    const saved = state.history.data[0];
     mode.close();
     editor.replaceBlocks(editor.document, [
       { type: "paragraph", content: "Latest" },

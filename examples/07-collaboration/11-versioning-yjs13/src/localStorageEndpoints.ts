@@ -70,7 +70,7 @@ export function createLocalStorageVersioningEndpoints(
     // so it's simply stamped "now"; it isn't a stored snapshot, so it's never
     // passed to `getContent` (the sidebar previews it live via
     // `previewCurrentVersion`).
-    return readSnapshots(storageKey);
+    return { ok: true, value: readSnapshots(storageKey) };
   };
 
   const createSnapshot: NonNullable<
@@ -88,7 +88,7 @@ export function createLocalStorageVersioningEndpoints(
 
     writeSnapshots(storageKey, [snapshot, ...readSnapshots(storageKey)]);
 
-    return snapshot;
+    return { ok: true, value: snapshot };
   };
 
   const fetchSnapshotContent: VersionStorage<Uint8Array>["getContent"] = async (
@@ -98,9 +98,9 @@ export function createLocalStorageVersioningEndpoints(
     signal.throwIfAborted();
     const encoded = readContents(storageKey)[id];
     if (encoded === undefined) {
-      throw new Error(`Document snapshot ${id} could not be found.`);
+      return { ok: false, error: { type: "not-found" } };
     }
-    return fromBase64(encoded);
+    return { ok: true, value: fromBase64(encoded) };
   };
 
   const restoreSnapshot: VersionStorage<Uint8Array>["restore"] = async (id) => {
@@ -108,25 +108,32 @@ export function createLocalStorageVersioningEndpoints(
       id,
       new AbortController().signal,
     );
-    await createSnapshot(Y.encodeStateAsUpdate(fragment.doc!), "Backup");
-    restoreYjsVersion(fragment, snapshotContent);
+    if (!snapshotContent.ok) return snapshotContent;
+    const backup = await createSnapshot(
+      Y.encodeStateAsUpdate(fragment.doc!),
+      "Backup",
+    );
+    if (!backup.ok) return backup;
+    restoreYjsVersion(fragment, snapshotContent.value);
+    return { ok: true, value: undefined };
   };
 
   const rename: VersionStorage<Uint8Array>["rename"] = async (id, name) => {
     const snapshots = readSnapshots(storageKey);
     const stored = snapshots.find((s) => s.id === id);
     if (stored === undefined) {
-      throw new Error(`Document snapshot ${id} could not be found.`);
+      return { ok: false, error: { type: "not-found" } };
     }
 
     stored.name = name;
     writeSnapshots(storageKey, snapshots);
+    return { ok: true, value: undefined };
   };
 
   const remove: VersionStorage<Uint8Array>["remove"] = async (id) => {
     const snapshots = readSnapshots(storageKey);
     if (!snapshots.some((s) => s.id === id)) {
-      throw new Error(`Document snapshot ${id} could not be found.`);
+      return { ok: false, error: { type: "not-found" } };
     }
 
     // Drop the snapshot metadata and its stored content.
@@ -138,6 +145,7 @@ export function createLocalStorageVersioningEndpoints(
     const contents = readContents(storageKey);
     delete contents[id];
     writeContents(storageKey, contents);
+    return { ok: true, value: undefined };
   };
 
   return {

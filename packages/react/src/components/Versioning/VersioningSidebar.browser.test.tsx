@@ -6,6 +6,7 @@ import {
   type createVersioning,
   type VersionStorage,
   type VersionSnapshot,
+  type VersionResult,
 } from "@blocknote/core/extensions";
 import {
   DefaultVersionMenuItems,
@@ -61,16 +62,26 @@ function render(element: ReactElement) {
 // Fixtures
 // ---------------------------------------------------------------------------
 
-const CURRENT: VersionSnapshot = { id: "now", createdAt: 3000 };
 const NAMED: VersionSnapshot = { id: "b", createdAt: 2000, name: "Draft" };
 const AUTOMATIC: VersionSnapshot = { id: "a", createdAt: 1000 };
+
+function success<T>(value: T): VersionResult<T> {
+  return { ok: true, value };
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((res) => {
+    resolve = res;
+  });
+  return { promise, resolve };
+}
 
 /**
  * Fake endpoints with spies on every verb, plus a gate that holds `list` and
  * `getContent` open so the loading states can be observed.
  */
 function createFakeEndpoints() {
-  let current = CURRENT;
   let snapshots = [NAMED, AUTOMATIC];
 
   let gate: { promise: Promise<void>; release: () => void } | undefined;
@@ -78,31 +89,31 @@ function createFakeEndpoints() {
   const endpoints = {
     list: vi.fn(async () => {
       await gate?.promise;
-      return snapshots;
+      return success(snapshots);
     }),
     getContent: vi.fn(async (_id: string, _signal: AbortSignal) => {
       await gate?.promise;
-      return [];
+      return success<unknown[]>([]);
     }),
-    getAttributions: vi.fn(
-      async (_target, _baselineId, _capturedAt, _signal) => undefined,
+    getAttributions: vi.fn(async (_target, _baselineId, _capturedAt, _signal) =>
+      success(undefined),
     ),
     create: vi.fn(async (_doc: unknown[], name?: string) => {
       const version = { id: "created", createdAt: 3000, name };
       snapshots = [version, ...snapshots];
-      return version;
+      return success(version);
     }),
     rename: vi.fn(async (id: string, name?: string) => {
       snapshots = snapshots.map((s) => (s.id === id ? { ...s, name } : s));
-      if (id === current.id) {
-        current = { ...current, name };
-      }
+      return success(undefined);
     }),
     remove: vi.fn(async (id: string) => {
       snapshots = snapshots.filter((s) => s.id !== id);
+      return success(undefined);
     }),
     restore: vi.fn(async (_id: string) => {
       await gate?.promise;
+      return success(undefined);
     }),
   } satisfies VersionStorage<unknown[], unknown>;
 
@@ -110,10 +121,7 @@ function createFakeEndpoints() {
     endpoints,
     /** Hold every async endpoint open until the returned callback is called. */
     block() {
-      let release!: () => void;
-      const promise = new Promise<void>((resolve) => {
-        release = resolve;
-      });
+      const { promise, resolve: release } = deferred<void>();
       gate = { promise, release };
       return () => {
         gate = undefined;
@@ -598,9 +606,11 @@ describe("VersioningSidebar", () => {
 
   it("replaces the loader with a history error when the initial fetch fails", async () => {
     const fake = createFakeEndpoints();
-    const cause = new Error("private backend details");
     const onError = vi.fn();
-    fake.endpoints.list.mockRejectedValueOnce(cause);
+    fake.endpoints.list.mockResolvedValueOnce({
+      ok: false,
+      error: { type: "network" },
+    });
     const { editor } = await setup({ onError }, fake);
 
     expect(page.getByRole("alert").element().textContent).toBe(
@@ -610,19 +620,25 @@ describe("VersioningSidebar", () => {
     expect(rows()).toHaveLength(0);
     expect(mode(editor).store.state).toMatchObject({
       mode: "versions",
-      history: { status: "failed" },
+      history: { status: "error" },
     });
     expect(editor.isEditable).toBe(false);
-    expect(onError).toHaveBeenCalledWith(cause);
+    expect(onError).not.toHaveBeenCalled();
   });
 
   it("keeps loaded history visible on fetch failure and clears the error on success", async () => {
     const { editor, fake } = await setup();
     const versioning = mode(editor);
     await click(rows()[1]!);
-    fake.endpoints.list.mockRejectedValueOnce(new Error("offline"));
+    fake.endpoints.list.mockResolvedValueOnce({
+      ok: false,
+      error: { type: "network" },
+    });
     await act(async () => {
-      await expect(versioning.list()).rejects.toThrow("offline");
+      expect(await versioning.list()).toEqual({
+        status: "error",
+        error: { type: "network" },
+      });
     });
 
     expect(page.getByRole("alert").element().textContent).toBe(
@@ -648,6 +664,77 @@ describe("VersioningSidebar", () => {
     ).rejects.toBe(cause);
     expect(onSuccess).not.toHaveBeenCalled();
     expect(page.getByRole("alert").query()).toBeNull();
+  });
+
+  it("shows a safe action error and skips success callbacks until retry succeeds", async () => {
+    const { run } = await setupWithRun();
+    const onSuccess = vi.fn();
+    await act(async () => {
+      await run(
+        async () => ({
+          status: "error" as const,
+          error: { type: "forbidden" as const },
+        }),
+        onSuccess,
+      );
+    });
+    expect(page.getByRole("alert").element().textContent).toBe(
+      "Something went wrong. Please try again.",
+    );
+    expect(onSuccess).not.toHaveBeenCalled();
+    await act(async () => {
+      await run(async () => ({ status: "done" }), onSuccess);
+    });
+    expect(onSuccess).toHaveBeenCalledOnce();
+    expect(page.getByRole("alert").query()).toBeNull();
+  });
+
+  it.each(["create", "rename"] as const)(
+    "preserves the naming draft after a failed %s and retries on Enter",
+    async (operation) => {
+      const { fake } = await setup();
+      if (operation === "rename") await click(rows()[1]!);
+      const rowIndex = operation === "create" ? 0 : 1;
+      const input = nameInput(rows()[rowIndex]!);
+      fake.endpoints[operation].mockResolvedValueOnce({
+        ok: false,
+        error: { type: "conflict" },
+      });
+      await commit(input, "Unsaved milestone", "Enter");
+      expect(nameInput(rows()[rowIndex]!).value).toBe("Unsaved milestone");
+      expect(page.getByRole("alert").element().textContent).toBe(
+        "Something went wrong. Please try again.",
+      );
+      expect(fake.endpoints.list).toHaveBeenCalledTimes(1);
+      await commit(nameInput(rows()[rowIndex]!), "Unsaved milestone", "Enter");
+      expect(fake.endpoints[operation]).toHaveBeenCalledTimes(2);
+      expect(fake.endpoints.list).toHaveBeenCalledTimes(2);
+      expect(page.getByRole("alert").query()).toBeNull();
+      expect(
+        operation === "create"
+          ? nameText(rows()[1]!)
+          : nameInput(rows()[1]!).value,
+      ).toBe("Unsaved milestone");
+    },
+  );
+
+  it("keeps the panel and selected preview after an expected restore failure", async () => {
+    const { editor, fake } = await setup();
+    await click(rows()[1]!);
+    fake.endpoints.restore.mockResolvedValueOnce({
+      ok: false,
+      error: { type: "timeout", outcome: "unknown" },
+    });
+    await click(await openMenuItem(rows()[1]!, /^Restore$/));
+    expect(page.getByRole("alert").element().textContent).toBe(
+      "Something went wrong. Please try again.",
+    );
+    expect(mode(editor).store.state).toMatchObject({
+      mode: "versions",
+      displayed: { type: "snapshot", id: NAMED.id },
+      restoring: false,
+    });
+    expect(editor.isEditable).toBe(false);
   });
 
   it("keeps comparison enabled and chooses the next visible named baseline", async () => {
@@ -864,7 +951,7 @@ describe("VersioningSidebar", () => {
     const cause = new Error("follow-up bug");
     await expect(
       run(
-        async () => undefined,
+        async () => ({ status: "done" }),
         async () => {
           throw cause;
         },
@@ -872,6 +959,21 @@ describe("VersioningSidebar", () => {
     ).rejects.toBe(cause);
     expect(page.getByRole("alert").query()).toBeNull();
   });
+
+  it.each(["cancelled", "unavailable"] as const)(
+    "does not run success callbacks for a %s action",
+    async (status) => {
+      const { run } = await setupWithRun();
+      const onSuccess = vi.fn();
+      await act(async () => {
+        expect(await run(async () => ({ status }), onSuccess)).toEqual({
+          status,
+        });
+      });
+      expect(onSuccess).not.toHaveBeenCalled();
+      expect(page.getByRole("alert").query()).toBeNull();
+    },
+  );
 
   it("starts comparing when asked to", async () => {
     const { editor } = await setup({ defaultComparisonMode: true });
@@ -979,20 +1081,13 @@ describe("VersioningSidebar", () => {
       });
     });
 
-    it("names the current version through `create`", async () => {
+    it("keeps frozen Current separate from a newly named checkpoint", async () => {
       const { fake } = await setup();
 
       await commit(nameInput(rows()[0]!), "Milestone", "Enter");
 
-      expect(fake.endpoints.create).toHaveBeenCalledWith([], "Milestone");
+      expect(fake.endpoints.create).toHaveBeenCalledWith([], "Milestone", 3000);
       expect(fake.endpoints.rename).not.toHaveBeenCalled();
-    });
-
-    it("keeps frozen Current separate from a newly named checkpoint", async () => {
-      await setup();
-
-      await commit(nameInput(rows()[0]!), "Milestone", "Enter");
-
       const row = rows()[0]!;
       expect(nameInput(row).value).toBe("");
       expect(nameText(rows()[1]!)).toBe("Milestone");
@@ -1003,7 +1098,7 @@ describe("VersioningSidebar", () => {
     it("refreshes history after creating a checkpoint", async () => {
       const fake = createFakeEndpoints();
       fake.endpoints.create.mockImplementation(async (_doc, name) => {
-        return { id: "new", createdAt: 2500, name };
+        return success({ id: "new", createdAt: 2500, name });
       });
 
       await setup({}, fake);
@@ -1035,14 +1130,12 @@ describe("VersioningSidebar", () => {
       async ({ value, expected }) => {
         const { fake } = await setup();
         await click(rows()[1]!);
-        let finishRename!: () => void;
-        const pendingRename = new Promise<void>((resolve) => {
-          finishRename = resolve;
-        });
+        const { promise: pendingRename, resolve: finishRename } =
+          deferred<void>();
         const rename = fake.endpoints.rename.getMockImplementation()!;
         fake.endpoints.rename.mockImplementationOnce(async (id, name) => {
           await pendingRename;
-          await rename(id, name);
+          return rename(id, name);
         });
         const releaseHistory = fake.block();
 
@@ -1066,6 +1159,49 @@ describe("VersioningSidebar", () => {
       },
     );
 
+    it("preserves a newer naming draft when a pending rename succeeds and refreshes", async () => {
+      const { fake } = await setup();
+      await click(rows()[1]!);
+      const { promise: pendingRename, resolve: finishRename } =
+        deferred<void>();
+      const rename = fake.endpoints.rename.getMockImplementation()!;
+      fake.endpoints.rename.mockImplementationOnce(async (id, name) => {
+        await pendingRename;
+        return rename(id, name);
+      });
+      const releaseHistory = fake.block();
+
+      await commit(nameInput(rows()[1]!), "Submitted A", "Enter");
+      expect(fake.endpoints.rename).toHaveBeenCalledExactlyOnceWith(
+        NAMED.id,
+        "Submitted A",
+      );
+      const input = nameInput(rows()[1]!);
+      await act(async () => userEvent.fill(input, "Draft B"));
+      expect(document.activeElement).toBe(input);
+
+      await act(async () => finishRename());
+      expect(fake.endpoints.list).toHaveBeenCalledTimes(2);
+      expect(nameInput(rows()[1]!)).toBe(input);
+      expect(input.value).toBe("Draft B");
+      expect(document.activeElement).toBe(input);
+
+      await act(async () => releaseHistory());
+      expect(nameInput(rows()[1]!)).toBe(input);
+      expect(input.value).toBe("Draft B");
+      expect(document.activeElement).toBe(input);
+      expect(fake.endpoints.rename).toHaveBeenCalledTimes(1);
+      expect(page.getByRole("alert").query()).toBeNull();
+
+      await commit(input, "Draft B", "Enter");
+      expect(fake.endpoints.rename).toHaveBeenLastCalledWith(
+        NAMED.id,
+        "Draft B",
+      );
+      expect(fake.endpoints.rename).toHaveBeenCalledTimes(2);
+      expect(nameInput(rows()[1]!).value).toBe("Draft B");
+    });
+
     it("cancels on Escape without renaming", async () => {
       const { fake } = await setup();
 
@@ -1076,22 +1212,12 @@ describe("VersioningSidebar", () => {
       expect(nameInput(rows()[1]!).value).toBe("Draft");
     });
 
-    it("clears the name when committed empty", async () => {
-      const { fake } = await setup();
-
-      await click(rows()[1]!);
-      await commit(nameInput(rows()[1]!), "  ", "Enter");
-
-      expect(fake.endpoints.rename).toHaveBeenCalledWith(NAMED.id, undefined);
-    });
-
     it("re-renders when a version is renamed from outside the row", async () => {
       const { editor } = await setup();
       const versioning = mode(editor);
 
       await act(async () => {
-        await versioning.rename!(NAMED.id, "Renamed elsewhere");
-        await versioning.list();
+        await versioning.rename(NAMED.id, "Renamed elsewhere");
       });
 
       expect(nameText(rows()[1]!)).toBe("Renamed elsewhere");
@@ -1470,22 +1596,6 @@ describe("VersioningSidebar", () => {
     expect(page.getByRole("alert").query()).toBeNull();
   });
 
-  it("marks the row being switched to as busy", async () => {
-    const { fake } = await setup();
-
-    const release = fake.block();
-    await click(rows()[2]!);
-
-    expect(rows()[2]!.getAttribute("aria-busy")).toBe("true");
-    expect(rows()[1]!.getAttribute("aria-busy")).toBeNull();
-
-    await act(async () => {
-      release();
-    });
-
-    expect(rows()[2]!.getAttribute("aria-busy")).toBeNull();
-  });
-
   // -------------------------------------------------------------------------
   // Row actions
   // -------------------------------------------------------------------------
@@ -1503,7 +1613,7 @@ describe("VersioningSidebar", () => {
         const older = { id: "older", createdAt: 500, name: "First draft" };
         fake.setSnapshots([NAMED, older]);
         fake.endpoints.remove.mockImplementation(async (snapshot) => {
-          await fake.endpoints.rename(snapshot, undefined);
+          return fake.endpoints.rename(snapshot, undefined);
         });
         const { editor } = await setup(
           {
@@ -1522,7 +1632,7 @@ describe("VersioningSidebar", () => {
 
         expect(
           ext.store.state.mode === "versions"
-            ? ext.store.state.history.versions?.find(
+            ? ext.store.state.history.data?.find(
                 (version) => version.id === NAMED.id,
               )?.name
             : undefined,
@@ -1597,6 +1707,181 @@ describe("VersioningSidebar", () => {
         expect(editor.isEditable).toBe(true);
       },
     );
+
+    it.each([
+      { interaction: "another row", comparison: false },
+      { interaction: "turn on comparison", comparison: false },
+      { interaction: "turn off comparison", comparison: true },
+    ] as const)(
+      "finishes a delayed restore after clicking $interaction without a stuck loader",
+      async ({ interaction, comparison }) => {
+        const { editor, fake } = await setup({
+          defaultComparisonMode: comparison,
+        });
+        await click(rows()[1]!);
+        const { promise: pendingRestore, resolve: finishRestore } =
+          deferred<void>();
+        fake.endpoints.restore.mockImplementationOnce(async () => {
+          await pendingRestore;
+          return success(undefined);
+        });
+        await click(await openMenuItem(rows()[1]!, /^Restore$/));
+        expect(mode(editor).store.state).toMatchObject({ restoring: true });
+        fake.endpoints.getContent.mockClear();
+
+        if (interaction === "another row") {
+          await click(rows()[2]!);
+        } else {
+          await click(
+            page.getByRole("button", {
+              name: comparison ? "Turn off comparison" : "Turn on comparison",
+              exact: true,
+            }),
+          );
+        }
+        expect(fake.endpoints.getContent).not.toHaveBeenCalled();
+        expect(mode(editor).store.state).toMatchObject({
+          restoring: true,
+          displayed: { type: "snapshot", id: NAMED.id },
+        });
+
+        await act(async () => finishRestore());
+        await vi.waitFor(() => {
+          expect(viewState(mode(editor)).mode).toBe("current");
+          expect(page.getByRole("status").query()).toBeNull();
+          expect(rows()).toHaveLength(3);
+          expect(rows().every((row) => !row.hasAttribute("aria-busy"))).toBe(
+            true,
+          );
+          expect(
+            page.getByRole("list").element().getAttribute("aria-busy"),
+          ).toBeNull();
+        });
+        expect(fake.endpoints.restore).toHaveBeenCalledExactlyOnceWith(
+          NAMED.id,
+        );
+        expect(page.getByRole("alert").query()).toBeNull();
+        expect(editor.isEditable).toBe(false);
+      },
+    );
+
+    it.each([
+      { exit: "close", outcome: "network error" },
+      { exit: "close", outcome: "success" },
+      { exit: "unmount", outcome: "network error" },
+      { exit: "unmount", outcome: "success" },
+    ] as const)(
+      "loads reopened history after $exit during a delayed restore ending in $outcome",
+      async ({ exit, outcome }) => {
+        const onClose = vi.fn();
+        const { editor, fake, view } = await setup({ onClose });
+        await click(rows()[1]!);
+        const { promise: pendingRestore, resolve: finishRestore } =
+          deferred<void>();
+        fake.endpoints.restore.mockImplementationOnce(async () => {
+          await pendingRestore;
+          return outcome === "success"
+            ? success(undefined)
+            : { ok: false, error: { type: "network" } };
+        });
+        await click(await openMenuItem(rows()[1]!, /^Restore$/));
+        expect(mode(editor).store.state).toMatchObject({ restoring: true });
+
+        if (exit === "close") {
+          await click(page.getByRole("button", { name: "Close", exact: true }));
+          expect(onClose).toHaveBeenCalledOnce();
+        }
+        view.rerender(<VersioningTestView editor={editor} />);
+        expect(viewState(mode(editor))).toEqual({ mode: "live" });
+        const listCallsBeforeReopen = fake.endpoints.list.mock.calls.length;
+        const reopenedOnClose = vi.fn();
+        view.rerender(
+          <VersioningTestView editor={editor}>
+            <VersioningSidebar onClose={reopenedOnClose} />
+          </VersioningTestView>,
+        );
+        await act(async () => {});
+
+        // Loading history is allowed even while the older restore is pending.
+        // Keep checking its completion too if the initial load is broken.
+        expect
+          .soft(fake.endpoints.list)
+          .toHaveBeenCalledTimes(listCallsBeforeReopen + 1);
+        expect.soft(rows()).toHaveLength(3);
+        expect.soft(page.getByRole("status").query()).toBeNull();
+        expect.soft(mode(editor).store.state).toMatchObject({
+          mode: "versions",
+          restoring: true,
+          displayed: { type: "current" },
+          history: { status: "success" },
+        });
+
+        await act(async () => finishRestore());
+        await vi.waitFor(() => {
+          expect(mode(editor).store.state).toMatchObject({
+            mode: "versions",
+            restoring: false,
+            displayed: { type: "current" },
+            history: { status: "success" },
+          });
+          expect(rows()).toHaveLength(3);
+          expect(page.getByRole("status").query()).toBeNull();
+          expect(
+            page.getByRole("list").element().getAttribute("aria-busy"),
+          ).toBeNull();
+          expect(rows().every((row) => !row.hasAttribute("aria-busy"))).toBe(
+            true,
+          );
+        });
+        expect(rows()[0]!.getAttribute("aria-current")).toBe("true");
+        expect(reopenedOnClose).not.toHaveBeenCalled();
+        expect(page.getByRole("alert").query()).toBeNull();
+        expect(editor.isEditable).toBe(false);
+      },
+    );
+
+    it("keeps comparison off when a compare-with menu action is refused during a failed restore", async () => {
+      const { editor, fake } = await setup();
+      await click(rows()[1]!);
+      const { promise: pendingRestore, resolve: finishRestore } =
+        deferred<void>();
+      fake.endpoints.restore.mockImplementationOnce(async () => {
+        await pendingRestore;
+        return { ok: false, error: { type: "network" } };
+      });
+      await click(await openMenuItem(rows()[1]!, /^Restore$/));
+      fake.endpoints.getContent.mockClear();
+
+      await click(
+        await openMenuItem(rows()[2]!, /^Compare with this version$/),
+      );
+      expect(fake.endpoints.getContent).not.toHaveBeenCalled();
+      expect(mode(editor).store.state).toMatchObject({ restoring: true });
+      await act(async () => finishRestore());
+
+      expect(mode(editor).store.state).toMatchObject({ restoring: false });
+      expect(viewState(mode(editor))).toEqual({
+        mode: "snapshot",
+        snapshotId: NAMED.id,
+        compareToId: undefined,
+      });
+      expect(
+        page
+          .getByRole("button", { name: "Turn on comparison", exact: true })
+          .query(),
+      ).not.toBeNull();
+      expect(
+        page
+          .getByRole("button", { name: "Turn off comparison", exact: true })
+          .query(),
+      ).toBeNull();
+      expect(rows()).toHaveLength(3);
+      expect(page.getByRole("status").query()).toBeNull();
+      expect(page.getByRole("alert").element().textContent).toBe(
+        "Something went wrong. Please try again.",
+      );
+      expect(editor.isEditable).toBe(false);
+    });
 
     it("keeps the selection when a restore failure propagates", async () => {
       const fake = createFakeEndpoints();

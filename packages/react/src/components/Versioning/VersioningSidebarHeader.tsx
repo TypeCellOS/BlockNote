@@ -49,40 +49,44 @@ export function VersioningSidebarHeader(props: { onClose?: () => void }) {
   // baseline, so the toggle takes effect immediately instead of waiting for the
   // next row click.
   function toggleComparison() {
-    const next = !comparisonMode;
-    setComparisonMode(next);
+    void run(async () => {
+      const view = store.state;
+      const next = !comparisonMode;
+      setComparisonMode(next);
 
-    const view = store.state;
-    const list = getVersionList(view);
-    if (view.mode === "live" || !list.loaded) {
-      return;
-    }
-    const shown = getShownVersionRow(list, view);
-    if (shown) {
-      void run(() =>
-        previewRow(shown.snapshot, {
+      const list = getVersionList(view);
+      if (view.mode === "live" || !list.loaded) {
+        return { status: "unavailable" };
+      }
+      const shown = getShownVersionRow(list, view);
+      if (shown) {
+        return previewRow(shown.snapshot, {
           compareTo: { type: next ? "previous" : "none" },
-        }),
-      );
-    }
+        });
+      }
+      return { status: "unavailable" };
+    });
   }
 
   function toggleNamedOnly() {
-    const next = !namedOnly;
-    setNamedOnly(next);
-    if (!comparisonMode) {
-      return;
-    }
-    const view = store.state;
-    const list = getVersionList(view);
-    if (view.mode === "live" || !list.loaded) {
-      return;
-    }
-    const shown = getShownVersionRow(list, view);
-    // Reset the baseline for the new filter, keeping the displayed source.
-    if (shown) {
-      void run(() => previewRow(shown.snapshot, { namedOnly: next }));
-    }
+    void run(async () => {
+      const view = store.state;
+      const next = !namedOnly;
+      setNamedOnly(next);
+      if (!comparisonMode) {
+        return { status: "unavailable" };
+      }
+      const list = getVersionList(view);
+      if (view.mode === "live" || !list.loaded) {
+        return { status: "unavailable" };
+      }
+      const shown = getShownVersionRow(list, view);
+      // Reset the baseline for the new filter, keeping the displayed source.
+      if (shown) {
+        return previewRow(shown.snapshot, { namedOnly: next });
+      }
+      return { status: "unavailable" };
+    });
   }
 
   return (

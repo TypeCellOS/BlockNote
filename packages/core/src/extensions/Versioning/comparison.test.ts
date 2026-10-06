@@ -1,10 +1,11 @@
 // @vitest-environment node
 import { expect, it, vi } from "vite-plus/test";
 import { createVersioning } from "./createVersioning.js";
+import { success } from "./__test__/result.js";
 
 it("compares frozen current against stored content using the capture attribution cutoff", async () => {
   const show = vi.fn();
-  const getAttributions = vi.fn(async () => ["author"]);
+  const getAttributions = vi.fn(async () => success(["author"]));
   const mode = createVersioning({
     adapter: {
       supportsComparison: true,
@@ -15,8 +16,8 @@ it("compares frozen current against stored content using the capture attribution
       }),
     },
     storage: {
-      list: async () => [],
-      getContent: async (id) => id,
+      list: async () => success([]),
+      getContent: async (id) => success(id),
       getAttributions,
     },
     setReadOnly() {},

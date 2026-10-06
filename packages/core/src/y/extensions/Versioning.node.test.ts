@@ -1,7 +1,7 @@
 // @vitest-environment node
 import * as Y from "@y/y";
 import { configureYProsemirror } from "@y/prosemirror";
-import { expect, it, vi } from "vite-plus/test";
+import { expect, it } from "vite-plus/test";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   type VersioningController,
@@ -10,10 +10,7 @@ import {
 import type { VersionStorage } from "../../extensions/Versioning/types.js";
 import { CollaborationExtension, withCollaboration } from "./index.js";
 import { createYVersionView } from "./Versioning.js";
-import {
-  YVersioningExtension,
-  createYHubVersionStorage,
-} from "../versioning/yhub.js";
+import { YHubVersioningExtension } from "../versioning/yhub.js";
 
 const options = { baseUrl: "https://yhub.test/api", org: "org", docId: "doc" };
 
@@ -40,11 +37,9 @@ it.each(["before", "after"] as const)(
   (order) => {
     const docs = [new Y.Doc(), new Y.Doc()];
     const editors: BlockNoteEditor[] = [];
-    const storage = createYHubVersionStorage(options);
-    const bind = vi.spyOn(storage, "bind");
-    const history = YVersioningExtension({ storage });
+    const history = YHubVersioningExtension(options);
     try {
-      for (const [index, doc] of docs.entries()) {
+      for (const doc of docs) {
         const fragment = doc.get("doc");
         const collaboration = CollaborationExtension({
           fragment,
@@ -61,7 +56,6 @@ it.each(["before", "after"] as const)(
         editors.push(editor);
         const versioning =
           editor.getExtension<VersioningController>("versioning")!;
-        expect(bind).toHaveBeenCalledTimes(index);
         expect(versioning.userStore).toBe(
           editor.getExtension(CollaborationExtension)!.userStore,
         );
@@ -80,8 +74,6 @@ it.each(["before", "after"] as const)(
         versioning.close();
         versioning.open();
         versioning.close();
-        expect(bind).toHaveBeenCalledTimes(index + 1);
-        expect(bind).toHaveBeenLastCalledWith({ editor, fragment });
       }
       expect(editors[0].getExtension("versioning")).not.toBe(
         editors[1].getExtension("versioning"),
@@ -103,10 +95,10 @@ it("keeps the first versioning integration using normal extension deduplication"
   const fragment = doc.get("doc");
   const storage: VersionStorage<Uint8Array, Y.ContentMap> = {
     async list() {
-      return [];
+      return { ok: true, value: [] };
     },
     async getContent() {
-      return new Uint8Array();
+      return { ok: true, value: new Uint8Array() };
     },
   };
   const Versions = createVersioningExtension((editor) => ({
@@ -115,10 +107,7 @@ it("keeps the first versioning integration using normal extension deduplication"
   }));
   const editor = BlockNoteEditor.create(
     withCollaboration({
-      extensions: [
-        Versions(),
-        YVersioningExtension({ storage: createYHubVersionStorage(options) }),
-      ],
+      extensions: [Versions(), YHubVersioningExtension(options)],
       collaboration: {
         fragment,
         user: { name: "Test", color: "red" },

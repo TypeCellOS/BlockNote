@@ -84,17 +84,37 @@ export interface VersionViewAdapter<Content, Attributions = never> {
 }
 
 /**
- * Backend operations for stored {@link VersionSnapshot} metadata and content.
- * Operations never read the editor's displayed preview as the live document.
- * Optional methods determine which actions the controller and sidebar offer.
- * Read signals belong to the current view/request; mutations are not cancelled
- * by closing the view and must complete their backend operation independently.
+ * Safe classifications for expected provider failures. An unknown timeout outcome
+ * must be reconciled with the server before retrying a non-idempotent mutation.
+ */
+export type VersionError =
+  | { type: "network" }
+  | { type: "timeout"; outcome: "unknown" | "unchanged" }
+  | { type: "forbidden" }
+  | { type: "conflict" }
+  | { type: "not-found" }
+  | { type: "server"; status: number };
+
+/** Expected failures are values. Unexpected bugs still reject. */
+export type VersionResult<T> =
+  | { ok: true; value: T }
+  | { ok: false; error: VersionError };
+
+/** Existing data remains visible during refresh and after a failed refresh. */
+export type VersionQueryState<T> =
+  | { status: "pending"; data?: T; error?: never }
+  | { status: "success"; data: T; error?: never }
+  | { status: "error"; data?: T; error: VersionError };
+
+/**
+ * Backend operations for stored version metadata and content. Expected failures
+ * return results; unexpected bugs throw. Mutations continue when the view closes.
  */
 export interface VersionStorage<Content, Attributions = never> {
   /** Load history metadata. The controller sorts it by descending creation time. */
-  list(signal: AbortSignal): Promise<VersionSnapshot[]>;
+  list(signal: AbortSignal): Promise<VersionResult<VersionSnapshot[]>>;
   /** Load a stored version's content for {@link VersionView.show}. */
-  getContent(id: string, signal: AbortSignal): Promise<Content>;
+  getContent(id: string, signal: AbortSignal): Promise<VersionResult<Content>>;
   /**
    * Load change attribution data between `baselineId` and `target` for
    * {@link VersionDisplay.comparison}. For a current target, `capturedAt` is the
@@ -105,28 +125,31 @@ export interface VersionStorage<Content, Attributions = never> {
     baselineId: string,
     capturedAt: number,
     signal: AbortSignal,
-  ) => Promise<Attributions>;
+  ) => Promise<VersionResult<Attributions>>;
   /**
    * Name current. Snapshot stores save `content` from {@link VersionView.current};
-   * continuous-history stores name their latest checkpoint instead.
-   * Returns its metadata, or `undefined` when there is no checkpoint to name.
+   * continuous-history stores must identify the captured checkpoint, not a later one.
+   * Success returns checkpoint metadata. No checkpoint to name is a typed failure.
    */
   create?: (
     content: Content,
     name?: string,
-  ) => Promise<VersionSnapshot | undefined>;
+    capturedAt?: number,
+  ) => Promise<VersionResult<VersionSnapshot>>;
   /**
    * Restore a stored version to the live document, including backend-specific
-   * application. The controller closes its original {@link VersionView} on success.
+   * application. Success means the live document has received the restore, not
+   * just that the server accepted it. The controller discards pre-restore views;
+   * a panel reopened during restore gets a fresh capture of restored Current.
    */
-  restore?: (id: string) => Promise<void>;
+  restore?: (id: string) => Promise<VersionResult<void>>;
   /** Change a stored version's name; `undefined` clears it. Refresh {@link VersionStorage.list} afterward. */
-  rename?: (id: string, name?: string) => Promise<void>;
+  rename?: (id: string, name?: string) => Promise<VersionResult<void>>;
   /**
    * Remove a stored version, or only its name on continuous-history backends.
    * The controller refreshes {@link VersionStorage.list} and reconciles selection.
    */
-  remove?: (id: string) => Promise<void>;
+  remove?: (id: string) => Promise<VersionResult<void>>;
 }
 
 /**
@@ -148,23 +171,21 @@ export type VersioningState =
       pending?: VersionSelection;
       /**
        * History loading status. Previously loaded {@link VersionSnapshot} rows
-       * remain available during refresh or failure; `failed` carries no raw error.
+       * remain available during refresh or failure; errors contain safe classifications.
        */
-      history:
-        | { status: "loading"; versions?: VersionSnapshot[] }
-        | { status: "ready"; versions: VersionSnapshot[] }
-        | { status: "failed"; versions?: VersionSnapshot[] };
+      history: VersionQueryState<VersionSnapshot[]>;
       /** A live restore is in progress; editing and new selections remain blocked. */
       restoring: boolean;
     };
 
 /**
- * Outcome of a controller read, selection, restore, or removal operation.
+ * Outcome of a controller read, selection, or mutation.
  * `done` means it completed; `cancelled` means its request/view was superseded;
  * `unavailable` means the action cannot run in the current state or is unsupported
  * by {@link VersionStorage}. Unexpected failures reject rather than returning this type.
  */
 export type VersionOperationResult =
   | { status: "done" }
+  | { status: "error"; error: VersionError }
   | { status: "cancelled" }
   | { status: "unavailable" };

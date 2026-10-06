@@ -1,4 +1,7 @@
-import type { VersionSnapshot } from "@blocknote/core/extensions";
+import type {
+  VersionSnapshot,
+  VersionOperationResult,
+} from "@blocknote/core/extensions";
 import { useCallback } from "react";
 
 import { useVersioning } from "./useVersioning.js";
@@ -20,12 +23,12 @@ export type CompareTarget =
 /**
  * Preview a row using the sidebar's comparison setting, unless
  * overridden. Current always refers to the frozen capture from opening.
- * Rejects on failure; wrap the complete user action in the sidebar's `run`.
+ * Returns expected failures; wrap the complete user action in the sidebar's `run`.
  */
 export function usePreviewRow(): (
   row: VersionSnapshot,
   options?: { compareTo?: CompareTarget; namedOnly?: boolean },
-) => Promise<void> {
+) => Promise<VersionOperationResult> {
   const { select, store } = useVersioning();
   const { comparisonMode, namedOnly } = useVersioningSidebar();
 
@@ -36,7 +39,7 @@ export function usePreviewRow(): (
     ) => {
       const list = getVersionList(store.state);
       if (!list.loaded) {
-        return;
+        return { status: "unavailable" };
       }
 
       const isCurrent = row.id === list.current.id;
@@ -63,7 +66,7 @@ export function usePreviewRow(): (
           compareTo satisfies never;
       }
 
-      await select(
+      return select(
         isCurrent ? { type: "current" } : { type: "snapshot", id: row.id },
         { compareTo: compareToId },
       );

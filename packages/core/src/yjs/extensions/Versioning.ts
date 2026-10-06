@@ -9,6 +9,11 @@ import type {
 import { createVersioningExtension } from "../../extensions/Versioning/Versioning.js";
 import type { UserStoreOrResolver } from "../../user/index.js";
 import { CollaborationExtension } from "./index.js";
+import type {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
 
 /** Install history separately, using the editor's Yjs collaboration fragment. */
 export function YjsVersioningExtension(options: {
@@ -31,8 +36,12 @@ export function YjsVersioningExtension(options: {
   }))();
 }
 
-export function createYjsVersionView(
-  editor: BlockNoteEditor,
+export function createYjsVersionView<
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema,
+>(
+  editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
   fragment: Y.XmlFragment,
 ): VersionViewAdapter<Uint8Array> {
   return {

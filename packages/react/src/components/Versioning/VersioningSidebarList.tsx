@@ -35,9 +35,9 @@ export function VersioningSidebarList() {
   const state = useVersioningState();
   const list = useMemo(() => getVersionList(state), [state]);
   const listError =
-    state.mode === "versions" && state.history.status === "failed";
+    state.mode === "versions" && state.history.status === "error";
   const listing =
-    state.mode === "versions" && state.history.status === "loading";
+    state.mode === "versions" && state.history.status === "pending";
 
   const listId = useId();
   const focusedRowId = useRef<string | undefined>(undefined);

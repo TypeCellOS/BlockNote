@@ -34,29 +34,29 @@ export function useCompareWithVersionAction(): VersionMenuAction {
 
   return {
     available: true,
-    execute: () => {
-      setComparisonMode(true);
+    execute: async () => {
+      await run(async () => {
+        const view = store.state;
+        setComparisonMode(true);
 
-      const view = store.state;
-      const list = getVersionList(view);
-      if (!list.loaded) {
-        return;
-      }
-      const shown = getShownVersionRow(list, view);
-      const other =
-        shown && shown.snapshot.id !== snapshot.id
-          ? shown.snapshot
-          : list.current;
-      const target =
-        other.id === list.current.id || other.createdAt >= snapshot.createdAt
-          ? other
-          : snapshot;
-      const baseline = target === snapshot ? other : snapshot;
-      return run(() =>
-        previewRow(target, {
+        const list = getVersionList(view);
+        if (!list.loaded) {
+          return { status: "unavailable" };
+        }
+        const shown = getShownVersionRow(list, view);
+        const other =
+          shown && shown.snapshot.id !== snapshot.id
+            ? shown.snapshot
+            : list.current;
+        const target =
+          other.id === list.current.id || other.createdAt >= snapshot.createdAt
+            ? other
+            : snapshot;
+        const baseline = target === snapshot ? other : snapshot;
+        return previewRow(target, {
           compareTo: { type: "snapshot", id: baseline.id },
-        }),
-      );
+        });
+      });
     },
   };
 }

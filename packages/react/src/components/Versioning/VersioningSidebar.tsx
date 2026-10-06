@@ -61,10 +61,10 @@ function VersioningSidebarContent(props: {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
   const versioning = useVersioning();
-  const { run, comparisonMode, namedOnly } = useVersioningSidebar();
+  const { run, action, comparisonMode, namedOnly } = useVersioningSidebar();
   const state = useVersioningState();
   const listError =
-    state.mode === "versions" && state.history.status === "failed";
+    state.mode === "versions" && state.history.status === "error";
   const previewRow = usePreviewRow();
   const latestRef = useRef({
     previewRow,
@@ -81,27 +81,23 @@ function VersioningSidebarContent(props: {
     onError: props.onError,
   };
 
-  // Open the panel on the current version, read-only. One `list()` per mount:
-  // the history is a snapshot of the moment the panel was opened, and closing
-  // and reopening is what refreshes it.
   useLayoutEffect(() => {
     versioning.open();
-    const loading = run(
-      () => versioning.list(),
-      async (result) => {
-        const list = getVersionList(versioning.store.state);
-        const preview = latestRef.current;
-        // Opening already displays frozen current. Only render again for a diff.
-        if (
-          result.status === "done" &&
-          list.loaded &&
-          preview.comparisonMode &&
-          getPreviousVisibleVersion(list, list.current, preview.namedOnly)
-        ) {
-          await preview.previewRow(list.current);
-        }
-      },
-    );
+    // History can load while an older session is still restoring. Only user
+    // actions go through the runner's restore guard.
+    const loading = versioning.list().then(async (result) => {
+      const list = getVersionList(versioning.store.state);
+      const preview = latestRef.current;
+      // Opening already displays frozen current. Only render again for a diff.
+      if (
+        result.status === "done" &&
+        list.loaded &&
+        preview.comparisonMode &&
+        getPreviousVisibleVersion(list, list.current, preview.namedOnly)
+      ) {
+        await run(() => preview.previewRow(list.current));
+      }
+    });
     const onError = latestRef.current.onError;
     if (onError) {
       void loading.catch(onError);
@@ -118,6 +114,11 @@ function VersioningSidebarContent(props: {
       {listError && (
         <div className="bn-versioning-sidebar-error" role="alert">
           {dict.versioning.history_load_failed}
+        </div>
+      )}
+      {!listError && action.status === "error" && (
+        <div className="bn-versioning-sidebar-error" role="alert">
+          {dict.versioning.action_failed}
         </div>
       )}
       <VersioningSidebarList />

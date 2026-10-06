@@ -1,8 +1,11 @@
 import { Store } from "../../util/Store.js";
 import type {
   VersioningState,
+  VersionDisplay,
+  VersionResult,
   VersionOperationResult,
   VersionSelection,
+  VersionSnapshot,
   VersionStorage,
   VersionView,
   VersionViewAdapter,
@@ -47,7 +50,7 @@ export function createVersioning<Content, Attributions>(options: {
     if (disposed) {
       throw new Error("Versioning has been disposed");
     }
-    if (transitioning || session || restoring) {
+    if (transitioning || session) {
       return;
     }
     transitioning = true;
@@ -58,8 +61,8 @@ export function createVersioning<Content, Attributions>(options: {
         mode: "versions",
         capturedAt: session.view.current.capturedAt,
         displayed: { type: "current" },
-        history: { status: "loading" },
-        restoring: false,
+        history: { status: "pending" },
+        restoring,
       });
     } catch (error) {
       if (!session) {
@@ -110,18 +113,29 @@ export function createVersioning<Content, Attributions>(options: {
     const signal = AbortSignal.any([active.lifetime.signal, request.signal]);
     publish(active, signal, (state) => ({
       ...state,
-      history: { status: "loading", versions: state.history.versions },
+      history: { status: "pending", data: state.history.data },
     }));
     try {
-      const versions = await options.storage.list(signal);
+      const result = await options.storage.list(signal);
       if (signal.aborted) {
         return { status: "cancelled" };
+      }
+      if (!result.ok) {
+        publish(active, signal, (state) => ({
+          ...state,
+          history: {
+            status: "error",
+            error: result.error,
+            data: state.history.data,
+          },
+        }));
+        return { status: "error", error: result.error };
       }
       publish(active, signal, (state) => ({
         ...state,
         history: {
-          status: "ready",
-          versions: versions.toSorted((a, b) => b.createdAt - a.createdAt),
+          status: "success",
+          data: result.value.toSorted((a, b) => b.createdAt - a.createdAt),
         },
       }));
       return { status: "done" };
@@ -129,12 +143,57 @@ export function createVersioning<Content, Attributions>(options: {
       if (signal.aborted) {
         return { status: "cancelled" };
       }
-      publish(active, signal, (state) => ({
-        ...state,
-        history: { status: "failed", versions: state.history.versions },
-      }));
       throw error;
     }
+  }
+
+  async function loadDisplay(
+    active: Session,
+    target: VersionSelection,
+    baselineId: string | undefined,
+    signal: AbortSignal,
+  ): Promise<VersionResult<VersionDisplay<Content, Attributions>>> {
+    const storage = options.storage;
+    const [content, comparison] = await Promise.all([
+      target.type === "current"
+        ? { ok: true as const, value: active.view.current.content }
+        : storage.getContent(target.id, signal),
+      baselineId === undefined
+        ? undefined
+        : Promise.all([
+            storage.getContent(baselineId, signal),
+            storage.getAttributions?.(
+              target,
+              baselineId,
+              active.view.current.capturedAt,
+              signal,
+            ),
+          ]),
+    ]);
+    if (!content.ok) {
+      return content;
+    }
+    if (!comparison) {
+      return { ok: true, value: { content: content.value, target } };
+    }
+    const [baseline, attributions] = comparison;
+    if (!baseline.ok) {
+      return baseline;
+    }
+    if (attributions && !attributions.ok) {
+      return attributions;
+    }
+    return {
+      ok: true,
+      value: {
+        content: content.value,
+        target,
+        comparison: {
+          content: baseline.value,
+          attributions: attributions?.value,
+        },
+      },
+    };
   }
 
   async function select(
@@ -150,7 +209,10 @@ export function createVersioning<Content, Attributions>(options: {
     ) {
       return { status: "unavailable" };
     }
-    if (selectionOptions?.compareTo && !adapter.supportsComparison) {
+    if (
+      selectionOptions?.compareTo !== undefined &&
+      !adapter.supportsComparison
+    ) {
       return { status: "unavailable" };
     }
     active.selection?.abort();
@@ -158,33 +220,17 @@ export function createVersioning<Content, Attributions>(options: {
     active.selection = request;
     const signal = AbortSignal.any([active.lifetime.signal, request.signal]);
     publish(active, signal, (state) => ({ ...state, pending: target }));
+    const baselineId = selectionOptions?.compareTo;
     try {
-      const storage = options.storage;
-      const baselineId = selectionOptions?.compareTo;
-      const [content, comparison] = await Promise.all([
-        target.type === "current"
-          ? active.view.current.content
-          : storage.getContent(target.id, signal),
-        baselineId === undefined
-          ? undefined
-          : Promise.all([
-              storage.getContent(baselineId, signal),
-              storage.getAttributions?.(
-                target,
-                baselineId,
-                active.view.current.capturedAt,
-                signal,
-              ),
-            ]).then(([content, attributions]) => ({ content, attributions })),
-      ]);
+      const result = await loadDisplay(active, target, baselineId, signal);
       if (signal.aborted) {
         return { status: "cancelled" };
       }
-      active.view.show({
-        content,
-        comparison,
-        target,
-      });
+      if (!result.ok) {
+        publish(active, signal, (state) => ({ ...state, pending: undefined }));
+        return { status: "error", error: result.error };
+      }
+      active.view.show(result.value);
       publish(active, signal, (state) => ({
         ...state,
         displayed: target,
@@ -224,9 +270,19 @@ export function createVersioning<Content, Attributions>(options: {
         restoring: true,
         pending: undefined,
       }));
-      await storage.restore(id);
-      if (!active.lifetime.signal.aborted) {
+      const result = await storage.restore(id);
+      if (!result.ok) {
+        return { status: "error", error: result.error };
+      }
+      const reopened = session !== undefined && session !== active;
+      if (session) {
         close();
+      }
+      // A newer opening still owns a preview. Replace its pre-restore capture
+      // with the restored Current instead of leaving that caller in live mode.
+      if (reopened) {
+        open();
+        await list();
       }
       return { status: "done" };
     } finally {
@@ -239,6 +295,42 @@ export function createVersioning<Content, Attributions>(options: {
     }
   }
 
+  async function refreshAfterNaming(
+    active: Session,
+    update: (versions: VersionSnapshot[]) => VersionSnapshot[],
+  ) {
+    publish(active, active.lifetime.signal, (state) => ({
+      ...state,
+      history: { status: "success", data: update(state.history.data ?? []) },
+    }));
+    if (session === active && !active.lifetime.signal.aborted) {
+      await list();
+    }
+  }
+
+  async function rename(
+    id: string,
+    name?: string,
+  ): Promise<VersionOperationResult> {
+    const active = session;
+    const storage = options.storage;
+    if (!storage.rename) {
+      return { status: "unavailable" };
+    }
+    const result = await storage.rename(id, name);
+    if (!result.ok) {
+      return { status: "error", error: result.error };
+    }
+    if (active) {
+      await refreshAfterNaming(active, (versions) =>
+        versions.map((version) =>
+          version.id === id ? { ...version, name } : version,
+        ),
+      );
+    }
+    return { status: "done" };
+  }
+
   return {
     store,
     open,
@@ -246,11 +338,15 @@ export function createVersioning<Content, Attributions>(options: {
     list,
     select,
     restore,
+    rename,
     get canCompare() {
       return adapter.supportsComparison;
     },
     get canCreate() {
       return options.storage.create !== undefined;
+    },
+    get canRename() {
+      return options.storage.rename !== undefined;
     },
     get canRestore() {
       return options.storage.restore !== undefined;
@@ -258,30 +354,38 @@ export function createVersioning<Content, Attributions>(options: {
     get canRemove() {
       return options.storage.remove !== undefined;
     },
-    async create(this: void, name?: string) {
-      if (!session) {
-        return undefined;
-      }
+    async create(this: void, name?: string): Promise<VersionOperationResult> {
+      const active = session;
       const storage = options.storage;
-      if (!storage.create) {
-        return undefined;
+      if (!active || !storage.create) {
+        return { status: "unavailable" };
       }
-      return storage.create(session.view.current.content, name);
-    },
-    get rename() {
-      const storage = options.storage;
-      return storage.rename?.bind(storage);
+      const current = active.view.current;
+      const result = await storage.create(
+        current.content,
+        name,
+        current.capturedAt,
+      );
+      if (!result.ok) {
+        return { status: "error", error: result.error };
+      }
+      const created = result.value;
+      await refreshAfterNaming(active, (versions) => [
+        created,
+        ...versions.filter((version) => version.id !== created.id),
+      ]);
+      return { status: "done" };
     },
     async remove(this: void, id: string): Promise<VersionOperationResult> {
       const active = session;
-      if (!active) {
-        return { status: "unavailable" };
-      }
       const storage = options.storage;
-      if (!storage.remove) {
+      if (!active || !storage.remove) {
         return { status: "unavailable" };
       }
-      await storage.remove(id);
+      const removed = await storage.remove(id);
+      if (!removed.ok) {
+        return { status: "error", error: removed.error };
+      }
       if (active.lifetime.signal.aborted) {
         return { status: "cancelled" };
       }
@@ -294,7 +398,7 @@ export function createVersioning<Content, Attributions>(options: {
       ) {
         return result;
       }
-      const versions = state.history.versions ?? [];
+      const versions = state.history.data ?? [];
       const displayed = state.displayed;
       if (
         displayed.type === "snapshot" &&
@@ -303,7 +407,7 @@ export function createVersioning<Content, Attributions>(options: {
         return select({ type: "current" });
       }
       if (
-        state.compareTo &&
+        state.compareTo !== undefined &&
         !versions.some((version) => version.id === state.compareTo)
       ) {
         return select(state.displayed);

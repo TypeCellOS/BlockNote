@@ -10,6 +10,16 @@ import {
 } from "react";
 
 import { useVersioning } from "./useVersioning.js";
+import type {
+  VersionError,
+  VersionOperationResult,
+} from "@blocknote/core/extensions";
+
+type ActionState =
+  | { status: "idle" }
+  | { status: "pending" }
+  | { status: "success" }
+  | { status: "error"; error: VersionError };
 
 /**
  * The versioning sidebar's own state, shared between its header and its rows.
@@ -36,10 +46,14 @@ export type VersioningSidebarContextValue = {
    * A newer action or closing the sidebar skips stale follow-ups;
    * the mutation itself still completes. Thrown errors propagate to the caller.
    */
-  run: <T>(
-    action: () => Promise<T>,
-    onSuccess?: (result: T) => void | Promise<unknown>,
-  ) => Promise<void>;
+  action: ActionState;
+  run: (
+    action: () => Promise<VersionOperationResult>,
+    onSuccess?: () =>
+      | void
+      | VersionOperationResult
+      | Promise<void | VersionOperationResult>,
+  ) => Promise<VersionOperationResult>;
   /** Cancel pending UI follow-ups and return the editor to the live document. */
   close: () => void;
   dismiss: () => void;
@@ -75,6 +89,7 @@ export function VersioningSidebarProvider(props: {
     props.defaultComparisonMode ?? false,
   );
   const [focusNameFor, setFocusNameFor] = useState<string>();
+  const [action, setAction] = useState<ActionState>({ status: "idle" });
 
   const actionGeneration = useRef(0);
   const onClose = props.onClose;
@@ -82,20 +97,41 @@ export function VersioningSidebarProvider(props: {
   const close = useCallback(() => {
     actionGeneration.current++;
     setFocusNameFor(undefined);
+    setAction({ status: "idle" });
     versioning.close();
   }, [versioning]);
   useEffect(() => close, [close]);
 
-  const run = useCallback(async function run<T>(
-    action: () => Promise<T>,
-    onSuccess?: (result: T) => void | Promise<unknown>,
-  ) {
-    const generation = ++actionGeneration.current;
-    const result = await action();
-    if (generation === actionGeneration.current) {
-      await onSuccess?.(result);
-    }
-  }, []);
+  const run = useCallback<VersioningSidebarContextValue["run"]>(
+    async function run(action, onSuccess) {
+      const view = versioning.store.state;
+      // Do not let an unavailable preview supersede restore's completion callback.
+      if (view.mode === "versions" && view.restoring) {
+        return { status: "unavailable" };
+      }
+      const generation = ++actionGeneration.current;
+      setAction({ status: "pending" });
+      let outcome = await action();
+      if (
+        generation === actionGeneration.current &&
+        outcome.status === "done"
+      ) {
+        const followUp = await onSuccess?.();
+        if (followUp) {
+          outcome = followUp;
+        }
+      }
+      if (generation === actionGeneration.current) {
+        setAction(
+          outcome.status === "error"
+            ? outcome
+            : { status: outcome.status === "done" ? "success" : "idle" },
+        );
+      }
+      return outcome;
+    },
+    [versioning],
+  );
 
   const value = useMemo(
     () => ({
@@ -106,6 +142,7 @@ export function VersioningSidebarProvider(props: {
       setNamedOnly,
       snapshotMenu: props.snapshotMenu,
       loadingIndicator: props.loadingIndicator,
+      action,
       run,
       close,
       dismiss: () => {
@@ -129,6 +166,7 @@ export function VersioningSidebarProvider(props: {
       namedOnly,
       props.snapshotMenu,
       props.loadingIndicator,
+      action,
       run,
       close,
       onClose,

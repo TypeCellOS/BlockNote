@@ -26,15 +26,8 @@ export function useRestoreVersionAction(): VersionMenuAction {
 
   return {
     available: true,
-    execute: () => {
-      return run(
-        () => restore(snapshot.id),
-        (result) => {
-          if (result.status === "done") {
-            dismiss();
-          }
-        },
-      );
+    execute: async () => {
+      await run(() => restore(snapshot.id), dismiss);
     },
   };
 }

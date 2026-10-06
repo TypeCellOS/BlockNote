@@ -32,31 +32,32 @@ export function useDeleteVersionAction(): VersionMenuAction {
 
   return {
     available: true,
-    execute: () => {
+    execute: async () => {
       const before = store.state;
-      return run(
+      const wasBaseline =
+        comparisonMode &&
+        before.mode === "versions" &&
+        before.compareTo === snapshot.id;
+      await run(
         () => remove(snapshot.id),
-        async (result) => {
-          if (result.status !== "done" || before.mode !== "versions") {
+        async () => {
+          if (!wasBaseline) {
             return;
           }
           const state = store.state;
           const list = getVersionList(state);
-          if (!list.loaded || state.mode !== "versions") {
+          if (state.mode !== "versions" || !list.loaded) {
             return;
           }
           const shown = getShownVersionRow(list, state);
-          if (!shown) {
-            return;
-          }
           if (
-            comparisonMode &&
-            before.compareTo === snapshot.id &&
+            shown &&
             state.compareTo !==
               getPreviousVisibleVersion(list, shown.snapshot, namedOnly)?.id
           ) {
-            await previewRow(shown.snapshot);
+            return previewRow(shown.snapshot);
           }
+          return undefined;
         },
       );
     },

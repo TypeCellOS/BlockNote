@@ -5,7 +5,7 @@ import { useDictionary } from "../../i18n/dictionary.js";
 
 /**
  * Show an input for either side of the active preview, sized to its draft.
- * Keying by name resets the draft after local or remote renames.
+ * React owns only the input draft; the extension owns submitted names.
  */
 export function VersionName(props: {
   name: string | undefined;
@@ -16,11 +16,9 @@ export function VersionName(props: {
    * compared row and backend support for naming. Other rows show text.
    */
   editable: boolean;
-  /** Creating a checkpoint leaves Current unnamed; renaming keeps the new name. */
-  commitMode: "create" | "rename";
   inputRef: RefObject<HTMLInputElement | null>;
   /** `undefined` when the field was left empty, which clears the name. */
-  onCommit: (name: string | undefined) => void;
+  onCommit: (name: string | undefined) => Promise<boolean>;
 }) {
   const Components = useComponentsContext()!;
 
@@ -32,33 +30,36 @@ export function VersionName(props: {
       />
     );
   }
-  return <VersionNameInput key={props.name} {...props} />;
+  return <VersionNameInput {...props} />;
 }
 
 function VersionNameInput(props: {
   name: string | undefined;
   placeholder: string;
-  commitMode: "create" | "rename";
   inputRef: RefObject<HTMLInputElement | null>;
-  onCommit: (name: string | undefined) => void;
+  onCommit: (name: string | undefined) => Promise<boolean>;
 }) {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  // Mirrored into the sizer, so the field is as wide as what's typed in it.
-  const [draft, setDraft] = useState(props.name ?? "");
-  const committedName = useRef(props.name ?? "");
+  // Without an unsaved draft, display the extension's authoritative name.
+  const [draft, setDraft] = useState<string>();
   // Set by Escape, read by the blur it causes: leaving the field commits, so
   // the blur has to know the edit was abandoned rather than finished.
   const cancelled = useRef(false);
+  // Undefined means idle; an empty string is a pending name deletion.
+  const saving = useRef<string | undefined>(undefined);
 
   return (
     <Components.Versioning.Name
       mode="editing"
-      value={draft}
+      value={draft ?? props.name ?? ""}
       placeholder={props.placeholder}
       aria-label={dict.versioning.version_name_input}
       inputRef={props.inputRef}
-      onChange={(event) => setDraft(event.currentTarget.value)}
+      onChange={(event) => {
+        const value = event.currentTarget.value;
+        setDraft(value === (props.name ?? "") ? undefined : value);
+      }}
       // Clicking a name edits it without switching either side of the preview.
       onClick={(event) => event.stopPropagation()}
       onKeyDown={(event) => {
@@ -76,19 +77,29 @@ function VersionNameInput(props: {
             ?.focus();
         }
       }}
-      onBlur={(event) => {
-        const name = cancelled.current
-          ? committedName.current
-          : event.currentTarget.value.trim();
-        cancelled.current = false;
-        const changed = name !== committedName.current;
-        // Keep renames visible while saving. Naming Current creates a separate
-        // checkpoint, so only that field resets to its stored name.
-        committedName.current =
-          props.commitMode === "create" ? (props.name ?? "") : name;
-        setDraft(committedName.current);
-        if (changed) {
-          props.onCommit(name === "" ? undefined : name);
+      onBlur={async (event) => {
+        if (cancelled.current) {
+          cancelled.current = false;
+          setDraft(saving.current);
+          return;
+        }
+        const name = event.currentTarget.value.trim();
+        const changed = name !== (props.name ?? "");
+        if (!changed) {
+          setDraft(undefined);
+          return;
+        }
+        if (saving.current !== undefined) {
+          return;
+        }
+        setDraft(name);
+        saving.current = name;
+        try {
+          if (await props.onCommit(name === "" ? undefined : name)) {
+            setDraft((draft) => (draft === name ? undefined : draft));
+          }
+        } finally {
+          saving.current = undefined;
         }
       }}
     />

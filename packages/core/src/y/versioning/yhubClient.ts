@@ -1,4 +1,5 @@
 import { decodeAny, encodeAny } from "lib0/buffer";
+import type { VersionResult } from "../../extensions/Versioning/types.js";
 
 export interface YHubClientOptions {
   /** API base URL, including the API prefix, without a trailing slash. */
@@ -9,6 +10,8 @@ export interface YHubClientOptions {
   docId: string;
   /** Headers included in every request, e.g. authentication tokens. */
   headers?: Record<string, string>;
+  /** Bounds each request, including reading the response body. Defaults to 30 seconds. */
+  timeoutMs?: number;
 }
 
 interface YHubActivityWireEntry<Metadata> {
@@ -80,66 +83,125 @@ export class YHubClient<Metadata = unknown> {
   private readonly baseUrl: string;
   private readonly documentPath: string;
   private readonly headers: Record<string, string>;
+  private readonly timeoutMs: number;
 
-  constructor({ baseUrl, org, docId, headers = {} }: YHubClientOptions) {
+  constructor({
+    baseUrl,
+    org,
+    docId,
+    headers = {},
+    timeoutMs = 30_000,
+  }: YHubClientOptions) {
+    if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
+      throw new Error("YHub timeout must be a positive finite number");
+    }
     this.baseUrl = baseUrl;
     this.documentPath = `${encodeURIComponent(org)}/${encodeURIComponent(docId)}`;
     this.headers = headers;
+    this.timeoutMs = timeoutMs;
   }
 
-  private async request(
+  private async request<Value>(
     endpoint: string,
+    decode: (data: Uint8Array) => Value,
     params?: YHubQueryParams,
     init?: RequestInit,
-  ): Promise<ArrayBuffer> {
+  ): Promise<VersionResult<Value>> {
     const query = new URLSearchParams(
       Object.entries(params ?? {})
         .filter(([, value]) => value !== undefined)
         .map(([key, value]) => [key, String(value)]),
     );
     const url = `${this.baseUrl}/${endpoint}/v1/${this.documentPath}${query.size ? `?${query}` : ""}`;
-    const response = await fetch(url, { ...init, headers: this.headers });
-    if (!response.ok) {
-      throw new Error(
-        `YHub request failed: ${response.status} ${response.statusText} (${url})`,
-      );
+    const parsedUrl = new URL(url);
+    if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
+      throw new Error("YHub requires an HTTP or HTTPS URL");
     }
-    return response.arrayBuffer();
+    const headers = new Headers(this.headers);
+    const timeout = AbortSignal.timeout(this.timeoutMs);
+    const signal = init?.signal
+      ? AbortSignal.any([init.signal, timeout])
+      : timeout;
+    let data: ArrayBuffer;
+    try {
+      const response = await fetch(url, { ...init, signal, headers });
+      if (!response.ok) {
+        return {
+          ok: false,
+          error:
+            response.status === 401 || response.status === 403
+              ? { type: "forbidden" }
+              : response.status === 409 || response.status === 412
+                ? { type: "conflict" }
+                : response.status === 404
+                  ? { type: "not-found" }
+                  : { type: "server", status: response.status },
+        };
+      }
+      data = await response.arrayBuffer();
+    } catch (error) {
+      if (init?.signal?.aborted) {
+        throw error;
+      }
+      if (timeout.aborted) {
+        return {
+          ok: false,
+          error: {
+            type: "timeout",
+            outcome: init?.method ? "unknown" : "unchanged",
+          },
+        };
+      }
+      // Fetch reports transport failures as TypeError. URL/configuration errors
+      // are prevented by constructing and validating the URL before this boundary.
+      if (error instanceof TypeError) {
+        return { ok: false, error: { type: "network" } };
+      }
+      throw error;
+    }
+    // Decode outside the transport catch: malformed responses are unexpected errors.
+    return { ok: true, value: decode(new Uint8Array(data)) };
   }
 
-  async getVersion(t: number): Promise<YHubVersion<Metadata> | undefined> {
-    const response = decodeAny(
-      new Uint8Array(await this.request("version", { from: t, to: t })),
-    ) as { versions: YHubVersion<Metadata>[] };
-    return response.versions[0];
+  async getVersion(
+    t: number,
+  ): Promise<VersionResult<YHubVersion<Metadata> | undefined>> {
+    return this.request(
+      "version",
+      (data) => {
+        const { versions } = decodeAny(data) as {
+          versions: YHubVersion<Metadata>[];
+        };
+        return versions[0];
+      },
+      { from: t, to: t },
+    );
   }
 
   async createVersion(
     t: number,
     name: string,
     custom?: Metadata | null,
-  ): Promise<YHubVersion<Metadata>> {
+  ): Promise<VersionResult<YHubVersion<Metadata>>> {
     const body = {
       type: "version:v1",
       t,
       name,
       ...(custom === undefined ? {} : { custom }),
     } satisfies YHubVersionCreate<Metadata>;
-    return decodeAny(
-      new Uint8Array(
-        await this.request("version", undefined, {
-          method: "POST",
-          body: encodeAny(body) as BufferSource,
-        }),
-      ),
-    ) as YHubVersion<Metadata>;
+    return this.request(
+      "version",
+      (data) => decodeAny(data) as YHubVersion<Metadata>,
+      undefined,
+      { method: "POST", body: encodeAny(body) as BufferSource },
+    );
   }
 
   async updateVersion(
     version: YHubVersion<Metadata>,
     name: string,
     custom: Metadata | null | undefined = version.custom,
-  ): Promise<YHubVersion<Metadata>> {
+  ): Promise<VersionResult<YHubVersion<Metadata>>> {
     const body = {
       type: "version:v1",
       t: version.t,
@@ -147,19 +209,20 @@ export class YHubClient<Metadata = unknown> {
       name,
       custom,
     } satisfies YHubVersionUpdate<Metadata>;
-    return decodeAny(
-      new Uint8Array(
-        await this.request("version", undefined, {
-          method: "PATCH",
-          body: encodeAny(body) as BufferSource,
-        }),
-      ),
-    ) as YHubVersion<Metadata>;
+    return this.request(
+      "version",
+      (data) => decodeAny(data) as YHubVersion<Metadata>,
+      undefined,
+      { method: "PATCH", body: encodeAny(body) as BufferSource },
+    );
   }
 
-  async deleteVersion(version: YHubVersion<Metadata>): Promise<void> {
-    await this.request(
+  async deleteVersion(
+    version: YHubVersion<Metadata>,
+  ): Promise<VersionResult<void>> {
+    return this.request(
       "version",
+      () => undefined,
       {
         t: version.t,
         updatedAt: version.updatedAt,
@@ -171,69 +234,105 @@ export class YHubClient<Metadata = unknown> {
   async getActivity(
     params?: YHubQueryParams,
     signal?: AbortSignal,
-  ): Promise<YHubActivityEntry<Metadata>[]> {
-    const buffer = await this.request("activity", params, { signal });
-    const { activity } = decodeAny(new Uint8Array(buffer)) as {
-      activity: YHubActivityWireEntry<Metadata>[];
-    };
-    return activity.map((entry) => ({
-      ...entry,
-      by: (Array.isArray(entry.by) ? entry.by : (entry.by?.split(",") ?? []))
-        .filter((id): id is string => id !== null)
-        .map((id) => id.trim())
-        .filter(Boolean),
-      customAttributions: Object.fromEntries(
-        entry.customAttributions?.map(({ k, v }) => [k, v]) ?? [],
-      ),
-    }));
+  ): Promise<VersionResult<YHubActivityEntry<Metadata>[]>> {
+    return this.request(
+      "activity",
+      (data) => {
+        const { activity } = decodeAny(data) as {
+          activity: YHubActivityWireEntry<Metadata>[];
+        };
+        return activity.map((entry) => ({
+          ...entry,
+          by: (Array.isArray(entry.by)
+            ? entry.by
+            : (entry.by?.split(",") ?? [])
+          )
+            .filter((id): id is string => id !== null)
+            .map((id) => id.trim())
+            .filter(Boolean),
+          customAttributions: Object.fromEntries(
+            entry.customAttributions?.map(({ k, v }) => [k, v]) ?? [],
+          ),
+        }));
+      },
+      params,
+      { signal },
+    );
   }
 
   async getChangeset(
     params?: YHubQueryParams,
     signal?: AbortSignal,
-  ): Promise<YHubChangeset> {
-    const buffer = await this.request("changeset", params, { signal });
-    return decodeAny(new Uint8Array(buffer)) as YHubChangeset;
+  ): Promise<VersionResult<YHubChangeset>> {
+    return this.request(
+      "changeset",
+      (data) => decodeAny(data) as YHubChangeset,
+      params,
+      { signal },
+    );
   }
 
-  async getDocument(params?: YHubQueryParams): Promise<Uint8Array> {
-    const buffer = await this.request("ydoc", params);
-    const { doc } = decodeAny(new Uint8Array(buffer)) as Partial<YHubDocument>;
-    if (!doc) {
-      throw new Error("YHub returned no document state.");
-    }
-    return doc;
+  async getDocument(
+    params?: YHubQueryParams,
+  ): Promise<VersionResult<Uint8Array>> {
+    return this.request(
+      "ydoc",
+      (data) => {
+        const { doc } = decodeAny(data) as Partial<YHubDocument>;
+        if (!doc) {
+          throw new Error("YHub returned no document state.");
+        }
+        return doc;
+      },
+      params,
+    );
   }
 
-  async getContent(to: number, signal?: AbortSignal): Promise<Uint8Array> {
-    const { ydoc } = await this.getChangeset({ ydoc: true, to }, signal);
-    if (!ydoc) {
-      throw new Error(`YHub returned no document state at timestamp ${to}.`);
-    }
-    return ydoc;
+  async getContent(
+    to: number,
+    signal?: AbortSignal,
+  ): Promise<VersionResult<Uint8Array>> {
+    return this.request(
+      "changeset",
+      (data) => {
+        const { ydoc } = decodeAny(data) as YHubChangeset;
+        if (!ydoc) {
+          throw new Error(
+            `YHub returned no document state at timestamp ${to}.`,
+          );
+        }
+        return ydoc;
+      },
+      { ydoc: true, to },
+      { signal },
+    );
   }
 
   async getAttributions(
     from: number,
     to?: number,
     signal?: AbortSignal,
-  ): Promise<Uint8Array> {
-    const { attributions } = await this.getChangeset(
+  ): Promise<VersionResult<Uint8Array>> {
+    return this.request(
+      "changeset",
+      (data) => {
+        const { attributions } = decodeAny(data) as YHubChangeset;
+        if (!attributions) {
+          throw new Error("YHub returned no attributions.");
+        }
+        return attributions;
+      },
       {
         from,
         to,
         attributions: true,
       },
-      signal,
+      { signal },
     );
-    if (!attributions) {
-      throw new Error("YHub returned no attributions.");
-    }
-    return attributions;
   }
 
-  async rollback(params: YHubRollbackParams): Promise<void> {
-    await this.request("rollback", undefined, {
+  async rollback(params: YHubRollbackParams): Promise<VersionResult<void>> {
+    return this.request("rollback", () => undefined, undefined, {
       method: "POST",
       body: encodeAny(params) as BufferSource,
     });

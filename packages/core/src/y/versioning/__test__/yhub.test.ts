@@ -2,12 +2,12 @@
 import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { decodeAny, encodeAny } from "lib0/buffer";
 import * as Y from "@y/y";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import {
   createYHubVersionStorage,
   type YHubVersionStorageOptions,
 } from "../yhub.js";
 import { YHubClient } from "../yhubClient.js";
+import { resultValue } from "../../../extensions/Versioning/__test__/result.js";
 
 const options = { baseUrl: "https://yhub.test/api", org: "org", docId: "doc" };
 const signal = new AbortController().signal;
@@ -41,15 +41,13 @@ function response(body: unknown, status = 200) {
 function storage(activityParams?: YHubVersionStorageOptions["activityParams"]) {
   const doc = new Y.Doc();
   const fragment = doc.get("default");
-  const editor = BlockNoteEditor.create();
-  cleanup.push(() => {
-    editor._tiptapEditor.destroy();
-    doc.destroy();
-  });
+  cleanup.push(() => doc.destroy());
   return {
-    api: createYHubVersionStorage({ ...options, activityParams }).bind({
-      editor,
+    api: createYHubVersionStorage({
+      ...options,
+      activityParams,
       fragment,
+      beforeRestoreName: "Before restore",
     }),
     doc,
     fragment,
@@ -87,7 +85,7 @@ it("lists server checkpoints with their attached versions and empty versions", a
       ],
     }),
   );
-  expect(await storage().api.list(signal)).toMatchObject([
+  expect(resultValue(await storage().api.list(signal))).toMatchObject([
     { id: "2000", by: ["bob"] },
     {
       id: "1000",
@@ -101,7 +99,7 @@ it("lists server checkpoints with their attached versions and empty versions", a
   ]);
   expect(fetchSpy).toHaveBeenCalledOnce();
   expect(request(0).url.searchParams.get("versions")).toBe("true");
-  expect(request(0).signal).toBe(signal);
+  expect(request(0).signal).toBeInstanceOf(AbortSignal);
 });
 
 it.each([false, 0, "", ["app"], {}, null].map((custom) => ({ custom })))(
@@ -119,7 +117,9 @@ it.each([false, 0, "", ["app"], {}, null].map((custom) => ({ custom })))(
         ],
       }),
     );
-    const rows = await storage({ groupByUser: true }).api.list(signal);
+    const rows = resultValue(
+      await storage({ groupByUser: true }).api.list(signal),
+    );
     expect(rows).toHaveLength(2);
     expect(rows[0].by).toEqual(["bob"]);
     expect(rows[0].metadata).toEqual(custom);
@@ -152,7 +152,9 @@ it("preserves caller activity filters without merging returned entries", async (
     by: "alice,bob",
     customAttributions: true,
   };
-  expect(await storage(activityParams).api.list(signal)).toMatchObject([
+  expect(
+    resultValue(await storage(activityParams).api.list(signal)),
+  ).toMatchObject([
     {
       id: "1000",
       by: ["alice"],
@@ -180,19 +182,25 @@ it("preserves caller activity filters without merging returned entries", async (
   });
 });
 
-it("names the latest server checkpoint rather than uploading frozen client bytes", async () => {
+it("names the latest checkpoint only when its content matches frozen current", async () => {
+  const { api, doc } = storage();
+  doc.get("default").push(["shown"]);
   fetchSpy
     .mockResolvedValueOnce(response({ activity: [latest] }))
+    .mockResolvedValueOnce(response({ ydoc: Y.encodeStateAsUpdate(doc) }))
     .mockResolvedValueOnce(response({ versions: [] }))
     .mockResolvedValueOnce(
       response({ ...version, t: latest.to, name: "Current milestone" }),
     );
   expect(
-    await storage().api.create?.(new Uint8Array([1, 2]), "Current milestone"),
-  ).toMatchObject({ id: "2000", createdAt: 2000, name: "Current milestone" });
+    await api.create!(Y.encodeStateAsUpdateV2(doc), "Current milestone"),
+  ).toMatchObject({
+    ok: true,
+    value: { id: "2000", createdAt: 2000, name: "Current milestone" },
+  });
   expect(request(0).url.searchParams.get("limit")).toBe("1");
-  expect(request(2).method).toBe("POST");
-  expect(request(2).body).toEqual({
+  expect(request(3).method).toBe("POST");
+  expect(request(3).body).toEqual({
     type: "version:v1",
     t: 2000,
     name: "Current milestone",
@@ -200,27 +208,33 @@ it("names the latest server checkpoint rather than uploading frozen client bytes
 });
 
 it("renames an already named latest checkpoint while preserving metadata", async () => {
+  const { api, doc } = storage();
+  doc.get("default").push(["shown"]);
   const current = { ...version, t: latest.to };
   fetchSpy
     .mockResolvedValueOnce(response({ activity: [latest] }))
+    .mockResolvedValueOnce(response({ ydoc: Y.encodeStateAsUpdate(doc) }))
     .mockResolvedValueOnce(response({ versions: [current] }))
     .mockResolvedValueOnce(response({ ...current, name: "Renamed current" }));
   expect(
-    await storage().api.create?.(new Uint8Array(), "Renamed current"),
+    await api.create!(Y.encodeStateAsUpdateV2(doc), "Renamed current"),
   ).toMatchObject({
-    id: "2000",
-    name: "Renamed current",
-    metadata: version.custom,
+    ok: true,
+    value: {
+      id: "2000",
+      name: "Renamed current",
+      metadata: version.custom,
+    },
   });
-  expect(request(2).method).toBe("PATCH");
-  expect(request(2).body.custom).toEqual(version.custom);
+  expect(request(3).method).toBe("PATCH");
+  expect(request(3).body.custom).toEqual(version.custom);
 });
 
 it("does not name a checkpoint when no edits have been recorded", async () => {
   fetchSpy.mockResolvedValueOnce(response({ activity: [] }));
   expect(
     await storage().api.create?.(new Uint8Array(), "Current milestone"),
-  ).toBeUndefined();
+  ).toEqual({ ok: false, error: { type: "conflict" } });
   expect(fetchSpy).toHaveBeenCalledOnce();
 });
 
@@ -274,7 +288,10 @@ it("leaves unnamed automatic activity alone", async () => {
 it("propagates concurrent version conflicts", async () => {
   fetchSpy.mockResolvedValueOnce(response({ versions: [version] }));
   fetchSpy.mockResolvedValueOnce(response({ error: "conflict" }, 409));
-  await expect(storage().api.rename!("1000", "New")).rejects.toThrow("409");
+  expect(await storage().api.rename!("1000", "New")).toEqual({
+    ok: false,
+    error: { type: "conflict" },
+  });
 });
 
 it("fetches historical content by timestamp and converts it to V2", async () => {
@@ -283,7 +300,7 @@ it("fetches historical content by timestamp and converts it to V2", async () => 
   fetchSpy.mockResolvedValueOnce(
     response({ ydoc: Y.encodeStateAsUpdate(doc) }),
   );
-  const content = await api.getContent("1000", signal);
+  const content = resultValue(await api.getContent("1000", signal));
   const restored = new Y.Doc();
   try {
     Y.applyUpdateV2(restored, content);
@@ -292,26 +309,30 @@ it("fetches historical content by timestamp and converts it to V2", async () => 
     restored.destroy();
   }
   expect(request(0).url.searchParams.get("to")).toBe("1000");
-  expect(request(0).signal).toBe(signal);
+  expect(request(0).signal).toBeInstanceOf(AbortSignal);
 });
 
-it.each(["current", "snapshot"] as const)(
-  "uses the %s attribution cutoff",
-  async (type) => {
+it.each([
+  { type: "current", capturedAt: 500 },
+  { type: "current", capturedAt: 2500 },
+  { type: "snapshot", capturedAt: 2500 },
+] as const)(
+  "uses the server attribution cutoff for $type with client capture time $capturedAt",
+  async ({ type, capturedAt }) => {
     fetchSpy.mockResolvedValueOnce(
       response({ attributions: Y.encodeContentMap(Y.createContentMap()) }),
     );
     await storage().api.getAttributions!(
       type === "current" ? { type } : { type, id: "2000" },
       "1000",
-      2500,
+      capturedAt,
       signal,
     );
     expect(request(0).url.searchParams.get("from")).toBe("1000");
     expect(request(0).url.searchParams.get("to")).toBe(
-      type === "current" ? "2500" : "2000",
+      type === "current" ? null : "2000",
     );
-    expect(request(0).signal).toBe(signal);
+    expect(request(0).signal).toBeInstanceOf(AbortSignal);
   },
 );
 
@@ -347,10 +368,11 @@ it.each([false, true])(
     if (!named) {
       expect(pins[0].body).toMatchObject({ t: 2000, name: "Before restore" });
     }
-    expect(calls.at(-1)?.body.from).toBe(1001);
-    expect(
-      Y.decodeContentIds(calls.at(-1)?.body.contentIds).inserts,
-    ).toBeDefined();
+    const rollback = calls.find((call) =>
+      call.url.pathname.includes("/rollback/"),
+    );
+    expect(rollback?.body.from).toBe(1001);
+    expect(Y.decodeContentIds(rollback?.body.contentIds).inserts).toBeDefined();
   },
 );
 
@@ -362,3 +384,127 @@ it.each([false, 0, "", [], {}, null].map((custom) => ({ custom })))(
     expect(request(0).body.custom).toEqual(custom);
   },
 );
+
+it("refuses to name newer server content that was not shown in frozen current", async () => {
+  const { api, doc, fragment } = storage();
+  fragment.push(["shown"]);
+  const frozen = Y.encodeStateAsUpdateV2(doc);
+  fragment.push(["unseen"]);
+  fetchSpy
+    .mockResolvedValueOnce(response({ activity: [latest] }))
+    .mockResolvedValueOnce(response({ ydoc: Y.encodeStateAsUpdate(doc) }));
+  expect(await api.create!(frozen, "Milestone")).toEqual({
+    ok: false,
+    error: { type: "conflict" },
+  });
+  expect(fetchSpy).toHaveBeenCalledTimes(2);
+  expect(fetchSpy.mock.calls.every(([, init]) => !init?.method)).toBe(true);
+});
+
+it("waits for the post-rollback document and applies it to the original live document", async () => {
+  const { api, doc, fragment } = storage();
+  fragment.push(["before"]);
+  const server = new Y.Doc();
+  Y.applyUpdate(server, Y.encodeStateAsUpdate(doc));
+  server.get("default").delete(0, 1);
+  server.get("default").push(["restored"]);
+  let finish!: (response: Response) => void;
+  const postRollback = new Promise<Response>((resolve) => {
+    finish = resolve;
+  });
+  fetchSpy
+    .mockResolvedValueOnce(response({ activity: [latest] }))
+    .mockResolvedValueOnce(response({ doc: Y.encodeStateAsUpdate(doc) }))
+    .mockResolvedValueOnce(response({ versions: [{ ...version, t: 2000 }] }))
+    .mockResolvedValueOnce(response({ success: true }))
+    .mockReturnValueOnce(postRollback);
+  let completed = false;
+  const restore = api.restore!("1000").then((result) => {
+    completed = true;
+    return result;
+  });
+  await vi.waitFor(() => expect(fetchSpy).toHaveBeenCalledTimes(5));
+  expect(completed).toBe(false);
+  expect(fragment.toArray()).toEqual(["before"]);
+  finish(response({ doc: Y.encodeStateAsUpdate(server) }));
+  expect(await restore).toEqual({ ok: true, value: undefined });
+  expect(fragment.toArray()).toEqual(["restored"]);
+  server.destroy();
+});
+
+it.each([
+  { status: 403, error: { type: "forbidden" } },
+  { status: 404, error: { type: "not-found" } },
+  { status: 409, error: { type: "conflict" } },
+  { status: 500, error: { type: "server", status: 500 } },
+])(
+  "returns a typed expected error for HTTP $status without exposing its body",
+  async ({ status, error }) => {
+    fetchSpy.mockResolvedValueOnce(
+      response({ error: "private server details" }, status),
+    );
+    expect(await new YHubClient(options).getActivity()).toEqual({
+      ok: false,
+      error,
+    });
+  },
+);
+
+it("classifies transport failures but lets unexpected bugs throw", async () => {
+  const client = new YHubClient(options);
+  fetchSpy.mockRejectedValueOnce(new TypeError("fetch failed"));
+  expect(await client.getActivity()).toEqual({
+    ok: false,
+    error: { type: "network" },
+  });
+  const bug = new Error("programmer error");
+  fetchSpy.mockRejectedValueOnce(bug);
+  await expect(client.getActivity()).rejects.toBe(bug);
+  fetchSpy.mockResolvedValueOnce(response(null));
+  await expect(client.getActivity()).rejects.toThrow();
+});
+
+it.each(["read", "mutation"] as const)(
+  "bounds a hung $type request and reports whether its outcome is known",
+  async (type) => {
+    fetchSpy.mockImplementationOnce(
+      (_input, init) =>
+        new Promise((_, reject) => {
+          init?.signal?.addEventListener(
+            "abort",
+            () => reject(init.signal?.reason),
+            { once: true },
+          );
+        }),
+    );
+    const client = new YHubClient({ ...options, timeoutMs: 10 });
+    const result = await (type === "read"
+      ? client.getActivity()
+      : client.createVersion(1000, "Named"));
+    expect(result).toEqual({
+      ok: false,
+      error: {
+        type: "timeout",
+        outcome: type === "read" ? "unchanged" : "unknown",
+      },
+    });
+    expect(fetchSpy).toHaveBeenCalledOnce();
+  },
+);
+
+it("preserves caller cancellation rather than showing it as a network failure", async () => {
+  const abort = new AbortController();
+  fetchSpy.mockImplementationOnce(
+    (_input, init) =>
+      new Promise((_, reject) => {
+        init?.signal?.addEventListener(
+          "abort",
+          () => reject(init.signal?.reason),
+          { once: true },
+        );
+      }),
+  );
+  const pending = new YHubClient(options).getActivity(undefined, abort.signal);
+  abort.abort();
+  await expect(pending).rejects.toBe(abort.signal.reason);
+});

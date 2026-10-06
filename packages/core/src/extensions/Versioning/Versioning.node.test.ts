@@ -6,91 +6,104 @@ import {
   type VersioningController,
 } from "./Versioning.js";
 import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
+import { success } from "./__test__/result.js";
 
 afterEach(() => {
   vi.useRealTimers();
 });
 
-it.each(["userStore", "canCreate", "open"] as const)(
-  "configures once per editor on first %s access, not construction",
-  async (firstUse) => {
-    const configure = vi.fn((editor: BlockNoteEditor) => {
-      expect(editor.getExtension(ReadOnlyExtension)).toBeDefined();
-      return {
-        adapter: {
-          supportsComparison: true,
-          open() {
-            return {
-              current: { content: "frozen", capturedAt: 1 },
-              show() {},
-              close() {},
-            };
-          },
+it("configures once per editor during construction", async () => {
+  const configure = vi.fn((editor: BlockNoteEditor) => {
+    expect(editor.getExtension(ReadOnlyExtension)).toBeDefined();
+    expect(editor.document).toHaveLength(1);
+    expect(
+      editor.getExtension<VersioningController>("versioning")?.store.state,
+    ).toEqual({ mode: "live" });
+    return {
+      adapter: {
+        supportsComparison: true,
+        open() {
+          return {
+            current: { content: "frozen", capturedAt: 1 },
+            show() {},
+            close() {},
+          };
         },
-        storage: {
-          async list() {
-            return [];
-          },
-          async getContent(id: string) {
-            return id;
-          },
+      },
+      storage: {
+        async list() {
+          return success([]);
         },
-        resolveUsers: async () => [],
-      };
-    });
-    const Versions = createVersioningExtension(configure);
-    const extension = Versions();
-    const editors = [
-      BlockNoteEditor.create({ extensions: [extension] }),
-      BlockNoteEditor.create({ extensions: [extension] }),
-    ];
-    try {
-      expect(configure).not.toHaveBeenCalled();
-      for (const [index, editor] of editors.entries()) {
-        const mode = editor.getExtension(Versions)!;
-        mode satisfies VersioningController;
-        expect(mode.store.state).toEqual({ mode: "live" });
-        mode.close();
-        expect(configure).toHaveBeenCalledTimes(index);
-        switch (firstUse) {
-          case "userStore":
-            expect(mode.userStore).toBeDefined();
-            break;
-          case "canCreate":
-            expect(mode.canCreate).toBe(false);
-            break;
-          case "open":
-            mode.open();
-            break;
-          default:
-            firstUse satisfies never;
-        }
-        const users = mode.userStore;
-        expect(mode.userStore).toBe(users);
-        expect(mode.canCompare).toBe(true);
-        expect(mode.canCreate).toBe(false);
-        expect(mode.canRestore).toBe(false);
-        expect(mode.canRemove).toBe(false);
-        expect(mode.rename).toBeUndefined();
-        mode.open();
-        expect(await mode.list()).toEqual({ status: "done" });
-        mode.close();
-        mode.open();
-        mode.close();
-        expect(configure).toHaveBeenCalledTimes(index + 1);
-        expect(configure).toHaveBeenLastCalledWith(editor);
-      }
-      expect(editors[0].getExtension(Versions)!.userStore).not.toBe(
-        editors[1].getExtension(Versions)!.userStore,
-      );
-    } finally {
-      for (const editor of editors) {
-        editor.getExtension(Versions)!.close();
-        editor._tiptapEditor.destroy();
-      }
+        async getContent(id: string) {
+          return success(id);
+        },
+      },
+      resolveUsers: async () => [],
+    };
+  });
+  const Versions = createVersioningExtension(configure);
+  const extension = Versions();
+  const editors = [
+    BlockNoteEditor.create({ extensions: [extension] }),
+    BlockNoteEditor.create({ extensions: [extension] }),
+  ];
+  try {
+    expect(configure).toHaveBeenCalledTimes(editors.length);
+    for (const [index, editor] of editors.entries()) {
+      expect(configure).toHaveBeenNthCalledWith(index + 1, editor);
+      const mode = editor.getExtension(Versions)!;
+      mode satisfies VersioningController;
+      expect(mode.store.state).toEqual({ mode: "live" });
+      mode.close();
+      const users = mode.userStore;
+      expect(users).toBeDefined();
+      expect(mode.userStore).toBe(users);
+      expect(mode.canCompare).toBe(true);
+      expect(mode.canCreate).toBe(false);
+      expect(mode.canRestore).toBe(false);
+      expect(mode.canRemove).toBe(false);
+      expect(mode.canRename).toBe(false);
+      expect(await mode.rename("missing")).toEqual({ status: "unavailable" });
+      mode.open();
+      expect(await mode.list()).toEqual({ status: "done" });
+      mode.close();
+      mode.open();
+      mode.close();
+      expect(configure).toHaveBeenCalledTimes(editors.length);
     }
-  },
-);
+    expect(editors[0].getExtension(Versions)!.userStore).not.toBe(
+      editors[1].getExtension(Versions)!.userStore,
+    );
+  } finally {
+    for (const editor of editors) {
+      editor.getExtension(Versions)!.close();
+      editor._tiptapEditor.destroy();
+    }
+  }
+});
+
+it("does not lazily initialize a versioning extension registered after creation", () => {
+  const configure = vi.fn(() => {
+    throw new Error("Late registration must not configure versioning");
+  });
+  const Versions = createVersioningExtension(configure);
+  const editor = BlockNoteEditor.create();
+  try {
+    editor.registerExtension(Versions());
+    const mode = editor.getExtension(Versions)!;
+    expect(mode.store.state).toEqual({ mode: "live" });
+    mode.close();
+    expect(() => mode.userStore).toThrow(
+      "Versioning must be installed during editor construction",
+    );
+    expect(() => mode.canCreate).toThrow(
+      "Versioning must be installed during editor construction",
+    );
+    expect(configure).not.toHaveBeenCalled();
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});
 
 function setup() {
   const show = vi.fn();
@@ -107,10 +120,10 @@ function setup() {
     },
     storage: {
       async list() {
-        return [];
+        return success([]);
       },
       async getContent(id: string) {
-        return id;
+        return success(id);
       },
     },
   }));

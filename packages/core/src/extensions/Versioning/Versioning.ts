@@ -1,5 +1,10 @@
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
 import { ReadOnlyExtension } from "../ReadOnly/ReadOnly.js";
 import { createVersioning } from "./createVersioning.js";
 import type { VersionStorage, VersionViewAdapter } from "./types.js";
@@ -10,27 +15,55 @@ import {
 } from "../../user/index.js";
 
 /** Configure storage and a view once; the sidebar only opens, selects, and closes. */
-export function createVersioningExtension<Content, Attributions = never>(
-  configure: (editor: BlockNoteEditor) => {
+export function createVersioningExtension<
+  Content,
+  Attributions = never,
+  BSchema extends BlockSchema = BlockSchema,
+  ISchema extends InlineContentSchema = InlineContentSchema,
+  SSchema extends StyleSchema = StyleSchema,
+>(
+  configure: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => {
     adapter: VersionViewAdapter<Content, Attributions>;
     storage: VersionStorage<Content, Attributions>;
     resolveUsers?: UserStoreOrResolver;
     scrollToFirstChange?: boolean;
   },
 ) {
-  return createExtension(({ editor }: { editor: BlockNoteEditor }) => {
-    let configuration: ReturnType<typeof configure> | undefined;
+  type Editor = BlockNoteEditor<BSchema, ISchema, SSchema>;
+  return createExtension(({ editor }: { editor: Editor }) => {
+    let configuration:
+      | (ReturnType<typeof configure> & {
+          userStore: ReturnType<typeof normalizeToUserStore>;
+        })
+      | undefined;
+
+    editor.on("create", () => {
+      const configured = configure(editor);
+      configuration = {
+        ...configured,
+        userStore: normalizeToUserStore(configured.resolveUsers),
+      };
+    });
+
+    function getConfiguration() {
+      if (!configuration) {
+        throw new Error(
+          "Versioning must be installed during editor construction",
+        );
+      }
+      return configuration;
+    }
+
     const mode = createVersioning({
       get storage() {
-        return (configuration ??= configure(editor)).storage;
+        return getConfiguration().storage;
       },
       adapter: {
         get supportsComparison() {
-          return (configuration ??= configure(editor)).adapter
-            .supportsComparison;
+          return getConfiguration().adapter.supportsComparison;
         },
         open() {
-          const configured = (configuration ??= configure(editor));
+          const configured = getConfiguration();
           const view = configured.adapter.open();
           let cancelScroll: (() => void) | undefined;
           let closed = false;
@@ -63,19 +96,18 @@ export function createVersioningExtension<Content, Attributions = never>(
         },
       },
       setReadOnly(enabled) {
-        editor
-          .getExtension(ReadOnlyExtension)!
-          .setReadOnly(enabled, "versioning");
+        const readOnly = editor.getExtension(ReadOnlyExtension);
+        if (!readOnly) {
+          throw new Error("Versioning requires the ReadOnly extension");
+        }
+        readOnly.setReadOnly(enabled, "versioning");
       },
     });
     const key = "versioning";
-    let userStore: ReturnType<typeof normalizeToUserStore> | undefined;
     return assignWithDescriptors(mode, {
       key,
       get userStore() {
-        return (userStore ??= normalizeToUserStore(
-          (configuration ??= configure(editor)).resolveUsers,
-        ));
+        return getConfiguration().userStore;
       },
       mount() {
         return () => mode.close();

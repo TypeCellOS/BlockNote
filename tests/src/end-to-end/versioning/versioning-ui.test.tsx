@@ -40,14 +40,23 @@ type Skin = "mantine" | "ariakit" | "shadcn";
 type Theme = "light" | "dark";
 
 function createEndpoints(): VersionStorage<unknown[], unknown> {
+  let snapshots = SNAPSHOTS;
   return {
-    list: async () => SNAPSHOTS,
-    getContent: async () => [],
-    getAttributions: async () => undefined,
-    create: async (_document, name) => ({ ...CURRENT, name }),
-    rename: async () => {},
-    remove: async () => {},
-    restore: async () => {},
+    list: async () => ({ ok: true, value: snapshots }),
+    getContent: async () => ({ ok: true, value: [] }),
+    getAttributions: async () => ({ ok: true, value: undefined }),
+    create: async (_document, name) => ({
+      ok: true,
+      value: { ...CURRENT, name },
+    }),
+    rename: async (id, name) => {
+      snapshots = snapshots.map((snapshot) =>
+        snapshot.id === id ? { ...snapshot, name } : snapshot,
+      );
+      return { ok: true, value: undefined };
+    },
+    remove: async () => ({ ok: true, value: undefined }),
+    restore: async () => ({ ok: true, value: undefined }),
   };
 }
 
@@ -323,6 +332,58 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
     await expectElement(region).toMatchScreenshot(
       `versioning-${skin}-comparison-baseline-naming`,
     );
+  },
+);
+
+test.each(["mantine", "ariakit", "shadcn"] as const)(
+  "%s preserves both sides of an explicit comparison when its baseline is renamed with Enter",
+  async (skin) => {
+    await render(<SkinPanel skin={skin} theme="light" />);
+    const region = document.querySelector<HTMLElement>(
+      '[role="region"][aria-label="History"]',
+    )!;
+    const rows = await waitForRows(region);
+    // Keep Current selected, but compare against the oldest stored version
+    // rather than its automatic previous-version baseline.
+    await vi.waitFor(() =>
+      expect(rows[0]).toHaveAttribute("aria-current", "true"),
+    );
+    await userEvent.hover(rows[2]!);
+    await clickElement(
+      rows[2]!.querySelector('button[aria-label="More actions"]')!,
+    );
+    const compareItem = await vi.waitFor(() => {
+      const item = Array.from(
+        document.querySelectorAll<HTMLElement>('[role="menuitem"]'),
+      ).find(
+        (item) => item.textContent?.trim() === "Compare with this version",
+      );
+      if (!item) {
+        throw new Error("Expected the comparison menu item");
+      }
+      return item;
+    });
+    await clickElement(compareItem);
+    await vi.waitFor(() => {
+      expect(rows[0]).toHaveAttribute("aria-current", "true");
+      expect(rows[2]).toHaveClass("comparing");
+    });
+
+    const baselineName = rows[2]!.querySelector<HTMLInputElement>(
+      'input[aria-label="Version name"]',
+    )!;
+    await userEvent.fill(baselineName, "Renamed baseline");
+    await userEvent.keyboard("{Enter}");
+
+    await vi.waitFor(() => {
+      expect(baselineName).toHaveValue("Renamed baseline");
+      expect(rows[2]!.getAttribute("aria-label")).toContain("Renamed baseline");
+      expect(document.activeElement).toBe(rows[2]);
+      expect(rows[0]).toHaveAttribute("aria-current", "true");
+      expect(rows[2]).not.toHaveAttribute("aria-current", "true");
+      expect(rows[2]).toHaveClass("comparing");
+      expect(rows[1]).not.toHaveClass("comparing");
+    });
   },
 );
 

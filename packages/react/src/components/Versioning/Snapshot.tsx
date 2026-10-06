@@ -88,7 +88,7 @@ export function Snapshot(props: {
   const Components = useComponentsContext()!;
   const portalElement = usePortalElement();
   const dict = useDictionary();
-  const { create, rename, list, canCreate } = useVersioning();
+  const { create, rename, canCreate, canRename } = useVersioning();
   const { snapshotMenu, run, focusNameFor, setFocusNameFor } =
     useVersioningSidebar();
   const previewRow = usePreviewRow();
@@ -103,11 +103,7 @@ export function Snapshot(props: {
   const secondaryLabel = useSnapshotLabel(snapshot);
   const dateString = formatVersionDate(snapshot.createdAt);
   const rowDate =
-    isCurrent && snapshot.name !== undefined
-      ? dict.versioning.current_version
-      : isCurrent || snapshot.name !== undefined
-        ? dateString
-        : undefined;
+    isCurrent || snapshot.name !== undefined ? dateString : undefined;
   const restoredFrom =
     snapshot.restoredFrom !== undefined
       ? dict.versioning.restored_from(
@@ -121,9 +117,6 @@ export function Snapshot(props: {
   const placeholder = isCurrent ? dict.versioning.current_version : dateString;
   const accessibleLabel = [
     snapshot.name ?? placeholder,
-    isCurrent && snapshot.name !== undefined
-      ? dict.versioning.current_version
-      : undefined,
     isCurrent || snapshot.name !== undefined ? dateString : undefined,
     comparing ? dict.versioning.comparing_to : undefined,
     secondaryLabel,
@@ -132,8 +125,7 @@ export function Snapshot(props: {
     .join(", ");
   // Naming the current version goes through `create`; every other rename is a
   // `rename`. Both are gated on the backend actually supporting them.
-  const commitsViaCreate = isCurrent && snapshot.name === undefined;
-  const canEditName = commitsViaCreate ? canCreate : rename !== undefined;
+  const canEditName = isCurrent ? canCreate : canRename;
   // Both sides of an active comparison can be named without switching the
   // preview. Elsewhere the first click selects the row before renaming it.
   const editable = (selected || comparing) && canEditName === true;
@@ -176,18 +168,11 @@ export function Snapshot(props: {
     handleSelect();
   }
 
-  function commitName(name: string | undefined) {
-    if (commitsViaCreate && create) {
-      void run(
-        () => create(name),
-        () => list(),
-      );
-    } else if (!commitsViaCreate && rename) {
-      void run(
-        () => rename(snapshot.id, name),
-        () => list(),
-      );
-    }
+  async function commitName(name: string | undefined) {
+    const result = await run(() =>
+      isCurrent ? create(name) : rename(snapshot.id, name),
+    );
+    return result.status === "done";
   }
 
   const actions =
@@ -249,7 +234,6 @@ export function Snapshot(props: {
             name={snapshot.name}
             placeholder={placeholder}
             editable={editable}
-            commitMode={commitsViaCreate ? "create" : "rename"}
             inputRef={nameInput}
             onCommit={commitName}
           />
