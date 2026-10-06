@@ -4,12 +4,14 @@ export default defineConfig({
   run: {
     tasks: {
       build: {
-        command: "tsc",
+        // Always emit declarations on cache misses, regardless of incremental state.
+        command: "tsc --build --force",
         input: [
           { auto: true },
+          { pattern: "examples/**", base: "package" },
           { pattern: "!**/*.tsbuildinfo", base: "workspace" },
         ],
-        output: ["dist/**"],
+        output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],
       },
       "gen:examples": {
         command: "tsx examples/gen.ts",

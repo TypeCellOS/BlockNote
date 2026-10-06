@@ -2,13 +2,22 @@ import { pauseSync, ySyncPluginKey } from "@y/prosemirror";
 import * as Y from "@y/y";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { VersionViewAdapter } from "../../extensions/Versioning/types.js";
+import type {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
 import { serializeFragment } from "./snapshotCodec.js";
 import { showSnapshotPreview } from "./snapshotPreview.js";
 
 /** Uses the existing fork primitive, but exposes only an owned view. */
-export function createYVersionView(
-  editor: BlockNoteEditor,
+export function createYVersionView<
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema,
+>(
+  editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
   fragment: Y.Node,
 ): VersionViewAdapter<Uint8Array, Y.ContentMap> {
   return {

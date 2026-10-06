@@ -9,9 +9,14 @@ export default defineConfig({
   run: {
     tasks: {
       build: {
-        command: "tsc && vp build",
+        // Cache restores declarations without tsbuildinfo, so don't let stale
+        // incremental state skip emitting the current source declarations.
+        command: "tsc --build --force && vp build",
         input: [
           { auto: true },
+          // Incremental tsc may not read unchanged files. Track all source files
+          // so edits to public exports always invalidate the build cache.
+          { pattern: "src/**", base: "package" },
           { pattern: "!**/*.tsbuildinfo", base: "workspace" },
         ],
         // `types/**` must be declared too: a cache replay that restores only

@@ -4,7 +4,8 @@ export default defineConfig({
   run: {
     tasks: {
       build: {
-        command: "tsc",
+        // Always emit declarations on cache misses, regardless of incremental state.
+        command: "tsc --build --force",
         input: [
           { auto: true },
           // Auto-detection tracks the conventional src/ layout, but this

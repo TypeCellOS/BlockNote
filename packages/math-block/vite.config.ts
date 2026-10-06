@@ -10,9 +10,11 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsc && vp build",
+            // Always emit declarations on cache misses, regardless of incremental state.
+            command: "tsc --build --force && vp build",
             input: [
               { auto: true },
+              { pattern: "src/**", base: "package" },
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
             // `types/**` must be declared too: a cache replay that restores only
