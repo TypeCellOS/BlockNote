@@ -9,8 +9,10 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            // Always emit declarations on cache misses, regardless of incremental state.
-            command: "tsc --build --force && vp build",
+            // Emit only this package; vp orders dependencies. Build mode would
+            // rewrite shared declarations concurrently. Keep types/src paths.
+            command:
+              "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
             input: [
               { auto: true },
               { pattern: "src/**", base: "package" },
