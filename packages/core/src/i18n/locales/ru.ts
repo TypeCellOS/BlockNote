@@ -456,6 +456,8 @@ export const ru: Dictionary = {
     inserted: "Вставлено",
     inserted_by: (users: string) => `Вставлено: ${users}`,
     deleted_by: (users: string) => `Удалено: ${users}`,
+    changed: "Изменено",
+    changed_by: (users: string) => `Изменено: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Изменение форматирования (${formats}): ${users}`,
   },

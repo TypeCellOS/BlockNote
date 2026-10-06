@@ -412,6 +412,8 @@ export const en = {
     inserted: "Inserted",
     inserted_by: (users: string) => `Inserted by: ${users}`,
     deleted_by: (users: string) => `Deleted by: ${users}`,
+    changed: "Changed",
+    changed_by: (users: string) => `Changed by: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Formatting change (${formats}) by: ${users}`,
   },

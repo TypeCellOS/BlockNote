@@ -410,6 +410,8 @@ export const sk = {
     inserted: "Vložené",
     inserted_by: (users: string) => `Vložil: ${users}`,
     deleted_by: (users: string) => `Odstránil: ${users}`,
+    changed: "Zmenené",
+    changed_by: (users: string) => `Zmenil: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Zmena formátovania (${formats}) od: ${users}`,
   },

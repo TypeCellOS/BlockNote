@@ -21,6 +21,7 @@ import { UnreachableCaseError } from "../../util/typescript.js";
 import {
   getBlockInfoWithManualOffset,
   getNodeId,
+  isSuggestedDeletionNode,
 } from "../getBlockInfoFromPos.js";
 import {
   getBlockCache,
@@ -28,6 +29,32 @@ import {
   getInlineContentSchema,
   getStyleSchema,
 } from "../pmUtil.js";
+
+/**
+ * The text of a plain content node. Plain content can't carry marks, so text
+ * marked as deleted (in a version diff or a suggestion) would merge with its
+ * replacement (e.g. `x^2` → `y^3` reads `xy^23`) - keep only the result.
+ *
+ * Styled text (`contentNodeToInlineContent`) still includes deleted text; see
+ * the note there.
+ *
+ * TODO(suggestion mode): Do NOT keep this behavior when we implement suggestion
+ * mode. Converting nodes to blocks must preserve pending suggestions, not
+ * silently read deletions as accepted in `editor.document`, `onChange` or exports.
+ * We only accept filtering here because plain text content has no good
+ * representation of inline formatting, including insertion/deletion marks, and
+ * merging both versions produces invalid preview source. Suggestion mode needs
+ * to preserve that information and resolve the preview source separately.
+ */
+function plainContentText(node: Node): string {
+  let text = "";
+  node.forEach((child) => {
+    if (!isSuggestedDeletionNode(child)) {
+      text += child.textContent;
+    }
+  });
+  return text;
+}
 
 /**
  * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
@@ -146,6 +173,12 @@ export function contentNodeToInlineContent<
 >(contentNode: Node, inlineContentSchema: I, styleSchema: S) {
   const content: InlineContent<any, S>[] = [];
   let currentContent: InlineContent<any, S> | undefined = undefined;
+
+  // NOTE: unlike plain content (`plainContentText`), text marked as deleted in
+  // a version diff or suggestion is kept here, merged with its replacement. We
+  // might want to filter it too, but that changes what `editor.document`,
+  // `onChange` and exports report while suggestions show, and makes a block
+  // whose text is all deleted read as empty.
 
   // Most of the logic below is for handling links because in ProseMirror links are marks
   // while in BlockNote links are a type of inline content
@@ -375,7 +408,7 @@ export function nodeToCustomInlineContent<
     ) as any; // TODO: is this safe? could we have Links here that are undesired?
   } else if (icConfig.content === "plain") {
     // Plain inline content is a single unstyled string.
-    content = node.textContent as any;
+    content = plainContentText(node) as any;
   } else {
     content = undefined;
   }
@@ -475,7 +508,7 @@ export function nodeToBlock<
     }
     // Plain content is a single unstyled text item; an empty block is an
     // empty array, matching inline content.
-    const text = blockInfo.blockContent.node.textContent;
+    const text = plainContentText(blockInfo.blockContent.node);
     content = text.length > 0 ? [{ type: "text", text, styles: {} }] : [];
   } else if (blockConfig.content === "none") {
     content = undefined;

@@ -381,6 +381,8 @@ export const fa = {
     inserted: "درج\u200cشده",
     inserted_by: (users: string) => `درج‌شده توسط: ${users}`,
     deleted_by: (users: string) => `حذف‌شده توسط: ${users}`,
+    changed: "تغییر\u200cیافته",
+    changed_by: (users: string) => `تغییر\u200cیافته توسط: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `تغییر قالب‌بندی (${formats}) توسط: ${users}`,
   },

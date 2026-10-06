@@ -158,7 +158,7 @@ test("anchors an inline math change tooltip to the formula, not the paragraph", 
     await vi.waitFor(() =>
       expect(
         document.querySelector(".bn-suggestion-tooltip")?.textContent,
-      ).toBe("Inserted"),
+      ).toBe("Changed"),
     );
     const tooltip = document.querySelector<HTMLElement>(
       ".bn-suggestion-tooltip",
@@ -221,6 +221,44 @@ test("does not attribute unchanged content to a sibling's change", async () => {
   }
 });
 
+test("does not attribute a text change to the block's other controls", async () => {
+  const editor = BlockNoteEditor.create({
+    schema,
+    extensions: [DiffVersioningExtension()],
+  });
+  try {
+    await render(<MantineBlockNoteView editor={editor} />);
+    editor.replaceBlocks(editor.document, [
+      { id: "task", type: "checkListItem", content: "hello world" },
+    ]);
+    const baseline = editor.document;
+    editor.replaceBlocks(editor.document, [
+      { id: "task", type: "checkListItem", content: "hello brave world" },
+    ]);
+    editor
+      .getExtension(DiffVersioningExtension)!
+      .renderDiff(editor.document, baseline);
+    const checkbox = await vi.waitFor(() => {
+      const element = editor.domElement?.querySelector<HTMLElement>(
+        '.bn-block[data-id="task"] input[type="checkbox"]',
+      );
+      if (!element) {
+        throw new Error("Checkbox did not render");
+      }
+      return element;
+    });
+    await userEvent.hover(checkbox);
+    expect(
+      editor.domElement?.querySelector('.bn-block[data-id="task"] ins'),
+    ).not.toBeNull();
+    expect(
+      editor.getExtension(AttributionExtension)!.store.state,
+    ).toBeUndefined();
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});
+
 test("shows an attribution for a partial change within inline math", async () => {
   const editor = BlockNoteEditor.create({
     schema,
@@ -259,8 +297,10 @@ test("shows an attribution for a partial change within inline math", async () =>
     await vi.waitFor(() =>
       expect(
         document.querySelector(".bn-suggestion-tooltip")?.textContent,
-      ).toBe("Deleted"),
+      ).toBe("Changed"),
     );
+    // The formula renders the shown version's source, not "x+zy".
+    expect(formula.querySelector("annotation")?.textContent).toBe("x+y");
   } finally {
     editor._tiptapEditor.destroy();
   }
@@ -364,7 +404,7 @@ test.each(cases)(
       await vi.waitFor(() =>
         expect(
           document.querySelector(".bn-suggestion-tooltip")?.textContent,
-        ).toBe("Inserted"),
+        ).toBe(block.type === "file" ? "Inserted" : "Changed"),
       );
       await vi.waitFor(() => {
         const tooltip = document.querySelector<HTMLElement>(

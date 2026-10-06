@@ -463,6 +463,27 @@ export const scenarios: SuggestionScenario[] = [
   },
   {
     kind: "single",
+    id: "text-edit-diagram",
+    title: "Edit a diagram",
+    category: "Basic text",
+    description:
+      "Rename a node in a Mermaid diagram. The source shows the struck-through " +
+      "and inserted text; the preview renders the suggested diagram.",
+    initial: [
+      {
+        id: "diagram",
+        type: "diagram",
+        content: "graph TD\n  A[Draft] --> B[Review]",
+      },
+    ],
+    apply: (editor) => {
+      editor.updateBlock("diagram", {
+        content: "graph TD\n  A[Draft] --> B[Publish]",
+      });
+    },
+  },
+  {
+    kind: "single",
     id: "text-add-bold",
     title: "Add bold",
     category: "Basic text",

@@ -4509,6 +4509,9 @@ importers:
       '@blocknote/core':
         specifier: latest
         version: link:../../../packages/core
+      '@blocknote/diagram-block':
+        specifier: latest
+        version: link:../../../packages/diagram-block
       '@blocknote/mantine':
         specifier: latest
         version: link:../../../packages/mantine

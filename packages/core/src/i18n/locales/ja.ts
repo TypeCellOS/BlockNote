@@ -452,6 +452,8 @@ export const ja: Dictionary = {
     inserted: "挿入済み",
     inserted_by: (users: string) => `挿入者: ${users}`,
     deleted_by: (users: string) => `削除者: ${users}`,
+    changed: "変更済み",
+    changed_by: (users: string) => `変更者: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `書式の変更 (${formats}) 変更者: ${users}`,
   },

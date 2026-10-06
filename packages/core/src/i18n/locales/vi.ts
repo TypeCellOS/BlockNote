@@ -411,6 +411,8 @@ export const vi: Dictionary = {
     inserted: "Đã chèn",
     inserted_by: (users: string) => `Được chèn bởi: ${users}`,
     deleted_by: (users: string) => `Được xóa bởi: ${users}`,
+    changed: "Đã thay đổi",
+    changed_by: (users: string) => `Được thay đổi bởi: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Thay đổi định dạng (${formats}) bởi: ${users}`,
   },

@@ -17,6 +17,7 @@ import {
   resolveAttributionMarkClassName,
   getAttributionUserIds,
   YAttributionMarksExtension,
+  type AttributionMarkStyleInfo,
   type GetAttributionMarkClassName,
 } from "./YAttributionMarks.js";
 
@@ -77,7 +78,9 @@ const parseFormatKeys = (formatJSON: string | undefined): string[] => {
  */
 export type AttributionChange =
   | {
-      modificationType: "insert" | "delete";
+      // `change`: a preview (e.g. a diagram) can't show what was inserted or
+      // deleted in its hidden source, only that it changed.
+      modificationType: "insert" | "delete" | "change";
       format?: never;
       attributes?: never;
     }
@@ -242,9 +245,15 @@ export const AttributionExtension = createExtension(
           return `${wrapper.dataset["attributes"] ?? ""}:${format.join(",")}:${ids.join(",")}`;
         };
 
-        // Build the tooltip state from a wrapper's `data-*` attributes.
-        const buildState = (anchor: HTMLElement): AttributionTooltipState => {
-          const change: AttributionChange =
+        // Build the tooltip state from a wrapper's `data-*` attributes. A
+        // `preview` is the rendered preview the change was hovered through.
+        const buildState = (
+          anchor: HTMLElement,
+          preview?: Element,
+        ): AttributionTooltipState => {
+          const markChange: AttributionChange & {
+            modificationType: AttributionMarkStyleInfo["modificationType"];
+          } =
             anchor.dataset["attributes"] !== undefined
               ? {
                   modificationType: "attrs",
@@ -259,7 +268,10 @@ export const AttributionExtension = createExtension(
                     modificationType:
                       anchor.tagName === "INS" ? "insert" : "delete",
                   };
-          const { modificationType } = change;
+          const { modificationType } = markChange;
+          const change: AttributionChange = preview
+            ? { modificationType: "change" }
+            : markChange;
           const contentType: AttributionTooltipState["contentType"] =
             anchor.dataset["inline"] === "false" ? "block" : "inline-content";
 
@@ -278,6 +290,7 @@ export const AttributionExtension = createExtension(
               getAttributionMarkClassName?.({ contentType, modificationType }),
               "tooltip",
             ),
+            ...(preview ? { reference: preview } : {}),
           };
         };
 
@@ -309,7 +322,7 @@ export const AttributionExtension = createExtension(
 
         const nodeAttribution = (
           target: Element,
-        ): { mark: HTMLElement; reference: Element } | undefined => {
+        ): { mark: HTMLElement; preview: Element } | undefined => {
           if (!dom.contains(target)) {
             return undefined;
           }
@@ -329,11 +342,24 @@ export const AttributionExtension = createExtension(
             return undefined;
           }
           // A separate rendered preview may hide its attributed source. Only
-          // hovering that surface represents a change within the whole node.
+          // hovering that surface represents a change within the whole node,
+          // not other controls like a checkbox, whose text is on screen.
+          const name = $pos.parent.type.name;
+          const hasPreview =
+            editor.schema.blockSpecs[name]?.implementation?.meta?.hasPreview ||
+            editor.schema.inlineContentSpecs[name]?.implementation?.meta
+              ?.hasPreview;
+          if (
+            !hasPreview &&
+            contentDOM instanceof Element &&
+            contentDOM.getClientRects().length > 0
+          ) {
+            return undefined;
+          }
           const mark = Array.from(
             owner.querySelectorAll<HTMLElement>(ATTRIBUTION_MARK_SELECTOR),
           ).find(attributionIdentity);
-          return mark ? { mark, reference: owner } : undefined;
+          return mark ? { mark, preview: owner } : undefined;
         };
 
         const onPointerOver = (event: Event) => {
@@ -373,16 +399,13 @@ export const AttributionExtension = createExtension(
 
           if (
             activeAnchor === anchor &&
-            store.state?.reference === fallback?.reference
+            store.state?.reference === fallback?.preview
           ) {
             return;
           }
 
           activeAnchor = anchor;
-          store.setState({
-            ...buildState(anchor),
-            ...(fallback ? { reference: fallback.reference } : {}),
-          });
+          store.setState(buildState(anchor, fallback?.preview));
 
           // First hover renders raw ids (cache-only); load the authors and refresh
           // the resolved usernames once loaded, if this mark is still active.
@@ -391,14 +414,11 @@ export const AttributionExtension = createExtension(
             void userStore.loadUsers(ids).then(() => {
               if (
                 activeAnchor !== anchor ||
-                store.state?.reference !== fallback?.reference
+                store.state?.reference !== fallback?.preview
               ) {
                 return;
               }
-              store.setState({
-                ...buildState(anchor),
-                ...(fallback ? { reference: fallback.reference } : {}),
-              });
+              store.setState(buildState(anchor, fallback?.preview));
             });
           }
         };
