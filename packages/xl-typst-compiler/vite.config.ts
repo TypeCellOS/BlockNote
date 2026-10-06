@@ -1,6 +1,7 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { defineConfig, type UserConfig } from "vite-plus";
+import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 
 // https://vitejs.dev/config/
 export default defineConfig(
@@ -14,15 +15,15 @@ export default defineConfig(
             // consumer of this task, including the Vercel builds, gets the
             // wasm without a separate step. Requires a Rust toolchain
             // locally (pinned in rust/rust-toolchain.toml).
-            // Always emit declarations on cache misses, regardless of incremental state.
-            command:
-              "node scripts/ensure-wasm.mjs && tsc --build --force && vp build",
+            command: "node scripts/ensure-wasm.mjs && tsc && vp build",
             input: [
-              { auto: true },
-              { pattern: "src/**", base: "package" },
+              ...buildCacheInputs("packages/xl-typst-compiler"),
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
-              { pattern: "rust/**", base: "workspace" },
-              { pattern: "!rust/target/**", base: "workspace" },
+              "rust/Cargo.toml",
+              "rust/Cargo.lock",
+              "rust/rust-toolchain.toml",
+              "rust/src/**",
+              "!rust/target/**",
             ],
             // `types/**` must be declared too: a cache replay that restores
             // only dist/ leaves consumers without declarations. pkg/** is

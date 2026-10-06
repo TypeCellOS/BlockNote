@@ -2,6 +2,7 @@ import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { defineConfig, type UserConfig } from "vite-plus";
 import pkg from "./package.json";
+import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 // import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
@@ -11,11 +12,9 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            // Always emit declarations on cache misses, regardless of incremental state.
-            command: "tsc --build --force && vp build",
+            command: "tsc && vp build",
             input: [
-              { auto: true },
-              { pattern: "src/**", base: "package" },
+              ...buildCacheInputs("packages/code-block"),
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
             // `types/**` must be declared too: a cache replay that restores only

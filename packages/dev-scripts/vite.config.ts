@@ -1,14 +1,13 @@
 import { defineConfig } from "vite-plus";
+import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 
 export default defineConfig({
   run: {
     tasks: {
       build: {
-        // Always emit declarations on cache misses, regardless of incremental state.
-        command: "tsc --build --force",
+        command: "tsc",
         input: [
-          { auto: true },
-          { pattern: "examples/**", base: "package" },
+          ...buildCacheInputs("packages/dev-scripts"),
           { pattern: "!**/*.tsbuildinfo", base: "workspace" },
         ],
         output: ["dist/**", "types/**", "!dist/*.tsbuildinfo"],

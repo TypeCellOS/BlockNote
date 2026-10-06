@@ -2,6 +2,7 @@ import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { configDefaults, defineConfig } from "vite-plus";
 import pkg from "./package.json";
+import { buildCacheInputs } from "../../scripts/build-cache-inputs.js";
 // import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
@@ -9,14 +10,9 @@ export default defineConfig({
   run: {
     tasks: {
       build: {
-        // Cache restores declarations without tsbuildinfo, so don't let stale
-        // incremental state skip emitting the current source declarations.
-        command: "tsc --build --force && vp build",
+        command: "tsc && vp build",
         input: [
-          { auto: true },
-          // Incremental tsc may not read unchanged files. Track all source files
-          // so edits to public exports always invalidate the build cache.
-          { pattern: "src/**", base: "package" },
+          ...buildCacheInputs("packages/core"),
           { pattern: "!**/*.tsbuildinfo", base: "workspace" },
         ],
         // `types/**` must be declared too: a cache replay that restores only
