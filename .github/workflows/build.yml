@@ -269,13 +269,16 @@ jobs:
 
       # Re-emit a single HTML report from the merged blobs (no tests are run).
       # Blob source paths use the producer containers' /__w checkout location.
-      # Preserve those paths for source snippets and stack traces on the host.
+      # Vitest also derives result IDs from the canonical root, so a forward
+      # symlink alone loses its success/failure lookup. Move the disposable
+      # checkout and leave a backlink for artifact actions using GITHUB_WORKSPACE.
       - name: Map container report paths
         run: |
           repo_name="${GITHUB_REPOSITORY#*/}"
           container_root="/__w/$repo_name/$repo_name"
           sudo mkdir -p "$(dirname "$container_root")"
-          sudo ln -s "$GITHUB_WORKSPACE" "$container_root"
+          sudo mv "$GITHUB_WORKSPACE" "$container_root"
+          sudo ln -s "$container_root" "$GITHUB_WORKSPACE"
 
       - name: Merge into HTML report
         run: vp test -c vite.config.browser.ts --mergeReports=blob-report --reporter=html
