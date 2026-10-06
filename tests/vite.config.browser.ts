@@ -11,7 +11,10 @@ import { imeComposition } from "./src/utils/imeComposition.js";
 // (including CLI exclusions), so apply the CI split at both levels.
 const CI_EXCLUDE =
   process.env.BLOCKNOTE_E2E_GROUP === "non-pdf"
-    ? ["**/typstPdfImages.test.tsx", "**/compileTypst.browser.test.ts"]
+    ? [
+        "**/typstPdfImages.test.tsx",
+        "../packages/xl-pdf-exporter/src/pdfua/compileTypst.browser.test.ts",
+      ]
     : [];
 const DESKTOP_EXCLUDE = [
   ...configDefaults.exclude,
