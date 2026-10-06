@@ -355,6 +355,8 @@ export class BlockNoteEditor<
   SSchema extends StyleSchema = DefaultStyleSchema,
 > extends EventEmitter<{
   create: void;
+  /** Emitted when the editor is permanently destroyed, not on unmount. */
+  destroy: void;
 }> {
   /**
    * The underlying prosemirror schema
@@ -585,6 +587,9 @@ export class BlockNoteEditor<
     });
     this._tiptapEditor.on("unmount", () => {
       this.headless = true;
+    });
+    this._tiptapEditor.on("destroy", () => {
+      this.emit("destroy");
     });
 
     // Initialize managers
