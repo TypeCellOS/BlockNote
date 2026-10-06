@@ -174,17 +174,27 @@ function VersioningName(props: ComponentProps["Versioning"]["Name"]) {
   if (props.mode === "display") {
     return <span className="bn-snapshot-name">{props.value}</span>;
   }
+  const {
+    inputRef,
+    value,
+    placeholder,
+    "aria-label": ariaLabel,
+    onBlur,
+    onChange,
+    onClick,
+    onKeyDown,
+  } = props;
   return (
     <input
       className="bn-snapshot-name"
-      ref={props.inputRef}
-      value={props.value}
-      placeholder={props.placeholder}
-      aria-label={props["aria-label"]}
-      onBlur={props.onBlur}
-      onChange={props.onChange}
-      onClick={props.onClick}
-      onKeyDown={props.onKeyDown}
+      ref={inputRef}
+      value={value}
+      placeholder={placeholder}
+      aria-label={ariaLabel}
+      onBlur={onBlur}
+      onChange={onChange}
+      onClick={onClick}
+      onKeyDown={onKeyDown}
     />
   );
 }

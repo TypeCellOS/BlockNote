@@ -72,6 +72,8 @@ function VersioningSidebarContent(props: {
     namedOnly,
     onError: props.onError,
   });
+  // Intentionally keep pending actions synchronized during render.
+  // oxlint-disable-next-line react/refs
   latestRef.current = {
     previewRow,
     comparisonMode,
