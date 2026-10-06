@@ -95,7 +95,7 @@ That's all — see it in action in [this example](/examples/theming/code-block).
 
 Under the hood, highlighting is split into two parts, which you can also wire up yourself for full control over the bundle:
 
-- The `SyntaxHighlightingExtension` (from `@blocknote/core`) provides the highlighter — a [Shiki](https://shiki.style) instance with your choice of languages, themes, and engine:
+- The `SyntaxHighlightingExtension` (from `@blocknote/core/extensions`) provides the highlighter — a [Shiki](https://shiki.style) instance with your choice of languages, themes, and engine:
 
   ```ts
   type SyntaxHighlightingOptions = {
@@ -125,7 +125,7 @@ npx shiki-codegen --langs javascript,typescript,vue --themes light-plus,dark-plu
 This generates a `shiki.bundle.ts` file that you use to create the extension — added to the editor exactly like the pre-configured one above, alongside a `createCodeBlockSpec` configured with your matching languages:
 
 ```ts
-import { SyntaxHighlightingExtension } from "@blocknote/core";
+import { SyntaxHighlightingExtension } from "@blocknote/core/extensions";
 import { createHighlighter } from "./shiki.bundle.js";
 
 const syntaxHighlighter = SyntaxHighlightingExtension({

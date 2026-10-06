@@ -15,8 +15,8 @@ import {
   StyleSchema,
   TableCell,
   TableContent,
-  UniqueID,
 } from "@blocknote/core";
+import { UniqueID } from "@blocknote/core/extensions";
 
 function textShorthandToStyledText(
   content: string | StyledText<any>[] = "",

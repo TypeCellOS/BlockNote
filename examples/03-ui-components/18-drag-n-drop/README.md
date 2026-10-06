@@ -20,7 +20,7 @@ The exclusion check works by traversing up the DOM tree from the drag event targ
 ### Import the constant:
 
 ```tsx
-import { DRAG_EXCLUSION_CLASSNAME } from "@blocknote/core";
+import { DRAG_EXCLUSION_CLASSNAME } from "@blocknote/core/extensions";
 ```
 
 ### Apply it to your custom drag area:

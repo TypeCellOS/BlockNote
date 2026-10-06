@@ -12,6 +12,8 @@ BlockNote includes an extensions system which lets you expand the editor's behav
 - [ProseMirror plugins](https://prosemirror.net/docs/ref/#state.Plugin_System)
 - [TipTap extensions](https://tiptap.dev/docs/editor/extensions/custom-extensions/create-new)
 
+Import built-in extensions, their types, and their helpers from `@blocknote/core/extensions`, not `@blocknote/core`. Editor and schema APIs, including `BlockNoteEditor` and `createExtension`, remain in `@blocknote/core`.
+
 ## Creating an extension
 
 You can create extensions using the `createExtension` function:

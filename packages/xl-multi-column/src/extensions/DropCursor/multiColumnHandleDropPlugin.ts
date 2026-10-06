@@ -1,11 +1,11 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 import {
-  UniqueID,
   createExtension,
   fragmentToBlocks,
   getBlockInfo,
   nodeToBlock,
 } from "@blocknote/core";
+import { UniqueID } from "@blocknote/core/extensions";
 import { Plugin } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
 import { detectEdgePosition } from "./multiColumnDropCursor.js";

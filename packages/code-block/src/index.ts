@@ -1,5 +1,5 @@
 import type { CodeBlockOptions } from "@blocknote/core";
-import { SyntaxHighlightingExtension } from "@blocknote/core";
+import { SyntaxHighlightingExtension } from "@blocknote/core/extensions";
 import { createHighlighter } from "./shiki.bundle.js";
 
 /**
