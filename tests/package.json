@@ -21,6 +21,10 @@
     "@blocknote/xl-pdf-exporter": "workspace:^",
     "@blocknote/xl-typst-exporter": "workspace:^",
     "@playwright/test": "1.60.0",
+    "@shikijs/core": "^4.4.3",
+    "@shikijs/engine-javascript": "^4.4.3",
+    "@shikijs/langs-precompiled": "^4.4.3",
+    "@shikijs/themes": "^4.4.3",
     "@tailwindcss/vite": "^4.1.14",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.3.0",
@@ -42,7 +46,7 @@
     "vitest-browser-react": "^2.2.0"
   },
   "dependencies": {
-    "get-port-please": "3.2.0",
-    "@blocknote/xl-typst-compiler": "workspace:^"
+    "@blocknote/xl-typst-compiler": "workspace:^",
+    "get-port-please": "3.2.0"
   }
 }

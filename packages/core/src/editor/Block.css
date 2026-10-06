@@ -444,7 +444,12 @@ NESTED BLOCKS
 }
 
 /* CODE BLOCKS */
-.bn-block-content[data-content-type="codeBlock"] {
+.bn-block-content[data-content-type="codeBlock"],
+/* Keep the code surface above suggestion fills and resets in both themes.
+   Source-popup previews have no direct <pre> and keep their transparent surface. */
+.bn-root
+  .bn-suggestion-node
+  .bn-block-content[data-content-type="codeBlock"]:has(> pre) {
   position: relative;
 
   background-color: rgb(22 22 22);
@@ -452,6 +457,7 @@ NESTED BLOCKS
   border-radius: 8px;
 }
 .bn-block-content[data-content-type="codeBlock"] > pre {
+  --bn-suggestion-surface: rgb(22 22 22);
   white-space: pre;
   overflow-x: auto;
   margin: 0;
@@ -501,13 +507,13 @@ NESTED BLOCKS
 
 /* Default to dark theme as the code block has a dark background regardless of theme. */
 .shiki {
-  color: var(--shiki-dark);
+  color: var(--bn-suggestion-token-color, var(--shiki-dark));
 }
 .bn-source-block-popup .shiki {
-  color: var(--shiki-light);
+  color: var(--bn-suggestion-token-color, var(--shiki-light));
 }
 .bn-root[data-color-scheme="dark"] .bn-source-block-popup .shiki {
-  color: var(--shiki-dark);
+  color: var(--bn-suggestion-token-color, var(--shiki-dark));
 }
 
 .bn-preview-with-source-popup {
@@ -1117,16 +1123,18 @@ from the wrapper. The `.bn-root ins, .bn-root del` rules above still style
 serialized/static output, where the wrapper is a real, painted box.
 */
 .bn-suggestion-mark {
+  --bn-suggestion-token-color: currentColor;
   background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
   color: var(--user-color-dark);
   border-radius: 4px;
 }
 
-.dark.bn-root .bn-suggestion-mark {
+.dark.bn-root .bn-suggestion-mark,
+.bn-block-content[data-content-type="codeBlock"] > pre .bn-suggestion-mark {
   background-color: color-mix(
     in srgb,
     var(--user-color-light) 25%,
-    var(--bn-colors-editor-background)
+    var(--bn-suggestion-surface, var(--bn-colors-editor-background))
   );
   color: white;
 }
@@ -1211,11 +1219,16 @@ apart. It can be nested below `.bn-block-content` (e.g. code wraps it in <pre>),
 hence the descendant match.
 */
 .bn-suggestion-node--delete .bn-block-content .bn-inline-content {
+  --bn-suggestion-token-color: currentColor;
   color: var(--user-color-dark);
   text-decoration: line-through;
 }
 
-.dark.bn-root .bn-suggestion-node--delete .bn-block-content .bn-inline-content {
+.dark.bn-root .bn-suggestion-node--delete .bn-block-content .bn-inline-content,
+.bn-suggestion-node--delete
+  .bn-block-content[data-content-type="codeBlock"]
+  > pre
+  .bn-inline-content {
   color: var(--user-color-light);
 }
 
@@ -1306,11 +1319,13 @@ Media (image/video/audio/file) has an intrinsic width via its
 `.bn-file-block-content-wrapper`, so the card hugs it instead of spanning the
 column. Width-less blocks (a divider's `flex: 1` <hr>, a table) keep full width on
 purpose — `fit-content` would collapse them to nothing, and full width is the
-right look for them anyway. This is the only place that touches sizing, and it's
+right look for them anyway. Audio previews also need full width: their player and
+wrapper both use percentage widths, so shrink-wrapping hides the controls.
+This is the only place that touches sizing, and it's
 gated on a wrapper that only width-bearing blocks have.
 */
 .bn-suggestion-node
-  .bn-block-content:not(:has(.bn-inline-content)):has(
+  .bn-block-content:not(:has(.bn-inline-content, .bn-audio)):has(
     > .bn-file-block-content-wrapper
   ) {
   width: fit-content;
@@ -1393,7 +1408,10 @@ background fill (unlike insertions, which carry a filled highlight).
   text-decoration: line-through;
 }
 
-.dark.bn-root .bn-suggestion-mark--delete {
+.dark.bn-root .bn-suggestion-mark--delete,
+.bn-block-content[data-content-type="codeBlock"]
+  > pre
+  .bn-suggestion-mark--delete {
   background-color: transparent;
   color: var(--user-color-light);
 }
