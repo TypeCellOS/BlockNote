@@ -37,6 +37,14 @@ import {
  *
  * Styled text (`contentNodeToInlineContent`) still includes deleted text; see
  * the note there.
+ *
+ * TODO(suggestion mode): Do NOT keep this behavior when we implement suggestion
+ * mode. Converting nodes to blocks must preserve pending suggestions, not
+ * silently read deletions as accepted in `editor.document`, `onChange` or exports.
+ * We only accept filtering here because plain text content has no good
+ * representation of inline formatting, including insertion/deletion marks, and
+ * merging both versions produces invalid preview source. Suggestion mode needs
+ * to preserve that information and resolve the preview source separately.
  */
 function plainContentText(node: Node): string {
   let text = "";
