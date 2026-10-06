@@ -413,6 +413,8 @@ export const nl: Dictionary = {
     inserted: "Ingevoegd",
     inserted_by: (users: string) => `Ingevoegd door: ${users}`,
     deleted_by: (users: string) => `Verwijderd door: ${users}`,
+    changed: "Gewijzigd",
+    changed_by: (users: string) => `Gewijzigd door: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Opmaakwijziging (${formats}) door: ${users}`,
   },

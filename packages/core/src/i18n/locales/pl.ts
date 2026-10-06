@@ -403,6 +403,8 @@ export const pl: Dictionary = {
     inserted: "Wstawiono",
     inserted_by: (users: string) => `Wstawione przez: ${users}`,
     deleted_by: (users: string) => `Usunięte przez: ${users}`,
+    changed: "Zmieniono",
+    changed_by: (users: string) => `Zmienione przez: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Zmiana formatowania (${formats}) przez: ${users}`,
   },

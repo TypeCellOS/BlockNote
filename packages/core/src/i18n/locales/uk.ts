@@ -436,6 +436,8 @@ export const uk: Dictionary = {
     inserted: "Вставлено",
     inserted_by: (users: string) => `Вставлено користувачем: ${users}`,
     deleted_by: (users: string) => `Видалено користувачем: ${users}`,
+    changed: "Змінено",
+    changed_by: (users: string) => `Змінено користувачем: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Зміна форматування (${formats}) користувачем: ${users}`,
   },

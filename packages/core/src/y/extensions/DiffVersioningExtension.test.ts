@@ -194,6 +194,26 @@ describe("DiffVersioningExtension", () => {
     });
   });
 
+  it("reads a plain block's content as the newer version's text", () => {
+    function codeBlock(code: string) {
+      const e = BlockNoteEditor.create();
+      e.replaceBlocks(e.document, [
+        { id: "code", type: "codeBlock", content: code },
+      ]);
+      return e.document;
+    }
+
+    editor
+      .getExtension(DiffVersioningExtension)!
+      .renderDiff(codeBlock("y^3"), codeBlock("x^2"));
+
+    // Previews (math, diagrams) render from this text, so it must not merge
+    // the deleted source with its replacement ("xy^23").
+    expect(editor.document[0].content).toEqual([
+      { type: "text", text: "y^3", styles: {} },
+    ]);
+  });
+
   it("produces no attribution marks when the docs are identical", () => {
     const same = blocksFromText("nothing changes here");
 

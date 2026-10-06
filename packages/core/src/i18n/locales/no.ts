@@ -430,6 +430,8 @@ export const no: Dictionary = {
     inserted: "Satt inn",
     inserted_by: (users: string) => `Satt inn av: ${users}`,
     deleted_by: (users: string) => `Slettet av: ${users}`,
+    changed: "Endret",
+    changed_by: (users: string) => `Endret av: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Formateringsendring (${formats}) av: ${users}`,
   },

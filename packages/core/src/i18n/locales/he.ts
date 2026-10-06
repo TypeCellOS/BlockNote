@@ -412,6 +412,8 @@ export const he: Dictionary = {
     inserted: "נוסף",
     inserted_by: (users: string) => `נוסף על ידי: ${users}`,
     deleted_by: (users: string) => `נמחק על ידי: ${users}`,
+    changed: "שונה",
+    changed_by: (users: string) => `שונה על ידי: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `שינוי עיצוב (${formats}) על ידי: ${users}`,
   },

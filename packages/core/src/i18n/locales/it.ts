@@ -434,6 +434,8 @@ export const it: Dictionary = {
     inserted: "Inserito",
     inserted_by: (users: string) => `Inserito da: ${users}`,
     deleted_by: (users: string) => `Eliminato da: ${users}`,
+    changed: "Modificato",
+    changed_by: (users: string) => `Modificato da: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Modifica formattazione (${formats}) da: ${users}`,
   },

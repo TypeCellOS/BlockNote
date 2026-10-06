@@ -425,6 +425,8 @@ export const ko: Dictionary = {
     inserted: "삽입됨",
     inserted_by: (users: string) => `삽입한 사람: ${users}`,
     deleted_by: (users: string) => `삭제한 사람: ${users}`,
+    changed: "변경됨",
+    changed_by: (users: string) => `변경한 사람: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `서식 변경 (${formats}) 변경한 사람: ${users}`,
   },

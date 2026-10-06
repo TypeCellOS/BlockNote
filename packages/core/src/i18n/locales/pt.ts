@@ -405,6 +405,8 @@ export const pt: Dictionary = {
     inserted: "Inserido",
     inserted_by: (users: string) => `Inserido por: ${users}`,
     deleted_by: (users: string) => `Excluído por: ${users}`,
+    changed: "Alterado",
+    changed_by: (users: string) => `Alterado por: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Alteração de formatação (${formats}) por: ${users}`,
   },
