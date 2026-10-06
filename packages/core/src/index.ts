@@ -17,6 +17,12 @@ export * from "./editor/defaultColors.js";
 export * from "./editor/selectionTypes.js";
 export * from "./exporter/index.js";
 export * from "./extensions-shared/UiElementPosition.js";
+export { getDefaultEmojiPickerItems } from "./extensions/SuggestionMenu/getDefaultEmojiPickerItems.js";
+export {
+  filterSuggestionItems,
+  getDefaultSlashMenuItems,
+  insertOrUpdateBlockForSlashMenu,
+} from "./extensions/SuggestionMenu/getDefaultSlashMenuItems.js";
 export * from "./i18n/dictionary.js";
 export * from "./schema/index.js";
 export * from "./user/index.js";
