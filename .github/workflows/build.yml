@@ -31,7 +31,7 @@ jobs:
       - name: Install Dependencies
         run: vp install
 
-      - uses: ./.github/actions/build-cache
+      - uses: $/.github/actions/build-cache
         with:
           task-cache-scope: packages
 
@@ -97,7 +97,7 @@ jobs:
       - name: Install dependencies
         run: vp install
 
-      - uses: ./.github/actions/build-cache
+      - uses: $/.github/actions/build-cache
         with:
           task-cache-scope: typst
 
@@ -159,7 +159,9 @@ jobs:
       # (named per browser+shard so they don't collide); the `merge-reports` job
       # stitches every browser's shards into one HTML report afterwards.
       - name: Run e2e tests (${{ matrix.browser }} ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
-        run: HOME=/root vp test -c vite.config.browser.ts --run --exclude '**/typstPdfImages.test.tsx' --exclude '**/compileTypst.browser.test.ts' --browser ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --reporter=default --reporter=blob --outputFile.blob=blob-report/blob-${{ matrix.browser }}-${{ matrix.shardIndex }}.json
+        run: HOME=/root vp test -c vite.config.browser.ts --run --browser ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --reporter=default --reporter=blob --outputFile.blob=blob-report/blob-${{ matrix.browser }}-${{ matrix.shardIndex }}.json
+        env:
+          BLOCKNOTE_E2E_GROUP: non-pdf
         working-directory: tests
 
       - name: Upload blob report (${{ matrix.browser }} ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
