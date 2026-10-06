@@ -1,12 +1,44 @@
+import { closeHistory } from "@tiptap/pm/history";
+import { ReplaceStep, Transform } from "prosemirror-transform";
 import { describe, expect, it } from "vite-plus/test";
 
-import type { PartialBlock } from "../../../../blocks/defaultBlocks.js";
+import type {
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  PartialBlock,
+} from "../../../../blocks/defaultBlocks.js";
 import { getBlockInfo } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
-import { updateBlock } from "./updateBlock.js";
+import { updateBlock, updateBlockTr } from "./updateBlock.js";
 
 const getEditor = setupTestEnv();
+
+describe("Test updateBlock undo/redo", () => {
+  it.each([
+    ["paragraph", "divider"],
+    ["heading", "divider"],
+    ["codeBlock", "image"],
+    ["divider", "paragraph"],
+    ["paragraph", "heading"],
+  ] as const)("can undo and redo %s → %s", (from, to) => {
+    const editor = getEditor();
+    editor.updateBlock("empty-paragraph", { type: from });
+    const before = editor.prosemirrorState.doc;
+    // Isolate the conversion from fixture preparation.
+    editor.prosemirrorView.dispatch(closeHistory(editor.prosemirrorState.tr));
+    editor.updateBlock("empty-paragraph", { type: to });
+    const after = editor.prosemirrorState.doc;
+    expect(editor.getBlock("empty-paragraph")?.type).toBe(to);
+    after.check();
+
+    expect(editor.undo()).toBe(true);
+    expect(editor.prosemirrorState.doc.eq(before)).toBe(true);
+    expect(editor.redo()).toBe(true);
+    expect(editor.prosemirrorState.doc.eq(after)).toBe(true);
+  });
+});
 
 describe("Test updateBlock typing", () => {
   it("Type is inferred correctly", () => {
@@ -626,6 +658,59 @@ describe("Test updateBlock", () => {
  * only a small part changed.
  */
 describe("Test updateBlock minimal steps", () => {
+  it.each([
+    ["paragraph", "divider"],
+    ["heading", "divider"],
+    ["codeBlock", "image"],
+  ] as const)(
+    "%s → %s replaces only the empty content node and can be inverted",
+    (from, to) => {
+      const editor = getEditor();
+      editor.updateBlock("paragraph-with-children", {
+        content: [],
+        props: { backgroundColor: "red" },
+      });
+      editor.updateBlock("paragraph-with-children", { type: from });
+      const before = editor.prosemirrorState.doc;
+      const original = getNodeById("paragraph-with-children", before)!;
+      const contentPos = original.posBeforeNode + 1;
+      const tr = new Transform(before);
+      updateBlockTr<
+        DefaultBlockSchema,
+        DefaultInlineContentSchema,
+        DefaultStyleSchema
+      >(tr, original.posBeforeNode, { type: to });
+
+      // Only the paragraph's two structural tokens become one leaf token.
+      // Its enclosing container and nonempty children must not be replaced.
+      expect(tr.steps).toHaveLength(1);
+      const step = tr.steps[0];
+      expect(step).toBeInstanceOf(ReplaceStep);
+      if (!(step instanceof ReplaceStep)) {
+        throw new Error("Expected a single content-node ReplaceStep");
+      }
+      expect(step.from).toBe(contentPos);
+      expect(step.to).toBe(contentPos + 2);
+      expect(step.slice.size).toBe(1);
+      expect(step.slice.content.firstChild?.type.name).toBe(to);
+      const updated = getNodeById("paragraph-with-children", tr.doc)!;
+      expect(updated.node.attrs).toEqual(original.node.attrs);
+      expect(updated.node.child(1)).toBe(original.node.child(1));
+      expect(getNodeById("paragraph-0", tr.doc)!.node).toBe(
+        getNodeById("paragraph-0", before)!.node,
+      );
+      expect(getNodeById("paragraph-9", tr.doc)!.node).toBe(
+        getNodeById("paragraph-9", before)!.node,
+      );
+      tr.doc.check();
+
+      const inverse = new Transform(tr.doc);
+      inverse.step(step.invert(before));
+      expect(inverse.doc.eq(before)).toBe(true);
+      inverse.doc.check();
+    },
+  );
+
   // Runs `updateBlock` in a throwaway transaction and returns the resulting
   // steps as JSON for inspection.
   const getSteps = (blockId: string, update: PartialBlock<any, any, any>) => {
