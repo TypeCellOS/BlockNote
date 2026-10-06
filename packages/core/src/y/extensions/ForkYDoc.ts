@@ -102,7 +102,8 @@ export const ForkYDocExtension = createExtension(
             forkedFragment.doc!,
             Y.encodeStateVector(originalFragment.doc!),
           );
-          // Applying this change will add to the undo stack, allowing it to be undone normally
+          // This arrives through Yjs synchronization, so normal ProseMirror
+          // history does not record the merge as a local undoable transaction.
           Y.applyUpdate(originalFragment.doc!, update, editor);
         }
         // Reset the forked state

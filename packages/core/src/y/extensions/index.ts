@@ -13,7 +13,6 @@ import { SuggestionsExtension } from "./Suggestions.js";
 import { CollaborationUser, YCursorExtension } from "./YCursorPlugin.js";
 import type { GetAttributionMarkClassName } from "./YAttributionMarks.js";
 import { YSyncExtension } from "./YSync.js";
-import { YUndoExtension } from "./YUndo.js";
 
 export type CollaborationOptions = {
   /**
@@ -90,7 +89,6 @@ export const CollaborationExtension = createExtension(
         RelativePositionMappingExtension(),
         ForkYDocExtension(options),
         YSyncExtension(optionsWithUserStore),
-        YUndoExtension(options),
         YCursorExtension(options),
         AttributionExtension({
           resolveUsers: userStore,
@@ -117,14 +115,14 @@ export function withCollaboration<
       "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider",
     );
   }
+  // Keep normal ProseMirror history: the v14 sync plugin excludes incoming
+  // Yjs changes from the local undo stack.
   return {
     ...options,
     extensions: [
       ...(options.extensions ?? []),
       CollaborationExtension(options.collaboration),
     ],
-    // We disable the default prosemirror history plugin, since it's not compatible with yjs
-    disableExtensions: ["history", ...(options.disableExtensions ?? [])],
     // We don't want the default initial content, since it will generate a random id for the initial block on each client,
     // leading to conflicts when syncing happens afterwards.
     initialContent: [{ type: "paragraph", id: "initialBlockId" }],
@@ -139,4 +137,3 @@ export * from "./Suggestions.js";
 export * from "./YAttributionMarks.js";
 export * from "./YCursorPlugin.js";
 export * from "./YSync.js";
-export * from "./YUndo.js";
