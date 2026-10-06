@@ -31,10 +31,12 @@ jobs:
       - name: Install Dependencies
         run: vp install
 
-      # `vp run -r build` includes @blocknote/xl-typst-compiler, whose build
-      # task compiles its Rust wasm when missing or stale (rustup is
-      # preinstalled on the runners; the pinned toolchain + wasm32 target
-      # auto-provision from rust/rust-toolchain.toml).
+      - uses: ./.github/actions/build-cache
+        with:
+          task-cache-scope: packages
+
+      # Unchanged Rust uses the cached WASM even when the TS build misses.
+      # Other package outputs are restored by Vite Task's own fingerprints.
       - name: Build packages
         run: vp run -r build
 
@@ -42,7 +44,8 @@ jobs:
         run: vp lint
 
       - name: Run unit tests
-        run: vp run test
+        # Always execute tests: only build results are reusable across CI runs.
+        run: vp run --no-cache test
 
       - name: Run Next.js integration test (production build)
         run: NEXTJS_TEST_MODE=build vp test run src/unit/nextjs/serverUtil.test.ts
@@ -94,6 +97,10 @@ jobs:
       - name: Install dependencies
         run: vp install
 
+      - uses: ./.github/actions/build-cache
+        with:
+          task-cache-scope: typst
+
       # Compiles the Rust wasm when missing/stale (rustup is bootstrapped by
       # the build task itself) plus the TS wrapper's dist/types.
       - name: Build Typst compiler package
@@ -115,13 +122,11 @@ jobs:
     # The suite resolves every `@blocknote/*` import to its `src/` via the
     # aliases in `tests/vite.config.browser.ts` (vite transpiles the package
     # sources on the fly), so the packages do NOT need to be built to `dist`
-    # first — `vp install` + the checked-out sources are enough (the one
-    # exception, xl-typst-compiler, arrives prebuilt from the
-    # build-typst-compiler job).
+    # first. PDF tests run separately below so these shards start immediately,
+    # without waiting for a cold Rust build.
     name: "E2E - ${{ matrix.browser }} (${{ matrix.shardIndex }}/${{ matrix.shardTotal }})"
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: build-typst-compiler
     container:
       image: mcr.microsoft.com/playwright:v1.60.0-noble
     strategy:
@@ -140,15 +145,12 @@ jobs:
         with:
           node-version-file: ".node-version"
           cache: true
+          # Build jobs populate this same dependency cache. Avoid six redundant
+          # ~500 MB uploads racing on a cold key (observed up to 72s per shard).
+          cache-save: false
 
       - name: Install dependencies
         run: vp install
-
-      - name: Download Typst compiler build outputs
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        with:
-          name: typst-compiler-build
-          path: packages/xl-typst-compiler
 
       # No preview server: Vitest Browser Mode serves the tests + mounted example
       # apps itself. `--browser` selects this matrix job's browser and
@@ -157,7 +159,7 @@ jobs:
       # (named per browser+shard so they don't collide); the `merge-reports` job
       # stitches every browser's shards into one HTML report afterwards.
       - name: Run e2e tests (${{ matrix.browser }} ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
-        run: HOME=/root vp test -c vite.config.browser.ts --run --browser ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --reporter=default --reporter=blob --outputFile.blob=blob-report/blob-${{ matrix.browser }}-${{ matrix.shardIndex }}.json
+        run: HOME=/root vp test -c vite.config.browser.ts --run --exclude '**/typstPdfImages.test.tsx' --exclude '**/compileTypst.browser.test.ts' --browser ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --reporter=default --reporter=blob --outputFile.blob=blob-report/blob-${{ matrix.browser }}-${{ matrix.shardIndex }}.json
         working-directory: tests
 
       - name: Upload blob report (${{ matrix.browser }} ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
@@ -179,13 +181,68 @@ jobs:
           include-hidden-files: true
           retention-days: 7
 
+  e2e-pdf:
+    # Only these two files load the compiled WASM. All other browser coverage
+    # runs concurrently with build-typst-compiler in the e2e job above.
+    name: "E2E PDF - ${{ matrix.browser }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: build-typst-compiler
+    container:
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 100
+          persist-credentials: false
+
+      - uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
+        with:
+          node-version-file: ".node-version"
+          cache: true
+          cache-save: false
+
+      - name: Install dependencies
+        run: vp install
+
+      - name: Download Typst compiler build outputs
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: typst-compiler-build
+          path: packages/xl-typst-compiler
+
+      - name: Run PDF browser tests
+        run: HOME=/root vp test -c vite.config.browser.ts --run typstPdfImages.test.tsx compileTypst.browser.test.ts --browser ${{ matrix.browser }} --reporter=default --reporter=blob --outputFile.blob=blob-report/blob-pdf-${{ matrix.browser }}.json
+        working-directory: tests
+
+      - name: Upload PDF blob report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ !cancelled() }}
+        with:
+          name: blob-report-pdf-${{ matrix.browser }}
+          path: tests/blob-report/
+          retention-days: 1
+
+      - name: Upload failure artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() }}
+        with:
+          name: e2e-attachments-pdf-${{ matrix.browser }}
+          path: tests/.vitest-attachments/
+          include-hidden-files: true
+          retention-days: 7
+
   merge-reports:
     # Stitch every browser+shard blob report into a single navigable HTML
     # report (the Vitest equivalent of `playwright merge-reports`). Runs even
     # when a shard failed, so the report always covers every browser.
     name: "E2E Report"
     runs-on: ubuntu-latest
-    needs: e2e
+    needs: [e2e, e2e-pdf]
     if: ${{ !cancelled() }}
     timeout-minutes: 15
     # Same container as the e2e shards: `--mergeReports` doesn't run tests or
@@ -203,6 +260,7 @@ jobs:
         with:
           node-version-file: ".node-version"
           cache: true
+          cache-save: false
 
       - name: Install dependencies
         run: vp install
