@@ -33,6 +33,14 @@ jobs:
 
       - uses: $/.github/actions/typst-cache
 
+      - name: Restore build task cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: node_modules/.vite/task-cache
+          key: vite-task-v2-${{ runner.os }}-${{ runner.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            vite-task-v2-${{ runner.os }}-${{ runner.arch }}-
+
       # Unchanged Rust uses the cached WASM even when the TS build misses.
       # Other package outputs are restored by Vite Task's own fingerprints.
       - name: Build packages
