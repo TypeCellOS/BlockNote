@@ -5,6 +5,7 @@ import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { DesktopFormattingToolbarController } from "./DesktopFormattingToolbarController.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 import { MobileFormattingToolbarController } from "./MobileFormattingToolbarController.js";
+import { mobileToolbarForced, useKeyboardPanel } from "./useKeyboardPanel.js";
 import { useVirtualKeyboard } from "./useVirtualKeyboard.js";
 
 export const FormattingToolbarController = (props: {
@@ -18,13 +19,20 @@ export const FormattingToolbarController = (props: {
   portalElement?: HTMLElement;
 }) => {
   const keyboardOpen = useVirtualKeyboard();
+  // Owned here, above the mobile/desktop switch: the panel replaces the
+  // keyboard, so its state has to outlive `keyboardOpen` going false.
+  const panel = useKeyboardPanel<"format" | "blocks">();
 
   // Checks both if the device is touch-capable and the virtual keyboard is open, as phones,
   // tablets, etc. can still use external keyboards and mice.
-  if (isTouchDevice() && keyboardOpen) {
+  if (
+    mobileToolbarForced() ||
+    (isTouchDevice() && (keyboardOpen || panel.panelOpen))
+  ) {
     return (
       <MobileFormattingToolbarController
         formattingToolbar={props.formattingToolbar}
+        panel={panel}
       />
     );
   }

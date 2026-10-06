@@ -541,6 +541,202 @@ SideMenuController offsets its position to keep it centered on the line. */
   touch-action: pan-x;
 }
 
+/* PROTOTYPE: the keyboard-replacement format panel (see useKeyboardPanel). The
+   toolbar is bottom-aligned to the visual viewport, so with the keyboard down
+   the row stays where the keyboard's top edge was and the panel fills the
+   space it left: nothing above the toolbar moves. */
+.bn-mobile-formatting-toolbar[data-panel-open] {
+  flex-direction: column;
+  background: var(--bn-colors-menu-background);
+}
+
+.bn-mobile-toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  max-width: 100vw;
+}
+
+/* Our own controls next to the strip: plain buttons on purpose, a production
+   version would go through ComponentsContext so each skin styles its own. */
+.bn-mobile-toolbar-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* 44px is the WCAG 2.5.5 target size; the toolbar's own buttons are 40. */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: var(--bn-border-radius-small, 4px);
+  background: transparent;
+  color: var(--bn-colors-menu-text);
+  font-size: 18px;
+}
+
+.bn-mobile-toolbar-action[aria-expanded="true"] {
+  background: var(--bn-colors-hovered-background);
+}
+
+.bn-mobile-toolbar-panel {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+/* The panel is a sheet: its own header, then grouped sections, scrolling
+   vertically inside the height the keyboard left behind. */
+.bn-mobile-format-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+
+.bn-mobile-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding-bottom: 4px;
+  background: var(--bn-colors-menu-background);
+}
+
+.bn-mobile-panel-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-mobile-panel-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  border-radius: var(--bn-border-radius-small, 4px);
+  background: transparent;
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-mobile-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.bn-mobile-panel-label {
+  color: var(--bn-colors-side-menu);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Two columns on a phone, more if there is room: every block type is visible
+   without scrolling a strip sideways, which is the point of the panel. */
+.bn-mobile-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+}
+
+.bn-mobile-panel-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--bn-colors-menu-background);
+  border-radius: var(--bn-border-radius-medium, 6px);
+  background: var(--bn-colors-hovered-background);
+  color: var(--bn-colors-menu-text);
+  font-size: 13px;
+  text-align: left;
+}
+
+.bn-mobile-panel-card[aria-pressed="true"] {
+  border-color: var(--bn-colors-selected-background);
+  background: var(--bn-colors-selected-background);
+  color: var(--bn-colors-selected-text);
+}
+
+.bn-mobile-panel-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow-x: auto;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* The row carries `bn-toolbar` for the skins' button styles, not for the
+   toolbar's own box; the reset has to outweigh `.bn-mantine .bn-toolbar`. */
+.bn-mobile-formatting-toolbar .bn-mobile-format-panel .bn-mobile-panel-row {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  padding: 0;
+  width: auto;
+  max-width: none;
+}
+
+.bn-mobile-panel-row > * {
+  flex: 0 0 auto;
+  min-height: 44px;
+}
+
+.bn-mobile-panel-divider {
+  flex: 0 0 1px;
+  align-self: stretch;
+  margin-inline: 6px;
+  min-height: 24px;
+  background: var(--bn-colors-border);
+}
+
+.bn-mobile-panel-swatches {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bn-mobile-panel-swatch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--bn-colors-border);
+  border-radius: var(--bn-border-radius-medium, 6px);
+  background: var(--bn-colors-menu-background);
+}
+
+.bn-mobile-panel-swatch[aria-pressed="true"] {
+  border-color: var(--bn-colors-selected-background);
+  border-width: 2px;
+}
+
+/* A fling settles on a button edge rather than mid-icon. */
+.bn-mobile-formatting-toolbar .bn-toolbar {
+  scroll-snap-type: x proximity;
+}
+
+.bn-mobile-formatting-toolbar .bn-toolbar > * {
+  scroll-snap-align: start;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bn-mobile-formatting-toolbar {
     transition: none;
