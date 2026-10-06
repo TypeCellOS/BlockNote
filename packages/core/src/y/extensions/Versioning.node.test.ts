@@ -11,7 +11,7 @@ import type { VersionStorage } from "../../extensions/Versioning/types.js";
 import { CollaborationExtension, withCollaboration } from "./index.js";
 import { createYVersionView } from "./Versioning.js";
 import {
-  VersioningExtension,
+  YVersioningExtension,
   createYHubVersionStorage,
 } from "../versioning/yhub.js";
 
@@ -42,7 +42,7 @@ it.each(["before", "after"] as const)(
     const editors: BlockNoteEditor[] = [];
     const storage = createYHubVersionStorage(options);
     const bind = vi.spyOn(storage, "bind");
-    const history = VersioningExtension({ storage });
+    const history = YVersioningExtension({ storage });
     try {
       for (const [index, doc] of docs.entries()) {
         const fragment = doc.get("doc");
@@ -117,7 +117,7 @@ it("keeps the first versioning integration using normal extension deduplication"
     withCollaboration({
       extensions: [
         Versions(),
-        VersioningExtension({ storage: createYHubVersionStorage(options) }),
+        YVersioningExtension({ storage: createYHubVersionStorage(options) }),
       ],
       collaboration: {
         fragment,

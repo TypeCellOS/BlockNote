@@ -1,8 +1,8 @@
 import { RenderInPortalElement, useCreateBlockNote } from "@blocknote/react";
 import "@blocknote/core/fonts/inter.css";
-import { BlockNoteEditor } from "@blocknote/core";
 import {
-  VersioningExtension,
+  InMemoryVersioningExtension,
+  type LocalVersioningOptions,
   type VersioningController,
 } from "@blocknote/core/extensions";
 import { DiffVersioningExtension } from "@blocknote/core/y";
@@ -21,19 +21,34 @@ import { useState } from "react";
 import { DAY_MS, LIVE_DOCUMENT, SAMPLE_HISTORY } from "./sampleVersions";
 import "./style.css";
 
-const historyOptions = {
-  initialVersions: SAMPLE_HISTORY.map((version) => {
-    const source = BlockNoteEditor.create({ initialContent: version.blocks });
-    try {
-      return {
-        name: version.name,
-        createdAt: Date.now() - version.daysAgo * DAY_MS,
-        content: source.prosemirrorState.doc,
-      };
-    } finally {
-      source._tiptapEditor.destroy();
-    }
-  }),
+const historyOptions: LocalVersioningOptions = {
+  initialVersions: SAMPLE_HISTORY.map((version) => ({
+    name: version.name,
+    createdAt: Date.now() - version.daysAgo * DAY_MS,
+    // These samples have flat blocks with plain text. ProseMirror JSON wraps
+    // each block in a blockContainer, inside the document's blockGroup.
+    content: {
+      type: "doc",
+      content: [
+        {
+          type: "blockGroup",
+          content: version.blocks.map((block) => ({
+            type: "blockContainer",
+            attrs: { id: block.id },
+            content: [
+              {
+                type: block.type,
+                attrs: block.props,
+                content: block.content
+                  ? [{ type: "text", text: block.content }]
+                  : [],
+              },
+            ],
+          })),
+        },
+      ],
+    },
+  })),
 };
 
 export default function App() {
@@ -41,7 +56,7 @@ export default function App() {
   const editor = useCreateBlockNote({
     initialContent: LIVE_DOCUMENT,
     extensions: [
-      VersioningExtension(historyOptions),
+      InMemoryVersioningExtension(historyOptions),
       // Opt into rendering version diffs: when comparing two versions the
       // sidebar shows insertions/deletions as attributed marks. Without this
       // extension the in-memory versioning falls back to a plain document swap.

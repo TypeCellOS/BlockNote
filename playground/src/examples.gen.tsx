@@ -1882,7 +1882,7 @@ export const examples = {
           slug: "collaboration",
         },
         readme:
-          'This experimental playground example shows how to use `VersioningExtension` with collaborative editing using Yjs v13. Snapshots are stored in localStorage using Yjs state updates.\n\nThe sidebar opens on a document with a few versions already in its history. You can preview, rename, and restore a version. Restoring replaces the live document content and saves the previous content as a "Backup" version. Comparison is not supported. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button and name the current version to save it.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+          'This experimental playground example shows how to use `YjsVersioningExtension` with collaborative editing using Yjs v13. Snapshots are stored in localStorage using Yjs state updates.\n\nThe sidebar opens on a document with a few versions already in its history. You can preview, rename, and restore a version. Restoring replaces the live document content and saves the previous content as a "Backup" version. Comparison is not supported. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button and name the current version to save it.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
       },
       {
         projectSlug: "multi-doc-versioning",
@@ -1907,7 +1907,7 @@ export const examples = {
           slug: "collaboration",
         },
         readme:
-          'This example shows a multi-document collaborative editor with per-document version history, using BlockNote\'s `VersioningExtension` and Y.js v14. Sync and history both come from [YHub](https://github.com/yjs/yhub), which records every edit and groups them into versions.\n\nA first visit creates a sample document whose history already has several versions by several users, so the history sidebar has something to show right away. The editor is read-only while the sidebar is open: close it to edit, then reopen it with the "History" button.\n\n**Features:**\n\n- User picker (per-tab identity via `sessionStorage`)\n- Left sidebar with document list (create, rename, delete)\n- Collaborative editing with Y.js (including suggestion mode)\n- Right sidebar with version history powered by `VersioningSidebar`\n- Per-document version history backed by YHub\n- Open multiple tabs with different users via the `?as=` URL param\n\n**Relevant Docs:**\n\n- [Versioning](https://www.blocknotejs.org/docs/collaboration/versioning)\n- [Y.js Collaboration](https://www.blocknotejs.org/docs/collaboration)',
+          'This example shows a multi-document collaborative editor with per-document version history, using BlockNote\'s `YVersioningExtension` and Y.js v14. Sync and history both come from [YHub](https://github.com/yjs/yhub), which records every edit and groups them into versions.\n\nA first visit creates a sample document whose history already has several versions by several users, so the history sidebar has something to show right away. The editor is read-only while the sidebar is open: close it to edit, then reopen it with the "History" button.\n\n**Features:**\n\n- User picker (per-tab identity via `sessionStorage`)\n- Left sidebar with document list (create, rename, delete)\n- Collaborative editing with Y.js (including suggestion mode)\n- Right sidebar with version history powered by `VersioningSidebar`\n- Per-document version history backed by YHub\n- Open multiple tabs with different users via the `?as=` URL param\n\n**Relevant Docs:**\n\n- [Versioning](https://www.blocknotejs.org/docs/collaboration/versioning)\n- [Y.js Collaboration](https://www.blocknotejs.org/docs/collaboration)',
       },
       {
         projectSlug: "versioning-yjs14",
@@ -1932,7 +1932,7 @@ export const examples = {
           slug: "collaboration",
         },
         readme:
-          'This example shows how to use `VersioningExtension` with collaborative editing using `@y/y` (v14). Version history comes from [YHub](https://github.com/yjs/yhub), which records every edit and groups them into versions.\n\nThe sidebar opens on a document seeded with several versions by several users, so you can preview them, compare them, rename them, and restore them right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+          'This example shows how to use `YVersioningExtension` with collaborative editing using `@y/y` (v14). Version history comes from [YHub](https://github.com/yjs/yhub), which records every edit and groups them into versions.\n\nThe sidebar opens on a document seeded with several versions by several users, so you can preview them, compare them, rename them, and restore them right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
       },
       {
         projectSlug: "suggestion-gallery",
@@ -2006,7 +2006,7 @@ export const examples = {
           slug: "extensions",
         },
         readme:
-          'This example shows how to use `VersioningExtension` without a collaboration layer. Snapshots are stored in memory as immutable ProseMirror documents.\n\nThe sidebar opens on a document with a few versions already in its history, including an automatic unnamed version, so you can preview them, compare them, rename them, restore them, and try the named-only filter right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.',
+          'This example shows how to use `InMemoryVersioningExtension` without a collaboration layer. It seeds history with ProseMirror document JSON, which the extension converts to immutable documents using the editor\'s schema. `initialVersions` also accepts BlockNote JSON as arrays of partial blocks.\n\nThe sidebar opens on a document with a few versions already in its history, including an automatic unnamed version, so you can preview them, compare them, rename them, restore them, and try the named-only filter right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.',
       },
     ],
   },

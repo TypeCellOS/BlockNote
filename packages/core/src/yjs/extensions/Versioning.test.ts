@@ -6,7 +6,7 @@ import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { withCollaboration } from "./index.js";
 import { blocksToYXmlFragment } from "../utils.js";
 import type { VersioningController } from "../../extensions/Versioning/Versioning.js";
-import { VersioningExtension } from "./Versioning.js";
+import { YjsVersioningExtension } from "./Versioning.js";
 
 it("keeps the live fragment separate while replacing snapshots in its fork", async () => {
   const doc = new Y.Doc();
@@ -15,7 +15,7 @@ it("keeps the live fragment separate while replacing snapshots in its fork", asy
   const editor = BlockNoteEditor.create(
     withCollaboration({
       extensions: [
-        VersioningExtension({
+        YjsVersioningExtension({
           storage: {
             list: async () => [{ id: "saved", createdAt: 1 }],
             getContent: async () => saved,

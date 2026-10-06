@@ -34,7 +34,7 @@ type YHubStorage = VersionStorage<Uint8Array, Y.ContentMap> &
   >;
 
 /** Configure Y14 history independently of collaboration installation. */
-export function VersioningExtension(options: {
+export function YVersioningExtension(options: {
   storage: VersionStorage<Uint8Array, Y.ContentMap> | YVersionStorageBinding;
   scrollToFirstChange?: boolean;
 }) {

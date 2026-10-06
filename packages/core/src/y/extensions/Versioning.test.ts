@@ -7,7 +7,7 @@ import { withCollaboration } from "./index.js";
 import { blocksToYType } from "../utils.js";
 import { YCursorExtension } from "./YCursorPlugin.js";
 import type { VersioningController } from "../../extensions/Versioning/Versioning.js";
-import { VersioningExtension } from "../versioning/yhub.js";
+import { YVersioningExtension } from "../versioning/yhub.js";
 import type { YVersionStorageBinding } from "../versioning/yhub.js";
 import type { VersionStorage } from "../../extensions/Versioning/types.js";
 
@@ -31,7 +31,7 @@ it.each(["bound", "descriptor"] as const)(
     const editor = BlockNoteEditor.create(
       withCollaboration({
         extensions: [
-          VersioningExtension({
+          YVersioningExtension({
             storage: kind === "bound" ? storage : { bind },
           }),
         ],

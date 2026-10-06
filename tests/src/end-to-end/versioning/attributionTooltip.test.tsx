@@ -1,9 +1,9 @@
 import {
   BlockNoteEditor,
   BlockNoteSchema,
-  createLocalVersioning,
   type PartialBlock,
 } from "@blocknote/core";
+import { createLocalVersioning } from "@blocknote/core/extensions";
 import {
   AttributionExtension,
   DiffVersioningExtension,
@@ -67,7 +67,7 @@ test("only attributes the edited text and labels an unnamed version with its tim
     ]);
     const createdAt = new Date(2026, 8, 29, 13, 21).getTime();
     const preview = createLocalVersioning(editor, {
-      initialVersions: [{ content: snapshot, createdAt }],
+      initialVersions: [{ content: snapshot.toJSON(), createdAt }],
     }).adapter.open();
     closePreview = () => preview.close();
     preview.show({

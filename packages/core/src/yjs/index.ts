@@ -3,5 +3,5 @@ export * from "./extensions/index.js";
 export * from "./comments/index.js";
 export {
   createYjsVersionView,
-  VersioningExtension,
+  YjsVersioningExtension,
 } from "./extensions/Versioning.js";

@@ -6,7 +6,7 @@ export type SampleVersion = {
   name?: string;
   /** How long ago the version was saved. */
   daysAgo: number;
-  blocks: PartialBlock[];
+  blocks: SampleBlock[];
 };
 
 // Stable ids let previews show edits to the same blocks across versions.

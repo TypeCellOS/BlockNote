@@ -10,7 +10,7 @@ import { useStore } from "../../hooks/useStore.js";
  * aren't cached yet. Re-renders only when one of the requested users changes
  * (the store uses a shallow `Map` comparison).
  *
- * Versioning-scoped: it reads the store the {@link VersioningExtension} builds
+ * Versioning-scoped: it reads the store the versioning extension builds
  * from its `resolveUsers` option and exposes on its instance, so it must be
  * used within a versioning UI where that extension is registered.
  */

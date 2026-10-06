@@ -1,7 +1,7 @@
 import { VersioningSidebar } from "@blocknote/react/versioning";
 import "@blocknote/core/fonts/inter.css";
 import {
-  VersioningExtension,
+  YVersioningExtension,
   createYHubVersionStorage,
   withCollaboration,
 } from "@blocknote/core/y";
@@ -143,7 +143,7 @@ function VersionedEditor() {
         resolveUsers,
       },
       extensions: [
-        VersioningExtension({
+        YVersioningExtension({
           storage: createYHubVersionStorage(versioningOptions),
         }),
       ],

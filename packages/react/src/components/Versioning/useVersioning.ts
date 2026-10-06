@@ -6,7 +6,7 @@ export function useVersioning() {
   const editor = useBlockNoteEditor();
   const versioning = editor.getExtension<VersioningController>("versioning");
   if (!versioning) {
-    throw new Error("VersioningSidebar requires VersioningExtension");
+    throw new Error("VersioningSidebar requires a versioning extension");
   }
   return versioning;
 }

@@ -2,7 +2,7 @@ import "@blocknote/core/fonts/inter.css";
 import {
   withCollaboration,
   SuggestionsExtension,
-  VersioningExtension,
+  YVersioningExtension,
   createYHubVersionStorage,
 } from "@blocknote/core/y";
 import { type User } from "@blocknote/core";
@@ -196,7 +196,7 @@ export function DocumentEditor({
         resolveUsers,
       },
       extensions: [
-        VersioningExtension({
+        YVersioningExtension({
           storage: createYHubVersionStorage({
             baseUrl: YHUB_API_URL,
             org: workspaceId,

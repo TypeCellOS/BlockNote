@@ -1,10 +1,19 @@
 import type { Node } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import {
-  createExtension,
-  type ExtensionOptions,
-} from "../../editor/BlockNoteExtension.js";
+import { originalFactorySymbol } from "../../editor/managers/ExtensionManager/symbol.js";
+import type {
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  PartialBlock,
+} from "../../blocks/defaultBlocks.js";
+import type {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
+import { blockToNode } from "../../api/nodeConversions/blockToNode.js";
 import { docToBlocks } from "../../api/nodeConversions/nodeToBlock.js";
 import type { DiffVersioningExtension } from "../../y/extensions/DiffVersioningExtension.js";
 import type {
@@ -15,33 +24,73 @@ import type {
 import { createVersioningExtension } from "./Versioning.js";
 import type { UserStoreOrResolver } from "../../user/index.js";
 
-export type LocalVersioningSeedOptions = {
+/** ProseMirror JSON uses schema-defined node/mark names and attribute values. */
+export type ProseMirrorNodeJSON = {
+  type: string;
+  attrs?: Record<string, unknown>;
+  content?: ProseMirrorNodeJSON[];
+  marks?: Array<{ type: string; attrs?: Record<string, unknown> }>;
+  text?: string;
+};
+
+export type ProseMirrorDocumentJSON = ProseMirrorNodeJSON & { type: "doc" };
+
+export type LocalVersioningSeedOptions<
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  ISchema extends InlineContentSchema = DefaultInlineContentSchema,
+  SSchema extends StyleSchema = DefaultStyleSchema,
+> = {
   initialVersions?: Array<{
-    content: Node;
+    /** A partial-block array or ProseMirror document JSON, valid in this editor's schema. */
+    content:
+      | PartialBlock<BSchema, ISchema, SSchema>[]
+      | ProseMirrorDocumentJSON;
     name?: string;
     createdAt: number;
   }>;
 };
 
-export type LocalVersioningOptions = LocalVersioningSeedOptions & {
+export type LocalVersioningOptions<
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  ISchema extends InlineContentSchema = DefaultInlineContentSchema,
+  SSchema extends StyleSchema = DefaultStyleSchema,
+> = LocalVersioningSeedOptions<BSchema, ISchema, SSchema> & {
   resolveUsers?: UserStoreOrResolver;
   scrollToFirstChange?: boolean;
 };
 
 /** Install an independent in-memory history for this editor. */
-export const VersioningExtension = createExtension(
-  ({ editor, options }: ExtensionOptions<LocalVersioningOptions | undefined>) =>
-    createVersioningExtension(() => ({
+export function InMemoryVersioningExtension<
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  ISchema extends InlineContentSchema = DefaultInlineContentSchema,
+  SSchema extends StyleSchema = DefaultStyleSchema,
+>(options?: LocalVersioningOptions<BSchema, ISchema, SSchema>) {
+  return function createLocalVersioningExtension({
+    editor,
+  }: {
+    editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
+  }) {
+    const extension = createVersioningExtension(() => ({
       ...createLocalVersioning(editor, options),
       resolveUsers: options?.resolveUsers,
       scrollToFirstChange: options?.scrollToFirstChange,
-    }))()({ editor }),
-);
+    }))()({ editor });
+    // Register the public factory for editor.getExtension(factory).
+    Object.assign(extension, {
+      [originalFactorySymbol]: InMemoryVersioningExtension,
+    });
+    return extension;
+  };
+}
 
 /** A separate editor state preserves live selection and undo without preview mappings. */
-export function createLocalVersioning(
-  editor: BlockNoteEditor,
-  options?: LocalVersioningSeedOptions,
+export function createLocalVersioning<
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema,
+>(
+  editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
+  options?: LocalVersioningSeedOptions<BSchema, ISchema, SSchema>,
 ): {
   adapter: VersionViewAdapter<Node>;
   storage: VersionStorage<Node>;
@@ -58,7 +107,26 @@ export function createLocalVersioning(
       name: entry.name,
       createdAt: entry.createdAt,
     };
-    snapshots.set(version.id, { version, content: entry.content });
+    const content = entry.content;
+    const document = Array.isArray(content)
+      ? editor.pmSchema.topNodeType.createChecked(
+          null,
+          editor.pmSchema.nodes.blockGroup.createChecked(
+            null,
+            content.map((block) =>
+              blockToNode(block, editor.pmSchema, editor.schema.styleSchema),
+            ),
+          ),
+        )
+      : editor.pmSchema.nodeFromJSON(content);
+    // Invalid seeds are configuration errors, not recoverable editor input.
+    // nodeFromJSON does not check the whole content tree; container block
+    // conversion is also intentionally lenient, so validate both paths here.
+    if (document.type !== editor.pmSchema.topNodeType) {
+      throw new Error("Version content must be a ProseMirror document");
+    }
+    document.check();
+    snapshots.set(version.id, { version, content: document });
   }
 
   function snapshot(id: string) {

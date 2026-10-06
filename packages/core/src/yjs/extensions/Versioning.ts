@@ -11,7 +11,7 @@ import type { UserStoreOrResolver } from "../../user/index.js";
 import { CollaborationExtension } from "./index.js";
 
 /** Install history separately, using the editor's Yjs collaboration fragment. */
-export function VersioningExtension(options: {
+export function YjsVersioningExtension(options: {
   storage: VersionStorage<Uint8Array>;
   resolveUsers?: UserStoreOrResolver;
   scrollToFirstChange?: boolean;

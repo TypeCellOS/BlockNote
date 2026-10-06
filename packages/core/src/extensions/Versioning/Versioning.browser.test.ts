@@ -20,9 +20,9 @@ function setup(scrollToFirstChange = true) {
       { id: "paragraph", type: "paragraph", content: "Old text" },
     ],
   });
-  const before = source.prosemirrorState.doc;
+  const before = source.prosemirrorState.doc.toJSON();
   source.updateBlock("paragraph", { content: "Changed text" });
-  const after = source.prosemirrorState.doc;
+  const after = source.prosemirrorState.doc.toJSON();
   source._tiptapEditor.destroy();
   const Versions = createVersioningExtension((editor) => ({
     ...createLocalVersioning(editor, {

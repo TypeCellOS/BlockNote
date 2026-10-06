@@ -15,7 +15,7 @@ import { useVersioning } from "./useVersioning.js";
  * The versioning sidebar's own state, shared between its header and its rows.
  *
  * Owns UI state and the lifetime of pending actions. The preview and its diff
- * baseline live in the editor's `VersioningExtension` store.
+ * baseline live in the editor's versioning extension store.
  */
 export type VersioningSidebarContextValue = {
   /**

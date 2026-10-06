@@ -1,5 +1,5 @@
 import "@blocknote/core/fonts/inter.css";
-import { withCollaboration, VersioningExtension } from "@blocknote/core/yjs";
+import { withCollaboration, YjsVersioningExtension } from "@blocknote/core/yjs";
 import type { VersioningController } from "@blocknote/core/extensions";
 import {
   hasStoredVersions,
@@ -73,7 +73,7 @@ export default function App() {
         user: { color: "#ff0000", name: "User", id: "user" },
       },
       extensions: [
-        VersioningExtension({
+        YjsVersioningExtension({
           storage: createLocalStorageVersioningEndpoints(fragment),
         }),
       ],
