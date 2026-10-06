@@ -99,6 +99,7 @@ export function createYHubVersionStorage(
     );
   }
   return {
+    showCurrentVersion: false,
     async list(signal) {
       const result = await activity(signal);
       if (!result.ok) {

@@ -12,70 +12,80 @@ import {
 import { createYjsVersionView, YjsVersioningExtension } from "./Versioning.js";
 import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
 
-it("keeps the live fragment separate while replacing snapshots in its fork", async () => {
-  const doc = new Y.Doc();
-  const fragment = doc.getXmlFragment("doc");
-  let saved: Uint8Array = new Uint8Array();
-  const editor = BlockNoteEditor.create(
-    withCollaboration({
-      extensions: [
-        YjsVersioningExtension({
-          storage: {
-            list: async () => ({
-              ok: true,
-              value: [{ id: "saved", createdAt: 1 }],
-            }),
-            getContent: async () => ({ ok: true, value: saved }),
-          },
-        }),
-      ],
-      collaboration: { fragment, user: { name: "Test", color: "red" } },
-    }),
-  );
-  editor.replaceBlocks(editor.document, [
-    { type: "paragraph", content: "Captured" },
-  ]);
-  blocksToYXmlFragment(editor, editor.document, fragment);
-  saved = Y.encodeStateAsUpdate(doc);
-  editor.prosemirrorView.updateState(
-    editor.prosemirrorState.reconfigure({
-      plugins: editor._tiptapEditor.extensionManager.plugins,
-    }),
-  );
-  const mode = editor.getExtension<VersioningController>("versioning")!;
-  try {
-    mode.open();
-    expect(editor.isEditable).toBe(false);
-    expect(await mode.list()).toEqual({ status: "done" });
-    expect(ySyncPluginKey.getState(editor.prosemirrorState)?.type).not.toBe(
-      fragment,
+it.each([undefined, false])(
+  "keeps the live fragment separate while replacing snapshots in its fork, Current capture=%s",
+  async (showCurrentVersion) => {
+    const doc = new Y.Doc();
+    const fragment = doc.getXmlFragment("doc");
+    let saved: Uint8Array = new Uint8Array();
+    const editor = BlockNoteEditor.create(
+      withCollaboration({
+        extensions: [
+          YjsVersioningExtension({
+            storage: {
+              showCurrentVersion,
+              list: async () => ({
+                ok: true,
+                value: [{ id: "saved", createdAt: 1 }],
+              }),
+              getContent: async () => ({ ok: true, value: saved }),
+            },
+          }),
+        ],
+        collaboration: { fragment, user: { name: "Test", color: "red" } },
+      }),
     );
-    const latest = BlockNoteEditor.create();
+    editor.replaceBlocks(editor.document, [
+      { type: "paragraph", content: "Captured" },
+    ]);
+    blocksToYXmlFragment(editor, editor.document, fragment);
+    saved = Y.encodeStateAsUpdate(doc);
+    editor.prosemirrorView.updateState(
+      editor.prosemirrorState.reconfigure({
+        plugins: editor._tiptapEditor.extensionManager.plugins,
+      }),
+    );
+    const mode = editor.getExtension<VersioningController>("versioning")!;
     try {
-      latest.replaceBlocks(latest.document, [
-        { type: "paragraph", content: "Remote latest" },
-      ]);
-      blocksToYXmlFragment(latest, latest.document, fragment);
+      mode.open();
+      expect(editor.isEditable).toBe(false);
+      expect(await mode.list()).toEqual({ status: "done" });
+      expect(mode.store.state).toMatchObject({
+        displayed:
+          showCurrentVersion === false
+            ? { type: "snapshot", id: "saved" }
+            : { type: "current" },
+      });
+      expect(ySyncPluginKey.getState(editor.prosemirrorState)?.type).not.toBe(
+        fragment,
+      );
+      const latest = BlockNoteEditor.create();
+      try {
+        latest.replaceBlocks(latest.document, [
+          { type: "paragraph", content: "Remote latest" },
+        ]);
+        blocksToYXmlFragment(latest, latest.document, fragment);
+      } finally {
+        latest._tiptapEditor.destroy();
+      }
+      const remoteContent = Y.encodeStateAsUpdate(doc);
+      await mode.select({ type: "snapshot", id: "saved" });
+      await mode.select({ type: "current" });
+      expect(editor.prosemirrorState.doc.textContent).toBe("Captured");
+      mode.close();
+      expect(editor.isEditable).toBe(true);
+      expect(ySyncPluginKey.getState(editor.prosemirrorState)?.type).toBe(
+        fragment,
+      );
+      // Headless editors do not run the plugin view that hydrates the restored binding.
+      expect(Y.encodeStateAsUpdate(doc)).toEqual(remoteContent);
     } finally {
-      latest._tiptapEditor.destroy();
+      mode.dispose();
+      editor._tiptapEditor.destroy();
+      doc.destroy();
     }
-    const remoteContent = Y.encodeStateAsUpdate(doc);
-    await mode.select({ type: "snapshot", id: "saved" });
-    await mode.select({ type: "current" });
-    expect(editor.prosemirrorState.doc.textContent).toBe("Captured");
-    mode.close();
-    expect(editor.isEditable).toBe(true);
-    expect(ySyncPluginKey.getState(editor.prosemirrorState)?.type).toBe(
-      fragment,
-    );
-    // Headless editors do not run the plugin view that hydrates the restored binding.
-    expect(Y.encodeStateAsUpdate(doc)).toEqual(remoteContent);
-  } finally {
-    mode.dispose();
-    editor._tiptapEditor.destroy();
-    doc.destroy();
-  }
-});
+  },
+);
 
 it("accepts a non-default schema in the public view and extension factory", () => {
   const schema = BlockNoteSchema.create();

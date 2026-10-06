@@ -1,4 +1,7 @@
-import type { VersionSnapshot } from "@blocknote/core/extensions";
+import type {
+  VersionSelection,
+  VersionSnapshot,
+} from "@blocknote/core/extensions";
 import { createContext, useContext, type ReactNode } from "react";
 import type { VersioningSnapshotState } from "../../editor/ComponentsContext.js";
 
@@ -11,7 +14,9 @@ import type { VersioningSnapshotState } from "../../editor/ComponentsContext.js"
 export type VersionSnapshotContextValue = {
   /** The version this row shows. */
   snapshot: VersionSnapshot;
-  /** Whether this row is the current version (the live document). */
+  /** Select the local capture or this row's stored checkpoint. */
+  selection: VersionSelection;
+  /** Whether this row represents Current, a capture or the newest checkpoint. */
   isCurrent: boolean;
   /** The row's mutually exclusive selection and comparison state. */
   state: VersioningSnapshotState;

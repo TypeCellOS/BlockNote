@@ -1,15 +1,29 @@
 import type {
   VersionSnapshot,
   VersioningState,
+  VersionSelection,
 } from "@blocknote/core/extensions";
 
 export type { VersionSnapshot } from "@blocknote/core/extensions";
 export type LoadedVersioningList = {
   loaded: true;
-  current: VersionSnapshot;
+  current: VersionSnapshot | undefined;
   snapshots: VersionSnapshot[];
 };
 export const CURRENT_VERSION_ID = "blocknote:frozen-current";
+
+/** Current can be a local capture or the newest stored checkpoint. */
+export function getVersionSelection(
+  view: VersioningState,
+  snapshot: VersionSnapshot,
+  isCurrent: boolean,
+): VersionSelection {
+  return isCurrent &&
+    view.mode === "versions" &&
+    view.showCurrentVersion !== false
+    ? { type: "current" }
+    : { type: "snapshot", id: snapshot.id };
+}
 
 export function getVersionList(
   state: VersioningState,
@@ -19,7 +33,10 @@ export function getVersionList(
   }
   return {
     loaded: true,
-    current: { id: CURRENT_VERSION_ID, createdAt: state.capturedAt },
+    current:
+      state.showCurrentVersion === false
+        ? state.history.data[0]
+        : { id: CURRENT_VERSION_ID, createdAt: state.capturedAt },
     snapshots: state.history.data,
   };
 }
@@ -35,8 +52,9 @@ export function getVisibleVersionRows(
   namedOnly: boolean,
 ): VisibleVersionRow[] {
   return [
-    { snapshot: list.current, isCurrent: true },
+    ...(list.current ? [{ snapshot: list.current, isCurrent: true }] : []),
     ...list.snapshots
+      .filter((snapshot) => snapshot.id !== list.current?.id)
       .filter((snapshot) => !namedOnly || (snapshot.name?.length ?? 0) > 0)
       .map((snapshot) => ({ snapshot, isCurrent: false })),
   ];
@@ -52,11 +70,15 @@ export function getShownVersionRow(
       return undefined;
     case "versions": {
       if (view.displayed.type === "current") {
-        return { snapshot: list.current, isCurrent: true };
+        return list.current
+          ? { snapshot: list.current, isCurrent: true }
+          : undefined;
       }
       const id = view.displayed.id;
       const snapshot = list.snapshots.find((candidate) => candidate.id === id);
-      return snapshot ? { snapshot, isCurrent: false } : undefined;
+      return snapshot
+        ? { snapshot, isCurrent: snapshot.id === list.current?.id }
+        : undefined;
     }
   }
 }

@@ -92,10 +92,12 @@ function VersioningSidebarContent(props: {
       if (
         result.status === "done" &&
         list.loaded &&
+        list.current &&
         preview.comparisonMode &&
         getPreviousVisibleVersion(list, list.current, preview.namedOnly)
       ) {
-        await run(() => preview.previewRow(list.current));
+        const current = list.current;
+        await run(() => preview.previewRow(current));
       }
     });
     const onError = latestRef.current.onError;

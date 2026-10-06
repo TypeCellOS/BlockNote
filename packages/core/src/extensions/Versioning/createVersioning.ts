@@ -60,6 +60,7 @@ export function createVersioning<Content, Attributions>(options: {
       store.setState({
         mode: "versions",
         capturedAt: session.view.current.capturedAt,
+        showCurrentVersion: options.storage.showCurrentVersion ?? true,
         displayed: { type: "current" },
         history: { status: "pending" },
         restoring,
@@ -131,13 +132,29 @@ export function createVersioning<Content, Attributions>(options: {
         }));
         return { status: "error", error: result.error };
       }
+      const versions = result.value.toSorted(
+        (a, b) => b.createdAt - a.createdAt,
+      );
       publish(active, signal, (state) => ({
         ...state,
         history: {
           status: "success",
-          data: result.value.toSorted((a, b) => b.createdAt - a.createdAt),
+          data: versions,
         },
       }));
+      const state = store.state;
+      if (
+        state.mode === "versions" &&
+        state.showCurrentVersion === false &&
+        state.displayed.type === "current" &&
+        state.pending === undefined &&
+        versions[0] &&
+        session === active &&
+        !signal.aborted &&
+        !restoring
+      ) {
+        return select({ type: "snapshot", id: versions[0].id });
+      }
       return { status: "done" };
     } catch (error) {
       if (signal.aborted) {
@@ -210,6 +227,18 @@ export function createVersioning<Content, Attributions>(options: {
       return { status: "unavailable" };
     }
     if (
+      target.type === "current" &&
+      options.storage.showCurrentVersion === false
+    ) {
+      const state = store.state;
+      const latest =
+        state.mode === "versions" ? state.history.data?.[0] : undefined;
+      if (!latest) {
+        return { status: "unavailable" };
+      }
+      target = { type: "snapshot", id: latest.id };
+    }
+    if (
       selectionOptions?.compareTo !== undefined &&
       !adapter.supportsComparison
     ) {
@@ -274,6 +303,7 @@ export function createVersioning<Content, Attributions>(options: {
       if (!result.ok) {
         return { status: "error", error: result.error };
       }
+      restoring = false;
       const reopened = session !== undefined && session !== active;
       if (session) {
         close();

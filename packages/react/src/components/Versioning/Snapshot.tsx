@@ -17,6 +17,7 @@ import { useSnapshotLabel } from "./useVersionUsers.js";
 import { VersionName } from "./VersionName.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
 import { VersionSnapshotProvider } from "./VersionSnapshotContext.js";
+import { getVersionSelection } from "./visibleHistory.js";
 
 /** Whether `view` is showing this row's version. */
 function getSnapshotState(
@@ -74,7 +75,7 @@ function focusAndReclaim(input: HTMLInputElement) {
   document.addEventListener("keydown", stop, true);
 }
 
-/** Shared current/stored version row; `isCurrent` controls naming and labels. */
+/** Shared current/stored version row; `isCurrent` controls labels and actions. */
 export function Snapshot(props: {
   snapshot: VersionSnapshot;
   isCurrent: boolean;
@@ -94,6 +95,7 @@ export function Snapshot(props: {
   const previewRow = usePreviewRow();
 
   const view = useVersioningState();
+  const selection = getVersionSelection(view, snapshot, isCurrent);
 
   const nameInput = useRef<HTMLInputElement>(null);
 
@@ -123,9 +125,9 @@ export function Snapshot(props: {
   ]
     .filter(Boolean)
     .join(", ");
-  // Naming the current version goes through `create`; every other rename is a
-  // `rename`. Both are gated on the backend actually supporting them.
-  const canEditName = isCurrent ? canCreate : canRename;
+  // Only the frozen capture needs creating. Stored checkpoints are renamed,
+  // including the checkpoint labeled Current.
+  const canEditName = selection.type === "current" ? canCreate : canRename;
   // Both sides of an active comparison can be named without switching the
   // preview. Elsewhere the first click selects the row before renaming it.
   const editable = (selected || comparing) && canEditName === true;
@@ -170,7 +172,7 @@ export function Snapshot(props: {
 
   async function commitName(name: string | undefined) {
     const result = await run(() =>
-      isCurrent ? create(name) : rename(snapshot.id, name),
+      selection.type === "current" ? create(name) : rename(selection.id, name),
     );
     return result.status === "done";
   }
@@ -213,6 +215,7 @@ export function Snapshot(props: {
     <VersionSnapshotProvider
       value={{
         snapshot,
+        selection,
         isCurrent,
         state,
         startRename,

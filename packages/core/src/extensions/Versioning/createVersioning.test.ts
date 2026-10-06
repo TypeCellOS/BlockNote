@@ -44,6 +44,40 @@ function setup(overrides: Partial<VersionStorage<string>> = {}) {
   };
 }
 
+it.each([undefined, true, false])(
+  "opens history with showCurrentVersion=%s",
+  async (showCurrentVersion) => {
+    const latest = { id: "latest", createdAt: 9 };
+    const getContent = vi.fn(async (id: string) => success(id));
+    const { mode, show } = setup({
+      showCurrentVersion,
+      list: async () => success([{ id: "old", createdAt: 1 }, latest]),
+      getContent,
+    });
+    mode.open();
+    expect(await mode.list()).toEqual({ status: "done" });
+    expect(mode.store.state).toMatchObject({
+      displayed:
+        showCurrentVersion === false
+          ? { type: "snapshot", id: "latest" }
+          : { type: "current" },
+    });
+    if (showCurrentVersion === false) {
+      expect(getContent).toHaveBeenCalledWith(
+        "latest",
+        expect.any(AbortSignal),
+      );
+      expect(show).toHaveBeenLastCalledWith({
+        content: "latest",
+        target: { type: "snapshot", id: "latest" },
+      });
+    } else {
+      expect(getContent).not.toHaveBeenCalled();
+    }
+    mode.close();
+  },
+);
+
 it("defers storage access and binds detached rename to the original storage", async () => {
   const storage: VersionStorage<string> = {
     async list() {

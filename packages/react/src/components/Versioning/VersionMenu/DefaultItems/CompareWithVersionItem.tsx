@@ -48,8 +48,11 @@ export function useCompareWithVersionAction(): VersionMenuAction {
           shown && shown.snapshot.id !== snapshot.id
             ? shown.snapshot
             : list.current;
+        if (!other) {
+          return { status: "unavailable" };
+        }
         const target =
-          other.id === list.current.id || other.createdAt >= snapshot.createdAt
+          other.id === list.current?.id || other.createdAt >= snapshot.createdAt
             ? other
             : snapshot;
         const baseline = target === snapshot ? other : snapshot;

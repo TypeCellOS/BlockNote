@@ -160,10 +160,12 @@ export function VersioningSidebarList() {
           />
         ))}
       </div>
-      {rows.length === 1 && (
+      {(rows.length === 0 ||
+        (rows.length === 1 &&
+          state.mode === "versions" &&
+          state.showCurrentVersion !== false)) && (
         <div className="bn-versioning-sidebar-empty">
-          {/* Only the current row is rendered: either nothing is stored, or
-           * the named-only filter is hiding every unnamed version. */}
+          {/* No stored row is visible, including empty continuous history. */}
           {list.snapshots.length > 0
             ? dict.versioning.empty_named_only
             : dict.versioning.empty}

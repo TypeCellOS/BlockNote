@@ -1,10 +1,16 @@
 import { afterEach, beforeEach } from "vite-plus/test";
 
 beforeEach(() => {
+  if (typeof window === "undefined") {
+    return;
+  }
   (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
 });
 
 afterEach(() => {
+  if (typeof window === "undefined") {
+    return;
+  }
   delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
 });
 
@@ -19,7 +25,10 @@ class ClipboardEventMock extends Event {
     },
   };
 }
-(global as any).ClipboardEvent = ClipboardEventMock;
+Object.defineProperty(globalThis, "ClipboardEvent", {
+  value: ClipboardEventMock,
+  configurable: true,
+});
 
 // Mock DragEvent
 class DragEventMock extends Event {
@@ -32,28 +41,33 @@ class DragEventMock extends Event {
     },
   };
 }
-Object.defineProperty(window, "matchMedia", {
-  writable: true,
-  value: (query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: () => {
-      //
-    }, // Deprecated
-    removeListener: () => {
-      //
-    }, // Deprecated
-    addEventListener: () => {
-      //
-    },
-    removeEventListener: () => {
-      //
-    },
-    dispatchEvent: () => {
-      //
-    },
-  }),
-});
+if (typeof window !== "undefined") {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: (query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {
+        //
+      }, // Deprecated
+      removeListener: () => {
+        //
+      }, // Deprecated
+      addEventListener: () => {
+        //
+      },
+      removeEventListener: () => {
+        //
+      },
+      dispatchEvent: () => {
+        //
+      },
+    }),
+  });
+}
 
-(global as any).DragEvent = DragEventMock;
+Object.defineProperty(globalThis, "DragEvent", {
+  value: DragEventMock,
+  configurable: true,
+});

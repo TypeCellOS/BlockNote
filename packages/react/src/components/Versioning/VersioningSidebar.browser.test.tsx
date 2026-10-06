@@ -81,12 +81,13 @@ function deferred<T>() {
  * Fake endpoints with spies on every verb, plus a gate that holds `list` and
  * `getContent` open so the loading states can be observed.
  */
-function createFakeEndpoints() {
+function createFakeEndpoints(showCurrentVersion?: boolean) {
   let snapshots = [NAMED, AUTOMATIC];
 
   let gate: { promise: Promise<void>; release: () => void } | undefined;
 
   const endpoints = {
+    showCurrentVersion,
     list: vi.fn(async () => {
       await gate?.promise;
       return success(snapshots);
@@ -306,6 +307,35 @@ describe("VersioningSidebar", () => {
       entry.host.remove();
     }
   });
+
+  it.each([undefined, "Published"])(
+    "labels a latest-history Current checkpoint with name=%s and renames it in place",
+    async (name) => {
+      const fake = createFakeEndpoints(false);
+      fake.setSnapshots([{ id: "latest", createdAt: 2000, name }, AUTOMATIC]);
+      const { editor, view } = await setup({}, fake);
+      const current = rows()[0]!;
+      expect(current.getAttribute("aria-current")).toBe("true");
+      expect(nameInput(current).placeholder).toBe("Current version");
+      expect(nameInput(current).value).toBe(name ?? "");
+      expect(viewState(mode(editor))).toMatchObject({
+        mode: "snapshot",
+        snapshotId: "latest",
+      });
+      view.unmount();
+      // No edits between openings: the same checkpoint keeps its Current label.
+      const unchanged = await setup({}, fake);
+      expect(nameInput(rows()[0]!).placeholder).toBe("Current version");
+      expect(nameInput(rows()[0]!).value).toBe(name ?? "");
+      await commit(nameInput(rows()[0]!), "Renamed", "Enter");
+      expect(fake.endpoints.rename).toHaveBeenCalledWith("latest", "Renamed");
+      expect(fake.endpoints.create).not.toHaveBeenCalled();
+      unchanged.view.unmount();
+      const reopened = await setup({}, fake);
+      expect(nameInput(rows()[0]!).value).toBe("Renamed");
+      reopened.view.unmount();
+    },
+  );
 
   it("opens on the current version with the editor locked, and unlocks on unmount", async () => {
     const { editor, view } = await setup();
@@ -693,7 +723,9 @@ describe("VersioningSidebar", () => {
     "preserves the naming draft after a failed %s and retries on Enter",
     async (operation) => {
       const { fake } = await setup();
-      if (operation === "rename") await click(rows()[1]!);
+      if (operation === "rename") {
+        await click(rows()[1]!);
+      }
       const rowIndex = operation === "create" ? 0 : 1;
       const input = nameInput(rows()[rowIndex]!);
       fake.endpoints[operation].mockResolvedValueOnce({

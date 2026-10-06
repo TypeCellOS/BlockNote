@@ -5,7 +5,11 @@ import type {
 import { useCallback } from "react";
 
 import { useVersioning } from "./useVersioning.js";
-import { getPreviousVisibleVersion, getVersionList } from "./visibleHistory.js";
+import {
+  getVersionSelection,
+  getPreviousVisibleVersion,
+  getVersionList,
+} from "./visibleHistory.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
 
 /**
@@ -22,7 +26,8 @@ export type CompareTarget =
 
 /**
  * Preview a row using the sidebar's comparison setting, unless
- * overridden. Current always refers to the frozen capture from opening.
+ * overridden. The storage policy decides whether Current is the frozen capture
+ * or the latest stored checkpoint.
  * Returns expected failures; wrap the complete user action in the sidebar's `run`.
  */
 export function usePreviewRow(): (
@@ -42,7 +47,11 @@ export function usePreviewRow(): (
         return { status: "unavailable" };
       }
 
-      const isCurrent = row.id === list.current.id;
+      const target = getVersionSelection(
+        store.state,
+        row,
+        row.id === list.current?.id,
+      );
       const compareTo = options?.compareTo ?? {
         type: comparisonMode ? "previous" : "none",
       };
@@ -66,10 +75,7 @@ export function usePreviewRow(): (
           compareTo satisfies never;
       }
 
-      return select(
-        isCurrent ? { type: "current" } : { type: "snapshot", id: row.id },
-        { compareTo: compareToId },
-      );
+      return select(target, { compareTo: compareToId });
     },
     [store, comparisonMode, namedOnly, select],
   );

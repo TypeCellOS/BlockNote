@@ -7,6 +7,7 @@ import {
   type YHubVersionStorageOptions,
 } from "../yhub.js";
 import { YHubClient } from "../yhubClient.js";
+import { createVersioning } from "../../../extensions/Versioning/createVersioning.js";
 import { resultValue } from "../../../extensions/Versioning/__test__/result.js";
 
 const options = { baseUrl: "https://yhub.test/api", org: "org", docId: "doc" };
@@ -63,6 +64,51 @@ function request(index: number) {
     signal: init?.signal,
   };
 }
+
+it("uses the latest server checkpoint as Current without a separate capture row", () => {
+  expect(storage().api.showCurrentVersion).toBe(false);
+  expect(fetchSpy).not.toHaveBeenCalled();
+});
+
+it("reloads an unnamed YHub checkpoint as Current on each opening without creating a version", async () => {
+  const { api, doc } = storage();
+  const show = vi.fn();
+  const mode = createVersioning({
+    storage: api,
+    adapter: {
+      supportsComparison: false,
+      open() {
+        return {
+          current: { content: new Uint8Array(), capturedAt: 3000 },
+          show,
+          close() {},
+        };
+      },
+    },
+    setReadOnly() {},
+  });
+  for (let opening = 0; opening < 2; opening++) {
+    fetchSpy
+      .mockResolvedValueOnce(response({ activity: [latest, first] }))
+      .mockResolvedValueOnce(response({ ydoc: Y.encodeStateAsUpdate(doc) }));
+    mode.open();
+    expect(await mode.list()).toEqual({ status: "done" });
+    expect(mode.store.state).toMatchObject({
+      showCurrentVersion: false,
+      displayed: { type: "snapshot", id: "2000" },
+      history: { data: [{ id: "2000", name: undefined }, { id: "1000" }] },
+    });
+    expect(show.mock.lastCall?.[0].target).toEqual({
+      type: "snapshot",
+      id: "2000",
+    });
+    mode.close();
+  }
+  expect(fetchSpy).toHaveBeenCalledTimes(4);
+  for (let index = 0; index < 4; index++) {
+    expect(request(index).method).toBe("GET");
+  }
+});
 
 it("lists server checkpoints with their attached versions and empty versions", async () => {
   fetchSpy.mockResolvedValueOnce(

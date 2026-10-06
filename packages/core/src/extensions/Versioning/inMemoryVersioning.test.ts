@@ -45,6 +45,11 @@ it("previews and restores JSON exported from another editor's schema", async () 
     expect(mode).toBeDefined();
     expect(editor.pmSchema).not.toBe(sourceSchema);
     mode.open();
+    await mode.list();
+    expect(mode.store.state).toMatchObject({
+      showCurrentVersion: true,
+      displayed: { type: "current" },
+    });
     await mode.select({ type: "snapshot", id: "2" });
     expect(editor.prosemirrorState.doc.textContent).toBe("Changed text");
     await mode.select({ type: "snapshot", id: "1" });

@@ -111,6 +111,12 @@ export type VersionQueryState<T> =
  * return results; unexpected bugs throw. Mutations continue when the view closes.
  */
 export interface VersionStorage<Content, Attributions = never> {
+  /**
+   * Prepend a separate frozen Current version. Defaults to true. Set false when
+   * the newest listed checkpoint represents Current; opening loads that checkpoint
+   * instead of the local capture, without comparing their content.
+   */
+  readonly showCurrentVersion?: boolean;
   /** Load history metadata. The controller sorts it by descending creation time. */
   list(signal: AbortSignal): Promise<VersionResult<VersionSnapshot[]>>;
   /** Load a stored version's content for {@link VersionView.show}. */
@@ -163,6 +169,8 @@ export type VersioningState =
       mode: "versions";
       /** Capture time from {@link VersionView.current}, in Unix milliseconds. */
       capturedAt: number;
+      /** Whether Current is a separate local capture. Defaults to true. */
+      showCurrentVersion?: boolean;
       /** Last successfully rendered {@link VersionSelection}. */
       displayed: VersionSelection;
       /** Stored baseline identifier used by the displayed comparison, if any. */
