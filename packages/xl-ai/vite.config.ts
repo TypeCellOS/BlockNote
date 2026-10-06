@@ -38,7 +38,12 @@ export default defineConfig(
         environment: "jsdom",
         setupFiles: ["./vitestSetup.ts"],
         // https://vitest.dev/guide/features.html#environment-variables
-        env: loadEnv(conf.mode, __dirname, ""),
+        // Only tests need the full environment. Loading it during a build
+        // fingerprints unrelated per-run CI variables and prevents reuse.
+        env:
+          conf.command === "build"
+            ? undefined
+            : loadEnv(conf.mode, __dirname, ""),
       },
       plugins: [react(), webpackStats()],
       // used so that vitest resolves the core package from the sources instead of the built version
