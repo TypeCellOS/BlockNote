@@ -410,10 +410,9 @@ export const nl: Dictionary = {
   suggestion_changes: {
     formatting_change: "Opmaakwijziging",
     deleted: "Verwijderd",
+    inserted: "Ingevoegd",
     inserted_by: (users: string) => `Ingevoegd door: ${users}`,
     deleted_by: (users: string) => `Verwijderd door: ${users}`,
-    inserted_in: (version: string) => `Ingevoegd in: ${version}`,
-    deleted_in: (version: string) => `Verwijderd in: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `Opmaakwijziging (${formats}) door: ${users}`,
   },
@@ -429,8 +428,6 @@ export const nl: Dictionary = {
     empty: "Nog geen versies",
     empty_named_only: "Geen benoemde versies",
     current_version: "Huidige versie",
-    unnamed_version: "Unnamed version",
-    this_version: "Deze versie",
     before_restore: "Voor herstel",
     comparing_to: "Vergeleken met",
     restored_from: (date: string) => `Hersteld vanaf ${date}`,

@@ -84,8 +84,6 @@ export type AttributionChange =
   | { modificationType: "format"; format?: string[]; attributes?: never }
   | { modificationType: "attrs"; attributes: string[]; format?: never };
 
-export type AttributionProvenance = "author" | "version";
-
 export type AttributionTooltipState = AttributionChange & {
   /** The wrapper element the tooltip anchors to (floating-ui reference). */
   anchor: HTMLElement;
@@ -95,10 +93,11 @@ export type AttributionTooltipState = AttributionChange & {
   color: string;
   /** Whether the mark wraps inline content or a whole block. */
   contentType: "inline-content" | "block";
-  /** Resolved usernames (falls back to raw ids), for custom renderers. */
+  /**
+   * Resolved usernames (falls back to raw ids), for custom renderers. Empty
+   * when the change has no named author, e.g. in a version diff.
+   */
   users: string[];
-  /** Whether the labels identify document authors or a synthetic version. */
-  provenance: AttributionProvenance;
   /**
    * Class name from the `getAttributionMarkClassName` callback (override path).
    * When present, the tooltip applies this and skips the inline `color`.
@@ -122,8 +121,6 @@ export const AttributionExtension = createExtension(
         resolveUsers?: UserStoreOrResolver;
         /** See {@link GetAttributionMarkClassName}. */
         getAttributionMarkClassName?: GetAttributionMarkClassName;
-        /** Meaning of the identities carried by this extension's marks. */
-        provenance?: AttributionProvenance;
       }
     | undefined
   >) => {
@@ -223,10 +220,12 @@ export const AttributionExtension = createExtension(
 
         // The mark's authors as usernames, falling back to the raw id when not
         // cached (`getUser` is cache-only; ids load on hover, see `onPointerOver`).
+        // A user with an empty name only colors its marks (a version diff's
+        // synthetic author), so it isn't listed.
         const usersLabelArray = (userIdsJSON: string | undefined): string[] =>
-          parseUserIds(userIdsJSON).map(
-            (id) => userStore.getUser(id)?.username ?? id,
-          );
+          parseUserIds(userIdsJSON)
+            .map((id) => userStore.getUser(id)?.username ?? id)
+            .filter((username) => username !== "");
 
         // A stable identity string for a wrapper (empty if unattributed), used to
         // (a) test whether a mark is attributed and (b) group adjacent marks with
@@ -275,7 +274,6 @@ export const AttributionExtension = createExtension(
             ...change,
             contentType,
             users: usersLabelArray(anchor.dataset["userIds"]),
-            provenance: options?.provenance ?? "author",
             className: resolveAttributionMarkClassName(
               getAttributionMarkClassName?.({ contentType, modificationType }),
               "tooltip",

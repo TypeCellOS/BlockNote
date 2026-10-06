@@ -409,10 +409,9 @@ export const he: Dictionary = {
   suggestion_changes: {
     formatting_change: "שינוי עיצוב",
     deleted: "נמחק",
+    inserted: "נוסף",
     inserted_by: (users: string) => `נוסף על ידי: ${users}`,
     deleted_by: (users: string) => `נמחק על ידי: ${users}`,
-    inserted_in: (version: string) => `נוסף בגרסה: ${version}`,
-    deleted_in: (version: string) => `נמחק בגרסה: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `שינוי עיצוב (${formats}) על ידי: ${users}`,
   },
@@ -428,8 +427,6 @@ export const he: Dictionary = {
     empty: "אין עדיין גרסאות",
     empty_named_only: "אין גרסאות עם שם",
     current_version: "גרסה נוכחית",
-    unnamed_version: "Unnamed version",
-    this_version: "גרסה זו",
     before_restore: "לפני השחזור",
     comparing_to: "משווה מול",
     restored_from: (date: string) => `שוחזר מ-${date}`,

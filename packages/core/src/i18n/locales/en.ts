@@ -409,10 +409,9 @@ export const en = {
   suggestion_changes: {
     formatting_change: "Formatting Change",
     deleted: "Deleted",
+    inserted: "Inserted",
     inserted_by: (users: string) => `Inserted by: ${users}`,
     deleted_by: (users: string) => `Deleted by: ${users}`,
-    inserted_in: (version: string) => `Inserted in: ${version}`,
-    deleted_in: (version: string) => `Deleted in: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `Formatting change (${formats}) by: ${users}`,
   },
@@ -428,8 +427,6 @@ export const en = {
     empty: "No versions yet",
     empty_named_only: "No named versions",
     current_version: "Current version",
-    unnamed_version: "Unnamed version",
-    this_version: "This version",
     before_restore: "Before restore",
     comparing_to: "Comparing to",
     restored_from: (date: string) => `Restored from ${date}`,

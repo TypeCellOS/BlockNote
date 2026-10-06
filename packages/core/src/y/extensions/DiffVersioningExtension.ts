@@ -4,7 +4,7 @@ import * as Y from "@y/y";
 import type { Block } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
-import type { User } from "../../user/index.js";
+import { createUserStore, type User } from "../../user/index.js";
 import {
   _blocksToProsemirrorNode,
   docDiffToDelta,
@@ -15,16 +15,12 @@ import { AttributionExtension } from "./AttributionExtension.js";
 import type { GetAttributionMarkClassName } from "./YAttributionMarks.js";
 
 /**
- * A version diff has a single "author" — the version that introduced the changes
- * — not a real user, so all `y-attributed-*` marks carry one synthetic id. That
- * id is derived from the version's label (see {@link diffAuthorId}) so it's stable
- * per version: the user store caches resolved users by id, so a per-label id keeps
- * each version's tooltip showing its own name instead of a stale cached one.
+ * A version diff has no real authors, so all `y-attributed-*` marks carry one
+ * synthetic id. Its user has an empty name: it only gives the marks their color,
+ * and the tooltip names just the kind of change, because a diff can't tell which
+ * intermediate version introduced it.
  */
-const DIFF_AUTHOR_ID_PREFIX = "version:";
-
-/** The synthetic author id for a given version label. */
-const diffAuthorId = (label: string) => DIFF_AUTHOR_ID_PREFIX + label;
+const DIFF_AUTHOR_ID = "blocknote:version-diff";
 
 /** Colors used for the version diff marks — the palette's blue. */
 const DIFF_AUTHOR_COLOR = "#1e4fb0";
@@ -45,7 +41,7 @@ export type DiffVersioningExtensionOptions = {
 /**
  * Records the author of each transaction on `doc` into a mutable
  * {@link Y.ContentMap}, so the resulting attribution marks carry a non-empty
- * `userIds` (and therefore resolve to a color/name). The listener must be
+ * `userIds` (and therefore resolve to a color). The listener must be
  * attached *before* the attributed transaction runs. Mirrors the store used by
  * the suggestion gallery example (`createAttributionStore`).
  */
@@ -115,47 +111,36 @@ export const DiffVersioningExtension = createExtension(
     const colorLight =
       options?.color === undefined ? DIFF_AUTHOR_COLOR_LIGHT : undefined;
 
-    // Resolve a synthetic author id back to its version label. The id encodes
-    // the label (`version:<label>`), so this is a pure decode — no shared mutable
-    // state, and the user store caches each version's "user" separately (so
-    // switching between version comparisons never shows a stale name).
-    const resolveUsers = async (ids: string[]): Promise<User[]> =>
-      ids
-        .filter((id) => id.startsWith(DIFF_AUTHOR_ID_PREFIX))
-        .map((id) => ({
-          id,
-          username: id.slice(DIFF_AUTHOR_ID_PREFIX.length),
-          avatarUrl: "",
-          color,
-          colorLight,
-        }));
+    // Cached up front, so a hover never shows the raw id before it resolves.
+    const userStore = createUserStore<User>(async () => []);
+    userStore.setUser({
+      id: DIFF_AUTHOR_ID,
+      username: "",
+      avatarUrl: "",
+      color,
+      colorLight,
+    });
 
     return {
       key: "diffVersioning",
       // Compose AttributionExtension: registers the y-attributed-* marks and
-      // drives their colors + hover-tooltip names from the (static) user store.
+      // drives their colors from the (static) user store.
       blockNoteExtensions: [
         AttributionExtension({
-          resolveUsers,
+          resolveUsers: userStore,
           getAttributionMarkClassName: options?.getAttributionMarkClassName,
-          provenance: "version",
         }),
       ],
       /**
        * Render a read-only diff of `baselineBlocks` → `snapshotBlocks` into the
-       * editor. The changes are attributed to the version that introduced them:
-       * pass `versionLabel` to label the diff marks (shown in their hover tooltip,
-       * e.g. "Inserted in: {versionLabel}"). Uses the "two-doc fork" recipe so the
-       * two Y.Docs share history — a hard requirement for
+       * editor, marking insertions and deletions. Uses the "two-doc fork" recipe
+       * so the two Y.Docs share history — a hard requirement for
        * `createDiffRenderer`, which diffs by Yjs client/clock ids.
        */
       renderDiff(
         snapshotBlocks: Block<any, any, any>[],
         baselineBlocks: Block<any, any, any>[],
-        versionLabel: string = editor.dictionary.versioning.this_version,
       ) {
-        const authorId = diffAuthorId(versionLabel);
-
         if (!editor.pmSchema.marks["y-attributed-insert"]) {
           throw new Error(
             "DiffVersioningExtension: the y-attributed-* marks are missing from " +
@@ -184,12 +169,12 @@ export const DiffVersioningExtension = createExtension(
 
         // Attach the author store BEFORE applying the delta so the diff
         // transaction's inserts/deletes are attributed.
-        const attrs = attributeTransactionsTo(nextDoc, authorId);
+        const attrs = attributeTransactionsTo(nextDoc, DIFF_AUTHOR_ID);
 
         const delta = docDiffToDelta(baselineNode, snapshotNode);
         nextDoc.transact(() => {
           nextType.applyDelta(delta as any);
-        }, authorId);
+        }, DIFF_AUTHOR_ID);
 
         const renderer = Y.createDiffRenderer(prevDoc, nextDoc, {
           attributions: attrs,

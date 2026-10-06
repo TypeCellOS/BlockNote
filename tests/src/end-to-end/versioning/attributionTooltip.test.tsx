@@ -3,10 +3,7 @@ import {
   BlockNoteSchema,
   type PartialBlock,
 } from "@blocknote/core";
-import {
-  createLocalVersioning,
-  formatVersionDate,
-} from "@blocknote/core/extensions";
+import { createLocalVersioning } from "@blocknote/core/extensions";
 import {
   AttributionExtension,
   DiffVersioningExtension,
@@ -46,7 +43,7 @@ const schema = BlockNoteSchema.create().extend({
   inlineContentSpecs: { math: createReactInlineMathSpec() },
 });
 
-test("only attributes the edited text and labels an unnamed version with its timestamp", async () => {
+test("only attributes the edited text", async () => {
   const editor = BlockNoteEditor.create({
     extensions: [DiffVersioningExtension()],
   });
@@ -98,11 +95,10 @@ test("only attributes the edited text and labels an unnamed version with its tim
     await userEvent.hover(
       paragraph.querySelector<HTMLElement>("ins .bn-suggestion-mark")!,
     );
-    const label = formatVersionDate(createdAt);
     await vi.waitFor(() =>
       expect(
         document.querySelector(".bn-suggestion-tooltip")?.textContent,
-      ).toBe(`Inserted in: ${label}`),
+      ).toBe("Inserted"),
     );
     paragraph.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
     await vi.waitFor(() =>
@@ -142,7 +138,7 @@ test("anchors an inline math change tooltip to the formula, not the paragraph", 
     ]);
     editor
       .getExtension(DiffVersioningExtension)!
-      .renderDiff(snapshot, editor.document, "Draft 3");
+      .renderDiff(snapshot, editor.document);
     const formula = await vi.waitFor(() => {
       const element = editor.domElement?.querySelector<HTMLElement>(
         '.bn-block[data-id="inline-math"] .bn-preview-container',
@@ -162,7 +158,7 @@ test("anchors an inline math change tooltip to the formula, not the paragraph", 
     await vi.waitFor(() =>
       expect(
         document.querySelector(".bn-suggestion-tooltip")?.textContent,
-      ).toBe("Inserted in: Draft 3"),
+      ).toBe("Inserted"),
     );
     const tooltip = document.querySelector<HTMLElement>(
       ".bn-suggestion-tooltip",
@@ -203,7 +199,7 @@ test("does not attribute unchanged content to a sibling's change", async () => {
     ]);
     editor
       .getExtension(DiffVersioningExtension)!
-      .renderDiff(snapshot, editor.document, "Draft 3");
+      .renderDiff(snapshot, editor.document);
     const formula = await vi.waitFor(() => {
       const element = editor.domElement?.querySelector<HTMLElement>(
         '.bn-block[data-id="siblings"] .bn-preview-container',
@@ -249,7 +245,7 @@ test("shows an attribution for a partial change within inline math", async () =>
     ]);
     editor
       .getExtension(DiffVersioningExtension)!
-      .renderDiff(snapshot, editor.document, "Draft 3");
+      .renderDiff(snapshot, editor.document);
     const formula = await vi.waitFor(() => {
       const element = editor.domElement?.querySelector<HTMLElement>(
         '.bn-block[data-id="partial-math"] .bn-preview-container',
@@ -263,7 +259,7 @@ test("shows an attribution for a partial change within inline math", async () =>
     await vi.waitFor(() =>
       expect(
         document.querySelector(".bn-suggestion-tooltip")?.textContent,
-      ).toContain("Draft 3"),
+      ).toBe("Deleted"),
     );
   } finally {
     editor._tiptapEditor.destroy();
@@ -326,7 +322,7 @@ test.each(cases)(
       const baseline = block.type === "file" ? [] : editor.document;
       editor
         .getExtension(DiffVersioningExtension)!
-        .renderDiff(snapshot, baseline, "Draft 3");
+        .renderDiff(snapshot, baseline);
 
       const preview = await vi.waitFor(() => {
         const element = editor.domElement?.querySelector<HTMLElement>(
@@ -368,7 +364,7 @@ test.each(cases)(
       await vi.waitFor(() =>
         expect(
           document.querySelector(".bn-suggestion-tooltip")?.textContent,
-        ).toBe("Inserted in: Draft 3"),
+        ).toBe("Inserted"),
       );
       await vi.waitFor(() => {
         const tooltip = document.querySelector<HTMLElement>(
@@ -414,7 +410,7 @@ test("frames an attributed math preview", async () => {
     ]);
     editor
       .getExtension(DiffVersioningExtension)!
-      .renderDiff(snapshot, editor.document, "Draft 3");
+      .renderDiff(snapshot, editor.document);
     await vi.waitFor(() => {
       const element = editor.domElement?.querySelector<HTMLElement>(
         '.bn-block[data-id="math-preview"] .bn-preview-container',

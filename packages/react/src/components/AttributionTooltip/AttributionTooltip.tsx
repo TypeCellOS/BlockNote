@@ -19,10 +19,12 @@ export const AttributionTooltip = (props: AttributionTooltipProps) => {
   const dictionary = useDictionary();
 
   // Compose the fully-localized text from the raw change context — e.g.
-  // `"Inserted by: Alice"`, `"Inserted in: Draft 3"`, or
-  // `"Formatting change (Bold, Italic) by: Alice"`. The outer sentence comes
-  // from the `suggestion_changes` dictionary (translated per locale) and the
-  // inner format list from the configurable `formatChangeLabel`.
+  // `"Inserted by: Alice"` or `"Formatting change (Bold, Italic) by: Alice"`.
+  // A version diff has no authors and can't tell which intermediate version
+  // made a change, so it only names the kind of change (e.g. `"Inserted"`).
+  // The outer sentence comes from the `suggestion_changes` dictionary
+  // (translated per locale) and the inner format list from the configurable
+  // `formatChangeLabel`.
   const text = useMemo(() => {
     const changes = dictionary.suggestion_changes;
     const formatChangeLabel =
@@ -30,14 +32,10 @@ export const AttributionTooltip = (props: AttributionTooltipProps) => {
     const users = props.users.join(", ");
 
     if (props.modificationType === "insert") {
-      return props.provenance === "version"
-        ? changes.inserted_in(users)
-        : changes.inserted_by(users);
+      return users ? changes.inserted_by(users) : changes.inserted;
     }
     if (props.modificationType === "delete") {
-      return props.provenance === "version"
-        ? changes.deleted_in(users)
-        : changes.deleted_by(users);
+      return users ? changes.deleted_by(users) : changes.deleted;
     }
 
     if (props.modificationType === "attrs") {
@@ -57,7 +55,9 @@ export const AttributionTooltip = (props: AttributionTooltipProps) => {
         ? `${changes.formatting_change}: ${users}`
         : changes.formatting_change;
     }
-    return changes.formatting_change_by(formatLabel, users);
+    return users
+      ? changes.formatting_change_by(formatLabel, users)
+      : `${changes.formatting_change} (${formatLabel})`;
   }, [dictionary, props]);
   return (
     <Components.AttributionTooltip.Root

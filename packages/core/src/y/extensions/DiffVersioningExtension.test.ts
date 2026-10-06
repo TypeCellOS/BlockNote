@@ -5,7 +5,6 @@ import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { Block } from "../../blocks/defaultBlocks.js";
-import { en } from "../../i18n/locales/en.js";
 import { colorsForUserIds } from "../../user/index.js";
 import { AttributionExtension } from "./AttributionExtension.js";
 import { DiffVersioningExtension } from "./DiffVersioningExtension.js";
@@ -16,9 +15,8 @@ import { DiffVersioningExtension } from "./DiffVersioningExtension.js";
 
 const mounts: HTMLElement[] = [];
 
-function createDiffEditor(dictionary = en) {
+function createDiffEditor() {
   const editor = BlockNoteEditor.create({
-    dictionary,
     extensions: [DiffVersioningExtension()],
   });
   const mount = document.createElement("div");
@@ -142,68 +140,36 @@ describe("DiffVersioningExtension", () => {
     expect(unchanged).toContain("brown fox");
   });
 
-  it("attributes the diff to the version author id (userIds on the marks)", () => {
+  it("attributes every change to one synthetic author (userIds on the marks)", () => {
     const baseline = blocksFromText("hello world");
     const target = blocksFromText("hello there world");
 
     const diff = editor.getExtension(DiffVersioningExtension)!;
-    diff.renderDiff(target, baseline, "My version");
+    diff.renderDiff(target, baseline);
 
-    const attributed = collectAttributedText(editor);
-    const insertUserIds = attributed
+    const userIds = collectAttributedText(editor)
       .flatMap((t) => t.marks)
-      .filter(([n]) => n === "y-attributed-insert")
       .flatMap(([, ids]) => ids);
 
-    // A version diff has one synthetic author (the version). Its id encodes the
-    // version label, so the tooltip resolves to that name.
-    expect(insertUserIds).toContain("version:My version");
+    // A version diff has no real authors: one synthetic id only colors the marks.
+    expect(userIds.length).toBeGreaterThan(0);
+    expect(new Set(userIds).size).toBe(1);
   });
 
-  it("resolves the diff author to the version's name (tooltip label)", async () => {
-    const baseline = blocksFromText("hello world");
-    const target = blocksFromText("hello brave new world");
-
-    const diff = editor.getExtension(DiffVersioningExtension)!;
-    diff.renderDiff(target, baseline, "Draft 3");
-
-    // The version name is surfaced by resolving the marks' author id through the
-    // composed AttributionExtension's user store — this is what the hover tooltip
-    // shows ("…in: {name}").
-    const attribution = editor.getExtension(AttributionExtension)!;
-    const authorId = "version:Draft 3";
-    await attribution.userStore.loadUsers([authorId]);
-    expect(attribution.userStore.getUser(authorId)?.username).toBe("Draft 3");
-  });
-
-  it("uses the localized fallback label and version provenance", async () => {
-    editor.unmount();
-    editor = createDiffEditor({
-      ...en,
-      versioning: {
-        ...en.versioning,
-        this_version: "Diese Version",
-      },
-    });
+  it("reports no authors when hovering a change", () => {
     const baseline = blocksFromText("hello world");
     const target = blocksFromText("hello new world");
 
     editor.getExtension(DiffVersioningExtension)!.renderDiff(target, baseline);
 
-    const attribution = editor.getExtension(AttributionExtension)!;
-    const authorId = "version:Diese Version";
-    await attribution.userStore.loadUsers([authorId]);
-    expect(attribution.userStore.getUser(authorId)?.username).toBe(
-      "Diese Version",
-    );
-
     editor.prosemirrorView.dom
       .querySelector("ins[data-user-ids]")!
       .dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
-    expect(attribution.store.state).toMatchObject({
+    expect(
+      editor.getExtension(AttributionExtension)!.store.state,
+    ).toMatchObject({
       modificationType: "insert",
-      users: ["Diese Version"],
-      provenance: "version",
+      users: [],
     });
   });
 
@@ -212,10 +178,12 @@ describe("DiffVersioningExtension", () => {
     const target = blocksFromText("hello brave new world");
 
     const diff = editor.getExtension(DiffVersioningExtension)!;
-    diff.renderDiff(target, baseline, "Draft 3");
+    diff.renderDiff(target, baseline);
 
     const attribution = editor.getExtension(AttributionExtension)!;
-    const authorId = "version:Draft 3";
+    const authorId = collectAttributedText(editor)
+      .flatMap((t) => t.marks)
+      .flatMap(([, ids]) => ids)[0]!;
     await attribution.userStore.loadUsers([authorId]);
 
     // Both halves are set, so the marks and their tooltip use the tuned pair

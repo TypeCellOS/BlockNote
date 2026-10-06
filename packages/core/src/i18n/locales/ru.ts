@@ -453,10 +453,9 @@ export const ru: Dictionary = {
   suggestion_changes: {
     formatting_change: "Изменение форматирования",
     deleted: "Удалено",
+    inserted: "Вставлено",
     inserted_by: (users: string) => `Вставлено: ${users}`,
     deleted_by: (users: string) => `Удалено: ${users}`,
-    inserted_in: (version: string) => `Вставлено в версии: ${version}`,
-    deleted_in: (version: string) => `Удалено в версии: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `Изменение форматирования (${formats}): ${users}`,
   },
@@ -472,8 +471,6 @@ export const ru: Dictionary = {
     empty: "Пока нет версий",
     empty_named_only: "Нет именованных версий",
     current_version: "Текущая версия",
-    unnamed_version: "Unnamed version",
-    this_version: "Эта версия",
     before_restore: "До восстановления",
     comparing_to: "Сравнение с",
     restored_from: (date: string) => `Восстановлено из ${date}`,

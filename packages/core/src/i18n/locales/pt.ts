@@ -402,10 +402,9 @@ export const pt: Dictionary = {
   suggestion_changes: {
     formatting_change: "Alteração de formatação",
     deleted: "Excluído",
+    inserted: "Inserido",
     inserted_by: (users: string) => `Inserido por: ${users}`,
     deleted_by: (users: string) => `Excluído por: ${users}`,
-    inserted_in: (version: string) => `Inserido em: ${version}`,
-    deleted_in: (version: string) => `Excluído em: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `Alteração de formatação (${formats}) por: ${users}`,
   },
@@ -421,8 +420,6 @@ export const pt: Dictionary = {
     empty: "Ainda não há versões",
     empty_named_only: "Não há versões nomeadas",
     current_version: "Versão atual",
-    unnamed_version: "Unnamed version",
-    this_version: "Esta versão",
     before_restore: "Antes da restauração",
     comparing_to: "Comparando com",
     restored_from: (date: string) => `Restaurado de ${date}`,

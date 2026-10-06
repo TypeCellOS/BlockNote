@@ -222,7 +222,6 @@ describe("AttributionExtension user loading", () => {
       attributes: ["backgroundColor"],
       users: ["name-bob"],
       contentType: "block",
-      provenance: "author",
     });
   });
 

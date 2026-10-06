@@ -449,10 +449,9 @@ export const ja: Dictionary = {
   suggestion_changes: {
     formatting_change: "書式の変更",
     deleted: "削除済み",
+    inserted: "挿入済み",
     inserted_by: (users: string) => `挿入者: ${users}`,
     deleted_by: (users: string) => `削除者: ${users}`,
-    inserted_in: (version: string) => `挿入されたバージョン: ${version}`,
-    deleted_in: (version: string) => `削除されたバージョン: ${version}`,
     formatting_change_by: (formats: string, users: string) =>
       `書式の変更 (${formats}) 変更者: ${users}`,
   },
@@ -468,8 +467,6 @@ export const ja: Dictionary = {
     empty: "バージョンはまだありません",
     empty_named_only: "名前付きのバージョンはありません",
     current_version: "現在のバージョン",
-    unnamed_version: "Unnamed version",
-    this_version: "このバージョン",
     before_restore: "復元前",
     comparing_to: "比較対象",
     restored_from: (date: string) => `${date} から復元`,

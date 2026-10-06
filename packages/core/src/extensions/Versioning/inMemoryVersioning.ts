@@ -22,7 +22,6 @@ import type {
   VersionViewAdapter,
 } from "./types.js";
 import { createVersioningExtension } from "./Versioning.js";
-import { formatVersionDate } from "./formatVersionDate.js";
 import type { UserStoreOrResolver } from "../../user/index.js";
 
 /** ProseMirror JSON uses schema-defined node/mark names and attribute values. */
@@ -179,7 +178,7 @@ export function createLocalVersioning<
         }
         return {
           current,
-          show({ content, comparison, target }) {
+          show({ content, comparison }) {
             if (closed) {
               throw new Error("Version view is closed");
             }
@@ -188,19 +187,9 @@ export function createLocalVersioning<
                 "diffVersioning",
               );
             if (comparison && diff) {
-              let label = editor.dictionary.versioning.current_version;
-              if (target.type === "snapshot") {
-                const version = snapshots.get(target.id)?.version;
-                label =
-                  version?.name ??
-                  (version
-                    ? formatVersionDate(version.createdAt)
-                    : editor.dictionary.versioning.this_version);
-              }
               diff.renderDiff(
                 docToBlocks(content),
                 docToBlocks(comparison.content),
-                label,
               );
               return;
             }
