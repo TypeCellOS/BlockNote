@@ -12,7 +12,8 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsc && vp build",
+            command:
+              "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
             input: [
               ...buildCacheInputs("packages/xl-pdf-exporter"),
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },

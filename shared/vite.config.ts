@@ -5,8 +5,8 @@ export default defineConfig({
   run: {
     tasks: {
       build: {
-        // Emit only this package; vp orders dependencies. Build mode would
-        // rewrite shared declarations concurrently. Keep existing output paths.
+        // Emit declarations without build mode, which would traverse references
+        // and rewrite shared declarations concurrently.
         command:
           "tsc --project tsconfig.json --declaration --composite false --incremental false --rootDir .",
         input: [

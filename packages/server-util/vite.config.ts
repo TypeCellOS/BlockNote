@@ -12,7 +12,8 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsc && vp build",
+            command:
+              "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
             input: [
               ...buildCacheInputs("packages/server-util"),
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
