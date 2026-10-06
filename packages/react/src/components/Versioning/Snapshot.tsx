@@ -249,6 +249,7 @@ export function Snapshot(props: {
             name={snapshot.name}
             placeholder={placeholder}
             editable={editable}
+            commitMode={commitsViaCreate ? "create" : "rename"}
             inputRef={nameInput}
             onCommit={commitName}
           />

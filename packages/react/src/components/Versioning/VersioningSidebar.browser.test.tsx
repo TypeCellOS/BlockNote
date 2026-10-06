@@ -997,6 +997,45 @@ describe("VersioningSidebar", () => {
       expect(document.activeElement).toBe(rows()[1]);
     });
 
+    it.each([
+      { value: "  Final  ", expected: "Final" },
+      { value: "  ", expected: "" },
+    ])(
+      "keeps '$expected' visible while a rename saves",
+      async ({ value, expected }) => {
+        const { fake } = await setup();
+        await click(rows()[1]!);
+        let finishRename!: () => void;
+        const pendingRename = new Promise<void>((resolve) => {
+          finishRename = resolve;
+        });
+        const rename = fake.endpoints.rename.getMockImplementation()!;
+        fake.endpoints.rename.mockImplementationOnce(async (id, name) => {
+          await pendingRename;
+          await rename(id, name);
+        });
+        const releaseHistory = fake.block();
+
+        await commit(nameInput(rows()[1]!), value, "Enter");
+
+        expect(nameInput(rows()[1]!).value).toBe(expected);
+        expect(fake.endpoints.rename).toHaveBeenCalledWith(
+          NAMED.id,
+          expected || undefined,
+        );
+
+        // Escape restores the locally committed name, not the stale backend name.
+        await commit(nameInput(rows()[1]!), "Discarded", "Escape");
+        expect(nameInput(rows()[1]!).value).toBe(expected);
+        expect(fake.endpoints.rename).toHaveBeenCalledTimes(1);
+
+        await act(async () => finishRename());
+        expect(nameInput(rows()[1]!).value).toBe(expected);
+        await act(async () => releaseHistory());
+        expect(nameInput(rows()[1]!).value).toBe(expected);
+      },
+    );
+
     it("cancels on Escape without renaming", async () => {
       const { fake } = await setup();
 

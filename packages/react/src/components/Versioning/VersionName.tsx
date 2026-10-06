@@ -16,6 +16,8 @@ export function VersionName(props: {
    * backend can (re)name it. Otherwise it's rendered as text.
    */
   editable: boolean;
+  /** Creating a checkpoint leaves Current unnamed; renaming keeps the new name. */
+  commitMode: "create" | "rename";
   inputRef: RefObject<HTMLInputElement | null>;
   /** `undefined` when the field was left empty, which clears the name. */
   onCommit: (name: string | undefined) => void;
@@ -36,6 +38,7 @@ export function VersionName(props: {
 function VersionNameInput(props: {
   name: string | undefined;
   placeholder: string;
+  commitMode: "create" | "rename";
   inputRef: RefObject<HTMLInputElement | null>;
   onCommit: (name: string | undefined) => void;
 }) {
@@ -43,6 +46,7 @@ function VersionNameInput(props: {
   const dict = useDictionary();
   // Mirrored into the sizer, so the field is as wide as what's typed in it.
   const [draft, setDraft] = useState(props.name ?? "");
+  const committedName = useRef(props.name ?? "");
   // Set by Escape, read by the blur it causes: leaving the field commits, so
   // the blur has to know the edit was abandoned rather than finished.
   const cancelled = useRef(false);
@@ -75,13 +79,16 @@ function VersionNameInput(props: {
       }}
       onBlur={(event) => {
         const name = cancelled.current
-          ? (props.name ?? "")
+          ? committedName.current
           : event.currentTarget.value.trim();
         cancelled.current = false;
-        // Show the stored name until the backend confirms the change.
-        // Naming Current may create a different row instead of renaming it.
-        setDraft(props.name ?? "");
-        if (name !== (props.name ?? "")) {
+        const changed = name !== committedName.current;
+        // Keep renames visible while saving. Naming Current creates a separate
+        // checkpoint, so only that field resets to its stored name.
+        committedName.current =
+          props.commitMode === "create" ? (props.name ?? "") : name;
+        setDraft(committedName.current);
+        if (changed) {
           props.onCommit(name === "" ? undefined : name);
         }
       }}
