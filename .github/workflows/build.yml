@@ -31,9 +31,7 @@ jobs:
       - name: Install Dependencies
         run: vp install
 
-      - uses: $/.github/actions/build-cache
-        with:
-          task-cache-scope: packages
+      - uses: $/.github/actions/typst-cache
 
       # Unchanged Rust uses the cached WASM even when the TS build misses.
       # Other package outputs are restored by Vite Task's own fingerprints.
@@ -97,9 +95,7 @@ jobs:
       - name: Install dependencies
         run: vp install
 
-      - uses: $/.github/actions/build-cache
-        with:
-          task-cache-scope: typst
+      - uses: $/.github/actions/typst-cache
 
       # Compiles the Rust wasm when missing/stale (rustup is bootstrapped by
       # the build task itself) plus the TS wrapper's dist/types.
