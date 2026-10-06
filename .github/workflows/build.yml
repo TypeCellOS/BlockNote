@@ -28,18 +28,21 @@ jobs:
           node-version-file: ".node-version"
           cache: true
 
-      - name: Install Dependencies
-        run: vp install
-
       - uses: $/.github/actions/typst-cache
+
+      - name: Select task-cache generation
+        id: task-cache-generation
+        # Start fresh each ISO week instead of carrying old task results forever.
+        run: echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
 
       - name: Restore build task cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: node_modules/.vite/task-cache
-          key: vite-task-v2-${{ runner.os }}-${{ runner.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          # Immutable per merge commit: reruns reuse it without duplicate uploads.
+          key: vite-task-v3-${{ runner.os }}-${{ runner.arch }}-${{ steps.task-cache-generation.outputs.week }}-${{ github.sha }}
           restore-keys: |
-            vite-task-v2-${{ runner.os }}-${{ runner.arch }}-
+            vite-task-v3-${{ runner.os }}-${{ runner.arch }}-${{ steps.task-cache-generation.outputs.week }}-
 
       # Unchanged Rust uses the cached WASM even when the TS build misses.
       # Other package outputs are restored by Vite Task's own fingerprints.
@@ -100,9 +103,6 @@ jobs:
           node-version-file: ".node-version"
           cache: true
 
-      - name: Install dependencies
-        run: vp install
-
       - uses: $/.github/actions/typst-cache
 
       # Compiles the Rust wasm when missing/stale (rustup is bootstrapped by
@@ -152,9 +152,6 @@ jobs:
           # Build jobs populate this same dependency cache. Avoid six redundant
           # ~500 MB uploads racing on a cold key (observed up to 72s per shard).
           cache-save: false
-
-      - name: Install dependencies
-        run: vp install
 
       # No preview server: Vitest Browser Mode serves the tests + mounted example
       # apps itself. `--browser` selects this matrix job's browser and
@@ -212,9 +209,6 @@ jobs:
           cache: true
           cache-save: false
 
-      - name: Install dependencies
-        run: vp install
-
       - name: Download Typst compiler build outputs
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -251,11 +245,8 @@ jobs:
     needs: [e2e, e2e-pdf]
     if: ${{ !cancelled() }}
     timeout-minutes: 15
-    # Same container as the e2e shards: `--mergeReports` doesn't run tests or
-    # launch browsers, but the HTML reporter still resolves the test files'
-    # browser environment, so the browser config must stay enabled (and present).
-    container:
-      image: mcr.microsoft.com/playwright:v1.60.0-noble
+    # Keep the browser configuration to resolve the recorded projects, but
+    # merging replays results without launching browsers or needing their image.
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -268,9 +259,6 @@ jobs:
           cache: true
           cache-save: false
 
-      - name: Install dependencies
-        run: vp install
-
       # Gather every shard's blob into one directory (blob-report-chromium-1, …).
       - name: Download blob reports
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -280,8 +268,17 @@ jobs:
           merge-multiple: true
 
       # Re-emit a single HTML report from the merged blobs (no tests are run).
+      # Blob source paths use the producer containers' /__w checkout location.
+      # Preserve those paths for source snippets and stack traces on the host.
+      - name: Map container report paths
+        run: |
+          repo_name="${GITHUB_REPOSITORY#*/}"
+          container_root="/__w/$repo_name/$repo_name"
+          sudo mkdir -p "$(dirname "$container_root")"
+          sudo ln -s "$GITHUB_WORKSPACE" "$container_root"
+
       - name: Merge into HTML report
-        run: HOME=/root vp test -c vite.config.browser.ts --mergeReports=blob-report --reporter=html
+        run: vp test -c vite.config.browser.ts --mergeReports=blob-report --reporter=html
         working-directory: tests
 
       - name: Upload merged HTML report
