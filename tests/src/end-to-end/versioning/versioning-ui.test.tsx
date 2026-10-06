@@ -281,6 +281,51 @@ test.each(["mantine", "ariakit", "shadcn"] as const)(
   },
 );
 
+// The colocated sidebar tests fake menus. Check their focus behavior against
+// each real skin, including focus restored by a closing portaled menu.
+test.each(["mantine", "ariakit", "shadcn"] as const)(
+  "%s focuses the comparison baseline name after its menu closes",
+  async (skin) => {
+    await render(<SkinPanel skin={skin} theme="light" />);
+    const region = document.querySelector<HTMLElement>(
+      '[role="region"][aria-label="History"]',
+    )!;
+    const rows = await waitForRows(region);
+    await clickElement(
+      region.querySelector('button[aria-label="Turn on comparison"]')!,
+    );
+    await clickElement(rows[1]!);
+    await vi.waitFor(() => expect(rows[2]).toHaveClass("comparing"));
+
+    await userEvent.hover(rows[2]!);
+    const menuButton = rows[2]!.querySelector<HTMLButtonElement>(
+      'button[aria-label="More actions"]',
+    )!;
+    await clickElement(menuButton);
+    const nameItem = await vi.waitFor(() => {
+      const item = Array.from(
+        document.querySelectorAll<HTMLElement>('[role="menuitem"]'),
+      ).find((item) => item.textContent?.trim() === "Name this version");
+      if (!item) {
+        throw new Error("Expected the naming menu item");
+      }
+      return item;
+    });
+    await clickElement(nameItem);
+    await vi.waitFor(() => {
+      expect(menuButton).toHaveAttribute("aria-expanded", "false");
+      const input = rows[2]!.querySelector('input[aria-label="Version name"]');
+      expect(input).not.toBeNull();
+      expect(document.activeElement).toBe(input);
+      expect(rows[1]).toHaveAttribute("aria-current", "true");
+      expect(rows[2]).toHaveClass("comparing");
+    });
+    await expectElement(region).toMatchScreenshot(
+      `versioning-${skin}-comparison-baseline-naming`,
+    );
+  },
+);
+
 const customTheme: MantineTheme = {
   colors: {
     editor: { background: "#faeacd" },
@@ -350,6 +395,10 @@ test.each([
       expect(root.classList.contains("bn-mantine")).toBe(true);
       expect(isWithinEditor?.(selected)).toBe(true);
       expect(isWithinEditor?.(target)).toBe(false);
+      // The browser pointer survives cleanup and may hover a newly mounted row.
+      await userEvent.hover(
+        root.querySelector(".bn-versioning-sidebar-title")!,
+      );
       await vi.waitFor(() =>
         expect(getComputedStyle(ordinary).backgroundColor).toBe(body),
       );

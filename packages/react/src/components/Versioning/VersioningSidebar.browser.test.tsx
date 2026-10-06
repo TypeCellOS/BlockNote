@@ -209,8 +209,8 @@ async function setupWithRun(fake = createFakeEndpoints()) {
 }
 
 /**
- * A row's name field. Only the selected row has one — every other row shows
- * its name as text (see {@link nameText}).
+ * A row's name field. The selected row and comparison baseline have one;
+ * other rows show text (see {@link nameText}).
  */
 function nameInput(row: HTMLElement) {
   const input = page
@@ -924,6 +924,36 @@ describe("VersioningSidebar", () => {
   describe("naming and renaming", () => {
     const openRenameItem = (row: HTMLElement) =>
       openMenuItem(row, /^(Name this version|Rename)$/);
+
+    it.each([undefined, "Existing name"])(
+      "names the comparison baseline without switching versions (name: %s)",
+      async (name) => {
+        const fake = createFakeEndpoints();
+        fake.setSnapshots([NAMED, { ...AUTOMATIC, name }]);
+        const { editor } = await setup({ defaultComparisonMode: true }, fake);
+        await click(rows()[1]!);
+        const comparison = {
+          mode: "snapshot",
+          snapshotId: NAMED.id,
+          compareToId: AUTOMATIC.id,
+        };
+        expect(viewState(mode(editor))).toEqual(comparison);
+
+        await click(await openRenameItem(rows()[2]!));
+
+        expect(viewState(mode(editor))).toEqual(comparison);
+        await vi.waitFor(() =>
+          expect(document.activeElement).toBe(nameInput(rows()[2]!)),
+        );
+        await commit(nameInput(rows()[2]!), "Final", "Enter");
+        expect(fake.endpoints.rename).toHaveBeenCalledExactlyOnceWith(
+          AUTOMATIC.id,
+          "Final",
+        );
+        expect(nameInput(rows()[2]!).value).toBe("Final");
+        expect(viewState(mode(editor))).toEqual(comparison);
+      },
+    );
 
     it("focuses the name field when started from the menu", async () => {
       await setup();

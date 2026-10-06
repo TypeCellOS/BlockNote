@@ -134,9 +134,9 @@ export function Snapshot(props: {
   // `rename`. Both are gated on the backend actually supporting them.
   const commitsViaCreate = isCurrent && snapshot.name === undefined;
   const canEditName = commitsViaCreate ? canCreate : rename !== undefined;
-  // The name is a field on the selected row only; everywhere else it's text,
-  // and the first click on the row selects it rather than starting a rename.
-  const editable = selected && canEditName === true;
+  // Both sides of an active comparison can be named without switching the
+  // preview. Elsewhere the first click selects the row before renaming it.
+  const editable = (selected || comparing) && canEditName === true;
 
   // Rename requests focus before selecting the row and mounting its input.
   useEffect(() => {

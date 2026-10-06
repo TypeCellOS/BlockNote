@@ -4,7 +4,7 @@ import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 
 /**
- * Show text until the row is selected, then an input sized to its draft.
+ * Show an input for either side of the active preview, sized to its draft.
  * Keying by name resets the draft after local or remote renames.
  */
 export function VersionName(props: {
@@ -12,8 +12,8 @@ export function VersionName(props: {
   /** Shown when the version has no name: its date, or "Current version". */
   placeholder: string;
   /**
-   * Whether the name is a field right now — the row is selected and the
-   * backend can (re)name it. Otherwise it's rendered as text.
+   * Whether this row has an editable name field. Requires a selected or
+   * compared row and backend support for naming. Other rows show text.
    */
   editable: boolean;
   /** Creating a checkpoint leaves Current unnamed; renaming keeps the new name. */
@@ -59,8 +59,7 @@ function VersionNameInput(props: {
       aria-label={dict.versioning.version_name_input}
       inputRef={props.inputRef}
       onChange={(event) => setDraft(event.currentTarget.value)}
-      // The row this sits in is already selected — clicking its name is a
-      // rename, not a request to show it again.
+      // Clicking a name edits it without switching either side of the preview.
       onClick={(event) => event.stopPropagation()}
       onKeyDown={(event) => {
         // An un-stopped key would reach the row's list-navigation handler.
