@@ -8,8 +8,19 @@ import { imeComposition } from "./src/utils/imeComposition.js";
 
 // For the desktop instances: end-to-end/mobile runs only in the "android"
 // instance. An instance-level `exclude` replaces the resolved base exclude
-// (vitest's defaults, since the project sets none), so keep those in front.
-const DESKTOP_EXCLUDE = [...configDefaults.exclude, "**/end-to-end/mobile/**"];
+// (including CLI exclusions), so apply the CI split at both levels.
+const CI_EXCLUDE =
+  process.env.BLOCKNOTE_E2E_GROUP === "non-pdf"
+    ? [
+        "**/typstPdfImages.test.tsx",
+        "../packages/xl-pdf-exporter/src/pdfua/compileTypst.browser.test.ts",
+      ]
+    : [];
+const DESKTOP_EXCLUDE = [
+  ...configDefaults.exclude,
+  ...CI_EXCLUDE,
+  "**/end-to-end/mobile/**",
+];
 import { restoreTouchEmulation } from "./src/utils/restoreTouchEmulation.js";
 
 // 1280x720 matches the old Playwright defaults so visual baselines have room.
@@ -100,6 +111,7 @@ export default defineConfig(
           "./src/end-to-end/**/*.test.tsx",
           "../packages/*/src/**/*.browser.test.{ts,tsx}",
         ],
+        exclude: [...configDefaults.exclude, ...CI_EXCLUDE],
 
         setupFiles: ["./vitestSetup.browser.ts"],
         // Running three browsers concurrently inside one Docker container already
