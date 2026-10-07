@@ -223,9 +223,18 @@ export function setSelection(
 export function getSelectionCutBlocks(tr: Transaction, expandToWords = false) {
   // TODO: fix image node selection
 
+  // `$from` and `$to` only cover a selection's first range. A `CellSelection`
+  // has one range per selected cell, starting with the head cell, so span
+  // all of them.
+  let { $from, $to } = tr.selection;
+  for (const range of tr.selection.ranges) {
+    $from = range.$from.min($from);
+    $to = range.$to.max($to);
+  }
+
   const range = expandToWords
-    ? expandPMRangeToWords(tr.doc, tr.selection)
-    : tr.selection;
+    ? expandPMRangeToWords(tr.doc, { $from, $to })
+    : { $from, $to };
 
   let start = range.$from;
   let end = range.$to;
