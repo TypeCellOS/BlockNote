@@ -471,7 +471,6 @@ export const ru: Dictionary = {
     comparison_on: "Включить сравнение",
     comparison_off: "Выключить сравнение",
     versions_list: "Версии",
-    loading: "Загрузка версий",
     empty: "Пока нет версий",
     empty_named_only: "Нет именованных версий",
     current_version: "Текущая версия",

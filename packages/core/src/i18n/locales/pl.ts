@@ -418,7 +418,6 @@ export const pl: Dictionary = {
     comparison_on: "Włącz porównywanie",
     comparison_off: "Wyłącz porównywanie",
     versions_list: "Wersje",
-    loading: "Ładowanie wersji",
     empty: "Brak wersji",
     empty_named_only: "Brak nazwanych wersji",
     current_version: "Bieżąca wersja",

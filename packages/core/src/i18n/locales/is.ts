@@ -441,7 +441,6 @@ export const is: Dictionary = {
     comparison_on: "Kveikja á samanburði",
     comparison_off: "Slökkva á samanburði",
     versions_list: "Útgáfur",
-    loading: "Hleð útgáfum",
     empty: "Engar útgáfur enn",
     empty_named_only: "Engar nefndar útgáfur",
     current_version: "Núverandi útgáfa",

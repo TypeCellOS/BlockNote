@@ -440,7 +440,6 @@ export const ko: Dictionary = {
     comparison_on: "비교 켜기",
     comparison_off: "비교 끄기",
     versions_list: "버전",
-    loading: "버전 불러오는 중",
     empty: "아직 버전이 없습니다",
     empty_named_only: "이름이 지정된 버전이 없습니다",
     current_version: "현재 버전",

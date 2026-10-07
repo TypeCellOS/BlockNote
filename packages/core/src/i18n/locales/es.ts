@@ -425,7 +425,6 @@ export const es: Dictionary = {
     comparison_on: "Activar comparación",
     comparison_off: "Desactivar comparación",
     versions_list: "Versiones",
-    loading: "Cargando versiones",
     empty: "Aún no hay versiones",
     empty_named_only: "No hay versiones con nombre",
     current_version: "Versión actual",

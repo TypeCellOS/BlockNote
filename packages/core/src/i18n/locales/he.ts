@@ -427,7 +427,6 @@ export const he: Dictionary = {
     comparison_on: "הפעלת השוואה",
     comparison_off: "כיבוי השוואה",
     versions_list: "גרסאות",
-    loading: "טוען גרסאות",
     empty: "אין עדיין גרסאות",
     empty_named_only: "אין גרסאות עם שם",
     current_version: "גרסה נוכחית",

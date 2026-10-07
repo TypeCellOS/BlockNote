@@ -428,7 +428,6 @@ export const nl: Dictionary = {
     comparison_on: "Vergelijking inschakelen",
     comparison_off: "Vergelijking uitschakelen",
     versions_list: "Versies",
-    loading: "Versies laden",
     empty: "Nog geen versies",
     empty_named_only: "Geen benoemde versies",
     current_version: "Huidige versie",

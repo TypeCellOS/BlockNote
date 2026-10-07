@@ -425,7 +425,6 @@ export const sk = {
     comparison_on: "Zapnúť porovnávanie",
     comparison_off: "Vypnúť porovnávanie",
     versions_list: "Verzie",
-    loading: "Načítavajú sa verzie",
     empty: "Zatiaľ žiadne verzie",
     empty_named_only: "Žiadne pomenované verzie",
     current_version: "Aktuálna verzia",

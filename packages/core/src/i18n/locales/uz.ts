@@ -461,7 +461,6 @@ export const uz: Dictionary = {
     comparison_on: "Taqqoslashni yoqish",
     comparison_off: "Taqqoslashni o'chirish",
     versions_list: "Versiyalar",
-    loading: "Versiyalar yuklanmoqda",
     empty: "Hozircha versiyalar yo'q",
     empty_named_only: "Nomlangan versiyalar yo'q",
     current_version: "Joriy versiya",

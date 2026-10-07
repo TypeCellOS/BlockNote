@@ -427,7 +427,6 @@ export const en = {
     comparison_on: "Turn on comparison",
     comparison_off: "Turn off comparison",
     versions_list: "Versions",
-    loading: "Loading versions",
     empty: "No versions yet",
     empty_named_only: "No named versions",
     current_version: "Current version",

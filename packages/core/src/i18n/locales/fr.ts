@@ -473,7 +473,6 @@ export const fr: Dictionary = {
     comparison_on: "Activer la comparaison",
     comparison_off: "Désactiver la comparaison",
     versions_list: "Versions",
-    loading: "Chargement des versions",
     empty: "Aucune version pour l'instant",
     empty_named_only: "Aucune version nommée",
     current_version: "Version actuelle",

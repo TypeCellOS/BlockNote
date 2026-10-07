@@ -420,7 +420,6 @@ export const pt: Dictionary = {
     comparison_on: "Ativar comparação",
     comparison_off: "Desativar comparação",
     versions_list: "Versões",
-    loading: "Carregando versões",
     empty: "Ainda não há versões",
     empty_named_only: "Não há versões nomeadas",
     current_version: "Versão atual",

@@ -412,7 +412,6 @@ export const ar: Dictionary = {
     comparison_on: "تفعيل المقارنة",
     comparison_off: "إيقاف المقارنة",
     versions_list: "الإصدارات",
-    loading: "جارٍ تحميل الإصدارات",
     empty: "لا توجد إصدارات بعد",
     empty_named_only: "لا توجد إصدارات مسماة",
     current_version: "الإصدار الحالي",

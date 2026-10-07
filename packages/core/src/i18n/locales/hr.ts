@@ -441,7 +441,6 @@ export const hr: Dictionary = {
     comparison_on: "Uključi usporedbu",
     comparison_off: "Isključi usporedbu",
     versions_list: "Verzije",
-    loading: "Učitavanje verzija",
     empty: "Još nema verzija",
     empty_named_only: "Nema imenovanih verzija",
     current_version: "Trenutna verzija",

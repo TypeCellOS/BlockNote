@@ -396,7 +396,6 @@ export const fa = {
     comparison_on: "روشن کردن مقایسه",
     comparison_off: "خاموش کردن مقایسه",
     versions_list: "نسخه‌ها",
-    loading: "در حال بارگذاری نسخه‌ها",
     empty: "هنوز نسخه‌ای وجود ندارد",
     empty_named_only: "نسخه‌ای با نام وجود ندارد",
     current_version: "نسخه فعلی",

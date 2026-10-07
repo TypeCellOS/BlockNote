@@ -467,7 +467,6 @@ export const ja: Dictionary = {
     comparison_on: "比較を有効にする",
     comparison_off: "比較を無効にする",
     versions_list: "バージョン",
-    loading: "バージョンを読み込んでいます",
     empty: "バージョンはまだありません",
     empty_named_only: "名前付きのバージョンはありません",
     current_version: "現在のバージョン",

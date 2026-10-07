@@ -451,7 +451,6 @@ export const uk: Dictionary = {
     comparison_on: "Увімкнути порівняння",
     comparison_off: "Вимкнути порівняння",
     versions_list: "Версії",
-    loading: "Завантаження версій",
     empty: "Версій ще немає",
     empty_named_only: "Немає іменованих версій",
     current_version: "Поточна версія",

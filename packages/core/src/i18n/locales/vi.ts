@@ -426,7 +426,6 @@ export const vi: Dictionary = {
     comparison_on: "Bật so sánh",
     comparison_off: "Tắt so sánh",
     versions_list: "Phiên bản",
-    loading: "Đang tải phiên bản",
     empty: "Chưa có phiên bản nào",
     empty_named_only: "Không có phiên bản nào được đặt tên",
     current_version: "Phiên bản hiện tại",

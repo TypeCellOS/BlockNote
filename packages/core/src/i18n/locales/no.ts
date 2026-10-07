@@ -445,7 +445,6 @@ export const no: Dictionary = {
     comparison_on: "Slå på sammenligning",
     comparison_off: "Slå av sammenligning",
     versions_list: "Versjoner",
-    loading: "Laster versjoner",
     empty: "Ingen versjoner ennå",
     empty_named_only: "Ingen navngitte versjoner",
     current_version: "Gjeldende versjon",

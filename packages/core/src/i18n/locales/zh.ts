@@ -468,7 +468,6 @@ export const zh: Dictionary = {
     comparison_on: "开启对比",
     comparison_off: "关闭对比",
     versions_list: "版本",
-    loading: "正在加载版本",
     empty: "暂无版本",
     empty_named_only: "暂无命名版本",
     current_version: "当前版本",

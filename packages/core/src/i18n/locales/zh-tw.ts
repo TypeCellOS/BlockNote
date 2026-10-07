@@ -468,7 +468,6 @@ export const zhTW: Dictionary = {
     comparison_on: "開啟比較",
     comparison_off: "關閉比較",
     versions_list: "版本",
-    loading: "正在載入版本",
     empty: "尚無版本",
     empty_named_only: "尚無命名版本",
     current_version: "目前版本",
