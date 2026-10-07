@@ -1,3 +1,4 @@
+/* eslint-disable react/refs -- Closing transitions render the previously captured HTML snapshot from this ref. */
 import {
   autoUpdate,
   FloatingFocusManager,

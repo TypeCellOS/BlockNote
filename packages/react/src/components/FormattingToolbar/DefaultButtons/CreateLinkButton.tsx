@@ -103,6 +103,9 @@ export const CreateLinkButton = () => {
     },
   });
   useEffect(() => {
+    // Closing in response to editor state changes keeps an invalid selection
+    // from leaving the create-link popover open.
+    // eslint-disable-next-line react/set-state-in-effect
     setShowPopover(false);
   }, [state]);
 

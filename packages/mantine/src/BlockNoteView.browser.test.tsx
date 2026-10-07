@@ -1,3 +1,4 @@
+/* eslint-disable react/globals -- The test component exposes a rerender callback to its parent test. */
 import { BlockNoteEditor } from "@blocknote/core";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import {

@@ -397,7 +397,7 @@ export class ReactEmailExporter<
             : undefined,
     };
     return Object.fromEntries(
-      Object.entries(style).filter(([_, value]) => value !== undefined),
+      Object.entries(style).filter(([, value]) => value !== undefined),
     );
   }
 }

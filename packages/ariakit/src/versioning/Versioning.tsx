@@ -1,3 +1,4 @@
+/* eslint-disable react/refs -- The React Compiler rule misidentifies ordinary component props as ref reads in this controlled input. */
 import { Group as AriakitGroup } from "@ariakit/react";
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { type ComponentProps } from "@blocknote/react";

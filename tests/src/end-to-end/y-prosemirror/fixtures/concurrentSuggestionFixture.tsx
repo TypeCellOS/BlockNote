@@ -1,4 +1,4 @@
-/* eslint-disable testing-library/render-result-naming-convention */
+/* eslint-disable testing-library/render-result-naming-convention, react/globals -- Fixture components expose their mounted editors and controls to browser test actions. */
 /**
  * Fixture for two-user concurrent suggestion tests.
  *

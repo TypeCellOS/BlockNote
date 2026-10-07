@@ -1,3 +1,4 @@
+/* eslint-disable react/refs -- A render-phase last-good block cache recovers from ProseMirror's transient invalid positions. */
 import { Block, getBlockFromPos } from "@blocknote/core";
 import type { NodeViewProps } from "@tiptap/react";
 import { useRef } from "react";

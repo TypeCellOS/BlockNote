@@ -63,7 +63,9 @@ export const LinkToolbarController = (props: {
       // Nothing to open a toolbar for, and any link picked up while the editor
       // was still editable has to go — otherwise it would reappear the moment
       // editing resumes.
+      // eslint-disable-next-line react/set-state-in-effect
       setLink(undefined);
+      // eslint-disable-next-line react/set-state-in-effect
       setToolbarOpen(false);
       return;
     }
@@ -199,6 +201,8 @@ export const LinkToolbarController = (props: {
 
   const reference = useMemo<GenericPopoverReference | undefined>(
     () => (link?.element ? { element: link.element } : undefined),
+    // The reference tracks the DOM node, not other link metadata.
+    // eslint-disable-next-line react/preserve-manual-memoization
     [link?.element],
   );
 

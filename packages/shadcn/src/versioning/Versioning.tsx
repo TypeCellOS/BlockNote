@@ -1,3 +1,4 @@
+/* eslint-disable react/refs -- The React Compiler rule misidentifies ordinary component props as ref reads in this controlled input. */
 import { assertEmpty } from "@blocknote/core";
 import { type ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";

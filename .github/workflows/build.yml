@@ -50,7 +50,7 @@ jobs:
         run: vp run -r build
 
       - name: Lint packages
-        run: vp lint
+        run: vp run lint
 
       - name: Run unit tests
         # Always execute tests: only build results are reusable across CI runs.
