@@ -355,7 +355,10 @@ const TiptapTableRow = Node.create<{
     };
   },
 
-  content: "(tableCell | tableHeader)+",
+  // A row is empty when all of its positions are covered by rowspans from the
+  // rows above, e.g. after merging cells across every column. With `+`,
+  // ProseMirror fills such rows with new cells, which breaks the table.
+  content: "(tableCell | tableHeader)*",
 
   tableRole: "row",
   marks() {
