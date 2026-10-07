@@ -1,7 +1,13 @@
 // @vitest-environment node
 import { resultValue } from "./__test__/result.js";
 import { expect, expectTypeOf, it } from "vite-plus/test";
-import { closeHistory, history, undo, undoDepth } from "@tiptap/pm/history";
+import {
+  closeHistory,
+  history,
+  undo,
+  undoDepth,
+  redo,
+} from "@tiptap/pm/history";
 import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
 import type { PartialBlock } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -388,6 +394,70 @@ it("restores into the saved live state, then closes the isolated view", async ()
     await mode.restore(saved.id);
     expect(editor.prosemirrorState.doc.textContent).toBe("Original");
     expect(editor.isEditable).toBe(true);
+  } finally {
+    mode.dispose();
+    editor._tiptapEditor.destroy();
+  }
+});
+
+it("clears local undo and redo through previews and restores without preview history", async () => {
+  const editor = BlockNoteEditor.create({
+    initialContent: [{ id: "paragraph", content: "original" }],
+    extensions: [
+      InMemoryVersioningExtension({
+        initialVersions: ["snapshot one", "snapshot two"].map(
+          (content, index) => ({
+            createdAt: index + 1,
+            content: [{ id: "paragraph", content }],
+          }),
+        ),
+      }),
+    ],
+  });
+  editor.prosemirrorView.updateState(
+    editor.prosemirrorState.reconfigure({ plugins: [history()] }),
+  );
+  const mode = editor.getExtension(InMemoryVersioningExtension)!;
+  const dispatch = editor.prosemirrorView.dispatch;
+  function text() {
+    return editor.prosemirrorState.doc.textContent;
+  }
+  function edit(content: string) {
+    editor.transact((tr) => closeHistory(tr));
+    editor.updateBlock("paragraph", { content });
+  }
+  try {
+    edit("live");
+    expect(undoDepth(editor.prosemirrorState)).toBeGreaterThan(0);
+    mode.open();
+    expect(editor.isEditable).toBe(false);
+    expect(history().spec.key!.get(editor.prosemirrorState)).toBeUndefined();
+    for (const id of ["1", "2"]) {
+      await mode.select({ type: "snapshot", id });
+      expect(text()).toBe(id === "1" ? "snapshot one" : "snapshot two");
+    }
+    await mode.select({ type: "current" });
+    expect(text()).toBe("live");
+    mode.close();
+    expect(undo(editor.prosemirrorState, dispatch)).toBe(false);
+    expect(redo(editor.prosemirrorState, dispatch)).toBe(false);
+    edit("new live");
+    expect(undo(editor.prosemirrorState, dispatch)).toBe(true);
+    expect(text()).toBe("live");
+    expect(redo(editor.prosemirrorState, dispatch)).toBe(true);
+    expect(text()).toBe("new live");
+    mode.open();
+    await mode.select({ type: "snapshot", id: "2" });
+    await mode.restore("1");
+    expect(text()).toBe("snapshot one");
+    expect(editor.isEditable).toBe(true);
+    expect(undo(editor.prosemirrorState, dispatch)).toBe(false);
+    expect(redo(editor.prosemirrorState, dispatch)).toBe(false);
+    edit("after restore");
+    expect(undo(editor.prosemirrorState, dispatch)).toBe(true);
+    expect(text()).toBe("snapshot one");
+    expect(redo(editor.prosemirrorState, dispatch)).toBe(true);
+    expect(text()).toBe("after restore");
   } finally {
     mode.dispose();
     editor._tiptapEditor.destroy();

@@ -16,8 +16,12 @@ export const ForkYDocExtension = createExtension(
     let forkedState:
       | {
           originalFragment: Y.XmlFragment;
-          undoStack: Y.UndoManager["undoStack"];
-          redoStack: Y.UndoManager["redoStack"];
+          undoHistory:
+            | {
+                undoStack: Y.UndoManager["undoStack"];
+                redoStack: Y.UndoManager["redoStack"];
+              }
+            | undefined;
           forkedFragment: Y.XmlFragment;
           cursor: ReturnType<ReturnType<typeof YCursorExtension>> | undefined;
         }
@@ -62,12 +66,18 @@ export const ForkYDocExtension = createExtension(
         // Find the forked fragment in the new Yjs document
         const forkedFragment = findTypeInOtherYdoc(originalFragment, doc);
 
+        // Version previews detach undo before forking. Keep it absent through
+        // snapshot replacement and merge; the preview owner reinstalls it.
         const originalUndoManager = yUndoPluginKey.getState(
           editor.prosemirrorState,
-        )!.undoManager;
+        )?.undoManager;
         forkedState = {
-          undoStack: originalUndoManager.undoStack,
-          redoStack: originalUndoManager.redoStack,
+          undoHistory: originalUndoManager
+            ? {
+                undoStack: originalUndoManager.undoStack,
+                redoStack: originalUndoManager.redoStack,
+              }
+            : undefined,
           originalFragment,
           forkedFragment,
           cursor: editor.getExtension(YCursorExtension),
@@ -86,7 +96,7 @@ export const ForkYDocExtension = createExtension(
           [
             YSyncExtension(newOptions),
             // No need to register the cursor plugin again, it's a local fork
-            YUndoExtension(),
+            ...(originalUndoManager ? [YUndoExtension()] : []),
           ],
           { resetPluginStateFor: [ySyncPluginKey, yUndoPluginKey] },
         );
@@ -107,7 +117,10 @@ export const ForkYDocExtension = createExtension(
         const oldDoc = forkedState.forkedFragment.doc;
         editor.replaceExtension(
           ["ySync", "yUndo"],
-          [YSyncExtension({ ...options, fragment }), YUndoExtension()],
+          [
+            YSyncExtension({ ...options, fragment }),
+            ...(forkedState.undoHistory ? [YUndoExtension()] : []),
+          ],
           { resetPluginStateFor: [ySyncPluginKey, yUndoPluginKey] },
         );
         forkedState.forkedFragment = fragment;
@@ -124,13 +137,8 @@ export const ForkYDocExtension = createExtension(
           return;
         }
 
-        const {
-          originalFragment,
-          forkedFragment,
-          undoStack,
-          redoStack,
-          cursor,
-        } = forkedState;
+        const { originalFragment, forkedFragment, undoHistory, cursor } =
+          forkedState;
 
         // Atomically swap the forked plugins back to the original ones
         editor.replaceExtension(
@@ -138,17 +146,17 @@ export const ForkYDocExtension = createExtension(
           [
             YSyncExtension(options),
             ...(cursor ? [cursor] : []),
-            YUndoExtension(),
+            ...(undoHistory ? [YUndoExtension()] : []),
           ],
           { resetPluginStateFor: [ySyncPluginKey, yUndoPluginKey] },
         );
-        // Restore history saved before forking onto the new original-doc manager.
-        const undoManager = yUndoPluginKey.getState(
-          editor.prosemirrorState,
-        )!.undoManager;
-        undoManager.undoStack = undoStack;
-        undoManager.redoStack = redoStack;
-
+        if (undoHistory) {
+          const undoManager = yUndoPluginKey.getState(
+            editor.prosemirrorState,
+          )!.undoManager;
+          undoManager.undoStack = undoHistory.undoStack;
+          undoManager.redoStack = undoHistory.redoStack;
+        }
         if (keepChanges) {
           // Apply any changes that have been made to the fork, onto the original doc
           const update = Y.encodeStateAsUpdate(

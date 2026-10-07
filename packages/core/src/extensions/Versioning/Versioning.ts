@@ -64,7 +64,19 @@ export function createVersioningExtension<
         },
         open() {
           const configured = getConfiguration();
-          const view = configured.adapter.open();
+          // Preview adapters replace the document. Keep undo detached through
+          // opening, switching and live restoration, then start fresh history.
+          const undoExtensions = editor.unregisterExtension([
+            "history",
+            "yUndo",
+          ]);
+          let view: ReturnType<typeof configured.adapter.open>;
+          try {
+            view = configured.adapter.open();
+          } catch (error) {
+            editor.registerExtension(undoExtensions);
+            throw error;
+          }
           let cancelScroll: (() => void) | undefined;
           let closed = false;
           return {
@@ -87,10 +99,14 @@ export function createVersioningExtension<
               }
             },
             close() {
+              if (closed) {
+                return;
+              }
               closed = true;
               cancelScroll?.();
               cancelScroll = undefined;
               view.close();
+              editor.registerExtension(undoExtensions);
             },
           };
         },
