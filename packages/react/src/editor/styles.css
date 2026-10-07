@@ -400,3 +400,30 @@ SideMenuController offsets its position to keep it centered on the line. */
   white-space: nowrap;
   width: 1px;
 }
+.bn-versioning-pagination {
+  color: var(--bn-colors-menu-text);
+  display: flex;
+  flex-shrink: 0;
+  font-size: 12px;
+  justify-content: center;
+  padding: 12px;
+}
+
+.bn-versioning-pagination-button-content {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.bn-versioning-pagination-loader {
+  align-items: center;
+  display: inline-flex;
+  height: 16px;
+  justify-content: center;
+  width: 16px;
+}
+
+.bn-versioning-pagination-loader .bn-suggestion-menu-loader {
+  height: 16px;
+  width: 16px;
+}

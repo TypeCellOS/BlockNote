@@ -22,6 +22,13 @@ export interface VersionSnapshot {
   customAttributions?: Record<string, string>;
 }
 
+/** One newest-first page. Identifiers and query options stay stable across pages. */
+export interface VersionSnapshotPage {
+  snapshots: VersionSnapshot[];
+  /** Opaque continuation; absent when history is exhausted. */
+  nextCursor?: string;
+}
+
 /**
  * Document to display in an open {@link VersionView}.
  * `current` selects the capture made at opening, not the latest live document.
@@ -119,8 +126,11 @@ export interface VersionStorage<Content, Attributions = never> {
   readonly showCurrentVersion?: boolean;
   /** The list includes the first available recorded version, even when otherwise limited. */
   readonly historyIncludesBeginning?: boolean;
-  /** Load history metadata. The controller sorts it by descending creation time. */
-  list(signal: AbortSignal): Promise<VersionResult<VersionSnapshot[]>>;
+  /** Load the first page, or continue with the opaque cursor from the previous page. */
+  list(
+    signal: AbortSignal,
+    cursor?: string,
+  ): Promise<VersionResult<VersionSnapshotPage>>;
   /** Load a stored version's content for {@link VersionView.show}. */
   getContent(id: string, signal: AbortSignal): Promise<VersionResult<Content>>;
   /**
@@ -148,7 +158,8 @@ export interface VersionStorage<Content, Attributions = never> {
    * Restore a stored version to the live document, including backend-specific
    * application. Success means the live document has received the restore, not
    * just that the server accepted it. The controller discards pre-restore views;
-   * a panel reopened during restore gets a fresh capture of restored Current.
+   * opening during restore is unavailable. Reopen after completion to capture
+   * restored Current.
    */
   restore?: (id: string) => Promise<VersionResult<void>>;
   /** Change a stored version's name; `undefined` clears it. Refresh {@link VersionStorage.list} afterward. */
@@ -166,7 +177,7 @@ export interface VersionStorage<Content, Attributions = never> {
  * the frozen preview and its asynchronous reads.
  */
 export type VersioningState =
-  | { mode: "live" }
+  | { mode: "live"; restoring?: boolean }
   | {
       mode: "versions";
       /** Capture time from {@link VersionView.current}, in Unix milliseconds. */
@@ -183,7 +194,14 @@ export type VersioningState =
        * History loading status. Previously loaded {@link VersionSnapshot} rows
        * remain available during refresh or failure; errors contain safe classifications.
        */
-      history: VersionQueryState<VersionSnapshot[]>;
+      history: VersionQueryState<VersionSnapshot[]> &
+        (
+          | { status: "pending"; operation?: "refresh" | "loadMore" }
+          | { status: "success"; operation?: never }
+          | { status: "error"; operation: "refresh" | "loadMore" }
+        );
+      /** Continuation for the loaded history, retained when a request fails. */
+      nextCursor?: string;
       /** A live restore is in progress; editing and new selections remain blocked. */
       restoring: boolean;
     };

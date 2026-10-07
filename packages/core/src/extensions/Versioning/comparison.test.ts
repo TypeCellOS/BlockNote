@@ -16,7 +16,7 @@ it("compares frozen current against stored content using the capture attribution
       }),
     },
     storage: {
-      list: async () => success([]),
+      list: async () => success({ snapshots: [] }),
       getContent: async (id) => success(id),
       getAttributions,
     },

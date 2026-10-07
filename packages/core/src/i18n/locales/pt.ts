@@ -443,6 +443,8 @@ export const pt: Dictionary = {
     open_audio_file: "Abrir áudio",
   },
   generic: {
+    loading: "Carregando...",
+    load_more: "Carregar mais",
     ctrl_shortcut: "Ctrl",
     form_submit: "OK",
   },

@@ -463,6 +463,8 @@ export const ko: Dictionary = {
     open_audio_file: "오디오 열기",
   },
   generic: {
+    loading: "불러오는 중...",
+    load_more: "더 불러오기",
     ctrl_shortcut: "Ctrl",
     form_submit: "확인",
   },

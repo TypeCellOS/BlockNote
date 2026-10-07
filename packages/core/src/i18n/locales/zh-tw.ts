@@ -491,6 +491,8 @@ export const zhTW: Dictionary = {
     open_audio_file: "開啟音訊",
   },
   generic: {
+    loading: "載入中...",
+    load_more: "載入更多",
     ctrl_shortcut: "Ctrl",
     form_submit: "確定",
   },

@@ -36,9 +36,8 @@ const versioningOptions = {
   org,
   docId,
   activityParams: {
-    // The seeded history has a few hundred edits; a high limit lets the
-    // sidebar render all the grouped entries.
-    limit: "500",
+    // Keep pages small enough to exercise loading older seeded history.
+    limit: "50",
     // The seeded history spans weeks with days between versions (see
     // `snapshotBuilder`), so a day-wide grouping window is what makes it read
     // as one row per version. Real documents want the 1 h default.

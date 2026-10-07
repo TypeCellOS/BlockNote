@@ -18,7 +18,10 @@ it.each([undefined, false])(
     let saved: Uint8Array = new Uint8Array();
     const storage: VersionStorage<Uint8Array, Y.ContentMap> = {
       showCurrentVersion,
-      list: async () => ({ ok: true, value: [{ id: "saved", createdAt: 1 }] }),
+      list: async () => ({
+        ok: true,
+        value: { snapshots: [{ id: "saved", createdAt: 1 }] },
+      }),
       getContent: async () => ({ ok: true, value: saved }),
     };
     const editor = BlockNoteEditor.create(

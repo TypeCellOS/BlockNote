@@ -70,7 +70,7 @@ export function createLocalStorageVersioningEndpoints(
     // so it's simply stamped "now"; it isn't a stored snapshot, so it's never
     // passed to `getContent` (the sidebar previews it live via
     // `previewCurrentVersion`).
-    return { ok: true, value: readSnapshots(storageKey) };
+    return { ok: true, value: { snapshots: readSnapshots(storageKey) } };
   };
 
   const createSnapshot: NonNullable<

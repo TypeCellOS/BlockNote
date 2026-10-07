@@ -14,6 +14,7 @@ import {
 } from "./yhubClient.js";
 
 export interface YHubVersionStorageOptions extends YHubClientOptions {
+  /** Activity grouping and filters. `limit` is the page size, defaulting to 50. History is newest first. */
   activityParams?: YHubQueryParams;
 }
 
@@ -83,47 +84,70 @@ export function createYHubVersionStorage(
     return value;
   }
   function getHistoryList(signal?: AbortSignal, overrides?: YHubQueryParams) {
-    return client.getActivity(
-      {
-        order: "desc",
-        limit: 50,
-        groupMaxGap: 60 * 60 * 1000,
-        groupMaxDuration: 12 * 60 * 60 * 1000,
-        groupByUser: false,
-        customAttributions: true,
-        ...options.activityParams,
-        ...overrides,
-        versions: true,
-      },
-      signal,
-    );
+    return client.getActivity(activityParams(overrides), signal);
+  }
+  function activityParams(overrides?: YHubQueryParams): YHubQueryParams {
+    return {
+      order: "desc",
+      limit: 50,
+      groupMaxGap: 60 * 60 * 1000,
+      groupMaxDuration: 12 * 60 * 60 * 1000,
+      groupByUser: false,
+      customAttributions: true,
+      ...options.activityParams,
+      ...overrides,
+      versions: true,
+    };
   }
   return {
     showCurrentVersion: false,
     historyIncludesBeginning: true,
-    async list(signal) {
-      const [historyList, firstSnapshotResult] = await Promise.all([
-        getHistoryList(signal),
-        client.getActivity(
-          {
-            from: 0,
-            order: "asc",
-            limit: 1,
-            group: false,
-            versions: true,
-            customAttributions: true,
-          },
-          signal,
-        ),
-      ]);
-      if (!historyList.ok) {
-        return historyList;
+    async list(signal, cursor) {
+      const params =
+        cursor === undefined
+          ? { ...activityParams(), order: "desc" }
+          : Object.fromEntries(new URLSearchParams(cursor));
+      const limit = Number(params.limit);
+      if (!Number.isSafeInteger(limit) || limit <= 0) {
+        throw new Error("YHub activity limit must be a positive integer");
       }
-      if (!firstSnapshotResult.ok) {
+      const [result, firstSnapshotResult] = await Promise.all([
+        client.getActivity({ ...params, limit: limit + 1 }, signal),
+        cursor === undefined
+          ? client.getActivity(
+              {
+                from: 0,
+                order: "asc",
+                limit: 1,
+                group: false,
+                versions: true,
+                customAttributions: true,
+              },
+              signal,
+            )
+          : undefined,
+      ]);
+      if (!result.ok) {
+        return result;
+      }
+      if (firstSnapshotResult && !firstSnapshotResult.ok) {
         return firstSnapshotResult;
       }
-      const entries = [...historyList.value];
-      const firstSnapshot = firstSnapshotResult.value[0];
+      const entries = result.value.slice(0, limit);
+      const oldest = entries.at(-1);
+      let nextCursor: string | undefined;
+      if (result.value.length > limit && oldest && oldest.from > 0) {
+        const query = new URLSearchParams();
+        for (const [key, value] of Object.entries(params)) {
+          if (value !== undefined) {
+            query.set(key, String(value));
+          }
+        }
+        query.set("to", String(oldest.from - 1));
+        nextCursor = query.toString();
+      }
+      // The pinned beginning is not part of the page boundary.
+      const firstSnapshot = firstSnapshotResult?.value[0];
       if (
         firstSnapshot &&
         !entries.some((entry) => entry.to === firstSnapshot.to)
@@ -132,27 +156,31 @@ export function createYHubVersionStorage(
       }
       return {
         ok: true,
-        value: entries.map((entry): VersionSnapshot => {
-          const custom = entry.version?.custom;
-          const restoredFrom =
-            custom !== null &&
-            typeof custom === "object" &&
-            "restoredFrom" in custom
-              ? custom.restoredFrom
-              : undefined;
-          return {
-            id: String(entry.to),
-            createdAt: entry.to,
-            by: entry.by,
-            name: entry.version?.name || undefined,
-            metadata: custom,
-            customAttributions: entry.customAttributions,
-            restoredFrom:
-              typeof restoredFrom === "number" && Number.isFinite(restoredFrom)
-                ? { id: String(restoredFrom), createdAt: restoredFrom }
-                : undefined,
-          };
-        }),
+        value: {
+          nextCursor,
+          snapshots: entries.map((entry): VersionSnapshot => {
+            const custom = entry.version?.custom;
+            const restoredFrom =
+              custom !== null &&
+              typeof custom === "object" &&
+              "restoredFrom" in custom
+                ? custom.restoredFrom
+                : undefined;
+            return {
+              id: String(entry.to),
+              createdAt: entry.to,
+              by: entry.by,
+              name: entry.version?.name || undefined,
+              metadata: custom,
+              customAttributions: entry.customAttributions,
+              restoredFrom:
+                typeof restoredFrom === "number" &&
+                Number.isFinite(restoredFrom)
+                  ? { id: String(restoredFrom), createdAt: restoredFrom }
+                  : undefined,
+            };
+          }),
+        },
       };
     },
     async getContent(id, signal) {

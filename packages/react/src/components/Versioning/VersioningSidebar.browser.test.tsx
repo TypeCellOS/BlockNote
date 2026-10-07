@@ -1,11 +1,13 @@
 import { StrictMode, act, useEffect, useState, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { BlockNoteEditor } from "@blocknote/core";
+import { de } from "@blocknote/core/locales";
 import {
   createVersioningExtension,
   type createVersioning,
   type VersionStorage,
   type VersionSnapshot,
+  type VersionSnapshotPage,
   type VersionResult,
 } from "@blocknote/core/extensions";
 import {
@@ -95,12 +97,16 @@ function createFakeEndpoints(showCurrentVersion?: boolean, withStart = false) {
     historyIncludesBeginning: withStart,
     list: vi.fn(async () => {
       await gate?.promise;
-      return success(snapshots);
+      return success({ snapshots });
     }),
-    getContent: vi.fn(async (_id: string, _signal: AbortSignal) => {
-      await gate?.promise;
-      return success<unknown[]>([]);
-    }),
+    getContent: vi.fn<VersionStorage<unknown[], unknown>["getContent"]>(
+      async (id) => {
+        await gate?.promise;
+        return snapshots.some((snapshot) => snapshot.id === id)
+          ? success<unknown[]>([])
+          : { ok: false, error: { type: "not-found" } };
+      },
+    ),
     getAttributions: vi.fn(async (_target, _baselineId, _capturedAt, _signal) =>
       success(undefined),
     ),
@@ -385,6 +391,121 @@ describe("VersioningSidebar", () => {
       compareTo: "first",
     });
     expect(rows().at(-1)!.classList.contains("comparing")).toBe(true);
+  });
+
+  it("loads filtered history by hand with localized failures and compares only loaded predecessors", async () => {
+    const older = deferred<VersionResult<VersionSnapshotPage>>();
+    const storage: VersionStorage<string> = {
+      list: vi
+        .fn<VersionStorage<string>["list"]>()
+        .mockResolvedValueOnce(
+          success({
+            snapshots: [{ id: "unnamed", createdAt: 1000 }],
+            nextCursor: "named",
+          }),
+        )
+        .mockReturnValueOnce(older.promise)
+        .mockResolvedValueOnce({ ok: false, error: { type: "network" } })
+        .mockResolvedValueOnce(
+          success({
+            snapshots: [
+              { id: "hidden", createdAt: 500 },
+              { id: "b", createdAt: 400, name: "Earlier" },
+            ],
+          }),
+        ),
+      getContent: async (id) => success(id),
+    };
+    function PaginatedSidebar() {
+      const [preview, setPreview] = useState("Current");
+      const [editor] = useState(() =>
+        BlockNoteEditor.create({
+          dictionary: de,
+          extensions: [
+            createVersioningExtension(() => ({
+              storage,
+              adapter: {
+                supportsComparison: true,
+                open() {
+                  return {
+                    current: { content: "Current", capturedAt: 3000 },
+                    show({ content, comparison }) {
+                      setPreview(
+                        comparison
+                          ? `${content} / ${comparison.content}`
+                          : content,
+                      );
+                    },
+                    close() {},
+                  };
+                },
+              },
+            }))(),
+          ],
+        }),
+      );
+      useEffect(() => () => editor._tiptapEditor.destroy(), [editor]);
+      return (
+        <VersioningTestView editor={editor}>
+          <VersioningSidebar defaultNamedOnly defaultComparisonMode />
+          <output aria-label="Preview">{preview}</output>
+        </VersioningTestView>
+      );
+    }
+    render(<PaginatedSidebar />);
+    const loadMore = page.getByRole("button", {
+      name: de.generic.load_more,
+      exact: true,
+    });
+    await expect.element(loadMore).toBeEnabled();
+    const list = page.getByRole("list", { name: de.versioning.versions_list });
+    expect(list.element().contains(loadMore.element())).toBe(true);
+    expect(list.element().lastElementChild).toBe(
+      loadMore.element().closest(".bn-versioning-pagination"),
+    );
+    await act(async () => {
+      await loadMore.click();
+    });
+    await expect.element(loadMore).toBeDisabled();
+    const loading = page.getByRole("status", { name: de.generic.loading });
+    await expect.element(loading).toBeVisible();
+    expect(loadMore.element().contains(loading.element())).toBe(true);
+    expect(
+      loading.element().querySelector(".bn-suggestion-menu-loader"),
+    ).not.toBeNull();
+    await act(async () => {
+      older.resolve(
+        success({
+          snapshots: [{ id: "a", createdAt: 800, name: "Draft" }],
+          nextCursor: "older",
+        }),
+      );
+    });
+    await expect.element(loading).not.toBeInTheDocument();
+    await act(async () => {
+      await userEvent.click(rows()[1]!);
+    });
+    await expect
+      .element(page.getByRole("status", { name: "Preview" }))
+      .toHaveTextContent("a");
+    await act(async () => {
+      await loadMore.click();
+    });
+    await expect
+      .element(page.getByRole("alert"))
+      .toHaveTextContent(de.versioning.history_load_failed);
+    await expect.element(loadMore).toBeEnabled();
+    await act(async () => {
+      await loadMore.click();
+    });
+    await expect.element(page.getByRole("alert")).not.toBeInTheDocument();
+    await expect.element(loadMore).not.toBeInTheDocument();
+    await act(async () => {
+      await userEvent.click(rows()[1]!);
+    });
+    await expect
+      .element(page.getByRole("status", { name: "Preview" }))
+      .toHaveTextContent("a / b");
   });
 
   it.each([undefined, "Published"])(
@@ -1627,7 +1748,7 @@ describe("VersioningSidebar", () => {
 
     expect(page.getByRole("status").element()).toBeDefined();
     expect(
-      page.getByText("Loading versions", { exact: true }).element(),
+      page.getByText("Loading...", { exact: true }).element(),
     ).toBeDefined();
     expect(page.getByRole("listitem").elements()).toHaveLength(0);
 
@@ -1850,7 +1971,6 @@ describe("VersioningSidebar", () => {
         if (selection === "deleted") {
           await click(rows()[1]!);
         }
-        fake.endpoints.getContent.mockClear();
 
         await click(await openMenuItem(rows()[1]!, /^Delete$/));
 
@@ -1874,9 +1994,6 @@ describe("VersioningSidebar", () => {
           rows().filter((row) => row.hasAttribute("aria-current")),
         ).toHaveLength(namedOnly && selection === "deleted" ? 0 : 1);
         expect(editor.isEditable).toBe(false);
-        if (selection !== "baseline") {
-          expect(fake.endpoints.getContent).not.toHaveBeenCalled();
-        }
       },
     );
 
@@ -2026,18 +2143,14 @@ describe("VersioningSidebar", () => {
         );
         await act(async () => {});
 
-        // Loading history is allowed even while the older restore is pending.
-        // Keep checking its completion too if the initial load is broken.
-        expect
-          .soft(fake.endpoints.list)
-          .toHaveBeenCalledTimes(listCallsBeforeReopen + 1);
-        expect.soft(rows()).toHaveLength(3);
-        expect.soft(page.getByRole("status").query()).toBeNull();
-        expect.soft(mode(editor).store.state).toMatchObject({
-          mode: "versions",
+        // A newly mounted panel waits rather than capturing pre-restore content.
+        expect(fake.endpoints.list).toHaveBeenCalledTimes(
+          listCallsBeforeReopen,
+        );
+        expect(rows()).toHaveLength(0);
+        expect(mode(editor).store.state).toMatchObject({
+          mode: "live",
           restoring: true,
-          displayed: { type: "current" },
-          history: { status: "success" },
         });
 
         await act(async () => finishRestore());

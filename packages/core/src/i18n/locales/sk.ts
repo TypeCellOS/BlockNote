@@ -448,6 +448,8 @@ export const sk = {
     open_audio_file: "Otvoriť zvuk",
   },
   generic: {
+    loading: "Načítava sa...",
+    load_more: "Načítať viac",
     ctrl_shortcut: "Ctrl",
     form_submit: "OK",
   },

@@ -490,6 +490,8 @@ export const ja: Dictionary = {
     open_audio_file: "音声を開く",
   },
   generic: {
+    loading: "読み込み中...",
+    load_more: "さらに読み込む",
     ctrl_shortcut: "Ctrl",
     form_submit: "OK",
   },

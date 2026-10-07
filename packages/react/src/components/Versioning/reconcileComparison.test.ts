@@ -154,10 +154,12 @@ it.each([
       },
       storage: {
         async list() {
-          return { ok: true, value: snapshots };
+          return { ok: true, value: { snapshots } };
         },
         async getContent(id: string) {
-          return { ok: true, value: id };
+          return snapshots.some((snapshot) => snapshot.id === id)
+            ? { ok: true, value: id }
+            : { ok: false, error: { type: "not-found" } };
         },
         async remove(id: string) {
           snapshots = snapshots.filter((row) => row.id !== id);

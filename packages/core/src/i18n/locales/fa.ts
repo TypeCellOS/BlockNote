@@ -419,6 +419,8 @@ export const fa = {
     open_audio_file: "باز کردن صدا",
   },
   generic: {
+    loading: "در حال بارگیری...",
+    load_more: "بارگیری بیشتر",
     ctrl_shortcut: "Ctrl",
     form_submit: "تأیید",
   },

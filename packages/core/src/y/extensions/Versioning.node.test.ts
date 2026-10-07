@@ -95,7 +95,7 @@ it("keeps the first versioning integration using normal extension deduplication"
   const fragment = doc.get("doc");
   const storage: VersionStorage<Uint8Array, Y.ContentMap> = {
     async list() {
-      return { ok: true, value: [] };
+      return { ok: true, value: { snapshots: [] } };
     },
     async getContent() {
       return { ok: true, value: new Uint8Array() };

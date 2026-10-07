@@ -469,6 +469,8 @@ export const de: Dictionary = {
     open_audio_file: "Audio öffnen",
   },
   generic: {
+    loading: "Wird geladen...",
+    load_more: "Mehr laden",
     ctrl_shortcut: "Strg",
     form_submit: "OK",
   },

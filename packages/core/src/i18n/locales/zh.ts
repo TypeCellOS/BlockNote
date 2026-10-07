@@ -491,6 +491,8 @@ export const zh: Dictionary = {
     open_audio_file: "打开音频",
   },
   generic: {
+    loading: "加载中...",
+    load_more: "加载更多",
     ctrl_shortcut: "Ctrl",
     form_submit: "确定",
   },

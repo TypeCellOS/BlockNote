@@ -82,29 +82,52 @@ function VersioningSidebarContent(props: {
   };
 
   useLayoutEffect(() => {
-    versioning.open();
-    // History can load while an older session is still restoring. Only user
-    // actions go through the runner's restore guard.
-    const loading = versioning.list().then(async (result) => {
-      const list = getVersionList(versioning.store.state);
-      const preview = latestRef.current;
-      // Opening already displays frozen current. Only render again for a diff.
-      if (
-        result.status === "done" &&
-        list.loaded &&
-        list.current &&
-        preview.comparisonMode &&
-        getPreviousVisibleVersion(list, list.current, preview.namedOnly)
-      ) {
-        const current = list.current;
-        await run(() => preview.previewRow(current));
+    let mounted = true;
+    function initialize() {
+      if (!versioning.open()) {
+        return;
+      }
+      const loading = versioning.list().then(async (result) => {
+        const list = getVersionList(versioning.store.state);
+        const preview = latestRef.current;
+        // Opening already displays frozen current. Only render again for a diff.
+        if (
+          result.status === "done" &&
+          list.loaded &&
+          list.current &&
+          preview.comparisonMode &&
+          getPreviousVisibleVersion(list, list.current, preview.namedOnly)
+        ) {
+          const current = list.current;
+          await run(() => preview.previewRow(current));
+        }
+      });
+      const onError = latestRef.current.onError;
+      if (onError) {
+        void loading.catch(onError);
+      }
+    }
+    // A mounted panel waits for an in-flight restore before acquiring its view.
+    // Commands from store notifications must run after notification completes.
+    const unsubscribe = versioning.store.subscribe(({ currentVal }) => {
+      if (!currentVal.restoring) {
+        unsubscribe();
+        queueMicrotask(() => {
+          if (mounted) {
+            initialize();
+          }
+        });
       }
     });
-    const onError = latestRef.current.onError;
-    if (onError) {
-      void loading.catch(onError);
+    if (!versioning.store.state.restoring) {
+      unsubscribe();
+      initialize();
     }
-    return () => versioning.close();
+    return () => {
+      mounted = false;
+      unsubscribe();
+      versioning.close();
+    };
   }, [run, versioning]);
 
   return (

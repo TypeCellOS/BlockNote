@@ -25,6 +25,24 @@ import {
   InMemoryVersioningExtension,
 } from "./inMemoryVersioning.js";
 
+it("returns seeded versions newest first regardless of insertion order", async () => {
+  const editor = BlockNoteEditor.create();
+  try {
+    const { storage } = createLocalVersioning(editor, {
+      initialVersions: [10, 30, 20].map((createdAt) => ({
+        content: [{ type: "paragraph" }],
+        createdAt,
+      })),
+    });
+    const page = resultValue(await storage.list(new AbortController().signal));
+    expect(page.snapshots.map(({ createdAt }) => createdAt)).toEqual([
+      30, 20, 10,
+    ]);
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});
+
 it("previews and restores JSON exported from another editor's schema", async () => {
   const source = BlockNoteEditor.create({
     initialContent: [
@@ -95,7 +113,7 @@ it("converts partial-block seeds without changing live content, selection, or un
     });
     expect(editor.prosemirrorState).toBe(before);
     const signal = new AbortController().signal;
-    expect(resultValue(await storage.list(signal))).toEqual([
+    expect(resultValue(await storage.list(signal)).snapshots).toEqual([
       { id: "1", name: "Draft", createdAt: 123 },
     ]);
     const content = resultValue(await storage.getContent("1", signal));

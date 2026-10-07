@@ -42,7 +42,7 @@ type Theme = "light" | "dark";
 function createEndpoints(): VersionStorage<unknown[], unknown> {
   let snapshots = SNAPSHOTS;
   return {
-    list: async () => ({ ok: true, value: snapshots }),
+    list: async () => ({ ok: true, value: { snapshots } }),
     getContent: async () => ({ ok: true, value: [] }),
     getAttributions: async () => ({ ok: true, value: undefined }),
     create: async (_document, name) => ({

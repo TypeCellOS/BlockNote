@@ -468,6 +468,8 @@ export const no: Dictionary = {
     open_audio_file: "Åpne lyd",
   },
   generic: {
+    loading: "Laster...",
+    load_more: "Last inn mer",
     ctrl_shortcut: "Ctrl",
     form_submit: "OK",
   },

@@ -1,17 +1,47 @@
 import { Store } from "../../util/Store.js";
+import {
+  reduceVersioningState,
+  type VersioningEvent,
+} from "./versioningState.js";
 import type {
   VersioningState,
   VersionDisplay,
   VersionResult,
   VersionOperationResult,
   VersionSelection,
-  VersionSnapshot,
   VersionStorage,
   VersionView,
   VersionViewAdapter,
 } from "./types.js";
 
-/** One isolated view per opening. Every read belongs to that opening. */
+/** One replaceable read per slot. The session lifetime cancels both slots. */
+function createRequestSlot(lifetime: AbortSignal) {
+  let current: AbortController | undefined;
+  function cancel() {
+    current?.abort();
+  }
+  function start() {
+    const previous = current;
+    const controller = new AbortController();
+    current = controller;
+    const signal = AbortSignal.any([lifetime, controller.signal]);
+    // Install the replacement before notifying the cancelled request.
+    previous?.abort();
+    return {
+      signal,
+      cancel() {
+        controller.abort();
+      },
+    };
+  }
+  return { start, cancel };
+}
+
+/**
+ * One isolated view per opening. Every read belongs to that opening.
+ * Adapter/provider callbacks and store subscribers must defer controller commands;
+ * synchronous reentry and recovery after unexpected callback failures are unsupported.
+ */
 export function createVersioning<Content, Attributions>(options: {
   adapter: VersionViewAdapter<Content, Attributions>;
   storage: VersionStorage<Content, Attributions>;
@@ -22,47 +52,55 @@ export function createVersioning<Content, Attributions>(options: {
   type Session = {
     view: VersionView<Content, Attributions>;
     lifetime: AbortController;
-    selection?: AbortController;
-    listing?: AbortController;
+    selection: ReturnType<typeof createRequestSlot>;
+    selectionBaseline?: string;
+    history: ReturnType<typeof createRequestSlot>;
+    loadingMore?: Promise<VersionOperationResult>;
   };
-  type PreviewState = Extract<VersioningState, { mode: "versions" }>;
   let session: Session | undefined;
-  let transitioning = false;
-  let closeRequested = false;
   let disposed = false;
   let restoring = false;
 
-  function publish(
-    active: Session,
-    signal: AbortSignal,
-    update: (state: PreviewState) => PreviewState,
-  ) {
-    if (
-      session === active &&
-      !signal.aborted &&
-      store.state.mode === "versions"
-    ) {
-      store.setState(update(store.state));
+  function dispatch(event: VersioningEvent) {
+    const previous = store.state;
+    const next = reduceVersioningState(previous, event);
+    if (next !== previous) {
+      store.setState(next);
     }
+    return next;
+  }
+
+  function publish(signal: AbortSignal, event: VersioningEvent) {
+    if (!signal.aborted) {
+      return dispatch(event);
+    }
+    return undefined;
   }
 
   function open() {
     if (disposed) {
       throw new Error("Versioning has been disposed");
     }
-    if (transitioning || session) {
-      return;
+    if (restoring) {
+      return false;
     }
-    transitioning = true;
+    if (session) {
+      return true;
+    }
     try {
       setReadOnly(true);
-      session = { view: adapter.open(), lifetime: new AbortController() };
-      store.setState({
-        mode: "versions",
+      const view = adapter.open();
+      const lifetime = new AbortController();
+      session = {
+        view,
+        lifetime,
+        selection: createRequestSlot(lifetime.signal),
+        history: createRequestSlot(lifetime.signal),
+      };
+      dispatch({
+        type: "opened",
         capturedAt: session.view.current.capturedAt,
         showCurrentVersion: options.storage.showCurrentVersion ?? true,
-        displayed: { type: "current" },
-        history: { status: "pending" },
         restoring,
       });
     } catch (error) {
@@ -70,98 +108,119 @@ export function createVersioning<Content, Attributions>(options: {
         setReadOnly(restoring);
       }
       throw error;
-    } finally {
-      transitioning = false;
-      const shouldClose = closeRequested || disposed;
-      closeRequested = false;
-      if (shouldClose) {
-        close();
-      }
     }
+    return true;
   }
 
   function close() {
-    if (transitioning) {
-      // Opening must return its owned view before a reentrant close can discard it.
-      closeRequested = true;
-      return;
-    }
     if (!session) {
       return;
     }
-    transitioning = true;
     const closing = session;
-    try {
-      closing.lifetime.abort();
-      closing.view.close();
-      session = undefined;
-      store.setState({ mode: "live" });
-      setReadOnly(restoring);
-    } finally {
-      transitioning = false;
-      closeRequested = false;
-    }
+    session = undefined;
+    closing.lifetime.abort();
+    closing.view.close();
+    dispatch({ type: "closed", restoring });
+    setReadOnly(restoring);
   }
 
-  async function list(): Promise<VersionOperationResult> {
+  /** Reset history to the first page without changing the displayed preview. */
+  function list(): Promise<VersionOperationResult> {
     const active = session;
-    if (transitioning || !active || active.lifetime.signal.aborted) {
-      return { status: "unavailable" };
+    if (!active || restoring) {
+      return Promise.resolve({ status: "unavailable" });
     }
-    active.listing?.abort();
-    const request = new AbortController();
-    active.listing = request;
-    const signal = AbortSignal.any([active.lifetime.signal, request.signal]);
-    publish(active, signal, (state) => ({
-      ...state,
-      history: { status: "pending", data: state.history.data },
-    }));
-    try {
-      const result = await options.storage.list(signal);
-      if (signal.aborted) {
-        return { status: "cancelled" };
-      }
-      if (!result.ok) {
-        publish(active, signal, (state) => ({
-          ...state,
-          history: {
-            status: "error",
+    active.loadingMore = undefined;
+    return readHistory(active, { operation: "refresh" });
+  }
+
+  /** Append one page. Concurrent callers share the same request. */
+  function loadMore(): Promise<VersionOperationResult> {
+    const active = session;
+    const state = store.state;
+    if (!active || restoring || state.mode !== "versions") {
+      return Promise.resolve({ status: "unavailable" });
+    }
+    if (active.loadingMore) {
+      return active.loadingMore;
+    }
+    if (
+      state.history.status === "error" &&
+      state.history.operation === "refresh"
+    ) {
+      return list();
+    }
+    if (state.nextCursor === undefined || state.history.status === "pending") {
+      return Promise.resolve({ status: "unavailable" });
+    }
+    return readHistory(active, {
+      operation: "loadMore",
+      cursor: state.nextCursor,
+    });
+  }
+
+  function readHistory(
+    active: Session,
+    read: { operation: "refresh" } | { operation: "loadMore"; cursor: string },
+  ): Promise<VersionOperationResult> {
+    const { signal } = active.history.start();
+    publish(signal, { type: "historyStarted", operation: read.operation });
+    const pending = (async (): Promise<VersionOperationResult> => {
+      try {
+        const result = await options.storage.list(
+          signal,
+          read.operation === "refresh" ? undefined : read.cursor,
+        );
+        if (signal.aborted) {
+          return { status: "cancelled" };
+        }
+        if (!result.ok) {
+          publish(signal, {
+            type: "historyFailed",
+            operation: read.operation,
             error: result.error,
-            data: state.history.data,
-          },
-        }));
-        return { status: "error", error: result.error };
+          });
+          return { status: "error", error: result.error };
+        }
+        if (
+          read.operation === "loadMore" &&
+          result.value.nextCursor === read.cursor
+        ) {
+          throw new Error("Version history cursor did not advance");
+        }
+        const loaded = publish(signal, {
+          type: "historyLoaded",
+          operation: read.operation,
+          ...result.value,
+        });
+        if (signal.aborted) {
+          return { status: "cancelled" };
+        }
+        if (
+          loaded?.mode === "versions" &&
+          loaded.showCurrentVersion === false &&
+          loaded.displayed.type === "current" &&
+          !loaded.pending &&
+          loaded.history.data?.[0]
+        ) {
+          return select({ type: "snapshot", id: loaded.history.data[0].id });
+        }
+        return { status: "done" };
+      } catch (error) {
+        if (signal.aborted) {
+          return { status: "cancelled" };
+        }
+        throw error;
+      } finally {
+        if (!signal.aborted) {
+          active.loadingMore = undefined;
+        }
       }
-      const versions = result.value.toSorted(
-        (a, b) => b.createdAt - a.createdAt,
-      );
-      publish(active, signal, (state) => ({
-        ...state,
-        history: {
-          status: "success",
-          data: versions,
-        },
-      }));
-      const state = store.state;
-      if (
-        state.mode === "versions" &&
-        state.showCurrentVersion === false &&
-        state.displayed.type === "current" &&
-        state.pending === undefined &&
-        versions[0] &&
-        session === active &&
-        !signal.aborted &&
-        !restoring
-      ) {
-        return select({ type: "snapshot", id: versions[0].id });
-      }
-      return { status: "done" };
-    } catch (error) {
-      if (signal.aborted) {
-        return { status: "cancelled" };
-      }
-      throw error;
+    })();
+    if (read.operation === "loadMore" && !signal.aborted) {
+      active.loadingMore = pending;
     }
+    return pending;
   }
 
   async function loadDisplay(
@@ -218,12 +277,7 @@ export function createVersioning<Content, Attributions>(options: {
     selectionOptions?: { compareTo?: string },
   ): Promise<VersionOperationResult> {
     const active = session;
-    if (
-      transitioning ||
-      !active ||
-      active.lifetime.signal.aborted ||
-      restoring
-    ) {
+    if (!active || restoring) {
       return { status: "unavailable" };
     }
     if (
@@ -244,11 +298,10 @@ export function createVersioning<Content, Attributions>(options: {
     ) {
       return { status: "unavailable" };
     }
-    active.selection?.abort();
-    const request = new AbortController();
-    active.selection = request;
-    const signal = AbortSignal.any([active.lifetime.signal, request.signal]);
-    publish(active, signal, (state) => ({ ...state, pending: target }));
+    const request = active.selection.start();
+    const { signal } = request;
+    active.selectionBaseline = selectionOptions?.compareTo;
+    publish(signal, { type: "selectionStarted", target });
     const baselineId = selectionOptions?.compareTo;
     try {
       const result = await loadDisplay(active, target, baselineId, signal);
@@ -256,35 +309,29 @@ export function createVersioning<Content, Attributions>(options: {
         return { status: "cancelled" };
       }
       if (!result.ok) {
-        publish(active, signal, (state) => ({ ...state, pending: undefined }));
+        publish(signal, { type: "selectionFailed" });
         return { status: "error", error: result.error };
       }
       active.view.show(result.value);
-      publish(active, signal, (state) => ({
-        ...state,
-        displayed: target,
+      publish(signal, {
+        type: "selectionShown",
+        target,
         compareTo: baselineId,
-        pending: undefined,
-      }));
+      });
       return { status: "done" };
     } catch (error) {
       if (signal.aborted) {
         return { status: "cancelled" };
       }
-      publish(active, signal, (state) => ({ ...state, pending: undefined }));
-      request.abort();
+      publish(signal, { type: "selectionFailed" });
+      request.cancel();
       throw error;
     }
   }
 
   async function restore(id: string): Promise<VersionOperationResult> {
     const active = session;
-    if (
-      transitioning ||
-      !active ||
-      active.lifetime.signal.aborted ||
-      restoring
-    ) {
+    if (!active || restoring) {
       return { status: "unavailable" };
     }
     const storage = options.storage;
@@ -293,33 +340,21 @@ export function createVersioning<Content, Attributions>(options: {
     }
     restoring = true;
     try {
-      active.selection?.abort();
-      publish(active, active.lifetime.signal, (state) => ({
-        ...state,
+      active.selection.cancel();
+      publish(active.lifetime.signal, {
+        type: "restoreChanged",
         restoring: true,
-        pending: undefined,
-      }));
+      });
       const result = await storage.restore(id);
       if (!result.ok) {
         return { status: "error", error: result.error };
       }
-      restoring = false;
-      const reopened = session !== undefined && session !== active;
-      if (session) {
-        close();
-      }
-      // A newer opening still owns a preview. Replace its pre-restore capture
-      // with the restored Current instead of leaving that caller in live mode.
-      if (reopened) {
-        open();
-        await list();
-      }
+      close();
       return { status: "done" };
     } finally {
       restoring = false;
-      if (store.state.mode === "versions") {
-        store.setState({ ...store.state, restoring: false });
-      } else {
+      dispatch({ type: "restoreChanged", restoring: false });
+      if (!session) {
         setReadOnly(false);
       }
     }
@@ -327,13 +362,13 @@ export function createVersioning<Content, Attributions>(options: {
 
   async function refreshAfterNaming(
     active: Session,
-    update: (versions: VersionSnapshot[]) => VersionSnapshot[],
+    event: Extract<
+      VersioningEvent,
+      { type: "snapshotRenamed" | "snapshotCreated" }
+    >,
   ) {
-    publish(active, active.lifetime.signal, (state) => ({
-      ...state,
-      history: { status: "success", data: update(state.history.data ?? []) },
-    }));
-    if (session === active && !active.lifetime.signal.aborted) {
+    publish(active.lifetime.signal, event);
+    if (!active.lifetime.signal.aborted) {
       await list();
     }
   }
@@ -344,7 +379,7 @@ export function createVersioning<Content, Attributions>(options: {
   ): Promise<VersionOperationResult> {
     const active = session;
     const storage = options.storage;
-    if (!storage.rename) {
+    if (restoring || !storage.rename) {
       return { status: "unavailable" };
     }
     const result = await storage.rename(id, name);
@@ -352,13 +387,22 @@ export function createVersioning<Content, Attributions>(options: {
       return { status: "error", error: result.error };
     }
     if (active) {
-      await refreshAfterNaming(active, (versions) =>
-        versions.map((version) =>
-          version.id === id ? { ...version, name } : version,
-        ),
-      );
+      await refreshAfterNaming(active, { type: "snapshotRenamed", id, name });
     }
     return { status: "done" };
+  }
+
+  function references(
+    active: Session,
+    state: Extract<VersioningState, { mode: "versions" }>,
+    id: string,
+  ) {
+    return (
+      (state.displayed.type === "snapshot" && state.displayed.id === id) ||
+      (state.pending?.type === "snapshot" && state.pending.id === id) ||
+      (state.pending !== undefined && active.selectionBaseline === id) ||
+      state.compareTo === id
+    );
   }
 
   return {
@@ -366,6 +410,7 @@ export function createVersioning<Content, Attributions>(options: {
     open,
     close,
     list,
+    loadMore,
     select,
     restore,
     rename,
@@ -390,7 +435,7 @@ export function createVersioning<Content, Attributions>(options: {
     async create(this: void, name?: string): Promise<VersionOperationResult> {
       const active = session;
       const storage = options.storage;
-      if (!active || !storage.create) {
+      if (!active || restoring || !storage.create) {
         return { status: "unavailable" };
       }
       const current = active.view.current;
@@ -402,50 +447,49 @@ export function createVersioning<Content, Attributions>(options: {
       if (!result.ok) {
         return { status: "error", error: result.error };
       }
-      const created = result.value;
-      await refreshAfterNaming(active, (versions) => [
-        created,
-        ...versions.filter((version) => version.id !== created.id),
-      ]);
+      await refreshAfterNaming(active, {
+        type: "snapshotCreated",
+        snapshot: result.value,
+      });
       return { status: "done" };
     },
     async remove(this: void, id: string): Promise<VersionOperationResult> {
       const active = session;
       const storage = options.storage;
-      if (!active || !storage.remove) {
+      if (!active || restoring || !storage.remove) {
         return { status: "unavailable" };
       }
       const removed = await storage.remove(id);
       if (!removed.ok) {
         return { status: "error", error: removed.error };
       }
-      if (active.lifetime.signal.aborted) {
-        return { status: "cancelled" };
+      if (!active.lifetime.signal.aborted) {
+        await list();
+        // Missing page metadata does not prove deletion. Continuous-history
+        // providers may only clear a name, leaving its content available.
+        const state = store.state;
+        if (state.mode === "versions" && references(active, state, id)) {
+          const content = await storage.getContent(id, active.lifetime.signal);
+          const current = store.state;
+          if (
+            !active.lifetime.signal.aborted &&
+            !content.ok &&
+            content.error.type === "not-found" &&
+            current.mode === "versions" &&
+            references(active, current, id)
+          ) {
+            await select(
+              (current.displayed.type === "snapshot" &&
+                current.displayed.id === id) ||
+                (current.pending?.type === "snapshot" &&
+                  current.pending.id === id)
+                ? { type: "current" }
+                : current.displayed,
+            );
+          }
+        }
       }
-      const result = await list();
-      const state = store.state;
-      if (
-        result.status !== "done" ||
-        active.lifetime.signal.aborted ||
-        state.mode !== "versions"
-      ) {
-        return result;
-      }
-      const versions = state.history.data ?? [];
-      const displayed = state.displayed;
-      if (
-        displayed.type === "snapshot" &&
-        !versions.some((version) => version.id === displayed.id)
-      ) {
-        return select({ type: "current" });
-      }
-      if (
-        state.compareTo !== undefined &&
-        !versions.some((version) => version.id === state.compareTo)
-      ) {
-        return select(state.displayed);
-      }
-      return result;
+      return { status: "done" };
     },
     dispose() {
       disposed = true;

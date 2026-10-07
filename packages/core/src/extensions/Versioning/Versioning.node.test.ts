@@ -32,7 +32,7 @@ it("configures once per editor during construction", async () => {
       },
       storage: {
         async list() {
-          return success([]);
+          return success({ snapshots: [] });
         },
         async getContent(id: string) {
           return success(id);
@@ -120,7 +120,7 @@ function setup() {
     },
     storage: {
       async list() {
-        return success([]);
+        return success({ snapshots: [] });
       },
       async getContent(id: string) {
         return success(id);
@@ -154,12 +154,14 @@ it.each(["close", "select"] as const)(
   },
 );
 
-it("does not schedule an old view's scroll after show closes and reopens", async () => {
+it("clears an old view's scroll when a callback defers closing and reopening", async () => {
   const { editor, mode, show } = setup();
   try {
     show.mockImplementationOnce(() => {
-      mode.close();
-      mode.open();
+      queueMicrotask(() => {
+        mode.close();
+        mode.open();
+      });
     });
     await mode.select({ type: "current" }, { compareTo: "old" });
     expect(mode.store.state).toMatchObject({

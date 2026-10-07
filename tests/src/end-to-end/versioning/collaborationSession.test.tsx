@@ -23,7 +23,10 @@ test("a mounted preview ignores remote edits and cannot publish live cursors", a
   const Versions = createVersioningExtension((editor) => ({
     adapter: createYVersionView(editor, doc.get("doc")),
     storage: {
-      list: async () => ({ ok: true, value: [{ id: "saved", createdAt: 1 }] }),
+      list: async () => ({
+        ok: true,
+        value: { snapshots: [{ id: "saved", createdAt: 1 }] },
+      }),
       getContent: async () => ({ ok: true, value: saved }),
     },
   }));

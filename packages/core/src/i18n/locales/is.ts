@@ -464,6 +464,8 @@ export const is: Dictionary = {
     open_audio_file: "Opna hljóð",
   },
   generic: {
+    loading: "Hleður...",
+    load_more: "Hlaða meira",
     ctrl_shortcut: "Ctrl",
     form_submit: "Í lagi",
   },

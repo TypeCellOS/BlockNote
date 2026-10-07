@@ -484,6 +484,8 @@ export const uz: Dictionary = {
     open_audio_file: "Audioni ochish",
   },
   generic: {
+    loading: "Yuklanmoqda...",
+    load_more: "Ko‘proq yuklash",
     ctrl_shortcut: "Ctrl",
     form_submit: "OK",
   },

@@ -435,6 +435,8 @@ export const ar: Dictionary = {
     open_audio_file: "فتح الصوت",
   },
   generic: {
+    loading: "جارٍ التحميل...",
+    load_more: "تحميل المزيد",
     ctrl_shortcut: "Ctrl",
     form_submit: "موافق",
   },

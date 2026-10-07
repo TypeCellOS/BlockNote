@@ -448,6 +448,8 @@ export const es: Dictionary = {
     open_audio_file: "Abrir audio",
   },
   generic: {
+    loading: "Cargando...",
+    load_more: "Cargar más",
     ctrl_shortcut: "Ctrl",
     form_submit: "Aceptar",
   },

@@ -77,7 +77,7 @@ it("lists the first edit as an ordinary snapshot independently of sidebar filter
     .mockResolvedValueOnce(response({ activity: [latest] }))
     .mockResolvedValueOnce(response({ activity: [{ ...first, version }] }))
     .mockResolvedValueOnce(response({ ydoc: Y.encodeStateAsUpdate(doc) }));
-  const versions = resultValue(await api.list(signal));
+  const { snapshots: versions } = resultValue(await api.list(signal));
   expect(versions).toHaveLength(2);
   const start = versions[1];
   expect(start).toMatchObject({
@@ -111,7 +111,7 @@ it("lists no snapshots when there are no recorded edits", async () => {
   fetchSpy.mockImplementation(async () => response({ activity: [] }));
   expect(await storage().api.list(signal)).toEqual({
     ok: true,
-    value: [],
+    value: { snapshots: [], nextCursor: undefined },
   });
   expect(fetchSpy).toHaveBeenCalledTimes(2);
 });
@@ -180,18 +180,20 @@ it("lists server checkpoints with their attached versions and empty versions", a
       }),
     )
     .mockResolvedValueOnce(response({ activity: [] }));
-  expect(resultValue(await storage().api.list(signal))).toMatchObject([
-    { id: "2000", by: ["bob"] },
-    {
-      id: "1000",
-      by: ["alice", "bob"],
-      name: "Milestone",
-      metadata: version.custom,
-      restoredFrom: { id: "42", createdAt: 42 },
-      customAttributions: { source: "import" },
-    },
-    { id: "500", by: [], name: "Empty" },
-  ]);
+  expect(resultValue(await storage().api.list(signal)).snapshots).toMatchObject(
+    [
+      { id: "2000", by: ["bob"] },
+      {
+        id: "1000",
+        by: ["alice", "bob"],
+        name: "Milestone",
+        metadata: version.custom,
+        restoredFrom: { id: "42", createdAt: 42 },
+        customAttributions: { source: "import" },
+      },
+      { id: "500", by: [], name: "Empty" },
+    ],
+  );
   expect(fetchSpy).toHaveBeenCalledTimes(2);
   expect(request(0).url.searchParams.get("versions")).toBe("true");
   expect(request(0).signal).toBeInstanceOf(AbortSignal);
@@ -214,7 +216,7 @@ it.each([false, 0, "", ["app"], {}, null].map((custom) => ({ custom })))(
         }),
       )
       .mockResolvedValueOnce(response({ activity: [first] }));
-    const rows = resultValue(
+    const { snapshots: rows } = resultValue(
       await storage({ groupByUser: true }).api.list(signal),
     );
     expect(rows).toHaveLength(2);
@@ -245,14 +247,14 @@ it("preserves caller activity filters without merging returned entries", async (
     .mockResolvedValueOnce(response({ activity: [first] }));
   const activityParams = {
     groupExclude: "alice,bob",
-    order: "asc",
+    order: "desc",
     limit: 10,
     from: 500,
     by: "alice,bob",
     customAttributions: true,
   };
   expect(
-    resultValue(await storage(activityParams).api.list(signal)),
+    resultValue(await storage(activityParams).api.list(signal)).snapshots,
   ).toMatchObject([
     {
       id: "1000",
@@ -269,17 +271,107 @@ it("preserves caller activity filters without merging returned entries", async (
     },
   ]);
   for (const [key, value] of Object.entries(activityParams)) {
-    expect(request(0).url.searchParams.get(key)).toBe(String(value));
+    expect(request(0).url.searchParams.get(key)).toBe(
+      String(key === "limit" ? Number(value) + 1 : value),
+    );
   }
   expect(activityParams).toEqual({
     groupExclude: "alice,bob",
-    order: "asc",
+    order: "desc",
     limit: 10,
     from: 500,
     by: "alice,bob",
     customAttributions: true,
   });
 });
+
+it("pages through bounded activity windows with stable timestamp identifiers", async () => {
+  const activity = [
+    { from: 90, to: 100, by: ["alice"] },
+    { from: 70, to: 80, by: ["bob"], version: { ...version, t: 80 } },
+    { from: 50, to: 60, by: ["alice"] },
+  ];
+  fetchSpy.mockImplementation(async (url) => {
+    const params = new URL(url instanceof Request ? url.url : url).searchParams;
+    if (params.get("order") === "asc") {
+      return response({ activity: [activity.at(-1)] });
+    }
+    const to = Number(params.get("to") ?? Infinity);
+    return response({
+      activity: activity
+        .filter((entry) => entry.to <= to)
+        .slice(0, Number(params.get("limit"))),
+    });
+  });
+  const { api } = storage({ limit: 1 });
+  const snapshots = [];
+  const cursors = new Set<string>();
+  let cursor: string | undefined;
+  do {
+    const page = resultValue(await api.list(signal, cursor));
+    snapshots.push(...page.snapshots);
+    cursor = page.nextCursor;
+    if (cursor !== undefined) {
+      expect(cursors.has(cursor)).toBe(false);
+      cursors.add(cursor);
+    }
+  } while (cursor !== undefined);
+  expect(
+    snapshots.map(({ id, createdAt, name }) => ({ id, createdAt, name })),
+  ).toEqual([
+    { id: "100", createdAt: 100, name: undefined },
+    // The first page also pins the beginning; the controller deduplicates it.
+    { id: "60", createdAt: 60, name: undefined },
+    { id: "80", createdAt: 80, name: "Milestone" },
+    { id: "60", createdAt: 60, name: undefined },
+  ]);
+});
+
+it("keeps grouping fixed while traversing a cursor and uses changed options on refresh", async () => {
+  const activityParams = { limit: 1, groupMaxGap: 10, groupByUser: false };
+  fetchSpy.mockImplementation(async (url) => {
+    const params = new URL(url instanceof Request ? url.url : url).searchParams;
+    if (params.get("order") === "asc") {
+      return response({ activity: [first] });
+    }
+    return response({ activity: params.has("to") ? [first] : [latest, first] });
+  });
+  const { api } = storage(activityParams);
+  const page = resultValue(await api.list(signal));
+  activityParams.groupMaxGap = 20;
+  activityParams.groupByUser = true;
+  expect(
+    resultValue(await api.list(signal, page.nextCursor)).snapshots[0].id,
+  ).toBe("1000");
+  await api.list(signal);
+  expect(request(2).url.searchParams.get("groupMaxGap")).toBe("10");
+  expect(request(2).url.searchParams.get("groupByUser")).toBe("false");
+  expect(request(3).url.searchParams.get("groupMaxGap")).toBe("20");
+  expect(request(3).url.searchParams.get("groupByUser")).toBe("true");
+});
+
+it.each([{ activity: [] }, { activity: [latest] }])(
+  "reports exhaustion without an unnecessary empty-page request for %j",
+  async ({ activity }) => {
+    fetchSpy
+      .mockResolvedValueOnce(response({ activity }))
+      .mockResolvedValueOnce(response({ activity }));
+    const page = resultValue(await storage({ limit: 1 }).api.list(signal));
+    expect(page.nextCursor).toBeUndefined();
+    expect(page.snapshots.map((snapshot) => snapshot.id)).toEqual(
+      activity.map((entry) => String(entry.to)),
+    );
+  },
+);
+
+it.each([0, -1, 1.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1])(
+  "rejects invalid activity page size %s",
+  async (limit) => {
+    await expect(storage({ limit }).api.list(signal)).rejects.toThrow(
+      "positive integer",
+    );
+  },
+);
 
 it("names the latest checkpoint only when its content matches frozen current", async () => {
   const { api, doc } = storage();

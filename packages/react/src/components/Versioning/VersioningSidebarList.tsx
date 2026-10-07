@@ -11,7 +11,7 @@ import {
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useVersioningState } from "./useVersioning.js";
+import { useVersioning, useVersioningState } from "./useVersioning.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { Snapshot } from "./Snapshot.js";
 import { usePreviewRow } from "./usePreviewRow.js";
@@ -35,6 +35,7 @@ export function VersioningSidebarList() {
   const { namedOnly, loadingIndicator, run } = useVersioningSidebar();
   const previewRow = usePreviewRow();
   const state = useVersioningState();
+  const versioning = useVersioning();
   const list = useMemo(() => getVersionList(state), [state]);
   const listError =
     state.mode === "versions" && state.history.status === "error";
@@ -79,16 +80,46 @@ export function VersioningSidebarList() {
     }
   }, [rows, activeIndex, focusRow]);
 
+  const pagination =
+    state.mode === "versions" &&
+    (state.nextCursor !== undefined || listError) ? (
+      <div className="bn-versioning-pagination">
+        <Components.Generic.Toolbar.Button
+          label={dict.generic.load_more}
+          isDisabled={listing}
+          onClick={() => {
+            void versioning.loadMore();
+          }}
+        >
+          <span className="bn-versioning-pagination-button-content">
+            {listing && (
+              <span role="status" aria-label={dict.generic.loading}>
+                <span
+                  className="bn-versioning-pagination-loader"
+                  aria-hidden="true"
+                >
+                  {loadingIndicator ?? (
+                    <Components.Versioning.Loader className="bn-suggestion-menu-loader" />
+                  )}
+                </span>
+              </span>
+            )}
+            {dict.generic.load_more}
+          </span>
+        </Components.Generic.Toolbar.Button>
+      </div>
+    ) : null;
+
   if (!list.loaded) {
-    if (listError && !listing) {
-      return null;
+    if (listError) {
+      return pagination;
     }
     return (
       <div className="bn-versioning-sidebar-loading" role="status">
         {loadingIndicator ?? (
           <Components.Versioning.Loader className="bn-suggestion-menu-loader" />
         )}
-        <span className="bn-visually-hidden">{dict.versioning.loading}</span>
+        <span className="bn-visually-hidden">{dict.generic.loading}</span>
       </div>
     );
   }
@@ -167,18 +198,19 @@ export function VersioningSidebarList() {
             }}
           />
         ))}
+        {(rows.length === 0 ||
+          (rows.length === 1 &&
+            state.mode === "versions" &&
+            state.showCurrentVersion !== false)) && (
+          <div className="bn-versioning-sidebar-empty">
+            {/* No stored row is visible, including empty continuous history. */}
+            {list.snapshots.length > 0
+              ? dict.versioning.empty_named_only
+              : dict.versioning.empty}
+          </div>
+        )}
+        {pagination}
       </div>
-      {(rows.length === 0 ||
-        (rows.length === 1 &&
-          state.mode === "versions" &&
-          state.showCurrentVersion !== false)) && (
-        <div className="bn-versioning-sidebar-empty">
-          {/* No stored row is visible, including empty continuous history. */}
-          {list.snapshots.length > 0
-            ? dict.versioning.empty_named_only
-            : dict.versioning.empty}
-        </div>
-      )}
     </>
   );
 }

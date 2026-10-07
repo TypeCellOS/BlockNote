@@ -450,6 +450,8 @@ export const he: Dictionary = {
     open_audio_file: "פתח שמע",
   },
   generic: {
+    loading: "טוען...",
+    load_more: "טען עוד",
     ctrl_shortcut: "Ctrl",
     form_submit: "אישור",
   },

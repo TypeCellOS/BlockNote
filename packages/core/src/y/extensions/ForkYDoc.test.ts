@@ -85,7 +85,7 @@ describe("ForkYDocExtension (v14)", () => {
             adapter: createYVersionView(editor, fragment),
             storage: {
               async list() {
-                return { ok: true, value: [] };
+                return { ok: true, value: { snapshots: [] } };
               },
               async getContent() {
                 return { ok: true, value: snapshot };

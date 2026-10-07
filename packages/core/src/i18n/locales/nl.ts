@@ -451,6 +451,8 @@ export const nl: Dictionary = {
     open_audio_file: "Audio openen",
   },
   generic: {
+    loading: "Laden...",
+    load_more: "Meer laden",
     ctrl_shortcut: "Ctrl",
     form_submit: "OK",
   },

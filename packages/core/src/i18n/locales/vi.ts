@@ -449,6 +449,8 @@ export const vi: Dictionary = {
     open_audio_file: "Mở âm thanh",
   },
   generic: {
+    loading: "Đang tải...",
+    load_more: "Tải thêm",
     ctrl_shortcut: "Ctrl",
     form_submit: "OK",
   },

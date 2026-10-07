@@ -26,7 +26,7 @@ it.each([undefined, false])(
               showCurrentVersion,
               list: async () => ({
                 ok: true,
-                value: [{ id: "saved", createdAt: 1 }],
+                value: { snapshots: [{ id: "saved", createdAt: 1 }] },
               }),
               getContent: async () => ({ ok: true, value: saved }),
             },
@@ -105,7 +105,7 @@ it("accepts a non-default schema in the public view and extension factory", () =
       adapter: createYjsVersionView(editor, fragment),
       storage: {
         async list() {
-          return { ok: true, value: [] };
+          return { ok: true, value: { snapshots: [] } };
         },
         async getContent() {
           return { ok: true, value: Y.encodeStateAsUpdate(doc) };

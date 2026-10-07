@@ -464,6 +464,8 @@ export const hr: Dictionary = {
     open_audio_file: "Otvori audiozapis",
   },
   generic: {
+    loading: "Učitavanje...",
+    load_more: "Učitaj više",
     ctrl_shortcut: "Ctrl",
     form_submit: "U redu",
   },

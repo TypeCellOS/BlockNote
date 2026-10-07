@@ -215,7 +215,11 @@ export function createLocalVersioning<
         signal.throwIfAborted();
         return {
           ok: true,
-          value: [...snapshots.values()].map(({ version }) => ({ ...version })),
+          value: {
+            snapshots: Array.from(snapshots.values(), ({ version }) => ({
+              ...version,
+            })).sort((a, b) => b.createdAt - a.createdAt),
+          },
         };
       },
       async getContent(id, signal) {

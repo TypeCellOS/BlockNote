@@ -474,6 +474,8 @@ export const uk: Dictionary = {
     open_audio_file: "Відкрити аудіо",
   },
   generic: {
+    loading: "Завантаження...",
+    load_more: "Завантажити ще",
     ctrl_shortcut: "Ctrl",
     form_submit: "ОК",
   },

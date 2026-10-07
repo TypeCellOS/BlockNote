@@ -450,6 +450,8 @@ export const en = {
     open_audio_file: "Open audio",
   },
   generic: {
+    loading: "Loading...",
+    load_more: "Load more",
     ctrl_shortcut: "Ctrl",
     form_submit: "OK",
   },

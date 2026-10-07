@@ -494,6 +494,8 @@ export const ru: Dictionary = {
     open_audio_file: "Открыть аудио",
   },
   generic: {
+    loading: "Загрузка...",
+    load_more: "Загрузить ещё",
     ctrl_shortcut: "Ctrl",
     form_submit: "ОК",
   },

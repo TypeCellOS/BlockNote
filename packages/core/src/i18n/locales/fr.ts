@@ -496,6 +496,8 @@ export const fr: Dictionary = {
     open_audio_file: "Ouvrir l'audio",
   },
   generic: {
+    loading: "Chargement...",
+    load_more: "Charger plus",
     ctrl_shortcut: "Ctrl",
     form_submit: "OK",
   },
