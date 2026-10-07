@@ -1,5 +1,11 @@
 import type { Node } from "prosemirror-model";
-import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
+import {
+  EditorState,
+  Plugin,
+  PluginKey,
+  PluginView,
+  TextSelection,
+} from "prosemirror-state";
 import {
   CellSelection,
   addColumnAfter,
@@ -9,6 +15,8 @@ import {
   deleteColumn,
   deleteRow,
   mergeCells,
+  moveTableColumn,
+  moveTableRow,
   splitCell,
 } from "prosemirror-tables";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
@@ -19,11 +27,10 @@ import {
   canColumnBeDraggedInto,
   canRowBeDraggedInto,
   cropEmptyRowsOrColumns,
+  getAbsoluteTableCells,
   getCellsAtColumnHandle,
   getCellsAtRowHandle,
   getDimensionsOfTable,
-  moveColumn,
-  moveRow,
 } from "../../api/blockManipulation/tables/tables.js";
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../api/nodeUtil.js";
@@ -472,62 +479,52 @@ export class TableHandlesView implements PluginView {
     // Clear so a re-dispatched drop short-circuits above (issue #2691).
     this.state.draggingState = undefined;
 
-    const columnWidths = this.state.block.content.columnWidths;
+    const block = this.state.block;
+    const isRow = draggingState.draggedCellOrientation === "row";
+    const targetIndex = isRow ? rowIndex : colIndex;
+    const canBeDraggedInto = isRow
+      ? canRowBeDraggedInto
+      : canColumnBeDraggedInto;
 
-    if (draggingState.draggedCellOrientation === "row") {
-      if (
-        !canRowBeDraggedInto(
-          this.state.block,
-          draggingState.originalIndex,
-          rowIndex,
-        )
-      ) {
-        // If the target row is invalid, don't move the row
-        return false;
-      }
-      const newTable = moveRow(
-        this.state.block,
-        draggingState.originalIndex,
-        rowIndex,
-      );
-      this.editor.updateBlock(this.state.block, {
-        type: "table",
-        content: {
-          ...this.state.block.content,
-          rows: newTable as any,
-        },
-      });
-    } else {
-      if (
-        !canColumnBeDraggedInto(
-          this.state.block,
-          draggingState.originalIndex,
-          colIndex,
-        )
-      ) {
-        // If the target column is invalid, don't move the column
-        return false;
-      }
-      const newTable = moveColumn(
-        this.state.block,
-        draggingState.originalIndex,
-        colIndex,
-      );
-      const [columnWidth] = columnWidths.splice(draggingState.originalIndex, 1);
-      columnWidths.splice(colIndex, 0, columnWidth);
-      this.editor.updateBlock(this.state.block, {
-        type: "table",
-        content: {
-          ...this.state.block.content,
-          columnWidths,
-          rows: newTable as any,
-        },
-      });
+    if (!canBeDraggedInto(block, draggingState.originalIndex, targetIndex)) {
+      // If the target row/column is invalid, don't move it
+      return false;
     }
 
-    // Have to reset text cursor position to the block as `updateBlock` moves
-    // the existing selection out of the block.
-    this.editor.setTextCursorPosition(this.state.block.id);
+    // The handles use relative indices, prosemirror-tables absolute ones.
+    function toAbsoluteIndex(index: number) {
+      return isRow
+        ? getAbsoluteTableCells({ row: index, col: 0 }, block).row
+        : getAbsoluteTableCells({ row: 0, col: index }, block).col;
+    }
+    const from = toAbsoluteIndex(draggingState.originalIndex);
+    const to = toAbsoluteIndex(targetIndex);
+
+    // Moves the cells in place instead of rebuilding the table from block
+    // JSON, which would drop marks that aren't styles, like comments (issue
+    // #2904). Cell attributes, including column widths, move with the cells.
+    const moved = this.editor.exec((state, dispatch) => {
+      const tablePos = this.getTablePos(state.doc);
+      if (tablePos === undefined) {
+        return false;
+      }
+      // prosemirror-tables finds the table from the selection.
+      const stateInTable = state.apply(
+        state.tr.setSelection(
+          TextSelection.near(state.doc.resolve(tablePos + 1)),
+        ),
+      );
+      const move = isRow ? moveTableRow : moveTableColumn;
+      return move({ from, to, select: false })(stateInTable, dispatch);
+    });
+
+    if (!moved) {
+      return false;
+    }
+
+    // Have to reset text cursor position to the block as replacing the table
+    // moves the existing selection out of it.
+    this.editor.setTextCursorPosition(block.id);
 
     return true;
   };
