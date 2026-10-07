@@ -409,12 +409,6 @@ SideMenuController offsets its position to keep it centered on the line. */
   padding: 12px;
 }
 
-.bn-versioning-pagination-button-content {
-  align-items: center;
-  display: inline-flex;
-  gap: 8px;
-}
-
 .bn-versioning-pagination-loader {
   align-items: center;
   display: inline-flex;

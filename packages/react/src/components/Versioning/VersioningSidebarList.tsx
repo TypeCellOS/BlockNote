@@ -45,7 +45,9 @@ export function VersioningSidebarList() {
   const listId = useId();
   const focusedRowId = useRef<string | undefined>(undefined);
   const listRef = useRef<HTMLDivElement>(null);
+  const paginationRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const nextCursor = state.mode === "versions" ? state.nextCursor : undefined;
 
   const focusRow = useCallback((index: number) => {
     const items =
@@ -66,6 +68,28 @@ export function VersioningSidebarList() {
     [list, namedOnly],
   );
 
+  useEffect(() => {
+    if (!list.loaded || listing || listError || nextCursor === undefined) {
+      return;
+    }
+    const root = listRef.current;
+    const target = paginationRef.current;
+    if (!root || !target) {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          void versioning.loadMore();
+        }
+      },
+      { root },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+    // Reobserve after each page, including pages hidden by the named-only filter.
+  }, [list.loaded, listing, listError, nextCursor, rows, versioning]);
+
   useIsomorphicLayoutEffect(() => {
     if (!focusedRowId.current) {
       return;
@@ -83,30 +107,29 @@ export function VersioningSidebarList() {
   const pagination =
     state.mode === "versions" &&
     (state.nextCursor !== undefined || listError) ? (
-      <div className="bn-versioning-pagination">
-        <Components.Generic.Toolbar.Button
-          label={dict.generic.load_more}
-          isDisabled={listing}
-          onClick={() => {
-            void versioning.loadMore();
-          }}
-        >
-          <span className="bn-versioning-pagination-button-content">
-            {listing && (
-              <span role="status" aria-label={dict.generic.loading}>
-                <span
-                  className="bn-versioning-pagination-loader"
-                  aria-hidden="true"
-                >
-                  {loadingIndicator ?? (
-                    <Components.Versioning.Loader className="bn-suggestion-menu-loader" />
-                  )}
-                </span>
-              </span>
-            )}
-            {dict.generic.load_more}
+      <div className="bn-versioning-pagination" ref={paginationRef}>
+        {listing && (
+          <span role="status" aria-label={dict.generic.loading}>
+            <span
+              className="bn-versioning-pagination-loader"
+              aria-hidden="true"
+            >
+              {loadingIndicator ?? (
+                <Components.Versioning.Loader className="bn-suggestion-menu-loader" />
+              )}
+            </span>
           </span>
-        </Components.Generic.Toolbar.Button>
+        )}
+        {listError && (
+          <Components.Generic.Toolbar.Button
+            label={dict.generic.load_more}
+            onClick={() => {
+              void versioning.loadMore();
+            }}
+          >
+            {dict.generic.load_more}
+          </Components.Generic.Toolbar.Button>
+        )}
       </div>
     ) : null;
 

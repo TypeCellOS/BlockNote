@@ -393,27 +393,28 @@ describe("VersioningSidebar", () => {
     expect(rows().at(-1)!.classList.contains("comparing")).toBe(true);
   });
 
-  it("loads filtered history by hand with localized failures and compares only loaded predecessors", async () => {
+  it("automatically loads filtered history, pauses on failure, and compares only loaded predecessors", async () => {
     const older = deferred<VersionResult<VersionSnapshotPage>>();
+    const listSnapshots = vi
+      .fn<VersionStorage<string>["list"]>()
+      .mockResolvedValueOnce(
+        success({
+          snapshots: [{ id: "unnamed", createdAt: 1000 }],
+          nextCursor: "named",
+        }),
+      )
+      .mockReturnValueOnce(older.promise)
+      .mockResolvedValueOnce({ ok: false, error: { type: "network" } })
+      .mockResolvedValueOnce(
+        success({
+          snapshots: [
+            { id: "hidden", createdAt: 500 },
+            { id: "b", createdAt: 400, name: "Earlier" },
+          ],
+        }),
+      );
     const storage: VersionStorage<string> = {
-      list: vi
-        .fn<VersionStorage<string>["list"]>()
-        .mockResolvedValueOnce(
-          success({
-            snapshots: [{ id: "unnamed", createdAt: 1000 }],
-            nextCursor: "named",
-          }),
-        )
-        .mockReturnValueOnce(older.promise)
-        .mockResolvedValueOnce({ ok: false, error: { type: "network" } })
-        .mockResolvedValueOnce(
-          success({
-            snapshots: [
-              { id: "hidden", createdAt: 500 },
-              { id: "b", createdAt: 400, name: "Earlier" },
-            ],
-          }),
-        ),
+      list: listSnapshots,
       getContent: async (id) => success(id),
     };
     function PaginatedSidebar() {
@@ -457,19 +458,14 @@ describe("VersioningSidebar", () => {
       name: de.generic.load_more,
       exact: true,
     });
-    await expect.element(loadMore).toBeEnabled();
     const list = page.getByRole("list", { name: de.versioning.versions_list });
-    expect(list.element().contains(loadMore.element())).toBe(true);
-    expect(list.element().lastElementChild).toBe(
-      loadMore.element().closest(".bn-versioning-pagination"),
-    );
-    await act(async () => {
-      await loadMore.click();
-    });
-    await expect.element(loadMore).toBeDisabled();
     const loading = page.getByRole("status", { name: de.generic.loading });
     await expect.element(loading).toBeVisible();
-    expect(loadMore.element().contains(loading.element())).toBe(true);
+    expect(list.element().contains(loading.element())).toBe(true);
+    expect(list.element().lastElementChild).toBe(
+      loading.element().closest(".bn-versioning-pagination"),
+    );
+    await expect.element(loadMore).not.toBeInTheDocument();
     expect(
       loading.element().querySelector(".bn-suggestion-menu-loader"),
     ).not.toBeNull();
@@ -481,19 +477,16 @@ describe("VersioningSidebar", () => {
         }),
       );
     });
-    await expect.element(loading).not.toBeInTheDocument();
+    await expect
+      .element(page.getByRole("alert"))
+      .toHaveTextContent(de.versioning.history_load_failed);
+    expect(listSnapshots).toHaveBeenCalledTimes(3);
     await act(async () => {
       await userEvent.click(rows()[1]!);
     });
     await expect
       .element(page.getByRole("status", { name: "Preview" }))
       .toHaveTextContent("a");
-    await act(async () => {
-      await loadMore.click();
-    });
-    await expect
-      .element(page.getByRole("alert"))
-      .toHaveTextContent(de.versioning.history_load_failed);
     await expect.element(loadMore).toBeEnabled();
     await act(async () => {
       await loadMore.click();
