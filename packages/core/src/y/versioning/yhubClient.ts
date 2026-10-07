@@ -10,6 +10,8 @@ export interface YHubClientOptions {
   docId: string;
   /** Headers included in every request, e.g. authentication tokens. */
   headers?: Record<string, string>;
+  /** Authentication query parameters included in every request. The open YHub demo uses `userid`. */
+  queryParams?: YHubQueryParams;
   /** Bounds each request, including reading the response body. Defaults to 30 seconds. */
   timeoutMs?: number;
 }
@@ -83,6 +85,7 @@ export class YHubClient<Metadata = unknown> {
   private readonly baseUrl: string;
   private readonly documentPath: string;
   private readonly headers: Record<string, string>;
+  private readonly queryParams: YHubQueryParams;
   private readonly timeoutMs: number;
 
   constructor({
@@ -90,6 +93,7 @@ export class YHubClient<Metadata = unknown> {
     org,
     docId,
     headers = {},
+    queryParams = {},
     timeoutMs = 30_000,
   }: YHubClientOptions) {
     if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
@@ -98,6 +102,7 @@ export class YHubClient<Metadata = unknown> {
     this.baseUrl = baseUrl;
     this.documentPath = `${encodeURIComponent(org)}/${encodeURIComponent(docId)}`;
     this.headers = headers;
+    this.queryParams = queryParams;
     this.timeoutMs = timeoutMs;
   }
 
@@ -108,7 +113,7 @@ export class YHubClient<Metadata = unknown> {
     init?: RequestInit,
   ): Promise<VersionResult<Value>> {
     const query = new URLSearchParams(
-      Object.entries(params ?? {})
+      Object.entries({ ...params, ...this.queryParams })
         .filter(([, value]) => value !== undefined)
         .map(([key, value]) => [key, String(value)]),
     );

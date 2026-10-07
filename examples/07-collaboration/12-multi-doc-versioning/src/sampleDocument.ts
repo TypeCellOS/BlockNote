@@ -2,7 +2,7 @@ import { BlockNoteEditor, type PartialBlock } from "@blocknote/core";
 import { docDiffToDelta } from "@blocknote/core/y";
 import { docToDelta } from "@y/prosemirror";
 import * as Y from "@y/y";
-import { encodeAny } from "lib0/buffer";
+import { decodeAny, encodeAny } from "lib0/buffer";
 import { generateRandomId } from "./utils.js";
 
 export const SAMPLE_DOCUMENT_TITLE = "Launch plan";
@@ -170,7 +170,7 @@ export async function seedSampleDocument(
     localStorage.setItem(key, JSON.stringify(plan));
   }
   const url = `${options.baseUrl}/ydoc/v1/${options.org}/${plan.docId}`;
-  for (const patch of plan.patches) {
+  for (const [index, patch] of plan.patches.entries()) {
     const res = await fetch(url, {
       method: "PATCH",
       body: new Uint8Array(patch),
@@ -180,8 +180,59 @@ export async function seedSampleDocument(
         `YHub seed request failed: ${res.status} ${res.statusText} (${url})`,
       );
     }
+    const name = SAMPLE_VERSIONS[index]?.name;
+    if (name !== undefined) {
+      // Derive the original timestamp from the durable patch, including plans
+      // saved by the old seeder. Never recompute it on a retry.
+      const payload: unknown = decodeAny(new Uint8Array(patch));
+      if (
+        typeof payload !== "object" ||
+        payload === null ||
+        !("at" in payload) ||
+        typeof payload.at !== "number"
+      ) {
+        throw new Error("Invalid saved sample patch timestamp");
+      }
+      await seedCheckpoint(options, plan.docId, payload.at, name);
+    }
   }
   return plan.docId;
+}
+
+async function seedCheckpoint(
+  options: SeedOptions,
+  docId: string,
+  at: number,
+  name: string,
+) {
+  const url = `${options.baseUrl}/version/v1/${options.org}/${docId}`;
+  // A POST may have succeeded before its response was lost. Read first so a
+  // replay neither duplicates checkpoints nor overwrites subsequent renames.
+  const existing = await fetch(`${url}?from=${at}&to=${at}`);
+  if (!existing.ok) {
+    throw new Error(`YHub version lookup failed: ${existing.status} (${url})`);
+  }
+  const payload: unknown = decodeAny(
+    new Uint8Array(await existing.arrayBuffer()),
+  );
+  if (
+    typeof payload !== "object" ||
+    payload === null ||
+    !("versions" in payload) ||
+    !Array.isArray(payload.versions)
+  ) {
+    throw new Error("Invalid YHub version response");
+  }
+  if (payload.versions.length > 0) {
+    return;
+  }
+  const response = await fetch(url, {
+    method: "POST",
+    body: encodeAny({ type: "version:v1", t: at, name }) as BufferSource,
+  });
+  if (!response.ok) {
+    throw new Error(`YHub version request failed: ${response.status} (${url})`);
+  }
 }
 
 function createSeedPlan(): SeedPlan {
@@ -189,7 +240,6 @@ function createSeedPlan(): SeedPlan {
   const ydoc = new Y.Doc({ gc: false });
   // The same root type the editor syncs (`doc.get()` in `DocumentEditor`).
   const fragment = ydoc.get();
-  const versions = ydoc.get("__bn_versions");
 
   let previous: BlockNoteEditor["prosemirrorState"]["doc"] | undefined;
   let sent = Y.encodeStateVector(ydoc);
@@ -204,9 +254,6 @@ function createSeedPlan(): SeedPlan {
         fragment.applyDelta(docDiffToDelta(previous, pmDoc));
       } else {
         fragment.applyDelta(docToDelta(pmDoc));
-      }
-      if (version.name !== undefined) {
-        versions.push([{ id: at, name: version.name }] as never);
       }
     });
     previous = pmDoc;

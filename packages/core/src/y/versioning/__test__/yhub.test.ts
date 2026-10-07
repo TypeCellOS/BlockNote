@@ -422,6 +422,50 @@ it.each([false, true])(
   },
 );
 
+it.each(["alice", "bob"])(
+  "authenticates every restore request as %s without using the rollback author filter",
+  async (userid) => {
+    const doc = new Y.Doc();
+    cleanup.push(() => doc.destroy());
+    const fragment = doc.get("default");
+    fragment.push(["hello"]);
+    const api = createYHubVersionStorage({
+      ...options,
+      queryParams: { userid },
+      fragment,
+      beforeRestoreName: "Before restore",
+    });
+    fetchSpy.mockImplementation(async (input, init) => {
+      const path = new URL(input instanceof Request ? input.url : input)
+        .pathname;
+      if (path.includes("/activity/")) {
+        return response({ activity: [latest] });
+      }
+      if (path.includes("/ydoc/")) {
+        return response({ doc: Y.encodeStateAsUpdate(doc) });
+      }
+      if (path.includes("/version/")) {
+        return init?.method === "POST"
+          ? response({ ...version, t: latest.to })
+          : response({ versions: [] });
+      }
+      return response({ success: true });
+    });
+    expect(await api.restore("1000")).toEqual({ ok: true, value: undefined });
+    const calls = fetchSpy.mock.calls.map((_, index) => request(index));
+    expect(calls).toHaveLength(6);
+    for (const call of calls) {
+      expect(call.url.searchParams.get("userid")).toBe(userid);
+    }
+    const rollback = calls.find((call) =>
+      call.url.pathname.includes("/rollback/"),
+    );
+    expect(Object.keys(rollback?.body).sort()).toEqual(["contentIds", "from"]);
+    expect(calls[0].url.searchParams.get("limit")).toBe("1");
+    expect(calls[1].url.searchParams.get("gc")).toBe("false");
+  },
+);
+
 it.each([false, 0, "", [], {}, null].map((custom) => ({ custom })))(
   "the transport can still save app metadata $custom directly",
   async ({ custom }) => {

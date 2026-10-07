@@ -143,6 +143,8 @@
   font-weight: 700;
   grid-area: 1 / 1;
   line-height: 20px;
+  /* Keep the hidden measurement text out of the version list's scroll area. */
+  overflow: hidden;
   padding: 1px 4px;
   visibility: hidden;
   white-space: pre;

@@ -199,6 +199,7 @@ export function DocumentEditor({
           baseUrl: YHUB_API_URL,
           org: workspaceId,
           docId,
+          queryParams: { userid: user.id },
         }),
       ],
     }),

@@ -4,12 +4,7 @@ import { useDictionary } from "../../../../i18n/dictionary.js";
 import { useVersioning } from "../../useVersioning.js";
 import { useVersioningSidebar } from "../../VersioningSidebarContext.js";
 import { useVersionSnapshot } from "../../VersionSnapshotContext.js";
-import { usePreviewRow } from "../../usePreviewRow.js";
-import {
-  getPreviousVisibleVersion,
-  getShownVersionRow,
-  getVersionList,
-} from "../../visibleHistory.js";
+import { useReconcileComparison } from "../../useReconcileComparison.js";
 import type {
   DefaultVersionMenuItemProps,
   VersionMenuAction,
@@ -22,8 +17,8 @@ import { DefaultVersionMenuItem } from "../DefaultVersionMenuItem.js";
  */
 export function useDeleteVersionAction(): VersionMenuAction {
   const { remove, canRemove, store } = useVersioning();
-  const { run, comparisonMode, namedOnly } = useVersioningSidebar();
-  const previewRow = usePreviewRow();
+  const { run } = useVersioningSidebar();
+  const reconcileComparison = useReconcileComparison();
   const { snapshot, isCurrent } = useVersionSnapshot();
 
   if (isCurrent || !canRemove || snapshot.name === undefined) {
@@ -34,31 +29,9 @@ export function useDeleteVersionAction(): VersionMenuAction {
     available: true,
     execute: async () => {
       const before = store.state;
-      const wasBaseline =
-        comparisonMode &&
-        before.mode === "versions" &&
-        before.compareTo === snapshot.id;
       await run(
         () => remove(snapshot.id),
-        async () => {
-          if (!wasBaseline) {
-            return;
-          }
-          const state = store.state;
-          const list = getVersionList(state);
-          if (state.mode !== "versions" || !list.loaded) {
-            return;
-          }
-          const shown = getShownVersionRow(list, state);
-          if (
-            shown &&
-            state.compareTo !==
-              getPreviousVisibleVersion(list, shown.snapshot, namedOnly)?.id
-          ) {
-            return previewRow(shown.snapshot);
-          }
-          return undefined;
-        },
+        () => reconcileComparison(before, snapshot.id),
       );
     },
   };

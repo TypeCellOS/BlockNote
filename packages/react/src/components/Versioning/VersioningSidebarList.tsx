@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useVersioningState } from "./useVersioning.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { Snapshot } from "./Snapshot.js";
@@ -29,6 +30,7 @@ const useIsomorphicLayoutEffect =
  */
 export function VersioningSidebarList() {
   const Components = useComponentsContext()!;
+  const editor = useBlockNoteEditor();
   const dict = useDictionary();
   const { namedOnly, loadingIndicator, run } = useVersioningSidebar();
   const previewRow = usePreviewRow();
@@ -134,7 +136,13 @@ export function VersioningSidebarList() {
         aria-busy={listing || undefined}
         ref={listRef}
         onBlur={(event) => {
-          if (!event.currentTarget.contains(event.relatedTarget)) {
+          // Registered editor menus can live outside the list's DOM.
+          const target = event.relatedTarget;
+          const inEditorMenu =
+            target &&
+            editor.isWithinEditor(target) &&
+            target.closest('[role="menu"]');
+          if (!event.currentTarget.contains(target) && !inEditorMenu) {
             focusedRowId.current = undefined;
           }
         }}

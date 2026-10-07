@@ -1,4 +1,4 @@
-import { StrictMode, act, useEffect, type ReactElement } from "react";
+import { StrictMode, act, useEffect, useState, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { BlockNoteEditor } from "@blocknote/core";
 import {
@@ -1689,6 +1689,84 @@ describe("VersioningSidebar", () => {
   // -------------------------------------------------------------------------
 
   describe("row actions", () => {
+    it("focuses the editable editor after restoring and dismissing history", async () => {
+      const fake = createFakeEndpoints();
+      const editor = createEditor(fake.endpoints);
+      function View() {
+        const [open, setOpen] = useState(true);
+        return (
+          <VersioningTestView editor={editor}>
+            {open && <VersioningSidebar onClose={() => setOpen(false)} />}
+          </VersioningTestView>
+        );
+      }
+      render(<View />);
+      await act(async () => {});
+      await click(await openMenuItem(rows()[1]!, /^Restore$/));
+
+      expect(rows()).toHaveLength(0);
+      expect(editor.isEditable).toBe(true);
+      expect(editor.isFocused()).toBe(true);
+    });
+
+    it.each(["selected", "unselected"])(
+      "focuses the nearest remaining row after deleting a %s row from its portaled menu",
+      async (selection) => {
+        const { editor } = await setup({
+          snapshotMenu: (
+            <VersionMenu>
+              {/* Custom menu focus handlers need not bubble back to the row. */}
+              <div onFocus={(event) => event.stopPropagation()}>
+                <DefaultVersionMenuItems />
+              </div>
+            </VersionMenu>
+          ),
+        });
+        if (selection === "selected") {
+          await click(rows()[1]!);
+        }
+        const nextRow = rows()[2]!;
+        const item = await openMenuItem(rows()[1]!, /^Delete$/);
+        await act(async () => item.focus());
+        expect(document.activeElement).toBe(item);
+        expect(page.getByRole("list").element().contains(item)).toBe(false);
+        expect(editor.isWithinEditor(item)).toBe(true);
+        await click(item);
+
+        expect(rows()).toHaveLength(2);
+        expect(document.activeElement).toBe(nextRow);
+        expect(nextRow.tabIndex).toBe(0);
+      },
+    );
+
+    it("does not reclaim focus after leaving a row's portaled menu before a programmatic delete", async () => {
+      const { editor } = await setup();
+      const item = await openMenuItem(rows()[1]!, /^Delete$/);
+      const close = page
+        .getByRole("button", { name: "Turn on comparison", exact: true })
+        .element();
+      await act(async () => {
+        item.focus();
+        close.focus();
+        close.blur();
+        await mode(editor).remove(NAMED.id);
+      });
+
+      expect(rows()).toHaveLength(2);
+      expect(document.activeElement).toBe(document.body);
+    });
+
+    it("does not move focus when an unrelated row is deleted programmatically", async () => {
+      const { editor } = await setup();
+      const current = rows()[0]!;
+      await act(async () => {
+        current.focus();
+        await mode(editor).remove(NAMED.id);
+      });
+
+      expect(document.activeElement).toBe(current);
+    });
+
     it.each([
       { namedOnly: true, selection: "deleted" },
       { namedOnly: true, selection: "baseline" },

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import * as Y from "@y/y";
-import { decodeAny } from "lib0/buffer";
+import { decodeAny, encodeAny } from "lib0/buffer";
 import { seedSampleDocument } from "./sampleDocument.js";
 
 beforeEach(() => localStorage.clear());
@@ -9,14 +9,60 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-it.each([false, true])(
-  "replays partial seeding without duplicate content or versions (lost response: %s)",
-  async (lostResponse) => {
+it.each([
+  { lostResponse: false, failAt: "patch" },
+  { lostResponse: true, failAt: "patch" },
+  { lostResponse: false, failAt: "checkpoint" },
+  { lostResponse: true, failAt: "checkpoint" },
+])(
+  "replays partial seeding without duplicate content or native checkpoints ($failAt, lost response: $lostResponse)",
+  async ({ lostResponse, failAt }) => {
     const remote = new Y.Doc({ gc: false });
     const requests: Uint8Array[] = [];
     const urls: string[] = [];
+    const checkpoints = new Map<number, string>();
+    let checkpointPosts = 0;
     let failed = false;
     vi.stubGlobal("fetch", async (url: string, init: RequestInit) => {
+      if (url.includes("/version/v1/")) {
+        if (!init) {
+          const at = Number(new URL(url).searchParams.get("from"));
+          return new Response(
+            encodeAny({
+              versions: checkpoints.has(at)
+                ? [{ t: at, name: checkpoints.get(at) }]
+                : [],
+            }) as BodyInit,
+          );
+        }
+        expect(init.method).toBe("POST");
+        if (!(init.body instanceof Uint8Array)) {
+          throw new Error("Expected a binary checkpoint request");
+        }
+        const checkpoint: unknown = decodeAny(init.body);
+        if (
+          typeof checkpoint !== "object" ||
+          checkpoint === null ||
+          !("t" in checkpoint) ||
+          typeof checkpoint.t !== "number" ||
+          !("name" in checkpoint) ||
+          typeof checkpoint.name !== "string"
+        ) {
+          throw new Error("Expected native checkpoint metadata");
+        }
+        expect(checkpoints.has(checkpoint.t)).toBe(false);
+        checkpointPosts++;
+        const fail =
+          failAt === "checkpoint" && !failed && checkpointPosts === 2;
+        if (!fail || lostResponse) {
+          checkpoints.set(checkpoint.t, checkpoint.name);
+        }
+        if (fail) {
+          failed = true;
+          return new Response(null, { status: 503 });
+        }
+        return new Response(null, { status: 200 });
+      }
       if (!(init.body instanceof Uint8Array)) {
         throw new Error("Expected a binary seed update");
       }
@@ -31,7 +77,7 @@ it.each([false, true])(
       ) {
         throw new Error("Expected an encoded Yjs update");
       }
-      const fail = !failed && requests.length === 2;
+      const fail = failAt === "patch" && !failed && requests.length === 2;
       if (!fail || lostResponse) {
         Y.applyUpdate(remote, payload.update);
       }
@@ -51,13 +97,18 @@ it.each([false, true])(
     );
     expect(requests[2]).toEqual(requests[0]);
     expect(requests[3]).toEqual(requests[1]);
-    expect(remote.get("__bn_versions").toArray()).toHaveLength(3);
+    expect([...checkpoints.values()]).toEqual([
+      "First draft",
+      "Added dates",
+      "Marketing review",
+    ]);
+    expect(remote.get("__bn_versions").toArray()).toHaveLength(0);
     const contents = remote.get().toJSON();
     const state = Y.encodeStateVector(remote);
     await seedSampleDocument(options);
     expect(remote.get().toJSON()).toEqual(contents);
     expect(Y.encodeStateVector(remote)).toEqual(state);
-    expect(remote.get("__bn_versions").toArray()).toHaveLength(3);
+    expect(checkpoints.size).toBe(3);
     remote.destroy();
   },
 );

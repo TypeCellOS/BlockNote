@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { useVersioning } from "./useVersioning.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import type {
   VersionError,
   VersionOperationResult,
@@ -82,6 +83,7 @@ export function VersioningSidebarProvider(props: {
   // Comparison availability is driven by the extension/adapter, not the host —
   // backends that can't diff documents report `canCompare: false`.
   const versioning = useVersioning();
+  const editor = useBlockNoteEditor();
   const { canCompare } = versioning;
 
   const [namedOnly, setNamedOnly] = useState(props.defaultNamedOnly ?? false);
@@ -155,6 +157,7 @@ export function VersioningSidebarProvider(props: {
       dismiss: () => {
         close();
         if (onClose) {
+          editor.focus();
           onClose();
         } else {
           versioning.open();
@@ -179,6 +182,7 @@ export function VersioningSidebarProvider(props: {
       onClose,
       onError,
       versioning,
+      editor,
       focusNameFor,
     ],
   );

@@ -18,7 +18,9 @@ import { YHUB_API_URL } from "./yhub.js";
 
 // Set once the sample document has been created, so deleting every document
 // leaves the workspace empty rather than bringing the sample back.
-const SEEDED_KEY = "bn-multi-doc-seeded";
+function seededKey(workspaceId: string) {
+  return `bn-multi-doc-seeded:${workspaceId}`;
+}
 
 export default function App() {
   const user = useCurrentUser();
@@ -48,7 +50,14 @@ export default function App() {
   const workspaceId = seg1;
   const docId = seg2 || null;
 
-  return <Workspace user={user} workspaceId={workspaceId} docId={docId} />;
+  return (
+    <Workspace
+      key={workspaceId}
+      user={user}
+      workspaceId={workspaceId}
+      docId={docId}
+    />
+  );
 }
 
 function Workspace({
@@ -60,7 +69,7 @@ function Workspace({
   workspaceId: string;
   docId: string | null;
 }) {
-  const index = useDocIndex();
+  const index = useDocIndex(workspaceId, docId);
   const activeDoc = docId ? index.docs.find((d) => d.id === docId) : null;
   const [copied, setCopied] = useState(false);
 
@@ -79,7 +88,7 @@ function Workspace({
           baseUrl: YHUB_API_URL,
           org: workspaceId,
         })) ||
-      localStorage.getItem(SEEDED_KEY) ||
+      localStorage.getItem(seededKey(workspaceId)) ||
       seedStartedRef.current
     ) {
       return;
@@ -92,7 +101,7 @@ function Workspace({
     })
       .then((id) => {
         index.ensure(id, SAMPLE_DOCUMENT_TITLE);
-        localStorage.setItem(SEEDED_KEY, "1");
+        localStorage.setItem(seededKey(workspaceId), "1");
         setSeedStatus("idle");
         navigate(`/w/${workspaceId}/${id}`);
       })
@@ -138,7 +147,8 @@ function Workspace({
 
   const signOut = () => {
     setCurrentUser(null);
-    navigate("/");
+    // Keep the workspace/document route as the login redirect, including
+    // across reloads. Signing out changes identity, not document ownership.
   };
 
   const switchUser = (id: string) => {

@@ -67,6 +67,7 @@ function ToolbarButton(
 type MenuState = {
   id: string;
   open: boolean;
+  portalElement: ComponentProps["Generic"]["Menu"]["Root"]["portalElement"];
   setOpen(open: boolean): void;
 };
 
@@ -80,6 +81,7 @@ function MenuRoot(props: ComponentProps["Generic"]["Menu"]["Root"]) {
       value={{
         id,
         open,
+        portalElement: props.portalElement,
         setOpen(next) {
           setOpen(next);
           props.onOpenChange?.(next);
@@ -118,12 +120,14 @@ function MenuDropdown(props: ComponentProps["Generic"]["Menu"]["Dropdown"]) {
   if (!menu.open) {
     return null;
   }
-  return createPortal(
+  const dropdown = (
     <div id={menu.id} className={props.className} role="menu">
       {props.children}
-    </div>,
-    document.body,
+    </div>
   );
+  return menu.portalElement
+    ? createPortal(dropdown, menu.portalElement)
+    : dropdown;
 }
 
 function MenuItem(props: ComponentProps["Generic"]["Menu"]["Item"]) {

@@ -59,46 +59,41 @@ function getBatchedTimestamp(userName: string): number {
   return batchTimestamps.get(userName)!;
 }
 
-// Track attributions per user for each doc
+// Record attribution before observers render local changes. The update event is
+// too late for the local suggestion marks, though remote peers see the metadata.
 function trackAttributions(
   trackedDoc: Y.Doc,
   userName: string,
   attributions: Y.ContentMap,
 ) {
-  trackedDoc.on(
-    "update",
-    (
-      update: Uint8Array,
-      _origin: unknown,
-      _ydoc: Y.Doc,
-      tr: { local: boolean },
-    ) => {
-      if (!tr.local) return;
-      const contentIds = Y.createContentIdsFromUpdate(update);
-      const timestamp = getBatchedTimestamp(userName);
-      Y.insertIntoIdMap(
-        attributions.inserts,
-        Y.createIdMapFromIdSet(contentIds.inserts, [
-          Y.createContentAttribute("insert", userName),
-          Y.createContentAttribute("insertAt", timestamp),
-        ]),
-      );
-      Y.insertIntoIdMap(
-        attributions.deletes,
-        Y.createIdMapFromIdSet(contentIds.deletes, [
-          Y.createContentAttribute("delete", userName),
-          Y.createContentAttribute("deleteAt", timestamp),
-        ]),
-      );
-    },
-  );
+  trackedDoc.on("beforeObserverCalls", (tr) => {
+    if (!tr.local) return;
+    const timestamp = getBatchedTimestamp(userName);
+    Y.insertIntoIdMap(
+      attributions.inserts,
+      Y.createIdMapFromIdSet(tr.insertSet, [
+        Y.createContentAttribute("insert", userName),
+        Y.createContentAttribute("insertAt", timestamp),
+      ]),
+    );
+    Y.insertIntoIdMap(
+      attributions.deletes,
+      Y.createIdMapFromIdSet(tr.deleteSet, [
+        Y.createContentAttribute("delete", userName),
+        Y.createContentAttribute("deleteAt", timestamp),
+      ]),
+    );
+  });
 }
 
 // Track local changes on each doc with a distinct user name
 trackAttributions(doc, "Alice", attrs);
 trackAttributions(doc2, "Bob", attrs);
 
+// Register attribution tracking before the renderers' beforeObserverCalls
+// listeners so they see the local author's metadata on their first render.
 const suggestingDoc = new Y.Doc({ isSuggestionDoc: true });
+trackAttributions(suggestingDoc, "Charlie", attrs);
 const suggestingProvider = {
   awareness: new Awareness(suggestingDoc),
 };
@@ -112,6 +107,7 @@ const suggestingRenderer = Y.createDiffRenderer(doc, suggestingDoc, {
 suggestingRenderer.suggestionMode = false;
 
 const suggestionModeDoc = new Y.Doc({ isSuggestionDoc: true });
+trackAttributions(suggestionModeDoc, "Debbie", attrs);
 const suggestionModeProvider = {
   awareness: new Awareness(suggestionModeDoc),
 };
@@ -123,10 +119,6 @@ const suggestionModeRenderer = Y.createDiffRenderer(doc, suggestionModeDoc, {
   attributions: attrs,
 });
 suggestionModeRenderer.suggestionMode = true;
-
-// Track local changes on suggestion docs with distinct user names
-trackAttributions(suggestingDoc, "Charlie", attrs);
-trackAttributions(suggestionModeDoc, "Debbie", attrs);
 
 // Function to sync two documents
 function syncDocs(sourceDoc: Y.Doc, targetDoc: Y.Doc) {

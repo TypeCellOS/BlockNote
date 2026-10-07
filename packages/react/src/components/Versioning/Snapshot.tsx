@@ -18,6 +18,7 @@ import { VersionName } from "./VersionName.js";
 import { useVersioningSidebar } from "./VersioningSidebarContext.js";
 import { VersionSnapshotProvider } from "./VersionSnapshotContext.js";
 import { getVersionSelection } from "./visibleHistory.js";
+import { useReconcileComparison } from "./useReconcileComparison.js";
 
 /** Whether `view` is showing this row's version. */
 function getSnapshotState(
@@ -89,10 +90,11 @@ export function Snapshot(props: {
   const Components = useComponentsContext()!;
   const portalElement = usePortalElement();
   const dict = useDictionary();
-  const { create, rename, canCreate, canRename } = useVersioning();
+  const { create, rename, canCreate, canRename, store } = useVersioning();
   const { snapshotMenu, run, focusNameFor, setFocusNameFor } =
     useVersioningSidebar();
   const previewRow = usePreviewRow();
+  const reconcileComparison = useReconcileComparison();
 
   const view = useVersioningState();
   const selection = getVersionSelection(view, snapshot, isCurrent);
@@ -169,8 +171,16 @@ export function Snapshot(props: {
   }
 
   async function commitName(name: string | undefined) {
-    const result = await run(() =>
-      selection.type === "current" ? create(name) : rename(selection.id, name),
+    const before = store.state;
+    const result = await run(
+      () =>
+        selection.type === "current"
+          ? create(name)
+          : rename(selection.id, name),
+      () =>
+        selection.type === "snapshot"
+          ? reconcileComparison(before, selection.id)
+          : undefined,
     );
     return result.status === "done";
   }
