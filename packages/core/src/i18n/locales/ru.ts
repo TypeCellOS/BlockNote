@@ -242,6 +242,7 @@ export const ru: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "Пустой переключатель. Нажмите, чтобы добавить блок.",
+    toggle_button_label: "Развернуть или свернуть",
   },
   code_block: {
     add_source_button_text: "Добавить исходный код",

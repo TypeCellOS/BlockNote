@@ -239,6 +239,7 @@ export const ja: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "空のトグルです。クリックしてブロックを追加。",
+    toggle_button_label: "展開または折りたたみ",
   },
   code_block: {
     add_source_button_text: "ソースコードを追加",

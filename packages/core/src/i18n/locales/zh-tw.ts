@@ -240,6 +240,7 @@ export const zhTW: Dictionary = {
   },
   toggle_blocks: {
     add_block_button: "空的切換區。點擊新增區塊。",
+    toggle_button_label: "展開或收合",
   },
   code_block: {
     add_source_button_text: "新增原始碼",
