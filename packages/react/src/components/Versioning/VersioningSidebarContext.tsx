@@ -111,24 +111,31 @@ export function VersioningSidebarProvider(props: {
       }
       const generation = ++actionGeneration.current;
       setAction({ status: "pending" });
-      let outcome = await action();
-      if (
-        generation === actionGeneration.current &&
-        outcome.status === "done"
-      ) {
-        const followUp = await onSuccess?.();
-        if (followUp) {
-          outcome = followUp;
+      try {
+        let outcome = await action();
+        if (
+          generation === actionGeneration.current &&
+          outcome.status === "done"
+        ) {
+          const followUp = await onSuccess?.();
+          if (followUp) {
+            outcome = followUp;
+          }
         }
+        if (generation === actionGeneration.current) {
+          setAction(
+            outcome.status === "error"
+              ? outcome
+              : { status: outcome.status === "done" ? "success" : "idle" },
+          );
+        }
+        return outcome;
+      } catch (error) {
+        if (generation === actionGeneration.current) {
+          setAction({ status: "idle" });
+        }
+        throw error;
       }
-      if (generation === actionGeneration.current) {
-        setAction(
-          outcome.status === "error"
-            ? outcome
-            : { status: outcome.status === "done" ? "success" : "idle" },
-        );
-      }
-      return outcome;
     },
     [versioning],
   );

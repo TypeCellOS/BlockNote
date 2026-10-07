@@ -207,14 +207,35 @@ function rows() {
 /** Capture the action runner so rejected promises can be asserted by the test. */
 async function setupWithRun(fake = createFakeEndpoints()) {
   let run!: VersioningSidebarContextValue["run"];
+  let action!: VersioningSidebarContextValue["action"];
   function CaptureRun() {
     const context = useVersioningSidebar();
     useEffect(() => {
       run = context.run;
     }, [context.run]);
+    useEffect(() => {
+      action = context.action;
+    }, [context.action]);
     return null;
   }
-  return { ...(await setup({ loadingIndicator: <CaptureRun /> }, fake)), run };
+  return {
+    ...(await setup(
+      {
+        loadingIndicator: <CaptureRun />,
+        snapshotMenu: (
+          <>
+            <CaptureRun />
+            <VersionMenu />
+          </>
+        ),
+      },
+      fake,
+    )),
+    run,
+    get action() {
+      return action;
+    },
+  };
 }
 
 /**
@@ -684,14 +705,17 @@ describe("VersioningSidebar", () => {
   });
 
   it("propagates an action failure without showing a fetch error", async () => {
-    const { run } = await setupWithRun();
+    const runner = await setupWithRun();
     const cause = new Error("code bug");
     const onSuccess = vi.fn();
-    await expect(
-      run(async () => {
-        throw cause;
-      }, onSuccess),
-    ).rejects.toBe(cause);
+    await act(async () => {
+      await expect(
+        runner.run(async () => {
+          throw cause;
+        }, onSuccess),
+      ).rejects.toBe(cause);
+    });
+    expect(runner.action).toEqual({ status: "idle" });
     expect(onSuccess).not.toHaveBeenCalled();
     expect(page.getByRole("alert").query()).toBeNull();
   });
@@ -979,18 +1003,50 @@ describe("VersioningSidebar", () => {
   );
 
   it("propagates a follow-up failure without showing a fetch error", async () => {
-    const { run } = await setupWithRun();
+    const runner = await setupWithRun();
     const cause = new Error("follow-up bug");
-    await expect(
-      run(
-        async () => ({ status: "done" }),
-        async () => {
-          throw cause;
-        },
-      ),
-    ).rejects.toBe(cause);
+    await act(async () => {
+      await expect(
+        runner.run(
+          async () => ({ status: "done" }),
+          async () => {
+            throw cause;
+          },
+        ),
+      ).rejects.toBe(cause);
+    });
+    expect(runner.action).toEqual({ status: "idle" });
     expect(page.getByRole("alert").query()).toBeNull();
   });
+
+  it.each(["action", "follow-up"] as const)(
+    "does not reset a newer action when a stale %s throws",
+    async (source) => {
+      const runner = await setupWithRun();
+      const pending = deferred<void>();
+      const cause = new Error("stale failure");
+      async function fail(): Promise<never> {
+        await pending.promise;
+        throw cause;
+      }
+      let stale!: ReturnType<typeof runner.run>;
+      await act(async () => {
+        stale =
+          source === "action"
+            ? runner.run(fail)
+            : runner.run(async () => ({ status: "done" }), fail);
+      });
+      await act(async () => {
+        await runner.run(async () => ({ status: "done" }));
+      });
+      expect(runner.action).toEqual({ status: "success" });
+      await act(async () => {
+        pending.resolve();
+        await expect(stale).rejects.toBe(cause);
+      });
+      expect(runner.action).toEqual({ status: "success" });
+    },
+  );
 
   it.each(["cancelled", "unavailable"] as const)(
     "does not run success callbacks for a %s action",

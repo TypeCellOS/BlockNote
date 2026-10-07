@@ -67,7 +67,7 @@ export function createVersioning<Content, Attributions>(options: {
       });
     } catch (error) {
       if (!session) {
-        setReadOnly(false);
+        setReadOnly(restoring);
       }
       throw error;
     } finally {

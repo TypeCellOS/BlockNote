@@ -325,6 +325,26 @@ it("restores live content once, blocks selection, then closes version mode", asy
   expect(setReadOnly).toHaveBeenLastCalledWith(false);
 });
 
+it("keeps the editor read-only when reopening fails during restore", async () => {
+  const pending = deferred<VersionResult<void>>();
+  const { mode, open, setReadOnly } = setup({
+    restore: () => pending.promise,
+  });
+  mode.open();
+  const restoring = mode.restore("old");
+  mode.close();
+  const cause = new Error("opening failed");
+  open.mockImplementationOnce(() => {
+    throw cause;
+  });
+  expect(() => mode.open()).toThrow(cause);
+  expect(mode.store.state).toEqual({ mode: "live" });
+  expect(setReadOnly).toHaveBeenLastCalledWith(true);
+  pending.resolve(success(undefined));
+  expect(await restoring).toEqual({ status: "done" });
+  expect(setReadOnly).toHaveBeenLastCalledWith(false);
+});
+
 it("releases the restore lock if publishing busy state throws", async () => {
   const restore = vi.fn(async () => success(undefined));
   const { mode } = setup({ restore });
