@@ -379,8 +379,30 @@ class ColumnResizePluginView implements PluginView {
   }
 }
 
-const createColumnResizePlugin = (editor: BlockNoteEditor<any, any, any>) =>
-  new Plugin({
+function refreshColumn<T extends ColumnData>(
+  column: T,
+  doc: Node,
+): T | undefined {
+  const current = getNodeById(column.id, doc);
+  return current && { ...column, ...current };
+}
+
+function refreshColumnPair<T extends ColumnHoverState | ColumnResizeState>(
+  state: T,
+  columnList: ColumnData,
+  doc: Node,
+): T | ColumnDefaultState {
+  const leftColumn = refreshColumn(state.leftColumn, doc);
+  const rightColumn = refreshColumn(state.rightColumn, doc);
+  return leftColumn && rightColumn
+    ? { ...state, columnList, leftColumn, rightColumn }
+    : { type: "default" };
+}
+
+export function createColumnResizePlugin(
+  editor: BlockNoteEditor<any, any, any>,
+) {
+  return new Plugin({
     key: columnResizePluginKey,
     props: {
       decorations: (state) => {
@@ -427,16 +449,33 @@ const createColumnResizePlugin = (editor: BlockNoteEditor<any, any, any>) =>
     },
     state: {
       init: () => ({ type: "default" }) as ColumnState,
-      apply: (tr, oldPluginState) => {
+      apply: (tr, oldPluginState): ColumnState => {
         const newPluginState = tr.getMeta(columnResizePluginKey) as
           | ColumnState
           | undefined;
 
-        return newPluginState === undefined ? oldPluginState : newPluginState;
+        if (newPluginState !== undefined) {
+          return newPluginState;
+        }
+        if (!tr.docChanged || oldPluginState.type === "default") {
+          return oldPluginState;
+        }
+
+        // Drops can remove or move hovered columns before the next mouse event.
+        // Refresh positions and node sizes before decorations use them.
+        const columnList = refreshColumn(oldPluginState.columnList, tr.doc);
+        if (!columnList) {
+          return { type: "default" };
+        }
+        if (oldPluginState.type === "hover-column-list") {
+          return { ...oldPluginState, columnList };
+        }
+        return refreshColumnPair(oldPluginState, columnList, tr.doc);
       },
     },
     view: (view) => new ColumnResizePluginView(editor, view),
   });
+}
 
 export const createColumnResizeExtension = (
   editor: BlockNoteEditor<any, any, any>,
