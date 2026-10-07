@@ -145,10 +145,8 @@ export function Snapshot(props: {
     }
   }, [focusNameFor, setFocusNameFor, snapshot.id, editable, selected]);
 
-  // Only the selected row is loading: `status` carries the view being switched
-  // to, which is exactly the row the user clicked. Announced on the row only;
-  // what the eye gets is the editor, which the extension marks for every load
-  // (see LOADING_PREVIEW_CLASS).
+  // Announce loading on the pending row. The extension shows the editor's
+  // loading indicator for the entire pending selection.
   const loading =
     view.mode === "versions" &&
     view.pending !== undefined &&

@@ -110,7 +110,18 @@ export function createVersioningExtension<
         return getConfiguration().userStore;
       },
       mount() {
-        return () => mode.close();
+        const unsubscribe = mode.store.subscribe(({ currentVal }) => {
+          editor.domElement?.classList.toggle(
+            "bn-loading",
+            currentVal.mode === "versions" && currentVal.pending !== undefined,
+          );
+        });
+
+        return () => {
+          mode.close();
+          unsubscribe();
+          editor.domElement?.classList.remove("bn-loading");
+        };
       },
     });
   });

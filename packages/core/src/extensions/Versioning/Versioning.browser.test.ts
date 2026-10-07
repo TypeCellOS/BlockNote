@@ -14,7 +14,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-function setup(scrollToFirstChange = true) {
+function setup(scrollToFirstChange = true, loadContent?: () => Promise<void>) {
   const source = BlockNoteEditor.create({
     initialContent: [
       { id: "paragraph", type: "paragraph", content: "Old text" },
@@ -24,15 +24,25 @@ function setup(scrollToFirstChange = true) {
   source.updateBlock("paragraph", { content: "Changed text" });
   const after = source.prosemirrorState.doc.toJSON();
   source._tiptapEditor.destroy();
-  const Versions = createVersioningExtension((editor) => ({
-    ...createLocalVersioning(editor, {
+  const Versions = createVersioningExtension((editor) => {
+    const local = createLocalVersioning(editor, {
       initialVersions: [
         { content: before, createdAt: 1 },
         { content: after, createdAt: 2 },
       ],
-    }),
-    scrollToFirstChange,
-  }));
+    });
+    return {
+      ...local,
+      storage: {
+        ...local.storage,
+        async getContent(id, signal) {
+          await loadContent?.();
+          return local.storage.getContent(id, signal);
+        },
+      },
+      scrollToFirstChange,
+    };
+  });
   const editor = BlockNoteEditor.create({
     initialContent: [
       { id: "paragraph", type: "paragraph", content: "Live text" },
@@ -86,4 +96,56 @@ it("honors disabling automatic diff scrolling", async () => {
   await mode.select({ type: "snapshot", id: "2" }, { compareTo: "1" });
   await vi.advanceTimersByTimeAsync(SCROLL_TO_FIRST_CHANGE_DELAY_MS);
   expect(scroll).not.toHaveBeenCalled();
+});
+
+it("shows the preview loader immediately and clears it on success", async () => {
+  const { promise, resolve } = Promise.withResolvers<void>();
+  const { editor, mode } = setup(true, () => promise);
+  const selection = mode.select({ type: "snapshot", id: "1" });
+  expect(editor.domElement!.classList.contains("bn-loading")).toBe(true);
+  resolve();
+  await selection;
+  expect(editor.domElement!.classList.contains("bn-loading")).toBe(false);
+});
+
+it("clears the preview loader even for a fast selection", async () => {
+  const { editor, mode } = setup();
+  const selection = mode.select({ type: "snapshot", id: "1" });
+  expect(editor.domElement!.classList.contains("bn-loading")).toBe(true);
+  await selection;
+  expect(editor.domElement!.classList.contains("bn-loading")).toBe(false);
+});
+
+it("keeps the loader visible across successive selections", async () => {
+  const { promise, resolve } = Promise.withResolvers<void>();
+  const { editor, mode } = setup(true, () => promise);
+  const first = mode.select({ type: "snapshot", id: "1" });
+  const second = mode.select({ type: "snapshot", id: "2" });
+  expect(editor.domElement!.classList.contains("bn-loading")).toBe(true);
+  const third = mode.select({ type: "snapshot", id: "1" });
+  expect(editor.domElement!.classList.contains("bn-loading")).toBe(true);
+  resolve();
+  await Promise.all([first, second, third]);
+  expect(editor.domElement!.classList.contains("bn-loading")).toBe(false);
+});
+
+it("clears the preview loader when closing history", async () => {
+  const { promise, resolve } = Promise.withResolvers<void>();
+  const { editor, mode } = setup(true, () => promise);
+  const selection = mode.select({ type: "snapshot", id: "1" });
+  expect(editor.domElement!.classList.contains("bn-loading")).toBe(true);
+  mode.close();
+  expect(editor.domElement!.classList.contains("bn-loading")).toBe(false);
+  resolve();
+  await selection;
+});
+
+it("clears the preview loader when a snapshot cannot be loaded", async () => {
+  const { promise, resolve } = Promise.withResolvers<void>();
+  const { editor, mode } = setup(true, () => promise);
+  const selection = mode.select({ type: "snapshot", id: "missing" });
+  expect(editor.domElement!.classList.contains("bn-loading")).toBe(true);
+  resolve();
+  expect(await selection).toMatchObject({ status: "error" });
+  expect(editor.domElement!.classList.contains("bn-loading")).toBe(false);
 });
