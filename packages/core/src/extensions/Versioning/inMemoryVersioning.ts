@@ -210,6 +210,7 @@ export function createLocalVersioning<
       },
     },
     storage: {
+      historyIncludesBeginning: true,
       async list(signal) {
         signal.throwIfAborted();
         return {

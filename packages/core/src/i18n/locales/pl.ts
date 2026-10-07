@@ -409,6 +409,8 @@ export const pl: Dictionary = {
       `Zmiana formatowania (${formats}) przez: ${users}`,
   },
   versioning: {
+    start_of_document: "Początek dokumentu",
+    compare_since_beginning_menuitem: "Porównaj od początku",
     title: "Historia",
     close: "Zamknij",
     show_named_only: "Pokaż tylko nazwane wersje",

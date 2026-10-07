@@ -419,6 +419,8 @@ export const nl: Dictionary = {
       `Opmaakwijziging (${formats}) door: ${users}`,
   },
   versioning: {
+    start_of_document: "Begin van document",
+    compare_since_beginning_menuitem: "Vergelijken vanaf het begin",
     title: "Geschiedenis",
     close: "Sluiten",
     show_named_only: "Alleen benoemde versies tonen",

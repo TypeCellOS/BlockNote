@@ -442,6 +442,8 @@ export const uk: Dictionary = {
       `Зміна форматування (${formats}) користувачем: ${users}`,
   },
   versioning: {
+    start_of_document: "Початок документа",
+    compare_since_beginning_menuitem: "Порівняти від початку",
     title: "Історія",
     close: "Закрити",
     show_named_only: "Показувати лише названі версії",

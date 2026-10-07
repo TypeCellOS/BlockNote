@@ -82,7 +82,7 @@ export function createYHubVersionStorage(
     }
     return value;
   }
-  function activity(signal?: AbortSignal, overrides?: YHubQueryParams) {
+  function getHistoryList(signal?: AbortSignal, overrides?: YHubQueryParams) {
     return client.getActivity(
       {
         order: "desc",
@@ -100,14 +100,39 @@ export function createYHubVersionStorage(
   }
   return {
     showCurrentVersion: false,
+    historyIncludesBeginning: true,
     async list(signal) {
-      const result = await activity(signal);
-      if (!result.ok) {
-        return result;
+      const [historyList, firstSnapshotResult] = await Promise.all([
+        getHistoryList(signal),
+        client.getActivity(
+          {
+            from: 0,
+            order: "asc",
+            limit: 1,
+            group: false,
+            versions: true,
+            customAttributions: true,
+          },
+          signal,
+        ),
+      ]);
+      if (!historyList.ok) {
+        return historyList;
+      }
+      if (!firstSnapshotResult.ok) {
+        return firstSnapshotResult;
+      }
+      const entries = [...historyList.value];
+      const firstSnapshot = firstSnapshotResult.value[0];
+      if (
+        firstSnapshot &&
+        !entries.some((entry) => entry.to === firstSnapshot.to)
+      ) {
+        entries.push(firstSnapshot);
       }
       return {
         ok: true,
-        value: result.value.map((entry): VersionSnapshot => {
+        value: entries.map((entry): VersionSnapshot => {
           const custom = entry.version?.custom;
           const restoredFrom =
             custom !== null &&
@@ -148,7 +173,7 @@ export function createYHubVersionStorage(
         : result;
     },
     async create(content, name) {
-      const history = await activity(undefined, { limit: 1 });
+      const history = await getHistoryList(undefined, { limit: 1 });
       if (!history.ok) {
         return history;
       }
@@ -200,7 +225,7 @@ export function createYHubVersionStorage(
     async restore(id) {
       const to = timestamp(id);
       const [before, document] = await Promise.all([
-        activity(undefined, { limit: 1 }),
+        getHistoryList(undefined, { limit: 1 }),
         client.getDocument({ gc: false }),
       ]);
       if (!before.ok) {

@@ -372,6 +372,9 @@ export function createVersioning<Content, Attributions>(options: {
     get canCompare() {
       return adapter.supportsComparison;
     },
+    get historyIncludesBeginning() {
+      return options.storage.historyIncludesBeginning === true;
+    },
     get canCreate() {
       return options.storage.create !== undefined;
     },

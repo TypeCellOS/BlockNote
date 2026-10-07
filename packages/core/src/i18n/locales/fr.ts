@@ -464,6 +464,8 @@ export const fr: Dictionary = {
       `Modification de mise en forme (${formats}) par : ${users}`,
   },
   versioning: {
+    start_of_document: "Début du document",
+    compare_since_beginning_menuitem: "Comparer depuis le début",
     title: "Historique",
     close: "Fermer",
     show_named_only: "Afficher uniquement les versions nommées",

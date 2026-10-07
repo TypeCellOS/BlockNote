@@ -411,6 +411,8 @@ export const pt: Dictionary = {
       `Alteração de formatação (${formats}) por: ${users}`,
   },
   versioning: {
+    start_of_document: "Início do documento",
+    compare_since_beginning_menuitem: "Comparar desde o início",
     title: "Histórico",
     close: "Fechar",
     show_named_only: "Mostrar apenas versões nomeadas",

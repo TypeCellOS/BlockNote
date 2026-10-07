@@ -432,6 +432,8 @@ export const is: Dictionary = {
       `Sniðbreyting (${formats}) af: ${users}`,
   },
   versioning: {
+    start_of_document: "Upphaf skjals",
+    compare_since_beginning_menuitem: "Bera saman frá upphafi",
     title: "Ferill",
     close: "Loka",
     show_named_only: "Sýna aðeins nefndar útgáfur",

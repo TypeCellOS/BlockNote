@@ -440,6 +440,8 @@ export const it: Dictionary = {
       `Modifica formattazione (${formats}) da: ${users}`,
   },
   versioning: {
+    start_of_document: "Inizio del documento",
+    compare_since_beginning_menuitem: "Confronta dall'inizio",
     title: "Cronologia",
     close: "Chiudi",
     show_named_only: "Mostra solo le versioni con nome",

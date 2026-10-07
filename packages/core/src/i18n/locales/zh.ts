@@ -459,6 +459,8 @@ export const zh: Dictionary = {
       `格式更改（${formats}），更改者：${users}`,
   },
   versioning: {
+    start_of_document: "文档开始",
+    compare_since_beginning_menuitem: "从头开始比较",
     title: "历史记录",
     close: "关闭",
     show_named_only: "仅显示已命名的版本",

@@ -106,7 +106,7 @@ export async function seedYHubDocument(
   //    transaction so it sorts first.
   await send({
     update: Y.convertUpdateFormatV2ToV1(build.baseUpdate),
-    at: build.steps[0]?.patches[0]?.at ?? Date.now(),
+    at: (build.steps[0]?.patches[0]?.at ?? Date.now()) - 1,
     customAttributions: [],
   });
 

@@ -81,13 +81,18 @@ function deferred<T>() {
  * Fake endpoints with spies on every verb, plus a gate that holds `list` and
  * `getContent` open so the loading states can be observed.
  */
-function createFakeEndpoints(showCurrentVersion?: boolean) {
-  let snapshots = [NAMED, AUTOMATIC];
+function createFakeEndpoints(showCurrentVersion?: boolean, withStart = false) {
+  let snapshots: VersionSnapshot[] = [
+    NAMED,
+    AUTOMATIC,
+    ...(withStart ? [{ id: "first", createdAt: 0 }] : []),
+  ];
 
   let gate: { promise: Promise<void>; release: () => void } | undefined;
 
   const endpoints = {
     showCurrentVersion,
+    historyIncludesBeginning: withStart,
     list: vi.fn(async () => {
       await gate?.promise;
       return success(snapshots);
@@ -327,6 +332,59 @@ describe("VersioningSidebar", () => {
       }
       entry.host.remove();
     }
+  });
+
+  it("selects and names the first snapshot through the ordinary row controls", async () => {
+    const fake = createFakeEndpoints(undefined, true);
+    const { editor } = await setup({}, fake);
+    const start = rows().at(-1)!;
+    expect(nameText(start)).toBe("Start of document");
+    expect(start.querySelector("button")).not.toBeNull();
+    await click(start);
+    expect(start.getAttribute("aria-current")).toBe("true");
+    expect(nameInput(start)).toBeDefined();
+    expect(nameInput(start).placeholder).toBe("Start of document");
+    expect(mode(editor).store.state).toMatchObject({
+      displayed: { type: "snapshot", id: "first" },
+    });
+    await commit(nameInput(start), "First draft", "Enter");
+    expect(fake.endpoints.rename).toHaveBeenCalledWith("first", "First draft");
+    expect(nameInput(rows().at(-1)!).value).toBe("First draft");
+  });
+
+  it.each([false, true])(
+    "hides compare since beginning on the first version (selected: %s)",
+    async (selected) => {
+      await setup({}, createFakeEndpoints(undefined, true));
+      const first = rows().at(-1)!;
+      if (selected) {
+        await click(first);
+      }
+      const nameItem = await openMenuItem(
+        first,
+        /^(Name this version|Rename)$/,
+      );
+      const menu = nameItem.closest('[role="menu"]')!;
+      expect(
+        page
+          .elementLocator(menu)
+          .getByText("Compare since beginning", { exact: true })
+          .query(),
+      ).toBeNull();
+    },
+  );
+
+  it("compares the menu's version since beginning without selecting Current", async () => {
+    const fake = createFakeEndpoints(undefined, true);
+    const { editor } = await setup({}, fake);
+    const target = rows()[1]!;
+    const item = await openMenuItem(target, /Compare since beginning/);
+    await click(item);
+    expect(mode(editor).store.state).toMatchObject({
+      displayed: { type: "snapshot", id: NAMED.id },
+      compareTo: "first",
+    });
+    expect(rows().at(-1)!.classList.contains("comparing")).toBe(true);
   });
 
   it.each([undefined, "Published"])(

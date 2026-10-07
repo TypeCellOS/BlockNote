@@ -417,6 +417,8 @@ export const vi: Dictionary = {
       `Thay đổi định dạng (${formats}) bởi: ${users}`,
   },
   versioning: {
+    start_of_document: "Bắt đầu tài liệu",
+    compare_since_beginning_menuitem: "So sánh từ đầu",
     title: "Lịch sử",
     close: "Đóng",
     show_named_only: "Chỉ hiển thị các phiên bản đã đặt tên",

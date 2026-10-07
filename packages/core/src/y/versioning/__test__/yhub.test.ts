@@ -70,6 +70,52 @@ it("uses the latest server checkpoint as Current without a separate capture row"
   expect(fetchSpy).not.toHaveBeenCalled();
 });
 
+it("lists the first edit as an ordinary snapshot independently of sidebar filters and grouping", async () => {
+  const { api, doc } = storage({ from: 1500, by: "bob", group: true });
+  doc.get("default").push(["initial content"]);
+  fetchSpy
+    .mockResolvedValueOnce(response({ activity: [latest] }))
+    .mockResolvedValueOnce(response({ activity: [{ ...first, version }] }))
+    .mockResolvedValueOnce(response({ ydoc: Y.encodeStateAsUpdate(doc) }));
+  const versions = resultValue(await api.list(signal));
+  expect(versions).toHaveLength(2);
+  const start = versions[1];
+  expect(start).toMatchObject({
+    id: "1000",
+    createdAt: 1000,
+    by: ["alice"],
+    name: "Milestone",
+    metadata: version.custom,
+    restoredFrom: { id: "42", createdAt: 42 },
+  });
+  const content = resultValue(await api.getContent(start.id, signal));
+  const decoded = new Y.Doc();
+  try {
+    Y.applyUpdateV2(decoded, content);
+    expect(decoded.get("default").toArray()).toEqual(["initial content"]);
+    expect(Object.fromEntries(request(1).url.searchParams)).toEqual({
+      from: "0",
+      order: "asc",
+      limit: "1",
+      group: "false",
+      versions: "true",
+      customAttributions: "true",
+    });
+    expect(request(2).url.searchParams.get("to")).toBe("1000");
+  } finally {
+    decoded.destroy();
+  }
+});
+
+it("lists no snapshots when there are no recorded edits", async () => {
+  fetchSpy.mockImplementation(async () => response({ activity: [] }));
+  expect(await storage().api.list(signal)).toEqual({
+    ok: true,
+    value: [],
+  });
+  expect(fetchSpy).toHaveBeenCalledTimes(2);
+});
+
 it("reloads an unnamed YHub checkpoint as Current on each opening without creating a version", async () => {
   const { api, doc } = storage();
   const show = vi.fn();
@@ -90,6 +136,7 @@ it("reloads an unnamed YHub checkpoint as Current on each opening without creati
   for (let opening = 0; opening < 2; opening++) {
     fetchSpy
       .mockResolvedValueOnce(response({ activity: [latest, first] }))
+      .mockResolvedValueOnce(response({ activity: [first] }))
       .mockResolvedValueOnce(response({ ydoc: Y.encodeStateAsUpdate(doc) }));
     mode.open();
     expect(await mode.list()).toEqual({ status: "done" });
@@ -104,33 +151,35 @@ it("reloads an unnamed YHub checkpoint as Current on each opening without creati
     });
     mode.close();
   }
-  expect(fetchSpy).toHaveBeenCalledTimes(4);
-  for (let index = 0; index < 4; index++) {
+  expect(fetchSpy).toHaveBeenCalledTimes(6);
+  for (let index = 0; index < 6; index++) {
     expect(request(index).method).toBe("GET");
   }
 });
 
 it("lists server checkpoints with their attached versions and empty versions", async () => {
-  fetchSpy.mockResolvedValueOnce(
-    response({
-      activity: [
-        latest,
-        {
-          ...first,
-          by: ["alice", "bob"],
-          version,
-          customAttributions: [{ k: "source", v: "import" }],
-        },
-        {
-          from: 500,
-          to: 500,
-          by: [],
-          version: { ...version, t: 500, name: "Empty" },
-          isEmpty: true,
-        },
-      ],
-    }),
-  );
+  fetchSpy
+    .mockResolvedValueOnce(
+      response({
+        activity: [
+          latest,
+          {
+            ...first,
+            by: ["alice", "bob"],
+            version,
+            customAttributions: [{ k: "source", v: "import" }],
+          },
+          {
+            from: 500,
+            to: 500,
+            by: [],
+            version: { ...version, t: 500, name: "Empty" },
+            isEmpty: true,
+          },
+        ],
+      }),
+    )
+    .mockResolvedValueOnce(response({ activity: [] }));
   expect(resultValue(await storage().api.list(signal))).toMatchObject([
     { id: "2000", by: ["bob"] },
     {
@@ -143,7 +192,7 @@ it("lists server checkpoints with their attached versions and empty versions", a
     },
     { id: "500", by: [], name: "Empty" },
   ]);
-  expect(fetchSpy).toHaveBeenCalledOnce();
+  expect(fetchSpy).toHaveBeenCalledTimes(2);
   expect(request(0).url.searchParams.get("versions")).toBe("true");
   expect(request(0).signal).toBeInstanceOf(AbortSignal);
 });
@@ -151,18 +200,20 @@ it("lists server checkpoints with their attached versions and empty versions", a
 it.each([false, 0, "", ["app"], {}, null].map((custom) => ({ custom })))(
   "preserves each activity entry and its custom metadata $custom",
   async ({ custom }) => {
-    fetchSpy.mockResolvedValueOnce(
-      response({
-        activity: [
-          { ...first, by: "bob", version: { ...version, custom } },
-          {
-            ...first,
-            by: "alice",
-            customAttributions: [{ k: "source", v: "edit" }],
-          },
-        ],
-      }),
-    );
+    fetchSpy
+      .mockResolvedValueOnce(
+        response({
+          activity: [
+            { ...first, by: "bob", version: { ...version, custom } },
+            {
+              ...first,
+              by: "alice",
+              customAttributions: [{ k: "source", v: "edit" }],
+            },
+          ],
+        }),
+      )
+      .mockResolvedValueOnce(response({ activity: [first] }));
     const rows = resultValue(
       await storage({ groupByUser: true }).api.list(signal),
     );
@@ -177,19 +228,21 @@ it.each([false, 0, "", ["app"], {}, null].map((custom) => ({ custom })))(
 );
 
 it("preserves caller activity filters without merging returned entries", async () => {
-  fetchSpy.mockResolvedValueOnce(
-    response({
-      activity: [
-        { ...first, customAttributions: [{ k: "source", v: "import" }] },
-        {
-          ...first,
-          by: ["bob"],
-          version,
-          customAttributions: [{ k: "tag", v: "release" }],
-        },
-      ],
-    }),
-  );
+  fetchSpy
+    .mockResolvedValueOnce(
+      response({
+        activity: [
+          { ...first, customAttributions: [{ k: "source", v: "import" }] },
+          {
+            ...first,
+            by: ["bob"],
+            version,
+            customAttributions: [{ k: "tag", v: "release" }],
+          },
+        ],
+      }),
+    )
+    .mockResolvedValueOnce(response({ activity: [first] }));
   const activityParams = {
     groupExclude: "alice,bob",
     order: "asc",

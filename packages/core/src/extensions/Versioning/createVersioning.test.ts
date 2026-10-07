@@ -78,6 +78,16 @@ it.each([undefined, true, false])(
   },
 );
 
+it.each([undefined, false, true])(
+  "exposes beginning comparisons only when storage guarantees its first version, policy=%s",
+  (historyIncludesBeginning) => {
+    const { mode } = setup({ historyIncludesBeginning });
+    expect(mode.historyIncludesBeginning).toBe(
+      historyIncludesBeginning === true,
+    );
+  },
+);
+
 it("defers storage access and binds detached rename to the original storage", async () => {
   const storage: VersionStorage<string> = {
     async list() {

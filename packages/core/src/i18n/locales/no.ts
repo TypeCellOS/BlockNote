@@ -436,6 +436,8 @@ export const no: Dictionary = {
       `Formateringsendring (${formats}) av: ${users}`,
   },
   versioning: {
+    start_of_document: "Starten av dokumentet",
+    compare_since_beginning_menuitem: "Sammenlign fra begynnelsen",
     title: "Historikk",
     close: "Lukk",
     show_named_only: "Vis bare navngitte versjoner",

@@ -7,6 +7,7 @@ export * from "./components/Versioning/VersionSnapshotContext.js";
 export * from "./components/Versioning/VersionMenu/VersionMenu.js";
 export * from "./components/Versioning/VersionMenu/VersionMenuItem.js";
 export * from "./components/Versioning/VersionMenu/DefaultItems/CompareWithVersionItem.js";
+export * from "./components/Versioning/VersionMenu/DefaultItems/CompareSinceBeginningItem.js";
 export * from "./components/Versioning/VersionMenu/DefaultItems/DeleteVersionItem.js";
 export * from "./components/Versioning/VersionMenu/DefaultItems/NameVersionItem.js";
 export * from "./components/Versioning/VersionMenu/DefaultItems/RestoreVersionItem.js";

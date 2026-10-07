@@ -458,6 +458,8 @@ export const ja: Dictionary = {
       `書式の変更 (${formats}) 変更者: ${users}`,
   },
   versioning: {
+    start_of_document: "ドキュメントの開始",
+    compare_since_beginning_menuitem: "最初から比較",
     title: "履歴",
     close: "閉じる",
     show_named_only: "名前付きバージョンのみ表示",

@@ -387,6 +387,8 @@ export const fa = {
       `تغییر قالب‌بندی (${formats}) توسط: ${users}`,
   },
   versioning: {
+    start_of_document: "آغاز سند",
+    compare_since_beginning_menuitem: "مقایسه از ابتدا",
     title: "تاریخچه",
     close: "بستن",
     show_named_only: "فقط نسخه‌های نام‌گذاری‌شده نمایش داده شود",

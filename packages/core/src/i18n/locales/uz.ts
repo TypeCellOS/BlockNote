@@ -452,6 +452,8 @@ export const uz: Dictionary = {
       `Formatlash o'zgarishi (${formats}), o'zgartirgan: ${users}`,
   },
   versioning: {
+    start_of_document: "Hujjat boshi",
+    compare_since_beginning_menuitem: "Boshidan taqqoslash",
     title: "Tarix",
     close: "Yopish",
     show_named_only: "Faqat nomlangan versiyalarni ko'rsatish",

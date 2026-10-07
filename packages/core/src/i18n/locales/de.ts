@@ -437,6 +437,8 @@ export const de: Dictionary = {
       `Formatierungsänderung (${formats}) von: ${users}`,
   },
   versioning: {
+    start_of_document: "Anfang des Dokuments",
+    compare_since_beginning_menuitem: "Seit Beginn vergleichen",
     title: "Verlauf",
     close: "Schließen",
     show_named_only: "Nur benannte Versionen anzeigen",

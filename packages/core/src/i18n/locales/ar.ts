@@ -403,6 +403,8 @@ export const ar: Dictionary = {
       `تغيير التنسيق (${formats}) بواسطة: ${users}`,
   },
   versioning: {
+    start_of_document: "بداية المستند",
+    compare_since_beginning_menuitem: "المقارنة منذ البداية",
     title: "السجل",
     close: "إغلاق",
     show_named_only: "إظهار الإصدارات المسماة فقط",

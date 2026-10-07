@@ -416,6 +416,8 @@ export const sk = {
       `Zmena formátovania (${formats}) od: ${users}`,
   },
   versioning: {
+    start_of_document: "Začiatok dokumentu",
+    compare_since_beginning_menuitem: "Porovnať od začiatku",
     title: "História",
     close: "Zavrieť",
     show_named_only: "Zobraziť iba pomenované verzie",

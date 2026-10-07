@@ -432,6 +432,8 @@ export const hr: Dictionary = {
       `Promjena oblikovanja (${formats}) od: ${users}`,
   },
   versioning: {
+    start_of_document: "Početak dokumenta",
+    compare_since_beginning_menuitem: "Usporedi od početka",
     title: "Povijest",
     close: "Zatvori",
     show_named_only: "Prikaži samo imenovane verzije",

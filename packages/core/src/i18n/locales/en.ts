@@ -418,6 +418,8 @@ export const en = {
       `Formatting change (${formats}) by: ${users}`,
   },
   versioning: {
+    start_of_document: "Start of document",
+    compare_since_beginning_menuitem: "Compare since beginning",
     title: "History",
     close: "Close",
     show_named_only: "Show named versions only",

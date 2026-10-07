@@ -431,6 +431,8 @@ export const ko: Dictionary = {
       `서식 변경 (${formats}) 변경한 사람: ${users}`,
   },
   versioning: {
+    start_of_document: "문서 시작",
+    compare_since_beginning_menuitem: "처음부터 비교",
     title: "기록",
     close: "닫기",
     show_named_only: "이름이 지정된 버전만 표시",

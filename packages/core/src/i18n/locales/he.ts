@@ -418,6 +418,8 @@ export const he: Dictionary = {
       `שינוי עיצוב (${formats}) על ידי: ${users}`,
   },
   versioning: {
+    start_of_document: "תחילת המסמך",
+    compare_since_beginning_menuitem: "השוואה מההתחלה",
     title: "היסטוריה",
     close: "סגירה",
     show_named_only: "הצג גרסאות בעלות שם בלבד",

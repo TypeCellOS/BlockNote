@@ -462,6 +462,8 @@ export const ru: Dictionary = {
       `Изменение форматирования (${formats}): ${users}`,
   },
   versioning: {
+    start_of_document: "Начало документа",
+    compare_since_beginning_menuitem: "Сравнить с начала",
     title: "История",
     close: "Закрыть",
     show_named_only: "Показывать только именованные версии",

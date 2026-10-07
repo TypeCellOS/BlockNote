@@ -459,6 +459,8 @@ export const zhTW: Dictionary = {
       `格式變更（${formats}），變更者：${users}`,
   },
   versioning: {
+    start_of_document: "文件開始",
+    compare_since_beginning_menuitem: "從頭開始比較",
     title: "版本紀錄",
     close: "關閉",
     show_named_only: "僅顯示已命名的版本",

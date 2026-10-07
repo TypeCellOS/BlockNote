@@ -117,6 +117,8 @@ export interface VersionStorage<Content, Attributions = never> {
    * instead of the local capture, without comparing their content.
    */
   readonly showCurrentVersion?: boolean;
+  /** The list includes the first available recorded version, even when otherwise limited. */
+  readonly historyIncludesBeginning?: boolean;
   /** Load history metadata. The controller sorts it by descending creation time. */
   list(signal: AbortSignal): Promise<VersionResult<VersionSnapshot[]>>;
   /** Load a stored version's content for {@link VersionView.show}. */

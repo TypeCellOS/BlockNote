@@ -90,13 +90,18 @@ export function Snapshot(props: {
   const Components = useComponentsContext()!;
   const portalElement = usePortalElement();
   const dict = useDictionary();
-  const { create, rename, canCreate, canRename, store } = useVersioning();
+  const versioning = useVersioning();
+  const { create, rename, canCreate, canRename, store } = versioning;
   const { snapshotMenu, run, focusNameFor, setFocusNameFor } =
     useVersioningSidebar();
   const previewRow = usePreviewRow();
   const reconcileComparison = useReconcileComparison();
 
   const view = useVersioningState();
+  const isStart =
+    versioning.historyIncludesBeginning &&
+    view.mode === "versions" &&
+    view.history.data?.at(-1)?.id === snapshot.id;
   const selection = getVersionSelection(view, snapshot, isCurrent);
 
   const nameInput = useRef<HTMLInputElement>(null);
@@ -107,7 +112,9 @@ export function Snapshot(props: {
   const secondaryLabel = useSnapshotLabel(snapshot);
   const dateString = formatVersionDate(snapshot.createdAt);
   const rowDate =
-    isCurrent || snapshot.name !== undefined ? dateString : undefined;
+    isCurrent || isStart || snapshot.name !== undefined
+      ? dateString
+      : undefined;
   const restoredFrom =
     snapshot.restoredFrom !== undefined
       ? dict.versioning.restored_from(
@@ -115,13 +122,15 @@ export function Snapshot(props: {
         )
       : undefined;
 
-  // An unnamed version shows its date instead — a bare timestamp is how an
-  // automatic version identifies itself — except the current row, which is a
-  // place in the list rather than a moment.
-  const placeholder = isCurrent ? dict.versioning.current_version : dateString;
+  // Current and the first recorded version have labels; other unnamed versions show their date.
+  const placeholder = isCurrent
+    ? dict.versioning.current_version
+    : isStart
+      ? dict.versioning.start_of_document
+      : dateString;
   const accessibleLabel = [
     snapshot.name ?? placeholder,
-    isCurrent || snapshot.name !== undefined ? dateString : undefined,
+    rowDate,
     comparing ? dict.versioning.comparing_to : undefined,
     secondaryLabel,
   ]
