@@ -363,4 +363,39 @@ describe("version diff of a moved block", () => {
       "Moved: ",
     ]);
   });
+
+  // To be fixed by #3168.
+  it.fails.each([
+    ["Bob", ["[block n1]: alice", "N1: alice", "[block n2]: ", "N2: "]],
+    ["Alice", ["[block n2]: ", "N2: "]],
+  ])(
+    "blames no one for a block lost to cascading indents (%s's saved first)",
+    (first, expected) => {
+      const base = baseDocument([
+        { id: "n0", type: "paragraph", content: "N0" },
+        { id: "n1", type: "paragraph", content: "N1" },
+        { id: "n2", type: "paragraph", content: "N2" },
+      ]);
+      // Alice indents N1 under N0; Bob indents N2 under the N1 that Alice's
+      // indent deletes (moving it under N0), so Bob's N2 is lost with it.
+      const alice = editOf(base, 1, (editor) => {
+        editor.setTextCursorPosition("n1");
+        editor.nestBlock();
+      });
+      const bob = editOf(base, 2, (editor) => {
+        editor.setTextCursorPosition("n2");
+        editor.nestBlock();
+      });
+      const server = history(base);
+      const before =
+        first === "Bob"
+          ? server.apply(bob, "bob")
+          : server.apply(alice, "alice");
+      const after =
+        first === "Bob"
+          ? server.apply(alice, "alice")
+          : server.apply(bob, "bob");
+      expect(deletions(before, after, server.attributions)).toEqual(expected);
+    },
+  );
 });

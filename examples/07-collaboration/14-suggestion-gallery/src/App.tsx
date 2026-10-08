@@ -19,7 +19,7 @@ import { gallerySchema } from "./gallerySchema";
 import {
   buildSuggestionScenarioDocs,
   cloneDoc,
-  createAttributionStore,
+  createVersionMerge,
   docFromBlocks,
 } from "./scenarioDocs";
 import { scenarios, SuggestionScenario } from "./scenarios";
@@ -396,26 +396,15 @@ function VersionMerge({
   applyInitial: boolean;
 }) {
   const [setup] = useState(() => {
-    // Keep deleted content, as a server storing history does, so the diff can
-    // tell content a user deleted from content lost with a deleted parent.
-    const afterDoc = new Y.Doc({ gc: false });
-    Y.applyUpdate(afterDoc, Y.encodeStateAsUpdate(beforeDoc));
-    const ids = new Set(users.map((u) => u.id));
-    // Record which user authored each merged change (by the Yjs origin the
-    // edits are forwarded with), so the Diff can color A's and B's
-    // contributions in their own colors instead of one flat diff color.
-    // Deletions are attributed separately, from each user's own update (see
-    // `attributeDeletes`).
-    const attrs = createAttributionStore(
-      afterDoc,
-      (tr) => (ids.has(String(tr.origin)) ? String(tr.origin) : null),
-      { deletes: false },
-    );
+    // Records which user authored each merged change, so the Diff can color
+    // A's and B's contributions in their own colors.
+    const merge = createVersionMerge(beforeDoc);
     return {
       userDocs: users.map(() => cloneDoc(beforeDoc)),
-      afterDoc,
-      attrs,
-      diffAwareness: new Awareness(afterDoc),
+      merge,
+      afterDoc: merge.doc,
+      attrs: merge.attributions,
+      diffAwareness: new Awareness(merge.doc),
     };
   });
 
@@ -431,37 +420,18 @@ function VersionMerge({
   );
 
   useEffect(() => {
-    // Attribute deletions like YHub: only what a user's update itself deletes.
-    // Merging also deletes content a user added inside a block another user
-    // deleted, which no one deleted on purpose.
-    const baseDeletes = Y.createDeleteSetFromStructStore(beforeDoc.store);
-    const attributeDeletes = (update: Uint8Array, user: string) =>
-      Y.insertIntoIdMap(
-        setup.attrs.deletes,
-        Y.createIdMapFromIdSet(
-          Y.diffIdSet(Y.decodeUpdate(update).ds, baseDeletes),
-          [Y.createContentAttribute("delete", user)],
-        ),
-      );
     // Forward every user edit into the merge doc (idempotent CRDT apply), so any
     // change to any user re-diffs.
-    // Forward with the author's id as the Yjs origin so the attribution store
-    // tags each merged change with its author.
     const offs = setup.userDocs.map((doc, i) => {
-      const origin = users[i].id;
-      const onUpdate = (update: Uint8Array) => {
-        attributeDeletes(update, origin);
-        Y.applyUpdate(setup.afterDoc, update, origin);
-      };
+      const onUpdate = (update: Uint8Array) =>
+        setup.merge.apply(update, users[i].id);
       doc.on("update", onUpdate);
       return () => doc.off("update", onUpdate);
     });
     // Also pull in any edits that already flushed (the initial applies).
-    setup.userDocs.forEach((doc, i) => {
-      const update = Y.encodeStateAsUpdate(doc);
-      attributeDeletes(update, users[i].id);
-      Y.applyUpdate(setup.afterDoc, update, users[i].id);
-    });
+    setup.userDocs.forEach((doc, i) =>
+      setup.merge.apply(Y.encodeStateAsUpdate(doc), users[i].id),
+    );
 
     const view = createYVersionView(
       diffEditor,
