@@ -574,8 +574,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3166.
-  it.fails("strikes a moved block's children through with it at its old place", () => {
+  it("strikes a moved block's children through with it at its old place", () => {
     const base = baseDocument([
       { id: "first", type: "paragraph", content: "First" },
       {
@@ -637,8 +636,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3166.
-  it.fails.each([
+  it.each([
     ["the same user", "bob"],
     ["a different user", "carol"],
   ])(
@@ -666,8 +664,7 @@ describe("version diff of a type change", () => {
     },
   );
 
-  // To be fixed by #3166.
-  it.fails("credits two type changes to the last one", () => {
+  it("credits two type changes to the last one", () => {
     const base = blocks();
     const server = history(base);
     server.apply(editOf(base, 2, toHeading), "bob");

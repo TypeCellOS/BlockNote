@@ -1793,7 +1793,11 @@ export const scenarios: SuggestionScenario[] = [
     kind: "single",
     id: "remove-1-column",
     feedback: [
-      moveNote,
+      {
+        severity: "info",
+        when: { recreatedBlocks: true },
+        note: "Versioning shows Left column as moved out of the columns, and the columns as deleted.",
+      },
       {
         severity: "high",
         when: { recreatedBlocks: false },

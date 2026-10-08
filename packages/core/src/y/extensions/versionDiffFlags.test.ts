@@ -109,6 +109,9 @@ function diff(
   const viewDoc = new Y.Doc();
   Y.applyUpdateV2(viewDoc, after);
   const editor = editorOn(viewDoc, experimental);
+  const stored = Y.encodeStateAsUpdateV2(viewDoc);
+  let writes = 0;
+  viewDoc.on("update", () => writes++);
   const view = createYVersionView(editor, viewDoc.get("doc")).open();
   view.show({
     content: after,
@@ -129,8 +132,12 @@ function diff(
     // Block-level: inserted, deleted and moved blocks, and formatting changes.
     if (node.type.name === "blockContainer") {
       for (const mark of node.marks) {
-        const kind = mark.attrs["moved"] ? "moved" : mark.type.name.slice(13);
-        if (["insert", "delete", "moved"].includes(kind)) {
+        const kind = !mark.attrs["moved"]
+          ? mark.type.name.slice(13)
+          : mark.type.name === "y-attributed-delete"
+            ? "moved from"
+            : "moved";
+        if (["insert", "delete", "moved", "moved from"].includes(kind)) {
           out.push(
             `${kind} block ${node.firstChild!.textContent}: ${(mark.attrs["userIds"] ?? []).join(",")}`,
           );
@@ -147,6 +154,9 @@ function diff(
     return true;
   });
   view.close();
+  // Showing a diff never writes to the document.
+  expect(writes).toBe(0);
+  expect(Y.encodeStateAsUpdateV2(viewDoc)).toEqual(stored);
   return out;
 }
 
@@ -163,6 +173,16 @@ const scenarios: Record<string, Array<[number, string, (e: any) => void]>> = {
     [2, "bob", (editor) => editor.updateBlock("x", { type: "heading" })],
   ],
   indent: [[2, "bob", nest("x")]],
+  "move up": [
+    [
+      2,
+      "bob",
+      (editor) => {
+        editor.setTextCursorPosition("next");
+        editor.moveBlocksUp();
+      },
+    ],
+  ],
   "text edit": [
     [
       2,
