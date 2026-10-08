@@ -275,8 +275,8 @@ importers:
         specifier: ^0.7.1
         version: 0.7.1
       docx:
-        specifier: ^9.6.1
-        version: 9.6.1
+        specifier: ^9.9.0
+        version: 9.9.0
       framer-motion:
         specifier: ^12.26.2
         version: 12.38.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -5429,8 +5429,8 @@ importers:
         specifier: ^2.8.8
         version: 2.8.26
       docx:
-        specifier: ^9.8.0
-        version: 9.8.0
+        specifier: ^9.9.0
+        version: 9.9.0
       react:
         specifier: ^19.2.5
         version: 19.2.5
@@ -5557,8 +5557,8 @@ importers:
         specifier: ^2.8.8
         version: 2.8.26
       docx:
-        specifier: ^9.8.0
-        version: 9.8.0
+        specifier: ^9.9.0
+        version: 9.9.0
       mathjax-full:
         specifier: ^3.2.2
         version: 3.2.2
@@ -6445,8 +6445,8 @@ importers:
         specifier: 10.4.21
         version: 10.4.21(postcss@8.5.14)
       docx:
-        specifier: ^9.5.1
-        version: 9.6.1
+        specifier: ^9.9.0
+        version: 9.9.0
       katex:
         specifier: ^0.18.9
         version: 0.18.9
@@ -12784,14 +12784,6 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  docx@9.6.1:
-    resolution: {integrity: sha512-ZJja9/KBUuFC109sCMzovoq2GR2wCG/AuxivjA+OHj/q0TEgJIm3S7yrlUxIy3B+bV8YDj/BiHfWyrRFmyWpDQ==}
-    engines: {node: '>=10'}
-
-  docx@9.8.0:
-    resolution: {integrity: sha512-RunQowTxl5dzUcDmDnUJrXndOI5/V+mA0U4EAVAbgKdKKgJldAdyHfo9UWgPihLLXJtXu4FDlgma6xDQ1bbrhA==}
-    engines: {node: '>=10'}
-
   docx@9.9.0:
     resolution: {integrity: sha512-qefptMMO31ZCfVnFANQWSLtnvUrYkqd7cLr+Bi4e+kl4LvYOmdk314iwp8XHHyQs3TPtPcQwqgZgN/MJxT7Ttw==}
     engines: {node: '>=10'}
@@ -14641,11 +14633,6 @@ packages:
   nanoid@4.0.2:
     resolution: {integrity: sha512-7ZtY5KTCNheRGfEFxnedV5zFiORN1+Y1N6zvPTnHQd8ENUvfaDBeuJDZb2bN/oXwXxu3qkTXDzy57W5vAmDTBw==}
     engines: {node: ^14 || ^16 || >=18}
-    hasBin: true
-
-  nanoid@5.1.7:
-    resolution: {integrity: sha512-ua3NDgISf6jdwezAheMOk4mbE1LXjm1DfMUDMuJf4AqxLFK3ccGpgWizwa5YV7Yz9EpXwEaWoRXSb/BnV0t5dQ==}
-    engines: {node: ^18 || >=20}
     hasBin: true
 
   nanoid@6.0.1:
@@ -23239,24 +23226,6 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  docx@9.6.1:
-    dependencies:
-      '@types/node': 25.9.5
-      hash.js: 1.1.7
-      jszip: 3.10.1
-      nanoid: 5.1.7
-      xml: 1.0.1
-      xml-js: 1.6.11
-
-  docx@9.8.0:
-    dependencies:
-      '@types/node': 25.9.5
-      hash.js: 1.1.7
-      jszip: 3.10.1
-      nanoid: 6.0.1
-      xml: 1.0.1
-      xml-js: 1.6.11
-
   docx@9.9.0:
     dependencies:
       '@types/node': 25.9.5
@@ -25450,8 +25419,6 @@ snapshots:
   nanoid@3.3.18: {}
 
   nanoid@4.0.2: {}
-
-  nanoid@5.1.7: {}
 
   nanoid@6.0.1: {}
 
