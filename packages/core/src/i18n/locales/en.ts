@@ -414,6 +414,8 @@ export const en = {
     deleted_by: (users: string) => `Deleted by: ${users}`,
     changed: "Changed",
     changed_by: (users: string) => `Changed by: ${users}`,
+    moved: "Moved",
+    moved_by: (users: string) => `Moved by: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Formatting change (${formats}) by: ${users}`,
   },

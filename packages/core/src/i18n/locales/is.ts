@@ -428,6 +428,8 @@ export const is: Dictionary = {
     deleted_by: (users: string) => `Eytt af: ${users}`,
     changed: "Breytt",
     changed_by: (users: string) => `Breytt af: ${users}`,
+    moved: "Fært",
+    moved_by: (users: string) => `Fært af: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Sniðbreyting (${formats}) af: ${users}`,
   },

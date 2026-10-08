@@ -1,0 +1,84 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`experimental diffs { versionDiffFixes: 'implicitDeleteAttribution' } > indent 1`] = `
+[
+  "insert block X: bob",
+  "insert X: bob",
+  "delete block X: bob",
+]
+`;
+
+exports[`experimental diffs { versionDiffFixes: 'implicitDeleteAttribution' } > move into a concurrently deleted block 1`] = `
+[
+  "delete block Parent: alice",
+  "delete block X: ",
+]
+`;
+
+exports[`experimental diffs { versionDiffFixes: 'implicitDeleteAttribution' } > text edit 1`] = `
+[
+  "insert !: bob",
+]
+`;
+
+exports[`experimental diffs { versionDiffFixes: 'implicitDeleteAttribution' } > type change 1`] = `
+[
+  "delete block X: bob",
+  "insert block X: bob",
+  "insert X: bob",
+]
+`;
+
+exports[`experimental diffs { versionDiffFixes: 'implicitDeleteAttributionAndRecreatedBlocks' } > indent 1`] = `
+[
+  "moved block X: bob",
+]
+`;
+
+exports[`experimental diffs { versionDiffFixes: 'implicitDeleteAttributionAndRecreatedBlocks' } > move into a concurrently deleted block 1`] = `
+[
+  "delete block Parent: alice",
+  "delete block X: ",
+]
+`;
+
+exports[`experimental diffs { versionDiffFixes: 'implicitDeleteAttributionAndRecreatedBlocks' } > text edit 1`] = `
+[
+  "insert !: bob",
+]
+`;
+
+exports[`experimental diffs { versionDiffFixes: 'implicitDeleteAttributionAndRecreatedBlocks' } > type change 1`] = `
+[
+  "formatting X",
+]
+`;
+
+exports[`experimental diffs {} > indent 1`] = `
+[
+  "insert block X: bob",
+  "insert X: bob",
+  "delete block X: bob",
+]
+`;
+
+exports[`experimental diffs {} > move into a concurrently deleted block 1`] = `
+[
+  "delete block Parent: alice",
+  "delete block X: bob",
+]
+`;
+
+exports[`experimental diffs {} > text edit 1`] = `
+[
+  "insert !: bob",
+]
+`;
+
+exports[`experimental diffs {} > type change 1`] = `
+[
+  "delete block X: bob",
+  "insert block X: bob",
+  "insert X: bob",
+]
+`;

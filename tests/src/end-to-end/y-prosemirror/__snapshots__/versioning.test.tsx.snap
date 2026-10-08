@@ -542,23 +542,16 @@ exports[`versioning diff (experimental): Both nest a new block under N0 1`] = `
 
 exports[`versioning diff (experimental): Cascading indents 1`] = `
 [
-  "delete block "N0" A",
   "delete block "N1" A,B",
-  "insert block "N0" A",
-  "insert <paragraph> A",
-  "insert "N0" A",
   "insert <blockGroup> A",
   "insert block "N1" A",
   "insert <paragraph> A",
   "insert "N1" A",
-  "delete block "N2" B",
   "insert block "N1" B",
   "insert <paragraph> B",
   "insert "N1" B",
   "insert <blockGroup> B",
-  "insert block "N2" B",
-  "insert <paragraph> B",
-  "insert "N2" B",
+  "moved block "N2" B",
 ]
 `;
 
@@ -570,14 +563,7 @@ exports[`versioning diff (experimental): Center-align 1`] = `
 
 exports[`versioning diff (experimental): Change a parent's type vs edit its child 1`] = `
 [
-  "delete block "Parent" A",
-  "insert block "Parent" A",
-  "insert <heading> A",
-  "insert "Parent" A",
-  "insert <blockGroup> A",
-  "insert block "Child" A",
-  "insert <paragraph> A",
-  "insert "Child" A",
+  "attrs <heading> backgroundColor:A textColor:A textAlignment:A level:A isToggleable:A",
 ]
 `;
 
@@ -589,14 +575,7 @@ exports[`versioning diff (experimental): Change image source 1`] = `
 
 exports[`versioning diff (experimental): Change type of a parent block 1`] = `
 [
-  "delete block "N0" A",
-  "insert block "N0" A",
-  "insert <heading> A",
-  "insert "N0" A",
-  "insert <blockGroup> A",
-  "insert block "N1" A",
-  "insert <paragraph> A",
-  "insert "N1" A",
+  "attrs <heading> backgroundColor:A textColor:A textAlignment:A level:A isToggleable:A",
 ]
 `;
 
@@ -737,12 +716,7 @@ exports[`versioning diff (experimental): Edit a link 1`] = `
 
 exports[`versioning diff (experimental): Edit text vs change to heading 1`] = `
 [
-  "delete block "hello world" B",
-  "delete "wo" B,A",
-  "delete "ld" B,A",
-  "insert block "hello world" B",
-  "insert <heading> B",
-  "insert "hello world" B",
+  "attrs <heading> backgroundColor:B textColor:B textAlignment:B level:B isToggleable:B",
 ]
 `;
 
@@ -786,29 +760,15 @@ exports[`versioning diff (experimental): Highlight a column 1`] = `
 
 exports[`versioning diff (experimental): Indent a block 1`] = `
 [
-  "delete block "N0" A",
-  "delete block "N1" A",
-  "insert block "N0" A",
-  "insert <paragraph> A",
-  "insert "N0" A",
   "insert <blockGroup> A",
-  "insert block "N1" A",
-  "insert <paragraph> A",
-  "insert "N1" A",
+  "moved block "N1" A",
 ]
 `;
 
 exports[`versioning diff (experimental): Indent a block vs edit its text 1`] = `
 [
-  "delete block "N0" A",
-  "delete block "N1" A",
-  "insert block "N0" A",
-  "insert <paragraph> A",
-  "insert "N0" A",
   "insert <blockGroup> A",
-  "insert block "N1" A",
-  "insert <paragraph> A",
-  "insert "N1" A",
+  "moved block "N1" A",
 ]
 `;
 
@@ -829,10 +789,7 @@ exports[`versioning diff (experimental): Insert an image 1`] = `
 
 exports[`versioning diff (experimental): List item → paragraph 1`] = `
 [
-  "delete block "hello world" A",
-  "insert block "hello world" A",
-  "insert <paragraph> A",
-  "insert "hello world" A",
+  "attrs <paragraph> backgroundColor:A textColor:A textAlignment:A",
 ]
 `;
 
@@ -862,85 +819,52 @@ exports[`versioning diff (experimental): Move a block into a block that is delet
 
 exports[`versioning diff (experimental): Move paragraph up 1`] = `
 [
-  "insert block "Middle" A",
-  "insert <paragraph> A",
-  "insert "Middle" A",
-  "delete block "Middle" A",
+  "moved block "Middle" A",
+  "moved from block "Middle" A",
 ]
 `;
 
 exports[`versioning diff (experimental): Move paragraph with children 1`] = `
 [
-  "insert block "Parent" A",
-  "insert <paragraph> A",
-  "insert "Parent" A",
-  "insert <blockGroup> A",
-  "insert block "Child" A",
-  "insert <paragraph> A",
-  "insert "Child" A",
-  "delete block "Parent" A",
+  "moved block "Parent" A",
+  "moved from block "Parent" A",
 ]
 `;
 
 exports[`versioning diff (experimental): Nest a bullet under another 1`] = `
 [
-  "delete block "Parent" A",
-  "delete block "Child" A",
-  "insert block "Parent" A",
-  "insert <bulletListItem> A",
-  "insert "Parent" A",
   "insert <blockGroup> A",
-  "insert block "Child" A",
-  "insert <bulletListItem> A",
-  "insert "Child" A",
+  "moved block "Child" A",
 ]
 `;
 
 exports[`versioning diff (experimental): Nest blocks into a block that is moved 1`] = `
 [
-  "delete block "R" B",
   "delete block "Q" B,A",
-  "insert block "R" B",
-  "insert <paragraph> B",
-  "insert "R" B",
   "insert <blockGroup> B",
   "insert block "Q" B",
   "insert <paragraph> B",
   "insert "Q" B",
-  "delete block "B1" A",
-  "delete block "B2" A",
-  "delete block "B3" A",
   "insert block "Q" A",
   "insert <paragraph> A",
   "insert "Q" A",
   "insert <blockGroup> A",
-  "insert block "B1" A",
-  "insert <paragraph> A",
-  "insert "B1" A",
-  "insert block "B2" A",
-  "insert <paragraph> A",
-  "insert "B2" A",
-  "insert block "B3" A",
-  "insert <paragraph> A",
-  "insert "B3" A",
+  "moved block "B1" A",
+  "moved block "B2" A",
+  "moved block "B3" A",
 ]
 `;
 
 exports[`versioning diff (experimental): Paragraph → heading 1`] = `
 [
-  "delete block "hello world" A",
-  "insert block "hello world" A",
-  "insert <heading> A",
-  "insert "hello world" A",
+  "attrs <heading> backgroundColor:A textColor:A textAlignment:A level:A isToggleable:A",
 ]
 `;
 
 exports[`versioning diff (experimental): Remove a column 1`] = `
 [
   "delete <columnList> A",
-  "insert block "Left column" A",
-  "insert <paragraph> A",
-  "insert "Left column" A",
+  "moved block "Left column" A",
 ]
 `;
 
@@ -1031,13 +955,7 @@ exports[`versioning diff (experimental): Text color vs background color 1`] = `
 
 exports[`versioning diff (experimental): Unindent a block 1`] = `
 [
-  "delete block "N0" A",
-  "insert block "N0" A",
-  "insert <paragraph> A",
-  "insert "N0" A",
-  "insert block "N1" A",
-  "insert <paragraph> A",
-  "insert "N1" A",
+  "moved block "N1" A",
 ]
 `;
 

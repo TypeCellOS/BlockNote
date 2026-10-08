@@ -34,6 +34,10 @@ type Mode = "suggestions" | "versioning";
 const FIXES: { value: VersionDiffFixes | undefined; label: string }[] = [
   { value: undefined, label: "Default" },
   { value: "implicitDeleteAttribution", label: "Implicit delete attribution" },
+  {
+    value: "implicitDeleteAttributionAndRecreatedBlocks",
+    label: "+ re-created blocks",
+  },
 ];
 const ALL_FIXES: ExperimentalVersionDiffs = {
   versionDiffFixes: FIXES[FIXES.length - 1].value,

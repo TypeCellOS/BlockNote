@@ -438,6 +438,8 @@ export const uk: Dictionary = {
     deleted_by: (users: string) => `Видалено користувачем: ${users}`,
     changed: "Змінено",
     changed_by: (users: string) => `Змінено користувачем: ${users}`,
+    moved: "Переміщено",
+    moved_by: (users: string) => `Переміщено користувачем: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Зміна форматування (${formats}) користувачем: ${users}`,
   },

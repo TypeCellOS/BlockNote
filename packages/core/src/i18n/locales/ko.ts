@@ -427,6 +427,8 @@ export const ko: Dictionary = {
     deleted_by: (users: string) => `삭제한 사람: ${users}`,
     changed: "변경됨",
     changed_by: (users: string) => `변경한 사람: ${users}`,
+    moved: "이동됨",
+    moved_by: (users: string) => `이동한 사용자: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `서식 변경 (${formats}) 변경한 사람: ${users}`,
   },

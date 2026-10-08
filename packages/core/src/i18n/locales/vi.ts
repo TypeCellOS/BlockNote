@@ -413,6 +413,8 @@ export const vi: Dictionary = {
     deleted_by: (users: string) => `Được xóa bởi: ${users}`,
     changed: "Đã thay đổi",
     changed_by: (users: string) => `Được thay đổi bởi: ${users}`,
+    moved: "Đã di chuyển",
+    moved_by: (users: string) => `Được di chuyển bởi: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Thay đổi định dạng (${formats}) bởi: ${users}`,
   },

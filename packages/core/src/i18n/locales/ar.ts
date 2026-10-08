@@ -399,6 +399,8 @@ export const ar: Dictionary = {
     deleted_by: (users: string) => `حُذف بواسطة: ${users}`,
     changed: "مُعدَّل",
     changed_by: (users: string) => `عُدّل بواسطة: ${users}`,
+    moved: "تم النقل",
+    moved_by: (users: string) => `نقله: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `تغيير التنسيق (${formats}) بواسطة: ${users}`,
   },

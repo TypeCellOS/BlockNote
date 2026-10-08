@@ -428,6 +428,8 @@ export const hr: Dictionary = {
     deleted_by: (users: string) => `Izbrisao/la: ${users}`,
     changed: "Promijenjeno",
     changed_by: (users: string) => `Promijenio/la: ${users}`,
+    moved: "Premješteno",
+    moved_by: (users: string) => `Premjestio: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Promjena oblikovanja (${formats}) od: ${users}`,
   },
