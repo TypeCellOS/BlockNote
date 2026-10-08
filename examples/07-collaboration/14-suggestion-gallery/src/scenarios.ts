@@ -1359,6 +1359,11 @@ export const scenarios: SuggestionScenario[] = [
         note: "The diff shows the block as deleted and inserted again, all credited to B: changing the type re-creates it.",
       },
       {
+        severity: "info",
+        when: { lostContentAttribution: true },
+        note: "Versioning also shows the letters A deleted inside the replaced paragraph, as deleted by A and B.",
+      },
+      {
         severity: "low",
         note: "User A's content edit is lost — it's overwritten by B's simultaneous block-type change. This is a consequence of the schema fix.",
       },
