@@ -117,12 +117,16 @@ function attributionsFor(before: Uint8Array, after: Uint8Array) {
   return attributions;
 }
 
-/** Compare `before` → `after` in the editor's version view; returns the changed blocks. */
+/**
+ * Compare `before` → `after` in the editor's version view; returns the changed
+ * blocks, or with `nodes: "all"` every changed node.
+ */
 function diffBlocks(
   editor: BlockNoteEditor,
   doc: Y.Doc,
   before: Uint8Array,
   after: Uint8Array,
+  nodes: "blocks" | "all" = "blocks",
 ) {
   const view = createYVersionView(editor, doc.get("doc")).open();
   try {
@@ -151,6 +155,13 @@ function diffBlocks(
           change: mark.type.name,
           type: node.firstChild!.type.name,
           text: node.firstChild!.textContent,
+          users: mark.attrs["userIds"],
+        });
+      } else if (nodes === "all" && mark) {
+        changed.push({
+          change: mark.type.name,
+          type: node.type.name,
+          text: node.isText ? node.text! : node.textContent,
           users: mark.attrs["userIds"],
         });
       }
@@ -202,11 +213,6 @@ const structuralChanges: Array<{
       editor.setTextCursorPosition("child");
       editor.nestBlock();
     },
-  },
-  {
-    name: "a table resize",
-    blocks: [table(2, 2)],
-    change: (editor) => editor.updateBlock("table", table(3, 3)),
   },
   {
     name: "a type change of a block with children",
@@ -383,39 +389,61 @@ describe("legacy Yjs document binding", () => {
     ]);
   });
 
+  /** The diff of `change` made with the new binding, and with the old one. */
+  function diffsOfBothBindings(
+    blocks: PartialBlock[],
+    change: (editor: BlockNoteEditor) => void,
+    nodes: "blocks" | "all" = "blocks",
+  ) {
+    const legacy = createLegacyEditor();
+    legacy.editor.replaceBlocks(legacy.editor.document, blocks);
+    const legacyBefore = Y1.encodeStateAsUpdateV2(legacy.doc);
+    change(legacy.editor);
+    const legacyAfter = Y1.encodeStateAsUpdateV2(legacy.doc);
+    const fromLegacy = openWithNewBinding(legacyAfter);
+
+    const current = openWithNewBinding(
+      Y.encodeStateAsUpdateV2(new Y.Doc()),
+      false,
+      false,
+    );
+    current.editor.replaceBlocks(current.editor.document, blocks);
+    const before = Y.encodeStateAsUpdateV2(current.doc);
+    change(current.editor);
+    const after = Y.encodeStateAsUpdateV2(current.doc);
+
+    return {
+      current: diffBlocks(current.editor, current.doc, before, after, nodes),
+      old: diffBlocks(
+        fromLegacy.editor,
+        fromLegacy.doc,
+        legacyBefore,
+        legacyAfter,
+        nodes,
+      ),
+    };
+  }
+
   // To be fixed by #3173.
   it.fails.each(structuralChanges)(
     "diffs $name made with the old binding like one made with the new binding",
     ({ blocks, change }) => {
-      const legacy = createLegacyEditor();
-      legacy.editor.replaceBlocks(legacy.editor.document, blocks);
-      const legacyBefore = Y1.encodeStateAsUpdateV2(legacy.doc);
-      change(legacy.editor);
-      const legacyAfter = Y1.encodeStateAsUpdateV2(legacy.doc);
-      const fromLegacy = openWithNewBinding(legacyAfter);
-
-      const current = openWithNewBinding(
-        Y.encodeStateAsUpdateV2(new Y.Doc()),
-        false,
-        false,
-      );
-      current.editor.replaceBlocks(current.editor.document, blocks);
-      const before = Y.encodeStateAsUpdateV2(current.doc);
-      change(current.editor);
-      const after = Y.encodeStateAsUpdateV2(current.doc);
-
-      const expected = diffBlocks(current.editor, current.doc, before, after);
-      expect(expected).not.toEqual([]);
-      expect(
-        diffBlocks(
-          fromLegacy.editor,
-          fromLegacy.doc,
-          legacyBefore,
-          legacyAfter,
-        ),
-      ).toEqual(expected);
+      const { current, old } = diffsOfBothBindings(blocks, change);
+      expect(current).not.toEqual([]);
+      expect(old).toEqual(current);
     },
   );
+
+  // To be fixed by #3173.
+  it.fails("diffs a table resize made with the old binding like one made with the new binding", () => {
+    const { current, old } = diffsOfBothBindings(
+      [table(2, 2)],
+      (editor) => editor.updateBlock("table", table(3, 3)),
+      "all",
+    );
+    expect(current).not.toEqual([]);
+    expect(old).toEqual(current);
+  });
 
   it("diffs a text edit made with the old binding in place", () => {
     const legacy = createLegacyEditor();
