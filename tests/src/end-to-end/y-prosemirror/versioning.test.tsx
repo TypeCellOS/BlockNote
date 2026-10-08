@@ -109,7 +109,10 @@ for (const scenario of scenarios) {
 
       // "After": each user applies their change on its own clone; the clones are
       // merged into `afterDoc` via the CRDT — exactly like the gallery's merge.
-      const afterDoc = cloneWithId(beforeDoc, 2);
+      // Kept without garbage collection, as stored history and the gallery are.
+      const afterDoc = new Y.Doc({ gc: false });
+      Y.applyUpdate(afterDoc, Y.encodeStateAsUpdate(beforeDoc));
+      afterDoc.clientID = 2;
       teardown.push(() => afterDoc.destroy());
 
       for (let i = 0; i < applies.length; i++) {
