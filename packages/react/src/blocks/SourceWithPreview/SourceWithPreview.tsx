@@ -238,6 +238,9 @@ export const SourceWithPreview = (
           className="bn-code-block-source-error"
           contentEditable={false}
           style={{ display: error ? "block" : "none" }}
+          // Let the browser focus the non-editable error so ProseMirror doesn't
+          // replace the browser's text selection with a source selection.
+          tabIndex={error ? -1 : undefined}
           // Announced while editing (the popup is open); silenced & removed
           // from the tree once the popup closes, where the compact error
           // preview takes over.
