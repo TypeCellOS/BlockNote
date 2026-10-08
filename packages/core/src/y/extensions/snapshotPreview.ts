@@ -102,12 +102,14 @@ function splitChangedBlocks(
         const doc = child.doc!;
         // A change that only inserted (or only deleted) still has one author
         // for both sides of the split, under that side's attribution kind.
-        const as = (
+        function as(
           kind: "insert" | "delete",
           attrs: Y.ContentAttribute<any>[],
-        ) => attrs.map((attr) => Y.createContentAttribute(kind, attr.val));
+        ) {
+          return attrs.map((attr) => Y.createContentAttribute(kind, attr.val));
+        }
         const authors = inserted.length ? inserted : deleted;
-        const record = (tr: Y.Transaction) => {
+        function record(tr: Y.Transaction) {
           if (authors.length) {
             Y.insertIntoIdMap(
               added.inserts,
@@ -121,7 +123,7 @@ function splitChangedBlocks(
               ),
             );
           }
-        };
+        }
         doc.on("beforeObserverCalls", record);
         try {
           doc.transact(() => {
