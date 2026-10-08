@@ -243,7 +243,7 @@ export const scenarios: SuggestionScenario[] = [
         note: "Nested bullets all render as • instead of •/◦/▪ — the suggestion-mark wrappers (display: contents) break the depth-detecting CSS chains. Fix: compute each bullet's nesting level in JS and expose it as data-bullet-level, then pick the glyph with a wrapper-independent attribute selector (as numbered lists do with data-index).",
       },
       {
-        severity: "low",
+        severity: "high",
         note: "Indenting re-creates Parent and Child as new blocks (the schema fix stores a block that gains or loses its children as a new block). The diff therefore shows both as deleted and inserted again, all credited to whoever indented.",
       },
     ],
@@ -302,7 +302,7 @@ export const scenarios: SuggestionScenario[] = [
     id: "delete-nested",
     feedback: [
       {
-        severity: "low",
+        severity: "high",
         note: "Deleting the only child re-creates Parent as a new block (the schema fix stores a block that gains or loses its children as a new block). The diff therefore shows Parent as deleted and inserted again, credited to whoever deleted the child.",
       },
     ],
@@ -411,7 +411,7 @@ export const scenarios: SuggestionScenario[] = [
     id: "type-list-to-paragraph",
     feedback: [
       {
-        severity: "low",
+        severity: "high",
         note: "Changing the type re-creates the block as a new one (with the schema fix, a block's type can't change in place). The diff therefore shows it as deleted and inserted again, all credited to whoever changed the type.",
       },
     ],
@@ -433,7 +433,7 @@ export const scenarios: SuggestionScenario[] = [
     id: "type-paragraph-to-heading",
     feedback: [
       {
-        severity: "low",
+        severity: "high",
         note: "Changing the type re-creates the block as a new one (with the schema fix, a block's type can't change in place). The diff therefore shows it as deleted and inserted again, all credited to whoever changed the type.",
       },
     ],
@@ -597,7 +597,7 @@ export const scenarios: SuggestionScenario[] = [
     id: "move-paragraph-up",
     feedback: [
       {
-        severity: "low",
+        severity: "high",
         note: "Moving re-creates the block as a new one at its new place. The diff therefore shows it as deleted at its old place and inserted at its new one, all credited to the mover.",
       },
     ],
@@ -618,7 +618,7 @@ export const scenarios: SuggestionScenario[] = [
     id: "move-paragraph-with-children",
     feedback: [
       {
-        severity: "low",
+        severity: "high",
         note: "Moving re-creates the block, with its child, as a new one at its new place. The diff therefore shows it as deleted at its old place and inserted at its new one, all credited to the mover.",
       },
     ],
@@ -644,7 +644,7 @@ export const scenarios: SuggestionScenario[] = [
     id: "nesting-indent",
     feedback: [
       {
-        severity: "low",
+        severity: "high",
         note: "Indenting re-creates N0 and N1 as new blocks (the schema fix stores a block that gains or loses its children as a new block). The diff therefore shows both as deleted and inserted again, all credited to whoever indented.",
       },
     ],
@@ -667,7 +667,7 @@ export const scenarios: SuggestionScenario[] = [
     id: "nesting-unindent",
     feedback: [
       {
-        severity: "low",
+        severity: "high",
         note: "Outdenting re-creates N0 and N1 as new blocks (the schema fix stores a block that gains or loses its children as a new block). The diff therefore shows N0 and N1 as deleted and inserted again, all credited to whoever outdented.",
       },
     ],
@@ -692,7 +692,7 @@ export const scenarios: SuggestionScenario[] = [
     id: "nesting-change-parent-type",
     feedback: [
       {
-        severity: "low",
+        severity: "high",
         note: "Changing the type re-creates N0, children included, as a new block (with the schema fix, a block's type can't change in place). The diff therefore shows it as deleted and inserted again, all credited to whoever changed the type.",
       },
     ],
@@ -1043,7 +1043,7 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-indent-cascade",
     feedback: [
       {
-        severity: "low",
+        severity: "high",
         note: "The diff also shows N0 and N2 as deleted and inserted again: indenting re-creates blocks (see Indent a block).",
       },
       {
@@ -1073,11 +1073,11 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-indent-vs-edit",
     feedback: [
       {
-        severity: "high",
+        severity: "low",
         note: "B's edit is lost: A's indent re-creates N1 as a new block, which doesn't have B's concurrent edit.",
       },
       {
-        severity: "low",
+        severity: "high",
         note: "The diff also shows N0 and N1 as deleted and inserted again, all credited to A: indenting re-creates blocks (see Indent a block).",
       },
     ],
@@ -1102,11 +1102,11 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-nest-into-moved-block",
     feedback: [
       {
-        severity: "low",
+        severity: "high",
         note: "The diff also shows R and B1–B3 as deleted and inserted again: indenting and moving re-create blocks.",
       },
       {
-        severity: "high",
+        severity: "low",
         note: "Q appears twice: B's indent moves a copy of Q under R, and A's nesting replaces the original Q with another copy holding B1–B3.",
       },
     ],
@@ -1135,6 +1135,10 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "high",
+        note: "The diff also shows Parent and Child as deleted and inserted again, all credited to A: changing the type re-creates blocks (see Change type of a parent block).",
+      },
+      {
+        severity: "low",
         note: "B's edit is lost. Changing the parent's type replaces the parent block with a copy, children included, which doesn't have B's concurrent edit.",
       },
     ],
@@ -1163,8 +1167,12 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-move-into-deleted-block",
     feedback: [
       {
+        severity: "low",
+        note: "X is lost: B's move inserts a copy into Parent, which A deletes.",
+      },
+      {
         severity: "high",
-        note: "X is lost: B's move inserts a copy into Parent, which A deletes. Versioning shows X as deleted by B, though B only moved it, and doesn't show Child at all. To be fixed by #3166.",
+        note: "Versioning shows X as deleted by B, though B only moved it. To be fixed by #3166.",
       },
     ],
     title: "Move a block into a block that is deleted",
@@ -1193,8 +1201,8 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-delete-parent-vs-child-type",
     feedback: [
       {
-        severity: "high",
-        note: "B's type change is lost with Parent. Versioning shows Parent as deleted by A, but doesn't show Child at all. To be fixed by #3166.",
+        severity: "low",
+        note: "B's type change is lost with Parent. Versioning shows Parent and Child as deleted by A, who deleted them.",
       },
     ],
     title: "Delete a parent vs change its child's type",
@@ -1221,7 +1229,11 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-nest-both-under-n0",
     feedback: [
       {
-        severity: "info",
+        severity: "high",
+        note: "The diff also shows N0 as deleted and inserted twice, credited to A and to B: nesting re-creates it.",
+      },
+      {
+        severity: "low",
         note: "In this concurrent editing scenario the N0 block is duplicated. Previously this scenario would likely drop one of the changes, so it's not a regression per se. A better fix for the schema compatibility could resolve this.",
       },
     ],
@@ -1278,6 +1290,10 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-heading-vs-list",
     feedback: [
       {
+        severity: "high",
+        note: "The diff shows the block as deleted and inserted twice, credited to A and to B: each type change re-creates it.",
+      },
+      {
         severity: "info",
         note: "Both changes are preserved in the merge — A's heading change and B's list-item change both survive.",
       },
@@ -1300,6 +1316,10 @@ export const scenarios: SuggestionScenario[] = [
     kind: "concurrent",
     id: "concurrent-text-vs-heading",
     feedback: [
+      {
+        severity: "high",
+        note: "The diff shows the block as deleted and inserted again, all credited to B: changing the type re-creates it.",
+      },
       {
         severity: "low",
         note: "User A's content edit is lost — it's overwritten by B's simultaneous block-type change. This is a consequence of the schema fix.",
@@ -1673,7 +1693,7 @@ export const scenarios: SuggestionScenario[] = [
     id: "remove-1-column",
     feedback: [
       {
-        severity: "low",
+        severity: "high",
         note: "Removing the column re-creates Left column as a new block outside the columns. The diff therefore shows it as inserted, as if it were new, credited to whoever removed the column.",
       },
     ],
