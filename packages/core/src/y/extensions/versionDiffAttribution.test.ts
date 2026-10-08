@@ -78,16 +78,19 @@ function deletedBy(update: Uint8Array, user: string) {
 
 /**
  * A server applying users' updates in turn, attributing each the way YHub
- * does: what the update inserts, and what it explicitly deletes.
+ * does: what the update inserts, and what it explicitly deletes, each with a
+ * time.
  */
 function history(base: Y.Doc) {
   const server = new Y.Doc({ gc: false });
   Y.applyUpdateV2(server, Y.encodeStateAsUpdateV2(base));
   const attributions = Y.createContentMap();
+  let time = 0;
   return {
     server,
     attributions,
     apply(update: Uint8Array, user: string) {
+      time += 1000;
       const before = Y.createInsertSetFromStructStore(server.store, false);
       Y.applyUpdateV2(server, update);
       const inserted = Y.diffIdSet(
@@ -98,12 +101,14 @@ function history(base: Y.Doc) {
         attributions.inserts,
         Y.createIdMapFromIdSet(inserted, [
           Y.createContentAttribute("insert", user),
+          Y.createContentAttribute("insertAt", time),
         ]),
       );
       Y.insertIntoIdMap(
         attributions.deletes,
         Y.createIdMapFromIdSet(Y.decodeUpdateV2(update).ds, [
           Y.createContentAttribute("delete", user),
+          Y.createContentAttribute("deleteAt", time),
         ]),
       );
       return Y.encodeStateAsUpdateV2(server);

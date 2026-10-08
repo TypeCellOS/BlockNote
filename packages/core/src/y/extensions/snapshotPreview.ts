@@ -56,10 +56,14 @@ function creditMoves(
   baseline: Y.Doc,
   attributions: Y.ContentMap,
 ): Y.IdMap<any> {
-  function users(map: Y.IdMap<any>, item: Y.Item): unknown[] {
+  // Attributions hold the author under the change's kind ("insert" or
+  // "delete"), next to its time ("insertAt" or "deleteAt").
+  function users(map: Y.IdMap<any>, item: Y.Item, kind: string): unknown[] {
     return map
       .slice(item.id.client, item.id.clock, 1)
-      .flatMap((range) => (range.attrs ?? []).map((attr) => attr.val));
+      .flatMap((range) => range.attrs ?? [])
+      .filter((attr) => attr.name === kind)
+      .map((attr) => attr.val);
   }
   const originals = new Map<unknown, Y.Node[]>();
   const copies = new Map<unknown, Y.Item[]>();
@@ -92,12 +96,14 @@ function creditMoves(
     if (!moved || moved.some((copy) => !copy.deleted)) {
       continue;
     }
-    const inserters = moved.map((copy) => users(attributions.inserts, copy));
+    const inserters = moved.map((copy) =>
+      users(attributions.inserts, copy, "insert"),
+    );
     const movers = new Set(inserters.flat());
     const known = inserters.every((inserter) => inserter.length > 0);
     const deleters = new Set(
       moved.flatMap((copy, i) =>
-        users(attributions.deletes, copy).filter(
+        users(attributions.deletes, copy, "delete").filter(
           (user) =>
             !inserters.some((other, j) => j !== i && other.includes(user)),
         ),
@@ -120,15 +126,22 @@ function creditMoves(
           item.length,
         )) {
           const attrs = range.attrs ?? [];
-          const kept = known
-            ? attrs.filter((attr) => !movers.has(attr.val))
-            : [];
-          if (kept.length === attrs.length) {
+          const movedBy = attrs.filter(
+            (attr) =>
+              attr.name === "delete" && (!known || movers.has(attr.val)),
+          );
+          if (!movedBy.length) {
             continue;
           }
+          const kept = attrs.filter((attr) => !movedBy.includes(attr));
           const added = known
             ? [...deleters]
-                .filter((user) => !kept.some((attr) => attr.val === user))
+                .filter(
+                  (user) =>
+                    !kept.some(
+                      (attr) => attr.name === "delete" && attr.val === user,
+                    ),
+                )
                 .map((user) => Y.createContentAttribute("delete", user))
             : [];
           const ids = Y.createIdSet();
