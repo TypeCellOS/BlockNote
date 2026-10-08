@@ -276,6 +276,8 @@ describe("version diff of a moved block", () => {
         children: [{ id: "child", type: "paragraph", content: "Child" }],
       },
       { id: "moved", type: "paragraph", content: "Moved" },
+      // Keeps the document from emptying, which shows a placeholder block.
+      { id: "next", type: "paragraph", content: "Next" },
     ]);
   // Moves the block into the parent: deletes it and inserts a copy there.
   function nest(editor: BlockNoteEditor<any, any, any>) {
