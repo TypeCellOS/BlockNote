@@ -197,6 +197,106 @@ describe("version diff of a deleted block", () => {
     view.close();
   });
 
+  it("does not attribute a move whose copy was lost to the mover", () => {
+    const base = baseDocument([
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "child", type: "paragraph", content: "Child" }],
+      },
+      { id: "moved", type: "paragraph", content: "Moved" },
+    ]);
+    // Bob moves a block into the parent, which deletes it and inserts a copy
+    // there; Alice, who never receives the copy, deletes the parent.
+    const bob = editOf(base, 2, (editor) => {
+      editor.setTextCursorPosition("moved");
+      editor.nestBlock();
+    });
+    const alice = editOf(base, 1, (editor) => editor.removeBlocks(["parent"]));
+
+    const server = new Y.Doc({ gc: false });
+    Y.applyUpdateV2(server, Y.encodeStateAsUpdateV2(base));
+    Y.applyUpdateV2(server, alice);
+    const withAlice = Y.encodeStateAsUpdateV2(server);
+    Y.applyUpdateV2(server, bob);
+
+    const { view, changes } = showDiff(
+      withAlice,
+      Y.encodeStateAsUpdateV2(server),
+      deletedBy(bob, "bob"),
+    );
+    view.close();
+    const del = "y-attributed-delete";
+    expect(changes).toEqual([
+      { text: "[block moved]", mark: del, users: [] },
+      { text: "Moved", mark: del, users: [] },
+    ]);
+  });
+
+  it("attributes a move to the mover", () => {
+    const base = baseDocument([
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "child", type: "paragraph", content: "Child" }],
+      },
+      { id: "moved", type: "paragraph", content: "Moved" },
+    ]);
+    const bob = editOf(base, 2, (editor) => {
+      editor.setTextCursorPosition("moved");
+      editor.nestBlock();
+    });
+    const server = new Y.Doc({ gc: false });
+    Y.applyUpdateV2(server, Y.encodeStateAsUpdateV2(base));
+    Y.applyUpdateV2(server, bob);
+
+    const { view, changes } = showDiff(
+      Y.encodeStateAsUpdateV2(base),
+      Y.encodeStateAsUpdateV2(server),
+      deletedBy(bob, "bob"),
+    );
+    view.close();
+    expect(
+      changes.filter((change) => change.mark === "y-attributed-delete"),
+    ).toEqual([
+      { text: "[block moved]", mark: "y-attributed-delete", users: ["bob"] },
+      { text: "Moved", mark: "y-attributed-delete", users: ["bob"] },
+    ]);
+  });
+
+  it("attributes a moved block to whoever deletes it afterwards", () => {
+    const base = baseDocument([
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "child", type: "paragraph", content: "Child" }],
+      },
+      { id: "moved", type: "paragraph", content: "Moved" },
+    ]);
+    const bob = editOf(base, 2, (editor) => {
+      editor.setTextCursorPosition("moved");
+      editor.nestBlock();
+      editor.removeBlocks(["moved"]);
+    });
+    const server = new Y.Doc({ gc: false });
+    Y.applyUpdateV2(server, Y.encodeStateAsUpdateV2(base));
+    Y.applyUpdateV2(server, bob);
+
+    const { view, changes } = showDiff(
+      Y.encodeStateAsUpdateV2(base),
+      Y.encodeStateAsUpdateV2(server),
+      deletedBy(bob, "bob"),
+    );
+    view.close();
+    expect(changes).toEqual([
+      { text: "[block moved]", mark: "y-attributed-delete", users: ["bob"] },
+      { text: "Moved", mark: "y-attributed-delete", users: ["bob"] },
+    ]);
+  });
+
   it("does not show content inserted and deleted between the two versions", () => {
     const doc = new Y.Doc({ gc: false });
     const editor = collaborativeEditor(doc);
