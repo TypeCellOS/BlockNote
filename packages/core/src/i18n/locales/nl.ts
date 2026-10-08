@@ -415,6 +415,8 @@ export const nl: Dictionary = {
     deleted_by: (users: string) => `Verwijderd door: ${users}`,
     changed: "Gewijzigd",
     changed_by: (users: string) => `Gewijzigd door: ${users}`,
+    moved: "Verplaatst",
+    moved_by: (users: string) => `Verplaatst door: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Opmaakwijziging (${formats}) door: ${users}`,
   },

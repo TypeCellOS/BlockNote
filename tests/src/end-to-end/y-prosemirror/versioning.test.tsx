@@ -101,7 +101,7 @@ const propertyChanges = new Map([
 // Each scenario's diff with the experimental flags off (as in the editor) and
 // all on.
 const ALL_FIXES: ExperimentalVersionDiffs = {
-  versionDiffFixes: "implicitDeleteAttribution",
+  versionDiffFixes: "implicitDeleteAttributionAndRecreatedBlocks",
 };
 const cases = scenarios.flatMap((scenario) => [
   { scenario, name: "versioning diff", experimental: {} },
@@ -186,7 +186,11 @@ for (const { scenario, name, experimental } of cases) {
             ? `block ${JSON.stringify(node.firstChild?.textContent ?? "")}`
             : `<${node.type.name}>`;
         for (const mark of marks) {
-          const kind = mark.type.name.replace("y-attributed-", "");
+          const kind = !mark.attrs["moved"]
+            ? mark.type.name.replace("y-attributed-", "")
+            : mark.type.name === "y-attributed-delete"
+              ? "moved from"
+              : "moved";
           if (kind === "attrs" && replaced) {
             continue;
           }

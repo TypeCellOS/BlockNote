@@ -460,6 +460,8 @@ export const fr: Dictionary = {
     deleted_by: (users: string) => `Supprimé par : ${users}`,
     changed: "Modifié",
     changed_by: (users: string) => `Modifié par : ${users}`,
+    moved: "Déplacé",
+    moved_by: (users: string) => `Déplacé par : ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Modification de mise en forme (${formats}) par : ${users}`,
   },

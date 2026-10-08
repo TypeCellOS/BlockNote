@@ -432,6 +432,8 @@ export const no: Dictionary = {
     deleted_by: (users: string) => `Slettet av: ${users}`,
     changed: "Endret",
     changed_by: (users: string) => `Endret av: ${users}`,
+    moved: "Flyttet",
+    moved_by: (users: string) => `Flyttet av: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Formateringsendring (${formats}) av: ${users}`,
   },

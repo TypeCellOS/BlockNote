@@ -23,7 +23,9 @@ function collaborativeEditor(doc: Y.Doc) {
       collaboration: {
         fragment: doc.get("doc"),
         user: { name: "Test", color: "#ff0000" },
-        experimental: { versionDiffFixes: "implicitDeleteAttribution" },
+        experimental: {
+          versionDiffFixes: "implicitDeleteAttributionAndRecreatedBlocks",
+        },
       },
     }),
   );
@@ -301,15 +303,6 @@ describe("version diff of a moved block", () => {
       .map((change) => `${change.text}: ${change.users.join(", ")}`);
   }
 
-  it("attributes a move to the mover", () => {
-    const base = blocks();
-    const server = history(base);
-    const after = server.apply(editOf(base, 2, nest), "bob");
-    expect(
-      deletions(Y.encodeStateAsUpdateV2(base), after, server.attributions),
-    ).toEqual(["[block moved]: bob"]);
-  });
-
   it("names no author for a block moved into a concurrently deleted one", () => {
     const base = blocks();
     const bob = editOf(base, 2, nest);
@@ -433,8 +426,7 @@ describe("version diff of a type change", () => {
     return out;
   }
 
-  // To be fixed by #3172.
-  it.fails("shows a type change as a formatting change, not as replaced text", () => {
+  it("shows a type change as a formatting change, not as replaced text", () => {
     const base = blocks();
     const server = history(base);
     const after = server.apply(editOf(base, 2, toHeading), "bob");
@@ -443,8 +435,7 @@ describe("version diff of a type change", () => {
     ).toEqual(["attrs <heading>: bob"]);
   });
 
-  // To be fixed by #3172.
-  it.fails("credits a type-changed block's text to its writer, from before it existed", () => {
+  it("credits a type-changed block's text to its writer, from before it existed", () => {
     const base = baseDocument([
       { id: "next", type: "paragraph", content: "Next" },
     ]);
@@ -469,8 +460,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3172.
-  it.fails("keeps later edits to a type-changed block as their author's", () => {
+  it("keeps later edits to a type-changed block as their author's", () => {
     const base = blocks();
     const server = history(base);
     server.apply(editOf(base, 2, toHeading), "bob");
@@ -514,8 +504,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3172.
-  it.fails("credits an indented block's text to its writer, from before it existed", () => {
+  it("credits an indented block's text to its writer, from before it existed", () => {
     const base = blocks();
     const server = history(base);
     server.apply(
@@ -546,8 +535,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3172.
-  it.fails("shows a block moved among its siblings as a move at both places", () => {
+  it("shows a block moved among its siblings as a move at both places", () => {
     const base = baseDocument([
       { id: "first", type: "paragraph", content: "First" },
       { id: "second", type: "paragraph", content: "Second" },
@@ -569,8 +557,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3172.
-  it.fails("shows a type change as a formatting change after the text was rewritten", () => {
+  it("shows a type change as a formatting change after the text was rewritten", () => {
     const base = blocks();
     const server = history(base);
     // The rewrite reuses some characters, so the block's stored text mixes

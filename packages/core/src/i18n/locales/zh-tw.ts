@@ -455,6 +455,8 @@ export const zhTW: Dictionary = {
     deleted_by: (users: string) => `刪除者：${users}`,
     changed: "已變更",
     changed_by: (users: string) => `變更者：${users}`,
+    moved: "已移動",
+    moved_by: (users: string) => `移動者：${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `格式變更（${formats}），變更者：${users}`,
   },

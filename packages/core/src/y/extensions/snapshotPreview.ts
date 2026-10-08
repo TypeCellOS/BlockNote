@@ -1,5 +1,6 @@
 import { configureYProsemirror } from "@y/prosemirror";
 import * as Y from "@y/y";
+import { diff } from "lib0/diff/patience";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { findTypeInOtherYdoc } from "../utils.js";
@@ -16,14 +17,23 @@ export type VersionDiffFix =
    * block, or with a moved block's lost copy) isn't credited to the user whose
    * change removed it.
    */
-  "implicitDeleteAttribution";
+  | "implicitDeleteAttribution"
+  /**
+   * A block that a type change or a move re-created shows once: a type change
+   * between text blocks as a formatting change, a move (including indenting)
+   * as a move, and a copy in the same place (its children changed) as
+   * unchanged. Its content keeps its authors.
+   */
+  | "recreatedBlocks";
 
 /**
  * Experimental fixes of how a diff between two versions is shown, each
  * including the ones before it. They only change what a diff shows, never
  * what is stored, so they can be turned on or off at any time.
  */
-export type VersionDiffFixes = "implicitDeleteAttribution";
+export type VersionDiffFixes =
+  | "implicitDeleteAttribution"
+  | "implicitDeleteAttributionAndRecreatedBlocks";
 
 /** The fixes each option turns on. */
 export const versionDiffFixesIncluded: Record<
@@ -31,6 +41,10 @@ export const versionDiffFixesIncluded: Record<
   VersionDiffFix[]
 > = {
   implicitDeleteAttribution: ["implicitDeleteAttribution"],
+  implicitDeleteAttributionAndRecreatedBlocks: [
+    "implicitDeleteAttribution",
+    "recreatedBlocks",
+  ],
 };
 
 export type ExperimentalVersionDiffs = { versionDiffFixes?: VersionDiffFixes };
@@ -89,6 +103,74 @@ class SnapshotDiffRenderer extends Y.DiffRenderer {
     }
     const [own] = this.deletes.slice(parent.id.client, parent.id.clock, 1);
     return sameAttributes(own?.attrs ?? null, attrs);
+  }
+
+  /**
+   * Show `unchanged` content as unchanged (or not at all, if deleted), credit
+   * each copied item to the authors that inserted its original, and mark the
+   * `moved` blocks' insertion as a move.
+   */
+  adjust(
+    unchanged: Y.IdSet,
+    credits: Array<[original: Y.ID, copy: Y.ID]>,
+    moved: Y.ID[],
+    movedFrom: Y.Item[],
+  ) {
+    this.inserts = Y.diffIdMap(this.inserts, unchanged);
+    this.deletes = Y.diffIdMap(this.deletes, unchanged);
+    this.attributed = Y.diffIdSet(this.attributed, unchanged);
+    const credited = Y.createIdSet();
+    const credit: Y.IdMap<any> = Y.createIdMap();
+    for (const [original, copy] of credits) {
+      const attrs = this.inserts.slice(original.client, original.clock, 1)[0]
+        ?.attrs;
+      const ids = Y.createIdSet();
+      ids.add(copy.client, copy.clock, 1);
+      credited.add(copy.client, copy.clock, 1);
+      Y.insertIntoIdMap(credit, Y.createIdMapFromIdSet(ids, attrs ?? []));
+    }
+    for (const id of moved) {
+      const attrs = this.inserts.slice(id.client, id.clock, 1)[0]?.attrs ?? [];
+      const ids = Y.createIdSet();
+      ids.add(id.client, id.clock, 1);
+      credited.add(id.client, id.clock, 1);
+      Y.insertIntoIdMap(
+        credit,
+        Y.createIdMapFromIdSet(ids, [
+          ...attrs,
+          Y.createContentAttribute("moved", true),
+        ]),
+      );
+    }
+    this.inserts = Y.mergeIdMaps([Y.diffIdMap(this.inserts, credited), credit]);
+    // The struck-through originals of moved blocks: their deletion is a move.
+    const relabeled = Y.createIdSet();
+    const relabel: Y.IdMap<any> = Y.createIdMap();
+    for (const item of movedFrom) {
+      const { client } = item.id;
+      for (const range of this.deletes.slice(
+        client,
+        item.id.clock,
+        item.length,
+      )) {
+        if (range.attrs) {
+          const ids = Y.createIdSet();
+          ids.add(client, range.clock, range.len);
+          relabeled.add(client, range.clock, range.len);
+          Y.insertIntoIdMap(
+            relabel,
+            Y.createIdMapFromIdSet(ids, [
+              ...range.attrs,
+              Y.createContentAttribute("moved", true),
+            ]),
+          );
+        }
+      }
+    }
+    this.deletes = Y.mergeIdMaps([
+      Y.diffIdMap(this.deletes, relabeled),
+      relabel,
+    ]);
   }
 }
 
@@ -223,6 +305,216 @@ function blockId(block: Y.Node): unknown {
   return block._map.get("id")?.content.getContent().at(-1);
 }
 
+/**
+ * The items of a block's content, one unit per character, mark or node. Text
+ * the old binding wrapped in anonymous nodes is included.
+ */
+function units(
+  node: Y.Node,
+  out: Array<{ id: Y.ID; key: string }> = [],
+): Array<{ id: Y.ID; key: string }> {
+  for (let item = node._start; item !== null; item = item.right) {
+    const content = item.content;
+    if (content instanceof Y.ContentType && content.type.name == null) {
+      out.push({ id: item.id, key: "n" });
+      units(content.type, out);
+      continue;
+    }
+    for (let i = 0; i < item.length; i++) {
+      out.push({
+        id: Y.createID(item.id.client, item.id.clock + i),
+        key:
+          content instanceof Y.ContentString
+            ? `s${content.str[i]}`
+            : content instanceof Y.ContentFormat
+              ? `f${content.key}=${JSON.stringify(content.value)}`
+              : content instanceof Y.ContentType
+                ? `n${content.type.name}`
+                : `e${JSON.stringify(content.getContent()[i] ?? null)}`,
+      });
+    }
+  }
+  return out;
+}
+
+/** Pairs of equal units, in order. */
+function matchUnits(
+  a: Array<{ id: Y.ID; key: string }>,
+  b: Array<{ id: Y.ID; key: string }>,
+  pairs: Array<[Y.ID, Y.ID]>,
+) {
+  let i = 0;
+  let j = 0;
+  const pairUntil = (end: number) => {
+    for (; i < end; i++, j++) {
+      pairs.push([a[i].id, b[j].id]);
+    }
+  };
+  for (const change of diff(
+    a.map((unit) => unit.key),
+    b.map((unit) => unit.key),
+  )) {
+    pairUntil(change.index);
+    i += change.remove.length;
+    j += change.insert.length;
+  }
+  pairUntil(a.length);
+}
+
+/** The attribute items of `a` and `b` that hold equal values. */
+function matchAttributes(a: Y.Node, b: Y.Node, pairs: Array<[Y.ID, Y.ID]>) {
+  for (const [key, copy] of b._map) {
+    const original = a._map.get(key);
+    if (
+      original &&
+      JSON.stringify(original.content.getContent()) ===
+        JSON.stringify(copy.content.getContent())
+    ) {
+      pairs.push([original.id, copy.id]);
+    }
+  }
+}
+
+/** A node's child nodes, deleted ones included. */
+function childNodes(node: Y.Node): Y.Node[] {
+  const out: Y.Node[] = [];
+  for (let item = node._start; item !== null; item = item.right) {
+    if (item.content instanceof Y.ContentType) {
+      out.push(item.content.type);
+    }
+  }
+  return out;
+}
+
+/**
+ * A block's content node (paragraph, heading, ...). A block from the old
+ * binding can hold several after a type change: prefer the one in `baseline`.
+ */
+function contentOf(block: Y.Node, baseline: Y.Doc): Y.Node | undefined {
+  const contents = childNodes(block).filter((n) => n.name !== "blockGroup");
+  return (
+    contents.find((n) => inBaseline(baseline, n._item!.id)) ??
+    contents.find((n) => !n._item!.deleted) ??
+    contents[0]
+  );
+}
+
+/**
+ * Pair a block's copy with its original: the blocks, their content, and their
+ * children (by id). A reformatted block's own content attributes are left
+ * unpaired, so they show as the change.
+ */
+function matchCopy(
+  original: Y.Node,
+  copy: Y.Node,
+  baseline: Y.Doc,
+  pairs: Array<[Y.ID, Y.ID]>,
+  reformatted: boolean,
+) {
+  pairs.push([original._item!.id, copy._item!.id]);
+  matchAttributes(original, copy, pairs);
+  const originalContent = contentOf(original, baseline);
+  const copyContent = contentOf(copy, baseline);
+  if (originalContent && copyContent) {
+    pairs.push([originalContent._item!.id, copyContent._item!.id]);
+    if (!reformatted) {
+      matchAttributes(originalContent, copyContent, pairs);
+    }
+    matchUnits(units(originalContent), units(copyContent), pairs);
+  }
+  const originalGroup = childNodes(original).find(
+    (n) => n.name === "blockGroup",
+  );
+  const copyGroup = childNodes(copy).find((n) => n.name === "blockGroup");
+  if (originalGroup && copyGroup) {
+    pairs.push([originalGroup._item!.id, copyGroup._item!.id]);
+    const originals = new Map(
+      childNodes(originalGroup).map((child) => [blockId(child), child]),
+    );
+    for (const child of childNodes(copyGroup)) {
+      const match = originals.get(blockId(child));
+      if (match) {
+        matchCopy(match, child, baseline, pairs, false);
+      }
+    }
+  }
+}
+
+/**
+ * Blocks that were copied since `baseline`, with the original they copy.
+ *
+ * Changing a block's type or moving it (including indenting it) deletes the
+ * block and inserts a copy with the same id: a Yjs node can't change its name
+ * or position. The copy's content is then credited to whoever made the change,
+ * and the diff shows the block twice. The pairs let the diff show the block
+ * once, as a formatting change or a move, and credit copied content to its
+ * authors.
+ */
+function copiedBlocks(
+  doc: Y.Doc,
+  baseline: Y.Doc,
+  holdsText: (type: string | undefined) => boolean,
+): Array<{ original: Y.Node; copy: Y.Node; typeChanged: boolean }> {
+  const { inserted, deleted } = changesSince(doc, baseline);
+  const originals = new Map<unknown, Y.Node>();
+  for (const item of itemsIn(doc, deleted)) {
+    if (isBlock(item)) {
+      originals.set(blockId(item.content.type), item.content.type);
+    }
+  }
+  const copies = itemsIn(doc, inserted).flatMap((item) =>
+    isBlock(item) && !item.deleted ? [item.content.type] : [],
+  );
+  return copies.flatMap((copy) => {
+    const original = originals.get(blockId(copy));
+    // Concurrent changes can leave several copies: showing each as the
+    // original would hide that the block is now there more than once.
+    if (
+      !original ||
+      copies.filter((other) => blockId(other) === blockId(copy)).length > 1
+    ) {
+      return [];
+    }
+    const from = contentOf(original, baseline)?.name;
+    const to = contentOf(copy, baseline)?.name;
+    // Only text blocks change type in place: an image turned into a paragraph
+    // has lost the image.
+    if (from !== to && !(holdsText(from) && holdsText(to))) {
+      return [];
+    }
+    return [{ original, copy, typeChanged: from !== to }];
+  });
+}
+
+/** Whether some unit of `item` is in `lost` but not in `kept`. */
+function losesUnit(item: Y.Item, lost: Y.IdSet, kept: Y.IdSet): boolean {
+  for (let i = 0; i < item.length; i++) {
+    const clock = item.id.clock + i;
+    if (lost.has(item.id.client, clock) && !kept.has(item.id.client, clock)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Whether `copy` replaced `original` where it stood: in the same list, with
+ * only deleted items between them. Changing a block's children does that.
+ */
+function inPlace(original: Y.Node, copy: Y.Node): boolean {
+  for (const side of ["left", "right"] as const) {
+    for (let item = copy._item?.[side]; item; item = item[side]) {
+      if (item === original._item) {
+        return true;
+      }
+      if (!item.deleted) {
+        break;
+      }
+    }
+  }
+  return false;
+}
+
 /** Whether the item with this id was already in `baseline`. */
 function inBaseline(baseline: Y.Doc, id: Y.ID): boolean {
   const last = baseline.store.clients.get(id.client)?.at(-1);
@@ -343,6 +635,155 @@ function splitChangedBlocks(
 }
 
 /**
+ * Show each copied block (see {@link copiedBlocks}) once: when the earlier
+ * version has the original, render the copy as the original plus the change
+ * (formatting change or move); otherwise credit the copied content to the
+ * original's authors.
+ */
+function showCopiesOnce(
+  editor: BlockNoteEditor<any, any, any>,
+  snapshot: { doc: Y.Doc; fragment: Y.Node },
+  earlier: { doc: Y.Doc; fragment: Y.Node },
+  renderer: SnapshotDiffRenderer,
+) {
+  const doc = snapshot.doc;
+  const baseline = earlier.doc;
+  // Deleted content that was in the earlier version.
+  const { inserted, deleted } = changesSince(doc, baseline);
+  const removed = Y.diffIdSet(deleted, inserted);
+  const removedContent = itemsIn(doc, removed).filter(
+    // Content only: not attributes, nor structure (child groups, whose
+    // children are checked themselves, and the old binding's anonymous text
+    // wrappers).
+    (item) =>
+      item.parentSub === null &&
+      !(
+        item.content instanceof Y.ContentType &&
+        (item.content.type.name == null ||
+          item.content.type.name === "blockGroup")
+      ),
+  );
+  const matches = copiedBlocks(
+    doc,
+    baseline,
+    (type) =>
+      type !== undefined &&
+      editor.schema.blockSpecs[type]?.config.content === "inline",
+  ).map(({ original, copy, typeChanged }) => {
+    const pairs: Array<[Y.ID, Y.ID]> = [];
+    matchCopy(original, copy, baseline, pairs, typeChanged);
+    return { original, copy, typeChanged, pairs };
+  });
+
+  // An original in the earlier version is shown as its copy, so only the
+  // change shows. Unless content it had made it into no copy (it was lost
+  // with the original): then show both, so the loss shows too. Content that
+  // moved out (into another shown copy) isn't lost.
+  let shown = matches.filter((match) =>
+    inBaseline(baseline, match.original._item!.id),
+  );
+  for (let changed = true; changed;) {
+    const kept = Y.createIdSet();
+    for (const { pairs } of shown) {
+      for (const [a] of pairs) {
+        kept.add(a.client, a.clock, 1);
+      }
+    }
+    const next = shown.filter(
+      ({ original }) =>
+        !removedContent.some(
+          (item) =>
+            (item === original._item || Y.isParentOf(original, item)) &&
+            // Per unit: a deleted item can span content deleted before.
+            losesUnit(item, removed, kept),
+        ),
+    );
+    changed = next.length !== shown.length;
+    shown = next;
+  }
+
+  // A block that moved elsewhere also shows its original, struck through, at
+  // the old place. One indented or outdented keeps its place in reading
+  // order, so it only shows at the new place. Blocks moved with a parent are
+  // struck through with it.
+  const before = readingOrder(earlier.fragment);
+  const after = readingOrder(snapshot.fragment);
+  function isMove({ original, copy, typeChanged }: (typeof matches)[number]) {
+    return !typeChanged && !inPlace(original, copy);
+  }
+  const reorderedOriginals = shown
+    .filter(
+      (match) => isMove(match) && reordered(blockId(match.copy), before, after),
+    )
+    .map(({ original }) => original);
+  function struck(original: Y.Node) {
+    return reorderedOriginals.some(
+      (other) => other === original || Y.isParentOf(other, original._item!),
+    );
+  }
+
+  const unchanged = Y.createIdSet();
+  const credits: Array<[Y.ID, Y.ID]> = [];
+  const moved: Y.ID[] = [];
+  for (const match of matches) {
+    const { original, copy, pairs } = match;
+    if (!inBaseline(baseline, original._item!.id)) {
+      credits.push(...pairs);
+      continue;
+    }
+    if (!shown.includes(match)) {
+      continue;
+    }
+    // A block that moved stays marked, as a move. One copied in place (its
+    // children changed) shows unchanged.
+    const move = isMove(match);
+    for (const [a, b] of pairs) {
+      if (!(move && struck(original))) {
+        unchanged.add(a.client, a.clock, 1);
+      }
+      if (!move || b !== copy._item!.id) {
+        unchanged.add(b.client, b.clock, 1);
+      }
+    }
+    if (move) {
+      moved.push(copy._item!.id);
+    }
+  }
+  const movedFrom = itemsIn(doc, removed).filter((item) =>
+    reorderedOriginals.some(
+      (original) => item === original._item || Y.isParentOf(original, item),
+    ),
+  );
+  renderer.adjust(unchanged, credits, moved, movedFrom);
+}
+
+/** The ids of the blocks under `node`, top to bottom, nesting ignored. */
+function readingOrder(node: Y.Node, out: unknown[] = []): unknown[] {
+  for (let item = node._start; item !== null; item = item.right) {
+    if (!item.deleted && item.content instanceof Y.ContentType) {
+      if (isBlock(item)) {
+        out.push(blockId(item.content.type));
+      }
+      readingOrder(item.content.type, out);
+    }
+  }
+  return out;
+}
+
+/**
+ * Whether the block with this id has another block above it than before,
+ * counting only blocks in both versions. An indent or outdent keeps it.
+ */
+function reordered(id: unknown, before: unknown[], after: unknown[]): boolean {
+  function previous(order: unknown[], other: unknown[]) {
+    const inOther = new Set(other);
+    const common = order.filter((block) => inOther.has(block));
+    return common[common.indexOf(id) - 1];
+  }
+  return previous(before, after) !== previous(after, before);
+}
+
+/**
  * Decode a snapshot, diff it against a baseline if given, and render it.
  *
  * Snapshots are decoded into throwaway documents, so pointing the binding at
@@ -402,15 +843,22 @@ export function showSnapshotPreview(
       const options = renderAttributions
         ? { attributions: renderAttributions }
         : undefined;
+      let renderer: Y.DiffRenderer | undefined;
+      if (baseline && keepDeleted) {
+        const snapshotRenderer = new SnapshotDiffRenderer(
+          baseline.doc,
+          snapshot.doc,
+          options,
+        );
+        if (hasFix(experimental, "recreatedBlocks")) {
+          showCopiesOnce(editor, snapshot, baseline, snapshotRenderer);
+        }
+        renderer = snapshotRenderer;
+      } else if (baseline) {
+        renderer = Y.createDiffRenderer(baseline.doc, snapshot.doc, options);
+      }
       editor.exec(
-        configureYProsemirror({
-          ytype: snapshot.fragment,
-          renderer: baseline
-            ? keepDeleted
-              ? new SnapshotDiffRenderer(baseline.doc, snapshot.doc, options)
-              : Y.createDiffRenderer(baseline.doc, snapshot.doc, options)
-            : undefined,
-        }),
+        configureYProsemirror({ ytype: snapshot.fragment, renderer }),
       );
     } finally {
       destroyDecodedFragment(snapshot);

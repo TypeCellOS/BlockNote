@@ -454,6 +454,8 @@ export const ja: Dictionary = {
     deleted_by: (users: string) => `削除者: ${users}`,
     changed: "変更済み",
     changed_by: (users: string) => `変更者: ${users}`,
+    moved: "移動済み",
+    moved_by: (users: string) => `移動者：${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `書式の変更 (${formats}) 変更者: ${users}`,
   },
