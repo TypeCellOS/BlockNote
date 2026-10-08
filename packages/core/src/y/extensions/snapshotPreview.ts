@@ -39,32 +39,16 @@ function inBaseline(baseline: Y.Doc, id: Y.ID): boolean {
 }
 
 /**
- * Credit a moved block's deletion to whoever removed it, not to whoever moved
- * it, returning the adjusted delete attributions.
+ * Moved blocks that are gone, with their content.
  *
  * A move (indenting, dragging, a type change, ...) deletes a block and inserts
  * a copy with the same id. While a copy is shown, the diff shows the move as
- * is. Once every copy is gone, only the original's deletion is shown, so:
- * - whoever inserted a copy (a mover) is removed from it;
- * - whoever deleted a copy, other than by moving it on, is added to it.
- * A copy lost with a concurrently deleted parent has no deleter, so a block
- * moved into it shows as deleted without an author. Without insert
- * attributions the movers are unknown, so no author is shown.
+ * is. Once every copy is gone, only the original's deletion is shown, and
+ * that names the mover, who may not have deleted it: the copy can be lost
+ * with a concurrently deleted parent, or deleted later by someone else. Such
+ * deletions are shown without an author.
  */
-function creditMoves(
-  doc: Y.Doc,
-  baseline: Y.Doc,
-  attributions: Y.ContentMap,
-): Y.IdMap<any> {
-  // Attributions hold the author under the change's kind ("insert" or
-  // "delete"), next to its time ("insertAt" or "deleteAt").
-  function users(map: Y.IdMap<any>, item: Y.Item, kind: string): unknown[] {
-    return map
-      .slice(item.id.client, item.id.clock, 1)
-      .flatMap((range) => range.attrs ?? [])
-      .filter((attr) => attr.name === kind)
-      .map((attr) => attr.val);
-  }
+function lostMoves(doc: Y.Doc, baseline: Y.Doc): Y.IdSet {
   const originals = new Map<unknown, Y.Node[]>();
   const copies = new Map<unknown, Y.Item[]>();
   for (const structs of doc.store.clients.values()) {
@@ -89,73 +73,25 @@ function creditMoves(
       }
     }
   }
-  const replaced = Y.createIdSet();
-  const credited: Y.IdMap<any> = Y.createIdMap();
+  const lost = Y.createIdSet();
   for (const [id, blocks] of originals) {
-    const moved = copies.get(id);
-    if (!moved || moved.some((copy) => !copy.deleted)) {
+    if (!copies.get(id)?.every((copy) => copy.deleted)) {
       continue;
     }
-    const inserters = moved.map((copy) =>
-      users(attributions.inserts, copy, "insert"),
-    );
-    const movers = new Set(inserters.flat());
-    const known = inserters.every((inserter) => inserter.length > 0);
-    const deleters = new Set(
-      moved.flatMap((copy, i) =>
-        users(attributions.deletes, copy, "delete").filter(
-          (user) =>
-            !inserters.some((other, j) => j !== i && other.includes(user)),
-        ),
-      ),
-    );
     for (const structs of doc.store.clients.values()) {
       for (const item of structs) {
         if (
-          !(item instanceof Y.Item) ||
-          !blocks.some(
+          item instanceof Y.Item &&
+          blocks.some(
             (block) => item === block._item || Y.isParentOf(block, item),
           )
         ) {
-          continue;
-        }
-        const { client, clock } = item.id;
-        for (const range of attributions.deletes.slice(
-          client,
-          clock,
-          item.length,
-        )) {
-          const attrs = range.attrs ?? [];
-          const movedBy = attrs.filter(
-            (attr) =>
-              attr.name === "delete" && (!known || movers.has(attr.val)),
-          );
-          if (!movedBy.length) {
-            continue;
-          }
-          const kept = attrs.filter((attr) => !movedBy.includes(attr));
-          const added = known
-            ? [...deleters]
-                .filter(
-                  (user) =>
-                    !kept.some(
-                      (attr) => attr.name === "delete" && attr.val === user,
-                    ),
-                )
-                .map((user) => Y.createContentAttribute("delete", user))
-            : [];
-          const ids = Y.createIdSet();
-          ids.add(client, range.clock, range.len);
-          replaced.add(client, range.clock, range.len);
-          Y.insertIntoIdMap(
-            credited,
-            Y.createIdMapFromIdSet(ids, [...kept, ...added]),
-          );
+          lost.add(item.id.client, item.id.clock, item.length);
         }
       }
     }
   }
-  return Y.mergeIdMaps([Y.diffIdMap(attributions.deletes, replaced), credited]);
+  return lost;
 }
 
 /**
@@ -188,7 +124,10 @@ export function showSnapshotPreview(
         baseline && attributions
           ? Y.createContentMap(
               attributions.inserts,
-              creditMoves(snapshot.doc, baseline.doc, attributions),
+              Y.diffIdMap(
+                attributions.deletes,
+                lostMoves(snapshot.doc, baseline.doc),
+              ),
             )
           : attributions;
       editor.exec(

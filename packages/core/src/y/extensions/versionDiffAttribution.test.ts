@@ -313,29 +313,23 @@ describe("version diff of a moved block", () => {
     ).toEqual(["[block moved]: bob", "Moved: bob"]);
   });
 
-  it.each([true, false])(
-    "names no author for a block moved into a concurrently deleted one (insert attributions: %s)",
-    (withInserts) => {
-      const base = blocks();
-      const bob = editOf(base, 2, nest);
-      const alice = editOf(base, 1, removeParent);
-      const server = history(base);
-      const before = server.apply(alice, "alice");
-      const after = server.apply(bob, "bob");
-      const attributions = withInserts
-        ? server.attributions
-        : deletedBy(bob, "bob");
-      expect(deletions(before, after, attributions)).toEqual([
-        "[block moved]: ",
-        "Moved: ",
-      ]);
-    },
-  );
+  it("names no author for a block moved into a concurrently deleted one", () => {
+    const base = blocks();
+    const bob = editOf(base, 2, nest);
+    const alice = editOf(base, 1, removeParent);
+    const server = history(base);
+    const before = server.apply(alice, "alice");
+    const after = server.apply(bob, "bob");
+    expect(deletions(before, after, server.attributions)).toEqual([
+      "[block moved]: ",
+      "Moved: ",
+    ]);
+  });
 
-  it("keeps the deleter of a block whose concurrent type change is lost", () => {
+  it("keeps the parent's deleter when a child's concurrent type change is lost", () => {
     const base = blocks();
     // Bob's type change replaces the child with a heading copy, which Alice's
-    // deletion of the parent takes with it. Alice did see and delete the child.
+    // deletion of the parent takes with it.
     const bob = editOf(base, 2, (editor) =>
       editor.updateBlock("child", { type: "heading" }),
     );
@@ -348,12 +342,12 @@ describe("version diff of a moved block", () => {
     ).toEqual([
       "[block parent]: alice",
       "Parent: alice",
-      "[block child]: alice",
-      "Child: alice",
+      "[block child]: ",
+      "Child: ",
     ]);
   });
 
-  it("attributes a moved block to whoever deletes it, not to the mover", () => {
+  it("names no author for a moved block that someone else deletes", () => {
     const base = blocks();
     const server = history(base);
     server.apply(editOf(base, 1, nest), "alice");
@@ -365,43 +359,8 @@ describe("version diff of a moved block", () => {
       "Parent: bob",
       "[block child]: bob",
       "Child: bob",
-      "[block moved]: bob",
-      "Moved: bob",
+      "[block moved]: ",
+      "Moved: ",
     ]);
-  });
-
-  it("attributes a moved block to the mover who then deletes it", () => {
-    const base = blocks();
-    const server = history(base);
-    const after = server.apply(
-      editOf(base, 2, (editor) => {
-        nest(editor);
-        editor.removeBlocks(["moved"]);
-      }),
-      "bob",
-    );
-    expect(
-      deletions(Y.encodeStateAsUpdateV2(base), after, server.attributions),
-    ).toEqual(["[block moved]: bob", "Moved: bob"]);
-  });
-
-  it("attributes a block moved twice to whoever deletes it", () => {
-    const base = blocks();
-    const server = history(base);
-    server.apply(editOf(base, 2, nest), "bob");
-    server.apply(
-      editOf(server.server, 3, (editor) => {
-        editor.setTextCursorPosition("moved");
-        editor.unnestBlock();
-      }),
-      "carol",
-    );
-    const after = server.apply(
-      editOf(server.server, 4, (editor) => editor.removeBlocks(["moved"])),
-      "dave",
-    );
-    expect(
-      deletions(Y.encodeStateAsUpdateV2(base), after, server.attributions),
-    ).toEqual(["[block moved]: dave", "Moved: dave"]);
   });
 });

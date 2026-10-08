@@ -1056,7 +1056,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "info",
-        note: "B's type change is lost with Parent. Versioning shows Parent and Child deleted by A only: B's change replaced Child, but A deleted it on purpose.",
+        note: "B's type change is lost with Parent. Versioning shows Parent deleted by A, and Child deleted without an author: B's change replaced Child with a copy that was lost, and the diff can't tell who to credit.",
       },
     ],
     title: "Delete a parent vs change its child's type",
