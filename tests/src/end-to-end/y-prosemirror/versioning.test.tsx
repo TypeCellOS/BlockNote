@@ -100,13 +100,12 @@ const propertyChanges = new Map([
 
 // Each scenario's diff with the experimental flags off (as in the editor) and
 // all on.
+const ALL_FIXES: ExperimentalVersionDiffs = {
+  versionDiffFixes: "implicitDeleteAttribution",
+};
 const cases = scenarios.flatMap((scenario) => [
   { scenario, name: "versioning diff", experimental: {} },
-  {
-    scenario,
-    name: "versioning diff (experimental)",
-    experimental: { lostContentAttribution: true },
-  },
+  { scenario, name: "versioning diff (experimental)", experimental: ALL_FIXES },
 ]);
 
 for (const { scenario, name, experimental } of cases) {

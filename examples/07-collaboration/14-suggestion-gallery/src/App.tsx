@@ -6,6 +6,8 @@ import type { GalleryEditor } from "./gallerySchema";
 import {
   createYVersionView,
   type ExperimentalVersionDiffs,
+  type VersionDiffFixes,
+  versionDiffFixesIncluded,
   SuggestionsExtension,
   withCollaboration,
 } from "@blocknote/core/y";
@@ -27,39 +29,37 @@ import { Feedback, scenarios, SuggestionScenario } from "./scenarios";
 
 type Mode = "suggestions" | "versioning";
 
-type Experiment = keyof ExperimentalVersionDiffs;
-
-// The experimental version diff flags the Diff can toggle, off by default as
+// The experimental version diff fixes the Diff can show, none by default as
 // in the editor. Kept in the URL, so a link opens the same view.
-const EXPERIMENTS: { key: Experiment; label: string }[] = [
-  { key: "lostContentAttribution", label: "Lost content attribution" },
+const FIXES: { value: VersionDiffFixes | undefined; label: string }[] = [
+  { value: undefined, label: "Default" },
+  { value: "implicitDeleteAttribution", label: "Implicit delete attribution" },
 ];
+const ALL_FIXES: ExperimentalVersionDiffs = {
+  versionDiffFixes: FIXES[FIXES.length - 1].value,
+};
 
-function readExperiments(): ExperimentalVersionDiffs {
-  const params = new URLSearchParams(window.location.search);
-  return Object.fromEntries(
-    EXPERIMENTS.map(({ key }) => [key, params.get(key) === "1"]),
+function readFixes(): ExperimentalVersionDiffs {
+  const value = new URLSearchParams(window.location.search).get(
+    "versionDiffFixes",
   );
+  return {
+    versionDiffFixes: FIXES.find((fixes) => fixes.value === value)?.value,
+  };
 }
 
-function writeExperiments(experimental: ExperimentalVersionDiffs) {
+function writeFixes(experimental: ExperimentalVersionDiffs) {
   const url = new URL(window.location.href);
-  for (const { key } of EXPERIMENTS) {
-    if (experimental[key]) {
-      url.searchParams.set(key, "1");
-    } else {
-      url.searchParams.delete(key);
-    }
+  if (experimental.versionDiffFixes) {
+    url.searchParams.set("versionDiffFixes", experimental.versionDiffFixes);
+  } else {
+    url.searchParams.delete("versionDiffFixes");
   }
   window.history.replaceState(null, "", url);
 }
 
-const ALL_EXPERIMENTS: ExperimentalVersionDiffs = Object.fromEntries(
-  EXPERIMENTS.map(({ key }) => [key, true]),
-);
-
-// A note with `when` describes the Diff with those flags, so it only shows in
-// Versioning mode with matching flags.
+// A note with `when` describes the Diff with or without those fixes, so it
+// only shows in Versioning mode when they match.
 function applies(
   f: Feedback,
   mode: Mode,
@@ -68,10 +68,13 @@ function applies(
   if (!f.when) {
     return true;
   }
+  const included = experimental.versionDiffFixes
+    ? versionDiffFixesIncluded[experimental.versionDiffFixes]
+    : [];
   return (
     mode === "versioning" &&
     Object.entries(f.when).every(
-      ([key, on]) => (experimental[key as Experiment] ?? false) === on,
+      ([fix, on]) => included.some((each) => each === fix) === on,
     )
   );
 }
@@ -612,14 +615,14 @@ function notesFor(
   return (s.feedback ?? []).filter((f) => applies(f, mode, experimental));
 }
 
-// The severity with the flags off (the default) and, for a scenario the flags
-// affect, in parentheses the severity with all of them on (green: no issue
-// left). The checkboxes don't change it.
+// The severity without fixes (the default) and, for a scenario the fixes
+// affect, in parentheses the severity with all of them (green: no issue left).
+// The chosen fixes don't change it.
 function severityBadge(s: SuggestionScenario, mode: Mode): string {
   const sev = topSeverity(s, notesFor(s, mode, {}));
   let badge = sev ? SEVERITY[sev].icon + " " : "";
   if (mode === "versioning" && s.feedback?.some((f) => f.when)) {
-    const best = topSeverity(s, notesFor(s, mode, ALL_EXPERIMENTS));
+    const best = topSeverity(s, notesFor(s, mode, ALL_FIXES));
     badge += `(${best === "high" || best === "low" ? SEVERITY[best].icon : "🟢"}) `;
   }
   return badge;
@@ -628,13 +631,12 @@ function severityBadge(s: SuggestionScenario, mode: Mode): string {
 export default function App() {
   const [selectedId, setSelectedId] = useState(scenarios[0].id);
   const [mode, setMode] = useState<Mode>("versioning");
-  const [experimental, setExperimental] = useState(readExperiments);
+  const [experimental, setExperimental] = useState(readFixes);
   const selected = scenarios.find((s) => s.id === selectedId)!;
   const feedback = notesFor(selected, mode, experimental);
 
-  function toggle(key: Experiment) {
-    const next = { ...experimental, [key]: !experimental[key] };
-    writeExperiments(next);
+  function choose(next: ExperimentalVersionDiffs) {
+    writeFixes(next);
     setExperimental(next);
   }
 
@@ -693,13 +695,14 @@ export default function App() {
 
         {mode === "versioning" && (
           <div className="bn-gallery-experiments">
-            Experimental:
-            {EXPERIMENTS.map(({ key, label }) => (
-              <label key={key}>
+            Experimental fixes:
+            {FIXES.map(({ value, label }) => (
+              <label key={label}>
                 <input
-                  type="checkbox"
-                  checked={experimental[key] ?? false}
-                  onChange={() => toggle(key)}
+                  type="radio"
+                  name="versionDiffFixes"
+                  checked={experimental.versionDiffFixes === value}
+                  onChange={() => choose({ versionDiffFixes: value })}
                 />
                 {label}
               </label>

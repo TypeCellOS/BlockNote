@@ -653,6 +653,12 @@ exports[`versioning diff (experimental): Delete a parent vs change its child's t
 ]
 `;
 
+exports[`versioning diff (experimental): Delete a parent vs type in its child 1`] = `
+[
+  "delete block "Parent" A",
+]
+`;
+
 exports[`versioning diff (experimental): Delete column vs add row 1`] = `
 [
   "delete <tableCell> A",

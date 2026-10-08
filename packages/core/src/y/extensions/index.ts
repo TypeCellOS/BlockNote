@@ -137,7 +137,12 @@ export function withCollaboration<
   };
 }
 
-export type { ExperimentalVersionDiffs } from "./snapshotPreview.js";
+export type {
+  ExperimentalVersionDiffs,
+  VersionDiffFix,
+  VersionDiffFixes,
+} from "./snapshotPreview.js";
+export { versionDiffFixesIncluded } from "./snapshotPreview.js";
 export * from "./AttributionExtension.js";
 export * from "./DiffVersioningExtension.js";
 export * from "./ForkYDoc.js";

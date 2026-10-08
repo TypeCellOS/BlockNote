@@ -1,4 +1,4 @@
-import type { ExperimentalVersionDiffs } from "@blocknote/core/y";
+import type { VersionDiffFix } from "@blocknote/core/y";
 import { testDocumentBlocks } from "@shared/testDocumentBlocks.js";
 
 import type { GalleryEditor, GalleryPartialBlock } from "./gallerySchema";
@@ -27,8 +27,8 @@ import type { GalleryEditor, GalleryPartialBlock } from "./gallerySchema";
 export type Feedback = {
   severity: "info" | "low" | "high";
   note: string;
-  /** Show the note only in Versioning mode, with these experimental flags. */
-  when?: ExperimentalVersionDiffs;
+  /** Show the note only in Versioning mode, with or without these fixes. */
+  when?: Partial<Record<VersionDiffFix, boolean>>;
 };
 
 export type SingleScenario = {
@@ -1175,12 +1175,12 @@ export const scenarios: SuggestionScenario[] = [
       },
       {
         severity: "high",
-        when: { lostContentAttribution: false },
+        when: { implicitDeleteAttribution: false },
         note: "Versioning shows X as deleted by B, though B only moved it.",
       },
       {
         severity: "info",
-        when: { lostContentAttribution: true },
+        when: { implicitDeleteAttribution: true },
         note: "Versioning shows X deleted without an author: B only moved it, and A never saw it there.",
       },
     ],
@@ -1360,7 +1360,7 @@ export const scenarios: SuggestionScenario[] = [
       },
       {
         severity: "info",
-        when: { lostContentAttribution: true },
+        when: { implicitDeleteAttribution: true },
         note: "Versioning also shows the letters A deleted inside the replaced paragraph, as deleted by A and B.",
       },
       {
