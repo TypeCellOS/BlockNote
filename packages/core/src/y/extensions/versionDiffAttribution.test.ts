@@ -324,8 +324,7 @@ describe("version diff of a moved block", () => {
     ]);
   });
 
-  // To be fixed by #3166.
-  it.fails("keeps the parent's deleter when a child's concurrent type change is lost", () => {
+  it("credits a child to its parent's deleter when its concurrent type change is lost", () => {
     const base = blocks();
     // Bob's type change replaces the child with a heading copy, which Alice's
     // deletion of the parent takes with it.
@@ -338,7 +337,7 @@ describe("version diff of a moved block", () => {
     const after = server.apply(bob, "bob");
     expect(
       deletions(Y.encodeStateAsUpdateV2(base), after, server.attributions),
-    ).toEqual(["[block parent]: alice", "[block child]: "]);
+    ).toEqual(["[block parent]: alice"]);
   });
 
   // To be fixed by #3166.
