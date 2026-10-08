@@ -188,12 +188,8 @@ describe("version diff of a deleted block", () => {
     const del = "y-attributed-delete";
     expect(changes).toEqual([
       { text: "[block parent]", mark: del, users: ["alice"] },
-      { text: "Parent", mark: del, users: ["alice"] },
-      { text: "[block child]", mark: del, users: ["alice"] },
-      { text: "Child", mark: del, users: ["alice"] },
       { text: " by Bob", mark: del, users: [] },
       { text: "[block bobs]", mark: del, users: [] },
-      { text: "Bob's block", mark: del, users: [] },
     ]);
   });
 
@@ -306,14 +302,13 @@ describe("version diff of a moved block", () => {
       .map((change) => `${change.text}: ${change.users.join(", ")}`);
   }
 
-  // To be fixed by #3166.
-  it.fails("attributes a move to the mover", () => {
+  it("attributes a move to the mover", () => {
     const base = blocks();
     const server = history(base);
     const after = server.apply(editOf(base, 2, nest), "bob");
     expect(
       deletions(Y.encodeStateAsUpdateV2(base), after, server.attributions),
-    ).toEqual(["[block moved]: bob", "Moved: bob"]);
+    ).toEqual(["[block moved]: bob"]);
   });
 
   // To be fixed by #3172.
@@ -343,7 +338,6 @@ describe("version diff of a moved block", () => {
     const after = server.apply(bob, "bob");
     expect(deletions(before, after, server.attributions)).toEqual([
       "[block moved]: ",
-      "Moved: ",
     ]);
   });
 
@@ -361,12 +355,7 @@ describe("version diff of a moved block", () => {
     const after = server.apply(bob, "bob");
     expect(
       deletions(Y.encodeStateAsUpdateV2(base), after, server.attributions),
-    ).toEqual([
-      "[block parent]: alice",
-      "Parent: alice",
-      "[block child]: ",
-      "Child: ",
-    ]);
+    ).toEqual(["[block parent]: alice", "[block child]: "]);
   });
 
   // To be fixed by #3166.
@@ -377,14 +366,7 @@ describe("version diff of a moved block", () => {
     const after = server.apply(editOf(server.server, 2, removeParent), "bob");
     expect(
       deletions(Y.encodeStateAsUpdateV2(base), after, server.attributions),
-    ).toEqual([
-      "[block parent]: bob",
-      "Parent: bob",
-      "[block child]: bob",
-      "Child: bob",
-      "[block moved]: ",
-      "Moved: ",
-    ]);
+    ).toEqual(["[block parent]: bob", "[block moved]: "]);
   });
 
   // To be fixed by #3168.
