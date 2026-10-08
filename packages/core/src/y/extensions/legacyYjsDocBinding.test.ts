@@ -118,6 +118,42 @@ function attributionsFor(before: Uint8Array, after: Uint8Array) {
 }
 
 /**
+ * Attribute each step after `before` to its user, at its time, as YHub would:
+ * every step is a later state of the same document.
+ */
+function attributionsOfSteps(
+  before: Uint8Array,
+  steps: Array<{ state: Uint8Array; user: string; time: number }>,
+) {
+  const doc = new Y.Doc({ gc: false });
+  docs.push(doc);
+  Y.applyUpdateV2(doc, before);
+  const attributions = Y.createContentMap();
+  for (const { state, user, time } of steps) {
+    const record = (tr: Y.Transaction) => {
+      Y.insertIntoIdMap(
+        attributions.inserts,
+        Y.createIdMapFromIdSet(tr.insertSet, [
+          Y.createContentAttribute("insert", user),
+          Y.createContentAttribute("insertAt", time),
+        ]),
+      );
+      Y.insertIntoIdMap(
+        attributions.deletes,
+        Y.createIdMapFromIdSet(tr.deleteSet, [
+          Y.createContentAttribute("delete", user),
+          Y.createContentAttribute("deleteAt", time),
+        ]),
+      );
+    };
+    doc.on("beforeObserverCalls", record);
+    Y.applyUpdateV2(doc, state);
+    doc.off("beforeObserverCalls", record);
+  }
+  return attributions;
+}
+
+/**
  * Compare `before` → `after` in the editor's version view; returns the changed
  * blocks, or with `nodes: "all"` every changed node.
  */
@@ -127,15 +163,13 @@ function diffBlocks(
   before: Uint8Array,
   after: Uint8Array,
   nodes: "blocks" | "all" = "blocks",
+  attributions = attributionsFor(before, after),
 ) {
   const view = createYVersionView(editor, doc.get("doc")).open();
   try {
     view.show({
       content: after,
-      comparison: {
-        content: before,
-        attributions: attributionsFor(before, after),
-      },
+      comparison: { content: before, attributions },
       target: { type: "snapshot", id: "after" },
     });
     const changed: Array<{
@@ -443,6 +477,56 @@ describe("legacy Yjs document binding", () => {
     );
     expect(current).not.toEqual([]);
     expect(old).toEqual(current);
+  });
+
+  it("does not change the document when diffing a change made with the old binding", () => {
+    const legacy = createLegacyEditor();
+    legacy.editor.replaceBlocks(legacy.editor.document, [
+      { id: "changed", type: "paragraph", content: "Text" },
+    ]);
+    const before = Y1.encodeStateAsUpdateV2(legacy.doc);
+    legacy.editor.updateBlock("changed", { type: "heading" });
+    const after = Y1.encodeStateAsUpdateV2(legacy.doc);
+    const opened = openWithNewBinding(after);
+    const stored = Y.encodeStateAsUpdateV2(opened.doc);
+
+    expect(diffBlocks(opened.editor, opened.doc, before, after)).not.toEqual(
+      [],
+    );
+    expect(Y.encodeStateAsUpdateV2(opened.doc)).toEqual(stored);
+  });
+
+  // To be fixed by #3173.
+  it.fails("credits a type change made with the old binding only to whoever made it", () => {
+    const legacy = createLegacyEditor();
+    legacy.editor.replaceBlocks(legacy.editor.document, [
+      { id: "changed", type: "paragraph", content: "Text" },
+    ]);
+    const before = Y1.encodeStateAsUpdateV2(legacy.doc);
+    legacy.editor.setTextCursorPosition("changed", "end");
+    legacy.editor.insertInlineContent(" by Alice");
+    const byAlice = Y1.encodeStateAsUpdateV2(legacy.doc);
+    legacy.editor.updateBlock("changed", { type: "heading" });
+    const after = Y1.encodeStateAsUpdateV2(legacy.doc);
+    const opened = openWithNewBinding(after);
+
+    const changed = diffBlocks(
+      opened.editor,
+      opened.doc,
+      before,
+      after,
+      "blocks",
+      attributionsOfSteps(before, [
+        { state: byAlice, user: "alice", time: 1000 },
+        { state: after, user: "bob", time: 2000 },
+      ]),
+    );
+    expect(
+      changed.map(({ change, type, users }) => [change, type, users]),
+    ).toEqual([
+      ["y-attributed-delete", "paragraph", ["bob"]],
+      ["y-attributed-insert", "heading", ["bob"]],
+    ]);
   });
 
   it("diffs a text edit made with the old binding in place", () => {
