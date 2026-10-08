@@ -316,6 +316,23 @@ describe("version diff of a moved block", () => {
     ).toEqual(["[block moved]: bob", "Moved: bob"]);
   });
 
+  // To be fixed by #3172.
+  it.fails("does not show a moved block as deleted", () => {
+    const base = blocks();
+    const server = history(base);
+    // Moving "next" above "moved" reorders them (not an indent).
+    const after = server.apply(
+      editOf(base, 2, (editor) => {
+        editor.setTextCursorPosition("next");
+        editor.moveBlocksUp();
+      }),
+      "bob",
+    );
+    expect(
+      deletions(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+    ).toEqual([]);
+  });
+
   // To be fixed by #3166.
   it.fails("names no author for a block moved into a concurrently deleted one", () => {
     const base = blocks();
@@ -404,4 +421,230 @@ describe("version diff of a moved block", () => {
       expect(deletions(before, after, server.attributions)).toEqual(expected);
     },
   );
+});
+
+describe("version diff of a type change", () => {
+  const blocks = () =>
+    baseDocument([
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent text",
+        children: [{ id: "child", type: "paragraph", content: "Child text" }],
+      },
+      { id: "next", type: "paragraph", content: "Next" },
+    ]);
+  function toHeading(editor: BlockNoteEditor<any, any, any>) {
+    editor.updateBlock("parent", { type: "heading" });
+  }
+  /** Changes as `kind text: users`, attribute changes as `attrs <node>: users`. */
+  function diff(before: Uint8Array, after: Uint8Array, map: Y.ContentMap) {
+    const { editor, view } = showDiff(before, after, map);
+    const out: string[] = [];
+    editor.prosemirrorState.doc.descendants((node) => {
+      const replaced = node.marks.some((mark) =>
+        ["y-attributed-insert", "y-attributed-delete"].includes(mark.type.name),
+      );
+      for (const mark of node.marks) {
+        if (mark.type.name === "y-attributed-attrs" && !replaced) {
+          const users = new Set(
+            Object.values(
+              mark.attrs["changes"] as Record<string, { userIds: string[] }>,
+            ).flatMap((change) => change.userIds),
+          );
+          out.push(`attrs <${node.type.name}>: ${[...users].join(", ")}`);
+        } else if (
+          mark.type.name === "y-attributed-insert" ||
+          mark.type.name === "y-attributed-delete"
+        ) {
+          const what = node.isText ? node.text : `<${node.type.name}>`;
+          const kind = mark.attrs["moved"] ? "moved" : mark.type.name.slice(13);
+          out.push(`${kind} ${what}: ${mark.attrs["userIds"].join(", ")}`);
+        }
+      }
+      return true;
+    });
+    view.close();
+    return out;
+  }
+
+  // To be fixed by #3172.
+  it.fails("shows a type change as a formatting change, not as replaced text", () => {
+    const base = blocks();
+    const server = history(base);
+    const after = server.apply(editOf(base, 2, toHeading), "bob");
+    expect(
+      diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+    ).toEqual(["attrs <heading>: bob"]);
+  });
+
+  // To be fixed by #3172.
+  it.fails("credits a type-changed block's text to its writer, from before it existed", () => {
+    const base = baseDocument([
+      { id: "next", type: "paragraph", content: "Next" },
+    ]);
+    const server = history(base);
+    server.apply(
+      editOf(base, 1, (editor) =>
+        editor.insertBlocks(
+          [{ id: "parent", type: "paragraph", content: "Parent text" }],
+          "next",
+          "before",
+        ),
+      ),
+      "alice",
+    );
+    const after = server.apply(editOf(server.server, 2, toHeading), "bob");
+    expect(
+      diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+    ).toEqual([
+      "insert <blockContainer>: alice",
+      "insert <heading>: alice",
+      "insert Parent text: alice",
+    ]);
+  });
+
+  // To be fixed by #3172.
+  it.fails("keeps later edits to a type-changed block as their author's", () => {
+    const base = blocks();
+    const server = history(base);
+    server.apply(editOf(base, 2, toHeading), "bob");
+    const after = server.apply(
+      editOf(server.server, 3, (editor) => {
+        editor.setTextCursorPosition("parent", "end");
+        editor.insertInlineContent(" by Carol");
+      }),
+      "carol",
+    );
+    expect(
+      diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+    ).toEqual(["attrs <heading>: bob", "insert  by Carol: carol"]);
+  });
+
+  it("shows both copies when two users change the type concurrently", () => {
+    const base = blocks();
+    const bob = editOf(base, 2, toHeading);
+    const carol = editOf(base, 3, (editor) =>
+      editor.updateBlock("parent", { type: "bulletListItem" }),
+    );
+    const server = history(base);
+    server.apply(bob, "bob");
+    const after = server.apply(carol, "carol");
+    const changes = diff(
+      Y.encodeStateAsUpdateV2(base),
+      after,
+      server.attributions,
+    );
+    expect(changes.filter((change) => change.startsWith("insert <"))).toEqual([
+      "insert <blockContainer>: bob",
+      "insert <heading>: bob",
+      "insert <blockGroup>: bob",
+      "insert <blockContainer>: bob",
+      "insert <paragraph>: bob",
+      "insert <blockContainer>: carol",
+      "insert <bulletListItem>: carol",
+      "insert <blockGroup>: carol",
+      "insert <blockContainer>: carol",
+      "insert <paragraph>: carol",
+    ]);
+  });
+
+  // To be fixed by #3172.
+  it.fails("credits an indented block's text to its writer, from before it existed", () => {
+    const base = blocks();
+    const server = history(base);
+    server.apply(
+      editOf(base, 1, (editor) =>
+        editor.insertBlocks(
+          [{ id: "new", type: "paragraph", content: "New text" }],
+          "next",
+          "after",
+        ),
+      ),
+      "alice",
+    );
+    const after = server.apply(
+      editOf(server.server, 2, (editor) => {
+        editor.setTextCursorPosition("new");
+        editor.nestBlock();
+      }),
+      "bob",
+    );
+    expect(
+      diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+    ).toEqual([
+      // Bob's indent created the parent's child group.
+      "insert <blockGroup>: bob",
+      "insert <blockContainer>: alice",
+      "insert <paragraph>: alice",
+      "insert New text: alice",
+    ]);
+  });
+
+  // To be fixed by #3172.
+  it.fails("shows a block moved among its siblings as a move", () => {
+    const base = baseDocument([
+      { id: "first", type: "paragraph", content: "First" },
+      { id: "second", type: "paragraph", content: "Second" },
+    ]);
+    const server = history(base);
+    const after = server.apply(
+      editOf(base, 2, (editor) => {
+        editor.setTextCursorPosition("second");
+        editor.moveBlocksUp();
+      }),
+      "bob",
+    );
+    expect(
+      diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+    ).toEqual(["moved <blockContainer>: bob"]);
+  });
+
+  // To be fixed by #3172.
+  it.fails("shows a type change as a formatting change after the text was rewritten", () => {
+    const base = blocks();
+    const server = history(base);
+    // The rewrite reuses some characters, so the block's stored text mixes
+    // kept characters with characters deleted before the type change.
+    const rewritten = server.apply(
+      editOf(base, 1, (editor) =>
+        editor.updateBlock("parent", { content: "Parts were rewritten" }),
+      ),
+      "alice",
+    );
+    const after = server.apply(editOf(server.server, 2, toHeading), "bob");
+    expect(diff(rewritten, after, server.attributions)).toEqual([
+      "attrs <heading>: bob",
+    ]);
+  });
+
+  it.each([
+    [
+      "a paragraph into an image",
+      { type: "paragraph", content: "Some text" },
+      { type: "image", props: { url: "https://example.com/a.png" } },
+    ],
+    [
+      "an image into a paragraph",
+      { type: "image", props: { url: "https://example.com/a.png" } },
+      { type: "paragraph", content: "New text" },
+    ],
+  ])("shows turning %s as a deletion and an insertion", (_, from, to) => {
+    const base = baseDocument([
+      { id: "block", ...from },
+      { id: "next", type: "paragraph", content: "Next" },
+    ]);
+    const server = history(base);
+    const after = server.apply(
+      editOf(base, 2, (editor) => editor.updateBlock("block", to as any)),
+      "bob",
+    );
+    const changes = diff(
+      Y.encodeStateAsUpdateV2(base),
+      after,
+      server.attributions,
+    );
+    expect(changes).toContain("delete <blockContainer>: bob");
+    expect(changes).toContain("insert <blockContainer>: bob");
+  });
 });

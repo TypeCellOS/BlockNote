@@ -211,7 +211,7 @@ describe("version diff of a nesting change", () => {
       );
       if (node.type.name === "blockContainer" && mark) {
         changed.push(
-          `${mark.type.name === "y-attributed-insert" ? "+" : "-"}${node.firstChild!.textContent}`,
+          `${mark.attrs["moved"] ? ">" : mark.type.name === "y-attributed-insert" ? "+" : "-"}${node.firstChild!.textContent}`,
         );
       }
       return true;
@@ -220,7 +220,7 @@ describe("version diff of a nesting change", () => {
     return changed;
   }
 
-  // To be fixed by #3168.
+  // To be fixed by #3172.
   it.fails("shows an indent as a moved block, leaving the new parent unchanged", () => {
     expect(
       diffOf(
@@ -233,10 +233,10 @@ describe("version diff of a nesting change", () => {
           { id: "x", type: "paragraph", content: "X" },
         ],
       ),
-    ).toEqual(["+X", "-X"]);
+    ).toEqual([">X"]);
   });
 
-  // To be fixed by #3168.
+  // To be fixed by #3172.
   it.fails("shows an unindent as a moved block, leaving the old parent unchanged", () => {
     expect(
       diffOf(
@@ -253,6 +253,6 @@ describe("version diff of a nesting change", () => {
           },
         ],
       ),
-    ).toEqual(["-C", "+C"]);
+    ).toEqual([">C"]);
   });
 });
