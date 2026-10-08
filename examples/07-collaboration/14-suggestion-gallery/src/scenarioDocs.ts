@@ -100,7 +100,6 @@ export function buildSuggestionScenarioDocs(
 export function createAttributionStore(
   doc: Y.Doc,
   resolveUserId: (tr: any) => string | null,
-  { deletes = true }: { deletes?: boolean } = {},
 ): Y.ContentMap {
   const attrs = Y.createContentMap();
   doc.on("beforeObserverCalls", (tr: any) => {
@@ -116,7 +115,7 @@ export function createAttributionStore(
         ]),
       );
     }
-    if (deletes && !tr.deleteSet.isEmpty()) {
+    if (!tr.deleteSet.isEmpty()) {
       Y.insertIntoIdMap(
         attrs.deletes,
         Y.createIdMapFromIdSet(tr.deleteSet, [
@@ -126,6 +125,46 @@ export function createAttributionStore(
     }
   });
   return attrs;
+}
+
+/**
+ * The merge that Versioning mode diffs against Version 1: each user's updates
+ * applied onto a copy of `beforeDoc`, attributed the way a server like YHub
+ * does. A user is credited with what their update inserts and with what it
+ * deletes itself, not with content Yjs removes because another user deleted
+ * its parent. Deleted content is kept, as stored history keeps it.
+ */
+export function createVersionMerge(beforeDoc: Y.Doc) {
+  const doc = new Y.Doc({ gc: false });
+  Y.applyUpdate(doc, Y.encodeStateAsUpdate(beforeDoc));
+  const attributions = Y.createContentMap();
+  // Recorded before the doc's observers run, so a re-render on update sees it.
+  doc.on("beforeObserverCalls", (tr: any) => {
+    if (typeof tr.origin === "string" && !tr.insertSet.isEmpty()) {
+      Y.insertIntoIdMap(
+        attributions.inserts,
+        Y.createIdMapFromIdSet(tr.insertSet, [
+          Y.createContentAttribute("insert", tr.origin),
+        ]),
+      );
+    }
+  });
+  const baseDeletes = Y.createDeleteSetFromStructStore(beforeDoc.store);
+  return {
+    doc,
+    attributions,
+    /** Merge one of `user`'s updates. */
+    apply(update: Uint8Array, user: string) {
+      Y.insertIntoIdMap(
+        attributions.deletes,
+        Y.createIdMapFromIdSet(
+          Y.diffIdSet(Y.decodeUpdate(update).ds, baseDeletes),
+          [Y.createContentAttribute("delete", user)],
+        ),
+      );
+      Y.applyUpdate(doc, update, user);
+    },
+  };
 }
 
 // (single- and multi-author suggestion docs are built by
