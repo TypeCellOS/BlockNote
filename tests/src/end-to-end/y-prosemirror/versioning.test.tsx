@@ -41,9 +41,10 @@ function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
 }
 
 /** Clone a Y.Doc's content into a fresh doc with a pinned clientID (so the
- *  concurrent merge tiebreak — and thus the test — is deterministic). */
+ *  concurrent merge tiebreak — and thus the test — is deterministic). Deleted
+ *  content is kept, as stored history and the gallery keep it. */
 function cloneWithId(source: Y.Doc, clientID: number): Y.Doc {
-  const doc = new Y.Doc();
+  const doc = new Y.Doc({ gc: false });
   Y.applyUpdate(doc, Y.encodeStateAsUpdate(source));
   doc.clientID = clientID;
   return doc;
@@ -109,10 +110,7 @@ for (const scenario of scenarios) {
 
       // "After": each user applies their change on its own clone; the clones are
       // merged into `afterDoc` via the CRDT — exactly like the gallery's merge.
-      // Kept without garbage collection, as stored history and the gallery are.
-      const afterDoc = new Y.Doc({ gc: false });
-      Y.applyUpdate(afterDoc, Y.encodeStateAsUpdate(beforeDoc));
-      afterDoc.clientID = 2;
+      const afterDoc = cloneWithId(beforeDoc, 2);
       teardown.push(() => afterDoc.destroy());
 
       for (let i = 0; i < applies.length; i++) {
