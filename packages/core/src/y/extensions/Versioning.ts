@@ -8,6 +8,7 @@ import type {
   StyleSchema,
 } from "../../schema/index.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
+import { CollaborationExtension } from "./index.js";
 import { serializeFragment } from "./snapshotCodec.js";
 import { showSnapshotPreview } from "./snapshotPreview.js";
 
@@ -59,6 +60,7 @@ export function createYVersionView<
             content,
             comparison?.content,
             comparison?.attributions,
+            editor.getExtension(CollaborationExtension)?.experimental,
           );
         },
         close() {

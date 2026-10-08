@@ -297,8 +297,7 @@ describe("AttributionExtension user loading", () => {
     });
   });
 
-  // To be fixed by #3166.
-  it.fails("does not show a change to a block's id", () => {
+  it("does not show a change to a block's id", () => {
     const { editor } = createEditor();
     editor.replaceBlocks(editor.document, [
       { type: "paragraph", content: "hello" },

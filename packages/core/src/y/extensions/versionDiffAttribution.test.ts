@@ -23,6 +23,7 @@ function collaborativeEditor(doc: Y.Doc) {
       collaboration: {
         fragment: doc.get("doc"),
         user: { name: "Test", color: "#ff0000" },
+        experimental: { lostContentAttribution: true },
       },
     }),
   );
@@ -149,8 +150,7 @@ function showDiff(
 }
 
 describe("version diff of a deleted block", () => {
-  // To be fixed by #3166.
-  it.fails("does not attribute content added concurrently inside it to the deleter", () => {
+  it("does not attribute content added concurrently inside it to the deleter", () => {
     const base = baseDocument([
       {
         id: "parent",
@@ -193,8 +193,7 @@ describe("version diff of a deleted block", () => {
     ]);
   });
 
-  // To be fixed by #3166.
-  it.fails("names no author when hovering content removed with it", () => {
+  it("names no author when hovering content removed with it", () => {
     const base = baseDocument([
       { id: "parent", type: "paragraph", content: "Parent" },
       { id: "next", type: "paragraph", content: "Next" },
@@ -311,8 +310,7 @@ describe("version diff of a moved block", () => {
     ).toEqual(["[block moved]: bob"]);
   });
 
-  // To be fixed by #3166.
-  it.fails("names no author for a block moved into a concurrently deleted one", () => {
+  it("names no author for a block moved into a concurrently deleted one", () => {
     const base = blocks();
     const bob = editOf(base, 2, nest);
     const alice = editOf(base, 1, removeParent);
@@ -340,8 +338,7 @@ describe("version diff of a moved block", () => {
     ).toEqual(["[block parent]: alice"]);
   });
 
-  // To be fixed by #3166.
-  it.fails("names no author for a moved block that someone else deletes", () => {
+  it("names no author for a moved block that someone else deletes", () => {
     const base = blocks();
     const server = history(base);
     server.apply(editOf(base, 1, nest), "alice");

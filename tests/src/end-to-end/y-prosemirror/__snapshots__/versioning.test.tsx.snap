@@ -2,28 +2,60 @@
 
 exports[`versioning diff: A adds column then row, B adds column 1`] = `
 [
-  "insert <tableCell> A",
-  "insert <tableParagraph> A",
-  "insert "C1" A",
-  "insert <tableCell> B",
-  "insert <tableParagraph> B",
-  "insert "D1" B",
-  "insert <tableCell> A",
-  "insert <tableParagraph> A",
-  "insert "C2" A",
-  "insert <tableCell> B",
-  "insert <tableParagraph> B",
-  "insert "D2" B",
-  "insert <tableRow> A",
-  "insert <tableCell> A",
-  "insert <tableParagraph> A",
-  "insert "A3" A",
-  "insert <tableCell> A",
-  "insert <tableParagraph> A",
-  "insert "B3" A",
-  "insert <tableCell> A",
-  "insert <tableParagraph> A",
-  "insert "C3" A",
+  "delete block "A1B1A2B2" B,A",
+  "delete <table> B,A",
+  "delete <tableRow> B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "A1" B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "B1" B,A",
+  "delete <tableRow> B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "A2" B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "B2" B,A",
+  "insert block "A1B1C1D1A2B2C2D2A3B3C3" B,A",
+  "insert <table> B,A",
+  "insert <tableRow> B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "A1" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "B1" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "C1" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "D1" B,A",
+  "insert <tableRow> B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "A2" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "B2" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "C2" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "D2" B,A",
+  "insert <tableRow> B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "A3" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "B3" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "C3" B,A",
   "insert <tableCell>",
   "insert <tableParagraph>",
 ]
@@ -31,29 +63,61 @@ exports[`versioning diff: A adds column then row, B adds column 1`] = `
 
 exports[`versioning diff: A adds row then column, B adds row 1`] = `
 [
-  "insert <tableCell> A",
-  "insert <tableParagraph> A",
-  "insert "C1" A",
-  "insert <tableCell> A",
-  "insert <tableParagraph> A",
-  "insert "C2" A",
-  "insert <tableRow> A",
-  "insert <tableCell> A",
-  "insert <tableParagraph> A",
-  "insert "A3" A",
-  "insert <tableCell> A",
-  "insert <tableParagraph> A",
-  "insert "B3" A",
-  "insert <tableCell> A",
-  "insert <tableParagraph> A",
-  "insert "C3" A",
-  "insert <tableRow> B",
-  "insert <tableCell> B",
-  "insert <tableParagraph> B",
-  "insert "D1" B",
-  "insert <tableCell> B",
-  "insert <tableParagraph> B",
-  "insert "D2" B",
+  "delete block "A1B1A2B2" B,A",
+  "delete <table> B,A",
+  "delete <tableRow> B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "A1" B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "B1" B,A",
+  "delete <tableRow> B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "A2" B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "B2" B,A",
+  "insert block "A1B1C1A2B2C2A3B3C3D1D2" B,A",
+  "insert <table> B,A",
+  "insert <tableRow> B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "A1" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "B1" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "C1" B,A",
+  "insert <tableRow> B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "A2" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "B2" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "C2" B,A",
+  "insert <tableRow> B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "A3" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "B3" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "C3" B,A",
+  "insert <tableRow> B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "D1" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "D2" B,A",
   "insert <tableCell>",
   "insert <tableParagraph>",
 ]
@@ -415,19 +479,51 @@ exports[`versioning diff: Add column 1`] = `
 
 exports[`versioning diff: Add column vs add row 1`] = `
 [
-  "insert <tableCell> A",
-  "insert <tableParagraph> A",
-  "insert "C1" A",
-  "insert <tableCell> A",
-  "insert <tableParagraph> A",
-  "insert "C2" A",
-  "insert <tableRow> B",
-  "insert <tableCell> B",
-  "insert <tableParagraph> B",
-  "insert "A3" B",
-  "insert <tableCell> B",
-  "insert <tableParagraph> B",
-  "insert "B3" B",
+  "delete block "A1B1A2B2" B,A",
+  "delete <table> B,A",
+  "delete <tableRow> B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "A1" B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "B1" B,A",
+  "delete <tableRow> B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "A2" B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "B2" B,A",
+  "insert block "A1B1C1A2B2C2A3B3" B,A",
+  "insert <table> B,A",
+  "insert <tableRow> B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "A1" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "B1" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "C1" B,A",
+  "insert <tableRow> B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "A2" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "B2" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "C2" B,A",
+  "insert <tableRow> B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "A3" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "B3" B,A",
   "insert <tableCell>",
   "insert <tableParagraph>",
 ]
@@ -496,19 +592,51 @@ exports[`versioning diff: Add row 1`] = `
 
 exports[`versioning diff: Add row vs add column 1`] = `
 [
-  "insert <tableCell> B",
-  "insert <tableParagraph> B",
-  "insert "C1" B",
-  "insert <tableCell> B",
-  "insert <tableParagraph> B",
-  "insert "C2" B",
-  "insert <tableRow> A",
-  "insert <tableCell> A",
-  "insert <tableParagraph> A",
-  "insert "A3" A",
-  "insert <tableCell> A",
-  "insert <tableParagraph> A",
-  "insert "B3" A",
+  "delete block "A1B1A2B2" B,A",
+  "delete <table> B,A",
+  "delete <tableRow> B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "A1" B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "B1" B,A",
+  "delete <tableRow> B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "A2" B,A",
+  "delete <tableCell> B,A",
+  "delete <tableParagraph> B,A",
+  "delete "B2" B,A",
+  "insert block "A1B1C1A2B2C2A3B3" B,A",
+  "insert <table> B,A",
+  "insert <tableRow> B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "A1" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "B1" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "C1" B,A",
+  "insert <tableRow> B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "A2" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "B2" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "C2" B,A",
+  "insert <tableRow> B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "A3" B,A",
+  "insert <tableCell> B,A",
+  "insert <tableParagraph> B,A",
+  "insert "B3" B,A",
   "insert <tableCell>",
   "insert <tableParagraph>",
 ]
@@ -523,6 +651,8 @@ exports[`versioning diff: Bold vs italic 1`] = `
 exports[`versioning diff: Both nest a new block under N0 1`] = `
 [
   "delete block "N0" A,B",
+  "delete <paragraph> A,B",
+  "delete "N0" A,B",
   "insert block "N0" A",
   "insert <paragraph> A",
   "insert "N0" A",
@@ -543,7 +673,11 @@ exports[`versioning diff: Both nest a new block under N0 1`] = `
 exports[`versioning diff: Cascading indents 1`] = `
 [
   "delete block "N0" A",
+  "delete <paragraph> A",
+  "delete "N0" A",
   "delete block "N1" A,B",
+  "delete <paragraph> A,B",
+  "delete "N1" A,B",
   "insert block "N0" A",
   "insert <paragraph> A",
   "insert "N0" A",
@@ -552,6 +686,8 @@ exports[`versioning diff: Cascading indents 1`] = `
   "insert <paragraph> A",
   "insert "N1" A",
   "delete block "N2" B",
+  "delete <paragraph> B",
+  "delete "N2" B",
   "insert block "N1" B",
   "insert <paragraph> B",
   "insert "N1" B",
@@ -571,6 +707,12 @@ exports[`versioning diff: Center-align 1`] = `
 exports[`versioning diff: Change a parent's type vs edit its child 1`] = `
 [
   "delete block "Parent" A",
+  "delete <paragraph> A",
+  "delete "Parent" A",
+  "delete <blockGroup> A",
+  "delete block "Child" A",
+  "delete <paragraph> A",
+  "delete "Child" A",
   "insert block "Parent" A",
   "insert <heading> A",
   "insert "Parent" A",
@@ -590,6 +732,12 @@ exports[`versioning diff: Change image source 1`] = `
 exports[`versioning diff: Change type of a parent block 1`] = `
 [
   "delete block "N0" A",
+  "delete <paragraph> A",
+  "delete "N0" A",
+  "delete <blockGroup> A",
+  "delete block "N1" A",
+  "delete <paragraph> A",
+  "delete "N1" A",
   "insert block "N0" A",
   "insert <heading> A",
   "insert "N0" A",
@@ -617,6 +765,8 @@ exports[`versioning diff: Create two columns 1`] = `
 exports[`versioning diff: Delete a code block 1`] = `
 [
   "delete block "const x = 1;" A",
+  "delete <codeBlock> A",
+  "delete "const x = 1;" A",
   "insert block "" A",
   "insert <paragraph> A",
 ]
@@ -625,6 +775,7 @@ exports[`versioning diff: Delete a code block 1`] = `
 exports[`versioning diff: Delete a divider 1`] = `
 [
   "delete block "" A",
+  "delete <divider> A",
   "insert block "" A",
   "insert <paragraph> A",
 ]
@@ -633,6 +784,12 @@ exports[`versioning diff: Delete a divider 1`] = `
 exports[`versioning diff: Delete a nested block 1`] = `
 [
   "delete block "Parent" A",
+  "delete <paragraph> A",
+  "delete "Parent" A",
+  "delete <blockGroup> A",
+  "delete block "Child" A",
+  "delete <paragraph> A",
+  "delete "Child" A",
   "insert block "Parent" A",
   "insert <paragraph> A",
   "insert "Parent" A",
@@ -642,6 +799,12 @@ exports[`versioning diff: Delete a nested block 1`] = `
 exports[`versioning diff: Delete a parent block 1`] = `
 [
   "delete block "Parent" A",
+  "delete <paragraph> A",
+  "delete "Parent" A",
+  "delete <blockGroup> A",
+  "delete block "Child" A",
+  "delete <paragraph> A",
+  "delete "Child" A",
   "insert block "" A",
   "insert <paragraph> A",
 ]
@@ -650,6 +813,12 @@ exports[`versioning diff: Delete a parent block 1`] = `
 exports[`versioning diff: Delete a parent vs change its child's type 1`] = `
 [
   "delete block "Parent" A",
+  "delete <paragraph> A",
+  "delete "Parent" A",
+  "delete <blockGroup> A",
+  "delete block "Child"",
+  "delete <paragraph>",
+  "delete "Child"",
 ]
 `;
 
@@ -662,7 +831,11 @@ exports[`versioning diff: Delete a parent vs type in its child 1`] = `
 exports[`versioning diff: Delete column vs add row 1`] = `
 [
   "delete <tableCell> A",
+  "delete <tableParagraph> A",
+  "delete "B1" A",
   "delete <tableCell> A",
+  "delete <tableParagraph> A",
+  "delete "B2" A",
   "insert <tableRow> B",
   "insert <tableCell> B",
   "insert <tableParagraph> B",
@@ -676,6 +849,7 @@ exports[`versioning diff: Delete column vs add row 1`] = `
 exports[`versioning diff: Delete image 1`] = `
 [
   "delete block "" A",
+  "delete <image> A",
   "insert block "" A",
   "insert <paragraph> A",
 ]
@@ -684,12 +858,21 @@ exports[`versioning diff: Delete image 1`] = `
 exports[`versioning diff: Delete one of two empty blocks 1`] = `
 [
   "delete block "" A",
+  "delete <paragraph> A",
 ]
 `;
 
 exports[`versioning diff: Delete parent with mixed children 1`] = `
 [
   "delete block "Parent" A",
+  "delete <paragraph> A",
+  "delete "Parent" A",
+  "delete <blockGroup> A",
+  "delete block "Nested paragraph" A",
+  "delete <paragraph> A",
+  "delete "Nested paragraph" A",
+  "delete block "" A",
+  "delete <image> A",
   "insert block "" A",
   "insert <paragraph> A",
 ]
@@ -697,10 +880,34 @@ exports[`versioning diff: Delete parent with mixed children 1`] = `
 
 exports[`versioning diff: Delete row vs add column 1`] = `
 [
+  "delete block "A1B1A2B2" A",
+  "delete <table> A",
+  "delete <tableRow> A",
+  "delete <tableCell> A",
+  "delete <tableParagraph> A",
+  "delete "A1" A",
+  "delete <tableCell> A",
+  "delete <tableParagraph> A",
+  "delete "B1" A",
+  "delete <tableRow> A",
+  "delete <tableCell> A",
+  "delete <tableParagraph> A",
+  "delete "A2" A",
+  "delete <tableCell> A",
+  "delete <tableParagraph> A",
+  "delete "B2" A",
+  "insert block "A1B1C1" B",
+  "insert <table> B",
+  "insert <tableRow> B",
+  "insert <tableCell> B",
+  "insert <tableParagraph> B",
+  "insert "A1" B",
+  "insert <tableCell> B",
+  "insert <tableParagraph> B",
+  "insert "B1" B",
   "insert <tableCell> B",
   "insert <tableParagraph> B",
   "insert "C1" B",
-  "delete <tableRow> A",
 ]
 `;
 
@@ -738,6 +945,11 @@ exports[`versioning diff: Edit a link 1`] = `
 exports[`versioning diff: Edit text vs change to heading 1`] = `
 [
   "delete block "hello world" B",
+  "delete <paragraph> B",
+  "delete "hello " B",
+  "delete "wo" B,A",
+  "delete "r" B",
+  "delete "ld" B,A",
   "insert block "hello world" B",
   "insert <heading> B",
   "insert "hello world" B",
@@ -766,6 +978,8 @@ exports[`versioning diff: Fix typo vs delete word 1`] = `
 exports[`versioning diff: Heading vs list item 1`] = `
 [
   "delete block "hello world" A,B",
+  "delete <paragraph> A,B",
+  "delete "hello world" A,B",
   "insert block "hello world" A",
   "insert <heading> A",
   "insert "hello world" A",
@@ -785,7 +999,11 @@ exports[`versioning diff: Highlight a column 1`] = `
 exports[`versioning diff: Indent a block 1`] = `
 [
   "delete block "N0" A",
+  "delete <paragraph> A",
+  "delete "N0" A",
   "delete block "N1" A",
+  "delete <paragraph> A",
+  "delete "N1" A",
   "insert block "N0" A",
   "insert <paragraph> A",
   "insert "N0" A",
@@ -828,6 +1046,8 @@ exports[`versioning diff: Insert an image 1`] = `
 exports[`versioning diff: List item → paragraph 1`] = `
 [
   "delete block "hello world" A",
+  "delete <bulletListItem> A",
+  "delete "hello world" A",
   "insert block "hello world" A",
   "insert <paragraph> A",
   "insert "hello world" A",
@@ -838,6 +1058,8 @@ exports[`versioning diff: Merge blocks vs edit block B 1`] = `
 [
   "insert "Second" A",
   "delete block "Second" A",
+  "delete <paragraph> A",
+  "delete "Second" A",
 ]
 `;
 
@@ -846,6 +1068,8 @@ exports[`versioning diff: Merge cells 1`] = `
   "attrs <tableCell> colspan:A colwidth:A",
   "insert "+B1" A",
   "delete <tableCell> A",
+  "delete <tableParagraph> A",
+  "delete "B1" A",
   "insert <tableCell>",
   "insert <tableParagraph>",
 ]
@@ -854,7 +1078,15 @@ exports[`versioning diff: Merge cells 1`] = `
 exports[`versioning diff: Move a block into a block that is deleted 1`] = `
 [
   "delete block "Parent" A",
-  "delete block "X" B",
+  "delete <paragraph> A",
+  "delete "Parent" A",
+  "delete <blockGroup> A",
+  "delete block "Child" A",
+  "delete <paragraph> A",
+  "delete "Child" A",
+  "delete block "X"",
+  "delete <paragraph>",
+  "delete "X"",
 ]
 `;
 
@@ -864,6 +1096,8 @@ exports[`versioning diff: Move paragraph up 1`] = `
   "insert <paragraph> A",
   "insert "Middle" A",
   "delete block "Middle" A",
+  "delete <paragraph> A",
+  "delete "Middle" A",
 ]
 `;
 
@@ -877,13 +1111,23 @@ exports[`versioning diff: Move paragraph with children 1`] = `
   "insert <paragraph> A",
   "insert "Child" A",
   "delete block "Parent" A",
+  "delete <paragraph> A",
+  "delete "Parent" A",
+  "delete <blockGroup> A",
+  "delete block "Child" A",
+  "delete <paragraph> A",
+  "delete "Child" A",
 ]
 `;
 
 exports[`versioning diff: Nest a bullet under another 1`] = `
 [
   "delete block "Parent" A",
+  "delete <bulletListItem> A",
+  "delete "Parent" A",
   "delete block "Child" A",
+  "delete <bulletListItem> A",
+  "delete "Child" A",
   "insert block "Parent" A",
   "insert <bulletListItem> A",
   "insert "Parent" A",
@@ -897,7 +1141,11 @@ exports[`versioning diff: Nest a bullet under another 1`] = `
 exports[`versioning diff: Nest blocks into a block that is moved 1`] = `
 [
   "delete block "R" B",
+  "delete <paragraph> B",
+  "delete "R" B",
   "delete block "Q" B,A",
+  "delete <paragraph> B,A",
+  "delete "Q" B,A",
   "insert block "R" B",
   "insert <paragraph> B",
   "insert "R" B",
@@ -906,8 +1154,14 @@ exports[`versioning diff: Nest blocks into a block that is moved 1`] = `
   "insert <paragraph> B",
   "insert "Q" B",
   "delete block "B1" A",
+  "delete <paragraph> A",
+  "delete "B1" A",
   "delete block "B2" A",
+  "delete <paragraph> A",
+  "delete "B2" A",
   "delete block "B3" A",
+  "delete <paragraph> A",
+  "delete "B3" A",
   "insert block "Q" A",
   "insert <paragraph> A",
   "insert "Q" A",
@@ -927,6 +1181,8 @@ exports[`versioning diff: Nest blocks into a block that is moved 1`] = `
 exports[`versioning diff: Paragraph → heading 1`] = `
 [
   "delete block "hello world" A",
+  "delete <paragraph> A",
+  "delete "hello world" A",
   "insert block "hello world" A",
   "insert <heading> A",
   "insert "hello world" A",
@@ -936,6 +1192,14 @@ exports[`versioning diff: Paragraph → heading 1`] = `
 exports[`versioning diff: Remove a column 1`] = `
 [
   "delete <columnList> A",
+  "delete <column> A",
+  "delete block "Left column" A",
+  "delete <paragraph> A",
+  "delete "Left column" A",
+  "delete <column> A",
+  "delete block "Right column" A",
+  "delete <paragraph> A",
+  "delete "Right column" A",
   "insert block "Left column" A",
   "insert <paragraph> A",
   "insert "Left column" A",
@@ -951,12 +1215,17 @@ exports[`versioning diff: Remove a link 1`] = `
 exports[`versioning diff: Remove a middle column 1`] = `
 [
   "delete <column> A",
+  "delete block "Right column" A",
+  "delete <paragraph> A",
+  "delete "Right column" A",
 ]
 `;
 
 exports[`versioning diff: Remove a paragraph 1`] = `
 [
   "delete block "Body text" A",
+  "delete <paragraph> A",
+  "delete "Body text" A",
 ]
 `;
 
@@ -969,13 +1238,23 @@ exports[`versioning diff: Remove bold 1`] = `
 exports[`versioning diff: Remove column 1`] = `
 [
   "delete <tableCell> A",
+  "delete <tableParagraph> A",
+  "delete "B1" A",
   "delete <tableCell> A",
+  "delete <tableParagraph> A",
+  "delete "B2" A",
 ]
 `;
 
 exports[`versioning diff: Remove row 1`] = `
 [
   "delete <tableRow> A",
+  "delete <tableCell> A",
+  "delete <tableParagraph> A",
+  "delete "A2" A",
+  "delete <tableCell> A",
+  "delete <tableParagraph> A",
+  "delete "B2" A",
 ]
 `;
 
@@ -1030,6 +1309,12 @@ exports[`versioning diff: Text color vs background color 1`] = `
 exports[`versioning diff: Unindent a block 1`] = `
 [
   "delete block "N0" A",
+  "delete <paragraph> A",
+  "delete "N0" A",
+  "delete <blockGroup> A",
+  "delete block "N1" A",
+  "delete <paragraph> A",
+  "delete "N1" A",
   "insert block "N0" A",
   "insert <paragraph> A",
   "insert "N0" A",

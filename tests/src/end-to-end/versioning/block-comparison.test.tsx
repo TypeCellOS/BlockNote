@@ -18,7 +18,7 @@ import { testDocument } from "@shared/testDocument.js";
 import * as Y from "@y/y";
 import { expect, test } from "vite-plus/test";
 import { render } from "vitest-browser-react";
-import { browserName, page } from "../../utils/context.js";
+import { browserName, page, userEvent } from "../../utils/context.js";
 import { sleep } from "../../utils/editor.js";
 import { screenshotFull } from "../../utils/screenshotFull.js";
 
@@ -164,6 +164,12 @@ for (const theme of ["light", "dark"] as const) {
         await expect
           .poll(() => root.querySelectorAll("del").length)
           .toBeGreaterThan(0);
+        // A preceding test can leave the pointer over the diff, whose changes
+        // show a tooltip on hover. Park it on the padding, outside the editor.
+        await userEvent.hover(root, { position: { x: 2, y: 2 } });
+        await expect
+          .poll(() => document.querySelector(".bn-suggestion-tooltip"))
+          .toBeNull();
         for (const toggle of root.querySelectorAll<HTMLElement>(
           '.bn-toggle-wrapper[data-show-children="false"]',
         )) {

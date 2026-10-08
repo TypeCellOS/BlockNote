@@ -16,11 +16,12 @@ export type DecodedFragment = {
 export function decodeFragmentUpdate(
   fragment: Y.Node,
   content: Uint8Array,
-  opts?: { suggestionDoc?: boolean },
+  opts?: { suggestionDoc?: boolean; keepDeleted?: boolean },
 ): DecodedFragment {
-  const doc = new Y.Doc(
-    opts?.suggestionDoc ? { isSuggestionDoc: true } : undefined,
-  );
+  const doc = new Y.Doc({
+    ...(opts?.suggestionDoc ? { isSuggestionDoc: true } : {}),
+    ...(opts?.keepDeleted ? { gc: false } : {}),
+  });
   try {
     Y.applyUpdateV2(doc, content);
     return { doc, fragment: findTypeInOtherYdoc(fragment, doc) };
