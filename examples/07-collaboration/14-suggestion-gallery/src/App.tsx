@@ -415,6 +415,8 @@ function VersionMerge({
         fragment: setup.afterDoc.get("doc"),
         provider: { awareness: setup.diffAwareness },
         user: USER_A,
+        // The gallery shows the experimental diff refinements.
+        experimental: { lostContentAttribution: true },
       },
     }),
   );

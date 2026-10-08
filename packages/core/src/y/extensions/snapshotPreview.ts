@@ -9,6 +9,122 @@ import {
   destroyDecodedFragment,
 } from "./snapshotCodec.js";
 
+/**
+ * Experimental refinements of how a diff between two versions is shown. Each
+ * one only changes what the diff shows, never what is stored, so they can be
+ * turned on or off at any time.
+ */
+export type ExperimentalVersionDiffs = {
+  /**
+   * Don't credit content that was lost with a concurrently deleted block, or
+   * with a moved block's lost copy, to the user whose change removed it: show
+   * it as deleted without an author.
+   */
+  lostContentAttribution?: boolean;
+};
+
+/**
+ * Snapshots are decoded with `gc: false`, so content inside a deleted block keeps
+ * its own attribution: content swept away with a concurrently deleted block shows
+ * no author instead of inheriting the deleter. The stock renderer hides content
+ * that was inserted and deleted between the two versions only once it has been
+ * garbage collected; hide it here too.
+ */
+class SnapshotDiffRenderer extends Y.DiffRenderer {
+  override readContent(
+    ...[contents, client, clock, deleted, content, shouldRender]: Parameters<
+      Y.DiffRenderer["readContent"]
+    >
+  ) {
+    const start = contents.length;
+    super.readContent(contents, client, clock, deleted, content, shouldRender);
+    if (deleted) {
+      for (let i = contents.length - 1; i >= start; i--) {
+        if (this.inserts.has(client, contents[i].clock)) {
+          contents.splice(i, 1);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Moved blocks that are gone, with their content.
+ *
+ * A move (indenting, dragging, a type change, ...) deletes a block and inserts
+ * a copy with the same id. While a copy is shown, the diff shows the move as
+ * is. Once every copy is gone, only the original's deletion is shown, and
+ * that names the mover, who may not have deleted it: the copy can be lost
+ * with a concurrently deleted parent, or deleted later by someone else. Such
+ * deletions are shown without an author.
+ */
+function lostMoves(doc: Y.Doc, baseline: Y.Doc): Y.IdSet {
+  const { inserted, deleted } = changesSince(doc, baseline);
+  const copies = new Map<unknown, Y.Item[]>();
+  for (const item of itemsIn(doc, inserted)) {
+    if (isBlock(item)) {
+      const id = blockId(item.content.type);
+      copies.set(id, [...(copies.get(id) ?? []), item]);
+    }
+  }
+  // Deleted content that was in the earlier version.
+  const removed = itemsIn(doc, Y.diffIdSet(deleted, inserted));
+  const lost = removed.filter(isBlock).flatMap((item) => {
+    const id = blockId(item.content.type);
+    const moved = id == null ? undefined : copies.get(id);
+    return moved?.every((copy) => copy.deleted) ? [item.content.type] : [];
+  });
+  const ids = Y.createIdSet();
+  for (const item of removed) {
+    if (
+      lost.some((block) => item === block._item || Y.isParentOf(block, item))
+    ) {
+      ids.add(item.id.client, item.id.clock, item.length);
+    }
+  }
+  return ids;
+}
+
+/** The ids inserted, and the ids deleted, in `doc` since `baseline`. */
+function changesSince(doc: Y.Doc, baseline: Y.Doc) {
+  return {
+    inserted: Y.diffIdSet(
+      Y.createInsertSetFromStructStore(doc.store, false),
+      Y.createInsertSetFromStructStore(baseline.store, false),
+    ),
+    deleted: Y.diffIdSet(
+      Y.createDeleteSetFromStructStore(doc.store),
+      Y.createDeleteSetFromStructStore(baseline.store),
+    ),
+  };
+}
+
+/** The items of `doc` that `ids` covers. */
+function itemsIn(doc: Y.Doc, ids: Y.IdSet): Y.Item[] {
+  const items: Y.Item[] = [];
+  // A transaction only because the iteration may split items; content is unchanged.
+  doc.transact((tr) =>
+    Y.iterateStructsByIdSet(tr, ids, (struct) => {
+      if (struct instanceof Y.Item) {
+        items.push(struct);
+      }
+    }),
+  );
+  return items;
+}
+
+function isBlock(item: Y.Item): item is Y.Item & { content: Y.ContentType } {
+  return (
+    item.content instanceof Y.ContentType &&
+    item.content.type.name === "blockContainer"
+  );
+}
+
+/** A block's id, also when the block is deleted (its attributes read as unset). */
+function blockId(block: Y.Node): unknown {
+  return block._map.get("id")?.content.getContent().at(-1);
+}
+
 /** Whether the item with this id was already in `baseline`. */
 function inBaseline(baseline: Y.Doc, id: Y.ID): boolean {
   const last = baseline.store.clients.get(id.client)?.at(-1);
@@ -227,14 +343,21 @@ export function showSnapshotPreview(
   snapshotContent: Uint8Array,
   compareToContent?: Uint8Array,
   attributions?: Y.ContentMap,
+  experimental: ExperimentalVersionDiffs = {},
 ): void {
+  // Deleted content is needed to tell what a user deleted from what was lost
+  // with something else.
+  const keepDeleted = experimental.lostContentAttribution === true;
   const baseline = compareToContent
     ? decodeFragmentUpdate(fragment, compareToContent, {
         suggestionDoc: true,
+        keepDeleted,
       })
     : undefined;
   try {
-    const snapshot = decodeFragmentUpdate(fragment, snapshotContent);
+    const snapshot = decodeFragmentUpdate(fragment, snapshotContent, {
+      keepDeleted,
+    });
     try {
       let renderAttributions = attributions;
       if (baseline) {
@@ -246,23 +369,25 @@ export function showSnapshotPreview(
           added,
         );
         if (attributions) {
+          const deletes = Y.mergeIdMaps([attributions.deletes, added.deletes]);
           renderAttributions = Y.createContentMap(
             Y.mergeIdMaps([attributions.inserts, added.inserts]),
-            Y.mergeIdMaps([attributions.deletes, added.deletes]),
+            experimental.lostContentAttribution
+              ? Y.diffIdMap(deletes, lostMoves(snapshot.doc, baseline.doc))
+              : deletes,
           );
         }
       }
+      const options = renderAttributions
+        ? { attributions: renderAttributions }
+        : undefined;
       editor.exec(
         configureYProsemirror({
           ytype: snapshot.fragment,
           renderer: baseline
-            ? Y.createDiffRenderer(
-                baseline.doc,
-                snapshot.doc,
-                renderAttributions
-                  ? { attributions: renderAttributions }
-                  : undefined,
-              )
+            ? keepDeleted
+              ? new SnapshotDiffRenderer(baseline.doc, snapshot.doc, options)
+              : Y.createDiffRenderer(baseline.doc, snapshot.doc, options)
             : undefined,
         }),
       );

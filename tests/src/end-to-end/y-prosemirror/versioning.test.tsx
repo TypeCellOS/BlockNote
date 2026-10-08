@@ -65,6 +65,8 @@ function mountEditor(doc: Y.Doc): {
         fragment: doc.get("doc"),
         provider: undefined,
         user: { name: "User", color: "#8a6d1a" },
+        // As the gallery: with the experimental diff refinements.
+        experimental: { lostContentAttribution: true },
       },
     }),
   );

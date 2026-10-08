@@ -1171,8 +1171,8 @@ export const scenarios: SuggestionScenario[] = [
         note: "X is lost: B's move inserts a copy into Parent, which A deletes.",
       },
       {
-        severity: "high",
-        note: "Versioning shows X as deleted by B, though B only moved it. To be fixed by #3166.",
+        severity: "info",
+        note: "Versioning shows X deleted without an author: B only moved it, and A never saw it there.",
       },
     ],
     title: "Move a block into a block that is deleted",

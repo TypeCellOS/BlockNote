@@ -9,6 +9,7 @@ import { normalizeToUserStore, UserStoreOrResolver } from "../../user/index.js";
 import { AttributionExtension } from "./AttributionExtension.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
 import { RelativePositionMappingExtension } from "./RelativePositionMapping.js";
+import type { ExperimentalVersionDiffs } from "./snapshotPreview.js";
 import { SuggestionsExtension } from "./Suggestions.js";
 import { CollaborationUser, YCursorExtension } from "./YCursorPlugin.js";
 import type { GetAttributionMarkClassName } from "./YAttributionMarks.js";
@@ -66,6 +67,12 @@ export type CollaborationOptions = {
    * dropped for that mark. See {@link GetAttributionMarkClassName}.
    */
   getAttributionMarkClassName?: GetAttributionMarkClassName;
+
+  /**
+   * Experimental refinements of how version history diffs are shown. They only
+   * change what a diff shows, never what is stored.
+   */
+  experimental?: ExperimentalVersionDiffs;
 };
 
 export const CollaborationExtension = createExtension(
@@ -81,6 +88,7 @@ export const CollaborationExtension = createExtension(
     return {
       key: "collaboration",
       fragment: options.fragment,
+      experimental: options.experimental ?? {},
       userStore,
       blockNoteExtensions: [
         options.suggestionDoc
@@ -129,6 +137,7 @@ export function withCollaboration<
   };
 }
 
+export type { ExperimentalVersionDiffs } from "./snapshotPreview.js";
 export * from "./AttributionExtension.js";
 export * from "./DiffVersioningExtension.js";
 export * from "./ForkYDoc.js";
