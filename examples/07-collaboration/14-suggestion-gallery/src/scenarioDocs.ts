@@ -100,6 +100,7 @@ export function buildSuggestionScenarioDocs(
 export function createAttributionStore(
   doc: Y.Doc,
   resolveUserId: (tr: any) => string | null,
+  { deletes = true }: { deletes?: boolean } = {},
 ): Y.ContentMap {
   const attrs = Y.createContentMap();
   doc.on("beforeObserverCalls", (tr: any) => {
@@ -115,7 +116,7 @@ export function createAttributionStore(
         ]),
       );
     }
-    if (!tr.deleteSet.isEmpty()) {
+    if (deletes && !tr.deleteSet.isEmpty()) {
       Y.insertIntoIdMap(
         attrs.deletes,
         Y.createIdMapFromIdSet(tr.deleteSet, [

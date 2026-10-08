@@ -1022,6 +1022,64 @@ export const scenarios: SuggestionScenario[] = [
   },
   {
     kind: "concurrent",
+    id: "concurrent-move-into-deleted-block",
+    feedback: [
+      {
+        severity: "info",
+        note: "X is lost: B's move inserts a copy into Parent, which A deletes. Versioning shows X deleted without an author: B only moved it, and A never saw it there.",
+      },
+    ],
+    title: "Move a block into a block that is deleted",
+    category: "Nesting",
+    description: "A deletes Parent while B moves X into it.",
+    initial: [
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "child", type: "paragraph", content: "Child" }],
+      },
+      { id: "x", type: "paragraph", content: "X" },
+      { id: "next", type: "paragraph", content: "Next" },
+    ],
+    applyA: (editor) => {
+      editor.removeBlocks(["parent"]);
+    },
+    applyB: (editor) => {
+      editor.setTextCursorPosition("x");
+      editor.nestBlock();
+    },
+  },
+  {
+    kind: "concurrent",
+    id: "concurrent-delete-parent-vs-child-type",
+    feedback: [
+      {
+        severity: "info",
+        note: "B's type change is lost with Parent. Versioning shows Parent and Child deleted by A only: B's change replaced Child, but A deleted it on purpose.",
+      },
+    ],
+    title: "Delete a parent vs change its child's type",
+    category: "Nesting",
+    description: "A deletes Parent while B turns its child into a heading.",
+    initial: [
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "child", type: "paragraph", content: "Child" }],
+      },
+      { id: "next", type: "paragraph", content: "Next" },
+    ],
+    applyA: (editor) => {
+      editor.removeBlocks(["parent"]);
+    },
+    applyB: (editor) => {
+      editor.updateBlock("child", { type: "heading" });
+    },
+  },
+  {
+    kind: "concurrent",
     id: "concurrent-nest-both-under-n0",
     feedback: [
       {
