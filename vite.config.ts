@@ -85,6 +85,22 @@ export default defineConfig({
     },
     overrides: [
       {
+        files: ["tests/a11y/**"],
+        rules: {
+          // The nested package.json selects ESM; dependencies belong to tests.
+          "import-eslint/no-extraneous-dependencies": [
+            "error",
+            {
+              packageDir: "./tests",
+              devDependencies: true,
+              peerDependencies: true,
+              optionalDependencies: false,
+              bundledDependencies: false,
+            },
+          ],
+        },
+      },
+      {
         files: [
           "**/scripts/**",
           "**/*.mjs",
