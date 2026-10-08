@@ -29,6 +29,7 @@ import {
   gallerySchema,
   type GalleryEditor,
 } from "@examples/07-collaboration/14-suggestion-gallery/src/gallerySchema";
+import { createVersionMerge } from "@examples/07-collaboration/14-suggestion-gallery/src/scenarioDocs";
 
 // A headless editor, used only for its schema (the gallery schema — default blocks
 // plus page break + multi-column) when seeding Y.Docs.
@@ -41,9 +42,10 @@ function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
 }
 
 /** Clone a Y.Doc's content into a fresh doc with a pinned clientID (so the
- *  concurrent merge tiebreak — and thus the test — is deterministic). */
+ *  concurrent merge tiebreak — and thus the test — is deterministic). Deleted
+ *  content is kept, as stored history and the gallery keep it. */
 function cloneWithId(source: Y.Doc, clientID: number): Y.Doc {
-  const doc = new Y.Doc();
+  const doc = new Y.Doc({ gc: false });
   Y.applyUpdate(doc, Y.encodeStateAsUpdate(source));
   doc.clientID = clientID;
   return doc;
@@ -108,8 +110,10 @@ for (const scenario of scenarios) {
       const before = Y.encodeStateAsUpdateV2(beforeDoc);
 
       // "After": each user applies their change on its own clone; the clones are
-      // merged into `afterDoc` via the CRDT — exactly like the gallery's merge.
-      const afterDoc = cloneWithId(beforeDoc, 2);
+      // merged into `afterDoc` via the CRDT, with the gallery's merge.
+      const merge = createVersionMerge(beforeDoc);
+      const afterDoc = merge.doc;
+      afterDoc.clientID = 2;
       teardown.push(() => afterDoc.destroy());
 
       for (let i = 0; i < applies.length; i++) {
@@ -125,7 +129,7 @@ for (const scenario of scenarios) {
         await expect
           .poll(() => !bytesEqual(Y.encodeStateAsUpdateV2(userDoc), before))
           .toBe(true);
-        Y.applyUpdate(afterDoc, Y.encodeStateAsUpdate(userDoc));
+        merge.apply(Y.encodeStateAsUpdate(userDoc), ["A", "B"][i]);
       }
 
       const after = Y.encodeStateAsUpdateV2(afterDoc);
@@ -138,12 +142,46 @@ for (const scenario of scenarios) {
       teardown.push(() => view.close());
       view.show({
         content: after,
-        comparison: { content: before },
+        comparison: { content: before, attributions: merge.attributions },
         target: { type: "current" },
       });
 
       // Reached only when show didn't throw: the diff is now showing.
       expect(diffEditor.prosemirrorState.doc.childCount).toBeGreaterThan(0);
+
+      // Every change with its authors, e.g. `delete block "Parent" A`. A block
+      // is named by its text; an inserted or deleted node's attributes are
+      // implied, so only attribute changes on kept nodes are listed.
+      const changes: string[] = [];
+      diffEditor.prosemirrorState.doc.descendants((node) => {
+        const marks = node.marks.filter((mark) =>
+          mark.type.name.startsWith("y-attributed-"),
+        );
+        const replaced = marks.some((mark) =>
+          ["y-attributed-insert", "y-attributed-delete"].includes(
+            mark.type.name,
+          ),
+        );
+        const what = node.isText
+          ? JSON.stringify(node.text)
+          : node.type.name === "blockContainer"
+            ? `block ${JSON.stringify(node.firstChild?.textContent ?? "")}`
+            : `<${node.type.name}>`;
+        for (const mark of marks) {
+          const kind = mark.type.name.replace("y-attributed-", "");
+          if (kind === "attrs" && replaced) {
+            continue;
+          }
+          const users =
+            kind === "attrs"
+              ? Object.entries(getAttributeChanges(mark))
+                  .map(([key, change]) => `${key}:${change.userIds.join(",")}`)
+                  .join(" ")
+              : (mark.attrs["userIds"] ?? []).join(",");
+          changes.push(`${kind} ${what} ${users}`.trimEnd());
+        }
+      });
+      expect(changes).toMatchSnapshot();
       const property = propertyChanges.get(scenario.id);
       if (property) {
         const changedProperties: string[] = [];

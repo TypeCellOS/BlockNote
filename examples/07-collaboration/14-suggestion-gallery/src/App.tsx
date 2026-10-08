@@ -19,7 +19,7 @@ import { gallerySchema } from "./gallerySchema";
 import {
   buildSuggestionScenarioDocs,
   cloneDoc,
-  createAttributionStore,
+  createVersionMerge,
   docFromBlocks,
 } from "./scenarioDocs";
 import { scenarios, SuggestionScenario } from "./scenarios";
@@ -396,19 +396,15 @@ function VersionMerge({
   applyInitial: boolean;
 }) {
   const [setup] = useState(() => {
-    const afterDoc = cloneDoc(beforeDoc);
-    const ids = new Set(users.map((u) => u.id));
-    // Record which user authored each merged change (by the Yjs origin the
-    // edits are forwarded with), so the Diff can color A's and B's
-    // contributions in their own colors instead of one flat diff color.
-    const attrs = createAttributionStore(afterDoc, (tr) =>
-      ids.has(String(tr.origin)) ? String(tr.origin) : null,
-    );
+    // Records which user authored each merged change, so the Diff can color
+    // A's and B's contributions in their own colors.
+    const merge = createVersionMerge(beforeDoc);
     return {
       userDocs: users.map(() => cloneDoc(beforeDoc)),
-      afterDoc,
-      attrs,
-      diffAwareness: new Awareness(afterDoc),
+      merge,
+      afterDoc: merge.doc,
+      attrs: merge.attributions,
+      diffAwareness: new Awareness(merge.doc),
     };
   });
 
@@ -426,18 +422,15 @@ function VersionMerge({
   useEffect(() => {
     // Forward every user edit into the merge doc (idempotent CRDT apply), so any
     // change to any user re-diffs.
-    // Forward with the author's id as the Yjs origin so the attribution store
-    // tags each merged change with its author.
     const offs = setup.userDocs.map((doc, i) => {
-      const origin = users[i].id;
       const onUpdate = (update: Uint8Array) =>
-        Y.applyUpdate(setup.afterDoc, update, origin);
+        setup.merge.apply(update, users[i].id);
       doc.on("update", onUpdate);
       return () => doc.off("update", onUpdate);
     });
     // Also pull in any edits that already flushed (the initial applies).
     setup.userDocs.forEach((doc, i) =>
-      Y.applyUpdate(setup.afterDoc, Y.encodeStateAsUpdate(doc), users[i].id),
+      setup.merge.apply(Y.encodeStateAsUpdate(doc), users[i].id),
     );
 
     const view = createYVersionView(
