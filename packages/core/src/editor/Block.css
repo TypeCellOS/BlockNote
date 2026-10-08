@@ -1125,38 +1125,27 @@ serialized/static output, where the wrapper is a real, painted box.
 /* A moved block's text keeps its authors, so it has no mark of its own: its
    text element gets the inserted-text highlight instead. It shrinks to the text
    (a flex item), or breaks per line in code blocks (an inline <code>). */
+.bn-suggestion-mark,
 ins[data-moved] > .bn-suggestion-node .bn-inline-content {
   --bn-suggestion-token-color: currentColor;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
   background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
   color: var(--user-color-dark);
   border-radius: 4px;
 }
 
+ins[data-moved] > .bn-suggestion-node .bn-inline-content {
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.dark.bn-root .bn-suggestion-mark,
 .dark.bn-root ins[data-moved] > .bn-suggestion-node .bn-inline-content,
+.bn-block-content[data-content-type="codeBlock"] > pre .bn-suggestion-mark,
 ins[data-moved]
   > .bn-suggestion-node
   .bn-block-content[data-content-type="codeBlock"]
   > pre
   .bn-inline-content {
-  background-color: color-mix(
-    in srgb,
-    var(--user-color-light) 25%,
-    var(--bn-suggestion-surface, var(--bn-colors-editor-background))
-  );
-  color: white;
-}
-
-.bn-suggestion-mark {
-  --bn-suggestion-token-color: currentColor;
-  background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
-  color: var(--user-color-dark);
-  border-radius: 4px;
-}
-
-.dark.bn-root .bn-suggestion-mark,
-.bn-block-content[data-content-type="codeBlock"] > pre .bn-suggestion-mark {
   background-color: color-mix(
     in srgb,
     var(--user-color-light) 25%,

@@ -15,6 +15,14 @@ exports[`experimental diffs { versionDiffFixes: 'implicitDeleteAttribution' } > 
 ]
 `;
 
+exports[`experimental diffs { versionDiffFixes: 'implicitDeleteAttribution' } > move up 1`] = `
+[
+  "insert block Next: bob",
+  "insert Next: bob",
+  "delete block Next: bob",
+]
+`;
+
 exports[`experimental diffs { versionDiffFixes: 'implicitDeleteAttribution' } > text edit 1`] = `
 [
   "insert !: bob",
@@ -42,6 +50,13 @@ exports[`experimental diffs { versionDiffFixes: 'implicitDeleteAttributionAndRec
 ]
 `;
 
+exports[`experimental diffs { versionDiffFixes: 'implicitDeleteAttributionAndRecreatedBlocks' } > move up 1`] = `
+[
+  "moved block Next: bob",
+  "moved from block Next: bob",
+]
+`;
+
 exports[`experimental diffs { versionDiffFixes: 'implicitDeleteAttributionAndRecreatedBlocks' } > text edit 1`] = `
 [
   "insert !: bob",
@@ -66,6 +81,14 @@ exports[`experimental diffs {} > move into a concurrently deleted block 1`] = `
 [
   "delete block Parent: alice",
   "delete block X: bob",
+]
+`;
+
+exports[`experimental diffs {} > move up 1`] = `
+[
+  "insert block Next: bob",
+  "insert Next: bob",
+  "delete block Next: bob",
 ]
 `;
 

@@ -456,10 +456,24 @@ function copiedBlocks(
   holdsText: (type: string | undefined) => boolean,
 ): Array<{ original: Y.Node; copy: Y.Node; typeChanged: boolean }> {
   const { inserted, deleted } = changesSince(doc, baseline);
-  const originals = new Map<unknown, Y.Node>();
+  // A block copied twice since `baseline` (e.g. indented, then outdented)
+  // leaves an intermediate copy, deleted too. Pair with the block that was in
+  // `baseline`: the diff doesn't show intermediate copies. Without one, which
+  // copy came first is unknown, so several copies aren't paired.
+  const candidates = new Map<unknown, Y.Node[]>();
   for (const item of itemsIn(doc, deleted)) {
     if (isBlock(item)) {
-      originals.set(blockId(item.content.type), item.content.type);
+      const id = blockId(item.content.type);
+      candidates.set(id, [...(candidates.get(id) ?? []), item.content.type]);
+    }
+  }
+  const originals = new Map<unknown, Y.Node>();
+  for (const [id, blocks] of candidates) {
+    const original =
+      blocks.find((block) => inBaseline(baseline, block._item!.id)) ??
+      (blocks.length === 1 ? blocks[0] : undefined);
+    if (original) {
+      originals.set(id, original);
     }
   }
   const copies = itemsIn(doc, inserted).flatMap((item) =>
