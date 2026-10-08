@@ -8,6 +8,31 @@ import {
 } from "./snapshotCodec.js";
 
 /**
+ * Snapshots are decoded with `gc: false`, so content inside a deleted block keeps
+ * its own attribution: content swept away with a concurrently deleted block shows
+ * no author instead of inheriting the deleter. The stock renderer hides content
+ * that was inserted and deleted between the two versions only once it has been
+ * garbage collected; hide it here too.
+ */
+class SnapshotDiffRenderer extends Y.DiffRenderer {
+  override readContent(
+    ...[contents, client, clock, deleted, content, shouldRender]: Parameters<
+      Y.DiffRenderer["readContent"]
+    >
+  ) {
+    const start = contents.length;
+    super.readContent(contents, client, clock, deleted, content, shouldRender);
+    if (deleted) {
+      for (let i = contents.length - 1; i >= start; i--) {
+        if (this.inserts.has(client, contents[i].clock)) {
+          contents.splice(i, 1);
+        }
+      }
+    }
+  }
+}
+
+/**
  * Decode a snapshot, diff it against a baseline if given, and render it.
  *
  * Snapshots are decoded into throwaway documents, so pointing the binding at
@@ -37,7 +62,7 @@ export function showSnapshotPreview(
         configureYProsemirror({
           ytype: snapshot.fragment,
           renderer: baseline
-            ? Y.createDiffRenderer(
+            ? new SnapshotDiffRenderer(
                 baseline.doc,
                 snapshot.doc,
                 attributions ? { attributions } : undefined,

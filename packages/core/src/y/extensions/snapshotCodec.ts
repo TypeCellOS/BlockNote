@@ -19,7 +19,7 @@ export function decodeFragmentUpdate(
   opts?: { suggestionDoc?: boolean },
 ): DecodedFragment {
   const doc = new Y.Doc(
-    opts?.suggestionDoc ? { isSuggestionDoc: true } : undefined,
+    opts?.suggestionDoc ? { gc: false, isSuggestionDoc: true } : { gc: false },
   );
   try {
     Y.applyUpdateV2(doc, content);
