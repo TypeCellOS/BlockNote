@@ -297,6 +297,49 @@ describe("version diff of a deleted block", () => {
     ]);
   });
 
+  it.each([
+    ["Bob", ["alice", "alice", "", ""]],
+    ["Alice", ["", ""]],
+  ])(
+    "blames no one for a block lost to cascading indents (%s's saved first)",
+    (first, expected) => {
+      const base = baseDocument([
+        { id: "n0", type: "paragraph", content: "N0" },
+        { id: "n1", type: "paragraph", content: "N1" },
+        { id: "n2", type: "paragraph", content: "N2" },
+      ]);
+      // Alice indents N1 under N0; Bob indents N2 under the N1 that Alice's
+      // indent deletes (moving it under N0), so Bob's N2 is lost with it.
+      const alice = editOf(base, 1, (editor) => {
+        editor.setTextCursorPosition("n1");
+        editor.nestBlock();
+      });
+      const bob = editOf(base, 2, (editor) => {
+        editor.setTextCursorPosition("n2");
+        editor.nestBlock();
+      });
+      const [earlier, later, author] =
+        first === "Bob" ? [bob, alice, "alice"] : [alice, bob, "bob"];
+      const server = new Y.Doc({ gc: false });
+      Y.applyUpdateV2(server, Y.encodeStateAsUpdateV2(base));
+      Y.applyUpdateV2(server, earlier);
+      const before = Y.encodeStateAsUpdateV2(server);
+      Y.applyUpdateV2(server, later);
+
+      const { view, changes } = showDiff(
+        before,
+        Y.encodeStateAsUpdateV2(server),
+        deletedBy(later, author),
+      );
+      view.close();
+      expect(
+        changes
+          .filter((change) => change.mark === "y-attributed-delete")
+          .map((change) => change.users.join()),
+      ).toEqual(expected);
+    },
+  );
+
   it("does not show content inserted and deleted between the two versions", () => {
     const doc = new Y.Doc({ gc: false });
     const editor = collaborativeEditor(doc);
