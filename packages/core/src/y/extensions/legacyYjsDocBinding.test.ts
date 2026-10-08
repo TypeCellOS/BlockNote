@@ -467,8 +467,7 @@ describe("legacy Yjs document binding", () => {
     },
   );
 
-  // To be fixed by #3173.
-  it.fails("diffs a table resize made with the old binding like one made with the new binding", () => {
+  it("diffs a table resize made with the old binding like one made with the new binding", () => {
     const { current, old } = diffsOfBothBindings(
       [table(2, 2)],
       (editor) => editor.updateBlock("table", table(3, 3)),
