@@ -30,6 +30,7 @@ export default defineConfig({
   },
   plugins: [webpackStats()],
   build: {
+    cssMinify: "esbuild",
     sourcemap: true,
     lib: {
       entry: {
