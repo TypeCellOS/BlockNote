@@ -590,6 +590,114 @@ describe("version diff of a type change", () => {
     ]);
   });
 
+  // To be fixed by #3172.
+  it.fails("strikes a moved block's children through with it at its old place", () => {
+    const base = baseDocument([
+      { id: "first", type: "paragraph", content: "First" },
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "child", type: "paragraph", content: "Child" }],
+      },
+    ]);
+    const server = history(base);
+    const after = server.apply(
+      editOf(base, 2, (editor) => {
+        editor.setTextCursorPosition("parent");
+        editor.moveBlocksUp();
+      }),
+      "bob",
+    );
+    const { editor, view } = showDiff(
+      Y.encodeStateAsUpdateV2(base),
+      after,
+      server.attributions,
+    );
+    const struck: string[] = [];
+    editor.prosemirrorState.doc.descendants((node) => {
+      if (
+        node.type.name === "blockContainer" &&
+        node.marks.some(
+          (mark) =>
+            mark.type.name === "y-attributed-delete" && mark.attrs["moved"],
+        )
+      ) {
+        struck.push(node.textContent);
+      }
+      return true;
+    });
+    view.close();
+    expect(struck).toEqual(["ParentChild"]);
+  });
+
+  it("shows a block that lost content as deleted and inserted, not as a copy", () => {
+    // Deleting the only child re-creates the parent without it: the child
+    // is lost, so the parent isn't shown as an unchanged copy.
+    const base = blocks();
+    const server = history(base);
+    const after = server.apply(
+      editOf(base, 2, (editor) => editor.removeBlocks(["child"])),
+      "bob",
+    );
+    const changes = diff(
+      Y.encodeStateAsUpdateV2(base),
+      after,
+      server.attributions,
+    );
+    expect(changes).toEqual([
+      "delete <blockContainer>: bob",
+      "insert <blockContainer>: bob",
+      "insert <paragraph>: bob",
+      "insert Parent text: bob",
+    ]);
+  });
+
+  // To be fixed by #3172.
+  it.fails.each([
+    ["the same user", "bob"],
+    ["a different user", "carol"],
+  ])(
+    "shows a block indented, then outdented by %s, as unchanged",
+    (_, outdenter) => {
+      const base = blocks();
+      const server = history(base);
+      server.apply(
+        editOf(base, 2, (editor) => {
+          editor.setTextCursorPosition("next");
+          editor.nestBlock();
+        }),
+        "bob",
+      );
+      const after = server.apply(
+        editOf(server.server, 3, (editor) => {
+          editor.setTextCursorPosition("next");
+          editor.unnestBlock();
+        }),
+        outdenter,
+      );
+      expect(
+        diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+      ).toEqual([]);
+    },
+  );
+
+  // To be fixed by #3172.
+  it.fails("credits two type changes to the last one", () => {
+    const base = blocks();
+    const server = history(base);
+    server.apply(editOf(base, 2, toHeading), "bob");
+    const after = server.apply(
+      editOf(server.server, 3, (editor) =>
+        editor.updateBlock("parent", { type: "bulletListItem" }),
+      ),
+      "carol",
+    );
+    expect(
+      diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+    ).toEqual(["attrs <bulletListItem>: carol"]);
+  });
+
   it.each([
     [
       "a paragraph into an image",

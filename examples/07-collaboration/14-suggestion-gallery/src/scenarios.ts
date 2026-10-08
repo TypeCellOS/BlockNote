@@ -1230,7 +1230,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "info",
-        note: "B's text is lost with Parent, which A deleted. It is in neither version, so Versioning doesn't show it. (When B's text is in the earlier version, #3090 credits its deletion to A; the gallery can't set that up.)",
+        note: "B's text is lost with Parent, which A deleted. It is in neither version, so Versioning doesn't show it. When B's text is in the earlier version, Versioning credits its deletion to A, which never saw it; the gallery can't set that up (every user starts from the same document).",
       },
     ],
     title: "Delete a parent vs type in its child",
@@ -1323,8 +1323,8 @@ export const scenarios: SuggestionScenario[] = [
         note: "The diff shows the block as deleted and inserted twice, credited to A and to B: each type change re-creates it.",
       },
       {
-        severity: "info",
-        note: "Both changes are preserved in the merge — A's heading change and B's list-item change both survive.",
+        severity: "low",
+        note: "The block appears twice: A's heading and B's list item are each a copy of it.",
       },
     ],
     title: "Heading vs list item",
