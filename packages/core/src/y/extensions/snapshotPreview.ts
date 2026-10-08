@@ -42,10 +42,44 @@ class SnapshotDiffRenderer extends Y.DiffRenderer {
       for (let i = contents.length - 1; i >= start; i--) {
         if (this.inserts.has(client, contents[i].clock)) {
           contents.splice(i, 1);
+        } else if (this.deletedWithParent(client, contents[i])) {
+          // Shown inside the parent's deletion, as without `gc: false`.
+          contents[i].deleted = false;
+          contents[i].attrs = null;
         }
       }
     }
   }
+
+  /** Whether the content's deletion is the same as its deleted parent's. */
+  private deletedWithParent(
+    client: number,
+    {
+      clock,
+      attrs,
+    }: { clock: number; attrs: Y.ContentAttribute<any>[] | null },
+  ): boolean {
+    const structs = this._nextDoc.store.clients.get(client);
+    const item = structs?.[Y.findIndexSS(structs, clock)];
+    const parent = item instanceof Y.Item ? item.parent?._item : null;
+    if (!parent?.deleted) {
+      return false;
+    }
+    const [own] = this.deletes.slice(parent.id.client, parent.id.clock, 1);
+    return sameAttributes(own?.attrs ?? null, attrs);
+  }
+}
+
+function sameAttributes(
+  a: Y.ContentAttribute<any>[] | null,
+  b: Y.ContentAttribute<any>[] | null,
+): boolean {
+  return (
+    a?.length === b?.length &&
+    (a ?? []).every((x) =>
+      (b ?? []).some((y) => x.name === y.name && x.val === y.val),
+    )
+  );
 }
 
 /**
