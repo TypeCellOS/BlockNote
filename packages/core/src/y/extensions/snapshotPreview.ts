@@ -15,31 +15,46 @@ function inBaseline(baseline: Y.Doc, id: Y.ID): boolean {
   return last !== undefined && id.clock < last.id.clock + last.length;
 }
 
-/** The distinct attributions recorded for `node` and its descendants. */
-function subtreeAttributions(
-  node: Y.Node,
-  map: Y.IdMap<any>,
-): Y.ContentAttribute<any>[] {
-  const found = new Map<string, Y.ContentAttribute<any>>();
-  for (const structs of node.doc!.store.clients.values()) {
-    for (const item of structs) {
-      if (
-        item instanceof Y.Item &&
-        (item === node._item || Y.isParentOf(node, item))
-      ) {
-        for (const range of map.slice(
-          item.id.client,
-          item.id.clock,
-          item.length,
-        )) {
-          for (const attr of range.attrs ?? []) {
-            found.set(`${attr.name}:${String(attr.val)}`, attr);
-          }
-        }
+/**
+ * The attributions of what changed `block`'s structure since `baseline`: its
+ * content nodes and child groups that are new, or deleted, since then. Its
+ * other content (e.g. text typed in it) doesn't make the change.
+ */
+function structuralAttributions(
+  block: Y.Node,
+  baseline: Y.Doc,
+  attributions: Y.ContentMap,
+): { inserted: Y.ContentAttribute<any>[]; deleted: Y.ContentAttribute<any>[] } {
+  const inserted = new Map<string, Y.ContentAttribute<any>>();
+  const deleted = new Map<string, Y.ContentAttribute<any>>();
+  for (let item = block._start; item !== null; item = item.right) {
+    const isNew = !inBaseline(baseline, item.id);
+    if (!isNew && !item.deleted) {
+      continue;
+    }
+    const [found, map] = isNew
+      ? [inserted, attributions.inserts]
+      : [deleted, attributions.deletes];
+    for (const range of map.slice(item.id.client, item.id.clock, item.length)) {
+      for (const attr of range.attrs ?? []) {
+        found.set(`${attr.name}:${String(attr.val)}`, attr);
       }
     }
   }
-  return [...found.values()];
+  return { inserted: [...inserted.values()], deleted: [...deleted.values()] };
+}
+
+/** Attributions as the other kind: `insert`/`insertAt` as `delete`/`deleteAt`. */
+function asKind(
+  attrs: Y.ContentAttribute<any>[],
+  kind: "insert" | "delete",
+): Y.ContentAttribute<any>[] {
+  return attrs.map((attr) =>
+    Y.createContentAttribute(
+      attr.name.replace(/^(insert|delete)/, kind),
+      attr.val,
+    ),
+  );
 }
 
 /**
@@ -49,7 +64,8 @@ function subtreeAttributions(
  * inside the same container, which a diff renders as schema-invalid content
  * that is then dropped. A fresh container diffs as a deleted block next to an
  * inserted one, as the current binding stores it. The copy and the deletion
- * take over the original's attributions, so the change keeps its author.
+ * are credited to whoever changed the block's structure (see
+ * {@link structuralAttributions}).
  */
 function splitChangedBlocks(
   node: Y.Node,
@@ -71,34 +87,27 @@ function splitChangedBlocks(
         before &&
         !blockMatchNodes(before.toDeltaDeep(), child.toDeltaDeep())
       ) {
-        const inserted = attributions
-          ? subtreeAttributions(child, attributions.inserts)
-          : [];
-        const deleted = attributions
-          ? subtreeAttributions(child, attributions.deletes)
-          : [];
+        const { inserted, deleted } = attributions
+          ? structuralAttributions(child, baseline, attributions)
+          : { inserted: [], deleted: [] };
+        // `node` is a decoded snapshot's, never the live document, so the split
+        // doesn't reach the stored document.
         const doc = child.doc!;
-        // A change that only inserted (or only deleted) still has one author
-        // for both sides of the split, under that side's attribution kind.
-        function as(
-          kind: "insert" | "delete",
-          attrs: Y.ContentAttribute<any>[],
-        ) {
-          return attrs.map((attr) => Y.createContentAttribute(kind, attr.val));
-        }
-        const authors = inserted.length ? inserted : deleted;
+        // A change that only inserted (or only deleted) still credits both
+        // sides of the split, under that side's attribution kind.
+        const insertedAs = inserted.length
+          ? inserted
+          : asKind(deleted, "insert");
+        const deletedAs = deleted.length ? deleted : asKind(inserted, "delete");
         function record(tr: Y.Transaction) {
-          if (authors.length) {
+          if (insertedAs.length) {
             Y.insertIntoIdMap(
               added.inserts,
-              Y.createIdMapFromIdSet(tr.insertSet, as("insert", authors)),
+              Y.createIdMapFromIdSet(tr.insertSet, insertedAs),
             );
             Y.insertIntoIdMap(
               added.deletes,
-              Y.createIdMapFromIdSet(
-                tr.deleteSet,
-                as("delete", deleted.length ? deleted : authors),
-              ),
+              Y.createIdMapFromIdSet(tr.deleteSet, deletedAs),
             );
           }
         }

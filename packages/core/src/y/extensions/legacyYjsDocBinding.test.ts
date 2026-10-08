@@ -494,8 +494,7 @@ describe("legacy Yjs document binding", () => {
     expect(Y.encodeStateAsUpdateV2(opened.doc)).toEqual(stored);
   });
 
-  // To be fixed by #3173.
-  it.fails("credits a type change made with the old binding only to whoever made it", () => {
+  it("credits a type change made with the old binding only to whoever made it", () => {
     const legacy = createLegacyEditor();
     legacy.editor.replaceBlocks(legacy.editor.document, [
       { id: "changed", type: "paragraph", content: "Text" },
