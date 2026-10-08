@@ -9,6 +9,7 @@ import {
   createExtension,
 } from "../../editor/BlockNoteExtension.js";
 import { blockMatchNodes } from "./blockMatchNodes.js";
+import { mergeBlockGroups } from "./mergeBlockGroups.js";
 import { docToBlocks } from "../../api/nodeConversions/nodeToBlock.js";
 import type {
   BlockSchema,
@@ -178,6 +179,8 @@ export const YSyncExtension = createExtension(
           // needed; `blockContainer` already whitelists the `y-attributed-*`
           // marks. See blockMatchNodes.ts.
           customCompare: blockMatchNodes,
+          // Nesting changes diff in place: show a block's groups as one group
+          transformers: [mergeBlockGroups],
           // Initial-empty gate: a single empty paragraph (any id/props) must
           // not seed an empty Y fragment — see isInitialBlockNoteDoc above
           // and "Initial-content gate" in ProsemirrorRdt's doc.

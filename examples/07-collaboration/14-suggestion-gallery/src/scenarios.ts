@@ -484,6 +484,27 @@ export const scenarios: SuggestionScenario[] = [
   },
   {
     kind: "single",
+    id: "text-enter-at-heading-start",
+    feedback: [
+      {
+        severity: "low",
+        note: "Shows the heading's text deleted and re-inserted in a new block, instead of an empty block inserted above: splitting at the start keeps the block's id on the (now empty) first half.",
+      },
+    ],
+    title: "Enter at the start of a heading",
+    category: "Basic text",
+    description:
+      "Press Enter at the start of a heading, moving it down below an empty line.",
+    initial: [
+      { id: "h", type: "heading", props: { level: 1 }, content: "Title" },
+    ],
+    apply: (editor) => {
+      editor.setTextCursorPosition("h", "start");
+      editor._tiptapEditor.commands.keyboardShortcut("Enter");
+    },
+  },
+  {
+    kind: "single",
     id: "text-add-bold",
     title: "Add bold",
     category: "Basic text",
@@ -1000,7 +1021,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "low",
-        note: "Block N1 appears in two places. Previously this concurrency scenario would also not be correctly handled (one of the edits would be dropped).",
+        note: "N2 is lost. Indenting is a move, which deletes the original block and inserts a copy: B nests N2 into the original N1, which A's indent deletes, so N2 goes with it (shown as \"deleted by B\" because B's indent deleted N2's own original). Before nesting changes diffed in place, B's indent replaced N1, so N1 appeared twice instead. Needs move support.",
       },
     ],
     title: "Cascading indents",
@@ -1018,6 +1039,63 @@ export const scenarios: SuggestionScenario[] = [
     applyB: (editor) => {
       editor.setTextCursorPosition("n2", "start");
       editor.nestBlock();
+    },
+  },
+  {
+    kind: "concurrent",
+    id: "concurrent-nest-into-moved-block",
+    feedback: [
+      {
+        severity: "high",
+        note: "B1–B3 are lost. A's indent writes them into the original Q, which B's indent concurrently deletes (a move inserts a copy of Q, without them). Before nesting changes diffed in place, Q appeared twice instead. Needs move support.",
+      },
+    ],
+    title: "Nest blocks into a block that is moved",
+    category: "Nesting",
+    description: "A nests B1–B3 under Q while B nests Q under R.",
+    initial: [
+      { id: "r", type: "paragraph", content: "R" },
+      { id: "q", type: "paragraph", content: "Q" },
+      { id: "b1", type: "paragraph", content: "B1" },
+      { id: "b2", type: "paragraph", content: "B2" },
+      { id: "b3", type: "paragraph", content: "B3" },
+    ],
+    applyA: (editor) => {
+      editor.setSelection("b1", "b3");
+      editor.nestBlock();
+    },
+    applyB: (editor) => {
+      editor.setTextCursorPosition("q", "start");
+      editor.nestBlock();
+    },
+  },
+  {
+    kind: "concurrent",
+    id: "concurrent-parent-type-vs-child-edit",
+    feedback: [
+      {
+        severity: "high",
+        note: "B's edit is lost. Changing the parent's type replaces the parent block with a copy, children included, which doesn't have B's concurrent edit.",
+      },
+    ],
+    title: "Change a parent's type vs edit its child",
+    category: "Nesting",
+    description:
+      "A changes a parent paragraph to a heading while B types in its child.",
+    initial: [
+      {
+        id: "p",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "c", type: "paragraph", content: "Child" }],
+      },
+    ],
+    applyA: (editor) => {
+      editor.updateBlock("p", { type: "heading", props: { level: 2 } });
+    },
+    applyB: (editor) => {
+      editor.setTextCursorPosition("c", "end");
+      editor.insertInlineContent(" edited by B");
     },
   },
   {
