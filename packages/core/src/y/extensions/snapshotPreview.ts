@@ -41,18 +41,27 @@ function inBaseline(baseline: Y.Doc, id: Y.ID): boolean {
 }
 
 /**
- * Blocks whose deletion was a move whose copy was lost, with their content.
+ * Credit a moved block's deletion to whoever removed it, not to whoever moved
+ * it, returning the adjusted delete attributions.
  *
- * A move (indenting, dragging, ...) deletes a block and inserts a copy with the
- * same id. When the copy lands in a block another user concurrently deletes,
- * it's removed without anyone deleting it. The original's deletion would then
- * read as "Deleted by <mover>", though the mover only moved it.
+ * A move (indenting, dragging, a type change, ...) deletes a block and inserts
+ * a copy with the same id. While a copy is shown, the diff shows the move as
+ * is. Once every copy is gone, only the original's deletion is shown, so:
+ * - whoever inserted a copy (a mover) is removed from it;
+ * - whoever deleted a copy, other than by moving it on, is added to it.
+ * A copy lost with a concurrently deleted parent has no deleter, so a block
+ * moved into it shows as deleted without an author. Without insert
+ * attributions the movers are unknown, so no author is shown.
  */
-function lostMoves(doc: Y.Doc, baseline: Y.Doc, deletes: Y.IdMap<any>) {
-  function attributed(item: Y.Item) {
-    return deletes
+function creditMoves(
+  doc: Y.Doc,
+  baseline: Y.Doc,
+  attributions: Y.ContentMap,
+): Y.IdMap<any> {
+  function users(map: Y.IdMap<any>, item: Y.Item): unknown[] {
+    return map
       .slice(item.id.client, item.id.clock, 1)
-      .some((range) => range.attrs?.length);
+      .flatMap((range) => (range.attrs ?? []).map((attr) => attr.val));
   }
   const originals = new Map<unknown, Y.Node[]>();
   const copies = new Map<unknown, Y.Item[]>();
@@ -68,6 +77,9 @@ function lostMoves(doc: Y.Doc, baseline: Y.Doc, deletes: Y.IdMap<any>) {
       // Read the id directly: a deleted block's attributes read as unset.
       const idItem = item.content.type._map.get("id");
       const id = idItem?.content.getContent().at(-1);
+      if (id == null) {
+        continue;
+      }
       if (inBaseline(baseline, item.id)) {
         originals.set(id, [...(originals.get(id) ?? []), item.content.type]);
       } else {
@@ -75,27 +87,64 @@ function lostMoves(doc: Y.Doc, baseline: Y.Doc, deletes: Y.IdMap<any>) {
       }
     }
   }
-  const lost = Y.createIdSet();
+  const replaced = Y.createIdSet();
+  const credited: Y.IdMap<any> = Y.createIdMap();
   for (const [id, blocks] of originals) {
     const moved = copies.get(id);
-    // A copy that's still there, or that someone deleted, keeps the author.
-    if (!moved?.every((copy) => copy.deleted && !attributed(copy))) {
+    if (!moved || moved.some((copy) => !copy.deleted)) {
       continue;
     }
+    const inserters = moved.map((copy) => users(attributions.inserts, copy));
+    const movers = new Set(inserters.flat());
+    const known = inserters.every((inserter) => inserter.length > 0);
+    const deleters = new Set(
+      moved.flatMap((copy, i) =>
+        users(attributions.deletes, copy).filter(
+          (user) =>
+            !inserters.some((other, j) => j !== i && other.includes(user)),
+        ),
+      ),
+    );
     for (const structs of doc.store.clients.values()) {
       for (const item of structs) {
         if (
-          item instanceof Y.Item &&
-          blocks.some(
+          !(item instanceof Y.Item) ||
+          !blocks.some(
             (block) => item === block._item || Y.isParentOf(block, item),
           )
         ) {
-          lost.add(item.id.client, item.id.clock, item.length);
+          continue;
+        }
+        const { client, clock } = item.id;
+        for (const range of attributions.deletes.slice(
+          client,
+          clock,
+          item.length,
+        )) {
+          const attrs = range.attrs ?? [];
+          const kept = known
+            ? attrs.filter((attr) => !movers.has(attr.val))
+            : [];
+          if (kept.length === attrs.length) {
+            continue;
+          }
+          const added = known
+            ? [...deleters]
+                .filter((user) => !kept.some((attr) => attr.val === user))
+                .map((user) => Y.createContentAttribute("delete", user))
+            : [];
+          const ids = Y.createIdSet();
+          ids.add(client, range.clock, range.len);
+          replaced.add(client, range.clock, range.len);
+          Y.insertIntoIdMap(
+            credited,
+            Y.createIdMapFromIdSet(ids, [...kept, ...added]),
+          );
         }
       }
     }
   }
-  return lost;
+  return Y.mergeIdMaps([Y.diffIdMap(attributions.deletes, replaced), credited]);
 }
 
 /** The distinct attributions recorded for `node` and its descendants. */
@@ -238,13 +287,13 @@ export function showSnapshotPreview(
           added,
         );
         if (attributions) {
-          const deletes = Y.mergeIdMaps([attributions.deletes, added.deletes]);
-          renderAttributions = Y.createContentMap(
+          const merged = Y.createContentMap(
             Y.mergeIdMaps([attributions.inserts, added.inserts]),
-            Y.diffIdMap(
-              deletes,
-              lostMoves(snapshot.doc, baseline.doc, deletes),
-            ),
+            Y.mergeIdMaps([attributions.deletes, added.deletes]),
+          );
+          renderAttributions = Y.createContentMap(
+            merged.inserts,
+            creditMoves(snapshot.doc, baseline.doc, merged),
           );
         }
       }
