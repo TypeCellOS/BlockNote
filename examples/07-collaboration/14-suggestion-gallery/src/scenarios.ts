@@ -1,3 +1,4 @@
+import type { ExperimentalVersionDiffs } from "@blocknote/core/y";
 import { testDocumentBlocks } from "@shared/testDocumentBlocks.js";
 
 import type { GalleryEditor, GalleryPartialBlock } from "./gallerySchema";
@@ -26,6 +27,8 @@ import type { GalleryEditor, GalleryPartialBlock } from "./gallerySchema";
 export type Feedback = {
   severity: "info" | "low" | "high";
   note: string;
+  /** Show the note only in Versioning mode, with these experimental flags. */
+  when?: ExperimentalVersionDiffs;
 };
 
 export type SingleScenario = {
@@ -1171,7 +1174,13 @@ export const scenarios: SuggestionScenario[] = [
         note: "X is lost: B's move inserts a copy into Parent, which A deletes.",
       },
       {
+        severity: "high",
+        when: { lostContentAttribution: false },
+        note: "Versioning shows X as deleted by B, though B only moved it.",
+      },
+      {
         severity: "info",
+        when: { lostContentAttribution: true },
         note: "Versioning shows X deleted without an author: B only moved it, and A never saw it there.",
       },
     ],
