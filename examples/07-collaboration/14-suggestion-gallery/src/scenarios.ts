@@ -1076,6 +1076,10 @@ export const scenarios: SuggestionScenario[] = [
         severity: "high",
         note: "B's edit is lost: A's indent re-creates N1 as a new block, which doesn't have B's concurrent edit.",
       },
+      {
+        severity: "low",
+        note: "The diff also shows N0 and N1 as deleted and inserted again, all credited to A: indenting re-creates blocks (see Indent a block).",
+      },
     ],
     title: "Indent a block vs edit its text",
     category: "Nesting",
