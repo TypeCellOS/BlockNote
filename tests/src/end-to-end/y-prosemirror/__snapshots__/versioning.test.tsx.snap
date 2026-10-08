@@ -790,6 +790,20 @@ exports[`versioning diff: Indent a block 1`] = `
 ]
 `;
 
+exports[`versioning diff: Indent a block vs edit its text 1`] = `
+[
+  "delete block "N0" A",
+  "delete block "N1" A",
+  "insert block "N0" A",
+  "insert <paragraph> A",
+  "insert "N0" A",
+  "insert <blockGroup> A",
+  "insert block "N1" A",
+  "insert <paragraph> A",
+  "insert "N1" A",
+]
+`;
+
 exports[`versioning diff: Insert a divider 1`] = `
 [
   "insert block "" A",
