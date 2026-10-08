@@ -27,7 +27,7 @@ import {
 } from "./inMemoryVersioning.js";
 
 it.each(["current", "snapshot"] as const)(
-  "marks every character inserted when comparing %s since beginning",
+  "compares %s against the earliest saved content since beginning",
   async (target) => {
     const editor = BlockNoteEditor.create({
       initialContent: [{ id: "paragraph", type: "paragraph" }],
@@ -53,8 +53,7 @@ it.each(["current", "snapshot"] as const)(
         throw new Error("Expected loaded version history");
       }
       // The menu uses the oldest recorded snapshot as its baseline. Its
-      // preview already contains "a", but comparing since beginning must
-      // include that first character too.
+      // content already contains "a", so only later edits are insertions.
       const beginning = state.history.data.at(-1)!;
       expect(
         await mode.select(
@@ -78,9 +77,11 @@ it.each(["current", "snapshot"] as const)(
           }
         }
       });
-      expect(characters).toEqual(
-        ["a", "b", "c"].map((character) => ({ character, inserted: true })),
-      );
+      expect(characters).toEqual([
+        { character: "a", inserted: false },
+        { character: "b", inserted: true },
+        { character: "c", inserted: true },
+      ]);
     } finally {
       mode.dispose();
       editor._tiptapEditor.destroy();
@@ -88,7 +89,7 @@ it.each(["current", "snapshot"] as const)(
   },
 );
 
-it("uses an empty beginning baseline without changing previews or later baselines", async () => {
+it("uses saved content for both previews and comparison baselines", async () => {
   const editor = BlockNoteEditor.create();
   try {
     const { storage } = createLocalVersioning(editor, {
@@ -104,7 +105,7 @@ it("uses an empty beginning baseline without changing previews or later baseline
     const beginning = resultValue(
       await storage.getContent("2", signal, { baseline: true }),
     );
-    expect(beginning.textContent).toBe("");
+    expect(beginning.textContent).toBe("a");
     beginning.check();
     expect(
       resultValue(await storage.getContent("1", signal, { baseline: true }))

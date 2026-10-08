@@ -222,22 +222,9 @@ export function createLocalVersioning<
           },
         };
       },
-      async getContent(id, signal, { baseline = false } = {}) {
+      async getContent(id, signal) {
         signal.throwIfAborted();
         const stored = snapshots.get(id);
-        if (stored && baseline) {
-          const beginning = Array.from(snapshots.values())
-            .sort((a, b) => b.version.createdAt - a.version.createdAt)
-            .at(-1);
-          if (stored === beginning) {
-            // The first saved snapshot may already contain edits. Comparing
-            // since beginning includes them, without changing its preview.
-            return {
-              ok: true,
-              value: editor.pmSchema.topNodeType.createAndFill()!,
-            };
-          }
-        }
         return stored
           ? { ok: true, value: stored.content }
           : { ok: false, error: { type: "not-found" } };
