@@ -1021,7 +1021,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "low",
-        note: "N2 is lost: B's indent moves it into the original N1, which A's indent deletes. Version history shows the lost N2 as deleted without an author, not as deleted by A or B. Before nesting changes diffed in place, N1 appeared twice instead. Needs move support.",
+        note: "N2 is lost: B's indent moves it into the original N1, which A's indent deletes. Versioning shows N2 deleted without an author (B only moved it, and A never saw it there). Before nesting changes diffed in place, N1 appeared twice instead. Needs move support.",
       },
     ],
     title: "Cascading indents",
@@ -1047,7 +1047,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "high",
-        note: "B1–B3 are lost. A's indent writes them into the original Q, which B's indent concurrently deletes (a move inserts a copy of Q, without them). Before nesting changes diffed in place, Q appeared twice instead. Needs move support.",
+        note: "B1–B3 are lost. A's indent writes them into the original Q, which B's indent concurrently deletes (a move inserts a copy of Q, without them). Versioning shows them deleted without an author. Before nesting changes diffed in place, Q appeared twice instead. Needs move support.",
       },
     ],
     title: "Nest blocks into a block that is moved",
@@ -1096,6 +1096,64 @@ export const scenarios: SuggestionScenario[] = [
     applyB: (editor) => {
       editor.setTextCursorPosition("c", "end");
       editor.insertInlineContent(" edited by B");
+    },
+  },
+  {
+    kind: "concurrent",
+    id: "concurrent-move-into-deleted-block",
+    feedback: [
+      {
+        severity: "info",
+        note: "X is lost: B's move inserts a copy into Parent, which A deletes. Versioning shows X deleted without an author: B only moved it, and A never saw it there.",
+      },
+    ],
+    title: "Move a block into a block that is deleted",
+    category: "Nesting",
+    description: "A deletes Parent while B moves X into it.",
+    initial: [
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "child", type: "paragraph", content: "Child" }],
+      },
+      { id: "x", type: "paragraph", content: "X" },
+      { id: "next", type: "paragraph", content: "Next" },
+    ],
+    applyA: (editor) => {
+      editor.removeBlocks(["parent"]);
+    },
+    applyB: (editor) => {
+      editor.setTextCursorPosition("x");
+      editor.nestBlock();
+    },
+  },
+  {
+    kind: "concurrent",
+    id: "concurrent-delete-parent-vs-child-type",
+    feedback: [
+      {
+        severity: "info",
+        note: "B's type change is lost with Parent. Versioning shows Parent deleted by A, and Child deleted without an author: B's change replaced Child with a copy that was lost, and the diff can't tell who to credit.",
+      },
+    ],
+    title: "Delete a parent vs change its child's type",
+    category: "Nesting",
+    description: "A deletes Parent while B turns its child into a heading.",
+    initial: [
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "child", type: "paragraph", content: "Child" }],
+      },
+      { id: "next", type: "paragraph", content: "Next" },
+    ],
+    applyA: (editor) => {
+      editor.removeBlocks(["parent"]);
+    },
+    applyB: (editor) => {
+      editor.updateBlock("child", { type: "heading" });
     },
   },
   {

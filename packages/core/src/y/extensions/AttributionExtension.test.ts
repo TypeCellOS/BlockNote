@@ -296,4 +296,41 @@ describe("AttributionExtension user loading", () => {
       users: [],
     });
   });
+
+  it("does not show a change to a block's id", () => {
+    const { editor } = createEditor();
+    editor.replaceBlocks(editor.document, [
+      { type: "paragraph", content: "hello" },
+    ]);
+    const markType = editor.pmSchema.marks["y-attributed-attrs"];
+    const id = { userIds: ["alice"], timestamp: null };
+    editor.transact((tr) =>
+      tr.addNodeMark(2, markType.create({ changes: { id } })),
+    );
+    const block =
+      editor.prosemirrorView.dom.querySelector(".bn-block-content")!;
+    block.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    expect(
+      editor.prosemirrorView.dom.querySelector("[data-user-ids]"),
+    ).toBeNull();
+    expect(
+      editor.getExtension(AttributionExtension)!.store.state,
+    ).toBeUndefined();
+
+    editor.transact((tr) =>
+      tr.addNodeMark(
+        2,
+        markType.create({ changes: { id, textAlignment: id } }),
+      ),
+    );
+    editor.prosemirrorView.dom
+      .querySelector("[data-attributes]")!
+      .dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    expect(
+      editor.getExtension(AttributionExtension)!.store.state,
+    ).toMatchObject({
+      modificationType: "attrs",
+      attributes: ["textAlignment"],
+    });
+  });
 });
