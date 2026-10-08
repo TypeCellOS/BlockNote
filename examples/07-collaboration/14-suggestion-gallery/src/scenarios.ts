@@ -1226,6 +1226,39 @@ export const scenarios: SuggestionScenario[] = [
   },
   {
     kind: "concurrent",
+    id: "concurrent-delete-parent-vs-child-edit",
+    feedback: [
+      {
+        severity: "high",
+        note: "Versioning shows B's text as deleted by A, though A never saw it: it was deleted with Parent. To be fixed by #3166.",
+      },
+      {
+        severity: "info",
+        note: "B's text is lost with Parent, which A deleted.",
+      },
+    ],
+    title: "Delete a parent vs type in its child",
+    category: "Nesting",
+    description: "A deletes Parent while B types at the end of its child.",
+    initial: [
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [{ id: "child", type: "paragraph", content: "Child" }],
+      },
+      { id: "next", type: "paragraph", content: "Next" },
+    ],
+    applyA: (editor) => {
+      editor.removeBlocks(["parent"]);
+    },
+    applyB: (editor) => {
+      editor.setTextCursorPosition("child", "end");
+      editor.insertInlineContent(" by B");
+    },
+  },
+  {
+    kind: "concurrent",
     id: "concurrent-nest-both-under-n0",
     feedback: [
       {
