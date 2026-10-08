@@ -499,7 +499,7 @@ export const scenarios: SuggestionScenario[] = [
     id: "text-enter-at-heading-start",
     feedback: [
       {
-        severity: "low",
+        severity: "high",
         note: "Shows the heading's text deleted and re-inserted in a new block, instead of an empty block inserted above: splitting at the start keeps the block's id on the (now empty) first half.",
       },
     ],
@@ -1201,8 +1201,8 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-delete-parent-vs-child-type",
     feedback: [
       {
-        severity: "low",
-        note: "B's type change is lost with Parent. Versioning shows Parent and Child as deleted by A, who deleted them.",
+        severity: "info",
+        note: "B's type change is lost with Parent, which A deleted. Versioning shows Parent and Child as deleted by A, who deleted them.",
       },
     ],
     title: "Delete a parent vs change its child's type",
