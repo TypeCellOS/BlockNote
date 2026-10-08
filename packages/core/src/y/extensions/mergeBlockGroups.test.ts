@@ -5,7 +5,7 @@ import * as Y from "@y/y";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { blocksToYType } from "../utils.js";
+import { blocksToYType, yDocToBlocks } from "../utils.js";
 import { withCollaboration } from "./index.js";
 import { createYVersionView } from "./Versioning.js";
 
@@ -111,6 +111,13 @@ describe("concurrently created child groups", () => {
     expect(outline(b.document)).toBe("P{X, Z}");
     // Y keeps the two groups; only the view merges them.
     expect(groupsOf(docA, "p")).toEqual([1, 1]);
+  });
+
+  it("reads both children outside the editor", () => {
+    const { docA } = nestedTwice();
+    expect(outline(yDocToBlocks(BlockNoteEditor.create(), docA, "doc"))).toBe(
+      "P{X, Z}",
+    );
   });
 
   it("routes edits back to each child's own group", () => {

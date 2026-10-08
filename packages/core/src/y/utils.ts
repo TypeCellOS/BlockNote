@@ -1,6 +1,5 @@
 import {
   defaultTransformer,
-  deltaToPNode,
   deltaToPSteps,
   docToDelta,
   nodeToDelta,
@@ -21,9 +20,16 @@ import {
   docToBlocks,
 } from "../index.js";
 import { blockMatchNodes } from "./extensions/blockMatchNodes.js";
+import { mergeBlockGroups } from "./extensions/mergeBlockGroups.js";
 import { mapAttributionToMark } from "./extensions/YSync.js";
 
 import * as Y from "@y/y";
+
+// Renders Y content as the collaboration binding does (see YSync).
+const bindingTransformer = defaultTransformer({
+  mapAttributionToMark,
+  transformers: [mergeBlockGroups],
+});
 
 /**
  * Find the equivalent of a Y.Node in another Y.Doc.
@@ -212,12 +218,15 @@ export function yfragmentToBlocks<
   // A fragment without block containers holds no blocks — e.g. one written
   // by an older `blocksToYDoc([])` (which used to write a childless block
   // group). Returning early avoids materializing the schema filler paragraph
-  // in `deltaToPNode` below, whose id would be freshly minted on every
+  // in `ynodeToPmnode` below, whose id would be freshly minted on every
   // read — making empty docs unstable.
   if (!deltaHasBlockContainer(delta)) {
     return [];
   }
-  const pmNode = deltaToPNode(delta, editor.pmSchema, null);
+  const pmNode = ynodeToPmnode(fragment, editor.pmSchema, {
+    renderer: null,
+    transformer: bindingTransformer,
+  });
   return docToBlocks<BSchema, ISchema, SSchema>(pmNode);
 }
 
@@ -333,7 +342,7 @@ export function yNodeToTransaction(
   options: NonNullable<Parameters<typeof ynodeToPmnode>[2]> = {},
 ): Transaction {
   const renderedDoc = ynodeToPmnode(node, tr.doc.type.schema, {
-    transformer: defaultTransformer({ mapAttributionToMark }),
+    transformer: bindingTransformer,
     ...options,
   });
   const renderedDelta = docDiffToDelta(tr.doc, renderedDoc);
