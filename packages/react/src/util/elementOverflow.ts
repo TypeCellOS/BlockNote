@@ -4,6 +4,17 @@ export function elementOverflow(element: HTMLElement, container: HTMLElement) {
 
   const topOverflow = elementRect.top < parentRect.top;
   const bottomOverflow = elementRect.bottom > parentRect.bottom;
+  const leftOverflow = elementRect.left < parentRect.left;
+  const rightOverflow = elementRect.right > parentRect.right;
+
+  const horizontalOverflow =
+    leftOverflow && rightOverflow
+      ? "both"
+      : leftOverflow
+        ? "left"
+        : rightOverflow
+          ? "right"
+          : "none";
 
   return topOverflow && bottomOverflow
     ? "both"
@@ -11,5 +22,5 @@ export function elementOverflow(element: HTMLElement, container: HTMLElement) {
       ? "top"
       : bottomOverflow
         ? "bottom"
-        : "none";
+        : horizontalOverflow;
 }
