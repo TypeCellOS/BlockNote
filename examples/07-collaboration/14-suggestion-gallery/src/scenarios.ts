@@ -1229,12 +1229,8 @@ export const scenarios: SuggestionScenario[] = [
     id: "concurrent-delete-parent-vs-child-edit",
     feedback: [
       {
-        severity: "high",
-        note: "Versioning shows B's text as deleted by A, though A never saw it: it was deleted with Parent. To be fixed by #3166.",
-      },
-      {
         severity: "info",
-        note: "B's text is lost with Parent, which A deleted.",
+        note: "B's text is lost with Parent, which A deleted. It is in neither version, so Versioning doesn't show it. (When B's text is in the earlier version, #3090 credits its deletion to A; the gallery can't set that up.)",
       },
     ],
     title: "Delete a parent vs type in its child",
