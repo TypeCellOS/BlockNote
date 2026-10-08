@@ -1,4 +1,5 @@
 import "@blocknote/core/fonts/inter.css";
+import { DiffVersioningExtension } from "@blocknote/core/y";
 import { withCollaboration, YjsVersioningExtension } from "@blocknote/core/yjs";
 import type { VersioningController } from "@blocknote/core/extensions";
 import {
@@ -73,6 +74,7 @@ export default function App() {
         user: { color: "#ff0000", name: "User", id: "user" },
       },
       extensions: [
+        DiffVersioningExtension(),
         YjsVersioningExtension({
           storage: createLocalStorageVersioningEndpoints(fragment),
         }),

@@ -1870,6 +1870,9 @@ export const examples = {
           author: "yousefed",
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
+            "@y/prosemirror": "^2.0.0-14",
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/y": "^14.0.0-rc.26",
             "y-websocket": "^2.1.0",
             yjs: "^13.6.33",
             lib0: "^0.2.119",
@@ -1882,7 +1885,7 @@ export const examples = {
           slug: "collaboration",
         },
         readme:
-          'This experimental playground example shows how to use `YjsVersioningExtension` with collaborative editing using Yjs v13. Snapshots are stored in localStorage using Yjs state updates.\n\nThe sidebar opens on a document with a few versions already in its history. You can preview, rename, and restore a version. Restoring replaces the live document content and saves the previous content as a "Backup" version. Comparison is not supported. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button and name the current version to save it.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+          'This experimental playground example shows how to use `YjsVersioningExtension` with collaborative editing using Yjs v13. Snapshots are stored in localStorage using Yjs state updates.\n\nThe sidebar opens on a document with a few versions already in its history. You can preview, compare, rename, and restore a version. `DiffVersioningExtension` highlights insertions and deletions when comparing versions. It uses Yjs v14 internally for rendering, while the live collaborative document stays on Yjs v13. Diffs show content changes, not their original authors. Restoring replaces the live document content and saves the previous content as a "Backup" version. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button and name the current version to save it.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
       },
       {
         projectSlug: "multi-doc-versioning",

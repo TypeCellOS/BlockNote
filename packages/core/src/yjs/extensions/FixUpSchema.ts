@@ -18,6 +18,11 @@ export const FixUpSchemaExtension = createExtension(({ editor }) => {
     // eslint-disable-next-line @typescript-eslint/unbound-method -- intentionally saving reference for monkey-patching
     const oldCreateAndFill = schema.nodes.doc.createAndFill;
     schema.nodes.doc.createAndFill = ((...args: any) => {
+      // Only cache empty-document creation. Content renderers also call this
+      // method, and their supplied content must not become the empty skeleton.
+      if (args[1]) {
+        return oldCreateAndFill.apply(schema.nodes.doc, args);
+      }
       if (cache) {
         return cache;
       }

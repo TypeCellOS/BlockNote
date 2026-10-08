@@ -9,13 +9,19 @@ import type {
 import { createVersioningExtension } from "../../extensions/Versioning/Versioning.js";
 import type { UserStoreOrResolver } from "../../user/index.js";
 import { CollaborationExtension } from "./index.js";
+import type { DiffVersioningExtension } from "../../y/extensions/DiffVersioningExtension.js";
+import { findTypeInOtherYdoc, yXmlFragmentToBlocks } from "../utils.js";
 import type {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
 
-/** Install history separately, using the editor's Yjs collaboration fragment. */
+/**
+ * Install history separately, using the editor's Yjs collaboration fragment.
+ * Register DiffVersioningExtension from `@blocknote/core/y` to opt into
+ * content comparisons. Diffs mark changes, not their original authors.
+ */
 export function YjsVersioningExtension(options: {
   storage: VersionStorage<Uint8Array>;
   resolveUsers?: UserStoreOrResolver;
@@ -23,7 +29,9 @@ export function YjsVersioningExtension(options: {
 }) {
   return createVersioningExtension((editor) => ({
     adapter: {
-      supportsComparison: false,
+      get supportsComparison() {
+        return editor.getExtension("diffVersioning") !== undefined;
+      },
       open() {
         const collaboration = editor.getExtension(CollaborationExtension);
         if (!collaboration) {
@@ -45,7 +53,9 @@ export function createYjsVersionView<
   fragment: Y.XmlFragment,
 ): VersionViewAdapter<Uint8Array> {
   return {
-    supportsComparison: false,
+    get supportsComparison() {
+      return editor.getExtension("diffVersioning") !== undefined;
+    },
     open() {
       const fork = editor.getExtension(ForkYDocExtension);
       if (
@@ -70,11 +80,38 @@ export function createYjsVersionView<
       let closed = false;
       return {
         current,
-        show({ content }) {
+        show({ content, comparison }) {
           if (closed) {
             throw new Error("Version view is closed");
           }
           fork.replaceSnapshot(content);
+          if (comparison) {
+            const diff =
+              editor.getExtension<typeof DiffVersioningExtension>(
+                "diffVersioning",
+              );
+            if (!diff) {
+              throw new Error("Version comparison requires a diff renderer");
+            }
+            function blocksFromUpdate(update: Uint8Array) {
+              const doc = new Y.Doc();
+              try {
+                Y.applyUpdate(doc, update);
+                return yXmlFragmentToBlocks(
+                  editor,
+                  findTypeInOtherYdoc(fragment, doc),
+                );
+              } finally {
+                doc.destroy();
+              }
+            }
+            // The binding points at a disposable fork. Any rendered suggestion
+            // marks stay there and are discarded when switching or closing.
+            diff.renderDiff(
+              blocksFromUpdate(content),
+              blocksFromUpdate(comparison.content),
+            );
+          }
         },
         close() {
           if (closed) {
