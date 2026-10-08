@@ -9,19 +9,41 @@ import {
   destroyDecodedFragment,
 } from "./snapshotCodec.js";
 
-/**
- * Experimental refinements of how a diff between two versions is shown. Each
- * one only changes what the diff shows, never what is stored, so they can be
- * turned on or off at any time.
- */
-export type ExperimentalVersionDiffs = {
+/** A fix of how a diff between two versions is shown. */
+export type VersionDiffFix =
   /**
-   * Don't credit content that was lost with a concurrently deleted block, or
-   * with a moved block's lost copy, to the user whose change removed it: show
-   * it as deleted without an author.
+   * Content deleted without anyone deleting it (with a concurrently deleted
+   * block, or with a moved block's lost copy) isn't credited to the user whose
+   * change removed it.
    */
-  lostContentAttribution?: boolean;
+  "implicitDeleteAttribution";
+
+/**
+ * Experimental fixes of how a diff between two versions is shown, each
+ * including the ones before it. They only change what a diff shows, never
+ * what is stored, so they can be turned on or off at any time.
+ */
+export type VersionDiffFixes = "implicitDeleteAttribution";
+
+/** The fixes each option turns on. */
+export const versionDiffFixesIncluded: Record<
+  VersionDiffFixes,
+  VersionDiffFix[]
+> = {
+  implicitDeleteAttribution: ["implicitDeleteAttribution"],
 };
+
+export type ExperimentalVersionDiffs = { versionDiffFixes?: VersionDiffFixes };
+
+function hasFix(
+  experimental: ExperimentalVersionDiffs,
+  fix: VersionDiffFix,
+): boolean {
+  return (
+    experimental.versionDiffFixes !== undefined &&
+    versionDiffFixesIncluded[experimental.versionDiffFixes].includes(fix)
+  );
+}
 
 /**
  * Snapshots are decoded with `gc: false`, so content inside a deleted block keeps
@@ -423,7 +445,7 @@ export function showSnapshotPreview(
 ): void {
   // Deleted content is needed to tell what a user deleted from what was lost
   // with something else.
-  const keepDeleted = experimental.lostContentAttribution === true;
+  const keepDeleted = hasFix(experimental, "implicitDeleteAttribution");
   const baseline = compareToContent
     ? decodeFragmentUpdate(fragment, compareToContent, {
         suggestionDoc: true,
@@ -448,7 +470,7 @@ export function showSnapshotPreview(
           const deletes = Y.mergeIdMaps([attributions.deletes, added.deletes]);
           renderAttributions = Y.createContentMap(
             Y.mergeIdMaps([attributions.inserts, added.inserts]),
-            experimental.lostContentAttribution
+            hasFix(experimental, "implicitDeleteAttribution")
               ? withoutLostMovers(
                   snapshot.doc,
                   baseline.doc,

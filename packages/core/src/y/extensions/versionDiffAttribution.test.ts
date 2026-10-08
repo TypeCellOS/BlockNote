@@ -23,7 +23,7 @@ function collaborativeEditor(doc: Y.Doc) {
       collaboration: {
         fragment: doc.get("doc"),
         user: { name: "Test", color: "#ff0000" },
-        experimental: { lostContentAttribution: true },
+        experimental: { versionDiffFixes: "implicitDeleteAttribution" },
       },
     }),
   );
