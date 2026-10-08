@@ -70,29 +70,40 @@ class SnapshotDiffRenderer extends Y.DiffRenderer {
   }
 }
 
+/** Whether two attributions show the same, ignoring timestamps (`deleteAt`, ...). */
 function sameAttributes(
   a: Y.ContentAttribute<any>[] | null,
   b: Y.ContentAttribute<any>[] | null,
 ): boolean {
+  function shown(attrs: Y.ContentAttribute<any>[] | null) {
+    return (attrs ?? []).filter((attr) => !attr.name.endsWith("At"));
+  }
+  const [x, y] = [shown(a), shown(b)];
   return (
-    a?.length === b?.length &&
-    (a ?? []).every((x) =>
-      (b ?? []).some((y) => x.name === y.name && x.val === y.val),
-    )
+    (a === null) === (b === null) &&
+    x.length === y.length &&
+    x.every((p) => y.some((q) => p.name === q.name && p.val === q.val))
   );
 }
 
 /**
- * Moved blocks that are gone, with their content.
+ * The delete attributions of moved blocks that are gone, with their content,
+ * without the movers.
  *
  * A move (indenting, dragging, a type change, ...) deletes a block and inserts
  * a copy with the same id. While a copy is shown, the diff shows the move as
  * is. Once every copy is gone, only the original's deletion is shown, and
  * that names the mover, who may not have deleted it: the copy can be lost
- * with a concurrently deleted parent, or deleted later by someone else. Such
- * deletions are shown without an author.
+ * with a concurrently deleted parent, or deleted later by someone else. So the
+ * movers are left out; whoever else deleted the original (e.g. with its
+ * parent) still is. With nobody left, it's shown without an author.
  */
-function lostMoves(doc: Y.Doc, baseline: Y.Doc): Y.IdSet {
+function withoutLostMovers(
+  doc: Y.Doc,
+  baseline: Y.Doc,
+  attributions: Y.ContentMap,
+  deletes: Y.IdMap<any>,
+): Y.IdMap<any> {
   const { inserted, deleted } = changesSince(doc, baseline);
   const copies = new Map<unknown, Y.Item[]>();
   for (const item of itemsIn(doc, inserted)) {
@@ -106,17 +117,48 @@ function lostMoves(doc: Y.Doc, baseline: Y.Doc): Y.IdSet {
   const lost = removed.filter(isBlock).flatMap((item) => {
     const id = blockId(item.content.type);
     const moved = id == null ? undefined : copies.get(id);
-    return moved?.every((copy) => copy.deleted) ? [item.content.type] : [];
+    if (!moved?.every((copy) => copy.deleted)) {
+      return [];
+    }
+    const movers = new Set(
+      moved.flatMap((copy) =>
+        (
+          attributions.inserts.slice(copy.id.client, copy.id.clock, 1)[0]
+            ?.attrs ?? []
+        )
+          .filter((attr) => attr.name === "insert")
+          .map((attr) => attr.val),
+      ),
+    );
+    return [{ block: item.content.type, movers }];
   });
-  const ids = Y.createIdSet();
+  const replaced = Y.createIdSet();
+  const replacement: Y.IdMap<any> = Y.createIdMap();
   for (const item of removed) {
-    if (
-      lost.some((block) => item === block._item || Y.isParentOf(block, item))
-    ) {
-      ids.add(item.id.client, item.id.clock, item.length);
+    const { movers } =
+      lost.find(
+        ({ block }) => item === block._item || Y.isParentOf(block, item),
+      ) ?? {};
+    if (!movers) {
+      continue;
+    }
+    const { client } = item.id;
+    for (const range of deletes.slice(client, item.id.clock, item.length)) {
+      if (!range.attrs) {
+        continue;
+      }
+      const ids = Y.createIdSet();
+      ids.add(client, range.clock, range.len);
+      replaced.add(client, range.clock, range.len);
+      const kept = range.attrs.filter(
+        (attr) => !(attr.name === "delete" && movers.has(attr.val)),
+      );
+      if (kept.some((attr) => attr.name === "delete")) {
+        Y.insertIntoIdMap(replacement, Y.createIdMapFromIdSet(ids, kept));
+      }
     }
   }
-  return ids;
+  return Y.mergeIdMaps([Y.diffIdMap(deletes, replaced), replacement]);
 }
 
 /** The ids inserted, and the ids deleted, in `doc` since `baseline`. */
@@ -407,7 +449,12 @@ export function showSnapshotPreview(
           renderAttributions = Y.createContentMap(
             Y.mergeIdMaps([attributions.inserts, added.inserts]),
             experimental.lostContentAttribution
-              ? Y.diffIdMap(deletes, lostMoves(snapshot.doc, baseline.doc))
+              ? withoutLostMovers(
+                  snapshot.doc,
+                  baseline.doc,
+                  attributions,
+                  deletes,
+                )
               : deletes,
           );
         }
