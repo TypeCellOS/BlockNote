@@ -383,8 +383,7 @@ describe("legacy Yjs document binding", () => {
     ]);
   });
 
-  // To be fixed by #3167.
-  it.fails.each(structuralChanges)(
+  it.each(structuralChanges)(
     "diffs $name made with the old binding like one made with the new binding",
     ({ blocks, change }) => {
       const legacy = createLegacyEditor();
