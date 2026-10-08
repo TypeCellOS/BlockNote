@@ -1141,6 +1141,7 @@ describe("VersioningSidebar", () => {
       expect(fake.endpoints.getContent).toHaveBeenCalledWith(
         id,
         expect.any(AbortSignal),
+        { baseline: true },
       );
     },
   );

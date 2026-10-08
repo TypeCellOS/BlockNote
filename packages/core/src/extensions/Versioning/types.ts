@@ -131,8 +131,12 @@ export interface VersionStorage<Content, Attributions = never> {
     signal: AbortSignal,
     cursor?: string,
   ): Promise<VersionResult<VersionSnapshotPage>>;
-  /** Load a stored version's content for {@link VersionView.show}. */
-  getContent(id: string, signal: AbortSignal): Promise<VersionResult<Content>>;
+  /** Load stored content, using the start of its window when loading a comparison baseline. */
+  getContent(
+    id: string,
+    signal: AbortSignal,
+    options?: { baseline?: boolean },
+  ): Promise<VersionResult<Content>>;
   /**
    * Load change attribution data between `baselineId` and `target` for
    * {@link VersionDisplay.comparison}. For a current target, `capturedAt` is the

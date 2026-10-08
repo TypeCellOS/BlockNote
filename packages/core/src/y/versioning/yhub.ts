@@ -76,12 +76,20 @@ export function createYHubVersionStorage(
 ): YHubStorage {
   const { fragment, beforeRestoreName } = options;
   const client = new YHubClient(options);
-  function timestamp(id: string) {
-    const value = Number(id);
-    if (!Number.isFinite(value)) {
+  function timestamps(id: string) {
+    const parts = id.split("-");
+    const from = Number(parts[0]);
+    const to = Number(parts[1]);
+    if (
+      parts.length !== 2 ||
+      parts.some((part) => part.length === 0) ||
+      !Number.isFinite(from) ||
+      !Number.isFinite(to) ||
+      from > to
+    ) {
       throw new Error("Invalid YHub checkpoint identifier");
     }
-    return value;
+    return { from, to };
   }
   function getHistoryList(signal?: AbortSignal, overrides?: YHubQueryParams) {
     return client.getActivity(activityParams(overrides), signal);
@@ -167,7 +175,7 @@ export function createYHubVersionStorage(
                 ? custom.restoredFrom
                 : undefined;
             return {
-              id: String(entry.to),
+              id: `${entry.from}-${entry.to}`,
               createdAt: entry.to,
               by: entry.by,
               name: entry.version?.name || undefined,
@@ -176,24 +184,34 @@ export function createYHubVersionStorage(
               restoredFrom:
                 typeof restoredFrom === "number" &&
                 Number.isFinite(restoredFrom)
-                  ? { id: String(restoredFrom), createdAt: restoredFrom }
+                  ? {
+                      id: `${entries.find((entry) => entry.to === restoredFrom)?.from ?? restoredFrom}-${restoredFrom}`,
+                      createdAt: restoredFrom,
+                    }
                   : undefined,
             };
           }),
         },
       };
     },
-    async getContent(id, signal) {
-      const result = await client.getContent(timestamp(id), signal);
+    async getContent(id, signal, { baseline = false } = {}) {
+      const { from, to } = timestamps(id);
+      // YHub includes edits at `to`. A baseline must precede the first edit in
+      // the window; the attribution query below still includes that edit at `from`.
+      const result = await client.getContent(
+        baseline ? Math.max(0, from - 1) : to,
+        signal,
+      );
       return result.ok
         ? { ok: true, value: Y.convertUpdateFormatV1ToV2(result.value) }
         : result;
     },
     async getAttributions(target, baselineId, _capturedAt, signal) {
+      const { from } = timestamps(baselineId);
       const result = await client.getAttributions(
-        timestamp(baselineId),
+        from,
         // Use the server's current time, not the potentially skewed client clock.
-        target.type === "current" ? undefined : timestamp(target.id),
+        target.type === "current" ? undefined : timestamps(target.id).to,
         signal,
       );
       return result.ok
@@ -242,7 +260,7 @@ export function createYHubVersionStorage(
       return {
         ok: true,
         value: {
-          id: String(version.t),
+          id: `${latest.from}-${version.t}`,
           createdAt: version.t,
           name: version.name || undefined,
           metadata: version.custom,
@@ -251,7 +269,7 @@ export function createYHubVersionStorage(
       };
     },
     async restore(id) {
-      const to = timestamp(id);
+      const { to } = timestamps(id);
       const [before, document] = await Promise.all([
         getHistoryList(undefined, { limit: 1 }),
         client.getDocument({ gc: false }),
@@ -297,7 +315,7 @@ export function createYHubVersionStorage(
       return { ok: true, value: undefined };
     },
     async rename(id, name) {
-      const to = timestamp(id);
+      const { to } = timestamps(id);
       const existing = await client.getVersion(to);
       if (!existing.ok) {
         return existing;
@@ -311,7 +329,7 @@ export function createYHubVersionStorage(
       return result.ok ? { ok: true, value: undefined } : result;
     },
     async remove(id) {
-      const existing = await client.getVersion(timestamp(id));
+      const existing = await client.getVersion(timestamps(id).to);
       if (!existing.ok) {
         return existing;
       }

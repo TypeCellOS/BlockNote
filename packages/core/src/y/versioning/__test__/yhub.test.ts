@@ -3,12 +3,26 @@ import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { decodeAny, encodeAny } from "lib0/buffer";
 import * as Y from "@y/y";
 import {
+  configureYProsemirror,
+  docToDelta,
+  ySyncPluginKey,
+} from "@y/prosemirror";
+import {
   createYHubVersionStorage,
+  YVersioningExtension,
   type YHubVersionStorageOptions,
 } from "../yhub.js";
 import { YHubClient } from "../yhubClient.js";
 import { createVersioning } from "../../../extensions/Versioning/createVersioning.js";
 import { resultValue } from "../../../extensions/Versioning/__test__/result.js";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import type { VersioningController } from "../../../extensions/Versioning/Versioning.js";
+import { withCollaboration } from "../../extensions/index.js";
+import {
+  _blocksToProsemirrorNode,
+  docDiffToDelta,
+  yNodeToTransaction,
+} from "../../utils.js";
 
 const options = { baseUrl: "https://yhub.test/api", org: "org", docId: "doc" };
 const signal = new AbortController().signal;
@@ -65,6 +79,138 @@ function request(index: number) {
   };
 }
 
+it.each([false, true])(
+  "attributes every character of abc when comparing since beginning (Current: %s)",
+  async (showCurrentVersion) => {
+    const { api, doc, fragment } = storage();
+    const editor = BlockNoteEditor.create(
+      withCollaboration({
+        extensions: [
+          YVersioningExtension({ storage: { ...api, showCurrentVersion } }),
+        ],
+        collaboration: { fragment, user: { name: "Alice", color: "red" } },
+      }),
+    );
+    const mode = editor.getExtension<VersioningController>("versioning")!;
+    cleanup.unshift(() => {
+      mode.dispose();
+      editor._tiptapEditor.destroy();
+    });
+
+    const edits: {
+      at: number;
+      content: Uint8Array;
+      attributions: Y.ContentMap;
+    }[] = [];
+    doc.on("beforeObserverCalls", (transaction) => {
+      const at = 1000 + edits.length * 100;
+      edits.push({
+        at,
+        content: Y.encodeStateAsUpdate(doc),
+        attributions: Y.createContentMapFromContentIds(
+          { inserts: transaction.insertSet, deletes: transaction.deleteSet },
+          [
+            Y.createContentAttribute("insert", "alice"),
+            Y.createContentAttribute("insertAt", at),
+          ],
+          [],
+        ),
+      });
+    });
+    function paragraph(text: string) {
+      return _blocksToProsemirrorNode(editor, [
+        { id: "paragraph", type: "paragraph", content: text },
+      ]);
+    }
+    const empty = Y.encodeStateAsUpdate(doc);
+    for (const text of ["a", "ab", "abc"]) {
+      fragment.applyDelta(
+        text === "a"
+          ? docToDelta(paragraph(text))
+          : docDiffToDelta(paragraph(text.slice(0, -1)), paragraph(text)),
+      );
+    }
+
+    fetchSpy.mockImplementation(async (input) => {
+      const url = new URL(input instanceof Request ? input.url : input);
+      if (url.pathname.includes("/activity/")) {
+        return response({
+          activity: [
+            url.searchParams.get("order") === "asc"
+              ? first
+              : { ...first, to: 1200 },
+          ],
+        });
+      }
+      const from = Number(url.searchParams.get("from") ?? 0);
+      const to = Number(url.searchParams.get("to") ?? Infinity);
+      if (url.searchParams.has("attributions")) {
+        const attributions = Y.createContentMap();
+        for (const edit of edits.filter(
+          (edit) => from <= edit.at && edit.at <= to,
+        )) {
+          Y.insertIntoIdMap(attributions.inserts, edit.attributions.inserts);
+        }
+        return response({ attributions: Y.encodeContentMap(attributions) });
+      }
+      // YHub includes edits at `to`, not just edits before it.
+      return response({
+        ydoc: edits.findLast((edit) => edit.at <= to)?.content ?? empty,
+      });
+    });
+
+    editor.replaceBlocks(editor.document, [
+      { id: "paragraph", type: "paragraph", content: "abc" },
+    ]);
+    editor.prosemirrorView.updateState(
+      editor.prosemirrorState.reconfigure({
+        plugins: editor._tiptapEditor.extensionManager.plugins,
+      }),
+    );
+    editor.exec(configureYProsemirror({ ytype: fragment }));
+    mode.open();
+    expect(await mode.list()).toEqual({ status: "done" });
+    const state = mode.store.state;
+    if (state.mode !== "versions" || state.history.status !== "success") {
+      throw new Error("Expected loaded version history");
+    }
+    const beginning = state.history.data.at(-1)!;
+    expect(
+      await mode.select(
+        showCurrentVersion
+          ? { type: "current" }
+          : { type: "snapshot", id: "1000-1200" },
+        { compareTo: beginning.id },
+      ),
+    ).toEqual({ status: "done" });
+
+    // Headless editors have no plugin view to hydrate the configured preview.
+    const binding = ySyncPluginKey.getState(editor.prosemirrorState)!;
+    editor.prosemirrorView.dispatch(
+      yNodeToTransaction(editor.prosemirrorState.tr, binding.ytype!, {
+        renderer: binding.renderer,
+      }),
+    );
+    const characters: { character: string; authors: string[] }[] = [];
+    editor.prosemirrorState.doc.descendants((node) => {
+      if (node.isText) {
+        const insertion = node.marks.find(
+          (mark) => mark.type.name === "y-attributed-insert",
+        );
+        for (const character of node.text!) {
+          characters.push({
+            character,
+            authors: insertion?.attrs.userIds ?? [],
+          });
+        }
+      }
+    });
+    expect(characters).toEqual(
+      ["a", "b", "c"].map((character) => ({ character, authors: ["alice"] })),
+    );
+  },
+);
+
 it("uses the latest server checkpoint as Current without a separate capture row", () => {
   expect(storage().api.showCurrentVersion).toBe(false);
   expect(fetchSpy).not.toHaveBeenCalled();
@@ -81,12 +227,12 @@ it("lists the first edit as an ordinary snapshot independently of sidebar filter
   expect(versions).toHaveLength(2);
   const start = versions[1];
   expect(start).toMatchObject({
-    id: "1000",
+    id: "1000-1000",
     createdAt: 1000,
     by: ["alice"],
     name: "Milestone",
     metadata: version.custom,
-    restoredFrom: { id: "42", createdAt: 42 },
+    restoredFrom: { id: "42-42", createdAt: 42 },
   });
   const content = resultValue(await api.getContent(start.id, signal));
   const decoded = new Y.Doc();
@@ -142,12 +288,14 @@ it("reloads an unnamed YHub checkpoint as Current on each opening without creati
     expect(await mode.list()).toEqual({ status: "done" });
     expect(mode.store.state).toMatchObject({
       showCurrentVersion: false,
-      displayed: { type: "snapshot", id: "2000" },
-      history: { data: [{ id: "2000", name: undefined }, { id: "1000" }] },
+      displayed: { type: "snapshot", id: "2000-2000" },
+      history: {
+        data: [{ id: "2000-2000", name: undefined }, { id: "1000-1000" }],
+      },
     });
     expect(show.mock.lastCall?.[0].target).toEqual({
       type: "snapshot",
-      id: "2000",
+      id: "2000-2000",
     });
     mode.close();
   }
@@ -182,16 +330,16 @@ it("lists server checkpoints with their attached versions and empty versions", a
     .mockResolvedValueOnce(response({ activity: [] }));
   expect(resultValue(await storage().api.list(signal)).snapshots).toMatchObject(
     [
-      { id: "2000", by: ["bob"] },
+      { id: "2000-2000", by: ["bob"] },
       {
-        id: "1000",
+        id: "1000-1000",
         by: ["alice", "bob"],
         name: "Milestone",
         metadata: version.custom,
-        restoredFrom: { id: "42", createdAt: 42 },
+        restoredFrom: { id: "42-42", createdAt: 42 },
         customAttributions: { source: "import" },
       },
-      { id: "500", by: [], name: "Empty" },
+      { id: "500-500", by: [], name: "Empty" },
     ],
   );
   expect(fetchSpy).toHaveBeenCalledTimes(2);
@@ -257,16 +405,16 @@ it("preserves caller activity filters without merging returned entries", async (
     resultValue(await storage(activityParams).api.list(signal)).snapshots,
   ).toMatchObject([
     {
-      id: "1000",
+      id: "1000-1000",
       by: ["alice"],
       customAttributions: { source: "import" },
     },
     {
-      id: "1000",
+      id: "1000-1000",
       by: ["bob"],
       name: "Milestone",
       metadata: version.custom,
-      restoredFrom: { id: "42", createdAt: 42 },
+      restoredFrom: { id: "42-42", createdAt: 42 },
       customAttributions: { tag: "release" },
     },
   ]);
@@ -319,11 +467,11 @@ it("pages through bounded activity windows with stable timestamp identifiers", a
   expect(
     snapshots.map(({ id, createdAt, name }) => ({ id, createdAt, name })),
   ).toEqual([
-    { id: "100", createdAt: 100, name: undefined },
+    { id: "90-100", createdAt: 100, name: undefined },
     // The first page also pins the beginning; the controller deduplicates it.
-    { id: "60", createdAt: 60, name: undefined },
-    { id: "80", createdAt: 80, name: "Milestone" },
-    { id: "60", createdAt: 60, name: undefined },
+    { id: "50-60", createdAt: 60, name: undefined },
+    { id: "70-80", createdAt: 80, name: "Milestone" },
+    { id: "50-60", createdAt: 60, name: undefined },
   ]);
 });
 
@@ -342,7 +490,7 @@ it("keeps grouping fixed while traversing a cursor and uses changed options on r
   activityParams.groupByUser = true;
   expect(
     resultValue(await api.list(signal, page.nextCursor)).snapshots[0].id,
-  ).toBe("1000");
+  ).toBe("1000-1000");
   await api.list(signal);
   expect(request(2).url.searchParams.get("groupMaxGap")).toBe("10");
   expect(request(2).url.searchParams.get("groupByUser")).toBe("false");
@@ -359,7 +507,7 @@ it.each([{ activity: [] }, { activity: [latest] }])(
     const page = resultValue(await storage({ limit: 1 }).api.list(signal));
     expect(page.nextCursor).toBeUndefined();
     expect(page.snapshots.map((snapshot) => snapshot.id)).toEqual(
-      activity.map((entry) => String(entry.to)),
+      activity.map((entry) => `${entry.from}-${entry.to}`),
     );
   },
 );
@@ -387,7 +535,7 @@ it("names the latest checkpoint only when its content matches frozen current", a
     await api.create!(Y.encodeStateAsUpdateV2(doc), "Current milestone"),
   ).toMatchObject({
     ok: true,
-    value: { id: "2000", createdAt: 2000, name: "Current milestone" },
+    value: { id: "2000-2000", createdAt: 2000, name: "Current milestone" },
   });
   expect(request(0).url.searchParams.get("limit")).toBe("1");
   expect(request(3).method).toBe("POST");
@@ -412,7 +560,7 @@ it("renames an already named latest checkpoint while preserving metadata", async
   ).toMatchObject({
     ok: true,
     value: {
-      id: "2000",
+      id: "2000-2000",
       name: "Renamed current",
       metadata: version.custom,
     },
@@ -432,7 +580,7 @@ it("does not name a checkpoint when no edits have been recorded", async () => {
 it("names a recorded checkpoint through POST", async () => {
   fetchSpy.mockResolvedValueOnce(response({ versions: [] }));
   fetchSpy.mockResolvedValueOnce(response({ ...version, name: "Saved" }));
-  await storage().api.rename!("1000", "Saved");
+  await storage().api.rename!("900-1000", "Saved");
   expect(request(1)).toMatchObject({
     method: "POST",
     body: { type: "version:v1", t: 1000, name: "Saved" },
@@ -442,7 +590,7 @@ it("names a recorded checkpoint through POST", async () => {
 it("renames through conditional PATCH without losing custom data", async () => {
   fetchSpy.mockResolvedValueOnce(response({ versions: [version] }));
   fetchSpy.mockResolvedValueOnce(response({ ...version, name: "New" }));
-  await storage().api.rename!("1000", "New");
+  await storage().api.rename!("900-1000", "New");
   expect(request(1)).toMatchObject({
     method: "PATCH",
     body: {
@@ -456,7 +604,7 @@ it("renames through conditional PATCH without losing custom data", async () => {
 it("removes a name without removing app metadata", async () => {
   fetchSpy.mockResolvedValueOnce(response({ versions: [version] }));
   fetchSpy.mockResolvedValueOnce(response({ ...version, name: "" }));
-  await storage().api.remove!("1000");
+  await storage().api.remove!("900-1000");
   expect(request(1).body).toMatchObject({ name: "", custom: version.custom });
 });
 
@@ -465,43 +613,51 @@ it("conditionally deletes a version without custom metadata", async () => {
     response({ versions: [{ ...version, custom: null }] }),
   );
   fetchSpy.mockResolvedValueOnce(response(null, 204));
-  await storage().api.remove!("1000");
+  await storage().api.remove!("900-1000");
   expect(request(1).method).toBe("DELETE");
   expect(request(1).url.searchParams.get("updatedAt")).toBe("3000");
 });
 
 it("leaves unnamed automatic activity alone", async () => {
   fetchSpy.mockResolvedValueOnce(response({ versions: [] }));
-  await storage().api.remove!("1000");
+  await storage().api.remove!("900-1000");
   expect(fetchSpy).toHaveBeenCalledOnce();
 });
 
 it("propagates concurrent version conflicts", async () => {
   fetchSpy.mockResolvedValueOnce(response({ versions: [version] }));
   fetchSpy.mockResolvedValueOnce(response({ error: "conflict" }, 409));
-  expect(await storage().api.rename!("1000", "New")).toEqual({
+  expect(await storage().api.rename!("900-1000", "New")).toEqual({
     ok: false,
     error: { type: "conflict" },
   });
 });
 
-it("fetches historical content by timestamp and converts it to V2", async () => {
-  const { api, doc } = storage();
-  doc.get("default").push(["hello"]);
-  fetchSpy.mockResolvedValueOnce(
-    response({ ydoc: Y.encodeStateAsUpdate(doc) }),
-  );
-  const content = resultValue(await api.getContent("1000", signal));
-  const restored = new Y.Doc();
-  try {
-    Y.applyUpdateV2(restored, content);
-    expect(restored.get("default").toArray()).toEqual(["hello"]);
-  } finally {
-    restored.destroy();
-  }
-  expect(request(0).url.searchParams.get("to")).toBe("1000");
-  expect(request(0).signal).toBeInstanceOf(AbortSignal);
-});
+it.each([
+  { baseline: undefined, to: "1000" },
+  { baseline: true, to: "899" },
+])(
+  "loads V2 content at $to (baseline: $baseline)",
+  async ({ baseline, to }) => {
+    const { api, doc } = storage();
+    doc.get("default").push(["hello"]);
+    fetchSpy.mockResolvedValueOnce(
+      response({ ydoc: Y.encodeStateAsUpdate(doc) }),
+    );
+    const content = resultValue(
+      await api.getContent("900-1000", signal, { baseline }),
+    );
+    const restored = new Y.Doc();
+    try {
+      Y.applyUpdateV2(restored, content);
+      expect(restored.get("default").toArray()).toEqual(["hello"]);
+    } finally {
+      restored.destroy();
+    }
+    expect(request(0).url.searchParams.get("to")).toBe(to);
+    expect(request(0).signal).toBeInstanceOf(AbortSignal);
+  },
+);
 
 it.each([
   { type: "current", capturedAt: 500 },
@@ -514,12 +670,12 @@ it.each([
       response({ attributions: Y.encodeContentMap(Y.createContentMap()) }),
     );
     await storage().api.getAttributions!(
-      type === "current" ? { type } : { type, id: "2000" },
-      "1000",
+      type === "current" ? { type } : { type, id: "1900-2000" },
+      "900-1000",
       capturedAt,
       signal,
     );
-    expect(request(0).url.searchParams.get("from")).toBe("1000");
+    expect(request(0).url.searchParams.get("from")).toBe("900");
     expect(request(0).url.searchParams.get("to")).toBe(
       type === "current" ? null : "2000",
     );
@@ -549,7 +705,7 @@ it.each([false, true])(
       }
       return response({ success: true });
     });
-    await api.restore!("1000");
+    await api.restore!("900-1000");
     const calls = fetchSpy.mock.calls.map((_, index) => request(index));
     const pins = calls.filter(
       (call) =>
@@ -596,7 +752,10 @@ it.each(["alice", "bob"])(
       }
       return response({ success: true });
     });
-    expect(await api.restore("1000")).toEqual({ ok: true, value: undefined });
+    expect(await api.restore("900-1000")).toEqual({
+      ok: true,
+      value: undefined,
+    });
     const calls = fetchSpy.mock.calls.map((_, index) => request(index));
     expect(calls).toHaveLength(6);
     for (const call of calls) {
@@ -654,7 +813,7 @@ it("waits for the post-rollback document and applies it to the original live doc
     .mockResolvedValueOnce(response({ success: true }))
     .mockReturnValueOnce(postRollback);
   let completed = false;
-  const restore = api.restore!("1000").then((result) => {
+  const restore = api.restore!("900-1000").then((result) => {
     completed = true;
     return result;
   });

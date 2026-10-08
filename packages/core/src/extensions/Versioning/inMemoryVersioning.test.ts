@@ -14,6 +14,7 @@ import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createBlockSpec } from "../../schema/blocks/createSpec.js";
 import { createInlineContentSpec } from "../../schema/inlineContent/createSpec.js";
 import { createStyleSpec } from "../../schema/styles/createSpec.js";
+import { DiffVersioningExtension } from "../../y/extensions/DiffVersioningExtension.js";
 import {
   createVersioningExtension,
   type VersioningController,
@@ -24,6 +25,98 @@ import {
   type ProseMirrorDocumentJSON,
   InMemoryVersioningExtension,
 } from "./inMemoryVersioning.js";
+
+it.each(["current", "snapshot"] as const)(
+  "marks every character inserted when comparing %s since beginning",
+  async (target) => {
+    const editor = BlockNoteEditor.create({
+      initialContent: [{ id: "paragraph", type: "paragraph" }],
+      extensions: [
+        DiffVersioningExtension(),
+        InMemoryVersioningExtension({
+          initialVersions: ["a", "abc"].map((content, index) => ({
+            content: [{ id: "paragraph", type: "paragraph", content }],
+            createdAt: index + 1,
+          })),
+        }),
+      ],
+    });
+    const mode = editor.getExtension(InMemoryVersioningExtension)!;
+    try {
+      for (const content of ["a", "ab", "abc"]) {
+        editor.updateBlock("paragraph", { content });
+      }
+      mode.open();
+      expect(await mode.list()).toEqual({ status: "done" });
+      const state = mode.store.state;
+      if (state.mode !== "versions" || state.history.status !== "success") {
+        throw new Error("Expected loaded version history");
+      }
+      // The menu uses the oldest recorded snapshot as its baseline. Its
+      // preview already contains "a", but comparing since beginning must
+      // include that first character too.
+      const beginning = state.history.data.at(-1)!;
+      expect(
+        await mode.select(
+          target === "current"
+            ? { type: "current" }
+            : { type: "snapshot", id: state.history.data[0].id },
+          { compareTo: beginning.id },
+        ),
+      ).toEqual({ status: "done" });
+
+      const characters: Array<{ character: string; inserted: boolean }> = [];
+      editor.prosemirrorState.doc.descendants((node) => {
+        if (node.isText) {
+          for (const character of node.text ?? "") {
+            characters.push({
+              character,
+              inserted: node.marks.some(
+                (mark) => mark.type.name === "y-attributed-insert",
+              ),
+            });
+          }
+        }
+      });
+      expect(characters).toEqual(
+        ["a", "b", "c"].map((character) => ({ character, inserted: true })),
+      );
+    } finally {
+      mode.dispose();
+      editor._tiptapEditor.destroy();
+    }
+  },
+);
+
+it("uses an empty beginning baseline without changing previews or later baselines", async () => {
+  const editor = BlockNoteEditor.create();
+  try {
+    const { storage } = createLocalVersioning(editor, {
+      initialVersions: [
+        { content: [{ content: "abc" }], createdAt: 2 },
+        { content: [{ content: "a" }], createdAt: 1 },
+      ],
+    });
+    const signal = new AbortController().signal;
+    expect(resultValue(await storage.getContent("2", signal)).textContent).toBe(
+      "a",
+    );
+    const beginning = resultValue(
+      await storage.getContent("2", signal, { baseline: true }),
+    );
+    expect(beginning.textContent).toBe("");
+    beginning.check();
+    expect(
+      resultValue(await storage.getContent("1", signal, { baseline: true }))
+        .textContent,
+    ).toBe("abc");
+    expect(
+      await storage.getContent("missing", signal, { baseline: true }),
+    ).toEqual({ ok: false, error: { type: "not-found" } });
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});
 
 it("returns seeded versions newest first regardless of insertion order", async () => {
   const editor = BlockNoteEditor.create();
