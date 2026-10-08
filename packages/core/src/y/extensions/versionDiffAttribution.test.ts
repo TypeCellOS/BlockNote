@@ -311,23 +311,6 @@ describe("version diff of a moved block", () => {
     ).toEqual(["[block moved]: bob"]);
   });
 
-  // To be fixed by #3172.
-  it.fails("does not show a moved block as deleted", () => {
-    const base = blocks();
-    const server = history(base);
-    // Moving "next" above "moved" reorders them (not an indent).
-    const after = server.apply(
-      editOf(base, 2, (editor) => {
-        editor.setTextCursorPosition("next");
-        editor.moveBlocksUp();
-      }),
-      "bob",
-    );
-    expect(
-      deletions(Y.encodeStateAsUpdateV2(base), after, server.attributions),
-    ).toEqual([]);
-  });
-
   // To be fixed by #3166.
   it.fails("names no author for a block moved into a concurrently deleted one", () => {
     const base = blocks();
@@ -440,7 +423,11 @@ describe("version diff of a type change", () => {
           mark.type.name === "y-attributed-delete"
         ) {
           const what = node.isText ? node.text : `<${node.type.name}>`;
-          const kind = mark.attrs["moved"] ? "moved" : mark.type.name.slice(13);
+          const kind = !mark.attrs["moved"]
+            ? mark.type.name.slice(13)
+            : mark.type.name === "y-attributed-delete"
+              ? "moved from"
+              : "moved";
           out.push(`${kind} ${what}: ${mark.attrs["userIds"].join(", ")}`);
         }
       }
@@ -564,7 +551,7 @@ describe("version diff of a type change", () => {
   });
 
   // To be fixed by #3172.
-  it.fails("shows a block moved among its siblings as a move", () => {
+  it.fails("shows a block moved among its siblings as a move at both places", () => {
     const base = baseDocument([
       { id: "first", type: "paragraph", content: "First" },
       { id: "second", type: "paragraph", content: "Second" },
@@ -579,7 +566,11 @@ describe("version diff of a type change", () => {
     );
     expect(
       diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
-    ).toEqual(["moved <blockContainer>: bob"]);
+    ).toEqual([
+      "moved <blockContainer>: bob",
+      // The original, struck through at its old place.
+      "moved from <blockContainer>: bob",
+    ]);
   });
 
   // To be fixed by #3172.
