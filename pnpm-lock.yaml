@@ -5995,8 +5995,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       docx:
-        specifier: ^9.8.0
-        version: 9.8.0
+        specifier: ^9.9.0
+        version: 9.9.0
       image-meta:
         specifier: ^0.2.2
         version: 0.2.2
@@ -12790,6 +12790,10 @@ packages:
 
   docx@9.8.0:
     resolution: {integrity: sha512-RunQowTxl5dzUcDmDnUJrXndOI5/V+mA0U4EAVAbgKdKKgJldAdyHfo9UWgPihLLXJtXu4FDlgma6xDQ1bbrhA==}
+    engines: {node: '>=10'}
+
+  docx@9.9.0:
+    resolution: {integrity: sha512-qefptMMO31ZCfVnFANQWSLtnvUrYkqd7cLr+Bi4e+kl4LvYOmdk314iwp8XHHyQs3TPtPcQwqgZgN/MJxT7Ttw==}
     engines: {node: '>=10'}
 
   dom-accessibility-api@0.5.16:
@@ -23245,6 +23249,15 @@ snapshots:
       xml-js: 1.6.11
 
   docx@9.8.0:
+    dependencies:
+      '@types/node': 25.9.5
+      hash.js: 1.1.7
+      jszip: 3.10.1
+      nanoid: 6.0.1
+      xml: 1.0.1
+      xml-js: 1.6.11
+
+  docx@9.9.0:
     dependencies:
       '@types/node': 25.9.5
       hash.js: 1.1.7
