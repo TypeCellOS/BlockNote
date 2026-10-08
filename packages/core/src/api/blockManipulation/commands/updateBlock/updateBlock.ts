@@ -435,7 +435,7 @@ function replaceContentMinimal(
  *   for each changed attribute. These are minimal steps that don't touch the
  *   node's content.
  * - If the type changes, `setNodeMarkup` is used, which keeps the node's content
- *   via a `ReplaceAroundStep`.
+ *   via a `ReplaceAroundStep`, except when converting a non-leaf into a leaf.
  */
 function setNodeMarkupMinimal(
   tr: Transform,
@@ -468,6 +468,30 @@ function setNodeMarkupMinimal(
         tr.setNodeAttribute(pos, attr, mergedAttrs[attr]);
       }
     }
+    return;
+  }
+
+  if (!node.isLeaf && newType.isLeaf) {
+    // setNodeMarkup preserves a non-leaf's content gap via a ReplaceAroundStep.
+    // After conversion to a leaf, that gap sits outside the node and the inverse
+    // step fails its structure check. A leaf accepts only empty content, so
+    // there is no gap to preserve: changing these two structural tokens into
+    // one leaf token is the smallest possible replacement. Leave the enclosing
+    // block container, its children, and adjacent blocks untouched. Use a strict
+    // step so invalid parent content is rejected instead of fitted/coerced.
+    tr.step(
+      new ReplaceStep(
+        pos,
+        pos + node.nodeSize,
+        new Slice(
+          Fragment.from(
+            newType.createChecked(mergedAttrs, node.content, node.marks),
+          ),
+          0,
+          0,
+        ),
+      ),
+    );
     return;
   }
 

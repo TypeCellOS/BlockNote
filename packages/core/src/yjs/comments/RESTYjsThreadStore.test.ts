@@ -40,46 +40,51 @@ describe("RESTYjsThreadStore", () => {
   it("sends resolvable yjs positions along with the thread", async () => {
     const { editor, doc, fragment } = createCollabEditor();
 
-    const requests: any[] = [];
-    vi.spyOn(globalThis, "fetch").mockImplementation((async (
-      _url: any,
-      init: any,
-    ) => {
-      requests.push(JSON.parse(init.body));
-      return new Response("{}", {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    }) as any);
+    try {
+      const requests: any[] = [];
+      vi.spyOn(globalThis, "fetch").mockImplementation((async (
+        _url: any,
+        init: any,
+      ) => {
+        requests.push(JSON.parse(init.body));
+        return new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }) as any);
 
-    const store = new RESTYjsThreadStore(
-      "https://example.com/threads",
-      {},
-      doc.getMap("threads"),
-      new DefaultThreadStoreAuth("user-1", "editor"),
-    );
-
-    await store.addThreadToDocument({
-      threadId: "thread-1",
-      selection: { anchor: 3, head: 8 },
-      editor,
-    });
-
-    expect(requests).toHaveLength(1);
-    const { yjs } = requests[0].selection;
-    expect(yjs).toBeDefined();
-
-    // the relative positions must resolve back to the positions we passed in
-    const state = ySyncPluginKey.getState(editor.prosemirrorState) as any;
-    const resolve = (relPos: any) =>
-      relativePositionToAbsolutePosition(
-        fragment.doc!,
-        state.binding.type,
-        Y.createRelativePositionFromJSON(relPos),
-        state.binding.mapping,
+      const store = new RESTYjsThreadStore(
+        "https://example.com/threads",
+        {},
+        doc.getMap("threads"),
+        new DefaultThreadStoreAuth("user-1", "editor"),
       );
 
-    expect(resolve(yjs.anchor)).toBe(3);
-    expect(resolve(yjs.head)).toBe(8);
+      await store.addThreadToDocument({
+        threadId: "thread-1",
+        selection: { anchor: 3, head: 8 },
+        editor,
+      });
+
+      expect(requests).toHaveLength(1);
+      const { yjs } = requests[0].selection;
+      expect(yjs).toBeDefined();
+
+      // the relative positions must resolve back to the positions we passed in
+      const state = ySyncPluginKey.getState(editor.prosemirrorState) as any;
+      const resolve = (relPos: any) =>
+        relativePositionToAbsolutePosition(
+          fragment.doc!,
+          state.binding.type,
+          Y.createRelativePositionFromJSON(relPos),
+          state.binding.mapping,
+        );
+
+      expect(resolve(yjs.anchor)).toBe(3);
+      expect(resolve(yjs.head)).toBe(8);
+    } finally {
+      editor._tiptapEditor.destroy();
+      doc.destroy();
+    }
   });
 });
