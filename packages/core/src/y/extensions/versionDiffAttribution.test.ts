@@ -772,8 +772,7 @@ describe("version diff of a document several users wrote", () => {
     return wrong;
   }
 
-  // To be fixed by #3166.
-  it.fails("credits every word to its writer, between any two versions", () => {
+  it("credits every word to its writer, between any two versions", () => {
     const base = baseDocument([
       { id: "start", type: "paragraph", content: "" },
     ]);
