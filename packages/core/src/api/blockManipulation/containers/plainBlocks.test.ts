@@ -14,7 +14,7 @@ const plainNote = createBlockSpec(
   {
     // A titled block: Enter in its text starts its body, and the body's
     // blocks can't be outdented out of it.
-    keyboard: {
+    experimental_keyboard: {
       enter: "into-children",
       childrenCanOutdent: false,
       emptyChildEnter: "exit-at-end",

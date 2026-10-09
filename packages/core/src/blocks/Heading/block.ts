@@ -77,7 +77,7 @@ export const createHeadingBlockSpec = createBlockSpec(
     // A toggle heading resets to a regular heading, which in turn resets to a
     // paragraph. While a toggle heading is open, Enter in its text starts its
     // children, and Enter in an empty child adds another child.
-    keyboard: allowToggleHeadings
+    experimental_keyboard: allowToggleHeadings
       ? (block) => {
           if (!block.props.isToggleable) {
             return {};

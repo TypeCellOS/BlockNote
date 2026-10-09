@@ -28,7 +28,7 @@ export const createCheckListItemBlockSpec = createBlockSpec(
   {
     // Enter continues the list, and Enter in an empty item ends it: the item
     // turns into a paragraph.
-    keyboard: {
+    experimental_keyboard: {
       splitKeepsType: true,
       emptyEnterResets: true,
     },

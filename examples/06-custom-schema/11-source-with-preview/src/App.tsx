@@ -117,7 +117,7 @@ const createCSVTableBlockSpec = createReactBlockSpec(
     },
     // Enter inserts a newline while the popup is open (multiline source).
     // Without this, Enter closes the popup, as for single-line sources.
-    keyboard: {
+    experimental_keyboard: {
       enter: "line-break",
     },
     render: CSVTablePreview,

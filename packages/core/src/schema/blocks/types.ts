@@ -40,9 +40,10 @@ export interface BlockConfigMeta<
   /**
    * Defines which keyboard shortcut should be used to insert a hard break into the block's inline content.
    * @default "shift+enter"
-   * @deprecated Use `keyboard.enter` and `keyboard.shiftEnter` instead:
-   * `"enter"` is `keyboard: { enter: "line-break" }`, and `"none"` is
-   * `keyboard: { shiftEnter: "same-as-enter" }`.
+   * @deprecated Use `experimental_keyboard.enter` and
+   * `experimental_keyboard.shiftEnter` instead: `"enter"` is
+   * `experimental_keyboard: { enter: "line-break" }`, and `"none"` is
+   * `experimental_keyboard: { shiftEnter: "same-as-enter" }`.
    */
   hardBreakShortcut?: "shift+enter" | "enter" | "none";
 
@@ -176,7 +177,8 @@ export interface BlockConfig<
    * (`container: true`) can restrict them to certain types or a minimum
    * count, since the child blocks of other blocks all share one untyped
    * group. How the keyboard treats a block's children (e.g. whether Enter in
-   * the block's text starts them) is set with its `keyboard` settings.
+   * the block's text starts them) is set with its `experimental_keyboard`
+   * settings.
    */
   children?: C extends "none"
     ? ChildrenConfig
@@ -309,7 +311,7 @@ export type LooseBlockSpec<
   config: BlockConfig<T, PS, C>;
   implementation: Omit<
     BlockImplementation<T, PS, C>,
-    "render" | "renderFrame" | "toExternalHTML" | "keyboard"
+    "render" | "renderFrame" | "toExternalHTML" | "experimental_keyboard"
   > & {
     /** Every keyboard setting of the block, with defaults filled in. */
     keyboard: (block: any) => BlockKeyboard;
@@ -382,9 +384,9 @@ export type BlockSpecs = {
     config: BlockSpec<k>["config"];
     implementation: Omit<
       BlockSpec<k>["implementation"],
-      "render" | "renderFrame" | "toExternalHTML" | "keyboard"
+      "render" | "renderFrame" | "toExternalHTML" | "experimental_keyboard"
     > & {
-      keyboard?: BlockKeyboardOption<any>;
+      experimental_keyboard?: BlockKeyboardOption<any>;
       // purposefully stub the types for render and toExternalHTML since they reference the block
       render: (
         /**
@@ -685,11 +687,12 @@ export type BlockImplementation<
    */
   meta?: BlockConfigMeta<TName, TProps>;
   /**
-   * How the keyboard treats the block and its children (Enter, Shift-Enter,
-   * Backspace, and outdenting): the settings that differ from the defaults, or
-   * a function of the block that returns them. See {@link BlockKeyboard}.
+   * Experimental: how the keyboard treats the block and its children (Enter,
+   * Shift-Enter, Backspace, and outdenting): the settings that differ from the
+   * defaults, or a function of the block that returns them. See
+   * {@link BlockKeyboard}. This API may change.
    */
-  keyboard?: BlockKeyboardOption<
+  experimental_keyboard?: BlockKeyboardOption<
     BlockFromConfig<BlockConfig<TName, TProps, TContent>, any, any>
   >;
   /**

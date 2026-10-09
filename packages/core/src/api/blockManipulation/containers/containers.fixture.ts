@@ -61,7 +61,7 @@ const Pair = createBlockSpec(
 )();
 
 // A titled block: an ordinary block with inline content (the title) whose
-// child blocks are a body that belongs to it. Its `keyboard` settings keep
+// child blocks are a body that belongs to it. Its `experimental_keyboard` settings keep
 // the body together: Enter in the title starts it, its blocks can't be
 // outdented, and an empty last block leaves it. The frame draws the box
 // around title and body together.
@@ -72,7 +72,7 @@ const Alert = createBlockSpec(
     content: "inline",
   },
   {
-    keyboard: {
+    experimental_keyboard: {
       enter: "into-children",
       childrenCanOutdent: false,
       emptyChildEnter: "exit-at-end",
