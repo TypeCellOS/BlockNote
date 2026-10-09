@@ -1,0 +1,7 @@
+{
+  "playground": true,
+  "docs": false,
+  "author": "minwookshin",
+  "tags": ["Intermediate", "Accessibility", "UI Components", "Block Side Menu"],
+  "dependencies": { "react-icons": "^5.5.0" }
+}
