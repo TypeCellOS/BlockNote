@@ -1,9 +1,13 @@
 import { getChangedRanges as tiptapGetChangedRanges } from "@tiptap/core";
-import { Node, Schema } from "prosemirror-model";
+import { Node, Schema, Slice } from "prosemirror-model";
 import {
   AddNodeMarkStep,
   Mapping,
+  RemoveNodeMarkStep,
+  ReplaceStep,
   Transform,
+  canJoin,
+  canSplit,
   findWrapping,
   liftTarget,
 } from "prosemirror-transform";
@@ -24,6 +28,7 @@ const schema = new Schema({
       attrs: { level: { default: 0 } },
       marks: "_",
     },
+    heading: { group: "block", content: "text*", marks: "_" },
     blockquote: { group: "block", content: "block+", marks: "_" },
     text: {},
   },
@@ -210,7 +215,7 @@ function randomChange(tr: Transform, rnd: (n: number) => number) {
   const text = "xyz".slice(rnd(3));
   const docSize = tr.doc.content.size;
 
-  switch (rnd(10)) {
+  switch (rnd(15)) {
     case 0:
       tr.insert(textPos(rnd(size + 1)), schema.text("abc".slice(rnd(3))));
       break;
@@ -283,12 +288,41 @@ function randomChange(tr: Transform, rnd: (n: number) => number) {
         tr.setDocAttribute("title", String(rnd(3)));
       }
       break;
+    case 10: {
+      const at = textPos(rnd(size + 1));
+      if (canSplit(tr.doc, at)) {
+        tr.split(at);
+      }
+      break;
+    }
+    case 11:
+      // What `tr.join` makes, without its throw when the join doesn't fit.
+      if (canJoin(tr.doc, pos)) {
+        tr.maybeStep(new ReplaceStep(pos - 1, pos + 1, Slice.empty, true));
+      }
+      break;
+    case 12:
+      tr.setBlockType(
+        pos,
+        pos + node.nodeSize,
+        [schema.nodes.paragraph, schema.nodes.heading][rnd(2)],
+      );
+      break;
+    case 13:
+      tr.maybeStep(new RemoveNodeMarkStep(pos, schema.marks.comment.create()));
+      break;
+    case 14: {
+      const from = rnd(docSize + 1);
+      tr.delete(from, from + rnd(docSize - from + 1));
+      break;
+    }
   }
 }
 
 describe("getChangedRanges", () => {
   it("returns the same ranges as Tiptap for random changes", () => {
     const rnd = random(42);
+    const stepTypes = new Set<string>();
     for (let run = 0; run < 3000; run++) {
       const tr = new Transform(
         schema.node(
@@ -303,10 +337,21 @@ describe("getChangedRanges", () => {
       for (let i = 0; i < stepCount; i++) {
         randomChange(tr, rnd);
       }
+      tr.steps.forEach((step) => stepTypes.add(step.constructor.name));
       expect(ranges(getChangedRanges, tr)).toEqual(
         ranges(tiptapGetChangedRanges, tr),
       );
     }
+    expect([...stepTypes].sort()).toEqual([
+      "AddMarkStep",
+      "AddNodeMarkStep",
+      "AttrStep",
+      "DocAttrStep",
+      "RemoveMarkStep",
+      "RemoveNodeMarkStep",
+      "ReplaceAroundStep",
+      "ReplaceStep",
+    ]);
   });
 
   it("returns the same ranges as Tiptap for many steps in document order and in reverse", () => {
