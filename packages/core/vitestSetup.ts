@@ -1,17 +1,18 @@
 import { afterEach, beforeEach } from "vite-plus/test";
 
-// Only jsdom environments have a `window`; node-env tests skip the reset. The
-// one consumer (`UniqueID.ts`) already guards on `typeof window`.
+// This setup file also runs for test files that opt into the plain `node`
+// environment (`@vitest-environment node`), where there is no `window` at
+// all. `__TEST_OPTIONS` (which drives deterministic block IDs) is therefore
+// set on `window` when there is one and on `globalThis` otherwise, matching
+// the resolution `UniqueID`'s `generateID` uses.
+const testHost: any = (globalThis as any).window ?? globalThis;
+
 beforeEach(() => {
-  if (typeof window !== "undefined") {
-    (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
-  }
+  testHost.__TEST_OPTIONS = {};
 });
 
 afterEach(() => {
-  if (typeof window !== "undefined") {
-    delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
-  }
+  delete testHost.__TEST_OPTIONS;
 });
 
 // Mock ClipboardEvent
