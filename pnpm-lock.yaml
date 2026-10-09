@@ -6540,6 +6540,15 @@ importers:
         specifier: 3.2.0
         version: 3.2.0
     devDependencies:
+      '@guidepup/playwright':
+        specifier: ^0.19.1
+        version: 0.19.1(@guidepup/guidepup@0.35.0)(@playwright/test@1.60.0)
+      '@guidepup/guidepup':
+        specifier: ^0.35.0
+        version: 0.35.0
+      '@axe-core/playwright':
+        specifier: ^4.13.0
+        version: 4.13.0(playwright-core@1.60.0)
       '@blocknote/ariakit':
         specifier: workspace:^
         version: link:../packages/ariakit
@@ -6891,6 +6900,11 @@ packages:
   '@aws/lambda-invoke-store@0.2.4':
     resolution: {integrity: sha512-iY8yvjE0y651BixKNPgmv1WrQc+GZ142sb0z4gYnChDDY2YqI4P/jsSopBWrKfAt7LOJAkOXt7rC/hms+WclQQ==}
     engines: {node: '>=18.0.0'}
+
+  '@axe-core/playwright@4.13.0':
+    resolution: {integrity: sha512-6YLx+kxXu5GJceG4ozFg+33a2EMTdjYwWGloJ3sb9Kta5pp+ZNS53uxGVog5JetIY8s++P5UrtX+cri+u0VAVg==}
+    peerDependencies:
+      playwright-core: '>= 1.0.0'
 
   '@babel/code-frame@7.29.0':
     resolution: {integrity: sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw==}
@@ -7627,6 +7641,15 @@ packages:
         optional: true
       tailwindcss:
         optional: true
+
+  '@guidepup/guidepup@0.35.0':
+    resolution: {integrity: sha512-US64a++RucCtLfoq/DqnjzaHYpKzERVYmhtsWViz38MyklICICDpb50AKLn9sbxUwTceK2rS0fjDy7fYpWK/QA==}
+
+  '@guidepup/playwright@0.19.1':
+    resolution: {integrity: sha512-d0FMH6LFbRbV71l2NGzv2gqV3vQbHDfTVctXsKm6d1ZahpS2/Ozq1WCEoZ7QTAR6iuNzwy03tZfvyijGH+zUDw==}
+    peerDependencies:
+      '@guidepup/guidepup': '>=0.33.0'
+      '@playwright/test': ^1.57.0
 
   '@handlewithcare/prosemirror-inputrules@0.1.4':
     resolution: {integrity: sha512-GMqlBeG2MKM+tXEFd2N+wIv5z4VvJTg8JtfJUrdjvFq2W6v+AW8oTgiWyFw8L3iEQwvtQcVJxU873iB0LXUNNw==}
@@ -11999,6 +12022,10 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
+  axe-core@4.13.0:
+    resolution: {integrity: sha512-UzGt8zg7Ny8djbYMhxl2zuEevVa7r2gJjYY5Lwr1xM7+XU2nd6CkIWFTVcCIbAP63vSz71NaVyyuSk9lHKcy0A==}
+    engines: {node: '>=4'}
+
   axios@1.15.0:
     resolution: {integrity: sha512-wWyJDlAatxk30ZJer+GeCWS209sA42X+N5jU2jy6oHTp7ufw8uzUTVFBX9+wTfAlhiJXGS0Bq7X6efruWjuK9Q==}
 
@@ -15060,6 +15087,10 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
+  plist@4.0.0:
+    resolution: {integrity: sha512-4dOqNo0Y2NpfSf9q4+zr4bh7pzNWeckIam34Z0KYJhg8qtNNfh59VbD+Yna5SjwcxawVvLKx5w5FtuCijpEF4Q==}
+    engines: {node: '>=18'}
+
   png-js@2.0.0:
     resolution: {integrity: sha512-GdzJuUMc6ZSpxFJWVxtOH1bzYHym+TOnveqUjb+VJIbZWbZzyiRGFiKhbiielfpYbgMlhHVhsJ0FTazfuRFkMA==}
 
@@ -16679,6 +16710,10 @@ packages:
   xml@1.0.1:
     resolution: {integrity: sha512-huCv9IH9Tcf95zuYCsQraZtWnJvBtLVE0QHMOs8bWyZAFZNDcYjsPq1nEx8jKA9y+Beo9v+7OBPRisQTjinQMw==}
 
+  xmlbuilder@15.1.1:
+    resolution: {integrity: sha512-yMqGBqtXyeN1e3TGYvgNgDVZ3j84W4cwkOXQswghol6APgZWaff9lnbvN7MHYJOiXsvGPXtjTYJEiC9J2wv9Eg==}
+    engines: {node: '>=8.0'}
+
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
 
@@ -17367,6 +17402,11 @@ snapshots:
 
   '@aws/lambda-invoke-store@0.2.4': {}
 
+  '@axe-core/playwright@4.13.0(playwright-core@1.60.0)':
+    dependencies:
+      axe-core: 4.13.0
+      playwright-core: 1.60.0
+
   '@babel/code-frame@7.29.0':
     dependencies:
       '@babel/helper-validator-identifier': 7.28.5
@@ -18030,6 +18070,18 @@ snapshots:
       '@types/react': 19.2.14
       next: 16.3.0(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(@types/node@25.9.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       tailwindcss: 4.2.2
+
+  '@guidepup/guidepup@0.35.0':
+    dependencies:
+      debug: 4.4.3
+      plist: 4.0.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@guidepup/playwright@0.19.1(@guidepup/guidepup@0.35.0)(@playwright/test@1.60.0)':
+    dependencies:
+      '@guidepup/guidepup': 0.35.0
+      '@playwright/test': 1.60.0
 
   '@handlewithcare/prosemirror-inputrules@0.1.4(prosemirror-model@1.25.12)(prosemirror-state@1.4.4)(prosemirror-view@1.42.5)':
     dependencies:
@@ -22455,6 +22507,8 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
+  axe-core@4.13.0: {}
+
   axios@1.15.0:
     dependencies:
       follow-redirects: 1.16.0
@@ -25884,6 +25938,11 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.2
 
+  plist@4.0.0:
+    dependencies:
+      '@xmldom/xmldom': 0.9.10
+      xmlbuilder: 15.1.1
+
   png-js@2.0.0:
     dependencies:
       fflate: 0.8.3
@@ -27883,6 +27942,8 @@ snapshots:
   xml-parser-xo@4.1.5: {}
 
   xml@1.0.1: {}
+
+  xmlbuilder@15.1.1: {}
 
   xmlchars@2.2.0: {}
 

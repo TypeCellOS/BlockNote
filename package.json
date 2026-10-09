@@ -29,6 +29,8 @@
     "e2e": "bash tests/docker-run.sh -e CI=1 -- --run",
     "e2e:updateSnaps": "bash tests/docker-run.sh -e CI=1 -- --run --update=true",
     "e2e:report": "serve -l 4173 tests/playwright-report",
+    "a11y": "node tests/a11y/run.mjs",
+    "a11y:screen-reader": "node tests/a11y/run.mjs --screen-reader",
     "lint": "vp lint --type-aware",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",

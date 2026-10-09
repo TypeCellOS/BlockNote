@@ -22,6 +22,7 @@
     "emitDeclarationOnly": true
   },
   "include": ["src"],
+  "exclude": ["src/**/*.a11y.spec.ts"],
   "references": [
     {
       "path": "../core"
