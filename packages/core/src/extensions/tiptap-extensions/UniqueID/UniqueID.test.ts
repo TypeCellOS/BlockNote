@@ -113,43 +113,29 @@ describe("UniqueID: duplicate id handling", () => {
     expect(new Set(ids).size).toBe(4);
   });
 
-  it("preserves the duplicate id of a suggested-deletion block while still rewriting the plain duplicate", () => {
+  it("keeps the shared id of a suggested-deletion block and its surviving copy", () => {
     editor = createEditor();
     const view = editor._tiptapEditor.view;
 
     // Insert two new blocks sharing the id "dup" in a single transaction: a
     // plain (live) one and a suggested-deletion one (y-attributed-delete mark).
-    // The plain block's id is rewritten, but the suggested-deletion block MUST
-    // keep its "dup" id, because in suggestion mode it intentionally shares the
-    // id with the surviving node.
+    // This is how a version diff shows a re-created block (a type change or a
+    // move): the deleted original next to its copy, with the same id. Neither
+    // id is rewritten, otherwise the shown copy gets a different id.
     const liveDup = makeBlockContainer(editor, "dup", "Live dup", false);
     const deletedDup = makeBlockContainer(editor, "dup", "Deleted dup", true);
 
     const firstBlock = view.state.doc.firstChild!.firstChild!;
     const insertPos = firstBlock.nodeSize + 1;
 
-    // Insert the live block first, then the suggested-deletion block after it.
     view.dispatch(view.state.tr.insert(insertPos, [liveDup, deletedDup]));
 
-    const ids = getBlockIds(view.state.doc);
-
-    expect(ids).toHaveLength(4);
-    // The suggested-deletion block keeps "dup".
-    const dupCount = ids.filter((id) => id === "dup").length;
-    expect(dupCount).toBe(1);
-
-    // Confirm it is specifically the suggested-deletion node that kept "dup".
-    let suggestedDeletionId: string | null = null;
-    view.state.doc.descendants((node) => {
-      if (
-        node.type.name === "blockContainer" &&
-        node.marks.some((m) => m.type.name === "y-attributed-delete")
-      ) {
-        suggestedDeletionId = node.attrs.id;
-      }
-      return true;
-    });
-    expect(suggestedDeletionId).toBe("dup");
+    expect(getBlockIds(view.state.doc)).toEqual([
+      "block-a",
+      "dup",
+      "dup",
+      "block-b",
+    ]);
   });
 
   it("exposes distinct ids in editor.document even though two ProseMirror nodes share the same id", () => {

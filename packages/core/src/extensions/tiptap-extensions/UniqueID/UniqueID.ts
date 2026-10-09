@@ -171,7 +171,10 @@ const UniqueID = Extension.create({
                 return types.includes(node.type.name);
               },
             );
+            // A block marked as deleted shares its id with its surviving
+            // copy (see `isMarkedDeleted`), so it doesn't count as a duplicate.
             const newIds = newNodes
+              .filter(({ node }) => !isMarkedDeleted(node))
               .map(({ node }) => node.attrs.id)
               .filter((id) => id !== null);
             const duplicatedNewIds = findDuplicates(newIds);
