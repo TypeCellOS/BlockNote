@@ -220,7 +220,7 @@ describe("version diff of a nesting change", () => {
     return changed;
   }
 
-  // To be fixed by #3172.
+  // To be fixed by #3166.
   it.fails("shows an indent as a moved block, leaving the new parent unchanged", () => {
     expect(
       diffOf(
@@ -236,7 +236,7 @@ describe("version diff of a nesting change", () => {
     ).toEqual([">X"]);
   });
 
-  // To be fixed by #3172.
+  // To be fixed by #3166.
   it.fails("shows an unindent as a moved block, leaving the old parent unchanged", () => {
     expect(
       diffOf(
