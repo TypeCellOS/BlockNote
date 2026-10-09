@@ -148,8 +148,12 @@ export const mergeBlocksCommand =
       return true;
     }
 
-    // Lift children before removing their parent. Tiptap's chainable state
-    // returns the shared transaction, so the lift is included in dispatch.
+    // Lift children before removing their parent. `state.tr` here is not a
+    // fresh transaction: tiptap's chainable state (`createChainableState`)
+    // returns the one transaction the command runs in from every `tr` read,
+    // so this lift and the delete below are dispatched together. The "Second
+    // block has children" test in mergeBlocks.test.ts pins that the lifted
+    // children survive the merge.
     if (dispatch && nextBlockInfo.children) {
       const childBlocksRange = state.doc
         .resolve(nextBlockInfo.children.childrenStart)

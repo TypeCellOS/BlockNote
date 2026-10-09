@@ -47,15 +47,27 @@ const GridCell = createBlockSpec(
   { render: renderDiv },
 )();
 
-// A container that requires two children, so dropping below `min` dissolves
-// it into the survivors.
+// A second container of any blocks, for conversions between container types.
+const Box = createBlockSpec(
+  {
+    type: "box" as const,
+    propSchema: {},
+    content: "none",
+    container: true,
+  },
+  { render: renderDiv },
+)();
+
+// A container that requires two callouts, so dropping below `min` dissolves
+// it into the survivor. (`min` needs an `allow` list: a container of any
+// blocks always holds at least one.)
 const Pair = createBlockSpec(
   {
     type: "pair" as const,
     propSchema: {},
     content: "none",
     container: true,
-    children: { min: 2 },
+    children: { allow: ["callout"], min: 2 },
   },
   { render: renderDiv },
 )();
@@ -97,5 +109,6 @@ export const containerSchema = BlockNoteSchema.create().extend({
     grid: Grid,
     gridCell: GridCell,
     pair: Pair,
+    box: Box,
   } as const,
 });

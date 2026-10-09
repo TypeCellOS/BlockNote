@@ -5,6 +5,7 @@ import { ReplaceAroundStep } from "prosemirror-transform";
 import {
   isContainerNode,
   isNamedOnly,
+  minChildren,
 } from "../../../schema/blocks/children.js";
 import { getNodeById } from "../../nodeUtil.js";
 
@@ -28,11 +29,11 @@ export function isEmptyContainerChild(node: Node): boolean {
     if (node.childCount === 1) {
       return isEmptyContainerChild(node.firstChild!);
     }
-    // A container left with no children at all — its last child was removed
+    // A container left with no children at all: its last child was removed
     // and no fill happened on the way. A `min: 0` container in this state is
     // valid and stays; any other is broken structure.
     if (node.childCount === 0) {
-      return (node.type.spec.blockConfig?.children?.min ?? 1) >= 1;
+      return minChildren(node.type.spec.blockConfig?.children) >= 1;
     }
     return false;
   }
@@ -66,7 +67,7 @@ export function fixContainer(tr: Transaction, containerPos: number) {
     return;
   }
 
-  const min = container.type.spec.blockConfig?.children?.min ?? 1;
+  const min = minChildren(container.type.spec.blockConfig?.children);
   const survivors: { node: Node; offset: number }[] = [];
   const emptied: { from: number; to: number }[] = [];
   container.forEach((child, offset) => {

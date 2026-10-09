@@ -1,5 +1,4 @@
-import { isContainerConfig } from "./children.js";
-import type { BlockConfig, ChildrenConfig } from "./types.js";
+import type { BlockConfig, ChildrenAllow } from "./types.js";
 
 /** Reject declarations ProseMirror would accept with different semantics. */
 export function validateChildrenConfigs(
@@ -20,7 +19,7 @@ export function validateChildrenConfigs(
         '`container: true` is only for blocks without content (`content: "none"`): a container\'s own node holds nothing but its child blocks.',
       );
     }
-    if (config.placeable === "namedOnly" && !isContainerConfig(config)) {
+    if (config.placeable === "namedOnly" && config.container !== true) {
       fail(
         type,
         '`placeable: "namedOnly"` requires a container node; regular blocks share the same wrapper and cannot restrict their placement.',
@@ -31,11 +30,14 @@ export function validateChildrenConfigs(
     }
 
     // Typed loosely: a JS caller can put anything here.
-    const { allow = "blocks", min } = config.children as ChildrenConfig;
+    const { allow = "blocks", min } = config.children as {
+      allow?: ChildrenAllow;
+      min?: number;
+    };
 
     // The child blocks of a block that isn't a container share one untyped
     // group, which can't enforce types or counts.
-    if (!isContainerConfig(config)) {
+    if (config.container !== true) {
       if (allow !== "blocks" || min !== undefined) {
         fail(
           type,
@@ -43,6 +45,16 @@ export function validateChildrenConfigs(
         );
       }
       continue;
+    }
+
+    // A container that accepts any blocks always holds at least one, and
+    // dissolves when it loses it. A minimum only means something for a set
+    // of named container types (two columns, one tab).
+    if (allow === "blocks" && min !== undefined) {
+      fail(
+        type,
+        "`children.min` needs an `allow` list. A container that accepts any blocks always holds at least one child, and dissolves when its last child is removed.",
+      );
     }
 
     // Every regular block is the same node (`blockContainer`), so naming one
@@ -55,7 +67,7 @@ export function validateChildrenConfigs(
             `\`allow\` contains "${allowed}", which is not a configured block type.`,
           );
         }
-        if (!isContainerConfig(blockSpecs[allowed].config)) {
+        if (blockSpecs[allowed].config.container !== true) {
           fail(
             type,
             `\`allow\` contains "${allowed}", which is a regular block, not a container block. ` +

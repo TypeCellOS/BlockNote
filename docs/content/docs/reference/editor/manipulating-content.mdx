@@ -165,15 +165,18 @@ editor.insertBlocks(
   "after",
 );
 
-// Insert a paragraph as the last child of a container block
+// Insert a paragraph as the last child of an existing block
 editor.insertBlocks(
   [{ type: "paragraph", content: "Nested paragraph" }],
-  "container-block-id",
+  "existing-block-id",
   "last-child",
 );
 ```
 
-For [container blocks](/docs/features/custom-schemas/container-blocks), `"first-child"` inserts at the beginning of the container and `"last-child"` inserts at the end. Use `"before"` or `"after"` to insert next to the container instead.
+`placement` says where the new blocks go, relative to the reference block:
+
+- `"before"` and `"after"`: as its siblings, directly before or after it.
+- `"first-child"` and `"last-child"`: as its children, at the start or at the end. The reference block does not need to have children yet.
 
 ### Updating Blocks
 

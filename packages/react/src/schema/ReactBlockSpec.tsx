@@ -1,6 +1,5 @@
 import {
   applyContainerAttributes,
-  isContainerConfig,
   BlockConfig,
   BlockFromConfig,
   BlockConfigOrCreator,
@@ -277,7 +276,7 @@ export function createReactBlockSpec<
     // takes the container node view. The titled block's content node renders
     // through the regular node view; core installs its frame at the
     // `blockContainer` level (see the `renderFrame` adapter below).
-    const isContainer = isContainerConfig(blockConfig);
+    const isContainer = blockConfig.container === true;
 
     // Shared by the two paths that render to plain DOM (`toExternalHTML` and
     // `render` outside a node view). A container block's output is the

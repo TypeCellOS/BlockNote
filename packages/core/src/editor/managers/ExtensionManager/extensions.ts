@@ -39,7 +39,6 @@ import {
   UniqueID,
 } from "../../../extensions/tiptap-extensions/index.js";
 import { BlockContainer, BlockGroup, Doc } from "../../../pm-nodes/index.js";
-import { isContainerConfig } from "../../../schema/blocks/children.js";
 import type {
   BlockNoteEditor,
   BlockNoteEditorOptions,
@@ -67,7 +66,7 @@ export function getDefaultTiptapExtensions(
         "blockContainer",
         // Only pure containers own their ID; titled blocks use blockContainer.
         ...Object.values(editor.schema.blockSpecs)
-          .filter((spec) => isContainerConfig(spec.config))
+          .filter((spec) => spec.config.container === true)
           .map((spec) => spec.config.type),
       ],
       setIdAttribute: options.setIdAttribute,

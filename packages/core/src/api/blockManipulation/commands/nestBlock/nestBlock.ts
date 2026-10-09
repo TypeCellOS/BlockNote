@@ -35,6 +35,10 @@ function holdsItems(node: Node, itemType: NodeType) {
  * 2. nestedBefore checks groupType instead of parent.type
  * 3. Slice creates groupType instead of parent.type
  * 4. Operates on Transaction directly instead of state+dispatch
+ * 5. Opens the slice into the previous sibling's child group, not into the
+ *    group's last child. The original cut one level deeper to keep `insert`
+ *    at 1; that failed when the last child was a container node (a column
+ *    list), which a `blockContainer` can't be joined onto.
  */
 function sinkItem(tr: Transaction, itemType: NodeType, groupType: NodeType) {
   const { $from, $to } = tr.selection;
@@ -53,26 +57,32 @@ function sinkItem(tr: Transaction, itemType: NodeType, groupType: NodeType) {
   }
   const nestedBefore =
     nodeBefore.lastChild && nodeBefore.lastChild.type === groupType; // change 2
-  const inner = Fragment.from(nestedBefore ? itemType.create() : null);
+  // The slice opens into the previous sibling and, when it already has a child
+  // group, into that group, so the block becomes its last child. (change 5)
+  const depth = nestedBefore ? 2 : 1;
   const slice = new Slice(
-    Fragment.from(
-      itemType.create(null, Fragment.from(groupType.create(null, inner))), // change 3
-    ),
-    nestedBefore ? 3 : 1,
+    Fragment.from(itemType.create(null, Fragment.from(groupType.create()))), // change 3
+    depth,
     0,
   );
 
   const before = range.start;
   const after = range.end;
 
+  // Nothing above can make the schema refuse this step: `parent` holds
+  // regular blocks, so it may lose one (a container of any blocks has no
+  // `min` above 1), and the slice only joins the previous sibling and its
+  // group. A refusal here would be a bug, so it throws.
   tr.step(
     new ReplaceAroundStep(
-      before - (nestedBefore ? 3 : 1),
+      before - depth,
       after,
       before,
       after,
       slice,
-      1,
+      // `Slice.insertAt` adds the slice's open depth, so this lands at content
+      // position 2: inside the group.
+      2 - depth,
       true,
     ),
   ).scrollIntoView();

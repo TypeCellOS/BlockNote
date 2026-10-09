@@ -32,6 +32,30 @@ describe("Nest & unnest a selection spanning two columns", () => {
     );
   });
 
+  // The slice `sinkItem` builds used to open into the last of the previous
+  // sibling's children, which fails when that is a column list ("Cannot join
+  // blockContainer onto columnList"). The block now goes after the list.
+  it("Nests a block after a column list at the end of the previous sibling's children", () => {
+    const editor = getEditor();
+
+    editor.setSelection("column-paragraph-1", "column-paragraph-2");
+    editor.nestBlock();
+    expect(editor.getBlock("paragraph-1")!.children.map((c) => c.id)).toEqual([
+      "column-list-0",
+    ]);
+
+    editor.setTextCursorPosition("paragraph-2", "start");
+    expect(editor.canNestBlock()).toBe(true);
+    editor.nestBlock();
+
+    expect(editor.getBlock("paragraph-1")!.children.map((c) => c.id)).toEqual([
+      "column-list-0",
+      "paragraph-2",
+    ]);
+    expect(editor.getTextCursorPosition().block.id).toBe("paragraph-2");
+    expect(() => editor.prosemirrorState.doc.check()).not.toThrow();
+  });
+
   it("Unnests the whole column list out of its parent", () => {
     const editor = getEditor();
 

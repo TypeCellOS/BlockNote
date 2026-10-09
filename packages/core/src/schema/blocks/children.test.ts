@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { childrenContentExpression } from "./children.js";
-import type { ChildrenConfig } from "./types.js";
+import type { ChildrenAllow, ChildrenConfig } from "./types.js";
 import { validateChildrenConfigs } from "./validateChildren.js";
 
 // All enforcement happens through the content expression. If this table is
@@ -13,13 +13,12 @@ const CASES: [string, ChildrenConfig, string][] = [
     { allow: "blocks" },
     "blockGroupChild+",
   ],
-  ["any block, possibly none", { allow: "blocks", min: 0 }, "blockGroupChild*"],
-  [
-    "any block, two or more",
-    { allow: "blocks", min: 2 },
-    "blockGroupChild{2,}",
-  ],
   ["one container type only", { allow: ["column"], min: 2 }, "column{2,}"],
+  [
+    "one container type, possibly none",
+    { allow: ["column"], min: 0 },
+    "column*",
+  ],
   [
     "several container types",
     { allow: ["column", "card"] },
@@ -37,7 +36,9 @@ describe("childrenContentExpression", () => {
   // here, at expression build, rather than by `validate` below.
   it("accepts any blocks when `children` or `allow` is left out", () => {
     expect(childrenContentExpression()).toBe("blockGroupChild+");
-    expect(childrenContentExpression({ min: 2 })).toBe("blockGroupChild{2,}");
+    expect(childrenContentExpression({ allow: "blocks" })).toBe(
+      "blockGroupChild+",
+    );
   });
 
   it("throws for an allow array that permits nothing", () => {
@@ -50,7 +51,8 @@ describe("childrenContentExpression", () => {
 type BlockFixture = {
   content?: "none" | "inline" | "plain" | "table";
   container?: true;
-  children?: ChildrenConfig;
+  // Loose on purpose: the validator tests pass shapes the type rejects.
+  children?: { allow?: ChildrenAllow; min?: number };
   placeable?: "anywhere" | "namedOnly";
 };
 
@@ -85,6 +87,21 @@ describe("validateChildrenConfigs", () => {
         gridCell: { container: true, placeable: "namedOnly" },
       }),
     ).not.toThrow();
+  });
+
+  // `min` only means something for a set of named container types. A
+  // container that accepts any blocks always holds at least one, and
+  // dissolves when it loses it.
+  it("rejects `min` on a container that accepts any blocks", () => {
+    for (const children of [{ allow: "blocks", min: 2 }, { min: 2 }] as const) {
+      expect(validate({ panel: { container: true, children } })).toThrow(
+        /`children.min` needs an `allow` list/,
+      );
+    }
+    // The type rejects it too.
+    // @ts-expect-error
+    const invalid: ChildrenConfig = { allow: "blocks", min: 2 };
+    expect(invalid).toBeDefined();
   });
 
   it.each(["inline", "plain", "table"] as const)(

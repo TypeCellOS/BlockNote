@@ -6,15 +6,6 @@ export const CHILD_CONTAINER_GROUP = "childContainer";
 
 export const BLOCK_GROUP_CHILD_GROUP = "blockGroupChild";
 
-/**
- * Whether a block config declares a *container block* (`container: true`):
- * one whose own node holds its children.
- * @internal
- */
-export function isContainerConfig(config: { container?: true }): boolean {
-  return config.container === true;
-}
-
 // Whether `type` is a node that holds child blocks directly: a container
 // block's own node. A container is a child-holding node that is itself a
 // block; `blockGroup` also holds children but is not a block (it's regular
@@ -73,6 +64,11 @@ export function containerNodePriority(priority: number | undefined): number {
   );
 }
 
+/** How few children a container must hold: its `min` (an `allow` list only), else 1. */
+export function minChildren(children: ChildrenConfig | undefined): number {
+  return children !== undefined && "min" in children ? (children.min ?? 1) : 1;
+}
+
 /**
  * Compiles a container's `children` config into its node's ProseMirror content
  * expression: which types may be its children (`allow`), followed by how few
@@ -81,7 +77,8 @@ export function containerNodePriority(priority: number | undefined): number {
 export function childrenContentExpression(
   children: ChildrenConfig = {},
 ): string {
-  const { allow = "blocks", min = 1 } = children;
+  const { allow = "blocks" } = children;
+  const min = minChildren(children);
 
   let allowed: string;
   if (allow === "blocks") {

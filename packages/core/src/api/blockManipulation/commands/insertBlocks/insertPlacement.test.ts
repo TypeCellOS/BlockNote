@@ -25,13 +25,11 @@ const container = (type: string, config: Record<string, unknown>) =>
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
     ...defaultBlockSpecs,
-    // Why `"first-child"`/`"last-child"` exist: a container that may legally
-    // hold nothing has no child block to address, so `"before"`/`"after"`
-    // cannot reach inside it.
+    // A container of any blocks. `"first-child"`/`"last-child"` insert at
+    // the start or end of its children.
     box: container("box", {
       content: "none",
       container: true,
-      children: { allow: "blocks", min: 0 },
     }),
     // A container that only accepts other containers, so an insertion has to
     // descend a level to find a place for a regular block.
@@ -66,30 +64,6 @@ beforeEach(() => {
 });
 
 describe('insertBlocks "first-child" / "last-child"', () => {
-  it("inserts into a childless container", () => {
-    editor.replaceBlocks(editor.document, [
-      { id: "b-0", type: "box" },
-      { id: "trailing", type: "paragraph", content: "" },
-    ]);
-    expect(editor.getBlock("b-0")!.children).toHaveLength(0);
-
-    editor.insertBlocks(
-      [{ id: "first", type: "paragraph" }],
-      "b-0",
-      "first-child",
-    );
-    editor.insertBlocks(
-      [{ id: "last", type: "paragraph" }],
-      "b-0",
-      "last-child",
-    );
-
-    expect(editor.getBlock("b-0")!.children.map((child) => child.id)).toEqual([
-      "first",
-      "last",
-    ]);
-  });
-
   it("prepends and appends around existing children", () => {
     editor.replaceBlocks(editor.document, [
       {
@@ -217,7 +191,11 @@ describe('insertBlocks "first-child" / "last-child"', () => {
 
   it("still inserts a batch that fits in full", () => {
     editor.replaceBlocks(editor.document, [
-      { id: "b-0", type: "box", children: [] },
+      {
+        id: "b-0",
+        type: "box",
+        children: [{ id: "existing", type: "paragraph" }],
+      },
       { id: "trailing", type: "paragraph", content: "" },
     ]);
 
@@ -231,6 +209,7 @@ describe('insertBlocks "first-child" / "last-child"', () => {
     );
 
     expect(editor.getBlock("b-0")!.children.map((child) => child.id)).toEqual([
+      "existing",
       "one",
       "two",
     ]);

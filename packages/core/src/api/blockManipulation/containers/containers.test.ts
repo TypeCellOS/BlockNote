@@ -55,7 +55,7 @@ describe("children insertion & filling", () => {
       childType: "paragraph",
       min: 1,
     },
-    { block: { type: "pair" }, childType: "paragraph", min: 2 },
+    { block: { type: "pair" }, childType: "callout", min: 2 },
     { block: { type: "grid" }, childType: "gridCell", min: 2 },
   ] satisfies { block: PartialBlock; childType: string; min: number }[])(
     "fills $block to its minimum with identifiable $childType children",
@@ -217,42 +217,39 @@ describe("container nodes", () => {
   // running from inside a container to after it, paste it back over itself,
   // and the document must come back unchanged. Marking the container
   // `isolating` instead re-nests the whole fragment a level too deep.
-  it.each(["callout", "pair"])(
-    "round-trips a paste across a %s's edge",
-    (type) => {
-      editor.replaceBlocks(editor.document, [
-        {
-          id: "c",
-          type,
-          children: [
-            { id: "c1", type: "paragraph", content: "Inner one" },
-            { id: "c2", type: "paragraph", content: "Inner two" },
-          ],
-        },
-        { id: "a", type: "paragraph", content: "After" },
-      ] as PartialBlock[]);
+  it.each(["callout"])("round-trips a paste across a %s's edge", (type) => {
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "c",
+        type,
+        children: [
+          { id: "c1", type: "paragraph", content: "Inner one" },
+          { id: "c2", type: "paragraph", content: "Inner two" },
+        ],
+      },
+      { id: "a", type: "paragraph", content: "After" },
+    ] as PartialBlock[]);
 
-      const before = JSON.stringify(editor.document);
+    const before = JSON.stringify(editor.document);
 
-      editor.transact((tr) => {
-        let from = 0;
-        let to = 0;
-        tr.doc.descendants((node, pos) => {
-          if (node.isText && node.text === "Inner two") {
-            from = pos;
-          }
-          if (node.isText && node.text === "After") {
-            to = pos + node.nodeSize;
-          }
-        });
-
-        const selection = TextSelection.create(tr.doc, from, to);
-        tr.setSelection(selection).replace(from, to, selection.content());
+    editor.transact((tr) => {
+      let from = 0;
+      let to = 0;
+      tr.doc.descendants((node, pos) => {
+        if (node.isText && node.text === "Inner two") {
+          from = pos;
+        }
+        if (node.isText && node.text === "After") {
+          to = pos + node.nodeSize;
+        }
       });
 
-      expect(JSON.stringify(editor.document)).toBe(before);
-    },
-  );
+      const selection = TextSelection.create(tr.doc, from, to);
+      tr.setSelection(selection).replace(from, to, selection.content());
+    });
+
+    expect(JSON.stringify(editor.document)).toBe(before);
+  });
 });
 
 // `initialContent` is the only path that builds a document without validating
@@ -358,20 +355,31 @@ describe("children repair", () => {
         type: "pair",
         id: "pair-0",
         children: [
-          { id: "pair-a", type: "paragraph", content: "A" },
-          { id: "pair-b", type: "paragraph", content: "Survivor" },
+          {
+            id: "pair-a",
+            type: "callout",
+            children: [{ id: "pair-a-p", type: "paragraph", content: "A" }],
+          },
+          {
+            id: "pair-b",
+            type: "callout",
+            children: [
+              { id: "pair-b-p", type: "paragraph", content: "Survivor" },
+            ],
+          },
         ],
       },
       { id: "trailing", type: "paragraph", content: "" },
     ]);
 
-    editor.setTextCursorPosition("pair-b", "end");
+    editor.setTextCursorPosition("pair-b-p", "end");
     const offsetBefore = editor.prosemirrorState.selection.$from.parentOffset;
 
     editor.removeBlocks(["pair-a"]);
 
     expect(editor.getBlock("pair-0")).toBeUndefined();
-    expect(editor.getTextCursorPosition().block.id).toBe("pair-b");
+    expect(editor.getBlock("pair-b")?.type).toBe("callout");
+    expect(editor.getTextCursorPosition().block.id).toBe("pair-b-p");
     expect(editor.prosemirrorState.selection.$from.parentOffset).toBe(
       offsetBefore,
     );
@@ -457,14 +465,15 @@ describe("children repair", () => {
 describe("repair edge cases", () => {
   // A container that explicitly allows being empty. `min: 0` compiles to a
   // `*` content expression, so ProseMirror never pads it and repair leaves
-  // it alone.
+  // it alone. (Only an `allow` list can set it: a container of any blocks
+  // always holds at least one.)
   const Tray = createBlockSpec(
     {
       type: "tray" as const,
       propSchema: {},
       content: "none" as const,
       container: true,
-      children: { allow: "blocks", min: 0 },
+      children: { allow: ["callout"], min: 0 },
     },
     {
       render: () => {
@@ -485,15 +494,20 @@ describe("repair edge cases", () => {
         {
           type: "tray",
           id: "t-0",
-          children: [{ id: "t-p-0", type: "paragraph", content: "" }],
+          children: [
+            {
+              id: "t-c-0",
+              type: "callout",
+              children: [{ type: "paragraph", content: "" }],
+            },
+          ],
         },
         { id: "trailing", type: "paragraph", content: "" },
       ]);
 
-      // Removing its only (empty) child leaves zero children, which `min: 0`
-      // allows: the tray stays instead of dissolving, and nothing is padded
-      // back.
-      trayEditor.removeBlocks(["t-p-0"]);
+      // Removing its only child leaves zero children, which `min: 0` allows:
+      // the tray stays instead of dissolving, and nothing is padded back.
+      trayEditor.removeBlocks(["t-c-0"]);
 
       expect(trayEditor.getBlock("t-0")).toBeDefined();
       expect(trayEditor.getBlock("t-0")!.children).toHaveLength(0);
@@ -533,8 +547,16 @@ describe("repair edge cases", () => {
         type: "pair",
         id: "s-0",
         children: [
-          { id: "s-a", type: "paragraph", content: "A" },
-          { id: "s-b", type: "paragraph", content: "B" },
+          {
+            id: "s-a",
+            type: "callout",
+            children: [{ type: "paragraph", content: "A" }],
+          },
+          {
+            id: "s-b",
+            type: "callout",
+            children: [{ type: "paragraph", content: "B" }],
+          },
         ],
       },
       { id: "trailing", type: "paragraph", content: "" },
@@ -614,8 +636,16 @@ describe("ancestor container repair", () => {
         type: "pair",
         id: "s-0",
         children: [
-          { id: "s-p-0", type: "paragraph", content: "Kept" },
-          { id: "s-p-1", type: "paragraph", content: "Removed" },
+          {
+            id: "s-p-0",
+            type: "callout",
+            children: [{ type: "paragraph", content: "Kept" }],
+          },
+          {
+            id: "s-p-1",
+            type: "callout",
+            children: [{ type: "paragraph", content: "Removed" }],
+          },
         ],
       },
       { id: "trailing", type: "paragraph", content: "" },

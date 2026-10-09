@@ -43,6 +43,23 @@ describe("Test mergeBlocks", () => {
 
     mergeBlocks(getPosBeforeSelectedBlock());
 
+    // The merged block's children are lifted into its place, not dropped
+    // with it. The lift and the delete go through the one transaction tiptap
+    // hands the command (its chainable state's `tr` getter returns the same
+    // transaction every time), so the lift must survive the dispatch.
+    expect(getEditor().getBlock("paragraph-with-children")).toBeUndefined();
+    expect(getEditor().getBlock("paragraph-1")!.content).toEqual([
+      { type: "text", text: "Paragraph 1Paragraph with children", styles: {} },
+    ]);
+    expect(getEditor().document.map((block) => block.id)).toContain(
+      "nested-paragraph-0",
+    );
+    expect(
+      getEditor()
+        .getBlock("nested-paragraph-0")!
+        .children.map((c) => c.id),
+    ).toEqual(["double-nested-paragraph-0"]);
+
     expect(getEditor().document).toMatchSnapshot();
   });
 

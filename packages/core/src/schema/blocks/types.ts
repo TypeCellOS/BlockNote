@@ -133,22 +133,27 @@ export type ChildrenAllow = "blocks" | readonly AllowedChildType[];
  * implicit slot. Ordered multi-slot children (a `sequence` of slots) can be
  * added later as a sibling form.
  */
-export type ChildrenConfig = {
-  /**
-   * What may appear as a child. See {@link ChildrenAllow}.
-   * @default "blocks"
-   */
-  allow?: ChildrenAllow;
-  /**
-   * How few children the container may hold. When children drop below the
-   * minimum, a container that can stand anywhere dissolves into its
-   * surviving children (a one-column column list is just those blocks), and
-   * one that only exists inside another container is topped back up with
-   * empty children (a column keeps existing).
-   * @default 1
-   */
-  min?: number;
-};
+export type ChildrenConfig =
+  | {
+      /**
+       * Any blocks, the default. Such a container always holds at least one
+       * child: when its last child is removed, the container dissolves.
+       */
+      allow?: "blocks";
+    }
+  | {
+      /** Which container types may appear as a child. */
+      allow: readonly AllowedChildType[];
+      /**
+       * How few children the container may hold; `0` lets it be empty. When
+       * children drop below the minimum, a container that can stand anywhere
+       * dissolves into its surviving children (a one-column column list is
+       * just those blocks), and one that only exists inside another container
+       * is topped back up with empty children (a column keeps existing).
+       * @default 1
+       */
+      min?: number;
+    };
 
 export interface BlockConfig<
   T extends string = string,

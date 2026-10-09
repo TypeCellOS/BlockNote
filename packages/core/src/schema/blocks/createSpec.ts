@@ -21,7 +21,6 @@ import {
   CHILD_CONTAINER_GROUP,
   childrenContentExpression,
   containerNodePriority,
-  isContainerConfig,
 } from "./children.js";
 import { applyContainerAttributes } from "./containerAttributes.js";
 import { createBlockKeyboard } from "./keyboard.js";
@@ -94,7 +93,7 @@ function blockContentParser<
   config: BlockConfig<TName, TProps, TContent>,
   implementation: BlockImplementation<TName, TProps, TContent>,
 ): TagParseRule["getContent"] | undefined {
-  const isContainer = isContainerConfig(config);
+  const isContainer = config.container === true;
   if (
     config.content === "table" ||
     (isContainer && !implementation.parseContent)
@@ -175,7 +174,7 @@ export function getParseRules<
   config: BlockConfig<TName, TProps, TContent>,
   implementation: BlockImplementation<TName, TProps, TContent>,
 ) {
-  const isContainer = isContainerConfig(config);
+  const isContainer = config.container === true;
 
   const rules: TagParseRule[] = [
     isContainer
@@ -248,7 +247,7 @@ function blockNodeView<
   blockImplementation: BlockImplementation<TName, TProps, TContent>,
   props: NodeViewRendererProps,
 ): NodeView {
-  const isContainer = isContainerConfig(blockConfig);
+  const isContainer = blockConfig.container === true;
   const block = isContainer
     ? nodeToBlock(props.node, props.view.state.doc)
     : getBlockFromNodeView(props.getPos, props.node, props.view.state.doc);
@@ -329,7 +328,7 @@ function buildNode<
   blockImplementation: BlockImplementation<TName, TProps, TContent>,
   priority?: number,
 ) {
-  const isContainer = isContainerConfig(blockConfig);
+  const isContainer = blockConfig.container === true;
   return Node.create({
     name: blockConfig.type,
     content: isContainer
@@ -432,7 +431,7 @@ export function addNodeAndExtensionsToSpec<
 ): LooseBlockSpec<TName, TProps, TContent> {
   // Only a block declared `container: true` builds a container node, which
   // holds its children. Every other block keeps its ordinary shape.
-  const isContainer = isContainerConfig(blockConfig);
+  const isContainer = blockConfig.container === true;
 
   const builtNode: Node =
     (blockImplementation as any).node ??
@@ -639,7 +638,7 @@ export function createBlockSpec<
 
     // Only a block declared `container: true` is a container here. Every
     // other block keeps its ordinary shape.
-    const isContainer = isContainerConfig(blockConfig);
+    const isContainer = blockConfig.container === true;
 
     // Keep the existing render contract, including for JS callers.
     if (!blockImplementation.render) {

@@ -92,10 +92,12 @@ export type BlockInfo = {
       /** `content.afterPos - 1`: the last position inside the content. */
       contentEnd: number;
       /**
-       * What the content node holds: its block spec's `content`, which is what
-       * the node's ProseMirror content expression was generated from (and what
-       * a hand-written node's expression is checked against when the schema is
-       * built).
+       * What the content node holds: its block spec's `content`, read from the
+       * `blockConfig` stored on the node's spec. For a node `createBlockSpec`
+       * builds, the node's ProseMirror content expression is generated from
+       * it. For a hand-written node (`createBlockSpecFromTiptapNode`), it is
+       * whatever the block spec declares; the node's own content expression is
+       * not checked against it.
        */
       contentKind: BlockConfig["content"];
       /** `content.node.childCount === 0`. */

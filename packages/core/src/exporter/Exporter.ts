@@ -166,7 +166,8 @@ export abstract class Exporter<
       // TODO: remove once the `BlockMapping` type requires `{ withChildren }`
       // for containers (`createBlockSpec` doesn't keep `container: true` in the
       // config type yet).
-      if (this.schema.blockSpecs[block.type]?.config.container === true) {
+      const spec = this.schema.blockSpecs[block.type];
+      if (spec !== undefined && spec.config.container === true) {
         throw new Error(
           `The mapping for container block type "${block.type}" must be a \`{ withChildren }\` mapping, which places the block's children.`,
         );

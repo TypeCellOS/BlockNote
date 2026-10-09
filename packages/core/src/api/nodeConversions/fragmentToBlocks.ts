@@ -5,7 +5,11 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { isContainerNode, isNamedOnly } from "../../schema/blocks/children.js";
+import {
+  isContainerNode,
+  isNamedOnly,
+  minChildren,
+} from "../../schema/blocks/children.js";
 import { nodeToBlock } from "./nodeToBlock.js";
 
 export function fragmentToBlocks<
@@ -24,7 +28,7 @@ export function fragmentToBlocks<
       isContainerNode(node.type) &&
       (!childrenConfig ||
         isNamedOnly(node.type) ||
-        node.childCount < (childrenConfig.min ?? 1));
+        node.childCount < minChildren(childrenConfig));
 
     // Open selections and containers that cannot stand alone contribute
     // their children. Complete blocks already include their descendants.
