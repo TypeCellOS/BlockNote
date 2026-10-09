@@ -526,6 +526,40 @@ describe("legacy Yjs document binding", () => {
     ]);
   });
 
+  it("credits text typed after an old-binding type change to whoever typed it", () => {
+    const legacy = createLegacyEditor();
+    legacy.editor.replaceBlocks(legacy.editor.document, [
+      { id: "changed", type: "paragraph", content: "Text" },
+    ]);
+    const before = Y1.encodeStateAsUpdateV2(legacy.doc);
+    legacy.editor.updateBlock("changed", { type: "heading" });
+    const byBob = Y1.encodeStateAsUpdateV2(legacy.doc);
+    legacy.editor.setTextCursorPosition("changed", "end");
+    legacy.editor.insertInlineContent(" by Alice");
+    const after = Y1.encodeStateAsUpdateV2(legacy.doc);
+    const opened = openWithNewBinding(after);
+
+    const changed = diffBlocks(
+      opened.editor,
+      opened.doc,
+      before,
+      after,
+      "all",
+      attributionsOfSteps(before, [
+        { state: byBob, user: "bob", time: 2000 },
+        { state: after, user: "alice", time: 3000 },
+      ]),
+    );
+    expect(
+      changed
+        .filter(({ type }) => type === "text")
+        .map(({ change, text, users }) => [change, text, users]),
+    ).toEqual([
+      ["y-attributed-insert", "Text", ["bob"]],
+      ["y-attributed-insert", " by Alice", ["alice"]],
+    ]);
+  });
+
   it("diffs a text edit made with the old binding in place", () => {
     const legacy = createLegacyEditor();
     legacy.editor.replaceBlocks(legacy.editor.document, [

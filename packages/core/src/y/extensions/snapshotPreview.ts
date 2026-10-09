@@ -44,6 +44,59 @@ function structuralAttributions(
   return { inserted: [...inserted.values()], deleted: [...deleted.values()] };
 }
 
+/**
+ * The units of a node's live content, in order: one per character or embed,
+ * and one per child node.
+ */
+function liveUnits(node: Y.Node): Array<{ id: Y.ID; node?: Y.Node }> {
+  const units: Array<{ id: Y.ID; node?: Y.Node }> = [];
+  for (let item = node._start; item !== null; item = item.right) {
+    if (item.deleted) {
+      continue;
+    }
+    if (item.content instanceof Y.ContentType) {
+      units.push({ id: item.id, node: item.content.type });
+      continue;
+    }
+    for (let i = 0; i < item.length; i++) {
+      units.push({ id: Y.createID(item.id.client, item.id.clock + i) });
+    }
+  }
+  return units;
+}
+
+/**
+ * Pair each unit and attribute of `original` with the same one in `copy`, its
+ * clone. Returns false if they don't line up, which a clone always should.
+ */
+function pairClone(
+  original: Y.Node,
+  copy: Y.Node,
+  pairs: Array<[Y.ID, Y.ID]>,
+): boolean {
+  for (const [key, item] of original._map) {
+    const cloned = copy._map.get(key);
+    if (!item.deleted) {
+      if (!cloned) {
+        return false;
+      }
+      pairs.push([item.id, cloned.id]);
+    }
+  }
+  const a = liveUnits(original);
+  const b = liveUnits(copy);
+  if (a.length !== b.length) {
+    return false;
+  }
+  return a.every((unit, i) => {
+    const other = b[i];
+    pairs.push([unit.id, other.id]);
+    return unit.node && other.node
+      ? pairClone(unit.node, other.node, pairs)
+      : !unit.node && !other.node;
+  });
+}
+
 /** Attributions as the other kind: `insert`/`insertAt` as `delete`/`deleteAt`. */
 function asKind(
   attrs: Y.ContentAttribute<any>[],
@@ -99,11 +152,21 @@ function splitChangedBlocks(
           ? inserted
           : asKind(deleted, "insert");
         const deletedAs = deleted.length ? deleted : asKind(inserted, "delete");
+        // Copied content added after the baseline keeps its own author (e.g.
+        // text typed after the structural change).
+        const own: Y.IdMap<any> = Y.createIdMap();
+        const owned = Y.createIdSet();
         function record(tr: Y.Transaction) {
           if (insertedAs.length) {
             Y.insertIntoIdMap(
               added.inserts,
-              Y.createIdMapFromIdSet(tr.insertSet, insertedAs),
+              Y.mergeIdMaps([
+                Y.diffIdMap(
+                  Y.createIdMapFromIdSet(tr.insertSet, insertedAs),
+                  owned,
+                ),
+                own,
+              ]),
             );
             Y.insertIntoIdMap(
               added.deletes,
@@ -115,8 +178,27 @@ function splitChangedBlocks(
         try {
           doc.transact(() => {
             const copy = child.clone();
+            node.insert(index + 1, [copy]);
+            // Paired while the original is still live.
+            const pairs: Array<[Y.ID, Y.ID]> = [];
+            if (attributions && pairClone(child, copy, pairs)) {
+              for (const [original, cloned] of pairs) {
+                const attrs = inBaseline(baseline, original)
+                  ? undefined
+                  : attributions.inserts.slice(
+                      original.client,
+                      original.clock,
+                      1,
+                    )[0]?.attrs;
+                if (attrs) {
+                  const ids = Y.createIdSet();
+                  ids.add(cloned.client, cloned.clock, 1);
+                  owned.add(cloned.client, cloned.clock, 1);
+                  Y.insertIntoIdMap(own, Y.createIdMapFromIdSet(ids, attrs));
+                }
+              }
+            }
             node.delete(index);
-            node.insert(index, [copy]);
           });
         } finally {
           doc.off("beforeObserverCalls", record);
