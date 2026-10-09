@@ -520,18 +520,18 @@ function copyChain(
   const chain: Y.Node[] = [];
   const left = new Set(blocks);
   for (let current = copy; ;) {
-    const change = changeOf(current._item!, attributions.inserts, "insert");
+    const change = changeOf(current._item!.id, attributions.inserts, "insert");
     let previous = [...left].filter(
       (block) =>
         change !== undefined &&
-        changeOf(block._item!, attributions.deletes, "delete") === change,
+        changeOf(block._item!.id, attributions.deletes, "delete") === change,
     );
     // One update can copy a block more than once (e.g. retype, then indent):
     // of its deleted copies, the newer one was also made by that update.
     if (previous.length > 1) {
       previous = previous.filter(
         (block) =>
-          changeOf(block._item!, attributions.inserts, "insert") === change,
+          changeOf(block._item!.id, attributions.inserts, "insert") === change,
       );
     }
     if (previous.length !== 1) {
@@ -545,12 +545,15 @@ function copyChain(
 
 /**
  * Pair the copy's content that the original doesn't have with the
- * intermediate copy it was typed into: the oldest one holding it.
+ * intermediate copy it was typed into: the oldest one holding it. Only
+ * content copied with the copy can come from an intermediate copy. Text typed
+ * into the copy itself has its own insert, and keeps it.
  */
 function matchTypedInCopies(
   intermediates: Y.Node[],
   copy: Y.Node,
   baseline: Y.Doc,
+  inserts: Y.IdMap<any>,
   pairs: Array<[Y.ID, Y.ID]>,
 ) {
   const copyContent = contentOf(copy, baseline);
@@ -561,8 +564,11 @@ function matchTypedInCopies(
   for (const [, b] of pairs) {
     paired.add(b.client, b.clock, 1);
   }
+  const copied = changeOf(copy._item!.id, inserts, "insert");
   const unpaired = units(copyContent).filter(
-    ({ id }) => !paired.has(id.client, id.clock),
+    ({ id }) =>
+      !paired.has(id.client, id.clock) &&
+      changeOf(id, inserts, "insert") === copied,
   );
   for (const intermediate of intermediates) {
     const content = contentOf(intermediate, baseline);
@@ -580,13 +586,13 @@ function matchTypedInCopies(
   }
 }
 
-/** The users and times of an item's insertion or deletion, as a key. */
+/** The users and times of a unit's insertion or deletion, as a key. */
 function changeOf(
-  item: Y.Item,
+  id: Y.ID,
   map: Y.IdMap<any>,
   kind: "insert" | "delete",
 ): string | undefined {
-  const attrs = map.slice(item.id.client, item.id.clock, 1)[0]?.attrs ?? [];
+  const attrs = map.slice(id.client, id.clock, 1)[0]?.attrs ?? [];
   function values(name: string) {
     return attrs
       .filter((attr) => attr.name === name)
@@ -867,7 +873,7 @@ function showCopiesOnce(
   ).map(({ original, intermediates, copy, typeChanged }) => {
     const pairs: Array<[Y.ID, Y.ID]> = [];
     matchCopy(original, copy, baseline, pairs, typeChanged);
-    matchTypedInCopies(intermediates, copy, baseline, pairs);
+    matchTypedInCopies(intermediates, copy, baseline, renderer.inserts, pairs);
     return { original, copy, typeChanged, pairs };
   });
 

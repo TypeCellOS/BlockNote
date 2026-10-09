@@ -679,6 +679,39 @@ describe("version diff of a type change", () => {
     ).toEqual(["attrs <bulletListItem>: carol"]);
   });
 
+  it("credits text typed into the last copy to its writer, not to an earlier copy's", () => {
+    const base = blocks();
+    const server = history(base);
+    server.apply(
+      editOf(base, 2, (editor) => {
+        toHeading(editor);
+        editor.setTextCursorPosition("parent", "end");
+        editor.insertInlineContent("d");
+      }),
+      "bob",
+    );
+    server.apply(
+      editOf(server.server, 3, (editor) =>
+        editor.updateBlock("parent", { type: "bulletListItem" }),
+      ),
+      "carol",
+    );
+    const after = server.apply(
+      editOf(server.server, 4, (editor) => {
+        editor.setTextCursorPosition("parent", "end");
+        editor.insertInlineContent("ddd");
+      }),
+      "dave",
+    );
+    expect(
+      diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+    ).toEqual([
+      "attrs <bulletListItem>: carol",
+      "insert d: bob",
+      "insert ddd: dave",
+    ]);
+  });
+
   it.each([
     [
       "a paragraph into an image",
