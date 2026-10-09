@@ -19,6 +19,7 @@ import type {
   StyledText,
 } from "../inlineContent/types.js";
 import type { PropSchema, Props } from "../propTypes.js";
+import type { BlockKeyboard, BlockKeyboardOption } from "./keyboard.js";
 import type { StyleSchema } from "../styles/types.js";
 
 export type BlockNoteDOMElement =
@@ -39,6 +40,10 @@ export interface BlockConfigMeta<
   /**
    * Defines which keyboard shortcut should be used to insert a hard break into the block's inline content.
    * @default "shift+enter"
+   * @deprecated Use `experimental_keyboard.enter` and
+   * `experimental_keyboard.shiftEnter` instead: `"enter"` is
+   * `experimental_keyboard: { enter: "line-break" }`, and `"none"` is
+   * `experimental_keyboard: { shiftEnter: "same-as-enter" }`.
    */
   hardBreakShortcut?: "shift+enter" | "enter" | "none";
 
@@ -78,6 +83,14 @@ export interface BlockConfigMeta<
   draggable?: boolean;
 
   /**
+   * Whether a block dragged onto this block's content or frame chrome becomes
+   * its first child (as in Notion's toggles), instead of going before or after
+   * it. A block dragged onto its children still goes between them.
+   * @default false
+   */
+  dropsIntoChildren?(block: { type: TName; props: Props<TProps> }): boolean;
+
+  /**
    * Enables syntax highlighting of the contents of the block with the result of this callback
    */
   highlight?(block: { type: TName; props: Props<TProps> }): string | undefined;
@@ -113,16 +126,19 @@ export type AllowedChildType = string;
 export type ChildrenAllow = "blocks" | readonly AllowedChildType[];
 
 /**
- * Marks a block as a *container*: a block whose body is other blocks, exposed
- * as `block.children` at runtime.
+ * Which child blocks a container block holds (`container: true`), exposed as
+ * `block.children` at runtime.
  *
- * The config describes one uniform body, semantically a single implicit
- * slot. Ordered multi-slot bodies (a `sequence` of slots) can be added later
- * as a sibling form.
+ * The config describes one uniform set of children, semantically a single
+ * implicit slot. Ordered multi-slot children (a `sequence` of slots) can be
+ * added later as a sibling form.
  */
 export type ChildrenConfig = {
-  /** What may appear as a child. See {@link ChildrenAllow}. */
-  allow: ChildrenAllow;
+  /**
+   * What may appear as a child. See {@link ChildrenAllow}.
+   * @default "blocks"
+   */
+  allow?: ChildrenAllow;
   /**
    * How few children the container may hold. When children drop below the
    * minimum, a container that can stand anywhere dissolves into its
@@ -157,15 +173,24 @@ export interface BlockConfig<
    */
   content: C;
   /**
-   * Declares owned child blocks, exposed on `block.children`.
-   * With `content: "none"`, the block is a pure container whose `render`
-   * mounts children through contentDOM (React: contentRef).
-   * With `content: "inline"` or `"plain"`, `children: { allow: "blocks" }`
-   * gives the block owned children below its own text. These children remain
-   * optional; their types and minimum count cannot be restricted.
-   * `renderFrame` independently styles the block's content and children.
+   * Makes the block a container: a block without content of its own
+   * (`content: "none"`) whose own node holds its child blocks. Its `render`
+   * mounts them through contentDOM (React: contentRef). Without it, a block's
+   * child blocks are indented below it.
    */
-  children?: ChildrenConfig;
+  container?: C extends "none" ? true : never;
+  /**
+   * Which child blocks the block may have. Every block can have any child
+   * blocks (`{ allow: "blocks" }`, the default). Only a container
+   * (`container: true`) can restrict them to certain types or a minimum
+   * count, since the child blocks of other blocks all share one untyped
+   * group. How the keyboard treats a block's children (e.g. whether Enter in
+   * the block's text starts them) is set with its `experimental_keyboard`
+   * settings.
+   */
+  children?: C extends "none"
+    ? ChildrenConfig
+    : { allow?: "blocks"; min?: undefined };
   /**
    * Where this block may be placed.
    *
@@ -294,8 +319,10 @@ export type LooseBlockSpec<
   config: BlockConfig<T, PS, C>;
   implementation: Omit<
     BlockImplementation<T, PS, C>,
-    "render" | "renderFrame" | "toExternalHTML"
+    "render" | "renderFrame" | "toExternalHTML" | "experimental_keyboard"
   > & {
+    /** Every keyboard setting of the block, with defaults filled in. */
+    keyboard: (block: any) => BlockKeyboard;
     // purposefully stub the types for render and toExternalHTML since they reference the block
     render: (
       /**
@@ -365,8 +392,9 @@ export type BlockSpecs = {
     config: BlockSpec<k>["config"];
     implementation: Omit<
       BlockSpec<k>["implementation"],
-      "render" | "renderFrame" | "toExternalHTML"
+      "render" | "renderFrame" | "toExternalHTML" | "experimental_keyboard"
     > & {
+      experimental_keyboard?: BlockKeyboardOption<any>;
       // purposefully stub the types for render and toExternalHTML since they reference the block
       render: (
         /**
@@ -667,6 +695,15 @@ export type BlockImplementation<
    */
   meta?: BlockConfigMeta<TName, TProps>;
   /**
+   * Experimental: how the keyboard treats the block and its children (Enter,
+   * Shift-Enter, Backspace, and outdenting): the settings that differ from the
+   * defaults, or a function of the block that returns them. See
+   * {@link BlockKeyboard}. This API may change.
+   */
+  experimental_keyboard?: BlockKeyboardOption<
+    BlockFromConfig<BlockConfig<TName, TProps, TContent>, any, any>
+  >;
+  /**
    * A function that converts the block into a DOM element.
    */
   render: (
@@ -707,7 +744,7 @@ export type BlockImplementation<
      * `render` from scratch). Return `true` (or `undefined`) when you have
      * patched `dom` in-place and PM should keep the existing view.
      *
-     * Only honored for container blocks (blocks with `children`), where
+     * Only honored for container blocks (`container: true`), where
      * recreating the node view would remount every child block: e.g. column
      * resizing patches widths in place through this hook. Non-container
      * blocks always recreate on attr changes (see

@@ -1,11 +1,9 @@
 import { NodeSelection, TextSelection } from "prosemirror-state";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
+import type { BlockNoteSchema } from "../../../blocks/BlockNoteSchema.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import {
-  hasOwnedChildren,
-  isContainerNode,
-} from "../../../schema/blocks/children.js";
+import { isContainerNode } from "../../../schema/blocks/children.js";
 import { getBlockInfoAt } from "../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../nodeUtil.js";
 import { containerSchema } from "./containers.fixture.js";
@@ -77,19 +75,33 @@ const withAlert = (children: any[] = body) => [
 ];
 
 describe("titled-block schema shape", () => {
-  it("recognizes declared ownership on ordinary blocks", () => {
+  it("is an ordinary block whose keyboard settings keep its body together", () => {
     const editor = editorWith(withAlert());
+
+    function keyboardOf(id: string) {
+      const { blockSpecs } = editor.schema as BlockNoteSchema<any, any, any>;
+      const block = editor.getBlock(id)!;
+      return blockSpecs[block.type].implementation.keyboard(block);
+    }
 
     editor.transact((tr) => {
       const alert = getNodeById("w", tr.doc)!;
       // An ordinary blockContainer: its node holds content, not children.
       expect(alert.node.type.name).toBe("blockContainer");
       expect(isContainerNode(alert.node.type)).toBe(false);
-      expect(hasOwnedChildren(alert.node)).toBe(true);
+      expect(keyboardOf("w")).toMatchObject({
+        enter: "into-children",
+        childrenCanOutdent: false,
+        emptyChildEnter: "exit-at-end",
+      });
       expect(alert.node.attrs.id).toBe("w");
       expect(alert.node.firstChild!.attrs).not.toHaveProperty("id");
 
-      expect(hasOwnedChildren(getNodeById("pre", tr.doc)!.node)).toBe(false);
+      expect(keyboardOf("pre")).toMatchObject({
+        enter: "split",
+        childrenCanOutdent: true,
+        emptyChildEnter: "outdent",
+      });
 
       // The body is the blockGroup the alert nests, resolved with positions.
       const info = getBlockInfoAt(tr.doc, alert.posBeforeNode);
@@ -217,14 +229,15 @@ describe("a titled block's keyboard behaviour", () => {
     );
   });
 
-  it("Backspace in the block after moves it into the body, whole", () => {
+  it("Backspace in the block after merges it into the body's last block", () => {
     const editor = editorWith(withAlert());
     editor.setTextCursorPosition("post", "start");
     press(editor, "Backspace");
 
-    // Moved in as its own block: text never merges across the edge.
+    // As after any block with children: the text is appended to the last
+    // block above it.
     expect(shape(editor.document)).toBe(
-      'paragraph"Before", alert"Title"[paragraph"One", paragraph"Two", paragraph"After"]',
+      'paragraph"Before", alert"Title"[paragraph"One", paragraph"TwoAfter"]',
     );
   });
 

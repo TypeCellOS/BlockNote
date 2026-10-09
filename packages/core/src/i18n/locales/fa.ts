@@ -167,6 +167,7 @@ export const fa = {
   },
   toggle_blocks: {
     add_block_button: "تاشوی خالی. برای افزودن بلوک کلیک کنید.",
+    toggle_button: "باز یا بسته کردن",
   },
   code_block: {
     add_source_button_text: "افزودن کد منبع",

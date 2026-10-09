@@ -7,7 +7,7 @@ export const createPanel = createReactBlockSpec(
     type: "panel",
     propSchema: {},
     content: "none",
-    children: { allow: "blocks" },
+    container: true,
   },
   {
     // With no content of its own, contentRef receives the child blocks.

@@ -5,7 +5,6 @@ import {
   defaultProps,
   parseDefaultProps,
 } from "../../defaultProps.js";
-import { handleEnter } from "../../utils/listItemEnterHandler.js";
 import { getListItemContent } from "../getListItemContent.js";
 
 export type CheckListItemBlockConfig = ReturnType<
@@ -27,6 +26,12 @@ export const createCheckListItemConfig = createBlockConfig(
 export const createCheckListItemBlockSpec = createBlockSpec(
   createCheckListItemConfig,
   {
+    // Enter continues the list, and Enter in an empty item ends it: the item
+    // turns into a paragraph.
+    experimental_keyboard: {
+      splitKeepsType: true,
+      emptyEnterResets: true,
+    },
     meta: {
       isolating: false,
     },
@@ -133,9 +138,6 @@ export const createCheckListItemBlockSpec = createBlockSpec(
     createExtension({
       key: "check-list-item-shortcuts",
       keyboardShortcuts: {
-        Enter: ({ editor }) => {
-          return handleEnter(editor, "checkListItem");
-        },
         "Mod-Shift-9": ({ editor }) => {
           const cursorPosition = editor.getTextCursorPosition();
 

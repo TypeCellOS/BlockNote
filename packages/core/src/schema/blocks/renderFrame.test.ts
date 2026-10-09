@@ -33,7 +33,6 @@ const Toggle = createBlockSpec(
       },
     },
     content: "inline",
-    children: { allow: "blocks" },
   },
   {
     render: renderDiv,
@@ -62,7 +61,6 @@ const FrameBox = createBlockSpec(
       },
     },
     content: "inline",
-    children: { allow: "blocks" },
   },
   {
     render: renderDiv,
@@ -89,7 +87,6 @@ const ContentFrame = createBlockSpec(
     type: "contentFrame",
     propSchema: {},
     content: "inline",
-    children: { allow: "blocks" },
   },
   {
     render: renderDiv,

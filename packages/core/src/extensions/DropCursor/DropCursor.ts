@@ -1,3 +1,4 @@
+import { Plugin } from "prosemirror-state";
 import { dropPoint } from "prosemirror-transform";
 import type { EditorView } from "prosemirror-view";
 import {
@@ -10,6 +11,7 @@ import {
 } from "./utils.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
+import { getDropIntoChildren } from "./dropIntoChildren.js";
 
 export const DRAG_EXCLUSION_CLASSNAME = "bn-drag-exclude";
 
@@ -64,6 +66,11 @@ export const DropCursorExtension = createExtension<
   let element: HTMLElement | null = null;
   let timeout = -1;
   let dragSourceElement: Element | null = null;
+  // The block the drop goes into, if any, as the cursor shows it. Its
+  // element is highlighted like a selected block.
+  let dropInto:
+    | { blockId: string; draggedBlocks: any[]; element: HTMLElement }
+    | undefined;
 
   const config = {
     width: options.dropCursor?.width ?? 5,
@@ -73,6 +80,14 @@ export const DropCursorExtension = createExtension<
   } as const;
 
   // Helper functions
+  const setDropInto = (into: typeof dropInto) => {
+    delete dropInto?.element.dataset.dropTarget;
+    dropInto = into;
+    if (dropInto) {
+      dropInto.element.dataset.dropTarget = "true";
+    }
+  };
+
   const setCursor = (pos: DropCursorPosition | null) => {
     if (
       pos?.pos === cursorPos?.pos &&
@@ -83,6 +98,7 @@ export const DropCursorExtension = createExtension<
     cursorPos = pos;
 
     if (pos == null) {
+      setDropInto(undefined);
       if (element && element.parentNode) {
         element.parentNode.removeChild(element);
       }
@@ -189,13 +205,17 @@ export const DropCursorExtension = createExtension<
         }
       }
 
-      // Compute default position
+      // Compute default position. A block dragged onto a block with
+      // `meta.dropsIntoChildren` goes to the start of its children.
       const $pos = view.state.doc.resolve(target);
       const isBlock = !$pos.parent.inlineContent;
-      const defaultPosition: DropCursorPosition = {
-        pos: target,
-        orientation: isBlock ? "block-horizontal" : "inline",
-      };
+      const intoChildren = getDropIntoChildren(editor, view, {
+        left: e.clientX,
+        top: e.clientY,
+      });
+      const defaultPosition: DropCursorPosition = intoChildren
+        ? { pos: intoChildren.pos, orientation: "block-horizontal" }
+        : { pos: target, orientation: isBlock ? "block-horizontal" : "inline" };
 
       // Allow hook to override position
       let finalPosition = defaultPosition;
@@ -215,6 +235,26 @@ export const DropCursorExtension = createExtension<
       }
 
       setCursor(finalPosition);
+      // The drop goes into the block while the cursor shows the place of its
+      // children. A hook may show another place instead (e.g. a new column).
+      if (
+        intoChildren &&
+        finalPosition.pos === intoChildren.pos &&
+        finalPosition.orientation === "block-horizontal"
+      ) {
+        const { block } = intoChildren.blockInfo;
+        const element = view.nodeDOM(block.beforePos);
+        if (!(element instanceof HTMLElement)) {
+          throw new Error("A block in the document must have an element");
+        }
+        setDropInto({
+          blockId: block.node.attrs.id,
+          draggedBlocks: intoChildren.draggedBlocks,
+          element,
+        });
+      } else {
+        setDropInto(undefined);
+      }
       scheduleRemoval(5000);
     }
   };
@@ -238,8 +278,49 @@ export const DropCursorExtension = createExtension<
     dragSourceElement = null;
   };
 
+  // Drops the blocks where the cursor shows them: as the first children of
+  // the block it goes into. Other drops are ProseMirror's.
+  const dropIntoChildrenPlugin = new Plugin({
+    props: {
+      handleDrop(_view, _event, _slice, moved) {
+        const into = dropInto;
+        // The drop ends the drag, and with it the highlight.
+        setDropInto(undefined);
+        // The block may be gone since the last `dragover`, e.g. removed by a
+        // collaborator. ProseMirror then drops the blocks as usual.
+        if (!into || !editor.getBlock(into.blockId)) {
+          return false;
+        }
+        const { blockId, draggedBlocks } = into;
+        editor.transact(() => {
+          if (moved) {
+            // A drag from another editor leaves its blocks there.
+            editor.removeBlocks(
+              draggedBlocks.filter((block) => editor.getBlock(block.id)),
+            );
+          }
+          // The dragged blocks never contain the target (see
+          // `getDropIntoChildren`), so removing them keeps it.
+          const target = editor.getBlock(blockId);
+          if (!target) {
+            throw new Error(
+              "The drop target was removed with the dragged blocks",
+            );
+          }
+          if (target.children.length > 0) {
+            editor.insertBlocks(draggedBlocks, target.children[0], "before");
+          } else {
+            editor.updateBlock(target, { children: draggedBlocks });
+          }
+        });
+        return true;
+      },
+    },
+  });
+
   return {
     key: "dropCursor",
+    prosemirrorPlugins: [dropIntoChildrenPlugin],
     mount({ signal, dom, root }) {
       // Track drag source at document level
       root.addEventListener("dragstart", onDragStart, {

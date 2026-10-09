@@ -1,16 +1,17 @@
 # Callout Block
 
-In this example, we create a custom `Callout` block with a real rich-text title and a body of child blocks (a titled block), like a Notion-style callout.
+In this example, we create a custom `Callout` block with a real rich-text title and child blocks inside it (a titled block), like a Notion-style callout.
 
-The block combines `content: "inline"` with the `children` config on `BlockConfig`. The title is ordinary inline content — formatting, links, and multiplayer cursors all work — while `children: { allow: "blocks" }` hosts the body blocks, which live on `block.children` at runtime. `render` draws the title row and `renderFrame` draws the box around the title and body together.
+The block has `content: "inline"`: the title is ordinary inline content — formatting, links, and multiplayer cursors all work — and its child blocks live on `block.children` at runtime. Its `keyboard` settings keep the child blocks inside the callout: Enter in the title adds a first child block, Shift-Tab doesn't move child blocks out, and Enter in an empty last child block leaves the callout. `render` draws the title row and `renderFrame` draws the box around the title and child blocks together.
 
 We also wire up a Slash Menu item to insert the callout.
 
 **Try it out:**
 
-- Press Enter at the end of the callout's title to jump into its body.
-- Press Backspace at the start of the first body block to merge it back into the title.
-- Press "/" inside the body and add a code block, heading, or list.
+- Press Enter at the end of the callout's title to add a block inside the callout.
+- Press Enter in an empty last block inside the callout to leave the callout.
+- Press Backspace at the start of the first block inside the callout to merge it back into the title.
+- Press "/" inside the callout and add a code block, heading, or list.
 
 **Relevant Docs:**
 

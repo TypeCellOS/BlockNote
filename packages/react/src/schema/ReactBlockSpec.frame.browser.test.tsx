@@ -37,7 +37,6 @@ function createFrameSchema(content: "inline" | "plain") {
           type: "framed",
           propSchema: { framed: { default: true } },
           content,
-          children: { allow: "blocks" },
         },
         {
           render: (props) => (

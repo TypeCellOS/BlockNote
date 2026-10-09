@@ -9,7 +9,6 @@ import {
   BlockNoteEditor,
   BlockSpec,
   camelToDataKebab,
-  ChildrenConfig,
   CustomBlockImplementation,
   Extension,
   ExtensionFactoryInstance,
@@ -45,9 +44,9 @@ export type ReactCustomBlockRenderProps<
   editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
   // A block gets a `contentRef` for its `render` to mount its editable region:
   // its inline content, or, for a container, its child blocks. Only a
-  // `content: "none"` block without `children` (and the table block, whose
+  // `content: "none"` block that isn't a container (and the table block, whose
   // content is managed separately) has nothing to place.
-} & (Config extends { children: ChildrenConfig }
+} & (Config extends { container: true }
   ? { contentRef: (node: HTMLElement | null) => void }
   : Config["content"] extends "inline" | "plain"
     ? { contentRef: (node: HTMLElement | null) => void }

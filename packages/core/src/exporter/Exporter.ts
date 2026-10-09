@@ -70,18 +70,13 @@ export abstract class Exporter<
     public readonly options: ExporterOptions,
   ) {}
 
-  /** Container mappings place their own children; regular mappings do not. */
-  public isContainerBlock(block: {
-    type: string;
-    children?: unknown[];
-  }): boolean {
-    const spec = this.schema.blockSpecs[block.type];
-    if (!spec && block.children?.length) {
-      throw new Error(
-        `Exporter has no block spec for block type "${block.type}", and blocks of that type in this document have children. Add its spec to the exporter schema so it can determine who renders the children.`,
-      );
-    }
-    return spec?.config.children !== undefined;
+  /**
+   * Whether the block's mapping places its children itself (a `{ withChildren }`
+   * mapping). Otherwise the exporter places them after the block.
+   */
+  public placesChildren(block: { type: string }): boolean {
+    const mapping = this.mappings.blockMapping[block.type];
+    return typeof mapping === "object" && mapping !== null;
   }
 
   /**
@@ -161,11 +156,29 @@ export abstract class Exporter<
     const mapping = this.mappings.blockMapping[block.type];
     if (!mapping) {
       throw new Error(
-        this.isContainerBlock(block)
-          ? `No mapping found for container block type "${block.type}". Container blocks require an explicit block mapping that places their children.`
-          : `Exporter is missing a block mapping for block type "${block.type}". If this block comes from a separate package, spread that package's exporter mappings into your blockMapping.`,
+        `Exporter is missing a block mapping for block type "${block.type}". If this block comes from a separate package, spread that package's exporter mappings into your blockMapping.`,
       );
     }
-    return mapping(block, this, nestingLevel, numberedListIndex, children);
+    if (typeof mapping === "function") {
+      // A container's children belong inside it, which only a
+      // `{ withChildren }` mapping can do. Fail early rather than export them
+      // after it.
+      // TODO: remove once the `BlockMapping` type requires `{ withChildren }`
+      // for containers (`createBlockSpec` doesn't keep `container: true` in the
+      // config type yet).
+      if (this.schema.blockSpecs[block.type]?.config.container === true) {
+        throw new Error(
+          `The mapping for container block type "${block.type}" must be a \`{ withChildren }\` mapping, which places the block's children.`,
+        );
+      }
+      return mapping(block, this, nestingLevel, numberedListIndex);
+    }
+    return mapping.withChildren(
+      block,
+      this,
+      nestingLevel,
+      numberedListIndex,
+      children ?? [],
+    );
   }
 }

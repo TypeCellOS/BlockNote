@@ -35,6 +35,11 @@ describe("childrenContentExpression", () => {
   // `validateChildrenConfigs` never builds the content expression — it only
   // resolves `allow`/`min` — so an `allow` that permits nothing is caught
   // here, at expression build, rather than by `validate` below.
+  it("accepts any blocks when `children` or `allow` is left out", () => {
+    expect(childrenContentExpression()).toBe("blockGroupChild+");
+    expect(childrenContentExpression({ min: 2 })).toBe("blockGroupChild{2,}");
+  });
+
   it("throws for an allow array that permits nothing", () => {
     expect(() => childrenContentExpression({ allow: [] })).toThrow(
       /permits nothing/,
@@ -42,55 +47,63 @@ describe("childrenContentExpression", () => {
   });
 });
 
-type ContainerFixture = {
-  children: ChildrenConfig;
-  content?: "none" | "inline" | "plain";
+type BlockFixture = {
+  content?: "none" | "inline" | "plain" | "table";
+  container?: true;
+  children?: ChildrenConfig;
   placeable?: "anywhere" | "namedOnly";
 };
 
-function specsWith(containers: Record<string, ContainerFixture>) {
+function specsWith(blocks: Record<string, BlockFixture>) {
   return {
     paragraph: { config: { content: "inline" as const } },
     heading: { config: { content: "inline" as const } },
     ...Object.fromEntries(
-      Object.entries(containers).map(
-        ([type, { children, content, placeable }]) => [
-          type,
-          {
-            config: {
-              content: content ?? ("none" as const),
-              children,
-              placeable,
-            },
-          },
-        ],
-      ),
+      Object.entries(blocks).map(([type, config]) => [
+        type,
+        { config: { ...config, content: config.content ?? ("none" as const) } },
+      ]),
     ),
   };
 }
 
-const validate = (containers: Record<string, ContainerFixture>) => () =>
-  validateChildrenConfigs(specsWith(containers));
+// Typed loosely on purpose: the validator is what catches the combinations the
+// types reject, for JS callers.
+const validate = (blocks: Record<string, BlockFixture>) => () =>
+  validateChildrenConfigs(specsWith(blocks) as any);
 
 describe("validateChildrenConfigs", () => {
-  it("accepts recursive containers, named-only children, and titled blocks", () => {
-    expect(
-      validate({ callout: { children: { allow: "blocks" } } }),
-    ).not.toThrow();
+  it("accepts recursive containers and named-only children", () => {
+    expect(validate({ callout: { container: true } })).not.toThrow();
     expect(
       validate({
         // gridCell is a terminating alternative to the recursive grid.
-        grid: { children: { allow: ["gridCell", "grid"], min: 2 } },
-        gridCell: { children: { allow: "blocks" }, placeable: "namedOnly" },
-        alert: { children: { allow: "blocks" }, content: "inline" },
-        source: { children: { allow: "blocks" }, content: "plain" },
+        grid: {
+          container: true,
+          children: { allow: ["gridCell", "grid"], min: 2 },
+        },
+        gridCell: { container: true, placeable: "namedOnly" },
       }),
     ).not.toThrow();
   });
 
-  it.each(["inline", "plain"] as const)(
-    "rejects %s child restrictions the shared blockGroup cannot enforce",
+  it.each(["inline", "plain", "table"] as const)(
+    "rejects `container` on a block with %s content",
     (content) => {
+      expect(validate({ alert: { content, container: true } })).toThrow(
+        /only for blocks without content/,
+      );
+    },
+  );
+
+  // Any block can have any child blocks, so writing out the default is fine
+  // everywhere. Restricting them needs the block's own node.
+  it.each(["inline", "plain", "table", "none"] as const)(
+    "only accepts the default children on a %s block that isn't a container",
+    (content) => {
+      expect(
+        validate({ alert: { content, children: { allow: "blocks" } } }),
+      ).not.toThrow();
       for (const children of [
         { allow: "blocks", min: 2 },
         { allow: ["cell"] },
@@ -98,59 +111,40 @@ describe("validateChildrenConfigs", () => {
         expect(
           validate({
             alert: { content, children },
-            cell: { children: { allow: "blocks" } },
+            cell: { container: true },
           }),
-        ).toThrow(/blocks with inline or plain content support/);
+        ).toThrow(/requires `container: true`/);
       }
     },
   );
 
-  it("does not treat a titled block's content node as an allowed container", () => {
+  it("does not treat a block with content as an allowed container", () => {
     expect(
       validate({
-        box: { children: { allow: ["alert"] } },
-        alert: { content: "inline", children: { allow: "blocks" } },
+        box: { container: true, children: { allow: ["alert"] } },
+        alert: { content: "inline" },
       }),
     ).toThrow(/regular block/);
   });
 
   it("rejects named-only placement on a shared regular block wrapper", () => {
     expect(
-      validate({
-        alert: {
-          content: "inline",
-          children: { allow: "blocks" },
-          placeable: "namedOnly",
-        },
-      }),
+      validate({ alert: { content: "inline", placeable: "namedOnly" } }),
     ).toThrow(/requires a container node/);
-  });
-
-  // Tables do not support owned child blocks.
-  it("rejects children combined with table content", () => {
-    for (const content of ["table"] as const) {
-      expect(() =>
-        validateChildrenConfigs({
-          box: {
-            config: { content, children: { allow: "blocks" } },
-          },
-        }),
-      ).toThrow(/not supported on table blocks/);
-    }
   });
 
   it.each(["typo", "blockGroupChild", "toString"])(
     "rejects an allow entry that is not a configured block: %s",
     (allowed) => {
-      expect(validate({ box: { children: { allow: [allowed] } } })).toThrow(
-        /not a configured block type/,
-      );
+      expect(
+        validate({ box: { container: true, children: { allow: [allowed] } } }),
+      ).toThrow(/not a configured block type/);
     },
   );
 
   it("rejects a regular block type in the allow array", () => {
-    expect(validate({ box: { children: { allow: ["heading"] } } })).toThrow(
-      /not yet supported/,
-    );
+    expect(
+      validate({ box: { container: true, children: { allow: ["heading"] } } }),
+    ).toThrow(/not yet supported/);
   });
 });

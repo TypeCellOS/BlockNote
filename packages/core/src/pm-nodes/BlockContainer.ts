@@ -13,6 +13,8 @@ import { ignoreFrameChromeMutations } from "../schema/nodeViewMutations.js";
 import { mergeCSSClasses } from "../util/browser.js";
 import { suggestionMarks } from "./suggestionMarks.js";
 
+const dropEvents = new Set(["dragenter", "dragover", "dragleave", "drop"]);
+
 /** Adapts vanilla frames to the same lifecycle as framework node views. */
 function createFrameView(
   props: NodeViewRendererProps,
@@ -60,6 +62,28 @@ function createFrameView(
       return !renderFrame || node.eq(props.node);
     },
   };
+}
+
+/**
+ * Puts a block's text and background color on its own element (`.bn-block`),
+ * so they also apply to its children however deep a frame puts its content.
+ * Only these two props, which `Block.css` applies to a block's children.
+ */
+export function setBlockColorAttributes(
+  element: HTMLElement,
+  props: Record<string, unknown> | undefined,
+) {
+  for (const [prop, attribute] of [
+    ["textColor", "data-text-color"],
+    ["backgroundColor", "data-background-color"],
+  ] as const) {
+    const value = props?.[prop];
+    if (typeof value === "string" && value !== "default") {
+      element.setAttribute(attribute, value);
+    } else {
+      element.removeAttribute(attribute);
+    }
+  }
 }
 
 // Object containing all possible block attributes.
@@ -165,25 +189,33 @@ export const BlockContainer = Node.create<{
       if (framed) {
         contentDOM.appendChild(frameView.dom);
       }
+      setBlockColorAttributes(contentDOM, props.node.firstChild?.attrs);
 
       const nodeView: NodeView = {
         dom,
         contentDOM: frameView.contentDOM ?? contentDOM,
         update(node, decorations, innerDecorations) {
           // Changing the wrapper or block type replaces the complete view.
-          return (
+          const kept =
             node.sameMarkup(props.node) &&
             node.firstChild?.type === props.node.firstChild?.type &&
-            (frameView.update?.(node, decorations, innerDecorations) ?? false)
-          );
+            (frameView.update?.(node, decorations, innerDecorations) ?? false);
+          if (kept) {
+            // The view stays when only the content's attributes change.
+            setBlockColorAttributes(contentDOM, node.firstChild?.attrs);
+          }
+          return kept;
         },
         stopEvent(event) {
           // Author chrome handles its own events; the slot remains editable.
+          // Drag-and-drop events still go to ProseMirror, so a block dropped
+          // on the chrome drops where the drop cursor shows it.
           const target = event.target;
           return (
             (target instanceof globalThis.Node &&
               frameView.dom.contains(target) &&
-              !nodeView.contentDOM?.contains(target)) ||
+              !nodeView.contentDOM?.contains(target) &&
+              !dropEvents.has(event.type)) ||
             (frameView.stopEvent?.(event) ?? false)
           );
         },

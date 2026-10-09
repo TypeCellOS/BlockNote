@@ -227,54 +227,64 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       },
     });
   },
-  column: (block, _exporter, _nestingLevel, _numberedListIndex, children) => {
-    return new TableCell({
-      width: {
-        size: `${block.props.width * 100}%`,
-        type: "pct",
-      },
-      children: (children || []).flatMap((child) => {
-        if (Array.isArray(child)) {
-          return child;
-        }
+  column: {
+    withChildren: (
+      block,
+      _exporter,
+      _nestingLevel,
+      _numberedListIndex,
+      children,
+    ) => {
+      return new TableCell({
+        width: {
+          size: `${block.props.width * 100}%`,
+          type: "pct",
+        },
+        children: (children || []).flatMap((child) => {
+          if (Array.isArray(child)) {
+            return child;
+          }
 
-        return [child];
-      }),
-    }) as any;
-  },
-  columnList: (
-    _block,
-    _exporter,
-    _nestingLevel,
-    _numberedListIndex,
-    children,
-  ) => {
-    return new DocxTable({
-      layout: "autofit",
-      borders: {
-        bottom: { style: "nil" },
-        top: { style: "nil" },
-        left: { style: "nil" },
-        right: { style: "nil" },
-        insideHorizontal: { style: "nil" },
-        insideVertical: { style: "nil" },
-      },
-      rows: [
-        new TableRow({
-          children: (children as unknown as TableCell[]).map(
-            (cell, _index, children) => {
-              return new TableCell({
-                width: {
-                  size: `${(parseFloat(`${cell.options.width?.size || "100%"}`) / (children.length * 100)) * 100}%`,
-                  type: "pct",
-                },
-                children: cell.options.children,
-              });
-            },
-          ),
+          return [child];
         }),
-      ],
-    });
+      }) as any;
+    },
+  },
+  columnList: {
+    withChildren: (
+      _block,
+      _exporter,
+      _nestingLevel,
+      _numberedListIndex,
+      children,
+    ) => {
+      return new DocxTable({
+        layout: "autofit",
+        borders: {
+          bottom: { style: "nil" },
+          top: { style: "nil" },
+          left: { style: "nil" },
+          right: { style: "nil" },
+          insideHorizontal: { style: "nil" },
+          insideVertical: { style: "nil" },
+        },
+        rows: [
+          new TableRow({
+            children: (children as unknown as TableCell[]).map(
+              (cell, _index, children) => {
+                return new TableCell({
+                  width: {
+                    size: `${(parseFloat(`${cell.options.width?.size || "100%"}`) / (children.length * 100)) * 100}%`,
+                    type: "pct",
+                  },
+                  children: cell.options.children,
+                });
+              },
+            ),
+          }),
+        ],
+      });
+    },
   },
   image: async (block, exporter) => {
     if (!block.props.url) {

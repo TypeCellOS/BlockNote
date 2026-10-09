@@ -112,6 +112,7 @@ const Callout = createBlockSpec(
       },
     },
     content: "none",
+    container: true,
     children: {
       allow: "blocks",
     },
@@ -156,9 +157,6 @@ const Alert = createBlockSpec(
     type: "alert" as const,
     propSchema: {},
     content: "inline",
-    children: {
-      allow: "blocks",
-    },
   },
   {
     render: () => {
