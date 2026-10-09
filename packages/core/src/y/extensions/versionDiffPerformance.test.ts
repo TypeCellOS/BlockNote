@@ -60,7 +60,7 @@ describe("Version diff performance", () => {
   // Plugins that map through every step (UniqueID, autolink, attributions)
   // take quadratic time, so a diff of thousands of blocks took seconds.
   it.fails("shows a version in one step", () => {
-    // To be fixed by https://github.com/yjs/y-prosemirror/pull/282
+    // Fails: the binding renders the diff as one step per change.
     const blockCount = 300;
     const doc = new Y.Doc({ gc: false });
     const seed = BlockNoteEditor.create();
