@@ -383,6 +383,8 @@ export const fa = {
     deleted_by: (users: string) => `حذف‌شده توسط: ${users}`,
     changed: "تغییر\u200cیافته",
     changed_by: (users: string) => `تغییر\u200cیافته توسط: ${users}`,
+    moved: "منتقل شد",
+    moved_by: (users: string) => `منتقل شده توسط: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `تغییر قالب‌بندی (${formats}) توسط: ${users}`,
   },

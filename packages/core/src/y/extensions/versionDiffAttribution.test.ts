@@ -23,6 +23,9 @@ function collaborativeEditor(doc: Y.Doc) {
       collaboration: {
         fragment: doc.get("doc"),
         user: { name: "Test", color: "#ff0000" },
+        experimental: {
+          versionDiffFixes: "implicitDeleteAttributionAndRecreatedBlocks",
+        },
       },
     }),
   );
@@ -81,8 +84,8 @@ function deletedBy(update: Uint8Array, user: string) {
  * does: what the update inserts, and what it explicitly deletes, each with a
  * time.
  */
-function history(base: Y.Doc) {
-  const server = new Y.Doc({ gc: false });
+function history(base: Y.Doc, gcFilter?: (item: Y.Item) => boolean) {
+  const server = new Y.Doc({ gc: gcFilter !== undefined, gcFilter });
   Y.applyUpdateV2(server, Y.encodeStateAsUpdateV2(base));
   const attributions = Y.createContentMap();
   let time = 0;
@@ -149,8 +152,7 @@ function showDiff(
 }
 
 describe("version diff of a deleted block", () => {
-  // To be fixed by #3166.
-  it.fails("does not attribute content added concurrently inside it to the deleter", () => {
+  it("does not attribute content added concurrently inside it to the deleter", () => {
     const base = baseDocument([
       {
         id: "parent",
@@ -193,8 +195,7 @@ describe("version diff of a deleted block", () => {
     ]);
   });
 
-  // To be fixed by #3166.
-  it.fails("names no author when hovering content removed with it", () => {
+  it("names no author when hovering content removed with it", () => {
     const base = baseDocument([
       { id: "parent", type: "paragraph", content: "Parent" },
       { id: "next", type: "paragraph", content: "Next" },
@@ -302,22 +303,28 @@ describe("version diff of a moved block", () => {
       .map((change) => `${change.text}: ${change.users.join(", ")}`);
   }
 
-  it("attributes a move to the mover", () => {
-    const base = blocks();
-    const server = history(base);
-    const after = server.apply(editOf(base, 2, nest), "bob");
-    expect(
-      deletions(Y.encodeStateAsUpdateV2(base), after, server.attributions),
-    ).toEqual(["[block moved]: bob"]);
-  });
-
-  // To be fixed by #3166.
-  it.fails("names no author for a block moved into a concurrently deleted one", () => {
+  it("names no author for a block moved into a concurrently deleted one", () => {
     const base = blocks();
     const bob = editOf(base, 2, nest);
     const alice = editOf(base, 1, removeParent);
     const server = history(base);
     const before = server.apply(alice, "alice");
+    const after = server.apply(bob, "bob");
+    expect(deletions(before, after, server.attributions)).toEqual([
+      "[block moved]: ",
+    ]);
+  });
+
+  it("names no author for a block moved into a deleted one that was gc'd", () => {
+    const base = blocks();
+    const bob = editOf(base, 2, nest);
+    const alice = editOf(base, 1, removeParent);
+    // Like history before YHub's cutoff: Alice's deletion is gc'd, so Bob's
+    // copy, which lands in it, is only a gc stub.
+    let gc = true;
+    const server = history(base, () => gc);
+    const before = server.apply(alice, "alice");
+    gc = false;
     const after = server.apply(bob, "bob");
     expect(deletions(before, after, server.attributions)).toEqual([
       "[block moved]: ",
@@ -340,8 +347,7 @@ describe("version diff of a moved block", () => {
     ).toEqual(["[block parent]: alice"]);
   });
 
-  // To be fixed by #3166.
-  it.fails("names no author for a moved block that someone else deletes", () => {
+  it("names no author for a moved block that someone else deletes", () => {
     const base = blocks();
     const server = history(base);
     server.apply(editOf(base, 1, nest), "alice");
@@ -436,8 +442,7 @@ describe("version diff of a type change", () => {
     return out;
   }
 
-  // To be fixed by #3166.
-  it.fails("shows a type change as a formatting change, not as replaced text", () => {
+  it("shows a type change as a formatting change, not as replaced text", () => {
     const base = blocks();
     const server = history(base);
     const after = server.apply(editOf(base, 2, toHeading), "bob");
@@ -446,8 +451,7 @@ describe("version diff of a type change", () => {
     ).toEqual(["attrs <heading>: bob"]);
   });
 
-  // To be fixed by #3166.
-  it.fails("credits a type-changed block's text to its writer, from before it existed", () => {
+  it("credits a type-changed block's text to its writer, from before it existed", () => {
     const base = baseDocument([
       { id: "next", type: "paragraph", content: "Next" },
     ]);
@@ -472,8 +476,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3166.
-  it.fails("keeps later edits to a type-changed block as their author's", () => {
+  it("keeps later edits to a type-changed block as their author's", () => {
     const base = blocks();
     const server = history(base);
     server.apply(editOf(base, 2, toHeading), "bob");
@@ -517,8 +520,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3166.
-  it.fails("credits an indented block's text to its writer, from before it existed", () => {
+  it("credits an indented block's text to its writer, from before it existed", () => {
     const base = blocks();
     const server = history(base);
     server.apply(
@@ -549,8 +551,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3166.
-  it.fails("shows a block moved among its siblings as a move at both places", () => {
+  it("shows a block moved among its siblings as a move at both places", () => {
     const base = baseDocument([
       { id: "first", type: "paragraph", content: "First" },
       { id: "second", type: "paragraph", content: "Second" },
@@ -572,8 +573,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3166.
-  it.fails("shows a type change as a formatting change after the text was rewritten", () => {
+  it("shows a type change as a formatting change after the text was rewritten", () => {
     const base = blocks();
     const server = history(base);
     // The rewrite reuses some characters, so the block's stored text mixes
@@ -590,8 +590,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3166.
-  it.fails("strikes a moved block's children through with it at its old place", () => {
+  it("strikes a moved block's children through with it at its old place", () => {
     const base = baseDocument([
       { id: "first", type: "paragraph", content: "First" },
       {
@@ -653,8 +652,7 @@ describe("version diff of a type change", () => {
     ]);
   });
 
-  // To be fixed by #3166.
-  it.fails.each([
+  it.each([
     ["the same user", "bob"],
     ["a different user", "carol"],
   ])(
@@ -682,8 +680,7 @@ describe("version diff of a type change", () => {
     },
   );
 
-  // To be fixed by #3166.
-  it.fails("credits two type changes to the last one", () => {
+  it("credits two type changes to the last one", () => {
     const base = blocks();
     const server = history(base);
     server.apply(editOf(base, 2, toHeading), "bob");
@@ -696,6 +693,39 @@ describe("version diff of a type change", () => {
     expect(
       diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
     ).toEqual(["attrs <bulletListItem>: carol"]);
+  });
+
+  it("credits text typed into the last copy to its writer, not to an earlier copy's", () => {
+    const base = blocks();
+    const server = history(base);
+    server.apply(
+      editOf(base, 2, (editor) => {
+        toHeading(editor);
+        editor.setTextCursorPosition("parent", "end");
+        editor.insertInlineContent("d");
+      }),
+      "bob",
+    );
+    server.apply(
+      editOf(server.server, 3, (editor) =>
+        editor.updateBlock("parent", { type: "bulletListItem" }),
+      ),
+      "carol",
+    );
+    const after = server.apply(
+      editOf(server.server, 4, (editor) => {
+        editor.setTextCursorPosition("parent", "end");
+        editor.insertInlineContent("ddd");
+      }),
+      "dave",
+    );
+    expect(
+      diff(Y.encodeStateAsUpdateV2(base), after, server.attributions),
+    ).toEqual([
+      "attrs <bulletListItem>: carol",
+      "insert d: bob",
+      "insert ddd: dave",
+    ]);
   });
 
   it.each([
@@ -791,8 +821,7 @@ describe("version diff of a document several users wrote", () => {
     return wrong;
   }
 
-  // To be fixed by #3166.
-  it.fails("credits every word to its writer, between any two versions", () => {
+  it("credits every word to its writer, between any two versions", () => {
     const base = baseDocument([
       { id: "start", type: "paragraph", content: "" },
     ]);

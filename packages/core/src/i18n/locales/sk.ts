@@ -412,6 +412,8 @@ export const sk = {
     deleted_by: (users: string) => `Odstránil: ${users}`,
     changed: "Zmenené",
     changed_by: (users: string) => `Zmenil: ${users}`,
+    moved: "Presunuté",
+    moved_by: (users: string) => `Presunul: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Zmena formátovania (${formats}) od: ${users}`,
   },

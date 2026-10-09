@@ -5,6 +5,9 @@ import "./style.css";
 import type { GalleryEditor } from "./gallerySchema";
 import {
   createYVersionView,
+  type ExperimentalVersionDiffs,
+  type VersionDiffFixes,
+  versionDiffFixesIncluded,
   SuggestionsExtension,
   withCollaboration,
 } from "@blocknote/core/y";
@@ -22,9 +25,63 @@ import {
   createVersionMerge,
   docFromBlocks,
 } from "./scenarioDocs";
-import { scenarios, SuggestionScenario } from "./scenarios";
+import { Feedback, scenarios, SuggestionScenario } from "./scenarios";
 
 type Mode = "suggestions" | "versioning";
+
+// The experimental version diff fixes the Diff can show, none by default as
+// in the editor. Kept in the URL, so a link opens the same view.
+const FIXES: { value: VersionDiffFixes | undefined; label: string }[] = [
+  { value: undefined, label: "Default" },
+  { value: "implicitDeleteAttribution", label: "Implicit delete attribution" },
+  {
+    value: "implicitDeleteAttributionAndRecreatedBlocks",
+    label: "+ re-created blocks",
+  },
+];
+const ALL_FIXES: ExperimentalVersionDiffs = {
+  versionDiffFixes: FIXES[FIXES.length - 1].value,
+};
+
+function readFixes(): ExperimentalVersionDiffs {
+  const value = new URLSearchParams(window.location.search).get(
+    "versionDiffFixes",
+  );
+  return {
+    versionDiffFixes: FIXES.find((fixes) => fixes.value === value)?.value,
+  };
+}
+
+function writeFixes(experimental: ExperimentalVersionDiffs) {
+  const url = new URL(window.location.href);
+  if (experimental.versionDiffFixes) {
+    url.searchParams.set("versionDiffFixes", experimental.versionDiffFixes);
+  } else {
+    url.searchParams.delete("versionDiffFixes");
+  }
+  window.history.replaceState(null, "", url);
+}
+
+// A note with `when` describes the Diff with or without those fixes, so it
+// only shows in Versioning mode when they match.
+function applies(
+  f: Feedback,
+  mode: Mode,
+  experimental: ExperimentalVersionDiffs,
+): boolean {
+  if (!f.when) {
+    return true;
+  }
+  const included = experimental.versionDiffFixes
+    ? versionDiffFixesIncluded[experimental.versionDiffFixes]
+    : [];
+  return (
+    mode === "versioning" &&
+    Object.entries(f.when).every(
+      ([fix, on]) => included.some((each) => each === fix) === on,
+    )
+  );
+}
 
 function makeAwareness(doc: Y.Doc, name: string, color: string): Awareness {
   const awareness = new Awareness(doc);
@@ -333,7 +390,13 @@ function versioningUsers(scenario: SuggestionScenario): VersioningUser[] {
  * editing any user re-merges (and re-diffs); editing Version 1 resets every user
  * back to a fresh clone (via the `nonce` remount).
  */
-function VersioningView({ scenario }: { scenario: SuggestionScenario }) {
+function VersioningView({
+  scenario,
+  experimental,
+}: {
+  scenario: SuggestionScenario;
+  experimental: ExperimentalVersionDiffs;
+}) {
   const [setup] = useState(() => {
     const beforeDoc = docFromBlocks(scenario.initial);
     return {
@@ -375,6 +438,7 @@ function VersioningView({ scenario }: { scenario: SuggestionScenario }) {
         beforeDoc={setup.beforeDoc}
         users={setup.users}
         applyInitial={nonce === 0}
+        experimental={experimental}
       />
     </div>
   );
@@ -390,10 +454,12 @@ function VersionMerge({
   beforeDoc,
   users,
   applyInitial,
+  experimental,
 }: {
   beforeDoc: Y.Doc;
   users: VersioningUser[];
   applyInitial: boolean;
+  experimental: ExperimentalVersionDiffs;
 }) {
   const [setup] = useState(() => {
     // Records which user authored each merged change, so the Diff can color
@@ -415,6 +481,7 @@ function VersionMerge({
         fragment: setup.afterDoc.get("doc"),
         provider: { awareness: setup.diffAwareness },
         user: USER_A,
+        experimental,
       },
     }),
   );
@@ -531,8 +598,10 @@ const SEVERITY = {
 
 // The most-severe note across a scenario's feedback — a known crash counts as
 // high — or null if it has none. Drives the sidebar indicator.
-function topSeverity(s: SuggestionScenario): "high" | "low" | "info" | null {
-  const fb = s.feedback ?? [];
+function topSeverity(
+  s: SuggestionScenario,
+  fb: Feedback[],
+): "high" | "low" | "info" | null {
   if (s.knownCrash || fb.some((f) => f.severity === "high")) {
     return "high";
   }
@@ -542,15 +611,38 @@ function topSeverity(s: SuggestionScenario): "high" | "low" | "info" | null {
   return fb.some((f) => f.severity === "info") ? "info" : null;
 }
 
-function severityBadge(s: SuggestionScenario): string {
-  const sev = topSeverity(s);
-  return sev ? SEVERITY[sev].icon + " " : "";
+function notesFor(
+  s: SuggestionScenario,
+  mode: Mode,
+  experimental: ExperimentalVersionDiffs,
+): Feedback[] {
+  return (s.feedback ?? []).filter((f) => applies(f, mode, experimental));
+}
+
+// The severity without fixes (the default) and, for a scenario the fixes
+// affect, in parentheses the severity with all of them (green: no issue left).
+// The chosen fixes don't change it.
+function severityBadge(s: SuggestionScenario, mode: Mode): string {
+  const sev = topSeverity(s, notesFor(s, mode, {}));
+  let badge = sev ? SEVERITY[sev].icon + " " : "";
+  if (mode === "versioning" && s.feedback?.some((f) => f.when)) {
+    const best = topSeverity(s, notesFor(s, mode, ALL_FIXES));
+    badge += `(${best === "high" || best === "low" ? SEVERITY[best].icon : "🟢"}) `;
+  }
+  return badge;
 }
 
 export default function App() {
   const [selectedId, setSelectedId] = useState(scenarios[0].id);
   const [mode, setMode] = useState<Mode>("versioning");
+  const [experimental, setExperimental] = useState(readFixes);
   const selected = scenarios.find((s) => s.id === selectedId)!;
+  const feedback = notesFor(selected, mode, experimental);
+
+  function choose(next: ExperimentalVersionDiffs) {
+    writeFixes(next);
+    setExperimental(next);
+  }
 
   const categories = [...new Set(scenarios.map((s) => s.category))];
 
@@ -573,7 +665,7 @@ export default function App() {
                   }
                   onClick={() => setSelectedId(s.id)}
                 >
-                  {severityBadge(s)}
+                  {severityBadge(s, mode)}
                   {s.kind === "concurrent" ? "👥 " : ""}
                   {s.title}
                 </button>
@@ -605,14 +697,31 @@ export default function App() {
           </div>
         </div>
 
-        {selected.feedback && selected.feedback.length > 0 && (
+        {mode === "versioning" && (
+          <div className="bn-gallery-experiments">
+            Experimental fixes:
+            {FIXES.map(({ value, label }) => (
+              <label key={label}>
+                <input
+                  type="radio"
+                  name="versionDiffFixes"
+                  checked={experimental.versionDiffFixes === value}
+                  onChange={() => choose({ versionDiffFixes: value })}
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+        )}
+
+        {feedback.length > 0 && (
           <div className="bn-gallery-feedback">
             <div className="bn-gallery-feedback-title">
-              {selected.feedback.some((f) => f.severity !== "info")
+              {feedback.some((f) => f.severity !== "info")
                 ? "Known issues"
                 : "Notes"}
             </div>
-            {[...selected.feedback]
+            {[...feedback]
               .sort(
                 (a, b) => SEVERITY[a.severity].rank - SEVERITY[b.severity].rank,
               )
@@ -630,9 +739,11 @@ export default function App() {
           </div>
         )}
 
-        <ScenarioErrorBoundary key={`${mode}:${selected.id}`}>
+        <ScenarioErrorBoundary
+          key={`${mode}:${selected.id}:${JSON.stringify(experimental)}`}
+        >
           {mode === "versioning" ? (
-            <VersioningView scenario={selected} />
+            <VersioningView scenario={selected} experimental={experimental} />
           ) : (
             <SuggestionsView scenario={selected} />
           )}

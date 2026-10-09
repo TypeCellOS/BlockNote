@@ -80,7 +80,8 @@ export type AttributionChange =
   | {
       // `change`: a preview (e.g. a diagram) can't show what was inserted or
       // deleted in its hidden source, only that it changed.
-      modificationType: "insert" | "delete" | "change";
+      // `move`: a moved block at its new place, or its struck-through original.
+      modificationType: "insert" | "delete" | "change" | "move";
       format?: never;
       attributes?: never;
     }
@@ -239,7 +240,8 @@ export const AttributionExtension = createExtension(
         const attributionIdentity = (wrapper: HTMLElement) => {
           const ids = parseUserIds(wrapper.dataset["userIds"]);
           const format = parseFormatKeys(wrapper.dataset["format"]);
-          return `${wrapper.tagName}:${wrapper.dataset["attributes"] ?? ""}:${format.join(",")}:${ids.join(",")}`;
+          const moved = wrapper.dataset["moved"] !== undefined ? "moved" : "";
+          return `${wrapper.tagName}${moved}:${wrapper.dataset["attributes"] ?? ""}:${format.join(",")}:${ids.join(",")}`;
         };
 
         // Build the tooltip state from a wrapper's `data-*` attributes. A
@@ -249,7 +251,9 @@ export const AttributionExtension = createExtension(
           preview?: Element,
         ): AttributionTooltipState => {
           const markChange: AttributionChange & {
-            modificationType: AttributionMarkStyleInfo["modificationType"];
+            modificationType:
+              | AttributionMarkStyleInfo["modificationType"]
+              | "move";
           } =
             anchor.dataset["attributes"] !== undefined
               ? {
@@ -263,9 +267,20 @@ export const AttributionExtension = createExtension(
                   }
                 : {
                     modificationType:
-                      anchor.tagName === "INS" ? "insert" : "delete",
+                      anchor.dataset["moved"] !== undefined
+                        ? "move"
+                        : anchor.tagName === "INS"
+                          ? "insert"
+                          : "delete",
                   };
-          const { modificationType } = markChange;
+          // For styling, a moved block is inserted at its new place and
+          // deleted at its old one.
+          const modificationType =
+            markChange.modificationType === "move"
+              ? anchor.tagName === "INS"
+                ? "insert"
+                : "delete"
+              : markChange.modificationType;
           const change: AttributionChange = preview
             ? { modificationType: "change" }
             : markChange;

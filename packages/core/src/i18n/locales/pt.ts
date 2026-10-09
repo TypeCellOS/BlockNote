@@ -407,6 +407,8 @@ export const pt: Dictionary = {
     deleted_by: (users: string) => `Excluído por: ${users}`,
     changed: "Alterado",
     changed_by: (users: string) => `Alterado por: ${users}`,
+    moved: "Movido",
+    moved_by: (users: string) => `Movido por: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Alteração de formatação (${formats}) por: ${users}`,
   },

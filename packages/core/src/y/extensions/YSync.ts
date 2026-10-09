@@ -68,16 +68,25 @@ export const mapAttributionToMark = (
     insertAt?: number;
     deleteAt?: number;
     formatAt?: number;
+    /** Set on a moved block and its original, see `showSnapshotPreview`. */
+    moved?: boolean;
   },
 ): Record<string, unknown> => {
   const out: Record<string, unknown> = { ...format };
 
   if (attribution.insert) {
-    out["y-attributed-insert"] = { userIds: attribution.insert };
+    // Every mark attribute is listed, so the mark equals this value.
+    out["y-attributed-insert"] = {
+      userIds: attribution.insert,
+      moved: attribution.moved === true ? true : null,
+    };
   }
 
   if (attribution.delete) {
-    out["y-attributed-delete"] = { userIds: attribution.delete };
+    out["y-attributed-delete"] = {
+      userIds: attribution.delete,
+      moved: attribution.moved === true ? true : null,
+    };
   }
 
   if (attribution.format) {

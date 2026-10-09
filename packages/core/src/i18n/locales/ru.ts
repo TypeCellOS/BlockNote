@@ -458,6 +458,8 @@ export const ru: Dictionary = {
     deleted_by: (users: string) => `Удалено: ${users}`,
     changed: "Изменено",
     changed_by: (users: string) => `Изменено: ${users}`,
+    moved: "Перемещено",
+    moved_by: (users: string) => `Перемещено пользователем: ${users}`,
     formatting_change_by: (formats: string, users: string) =>
       `Изменение форматирования (${formats}): ${users}`,
   },
