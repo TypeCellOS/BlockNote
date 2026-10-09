@@ -9,7 +9,7 @@ import type { Transform } from "prosemirror-transform";
  *
  * O(steps), like `changedRange()`. Returns null when nothing changed.
  */
-export function getChangedRange(
+export function getChangedRangeWithAttrs(
   transform: Transform,
 ): { from: number; to: number } | null {
   const { mapping, steps } = transform;

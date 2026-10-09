@@ -125,7 +125,7 @@ const cases: [string, (tr: Transform) => void, number[][]][] = [
         .removeMark(2, 3, schema.marks.strong),
     [[1, 4, 1, 4]],
   ],
-  // Steps without a position range are skipped (see `getChangedRange`).
+  // Steps without a position range are skipped (see `getChangedRangeWithAttrs`).
   ["set a node attribute", (tr) => tr.setNodeAttribute(5, "level", 1), []],
   ["set a doc attribute", (tr) => tr.setDocAttribute("title", "x"), []],
   [

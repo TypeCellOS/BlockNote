@@ -656,7 +656,7 @@ describe("getBlocksChangedByTransaction - ranged optimization", () => {
         throw new Error("expected a block container");
       }
       // Adding a mark produces an AddMarkStep, whose StepMap is empty — the case
-      // getChangedRange has to recover from the step's own from/to.
+      // getChangedRangeWithAttrs has to recover from the step's own from/to.
       tr.addMark(
         info.blockContent.beforePos + 1,
         info.blockContent.afterPos - 1,
