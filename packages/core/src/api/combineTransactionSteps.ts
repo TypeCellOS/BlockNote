@@ -8,12 +8,13 @@ import type { Transform } from "prosemirror-transform";
  * `oldDoc` is returned as it is. Replaying its steps into a new transform
  * took seconds for a version diff, which has thousands of steps.
  *
- * The result can be the transaction itself, so don't add steps to it.
+ * The result can be the transaction itself, so it only gives what callers
+ * read: adding steps to it would change that transaction.
  */
 export function combineTransactionSteps(
   oldDoc: Node,
   transactions: readonly Transaction[],
-): Transform {
+): Pick<Transform, "before" | "doc" | "mapping" | "steps"> {
   if (transactions.length === 1 && transactions[0].before === oldDoc) {
     return transactions[0];
   }

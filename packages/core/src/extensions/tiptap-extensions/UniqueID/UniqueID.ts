@@ -4,7 +4,6 @@ import { Fragment, Node, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { combineTransactionSteps } from "../../../api/combineTransactionSteps.js";
 import { getChangedRanges } from "../../../api/getChangedRanges.js";
-import { isSuggestedDeletionNode } from "../../../api/getBlockInfoFromPos.js";
 
 /**
  * Code from Tiptap UniqueID extension (https://tiptap.dev/api/extensions/unique-id)
@@ -226,8 +225,7 @@ const UniqueID = Extension.create({
               const newNode =
                 duplicatedNewIds.includes(id) &&
                 mapping.invert().mapResult(pos).deleted;
-              // purposefully skip rewriting ids for suggested deletion nodes, to avoid modifying them
-              if (newNode && !isSuggestedDeletionNode(node)) {
+              if (newNode) {
                 tr.setNodeMarkup(pos, undefined, {
                   ...node.attrs,
                   id: generateID(),

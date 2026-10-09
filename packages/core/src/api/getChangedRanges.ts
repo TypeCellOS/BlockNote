@@ -24,14 +24,17 @@ import type { Step, StepMap, Transform } from "prosemirror-transform";
  * (UniqueID, autolink) might work from one range or from input events, but
  * what that changes in each of them needs a careful look first.
  */
-export function getChangedRanges(transform: Transform): ChangedRange[] {
+export function getChangedRanges(
+  transform: Pick<Transform, "mapping" | "steps">,
+): ChangedRange[] {
   const { mapping, steps } = transform;
   const maps = mapping.maps;
   // A mirrored mapping (from rebasing steps) recovers positions across step
   // pairs, which the skips below don't model.
   for (let i = 0; i < maps.length; i++) {
     if (mapping.getMirror(i) !== undefined) {
-      return getChangedRangesQuadratic(transform);
+      // Tiptap's function only reads `mapping` and `steps`.
+      return getChangedRangesQuadratic({ mapping, steps } as Transform);
     }
   }
 

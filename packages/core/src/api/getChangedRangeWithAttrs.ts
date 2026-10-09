@@ -10,7 +10,7 @@ import type { Transform } from "prosemirror-transform";
  * O(steps), like `changedRange()`. Returns null when nothing changed.
  */
 export function getChangedRangeWithAttrs(
-  transform: Transform,
+  transform: Pick<Transform, "mapping" | "steps">,
 ): { from: number; to: number } | null {
   const { mapping, steps } = transform;
   let from = Number.POSITIVE_INFINITY;

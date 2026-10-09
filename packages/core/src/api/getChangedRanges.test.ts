@@ -49,7 +49,10 @@ function threeParagraphs() {
 }
 
 /** `[old from, old to, new from, new to]` of each changed range. */
-function ranges(implementation: typeof getChangedRanges, transform: Transform) {
+function ranges(
+  implementation: (transform: Transform) => ReturnType<typeof getChangedRanges>,
+  transform: Transform,
+) {
   return implementation(transform).map(({ oldRange, newRange }) => [
     oldRange.from,
     oldRange.to,

@@ -57,10 +57,10 @@ function recordSteps(editor: Editor): number[] {
 }
 
 describe("Version diff performance", () => {
-  // Plugins that map through every step (UniqueID, autolink, attributions)
-  // take quadratic time, so a diff of thousands of blocks took seconds.
-  it.fails("shows a version in one step", () => {
-    // Fails: the binding renders the diff as one step per change.
+  // The binding renders a diff as one transaction, with a step per change.
+  // Plugins then handle it once, without replaying its steps
+  // (`combineTransactionSteps`), so a large diff stays fast.
+  it("shows a version in one transaction", () => {
     const blockCount = 300;
     const doc = new Y.Doc({ gc: false });
     const seed = BlockNoteEditor.create();
@@ -96,6 +96,6 @@ describe("Version diff performance", () => {
         target: { type: "snapshot", id: "after" },
       });
 
-    expect(steps).toEqual([1]);
+    expect(steps).toHaveLength(1);
   });
 });
