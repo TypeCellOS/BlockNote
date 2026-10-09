@@ -376,11 +376,8 @@ describe("VersioningSidebar", () => {
       if (selected) {
         await click(first);
       }
-      const nameItem = await openMenuItem(
-        first,
-        /^(Name this version|Rename)$/,
-      );
-      const menu = nameItem.closest('[role="menu"]')!;
+      const restore = await openMenuItem(first, /^Restore$/);
+      const menu = restore.closest('[role="menu"]')!;
       expect(
         page
           .elementLocator(menu)
