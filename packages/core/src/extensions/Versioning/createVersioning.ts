@@ -237,7 +237,7 @@ export function createVersioning<Content, Attributions>(options: {
       baselineId === undefined
         ? undefined
         : Promise.all([
-            storage.getContent(baselineId, signal, { baseline: true }),
+            storage.getContent(baselineId, signal),
             storage.getAttributions?.(
               target,
               baselineId,

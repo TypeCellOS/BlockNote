@@ -256,12 +256,34 @@ it("shows only the selected version's edits when comparing to the previous versi
   ]);
 });
 
+it("shows only the selected version's edits when the previous version is the first edit alone", async () => {
+  // "1000-1000" is both the first edit and a version of its own; the start of
+  // the document is a separate, empty row before it.
+  const characters = await compareCharacters({
+    authors: ["alice", "bob", "bob"],
+    activity: {
+      first,
+      history: [
+        { from: 1100, to: 1200, by: ["bob"] },
+        { from: 1000, to: 1000, by: ["alice"] },
+      ],
+    },
+    target: { type: "snapshot", id: "1100-1200" },
+    compareTo: () => "1000-1000",
+  });
+  expect(characters).toEqual([
+    { character: "a", authors: [] },
+    { character: "b", authors: ["bob"] },
+    { character: "c", authors: ["bob"] },
+  ]);
+});
+
 it("uses the latest server checkpoint as Current without a separate capture row", () => {
   expect(storage().api.showCurrentVersion).toBe(false);
   expect(fetchSpy).not.toHaveBeenCalled();
 });
 
-it("lists the first edit as an ordinary snapshot independently of sidebar filters and grouping", async () => {
+it("pins the start of the document, before the first edit, independently of sidebar filters and grouping", async () => {
   const { api, doc } = storage({ from: 1500, by: "bob", group: true });
   doc.get("default").push(["initial content"]);
   fetchSpy
@@ -271,19 +293,14 @@ it("lists the first edit as an ordinary snapshot independently of sidebar filter
   const { snapshots: versions } = resultValue(await api.list(signal));
   expect(versions).toHaveLength(2);
   const start = versions[1];
-  expect(start).toMatchObject({
-    id: "1000-1000",
-    createdAt: 1000,
-    by: ["alice"],
-    name: "Milestone",
-    metadata: version.custom,
-    restoredFrom: { id: "42-42", createdAt: 42 },
-  });
+  // The moment before the first edit: an empty document, without the first
+  // edit's name.
+  expect(start).toMatchObject({ id: "999-999", createdAt: 999, by: ["alice"] });
+  expect(start.name).toBeUndefined();
   const content = resultValue(await api.getContent(start.id, signal));
   const decoded = new Y.Doc();
   try {
     Y.applyUpdateV2(decoded, content);
-    expect(decoded.get("default").toArray()).toEqual(["initial content"]);
     expect(Object.fromEntries(request(1).url.searchParams)).toEqual({
       from: "0",
       order: "asc",
@@ -292,7 +309,7 @@ it("lists the first edit as an ordinary snapshot independently of sidebar filter
       versions: "true",
       customAttributions: "true",
     });
-    expect(request(2).url.searchParams.get("to")).toBe("1000");
+    expect(request(2).url.searchParams.get("to")).toBe("999");
   } finally {
     decoded.destroy();
   }
@@ -335,7 +352,11 @@ it("reloads an unnamed YHub checkpoint as Current on each opening without creati
       showCurrentVersion: false,
       displayed: { type: "snapshot", id: "2000-2000" },
       history: {
-        data: [{ id: "2000-2000", name: undefined }, { id: "1000-1000" }],
+        data: [
+          { id: "2000-2000", name: undefined },
+          { id: "1000-1000" },
+          { id: "999-999" },
+        ],
       },
     });
     expect(show.mock.lastCall?.[0].target).toEqual({
@@ -412,7 +433,8 @@ it.each([false, 0, "", ["app"], {}, null].map((custom) => ({ custom })))(
     const { snapshots: rows } = resultValue(
       await storage({ groupByUser: true }).api.list(signal),
     );
-    expect(rows).toHaveLength(2);
+    expect(rows).toHaveLength(3);
+    expect(rows[2].id).toBe("999-999");
     expect(rows[0].by).toEqual(["bob"]);
     expect(rows[0].metadata).toEqual(custom);
     expect(rows[1].by).toEqual(["alice"]);
@@ -462,6 +484,7 @@ it("preserves caller activity filters without merging returned entries", async (
       restoredFrom: { id: "42-42", createdAt: 42 },
       customAttributions: { tag: "release" },
     },
+    { id: "999-999", by: ["alice"] },
   ]);
   for (const [key, value] of Object.entries(activityParams)) {
     expect(request(0).url.searchParams.get(key)).toBe(
@@ -513,8 +536,8 @@ it("pages through bounded activity windows with stable timestamp identifiers", a
     snapshots.map(({ id, createdAt, name }) => ({ id, createdAt, name })),
   ).toEqual([
     { id: "90-100", createdAt: 100, name: undefined },
-    // The first page also pins the beginning; the controller deduplicates it.
-    { id: "50-60", createdAt: 60, name: undefined },
+    // The first page also pins the start, the moment before the first edit.
+    { id: "49-49", createdAt: 49, name: undefined },
     { id: "70-80", createdAt: 80, name: "Milestone" },
     { id: "50-60", createdAt: 60, name: undefined },
   ]);
@@ -551,8 +574,9 @@ it.each([{ activity: [] }, { activity: [latest] }])(
       .mockResolvedValueOnce(response({ activity }));
     const page = resultValue(await storage({ limit: 1 }).api.list(signal));
     expect(page.nextCursor).toBeUndefined();
+    // With an edit, the start of the document is pinned after it.
     expect(page.snapshots.map((snapshot) => snapshot.id)).toEqual(
-      activity.map((entry) => `${entry.from}-${entry.to}`),
+      activity.length ? ["2000-2000", "1999-1999"] : [],
     );
   },
 );
@@ -678,83 +702,46 @@ it("propagates concurrent version conflicts", async () => {
   });
 });
 
-it.each([
-  { baseline: undefined, beginning: "900-1000", to: "1000" },
-  { baseline: true, beginning: "500-500", to: "1000" },
-  { baseline: true, beginning: "900-1000", to: "899" },
-])(
-  "loads V2 content at $to (baseline: $baseline, beginning: $beginning)",
-  async ({ baseline, beginning, to }) => {
-    const { api, doc } = storage();
-    doc.get("default").push(["hello"]);
-    const [from, end] = beginning.split("-").map(Number);
-    fetchSpy.mockImplementation(async (input) =>
-      new URL(input instanceof Request ? input.url : input).pathname.includes(
-        "/activity/",
-      )
-        ? response({ activity: [{ from, to: end, by: ["alice"] }] })
-        : response({ ydoc: Y.encodeStateAsUpdate(doc) }),
-    );
-    // The beginning is known once the history is listed.
-    resultValue(await api.list(signal));
-    const content = resultValue(
-      await api.getContent("900-1000", signal, { baseline }),
-    );
-    const restored = new Y.Doc();
-    try {
-      Y.applyUpdateV2(restored, content);
-      expect(restored.get("default").toArray()).toEqual(["hello"]);
-    } finally {
-      restored.destroy();
-    }
-    const load = fetchSpy.mock.calls.findIndex(
-      ([input]) =>
-        !new URL(
-          input instanceof Request ? input.url : input,
-        ).pathname.includes("/activity/"),
-    );
-    expect(request(load).url.searchParams.get("to")).toBe(to);
-    expect(request(load).signal).toBeInstanceOf(AbortSignal);
-  },
-);
+it("loads V2 content at the end of its window", async () => {
+  const { api, doc } = storage();
+  doc.get("default").push(["hello"]);
+  fetchSpy.mockResolvedValueOnce(
+    response({ ydoc: Y.encodeStateAsUpdate(doc) }),
+  );
+  const content = resultValue(await api.getContent("900-1000", signal));
+  const restored = new Y.Doc();
+  try {
+    Y.applyUpdateV2(restored, content);
+    expect(restored.get("default").toArray()).toEqual(["hello"]);
+  } finally {
+    restored.destroy();
+  }
+  expect(request(0).url.searchParams.get("to")).toBe("1000");
+  expect(request(0).signal).toBeInstanceOf(AbortSignal);
+});
 
 it.each([
-  { type: "current", capturedAt: 500, beginning: true },
-  { type: "current", capturedAt: 2500, beginning: true },
-  { type: "snapshot", capturedAt: 2500, beginning: true },
-  { type: "snapshot", capturedAt: 2500, beginning: false },
+  { type: "current", capturedAt: 500 },
+  { type: "current", capturedAt: 2500 },
+  { type: "snapshot", capturedAt: 2500 },
 ] as const)(
-  "uses the server attribution cutoff for $type with client capture time $capturedAt (beginning: $beginning)",
-  async ({ type, capturedAt, beginning }) => {
-    fetchSpy.mockImplementation(async (input) =>
-      new URL(input instanceof Request ? input.url : input).pathname.includes(
-        "/activity/",
-      )
-        ? response({
-            activity: [
-              beginning
-                ? { from: 900, to: 1000, by: ["alice"] }
-                : { from: 500, to: 500, by: ["alice"] },
-            ],
-          })
-        : response({ attributions: Y.encodeContentMap(Y.createContentMap()) }),
+  "uses the server attribution cutoff for $type with client capture time $capturedAt",
+  async ({ type, capturedAt }) => {
+    fetchSpy.mockResolvedValueOnce(
+      response({ attributions: Y.encodeContentMap(Y.createContentMap()) }),
     );
-    const { api } = storage();
-    // The beginning is known once the history is listed.
-    resultValue(await api.list(signal));
-    await api.getAttributions!(
+    await storage().api.getAttributions!(
       type === "current" ? { type } : { type, id: "1900-2000" },
       "900-1000",
       capturedAt,
       signal,
     );
-    const query = request(fetchSpy.mock.calls.length - 1);
-    // The beginning's own edits count; a later baseline's edits don't.
-    expect(query.url.searchParams.get("from")).toBe(beginning ? "900" : "1001");
-    expect(query.url.searchParams.get("to")).toBe(
+    // The baseline already holds its edits up to 1000.
+    expect(request(0).url.searchParams.get("from")).toBe("1001");
+    expect(request(0).url.searchParams.get("to")).toBe(
       type === "current" ? null : "2000",
     );
-    expect(query.signal).toBeInstanceOf(AbortSignal);
+    expect(request(0).signal).toBeInstanceOf(AbortSignal);
   },
 );
 

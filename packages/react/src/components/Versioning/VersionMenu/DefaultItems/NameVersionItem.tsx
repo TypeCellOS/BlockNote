@@ -12,10 +12,10 @@ import { DefaultVersionMenuItem } from "../DefaultVersionMenuItem.js";
 /** Start inline naming: create an unnamed current version, otherwise rename. */
 export function useNameVersionAction(): VersionMenuAction {
   const { canCreate, canRename } = useVersioning();
-  const { selection, startRename } = useVersionSnapshot();
+  const { selection, isStart, startRename } = useVersionSnapshot();
 
   const available = selection.type === "current" ? canCreate : canRename;
-  if (!available) {
+  if (!available || isStart) {
     return { available: false };
   }
 

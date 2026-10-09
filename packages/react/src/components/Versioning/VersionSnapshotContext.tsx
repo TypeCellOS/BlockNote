@@ -18,6 +18,11 @@ export type VersionSnapshotContextValue = {
   selection: VersionSelection;
   /** Whether this row represents Current, a capture or the newest checkpoint. */
   isCurrent: boolean;
+  /**
+   * Whether this row is the start of the document, before any edit. It isn't
+   * a saved version, so it can't be named.
+   */
+  isStart: boolean;
   /** The row's mutually exclusive selection and comparison state. */
   state: VersioningSnapshotState;
   /**

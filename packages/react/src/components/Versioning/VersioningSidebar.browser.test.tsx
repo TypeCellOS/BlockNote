@@ -340,7 +340,7 @@ describe("VersioningSidebar", () => {
     }
   });
 
-  it("selects and names the first snapshot through the ordinary row controls", async () => {
+  it("selects the start of the document, which can't be named", async () => {
     const fake = createFakeEndpoints(undefined, true);
     const { editor } = await setup({}, fake);
     const start = rows().at(-1)!;
@@ -348,14 +348,24 @@ describe("VersioningSidebar", () => {
     expect(start.querySelector("button")).not.toBeNull();
     await click(start);
     expect(start.getAttribute("aria-current")).toBe("true");
-    expect(nameInput(start)).toBeDefined();
-    expect(nameInput(start).placeholder).toBe("Start of document");
     expect(mode(editor).store.state).toMatchObject({
       displayed: { type: "snapshot", id: "first" },
     });
-    await commit(nameInput(start), "First draft", "Enter");
-    expect(fake.endpoints.rename).toHaveBeenCalledWith("first", "First draft");
-    expect(nameInput(rows().at(-1)!).value).toBe("First draft");
+    // It isn't a saved version: no name field, and no menu item to name it.
+    expect(
+      page
+        .elementLocator(start)
+        .getByRole("textbox", { name: "Version name", exact: true })
+        .query(),
+    ).toBeNull();
+    const restore = await openMenuItem(start, /^Restore$/);
+    expect(
+      page
+        .elementLocator(restore.closest<HTMLElement>('[role="menu"]')!)
+        .getByRole("menuitem", { name: /^(Name this version|Rename)$/ })
+        .query(),
+    ).toBeNull();
+    expect(fake.endpoints.rename).not.toHaveBeenCalled();
   });
 
   it.each([false, true])(
@@ -1141,7 +1151,6 @@ describe("VersioningSidebar", () => {
       expect(fake.endpoints.getContent).toHaveBeenCalledWith(
         id,
         expect.any(AbortSignal),
-        { baseline: true },
       );
     },
   );

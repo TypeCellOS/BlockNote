@@ -148,7 +148,6 @@ it.each(["current", "snapshot"] as const)(
     const doc = new Y.Doc();
     const fragment = doc.getXmlFragment("custom-document");
     const snapshots = new Map<string, Uint8Array>();
-    const empty = Y.encodeStateAsUpdate(doc);
     const editor = BlockNoteEditor.create(
       withCollaboration({
         extensions: [
@@ -165,12 +164,9 @@ it.each(["current", "snapshot"] as const)(
                   ],
                 },
               }),
-              getContent: async (id, signal, options) => {
+              getContent: async (id, signal) => {
                 signal.throwIfAborted();
-                const content =
-                  options?.baseline && id === "first"
-                    ? empty
-                    : snapshots.get(id);
+                const content = snapshots.get(id);
                 return content
                   ? { ok: true, value: content }
                   : { ok: false, error: { type: "not-found" } };
@@ -222,7 +218,8 @@ it.each(["current", "snapshot"] as const)(
           inserted.push(node.text!);
         }
       });
-      expect(inserted.join("")).toBe("abc");
+      // Compared to "first" ("a"), only what came after it is inserted.
+      expect(inserted.join("")).toBe("bc");
       expect(Y.encodeStateAsUpdate(doc)).toEqual(live);
       await mode.select({ type: "snapshot", id: "first" });
       await mode.select({ type: "current" });

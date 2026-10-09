@@ -99,21 +99,16 @@ it("uses saved content for both previews and comparison baselines", async () => 
       ],
     });
     const signal = new AbortController().signal;
-    expect(resultValue(await storage.getContent("2", signal)).textContent).toBe(
-      "a",
+    const earliest = resultValue(await storage.getContent("2", signal));
+    expect(earliest.textContent).toBe("a");
+    earliest.check();
+    expect(resultValue(await storage.getContent("1", signal)).textContent).toBe(
+      "abc",
     );
-    const beginning = resultValue(
-      await storage.getContent("2", signal, { baseline: true }),
-    );
-    expect(beginning.textContent).toBe("a");
-    beginning.check();
-    expect(
-      resultValue(await storage.getContent("1", signal, { baseline: true }))
-        .textContent,
-    ).toBe("abc");
-    expect(
-      await storage.getContent("missing", signal, { baseline: true }),
-    ).toEqual({ ok: false, error: { type: "not-found" } });
+    expect(await storage.getContent("missing", signal)).toEqual({
+      ok: false,
+      error: { type: "not-found" },
+    });
   } finally {
     editor._tiptapEditor.destroy();
   }

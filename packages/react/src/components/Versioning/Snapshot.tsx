@@ -141,7 +141,7 @@ export function Snapshot(props: {
   const canEditName = selection.type === "current" ? canCreate : canRename;
   // Both sides of an active comparison can be named without switching the
   // preview. Elsewhere the first click selects the row before renaming it.
-  const editable = (selected || comparing) && canEditName === true;
+  const editable = (selected || comparing) && canEditName === true && !isStart;
 
   // Rename requests focus before selecting the row and mounting its input.
   useEffect(() => {
@@ -234,6 +234,7 @@ export function Snapshot(props: {
         snapshot,
         selection,
         isCurrent,
+        isStart,
         state,
         startRename,
       }}

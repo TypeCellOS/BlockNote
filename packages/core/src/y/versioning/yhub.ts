@@ -76,9 +76,6 @@ export function createYHubVersionStorage(
 ): YHubStorage {
   const { fragment, beforeRestoreName } = options;
   const client = new YHubClient(options);
-  // Set by `list`, which is where snapshot ids come from. Comparing to the
-  // beginning includes its own edits; comparing to a later snapshot doesn't.
-  let beginningId: string | undefined;
   function timestamps(id: string) {
     const parts = id.split("-");
     const from = Number(parts[0]);
@@ -157,16 +154,18 @@ export function createYHubVersionStorage(
         query.set("to", String(oldest.from - 1));
         nextCursor = query.toString();
       }
-      // The pinned beginning is not part of the page boundary.
+      // The pinned start of the document is not part of the page boundary. It
+      // is the moment before the first edit, so it shows the empty document,
+      // and comparing to it includes the first edit like any other.
       const firstSnapshot = firstSnapshotResult?.value[0];
       if (firstSnapshot) {
-        beginningId = `${firstSnapshot.from}-${firstSnapshot.to}`;
-      }
-      if (
-        firstSnapshot &&
-        !entries.some((entry) => entry.to === firstSnapshot.to)
-      ) {
-        entries.push(firstSnapshot);
+        const start = Math.max(0, firstSnapshot.from - 1);
+        entries.push({
+          ...firstSnapshot,
+          from: start,
+          to: start,
+          version: undefined,
+        });
       }
       return {
         ok: true,
@@ -200,22 +199,17 @@ export function createYHubVersionStorage(
         },
       };
     },
-    async getContent(id, signal, { baseline = false } = {}) {
-      const { from, to } = timestamps(id);
-      // YHub includes edits at `to`. The beginning's baseline must precede its
-      // first edit; the attribution query below still includes that edit at `from`.
-      const result = await client.getContent(
-        baseline && id === beginningId ? Math.max(0, from - 1) : to,
-        signal,
-      );
+    async getContent(id, signal) {
+      // YHub includes edits at `to`.
+      const result = await client.getContent(timestamps(id).to, signal);
       return result.ok
         ? { ok: true, value: Y.convertUpdateFormatV1ToV2(result.value) }
         : result;
     },
     async getAttributions(target, baselineId, _capturedAt, signal) {
-      const { from, to } = timestamps(baselineId);
       const result = await client.getAttributions(
-        baselineId === beginningId ? from : to + 1,
+        // The baseline already holds its edits at `to`.
+        timestamps(baselineId).to + 1,
         // Use the server's current time, not the potentially skewed client clock.
         target.type === "current" ? undefined : timestamps(target.id).to,
         signal,
