@@ -41,7 +41,7 @@ export const createReactDiagramBlockSpec = createReactBlockSpec(
       hasPreview: true,
     },
     // Multi-line source: Enter inserts a line break.
-    keyboard: {
+    experimental_keyboard: {
       enter: "line-break",
     },
     parse: parseDiagramCodeElement,

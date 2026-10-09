@@ -18,14 +18,13 @@ export const PlaceholderExtension = createExtension(
     Pick<BlockNoteEditorOptions<any, any, any>, "placeholders">
   >) => {
     const placeholders = options.placeholders;
+    const uniqueEditorSelector = `placeholder-selector-${uuidv4()}`;
     return {
       key: "placeholder",
       prosemirrorPlugins: [
         new Plugin({
           key: PLUGIN_KEY,
           view: (view) => {
-            const uniqueEditorSelector = `placeholder-selector-${uuidv4()}`;
-            view.dom.classList.add(uniqueEditorSelector);
             const styleEl = document.createElement("style");
 
             const nonce = editor._tiptapEditor.options.injectNonce;
@@ -98,6 +97,10 @@ export const PlaceholderExtension = createExtension(
             };
           },
           props: {
+            // Set through ProseMirror, not on `view.dom` directly: ProseMirror
+            // observes the editor element, and flushes a change made outside
+            // it later, which can outlive the editor.
+            attributes: { class: uniqueEditorSelector },
             decorations: (state) => {
               const { doc, selection } = state;
 

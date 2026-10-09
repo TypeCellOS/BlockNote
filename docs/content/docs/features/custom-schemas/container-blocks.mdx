@@ -121,7 +121,7 @@ export const createCallout = createReactBlockSpec(
     content: "inline",
   },
   {
-    keyboard: {
+    experimental_keyboard: {
       enter: "into-children",
       childrenCanOutdent: false,
       emptyChildEnter: "exit-at-end",
@@ -150,7 +150,7 @@ The child blocks can still contain rich text, images, and other block types.
 
 `renderFrame:` An optional React component for styling the block and its children together, such as giving the callout a shared border or background. It receives `block`, `editor`, and `contentRef`, just like `render`. Attach `contentRef` where the block's content and children should appear. You can use the block's props to customize the frame, add interactive controls, or return `null` to show the block without a frame.
 
-`keyboard:` Without it, child blocks behave like any indented blocks. Here, `enter: "into-children"` makes Enter in the title add a first child block, `childrenCanOutdent: false` keeps Shift-Tab from moving blocks out of the callout, and `emptyChildEnter: "exit-at-end"` makes Enter in an empty last block leave the callout. See [Custom Blocks](/docs/features/custom-schemas/custom-blocks) for all keyboard settings.
+`experimental_keyboard:` Without it, child blocks behave like any indented blocks. This API is experimental and may change. Here, `enter: "into-children"` makes Enter in the title add a first child block, `childrenCanOutdent: false` keeps Shift-Tab from moving blocks out of the callout, and `emptyChildEnter: "exit-at-end"` makes Enter in an empty last block leave the callout. See [Custom Blocks](/docs/features/custom-schemas/custom-blocks) for all keyboard settings.
 
 For a container with `content: "none"`, like the panel above, add the surrounding styling directly in `render`.
 

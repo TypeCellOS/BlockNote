@@ -147,7 +147,9 @@ type ReactCustomBlockImplementation = {
     schema: Schema;
   }) => Fragment | undefined;
   runsBefore?: string[];
-  keyboard?: KeyboardSettings | ((block: Block) => KeyboardSettings);
+  experimental_keyboard?:
+    | KeyboardSettings
+    | ((block: Block) => KeyboardSettings);
   // KeyboardSettings: {
   //   enter?: "split" | "into-children" | "line-break";
   //   shiftEnter?: "line-break" | "same-as-enter";
@@ -194,7 +196,7 @@ type ReactCustomBlockImplementation = {
 
 `runsBefore?:` If this block has parsing or extensions that need to be given priority over any other blocks, you can pass their `type`s in an array here.
 
-`keyboard?:` How the keyboard treats the block and its children. Give only the settings that differ from the defaults. To make settings depend on the block's props, give a function that gets the block and returns them instead.
+`experimental_keyboard?:` How the keyboard treats the block and its children. This API is experimental and may change. Give only the settings that differ from the defaults. To make settings depend on the block's props, give a function that gets the block and returns them instead.
 
 - `enter?:` What Enter does in the block's content. `"split"` (default) splits the block, moving the text after the caret into a new block below. `"into-children"` moves it into a new first child instead. `"line-break"` inserts a line break, and makes Shift-Enter do the same. For `content: "plain"` blocks (which can't hold hard break nodes), a line break is a literal newline (`"\n"`).
 

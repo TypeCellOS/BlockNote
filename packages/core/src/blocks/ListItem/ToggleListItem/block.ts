@@ -32,7 +32,7 @@ export const createToggleListItemBlockSpec = createBlockSpec(
     // Enter continues the list, and Enter in an empty item ends it: the item
     // turns into a paragraph. While the toggle is open, Enter in its text
     // starts its children, and Enter in an empty child adds another child.
-    keyboard: (block) => {
+    experimental_keyboard: (block) => {
       const open = isToggleOpen(block);
       return {
         splitKeepsType: true,

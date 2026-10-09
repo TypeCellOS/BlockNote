@@ -74,7 +74,8 @@ export type BlockKeyboard = {
 };
 
 /**
- * The `keyboard` option of a block implementation: the settings that differ
+ * The `experimental_keyboard` option of a block implementation (this API may
+ * change): the settings that differ
  * from the defaults, or a function of the block that returns them, so they can
  * depend on the block's props (a toggle heading vs. a regular heading) or on
  * view state the block owns (whether a toggle is open).
@@ -87,7 +88,8 @@ export type BlockKeyboardOption<TBlock> =
   | { keyboard(block: TBlock): Partial<BlockKeyboard> }["keyboard"];
 
 /**
- * Fills in the defaults of a block's `keyboard` option. The result is what a
+ * Fills in the defaults of a block's `experimental_keyboard` option. The
+ * result is what a
  * block spec in a schema holds: a function of the block that returns every
  * setting.
  * @internal

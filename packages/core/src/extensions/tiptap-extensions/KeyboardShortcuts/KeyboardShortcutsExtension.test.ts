@@ -47,7 +47,8 @@ const createHardBreakTestBlockSpec = <
     },
   )();
 
-// The same blocks, configured with the `keyboard` settings that replace the
+// The same blocks, configured with the `experimental_keyboard` settings that
+// replace the
 // deprecated `meta.hardBreakShortcut`.
 const createKeyboardTestBlockSpec = <
   const T extends string,
@@ -67,7 +68,7 @@ const createKeyboardTestBlockSpec = <
       content,
     },
     {
-      keyboard,
+      experimental_keyboard: keyboard,
       render: () => {
         const dom = document.createElement("p");
         return {
@@ -87,7 +88,7 @@ const conditionalKeyboardBlock = createBlockSpec(
     content: "inline",
   },
   {
-    keyboard: (block) => ({
+    experimental_keyboard: (block) => ({
       enter: block.props.on ? "into-children" : undefined,
       resetsTo: block.props.on ? { type: "heading" } : undefined,
     }),

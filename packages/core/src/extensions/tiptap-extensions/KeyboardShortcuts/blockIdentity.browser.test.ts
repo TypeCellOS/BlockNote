@@ -4,10 +4,11 @@ import { userEvent } from "vite-plus/test/browser";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import type { PartialBlock } from "../../../blocks/defaultBlocks.js";
 
-// Enter at the start of a block keeps the block's identity: its id, and props
-// such as a checklist item's checked state, stay with its text (#550).
-// Backspace below an empty block follows Notion instead: the text merges into
-// the empty block, which keeps its own id, type and props (#3124).
+// Editing at the start of a block keeps the block's identity (#550): Enter
+// keeps its id and props, such as a checklist item's checked state. Backspace
+// below an empty block of the same type and props moves the block up, keeping
+// its id and children. Below an empty block of another type, the text moves
+// into that block, which keeps its id, type and props, as in Notion (#3124).
 
 let editor: BlockNoteEditor;
 let root: HTMLElement;
@@ -24,8 +25,11 @@ afterEach(() => {
   root.remove();
 });
 
-async function press(key: string, at: { block: string }) {
-  editor.setTextCursorPosition(at.block, "start");
+async function press(
+  key: string,
+  at: { block: string; placement?: "start" | "end" },
+) {
+  editor.setTextCursorPosition(at.block, at.placement ?? "start");
   editor.focus();
   await userEvent.keyboard(`{${key}}`);
 }
@@ -95,7 +99,27 @@ describe("Enter at the start of a non-empty block", () => {
 });
 
 describe("Backspace at the start of a block after an empty block", () => {
-  it("merges the text into the empty block, which keeps its id and type", async () => {
+  it("moves the block up when the empty block has the same type and props, keeping its id and children", async () => {
+    mount([
+      { id: "empty", type: "paragraph" },
+      {
+        id: "p",
+        type: "paragraph",
+        content: "Text",
+        children: [{ id: "c", type: "paragraph", content: "Child" }],
+      },
+    ]);
+
+    await press("Backspace", { block: "p" });
+
+    expect(editor.document.map((block) => block.id)).toEqual(["p"]);
+    expect(editor.getBlock("p")!.children.map((child) => child.id)).toEqual([
+      "c",
+    ]);
+    expect(editor.getTextCursorPosition().block.id).toBe("p");
+  });
+
+  it("moves the text into an empty block of another type, which keeps its id, type and props", async () => {
     mount([
       { id: "empty", type: "heading", props: { level: 2 } },
       { id: "p", type: "paragraph", content: "Text" },
@@ -107,7 +131,22 @@ describe("Backspace at the start of a block after an empty block", () => {
     expect(editor.document).toHaveLength(1);
     expect(block.id).toBe("empty");
     expect(block.type).toBe("heading");
+    expect(block.props).toMatchObject({ level: 2 });
     expect(block.content).toEqual([{ type: "text", text: "Text", styles: {} }]);
     expect(editor.getTextCursorPosition().block.id).toBe("empty");
+  });
+});
+
+describe("Delete in an empty block before a block", () => {
+  it("moves the next block up when it has the same type and props, keeping its id", async () => {
+    mount([
+      { id: "empty", type: "paragraph" },
+      { id: "p", type: "paragraph", content: "Text" },
+    ]);
+
+    await press("Delete", { block: "empty", placement: "end" });
+
+    expect(editor.document.map((block) => block.id)).toEqual(["p"]);
+    expect(editor.getTextCursorPosition().block.id).toBe("p");
   });
 });

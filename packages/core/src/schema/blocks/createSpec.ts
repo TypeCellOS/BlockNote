@@ -515,11 +515,13 @@ export function addNodeAndExtensionsToSpec<
     return output;
   }
 
+  // The spec holds the resolved settings, not the declared option.
+  const { experimental_keyboard, ...implementation } = blockImplementation;
   return {
     config: blockConfig,
     implementation: {
-      ...blockImplementation,
-      keyboard: createBlockKeyboard(blockImplementation.keyboard, {
+      ...implementation,
+      keyboard: createBlockKeyboard(experimental_keyboard, {
         isContainer,
         hardBreakShortcut: blockImplementation.meta?.hardBreakShortcut,
       }),
