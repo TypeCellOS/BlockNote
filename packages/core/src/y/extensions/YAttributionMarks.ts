@@ -123,6 +123,15 @@ const createAttributionMarkView =
       dom.style.display = "contents";
       return { dom, contentDOM: dom };
     }
+    // Only the authors of the shown changes, not of a hidden id change.
+    const userIds =
+      type === "attrs"
+        ? [
+            ...new Set(
+              Object.values(changes).flatMap((change) => change.userIds),
+            ),
+          ]
+        : getAttributionUserIds(mark);
     // `<ins>`/`<del>` are semantic elements. The modification mark has no
     // dedicated element, so it renders as a `<span>` inline or a `<div>` over a
     // block, matching its `parseDOM` rules.
@@ -137,7 +146,7 @@ const createAttributionMarkView =
     const dom = document.createElement(tag);
 
     Object.assign(dom.dataset, {
-      userIds: JSON.stringify(getAttributionUserIds(mark)),
+      userIds: JSON.stringify(userIds),
       inline: String(inline),
     });
     if (type === "attrs") {
@@ -174,7 +183,6 @@ const createAttributionMarkView =
     // fallback, so a mark is colored before the user resolves and recolors via
     // the cascade afterward. When an override class owns the styling, no per-user
     // color is applied at all.
-    const userIds = getAttributionUserIds(mark);
     const firstId = userIds[0];
     const fallback = firstId
       ? fallbackColorForUserId(firstId)

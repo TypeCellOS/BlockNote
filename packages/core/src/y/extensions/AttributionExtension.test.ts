@@ -333,4 +333,32 @@ describe("AttributionExtension user loading", () => {
       attributes: ["textAlignment"],
     });
   });
+
+  it("names only the authors of the attribute changes it shows", () => {
+    const { editor } = createEditor();
+    editor.replaceBlocks(editor.document, [
+      { type: "paragraph", content: "hello" },
+    ]);
+    const markType = editor.pmSchema.marks["y-attributed-attrs"];
+    editor.transact((tr) =>
+      tr.addNodeMark(
+        2,
+        markType.create({
+          changes: {
+            id: { userIds: ["bob"], timestamp: null },
+            textAlignment: { userIds: ["alice"], timestamp: null },
+          },
+        }),
+      ),
+    );
+    const mark =
+      editor.prosemirrorView.dom.querySelector<HTMLElement>(
+        "[data-attributes]",
+      )!;
+    expect(JSON.parse(mark.dataset["userIds"]!)).toEqual(["alice"]);
+    mark.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    expect(
+      editor.getExtension(AttributionExtension)!.store.state,
+    ).toMatchObject({ attributes: ["textAlignment"], users: ["alice"] });
+  });
 });
