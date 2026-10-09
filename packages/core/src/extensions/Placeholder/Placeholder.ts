@@ -89,11 +89,9 @@ export const PlaceholderExtension = createExtension(
 
             return {
               destroy: () => {
-                if (view.root instanceof window.ShadowRoot) {
-                  view.root.removeChild(styleEl);
-                } else {
-                  view.root.head.removeChild(styleEl);
-                }
+                // `remove()` is a no-op if something else (e.g. a router
+                // merging `<head>`) already detached the element.
+                styleEl.remove();
               },
             };
           },

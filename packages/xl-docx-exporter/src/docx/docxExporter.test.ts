@@ -580,6 +580,9 @@ function prettify(sourceXml: string) {
   // replace random ids like r:id="rIdll8_ocxarmodcwrnsavfb"
   ret = ret.replace(/r:id="[a-zA-Z0-9_-]*"/g, 'r:id="FAKE-ID"');
 
+  // Image relationship IDs are internal to docx and can change between releases.
+  ret = ret.replace(/r:embed="[a-zA-Z0-9_-]*"/g, 'r:embed="FAKE-ID"');
+
   // replace random ids like Id="rIdll8_ocxarmodcwrnsavfb"
   ret = ret.replace(/ Id="[a-zA-Z0-9_-]*"/g, ' Id="FAKE-ID"');
 
