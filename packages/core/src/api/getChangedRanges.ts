@@ -116,24 +116,32 @@ function simplifyChangedRanges(changes: ChangedRange[]): ChangedRange[] {
  * before its first range stays unchanged, and a position after all its
  * ranges only shifts by the map's size change. Only positions inside its
  * ranges need the map itself.
+ *
+ * Each map is checked directly. Only a long run of such maps is skipped with
+ * a segment tree, so transforms with few steps don't pay for the trees.
  */
 class StepMapIndex {
   private readonly inverted: (StepMap | undefined)[];
   /** Per map: the lowest start of its ranges, before or after the map. */
-  private readonly firstStart: SegmentTree;
+  private readonly firstStarts: number[] = [];
+  /** Per map: its last range end in the old doc. */
+  private readonly oldEnds: number[] = [];
+  /** Per map: its last range end in the new doc. */
+  private readonly newEnds: number[] = [];
   /** Sum of the size changes of the maps before each index. */
-  private readonly shift: number[];
-  /** Per map: its last range end in the old doc, minus `shift` at it. */
-  private readonly forwardShiftFrom: SegmentTree;
-  /** Per map: its last range end in the new doc, minus `shift` after it. */
-  private readonly backwardShiftFrom: SegmentTree;
+  private readonly shift: number[] = [0];
+  private trees:
+    | {
+        firstStart: SegmentTree;
+        /** `oldEnds` minus `shift` at each map. */
+        forwardShiftFrom: SegmentTree;
+        /** `newEnds` minus `shift` after each map. */
+        backwardShiftFrom: SegmentTree;
+      }
+    | undefined;
 
   constructor(private readonly maps: readonly StepMap[]) {
     this.inverted = new Array(maps.length);
-    const firstStarts: number[] = [];
-    const oldEnds: number[] = [];
-    const newEnds: number[] = [];
-    this.shift = [0];
     for (const map of maps) {
       let first = Infinity;
       let oldEnd = -Infinity;
@@ -145,41 +153,47 @@ class StepMapIndex {
         newEnd = Math.max(newEnd, newStop);
         sizeChange += newStop - newStart - (oldStop - oldStart);
       });
-      firstStarts.push(first);
-      oldEnds.push(oldEnd);
-      newEnds.push(newEnd);
+      this.firstStarts.push(first);
+      this.oldEnds.push(oldEnd);
+      this.newEnds.push(newEnd);
       this.shift.push(this.shift[this.shift.length - 1] + sizeChange);
     }
-    this.firstStart = new SegmentTree(firstStarts, "min");
-    this.forwardShiftFrom = new SegmentTree(
-      oldEnds.map((end, i) => end - this.shift[i]),
-      "max",
-    );
-    this.backwardShiftFrom = new SegmentTree(
-      newEnds.map((end, i) => end - this.shift[i + 1]),
-      "max",
-    );
   }
 
   /** Like `mapping.slice(from).map(pos, assoc)`. */
   mapForward(pos: number, assoc: number, from: number): number {
+    // How many maps in a row `pos` lay before (> 0) or after (< 0).
+    let skipped = 0;
     let i = from;
     while (i < this.maps.length) {
-      // Skip the maps before which `pos` lies.
-      i = this.firstStart.firstFrom(i, (start) => start <= pos);
-      if (i === this.maps.length) {
-        break;
-      }
-      if (pos > this.forwardShiftFromAt(i)) {
-        // Skip the maps after which `pos` lies, adding their size changes.
-        const next = this.forwardShiftFrom.firstFrom(
-          i,
-          (end) => end >= pos - this.shift[i],
-        );
-        pos += this.shift[next] - this.shift[i];
-        i = next;
+      if (pos < this.firstStarts[i]) {
+        // `pos` lies before this map.
+        skipped = Math.max(skipped, 0) + 1;
+        if (skipped > LONG_RUN) {
+          i = this.getTrees().firstStart.firstFrom(i, (s) => s <= pos);
+          skipped = 0;
+        } else {
+          i++;
+        }
+      } else if (pos > this.oldEnds[i]) {
+        // `pos` lies after this map, which only shifts it.
+        skipped = Math.min(skipped, 0) - 1;
+        if (skipped < -LONG_RUN) {
+          const base = pos - this.shift[i];
+          const next = this.getTrees().forwardShiftFrom.firstFrom(
+            i,
+            (end) => end >= base,
+          );
+          pos += this.shift[next] - this.shift[i];
+          i = next;
+          skipped = 0;
+        } else {
+          pos += this.shift[i + 1] - this.shift[i];
+          i++;
+        }
       } else {
         pos = this.maps[i].map(pos, assoc);
+        skipped = 0;
         i++;
       }
     }
@@ -188,36 +202,60 @@ class StepMapIndex {
 
   /** Like `mapping.invert().map(pos, assoc)`. */
   mapBackward(pos: number, assoc: number): number {
+    let skipped = 0;
     let i = this.maps.length - 1;
     while (i >= 0) {
-      i = this.firstStart.lastFrom(i, (start) => start <= pos);
-      if (i === -1) {
-        break;
-      }
-      if (pos > this.backwardShiftFromAt(i)) {
-        const next = this.backwardShiftFrom.lastFrom(
-          i,
-          (end) => end >= pos - this.shift[i + 1],
-        );
-        pos -= this.shift[i + 1] - this.shift[next + 1];
-        i = next;
+      if (pos < this.firstStarts[i]) {
+        skipped = Math.max(skipped, 0) + 1;
+        if (skipped > LONG_RUN) {
+          i = this.getTrees().firstStart.lastFrom(i, (s) => s <= pos);
+          skipped = 0;
+        } else {
+          i--;
+        }
+      } else if (pos > this.newEnds[i]) {
+        skipped = Math.min(skipped, 0) - 1;
+        if (skipped < -LONG_RUN) {
+          const base = pos - this.shift[i + 1];
+          const next = this.getTrees().backwardShiftFrom.lastFrom(
+            i,
+            (end) => end >= base,
+          );
+          pos -= this.shift[i + 1] - this.shift[next + 1];
+          i = next;
+          skipped = 0;
+        } else {
+          pos -= this.shift[i + 1] - this.shift[i];
+          i--;
+        }
       } else {
         this.inverted[i] ??= this.maps[i].invert();
         pos = this.inverted[i]!.map(pos, assoc);
+        skipped = 0;
         i--;
       }
     }
     return pos;
   }
 
-  private forwardShiftFromAt(i: number) {
-    return this.forwardShiftFrom.values[i] + this.shift[i];
-  }
-
-  private backwardShiftFromAt(i: number) {
-    return this.backwardShiftFrom.values[i] + this.shift[i + 1];
+  private getTrees() {
+    this.trees ??= {
+      firstStart: new SegmentTree(this.firstStarts, "min"),
+      forwardShiftFrom: new SegmentTree(
+        this.oldEnds.map((end, i) => end - this.shift[i]),
+        "max",
+      ),
+      backwardShiftFrom: new SegmentTree(
+        this.newEnds.map((end, i) => end - this.shift[i + 1]),
+        "max",
+      ),
+    };
+    return this.trees;
   }
 }
+
+/** Above this many maps in a row that can be skipped, a tree skips the rest. */
+const LONG_RUN = 8;
 
 /** Finds the nearest value that matches a monotone min/max condition. */
 class SegmentTree {
@@ -225,7 +263,7 @@ class SegmentTree {
   private readonly tree: number[];
 
   constructor(
-    readonly values: number[],
+    private readonly values: number[],
     private readonly kind: "min" | "max",
   ) {
     this.size = values.length;
