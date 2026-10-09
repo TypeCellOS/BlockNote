@@ -1,17 +1,21 @@
 import { afterEach, beforeEach } from "vite-plus/test";
 
+// This setup file also runs for test files that opt into the plain `node`
+// environment (`@vitest-environment node`), where there is no `window` at
+// all. The DOM mocks below are a no-op there.
+const hasWindow = typeof window !== "undefined";
+
+// Match the core setup: the deterministic-ID options live on `window` when it
+// exists and on `globalThis` in the node environment, since `generateID` reads
+// them from `(globalThis.window ?? globalThis).__TEST_OPTIONS`.
+const testHost: any = (globalThis as any).window ?? globalThis;
+
 beforeEach(() => {
-  if (typeof window === "undefined") {
-    return;
-  }
-  (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
+  testHost.__TEST_OPTIONS = {};
 });
 
 afterEach(() => {
-  if (typeof window === "undefined") {
-    return;
-  }
-  delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+  delete testHost.__TEST_OPTIONS;
 });
 
 // Mock ClipboardEvent
@@ -25,10 +29,7 @@ class ClipboardEventMock extends Event {
     },
   };
 }
-Object.defineProperty(globalThis, "ClipboardEvent", {
-  value: ClipboardEventMock,
-  configurable: true,
-});
+(globalThis as any).ClipboardEvent = ClipboardEventMock;
 
 // Mock DragEvent
 class DragEventMock extends Event {
@@ -41,7 +42,7 @@ class DragEventMock extends Event {
     },
   };
 }
-if (typeof window !== "undefined") {
+if (hasWindow) {
   Object.defineProperty(window, "matchMedia", {
     writable: true,
     value: (query: string) => ({
@@ -67,7 +68,4 @@ if (typeof window !== "undefined") {
   });
 }
 
-Object.defineProperty(globalThis, "DragEvent", {
-  value: DragEventMock,
-  configurable: true,
-});
+(globalThis as any).DragEvent = DragEventMock;

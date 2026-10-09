@@ -88,7 +88,7 @@
     "@types/react": "^19.2.3",
     "@zip.js/zip.js": "^2.8.8",
     "@types/react-dom": "^19.2.3",
-    "docx": "^9.8.0",
+    "docx": "^9.9.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "rimraf": "^5.0.10",

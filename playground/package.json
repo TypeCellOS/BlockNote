@@ -55,7 +55,7 @@
     "@y-sweet/react": "^0.6.4",
     "ai": "^6.0.5",
     "autoprefixer": "10.4.21",
-    "docx": "^9.5.1",
+    "docx": "^9.9.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-icons": "^5.5.0",

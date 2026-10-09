@@ -81,7 +81,7 @@
     "better-auth": "~1.4.15",
     "better-sqlite3": "^12.6.2",
     "class-variance-authority": "^0.7.1",
-    "docx": "^9.6.1",
+    "docx": "^9.9.0",
     "framer-motion": "^12.26.2",
     "fumadocs-core": "16.5.0",
     "fumadocs-mdx": "^14.2.6",
