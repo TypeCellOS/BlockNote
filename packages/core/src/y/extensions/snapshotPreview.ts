@@ -453,13 +453,17 @@ function matchCopy(
 function copiedBlocks(
   doc: Y.Doc,
   baseline: Y.Doc,
+  attributions: Y.ContentMap,
   holdsText: (type: string | undefined) => boolean,
-): Array<{ original: Y.Node; copy: Y.Node; typeChanged: boolean }> {
+): Array<{
+  original: Y.Node;
+  intermediates: Y.Node[];
+  copy: Y.Node;
+  typeChanged: boolean;
+}> {
   const { inserted, deleted } = changesSince(doc, baseline);
-  // A block copied twice since `baseline` (e.g. indented, then outdented)
-  // leaves an intermediate copy, deleted too. Pair with the block that was in
-  // `baseline`: the diff doesn't show intermediate copies. Without one, which
-  // copy came first is unknown, so several copies aren't paired.
+  // A block copied several times since `baseline` (e.g. indented, then
+  // outdented) leaves intermediate copies, deleted too.
   const candidates = new Map<unknown, Y.Node[]>();
   for (const item of itemsIn(doc, deleted)) {
     if (isBlock(item)) {
@@ -467,28 +471,30 @@ function copiedBlocks(
       candidates.set(id, [...(candidates.get(id) ?? []), item.content.type]);
     }
   }
-  const originals = new Map<unknown, Y.Node>();
-  for (const [id, blocks] of candidates) {
-    const original =
-      blocks.find((block) => inBaseline(baseline, block._item!.id)) ??
-      (blocks.length === 1 ? blocks[0] : undefined);
-    if (original) {
-      originals.set(id, original);
-    }
-  }
   const copies = itemsIn(doc, inserted).flatMap((item) =>
     isBlock(item) && !item.deleted ? [item.content.type] : [],
   );
   return copies.flatMap((copy) => {
-    const original = originals.get(blockId(copy));
+    const blocks = candidates.get(blockId(copy)) ?? [];
     // Concurrent changes can leave several copies: showing each as the
     // original would hide that the block is now there more than once.
-    if (
-      !original ||
-      copies.filter((other) => blockId(other) === blockId(copy)).length > 1
-    ) {
+    if (copies.filter((other) => blockId(other) === blockId(copy)).length > 1) {
       return [];
     }
+    // The copies before this one, oldest first. The block that was in
+    // `baseline` is the original; without one, the oldest copy is, if the
+    // order is known.
+    const chain = copyChain(copy, blocks, attributions);
+    const inEarlier = blocks.find((block) =>
+      inBaseline(baseline, block._item!.id),
+    );
+    const original =
+      inEarlier ?? chain[0] ?? (blocks.length === 1 ? blocks[0] : undefined);
+    if (!original) {
+      return [];
+    }
+    // Without a known order back to the original, intermediates aren't used.
+    const intermediates = chain[0] === original ? chain.slice(1) : [];
     const from = contentOf(original, baseline)?.name;
     const to = contentOf(copy, baseline)?.name;
     // Only text blocks change type in place: an image turned into a paragraph
@@ -496,8 +502,100 @@ function copiedBlocks(
     if (from !== to && !(holdsText(from) && holdsText(to))) {
       return [];
     }
-    return [{ original, copy, typeChanged: from !== to }];
+    return [{ original, intermediates, copy, typeChanged: from !== to }];
   });
+}
+
+/**
+ * The deleted copies `copy` was made from, oldest first. A change that copies
+ * a block inserts the copy and deletes the block it copies, in one update: so
+ * the copy before is the one whose deletion has the same users and times as
+ * this copy's insertion. Stops where that isn't exactly one block.
+ */
+function copyChain(
+  copy: Y.Node,
+  blocks: Y.Node[],
+  attributions: Y.ContentMap,
+): Y.Node[] {
+  const chain: Y.Node[] = [];
+  const left = new Set(blocks);
+  for (let current = copy; ;) {
+    const change = changeOf(current._item!, attributions.inserts, "insert");
+    let previous = [...left].filter(
+      (block) =>
+        change !== undefined &&
+        changeOf(block._item!, attributions.deletes, "delete") === change,
+    );
+    // One update can copy a block more than once (e.g. retype, then indent):
+    // of its deleted copies, the newer one was also made by that update.
+    if (previous.length > 1) {
+      previous = previous.filter(
+        (block) =>
+          changeOf(block._item!, attributions.inserts, "insert") === change,
+      );
+    }
+    if (previous.length !== 1) {
+      return chain;
+    }
+    chain.unshift(previous[0]);
+    left.delete(previous[0]);
+    current = previous[0];
+  }
+}
+
+/**
+ * Pair the copy's content that the original doesn't have with the
+ * intermediate copy it was typed into: the oldest one holding it.
+ */
+function matchTypedInCopies(
+  intermediates: Y.Node[],
+  copy: Y.Node,
+  baseline: Y.Doc,
+  pairs: Array<[Y.ID, Y.ID]>,
+) {
+  const copyContent = contentOf(copy, baseline);
+  if (!copyContent) {
+    return;
+  }
+  const paired = Y.createIdSet();
+  for (const [, b] of pairs) {
+    paired.add(b.client, b.clock, 1);
+  }
+  const unpaired = units(copyContent).filter(
+    ({ id }) => !paired.has(id.client, id.clock),
+  );
+  for (const intermediate of intermediates) {
+    const content = contentOf(intermediate, baseline);
+    if (!content) {
+      continue;
+    }
+    const found: Array<[Y.ID, Y.ID]> = [];
+    matchUnits(units(content), unpaired, found);
+    for (const [a, b] of found) {
+      if (!paired.has(b.client, b.clock)) {
+        pairs.push([a, b]);
+        paired.add(b.client, b.clock, 1);
+      }
+    }
+  }
+}
+
+/** The users and times of an item's insertion or deletion, as a key. */
+function changeOf(
+  item: Y.Item,
+  map: Y.IdMap<any>,
+  kind: "insert" | "delete",
+): string | undefined {
+  const attrs = map.slice(item.id.client, item.id.clock, 1)[0]?.attrs ?? [];
+  function values(name: string) {
+    return attrs
+      .filter((attr) => attr.name === name)
+      .map((attr) => String(attr.val))
+      .sort()
+      .join(",");
+  }
+  const users = values(kind);
+  return users ? `${users}@${values(`${kind}At`)}` : undefined;
 }
 
 /** Whether some unit of `item` is in `lost` but not in `kept`. */
@@ -680,12 +778,14 @@ function showCopiesOnce(
   const matches = copiedBlocks(
     doc,
     baseline,
+    Y.createContentMap(renderer.inserts, renderer.deletes),
     (type) =>
       type !== undefined &&
       editor.schema.blockSpecs[type]?.config.content === "inline",
-  ).map(({ original, copy, typeChanged }) => {
+  ).map(({ original, intermediates, copy, typeChanged }) => {
     const pairs: Array<[Y.ID, Y.ID]> = [];
     matchCopy(original, copy, baseline, pairs, typeChanged);
+    matchTypedInCopies(intermediates, copy, baseline, pairs);
     return { original, copy, typeChanged, pairs };
   });
 
@@ -696,6 +796,13 @@ function showCopiesOnce(
   let shown = matches.filter((match) =>
     inBaseline(baseline, match.original._item!.id),
   );
+  const removedFrom = new Map<Y.Node, Y.Item[]>();
+  const originals = new Set(shown.map(({ original }) => original));
+  for (const item of removedContent) {
+    for (const block of within(item, originals)) {
+      removedFrom.set(block, [...(removedFrom.get(block) ?? []), item]);
+    }
+  }
   for (let changed = true; changed;) {
     const kept = Y.createIdSet();
     for (const { pairs } of shown) {
@@ -705,16 +812,15 @@ function showCopiesOnce(
     }
     const next = shown.filter(
       ({ original }) =>
-        !removedContent.some(
-          (item) =>
-            (item === original._item || Y.isParentOf(original, item)) &&
-            // Per unit: a deleted item can span content deleted before.
-            losesUnit(item, removed, kept),
-        ),
+        // Per unit: a deleted item can span content deleted before.
+        !removedFrom
+          .get(original)
+          ?.some((item) => losesUnit(item, removed, kept)),
     );
     changed = next.length !== shown.length;
     shown = next;
   }
+  const shownMatches = new Set(shown);
 
   // A block that moved elsewhere also shows its original, struck through, at
   // the old place. One indented or outdented keeps its place in reading
@@ -722,18 +828,23 @@ function showCopiesOnce(
   // struck through with it.
   const before = readingOrder(earlier.fragment);
   const after = readingOrder(snapshot.fragment);
+  const above = blocksAbove(before, new Set(after));
+  const aboveNow = blocksAbove(after, new Set(before));
   function isMove({ original, copy, typeChanged }: (typeof matches)[number]) {
     return !typeChanged && !inPlace(original, copy);
   }
-  const reorderedOriginals = shown
-    .filter(
-      (match) => isMove(match) && reordered(blockId(match.copy), before, after),
-    )
-    .map(({ original }) => original);
+  // Another block above it than before: not only indented or outdented.
+  const reorderedOriginals = new Set(
+    shown
+      .filter(
+        (match) =>
+          isMove(match) &&
+          above.get(blockId(match.copy)) !== aboveNow.get(blockId(match.copy)),
+      )
+      .map(({ original }) => original),
+  );
   function struck(original: Y.Node) {
-    return reorderedOriginals.some(
-      (other) => other === original || Y.isParentOf(other, original._item!),
-    );
+    return within(original._item!, reorderedOriginals).length > 0;
   }
 
   const unchanged = Y.createIdSet();
@@ -745,13 +856,19 @@ function showCopiesOnce(
       credits.push(...pairs);
       continue;
     }
-    if (!shown.includes(match)) {
+    if (!shownMatches.has(match)) {
       continue;
     }
     // A block that moved stays marked, as a move. One copied in place (its
     // children changed) shows unchanged.
     const move = isMove(match);
     for (const [a, b] of pairs) {
+      // Content added to the original after the earlier version isn't
+      // unchanged: the copy is credited to whoever added it.
+      if (!inBaseline(baseline, a)) {
+        credits.push([a, b]);
+        continue;
+      }
       if (!(move && struck(original))) {
         unchanged.add(a.client, a.clock, 1);
       }
@@ -763,12 +880,26 @@ function showCopiesOnce(
       moved.push(copy._item!.id);
     }
   }
-  const movedFrom = itemsIn(doc, removed).filter((item) =>
-    reorderedOriginals.some(
-      (original) => item === original._item || Y.isParentOf(original, item),
-    ),
+  const movedFrom = itemsIn(doc, removed).filter(
+    (item) => within(item, reorderedOriginals).length > 0,
   );
   renderer.adjust(unchanged, credits, moved, movedFrom);
+}
+
+/** The blocks among `blocks` that are `item`'s node or hold it. */
+function within(item: Y.Item, blocks: Set<Y.Node>): Y.Node[] {
+  const found: Y.Node[] = [];
+  let node: Y.Node | null =
+    item.content instanceof Y.ContentType
+      ? item.content.type
+      : (item.parent as Y.Node);
+  while (node) {
+    if (blocks.has(node)) {
+      found.push(node);
+    }
+    node = (node._item?.parent as Y.Node | undefined) ?? null;
+  }
+  return found;
 }
 
 /** The ids of the blocks under `node`, top to bottom, nesting ignored. */
@@ -785,16 +916,22 @@ function readingOrder(node: Y.Node, out: unknown[] = []): unknown[] {
 }
 
 /**
- * Whether the block with this id has another block above it than before,
- * counting only blocks in both versions. An indent or outdent keeps it.
+ * For each block id in `order`, the block above it, counting only blocks in
+ * `other` too. An indent or outdent keeps it.
  */
-function reordered(id: unknown, before: unknown[], after: unknown[]): boolean {
-  function previous(order: unknown[], other: unknown[]) {
-    const inOther = new Set(other);
-    const common = order.filter((block) => inOther.has(block));
-    return common[common.indexOf(id) - 1];
+function blocksAbove(
+  order: unknown[],
+  other: Set<unknown>,
+): Map<unknown, unknown> {
+  const above = new Map<unknown, unknown>();
+  let previous: unknown = undefined;
+  for (const id of order) {
+    if (other.has(id)) {
+      above.set(id, previous);
+      previous = id;
+    }
   }
-  return previous(before, after) !== previous(after, before);
+  return above;
 }
 
 /**
