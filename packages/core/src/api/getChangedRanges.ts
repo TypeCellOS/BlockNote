@@ -16,8 +16,12 @@ import type { Step, StepMap, Transform } from "prosemirror-transform";
  * only compares ranges that can contain each other. For steps in document
  * order, both are close to linear.
  *
- * See also `getChangedRange` (one range covering all changes, including
+ * See also `getChangedRangeWithAttrs` (one range covering all changes, including
  * attribute-only steps, which this function skips like Tiptap's).
+ *
+ * Consider deprecating this function: a list of ranges is costly to compute
+ * exactly, which is what makes this code complex. Its remaining callers
+ * (UniqueID, autolink) could work from one range or from input events.
  */
 export function getChangedRanges(transform: Transform): ChangedRange[] {
   const { mapping, steps } = transform;

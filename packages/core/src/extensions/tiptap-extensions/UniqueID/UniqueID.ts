@@ -155,6 +155,9 @@ const UniqueID = Extension.create({
           const transform = combineTransactionSteps(oldState.doc, transactions);
           const { mapping } = transform;
           // get changed ranges based on the old state
+          // TODO: one range for all changes (`getChangedRangeWithAttrs`) would
+          // be simpler and also find duplicates across separate changes, but it
+          // changes which ids are rewritten.
           const changes = getChangedRanges(transform);
 
           changes.forEach(({ newRange }) => {
