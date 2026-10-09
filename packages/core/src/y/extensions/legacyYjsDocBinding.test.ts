@@ -458,8 +458,7 @@ describe("legacy Yjs document binding", () => {
     };
   }
 
-  // To be fixed by #3173.
-  it.fails.each(structuralChanges)(
+  it.each(structuralChanges)(
     "diffs $name made with the old binding like one made with the new binding",
     ({ blocks, change }) => {
       const { current, old } = diffsOfBothBindings(blocks, change);
@@ -468,8 +467,7 @@ describe("legacy Yjs document binding", () => {
     },
   );
 
-  // To be fixed by #3173.
-  it.fails("diffs a table resize made with the old binding like one made with the new binding", () => {
+  it("diffs a table resize made with the old binding like one made with the new binding", () => {
     const { current, old } = diffsOfBothBindings(
       [table(2, 2)],
       (editor) => editor.updateBlock("table", table(3, 3)),
@@ -496,8 +494,7 @@ describe("legacy Yjs document binding", () => {
     expect(Y.encodeStateAsUpdateV2(opened.doc)).toEqual(stored);
   });
 
-  // To be fixed by #3173.
-  it.fails("credits a type change made with the old binding only to whoever made it", () => {
+  it("credits a type change made with the old binding only to whoever made it", () => {
     const legacy = createLegacyEditor();
     legacy.editor.replaceBlocks(legacy.editor.document, [
       { id: "changed", type: "paragraph", content: "Text" },
@@ -526,6 +523,40 @@ describe("legacy Yjs document binding", () => {
     ).toEqual([
       ["y-attributed-delete", "paragraph", ["bob"]],
       ["y-attributed-insert", "heading", ["bob"]],
+    ]);
+  });
+
+  it("credits text typed after an old-binding type change to whoever typed it", () => {
+    const legacy = createLegacyEditor();
+    legacy.editor.replaceBlocks(legacy.editor.document, [
+      { id: "changed", type: "paragraph", content: "Text" },
+    ]);
+    const before = Y1.encodeStateAsUpdateV2(legacy.doc);
+    legacy.editor.updateBlock("changed", { type: "heading" });
+    const byBob = Y1.encodeStateAsUpdateV2(legacy.doc);
+    legacy.editor.setTextCursorPosition("changed", "end");
+    legacy.editor.insertInlineContent(" by Alice");
+    const after = Y1.encodeStateAsUpdateV2(legacy.doc);
+    const opened = openWithNewBinding(after);
+
+    const changed = diffBlocks(
+      opened.editor,
+      opened.doc,
+      before,
+      after,
+      "all",
+      attributionsOfSteps(before, [
+        { state: byBob, user: "bob", time: 2000 },
+        { state: after, user: "alice", time: 3000 },
+      ]),
+    );
+    expect(
+      changed
+        .filter(({ type }) => type === "text")
+        .map(({ change, text, users }) => [change, text, users]),
+    ).toEqual([
+      ["y-attributed-insert", "Text", ["bob"]],
+      ["y-attributed-insert", " by Alice", ["alice"]],
     ]);
   });
 
