@@ -156,8 +156,8 @@ const UniqueID = Extension.create({
           const { mapping } = transform;
           // get changed ranges based on the old state
           // TODO: one range for all changes (`getChangedRangeWithAttrs`) would
-          // be simpler and also find duplicates across separate changes, but it
-          // changes which ids are rewritten.
+          // be simpler and faster, and might be a better solution, but needs a
+          // careful look at which ids it would rewrite.
           const changes = getChangedRanges(transform);
 
           changes.forEach(({ newRange }) => {

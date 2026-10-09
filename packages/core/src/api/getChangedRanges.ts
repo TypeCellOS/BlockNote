@@ -21,7 +21,8 @@ import type { Step, StepMap, Transform } from "prosemirror-transform";
  *
  * Consider deprecating this function: a list of ranges is costly to compute
  * exactly, which is what makes this code complex. Its remaining callers
- * (UniqueID, autolink) could work from one range or from input events.
+ * (UniqueID, autolink) might work from one range or from input events, but
+ * what that changes in each of them needs a careful look first.
  */
 export function getChangedRanges(transform: Transform): ChangedRange[] {
   const { mapping, steps } = transform;
