@@ -32,5 +32,5 @@ export const useCreateBlockNote = <
       (window as any).ProseMirror = editor._tiptapEditor;
     }
     return editor;
-  }, deps); //eslint-disable-line react-hooks/exhaustive-deps
+  }, deps); // eslint-disable-line react-hooks/exhaustive-deps, react/use-memo -- Callers control editor recreation through this public dependency list.
 };

@@ -199,6 +199,8 @@ function BlockNoteViewComponent<
 
   const setElementRenderer = useCallback(
     (ref: (typeof editor)["elementRenderer"]) => {
+      // The editor is a mutable class instance; this setter is its public React bridge.
+      // eslint-disable-next-line react/immutability
       editor.elementRenderer = ref;
     },
     [editor],
@@ -361,9 +363,11 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
       // removes the `tabIndex="0"` attribute we set (see
       // `BlockNoteEditor.ts`). Ideally though, this logic would exist in a
       // separate hook.
+      // eslint-disable-next-line react/immutability -- Mount synchronizes the mutable TipTap editor with React props.
       editor.isEditable = ctx.editorProps.editable !== false;
       // Since we are not using TipTap's React Components, we need to set up the contentComponent it expects
       // This is a simple replacement for the state management that Tiptap does internally
+      // eslint-disable-next-line react/immutability -- TipTap expects this imperative content-component registration.
       editor._tiptapEditor.contentComponent = portalManager;
       if (element) {
         editor.mount(element);

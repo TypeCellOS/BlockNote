@@ -5,16 +5,28 @@ import { Awareness } from "y-protocols/awareness";
 import { BlockNoteEditor } from "../../index.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
 import { withCollaboration } from "./index.js";
+import type { ExtensionFactoryInstance } from "../../editor/BlockNoteExtension.js";
+import {
+  createVersioningExtension,
+  type VersioningController,
+} from "../../extensions/Versioning/Versioning.js";
+import { createYjsVersionView } from "./Versioning.js";
+import { yUndoPluginKey } from "y-prosemirror";
 
 /**
  * @vitest-environment jsdom
  */
 
-function createCollabEditor() {
+function createCollabEditor(
+  extensions: (
+    fragment: Y.XmlFragment,
+  ) => ExtensionFactoryInstance[] = () => [],
+) {
   const doc = new Y.Doc();
   const fragment = doc.getXmlFragment("doc");
   const editor = BlockNoteEditor.create(
     withCollaboration({
+      extensions: extensions(fragment),
       collaboration: {
         fragment,
         user: { name: "Test User", color: "#FF0000" },
@@ -48,6 +60,61 @@ afterEach(() => {
 });
 
 describe("ForkYDocExtension", () => {
+  it("detaches undo through version previews and resumes fresh live history", async () => {
+    let snapshot: Uint8Array = new Uint8Array();
+    ctx = createCollabEditor((fragment) => [
+      createVersioningExtension((editor) => ({
+        adapter: createYjsVersionView(editor, fragment),
+        storage: {
+          async list() {
+            return { ok: true, value: { snapshots: [] } };
+          },
+          async getContent() {
+            return { ok: true, value: snapshot };
+          },
+        },
+      }))(),
+    ]);
+    const versions =
+      ctx.editor.getExtension<VersioningController>("versioning")!;
+    try {
+      setEditorText(ctx.editor, "Snapshot");
+      snapshot = Y.encodeStateAsUpdate(ctx.doc);
+      setEditorText(ctx.editor, "Live");
+      const live = Y.encodeStateAsUpdate(ctx.doc);
+      expect(
+        yUndoPluginKey.getState(ctx.editor.prosemirrorState)!.undoManager
+          .undoStack.length,
+      ).toBeGreaterThan(0);
+      versions.open();
+      expect(ctx.editor.isEditable).toBe(false);
+      for (const target of [
+        { type: "snapshot", id: "saved" },
+        { type: "current" },
+        { type: "snapshot", id: "saved" },
+      ] as const) {
+        await versions.select(target);
+        expect(getEditorText(ctx.editor)).toBe(
+          target.type === "current" ? "Live" : "Snapshot",
+        );
+        expect(ctx.editor.getExtension("yUndo")).toBeUndefined();
+        expect(Y.encodeStateAsUpdate(ctx.doc)).toEqual(live);
+      }
+      versions.close();
+      expect(getEditorText(ctx.editor)).toBe("Live");
+      expect(ctx.editor.isEditable).toBe(true);
+      expect(ctx.editor.undo()).toBe(false);
+      expect(ctx.editor.redo()).toBe(false);
+      setEditorText(ctx.editor, "New edit");
+      expect(ctx.editor.undo()).toBe(true);
+      expect(getEditorText(ctx.editor)).toBe("Live");
+      expect(ctx.editor.redo()).toBe(true);
+      expect(getEditorText(ctx.editor)).toBe("New edit");
+    } finally {
+      versions.close();
+    }
+  });
+
   it("forks the document — edits do not affect the original fragment", () => {
     ctx = createCollabEditor();
     setEditorText(ctx.editor, "Original");

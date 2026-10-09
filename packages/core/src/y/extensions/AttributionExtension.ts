@@ -1,3 +1,4 @@
+import { AddNodeMarkStep } from "prosemirror-transform";
 import { getChangedRanges } from "@tiptap/core";
 import { Plugin, PluginKey, type Transaction } from "prosemirror-state";
 import {
@@ -8,12 +9,15 @@ import {
 import {
   colorsForUserIds,
   userColorVarNames,
+  userMarkColors,
   normalizeToUserStore,
   type UserStoreOrResolver,
 } from "../../user/index.js";
 import {
   resolveAttributionMarkClassName,
+  getAttributionUserIds,
   YAttributionMarksExtension,
+  type AttributionMarkStyleInfo,
   type GetAttributionMarkClassName,
 } from "./YAttributionMarks.js";
 
@@ -22,6 +26,7 @@ const ATTRIBUTION_MARK_TYPES = {
   "y-attributed-insert": "insert",
   "y-attributed-delete": "delete",
   "y-attributed-format": "format",
+  "y-attributed-attrs": "attrs",
 } as const;
 
 const ATTRIBUTION_LOAD_PLUGIN_KEY = new PluginKey("attributionLoadUsers");
@@ -67,57 +72,35 @@ const parseFormatKeys = (formatJSON: string | undefined): string[] => {
 };
 
 /**
- * The element with a real box to anchor the tooltip to. The wrapper is
- * `display: contents` (no box of its own), so use its content span child,
- * falling back further for block marks.
- */
-const getReferenceElement = (wrapper: Element): Element => {
-  const content = wrapper.firstElementChild ?? wrapper;
-  const rect = content.getBoundingClientRect();
-  if (rect.width || rect.height) {
-    return content;
-  }
-  return content.firstElementChild ?? content;
-};
-
-/**
- * The box the tooltip anchors to. The wrapper is `display: contents` (no box of
- * its own), so use its content span child, falling back further for block marks.
- * Exported for the React controller's floating-ui `getBoundingClientRect`.
- */
-export const getReferenceRect = (wrapper: Element): DOMRect =>
-  getReferenceElement(wrapper).getBoundingClientRect();
-
-/**
- * The per-line client rects of the reference element, for floating-ui's
- * `inline()` middleware — it needs one rect per line to position off a
- * multi-line mark, and virtual elements don't get a default `getClientRects`.
- */
-export const getReferenceClientRects = (wrapper: Element): DOMRectList =>
-  getReferenceElement(wrapper).getClientRects();
-
-/**
  * State for the currently-hovered suggestion mark's tooltip (`undefined` when
  * none). The extension computes it; a React controller renders + positions it
  * (see `AttributionTooltipController`).
  */
-export type AttributionTooltipState = {
+export type AttributionChange =
+  | {
+      // `change`: a preview (e.g. a diagram) can't show what was inserted or
+      // deleted in its hidden source, only that it changed.
+      modificationType: "insert" | "delete" | "change";
+      format?: never;
+      attributes?: never;
+    }
+  | { modificationType: "format"; format?: string[]; attributes?: never }
+  | { modificationType: "attrs"; attributes: string[]; format?: never };
+
+export type AttributionTooltipState = AttributionChange & {
   /** The wrapper element the tooltip anchors to (floating-ui reference). */
   anchor: HTMLElement;
+  /** Visible surface when its attribution mark covers separately rendered source. */
+  reference?: Element;
   /** Per-user background color, resolved from the user store (default path). */
   color: string;
-  /** The kind of change — `format` is the modification mark. */
-  modificationType: "insert" | "delete" | "format";
   /** Whether the mark wraps inline content or a whole block. */
   contentType: "inline-content" | "block";
-  /** Resolved usernames (falls back to raw ids), for custom renderers. */
-  users: string[];
   /**
-   * The changed format keys (e.g. `["bold", "italic"]`), present only for
-   * `format` marks. This is the raw change context — the view layer turns it
-   * into a localized label via its `formatChangeLabel`.
+   * Resolved usernames (falls back to raw ids), for custom renderers. Empty
+   * when the change has no named author, e.g. in a version diff.
    */
-  format?: string[];
+  users: string[];
   /**
    * Class name from the `getAttributionMarkClassName` callback (override path).
    * When present, the tooltip applies this and skips the inline `color`.
@@ -133,6 +116,7 @@ export type AttributionTooltipState = {
  */
 export const AttributionExtension = createExtension(
   ({
+    editor,
     options,
   }: ExtensionOptions<
     | {
@@ -154,9 +138,6 @@ export const AttributionExtension = createExtension(
     // over existing text and `tr.changedRange()` would miss.
     const loadChangedUsers = (tr: Transaction) => {
       const ranges = getChangedRanges(tr);
-      if (ranges.length === 0) {
-        return;
-      }
       // Most changes are local (often several steps in one small span), so scan a
       // single range spanning all of them rather than each range individually.
       let from = Infinity;
@@ -167,19 +148,31 @@ export const AttributionExtension = createExtension(
       }
 
       const ids = new Set<string>();
-      tr.doc.nodesBetween(from, to, (node) => {
-        for (const mark of node.marks) {
-          if (
-            ATTRIBUTION_MARK_TYPES[
-              mark.type.name as keyof typeof ATTRIBUTION_MARK_TYPES
-            ]
-          ) {
-            const userIds = mark.attrs["userIds"] as string[] | null;
-            userIds?.forEach((id) => ids.add(id));
-          }
+      // AddNodeMarkStep has an empty position map, so getChangedRanges cannot
+      // locate its node. Load its authors directly from the added mark.
+      for (const step of tr.steps) {
+        if (
+          step instanceof AddNodeMarkStep &&
+          step.mark.type.name in ATTRIBUTION_MARK_TYPES
+        ) {
+          getAttributionUserIds(step.mark).forEach((id) => ids.add(id));
         }
-        return true;
-      });
+      }
+      if (ranges.length > 0) {
+        tr.doc.nodesBetween(from, to, (node) => {
+          for (const mark of node.marks) {
+            if (
+              ATTRIBUTION_MARK_TYPES[
+                mark.type.name as keyof typeof ATTRIBUTION_MARK_TYPES
+              ]
+            ) {
+              const userIds = getAttributionUserIds(mark);
+              userIds?.forEach((id) => ids.add(id));
+            }
+          }
+          return true;
+        });
+      }
       if (ids.size > 0) {
         void userStore.loadUsers(Array.from(ids));
       }
@@ -213,9 +206,10 @@ export const AttributionExtension = createExtension(
         const syncRootVars = () => {
           for (const [id, user] of userStore.store.state) {
             const { light, dark } = userColorVarNames(id);
-            if (user.color && user.colorLight) {
-              dom.style.setProperty(light, user.colorLight);
-              dom.style.setProperty(dark, user.color);
+            const colors = userMarkColors(user);
+            if (colors) {
+              dom.style.setProperty(light, colors.light);
+              dom.style.setProperty(dark, colors.dark);
             } else {
               dom.style.removeProperty(light);
               dom.style.removeProperty(dark);
@@ -229,35 +223,52 @@ export const AttributionExtension = createExtension(
 
         // The mark's authors as usernames, falling back to the raw id when not
         // cached (`getUser` is cache-only; ids load on hover, see `onPointerOver`).
+        // A user with an empty name only colors its marks (a version diff's
+        // synthetic author), so it isn't listed.
         const usersLabelArray = (userIdsJSON: string | undefined): string[] =>
-          parseUserIds(userIdsJSON).map(
-            (id) => userStore.getUser(id)?.username ?? id,
-          );
+          parseUserIds(userIdsJSON)
+            .map((id) => userStore.getUser(id)?.username ?? id)
+            .filter((username) => username !== "");
 
-        // A stable identity string for a wrapper (empty if unattributed), used to
-        // (a) test whether a mark is attributed and (b) group adjacent marks with
-        // the *same* attribution under one tooltip. It's an internal grouping key,
-        // not the displayed text — that's composed in the view from `users` and
-        // the format label — so it's built from raw `data-*` (ids + format keys)
-        // and stays free of i18n/username resolution.
+        // A stable identity string for a mark wrapper, used to group nested marks
+        // with the *same* change under one tooltip. Every wrapper is a change;
+        // its author may be unknown (e.g. content removed along with a
+        // concurrently deleted block). It's an internal grouping key, not the
+        // displayed text, so it's built from raw `data-*` and stays free of
+        // i18n/username resolution.
         const attributionIdentity = (wrapper: HTMLElement) => {
           const ids = parseUserIds(wrapper.dataset["userIds"]);
-          if (ids.length === 0) {
-            return "";
-          }
           const format = parseFormatKeys(wrapper.dataset["format"]);
-          return `${format.join(",")}:${ids.join(",")}`;
+          return `${wrapper.tagName}:${wrapper.dataset["attributes"] ?? ""}:${format.join(",")}:${ids.join(",")}`;
         };
 
-        // Build the tooltip state from a wrapper's `data-*` attributes.
-        const buildState = (anchor: HTMLElement): AttributionTooltipState => {
-          const isModification = anchor.dataset["format"] !== undefined;
-          const modificationType: AttributionTooltipState["modificationType"] =
-            isModification
-              ? "format"
-              : anchor.tagName === "INS"
-                ? "insert"
-                : "delete";
+        // Build the tooltip state from a wrapper's `data-*` attributes. A
+        // `preview` is the rendered preview the change was hovered through.
+        const buildState = (
+          anchor: HTMLElement,
+          preview?: Element,
+        ): AttributionTooltipState => {
+          const markChange: AttributionChange & {
+            modificationType: AttributionMarkStyleInfo["modificationType"];
+          } =
+            anchor.dataset["attributes"] !== undefined
+              ? {
+                  modificationType: "attrs",
+                  attributes: parseFormatKeys(anchor.dataset["attributes"]),
+                }
+              : anchor.dataset["format"] !== undefined
+                ? {
+                    modificationType: "format",
+                    format: parseFormatKeys(anchor.dataset["format"]),
+                  }
+                : {
+                    modificationType:
+                      anchor.tagName === "INS" ? "insert" : "delete",
+                  };
+          const { modificationType } = markChange;
+          const change: AttributionChange = preview
+            ? { modificationType: "change" }
+            : markChange;
           const contentType: AttributionTooltipState["contentType"] =
             anchor.dataset["inline"] === "false" ? "block" : "inline-content";
 
@@ -269,16 +280,14 @@ export const AttributionExtension = createExtension(
               userStore,
               parseUserIds(anchor.dataset["userIds"]),
             ).dark,
-            modificationType,
+            ...change,
             contentType,
             users: usersLabelArray(anchor.dataset["userIds"]),
-            format: isModification
-              ? parseFormatKeys(anchor.dataset["format"])
-              : undefined,
             className: resolveAttributionMarkClassName(
               getAttributionMarkClassName?.({ contentType, modificationType }),
               "tooltip",
             ),
+            ...(preview ? { reference: preview } : {}),
           };
         };
 
@@ -290,27 +299,58 @@ export const AttributionExtension = createExtension(
           store.setState(undefined);
         };
 
-        // The innermost attributed mark at or above `el`, skipping unattributed
-        // wrappers so an attributed ancestor still wins.
-        const innermostAttributed = (
-          el: Element | null,
-        ): HTMLElement | undefined => {
-          while (el) {
-            const wrapper = el.closest<HTMLElement>(ATTRIBUTION_MARK_SELECTOR);
-            if (!wrapper) {
-              return undefined;
-            }
-            if (attributionIdentity(wrapper)) {
-              return wrapper;
-            }
-            el = wrapper.parentElement;
+        const nodeAttribution = (
+          target: Element,
+        ): { mark: HTMLElement; preview: Element } | undefined => {
+          if (!dom.contains(target)) {
+            return undefined;
           }
-          return undefined;
+          const view = editor.prosemirrorView;
+          const $pos = view.state.doc.resolve(view.posAtDOM(target, 0));
+          if ($pos.depth === 0) {
+            return undefined;
+          }
+          const owner = view.nodeDOM($pos.before($pos.depth));
+          if (!(owner instanceof Element) || !owner.contains(target)) {
+            return undefined;
+          }
+          const contentDOM = view.domAtPos($pos.start()).node;
+          if (contentDOM.contains(target) || target.contains(contentDOM)) {
+            // Editable content already shows inline attribution. Unchanged text
+            // and the containing block must not inherit a sibling's change.
+            return undefined;
+          }
+          // A separate rendered preview may hide its attributed source. Only
+          // hovering that surface represents a change within the whole node,
+          // not other controls like a checkbox, whose text is on screen.
+          const name = $pos.parent.type.name;
+          const hasPreview =
+            editor.schema.blockSpecs[name]?.implementation?.meta?.hasPreview ||
+            editor.schema.inlineContentSpecs[name]?.implementation?.meta
+              ?.hasPreview;
+          if (
+            !hasPreview &&
+            contentDOM instanceof Element &&
+            contentDOM.getClientRects().length > 0
+          ) {
+            return undefined;
+          }
+          const mark = owner.querySelector<HTMLElement>(
+            ATTRIBUTION_MARK_SELECTOR,
+          );
+          return mark ? { mark, preview: owner } : undefined;
         };
 
         const onPointerOver = (event: Event) => {
           const target = event.target instanceof Element ? event.target : null;
-          const innermost = innermostAttributed(target);
+          const hoveredMark =
+            target && dom.contains(target)
+              ? (target.closest<HTMLElement>(ATTRIBUTION_MARK_SELECTOR) ??
+                undefined)
+              : undefined;
+          const fallback =
+            target && !hoveredMark ? nodeAttribution(target) : undefined;
+          const innermost = hoveredMark ?? fallback?.mark;
           if (!innermost) {
             // Not over an attributed mark — drop the current tooltip.
             hideTooltip();
@@ -319,8 +359,7 @@ export const AttributionExtension = createExtension(
 
           const identity = attributionIdentity(innermost);
           // Anchor on the outermost ancestor with the *same* attribution so one
-          // tooltip covers the whole region; a differently-attributed ancestor
-          // breaks the chain, and unattributed ones are climbed past.
+          // tooltip covers the whole region; a different ancestor breaks the chain.
           let anchor = innermost;
           let el: Element | null = innermost.parentElement;
           while (el) {
@@ -328,31 +367,35 @@ export const AttributionExtension = createExtension(
             if (!ancestor) {
               break;
             }
-            const ancestorIdentity = attributionIdentity(ancestor);
-            if (ancestorIdentity === identity) {
-              anchor = ancestor;
-            } else if (ancestorIdentity) {
+            if (attributionIdentity(ancestor) !== identity) {
               break;
             }
+            anchor = ancestor;
             el = ancestor.parentElement;
           }
 
-          if (activeAnchor === anchor) {
+          if (
+            activeAnchor === anchor &&
+            store.state?.reference === fallback?.preview
+          ) {
             return;
           }
 
           activeAnchor = anchor;
-          store.setState(buildState(anchor));
+          store.setState(buildState(anchor, fallback?.preview));
 
           // First hover renders raw ids (cache-only); load the authors and refresh
           // the resolved usernames once loaded, if this mark is still active.
           const ids = parseUserIds(anchor.dataset["userIds"]);
           if (ids.length > 0) {
             void userStore.loadUsers(ids).then(() => {
-              if (activeAnchor !== anchor) {
+              if (
+                activeAnchor !== anchor ||
+                store.state?.reference !== fallback?.preview
+              ) {
                 return;
               }
-              store.setState(buildState(anchor));
+              store.setState(buildState(anchor, fallback?.preview));
             });
           }
         };

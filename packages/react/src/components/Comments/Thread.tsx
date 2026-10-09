@@ -1,3 +1,4 @@
+/* eslint-disable react/refs -- The latest thread id is read by a long-lived submit callback created with the editor. */
 import { BlockNoteEditor, Dictionary, mergeCSSClasses } from "@blocknote/core";
 import {
   CommentEditorSubmitExtension,

@@ -1,3 +1,4 @@
+/* eslint-disable react/refs -- emoji-mart's imperative picker instance is kept current from the component's render path. */
 // From https://github.com/missive/emoji-mart/blob/main/packages/emoji-mart-react/react.tsx
 import type { EmojiMartData } from "@emoji-mart/data";
 import React, { useEffect, useRef } from "react";

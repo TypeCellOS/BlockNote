@@ -1,0 +1,1040 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`versioning diff: A adds column then row, B adds column 1`] = `
+[
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "C1" A",
+  "insert <tableCell> B",
+  "insert <tableParagraph> B",
+  "insert "D1" B",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "C2" A",
+  "insert <tableCell> B",
+  "insert <tableParagraph> B",
+  "insert "D2" B",
+  "insert <tableRow> A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "A3" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "B3" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "C3" A",
+  "insert <tableCell>",
+  "insert <tableParagraph>",
+]
+`;
+
+exports[`versioning diff: A adds row then column, B adds row 1`] = `
+[
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "C1" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "C2" A",
+  "insert <tableRow> A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "A3" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "B3" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "C3" A",
+  "insert <tableRow> B",
+  "insert <tableCell> B",
+  "insert <tableParagraph> B",
+  "insert "D1" B",
+  "insert <tableCell> B",
+  "insert <tableParagraph> B",
+  "insert "D2" B",
+  "insert <tableCell>",
+  "insert <tableParagraph>",
+]
+`;
+
+exports[`versioning diff: Add a block to a column 1`] = `
+[
+  "insert block "Added to the left column" A",
+  "insert <paragraph> A",
+  "insert "Added to the left column" A",
+]
+`;
+
+exports[`versioning diff: Add a link 1`] = `
+[
+  "format "the site" A",
+]
+`;
+
+exports[`versioning diff: Add a whole document 1`] = `
+[
+  "insert block "Welcome to this demo 🙌!" A",
+  "insert <paragraph> A",
+  "insert "Welcome to this " A",
+  "format "Welcome to this " A",
+  "insert "demo 🙌!" A",
+  "format "demo 🙌!" A",
+  "insert <blockGroup> A",
+  "insert block "Hello World nested" A",
+  "insert <paragraph> A",
+  "insert "Hello World nested" A",
+  "insert <blockGroup> A",
+  "insert block "Hello World double nested" A",
+  "insert <paragraph> A",
+  "insert "Hello World double nested" A",
+  "insert block "This paragraph has a background color" A",
+  "insert <paragraph> A",
+  "insert "This paragraph has a background color" A",
+  "format "This paragraph has a background color" A",
+  "insert block "Paragraph" A",
+  "insert <paragraph> A",
+  "insert "Paragraph" A",
+  "insert block "" A",
+  "insert <paragraph> A",
+  "insert block "Heading" A",
+  "insert <heading> A",
+  "insert "Heading" A",
+  "insert block "Heading right" A",
+  "insert <heading> A",
+  "insert "Heading right" A",
+  "insert block "Heading 2" A",
+  "insert <heading> A",
+  "insert "Heading 2" A",
+  "insert block "Heading 3" A",
+  "insert <heading> A",
+  "insert "Heading 3" A",
+  "insert block "Heading 4" A",
+  "insert <heading> A",
+  "insert "Heading 4" A",
+  "insert block "Heading 5" A",
+  "insert <heading> A",
+  "insert "Heading 5" A",
+  "insert block "Heading 6" A",
+  "insert <heading> A",
+  "insert "Heading 6" A",
+  "insert block "Emojis: 😀 🎉 🚀 👍 👍🏽 🌍 🚶‍♀️" A",
+  "insert <paragraph> A",
+  "insert "Emojis: 😀 🎉 🚀 👍 👍🏽 🌍 🚶‍♀️" A",
+  "insert block "Centered paragraph" A",
+  "insert <paragraph> A",
+  "insert "Centered paragraph" A",
+  "insert block "justified paragraph. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
+  "insert <paragraph> A",
+  "insert "justified paragraph. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
+  "insert block "" A",
+  "insert <pageBreak> A",
+  "insert block "Bullet List Item. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
+  "insert <bulletListItem> A",
+  "insert "Bullet List Item. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
+  "insert <blockGroup> A",
+  "insert block "Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
+  "insert <bulletListItem> A",
+  "insert "Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
+  "insert block "Bullet List Item right. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
+  "insert <bulletListItem> A",
+  "insert "Bullet List Item right. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." A",
+  "insert block "Numbered List Item 1" A",
+  "insert <numberedListItem> A",
+  "insert "Numbered List Item 1" A",
+  "insert block "Numbered List Item 2" A",
+  "insert <numberedListItem> A",
+  "insert "Numbered List Item 2" A",
+  "insert <blockGroup> A",
+  "insert block "Numbered List Item Nested 1" A",
+  "insert <numberedListItem> A",
+  "insert "Numbered List Item Nested 1" A",
+  "insert block "Numbered List Item Nested 2" A",
+  "insert <numberedListItem> A",
+  "insert "Numbered List Item Nested 2" A",
+  "insert block "Numbered List Item Nested funky right" A",
+  "insert <numberedListItem> A",
+  "insert "Numbered List Item Nested funky right" A",
+  "insert block "Numbered List Item Nested funky center" A",
+  "insert <numberedListItem> A",
+  "insert "Numbered List Item Nested funky center" A",
+  "insert block "Numbered List Item" A",
+  "insert <numberedListItem> A",
+  "insert "Numbered List Item" A",
+  "insert block "Check List Item" A",
+  "insert <checkListItem> A",
+  "insert "Check List Item" A",
+  "insert block "Checked List Item" A",
+  "insert <checkListItem> A",
+  "insert "Checked List Item" A",
+  "insert block "Numbered List Item starting at 5" A",
+  "insert <numberedListItem> A",
+  "insert "Numbered List Item starting at 5" A",
+  "insert block "Numbered List Item 6" A",
+  "insert <numberedListItem> A",
+  "insert "Numbered List Item 6" A",
+  "insert block "Toggle List Item" A",
+  "insert <toggleListItem> A",
+  "insert "Toggle List Item" A",
+  "insert <blockGroup> A",
+  "insert block "Content nested inside the toggle list item." A",
+  "insert <paragraph> A",
+  "insert "Content nested inside the toggle list item." A",
+  "insert block "A nested bullet inside the toggle" A",
+  "insert <bulletListItem> A",
+  "insert "A nested bullet inside the toggle" A",
+  "insert block "Toggle Heading" A",
+  "insert <heading> A",
+  "insert "Toggle Heading" A",
+  "insert <blockGroup> A",
+  "insert block "Content nested inside the toggle heading." A",
+  "insert <paragraph> A",
+  "insert "Content nested inside the toggle heading." A",
+  "insert block "Wide CellTable CellTable CellWide CellTable CellTable CellWide CellTable CellTable Cell" A",
+  "insert <table> A",
+  "insert <tableRow> A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Wide Cell" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Table Cell" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Table Cell" A",
+  "insert <tableRow> A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Wide Cell" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Table Cell" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Table Cell" A",
+  "insert <tableRow> A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Wide Cell" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Table Cell" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Table Cell" A",
+  "insert block "" A",
+  "insert <file> A",
+  "insert block "" A",
+  "insert <image> A",
+  "insert block "" A",
+  "insert <image> A",
+  "insert block "" A",
+  "insert <video> A",
+  "insert block "" A",
+  "insert <audio> A",
+  "insert block "" A",
+  "insert <paragraph> A",
+  "insert block "" A",
+  "insert <audio> A",
+  "insert block "Inline Content:" A",
+  "insert <paragraph> A",
+  "insert "Inline Content:" A",
+  "format "Inline Content:" A",
+  "insert block "Styled Text underlined strikethrough Link" A",
+  "insert <paragraph> A",
+  "insert "Styled Text" A",
+  "format "Styled Text" A",
+  "insert " " A",
+  "insert "underlined" A",
+  "format "underlined" A",
+  "insert " " A",
+  "insert "strikethrough" A",
+  "format "strikethrough" A",
+  "insert " " A",
+  "insert "Link" A",
+  "format "Link" A",
+  "insert block "Table Header 1Table Header 2Table Header 3Table Cell 4Table Cell Bold Colored 5Table Cell 6Table Cell 7Table Cell 8Table Cell 9" A",
+  "insert <table> A",
+  "insert <tableRow> A",
+  "insert <tableHeader> A",
+  "insert <tableParagraph> A",
+  "insert "Table Header 1" A",
+  "insert <tableHeader> A",
+  "insert <tableParagraph> A",
+  "insert "Table Header 2" A",
+  "insert <tableHeader> A",
+  "insert <tableParagraph> A",
+  "insert "Table Header 3" A",
+  "insert <tableRow> A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Table Cell 4" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Table Cell Bold Colored 5" A",
+  "format "Table Cell Bold Colored 5" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Table Cell 6" A",
+  "insert <tableRow> A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Table Cell 7" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Table Cell 8" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Table Cell 9" A",
+  "insert block "Merged HeaderHeader CHeader AHeader BHeader C2Merged RowsCell B1Cell C1Cell B2Cell C2" A",
+  "insert <table> A",
+  "insert <tableRow> A",
+  "insert <tableHeader> A",
+  "insert <tableParagraph> A",
+  "insert "Merged Header" A",
+  "insert <tableHeader> A",
+  "insert <tableParagraph> A",
+  "insert "Header C" A",
+  "insert <tableRow> A",
+  "insert <tableHeader> A",
+  "insert <tableParagraph> A",
+  "insert "Header A" A",
+  "insert <tableHeader> A",
+  "insert <tableParagraph> A",
+  "insert "Header B" A",
+  "insert <tableHeader> A",
+  "insert <tableParagraph> A",
+  "insert "Header C2" A",
+  "insert <tableRow> A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Merged Rows" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Cell B1" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Cell C1" A",
+  "insert <tableRow> A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Cell B2" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "Cell C2" A",
+  "insert block "A hard line breakwithin a single paragraph" A",
+  "insert <paragraph> A",
+  "insert "A hard line break" A",
+  "insert <hardBreak> A",
+  "insert "within a single paragraph" A",
+  "insert block "const helloWorld = (message) => {\\n  console.log(\\"Hello World\\", message);\\n};" A",
+  "insert <codeBlock> A",
+  "insert "const helloWorld = (message) => {\\n  console.log(\\"Hello World\\", message);\\n};" A",
+  "insert block "Some inline code: var foo = 'bar';" A",
+  "insert <paragraph> A",
+  "insert "Some inline code: " A",
+  "format "Some inline code: " A",
+  "insert "var foo = 'bar';" A",
+  "format "var foo = 'bar';" A",
+  "insert <columnList> A",
+  "insert <column> A",
+  "insert block "This paragraph is in a column!" A",
+  "insert <paragraph> A",
+  "insert "This paragraph is in a column!" A",
+  "insert <column> A",
+  "insert block "So is this heading!" A",
+  "insert <heading> A",
+  "insert "So is this heading!" A",
+  "insert <column> A",
+  "insert block "You can have multiple blocks in a column too" A",
+  "insert <paragraph> A",
+  "insert "You can have multiple blocks in a column too" A",
+  "insert block "Block 1" A",
+  "insert <bulletListItem> A",
+  "insert "Block 1" A",
+  "insert block "Block 2" A",
+  "insert <bulletListItem> A",
+  "insert "Block 2" A",
+  "insert block "Block 3" A",
+  "insert <bulletListItem> A",
+  "insert "Block 3" A",
+  "insert block "" A",
+  "insert <divider> A",
+  "insert block "All those moments will be lost in time, like tears in rain." A",
+  "insert <quote> A",
+  "insert "All those moments will be lost in time, like tears in rain." A",
+]
+`;
+
+exports[`versioning diff: Add an empty block 1`] = `
+[
+  "insert block "" A",
+  "insert <paragraph> A",
+]
+`;
+
+exports[`versioning diff: Add bold 1`] = `
+[
+  "format "world" A",
+]
+`;
+
+exports[`versioning diff: Add bullet item 1`] = `
+[
+  "insert <blockGroup> A",
+  "insert block "New bullet" A",
+  "insert <bulletListItem> A",
+  "insert "New bullet" A",
+]
+`;
+
+exports[`versioning diff: Add colored block with child 1`] = `
+[
+  "insert <blockGroup> A",
+  "insert block "Colored parent" A",
+  "insert <paragraph> A",
+  "insert "Colored parent" A",
+  "insert <blockGroup> A",
+  "insert block "Child block" A",
+  "insert <paragraph> A",
+  "insert "Child block" A",
+]
+`;
+
+exports[`versioning diff: Add column 1`] = `
+[
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "C1" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "C2" A",
+]
+`;
+
+exports[`versioning diff: Add column vs add row 1`] = `
+[
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "C1" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "C2" A",
+  "insert <tableRow> B",
+  "insert <tableCell> B",
+  "insert <tableParagraph> B",
+  "insert "A3" B",
+  "insert <tableCell> B",
+  "insert <tableParagraph> B",
+  "insert "B3" B",
+  "insert <tableCell>",
+  "insert <tableParagraph>",
+]
+`;
+
+exports[`versioning diff: Add heading 1`] = `
+[
+  "insert <blockGroup> A",
+  "insert block "New heading" A",
+  "insert <heading> A",
+  "insert "New heading" A",
+]
+`;
+
+exports[`versioning diff: Add italic over bold 1`] = `
+[
+  "format "world" A",
+]
+`;
+
+exports[`versioning diff: Add nested bullets 1`] = `
+[
+  "insert <blockGroup> A",
+  "insert block "Level 0" A",
+  "insert <bulletListItem> A",
+  "insert "Level 0" A",
+  "insert <blockGroup> A",
+  "insert block "Level 1" A",
+  "insert <bulletListItem> A",
+  "insert "Level 1" A",
+  "insert <blockGroup> A",
+  "insert block "Level 2" A",
+  "insert <bulletListItem> A",
+  "insert "Level 2" A",
+]
+`;
+
+exports[`versioning diff: Add numbered item 1`] = `
+[
+  "insert <blockGroup> A",
+  "insert block "New numbered" A",
+  "insert <numberedListItem> A",
+  "insert "New numbered" A",
+]
+`;
+
+exports[`versioning diff: Add paragraph after a block 1`] = `
+[
+  "insert block "Body text" A",
+  "insert <paragraph> A",
+  "insert "Body text" A",
+]
+`;
+
+exports[`versioning diff: Add row 1`] = `
+[
+  "insert <tableRow> A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "A3" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "B3" A",
+]
+`;
+
+exports[`versioning diff: Add row vs add column 1`] = `
+[
+  "insert <tableCell> B",
+  "insert <tableParagraph> B",
+  "insert "C1" B",
+  "insert <tableCell> B",
+  "insert <tableParagraph> B",
+  "insert "C2" B",
+  "insert <tableRow> A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "A3" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "B3" A",
+  "insert <tableCell>",
+  "insert <tableParagraph>",
+]
+`;
+
+exports[`versioning diff: Bold vs italic 1`] = `
+[
+  "format "world" A,B",
+]
+`;
+
+exports[`versioning diff: Both nest a new block under N0 1`] = `
+[
+  "delete block "N0" A,B",
+  "insert block "N0" A",
+  "insert <paragraph> A",
+  "insert "N0" A",
+  "insert <blockGroup> A",
+  "insert block "N1" A",
+  "insert <paragraph> A",
+  "insert "N1" A",
+  "insert block "N0" B",
+  "insert <paragraph> B",
+  "insert "N0" B",
+  "insert <blockGroup> B",
+  "insert block "N2" B",
+  "insert <paragraph> B",
+  "insert "N2" B",
+]
+`;
+
+exports[`versioning diff: Cascading indents 1`] = `
+[
+  "delete block "N0" A",
+  "delete block "N1" A,B",
+  "insert block "N0" A",
+  "insert <paragraph> A",
+  "insert "N0" A",
+  "insert <blockGroup> A",
+  "insert block "N1" A",
+  "insert <paragraph> A",
+  "insert "N1" A",
+  "delete block "N2" B",
+  "insert block "N1" B",
+  "insert <paragraph> B",
+  "insert "N1" B",
+  "insert <blockGroup> B",
+  "insert block "N2" B",
+  "insert <paragraph> B",
+  "insert "N2" B",
+]
+`;
+
+exports[`versioning diff: Center-align 1`] = `
+[
+  "attrs <paragraph> textAlignment:A",
+]
+`;
+
+exports[`versioning diff: Change a parent's type vs edit its child 1`] = `
+[
+  "delete block "Parent" A",
+  "insert block "Parent" A",
+  "insert <heading> A",
+  "insert "Parent" A",
+  "insert <blockGroup> A",
+  "insert block "Child" A",
+  "insert <paragraph> A",
+  "insert "Child" A",
+]
+`;
+
+exports[`versioning diff: Change image source 1`] = `
+[
+  "attrs <image> url:A",
+]
+`;
+
+exports[`versioning diff: Change type of a parent block 1`] = `
+[
+  "delete block "N0" A",
+  "insert block "N0" A",
+  "insert <heading> A",
+  "insert "N0" A",
+  "insert <blockGroup> A",
+  "insert block "N1" A",
+  "insert <paragraph> A",
+  "insert "N1" A",
+]
+`;
+
+exports[`versioning diff: Create two columns 1`] = `
+[
+  "insert <columnList> A",
+  "insert <column> A",
+  "insert block "Left column" A",
+  "insert <paragraph> A",
+  "insert "Left column" A",
+  "insert <column> A",
+  "insert block "Right column" A",
+  "insert <paragraph> A",
+  "insert "Right column" A",
+]
+`;
+
+exports[`versioning diff: Delete a code block 1`] = `
+[
+  "delete block "const x = 1;" A",
+  "insert block "" A",
+  "insert <paragraph> A",
+]
+`;
+
+exports[`versioning diff: Delete a divider 1`] = `
+[
+  "delete block "" A",
+  "insert block "" A",
+  "insert <paragraph> A",
+]
+`;
+
+exports[`versioning diff: Delete a nested block 1`] = `
+[
+  "delete block "Parent" A",
+  "insert block "Parent" A",
+  "insert <paragraph> A",
+  "insert "Parent" A",
+]
+`;
+
+exports[`versioning diff: Delete a parent block 1`] = `
+[
+  "delete block "Parent" A",
+  "insert block "" A",
+  "insert <paragraph> A",
+]
+`;
+
+exports[`versioning diff: Delete a parent vs change its child's type 1`] = `
+[
+  "delete block "Parent" A",
+]
+`;
+
+exports[`versioning diff: Delete a parent vs type in its child 1`] = `
+[
+  "delete block "Parent" A",
+]
+`;
+
+exports[`versioning diff: Delete column vs add row 1`] = `
+[
+  "delete <tableCell> A",
+  "delete <tableCell> A",
+  "insert <tableRow> B",
+  "insert <tableCell> B",
+  "insert <tableParagraph> B",
+  "insert "A3" B",
+  "insert <tableCell> B",
+  "insert <tableParagraph> B",
+  "insert "B3" B",
+]
+`;
+
+exports[`versioning diff: Delete image 1`] = `
+[
+  "delete block "" A",
+  "insert block "" A",
+  "insert <paragraph> A",
+]
+`;
+
+exports[`versioning diff: Delete one of two empty blocks 1`] = `
+[
+  "delete block "" A",
+]
+`;
+
+exports[`versioning diff: Delete parent with mixed children 1`] = `
+[
+  "delete block "Parent" A",
+  "insert block "" A",
+  "insert <paragraph> A",
+]
+`;
+
+exports[`versioning diff: Delete row vs add column 1`] = `
+[
+  "insert <tableCell> B",
+  "insert <tableParagraph> B",
+  "insert "C1" B",
+  "delete <tableRow> A",
+]
+`;
+
+exports[`versioning diff: Demote heading 1`] = `
+[
+  "attrs <heading> level:A",
+]
+`;
+
+exports[`versioning diff: Edit a cell 1`] = `
+[
+  "insert " edited" A",
+]
+`;
+
+exports[`versioning diff: Edit a diagram 1`] = `
+[
+  "delete "Rev" A",
+  "insert "Publ" A",
+  "delete "ew" A",
+  "insert "sh" A",
+]
+`;
+
+exports[`versioning diff: Edit a link 1`] = `
+[
+  "format "the " A",
+  "delete "old" A",
+  "insert "new" A",
+  "format "new" A",
+  "format " site" A",
+]
+`;
+
+exports[`versioning diff: Edit text vs change to heading 1`] = `
+[
+  "delete block "hello world" B",
+  "insert block "hello world" B",
+  "insert <heading> B",
+  "insert "hello world" B",
+]
+`;
+
+exports[`versioning diff: Enter at the start of a heading 1`] = `
+[
+  "delete "Title" A",
+  "insert block "Title" A",
+  "insert <heading> A",
+  "insert "Title" A",
+]
+`;
+
+exports[`versioning diff: Fix typo vs delete word 1`] = `
+[
+  "delete "w" B",
+  "insert "o" A",
+  "delete "r" B",
+  "delete "o" B,A",
+  "delete "ld" B",
+]
+`;
+
+exports[`versioning diff: Heading vs list item 1`] = `
+[
+  "delete block "hello world" A,B",
+  "insert block "hello world" A",
+  "insert <heading> A",
+  "insert "hello world" A",
+  "insert block "hello world" B",
+  "insert <bulletListItem> B",
+  "insert "hello world" B",
+]
+`;
+
+exports[`versioning diff: Highlight a column 1`] = `
+[
+  "attrs <tableCell> backgroundColor:A",
+  "attrs <tableCell> backgroundColor:A",
+]
+`;
+
+exports[`versioning diff: Indent a block 1`] = `
+[
+  "delete block "N0" A",
+  "delete block "N1" A",
+  "insert block "N0" A",
+  "insert <paragraph> A",
+  "insert "N0" A",
+  "insert <blockGroup> A",
+  "insert block "N1" A",
+  "insert <paragraph> A",
+  "insert "N1" A",
+]
+`;
+
+exports[`versioning diff: Indent a block vs edit its text 1`] = `
+[
+  "delete block "N0" A",
+  "delete block "N1" A",
+  "insert block "N0" A",
+  "insert <paragraph> A",
+  "insert "N0" A",
+  "insert <blockGroup> A",
+  "insert block "N1" A",
+  "insert <paragraph> A",
+  "insert "N1" A",
+]
+`;
+
+exports[`versioning diff: Insert a divider 1`] = `
+[
+  "insert block "" A",
+  "insert <divider> A",
+]
+`;
+
+exports[`versioning diff: Insert an image 1`] = `
+[
+  "insert <blockGroup> A",
+  "insert block "" A",
+  "insert <image> A",
+]
+`;
+
+exports[`versioning diff: List item → paragraph 1`] = `
+[
+  "delete block "hello world" A",
+  "insert block "hello world" A",
+  "insert <paragraph> A",
+  "insert "hello world" A",
+]
+`;
+
+exports[`versioning diff: Merge blocks vs edit block B 1`] = `
+[
+  "insert "Second" A",
+  "delete block "Second" A",
+]
+`;
+
+exports[`versioning diff: Merge cells 1`] = `
+[
+  "attrs <tableCell> colspan:A colwidth:A",
+  "insert "+B1" A",
+  "delete <tableCell> A",
+  "insert <tableCell>",
+  "insert <tableParagraph>",
+]
+`;
+
+exports[`versioning diff: Move a block into a block that is deleted 1`] = `
+[
+  "delete block "Parent" A",
+  "delete block "X" B",
+]
+`;
+
+exports[`versioning diff: Move paragraph up 1`] = `
+[
+  "insert block "Middle" A",
+  "insert <paragraph> A",
+  "insert "Middle" A",
+  "delete block "Middle" A",
+]
+`;
+
+exports[`versioning diff: Move paragraph with children 1`] = `
+[
+  "insert block "Parent" A",
+  "insert <paragraph> A",
+  "insert "Parent" A",
+  "insert <blockGroup> A",
+  "insert block "Child" A",
+  "insert <paragraph> A",
+  "insert "Child" A",
+  "delete block "Parent" A",
+]
+`;
+
+exports[`versioning diff: Nest a bullet under another 1`] = `
+[
+  "delete block "Parent" A",
+  "delete block "Child" A",
+  "insert block "Parent" A",
+  "insert <bulletListItem> A",
+  "insert "Parent" A",
+  "insert <blockGroup> A",
+  "insert block "Child" A",
+  "insert <bulletListItem> A",
+  "insert "Child" A",
+]
+`;
+
+exports[`versioning diff: Nest blocks into a block that is moved 1`] = `
+[
+  "delete block "R" B",
+  "delete block "Q" B,A",
+  "insert block "R" B",
+  "insert <paragraph> B",
+  "insert "R" B",
+  "insert <blockGroup> B",
+  "insert block "Q" B",
+  "insert <paragraph> B",
+  "insert "Q" B",
+  "delete block "B1" A",
+  "delete block "B2" A",
+  "delete block "B3" A",
+  "insert block "Q" A",
+  "insert <paragraph> A",
+  "insert "Q" A",
+  "insert <blockGroup> A",
+  "insert block "B1" A",
+  "insert <paragraph> A",
+  "insert "B1" A",
+  "insert block "B2" A",
+  "insert <paragraph> A",
+  "insert "B2" A",
+  "insert block "B3" A",
+  "insert <paragraph> A",
+  "insert "B3" A",
+]
+`;
+
+exports[`versioning diff: Paragraph → heading 1`] = `
+[
+  "delete block "hello world" A",
+  "insert block "hello world" A",
+  "insert <heading> A",
+  "insert "hello world" A",
+]
+`;
+
+exports[`versioning diff: Remove a column 1`] = `
+[
+  "delete <columnList> A",
+  "insert block "Left column" A",
+  "insert <paragraph> A",
+  "insert "Left column" A",
+]
+`;
+
+exports[`versioning diff: Remove a link 1`] = `
+[
+  "format "the site" A",
+]
+`;
+
+exports[`versioning diff: Remove a middle column 1`] = `
+[
+  "delete <column> A",
+]
+`;
+
+exports[`versioning diff: Remove a paragraph 1`] = `
+[
+  "delete block "Body text" A",
+]
+`;
+
+exports[`versioning diff: Remove bold 1`] = `
+[
+  "format "world" A",
+]
+`;
+
+exports[`versioning diff: Remove column 1`] = `
+[
+  "delete <tableCell> A",
+  "delete <tableCell> A",
+]
+`;
+
+exports[`versioning diff: Remove row 1`] = `
+[
+  "delete <tableRow> A",
+]
+`;
+
+exports[`versioning diff: Remove the only block 1`] = `
+[
+  "attrs block "Only block" id:A",
+  "delete "Only block" A",
+]
+`;
+
+exports[`versioning diff: Rename a word 1`] = `
+[
+  "delete "wo" A",
+  "insert "unive" A",
+  "delete "ld" A",
+  "insert "se" A",
+]
+`;
+
+exports[`versioning diff: Resize image 1`] = `
+[
+  "attrs <image> previewWidth:A",
+]
+`;
+
+exports[`versioning diff: Split a block vs type at end 1`] = `
+[
+  "delete "world" B",
+  "insert "!" A",
+  "insert block "world" B",
+  "insert <paragraph> B",
+  "insert "world" B",
+]
+`;
+
+exports[`versioning diff: Split a merged cell 1`] = `
+[
+  "attrs <tableCell> colspan:A colwidth:A",
+  "delete "+B1" A",
+  "insert <tableCell> A",
+  "insert <tableParagraph> A",
+  "insert "B1" A",
+]
+`;
+
+exports[`versioning diff: Text color vs background color 1`] = `
+[
+  "attrs <paragraph> backgroundColor:B textColor:A",
+]
+`;
+
+exports[`versioning diff: Unindent a block 1`] = `
+[
+  "delete block "N0" A",
+  "insert block "N0" A",
+  "insert <paragraph> A",
+  "insert "N0" A",
+  "insert block "N1" A",
+  "insert <paragraph> A",
+  "insert "N1" A",
+]
+`;

@@ -1,4 +1,5 @@
 import { Command, Transaction } from "prosemirror-state";
+import { ReadOnlyExtension } from "../../extensions/ReadOnly/ReadOnly.js";
 import type { HistoryExtension } from "../../extensions/History/History.js";
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
 
@@ -188,13 +189,24 @@ export class StateManager {
       }
       return false;
     }
+    if (this.editor.headless) {
+      // No live view while unmounted, so tiptap can't consult plugin props
+      // (its unmounted view stub reports editable: true). Mirror the
+      // ReadOnly plugin's `editable` prop directly so the application
+      // preference and feature restrictions still read back correctly,
+      // e.g. for static/server-side rendering via block render functions.
+      const state = this.editor.getExtension(ReadOnlyExtension)?.store.state;
+      if (state) {
+        return state.isEditable && state.enabledSet.size === 0;
+      }
+    }
     return this.editor._tiptapEditor.isEditable === undefined
       ? true
       : this.editor._tiptapEditor.isEditable;
   }
 
   /**
-   * Makes the editor editable or locks it, depending on the argument passed.
+   * Sets the application's editable preference without releasing feature restrictions.
    * @param editable True to make the editor editable, or false to lock it.
    */
   public set isEditable(editable: boolean) {
@@ -205,9 +217,7 @@ export class StateManager {
       // not relevant on headless
       return;
     }
-    if (this.editor._tiptapEditor.options.editable !== editable) {
-      this.editor._tiptapEditor.setEditable(editable);
-    }
+    this.editor.getExtension(ReadOnlyExtension)!.setEditable(editable);
   }
 
   /**

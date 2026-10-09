@@ -5,7 +5,10 @@ export default defineConfig({
   run: {
     tasks: {
       build: {
-        command: "tsc",
+        // Emit declarations without build mode, which would traverse references
+        // and rewrite shared declarations concurrently.
+        command:
+          "tsc --project tsconfig.json --declaration --composite false --incremental false --rootDir .",
         input: [
           ...buildCacheInputs("shared"),
           // Auto-detection tracks the conventional src/ layout, but this

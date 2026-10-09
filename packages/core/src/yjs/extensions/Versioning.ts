@@ -1,83 +1,126 @@
 import * as Y from "yjs";
-
+import { ySyncPluginKey } from "y-prosemirror";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import type { PreviewController } from "../../extensions/Versioning/index.js";
-import type { CollaborationOptions } from "./index.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
+import type {
+  VersionStorage,
+  VersionViewAdapter,
+} from "../../extensions/Versioning/types.js";
+import { createVersioningExtension } from "../../extensions/Versioning/Versioning.js";
+import type { UserStoreOrResolver } from "../../user/index.js";
+import { CollaborationExtension } from "./index.js";
+import type { DiffVersioningExtension } from "../../y/extensions/DiffVersioningExtension.js";
+import { findTypeInOtherYdoc, yXmlFragmentToBlocks } from "../utils.js";
+import type {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
 
 /**
- * Creates a Yjs v13 adapter that provides the {@link PreviewController}
- * and `getCurrentDocument` callback required by the base
- * {@link VersioningExtension}.
- *
- * Delegates to the {@link ForkYDocExtension} for entering/exiting preview:
- * - **enterPreview**: calls `fork({ initialUpdate: snapshotContent })` to
- *   switch the editor to a temporary doc built from the snapshot.
- * - **exitPreview**: calls `merge({ keepChanges: false })` to discard the
- *   preview and restore the live document.
- * - **applyRestore**: calls `merge({ keepChanges: true })` to apply the
- *   snapshot content back to the live document.
+ * Install history separately, using the editor's Yjs collaboration fragment.
+ * Register DiffVersioningExtension from `@blocknote/core/y` to opt into
+ * content comparisons. Diffs mark changes, not their original authors.
  */
-export function createYjsVersioningAdapter(
-  /** The BlockNote editor instance (must have ForkYDocExtension). */
-  editor: BlockNoteEditor<any, any, any>,
-  /** The full collaboration options (used for `fragment` access). */
-  options: CollaborationOptions,
-): {
-  preview: PreviewController<Uint8Array>;
-  getCurrentDocument: () => Y.XmlFragment;
-  serializeCurrentContent: () => Uint8Array;
-} {
-  const { fragment } = options;
+export function YjsVersioningExtension(options: {
+  storage: VersionStorage<Uint8Array>;
+  resolveUsers?: UserStoreOrResolver;
+  scrollToFirstChange?: boolean;
+}) {
+  return createVersioningExtension((editor) => ({
+    adapter: {
+      get supportsComparison() {
+        return editor.getExtension("diffVersioning") !== undefined;
+      },
+      open() {
+        const collaboration = editor.getExtension(CollaborationExtension);
+        if (!collaboration) {
+          throw new Error("Yjs versioning requires Yjs collaboration");
+        }
+        return createYjsVersionView(editor, collaboration.fragment).open();
+      },
+    },
+    ...options,
+  }))();
+}
 
-  function getForkYDoc() {
-    const ext = editor.getExtension(ForkYDocExtension);
-    if (!ext) {
-      throw new Error(
-        "ForkYDocExtension is required for the Yjs versioning adapter. " +
-          "Make sure it is registered before the VersioningExtension.",
-      );
-    }
-    return ext;
-  }
-
+export function createYjsVersionView<
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema,
+>(
+  editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
+  fragment: Y.XmlFragment,
+): VersionViewAdapter<Uint8Array> {
   return {
-    getCurrentDocument: () => fragment,
-    serializeCurrentContent: () => Y.encodeStateAsUpdateV2(fragment.doc!),
-    preview: {
-      // Yjs v13 can only fork the document to a single snapshot; it has no way
-      // to diff two versions, so comparison is unsupported.
-      supportsComparison: false,
-      enterPreview(
-        snapshotContent: Uint8Array,
-        _compareToContent?: Uint8Array,
+    get supportsComparison() {
+      return editor.getExtension("diffVersioning") !== undefined;
+    },
+    open() {
+      const fork = editor.getExtension(ForkYDocExtension);
+      if (
+        !fork ||
+        fork.store.state.isForked ||
+        ySyncPluginKey.getState(editor.prosemirrorState)?.type !== fragment
       ) {
-        const forkYDoc = getForkYDoc();
-
-        // If already in a preview (forked state), exit first.
-        if (forkYDoc.store.state.isForked) {
-          forkYDoc.merge({ keepChanges: false });
-        }
-
-        forkYDoc.fork({ initialUpdate: snapshotContent });
-      },
-
-      exitPreview() {
-        const forkYDoc = getForkYDoc();
-        if (forkYDoc.store.state.isForked) {
-          forkYDoc.merge({ keepChanges: false });
-        }
-      },
-
-      applyRestore(_snapshotContent: Uint8Array) {
-        // Restoring to an older Yjs state cannot be done by merging a fork
-        // because the original doc already contains all CRDT state vectors
-        // from the snapshot. Restore must be handled at the endpoint/server
-        // level (e.g., the server creates a new Y.Doc and syncs it).
         throw new Error(
-          "Restore is not yet implemented for Yjs v13 versioning adapter.",
+          "Versioning requires an active live binding and an available fork",
         );
-      },
+      }
+      const current = {
+        content: Y.encodeStateAsUpdate(fragment.doc!),
+        capturedAt: Date.now(),
+      };
+      try {
+        fork.fork();
+      } catch (error) {
+        fork.merge({ keepChanges: false });
+        throw error;
+      }
+      let closed = false;
+      return {
+        current,
+        show({ content, comparison }) {
+          if (closed) {
+            throw new Error("Version view is closed");
+          }
+          fork.replaceSnapshot(content);
+          if (comparison) {
+            const diff =
+              editor.getExtension<typeof DiffVersioningExtension>(
+                "diffVersioning",
+              );
+            if (!diff) {
+              throw new Error("Version comparison requires a diff renderer");
+            }
+            function blocksFromUpdate(update: Uint8Array) {
+              const doc = new Y.Doc();
+              try {
+                Y.applyUpdate(doc, update);
+                return yXmlFragmentToBlocks(
+                  editor,
+                  findTypeInOtherYdoc(fragment, doc),
+                );
+              } finally {
+                doc.destroy();
+              }
+            }
+            // The binding points at a disposable fork. Any rendered suggestion
+            // marks stay there and are discarded when switching or closing.
+            diff.renderDiff(
+              blocksFromUpdate(content),
+              blocksFromUpdate(comparison.content),
+            );
+          }
+        },
+        close() {
+          if (closed) {
+            return;
+          }
+          fork.merge({ keepChanges: false });
+          closed = true;
+        },
+      };
     },
   };
 }

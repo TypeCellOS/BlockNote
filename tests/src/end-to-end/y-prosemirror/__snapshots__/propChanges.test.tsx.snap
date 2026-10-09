@@ -32,13 +32,17 @@ exports[`suggestion mode: change heading level from 1 to 2 3`] = `
 "<doc>
   <blockGroup>
     <blockContainer id="block-hello">
-      <heading
-        backgroundColor="default"
-        isToggleable="false"
-        level="2"
-        textAlignment="left"
-        textColor="default"
-      >hello world</heading>
+      <y-attributed-attrs
+        changes="{&quot;level&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+      >
+        <heading
+          backgroundColor="default"
+          isToggleable="false"
+          level="2"
+          textAlignment="left"
+          textColor="default"
+        >hello world</heading>
+      </y-attributed-attrs>
     </blockContainer>
   </blockGroup>
 </doc>"
@@ -80,15 +84,19 @@ exports[`suggestion mode: change image source 3`] = `
 "<doc>
   <blockGroup>
     <blockContainer id="block-image">
-      <image
-        backgroundColor="default"
-        caption=""
-        name=""
-        previewWidth="200"
-        showPreview="true"
-        textAlignment="left"
-        url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%234ecdc4'/&gt;&lt;/svg&gt;"
-      ></image>
+      <y-attributed-attrs
+        changes="{&quot;url&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+      >
+        <image
+          backgroundColor="default"
+          caption=""
+          name=""
+          previewWidth="200"
+          showPreview="true"
+          textAlignment="left"
+          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%234ecdc4'/&gt;&lt;/svg&gt;"
+        ></image>
+      </y-attributed-attrs>
     </blockContainer>
   </blockGroup>
 </doc>"
@@ -114,7 +122,11 @@ exports[`suggestion mode: change text alignment to center 3`] = `
 "<doc>
   <blockGroup>
     <blockContainer id="block-hello">
-      <paragraph backgroundColor="default" textAlignment="center" textColor="default">hello world</paragraph>
+      <y-attributed-attrs
+        changes="{&quot;textAlignment&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+      >
+        <paragraph backgroundColor="default" textAlignment="center" textColor="default">hello world</paragraph>
+      </y-attributed-attrs>
     </blockContainer>
   </blockGroup>
 </doc>"
@@ -156,15 +168,19 @@ exports[`suggestion mode: resize image (previewWidth) 3`] = `
 "<doc>
   <blockGroup>
     <blockContainer id="block-image">
-      <image
-        backgroundColor="default"
-        caption=""
-        name=""
-        previewWidth="400"
-        showPreview="true"
-        textAlignment="left"
-        url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
-      ></image>
+      <y-attributed-attrs
+        changes="{&quot;previewWidth&quot;:{&quot;userIds&quot;:[],&quot;timestamp&quot;:null}}"
+      >
+        <image
+          backgroundColor="default"
+          caption=""
+          name=""
+          previewWidth="400"
+          showPreview="true"
+          textAlignment="left"
+          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+        ></image>
+      </y-attributed-attrs>
     </blockContainer>
   </blockGroup>
 </doc>"

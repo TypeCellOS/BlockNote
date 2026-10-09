@@ -18,9 +18,7 @@ export function useEditorChange(
   editor?: BlockNoteEditor<any, any, any>,
 ) {
   const editorContext = useBlockNoteContext();
-  if (!editor) {
-    editor = editorContext?.editor;
-  }
+  const resolvedEditor = editor ?? editorContext?.editor;
 
   // Latest-ref pattern: the subscription lives as long as the editor does,
   // while the callback stays current without resubscribing on re-renders.
@@ -33,14 +31,14 @@ export function useEditorChange(
   });
 
   useEffect(() => {
-    if (!editor) {
+    if (!resolvedEditor) {
       throw new Error(
         "'editor' is required, either from BlockNoteContext or as a function argument",
       );
     }
 
-    return editor.onChange((...args: Parameters<typeof callback>) =>
+    return resolvedEditor.onChange((...args: Parameters<typeof callback>) =>
       callbackRef.current(...args),
     );
-  }, [editor]);
+  }, [resolvedEditor]);
 }

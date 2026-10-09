@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { Block } from "../../blocks/defaultBlocks.js";
+import { colorsForUserIds } from "../../user/index.js";
 import { AttributionExtension } from "./AttributionExtension.js";
 import { DiffVersioningExtension } from "./DiffVersioningExtension.js";
 
@@ -12,11 +13,16 @@ import { DiffVersioningExtension } from "./DiffVersioningExtension.js";
 // Helpers
 // ---------------------------------------------------------------------------
 
+const mounts: HTMLElement[] = [];
+
 function createDiffEditor() {
   const editor = BlockNoteEditor.create({
     extensions: [DiffVersioningExtension()],
   });
-  editor.mount(document.createElement("div"));
+  const mount = document.createElement("div");
+  document.body.appendChild(mount);
+  mounts.push(mount);
+  editor.mount(mount);
   return editor;
 }
 
@@ -86,6 +92,9 @@ describe("DiffVersioningExtension", () => {
 
   afterEach(() => {
     editor.unmount();
+    for (const mount of mounts.splice(0)) {
+      mount.remove();
+    }
   });
 
   it("registers the y-attributed-* marks into the schema", () => {
@@ -131,38 +140,78 @@ describe("DiffVersioningExtension", () => {
     expect(unchanged).toContain("brown fox");
   });
 
-  it("attributes the diff to the version author id (userIds on the marks)", () => {
+  it("attributes every change to one synthetic author (userIds on the marks)", () => {
     const baseline = blocksFromText("hello world");
     const target = blocksFromText("hello there world");
 
     const diff = editor.getExtension(DiffVersioningExtension)!;
-    diff.renderDiff(target, baseline, "My version");
+    diff.renderDiff(target, baseline);
 
-    const attributed = collectAttributedText(editor);
-    const insertUserIds = attributed
+    const userIds = collectAttributedText(editor)
       .flatMap((t) => t.marks)
-      .filter(([n]) => n === "y-attributed-insert")
       .flatMap(([, ids]) => ids);
 
-    // A version diff has one synthetic author (the version). Its id encodes the
-    // version label, so the tooltip resolves to that name.
-    expect(insertUserIds).toContain("version:My version");
+    // A version diff has no real authors: one synthetic id only colors the marks.
+    expect(userIds.length).toBeGreaterThan(0);
+    expect(new Set(userIds).size).toBe(1);
   });
 
-  it("resolves the diff author to the version's name (tooltip label)", async () => {
+  it("reports no authors when hovering a change", () => {
+    const baseline = blocksFromText("hello world");
+    const target = blocksFromText("hello new world");
+
+    editor.getExtension(DiffVersioningExtension)!.renderDiff(target, baseline);
+
+    editor.prosemirrorView.dom
+      .querySelector("ins[data-user-ids]")!
+      .dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    expect(
+      editor.getExtension(AttributionExtension)!.store.state,
+    ).toMatchObject({
+      modificationType: "insert",
+      users: [],
+    });
+  });
+
+  it("colors the diff author with the palette's blue, tint included", async () => {
     const baseline = blocksFromText("hello world");
     const target = blocksFromText("hello brave new world");
 
     const diff = editor.getExtension(DiffVersioningExtension)!;
-    diff.renderDiff(target, baseline, "Draft 3");
+    diff.renderDiff(target, baseline);
 
-    // The version name is surfaced by resolving the marks' author id through the
-    // composed AttributionExtension's user store — this is what the hover tooltip
-    // shows ("…by {name}").
     const attribution = editor.getExtension(AttributionExtension)!;
-    const authorId = "version:Draft 3";
+    const authorId = collectAttributedText(editor)
+      .flatMap((t) => t.marks)
+      .flatMap(([, ids]) => ids)[0]!;
     await attribution.userStore.loadUsers([authorId]);
-    expect(attribution.userStore.getUser(authorId)?.username).toBe("Draft 3");
+
+    // Both halves are set, so the marks and their tooltip use the tuned pair
+    // rather than a tint derived from the saturated colour.
+    expect(colorsForUserIds(attribution.userStore, [authorId])).toEqual({
+      light: "#c9dcff",
+      dark: "#1e4fb0",
+    });
+  });
+
+  it("reads a plain block's content as the newer version's text", () => {
+    function codeBlock(code: string) {
+      const e = BlockNoteEditor.create();
+      e.replaceBlocks(e.document, [
+        { id: "code", type: "codeBlock", content: code },
+      ]);
+      return e.document;
+    }
+
+    editor
+      .getExtension(DiffVersioningExtension)!
+      .renderDiff(codeBlock("y^3"), codeBlock("x^2"));
+
+    // Previews (math, diagrams) render from this text, so it must not merge
+    // the deleted source with its replacement ("xy^23").
+    expect(editor.document[0].content).toEqual([
+      { type: "text", text: "y^3", styles: {} },
+    ]);
   });
 
   it("produces no attribution marks when the docs are identical", () => {
@@ -177,7 +226,7 @@ describe("DiffVersioningExtension", () => {
     );
   });
 
-  it("clearDiff restores plain content with no attribution marks", () => {
+  it("replacing the rendered blocks drops the attribution marks", () => {
     const baseline = blocksFromText("first version");
     const target = blocksFromText("second version");
     const restore = blocksFromText("live document");
@@ -186,7 +235,7 @@ describe("DiffVersioningExtension", () => {
     diff.renderDiff(target, baseline);
     expect(attributionMarkNames(editor).size).toBeGreaterThan(0);
 
-    diff.clearDiff(restore);
+    editor.replaceBlocks(editor.document, restore);
     expect(attributionMarkNames(editor).size).toBe(0);
     expect(editor.prosemirrorState.doc.textContent).toBe("live document");
   });

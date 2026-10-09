@@ -10,7 +10,7 @@ import { yTypeToThread } from "./yjsHelpers.js";
  */
 export abstract class YjsThreadStoreBase extends ThreadStore {
   constructor(
-    protected readonly threadsYType: Y.Type,
+    protected readonly threadsYType: Y.Node,
     auth: ThreadStoreAuth,
   ) {
     super(auth);
@@ -29,7 +29,7 @@ export abstract class YjsThreadStoreBase extends ThreadStore {
   public getThreads(): Map<string, ThreadData> {
     const threadMap = new Map<string, ThreadData>();
     this.threadsYType.forEachAttr((yThread: any, id: string | number) => {
-      if (yThread instanceof Y.Type) {
+      if (yThread instanceof Y.Node) {
         threadMap.set(String(id), yTypeToThread(yThread));
       }
     });

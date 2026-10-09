@@ -5,16 +5,11 @@ import {
   createExtension,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
-import {
-  VersioningEndpoints,
-  VersioningEndpointsFactory,
-  VersioningExtension,
-} from "../../extensions/Versioning/index.js";
 import { normalizeToUserStore, UserStoreOrResolver } from "../../user/index.js";
 import { AttributionExtension } from "./AttributionExtension.js";
+import { ForkYDocExtension } from "./ForkYDoc.js";
 import { RelativePositionMappingExtension } from "./RelativePositionMapping.js";
 import { SuggestionsExtension } from "./Suggestions.js";
-import { createYjsVersioningAdapter } from "./Versioning.js";
 import { CollaborationUser, YCursorExtension } from "./YCursorPlugin.js";
 import type { GetAttributionMarkClassName } from "./YAttributionMarks.js";
 import { YSyncExtension } from "./YSync.js";
@@ -23,7 +18,7 @@ export type CollaborationOptions = {
   /**
    * The Yjs Type that's used for collaboration.
    */
-  fragment: Y.Type;
+  fragment: Y.Node;
   /**
    * The user info for the current user that's shown to other collaborators.
    */
@@ -71,20 +66,13 @@ export type CollaborationOptions = {
    * dropped for that mark. See {@link GetAttributionMarkClassName}.
    */
   getAttributionMarkClassName?: GetAttributionMarkClassName;
-
-  /**
-   * The endpoints for the versioning functionality.
-   */
-  versioningEndpoints?:
-    | VersioningEndpoints<Y.Type, Uint8Array>
-    | VersioningEndpointsFactory<Y.Type, Uint8Array>;
 };
 
 export const CollaborationExtension = createExtension(
-  ({ editor, options }: ExtensionOptions<CollaborationOptions>) => {
+  ({ options }: ExtensionOptions<CollaborationOptions>) => {
     // Build a single user store here (from a resolver callback or a store the
     // consumer passed in) and hand that same store down to every sub-extension
-    // that needs it — suggestions, suggestion-mark tooltips/colors, versioning —
+    // that needs it: suggestions and suggestion-mark tooltips/colors.
     // so they share one de-duped cache. Passing the resolved store (rather than
     // the raw resolver) is what guarantees the sharing: each child re-normalizes
     // it to itself instead of building its own.
@@ -92,21 +80,16 @@ export const CollaborationExtension = createExtension(
     const optionsWithUserStore = { ...options, resolveUsers: userStore };
     return {
       key: "collaboration",
+      fragment: options.fragment,
       userStore,
       blockNoteExtensions: [
         options.suggestionDoc
           ? SuggestionsExtension(optionsWithUserStore)
           : null,
         RelativePositionMappingExtension(),
+        ForkYDocExtension(options),
         YSyncExtension(optionsWithUserStore),
         YCursorExtension(options),
-        options.versioningEndpoints
-          ? VersioningExtension({
-              ...createYjsVersioningAdapter(editor, options.fragment),
-              endpoints: options.versioningEndpoints,
-              resolveUsers: userStore,
-            })
-          : null,
         AttributionExtension({
           resolveUsers: userStore,
           getAttributionMarkClassName: options.getAttributionMarkClassName,
@@ -132,14 +115,14 @@ export function withCollaboration<
       "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider",
     );
   }
+  // Keep normal ProseMirror history: the v14 sync plugin excludes incoming
+  // Yjs changes from the local undo stack.
   return {
     ...options,
     extensions: [
       ...(options.extensions ?? []),
       CollaborationExtension(options.collaboration),
     ],
-    // We disable the default prosemirror history plugin, since it's not compatible with yjs
-    disableExtensions: ["history", ...(options.disableExtensions ?? [])],
     // We don't want the default initial content, since it will generate a random id for the initial block on each client,
     // leading to conflicts when syncing happens afterwards.
     initialContent: [{ type: "paragraph", id: "initialBlockId" }],
@@ -148,9 +131,9 @@ export function withCollaboration<
 
 export * from "./AttributionExtension.js";
 export * from "./DiffVersioningExtension.js";
+export * from "./ForkYDoc.js";
 export * from "./RelativePositionMapping.js";
 export * from "./Suggestions.js";
-export * from "./Versioning.js";
 export * from "./YAttributionMarks.js";
 export * from "./YCursorPlugin.js";
 export * from "./YSync.js";

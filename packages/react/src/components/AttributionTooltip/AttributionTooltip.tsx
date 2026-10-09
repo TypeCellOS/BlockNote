@@ -19,10 +19,12 @@ export const AttributionTooltip = (props: AttributionTooltipProps) => {
   const dictionary = useDictionary();
 
   // Compose the fully-localized text from the raw change context — e.g.
-  // `"Inserted by: Alice"`, `"Deleted by: Alice"`, or
-  // `"Formatting change (Bold, Italic) by: Alice"`. The outer sentence comes
-  // from the `suggestion_changes` dictionary (translated per locale) and the
-  // inner format list from the configurable `formatChangeLabel`.
+  // `"Inserted by: Alice"` or `"Formatting change (Bold, Italic) by: Alice"`.
+  // A version diff has no authors and can't tell which intermediate version
+  // made a change, so it only names the kind of change (e.g. `"Inserted"`).
+  // The outer sentence comes from the `suggestion_changes` dictionary
+  // (translated per locale) and the inner format list from the configurable
+  // `formatChangeLabel`.
   const text = useMemo(() => {
     const changes = dictionary.suggestion_changes;
     const formatChangeLabel =
@@ -30,24 +32,36 @@ export const AttributionTooltip = (props: AttributionTooltipProps) => {
     const users = props.users.join(", ");
 
     if (props.modificationType === "insert") {
-      return changes.inserted_by(users);
+      return users ? changes.inserted_by(users) : changes.inserted;
     }
     if (props.modificationType === "delete") {
-      return changes.deleted_by(users);
+      return users ? changes.deleted_by(users) : changes.deleted;
+    }
+    if (props.modificationType === "change") {
+      return users ? changes.changed_by(users) : changes.changed;
+    }
+
+    if (props.modificationType === "attrs") {
+      return users
+        ? `${changes.formatting_change}: ${users}`
+        : changes.formatting_change;
     }
 
     const formatLabel = props.format
       ? formatChangeLabel({ format: props.format, dictionary })
       : "";
-    return changes.formatting_change_by(formatLabel, users);
-  }, [
-    dictionary,
-    props.formatChangeLabel,
-    props.users,
-    props.modificationType,
-    props.format,
-  ]);
-
+    // When the label falls back to the generic string (unknown/empty formats),
+    // rendering it inside `formatting_change_by` would duplicate it as
+    // "Formatting change (Formatting Change) by: ...", so list it once instead.
+    if (!formatLabel || formatLabel === changes.formatting_change) {
+      return users
+        ? `${changes.formatting_change}: ${users}`
+        : changes.formatting_change;
+    }
+    return users
+      ? changes.formatting_change_by(formatLabel, users)
+      : `${changes.formatting_change} (${formatLabel})`;
+  }, [dictionary, props]);
   return (
     <Components.AttributionTooltip.Root
       className={"bn-suggestion-tooltip"}

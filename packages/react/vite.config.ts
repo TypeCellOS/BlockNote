@@ -13,7 +13,8 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsc && vp build",
+            command:
+              "tsc --project tsconfig.json --composite false --incremental false --rootDir . && vp build",
             input: [
               ...buildCacheInputs("packages/react"),
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
@@ -52,6 +53,7 @@ export default defineConfig(
         lib: {
           entry: {
             "blocknote-react": path.resolve(__dirname, "src/index.ts"),
+            versioning: path.resolve(__dirname, "src/versioning.ts"),
           },
           name: "blocknote-react",
           cssFileName: "style",

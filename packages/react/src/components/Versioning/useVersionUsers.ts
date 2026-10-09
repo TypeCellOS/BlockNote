@@ -1,11 +1,8 @@
 import { User } from "@blocknote/core";
-import {
-  VersioningExtension,
-  VersionSnapshot,
-} from "@blocknote/core/extensions";
+import type { VersionSnapshot } from "@blocknote/core/extensions";
 import { useEffect } from "react";
 
-import { useExtension } from "../../hooks/useExtension.js";
+import { useVersioning } from "./useVersioning.js";
 import { useStore } from "../../hooks/useStore.js";
 
 /**
@@ -13,14 +10,14 @@ import { useStore } from "../../hooks/useStore.js";
  * aren't cached yet. Re-renders only when one of the requested users changes
  * (the store uses a shallow `Map` comparison).
  *
- * Versioning-scoped: it reads the store the {@link VersioningExtension} builds
+ * Versioning-scoped: it reads the store the versioning extension builds
  * from its `resolveUsers` option and exposes on its instance, so it must be
  * used within a versioning UI where that extension is registered.
  */
 export function useVersionUsers<U extends User = User>(
   userIds: string[],
 ): Map<string, U> {
-  const { userStore } = useExtension(VersioningExtension);
+  const { userStore } = useVersioning();
 
   // `userIds` is often a fresh array each render, so key the effect on its
   // contents rather than its identity to avoid re-loading on every render.

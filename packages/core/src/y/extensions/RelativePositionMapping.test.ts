@@ -416,3 +416,38 @@ describe.skip("RelativePositionMapping (@y/y)", () => {
     remoteEditor.unmount();
   });
 });
+
+it("tracks a block boundary through the view-based Yjs mapping API", async () => {
+  const doc = new Y.Doc();
+  const editor = BlockNoteEditor.create(
+    withCollaboration({
+      collaboration: {
+        fragment: doc.get("doc"),
+        user: { name: "Test", color: "#ff0000" },
+        provider: undefined,
+      },
+    }),
+  );
+  editor.mount(document.createElement("div"));
+  try {
+    // Binding initialization and repairs finish asynchronously.
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    editor.replaceBlocks(editor.document, [
+      { id: "first", type: "paragraph", content: "first" },
+      { id: "second", type: "paragraph", content: "second" },
+    ]);
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    const secondBlockPosition =
+      1 + editor.prosemirrorState.doc.firstChild!.firstChild!.nodeSize;
+    const restore = trackPosition(editor, secondBlockPosition);
+    expect(restore()).toBe(secondBlockPosition);
+    editor.updateBlock("first", { content: "a longer first paragraph" });
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    expect(restore()).toBe(
+      1 + editor.prosemirrorState.doc.firstChild!.firstChild!.nodeSize,
+    );
+  } finally {
+    editor.unmount();
+    doc.destroy();
+  }
+});

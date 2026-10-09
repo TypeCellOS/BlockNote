@@ -846,7 +846,7 @@ export const examples = {
           slug: "ui-components",
         },
         readme:
-          "This example demonstrates how to use the `DRAG_EXCLUSION_CLASSNAME` to create separate drag & drop areas that don't interfere with BlockNote's built-in block drag & drop functionality.\n\n## Features\n\n- **Drag Exclusion**: Elements with the `bn-drag-exclude` classname are treated as separate drag & drop operations\n- **Independent Drag Areas**: Create custom drag & drop functionality alongside BlockNote's editor\n- **No Interference**: Custom drag operations won't trigger BlockNote's block reordering\n- **Side-by-side Demo**: Shows the editor and custom drag area working independently\n\n## How It Works\n\nBy adding the `DRAG_EXCLUSION_CLASSNAME` (`bn-drag-exclude`) to an element, you tell BlockNote's drag & drop handlers to ignore all drag events within that element and its children. This allows you to implement your own custom drag & drop logic without conflicts.\n\nThe exclusion check works by traversing up the DOM tree from the drag event target, checking if any ancestor has the exclusion classname. If found, BlockNote's handlers return early, leaving your custom handlers in full control.\n\n## Code Highlights\n\n### Import the constant:\n\n```tsx\nimport { DRAG_EXCLUSION_CLASSNAME } from \"@blocknote/core\";\n```\n\n### Apply it to your custom drag area:\n\n```tsx\n<div className={\"drag-demo-section \" + DRAG_EXCLUSION_CLASSNAME}>\n  {/* Your custom drag & drop UI */}\n  <div draggable onDragStart={handleDragStart} onDrop={handleDrop}>\n    Custom draggable items\n  </div>\n</div>\n```\n\n## Use Cases\n\n- **Custom UI elements**: Add draggable components within or near the editor\n- **File upload areas**: Create drag-and-drop file upload zones\n- **Sortable lists**: Implement custom sortable lists alongside the editor\n- **External integrations**: Integrate with third-party drag & drop libraries\n\n**Relevant Docs:**\n\n- [Side Menu (Drag Handle)](/docs/react/components/side-menu)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+          "This example demonstrates how to use the `DRAG_EXCLUSION_CLASSNAME` to create separate drag & drop areas that don't interfere with BlockNote's built-in block drag & drop functionality.\n\n## Features\n\n- **Drag Exclusion**: Elements with the `bn-drag-exclude` classname are treated as separate drag & drop operations\n- **Independent Drag Areas**: Create custom drag & drop functionality alongside BlockNote's editor\n- **No Interference**: Custom drag operations won't trigger BlockNote's block reordering\n- **Side-by-side Demo**: Shows the editor and custom drag area working independently\n\n## How It Works\n\nBy adding the `DRAG_EXCLUSION_CLASSNAME` (`bn-drag-exclude`) to an element, you tell BlockNote's drag & drop handlers to ignore all drag events within that element and its children. This allows you to implement your own custom drag & drop logic without conflicts.\n\nThe exclusion check works by traversing up the DOM tree from the drag event target, checking if any ancestor has the exclusion classname. If found, BlockNote's handlers return early, leaving your custom handlers in full control.\n\n## Code Highlights\n\n### Import the constant:\n\n```tsx\nimport { DRAG_EXCLUSION_CLASSNAME } from \"@blocknote/core/extensions\";\n```\n\n### Apply it to your custom drag area:\n\n```tsx\n<div className={\"drag-demo-section \" + DRAG_EXCLUSION_CLASSNAME}>\n  {/* Your custom drag & drop UI */}\n  <div draggable onDragStart={handleDragStart} onDrop={handleDrop}>\n    Custom draggable items\n  </div>\n</div>\n```\n\n## Use Cases\n\n- **Custom UI elements**: Add draggable components within or near the editor\n- **File upload areas**: Create drag-and-drop file upload zones\n- **Sortable lists**: Implement custom sortable lists alongside the editor\n- **External integrations**: Integrate with third-party drag & drop libraries\n\n**Relevant Docs:**\n\n- [Side Menu (Drag Handle)](/docs/react/components/side-menu)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
         projectSlug: "suggestion-menus-grouping-ordering",
@@ -1650,7 +1650,7 @@ export const examples = {
           tags: ["Advanced", "Saving/Loading", "Collaboration"],
           dependencies: {
             "y-partykit": "^0.0.25",
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
           } as any,
         },
         title: "Collaborative Editing with PartyKit",
@@ -1676,7 +1676,7 @@ export const examples = {
             "@liveblocks/react-blocknote": "^3.19.5",
             "@liveblocks/react-tiptap": "^3.19.5",
             "@liveblocks/react-ui": "^3.19.5",
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
           } as any,
         },
         title: "Collaborative Editing with Liveblocks",
@@ -1759,7 +1759,7 @@ export const examples = {
           tags: ["Advanced", "Comments", "Collaboration"],
           dependencies: {
             "y-partykit": "^0.0.25",
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
             "@mantine/core": "^9.0.2",
           } as any,
         },
@@ -1782,7 +1782,7 @@ export const examples = {
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
             "y-partykit": "^0.0.25",
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
           } as any,
         },
         title: "Ghost Writer",
@@ -1804,7 +1804,7 @@ export const examples = {
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
             "y-partykit": "^0.0.25",
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
           } as any,
         },
         title: "Collaborative Editing with Forking",
@@ -1825,7 +1825,7 @@ export const examples = {
           author: "matthewlipski",
           tags: ["Advanced", "Comments", "Testing"],
           dependencies: {
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
           } as any,
         },
         title: "Comments Testing",
@@ -1847,8 +1847,8 @@ export const examples = {
           tags: ["Advanced", "Saving/Loading", "Collaboration"],
           dependencies: {
             "@y/protocols": "^1.0.6-rc.1",
-            "@y/y": "^14.0.0-rc.23",
-            "@y/prosemirror": "^2.0.0-6",
+            "@y/y": "^14.0.0-rc.26",
+            "@y/prosemirror": "^2.0.0-14",
             "@y/websocket": "^4.0.0-rc.2",
           } as any,
         },
@@ -1866,22 +1866,26 @@ export const examples = {
         pathFromRoot: "examples/07-collaboration/11-versioning-yjs13",
         config: {
           playground: true,
-          docs: true,
+          docs: false,
           author: "yousefed",
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
+            "@y/prosemirror": "^2.0.0-14",
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/y": "^14.0.0-rc.26",
             "y-websocket": "^2.1.0",
-            yjs: "^13.6.27",
-            lib0: "^0.2.99",
+            yjs: "^13.6.33",
+            lib0: "^0.2.119",
+            "y-prosemirror": "^1.3.7",
           } as any,
         },
-        title: "Local Storage Versioning (yjs v13)",
+        title: "Local Storage Versioning (Yjs v13, Experimental)",
         group: {
           pathFromRoot: "examples/07-collaboration",
           slug: "collaboration",
         },
         readme:
-          'This example shows how to use the `VersioningExtension` with collaborative editing using `yjs` (v13). Snapshots are stored in localStorage using Yjs state updates.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+          'This experimental playground example shows how to use `YjsVersioningExtension` with collaborative editing using Yjs v13. Snapshots are stored in localStorage using Yjs state updates.\n\nThe sidebar opens on a document with a few versions already in its history. You can preview, compare, rename, and restore a version. `DiffVersioningExtension` highlights insertions and deletions when comparing versions. It uses Yjs v14 internally for rendering, while the live collaborative document stays on Yjs v13. Diffs show content changes, not their original authors. Restoring replaces the live document content and saves the previous content as a "Backup" version. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button and name the current version to save it.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
       },
       {
         projectSlug: "multi-doc-versioning",
@@ -1895,8 +1899,9 @@ export const examples = {
           dependencies: {
             "@y/protocols": "^1.0.6-rc.1",
             "@y/websocket": "^4.0.0-3",
-            "@y/y": "^14.0.0-rc.23",
-            lib0: "1.0.0-rc.22",
+            "@y/y": "^14.0.0-rc.26",
+            lib0: "1.0.0-rc.36",
+            "@y/prosemirror": "^2.0.0-14",
           } as any,
         },
         title: "YHub Multi-Doc",
@@ -1905,7 +1910,7 @@ export const examples = {
           slug: "collaboration",
         },
         readme:
-          "This example shows a multi-document collaborative editor with per-document version history, using BlockNote's `VersioningExtension` and Y.js v14.\n\n**Features:**\n\n- User picker (per-tab identity via `sessionStorage`)\n- Left sidebar with document list (create, rename, delete)\n- Collaborative editing with Y.js (including suggestion mode)\n- Right sidebar with version history powered by `VersioningSidebar`\n- Per-document versioning backed by `localStorage`\n- Open multiple tabs with different users via the `?as=` URL param\n\n**Relevant Docs:**\n\n- [Versioning](https://www.blocknotejs.org/docs/collaboration/versioning)\n- [Y.js Collaboration](https://www.blocknotejs.org/docs/collaboration)",
+          'This example shows a multi-document collaborative editor with per-document version history, using BlockNote\'s `YVersioningExtension` and Y.js v14. Sync and history both come from [YHub](https://github.com/yjs/yhub), which records every edit and groups them into versions.\n\nA first visit creates a sample document whose history already has several versions by several users, so the history sidebar has something to show right away. The editor is read-only while the sidebar is open: close it to edit, then reopen it with the "History" button.\n\n**Features:**\n\n- User picker (per-tab identity via `sessionStorage`)\n- Left sidebar with document list (create, rename, delete)\n- Collaborative editing with Y.js (including suggestion mode)\n- Right sidebar with version history powered by `VersioningSidebar`\n- Per-document version history backed by YHub\n- Open multiple tabs with different users via the `?as=` URL param\n\n**Relevant Docs:**\n\n- [Versioning](https://www.blocknotejs.org/docs/collaboration/versioning)\n- [Y.js Collaboration](https://www.blocknotejs.org/docs/collaboration)',
       },
       {
         projectSlug: "versioning-yjs14",
@@ -1917,11 +1922,11 @@ export const examples = {
           author: "yousefed",
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
-            "@y/prosemirror": "^2.0.0-6",
+            "@y/prosemirror": "^2.0.0-14",
             "@y/protocols": "^1.0.6-rc.1",
             "@y/websocket": "^4.0.0-3",
-            "@y/y": "^14.0.0-rc.23",
-            lib0: "1.0.0-rc.22",
+            "@y/y": "^14.0.0-rc.26",
+            lib0: "1.0.0-rc.36",
           } as any,
         },
         title: "YHub Versioning (@y/y v14)",
@@ -1930,7 +1935,7 @@ export const examples = {
           slug: "collaboration",
         },
         readme:
-          'This example shows how to use the `VersioningExtension` with collaborative editing using `@y/y` (v14). Snapshots are stored in localStorage using Yjs v2 state updates.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+          'This example shows how to use `YVersioningExtension` with collaborative editing using `@y/y` (v14). Version history comes from [YHub](https://github.com/yjs/yhub), which records every edit and groups them into versions.\n\nThe sidebar opens on a document seeded with several versions by several users, so you can preview them, compare them, rename them, and restore them right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
       },
       {
         projectSlug: "suggestion-gallery",
@@ -1942,9 +1947,10 @@ export const examples = {
           author: "yousefed",
           tags: ["Advanced", "Development", "Collaboration"],
           dependencies: {
+            "@blocknote/diagram-block": "latest",
             "@blocknote/xl-multi-column": "latest",
             "@y/protocols": "^1.0.6-rc.1",
-            "@y/y": "^14.0.0-rc.23",
+            "@y/y": "^14.0.0-rc.26",
           } as any,
         },
         title: "Suggestion Scenarios Gallery",
@@ -1993,8 +1999,9 @@ export const examples = {
           author: "yousefed",
           tags: ["Extension"],
           dependencies: {
-            "@y/y": "^14.0.0-rc.23",
-            "@y/prosemirror": "^2.0.0-6",
+            "@y/y": "^14.0.0-rc.26",
+            "@y/prosemirror": "^2.0.0-14",
+            "react-icons": "^5.5.0",
           } as any,
         },
         title: "In-Memory Versioning",
@@ -2003,7 +2010,7 @@ export const examples = {
           slug: "extensions",
         },
         readme:
-          'This example shows how to use the `VersioningExtension` without any collaboration layer (no Yjs required). Snapshots are stored in memory using ProseMirror JSON.\n\n**Try it out:** Edit the document, then use the Version History sidebar to save snapshots, preview older versions, rename them, and restore them. You can hide the sidebar with the close button and reopen it with the "History" button.',
+          'This example shows how to use `InMemoryVersioningExtension` without a collaboration layer. It seeds history with ProseMirror document JSON, which the extension converts to immutable documents using the editor\'s schema. `initialVersions` also accepts BlockNote JSON as arrays of partial blocks.\n\nThe sidebar opens on a document with a few versions already in its history, including an automatic unnamed version, so you can preview them, compare them, rename them, restore them, and try the named-only filter right away. The editor is read-only while the sidebar is open: close it to edit the document, then reopen it with the "History" button.',
       },
     ],
   },
@@ -2095,7 +2102,7 @@ export const examples = {
             "@mantine/core": "^9.0.2",
             ai: "^6.0.5",
             "y-partykit": "^0.0.25",
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
           } as any,
         },
         title: "AI + Ghost Writer",
@@ -2120,7 +2127,7 @@ export const examples = {
             "@mantine/core": "^9.0.2",
             ai: "^6.0.5",
             "y-partykit": "^0.0.25",
-            yjs: "^13.6.27",
+            yjs: "^13.6.33",
           } as any,
         },
         title: "AI manual execution",

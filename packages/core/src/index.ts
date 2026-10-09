@@ -16,8 +16,13 @@ export * from "./editor/BlockNoteExtension.js";
 export * from "./editor/defaultColors.js";
 export * from "./editor/selectionTypes.js";
 export * from "./exporter/index.js";
-export * from "./extensions/index.js";
 export * from "./extensions-shared/UiElementPosition.js";
+export { getDefaultEmojiPickerItems } from "./extensions/SuggestionMenu/getDefaultEmojiPickerItems.js";
+export {
+  filterSuggestionItems,
+  getDefaultSlashMenuItems,
+  insertOrUpdateBlockForSlashMenu,
+} from "./extensions/SuggestionMenu/getDefaultSlashMenuItems.js";
 export * from "./i18n/dictionary.js";
 export * from "./schema/index.js";
 export * from "./user/index.js";
@@ -44,7 +49,6 @@ export { selectedFragmentToHTML } from "./api/clipboard/toClipboard/copyExtensio
 export * from "./api/nodeConversions/blockToNode.js";
 export * from "./api/nodeConversions/fragmentToBlocks.js";
 export * from "./api/nodeConversions/nodeToBlock.js";
-export * from "./extensions/tiptap-extensions/UniqueID/UniqueID.js";
 
 // for server-util (TODO: maybe move):
 export * from "./api/exporters/markdown/markdownExporter.js";

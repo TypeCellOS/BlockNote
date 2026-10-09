@@ -1,115 +1,74 @@
-import { configureYProsemirror, pauseSync } from "@y/prosemirror";
+import { pauseSync, ySyncPluginKey } from "@y/prosemirror";
 import * as Y from "@y/y";
-
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import type { PreviewController } from "../../extensions/Versioning/index.js";
-import {
-  findTypeInOtherYdoc,
-  getProseMirrorTrFromYFragment,
-} from "../utils.js";
+import type { VersionViewAdapter } from "../../extensions/Versioning/types.js";
+import type {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
+import { ForkYDocExtension } from "./ForkYDoc.js";
+import { serializeFragment } from "./snapshotCodec.js";
+import { showSnapshotPreview } from "./snapshotPreview.js";
 
-/**
- * Empties the document before a {@link configureYProsemirror} refill so
- * ProseMirror rebuilds every node view instead of reusing a stale-positioned one
- * (BlockNote node views resolve their block eagerly via `getPos()` and throw on
- * a moved node). Sync is paused first so the clear never reaches the Y.Doc.
- *
- * TODO: remove once `configureYProsemirror` applies a minimal diff.
- */
-function clearDocumentForConfigure(editor: BlockNoteEditor<any, any, any>) {
-  // Pause sync (ytype -> null) so the deletion below stays local.
-  editor.exec(pauseSync);
-  editor.removeBlocks(editor.document);
-}
-
-/**
- * Creates a Yjs-specific adapter that provides the {@link PreviewController}
- * and `getCurrentDocument` callback required by the base
- * {@link VersioningExtension}.
- *
- * This is wired automatically by the {@link CollaborationExtension} when
- * `versioningEndpoints` is provided. You only need to call this directly if
- * you're using the `VersioningExtension` outside of the collaboration wrapper.
- */
-export function createYjsVersioningAdapter(
-  editor: BlockNoteEditor<any, any, any>,
-  fragment: Y.Type,
-): {
-  preview: PreviewController<Uint8Array, Y.ContentMap>;
-  getCurrentDocument: () => Y.Type;
-  serializeCurrentContent: () => Uint8Array;
-} {
+/** Uses the existing fork primitive, but exposes only an owned view. */
+export function createYVersionView<
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema,
+>(
+  editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
+  fragment: Y.Node,
+): VersionViewAdapter<Uint8Array, Y.ContentMap> {
   return {
-    getCurrentDocument: () => fragment,
-    // Serialise the live document as a V2 update — the same format that
-    // `getContent` returns (via `convertUpdateFormatV1ToV2`) and that
-    // `enterPreview` consumes (`applyUpdateV2`). Used to render a read-only
-    // diff of the live document against a snapshot.
-    serializeCurrentContent: () => Y.encodeStateAsUpdateV2(fragment.doc!),
-    preview: {
-      enterPreview: (
-        snapshotContent: Uint8Array,
-        compareToContent?: Uint8Array,
-        attributions?: Y.ContentMap,
-      ) => {
-        let prevSnapshot: { fragment: Y.Type } | undefined;
-        if (compareToContent) {
-          const compareToDoc = new Y.Doc({ isSuggestionDoc: true });
-          Y.applyUpdateV2(compareToDoc, compareToContent);
-          prevSnapshot = {
-            fragment: findTypeInOtherYdoc(fragment, compareToDoc),
-          };
-        }
-
-        const doc = new Y.Doc();
-        Y.applyUpdateV2(doc, snapshotContent);
-        // Empty the document before reconfiguring so ProseMirror rebuilds node
-        // views from scratch instead of reusing stale-positioned ones. See
-        // clearDocumentForConfigure.
-        clearDocumentForConfigure(editor);
-
-        editor.exec((state, dispatch) => {
-          const tr = getProseMirrorTrFromYFragment({
-            tr: state.tr,
-            fragment: findTypeInOtherYdoc(fragment, doc),
-            // Pass the optional content map as `attrs` so the diff renderer
-            // knows who/when authored each change. Without it, the renderer
-            // only produces "what changed" (empty userIds, null timestamps) and
-            // downstream mark tooltips show "unknown / unknown time".
-            renderer: prevSnapshot
-              ? Y.createDiffRenderer(
-                  prevSnapshot.fragment.doc!,
-                  doc,
-                  attributions ? { attrs: attributions } : undefined,
-                )
-              : undefined,
-          });
-          if (dispatch) {
-            dispatch(tr);
+    supportsComparison: true,
+    open() {
+      const fork = editor.getExtension(ForkYDocExtension);
+      const binding = ySyncPluginKey.getState(editor.prosemirrorState);
+      if (
+        !fork ||
+        fork.store.state.isForked ||
+        binding?.renderer ||
+        binding?.ytype !== fragment
+      ) {
+        throw new Error(
+          "Versioning requires an active plain live binding and an available fork",
+        );
+      }
+      const current = {
+        content: serializeFragment(fragment),
+        capturedAt: Date.now(),
+      };
+      try {
+        fork.fork();
+        editor.exec((state, dispatch) => pauseSync(state, dispatch ?? null));
+      } catch (error) {
+        fork.merge({ keepChanges: false });
+        throw error;
+      }
+      let closed = false;
+      return {
+        current,
+        show({ content, comparison }) {
+          if (closed) {
+            throw new Error("Version view is closed");
           }
-          return true;
-        });
-      },
-      exitPreview: () => {
-        // Empty the document before reconfiguring so ProseMirror rebuilds node
-        // views from scratch instead of reusing stale-positioned ones. See
-        // clearDocumentForConfigure.
-        clearDocumentForConfigure(editor);
-        editor.exec(configureYProsemirror({ ytype: fragment }));
-      },
-      applyRestore: (_snapshotContent: Uint8Array) => {
-        // For Yjs-backed versioning, restoration happens on the server (e.g.
-        // YHub's `/rollback` endpoint) which publishes a reverting update to
-        // the document's room. That update propagates back to this client over
-        // the live sync connection and updates `fragment` automatically, so
-        // there is nothing to apply locally — we only need to leave preview
-        // mode. `exitPreview` is already called by the base extension before
-        // this runs, so this is a no-op.
-        //
-        // Note: this assumes `endpoints.restore` performs the server-side
-        // restore. The default in-memory adapter has no server, which is why
-        // this is specific to the Yjs collaboration setup.
-      },
+          showSnapshotPreview(
+            editor,
+            fragment,
+            content,
+            comparison?.content,
+            comparison?.attributions,
+          );
+        },
+        close() {
+          if (closed) {
+            return;
+          }
+          fork.merge({ keepChanges: false });
+          closed = true;
+        },
+      };
     },
   };
 }

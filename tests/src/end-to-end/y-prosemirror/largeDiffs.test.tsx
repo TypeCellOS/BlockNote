@@ -9,7 +9,7 @@
  * wrapped in nested suggestion marks) is heavy enough that the browser page
  * crashes on render ("page closed unexpectedly"), with or without a screenshot.
  * These large-diff scenarios ARE exercised (headless, no crash) by
- * `versioning.test`, which runs every gallery scenario through `enterPreview`.
+ * `versioning.test`, which runs every gallery scenario through an isolated version view.
  * The bodies below assert the diff structurally and are ready to un-skip if the
  * suggestion render gets lighter (e.g. virtualised) or the media is stubbed.
  */

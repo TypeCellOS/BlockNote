@@ -86,13 +86,15 @@ NESTED BLOCKS
   margin-left: 24px;
 }
 
-.bn-block-group .bn-block-group > .bn-block-outer {
+/* Attribution wrappers use display: contents; descendant selectors also reach
+   nested blocks inside those wrappers. */
+.bn-block-group .bn-block-group .bn-block-outer {
   position: relative;
 }
 
 .bn-block-group
   .bn-block-group
-  > .bn-block-outer:not([data-prev-depth-changed])::before {
+  .bn-block-outer:not([data-prev-depth-changed])::before {
   content: " ";
   display: inline;
   position: absolute;
@@ -103,7 +105,7 @@ NESTED BLOCKS
 
 .bn-block-group
   .bn-block-group
-  > .bn-block-outer[data-prev-depth-change="-2"]::before {
+  .bn-block-outer[data-prev-depth-change="-2"]::before {
   height: 0;
 }
 
@@ -204,8 +206,20 @@ NESTED BLOCKS
   > .bn-block-content[data-content-type="heading"],
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > :is(ins, del, [data-type="attributes"])
+  > span
+  > :is(ins, del, [data-type="attributes"])
+  > span
+  > .bn-block-content[data-content-type="heading"],
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
   > div[data-type="modification"]
   > div[data-type="modification"]
+  > .bn-block-content[data-content-type="heading"],
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > [data-type="attributes"]
+  > span
   > .bn-block-content[data-content-type="heading"],
 .bn-block-outer:not([data-prev-type])
   > .bn-block
@@ -263,6 +277,18 @@ NESTED BLOCKS
 
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="numberedListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > :is(ins, del, [data-type="attributes"])
+  > span
+  > :is(ins, del, [data-type="attributes"])
+  > span
+  > .bn-block-content[data-content-type="numberedListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > [data-type="attributes"]
+  > span
   > .bn-block-content[data-content-type="numberedListItem"]::before,
 .bn-block-outer:not([data-prev-type])
   > .bn-block
@@ -369,15 +395,41 @@ NESTED BLOCKS
   background-color: var(--bn-colors-hovered-background);
 }
 
-/* No list nesting */
-.bn-block-outer[data-prev-type="bulletListItem"]
-  > .bn-block
-  > .bn-block-content::before {
-  content: "•";
+/* Keep the marker on the group so it inherits through attribution wrappers
+   between the group and its blocks. Each group resets it, so a list nested
+   under a paragraph starts with a disc again. */
+.bn-block-group {
+  --bn-bullet-marker: "•";
 }
 
+[data-content-type="bulletListItem"] ~ .bn-block-group {
+  --bn-bullet-marker: "◦";
+}
+
+[data-content-type="bulletListItem"]
+  ~ .bn-block-group
+  [data-content-type="bulletListItem"]
+  ~ .bn-block-group {
+  --bn-bullet-marker: "▪\FE0E";
+}
+
+.bn-block-outer[data-prev-type="bulletListItem"]
+  > .bn-block
+  > .bn-block-content::before,
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="bulletListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > :is(ins, del, [data-type="attributes"])
+  > span
+  > :is(ins, del, [data-type="attributes"])
+  > span
+  > .bn-block-content[data-content-type="bulletListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > [data-type="attributes"]
+  > span
   > .bn-block-content[data-content-type="bulletListItem"]::before,
 .bn-block-outer:not([data-prev-type])
   > .bn-block
@@ -388,63 +440,16 @@ NESTED BLOCKS
   > :is(ins, del)
   > .bn-suggestion-node
   .bn-block-content[data-content-type="bulletListItem"]::before {
-  content: "•";
-}
-
-/* 1 level of list nesting */
-[data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  > .bn-block-outer[data-prev-type="bulletListItem"]
-  > .bn-block
-  > .bn-block-content::before {
-  content: "◦";
-}
-
-[data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  > .bn-block-outer:not([data-prev-type])
-  > .bn-block
-  > .bn-block-content[data-content-type="bulletListItem"]::before,
-[data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  > .bn-block-outer:not([data-prev-type])
-  > .bn-block
-  > div[data-type="modification"]
-  > .bn-block-content[data-content-type="bulletListItem"]::before {
-  content: "◦";
-}
-
-/* 2 levels of list nesting */
-[data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  [data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  > .bn-block-outer[data-prev-type="bulletListItem"]
-  > .bn-block
-  > .bn-block-content::before {
-  content: "▪\FE0E";
-}
-
-[data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  [data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  > .bn-block-outer:not([data-prev-type])
-  > .bn-block
-  > .bn-block-content[data-content-type="bulletListItem"]::before,
-[data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  [data-content-type="bulletListItem"]
-  ~ .bn-block-group
-  > .bn-block-outer:not([data-prev-type])
-  > .bn-block
-  > div[data-type="modification"]
-  > .bn-block-content[data-content-type="bulletListItem"]::before {
-  content: "▪\FE0E";
+  content: var(--bn-bullet-marker);
 }
 
 /* CODE BLOCKS */
-.bn-block-content[data-content-type="codeBlock"] {
+.bn-block-content[data-content-type="codeBlock"],
+/* Keep the code surface above suggestion fills and resets in both themes.
+   Source-popup previews have no direct <pre> and keep their transparent surface. */
+.bn-root
+  .bn-suggestion-node
+  .bn-block-content[data-content-type="codeBlock"]:has(> pre) {
   position: relative;
 
   background-color: rgb(22 22 22);
@@ -452,6 +457,7 @@ NESTED BLOCKS
   border-radius: 8px;
 }
 .bn-block-content[data-content-type="codeBlock"] > pre {
+  --bn-suggestion-surface: rgb(22 22 22);
   white-space: pre;
   overflow-x: auto;
   margin: 0;
@@ -501,13 +507,13 @@ NESTED BLOCKS
 
 /* Default to dark theme as the code block has a dark background regardless of theme. */
 .shiki {
-  color: var(--shiki-dark);
+  color: var(--bn-suggestion-token-color, var(--shiki-dark));
 }
 .bn-source-block-popup .shiki {
-  color: var(--shiki-light);
+  color: var(--bn-suggestion-token-color, var(--shiki-light));
 }
 .bn-root[data-color-scheme="dark"] .bn-source-block-popup .shiki {
-  color: var(--shiki-dark);
+  color: var(--bn-suggestion-token-color, var(--shiki-dark));
 }
 
 .bn-preview-with-source-popup {
@@ -1096,9 +1102,15 @@ div[data-type="modification"] {
   border-radius: 4px;
 }
 
+/* Lift attribution fills above the dark editor surface. Mixing the already
+   dark author color with black made short insertions nearly invisible. */
 .dark.bn-root ins,
 .dark.bn-root del {
-  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 25%,
+    var(--bn-colors-editor-background)
+  );
   color: var(--user-color-light);
 }
 
@@ -1111,13 +1123,19 @@ from the wrapper. The `.bn-root ins, .bn-root del` rules above still style
 serialized/static output, where the wrapper is a real, painted box.
 */
 .bn-suggestion-mark {
+  --bn-suggestion-token-color: currentColor;
   background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
   color: var(--user-color-dark);
   border-radius: 4px;
 }
 
-.dark.bn-root .bn-suggestion-mark {
-  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
+.dark.bn-root .bn-suggestion-mark,
+.bn-block-content[data-content-type="codeBlock"] > pre .bn-suggestion-mark {
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 25%,
+    var(--bn-suggestion-surface, var(--bn-colors-editor-background))
+  );
   color: white;
 }
 
@@ -1138,7 +1156,11 @@ row/cell). Block deletions that *do* wrap blocks are restyled per-block below.
 }
 
 .dark.bn-root .bn-suggestion-node > * {
-  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 25%,
+    var(--bn-colors-editor-background)
+  );
 }
 
 /*
@@ -1155,11 +1177,12 @@ that wrap blocks get a per-block badge below instead.
   display: inline-block;
   margin-right: 6px;
   padding: 0 4px;
+  /* Matches the block-level badge below, so the two read as one label style. */
   font-size: 11px;
-  font-weight: bold;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  line-height: 1.4;
+  line-height: 16px;
   vertical-align: middle;
   /* Use the editor's text color (themed for light/dark) rather than inheriting,
      which would pick up the deleted content's user color. */
@@ -1196,11 +1219,16 @@ apart. It can be nested below `.bn-block-content` (e.g. code wraps it in <pre>),
 hence the descendant match.
 */
 .bn-suggestion-node--delete .bn-block-content .bn-inline-content {
+  --bn-suggestion-token-color: currentColor;
   color: var(--user-color-dark);
   text-decoration: line-through;
 }
 
-.dark.bn-root .bn-suggestion-node--delete .bn-block-content .bn-inline-content {
+.dark.bn-root .bn-suggestion-node--delete .bn-block-content .bn-inline-content,
+.bn-suggestion-node--delete
+  .bn-block-content[data-content-type="codeBlock"]
+  > pre
+  .bn-inline-content {
   color: var(--user-color-light);
 }
 
@@ -1208,8 +1236,8 @@ hence the descendant match.
 Deleted table cells are a special case: a <tr>/<td> has no `.bn-block-content` and
 its text sits in a bare <p> (not `.bn-inline-content`), so neither the
 strikethrough above nor the block card reaches it — and a table row/cell can't
-host the "Deleted" card anyway. Treat them like inline deletions instead: strike
-the cell text through in the author's color, and suppress the fallback badge.
+host the "Deleted" card anyway. Strike the cell text through in the author's
+color and suppress badges inside cells, including nested paragraph badges.
 */
 .bn-suggestion-node--delete :is(td, th) p {
   color: var(--user-color-dark);
@@ -1220,7 +1248,8 @@ the cell text through in the author's color, and suppress the fallback badge.
   color: var(--user-color-light);
 }
 
-.bn-suggestion-node--delete > :is(table, tr, td, th):first-child::before {
+.bn-suggestion-node--delete > :is(table, tr, td, th):first-child::before,
+:is(td, th) .bn-suggestion-node--delete > :first-child::before {
   content: none;
 }
 
@@ -1233,16 +1262,56 @@ spans the whole subtree; the media wrapper exists only for files), but it sets
 only non-collapsing properties — background / radius / padding never depend on the
 content's intrinsic size, so no block can break.
 */
+/* Attribute changes use the same card for text blocks as for media blocks. */
+[data-type="attributes"] > .bn-suggestion-node > .bn-block-content,
 .bn-suggestion-node .bn-block-content:not(:has(.bn-inline-content)) {
+  /* The card bleeds this far into the gutters on both sides, so tinting a block
+     never shifts its content sideways. */
+  --bn-suggestion-card-inset: 6px;
   background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
-  border-radius: 16px;
-  padding: 12px;
+  border-radius: 6px;
+  /* A hairline in the author's color, so a pale tint still reads as a card. */
+  box-shadow: 0 0 0 1px
+    color-mix(in srgb, var(--user-color-dark) 25%, transparent);
+  padding: 3px var(--bn-suggestion-card-inset);
+  margin-left: calc(-1 * var(--bn-suggestion-card-inset));
+  width: calc(100% + 2 * var(--bn-suggestion-card-inset));
 }
 
 .dark.bn-root
+  [data-type="attributes"]
+  > .bn-suggestion-node
+  > .bn-block-content,
+.dark.bn-root
   .bn-suggestion-node
   .bn-block-content:not(:has(.bn-inline-content)) {
-  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 25%,
+    var(--bn-colors-editor-background)
+  );
+}
+
+/* Source-backed blocks can carry attribution inside a clipped popup while
+   their visible preview has no mark. Frame the preview with a subtle diff
+   color rather than the entire block column. */
+.bn-block-content
+  .bn-preview-with-source-popup:has(.bn-source-block-popup .bn-suggestion-mark)
+  .bn-preview-container {
+  background-color: color-mix(in srgb, #c9efe9 50%, white);
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, #0f6e62 25%, transparent);
+}
+
+.dark.bn-root
+  .bn-block-content
+  .bn-preview-with-source-popup:has(.bn-source-block-popup .bn-suggestion-mark)
+  .bn-preview-container {
+  background-color: color-mix(
+    in srgb,
+    #c9efe9 25%,
+    var(--bn-colors-editor-background)
+  );
 }
 
 /*
@@ -1250,11 +1319,13 @@ Media (image/video/audio/file) has an intrinsic width via its
 `.bn-file-block-content-wrapper`, so the card hugs it instead of spanning the
 column. Width-less blocks (a divider's `flex: 1` <hr>, a table) keep full width on
 purpose — `fit-content` would collapse them to nothing, and full width is the
-right look for them anyway. This is the only place that touches sizing, and it's
+right look for them anyway. Audio previews also need full width: their player and
+wrapper both use percentage widths, so shrink-wrapping hides the controls.
+This is the only place that touches sizing, and it's
 gated on a wrapper that only width-bearing blocks have.
 */
 .bn-suggestion-node
-  .bn-block-content:not(:has(.bn-inline-content)):has(
+  .bn-block-content:not(:has(.bn-inline-content, .bn-audio)):has(
     > .bn-file-block-content-wrapper
   ) {
   width: fit-content;
@@ -1262,11 +1333,12 @@ gated on a wrapper that only width-bearing blocks have.
 
 /*
 A deletion additionally flags the block with the localized "Deleted" label, placed
-above the content (out of flow) with extra top padding reserving its row.
+above the content (out of flow) with extra top padding reserving its row: the
+card's own 3px, the label's 16px line box, and 2px of breathing room under it.
 */
 .bn-suggestion-node--delete .bn-block-content:not(:has(.bn-inline-content)) {
   position: relative;
-  padding: 48px 24px 24px;
+  padding-top: calc(3px + 16px + 2px);
 }
 
 .bn-suggestion-node--delete
@@ -1275,11 +1347,13 @@ above the content (out of flow) with extra top padding reserving its row.
   /* Sits in the reserved top padding, above the content. Out of flow so it never
      becomes a flex item beside the block. */
   position: absolute;
-  top: 16px;
-  left: 24px;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1.2;
+  top: 3px;
+  left: var(--bn-suggestion-card-inset);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   /* Use the editor's text color (themed for light/dark) rather than inheriting,
      which would pick up the suggestion's user color. */
   color: var(--bn-colors-editor-text);
@@ -1317,7 +1391,11 @@ left untouched so only the dotted underline carries the color. Both the inline
 
 .dark.bn-root [data-type="modification"] .bn-suggestion-mark:hover,
 .dark.bn-root [data-type="modification"] .bn-suggestion-node:hover > * {
-  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
+  background-color: color-mix(
+    in srgb,
+    var(--user-color-light) 25%,
+    var(--bn-colors-editor-background)
+  );
 }
 
 /*
@@ -1330,7 +1408,10 @@ background fill (unlike insertions, which carry a filled highlight).
   text-decoration: line-through;
 }
 
-.dark.bn-root .bn-suggestion-mark--delete {
+.dark.bn-root .bn-suggestion-mark--delete,
+.bn-block-content[data-content-type="codeBlock"]
+  > pre
+  .bn-suggestion-mark--delete {
   background-color: transparent;
   color: var(--user-color-light);
 }

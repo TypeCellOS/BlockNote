@@ -21,7 +21,7 @@ import {
  */
 export type AttributionMarkStyleInfo = {
   contentType: "inline-content" | "block";
-  modificationType: "insert" | "delete" | "format";
+  modificationType: "insert" | "delete" | "format" | "attrs";
 };
 
 /**
@@ -63,6 +63,28 @@ export const resolveAttributionMarkClassName = (
       ? result
       : result[target];
 
+/** The upstream attribute mark stores authors separately for each changed property. */
+export type AttributeChanges = Record<
+  string,
+  { userIds: string[]; timestamp: number | null }
+>;
+
+export function getAttributeChanges(mark: PMMark): AttributeChanges {
+  return mark.attrs["changes"] ?? {};
+}
+
+export function getAttributionUserIds(mark: PMMark): string[] {
+  return mark.type.name === "y-attributed-attrs"
+    ? [
+        ...new Set(
+          Object.values(getAttributeChanges(mark)).flatMap(
+            (change) => change.userIds,
+          ),
+        ),
+      ]
+    : (mark.attrs["userIds"] ?? []);
+}
+
 /**
  * Shared mark view for the attribution marks (insert / delete / modification).
  * It renders the marked content and tags the wrapper with the author(s) via
@@ -82,7 +104,7 @@ export const resolveAttributionMarkClassName = (
  */
 const createAttributionMarkView =
   (
-    type: "insert" | "delete" | "modification",
+    type: "insert" | "delete" | "modification" | "attrs",
     options?: {
       editor?: BlockNoteEditor<any, any, any>;
       getAttributionMarkClassName?: GetAttributionMarkClassName;
@@ -90,6 +112,26 @@ const createAttributionMarkView =
   ) =>
   ({ mark, inline }: { mark: PMMark; inline: boolean }) => {
     const editor = options?.editor;
+    // A block's id isn't content users edit, so a change to it isn't shown
+    // (e.g. a diff pairing a deleted block with the editor's empty one).
+    // Inline content may have an `id` prop of its own, which is.
+    const allChanges = getAttributeChanges(mark);
+    const { id: _id, ...blockChanges } = allChanges;
+    const changes = inline ? allChanges : blockChanges;
+    if (type === "attrs" && Object.keys(changes).length === 0) {
+      const dom = document.createElement(inline ? "span" : "div");
+      dom.style.display = "contents";
+      return { dom, contentDOM: dom };
+    }
+    // Only the authors of the shown changes, not of a hidden id change.
+    const userIds =
+      type === "attrs"
+        ? [
+            ...new Set(
+              Object.values(changes).flatMap((change) => change.userIds),
+            ),
+          ]
+        : getAttributionUserIds(mark);
     // `<ins>`/`<del>` are semantic elements. The modification mark has no
     // dedicated element, so it renders as a `<span>` inline or a `<div>` over a
     // block, matching its `parseDOM` rules.
@@ -104,9 +146,13 @@ const createAttributionMarkView =
     const dom = document.createElement(tag);
 
     Object.assign(dom.dataset, {
-      userIds: JSON.stringify(mark.attrs["userIds"]),
+      userIds: JSON.stringify(userIds),
       inline: String(inline),
     });
+    if (type === "attrs") {
+      dom.dataset["type"] = "attributes";
+      dom.dataset["attributes"] = JSON.stringify(changes);
+    }
     if (type === "modification") {
       dom.dataset["type"] = "modification";
       dom.dataset["format"] = JSON.stringify(mark.attrs["format"]);
@@ -137,7 +183,6 @@ const createAttributionMarkView =
     // fallback, so a mark is colored before the user resolves and recolors via
     // the cascade afterward. When an override class owns the styling, no per-user
     // color is applied at all.
-    const userIds = (mark.attrs["userIds"] as string[] | null) ?? [];
     const firstId = userIds[0];
     const fallback = firstId
       ? fallbackColorForUserId(firstId)
@@ -208,7 +253,8 @@ export const YAttributedInsertion = Mark.create<{
 }>({
   name: "y-attributed-insert",
   inclusive: false,
-  excludes: "",
+  // Keep default self-exclusion: an updated author list replaces this mark,
+  // while insertion, deletion, and formatting marks can still coexist.
   // Two groups: `BLOCK_LEVEL_SUGGESTION_GROUP` lets the mark sit on block nodes
   // (see `suggestionMarks`), so a whole block can be marked as inserted in
   // suggestion mode; `NON_FORMATTING_MARK_GROUP` lets it annotate text inside
@@ -240,7 +286,6 @@ export const YAttributedDeletion = Mark.create<{
 }>({
   name: "y-attributed-delete",
   inclusive: false,
-  excludes: "",
   group: `${BLOCK_LEVEL_SUGGESTION_GROUP} ${NON_FORMATTING_MARK_GROUP}`,
   addAttributes() {
     return {
@@ -268,7 +313,6 @@ export const YAttributedFormat = Mark.create<{
 }>({
   name: "y-attributed-format",
   inclusive: false,
-  excludes: "",
   group: `${BLOCK_LEVEL_SUGGESTION_GROUP} ${NON_FORMATTING_MARK_GROUP}`,
   addAttributes() {
     return {
@@ -291,8 +335,34 @@ export const YAttributedFormat = Mark.create<{
   },
 });
 
+export const YAttributedAttributes = Mark.create<{
+  getAttributionMarkClassName?: GetAttributionMarkClassName;
+}>({
+  name: "y-attributed-attrs",
+  // Wrap insertion/deletion marks, so their content spans still directly wrap
+  // the node that paints the highlight or deletion badge (especially tables).
+  priority: 110,
+  inclusive: false,
+  // Keep ProseMirror's default self-exclusion: each update replaces the
+  // per-property map instead of stacking stale copies of the mark.
+  group: `${BLOCK_LEVEL_SUGGESTION_GROUP} ${NON_FORMATTING_MARK_GROUP}`,
+  addAttributes() {
+    return { changes: { default: null } };
+  },
+  addMarkView() {
+    return createAttributionMarkView("attrs", {
+      getAttributionMarkClassName: this.options.getAttributionMarkClassName,
+    });
+  },
+  extendMarkSchema(extension) {
+    return extension.name === this.name
+      ? ({ blocknoteIgnore: true } satisfies MarkSpec)
+      : {};
+  },
+});
+
 /**
- * Bundles the three `y-attributed-*` suggestion marks into a single BlockNote
+ * Bundles the four `y-attributed-*` suggestion marks into a single BlockNote
  * extension, so they can be registered wherever they're actually needed (the
  * Yjs collaboration extension, or a test that exercises suggestions) instead of
  * living in the default schema. The marks opt into being allowed on block nodes
@@ -310,6 +380,9 @@ export const YAttributionMarksExtension = createExtension(
         getAttributionMarkClassName: options?.getAttributionMarkClassName,
       }),
       YAttributedDeletion.configure({
+        getAttributionMarkClassName: options?.getAttributionMarkClassName,
+      }),
+      YAttributedAttributes.configure({
         getAttributionMarkClassName: options?.getAttributionMarkClassName,
       }),
       YAttributedFormat.configure({
