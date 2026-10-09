@@ -76,6 +76,9 @@ export function createYHubVersionStorage(
 ): YHubStorage {
   const { fragment, beforeRestoreName } = options;
   const client = new YHubClient(options);
+  // Set by `list`, which is where snapshot ids come from. Comparing to the
+  // beginning includes its own edits; comparing to a later snapshot doesn't.
+  let beginningId: string | undefined;
   function timestamps(id: string) {
     const parts = id.split("-");
     const from = Number(parts[0]);
@@ -156,6 +159,9 @@ export function createYHubVersionStorage(
       }
       // The pinned beginning is not part of the page boundary.
       const firstSnapshot = firstSnapshotResult?.value[0];
+      if (firstSnapshot) {
+        beginningId = `${firstSnapshot.from}-${firstSnapshot.to}`;
+      }
       if (
         firstSnapshot &&
         !entries.some((entry) => entry.to === firstSnapshot.to)
@@ -196,10 +202,10 @@ export function createYHubVersionStorage(
     },
     async getContent(id, signal, { baseline = false } = {}) {
       const { from, to } = timestamps(id);
-      // YHub includes edits at `to`. A baseline must precede the first edit in
-      // the window; the attribution query below still includes that edit at `from`.
+      // YHub includes edits at `to`. The beginning's baseline must precede its
+      // first edit; the attribution query below still includes that edit at `from`.
       const result = await client.getContent(
-        baseline ? Math.max(0, from - 1) : to,
+        baseline && id === beginningId ? Math.max(0, from - 1) : to,
         signal,
       );
       return result.ok
@@ -207,9 +213,9 @@ export function createYHubVersionStorage(
         : result;
     },
     async getAttributions(target, baselineId, _capturedAt, signal) {
-      const { from } = timestamps(baselineId);
+      const { from, to } = timestamps(baselineId);
       const result = await client.getAttributions(
-        from,
+        baselineId === beginningId ? from : to + 1,
         // Use the server's current time, not the potentially skewed client clock.
         target.type === "current" ? undefined : timestamps(target.id).to,
         signal,

@@ -79,137 +79,182 @@ function request(index: number) {
   };
 }
 
+/**
+ * Types `a`, `b`, `c` as separate edits at 1000, 1100 and 1200 (by the given
+ * authors), serves them through a mocked YHub with the given activity, and
+ * returns each character of the shown comparison with the authors that the
+ * diff credits it to (none = not changed).
+ */
+async function compareCharacters({
+  authors,
+  activity,
+  target,
+  compareTo,
+  showCurrentVersion = false,
+}: {
+  authors: [string, string, string];
+  activity: { first: unknown; history: unknown[] };
+  target: { type: "current" } | { type: "snapshot"; id: string };
+  compareTo: (history: { id: string }[]) => string;
+  showCurrentVersion?: boolean;
+}) {
+  const { api, doc, fragment } = storage();
+  const editor = BlockNoteEditor.create(
+    withCollaboration({
+      extensions: [
+        YVersioningExtension({ storage: { ...api, showCurrentVersion } }),
+      ],
+      collaboration: { fragment, user: { name: "Alice", color: "red" } },
+    }),
+  );
+  const mode = editor.getExtension<VersioningController>("versioning")!;
+  cleanup.unshift(() => {
+    mode.dispose();
+    editor._tiptapEditor.destroy();
+  });
+
+  const edits: {
+    at: number;
+    content: Uint8Array;
+    attributions: Y.ContentMap;
+  }[] = [];
+  doc.on("beforeObserverCalls", (transaction) => {
+    const at = 1000 + edits.length * 100;
+    edits.push({
+      at,
+      content: Y.encodeStateAsUpdate(doc),
+      attributions: Y.createContentMapFromContentIds(
+        { inserts: transaction.insertSet, deletes: transaction.deleteSet },
+        [
+          Y.createContentAttribute("insert", authors[edits.length]),
+          Y.createContentAttribute("insertAt", at),
+        ],
+        [],
+      ),
+    });
+  });
+  function paragraph(text: string) {
+    return _blocksToProsemirrorNode(editor, [
+      { id: "paragraph", type: "paragraph", content: text },
+    ]);
+  }
+  const empty = Y.encodeStateAsUpdate(doc);
+  for (const text of ["a", "ab", "abc"]) {
+    fragment.applyDelta(
+      text === "a"
+        ? docToDelta(paragraph(text))
+        : docDiffToDelta(paragraph(text.slice(0, -1)), paragraph(text)),
+    );
+  }
+
+  fetchSpy.mockImplementation(async (input) => {
+    const url = new URL(input instanceof Request ? input.url : input);
+    if (url.pathname.includes("/activity/")) {
+      return response({
+        activity:
+          url.searchParams.get("order") === "asc"
+            ? [activity.first]
+            : activity.history,
+      });
+    }
+    const from = Number(url.searchParams.get("from") ?? 0);
+    const to = Number(url.searchParams.get("to") ?? Infinity);
+    if (url.searchParams.has("attributions")) {
+      const attributions = Y.createContentMap();
+      for (const edit of edits.filter(
+        (edit) => from <= edit.at && edit.at <= to,
+      )) {
+        Y.insertIntoIdMap(attributions.inserts, edit.attributions.inserts);
+      }
+      return response({ attributions: Y.encodeContentMap(attributions) });
+    }
+    // YHub includes edits at `to`, not just edits before it.
+    return response({
+      ydoc: edits.findLast((edit) => edit.at <= to)?.content ?? empty,
+    });
+  });
+
+  editor.replaceBlocks(editor.document, [
+    { id: "paragraph", type: "paragraph", content: "abc" },
+  ]);
+  editor.prosemirrorView.updateState(
+    editor.prosemirrorState.reconfigure({
+      plugins: editor._tiptapEditor.extensionManager.plugins,
+    }),
+  );
+  editor.exec(configureYProsemirror({ ytype: fragment }));
+  mode.open();
+  expect(await mode.list()).toEqual({ status: "done" });
+  const state = mode.store.state;
+  if (state.mode !== "versions" || state.history.status !== "success") {
+    throw new Error("Expected loaded version history");
+  }
+  expect(
+    await mode.select(target, { compareTo: compareTo(state.history.data) }),
+  ).toEqual({ status: "done" });
+
+  // Headless editors have no plugin view to hydrate the configured preview.
+  const binding = ySyncPluginKey.getState(editor.prosemirrorState)!;
+  editor.prosemirrorView.dispatch(
+    yNodeToTransaction(editor.prosemirrorState.tr, binding.ytype!, {
+      renderer: binding.renderer,
+    }),
+  );
+  const characters: { character: string; authors: string[] }[] = [];
+  editor.prosemirrorState.doc.descendants((node) => {
+    if (node.isText) {
+      const insertion = node.marks.find(
+        (mark) => mark.type.name === "y-attributed-insert",
+      );
+      for (const character of node.text!) {
+        characters.push({
+          character,
+          authors: insertion?.attrs.userIds ?? [],
+        });
+      }
+    }
+  });
+  return characters;
+}
+
 it.each([false, true])(
   "attributes every character of abc when comparing since beginning (Current: %s)",
   async (showCurrentVersion) => {
-    const { api, doc, fragment } = storage();
-    const editor = BlockNoteEditor.create(
-      withCollaboration({
-        extensions: [
-          YVersioningExtension({ storage: { ...api, showCurrentVersion } }),
-        ],
-        collaboration: { fragment, user: { name: "Alice", color: "red" } },
-      }),
-    );
-    const mode = editor.getExtension<VersioningController>("versioning")!;
-    cleanup.unshift(() => {
-      mode.dispose();
-      editor._tiptapEditor.destroy();
-    });
-
-    const edits: {
-      at: number;
-      content: Uint8Array;
-      attributions: Y.ContentMap;
-    }[] = [];
-    doc.on("beforeObserverCalls", (transaction) => {
-      const at = 1000 + edits.length * 100;
-      edits.push({
-        at,
-        content: Y.encodeStateAsUpdate(doc),
-        attributions: Y.createContentMapFromContentIds(
-          { inserts: transaction.insertSet, deletes: transaction.deleteSet },
-          [
-            Y.createContentAttribute("insert", "alice"),
-            Y.createContentAttribute("insertAt", at),
-          ],
-          [],
-        ),
-      });
-    });
-    function paragraph(text: string) {
-      return _blocksToProsemirrorNode(editor, [
-        { id: "paragraph", type: "paragraph", content: text },
-      ]);
-    }
-    const empty = Y.encodeStateAsUpdate(doc);
-    for (const text of ["a", "ab", "abc"]) {
-      fragment.applyDelta(
-        text === "a"
-          ? docToDelta(paragraph(text))
-          : docDiffToDelta(paragraph(text.slice(0, -1)), paragraph(text)),
-      );
-    }
-
-    fetchSpy.mockImplementation(async (input) => {
-      const url = new URL(input instanceof Request ? input.url : input);
-      if (url.pathname.includes("/activity/")) {
-        return response({
-          activity: [
-            url.searchParams.get("order") === "asc"
-              ? first
-              : { ...first, to: 1200 },
-          ],
-        });
-      }
-      const from = Number(url.searchParams.get("from") ?? 0);
-      const to = Number(url.searchParams.get("to") ?? Infinity);
-      if (url.searchParams.has("attributions")) {
-        const attributions = Y.createContentMap();
-        for (const edit of edits.filter(
-          (edit) => from <= edit.at && edit.at <= to,
-        )) {
-          Y.insertIntoIdMap(attributions.inserts, edit.attributions.inserts);
-        }
-        return response({ attributions: Y.encodeContentMap(attributions) });
-      }
-      // YHub includes edits at `to`, not just edits before it.
-      return response({
-        ydoc: edits.findLast((edit) => edit.at <= to)?.content ?? empty,
-      });
-    });
-
-    editor.replaceBlocks(editor.document, [
-      { id: "paragraph", type: "paragraph", content: "abc" },
-    ]);
-    editor.prosemirrorView.updateState(
-      editor.prosemirrorState.reconfigure({
-        plugins: editor._tiptapEditor.extensionManager.plugins,
-      }),
-    );
-    editor.exec(configureYProsemirror({ ytype: fragment }));
-    mode.open();
-    expect(await mode.list()).toEqual({ status: "done" });
-    const state = mode.store.state;
-    if (state.mode !== "versions" || state.history.status !== "success") {
-      throw new Error("Expected loaded version history");
-    }
-    const beginning = state.history.data.at(-1)!;
-    expect(
-      await mode.select(
-        showCurrentVersion
-          ? { type: "current" }
-          : { type: "snapshot", id: "1000-1200" },
-        { compareTo: beginning.id },
-      ),
-    ).toEqual({ status: "done" });
-
-    // Headless editors have no plugin view to hydrate the configured preview.
-    const binding = ySyncPluginKey.getState(editor.prosemirrorState)!;
-    editor.prosemirrorView.dispatch(
-      yNodeToTransaction(editor.prosemirrorState.tr, binding.ytype!, {
-        renderer: binding.renderer,
-      }),
-    );
-    const characters: { character: string; authors: string[] }[] = [];
-    editor.prosemirrorState.doc.descendants((node) => {
-      if (node.isText) {
-        const insertion = node.marks.find(
-          (mark) => mark.type.name === "y-attributed-insert",
-        );
-        for (const character of node.text!) {
-          characters.push({
-            character,
-            authors: insertion?.attrs.userIds ?? [],
-          });
-        }
-      }
+    const characters = await compareCharacters({
+      authors: ["alice", "alice", "alice"],
+      activity: { first, history: [{ ...first, to: 1200 }] },
+      target: showCurrentVersion
+        ? { type: "current" }
+        : { type: "snapshot", id: "1000-1200" },
+      compareTo: (history) => history.at(-1)!.id,
+      showCurrentVersion,
     });
     expect(characters).toEqual(
       ["a", "b", "c"].map((character) => ({ character, authors: ["alice"] })),
     );
   },
 );
+
+it("shows only the selected version's edits when comparing to the previous version", async () => {
+  // Beginning (a), then "1000-1100" by alice (a, b), then "1200-1200" by bob (c).
+  const characters = await compareCharacters({
+    authors: ["alice", "alice", "bob"],
+    activity: {
+      first,
+      history: [
+        { from: 1200, to: 1200, by: ["bob"] },
+        { from: 1000, to: 1100, by: ["alice"] },
+      ],
+    },
+    target: { type: "snapshot", id: "1200-1200" },
+    compareTo: () => "1000-1100",
+  });
+  expect(characters).toEqual([
+    { character: "a", authors: [] },
+    { character: "b", authors: [] },
+    { character: "c", authors: ["bob"] },
+  ]);
+});
 
 it("uses the latest server checkpoint as Current without a separate capture row", () => {
   expect(storage().api.showCurrentVersion).toBe(false);
@@ -634,16 +679,24 @@ it("propagates concurrent version conflicts", async () => {
 });
 
 it.each([
-  { baseline: undefined, to: "1000" },
-  { baseline: true, to: "899" },
+  { baseline: undefined, beginning: "900-1000", to: "1000" },
+  { baseline: true, beginning: "500-500", to: "1000" },
+  { baseline: true, beginning: "900-1000", to: "899" },
 ])(
-  "loads V2 content at $to (baseline: $baseline)",
-  async ({ baseline, to }) => {
+  "loads V2 content at $to (baseline: $baseline, beginning: $beginning)",
+  async ({ baseline, beginning, to }) => {
     const { api, doc } = storage();
     doc.get("default").push(["hello"]);
-    fetchSpy.mockResolvedValueOnce(
-      response({ ydoc: Y.encodeStateAsUpdate(doc) }),
+    const [from, end] = beginning.split("-").map(Number);
+    fetchSpy.mockImplementation(async (input) =>
+      new URL(input instanceof Request ? input.url : input).pathname.includes(
+        "/activity/",
+      )
+        ? response({ activity: [{ from, to: end, by: ["alice"] }] })
+        : response({ ydoc: Y.encodeStateAsUpdate(doc) }),
     );
+    // The beginning is known once the history is listed.
+    resultValue(await api.list(signal));
     const content = resultValue(
       await api.getContent("900-1000", signal, { baseline }),
     );
@@ -654,32 +707,54 @@ it.each([
     } finally {
       restored.destroy();
     }
-    expect(request(0).url.searchParams.get("to")).toBe(to);
-    expect(request(0).signal).toBeInstanceOf(AbortSignal);
+    const load = fetchSpy.mock.calls.findIndex(
+      ([input]) =>
+        !new URL(
+          input instanceof Request ? input.url : input,
+        ).pathname.includes("/activity/"),
+    );
+    expect(request(load).url.searchParams.get("to")).toBe(to);
+    expect(request(load).signal).toBeInstanceOf(AbortSignal);
   },
 );
 
 it.each([
-  { type: "current", capturedAt: 500 },
-  { type: "current", capturedAt: 2500 },
-  { type: "snapshot", capturedAt: 2500 },
+  { type: "current", capturedAt: 500, beginning: true },
+  { type: "current", capturedAt: 2500, beginning: true },
+  { type: "snapshot", capturedAt: 2500, beginning: true },
+  { type: "snapshot", capturedAt: 2500, beginning: false },
 ] as const)(
-  "uses the server attribution cutoff for $type with client capture time $capturedAt",
-  async ({ type, capturedAt }) => {
-    fetchSpy.mockResolvedValueOnce(
-      response({ attributions: Y.encodeContentMap(Y.createContentMap()) }),
+  "uses the server attribution cutoff for $type with client capture time $capturedAt (beginning: $beginning)",
+  async ({ type, capturedAt, beginning }) => {
+    fetchSpy.mockImplementation(async (input) =>
+      new URL(input instanceof Request ? input.url : input).pathname.includes(
+        "/activity/",
+      )
+        ? response({
+            activity: [
+              beginning
+                ? { from: 900, to: 1000, by: ["alice"] }
+                : { from: 500, to: 500, by: ["alice"] },
+            ],
+          })
+        : response({ attributions: Y.encodeContentMap(Y.createContentMap()) }),
     );
-    await storage().api.getAttributions!(
+    const { api } = storage();
+    // The beginning is known once the history is listed.
+    resultValue(await api.list(signal));
+    await api.getAttributions!(
       type === "current" ? { type } : { type, id: "1900-2000" },
       "900-1000",
       capturedAt,
       signal,
     );
-    expect(request(0).url.searchParams.get("from")).toBe("900");
-    expect(request(0).url.searchParams.get("to")).toBe(
+    const query = request(fetchSpy.mock.calls.length - 1);
+    // The beginning's own edits count; a later baseline's edits don't.
+    expect(query.url.searchParams.get("from")).toBe(beginning ? "900" : "1001");
+    expect(query.url.searchParams.get("to")).toBe(
       type === "current" ? null : "2000",
     );
-    expect(request(0).signal).toBeInstanceOf(AbortSignal);
+    expect(query.signal).toBeInstanceOf(AbortSignal);
   },
 );
 

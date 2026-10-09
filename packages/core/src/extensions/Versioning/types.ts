@@ -131,7 +131,11 @@ export interface VersionStorage<Content, Attributions = never> {
     signal: AbortSignal,
     cursor?: string,
   ): Promise<VersionResult<VersionSnapshotPage>>;
-  /** Load stored content, using the start of its window when loading a comparison baseline. */
+  /**
+   * Load stored content. As a comparison baseline, the earliest version is
+   * loaded from before its first edit, so comparing since the beginning
+   * includes that edit. Any other baseline is the version as it is.
+   */
   getContent(
     id: string,
     signal: AbortSignal,
