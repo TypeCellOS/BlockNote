@@ -728,3 +728,145 @@ describe("version diff of a type change", () => {
     expect(changes).toContain("insert <blockContainer>: bob");
   });
 });
+
+describe("version diff of a document several users wrote", () => {
+  // Every word is typed by one user: "aaaa1" by alice, "bbbb1" by bob, ...
+  const writers: Record<string, string> = {
+    a: "alice",
+    b: "bob",
+    c: "carol",
+    d: "dave",
+  };
+  function wordsIn(state: Uint8Array): Set<string> {
+    const doc = new Y.Doc();
+    Y.applyUpdateV2(doc, state);
+    return new Set(
+      doc
+        .get("doc")
+        .toString()
+        .match(/[a-d]{4}\d/g) ?? [],
+    );
+  }
+  /** Words credited to someone else, or shown as new though they weren't. */
+  function wrongCredits(
+    before: Uint8Array,
+    after: Uint8Array,
+    attributions: Y.ContentMap,
+  ): string[] {
+    const existed = wordsIn(before);
+    const { editor, view } = showDiff(before, after, attributions);
+    const wrong: string[] = [];
+    editor.prosemirrorState.doc.descendants((node, pos) => {
+      if (!node.isText) {
+        return true;
+      }
+      const $pos = editor.prosemirrorState.doc.resolve(pos);
+      const marks = [...node.marks];
+      for (let depth = $pos.depth; depth > 0; depth--) {
+        marks.push(...$pos.node(depth).marks);
+      }
+      if (marks.some((mark) => mark.type.name === "y-attributed-delete")) {
+        return true;
+      }
+      const inserted = marks.find(
+        (mark) => mark.type.name === "y-attributed-insert",
+      );
+      for (const word of node.text!.match(/[a-d]{4}\d/g) ?? []) {
+        const users: string[] = inserted?.attrs["userIds"] ?? [];
+        if (existed.has(word)) {
+          if (inserted && !inserted.attrs["moved"]) {
+            wrong.push(
+              `${word} existed, shown inserted by ${users.join(", ")}`,
+            );
+          }
+        } else if (users.join() !== writers[word[0]]) {
+          wrong.push(
+            `${word} by ${writers[word[0]]}, credited to ${users.join(", ")}`,
+          );
+        }
+      }
+      return true;
+    });
+    view.close();
+    return wrong;
+  }
+
+  // To be fixed by #3172.
+  it.fails("credits every word to its writer, between any two versions", () => {
+    const base = baseDocument([
+      { id: "start", type: "paragraph", content: "" },
+    ]);
+    const server = history(base);
+    const versions = [Y.encodeStateAsUpdateV2(base)];
+    let client = 10;
+    function edit(user: string, change: (editor: BlockNoteEditor) => void) {
+      versions.push(
+        server.apply(editOf(server.server, client++, change), user),
+      );
+    }
+    // Alice reuses the empty block, so it was in the first version.
+    edit("alice", (editor) =>
+      editor.replaceBlocks(editor.document, [
+        { id: "p1", type: "paragraph", content: "aaaa1 aaaa2" },
+        { id: "p2", type: "paragraph", content: "aaaa3" },
+        {
+          id: "p3",
+          type: "paragraph",
+          content: "aaaa4",
+          children: [{ id: "c3", type: "paragraph", content: "aaaa5" }],
+        },
+        { id: "p4", type: "paragraph", content: "aaaa6" },
+      ]),
+    );
+    edit("bob", (editor) => {
+      editor.setTextCursorPosition("p1", "end");
+      editor.insertInlineContent(" bbbb1");
+      editor.insertBlocks(
+        [{ id: "p5", type: "paragraph", content: "bbbb2" }],
+        "p2",
+        "after",
+      );
+    });
+    // Each of these re-creates blocks: p1 twice in one update.
+    edit("carol", (editor) => {
+      editor.updateBlock("p1", { type: "heading" });
+      editor.setTextCursorPosition("p2");
+      editor.nestBlock();
+      editor.setTextCursorPosition("p4");
+      editor.moveBlocksUp();
+    });
+    edit("alice", (editor) => {
+      editor.setTextCursorPosition("p1", "end");
+      editor.insertInlineContent(" aaaa7");
+      editor.setTextCursorPosition("p4", "end");
+      editor.insertInlineContent(" aaaa8");
+    });
+    edit("dave", (editor) => {
+      editor.removeBlocks(["c3"]);
+      editor.setTextCursorPosition("p2");
+      editor.unnestBlock();
+      editor.updateBlock("p5", { type: "bulletListItem" });
+      editor.setTextCursorPosition("p5", "end");
+      editor.insertInlineContent(" dddd1");
+    });
+    edit("carol", (editor) => {
+      editor.updateBlock("p1", { type: "bulletListItem" });
+      editor.setTextCursorPosition("p1", "end");
+      editor.insertInlineContent(" cccc1");
+    });
+
+    const wrong: string[] = [];
+    for (let later = 1; later < versions.length; later++) {
+      for (let earlier = 0; earlier < later; earlier++) {
+        for (const problem of wrongCredits(
+          versions[earlier],
+          versions[later],
+          server.attributions,
+        )) {
+          wrong.push(`${earlier} -> ${later}: ${problem}`);
+        }
+      }
+    }
+    expect(wrong).toEqual([]);
+  });
+});
