@@ -84,8 +84,8 @@ function deletedBy(update: Uint8Array, user: string) {
  * does: what the update inserts, and what it explicitly deletes, each with a
  * time.
  */
-function history(base: Y.Doc) {
-  const server = new Y.Doc({ gc: false });
+function history(base: Y.Doc, gcFilter?: (item: Y.Item) => boolean) {
+  const server = new Y.Doc({ gc: gcFilter !== undefined, gcFilter });
   Y.applyUpdateV2(server, Y.encodeStateAsUpdateV2(base));
   const attributions = Y.createContentMap();
   let time = 0;
@@ -309,6 +309,22 @@ describe("version diff of a moved block", () => {
     const alice = editOf(base, 1, removeParent);
     const server = history(base);
     const before = server.apply(alice, "alice");
+    const after = server.apply(bob, "bob");
+    expect(deletions(before, after, server.attributions)).toEqual([
+      "[block moved]: ",
+    ]);
+  });
+
+  it("names no author for a block moved into a deleted one that was gc'd", () => {
+    const base = blocks();
+    const bob = editOf(base, 2, nest);
+    const alice = editOf(base, 1, removeParent);
+    // Like history before YHub's cutoff: Alice's deletion is gc'd, so Bob's
+    // copy, which lands in it, is only a gc stub.
+    let gc = true;
+    const server = history(base, () => gc);
+    const before = server.apply(alice, "alice");
+    gc = false;
     const after = server.apply(bob, "bob");
     expect(deletions(before, after, server.attributions)).toEqual([
       "[block moved]: ",

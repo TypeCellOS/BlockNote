@@ -216,24 +216,41 @@ function withoutLostMovers(
       copies.set(id, [...(copies.get(id) ?? []), item]);
     }
   }
+  // A copy that landed in content gc'd before the earlier version is only a
+  // gc stub, known by its insertion alone.
+  const gcInserts = new Set<string>();
+  doc.transact((tr) =>
+    Y.iterateStructsByIdSet(tr, inserted, (struct) => {
+      const change =
+        struct instanceof Y.GC &&
+        changeOf(struct.id, attributions.inserts, "insert");
+      if (change) {
+        gcInserts.add(change);
+      }
+    }),
+  );
   // Deleted content that was in the earlier version.
   const removed = itemsIn(doc, Y.diffIdSet(deleted, inserted));
   const lost = removed.filter(isBlock).flatMap((item) => {
     const id = blockId(item.content.type);
     const moved = id == null ? undefined : copies.get(id);
-    if (!moved?.every((copy) => copy.deleted)) {
+    const change = changeOf(item.id, attributions.deletes, "delete");
+    let movers: Set<unknown>;
+    if (moved) {
+      if (!moved.every((copy) => copy.deleted)) {
+        return [];
+      }
+      movers = new Set(
+        moved.flatMap((copy) =>
+          usersOf(copy.id, attributions.inserts, "insert"),
+        ),
+      );
+    } else if (change && gcInserts.has(change)) {
+      // A gc'd copy, inserted with the original's deletion: by its mover.
+      movers = new Set(usersOf(item.id, attributions.deletes, "delete"));
+    } else {
       return [];
     }
-    const movers = new Set(
-      moved.flatMap((copy) =>
-        (
-          attributions.inserts.slice(copy.id.client, copy.id.clock, 1)[0]
-            ?.attrs ?? []
-        )
-          .filter((attr) => attr.name === "insert")
-          .map((attr) => attr.val),
-      ),
-    );
     return [{ block: item.content.type, movers }];
   });
   const replaced = Y.createIdSet();
@@ -584,6 +601,17 @@ function matchTypedInCopies(
       }
     }
   }
+}
+
+/** The users who inserted or deleted a unit. */
+function usersOf(
+  id: Y.ID,
+  map: Y.IdMap<any>,
+  kind: "insert" | "delete",
+): unknown[] {
+  return (map.slice(id.client, id.clock, 1)[0]?.attrs ?? [])
+    .filter((attr) => attr.name === kind)
+    .map((attr) => attr.val);
 }
 
 /** The users and times of a unit's insertion or deletion, as a key. */
