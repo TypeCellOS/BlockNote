@@ -57,7 +57,9 @@ export const defaultBlockSpecs = {
 // underscore is used that in case a user overrides DefaultBlockSchema,
 // they can still access the original default block schema
 export type _DefaultBlockSchema = {
-  [K in keyof typeof defaultBlockSpecs]: (typeof defaultBlockSpecs)[K]["config"];
+  [
+    K in keyof typeof defaultBlockSpecs
+  ]: (typeof defaultBlockSpecs)[K]["config"];
 };
 export type DefaultBlockSchema = _DefaultBlockSchema;
 

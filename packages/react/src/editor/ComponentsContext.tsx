@@ -435,9 +435,9 @@ export type Components = {
   // only needed as Generic Root/etc elements are 1 level of nesting deeper
   Generic: {
     [GenericComponents in keyof ComponentProps["Generic"]]: {
-      [Component in keyof ComponentProps["Generic"][GenericComponents]]: ComponentType<
-        ComponentProps["Generic"][GenericComponents][Component]
-      >;
+      [
+        Component in keyof ComponentProps["Generic"][GenericComponents]
+      ]: ComponentType<ComponentProps["Generic"][GenericComponents][Component]>;
     };
   };
 };

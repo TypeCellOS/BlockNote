@@ -193,7 +193,9 @@ export class CustomBlockNoteSchema<
     AdditionalInlineContentSpecs extends undefined | Record<string, never>
       ? ISchema
       : ISchema & {
-          [K in keyof AdditionalInlineContentSpecs]: AdditionalInlineContentSpecs[K]["config"];
+          [
+            K in keyof AdditionalInlineContentSpecs
+          ]: AdditionalInlineContentSpecs[K]["config"];
         },
     AdditionalStyleSpecs extends undefined | Record<string, never>
       ? SSchema
