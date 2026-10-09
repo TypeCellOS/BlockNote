@@ -48,6 +48,36 @@ export function isSuggestedDeletionNode(node: Node): boolean {
   return node.marks.some((m) => ["y-attributed-delete"].includes(m.type.name));
 }
 
+// Computed in one walk per doc: callers look up every block, and a walk per
+// suggested-deletion node made that quadratic in large diffs.
+const deletedNodeIdsByDoc = new WeakMap<Node, Map<Node, string>>();
+
+/**
+ * The ids of the suggested-deletion nodes in `doc`: `<id>-<index>`, where
+ * `index` counts the nodes with the same id before it, in document order.
+ */
+function getDeletedNodeIds(doc: Node): Map<Node, string> {
+  let deletedNodeIds = deletedNodeIdsByDoc.get(doc);
+  if (deletedNodeIds === undefined) {
+    const ids = new Map<Node, string>();
+    const counts = new Map<string, number>();
+    doc.descendants((descNode) => {
+      const id = descNode.attrs.id;
+      if (id) {
+        const index = counts.get(id) ?? 0;
+        if (isSuggestedDeletionNode(descNode) && !ids.has(descNode)) {
+          ids.set(descNode, `${id}-${index}`);
+        }
+        counts.set(id, index + 1);
+      }
+      return true;
+    });
+    deletedNodeIds = ids;
+    deletedNodeIdsByDoc.set(doc, deletedNodeIds);
+  }
+  return deletedNodeIds;
+}
+
 export function getNodeId(node: Node, doc: Node): string {
   const id = node.attrs.id;
   if (!id) {
@@ -60,28 +90,13 @@ export function getNodeId(node: Node, doc: Node): string {
    * so we need to differentiate them by counting how many nodes with the same ID come before them in the document, and adding that count to the ID.
    */
   if (isSuggestedDeletionNode(node)) {
-    // walk the doc to find the node and count it's index if others have the same ID, to differentiate them
-    let index = 0;
-    let found = false;
-    doc.descendants((descNode: Node) => {
-      if (found) {
-        return false; // stop the walk
-      }
-      if (descNode.attrs.id === id) {
-        if (descNode === node) {
-          found = true;
-          return false; // stop the walk
-        }
-        index++;
-      }
-      return true; // continue the walk
-    });
-    if (!found) {
+    const deletedId = getDeletedNodeIds(doc).get(node);
+    if (deletedId === undefined) {
       throw new Error(
         `Node ${node.type.name} with ID ${id} not found in document`,
       );
     }
-    return `${id}-${index}`;
+    return deletedId;
   }
   // TODO handle deleted nodes
   return id;

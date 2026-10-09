@@ -147,6 +147,37 @@ describe("getNodeId", () => {
     expect(getNodeId(blockGroup.child(2), doc)).toBe("0-1");
   });
 
+  it("counts same-id nodes in document order, including nested ones", () => {
+    const schema = getSchema();
+
+    // A deleted block before its live copy, and a deleted copy nested in
+    // the live block's children.
+    const nestedDeleted = makeBlockContainer(schema, "0", "Nested", true);
+    const liveWithChild = schema.nodes["blockContainer"].createChecked(
+      { id: "0" },
+      [
+        schema.nodes["paragraph"].createChecked({}, schema.text("Live")),
+        schema.nodes["blockGroup"].createChecked({}, nestedDeleted),
+      ],
+    );
+    const firstDeleted = makeBlockContainer(schema, "0", "First", true);
+
+    const doc = schema.nodes["doc"].createChecked(
+      {},
+      schema.nodes["blockGroup"].createChecked({}, [
+        firstDeleted,
+        liveWithChild,
+      ]),
+    );
+
+    const blockGroup = doc.firstChild!;
+    expect(getNodeId(blockGroup.child(0), doc)).toBe("0-0");
+    expect(getNodeId(blockGroup.child(1), doc)).toBe("0");
+    expect(getNodeId(blockGroup.child(1).lastChild!.firstChild!, doc)).toBe(
+      "0-2",
+    );
+  });
+
   it("throws when a suggested-deletion node is not found in the provided doc", () => {
     const schema = getSchema();
 
