@@ -112,6 +112,17 @@ const createAttributionMarkView =
   ) =>
   ({ mark, inline }: { mark: PMMark; inline: boolean }) => {
     const editor = options?.editor;
+    // A block's id isn't content users edit, so a change to it isn't shown
+    // (e.g. a diff pairing a deleted block with the editor's empty one).
+    // Inline content may have an `id` prop of its own, which is.
+    const allChanges = getAttributeChanges(mark);
+    const { id: _id, ...blockChanges } = allChanges;
+    const changes = inline ? allChanges : blockChanges;
+    if (type === "attrs" && Object.keys(changes).length === 0) {
+      const dom = document.createElement(inline ? "span" : "div");
+      dom.style.display = "contents";
+      return { dom, contentDOM: dom };
+    }
     // `<ins>`/`<del>` are semantic elements. The modification mark has no
     // dedicated element, so it renders as a `<span>` inline or a `<div>` over a
     // block, matching its `parseDOM` rules.
@@ -131,7 +142,7 @@ const createAttributionMarkView =
     });
     if (type === "attrs") {
       dom.dataset["type"] = "attributes";
-      dom.dataset["attributes"] = JSON.stringify(getAttributeChanges(mark));
+      dom.dataset["attributes"] = JSON.stringify(changes);
     }
     if (type === "modification") {
       dom.dataset["type"] = "modification";

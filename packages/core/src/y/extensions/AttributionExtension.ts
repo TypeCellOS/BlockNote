@@ -230,19 +230,16 @@ export const AttributionExtension = createExtension(
             .map((id) => userStore.getUser(id)?.username ?? id)
             .filter((username) => username !== "");
 
-        // A stable identity string for a wrapper (empty if unattributed), used to
-        // (a) test whether a mark is attributed and (b) group adjacent marks with
-        // the *same* attribution under one tooltip. It's an internal grouping key,
-        // not the displayed text — that's composed in the view from `users` and
-        // the format label — so it's built from raw `data-*` (ids + format keys)
-        // and stays free of i18n/username resolution.
+        // A stable identity string for a mark wrapper, used to group nested marks
+        // with the *same* change under one tooltip. Every wrapper is a change;
+        // its author may be unknown (e.g. content removed along with a
+        // concurrently deleted block). It's an internal grouping key, not the
+        // displayed text, so it's built from raw `data-*` and stays free of
+        // i18n/username resolution.
         const attributionIdentity = (wrapper: HTMLElement) => {
           const ids = parseUserIds(wrapper.dataset["userIds"]);
-          if (ids.length === 0 && wrapper.dataset["attributes"] === undefined) {
-            return "";
-          }
           const format = parseFormatKeys(wrapper.dataset["format"]);
-          return `${wrapper.dataset["attributes"] ?? ""}:${format.join(",")}:${ids.join(",")}`;
+          return `${wrapper.tagName}:${wrapper.dataset["attributes"] ?? ""}:${format.join(",")}:${ids.join(",")}`;
         };
 
         // Build the tooltip state from a wrapper's `data-*` attributes. A
@@ -302,24 +299,6 @@ export const AttributionExtension = createExtension(
           store.setState(undefined);
         };
 
-        // The innermost attributed mark at or above `el`, skipping unattributed
-        // wrappers so an attributed ancestor still wins.
-        const innermostAttributed = (
-          el: Element | null,
-        ): HTMLElement | undefined => {
-          while (el) {
-            const wrapper = el.closest<HTMLElement>(ATTRIBUTION_MARK_SELECTOR);
-            if (!wrapper) {
-              return undefined;
-            }
-            if (attributionIdentity(wrapper)) {
-              return wrapper;
-            }
-            el = wrapper.parentElement;
-          }
-          return undefined;
-        };
-
         const nodeAttribution = (
           target: Element,
         ): { mark: HTMLElement; preview: Element } | undefined => {
@@ -356,9 +335,9 @@ export const AttributionExtension = createExtension(
           ) {
             return undefined;
           }
-          const mark = Array.from(
-            owner.querySelectorAll<HTMLElement>(ATTRIBUTION_MARK_SELECTOR),
-          ).find(attributionIdentity);
+          const mark = owner.querySelector<HTMLElement>(
+            ATTRIBUTION_MARK_SELECTOR,
+          );
           return mark ? { mark, preview: owner } : undefined;
         };
 
@@ -366,7 +345,8 @@ export const AttributionExtension = createExtension(
           const target = event.target instanceof Element ? event.target : null;
           const hoveredMark =
             target && dom.contains(target)
-              ? innermostAttributed(target)
+              ? (target.closest<HTMLElement>(ATTRIBUTION_MARK_SELECTOR) ??
+                undefined)
               : undefined;
           const fallback =
             target && !hoveredMark ? nodeAttribution(target) : undefined;
@@ -379,8 +359,7 @@ export const AttributionExtension = createExtension(
 
           const identity = attributionIdentity(innermost);
           // Anchor on the outermost ancestor with the *same* attribution so one
-          // tooltip covers the whole region; a differently-attributed ancestor
-          // breaks the chain, and unattributed ones are climbed past.
+          // tooltip covers the whole region; a different ancestor breaks the chain.
           let anchor = innermost;
           let el: Element | null = innermost.parentElement;
           while (el) {
@@ -388,12 +367,10 @@ export const AttributionExtension = createExtension(
             if (!ancestor) {
               break;
             }
-            const ancestorIdentity = attributionIdentity(ancestor);
-            if (ancestorIdentity === identity) {
-              anchor = ancestor;
-            } else if (ancestorIdentity) {
+            if (attributionIdentity(ancestor) !== identity) {
               break;
             }
+            anchor = ancestor;
             el = ancestor.parentElement;
           }
 
