@@ -2,11 +2,11 @@ import type { NodeWithPos } from "@tiptap/core";
 import {
   combineTransactionSteps,
   findChildrenInRange,
-  getChangedRanges,
   getMarksBetween,
 } from "@tiptap/core";
 import type { MarkType } from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
+import { getChangedRanges } from "../../../../api/getChangedRanges.js";
 import type { LinkMatch } from "./linkDetector.js";
 import { tokenizeLink } from "./linkDetector.js";
 
@@ -58,9 +58,12 @@ export function autolink(options: AutolinkOptions): Plugin {
       }
 
       const { tr } = newState;
-      const transform = combineTransactionSteps(oldState.doc, [
-        ...transactions,
-      ]);
+      // A single transaction already holds its steps: replaying thousands of
+      // them (e.g. a version diff) took seconds.
+      const transform =
+        transactions.length === 1
+          ? transactions[0]
+          : combineTransactionSteps(oldState.doc, [...transactions]);
       const changes = getChangedRanges(transform);
 
       changes.forEach(({ newRange }) => {

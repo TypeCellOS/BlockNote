@@ -1,6 +1,6 @@
 import { AddNodeMarkStep } from "prosemirror-transform";
-import { getChangedRanges } from "@tiptap/core";
 import { Plugin, PluginKey, type Transaction } from "prosemirror-state";
+import { getChangedRanges } from "../../api/getChangedRanges.js";
 import {
   createExtension,
   createStore,

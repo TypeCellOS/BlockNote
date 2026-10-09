@@ -2,11 +2,11 @@ import {
   combineTransactionSteps,
   Extension,
   findChildrenInRange,
-  getChangedRanges,
 } from "@tiptap/core";
 import { uuidv4 } from "lib0/random";
 import { Fragment, Node, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
+import { getChangedRanges } from "../../../api/getChangedRanges.js";
 import { isSuggestedDeletionNode } from "../../../api/getBlockInfoFromPos.js";
 
 /**
@@ -155,10 +155,12 @@ const UniqueID = Extension.create({
           }
           const { tr } = newState;
           const { types, generateID } = this.options;
-          const transform = combineTransactionSteps(
-            oldState.doc,
-            transactions as any,
-          );
+          // A single transaction already holds its steps: replaying thousands
+          // of them (e.g. a version diff) took seconds.
+          const transform =
+            transactions.length === 1
+              ? transactions[0]
+              : combineTransactionSteps(oldState.doc, transactions as any);
           const { mapping } = transform;
           // get changed ranges based on the old state
           const changes = getChangedRanges(transform);
@@ -224,9 +226,11 @@ const UniqueID = Extension.create({
                 });
                 return;
               }
-              // check if the node doesn’t exist in the old state
-              const { deleted } = mapping.invert().mapResult(pos);
-              const newNode = deleted && duplicatedNewIds.includes(id);
+              // check if the node doesn’t exist in the old state. Mapping
+              // through every step is slow, so only for duplicated ids.
+              const newNode =
+                duplicatedNewIds.includes(id) &&
+                mapping.invert().mapResult(pos).deleted;
               // purposefully skip rewriting ids for suggested deletion nodes, to avoid modifying them
               if (newNode && !isSuggestedDeletionNode(node)) {
                 tr.setNodeMarkup(pos, undefined, {
