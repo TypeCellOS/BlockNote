@@ -1,4 +1,4 @@
-import { combineTransactionSteps } from "@tiptap/core";
+import { combineTransactionSteps } from "./combineTransactionSteps.js";
 import deepEqual from "fast-deep-equal";
 import type { Node } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";

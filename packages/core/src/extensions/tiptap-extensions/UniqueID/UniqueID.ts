@@ -1,11 +1,8 @@
-import {
-  combineTransactionSteps,
-  Extension,
-  findChildrenInRange,
-} from "@tiptap/core";
+import { Extension, findChildrenInRange } from "@tiptap/core";
 import { uuidv4 } from "lib0/random";
 import { Fragment, Node, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
+import { combineTransactionSteps } from "../../../api/combineTransactionSteps.js";
 import { getChangedRanges } from "../../../api/getChangedRanges.js";
 import { isSuggestedDeletionNode } from "../../../api/getBlockInfoFromPos.js";
 
@@ -155,12 +152,7 @@ const UniqueID = Extension.create({
           }
           const { tr } = newState;
           const { types, generateID } = this.options;
-          // A single transaction already holds its steps: replaying thousands
-          // of them (e.g. a version diff) took seconds.
-          const transform =
-            transactions.length === 1
-              ? transactions[0]
-              : combineTransactionSteps(oldState.doc, transactions as any);
+          const transform = combineTransactionSteps(oldState.doc, transactions);
           const { mapping } = transform;
           // get changed ranges based on the old state
           const changes = getChangedRanges(transform);
