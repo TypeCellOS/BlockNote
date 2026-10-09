@@ -1,4 +1,19 @@
 {
+  "alert": {
+    "config": {
+      "content": "inline",
+      "propSchema": {},
+      "type": "alert",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "keyboard": [Function],
+      "node": null,
+      "render": [Function],
+      "renderFrame": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
   "audio": {
     "config": {
       "content": "none",
@@ -23,6 +38,7 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
       "meta": {
         "fileBlockAccept": [
           "audio/*",
@@ -63,12 +79,40 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
         "isolating": false,
       },
       "node": null,
       "parse": [Function],
       "parseContent": [Function],
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "callout": {
+    "config": {
+      "children": {
+        "allow": "blocks",
+      },
+      "container": true,
+      "content": "none",
+      "propSchema": {
+        "flavor": {
+          "default": "tip",
+          "values": [
+            "tip",
+            "info",
+            "warning",
+          ],
+        },
+      },
+      "type": "callout",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "keyboard": [Function],
+      "node": null,
       "render": [Function],
       "toExternalHTML": [Function],
     },
@@ -103,6 +147,7 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
         "isolating": false,
       },
@@ -130,6 +175,7 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
         "code": true,
         "defining": true,
@@ -167,6 +213,7 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
       "node": null,
       "parse": [Function],
       "render": [Function],
@@ -183,6 +230,7 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
         "isolating": false,
       },
@@ -213,6 +261,7 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
       "meta": {
         "fileBlockAccept": [
           "*/*",
@@ -265,13 +314,16 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
+        "dropsIntoChildren": [Function],
         "isolating": false,
       },
       "node": null,
       "parse": [Function],
       "parseContent": [Function],
       "render": [Function],
+      "renderFrame": [Function],
       "runsBefore": [
         "toggleListItem",
       ],
@@ -315,6 +367,7 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
       "meta": {
         "fileBlockAccept": [
           "image/*",
@@ -359,6 +412,7 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
         "isolating": false,
       },
@@ -377,6 +431,7 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
       "node": null,
       "parse": [Function],
       "render": [Function],
@@ -409,6 +464,7 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
         "isolating": false,
       },
@@ -439,6 +495,7 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
         "isolating": false,
       },
@@ -472,6 +529,7 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
       "node": null,
       "render": [Function],
       "toExternalHTML": [Function],
@@ -514,6 +572,7 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
       "node": null,
       "render": [Function],
       "toExternalHTML": [Function],
@@ -534,6 +593,7 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "node": null,
       "render": [Function],
       "toExternalHTML": [Function],
@@ -565,13 +625,16 @@
       [Function],
     ],
     "implementation": {
+      "keyboard": [Function],
       "meta": {
+        "dropsIntoChildren": [Function],
         "isolating": false,
       },
       "node": null,
       "parse": [Function],
       "parseContent": [Function],
       "render": [Function],
+      "renderFrame": [Function],
       "runsBefore": [
         "bulletListItem",
       ],
@@ -615,6 +678,7 @@
     },
     "extensions": undefined,
     "implementation": {
+      "keyboard": [Function],
       "meta": {
         "fileBlockAccept": [
           "video/*",

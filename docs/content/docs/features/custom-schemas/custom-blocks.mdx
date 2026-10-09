@@ -56,6 +56,12 @@ type BlockConfig = {
   type: string;
   content: "inline" | "plain" | "none";
   readonly propSchema: PropSchema;
+  container?: true; // only with content: "none"
+  children?: {
+    allow?: "blocks" | string[];
+    min?: number;
+  };
+  placeable?: "anywhere" | "namedOnly";
 };
 ```
 
@@ -71,6 +77,14 @@ type BlockConfig = {
   _In the alert demo, we want the user to be able to type rich text in our
   alert, so we set `content` to `"inline"`._
 </Callout>
+
+<Callout type="info">
+  _Every block can have child blocks, indented below it. A block without
+  content can also hold them inside itself with `container: true`. See
+  [Container Blocks](/docs/features/custom-schemas/container-blocks)._
+</Callout>
+
+`container?:` Puts the block's child blocks inside it. `children?:` Restricts which child blocks a container can hold. `placeable?:` Controls where a container block can be used. See [Container Blocks](/docs/features/custom-schemas/container-blocks) for the supported configurations.
 
 `propSchema:` The `PropSchema` specifies the props that the block supports. Block props (properties) are data stored with your Block in the document, and can be used to customize its appearance or behavior.
 
@@ -133,8 +147,19 @@ type ReactCustomBlockImplementation = {
     schema: Schema;
   }) => Fragment | undefined;
   runsBefore?: string[];
+  experimental_keyboard?:
+    | KeyboardSettings
+    | ((block: Block) => KeyboardSettings);
+  // KeyboardSettings: {
+  //   enter?: "split" | "into-children" | "line-break";
+  //   shiftEnter?: "line-break" | "same-as-enter";
+  //   splitKeepsType?: boolean;
+  //   resetsTo?: { type: string; props?: Record<string, unknown> };
+  //   emptyEnterResets?: boolean;
+  //   emptyChildEnter?: "outdent" | "exit-at-end" | "stay";
+  //   childrenCanOutdent?: boolean;
+  // }
   meta?: {
-    hardBreakShortcut?: "shift+enter" | "enter" | "none";
     selectable?: boolean;
     fileBlockAccept?: string[];
     code?: boolean;
@@ -171,9 +196,25 @@ type ReactCustomBlockImplementation = {
 
 `runsBefore?:` If this block has parsing or extensions that need to be given priority over any other blocks, you can pass their `type`s in an array here.
 
-`meta?:` An object for setting various generic properties of the block.
+`experimental_keyboard?:` How the keyboard treats the block and its children. This API is experimental and may change. Give only the settings that differ from the defaults. To make settings depend on the block's props, give a function that gets the block and returns them instead.
 
-- `hardBreakShortcut?:` Defines which keyboard shortcut should be used to insert a hard break into the block's inline content. Defaults to `"shift+enter"`. For `content: "plain"` blocks (which can't hold hard break nodes), the shortcut inserts a literal newline (`"\n"`) instead.
+- `enter?:` What Enter does in the block's content. `"split"` (default) splits the block, moving the text after the caret into a new block below. `"into-children"` moves it into a new first child instead. `"line-break"` inserts a line break, and makes Shift-Enter do the same. For `content: "plain"` blocks (which can't hold hard break nodes), a line break is a literal newline (`"\n"`).
+
+- `shiftEnter?:` What Shift-Enter does in the block's content: `"line-break"` (default) or `"same-as-enter"`.
+
+- `splitKeepsType?:` Whether the block created by splitting this one with Enter has the same type, as in lists. Defaults to `false`.
+
+- `resetsTo?:` What the block turns into when it's reset, keeping its content and children. Backspace at the start of the block always resets it. A `type`, and `props` to merge into the block's props. Defaults to `{ type: "paragraph" }`.
+
+- `emptyEnterResets?:` Whether Enter in the empty block resets it too, as when an empty list item turns into a paragraph. Defaults to `false`.
+
+- `emptyChildEnter?:` What Enter does in an empty child of this block. `"outdent"` (default) outdents any empty child. `"exit-at-end"` (default for container blocks) moves an empty last child out to after the block, and adds a new child after any other empty child. `"stay"` always adds a new child after it.
+
+- `childrenCanOutdent?:` Whether the block's children can be outdented out of it with Shift-Tab, or by Enter or Backspace in an empty or nested child. Defaults to `true`, or `false` for container blocks, whose children can never be outdented.
+
+When settings meet, Enter at the start of non-empty content always inserts an empty block above it, and resetting an empty block comes before `enter: "into-children"`.
+
+`meta?:` An object for setting various generic properties of the block.
 
 - `selectable?:` Can be set to false in order to make the block non-selectable, both using the mouse and keyboard. This also helps with being able to select non-editable content within the block. Should only be set to false when `content` is `none` and defaults to true.
 

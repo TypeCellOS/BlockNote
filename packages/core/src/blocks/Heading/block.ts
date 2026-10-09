@@ -7,7 +7,10 @@ import {
   parseDefaultProps,
 } from "../defaultProps.js";
 import { getDetailsContent } from "../getDetailsContent.js";
-import { createToggleWrapper } from "../ToggleWrapper/createToggleWrapper.js";
+import {
+  createToggleFrame,
+  isToggleOpen,
+} from "../ToggleWrapper/createToggleFrame.js";
 
 const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
 
@@ -18,8 +21,15 @@ export interface HeadingOptions {
   allowToggleHeadings?: boolean;
 }
 
+// A regular heading's props. With toggle headings enabled, this sets
+// `isToggleable: false`, so that turning a toggle heading into a heading of
+// some level also makes it a regular heading (BLO-959).
+function regularHeadingProps(level: number, allowToggleHeadings: boolean) {
+  return allowToggleHeadings ? { level, isToggleable: false } : { level };
+}
+
 const createHeadingKeyboardShortcut =
-  (level: number) =>
+  (level: number, allowToggleHeadings: boolean) =>
   ({ editor }: { editor: BlockNoteEditor<any, any, any> }) => {
     const cursorPosition = editor.getTextCursorPosition();
 
@@ -31,7 +41,7 @@ const createHeadingKeyboardShortcut =
 
     editor.updateBlock(cursorPosition.block, {
       type: "heading",
-      props: { level },
+      props: regularHeadingProps(level, allowToggleHeadings),
     });
 
     return true;
@@ -63,7 +73,27 @@ export const createHeadingBlockSpec = createBlockSpec(
   ({ allowToggleHeadings = true }: HeadingOptions = {}) => ({
     meta: {
       isolating: false,
+      // A block dragged onto a toggle heading becomes its first child.
+      dropsIntoChildren: (block) =>
+        allowToggleHeadings && block.props.isToggleable === true,
     },
+    // A toggle heading resets to a regular heading, which in turn resets to a
+    // paragraph. While a toggle heading is open, Enter in its text starts its
+    // children, and Enter in an empty child adds another child.
+    experimental_keyboard: allowToggleHeadings
+      ? (block) => {
+          if (!block.props.isToggleable) {
+            return {};
+          }
+          const open = isToggleOpen(block);
+          return {
+            resetsTo: { type: "heading", props: { isToggleable: false } },
+            emptyEnterResets: true,
+            enter: open ? "into-children" : "split",
+            emptyChildEnter: open ? "stay" : "outdent",
+          };
+        }
+      : undefined,
     parse(e) {
       if (allowToggleHeadings && e.tagName === "DETAILS") {
         const summary = e.querySelector(":scope > summary");
@@ -126,17 +156,23 @@ export const createHeadingBlockSpec = createBlockSpec(
         }
       : {}),
     runsBefore: ["toggleListItem"],
-    render(block, editor) {
+    render(block) {
       const dom = document.createElement(`h${block.props.level}`);
-
-      if (allowToggleHeadings) {
-        const toggleWrapper = createToggleWrapper(block, editor, dom);
-        return { ...toggleWrapper, contentDOM: dom };
-      }
-
       return {
         dom,
         contentDOM: dom,
+      };
+    },
+    renderFrame(block, editor) {
+      if (!allowToggleHeadings || !block.props.isToggleable) {
+        return undefined;
+      }
+      const frame = createToggleFrame(block, editor);
+      return {
+        ...frame,
+        // A heading that is no longer toggleable gets no frame.
+        update: (updated) =>
+          !!updated.props.isToggleable && frame.update(updated),
       };
     },
     toExternalHTML(block) {
@@ -163,13 +199,16 @@ export const createHeadingBlockSpec = createBlockSpec(
       };
     },
   }),
-  ({ levels = HEADING_LEVELS }: HeadingOptions = {}) => [
+  ({
+    levels = HEADING_LEVELS,
+    allowToggleHeadings = true,
+  }: HeadingOptions = {}) => [
     createExtension({
       key: "heading-shortcuts",
       keyboardShortcuts: Object.fromEntries(
         levels.map((level) => [
           `Mod-Alt-${level}`,
-          createHeadingKeyboardShortcut(level),
+          createHeadingKeyboardShortcut(level, allowToggleHeadings),
         ]) ?? [],
       ),
       inputRules: levels.map((level) => ({
@@ -177,9 +216,7 @@ export const createHeadingBlockSpec = createBlockSpec(
         replace({ match }: { match: RegExpMatchArray }) {
           return {
             type: "heading",
-            props: {
-              level: match[1].length,
-            },
+            props: regularHeadingProps(match[1].length, allowToggleHeadings),
           };
         },
       })),

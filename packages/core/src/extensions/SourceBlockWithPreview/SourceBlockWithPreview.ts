@@ -57,7 +57,8 @@ export const SourceBlockWithPreviewExtension = createExtension(
       key: "sourceBlockWithPreview",
       store,
       keyboardShortcuts: {
-        // Toggles the popup. This may be overridden by `hardBreakShortcut`.
+        // Toggles the popup, unless Enter inserts line breaks in the block
+        // (`keyboard.enter: "line-break"`).
         Enter: ({ editor }) => {
           const { block } = editor.getTextCursorPosition();
           if (!blockHasPreview(block)) {
@@ -66,8 +67,8 @@ export const SourceBlockWithPreviewExtension = createExtension(
 
           if (
             store.state.popupOpen === block.id &&
-            editor.schema.blockSpecs[block.type]?.implementation?.meta
-              ?.hardBreakShortcut === "enter"
+            editor.schema.blockSpecs[block.type].implementation.keyboard(block)
+              .enter === "line-break"
           ) {
             const view = editor.prosemirrorView!;
             view.dispatch(view.state.tr.insertText("\n"));

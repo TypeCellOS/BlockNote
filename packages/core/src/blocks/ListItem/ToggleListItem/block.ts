@@ -6,8 +6,10 @@ import {
   parseDefaultProps,
 } from "../../defaultProps.js";
 import { getDetailsContent } from "../../getDetailsContent.js";
-import { createToggleWrapper } from "../../ToggleWrapper/createToggleWrapper.js";
-import { handleEnter } from "../../utils/listItemEnterHandler.js";
+import {
+  createToggleFrame,
+  isToggleOpen,
+} from "../../ToggleWrapper/createToggleFrame.js";
 
 export type ToggleListItemBlockConfig = ReturnType<
   typeof createToggleListItemBlockConfig
@@ -27,8 +29,22 @@ export const createToggleListItemBlockConfig = createBlockConfig(
 export const createToggleListItemBlockSpec = createBlockSpec(
   createToggleListItemBlockConfig,
   {
+    // Enter continues the list, and Enter in an empty item ends it: the item
+    // turns into a paragraph. While the toggle is open, Enter in its text
+    // starts its children, and Enter in an empty child adds another child.
+    experimental_keyboard: (block) => {
+      const open = isToggleOpen(block);
+      return {
+        splitKeepsType: true,
+        emptyEnterResets: true,
+        enter: open ? "into-children" : "split",
+        emptyChildEnter: open ? "stay" : "outdent",
+      };
+    },
     meta: {
       isolating: false,
+      // A block dragged onto the toggle becomes its first child.
+      dropsIntoChildren: () => true,
     },
     parse(element) {
       if (element.tagName === "DETAILS") {
@@ -71,15 +87,11 @@ export const createToggleListItemBlockSpec = createBlockSpec(
       );
     },
     runsBefore: ["bulletListItem"],
-    render(block, editor) {
+    render() {
       const paragraphEl = document.createElement("p");
-      const toggleWrapper = createToggleWrapper(
-        block as any,
-        editor,
-        paragraphEl,
-      );
-      return { ...toggleWrapper, contentDOM: paragraphEl };
+      return { dom: paragraphEl, contentDOM: paragraphEl };
     },
+    renderFrame: createToggleFrame,
     toExternalHTML(block) {
       const li = document.createElement("li");
       const details = document.createElement("details");
@@ -103,9 +115,6 @@ export const createToggleListItemBlockSpec = createBlockSpec(
     createExtension({
       key: "toggle-list-item-shortcuts",
       keyboardShortcuts: {
-        Enter: ({ editor }) => {
-          return handleEnter(editor, "toggleListItem");
-        },
         "Mod-Shift-6": ({ editor }) => {
           const cursorPosition = editor.getTextCursorPosition();
 

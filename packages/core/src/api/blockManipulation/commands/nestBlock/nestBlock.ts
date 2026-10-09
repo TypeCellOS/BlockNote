@@ -3,6 +3,9 @@ import { Transaction } from "prosemirror-state";
 import { canJoin, liftTarget, ReplaceAroundStep } from "prosemirror-transform";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import { CHILD_CONTAINER_GROUP } from "../../../../schema/blocks/children.js";
+import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
+
 /**
  * Whether `node` is the sibling list that nesting and unnesting operate on: a
  * node that holds child blocks, and can hold the kind of node being moved.
@@ -18,7 +21,7 @@ import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 function holdsItems(node: Node, itemType: NodeType) {
   return (
     node.childCount > 0 &&
-    node.type.isInGroup("childContainer") &&
+    node.type.isInGroup(CHILD_CONTAINER_GROUP) &&
     node.type.contentMatch.matchType(itemType) !== null
   );
 }
@@ -175,6 +178,9 @@ export function liftItem(
   tr: Transaction,
   itemType: NodeType,
   groupType: NodeType, // change 2
+  // Whether a block may be outdented out of `parent` (its
+  // `keyboard.childrenCanOutdent` setting).
+  canOutdentFrom: (parent: Node) => boolean,
 ) {
   const { $from, $to } = tr.selection;
   const range = $from.blockRange($to, (node) => holdsItems(node, itemType)); // change 1
@@ -182,7 +188,14 @@ export function liftItem(
     return false;
   }
 
-  if ($from.node(range.depth - 1).type === itemType) {
+  const parent = $from.node(range.depth - 1);
+  // A block whose children can't be outdented keeps them: unnesting stops at
+  // its edge rather than lifting the block out of it.
+  if (parent.type === itemType && !canOutdentFrom(parent)) {
+    return false;
+  }
+
+  if (parent.type === itemType) {
     // Inside a parent node
     return liftToOuterList(tr, itemType, groupType, range); // change 2
   }
@@ -198,6 +211,12 @@ function unnestCommand(editor: BlockNoteEditor<any, any, any>) {
       tr,
       editor.pmSchema.nodes["blockContainer"],
       editor.pmSchema.nodes["blockGroup"],
+      (parent) => {
+        const block = nodeToBlock(parent, tr.doc);
+        return editor.schema.blockSpecs[block.type].implementation.keyboard(
+          block,
+        ).childrenCanOutdent;
+      },
     );
 }
 
@@ -208,8 +227,8 @@ export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
 // `canExec` hands the command a transaction it never dispatches, so "can I
 // nest?" is answered by nesting and throwing the result away. A second
 // statement of the preconditions would drift from the command it describes —
-// and did: it read a previous sibling's mere existence, so a block before the
-// cursor enabled the button while `nestBlock` did nothing.
+// and did: it read a previous sibling's mere existence, so a container block
+// before the cursor enabled the button while `nestBlock` did nothing.
 export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
   return editor.canExec((state) => nestCommand(editor)(state.tr));
 }

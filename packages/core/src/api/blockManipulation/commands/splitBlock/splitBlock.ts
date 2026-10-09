@@ -55,7 +55,23 @@ export const splitBlockTr = (
     },
   ];
 
+  // At the start, children follow the entire title to the second block.
+  // Otherwise they belong to the first half, all within the same undo step.
+  const children = posInBlock === info.contentStart ? undefined : info.children;
+  if (children) {
+    tr.delete(children.beforePos, children.afterPos);
+  }
   tr.split(posInBlock, 2, types);
+  if (children) {
+    const original = tr.doc.nodeAt(info.block.beforePos);
+    if (!original?.firstChild) {
+      throw new Error("Split lost its original block");
+    }
+    tr.insert(
+      info.block.beforePos + 1 + original.firstChild.nodeSize,
+      children.node,
+    );
+  }
 
   return true;
 };

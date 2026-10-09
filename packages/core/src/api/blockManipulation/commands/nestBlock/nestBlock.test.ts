@@ -3,6 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 import { afterAll, beforeAll } from "vite-plus/test";
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import { containerSchema } from "../../containers/containers.fixture.js";
 
 /**
  * Custom test setup with a document designed to reproduce nesting/unnesting bugs.
@@ -643,6 +644,223 @@ describe("unnestBlock / liftListItem", () => {
       expect(editor.document[0].content).toEqual(originalDoc[0].content);
       expect(editor.document[1].content).toEqual(originalDoc[1].content);
     });
+  });
+});
+
+// A second editor, on a schema that has container blocks. `setupNestTestEnv`
+// builds a default-schema editor, which can't express any of the cases below.
+function setupContainerNestTestEnv() {
+  let editor: BlockNoteEditor<any, any, any>;
+  const div = document.createElement("div");
+
+  beforeAll(() => {
+    editor = BlockNoteEditor.create({ schema: containerSchema });
+    editor.mount(div);
+  });
+
+  afterAll(() => {
+    editor._tiptapEditor.destroy();
+    editor = undefined as any;
+  });
+
+  return (doc: PartialBlock<any, any, any>[]) => {
+    editor.replaceBlocks(editor.document, doc);
+    return editor;
+  };
+}
+
+// `canNestBlock` and `canUnnestBlock` run the real command on a transaction
+// that is thrown away, rather than restating its preconditions. The cases here
+// are the ones where the old, restated preconditions gave the wrong answer:
+// they looked at a previous sibling's mere existence and at the block's depth,
+// neither of which knows anything about containers.
+describe("canNestBlock / canUnnestBlock around containers", () => {
+  const withContainerEditor = setupContainerNestTestEnv();
+
+  it("Reports that a block cannot be nested under a container sibling", () => {
+    const editor = withContainerEditor([
+      {
+        id: "callout-0",
+        type: "callout",
+        children: [
+          { id: "callout-child", type: "paragraph", content: "Callout child" },
+        ],
+      },
+      { id: "paragraph-0", type: "paragraph", content: "Paragraph 0" },
+    ]);
+
+    editor.setTextCursorPosition("paragraph-0", "start");
+
+    const before = editor.document;
+    expect(editor.canNestBlock()).toBe(false);
+
+    // And the answer matches what nesting actually does.
+    editor.nestBlock();
+    expect(editor.document).toEqual(before);
+  });
+
+  it("Reports that a container's child cannot be unnested out of it", () => {
+    const editor = withContainerEditor([
+      {
+        id: "callout-0",
+        type: "callout",
+        children: [
+          { id: "callout-child", type: "paragraph", content: "Callout child" },
+        ],
+      },
+    ]);
+
+    editor.setTextCursorPosition("callout-child", "start");
+
+    const before = editor.document;
+    expect(editor.canUnnestBlock()).toBe(false);
+
+    editor.unnestBlock();
+    expect(editor.document).toEqual(before);
+  });
+
+  it("Reports that a block with a plain previous sibling can be nested", () => {
+    const editor = withContainerEditor([
+      { id: "paragraph-0", type: "paragraph", content: "Paragraph 0" },
+      { id: "paragraph-1", type: "paragraph", content: "Paragraph 1" },
+    ]);
+
+    editor.setTextCursorPosition("paragraph-1", "start");
+
+    const before = editor.document;
+    expect(editor.canNestBlock()).toBe(true);
+    // The probe runs the command on a transaction it never dispatches, so
+    // answering must not change the document.
+    expect(editor.document).toEqual(before);
+
+    editor.nestBlock();
+    expect(editor.getBlock("paragraph-0")!.children.map((c) => c.id)).toEqual([
+      "paragraph-1",
+    ]);
+    expect(editor.canUnnestBlock()).toBe(true);
+  });
+
+  it("Nests and unnests a block inside a container's children", () => {
+    const editor = withContainerEditor([
+      {
+        id: "callout-0",
+        type: "callout",
+        children: [
+          { id: "child-0", type: "paragraph", content: "Child 0" },
+          { id: "child-1", type: "paragraph", content: "Child 1" },
+        ],
+      },
+    ]);
+
+    const before = editor.document;
+
+    editor.setTextCursorPosition("child-1", "start");
+    expect(editor.canNestBlock()).toBe(true);
+    editor.nestBlock();
+
+    expect(editor.getBlock("callout-0")!.children.map((c) => c.id)).toEqual([
+      "child-0",
+    ]);
+    expect(editor.getBlock("child-0")!.children.map((c) => c.id)).toEqual([
+      "child-1",
+    ]);
+
+    editor.setTextCursorPosition("child-1", "start");
+    expect(editor.canUnnestBlock()).toBe(true);
+    editor.unnestBlock();
+
+    expect(editor.document).toEqual(before);
+  });
+});
+
+// A `grid` holds only `gridCell`s, so a selection spanning two cells has no
+// nestable range inside the grid. The range has to resolve outside it, at the
+// `blockGroup` the grid sits in, so Tab moves the grid as a unit rather than
+// doing nothing. `columnList`/`column` in `@blocknote/xl-multi-column` are the
+// same shape, and the user-facing case this guards.
+describe("Nesting a selection that spans two of a container's children", () => {
+  const withContainerEditor = setupContainerNestTestEnv();
+
+  function gridWith(id: string) {
+    return {
+      id,
+      type: "grid" as const,
+      children: [
+        {
+          id: `${id}-cell-a`,
+          type: "gridCell" as const,
+          children: [
+            { id: `${id}-a`, type: "paragraph" as const, content: "A" },
+          ],
+        },
+        {
+          id: `${id}-cell-b`,
+          type: "gridCell" as const,
+          children: [
+            { id: `${id}-b`, type: "paragraph" as const, content: "B" },
+          ],
+        },
+      ],
+    };
+  }
+
+  it("Nests the whole grid under its previous sibling", () => {
+    const editor = withContainerEditor([
+      { id: "paragraph-0", type: "paragraph", content: "Paragraph 0" },
+      gridWith("grid-0"),
+    ]);
+
+    editor.setSelection("grid-0-a", "grid-0-b");
+
+    expect(editor.canNestBlock()).toBe(true);
+    editor.nestBlock();
+
+    expect(editor.document.map((block) => block.id)).toEqual(["paragraph-0"]);
+    expect(editor.getBlock("paragraph-0")!.children.map((c) => c.id)).toEqual([
+      "grid-0",
+    ]);
+    // The grid itself is untouched — only its position changed.
+    expect(editor.getBlock("grid-0")!.children.map((c) => c.id)).toEqual([
+      "grid-0-cell-a",
+      "grid-0-cell-b",
+    ]);
+  });
+
+  it("Unnests the whole grid out of its parent", () => {
+    const editor = withContainerEditor([
+      {
+        id: "paragraph-0",
+        type: "paragraph",
+        content: "Paragraph 0",
+        children: [gridWith("grid-0")],
+      },
+    ]);
+
+    editor.setSelection("grid-0-a", "grid-0-b");
+
+    expect(editor.canUnnestBlock()).toBe(true);
+    editor.unnestBlock();
+
+    expect(editor.document.map((block) => block.id)).toEqual([
+      "paragraph-0",
+      "grid-0",
+    ]);
+    expect(editor.getBlock("paragraph-0")!.children).toEqual([]);
+    expect(editor.getBlock("grid-0")!.children.map((c) => c.id)).toEqual([
+      "grid-0-cell-a",
+      "grid-0-cell-b",
+    ]);
+  });
+
+  it("Reports no nesting when the grid has no previous sibling", () => {
+    const editor = withContainerEditor([gridWith("grid-0")]);
+
+    editor.setSelection("grid-0-a", "grid-0-b");
+
+    const before = editor.document;
+    expect(editor.canNestBlock()).toBe(false);
+    editor.nestBlock();
+    expect(editor.document).toEqual(before);
   });
 });
 

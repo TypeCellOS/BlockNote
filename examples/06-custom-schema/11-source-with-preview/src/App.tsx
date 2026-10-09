@@ -114,10 +114,11 @@ const createCSVTableBlockSpec = createReactBlockSpec(
       // Marks the block as rendering a preview with an editable source popup
       // (driven by an editor-wide extension - nothing to register).
       hasPreview: true,
-      // Enter inserts a newline while the popup is open (multiline source);
-      // use "shift+enter" for single-line sources, where Enter closes the
-      // popup instead.
-      hardBreakShortcut: "enter",
+    },
+    // Enter inserts a newline while the popup is open (multiline source).
+    // Without this, Enter closes the popup, as for single-line sources.
+    experimental_keyboard: {
+      enter: "line-break",
     },
     render: CSVTablePreview,
   },

@@ -1433,24 +1433,6 @@ export const examples = {
           'In this example, we create a custom `Alert` block which is used to emphasize text, same as in the [minimal `Alert` block example](/examples/custom-schema/alert-block). However, in this example, we also add a command to insert the block via the Slash Menu, and an entry in the Formatting Toolbar\'s Block Type Select to change the current block to an `Alert`.\n\n**Try it out:** Press the "/" key to open the Slash Menu and insert an `Alert` block! Or highlight text in a paragraph, then change the block type to an `Alert` using the Block Type Select in the Formatting Toolbar!\n\n**Relevant Docs:**\n\n- [Minimal Alert Block Example](/examples/custom-schema/alert-block)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)\n- [Changing Block Type Select Items](/docs/react/components/formatting-toolbar)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
-        projectSlug: "toggleable-blocks",
-        fullSlug: "custom-schema/toggleable-blocks",
-        pathFromRoot: "examples/06-custom-schema/06-toggleable-blocks",
-        config: {
-          playground: true,
-          docs: true,
-          author: "matthewlipski",
-          tags: ["Basic"],
-        },
-        title: "Toggleable Custom Blocks",
-        group: {
-          pathFromRoot: "examples/06-custom-schema",
-          slug: "custom-schema",
-        },
-        readme:
-          "This example shows how to create custom blocks with a toggle button to show/hide their children, like with the default toggle heading and list item blocks. This is done using the use the `ToggleWrapper` component from `@blocknote/react`.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Default Schema](/docs/features/blocks)",
-      },
-      {
         projectSlug: "configuring-blocks",
         fullSlug: "custom-schema/configuring-blocks",
         pathFromRoot: "examples/06-custom-schema/07-configuring-blocks",
@@ -1485,6 +1467,33 @@ export const examples = {
         },
         readme:
           "In this example, we create a custom block which renders a simple HTML paragraph with placeholder text. The block has no editable content.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+      },
+      {
+        projectSlug: "container-block",
+        fullSlug: "custom-schema/container-block",
+        pathFromRoot: "examples/06-custom-schema/09-container-block",
+        config: {
+          playground: true,
+          docs: true,
+          author: "nickthesick",
+          tags: [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu",
+          ],
+          dependencies: {
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Container Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          'In this example, we create a custom `Panel` block that holds other blocks as its body, such as a panel containing headings and paragraphs.\n\nThe block sets `container: true` on `BlockConfig`, which makes it a container: its child blocks mount into the rendered content region (attached with `ref={contentRef}`), and live on `block.children` at runtime. A pure container like this draws its box in `render`, which re-renders live when props change.\n\nWe also wire up a Slash Menu item to insert the panel.\n\n**Try it out:**\n\n- Press the "/" key inside the panel\'s body and add a code block, heading, or list.\n- Insert a new panel via the Slash Menu (search "panel").\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
         projectSlug: "math-block",
@@ -1564,6 +1573,33 @@ export const examples = {
         },
         readme:
           'In this example, we build custom blocks on the source-with-preview pattern — the same building blocks behind BlockNote\'s math and diagram blocks. A custom "CSV table" block renders its comma-separated source as a table, and a custom "color" inline content renders a CSS color as a swatch. Both show the rendered preview in place, while the source is edited in a popup.\n\n**Try it out:** Click the table or a color chip to edit its source!\n\n**Relevant Docs:**\n\n- [Source with Preview Blocks](/docs/features/custom-schemas/source-with-preview)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Custom Inline Content](/docs/features/custom-schemas/custom-inline-content)',
+      },
+      {
+        projectSlug: "callout-block",
+        fullSlug: "custom-schema/callout-block",
+        pathFromRoot: "examples/06-custom-schema/13-callout-block",
+        config: {
+          playground: true,
+          docs: true,
+          author: "nickthesick",
+          tags: [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu",
+          ],
+          dependencies: {
+            "react-icons": "^5.5.0",
+          } as any,
+        },
+        title: "Callout Block",
+        group: {
+          pathFromRoot: "examples/06-custom-schema",
+          slug: "custom-schema",
+        },
+        readme:
+          'In this example, we create a custom `Callout` block with a real rich-text title and child blocks inside it (a titled block), like a Notion-style callout.\n\nThe block has `content: "inline"`: the title is ordinary inline content — formatting, links, and multiplayer cursors all work — and its child blocks live on `block.children` at runtime. Its `keyboard` settings keep the child blocks inside the callout: Enter in the title adds a first child block, Shift-Tab doesn\'t move child blocks out, and Enter in an empty last child block leaves the callout. `render` draws the title row and `renderFrame` draws the box around the title and child blocks together.\n\nWe also wire up a Slash Menu item to insert the callout.\n\n**Try it out:**\n\n- Press Enter at the end of the callout\'s title to add a block inside the callout.\n- Press Enter in an empty last block inside the callout to leave the callout.\n- Press Backspace at the start of the first block inside the callout to merge it back into the title.\n- Press "/" inside the callout and add a code block, heading, or list.\n\n**Relevant Docs:**\n\n- [Container Blocks](/docs/features/custom-schemas/container-blocks)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)',
       },
       {
         projectSlug: "draggable-inline-content",
@@ -1872,7 +1908,7 @@ export const examples = {
           dependencies: {
             "y-websocket": "^2.1.0",
             yjs: "^13.6.27",
-            lib0: "^0.2.99",
+            lib0: "^0.2.119",
           } as any,
         },
         title: "Local Storage Versioning (yjs v13)",
@@ -1896,7 +1932,7 @@ export const examples = {
             "@y/protocols": "^1.0.6-rc.1",
             "@y/websocket": "^4.0.0-3",
             "@y/y": "^14.0.0-rc.23",
-            lib0: "1.0.0-rc.22",
+            lib0: "^1.0.0-rc.34",
           } as any,
         },
         title: "YHub Multi-Doc",
@@ -1921,7 +1957,7 @@ export const examples = {
             "@y/protocols": "^1.0.6-rc.1",
             "@y/websocket": "^4.0.0-3",
             "@y/y": "^14.0.0-rc.23",
-            lib0: "1.0.0-rc.22",
+            lib0: "^1.0.0-rc.34",
           } as any,
         },
         title: "YHub Versioning (@y/y v14)",

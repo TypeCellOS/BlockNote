@@ -42,7 +42,7 @@ import {
   BlockFromConfigNoChildren,
   BlockSchemaWithBlock,
 } from "../../schema/index.js";
-import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
+import { getBlockFromElement } from "../blockDOM.js";
 
 let dragImageElement: HTMLElement | undefined;
 
@@ -246,8 +246,9 @@ export class TableHandlesView implements PluginView {
 
     const tableRect = target.tbodyNode.getBoundingClientRect();
 
-    const blockEl = getDraggableBlockFromElement(target.domNode, this.pmView);
+    const blockEl = getBlockFromElement(target.domNode, this.pmView);
     if (!blockEl) {
+      this.hideHandles();
       return;
     }
 
@@ -256,10 +257,7 @@ export class TableHandlesView implements PluginView {
       doc: tr.doc,
     }));
 
-    // The hovered cell may belong to a document other than this editor's, as a
-    // custom block can embed a nested editor which itself contains a table. The
-    // nested editor's DOM is inside this view's DOM, so its cells still reach
-    // this handler, but its block IDs are unknown here.
+    // The DOM target must still correspond to a block in this document.
     if (!pmNodeInfo) {
       this.hideHandles();
       return;

@@ -3,7 +3,7 @@ import { COLORS_DEFAULT } from "../editor/defaultColors.js";
 import type { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 import {
-  BlockFromConfig,
+  BlockNoDefaults,
   BlockSchema,
   InlineContent,
   InlineContentSchema,
@@ -61,7 +61,7 @@ export abstract class Exporter<
   TS,
 > {
   public constructor(
-    _schema: BlockNoteSchema<B, I, S>, // only used for type inference
+    protected readonly schema: BlockNoteSchema<B, I, S>,
     protected readonly mappings: {
       blockMapping: BlockMapping<B, I, S, RB, RI>;
       inlineContentMapping: InlineContentMapping<I, S, RI, TS>;
@@ -69,6 +69,15 @@ export abstract class Exporter<
     },
     public readonly options: ExporterOptions,
   ) {}
+
+  /**
+   * Whether the block's mapping places its children itself (a `{ withChildren }`
+   * mapping). Otherwise the exporter places them after the block.
+   */
+  public placesChildren(block: { type: string }): boolean {
+    const mapping = this.mappings.blockMapping[block.type];
+    return typeof mapping === "object" && mapping !== null;
+  }
 
   /**
    * The strings this exporter renders into the produced document - the
@@ -139,7 +148,7 @@ export abstract class Exporter<
   public abstract transformStyledText(styledText: StyledText<S>): TS;
 
   public async mapBlock(
-    block: BlockFromConfig<B[keyof B], I, S>,
+    block: BlockNoDefaults<B, I, S>,
     nestingLevel: number,
     numberedListIndex: number,
     children?: Array<Awaited<RB>>,
@@ -150,6 +159,26 @@ export abstract class Exporter<
         `Exporter is missing a block mapping for block type "${block.type}". If this block comes from a separate package, spread that package's exporter mappings into your blockMapping.`,
       );
     }
-    return mapping(block, this, nestingLevel, numberedListIndex, children);
+    if (typeof mapping === "function") {
+      // A container's children belong inside it, which only a
+      // `{ withChildren }` mapping can do. Fail early rather than export them
+      // after it.
+      // TODO: remove once the `BlockMapping` type requires `{ withChildren }`
+      // for containers (`createBlockSpec` doesn't keep `container: true` in the
+      // config type yet).
+      if (this.schema.blockSpecs[block.type]?.config.container === true) {
+        throw new Error(
+          `The mapping for container block type "${block.type}" must be a \`{ withChildren }\` mapping, which places the block's children.`,
+        );
+      }
+      return mapping(block, this, nestingLevel, numberedListIndex);
+    }
+    return mapping.withChildren(
+      block,
+      this,
+      nestingLevel,
+      numberedListIndex,
+      children ?? [],
+    );
   }
 }

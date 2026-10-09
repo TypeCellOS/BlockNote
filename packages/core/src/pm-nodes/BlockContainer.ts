@@ -1,9 +1,90 @@
-import { Node } from "@tiptap/core";
+import {
+  Node,
+  type NodeViewRenderer,
+  type NodeViewRendererProps,
+} from "@tiptap/core";
 
+import type { NodeView } from "@tiptap/pm/view";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
+import { isDocumentFragment } from "../schema/blocks/internal.js";
 import { BlockNoteDOMAttributes } from "../schema/index.js";
+import { ignoreFrameChromeMutations } from "../schema/nodeViewMutations.js";
 import { mergeCSSClasses } from "../util/browser.js";
 import { suggestionMarks } from "./suggestionMarks.js";
+
+const dropEvents = new Set(["dragenter", "dragover", "dragleave", "drop"]);
+
+/** Adapts vanilla frames to the same lifecycle as framework node views. */
+function createFrameView(
+  props: NodeViewRendererProps,
+  editor: BlockNoteEditor,
+  fallback: HTMLElement,
+  blockContentDOMAttributes: Record<string, string>,
+): NodeView {
+  const type = props.node.firstChild!.type.name;
+  const implementation = editor.blockImplementations[type].implementation;
+  if (implementation.frameNodeView) {
+    return implementation.frameNodeView(props);
+  }
+
+  const renderFrame = implementation.renderFrame<
+    typeof editor.schema.inlineContentSchema,
+    typeof editor.schema.styleSchema
+  >;
+  const frame = renderFrame?.call(
+    {
+      renderType: "nodeView",
+      props,
+      blockContentDOMAttributes,
+      propSchema: editor.blockImplementations[type].config.propSchema,
+    },
+    nodeToBlock(props.node, props.view.state.doc),
+    editor,
+  );
+  let dom = frame?.dom ?? fallback;
+  if (isDocumentFragment(dom)) {
+    // Node views need a stable element even when the author returns siblings.
+    const wrapper = document.createElement("div");
+    wrapper.style.display = "contents";
+    wrapper.append(dom);
+    dom = wrapper;
+  }
+  return {
+    dom,
+    contentDOM: frame?.slot ?? fallback,
+    destroy: frame?.destroy?.bind(frame),
+    update(node) {
+      if (frame?.update) {
+        return frame.update(nodeToBlock(node, props.view.state.doc)) !== false;
+      }
+      // Declined frames must also be reconsidered when their block changes.
+      return !renderFrame || node.eq(props.node);
+    },
+  };
+}
+
+/**
+ * Puts a block's text and background color on its own element (`.bn-block`),
+ * so they also apply to its children however deep a frame puts its content.
+ * Only these two props, which `Block.css` applies to a block's children.
+ */
+export function setBlockColorAttributes(
+  element: HTMLElement,
+  props: Record<string, unknown> | undefined,
+) {
+  for (const [prop, attribute] of [
+    ["textColor", "data-text-color"],
+    ["backgroundColor", "data-background-color"],
+  ] as const) {
+    const value = props?.[prop];
+    if (typeof value === "string" && value !== "default") {
+      element.setAttribute(attribute, value);
+    } else {
+      element.removeAttribute(attribute);
+    }
+  }
+}
 
 // Object containing all possible block attributes.
 const BlockAttributes: Record<string, string> = {
@@ -87,5 +168,66 @@ export const BlockContainer = Node.create<{
       dom: blockOuter,
       contentDOM: block,
     };
+  },
+
+  addNodeView() {
+    // Cast: this returns a plain ProseMirror node view, which tiptap's
+    // `NodeViewRenderer` type doesn't model.
+    return ((props: NodeViewRendererProps) => {
+      const editor = this.options.editor;
+      const { dom, contentDOM } = this.type.spec.toDOM!(props.node) as {
+        dom: HTMLElement;
+        contentDOM: HTMLElement;
+      };
+      const frameView = createFrameView(
+        props,
+        editor,
+        contentDOM,
+        this.options.domAttributes?.blockContent || {},
+      );
+      const framed = frameView.dom !== contentDOM;
+      if (framed) {
+        contentDOM.appendChild(frameView.dom);
+      }
+      setBlockColorAttributes(contentDOM, props.node.firstChild?.attrs);
+
+      const nodeView: NodeView = {
+        dom,
+        contentDOM: frameView.contentDOM ?? contentDOM,
+        update(node, decorations, innerDecorations) {
+          // Changing the wrapper or block type replaces the complete view.
+          const kept =
+            node.sameMarkup(props.node) &&
+            node.firstChild?.type === props.node.firstChild?.type &&
+            (frameView.update?.(node, decorations, innerDecorations) ?? false);
+          if (kept) {
+            // The view stays when only the content's attributes change.
+            setBlockColorAttributes(contentDOM, node.firstChild?.attrs);
+          }
+          return kept;
+        },
+        stopEvent(event) {
+          // Author chrome handles its own events; the slot remains editable.
+          // Drag-and-drop events still go to ProseMirror, so a block dropped
+          // on the chrome drops where the drop cursor shows it.
+          const target = event.target;
+          return (
+            (target instanceof globalThis.Node &&
+              frameView.dom.contains(target) &&
+              !nodeView.contentDOM?.contains(target) &&
+              !dropEvents.has(event.type)) ||
+            (frameView.stopEvent?.(event) ?? false)
+          );
+        },
+        destroy: frameView.destroy?.bind(frameView),
+        selectNode: frameView.selectNode?.bind(frameView),
+        deselectNode: frameView.deselectNode?.bind(frameView),
+        ignoreMutation: frameView.ignoreMutation?.bind(frameView),
+      };
+      if (framed) {
+        ignoreFrameChromeMutations(nodeView);
+      }
+      return nodeView;
+    }) as unknown as NodeViewRenderer;
   },
 });

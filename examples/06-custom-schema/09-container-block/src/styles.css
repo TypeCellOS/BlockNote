@@ -1,0 +1,10 @@
+.panel {
+  border-left: 4px solid #507aff;
+  border-radius: 6px;
+  background-color: var(--panel-bg, #e6ebff);
+  padding: 12px 16px;
+}
+
+[data-color-scheme="dark"] .panel {
+  --panel-bg: #1e2a5c;
+}

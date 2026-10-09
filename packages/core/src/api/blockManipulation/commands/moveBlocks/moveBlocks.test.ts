@@ -7,16 +7,25 @@ import {
   getBlockInfoFromSelection,
   getNodeId,
 } from "../../../getBlockInfoFromPos.js";
-import { setupTestEnv } from "../../setupTestEnv.js";
+import { getNodeById } from "../../../nodeUtil.js";
+import { containerSchema } from "../../containers/containers.fixture.js";
+import { setupTestEnv, testDocument } from "../../setupTestEnv.js";
 import {
   moveBlocksDown,
   moveBlocksUp,
   moveSelectedBlocksAndSelection,
 } from "./moveBlocks.js";
 
-const getEditor = setupTestEnv();
+const getEditor = setupTestEnv<
+  typeof containerSchema.blockSchema,
+  typeof containerSchema.inlineContentSchema,
+  typeof containerSchema.styleSchema
+>({
+  schema: containerSchema,
+  document: testDocument,
+});
 
-function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
+function makeSelectionSpanContent(selectionType: "text" | "cell") {
   const blockInfo = getEditor().transact((tr) => getBlockInfoFromSelection(tr));
   if (!blockInfo.hasContent) {
     throw new Error(
@@ -35,10 +44,6 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
           tr.doc.resolve(content.afterPos - 3).before(),
         ),
       ),
-    );
-  } else if (selectionType === "node") {
-    editor.transact((tr) =>
-      tr.setSelection(NodeSelection.create(tr.doc, content.beforePos)),
     );
   } else {
     editor.transact((tr) =>
@@ -69,19 +74,30 @@ describe("Test moveSelectedBlockAndSelection", () => {
     ).toBeTruthy();
   });
 
-  it("Node selection", () => {
-    getEditor().setTextCursorPosition("image-0");
-    makeSelectionSpanContent("node");
+  it.each([
+    { type: "image", offset: 1 },
+    { type: "callout", offset: 0 },
+  ] as const)("Node selection: $type", ({ type, offset }) => {
+    const editor = getEditor();
+    editor.insertBlocks([{ id: "selected", type }], "paragraph-1", "after");
+    editor.transact((tr) => {
+      const block = getNodeById("selected", tr.doc)!;
+      tr.setSelection(
+        NodeSelection.create(tr.doc, block.posBeforeNode + offset),
+      );
+    });
 
-    moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
+    moveSelectedBlocksAndSelection(editor, "paragraph-0", "before");
 
-    const selection = getEditor().transact((tr) => tr.selection);
-    getEditor().setTextCursorPosition("image-0");
-    makeSelectionSpanContent("node");
-
-    expect(
-      selection.eq(getEditor().transact((tr) => tr.selection)),
-    ).toBeTruthy();
+    expect(editor.document[0].id).toBe("selected");
+    editor.transact((tr) => {
+      const moved = getNodeById("selected", tr.doc)!;
+      expect(
+        tr.selection.eq(
+          NodeSelection.create(tr.doc, moved.posBeforeNode + offset),
+        ),
+      ).toBe(true);
+    });
   });
 
   it("Cell selection", () => {

@@ -542,10 +542,27 @@ export const createReactEmailBlockMappingForDefaultSchema = (
     );
   },
   // Email clients handle side-by-side layout poorly, so columns are stacked:
-  // these wrappers render nothing themselves and the exporter's generic child
-  // rendering stacks the column contents vertically.
-  column: () => <></>,
-  columnList: () => <></>,
+  // these container mappings place their children (which the exporter passes
+  // in) one after another, with no wrapper of their own - so the column
+  // contents render flat, in document order.
+  column: {
+    withChildren: (
+      _block,
+      _exporter,
+      _nestingLevel,
+      _numberedListIndex,
+      children,
+    ) => <>{children}</>,
+  },
+  columnList: {
+    withChildren: (
+      _block,
+      _exporter,
+      _nestingLevel,
+      _numberedListIndex,
+      children,
+    ) => <>{children}</>,
+  },
 });
 
 // Export the original mapping for backward compatibility

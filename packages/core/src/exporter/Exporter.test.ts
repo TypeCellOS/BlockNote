@@ -83,7 +83,12 @@ describe("Exporter mapping typing", () => {
         ...defaultBlockSpecs,
         extraBlock: createBlockSpec(
           { content: "none", type: "extraBlock", propSchema: {} },
-          {} as any,
+          {
+            render: () => {
+              const dom = document.createElement("div");
+              return { dom, contentDOM: dom };
+            },
+          } as any,
         )(),
       },
     });
@@ -182,5 +187,69 @@ describe("Exporter missing mappings", () => {
     expect(() =>
       new EmptyMappingsExporter().mapStyles({ bold: true } as any),
     ).toThrow('missing a style mapping for style "bold"');
+  });
+});
+
+// A container block (`container: true`), and an exporter
+// whose mappings return strings.
+const box = createBlockSpec(
+  {
+    type: "box",
+    propSchema: {},
+    content: "none",
+    container: true,
+  },
+  {
+    render: () => {
+      const dom = document.createElement("div");
+      return { dom, contentDOM: dom };
+    },
+  },
+)();
+
+class StringExporter extends Exporter<any, any, any, string, void, void, void> {
+  constructor(blockMapping: Record<string, unknown>) {
+    super(
+      BlockNoteSchema.create().extend({ blockSpecs: { box } }),
+      { blockMapping, inlineContentMapping: {}, styleMapping: {} } as any,
+      { colors: COLORS_DEFAULT },
+    );
+  }
+
+  public transformStyledText(_styledText: StyledText<any>) {
+    return undefined;
+  }
+}
+
+describe("Exporter child placement", () => {
+  it("passes a `{ withChildren }` mapping the block's rendered children", async () => {
+    const exporter = new StringExporter({
+      box: {
+        withChildren: (_b: any, _e: any, _n: any, _i: any, c: string[]) =>
+          `[${c.join(",")}]`,
+      },
+    });
+
+    expect(exporter.placesChildren({ type: "box" })).toBe(true);
+    await expect(
+      exporter.mapBlock({ type: "box" } as any, 0, 0, ["a", "b"]),
+    ).resolves.toBe("[a,b]");
+  });
+
+  it("throws when a container block has a plain mapping", async () => {
+    const exporter = new StringExporter({ box: () => "box" });
+
+    expect(exporter.placesChildren({ type: "box" })).toBe(false);
+    await expect(
+      exporter.mapBlock({ type: "box" } as any, 0, 0, []),
+    ).rejects.toThrow("must be a `{ withChildren }` mapping");
+  });
+
+  it("leaves the children of an unmapped or plainly mapped block to the exporter", () => {
+    // Block packages (math, diagram, ...) commonly supply only a mapping,
+    // which reads the block's JSON - their specs need not be in the schema.
+    expect(
+      new EmptyMappingsExporter().placesChildren({ type: "mathBlock" }),
+    ).toBe(false);
   });
 });
