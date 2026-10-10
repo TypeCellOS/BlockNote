@@ -1,6 +1,6 @@
 import type { Node, NodeType, Schema } from "prosemirror-model";
 
-import type { ChildrenConfig } from "./types.js";
+import type { BlockConfig, ChildrenConfig } from "./types.js";
 
 export const CHILD_CONTAINER_GROUP = "childContainer";
 
@@ -70,22 +70,50 @@ export function minChildren(children: ChildrenConfig | undefined): number {
 }
 
 /**
+ * The content expression for "any blocks": the `BLOCK_GROUP_CHILD_GROUP` group
+ * itself, or, for a container that excludes some container types, the group's
+ * other members spelled out: `blockContainer` (the node every regular block
+ * shares) and the container types placeable anywhere. That takes the whole
+ * schema, which is why only a container with `exclude` needs it.
+ */
+export function anyBlocksExpression(
+  exclude: readonly string[],
+  blockSpecs: Record<
+    string,
+    { config: Pick<BlockConfig, "container" | "placeable"> }
+  >,
+): string {
+  if (exclude.length === 0) {
+    return BLOCK_GROUP_CHILD_GROUP;
+  }
+  const containers = Object.entries(blockSpecs)
+    .filter(
+      ([type, { config }]) =>
+        config.container === true &&
+        config.placeable !== "namedOnly" &&
+        !exclude.includes(type),
+    )
+    .map(([type]) => type);
+  const members = ["blockContainer", ...containers];
+  return members.length === 1 ? members[0] : `(${members.join(" | ")})`;
+}
+
+/**
  * Compiles a container's `children` config into its node's ProseMirror content
  * expression: which types may be its children (`allow`), followed by how few
- * of them it takes (`min`).
+ * of them it takes (`min`). `anyBlocks` is what `allow: "blocks"` stands for:
+ * the group, unless the container excludes types (see `anyBlocksExpression`).
  */
 export function childrenContentExpression(
   children: ChildrenConfig = {},
+  anyBlocks: string = BLOCK_GROUP_CHILD_GROUP,
 ): string {
   const { allow = "blocks" } = children;
   const min = minChildren(children);
 
   let allowed: string;
   if (allow === "blocks") {
-    // "Anything" is already a group, so use it rather than spelling out a
-    // union that would need rebuilding whenever the schema gains a container
-    // type.
-    allowed = BLOCK_GROUP_CHILD_GROUP;
+    allowed = anyBlocks;
   } else {
     if (allow.length === 0) {
       throw new Error(

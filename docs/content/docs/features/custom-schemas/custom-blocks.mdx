@@ -154,6 +154,7 @@ type ReactCustomBlockImplementation = {
   //   enter?: "split" | "into-children" | "line-break";
   //   shiftEnter?: "line-break" | "same-as-enter";
   //   splitKeepsType?: boolean;
+  //   splitKeepsChildren?: boolean;
   //   resetsTo?: { type: string; props?: Record<string, unknown> };
   //   emptyEnterResets?: boolean;
   //   emptyChildEnter?: "outdent" | "exit-at-end" | "stay";
@@ -165,6 +166,7 @@ type ReactCustomBlockImplementation = {
     code?: boolean;
     defining?: boolean;
     isolating?: boolean;
+    draggable?: boolean;
     highlight?: (block: Block) => string | undefined;
   };
 };
@@ -204,6 +206,8 @@ type ReactCustomBlockImplementation = {
 
 - `splitKeepsType?:` Whether the block created by splitting this one with Enter has the same type, as in lists. Defaults to `false`.
 
+- `splitKeepsChildren?:` Whether the block's children stay with it when Enter splits it. Otherwise they follow the text after the caret into the new block, as for nested blocks, so the new block takes the block's place above them. Defaults to `true` when `enter` is `"into-children"` (the children are the block's body), otherwise `false`; a closed toggle sets it to keep its hidden children.
+
 - `resetsTo?:` What the block turns into when it's reset, keeping its content and children. Backspace at the start of the block always resets it. A `type`, and `props` to merge into the block's props. Defaults to `{ type: "paragraph" }`.
 
 - `emptyEnterResets?:` Whether Enter in the empty block resets it too, as when an empty list item turns into a paragraph. Defaults to `false`.
@@ -225,6 +229,8 @@ When settings meet, Enter at the start of non-empty content always inserts an em
 - `defining?:` Whether this block is [defining](https://prosemirror.net/docs/ref/#model.NodeSpec.defining).
 
 - `isolating?:` Whether this block is [isolating](https://prosemirror.net/docs/ref/#model.NodeSpec.isolating).
+
+- `draggable?:` Whether the block gets a side menu drag handle. Defaults to `true`, or `false` for a container that can only be placed inside a specific parent (`placeable: "namedOnly"`).
 
 - `highlight?:` A callback that returns the language the block's text should be syntax-highlighted as (or `undefined` for no highlighting). Highlighting only takes effect when the [syntax highlighting extension](/docs/features/blocks/code-blocks#syntax-highlighting) is added to the editor.
 

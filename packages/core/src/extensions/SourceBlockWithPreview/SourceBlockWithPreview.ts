@@ -30,7 +30,7 @@ export const SourceBlockWithPreviewExtension = createExtension(
     // `meta.hasPreview` (read from the spec, like the syntax-highlighting
     // extension reads `meta.highlight`).
     const blockHasPreview = (block: Block<any, any, any>) =>
-      !!editor.schema.blockSpecs[block.type]?.implementation?.meta?.hasPreview;
+      !!editor.schema.blockSpecs[block.type]?.implementation.meta.hasPreview;
 
     const handleArrow =
       (direction: "prev" | "next") =>

@@ -985,9 +985,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
             const blockEmpty = blockInfo.isContentEmpty;
 
             if (!blockEmpty) {
-              const keepType =
-                selectionAtBlockStart ||
-                keyboardOf(blockInfo.block.node, state.doc).splitKeepsType;
+              const keyboard = keyboardOf(blockInfo.block.node, state.doc);
+              const keepType = selectionAtBlockStart || keyboard.splitKeepsType;
               chain()
                 .deleteSelection()
                 .command(
@@ -995,6 +994,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                     state.selection.from,
                     keepType,
                     selectionAtBlockStart,
+                    keyboard.splitKeepsChildren,
                   ),
                 )
                 .scrollIntoView()

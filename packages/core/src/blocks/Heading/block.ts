@@ -90,6 +90,8 @@ export const createHeadingBlockSpec = createBlockSpec(
             resetsTo: { type: "heading", props: { isToggleable: false } },
             emptyEnterResets: true,
             enter: open ? "into-children" : "split",
+            // A closed toggle keeps its hidden children.
+            splitKeepsChildren: !open,
             emptyChildEnter: open ? "stay" : "outdent",
           };
         }

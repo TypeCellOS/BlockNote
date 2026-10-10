@@ -53,7 +53,7 @@ export function getDropIntoChildren(
 
   const dropsIntoChildren = editor.schema.blockSpecs[
     blockInfo.blockNoteType
-  ]?.implementation.meta?.dropsIntoChildren?.(
+  ]?.implementation.meta.dropsIntoChildren?.(
     nodeToBlock(blockInfo.block.node, view.state.doc),
   );
   if (!dropsIntoChildren) {

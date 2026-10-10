@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vite-plus/test";
 
-import { childrenContentExpression } from "./children.js";
+import { anyBlocksExpression, childrenContentExpression } from "./children.js";
 import type { ChildrenAllow, ChildrenConfig } from "./types.js";
 import { validateChildrenConfigs } from "./validateChildren.js";
 
@@ -52,7 +52,7 @@ type BlockFixture = {
   content?: "none" | "inline" | "plain" | "table";
   container?: true;
   // Loose on purpose: the validator tests pass shapes the type rejects.
-  children?: { allow?: ChildrenAllow; min?: number };
+  children?: { allow?: ChildrenAllow; min?: number; exclude?: string[] };
   placeable?: "anywhere" | "namedOnly";
 };
 
@@ -74,7 +74,86 @@ function specsWith(blocks: Record<string, BlockFixture>) {
 const validate = (blocks: Record<string, BlockFixture>) => () =>
   validateChildrenConfigs(specsWith(blocks) as any);
 
+// `exclude` is resolved against the schema: the "any blocks" group is replaced
+// by its other members, and `childrenContentExpression` takes the result.
+describe("anyBlocksExpression", () => {
+  const specs = specsWith({
+    callout: { container: true },
+    columnList: { container: true, children: { allow: ["column"], min: 2 } },
+    column: { container: true, placeable: "namedOnly" },
+  }) as any;
+
+  it("is the group when nothing is excluded", () => {
+    expect(anyBlocksExpression([], specs)).toBe("blockGroupChild");
+  });
+
+  it("spells out the other members otherwise", () => {
+    expect(anyBlocksExpression(["columnList"], specs)).toBe(
+      "(blockContainer | callout)",
+    );
+    expect(anyBlocksExpression(["columnList", "callout"], specs)).toBe(
+      "blockContainer",
+    );
+    expect(
+      childrenContentExpression(
+        { allow: "blocks", exclude: ["columnList"] },
+        anyBlocksExpression(["columnList"], specs),
+      ),
+    ).toBe("(blockContainer | callout)+");
+  });
+
+  it("rejects `exclude` on an allow list at the type level", () => {
+    const config: ChildrenConfig = {
+      allow: ["column"],
+      // @ts-expect-error `exclude` is only for a container of any blocks
+      exclude: ["callout"],
+    };
+    expect(config.allow).toEqual(["column"]);
+  });
+});
+
 describe("validateChildrenConfigs", () => {
+  it("accepts `exclude` of a container that can stand anywhere", () => {
+    expect(
+      validate({
+        box: { container: true, children: { exclude: ["callout"] } },
+        callout: { container: true },
+      }),
+    ).not.toThrow();
+  });
+
+  it("rejects `exclude` where it can't apply", () => {
+    expect(
+      validate({
+        box: {
+          container: true,
+          children: { allow: ["callout"], exclude: ["callout"] },
+        },
+        callout: { container: true },
+      }),
+    ).toThrow(/only for a container that accepts any blocks/);
+    expect(
+      validate({
+        box: { content: "inline", children: { exclude: ["callout"] } },
+        callout: { container: true },
+      }),
+    ).toThrow(/requires `container: true`/);
+    expect(
+      validate({ box: { container: true, children: { exclude: ["typo"] } } }),
+    ).toThrow(/not a configured block type/);
+    expect(
+      validate({
+        box: { container: true, children: { exclude: ["paragraph"] } },
+      }),
+    ).toThrow(/regular block, not a container block/);
+    expect(
+      validate({
+        box: { container: true, children: { exclude: ["column"] } },
+        column: { container: true, placeable: "namedOnly" },
+      }),
+    ).toThrow(/namedOnly/);
+  });
+
   it("accepts recursive containers and named-only children", () => {
     expect(validate({ callout: { container: true } })).not.toThrow();
     expect(

@@ -229,7 +229,7 @@ export class SideMenuView<
 
     const blockSpecs = this.editor.schema.blockSpecs;
     function isDraggable(type: string) {
-      return blockSpecs[type].implementation.meta?.draggable !== false;
+      return blockSpecs[type].implementation.meta.draggable;
     }
     const block = getBlockFromMousePos(this.mousePos, this.pmView, isDraggable);
 

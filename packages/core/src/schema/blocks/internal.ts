@@ -7,6 +7,7 @@ import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
 import { PropSchema, Props } from "../propTypes.js";
 import { createBlockKeyboard } from "./keyboard.js";
+import { resolveBlockMeta } from "./meta.js";
 import { BlockConfig, ChildrenConfig, LooseBlockSpec } from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
@@ -300,6 +301,10 @@ export function createBlockSpecFromTiptapNode<
     },
     implementation: {
       node: config.node,
+      meta: resolveBlockMeta(undefined, {
+        container: config.container,
+        placeable: config.placeable,
+      }),
       keyboard: createBlockKeyboard(undefined, {
         isContainer: config.container === true,
         hardBreakShortcut: undefined,

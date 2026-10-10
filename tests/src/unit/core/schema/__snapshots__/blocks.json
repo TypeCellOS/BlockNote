@@ -8,6 +8,13 @@
     "extensions": undefined,
     "implementation": {
       "keyboard": [Function],
+      "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "isolating": true,
+        "selectable": true,
+      },
       "node": null,
       "render": [Function],
       "renderFrame": [Function],
@@ -40,9 +47,14 @@
     "implementation": {
       "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "fileBlockAccept": [
           "audio/*",
         ],
+        "isolating": true,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -81,7 +93,11 @@
     "implementation": {
       "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -112,6 +128,13 @@
     "extensions": undefined,
     "implementation": {
       "keyboard": [Function],
+      "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "isolating": false,
+        "selectable": true,
+      },
       "node": null,
       "render": [Function],
       "toExternalHTML": [Function],
@@ -149,7 +172,11 @@
     "implementation": {
       "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -179,8 +206,10 @@
       "meta": {
         "code": true,
         "defining": true,
+        "draggable": true,
         "highlight": [Function],
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -214,6 +243,13 @@
     "extensions": undefined,
     "implementation": {
       "keyboard": [Function],
+      "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "isolating": true,
+        "selectable": true,
+      },
       "node": null,
       "parse": [Function],
       "render": [Function],
@@ -232,7 +268,11 @@
     "implementation": {
       "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -263,9 +303,14 @@
     "implementation": {
       "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "fileBlockAccept": [
           "*/*",
         ],
+        "isolating": true,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -316,8 +361,12 @@
     "implementation": {
       "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "dropsIntoChildren": [Function],
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -369,9 +418,14 @@
     "implementation": {
       "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "fileBlockAccept": [
           "image/*",
         ],
+        "isolating": true,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -414,7 +468,11 @@
     "implementation": {
       "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -432,6 +490,13 @@
     "extensions": undefined,
     "implementation": {
       "keyboard": [Function],
+      "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "isolating": true,
+        "selectable": true,
+      },
       "node": null,
       "parse": [Function],
       "render": [Function],
@@ -466,7 +531,11 @@
     "implementation": {
       "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -497,7 +566,11 @@
     "implementation": {
       "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -530,6 +603,13 @@
     "extensions": undefined,
     "implementation": {
       "keyboard": [Function],
+      "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "isolating": true,
+        "selectable": true,
+      },
       "node": null,
       "render": [Function],
       "toExternalHTML": [Function],
@@ -573,6 +653,13 @@
     "extensions": undefined,
     "implementation": {
       "keyboard": [Function],
+      "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "isolating": true,
+        "selectable": true,
+      },
       "node": null,
       "render": [Function],
       "toExternalHTML": [Function],
@@ -594,6 +681,13 @@
     ],
     "implementation": {
       "keyboard": [Function],
+      "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
+        "isolating": true,
+        "selectable": true,
+      },
       "node": null,
       "render": [Function],
       "toExternalHTML": [Function],
@@ -627,8 +721,12 @@
     "implementation": {
       "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "dropsIntoChildren": [Function],
         "isolating": false,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],
@@ -680,9 +778,14 @@
     "implementation": {
       "keyboard": [Function],
       "meta": {
+        "code": false,
+        "defining": true,
+        "draggable": true,
         "fileBlockAccept": [
           "video/*",
         ],
+        "isolating": true,
+        "selectable": true,
       },
       "node": null,
       "parse": [Function],

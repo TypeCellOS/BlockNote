@@ -309,3 +309,51 @@ describe("Delete with multi-column", () => {
     expect(editor.document).toMatchSnapshot();
   });
 });
+
+describe("Backspace at the start of a column's first block", () => {
+  // Left column A1 + A2, right column B1, caret at the start of B1. The block
+  // leaves the column list, which dissolves into its blocks, and the caret
+  // stays at the start of the block (#3104 unwraps the list in place).
+  it("moves the block out, dissolves the list, and keeps the caret", () => {
+    const editor = getEditor();
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "columnList",
+        id: "cl-0",
+        children: [
+          {
+            type: "column",
+            id: "col-1",
+            children: [
+              { id: "A1", type: "paragraph", content: "A1" },
+              { id: "A2", type: "paragraph", content: "A2" },
+            ],
+          },
+          {
+            type: "column",
+            id: "col-2",
+            children: [{ id: "B1", type: "paragraph", content: "B1" }],
+          },
+        ],
+      },
+      { id: "after", type: "paragraph", content: "after" },
+    ]);
+
+    editor.setTextCursorPosition("B1", "start");
+    pressBackspace(editor);
+
+    expect(editor.document.map((block) => block.id)).toEqual([
+      "A1",
+      "A2",
+      "B1",
+      "after",
+    ]);
+    expect(editor.document.every((block) => block.type === "paragraph")).toBe(
+      true,
+    );
+    expect(editor.getTextCursorPosition().block.id).toBe("B1");
+    const { selection } = editor.prosemirrorState;
+    expect(selection.empty).toBe(true);
+    expect(selection.$from.parentOffset).toBe(0);
+  });
+});

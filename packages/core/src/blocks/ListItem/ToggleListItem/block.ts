@@ -38,6 +38,8 @@ export const createToggleListItemBlockSpec = createBlockSpec(
         splitKeepsType: true,
         emptyEnterResets: true,
         enter: open ? "into-children" : "split",
+        // A closed toggle keeps its hidden children.
+        splitKeepsChildren: !open,
         emptyChildEnter: open ? "stay" : "outdent",
       };
     },

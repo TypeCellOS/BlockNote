@@ -16,11 +16,14 @@ export const ColumnBlock = createBlockSpec(
     content: "none",
     container: true,
     placeable: "namedOnly",
+    // Column lists don't nest in columns, as on `main` and in Notion.
+    children: { allow: "blocks", exclude: ["columnList"] },
   },
   {
-    meta: {
-      draggable: false,
-    },
+    // Enter in an empty column block adds another block, as in Notion:
+    // columns are layout, and people add space with Enter. Other containers
+    // keep the default, where an empty last block leaves the container.
+    experimental_keyboard: { emptyChildEnter: "stay" },
     render: (block) => {
       const dom = document.createElement("div");
       dom.className = "bn-block-column";

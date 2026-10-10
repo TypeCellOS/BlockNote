@@ -1,4 +1,4 @@
-import { Editor, Node, NodeViewRendererProps } from "@tiptap/core";
+import { Editor, Node, NodeConfig, NodeViewRendererProps } from "@tiptap/core";
 import {
   DOMParser,
   Fragment,
@@ -8,22 +8,23 @@ import {
 import { NodeView } from "@tiptap/pm/view";
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   Extension,
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
+import { suggestionMarks } from "../../pm-nodes/suggestionMarks.js";
 import { nonFormattingMarks } from "../markGroups.js";
 import { ignoreDarkReaderMutations } from "../nodeViewMutations.js";
-import { suggestionMarks } from "../../pm-nodes/suggestionMarks.js";
 import { PropSchema } from "../propTypes.js";
 import {
   BLOCK_GROUP_CHILD_GROUP,
   CHILD_CONTAINER_GROUP,
+  anyBlocksExpression,
   childrenContentExpression,
   containerNodePriority,
 } from "./children.js";
 import { applyContainerAttributes } from "./containerAttributes.js";
-import { createBlockKeyboard } from "./keyboard.js";
 import {
   applyDOMAttributes,
   getBlockFromNodeView,
@@ -31,13 +32,17 @@ import {
   propsToAttributes,
   wrapInBlockStructure,
 } from "./internal.js";
+import { createBlockKeyboard } from "./keyboard.js";
+import { resolveBlockMeta } from "./meta.js";
 import {
   BlockConfig,
   BlockConfigOrCreator,
   BlockImplementation,
   BlockImplementationOrCreator,
   BlockSpec,
+  ChildrenConfig,
   LooseBlockSpec,
+  ResolvedBlockConfigMeta,
 } from "./types.js";
 
 // Function that causes events within non-selectable blocks to be handled by the
@@ -238,13 +243,22 @@ export function containerRootDOM(output: {
   return output.dom;
 }
 
+/** A block implementation with its `meta` resolved (see `resolveBlockMeta`). */
+type ResolvedBlockImplementation<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none" | "table" | "plain",
+> = Omit<BlockImplementation<TName, TProps, TContent>, "meta"> & {
+  meta: ResolvedBlockConfigMeta<TName, TProps>;
+};
+
 function blockNodeView<
   TName extends string,
   TProps extends PropSchema,
   TContent extends "inline" | "none" | "table" | "plain",
 >(
   blockConfig: BlockConfig<TName, TProps, TContent>,
-  blockImplementation: BlockImplementation<TName, TProps, TContent>,
+  blockImplementation: ResolvedBlockImplementation<TName, TProps, TContent>,
   props: NodeViewRendererProps,
 ): NodeView {
   const isContainer = blockConfig.container === true;
@@ -265,7 +279,7 @@ function blockNodeView<
 
   const typedNodeView = nodeView as unknown as NodeView;
 
-  if (blockImplementation.meta?.selectable === false) {
+  if (!blockImplementation.meta.selectable) {
     applyNonSelectableBlockFix(typedNodeView, props.editor);
   }
 
@@ -319,20 +333,42 @@ function blockNodeView<
   return typedNodeView;
 }
 
+/**
+ * A container node's content expression. A container that excludes types
+ * needs the schema's other container types spelled out, which only the
+ * editor's schema knows: tiptap accepts a function here and calls it when
+ * the editor builds its ProseMirror schema, with the configured options.
+ */
+function containerContent(
+  children: ChildrenConfig | undefined,
+): NodeConfig<{ editor: BlockNoteEditor<any, any, any> }>["content"] {
+  const exclude =
+    children !== undefined && "exclude" in children ? children.exclude : [];
+  if (exclude === undefined || exclude.length === 0) {
+    return childrenContentExpression(children);
+  }
+  return function () {
+    return childrenContentExpression(
+      children,
+      anyBlocksExpression(exclude, this.options.editor.schema.blockSpecs),
+    );
+  };
+}
+
 function buildNode<
   TName extends string,
   TProps extends PropSchema,
   TContent extends "inline" | "none" | "table" | "plain",
 >(
   blockConfig: BlockConfig<TName, TProps, TContent>,
-  blockImplementation: BlockImplementation<TName, TProps, TContent>,
+  blockImplementation: ResolvedBlockImplementation<TName, TProps, TContent>,
   priority?: number,
 ) {
   const isContainer = blockConfig.container === true;
   return Node.create({
     name: blockConfig.type,
     content: isContainer
-      ? childrenContentExpression(blockConfig.children)
+      ? containerContent(blockConfig.children)
       : blockConfig.content === "inline"
         ? "inline*"
         : blockConfig.content === "plain"
@@ -362,14 +398,12 @@ function buildNode<
             : [BLOCK_GROUP_CHILD_GROUP]),
         ].join(" ")
       : "blockContent",
-    selectable: blockImplementation.meta?.selectable ?? true,
-    // Containers must remain open to paste across their edges; isolating
-    // makes ProseMirror wrap spanning slices in a spurious blockGroup.
-    isolating: isContainer
-      ? false
-      : (blockImplementation.meta?.isolating ?? true),
-    code: isContainer ? false : (blockImplementation.meta?.code ?? false),
-    defining: isContainer ? true : (blockImplementation.meta?.defining ?? true),
+    // The node flags come resolved, container rules included (see
+    // `resolveBlockMeta`).
+    selectable: blockImplementation.meta.selectable,
+    isolating: blockImplementation.meta.isolating,
+    code: blockImplementation.meta.code,
+    defining: blockImplementation.meta.defining,
     priority: isContainer ? containerNodePriority(priority) : priority,
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);
@@ -406,7 +440,7 @@ function buildNode<
         blockConfig.type,
         {},
         blockConfig.propSchema,
-        blockImplementation.meta?.fileBlockAccept !== undefined,
+        blockImplementation.meta.fileBlockAccept !== undefined,
         HTMLAttributes,
       );
     },
@@ -432,10 +466,14 @@ export function addNodeAndExtensionsToSpec<
   // Only a block declared `container: true` builds a container node, which
   // holds its children. Every other block keeps its ordinary shape.
   const isContainer = blockConfig.container === true;
+  const implementation: ResolvedBlockImplementation<TName, TProps, TContent> = {
+    ...blockImplementation,
+    meta: resolveBlockMeta(blockImplementation.meta, blockConfig),
+  };
 
   const builtNode: Node =
-    (blockImplementation as any).node ??
-    buildNode(blockConfig, blockImplementation, priority);
+    (implementation as any).node ??
+    buildNode(blockConfig, implementation, priority);
 
   if (builtNode.name !== blockConfig.type) {
     throw new Error(
@@ -443,10 +481,10 @@ export function addNodeAndExtensionsToSpec<
     );
   }
 
-  if (!blockImplementation.render) {
+  if (!implementation.render) {
     throw new Error(`Block "${blockConfig.type}" must declare \`render\`.`);
   }
-  if (isContainer && blockImplementation.renderFrame) {
+  if (isContainer && implementation.renderFrame) {
     throw new Error(
       `Container block "${blockConfig.type}" draws its box in \`render\`; \`renderFrame\` requires a separate content node.`,
     );
@@ -471,7 +509,7 @@ export function addNodeAndExtensionsToSpec<
       node.options.domAttributes?.blockContent || {};
     const external =
       context &&
-      blockImplementation.toExternalHTML?.call(
+      implementation.toExternalHTML?.call(
         { blockContentDOMAttributes, propSchema: blockConfig.propSchema },
         block,
         editor as any,
@@ -479,7 +517,7 @@ export function addNodeAndExtensionsToSpec<
       );
     const output =
       external ??
-      blockImplementation.render.call(
+      implementation.render.call(
         {
           blockContentDOMAttributes,
           props: undefined,
@@ -501,7 +539,7 @@ export function addNodeAndExtensionsToSpec<
     } else if (context && !external) {
       // An explicit external renderer owns the complete export. Otherwise
       // wrap the default content and children in the editor's frame.
-      const frame = blockImplementation.renderFrame?.call(
+      const frame = implementation.renderFrame?.call(
         { renderType: "dom", props: undefined, blockContentDOMAttributes },
         block,
         editor as any,
@@ -515,14 +553,14 @@ export function addNodeAndExtensionsToSpec<
   }
 
   // The spec holds the resolved settings, not the declared option.
-  const { experimental_keyboard, ...implementation } = blockImplementation;
+  const { experimental_keyboard, ...rest } = implementation;
   return {
     config: blockConfig,
     implementation: {
-      ...implementation,
+      ...rest,
       keyboard: createBlockKeyboard(experimental_keyboard, {
         isContainer,
-        hardBreakShortcut: blockImplementation.meta?.hardBreakShortcut,
+        hardBreakShortcut: implementation.meta.hardBreakShortcut,
       }),
       node,
       render: serialize,

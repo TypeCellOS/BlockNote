@@ -30,15 +30,20 @@ export function validateChildrenConfigs(
     }
 
     // Typed loosely: a JS caller can put anything here.
-    const { allow = "blocks", min } = config.children as {
+    const {
+      allow = "blocks",
+      min,
+      exclude,
+    } = config.children as {
       allow?: ChildrenAllow;
       min?: number;
+      exclude?: readonly string[];
     };
 
     // The child blocks of a block that isn't a container share one untyped
     // group, which can't enforce types or counts.
     if (config.container !== true) {
-      if (allow !== "blocks" || min !== undefined) {
+      if (allow !== "blocks" || min !== undefined || exclude !== undefined) {
         fail(
           type,
           'restricting child types or a minimum count requires `container: true`. Other blocks can always have any child blocks (`{ allow: "blocks" }`).',
@@ -55,6 +60,37 @@ export function validateChildrenConfigs(
         type,
         "`children.min` needs an `allow` list. A container that accepts any blocks always holds at least one child, and dissolves when its last child is removed.",
       );
+    }
+
+    if (exclude !== undefined) {
+      if (allow !== "blocks") {
+        fail(
+          type,
+          "`children.exclude` is only for a container that accepts any blocks. An `allow` list already names exactly what the container holds.",
+        );
+      }
+      for (const excluded of exclude) {
+        if (!Object.prototype.hasOwnProperty.call(blockSpecs, excluded)) {
+          fail(
+            type,
+            `\`exclude\` contains "${excluded}", which is not a configured block type.`,
+          );
+        }
+        const { config: excludedConfig } = blockSpecs[excluded];
+        if (excludedConfig.container !== true) {
+          fail(
+            type,
+            `\`exclude\` contains "${excluded}", which is a regular block, not a container block. ` +
+              "Every regular block is the same ProseMirror node, so one can't be excluded on its own.",
+          );
+        }
+        if (excludedConfig.placeable === "namedOnly") {
+          fail(
+            type,
+            `\`exclude\` contains "${excluded}", which is \`placeable: "namedOnly"\` and never a child of a container that accepts any blocks.`,
+          );
+        }
+      }
     }
 
     // Every regular block is the same node (`blockContainer`), so naming one

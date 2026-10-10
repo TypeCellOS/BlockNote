@@ -78,7 +78,8 @@ export interface BlockConfigMeta<
    * "locked" block can opt out of dragging entirely. A block that opts out is
    * skipped when looking for a drag handle, so the handle falls through to the
    * nearest draggable ancestor.
-   * @default true
+   * @default `true`, or `false` for a container placeable `"namedOnly"`, which
+   * can only live in its parent
    */
   draggable?: boolean;
 
@@ -102,6 +103,21 @@ export interface BlockConfigMeta<
    */
   hasPreview?: boolean;
 }
+
+/**
+ * A block's `meta` with every default applied: what a block spec in a schema
+ * holds, so readers never see a missing setting (see `resolveBlockMeta`).
+ */
+export type ResolvedBlockConfigMeta<
+  TName extends string = string,
+  TProps extends PropSchema = PropSchema,
+> = BlockConfigMeta<TName, TProps> &
+  Required<
+    Pick<
+      BlockConfigMeta<TName, TProps>,
+      "selectable" | "code" | "defining" | "isolating" | "draggable"
+    >
+  >;
 
 /**
  * The type name of a container block, as used in {@link ChildrenConfig.allow}.
@@ -140,6 +156,13 @@ export type ChildrenConfig =
        * child: when its last child is removed, the container dissolves.
        */
       allow?: "blocks";
+      /**
+       * Container types the block does not hold, out of those placeable
+       * anywhere: a column holds any block except a column list. Regular
+       * block types can't be excluded, as every regular block is the same
+       * ProseMirror node.
+       */
+      exclude?: readonly AllowedChildType[];
     }
   | {
       /** Which container types may appear as a child. */
@@ -195,7 +218,7 @@ export interface BlockConfig<
    */
   children?: C extends "none"
     ? ChildrenConfig
-    : { allow?: "blocks"; min?: undefined };
+    : { allow?: "blocks"; exclude?: undefined; min?: undefined };
   /**
    * Where this block may be placed.
    *
@@ -324,10 +347,16 @@ export type LooseBlockSpec<
   config: BlockConfig<T, PS, C>;
   implementation: Omit<
     BlockImplementation<T, PS, C>,
-    "render" | "renderFrame" | "toExternalHTML" | "experimental_keyboard"
+    | "render"
+    | "renderFrame"
+    | "toExternalHTML"
+    | "experimental_keyboard"
+    | "meta"
   > & {
     /** Every keyboard setting of the block, with defaults filled in. */
     keyboard: (block: any) => BlockKeyboard;
+    /** The block's `meta`, with defaults filled in. */
+    meta: ResolvedBlockConfigMeta<T, PS>;
     // purposefully stub the types for render and toExternalHTML since they reference the block
     render: (
       /**

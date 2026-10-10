@@ -40,6 +40,18 @@ export type BlockKeyboard = {
    */
   splitKeepsType: boolean;
   /**
+   * Whether the block's children stay with it when Enter splits it. Otherwise
+   * they follow the text after the caret into the new block, as for nested
+   * blocks and list items, so the new block takes the block's place above
+   * them. A block whose Enter starts its children (`enter:
+   * "into-children"`) owns them, so it keeps them when a split happens
+   * anyway (Enter with a selection); a closed toggle sets this to keep its
+   * hidden children. Enter at the start of the content always keeps them, as
+   * the block itself moves down.
+   * @default `true` when `enter` is `"into-children"`, otherwise `false`
+   */
+  splitKeepsChildren: boolean;
+  /**
    * What the block turns into when it is reset: by Backspace at the start of
    * its content, and by Enter in an empty block when `emptyEnterResets` is set.
    * Its content and children are kept. `props` are merged into the block's
@@ -107,6 +119,7 @@ export function createBlockKeyboard<TBlock>(
     enter: hardBreakShortcut === "enter" ? "line-break" : "split",
     shiftEnter: hardBreakShortcut === "none" ? "same-as-enter" : "line-break",
     splitKeepsType: false,
+    splitKeepsChildren: false,
     resetsTo: { type: "paragraph" },
     emptyEnterResets: false,
     // A container's children can't be outdented (the schema doesn't allow
@@ -132,6 +145,10 @@ function withDefaults(
     if (value !== undefined) {
       Object.assign(keyboard, { [key]: value });
     }
+  }
+  // A block whose Enter starts its children owns them.
+  if (settings?.splitKeepsChildren === undefined) {
+    keyboard.splitKeepsChildren = keyboard.enter === "into-children";
   }
   return keyboard;
 }
