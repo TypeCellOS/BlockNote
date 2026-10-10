@@ -13,7 +13,7 @@
     "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
     "postinstall": "[ -n \"$SKIP_DOCS_POSTINSTALL\" ] || fumadocs-mdx",
     "lint": "vp lint",
-    "init-db": "pnpx @better-auth/cli migrate"
+    "init-db": "pnpm exec auth migrate"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.2",
@@ -48,8 +48,8 @@
     "@mui/icons-material": "^5.16.1",
     "@mui/material": "^5.16.1",
     "@orama/orama": "^3.1.18",
-    "@polar-sh/better-auth": "^1.6.4",
-    "@polar-sh/sdk": "^0.42.2",
+    "@polar-sh/better-auth": "^2.0.0",
+    "@polar-sh/sdk": "^1.0.1",
     "@react-email/components": "^1.0.4",
     "@react-email/render": "^2.0.4",
     "@react-pdf/renderer": "^4.5.1",
@@ -78,7 +78,7 @@
     "@y/websocket": "^4.0.0-3",
     "@y/y": "^14.0.0-rc.23",
     "ai": "^6.0.5",
-    "better-auth": "~1.4.15",
+    "better-auth": "~1.7.7",
     "better-sqlite3": "^12.6.2",
     "class-variance-authority": "^0.7.1",
     "docx": "^9.9.0",
@@ -135,6 +135,7 @@
     "@types/pg": "^8.16.0",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
+    "auth": "1.7.7",
     "babel-plugin-react-compiler": "^1.0.0",
     "next-validate-link": "^1.6.4",
     "postcss": "^8.5.6",
