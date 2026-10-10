@@ -326,9 +326,15 @@ export class ExtensionManager {
       .concat(toRegister)
       .filter(Boolean) as (Extension | ExtensionFactoryInstance)[];
 
-    const registeredExtensions = newExtensions
-      .map((ext) => this.addExtension(ext))
-      .filter(Boolean) as Extension[];
+    const extensionsBefore = new Set(this.extensions);
+    newExtensions.forEach((ext) => this.addExtension(ext));
+    // `addExtension` also registers the sub-extensions declared in
+    // `blockNoteExtensions`, so take everything it added, in the same order
+    // their plugins get when the editor is created.
+    const getPriority = this.getExtensionPriority();
+    const registeredExtensions = this.extensions
+      .filter((extension) => !extensionsBefore.has(extension))
+      .sort((a, b) => getPriority(b.key) - getPriority(a.key));
 
     const pluginsToAdd: Plugin[] = [];
     for (const extension of registeredExtensions) {
@@ -402,16 +408,11 @@ export class ExtensionManager {
   }
 
   /**
-   * Get all the extensions that are registered to the editor
+   * Returns a function that gives the priority of a registered extension
+   * (higher runs first), based on `runsBefore` and `blockNoteExtensions`.
    */
-  public getTiptapExtensions(): AnyTiptapExtension[] {
-    // Start with the default tiptap extensions
-    const tiptapExtensions = getDefaultTiptapExtensions(
-      this.editor,
-      this.options,
-    ).filter((extension) => !this.disabledExtensions.has(extension.name));
-
-    const getPriority = sortByDependencies(
+  private getExtensionPriority() {
+    return sortByDependencies(
       this.extensions.map((extension) => {
         // A sub-extension declared via `blockNoteExtensions` must run before the
         // extension(s) that declared it, so we merge those parents into its
@@ -426,6 +427,19 @@ export class ExtensionManager {
         };
       }),
     );
+  }
+
+  /**
+   * Get all the extensions that are registered to the editor
+   */
+  public getTiptapExtensions(): AnyTiptapExtension[] {
+    // Start with the default tiptap extensions
+    const tiptapExtensions = getDefaultTiptapExtensions(
+      this.editor,
+      this.options,
+    ).filter((extension) => !this.disabledExtensions.has(extension.name));
+
+    const getPriority = this.getExtensionPriority();
 
     const inputRulesByPriority = new Map<number, InputRule[]>();
     for (const extension of this.extensions) {

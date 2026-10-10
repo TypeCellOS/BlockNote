@@ -334,3 +334,30 @@ describe("ExtensionManager ordering", () => {
     );
   });
 });
+
+describe("ExtensionManager runtime registration", () => {
+  it("installs the plugins of blockNoteExtensions declared by an extension registered at runtime", () => {
+    const subKey = new PluginKey("runtime-sub");
+    const parentKey = new PluginKey("runtime-parent");
+
+    const sub = createExtension(() => ({
+      key: "runtime-sub",
+      prosemirrorPlugins: [new Plugin({ key: subKey })],
+    }));
+    const parent = createExtension(() => ({
+      key: "runtime-parent",
+      blockNoteExtensions: [sub()],
+      prosemirrorPlugins: [new Plugin({ key: parentKey })],
+    }));
+
+    const editor = createMountedEditor([]);
+    editor.registerExtension(parent());
+
+    expect(editor.getExtension(sub)).toBeDefined();
+    expect(pluginIndex(editor, subKey)).not.toBe(-1);
+    // Same order as when the extension is passed to the editor up front.
+    expect(pluginIndex(editor, subKey)).toBeLessThan(
+      pluginIndex(editor, parentKey),
+    );
+  });
+});
