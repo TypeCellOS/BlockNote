@@ -54,14 +54,7 @@ function getBlockFromCoords(
       continue;
     }
     const block = getBlockFromElement(element, view);
-    return block
-      ? {
-          ...block,
-          // Controls in a container's chrome belong to that container, even
-          // when they share a row with one of its child blocks.
-          isControl: !!element.closest('[contenteditable="false"]'),
-        }
-      : undefined;
+    return block;
   }
   return undefined;
 }
@@ -101,10 +94,6 @@ function getBlockFromMousePos(
   if (!referenceBlock) {
     // could not find the reference block
     return undefined;
-  }
-
-  if (referenceBlock.isControl) {
-    return getDraggableBlockFromElement(referenceBlock.node, view, isDraggable);
   }
 
   /**

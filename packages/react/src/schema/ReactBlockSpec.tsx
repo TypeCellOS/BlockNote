@@ -7,7 +7,6 @@ import {
   BlockNoDefaults,
   BlockNoteEditor,
   BlockSpec,
-  camelToDataKebab,
   CustomBlockImplementation,
   Extension,
   ExtensionFactoryInstance,
@@ -16,6 +15,7 @@ import {
   nodeToBlock,
   Props,
   PropSchema,
+  propsToDataAttributes,
 } from "@blocknote/core";
 import {
   NodeViewProps,
@@ -134,20 +134,8 @@ export function BlockContentWrapper<
       )}
       // Sets content type attribute
       data-content-type={props.blockType}
-      // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips
-      // props which are already added as HTML attributes to the parent
-      // `blockContent` element (inheritedProps) and props set to their default
-      // values
-      {...Object.fromEntries(
-        Object.entries(props.blockProps)
-          .filter(([prop, value]) => {
-            const spec = props.propSchema[prop];
-            return value !== spec.default;
-          })
-          .map(([prop, value]) => {
-            return [camelToDataKebab(prop), value];
-          }),
-      )}
+      // Adds the props as `data-*` attributes, leaving out those at their default.
+      {...propsToDataAttributes(props.blockProps, props.propSchema)}
       data-file-block={props.isFileBlock === true || undefined}
     >
       {props.children}

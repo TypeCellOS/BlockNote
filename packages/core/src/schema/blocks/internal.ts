@@ -5,6 +5,7 @@ import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
 import type { ExtensionFactoryInstance } from "../../editor/BlockNoteExtension.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
+import { propsToDataAttributes, setDataAttributes } from "../dataAttributes.js";
 import { PropSchema, Props } from "../propTypes.js";
 import { createBlockKeyboard } from "./keyboard.js";
 import { resolveBlockMeta } from "./meta.js";
@@ -62,14 +63,8 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
 
         return value;
       },
-      renderHTML: (attributes) => {
-        // don't render to html if the value is the same as the default
-        return attributes[name] !== spec.default
-          ? {
-              [camelToDataKebab(name)]: attributes[name],
-            }
-          : {};
-      },
+      renderHTML: (attributes) =>
+        propsToDataAttributes({ [name]: attributes[name] }, { [name]: spec }),
     };
   });
 
@@ -233,15 +228,13 @@ export function wrapInBlockStructure<
   );
   // Sets content type attribute
   blockContent.setAttribute("data-content-type", blockType);
-  // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips props
-  // which are already added as HTML attributes to the parent `blockContent`
-  // element (inheritedProps) and props set to their default values.
-  for (const [prop, value] of Object.entries(blockProps)) {
-    const spec = propSchema[prop];
-    if (value !== spec?.default) {
-      blockContent.setAttribute(camelToDataKebab(prop), value);
-    }
-  }
+  // Adds the props as `data-*` attributes, leaving out those at their default.
+  // Set only: the tiptap `renderHTML` path passes the props through
+  // `domAttributes` above and empty `blockProps`.
+  setDataAttributes(
+    blockContent,
+    propsToDataAttributes(blockProps, propSchema),
+  );
   // Adds file block attribute
   if (isFileBlock) {
     blockContent.setAttribute("data-file-block", "");

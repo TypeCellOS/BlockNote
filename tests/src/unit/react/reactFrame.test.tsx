@@ -308,7 +308,8 @@ describe("React renderFrame", () => {
     expect(uncaught).toEqual([]);
   });
 
-  it("exports a titled React frame with its content and children in the slot", () => {
+  it("leaves a titled React frame out of external HTML, keeping its content and children", () => {
+    // A frame is editor chrome; `toExternalHTML` decides a block's export.
     const headless = BlockNoteEditor.create({ schema });
     try {
       const html = headless.blocksToHTMLLossy([
@@ -318,14 +319,11 @@ describe("React renderFrame", () => {
           children: [{ type: "paragraph", content: "Body" }],
         },
       ]);
-      const output = document.createElement("div");
-      output.innerHTML = html;
-      expect(output.querySelector(".alert-slot")?.textContent).toBe(
-        "TitleBody",
-      );
-      expect(output.querySelector(".frame-counter")?.textContent).toBe(
-        "outside: 0",
-      );
+      expect(html).not.toContain("alert-frame");
+      expect(html).not.toContain("frame-counter");
+      expect(html).toContain("Title");
+      expect(html).toContain("Body");
+      expect(activeFrames).toBe(0);
     } finally {
       headless._tiptapEditor.destroy();
     }

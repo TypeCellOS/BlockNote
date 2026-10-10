@@ -445,3 +445,46 @@ it("exports title and children inside the static frame slot with the DOM context
     editor._tiptapEditor.destroy();
   }
 });
+
+it("parses chrome outside the static frame slot as no document content", () => {
+  // A frame with a labelled control beside its slot, as the toggle frame
+  // draws its buttons. The control's text is in the exported HTML, but the
+  // round-trip parse reads only the slot.
+  const chromeFrame = createBlockSpec(
+    { type: "chromeFrame", propSchema: {}, content: "inline" },
+    {
+      render: renderDiv,
+      renderFrame() {
+        const dom = document.createElement("div");
+        dom.className = "chrome-frame";
+        const control = document.createElement("button");
+        control.contentEditable = "false";
+        control.textContent = "UI LABEL";
+        const slot = document.createElement("div");
+        slot.className = "chrome-slot";
+        dom.append(control, slot);
+        return { dom, slot };
+      },
+    },
+  )();
+  const editor = BlockNoteEditor.create({
+    schema: BlockNoteSchema.create({
+      blockSpecs: { ...defaultBlockSpecs, chromeFrame },
+    }),
+    initialContent: [
+      {
+        id: "framed",
+        type: "chromeFrame",
+        content: "Title",
+        children: [{ id: "body", content: "Body" }],
+      },
+    ],
+  });
+  try {
+    const html = editor.blocksToFullHTML(editor.document);
+    expect(html).toContain("UI LABEL");
+    expect(editor.tryParseHTMLToBlocks(html)).toEqual(editor.document);
+  } finally {
+    editor._tiptapEditor.destroy();
+  }
+});

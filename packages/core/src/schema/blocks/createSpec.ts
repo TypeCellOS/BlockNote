@@ -536,19 +536,10 @@ export function addNodeAndExtensionsToSpec<
         blockConfig.propSchema,
         block.id,
       );
-    } else if (context && !external) {
-      // An explicit external renderer owns the complete export. Otherwise
-      // wrap the default content and children in the editor's frame.
-      const frame = implementation.renderFrame?.call(
-        { renderType: "dom", props: undefined, blockContentDOMAttributes },
-        block,
-        editor as any,
-      );
-      if (frame) {
-        frame.slot.append(output.dom);
-        return { ...output, dom: frame.dom, childrenDOM: frame.slot };
-      }
     }
+    // A frame is editor chrome, so external HTML leaves it out. A block that
+    // wants a wrapper there returns one from `toExternalHTML`, with
+    // `childrenDOM` for its children.
     return output;
   }
 

@@ -227,6 +227,9 @@ function serializeBlock<
     editor,
   );
   if (frame) {
+    // Marks where the block's content and children are, for the parser: the
+    // rest of the frame is chrome, not document content.
+    frame.slot.setAttribute("data-frame-slot-todo", "");
     bc.contentDOM?.appendChild(frame.dom);
   }
   const contentDOM = frame?.slot ?? bc.contentDOM;

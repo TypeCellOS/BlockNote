@@ -86,6 +86,26 @@ export function setBlockColorAttributes(
   }
 }
 
+/**
+ * The element whose contents a `blockContainer` parses: the frame slot the
+ * internal HTML serializer marks (`data-frame-slot-todo`), as the rest of a frame
+ * is chrome, not document content. Otherwise the block element itself.
+ *
+ * TODO: containers mark the same region with `data-children-of`. Use one
+ * marker once container boxes move into `renderFrame`.
+ */
+function findFrameSlot(element: HTMLElement): HTMLElement {
+  for (const slot of element.querySelectorAll<HTMLElement>(
+    "[data-frame-slot-todo]",
+  )) {
+    // Skip the slots of nested blocks.
+    if (slot.closest("[data-node-type]") === element) {
+      return slot;
+    }
+  }
+  return element;
+}
+
 // Object containing all possible block attributes.
 const BlockAttributes: Record<string, string> = {
   blockColor: "data-block-color",
@@ -130,6 +150,7 @@ export const BlockContainer = Node.create<{
 
           return attrs;
         },
+        contentElement: (element) => findFrameSlot(element as HTMLElement),
       },
       // Ignore `blockOuter` divs, but parse the `blockContainer` divs inside them.
       {
