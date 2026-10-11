@@ -1,5 +1,7 @@
 import { EditorView } from "prosemirror-view";
 
+// FIXME: walks the DOM to the block; could resolve through ProseMirror instead
+// (see the note in `SideMenu/blockDOM.ts`).
 export function getDraggableBlockFromElement(
   element: Element,
   view: EditorView,
