@@ -2,6 +2,8 @@ import { DOMParser, Slice } from "@tiptap/pm/model";
 import { TextSelection } from "@tiptap/pm/state";
 import { EditorView } from "@tiptap/pm/view";
 
+import { distanceToRect } from "./sideMenuHover.js";
+
 /** Marks events we dispatch ourselves, so the handlers ignore them. */
 type SyntheticEvent = Event & { synthetic?: boolean };
 
@@ -14,6 +16,11 @@ function isSynthetic(event: Event): boolean {
  * event to the blocks of that editor. If the event target is in an editor,
  * that editor is the only candidate: where editors overlap, it is the editor
  * on top. Otherwise, it is the editor closest to the event.
+ *
+ * Distances count to the blocks, not to the editor element (as `dropMargin`
+ * does): the drop lands at the nearest block position, so with uneven editor
+ * padding, the editor whose blocks are nearest is the right pick. A drop
+ * outside the blocks, even in the editor's padding, is moved onto them.
  */
 function findDropEditor(view: EditorView, event: DragEvent) {
   const target =
@@ -144,8 +151,14 @@ export function registerBlockDropHandlers(
     // Tells us which editor instance is the closest to the drag event (whether or not it is actually reasonably close)
     const closestEditor = findDropEditor(view, event);
 
-    // We arbitrarily decide how far is "too far" from the closest editor to be considered a drop point
-    if (!closestEditor || closestEditor.distance > dropMargin) {
+    // `dropMargin` counts from the editor element's box, like `hoverMargin`.
+    if (
+      !closestEditor ||
+      distanceToRect(
+        { x: event.clientX, y: event.clientY },
+        closestEditor.element.getBoundingClientRect(),
+      ) > dropMargin
+    ) {
       return undefined;
     }
 

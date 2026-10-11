@@ -30,8 +30,8 @@ import { sleep, waitForSelector } from "../../utils/editor.js";
 import { getRect, mouseSequence } from "../../utils/mouse.js";
 
 // How the side menu follows the pointer: which block it shows for, and
-// whether it shows at all. A test that no implementation can pass is marked
-// `test.fails`, with the reason. The other tests guard behavior that works today.
+// whether it shows at all. "works today" guards behavior that works on main;
+// "fixed issues" reproduces issues that fail on main.
 
 const schema = withMultiColumn(BlockNoteSchema.create());
 type Editor = BlockNoteEditor<
@@ -210,9 +210,10 @@ describe("side menu hover: works today", () => {
     await walk([{ x: add.x + add.width / 2, y: add.y + add.height / 2 }]);
     expect(menuBlock()).toBe("a");
   });
+
   // The "+" of a column-three block overlaps column two's heading. Walking
   // straight onto it keeps the menu; the #3059 review saw it jump, but that
-  // no longer reproduces (the diagonal case below still fails).
+  // no longer reproduces.
   test("keeps column three's block while walking left onto its add button", async () => {
     await render(<Editor name="main" content={columnsDocument} />);
     await waitForSelector(".bn-editor");
@@ -229,12 +230,10 @@ describe("side menu hover: works today", () => {
     ]);
     expect(menuBlock()).toBe("c3-list");
   });
-});
 
-describe("side menu hover: known issues", () => {
   // #3059 review (SideMenu.ts:56): the "+" of a block in column 2 or 3 sits
   // over the column to its left. Moving diagonally towards it crosses that
-  // column and hides the menu.
+  // column; the menu must stay on the column-two block.
   test("keeps column two's block while moving diagonally from its bottom to its add button", async () => {
     await render(<Editor name="main" content={columnsDocument} />);
     await waitForSelector(".bn-editor");
@@ -249,28 +248,65 @@ describe("side menu hover: known issues", () => {
     expect(menuBlock()).toBe("c2");
   });
 
-  // BLO-963: no menu when the editor's right side is outside the viewport.
-  // Note: in a 3000px wide editor the blocks are centered, so block "a" starts
-  // beyond the 1280px viewport and the pointer never gets there: the browser
-  // dispatches no events for it. The test below reproduces BLO-963 with the
-  // block's left part on screen.
-  // Fails by design: the last pointer event lands ~110px left of the
-  // off-screen block, outside the narrow gutter band.
-  test.fails("shows the menu when the editor's right side is outside the viewport", async () => {
+  // #2526: in columns inside a toggle, the add button of a left-column block
+  // disappeared when the pointer moved onto it.
+  test("keeps a left-column block's menu inside a toggle, and its add button works", async () => {
     await render(
       <Editor
         name="main"
-        content={[paragraph("a"), paragraph("b")]}
-        style={{ marginLeft: 100, width: 3000 }}
+        content={[
+          {
+            id: "toggle",
+            type: "toggleListItem",
+            content: "Toggle",
+            children: [
+              {
+                id: "t-list",
+                type: "columnList",
+                children: [
+                  {
+                    id: "t-col-1",
+                    type: "column",
+                    children: [paragraph("left", "Left column")],
+                  },
+                  {
+                    id: "t-col-2",
+                    type: "column",
+                    children: [paragraph("right", "Right column")],
+                  },
+                ],
+              },
+            ],
+          },
+        ]}
       />,
     );
     await waitForSelector(".bn-editor");
+    const chevron = await waitForSelector(".bn-toggle-button");
+    const c = chevron.getBoundingClientRect();
+    await mouseSequence([
+      { type: "click", x: c.x + c.width / 2, y: c.y + c.height / 2 },
+    ]);
+    await sleep(100);
 
-    const rect = blockRect("a");
-    await walk([{ x: rect.x + 60, y: rect.y + rect.height / 2 }]);
-    expect(menuBlock()).toBe("a");
+    const block = blockRect("left");
+    await walk([{ x: block.x + 20, y: block.y + block.height / 2 }]);
+    expect(menuBlock()).toBe("left");
+    const add = getRect(await waitForSelector(DRAG_HANDLE_ADD_SELECTOR));
+    await walk([{ x: add.x + add.width / 2, y: add.y + add.height / 2 }]);
+    expect(menuBlock()).toBe("left");
+    // The button must also work: clicking it adds a block after "left".
+    await mouseSequence([
+      { type: "click", x: add.x + add.width / 2, y: add.y + add.height / 2 },
+    ]);
+    await sleep(100);
+    const column = editors.main.getParentBlock("left")!;
+    expect(column.children.map((child) => child.id)[0]).toBe("left");
+    expect(column.children).toHaveLength(2);
   });
+});
 
+describe("side menu hover: fixed issues", () => {
   // BLO-963, with the hovered block's left part inside the viewport and its
   // right side outside it.
   test("shows the menu when a block's right side is outside the viewport", async () => {
@@ -363,62 +399,6 @@ describe("side menu hover: known issues", () => {
     expect(menuBlock()).toBe("b");
     const add = document.querySelector<HTMLElement>(DRAG_HANDLE_ADD_SELECTOR);
     expect(add?.checkVisibility({ visibilityProperty: true })).toBe(true);
-  });
-  // #2526: in columns inside a toggle, the add button of a left-column block
-  // disappears when the pointer moves onto it.
-  test("keeps a left-column block's menu inside a toggle, and its add button works", async () => {
-    await render(
-      <Editor
-        name="main"
-        content={[
-          {
-            id: "toggle",
-            type: "toggleListItem",
-            content: "Toggle",
-            children: [
-              {
-                id: "t-list",
-                type: "columnList",
-                children: [
-                  {
-                    id: "t-col-1",
-                    type: "column",
-                    children: [paragraph("left", "Left column")],
-                  },
-                  {
-                    id: "t-col-2",
-                    type: "column",
-                    children: [paragraph("right", "Right column")],
-                  },
-                ],
-              },
-            ],
-          },
-        ]}
-      />,
-    );
-    await waitForSelector(".bn-editor");
-    const chevron = await waitForSelector(".bn-toggle-button");
-    const c = chevron.getBoundingClientRect();
-    await mouseSequence([
-      { type: "click", x: c.x + c.width / 2, y: c.y + c.height / 2 },
-    ]);
-    await sleep(100);
-
-    const block = blockRect("left");
-    await walk([{ x: block.x + 20, y: block.y + block.height / 2 }]);
-    expect(menuBlock()).toBe("left");
-    const add = getRect(await waitForSelector(DRAG_HANDLE_ADD_SELECTOR));
-    await walk([{ x: add.x + add.width / 2, y: add.y + add.height / 2 }]);
-    expect(menuBlock()).toBe("left");
-    // The button must also work: clicking it adds a block after "left".
-    await mouseSequence([
-      { type: "click", x: add.x + add.width / 2, y: add.y + add.height / 2 },
-    ]);
-    await sleep(100);
-    const column = editors.main.getParentBlock("left")!;
-    expect(column.children.map((child) => child.id)[0]).toBe("left");
-    expect(column.children).toHaveLength(2);
   });
 });
 
@@ -653,6 +633,46 @@ describe.skipIf(browserName !== "chromium")("side menu hover: dragging", () => {
       "b",
     ]);
     expect(document.querySelector(".bn-drag-preview")).toBeNull();
+  });
+
+  // `dropMargin` counts from the editor element's box, like `hoverMargin`
+  // (not from its blocks, 54px further in).
+  test("drops a block left of the editor within `dropMargin`", async () => {
+    await render(
+      <Editor
+        name="main"
+        content={[paragraph("a"), paragraph("b"), paragraph("drag", "Drag me")]}
+        style={{ marginLeft: 400, width: 500 }}
+        sideMenu={{ dropMargin: 50 }}
+      />,
+    );
+    await waitForSelector(".bn-editor");
+
+    await hoverBlock("drag");
+    const handle = getRect(await waitForSelector(DRAG_HANDLE_SELECTOR));
+    const editor = document
+      .querySelector('[data-editor-name="main"] .bn-editor')!
+      .getBoundingClientRect();
+    const target = blockRect("a");
+    await walk([
+      { x: handle.x + handle.width / 2, y: handle.y + handle.height / 2 },
+    ]);
+    await mouseSequence([{ type: "down" }]);
+    await sleep(100);
+    // 30px left of the editor element, level with the top of "a".
+    await mouseSequence([
+      { type: "move", x: editor.left - 30, y: target.y + 2, steps: 5 },
+    ]);
+    await sleep(100);
+    await mouseSequence([{ type: "up" }]);
+    await sleep(100);
+
+    // The drop goes to the nearest position, the left edge of "a", which puts
+    // the two in columns.
+    expect(editors.main.document.map((block) => block.type)).toEqual([
+      "columnList",
+      "paragraph",
+    ]);
   });
 });
 

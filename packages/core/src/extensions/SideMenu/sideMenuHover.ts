@@ -214,7 +214,7 @@ function distanceToSegment(point: Point, a: Point, b: Point): number {
 }
 
 /** The distance from the point to the rect (0 when it is inside). */
-function distanceToRect(point: Point, rect: Rect): number {
+export function distanceToRect(point: Point, rect: Rect): number {
   return Math.hypot(
     point.x - clamp(point.x, rect.left, rect.right),
     point.y - clamp(point.y, rect.top, rect.bottom),
