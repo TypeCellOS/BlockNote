@@ -1,18 +1,8 @@
-import { DOMParser, Slice } from "@tiptap/pm/model";
-import {
-  EditorState,
-  Plugin,
-  PluginKey,
-  PluginView,
-  TextSelection,
-} from "@tiptap/pm/state";
-import { EditorView } from "@tiptap/pm/view";
-
 import { Block } from "../../blocks/defaultBlocks.js";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   createExtension,
   createStore,
+  ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import {
@@ -20,8 +10,14 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
+import { registerBlockDropHandlers } from "./blockDropHandling.js";
 import { dragStart, unsetDragImage } from "./dragging.js";
+import {
+  HoveredBlock,
+  isHeadingToMenu,
+  Point,
+  resolveHoveredBlock,
+} from "./sideMenuHover.js";
 
 export type SideMenuState<
   BSchema extends BlockSchema,
@@ -32,802 +28,392 @@ export type SideMenuState<
   block: Block<BSchema, I, S>;
 };
 
-const DISTANCE_TO_CONSIDER_EDITOR_BOUNDS = 250;
-
-function getBlockFromCoords(
-  view: EditorView,
-  coords: { left: number; top: number },
-  adjustForColumns = true,
-) {
-  const elements = view.root.elementsFromPoint(coords.left, coords.top);
-
-  for (const element of elements) {
-    if (!view.dom.contains(element)) {
-      // probably a ui overlay like formatting toolbar etc
-      continue;
-    }
-    if (adjustForColumns) {
-      const column = element.closest("[data-node-type=columnList]");
-      if (column) {
-        return getBlockFromCoords(
-          view,
-          {
-            // TODO can we do better than this?
-            left: coords.left + 50, // bit hacky, but if we're inside a column, offset x position to right to account for the width of sidemenu itself
-            top: coords.top,
-          },
-          false,
-        );
-      }
-    }
-    return getDraggableBlockFromElement(element, view);
-  }
-  return undefined;
-}
-
-function getBlockFromMousePos(
-  mousePos: {
-    x: number;
-    y: number;
-  },
-  view: EditorView,
-): { node: HTMLElement; id: string } | undefined {
-  // Editor itself may have padding or other styling which affects
-  // size/position, so we get the boundingRect of the first child (i.e. the
-  // blockGroup that wraps all blocks in the editor) for more accurate side
-  // menu placement.
-  if (!view.dom.firstChild) {
-    return;
-  }
-
-  const editorBoundingBox = (
-    view.dom.firstChild as HTMLElement
-  ).getBoundingClientRect();
-
-  // Gets block at mouse cursor's position.
-  const coords = {
-    // Clamps the x position to the editor's bounding box.
-    left: Math.min(
-      Math.max(editorBoundingBox.left + 10, mousePos.x),
-      editorBoundingBox.right - 10,
-    ),
-    top: mousePos.y,
-  };
-
-  const referenceBlock = getBlockFromCoords(view, coords);
-
-  if (!referenceBlock) {
-    // could not find the reference block
-    return undefined;
-  }
-
+/**
+ * How far the areas around the editor where the side menu responds reach, in
+ * px from the editor element's box. The editor element itself (including its
+ * padding, where the menu sits) always counts.
+ */
+export type SideMenuOptions = {
   /**
-   * Because blocks may be nested, we need to check the right edge of the parent block:
-   * ```
-   * | BlockA        |
-   * x | BlockB     y|
-   * ```
-   * Hovering at position x (left edge of BlockB) would return BlockA.
-   * Instead, we check at position y (right edge of BlockA) to correctly identify BlockB.
+   * How far left or right of the editor element the pointer still shows the
+   * side menu, for the block at the pointer's height. Above or below the
+   * editor, no block is at that height.
+   * @default 0
    */
-  const referenceBlocksBoundingBox =
-    referenceBlock.node.getBoundingClientRect();
-  return getBlockFromCoords(
-    view,
-    {
-      left: referenceBlocksBoundingBox.right - 10,
-      top: mousePos.y,
-    },
-    false,
-  );
+  hoverMargin?: number;
+  /**
+   * How far outside the editor element, on any side, a dragged block can still
+   * be dropped into it (the drop goes to the nearest position in the editor).
+   * @default 250
+   */
+  dropMargin?: number;
+};
+
+/**
+ * How long the pointer may rest on its way to the menu (inside the triangle
+ * from where it left the block to the menu) before the menu follows it to the
+ * block it is over.
+ */
+const INTENT_TIMEOUT = 350;
+
+/** The event's target as an element (text nodes resolve to their parent). */
+function targetElement(target: EventTarget | null): Element | null {
+  if (!target || !("nodeType" in target)) {
+    return null;
+  }
+  const node = target as Node;
+  return node.nodeType === Node.ELEMENT_NODE
+    ? (node as Element)
+    : node.parentElement;
 }
 
 /**
- * With the sidemenu plugin we can position a menu next to a hovered block.
+ * Shows a menu next to the block the pointer is about. This
+ * extension owns that decision: it listens to the pointer in `mount` and
+ * writes the store; the UI only reads the store, positions the menu, and
+ * registers the menu's element with `setMenuElement`.
+ *
+ * The block comes from the topmost element under the pointer (so an editor
+ * covered by another element or editor gets no menu), falling back to probing
+ * at the pointer's height when that element is padding or the gutter beside
+ * the blocks. When the pointer leaves the block towards the menu, the menu
+ * stays with the block while the pointer is inside the triangle from its exit
+ * point to the menu, until it rests there for {@link INTENT_TIMEOUT}. Once on
+ * the menu, leaving it anywhere but onto its block follows the pointer at
+ * once. The menu hides when the pointer leaves the window.
  */
-export class SideMenuView<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> implements PluginView {
-  public state?: SideMenuState<BSchema, I, S>;
-  public readonly emitUpdate: (state: SideMenuState<BSchema, I, S>) => void;
+export const SideMenuExtension = createExtension(
+  ({
+    editor,
+    options,
+  }: ExtensionOptions<{ sideMenu?: SideMenuOptions } | undefined>) => {
+    const store = createStore<SideMenuState<any, any, any> | undefined>(
+      undefined,
+    );
 
-  private mousePos: { x: number; y: number } | undefined;
+    const hoverMargin = options?.sideMenu?.hoverMargin ?? 0;
 
-  private hoveredBlock: HTMLElement | undefined;
+    let menuFrozen = false;
+    let isDragOrigin = false;
+    // The side menu's DOM element, registered by the UI that renders it.
+    let menuElement: HTMLElement | undefined;
+    // The last pointer position over this document.
+    let pointer: Point | undefined;
+    // The last pointer position over the active block (or the menu).
+    let lastOnActive: Point | undefined;
+    // Set while the pointer is heading from the active block to the menu.
+    let intent:
+      | { exit: Point; timer: ReturnType<typeof setTimeout> }
+      | undefined;
 
-  public menuFrozen = false;
-
-  public isDragOrigin = false;
-
-  constructor(
-    private readonly editor: BlockNoteEditor<BSchema, I, S>,
-    private readonly pmView: EditorView,
-    emitUpdate: (state: SideMenuState<BSchema, I, S>) => void,
-  ) {
-    this.emitUpdate = () => {
-      if (!this.state) {
-        throw new Error("Attempting to update uninitialized side menu");
+    function clearIntent() {
+      if (intent) {
+        clearTimeout(intent.timer);
+        intent = undefined;
       }
-
-      emitUpdate(this.state);
-    };
-
-    this.pmView.root.addEventListener(
-      "dragstart",
-      this.onDragStart as EventListener,
-    );
-    this.pmView.root.addEventListener(
-      "dragover",
-      this.onDragOver as EventListener,
-    );
-    this.pmView.root.addEventListener(
-      "drop",
-      this.onDrop as EventListener,
-      true,
-    );
-    this.pmView.root.addEventListener(
-      "dragend",
-      this.onDragEnd as EventListener,
-      true,
-    );
-
-    // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
-    this.pmView.root.addEventListener(
-      "mousemove",
-      this.onMouseMove as EventListener,
-      true,
-    );
-
-    // Hides and unfreezes the menu whenever the user presses a key.
-    this.pmView.root.addEventListener(
-      "keydown",
-      this.onKeyDown as EventListener,
-      true,
-    );
-  }
-
-  updateState = (state: SideMenuState<BSchema, I, S>) => {
-    this.state = state;
-    this.emitUpdate(this.state);
-  };
-
-  updateStateFromMousePos = () => {
-    if (this.menuFrozen || !this.mousePos) {
-      return;
     }
 
-    const closestEditor = this.findClosestEditorElement({
-      clientX: this.mousePos.x,
-      clientY: this.mousePos.y,
-    });
-
-    if (
-      closestEditor?.element !== this.pmView.dom ||
-      closestEditor.distance > DISTANCE_TO_CONSIDER_EDITOR_BOUNDS
-    ) {
-      if (this.state?.show) {
-        this.state.show = false;
-        this.updateState(this.state);
+    function hideMenu() {
+      const state = store.state;
+      if (state?.show) {
+        store.setState({ ...state, show: false });
       }
-      return;
     }
 
-    const block = getBlockFromMousePos(this.mousePos, this.pmView);
-
-    // Closes the menu if the mouse cursor is beyond the editor vertically.
-    if (!block || !this.editor.isEditable) {
-      if (this.state?.show) {
-        this.state.show = false;
-        this.updateState(this.state);
-      }
-
-      return;
-    }
-
-    // Doesn't update if the menu is already open and the mouse cursor is still hovering the same block.
-    if (
-      this.state?.show &&
-      this.hoveredBlock?.hasAttribute("data-id") &&
-      this.hoveredBlock?.getAttribute("data-id") === block.id
-    ) {
-      return;
-    }
-
-    this.hoveredBlock = block.node;
-
-    // Shows or updates elements.
-    if (this.editor.isEditable) {
-      const blockContentBoundingBox = block.node.getBoundingClientRect();
-      const column = block.node.closest("[data-node-type=column]");
-      const sideMenuBlock = this.editor.getBlock(
-        this.hoveredBlock!.getAttribute("data-id")!,
-      );
-      if (!sideMenuBlock) {
-        if (this.state?.show) {
-          this.state.show = false;
-          this.hoveredBlock = undefined;
-          this.emitUpdate(this.state);
-        }
+    function showMenu(hovered: HoveredBlock) {
+      const block = editor.getBlock(hovered.id);
+      if (!block) {
+        hideMenu();
         return;
       }
-      this.state = {
+      store.setState({
         show: true,
-        referencePos: new DOMRect(
-          column
-            ? // We take the first child as column elements have some default
-              // padding. This is a little weird since this child element will
-              // be the first block, but since it's always non-nested and we
-              // only take the x coordinate, it's ok.
-              column.firstElementChild!.getBoundingClientRect().x
-            : (
-                this.pmView.dom.firstChild as HTMLElement
-              ).getBoundingClientRect().x,
-          blockContentBoundingBox.y,
-          blockContentBoundingBox.width,
-          blockContentBoundingBox.height,
-        ),
-        block: sideMenuBlock,
-      };
-      this.updateState(this.state);
-    }
-  };
-
-  /**
-   * If a block is being dragged, ProseMirror usually gets the context of what's
-   * being dragged from `view.dragging`, which is automatically set when a
-   * `dragstart` event fires in the editor. However, if the user tries to drag
-   * and drop blocks between multiple editors, only the one in which the drag
-   * began has that context, so we need to set it on the others manually. This
-   * ensures that PM always drops the blocks in between other blocks, and not
-   * inside them.
-   *
-   * After the `dragstart` event fires on the drag handle, it sets
-   * `blocknote/html` data on the clipboard. This handler fires right after,
-   * parsing the `blocknote/html` data into nodes and setting them on
-   * `view.dragging`.
-   *
-   * Note: Setting `view.dragging` on `dragover` would be better as the user
-   * could then drag between editors in different windows, but you can only
-   * access `dataTransfer` contents on `dragstart` and `drop` events.
-   */
-  onDragStart = (event: DragEvent) => {
-    const html = event.dataTransfer?.getData("blocknote/html");
-    if (!html) {
-      return;
+        // The hovered block's box: the menu goes next to the block itself, as
+        // the React UI anchors it to the block's element.
+        referencePos: hovered.node.getBoundingClientRect(),
+        block,
+      });
     }
 
-    if (this.pmView.dragging) {
-      // already dragging, so no-op
-      return;
-    }
-
-    const element = document.createElement("div");
-    element.innerHTML = html;
-
-    const parser = DOMParser.fromSchema(this.pmView.state.schema);
-    const node = parser.parse(element, {
-      topNode: this.pmView.state.schema.nodes["blockGroup"].create(),
-    });
-
-    this.pmView.dragging = {
-      slice: new Slice(node.content, 0, 0),
-      move: true,
-    };
-  };
-
-  /**
-   * Finds the closest editor visually to the given coordinates
-   */
-  private findClosestEditorElement = (coords: {
-    clientX: number;
-    clientY: number;
-  }) => {
-    // Get all editor elements in the document
-    const editors = Array.from(this.pmView.root.querySelectorAll(".bn-editor"));
-
-    if (editors.length === 0) {
-      return null;
-    }
-
-    // Find the editor with the smallest distance to the coordinates
-    let closestEditor = editors[0];
-    let minDistance = Number.MAX_VALUE;
-
-    editors.forEach((editor) => {
-      const rect = editor
-        .querySelector(".bn-block-group")!
-        .getBoundingClientRect();
-
-      const distanceX =
-        coords.clientX < rect.left
-          ? rect.left - coords.clientX
-          : coords.clientX > rect.right
-            ? coords.clientX - rect.right
-            : 0;
-
-      const distanceY =
-        coords.clientY < rect.top
-          ? rect.top - coords.clientY
-          : coords.clientY > rect.bottom
-            ? coords.clientY - rect.bottom
-            : 0;
-
-      const distance = Math.sqrt(
-        Math.pow(distanceX, 2) + Math.pow(distanceY, 2),
-      );
-
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestEditor = editor;
-      }
-    });
-
-    return {
-      element: closestEditor,
-      distance: minDistance,
-    };
-  };
-
-  /**
-   * This dragover event handler listens at the document level,
-   * and is trying to handle dragover events for all editors.
-   *
-   * It specifically is trying to handle the following cases:
-   *  - If the dragover event is within the bounds of any editor, then it does nothing
-   *  - If the dragover event is outside the bounds of any editor, but close enough (within DISTANCE_TO_CONSIDER_EDITOR_BOUNDS) to the closest editor,
-   *    then it dispatches a synthetic dragover event to the closest editor (which will trigger the drop-cursor to be shown on that editor)
-   *  - If the dragover event is outside the bounds of the current editor, then it will dispatch a synthetic dragleave event to the current editor
-   *    (which will trigger the drop-cursor to be removed from the current editor)
-   *
-   * The synthetic event is a necessary evil because we do not control prosemirror-dropcursor to be able to show the drop-cursor within the range we want
-   */
-  onDragOver = (event: DragEvent) => {
-    if ((event as any).synthetic) {
-      return;
-    }
-
-    // Relevance gate: Only handle drags that belong to BlockNote
-    // This prevents interference with external drag-and-drop libraries
-    // by avoiding calls to closeDropCursor() for non-BlockNote drags
-    const isBlockNoteDrag =
-      this.pmView.dragging !== null ||
-      this.isDragOrigin ||
-      event.dataTransfer?.types.includes("blocknote/html") ||
-      (event.target instanceof Node && this.pmView.dom.contains(event.target));
-
-    if (!isBlockNoteDrag) {
-      // Not a BlockNote-related drag, return early without any processing
-      return;
-    }
-
-    const dragEventContext = this.getDragEventContext(event);
-
-    if (!dragEventContext || !dragEventContext.isDropPoint) {
-      // This is not a drag event that we are interested in
-      // so, we close the drop-cursor
-      this.closeDropCursor();
-      return;
-    }
-
-    if (
-      dragEventContext.isDropPoint &&
-      !dragEventContext.isDropWithinEditorBounds
+    /**
+     * Updates the menu for the pointer at `point` over `target`. With
+     * `allowIntent`, a pointer heading to the menu keeps the active block.
+     */
+    function update(
+      point: Point,
+      target: Element | null,
+      allowIntent: boolean,
     ) {
-      // we are the drop point, but the drag over event is not within the bounds of this editor instance
-      // so, we need to dispatch an event that is in the bounds of this editor instance
-      this.dispatchSyntheticEvent(event);
-    }
-  };
-
-  /**
-   * Closes the drop-cursor for the current editor
-   */
-  private closeDropCursor = () => {
-    const evt = new Event("dragleave", { bubbles: false });
-    // It needs to be synthetic, so we don't accidentally think it is a real dragend event
-    (evt as any).synthetic = true;
-    // We dispatch the event to the current editor, so that the drop-cursor is removed for it
-    this.pmView.dom.dispatchEvent(evt);
-  };
-
-  /**
-   * It is surprisingly difficult to determine the information we need to know about a drag event
-   *
-   * This function is trying to determine the following:
-   *  - Whether the current editor instance is the drop point
-   *  - Whether the current editor instance is the drag origin
-   *  - Whether the drop event is within the bounds of the current editor instance
-   */
-  getDragEventContext = (event: DragEvent) => {
-    // Relevance gate: Only handle drags that belong to BlockNote
-    // Check if at least one of the following is true:
-    // 1. ProseMirror drag started in an editor
-    // 2. Side menu drag
-    // 3. BlockNote-specific data type in the drag
-    // 4. (optional stricter mode) Event target is inside this editor
-    const isBlockNoteDrag =
-      this.pmView.dragging !== null ||
-      this.isDragOrigin ||
-      event.dataTransfer?.types.includes("blocknote/html") ||
-      (event.target instanceof Node && this.pmView.dom.contains(event.target));
-
-    if (!isBlockNoteDrag) {
-      // Not a BlockNote-related drag, return early
-      return undefined;
-    }
-
-    // We need to check if there is text content that is being dragged (select some text & just drag it)
-    const textContentIsBeingDragged =
-      !event.dataTransfer?.types.includes("blocknote/html") &&
-      !!this.pmView.dragging;
-    // This is the side menu drag from this plugin
-    const sideMenuIsBeingDragged = !!this.isDragOrigin;
-    // Tells us that the current editor instance has a drag ongoing (either text or side menu)
-    const isDragOrigin = textContentIsBeingDragged || sideMenuIsBeingDragged;
-
-    // Tells us which editor instance is the closest to the drag event (whether or not it is actually reasonably close)
-    const closestEditor = this.findClosestEditorElement(event);
-
-    // We arbitrarily decide how far is "too far" from the closest editor to be considered a drop point
-    if (
-      !closestEditor ||
-      closestEditor.distance > DISTANCE_TO_CONSIDER_EDITOR_BOUNDS
-    ) {
-      // we are too far from the closest editor, or no editor was found
-      return undefined;
-    }
-
-    // We check if the closest editor is the same as the current editor instance (which is the drop point)
-    const isDropPoint = closestEditor.element === this.pmView.dom;
-    // We check if the current editor instance is the same as the editor instance that the drag event is happening within
-    const isDropWithinEditorBounds =
-      isDropPoint && closestEditor.distance === 0;
-
-    // We never want to handle drop events that are not related to us
-    if (!isDropPoint && !isDragOrigin) {
-      // we are not the drop point or drag origin, so not relevant to us
-      return undefined;
-    }
-
-    return {
-      isDropPoint,
-      isDropWithinEditorBounds,
-      isDragOrigin,
-    };
-  };
-
-  /**
-   * The drop event handler listens at the document level,
-   * and handles drop events for all editors.
-   *
-   * It specifically handles the following cases:
-   *  - If we are both the drag origin and drop point:
-   *    - Let normal drop handling take over
-   *  - If we are the drop point but not the drag origin:
-   *    - Collapse selection to prevent PM from deleting unrelated content
-   *    - If drop event is outside our editor bounds, dispatch synthetic drop event to our editor
-   *  - If we are the drag origin but not the drop point:
-   *    - Delete the dragged content from our editor after a delay
-   */
-  onDrop = (event: DragEvent) => {
-    if ((event as any).synthetic) {
-      return;
-    }
-
-    // Relevance gate: Only handle drags that belong to BlockNote
-    // This prevents interference with external drag-and-drop libraries
-    const isBlockNoteDrag =
-      this.pmView.dragging !== null ||
-      this.isDragOrigin ||
-      event.dataTransfer?.types.includes("blocknote/html") ||
-      (event.target instanceof Node && this.pmView.dom.contains(event.target));
-
-    if (!isBlockNoteDrag) {
-      // Not a BlockNote-related drag, return early without any processing
-      return;
-    }
-
-    const context = this.getDragEventContext(event);
-    if (!context) {
-      this.closeDropCursor();
-      // This is not a drag event that we are interested in
-      return;
-    }
-    const { isDropPoint, isDropWithinEditorBounds, isDragOrigin } = context;
-
-    if (!isDropWithinEditorBounds && isDropPoint) {
-      // Any time that the drop event is outside of the editor bounds (but still close to an editor instance)
-      // We dispatch a synthetic event that is in the bounds of the editor instance, to have the correct drop point
-      this.dispatchSyntheticEvent(event);
-    }
-
-    if (isDropPoint) {
-      // The current instance is the drop point
-
-      if (this.pmView.dragging) {
-        // Do not collapse selection when text content is being dragged
+      // While a block is dragged by its handle, the menu must stay as it is:
+      // the handle is the drag source, and if the menu hid or moved, React would
+      // remove it from the DOM, so its `dragend` (and `blockDragEnd`, which
+      // removes the drag image) would never fire. The drop's document change
+      // otherwise re-resolves the block at the pointer's pre-drag position.
+      if (menuFrozen || isDragOrigin) {
         return;
       }
-      // Because the editor selection is unrelated to the dragged content, we
-      // don't want PM to delete its content. Therefore, we collapse the
-      // selection.
-      this.pmView.dispatch(
-        this.pmView.state.tr.setSelection(
-          TextSelection.create(
-            this.pmView.state.tr.doc,
-            this.pmView.state.tr.selection.anchor,
-          ),
-        ),
-      );
-      return;
-    } else if (isDragOrigin) {
-      // The current instance is the drag origin, but not the drop point
-      // our content got dropped somewhere else
-
-      // Because the editor from which the block originates doesn't get a drop
-      // event on it, PM doesn't delete its selected content. Therefore, we
-      // need to do so manually.
-      //
-      // Note: Deleting the selected content from the editor from which the
-      // block originates, may change its height. This can cause the position of
-      // the editor in which the block is being dropping to shift, before it
-      // can handle the drop event. That in turn can cause the drop to happen
-      // somewhere other than the user intended. To get around this, we delay
-      // deleting the selected content until all editors have had the chance to
-      // handle the event.
-      setTimeout(
-        () => this.pmView.dispatch(this.pmView.state.tr.deleteSelection()),
-        0,
-      );
-      return;
-    }
-  };
-
-  onDragEnd = (event: DragEvent) => {
-    if ((event as any).synthetic) {
-      return;
-    }
-    // When the user starts dragging a block, `view.dragging` is set on all
-    // BlockNote editors. However, when the drag ends, only the editor that the
-    // drag originated in automatically clears `view.dragging`. Therefore, we
-    // have to manually clear it on all editors.
-    this.pmView.dragging = null;
-  };
-
-  onKeyDown = (_event: KeyboardEvent) => {
-    if (this.state?.show && this.editor.isFocused()) {
-      // Typing in editor should hide side menu
-      this.state.show = false;
-      this.emitUpdate(this.state);
-    }
-  };
-
-  onMouseMove = (event: MouseEvent) => {
-    if (this.menuFrozen) {
-      return;
-    }
-
-    // Synthetic mousemove events created via `new Event("mousemove")` (e.g.
-    // dispatched by browser extensions) have no `clientX`/`clientY`, which
-    // would make `elementsFromPoint` throw on the resulting non-finite
-    // coordinates.
-    if (!Number.isFinite(event.clientX) || !Number.isFinite(event.clientY)) {
-      return;
-    }
-
-    // Leaves the menu as it is while the pointer is over this editor's own UI
-    // (a toolbar, a menu, the side menu itself) rather than its content: the
-    // block under that UI is not what the pointer is about. It also keeps taps
-    // on the UI working on iOS Safari, which delivers a tap as a hover first
-    // and drops the click when that hover changes the page (WebKit's
-    // ContentChangeObserver); with the mobile toolbar far below the blocks,
-    // the hover would hide a shown side menu and every button needed two taps.
-    if (
-      event.target instanceof Node &&
-      !this.pmView.dom.contains(event.target) &&
-      this.editor.isWithinEditor(event.target as Element)
-    ) {
-      return;
-    }
-
-    this.mousePos = { x: event.clientX, y: event.clientY };
-
-    // We want the full area of the editor to check if the cursor is hovering
-    // above it though.
-    const editorOuterBoundingBox = this.pmView.dom.getBoundingClientRect();
-    const cursorWithinEditor =
-      this.mousePos.x > editorOuterBoundingBox.left &&
-      this.mousePos.x < editorOuterBoundingBox.right &&
-      this.mousePos.y > editorOuterBoundingBox.top &&
-      this.mousePos.y < editorOuterBoundingBox.bottom;
-
-    // Doesn't update if the mouse hovers an element that's over the editor but
-    // isn't a part of it or the side menu.
-    if (
-      // Cursor is within the editor area
-      cursorWithinEditor &&
-      // An element is hovered
-      event &&
-      event.target &&
-      // Element is outside this editor and its portaled UI
-      !this.editor.isWithinEditor(event.target as HTMLElement)
-    ) {
-      if (this.state?.show) {
-        this.state.show = false;
-        this.emitUpdate(this.state);
+      if (target && menuElement?.contains(target)) {
+        // On the menu: the pointer got where it was heading. Recording the
+        // point here makes it the exit point if the pointer leaves the menu,
+        // and as nothing is closer to the menu than the menu, leaving it
+        // anywhere but onto its block follows the pointer at once.
+        clearIntent();
+        lastOnActive = point;
+        return;
       }
 
-      return;
-    }
+      if (!editor.isEditable) {
+        clearIntent();
+        hideMenu();
+        return;
+      }
 
-    this.updateStateFromMousePos();
-  };
-
-  private dispatchSyntheticEvent(event: DragEvent) {
-    const evt = new Event(event.type as "dragover", event) as any;
-    const dropPointBoundingBox = (
-      this.pmView.dom.firstChild as HTMLElement
-    ).getBoundingClientRect();
-    evt.clientX = event.clientX;
-    evt.clientY = event.clientY;
-
-    evt.clientX = Math.min(
-      Math.max(event.clientX, dropPointBoundingBox.left),
-      dropPointBoundingBox.left + dropPointBoundingBox.width,
-    );
-    evt.clientY = Math.min(
-      Math.max(event.clientY, dropPointBoundingBox.top),
-      dropPointBoundingBox.top + dropPointBoundingBox.height,
-    );
-
-    evt.dataTransfer = event.dataTransfer;
-    evt.preventDefault = () => event.preventDefault();
-    evt.synthetic = true; // prevent recursion
-    this.pmView.dom.dispatchEvent(evt);
-  }
-
-  // Needed in cases where the editor state updates without the mouse cursor
-  // moving, as some state updates can require a side menu update. For example,
-  // adding a button to the side menu which removes the block can cause the
-  // block below to jump up into the place of the removed block when clicked,
-  // allowing the user to click the button again without moving the cursor. This
-  // would otherwise not update the side menu, and so clicking the button again
-  // would attempt to remove the same block again, causing an error.
-  update(_view: EditorView, prevState: EditorState) {
-    const docChanged = !prevState.doc.eq(this.pmView.state.doc);
-    if (docChanged && this.state?.show) {
-      this.updateStateFromMousePos();
-    }
-  }
-
-  destroy() {
-    if (this.state?.show) {
-      this.state.show = false;
-      this.emitUpdate(this.state);
-    }
-    this.pmView.root.removeEventListener(
-      "mousemove",
-      this.onMouseMove as EventListener,
-      true,
-    );
-    this.pmView.root.removeEventListener(
-      "dragstart",
-      this.onDragStart as EventListener,
-    );
-    this.pmView.root.removeEventListener(
-      "dragover",
-      this.onDragOver as EventListener,
-    );
-    this.pmView.root.removeEventListener(
-      "drop",
-      this.onDrop as EventListener,
-      true,
-    );
-    this.pmView.root.removeEventListener(
-      "dragend",
-      this.onDragEnd as EventListener,
-      true,
-    );
-    this.pmView.root.removeEventListener(
-      "keydown",
-      this.onKeyDown as EventListener,
-      true,
-    );
-  }
-}
-
-export const sideMenuPluginKey = new PluginKey("SideMenuPlugin");
-
-export const SideMenuExtension = createExtension(({ editor }) => {
-  let view: SideMenuView<any, any, any> | undefined;
-  const store = createStore<SideMenuState<any, any, any> | undefined>(
-    undefined,
-  );
-
-  return {
-    key: "sideMenu",
-    store,
-    prosemirrorPlugins: [
-      new Plugin({
-        key: sideMenuPluginKey,
-        view: (editorView) => {
-          view = new SideMenuView(editor, editorView, (state) => {
-            // TODO: Without spreading the state, in some cases like toggling
-            // `show`, this doesn't trigger an update.
-            store.setState({ ...state });
-          });
-          return view;
+      const resolution = resolveHoveredBlock(
+        editor.prosemirrorView,
+        target,
+        point,
+        {
+          isWithinEditorUI: editor.isWithinEditor,
+          hoverMargin,
         },
-      }),
-    ],
-
-    /**
-     * Handles drag & drop events for blocks.
-     */
-    blockDragStart(
-      event: { dataTransfer: DataTransfer | null; clientY: number },
-      block: Block<any, any, any>,
-    ) {
-      if (view) {
-        view.isDragOrigin = true;
+      );
+      if (resolution.kind === "editorUI") {
+        return;
       }
-      dragStart(event, block, editor);
-    },
 
-    /**
-     * Handles drag & drop events for blocks.
-     */
-    blockDragEnd() {
+      const state = store.state;
+      const active = state?.show ? state.block.id : undefined;
+      if (resolution.kind === "block" && resolution.block.id === active) {
+        clearIntent();
+        lastOnActive = point;
+        return;
+      }
+
+      if (allowIntent && active !== undefined && menuElement?.isConnected) {
+        const exit = intent?.exit ?? lastOnActive ?? point;
+        if (isHeadingToMenu(point, exit, menuElement.getBoundingClientRect())) {
+          // Restarts the timeout, so it measures how long the pointer rests.
+          clearIntent();
+          intent = { exit, timer: setTimeout(releaseIntent, INTENT_TIMEOUT) };
+          return;
+        }
+      }
+
+      clearIntent();
+      if (resolution.kind === "block") {
+        lastOnActive = point;
+        showMenu(resolution.block);
+      } else {
+        hideMenu();
+      }
+    }
+
+    function endBlockDrag() {
       unsetDragImage(editor.prosemirrorView.root);
-      if (view) {
-        view.isDragOrigin = false;
+      isDragOrigin = false;
+    }
+
+    /** The pointer rested on its way to the menu: follow it after all. */
+    function releaseIntent() {
+      intent = undefined;
+      refresh();
+    }
+
+    /**
+     * Re-resolves the block for the last pointer position, without intent. The
+     * pointer may rest on the menu (e.g. after clicking one of its buttons), so
+     * this looks past the menu at what is underneath: after a document change,
+     * that can be another block, e.g. the one below a removed block, which moved
+     * up into its place.
+     */
+    function refresh() {
+      if (!pointer) {
+        return;
       }
+      const target =
+        editor.prosemirrorView.root
+          .elementsFromPoint(pointer.x, pointer.y)
+          .find((element) => !menuElement?.contains(element)) ?? null;
+      update(pointer, target, false);
+    }
 
-      editor.blur();
-    },
+    return {
+      key: "sideMenu",
+      store,
 
-    /**
-     * Whether the side menu is currently frozen (e.g. because the drag handle
-     * menu is open).
-     */
-    get menuFrozen() {
-      return view!.menuFrozen;
-    },
+      mount({
+        root,
+        signal,
+      }: {
+        root: Document | ShadowRoot;
+        signal: AbortSignal;
+      }) {
+        registerBlockDropHandlers(
+          editor.prosemirrorView,
+          () => isDragOrigin,
+          options?.sideMenu?.dropMargin ?? 250,
+          signal,
+        );
 
-    /**
-     * Freezes the side menu. When frozen, the side menu will stay
-     * attached to the same block regardless of which block is hovered by the
-     * mouse cursor.
-     */
-    freezeMenu() {
-      view!.menuFrozen = true;
-      view!.state!.show = true;
-      view!.emitUpdate(view!.state!);
-    },
+        // Shows or updates the menu whenever the pointer moves, unless frozen.
+        root.addEventListener(
+          // `mousemove`, not `pointermove`: iOS Safari delivers a tap as a hover
+          // (one compatibility `mousemove` to the tap point, then the click),
+          // which is how the side menu shows on phones.
+          "mousemove",
+          (event) => {
+            // Synthetic events created via `new Event("mousemove")` (e.g.
+            // dispatched by browser extensions) have no `clientX`/`clientY`,
+            // which would make `elementsFromPoint` throw on the resulting
+            // non-finite coordinates.
+            const { clientX, clientY, buttons } = event as Partial<MouseEvent>;
+            if (
+              menuFrozen ||
+              typeof clientX !== "number" ||
+              typeof clientY !== "number" ||
+              !Number.isFinite(clientX) ||
+              !Number.isFinite(clientY)
+            ) {
+              return;
+            }
+            if (isDragOrigin && buttons === 0) {
+              // The drag ended without `dragend` reaching the handle (e.g. the
+              // menu was unmounted by its controller): clean up now.
+              endBlockDrag();
+            }
+            const point = { x: clientX, y: clientY };
+            pointer = point;
+            update(point, targetElement(event.target), true);
+          },
+          { signal, capture: true },
+        );
 
-    /**
-     * Unfreezes the side menu. When frozen, the side menu will stay
-     * attached to the same block regardless of which block is hovered by the
-     * mouse cursor.
-     */
-    unfreezeMenu() {
-      view!.menuFrozen = false;
-      view!.state!.show = false;
-      view!.emitUpdate(view!.state!);
-    },
+        // The pointer left the window: no block is hovered any more. Only
+        // `mouseout` reports this (with no `relatedTarget`), as `mouseleave`
+        // doesn't reach a document or shadow root.
+        root.addEventListener(
+          "mouseout",
+          (event) => {
+            if (
+              (event as MouseEvent).relatedTarget === null &&
+              !menuFrozen &&
+              !isDragOrigin
+            ) {
+              pointer = undefined;
+              clearIntent();
+              hideMenu();
+            }
+          },
+          { signal, capture: true },
+        );
 
-    /**
-     * Hides the side menu unless it is currently frozen (e.g. the drag
-     * handle menu is open). Used to dismiss the menu on scroll without
-     * interfering with open submenus.
-     */
-    hideMenuIfNotFrozen() {
-      if (!view!.menuFrozen && view!.state?.show) {
-        view!.state.show = false;
-        view!.emitUpdate(view!.state!);
-      }
-    },
-  } as const;
-});
+        // Hides the menu whenever the user types.
+        root.addEventListener(
+          "keydown",
+          () => {
+            if (store.state?.show && editor.isFocused()) {
+              clearIntent();
+              hideMenu();
+            }
+          },
+          { signal, capture: true },
+        );
+
+        // Needed in cases where the document changes without the pointer
+        // moving: blocks move under it when blocks above it change. For
+        // example, a side menu button which removes the block can cause the
+        // block below to jump up into the place of the removed block when
+        // clicked, allowing the user to click the button again without moving
+        // the pointer. This would otherwise not update the side menu, and so
+        // clicking the button again would attempt to remove the same block
+        // again, causing an error.
+        const unsubscribeOnChange = editor.onChange(() => {
+          if (store.state?.show) {
+            clearIntent();
+            refresh();
+          }
+        });
+
+        signal.addEventListener("abort", () => {
+          unsubscribeOnChange();
+          clearIntent();
+          hideMenu();
+        });
+      },
+
+      /**
+       * Registers the element that renders the side menu. Moving the pointer
+       * from a block towards this element keeps the menu on that block, and
+       * hovering it never changes the block.
+       */
+      setMenuElement(element: HTMLElement | undefined) {
+        menuElement = element;
+      },
+
+      /**
+       * Handles drag & drop events for blocks.
+       */
+      blockDragStart(
+        event: { dataTransfer: DataTransfer | null; clientY: number },
+        block: Block<any, any, any>,
+      ) {
+        isDragOrigin = true;
+        dragStart(event, block, editor);
+      },
+
+      /**
+       * Handles drag & drop events for blocks.
+       */
+      blockDragEnd() {
+        endBlockDrag();
+        editor.blur();
+      },
+
+      /**
+       * Whether the side menu is currently frozen (e.g. because the drag handle
+       * menu is open).
+       */
+      get menuFrozen() {
+        return menuFrozen;
+      },
+
+      /**
+       * Freezes the side menu. When frozen, the side menu will stay
+       * attached to the same block regardless of which block is hovered by the
+       * mouse cursor.
+       */
+      freezeMenu() {
+        menuFrozen = true;
+        clearIntent();
+        const state = store.state;
+        if (state) {
+          store.setState({ ...state, show: true });
+        }
+      },
+
+      /**
+       * Unfreezes the side menu. When frozen, the side menu will stay
+       * attached to the same block regardless of which block is hovered by the
+       * mouse cursor.
+       */
+      unfreezeMenu() {
+        menuFrozen = false;
+        hideMenu();
+      },
+
+      /**
+       * Hides the side menu unless it is currently frozen (e.g. the drag
+       * handle menu is open). Used to dismiss the menu on scroll without
+       * interfering with open submenus.
+       */
+      hideMenuIfNotFrozen() {
+        // A drag can scroll the page, but hiding the menu would remove the drag
+        // source (see `update`).
+        if (!menuFrozen && !isDragOrigin) {
+          clearIntent();
+          hideMenu();
+        }
+      },
+    } as const;
+  },
+);
