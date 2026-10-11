@@ -615,56 +615,41 @@ describe("side menu hover: engaging a block", () => {
 
 // The drag handle is the drag source: if the menu hid or moved during the
 // drag, React would remove the handle, its `dragend` would never fire, and the
-// drag image would stay in the document (it then broke the next toggle test).
+// drag image would stay in the document. The drop changes the document, which
+// re-resolves the block under the pointer while the drag is still on.
 // Real mouse drags are only emulated reliably in Chromium.
 describe.skipIf(browserName !== "chromium")("side menu hover: dragging", () => {
   test("keeps the drag handle mounted until the drag ends", async () => {
     await render(
       <Editor
         name="main"
-        content={[
-          { id: "t", type: "toggleListItem", content: "Toggle" },
-          paragraph("drag", "Drag me"),
-        ]}
+        content={[paragraph("a"), paragraph("b"), paragraph("drag", "Drag me")]}
       />,
     );
     await waitForSelector(".bn-editor");
-    const chevron = getRect(await waitForSelector(".bn-toggle-button"));
-    await mouseSequence([
-      {
-        type: "click",
-        x: chevron.x + chevron.width / 2,
-        y: chevron.y + chevron.height / 2,
-      },
-    ]);
-    await sleep(100);
 
     await hoverBlock("drag");
     expect(menuBlock()).toBe("drag");
     const handle = getRect(await waitForSelector(DRAG_HANDLE_SELECTOR));
-    const target = getRect(
-      await waitForSelector(".bn-toggle-add-block-button"),
-    );
+    const target = blockRect("a");
     await walk([
       { x: handle.x + handle.width / 2, y: handle.y + handle.height / 2 },
     ]);
     await mouseSequence([{ type: "down" }]);
     await sleep(100);
+    // Onto the top of "a": the block goes before it.
     await mouseSequence([
-      {
-        type: "move",
-        x: target.x + target.width / 2,
-        y: target.y + target.height / 2,
-        steps: 5,
-      },
+      { type: "move", x: target.x + 20, y: target.y + 2, steps: 5 },
     ]);
     await sleep(100);
     await mouseSequence([{ type: "up" }]);
     await sleep(100);
 
-    expect(
-      editors.main.getBlock("t")!.children.map((child) => child.id),
-    ).toEqual(["drag"]);
+    expect(editors.main.document.map((block) => block.id)).toEqual([
+      "drag",
+      "a",
+      "b",
+    ]);
     expect(document.querySelector(".bn-drag-preview")).toBeNull();
   });
 });
