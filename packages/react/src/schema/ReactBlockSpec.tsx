@@ -45,6 +45,20 @@ import { useNodeViewBlock } from "./useNodeViewBlock.js";
 // scope so the style object is referentially stable across renders.
 const DISPLAY_CONTENTS: CSSProperties = { display: "contents" };
 
+// Marks where a React `toExternalHTML` puts the block's children
+// (`childrenRef`), until the export is rendered.
+const CHILDREN_MARK = "data-bn-children-ref";
+
+/** The element marked with `CHILDREN_MARK` in `dom`, with the mark removed. */
+function takeMarked(dom: HTMLElement): HTMLElement | undefined {
+  let marked = dom.querySelector<HTMLElement>(`[${CHILDREN_MARK}]`);
+  if (dom.hasAttribute(CHILDREN_MARK)) {
+    marked = dom;
+  }
+  marked?.removeAttribute(CHILDREN_MARK);
+  return marked ?? undefined;
+}
+
 export type ReactCustomBlockRenderProps<
   B extends BlockConfigOrCreator,
   Config extends ExtractBlockConfigFromConfigOrCreator<B> =
@@ -52,17 +66,12 @@ export type ReactCustomBlockRenderProps<
 > = {
   block: BlockNoDefaults<Record<Config["type"], Config>, any, any>;
   editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
-  // A block gets a `contentRef` for its `render` to mount its editable region:
-  // its inline content, or, for a container's `toExternalHTML`, its child
-  // blocks. Only a `content: "none"` block that isn't a container (and the
-  // table block, whose content is managed separately) has nothing to place.
-  // FIXME: a container has no `render`, and its `toExternalHTML` could take
-  // `slotRef` like its frame.
-} & (Config extends { container: true }
+  // A block with content gets a `contentRef` to mount its editable region.
+  // A block without content (and the table block, whose content is managed
+  // separately) has nothing to place.
+} & (Config["content"] extends "inline" | "plain"
   ? { contentRef: (node: HTMLElement | null) => void }
-  : Config["content"] extends "inline" | "plain"
-    ? { contentRef: (node: HTMLElement | null) => void }
-    : object);
+  : object);
 
 // The props of a React `renderFrame` component.
 export type ReactCustomBlockFrameProps<
@@ -99,8 +108,13 @@ export type ReactCustomBlockImplementation<
   // only element. Its slot holds the content followed by the children (a
   // container: only the children).
   renderFrame?: FC<ReactCustomBlockFrameProps<B>>;
+  // Like core's `toExternalHTML`, which returns `contentDOM` and
+  // `childrenDOM`: `contentRef` marks where the block's content goes, and
+  // `childrenRef` where its children go. Without `childrenRef`, the children
+  // follow the block.
   toExternalHTML?: FC<
     ReactCustomBlockRenderProps<B> & {
+      childrenRef: (node: HTMLElement | null) => void;
       context: {
         nestingLevel: number;
       };
@@ -297,6 +311,7 @@ export function createReactBlockSpec<
       domAttributes?: Record<string, string>;
       isFileBlock?: boolean;
       context?: any;
+      childrenRef?: (element: HTMLElement | null) => void;
     }) {
       const { BlockContent, block, editor } = args;
 
@@ -305,6 +320,7 @@ export function createReactBlockSpec<
           <BlockContent
             block={block as any}
             editor={editor as any}
+            childrenRef={args.childrenRef}
             contentRef={(element: HTMLElement | null) => {
               refCB(element);
               if (element && !isContainer) {
@@ -451,7 +467,7 @@ export function createReactBlockSpec<
             editor: any,
             context: { nestingLevel: number },
           ) {
-            return renderStatic({
+            const output = renderStatic({
               BlockContent: ReactToExternalHTML,
               block,
               editor,
@@ -459,7 +475,12 @@ export function createReactBlockSpec<
               isFileBlock:
                 blockImplementation.meta?.fileBlockAccept !== undefined,
               context,
+              // Marks the element the export puts the children in. The
+              // rendered DOM is cloned, so the clone is found by the mark.
+              childrenRef: (element) =>
+                element?.setAttribute(CHILDREN_MARK, ""),
             });
+            return { ...output, childrenDOM: takeMarked(output.dom) };
           },
         }),
         // A container has no `render`: it draws only its frame, and core
