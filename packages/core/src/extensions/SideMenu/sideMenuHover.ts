@@ -1,17 +1,14 @@
 import { EditorView } from "@tiptap/pm/view";
 
-import { getBlockFromElement } from "../blockDOM.js";
 import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
+import { getBlockElement } from "./blockDOM.js";
 import { getNestedBlockAtCursor } from "./blockGeometry.js";
 
 export type Point = { x: number; y: number };
 
 export type Rect = { left: number; top: number; right: number; bottom: number };
 
-/** A block's root element and identity, as `getBlockFromElement` resolves it. */
-type DOMBlock = NonNullable<ReturnType<typeof getBlockFromElement>>;
-
-export type HoveredBlock = Pick<DOMBlock, "node" | "id">;
+export type HoveredBlock = { node: HTMLElement; id: string };
 
 /**
  * How far inside the edge of the blocks the probe point goes. A probe exactly
@@ -28,30 +25,12 @@ function getBlockAtPoint(view: EditorView, point: Point) {
   for (const element of view.root.elementsFromPoint(point.x, point.y)) {
     // Skips UI painted over the blocks (e.g. a toolbar), and the blocks of an
     // editor nested in one of ours: looks below them.
-    const block = view.dom.contains(element)
-      ? getBlockFromElement(element, view)
-      : undefined;
+    const block = getBlockElement(element, view);
     if (block) {
       return block;
     }
   }
   return undefined;
-}
-
-/**
- * Returns the deepest block at the height of the pointer, from a block that
- * contains it: the block itself, or one of its descendants at that height.
- * The children of a block are below its own content (nested blocks) or fill
- * it (a container), so the pointer on the block's own content stays on the
- * block. The pointer in the indentation of nested blocks, or in the padding
- * of a container beside a child, goes to the child at that height.
- */
-function getBlockAtHeight(
-  view: EditorView,
-  block: DOMBlock,
-  pointer: Point,
-): DOMBlock | undefined {
-  return getBlockFromElement(getNestedBlockAtCursor(block.node, pointer), view);
 }
 
 /**
@@ -70,7 +49,7 @@ function getBlockAtHeight(
 function probeBlockAtHeight(
   view: EditorView,
   pointer: Point,
-): DOMBlock | undefined {
+): Element | undefined {
   const blocks = view.dom.firstElementChild?.getBoundingClientRect();
   if (!blocks || pointer.y < blocks.top || pointer.y > blocks.bottom) {
     return undefined;
@@ -80,7 +59,7 @@ function probeBlockAtHeight(
     x: clamp(pointer.x, blocks.left + inset, blocks.right - inset),
     y: pointer.y,
   });
-  return reference ? getBlockAtHeight(view, reference, pointer) : undefined;
+  return reference ? getNestedBlockAtCursor(reference, pointer) : undefined;
 }
 
 export type HoverResolution =
@@ -91,13 +70,6 @@ export type HoverResolution =
   /** The pointer is not over this editor's blocks. */
   | { kind: "none" };
 
-export type HoverOptions = {
-  /** Whether the element is UI that belongs to this editor (a toolbar, a menu). */
-  isWithinEditorUI: (element: Element) => boolean;
-  /** How far left or right of the editor element the pointer still counts (px). */
-  hoverMargin: number;
-};
-
 /**
  * Which of this editor's blocks the pointer is about, from the topmost element
  * under the pointer (the event target).
@@ -106,13 +78,16 @@ export function resolveHoveredBlock(
   view: EditorView,
   target: Element | null,
   pointer: Point,
-  { isWithinEditorUI, hoverMargin }: HoverOptions,
+  /** Whether the element is UI that belongs to this editor (a toolbar, a menu). */
+  isWithinEditorUI: (element: Element) => boolean,
+  /** How far left or right of the editor element the pointer still counts (px). */
+  hoverMargin: number,
 ): HoverResolution {
   // Resolve layout before applying drag policy: columns have no handle, but
   // their children do, and their gutter still needs to resolve those children.
-  function draggable(block: DOMBlock | undefined): HoverResolution {
+  function draggable(block: Element | undefined): HoverResolution {
     const resolved = block
-      ? getDraggableBlockFromElement(block.node, view)
+      ? getDraggableBlockFromElement(block, view)
       : undefined;
     return resolved ? { kind: "block", block: resolved } : { kind: "none" };
   }
@@ -125,10 +100,10 @@ export function resolveHoveredBlock(
     // Over a block (its content, its indentation, a container's padding):
     // the deepest block at the pointer's height. Over the editor's own
     // padding: no block is known yet, so probe for the one on the line.
-    const block = getBlockFromElement(target, view);
+    const block = getBlockElement(target, view);
     return draggable(
       block
-        ? getBlockAtHeight(view, block, pointer)
+        ? getNestedBlockAtCursor(block, pointer)
         : probeBlockAtHeight(view, pointer),
     );
   }
@@ -259,6 +234,13 @@ function convexHull(points: Point[]): Point[] {
  * of it, and closer to the menu than the exit point. The latter keeps the
  * buffer around the exit point from holding on to a block the pointer leaves
  * in another direction, e.g. down onto the next block.
+ *
+ * Similar to Floating UI's `safePolygon`
+ * (https://floating-ui.com/docs/useHover#safepolygon), with two differences:
+ * the hull covers the way to the menu whatever side the menu is on, and the
+ * intent ends when the pointer rests (`INTENT_TIMEOUT` in `SideMenu.ts`)
+ * rather than when it slows down, as people slow down when aiming at the
+ * menu's small buttons.
  */
 export function isHeadingToMenu(
   pointer: Point,

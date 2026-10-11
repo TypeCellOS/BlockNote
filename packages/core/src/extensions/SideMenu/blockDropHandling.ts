@@ -15,19 +15,29 @@ function isSynthetic(event: Event): boolean {
  * Finds the editor that a drag event is about, and the distance from the
  * event to the blocks of that editor. If the event target is in an editor,
  * that editor is the only candidate: where editors overlap, it is the editor
- * on top. Otherwise, it is the editor closest to the event.
+ * on top. Otherwise, the candidates are the editors within `dropMargin` of the
+ * event, and it is the one closest to the event.
  *
- * Distances count to the blocks, not to the editor element (as `dropMargin`
- * does): the drop lands at the nearest block position, so with uneven editor
- * padding, the editor whose blocks are nearest is the right pick. A drop
- * outside the blocks, even in the editor's padding, is moved onto them.
+ * `dropMargin` counts from the editor element, like `hoverMargin`. The
+ * distance that picks the closest editor counts to its blocks: the drop lands
+ * at the nearest block position, so with uneven editor padding, the editor
+ * whose blocks are nearest is the right pick. A drop outside the blocks, even
+ * in the editor's padding, is moved onto them.
  */
-function findDropEditor(view: EditorView, event: DragEvent) {
+function findDropEditor(
+  view: EditorView,
+  event: DragEvent,
+  dropMargin: number,
+) {
+  const point = { x: event.clientX, y: event.clientY };
   const target =
     event.target instanceof Element ? event.target.closest(".bn-editor") : null;
   const editors = target
     ? [target]
-    : Array.from(view.root.querySelectorAll(".bn-editor"));
+    : Array.from(view.root.querySelectorAll(".bn-editor")).filter(
+        (editor) =>
+          distanceToRect(point, editor.getBoundingClientRect()) <= dropMargin,
+      );
   const coords = event;
 
   if (editors.length === 0) {
@@ -148,17 +158,9 @@ export function registerBlockDropHandlers(
     // Tells us that the current editor instance has a drag ongoing (either text or side menu)
     const isOrigin = textContentIsBeingDragged || sideMenuIsBeingDragged;
 
-    // Tells us which editor instance is the closest to the drag event (whether or not it is actually reasonably close)
-    const closestEditor = findDropEditor(view, event);
-
-    // `dropMargin` counts from the editor element's box, like `hoverMargin`.
-    if (
-      !closestEditor ||
-      distanceToRect(
-        { x: event.clientX, y: event.clientY },
-        closestEditor.element.getBoundingClientRect(),
-      ) > dropMargin
-    ) {
+    // The editor the drag event is about, if any is within `dropMargin`
+    const closestEditor = findDropEditor(view, event, dropMargin);
+    if (!closestEditor) {
       return undefined;
     }
 

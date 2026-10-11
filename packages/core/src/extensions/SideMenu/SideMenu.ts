@@ -24,7 +24,12 @@ export type SideMenuState<
   I extends InlineContentSchema,
   S extends StyleSchema,
 > = UiElementPosition & {
-  // The block that the side menu is attached to.
+  /**
+   * The block that the side menu is attached to. While the menu is hidden
+   * (`show` is `false`), the block it was last attached to, so it can animate
+   * out next to it. The store's state is `undefined` until the menu first
+   * shows.
+   */
   block: Block<BSchema, I, S>;
 };
 
@@ -150,6 +155,7 @@ export const SideMenuExtension = createExtension(
       // removes the drag image) would never fire. The drop's document change
       // otherwise re-resolves the block at the pointer's pre-drag position.
       if (menuFrozen || isDragOrigin) {
+        // Frozen or dragging: keep the menu as it is.
         return;
       }
       if (target && menuElement?.contains(target)) {
@@ -159,12 +165,14 @@ export const SideMenuExtension = createExtension(
         // anywhere but onto its block follows the pointer at once.
         clearIntent();
         lastOnActive = point;
+        // On the menu: keep the menu as it is.
         return;
       }
 
       if (!editor.isEditable) {
         clearIntent();
         hideMenu();
+        // Read-only editor: hide the menu.
         return;
       }
 
@@ -172,12 +180,11 @@ export const SideMenuExtension = createExtension(
         editor.prosemirrorView,
         target,
         point,
-        {
-          isWithinEditorUI: editor.isWithinEditor,
-          hoverMargin,
-        },
+        editor.isWithinEditor,
+        hoverMargin,
       );
       if (resolution.kind === "editorUI") {
+        // On other UI of the editor (e.g. a toolbar): keep the menu as it is.
         return;
       }
 
@@ -186,6 +193,7 @@ export const SideMenuExtension = createExtension(
       if (resolution.kind === "block" && resolution.block.id === active) {
         clearIntent();
         lastOnActive = point;
+        // On the block of the menu: keep the menu as it is.
         return;
       }
 
@@ -195,10 +203,13 @@ export const SideMenuExtension = createExtension(
           // Restarts the timeout, so it measures how long the pointer rests.
           clearIntent();
           intent = { exit, timer: setTimeout(releaseIntent, INTENT_TIMEOUT) };
+          // On the way to the menu: keep the menu on its block for now.
           return;
         }
       }
 
+      // Not on the way to the menu: show the menu for the block under the
+      // pointer, or hide it if there is no block.
       clearIntent();
       if (resolution.kind === "block") {
         lastOnActive = point;

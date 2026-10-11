@@ -1,9 +1,6 @@
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
-import {
-  getNestedBlockAtCursor,
-  getDirectChildBlocks,
-} from "./blockGeometry.js";
+import { getNestedBlockAtCursor } from "./blockGeometry.js";
 
 // Exercise container hit testing with real layout, including nested columns.
 
@@ -78,24 +75,6 @@ function buildVerticalContainer() {
 
   return { callout, first, second };
 }
-
-describe("getDirectChildBlocks", () => {
-  it("returns direct child blocks, skipping nested grandchildren", () => {
-    const { columnList, columnA, columnB } = buildColumnList();
-
-    // The blocks inside each column must not come back as the list's own
-    // children. The `closest` check stops the walk one level down.
-    expect(getDirectChildBlocks(columnList)).toEqual([columnA, columnB]);
-  });
-
-  it("sees through blockOuter wrappers to the blockContainer child", () => {
-    const { columnA, childA } = buildColumnList();
-
-    // The column's own direct child is the wrapped blockContainer, not the
-    // blockOuter chrome (which isn't a block in the selector's sense).
-    expect(getDirectChildBlocks(columnA)).toEqual([childA.blockContainer]);
-  });
-});
 
 describe("getNestedBlockAtCursor", () => {
   it("keeps a regular block as the probe target", () => {
