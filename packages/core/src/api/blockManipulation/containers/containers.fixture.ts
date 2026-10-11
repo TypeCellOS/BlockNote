@@ -7,6 +7,11 @@ const renderDiv = () => {
   return { dom, contentDOM: dom };
 };
 
+const frameDiv = () => {
+  const dom = document.createElement("div");
+  return { dom, slot: dom };
+};
+
 const Callout = createBlockSpec(
   {
     type: "callout" as const,
@@ -19,7 +24,7 @@ const Callout = createBlockSpec(
     content: "none",
     container: true,
   },
-  { render: renderDiv },
+  { renderFrame: frameDiv },
 )();
 
 const Grid = createBlockSpec(
@@ -33,7 +38,7 @@ const Grid = createBlockSpec(
       min: 2,
     },
   },
-  { render: renderDiv },
+  { renderFrame: frameDiv },
 )();
 
 const GridCell = createBlockSpec(
@@ -44,7 +49,7 @@ const GridCell = createBlockSpec(
     container: true,
     placeable: "namedOnly",
   },
-  { render: renderDiv },
+  { renderFrame: frameDiv },
 )();
 
 // A second container of any blocks, for conversions between container types.
@@ -55,7 +60,7 @@ const Box = createBlockSpec(
     content: "none",
     container: true,
   },
-  { render: renderDiv },
+  { renderFrame: frameDiv },
 )();
 
 // A container that requires two callouts, so dropping below `min` dissolves
@@ -69,7 +74,7 @@ const Pair = createBlockSpec(
     container: true,
     children: { allow: ["callout"], min: 2 },
   },
-  { render: renderDiv },
+  { renderFrame: frameDiv },
 )();
 
 // A titled block: an ordinary block with inline content (the title) whose

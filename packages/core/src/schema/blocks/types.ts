@@ -358,7 +358,8 @@ export type LooseBlockSpec<
     /** The block's `meta`, with defaults filled in. */
     meta: ResolvedBlockConfigMeta<T, PS>;
     // purposefully stub the types for render and toExternalHTML since they reference the block
-    render: (
+    // A container declares `renderFrame` instead of `render`.
+    render?: (
       /**
        * The custom block to render
        */
@@ -379,7 +380,7 @@ export type LooseBlockSpec<
       editor: BlockNoteEditor<any, I, S>,
     ) =>
       | {
-          dom: HTMLElement | DocumentFragment;
+          dom: HTMLElement;
           slot: HTMLElement;
           /** Releases resources when the live frame is replaced or destroyed. */
           destroy?: () => void;
@@ -430,7 +431,8 @@ export type BlockSpecs = {
     > & {
       experimental_keyboard?: BlockKeyboardOption<any>;
       // purposefully stub the types for render and toExternalHTML since they reference the block
-      render: (
+      // A container declares `renderFrame` instead of `render`.
+      render?: (
         /**
          * The custom block to render
          */
@@ -451,7 +453,7 @@ export type BlockSpecs = {
         editor: BlockNoteEditor<any, I, S>,
       ) =>
         | {
-            dom: HTMLElement | DocumentFragment;
+            dom: HTMLElement;
             slot: HTMLElement;
             /** Releases resources when the live frame is replaced or destroyed. */
             destroy?: () => void;
@@ -722,7 +724,15 @@ export type BlockImplementation<
     | "table"
     | "plain",
 > = {
-  /** @internal Framework adapter for the outer blockContainer node view. */
+  /**
+   * @internal Framework adapter (React) for a frame's live node view: the
+   * `blockContainer` around a framed block, or a container's own node. Core
+   * uses it instead of the vanilla `renderFrame` when present.
+   *
+   * TODO: the content node view has no such hook yet: React builds it inside
+   * `render` (see the `TODO` there). Add one, so both live node views come
+   * from adapter hooks and `render` / `renderFrame` only draw.
+   */
   frameNodeView?: NodeViewRenderer;
   /**
    * Metadata
@@ -738,9 +748,16 @@ export type BlockImplementation<
     BlockFromConfig<BlockConfig<TName, TProps, TContent>, any, any>
   >;
   /**
-   * A function that converts the block into a DOM element.
+   * A function that converts the block into a DOM element. Every block
+   * declares it, except a container (`container: true`), which has no content
+   * to draw and declares only `renderFrame`.
+   *
+   * FIXME: optional for every block here, checked at runtime
+   * (`validateRenderHooks`). The types could require exactly one of `render`
+   * and `renderFrame`, but core's first `createBlockSpec` overload can't see
+   * `container`.
    */
-  render: (
+  render?: (
     this:
       | Record<string, never>
       | ({
@@ -772,17 +789,14 @@ export type BlockImplementation<
     ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
     destroy?: () => void;
     /**
-     * Optional NodeView update hook. Called when the underlying ProseMirror
-     * node's attributes change (or its decorations change). Return `false` to
-     * tell ProseMirror to destroy and recreate the NodeView (i.e. re-run
-     * `render` from scratch). Return `true` (or `undefined`) when you have
-     * patched `dom` in-place and PM should keep the existing view.
+     * Called by ProseMirror when this block's node is updated (e.g. its content
+     * or props change). Return `true` to handle the update in place - keeping
+     * the existing DOM - or `false` to have the node view recreated via
+     * `render`. When omitted, ProseMirror keeps the node view and reconciles its
+     * `contentDOM` in place as long as the node type stays the same.
      *
-     * Only honored for container blocks (`container: true`), where
-     * recreating the node view would remount every child block: e.g. column
-     * resizing patches widths in place through this hook. Non-container
-     * blocks always recreate on attr changes (see
-     * https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464).
+     * Useful for blocks whose `render` builds custom DOM that needs to stay in
+     * sync with the node (e.g. a code block rendering a preview of its content).
      */
     update?: (node: PMNode) => boolean | void;
   };
@@ -791,8 +805,10 @@ export type BlockImplementation<
    * Draws the chrome *around* a block's content and children: the author's
    * markup wraps both, and the `slot` is where BlockNote mounts them.
    *
-   * The slot holds the content first and the children after it. A pure
-   * container already owns its outer DOM through `render`.
+   * The slot holds the content first and the children after it. A container
+   * (`container: true`) has no content, so it draws only its frame, with its
+   * child blocks in the slot. The frame's root is then the block's element,
+   * and a container must always draw it.
    *
    * `render` stays the knob for the block's own content. A block may use
    * both: `render` draws the title, `renderFrame` draws the box around title
@@ -808,7 +824,6 @@ export type BlockImplementation<
     this:
       | Record<string, never>
       | ({
-          blockContentDOMAttributes: Record<string, string>;
           propSchema?: TProps;
         } & (
           | {
@@ -828,7 +843,7 @@ export type BlockImplementation<
     >,
   ) =>
     | {
-        dom: HTMLElement | DocumentFragment;
+        dom: HTMLElement;
         /** Where BlockNote mounts the block's content and/or children. */
         slot: HTMLElement;
         /** Releases resources when the live frame is replaced or destroyed. */
@@ -845,7 +860,8 @@ export type BlockImplementation<
 
   /**
    * Exports block to external HTML. If not defined, the output will be the same
-   * as `render(...).dom`.
+   * as `render(...).dom`, inside the block's frame (`renderFrame`) if it has
+   * one. When defined, it replaces both.
    */
   toExternalHTML?: (
     this: Partial<{

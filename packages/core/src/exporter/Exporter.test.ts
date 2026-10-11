@@ -200,9 +200,9 @@ const box = createBlockSpec(
     container: true,
   },
   {
-    render: () => {
+    renderFrame: () => {
       const dom = document.createElement("div");
-      return { dom, contentDOM: dom };
+      return { dom, slot: dom };
     },
   },
 )();

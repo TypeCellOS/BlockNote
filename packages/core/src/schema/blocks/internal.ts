@@ -9,7 +9,7 @@ import { propsToDataAttributes, setDataAttributes } from "../dataAttributes.js";
 import { PropSchema, Props } from "../propTypes.js";
 import { createBlockKeyboard } from "./keyboard.js";
 import { resolveBlockMeta } from "./meta.js";
-import { BlockConfig, ChildrenConfig, LooseBlockSpec } from "./types.js";
+import { LooseBlockSpec } from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
@@ -260,13 +260,6 @@ export function createBlockSpecFromTiptapNode<
     node: Node;
     type: string;
     content: "inline" | "table" | "none" | "plain";
-    // Declares the block's container semantics (child counts/repair etc.)
-    // even though the node itself is hand-written. The node's own content
-    // expression stays authoritative for the PM schema, while BlockNote-level
-    // behavior (repair, seeding, validation) reads this config.
-    container?: true;
-    children?: ChildrenConfig;
-    placeable?: BlockConfig["placeable"];
   },
   P extends PropSchema,
 >(
@@ -279,27 +272,12 @@ export function createBlockSpecFromTiptapNode<
       type: config.type as T["type"],
       content: config.content,
       propSchema,
-      // `BlockConfig` only allows `container` and restricted `children` with
-      // `content: "none"`, which a generic `T["content"]` can't show; the
-      // hand-written node's config is validated when the schema is created.
-      ...(config.container !== undefined
-        ? { container: config.container as any }
-        : {}),
-      ...(config.children !== undefined
-        ? { children: config.children as any }
-        : {}),
-      ...(config.placeable !== undefined
-        ? { placeable: config.placeable }
-        : {}),
     },
     implementation: {
       node: config.node,
-      meta: resolveBlockMeta(undefined, {
-        container: config.container,
-        placeable: config.placeable,
-      }),
+      meta: resolveBlockMeta(undefined, {}),
       keyboard: createBlockKeyboard(undefined, {
-        isContainer: config.container === true,
+        isContainer: false,
         hardBreakShortcut: undefined,
       }),
       render: defaultBlockToHTML,

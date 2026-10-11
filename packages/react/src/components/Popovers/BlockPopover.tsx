@@ -44,7 +44,7 @@ export const BlockPopover = (
         // A frame's editable slot may start after interactive chrome, such as
         // a toggle button. Anchor outside the whole block so the side menu
         // does not cover that chrome. The blockContainer node view owns a
-        // boxed outer element, even when the frame returns a fragment.
+        // boxed outer element around the frame.
         const contentType = nodePosInfo.node.firstChild?.type.name;
         if (
           contentType &&

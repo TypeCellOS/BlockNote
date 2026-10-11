@@ -1,4 +1,5 @@
 export * from "./blocks/createSpec.js";
+export * from "./blocks/frame.js";
 export * from "./blocks/internal.js";
 export * from "./blocks/types.js";
 export * from "./dataAttributes.js";

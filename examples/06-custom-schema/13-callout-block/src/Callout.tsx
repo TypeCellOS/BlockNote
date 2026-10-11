@@ -31,7 +31,7 @@ export const createCallout = createReactBlockSpec(
     ),
     renderFrame: (props) => (
       <div className={"callout"}>
-        <div className={"callout-slot"} ref={props.contentRef} />
+        <div className={"callout-slot"} ref={props.slotRef} />
       </div>
     ),
   },

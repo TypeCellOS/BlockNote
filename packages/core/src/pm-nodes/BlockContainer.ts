@@ -7,7 +7,7 @@ import {
 import type { NodeView } from "@tiptap/pm/view";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
-import { isDocumentFragment } from "../schema/blocks/internal.js";
+import { findFrameSlot } from "../schema/blocks/frame.js";
 import { BlockNoteDOMAttributes } from "../schema/index.js";
 import { ignoreFrameChromeMutations } from "../schema/nodeViewMutations.js";
 import { mergeCSSClasses } from "../util/browser.js";
@@ -15,12 +15,18 @@ import { suggestionMarks } from "./suggestionMarks.js";
 
 const dropEvents = new Set(["dragenter", "dragover", "dragleave", "drop"]);
 
-/** Adapts vanilla frames to the same lifecycle as framework node views. */
+/**
+ * Adapts vanilla frames to the same lifecycle as framework node views.
+ *
+ * TODO: without a frame (no `renderFrame`, or it declined), this returns a
+ * stand-in node view whose `dom` and `contentDOM` are both `fallback`, which
+ * the caller detects again (`framed`). Return `NodeView | undefined` instead
+ * and drop `fallback` (review cluster A).
+ */
 function createFrameView(
   props: NodeViewRendererProps,
   editor: BlockNoteEditor,
   fallback: HTMLElement,
-  blockContentDOMAttributes: Record<string, string>,
 ): NodeView {
   const type = props.node.firstChild!.type.name;
   const implementation = editor.blockImplementations[type].implementation;
@@ -36,22 +42,13 @@ function createFrameView(
     {
       renderType: "nodeView",
       props,
-      blockContentDOMAttributes,
       propSchema: editor.blockImplementations[type].config.propSchema,
     },
     nodeToBlock(props.node, props.view.state.doc),
     editor,
   );
-  let dom = frame?.dom ?? fallback;
-  if (isDocumentFragment(dom)) {
-    // Node views need a stable element even when the author returns siblings.
-    const wrapper = document.createElement("div");
-    wrapper.style.display = "contents";
-    wrapper.append(dom);
-    dom = wrapper;
-  }
   return {
-    dom,
+    dom: frame?.dom ?? fallback,
     contentDOM: frame?.slot ?? fallback,
     destroy: frame?.destroy?.bind(frame),
     update(node) {
@@ -59,6 +56,10 @@ function createFrameView(
         return frame.update(nodeToBlock(node, props.view.state.doc)) !== false;
       }
       // Declined frames must also be reconsidered when their block changes.
+      // TODO: move this rule into the outer node view's `update`. It compares
+      // against `props.node`, the node the view was created with, and
+      // `node.eq` compares the whole subtree, so a declined frame (and a
+      // frame without `update`) rebuilds on every change, typing included.
       return !renderFrame || node.eq(props.node);
     },
   };
@@ -84,26 +85,6 @@ export function setBlockColorAttributes(
       element.removeAttribute(attribute);
     }
   }
-}
-
-/**
- * The element whose contents a `blockContainer` parses: the frame slot the
- * internal HTML serializer marks (`data-frame-slot-todo`), as the rest of a frame
- * is chrome, not document content. Otherwise the block element itself.
- *
- * TODO: containers mark the same region with `data-children-of`. Use one
- * marker once container boxes move into `renderFrame`.
- */
-function findFrameSlot(element: HTMLElement): HTMLElement {
-  for (const slot of element.querySelectorAll<HTMLElement>(
-    "[data-frame-slot-todo]",
-  )) {
-    // Skip the slots of nested blocks.
-    if (slot.closest("[data-node-type]") === element) {
-      return slot;
-    }
-  }
-  return element;
 }
 
 // Object containing all possible block attributes.
@@ -150,7 +131,10 @@ export const BlockContainer = Node.create<{
 
           return attrs;
         },
-        contentElement: (element) => findFrameSlot(element as HTMLElement),
+        // The frame's slot: the rest of a frame is chrome, not document
+        // content.
+        contentElement: (element) =>
+          findFrameSlot(element as HTMLElement) ?? (element as HTMLElement),
       },
       // Ignore `blockOuter` divs, but parse the `blockContainer` divs inside them.
       {
@@ -200,12 +184,10 @@ export const BlockContainer = Node.create<{
         dom: HTMLElement;
         contentDOM: HTMLElement;
       };
-      const frameView = createFrameView(
-        props,
-        editor,
-        contentDOM,
-        this.options.domAttributes?.blockContent || {},
-      );
+      const frameView = createFrameView(props, editor, contentDOM);
+      // TODO: a sentinel for "no frame"; goes away when `createFrameView`
+      // returns `undefined` without one. React frames always count as
+      // framed, as their node view handles a declined frame itself.
       const framed = frameView.dom !== contentDOM;
       if (framed) {
         contentDOM.appendChild(frameView.dom);

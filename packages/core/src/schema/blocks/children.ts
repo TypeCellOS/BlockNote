@@ -6,6 +6,12 @@ export const CHILD_CONTAINER_GROUP = "childContainer";
 
 export const BLOCK_GROUP_CHILD_GROUP = "blockGroupChild";
 
+// Naming: a "container" is a block declared `container: true`, whose own node
+// holds its child blocks. `blockContainer` is unrelated despite its name: it
+// is the node around every other block (its content node plus an optional
+// `blockGroup` of children). Its name is kept because it is stored in
+// documents.
+//
 // Whether `type` is a node that holds child blocks directly: a container
 // block's own node. A container is a child-holding node that is itself a
 // block; `blockGroup` also holds children but is not a block (it's regular

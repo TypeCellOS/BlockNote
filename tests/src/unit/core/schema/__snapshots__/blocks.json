@@ -18,7 +18,6 @@
       "node": null,
       "render": [Function],
       "renderFrame": [Function],
-      "toExternalHTML": [Function],
     },
   },
   "audio": {
@@ -136,8 +135,7 @@
         "selectable": true,
       },
       "node": null,
-      "render": [Function],
-      "toExternalHTML": [Function],
+      "renderFrame": [Function],
     },
   },
   "checkListItem": {
@@ -277,7 +275,6 @@
       "node": null,
       "parse": [Function],
       "render": [Function],
-      "toExternalHTML": [Function],
     },
   },
   "file": {
@@ -612,7 +609,6 @@
       },
       "node": null,
       "render": [Function],
-      "toExternalHTML": [Function],
     },
   },
   "simpleImage": {
@@ -662,7 +658,6 @@
       },
       "node": null,
       "render": [Function],
-      "toExternalHTML": [Function],
     },
   },
   "table": {

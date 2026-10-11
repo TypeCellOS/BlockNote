@@ -13,11 +13,11 @@ import { defaultBlockSpecs } from "../../../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { createBlockSpec } from "../../../../schema/blocks/createSpec.js";
 
-// The editor stays headless, so these blocks are never rendered. `render`
-// only has to exist for `createBlockSpec` to accept the spec.
+// The editor stays headless, so these blocks are never rendered.
+// `renderFrame` only has to exist for `createBlockSpec` to accept the spec.
 const container = (type: string, config: Record<string, unknown>) =>
   createBlockSpec({ type, propSchema: {}, ...config } as any, {
-    render: () => {
+    renderFrame: () => {
       throw new Error("not rendered in this suite");
     },
   })();

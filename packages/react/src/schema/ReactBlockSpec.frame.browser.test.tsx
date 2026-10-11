@@ -55,7 +55,7 @@ function createFrameSchema(content: "inline" | "plain") {
                 >
                   {clicks}
                 </button>
-                <div className="frame-body" ref={props.contentRef} />
+                <div className="frame-body" ref={props.slotRef} />
               </section>
             );
           },

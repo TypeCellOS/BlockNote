@@ -1,4 +1,5 @@
 import { Node as TiptapNode } from "@tiptap/core";
+import { DOMParser } from "@tiptap/pm/model";
 import { describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
@@ -6,7 +7,6 @@ import { defaultBlockSpecs } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { YAttributionMarksExtension } from "../../y/extensions/YAttributionMarks.js";
 import { createBlockConfig, createBlockSpec } from "../index.js";
-import { containerRootDOM } from "./createSpec.js";
 import { createBlockSpecFromTiptapNode } from "./internal.js";
 
 // A minimal "plain" content block WITHOUT a custom `parseContent`, so parsing
@@ -160,7 +160,6 @@ describe("block spec and node agreement", () => {
               }),
               type: "holder",
               content: "none",
-              container: true,
             },
             {},
           ),
@@ -170,39 +169,10 @@ describe("block spec and node agreement", () => {
   });
 });
 
-describe("containerRootDOM", () => {
-  const element = () => document.createElement("div");
-
-  it("returns the dom itself when it is an element", () => {
-    const dom = element();
-    expect(containerRootDOM({ dom })).toBe(dom);
-  });
-
-  it("unwraps a fragment wrapping exactly one element", () => {
-    const root = element();
-    const fragment = document.createDocumentFragment();
-    fragment.append(root);
-    expect(containerRootDOM({ dom: fragment })).toBe(root);
-  });
-
-  it("returns null for a fragment with no single element root", () => {
-    const empty = document.createDocumentFragment();
-    expect(containerRootDOM({ dom: empty })).toBeNull();
-
-    const multi = document.createDocumentFragment();
-    multi.append(element(), element());
-    expect(containerRootDOM({ dom: multi })).toBeNull();
-
-    const textOnly = document.createDocumentFragment();
-    textOnly.append(document.createTextNode("text"));
-    expect(containerRootDOM({ dom: textOnly })).toBeNull();
-  });
-});
-
 describe("container children parsing", () => {
-  const renderDiv = () => {
+  const frameDiv = () => {
     const dom = document.createElement("div");
-    return { dom, contentDOM: dom };
+    return { dom, slot: dom };
   };
 
   const MixedBox = createBlockSpec(
@@ -212,7 +182,7 @@ describe("container children parsing", () => {
       content: "none",
       container: true,
     },
-    { render: renderDiv },
+    { renderFrame: frameDiv },
   )();
 
   const createEditor = () =>
@@ -246,24 +216,20 @@ describe("container children parsing", () => {
   });
 });
 
-describe("container render contract", () => {
+describe("render hooks contract", () => {
   const renderDiv = () => {
     const dom = document.createElement("div");
     return { dom, contentDOM: dom };
   };
+  const frameDiv = () => {
+    const dom = document.createElement("div");
+    return { dom, slot: dom };
+  };
 
-  const createEditorWith = (spec: any) =>
-    BlockNoteEditor.create({
-      schema: BlockNoteSchema.create({
-        blockSpecs: { ...defaultBlockSpecs, probed: spec },
-      }),
-    });
-
-  it("rejects a container declaring neither render nor renderFrame", () => {
+  it("rejects a block declaring neither render nor renderFrame", () => {
     expect(() =>
       createBlockSpec(
         {
-          // @ts-expect-error render is required on every block.
           type: "probed" as const,
           propSchema: {},
           content: "none" as const,
@@ -271,91 +237,89 @@ describe("container render contract", () => {
         },
         {},
       )(),
+    ).toThrow(/must declare `renderFrame`/);
+  });
+
+  it("rejects renderFrame alone on a block that is not a container", () => {
+    // A block with content draws it in `render`.
+    expect(() =>
+      createBlockSpec(
+        {
+          type: "probed" as const,
+          propSchema: {},
+          content: "inline" as const,
+        },
+        { renderFrame: frameDiv },
+      )(),
     ).toThrow(/must declare `render`/);
   });
 
-  it("rejects renderFrame alone on a block that is not a pure container", () => {
-    // A regular block always renders through `render`.
+  it("rejects render on a container, which has no content to draw", () => {
     expect(() =>
       createBlockSpec(
         {
-          // @ts-expect-error render is required on every block.
-          type: "probed" as const,
+          type: "probed",
           propSchema: {},
-          content: "inline" as const,
-        },
-        {
-          renderFrame: () => {
-            const dom = document.createElement("div");
-            return { dom, slot: dom };
-          },
-        },
-      )(),
-    ).toThrow(/must declare `render`/);
-
-    // A titled block needs its title row: `renderFrame` alone is not enough.
-    expect(() =>
-      createBlockSpec(
-        {
-          // @ts-expect-error render is required on every block.
-          type: "probed" as const,
-          propSchema: {},
-          content: "inline" as const,
+          content: "none",
           container: true,
         },
-        {
-          renderFrame: () => {
-            const dom = document.createElement("div");
-            return { dom, slot: dom };
-          },
-        },
+        { render: renderDiv, renderFrame: frameDiv },
       )(),
-    ).toThrow(/must declare `render`/);
+    ).toThrow(/has no content for `render` to draw/);
   });
 
-  it("rejects framing a pure container, whose render already owns its box", () => {
-    const framed = createBlockSpec(
+  it("rejects a container frame that declines", () => {
+    const declining = createBlockSpec(
       {
         type: "probed",
         propSchema: {},
         content: "none",
         container: true,
       },
-      {
-        render: renderDiv,
-        renderFrame: () => {
-          const dom = document.createElement("div");
-          return { dom, slot: dom };
-        },
-      },
+      { renderFrame: () => undefined },
     )();
-    expect(() => createEditorWith(framed)).toThrow(
-      /requires a separate content node/,
+    const editor = BlockNoteEditor.create({
+      schema: BlockNoteSchema.create({
+        blockSpecs: { ...defaultBlockSpecs, probed: declining },
+      }),
+    });
+    expect(() => editor.blocksToHTMLLossy([{ type: "probed" } as any])).toThrow(
+      /must draw its frame/,
     );
+    editor._tiptapEditor.destroy();
   });
 });
 
-it("scopes external container parsing to childrenDOM", () => {
+it("exports a container like a regular block, parsing back through its own parse", () => {
   const box = createBlockSpec(
     {
       type: "box",
-      propSchema: {},
+      propSchema: { tone: { default: "plain" } },
       content: "none",
       container: true,
     },
     {
-      render() {
+      renderFrame() {
         const dom = document.createElement("div");
-        return { dom, contentDOM: dom };
+        return { dom, slot: dom };
       },
       toExternalHTML() {
         const dom = document.createElement("div");
+        dom.className = "box";
         const label = document.createElement("button");
         label.textContent = "Control label";
         const childrenDOM = document.createElement("div");
+        childrenDOM.className = "box-children";
         dom.append(label, childrenDOM);
         return { dom, childrenDOM };
       },
+      // External HTML has no BlockNote markers, so the block recognizes its
+      // own export, and reads its children from where it placed them.
+      parse: (el) => (el.classList.contains("box") ? {} : undefined),
+      parseContent: ({ el, schema }) =>
+        DOMParser.fromSchema(schema).parse(el.querySelector(".box-children")!, {
+          topNode: schema.nodes["blockGroup"].create(),
+        }).content,
     },
   )();
   const editor = BlockNoteEditor.create({
@@ -363,15 +327,23 @@ it("scopes external container parsing to childrenDOM", () => {
       blockSpecs: { ...defaultBlockSpecs, box },
     }),
     initialContent: [
-      { type: "box", children: [{ type: "paragraph", content: "Body" }] },
+      {
+        type: "box",
+        props: { tone: "loud" },
+        children: [{ type: "paragraph", content: "Body" }],
+      },
     ],
   });
   try {
     const html = editor.blocksToHTMLLossy(editor.document);
-    expect(html).toContain('data-children-of="box"');
+    expect(html).not.toContain("data-node-type");
+    expect(html).not.toContain("data-frame-slot");
+    expect(html).not.toContain("data-id");
+    expect(html).toContain('data-tone="loud"');
     const parsed = editor.tryParseHTMLToBlocks(html);
     expect(parsed).toHaveLength(1);
     expect(parsed[0].type).toBe("box");
+    expect(parsed[0].props).toEqual({ tone: "loud" });
     expect(parsed[0].children).toHaveLength(1);
     expect(parsed[0].children[0].content).toEqual([
       { type: "text", text: "Body", styles: {} },

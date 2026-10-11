@@ -476,9 +476,9 @@ describe("repair edge cases", () => {
       children: { allow: ["callout"], min: 0 },
     },
     {
-      render: () => {
+      renderFrame: () => {
         const dom = document.createElement("div");
-        return { dom, contentDOM: dom };
+        return { dom, slot: dom };
       },
     },
   )();
