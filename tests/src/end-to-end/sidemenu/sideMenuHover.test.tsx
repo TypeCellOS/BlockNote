@@ -2,6 +2,7 @@ import {
   BlockNoteEditor,
   BlockNoteSchema,
   type PartialBlock,
+  defaultBlockSpecs,
 } from "@blocknote/core";
 import {
   SideMenuExtension,
@@ -10,7 +11,7 @@ import {
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { useCreateBlockNote } from "@blocknote/react";
+import { createReactBlockSpec, useCreateBlockNote } from "@blocknote/react";
 import {
   multiColumnDropCursor,
   withMultiColumn,
@@ -29,9 +30,8 @@ import { sleep, waitForSelector } from "../../utils/editor.js";
 import { getRect, mouseSequence } from "../../utils/mouse.js";
 
 // How the side menu follows the pointer: which block it shows for, and
-// whether it shows at all. The `known issue` tests describe the wanted
-// behavior and are marked `test.fails` until a fix lands; a fix flips them to
-// `test`. The other tests guard behavior that works today.
+// whether it shows at all. A test that no implementation can pass is marked
+// `test.fails`, with the reason. The other tests guard behavior that works today.
 
 const schema = withMultiColumn(BlockNoteSchema.create());
 type Editor = BlockNoteEditor<
@@ -65,7 +65,7 @@ function Editor(props: {
 afterEach(async () => {
   // Moves the pointer away so the next test starts without a menu.
   await mouseSequence([{ type: "move", x: 1, y: 1 }]);
-  cleanup();
+  await cleanup();
   for (const name of Object.keys(editors)) {
     delete editors[name];
   }
@@ -479,7 +479,9 @@ describe("side menu hover: pointer input", () => {
     expect(menuBlock()).toBe("a");
     // Above the test frame: the frame's document gets a `mouseout` without
     // a `relatedTarget`.
-    await walk([{ x: rect.x + 6, y: -20 }], 4);
+    // One move: no `mousemove` above the editor, only the `mouseout` when
+    // the pointer leaves the page.
+    await walk([{ x: rect.x + 6, y: -20 }], 1);
     expect(menuBlock()).toBeUndefined();
   });
 
@@ -907,5 +909,95 @@ describe("side menu hover: elements over the editor", () => {
     // On the uncovered part of "b".
     await walk([{ x: b.x + 20, y: b.y + b.height / 2 }]);
     expect(menuBlock()).toBe("b");
+  });
+});
+
+describe("side menu hover: regressions against main", () => {
+  // The "+" of a block in column two is over column one. Clicking it inserts
+  // a block (a document change) while the pointer rests on it: the menu must
+  // stay on its block, so a second click adds another block to column two.
+  test("keeps the menu on a column-two block when its add button is clicked", async () => {
+    await render(<Editor name="main" content={columnsDocument} />);
+    await waitForSelector(".bn-editor");
+
+    await hoverBlock("c2");
+    const add = getRect(await waitForSelector(DRAG_HANDLE_ADD_SELECTOR));
+    const point = { x: add.x + add.width / 2, y: add.y + add.height / 2 };
+    await walk([point]);
+    expect(menuBlock()).toBe("c2");
+
+    await mouseSequence([{ type: "click", ...point }]);
+    await sleep(150);
+    expect(menuBlock()).toBe("c2");
+    await mouseSequence([{ type: "click", ...point }]);
+    await sleep(150);
+
+    const column = editors.main.getBlock("col-2")!;
+    expect(column.children[0].id).toBe("c2");
+    expect(column.children).toHaveLength(3);
+  });
+
+  // A block that embeds another editor: the gutter of the outer editor, level
+  // with the embedded editor's blocks, shows the outer block's menu.
+  test("shows the menu of a block with a nested editor from the outer gutter", async () => {
+    const Nested = createReactBlockSpec(
+      { type: "nested" as const, propSchema: {}, content: "none" },
+      {
+        render: function NestedEditor() {
+          const inner = useCreateBlockNote({
+            initialContent: [
+              { id: "i1", type: "paragraph", content: "Inner one" },
+              { id: "i2", type: "paragraph", content: "Inner two" },
+            ],
+          });
+          return (
+            <div style={{ border: "1px solid gray" }} data-nested-editor>
+              <BlockNoteView editor={inner} />
+            </div>
+          );
+        },
+      },
+    )();
+    const nestedSchema = BlockNoteSchema.create({
+      blockSpecs: { ...defaultBlockSpecs, nested: Nested },
+    });
+    let outer: BlockNoteEditor<any, any, any> | undefined;
+    function Outer() {
+      const editor = useCreateBlockNote({
+        schema: nestedSchema,
+        initialContent: [
+          paragraph("a"),
+          { id: "n", type: "nested" } as PartialBlock<any, any, any>,
+          paragraph("b"),
+        ],
+      });
+      outer = editor;
+      return (
+        <div data-editor-name="outer" style={{ width: 700 }}>
+          <BlockNoteView editor={editor} />
+        </div>
+      );
+    }
+    await render(<Outer />);
+    await waitForSelector("[data-nested-editor] .bn-editor");
+    await sleep(100);
+
+    const outerEditor = document
+      .querySelector('[data-editor-name="outer"] .bn-editor')!
+      .getBoundingClientRect();
+    const inner = document
+      .querySelector(
+        '[data-nested-editor] .bn-block[data-id="i1"] .bn-block-content',
+      )!
+      .getBoundingClientRect();
+    const y = inner.y + inner.height / 2;
+    // The left gutter and the right padding of the outer editor, each reached
+    // in one move from outside the editor.
+    for (const x of [outerEditor.left + 20, outerEditor.right - 10]) {
+      await walk([{ x: 1, y: 1 }]);
+      await walk([{ x, y }], 1);
+      const state = outer!.getExtension(SideMenuExtension)?.store.state;
+      expect(state?.show ? state.block.id : undefined).toBe("n");
+    }
   });
 });

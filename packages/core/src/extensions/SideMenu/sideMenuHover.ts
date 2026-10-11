@@ -26,11 +26,14 @@ function clamp(value: number, min: number, max: number) {
 /** Returns the block of this editor at a visible point, if there is one. */
 function getBlockAtPoint(view: EditorView, point: Point) {
   for (const element of view.root.elementsFromPoint(point.x, point.y)) {
-    if (!view.dom.contains(element)) {
-      // UI painted over the blocks, e.g. a toolbar: look below it.
-      continue;
+    // Skips UI painted over the blocks (e.g. a toolbar), and the blocks of an
+    // editor nested in one of ours: looks below them.
+    const block = view.dom.contains(element)
+      ? getBlockFromElement(element, view)
+      : undefined;
+    if (block) {
+      return block;
     }
-    return getBlockFromElement(element, view);
   }
   return undefined;
 }

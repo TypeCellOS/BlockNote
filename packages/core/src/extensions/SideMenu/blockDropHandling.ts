@@ -61,9 +61,11 @@ function findDropEditor(view: EditorView, event: DragEvent) {
 }
 
 /**
- * Drag & drop between blocks and between editors. Moved unchanged from the
+ * Drag & drop between blocks and between editors. Moved from the
  * former `SideMenuView` class into listeners bound to the extension's mount
- * signal. `isDragOrigin` reports whether a side menu drag started in this
+ * signal. It changes two things: where
+ * editors overlap, the editor under the drag event wins (see
+ * `findDropEditor`), and the drag data is parsed in an inert document. `isDragOrigin` reports whether a side menu drag started in this
  * editor. A drop outside every editor but within `dropMargin` (px) of this
  * one goes into this editor.
  */

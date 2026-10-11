@@ -220,21 +220,38 @@ export const SideMenuExtension = createExtension(
     }
 
     /**
-     * Re-resolves the block for the last pointer position, without intent. The
-     * pointer may rest on the menu (e.g. after clicking one of its buttons), so
-     * this looks past the menu at what is underneath: after a document change,
-     * that can be another block, e.g. the one below a removed block, which moved
-     * up into its place.
+     * Re-resolves the block for the last pointer position, without intent,
+     * e.g. after a document change. If the pointer is on the menu (e.g. it
+     * clicked a menu button), this resolves just right of the menu instead:
+     * the menu is next to its block, so that point is on the line of the block,
+     * in its column. The pointer itself can be over another block, e.g. the
+     * "+" of a block in a column is over the column to its left. If the block
+     * was removed, the block that moved up into its place takes over.
      */
     function refresh() {
       if (!pointer) {
         return;
       }
+      const view = editor.prosemirrorView;
+      const menu = menuElement?.isConnected
+        ? menuElement.getBoundingClientRect()
+        : undefined;
+      const onMenu =
+        menu !== undefined &&
+        pointer.x >= menu.left &&
+        pointer.x <= menu.right &&
+        pointer.y >= menu.top &&
+        pointer.y <= menu.bottom;
+      const point = onMenu ? { x: menu.right + 1, y: pointer.y } : pointer;
+      // Looks past other UI of the editor at what is underneath.
       const target =
-        editor.prosemirrorView.root
-          .elementsFromPoint(pointer.x, pointer.y)
-          .find((element) => !menuElement?.contains(element)) ?? null;
-      update(pointer, target, false);
+        view.root
+          .elementsFromPoint(point.x, point.y)
+          .find(
+            (element) =>
+              view.dom.contains(element) || !editor.isWithinEditor(element),
+          ) ?? null;
+      update(point, target, false);
     }
 
     return {

@@ -9,7 +9,7 @@ export const BLOCK_SELECTOR =
 export function getBlockFromElement(
   element: Element,
   view: Pick<EditorView, "dom">,
-): { node: HTMLElement; id: string; type: string } | undefined {
+): { node: HTMLElement; id: string } | undefined {
   if (!view.dom.contains(element)) {
     return undefined;
   }
@@ -25,27 +25,10 @@ export function getBlockFromElement(
   }
 
   const id = node.getAttribute("data-id");
-  const nodeType = node.getAttribute("data-node-type");
-  // The regular block's own content precedes its nested blockGroup, even
-  // when a renderFrame adds chrome around it.
-  const type =
-    nodeType === "blockContainer"
-      ? node
-          .querySelector("[data-content-type]")
-          ?.getAttribute("data-content-type")
-      : nodeType;
-  // A matched block root must expose its own identity. Validate this at the
-  // DOM boundary so callers never need casts or non-null assertions.
   const HTMLElementClass = node.ownerDocument.defaultView?.HTMLElement;
-  if (
-    !HTMLElementClass ||
-    !(node instanceof HTMLElementClass) ||
-    !id ||
-    !type
-  ) {
-    throw new Error(
-      "Block root is missing its HTML element, ID, or block type.",
-    );
+  if (!id || !HTMLElementClass || !(node instanceof HTMLElementClass)) {
+    // E.g. a custom block from a hand-written node that renders no ID.
+    return undefined;
   }
-  return { node, id, type };
+  return { node, id };
 }

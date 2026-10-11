@@ -54,7 +54,7 @@ function Overlapping(props: { bottomEditable: boolean }) {
 
 afterEach(async () => {
   await mouseSequence([{ type: "move", x: 1, y: 1 }]);
-  cleanup();
+  await cleanup();
 });
 
 function menuBlock(name: string): string | undefined {

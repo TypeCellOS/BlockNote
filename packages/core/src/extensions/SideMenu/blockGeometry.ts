@@ -1,9 +1,18 @@
 import { BLOCK_SELECTOR } from "../blockDOM.js";
 
+/**
+ * Returns the child blocks of a block element: its nested blocks, or the
+ * children of a container. The blocks of an editor nested in the block are
+ * not its children: they belong to that editor.
+ */
 export function getDirectChildBlocks(container: Element): Element[] {
+  const editor = container.closest(".bn-editor");
   const children: Element[] = [];
   for (const child of container.querySelectorAll(BLOCK_SELECTOR)) {
-    if (child.parentElement?.closest(BLOCK_SELECTOR) === container) {
+    if (
+      child.parentElement?.closest(BLOCK_SELECTOR) === container &&
+      child.closest(".bn-editor") === editor
+    ) {
       children.push(child);
     }
   }
