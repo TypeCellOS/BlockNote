@@ -21,6 +21,7 @@ import {
 import {
   BlockChangeExtension,
   DropCursorOptions,
+  SideMenuOptions,
 } from "../extensions/index.js";
 import { UniqueID } from "../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
@@ -125,6 +126,13 @@ export interface BlockNoteEditorOptions<
    * @remarks `DropCursorOptions`
    */
   dropCursor?: DropCursorOptions;
+
+  /**
+   * Options for the side menu, the menu with the drag handle and "+" button
+   * next to the block under the mouse.
+   * @remarks `SideMenuOptions`
+   */
+  sideMenu?: SideMenuOptions;
 
   /**
    * The content that should be in the editor when it's created, represented as an array of {@link PartialBlock} objects.

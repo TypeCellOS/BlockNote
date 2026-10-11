@@ -17,6 +17,21 @@ async function doubleClickElement(element: Element) {
   await clickAt(x + width / 2, y + height / 2, 2);
 }
 
+/**
+ * Clicks the comment mark near its left edge. ProseMirror counts a click within
+ * 500ms and 10px of the previous one in the editor as a double/triple click
+ * (which skips `handleClick`, so no thread opens). The clicks on the comment
+ * UI in between happen outside the editor and don't reset that count, so
+ * clicking the centre right after double-clicking the word to select it is
+ * flaky.
+ */
+async function clickThreadMark() {
+  const { x, y, height } = getRect(
+    await waitForSelector("span.bn-thread-mark"),
+  );
+  await clickAt(x + 2, y + height / 2);
+}
+
 /** Resolves once exactly `count` elements match `selector`. */
 function expectSelectorCount(selector: string, count: number) {
   return vi.waitFor(() => {
@@ -90,7 +105,7 @@ describe("Check Comments functionality", () => {
 
     await userEvent.keyboard("{Enter}");
     await expectSelectorCount(".bn-thread", 0);
-    await userEvent.click(await waitForSelector("span.bn-thread-mark"));
+    await clickThreadMark();
     await expectSelectorCount(".bn-thread-comment", 1);
     expect(document.querySelector(".bn-thread-comment")?.textContent).toContain(
       "second line",
@@ -131,7 +146,7 @@ describe("Check Comments functionality", () => {
     // Wait for comment composer to close.
     await expectSelectorCount(".bn-thread", 0);
 
-    await userEvent.click(await waitForSelector("span.bn-thread-mark"));
+    await clickThreadMark();
     await expectElement(
       await waitForSelector(".bn-thread-comment"),
     ).toBeVisible();

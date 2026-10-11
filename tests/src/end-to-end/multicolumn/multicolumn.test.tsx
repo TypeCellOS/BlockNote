@@ -139,7 +139,7 @@ describe("Check Multi-Column Behaviour", () => {
 // Which block the side menu attaches to is resolved from live layout
 // (`elementsFromPoint` / `posAtCoords`); the geometry pieces below that are
 // unit-tested in `packages/core/src/extensions/SideMenu/
-// sideMenuContainerGeometry.browser.test.ts`. This tests the whole path,
+// blockGeometry.browser.test.ts`. This tests the whole path,
 // through a real column list. Columns have no drag handles themselves, but
 // hovering their gutter must still resolve the child on the hovered row.
 describe("Check side menu placement inside a column list", () => {

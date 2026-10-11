@@ -4,7 +4,6 @@ import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
 import { defaultBlockSpecs } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
-  CONTAINER_SELECTOR,
   getBlockFromElement,
   getDraggableBlockFromElement,
 } from "../../extensions/blockDOM.js";
@@ -273,7 +272,7 @@ it("honors a titled block's draggable flag through its regular block wrapper", (
     ).toBeUndefined();
     const block = getBlockFromElement(title, editor._tiptapEditor.view);
     expect(block).toMatchObject({ id: "locked", type: "contentFrame" });
-    expect(block?.node.matches(CONTAINER_SELECTOR)).toBe(false);
+    expect(block?.node.getAttribute("data-node-type")).toBe("blockContainer");
   } finally {
     editor._tiptapEditor.destroy();
   }

@@ -1,14 +1,4 @@
-import { BLOCK_SELECTOR } from "../blockDOM.js";
-
-export function getDirectChildBlocks(container: Element): Element[] {
-  const children: Element[] = [];
-  for (const child of container.querySelectorAll(BLOCK_SELECTOR)) {
-    if (child.parentElement?.closest(BLOCK_SELECTOR) === container) {
-      children.push(child);
-    }
-  }
-  return children;
-}
+import { BLOCK_SELECTOR, getDirectChildBlocks } from "../blockDOM.js";
 
 export type BlockRect = {
   top: number;
@@ -36,7 +26,14 @@ export function rectIndexAtCursor(
   return verticalMatch;
 }
 
-// Descend through child blocks, including regular blocks with padded frames.
+/**
+ * Returns the deepest block at the height of the pointer, from a block that
+ * contains it: the block itself, or one of its descendants at that height.
+ * The children of a block are below its own content (nested blocks) or fill
+ * it (a container), so the pointer on the block's own content stays on the
+ * block. The pointer in the indentation of nested blocks, or in the padding
+ * of a container beside a child, goes to the child at that height.
+ */
 export function getNestedBlockAtCursor(
   element: Element,
   mousePos: { x: number; y: number },
