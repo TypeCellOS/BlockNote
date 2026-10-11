@@ -4,9 +4,11 @@ exports[`concurrent: A merges B into A, B edits block B 1`] = `
 "<blockGroup>
   <blockContainer id="a">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
   <blockContainer id="b">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">Second</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -15,6 +17,7 @@ exports[`concurrent: A merges B into A, B edits block B 2`] = `
 "<blockGroup>
   <blockContainer id="a">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">FirstSecond</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -23,9 +26,11 @@ exports[`concurrent: A merges B into A, B edits block B 3`] = `
 "<blockGroup>
   <blockContainer id="a">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">First</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
   <blockContainer id="b">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">Second (edited)</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -34,6 +39,7 @@ exports[`concurrent: A merges B into A, B edits block B 4`] = `
 "<blockGroup>
   <blockContainer id="a">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">FirstSecond</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -72,6 +78,7 @@ exports[`concurrent: B splits the block, A types at the end 1`] = `
 "<blockGroup>
   <blockContainer id="p">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -80,6 +87,7 @@ exports[`concurrent: B splits the block, A types at the end 2`] = `
 "<blockGroup>
   <blockContainer id="p">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello world!</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -88,9 +96,11 @@ exports[`concurrent: B splits the block, A types at the end 3`] = `
 "<blockGroup>
   <blockContainer id="p">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
   <blockContainer id="0">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -99,9 +109,11 @@ exports[`concurrent: B splits the block, A types at the end 4`] = `
 "<blockGroup>
   <blockContainer id="p">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello !</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
   <blockContainer id="0">
     <paragraph backgroundColor="default" textAlignment="left" textColor="default">world</paragraph>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;

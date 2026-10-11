@@ -49,6 +49,7 @@ exports[`suggestion mode: add column 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -122,6 +123,7 @@ exports[`suggestion mode: add column 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -264,6 +266,7 @@ exports[`suggestion mode: add row 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -339,6 +342,7 @@ exports[`suggestion mode: add row 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -485,6 +489,7 @@ exports[`suggestion mode: change column background color 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -538,6 +543,7 @@ exports[`suggestion mode: change column background color 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -650,6 +656,7 @@ exports[`suggestion mode: merge two cells 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -703,6 +710,7 @@ exports[`suggestion mode: merge two cells 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -842,6 +850,7 @@ exports[`suggestion mode: remove column 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -875,6 +884,7 @@ exports[`suggestion mode: remove column 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -999,6 +1009,7 @@ exports[`suggestion mode: remove row 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1030,6 +1041,7 @@ exports[`suggestion mode: remove row 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1146,6 +1158,7 @@ exports[`suggestion mode: split a merged cell 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1199,6 +1212,7 @@ exports[`suggestion mode: split a merged cell 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1320,6 +1334,7 @@ exports[`suggestion mode: update text in cell 1`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;
@@ -1373,6 +1388,7 @@ exports[`suggestion mode: update text in cell 2`] = `
         </tableCell>
       </tableRow>
     </table>
+    <blockGroup></blockGroup>
   </blockContainer>
 </blockGroup>"
 `;

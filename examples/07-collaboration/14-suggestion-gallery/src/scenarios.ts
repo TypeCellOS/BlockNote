@@ -1039,7 +1039,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "low",
-        note: "N2 is lost. Indenting is a move, which deletes the original block and inserts a copy: B nests N2 into the original N1, which A's indent deletes, so N2 goes with it. Before nesting changes diffed in place, B's indent replaced N1 instead, so N1 appeared twice. Needs move support.",
+        note: "N2 is lost. Indenting is a move, which deletes the original block and inserts a copy: B nests N2 into the original N1, which A's indent deletes, so N2 goes with it (shown as deleted by B, whose indent deleted N2's own original). Before nesting changes diffed in place, B's indent replaced N1 instead, so N1 appeared twice. Needs move support.",
       },
     ],
     title: "Cascading indents",
@@ -1094,7 +1094,7 @@ export const scenarios: SuggestionScenario[] = [
     feedback: [
       {
         severity: "low",
-        note: "B1–B3 are lost. A's indent writes them into the original Q, which B's indent concurrently deletes (a move inserts a copy of Q, without them). Before nesting changes diffed in place, Q appeared twice instead. Needs move support.",
+        note: "B1–B3 are lost. A's indent writes them into the original Q, which B's indent concurrently deletes (a move inserts a copy of Q, without them); they show as deleted by A, whose indent deleted their originals. Before nesting changes diffed in place, Q appeared twice instead. Needs move support.",
       },
     ],
     title: "Nest blocks into a block that is moved",
