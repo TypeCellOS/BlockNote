@@ -10,13 +10,18 @@ function isSynthetic(event: Event): boolean {
 }
 
 /**
- * Finds the closest editor visually to the given coordinates.
+ * Finds the editor that a drag event is about, and the distance from the
+ * event to the blocks of that editor. If the event target is in an editor,
+ * that editor is the only candidate: where editors overlap, it is the editor
+ * on top. Otherwise, it is the editor closest to the event.
  */
-function findClosestEditorElement(
-  view: EditorView,
-  coords: { clientX: number; clientY: number },
-) {
-  const editors = Array.from(view.root.querySelectorAll(".bn-editor"));
+function findDropEditor(view: EditorView, event: DragEvent) {
+  const target =
+    event.target instanceof Element ? event.target.closest(".bn-editor") : null;
+  const editors = target
+    ? [target]
+    : Array.from(view.root.querySelectorAll(".bn-editor"));
+  const coords = event;
 
   if (editors.length === 0) {
     return null;
@@ -135,7 +140,7 @@ export function registerBlockDropHandlers(
     const isOrigin = textContentIsBeingDragged || sideMenuIsBeingDragged;
 
     // Tells us which editor instance is the closest to the drag event (whether or not it is actually reasonably close)
-    const closestEditor = findClosestEditorElement(view, event);
+    const closestEditor = findDropEditor(view, event);
 
     // We arbitrarily decide how far is "too far" from the closest editor to be considered a drop point
     if (!closestEditor || closestEditor.distance > dropMargin) {
