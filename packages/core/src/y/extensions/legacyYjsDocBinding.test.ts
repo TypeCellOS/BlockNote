@@ -458,8 +458,20 @@ describe("legacy Yjs document binding", () => {
     };
   }
 
+  // A nesting change is no longer a structural change: in both bindings'
+  // documents the persistent block group transformer shows it in place, as a
+  // move of the nested block.
+  it.each(structuralChanges.filter((c) => c.name === "a nesting change"))(
+    "diffs $name made with the old binding like one made with the new binding",
+    ({ blocks, change }) => {
+      const { current, old } = diffsOfBothBindings(blocks, change);
+      expect(current).not.toEqual([]);
+      expect(old).toEqual(current);
+    },
+  );
+
   // To be fixed by #3173.
-  it.fails.each(structuralChanges)(
+  it.fails.each(structuralChanges.filter((c) => c.name !== "a nesting change"))(
     "diffs $name made with the old binding like one made with the new binding",
     ({ blocks, change }) => {
       const { current, old } = diffsOfBothBindings(blocks, change);

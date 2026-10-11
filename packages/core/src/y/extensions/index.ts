@@ -132,6 +132,7 @@ export function withCollaboration<
 export * from "./AttributionExtension.js";
 export * from "./DiffVersioningExtension.js";
 export * from "./ForkYDoc.js";
+export * from "./persistentBlockGroups.js";
 export * from "./RelativePositionMapping.js";
 export * from "./Suggestions.js";
 export * from "./YAttributionMarks.js";

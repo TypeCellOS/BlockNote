@@ -23,24 +23,6 @@ const firstChild = (
   return null;
 };
 
-/**
- * Whether a `blockContainer` delta carries a child `blockGroup` — i.e. the block
- * has nested children. A container's content is `blockContent blockGroup?`, so
- * this is what tells a leaf block apart from a parent.
- */
-const hasBlockGroup = (d: schema.Unwrap<typeof $prosemirrorDelta>): boolean => {
-  for (const op of (d as any).children) {
-    if (delta.$insertOp.check(op)) {
-      for (const it of op.insert) {
-        if (delta.$deltaAny.check(it) && it.name === "blockGroup") {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-};
-
 function getTableDimensions(
   d: schema.Unwrap<typeof $prosemirrorDelta>,
 ): { rows: number; cols: number } | null {
@@ -132,6 +114,14 @@ function getTableDimensions(
  * keeps the same first-child type => same identity => the diff descends and
  * merges as usual.
  *
+ * A change in nesting is *not* an identity change: a container that gains or
+ * loses its child `blockGroup` is diffed in place. The persistent block group
+ * transformer (see persistentBlockGroups.ts) keeps every `blockGroup` in Y and
+ * routes the view's group insert into the container's existing group, so the
+ * in-place diff can never leave two groups in one container. Replacing the
+ * container instead would recreate the race the transformer removes (two users
+ * nesting a first child concurrently would each insert their own container).
+ *
  * @param a removed (old) node
  * @param b inserted (new) node
  * @returns whether `a` and `b` are the same node (diff in place) vs different (replace)
@@ -152,16 +142,6 @@ export const blockMatchNodes = (
   const childB = firstChild(b);
 
   if (childA?.name !== childB?.name) {
-    return false;
-  }
-
-  // A change in nesting is structural too: if one container gains or loses a
-  // child `blockGroup`, diffing it in place would insert/delete the blockGroup as
-  // a sibling of the block content inside a single container — schema-invalid.
-  // Treat it as different so the whole container is replaced instead, same as a
-  // content-type change. Keeps concurrent nesting merges (e.g. two users nesting
-  // a block under the same parent) from producing a lopsided in-place result.
-  if (hasBlockGroup(a) !== hasBlockGroup(b)) {
     return false;
   }
 

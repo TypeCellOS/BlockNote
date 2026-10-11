@@ -1,6 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
+import { pmnodeToDelta } from "@y/prosemirror";
 import * as Y from "@y/y";
 import { afterEach, describe, expect, it } from "vite-plus/test";
 
@@ -34,13 +35,26 @@ function collaborativeEditor(doc: Y.Doc): Editor {
   return editor;
 }
 
-/** Two users editing copies of `blocks`, synced on demand. */
-function twoUsers(blocks: any[]) {
+type Seeding = "persistent" | "legacy";
+
+/**
+ * Two users editing copies of `blocks`, synced on demand.
+ *
+ * `persistent` seeds the document as `blocksToYType` writes it today: every
+ * block has an (empty) `blockGroup` in Y. `legacy` writes the document as
+ * older clients did, without groups until the first nesting, so concurrent
+ * first nestings leave two groups in one container.
+ */
+function twoUsers(blocks: any[], seeding: Seeding = "persistent") {
   const docA = new Y.Doc({ gc: false });
   docA.clientID = 1;
   const seed = BlockNoteEditor.create();
   seed.replaceBlocks(seed.document, blocks);
-  blocksToYType(seed, seed.document, docA.get("doc"));
+  if (seeding === "persistent") {
+    blocksToYType(seed, seed.document, docA.get("doc"));
+  } else {
+    docA.get("doc").applyDelta(pmnodeToDelta(seed.prosemirrorState.doc));
+  }
   const docB = new Y.Doc({ gc: false });
   docB.clientID = 2;
   Y.applyUpdateV2(docB, Y.encodeStateAsUpdateV2(docA));
@@ -90,63 +104,118 @@ function groupsOf(doc: Y.Doc, id: string): number[] {
   return groups;
 }
 
-describe("concurrently created child groups", () => {
-  function nestedTwice() {
-    const users = twoUsers([
-      { id: "p", type: "paragraph", content: "P" },
-      { id: "x", type: "paragraph", content: "X" },
-    ]);
-    users.a.setTextCursorPosition("x");
-    users.a.nestBlock();
-    users.b.updateBlock("p", {
-      children: [{ id: "z", type: "paragraph", content: "Z" }],
+describe.each<{
+  seeding: Seeding;
+  /** p's groups after the concurrent first nesting, then after N is added, then after Z is removed */
+  groups: [number[], number[], number[]];
+}>([
+  // One group from the start: both users write into it.
+  { seeding: "persistent", groups: [[2], [3], [2]] },
+  // No group until the first nesting: each user creates one, the view merges
+  // them, and edits route back into the group that holds the child.
+  {
+    seeding: "legacy",
+    groups: [
+      [1, 1],
+      [2, 1],
+      [2, 0],
+    ],
+  },
+])(
+  "concurrently created child groups ($seeding document)",
+  ({ seeding, groups }) => {
+    function nestedTwice() {
+      const users = twoUsers(
+        [
+          { id: "p", type: "paragraph", content: "P" },
+          { id: "x", type: "paragraph", content: "X" },
+        ],
+        seeding,
+      );
+      users.a.setTextCursorPosition("x");
+      users.a.nestBlock();
+      users.b.updateBlock("p", {
+        children: [{ id: "z", type: "paragraph", content: "Z" }],
+      });
+      users.sync();
+      return users;
+    }
+
+    it("shows both children under one parent", () => {
+      const { a, b, docA } = nestedTwice();
+      expect(outline(a.document)).toBe("P{X, Z}");
+      expect(outline(b.document)).toBe("P{X, Z}");
+      // Y keeps every group; the view merges them.
+      expect(groupsOf(docA, "p")).toEqual(groups[0]);
     });
-    users.sync();
-    return users;
-  }
 
-  // To be fixed by #3168.
-  it.fails("shows both children under one parent", () => {
-    const { a, b, docA } = nestedTwice();
-    expect(outline(a.document)).toBe("P{X, Z}");
-    expect(outline(b.document)).toBe("P{X, Z}");
-    // Y keeps the two groups; only the view merges them.
-    expect(groupsOf(docA, "p")).toEqual([1, 1]);
-  });
+    it("reads both children outside the editor", () => {
+      const { docA } = nestedTwice();
+      expect(outline(yDocToBlocks(BlockNoteEditor.create(), docA, "doc"))).toBe(
+        "P{X, Z}",
+      );
+    });
 
-  // To be fixed by #3168.
-  it.fails("reads both children outside the editor", () => {
-    const { docA } = nestedTwice();
-    expect(outline(yDocToBlocks(BlockNoteEditor.create(), docA, "doc"))).toBe(
-      "P{X, Z}",
-    );
-  });
+    it("routes edits back to each child's own group", () => {
+      const users = nestedTwice();
+      users.a.setTextCursorPosition("z", "end");
+      users.a.insertInlineContent("!");
+      users.a.insertBlocks(
+        [{ id: "n", type: "paragraph", content: "N" }],
+        "x",
+        "after",
+      );
+      users.sync();
+      expect(outline(users.b.document)).toBe("P{X, N, Z!}");
+      expect(groupsOf(users.docA, "p")).toEqual(groups[1]);
 
-  // To be fixed by #3168.
-  it.fails("routes edits back to each child's own group", () => {
-    const users = nestedTwice();
-    users.a.setTextCursorPosition("z", "end");
-    users.a.insertInlineContent("!");
+      users.a.removeBlocks(["z"]);
+      users.sync();
+      expect(outline(users.b.document)).toBe("P{X, N}");
+      // The emptied group is kept, hidden.
+      expect(groupsOf(users.docA, "p")).toEqual(groups[2]);
+    });
+  },
+);
+
+describe("persistent child groups", () => {
+  it("gives a new block an empty group, hidden from the editor", () => {
+    const users = twoUsers([{ id: "p", type: "paragraph", content: "P" }]);
+    expect(groupsOf(users.docA, "p")).toEqual([0]);
     users.a.insertBlocks(
       [{ id: "n", type: "paragraph", content: "N" }],
-      "x",
+      "p",
       "after",
     );
     users.sync();
-    expect(outline(users.b.document)).toBe("P{X, N, Z!}");
-    expect(groupsOf(users.docA, "p")).toEqual([2, 1]);
+    expect(groupsOf(users.docA, "n")).toEqual([0]);
+    expect(outline(users.b.document)).toBe("P, N");
+    expect(users.b.getBlock("n")?.children).toEqual([]);
+  });
 
-    users.a.removeBlocks(["z"]);
+  it("gives a legacy block no group until something is nested under it", () => {
+    const users = twoUsers(
+      [
+        { id: "p", type: "paragraph", content: "P" },
+        { id: "x", type: "paragraph", content: "X" },
+      ],
+      "legacy",
+    );
+    expect(groupsOf(users.docA, "p")).toEqual([]);
+    users.a.setTextCursorPosition("p", "end");
+    users.a.insertInlineContent("!");
     users.sync();
-    expect(outline(users.b.document)).toBe("P{X, N}");
-    // The emptied group is kept, hidden.
-    expect(groupsOf(users.docA, "p")).toEqual([2, 0]);
+    expect(groupsOf(users.docA, "p")).toEqual([]);
+    users.b.setTextCursorPosition("x");
+    users.b.nestBlock();
+    users.sync();
+    expect(groupsOf(users.docA, "p")).toEqual([1]);
+    expect(outline(users.a.document)).toBe("P!{X}");
   });
 });
 
 describe("emptied child groups", () => {
-  // To be fixed by #3168.
-  it.fails("keeps a child added while another user removes the last one", () => {
+  it("keeps a child added while another user removes the last one", () => {
     const users = twoUsers([
       {
         id: "p",
@@ -166,8 +235,7 @@ describe("emptied child groups", () => {
     expect(outline(users.b.document)).toBe("P{D}");
   });
 
-  // To be fixed by #3168.
-  it.fails("reuses a hidden group when nesting again", () => {
+  it("reuses a hidden group when nesting again", () => {
     const users = twoUsers([
       {
         id: "p",

@@ -503,15 +503,15 @@ describe("version diff of a type change", () => {
       after,
       server.attributions,
     );
+    // The `blockGroup` wrapper carries no attribution of its own (it is
+    // persistent and shared); its children do.
     expect(changes.filter((change) => change.startsWith("insert <"))).toEqual([
       "insert <blockContainer>: bob",
       "insert <heading>: bob",
-      "insert <blockGroup>: bob",
       "insert <blockContainer>: bob",
       "insert <paragraph>: bob",
       "insert <blockContainer>: carol",
       "insert <bulletListItem>: carol",
-      "insert <blockGroup>: carol",
       "insert <blockContainer>: carol",
       "insert <paragraph>: carol",
     ]);
@@ -631,9 +631,10 @@ describe("version diff of a type change", () => {
     expect(struck).toEqual(["ParentChild"]);
   });
 
-  it("shows a block that lost content as deleted and inserted, not as a copy", () => {
-    // Deleting the only child re-creates the parent without it: the child
-    // is lost, so the parent isn't shown as an unchanged copy.
+  it("shows only the child as deleted when the last child is removed", () => {
+    // Deleting the only child leaves the parent in place: its (now empty)
+    // child group stays in the document, hidden, so nothing re-creates the
+    // parent.
     const base = blocks();
     const server = history(base);
     const after = server.apply(
@@ -645,12 +646,7 @@ describe("version diff of a type change", () => {
       after,
       server.attributions,
     );
-    expect(changes).toEqual([
-      "delete <blockContainer>: bob",
-      "insert <blockContainer>: bob",
-      "insert <paragraph>: bob",
-      "insert Parent text: bob",
-    ]);
+    expect(changes).toEqual(["delete <blockContainer>: bob"]);
   });
 
   // To be fixed by #3166.

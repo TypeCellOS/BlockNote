@@ -1,8 +1,6 @@
 import {
   defaultTransformer,
-  deltaToPNode,
   deltaToPSteps,
-  docToDelta,
   nodeToDelta,
   pmnodeToDelta,
   ynodeToPmnode,
@@ -21,9 +19,24 @@ import {
   docToBlocks,
 } from "../index.js";
 import { blockMatchNodes } from "./extensions/blockMatchNodes.js";
+import { persistentBlockGroups } from "./extensions/persistentBlockGroups.js";
 import { mapAttributionToMark } from "./extensions/YSync.js";
 
 import * as Y from "@y/y";
+
+/**
+ * The Y ⇄ ProseMirror pipeline of the collaboration binding (see
+ * `YSyncExtension`): attributions become `y-attributed-*` marks and nested
+ * `blockGroup`s are persistent (kept in Y, hidden while empty, merged in the
+ * view). Every conversion outside a bound editor goes through the same
+ * pipeline, so a document imported with `blocksToYDoc` gets its groups and one
+ * read with `yDocToBlocks` hides the empty ones.
+ */
+export const blockNoteTransformer: ReturnType<typeof defaultTransformer> =
+  defaultTransformer({
+    mapAttributionToMark,
+    transformers: [persistentBlockGroups],
+  });
 
 /**
  * Find the equivalent of a Y.Node in another Y.Doc.
@@ -212,12 +225,15 @@ export function yfragmentToBlocks<
   // A fragment without block containers holds no blocks — e.g. one written
   // by an older `blocksToYDoc([])` (which used to write a childless block
   // group). Returning early avoids materializing the schema filler paragraph
-  // in `deltaToPNode` below, whose id would be freshly minted on every
+  // in `ynodeToPmnode` below, whose id would be freshly minted on every
   // read — making empty docs unstable.
   if (!deltaHasBlockContainer(delta)) {
     return [];
   }
-  const pmNode = deltaToPNode(delta, editor.pmSchema, null);
+  const pmNode = ynodeToPmnode(fragment, editor.pmSchema, {
+    renderer: null,
+    transformer: blockNoteTransformer,
+  });
   return docToBlocks<BSchema, ISchema, SSchema>(pmNode);
 }
 
@@ -254,7 +270,11 @@ export function blocksToYType<
   if (blocks.length === 0) {
     return fragment;
   }
-  fragment.applyDelta(pmnodeToDelta(_blocksToProsemirrorNode(editor, blocks)));
+  fragment.applyDelta(
+    pmnodeToDelta(_blocksToProsemirrorNode(editor, blocks), {
+      transformer: blockNoteTransformer,
+    }),
+  );
   return fragment;
 }
 
@@ -302,7 +322,9 @@ export function blocksToYDoc<
     doc.get(fragment);
     return doc;
   }
-  const delta = docToDelta(_blocksToProsemirrorNode(editor, blocks));
+  const delta = pmnodeToDelta(_blocksToProsemirrorNode(editor, blocks), {
+    transformer: blockNoteTransformer,
+  });
   doc.get(fragment).applyDelta(delta);
   return doc;
 }
@@ -324,8 +346,9 @@ export function docDiffToDelta(previousDoc: Node, newDoc: Node) {
  * Append steps that render a Y node into the transaction's current document.
  * Supports both plain and already-attributed documents, replacing old preview
  * marks with the renderer's attributions using BlockNote's node-pairing policy.
- * Defaults to BlockNote's attribution transformer. Does not dispatch or write
- * to the Y node; the caller controls sync configuration and dispatch.
+ * Defaults to the binding's pipeline ({@link blockNoteTransformer}). Does not
+ * dispatch or write to the Y node; the caller controls sync configuration and
+ * dispatch.
  */
 export function yNodeToTransaction(
   tr: Transaction,
@@ -333,7 +356,7 @@ export function yNodeToTransaction(
   options: NonNullable<Parameters<typeof ynodeToPmnode>[2]> = {},
 ): Transaction {
   const renderedDoc = ynodeToPmnode(node, tr.doc.type.schema, {
-    transformer: defaultTransformer({ mapAttributionToMark }),
+    transformer: blockNoteTransformer,
     ...options,
   });
   const renderedDelta = docDiffToDelta(tr.doc, renderedDoc);
