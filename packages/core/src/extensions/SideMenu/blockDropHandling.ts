@@ -194,8 +194,13 @@ export function registerBlockDropHandlers(
       return;
     }
 
-    const element = document.createElement("div");
-    element.innerHTML = html;
+    // Parsed in an inert document: unlike an element of the page, it does not
+    // load resources or run event handlers in the HTML.
+    const window = view.dom.ownerDocument.defaultView ?? globalThis.window;
+    const element = new window.DOMParser().parseFromString(
+      html,
+      "text/html",
+    ).body;
 
     const parser = DOMParser.fromSchema(view.state.schema);
     const node = parser.parse(element, {
