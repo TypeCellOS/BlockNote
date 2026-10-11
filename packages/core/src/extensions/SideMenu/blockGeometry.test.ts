@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 
-import {
-  rectIndexAtCursor,
-  type BlockRect,
-} from "./sideMenuContainerGeometry.js";
+import { rectIndexAtCursor, type BlockRect } from "./blockGeometry.js";
 
 // Hit testing works for both side-by-side and stacked children.
 
