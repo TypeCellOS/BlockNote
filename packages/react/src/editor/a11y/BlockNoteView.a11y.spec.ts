@@ -115,3 +115,46 @@ test.describe("text spacing and resizing", () => {
     );
   });
 });
+
+test("read-only editor: Tab reaches inline links and leaves the editor", async () => {
+  await openEditor(
+    [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "link",
+            href: "https://www.blocknotejs.org/",
+            content: "Documentation",
+          },
+        ],
+      },
+    ],
+    { editable: false },
+  );
+  const link = page.getByRole("link", { name: "Documentation", exact: true });
+  // The editor itself may be a tab stop; it must not trap focus before the link.
+  for (
+    let step = 0;
+    step < 3 && document.activeElement !== link.element();
+    step++
+  ) {
+    await pressKey("Tab");
+  }
+  await expect.element(link).toHaveFocus();
+  await pressKey("Tab");
+  await expect
+    .element(page.getByRole("button", { name: "After editor", exact: true }))
+    .toHaveFocus();
+  await pressKey("Shift+Tab");
+  await expect.element(link).toHaveFocus();
+});
+
+test.skip("read-only editor: Tab selects blocks that expose a formatting toolbar", async () => {
+  // TODO: Open a read-only document containing an image/file block between
+  // ordinary paragraphs. Tab from Before editor to select that block, assert
+  // the block selection and visible indicator, and continue to After editor.
+  // Repeat with Shift+Tab. Static paragraphs should not introduce tab stops.
+  // Blocks currently cannot be selected through the page's tab order; do not
+  // work around this by clicking or setting the selection through editor APIs.
+});

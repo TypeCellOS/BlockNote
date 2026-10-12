@@ -214,3 +214,13 @@ test("formatting toolbar: Create link", async () => {
     .toHaveAttribute("href", "https://www.blocknotejs.org/");
   await expect.element(page.getByRole("textbox")).toHaveFocus();
 });
+
+test.skip("read-only formatting toolbar: Tab selects a file block and reaches its actions", async () => {
+  // TODO: Open an editor with editable: false and a populated image/file block.
+  // Select the block with Tab, verify its formatting toolbar opens, then Tab
+  // to the read-only action (e.g. Download file) and activate it with Enter.
+  // Verify the resulting file action, focus indicator, and continued Tab
+  // navigation to After editor. Editing actions must not be offered.
+  // This is blocked by file/media blocks not being selectable with Tab.
+  // Keep the setup keyboard-only rather than forcing selection via an API.
+});

@@ -22,22 +22,36 @@ const browserCommands = commands as typeof commands & {
   stopReader(): Promise<void>;
 };
 
-function EditorFixture({ initialContent }: { initialContent: PartialBlock[] }) {
+function EditorFixture({
+  initialContent,
+  editable,
+}: {
+  initialContent: PartialBlock[];
+  editable: boolean;
+}) {
   const editor = useCreateBlockNote({ initialContent });
   return (
     <main style={{ maxWidth: 900, margin: "80px auto", padding: 24 }}>
       <h1>BlockNote accessibility fixture</h1>
       <button type="button">Before editor</button>
-      <BlockNoteView editor={editor} theme="light" />
+      <BlockNoteView editor={editor} theme="light" editable={editable} />
       <button type="button">After editor</button>
     </main>
   );
 }
 
-export async function openEditor(initialContent: PartialBlock[]) {
+export async function openEditor(
+  initialContent: PartialBlock[],
+  { editable = true }: { editable?: boolean } = {},
+) {
   await page.viewport(1280, 900);
-  await render(<EditorFixture initialContent={initialContent} />);
+  await render(
+    <EditorFixture initialContent={initialContent} editable={editable} />,
+  );
   await expect.element(page.getByRole("textbox")).toBeVisible();
+  await expect
+    .element(page.getByRole("textbox"))
+    .toHaveAttribute("contenteditable", String(editable));
   await document.fonts.ready;
   if (screenReader) {
     await browserCommands.startReader();
