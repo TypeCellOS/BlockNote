@@ -112,8 +112,8 @@
 }
 
 /* A frame's root is the block's element (a container's, or a block's in
-   place of `.bn-block`), so the wrapper React needs around it must not be a
-   box of its own. */
+   place of `.bn-block-outer` and `.bn-block`), so the wrapper React needs
+   around it must not be a box of its own. */
 .bn-react-node-view-renderer.bn-container-node-view {
   display: contents;
 }

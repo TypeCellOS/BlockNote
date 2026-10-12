@@ -24,7 +24,7 @@ import {
   containerNodePriority,
 } from "./children.js";
 import { applyDataAttributes } from "../dataAttributes.js";
-import { blockFrameView, findFrameSlot, frameNodeViewHooks } from "./frame.js";
+import { findFrameSlot, frameNodeView } from "./frame.js";
 import {
   applyDOMAttributes,
   getBlockFromNodeView,
@@ -237,42 +237,6 @@ type ResolvedBlockImplementation<
   meta: ResolvedBlockConfigMeta<TName, TProps>;
 };
 
-/** A container's node view: its frame. */
-function containerNodeView<
-  TName extends string,
-  TProps extends PropSchema,
-  TContent extends "inline" | "none" | "table" | "plain",
->(
-  blockImplementation: ResolvedBlockImplementation<TName, TProps, TContent>,
-  props: NodeViewRendererProps,
-): NodeView {
-  // React draws its own frame and stamps it; core stamps a vanilla one.
-  const frame = blockFrameView({
-    props,
-    editor: props.extension.options.editor,
-    blockNode: (node) => node,
-  });
-  const nodeView: NodeView = {
-    dom: frame.dom,
-    contentDOM: frame.slot,
-    update(node, decorations, innerDecorations) {
-      if (node.attrs.id !== frame.node.attrs.id) {
-        // ProseMirror offers a view whose node is gone to the next node of
-        // the same type. Return `false`: the frame shows another block, so
-        // draw this block's own frame.
-        return false;
-      }
-      // The same block. Return the frame's answer: `true` keeps it.
-      return frame.update(node, decorations, innerDecorations);
-    },
-    ...frameNodeViewHooks(frame),
-  };
-  if (!blockImplementation.meta.selectable) {
-    applyNonSelectableBlockFix(nodeView, props.editor);
-  }
-  return nodeView;
-}
-
 function blockNodeView<
   TName extends string,
   TProps extends PropSchema,
@@ -283,7 +247,16 @@ function blockNodeView<
   props: NodeViewRendererProps,
 ): NodeView {
   if (blockConfig.container === true) {
-    return containerNodeView(blockImplementation, props);
+    // A container is its frame.
+    const nodeView = frameNodeView({
+      props,
+      editor: props.extension.options.editor,
+      blockNode: (node) => node,
+    });
+    if (!blockImplementation.meta.selectable) {
+      applyNonSelectableBlockFix(nodeView, props.editor);
+    }
+    return nodeView;
   }
   const block = getBlockFromNodeView(
     props.getPos,

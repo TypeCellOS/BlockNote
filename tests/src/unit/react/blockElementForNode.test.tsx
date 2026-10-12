@@ -193,16 +193,15 @@ describe("getBlockElementForNode", () => {
           node.type.name,
         );
         if (node.type.name === "blockContainer") {
-          // A regular block's element is in its `.bn-block-outer` (React
-          // adds `display: contents` wrappers between them): the root of its
-          // frame, or else `.bn-block`.
+          // A regular block's element is the root of its frame, which is
+          // also its `.bn-block-outer`, or else `.bn-block` in the default
+          // frame's `.bn-block-outer`.
           const framed = framedBlocks.includes(id);
           expect(
-            element!
-              .parentElement!.closest(".bn-block-outer")!
-              .getAttribute("data-id"),
+            element!.closest(".bn-block-outer")!.getAttribute("data-id"),
             id,
           ).toBe(id);
+          expect(element!.matches(".bn-block-outer"), id).toBe(framed);
           expect(element!.matches(".bn-block"), id).toBe(!framed);
           expect(element!.matches("section, .bn-toggle-frame"), id).toBe(
             framed,

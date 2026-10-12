@@ -1,21 +1,17 @@
-import type { Node as PMNode } from "prosemirror-model";
+import { Mark, type Node as PMNode } from "prosemirror-model";
 import type { NodeViewRendererProps } from "@tiptap/core";
 import type {
   Decoration,
   DecorationSource,
+  NodeView,
   ViewMutationRecord,
 } from "prosemirror-view";
 
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { isDarkReaderMutation } from "../nodeViewMutations.js";
-import { applyContainerAttributes } from "./containerAttributes.js";
-import type { BlockConfig, BlockImplementation } from "./types.js";
-
-/** What a vanilla `renderFrame` returns when it draws a frame. */
-type VanillaFrame = NonNullable<
-  ReturnType<NonNullable<BlockImplementation["renderFrame"]>>
->;
+import { applyDataAttributes } from "../dataAttributes.js";
+import type { Props, PropSchema } from "../propTypes.js";
 
 /**
  * Marks the element of a frame (see `renderFrame`) where BlockNote mounts the
@@ -50,30 +46,68 @@ export function findFrameSlot(
   return undefined;
 }
 
+/** The block props whose colors `Block.css` applies to a block's children. */
+const BLOCK_COLORS = [
+  ["textColor", "data-text-color"],
+  ["backgroundColor", "data-background-color"],
+] as const;
+
+function isColorSet(value: unknown): value is string {
+  return typeof value === "string" && value !== "default";
+}
+
 /**
- * Stamps a container's frame with what its round-trip parse reads: the
- * block's attributes on the frame's root (the block's element), and the slot
- * marker. Whoever draws a container's frame stamps it.
+ * Puts a block's text and background color on its element, so they also
+ * apply to its children however deep a frame puts its content. Only these
+ * two props, which `Block.css` applies to a block's children.
  */
-export function stampContainerFrame(
-  blockConfig: BlockConfig<any, any, any>,
-  frame: { dom: HTMLElement; slot: HTMLElement },
-  block: any,
+function setBlockColorAttributes(
+  element: HTMLElement,
+  props: Record<string, unknown>,
 ) {
-  applyContainerAttributes(
-    frame.dom,
-    blockConfig.type,
-    block.props,
-    blockConfig.propSchema,
-    block.id,
+  for (const [prop, attribute] of BLOCK_COLORS) {
+    const value = props[prop];
+    if (isColorSet(value)) {
+      element.setAttribute(attribute, value);
+    } else {
+      element.removeAttribute(attribute);
+    }
+  }
+}
+
+/**
+ * Makes the root of a block's frame the block's element: the root gets what
+ * CSS and the parse rules read, and the slot gets its marker. A container's
+ * root gets all the props of the block as `data-*`. The root of another
+ * block replaces the default frame (`.bn-block-outer` and `.bn-block`), so it
+ * gets the class of `.bn-block-outer` and the colors of the block.
+ */
+export function stampFrame(
+  frame: { dom: HTMLElement; slot: HTMLElement },
+  block: { type: string; id?: string; props: Props<PropSchema> },
+  editor: BlockNoteEditor<any, any, any>,
+) {
+  const { config } = editor.blockImplementations[block.type];
+  if (config.container === true) {
+    applyDataAttributes(frame.dom, block.props, config.propSchema);
+  } else {
+    frame.dom.classList.add("bn-block-outer");
+    setBlockColorAttributes(frame.dom, block.props);
+  }
+  // The markers win when a prop maps to the same attribute.
+  frame.dom.setAttribute(
+    "data-node-type",
+    config.container === true ? block.type : "blockContainer",
   );
+  if (block.id) {
+    frame.dom.setAttribute("data-id", block.id);
+  }
   markFrameSlot(frame.slot);
 }
 
 /**
- * Draws a block's frame outside the editor (`renderType: "dom"`), as both
- * HTML serializers do. A container's frame comes stamped (see
- * `stampContainerFrame`).
+ * Draws a block's own frame outside the editor (`renderType: "dom"`), as both
+ * HTML serializers do, or returns `undefined` when the block has no frame.
  */
 export function renderFrameDOM(
   editor: BlockNoteEditor<any, any, any>,
@@ -89,23 +123,42 @@ export function renderFrameDOM(
     block,
     editor,
   );
-  if (spec.config.container === true) {
-    if (!frame) {
-      // A container is its frame: without one, nothing of it is left.
-      throw new Error(
-        `Container block "${block.type}" must draw its frame: \`renderFrame\` returned undefined.`,
-      );
-    }
-    stampContainerFrame(spec.config, frame, block);
+  if (!frame && spec.config.container === true) {
+    // A container is its frame: without one, nothing of it is left.
+    throw new Error(
+      `Container block "${block.type}" must draw its frame: \`renderFrame\` returned undefined.`,
+    );
   }
   return frame;
+}
+
+/**
+ * Draws a block's frame for internal HTML: its own frame, stamped, or the
+ * default frame of a block that has none (`.bn-block-outer` and `.bn-block`).
+ */
+export function blockFrameDOM(
+  editor: BlockNoteEditor<any, any, any>,
+  block: { type: string; id?: string; props: Props<PropSchema> },
+) {
+  const frame = renderFrameDOM(editor, block);
+  if (frame) {
+    stampFrame(frame, block, editor);
+    return frame;
+  }
+  const blockContainer = editor.pmSchema.nodes["blockContainer"];
+  const { dom, contentDOM } = blockContainer.spec.toDOM!(
+    blockContainer.create({ id: block.id }),
+  ) as { dom: HTMLElement; contentDOM: HTMLElement };
+  setBlockColorAttributes(contentDOM, block.props);
+  return { dom, slot: contentDOM };
 }
 
 /**
  * A block's frame in the editor (the frame's view, like ProseMirror's
  * `NodeView` for a node): what a block's node view needs from it. React
  * supplies one through the internal `frameView` hook; a vanilla frame
- * (`renderFrame`) gets one from `vanillaFrameView` (see `blockFrameView`).
+ * (`renderFrame`) gets one from `vanillaFrameView`, and a block without a
+ * frame gets the default frame (see `blockFrameView`).
  */
 export type FrameView = {
   dom: HTMLElement;
@@ -127,7 +180,7 @@ export type FrameView = {
   destroy?(): void;
 };
 
-type FrameViewArgs = {
+type BlockNodeViewArgs = {
   props: NodeViewRendererProps;
   editor: BlockNoteEditor<any, any, any>;
   /**
@@ -136,29 +189,56 @@ type FrameViewArgs = {
    */
   blockNode: (node: PMNode) => PMNode;
   /**
-   * The element that holds the content and children when the block draws no
-   * frame (a block's `.bn-block`). Without it, the block must draw a frame.
+   * The default frame of a block that draws no frame of its own (a regular
+   * block's `.bn-block-outer` and `.bn-block`). Without it, the block must
+   * draw a frame.
    */
-  unframed?: HTMLElement;
-  /**
-   * Makes the root of a vanilla frame the element of a block that is not a
-   * container, after the frame is drawn or patched. A container's frame is
-   * stamped with `stampContainerFrame`.
-   */
-  stampRoot?: (root: HTMLElement, node: PMNode) => void;
+  defaultFrame?: (node: PMNode) => { dom: HTMLElement; slot: HTMLElement };
 };
 
 /**
- * The frame view of a block: React's (the internal `frameView` hook), or else
- * the view of its vanilla `renderFrame`. A block that declines its frame gets
- * a view without a frame: `unframed` holds its content and children, and the
- * view asks again when the block's type or props change. A frame belongs to
- * one block type, and whether a block declines depends only on its props.
+ * The node view of every block (a `blockContainer` or a container node): its
+ * frame's root is the view's `dom`, and its slot holds the content and
+ * children. Without a frame of its own, a regular block gets the default
+ * frame, and is as fast as ProseMirror's default node view
+ * (`performance.test.ts`).
  */
-export function blockFrameView(args: FrameViewArgs): FrameView {
-  const { props, editor, blockNode, unframed } = args;
+export function frameNodeView(args: BlockNodeViewArgs): NodeView {
+  const frame = blockFrameView(args);
+  return {
+    dom: frame.dom,
+    contentDOM: frame.slot,
+    update(node, decorations, innerDecorations) {
+      if (
+        node.attrs.id !== frame.node.attrs.id ||
+        !Mark.sameSet(node.marks, frame.node.marks)
+      ) {
+        // Another block, or other marks, like ProseMirror's default. Return
+        // `false`: draw the block again. (ProseMirror offers a view whose
+        // node is gone to the next node of the same type.)
+        return false;
+      }
+      // The same block. Return the frame's answer: `true` keeps the view.
+      return frame.update(node, decorations, innerDecorations);
+    },
+    stopEvent: (event) => isFrameChromeEvent(frame, event),
+    ignoreMutation: (mutation) => isFrameRenderingMutation(frame, mutation),
+    selectNode: frame.selectNode?.bind(frame),
+    deselectNode: frame.deselectNode?.bind(frame),
+    destroy: frame.destroy?.bind(frame),
+  };
+}
 
-  // The block's frame view for `node`, or `undefined` when it draws no frame.
+/**
+ * The frame view of a block: React's (the internal `frameView` hook), or else
+ * the view of its vanilla `renderFrame`, or else the default frame. A frame
+ * belongs to one block type, and whether a block declines its frame depends
+ * only on its props.
+ */
+function blockFrameView(args: BlockNodeViewArgs): FrameView {
+  const { props, editor, blockNode, defaultFrame } = args;
+
+  // The block's own frame view for `node`, or `undefined` when it draws none.
   function draw(node: PMNode) {
     const nodeProps = node === props.node ? props : { ...props, node };
     const { implementation } =
@@ -172,31 +252,41 @@ export function blockFrameView(args: FrameViewArgs): FrameView {
   if (frame) {
     return frame;
   }
-  if (!unframed) {
+  if (!defaultFrame) {
     throw new Error(
       `Block "${blockNode(props.node).type.name}" must draw its frame: \`renderFrame\` returned undefined.`,
     );
   }
 
+  // The default frame. A new `.bn-block` has no color attributes, so a block
+  // with the default colors needs no DOM calls. Skipping them keeps typing in
+  // large documents fast (`performance.test.ts`).
+  const { dom, slot } = defaultFrame(props.node);
+  const attrs = blockNode(props.node).attrs;
+  if (BLOCK_COLORS.some(([prop]) => isColorSet(attrs[prop]))) {
+    setBlockColorAttributes(slot, attrs);
+  }
   let current = props.node;
   return {
-    dom: unframed,
-    slot: unframed,
+    dom,
+    slot,
     get node() {
       return current;
     },
     update(node) {
-      // The block drew no frame. When its type or props change, ask again.
-      const asked = blockNode(node).sameMarkup(blockNode(current))
-        ? undefined
-        : draw(node);
-      if (asked) {
-        // The block now draws a frame. Return `false`: draw the block again.
-        asked.destroy?.();
-        return false;
+      if (!blockNode(node).sameMarkup(blockNode(current))) {
+        // The type or the props changed. Ask the block again.
+        const asked = draw(node);
+        if (asked) {
+          // The block now draws a frame. Return `false`: draw the block
+          // again.
+          asked.destroy?.();
+          return false;
+        }
+        setBlockColorAttributes(slot, blockNode(node).attrs);
       }
-      // The block still draws no frame. Return `true`: keep the block. Its
-      // content and children stay, also when its type changes.
+      // The block still draws no frame. Return `true`: keep the default
+      // frame. The content and children stay, also when the type changes.
       current = node;
       return true;
     },
@@ -208,29 +298,17 @@ export function blockFrameView(args: FrameViewArgs): FrameView {
  * editor and keeps it current, or returns `undefined` when the block draws no
  * frame. A frame that shows more than the block's props needs an update hook.
  */
-function vanillaFrameView(args: FrameViewArgs): FrameView | undefined {
-  const { props, editor, blockNode, stampRoot } = args;
+function vanillaFrameView(args: BlockNodeViewArgs): FrameView | undefined {
+  const { props, editor, blockNode } = args;
   const spec = editor.blockImplementations[blockNode(props.node).type.name];
-  const config = spec.config as BlockConfig<any, any, any>;
   const renderFrame = spec.implementation.renderFrame;
   if (!renderFrame) {
     // The block type has no frame. Return `undefined`: no frame.
     return undefined;
   }
-
-  // A frame's root is the block's element, so it is stamped after it is
-  // drawn or patched.
-  function stamp(frame: VanillaFrame, node: PMNode, block: any) {
-    if (config.container === true) {
-      stampContainerFrame(config, frame, block);
-    } else {
-      stampRoot?.(frame.dom, node);
-    }
-  }
-
   const block = nodeToBlock(props.node, props.view.state.doc);
   const frame = renderFrame.call(
-    { renderType: "nodeView", props, propSchema: config.propSchema },
+    { renderType: "nodeView", props, propSchema: spec.config.propSchema },
     block,
     editor,
   );
@@ -238,11 +316,10 @@ function vanillaFrameView(args: FrameViewArgs): FrameView | undefined {
     // The block declined its frame. Return `undefined`: no frame.
     return undefined;
   }
-  // The block drew its frame. Stamp it.
-  stamp(frame, props.node, block);
+  // The block drew its frame. Its root is the block's element.
+  stampFrame(frame, block, editor);
 
   let current = props.node;
-
   return {
     dom: frame.dom,
     slot: frame.slot,
@@ -265,7 +342,7 @@ function vanillaFrameView(args: FrameViewArgs): FrameView | undefined {
           // again.
           return false;
         }
-        stamp(frame, node, block);
+        stampFrame(frame, block, editor);
       } else if (!after.sameMarkup(before)) {
         // The props changed, and the frame cannot patch itself. Return
         // `false`: draw the block again.
@@ -334,20 +411,4 @@ export function isFrameRenderingMutation(
   return (
     frame.dom.contains(mutation.target) && !frame.slot.contains(mutation.target)
   );
-}
-
-/**
- * The node view hooks that come from a block's frame alone: its chrome rules
- * (`isFrameChromeEvent`, `isFrameRenderingMutation`), and its selection and
- * cleanup.
- */
-export function frameNodeViewHooks(frame: FrameView) {
-  return {
-    stopEvent: (event: Event) => isFrameChromeEvent(frame, event),
-    ignoreMutation: (mutation: ViewMutationRecord) =>
-      isFrameRenderingMutation(frame, mutation),
-    selectNode: frame.selectNode?.bind(frame),
-    deselectNode: frame.deselectNode?.bind(frame),
-    destroy: frame.destroy?.bind(frame),
-  };
 }

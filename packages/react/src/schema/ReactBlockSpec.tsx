@@ -1,5 +1,4 @@
 import {
-  applyContainerAttributes,
   Block,
   BlockConfig,
   BlockFromConfig,
@@ -12,14 +11,12 @@ import {
   Extension,
   ExtensionFactoryInstance,
   ExtractBlockConfigFromConfigOrCreator,
-  markFrameSlot,
   mergeCSSClasses,
   nodeToBlock,
   Props,
   PropSchema,
   propsToDataAttributes,
-  renderBlockElement,
-  stampBlockFrame,
+  stampFrame,
   validateRenderHooks,
 } from "@blocknote/core";
 import type { Node as PMNode } from "@tiptap/pm/model";
@@ -422,36 +419,19 @@ export function createReactBlockSpec<
       return hasFrame(block.props);
     }
 
-    // Puts the block's attributes on its frame's root, the block's element. A
-    // container's slot is also marked for the parser.
-    function stampFrame(
+    // Makes the frame's root the block's element (see `stampFrame`), and
+    // shows the selection on it.
+    function stampRoot(
       slot: HTMLElement,
-      current: { node: PMNode; block: Block<any, any, any>; selected: boolean },
+      current: { block: Block<any, any, any>; selected: boolean },
+      editor: BlockNoteEditor<any, any, any>,
     ) {
       const root = slot.closest("[data-node-view-wrapper]")?.firstElementChild;
       if (!(root instanceof HTMLElement)) {
         throw new Error("A frame must be inside its node view wrapper.");
       }
-      if (!isContainer) {
-        // The root replaces the `.bn-block` of the block's `blockContainer`
-        // node, so it gets the attributes of that element.
-        stampBlockFrame(
-          root,
-          renderBlockElement(current.node),
-          current.node.firstChild!.attrs,
-        );
-        return;
-      }
-      const { block, selected } = current;
-      markFrameSlot(slot);
-      applyContainerAttributes(
-        root,
-        blockConfig.type,
-        block.props,
-        blockConfig.propSchema,
-        block.id,
-      );
-      root.toggleAttribute("data-selected", selected);
+      stampFrame({ dom: root, slot }, current.block, editor);
+      root.toggleAttribute("data-selected", current.selected);
     }
 
     function FrameNodeView(props: NodeViewProps) {
@@ -470,20 +450,17 @@ export function createReactBlockSpec<
       }
       // A frame's root is its block's element, so it carries the block's
       // attributes, kept current after every render.
-      const latest = useRef({
-        node: props.node,
-        block,
-        selected: props.selected,
-      });
+      const editor = props.extension.options.editor;
+      const latest = useRef({ block, selected: props.selected });
       useLayoutEffect(() => {
-        latest.current = { node: props.node, block, selected: props.selected };
+        latest.current = { block, selected: props.selected };
         if (!slot.current) {
           // The frame declines with `hasFrame`, so it always has a slot.
           throw new Error(
             `The frame of block "${blockConfig.type}" must attach \`slotRef\`.`,
           );
         }
-        stampFrame(slot.current, latest.current);
+        stampRoot(slot.current, latest.current, editor);
       });
       const contentRef = useCallback(
         (element: HTMLElement | null) => {
@@ -496,9 +473,9 @@ export function createReactBlockSpec<
           element.dataset.nodeViewContent = "";
           mountContent(element);
           // Also when author state replaces the frame's root or slot.
-          stampFrame(element, latest.current);
+          stampRoot(element, latest.current, editor);
         },
-        [mountContent],
+        [mountContent, editor],
       );
 
       return (
@@ -511,7 +488,7 @@ export function createReactBlockSpec<
                 typeof blockConfig
               >["block"]
             }
-            editor={props.extension.options.editor}
+            editor={editor}
             slotRef={contentRef}
           />
         </NodeViewWrapper>
@@ -677,13 +654,11 @@ export function createReactBlockSpec<
                 if (!slot) {
                   throw new Error("React frame node view has no content DOM.");
                 }
-                if (isContainer) {
-                  // A container's slot determines layout, not TipTap's host.
-                  slot.style.display = "contents";
-                  // FIXME: workaround. The `dom` of a container is the wrapper
-                  // of TipTap, which has no box (see `measureFrameRoot`).
-                  measureFrameRoot(dom, () => nodeView.node.attrs.id);
-                }
+                // The frame's slot determines layout, not TipTap's host.
+                slot.style.display = "contents";
+                // FIXME: workaround. The `dom` of the frame is the wrapper of
+                // TipTap, which has no box (see `measureFrameRoot`).
+                measureFrameRoot(dom, () => nodeView.node.attrs.id);
                 return {
                   dom,
                   slot,

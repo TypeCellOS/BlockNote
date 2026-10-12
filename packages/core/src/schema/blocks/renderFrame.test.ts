@@ -172,12 +172,13 @@ describe("renderFrame decline", () => {
       // child block survives the rebuild.
       const framed = root.querySelector<HTMLElement>(".toggle")!;
       expect(framed).not.toBeNull();
-      // The frame's root is the block's element, in place of `.bn-block`.
+      // The frame's root is the block's element, in place of the default
+      // frame (`.bn-block-outer` and `.bn-block`).
       expect(framed.dataset.nodeType).toBe("blockContainer");
       expect(framed.dataset.id).toBe("t1");
+      expect(framed.matches(".bn-block-outer")).toBe(true);
       expect(framed.matches(".bn-block")).toBe(false);
-      expect(framed.parentElement!.matches(".bn-block-outer")).toBe(true);
-      expect(framed.parentElement!.children).toHaveLength(1);
+      expect(framed.parentElement!.matches(".bn-block-group")).toBe(true);
       const slot = framed.querySelector<HTMLElement>(".toggle-slot")!;
       expect(slot.textContent).toContain("Title");
       expect(slot.querySelector('[data-id="c1"]')).not.toBeNull();
@@ -775,13 +776,15 @@ describe("renderFrame internal HTML", () => {
       };
       expect(old).toMatchObject([expected]);
 
-      // Today's internal HTML has the frame's root in place of `.bn-block`.
+      // Today's internal HTML has the frame's root in place of the default
+      // frame (`.bn-block-outer` and `.bn-block`).
       const dom = document.createElement("div");
       dom.innerHTML = editor.blocksToFullHTML(old);
       const frame = dom.querySelector<HTMLElement>(".toggle")!;
       expect(frame.dataset.nodeType).toBe("blockContainer");
       expect(frame.dataset.id).toBe(old[0].id);
-      expect(frame.parentElement!.matches(".bn-block-outer")).toBe(true);
+      expect(frame.matches(".bn-block-outer")).toBe(true);
+      expect(frame.parentElement!.matches(".bn-block-group")).toBe(true);
       expect(editor.tryParseHTMLToBlocks(dom.innerHTML)).toMatchObject([
         expected,
       ]);

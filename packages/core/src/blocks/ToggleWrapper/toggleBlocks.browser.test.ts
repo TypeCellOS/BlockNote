@@ -188,12 +188,11 @@ function dropCursor() {
 }
 
 /** The id of the block highlighted as the one a drop goes into. */
+/** The block that `Block.css` highlights as the drop target. */
 function highlightedDropTarget() {
   return (
     root
-      .querySelector(
-        '[data-drop-target="true"] > [data-node-type="blockContainer"]',
-      )
+      .querySelector('.bn-block-outer[data-drop-target="true"]')
       ?.getAttribute("data-id") ?? null
   );
 }

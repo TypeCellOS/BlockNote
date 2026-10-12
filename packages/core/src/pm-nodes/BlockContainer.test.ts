@@ -89,10 +89,11 @@ describe("block type changes", () => {
       editor.updateBlock("parent", { type: "toggleListItem" });
       const toggled = element("parent")!;
       expect(toggled).not.toBe(parent);
-      // The frame's root is the block's element, in place of `.bn-block`.
-      expect(toggled.matches(".bn-toggle-frame")).toBe(true);
+      // The frame's root is the block's element, in place of the default
+      // frame (`.bn-block-outer` and `.bn-block`).
+      expect(toggled.matches(".bn-toggle-frame.bn-block-outer")).toBe(true);
       expect(toggled.matches(".bn-block")).toBe(false);
-      expect(toggled.parentElement!.matches(".bn-block-outer")).toBe(true);
+      expect(toggled.parentElement!.matches(".bn-block-group")).toBe(true);
 
       editor.updateBlock("parent", { type: "paragraph" });
       expect(element("parent")).not.toBe(toggled);

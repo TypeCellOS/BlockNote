@@ -8,11 +8,9 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
+import { applyDataAttributes } from "../../../../schema/dataAttributes.js";
 import { isContainerNode } from "../../../../schema/blocks/children.js";
-import {
-  FRAME_SLOT_ATTRIBUTE,
-  renderFrameDOM,
-} from "../../../../schema/blocks/frame.js";
+import { renderFrameDOM } from "../../../../schema/blocks/frame.js";
 import { isDocumentFragment } from "../../../../schema/blocks/internal.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
@@ -217,6 +215,18 @@ function renderBlockOutput(
         `Container block "${block.type}" drew no frame. This is a bug in BlockNote.`,
       );
     }
+    // Like a regular block's type marker (`data-content-type`), a
+    // container's markers (`stampFrame`) stay out of external HTML: it parses
+    // back only through the block's `parse`, like any other block. Its props
+    // are `data-*` attributes.
+    // TODO: regular blocks get their markers (`wrapInBlockStructure`) and
+    // this serializer strips them. Do not add them, so both kinds of block
+    // keep one rule.
+    applyDataAttributes(
+      frame.dom,
+      block.props,
+      editor.schema.blockSchema[block.type].propSchema,
+    );
     return { output: { dom: frame.dom, childrenDOM: frame.slot } };
   }
 
@@ -325,21 +335,6 @@ function serializeBlock<
     elementFragment.append(...Array.from(rootElement.childNodes));
   } else {
     elementFragment.append(ret.dom);
-    if (isContainer) {
-      // Like a regular block's type marker (`data-content-type`), a
-      // container's markers stay out of external HTML: it parses back only
-      // through the block's `parse`, like any other block. Its props stay as
-      // `data-*` attributes. This mirrors the unwrapping of a regular block's
-      // `.bn-block-content` above: the spec's hooks produce the editor's
-      // structure with its markers, and this serializer strips them.
-      // TODO: consider not adding the markers in the first place (only the
-      // node view and the internal serializer need them), instead of adding
-      // and then stripping them. If so, change it for regular blocks too
-      // (`wrapInBlockStructure`), so both kinds of block keep one rule.
-      rootElement?.removeAttribute("data-node-type");
-      rootElement?.removeAttribute("data-id");
-      ret.childrenDOM?.removeAttribute(FRAME_SLOT_ATTRIBUTE);
-    }
     if (nestingLevel > 0) {
       rootElement?.setAttribute("data-nesting-level", nestingLevel.toString());
     }
