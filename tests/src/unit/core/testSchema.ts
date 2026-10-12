@@ -99,8 +99,8 @@ const SimpleCustomParagraph = createBlockSpec(
   },
 );
 
-// A container block: it holds no inline content of its own, and its `contentDOM`
-// is where its child blocks go. Covers containers in the format-conversion,
+// A container block: it holds no inline content of its own, and its frame's
+// `slot` is where its child blocks go. Covers containers in the format-conversion,
 // clipboard and selection matrices, which otherwise never see one.
 const Callout = createBlockSpec(
   {
@@ -118,7 +118,7 @@ const Callout = createBlockSpec(
     },
   },
   {
-    render() {
+    renderFrame() {
       const callout = document.createElement("div");
       callout.className = "callout";
       // The serializer must overwrite author attributes with the block props.
@@ -138,7 +138,7 @@ const Callout = createBlockSpec(
 
       return {
         dom: callout,
-        contentDOM: body,
+        slot: body,
       };
     },
   },

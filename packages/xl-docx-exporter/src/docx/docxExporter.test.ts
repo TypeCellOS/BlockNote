@@ -426,11 +426,9 @@ describe("custom container blocks", () => {
       container: true,
     },
     {
-      render: (block: any) => {
+      renderFrame: () => {
         const dom = document.createElement("div");
-        dom.setAttribute("data-node-type", "box");
-        dom.setAttribute("data-id", block.id);
-        return { dom, contentDOM: dom };
+        return { dom, slot: dom };
       },
     },
   )();

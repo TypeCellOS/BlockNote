@@ -1120,13 +1120,13 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
     executeTest: testParseHTML,
   },
   {
-    // The internal (`blocksToFullHTML`) form of a container. The children
-    // holder is marked with `data-children-of`.
+    // The internal (`blocksToFullHTML`) form of a container. The frame's
+    // slot, which holds the children, is marked with `data-frame-slot`.
     testCase: {
       name: "container",
       content: `<div class="bn-block-group" data-node-type="blockGroup">
   <div class="callout" data-node-type="callout" data-id="1">
-    <div class="callout-body" data-children-of="callout">
+    <div class="callout-body" data-frame-slot="">
       <div class="bn-block-outer" data-node-type="blockOuter" data-id="2">
         <div class="bn-block" data-node-type="blockContainer" data-id="2">
           <div class="bn-block-content" data-content-type="paragraph">
@@ -1146,7 +1146,7 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
       name: "containerNested",
       content: `<div class="bn-block-group" data-node-type="blockGroup">
   <div class="callout" data-flavor="warning" data-node-type="callout" data-id="1">
-    <div class="callout-body" data-children-of="callout">
+    <div class="callout-body" data-frame-slot="">
       <div class="bn-block-outer" data-node-type="blockOuter" data-id="2">
         <div class="bn-block" data-node-type="blockContainer" data-id="2">
           <div class="bn-block-content" data-content-type="heading">
@@ -1155,7 +1155,7 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
         </div>
       </div>
       <div class="callout" data-flavor="info" data-node-type="callout" data-id="3">
-        <div class="callout-body" data-children-of="callout">
+        <div class="callout-body" data-frame-slot="">
           <div class="bn-block-outer" data-node-type="blockOuter" data-id="4">
             <div class="bn-block" data-node-type="blockContainer" data-id="4">
               <div class="bn-block-content" data-content-type="paragraph">
@@ -1178,14 +1178,14 @@ l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></spa
       name: "containerEmptyChildren",
       content: `<div class="bn-block-group" data-node-type="blockGroup">
   <div class="callout" data-node-type="callout" data-id="1">
-    <div class="callout-body" data-children-of="callout"></div>
+    <div class="callout-body" data-frame-slot=""></div>
   </div>
 </div>`,
     },
     executeTest: testParseHTML,
   },
   {
-    // Container HTML without the `data-children-of` marker our own
+    // Container HTML without the `data-frame-slot` marker our own
     // serializers add: what a container looks like once it has been through
     // another app, or has come from an older version. The parse rule has to
     // fall back to reading the whole element as the children region.

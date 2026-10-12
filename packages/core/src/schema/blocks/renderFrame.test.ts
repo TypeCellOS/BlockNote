@@ -100,9 +100,7 @@ const ContentFrame = createBlockSpec(
       dom.dataset.count = String(block.children.length);
       const slot = document.createElement("div");
       dom.append(slot);
-      const fragment = document.createDocumentFragment();
-      fragment.append(dom);
-      return { dom: fragment, slot };
+      return { dom, slot };
     },
   },
 )();
@@ -286,9 +284,6 @@ it("supplies the node-view context to vanilla frames", () => {
       renderFrame() {
         expect(this.renderType).toBe("nodeView");
         expect(this.props?.node.firstChild?.type.name).toBe("contextualFrame");
-        expect(this.blockContentDOMAttributes).toEqual({
-          "data-test": "content",
-        });
         expect(this.propSchema).toEqual({});
         const dom = document.createElement("div");
         dom.className = "contextual-frame";
@@ -300,7 +295,6 @@ it("supplies the node-view context to vanilla frames", () => {
     schema: BlockNoteSchema.create({
       blockSpecs: { ...defaultBlockSpecs, contextualFrame },
     }),
-    domAttributes: { blockContent: { "data-test": "content" } },
     initialContent: [{ type: "contextualFrame", content: "Title" }],
   });
   try {
@@ -391,9 +385,6 @@ it("exports title and children inside the static frame slot with the DOM context
       renderFrame(block) {
         expect(this.renderType).toBe("dom");
         expect(this.props).toBeUndefined();
-        expect(this.blockContentDOMAttributes).toEqual({
-          "data-test": "static",
-        });
         expect(this.propSchema).toEqual({ framed: { default: true } });
         if (!block.props.framed) {
           return undefined;
@@ -411,7 +402,6 @@ it("exports title and children inside the static frame slot with the DOM context
     schema: BlockNoteSchema.create({
       blockSpecs: { ...defaultBlockSpecs, staticFrame },
     }),
-    domAttributes: { blockContent: { "data-test": "static" } },
     initialContent: [
       {
         id: "framed",

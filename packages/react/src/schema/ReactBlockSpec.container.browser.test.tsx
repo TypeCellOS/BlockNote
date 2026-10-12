@@ -20,7 +20,7 @@ import { createReactBlockSpec } from "./ReactBlockSpec.js";
  * `api/blockManipulation/containers/`.
  */
 
-// A container: its `contentRef` element holds its child blocks.
+// A container: its `slotRef` element holds its child blocks.
 const createCallout = createReactBlockSpec(
   {
     type: "callout",
@@ -29,7 +29,7 @@ const createCallout = createReactBlockSpec(
     container: true,
   },
   {
-    render: function Callout(props) {
+    renderFrame: function Callout(props) {
       const [alternate, setAlternate] = useState(false);
       const Tag = alternate ? "section" : "div";
       return (
@@ -40,7 +40,7 @@ const createCallout = createReactBlockSpec(
           >
             Swap root
           </button>
-          <div className="callout-body" ref={props.contentRef} />
+          <div className="callout-body" ref={props.slotRef} />
         </Tag>
       );
     },
@@ -68,13 +68,13 @@ describe("React container block external HTML", () => {
     // Container blocks own their outer DOM entirely. Regression test for the
     // React `toExternalHTML` path wrapping them in a spurious
     // `bn-block-content` div (core's `createBlockSpec` passes them through).
-    // The root is the element `render` returned, with no React wrapper in
+    // The root is the element the frame returned, with no React wrapper in
     // between, so `.callout[data-*]` CSS matches it here exactly as in the
-    // live editor.
+    // live editor. Like a regular block, it carries no BlockNote markers.
     expect(html).not.toContain('data-content-type="callout"');
     expect(html).not.toContain("data-node-view-wrapper");
     expect(html).toContain('class="callout"');
-    expect(html).toContain('data-node-type="callout"');
+    expect(html).not.toContain("data-node-type");
     expect(html).toContain("Hello");
 
     editor._tiptapEditor.destroy();
@@ -208,7 +208,7 @@ describe("React container block node view", () => {
     ).toBe("warning");
   });
 
-  it("mounts a pure container's children inside its `contentRef` element", async () => {
+  it("mounts a pure container's children inside its `slotRef` element", async () => {
     const mounted = await mountEditor([
       {
         id: "c-0",
@@ -219,7 +219,7 @@ describe("React container block node view", () => {
 
     const body = mounted.div.querySelector<HTMLElement>(".callout-body")!;
     // A container with no content of its own puts its children where the
-    // author placed `contentRef`, not somewhere else in the node view. The
+    // author placed `slotRef`, not somewhere else in the node view. The
     // child's own block element is a descendant, so this checks structure,
     // not just text that happened to bubble up.
     expect(body.querySelector('[data-id="c-child"]')).not.toBeNull();

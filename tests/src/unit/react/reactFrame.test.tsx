@@ -24,7 +24,7 @@ const createFrameBox = createReactBlockSpec(
     container: true,
   },
   {
-    render: function Container(props) {
+    renderFrame: function Container(props) {
       const [alternate, setAlternate] = useState(false);
       const Tag = alternate ? "section" : "div";
       return (
@@ -36,7 +36,7 @@ const createFrameBox = createReactBlockSpec(
           >
             Swap root
           </button>
-          <div className="frame-slot" ref={props.contentRef} />
+          <div className="frame-slot" ref={props.slotRef} />
         </Tag>
       );
     },
@@ -91,7 +91,7 @@ function AlertFrame(props: ReactCustomBlockFrameProps<typeof alertConfig>) {
       >
         Change flavor
       </button>
-      <div className="alert-slot" ref={props.contentRef} />
+      <div className="alert-slot" ref={props.slotRef} />
     </FrameChrome>
   );
 }
@@ -107,7 +107,7 @@ const createToggle = createReactBlockSpec(
   {
     render: (props) => <div ref={props.contentRef} />,
     renderFrame: (props) => (
-      <div className="toggle-frame" ref={props.contentRef} />
+      <div className="toggle-frame" ref={props.slotRef} />
     ),
   },
 );
@@ -308,8 +308,9 @@ describe("React renderFrame", () => {
     expect(uncaught).toEqual([]);
   });
 
-  it("leaves a titled React frame out of external HTML, keeping its content and children", () => {
-    // A frame is editor chrome; `toExternalHTML` decides a block's export.
+  it("exports a titled React frame around its content and children", () => {
+    // Without an explicit `toExternalHTML`, external HTML keeps the frame,
+    // with the content and the children in its slot.
     const headless = BlockNoteEditor.create({ schema });
     try {
       const html = headless.blocksToHTMLLossy([
@@ -319,10 +320,11 @@ describe("React renderFrame", () => {
           children: [{ type: "paragraph", content: "Body" }],
         },
       ]);
-      expect(html).not.toContain("alert-frame");
-      expect(html).not.toContain("frame-counter");
-      expect(html).toContain("Title");
-      expect(html).toContain("Body");
+      const dom = document.createElement("div");
+      dom.innerHTML = html;
+      const slot = dom.querySelector(".alert-frame .alert-slot");
+      expect(slot?.querySelector(".alert-title")?.textContent).toBe("Title");
+      expect(slot?.textContent).toContain("Body");
       expect(activeFrames).toBe(0);
     } finally {
       headless._tiptapEditor.destroy();

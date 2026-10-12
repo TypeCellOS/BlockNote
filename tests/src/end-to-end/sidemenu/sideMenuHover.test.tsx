@@ -38,11 +38,11 @@ import { getRect, mouseSequence } from "../../utils/mouse.js";
 const Panel = createBlockSpec(
   { type: "panel" as const, propSchema: {}, content: "none", container: true },
   {
-    render: () => {
+    renderFrame: () => {
       const dom = document.createElement("div");
       dom.style.padding = "16px";
       dom.style.border = "1px solid gray";
-      return { dom, contentDOM: dom };
+      return { dom, slot: dom };
     },
   },
 )();

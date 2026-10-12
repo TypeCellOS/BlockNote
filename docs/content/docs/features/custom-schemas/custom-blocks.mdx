@@ -135,11 +135,17 @@ type ReactCustomBlockImplementation = {
     editor: BlockNoteEditor;
     contentRef?: (node: HTMLElement | null) => void;
   }>;
+  renderFrame?: React.FC<{
+    block: Block;
+    editor: BlockNoteEditor;
+    slotRef: (node: HTMLElement | null) => void;
+  }>;
   toExternalHTML?: React.FC<{
     block: Block;
     editor: BlockNoteEditor;
     contentRef?: (node: HTMLElement | null) => void;
-    contest: { nestingLevel: number };
+    childrenRef: (node: HTMLElement | null) => void;
+    context: { nestingLevel: number };
   }>;
   parse?: (element: HTMLElement) => PartialBlock["props"] | undefined;
   parseContent?: (options: {
@@ -180,9 +186,14 @@ type ReactCustomBlockImplementation = {
 
 - `contentRef:` A React `ref` you can use to mark which element in your block is editable. This is only available if your block config contains `content: "inline"` or `content: "plain"`.
 
-`toExternalHTML?:` This component is used whenever the block is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` for the HTML conversion. Takes the same props as `render` and an additional `context` prop, which is. an object with the following attributes:
+`renderFrame?:` A component that draws a box around the block's content and its child blocks, with `slotRef` marking where they go. A container block (`container: true`) declares `renderFrame` instead of `render`. See [Container Blocks](/docs/features/custom-schemas/container-blocks).
 
-- `nestingLevel`: How deep the block being exported in nested inside other blocks. 0 means it's at the top level of the document.
+`toExternalHTML?:` This component is used whenever the block is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` (and `renderFrame`, if the block has one) for the HTML conversion. Takes the same props as `render`, and two more:
+
+- `childrenRef:` A React `ref` that marks where the block's child blocks go, for example inside a `<details>` element. Without it, the child blocks follow the block.
+
+- `context:` An object with the following attributes:
+  - `nestingLevel`: How deep the block being exported is nested inside other blocks. 0 means it's at the top level of the document.
 
 <Callout type="info">
   _Note that your component passed to `toExternalHTML` is rendered and
