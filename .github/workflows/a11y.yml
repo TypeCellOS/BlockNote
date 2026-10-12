@@ -38,11 +38,11 @@ jobs:
       - name: Install dependencies
         run: vp install --frozen-lockfile
 
-      # Already inside Docker; call Playwright directly to avoid nested Docker
+      # Already inside Docker; call Vitest directly to avoid nested Docker
       # and task caching. Source aliases mean no package build is needed.
       - name: Run axe, keyboard and visual checks
         working-directory: tests
-        run: pnpm exec playwright test --config a11y/playwright.config.ts
+        run: pnpm exec vp test --config a11y/vite.config.ts --run
 
       - name: Upload browser report and diagnostics
         if: ${{ !cancelled() }}
@@ -51,7 +51,7 @@ jobs:
           name: a11y-browser
           path: |
             tests/playwright-report/a11y/browser/
-            tests/test-results/a11y/browser/
+            tests/test-results/a11y/
           retention-days: 7
 
   voiceover:
@@ -88,7 +88,7 @@ jobs:
         run: sw_vers
 
       # Invoke the runner directly so a cached task can never skip VoiceOver.
-      # The Playwright config restricts screen reader automation to one worker.
+      # The Vitest config disables parallel test files for screen reader automation.
       - name: Run screen reader checks
         run: pnpm exec node tests/a11y/run.mjs --screen-reader
 
@@ -99,5 +99,5 @@ jobs:
           name: a11y-voiceover
           path: |
             tests/playwright-report/a11y/voiceover/
-            tests/test-results/a11y/voiceover/
+            tests/test-results/a11y/
           retention-days: 7

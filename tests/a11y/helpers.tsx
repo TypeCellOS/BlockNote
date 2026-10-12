@@ -1,0 +1,92 @@
+import type { PartialBlock } from "@blocknote/core";
+import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
+import { useCreateBlockNote } from "@blocknote/react";
+import { render } from "vitest-browser-react";
+import axe from "axe-core";
+import { expect } from "vite-plus/test";
+import { commands, page, server } from "vite-plus/test/browser";
+
+export const screenReader =
+  server.config.name === "voiceover" || server.config.name === "nvda";
+export const selectToLineEndKey =
+  server.platform === "darwin" ? "Meta+Shift+ArrowRight" : "Shift+End";
+
+// Vite+ does not re-export the augmentable BrowserCommands interface. Keep the
+// typed RPC boundary here, as the existing browser test utilities do.
+const browserCommands = commands as typeof commands & {
+  startReader(): Promise<void>;
+  pressKey(key: string): Promise<string | undefined>;
+  readTranscript(): Promise<string[]>;
+  stopReader(): Promise<void>;
+};
+
+function EditorFixture({ initialContent }: { initialContent: PartialBlock[] }) {
+  const editor = useCreateBlockNote({ initialContent });
+  return (
+    <main style={{ maxWidth: 900, margin: "80px auto", padding: 24 }}>
+      <h1>BlockNote accessibility fixture</h1>
+      <button type="button">Before editor</button>
+      <BlockNoteView editor={editor} theme="light" />
+      <button type="button">After editor</button>
+    </main>
+  );
+}
+
+export async function openEditor(initialContent: PartialBlock[]) {
+  await page.viewport(1280, 900);
+  await render(<EditorFixture initialContent={initialContent} />);
+  await expect.element(page.getByRole("textbox")).toBeVisible();
+  await document.fonts.ready;
+  if (screenReader) {
+    await browserCommands.startReader();
+  } else {
+    page
+      .getByRole("button", { name: "Before editor", exact: true })
+      .element()
+      .focus();
+  }
+}
+
+export async function checkAxe() {
+  const results = await axe.run(document.body);
+  // Preserve interaction evidence even when existing axe violations fail.
+  expect.soft(results.violations, "axe violations").toEqual([]);
+}
+
+export function readSelection() {
+  const selection = document.getSelection();
+  const node = selection?.focusNode;
+  const element = node instanceof Element ? node : node?.parentElement;
+  const cell = element?.closest("td, th");
+  const row = cell?.parentElement;
+  return {
+    tableCell:
+      cell instanceof HTMLTableCellElement && row instanceof HTMLTableRowElement
+        ? { row: row.rowIndex, column: cell.cellIndex }
+        : null,
+    blockId: element?.closest("[data-id]")?.getAttribute("data-id") ?? null,
+    offset: selection?.focusOffset ?? 0,
+    text: selection?.toString() ?? "",
+  };
+}
+
+export async function pressKey(key: string) {
+  return browserCommands.pressKey(key);
+}
+
+// Explicitly called by afterEach in the two files with screen-reader journeys.
+// Cleanup runs even if the transcript comparison fails.
+export async function saveTranscript() {
+  if (!screenReader) {
+    return;
+  }
+  try {
+    const transcript = await browserCommands.readTranscript();
+    expect(transcript.length).toBeGreaterThan(0);
+    expect(transcript).toMatchSnapshot();
+  } finally {
+    await browserCommands.stopReader();
+  }
+}

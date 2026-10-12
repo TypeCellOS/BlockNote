@@ -1,6 +1,6 @@
-import { test } from "../../../../../../tests/a11y/test.js";
+import { test } from "vite-plus/test";
 
-test.fixme("check list item: checkbox is keyboard accessible while the editor has focus", async () => {
+test.skip("check list item: checkbox is keyboard accessible while the editor has focus", async () => {
   // TODO: The keyboard interaction for controls within blocks is still TBD.
   // Once defined, verify reaching the checkbox while focus is within the
   // editor, toggling it on/off without changing neighbouring items, and

@@ -1,10 +1,6 @@
 import type { PartialBlock } from "@blocknote/core";
-import {
-  expect,
-  test,
-  type Page,
-  type ScreenReaderPlaywright,
-} from "../../../../../tests/a11y/test.js";
+import { expect, test, afterEach } from "vite-plus/test";
+import { page } from "vite-plus/test/browser";
 import {
   openEditor,
   checkAxe,
@@ -12,6 +8,7 @@ import {
   readSelection,
   saveTranscript,
   selectToLineEndKey,
+  screenReader,
 } from "../../../../../tests/a11y/helpers.js";
 
 // This vertical slice covers controls shown for a basic text selection only.
@@ -28,198 +25,191 @@ const toolbarDocument: PartialBlock[] = [
   { id: "following", type: "paragraph", content: "Following paragraph" },
 ];
 
-test.afterEach(async ({ screenReader }) => {
-  await saveTranscript(screenReader);
+afterEach(async () => {
+  await saveTranscript();
 });
 
 // Each test supplies its document before this keyboard-only toolbar setup.
 // Setup stops before activation so each test owns its action and assertions.
-async function setupToolbar(
-  page: Page,
-  screenReader: ScreenReaderPlaywright | undefined,
-  control: string,
-) {
-  await pressKey(page, "Tab", screenReader);
-  await expect(page.locator(".bn-editor")).toBeFocused();
-  await pressKey(page, "ArrowDown", screenReader);
-  await pressKey(page, selectToLineEndKey, screenReader);
-  await expect
-    .poll(async () => (await readSelection(page)).text)
-    .toBe("Format this text");
+async function setupToolbar(control: string) {
+  await pressKey("Tab");
+  await expect.element(page.getByRole("textbox")).toHaveFocus();
+  await pressKey("ArrowDown");
+  await pressKey(selectToLineEndKey);
+  await expect.poll(async () => readSelection().text).toBe("Format this text");
   const toolbar = page.getByRole("toolbar");
-  await expect(toolbar).toBeVisible();
-  await checkAxe(page);
-  await expect(toolbar.getByRole("button")).toHaveCount(12);
+  await expect.element(toolbar).toBeVisible();
+  await checkAxe();
+  await expect.poll(() => toolbar.getByRole("button").all().length).toBe(12);
 
   const button = toolbar.getByRole("button", { name: control, exact: true });
-  await expect(button).toBeEnabled();
+  await expect.element(button).toBeEnabled();
   // Bound traversal to report unreachable controls without looping forever.
   for (let step = 0; step < 15; step++) {
-    if (
-      await button.evaluate((element) => element === document.activeElement)
-    ) {
+    if (button.element() === document.activeElement) {
       break;
     }
-    await pressKey(page, "Tab", screenReader);
+    await pressKey("Tab");
   }
-  await expect(button, `${control} is reachable with Tab`).toBeFocused();
-  if (test.info().project.name === "chromium-linux") {
-    // Compare the toolbar while the control still has keyboard focus, before
-    // Enter can move focus back to the editor. Native screen-reader runs keep
-    // their diagnostic screenshots but do not write platform-specific baselines.
-    await expect(toolbar).toHaveScreenshot(
-      `focus-${control.toLowerCase().replaceAll(" ", "-")}.png`,
-      { animations: "disabled" },
-    );
+  await expect
+    .element(button, { message: `${control} is reachable with Tab` })
+    .toHaveFocus();
+  if (!screenReader) {
+    // Compare keyboard focus before Enter returns focus to the editor.
+    await expect
+      .element(toolbar)
+      .toMatchScreenshot(
+        `focus-${control.toLowerCase().replaceAll(" ", "-")}.png`,
+        {},
+      );
   }
   return { toolbar, button };
 }
 
-test("formatting toolbar: Paragraph", async ({ page, screenReader }) => {
-  await openEditor(page, toolbarDocument, screenReader);
-  const { toolbar } = await setupToolbar(page, screenReader, "Paragraph");
-  await pressKey(page, "Enter", screenReader);
+test("formatting toolbar: Paragraph", async () => {
+  await openEditor(toolbarDocument);
+  const { toolbar } = await setupToolbar("Paragraph");
+  await pressKey("Enter");
   const menu = page.getByRole("menu");
-  await expect(menu).toBeVisible();
-  await pressKey(page, "ArrowDown", screenReader);
-  await pressKey(page, "Home", screenReader);
-  await expect(menu.getByRole("menuitem").first()).toBeFocused();
-  if (test.info().project.name === "chromium-linux") {
-    await expect(menu).toHaveScreenshot("focus-block-type-menu-item.png", {
-      animations: "disabled",
-    });
+  await expect.element(menu).toBeVisible();
+  await pressKey("ArrowDown");
+  await pressKey("Home");
+  await expect.element(menu.getByRole("menuitem").first()).toHaveFocus();
+  if (!screenReader) {
+    await expect
+      .element(menu)
+      .toMatchScreenshot("focus-block-type-menu-item.png", {});
   }
-  await pressKey(page, "Escape", screenReader);
-  await expect(toolbar).toHaveCount(0);
-  await expect(page.locator(".bn-editor")).toBeFocused();
+  await pressKey("Escape");
+  await expect.element(toolbar).not.toBeInTheDocument();
+  await expect.element(page.getByRole("textbox")).toHaveFocus();
 });
 
-test("formatting toolbar: Bold", async ({ page, screenReader }) => {
-  await openEditor(page, toolbarDocument, screenReader);
-  const { button } = await setupToolbar(page, screenReader, "Bold");
-  await pressKey(page, "Enter", screenReader);
-  await expect(button).toHaveAttribute("aria-pressed", "true");
+test("formatting toolbar: Bold", async () => {
+  await openEditor(toolbarDocument);
+  const { button } = await setupToolbar("Bold");
+  await pressKey("Enter");
+  await expect.element(button).toHaveAttribute("aria-pressed", "true");
 });
 
-test("formatting toolbar: Italic", async ({ page, screenReader }) => {
-  await openEditor(page, toolbarDocument, screenReader);
-  const { button } = await setupToolbar(page, screenReader, "Italic");
-  await pressKey(page, "Enter", screenReader);
-  await expect(button).toHaveAttribute("aria-pressed", "true");
+test("formatting toolbar: Italic", async () => {
+  await openEditor(toolbarDocument);
+  const { button } = await setupToolbar("Italic");
+  await pressKey("Enter");
+  await expect.element(button).toHaveAttribute("aria-pressed", "true");
 });
 
-test("formatting toolbar: Underline", async ({ page, screenReader }) => {
-  await openEditor(page, toolbarDocument, screenReader);
-  const { button } = await setupToolbar(page, screenReader, "Underline");
-  await pressKey(page, "Enter", screenReader);
-  await expect(button).toHaveAttribute("aria-pressed", "true");
+test("formatting toolbar: Underline", async () => {
+  await openEditor(toolbarDocument);
+  const { button } = await setupToolbar("Underline");
+  await pressKey("Enter");
+  await expect.element(button).toHaveAttribute("aria-pressed", "true");
 });
 
-test("formatting toolbar: Strike", async ({ page, screenReader }) => {
-  await openEditor(page, toolbarDocument, screenReader);
-  const { button } = await setupToolbar(page, screenReader, "Strike");
-  await pressKey(page, "Enter", screenReader);
-  await expect(button).toHaveAttribute("aria-pressed", "true");
+test("formatting toolbar: Strike", async () => {
+  await openEditor(toolbarDocument);
+  const { button } = await setupToolbar("Strike");
+  await pressKey("Enter");
+  await expect.element(button).toHaveAttribute("aria-pressed", "true");
 });
 
-test("formatting toolbar: Align text left", async ({ page, screenReader }) => {
-  await openEditor(page, toolbarDocument, screenReader);
-  const { button } = await setupToolbar(page, screenReader, "Align text left");
-  await pressKey(page, "Enter", screenReader);
-  await expect(button).toHaveAttribute("aria-pressed", "true");
+test("formatting toolbar: Align text left", async () => {
+  await openEditor(toolbarDocument);
+  const { button } = await setupToolbar("Align text left");
+  await pressKey("Enter");
+  await expect.element(button).toHaveAttribute("aria-pressed", "true");
 });
 
-test("formatting toolbar: Align text center", async ({
-  page,
-  screenReader,
-}) => {
-  await openEditor(page, toolbarDocument, screenReader);
-  const { button } = await setupToolbar(
-    page,
-    screenReader,
-    "Align text center",
+test("formatting toolbar: Align text center", async () => {
+  await openEditor(toolbarDocument);
+  const { button } = await setupToolbar("Align text center");
+  await pressKey("Enter");
+  await expect.element(button).toHaveAttribute("aria-pressed", "true");
+});
+
+test("formatting toolbar: Align text right", async () => {
+  await openEditor(toolbarDocument);
+  const { button } = await setupToolbar("Align text right");
+  await pressKey("Enter");
+  await expect.element(button).toHaveAttribute("aria-pressed", "true");
+});
+
+test("formatting toolbar: Colors", async () => {
+  await openEditor(toolbarDocument);
+  const { toolbar } = await setupToolbar("Colors");
+  await pressKey("Enter");
+  await expect.element(page.getByRole("menu")).toBeVisible();
+  await pressKey("Escape");
+  await expect.element(toolbar).not.toBeInTheDocument();
+  await expect.element(page.getByRole("textbox")).toHaveFocus();
+});
+
+test("formatting toolbar: Nest block", async () => {
+  await openEditor([
+    { id: "preceding", type: "paragraph", content: "Preceding paragraph" },
+    { id: "format", type: "paragraph", content: "Format this text" },
+  ]);
+  await setupToolbar("Nest block");
+  await pressKey("Enter");
+  await expect
+    .element(
+      document.querySelector<HTMLElement>(
+        '[data-node-type="blockContainer"][data-id="preceding"] [data-node-type="blockContainer"][data-id="format"]',
+      ),
+    )
+    .toBeInTheDocument();
+  await expect
+    .element(
+      document.querySelector<HTMLElement>(
+        '[data-node-type="blockContainer"][data-id="format"]',
+      ),
+    )
+    .toBeInTheDocument();
+});
+
+test("formatting toolbar: Unnest block", async () => {
+  await openEditor([
+    {
+      id: "preceding",
+      type: "paragraph",
+      content: "Preceding paragraph",
+      children: [
+        { id: "format", type: "paragraph", content: "Format this text" },
+      ],
+    },
+  ]);
+  await setupToolbar("Unnest block");
+  await pressKey("Enter");
+  await expect
+    .element(
+      document.querySelector<HTMLElement>(
+        '[data-node-type="blockContainer"][data-id="preceding"] [data-node-type="blockContainer"][data-id="format"]',
+      ),
+    )
+    .not.toBeInTheDocument();
+  await expect
+    .element(
+      document.querySelector<HTMLElement>(
+        '[data-node-type="blockContainer"][data-id="format"]',
+      ),
+    )
+    .toBeInTheDocument();
+});
+
+test("formatting toolbar: Create link", async () => {
+  await openEditor(toolbarDocument);
+  await setupToolbar("Create link");
+  await pressKey("Enter");
+  const popover = page.elementLocator(
+    document.querySelector<HTMLElement>(".bn-form-popover")!,
   );
-  await pressKey(page, "Enter", screenReader);
-  await expect(button).toHaveAttribute("aria-pressed", "true");
-});
-
-test("formatting toolbar: Align text right", async ({ page, screenReader }) => {
-  await openEditor(page, toolbarDocument, screenReader);
-  const { button } = await setupToolbar(page, screenReader, "Align text right");
-  await pressKey(page, "Enter", screenReader);
-  await expect(button).toHaveAttribute("aria-pressed", "true");
-});
-
-test("formatting toolbar: Colors", async ({ page, screenReader }) => {
-  await openEditor(page, toolbarDocument, screenReader);
-  const { toolbar } = await setupToolbar(page, screenReader, "Colors");
-  await pressKey(page, "Enter", screenReader);
-  await expect(page.getByRole("menu")).toBeVisible();
-  await pressKey(page, "Escape", screenReader);
-  await expect(toolbar).toHaveCount(0);
-  await expect(page.locator(".bn-editor")).toBeFocused();
-});
-
-test("formatting toolbar: Nest block", async ({ page, screenReader }) => {
-  await openEditor(
-    page,
-    [
-      { id: "preceding", type: "paragraph", content: "Preceding paragraph" },
-      { id: "format", type: "paragraph", content: "Format this text" },
-    ],
-    screenReader,
-  );
-  await setupToolbar(page, screenReader, "Nest block");
-  await pressKey(page, "Enter", screenReader);
-  await expect(
-    page.locator(
-      '[data-node-type="blockContainer"][data-id="preceding"] [data-node-type="blockContainer"][data-id="format"]',
-    ),
-  ).toHaveCount(1);
-  await expect(
-    page.locator('[data-node-type="blockContainer"][data-id="format"]'),
-  ).toHaveCount(1);
-});
-
-test("formatting toolbar: Unnest block", async ({ page, screenReader }) => {
-  await openEditor(
-    page,
-    [
-      {
-        id: "preceding",
-        type: "paragraph",
-        content: "Preceding paragraph",
-        children: [
-          { id: "format", type: "paragraph", content: "Format this text" },
-        ],
-      },
-    ],
-    screenReader,
-  );
-  await setupToolbar(page, screenReader, "Unnest block");
-  await pressKey(page, "Enter", screenReader);
-  await expect(
-    page.locator(
-      '[data-node-type="blockContainer"][data-id="preceding"] [data-node-type="blockContainer"][data-id="format"]',
-    ),
-  ).toHaveCount(0);
-  await expect(
-    page.locator('[data-node-type="blockContainer"][data-id="format"]'),
-  ).toHaveCount(1);
-});
-
-test("formatting toolbar: Create link", async ({ page, screenReader }) => {
-  await openEditor(page, toolbarDocument, screenReader);
-  await setupToolbar(page, screenReader, "Create link");
-  await pressKey(page, "Enter", screenReader);
-  const popover = page.locator(".bn-form-popover");
-  await expect(popover.getByPlaceholder("Edit URL")).toBeFocused();
-  if (test.info().project.name === "chromium-linux") {
+  await expect.element(popover.getByPlaceholder("Edit URL")).toHaveFocus();
+  if (!screenReader) {
     // TODO: The focused URL input currently has no distinct focus outline.
     // This records its appearance; it does not establish sufficient focus styling.
-    await expect(popover).toHaveScreenshot("focus-create-link-url.png", {
-      animations: "disabled",
-    });
+    await expect
+      .element(popover)
+      .toMatchScreenshot("focus-create-link-url.png", {});
   }
-  await pressKey(page, "Escape", screenReader);
+  await pressKey("Escape");
 });

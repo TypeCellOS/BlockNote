@@ -14,6 +14,16 @@ export default defineConfig({
     // its tsc step reads `core`'s `.d.ts` files.
     cache: { scripts: true },
     tasks: {
+      // Accessibility checks interact with Docker or a native screen reader;
+      // replaying cached output must never stand in for running those checks.
+      a11y: {
+        command: "node tests/a11y/run.mjs",
+        cache: false,
+      },
+      "a11y:screen-reader": {
+        command: "node tests/a11y/run.mjs --screen-reader",
+        cache: false,
+      },
       // The release script is interactive and produces only side-effects
       // (git commit/tag/push, npm publish). It reads a stable file set
       // (package.json files), so vp would fingerprint it as unchanged and

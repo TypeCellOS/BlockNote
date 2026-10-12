@@ -11,15 +11,16 @@
   "devDependencies": {
     "@blocknote/ariakit": "workspace:^",
     "@blocknote/core": "workspace:^",
-    "@blocknote/mantine": "workspace:^",
     "@blocknote/diagram-block": "workspace:^",
-    "@blocknote/xl-email-exporter": "workspace:^",
-    "@blocknote/xl-pdf-exporter": "workspace:^",
-    "pdfjs-dist": "^4.10.38",
+    "@blocknote/mantine": "workspace:^",
     "@blocknote/math-block": "workspace:^",
     "@blocknote/react": "workspace:^",
     "@blocknote/shadcn": "workspace:^",
+    "@blocknote/xl-email-exporter": "workspace:^",
     "@blocknote/xl-multi-column": "workspace:^",
+    "@blocknote/xl-pdf-exporter": "workspace:^",
+    "@blocknote/xl-typst-exporter": "workspace:^",
+    "@guidepup/guidepup": "^0.35.0",
     "@playwright/test": "1.60.0",
     "@tailwindcss/vite": "^4.1.14",
     "@tiptap/pm": "^3.31.3",
@@ -30,20 +31,18 @@
     "@vitest/ui": "4.1.5",
     "@y/protocols": "^1.0.6-rc.1",
     "@y/y": "^14.0.0-rc.23",
+    "axe-core": "4.13.0",
     "htmlfy": "^0.6.7",
+    "pdfjs-dist": "^4.10.38",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-icons": "^5.5.0",
     "rimraf": "^5.0.10",
     "vite-plus": "catalog:",
-    "vitest-browser-react": "^2.2.0",
-    "@blocknote/xl-typst-exporter": "workspace:^",
-    "@axe-core/playwright": "^4.13.0",
-    "@guidepup/playwright": "^0.19.1",
-    "@guidepup/guidepup": "^0.35.0"
+    "vitest-browser-react": "^2.2.0"
   },
   "dependencies": {
-    "get-port-please": "3.2.0",
-    "@blocknote/xl-typst-compiler": "workspace:^"
+    "@blocknote/xl-typst-compiler": "workspace:^",
+    "get-port-please": "3.2.0"
   }
 }
