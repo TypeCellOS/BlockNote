@@ -440,13 +440,15 @@ function serializeBlock<
       // place children inside <details>, or a frame's slot)
       childrenDOM.append(childFragment);
     } else if (
-      editor.pmSchema.nodes[block.type as any].isInGroup("blockContent")
+      editor.pmSchema.nodes[block.type as any].isInGroup("blockContent") ||
+      !ret.contentDOM
     ) {
-      // default "blockContainer" style blocks are flattened (no "nested block" support) for externalHTML, so append the child fragment to the outer fragment
+      // default "blockContainer" style blocks are flattened (no "nested block" support) for externalHTML, so append the child fragment to the outer fragment.
+      // So does a container whose own export places its children nowhere.
       fragment.append(childFragment);
     } else {
       // for columns / column lists, do use nesting
-      ret.contentDOM?.append(childFragment);
+      ret.contentDOM.append(childFragment);
     }
   }
 }

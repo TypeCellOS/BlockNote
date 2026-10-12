@@ -193,7 +193,7 @@ type ReactCustomBlockImplementation = {
 - `childrenRef:` A React `ref` that marks where the block's child blocks go, for example inside a `<details>` element. Without it, the child blocks follow the block.
 
 - `context:` An object with the following attributes:
-  - `nestingLevel`: How deep the block being exported in nested inside other blocks. 0 means it's at the top level of the document.
+  - `nestingLevel`: How deep the block being exported is nested inside other blocks. 0 means it's at the top level of the document.
 
 <Callout type="info">
   _Note that your component passed to `toExternalHTML` is rendered and

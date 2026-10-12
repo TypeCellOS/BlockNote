@@ -1,4 +1,8 @@
-import { BlockNoteEditor, BlockNoteSchema } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockNoteSchema,
+  createBlockSpec,
+} from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import { describe, expect, it } from "vite-plus/test";
 
@@ -31,8 +35,37 @@ const createShelf = createReactBlockSpec(
   },
 );
 
+// Containers whose own export doesn't place their children.
+const createPlainShelf = createReactBlockSpec(
+  { type: "plainShelf", propSchema: {}, content: "none", container: true },
+  {
+    renderFrame: (props) => <div ref={props.slotRef} />,
+    toExternalHTML: () => <section className="plain-shelf" />,
+  },
+);
+
+const VanillaShelf = createBlockSpec(
+  { type: "vanillaShelf", propSchema: {}, content: "none", container: true },
+  {
+    renderFrame: () => {
+      const dom = document.createElement("div");
+      return { dom, slot: dom };
+    },
+    toExternalHTML: () => {
+      const dom = document.createElement("section");
+      dom.className = "vanilla-shelf";
+      return { dom };
+    },
+  },
+);
+
 const schema = BlockNoteSchema.create().extend({
-  blockSpecs: { disclosure: createDisclosure(), shelf: createShelf() },
+  blockSpecs: {
+    disclosure: createDisclosure(),
+    shelf: createShelf(),
+    plainShelf: createPlainShelf(),
+    vanillaShelf: VanillaShelf(),
+  },
 });
 
 function exportHTML(blocks: any[]) {
@@ -70,5 +103,17 @@ describe("React toExternalHTML childrenRef", () => {
     ]);
     expect(dom.querySelector("section > h2")?.textContent).toBe("Shelf");
     expect(dom.querySelector(".shelf-children")?.textContent).toBe("Child");
+  });
+
+  it("keeps a container's children after it when its export places them nowhere", () => {
+    for (const type of ["plainShelf", "vanillaShelf"]) {
+      const dom = exportHTML([
+        { type, children: [{ type: "paragraph", content: "Child" }] },
+      ]);
+      expect(dom.firstElementChild?.tagName).toBe("SECTION");
+      expect(dom.firstElementChild?.nextElementSibling?.textContent).toBe(
+        "Child",
+      );
+    }
   });
 });
