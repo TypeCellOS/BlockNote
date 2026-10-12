@@ -1,4 +1,6 @@
-import { BlockNoteEditor, BlockNoteSchema } from "@blocknote/core";
+import { BlockNoteEditor, BlockNoteSchema, getNodeById } from "@blocknote/core";
+import { posToDOMRect } from "@tiptap/core";
+import { NodeSelection } from "@tiptap/pm/state";
 import { useState } from "react";
 import { userEvent } from "vite-plus/test/browser";
 import { flushSync } from "react-dom";
@@ -157,6 +159,55 @@ describe("React container block node view", () => {
     });
     await expect.poll(() => anchor).toBe(box);
     expect(box.getBoundingClientRect().height).toBeGreaterThan(0);
+  });
+
+  it("measures a container by its own box, not React's wrapper", async () => {
+    // ProseMirror and BlockNote measure the `dom` of a node view:
+    // `coordsAtPos`, `posToDOMRect` (toolbars), `nodeDOM` (drop cursor), the
+    // selection box and scrolling. The wrapper of React has no box
+    // (`display: contents`). See `measureFrameRoot`, a workaround.
+    const { editor, div } = await mountEditor([
+      { id: "before", type: "paragraph", content: "Before" },
+      {
+        id: "c-0",
+        type: "callout",
+        children: [{ id: "child", type: "paragraph", content: "Body" }],
+      },
+      { id: "after", type: "paragraph", content: "After" },
+    ]);
+    const view = editor.prosemirrorView;
+    const { posBeforeNode: from, node } = getNodeById("c-0", view.state.doc)!;
+    const to = from + node.nodeSize;
+    const box = div.querySelector(".callout")!.getBoundingClientRect();
+    expect(box.height).toBeGreaterThan(0);
+    function expectBox(rect: {
+      left: number;
+      top: number;
+      right: number;
+      bottom: number;
+    }) {
+      expect(rect.left).toBeCloseTo(box.left);
+      expect(rect.top).toBeCloseTo(box.top);
+      expect(rect.right).toBeCloseTo(box.right);
+      expect(rect.bottom).toBeCloseTo(box.bottom);
+    }
+    expectBox((view.nodeDOM(from) as HTMLElement).getBoundingClientRect());
+    expectBox(posToDOMRect(view, from, to));
+    expect(view.coordsAtPos(from, 1).top).toBeCloseTo(box.top);
+    expect(view.coordsAtPos(to, -1).bottom).toBeCloseTo(box.bottom);
+    view.dispatch(
+      view.state.tr.setSelection(NodeSelection.create(view.state.doc, from)),
+    );
+    expectBox(editor.getSelectionBoundingBox()!);
+
+    // Also after the author's state replaces the root.
+    await userEvent.click(div.querySelector(".callout button")!);
+    const swapped = div
+      .querySelector("section.callout")!
+      .getBoundingClientRect();
+    expect(
+      (view.nodeDOM(from) as HTMLElement).getBoundingClientRect().top,
+    ).toBeCloseTo(swapped.top);
   });
 
   it("keeps attributes and native editing after a local state root swap", async () => {

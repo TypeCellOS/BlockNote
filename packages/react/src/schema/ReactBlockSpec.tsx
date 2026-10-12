@@ -59,6 +59,44 @@ function takeMarked(dom: HTMLElement): HTMLElement | undefined {
   return marked ?? undefined;
 }
 
+/**
+ * FIXME: This function is a workaround, not a correct solution.
+ *
+ * Problem: ProseMirror and BlockNote measure the `dom` of a node view. For
+ * example, `coordsAtPos`, `posToDOMRect`, the drop cursor, the selection box
+ * and scrolling use it. For a React container, the `dom` is the wrapper of
+ * TipTap. The wrapper has `display: contents`, so it has no box. Without this
+ * function, all these measurements give `0,0,0,0`.
+ *
+ * Workaround: this function replaces two methods of the wrapper,
+ * `getBoundingClientRect` and `getClientRects`. The replacements measure the
+ * root of the frame. The root is the element of the block in the wrapper.
+ *
+ * Why it is a workaround:
+ * - It changes the behavior of DOM methods on one element. A developer who
+ *   does not know this can find the behavior difficult to understand.
+ * - Other measurements of the wrapper stay incorrect: `offsetTop`,
+ *   `offsetHeight`, `IntersectionObserver`, `ResizeObserver`, and
+ *   `scrollIntoView` on the wrapper.
+ * - Before React draws the root, the box of the wrapper is still empty.
+ *
+ * Correct solution: make the root of the frame the `dom` of the node view.
+ * React draws the root after ProseMirror makes the node view, so this needs
+ * more work. See the review of #3059 (thread r4084731902).
+ */
+function measureFrameRoot(wrapper: HTMLElement, blockId: () => string) {
+  function measured(): Element {
+    // The root is before the child blocks, so it is the first element with
+    // an ID. React puts the ID of the block on the root.
+    const root = wrapper.querySelector("[data-id]");
+    return root?.getAttribute("data-id") === blockId() ? root : wrapper;
+  }
+  wrapper.getBoundingClientRect = () =>
+    Element.prototype.getBoundingClientRect.call(measured());
+  wrapper.getClientRects = () =>
+    Element.prototype.getClientRects.call(measured());
+}
+
 export type ReactCustomBlockRenderProps<
   B extends BlockConfigOrCreator,
   Config extends ExtractBlockConfigFromConfigOrCreator<B> =
@@ -597,9 +635,12 @@ export function createReactBlockSpec<
                 if (!slot) {
                   throw new Error("React frame node view has no content DOM.");
                 }
-                // A container's slot determines layout, not TipTap's host.
                 if (isContainer) {
+                  // A container's slot determines layout, not TipTap's host.
                   slot.style.display = "contents";
+                  // FIXME: workaround. The `dom` of a container is the wrapper
+                  // of TipTap, which has no box (see `measureFrameRoot`).
+                  measureFrameRoot(dom, () => nodeView.node.attrs.id);
                 }
                 return {
                   dom,
