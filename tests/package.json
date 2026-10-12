@@ -37,7 +37,10 @@
     "rimraf": "^5.0.10",
     "vite-plus": "catalog:",
     "vitest-browser-react": "^2.2.0",
-    "@blocknote/xl-typst-exporter": "workspace:^"
+    "@blocknote/xl-typst-exporter": "workspace:^",
+    "@axe-core/playwright": "^4.13.0",
+    "@guidepup/playwright": "^0.19.1",
+    "@guidepup/guidepup": "^0.35.0"
   },
   "dependencies": {
     "get-port-please": "3.2.0",

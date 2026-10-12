@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ESNext", "DOM"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "types": ["node", "vite-plus/client"]
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "../../packages/*/src/**/*.a11y.spec.ts"
+  ]
+}

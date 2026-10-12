@@ -26,7 +26,11 @@ export default defineConfig({
     setupFiles: ["./vitestSetup.ts"],
     // `.browser.test` files need a real browser; the tests package's browser
     // suite runs them.
-    exclude: [...configDefaults.exclude, "**/*.browser.test.*"],
+    exclude: [
+      ...configDefaults.exclude,
+      "**/*.browser.test.*",
+      "**/*.a11y.spec.ts",
+    ],
   },
   plugins: [webpackStats()],
   build: {

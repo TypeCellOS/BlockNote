@@ -1,0 +1,103 @@
+name: Accessibility
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: a11y-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser:
+    name: Accessibility - browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Match the local Docker environment and the installed Playwright version.
+    container:
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
+        with:
+          node-version-file: ".node-version"
+          cache: true
+
+      - name: Install dependencies
+        run: vp install --frozen-lockfile
+
+      # Already inside Docker; call Playwright directly to avoid nested Docker
+      # and task caching. Source aliases mean no package build is needed.
+      - name: Run axe, keyboard and visual checks
+        working-directory: tests
+        run: pnpm exec playwright test --config a11y/playwright.config.ts
+
+      - name: Upload browser report and diagnostics
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: a11y-browser
+          path: |
+            tests/playwright-report/a11y/browser/
+            tests/test-results/a11y/browser/
+          retention-days: 7
+
+  voiceover:
+    name: Accessibility - VoiceOver
+    # Pin the OS major version; hosted images still receive patch updates.
+    # The initial transcripts came from macOS 27. Review any CI differences
+    # against these baselines rather than automatically updating snapshots.
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
+        with:
+          node-version-file: ".node-version"
+          cache: true
+
+      - name: Install dependencies
+        run: vp install --frozen-lockfile
+
+      - name: Install WebKit
+        working-directory: tests
+        run: pnpm exec playwright install webkit
+
+      - name: Configure VoiceOver
+        working-directory: tests
+        run: |
+          pnpm dlx @guidepup/setup@0.29.1 setup --ci
+          pnpm dlx @guidepup/setup@0.29.1 install
+
+      - name: Record runner version
+        run: sw_vers
+
+      # Invoke the runner directly so a cached task can never skip VoiceOver.
+      # The Playwright config restricts screen reader automation to one worker.
+      - name: Run screen reader checks
+        run: pnpm exec node tests/a11y/run.mjs --screen-reader
+
+      - name: Upload VoiceOver report and diagnostics
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: a11y-voiceover
+          path: |
+            tests/playwright-report/a11y/voiceover/
+            tests/test-results/a11y/voiceover/
+          retention-days: 7
