@@ -50,6 +50,19 @@ export async function openEditor(initialContent: PartialBlock[]) {
 }
 
 export async function checkAxe(scope?: string) {
+  // Opening transitions change opacity and can produce false contrast failures.
+  // Wait for finite animations; persistent animations should not block a scan.
+  await expect
+    .poll(() =>
+      document
+        .getAnimations()
+        .some(
+          (animation) =>
+            animation.playState === "running" &&
+            animation.effect?.getComputedTiming().iterations !== Infinity,
+        ),
+    )
+    .toBe(false);
   const results = await axe.run(scope ? { include: [scope] } : document.body);
   expect(results.violations, "axe violations").toEqual([]);
 }

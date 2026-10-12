@@ -15,6 +15,7 @@
     "./**/*.ts",
     "./**/*.tsx",
     "../../packages/*/src/**/*.a11y.spec.ts",
+    "../../packages/*/src/**/*.axe.spec.ts",
     "../../packages/*/src/**/*.screen-reader.spec.ts",
     "../../packages/*/src/**/a11y/helpers.ts"
   ]

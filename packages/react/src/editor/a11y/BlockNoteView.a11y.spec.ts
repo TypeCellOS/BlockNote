@@ -3,16 +3,7 @@ import { defaultSchemaDocument } from "../../../../../tests/a11y/documents.js";
 import { expect, test } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 import { screenshotFull } from "../../../../../tests/src/utils/screenshotFull.js";
-import {
-  openEditor,
-  checkAxe,
-  pressKey,
-} from "../../../../../tests/a11y/helpers.js";
-
-test("default schema: axe", async () => {
-  await openEditor(defaultSchemaDocument);
-  await checkAxe();
-});
+import { openEditor, pressKey } from "../../../../../tests/a11y/helpers.js";
 
 test("default schema: arrow-key document navigation", async () => {
   await openEditor(defaultSchemaDocument);

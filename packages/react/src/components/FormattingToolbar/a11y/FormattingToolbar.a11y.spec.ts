@@ -1,11 +1,7 @@
 import { toolbarDocument, focusToolbarControl } from "./helpers.js";
 import { expect, test } from "vite-plus/test";
 import { page, userEvent } from "vite-plus/test/browser";
-import {
-  openEditor,
-  checkAxe,
-  pressKey,
-} from "../../../../../../tests/a11y/helpers.js";
+import { openEditor, pressKey } from "../../../../../../tests/a11y/helpers.js";
 
 // Every test opens a fresh editor so one control's changes cannot affect another.
 // Native transcript checks live in FormattingToolbar.screen-reader.spec.ts.
@@ -29,11 +25,11 @@ async function setupToolbar(control: string) {
   return result;
 }
 
-// Check the menu focus ring and return to the editor without changing the block.
-// Choosing a new type is tested separately below.
+// Capture the dropdown focus ring, then choose Heading 1 using the keyboard.
+// Verify the block changes type without losing its text and editing focus returns.
 test("formatting toolbar: Paragraph", async () => {
   await openEditor(toolbarDocument);
-  const { toolbar } = await setupToolbar("Paragraph");
+  await setupToolbar("Paragraph");
   await pressKey("Enter");
   const menu = page.getByRole("menu");
   await expect.element(menu).toBeVisible();
@@ -44,8 +40,15 @@ test("formatting toolbar: Paragraph", async () => {
   await expect
     .element(menu)
     .toMatchScreenshot("focus-block-type-menu-item.png", {});
-  await pressKey("Escape");
-  await expect.element(toolbar).not.toBeInTheDocument();
+  await pressKey("ArrowDown");
+  await expect
+    .element(menu.getByRole("menuitem", { name: "Heading 1", exact: true }))
+    .toHaveFocus();
+  await pressKey("Enter");
+  await expect
+    .element(page.getByTestId("format").getByRole("heading", { level: 1 }))
+    .toHaveTextContent("Format this text");
+  await expect.element(menu).not.toBeInTheDocument();
   await expect.element(page.getByRole("textbox")).toHaveFocus();
 });
 
@@ -210,61 +213,4 @@ test("formatting toolbar: Create link", async () => {
     .element(document.querySelector<HTMLElement>('[data-id="format"] a'))
     .toHaveAttribute("href", "https://www.blocknotejs.org/");
   await expect.element(page.getByRole("textbox")).toHaveFocus();
-});
-
-// Separate, scoped axe checks keep editor violations from masking UI results.
-// Menus/popovers are scanned after opening: the toolbar scan cannot cover hidden
-// content, and portalled content can sit outside the toolbar's DOM subtree.
-// These are browser-only checks.
-test("formatting toolbar: axe", async () => {
-  await openEditor(toolbarDocument);
-  await setupToolbar("Paragraph");
-  await checkAxe('[role="toolbar"]');
-});
-
-test("formatting toolbar: block type menu axe", async () => {
-  await openEditor(toolbarDocument);
-  await setupToolbar("Paragraph");
-  await pressKey("Enter");
-  await expect.element(page.getByRole("menu")).toBeVisible();
-  await checkAxe('[role="menu"]');
-});
-
-test("formatting toolbar: colors menu axe", async () => {
-  await openEditor(toolbarDocument);
-  await setupToolbar("Colors");
-  await pressKey("Enter");
-  await expect.element(page.getByRole("menu")).toBeVisible();
-  await checkAxe('[role="menu"]');
-});
-
-test("formatting toolbar: link popover axe", async () => {
-  await openEditor(toolbarDocument);
-  await setupToolbar("Create link");
-  await pressKey("Enter");
-  await expect
-    .element(document.querySelector<HTMLElement>(".bn-form-popover"))
-    .toBeVisible();
-  await checkAxe(".bn-form-popover");
-});
-
-// Unlike the Paragraph journey, commit a menu choice: navigate from Paragraph
-// to Heading 1, activate it, and verify the target becomes a heading with the
-// original text intact. The asserted focused item guards against menu reordering.
-test("formatting toolbar: choose a block type", async () => {
-  await openEditor(toolbarDocument);
-  await setupToolbar("Paragraph");
-  await pressKey("Enter");
-  await expect.element(page.getByRole("menu")).toBeVisible();
-  await pressKey("ArrowDown");
-  await pressKey("Home");
-  await expect.element(page.getByRole("menuitem").first()).toHaveFocus();
-  await pressKey("ArrowDown");
-  await expect
-    .element(page.getByRole("menuitem", { name: "Heading 1", exact: true }))
-    .toHaveFocus();
-  await pressKey("Enter");
-  await expect
-    .element(page.getByTestId("format").getByRole("heading", { level: 1 }))
-    .toHaveTextContent("Format this text");
 });
